@@ -13,6 +13,8 @@ a Bokeh |Document|.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportReturnType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -21,7 +23,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Callable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    cast,
+)
 
 # Bokeh imports
 from ..core.has_props import HasProps, Qualified
@@ -170,7 +177,7 @@ def get_class(view_model_name: str) -> type[Model]:
 
     known_models = Model.model_class_reverse_map
     if view_model_name in known_models:
-        return known_models[view_model_name]
+        return cast(type[Model], known_models[view_model_name])
     else:
         raise KeyError(f"View model name '{view_model_name}' not found")
 

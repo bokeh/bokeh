@@ -84,7 +84,8 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    return signal.disconnect(slot, this)
+    const new_slot = this._slots.get(slot)
+    return new_slot != null ? signal.disconnect(new_slot, this) : false
   }
 
   constructor(options: View.Options) {
@@ -228,6 +229,8 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   on_transitive_change<T>(property: Property<T>, fn: () => void, {recursive=false, signal=(obj) => obj.change}: TransitiveOpts = {}): void {
+    const slot = () => fn()
+
     const collect = () => {
       const value = property.is_unset ? [] : property.get_value()
       return HasProps.references(value, {recursive})
@@ -235,13 +238,13 @@ export abstract class View implements ISignalable, Equatable {
 
     const connect = (models: Iterable<HasProps>) => {
       for (const model of models) {
-        this.connect(signal(model), () => fn())
+        this.connect(signal(model), slot)
       }
     }
 
     const disconnect = (models: Iterable<HasProps>) => {
       for (const model of models) {
-        this.disconnect(signal(model), () => fn())
+        this.disconnect(signal(model), slot)
       }
     }
 

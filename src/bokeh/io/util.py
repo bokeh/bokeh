@@ -222,10 +222,11 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
     if height is not None:
         obj.height = height
 
-    yield
-
-    obj.width = old_width
-    obj.height = old_height
+    try:
+        yield
+    finally:
+        obj.width = old_width
+        obj.height = old_height
 
 #-----------------------------------------------------------------------------
 # Shared JavaScript snippets for Selenium and Playwright backends
@@ -254,11 +255,11 @@ else
   doc.idle.connect(done);
 """
 
-# Read the size of the first root view and the device pixel ratio.
-_VIEWPORT_SIZE_SCRIPT = """\
+# Read the bounding box of the first root view and the device pixel ratio.
+_ROOT_VIEW_BBOX_SCRIPT = """\
 const root_view = Bokeh.index.roots[0];
-const {width, height} = root_view.el.getBoundingClientRect();
-return [Math.round(width), Math.round(height), window.devicePixelRatio];\
+const {x, y, width, height} = root_view.el.getBoundingClientRect();
+return [x, y, Math.round(width), Math.round(height), window.devicePixelRatio];\
 """
 
 # TODO: consider UIElement like Pane

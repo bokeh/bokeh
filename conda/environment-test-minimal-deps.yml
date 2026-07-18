@@ -55,6 +55,7 @@ dependencies:
   - pip
   - pip:
     - mypy >=1.20
+    - pyright
     # docs
     # omit bokeh_sampledata
     - pydata_sphinx_theme
@@ -68,6 +69,7 @@ dependencies:
     - ruff ==0.15.*
     - types-boto3
     - types-colorama
+    - types-docutils
     - types-mock
     - types-pillow
     - types-pyyaml

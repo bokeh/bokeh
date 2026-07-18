@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import types
 from importlib import import_module
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 # Bokeh imports
 from ..has_props import HasProps
@@ -86,12 +86,12 @@ class Object[T: object](Property[T]):
 
     @property
     def instance_type(self) -> type[T]:
-        instance_type: type[Serializable]
+        instance_type: type[T]
         if isinstance(self._instance_type, type):
-            instance_type = self._instance_type
+            instance_type = cast(type[T], self._instance_type)
         elif isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
-            instance_type = getattr(import_module(module, "bokeh"), name)
+            instance_type = cast(type[T], getattr(import_module(module, "bokeh"), name))
             self._assert_type(instance_type)
             self._instance_type = instance_type
         else:
@@ -112,7 +112,7 @@ class Object[T: object](Property[T]):
         msg = "" if not detail else f"expected an instance of type {instance_type}, got {value} of type {value_type}"
         raise ValueError(msg)
 
-    def _may_have_unstable_default(self):
+    def _may_have_unstable_default(self) -> bool:
         # because the instance value is mutable
         return self._default is not Undefined
 

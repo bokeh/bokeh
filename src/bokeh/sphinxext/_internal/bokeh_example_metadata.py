@@ -29,12 +29,15 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import EXAMPLE_METADATA
 from .util import get_sphinx_resources
@@ -71,26 +74,32 @@ class BokehExampleMetadataDirective(BokehDirective):
         "keywords": unchanged,
     }
 
-    def run(self):
-        present = self.option_spec.keys() & self.options.keys()
+    def run(self) -> list[Any]:
+        option_spec = self.option_spec
+        assert option_spec is not None
+
+        options = self.options
+        assert options is not None
+
+        present = option_spec.keys() & options.keys()
         if not present:
             raise SphinxError("bokeh-example-metadata requires at least one option to be present.")
 
-        extra = self.options.keys() - self.option_spec.keys()
+        extra = options.keys() - option_spec.keys()
         if extra:
             raise SphinxError(f"bokeh-example-metadata unknown options given: {extra}.")
 
         rst_text = EXAMPLE_METADATA.render(
-            sampledata=_sampledata(self.options.get("sampledata", None)),
-            apis=_apis(self.options.get("apis", None)),
-            refs=self.options.get("refs", "").split("#")[0],
-            keywords=self.options.get("keywords", "").split("#")[0],
+            sampledata=_sampledata(options.get("sampledata", None)),
+            apis=_apis(options.get("apis", None)),
+            refs=options.get("refs", "").split("#")[0],
+            keywords=options.get("keywords", "").split("#")[0],
         )
 
         return self.parse(rst_text, "<bokeh-example-metadata>")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-example-metadata", BokehExampleMetadataDirective)
 
@@ -102,18 +111,18 @@ def setup(app):
 
 def _sampledata(mods: str | None) -> str | None:
     if mods is None:
-        return
+        return None
 
     # options lines might need a ruff noqa comment for line length, etc
     mods = mods.split("#")[0].strip()
 
-    mods = (mod.strip() for mod in mods.split(","))
+    mod_names = (mod.strip() for mod in mods.split(","))
 
-    return ", ".join(f":ref:`bokeh.sampledata.{mod} <sampledata_{mod}>`" for mod in mods)
+    return ", ".join(f":ref:`bokeh.sampledata.{mod} <sampledata_{mod}>`" for mod in mod_names)
 
 def _apis(apis: str | None) -> str | None:
     if apis is None:
-        return
+        return None
 
     # options lines might need a ruff noqa comment for line length, etc
     apis = apis.split("#")[0].strip()

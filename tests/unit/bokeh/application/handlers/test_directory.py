@@ -270,8 +270,8 @@ some.foo = 57
 
         assert "on_server_loaded" == handler.on_server_loaded(None)
         assert "on_server_unloaded" == handler.on_server_unloaded(None)
-        assert "on_session_created" == await handler.on_session_created(None)
-        assert "on_session_destroyed" == await handler.on_session_destroyed(None)
+        assert await handler.on_session_created(None) is None
+        assert await handler.on_session_destroyed(None) is None
 
     async def test_directory_with_app_hooks(self) -> None:
         doc = Document()
@@ -295,8 +295,8 @@ some.foo = 57
 
         assert "on_server_loaded" == handler.on_server_loaded(None)
         assert "on_server_unloaded" == handler.on_server_unloaded(None)
-        assert "on_session_created" == await handler.on_session_created(None)
-        assert "on_session_destroyed" == await handler.on_session_destroyed(None)
+        assert await handler.on_session_created(None) is None
+        assert await handler.on_session_destroyed(None) is None
         assert dict(foo=10) == handler.process_request(dict(headers=dict(foo=10)))
 
     async def test_directory_with_lifecycle_and_app_hooks_errors(self) -> None:

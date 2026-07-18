@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # External imports
 from tornado.web import StaticFileHandler
 
@@ -47,7 +50,7 @@ class StaticHandler(StaticFileHandler):
     JavaScript and CSS resources.
 
     '''
-    def __init__(self, tornado_app, *args, **kw) -> None:
+    def __init__(self, tornado_app: Any, *args: Any, **kw: Any) -> None:
         kw['path'] = settings.bokehjs_path()
 
         # Note: tornado_app is stored as self.application

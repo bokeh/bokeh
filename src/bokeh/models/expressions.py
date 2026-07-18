@@ -33,6 +33,8 @@ browser by the JavaScript implementation of ``some_expression`` using a
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

@@ -36,13 +36,14 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import importlib
+from typing import Any
 
 # External imports
 from docutils import nodes
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -62,7 +63,15 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-def bokeh_dataframe(name, rawtext, text, lineno, inliner, options=None, content=None):
+def bokeh_dataframe(
+    name: str,
+    rawtext: str,
+    text: str,
+    lineno: int,
+    inliner: Any,
+    options: dict[str, Any] | None = None,
+    content: list[str] | None = None,
+) -> tuple[list[Any], list[Any]]:
     """Generate an inline visual representation of a single color palette.
 
     If the HTML representation of the dataframe can not be created, a
@@ -93,7 +102,7 @@ def bokeh_dataframe(name, rawtext, text, lineno, inliner, options=None, content=
     return [node], []
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_role("bokeh-dataframe", bokeh_dataframe)
 

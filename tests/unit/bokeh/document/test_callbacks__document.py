@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import gc
 import logging
+import weakref
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -55,9 +56,12 @@ class TestDocumentCallbackManager:
     def test_basic(self) -> None:
         d = Document()
         cm = bdc.DocumentCallbackManager(d)
+        ref = weakref.ref(d)
 
-        # module manager should only hold a weak ref
-        assert len(gc.get_referrers(d)) == 0
+        # callback manager should only hold a weak ref
+        del d
+        gc.collect()
+        assert ref() is None
 
         assert len(cm._message_callbacks) == 1
         assert cm._message_callbacks == {"bokeh_event": [cm.trigger_event]}
@@ -391,7 +395,7 @@ class TestDocumentCallbackManager:
 
         cm.hold(policy)
         assert cm.hold_value == policy
-        cm.unhold() # type: ignore[unreachable]
+        cm.unhold() # type: ignore[unreachable] # mypy 2.x over-narrows after the parametrized literal assertion
         assert cm.hold_value is None
 
     @patch("bokeh.document.callbacks.DocumentCallbackManager.trigger_on_change")

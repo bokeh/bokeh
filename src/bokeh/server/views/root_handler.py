@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # External imports
 from tornado.web import authenticated
 
@@ -48,14 +51,14 @@ class RootHandler(AuthRequestHandler):
     If only one application it redirects to that application route
     '''
 
-    def initialize(self, *args, **kw):
+    def initialize(self, *args: Any, **kw: Any) -> None:
         self.applications = kw["applications"]
         self.prefix = kw["prefix"]
         self.index = kw["index"]
         self.use_redirect = kw["use_redirect"]
 
     @authenticated
-    async def get(self, *args, **kwargs):
+    async def get(self, *args: Any, **kwargs: Any) -> None:
         prefix = "" if self.prefix is None else self.prefix
         if self.use_redirect and len(self.applications) == 1:
             app_names = list(self.applications.keys())

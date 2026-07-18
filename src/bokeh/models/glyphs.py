@@ -27,6 +27,8 @@ All glyphs share a minimal common interface through the base class ``Glyph``:
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAttributeAccessIssue=false, reportCallIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

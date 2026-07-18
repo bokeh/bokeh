@@ -16,6 +16,8 @@ multiple possible types.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportInvalidTypeArguments=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -100,7 +102,7 @@ class Either(ParameterizedProperty[Any]):
         msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
         raise ValueError(msg)
 
-    def wrap(self, value):
+    def wrap(self, value: Any) -> Any:
         for tp in self.type_params:
             value = tp.wrap(value)
         return value
@@ -125,6 +127,6 @@ class Either(ParameterizedProperty[Any]):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Either)
-def _sphinx_type_link(obj: Either[Any]):
+def _sphinx_type_link(obj: Either) -> str:
     subtypes = ", ".join(type_link(x) for x in obj.type_params)
     return f"{property_link(obj)}({subtypes})"

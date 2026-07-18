@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAttributeAccessIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -39,7 +41,6 @@ from uuid import uuid4
 
 # Bokeh imports
 from ..util.serialization import make_id
-from .state import curstate
 
 if TYPE_CHECKING:
     from ipykernel.comm import Comm
@@ -303,6 +304,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
 
     '''
     from ..protocol import Protocol as BokehProtocol
+    from .state import curstate
 
     if state is None:
         state = curstate()
@@ -381,6 +383,8 @@ def destroy_server(server_id: ID) -> None:
     notebook, destroy the corresponding server sessions and stop it.
 
     '''
+    from .state import curstate
+
     server = curstate().uuid_to_server.get(server_id, None)
     if server is None:
         log.debug(f"No server instance found for uuid: {server_id!r}")
@@ -558,6 +562,7 @@ def show_app(
 
     from ..core.types import ID
     from ..server.server import Server
+    from .state import curstate
 
     loop = IOLoop.current()
 

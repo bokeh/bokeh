@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import gc
+import weakref
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
@@ -45,29 +46,32 @@ class TestDocumentModelManager:
         d = Document()
         dm = bdm.DocumentModelManager(d)
         assert len(dm) == 0
+        ref = weakref.ref(d)
 
-        # module manager should only hold a weak ref
-        assert len(gc.get_referrers(d)) == 0
+        # model manager should only hold a weak ref
+        del d
+        gc.collect()
+        assert ref() is None
 
     def test_len(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 0
+        assert len(dm) == 2
 
         r1 = Row(children=[Div()])
         r2 = Row(children=[Div(), Div()])
 
         d.add_root(r1)
-        assert len(dm) == 2
+        assert len(dm) == 4
 
         d.add_root(r2)
-        assert len(dm) == 5
+        assert len(dm) == 7
 
         d.remove_root(r1)
-        assert len(dm) == 3
+        assert len(dm) == 5
 
         d.remove_root(r2)
-        assert len(dm) == 0
+        assert len(dm) == 2
 
     def test_setitem_getitem(self) -> None:
         d = Document()
@@ -118,7 +122,7 @@ class TestDocumentModelManager:
     def test_destroy(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 0
+        assert len(dm) == 2
 
         m1 = Div()
         m2 = Div()
@@ -142,6 +146,7 @@ class TestDocumentModelManager:
     def test_freeze(self, mock_recompute: MagicMock) -> None:
         d = Document()
         dm = bdm.DocumentModelManager(d)
+        mock_recompute.reset_mock()
 
         assert dm._freeze_count == 0
 
@@ -162,7 +167,7 @@ class TestDocumentModelManager:
     def test_get_all_by_name(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 0
+        assert len(dm) == 2
 
         m1 = Div(name="foo")
         m2 = Div(name="foo")
@@ -179,7 +184,7 @@ class TestDocumentModelManager:
     def test_get_all_by_id(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 0
+        assert len(dm) == 2
 
         m1 = Div()
         m2 = Div()
@@ -194,7 +199,7 @@ class TestDocumentModelManager:
     def test_get_one_by_name(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 0
+        assert len(dm) == 2
 
         m1 = Div(name="foo")
         m2 = Div(name="foo")
@@ -213,6 +218,7 @@ class TestDocumentModelManager:
     def test_invalidate(self, mock_recompute: MagicMock) -> None:
         d = Document()
         dm = bdm.DocumentModelManager(d)
+        mock_recompute.reset_mock()
 
         with dm.freeze():
             dm.invalidate()
@@ -227,7 +233,7 @@ class TestDocumentModelManager:
     def test_recompute(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 0
+        assert len(dm) == 2
 
         r1 = Row(children=[Div(name="dr1")])
         r2 = Row(children=[Div(name="dr2"), Div(name="dr2")])
@@ -254,7 +260,7 @@ class TestDocumentModelManager:
     def test_seen(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 0
+        assert len(dm) == 2
 
         m1 = Div()
         m2 = Div()
@@ -278,7 +284,7 @@ class TestDocumentModelManager:
     def test_update_name(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 0
+        assert len(dm) == 2
 
         m1 = Div(name="foo")
         m2 = Div()
@@ -312,25 +318,26 @@ class TestDocumentModelManager:
         child1 = SomeModel()
         child2 = SomeModel()
         d = Document()
+        config_refs = d.config.references()
         d.add_root(child0)
         d.add_root(child1)
 
         assert d.models._new_models == {child0, child1}
-        assert d.models.synced_references == set()
+        assert d.models.synced_references == config_refs
         d.models.flush_synced()
         assert d.models._new_models == set()
-        assert d.models.synced_references == {child0, child1}
+        assert d.models.synced_references == config_refs | {child0, child1}
 
         d.add_root(child2)
         assert d.models._new_models == {child2}
-        assert d.models.synced_references == {child0, child1}
+        assert d.models.synced_references == config_refs | {child0, child1}
 
         child2.child = child0
         assert d.models._new_models == {child2}
-        assert d.models.synced_references == {child0, child1}
+        assert d.models.synced_references == config_refs | {child0, child1}
         d.models.flush_synced()
         assert d.models._new_models == set()
-        assert d.models.synced_references == {child0, child1, child2}
+        assert d.models.synced_references == config_refs | {child0, child1, child2}
 
     def test_flush_synced_with_fn(self) -> None:
         class SomeModel(Model, Local):
@@ -340,15 +347,16 @@ class TestDocumentModelManager:
         child1 = SomeModel()
         child2 = SomeModel(child=child0)
         d = Document()
+        config_refs = d.config.references()
         d.add_root(child0)
         d.add_root(child1)
         d.add_root(child2)
 
         assert d.models._new_models == {child0, child1, child2}
-        assert d.models.synced_references == set()
+        assert d.models.synced_references == config_refs
         d.models.flush_synced(lambda model: model.child is not None)
         assert d.models._new_models == {child2}
-        assert d.models.synced_references == {child0, child1}
+        assert d.models.synced_references == config_refs | {child0, child1}
 
 #-----------------------------------------------------------------------------
 # Dev API

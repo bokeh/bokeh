@@ -5044,6 +5044,17 @@ describe("Bug", () => {
       await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
     })
   })
+  describe("in PR #15184", () => {
+    it("should maintain consistent tab widths regardless of the active tab", async () => {
+      const p1 = () => new TabPanel({title: "Short", child: new Div({text: "Tab 1"})})
+      const p2 = () => new TabPanel({title: "Very Long Tab Title", child: new Div({text: "Tab 2"})})
+
+      const tabs0 = new Tabs({tabs: [p1(), p2()], active: 0})
+      const tabs1 = new Tabs({tabs: [p1(), p2()], active: 1})
+
+      await display(new Column({children: [tabs0, tabs1]}), [500, 500])
+    })
+  })
 
   describe("in issue #15026", () => {
     it("ArrowHead properties not updating from JS callbacks", async () => {
@@ -5073,6 +5084,76 @@ describe("Bug", () => {
       source.selected.indices = [0, 3, 4]
       source.data = {my_col: ["a", "b", "c", "d"]}
       await view.ready
+    })
+  })
+
+  describe("in issue #13857", () => {
+    function make_table() {
+      const source = new ColumnDataSource({
+        data: {
+          name:   ["Alice", "Bob", "Carol"],
+          salary: [50000,   70000,  90000],
+          bonus:  [1000,    2000,   3000],
+        },
+      })
+
+      const col_name   = new TableColumn({field: "name",   title: "Name",   width: 150})
+      const col_salary = new TableColumn({field: "salary", title: "Salary", width: 150})
+      const col_bonus  = new TableColumn({field: "bonus",  title: "Bonus",  width: 150})
+
+      const table = new DataTable({
+        source,
+        columns: [col_name, col_salary],
+        width: 600,
+        height: 200,
+      })
+
+      return {table, col_name, col_salary, col_bonus}
+    }
+
+    it("doesn't hide a column appended after construction when visible is set to false", async () => {
+      const {table, col_bonus} = make_table()
+      const {view} = await display(table, [620, 220])
+
+      table.columns = [...table.columns, col_bonus]
+      await view.ready
+
+      col_bonus.visible = false
+      await view.ready
+    })
+
+    it("doesn't show a hidden column appended after construction when visible is set back to true", async () => {
+      const {table, col_bonus} = make_table()
+      const {view} = await display(table, [620, 220])
+
+      table.columns = [...table.columns, col_bonus]
+      await view.ready
+
+      col_bonus.visible = false
+      await view.ready
+
+      col_bonus.visible = true
+      await view.ready
+    })
+  })
+
+  describe("in issue #15121", () => {
+    it("doesn't allow to correctly render time stamps with the format TIMESTAMP", async () => {
+      const indices = range(0, 5)
+      const source = new ColumnDataSource({
+        data: {
+          dates: indices.map((i) => `1970-01-${i + 1}`),
+          downloads: indices,
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "dates", title: "Date", formatter: new DateFormatter({format: "TIMESTAMP"})}),
+        new TableColumn({field: "downloads", title: "Downloads"}),
+      ]
+
+      const table = new DataTable({source, columns, width: 300, height: 400})
+      await display(table, [350, 450])
     })
   })
 })

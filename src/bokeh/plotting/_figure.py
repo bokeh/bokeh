@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 import logging # isort:skip
 
@@ -204,12 +204,12 @@ class figure(Plot, GlyphAPI):
     __view_model__ = "Figure"
 
     def __init__(self, *arg, **kw) -> None:
-        opts = FigureOptions(kw)
+        opts = cast(Any, FigureOptions(kw))
 
         names = self.properties()
         for name in kw.keys():
             if name not in names:
-                self._raise_attribute_error_with_matches(name, names | opts.properties())
+                self._raise_attribute_error_with_matches(name, set(names) | set(opts.properties()))
 
         super().__init__(*arg, **kw)
 
@@ -249,7 +249,7 @@ class figure(Plot, GlyphAPI):
             x_target: Range, y_target: Range,
         ) -> GlyphAPI:
         """ Create a new sub-coordinate system and expose a plotting API. """
-        coordinates = CoordinateMapping(x_source=x_source, y_source=y_source, x_target=x_target, y_target=y_target)
+        coordinates = CoordinateMapping(x_source=cast(Range, x_source), y_source=cast(Range, y_source), x_target=x_target, y_target=y_target)
         return GlyphAPI(self, coordinates)
 
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
@@ -351,14 +351,14 @@ class figure(Plot, GlyphAPI):
         '''
         from ..util.hex import hexbin
 
-        bins = hexbin(x, y, size, orientation, aspect_scale=aspect_scale)
+        bins = hexbin(x, y, size, cast(Any, orientation), aspect_scale=aspect_scale)
 
         if fill_color is None:
             fill_color = linear_cmap('c', palette, 0, max(bins.counts))
 
         source = ColumnDataSource(data=dict(q=bins.q, r=bins.r, c=bins.counts))
 
-        r = self.hex_tile(q="q", r="r", size=size, orientation=orientation, aspect_scale=aspect_scale,
+        r = self.hex_tile(q="q", r="r", size=size, orientation=cast(Any, orientation), aspect_scale=aspect_scale,
                           source=source, line_color=line_color, fill_color=fill_color, **kwargs)
 
         return (r, bins)
@@ -1049,7 +1049,7 @@ def markers() -> None:
     Returns:
         None
     '''
-    print("Available markers: \n\n - " + "\n - ".join(list(MarkerType)))
+    print("Available markers: \n\n - " + "\n - ".join(map(str, MarkerType)))
     print()
     print("Shortcuts: \n\n" + "\n".join(f" {short!r}: {name}" for (short, name) in _MARKER_SHORTCUTS.items()))
 

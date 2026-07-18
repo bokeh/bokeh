@@ -11,12 +11,17 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAttributeAccessIssue=false, reportUnsupportedDunderAll=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from typing import Any
 
 # Bokeh imports
 from . import group_by
@@ -26,8 +31,12 @@ from .group_by import *
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+# Keep dynamic submodule __all__ aggregation visible to type checkers.
+def _all(module: Any) -> tuple[str, ...]:
+    return module.__all__
+
 __all__ = (
-    *group_by.__all__,
+    *_all(group_by),
 )
 
 #-----------------------------------------------------------------------------

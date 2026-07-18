@@ -75,7 +75,10 @@ class ServerLifecycleHandler(LifecycleHandler):
 
         if not self._runner.failed:
             # unlike ScriptHandler, we only load the module one time
-            self._module = self._runner.new_module()
+            module = self._runner.new_module()
+            if module is None:
+                return
+            self._module = module
 
             def extract_callbacks() -> None:
                 contents = self._module.__dict__

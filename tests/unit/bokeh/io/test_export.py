@@ -64,6 +64,19 @@ if not _has_selenium and not _has_playwright:
     pytest.skip("Neither Selenium nor Playwright is installed", allow_module_level=True)
 
 
+@pytest.fixture(scope="module")
+def browser():
+    if not _has_playwright:
+        pytest.skip("Playwright not installed")
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(args=["--hide-scrollbars", "--force-color-profile=srgb"])
+        try:
+            yield browser
+        finally:
+            browser.close()
+
+
 @pytest.fixture(scope="module", params=["chromium", "firefox"])
 def webdriver(request: pytest.FixtureRequest):
     if not _has_selenium:

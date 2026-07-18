@@ -170,6 +170,30 @@ class TestApplicationContext:
 # Private API
 #-----------------------------------------------------------------------------
 
+class Test_RequestProxy:
+    def test_getattr_forwards_request_attributes(self) -> None:
+        class Request:
+            uri = "/app"
+
+        proxy = bsc._RequestProxy(Request())
+        assert proxy.uri == "/app"
+
+    def test_getattr_raises_for_unknown_attribute(self) -> None:
+        class Request:
+            pass
+
+        proxy = bsc._RequestProxy(Request())
+        with pytest.raises(AttributeError, match="missing"):
+            proxy.missing
+
+    def test_getattr_raises_for_none_attribute(self) -> None:
+        class Request:
+            value = None
+
+        proxy = bsc._RequestProxy(Request())
+        with pytest.raises(AttributeError, match="value"):
+            proxy.value
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

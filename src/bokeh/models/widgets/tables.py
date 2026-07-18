@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAssignmentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -319,7 +321,7 @@ class DateFormatter(StringFormatter):
     ``RFC-850``                                      ``"%A, %d-%b-%y"`` Saturday, 01-Mar-14
     ``RFC-1123`` / ``RFC-2822``                      ``"%a, %e %b %Y"`` Sat, 1 Mar 2014
     ``RSS`` / ``RFC-822`` / ``RFC-1036``             ``"%a, %e %b %y"`` Sat, 1 Mar 14
-    ``TIMESTAMP``                                    (ms since epoch)   1393632000000
+    ``TIMESTAMP`` (ms since epoch)                   ``"@"``            1393632000000
     ================================================ ================== ===================
 
     Note that in the table some of the format names are synonymous, with

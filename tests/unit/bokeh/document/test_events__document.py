@@ -136,6 +136,11 @@ class TestDocumentPatchedEvent:
         e2 = bde.DocumentPatchedEvent(doc, "setter", "invoker")
         assert e.combine(e2) is False
 
+    def test_handle_event_unknown_kind(self) -> None:
+        doc = Document()
+        with pytest.raises(RuntimeError, match="unknown patch event type 'Unknown'"):
+            bde.DocumentPatchedEvent.handle_event(doc, dict(kind="Unknown"), None)
+
 # ModelChangedEvent -----------------------------------------------------------
 
 

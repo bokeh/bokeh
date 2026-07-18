@@ -106,6 +106,9 @@ __all__ = (
     'Document',
 )
 
+def _no_op_callback() -> None:
+    pass
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -139,10 +142,6 @@ class Document:
     _template_variables: dict[str, Any]
 
     def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
-        self.callbacks = DocumentCallbackManager(self)
-        self.models = DocumentModelManager(self)
-        self.modules = DocumentModuleManager(self)
-
         self._config = DocumentConfig()
         self._roots = []
         self._template = FILE
@@ -151,6 +150,13 @@ class Document:
         self._title = title # avoid triggering title event
 
         self._session_context = None
+
+        self.callbacks = DocumentCallbackManager(self)
+        self.models = DocumentModelManager(self)
+        self.modules = DocumentModuleManager(self)
+
+        self.models.recompute()
+        self.models.flush_synced()
 
     # Properties --------------------------------------------------------------
 
@@ -166,9 +172,17 @@ class Document:
         ''' A list of all the root models in this document.
 
         '''
-        # TODO: config serialization
-        # return [*list(self._roots), self.config]
         return list(self._roots)
+
+    @property
+    def _all_roots(self) -> list[Model]:
+        ''' A list of all models that anchor the document's model graph.
+
+        Unlike :attr:`roots`, this includes models owned by the document that
+        aren't user-visible roots.
+
+        '''
+        return [*self._roots, self._config]
 
     @property
     def session_callbacks(self) -> list[SessionCallback]:
@@ -285,7 +299,7 @@ class Document:
 
         '''
         from ..server.callbacks import NextTickCallback
-        cb = NextTickCallback(callback=None, callback_id=make_id())
+        cb = NextTickCallback(callback=_no_op_callback, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
     def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> PeriodicCallback:
@@ -308,7 +322,7 @@ class Document:
 
         '''
         from ..server.callbacks import PeriodicCallback
-        cb = PeriodicCallback(callback=None, period=period_milliseconds, callback_id=make_id())
+        cb = PeriodicCallback(callback=_no_op_callback, period=period_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=False)
 
     def add_root(self, model: Model, setter: Setter | None = None) -> None:
@@ -362,7 +376,7 @@ class Document:
 
         '''
         from ..server.callbacks import TimeoutCallback
-        cb = TimeoutCallback(callback=None, timeout=timeout_milliseconds, callback_id=make_id())
+        cb = TimeoutCallback(callback=_no_op_callback, timeout=timeout_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
     def apply_json_patch(self, patch_json: PatchJson | Serialized[PatchJson], *, setter: Setter | None = None) -> None:
@@ -387,9 +401,7 @@ class Document:
             None
 
         '''
-        # TODO: config serialization. Not passing config here causes an
-        # `UnknownReferenceError`
-        deserializer = Deserializer([*list(self.models), self.config], setter=setter)
+        deserializer = Deserializer(list(self.models), setter=setter)
 
         try:
             patch: PatchJson = deserializer.deserialize(patch_json)
@@ -465,7 +477,7 @@ side of a communications channel while it was being removed on the other end.\
         title = doc_struct["title"]
 
         doc = Document()
-        doc._config = config
+        doc._set_config(config)
 
         for root in roots:
             doc.add_root(root)
@@ -751,7 +763,7 @@ side of a communications channel while it was being removed on the other end.\
         from ..model import Model
 
         if isinstance(selector, type) and issubclass(selector, Model):
-            selector = dict(type=selector)
+            selector = {"type": selector}
         for obj in self.select(selector):
             for key, val in updates.items():
                 setattr(obj, key, val)
@@ -849,6 +861,13 @@ side of a communications channel while it was being removed on the other end.\
 
     # Private methods ---------------------------------------------------------
 
+    def _set_config(self, config: DocumentConfig) -> None:
+        if self._config is config:
+            return
+
+        with self.models.freeze():
+            self._config = config
+
     def _destructively_move(self, dest_doc: Document) -> None:
         ''' Move all data in this doc to the dest_doc, leaving this doc empty.
 
@@ -876,15 +895,18 @@ side of a communications channel while it was being removed on the other end.\
                 root = next(iter(self.roots))
                 self.remove_root(root)
                 roots.append(root)
+            self._config = DocumentConfig()
 
         for root in roots:
             if root.document is not None:
                 raise RuntimeError(f"Somehow we didn't detach {root!r}")
 
-        if len(self.models) != 0:
-            raise RuntimeError(f"_all_models still had stuff in it: {self.models!r}")
+        if set(self.models) != self.config.references():
+            raise RuntimeError(
+                f"_all_models still had unexpected models in it: {self.models!r}",
+            )
 
-        dest_doc._config = config
+        dest_doc._set_config(config)
 
         for root in roots:
             dest_doc.add_root(root)
