@@ -63,7 +63,7 @@ from ..server.auth_provider import AuthModule, AuthProvider, NullAuth
 from ..settings import settings
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
-from .util import bind_sockets, create_hosts_allowlist
+from .util import create_hosts_allowlist
 
 if TYPE_CHECKING:
     from ..application.application import Application
@@ -79,11 +79,23 @@ if TYPE_CHECKING:
 __all__ = (
     'BaseServer',
     'Server',
+    'bind_sockets',
 )
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def bind_sockets(address: str | None, port: int) -> tuple[list[socket.socket], int]:
+    '''Bind sockets to one port, including when the OS selects the port.'''
+    sockets = netutil.bind_sockets(port=port or 0, address=address)
+    assert sockets
+    ports = {sock.getsockname()[1] for sock in sockets}
+    assert len(ports) == 1, "Multiple ports assigned??"
+    actual_port = ports.pop()
+    if port:
+        assert actual_port == port
+    return sockets, actual_port
 
 class BaseServer:
     ''' Explicitly coordinate the level Tornado components required to run a

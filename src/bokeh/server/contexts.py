@@ -175,6 +175,10 @@ class ApplicationContext:
         with self._document_init_lock:
             self._application.initialize_document(doc)
 
+    def _requires_worker_initialization(self) -> bool:
+        from ..application.handlers.document_lifecycle import DocumentLifecycleHandler
+        return any(not isinstance(handler, DocumentLifecycleHandler) for handler in self._application._handlers)
+
     @property
     def io_loop(self) -> Loop | None:
         return self._loop
@@ -251,7 +255,20 @@ class ApplicationContext:
             # Application code is arbitrary synchronous Python and can be
             # expensive. Keeping it on the event-loop thread prevents the
             # server from accepting unrelated HTTP and websocket work.
-            await asyncio.to_thread(self._initialize_document, doc)
+            try:
+                if self._requires_worker_initialization():
+                    await asyncio.to_thread(self._initialize_document, doc)
+                else:
+                    # Preserve immediate creation for an empty Application. The
+                    # lifecycle handler does not execute user document code.
+                    self._initialize_document(doc)
+            except BaseException as error:
+                del self._pending_sessions[session_id]
+                future.set_exception(error)
+                # The initiating request observes the original exception. Mark
+                # it retrieved here in case there were no concurrent waiters.
+                future.exception()
+                raise
 
             session = ServerSession(session_id, doc, io_loop=self._loop, token=token)
             del self._pending_sessions[session_id]

@@ -17,6 +17,7 @@ from urllib.parse import urlencode
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.types import ID
+from bokeh.protocol import Protocol
 from bokeh.server.asgi import BokehASGI
 from bokeh.util.token import generate_jwt_token
 
@@ -110,6 +111,25 @@ async def test_mount_root_path_is_removed_before_routing() -> None:
         await app.core.stop()
 
 
+async def test_autoload_and_static_routes() -> None:
+    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    try:
+        autoload = await http_request(app, "/autoload.js", query={
+            "bokeh-autoload-element": "target",
+            "bokeh-app-path": "/",
+        })
+        static = await http_request(app, "/static/js/bokeh.min.js")
+        traversal = await http_request(app, "/static/../asgi.py")
+
+        assert response_status(autoload) == 200
+        assert b"target" in response_body(autoload)
+        assert response_status(static) == 200
+        assert b"Bokeh Contributors" in response_body(static)
+        assert response_status(traversal) == 404
+    finally:
+        await app.core.stop()
+
+
 async def test_slow_document_does_not_block_other_http_requests() -> None:
     started = threading.Event()
     release = threading.Event()
@@ -173,6 +193,52 @@ async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:
         assert len(fragments) == 3
         assert json.loads(fragments[0])["msgtype"] == "ACK"
         assert app.core.get_sessions("/")[0].connection_count == 0
+    finally:
+        await app.core.stop()
+
+
+async def test_websocket_handles_pull_document_round_trip() -> None:
+    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    request = Protocol().create("PULL-DOC-REQ")
+    incoming = deque([
+        {"type": "websocket.connect"},
+        {"type": "websocket.receive", "text": request.header_json},
+        {"type": "websocket.receive", "text": request.metadata_json},
+        {"type": "websocket.receive", "text": request.content_json},
+        {"type": "websocket.disconnect", "code": 1000},
+    ])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0"},
+                "scheme": "ws",
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        message_types = [
+            value["msgtype"]
+            for event in sent
+            if event["type"] == "websocket.send"
+            if (value := json.loads(event["text"])) and "msgtype" in value
+        ]
+        assert message_types == ["ACK", "PULL-DOC-REPLY"]
     finally:
         await app.core.stop()
 

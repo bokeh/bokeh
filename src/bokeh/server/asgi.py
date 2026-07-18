@@ -34,6 +34,7 @@ from ..util.token import check_token_signature, get_session_id, get_token_payloa
 from .core import BokehServerCore, SessionError
 from .protocol_handler import ProtocolHandler
 from .request import Cookie, Headers, ServerRequest
+from .util import check_allowlist
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Mapping
@@ -417,19 +418,7 @@ class BokehASGI:
         allowed = set(settings.allowed_ws_origin()) or self._core.websocket_origins
         if not allowed:
             return origin_host == request.host.lower()
-        return any(self._host_matches(origin_host, pattern.lower()) for pattern in allowed)
-
-    @staticmethod
-    def _host_matches(host: str, pattern: str) -> bool:
-        if pattern == "*":
-            return True
-        if ":" not in host:
-            host += ":80"
-        if ":" not in pattern:
-            pattern += ":80"
-        host_name, host_port = host.rsplit(":", 1)
-        pattern_name, pattern_port = pattern.rsplit(":", 1)
-        return host_port == pattern_port and (host_name == pattern_name or (pattern_name.startswith("*.") and host_name.endswith(pattern_name[1:])))
+        return check_allowlist(origin_host, [pattern.lower() for pattern in allowed])
 
     def _cors_headers(self, request: ServerRequest) -> list[tuple[bytes, bytes]]:
         origin = request.headers.get("origin")

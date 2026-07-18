@@ -3,6 +3,57 @@
 Bokeh server APIs
 =================
 
+ASGI applications
+-----------------
+
+:class:`~bokeh.server.asgi.BokehASGI` is a framework-neutral ASGI 3 application
+that can be served directly or mounted inside another ASGI application. Bokeh
+does not select or install an ASGI server or framework:
+
+.. code-block:: python
+
+   from bokeh.application import Application
+   from bokeh.application.handlers.function import FunctionHandler
+   from bokeh.server.asgi import BokehASGI
+
+   def modify_document(doc):
+       ...
+
+   application = BokehASGI({"/plot": Application(FunctionHandler(modify_document))})
+
+Save this as ``main.py`` and serve it using any ASGI 3 server, for example
+``python -m uvicorn main:application``. To mount it in FastAPI or Starlette:
+
+.. code-block:: python
+
+   from fastapi import FastAPI
+
+   site = FastAPI()
+   site.mount("/bokeh", BokehASGI({"/": bokeh_application}))
+
+The mount's ASGI ``root_path`` is included automatically in Bokeh resource and
+websocket URLs. Equivalent complete examples are available for:
+
+* :bokeh-tree:`examples/server/api/asgi/fastapi_embed.py`
+* :bokeh-tree:`examples/server/api/asgi/starlette_embed.py`
+* :bokeh-tree:`examples/server/api/asgi/django_embed.py`
+
+The ASGI frontend handles Bokeh document, autoload, metadata, static asset, and
+websocket routes, as well as application startup and shutdown through ASGI
+lifespan events. Authentication should normally be applied by host-framework
+middleware. ASGI does not expose websocket ping frames, so transport keepalive
+should be configured on the ASGI server (for example, Uvicorn's websocket ping
+interval) rather than with Bokeh's ``keep_alive_milliseconds`` option.
+
+Session document construction runs in a worker thread and is serialized per
+Bokeh application. Consequently, expensive synchronous application code does
+not block the event loop from accepting unrelated HTTP or websocket work.
+Different applications can initialize documents concurrently; initialization
+for a single application retains the historical serialized ordering.
+
+Embedding in Tornado
+--------------------
+
 It can be useful to embed the Bokeh Server in a larger Tornado application, or a
 Jupyter notebook, and use the already existing Tornado ``IOloop``. Here is the
 basis for integration of Bokeh in such a scenario:

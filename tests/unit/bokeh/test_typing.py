@@ -33,6 +33,8 @@ import pytest ; pytest
 from typing import Literal, assert_type
 
 # Bokeh imports
+from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models.annotations import LegendItem
 from bokeh.models.ranges import Range1d
 from bokeh.models.tools import HoverTool, PanTool
@@ -45,6 +47,9 @@ from bokeh.plotting import figure
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def mypy_test_curdoc() -> None:
+    assert_type(curdoc(), Document)
 
 def mypy_test_figure_list_attr_splat() -> None:
     p = figure()

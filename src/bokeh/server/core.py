@@ -75,7 +75,7 @@ class SessionConfig(TypingProtocol):
 
 
 async def create_session(config: SessionConfig, context: ApplicationContext, request: RequestLike) -> ServerSession:
-    '''Resolve, validate, and create a session from an HTTP request. '''
+    '''Resolve, validate, and create a session from an HTTP request.'''
     token = _argument(request, "bokeh-token")
     session_id = cast("ID | None", _argument(request, "bokeh-session-id"))
     header_session_id = request.headers.get("Bokeh-Session-Id")

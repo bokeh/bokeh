@@ -169,6 +169,25 @@ class TestApplicationContext:
 
         assert maximum_active == 1
 
+    async def test_failed_document_initialization_can_be_retried(self) -> None:
+        attempts = 0
+
+        def modify_document(doc) -> None:
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                raise RuntimeError("initialization failed")
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        with pytest.raises(RuntimeError, match="initialization failed"):
+            await c.create_session_if_needed("foo")
+        session = await c.create_session_if_needed("foo")
+
+        assert session.id == "foo"
+        assert attempts == 2
+
     async def test_create_session_if_needed_bad_sessionid(self) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
