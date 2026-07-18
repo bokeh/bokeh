@@ -238,5 +238,23 @@ describe("column_data_source module", () => {
 
       expect(selected.indices).to.be.equal([0])
     })
+
+    it("should not update the selection when all indices remain in bounds", () => {
+      const selected = new Selection({
+        indices: [0],
+        line_indices: [1],
+        multiline_indices: new Map([[0, [0]]]),
+        image_indices: [{index: 1, i: 0, j: 0, flat_index: 0}],
+      })
+      const source = new ColumnDataSource({data: {foo: [0, 1]}, selected})
+      let updates = 0
+      selected.change.connect(() => updates++)
+
+      source.data = {foo: [2, 3]}
+      source.stream({foo: [4]})
+      source.patch({foo: [[0, 5]]})
+
+      expect(updates).to.be.equal(0)
+    })
   })
 })

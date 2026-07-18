@@ -7,7 +7,7 @@ import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {uniq} from "core/util/array"
-import {filter} from "core/util/arrayable"
+import {every, filter} from "core/util/arrayable"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
@@ -128,9 +128,7 @@ export abstract class ColumnarDataSource extends DataSource {
     super.connect_signals()
 
     const prune_selection = () => this._prune_selection()
-    if ("data" in this.properties) {
-      this.connect(this.properties.data.change, prune_selection)
-    }
+    this.connect(this.properties.data.change, prune_selection)
     this.connect(this.streaming, prune_selection)
     this.connect(this.patching, prune_selection)
   }
@@ -138,6 +136,15 @@ export abstract class ColumnarDataSource extends DataSource {
   protected _prune_selection(): void {
     const {selected, length} = this
     const in_bounds = (index: number) => 0 <= index && index < length
+
+    const unchanged = every(selected.indices, in_bounds) &&
+      every(selected.line_indices, in_bounds) &&
+      every(selected.multiline_indices.keys(), in_bounds) &&
+      every(selected.image_indices, ({index}) => in_bounds(index))
+
+    if (unchanged) {
+      return
+    }
 
     selected.setv({
       indices: filter(selected.indices, in_bounds),
