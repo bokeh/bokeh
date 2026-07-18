@@ -37,11 +37,25 @@
   border-radius: var(--border-radius);
   color: var(--tooltip-text);
   background-color: var(--tooltip-color);
+  opacity: 0;
 }
 
 
 :host(:where(:not(:popover-open))) {
   display: none;
+}
+
+@keyframes tooltip-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+:host(:where(:popover-open)) .bk-tooltip-wrapper {
+  animation-name: tooltip-fade-in;
+  animation-duration: 0.15s;
+  animation-timing-function: ease-in;
+  animation-delay: 0.1s;
+  animation-fill-mode: forwards;
 }
 
 

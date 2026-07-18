@@ -217,7 +217,7 @@ export class TooltipView extends UIElementView {
     if (!this._has_rendered) {
       this.render_to(target_el)
       this.r_after_render()
-    } else {
+    } else if (this.el.parentNode !== target_el) {
       target_el.append(this.el)
     }
 
