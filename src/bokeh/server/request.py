@@ -18,15 +18,22 @@ __all__ = (
 )
 
 class CookieValue(Protocol):
-    value: str
+    @property
+    def value(self) -> str: ...
 
 class RequestLike(Protocol):
-    method: str
-    uri: str
-    path: str
-    arguments: Mapping[str, list[bytes]]
-    headers: Mapping[str, str]
-    cookies: Mapping[str, CookieValue]
+    @property
+    def method(self) -> str: ...
+    @property
+    def uri(self) -> str: ...
+    @property
+    def path(self) -> str: ...
+    @property
+    def arguments(self) -> Mapping[str, list[bytes]]: ...
+    @property
+    def headers(self) -> Mapping[str, str]: ...
+    @property
+    def cookies(self) -> Mapping[str, CookieValue]: ...
 
 class Headers(Mapping[str, str]):
     ''' A small, case-insensitive HTTP header mapping. '''

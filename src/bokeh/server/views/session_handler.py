@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false
+# pyright: reportArgumentType=false, reportMissingImports=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -23,22 +23,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 # External imports
 from tornado.httputil import HTTPServerRequest
 from tornado.web import HTTPError, authenticated
 
 # Bokeh imports
-from bokeh.core.types import ID
-from bokeh.util.token import (
-    check_token_signature,
-    generate_jwt_token,
-    generate_session_id,
-    get_session_id,
-)
-
-# Bokeh imports
+from ..core import SessionError, create_session
 from .auth_request_handler import AuthRequestHandler
 
 if TYPE_CHECKING:
@@ -84,69 +76,10 @@ class SessionHandler(AuthRequestHandler):
 
     @authenticated # type: ignore[arg-type]
     async def get_session(self) -> ServerSession | None:
-        app = self.application
-        token = self.get_argument("bokeh-token", default=None)
-        session_id = cast(ID | None, self.get_argument("bokeh-session-id", default=None))
-        if 'Bokeh-Session-Id' in self.request.headers:
-            if session_id is not None:
-                log.debug("Server received session ID in request argument and header, expected only one")
-                raise HTTPError(status_code=403, reason="session ID was provided as an argument and header")
-            session_id = cast(ID | None, self.request.headers.get('Bokeh-Session-Id'))
-
-        if token is not None:
-            if session_id is not None:
-                log.debug("Server received both token and session ID, expected only one")
-                raise HTTPError(status_code=403, reason="Both token and session ID were provided")
-            session_id = get_session_id(token)
-        elif session_id is None:
-            if app.generate_session_ids:
-                session_id = generate_session_id(secret_key=app.secret_key,
-                                                 signed=app.sign_sessions)
-            else:
-                log.debug("Server configured not to generate session IDs and none was provided")
-                raise HTTPError(status_code=403, reason="No bokeh-session-id provided")
-
-        if token is None:
-            if app.include_headers is None:
-                excluded_headers = (app.exclude_headers or [])
-                allowed_headers = [header for header in self.request.headers
-                                   if header not in excluded_headers]
-            else:
-                allowed_headers = app.include_headers
-            headers = {k: v for k, v in self.request.headers.items()
-                       if k in allowed_headers}
-
-            if app.include_cookies is None:
-                excluded_cookies = (app.exclude_cookies or [])
-                allowed_cookies = [cookie for cookie in self.request.cookies
-                                   if cookie not in excluded_cookies]
-            else:
-                allowed_cookies = app.include_cookies
-            cookies = {k: v.value for k, v in self.request.cookies.items()
-                       if k in allowed_cookies}
-
-            if cookies and 'Cookie' in headers and 'Cookie' not in (app.include_headers or []):
-                # Do not include Cookie header since cookies can be restored from cookies dict
-                del headers['Cookie']
-
-            arguments = {} if self.request.arguments is None else self.request.arguments
-            payload = {'headers': headers, 'cookies': cookies, 'arguments': arguments}
-            payload.update(self.application_context.application.process_request(self.request))
-            token = generate_jwt_token(session_id,
-                                       secret_key=app.secret_key,
-                                       signed=app.sign_sessions,
-                                       expiration=app.session_token_expiration,
-                                       extra_payload=payload)
-
-        if not check_token_signature(token,
-                                     secret_key=app.secret_key,
-                                     signed=app.sign_sessions):
-            log.error("Session id had invalid signature: %r", session_id)
-            raise HTTPError(status_code=403, reason="Invalid token or session ID")
-
-        session = await self.application_context.create_session_if_needed(session_id, self.request, token)
-
-        return session
+        try:
+            return await create_session(self.application, self.application_context, self.request)
+        except SessionError as error:
+            raise HTTPError(status_code=error.status, reason=error.reason)
 
 #-----------------------------------------------------------------------------
 # Private API

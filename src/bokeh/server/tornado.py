@@ -52,6 +52,14 @@ from ..util.dependencies import import_optional
 from ..util.strings import format_docstring
 from .auth_provider import NullAuth
 from .connection import ServerConnection
+from .core import (
+    DEFAULT_CHECK_UNUSED_MS,
+    DEFAULT_KEEP_ALIVE_MS,
+    DEFAULT_SESSION_TOKEN_EXPIRATION,
+    DEFAULT_STATS_LOG_FREQ_MS,
+    DEFAULT_UNUSED_LIFETIME_MS,
+    DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+)
 from .contexts import ApplicationContext
 from .urls import per_app_patterns, toplevel_patterns
 from .views.ico_handler import IcoHandler
@@ -71,13 +79,7 @@ if TYPE_CHECKING:
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-DEFAULT_CHECK_UNUSED_MS                  = 17000
-DEFAULT_KEEP_ALIVE_MS                    = 37000  # heroku, nginx default to 60s timeout, so use less than that
 DEFAULT_MEM_LOG_FREQ_MS                  = 0
-DEFAULT_STATS_LOG_FREQ_MS                = 15000
-DEFAULT_UNUSED_LIFETIME_MS               = 15000
-DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
-DEFAULT_SESSION_TOKEN_EXPIRATION         = 300
 
 __all__ = (
     'BokehTornado',
