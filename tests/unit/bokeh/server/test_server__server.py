@@ -713,7 +713,11 @@ async def test__use_provided_session_websocket(ManagedServerLoop: MSL) -> None:
 
         expected = 'foo'
         token = generate_jwt_token(expected)
-        await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
+        ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token], auto_close=False)
+        msg = await ws.read_queue.get()
+        assert isinstance(msg, str)
+        assert 'ACK' in msg
+        ws.close()
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)

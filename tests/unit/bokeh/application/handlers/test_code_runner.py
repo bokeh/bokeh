@@ -17,9 +17,11 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from concurrent.futures import ThreadPoolExecutor
 import os
 import sys
 from os.path import abspath, dirname
+from threading import Event
 from types import ModuleType
 
 # Module under test
@@ -173,6 +175,36 @@ class TestCodeRunner:
         m = cr.new_module()
         cr.run(m, lambda: None)
         assert sys.path == old_path
+
+    def test_run_serializes_process_global_mutations(self) -> None:
+        first_entered = Event()
+        first_release = Event()
+        second_entered = Event()
+
+        first = bahc.CodeRunner("entered.set(); release.wait()", "first.py", [])
+        first_module = first.new_module()
+        first_module.__dict__.update(entered=first_entered, release=first_release)
+
+        second = bahc.CodeRunner("entered.set()", "second.py", [])
+        second_module = second.new_module()
+        second_module.__dict__.update(entered=second_entered)
+
+        executor = ThreadPoolExecutor(max_workers=2)
+        try:
+            first_future = executor.submit(first.run, first_module)
+            assert first_entered.wait(timeout=1)
+
+            second_future = executor.submit(second.run, second_module)
+            assert not second_entered.wait(timeout=0.1)
+
+            first_release.set()
+            first_future.result(timeout=1)
+            second_future.result(timeout=1)
+        finally:
+            first_release.set()
+            executor.shutdown(wait=True)
+
+        assert second_entered.is_set()
 
     def test_doc(self) -> None:
         cr = bahc.CodeRunner("'''some docstring\n\nfoo bar'''", "path", [])

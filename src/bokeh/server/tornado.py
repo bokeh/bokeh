@@ -664,6 +664,9 @@ class BokehTornado(TornadoApplication):
 
         '''
 
+        for context in self._applications.values():
+            context._cancel_pending_sessions()
+
         # TODO should probably close all connections and shut down all sessions here
         for context in self._applications.values():
             context.run_unload_hook()

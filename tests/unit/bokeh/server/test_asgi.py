@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import Any, cast
 from urllib.parse import urlencode
 
+import pytest
+
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.types import ID
@@ -224,6 +226,38 @@ async def test_slow_document_does_not_block_other_http_requests() -> None:
         release.set()
         await slow
         await app.core.stop()
+
+
+async def test_stop_waits_for_pending_initialization_before_unload() -> None:
+    started = threading.Event()
+    release = threading.Event()
+    unloaded = threading.Event()
+
+    def slow_document(doc) -> None:
+        started.set()
+        assert release.wait(timeout=2)
+
+    handler = FunctionHandler(slow_document)
+    handler.on_server_unloaded = lambda server_context: unloaded.set()
+    app = BokehASGI(Application(handler), keep_alive_milliseconds=0)
+    await app.core.start()
+    context = app.core.applications["/"]
+    pending = asyncio.create_task(context.create_session_if_needed(ID("session")))
+
+    try:
+        await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+        stopping = asyncio.create_task(app.core.stop())
+        await asyncio.sleep(0)
+        assert not stopping.done()
+        assert not unloaded.is_set()
+    finally:
+        release.set()
+
+    await stopping
+    with pytest.raises(asyncio.CancelledError):
+        await pending
+    assert unloaded.is_set()
+    assert not list(context.sessions)
 
 
 async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:

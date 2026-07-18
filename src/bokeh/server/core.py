@@ -322,6 +322,7 @@ class BokehServerCore(SessionConfig):
         for job in self._jobs:
             job.stop()
         self._jobs.clear()
+        await asyncio.gather(*(context._shutdown_pending_sessions() for context in self._applications.values()))
         await asyncio.gather(*(asyncio.to_thread(context.run_unload_hook) for context in self._applications.values()))
         for connection in list(self._clients):
             self.client_lost(connection)

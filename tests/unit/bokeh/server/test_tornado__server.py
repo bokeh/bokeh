@@ -249,6 +249,22 @@ def test_default_app_paths() -> None:
     t = bst.BokehTornado({"/": app, "/foo": app}, prefix="", extra_websocket_origins=[])
     assert t.app_paths == { "/", "/foo"}
 
+def test_stop_cancels_pending_sessions_before_unload() -> None:
+    t = bst.BokehTornado({"/": Application()})
+    context = t._applications["/"]
+    calls = []
+    context._cancel_pending_sessions = Mock(side_effect=lambda: calls.append("cancel"))
+    context.run_unload_hook = Mock(side_effect=lambda: calls.append("unload"))
+    t._stats_job = Mock()
+    t._mem_job = None
+    t._cleanup_job = Mock()
+    t._ping_job = None
+    t._clients = set()
+
+    t.stop()
+
+    assert calls == ["cancel", "unload"]
+
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
 # doesn't crash in various scenarios

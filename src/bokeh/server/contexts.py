@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import asyncio
-import threading
 import weakref
 from typing import (
     TYPE_CHECKING,
@@ -151,7 +150,7 @@ class ApplicationContext:
     '''
 
     _sessions: dict[ID, ServerSession]
-    _pending_sessions: dict[ID, asyncio.Future[ServerSession]]
+    _pending_sessions: dict[ID, asyncio.Task[ServerSession]]
     _session_contexts: dict[ID, SessionContext]
     _server_context: BokehServerContext
 
@@ -165,15 +164,6 @@ class ApplicationContext:
         self._server_context = BokehServerContext(self)
         self._url = url
         self._logout_url = logout_url
-        # Application handlers commonly retain mutable execution state. Run
-        # document initialization away from the event loop, but serialize it
-        # per application to preserve the ordering guarantees of the Tornado
-        # implementation.
-        self._document_init_lock = threading.Lock()
-
-    def _initialize_document(self, doc: Document) -> None:
-        with self._document_init_lock:
-            self._application.initialize_document(doc)
 
     def _requires_worker_initialization(self) -> bool:
         from ..application.handlers.document_lifecycle import DocumentLifecycleHandler
@@ -218,74 +208,100 @@ class ApplicationContext:
         if len(session_id) == 0:
             raise ProtocolError("Session ID must not be empty")
 
-        if session_id not in self._sessions and \
-           session_id not in self._pending_sessions:
-            future = self._pending_sessions[session_id] = asyncio.get_running_loop().create_future()
+        if session_id in self._sessions:
+            return self._sessions[session_id]
 
-            doc = Document()
+        pending = self._pending_sessions.get(session_id)
+        if pending is None:
+            pending = self._pending_sessions[session_id] = asyncio.create_task(
+                self._create_session(session_id, request, token),
+            )
+            pending.add_done_callback(lambda task: self._session_creation_done(session_id, task))
 
-            session_context = BokehSessionContext(session_id,
-                                                  self.server_context,
-                                                  doc,
-                                                  logout_url=self._logout_url)
-            if request is not None:
-                payload = get_token_payload(token) if token else {}
-                if ('cookies' in payload and 'headers' in payload
-                    and 'Cookie' not in payload['headers']):
-                    # Restore Cookie header from cookies dictionary
-                    payload['headers']['Cookie'] = '; '.join([
-                        f'{k}={v}' for k, v in payload['cookies'].items()
-                    ])
-                # using private attr so users only have access to a read-only property
-                session_context._request = _RequestProxy(request,
-                                                         arguments=payload.get('arguments'),
-                                                         cookies=payload.get('cookies'),
-                                                         headers=payload.get('headers'))
-            session_context._token = token
+        # Session initialization belongs to the application context, not to
+        # whichever HTTP or websocket request happened to start it. A dropped
+        # request must not cancel work that other waiters may still need.
+        return await asyncio.shield(pending)
 
-            # expose the session context to the document
-            # use the _attribute to set the public property .session_context
-            doc._session_context = weakref.ref(session_context)
-
-            try:
-                await self._application.on_session_created(session_context)
-            except Exception as e:
-                log.error("Failed to run session creation hooks %r", e, exc_info=True)
-
-            # Application code is arbitrary synchronous Python and can be
-            # expensive. Keeping it on the event-loop thread prevents the
-            # server from accepting unrelated HTTP and websocket work.
-            try:
-                if self._requires_worker_initialization():
-                    await asyncio.to_thread(self._initialize_document, doc)
-                else:
-                    # Preserve immediate creation for an empty Application. The
-                    # lifecycle handler does not execute user document code.
-                    self._initialize_document(doc)
-            except BaseException as error:
-                del self._pending_sessions[session_id]
-                future.set_exception(error)
-                # The initiating request observes the original exception. Mark
-                # it retrieved here in case there were no concurrent waiters.
-                future.exception()
-                raise
-
-            session = ServerSession(session_id, doc, io_loop=self._loop, token=token)
+    def _session_creation_done(self, session_id: ID, task: asyncio.Task[ServerSession]) -> None:
+        if self._pending_sessions.get(session_id) is task:
             del self._pending_sessions[session_id]
-            self._sessions[session_id] = session
-            session_context._set_session(session)
-            self._session_contexts[session_id] = session_context
 
-            # notify anyone waiting on the pending session
-            future.set_result(session)
+        if not task.cancelled() and (exception := task.exception()) is not None:
+            log.error("Failed to create session %r: %s", session_id, exception, exc_info=exception)
 
-        if session_id in self._pending_sessions:
-            # another create_session_if_needed is working on
-            # creating this session
-            session = await self._pending_sessions[session_id]
-        else:
-            session = self._sessions[session_id]
+    def _cancel_pending_sessions(self) -> tuple[asyncio.Task[ServerSession], ...]:
+        pending = tuple(self._pending_sessions.values())
+        for task in pending:
+            task.cancel()
+        return pending
 
+    async def _shutdown_pending_sessions(self) -> None:
+        if pending := self._cancel_pending_sessions():
+            await asyncio.gather(*pending, return_exceptions=True)
+
+    async def _initialize_document_async(self, doc: Document) -> None:
+        if not self._requires_worker_initialization():
+            # Preserve immediate creation for an empty Application. The
+            # lifecycle handler does not execute user document code.
+            self._application.initialize_document(doc)
+            return
+
+        worker = asyncio.create_task(asyncio.to_thread(self._application.initialize_document, doc))
+        try:
+            await asyncio.shield(worker)
+        except asyncio.CancelledError:
+            # Executor work cannot be stopped once running. Keep the session
+            # creation task alive until it has finished so orderly shutdown can
+            # run application unload hooks after initialization code exits.
+            try:
+                await worker
+            except Exception as error:
+                log.error("Failed to initialize cancelled session: %s", error, exc_info=error)
+            raise
+
+    async def _create_session(self, session_id: ID, request: RequestLike | None = None,
+            token: str | None = None) -> ServerSession:
+        doc = Document()
+
+        session_context = BokehSessionContext(session_id,
+                                              self.server_context,
+                                              doc,
+                                              logout_url=self._logout_url)
+        if request is not None:
+            payload = get_token_payload(token) if token else {}
+            if ('cookies' in payload and 'headers' in payload
+                and 'Cookie' not in payload['headers']):
+                # Restore Cookie header from cookies dictionary
+                payload['headers']['Cookie'] = '; '.join([
+                    f'{k}={v}' for k, v in payload['cookies'].items()
+                ])
+            # using private attr so users only have access to a read-only property
+            session_context._request = _RequestProxy(request,
+                                                     arguments=payload.get('arguments'),
+                                                     cookies=payload.get('cookies'),
+                                                     headers=payload.get('headers'))
+        session_context._token = token
+
+        # expose the session context to the document
+        # use the _attribute to set the public property .session_context
+        doc._session_context = weakref.ref(session_context)
+
+        try:
+            await self._application.on_session_created(session_context)
+        except Exception as e:
+            log.error("Failed to run session creation hooks %r", e, exc_info=True)
+
+        # Application code is arbitrary synchronous Python and can be
+        # expensive. Keeping it on the event-loop thread prevents the
+        # server from accepting unrelated HTTP and websocket work.
+        await self._initialize_document_async(doc)
+
+        io_loop = self._loop or asyncio.get_running_loop()
+        session = ServerSession(session_id, doc, io_loop=io_loop, token=token)
+        self._sessions[session_id] = session
+        session_context._set_session(session)
+        self._session_contexts[session_id] = session_context
         return session
 
     def get_session(self, session_id: ID) -> ServerSession:
