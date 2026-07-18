@@ -12,24 +12,50 @@ does not select or install an ASGI server or framework:
 
 .. code-block:: python
 
-   from bokeh.application import Application
-   from bokeh.application.handlers.function import FunctionHandler
+   from pathlib import Path
+
    from bokeh.server.asgi import BokehASGI
 
-   def modify_document(doc):
-       ...
-
-   application = BokehASGI({"/plot": Application(FunctionHandler(modify_document))})
+   application = BokehASGI({"/plot": Path("bkapp.py")})
 
 Save this as ``main.py`` and serve it using any ASGI 3 server, for example
 ``python -m uvicorn main:application``. To mount it in FastAPI or Starlette:
 
 .. code-block:: python
 
+   from contextlib import asynccontextmanager
+   from pathlib import Path
+
    from fastapi import FastAPI
 
-   site = FastAPI()
-   site.mount("/bokeh", BokehASGI({"/": bokeh_application}))
+   from bokeh.server.asgi import BokehASGI
+
+   bokeh_app = BokehASGI({"/": Path("bkapp.py")})
+
+   @asynccontextmanager
+   async def lifespan(site):
+       # Mounted FastAPI/Starlette applications don't receive lifespan events.
+       await bokeh_app.core.start()
+       try:
+           yield
+       finally:
+           await bokeh_app.core.stop()
+
+   site = FastAPI(lifespan=lifespan)
+   site.mount("/bokeh", bokeh_app)
+
+Path applications use the same script format as ``bokeh serve``: their
+top-level code runs once per session and modifies :func:`~bokeh.io.curdoc`.
+Relative paths are resolved from the server process's working directory.
+Existing explicit application forms remain supported:
+
+.. code-block:: python
+
+   from bokeh.application import Application
+   from bokeh.application.handlers.function import FunctionHandler
+
+   explicit = Application(FunctionHandler(modify_document))
+   BokehASGI({"/explicit": explicit, "/callable": modify_document})
 
 The mount's ASGI ``root_path`` is included automatically in Bokeh resource and
 websocket URLs. Equivalent complete examples are available for:
@@ -37,6 +63,7 @@ websocket URLs. Equivalent complete examples are available for:
 * :bokeh-tree:`examples/server/api/asgi/fastapi_embed.py`
 * :bokeh-tree:`examples/server/api/asgi/starlette_embed.py`
 * :bokeh-tree:`examples/server/api/asgi/django_embed.py`
+* :bokeh-tree:`examples/server/api/asgi/framework_free.py`
 
 The ASGI frontend handles Bokeh document, autoload, metadata, static asset, and
 websocket routes, as well as application startup and shutdown through ASGI
@@ -44,6 +71,11 @@ lifespan events. Authentication should normally be applied by host-framework
 middleware. ASGI does not expose websocket ping frames, so transport keepalive
 should be configured on the ASGI server (for example, Uvicorn's websocket ping
 interval) rather than with Bokeh's ``keep_alive_milliseconds`` option.
+
+ASGI servers send lifespan events to the top-level application. When Bokeh is
+mounted under a framework that does not propagate those events to mounts, such
+as FastAPI or Starlette, compose ``bokeh_app.core.start()`` and
+``bokeh_app.core.stop()`` into the parent lifespan as shown above.
 
 Session document construction runs in a worker thread and is serialized per
 Bokeh application. Consequently, expensive synchronous application code does

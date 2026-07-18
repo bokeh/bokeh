@@ -9,14 +9,18 @@ from __future__ import annotations
 
 import asyncio
 import json
+import runpy
 import threading
 from collections import deque
+from pathlib import Path
 from typing import Any, cast
 from urllib.parse import urlencode
 
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.types import ID
+from bokeh.document import Document
+from bokeh.models import ColumnDataSource, Select
 from bokeh.protocol import Protocol
 from bokeh.server.asgi import BokehASGI
 from bokeh.util.token import generate_jwt_token
@@ -64,6 +68,72 @@ def response_status(events: list[dict[str, Any]]) -> int:
 
 def response_body(events: list[dict[str, Any]]) -> bytes:
     return b"".join(event.get("body", b"") for event in events if event["type"] == "http.response.body")
+
+
+def test_example_application_initializes() -> None:
+    path = Path(__file__).parents[4] / "examples/server/api/asgi/bkapp.py"
+    application = BokehASGI({"/": path}).core.applications["/"].application
+    document = application.create_document()
+    second_document = application.create_document()
+
+    assert document.title == "Bokeh ASGI signal studio"
+    assert len(document.roots) == 1
+    assert document.roots[0] is not second_document.roots[0]
+    waveform = document.select_one({"name": "waveform"})
+    source = document.select_one({"name": "signal-source"})
+    assert isinstance(waveform, Select)
+    assert isinstance(source, ColumnDataSource)
+
+    waveform.value = "Square"
+
+    assert set(source.data["y"]) == {-1.5, 1.5}
+    string_application = BokehASGI(str(path)).core.applications["/"].application
+    assert string_application.create_document().title == "Bokeh ASGI signal studio"
+
+
+def test_explicit_application_specs_remain_supported() -> None:
+    explicit = Application()
+
+    def modify_document(doc: Document) -> None:
+        doc.title = "Callable application"
+
+    app = BokehASGI({"/explicit": explicit, "/callable": modify_document})
+
+    assert app.core.applications["/explicit"].application is explicit
+    assert app.core.applications["/callable"].application.create_document().title == "Callable application"
+
+
+async def test_framework_free_example_routes_site_and_bokeh() -> None:
+    path = Path(__file__).parents[4] / "examples/server/api/asgi/framework_free.py"
+    namespace = runpy.run_path(str(path))
+    application = namespace["application"]
+    bokeh_application = cast(BokehASGI, namespace["bokeh_application"])
+
+    try:
+        index = await http_request(application, "/")
+        document = await http_request(application, "/bkapp/")
+        missing = await http_request(application, "/missing")
+
+        assert response_status(index) == 200
+        assert b"Bokeh meets <span>framework-free ASGI</span>" in response_body(index)
+        assert b'xhr.open(\'GET\', "/bkapp/autoload.js?' in response_body(index)
+        assert b"bokeh-app-path=/bkapp" in response_body(index)
+        assert b"bokeh-absolute-url" not in response_body(index)
+        assert b"<iframe" not in response_body(index)
+        assert response_status(document) == 200
+        assert b"Bokeh ASGI signal studio" in response_body(document)
+        assert b'/bkapp/static/js/bokeh' in response_body(document)
+        assert response_status(missing) == 404
+
+        autoload = await http_request(application, "/bkapp/autoload.js", query={
+            "bokeh-autoload-element": "target",
+            "bokeh-app-path": "/bkapp",
+        })
+        assert response_status(autoload) == 200
+        assert b"target" in response_body(autoload)
+        assert b'/bkapp/static/js/bokeh' in response_body(autoload)
+    finally:
+        await bokeh_application.core.stop()
 
 
 async def test_lifespan_starts_and_stops_application() -> None:

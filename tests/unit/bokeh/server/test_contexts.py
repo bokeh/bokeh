@@ -224,6 +224,130 @@ class TestApplicationContext:
         result = await asyncio.wait_for(result_f, 1)
         assert result == message
 
+    async def test_sync_session_callback_does_not_block_event_loop(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        loop_thread = threading.get_ident()
+        callback_thread = None
+        started = threading.Event()
+        release = threading.Event()
+        finished = threading.Event()
+
+        def callback() -> None:
+            nonlocal callback_thread
+            callback_thread = threading.get_ident()
+            started.set()
+            release.wait()
+            finished.set()
+
+        session.document.add_next_tick_callback(callback)
+        await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+        await asyncio.wait_for(asyncio.sleep(0), 0.1)
+        release.set()
+        assert await asyncio.wait_for(asyncio.to_thread(finished.wait), 1)
+        await asyncio.sleep(0)
+
+        assert callback_thread != loop_thread
+
+    async def test_session_callbacks_are_serialized(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        lock = threading.Lock()
+        active = 0
+        maximum_active = 0
+
+        def callback() -> None:
+            nonlocal active, maximum_active
+            with lock:
+                active += 1
+                maximum_active = max(maximum_active, active)
+            threading.Event().wait(0.02)
+            with lock:
+                active -= 1
+
+        await asyncio.gather(
+            session.with_document_locked(callback),
+            session.with_document_locked(callback),
+        )
+
+        assert maximum_active == 1
+
+    async def test_different_session_callbacks_can_run_concurrently(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        first = await c.create_session_if_needed("first")
+        second = await c.create_session_if_needed("second")
+        barrier = threading.Barrier(2)
+
+        def callback() -> None:
+            barrier.wait(timeout=1)
+
+        await asyncio.gather(
+            first.with_document_locked(callback),
+            second.with_document_locked(callback),
+        )
+
+    async def test_async_session_callback_runs_on_event_loop(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        loop_thread = threading.get_ident()
+        callback_thread = None
+
+        async def callback() -> None:
+            nonlocal callback_thread
+            callback_thread = threading.get_ident()
+            await asyncio.sleep(0)
+
+        await session.with_document_locked(callback)
+
+        assert callback_thread == loop_thread
+
+    async def test_session_callback_can_schedule_timeout_from_worker(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        fired = threading.Event()
+
+        def callback() -> None:
+            session.document.add_timeout_callback(fired.set, 1)
+
+        await session.with_document_locked(callback)
+
+        assert await asyncio.wait_for(asyncio.to_thread(fired.wait), 1)
+
+    async def test_cancelling_locked_callback_waits_for_worker(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        started = threading.Event()
+        release = threading.Event()
+        finished = threading.Event()
+
+        def callback() -> None:
+            started.set()
+            release.wait()
+            session.document.title = "finished"
+            finished.set()
+
+        task = asyncio.create_task(session.with_document_locked(callback))
+        await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+        task.cancel()
+        await asyncio.sleep(0)
+
+        assert not task.done()
+        assert session.expiration_blocked
+
+        release.set()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+        assert finished.is_set()
+        assert session.document.title == "finished"
+        assert not session.expiration_blocked
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

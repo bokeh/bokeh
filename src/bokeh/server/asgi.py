@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 
     from ..application import Application
     from ..application.handlers.function import ModifyDoc
-    from ..core.types import ID
+    from ..core.types import ID, PathLike
     from .connection import ServerConnection
     from .contexts import ApplicationContext
 
@@ -112,11 +112,14 @@ class BokehASGI:
 
     This class does not depend on an ASGI framework or server. It can be
     served directly by Uvicorn or Hypercorn, or mounted in another ASGI app.
+    Applications may be supplied as :class:`~bokeh.application.application.Application`
+    objects, document-modifying callables, or paths to Bokeh application
+    scripts. Script paths are executed once for every new session.
     '''
 
     def __init__(
         self,
-        applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
+        applications: Mapping[str, Application | ModifyDoc | PathLike] | Application | ModifyDoc | PathLike,
         *,
         prefix: str | None = None,
         redirect_root: bool = True,

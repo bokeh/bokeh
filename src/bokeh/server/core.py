@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections.abc import Mapping, Sequence
+from os import PathLike as OSPathLike
 from typing import TYPE_CHECKING, Any, Protocol as TypingProtocol, cast
 from urllib.parse import urljoin
 
@@ -24,7 +25,7 @@ from .contexts import ApplicationContext
 
 if TYPE_CHECKING:
     from ..application.handlers.function import ModifyDoc
-    from ..core.types import ID
+    from ..core.types import ID, PathLike
     from ..protocol import Protocol
     from .request import RequestLike
     from .session import ServerSession
@@ -147,7 +148,7 @@ class BokehServerCore(SessionConfig):
 
     def __init__(
         self,
-        applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
+        applications: Mapping[str, Application | ModifyDoc | PathLike] | Application | ModifyDoc | PathLike,
         *,
         absolute_url: str | None = None,
         prefix: str | None = None,
@@ -168,11 +169,22 @@ class BokehServerCore(SessionConfig):
     ) -> None:
         from ..application.handlers.document_lifecycle import DocumentLifecycleHandler
         from ..application.handlers.function import FunctionHandler
+        from ..application.handlers.script import ScriptHandler
 
-        if callable(applications):
-            applications = Application(FunctionHandler(applications))
-        if isinstance(applications, Application):
-            applications = {"/": applications}
+        def as_application(spec: Application | ModifyDoc | PathLike) -> Application:
+            if isinstance(spec, Application):
+                return spec
+            if isinstance(spec, (str, OSPathLike)):
+                handler = ScriptHandler(filename=spec)
+                if handler.failed:
+                    raise RuntimeError(f"Error loading {spec}:\n\n{handler.error}\n{handler.error_detail}")
+                return Application(handler)
+            if callable(spec):
+                return Application(FunctionHandler(spec))
+            raise TypeError(f"Expected an Application, callable, or script path, got {type(spec).__name__}")
+
+        if isinstance(applications, (Application, str, OSPathLike)) or callable(applications):
+            applications = {"/": as_application(applications)}
         else:
             applications = dict(applications)
 
@@ -182,8 +194,7 @@ class BokehServerCore(SessionConfig):
                 raise ValueError(f"Application path {url!r} must start with a slash")
             if url != "/":
                 url = url.rstrip("/")
-            if callable(app):
-                app = Application(FunctionHandler(app))
+            app = as_application(app)
             if all(not isinstance(handler, DocumentLifecycleHandler) for handler in app._handlers):
                 app.add(DocumentLifecycleHandler())
             normalized[url] = app

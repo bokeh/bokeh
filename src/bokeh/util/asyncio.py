@@ -97,7 +97,7 @@ class _AsyncPeriodic:
         self._stopped = True
         if self._task is not None:
             if not self._loop.is_closed():
-                self._task.cancel()
+                self._loop.call_soon_threadsafe(self._task.cancel)
             self._task = None
 
 class _CallbackGroup:
@@ -119,12 +119,31 @@ class _CallbackGroup:
         return _asyncio_loop(self._loop_source)
 
     def remove_all_callbacks(self) -> None:
-        for cb_id in list(self._next_tick_callback_removers):
-            self.remove_next_tick_callback(cb_id)
-        for cb_id in list(self._timeout_callback_removers):
-            self.remove_timeout_callback(cb_id)
-        for cb_id in list(self._periodic_callback_removers):
-            self.remove_periodic_callback(cb_id)
+        with self._removers_lock:
+            next_tick_ids = list(self._next_tick_callback_removers)
+            timeout_ids = list(self._timeout_callback_removers)
+            periodic_ids = list(self._periodic_callback_removers)
+        groups = (
+            (next_tick_ids, self.remove_next_tick_callback),
+            (timeout_ids, self.remove_timeout_callback),
+            (periodic_ids, self.remove_periodic_callback),
+        )
+        for callback_ids, remover in groups:
+            for callback_id in callback_ids:
+                try:
+                    remover(callback_id)
+                except ValueError:
+                    pass
+
+    def _call_on_loop(self, callback: CallbackSync) -> None:
+        try:
+            on_loop = asyncio.get_running_loop() is self._loop
+        except RuntimeError:
+            on_loop = False
+        if on_loop:
+            callback()
+        else:
+            self._loop.call_soon_threadsafe(callback)
 
     def _get_removers_ids_by_callable(self, removers: Removers) -> RemoversByCallable:
         if removers is self._next_tick_callback_removers:
@@ -184,17 +203,29 @@ class _CallbackGroup:
 
     def add_timeout_callback(self, callback: CallbackSync, timeout_milliseconds: int, callback_id: ID) -> ID:
         handle: asyncio.TimerHandle | None = None
+        removed = False
+        state_lock = threading.Lock()
 
         def wrapper() -> None:
             self.remove_timeout_callback(callback_id)
             self._invoke(callback)
 
         def remover() -> None:
-            if handle is not None:
-                handle.cancel()
+            nonlocal removed
+            with state_lock:
+                removed = True
+                current_handle = handle
+            if current_handle is not None:
+                self._call_on_loop(current_handle.cancel)
+
+        def start() -> None:
+            nonlocal handle
+            with state_lock:
+                if not removed:
+                    handle = self._loop.call_later(timeout_milliseconds / 1000.0, wrapper)
 
         self._assign_remover(callback, callback_id, self._timeout_callback_removers, remover)
-        handle = self._loop.call_later(timeout_milliseconds / 1000.0, wrapper)
+        self._call_on_loop(start)
         return callback_id
 
     def remove_timeout_callback(self, callback_id: ID) -> None:
@@ -203,7 +234,7 @@ class _CallbackGroup:
     def add_periodic_callback(self, callback: Callback, period_milliseconds: int, callback_id: ID) -> None:
         periodic = _AsyncPeriodic(callback, period_milliseconds, io_loop=self._loop)
         self._assign_remover(callback, callback_id, self._periodic_callback_removers, periodic.stop)
-        periodic.start()
+        self._call_on_loop(periodic.start)
 
     def remove_periodic_callback(self, callback_id: ID) -> None:
         self._execute_remover(callback_id, self._periodic_callback_removers)
