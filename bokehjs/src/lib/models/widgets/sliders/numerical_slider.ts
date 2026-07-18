@@ -47,4 +47,18 @@ export abstract class NumericalSlider extends BaseNumericalSlider {
   constructor(attrs?: Partial<NumericalSlider.Attrs>) {
     super(attrs)
   }
+
+  _enforce_value_gte_start(start: number) {
+    const {value} = this
+    if (value < start) {
+      this.setv({value: start, value_throttled: start})
+    }
+  }
+
+  _enforce_value_lte_end(end: number) {
+    const {value} = this
+    if (value > end) {
+      this.setv({value: end, value_throttled: end})
+    }
+  }
 }
