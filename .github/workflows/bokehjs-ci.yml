@@ -81,6 +81,12 @@ jobs:
         run: |
           node make build:all
 
+      - name: Package bokehjs
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make pack
+
       - name: Run tests
         if: success() || failure()
         working-directory: ./bokehjs
