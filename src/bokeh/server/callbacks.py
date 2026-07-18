@@ -25,11 +25,9 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Callable, Sequence
 
 # Bokeh imports
-from ..util.tornado import _CallbackGroup
+from ..util.asyncio import Loop, _CallbackGroup
 
 if TYPE_CHECKING:
-    from tornado.ioloop import IOLoop
-
     from ..core.types import ID
 
 #-----------------------------------------------------------------------------
@@ -171,7 +169,7 @@ class DocumentCallbackGroup:
     '''
 
     '''
-    def __init__(self, io_loop: IOLoop) -> None:
+    def __init__(self, io_loop: Loop) -> None:
         '''
 
         '''

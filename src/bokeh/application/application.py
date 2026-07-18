@@ -43,9 +43,8 @@ from ..document import Document
 from ..settings import settings
 
 if TYPE_CHECKING:
-    from tornado.httputil import HTTPServerRequest
-
     from ..core.types import ID
+    from ..server.request import RequestLike
     from ..server.session import ServerSession
     from .handlers.handler import Handler
 
@@ -245,7 +244,7 @@ class Application:
             await h.on_session_destroyed(session_context)
         return None
 
-    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
+    def process_request(self, request: RequestLike) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 

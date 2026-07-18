@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import inspect
 import time
 from copy import copy
@@ -33,14 +34,9 @@ from typing import (
     cast,
 )
 
-# External imports
-from tornado import locks
-
-if TYPE_CHECKING:
-    from tornado.ioloop import IOLoop
-
 # Bokeh imports
 from ..events import ConnectionLost
+from ..util.asyncio import Loop
 from ..util.token import generate_jwt_token
 from .callbacks import DocumentCallbackGroup
 
@@ -86,7 +82,7 @@ def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
             return None
         self.block_expiration()
         try:
-            with await self._lock.acquire():
+            async with self._lock:
                 if self._pending_writes is not None:
                     raise RuntimeError("internal class invariant violated: _pending_writes " + \
                                        "should be None if lock is not held")
@@ -129,7 +125,7 @@ class ServerSession:
     _current_patch_connection: ServerConnection | None
     _pending_writes: list[Awaitable[None]] | None
 
-    def __init__(self, session_id: ID, document: Document, io_loop: IOLoop | None = None, token: str | None = None) -> None:
+    def __init__(self, session_id: ID, document: Document, io_loop: Loop | None = None, token: str | None = None) -> None:
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
@@ -140,7 +136,7 @@ class ServerSession:
         self._loop = io_loop
         self._subscribed_connections = set()
         self._last_unsubscribe_time = current_time()
-        self._lock = locks.Lock()
+        self._lock = asyncio.Lock()
         self._current_patch_connection = None
         self._document.callbacks.on_change_dispatch_to(self)
         self._callbacks = DocumentCallbackGroup(cast(Any, io_loop))

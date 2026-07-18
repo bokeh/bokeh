@@ -19,12 +19,14 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import gc
+import threading
 
 # External imports
 from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from bokeh.application import Application
+from bokeh.application.handlers.function import FunctionHandler
 
 # Module under test
 import bokeh.server.contexts as bsc # isort:skip
@@ -125,6 +127,47 @@ class TestApplicationContext:
         s1 = await c.create_session_if_needed("foo")
         s2 = await c.create_session_if_needed("foo")
         assert s1 == s2
+
+    async def test_document_initialization_does_not_block_event_loop(self) -> None:
+        started = threading.Event()
+        release = threading.Event()
+
+        def modify_document(doc) -> None:
+            started.set()
+            release.wait()
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        task = asyncio.create_task(c.create_session_if_needed("foo"))
+
+        await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+        # This timeout would fire if modify_document still occupied the loop.
+        await asyncio.wait_for(asyncio.sleep(0), 0.1)
+        release.set()
+        await task
+
+    async def test_document_initialization_is_serialized_per_application(self) -> None:
+        lock = threading.Lock()
+        active = 0
+        maximum_active = 0
+
+        def modify_document(doc) -> None:
+            nonlocal active, maximum_active
+            with lock:
+                active += 1
+                maximum_active = max(maximum_active, active)
+            threading.Event().wait(0.02)
+            with lock:
+                active -= 1
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        await asyncio.gather(
+            c.create_session_if_needed("one"),
+            c.create_session_if_needed("two"),
+        )
+
+        assert maximum_active == 1
 
     async def test_create_session_if_needed_bad_sessionid(self) -> None:
         app = Application()

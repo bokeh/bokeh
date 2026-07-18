@@ -21,6 +21,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
+import threading
 import weakref
 from typing import (
     TYPE_CHECKING,
@@ -31,17 +33,11 @@ from typing import (
     cast,
 )
 
-# External imports
-from tornado.concurrent import Future
-
-if TYPE_CHECKING:
-    from tornado.httputil import HTTPServerRequest
-    from tornado.ioloop import IOLoop
-
 # Bokeh imports
 from ..application.application import ServerContext, SessionContext
 from ..document import Document
 from ..protocol.exceptions import ProtocolError
+from ..util.asyncio import Loop
 from ..util.token import get_token_payload
 from .session import ServerSession
 
@@ -49,6 +45,7 @@ if TYPE_CHECKING:
     from ..application.application import Application
     from ..core.types import ID
     from ..util.token import TokenPayload
+    from .request import RequestLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -154,11 +151,11 @@ class ApplicationContext:
     '''
 
     _sessions: dict[ID, ServerSession]
-    _pending_sessions: dict[ID, Future[ServerSession]]
+    _pending_sessions: dict[ID, asyncio.Future[ServerSession]]
     _session_contexts: dict[ID, SessionContext]
     _server_context: BokehServerContext
 
-    def __init__(self, application: Application, io_loop: IOLoop | None = None,
+    def __init__(self, application: Application, io_loop: Loop | None = None,
             url: str | None = None, logout_url: str | None = None):
         self._application = application
         self._loop = io_loop
@@ -168,9 +165,18 @@ class ApplicationContext:
         self._server_context = BokehServerContext(self)
         self._url = url
         self._logout_url = logout_url
+        # Application handlers commonly retain mutable execution state. Run
+        # document initialization away from the event loop, but serialize it
+        # per application to preserve the ordering guarantees of the Tornado
+        # implementation.
+        self._document_init_lock = threading.Lock()
+
+    def _initialize_document(self, doc: Document) -> None:
+        with self._document_init_lock:
+            self._application.initialize_document(doc)
 
     @property
-    def io_loop(self) -> IOLoop | None:
+    def io_loop(self) -> Loop | None:
         return self._loop
 
     @property
@@ -201,7 +207,7 @@ class ApplicationContext:
         except Exception as e:
             log.error(f"Error in server unloaded hook {e!r}", exc_info=True)
 
-    async def create_session_if_needed(self, session_id: ID, request: HTTPServerRequest | None = None,
+    async def create_session_if_needed(self, session_id: ID, request: RequestLike | None = None,
             token: str | None = None) -> ServerSession:
         # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
@@ -210,7 +216,7 @@ class ApplicationContext:
 
         if session_id not in self._sessions and \
            session_id not in self._pending_sessions:
-            future = self._pending_sessions[session_id] = Future()
+            future = self._pending_sessions[session_id] = asyncio.get_running_loop().create_future()
 
             doc = Document()
 
@@ -242,7 +248,10 @@ class ApplicationContext:
             except Exception as e:
                 log.error("Failed to run session creation hooks %r", e, exc_info=True)
 
-            self._application.initialize_document(doc)
+            # Application code is arbitrary synchronous Python and can be
+            # expensive. Keeping it on the event-loop thread prevents the
+            # server from accepting unrelated HTTP and websocket work.
+            await asyncio.to_thread(self._initialize_document, doc)
 
             session = ServerSession(session_id, doc, io_loop=self._loop, token=token)
             del self._pending_sessions[session_id]
@@ -335,7 +344,7 @@ class _RequestProxy:
 
     def __init__(
         self,
-        request: HTTPServerRequest,
+        request: RequestLike,
         arguments: dict[str, bytes | list[bytes]] | None = None,
         cookies: dict[str, str] | None = None,
         headers: dict[str, str | list[str]] | None = None,
