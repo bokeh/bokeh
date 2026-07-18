@@ -67,21 +67,97 @@ websocket URLs. Equivalent complete examples are available for:
 
 The ASGI frontend handles Bokeh document, autoload, metadata, static asset, and
 websocket routes, as well as application startup and shutdown through ASGI
-lifespan events. Authentication should normally be applied by host-framework
-middleware. ASGI does not expose websocket ping frames, so transport keepalive
-should be configured on the ASGI server (for example, Uvicorn's websocket ping
-interval) rather than with Bokeh's ``keep_alive_milliseconds`` option.
+lifespan events. ASGI does not expose websocket ping frames, so transport
+keepalive should be configured on the ASGI server (for example, Uvicorn's
+websocket ping interval) rather than with Bokeh's
+``keep_alive_milliseconds`` option.
 
 ASGI servers send lifespan events to the top-level application. When Bokeh is
 mounted under a framework that does not propagate those events to mounts, such
 as FastAPI or Starlette, compose ``bokeh_app.core.start()`` and
 ``bokeh_app.core.stop()`` into the parent lifespan as shown above.
 
-Session document construction runs in a worker thread and is serialized per
-Bokeh application. Consequently, expensive synchronous application code does
-not block the event loop from accepting unrelated HTTP or websocket work.
-Different applications can initialize documents concurrently; initialization
-for a single application retains the historical serialized ordering.
+Authentication
+~~~~~~~~~~~~~~
+
+Authentication can be performed by the host framework, by a
+:class:`~bokeh.server.auth.AuthPolicy`, or by both. An auth policy protects
+Bokeh's dynamic HTTP routes and websocket handshake without importing an ASGI
+framework:
+
+.. code-block:: python
+
+   import os
+
+   from bokeh.server.asgi import BokehASGI
+   from bokeh.server.auth import AuthPolicy
+
+   async def authenticate(request):
+       authorization = request.headers.get("authorization")
+       if authorization == f"Bearer {os.environ['SITE_TOKEN']}":
+           return "alice"
+       return None
+
+   policy = AuthPolicy(
+       authenticate,
+       login_url="/login",
+       logout_url="/logout",
+   )
+
+   application = BokehASGI(
+       {"/": "bkapp.py"},
+       auth_policy=policy,
+       sign_sessions=True,
+       secret_key=os.environ["BOKEH_SECRET_KEY"].encode(),
+   )
+
+The authenticator may be synchronous or asynchronous. It returns the current
+user, or ``None`` to reject a request. Unauthenticated HTTP requests redirect
+to ``login_url``, when configured, and otherwise receive HTTP 401.
+Unauthenticated websockets are closed before Bokeh accepts them. Login and
+logout endpoints remain the responsibility of the host application.
+
+Authentication middleware such as Starlette's commonly stores its result in
+the ASGI ``scope["user"]`` value. Bokeh copies this to ``request.user``, so a
+policy can enforce the host framework's result. Configure the parent
+application's lifespan for this ``bokeh_app`` as shown above, then mount it:
+
+.. code-block:: python
+
+   def authenticate(request):
+       user = request.user
+       if user is not None and getattr(user, "is_authenticated", False):
+           return user
+       return None
+
+   bokeh_app = BokehASGI(
+       {"/": "bkapp.py"},
+       auth_policy=AuthPolicy(authenticate, login_url="/login"),
+   )
+   site.mount("/bokeh", bokeh_app)
+
+The authenticated user is subsequently available as
+``curdoc().session_context.request.user``. ASGI ``scope["state"]`` is similarly
+available to the authenticator as ``request.state``.
+
+Session tokens are bearer credentials, not a replacement for authenticating
+HTTP and websocket requests. Authenticated deployments should enable signed
+sessions and configure a strong shared secret. Token payloads are signed but
+not encrypted; use ``include_headers``, ``exclude_headers``,
+``include_cookies``, and ``exclude_cookies`` to avoid copying secrets into
+them.
+
+The older :class:`~bokeh.server.auth_provider.AuthProvider` and
+``--auth-module`` interfaces use Tornado request handlers and remain available
+for the Tornado frontend. They are not required by
+:class:`~bokeh.server.auth.AuthPolicy`.
+
+Session document construction runs in worker threads. Consequently, expensive
+synchronous application code does not block the event loop from accepting
+unrelated HTTP or websocket work, and independent sessions can initialize
+concurrently. Script applications serialize the temporary process-global
+state they require, including ``sys.path``, ``sys.argv``, and the working
+directory.
 
 Embedding in Tornado
 --------------------

@@ -11,7 +11,7 @@ from __future__ import annotations
 # Standard library imports
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Any, Protocol
 
 __all__ = (
     'ServerRequest',
@@ -70,3 +70,5 @@ class ServerRequest:
     host: str = ""
     query: str = ""
     root_path: str = ""
+    user: Any = None
+    state: Mapping[str, Any] = field(default_factory=dict)

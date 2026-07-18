@@ -25,6 +25,7 @@ from bokeh.document import Document
 from bokeh.models import ColumnDataSource, Select
 from bokeh.protocol import Protocol
 from bokeh.server.asgi import BokehASGI
+from bokeh.server.auth import AuthPolicy
 from bokeh.util.token import generate_jwt_token
 
 
@@ -35,6 +36,9 @@ async def http_request(
     query: dict[str, str] | None = None,
     method: str = "GET",
     root_path: str = "",
+    headers: list[tuple[bytes, bytes]] | None = None,
+    user: Any = None,
+    state: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     sent: list[dict[str, Any]] = []
 
@@ -55,8 +59,10 @@ async def http_request(
             "path": path,
             "root_path": root_path,
             "query_string": query_string,
-            "headers": [(b"host", b"localhost")],
+            "headers": [(b"host", b"localhost"), *(headers or [])],
             "client": ("127.0.0.1", 1234),
+            "user": user,
+            "state": state or {},
         },
         receive,
         send,
@@ -70,6 +76,11 @@ def response_status(events: list[dict[str, Any]]) -> int:
 
 def response_body(events: list[dict[str, Any]]) -> bytes:
     return b"".join(event.get("body", b"") for event in events if event["type"] == "http.response.body")
+
+
+def response_header(events: list[dict[str, Any]], name: bytes) -> bytes | None:
+    headers = events[0].get("headers", [])
+    return next((value for key, value in headers if key.lower() == name.lower()), None)
 
 
 def test_example_application_initializes() -> None:
@@ -202,6 +213,75 @@ async def test_autoload_and_static_routes() -> None:
         await app.core.stop()
 
 
+async def test_auth_policy_redirects_and_propagates_user() -> None:
+    authentication_state: list[dict[str, Any]] = []
+
+    def authenticate(request) -> str | None:
+        authentication_state.append(dict(request.state))
+        if request.headers.get("authorization") == "Bearer secret":
+            return "alice"
+        return None
+
+    def modify_document(doc) -> None:
+        doc.title = doc.session_context.request.user
+
+    policy = AuthPolicy(authenticate, login_url=lambda request: f"/login?next={request.path}", logout_url="/logout")
+    app = BokehASGI(Application(FunctionHandler(modify_document)), auth_policy=policy, keep_alive_milliseconds=0)
+    try:
+        anonymous = await http_request(app, "/", state={"request_id": "anonymous"})
+        authenticated = await http_request(
+            app,
+            "/",
+            headers=[(b"authorization", b"Bearer secret")],
+            state={"request_id": "authenticated"},
+        )
+
+        assert response_status(anonymous) == 302
+        assert response_header(anonymous, b"location") == b"/login?next=/"
+        assert response_status(authenticated) == 200
+        session = app.core.get_sessions("/")[0]
+        assert session.document.title == "alice"
+        assert session.document.session_context.request.user == "alice"
+        assert session.document.session_context.logout_url == "/logout"
+        assert authentication_state == [
+            {"request_id": "anonymous"},
+            {"request_id": "authenticated"},
+        ]
+    finally:
+        await app.core.stop()
+
+
+async def test_auth_policy_returns_401_without_login_url() -> None:
+    app = BokehASGI(Application(), auth_policy=AuthPolicy(lambda request: None), keep_alive_milliseconds=0)
+    try:
+        response = await http_request(app, "/metadata")
+
+        assert response_status(response) == 401
+        assert response_body(response) == b"Authentication required"
+        assert not app.core.get_sessions("/")
+    finally:
+        await app.core.stop()
+
+
+async def test_auth_policy_leaves_static_assets_and_preflight_public() -> None:
+    authenticated: list[str] = []
+
+    def authenticate(request) -> None:
+        authenticated.append(request.path)
+        return None
+
+    app = BokehASGI(Application(), auth_policy=AuthPolicy(authenticate), keep_alive_milliseconds=0)
+    try:
+        static = await http_request(app, "/static/js/bokeh.min.js")
+        preflight = await http_request(app, "/autoload.js", method="OPTIONS")
+
+        assert response_status(static) == 200
+        assert response_status(preflight) == 204
+        assert authenticated == []
+    finally:
+        await app.core.stop()
+
+
 async def test_slow_document_does_not_block_other_http_requests() -> None:
     started = threading.Event()
     release = threading.Event()
@@ -297,6 +377,83 @@ async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:
         assert len(fragments) == 3
         assert json.loads(fragments[0])["msgtype"] == "ACK"
         assert app.core.get_sessions("/")[0].connection_count == 0
+    finally:
+        await app.core.stop()
+
+
+async def test_websocket_auth_policy_rejects_anonymous_user() -> None:
+    app = BokehASGI(Application(), auth_policy=AuthPolicy(lambda request: None), keep_alive_milliseconds=0)
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return {"type": "websocket.connect"}
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0"},
+                "scheme": "ws",
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        assert sent == [{
+            "type": "websocket.close",
+            "code": 1008,
+            "reason": "Authentication required",
+        }]
+        assert not app.core.get_sessions("/")
+    finally:
+        await app.core.stop()
+
+
+async def test_websocket_auth_policy_uses_asgi_scope_user() -> None:
+    policy = AuthPolicy(lambda request: request.user if request.user == "alice" else None)
+    app = BokehASGI(Application(), auth_policy=policy, keep_alive_milliseconds=0)
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    incoming = deque([
+        {"type": "websocket.connect"},
+        {"type": "websocket.disconnect", "code": 1000},
+    ])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0"},
+                "scheme": "ws",
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+                "user": "alice",
+            },
+            receive,
+            send,
+        )
+
+        assert sent[0] == {"type": "websocket.accept", "subprotocol": "bokeh"}
+        session = app.core.get_sessions("/")[0]
+        assert session.document.session_context.request.user == "alice"
     finally:
         await app.core.stop()
 

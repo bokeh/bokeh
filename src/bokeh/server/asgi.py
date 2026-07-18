@@ -31,6 +31,7 @@ from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..settings import settings
 from ..util.token import check_token_signature, get_session_id, get_token_payload
+from .auth import AuthPolicy
 from .core import BokehServerCore, SessionError
 from .protocol_handler import ProtocolHandler
 from .request import Cookie, Headers, ServerRequest
@@ -114,7 +115,9 @@ class BokehASGI:
     served directly by Uvicorn or Hypercorn, or mounted in another ASGI app.
     Applications may be supplied as :class:`~bokeh.application.application.Application`
     objects, document-modifying callables, or paths to Bokeh application
-    scripts. Script paths are executed once for every new session.
+    scripts. Script paths are executed once for every new session. Supply an
+    :class:`~bokeh.server.auth.AuthPolicy` to authenticate dynamic HTTP and
+    websocket requests without depending on an ASGI framework.
     '''
 
     def __init__(
@@ -123,10 +126,14 @@ class BokehASGI:
         *,
         prefix: str | None = None,
         redirect_root: bool = True,
+        auth_policy: AuthPolicy | None = None,
         **kwargs: Any,
     ) -> None:
+        if auth_policy is not None and auth_policy.logout_url is not None:
+            kwargs.setdefault("logout_url", auth_policy.logout_url)
         self._core = BokehServerCore(applications, prefix=prefix, **kwargs)
         self._redirect_root = redirect_root
+        self._auth_policy = auth_policy
         self._start_lock: asyncio.Lock | None = None
 
     @property
@@ -180,10 +187,6 @@ class BokehASGI:
             await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
             return
 
-        if route == "/" and "/" not in self._core.applications:
-            await self._root(send, head=method == "HEAD")
-            return
-
         if route.startswith("/static/extensions/"):
             relative = route.removeprefix("/static/extensions/")
             name, separator, artifact = relative.partition("/")
@@ -194,23 +197,32 @@ class BokehASGI:
             await self._static(send, Path(settings.bokehjs_path()), route.removeprefix("/static/"), head=method == "HEAD")
             return
 
+        if route == "/" and "/" not in self._core.applications:
+            if await self._authenticate_http(request, send, head=method == "HEAD"):
+                await self._root(send, head=method == "HEAD")
+            return
+
         resolved = self._resolve_application(route)
         if resolved is None:
             await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
             return
         context, suffix = resolved
 
+        if suffix.startswith("/static/"):
+            await self._static(send, context.application.static_path, suffix.removeprefix("/static/"), head=method == "HEAD")
+            return
+        if suffix == "/autoload.js" and method == "OPTIONS":
+            await self._response(send, 204, b"", "text/plain", extra_headers=self._cors_headers(request))
+            return
+        if not await self._authenticate_http(request, send, head=method == "HEAD"):
+            return
+
         if suffix in ("", "/"):
             await self._document(context, request, send, head=method == "HEAD")
         elif suffix == "/metadata":
             await self._metadata(context, send, head=method == "HEAD")
         elif suffix == "/autoload.js":
-            if method == "OPTIONS":
-                await self._response(send, 204, b"", "text/plain", extra_headers=self._cors_headers(request))
-            else:
-                await self._autoload(context, request, send, head=method == "HEAD")
-        elif suffix.startswith("/static/"):
-            await self._static(send, context.application.static_path, suffix.removeprefix("/static/"), head=method == "HEAD")
+            await self._autoload(context, request, send, head=method == "HEAD")
         else:
             await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
 
@@ -309,6 +321,9 @@ class BokehASGI:
         if not self._origin_allowed(request):
             await send({"type": "websocket.close", "code": 1008, "reason": "Origin is not allowed"})
             return
+        if not await self._authenticate(request):
+            await send({"type": "websocket.close", "code": 1008, "reason": "Authentication required"})
+            return
 
         await send({"type": "websocket.accept", "subprotocol": "bokeh"})
         transport = _ASGIWebSocketTransport(send)
@@ -382,7 +397,32 @@ class BokehASGI:
             host=host,
             query=query,
             root_path=scope.get("root_path", ""),
+            user=scope.get("user"),
+            state=scope.get("state") or {},
         )
+
+    async def _authenticate(self, request: ServerRequest) -> bool:
+        if self._auth_policy is None:
+            return True
+        request.user = await self._auth_policy.authenticate(request)
+        return request.user is not None
+
+    async def _authenticate_http(self, request: ServerRequest, send: Send, *, head: bool) -> bool:
+        if await self._authenticate(request):
+            return True
+        assert self._auth_policy is not None
+        if (login_url := self._auth_policy.get_login_url(request)) is not None:
+            await self._response(
+                send,
+                302,
+                b"",
+                "text/plain",
+                head=head,
+                extra_headers=[(b"location", login_url.encode())],
+            )
+        else:
+            await self._response(send, 401, b"Authentication required", "text/plain", head=head)
+        return False
 
     def _route_path(self, scope: Scope) -> str:
         path = scope.get("path", "/")
