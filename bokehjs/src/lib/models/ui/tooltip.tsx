@@ -169,13 +169,15 @@ export class TooltipView extends UIElementView {
     this._has_rendered = true
     return (
       <UIComponent parent={this.resolved_props} class={cls(closable_cls, show_arrow_cls, interactive_cls)} popover="manual">
-        <div class={tooltips_css.arrow_outer}>
-          <div class={tooltips_css.arrow}>
-            <div class={tooltips_css.arrow_inner}/>
+        <div class={tooltips_css.tooltip_wrapper}>
+          <div class={tooltips_css.arrow_outer}>
+            <div class={tooltips_css.arrow}>
+              <div class={tooltips_css.arrow_inner}/>
+            </div>
           </div>
+          {content_el}
+          {closable.value ? <div class={tooltips_css.close} onClick={() => this.model.visible = false}/> : null}
         </div>
-        {content_el}
-        {closable.value ? <div class={tooltips_css.close} onClick={() => this.model.visible = false}/> : null}
       </UIComponent>
     )
   }
@@ -229,7 +231,9 @@ export class TooltipView extends UIElementView {
       return
     }
 
-    this.el.showPopover({source: target})
+    if (!this.el.matches(":popover-open")) {
+      this.el.showPopover({source: target})
+    }
 
     const bbox = bounding_box(target)
     const [sx, sy] = (() => {
