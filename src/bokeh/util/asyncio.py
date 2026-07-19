@@ -24,7 +24,12 @@ import inspect
 import threading
 from collections import defaultdict
 from traceback import format_exception
-from typing import Any, Awaitable, Callable, Protocol
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Protocol,
+)
 
 # Bokeh imports
 from ..core.types import ID

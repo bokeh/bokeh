@@ -24,7 +24,6 @@ import re
 import ssl
 import sys
 import tempfile
-import time
 from datetime import timedelta
 from unittest import mock
 
@@ -778,13 +777,16 @@ async def test__reject_expired_session_websocket(ManagedServerLoop: MSL) -> None
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-        response = await http_get(server.io_loop, url(server))
+        issued_at = 1_000
+        with mock.patch("bokeh.util.token.calendar.timegm", return_value=issued_at):
+            response = await http_get(server.io_loop, url(server))
         html = response.body
         token = extract_token_from_json(html)
+        expiry = get_token_payload(token)["session_expiry"]
+        assert expiry == issued_at + 1
 
-        time.sleep(1.1)
-
-        ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
+        with mock.patch("bokeh.server.views.ws.calendar.timegm", return_value=expiry):
+            ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
         assert await ws.read_queue.get() is None
 
 async def test__reject_wrong_subprotocol_websocket(ManagedServerLoop: MSL) -> None:

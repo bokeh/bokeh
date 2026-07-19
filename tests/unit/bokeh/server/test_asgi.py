@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import asyncio
 import json
 import runpy
@@ -18,8 +19,10 @@ from types import ModuleType
 from typing import Any, cast
 from urllib.parse import urlencode
 
+# External imports
 import pytest
 
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.types import ID
@@ -724,14 +727,18 @@ async def test_websocket_rejects_missing_token() -> None:
         await app.core.stop()
 
 
-@pytest.mark.parametrize("token", [
-    "garbage",
-    "e30=",
-    "W10=",
-    generate_jwt_token(cast(ID, ""), expiration=300),
-    generate_jwt_token(cast(ID, 1), expiration=300),
+@pytest.mark.parametrize(("token", "session_id"), [
+    pytest.param("garbage", None, id="garbage"),
+    pytest.param("e30=", None, id="empty-object"),
+    pytest.param("W10=", None, id="empty-array"),
+    pytest.param(None, "", id="empty-session-id"),
+    pytest.param(None, 1, id="non-string-session-id"),
 ])
-async def test_websocket_rejects_malformed_token(token: str) -> None:
+async def test_websocket_rejects_malformed_token(token: str | None, session_id: str | int | None) -> None:
+    if token is None:
+        assert session_id is not None
+        token = generate_jwt_token(cast(ID, session_id), expiration=300)
+
     app = BokehASGI(Application(), keep_alive_milliseconds=0)
     sent: list[dict[str, Any]] = []
 

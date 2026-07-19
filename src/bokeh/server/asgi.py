@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import asyncio
 import binascii
 import calendar
@@ -22,6 +23,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import parse_qs, urlparse
 
+# Bokeh imports
 from ..core.templates import AUTOLOAD_JS
 from ..embed.bundle import Script, bundle_for_objs_and_resources, extension_dirs
 from ..embed.elements import script_for_render_items
@@ -161,7 +163,7 @@ class BokehASGI:
             await self._lifespan(receive, send)
         elif scope_type == "http":
             await self._ensure_started()
-            await self._http(scope, receive, send)
+            await self._http(scope, send)
         elif scope_type == "websocket":
             await self._ensure_started()
             await self._websocket(scope, receive, send)
@@ -190,77 +192,90 @@ class BokehASGI:
                 await send({"type": "lifespan.shutdown.complete"})
                 return
 
-    async def _http(self, scope: Scope, receive: Receive, send: Send) -> None:
+    async def _http(self, scope: Scope, send: Send) -> None:
         request = self._request(scope)
         route = self._route_path(scope)
-        method = request.method.upper()
 
         if not route:
-            await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
+            await self._not_found(request, send)
             return
-
         if route.startswith("/static/"):
-            if method not in ("GET", "HEAD"):
-                await self._method_not_allowed(send, ("GET", "HEAD"))
-                return
-            root_context = self._core.applications.get("/")
-            root = root_context.application.static_path if root_context is not None else None
-            if root is not None:
-                await self._static(send, root, route.removeprefix("/static/"), head=method == "HEAD")
-            elif route.startswith("/static/extensions/"):
-                relative = route.removeprefix("/static/extensions/")
-                name, separator, artifact = relative.partition("/")
-                await self._static(send, extension_dirs.get(name), artifact if separator else "", head=method == "HEAD")
-            else:
-                await self._static(
-                    send,
-                    Path(settings.bokehjs_path()),
-                    route.removeprefix("/static/"),
-                    head=method == "HEAD",
-                )
+            await self._global_static(route, request, send)
             return
-
         if route == "/" and "/" not in self._core.applications:
-            if method not in ("GET", "HEAD"):
-                await self._method_not_allowed(send, ("GET", "HEAD"))
-                return
-            if await self._authenticate_http(request, send, head=method == "HEAD"):
-                await self._root(request, send, head=method == "HEAD")
+            await self._root(request, send)
             return
 
         resolved = self._resolve_application(route)
         if resolved is None:
-            await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
+            await self._not_found(request, send)
             return
         context, suffix = resolved
 
-        if suffix.startswith("/static/"):
-            if method not in ("GET", "HEAD"):
-                await self._method_not_allowed(send, ("GET", "HEAD"))
-                return
-            await self._static(send, context.application.static_path, suffix.removeprefix("/static/"), head=method == "HEAD")
-            return
-        if suffix == "/autoload.js" and method == "OPTIONS":
-            await self._response(send, 204, b"", "text/plain", extra_headers=self._cors_headers(request))
-            return
-        if suffix not in ("", "/", "/metadata", "/autoload.js"):
-            await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
-            return
-        if method not in ("GET", "HEAD"):
-            allowed = ("GET", "HEAD", "OPTIONS") if suffix == "/autoload.js" else ("GET", "HEAD")
-            await self._method_not_allowed(send, allowed)
-            return
-        if not await self._authenticate_http(request, send, head=method == "HEAD"):
-            return
-
         if suffix in ("", "/"):
-            await self._document(context, request, send, head=method == "HEAD")
+            await self._document(context, request, send)
         elif suffix == "/metadata":
-            await self._metadata(context, send, head=method == "HEAD")
+            await self._metadata(context, request, send)
+        elif suffix == "/autoload.js":
+            await self._autoload(context, request, send)
+        elif suffix.startswith("/static/"):
+            await self._application_static(context, suffix, request, send)
         else:
-            await self._autoload(context, request, send, head=method == "HEAD")
+            await self._not_found(request, send)
 
-    async def _document(self, context: ApplicationContext, request: ServerRequest, send: Send, *, head: bool) -> None:
+    async def _global_static(self, route: str, request: ServerRequest, send: Send) -> None:
+        method = request.method.upper()
+        if method not in ("GET", "HEAD"):
+            await self._method_not_allowed(send, ("GET", "HEAD"))
+            return
+
+        root_context = self._core.applications.get("/")
+        root = root_context.application.static_path if root_context is not None else None
+        if root is not None:
+            await self._serve_static(send, root, route.removeprefix("/static/"), head=method == "HEAD")
+        elif route.startswith("/static/extensions/"):
+            relative = route.removeprefix("/static/extensions/")
+            name, separator, artifact = relative.partition("/")
+            await self._serve_static(
+                send,
+                extension_dirs.get(name),
+                artifact if separator else "",
+                head=method == "HEAD",
+            )
+        else:
+            await self._serve_static(
+                send,
+                Path(settings.bokehjs_path()),
+                route.removeprefix("/static/"),
+                head=method == "HEAD",
+            )
+
+    async def _application_static(
+        self,
+        context: ApplicationContext,
+        suffix: str,
+        request: ServerRequest,
+        send: Send,
+    ) -> None:
+        method = request.method.upper()
+        if method not in ("GET", "HEAD"):
+            await self._method_not_allowed(send, ("GET", "HEAD"))
+            return
+        await self._serve_static(
+            send,
+            context.application.static_path,
+            suffix.removeprefix("/static/"),
+            head=method == "HEAD",
+        )
+
+    async def _document(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
+        method = request.method.upper()
+        head = method == "HEAD"
+        if method not in ("GET", "HEAD"):
+            await self._method_not_allowed(send, ("GET", "HEAD"))
+            return
+        if not await self._authenticate_http(request, send, head=head):
+            return
         try:
             session = await self._core.create_session(context, request)
         except SessionError as error:
@@ -275,14 +290,31 @@ class BokehASGI:
         )
         await self._response(send, 200, page.encode(), "text/html; charset=UTF-8", head=head)
 
-    async def _metadata(self, context: ApplicationContext, send: Send, *, head: bool) -> None:
+    async def _metadata(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
+        method = request.method.upper()
+        head = method == "HEAD"
+        if method not in ("GET", "HEAD"):
+            await self._method_not_allowed(send, ("GET", "HEAD"))
+            return
+        if not await self._authenticate_http(request, send, head=head):
+            return
         data = context.application.metadata
         if callable(data):
             data = data()
         body = json.dumps({"url": context.url, "data": data or {}}).encode()
         await self._response(send, 200, body, "application/json", head=head)
 
-    async def _autoload(self, context: ApplicationContext, request: ServerRequest, send: Send, *, head: bool) -> None:
+    async def _autoload(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
+        method = request.method.upper()
+        if method == "OPTIONS":
+            await self._response(send, 204, b"", "text/plain", extra_headers=self._cors_headers(request))
+            return
+        head = method == "HEAD"
+        if method not in ("GET", "HEAD"):
+            await self._method_not_allowed(send, ("GET", "HEAD", "OPTIONS"))
+            return
+        if not await self._authenticate_http(request, send, head=head):
+            return
         try:
             session = await self._core.create_session(context, request)
         except SessionError as error:
@@ -309,7 +341,14 @@ class BokehASGI:
             send, 200, body, "application/javascript", head=head, extra_headers=self._cors_headers(request),
         )
 
-    async def _root(self, request: ServerRequest, send: Send, *, head: bool) -> None:
+    async def _root(self, request: ServerRequest, send: Send) -> None:
+        method = request.method.upper()
+        head = method == "HEAD"
+        if method not in ("GET", "HEAD"):
+            await self._method_not_allowed(send, ("GET", "HEAD"))
+            return
+        if not await self._authenticate_http(request, send, head=head):
+            return
         paths = sorted(self._core.app_paths)
         base = request.root_path.rstrip("/") + self._core.prefix
         if self._redirect_root and len(paths) == 1:
@@ -321,7 +360,7 @@ class BokehASGI:
         body = f"<!doctype html><title>Bokeh applications</title><h1>Bokeh applications</h1><ul>{items}</ul>".encode()
         await self._response(send, 200, body, "text/html; charset=UTF-8", head=head)
 
-    async def _static(self, send: Send, root: str | Path | None, relative: str, *, head: bool) -> None:
+    async def _serve_static(self, send: Send, root: str | Path | None, relative: str, *, head: bool) -> None:
         if root is None or not relative:
             await self._response(send, 404, b"Not found", "text/plain", head=head)
             return
@@ -567,6 +606,16 @@ class BokehASGI:
     def _argument(request: ServerRequest, name: str) -> str | None:
         values = request.arguments.get(name)
         return values[-1].decode("utf-8") if values else None
+
+    @staticmethod
+    async def _not_found(request: ServerRequest, send: Send) -> None:
+        await BokehASGI._response(
+            send,
+            404,
+            b"Not found",
+            "text/plain",
+            head=request.method.upper() == "HEAD",
+        )
 
     @staticmethod
     async def _method_not_allowed(send: Send, allowed: tuple[str, ...]) -> None:

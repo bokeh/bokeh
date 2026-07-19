@@ -8,18 +8,30 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import asyncio
 import logging
 from collections.abc import Iterable, Mapping, Sequence
 from os import PathLike as OSPathLike
-from typing import TYPE_CHECKING, Any, Protocol as TypingProtocol, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Protocol as TypingProtocol,
+    cast,
+)
 from urllib.parse import urljoin
 
+# Bokeh imports
 from ..application import Application
 from ..resources import Resources
 from ..settings import settings
 from ..util.asyncio import _AsyncPeriodic
-from ..util.token import check_token_signature, generate_jwt_token, generate_session_id, get_session_id
+from ..util.token import (
+    check_token_signature,
+    generate_jwt_token,
+    generate_session_id,
+    get_session_id,
+)
 from .connection import ServerConnection
 from .contexts import ApplicationContext
 

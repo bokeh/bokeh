@@ -17,9 +17,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from concurrent.futures import ThreadPoolExecutor
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from os.path import abspath, dirname
 from threading import Event
 from types import ModuleType

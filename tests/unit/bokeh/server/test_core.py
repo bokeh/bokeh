@@ -7,11 +7,14 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import asyncio
 import threading
 
+# External imports
 import pytest
 
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.protocol import Protocol

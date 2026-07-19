@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
-from .asyncio import _AsyncPeriodic, _CallbackGroup # noqa: F401
+# Bokeh imports
+from .asyncio import _AsyncPeriodic, _CallbackGroup  # noqa: F401
 
 __all__ = ()

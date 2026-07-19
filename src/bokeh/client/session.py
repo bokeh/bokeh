@@ -34,7 +34,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    cast,
+)
 from urllib.parse import quote_plus
 
 # Bokeh imports
@@ -318,6 +323,7 @@ class ClientSession:
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url, arguments=arguments, max_message_size=max_message_size)
 
         from ..server.callbacks import DocumentCallbackGroup
+
         # Tornado's IOLoop exposes ``asyncio_loop`` at runtime, but its type
         # declarations don't include that attribute required by ``Loop``.
         self._callbacks = DocumentCallbackGroup(cast("Loop", self._connection.io_loop))

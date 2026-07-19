@@ -7,8 +7,10 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import asyncio
 
+# Bokeh imports
 from bokeh.server.auth import AuthPolicy
 from bokeh.server.request import ServerRequest
 
