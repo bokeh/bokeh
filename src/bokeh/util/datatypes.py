@@ -21,8 +21,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections.abc import Iterable, Mapping, Sized
-from typing import Any, cast
+from collections.abc import (
+    Iterable,
+    Mapping,
+    Set,
+    Sized,
+)
+from typing import Protocol, TypeGuard, cast
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -30,6 +35,7 @@ from typing import Any, cast
 
 __all__ = (
     'MultiValuedDict',
+    'SequenceLike',
     'is_sequence_like',
 )
 
@@ -37,11 +43,15 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def is_sequence_like(obj: Any) -> bool:
+class SequenceLike[T](Iterable[T], Sized, Protocol):
+    """A sized iterable with a stable iteration order."""
+
+def is_sequence_like(obj: object) -> TypeGuard[SequenceLike[object]]:
+    """Whether an object is a sized, ordered iterable."""
     return (
         isinstance(obj, Iterable)
         and isinstance(obj, Sized)
-        and not isinstance(obj, (str, bytes, Mapping))
+        and not isinstance(obj, (str, bytes, Mapping, Set))
     )
 
 class MultiValuedDict[K, V]:

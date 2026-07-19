@@ -18,10 +18,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Sequence
+from typing import Any
 
 # Bokeh imports
 from ..transform import stack
+from ..util.datatypes import SequenceLike, is_sequence_like
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -40,7 +41,13 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def single_stack(stackers: Sequence[str], spec: str, **kw: Any) -> list[dict[str, Any]]:
+def _validate_stackers(stackers: object) -> None:
+    if not is_sequence_like(stackers):
+        raise ValueError("Stackers must be a sequence")
+
+def single_stack(stackers: SequenceLike[str], spec: str, **kw: Any) -> list[dict[str, Any]]:
+    _validate_stackers(stackers)
+
     if spec in kw:
         raise ValueError(f"Stack property '{spec}' cannot appear in keyword args")
 
@@ -73,7 +80,9 @@ def single_stack(stackers: Sequence[str], spec: str, **kw: Any) -> list[dict[str
 
     return _kw
 
-def double_stack(stackers: Sequence[str], spec0: str, spec1: str, **kw: Any) -> list[dict[str, Any]]:
+def double_stack(stackers: SequenceLike[str], spec0: str, spec1: str, **kw: Any) -> list[dict[str, Any]]:
+    _validate_stackers(stackers)
+
     for name in (spec0, spec1):
         if name in kw:
             raise ValueError(f"Stack property '{name}' cannot appear in keyword args")

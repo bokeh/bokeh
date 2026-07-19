@@ -249,6 +249,38 @@ class Test_figure:
         assert [r.name for r in renderers] == ["a", "b"]
         assert [list(r.glyph.y.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
 
+    def test_hline_stack_accepts_numpy_stackers(self) -> None:
+        p = bpf.figure()
+        source = ColumnDataSource(dict(y=[1, 2], a=[1, 2], b=[3, 4]))
+
+        renderers = p.hline_stack(np.array(["a", "b"]), y="y", source=source)
+
+        assert len(renderers) == 2
+        assert [r.name for r in renderers] == ["a", "b"]
+        assert [list(r.glyph.x.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
+
+    def test_vline_stack_accepts_numpy_coordinates(self) -> None:
+        p = bpf.figure()
+        x = np.array([1, 2])
+
+        renderers = p.vline_stack(["a", "b"], x=x)
+
+        assert len(renderers) == 2
+        for renderer in renderers:
+            assert isinstance(renderer.data_source, ColumnDataSource)
+            assert np.array_equal(renderer.data_source.data["x"], x)
+
+    def test_hline_stack_accepts_numpy_coordinates(self) -> None:
+        p = bpf.figure()
+        y = np.array([1, 2])
+
+        renderers = p.hline_stack(["a", "b"], y=y)
+
+        assert len(renderers) == 2
+        for renderer in renderers:
+            assert isinstance(renderer.data_source, ColumnDataSource)
+            assert np.array_equal(renderer.data_source.data["y"], y)
+
     def test_hline_stack_accepts_pandas_index_stackers(self) -> None:
         pd = pytest.importorskip("pandas")
         p = bpf.figure()
@@ -259,6 +291,17 @@ class Test_figure:
         assert len(renderers) == 2
         assert [r.name for r in renderers] == ["a", "b"]
         assert [list(r.glyph.x.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
+
+    def test_vline_stack_accepts_pandas_index_stackers(self) -> None:
+        pd = pytest.importorskip("pandas")
+        p = bpf.figure()
+        source = ColumnDataSource(dict(x=[1, 2], a=[1, 2], b=[3, 4]))
+
+        renderers = p.vline_stack(pd.Index(["a", "b"]), x="x", source=source)
+
+        assert len(renderers) == 2
+        assert [r.name for r in renderers] == ["a", "b"]
+        assert [list(r.glyph.y.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
 
     def test_glyph_method_errors_on_sequence_literals_with_source(self) -> None:
         p = bpf.figure()
