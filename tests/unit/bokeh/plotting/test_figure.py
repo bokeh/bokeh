@@ -239,69 +239,75 @@ class Test_figure:
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
         p.scatter(x='x', y='y', source=df)
 
-    def test_vline_stack_accepts_numpy_stackers(self) -> None:
+    @pytest.mark.parametrize(("method_name", "coordinate_name", "stacked_name"), [
+        ("harea_stack", "y", "x2"),
+        ("varea_stack", "x", "y2"),
+        ("hbar_stack", "y", "right"),
+        ("vbar_stack", "x", "top"),
+        ("hline_stack", "y", "x"),
+        ("vline_stack", "x", "y"),
+    ])
+    def test_stack_methods_accept_numpy_stackers(
+        self,
+        method_name: str,
+        coordinate_name: str,
+        stacked_name: str,
+    ) -> None:
         p = bpf.figure()
-        source = ColumnDataSource(dict(x=[1, 2], a=[1, 2], b=[3, 4]))
+        source = ColumnDataSource({coordinate_name: [1, 2], "a": [1, 2], "b": [3, 4]})
 
-        renderers = p.vline_stack(np.array(["a", "b"]), x="x", source=source)
+        method = getattr(p, method_name)
+        renderers = method(np.array(["a", "b"]), source=source, **{coordinate_name: coordinate_name})
 
         assert len(renderers) == 2
-        assert [r.name for r in renderers] == ["a", "b"]
-        assert [list(r.glyph.y.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
+        assert [renderer.name for renderer in renderers] == ["a", "b"]
+        assert [list(getattr(renderer.glyph, stacked_name).expr.fields) for renderer in renderers] == [["a"], ["a", "b"]]
 
-    def test_hline_stack_accepts_numpy_stackers(self) -> None:
-        p = bpf.figure()
-        source = ColumnDataSource(dict(y=[1, 2], a=[1, 2], b=[3, 4]))
-
-        renderers = p.hline_stack(np.array(["a", "b"]), y="y", source=source)
-
-        assert len(renderers) == 2
-        assert [r.name for r in renderers] == ["a", "b"]
-        assert [list(r.glyph.x.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
-
-    def test_vline_stack_accepts_numpy_coordinates(self) -> None:
-        p = bpf.figure()
-        x = np.array([1, 2])
-
-        renderers = p.vline_stack(["a", "b"], x=x)
-
-        assert len(renderers) == 2
-        for renderer in renderers:
-            assert isinstance(renderer.data_source, ColumnDataSource)
-            assert np.array_equal(renderer.data_source.data["x"], x)
-
-    def test_hline_stack_accepts_numpy_coordinates(self) -> None:
-        p = bpf.figure()
-        y = np.array([1, 2])
-
-        renderers = p.hline_stack(["a", "b"], y=y)
-
-        assert len(renderers) == 2
-        for renderer in renderers:
-            assert isinstance(renderer.data_source, ColumnDataSource)
-            assert np.array_equal(renderer.data_source.data["y"], y)
-
-    def test_hline_stack_accepts_pandas_index_stackers(self) -> None:
+    @pytest.mark.parametrize(("method_name", "coordinate_name", "stacked_name"), [
+        ("harea_stack", "y", "x2"),
+        ("varea_stack", "x", "y2"),
+        ("hbar_stack", "y", "right"),
+        ("vbar_stack", "x", "top"),
+        ("hline_stack", "y", "x"),
+        ("vline_stack", "x", "y"),
+    ])
+    def test_stack_methods_accept_pandas_index_stackers(
+        self,
+        method_name: str,
+        coordinate_name: str,
+        stacked_name: str,
+    ) -> None:
         pd = pytest.importorskip("pandas")
         p = bpf.figure()
-        source = ColumnDataSource(dict(y=[1, 2], a=[1, 2], b=[3, 4]))
+        source = ColumnDataSource({coordinate_name: [1, 2], "a": [1, 2], "b": [3, 4]})
 
-        renderers = p.hline_stack(pd.Index(["a", "b"]), y="y", source=source)
+        method = getattr(p, method_name)
+        renderers = method(pd.Index(["a", "b"]), source=source, **{coordinate_name: coordinate_name})
 
         assert len(renderers) == 2
-        assert [r.name for r in renderers] == ["a", "b"]
-        assert [list(r.glyph.x.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
+        assert [renderer.name for renderer in renderers] == ["a", "b"]
+        assert [list(getattr(renderer.glyph, stacked_name).expr.fields) for renderer in renderers] == [["a"], ["a", "b"]]
 
-    def test_vline_stack_accepts_pandas_index_stackers(self) -> None:
-        pd = pytest.importorskip("pandas")
+    @pytest.mark.parametrize(("method_name", "coordinate_name"), [
+        ("harea_stack", "y"),
+        ("varea_stack", "x"),
+        ("hbar_stack", "y"),
+        ("vbar_stack", "x"),
+        ("hline_stack", "y"),
+        ("vline_stack", "x"),
+    ])
+    def test_stack_methods_accept_numpy_coordinates(self, method_name: str, coordinate_name: str) -> None:
         p = bpf.figure()
-        source = ColumnDataSource(dict(x=[1, 2], a=[1, 2], b=[3, 4]))
+        coordinate = np.array([1, 2])
 
-        renderers = p.vline_stack(pd.Index(["a", "b"]), x="x", source=source)
+        method = getattr(p, method_name)
+        renderers = method(["a", "b"], **{coordinate_name: coordinate})
 
         assert len(renderers) == 2
-        assert [r.name for r in renderers] == ["a", "b"]
-        assert [list(r.glyph.y.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
+        assert [renderer.name for renderer in renderers] == ["a", "b"]
+        for renderer in renderers:
+            assert isinstance(renderer.data_source, ColumnDataSource)
+            assert np.array_equal(renderer.data_source.data[coordinate_name], coordinate)
 
     def test_glyph_method_errors_on_sequence_literals_with_source(self) -> None:
         p = bpf.figure()
