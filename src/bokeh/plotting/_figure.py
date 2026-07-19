@@ -77,7 +77,13 @@ from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
-    from ..models.glyphs import Line
+    from ..models.glyphs import (
+        HArea,
+        HBar,
+        Line,
+        VArea,
+        VBar,
+    )
     from ..models.renderers.contour_renderer import ContourRenderer
     from ..models.renderers.glyph_renderer import GlyphRenderer
     from ..util.datatypes import SequenceLike
@@ -371,7 +377,11 @@ class figure(Plot, GlyphAPI):
 
         return (r, bins)
 
-    def harea_stack(self, stackers, **kw):
+    def harea_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[HArea]]:
         ''' Generate multiple ``HArea`` renderers for levels stacked left
         to right.
 
@@ -413,7 +423,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.harea(**kw))
         return result
 
-    def hbar_stack(self, stackers, **kw):
+    def hbar_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[HBar]]:
         ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
 
         Args:
@@ -505,7 +519,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.line(**kw))
         return result
 
-    def hline_stack(self, stackers, **kw):
+    def hline_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[Line]]:
         ''' Generate multiple ``Line`` renderers for lines stacked horizontally.
 
         Args:
@@ -544,7 +562,11 @@ class figure(Plot, GlyphAPI):
         '''
         return self._line_stack(stackers, "x", **kw)
 
-    def varea_stack(self, stackers, **kw):
+    def varea_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[VArea]]:
         ''' Generate multiple ``VArea`` renderers for levels stacked bottom
         to top.
 
@@ -586,7 +608,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.varea(**kw))
         return result
 
-    def vbar_stack(self, stackers, **kw):
+    def vbar_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[VBar]]:
         ''' Generate multiple ``VBar`` renderers for levels stacked bottom
         to top.
 
@@ -628,7 +654,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.vbar(**kw))
         return result
 
-    def vline_stack(self, stackers, **kw):
+    def vline_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[Line]]:
         ''' Generate multiple ``Line`` renderers for lines stacked vertically.
 
         Args:
