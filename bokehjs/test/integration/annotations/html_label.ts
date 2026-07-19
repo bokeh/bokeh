@@ -45,7 +45,7 @@ describe("HTMLLabel annotation", () => {
     plot.add_glyph(line, source)
 
     const overlay_label = new HTMLLabel({
-      x: -30,
+      x: -10,
       y: 200,
       text: "Overflowing Overlay Label",
       text_color: "black",
@@ -58,7 +58,7 @@ describe("HTMLLabel annotation", () => {
     plot.add_layout(overlay_label)
 
     const non_overlay_label = new HTMLLabel({
-      x: 330,
+      x: -20,
       y: 100,
       text: "Clipped Non-Overlay Label",
       text_color: "black",
