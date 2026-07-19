@@ -17,8 +17,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import json
 import logging
+import threading
 from unittest.mock import Mock, patch
 
 # External imports
@@ -28,6 +30,7 @@ from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
 from bokeh.application import Application
+from bokeh.application.handlers.function import FunctionHandler
 from bokeh.client import pull_session
 from bokeh.core.types import ID
 from bokeh.server.auth_provider import NullAuth
@@ -253,7 +256,7 @@ def test_stop_cancels_pending_sessions_before_unload() -> None:
     t = bst.BokehTornado({"/": Application()})
     context = t._applications["/"]
     calls = []
-    context._cancel_pending_sessions = Mock(side_effect=lambda: calls.append("cancel"))
+    context._cancel_pending_sessions = Mock(side_effect=lambda: calls.append("cancel") or ())
     context.run_unload_hook = Mock(side_effect=lambda: calls.append("unload"))
     t._stats_job = Mock()
     t._mem_job = None
@@ -264,6 +267,96 @@ def test_stop_cancels_pending_sessions_before_unload() -> None:
     t.stop()
 
     assert calls == ["cancel", "unload"]
+
+
+async def test_stop_defers_unload_until_pending_worker_finishes() -> None:
+    started = threading.Event()
+    release = threading.Event()
+    finished = threading.Event()
+    unloaded = threading.Event()
+
+    def modify_document(doc) -> None:
+        started.set()
+        assert release.wait(timeout=2)
+        finished.set()
+
+    handler = FunctionHandler(modify_document)
+    handler.on_server_unloaded = lambda context: unloaded.set()
+    t = bst.BokehTornado({"/": Application(handler)})
+    t._stats_job = Mock()
+    t._mem_job = None
+    t._cleanup_job = Mock()
+    t._ping_job = None
+    t._clients = set()
+    context = t._applications["/"]
+    pending = asyncio.create_task(context.create_session_if_needed("session"))
+    await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+
+    stopping = asyncio.create_task(t.stop_async())
+    await asyncio.sleep(0)
+    assert not stopping.done()
+    assert not unloaded.is_set()
+    with pytest.raises(RuntimeError, match="stopping"):
+        await t.create_session_if_needed(context, "late-session")
+    assert "late-session" not in context._pending_sessions
+
+    release.set()
+    await stopping
+    with pytest.raises(asyncio.CancelledError):
+        await pending
+    assert finished.is_set()
+    assert unloaded.is_set()
+
+
+async def test_stop_waits_for_running_cleanup_before_unload() -> None:
+    t = bst.BokehTornado({"/": Application()})
+    t._stats_job = Mock()
+    t._mem_job = None
+    t._cleanup_job = Mock()
+    t._ping_job = None
+    t._clients = set()
+    context = t._applications["/"]
+    started = asyncio.Event()
+    release = asyncio.Event()
+    unloaded = asyncio.Event()
+
+    async def cleanup(unused_session_linger_milliseconds: int) -> None:
+        started.set()
+        await release.wait()
+
+    context._cleanup_sessions = cleanup
+    context.run_unload_hook = lambda: unloaded.set()
+    cleaning = asyncio.create_task(t._cleanup_sessions())
+    await asyncio.wait_for(started.wait(), 1)
+
+    stopping = asyncio.create_task(t.stop_async())
+    await asyncio.sleep(0)
+    assert not stopping.done()
+    assert not unloaded.is_set()
+
+    release.set()
+    await asyncio.gather(cleaning, stopping)
+    assert unloaded.is_set()
+
+
+async def test_concurrent_stop_async_runs_unload_once() -> None:
+    t = bst.BokehTornado({"/": Application()})
+    t._stats_job = Mock()
+    t._mem_job = None
+    t._cleanup_job = Mock()
+    t._ping_job = None
+    t._clients = set()
+    context = t._applications["/"]
+    unload_count = 0
+
+    def unload() -> None:
+        nonlocal unload_count
+        unload_count += 1
+
+    context.run_unload_hook = unload
+    await asyncio.gather(t.stop_async(), t.stop_async())
+
+    assert unload_count == 1
 
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats

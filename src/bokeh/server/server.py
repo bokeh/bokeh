@@ -46,7 +46,12 @@ import atexit
 import signal
 import socket
 import sys
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Mapping,
+    cast,
+)
 
 # External imports
 from tornado import netutil, version as tornado_version
@@ -135,6 +140,7 @@ class BaseServer:
 
         self._started = False
         self._stopped = False
+        self._stop_task: asyncio.Task[None] | None = None
 
         self._http = http_server
         self._loop = io_loop
@@ -176,14 +182,56 @@ class BaseServer:
             wait (bool):
                 Whether to wait for orderly cleanup (default: True)
 
+                A synchronous call made from the server's own running event
+                loop cannot block that loop. In that case cleanup is scheduled
+                and this method returns; await :meth:`wait_until_stopped` for
+                the completion barrier. Async callers may instead use
+                :meth:`stop_async` directly.
+
         Returns:
             None
 
         '''
         assert not self._stopped, "Already stopped"
         self._stopped = True
-        self._tornado.stop(wait)
         self._http.stop()
+
+        asyncio_loop = cast(asyncio.AbstractEventLoop, getattr(self._loop, "asyncio_loop"))
+        if wait and asyncio_loop.is_running():
+            try:
+                running_loop = asyncio.get_running_loop()
+            except RuntimeError:
+                running_loop = None
+            if running_loop is asyncio_loop:
+                assert running_loop is not None
+                # A synchronous method cannot block the event-loop thread. Keep
+                # ownership of the task, and expose stop_async()/wait_until_stopped()
+                # to callers that need a completion barrier before stopping it.
+                self._tornado._begin_shutdown()
+                self._stop_task = running_loop.create_task(self._tornado.stop_async())
+                return
+
+        self._tornado.stop(wait)
+
+    async def stop_async(self) -> None:
+        '''Stop the Bokeh Server and await orderly application cleanup.
+
+        Use this instead of :meth:`stop` from async code when subsequent work
+        depends on all sessions and lifecycle hooks having finished. Like
+        :meth:`stop`, this method may only be called once.
+
+        '''
+
+        assert not self._stopped, "Already stopped"
+        self._stopped = True
+        self._http.stop()
+        await self._tornado.stop_async()
+
+    async def wait_until_stopped(self) -> None:
+        '''Wait for same-loop cleanup scheduled by :meth:`stop` to complete.'''
+
+        if self._stop_task is not None:
+            await self._stop_task
 
     def unlisten(self) -> None:
         ''' Stop listening on ports. The server will no longer be usable after

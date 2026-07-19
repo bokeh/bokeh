@@ -165,9 +165,16 @@ class ApplicationContext:
         self._url = url
         self._logout_url = logout_url
 
-    def _requires_worker_initialization(self) -> bool:
+    def _can_initialize_document_in_worker(self) -> bool:
+        from ..application.handlers.code import CodeHandler
+        from ..application.handlers.directory import DirectoryHandler
         from ..application.handlers.document_lifecycle import DocumentLifecycleHandler
-        return any(not isinstance(handler, DocumentLifecycleHandler) for handler in self._application._handlers)
+
+        handlers = [
+            handler for handler in self._application._handlers
+            if not isinstance(handler, DocumentLifecycleHandler)
+        ]
+        return bool(handlers) and all(not isinstance(handler, (CodeHandler, DirectoryHandler)) for handler in handlers)
 
     @property
     def io_loop(self) -> Loop | None:
@@ -241,9 +248,11 @@ class ApplicationContext:
             await asyncio.gather(*pending, return_exceptions=True)
 
     async def _initialize_document_async(self, doc: Document) -> None:
-        if not self._requires_worker_initialization():
-            # Preserve immediate creation for an empty Application. The
-            # lifecycle handler does not execute user document code.
+        if not self._can_initialize_document_in_worker():
+            # Code handlers temporarily patch process-global state such as
+            # sys.path, sys.argv, cwd, and bokeh.io functions. Run them on the
+            # event-loop thread so no unrelated request can observe that state.
+            # This also preserves immediate creation for an empty Application.
             self._application.initialize_document(doc)
             return
 
@@ -292,9 +301,8 @@ class ApplicationContext:
         except Exception as e:
             log.error("Failed to run session creation hooks %r", e, exc_info=True)
 
-        # Application code is arbitrary synchronous Python and can be
-        # expensive. Keeping it on the event-loop thread prevents the
-        # server from accepting unrelated HTTP and websocket work.
+        # Safe synchronous application code can run in a worker. Handlers that
+        # patch process-global state remain on the event-loop thread.
         await self._initialize_document_async(doc)
 
         io_loop = self._loop or asyncio.get_running_loop()
@@ -312,24 +320,34 @@ class ApplicationContext:
             raise ProtocolError("No such session " + session_id)
 
     async def _discard_session(self, session: ServerSession, should_discard: Callable[[ServerSession], bool]) -> None:
+        # Cleanup and orderly shutdown can independently retain the same
+        # session in a snapshot. Treat a session that another path already
+        # removed as successfully discarded rather than destroying it twice.
+        if self._sessions.get(session.id) is not session:
+            return
         if session.connection_count > 0:
             raise RuntimeError("Should not be discarding a session with open connections")
         log.debug("Discarding session %r last in use %r milliseconds ago", session.id, session.milliseconds_since_last_unsubscribe)
 
         session_context = self._session_contexts[session.id]
+        discarded = False
 
         # session.destroy() wants the document lock so it can shut down the document
         # callbacks.
-        def do_discard() -> None:
+        async def do_discard() -> None:
+            nonlocal discarded
             # while we awaited for the document lock, the discard-worthiness of the
             # session may have changed.
             # However, since we have the document lock, our own lock will cause the
             # block count to be 1. If there's any other block count besides our own,
             # we want to skip session destruction though.
+            if self._sessions.get(session.id) is not session:
+                return
             if should_discard(session) and session.expiration_blocked_count == 1:
                 session.destroy()
                 del self._sessions[session.id]
                 del self._session_contexts[session.id]
+                discarded = True
                 log.debug("Session %r was successfully discarded", session.id)
             else:
                 log.warning(f"Session {session.id!r} was scheduled to discard but came back to life")
@@ -337,13 +355,21 @@ class ApplicationContext:
 
         # session lifecycle hooks are supposed to be called outside the document lock,
         # we only run these if we actually ended up destroying the session.
-        if session_context.destroyed:
+        if discarded:
             try:
                 await self._application.on_session_destroyed(session_context)
             except Exception as e:
                 log.error("Failed to run session destroy hooks %r", e, exc_info=True)
 
         return None
+
+    async def _shutdown_sessions(self) -> None:
+        for session in list(self._sessions.values()):
+            if session.connection_count > 0:
+                log.warning("Session %r still has open connections during shutdown", session.id)
+                continue
+            session._stop_callbacks()
+            await self._discard_session(session, lambda session: session.connection_count == 0)
 
     async def _cleanup_sessions(self, unused_session_linger_milliseconds: int) -> None:
         def should_discard_ignoring_block(session: ServerSession) -> bool:

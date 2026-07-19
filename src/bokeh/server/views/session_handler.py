@@ -23,18 +23,19 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 # External imports
 from tornado.httputil import HTTPServerRequest
 from tornado.web import HTTPError, authenticated
 
 # Bokeh imports
-from ..core import SessionError, create_session
+from ..core import SessionError
 from .auth_request_handler import AuthRequestHandler
 
 if TYPE_CHECKING:
     from ..contexts import ApplicationContext
+    from ..request import RequestLike
     from ..session import ServerSession
     from ..tornado import BokehTornado
 
@@ -77,7 +78,8 @@ class SessionHandler(AuthRequestHandler):
     @authenticated # type: ignore[arg-type]
     async def get_session(self) -> ServerSession | None:
         try:
-            return await create_session(self.application, self.application_context, self.request)
+            request = cast("RequestLike", self.request)
+            return await self.application.create_session(self.application_context, request)
         except SessionError as error:
             raise HTTPError(status_code=error.status, reason=error.reason)
 

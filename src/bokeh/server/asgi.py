@@ -9,12 +9,14 @@
 from __future__ import annotations
 
 import asyncio
+import binascii
 import calendar
 import datetime as dt
 import html
 import json
 import logging
 import mimetypes
+import zlib
 from http.cookies import SimpleCookie
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -74,14 +76,21 @@ class _WriteLock:
 
 
 class _ASGIWebSocketTransport:
-    def __init__(self, send: Send) -> None:
+    def __init__(self, send: Send, *, supports_close_reason: bool) -> None:
         self._send = send
+        self._supports_close_reason = supports_close_reason
         self.write_lock = _WriteLock()
         self.closed = False
 
     async def send_message(self, message: Message[Any]) -> None:
         if not self.closed:
-            await message.send(self)
+            try:
+                await message.send(self)
+            except OSError:
+                # ASGI servers raise OSError when the peer has disconnected.
+                # The corresponding websocket.disconnect event may still be
+                # waiting for the application to receive it.
+                self.closed = True
 
     async def write_message(self, message: bytes | str, binary: bool = False, locked: bool = True) -> None:
         if self.closed:
@@ -94,8 +103,8 @@ class _ASGIWebSocketTransport:
             data = message if isinstance(message, bytes) else message.encode("utf-8")
             await self._send({"type": "websocket.send", "bytes": data})
         else:
-            data = message.decode("utf-8") if isinstance(message, bytes) else message
-            await self._send({"type": "websocket.send", "text": data})
+            text = message.decode("utf-8") if isinstance(message, bytes) else message
+            await self._send({"type": "websocket.send", "text": text})
 
     def ping(self, data: bytes) -> None:
         # ASGI deliberately has no portable ping-frame event. ASGI servers
@@ -105,7 +114,13 @@ class _ASGIWebSocketTransport:
     async def close(self, code: int = 1000, reason: str = "") -> None:
         if not self.closed:
             self.closed = True
-            await self._send({"type": "websocket.close", "code": code, "reason": reason})
+            event: Event = {"type": "websocket.close", "code": code}
+            if self._supports_close_reason:
+                event["reason"] = reason
+            try:
+                await self._send(event)
+            except OSError:
+                pass
 
 
 class BokehASGI:
@@ -171,6 +186,7 @@ class BokehASGI:
                 await send({"type": "lifespan.startup.complete"})
             elif event["type"] == "lifespan.shutdown":
                 await self._core.stop()
+                self._start_lock = None
                 await send({"type": "lifespan.shutdown.complete"})
                 return
 
@@ -179,27 +195,37 @@ class BokehASGI:
         route = self._route_path(scope)
         method = request.method.upper()
 
-        if method not in ("GET", "HEAD", "OPTIONS"):
-            await self._response(send, 405, b"Method not allowed", "text/plain", head=method == "HEAD")
-            return
-
         if not route:
             await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
             return
 
-        if route.startswith("/static/extensions/"):
-            relative = route.removeprefix("/static/extensions/")
-            name, separator, artifact = relative.partition("/")
-            root = extension_dirs.get(name)
-            await self._static(send, root, artifact if separator else "", head=method == "HEAD")
-            return
         if route.startswith("/static/"):
-            await self._static(send, Path(settings.bokehjs_path()), route.removeprefix("/static/"), head=method == "HEAD")
+            if method not in ("GET", "HEAD"):
+                await self._method_not_allowed(send, ("GET", "HEAD"))
+                return
+            root_context = self._core.applications.get("/")
+            root = root_context.application.static_path if root_context is not None else None
+            if root is not None:
+                await self._static(send, root, route.removeprefix("/static/"), head=method == "HEAD")
+            elif route.startswith("/static/extensions/"):
+                relative = route.removeprefix("/static/extensions/")
+                name, separator, artifact = relative.partition("/")
+                await self._static(send, extension_dirs.get(name), artifact if separator else "", head=method == "HEAD")
+            else:
+                await self._static(
+                    send,
+                    Path(settings.bokehjs_path()),
+                    route.removeprefix("/static/"),
+                    head=method == "HEAD",
+                )
             return
 
         if route == "/" and "/" not in self._core.applications:
+            if method not in ("GET", "HEAD"):
+                await self._method_not_allowed(send, ("GET", "HEAD"))
+                return
             if await self._authenticate_http(request, send, head=method == "HEAD"):
-                await self._root(send, head=method == "HEAD")
+                await self._root(request, send, head=method == "HEAD")
             return
 
         resolved = self._resolve_application(route)
@@ -209,10 +235,20 @@ class BokehASGI:
         context, suffix = resolved
 
         if suffix.startswith("/static/"):
+            if method not in ("GET", "HEAD"):
+                await self._method_not_allowed(send, ("GET", "HEAD"))
+                return
             await self._static(send, context.application.static_path, suffix.removeprefix("/static/"), head=method == "HEAD")
             return
         if suffix == "/autoload.js" and method == "OPTIONS":
             await self._response(send, 204, b"", "text/plain", extra_headers=self._cors_headers(request))
+            return
+        if suffix not in ("", "/", "/metadata", "/autoload.js"):
+            await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
+            return
+        if method not in ("GET", "HEAD"):
+            allowed = ("GET", "HEAD", "OPTIONS") if suffix == "/autoload.js" else ("GET", "HEAD")
+            await self._method_not_allowed(send, allowed)
             return
         if not await self._authenticate_http(request, send, head=method == "HEAD"):
             return
@@ -221,10 +257,8 @@ class BokehASGI:
             await self._document(context, request, send, head=method == "HEAD")
         elif suffix == "/metadata":
             await self._metadata(context, send, head=method == "HEAD")
-        elif suffix == "/autoload.js":
-            await self._autoload(context, request, send, head=method == "HEAD")
         else:
-            await self._response(send, 404, b"Not found", "text/plain", head=method == "HEAD")
+            await self._autoload(context, request, send, head=method == "HEAD")
 
     async def _document(self, context: ApplicationContext, request: ServerRequest, send: Send, *, head: bool) -> None:
         try:
@@ -275,13 +309,14 @@ class BokehASGI:
             send, 200, body, "application/javascript", head=head, extra_headers=self._cors_headers(request),
         )
 
-    async def _root(self, send: Send, *, head: bool) -> None:
+    async def _root(self, request: ServerRequest, send: Send, *, head: bool) -> None:
         paths = sorted(self._core.app_paths)
+        base = request.root_path.rstrip("/") + self._core.prefix
         if self._redirect_root and len(paths) == 1:
-            await self._response(send, 302, b"", "text/plain", head=head, extra_headers=[(b"location", (self._core.prefix + paths[0]).encode())])
+            await self._response(send, 302, b"", "text/plain", head=head, extra_headers=[(b"location", (base + paths[0]).encode())])
             return
         items = "".join(
-            f'<li><a href="{html.escape(self._core.prefix + path)}">{html.escape(path)}</a></li>' for path in paths
+            f'<li><a href="{html.escape(base + path)}">{html.escape(path)}</a></li>' for path in paths
         )
         body = f"<!doctype html><title>Bokeh applications</title><h1>Bokeh applications</h1><ul>{items}</ul>".encode()
         await self._response(send, 200, body, "text/html; charset=UTF-8", head=head)
@@ -295,42 +330,68 @@ class BokehASGI:
         if not path.is_relative_to(root_path) or not path.is_file():
             await self._response(send, 404, b"Not found", "text/plain", head=head)
             return
-        body = await asyncio.to_thread(path.read_bytes)
         content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
-        await self._response(send, 200, body, content_type, head=head)
+        size = (await asyncio.to_thread(path.stat)).st_size
+        headers = [(b"content-type", content_type.encode()), (b"content-length", str(size).encode())]
+        await send({"type": "http.response.start", "status": 200, "headers": headers})
+        if head:
+            await send({"type": "http.response.body", "body": b""})
+            return
+
+        stream = await asyncio.to_thread(path.open, "rb")
+        try:
+            while chunk := await asyncio.to_thread(stream.read, 64*1024):
+                await send({"type": "http.response.body", "body": chunk, "more_body": True})
+        finally:
+            await asyncio.to_thread(stream.close)
+        await send({"type": "http.response.body", "body": b""})
 
     async def _websocket(self, scope: Scope, receive: Receive, send: Send) -> None:
+        transport = _ASGIWebSocketTransport(
+            send,
+            supports_close_reason=self._supports_websocket_close_reason(scope),
+        )
+        event = await receive()
+        if event["type"] == "websocket.disconnect":
+            return
+        if event["type"] != "websocket.connect":
+            await transport.close(1002, "Expected websocket.connect")
+            return
+
         route = self._route_path(scope)
         if not route:
-            await send({"type": "websocket.close", "code": 1008, "reason": "Unknown Bokeh application"})
+            await transport.close(1008, "Unknown Bokeh application")
             return
         resolved = self._resolve_application(route)
         if resolved is None or resolved[1] != "/ws":
-            await send({"type": "websocket.close", "code": 1008, "reason": "Unknown Bokeh application"})
+            await transport.close(1008, "Unknown Bokeh application")
             return
         context, _ = resolved
         subprotocols = scope.get("subprotocols", [])
         if len(subprotocols) != 2 or subprotocols[0] != "bokeh":
-            await send({"type": "websocket.close", "code": 1002, "reason": "Bokeh subprotocol and token required"})
+            await transport.close(1002, "Bokeh subprotocol and token required")
             return
         token = subprotocols[1]
         if not self._valid_websocket_token(token):
-            await send({"type": "websocket.close", "code": 1008, "reason": "Invalid or expired token"})
+            await transport.close(1008, "Invalid or expired token")
             return
         request = self._request(scope)
         if not self._origin_allowed(request):
-            await send({"type": "websocket.close", "code": 1008, "reason": "Origin is not allowed"})
+            await transport.close(1008, "Origin is not allowed")
             return
         if not await self._authenticate(request):
-            await send({"type": "websocket.close", "code": 1008, "reason": "Authentication required"})
+            await transport.close(1008, "Authentication required")
             return
 
-        await send({"type": "websocket.accept", "subprotocol": "bokeh"})
-        transport = _ASGIWebSocketTransport(send)
+        try:
+            await send({"type": "websocket.accept", "subprotocol": "bokeh"})
+        except OSError:
+            transport.closed = True
+            return
         connection: ServerConnection | None = None
         try:
             session_id = get_session_id(token)
-            session = await context.create_session_if_needed(session_id, request, token)
+            session = await self._core.create_session_if_needed(context, session_id, request, token)
             protocol = Protocol()
             receiver = Receiver(protocol)
             handler = ProtocolHandler()
@@ -363,16 +424,21 @@ class BokehASGI:
             await transport.close(1011, "Bokeh server internal error")
         finally:
             transport.closed = True
-            if connection is not None:
+            if connection is not None and getattr(connection, "_session", None) is not None:
                 connection.session.notify_connection_lost()
                 self._core.client_lost(connection)
 
     def _request(self, scope: Scope) -> ServerRequest:
         header_values: dict[str, str] = {}
         for raw_name, raw_value in scope.get("headers", []):
-            name = raw_name.decode("latin-1")
+            # ASGI requires response header names to be lower-case and strongly
+            # recommends the same for request headers, but applications can be
+            # hosted behind adapters that preserve their original casing. Use
+            # a canonical key so repeated headers are combined regardless of
+            # how those adapters cased each occurrence.
+            name = raw_name.decode("latin-1").lower()
             value = raw_value.decode("latin-1")
-            separator = "; " if name.lower() == "cookie" else ", "
+            separator = "; " if name == "cookie" else ", "
             header_values[name] = separator.join(filter(None, (header_values.get(name), value)))
         headers = Headers(header_values)
         cookie = SimpleCookie()
@@ -381,7 +447,15 @@ class BokehASGI:
         cookies = {name: Cookie(morsel.value) for name, morsel in cookie.items()}
         query_bytes = scope.get("query_string", b"")
         query = query_bytes.decode("latin-1")
-        arguments = {name: [value.encode("utf-8") for value in values] for name, values in parse_qs(query, keep_blank_values=True).items()}
+        arguments = {
+            name: [value.encode("latin-1") for value in values]
+            for name, values in parse_qs(
+                query,
+                keep_blank_values=True,
+                encoding="latin-1",
+                errors="strict",
+            ).items()
+        }
         path = scope.get("path", "/")
         client = scope.get("client")
         host = headers.get("host", "")
@@ -426,8 +500,8 @@ class BokehASGI:
 
     def _route_path(self, scope: Scope) -> str:
         path = scope.get("path", "/")
-        root_path = scope.get("root_path", "")
-        if root_path and path.startswith(root_path):
+        root_path = scope.get("root_path", "").rstrip("/")
+        if root_path and (path == root_path or path.startswith(root_path + "/")):
             path = path[len(root_path):] or "/"
         prefix = self._core.prefix
         if prefix:
@@ -446,12 +520,25 @@ class BokehASGI:
         return None
 
     def _valid_websocket_token(self, token: str) -> bool:
-        if not check_token_signature(token, signed=self._core.sign_sessions, secret_key=self._core.secret_key):
+        try:
+            if not check_token_signature(token, signed=self._core.sign_sessions, secret_key=self._core.secret_key):
+                return False
+            session_id = get_session_id(token)
+            payload = get_token_payload(token)
+        except (AttributeError, binascii.Error, json.JSONDecodeError, KeyError, TypeError, UnicodeError, zlib.error):
             return False
-        payload = get_token_payload(token)
         expiry = payload.get("session_expiry")
         now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
-        return isinstance(expiry, int) and now < expiry
+        return isinstance(session_id, str) and bool(session_id) and isinstance(expiry, int) and now < expiry
+
+    @staticmethod
+    def _supports_websocket_close_reason(scope: Scope) -> bool:
+        version = scope.get("asgi", {}).get("spec_version", "2.0")
+        try:
+            major, minor = (int(part) for part in version.split(".", 1))
+        except (AttributeError, TypeError, ValueError):
+            return False
+        return (major, minor) >= (2, 3)
 
     def _origin_allowed(self, request: ServerRequest) -> bool:
         origin = request.headers.get("origin")
@@ -470,7 +557,7 @@ class BokehASGI:
             (b"access-control-allow-origin", allow_origin.encode()),
             (b"access-control-allow-headers", b"*"),
             (b"access-control-allow-credentials", b"true"),
-            (b"access-control-allow-methods", b"PUT, GET, OPTIONS"),
+            (b"access-control-allow-methods", b"GET, HEAD, OPTIONS"),
         ]
         if allow_origin != "*":
             headers.append((b"vary", b"Origin"))
@@ -482,6 +569,16 @@ class BokehASGI:
         return values[-1].decode("utf-8") if values else None
 
     @staticmethod
+    async def _method_not_allowed(send: Send, allowed: tuple[str, ...]) -> None:
+        await BokehASGI._response(
+            send,
+            405,
+            b"Method not allowed",
+            "text/plain",
+            extra_headers=[(b"allow", ", ".join(allowed).encode())],
+        )
+
+    @staticmethod
     async def _response(
         send: Send,
         status: int,
@@ -491,7 +588,12 @@ class BokehASGI:
         head: bool = False,
         extra_headers: list[tuple[bytes, bytes]] | None = None,
     ) -> None:
-        headers = [(b"content-type", content_type.encode()), (b"content-length", str(len(body)).encode())]
+        headers: list[tuple[bytes, bytes]] = []
+        if not (100 <= status < 200 or status in (204, 304)):
+            headers.extend([
+                (b"content-type", content_type.encode()),
+                (b"content-length", str(len(body)).encode()),
+            ])
         headers.extend(extra_headers or ())
         await send({"type": "http.response.start", "status": status, "headers": headers})
         await send({"type": "http.response.body", "body": b"" if head else body})

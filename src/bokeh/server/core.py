@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from os import PathLike as OSPathLike
 from typing import TYPE_CHECKING, Any, Protocol as TypingProtocol, cast
 from urllib.parse import urljoin
@@ -97,8 +97,11 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
     if token is None:
         headers = _filtered_headers(config, request)
         cookies = _filtered_cookies(config, request)
-        if cookies and "Cookie" in headers and "Cookie" not in (config.include_headers or []):
-            del headers["Cookie"]
+        included_headers = {name.lower() for name in config.include_headers or ()}
+        if "cookie" not in included_headers:
+            for name in list(headers):
+                if name.lower() == "cookie":
+                    del headers[name]
         payload: dict[str, Any] = {
             "headers": headers,
             "cookies": cookies,
@@ -126,6 +129,7 @@ def _argument(request: RequestLike, name: str) -> str | None:
 
 
 def _filtered_headers(config: SessionConfig, request: RequestLike) -> dict[str, str]:
+    allowed: Iterable[str]
     if config.include_headers is None:
         excluded = {name.lower() for name in config.exclude_headers or ()}
         allowed = (name for name in request.headers if name.lower() not in excluded)
@@ -135,6 +139,7 @@ def _filtered_headers(config: SessionConfig, request: RequestLike) -> dict[str, 
 
 
 def _filtered_cookies(config: SessionConfig, request: RequestLike) -> dict[str, str]:
+    allowed: Iterable[str]
     if config.include_cookies is None:
         excluded = set(config.exclude_cookies or ())
         allowed = (name for name in request.cookies if name not in excluded)
@@ -242,6 +247,8 @@ class BokehServerCore(SessionConfig):
         self._clients: set[ServerConnection] = set()
         self._jobs: list[_AsyncPeriodic] = []
         self._started = False
+        self._stopping = False
+        self._stop_task: asyncio.Task[None] | None = None
 
     @property
     def applications(self) -> Mapping[str, ApplicationContext]:
@@ -299,6 +306,8 @@ class BokehServerCore(SessionConfig):
             context._loop = loop
 
     async def start(self) -> None:
+        if self._stopping:
+            raise RuntimeError("Bokeh server core is stopping")
         if self._started:
             return
         if self._loop is None:
@@ -314,19 +323,71 @@ class BokehServerCore(SessionConfig):
             self._jobs.append(_AsyncPeriodic(self._keep_alive, self._keep_alive_milliseconds, self._loop))
         for job in self._jobs:
             job.start()
-        await asyncio.gather(*(asyncio.to_thread(context.run_load_hook) for context in self._applications.values()))
+        for context in self._applications.values():
+            context.run_load_hook()
 
     async def stop(self) -> None:
+        if self._stop_task is not None:
+            await asyncio.shield(self._stop_task)
+            return
         if not self._started:
             return
-        for job in self._jobs:
-            job.stop()
-        self._jobs.clear()
-        await asyncio.gather(*(context._shutdown_pending_sessions() for context in self._applications.values()))
-        await asyncio.gather(*(asyncio.to_thread(context.run_unload_hook) for context in self._applications.values()))
-        for connection in list(self._clients):
-            self.client_lost(connection)
-        self._started = False
+        self._stopping = True
+        task = self._stop_task = asyncio.create_task(self._stop())
+        task.add_done_callback(self._stop_done)
+        await asyncio.shield(task)
+
+    async def _stop(self) -> None:
+        try:
+            jobs = tuple(self._jobs)
+            for job in jobs:
+                job.stop()
+            self._jobs.clear()
+            pending_sessions = tuple(
+                task
+                for context in self._applications.values()
+                for task in context._cancel_pending_sessions()
+            )
+
+            async def wait_for_pending_sessions() -> None:
+                if pending_sessions:
+                    await asyncio.gather(*pending_sessions, return_exceptions=True)
+
+            await asyncio.gather(
+                *(job.wait() for job in jobs),
+                wait_for_pending_sessions(),
+            )
+            for connection in list(self._clients):
+                self.client_lost(connection)
+            await asyncio.gather(*(context._shutdown_sessions() for context in self._applications.values()))
+            for context in self._applications.values():
+                context.run_unload_hook()
+
+            if not self._clients and all(not list(context.sessions) for context in self._applications.values()):
+                self._loop = None
+                for context in self._applications.values():
+                    context._loop = None
+        finally:
+            self._started = False
+            self._stopping = False
+
+    def _stop_done(self, task: asyncio.Task[None]) -> None:
+        if self._stop_task is task:
+            self._stop_task = None
+        if task.cancelled():
+            self._started = False
+            self._stopping = False
+        else:
+            # Retrieve failures even when the caller awaiting stop() was itself
+            # cancelled. Awaiting the completed task still propagates them to
+            # any other caller.
+            task.exception()
+
+    def _require_running(self) -> None:
+        if self._stopping:
+            raise RuntimeError("Bokeh server core is stopping")
+        if not self._started:
+            raise RuntimeError("Bokeh server core is not running")
 
     def resources(self, absolute_url: str | bool | None = None, *, root_path: str = "") -> Resources:
         mode = settings.resources(default="server")
@@ -340,10 +401,17 @@ class BokehServerCore(SessionConfig):
         return Resources(mode=mode)
 
     async def create_session(self, context: ApplicationContext, request: RequestLike) -> ServerSession:
+        self._require_running()
         return await create_session(self, context, request)
+
+    async def create_session_if_needed(self, context: ApplicationContext, session_id: ID,
+            request: RequestLike | None = None, token: str | None = None) -> ServerSession:
+        self._require_running()
+        return await context.create_session_if_needed(session_id, request, token)
 
     def new_connection(self, protocol: Protocol, transport: WebSocketTransport,
             application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
+        self._require_running()
         connection = ServerConnection(protocol, transport, application_context, session)
         self._clients.add(connection)
         return connection

@@ -103,15 +103,29 @@ def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
                             result = await asyncio.shield(worker)
                             break
                         except asyncio.CancelledError as cancellation:
+                            if worker.done():
+                                if worker.cancelled():
+                                    error = cancelled or cancellation
+                                else:
+                                    try:
+                                        result = worker.result()
+                                    except BaseException as worker_error:
+                                        error = cancelled or worker_error
+                                    else:
+                                        cancelled = cancelled or cancellation
+                                break
                             # A running thread cannot be cancelled. Keep the
                             # document lock and pending-write state alive until
                             # it finishes, then propagate cancellation.
-                            cancelled = cancellation
-                    if cancelled is not None:
+                            cancelled = cancelled or cancellation
+                        except BaseException as worker_error:
+                            error = cancelled or worker_error
+                            break
+                    if error is None and cancelled is not None:
                         if inspect.iscoroutine(result):
                             result.close()
                         error = cancelled
-                    elif inspect.isawaitable(result):
+                    elif error is None and inspect.isawaitable(result):
                         # Async callbacks continue on the event loop while
                         # retaining the document lock across awaits.
                         result = await result
@@ -214,6 +228,10 @@ class ServerSession:
 
         self._callbacks.remove_all_callbacks()
         del self._callbacks
+
+    def _stop_callbacks(self) -> None:
+        """Prevent new document callbacks while orderly shutdown takes the lock."""
+        self._callbacks.remove_all_callbacks()
 
     def request_expiration(self) -> None:
         """ Used in test suite for now. Forces immediate expiration if no connections."""

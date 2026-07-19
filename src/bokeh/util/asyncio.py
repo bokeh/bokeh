@@ -80,9 +80,14 @@ class _AsyncPeriodic:
         await asyncio.sleep(self._period)
         while not self._stopped:
             started = self._loop.time()
-            result = self._func()
-            if inspect.isawaitable(result):
-                await result
+            try:
+                result = self._func()
+                if inspect.isawaitable(result):
+                    await result
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                log.error("Error thrown from periodic callback:", exc_info=True)
             elapsed = self._loop.time() - started
             await asyncio.sleep(max(0, self._period - elapsed))
 
@@ -98,7 +103,18 @@ class _AsyncPeriodic:
         if self._task is not None:
             if not self._loop.is_closed():
                 self._loop.call_soon_threadsafe(self._task.cancel)
-            self._task = None
+
+    async def wait(self) -> None:
+        task = self._task
+        if task is None:
+            return
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+        finally:
+            if self._task is task:
+                self._task = None
 
 class _CallbackGroup:
     ''' A removable collection of callbacks scheduled on an asyncio loop. '''

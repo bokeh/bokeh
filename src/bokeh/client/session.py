@@ -34,7 +34,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 from urllib.parse import quote_plus
 
 # Bokeh imports
@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from ..protocol.messages.patch_doc import patch_doc
     from ..protocol.messages.server_info_reply import ServerInfo
     from ..server.callbacks import DocumentCallbackGroup
+    from ..util.asyncio import Loop
     from ..util.browser import BrowserLike, BrowserTarget
     from .connection import ClientConnection
     from .states import ErrorReason
@@ -317,7 +318,9 @@ class ClientSession:
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url, arguments=arguments, max_message_size=max_message_size)
 
         from ..server.callbacks import DocumentCallbackGroup
-        self._callbacks = DocumentCallbackGroup(self._connection.io_loop)
+        # Tornado's IOLoop exposes ``asyncio_loop`` at runtime, but its type
+        # declarations don't include that attribute required by ``Loop``.
+        self._callbacks = DocumentCallbackGroup(cast("Loop", self._connection.io_loop))
 
     def __enter__(self) -> ClientSession:
         '''

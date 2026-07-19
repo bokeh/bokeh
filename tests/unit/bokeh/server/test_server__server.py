@@ -967,6 +967,29 @@ def test__ioloop_not_forcibly_stopped() -> None:
     loop.start()
     assert result == [None]
 
+
+async def test__stop_on_running_ioloop_has_completion_barrier() -> None:
+    loop = IOLoop.current()
+    tornado_app = mock.Mock()
+    release = asyncio.Event()
+
+    async def stop_async() -> None:
+        await release.wait()
+
+    tornado_app.stop_async = mock.AsyncMock(side_effect=stop_async)
+    http_server = mock.Mock()
+    base_server = BaseServer(loop, tornado_app, http_server)
+
+    base_server.stop()
+
+    http_server.stop.assert_called_once_with()
+    assert base_server._stop_task is not None
+    assert not base_server._stop_task.done()
+
+    release.set()
+    await base_server.wait_until_stopped()
+    tornado_app.stop_async.assert_awaited_once_with()
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

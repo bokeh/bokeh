@@ -10,9 +10,11 @@ from __future__ import annotations
 import asyncio
 import json
 import runpy
+import sys
 import threading
 from collections import deque
 from pathlib import Path
+from types import ModuleType
 from typing import Any, cast
 from urllib.parse import urlencode
 
@@ -149,6 +151,64 @@ async def test_framework_free_example_routes_site_and_bokeh() -> None:
         await bokeh_application.core.stop()
 
 
+@pytest.mark.parametrize("framework", ["fastapi", "starlette"])
+async def test_framework_example_composes_bokeh_lifespan(monkeypatch: pytest.MonkeyPatch, framework: str) -> None:
+    class HostApplication:
+        def __init__(self, *args: Any, lifespan=None, **kwargs: Any) -> None:
+            self.lifespan = lifespan
+
+        def get(self, *args: Any, **kwargs: Any):
+            return lambda func: func
+
+        def mount(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class Route:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    fastapi = ModuleType("fastapi")
+    setattr(fastapi, "FastAPI", HostApplication)
+    setattr(fastapi, "Request", object)
+    fastapi_responses = ModuleType("fastapi.responses")
+    setattr(fastapi_responses, "HTMLResponse", object)
+    starlette_applications = ModuleType("starlette.applications")
+    setattr(starlette_applications, "Starlette", HostApplication)
+    starlette_requests = ModuleType("starlette.requests")
+    setattr(starlette_requests, "Request", object)
+    starlette_responses = ModuleType("starlette.responses")
+    setattr(starlette_responses, "HTMLResponse", object)
+    starlette_routing = ModuleType("starlette.routing")
+    setattr(starlette_routing, "Mount", Route)
+    setattr(starlette_routing, "Route", Route)
+
+    monkeypatch.setitem(sys.modules, "fastapi", fastapi)
+    monkeypatch.setitem(sys.modules, "fastapi.responses", fastapi_responses)
+    monkeypatch.setitem(sys.modules, "starlette.applications", starlette_applications)
+    monkeypatch.setitem(sys.modules, "starlette.requests", starlette_requests)
+    monkeypatch.setitem(sys.modules, "starlette.responses", starlette_responses)
+    monkeypatch.setitem(sys.modules, "starlette.routing", starlette_routing)
+
+    path = Path(__file__).parents[4] / f"examples/server/api/asgi/{framework}_embed.py"
+    namespace = runpy.run_path(str(path))
+    application = cast(BokehASGI, namespace["bokeh_application"])
+    lifespan = namespace["lifespan"]
+    page = namespace["render_page"]("")
+    proxied_page = namespace["render_page"]("/proxy/")
+
+    assert namespace["app"].lifespan is lifespan
+    assert "/bkapp/autoload.js" in page
+    assert "bokeh-app-path=/bkapp" in page
+    assert "bokeh-absolute-url" not in page
+    assert "<iframe" not in page
+    assert "/proxy/bkapp/autoload.js" in proxied_page
+    assert "bokeh-app-path=/proxy/bkapp" in proxied_page
+    assert not application.core._started
+    async with lifespan(namespace["app"]):
+        assert application.core._started
+    assert not application.core._started
+
+
 async def test_lifespan_starts_and_stops_application() -> None:
     app = BokehASGI(Application(), keep_alive_milliseconds=0)
     incoming = deque([{"type": "lifespan.startup"}, {"type": "lifespan.shutdown"}])
@@ -166,6 +226,7 @@ async def test_lifespan_starts_and_stops_application() -> None:
         "lifespan.startup.complete",
         "lifespan.shutdown.complete",
     ]
+    assert app._start_lock is None
 
 
 async def test_document_and_metadata_routes() -> None:
@@ -194,6 +255,26 @@ async def test_mount_root_path_is_removed_before_routing() -> None:
         await app.core.stop()
 
 
+async def test_mount_root_path_is_included_in_root_navigation() -> None:
+    redirecting = BokehASGI({"/plot": Application()}, prefix="pre", keep_alive_milliseconds=0)
+    listing = BokehASGI(
+        {"/one": Application(), "/two": Application()},
+        prefix="pre",
+        redirect_root=False,
+        keep_alive_milliseconds=0,
+    )
+    try:
+        redirect = await http_request(redirecting, "/dashboard/pre/", root_path="/dashboard/")
+        index = await http_request(listing, "/dashboard/pre/", root_path="/dashboard")
+
+        assert response_header(redirect, b"location") == b"/dashboard/pre/plot"
+        assert b'href="/dashboard/pre/one"' in response_body(index)
+        assert b'href="/dashboard/pre/two"' in response_body(index)
+    finally:
+        await redirecting.core.stop()
+        await listing.core.stop()
+
+
 async def test_autoload_and_static_routes() -> None:
     app = BokehASGI(Application(), keep_alive_milliseconds=0)
     try:
@@ -211,6 +292,103 @@ async def test_autoload_and_static_routes() -> None:
         assert response_status(traversal) == 404
     finally:
         await app.core.stop()
+
+
+async def test_root_application_static_files_stream_and_head_only_stats(tmp_path: Path) -> None:
+    content = b"a" * (64*1024 + 1)
+    (tmp_path / "artifact.bin").write_bytes(content)
+    application = Application()
+    app = BokehASGI(application, keep_alive_milliseconds=0)
+    application._static_path = str(tmp_path)
+    try:
+        get = await http_request(app, "/static/artifact.bin")
+        head = await http_request(app, "/static/artifact.bin", method="HEAD")
+
+        assert response_status(get) == 200
+        assert response_header(get, b"content-length") == str(len(content)).encode()
+        assert response_body(get) == content
+        get_bodies = [event for event in get if event["type"] == "http.response.body"]
+        assert len(get_bodies) == 3
+        assert get_bodies[-1] == {"type": "http.response.body", "body": b""}
+
+        assert response_status(head) == 200
+        assert response_header(head, b"content-length") == str(len(content)).encode()
+        assert response_body(head) == b""
+        assert [event for event in head if event["type"] == "http.response.body"] == [
+            {"type": "http.response.body", "body": b""},
+        ]
+    finally:
+        await app.core.stop()
+
+
+async def test_options_only_dispatches_autoload_preflight() -> None:
+    initialized = 0
+
+    def modify_document(doc: Document) -> None:
+        nonlocal initialized
+        initialized += 1
+
+    app = BokehASGI(Application(FunctionHandler(modify_document)), keep_alive_milliseconds=0)
+    try:
+        document = await http_request(app, "/", method="OPTIONS")
+        metadata = await http_request(app, "/metadata", method="OPTIONS")
+        static = await http_request(app, "/static/js/bokeh.min.js", method="OPTIONS")
+        preflight = await http_request(app, "/autoload.js", method="OPTIONS")
+
+        assert [response_status(response) for response in (document, metadata, static)] == [405, 405, 405]
+        assert response_header(document, b"allow") == b"GET, HEAD"
+        assert response_status(preflight) == 204
+        assert response_header(preflight, b"content-length") is None
+        assert response_header(preflight, b"content-type") is None
+        assert response_header(preflight, b"access-control-allow-methods") == b"GET, HEAD, OPTIONS"
+        assert initialized == 0
+        assert not app.core.get_sessions("/")
+    finally:
+        await app.core.stop()
+
+
+def test_request_preserves_non_utf8_query_bytes() -> None:
+    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    scope = {
+        "type": "http",
+        "method": "GET",
+        "path": "/",
+        "query_string": b"value=%FF&%FF=name&utf8=%C3%A9",
+        "headers": [],
+    }
+
+    request = app._request(scope)
+
+    assert request.arguments == {
+        "value": [b"\xff"],
+        "\xff": [b"name"],
+        "utf8": [b"\xc3\xa9"],
+    }
+
+
+def test_request_combines_repeated_headers_case_insensitively() -> None:
+    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    scope = {
+        "type": "http",
+        "method": "GET",
+        "path": "/",
+        "query_string": b"",
+        "headers": [
+            (b"Cookie", b"first=one"),
+            (b"cookie", b"second=two"),
+            (b"X-Value", b"one"),
+            (b"x-value", b"two"),
+        ],
+    }
+
+    request = app._request(scope)
+
+    assert request.headers["cookie"] == "first=one; second=two"
+    assert request.headers["x-value"] == "one, two"
+    assert {name: cookie.value for name, cookie in request.cookies.items()} == {
+        "first": "one",
+        "second": "two",
+    }
 
 
 async def test_auth_policy_redirects_and_propagates_user() -> None:
@@ -240,9 +418,10 @@ async def test_auth_policy_redirects_and_propagates_user() -> None:
         assert response_header(anonymous, b"location") == b"/login?next=/"
         assert response_status(authenticated) == 200
         session = app.core.get_sessions("/")[0]
+        session_context = cast(Any, session.document.session_context)
         assert session.document.title == "alice"
-        assert session.document.session_context.request.user == "alice"
-        assert session.document.session_context.logout_url == "/logout"
+        assert session_context.request.user == "alice"
+        assert session_context.logout_url == "/logout"
         assert authentication_state == [
             {"request_id": "anonymous"},
             {"request_id": "authenticated"},
@@ -334,8 +513,15 @@ async def test_stop_waits_for_pending_initialization_before_unload() -> None:
         release.set()
 
     await stopping
-    with pytest.raises(asyncio.CancelledError):
-        await pending
+    try:
+        initialized_session = await pending
+    except asyncio.CancelledError:
+        pass
+    else:
+        # Shutdown may reach the pending-session cancellation before or after
+        # the worker returns. A session that wins that race must still be
+        # destroyed before the unload hook runs.
+        assert initialized_session.destroyed
     assert unloaded.is_set()
     assert not list(context.sessions)
 
@@ -359,7 +545,7 @@ async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:
         await app(
             {
                 "type": "websocket",
-                "asgi": {"version": "3.0"},
+                "asgi": {"version": "3.0", "spec_version": "2.3"},
                 "scheme": "ws",
                 "path": "/ws",
                 "root_path": "",
@@ -396,7 +582,7 @@ async def test_websocket_auth_policy_rejects_anonymous_user() -> None:
         await app(
             {
                 "type": "websocket",
-                "asgi": {"version": "3.0"},
+                "asgi": {"version": "3.0", "spec_version": "2.3"},
                 "scheme": "ws",
                 "path": "/ws",
                 "root_path": "",
@@ -453,7 +639,8 @@ async def test_websocket_auth_policy_uses_asgi_scope_user() -> None:
 
         assert sent[0] == {"type": "websocket.accept", "subprotocol": "bokeh"}
         session = app.core.get_sessions("/")[0]
-        assert session.document.session_context.request.user == "alice"
+        session_context = cast(Any, session.document.session_context)
+        assert session_context.request.user == "alice"
     finally:
         await app.core.stop()
 
@@ -518,6 +705,7 @@ async def test_websocket_rejects_missing_token() -> None:
         await app(
             {
                 "type": "websocket",
+                "asgi": {"version": "3.0", "spec_version": "2.3"},
                 "path": "/ws",
                 "root_path": "",
                 "query_string": b"",
@@ -534,3 +722,155 @@ async def test_websocket_rejects_missing_token() -> None:
         }]
     finally:
         await app.core.stop()
+
+
+@pytest.mark.parametrize("token", [
+    "garbage",
+    "e30=",
+    "W10=",
+    generate_jwt_token(cast(ID, ""), expiration=300),
+    generate_jwt_token(cast(ID, 1), expiration=300),
+])
+async def test_websocket_rejects_malformed_token(token: str) -> None:
+    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return {"type": "websocket.connect"}
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0", "spec_version": "2.3"},
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        assert sent == [{
+            "type": "websocket.close",
+            "code": 1008,
+            "reason": "Invalid or expired token",
+        }]
+    finally:
+        await app.core.stop()
+
+
+async def test_websocket_waits_for_connect_and_gates_close_reason() -> None:
+    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    connect_received = False
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        nonlocal connect_received
+        connect_received = True
+        return {"type": "websocket.connect"}
+
+    async def send(event: dict[str, Any]) -> None:
+        assert connect_received
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0", "spec_version": "2.0"},
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh"],
+            },
+            receive,
+            send,
+        )
+
+        assert sent == [{"type": "websocket.close", "code": 1002}]
+    finally:
+        await app.core.stop()
+
+
+async def test_websocket_send_oserror_is_treated_as_disconnect() -> None:
+    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    incoming = deque([
+        {"type": "websocket.connect"},
+        {"type": "websocket.disconnect", "code": 1001},
+    ])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+        if event["type"] == "websocket.send":
+            raise OSError("peer disconnected")
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0", "spec_version": "2.4"},
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        assert [event["type"] for event in sent] == ["websocket.accept", "websocket.send"]
+        assert not app.core._clients
+        assert app.core.get_sessions("/")[0].connection_count == 0
+    finally:
+        await app.core.stop()
+
+
+async def test_websocket_disconnect_after_core_stop_does_not_reuse_detached_session() -> None:
+    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    incoming: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+    await incoming.put({"type": "websocket.connect"})
+    connected = asyncio.Event()
+
+    async def receive() -> dict[str, Any]:
+        return await incoming.get()
+
+    async def send(event: dict[str, Any]) -> None:
+        if event["type"] == "websocket.send":
+            connected.set()
+
+    task = asyncio.create_task(app(
+        {
+            "type": "websocket",
+            "asgi": {"version": "3.0", "spec_version": "2.4"},
+            "path": "/ws",
+            "root_path": "",
+            "query_string": b"",
+            "headers": [(b"host", b"localhost")],
+            "subprotocols": ["bokeh", token],
+        },
+        receive,
+        send,
+    ))
+
+    await asyncio.wait_for(connected.wait(), 1)
+    connection = next(iter(app.core._clients))
+    assert getattr(connection, "_session") is not None
+    await app.core.stop()
+    assert getattr(connection, "_session") is None
+    assert not app.core._clients
+    await incoming.put({"type": "websocket.disconnect", "code": 1001})
+    await asyncio.wait_for(task, 1)

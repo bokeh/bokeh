@@ -20,9 +20,7 @@ import pytest ; pytest
 import asyncio
 import gc
 import logging
-import sys
 import threading
-from types import ModuleType
 
 # External imports
 from tornado.ioloop import IOLoop
@@ -339,37 +337,86 @@ class TestApplicationContext:
         assert not c._pending_sessions
         assert not list(c.sessions)
 
-    async def test_code_handler_uses_context_local_curdoc(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        started = threading.Event()
-        release = threading.Event()
-        support = ModuleType("test_session_initialization_support")
-        support.started = started
-        support.release = release
-        monkeypatch.setitem(sys.modules, support.__name__, support)
-
+    async def test_code_handler_uses_context_local_curdoc_on_event_loop(self) -> None:
         handler = CodeHandler(filename="app.py", source="""
 from threading import get_ident
-from test_session_initialization_support import release, started
 from bokeh.io import curdoc
 
-started.set()
-assert release.wait(timeout=2)
 assert curdoc().session_context.id == "foo"
 curdoc().template_variables["thread_id"] = get_ident()
 """)
         c = bsc.ApplicationContext(Application(handler), io_loop=asyncio.get_running_loop())
         loop_doc = curdoc()
 
-        pending = asyncio.create_task(c.create_session_if_needed("foo"))
-        try:
-            await _wait_for_event(started)
-            assert curdoc() is loop_doc
-        finally:
-            release.set()
-
-        session = await pending
+        session = await c.create_session_if_needed("foo")
         assert not handler.failed
-        assert session.document.template_variables["thread_id"] != threading.get_ident()
+        assert curdoc() is loop_doc
+        assert session.document.template_variables["thread_id"] == threading.get_ident()
+
+    async def test_discard_bookkeeping_runs_on_event_loop(self) -> None:
+        c = bsc.ApplicationContext(Application(), io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        session.request_expiration()
+        destroy_threads: list[int] = []
+        original_destroy = session.destroy
+
+        def destroy() -> None:
+            destroy_threads.append(threading.get_ident())
+            original_destroy()
+
+        session.destroy = destroy
+        await c._cleanup_sessions(1)
+
+        assert destroy_threads == [threading.get_ident()]
+        assert not list(c.sessions)
+
+    async def test_concurrent_discard_runs_destroy_hook_once(self) -> None:
+        app = Application()
+        destroyed = 0
+
+        async def on_session_destroyed(session_context) -> None:
+            nonlocal destroyed
+            destroyed += 1
+
+        app.on_session_destroyed = on_session_destroyed
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        both_started = asyncio.Event()
+        first_checked = asyncio.Event()
+        second_finished = asyncio.Event()
+        arrivals = 0
+
+        async def with_document_locked(func, *args, **kwargs):
+            nonlocal arrivals
+            position = arrivals
+            arrivals += 1
+            session.block_expiration()
+            if arrivals == 2:
+                both_started.set()
+            await both_started.wait()
+
+            if position == 0:
+                result = await func(*args, **kwargs)
+                session.unblock_expiration()
+                first_checked.set()
+                await second_finished.wait()
+                return result
+
+            await first_checked.wait()
+            result = await func(*args, **kwargs)
+            session.unblock_expiration()
+            second_finished.set()
+            return result
+
+        session.with_document_locked = with_document_locked
+        await asyncio.gather(
+            c._discard_session(session, lambda session: True),
+            c._discard_session(session, lambda session: True),
+        )
+
+        assert destroyed == 1
+        assert session.destroyed
+        assert not list(c.sessions)
 
     async def test_create_session_if_needed_bad_sessionid(self) -> None:
         app = Application()
@@ -529,6 +576,20 @@ curdoc().template_variables["thread_id"] = get_ident()
 
         assert finished.is_set()
         assert session.document.title == "finished"
+        assert not session.expiration_blocked
+
+    async def test_locked_callback_can_raise_cancelled_error(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+
+        def callback() -> None:
+            raise asyncio.CancelledError
+
+        async with asyncio.timeout(1):
+            with pytest.raises(asyncio.CancelledError):
+                await session.with_document_locked(callback)
+
         assert not session.expiration_blocked
 
 #-----------------------------------------------------------------------------
