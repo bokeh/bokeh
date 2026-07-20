@@ -1989,7 +1989,8 @@ ${view.host_selector} {
       source.data = {my_col: ["a", "b", "c", "d"]}
       await view.ready
 
-      expect(source.selected.indices).to.be.equal([0, 3])
+      expect(source.selected.indices).to.be.equal([0, 3, 4])
+      expect(view.get_selected_rows()).to.be.equal([0, 3])
     })
   })
 
@@ -2010,7 +2011,7 @@ ${view.host_selector} {
       }).to.not.throw()
       await view.ready
 
-      expect(source.selected.indices).to.be.equal([])
+      expect(source.selected.indices).to.be.equal([1, 2])
       expect(view.get_selected_rows()).to.be.equal([])
     })
   })
