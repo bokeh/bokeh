@@ -37,9 +37,10 @@ export const AutosizeModes = {
   fit_columns: "FCV" as const,
   fit_viewport: "FVC" as const,
   force_fit: "LFF" as const,
+  ignore_viewport: "IGV" as const,
   none: "NOA" as const,
 }
-export type AutosizeMode = "FCV" | "FVC" | "LFF" | "NOA"
+export type AutosizeMode = "FCV" | "FVC" | "LFF" | "IGV" | "NOA"
 
 export class TableDataProvider implements Partial<SlickDataView<Item>> {
   index: number[]
@@ -237,7 +238,7 @@ export class DataTableView extends WidgetView {
 
   updateLayout(initialized: boolean, rerender: boolean): void {
     const autosize = this.autosize
-    if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit) {
+    if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit || autosize === AutosizeModes.ignore_viewport) {
       if (!initialized) {
         this.grid.resizeCanvas()
       }
@@ -498,7 +499,7 @@ export namespace DataTable {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TableWidget.Props & {
-    autosize_mode: p.Property<"fit_columns" | "fit_viewport" | "none" | "force_fit">
+    autosize_mode: p.Property<"fit_columns" | "fit_viewport" | "none" | "force_fit" | "ignore_viewport">
     auto_edit: p.Property<boolean>
     columns: p.Property<TableColumn[]>
     fit_columns: p.Property<boolean | null>
@@ -537,7 +538,7 @@ export class DataTable extends TableWidget {
     this.prototype.default_view = DataTableView
 
     this.define<DataTable.Props>(({List, Bool, Int, Ref, Str, Enum, Or, Nullable}) => ({
-      autosize_mode:       [ Enum("fit_columns", "fit_viewport", "none", "force_fit"), "force_fit" ],
+      autosize_mode:       [ Enum("fit_columns", "fit_viewport", "none", "force_fit", "ignore_viewport"), "force_fit" ],
       auto_edit:           [ Bool, false ],
       columns:             [ List(Ref(TableColumn)), [] ],
       fit_columns:         [ Nullable(Bool), null ],

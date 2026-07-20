@@ -85,4 +85,30 @@ describe("DataTable", () => {
     await display(table, [150, 200])
   })
 
+  it("should leave whitespace when viewport exceeds total column width with autosize_mode='ignore_viewport'", async () => {
+    const source = new ColumnDataSource({
+      data: {
+        text: ["something", "something"],
+        number: [0.33, 0.33],
+        other_number: [12345, 12345],
+      },
+    })
+
+    const columns = [
+      new TableColumn({field: "text", title: "Text"}),
+      new TableColumn({field: "number", title: "Number"}),
+      new TableColumn({field: "other_number", title: "Other number"}),
+    ]
+
+    const table = new DataTable({
+      source,
+      columns,
+      width: 450,
+      height: 200,
+      autosize_mode: "ignore_viewport",
+    })
+
+    await display(table, [450, 200])
+  })
+
 })
