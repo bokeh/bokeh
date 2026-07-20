@@ -3,6 +3,7 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
+// import {logger} from "../logging"
 import type {Arrayable} from "../types"
 import {randomIn} from "./math"
 import {assert} from "./assert"
@@ -104,14 +105,24 @@ export function range(start: number, stop?: number, step: number = 1): number[] 
 
   const {max, ceil, abs} = Math
 
+  let length = max(ceil(abs(stop - start) / step), 0)
+  // Max length of an Array object is 2**32 -1 = 4 294 967 295, see
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length#value
+  // If the maximum length is exceeded, the length is set to the maximum and the step is adapted
+  // to avoid an invalid length error.
+  if (2**32 - 1 < length) {
+    length = 2**32 - 1
+    step = ceil(abs(start - stop) / length)
+    // logger.warn(`Maximum size of a range with the step size ${step} is exceeded. `,
+    //   "The step size is adapted to stay inside the limit.",
+    // )
+  }
   const delta = start <= stop ? step : -step
-  const length = max(ceil(abs(stop - start) / step), 0)
   const range = new Array(length)
 
   for (let i = 0; i < length; i++, start += delta) {
     range[i] = start
   }
-
   return range
 }
 
