@@ -33,6 +33,16 @@ import bokeh.plotting._stack as bps # isort:skip
 
 
 class Test_single_stack:
+    @pytest.mark.parametrize("stackers", [
+        "ab",
+        {"a": 1, "b": 2},
+        {"a", "b"},
+        (value for value in ["a", "b"]),
+    ])
+    def test_raises_when_stackers_not_sequence_like(self, stackers: object) -> None:
+        with pytest.raises(ValueError, match="Stackers must be a sequence"):
+            bps.single_stack(stackers, "foo")
+
     def test_raises_when_spec_in_kwargs(self) -> None:
         with pytest.raises(ValueError) as e:
             bps.single_stack(['a', 'b'], 'foo', foo=10)
@@ -106,6 +116,16 @@ class Test_single_stack:
 
 
 class Test_double_stack:
+    @pytest.mark.parametrize("stackers", [
+        "ab",
+        {"a": 1, "b": 2},
+        {"a", "b"},
+        (value for value in ["a", "b"]),
+    ])
+    def test_raises_when_stackers_not_sequence_like(self, stackers: object) -> None:
+        with pytest.raises(ValueError, match="Stackers must be a sequence"):
+            bps.double_stack(stackers, "foo", "bar")
+
     def test_raises_when_spec_in_kwargs(self) -> None:
         with pytest.raises(ValueError) as e:
             bps.double_stack(['a', 'b'], 'foo', 'bar', foo=10)

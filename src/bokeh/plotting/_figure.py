@@ -11,7 +11,11 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+)
 
 import logging # isort:skip
 
@@ -72,7 +76,16 @@ from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from ..models.glyphs import (
+        HArea,
+        HBar,
+        Line,
+        VArea,
+        VBar,
+    )
     from ..models.renderers.contour_renderer import ContourRenderer
+    from ..models.renderers.glyph_renderer import GlyphRenderer
+    from ..util.datatypes import SequenceLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -363,7 +376,11 @@ class figure(Plot, GlyphAPI):
 
         return (r, bins)
 
-    def harea_stack(self, stackers, **kw):
+    def harea_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[HArea]]:
         ''' Generate multiple ``HArea`` renderers for levels stacked left
         to right.
 
@@ -405,7 +422,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.harea(**kw))
         return result
 
-    def hbar_stack(self, stackers, **kw):
+    def hbar_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[HBar]]:
         ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
 
         Args:
@@ -446,14 +467,21 @@ class figure(Plot, GlyphAPI):
             result.append(self.hbar(**kw))
         return result
 
-    def _line_stack(self, x, y, **kw):
+    def _line_stack(
+        self,
+        stackers: SequenceLike[str],
+        spec: Literal["x", "y"],
+        **kw: Any,
+    ) -> list[GlyphRenderer[Line]]:
         ''' Generate multiple ``Line`` renderers for lines stacked vertically
         or horizontally.
 
         Args:
-            x (seq[str]) :
+            stackers (seq[str]) : a sequence of data source field names to
+                stack successively.
 
-            y (seq[str]) :
+            spec (str) : the line coordinate to stack, either ``"x"`` or
+                ``"y"``.
 
         Additionally, the ``name`` of the renderer will be set to
         the value of each successive stacker (this is useful with the
@@ -485,26 +513,16 @@ class figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        if all(isinstance(val, (list, tuple)) for val in (x,y)):
-            raise ValueError("Only one of x or y may be a list of stackers")
+        result: list[GlyphRenderer[Line]] = []
+        for kw in single_stack(stackers, spec, **kw):
+            result.append(self.line(**kw))
+        return result
 
-        result = []
-
-        if isinstance(y, (list, tuple)):
-            kw['x'] = x
-            for kw in single_stack(y, "y", **kw):
-                result.append(self.line(**kw))
-            return result
-
-        if isinstance(x, (list, tuple)):
-            kw['y'] = y
-            for kw in single_stack(x, "x", **kw):
-                result.append(self.line(**kw))
-            return result
-
-        return [self.line(x, y, **kw)]
-
-    def hline_stack(self, stackers, **kw):
+    def hline_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[Line]]:
         ''' Generate multiple ``Line`` renderers for lines stacked horizontally.
 
         Args:
@@ -541,9 +559,13 @@ class figure(Plot, GlyphAPI):
                 p.line(x=stack('2016', '2017'), y='y', color='red',  source=source, name='2017')
 
         '''
-        return self._line_stack(x=stackers, **kw)
+        return self._line_stack(stackers, "x", **kw)
 
-    def varea_stack(self, stackers, **kw):
+    def varea_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[VArea]]:
         ''' Generate multiple ``VArea`` renderers for levels stacked bottom
         to top.
 
@@ -585,7 +607,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.varea(**kw))
         return result
 
-    def vbar_stack(self, stackers, **kw):
+    def vbar_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[VBar]]:
         ''' Generate multiple ``VBar`` renderers for levels stacked bottom
         to top.
 
@@ -627,7 +653,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.vbar(**kw))
         return result
 
-    def vline_stack(self, stackers, **kw):
+    def vline_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[Line]]:
         ''' Generate multiple ``Line`` renderers for lines stacked vertically.
 
         Args:
@@ -664,7 +694,7 @@ class figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        return self._line_stack(y=stackers, **kw)
+        return self._line_stack(stackers, "y", **kw)
 
     def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs):
         ''' Creates a network graph using the given node, edge and layout provider.
