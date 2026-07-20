@@ -31,7 +31,8 @@ import bokeh.models.tickers as bmt  # isort:skip
 
 
 class Test_ContinousTicker:
-    invalid_tick_numbers = [-1, 1.0, 1001]
+    valid_tick_numbers = [0, 1, 5]
+    invalid_tick_numbers = [-1, 1.0]
 
     def test_basic(self) -> None:
         t = bmt.ContinuousTicker()
@@ -41,6 +42,16 @@ class Test_ContinousTicker:
         t = bmt.ContinuousTicker()
         assert t.num_minor_ticks == 5
         assert t.desired_num_ticks == 6
+
+    def test_valid_num_minor_tick_number(self) -> None:
+        for tick_number in self.valid_tick_numbers:
+            t = bmt.ContinuousTicker(num_minor_ticks=tick_number)
+            t.num_minor_ticks = tick_number + 1
+
+    def test_valid_desired_tick_number(self) -> None:
+        for tick_number in self.valid_tick_numbers:
+            t = bmt.ContinuousTicker(desired_num_ticks=tick_number)
+            t.desired_num_ticks = tick_number + 1
 
     def test_invalid_num_minor_tick_number(self) -> None:
         for tick_number in self.invalid_tick_numbers:
@@ -54,11 +65,11 @@ class Test_ContinousTicker:
     def test_invalid_desired_tick_number(self) -> None:
         for tick_number in self.invalid_tick_numbers:
             with pytest.raises(ValueError):
-                bmt.ContinuousTicker(num_minor_ticks=tick_number)
+                bmt.ContinuousTicker(desired_num_ticks=tick_number)
 
             t = bmt.ContinuousTicker()
             with pytest.raises(ValueError):
-                t.num_minor_ticks = tick_number
+                t.desired_num_ticks = tick_number
 
 
 # -----------------------------------------------------------------------------
