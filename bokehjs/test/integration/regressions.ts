@@ -5172,4 +5172,37 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #15159", () => {
+    it("doesn't autosize individual columns in DataTable with autosize_mode='fit_viewport'", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          short: ["a", "b", "c"],
+          long: [
+            "a much much much longer piece of text here",
+            "another quite long piece of text as well",
+            "yet another rather lengthy string of text",
+          ],
+          number: [1, 2, 3],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "short", title: "Short"}),
+        new TableColumn({field: "long", title: "Long"}),
+        new TableColumn({field: "number", title: "Number"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        width: 800,
+        height: 200,
+        width_policy: "fixed",
+        autosize_mode: "fit_viewport",
+      })
+
+      await display(table, [1000, 250])
+    })
+  })
 })
