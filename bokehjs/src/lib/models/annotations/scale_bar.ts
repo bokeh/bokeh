@@ -66,8 +66,8 @@ export class ScaleBarView extends AnnotationView {
   protected axis: ContinuousAxis
   protected axis_view: ContinuousAxisView
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this.axis_view]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this.axis_view]
   }
 
   protected axis_scale: Scale

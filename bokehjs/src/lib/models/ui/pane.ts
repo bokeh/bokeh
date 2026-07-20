@@ -21,8 +21,8 @@ export class PaneView extends UIElementView {
     return this.elements.map((element) => this._element_views.get(element)).filter((view) => view != null)
   }
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this.element_views]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this.element_views]
   }
 
   override async lazy_initialize(): Promise<void> {

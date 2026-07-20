@@ -10,15 +10,15 @@ import {Ref, List} from "@bokehjs/core/kinds"
 class SomeModelView extends View {
   declare model: SomeModel
 
-  protected _children_views: ViewStorage<HasProps> = new Map()
+  protected _children_views_map: ViewStorage<HasProps> = new Map()
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this._children_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this._children_views_map.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this._children_views, this.model.children, {parent: this})
+    await build_views(this._children_views_map, this.model.children, {parent: this})
   }
 }
 
@@ -165,12 +165,12 @@ describe("core/view", () => {
 
       expect([...view5.views.all_views()]).to.be.equal([view5, view3, view0, view4, view1, view2])
 
-      expect([...view0.children()]).to.be.equal([])
-      expect([...view1.children()]).to.be.equal([])
-      expect([...view2.children()]).to.be.equal([])
-      expect([...view3.children()]).to.be.equal([view0])
-      expect([...view4.children()]).to.be.equal([view1, view2])
-      expect([...view5.children()]).to.be.equal([view3, view4])
+      expect(view0.children_views()).to.be.equal([])
+      expect(view1.children_views()).to.be.equal([])
+      expect(view2.children_views()).to.be.equal([])
+      expect(view3.children_views()).to.be.equal([view0])
+      expect(view4.children_views()).to.be.equal([view1, view2])
+      expect(view5.children_views()).to.be.equal([view3, view4])
     })
   })
 })

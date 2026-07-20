@@ -109,8 +109,8 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _context_menu: ViewOf<Menu> | null = null
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this._context_menu]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this._context_menu]
   }
 
   /**

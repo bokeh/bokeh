@@ -128,7 +128,7 @@ export abstract class View implements ISignalable, Equatable {
     }
     this.disconnect_signals()
     for (const view of this.children_views()) {
-      view?.remove()
+      view.remove()
     }
     this.owner.remove(this)
     this.removed.emit()
@@ -147,12 +147,11 @@ export abstract class View implements ISignalable, Equatable {
     return Object.is(this, that)
   }
 
-  /** @deprecated use children_views */
-  public *children(): IterViews {
-    yield* this.children_views().filter((view) => view != null)
+  children_views(): View[] {
+    return this._children_views().filter((view) => view != null)
   }
 
-  public children_views(): ChildView[] {
+  protected _children_views(): ChildView[] {
     return []
   }
 
@@ -190,7 +189,7 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   serializable_children(): View[] {
-    return [...this.children()].filter((view) => view.model.is_syncable)
+    return this.children_views().filter((view) => view.model.is_syncable)
   }
 
   serializable_state(): SerializableState {
@@ -306,7 +305,7 @@ export abstract class View implements ISignalable, Equatable {
         } else if (child.model == target) {
           return child
         } else {
-          queue.push(...child.children())
+          queue.push(...child.children_views())
         }
       }
       return null

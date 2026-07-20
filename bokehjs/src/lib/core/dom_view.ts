@@ -80,7 +80,7 @@ export abstract class DOMView extends View {
   }
 
   r_after_render(): void {
-    for (const child_view of this.children()) {
+    for (const child_view of this.children_views()) {
       if (child_view instanceof DOMView) {
         child_view.r_after_render()
       }

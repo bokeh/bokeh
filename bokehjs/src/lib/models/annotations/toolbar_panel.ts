@@ -24,8 +24,8 @@ export class ToolbarPanelView extends AnnotationView {
     return super.has_finished() && this.toolbar_view.has_finished()
   }
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this.toolbar_view]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this.toolbar_view]
   }
 
   toolbar_view: ToolbarView

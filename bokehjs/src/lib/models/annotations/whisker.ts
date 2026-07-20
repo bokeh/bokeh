@@ -17,8 +17,8 @@ export class WhiskerView extends UpperLowerView {
   protected lower_head: ArrowHeadView | null
   protected upper_head: ArrowHeadView | null
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this.lower_head, this.upper_head]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this.lower_head, this.upper_head]
   }
 
   override async lazy_initialize(): Promise<void> {

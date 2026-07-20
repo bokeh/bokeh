@@ -173,8 +173,8 @@ export class DataTableView extends WidgetView {
 
   protected wrapper_el: HTMLElement
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this.cds_view]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this.cds_view]
   }
 
   override async lazy_initialize(): Promise<void> {
