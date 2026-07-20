@@ -360,9 +360,7 @@ class BokehTornado(TornadoApplication):
         self.auth_provider = auth_provider
 
         if self.auth_provider.get_user or self.auth_provider.get_user_async:
-            log.info("User authentication hooks provided (no default user)")
-        else:
-            log.info("User authentication hooks NOT provided (default user enabled)")
+            log.info("User authentication hooks provided")
 
         kwargs['xsrf_cookies'] = xsrf_cookies
         if xsrf_cookies:

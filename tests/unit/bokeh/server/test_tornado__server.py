@@ -206,6 +206,24 @@ def test_logout_url_prefix() -> None:
     bt = bst.BokehTornado({"/": Application()}, prefix="/pre", auth_provider=FakeAuthNoSlash)
     assert bt._applications["/"]._logout_url == "/pre/logout"
 
+
+def test_auth_provider_logs_when_provided() -> None:
+    class FakeAuth:
+        get_user = "get_user"
+        endpoints = []
+
+    with patch.object(bst.log, "info") as mock_info:
+        bst.BokehTornado(applications={}, auth_provider=FakeAuth)
+
+    mock_info.assert_called_once_with("User authentication hooks provided")
+
+def test_auth_provider_no_log_when_not_provided() -> None:
+    with patch.object(bst.log, "info") as mock_info:
+        bst.BokehTornado(applications={})
+
+    mock_info.assert_not_called()
+
+
 def test_websocket_max_message_size_bytes() -> None:
     app = Application()
     t = bst.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
