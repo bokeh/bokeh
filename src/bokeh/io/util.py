@@ -44,11 +44,11 @@ if TYPE_CHECKING:
     from tempfile import _TemporaryFileWrapper
 
     from ..document import Document
+    from ..embed.util import ThemeSource
     from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
     from ..resources import Resources
-    from ..themes import Theme
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -149,7 +149,7 @@ def tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
 
 
 def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
-        width: int | None = None, height: int | None = None, theme: Theme | None = None) -> str:
+        width: int | None = None, height: int | None = None, theme: ThemeSource | None = None) -> str:
     '''
 
     '''

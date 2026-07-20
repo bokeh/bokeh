@@ -60,7 +60,12 @@ from ..core.serialization import (
 )
 from ..core.templates import FILE
 from ..core.validation import check_integrity, process_validation_issues
-from ..themes import Theme, built_in_themes, default as default_theme
+from ..themes import (
+    Theme,
+    ThemeLike,
+    built_in_themes,
+    default as default_theme,
+)
 from ..util.serialization import make_id
 from ..util.version import __version__
 from .callbacks import (
@@ -244,7 +249,7 @@ class Document:
         return self._theme
 
     @theme.setter
-    def theme(self, theme: Theme | str | None) -> None:
+    def theme(self, theme: ThemeLike | None) -> None:
         theme = default_theme if theme is None else theme
 
         if isinstance(theme, str):

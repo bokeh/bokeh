@@ -37,7 +37,7 @@ from weakref import WeakKeyDictionary
 from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
-from ..themes.theme import Theme
+from ..themes import Theme, ThemeLike
 from ..util.serialization import (
     make_globally_unique_css_safe_id,
     make_globally_unique_id,
@@ -79,8 +79,10 @@ class FromCurdoc:
     '''
     pass
 
+type ThemeSource = ThemeLike | type[FromCurdoc]
+
 @contextmanager
-def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | str | type[FromCurdoc] | None = None,
+def OutputDocumentFor(objs: Sequence[Model], apply_theme: ThemeSource = None,
         always_new: bool = False) -> Generator[Document]:
     ''' Find or create a (possibly temporary) Document to use for serializing
     Bokeh content.
@@ -115,7 +117,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | str | type[Fro
         objs (seq[Model]) :
             a sequence of Models that will be serialized, and need a common document
 
-        apply_theme (Theme or str or FromCurdoc or None, optional):
+        apply_theme (Theme or ThemeName or FromCurdoc or None, optional):
             Sets the theme for the doc while inside this context manager. (default: None)
 
             If None, use whatever theme is on the document that is found or created
@@ -432,7 +434,7 @@ def _dispose_temp_doc(models: Sequence[Model]) -> None:
 
 _themes: WeakKeyDictionary[Document, Theme] = WeakKeyDictionary()
 
-def _set_temp_theme(doc: Document, apply_theme: Theme | str | type[FromCurdoc] | None) -> None:
+def _set_temp_theme(doc: Document, apply_theme: ThemeSource | None) -> None:
     _themes[doc] = doc.theme
     if apply_theme is FromCurdoc:
         from ..io import curdoc
