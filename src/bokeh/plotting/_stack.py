@@ -22,7 +22,7 @@ from typing import Any
 
 # Bokeh imports
 from ..transform import stack
-from ..util.datatypes import SequenceLike, is_sequence_like
+from ..util.datatypes import SequenceLike, is_SequenceLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,7 +42,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def _validate_stackers(stackers: object) -> None:
-    if not is_sequence_like(stackers):
+    if not is_SequenceLike(stackers):
         raise ValueError("Stackers must be a sequence")
 
 def single_stack(stackers: SequenceLike[str], spec: str, **kw: Any) -> list[dict[str, Any]]:

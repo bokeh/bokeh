@@ -36,7 +36,7 @@ from typing import Protocol, TypeGuard, cast
 __all__ = (
     'MultiValuedDict',
     'SequenceLike',
-    'is_sequence_like',
+    'is_SequenceLike',
 )
 
 #-----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ __all__ = (
 class SequenceLike[T](Iterable[T], Sized, Protocol):
     """A sized iterable with a stable iteration order."""
 
-def is_sequence_like(obj: object) -> TypeGuard[SequenceLike[object]]:
+def is_SequenceLike(obj: object) -> TypeGuard[SequenceLike[object]]:
     """Whether an object is a sized, ordered iterable."""
     return (
         isinstance(obj, Iterable)

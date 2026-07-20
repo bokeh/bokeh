@@ -26,7 +26,7 @@ import bokeh.util.datatypes as bud # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_is_sequence_like:
+class Test_is_SequenceLike:
     @pytest.mark.parametrize('obj', [
         [],
         (),
@@ -34,7 +34,7 @@ class Test_is_sequence_like:
         np.array([1, 2, 3]),
     ])
     def test_accepts_sized_iterables(self, obj: object) -> None:
-        assert bud.is_sequence_like(obj)
+        assert bud.is_SequenceLike(obj)
 
     @pytest.mark.parametrize('obj', [
         "",
@@ -52,4 +52,4 @@ class Test_is_sequence_like:
         None,
     ])
     def test_rejects_non_sequences_and_special_cases(self, obj: object) -> None:
-        assert not bud.is_sequence_like(obj)
+        assert not bud.is_SequenceLike(obj)
