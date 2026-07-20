@@ -33,7 +33,7 @@ from bokeh.document.document import Document
 from bokeh.events import Tap
 from bokeh.io import curdoc
 from bokeh.model import Model
-from bokeh.themes import Theme
+from bokeh.themes import DARK_MINIMAL, Theme, built_in_themes
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
@@ -723,6 +723,13 @@ class Test__set_temp_theme:
         beu._set_temp_theme(d, t)
         assert beu._themes[d] is orig
         assert d.theme is t
+
+    def test_apply_builtin_theme_name(self) -> None:
+        d = Document()
+        orig = d.theme
+        beu._set_temp_theme(d, DARK_MINIMAL)
+        assert beu._themes[d] is orig
+        assert d.theme is built_in_themes[DARK_MINIMAL]
 
     def test_apply_from_curdoc(self) -> None:
         t = Theme(json={})
