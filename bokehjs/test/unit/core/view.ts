@@ -74,12 +74,12 @@ describe("core/view", () => {
 
       expect([...view5.views.all_views()]).to.be.equal([view5, view3, view0, view4, view1, view2])
 
-      expect([...view0.children()]).to.be.equal([])
-      expect([...view1.children()]).to.be.equal([])
-      expect([...view2.children()]).to.be.equal([])
-      expect([...view3.children()]).to.be.equal([view0])
-      expect([...view4.children()]).to.be.equal([view1, view2])
-      expect([...view5.children()]).to.be.equal([view3, view4])
+      expect([...view0.children_views()]).to.be.equal([])
+      expect([...view1.children_views()]).to.be.equal([])
+      expect([...view2.children_views()]).to.be.equal([])
+      expect([...view3.children_views()]).to.be.equal([view0])
+      expect([...view4.children_views()]).to.be.equal([view1, view2])
+      expect([...view5.children_views()]).to.be.equal([view3, view4])
     })
   })
 })
