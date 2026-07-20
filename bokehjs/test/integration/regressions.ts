@@ -4,6 +4,7 @@ import {expect, expect_condition, expect_not_null} from "#framework/assertions"
 import {display, fig, row, column, grid} from "#framework/layouts"
 import {DelayedInternalProvider} from "#framework/util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
+import {async_trap} from "#framework/util"
 
 import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
@@ -5154,6 +5155,20 @@ describe("Bug", () => {
 
       const table = new DataTable({source, columns, width: 300, height: 400})
       await display(table, [350, 450])
+    })
+  })
+
+  describe("in issue #15120", () => {
+    it("doesn't allow to render a Plot when Axis.fixed_location points to nowhere", async () => {
+      const plot = fig([200, 200])
+      plot.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
+      const axis = new LinearAxis({fixed_location: "nowhere"})
+      plot.add_layout(axis, "below")
+
+      const output = await async_trap(async () => {
+        await display(plot)
+      })
+      expect(output.warn.includes("cannot determine location of axis based on its fixed_location")).to.be.true
     })
   })
 })
