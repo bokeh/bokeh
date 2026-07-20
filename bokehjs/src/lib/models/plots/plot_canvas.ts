@@ -914,7 +914,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _update_attribution(): void {
     const attribution = [
       ...this.model.attribution,
-      ...this.computed_renderer_views.map((rv) => rv.attribution),
+      ...this.computed_renderer_views.filter((rv) => rv.displayed).map((rv) => rv.attribution),
     ].filter((rv) => rv != null)
     const elements = attribution.map((attrib) => isString(attrib) ? new Div({children: [attrib]}) : attrib)
     this._attribution.elements = elements
@@ -924,6 +924,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
     const result = await build_views(this.renderer_views, this.computed_renderers, {parent: (model) => model instanceof LayoutDOM ? null : this})
+    for (const renderer_view of result.created) {
+      this.on_change(renderer_view.model.properties.visible, () => this._update_attribution())
+    }
     this._update_attribution()
     return result
   }
