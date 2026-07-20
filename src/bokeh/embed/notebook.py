@@ -28,9 +28,13 @@ from ..core.json_encoder import serialize_json
 from ..core.templates import DOC_NB_JS
 from ..document import Document
 from ..model import Model
-from ..themes import Theme
 from .elements import div_for_render_item
-from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
+from .util import (
+    FromCurdoc,
+    OutputDocumentFor,
+    ThemeSource,
+    standalone_docs_json_and_render_items,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -47,8 +51,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-type ThemeSource = Theme | type[FromCurdoc] | None
 
 def notebook_content(model: Model, notebook_comms_target: str | None = None, theme: ThemeSource = FromCurdoc) -> tuple[str, str, Document]:
     ''' Return script and div that will display a Bokeh plot in a Jupyter
