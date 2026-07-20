@@ -2071,22 +2071,22 @@ ${view.host_selector} {
       const p = new Plot({frame_width: 100, frame_height: 200})
       const {view} = await display(p, [300, 300])
 
-      expect(view.frame.bbox.width == 100)
-      expect(view.frame.bbox.height == 200)
+      expect(view.frame.bbox.width).to.be.equal(100)
+      expect(view.frame.bbox.height).to.be.equal(200)
 
       p.frame_width = 150
       p.frame_height = 275
       await view.ready
 
-      expect(view.frame.bbox.width == 150)
-      expect(view.frame.bbox.height == 275)
+      expect(view.frame.bbox.width).to.be.equal(150)
+      expect(view.frame.bbox.height).to.be.equal(275)
 
       p.frame_width = 160
       p.frame_height = 180
       await view.ready
 
-      expect(view.frame.bbox.width == 160)
-      expect(view.frame.bbox.height == 180)
+      expect(view.frame.bbox.width).to.be.equal(160)
+      expect(view.frame.bbox.height).to.be.equal(180)
     })
   })
 
