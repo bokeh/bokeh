@@ -3,6 +3,7 @@ import sinon from "sinon"
 import {expect, expect_condition, expect_not_null} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
+import {async_trap} from "../util"
 
 import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
@@ -4974,6 +4975,20 @@ describe("Bug", () => {
       arrow_head.line_width = 5
 
       await view.ready
+    })
+  })
+
+  describe("in issue #15120", () => {
+    it("doesn't allow to render a Plot when Axis.fixed_location points to nowhere", async () => {
+      const plot = fig([200, 200])
+      plot.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
+      const axis = new LinearAxis({fixed_location: "nowhere"})
+      plot.add_layout(axis, "below")
+
+      const output = await async_trap(async () => {
+        await display(plot)
+      })
+      expect(output.warn.includes("cannot determine location of axis based on its fixed_location")).to.be.true
     })
   })
 })
