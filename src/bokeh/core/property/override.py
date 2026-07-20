@@ -25,9 +25,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Generic, TypeVar
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -40,9 +37,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
-
-class Override(Generic[T]):
+class Override[T]:
     """ Override attributes of Bokeh property in derived Models.
 
     When subclassing a Bokeh Model, it may be desirable to change some of the

@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar
+from typing import Any
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
@@ -39,13 +39,11 @@ __all__ = (
     "Required",
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Required(SingleParameterizedProperty[T]):
+class Required[T](SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
     def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:

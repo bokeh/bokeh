@@ -29,12 +29,17 @@ describe("object module", () => {
   })
 
   describe("extend", () => {
-
     it("called with two parameters should add the key/value pairs from second source object to the first dest object", () => {
       const obj1 = {key1: [], key2: [0]}
       const obj2 = {key3: 5}
       expect(object.extend(obj1, obj2)).to.be.equal({key1: [], key2: [0], key3: 5})
     })
+  })
+
+  it("should support omit() function", () => {
+    expect(object.omit({}, [])).to.be.equal({})
+    expect(object.omit({k0: 0, k1: 1, k2: 2, k3: 3}, [])).to.be.equal({k0: 0, k1: 1, k2: 2, k3: 3})
+    expect(object.omit({k0: 0, k1: 1, k2: 2, k3: 3}, ["k1", "k3"])).to.be.equal({k0: 0, k2: 2})
   })
 })
 

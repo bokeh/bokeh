@@ -38,6 +38,9 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # External imports
 from docutils import nodes
 from docutils.parsers.rst import Directive
@@ -47,7 +50,7 @@ from sphinx.errors import SphinxError
 import bokeh.palettes as bp
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .templates import PALETTE_GROUP_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -72,7 +75,7 @@ __all__ = (
 class bokeh_palette_group(nodes.General, nodes.Element):
 
     @staticmethod
-    def visit_html(visitor, node):
+    def visit_html(visitor: Any, node: Any) -> None:
         visitor.body.append('<div class="container-fluid"><div class="row">')
         group = getattr(bp, node["group"], None)
         if not isinstance(group, dict):
@@ -88,7 +91,7 @@ class bokeh_palette_group(nodes.General, nodes.Element):
         visitor.body.append("</div></div>")
         raise nodes.SkipNode
 
-    html = visit_html.__func__, None
+    html = visit_html.__func__, None # type: ignore[attr-defined]
 
 
 class BokehPaletteGroupDirective(Directive):
@@ -96,13 +99,13 @@ class BokehPaletteGroupDirective(Directive):
     has_content = False
     required_arguments = 1
 
-    def run(self):
+    def run(self) -> list[Any]:
         node = bokeh_palette_group()
         node["group"] = self.arguments[0]
         return [node]
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_node(bokeh_palette_group, html=bokeh_palette_group.html)
     app.add_directive("bokeh-palette-group", BokehPaletteGroupDirective)

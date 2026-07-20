@@ -24,8 +24,8 @@ log = logging.getLogger(__name__)
 import contextlib
 from dataclasses import dataclass, field
 from typing import (
+    Generator,
     Iterable,
-    Iterator,
     Literal,
     Protocol,
 )
@@ -64,7 +64,7 @@ class ValidationIssues:
     error: list[ValidationIssue] = field(default_factory=list)
     warning: list[ValidationIssue] = field(default_factory=list)
 
-ValidatorType = Literal["error", "warning"]
+type ValidatorType = Literal["error", "warning"]
 
 class Validator(Protocol):
     def __call__(self) -> list[ValidationIssue]: ...
@@ -120,7 +120,7 @@ def is_silenced(warning: Warning) -> bool:
     return warning in __silencers__
 
 @contextlib.contextmanager
-def silenced(warning: Warning) -> Iterator[None]:
+def silenced(warning: Warning) -> Generator[None]:
     silence(warning, True)
     try:
         yield

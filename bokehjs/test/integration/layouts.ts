@@ -577,12 +577,12 @@ describe("Tabs", () => {
 
   it("should allow tabs header location left with overflow", async () => {
     const obj = tabs("left", ["red", "green", "blue", "cyan", "magenta"])
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location right with overflow", async () => {
     const obj = tabs("right", ["red", "green", "blue", "cyan", "magenta"])
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location above with overflow and active off-screen", async () => {
@@ -600,13 +600,13 @@ describe("Tabs", () => {
   it("should allow tabs header location left with overflow and active off-screen", async () => {
     const obj = tabs("left", ["red", "green", "blue", "cyan", "magenta"])
     obj.active = 3
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location right with overflow and active off-screen", async () => {
     const obj = tabs("right", ["red", "green", "blue", "cyan", "magenta"])
     obj.active = 3
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location above with disabled=true", async () => {
@@ -677,6 +677,25 @@ describe("Tabs", () => {
   it("should allow to disable axis alignment across tabs", async () => {
     await linked_tabs(false)
   })
+
+  for (const tabs_location of ["above", "left"] as const) {
+    it(`should keep ${tabs_location} tab bounds stable when switching the active tab`, async () => {
+      const obj = tabs(tabs_location, ["Status", "Overview"])
+      const {view} = await display(obj, [200, 150])
+      const tab_els = [...view.shadow_el.querySelectorAll<HTMLElement>(".bk-tab")]
+
+      const bounds = () => tab_els.map((el) => {
+        const {y, height} = el.getBoundingClientRect()
+        return {y: Math.round(y), height: Math.round(height)}
+      })
+      const initial_bounds = bounds()
+
+      await mouse_click(tab_els[1])
+      await view.ready
+
+      expect(bounds()).to.be.structurally.equal(initial_bounds)
+    })
+  }
 })
 
 describe("gridplot()", () => {

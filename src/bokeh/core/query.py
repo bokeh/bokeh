@@ -14,6 +14,8 @@ models for instances that match specified criteria.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -27,7 +29,6 @@ from typing import (
     Any,
     Callable,
     Iterable,
-    TypeAlias,
 )
 
 if TYPE_CHECKING:
@@ -52,7 +53,7 @@ __all__ = (
     'is_single_string_selector',
 )
 
-SelectorType: TypeAlias = dict[str | type["_Operator"], Any]
+type SelectorType = dict[str | type["_Operator"], Any]
 
 #-----------------------------------------------------------------------------
 # General API

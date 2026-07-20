@@ -51,7 +51,7 @@ export class TablerIconView extends IconView {
     })()
 
     this._style.replace(`
-      :host {
+      ${this.host_selector} {
         display: inline-block;
         vertical-align: middle;
         font-size: ${size};

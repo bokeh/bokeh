@@ -61,7 +61,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.11'
+          test-env: '3.12'
           source-tree: 'keep'
 
       - name: List installed software
@@ -70,9 +70,41 @@ jobs:
       - name: Run codebase checks
         run: pytest --color=yes tests/codebase
 
-      - name: MyPy
-        if: success() || failure()
-        run: mypy --version && mypy
+  typing:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        python-version: ['3.12', '3.13', '3.14']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'keep'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - parallel:
+        - name: Check library types with mypy
+          run: |
+            mypy --version && mypy
+        - name: Check types in examples with mypy
+          run: |
+            mypy --version && mypy --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
+        - name: Check library types with pyright
+          run: |
+            pyright --version && pyright
 
   examples:
     needs: build
@@ -83,7 +115,7 @@ jobs:
       matrix:
         # Examples only run on Linux (Chrome/Chromium dependency)
         os: [ubuntu-24.04]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
 
     steps:
       - uses: actions/checkout@v6
@@ -140,7 +172,7 @@ jobs:
       matrix:
         # Comprehensive: All platforms × all Python versions
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -160,6 +192,9 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
 
+      - name: Install Playwright browsers
+        run: playwright install chromium
+
       - name: Run unit tests
         uses: ./.github/workflows/composite/run-unit-tests
 
@@ -170,7 +205,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Comprehensive: All platforms, Python 3.11 (defined in minimal-deps environment)
+        # Comprehensive: All platforms, Python 3.12 (defined in minimal-deps environment)
         os: [ubuntu-24.04, macos-latest, windows-latest]
     env:
       OS: ${{ matrix.os }}
@@ -230,7 +265,7 @@ jobs:
       matrix:
         # Comprehensive: All platforms
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.11']
+        python-version: ['3.12', '3.14']
 
     steps:
       - uses: actions/checkout@v6
@@ -257,7 +292,7 @@ jobs:
           path: docs/bokeh/docs-html.tgz
 
   notify-nightly-failure:
-    needs: [build, codebase, examples, unit-test, minimal-deps, core-deps, documentation]
+    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
@@ -299,7 +334,7 @@ jobs:
           *Automated notification from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
 
   notify-pr:
-    needs: [build, codebase, examples, unit-test, minimal-deps, core-deps, documentation]
+    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation]
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
@@ -321,6 +356,18 @@ jobs:
 
           # Wait for GitHub API to update job statuses
           sleep 10
+
+          # Check if any dependency jobs were cancelled
+          if ! CANCELLED_COUNT=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '[.jobs[] | select(.name != "notify-nightly-failure" and .name != "notify-pr" and .conclusion == "cancelled")] | length'); then
+            echo "Error: Failed to count cancelled jobs"
+            exit 1
+          fi
+
+          if [ "$CANCELLED_COUNT" -gt 0 ]; then
+            # Workflow was cancelled - skip commenting
+            echo "Workflow was cancelled ($CANCELLED_COUNT jobs cancelled) - skipping PR comment"
+            exit 0
+          fi
 
           # Determine overall status with error handling
           if ! FAILED_COUNT=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '[.jobs[] | select(.name != "notify-nightly-failure" and .name != "notify-pr" and .conclusion == "failure")] | length'); then

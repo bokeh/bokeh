@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportGeneralTypeIssues=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,13 +22,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from collections.abc import Awaitable
+from typing import Any, cast
+
 # External imports
-from tornado.web import authenticated
+from tornado.web import HTTPError, authenticated
 
 # Bokeh imports
 from bokeh.embed.server import server_html_page_for_session
 
 # Bokeh imports
+from ..session import ServerSession
 from .session_handler import SessionHandler
 
 #-----------------------------------------------------------------------------
@@ -50,8 +57,11 @@ class DocHandler(SessionHandler):
 
     '''
     @authenticated
-    async def get(self, *args, **kwargs):
-        session = await self.get_session()
+    async def get(self, *args: Any, **kwargs: Any) -> None:
+        session_future = cast("Awaitable[ServerSession | None]", self.get_session())
+        session = await session_future
+        if session is None:
+            raise HTTPError(status_code=403, reason="Invalid token or session ID")
 
         page = server_html_page_for_session(session,
                                             resources=self.application.resources(),

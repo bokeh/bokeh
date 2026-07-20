@@ -1,6 +1,7 @@
 import {expect} from "#framework/assertions"
 
 import {Plot} from "@bokehjs/models/plots/plot"
+import type {RangeManager} from "@bokehjs/models/plots/range_manager"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -134,6 +135,96 @@ describe("DataRange1d", () => {
       r.reset()
       expect(r.start).to.be.equal(4)
       expect(r.end).to.be.equal(10)
+    })
+
+    it("should recompute (start, end) when range_padding changes", async () => {
+      const y_range = new DataRange1d({range_padding: 0, range_padding_units: "absolute"})
+      const source = new ColumnDataSource({data: {x: [0, 1], y: [1, 3]}})
+      const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+      const renderer = new GlyphRenderer({data_source: source, glyph})
+      const p = new Plot({renderers: [renderer], y_range})
+      const pv = await build_view(p)
+      const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
+
+      expect(y_range.start).to.be.equal(1)
+      expect(y_range.end).to.be.equal(3)
+      expect(range_manager.invalidate_dataranges).to.be.false
+
+      y_range.range_padding = 1
+
+      expect(range_manager.invalidate_dataranges).to.be.true
+      range_manager.update_dataranges()
+
+      expect(y_range.start).to.be.equal(0)
+      expect(y_range.end).to.be.equal(4)
+    })
+
+    it("should recompute (start, end) when range-defining properties change", async () => {
+      const check = async (
+        y_range: DataRange1d,
+        y: number[],
+        change: (range: DataRange1d) => void,
+        expected: [number, number],
+      ) => {
+        const source = new ColumnDataSource({data: {x: [0, 1], y}})
+        const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+        const renderer = new GlyphRenderer({data_source: source, glyph})
+        const p = new Plot({renderers: [renderer], y_range})
+        const pv = await build_view(p)
+        const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
+
+        expect(range_manager.invalidate_dataranges).to.be.false
+
+        change(y_range)
+
+        expect(range_manager.invalidate_dataranges).to.be.true
+        range_manager.update_dataranges()
+
+        expect(y_range.start).to.be.equal(expected[0])
+        expect(y_range.end).to.be.equal(expected[1])
+      }
+
+      await check(new DataRange1d({range_padding: 0}), [1, 3], (range) => range.flipped = true, [3, 1])
+      await check(
+        new DataRange1d({range_padding: 0, follow_interval: 1}),
+        [1, 3],
+        (range) => range.follow = "end",
+        [2, 3],
+      )
+      await check(
+        new DataRange1d({range_padding: 0, follow: "end", follow_interval: 10}),
+        [1, 3],
+        (range) => range.follow_interval = 1,
+        [2, 3],
+      )
+      await check(new DataRange1d({range_padding: 0}), [2, 2], (range) => range.default_span = 4, [0, 4])
+
+      const y_range = new DataRange1d({range_padding: 0, only_visible: false})
+      const visible_source = new ColumnDataSource({data: {x: [0, 1], y: [1, 3]}})
+      const invisible_source = new ColumnDataSource({data: {x: [0, 1], y: [10, 12]}})
+      const visible_glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+      const invisible_glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+      const visible_renderer = new GlyphRenderer({data_source: visible_source, glyph: visible_glyph})
+      const invisible_renderer = new GlyphRenderer({
+        data_source: invisible_source,
+        glyph: invisible_glyph,
+        visible: false,
+      })
+      const p = new Plot({renderers: [visible_renderer, invisible_renderer], y_range})
+      const pv = await build_view(p)
+      const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
+
+      expect(y_range.start).to.be.equal(1)
+      expect(y_range.end).to.be.equal(12)
+      expect(range_manager.invalidate_dataranges).to.be.false
+
+      y_range.only_visible = true
+
+      expect(range_manager.invalidate_dataranges).to.be.true
+      range_manager.update_dataranges()
+
+      expect(y_range.start).to.be.equal(1)
+      expect(y_range.end).to.be.equal(3)
     })
   })
 

@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -22,6 +24,8 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
+from ..core.enums import ColorScheme
+from ..core.property.enum import Enum
 from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool
@@ -68,6 +72,10 @@ class DocumentConfig(Model):
     # TODO needs a base class, e.g. NotificationsBase
     notifications = Nullable(Instance(Notifications), default=InstanceDefault(Notifications), help="""
     Allows to configure or replace the notifications UI and logic.
+    """)
+
+    color_scheme = Enum(ColorScheme, default="auto", help="""
+    Allows to configure UI color scheme to use (auto, light or dark).
     """)
 
 #-----------------------------------------------------------------------------

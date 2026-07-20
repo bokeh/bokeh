@@ -26,7 +26,7 @@ export const dir_exists = (path: string) => exists(path) && is_dir(path)
 export function compile_typescript(tsconfig_path: string): void {
   const is_windows = process.platform == "win32"
   const npx = is_windows ? "npx.cmd" : "npx"
-  const {status} = cp.spawnSync(npx, ["tsgo", "--project", tsconfig_path], {stdio: "inherit", shell: is_windows})
+  const {status} = cp.spawnSync(`${npx} --loglevel=warn tsgo --project "${tsconfig_path}"`, {stdio: "inherit", shell: true})
   if (status != 0) {
     throw new BuildError("typescript", "compilation failed with tsgo")
   }

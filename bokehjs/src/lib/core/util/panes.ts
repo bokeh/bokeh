@@ -104,10 +104,10 @@ export class DropPane { //extends DOMComponentView {
   render(): void {
     this.empty()
 
-    for (const style of this.stylesheets()) {
-      const stylesheet = isString(style) ? new InlineStyleSheet(style) : style
-      stylesheet.install(this.shadow_el)
-    }
+    this.shadow_el.adoptedStyleSheets = this
+      .stylesheets()
+      .map((style) => isString(style) ? new InlineStyleSheet(style) : style)
+      .map((sheet) => sheet.to_native())
 
     this.shadow_el.append(...this.contents)
   }

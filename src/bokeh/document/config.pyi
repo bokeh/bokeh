@@ -4,8 +4,8 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-
 # Bokeh imports
+from ..core.enums import ColorSchemeType
 from ..model import Model
 from ..models.ui.notifications import Notifications
 
@@ -16,3 +16,5 @@ class DocumentConfig(Model):
     notify_connection_status: bool = ...
 
     notifications: Notifications | None = ...
+
+    color_scheme: ColorSchemeType = ...

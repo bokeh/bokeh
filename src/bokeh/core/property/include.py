@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportIncompatibleMethodOverride=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -22,14 +24,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
-from typing import TYPE_CHECKING, TypeVar
 
 # Bokeh imports
 from ..has_props import HasProps
-from .descriptor_factory import PropertyDescriptorFactory
-
-if TYPE_CHECKING:
-    from .descriptors import PropertyDescriptor
+from .descriptor_factory import PropertyDescriptorFactory, PropertyDescriptorLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,13 +37,11 @@ __all__ = (
     'Include',
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Include(PropertyDescriptorFactory[T]):
+class Include[T](PropertyDescriptorFactory[T]):
     """ Include "mix-in" property collection in a Bokeh model.
 
     See :ref:`bokeh.core.property_mixins` for more details.
@@ -60,8 +56,8 @@ class Include(PropertyDescriptorFactory[T]):
         self.help = help
         self.prefix = prefix + "_" if prefix else ""
 
-    def make_descriptors(self, _base_name: str) -> list[PropertyDescriptor[T]]:
-        descriptors = []
+    def make_descriptors(self, _base_name: str) -> list[PropertyDescriptorLike[T]]:
+        descriptors: list[PropertyDescriptorLike[T]] = []
 
         for descriptor in self.delegate.descriptors():
             prop = copy(descriptor.property)

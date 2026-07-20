@@ -29,11 +29,13 @@ from os.path import normpath
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     Iterator,
     NotRequired,
     Sequence,
     TypedDict,
+    cast,
 )
 from urllib.parse import urljoin
 
@@ -281,6 +283,8 @@ def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list
             continue
         names.add(name)
         module = __import__(name)
+        if module.__file__ is None:
+            continue
         this_file = Path(module.__file__).absolute()
         base_dir = this_file.parent
         dist_dir = base_dir / "dist"
@@ -311,11 +315,11 @@ def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list
             pkg_version = pkg.get("version", "latest")
             pkg_main = pkg.get("module", pkg.get("main", None))
             if pkg_main is not None:
-                pkg_main = Path(normpath(pkg_main))
-                cdn_url = _default_cdn_host / f"{pkg_name}@{pkg_version}" / f"{pkg_main}"
+                pkg_main_path = Path(normpath(pkg_main))
+                cdn_url = _default_cdn_host / f"{pkg_name}@{pkg_version}" / f"{pkg_main_path}"
             else:
-                pkg_main = dist_dir / f"{name}.js"
-            artifact_path = base_dir / pkg_main
+                pkg_main_path = dist_dir / f"{name}.js"
+            artifact_path = base_dir / pkg_main_path
             artifacts_dir = artifact_path.parent
             artifact_name = artifact_path.name
             server_path = f"{name}/{artifact_name}"
@@ -349,7 +353,7 @@ def _all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
             for root in obj.roots:
                 all_objs |= root.references()
         else:
-            all_objs |= obj.references()
+            all_objs |= cast(Any, obj).references()
 
     return all_objs
 
@@ -371,7 +375,7 @@ def _use_tables(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -384,7 +388,7 @@ def _use_widgets(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a any Widget
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -437,7 +441,7 @@ def _model_requires_mathjax(model: HasProps) -> bool:
 def _use_mathjax(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a model requesting MathJax
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
     Returns:
         bool
     '''
@@ -450,7 +454,7 @@ def _use_gl(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool

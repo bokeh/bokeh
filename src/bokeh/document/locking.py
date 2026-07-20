@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import asyncio
+import inspect
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -29,7 +29,6 @@ from typing import (
     Callable,
     Literal,
     Protocol,
-    TypeVar,
     cast,
 )
 
@@ -51,13 +50,11 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-F = TypeVar("F", bound=Callable[..., Any])
-
-class NoLockCallback(Protocol[F]):
+class NoLockCallback[F: Callable[..., Any]](Protocol):
     __call__: F
     nolock: Literal[True]
 
-def without_document_lock(func: F) -> NoLockCallback[F]:
+def without_document_lock[F: Callable[..., Any]](func: F) -> NoLockCallback[F]:
     ''' Wrap a callback function to execute without first obtaining the
     document lock.
 
@@ -87,16 +84,17 @@ def without_document_lock(func: F) -> NoLockCallback[F]:
     async function if ``func`` is any of the latter two.
 
     '''
-    if asyncio.iscoroutinefunction(func):
+    if inspect.iscoroutinefunction(func):
         @wraps(func)
-        async def _wrapper(*args: Any, **kw: Any) -> None:
+        async def _async_wrapper(*args: Any, **kw: Any) -> None:
             await func(*args, **kw)
+        wrapper = cast(NoLockCallback[F], _async_wrapper)
     else:
         @wraps(func)
-        def _wrapper(*args: Any, **kw: Any) -> None:
+        def _sync_wrapper(*args: Any, **kw: Any) -> None:
             func(*args, **kw)
+        wrapper = cast(NoLockCallback[F], _sync_wrapper)
 
-    wrapper = cast(NoLockCallback[F], _wrapper)
     wrapper.nolock = True
     return wrapper
 

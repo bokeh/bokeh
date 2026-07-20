@@ -89,3 +89,18 @@ if importlib.util.find_spec('polars') is not None:
 @pytest.fixture(params=constructors)
 def constructor(request: pytest.FixtureRequest):
     return request.param  # type: ignore[no-any-return]
+
+
+@pytest.fixture(scope="session")
+def base_url() -> None:
+    '''Session-scoped no-op override to prevent a fixture scope conflict.
+
+    ``pytest-base-url`` (pulled in by ``pytest-playwright``) ships a
+    session-scoped autouse ``_verify_url`` fixture that depends on
+    ``base_url``.  ``pytest-tornado`` also defines ``base_url`` but at
+    function scope.  When both plugins are installed, pytest raises
+    ``ScopeMismatch``.  This override short-circuits the resolution:
+    returning ``None`` causes ``_verify_url`` to skip its check, and no
+    Bokeh test actually consumes the ``base_url`` fixture.
+    '''
+    return None

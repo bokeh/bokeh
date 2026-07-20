@@ -165,8 +165,8 @@ def on_session_destroyed(a,b):
         handler = result['handler']
         assert "on_server_loaded" == handler.on_server_loaded(None)
         assert "on_server_unloaded" == handler.on_server_unloaded(None)
-        assert "on_session_created" == await handler.on_session_created(None)
-        assert "on_session_destroyed" == await handler.on_session_destroyed(None)
+        assert await handler.on_session_created(None) is None
+        assert await handler.on_session_destroyed(None) is None
 
     def test_url_path(self) -> None:
         result: dict[str, Handler] = {}

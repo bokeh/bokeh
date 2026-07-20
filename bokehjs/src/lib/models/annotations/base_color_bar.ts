@@ -25,7 +25,7 @@ import {Grid} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {SidePanel} from "core/layout/side_panel"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
@@ -63,7 +63,7 @@ export abstract class BaseColorBarView extends AnnotationView {
     return this._orientation
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this._axis_view, this._title_view]
   }
 
@@ -133,12 +133,6 @@ export abstract class BaseColorBarView extends AnnotationView {
     this._frame_view = await build_view(this._frame, {parent})
     this._axis_view = await build_view(this._axis, {parent})
     this._title_view = await build_view(this._title, {parent})
-  }
-
-  override remove(): void {
-    this._title_view.remove()
-    this._axis_view.remove()
-    super.remove()
   }
 
   protected _apply_axis_properties(): void {

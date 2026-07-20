@@ -32,8 +32,8 @@ from ..settings import settings
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-BrowserTarget = Literal["same", "window", "tab"]
-TargetCode = Literal[0, 1, 2]
+type BrowserTarget = Literal["same", "window", "tab"]
+type TargetCode = Literal[0, 1, 2]
 
 NEW_PARAM: dict[BrowserTarget, TargetCode] = {"same": 0, "window": 1, "tab": 2}
 

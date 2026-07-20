@@ -65,7 +65,7 @@
 /.mypy_cache/
 /.images-list
 examples-report.html
-examples.log
+/*.log
 
 # used by docker container
 .conda_docker

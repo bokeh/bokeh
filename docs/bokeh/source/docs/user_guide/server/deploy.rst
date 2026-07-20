@@ -480,7 +480,7 @@ modules.
 
 Add balancers for both http and websocket protocols:
 
-.. code-block :: apache
+.. code-block:: apache
 
     <Proxy "balancer://myapp_http">
         BalancerMember "http://127.0.0.1:5100/myapp"
@@ -739,6 +739,21 @@ templates:
     {% module xsrf_form_html() %}
 
 For full details, see the Tornado documentation on `XSRF Cookies`_.
+
+Programmatic server with global settings
+----------------------------------------
+
+When embedding a Bokeh server in another application (see
+:ref:`ug_server_library`), you may want your programmatic ``Server`` to honor
+the same environment variables and configuration files that ``bokeh serve``
+uses — such as ``BOKEH_AUTH_MODULE``, ``BOKEH_SSL_CERTFILE``, or
+``BOKEH_SIGN_SESSIONS``.
+
+The :meth:`~bokeh.server.server.Server.from_settings` factory method creates
+a ``Server`` instance that automatically reads these values from the Bokeh
+global settings system (see :ref:`bokeh.settings <bokeh.settings>`). Any
+values you pass explicitly as keyword arguments will take precedence over the
+settings.
 
 Scaling the server
 ------------------

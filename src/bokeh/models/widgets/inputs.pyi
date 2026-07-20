@@ -11,7 +11,6 @@ from typing import (
     Any,
     Literal,
     Sequence,
-    TypeAlias,
     Unpack,
 )
 
@@ -101,6 +100,7 @@ class Spinner(NumericInput):
 class _ToggleInputInit(_WidgetInit, total=False):
     active: bool
     label: str
+    tri_state: bool
 
 class ToggleInput(Widget):
     @abstractmethod
@@ -108,6 +108,7 @@ class ToggleInput(Widget):
 
     active: bool = ...
     label: str = ...
+    tri_state: bool = ...
 
 class _CheckboxInit(_ToggleInputInit, total=False):
     ...
@@ -118,12 +119,14 @@ class Checkbox(ToggleInput):
 class _SwitchInit(_ToggleInputInit, total=False):
     on_icon: IconLike | None
     off_icon: IconLike | None
+    indeterminate_icon: IconLike | None
 
 class Switch(ToggleInput):
     def __init__(self, **kwargs: Unpack[_SwitchInit]) -> None: ...
 
     on_icon: IconLike | None = ...
     off_icon: IconLike | None = ...
+    indeterminate_icon: IconLike | None = ...
 
 class _LightDarkInit(_SwitchInit, total=False):
     ...
@@ -189,8 +192,8 @@ class AutocompleteInput(TextInput):
     restrict: bool = ...
     search_strategy: Literal["starts_with", "includes"] = ...
 
-Options: TypeAlias = list[str | tuple[Any, str]]
-OptionsGroups: TypeAlias = dict[str, Options]
+type Options = list[str | tuple[Any, str]]
+type OptionsGroups = dict[str, Options]
 
 class _SelectInit(_InputWidgetInit, total=False):
     options: Options | OptionsGroups | list[str | None]

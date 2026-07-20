@@ -27,6 +27,8 @@ Based on a private class, _BokehStructureGraph.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -116,7 +118,8 @@ class _BokehStructureGraph:
         self._prop_df = self._make_prop_dict()
         self._graph_plot = self._make_graph_plot()
         self._data_table = self._make_data_table()
-        self._graph_plot.title.text = f"Structure of model type {self._model.__class__.__name__} with id {self._model.id}"
+        if self._graph_plot.title is not None:
+            self._graph_plot.title.text = f"Structure of model type {self._model.__class__.__name__} with id {self._model.id}"
         self._structure_graph = self._combined()
 
     @property
@@ -185,16 +188,23 @@ class _BokehStructureGraph:
         for m in M.references():
             T[m.id] = {y.id for y in m.references()}
 
+        def model_name(id: ID) -> str:
+            model = M.select_one({"id": id})
+            assert model is not None
+            return model.__class__.__name__
+
         K.add_nodes_from(
-            [(x, {"model": M.select_one({"id": x}).__class__.__name__}) for x in T],
+            [(x, {"model": model_name(x)}) for x in T],
         )
         E = [(y, x) for x, y in permutations(T, 2) if T[x] <= T[y]]
         K.add_edges_from(E)
         dead_edges = []
         for id in K.nodes:
             H = M.select_one({"id": id})
+            assert H is not None
             for x in K.neighbors(id):
                 s = H.select_one({"id": x})
+                assert s is not None
                 keep_edge = False
                 for y in H.properties():
                     if test_condition(s, y, H):

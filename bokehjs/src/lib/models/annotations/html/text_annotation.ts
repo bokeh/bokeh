@@ -1,6 +1,7 @@
 import {Annotation, AnnotationView} from "../annotation"
 import type * as visuals from "core/visuals"
 import {display, undisplay} from "core/dom"
+import {StyleSheetComposer} from "core/stylesheets"
 import type * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
@@ -66,7 +67,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     if (this.layout != null) {
       this.position.replace(`
-      :host {
+      ${this.host_selector} {
         position: relative;
       }
       `)
@@ -75,7 +76,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       const [rsx, rsy] = panel.bbox.relativize(sx, sy)
 
       this.position.replace(`
-      :host {
+      ${this.host_selector} {
         position: absolute;
         left: ${rsx}px;
         top: ${rsy}px;
@@ -83,8 +84,10 @@ export abstract class TextAnnotationView extends AnnotationView {
       `)
     }
 
-    this.style.replace(`
-    :host {
+    const stylesheet = new StyleSheetComposer()
+
+    stylesheet.append(`
+    ${this.host_selector} {
       width: max-content;
       height: max-content;
 
@@ -107,8 +110,8 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     if (this.layout != null) {
       if (angle != 0) {
-        this.style.append(`
-        :host {
+        stylesheet.append(`
+        ${this.host_selector} {
           writing-mode: vertical-rl;
           rotate: 180deg;
           align-self: end;
@@ -132,8 +135,8 @@ export abstract class TextAnnotationView extends AnnotationView {
         }
       })()
 
-      this.style.append(`
-      :host {
+      stylesheet.append(`
+      ${this.host_selector} {
         transform-origin: ${x_anchor} ${y_anchor};
         transform: translate(-${x_anchor}, -${y_anchor}) rotate(${angle}rad);
       }
@@ -142,8 +145,8 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     if (this.visuals.background_fill.doit) {
       this.visuals.background_fill.set_value(ctx)
-      this.style.append(`
-      :host {
+      stylesheet.append(`
+      ${this.host_selector} {
         background-color: ${ctx.fillStyle};
       }
       `)
@@ -153,8 +156,8 @@ export abstract class TextAnnotationView extends AnnotationView {
       this.visuals.border_line.set_value(ctx)
 
       // attempt to support vector-style ("8 4 8") line dashing for css mode
-      this.style.append(`
-      :host {
+      stylesheet.append(`
+      ${this.host_selector} {
         border-style: ${ctx.getLineDash().length < 2 ? "solid" : "dashed"};
         border-width: ${ctx.lineWidth}px;
         border-color: ${ctx.strokeStyle};
@@ -162,6 +165,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       `)
     }
 
+    this.self_style.replace(stylesheet.css)
     display(el)
   }
 }

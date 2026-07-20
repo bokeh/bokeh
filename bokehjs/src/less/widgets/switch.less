@@ -4,6 +4,7 @@
   --switch-width: 32px;
   --switch-size: 16px;
   --bar-height: 10px;
+  --bar-to-knob-vertical-pos: 50%;
 }
 
 :host {
@@ -35,7 +36,7 @@
 
 .bk-bar {
   position: relative;
-  top: calc(50% - var(--bar-height)/2);
+  top: calc(var(--bar-to-knob-vertical-pos) - var(--bar-height)/2);
   height: var(--bar-height);
   border-radius: calc(var(--bar-height)/2);
   background-color: var(--inactive-bg);
@@ -59,6 +60,11 @@
 
 :host(.bk-active) .bk-knob {
   left: calc(100% - var(--switch-size));
+  background-color: var(--active-fg);
+}
+
+:host(.bk-indeterminate) .bk-knob {
+  left: calc(75% - var(--switch-size));
   background-color: var(--active-fg);
 }
 

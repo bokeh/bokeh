@@ -57,10 +57,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Generic, TypeVar
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:
-    from .descriptors import PropertyDescriptor
+    from .bases import Property
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -78,9 +79,17 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
+class PropertyDescriptorLike[T](Protocol):
+    """ Structural interface for descriptors installed by ``MetaHasProps``. """
 
-class PropertyDescriptorFactory(Generic[T]):
+    name: str
+
+    @property
+    def property(self) -> Property[T]: ...
+
+    def __set__(self, obj: Any, value: T) -> None: ...
+
+class PropertyDescriptorFactory[T]:
     """ Base class for all Bokeh properties.
 
     A Bokeh property really consist of two parts: the familiar "property"
@@ -114,7 +123,7 @@ class PropertyDescriptorFactory(Generic[T]):
 
     """
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptor[T]]:
+    def make_descriptors(self, name: str) -> Sequence[PropertyDescriptorLike[T]]:
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 

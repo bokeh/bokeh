@@ -27,20 +27,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Sequence
 from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
-    TypeAlias,
-    TypeVar,
+    cast,
 )
 
 # Bokeh imports
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
-from .descriptor_factory import PropertyDescriptorFactory
+from .descriptor_factory import PropertyDescriptorFactory, PropertyDescriptorLike
 from .descriptors import PropertyDescriptor
 from .singletons import (
     Intrinsic,
@@ -50,6 +50,8 @@ from .singletons import (
 )
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+
     from ...document.events import DocumentPatchedEvent
     from ..has_props import HasProps
 
@@ -72,13 +74,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
+type TypeOrInst[T] = type[T] | T
 
-TypeOrInst: TypeAlias = type[T] | T
+type Init[T] = T | UndefinedType | IntrinsicType
 
-Init: TypeAlias = T | UndefinedType | IntrinsicType
-
-class Property(PropertyDescriptorFactory[T]):
+class Property[T](PropertyDescriptorFactory[T]):
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -100,7 +100,7 @@ class Property(PropertyDescriptorFactory[T]):
     _self_serialized: bool
 
     alternatives: list[tuple[Property[Any], Callable[[Any], T]]]
-    assertions: list[tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
+    assertions: list[tuple[bool | Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
     def __init__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
         default = default if default is not Intrinsic else Undefined
@@ -151,7 +151,7 @@ class Property(PropertyDescriptorFactory[T]):
         else:
             return False
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptor[T]]:
+    def make_descriptors(self, name: str) -> Sequence[PropertyDescriptorLike[T]]:
         """ Return a list of ``PropertyDescriptor`` instances to install
         on a class, in order to delegate attribute access to this property.
 
@@ -175,7 +175,7 @@ class Property(PropertyDescriptorFactory[T]):
         return callable(self._default)
 
     @classmethod
-    def _copy_default(cls, default: Callable[[], T] | T, *, no_eval: bool = False) -> T:
+    def _copy_default(cls, default: Callable[[], T] | Init[T], *, no_eval: bool = False) -> Any:
         """ Return a copy of the default, or a new value if the default
         is specified by a function.
 
@@ -187,7 +187,7 @@ class Property(PropertyDescriptorFactory[T]):
                 return default
             return default()
 
-    def _raw_default(self, *, no_eval: bool = False) -> T:
+    def _raw_default(self, *, no_eval: bool = False) -> Any:
         """ Return the untransformed default value.
 
         The raw_default() needs to be validated and transformed by
@@ -197,7 +197,7 @@ class Property(PropertyDescriptorFactory[T]):
         """
         return self._copy_default(self._default, no_eval=no_eval)
 
-    def themed_default(self, cls: type[HasProps], name: str, theme_overrides: dict[str, Any] | None, *, no_eval: bool = False) -> T:
+    def themed_default(self, cls: type[HasProps], name: str, theme_overrides: dict[str, Any] | None, *, no_eval: bool = False) -> Any:
         """ The default, transformed by prepare_value() and the theme overrides.
 
         """
@@ -245,7 +245,7 @@ class Property(PropertyDescriptorFactory[T]):
         import numpy as np
 
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
-            return np.array_equal(new, old)
+            return np.array_equal(cast("npt.ArrayLike", new), cast("npt.ArrayLike", old))
 
         if uses_pandas(new) or uses_pandas(old):
             import pandas as pd
@@ -253,7 +253,7 @@ class Property(PropertyDescriptorFactory[T]):
 
             pandas_types = (pd.Index, pd.Series, ExtensionArray)
             if isinstance(new, pandas_types) or isinstance(old, pandas_types):
-                return np.array_equal(new, old)
+                return np.array_equal(cast("npt.ArrayLike", new), cast("npt.ArrayLike", old))
 
         try:
             # this handles the special but common case where there is a dict with array
@@ -340,7 +340,7 @@ class Property(PropertyDescriptorFactory[T]):
         if value is Intrinsic:
             value = self._raw_default()
         if value is Undefined:
-            return value
+            return cast(T, value)
 
         error = None
         try:
@@ -438,14 +438,14 @@ class Property(PropertyDescriptorFactory[T]):
         else:
             return self
 
-class ParameterizedProperty(Property[T]):
+class ParameterizedProperty[T](Property[T]):
     """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
 
     _type_params: list[Property[Any]]
 
-    def __init__(self, *type_params: TypeOrInst[Property[T]], default: Init[T] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[T] = Intrinsic, help: str | None = None) -> None:
         _type_params = [ self._validate_type_param(param) for param in type_params ]
         default = default if default is not Intrinsic else _type_params[0]._raw_default()
         self._type_params = _type_params
@@ -472,7 +472,7 @@ class ParameterizedProperty(Property[T]):
             return False
 
     @staticmethod
-    def _validate_type_param(type_param: TypeOrInst[Property[Any]], *, help_allowed: bool = False) -> Property[Any]:
+    def _validate_type_param(type_param: Any, *, help_allowed: bool = False) -> Property[Any]:
         if isinstance(type_param, type):
             if issubclass(type_param, Property):
                 return type_param()
@@ -505,7 +505,7 @@ class ParameterizedProperty(Property[T]):
             params = [ type_param.replace(old, new) for type_param in self.type_params ]
             return self.__class__(*params)
 
-class SingleParameterizedProperty(ParameterizedProperty[T]):
+class SingleParameterizedProperty[T](ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
 
     @property
@@ -525,7 +525,7 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
     def wrap(self, value: T) -> T:
         return self.type_param.wrap(value)
 
-class PrimitiveProperty(Property[T]):
+class PrimitiveProperty[T](Property[T]):
     """ A base class for simple property types.
 
     Subclasses should define a class attribute ``_underlying_type`` that is
@@ -560,7 +560,7 @@ class PrimitiveProperty(Property[T]):
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValueError(msg)
 
-class ContainerProperty(ParameterizedProperty[T]):
+class ContainerProperty[T](ParameterizedProperty[T]):
     """ A base class for Container-like type properties.
 
     """
@@ -587,5 +587,5 @@ def validation_on() -> bool:
 #-----------------------------------------------------------------------------
 
 @register_type_link(SingleParameterizedProperty)
-def _sphinx_type(obj: SingleParameterizedProperty[Any]):
+def _sphinx_type(obj: SingleParameterizedProperty[Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.type_param)})"

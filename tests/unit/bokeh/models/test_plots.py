@@ -476,6 +476,16 @@ def test_Plot_add_tools() -> None:
     with pytest.raises(ValueError):
         plot.add_tools(0)
 
+def test_Plot_hold_restores_after_exception() -> None:
+    plot = Plot()
+
+    with pytest.raises(RuntimeError):
+        with plot.hold(render=True):
+            assert plot.hold_render is True
+            raise RuntimeError("boom")
+
+    assert plot.hold_render is False
+
 def test_remove_tools_single():
     pan = PanTool()
     reset = ResetTool()

@@ -2,18 +2,23 @@ import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/type
 import {entries} from "./util/object"
 import {BBox} from "./util/bbox"
 import type {Size, Box, Extents, PlainObject} from "./types"
-import type {CSSStyles, CSSStyleSheetDecl} from "./css"
-import {compose_stylesheet, apply_styles} from "./css"
+import type {CSSStyles} from "./css"
+import {apply_styles} from "./css"
 import {logger} from "./logging"
+
+// {{{ TODO remove this
+export type {StyleSheet, StyleSheetLike} from "./stylesheets"
+export {InlineStyleSheet, ImportedStyleSheet, GlobalInlineStyleSheet, GlobalImportedStyleSheet} from "./stylesheets"
+// }}}
 
 export type Optional<T> = {[P in keyof T]?: T[P] | null | undefined}
 
 export type HTMLElementName = keyof HTMLElementTagNameMap
 
-export type CSSClass = string
+export type CSSClass = string | null | undefined
 
 export type ElementOurAttrs = {
-  class?: CSSClass | (CSSClass | null | undefined)[]
+  class?: CSSClass | CSSClass[]
   style?: CSSStyles | string
   data?: PlainObject<string | null | undefined>
 }
@@ -127,19 +132,19 @@ export type AAttrs = {
   href: HTMLAnchorElement["href"]
   target: HTMLAnchorElement["target"]
 }
-export type AbbrAttrs = object
-export type AddressAttrs = object
-export type AreaAttrs = object
-export type ArticleAttrs = object
-export type AsideAttrs = object
-export type AudioAttrs = object
-export type BAttrs = object
-export type BaseAttrs = object
-export type BdiAttrs = object
-export type BdoAttrs = object
-export type BlockQuoteAttrs = object
-export type BodyAttrs = object
-export type BrAttrs = object
+export type AbbrAttrs = {}
+export type AddressAttrs = {}
+export type AreaAttrs = {}
+export type ArticleAttrs = {}
+export type AsideAttrs = {}
+export type AudioAttrs = {}
+export type BAttrs = {}
+export type BaseAttrs = {}
+export type BdiAttrs = {}
+export type BdoAttrs = {}
+export type BlockQuoteAttrs = {}
+export type BodyAttrs = {}
+export type BrAttrs = {}
 export type ButtonAttrs = {
   type: "button"
   disabled: HTMLButtonElement["disabled"]
@@ -148,42 +153,42 @@ export type CanvasAttrs = {
   width: HTMLCanvasElement["width"]
   height: HTMLCanvasElement["height"]
 }
-export type CaptionAttrs = object
-export type CiteAttrs = object
-export type CodeAttrs = object
-export type ColAttrs = object
-export type ColGroupAttrs = object
-export type DataAttrs = object
-export type DataListAttrs = object
-export type DdAttrs = object
-export type DelAttrs = object
-export type DetailsAttrs = object
-export type DfnAttrs = object
-export type DialogAttrs = object
-export type DivAttrs = object
-export type DlAttrs = object
-export type DtAttrs = object
-export type EmAttrs = object
-export type EmbedAttrs = object
-export type FieldSetAttrs = object
-export type FigCaptionAttrs = object
-export type FigureAttrs = object
-export type FooterAttrs = object
-export type FormAttrs = object
-export type H1Attrs = object
-export type H2Attrs = object
-export type H3Attrs = object
-export type H4Attrs = object
-export type H5Attrs = object
-export type H6Attrs = object
-export type HeadAttrs = object
-export type HeaderAttrs = object
-export type HGroupAttrs = object
-export type HrAttrs = object
-export type HtmlAttrs = object
-export type IAttrs = object
-export type IFrameAttrs = object
-export type ImgAttrs = object
+export type CaptionAttrs = {}
+export type CiteAttrs = {}
+export type CodeAttrs = {}
+export type ColAttrs = {}
+export type ColGroupAttrs = {}
+export type DataAttrs = {}
+export type DataListAttrs = {}
+export type DdAttrs = {}
+export type DelAttrs = {}
+export type DetailsAttrs = {}
+export type DfnAttrs = {}
+export type DialogAttrs = {}
+export type DivAttrs = {}
+export type DlAttrs = {}
+export type DtAttrs = {}
+export type EmAttrs = {}
+export type EmbedAttrs = {}
+export type FieldSetAttrs = {}
+export type FigCaptionAttrs = {}
+export type FigureAttrs = {}
+export type FooterAttrs = {}
+export type FormAttrs = {}
+export type H1Attrs = {}
+export type H2Attrs = {}
+export type H3Attrs = {}
+export type H4Attrs = {}
+export type H5Attrs = {}
+export type H6Attrs = {}
+export type HeadAttrs = {}
+export type HeaderAttrs = {}
+export type HGroupAttrs = {}
+export type HrAttrs = {}
+export type HtmlAttrs = {}
+export type IAttrs = {}
+export type IFrameAttrs = {}
+export type ImgAttrs = {}
 export type InputAttrs = {
   type: "text" | "checkbox" | "radio" | "file" | "color"
   name:  HTMLInputElement["name"]
@@ -196,28 +201,28 @@ export type InputAttrs = {
   readonly: HTMLInputElement["readOnly"]
   webkitdirectory: HTMLInputElement["webkitdirectory"]
 }
-export type InsAttrs = object
-export type KbdAttrs = object
+export type InsAttrs = {}
+export type KbdAttrs = {}
 export type LabelAttrs = {
   for: HTMLLabelElement["htmlFor"]
 }
-export type LegendAttrs = object
-export type LiAttrs = object
+export type LegendAttrs = {}
+export type LiAttrs = {}
 export type LinkAttrs = {
   rel: HTMLLinkElement["rel"]
   href: HTMLLinkElement["href"]
   disabled: HTMLLinkElement["disabled"]
 }
-export type MainAttrs = object
-export type MapAttrs = object
-export type MarkAttrs = object
-export type MenuAttrs = object
-export type MetaAttrs = object
-export type MeterAttrs = object
-export type NavAttrs = object
-export type NoScriptAttrs = object
-export type ObjectAttrs = object
-export type OlAttrs = object
+export type MainAttrs = {}
+export type MapAttrs = {}
+export type MarkAttrs = {}
+export type MenuAttrs = {}
+export type MetaAttrs = {}
+export type MeterAttrs = {}
+export type NavAttrs = {}
+export type NoScriptAttrs = {}
+export type ObjectAttrs = {}
+export type OlAttrs = {}
 export type OptGroupAttrs = {
   disabled: HTMLOptGroupElement["disabled"]
   label: HTMLOptGroupElement["label"]
@@ -226,50 +231,50 @@ export type OptionAttrs = {
   disabled: HTMLOptionElement["disabled"]
   value: HTMLOptionElement["value"]
 }
-export type OutputAttrs = object
-export type PAttrs = object
-export type PictureAttrs = object
-export type PreAttrs = object
-export type ProgressAttrs = object
-export type QAttrs = object
-export type RpAttrs = object
-export type RtAttrs = object
-export type RubyAttrs = object
-export type SAttrs = object
-export type SAmpAttrs = object
-export type ScriptAttrs = object
-export type SearchAttrs = object
-export type SectionAttrs = object
+export type OutputAttrs = {}
+export type PAttrs = {}
+export type PictureAttrs = {}
+export type PreAttrs = {}
+export type ProgressAttrs = {}
+export type QAttrs = {}
+export type RpAttrs = {}
+export type RtAttrs = {}
+export type RubyAttrs = {}
+export type SAttrs = {}
+export type SAmpAttrs = {}
+export type ScriptAttrs = {}
+export type SearchAttrs = {}
+export type SectionAttrs = {}
 export type SelectAttrs = {
   name:  HTMLSelectElement["name"]
   disabled: HTMLSelectElement["disabled"]
   multiple: HTMLSelectElement["multiple"]
 }
-export type SlotAttrs = object
-export type SmallAttrs = object
-export type SourceAttrs = object
-export type SpanAttrs = object
-export type StrongAttrs = object
-export type StyleAttrs = object
-export type SubAttrs = object
-export type SummaryAttrs = object
-export type SupAttrs = object
-export type TableAttrs = object
-export type TBodyAttrs = object
-export type TdAttrs = object
-export type TemplateAttrs = object
-export type TextAreaAttrs = object
-export type TFootAttrs = object
-export type ThAttrs = object
-export type THeadAttrs = object
-export type TimeAttrs = object
-export type TitleAttrs = object
-export type TrAttrs = object
-export type TrackAttrs = object
-export type UAttrs = object
-export type UlAttrs = object
-export type VideoAttrs = object
-export type WbrAttrs = object
+export type SlotAttrs = {}
+export type SmallAttrs = {}
+export type SourceAttrs = {}
+export type SpanAttrs = {}
+export type StrongAttrs = {}
+export type StyleAttrs = {}
+export type SubAttrs = {}
+export type SummaryAttrs = {}
+export type SupAttrs = {}
+export type TableAttrs = {}
+export type TBodyAttrs = {}
+export type TdAttrs = {}
+export type TemplateAttrs = {}
+export type TextAreaAttrs = {}
+export type TFootAttrs = {}
+export type ThAttrs = {}
+export type THeadAttrs = {}
+export type TimeAttrs = {}
+export type TitleAttrs = {}
+export type TrAttrs = {}
+export type TrackAttrs = {}
+export type UAttrs = {}
+export type UlAttrs = {}
+export type VideoAttrs = {}
+export type WbrAttrs = {}
 
 export const a = _element<"a", AAttrs>("a")
 export const abbr = _element<"abbr", AbbrAttrs>("abbr")
@@ -478,8 +483,8 @@ export function undisplay(element: HTMLElement): void {
   element.style.display = "none"
 }
 
-export function show(element: HTMLElement): void {
-  element.style.visibility = ""
+export function show(element: HTMLElement, show: boolean = true): void {
+  element.style.visibility = show ? "" : "hidden"
 }
 
 export function hide(element: HTMLElement): void {
@@ -496,11 +501,16 @@ export function offset_bbox(element: Element): BBox {
   })
 }
 
-export function parent(el: HTMLElement, selector: string): HTMLElement | null {
-  let node: HTMLElement | null = el
+export function parent(el: Element, query: string | ((node: Element) => boolean)): Element | null {
+  let node: Element | null = el
+
+  if (isString(query)) {
+    const selector = query
+    query = (node) => node.matches(selector)
+  }
 
   while ((node = node.parentElement) != null) {
-    if (node.matches(selector)) {
+    if (query(node)) {
       return node
     }
   }
@@ -687,105 +697,6 @@ export enum MouseButton {
   Middle = Auxiliary,
 }
 
-export abstract class StyleSheet {
-  protected readonly el: HTMLStyleElement | HTMLLinkElement
-
-  install(el: HTMLElement | ShadowRoot): void {
-    el.append(this.el)
-  }
-
-  uninstall(): void {
-    this.el.remove()
-  }
-}
-
-export class InlineStyleSheet extends StyleSheet {
-  protected override readonly el = style()
-
-  constructor(css?: string | CSSStyleSheetDecl, id?: string, readonly persistent: boolean = false) {
-    super()
-    if (isString(css)) {
-      this._update(css)
-    } else if (css != null) {
-      this._update(compose_stylesheet(css))
-    }
-    if (id != null) {
-      this.el.dataset.css = id
-    }
-  }
-
-  get css(): string {
-    return this.el.textContent
-  }
-
-  protected _update(css: string): void {
-    this.el.textContent = css
-  }
-
-  clear(): void {
-    this.replace("")
-  }
-
-  private _to_css(css: string, styles: CSSStyles | undefined): string {
-    if (styles == null) {
-      return css
-    } else {
-      return compose_stylesheet({[css]: styles})
-    }
-  }
-
-  replace(css: string, styles?: CSSStyles): void {
-    this._update(this._to_css(css, styles))
-  }
-
-  prepend(css: string, styles?: CSSStyles): void {
-    this._update(`${this._to_css(css, styles)}\n${this.css}`)
-  }
-
-  append(css: string, styles?: CSSStyles): void {
-    this._update(`${this.css}\n${this._to_css(css, styles)}`)
-  }
-
-  remove(): void {
-    this.el.remove()
-  }
-}
-
-export class GlobalInlineStyleSheet extends InlineStyleSheet {
-  override install(): void {
-    if (!this.el.isConnected) {
-      document.head.appendChild(this.el)
-    }
-  }
-}
-
-export class ImportedStyleSheet extends StyleSheet {
-  protected override readonly el: HTMLLinkElement
-
-  constructor(url: string) {
-    super()
-    this.el = link({rel: "stylesheet", href: url})
-  }
-
-  replace(url: string): void {
-    this.el.href = url
-  }
-
-  remove(): void {
-    this.el.remove()
-  }
-}
-
-export class GlobalImportedStyleSheet extends ImportedStyleSheet {
-  override install(): void {
-    if (!this.el.isConnected) {
-      document.head.appendChild(this.el)
-    }
-  }
-}
-
-export type StyleSheetLike = StyleSheet | string
-
 export async function dom_ready(): Promise<void> {
   if (document.readyState == "loading") {
     return new Promise((resolve, _reject) => {
@@ -797,8 +708,6 @@ export async function dom_ready(): Promise<void> {
 export function px(value: number | string): string {
   return isNumber(value) ? `${value}px` : value
 }
-
-export const supports_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
 
 export function has_focus(el: Element): boolean {
   const root = el.getRootNode()

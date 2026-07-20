@@ -23,13 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    TypeAlias,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from .exceptions import ValidationError
@@ -54,7 +48,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Fragment: TypeAlias = str | bytes
+type Fragment = str | bytes
 
 class Receiver:
     ''' Receive wire message fragments and assemble complete Bokeh server
@@ -166,8 +160,10 @@ class Receiver:
         payload = self._assume_binary(fragment)
         if self._buf_header is None:
             raise ValidationError("Consuming a buffer payload, but current buffer header is None")
+        if self._partial is None:
+            raise ValidationError("Consuming a buffer payload, but current message is None")
         header = BufferHeader(id=self._buf_header["id"])
-        cast(Message[Any], self._partial).assemble_buffer(header, payload)
+        self._partial.assemble_buffer(header, payload)
 
         self._check_complete()
 

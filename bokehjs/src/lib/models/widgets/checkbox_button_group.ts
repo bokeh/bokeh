@@ -1,27 +1,22 @@
 import {ToggleButtonGroup, ToggleButtonGroupView} from "./toggle_button_group"
-
 import type * as p from "core/properties"
-import * as buttons from "styles/buttons.css"
+
+import {computed} from "@preact/signals"
 
 export class CheckboxButtonGroupView extends ToggleButtonGroupView {
   declare model: CheckboxButtonGroup
+  declare readonly signals: p.SignalsOf<CheckboxButtonGroup.Props>
 
-  get active(): Set<number> {
-    return new Set(this.model.active)
-  }
+  override active_indices = computed(() => {
+    return new Set(this.signals.active.value)
+  })
 
   change_active(i: number): void {
-    const {active} = this
-    active.has(i) ? active.delete(i) : active.add(i)
+    const active = this.active_indices.value
+    if (!active.delete(i)) {
+      active.add(i)
+    }
     this.model.active = [...active].sort()
-  }
-
-  protected _update_active(): void {
-    const {active} = this
-
-    this._buttons.forEach((button_el, i) => {
-      button_el.classList.toggle(buttons.active, active.has(i))
-    })
   }
 }
 

@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportReturnType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, TypeAlias
+from typing import TYPE_CHECKING, Any
 
 # External imports
 import numpy as np
@@ -47,7 +49,7 @@ __all__ = (
 RENDERER_ARGS = ['name', 'coordinates', 'x_range_name', 'y_range_name',
                  'level', 'view', 'visible', 'muted']
 
-Attrs: TypeAlias = dict[str, Any]
+type Attrs = dict[str, Any]
 
 #-----------------------------------------------------------------------------
 # General API

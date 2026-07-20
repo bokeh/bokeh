@@ -3,7 +3,7 @@
 :host {
   --button-border: 2px;
 
-  --active-tool-border: var(--button-border) solid transparent;
+  --tool-border: var(--button-border) solid transparent;
 }
 
 :host {
@@ -35,6 +35,7 @@
     background-color: var(--icon-color-disabled);
     cursor: not-allowed;
   }
+  background-color: var(--disabled-tool-color);
 }
 
 :host(.bk-hidden) {
@@ -95,7 +96,7 @@
 }
 
 :host(:hover) {
-  background-color: rgba(192, 192, 192, 0.15);
+  background-color: var(--hover-color);
 }
 
 :host(:focus), :host(:focus-visible) {
@@ -108,11 +109,11 @@
 }
 
 .tool-button-border(@side) {
-  border-@{side}: var(--active-tool-border);
+  border-@{side}: var(--tool-border);
 }
 
 .tool-button-border-active(@side) {
-  border-@{side}-color: var(--active-border);
+  border-@{side}-color: var(--active-tool-border-color);
 }
 
 :host(.bk-above) {

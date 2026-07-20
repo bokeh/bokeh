@@ -5,6 +5,17 @@ import {union} from "./array"
 export const {assign} = Object
 export const extend = assign
 
+/**
+ * Clone an object with out a subset of keys.
+ */
+export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
+  const result = {...obj}
+  for (const key of keys) {
+    delete result[key]
+  }
+  return result
+}
+
 export function to_object<T = any>(obj: PlainObject<T> | Iterable<readonly [PropertyKey, T]>): PlainObject<T> {
   return isPlainObject(obj) ? obj : Object.fromEntries(obj)
 }

@@ -292,14 +292,14 @@ async function tsc(name: string) {
 
 async function auto_index(name: string): Promise<void> {
   const build_dir = join(paths.build_dir.test, name)
-  const files = await glob(join(build_dir, "/**/*.js"))
+  const files = await glob(join(build_dir, "/**/*.js").replace(/\\/g, "/"))
 
   const imports = []
   for (const file of files) {
     const ext = extname(file)
     const name = basename(file, ext)
     if (!name.startsWith("_") && !name.endsWith(".d") && name != "index" && name != "auto_index") {
-      const dir = dirname(file).replace(build_dir, "").replace(/^\//, "")
+      const dir = dirname(file).replace(build_dir, "").replace(/^\//, "").replace(/\\/g, "/")
       const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
       imports.push(`import "${module}"`)
     }

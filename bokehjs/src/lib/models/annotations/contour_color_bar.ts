@@ -5,7 +5,7 @@ import type {Range} from "../ranges"
 import {Range1d} from "../ranges"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import {assert} from "core/util/assert"
@@ -18,7 +18,7 @@ export class ContourColorBarView extends BaseColorBarView {
   protected _fill_view: GlyphRendererView
   protected _line_view: GlyphRendererView
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this._fill_view, this._line_view]
   }
 
@@ -28,12 +28,6 @@ export class ContourColorBarView extends BaseColorBarView {
     const {fill_renderer, line_renderer} = this.model
     this._fill_view = await build_view(fill_renderer, {parent: this.parent})
     this._line_view = await build_view(line_renderer, {parent: this.parent})
-  }
-
-  override remove(): void {
-    this._fill_view.remove()
-    this._line_view.remove()
-    super.remove()
   }
 
   override _create_major_range(): Range {

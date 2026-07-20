@@ -270,7 +270,6 @@ class TestSerializer:
         with pytest.raises(SerializationError, match="circular reference"):
             encoder.encode(val)
 
-    @pytest.mark.skipif(sys.platform == "win32" and sys.version_info < (3, 11), reason="stack overflow instead of RecursionError")
     def test_list_circular_without_checking(self) -> None:
         val: Sequence[Any] = [1, 2, 3]
         val.append(val)
@@ -313,7 +312,6 @@ class TestSerializer:
         with pytest.raises(SerializationError, match="circular reference"):
             encoder.encode(val)
 
-    @pytest.mark.skipif(sys.platform == "win32" and sys.version_info < (3, 11), reason="stack overflow instead of RecursionError")
     def test_dict_circular_without_checking(self) -> None:
         val: dict[Any, Any] = {nan: [1, 2]}
         val[inf] = val

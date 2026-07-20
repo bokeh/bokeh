@@ -32,6 +32,8 @@ always be active regardless of what other tools are currently active.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -518,7 +520,7 @@ DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     line_dash=[2, 2],
 )
 
-class RangeTool(Tool):
+class RangeTool(Drag):
     ''' *toolbar icon*: |range_icon|
 
     The range tool allows the user to update range objects for either or both

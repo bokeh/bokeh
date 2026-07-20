@@ -2,19 +2,19 @@ name: bk-test
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.12
 
   # runtime
   - contourpy >=1.2
   - jinja2 >=2.7
   - narwhals <1.14
-  - numpy <1.25
+  - numpy 1*
   - packaging >=16.8
   - pandas 2*
   - pillow >=4.0
   - python-dateutil >=2.1
   - pyyaml >=3.10
-  - tornado 6.2.*
+  - tornado 6.3*
   - xyzservices>=2021.09.1
 
   # tests
@@ -54,7 +54,8 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=1.11
+    - mypy >=1.20
+    - pyright
     # docs
     # omit bokeh_sampledata
     - pydata_sphinx_theme
@@ -68,6 +69,7 @@ dependencies:
     - ruff ==0.15.*
     - types-boto3
     - types-colorama
+    - types-docutils
     - types-mock
     - types-pillow
     - types-pyyaml

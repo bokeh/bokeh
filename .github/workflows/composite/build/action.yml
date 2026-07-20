@@ -11,7 +11,7 @@ runs:
       shell: bash
       run: grep -v '^\s*-\s*nodejs\b' conda/environment-build.yml > conda/environment-build-no-nodejs.yml
 
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         miniforge-version: latest
         mamba-version: "*"
@@ -33,7 +33,7 @@ runs:
     - name: Build BokehJS
       working-directory: ./bokehjs
       shell: bash -l {0}
-      run: node make build
+      run: node make build pack
 
     - name: Build pip packages
       shell: bash -l {0}

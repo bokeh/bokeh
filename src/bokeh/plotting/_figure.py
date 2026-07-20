@@ -11,7 +11,12 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    cast,
+)
 
 import logging # isort:skip
 
@@ -25,7 +30,12 @@ log = logging.getLogger(__name__)
 import numpy as np
 
 # Bokeh imports
-from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
+from ..core.enums import (
+    AxisType,
+    HorizontalLocation,
+    MarkerType,
+    VerticalLocation,
+)
 from ..core.property.auto import Auto
 from ..core.property.container import List, Seq, Tuple
 from ..core.property.data_frame import EagerSeries, PandasGroupBy
@@ -67,7 +77,16 @@ from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from ..models.glyphs import (
+        HArea,
+        HBar,
+        Line,
+        VArea,
+        VBar,
+    )
     from ..models.renderers.contour_renderer import ContourRenderer
+    from ..models.renderers.glyph_renderer import GlyphRenderer
+    from ..util.datatypes import SequenceLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -102,11 +121,13 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.arc`
         * :func:`~bokeh.plotting.figure.asterisk`
         * :func:`~bokeh.plotting.figure.bezier`
+        * :func:`~bokeh.plotting.figure.block`
         * :func:`~bokeh.plotting.figure.circle`
         * :func:`~bokeh.plotting.figure.circle_cross`
         * :func:`~bokeh.plotting.figure.circle_dot`
         * :func:`~bokeh.plotting.figure.circle_x`
         * :func:`~bokeh.plotting.figure.circle_y`
+        * :func:`~bokeh.plotting.figure.contour`
         * :func:`~bokeh.plotting.figure.cross`
         * :func:`~bokeh.plotting.figure.dash`
         * :func:`~bokeh.plotting.figure.diamond`
@@ -126,6 +147,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.image_url`
         * :func:`~bokeh.plotting.figure.inverted_triangle`
         * :func:`~bokeh.plotting.figure.line`
+        * :func:`~bokeh.plotting.figure.mathml`
         * :func:`~bokeh.plotting.figure.multi_line`
         * :func:`~bokeh.plotting.figure.multi_polygons`
         * :func:`~bokeh.plotting.figure.ngon`
@@ -145,6 +167,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.star`
         * :func:`~bokeh.plotting.figure.star_dot`
         * :func:`~bokeh.plotting.figure.step`
+        * :func:`~bokeh.plotting.figure.tex`
         * :func:`~bokeh.plotting.figure.text`
         * :func:`~bokeh.plotting.figure.triangle`
         * :func:`~bokeh.plotting.figure.triangle_dot`
@@ -195,12 +218,12 @@ class figure(Plot, GlyphAPI):
     __view_model__ = "Figure"
 
     def __init__(self, *arg, **kw) -> None:
-        opts = FigureOptions(kw)
+        opts = cast(Any, FigureOptions(kw))
 
         names = self.properties()
         for name in kw.keys():
             if name not in names:
-                self._raise_attribute_error_with_matches(name, names | opts.properties())
+                self._raise_attribute_error_with_matches(name, set(names) | set(opts.properties()))
 
         super().__init__(*arg, **kw)
 
@@ -240,7 +263,7 @@ class figure(Plot, GlyphAPI):
             x_target: Range, y_target: Range,
         ) -> GlyphAPI:
         """ Create a new sub-coordinate system and expose a plotting API. """
-        coordinates = CoordinateMapping(x_source=x_source, y_source=y_source, x_target=x_target, y_target=y_target)
+        coordinates = CoordinateMapping(x_source=cast(Range, x_source), y_source=cast(Range, y_source), x_target=x_target, y_target=y_target)
         return GlyphAPI(self, coordinates)
 
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
@@ -342,19 +365,23 @@ class figure(Plot, GlyphAPI):
         '''
         from ..util.hex import hexbin
 
-        bins = hexbin(x, y, size, orientation, aspect_scale=aspect_scale)
+        bins = hexbin(x, y, size, cast(Any, orientation), aspect_scale=aspect_scale)
 
         if fill_color is None:
             fill_color = linear_cmap('c', palette, 0, max(bins.counts))
 
         source = ColumnDataSource(data=dict(q=bins.q, r=bins.r, c=bins.counts))
 
-        r = self.hex_tile(q="q", r="r", size=size, orientation=orientation, aspect_scale=aspect_scale,
+        r = self.hex_tile(q="q", r="r", size=size, orientation=cast(Any, orientation), aspect_scale=aspect_scale,
                           source=source, line_color=line_color, fill_color=fill_color, **kwargs)
 
         return (r, bins)
 
-    def harea_stack(self, stackers, **kw):
+    def harea_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[HArea]]:
         ''' Generate multiple ``HArea`` renderers for levels stacked left
         to right.
 
@@ -396,7 +423,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.harea(**kw))
         return result
 
-    def hbar_stack(self, stackers, **kw):
+    def hbar_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[HBar]]:
         ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
 
         Args:
@@ -437,14 +468,21 @@ class figure(Plot, GlyphAPI):
             result.append(self.hbar(**kw))
         return result
 
-    def _line_stack(self, x, y, **kw):
+    def _line_stack(
+        self,
+        stackers: SequenceLike[str],
+        spec: Literal["x", "y"],
+        **kw: Any,
+    ) -> list[GlyphRenderer[Line]]:
         ''' Generate multiple ``Line`` renderers for lines stacked vertically
         or horizontally.
 
         Args:
-            x (seq[str]) :
+            stackers (seq[str]) : a sequence of data source field names to
+                stack successively.
 
-            y (seq[str]) :
+            spec (str) : the line coordinate to stack, either ``"x"`` or
+                ``"y"``.
 
         Additionally, the ``name`` of the renderer will be set to
         the value of each successive stacker (this is useful with the
@@ -476,26 +514,16 @@ class figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        if all(isinstance(val, (list, tuple)) for val in (x,y)):
-            raise ValueError("Only one of x or y may be a list of stackers")
+        result: list[GlyphRenderer[Line]] = []
+        for kw in single_stack(stackers, spec, **kw):
+            result.append(self.line(**kw))
+        return result
 
-        result = []
-
-        if isinstance(y, (list, tuple)):
-            kw['x'] = x
-            for kw in single_stack(y, "y", **kw):
-                result.append(self.line(**kw))
-            return result
-
-        if isinstance(x, (list, tuple)):
-            kw['y'] = y
-            for kw in single_stack(x, "x", **kw):
-                result.append(self.line(**kw))
-            return result
-
-        return [self.line(x, y, **kw)]
-
-    def hline_stack(self, stackers, **kw):
+    def hline_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[Line]]:
         ''' Generate multiple ``Line`` renderers for lines stacked horizontally.
 
         Args:
@@ -532,9 +560,13 @@ class figure(Plot, GlyphAPI):
                 p.line(x=stack('2016', '2017'), y='y', color='red',  source=source, name='2017')
 
         '''
-        return self._line_stack(x=stackers, **kw)
+        return self._line_stack(stackers, "x", **kw)
 
-    def varea_stack(self, stackers, **kw):
+    def varea_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[VArea]]:
         ''' Generate multiple ``VArea`` renderers for levels stacked bottom
         to top.
 
@@ -576,7 +608,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.varea(**kw))
         return result
 
-    def vbar_stack(self, stackers, **kw):
+    def vbar_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[VBar]]:
         ''' Generate multiple ``VBar`` renderers for levels stacked bottom
         to top.
 
@@ -618,7 +654,11 @@ class figure(Plot, GlyphAPI):
             result.append(self.vbar(**kw))
         return result
 
-    def vline_stack(self, stackers, **kw):
+    def vline_stack(
+        self,
+        stackers: SequenceLike[str],
+        **kw: Any,
+    ) -> list[GlyphRenderer[Line]]:
         ''' Generate multiple ``Line`` renderers for lines stacked vertically.
 
         Args:
@@ -655,7 +695,7 @@ class figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        return self._line_stack(y=stackers, **kw)
+        return self._line_stack(stackers, "y", **kw)
 
     def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs):
         ''' Creates a network graph using the given node, edge and layout provider.
@@ -1040,7 +1080,7 @@ def markers() -> None:
     Returns:
         None
     '''
-    print("Available markers: \n\n - " + "\n - ".join(list(MarkerType)))
+    print("Available markers: \n\n - " + "\n - ".join(map(str, MarkerType)))
     print()
     print("Shortcuts: \n\n" + "\n".join(f" {short!r}: {name}" for (short, name) in _MARKER_SHORTCUTS.items()))
 
@@ -1119,7 +1159,7 @@ RangeLike = Either(
     PandasGroupBy,
 )
 
-AxisType = Nullable(Either(Auto, Enum("linear", "log", "datetime", "timedelta", "mercator")))
+AxisInit = Nullable(Either(Auto, Enum(AxisType)))
 
 class FigureOptions(BaseFigureOptions):
 
@@ -1131,11 +1171,11 @@ class FigureOptions(BaseFigureOptions):
     Customize the y-range of the plot.
     """)
 
-    x_axis_type = AxisType(default="auto", help="""
+    x_axis_type = AxisInit(default="auto", help="""
     The type of the x-axis.
     """)
 
-    y_axis_type = AxisType(default="auto", help="""
+    y_axis_type = AxisInit(default="auto", help="""
     The type of the y-axis.
     """)
 

@@ -2,6 +2,7 @@ import {default_resolver} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import type {Class} from "core/class"
+import type {ColorScheme} from "core/enums"
 import {HasProps} from "core/has_props"
 import type {Property} from "core/properties"
 import {ModelResolver} from "core/resolvers"
@@ -110,6 +111,7 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
+  protected _system_scheme: MediaQueryList
 
   private _config?: DocumentConfig
   get config(): DocumentConfig {
@@ -145,7 +147,11 @@ export class Document implements Equatable {
       assert(event instanceof ModelEvent)
       this.event_manager.trigger(event)
     })
+    this._system_scheme = matchMedia("(prefers-color-scheme: dark)")
     this.config = new DocumentConfig()
+    this.set_color_scheme(this.config.color_scheme)
+    this._system_scheme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
+    this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -576,6 +582,8 @@ export class Document implements Equatable {
     assert(config instanceof DocumentConfig || config == null)
     if (config != null) {
       doc.config = config
+      doc.set_color_scheme(config.color_scheme)
+      config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
     }
 
     const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
@@ -707,5 +715,12 @@ export class Document implements Equatable {
         }
       }
     }
+  }
+
+  set_color_scheme(color_scheme: ColorScheme): void {
+    const system_scheme = this._system_scheme.matches ? "dark" : "light"
+    const scheme = color_scheme == "auto" ? system_scheme : color_scheme
+    // TODO: Check reliable way to update --bokeh-color-scheme without setting it in documentElement
+    document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
   }
 }

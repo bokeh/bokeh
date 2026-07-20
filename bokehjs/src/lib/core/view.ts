@@ -12,8 +12,13 @@ import {Indexed} from "../models/coordinates/indexed"
 import {ViewManager, ViewQuery} from "./view_manager"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
+import {logger} from "./logging"
+
+import type {Signal as PreactSignal} from "@preact/signals"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
+
+export type ChildView = View | null | undefined
 
 export type SerializableState = {
   type: string
@@ -48,6 +53,9 @@ export abstract class View implements ISignalable, Equatable {
 
   readonly views: ViewQuery = new ViewQuery(this)
 
+  readonly signals: {readonly [key: string]: PreactSignal<unknown>} = {}
+  readonly values: {readonly [key: string]: unknown} = {}
+
   private _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
     return this._ready
@@ -76,7 +84,8 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    return signal.disconnect(slot, this)
+    const new_slot = this._slots.get(slot)
+    return new_slot != null ? signal.disconnect(new_slot, this) : false
   }
 
   constructor(options: View.Options) {
@@ -92,6 +101,19 @@ export abstract class View implements ISignalable, Equatable {
       this.root = this.parent.root
       this.owner = this.root.owner
     }
+
+    for (const prop of this.model) {
+      Object.defineProperty(this.signals, prop.attr, {
+        get() { return prop.signal },
+        configurable: false,
+        enumerable: true,
+      })
+      Object.defineProperty(this.values, prop.attr, {
+        get() { return prop.signal.value },
+        configurable: false,
+        enumerable: true,
+      })
+    }
   }
 
   initialize(): void {}
@@ -100,7 +122,14 @@ export abstract class View implements ISignalable, Equatable {
 
   protected _destroyed: boolean = false
   remove(): void {
+    if (this._destroyed) {
+      logger.warn(`${this}.remove(): view was already destroyed`)
+      return
+    }
     this.disconnect_signals()
+    for (const view of this.children_views()) {
+      view?.remove()
+    }
     this.owner.remove(this)
     this.removed.emit()
     this._destroyed = true
@@ -120,10 +149,10 @@ export abstract class View implements ISignalable, Equatable {
 
   /** @deprecated use children_views */
   public *children(): IterViews {
-    yield* this.children_views()
+    yield* this.children_views().filter((view) => view != null)
   }
 
-  public children_views(): View[] {
+  public children_views(): ChildView[] {
     return []
   }
 
@@ -200,6 +229,8 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   on_transitive_change<T>(property: Property<T>, fn: () => void, {recursive=false, signal=(obj) => obj.change}: TransitiveOpts = {}): void {
+    const slot = () => fn()
+
     const collect = () => {
       const value = property.is_unset ? [] : property.get_value()
       return HasProps.references(value, {recursive})
@@ -207,13 +238,13 @@ export abstract class View implements ISignalable, Equatable {
 
     const connect = (models: Iterable<HasProps>) => {
       for (const model of models) {
-        this.connect(signal(model), () => fn())
+        this.connect(signal(model), slot)
       }
     }
 
     const disconnect = (models: Iterable<HasProps>) => {
       for (const model of models) {
-        this.disconnect(signal(model), () => fn())
+        this.disconnect(signal(model), slot)
       }
     }
 

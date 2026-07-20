@@ -20,6 +20,8 @@ serializable properties.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportAssignmentType=false, reportAttributeAccessIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -39,16 +41,13 @@ from typing import (
     NoReturn,
     NotRequired,
     Self,
-    TypeAlias,
     TypedDict,
-    TypeVar,
     overload,
 )
 from weakref import WeakSet
 
 if TYPE_CHECKING:
-    F = TypeVar("F", bound=Callable[..., Any])
-    def lru_cache(arg: int | None) -> Callable[[F], F]: ...
+    def lru_cache[F: Callable[..., Any]](arg: int | None) -> Callable[[F], F]: ...
 else:
     from functools import lru_cache
 
@@ -94,13 +93,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Setter: TypeAlias = ClientSession | ServerSession
-
-C = TypeVar("C", bound=type["HasProps"])
+    type Setter = ClientSession | ServerSession
 
 _abstract_classes: WeakSet[type[HasProps]] = WeakSet()
 
-def abstract(cls: C) -> C:
+def abstract[C: type[HasProps]](cls: C) -> C:
     ''' A decorator to mark abstract base classes derived from |HasProps|.
 
     '''
@@ -842,10 +839,9 @@ Serializer.register(MetaHasProps, _HasProps_to_serializable)
 #-----------------------------------------------------------------------------
 
 _ABSTRACT_ADMONITION = '''
-    .. note::
-        This is an abstract base class used to help organize the hierarchy of Bokeh
-        model types. **It is not useful to instantiate on its own.**
-
+.. note::
+    This is an abstract base class used to help organize the hierarchy of Bokeh
+    model types. **It is not useful to instantiate on its own.**
 '''
 
 #-----------------------------------------------------------------------------

@@ -146,6 +146,8 @@ def html_page_for_render_items(
         template = FILE
     elif isinstance(template, str):
         template = get_env().from_string("{% extends base %}\n" + template)
+    elif not callable(getattr(template, "render", None)):
+        raise TypeError(f"expected Template, str, or None, got {type(template).__name__}")
 
     html = template.render(context)
     return html
@@ -162,7 +164,7 @@ def script_for_render_items(docs_json_or_id: ID | dict[ID, DocJson], render_item
 
         app_path (str, optional) :
 
-        absolute_url (Theme, optional) :
+        absolute_url (str, optional) :
 
     Returns:
         str

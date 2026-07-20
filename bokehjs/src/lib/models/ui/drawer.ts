@@ -81,7 +81,7 @@ export class DrawerView extends PaneView {
     this.shadow_el.append(this.contents_el, this.toggle_el, this.handle_el)
 
     this.sizing.replace(`
-      :host {
+      ${this.host_selector} {
         --drawer-size: ${isNumber(size) ? px(size) : size};
       }
     `)
@@ -121,7 +121,7 @@ export class DrawerView extends PaneView {
     })()
 
     this.sizing.replace(`
-      :host {
+      ${this.host_selector} {
         --drawer-size: ${size}px;
       }
     `)

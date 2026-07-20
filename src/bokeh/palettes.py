@@ -420,7 +420,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING
 
 # External imports
 import numpy as np
@@ -441,9 +441,9 @@ if TYPE_CHECKING:
 # General API
 #-----------------------------------------------------------------------------
 
-Palette: TypeAlias = tuple[str, ...]
-PaletteCollection: TypeAlias = dict[int, Palette]
-PaletteMap: TypeAlias = dict[str, PaletteCollection]
+type Palette = tuple[str, ...]
+type PaletteCollection = dict[int, Palette]
+type PaletteMap = dict[str, PaletteCollection]
 
 YlGn3 = ("#31a354", "#addd8e", "#f7fcb9")
 YlGn4 = ("#238443", "#78c679", "#c2e699", "#ffffcc")
@@ -1447,18 +1447,18 @@ brewer = {
     "Set3"     : Set3,
 }
 
-bokeh = {
+bokeh: PaletteMap = {
     "Bokeh" : Bokeh,
 }
 
-d3 = {
+d3: PaletteMap = {
     "Category10"  : Category10,
     "Category20"  : Category20,
     "Category20b" : Category20b,
     "Category20c" : Category20c,
 }
 
-mpl = {
+mpl: PaletteMap = {
     "Magma"   : Magma,
     "Inferno" : Inferno,
     "Plasma"  : Plasma,
@@ -1466,7 +1466,7 @@ mpl = {
     "Cividis" : Cividis,
 }
 
-tol = {
+tol: PaletteMap = {
     "Bright": Bright,
     "HighContrast": HighContrast,
     "Vibrant": Vibrant,
@@ -1481,11 +1481,11 @@ tol = {
     "TolRainbow": TolRainbow,
 }
 
-colorblind = {
+colorblind: PaletteMap = {
     "Colorblind" : Colorblind,
 }
 
-all_palettes = deepcopy(brewer)
+all_palettes: PaletteMap = deepcopy(brewer)
 all_palettes.update(d3)
 all_palettes.update(tol)
 all_palettes["Colorblind"] = Colorblind

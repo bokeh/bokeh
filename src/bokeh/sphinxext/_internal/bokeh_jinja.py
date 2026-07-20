@@ -42,12 +42,13 @@ import importlib
 import re
 import textwrap
 from os.path import basename
+from typing import Any
 
 # External imports
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import JINJA_DETAIL
 
@@ -77,18 +78,18 @@ class BokehJinjaDirective(BokehDirective):
         "noindex": lambda x: True,  # directives.flag weirdly returns None
     }
 
-    def run(self):
+    def run(self) -> list[Any]:
         template_path = self.arguments[0]
         module_path, template_name = template_path.rsplit(".", 1)
 
         try:
             module = importlib.import_module(module_path)
         except ImportError:
-            SphinxError(f"Unable to import Bokeh template module: {module_path}")
+            raise SphinxError(f"Unable to import Bokeh template module: {module_path}")
 
         template = getattr(module, template_name, None)
         if template is None:
-            SphinxError(f"Unable to find Bokeh template: {template_path}")
+            raise SphinxError(f"Unable to find Bokeh template: {template_path}")
 
         template_text = open(template.filename).read()
         m = _DOCPAT.match(template_text)
@@ -108,7 +109,7 @@ class BokehJinjaDirective(BokehDirective):
         return self.parse(rst_text, "<bokeh-jinja>")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-jinja", BokehJinjaDirective)
 

@@ -158,7 +158,7 @@ class DocumentCallbackManager:
     def session_destroyed_callbacks(self, callbacks: set[SessionDestroyedCallback]) -> None:
         self._session_destroyed_callbacks = callbacks
 
-    def add_session_callback(self, callback_obj: SessionCallback, callback: Callback, one_shot: bool) -> SessionCallback:
+    def add_session_callback[T: SessionCallback](self, callback_obj: T, callback: Callback, one_shot: bool) -> T:
         ''' Internal implementation for adding session callbacks.
 
         Args:

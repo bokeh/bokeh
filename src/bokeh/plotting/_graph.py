@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -37,7 +39,7 @@ from ._renderer import make_glyph, pop_visuals
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'get_graph_kwargs'
+    'get_graph_kwargs',
 )
 
 RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',

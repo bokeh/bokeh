@@ -48,7 +48,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def html_repr(obj: Model):
+def html_repr(obj: Model) -> str:
 
     module = obj.__class__.__module__
     name = obj.__class__.__name__
@@ -57,11 +57,11 @@ def html_repr(obj: Model):
 
     cls_name = make_id()
 
-    def row(c: str):
+    def row(c: str) -> str:
         return f'<div style="display: table-row;">{c}</div>'
-    def hidden_row(c: str):
+    def hidden_row(c: str) -> str:
         return f'<div class="{cls_name}" style="display: none;">{c}</div>'
-    def cell(c: str):
+    def cell(c: str) -> str:
         return f'<div style="display: table-cell;">{c}</div>'
 
     html = ''

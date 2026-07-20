@@ -1,12 +1,12 @@
 # Standard library imports
 import re
-from typing import Any, TypeAlias
+from typing import Any
 
 from ..common.by import _ByType
 from ..remote.webdriver import WebDriver
 from ..remote.webelement import WebElement
 
-_Locator: TypeAlias = tuple[_ByType, str]
+type _Locator = tuple[_ByType, str]
 
 class title_is:
     def __init__(self, title: str) -> None: ...

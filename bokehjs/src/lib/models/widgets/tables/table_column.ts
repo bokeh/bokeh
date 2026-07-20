@@ -1,6 +1,7 @@
 import {CellFormatter, StringFormatter} from "./cell_formatters"
 import {CellEditor, StringEditor} from "./cell_editors"
 import type {ColumnType} from "./definitions"
+import type {EditorConstructor} from "slickgrid"
 
 import type * as p from "core/properties"
 import {unique_id} from "core/util/string"
@@ -55,7 +56,7 @@ export class TableColumn extends Model {
       width: this.width,
       formatter: this.formatter.doFormat.bind(this.formatter),
       model: this.editor,
-      editor: this.editor.default_view,
+      editor: this.editor.default_view as unknown as EditorConstructor,
       sortable: this.sortable,
       defaultSortAsc: this.default_sort == "ascending",
       sorter: this.sorter,

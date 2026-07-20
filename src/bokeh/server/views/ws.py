@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 import calendar
 import datetime as dt
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 # External imports
@@ -44,7 +44,11 @@ from ..protocol_handler import ProtocolHandler
 from .auth_request_handler import AuthRequestHandler
 
 if TYPE_CHECKING:
+    from tornado.web import Application
+
     from ..connection import ServerConnection
+    from ..contexts import ApplicationContext
+    from ..tornado import BokehTornado
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -67,9 +71,14 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
 
     '''
 
+    application: BokehTornado
+    application_context: ApplicationContext
     connection: ServerConnection | None
+    handler: ProtocolHandler | None
+    receiver: Receiver | None
+    _token: str | None
 
-    def __init__(self, tornado_app, *args, **kw) -> None:
+    def __init__(self, tornado_app: Application, *args: Any, **kw: Any) -> None:
         self.receiver = None
         self.handler = None
         self.connection = None
@@ -87,7 +96,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         # Note: tornado_app is stored as self.application
         super().__init__(tornado_app, *args, **kw)
 
-    def initialize(self, application_context, bokeh_websocket_path):
+    def initialize(self, application_context: ApplicationContext, bokeh_websocket_path: str) -> None:
         pass
 
     def check_origin(self, origin: str) -> bool:
@@ -113,7 +122,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             allowed_hosts = set(settings.allowed_ws_origin())
 
 
-        if check_allowlist(origin_host, allowed_hosts):
+        if check_allowlist(origin_host, list(allowed_hosts)):
             return True
 
         log.error("Refusing websocket connection from Origin '%s'; \
@@ -140,6 +149,14 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             raise ProtocolError("No token received in subprotocol header")
 
         now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
+        if not check_token_signature(token,
+                                     signed=self.application.sign_sessions,
+                                     secret_key=self.application.secret_key):
+            session_id = get_session_id(token)
+            log.error("Token for session %r had invalid signature", session_id)
+            self.close()
+            raise ProtocolError("Invalid token signature")
+
         payload = get_token_payload(token)
         if 'session_expiry' not in payload:
             self.close()
@@ -147,12 +164,6 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         elif now >= payload['session_expiry']:
             self.close()
             raise ProtocolError("Token is expired. Configure the app with a larger value for --session-token-expiration if necessary")
-        elif not check_token_signature(token,
-                                       signed=self.application.sign_sessions,
-                                       secret_key=self.application.secret_key):
-            session_id = get_session_id(token)
-            log.error("Token for session %r had invalid signature", session_id)
-            raise ProtocolError("Invalid token signature")
 
         try:
             self.application.io_loop.add_callback(self._async_open, self._token)
@@ -164,7 +175,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
 
     def select_subprotocol(self, subprotocols: list[str]) -> str | None:
         log.debug('Subprotocol header received')
-        log.trace('Supplied subprotocol headers: %r', subprotocols)
+        log.trace('Supplied subprotocol headers: %r', subprotocols) # type: ignore[attr-defined]
         if not len(subprotocols) == 2:
             return None
         self._token = subprotocols[1]
@@ -188,8 +199,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         * Opening a new ServerConnection and sending it an ACK
 
         Args:
-            session_id (str) :
-                A session ID to for a session to connect to
+            token (str) :
+                A token containing the ID of the session to connect to
 
                 If no session exists with the given ID, a new session is made
 
@@ -217,12 +228,13 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             self.close()
             raise e
 
+        assert self.connection is not None
         msg = self.connection.protocol.create('ACK')
         await self.send_message(msg)
 
         return None
 
-    async def on_message(self, fragment: str | bytes) -> None:
+    async def on_message(self, message: str | bytes) -> None:
         ''' Process an individual wire protocol fragment.
 
         The websocket RFC specifies opcodes for distinguishing text frames
@@ -240,23 +252,23 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         # report them as an unhandled Future
 
         try:
-            message = await self._receive(fragment)
+            parsed_message = await self._receive(message)
         except Exception as e:
             # If you go look at self._receive, it's catching the
             # expected error types... here we have something weird.
-            log.error("Unhandled exception receiving a message: %r: %r", e, fragment, exc_info=True)
+            log.error("Unhandled exception receiving a message: %r: %r", e, message, exc_info=True)
             self._internal_error("server failed to parse a message")
-            message = None
+            parsed_message = None
 
         try:
-            if message:
+            if parsed_message:
                 if _message_test_port is not None:
-                    _message_test_port.received.append(message)
-                work = await self._handle(message)
+                    _message_test_port.received.append(parsed_message)
+                work = await self._handle(parsed_message)
                 if work:
                     await self._schedule(work)
         except Exception as e:
-            log.error("Handler or its work threw an exception: %r: %r", e, message, exc_info=True)
+            log.error("Handler or its work threw an exception: %r: %r", e, parsed_message, exc_info=True)
             self._internal_error("server failed to handle a message")
 
         return None
@@ -267,9 +279,9 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         try:
             self.latest_pong = int(data.decode("utf-8"))
         except UnicodeDecodeError:
-            log.trace("received invalid unicode in pong %r", data, exc_info=True)
+            log.trace("received invalid unicode in pong %r", data, exc_info=True) # type: ignore[attr-defined]
         except ValueError:
-            log.trace("received invalid integer in pong %r", data, exc_info=True)
+            log.trace("received invalid integer in pong %r", data, exc_info=True) # type: ignore[attr-defined]
 
     async def send_message(self, message: Message[Any]) -> None:
         ''' Send a Bokeh Server protocol message to the connected client.
@@ -287,7 +299,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             log.warning("Failed sending message as connection was closed")
         return None
 
-    async def write_message(self, message: bytes | str | dict[str, Any],
+    async def write_message(self, message: bytes | str | dict[str, Any], # type: ignore[override]
             binary: bool = False, locked: bool = True) -> None:
         ''' Override parent write_message with a version that acquires a
         write lock before writing.
@@ -311,6 +323,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
     async def _receive(self, fragment: str | bytes) -> Message[Any] | None:
         # Receive fragments until a complete message is assembled
         try:
+            assert self.receiver is not None
             message = await self.receiver.consume(fragment)
             return message
         except (MessageError, ProtocolError, ValidationError) as e:
@@ -320,6 +333,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
     async def _handle(self, message: Message[Any]) -> Any | None:
         # Handle the message, possibly resulting in work to do
         try:
+            assert self.handler is not None
+            assert self.connection is not None
             work = await self.handler.handle(message, self.connection)
             return work
         except (MessageError, ProtocolError, ValidationError) as e: # TODO (other exceptions?)
@@ -328,7 +343,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
 
     async def _schedule(self, work: Any) -> None:
         if isinstance(work, Message):
-            await self.send_message(cast(Message[Any], work))
+            await self.send_message(work)
         else:
             self._internal_error(f"expected a Message not {work!r}")
 

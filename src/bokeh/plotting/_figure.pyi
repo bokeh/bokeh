@@ -5,13 +5,14 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+# pyright: reportIncompatibleVariableOverride=false
+
 # Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
     Sequence,
-    TypeAlias,
     Unpack,
 )
 
@@ -64,6 +65,7 @@ from ..models.tools import (
     Tap,
     Tool,
 )
+from ..util.datatypes import SequenceLike
 from .glyph_api import (
     GlyphAPI,
     LineArgs,
@@ -71,8 +73,8 @@ from .glyph_api import (
     MultiPolygonsArgs,
 )
 
-EagerDataFrame: TypeAlias = IntoDataFrame
-EagerSeries: TypeAlias = IntoSeries
+type EagerDataFrame = IntoDataFrame
+type EagerSeries = IntoSeries
 
 class BaseFigureOptions(_PlotInit, total=False):
     tools: str | Sequence[str | Tool]
@@ -89,7 +91,7 @@ class BaseFigureOptions(_PlotInit, total=False):
     active_multi: Auto | str | GestureTool | None
     tooltips: Template | str | list[tuple[str, str] | None]
 
-RangeLike: TypeAlias = (
+type RangeLike = (
     Range |
     tuple[float, float] |
     tuple[Datetime, Datetime] |
@@ -99,7 +101,7 @@ RangeLike: TypeAlias = (
     GroupBy[Any]
 )
 
-AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "timedelta", "mercator"] | None
+type AxisType = Auto | Literal["linear", "log", "datetime", "timedelta", "mercator"] | None
 
 DEFAULT_TOOLS: str
 
@@ -134,17 +136,17 @@ class figure(Plot, GlyphAPI):
         **kwargs: Any, # TODO Unpack[HexTileArgs]
     ) -> tuple[GlyphRenderer[HexTile], DataFrame]: ...
 
-    def harea_stack(self, stackers: Sequence[str], **kwargs: Any) -> list[GlyphRenderer[HArea]]: ...
+    def harea_stack(self, stackers: SequenceLike[str], **kw: Any) -> list[GlyphRenderer[HArea]]: ...
 
-    def varea_stack(self, stackers: Sequence[str], **kwargs: Any) -> list[GlyphRenderer[VArea]]: ...
+    def varea_stack(self, stackers: SequenceLike[str], **kw: Any) -> list[GlyphRenderer[VArea]]: ...
 
-    def hbar_stack(self, stackers: Sequence[str], **kwargs: Any) -> list[GlyphRenderer[HBar]]: ...
+    def hbar_stack(self, stackers: SequenceLike[str], **kw: Any) -> list[GlyphRenderer[HBar]]: ...
 
-    def vbar_stack(self, stackers: Sequence[str], **kwargs: Any) -> list[GlyphRenderer[VBar]]: ...
+    def vbar_stack(self, stackers: SequenceLike[str], **kw: Any) -> list[GlyphRenderer[VBar]]: ...
 
-    def hline_stack(self, stackers: Sequence[str], **kwargs: Any) -> list[GlyphRenderer[Line]]: ...
+    def hline_stack(self, stackers: SequenceLike[str], **kw: Any) -> list[GlyphRenderer[Line]]: ...
 
-    def vline_stack(self, stackers: Sequence[str], **kwargs: Any) -> list[GlyphRenderer[Line]]: ...
+    def vline_stack(self, stackers: SequenceLike[str], **kw: Any) -> list[GlyphRenderer[Line]]: ...
 
     def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs: Any) -> GraphRenderer: ...
 

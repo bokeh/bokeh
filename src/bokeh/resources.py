@@ -26,6 +26,8 @@ Attributes:
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportReturnType=false
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -47,14 +49,14 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
-    TypeAlias,
+    Sequence,
     TypedDict,
     cast,
-    get_args,
 )
 
 # Bokeh imports
 from . import __version__
+from .core.enums import enumeration
 from .core.templates import CSS_RESOURCES, JS_RESOURCES
 from .model import Model
 from .settings import LogLevel, settings
@@ -78,12 +80,18 @@ def server_url(host: str | None = None, port: int | None = None, ssl: bool = Fal
 
 DEFAULT_SERVER_HTTP_URL = server_url()
 
-BaseMode: TypeAlias = Literal["inline", "cdn", "server", "relative", "absolute"]
-DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]
+type BaseMode = Literal["inline", "cdn", "server", "relative", "absolute"]
+BaseModeEnum = enumeration(BaseMode)
 
-ResourcesMode: TypeAlias = BaseMode | DevMode
+type DevMode = Literal["server-dev", "relative-dev", "absolute-dev"]
+DevModeEnum = enumeration(DevMode)
 
-Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
+type ResourcesMode = BaseMode | DevMode
+
+type Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
+ComponentEnum = enumeration(Component)
+
+LogLevelEnum = enumeration(LogLevel)
 
 class ComponentDefs(TypedDict):
     js: list[Component]
@@ -99,15 +107,15 @@ class ComponentDefs(TypedDict):
 # Dev API
 # -----------------------------------------------------------------------------
 
-Hashes: TypeAlias = dict[str, str]
+type Hashes = dict[str, str]
 
 _ALL_SRI_HASHES: dict[str, Hashes] = {}
 
-def get_all_sri_versions() -> tuple[str, ...]:
+def get_all_sri_versions() -> set[str]:
     """ Report all versions that have SRI hashes.
 
     Returns:
-        tuple
+        set
 
     """
     files = (ROOT_DIR / "_sri").glob("*.json")
@@ -209,7 +217,7 @@ def verify_sri_hashes() -> None:
 
 PathVersioner = Callable[[str], str]
 
-Kind = Literal["css", "js"]
+type Kind = Literal["css", "js"]
 
 @dataclass
 class RuntimeMessage:
@@ -219,11 +227,11 @@ class RuntimeMessage:
 # XXX: https://github.com/python/mypy/issues/5485
 class UrlsFn(Protocol):
     @staticmethod
-    def __call__(components: list[str], kind: Kind) -> list[str]: ...
+    def __call__(components: Sequence[str], kind: Kind) -> list[str]: ...
 
 class HashesFn(Protocol):
     @staticmethod
-    def __call__(components: list[str], kind: Kind) -> Hashes: ...
+    def __call__(components: Sequence[str], kind: Kind) -> Hashes: ...
 
 @dataclass
 class Urls:
@@ -231,7 +239,7 @@ class Urls:
     messages: list[RuntimeMessage] = field(default_factory=list)
     hashes: HashesFn | None = None
 
-ResourceAttr = Literal["__css__", "__javascript__"]
+type ResourceAttr = Literal["__css__", "__javascript__"]
 
 class Resources:
     """
@@ -320,7 +328,7 @@ class Resources:
         self.dev = dev if dev is not None else settings.dev or mode_dev
         self.mode = cast(BaseMode, mode[:-4] if mode_dev else mode)
 
-        if self.mode not in get_args(BaseMode):
+        if self.mode not in BaseModeEnum:
             raise ValueError(
                 "wrong value for 'mode' parameter, expected "
                 f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}",
@@ -362,6 +370,8 @@ class Resources:
             case "server":
                 server = self._server_urls()
                 self.messages.extend(server.messages)
+            case "inline" | "relative" | "absolute":
+                pass
 
         self.base_dir = Path(base_dir) if base_dir is not None else settings.bokehjs_path()
 
@@ -405,7 +415,7 @@ class Resources:
 
     @log_level.setter
     def log_level(self, level: LogLevel) -> None:
-        valid_levels = get_args(LogLevel)
+        valid_levels = LogLevelEnum
         if not (level is None or level in valid_levels):
             raise ValueError(f"Unknown log level '{level}', valid levels are: {valid_levels}")
         self._log_level = level
@@ -444,6 +454,8 @@ class Resources:
                     for e in external:
                         if e not in external_resources:
                             external_resources.append(e)
+                case None:
+                    pass
 
         return external_resources
 
@@ -658,7 +670,7 @@ def _compute_single_hash(path: Path) -> str:
 # Code
 # -----------------------------------------------------------------------------
 
-ResourcesLike: TypeAlias = Resources | ResourcesMode
+type ResourcesLike = Resources | ResourcesMode
 
 CDN = Resources(mode="cdn")
 
