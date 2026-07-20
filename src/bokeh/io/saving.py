@@ -36,8 +36,8 @@ from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
+    from ..embed.util import ThemeSource
     from ..resources import ResourcesLike
-    from ..themes import Theme
     from .showing import Showable
     from .state import State
 
@@ -163,7 +163,7 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
     return DEFAULT_TITLE
 
 def _save_helper(obj: Showable, filename: PathLike, resources: Resources | None,
-        title: str | None, template: Template | str | None, theme: Theme | None = None) -> None:
+        title: str | None, template: Template | str | None, theme: ThemeSource | None = None) -> None:
     '''
 
     '''

@@ -164,7 +164,7 @@ def script_for_render_items(docs_json_or_id: ID | dict[ID, DocJson], render_item
 
         app_path (str, optional) :
 
-        absolute_url (Theme, optional) :
+        absolute_url (str, optional) :
 
     Returns:
         str

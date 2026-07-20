@@ -48,9 +48,9 @@ from ..resources import Resources, ResourcesLike
 from .bundle import Script, bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
 from .util import (
-    FromCurdoc,
     OutputDocumentFor,
     RenderRoot,
+    ThemeSource,
     standalone_docs_json,
     standalone_docs_json_and_render_items,
 )
@@ -61,12 +61,9 @@ if TYPE_CHECKING:
 
     from ..core.types import ID
     from ..document.document import DocJson
-    from ..themes import Theme
 
     type ModelLike = Model | Document
     type ModelLikeCollection = Sequence[ModelLike] | dict[str, ModelLike]
-
-    type ThemeLike = None | Theme | str | type[FromCurdoc]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -135,27 +132,27 @@ def autoload_static(model: Model | Document, resources: Resources, script_path: 
 
 @overload
 def components(models: Model, wrap_script: bool = ...,
-    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, str]: ...
+    wrap_plot_info: Literal[True] = ..., theme: ThemeSource = ...) -> tuple[str, str]: ...
 @overload
 def components(models: Model, wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeLike = ...) -> tuple[str, RenderRoot]: ...
+    theme: ThemeSource = ...) -> tuple[str, RenderRoot]: ...
 
 @overload
 def components(models: Sequence[Model], wrap_script: bool = ...,
-    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, Sequence[str]]: ...
+    wrap_plot_info: Literal[True] = ..., theme: ThemeSource = ...) -> tuple[str, Sequence[str]]: ...
 @overload
 def components(models: Sequence[Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeLike = ...) -> tuple[str, Sequence[RenderRoot]]: ...
+    theme: ThemeSource = ...) -> tuple[str, Sequence[RenderRoot]]: ...
 
 @overload
 def components(models: dict[str, Model], wrap_script: bool = ...,
-    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, dict[str, str]]: ...
+    wrap_plot_info: Literal[True] = ..., theme: ThemeSource = ...) -> tuple[str, dict[str, str]]: ...
 @overload
 def components(models: dict[str, Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeLike = ...) -> tuple[str, dict[str, RenderRoot]]: ...
+    theme: ThemeSource = ...) -> tuple[str, dict[str, RenderRoot]]: ...
 
 def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: bool = True,
-               wrap_plot_info: bool = True, theme: ThemeLike = None) -> tuple[str, Any]:
+               wrap_plot_info: bool = True, theme: ThemeSource = None) -> tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -291,15 +288,17 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
 
     return script, result
 
-def file_html(models: Model | Document | Sequence[Model],
-              resources: ResourcesLike | None = None,
-              title: str | None = None,
-              *,
-              template: Template | str = FILE,
-              template_variables: dict[str, Any] = {},
-              theme: ThemeLike = None,
-              suppress_callback_warning: bool = False,
-              _always_new: bool = False) -> str:
+def file_html(
+    models: Model | Document | Sequence[Model],
+    resources: ResourcesLike | None = None,
+    title: str | None = None,
+    *,
+    template: Template | str = FILE,
+    template_variables: dict[str, Any] = {},
+    theme: ThemeSource = None,
+    suppress_callback_warning: bool = False,
+    _always_new: bool = False,
+) -> str:
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML, with
@@ -368,7 +367,7 @@ class StandaloneEmbedJson(TypedDict):
     doc: DocJson
     version: str
 
-def json_item(model: Model, target: ID | None = None, theme: ThemeLike = None) -> StandaloneEmbedJson:
+def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None) -> StandaloneEmbedJson:
     ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
