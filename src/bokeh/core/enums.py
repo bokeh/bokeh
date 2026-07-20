@@ -310,7 +310,7 @@ type AutoType = Literal["auto"]
 #: Context dependent keyword that specifies the automated, default, computed, etc. behavior.
 Auto = enumeration(AutoType)
 
-type AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
+type AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "ignore_viewport", "none"]
 #: Specify autosize mode for DataTable.
 AutosizeMode = enumeration(AutosizeModeType)
 
