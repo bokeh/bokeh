@@ -79,7 +79,7 @@ class FromCurdoc:
     pass
 
 @contextmanager
-def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdoc] | None = None,
+def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | str | type[FromCurdoc] | None = None,
         always_new: bool = False) -> Iterator[Document]:
     ''' Find or create a (possibly temporary) Document to use for serializing
     Bokeh content.
@@ -114,14 +114,15 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
         objs (seq[Model]) :
             a sequence of Models that will be serialized, and need a common document
 
-        apply_theme (Theme or FromCurdoc or None, optional):
+        apply_theme (Theme or str or FromCurdoc or None, optional):
             Sets the theme for the doc while inside this context manager. (default: None)
 
             If None, use whatever theme is on the document that is found or created
 
             If FromCurdoc, use curdoc().theme, restoring any previous theme afterwards
 
-            If a Theme instance, use that theme, restoring any previous theme afterwards
+            If a Theme instance or built-in theme name, use that theme, restoring any
+            previous theme afterwards
 
         always_new (bool, optional) :
             Always return a new document, even in cases where it is otherwise possible
@@ -428,12 +429,12 @@ def _dispose_temp_doc(models: Sequence[Model]) -> None:
 
 _themes: WeakKeyDictionary[Document, Theme] = WeakKeyDictionary()
 
-def _set_temp_theme(doc: Document, apply_theme: Theme | type[FromCurdoc] | None) -> None:
+def _set_temp_theme(doc: Document, apply_theme: Theme | str | type[FromCurdoc] | None) -> None:
     _themes[doc] = doc.theme
     if apply_theme is FromCurdoc:
         from ..io import curdoc
         doc.theme = curdoc().theme
-    elif isinstance(apply_theme, Theme):
+    elif isinstance(apply_theme, (Theme, str)):
         doc.theme = apply_theme
 
 def _unset_temp_theme(doc: Document) -> None:
