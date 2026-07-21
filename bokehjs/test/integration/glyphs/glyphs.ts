@@ -1107,6 +1107,29 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
+  it.no_image("should allow WebGL scatter selection masks to survive range updates", async () => {
+    const N = 100
+    const source = new ColumnDataSource({
+      data: {
+        x: range(N),
+        y: range(N).map((i) => Math.sin(i/10)),
+        marker: range(N).map((i) => i % 2 == 0 ? "circle" : "square"),
+      },
+    })
+    source.selected.indices = [1, 12, 37, 88]
+    const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}, marker: {field: "marker"}})
+    const selection_glyph = new Scatter({size: 20, fill_color: "yellow"})
+    const renderer = new GlyphRenderer({data_source: source, glyph, selection_glyph})
+    const x_range = new Range1d({start: 0, end: N})
+    const p = fig([300, 300], {x_range, y_range: [-2, 2], output_backend: "webgl"})
+    p.renderers.push(renderer)
+    const {view} = await display(p)
+
+    x_range.start = 5
+    x_range.end = N - 5
+    await view.ready
+  })
+
   it("should allow to override HBar.height", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})

@@ -6,6 +6,13 @@ WebGL rendering uses two ordered layers of deferred work:
    Canvas renderer is a barrier that flushes and blits preceding WebGL work.
 2. `ReglCommandBatcher` combines adjacent compatible regl submissions. It
    never reorders commands, so alpha blending and renderer z-order are stable.
+   Its resource set provides scoped mutation barriers: changing a buffer or
+   texture flushes only a pending batch that references that resource. Batch
+   statistics count regl dispatches, not the underlying WebGL draw operations.
+
+Before Canvas2D reads the shared WebGL canvas, queued commands are submitted and
+GPU completion is awaited. This is an ordering requirement and avoids incomplete
+cross-canvas copies in WebKit.
 
 `RevisionState` separates geometry, mapping, visual, and selection revisions.
 Consumers keep independent cursors, and `WrappedBuffer` exposes full, ranged,

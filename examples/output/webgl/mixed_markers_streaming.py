@@ -26,7 +26,9 @@ source.selected.indices = list(range(0, n, 997))
 p = figure(width=900, height=520, output_backend="webgl",
            title="Mixed markers: cached masks, derived sizes, stream/patch refresh")
 renderer = p.scatter("x", "y", marker="marker", size="size", color="color",
-                     fill_alpha=0.55, line_alpha=0.8, source=source)
+                     fill_alpha=0.55, line_alpha=0.8,
+                     nonselection_fill_alpha=0.55, nonselection_line_alpha=0.8,
+                     source=source)
 renderer.selection_glyph = Scatter(
     size="selected_size", fill_color="color", line_color="white", line_width=2,
 )

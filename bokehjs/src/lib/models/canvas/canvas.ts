@@ -274,6 +274,7 @@ export class CanvasView extends UIElementView {
     const {webgl} = this
     this.flush_webgl()
     if (webgl != null && this._webgl_dirty && webgl.canvas.width*webgl.canvas.height > 0) {
+      webgl.regl_wrapper.finish()
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
