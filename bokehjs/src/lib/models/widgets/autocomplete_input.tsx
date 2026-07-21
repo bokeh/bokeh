@@ -1,13 +1,12 @@
 import {TextInput, TextInputView} from "./text_input"
-
-import type {StyleSheetLike} from "core/dom"
-import {empty, display, undisplay, div} from "core/dom"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
+import type {StyleSheetLike} from "core/stylesheets"
 import type * as p from "core/properties"
 import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
 import {Enum} from "core/kinds"
-
-import dropdown_css, * as dropdown from "styles/dropdown.css"
+import * as dropdown_css from "styles/dropdown.css"
 
 import type {TargetedKeyboardEvent} from "preact"
 
@@ -15,7 +14,9 @@ const SearchStrategy = Enum("starts_with", "includes")
 type SearchStrategy = typeof SearchStrategy["__type__"]
 
 export class AutocompleteInputView extends TextInputView {
-  declare model: AutocompleteInput
+  declare readonly model: AutocompleteInput
+  declare readonly signals: p.SignalsOf<AutocompleteInput.Props>
+  declare readonly values: AutocompleteInput.Attrs
 
   protected _open: boolean = false
 
@@ -26,14 +27,26 @@ export class AutocompleteInputView extends TextInputView {
   protected menu: HTMLElement
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), dropdown_css]
+    return [...super.stylesheets(), dropdown_css.default]
+  }
+
+  override component(): VNode {
+    const {disabled, value} = this.signals
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <div class={inputs_css.outer}>
+          <div class={inputs_css.inner}>
+          </div>
+        </div>
+      </UIComponent>
+    )
   }
 
   override render(): void {
     super.render()
     //this.input_el.addEventListener("focusin", () => this._toggle_menu())
 
-    this.menu = div({class: [dropdown.menu, dropdown.below]})
+    this.menu = div({class: [dropdown_css.menu, dropdown_css.below]})
     this.menu.addEventListener("click", (event) => this._menu_click(event))
     this.menu.addEventListener("mouseover", (event) => this._menu_hover(event))
     this.shadow_el.appendChild(this.menu)
@@ -61,7 +74,7 @@ export class AutocompleteInputView extends TextInputView {
       this.menu.append(item)
     }
 
-    this.menu.firstElementChild?.classList.add(dropdown.active)
+    this.menu.firstElementChild?.classList.add(dropdown_css.active)
   }
 
   compute_completions(value: string): string[] {
@@ -154,9 +167,9 @@ export class AutocompleteInputView extends TextInputView {
   protected _bump_hover(new_index: number): void {
     const n_children = this.menu.children.length
     if (this._open && n_children > 0) {
-      this.menu.children[this._hover_index].classList.remove(dropdown.active)
+      this.menu.children[this._hover_index].classList.remove(dropdown_css.active)
       this._hover_index = clamp(new_index, 0, n_children-1)
-      this.menu.children[this._hover_index].classList.add(dropdown.active)
+      this.menu.children[this._hover_index].classList.add(dropdown_css.active)
     }
   }
 
