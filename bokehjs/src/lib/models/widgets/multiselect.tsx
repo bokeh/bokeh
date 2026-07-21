@@ -1,68 +1,59 @@
-import {select, option} from "core/dom"
-import {isString} from "core/util/types"
-import type * as p from "core/properties"
-
 import {InputWidget, InputWidgetView} from "./input_widget"
-import * as inputs from "styles/widgets/inputs.css"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
+import type * as p from "core/properties"
+import {isString} from "core/util/types"
+import * as inputs_css from "styles/widgets/inputs.css"
 
 export class MultiSelectView extends InputWidgetView {
-  declare model: MultiSelect
+  declare readonly model: MultiSelect
+  declare readonly signals: p.SignalsOf<MultiSelect.Props>
+  declare readonly values: MultiSelect.Attrs
 
-  declare input_el: HTMLSelectElement
-
-  override connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.properties.value.change, () => this.render_selection())
-    this.connect(this.model.properties.options.change, () => this.rerender())
-    this.connect(this.model.properties.name.change, () => this.rerender())
-    this.connect(this.model.properties.title.change, () => this.rerender())
-    this.connect(this.model.properties.size.change, () => this.rerender())
-    this.connect(this.model.properties.disabled.change, () => this.rerender())
+  /// TODO remove
+  protected override _render_input(): HTMLElement {
+    return undefined as any
   }
+  ///
 
-  protected _render_input(): HTMLElement {
-    const options = this.model.options.map((opt) => {
-      let value, _label
-      if (isString(opt)) {
-        value = _label  = opt
-      } else {
-        [value, _label] = opt
-      }
+  override component(): VNode {
+    const {name, options} = this.values
+    const {disabled, size} = this.signals
 
-      return option({value}, _label)
+    const selection = new Set(this.values.value)
+    const children = options.map((option) => {
+      const [value, label] = (() => {
+        if (isString(option)) {
+          return [option, option] as const
+        } else {
+          return option
+        }
+      })()
+      const selected = selection.has(value)
+      return <option value={value} selected={selected}>{label}</option>
     })
 
-    this.input_el = select({
-      multiple: true,
-      class: inputs.input,
-      name: this.model.name,
-      disabled: this.model.disabled,
-    }, options)
-
-    this.input_el.addEventListener("change", () => this.change_input())
-    return this.input_el
-  }
-
-  override render(): void {
-    super.render()
-    this.render_selection()
-  }
-
-  render_selection(): void {
-    const selected = new Set(this.model.value)
-
-    for (const el of this.shadow_el.querySelectorAll("option")) {
-      el.selected = selected.has(el.value)
-    }
-
-    // Note that some browser implementations might not reduce
-    // the number of visible options for size <= 3.
-    this.input_el.size = this.model.size
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <div class={inputs_css.outer}>
+          <div class={inputs_css.inner}>
+            <select
+              multiple={true}
+              class={inputs_css.input}
+              name={name ?? undefined}
+              disabled={disabled}
+              size={size}
+              onChange={() => this.change_input()}
+            >
+              {children}
+            </select>
+          </div>
+        </div>
+      </UIComponent>
+    )
   }
 
   override change_input(): void {
-    const is_focused = this.shadow_el.querySelector("select:focus") != null
-
     const values = []
     for (const el of this.shadow_el.querySelectorAll("option")) {
       if (el.selected) {
@@ -72,13 +63,6 @@ export class MultiSelectView extends InputWidgetView {
 
     this.model.value = values
     super.change_input()
-    // Restore focus back to the <select> afterwards,
-    // so that even if python on_change callback is invoked,
-    // focus remains on <select> and one can seamlessly scroll
-    // up/down.
-    if (is_focused) {
-      this.input_el.focus()
-    }
   }
 }
 
