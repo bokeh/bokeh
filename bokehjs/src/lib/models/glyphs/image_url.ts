@@ -11,6 +11,7 @@ import type {SpatialIndex} from "core/util/spatial"
 import {ImageLoader} from "core/util/image"
 import type {XY} from "core/util/bbox"
 import * as resolve from "../common/resolve"
+import type {ImageURLGL} from "./webgl/image_url"
 
 export type CanvasImage = HTMLImageElement
 
@@ -20,6 +21,14 @@ export class ImageURLView extends XYGlyphView {
   declare model: ImageURL
   declare visuals: ImageURL.Visuals
 
+  /** @internal */
+  declare glglyph?: ImageURLGL
+
+  override async load_glglyph() {
+    const {ImageURLGL} = await import("./webgl/image_url")
+    return ImageURLGL
+  }
+
   protected _images_rendered = false
   protected _bounds_rect: Rect
 
@@ -28,6 +37,19 @@ export class ImageURLView extends XYGlyphView {
   /*protected*/ image: (CanvasImage | null)[] = new Array(0)
   loaders: (ImageLoader | null)[]
   protected resolved: Indices
+
+  notify_images_rendered(): void {
+    if (this._images_rendered) {
+      return
+    }
+    for (let i = 0; i < this.data_size; i++) {
+      if (!this.resolved.get(i) && this.loaders[i] != null) {
+        return
+      }
+    }
+    this._images_rendered = true
+    this.notify_finished()
+  }
 
   override connect_signals(): void {
     super.connect_signals()

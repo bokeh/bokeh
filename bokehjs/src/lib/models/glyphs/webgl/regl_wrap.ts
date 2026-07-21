@@ -455,6 +455,7 @@ function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): RawReglR
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
       u_tex: regl.prop<Props, "tex">("tex"),
       u_global_alpha: regl.prop<Props, "global_alpha">("global_alpha"),
+      u_angle: regl.prop<Props, "angle">("angle"),
     },
 
     elements: triangles,

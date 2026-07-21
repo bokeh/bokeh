@@ -57,6 +57,7 @@ export class ImageGL extends BaseGLGlyph {
         bounds: main_gl_glyph._bounds[i],
         tex: main_gl_glyph._tex[i],
         global_alpha: global_alpha.get(i),
+        angle: 0,
       }
       this.regl_wrapper.image()(props)
     }

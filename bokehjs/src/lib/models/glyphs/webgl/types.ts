@@ -80,6 +80,7 @@ export type ImageProps = CommonProps & {
   bounds: Float32Buffer
   tex: Texture2D
   global_alpha: number
+  angle: number
 }
 
 // Uniforms are used to pass GLSL uniform values from ReGL functions to shaders.
@@ -119,6 +120,7 @@ export type MarkerGlyphUniforms = CommonLineUniforms & Partial<DataMappingUnifor
 export type ImageUniforms = CommonUniforms & {
   u_tex: Texture2D
   u_global_alpha: number
+  u_angle: number
 }
 
 // Attributes are used to pass GLSL attribute values from ReGL functions to shaders.
