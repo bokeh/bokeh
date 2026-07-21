@@ -56,10 +56,11 @@ function signed_area_2(ring: number[]): number {
 /** Generate expanded geometry with an anti-aliasing skirt around polygon boundaries.
  *
  *  The skirt approach adds a thin fringe of extra triangles around each polygon
- *  boundary edge. Interior (earcut) vertices get `edge_distance = antialias_width`
- *  (fully opaque). Skirt outer vertices get `edge_distance = 0.0` (fully
- *  transparent). The GPU linearly interpolates across the skirt, producing a
- *  smooth alpha gradient for anti-aliased polygon edges.
+ *  boundary edge. Original (earcut) vertices remain at their triangulated
+ *  positions and get `edge_distance = antialias_width` (fully opaque). Skirt
+ *  outer vertices are displaced outwards and get `edge_distance = 0.0`
+ *  (fully transparent). The GPU linearly interpolates across the skirt,
+ *  producing a smooth alpha gradient for anti-aliased polygon edges.
  *
  *  @param flat_coords      Interleaved [x0,y0,...] screen-pixel coordinates.
  *  @param rings            Ring arrays as returned by {@link split_rings}.
@@ -185,28 +186,12 @@ export function generate_skirt_geometry(
     // Record the base index for this ring's skirt vertices
     const skirt_base = skirt_vert_idx
 
-    // Clamp the inward shift so that it doesn't collapse small or narrow
-    // polygons.  We use the approximate "inradius" (area / perimeter) to
-    // estimate how far inward we can safely shift without inverting the
-    // earcut triangulation.  The inward shift is limited to at most 25% of
-    // the inradius so the polygon retains most of its original shape.
-    let perimeter = 0
-    for (let i = 0; i < npts; i++) {
-      const j = (i + 1) % npts
-      const ex = ring[j * 2] - ring[i * 2]
-      const ey = ring[j * 2 + 1] - ring[i * 2 + 1]
-      perimeter += Math.sqrt(ex * ex + ey * ey)
-    }
-    const abs_area = Math.abs(area)
-    const inradius = perimeter > 0 ? abs_area / perimeter : 0
-    const half_aa = Math.min(0.5 * antialias_width, 0.25 * inradius)
-
-    // Compute miter direction and offset for straddling AA.
-    // Original boundary vertices are shifted inward by half the AA width;
-    // skirt vertices are placed outward by half the AA width from the
-    // original mathematical boundary.  The total skirt width is unchanged,
-    // but it now straddles the boundary so that the mathematical edge sits
-    // at the midpoint of the fade, matching canvas 2D AA behavior.
+    // Compute miter direction and offset for the outward AA skirt. The
+    // original vertices must not move: doing so can invalidate earcut's
+    // triangulation when boundary segments are shorter than the AA width,
+    // producing overlapping semi-transparent triangles and long interior
+    // seams. Keeping those vertices fixed preserves the fill topology at any
+    // scale, while the extra vertices provide the edge fade independently.
     for (let i = 0; i < npts; i++) {
       const prev_edge = (i - 1 + npts) % npts
       const curr_edge = i
@@ -253,15 +238,11 @@ export function generate_skirt_geometry(
         }
       }
 
-      const offset = half_aa * inv_cos
+      const offset = antialias_width * inv_cos
       const vx = flat_coords[(ring_offset + i) * 2]
       const vy = flat_coords[(ring_offset + i) * 2 + 1]
 
-      // Shift original boundary vertex inward (subtract miter direction)
-      positions[(ring_offset + i) * 2] = vx - dx * offset
-      positions[(ring_offset + i) * 2 + 1] = vy - dy * offset
-
-      // Place skirt vertex outward from original position (add miter direction)
+      // Place skirt vertex outward from the fixed triangulation boundary.
       positions[skirt_vert_idx * 2] = vx + dx * offset
       positions[skirt_vert_idx * 2 + 1] = vy + dy * offset
       edge_distance[skirt_vert_idx] = 0

@@ -478,61 +478,46 @@ describe("polygon_utils", () => {
       }
     })
 
-    it("should place skirt vertices outward and shift boundary vertices inward (straddling AA)", () => {
+    it("should keep triangulated vertices fixed and place skirt vertices outward", () => {
       // CCW square: (0,0) -> (10,0) -> (10,10) -> (0,10)
       const flat_coords = [0, 0, 10, 0, 10, 10, 0, 10]
       const rings = [flat_coords]
       const geom = generate_skirt_geometry(flat_coords, rings, SQUARE_INDICES, 1.5)
 
-      // Original boundary vertices (indices 0-3) should be shifted inward
-      // v0=(0,0): shifted toward interior (positive x, positive y)
-      expect(geom.positions[0 * 2]).to.be.above(0)
-      expect(geom.positions[0 * 2 + 1]).to.be.above(0)
-
-      // v1=(10,0): shifted toward interior (negative x, positive y)
-      expect(geom.positions[1 * 2]).to.be.below(10)
-      expect(geom.positions[1 * 2 + 1]).to.be.above(0)
-
-      // v2=(10,10): shifted toward interior (negative x, negative y)
-      expect(geom.positions[2 * 2]).to.be.below(10)
-      expect(geom.positions[2 * 2 + 1]).to.be.below(10)
-
-      // v3=(0,10): shifted toward interior (positive x, negative y)
-      expect(geom.positions[3 * 2]).to.be.above(0)
-      expect(geom.positions[3 * 2 + 1]).to.be.below(10)
+      // Earcut indices refer to the original vertices, which must retain the
+      // exact positions used to create the triangulation.
+      for (let i = 0; i < flat_coords.length; i++) {
+        expect(geom.positions[i]).to.be.similar(flat_coords[i], 1e-6)
+      }
 
       // Skirt vertices (indices 4-7) should be offset outward from the
       // original mathematical boundary (past the input coordinates)
-      // v0=(0,0): skirt should be at roughly (-0.75, -0.75) direction
+      // v0=(0,0): skirt should be at roughly (-1.5, -1.5) direction
       const s0x = geom.positions[4 * 2]
       const s0y = geom.positions[4 * 2 + 1]
       expect(s0x).to.be.below(0)  // moved left of original
       expect(s0y).to.be.below(0)  // moved down of original
 
-      // v1=(10,0): skirt should be at roughly (10.75, -0.75) direction
+      // v1=(10,0): skirt should be at roughly (11.5, -1.5) direction
       const s1x = geom.positions[5 * 2]
       const s1y = geom.positions[5 * 2 + 1]
       expect(s1x).to.be.above(10) // moved right of original
       expect(s1y).to.be.below(0)   // moved down of original
 
-      // v2=(10,10): skirt should be at roughly (10.75, 10.75) direction
+      // v2=(10,10): skirt should be at roughly (11.5, 11.5) direction
       const s2x = geom.positions[6 * 2]
       const s2y = geom.positions[6 * 2 + 1]
       expect(s2x).to.be.above(10) // moved right of original
       expect(s2y).to.be.above(10)  // moved up of original
 
-      // v3=(0,10): skirt should be at roughly (-0.75, 10.75) direction
+      // v3=(0,10): skirt should be at roughly (-1.5, 11.5) direction
       const s3x = geom.positions[7 * 2]
       const s3y = geom.positions[7 * 2 + 1]
       expect(s3x).to.be.below(0)  // moved left of original
       expect(s3y).to.be.above(10)  // moved up of original
 
-      // Inner and outer vertices should be symmetric about original boundary.
-      const half_aa = 0.75  // 0.5 * 1.5
-      expect(geom.positions[0 * 2]).to.be.similar(half_aa, 0.01)
-      expect(geom.positions[0 * 2 + 1]).to.be.similar(half_aa, 0.01)
-      expect(s0x).to.be.similar(-half_aa, 0.01)
-      expect(s0y).to.be.similar(-half_aa, 0.01)
+      expect(s0x).to.be.similar(-1.5, 0.01)
+      expect(s0y).to.be.similar(-1.5, 0.01)
     })
 
     it("should handle polygon with a hole (both boundaries get skirts)", () => {
@@ -560,19 +545,13 @@ describe("polygon_utils", () => {
         expect(geom.edge_distance[i]).to.be.equal(0)
       }
 
-      // Outer boundary vertex v0=(0,0) should be shifted inward (positive x, positive y)
-      expect(geom.positions[0 * 2]).to.be.above(0)
-      expect(geom.positions[0 * 2 + 1]).to.be.above(0)
+      // Triangulated vertices of both the outer boundary and the hole remain fixed.
+      expect([...geom.positions.subarray(0, flat_coords.length)]).to.be.equal(flat_coords)
 
       // Outer skirt vertices (8-11) should expand outward from outer boundary
       // v0=(0,0) outer skirt should be outside (negative x, negative y)
       expect(geom.positions[8 * 2]).to.be.below(0)
       expect(geom.positions[8 * 2 + 1]).to.be.below(0)
-
-      // Hole boundary vertex v4=(5,5) should be shifted inward toward fill
-      // (away from hole center), i.e., toward (0,0) corner — smaller x, smaller y
-      expect(geom.positions[4 * 2]).to.be.below(5)
-      expect(geom.positions[4 * 2 + 1]).to.be.below(5)
 
       // Hole skirt vertices (12-15) should expand INTO the hole
       // v4=(5,5) is a hole corner. Its skirt should move TOWARD the hole center.
@@ -589,9 +568,8 @@ describe("polygon_utils", () => {
       const rings = [flat_coords]
       const geom = generate_skirt_geometry(flat_coords, rings, SHARP_V_INDICES, 1.5)
 
-      // Both original (shifted inward) and skirt (shifted outward) vertices
-      // should be within a reasonable distance of the original boundary.
-      // Max offset = half_aa / clamped_cos = 0.75 / 0.1 = 7.5
+      // Original and skirt vertices should be within a reasonable distance
+      // of the original boundary. Max offset = aa / clamped_cos = 15.
       for (let i = 0; i < geom.nvertices; i++) {
         const sx = geom.positions[i * 2]
         const sy = geom.positions[i * 2 + 1]
@@ -601,35 +579,21 @@ describe("polygon_utils", () => {
           const dy = sy - flat_coords[j * 2 + 1]
           min_dist = Math.min(min_dist, Math.sqrt(dx * dx + dy * dy))
         }
-        expect(min_dist).to.be.below(10) // 0.75/0.1 = 7.5, allow some margin
+        expect(min_dist).to.be.below(20) // 1.5/0.1 = 15, allow some margin
       }
     })
 
-    it("should straddle boundary symmetrically (inner + outer equidistant from original)", () => {
-      // For an axis-aligned square with 90° corners, each miter has cos(45°)
-      // scaling. The inner and outer vertices should be equidistant from the
-      // original mathematical boundary position, ensuring that the midpoint
-      // of the skirt lies on the original boundary.
-      const flat_coords = [0, 0, 10, 0, 10, 10, 0, 10]
+    it("should preserve fill topology when boundary detail is smaller than the AA width", () => {
+      // Moving these closely spaced concave boundary vertices by the AA width
+      // can flip skinny earcut triangles and make translucent triangles overlap.
+      const flat_coords = [0, 0, 0.1, 0, 0.15, -0.08, 0.2, 0, 1, 0, 1, 1, 0, 1]
       const rings = [flat_coords]
       const aa = 1.5
-      const geom = generate_skirt_geometry(flat_coords, rings, SQUARE_INDICES, aa)
+      const tri_indices = [5, 6, 0, 0, 1, 2, 2, 3, 4, 4, 5, 0, 0, 2, 4]
+      const geom = generate_skirt_geometry(flat_coords, rings, tri_indices, aa)
 
-      for (let i = 0; i < 4; i++) {
-        const orig_x = flat_coords[i * 2]
-        const orig_y = flat_coords[i * 2 + 1]
-
-        const inner_x = geom.positions[i * 2]
-        const inner_y = geom.positions[i * 2 + 1]
-
-        const outer_x = geom.positions[(4 + i) * 2]
-        const outer_y = geom.positions[(4 + i) * 2 + 1]
-
-        // Midpoint of inner and outer should equal the original boundary position
-        const mid_x = (inner_x + outer_x) / 2
-        const mid_y = (inner_y + outer_y) / 2
-        expect(mid_x).to.be.similar(orig_x, 0.001)
-        expect(mid_y).to.be.similar(orig_y, 0.001)
+      for (let i = 0; i < flat_coords.length; i++) {
+        expect(geom.positions[i]).to.be.similar(flat_coords[i], 1e-6)
       }
     })
 
