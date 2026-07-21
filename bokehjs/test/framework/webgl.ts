@@ -46,8 +46,10 @@ export function wrapped_buffers(root: object): WrappedBuffer<Float32Array | Uint
         visit(item)
       }
     } else if (!ArrayBuffer.isView(value) && !(value instanceof ArrayBuffer)) {
-      for (const item of Object.values(value)) {
-        visit(item)
+      for (const [name, item] of Object.entries(value)) {
+        if (name != "glyph" && name != "regl_wrapper" && name != "_regl") {
+          visit(item)
+        }
       }
     }
   }
