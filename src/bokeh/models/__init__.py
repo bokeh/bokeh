@@ -50,6 +50,7 @@ from . import (
     graphics,
     graphs,
     grids,
+    i18n,
     labeling,
     layouts,
     map_plots,
@@ -86,6 +87,7 @@ from .glyphs import *
 from .graphics import *
 from .graphs import *
 from .grids import *
+from .i18n import *
 from .labeling import *
 from .layouts import *
 from .map_plots import *
@@ -135,6 +137,7 @@ __all__ = (
     *_all(graphics),
     *_all(graphs),
     *_all(grids),
+    *_all(i18n),
     *_all(labeling),
     *_all(layouts),
     *_all(map_plots),
