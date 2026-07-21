@@ -8,8 +8,14 @@ import {MarkerType} from "core/enums"
 import type {Uniform} from "core/uniforms"
 import type {ExtMarkerType} from "core/properties"
 import {Uint8Buffer} from "./buffer"
+import type {DataMapping} from "./data_mapping"
+import {create_data_mapping, data_mapping_is_precise, pack_data_points, with_data_origin} from "./data_mapping"
+import type {Vec2} from "regl"
 
 export class MultiMarkerGL extends BaseMarkerGL {
+  private _center_mapping_signature: string | null | undefined
+  private _data_origin: Vec2 = [0, 0]
+  private _data_error: Vec2 = [0, 0]
 
   // data properties, either all or none are set.
   protected _marker_types?: Uniform<MarkerType | ExtMarkerType | null>
@@ -24,20 +30,43 @@ export class MultiMarkerGL extends BaseMarkerGL {
     super(regl_wrapper, glyph)
   }
 
+  override set_data_changed(): void {
+    this._data_error = [0, 0]
+    super.set_data_changed()
+  }
+
+  override get data_mapping(): DataMapping | null {
+    const {x_scale, y_scale} = this.glyph.renderer.coordinates
+    const mapping = create_data_mapping(x_scale, y_scale)
+    if (mapping == null || !data_mapping_is_precise(mapping, this._data_error)) {
+      return null
+    }
+    return with_data_origin(mapping, this._data_origin)
+  }
+
   override draw(indices: number[], main_glyph: ScatterView, transform: Transform): void {
     // The main glyph has the data, this glyph has the visuals.
     const main_gl_glyph = main_glyph.glglyph!
 
     const main_data_changed = main_gl_glyph.data_changed
-    if (main_data_changed || main_gl_glyph.data_mapped) {
+    const main_mapping_signature = main_gl_glyph.data_mapping?.signature ?? null
+    const main_mapping_changed = main_mapping_signature != main_gl_glyph._center_mapping_signature
+    if (main_data_changed || main_mapping_changed || (main_gl_glyph.data_mapped && main_mapping_signature == null)) {
       main_gl_glyph.set_data(main_data_changed)
-      main_gl_glyph.data_changed = false
-      main_gl_glyph.data_mapped = false
+      main_gl_glyph._center_mapping_signature = main_gl_glyph.data_mapping?.signature ?? null
     }
+    main_gl_glyph.data_changed = false
+    main_gl_glyph.data_mapped = false
 
     const derived_data_changed = this.data_changed
-    if (this !== main_gl_glyph && (derived_data_changed || this.data_mapped)) {
+    const derived_mapping_signature = this.data_mapping?.signature ?? null
+    const derived_mapping_changed = derived_mapping_signature != this._center_mapping_signature
+    if (this !== main_gl_glyph &&
+        (derived_data_changed || derived_mapping_changed || (this.data_mapped && derived_mapping_signature == null))) {
       this.set_data(derived_data_changed)
+      this._center_mapping_signature = this.data_mapping?.signature ?? null
+    }
+    if (this !== main_gl_glyph) {
       this.data_changed = false
       this.data_mapped = false
     }
@@ -169,8 +198,19 @@ export class MultiMarkerGL extends BaseMarkerGL {
     const nmarkers = this.nvertices
 
     // Always update positions, sizes, and angles (for streaming updates)
+    const {data_mapping} = this
     const centers_array = this._centers.get_sized_array(2*nmarkers)
-    interleave(this.glyph.sx, this.glyph.sy, nmarkers, BaseMarkerGL.missing_point, centers_array)
+    if (data_mapping != null) {
+      const {origin, error} = pack_data_points(centers_array, this.glyph.x, this.glyph.y, data_mapping)
+      this._data_origin = origin
+      this._data_error = error
+      if (!data_mapping_is_precise(data_mapping, error)) {
+        this.glyph.ensure_screen_data()
+        interleave(this.glyph.sx, this.glyph.sy, nmarkers, BaseMarkerGL.missing_point, centers_array)
+      }
+    } else {
+      interleave(this.glyph.sx, this.glyph.sy, nmarkers, BaseMarkerGL.missing_point, centers_array)
+    }
     this._centers.update()
 
     this._widths.set_from_prop(this.glyph.size)

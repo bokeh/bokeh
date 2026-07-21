@@ -1,5 +1,6 @@
 #include <bokeh_vertex_precision>
 #include <bokeh_screen_projection>
+#include <bokeh_data_mapping>
 
 attribute vec2 a_position;
 attribute vec2 a_center;
@@ -122,6 +123,12 @@ vec2 enclosing_size() {
 
 void main()
 {
+#ifdef DATA_MAPPING
+  vec2 center = bokeh_map_data(a_center);
+#else
+  vec2 center = a_center;
+#endif
+
 #if defined(USE_RECT) || defined(USE_ROUND_RECT) || defined(USE_HEX_TILE)
   v_size = vec2(a_width, a_height);
 #elif defined(USE_ANNULUS) || defined(USE_ANNULAR_WEDGE) || defined(USE_WEDGE)
@@ -200,13 +207,13 @@ void main()
   v_coords = a_position*enclosing_size();
 
 #if defined(USE_CIRCLE) || defined(USE_ANNULUS) || defined(USE_ANNULAR_WEDGE) || defined(USE_WEDGE)
-  vec2 pos = a_center + v_coords;
+  vec2 pos = center + v_coords;
 #else
   float c = cos(-a_angle);
   float s = sin(-a_angle);
   mat2 rotation = mat2(c, -s, s, c);
 
-  vec2 pos = a_center + rotation*v_coords;
+  vec2 pos = center + rotation*v_coords;
 #endif
 
 #ifdef HATCH

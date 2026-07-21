@@ -62,12 +62,12 @@ export class ReglWrapper {
   // Drawing functions.
   private _accumulate?: ReglRenderFunction<t.AccumulateProps>
   private _image?: ReglRenderFunction<t.ImageProps>
-  private _solid_line?: ReglRenderFunction<t.LineGlyphProps>
+  private readonly _solid_line_map = new Map<boolean, ReglRenderFunction<t.LineGlyphProps>>()
   private _dashed_line?: ReglRenderFunction<t.LineDashGlyphProps>
   private _polygon?: ReglRenderFunction<t.PolygonGlyphProps>
   private _polygon_hatch?: ReglRenderFunction<t.PolygonHatchGlyphProps>
-  private _marker_no_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerGlyphProps>> = new Map()
-  private _marker_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerHatchGlyphProps>> = new Map()
+  private _marker_no_hatch_map: Map<string, ReglRenderFunction<t.MarkerGlyphProps>> = new Map()
+  private _marker_hatch_map: Map<string, ReglRenderFunction<t.MarkerHatchGlyphProps>> = new Map()
 
   // Static Buffers/Elements
   private _line_geometry: Buffer
@@ -342,29 +342,35 @@ export class ReglWrapper {
     return this._polygon_hatch
   }
 
-  public marker_no_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerGlyphProps> {
-    let func = this._marker_no_hatch_map.get(marker_type)
+  public marker_no_hatch(marker_type: GLMarkerType, data_mapped: boolean = false): ReglRenderFunction<t.MarkerGlyphProps> {
+    const key = `${marker_type}:${data_mapped}`
+    let func = this._marker_no_hatch_map.get(key)
     if (func == null) {
-      func = this._batch(`marker:${marker_type}`, regl_marker(this._regl, this._marker_geometry, marker_type))
-      this._marker_no_hatch_map.set(marker_type, func)
+      func = this._batch(`marker:${key}`, regl_marker(this._regl, this._marker_geometry, marker_type, data_mapped))
+      this._marker_no_hatch_map.set(key, func)
     }
     return func
   }
 
-  public marker_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerHatchGlyphProps> {
-    let func = this._marker_hatch_map.get(marker_type)
+  public marker_hatch(marker_type: GLMarkerType, data_mapped: boolean = false): ReglRenderFunction<t.MarkerHatchGlyphProps> {
+    const key = `${marker_type}:${data_mapped}`
+    let func = this._marker_hatch_map.get(key)
     if (func == null) {
-      func = this._batch(`hatched-marker:${marker_type}`, regl_marker_hatch(this._regl, this._marker_geometry, marker_type))
-      this._marker_hatch_map.set(marker_type, func)
+      func = this._batch(`hatched-marker:${key}`, regl_marker_hatch(this._regl, this._marker_geometry, marker_type, data_mapped))
+      this._marker_hatch_map.set(key, func)
     }
     return func
   }
 
-  public solid_line(): ReglRenderFunction<t.LineGlyphProps> {
-    if (this._solid_line == null) {
-      this._solid_line = this._batch("solid-line", regl_solid_line(this._regl, this._line_geometry, this._line_triangles))
+  public solid_line(data_mapped: boolean = false): ReglRenderFunction<t.LineGlyphProps> {
+    let func = this._solid_line_map.get(data_mapped)
+    if (func == null) {
+      func = this._batch(`solid-line:${data_mapped}`, regl_solid_line(
+        this._regl, this._line_geometry, this._line_triangles, data_mapped,
+      ))
+      this._solid_line_map.set(data_mapped, func)
     }
-    return this._solid_line
+    return func
   }
 
   destroy(): void {
@@ -485,13 +491,15 @@ function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): RawReglR
 //
 //       -2  -1    1
 //              x
-function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elements): RawReglRenderFunction<t.LineGlyphProps> {
+function regl_solid_line(
+  regl: Regl, line_geometry: Buffer, line_triangles: Elements, data_mapped: boolean,
+): RawReglRenderFunction<t.LineGlyphProps> {
   type Props = t.LineGlyphProps
   type Uniforms = t.LineGlyphUniforms
   type Attributes = t.LineGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: line_vertex_shader,
+    vert: `${data_mapped ? "#define DATA_MAPPING\n" : ""}${line_vertex_shader}`,
     frag: line_fragment_shader,
 
     attributes: {
@@ -538,6 +546,11 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
       u_miter_limit: regl.prop<Props, "miter_limit">("miter_limit"),
+      ...(data_mapped ? {
+        u_data_offset: (_ctx, props) => props.data_mapping!.offset,
+        u_data_factor: (_ctx, props) => props.data_mapping!.factor,
+        u_data_target: (_ctx, props) => props.data_mapping!.target,
+      } : {}),
     },
 
     elements: line_triangles,
@@ -786,6 +799,7 @@ function regl_marker<A extends Attributes, P extends t.MarkerGlyphProps = t.Mark
     regl: Regl,
     geometry: Buffer,
     marker_type: GLMarkerType,
+    data_mapped: boolean = false,
     vert_defs: string[] = [],
     frag_defs: string[] = [],
     attributes?: MaybeDynamicAttributes<A, DefaultContext, P>,
@@ -799,6 +813,7 @@ function regl_marker<A extends Attributes, P extends t.MarkerGlyphProps = t.Mark
 
   const config: DrawConfig<Uniforms, MarkerAttributes, P> = {
     vert: `\
+${data_mapped ? "#define DATA_MAPPING" : ""}
 ${vert_prefix}
 #define MULTI_MARKER
 #define USE_${marker_type.toUpperCase()}
@@ -856,6 +871,11 @@ ${marker_fragment_shader}
       u_antialias: regl.prop<P, "antialias">("antialias"),
       u_size_hint: regl.prop<P, "size_hint">("size_hint"),
       u_border_radius: regl.prop<P, "border_radius">("border_radius"),
+      ...(data_mapped ? {
+        u_data_offset: (_ctx, props) => props.data_mapping!.offset,
+        u_data_factor: (_ctx, props) => props.data_mapping!.factor,
+        u_data_target: (_ctx, props) => props.data_mapping!.target,
+      } : {}),
     },
 
     count: 4,
@@ -883,7 +903,7 @@ ${marker_fragment_shader}
 }
 
 function regl_marker_hatch(
-  regl: Regl, geometry: Buffer, marker_type: GLMarkerType,
+  regl: Regl, geometry: Buffer, marker_type: GLMarkerType, data_mapped: boolean,
 ): RawReglRenderFunction<t.MarkerHatchGlyphProps> {
 
   const hatch_attributes: MaybeDynamicAttributes<t.HatchAttributes, DefaultContext, t.MarkerHatchGlyphProps> = {
@@ -902,6 +922,6 @@ function regl_marker_hatch(
   }
 
   return regl_marker<t.HatchAttributes, t.MarkerHatchGlyphProps>(
-    regl, geometry, marker_type, ["HATCH"], ["HATCH"], hatch_attributes,
+    regl, geometry, marker_type, data_mapped, ["HATCH"], ["HATCH"], hatch_attributes,
   )
 }

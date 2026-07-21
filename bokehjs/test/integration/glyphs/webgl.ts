@@ -3,8 +3,86 @@ import {display, fig, row} from "#framework/layouts"
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {settings} from "@bokehjs/core/settings"
 import {linspace} from "@bokehjs/core/util/array"
+import type {Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 
 describe("webgl", () => {
+  it.no_image("should update line and scatter ranges without re-uploading coordinates", async () => {
+    const x = linspace(1_720_000_000_000, 1_720_000_001_000, 10_000)
+    const y = x.map((_, i) => Math.sin(i/100))
+    const p = fig([600, 400], {
+      output_backend: "webgl",
+      x_range: [x[0], x[x.length - 1]],
+      y_range: [-1.2, 1.2],
+      toolbar_location: null,
+    })
+    const line = p.line(x, y)
+    const scatter = p.scatter(x, y, {size: 3})
+
+    const {view} = await display(p)
+    const line_view = view.owner.get_one(line).glyph
+    const scatter_view = view.owner.get_one(scatter).glyph
+    const line_gl = (line_view as unknown as {glglyph: {_points: Float32Buffer}}).glglyph
+    const scatter_gl = (scatter_view as unknown as {glglyph: {_centers: Float32Buffer}}).glglyph
+    const line_revision = line_gl._points.uploaded_revision
+    const scatter_revision = scatter_gl._centers.uploaded_revision
+
+    p.x_range.setv({start: x[1000], end: x[9000]})
+    p.y_range.setv({start: -0.5, end: 0.5})
+    await view.ready
+    await view.ready
+
+    expect(line_gl._points.uploaded_revision).to.be.equal(line_revision)
+    expect(scatter_gl._centers.uploaded_revision).to.be.equal(scatter_revision)
+
+    // Hit testing remains a CPU operation. It must materialize current screen
+    // coordinates lazily without invalidating the immutable GPU buffer.
+    const index = 5000
+    const sx = view.frame.x_scale.compute(x[index])
+    const sy = view.frame.y_scale.compute(y[index])
+    const hit = scatter_view.hit_test({type: "point", sx, sy})
+    expect(hit != null && [...hit.indices].includes(index)).to.be.true
+    expect(scatter_gl._centers.uploaded_revision).to.be.equal(scatter_revision)
+  })
+
+  it.no_image("should retain screen-coordinate remapping for dashed lines", async () => {
+    const x = linspace(0, 10, 1000)
+    const p = fig([400, 300], {
+      output_backend: "webgl", x_range: [0, 10], y_range: [-1.2, 1.2], toolbar_location: null,
+    })
+    const line = p.line(x, x.map((value) => Math.sin(value)), {line_dash: [6, 3]})
+    const {view} = await display(p)
+    const line_view = view.owner.get_one(line).glyph
+    const line_gl = (line_view as unknown as {glglyph: {_points: Float32Buffer}}).glglyph
+    const revision = line_gl._points.uploaded_revision
+
+    p.x_range.setv({start: 1, end: 9})
+    await view.ready
+    await view.ready
+
+    expect(line_gl._points.uploaded_revision > revision).to.be.true
+  })
+
+  it.no_image("should fall back when deep zoom exposes Float32 rebasing error", async () => {
+    const p = fig([400, 300], {
+      output_backend: "webgl", x_range: [0, 1e12 + 10], y_range: [0, 2], toolbar_location: null,
+    })
+    const scatter = p.scatter([0, 1e12, 1e12 + 1], [0, 1, 1], {size: 8})
+    const {view} = await display(p)
+    const scatter_view = view.owner.get_one(scatter).glyph
+    const scatter_gl = (scatter_view as unknown as {glglyph: {_centers: Float32Buffer}}).glglyph
+    const revision = scatter_gl._centers.uploaded_revision
+
+    p.x_range.setv({start: 1e12, end: 1e12 + 10})
+    await view.ready
+    await view.ready
+
+    expect(scatter_gl._centers.uploaded_revision > revision).to.be.true
+    const sx = view.frame.x_scale.compute(1e12 + 1)
+    const sy = view.frame.y_scale.compute(1)
+    const hit = scatter_view.hit_test({type: "point", sx, sy})
+    expect(hit != null && [...hit.indices].includes(2)).to.be.true
+  })
+
   it.no_image("should complete large WebGL batches before a Canvas ordering barrier", async () => {
     const x = linspace(0, 20, 4096)
     const p = fig([600, 400], {

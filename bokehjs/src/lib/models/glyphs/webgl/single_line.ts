@@ -5,6 +5,7 @@ import type {ReglWrapper} from "./regl_wrap"
 import type {GlyphView} from "../glyph"
 
 export abstract class SingleLineGL extends BaseLineGL {
+  private _point_mapping_signature: string | null | undefined
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: GlyphView) {
     super(regl_wrapper, glyph)
   }
@@ -17,10 +18,15 @@ export abstract class SingleLineGL extends BaseLineGL {
       this.visuals_changed = false
     }
 
-    const data_changed_or_mapped = main_gl_glyph.data_changed || main_gl_glyph.data_mapped
+    const mapping_signature = main_gl_glyph.data_mapping?.signature ?? null
+    const mapping_mode_changed = mapping_signature != main_gl_glyph._point_mapping_signature
+    const update_points = main_gl_glyph.data_changed || mapping_mode_changed ||
+      (main_gl_glyph.data_mapped && mapping_signature == null)
+    const data_changed_or_mapped = main_gl_glyph.data_changed || main_gl_glyph.data_mapped || mapping_mode_changed
 
-    if (data_changed_or_mapped) {
-      main_gl_glyph._set_data(main_gl_glyph.data_changed)
+    if (update_points) {
+      main_gl_glyph._set_data(main_gl_glyph.data_changed || mapping_mode_changed)
+      main_gl_glyph._point_mapping_signature = main_gl_glyph.data_mapping?.signature ?? null
     }
 
     if ((data_changed_or_mapped && main_gl_glyph._is_dashed) || this._is_dashed) {
@@ -38,7 +44,7 @@ export abstract class SingleLineGL extends BaseLineGL {
     // Get show buffer to account for selected indices.
     const show = this._get_show_buffer(indices, main_gl_glyph)
 
-    const npoints = main_gl_glyph._points!.length/2 - 2
+    const npoints = main_gl_glyph.nvertices
     const nsegments = npoints - 1
     this._draw_single(main_gl_glyph, transform, 0, 0, nsegments, null, show)
   }

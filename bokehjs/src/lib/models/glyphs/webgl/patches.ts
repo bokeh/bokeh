@@ -260,6 +260,7 @@ export class PatchesGL extends BaseGLGlyph {
             framebuffer,
             point_offset: 0,
             line_offset: 0,
+            data_mapping: null,
           }
 
           if (this._is_dashed && dash_tex_info != null) {

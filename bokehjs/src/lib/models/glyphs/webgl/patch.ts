@@ -208,6 +208,7 @@ export class PatchGL extends BaseGLGlyph {
             framebuffer,
             point_offset: 0,
             line_offset: 0,
+            data_mapping: null,
           }
           if (this._is_dashed && this._dash_tex[0] != null) {
             const dashed_props: LineDashGlyphProps = {

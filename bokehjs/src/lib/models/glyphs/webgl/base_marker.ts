@@ -119,6 +119,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     main_gl_glyph: BaseMarkerGL,
     show: Uint8Buffer = this._show,
   ): void {
+    const data_mapping = main_gl_glyph.data_mapping
     const props_no_hatch: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,
       viewport: this.regl_wrapper.viewport,
@@ -128,6 +129,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       antialias: this._antialias / transform.pixel_ratio,
       show,
       center: main_gl_glyph._centers,  // Always from main (position overrides not supported)
+      data_mapping,
       ...this.marker_props(this, main_gl_glyph),
       ...this.line_props,
       ...this.fill_props,
@@ -135,10 +137,10 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
     if (this._have_hatch) {
       const props_hatch = {...props_no_hatch, ...this.hatch_props}
-      const draw = this.regl_wrapper.marker_hatch(marker_type)
+      const draw = this.regl_wrapper.marker_hatch(marker_type, data_mapping != null)
       draw(props_hatch)
     } else {
-      const draw = this.regl_wrapper.marker_no_hatch(marker_type)
+      const draw = this.regl_wrapper.marker_no_hatch(marker_type, data_mapping != null)
       draw(props_no_hatch)
     }
   }

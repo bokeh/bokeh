@@ -46,9 +46,13 @@ export abstract class BaseLineGL extends BaseGLGlyph {
                          show: Uint8Buffer | null = null): BoundingBox {
     const linewidths = this._linewidth.get_array()
     const linewidth = linewidths[this._linewidth.is_scalar_value ? 0 : line_offset]
+    const data_mapping = main_gl_glyph.data_mapping
     const points = main_gl_glyph._points!.get_array().subarray(point_offset, point_offset + 2*(nsegments + 3))
     const padding = this._antialias + this._miter_limit*linewidth/2
-    const scissor = this.regl_wrapper.scissor_for_points(points, padding, transform.pixel_ratio)
+    // Data-coordinate buffers have not yet been mapped on the CPU, so use the
+    // plot-frame scissor. Screen-coordinate fallbacks retain the tighter box.
+    const scissor = data_mapping != null ? this.regl_wrapper.scissor :
+      this.regl_wrapper.scissor_for_points(points, padding, transform.pixel_ratio)
     const solid_props: LineGlyphProps = {
       scissor,
       viewport: this.regl_wrapper.viewport,
@@ -65,6 +69,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
       framebuffer,
       point_offset,
       line_offset,
+      data_mapping,
     }
     const dash_index = this._dash_tex.length == 1 ? 0 : line_offset
     if (this._is_dashed && this._dash_tex[dash_index] != null) {
@@ -78,7 +83,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
       }
       this.regl_wrapper.dashed_line()(dashed_props)
     } else {
-      this.regl_wrapper.solid_line()(solid_props)
+      this.regl_wrapper.solid_line(data_mapping != null)(solid_props)
     }
     return scissor
   }

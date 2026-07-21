@@ -1,5 +1,6 @@
 #include <bokeh_vertex_precision>
 #include <bokeh_screen_projection>
+#include <bokeh_data_mapping>
 
 const int butt_cap   = 0;
 const int round_cap  = 1;
@@ -107,6 +108,18 @@ void main()
         return;
     }
 
+#ifdef DATA_MAPPING
+    vec2 point_prev = bokeh_map_data(a_point_prev);
+    vec2 point_start = bokeh_map_data(a_point_start);
+    vec2 point_end = bokeh_map_data(a_point_end);
+    vec2 point_next = bokeh_map_data(a_point_next);
+#else
+    vec2 point_prev = a_point_prev;
+    vec2 point_start = a_point_start;
+    vec2 point_end = a_point_end;
+    vec2 point_next = a_point_next;
+#endif
+
     int join_type = int(a_line_join + 0.5);
     int cap_type = int(a_line_cap + 0.5);
 
@@ -120,16 +133,16 @@ void main()
 
     float halfwidth = 0.5*(v_linewidth + u_antialias);
 
-    vec2 segment_along = a_point_end - a_point_start;
-    v_segment_length = length(a_point_end - a_point_start);
+    vec2 segment_along = point_end - point_start;
+    v_segment_length = length(point_end - point_start);
     segment_along = normalize_check_len(segment_along, v_segment_length); // unit vector.
     vec2 segment_right = right_vector(segment_along);  // unit vector.
     vec2 xy;
 
     // in screen coords
-    vec2 prev_along = normalize_check(a_point_start - a_point_prev);
+    vec2 prev_along = normalize_check(point_start - point_prev);
     vec2 prev_right = right_vector(prev_along);
-    vec2 next_right = right_vector(normalize_check(a_point_next - a_point_end));
+    vec2 next_right = right_vector(normalize_check(point_next - point_end));
 
     v_coords.y = a_position.y*halfwidth;  // Overwritten later for join points.
 
@@ -148,7 +161,7 @@ void main()
     bool miter_too_large_end = !has_end_cap && miter_too_large(join_type, v_cos_turn_angle_end);
 
     float sign_at_start = -sign(a_position.x);  // +ve at segment start, -ve end.
-    vec2 point = sign_at_start > 0.0 ? a_point_start : a_point_end;
+    vec2 point = sign_at_start > 0.0 ? point_start : point_end;
 
     if ( (has_start_cap && sign_at_start > 0.0) ||
          (has_end_cap && sign_at_start < 0.0) ) {
@@ -160,22 +173,22 @@ void main()
             xy -= sign_at_start*halfwidth*segment_along;
     }
     else if (sign_at_start > 0.0) {
-        vec2 inside_point = a_point_start + segment_right*(sign_turn_right_start*halfwidth);
-        vec2 prev_outside_point = a_point_start - prev_right*(sign_turn_right_start*halfwidth);
+        vec2 inside_point = point_start + segment_right*(sign_turn_right_start*halfwidth);
+        vec2 prev_outside_point = point_start - prev_right*(sign_turn_right_start*halfwidth);
 
         // join at start.
         if (join_type == round_join || join_type == bevel_join || miter_too_large_start) {
             if (v_cos_turn_angle_start <= 0.0) {  // |turn_angle| > 90 degrees
-                xy = a_point_start - segment_right*(halfwidth*a_position.y) - halfwidth*segment_along;
+                xy = point_start - segment_right*(halfwidth*a_position.y) - halfwidth*segment_along;
             }
             else {
                 if (a_position.x < -1.5) {
                     xy = prev_outside_point;
-                    v_coords.y = -dot(xy - a_point_start, segment_right);
+                    v_coords.y = -dot(xy - point_start, segment_right);
                 }
                 else if (a_position.y*sign_turn_right_start > 0.0) {  // outside corner of turn
                     float d = halfwidth*abs(sin_turn_angle_start);
-                    xy = a_point_start - segment_right*(halfwidth*a_position.y) - d*segment_along;
+                    xy = point_start - segment_right*(halfwidth*a_position.y) - d*segment_along;
                 }
                 else {  // inside corner of turn
                     xy = inside_point;
@@ -185,12 +198,12 @@ void main()
         else {  // miter join
             if (a_position.x < -1.5) {
                 xy = prev_outside_point;
-                v_coords.y = -dot(xy - a_point_start, segment_right);
+                v_coords.y = -dot(xy - point_start, segment_right);
             }
             else if (a_position.y*sign_turn_right_start > 0.0) {  // outside corner of turn
                 float tan_half_turn_angle = (1.0-v_cos_turn_angle_start) / sin_turn_angle_start;  // Trig identity
                 float d = sign_turn_right_start*halfwidth*tan_half_turn_angle;
-                xy = a_point_start - segment_right*(halfwidth*a_position.y) - d*segment_along;
+                xy = point_start - segment_right*(halfwidth*a_position.y) - d*segment_along;
             }
             else {  // inside corner if turn
                 xy = inside_point;
@@ -206,7 +219,7 @@ void main()
     bool turn_right_start = sin_turn_angle_start >= 0.0;
     bool turn_right_end = sin_turn_angle_end >= 0.0;
 
-    v_coords.x = dot(xy - a_point_start, segment_along);
+    v_coords.x = dot(xy - point_start, segment_along);
     v_flags = float(int(has_start_cap) +
                     2*int(has_end_cap) +
                     4*int(miter_too_large_start) +
