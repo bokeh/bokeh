@@ -1975,6 +1975,28 @@ ${view.host_selector} {
     })
   })
 
+  describe("in issue #13931", () => {
+    it("updates data without errors when DataTable selections are stale", async () => {
+      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c"]}})
+      const columns = [
+        new TableColumn({field: "my_col", title: "My Column"}),
+      ]
+
+      const table = new DataTable({source, columns})
+      const {view} = await display(table)
+
+      source.selected.indices = [1, 2]
+      await view.ready
+      expect(view.get_selected_rows()).to.be.equal([1, 2])
+
+      source.data = {my_col: ["a", "b"]}
+      await view.ready
+
+      expect(source.selected.indices).to.be.equal([1, 2])
+      expect(view.get_selected_rows()).to.be.equal([1])
+    })
+  })
+
   describe("in issue #14568", () => {
     it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
       const factors = ["A", "B", "C"]
