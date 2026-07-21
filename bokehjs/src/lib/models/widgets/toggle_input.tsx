@@ -4,7 +4,9 @@ import type * as p from "core/properties"
 import * as toggle_input_css from "styles/widgets/toggle_input.css"
 
 export abstract class ToggleInputView extends WidgetView {
-  declare model: ToggleInput
+  declare readonly model: ToggleInput
+  declare readonly signals: p.SignalsOf<ToggleInput.Props>
+  declare readonly values: ToggleInput.Attrs
 
   protected _last_active: boolean
 
