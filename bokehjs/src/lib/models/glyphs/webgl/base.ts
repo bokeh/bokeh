@@ -82,6 +82,14 @@ export abstract class BaseGLGlyph {
     this.revisions.bump("visuals")
   }
 
+  /** Re-upload all retained state after the browser restores the GL context. */
+  context_restored(): void {
+    this.revisions.bump("geometry")
+    this.revisions.bump("mapping")
+    this.revisions.bump("visuals")
+    this.revisions.bump("selection")
+  }
+
   render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): void {
     const selection_changed = this.revisions.sync_selection(indices)
     if (indices.length == 0 && !selection_changed &&

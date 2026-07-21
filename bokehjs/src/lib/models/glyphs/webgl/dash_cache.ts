@@ -192,7 +192,7 @@ export class DashCache implements GPUResource {
     return this._get_or_create(pattern)
   }
 
-  destroy(): void {
+  reset(): void {
     const textures = new Set<Texture2D>()
     for (const [, texture] of this._map.values()) {
       textures.add(texture)
@@ -201,5 +201,9 @@ export class DashCache implements GPUResource {
       texture.destroy()
     }
     this._map.clear()
+  }
+
+  destroy(): void {
+    this.reset()
   }
 }

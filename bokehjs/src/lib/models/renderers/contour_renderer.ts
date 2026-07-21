@@ -41,6 +41,11 @@ export class ContourRendererView extends DataRendererView {
     this.line_view.paint(ctx)
   }
 
+  override restore_webgl(): void {
+    this.fill_view.restore_webgl()
+    this.line_view.restore_webgl()
+  }
+
   hit_test(geometry: Geometry): HitTestResult {
     return this.fill_view.hit_test(geometry)
   }

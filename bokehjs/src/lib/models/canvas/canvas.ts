@@ -105,6 +105,12 @@ export class CanvasView extends UIElementView {
   webgl: WebGLState | null = null
   private _webgl_dirty: boolean = false
   private readonly _webgl_compositor = new WebGLCompositor()
+  private readonly _webgl_context_lost = (event: Event) => event.preventDefault()
+  private readonly _webgl_context_restored = () => {
+    for (const plot_view of this.plot_views) {
+      plot_view.restore_webgl()
+    }
+  }
 
   underlays_el: HTMLElement
   primary: CanvasLayer
@@ -148,10 +154,14 @@ export class CanvasView extends UIElementView {
       if (settings.force_webgl && this.webgl == null) {
         throw new Error("webgl is not available")
       }
+      this.webgl?.canvas.addEventListener("webglcontextlost", this._webgl_context_lost)
+      this.webgl?.canvas.addEventListener("webglcontextrestored", this._webgl_context_restored)
     }
   }
 
   override remove(): void {
+    this.webgl?.canvas.removeEventListener("webglcontextlost", this._webgl_context_lost)
+    this.webgl?.canvas.removeEventListener("webglcontextrestored", this._webgl_context_restored)
     this.ui_event_bus.remove()
     super.remove()
   }

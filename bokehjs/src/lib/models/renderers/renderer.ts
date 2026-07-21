@@ -159,6 +159,9 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return false
   }
 
+  /** Invalidate renderer-owned GPU state after WebGL context restoration. */
+  restore_webgl(): void {}
+
   /*
   get visible(): boolean {
     const {visible, group} = this.model

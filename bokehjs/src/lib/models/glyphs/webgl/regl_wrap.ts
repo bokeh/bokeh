@@ -139,10 +139,33 @@ export class ReglWrapper {
       if (this._gl2 != null || this._regl.hasExtension("oes_vertex_array_object")) {
         this._rect_vao = this._resources.own(this._regl.vao([{buffer: this._rect_geometry, size: 2}]))
       }
+
+      this._regl.on("restore", () => this._restore_retained_resources())
     } catch {
       this._resources.destroy()
       this._regl_available = false
     }
+  }
+
+  private _restore_retained_resources(): void {
+    // ReGL recreates non-persistent buffer handles with the correct size but
+    // zero-filled storage. Replay the small shared geometry used by every
+    // command; glyph-owned buffers are replayed through revision invalidation.
+    this._line_geometry({
+      usage: "static", type: "float",
+      data: [[-2, 0], [-1, -1], [1, -1], [1, 1], [-1, 1]],
+    })
+    this._line_triangles({usage: "static", primitive: "triangle fan", data: [0, 1, 2, 3, 4]})
+    this._rect_geometry({
+      usage: "static", type: "float",
+      data: [[-1, -1], [1, -1], [1, 1], [-1, 1]],
+    })
+    this._rect_triangles({usage: "static", primitive: "triangle fan", data: [0, 1, 2, 3]})
+    this._marker_geometry({
+      usage: "static", type: "float",
+      data: [[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]],
+    })
+    this._dash_cache?.reset()
   }
 
   get is_webgl2(): boolean {

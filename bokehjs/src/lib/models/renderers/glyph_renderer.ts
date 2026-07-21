@@ -318,6 +318,15 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl()
   }
 
+  override restore_webgl(): void {
+    for (const glyph of [
+      this.glyph, this.selection_glyph, this.nonselection_glyph,
+      this.hover_glyph, this.muted_glyph, this.decimated_glyph,
+    ]) {
+      glyph?.glglyph?.context_restored()
+    }
+  }
+
   protected _paint(ctx: Context2d): void {
     const {has_webgl} = this
 

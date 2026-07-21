@@ -123,6 +123,11 @@ export class GraphRendererView extends DataRendererView {
     return this.edge_view.has_webgl || this.node_view.has_webgl
   }
 
+  override restore_webgl(): void {
+    this.edge_view.restore_webgl()
+    this.node_view.restore_webgl()
+  }
+
   hit_test(geometry: Geometry): HitTestResult {
     return this.model.inspection_policy.hit_test(geometry, this)
   }

@@ -97,6 +97,13 @@ export class ImageURLGL extends BaseGLGlyph {
     return changed
   }
 
+  override context_restored(): void {
+    super.context_restored()
+    // Force the retained HTML images back through texture upload. ReGL can
+    // recreate texture handles, but cannot replay later in-place updates.
+    this._images.fill(null)
+  }
+
   private _set_bounds(): void {
     const {image, sx, sy, sw, sh, anchor} = this.glyph
     this._resize(image.length)

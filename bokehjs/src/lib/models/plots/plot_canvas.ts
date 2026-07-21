@@ -235,6 +235,13 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.request_paint()
   }
 
+  restore_webgl(): void {
+    for (const renderer_view of this.all_renderer_views) {
+      renderer_view.restore_webgl()
+    }
+    this.request_paint()
+  }
+
   request_paint(...to_invalidate: (Renderer | RendererView)[]): void {
     this.invalidate_painters(...to_invalidate)
     this.schedule_paint()
