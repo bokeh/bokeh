@@ -245,30 +245,30 @@ class TestDocument:
     def test_all_models(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         m = SomeModelInTestDocument()
         m2 = AnotherModelInTestDocument()
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d.models) == 4
+        assert len(d.models) == 5
         m.child = None
-        assert len(d.models) == 3
-        m.child = m2
         assert len(d.models) == 4
+        m.child = m2
+        assert len(d.models) == 5
         d.remove_root(m)
-        assert len(d.models) == 2
+        assert len(d.models) == 3
 
     def test_get_model_by_id(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         m = SomeModelInTestDocument()
         m2 = AnotherModelInTestDocument()
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d.models) == 4
+        assert len(d.models) == 5
         assert d.get_model_by_id(m.id) == m
         assert d.get_model_by_id(m2.id) == m2
         assert d.get_model_by_id("not a valid ID") is None
@@ -276,13 +276,13 @@ class TestDocument:
     def test_get_model_by_name(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         m = SomeModelInTestDocument(name="foo")
         m2 = AnotherModelInTestDocument(name="bar")
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d.models) == 4
+        assert len(d.models) == 5
         assert d.get_model_by_name(m.name) == m
         assert d.get_model_by_name(m2.name) == m2
         assert d.get_model_by_name("not a valid name") is None
@@ -400,7 +400,7 @@ class TestDocument:
     def test_all_models_with_multiple_references(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         root1 = SomeModelInTestDocument()
         root2 = SomeModelInTestDocument()
         child1 = AnotherModelInTestDocument()
@@ -409,24 +409,24 @@ class TestDocument:
         d.add_root(root1)
         d.add_root(root2)
         assert len(d.roots) == 2
-        assert len(d.models) == 5
+        assert len(d.models) == 6
         root1.child = None
-        assert len(d.models) == 5
+        assert len(d.models) == 6
         root2.child = None
-        assert len(d.models) == 4
+        assert len(d.models) == 5
         root1.child = child1
-        assert len(d.models) == 5
+        assert len(d.models) == 6
         root2.child = child1
-        assert len(d.models) == 5
+        assert len(d.models) == 6
         d.remove_root(root1)
-        assert len(d.models) == 4
+        assert len(d.models) == 5
         d.remove_root(root2)
-        assert len(d.models) == 2
+        assert len(d.models) == 3
 
     def test_all_models_with_cycles(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         root1 = SomeModelInTestDocument()
         root2 = SomeModelInTestDocument()
         child1 = SomeModelInTestDocument()
@@ -438,23 +438,23 @@ class TestDocument:
         print("adding root2")
         d.add_root(root2)
         assert len(d.roots) == 2
-        assert len(d.models) == 5
+        assert len(d.models) == 6
         print("clearing child of root1")
         root1.child = None
-        assert len(d.models) == 5
+        assert len(d.models) == 6
         print("clearing child of root2")
         root2.child = None
-        assert len(d.models) == 4
+        assert len(d.models) == 5
         print("putting child1 back in root1")
         root1.child = child1
-        assert len(d.models) == 5
+        assert len(d.models) == 6
 
         print("Removing root1")
         d.remove_root(root1)
-        assert len(d.models) == 3
+        assert len(d.models) == 4
         print("Removing root2")
         d.remove_root(root2)
-        assert len(d.models) == 2
+        assert len(d.models) == 3
 
     def test_change_notification(self) -> None:
         d = document.Document()
@@ -752,13 +752,13 @@ class TestDocument:
         assert d.title == "Foo"
         d.clear()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         assert d.title == "Foo" # do not reset title
 
     def test_serialization_one_model(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         root1 = SomeModelInTestDocument()
         d.add_root(root1)
         d.title = "Foo"
@@ -772,7 +772,7 @@ class TestDocument:
     def test_serialization_more_models(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         root1 = SomeModelInTestDocument(foo=42)
         root2 = SomeModelInTestDocument(foo=43)
         child1 = SomeModelInTestDocument(foo=44)
@@ -879,7 +879,7 @@ class TestDocument:
     def test_patch_integer_property(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         root1 = SomeModelInTestDocument(foo=42)
         root2 = SomeModelInTestDocument(foo=43)
         child1 = SomeModelInTestDocument(foo=44)
@@ -904,7 +904,7 @@ class TestDocument:
     def test_patch_spec_property(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         root1 = ModelWithSpecInTestDocument(foo=42)
         d.add_root(root1)
         assert len(d.roots) == 1
@@ -954,7 +954,7 @@ class TestDocument:
     def test_patch_reference_property(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         root1 = SomeModelInTestDocument(foo=42)
         root2 = SomeModelInTestDocument(foo=43)
         child1 = SomeModelInTestDocument(foo=44)
@@ -1001,7 +1001,7 @@ class TestDocument:
     def test_patch_two_properties_at_once(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         root1 = SomeModelInTestDocument(foo=42)
         child1 = SomeModelInTestDocument(foo=43)
         root1.child = child1
@@ -1111,7 +1111,7 @@ class TestDocument:
         d = document.Document()
         set_curdoc(d)
         assert not d.roots
-        assert len(d.models) == 2
+        assert len(d.models) == 3
         p1 = figure(tools=[])
         N = 10
         x = np.linspace(0, 4 * np.pi, N)
