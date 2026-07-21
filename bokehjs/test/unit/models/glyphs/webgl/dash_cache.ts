@@ -1,6 +1,7 @@
 import {expect} from "#framework/assertions"
 
-import {normalize_dash_pattern} from "@bokehjs/models/glyphs/webgl/dash_cache"
+import {DashCache, normalize_dash_pattern} from "@bokehjs/models/glyphs/webgl/dash_cache"
+import type {Regl} from "regl"
 
 describe("WebGL dash patterns", () => {
   it("should normalize odd-length patterns without mutating the input", () => {
@@ -17,6 +18,21 @@ describe("WebGL dash patterns", () => {
 
   it("should retain fractional dash lengths", () => {
     expect(normalize_dash_pattern([1.5, 0.5])).to.be.equal([1.5, 0.5])
+  })
+
+  it("should create fractional dash textures without integer GCD sizing", () => {
+    let options: {shape?: number[]} | undefined
+    const regl = {
+      texture(value: {shape?: number[]}) {
+        options = value
+        return {}
+      },
+    } as unknown as Regl
+
+    const [info, _texture, scale] = new DashCache(regl).get([1.5, 0.25])
+    expect(options?.shape).to.be.equal([128, 1, 1])
+    expect(info[0]).to.be.equal(1.75)
+    expect(scale).to.be.equal(1)
   })
 
   it("should reject negative and non-finite lengths", () => {

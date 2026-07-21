@@ -26,8 +26,8 @@ export function normalize_dash_pattern(pattern: number[]): number[] {
 
 /*
  * DashCache creates and stores webgl resources for dashes that can be reused
- * for different webgl lines.  Dash represented by pattern which is a list of
- * an even number of integers.
+ * for different webgl lines. Dash is represented by a pattern containing an
+ * even number of non-negative lengths.
  */
 export class DashCache {
   private _regl: Regl  // Needed to create textures.
@@ -73,7 +73,8 @@ export class DashCache {
     dist_min *= 0.5
     dist_max *= 0.5
 
-    const twice_jumps_gcd = gcd(twice_jumps)
+    const integer_jumps = twice_jumps.every(Number.isInteger)
+    const twice_jumps_gcd = integer_jumps ? gcd(twice_jumps) : 0
 
     // Starts and ends of dashes and gaps.
     const starts_and_ends: number[] = [0]
@@ -82,12 +83,12 @@ export class DashCache {
     }
 
     // Length of texture, webgl requires a power of 2.
-    const ideal_ntex = 2*len / twice_jumps_gcd
-    const length_pow_2 = is_pow_2(ideal_ntex)
+    const ideal_ntex = integer_jumps ? 2*len / twice_jumps_gcd : 128
+    const length_pow_2 = integer_jumps && is_pow_2(ideal_ntex)
     const ntex = length_pow_2 ? ideal_ntex : 128
 
     // Distance between texture values.
-    const dtex = 0.5*twice_jumps_gcd * ideal_ntex/ntex
+    const dtex = len/ntex
 
     // xstart is the position along the texture of the first value, and offset
     // is the distance to the upstroke of the first dash.
@@ -115,7 +116,7 @@ export class DashCache {
       const x = xstart + i*dtex  // Distance along texture.
 
       // Which dash are we in?
-      if (x > starts_and_ends[dash_index + 1]) {
+      while (dash_index < n - 1 && x >= starts_and_ends[dash_index + 1]) {
         dash_index++
       }
 
@@ -151,7 +152,10 @@ export class DashCache {
     const key = this._get_key(pattern)
     let cached = this._map.get(key)
     if (cached == null) {
-      const scale: number = gcd(pattern)
+      // GCD-based texture reuse is only meaningful for integer dash patterns.
+      // BokehJS also accepts fractional Canvas-style patterns, which are kept
+      // verbatim rather than being subjected to floating-point Euclid loops.
+      const scale = pattern.every(Number.isInteger) ? gcd(pattern) : 1
 
       if (scale > 1) {
         // Do not modify pattern in-place, create a new one.
@@ -179,9 +183,9 @@ export class DashCache {
   }
 
   public get(pattern: number[]): DashReturn {
-    // Odd-length patterns are repeated to match canvas.
-    if (pattern.length % 2 == 1) {
-      pattern = concat([pattern, pattern])
+    pattern = normalize_dash_pattern(pattern)
+    if (pattern.length == 0) {
+      throw new Error("cannot create a dash texture for a solid line")
     }
 
     return this._get_or_create(pattern)
