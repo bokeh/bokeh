@@ -1,9 +1,9 @@
-import {Renderer, RendererView} from "models/renderers/renderer"
-import {LinearColorMapper} from "models/mappers/linear_color_mapper"
-import {Scale} from "models/scales/scale"
-import {Color} from "core/types"
-import {canvas} from "core/dom"
-import * as p from "core/properties"
+import {Renderer, RendererView} from "@bokehjs/models/renderers/renderer"
+import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {Scale} from "@bokehjs/models/scales/scale"
+import {Color} from "@bokehjs/core/types"
+import {canvas} from "@bokehjs/core/dom"
+import * as p from "@bokehjs/core/properties"
 
 export class WaterfallRendererView extends RendererView {
   declare model: WaterfallRenderer
