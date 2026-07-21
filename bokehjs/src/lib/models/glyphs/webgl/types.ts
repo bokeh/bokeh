@@ -2,6 +2,7 @@ import type {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import type {AttributeConfig, BoundingBox, Elements, Framebuffer2D, Texture2D, Vec2, Vec4} from "regl"
 
 import type {MarkerType} from "core/enums"
+import type {DataMapping} from "./data_mapping"
 export type GLMarkerType = MarkerType | "hex_tile" | "rect" | "round_rect" | "ellipse" | "annulus" | "wedge" | "annular_wedge" | "ngon"
 
 // Props are used to pass properties from GL glyph classes to ReGL functions.
@@ -55,6 +56,7 @@ export type LineGlyphProps = CommonLineProps & LineProps & {
   framebuffer: Framebuffer2D | null  // null means using WebGL drawing buffer
   point_offset: number
   line_offset: number
+  data_mapping: DataMapping | null
 }
 
 export type LineDashGlyphProps = LineGlyphProps & DashProps
@@ -69,6 +71,7 @@ export type MarkerGlyphProps = CommonLineProps & LineProps & FillProps & {
   border_radius: Vec4
   size_hint: number
   show: Uint8Buffer
+  data_mapping: DataMapping | null
 }
 
 export type MarkerHatchGlyphProps = MarkerGlyphProps & HatchProps
@@ -88,6 +91,12 @@ export type CommonUniforms = {
   u_canvas_size: Vec2
 }
 
+export type DataMappingUniforms = {
+  u_data_offset: Vec2
+  u_data_factor: Vec2
+  u_data_target: Vec2
+}
+
 export type CommonLineUniforms = CommonUniforms & {
   u_antialias: number
 }
@@ -96,13 +105,13 @@ export type DashUniforms = {
   u_dash_tex: Texture2D
 }
 
-export type LineGlyphUniforms = CommonLineUniforms & {
+export type LineGlyphUniforms = CommonLineUniforms & Partial<DataMappingUniforms> & {
   u_miter_limit: number
 }
 
 export type LineDashGlyphUniforms = LineGlyphUniforms & DashUniforms
 
-export type MarkerGlyphUniforms = CommonLineUniforms & {
+export type MarkerGlyphUniforms = CommonLineUniforms & Partial<DataMappingUniforms> & {
   u_border_radius: Vec4
   u_size_hint: number
 }

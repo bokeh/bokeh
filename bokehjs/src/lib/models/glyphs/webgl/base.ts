@@ -6,6 +6,7 @@ import type {GPUResource} from "./resource_owner"
 import {GPUResourceOwner} from "./resource_owner"
 import type {RevisionDomain} from "./revisions"
 import {RevisionState} from "./revisions"
+import type {DataMapping} from "./data_mapping"
 
 export type BaseGLGlyphConstructor = {
   new(regl: ReglWrapper, base_glyph: GlyphView): BaseGLGlyph
@@ -50,6 +51,11 @@ export abstract class BaseGLGlyph {
   }
 
   constructor(protected readonly regl_wrapper: ReglWrapper, readonly glyph: GlyphView) {}
+
+  /** Optional vertex-shader mapping for immutable data-coordinate buffers. */
+  get data_mapping(): DataMapping | null {
+    return null
+  }
 
   set_data_changed(): void {
     const {data_size} = this.glyph

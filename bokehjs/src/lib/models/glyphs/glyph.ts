@@ -67,6 +67,7 @@ export abstract class GlyphView extends DOMComponentView {
   private _index: SpatialIndex | null = null
 
   private _data_size: number | null = null
+  private _screen_data_mapped: boolean = false
 
   protected _nohit_warned: Set<geometry.Geometry["type"]> = new Set()
 
@@ -248,6 +249,7 @@ export abstract class GlyphView extends DOMComponentView {
   protected _hit_poly?(geometry: geometry.PolyGeometry): Selection
 
   hit_test(geometry: geometry.Geometry): HitTestResult {
+    this.ensure_screen_data()
     const hit = (() => {
       switch (geometry.type) {
         case "point": return this._hit_point?.(geometry)
@@ -481,6 +483,7 @@ export abstract class GlyphView extends DOMComponentView {
     const visuals = new Set(this._iter_visuals())
     const {base} = this
 
+    this._screen_data_mapped = false
     this._data_size = indices.count
 
     for (const prop of this.model) {
@@ -572,9 +575,14 @@ export abstract class GlyphView extends DOMComponentView {
 
   protected _mask_data?(): Indices
 
-  map_data(): void {
+  private _map_coordinates(force_cpu: boolean): void {
     const {x_scale, y_scale} = this.renderer.coordinates
     const {base} = this
+    // Resolve the mapping contract once per glyph view. Some implementations
+    // inspect renderer-wide visual state, and coordinate specs must all make a
+    // consistent decision within a paint.
+    const gpu_data_mapping = !force_cpu && this.has_webgl() ? this.glglyph.data_mapping : null
+    let deferred_screen_data = false
 
     const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
       const scale = prop.dimension == "x" ? x_scale : y_scale
@@ -588,7 +596,16 @@ export abstract class GlyphView extends DOMComponentView {
 
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
+        const gpu_mapped = gpu_data_mapping != null && (prop.attr == "x" || prop.attr == "y")
+        if (gpu_mapped) {
+          deferred_screen_data = true
+          this._screen_data_mapped = false
+          continue
+        }
         if (base != null && this._is_inherited(prop)) {
+          if (force_cpu) {
+            base.ensure_screen_data()
+          }
           this._inherit_from(`s${prop.attr}`, base)
         } else {
           const array = v_compute(prop)
@@ -598,6 +615,20 @@ export abstract class GlyphView extends DOMComponentView {
     }
 
     this._map_data()
+    if (!deferred_screen_data) {
+      this._screen_data_mapped = true
+    }
+  }
+
+  /** Materialize screen arrays only when a CPU consumer (hit testing, anchors) needs them. */
+  ensure_screen_data(): void {
+    if (!this._screen_data_mapped) {
+      this._map_coordinates(true)
+    }
+  }
+
+  map_data(): void {
+    this._map_coordinates(false)
     if (this.has_webgl()) {
       this.glglyph.set_data_mapped()
     }

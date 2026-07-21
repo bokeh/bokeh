@@ -21,6 +21,7 @@ export abstract class XYGlyphView extends GlyphView {
   }
 
   scenterxy(i: number): [number, number] {
+    this.ensure_screen_data()
     return [this.sx[i], this.sy[i]]
   }
 }
