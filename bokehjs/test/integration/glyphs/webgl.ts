@@ -68,6 +68,50 @@ describe("webgl", () => {
     expect(remapped_ring.points[3]).to.be.similar(view.frame.y_scale.compute(1), 1e-4)
   })
 
+  it.no_image("should initialize and remap every non-text WebGL glyph", async () => {
+    const p = fig([600, 400], {
+      output_backend: "webgl", x_range: [0, 10], y_range: [0, 10], toolbar_location: null,
+    })
+    const image = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath fill='%23059669' d='M0 0h8v8H0z'/%3E%3C/svg%3E"
+
+    const renderers = [
+      p.arc({x: [1], y: [8], radius: [0.7], start_angle: [0], end_angle: [4.5]}),
+      p.bezier({x0: [2], y0: [7], x1: [4], y1: [7], cx0: [2], cy0: [9], cx1: [4], cy1: [5]}),
+      p.ellipse({x: [5], y: [8], width: [1.5], height: [0.8], angle: [0.4]}),
+      p.quadratic({x0: [6], y0: [7], x1: [8], y1: [7], cx: [7], cy: [9]}),
+      p.ray({x: [1], y: [6], length: [1.5], angle: [0.3]}),
+      p.segment({x0: [3], y0: [6], x1: [4.5], y1: [5.5]}),
+      p.spline([5, 6, 7, 8], [6, 5.5, 6.5, 6]),
+      p.harea({x1: [1, 1.5, 1], x2: [2, 2.5, 2], y: [3, 4, 5]}),
+      p.harea_step({x1: [3, 3.5, 3], x2: [4, 4.5, 4], y: [3, 4, 5], step_mode: "center"}),
+      p.varea({x: [5, 6, 7], y1: [3, 3.5, 3], y2: [4, 4.5, 4]}),
+      p.varea_step({x: [7, 8, 9], y1: [3, 3.5, 3], y2: [4, 4.5, 4], step_mode: "after"}),
+      p.multi_polygons({
+        xs: [[[[1, 2.5, 2.5, 1]], [[1.4, 2.1, 2.1, 1.4]]]],
+        ys: [[[[0.5, 0.5, 2, 2]], [[0.9, 0.9, 1.6, 1.6]]]],
+      }),
+      p.hspan([2.5], {line_dash: "dashed"}),
+      p.vspan([9.5], {line_dash: "dotted"}),
+      p.image_url({url: [image], x: [5], y: [2], w: [1.5], h: [1], angle: [0.25]}),
+    ]
+
+    const {view} = await display(p)
+    for (const renderer of renderers) {
+      const glyph_view = view.owner.get_one(renderer).glyph
+      expect(glyph_view.has_webgl()).to.be.true
+    }
+
+    p.x_range.setv({start: 0.5, end: 9.5})
+    p.y_range.setv({start: 0.5, end: 9.5})
+    await view.ready
+    await view.ready
+
+    for (const renderer of renderers) {
+      const glyph_view = view.owner.get_one(renderer).glyph
+      expect(glyph_view.has_webgl()).to.be.true
+    }
+  })
+
   it.no_image("should update line and scatter ranges without re-uploading coordinates", async () => {
     const x = linspace(1_720_000_000_000, 1_720_000_001_000, 10_000)
     const y = x.map((_, i) => Math.sin(i/100))
