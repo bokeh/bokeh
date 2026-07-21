@@ -221,6 +221,10 @@ export class PatchesGL extends BaseGLGlyph {
           }
 
           const nsegments = ring.nline - 1
+          const linewidth_value = linewidth.get_array()[0]
+          const scissor = this.regl_wrapper.scissor_for_points(
+            ring.points, 1.5 + 5*linewidth_value, transform.pixel_ratio,
+          )
 
           const [framebuffer, tex] = this.regl_wrapper.framebuffer_and_texture
           this.regl_wrapper.clear_framebuffer(framebuffer)
@@ -241,7 +245,7 @@ export class PatchesGL extends BaseGLGlyph {
           this._line_show_buf.update()
 
           const solid_props: LineGlyphProps = {
-            scissor: this.regl_wrapper.scissor,
+            scissor,
             viewport: this.regl_wrapper.viewport,
             canvas_size,
             antialias: 1.5 / transform.pixel_ratio,
@@ -281,7 +285,7 @@ export class PatchesGL extends BaseGLGlyph {
           }
 
           const accumulate_props: AccumulateProps = {
-            scissor: this.regl_wrapper.scissor,
+            scissor,
             viewport: this.regl_wrapper.viewport,
             framebuffer_tex: tex,
           }
