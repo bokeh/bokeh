@@ -4,6 +4,21 @@ import {ReglWrapper} from "@bokehjs/models/glyphs/webgl/regl_wrap"
 import type {BoundingBox} from "regl"
 
 describe("ReglWrapper", () => {
+  it("should finish pending draw commands before a cross-canvas read", () => {
+    const wrapper = Object.create(ReglWrapper.prototype) as ReglWrapper
+    const calls: string[] = []
+    const state = wrapper as unknown as {
+      _batcher: {flush(): void}
+      _regl: {_gl: {finish(): void}}
+    }
+    state._batcher = {flush: () => calls.push("draw")}
+    state._regl = {_gl: {finish: () => calls.push("finish")}}
+
+    wrapper.finish()
+
+    expect(calls).to.be.equal(["draw", "finish"])
+  })
+
   it("should bound and frame-clip line accumulation scissors", () => {
     const wrapper = Object.create(ReglWrapper.prototype) as ReglWrapper
     const state = wrapper as unknown as {_viewport: BoundingBox, _scissor: BoundingBox}

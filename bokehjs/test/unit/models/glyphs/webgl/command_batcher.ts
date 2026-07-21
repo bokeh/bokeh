@@ -20,4 +20,21 @@ describe("ReglCommandBatcher", () => {
     expect(draws).to.be.equal(["a:1,2", "b:3", "a:4"])
     expect(batcher.stats).to.be.equal({submitted: 4, draw_calls: 3})
   })
+
+  it("should track resources referenced by the pending batch", () => {
+    const batcher = new ReglCommandBatcher()
+    const key = Symbol("draw")
+    const first = {}
+    const second = {}
+    const unrelated = {}
+    batcher.submit(key, () => {}, "first", undefined, [first])
+    batcher.submit(key, () => {}, "second", undefined, [second])
+
+    expect(batcher.references(first)).to.be.true
+    expect(batcher.references(second)).to.be.true
+    expect(batcher.references(unrelated)).to.be.false
+
+    batcher.flush()
+    expect(batcher.references(first)).to.be.false
+  })
 })

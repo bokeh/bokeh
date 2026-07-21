@@ -135,8 +135,9 @@ export class ImageGL extends BaseGLGlyph {
       if (this._tex[i] == null) {
         this._tex[i] = this.own(this.regl_wrapper.texture(tex_options))
       } else {
-        this.regl_wrapper.flush()
-        this._tex[i]!(tex_options) // Reuse existing WebGL texture
+        const texture = this._tex[i]!
+        this.regl_wrapper.flush_resource(texture)
+        texture(tex_options) // Reuse existing WebGL texture
       }
     }
   }

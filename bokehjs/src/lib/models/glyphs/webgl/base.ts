@@ -113,6 +113,7 @@ export abstract class BaseGLGlyph {
   }
 
   destroy(): void {
+    this.regl_wrapper.flush()
     this._resources.destroy()
   }
 }

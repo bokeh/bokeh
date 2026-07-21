@@ -5,6 +5,7 @@ type PendingBatch<Props = unknown> = {
   readonly label?: string
   readonly draw: BatchDraw<Props>
   readonly props: Props[]
+  readonly resources: Set<object>
 }
 
 /** Batches only adjacent compatible draws, preserving blending and z-order. */
@@ -13,15 +14,24 @@ export class ReglCommandBatcher {
   private _submitted = 0
   private _draw_calls = 0
 
-  submit<Props>(key: symbol, draw: BatchDraw<Props>, props: Props, label?: string): void {
+  submit<Props>(
+    key: symbol, draw: BatchDraw<Props>, props: Props, label?: string, resources: Iterable<object> = [],
+  ): void {
     const pending = this._pending
     if (pending != null && pending.key == key) {
       ;(pending.props as Props[]).push(props)
+      for (const resource of resources) {
+        pending.resources.add(resource)
+      }
     } else {
       this.flush()
-      this._pending = {key, label, draw: draw as BatchDraw<unknown>, props: [props]}
+      this._pending = {key, label, draw: draw as BatchDraw<unknown>, props: [props], resources: new Set(resources)}
     }
     this._submitted++
+  }
+
+  references(resource: object): boolean {
+    return this._pending?.resources.has(resource) ?? false
   }
 
   flush(): void {

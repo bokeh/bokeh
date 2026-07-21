@@ -19,6 +19,7 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   protected is_scalar: boolean
   private _revision = 0
   private _uploaded_revision = 0
+  private _uploaded_byte_length = 0
 
   // Number of buffer elements per rendered primitive, e.g. for RGBA buffers this is 4
   // as a single color is 4 x uint8 = 32-bit in total.
@@ -173,11 +174,12 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
       })
     } else {
       // Reuse existing buffer.
-      this.regl_wrapper.flush()
+      this.regl_wrapper.flush_resource(this)
       this.buffer({data: this.array})
     }
 
     this.is_scalar = is_scalar
+    this._uploaded_byte_length = this.array?.byteLength ?? 0
     this._uploaded_revision = this._revision
   }
 
@@ -190,12 +192,12 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     if (length == 0) {
       return
     }
-    if (buffer == null || buffer.stats.size != array.byteLength) {
+    if (buffer == null || this._uploaded_byte_length != array.byteLength) {
       this.update(this.is_scalar)
       return
     }
     this._revision++
-    this.regl_wrapper.flush()
+    this.regl_wrapper.flush_resource(this)
     buffer.subdata(array.subarray(offset, offset + length), offset*this.bytes_per_element())
     this._uploaded_revision = this._revision
   }
@@ -207,14 +209,14 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     if (indices.length == 0) {
       return
     }
-    if (buffer == null || buffer.stats.size != array.byteLength) {
+    if (buffer == null || this._uploaded_byte_length != array.byteLength) {
       this.update(this.is_scalar)
       return
     }
 
     const sorted = [...new Set(indices)].sort((a, b) => a - b)
     assert(sorted[0] >= 0 && sorted[sorted.length - 1] < array.length, "invalid sparse buffer update")
-    this.regl_wrapper.flush()
+    this.regl_wrapper.flush_resource(this)
     this._revision++
     let start = sorted[0]
     let end = start + 1
@@ -234,10 +236,11 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   }
 
   destroy(): void {
-    this.regl_wrapper.flush()
+    this.regl_wrapper.flush_resource(this)
     this.buffer?.destroy()
     this.buffer = undefined
     this.array = undefined
+    this._uploaded_byte_length = 0
     this._revision++
   }
 }

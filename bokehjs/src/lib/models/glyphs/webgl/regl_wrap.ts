@@ -152,13 +152,35 @@ export class ReglWrapper {
     return this._gl2 != null ? this._resources.own(new UniformBuffer(this._gl2, byte_length, binding)) : null
   }
 
-  private _batch<Props>(label: string, draw: RawReglRenderFunction<Props>): ReglRenderFunction<Props> {
+  private _batch<Props extends object>(label: string, draw: RawReglRenderFunction<Props>): ReglRenderFunction<Props> {
     const key = Symbol()
-    return (props) => this._batcher.submit(key, draw, props, label)
+    return (props) => {
+      const resources = Object.values(props).filter((value): value is object =>
+        value != null && (typeof value == "object" || typeof value == "function"),
+      )
+      this._batcher.submit(key, draw, props, label, resources)
+    }
   }
 
   flush(): void {
     this._batcher.flush()
+  }
+
+  /** Complete queued GPU work before another canvas reads the WebGL canvas.
+   * In particular, WebKit can otherwise copy an incomplete frame when a
+   * WebGL canvas is used as the source of Canvas2D.drawImage(). */
+  finish(): void {
+    this.flush()
+    this._regl._gl.finish()
+  }
+
+  /** Flush only when a pending command references a resource about to be
+   * mutated. Mutating an unrelated renderer's resource is safe and keeps
+   * adjacent compatible commands batchable. */
+  flush_resource(resource: object): void {
+    if (this._batcher.references(resource)) {
+      this._batcher.flush()
+    }
   }
 
   get batch_stats(): {submitted: number, draw_calls: number} {

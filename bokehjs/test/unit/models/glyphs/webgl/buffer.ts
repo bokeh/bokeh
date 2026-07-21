@@ -198,6 +198,7 @@ describe("WrappedBuffer", () => {
     }) as unknown as Buffer
     const regl_wrapper = {
       flush() {},
+      flush_resource() {},
       buffer() { return gpu_buffer },
     } as unknown as ReglWrapper
 
@@ -213,7 +214,6 @@ describe("WrappedBuffer", () => {
   it("should upload sparse changes with byte offsets", () => {
     const updates: {data: number[], offset: number}[] = []
     const gpu_buffer = Object.assign((_options: unknown) => {}, {
-      stats: {size: 4*Float32Array.BYTES_PER_ELEMENT},
       subdata(data: Float32Array, offset: number) {
         updates.push({data: [...data], offset})
       },
@@ -221,6 +221,7 @@ describe("WrappedBuffer", () => {
     }) as unknown as Buffer
     const regl_wrapper = {
       flush() {},
+      flush_resource() {},
       buffer() { return gpu_buffer },
     } as unknown as ReglWrapper
 
@@ -234,5 +235,55 @@ describe("WrappedBuffer", () => {
 
     expect(updates).to.be.equal([{data: [20, 30], offset: Float32Array.BYTES_PER_ELEMENT}])
     expect(buffer.uploaded_revision).to.be.equal(revision + 1)
+  })
+
+  it("should coalesce sparse changes without relying on regl buffer internals", () => {
+    const updates: {data: number[], offset: number}[] = []
+    const gpu_buffer = Object.assign((_options: unknown) => {}, {
+      subdata(data: Float32Array, offset: number) {
+        updates.push({data: [...data], offset})
+      },
+      destroy() {},
+    }) as unknown as Buffer
+    const regl_wrapper = {
+      flush() {},
+      flush_resource() {},
+      buffer() { return gpu_buffer },
+    } as unknown as ReglWrapper
+
+    const buffer = new Float32Buffer(regl_wrapper)
+    buffer.set_from_array([1, 2, 3, 4, 5, 6])
+    const array = buffer.get_array()
+    array[2] = 30
+    array[3] = 40
+    array[5] = 60
+    buffer.update_ranges([5, 3, 2, 3])
+
+    expect(updates).to.be.equal([
+      {data: [30, 40], offset: 2*Float32Array.BYTES_PER_ELEMENT},
+      {data: [60], offset: 5*Float32Array.BYTES_PER_ELEMENT},
+    ])
+  })
+
+  it("should fall back to a full upload when the CPU array changes size", () => {
+    let full_uploads = 0
+    let sparse_uploads = 0
+    const gpu_buffer = Object.assign((_options: unknown) => { full_uploads++ }, {
+      subdata() { sparse_uploads++ },
+      destroy() {},
+    }) as unknown as Buffer
+    const regl_wrapper = {
+      flush() {},
+      flush_resource() {},
+      buffer() { return gpu_buffer },
+    } as unknown as ReglWrapper
+
+    const buffer = new Float32Buffer(regl_wrapper)
+    buffer.set_from_array([1, 2, 3])
+    buffer.get_sized_array(4).set([10, 20, 30, 40])
+    buffer.update_range(1, 1)
+
+    expect(full_uploads).to.be.equal(1)
+    expect(sparse_uploads).to.be.equal(0)
   })
 })
