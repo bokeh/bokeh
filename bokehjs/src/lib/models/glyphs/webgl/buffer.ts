@@ -10,6 +10,12 @@ import type {AttributeConfig, Buffer} from "regl"
 
 type WrappedArrayType = Float32Array | Uint8Array
 
+export type BufferUploadStats = Readonly<{
+  full_uploads: number
+  partial_uploads: number
+  bytes: number
+}>
+
 // Arrays are sent to GPU using ReGL Buffer objects.  CPU-side arrays used to
 // update the Buffers are also kept for reuse to avoid unnecessary reallocation.
 export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
@@ -20,6 +26,9 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   private _revision = 0
   private _uploaded_revision = 0
   private _uploaded_byte_length = 0
+  private _full_uploads = 0
+  private _partial_uploads = 0
+  private _uploaded_bytes = 0
 
   // Number of buffer elements per rendered primitive, e.g. for RGBA buffers this is 4
   // as a single color is 4 x uint8 = 32-bit in total.
@@ -67,6 +76,20 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
 
   get uploaded_revision(): number {
     return this._uploaded_revision
+  }
+
+  get upload_stats(): BufferUploadStats {
+    return {
+      full_uploads: this._full_uploads,
+      partial_uploads: this._partial_uploads,
+      bytes: this._uploaded_bytes,
+    }
+  }
+
+  reset_upload_stats(): void {
+    this._full_uploads = 0
+    this._partial_uploads = 0
+    this._uploaded_bytes = 0
   }
 
   protected abstract new_array(len: number): ArrayType
@@ -180,6 +203,8 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
 
     this.is_scalar = is_scalar
     this._uploaded_byte_length = this.array?.byteLength ?? 0
+    this._full_uploads++
+    this._uploaded_bytes += this._uploaded_byte_length
     this._uploaded_revision = this._revision
   }
 
@@ -199,6 +224,8 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     this._revision++
     this.regl_wrapper.flush_resource(this)
     buffer.subdata(array.subarray(offset, offset + length), offset*this.bytes_per_element())
+    this._partial_uploads++
+    this._uploaded_bytes += length*this.bytes_per_element()
     this._uploaded_revision = this._revision
   }
 
@@ -220,7 +247,11 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     this._revision++
     let start = sorted[0]
     let end = start + 1
-    const upload = () => buffer.subdata(array.subarray(start, end), start*this.bytes_per_element())
+    const upload = () => {
+      buffer.subdata(array.subarray(start, end), start*this.bytes_per_element())
+      this._partial_uploads++
+      this._uploaded_bytes += (end - start)*this.bytes_per_element()
+    }
     for (let i = 1; i < sorted.length; i++) {
       const index = sorted[i]
       if (index == end) {

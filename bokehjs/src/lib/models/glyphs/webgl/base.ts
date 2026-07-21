@@ -5,6 +5,7 @@ import type {ReglWrapper} from "./regl_wrap"
 import type {GPUResource} from "./resource_owner"
 import {GPUResourceOwner} from "./resource_owner"
 import type {RevisionDomain} from "./revisions"
+import type {RevisionSnapshot} from "./revisions"
 import {RevisionState} from "./revisions"
 import type {DataMapping} from "./data_mapping"
 
@@ -51,6 +52,14 @@ export abstract class BaseGLGlyph {
   }
 
   constructor(protected readonly regl_wrapper: ReglWrapper, readonly glyph: GlyphView) {}
+
+  get diagnostics(): {revisions: RevisionSnapshot, resources: number, destroyed: boolean} {
+    return {
+      revisions: this.revisions.snapshot,
+      resources: this._resources.size,
+      destroyed: this._resources.destroyed,
+    }
+  }
 
   /** Optional vertex-shader mapping for immutable data-coordinate buffers. */
   get data_mapping(): DataMapping | null {

@@ -192,6 +192,22 @@ export class ReglWrapper {
     return this._batcher.stats
   }
 
+  get diagnostics(): {
+    webgl2: boolean
+    vertex_arrays: boolean
+    resources: number
+    pending: {commands: number, label?: string}
+    batch: {submitted: number, draw_calls: number}
+  } {
+    return {
+      webgl2: this.is_webgl2,
+      vertex_arrays: this.supports_vertex_arrays,
+      resources: this._resources.size,
+      pending: this._batcher.pending,
+      batch: this._batcher.stats,
+    }
+  }
+
   reset_batch_stats(): void {
     this._batcher.reset_stats()
   }

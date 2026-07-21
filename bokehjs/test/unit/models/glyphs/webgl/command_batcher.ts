@@ -13,12 +13,14 @@ describe("ReglCommandBatcher", () => {
 
     batcher.submit(a, draw_a, "1")
     batcher.submit(a, draw_a, "2")
+    expect(batcher.pending).to.be.equal({commands: 2, label: undefined})
     batcher.submit(b, draw_b, "3")
     batcher.submit(a, draw_a, "4")
     batcher.flush()
 
     expect(draws).to.be.equal(["a:1,2", "b:3", "a:4"])
     expect(batcher.stats).to.be.equal({submitted: 4, draw_calls: 3})
+    expect(batcher.pending).to.be.equal({commands: 0, label: undefined})
   })
 
   it("should track resources referenced by the pending batch", () => {

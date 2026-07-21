@@ -35,6 +35,10 @@ export class GPUResourceOwner implements GPUResource {
     return this._resources.size
   }
 
+  get destroyed(): boolean {
+    return this._destroyed
+  }
+
   destroy(): void {
     if (this._destroyed) {
       return

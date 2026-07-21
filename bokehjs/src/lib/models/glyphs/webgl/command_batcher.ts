@@ -62,6 +62,10 @@ export class ReglCommandBatcher {
     return {submitted: this._submitted, draw_calls: this._draw_calls}
   }
 
+  get pending(): {commands: number, label?: string} {
+    return {commands: this._pending?.props.length ?? 0, label: this._pending?.label}
+  }
+
   reset_stats(): void {
     this._submitted = 0
     this._draw_calls = 0

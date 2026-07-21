@@ -235,6 +235,10 @@ describe("WrappedBuffer", () => {
 
     expect(updates).to.be.equal([{data: [20, 30], offset: Float32Array.BYTES_PER_ELEMENT}])
     expect(buffer.uploaded_revision).to.be.equal(revision + 1)
+    expect(buffer.upload_stats).to.be.equal({full_uploads: 1, partial_uploads: 1, bytes: 6*Float32Array.BYTES_PER_ELEMENT})
+
+    buffer.reset_upload_stats()
+    expect(buffer.upload_stats).to.be.equal({full_uploads: 0, partial_uploads: 0, bytes: 0})
   })
 
   it("should coalesce sparse changes without relying on regl buffer internals", () => {
@@ -263,6 +267,7 @@ describe("WrappedBuffer", () => {
       {data: [30, 40], offset: 2*Float32Array.BYTES_PER_ELEMENT},
       {data: [60], offset: 5*Float32Array.BYTES_PER_ELEMENT},
     ])
+    expect(buffer.upload_stats).to.be.equal({full_uploads: 1, partial_uploads: 2, bytes: 9*Float32Array.BYTES_PER_ELEMENT})
   })
 
   it("should fall back to a full upload when the CPU array changes size", () => {

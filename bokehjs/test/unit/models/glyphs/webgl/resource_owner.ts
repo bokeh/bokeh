@@ -12,6 +12,8 @@ describe("GPUResourceOwner", () => {
     owner.destroy()
     owner.destroy()
     expect(destroyed).to.be.equal(1)
+    expect(owner.destroyed).to.be.true
+    expect(owner.size).to.be.equal(0)
   })
 
   it("should release and replace resources deterministically", () => {

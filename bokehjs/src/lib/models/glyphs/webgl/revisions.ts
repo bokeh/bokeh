@@ -1,5 +1,7 @@
 export type RevisionDomain = "geometry" | "mapping" | "visuals" | "selection"
 
+export type RevisionSnapshot = Readonly<Record<RevisionDomain, number>>
+
 const domains: RevisionDomain[] = ["geometry", "mapping", "visuals", "selection"]
 
 /** Independent revision clocks for GPU upload domains.
@@ -13,6 +15,15 @@ export class RevisionState {
 
   revision(domain: RevisionDomain): number {
     return this._revisions.get(domain)!
+  }
+
+  get snapshot(): RevisionSnapshot {
+    return {
+      geometry: this.revision("geometry"),
+      mapping: this.revision("mapping"),
+      visuals: this.revision("visuals"),
+      selection: this.revision("selection"),
+    }
   }
 
   bump(domain: RevisionDomain): number {

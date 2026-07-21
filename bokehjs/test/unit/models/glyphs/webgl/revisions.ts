@@ -11,6 +11,7 @@ describe("RevisionState", () => {
     state.consume("geometry", "positions")
     expect(state.changed("geometry", "positions")).to.be.false
     expect(state.changed("geometry", "topology")).to.be.true
+    expect(state.snapshot).to.be.equal({geometry: 1, mapping: 0, visuals: 0, selection: 0})
   })
 
   it("should revise selection only when ordered indices change", () => {

@@ -258,6 +258,18 @@ export class CanvasView extends UIElementView {
     this.webgl?.regl_wrapper.reset_batch_stats()
   }
 
+  get webgl_diagnostics(): {
+    dirty: boolean
+    compositor_pending: number
+    backend: WebGLState["backend"] | null
+  } {
+    return {
+      dirty: this._webgl_dirty,
+      compositor_pending: this._webgl_compositor.pending,
+      backend: this.webgl?.backend ?? null,
+    }
+  }
+
   enqueue_webgl(command: WebGLRenderCommand): void {
     this._webgl_compositor.enqueue(command)
   }
