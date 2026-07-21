@@ -1,12 +1,13 @@
-import {select, option, optgroup, empty} from "core/dom"
+import {InputWidget, InputWidgetView} from "./input_widget"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
 import {isString, isArray} from "core/util/types"
 import {entries} from "core/util/object"
-import type * as p from "core/properties"
-
-import {InputWidget, InputWidgetView} from "./input_widget"
-import * as inputs from "styles/widgets/inputs.css"
-
 import {Unknown, Str, List, Tuple, Or, Dict} from "core/kinds"
+import type * as p from "core/properties"
+import * as inputs_css from "styles/widgets/inputs.css"
+
+import {computed} from "@preact/signals"
 
 const Value = Unknown
 type Value = typeof Value["__type__"]
@@ -23,69 +24,108 @@ type OptionsGroups = typeof OptionsGroups["__type__"]
 const NotSelected = ""
 
 export class SelectView extends InputWidgetView {
-  declare model: Select
+  declare readonly model: Select
+  declare readonly signals: p.SignalsOf<Select.Props>
+  declare readonly values: Select.Attrs
 
-  declare input_el: HTMLSelectElement
-
-  override connect_signals(): void {
-    super.connect_signals()
-    const {value, options} = this.model.properties
-    this.on_change(value, () => {
-      this._update_value()
-    })
-    this.on_change(options, () => {
-      empty(this.input_el)
-      this.input_el.append(...this.options_el())
-      this._update_value()
-    })
+  /// TODO remove
+  protected override _render_input(): HTMLElement {
+    return undefined as any
   }
+  ///
 
-  private _known_values = new Map<Value, Label>()
+  private _known_values = computed<Map<Value, Label>>(() => {
+    const _known_values = new Map<Value, Label>()
 
-  protected options_el(): HTMLOptionElement[] | HTMLOptGroupElement[] {
-    const {_known_values} = this
-    _known_values.clear()
-
-    function build_options(values: Options): HTMLOptionElement[] {
-      return values.map((el) => {
-        let value, label
-        if (isString(el)) {
-          value = label = el
-        } else {
-          [value, label] = el
-        }
+    function _collect_values(options: Options): void {
+      for (const option of options) {
+        const [value, label] = (() => {
+          if (isString(option)) {
+            return [option, option]
+          } else {
+            return option
+          }
+        })()
 
         _known_values.set(value, label)
-        return option({value: label}, label)
+      }
+    }
+
+    const {options} = this.values
+    if (isArray(options)) {
+      _collect_values(options)
+    } else {
+      for (const [, values] of entries(options)) {
+        _collect_values(values)
+      }
+    }
+
+    return _known_values
+  })
+  get known_values(): Map<Value, Label> {
+    return this._known_values.value
+  }
+
+  private _selected_value = computed<string | undefined>(() => {
+    return this.known_values.get(this.values.value)
+  })
+  get selected_value(): string | undefined {
+    return this._selected_value.value
+  }
+
+  protected _build_options_or_optgroups(): VNode[] {
+    const {selected_value} = this
+
+    function build_options(options: Options): VNode[] {
+      return options.map((option) => {
+        const [value, label] = (() => {
+          if (isString(option)) {
+            return [option, option]
+          } else {
+            return option
+          }
+        })()
+
+        const selected = value == selected_value
+        return <option value={label} selected={selected}>{label}</option>
       })
     }
 
-    const {options} = this.model
+    const {options} = this.values
     if (isArray(options)) {
       return build_options(options)
     } else {
-      return entries(options).map(([label, values]) => optgroup({label}, build_options(values)))
+      return entries(options).map(([label, values]) => <optgroup label={label}>{build_options(values)}</optgroup>)
     }
   }
 
-  protected _render_input(): HTMLElement {
-    this.input_el = select({
-      class: inputs.input,
-      name: this.model.name,
-      disabled: this.model.disabled,
-    }, this.options_el())
-    this.input_el.addEventListener("change", () => this.change_input())
-    return this.input_el
-  }
+  override component(): VNode {
+    const {name} = this.values
+    const {disabled} = this.signals
+    const {selected_value} = this
 
-  override render(): void {
-    super.render()
-    this._update_value()
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <div class={inputs_css.outer}>
+          <div class={inputs_css.inner}>
+            <select
+              class={inputs_css.input}
+              name={name ?? undefined}
+              disabled={disabled}
+              value={selected_value}
+              onChange={() => this.change_input()}
+            >
+              {this._build_options_or_optgroups()}
+            </select>
+          </div>
+        </div>
+      </UIComponent>
+    )
   }
 
   override change_input(): void {
-    const selected_label = this.input_el.value
-    const found = [...this._known_values].find(([_, label]) => selected_label == label)
+    const selected_label = this.shadow_el.querySelector("select")!.value
+    const found = [...this.known_values].find(([_, label]) => selected_label == label)
     const value = (() => {
       if (found == null) {
         return NotSelected
@@ -96,17 +136,6 @@ export class SelectView extends InputWidgetView {
     })()
     this.model.value = value
     super.change_input()
-  }
-
-  protected _update_value(): void {
-    const {value} = this.model
-    const label = this._known_values.get(value)
-    if (label !== undefined) {
-      this.input_el.value = label
-    } else {
-      this.input_el.removeAttribute("value")
-      this.input_el.selectedIndex = -1
-    }
   }
 }
 
