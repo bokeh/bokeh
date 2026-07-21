@@ -76,6 +76,19 @@ describe("HexTile glyph", () => {
     await display(p1)
   })
 
+  it("should support scalar and vector scale with WebGL", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {match_aspect: true, output_backend, title: output_backend})
+      p.hex_tile([0, 0, 0, 0], [-2, -1, 0, 1], {
+        scale: [0.35, 0.65, 1, 1.35],
+        fill_color: ["navy", "royalblue", "orange", "firebrick"],
+        line_color: "white",
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("webgl")]))
+  })
+
   it("should support 'pointytop' orientation with hatch patterns", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {
