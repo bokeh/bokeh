@@ -190,6 +190,7 @@ describe("default model resolver", () => {
       "HelpTool",
       "HexTile",
       "HoverTool",
+      "I18n",
       "Image",
       "ImageRGBA",
       "ImageStack",
@@ -427,6 +428,7 @@ describe("default model resolver", () => {
       "bokeh.models.dom.Template",
       "bokeh.models.dom.Text",
       "bokeh.models.dom.ToggleGroup",
+      "bokeh.models.dom.TranslatableText",
       "bokeh.models.dom.ValueOf",
       "bokeh.models.dom.ValueRef",
     ])
