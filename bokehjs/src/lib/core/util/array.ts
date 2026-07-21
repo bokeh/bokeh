@@ -106,7 +106,7 @@ export function range(start: number, stop?: number, step: number = 1): number[] 
   const {max, ceil, abs} = Math
 
   const delta = start <= stop ? step : -step
-  let length = max(ceil(abs(stop - start) / step), 0)
+  const length = max(ceil(abs(stop - start) / step), 0)
   try {
     // Creating an array too large for V8's allowed array lengths raises an error
     const range = new Array(length)
@@ -116,9 +116,9 @@ export function range(start: number, stop?: number, step: number = 1): number[] 
     return range
   } catch (error) {
     if (error instanceof RangeError) {
-      logger.error("Caught a structural limit error, not an engine-wide OOM:", error.message);
+      logger.error("Caught a structural limit error, not an engine-wide OOM:", error.message)
     }
-    throw(error)
+    throw (error)
   }
 }
 

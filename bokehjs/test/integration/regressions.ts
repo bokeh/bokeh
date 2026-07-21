@@ -81,8 +81,6 @@ import {np} from "@bokehjs/api/linalg"
 import {open_picker} from "./widgets"
 import {Model} from "@bokehjs/model"
 
-import {with_log_level} from "@bokehjs/core/logging"
-
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
 }
@@ -5211,17 +5209,17 @@ describe("Bug", () => {
     it("doesn't render if desired_tick_numbers are too large", async () => {
 
       const p = fig([200, 200])
-      p.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
       p.xaxis.ticker.desired_num_ticks = 100000000000000000000000000000
+      p.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
 
       const output = await async_trap(async () => {
         await display(p)
       })
       expect(output.error.includes(
-        "Caught a structural limit error, not an engine-wide OOM: invalid array length")
+        "Caught a structural limit error, not an engine-wide OOM: invalid array length"),
       ).to.be.true
       expect(output.warn.includes(
-        "Caught an error calculating the ticks for 1e+29 desired_num_ticks and 5 num_minor_ticks. The default values are used instead.")
+        "Caught an error calculating the ticks for 1e+29 desired_num_ticks and 5 num_minor_ticks. The default values are used instead."),
       ).to.be.true
     })
   })

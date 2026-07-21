@@ -47,7 +47,7 @@ export class Logger {
   }
 
   _name: string
-  _log_level: LogLevel = Logger.DEBUG;
+  _log_level: LogLevel = Logger.DEBUG
 
   constructor(name: string, level: LogLevel = Logger.INFO) {
     this._name = name

@@ -46,10 +46,10 @@ export abstract class ContinuousTicker extends Ticker {
   get_ticks(data_low: number, data_high: number, _range: Range, cross_loc: number): TickSpec<number> {
     try {
       return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks, this.num_minor_ticks)
-    } catch (error){
+    } catch (error) {
       logger.warn(
         `Caught an error calculating the ticks for ${this.desired_num_ticks} desired_num_ticks`,
-        `and ${this.num_minor_ticks} num_minor_ticks. The default values are used instead.`
+        `and ${this.num_minor_ticks} num_minor_ticks. The default values are used instead.`,
       )
       this.desired_num_ticks = 6
       this.num_minor_ticks = 5
