@@ -21,34 +21,34 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   private readonly _antialias: number = 1.5
 
   // data properties
-  protected readonly _centers = new Float32Buffer(this.regl_wrapper)
+  protected readonly _centers = this.own(new Float32Buffer(this.regl_wrapper))
 
-  protected readonly _widths = new Float32Buffer(this.regl_wrapper)
-  protected readonly _heights = new Float32Buffer(this.regl_wrapper)
-  protected readonly _angles = new Float32Buffer(this.regl_wrapper)
-  protected readonly _auxs = new Float32Buffer(this.regl_wrapper)
+  protected readonly _widths = this.own(new Float32Buffer(this.regl_wrapper))
+  protected readonly _heights = this.own(new Float32Buffer(this.regl_wrapper))
+  protected readonly _angles = this.own(new Float32Buffer(this.regl_wrapper))
+  protected readonly _auxs = this.own(new Float32Buffer(this.regl_wrapper))
 
   // used by RectGL
   protected _border_radius: Vec4 = [0.0, 0.0, 0.0, 0.0]
   protected _border_radius_nonzero: boolean = false
 
   // indices properties
-  protected readonly _show = new Uint8Buffer(this.regl_wrapper)
+  protected readonly _show = this.own(new Uint8Buffer(this.regl_wrapper))
   protected _show_all: boolean = false
 
   // visual properties
-  protected readonly _linewidths = new Float32Buffer(this.regl_wrapper)
-  protected readonly _line_caps = new Uint8Buffer(this.regl_wrapper)
-  protected readonly _line_joins = new Uint8Buffer(this.regl_wrapper)
-  protected readonly _line_rgba = new NormalizedUint8Buffer(this.regl_wrapper, 4)
-  protected readonly _fill_rgba = new NormalizedUint8Buffer(this.regl_wrapper, 4)
+  protected readonly _linewidths = this.own(new Float32Buffer(this.regl_wrapper))
+  protected readonly _line_caps = this.own(new Uint8Buffer(this.regl_wrapper))
+  protected readonly _line_joins = this.own(new Uint8Buffer(this.regl_wrapper))
+  protected readonly _line_rgba = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
+  protected readonly _fill_rgba = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
 
   // Only needed if have hatch pattern, either all or none of the buffers are set.
   protected _have_hatch: boolean = false
-  protected readonly _hatch_patterns = new Uint8Buffer(this.regl_wrapper)
-  protected readonly _hatch_scales = new Float32Buffer(this.regl_wrapper)
-  protected readonly _hatch_weights = new Float32Buffer(this.regl_wrapper)
-  protected readonly _hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper, 4)
+  protected readonly _hatch_patterns = this.own(new Uint8Buffer(this.regl_wrapper))
+  protected readonly _hatch_scales = this.own(new Float32Buffer(this.regl_wrapper))
+  protected readonly _hatch_weights = this.own(new Float32Buffer(this.regl_wrapper))
+  protected readonly _hatch_rgba = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
 
   // Avoiding use of nan or inf to represent missing data in webgl as shaders may
   // have reduced floating point precision. So here using a large-ish negative

@@ -11,6 +11,7 @@ describe("BaseGLGlyph", () => {
   it("should destroy owned buffers once, including array and map members", () => {
     let destroyed = 0
     const wrapper = {
+      flush() {},
       buffer() {
         return Object.assign((_options: unknown) => {}, {
           destroy() { destroyed++ },
@@ -19,8 +20,8 @@ describe("BaseGLGlyph", () => {
     } as unknown as ReglWrapper
 
     class TestGLGlyph extends BaseGLGlyph {
-      readonly first = new Float32Buffer(this.regl_wrapper)
-      readonly second = new Float32Buffer(this.regl_wrapper)
+      readonly first = this.own(new Float32Buffer(this.regl_wrapper))
+      readonly second = this.own(new Float32Buffer(this.regl_wrapper))
       readonly aliases = [this.first, this.second]
       readonly mapped = new Map([["first", this.first]])
 

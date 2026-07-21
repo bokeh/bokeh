@@ -1,4 +1,4 @@
-precision highp float;
+#include <bokeh_vertex_precision>
 
 attribute vec2 a_position;
 varying vec2 v_tex_coords;

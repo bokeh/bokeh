@@ -1,20 +1,37 @@
 import createRegl from "regl"
 import type {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements, ElementsOptions} from "regl"
-import type {Attributes, MaybeDynamicAttributes, DefaultContext, Framebuffer2D, Texture2D, Texture2DOptions} from "regl"
+import type {AttributeConfig, Attributes, MaybeDynamicAttributes, DefaultContext, Framebuffer2D, Texture2D, Texture2DOptions, VertexArrayObject} from "regl"
 import type * as t from "./types"
 import type {GLMarkerType} from "./types"
 import type {DashReturn} from "./dash_cache"
 import {DashCache} from "./dash_cache"
-import accumulate_vertex_shader from "./accumulate.vert"
-import accumulate_fragment_shader from "./accumulate.frag"
-import image_vertex_shader from "./image.vert"
-import image_fragment_shader from "./image.frag"
-import line_vertex_shader from "./regl_line.vert"
-import line_fragment_shader from "./regl_line.frag"
-import marker_vertex_shader from "./marker.vert"
-import marker_fragment_shader from "./marker.frag"
-import polygon_vertex_shader from "./polygon.vert"
-import polygon_fragment_shader from "./polygon.frag"
+import accumulate_vertex_source from "./accumulate.vert"
+import accumulate_fragment_source from "./accumulate.frag"
+import image_vertex_source from "./image.vert"
+import image_fragment_source from "./image.frag"
+import line_vertex_source from "./regl_line.vert"
+import line_fragment_source from "./regl_line.frag"
+import marker_vertex_source from "./marker.vert"
+import marker_fragment_source from "./marker.frag"
+import polygon_vertex_source from "./polygon.vert"
+import polygon_fragment_source from "./polygon.frag"
+import type {BatchDraw} from "./command_batcher"
+import {ReglCommandBatcher} from "./command_batcher"
+import {GPUResourceOwner} from "./resource_owner"
+import {assemble_shader} from "./shader_modules"
+import {UniformBuffer} from "./uniform_buffer"
+import {install_webgl2_regl_extensions} from "./webgl2_extensions"
+
+const accumulate_vertex_shader = assemble_shader(accumulate_vertex_source)
+const accumulate_fragment_shader = assemble_shader(accumulate_fragment_source)
+const image_vertex_shader = assemble_shader(image_vertex_source)
+const image_fragment_shader = assemble_shader(image_fragment_source)
+const line_vertex_shader = assemble_shader(line_vertex_source)
+const line_fragment_shader = assemble_shader(line_fragment_source)
+const marker_vertex_shader = assemble_shader(marker_vertex_source)
+const marker_fragment_shader = assemble_shader(marker_fragment_source)
+const polygon_vertex_shader = assemble_shader(polygon_vertex_source)
+const polygon_fragment_shader = assemble_shader(polygon_fragment_source)
 
 // All access to regl is performed via the get_regl() function that returns a
 // ReglWrapper object.  This ensures that regl is correctly initialised before
@@ -22,25 +39,31 @@ import polygon_fragment_shader from "./polygon.frag"
 
 let regl_wrapper: ReglWrapper | null = null
 
-export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
+export type BokehWebGLRenderingContext = WebGLRenderingContext | WebGL2RenderingContext
+
+export function get_regl(gl: BokehWebGLRenderingContext): ReglWrapper {
   if (regl_wrapper == null) {
     regl_wrapper = new ReglWrapper(gl)
   }
   return regl_wrapper
 }
 
+type RawReglRenderFunction<T = object> = BatchDraw<T>
 type ReglRenderFunction<T = object> = (props: T) => void
 
 export class ReglWrapper {
   private _regl: Regl
   private _regl_available: boolean
   private _dash_cache?: DashCache
+  private readonly _batcher = new ReglCommandBatcher()
+  private readonly _resources = new GPUResourceOwner()
+  private readonly _gl2: WebGL2RenderingContext | null
 
   // Drawing functions.
-  private _accumulate?: ReglRenderFunction
-  private _image?: ReglRenderFunction
-  private _solid_line?: ReglRenderFunction
-  private _dashed_line?: ReglRenderFunction
+  private _accumulate?: ReglRenderFunction<t.AccumulateProps>
+  private _image?: ReglRenderFunction<t.ImageProps>
+  private _solid_line?: ReglRenderFunction<t.LineGlyphProps>
+  private _dashed_line?: ReglRenderFunction<t.LineDashGlyphProps>
   private _polygon?: ReglRenderFunction<t.PolygonGlyphProps>
   private _polygon_hatch?: ReglRenderFunction<t.PolygonHatchGlyphProps>
   private _marker_no_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerGlyphProps>> = new Map()
@@ -51,6 +74,8 @@ export class ReglWrapper {
   private _line_triangles: Elements
   private _rect_geometry: Buffer
   private _rect_triangles: Elements
+  private _marker_geometry: Buffer
+  private _rect_vao?: VertexArrayObject
 
   // WebGL state variables.
   private _scissor: BoundingBox
@@ -60,45 +85,88 @@ export class ReglWrapper {
   private _framebuffer?: Framebuffer2D
   private _framebuffer_texture?: Texture2D
 
-  constructor(gl: WebGLRenderingContext) {
+  constructor(gl: BokehWebGLRenderingContext) {
+    this._gl2 = typeof WebGL2RenderingContext != "undefined" && gl instanceof WebGL2RenderingContext ? gl : null
     try {
+      if (this._gl2 != null) {
+        install_webgl2_regl_extensions(this._gl2)
+      }
       this._regl = createRegl({
         gl,
         extensions: [
-          "ANGLE_instanced_arrays",
-          "EXT_blend_minmax",
-          "OES_element_index_uint",
+          "ANGLE_instanced_arrays", "EXT_blend_minmax", "OES_element_index_uint",
         ],
+        optionalExtensions: ["OES_vertex_array_object"],
       })
       this._regl_available = true
 
       // Initialise static Buffers/Elements.
-      this._line_geometry = this._regl.buffer({
+      this._line_geometry = this._resources.own(this._regl.buffer({
         usage: "static",
         type: "float",
         data: [[-2, 0], [-1, -1], [1, -1], [1,  1], [-1, 1]],
-      })
+      }))
 
-      this._line_triangles = this._regl.elements({
+      this._line_triangles = this._resources.own(this._regl.elements({
         usage: "static",
         primitive: "triangle fan",
         data: [0, 1, 2, 3, 4],
-      })
+      }))
 
-      this._rect_geometry = this._regl.buffer({
+      this._rect_geometry = this._resources.own(this._regl.buffer({
         usage: "static",
         type: "float",
         data: [[-1, -1], [1, -1], [1,  1], [-1, 1]],
-      })
+      }))
 
-      this._rect_triangles = this._regl.elements({
+      this._rect_triangles = this._resources.own(this._regl.elements({
         usage: "static",
         primitive: "triangle fan",
         data: [0, 1, 2, 3],
-      })
-    } catch (err) {
+      }))
+
+      this._marker_geometry = this._resources.own(this._regl.buffer({
+        usage: "static",
+        type: "float",
+        data: [[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]],
+      }))
+
+      if (this._gl2 != null || this._regl.hasExtension("oes_vertex_array_object")) {
+        this._rect_vao = this._resources.own(this._regl.vao([{buffer: this._rect_geometry, size: 2}]))
+      }
+    } catch {
+      this._resources.destroy()
       this._regl_available = false
     }
+  }
+
+  get is_webgl2(): boolean {
+    return this._gl2 != null
+  }
+
+  get supports_vertex_arrays(): boolean {
+    return this._rect_vao != null
+  }
+
+  uniform_buffer(byte_length: number, binding: number): UniformBuffer | null {
+    return this._gl2 != null ? this._resources.own(new UniformBuffer(this._gl2, byte_length, binding)) : null
+  }
+
+  private _batch<Props>(label: string, draw: RawReglRenderFunction<Props>): ReglRenderFunction<Props> {
+    const key = Symbol()
+    return (props) => this._batcher.submit(key, draw, props, label)
+  }
+
+  flush(): void {
+    this._batcher.flush()
+  }
+
+  get batch_stats(): {submitted: number, draw_calls: number} {
+    return this._batcher.stats
+  }
+
+  reset_batch_stats(): void {
+    this._batcher.reset_stats()
   }
 
   // Create and return ReGL Buffer.
@@ -112,11 +180,13 @@ export class ReglWrapper {
   }
 
   clear(width: number, height: number): void {
+    this.flush()
     this._viewport = {x: 0, y: 0, width, height}
     this._regl.clear({color: [0, 0, 0, 0]})
   }
 
   clear_framebuffer(framebuffer: Framebuffer2D): void {
+    this.flush()
     this._regl.clear({color: [0, 0, 0, 0], framebuffer})
   }
 
@@ -129,19 +199,19 @@ export class ReglWrapper {
     }
 
     if (this._framebuffer_texture == null) {
-      this._framebuffer_texture = _regl.texture(size)
+      this._framebuffer_texture = this._resources.own(_regl.texture(size))
     } else {
       // Resize texture, no-op if no change.
       this._framebuffer_texture(size)
     }
 
     if (this._framebuffer == null) {
-      this._framebuffer = _regl.framebuffer({
+      this._framebuffer = this._resources.own(_regl.framebuffer({
         // Auto-sizes to size of texture.
         color: this._framebuffer_texture,
         depth: false,
         stencil: false,
-      })
+      }))
     }
 
     return [this._framebuffer, this._framebuffer_texture]
@@ -202,44 +272,50 @@ export class ReglWrapper {
     return this._viewport
   }
 
-  public accumulate(): ReglRenderFunction {
+  public accumulate(): ReglRenderFunction<t.AccumulateProps> {
     if (this._accumulate == null) {
-      this._accumulate = regl_accumulate(this._regl, this._rect_geometry, this._rect_triangles)
+      const draw = regl_accumulate(this._regl, this._rect_geometry, this._rect_triangles, this._rect_vao)
+      // Accumulation is a framebuffer transition, not a reorderable glyph
+      // draw. Flush preceding geometry and execute it immediately.
+      this._accumulate = (props) => {
+        this.flush()
+        draw(props)
+      }
     }
     return this._accumulate
   }
 
-  public dashed_line(): ReglRenderFunction {
+  public dashed_line(): ReglRenderFunction<t.LineDashGlyphProps> {
     if (this._dashed_line == null) {
-      this._dashed_line = regl_dashed_line(this._regl, this._line_geometry, this._line_triangles)
+      this._dashed_line = this._batch("dashed-line", regl_dashed_line(this._regl, this._line_geometry, this._line_triangles))
     }
     return this._dashed_line
   }
 
   public get_dash(line_dash: number[]): DashReturn {
     if (this._dash_cache == null) {
-      this._dash_cache = new DashCache(this._regl)
+      this._dash_cache = this._resources.own(new DashCache(this._regl))
     }
     return this._dash_cache.get(line_dash)
   }
 
-  public image(): ReglRenderFunction {
+  public image(): ReglRenderFunction<t.ImageProps> {
     if (this._image == null) {
-      this._image = regl_image(this._regl, this._rect_geometry, this._rect_triangles)
+      this._image = this._batch("image", regl_image(this._regl, this._rect_geometry, this._rect_triangles))
     }
     return this._image
   }
 
   public polygon(): ReglRenderFunction<t.PolygonGlyphProps> {
     if (this._polygon == null) {
-      this._polygon = regl_polygon(this._regl)
+      this._polygon = this._batch("polygon", regl_polygon(this._regl))
     }
     return this._polygon
   }
 
   public polygon_hatch(): ReglRenderFunction<t.PolygonHatchGlyphProps> {
     if (this._polygon_hatch == null) {
-      this._polygon_hatch = regl_polygon_hatch(this._regl)
+      this._polygon_hatch = this._batch("hatched-polygon", regl_polygon_hatch(this._regl))
     }
     return this._polygon_hatch
   }
@@ -247,7 +323,7 @@ export class ReglWrapper {
   public marker_no_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerGlyphProps> {
     let func = this._marker_no_hatch_map.get(marker_type)
     if (func == null) {
-      func = regl_marker(this._regl, marker_type)
+      func = this._batch(`marker:${marker_type}`, regl_marker(this._regl, this._marker_geometry, marker_type))
       this._marker_no_hatch_map.set(marker_type, func)
     }
     return func
@@ -256,35 +332,48 @@ export class ReglWrapper {
   public marker_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerHatchGlyphProps> {
     let func = this._marker_hatch_map.get(marker_type)
     if (func == null) {
-      func = regl_marker_hatch(this._regl, marker_type)
+      func = this._batch(`hatched-marker:${marker_type}`, regl_marker_hatch(this._regl, this._marker_geometry, marker_type))
       this._marker_hatch_map.set(marker_type, func)
     }
     return func
   }
 
-  public solid_line(): ReglRenderFunction {
+  public solid_line(): ReglRenderFunction<t.LineGlyphProps> {
     if (this._solid_line == null) {
-      this._solid_line = regl_solid_line(this._regl, this._line_geometry, this._line_triangles)
+      this._solid_line = this._batch("solid-line", regl_solid_line(this._regl, this._line_geometry, this._line_triangles))
     }
     return this._solid_line
   }
+
+  destroy(): void {
+    this.flush()
+    this._resources.destroy()
+    this._regl.destroy()
+  }
 }
 
-function regl_accumulate(regl: Regl, geometry: Buffer, triangles: Elements): ReglRenderFunction {
+function regl_accumulate(
+  regl: Regl, geometry: Buffer, triangles: Elements, vao?: VertexArrayObject,
+): RawReglRenderFunction<t.AccumulateProps> {
   type Props = t.AccumulateProps
   type Uniforms = t.AccumulateUniforms
   type Attributes = t.AccumulateAttributes
 
-  const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: accumulate_vertex_shader,
-    frag: accumulate_fragment_shader,
-
+  const vertex_state = vao != null ? {
+    vao,
+    attributes: {a_position: 0 as unknown as AttributeConfig},
+  } : {
     attributes: {
       a_position: {
         buffer: geometry,
         divisor: 0,
       },
     },
+  }
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
+    vert: accumulate_vertex_shader,
+    frag: accumulate_fragment_shader,
+    ...vertex_state,
 
     uniforms: {
       u_framebuffer_tex: regl.prop<Props, "framebuffer_tex">("framebuffer_tex"),
@@ -309,13 +398,13 @@ function regl_accumulate(regl: Regl, geometry: Buffer, triangles: Elements): Reg
     viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
-  return regl<Uniforms, Attributes, Props>(config)
+  return regl<Uniforms, Attributes, Props>(config) as RawReglRenderFunction<Props>
 }
 
 // Regl rendering functions are here as some will be reused, e.g. lines may also
 // be used around polygons or for bezier curves.
 
-function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): ReglRenderFunction {
+function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): RawReglRenderFunction<t.ImageProps> {
   type Props = t.ImageProps
   type Uniforms = t.ImageUniforms
   type Attributes = t.ImageAttributes
@@ -359,7 +448,7 @@ function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): ReglRend
     viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
-  return regl<Uniforms, Attributes, Props>(config)
+  return regl<Uniforms, Attributes, Props>(config) as RawReglRenderFunction<Props>
 }
 
 // Mesh for line rendering (solid and dashed).
@@ -374,7 +463,7 @@ function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): ReglRend
 //
 //       -2  -1    1
 //              x
-function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elements): ReglRenderFunction {
+function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elements): RawReglRenderFunction<t.LineGlyphProps> {
   type Props = t.LineGlyphProps
   type Uniforms = t.LineGlyphUniforms
   type Attributes = t.LineGlyphAttributes
@@ -451,10 +540,10 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
     viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
-  return regl<Uniforms, Attributes, Props>(config)
+  return regl<Uniforms, Attributes, Props>(config) as RawReglRenderFunction<Props>
 }
 
-function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Elements): ReglRenderFunction {
+function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Elements): RawReglRenderFunction<t.LineDashGlyphProps> {
   type Props = t.LineDashGlyphProps
   type Uniforms = t.LineDashGlyphUniforms
   type Attributes = t.LineDashGlyphAttributes
@@ -550,10 +639,10 @@ ${line_fragment_shader}
     viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
-  return regl<Uniforms, Attributes, Props>(config)
+  return regl<Uniforms, Attributes, Props>(config) as RawReglRenderFunction<Props>
 }
 
-function regl_polygon(regl: Regl): ReglRenderFunction<t.PolygonGlyphProps> {
+function regl_polygon(regl: Regl): RawReglRenderFunction<t.PolygonGlyphProps> {
   type Props = t.PolygonGlyphProps
   type Uniforms = t.PolygonGlyphUniforms
   type Attributes = t.PolygonGlyphAttributes
@@ -600,10 +689,10 @@ function regl_polygon(regl: Regl): ReglRenderFunction<t.PolygonGlyphProps> {
     viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
-  return regl<Uniforms, Attributes, Props>(config)
+  return regl<Uniforms, Attributes, Props>(config) as RawReglRenderFunction<Props>
 }
 
-function regl_polygon_hatch(regl: Regl): ReglRenderFunction<t.PolygonHatchGlyphProps> {
+function regl_polygon_hatch(regl: Regl): RawReglRenderFunction<t.PolygonHatchGlyphProps> {
   type Props = t.PolygonHatchGlyphProps
   type Uniforms = t.PolygonHatchGlyphUniforms
   type Attributes = t.PolygonHatchGlyphAttributes
@@ -668,25 +757,25 @@ ${polygon_fragment_shader}
     viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
-  return regl<Uniforms, Attributes, Props>(config)
+  return regl<Uniforms, Attributes, Props>(config) as RawReglRenderFunction<Props>
 }
 
-function regl_marker<A extends Attributes, P extends object>(
+function regl_marker<A extends Attributes, P extends t.MarkerGlyphProps = t.MarkerGlyphProps>(
     regl: Regl,
+    geometry: Buffer,
     marker_type: GLMarkerType,
     vert_defs: string[] = [],
     frag_defs: string[] = [],
     attributes?: MaybeDynamicAttributes<A, DefaultContext, P>,
-): ReglRenderFunction {
+): RawReglRenderFunction<P> {
 
-  type Props = t.MarkerGlyphProps
   type Uniforms = t.MarkerGlyphUniforms
-  type Attributes = t.MarkerGlyphAttributes
+  type MarkerAttributes = t.MarkerGlyphAttributes & A
 
   const vert_prefix = vert_defs.map((def) => `#define ${def}`).join("\n")
   const frag_prefix = frag_defs.map((def) => `#define ${def}`).join("\n")
 
-  const config: DrawConfig<Uniforms, Attributes, Props> = {
+  const config: DrawConfig<Uniforms, MarkerAttributes, P> = {
     vert: `\
 ${vert_prefix}
 #define MULTI_MARKER
@@ -701,7 +790,7 @@ ${marker_fragment_shader}
 
     attributes: {
       a_position: {
-        buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
+        buffer: geometry,
         divisor: 0,
       },
       a_center(_, props) {
@@ -738,18 +827,18 @@ ${marker_fragment_shader}
         return props.show.to_attribute_config(0, props.nmarkers)
       },
       ...attributes,
-    },
+    } as MaybeDynamicAttributes<MarkerAttributes, DefaultContext, P>,
 
     uniforms: {
-      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
-      u_antialias: regl.prop<Props, "antialias">("antialias"),
-      u_size_hint: regl.prop<Props, "size_hint">("size_hint"),
-      u_border_radius: regl.prop<Props, "border_radius">("border_radius"),
+      u_canvas_size: regl.prop<P, "canvas_size">("canvas_size"),
+      u_antialias: regl.prop<P, "antialias">("antialias"),
+      u_size_hint: regl.prop<P, "size_hint">("size_hint"),
+      u_border_radius: regl.prop<P, "border_radius">("border_radius"),
     },
 
     count: 4,
     primitive: "triangle fan",
-    instances: regl.prop<Props, "nmarkers">("nmarkers"),
+    instances: regl.prop<P, "nmarkers">("nmarkers"),
 
     blend: {
       enable: true,
@@ -763,15 +852,17 @@ ${marker_fragment_shader}
     depth: {enable: false},
     scissor: {
       enable: true,
-      box: regl.prop<Props, "scissor">("scissor"),
+      box: regl.prop<P, "scissor">("scissor"),
     },
-    viewport: regl.prop<Props, "viewport">("viewport"),
+    viewport: regl.prop<P, "viewport">("viewport"),
   }
 
-  return regl<Uniforms, Attributes, Props>(config)
+  return regl<Uniforms, MarkerAttributes, P>(config) as RawReglRenderFunction<P>
 }
 
-function regl_marker_hatch(regl: Regl, marker_type: GLMarkerType): ReglRenderFunction {
+function regl_marker_hatch(
+  regl: Regl, geometry: Buffer, marker_type: GLMarkerType,
+): RawReglRenderFunction<t.MarkerHatchGlyphProps> {
 
   const hatch_attributes: MaybeDynamicAttributes<t.HatchAttributes, DefaultContext, t.MarkerHatchGlyphProps> = {
     a_hatch_pattern(_, props) {
@@ -788,5 +879,7 @@ function regl_marker_hatch(regl: Regl, marker_type: GLMarkerType): ReglRenderFun
     },
   }
 
-  return regl_marker(regl, marker_type, ["HATCH"], ["HATCH"], hatch_attributes)
+  return regl_marker<t.HatchAttributes, t.MarkerHatchGlyphProps>(
+    regl, geometry, marker_type, ["HATCH"], ["HATCH"], hatch_attributes,
+  )
 }

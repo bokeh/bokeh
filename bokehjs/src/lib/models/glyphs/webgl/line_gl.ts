@@ -27,7 +27,7 @@ export class LineGL extends SingleLineGL {
       const main_show_array = main_show.get_sized_array(n)
 
       if (this._show == null) {
-        this._show = new Uint8Buffer(this.regl_wrapper)
+        this._show = this.own(new Uint8Buffer(this.regl_wrapper))
       }
       const show_array = this._show.get_sized_array(n)   // equal to npoints+1
       show_array.fill(0)
@@ -73,7 +73,7 @@ export class LineGL extends SingleLineGL {
     const npoints = sx.length
 
     if (this._points == null) {
-      this._points = new Float32Buffer(this.regl_wrapper)
+      this._points = this.own(new Float32Buffer(this.regl_wrapper))
     }
     const points_array = this._points.get_sized_array((npoints+2)*2)
     this._set_points_single(points_array, sx, sy)

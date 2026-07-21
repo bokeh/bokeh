@@ -68,6 +68,7 @@ import {div} from "@bokehjs/core/dom"
 import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
+import {settings} from "@bokehjs/core/settings"
 import type * as p from "@bokehjs/core/properties"
 import {load_image} from "@bokehjs/core/util/image"
 
@@ -2623,9 +2624,12 @@ describe("Bug", () => {
       await display(p)
     })
 
-    it(`doesn't allow to render many (N=${N}) webgl glyphs efficiently`, async () => {
+    it(`should batch many (N=${N}) compatible webgl glyphs`, async () => {
       const p = plot("webgl")
-      await display(p)
+      const {view} = await display(p)
+      const {submitted, draw_calls} = view.canvas_view.webgl!.regl_wrapper.batch_stats
+      expect(submitted >= N).to.be.true
+      expect(draw_calls < submitted).to.be.true
     })
   })
 
@@ -3297,7 +3301,13 @@ describe("Bug", () => {
         return fig([250, 200], {output_backend, title: output_backend, renderers: [graph]})
       }
 
-      await display(row([plot("canvas"), plot("webgl")]))
+      const force_webgl = settings.force_webgl
+      settings.force_webgl = false
+      try {
+        await display(row([plot("canvas"), plot("webgl")]))
+      } finally {
+        settings.force_webgl = force_webgl
+      }
     })
   })
 

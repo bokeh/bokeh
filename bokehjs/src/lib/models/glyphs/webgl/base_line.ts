@@ -21,10 +21,10 @@ export abstract class BaseLineGL extends BaseGLGlyph {
   protected _show?: Uint8Buffer  // Applies to segments not points.
 
   // visual properties
-  protected readonly _linewidth = new Float32Buffer(this.regl_wrapper)
-  protected readonly _line_color = new NormalizedUint8Buffer(this.regl_wrapper, 4)
-  protected readonly _line_cap = new Uint8Buffer(this.regl_wrapper)
-  protected readonly _line_join = new Uint8Buffer(this.regl_wrapper)
+  protected readonly _linewidth = this.own(new Float32Buffer(this.regl_wrapper))
+  protected readonly _line_color = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
+  protected readonly _line_cap = this.own(new Uint8Buffer(this.regl_wrapper))
+  protected readonly _line_join = this.own(new Uint8Buffer(this.regl_wrapper))
 
   protected _is_dashed = false
 
@@ -174,19 +174,19 @@ export abstract class BaseLineGL extends BaseGLGlyph {
 
     if (this._is_dashed) {
       if (this._dash_offset == null) {
-        this._dash_offset = new Float32Buffer(this.regl_wrapper)
+        this._dash_offset = this.own(new Float32Buffer(this.regl_wrapper))
       }
       this._dash_offset.set_from_prop(line_visuals.line_dash_offset)
 
       const n = dash_count
 
       if (this._dash_tex_info == null) {
-        this._dash_tex_info = new Float32Buffer(this.regl_wrapper, 4)
+        this._dash_tex_info = this.own(new Float32Buffer(this.regl_wrapper, 4))
       }
       const dash_tex_info = this._dash_tex_info.get_sized_array(4*n)
 
       if (this._dash_scale == null) {
-        this._dash_scale = new Float32Buffer(this.regl_wrapper)
+        this._dash_scale = this.own(new Float32Buffer(this.regl_wrapper))
       }
       const dash_scale = this._dash_scale.get_sized_array(n)
 

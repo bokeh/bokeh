@@ -91,7 +91,7 @@ export class MultiLineGL extends BaseLineGL {
     const total_point_count =  this.glyph.sxs.data.length
 
     if (this._points == null) {
-      this._points = new Float32Buffer(this.regl_wrapper)
+      this._points = this.own(new Float32Buffer(this.regl_wrapper))
     }
     const points_array = this._points.get_sized_array((total_point_count + 2*line_count)*2)
 
@@ -118,7 +118,7 @@ export class MultiLineGL extends BaseLineGL {
 
     if (data_changed) {
       if (this._show == null) {
-        this._show = new Uint8Buffer(this.regl_wrapper)
+        this._show = this.own(new Uint8Buffer(this.regl_wrapper))
       }
       const show_array = this._show.get_sized_array(total_point_count + line_count)
 
@@ -150,7 +150,7 @@ export class MultiLineGL extends BaseLineGL {
     const show_array = this._show!.get_array()
 
     if (this._length_so_far == null) {
-      this._length_so_far = new Float32Buffer(this.regl_wrapper)
+      this._length_so_far = this.own(new Float32Buffer(this.regl_wrapper))
     }
     const length_so_far = this._length_so_far.get_sized_array(total_point_count - line_count)
 

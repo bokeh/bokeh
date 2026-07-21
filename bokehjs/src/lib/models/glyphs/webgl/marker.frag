@@ -1,8 +1,4 @@
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
+#include <bokeh_fragment_precision>
 
 const float SQRT2 = sqrt(2.0);
 const float SQRT3 = sqrt(3.0);

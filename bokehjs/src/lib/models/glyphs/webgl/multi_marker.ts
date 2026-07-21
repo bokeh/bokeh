@@ -16,7 +16,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
   protected _unique_marker_types: (MarkerType | null)[]
   private readonly _show_by_type = new Map<MarkerType, Uint8Buffer>()
   private readonly _nshow_by_type = new Map<MarkerType, number>()
-  private _show_indices: number[] | null = null
+  private readonly _visible_marker_by_index = new Map<number, MarkerType>()
   private _show_nmarkers: number = -1
   private _show_marker_types?: Uniform<MarkerType | ExtMarkerType | null>
 
@@ -51,20 +51,28 @@ export class MultiMarkerGL extends BaseMarkerGL {
 
     const marker_gl = this !== main_gl_glyph && this._marker_types != null ? this : main_gl_glyph
     const marker_types = marker_gl._marker_types!
-    const rebuild_show = main_data_changed || derived_data_changed || this._show_nmarkers != nmarkers ||
-      this._show_marker_types !== marker_types || this._show_indices?.length != indices.length ||
-      !indices.every((index, i) => this._show_indices![i] == index)
+    const full_rebuild = main_data_changed || derived_data_changed || this._show_nmarkers != nmarkers ||
+      this._show_marker_types !== marker_types
+    const selection_changed = this.revision_changed("selection", "multi-marker-masks")
 
-    if (rebuild_show) {
-      for (const buffer of this._show_by_type.values()) {
-        buffer.get_sized_array(nmarkers).fill(0)
+    if (full_rebuild) {
+      const current_types = new Set(marker_gl._unique_marker_types.filter((marker) => marker != null))
+      for (const [marker_type, buffer] of this._show_by_type) {
+        if (!current_types.has(marker_type)) {
+          this.release(buffer)
+          this._show_by_type.delete(marker_type)
+        }
       }
       this._nshow_by_type.clear()
+      this._visible_marker_by_index.clear()
       for (const marker_type of marker_gl._unique_marker_types) {
-        if (marker_type != null && !this._show_by_type.has(marker_type)) {
-          const buffer = new Uint8Buffer(this.regl_wrapper)
+        if (marker_type != null) {
+          let buffer = this._show_by_type.get(marker_type)
+          if (buffer == null) {
+            buffer = this.own(new Uint8Buffer(this.regl_wrapper))
+            this._show_by_type.set(marker_type, buffer)
+          }
           buffer.get_sized_array(nmarkers).fill(0)
-          this._show_by_type.set(marker_type, buffer)
         }
       }
       for (const index of indices) {
@@ -72,14 +80,19 @@ export class MultiMarkerGL extends BaseMarkerGL {
         if (MarkerType.valid(marker_type)) {
           this._show_by_type.get(marker_type)!.get_sized_array(nmarkers)[index] = 255
           this._nshow_by_type.set(marker_type, (this._nshow_by_type.get(marker_type) ?? 0) + 1)
+          this._visible_marker_by_index.set(index, marker_type)
         }
       }
       for (const buffer of this._show_by_type.values()) {
         buffer.update()
       }
-      this._show_indices = [...indices]
       this._show_nmarkers = nmarkers
       this._show_marker_types = marker_types
+    } else if (selection_changed) {
+      this._patch_selection_masks(indices, marker_types, nmarkers)
+    }
+    if (full_rebuild || selection_changed) {
+      this.consume_revision("selection", "multi-marker-masks")
     }
 
     for (const marker_type of marker_gl._unique_marker_types) {
@@ -87,6 +100,64 @@ export class MultiMarkerGL extends BaseMarkerGL {
         continue
       }
       this._draw_one_marker_type(marker_type, transform, main_gl_glyph, this._show_by_type.get(marker_type))
+    }
+  }
+
+  private _patch_selection_masks(
+    indices: number[], marker_types: Uniform<MarkerType | ExtMarkerType | null>, nmarkers: number,
+  ): void {
+    const next = new Map<number, MarkerType>()
+    for (const index of indices) {
+      const marker_type = marker_types.get(index)
+      if (MarkerType.valid(marker_type)) {
+        next.set(index, marker_type)
+      }
+    }
+    const remaining = new Map(next)
+    const changed = new Map<MarkerType, number[]>()
+    const update = (marker_type: MarkerType, index: number, visible: boolean): void => {
+      this._show_by_type.get(marker_type)!.get_sized_array(nmarkers)[index] = visible ? 255 : 0
+      let changed_indices = changed.get(marker_type)
+      if (changed_indices == null) {
+        changed_indices = []
+        changed.set(marker_type, changed_indices)
+      }
+      changed_indices.push(index)
+      const count = (this._nshow_by_type.get(marker_type) ?? 0) + (visible ? 1 : -1)
+      if (count == 0) {
+        this._nshow_by_type.delete(marker_type)
+      } else {
+        this._nshow_by_type.set(marker_type, count)
+      }
+    }
+
+    for (const [index, previous_type] of this._visible_marker_by_index) {
+      const next_type = remaining.get(index)
+      if (next_type == previous_type) {
+        remaining.delete(index)
+      } else {
+        update(previous_type, index, false)
+        if (next_type != null) {
+          update(next_type, index, true)
+          remaining.delete(index)
+        }
+      }
+    }
+    for (const [index, marker_type] of remaining) {
+      update(marker_type, index, true)
+    }
+
+    for (const [marker_type, changed_indices] of changed) {
+      const buffer = this._show_by_type.get(marker_type)!
+      if (changed_indices.length <= nmarkers/4) {
+        buffer.update_ranges(changed_indices)
+      } else {
+        buffer.update()
+      }
+    }
+    this._visible_marker_by_index.clear()
+    for (const [index, marker_type] of next) {
+      this._visible_marker_by_index.set(index, marker_type)
     }
   }
 

@@ -15,6 +15,8 @@ import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet} from "core/dom"
 import * as canvas_css from "styles/canvas.css"
 import icons_css from "styles/icons.css"
+import type {WebGLRenderCommand} from "./webgl_compositor"
+import {WebGLCompositor} from "./webgl_compositor"
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -30,6 +32,7 @@ import icons_css from "styles/icons.css"
 export type WebGLState = {
   readonly canvas: HTMLCanvasElement | OffscreenCanvas
   readonly regl_wrapper: ReglWrapper
+  readonly backend: "webgl2" | "webgl1"
 }
 
 /** Cache a successful asynchronous initialization while sharing in-flight work.
@@ -56,18 +59,21 @@ async function init_webgl(): Promise<WebGLState | null> {
   // We use a global invisible canvas and gl context. By having a global context,
   // we avoid the limitation of max 16 contexts that most browsers have.
   const options = {alpha: true, antialias: false, depth: false, premultipliedAlpha: true}
-  const get_context = (canvas: HTMLCanvasElement | OffscreenCanvas) =>
-    canvas.getContext("webgl", options) as WebGLRenderingContext | null
+  const get_context = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
+    const gl2 = canvas.getContext("webgl2", options) as WebGL2RenderingContext | null
+    const gl1 = gl2 == null ? canvas.getContext("webgl", options) as WebGLRenderingContext | null : null
+    return {gl2, gl: gl2 ?? gl1}
+  }
 
   // A detached HTML WebGL canvas can still acquire a compositor surface in
   // WebKit and leak that surface beside the last visible plot. OffscreenCanvas
   // has no layout/compositor box and is also the natural home for shared GL.
   let canvas: HTMLCanvasElement | OffscreenCanvas = typeof OffscreenCanvas != "undefined" ?
     new OffscreenCanvas(0, 0) : document.createElement("canvas")
-  let gl = get_context(canvas)
+  let {gl2, gl} = get_context(canvas)
   if (gl == null && typeof OffscreenCanvas != "undefined" && canvas instanceof OffscreenCanvas) {
     canvas = document.createElement("canvas")
-    gl = get_context(canvas)
+    ;({gl2, gl} = get_context(canvas))
   }
 
   // If WebGL is available, we store a reference to the ReGL wrapper on
@@ -77,7 +83,7 @@ async function init_webgl(): Promise<WebGLState | null> {
     if (webgl != null) {
       const regl_wrapper = webgl.get_regl(gl)
       if (regl_wrapper.has_webgl) {
-        return {canvas, regl_wrapper}
+        return {canvas, regl_wrapper, backend: gl2 != null ? "webgl2" : "webgl1"}
       } else {
         logger.trace("WebGL is supported, but not the required extensions")
       }
@@ -98,6 +104,7 @@ export class CanvasView extends UIElementView {
 
   webgl: WebGLState | null = null
   private _webgl_dirty: boolean = false
+  private readonly _webgl_compositor = new WebGLCompositor()
 
   underlays_el: HTMLElement
   primary: CanvasLayer
@@ -221,6 +228,7 @@ export class CanvasView extends UIElementView {
     // Prepare WebGL for a drawing pass
     const {webgl} = this
     if (webgl != null) {
+      this._webgl_compositor.reset()
       // Sync canvas size
       const {width, height} = this.bbox
       const canvas_width = Math.floor(this.pixel_ratio*width)
@@ -246,8 +254,25 @@ export class CanvasView extends UIElementView {
     this._webgl_dirty = true
   }
 
+  reset_webgl_stats(): void {
+    this.webgl?.regl_wrapper.reset_batch_stats()
+  }
+
+  enqueue_webgl(command: WebGLRenderCommand): void {
+    this._webgl_compositor.enqueue(command)
+  }
+
+  flush_webgl(): void {
+    const {webgl} = this
+    if (webgl != null) {
+      this._webgl_compositor.flush()
+      webgl.regl_wrapper.flush()
+    }
+  }
+
   blit_webgl(ctx: Context2d): void {
     const {webgl} = this
+    this.flush_webgl()
     if (webgl != null && this._webgl_dirty && webgl.canvas.width*webgl.canvas.height > 0) {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.

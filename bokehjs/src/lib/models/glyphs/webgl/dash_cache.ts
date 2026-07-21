@@ -2,6 +2,7 @@ import {gcd, is_pow_2} from "./utils/math"
 import {concat} from "core/util/array"
 import {map} from "core/util/arrayable"
 import type {Regl, Texture2D} from "regl"
+import type {GPUResource} from "./resource_owner"
 
 export type DashReturn = [[number, number, number, number], Texture2D, number]
 type TextureReturn = [[number, number, number, number], Texture2D]
@@ -29,7 +30,7 @@ export function normalize_dash_pattern(pattern: number[]): number[] {
  * for different webgl lines. Dash is represented by a pattern containing an
  * even number of non-negative lengths.
  */
-export class DashCache {
+export class DashCache implements GPUResource {
   private _regl: Regl  // Needed to create textures.
   private _map: Map<string, DashReturn>
 
@@ -189,5 +190,16 @@ export class DashCache {
     }
 
     return this._get_or_create(pattern)
+  }
+
+  destroy(): void {
+    const textures = new Set<Texture2D>()
+    for (const [, texture] of this._map.values()) {
+      textures.add(texture)
+    }
+    for (const texture of textures) {
+      texture.destroy()
+    }
+    this._map.clear()
   }
 }

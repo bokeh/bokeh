@@ -108,6 +108,9 @@ export abstract class CompositeRendererView extends RendererView {
 
     if (this.displayed && this.is_renderable) {
       for (const renderer of this.computed_renderer_views) {
+        if (!renderer.has_webgl) {
+          this.plot_view.canvas_view.blit_webgl(ctx)
+        }
         renderer.paint(ctx)
       }
     }

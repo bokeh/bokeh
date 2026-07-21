@@ -17,6 +17,8 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   protected buffer?: Buffer
   protected array?: ArrayType
   protected is_scalar: boolean
+  private _revision = 0
+  private _uploaded_revision = 0
 
   // Number of buffer elements per rendered primitive, e.g. for RGBA buffers this is 4
   // as a single color is 4 x uint8 = 32-bit in total.
@@ -56,6 +58,14 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
 
   get is_scalar_value(): boolean {
     return this.is_scalar
+  }
+
+  get revision(): number {
+    return this._revision
+  }
+
+  get uploaded_revision(): number {
+    return this._uploaded_revision
   }
 
   protected abstract new_array(len: number): ArrayType
@@ -153,6 +163,7 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   // Update ReGL buffer with data contained in array in preparation for passing
   // it to the GPU.  This function must be called after get_sized_array().
   update(is_scalar: boolean = false): void {
+    this._revision++
     // Update buffer with data contained in array.
     if (this.buffer == null) {
       // Create new buffer.
@@ -162,16 +173,72 @@ export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
       })
     } else {
       // Reuse existing buffer.
+      this.regl_wrapper.flush()
       this.buffer({data: this.array})
     }
 
     this.is_scalar = is_scalar
+    this._uploaded_revision = this._revision
+  }
+
+  /** Upload a changed element range without reallocating or transferring the
+   * rest of the CPU-side array. Offsets and lengths are in array elements. */
+  update_range(offset: number, length: number): void {
+    const {array, buffer} = this
+    assert(array != null, "WrappedBuffer not yet initialised")
+    assert(offset >= 0 && length >= 0 && offset + length <= array.length, "invalid buffer update range")
+    if (length == 0) {
+      return
+    }
+    if (buffer == null || buffer.stats.size != array.byteLength) {
+      this.update(this.is_scalar)
+      return
+    }
+    this._revision++
+    this.regl_wrapper.flush()
+    buffer.subdata(array.subarray(offset, offset + length), offset*this.bytes_per_element())
+    this._uploaded_revision = this._revision
+  }
+
+  /** Upload sparse changed elements as coalesced contiguous ranges. */
+  update_ranges(indices: readonly number[]): void {
+    const {array, buffer} = this
+    assert(array != null, "WrappedBuffer not yet initialised")
+    if (indices.length == 0) {
+      return
+    }
+    if (buffer == null || buffer.stats.size != array.byteLength) {
+      this.update(this.is_scalar)
+      return
+    }
+
+    const sorted = [...new Set(indices)].sort((a, b) => a - b)
+    assert(sorted[0] >= 0 && sorted[sorted.length - 1] < array.length, "invalid sparse buffer update")
+    this.regl_wrapper.flush()
+    this._revision++
+    let start = sorted[0]
+    let end = start + 1
+    const upload = () => buffer.subdata(array.subarray(start, end), start*this.bytes_per_element())
+    for (let i = 1; i < sorted.length; i++) {
+      const index = sorted[i]
+      if (index == end) {
+        end++
+      } else {
+        upload()
+        start = index
+        end = index + 1
+      }
+    }
+    upload()
+    this._uploaded_revision = this._revision
   }
 
   destroy(): void {
+    this.regl_wrapper.flush()
     this.buffer?.destroy()
     this.buffer = undefined
     this.array = undefined
+    this._revision++
   }
 }
 
@@ -194,6 +261,14 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
     return new Uint8Array(len)
   }
 
+  private _alpha_byte(alpha: number): number {
+    const value = byte(alpha)
+    // Normalized colors are ultimately blended into an RGBA8 target. Preserve
+    // positive alpha at that target's minimum representable value instead of
+    // allowing it to round to full transparency.
+    return this.is_normalized() && alpha > 0 && value == 0 ? 1 : value
+  }
+
   set_from_color(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>): void {
     const is_scalar_colors = color_prop.is_Scalar()
     const is_scalar = is_scalar_colors && alpha_prop.is_Scalar()
@@ -203,8 +278,8 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
       const color_v = color_prop as ColorUniformVector
       const array = new Uint8Array(color_v.copy_buffer())
       for (let i = 0; i < ncolors; i++) {
-        const alpha = alpha_prop.get(i)
-        array[4*i+3] = byte(alpha*array[4*i+3])
+        const alpha = alpha_prop.get(i)*array[4*i+3]
+        array[4*i+3] = this._alpha_byte(alpha)
       }
       this.array = array
       this.update(is_scalar)
@@ -214,11 +289,11 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
     const array = this.get_sized_array(4*ncolors)
 
     for (let i = 0; i < ncolors; i++) {
-      const [r, g, b, a] = color2rgba(color_prop.get(i), alpha_prop.get(i))
+      const [r, g, b, a] = color2rgba(color_prop.get(i))
       array[4*i  ] = r
       array[4*i+1] = g
       array[4*i+2] = b
-      array[4*i+3] = a
+      array[4*i+3] = this._alpha_byte(alpha_prop.get(i)*a)
     }
 
     this.update(is_scalar)

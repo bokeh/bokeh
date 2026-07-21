@@ -38,28 +38,28 @@ export class PatchesGL extends BaseGLGlyph {
   _total_element_count: number = 0
 
   // Per-vertex visual buffers for polygon fill (divisor 0)
-  private _pv_fill_color = new NormalizedUint8Buffer(this.regl_wrapper, 4)
-  private _pv_hatch_patterns = new Uint8Buffer(this.regl_wrapper)
-  private _pv_hatch_scales = new Float32Buffer(this.regl_wrapper)
-  private _pv_hatch_weights = new Float32Buffer(this.regl_wrapper)
-  private _pv_hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper, 4)
+  private _pv_fill_color = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
+  private _pv_hatch_patterns = this.own(new Uint8Buffer(this.regl_wrapper))
+  private _pv_hatch_scales = this.own(new Float32Buffer(this.regl_wrapper))
+  private _pv_hatch_weights = this.own(new Float32Buffer(this.regl_wrapper))
+  private _pv_hatch_rgba = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
 
   // Source visual buffers (scalar or per-polygon, from _set_visuals)
-  private _fill_color = new NormalizedUint8Buffer(this.regl_wrapper, 4)
+  private _fill_color = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
   private _have_hatch: boolean = false
-  private readonly _hatch_patterns = new Uint8Buffer(this.regl_wrapper)
-  private readonly _hatch_scales = new Float32Buffer(this.regl_wrapper)
-  private readonly _hatch_weights = new Float32Buffer(this.regl_wrapper)
-  private readonly _hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper, 4)
+  private readonly _hatch_patterns = this.own(new Uint8Buffer(this.regl_wrapper))
+  private readonly _hatch_scales = this.own(new Float32Buffer(this.regl_wrapper))
+  private readonly _hatch_weights = this.own(new Float32Buffer(this.regl_wrapper))
+  private readonly _hatch_rgba = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
 
   // Stroke buffers
   private _line_points_buf?: Float32Buffer
   private _line_show_buf?: Uint8Buffer
   private _length_so_far_buf?: Float32Buffer
-  private readonly _linewidth = new Float32Buffer(this.regl_wrapper)
-  private readonly _line_color = new NormalizedUint8Buffer(this.regl_wrapper, 4)
-  private readonly _line_cap = new Uint8Buffer(this.regl_wrapper)
-  private readonly _line_join = new Uint8Buffer(this.regl_wrapper)
+  private readonly _linewidth = this.own(new Float32Buffer(this.regl_wrapper))
+  private readonly _line_color = this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4))
+  private readonly _line_cap = this.own(new Uint8Buffer(this.regl_wrapper))
+  private readonly _line_join = this.own(new Uint8Buffer(this.regl_wrapper))
 
   // Dash state
   private _is_dashed = false
@@ -198,19 +198,19 @@ export class PatchesGL extends BaseGLGlyph {
         }
 
         // Extract per-polygon visual values into scalar buffers
-        const linewidth = this._linewidth.extract_at(i, 1, this._draw_lw ??= new Float32Buffer(this.regl_wrapper))
-        const line_color = this._line_color.extract_at(i, 4, this._draw_lc ??= new NormalizedUint8Buffer(this.regl_wrapper, 4))
-        const line_cap = this._line_cap.extract_at(i, 1, this._draw_lcap ??= new Uint8Buffer(this.regl_wrapper))
-        const line_join = this._line_join.extract_at(i, 1, this._draw_ljoin ??= new Uint8Buffer(this.regl_wrapper))
+        const linewidth = this._linewidth.extract_at(i, 1, this._draw_lw ??= this.own(new Float32Buffer(this.regl_wrapper)))
+        const line_color = this._line_color.extract_at(i, 4, this._draw_lc ??= this.own(new NormalizedUint8Buffer(this.regl_wrapper, 4)))
+        const line_cap = this._line_cap.extract_at(i, 1, this._draw_lcap ??= this.own(new Uint8Buffer(this.regl_wrapper)))
+        const line_join = this._line_join.extract_at(i, 1, this._draw_ljoin ??= this.own(new Uint8Buffer(this.regl_wrapper)))
 
         let dash_tex_info: Float32Buffer | undefined
         let dash_scale: Float32Buffer | undefined
         let dash_offset: Float32Buffer | undefined
         const dash_i = Math.min(i, this._dash_tex.length - 1)
         if (this._is_dashed && this._dash_tex[dash_i] != null) {
-          dash_tex_info = this._dash_tex_info!.extract_at(i, 4, this._draw_dti ??= new Float32Buffer(this.regl_wrapper, 4))
-          dash_scale = this._dash_scale!.extract_at(i, 1, this._draw_ds ??= new Float32Buffer(this.regl_wrapper))
-          dash_offset = this._dash_offset!.extract_at(i, 1, this._draw_do ??= new Float32Buffer(this.regl_wrapper))
+          dash_tex_info = this._dash_tex_info!.extract_at(i, 4, this._draw_dti ??= this.own(new Float32Buffer(this.regl_wrapper, 4)))
+          dash_scale = this._dash_scale!.extract_at(i, 1, this._draw_ds ??= this.own(new Float32Buffer(this.regl_wrapper)))
+          dash_offset = this._dash_offset!.extract_at(i, 1, this._draw_do ??= this.own(new Float32Buffer(this.regl_wrapper)))
         }
 
         const rings = poly_data.line_rings[i]
@@ -231,14 +231,14 @@ export class PatchesGL extends BaseGLGlyph {
 
           // Upload this ring's line data
           if (this._line_points_buf == null) {
-            this._line_points_buf = new Float32Buffer(this.regl_wrapper)
+            this._line_points_buf = this.own(new Float32Buffer(this.regl_wrapper))
           }
           const pts_array = this._line_points_buf.get_sized_array(ring.points.length)
           pts_array.set(ring.points)
           this._line_points_buf.update()
 
           if (this._line_show_buf == null) {
-            this._line_show_buf = new Uint8Buffer(this.regl_wrapper)
+            this._line_show_buf = this.own(new Uint8Buffer(this.regl_wrapper))
           }
           const shw_array = this._line_show_buf.get_sized_array(ring.show.length)
           shw_array.set(ring.show)
@@ -265,7 +265,7 @@ export class PatchesGL extends BaseGLGlyph {
           if (this._is_dashed && dash_tex_info != null) {
             // Upload length_so_far for this ring
             if (this._length_so_far_buf == null) {
-              this._length_so_far_buf = new Float32Buffer(this.regl_wrapper)
+              this._length_so_far_buf = this.own(new Float32Buffer(this.regl_wrapper))
             }
             const lsf_array = this._length_so_far_buf.get_sized_array(ring.length_so_far.length)
             lsf_array.set(ring.length_so_far)
@@ -390,12 +390,12 @@ export class PatchesGL extends BaseGLGlyph {
     // Pass 2: copy per-polygon results directly into destination buffers.
     const total_vertices = total_coords / 2
     if (this._positions == null) {
-      this._positions = new Float32Buffer(this.regl_wrapper, 2)
+      this._positions = this.own(new Float32Buffer(this.regl_wrapper, 2))
     }
     const pos_array = this._positions.get_sized_array(total_coords)
 
     if (this._edge_distance == null) {
-      this._edge_distance = new Float32Buffer(this.regl_wrapper)
+      this._edge_distance = this.own(new Float32Buffer(this.regl_wrapper))
     }
     const ed_array = this._edge_distance.get_sized_array(total_vertices)
 
@@ -456,16 +456,14 @@ export class PatchesGL extends BaseGLGlyph {
     // Upload merged element buffer
     this._total_element_count = total_elements
     if (elem_array != null) {
-      this._elements?.destroy()
+      this._elements = this.release(this._elements)
       if (total_elements > 0) {
-        this._elements = this.regl_wrapper.elements({
+        this._elements = this.own(this.regl_wrapper.elements({
           usage: "static",
           primitive: "triangles",
           data: elem_array,
           type: "uint32",
-        })
-      } else {
-        this._elements = null
+        }))
       }
     }
     this._elements_signature = elements_signature
@@ -495,17 +493,17 @@ export class PatchesGL extends BaseGLGlyph {
 
     if (this._is_dashed) {
       if (this._dash_offset == null) {
-        this._dash_offset = new Float32Buffer(this.regl_wrapper)
+        this._dash_offset = this.own(new Float32Buffer(this.regl_wrapper))
       }
       this._dash_offset.set_from_prop(line_visuals.line_dash_offset)
 
       if (this._dash_tex_info == null) {
-        this._dash_tex_info = new Float32Buffer(this.regl_wrapper, 4)
+        this._dash_tex_info = this.own(new Float32Buffer(this.regl_wrapper, 4))
       }
       const dash_tex_info = this._dash_tex_info.get_sized_array(4*n)
 
       if (this._dash_scale == null) {
-        this._dash_scale = new Float32Buffer(this.regl_wrapper)
+        this._dash_scale = this.own(new Float32Buffer(this.regl_wrapper))
       }
       const dash_scale = this._dash_scale.get_sized_array(n)
 

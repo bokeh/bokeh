@@ -1,4 +1,5 @@
-precision highp float;
+#include <bokeh_vertex_precision>
+#include <bokeh_screen_projection>
 
 attribute vec2 a_position;
 attribute vec4 a_fill_color;
@@ -37,7 +38,5 @@ void main()
   v_hatch_coords = a_position;
 #endif
 
-  vec2 pos = a_position + 0.5;  // Bokeh's offset.
-  pos /= u_canvas_size;  // in 0..1
-  gl_Position = vec4(2.0*pos.x - 1.0, 1.0 - 2.0*pos.y, 0.0, 1.0);
+  gl_Position = bokeh_screen_to_clip(a_position, u_canvas_size);
 }

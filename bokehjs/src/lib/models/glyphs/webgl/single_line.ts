@@ -57,7 +57,7 @@ export abstract class SingleLineGL extends BaseLineGL {
       const npoints = points_array.length/2 - 2
 
       if (this._show == null) {
-        this._show = new Uint8Buffer(this.regl_wrapper)
+        this._show = this.own(new Uint8Buffer(this.regl_wrapper))
       }
       const show_array = this._show.get_sized_array(npoints+1)
       this._set_show_single(show_array, points_array)
@@ -75,7 +75,7 @@ export abstract class SingleLineGL extends BaseLineGL {
     const npoints = points_array.length/2 - 2
 
     if (this._length_so_far == null) {
-      this._length_so_far = new Float32Buffer(this.regl_wrapper)
+      this._length_so_far = this.own(new Float32Buffer(this.regl_wrapper))
     }
     const length_so_far = this._length_so_far.get_sized_array(npoints - 1)
     this._set_length_single(length_so_far, points_array, show_array)

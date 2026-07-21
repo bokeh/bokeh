@@ -11,9 +11,7 @@ export type SingleMarkerGlyphView = GlyphView & {
 }
 
 export abstract class SingleMarkerGL extends BaseMarkerGL {
-
-  private _show_indices: number[] | null = null
-
+  private _visible_indices: number[] = []
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: SingleMarkerGlyphView) {
     super(regl_wrapper, glyph)
   }
@@ -51,28 +49,52 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
 
     const prev_nmarkers = this._show.length
     const show_array = this._show.get_sized_array(nmarkers)
+    const selection_changed = this.revision_changed("selection", "single-marker-mask")
     let show_changed = false
+    let changed_indices: number[] | null = null
     if (indices.length < nmarkers) {
+      const was_show_all = this._show_all
       this._show_all = false
-      const same_indices = this._show_indices?.length == indices.length &&
-        indices.every((index, i) => this._show_indices![i] == index)
-      if (prev_nmarkers != nmarkers || !same_indices) {
-        show_array.fill(0)
-        for (const index of indices) {
-          show_array[index] = 255
+      if (prev_nmarkers != nmarkers || selection_changed) {
+        if (prev_nmarkers == nmarkers && !was_show_all) {
+          const previous = new Set(this._visible_indices)
+          const next = new Set(indices)
+          changed_indices = []
+          for (const index of previous) {
+            if (!next.has(index)) {
+              show_array[index] = 0
+              changed_indices.push(index)
+            }
+          }
+          for (const index of next) {
+            if (!previous.has(index)) {
+              show_array[index] = 255
+              changed_indices.push(index)
+            }
+          }
+        } else {
+          show_array.fill(0)
+          for (const index of indices) {
+            show_array[index] = 255
+          }
         }
-        this._show_indices = [...indices]
+        this._visible_indices = [...indices]
         show_changed = true
       }
     } else if (!this._show_all || prev_nmarkers != nmarkers) {
       this._show_all = true
-      this._show_indices = null
+      this._visible_indices = []
       show_array.fill(255)
       show_changed = true
     }
     if (show_changed) {
-      this._show.update()
+      if (changed_indices != null && changed_indices.length <= nmarkers/4) {
+        this._show.update_ranges(changed_indices)
+      } else {
+        this._show.update()
+      }
     }
+    this.consume_revision("selection", "single-marker-mask")
 
     this._draw_one_marker_type(this.marker_type, transform, main_gl_glyph)
   }

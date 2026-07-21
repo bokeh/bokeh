@@ -1,7 +1,9 @@
 import {expect} from "#framework/assertions"
 
-import {expand_to_per_vertex, Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
+import {expand_to_per_vertex, Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 import type {ReglWrapper} from "@bokehjs/models/glyphs/webgl/regl_wrap"
+import {UniformScalar, UniformVector} from "@bokehjs/core/uniforms"
+import {encode_rgba} from "@bokehjs/core/util/color"
 import type {Buffer} from "regl"
 
 // Lightweight mock objects that satisfy expand_to_per_vertex's duck-typed interfaces.
@@ -151,12 +153,51 @@ describe("expand_to_per_vertex", () => {
 })
 
 describe("WrappedBuffer", () => {
+  it("should preserve positive alpha at normalized RGBA8 precision", () => {
+    const gpu_buffer = Object.assign((_options: unknown) => {}, {destroy() {}}) as unknown as Buffer
+    const regl_wrapper = {
+      flush() {},
+      flush_resource() {},
+      buffer() { return gpu_buffer },
+    } as unknown as ReglWrapper
+    const buffer = new NormalizedUint8Buffer(regl_wrapper, 4)
+    const color = new UniformScalar(encode_rgba([31, 119, 180, 255]), 10_000)
+
+    buffer.set_from_color(color, new UniformScalar(0.001, 10_000))
+    expect(buffer.get_array()[3]).to.be.equal(1)
+    expect(buffer.to_attribute_config()).to.be.equal({
+      buffer: gpu_buffer, divisor: 1, normalized: true, offset: 0,
+    })
+    const expanded = new NormalizedUint8Buffer(regl_wrapper, 4)
+    expand_to_per_vertex(buffer, expanded, [3, 4], 4)
+    expect(expanded.to_per_vertex_config()).to.be.equal({
+      buffer: gpu_buffer, divisor: 0, normalized: true, offset: 0,
+    })
+
+    buffer.set_from_color(color, new UniformScalar(0, 10_000))
+    expect(buffer.get_array()[3]).to.be.equal(0)
+    expect(buffer.to_attribute_config()).to.be.equal({
+      buffer: gpu_buffer, divisor: 1, normalized: true, offset: 0,
+    })
+
+    buffer.set_from_color(color, new UniformVector([0.001, 0.5]))
+    expect(buffer.get_array().slice(0, 8)).to.be.equal(new Uint8Array([31, 119, 180, 1, 31, 119, 180, 128]))
+    expect(buffer.to_attribute_config()).to.be.equal({
+      buffer: gpu_buffer, divisor: 1, normalized: true, offset: 0,
+    })
+
+    const unnormalized = new Uint8Buffer(regl_wrapper, 4)
+    unnormalized.set_from_color(color, new UniformScalar(0.001, 10_000))
+    expect(unnormalized.get_array()[3]).to.be.equal(0)
+  })
+
   it("should release its GPU buffer exactly once", () => {
     let destroyed = 0
     const gpu_buffer = Object.assign((_options: unknown) => {}, {
       destroy() { destroyed++ },
     }) as unknown as Buffer
     const regl_wrapper = {
+      flush() {},
       buffer() { return gpu_buffer },
     } as unknown as ReglWrapper
 
@@ -167,5 +208,31 @@ describe("WrappedBuffer", () => {
 
     expect(destroyed).to.be.equal(1)
     expect(buffer.length).to.be.equal(0)
+  })
+
+  it("should upload sparse changes with byte offsets", () => {
+    const updates: {data: number[], offset: number}[] = []
+    const gpu_buffer = Object.assign((_options: unknown) => {}, {
+      stats: {size: 4*Float32Array.BYTES_PER_ELEMENT},
+      subdata(data: Float32Array, offset: number) {
+        updates.push({data: [...data], offset})
+      },
+      destroy() {},
+    }) as unknown as Buffer
+    const regl_wrapper = {
+      flush() {},
+      buffer() { return gpu_buffer },
+    } as unknown as ReglWrapper
+
+    const buffer = new Float32Buffer(regl_wrapper)
+    buffer.set_from_array([1, 2, 3, 4])
+    const revision = buffer.uploaded_revision
+    const array = buffer.get_array()
+    array[1] = 20
+    array[2] = 30
+    buffer.update_range(1, 2)
+
+    expect(updates).to.be.equal([{data: [20, 30], offset: Float32Array.BYTES_PER_ELEMENT}])
+    expect(buffer.uploaded_revision).to.be.equal(revision + 1)
   })
 })

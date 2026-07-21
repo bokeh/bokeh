@@ -1,8 +1,4 @@
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
+#include <bokeh_fragment_precision>
 
 uniform float u_antialias;
 

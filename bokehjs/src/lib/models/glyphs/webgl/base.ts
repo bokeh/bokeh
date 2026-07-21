@@ -2,7 +2,10 @@
 import type {Context2d} from "core/util/canvas"
 import type {GlyphView} from "../glyph"
 import type {ReglWrapper} from "./regl_wrap"
-import {WrappedBuffer} from "./buffer"
+import type {GPUResource} from "./resource_owner"
+import {GPUResourceOwner} from "./resource_owner"
+import type {RevisionDomain} from "./revisions"
+import {RevisionState} from "./revisions"
 
 export type BaseGLGlyphConstructor = {
   new(regl: ReglWrapper, base_glyph: GlyphView): BaseGLGlyph
@@ -10,10 +13,41 @@ export type BaseGLGlyphConstructor = {
 
 export abstract class BaseGLGlyph {
   protected nvertices: number = 0
-  protected size_changed: boolean = false
-  protected data_changed: boolean = false
-  protected data_mapped: boolean = false
-  protected visuals_changed: boolean = false
+  private readonly _resources = new GPUResourceOwner()
+  protected readonly revisions = new RevisionState()
+
+  protected get data_changed(): boolean {
+    return this.revisions.changed("geometry", "legacy-data")
+  }
+  protected set data_changed(changed: boolean) {
+    if (changed) {
+      this.revisions.bump("geometry")
+    } else {
+      this.revisions.consume("geometry", "legacy-data")
+    }
+  }
+
+  protected get data_mapped(): boolean {
+    return this.revisions.changed("mapping", "legacy-mapping")
+  }
+  protected set data_mapped(changed: boolean) {
+    if (changed) {
+      this.revisions.bump("mapping")
+    } else {
+      this.revisions.consume("mapping", "legacy-mapping")
+    }
+  }
+
+  protected get visuals_changed(): boolean {
+    return this.revisions.changed("visuals", "legacy-visuals")
+  }
+  protected set visuals_changed(changed: boolean) {
+    if (changed) {
+      this.revisions.bump("visuals")
+    } else {
+      this.revisions.consume("visuals", "legacy-visuals")
+    }
+  }
 
   constructor(protected readonly regl_wrapper: ReglWrapper, readonly glyph: GlyphView) {}
 
@@ -21,61 +55,65 @@ export abstract class BaseGLGlyph {
     const {data_size} = this.glyph
     if (data_size != this.nvertices) {
       this.nvertices = data_size
-      this.size_changed = true
     }
-
-    this.data_changed = true
+    this.revisions.bump("geometry")
   }
 
   set_data_mapped(): void {
-    this.data_mapped = true
+    this.revisions.bump("mapping")
   }
 
   set_visuals_changed(): void {
-    this.visuals_changed = true
+    this.revisions.bump("visuals")
   }
 
   render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): void {
     if (indices.length == 0) {
       return
     }
-    const {width, height} = this.glyph.renderer.plot_view.canvas_view.webgl!.canvas
-    const {pixel_ratio} = this.glyph.renderer.plot_view.canvas_view
-    const trans = {
-      pixel_ratio,  // Needed to scale antialiasing
-      width:  width / pixel_ratio,
-      height: height / pixel_ratio,
-    }
-    this.draw(indices, mainglyph, trans)
-    this.glyph.renderer.plot_view.canvas_view.mark_webgl_dirty()
+    const canvas_view = this.glyph.renderer.plot_view.canvas_view
+    const queued_indices = [...indices]
+    canvas_view.enqueue_webgl({
+      label: this.glyph.toString(),
+      execute: () => {
+        this.revisions.sync_selection(queued_indices)
+        const {width, height} = canvas_view.webgl!.canvas
+        const {pixel_ratio} = canvas_view
+        const trans = {
+          pixel_ratio,
+          width:  width / pixel_ratio,
+          height: height / pixel_ratio,
+        }
+        this.draw(queued_indices, mainglyph, trans)
+        canvas_view.mark_webgl_dirty()
+      },
+    })
   }
 
   abstract draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
 
-  /** Release every buffer owned by this glyph. Shared shader programs, dash
-   * textures, and framebuffer resources remain owned by ReglWrapper. */
-  destroy(): void {
-    const destroyed = new Set<WrappedBuffer<any>>()
-    const destroy = (value: unknown): void => {
-      if (value instanceof WrappedBuffer) {
-        if (!destroyed.has(value)) {
-          destroyed.add(value)
-          value.destroy()
-        }
-      } else if (Array.isArray(value)) {
-        for (const item of value) {
-          destroy(item)
-        }
-      } else if (value instanceof Map) {
-        for (const item of value.values()) {
-          destroy(item)
-        }
-      }
-    }
+  protected own<T extends GPUResource>(resource: T): T {
+    return this._resources.own(resource)
+  }
 
-    for (const value of Object.values(this)) {
-      destroy(value)
-    }
+  protected release<T extends GPUResource>(resource: T | null | undefined): null {
+    return this._resources.release(resource)
+  }
+
+  protected replace<T extends GPUResource>(previous: T | null | undefined, replacement: T): T {
+    return this._resources.replace(previous, replacement)
+  }
+
+  protected revision_changed(domain: RevisionDomain, consumer: string): boolean {
+    return this.revisions.changed(domain, consumer)
+  }
+
+  protected consume_revision(domain: RevisionDomain, consumer: string): number {
+    return this.revisions.consume(domain, consumer)
+  }
+
+  destroy(): void {
+    this._resources.destroy()
   }
 }
 

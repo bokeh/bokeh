@@ -1,4 +1,5 @@
-precision highp float;
+#include <bokeh_vertex_precision>
+#include <bokeh_screen_projection>
 
 attribute vec2 a_position;
 attribute vec4 a_bounds;
@@ -15,7 +16,5 @@ void main()
   float y = a_position.y < 0.0 ? a_bounds[1] : a_bounds[3];
   vec2 xy = vec2(x, y);
 
-  vec2 pos = xy + 0.5;  // Bokeh's offset.
-  pos /= u_canvas_size;  // in 0..1
-  gl_Position = vec4(2.0*pos.x - 1.0, 1.0 - 2.0*pos.y, 0.0, 1.0);
+  gl_Position = bokeh_screen_to_clip(xy, u_canvas_size);
 }
