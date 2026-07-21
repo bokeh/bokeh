@@ -196,9 +196,31 @@ describe("polygon_utils", () => {
 
     it("should handle empty rings array", () => {
       const groups = classify_rings([])
-      expect(groups.length).to.be.equal(1)
-      expect(groups[0].rings.length).to.be.equal(0)
-      expect(groups[0].flat_coords).to.be.equal([])
+      expect(groups).to.be.equal([])
+    })
+
+    it("should classify nested islands using the even-odd rule", () => {
+      const outer = [0, 0, 20, 0, 20, 20, 0, 20]
+      const hole = [2, 2, 18, 2, 18, 18, 2, 18]
+      const island = [5, 5, 15, 5, 15, 15, 5, 15]
+      const island_hole = [7, 7, 13, 7, 13, 13, 7, 13]
+
+      const groups = classify_rings([outer, hole, island, island_hole])
+      expect(groups.length).to.be.equal(2)
+      expect(groups[0].rings).to.be.equal([outer, hole])
+      expect(groups[1].rings).to.be.equal([island, island_hole])
+    })
+
+    it("should classify holes independently of input ordering and orientation", () => {
+      const outer = [0, 0, 0, 20, 20, 20, 20, 0]
+      const hole = [4, 4, 16, 4, 16, 16, 4, 16]
+      const disjoint = [30, 0, 40, 0, 40, 10, 30, 10]
+      const disjoint_hole = [32, 2, 32, 8, 38, 8, 38, 2]
+
+      const groups = classify_rings([hole, disjoint_hole, outer, disjoint])
+      expect(groups.length).to.be.equal(2)
+      expect(groups[0].rings).to.be.equal([outer, hole])
+      expect(groups[1].rings).to.be.equal([disjoint, disjoint_hole])
     })
   })
 

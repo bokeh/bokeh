@@ -6,6 +6,24 @@ import type {Regl, Texture2D} from "regl"
 export type DashReturn = [[number, number, number, number], Texture2D, number]
 type TextureReturn = [[number, number, number, number], Texture2D]
 
+export function normalize_dash_pattern(pattern: number[]): number[] {
+  for (const value of pattern) {
+    if (!Number.isFinite(value) || value < 0) {
+      throw new Error(`invalid line dash pattern: ${pattern.join(",")}`)
+    }
+  }
+
+  if (pattern.length % 2 == 1) {
+    pattern = concat([pattern, pattern])
+  }
+
+  let total = 0
+  for (const value of pattern) {
+    total += value
+  }
+  return total == 0 ? [] : pattern
+}
+
 /*
  * DashCache creates and stores webgl resources for dashes that can be reused
  * for different webgl lines.  Dash represented by pattern which is a list of

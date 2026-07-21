@@ -9,6 +9,7 @@ import type {Elements, Texture2D} from "regl"
 import type * as p from "core/properties"
 import type {HatchPattern} from "core/property_mixins"
 import {resolve_line_dash} from "core/visuals/line"
+import {normalize_dash_pattern} from "./dash_cache"
 import {split_rings, classify_rings, build_line_from_ring, generate_skirt_geometry, POLYGON_AA_WIDTH} from "core/util/polygon"
 import type {SkirtGeometry, RingLineData} from "core/util/polygon"
 import earcut from "earcut"
@@ -22,6 +23,11 @@ type PolygonData = {
   // Offsets and counts are in element index units (not bytes).
   fill_element_offsets: number[]
   fill_element_counts: number[]
+}
+
+type GroupTopology = {
+  ring_indices: number[]
+  tri_indices: number[]
 }
 
 export class PatchesGL extends BaseGLGlyph {
@@ -76,6 +82,8 @@ export class PatchesGL extends BaseGLGlyph {
   _poly_data?: PolygonData
 
   private _pv_dirty = true
+  private _topology?: (GroupTopology[] | null)[]
+  private _elements_signature: string = ""
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: PatchesView) {
     super(regl_wrapper, glyph)
@@ -88,6 +96,7 @@ export class PatchesGL extends BaseGLGlyph {
   draw(indices: number[], main_glyph: GlyphView, transform: Transform): void {
     const main_patches = main_glyph as PatchesView
     const main_gl = main_patches.glglyph!
+    const derived_data_changed = this !== main_gl && this.data_changed
 
     if (this.visuals_changed) {
       this._set_visuals()
@@ -95,11 +104,17 @@ export class PatchesGL extends BaseGLGlyph {
       this._pv_dirty = true
     }
 
-    const data_changed_or_mapped = main_gl.data_changed || main_gl.data_mapped
+    const data_changed = main_gl.data_changed
+    const data_changed_or_mapped = data_changed || main_gl.data_mapped
     if (data_changed_or_mapped) {
-      main_gl._set_data()
+      main_gl._set_data(data_changed)
       main_gl.data_changed = false
       main_gl.data_mapped = false
+      this._pv_dirty ||= data_changed || derived_data_changed
+    }
+    if (this !== main_gl && (this.data_changed || this.data_mapped)) {
+      this.data_changed = false
+      this.data_mapped = false
       this._pv_dirty = true
     }
 
@@ -206,6 +221,10 @@ export class PatchesGL extends BaseGLGlyph {
           }
 
           const nsegments = ring.nline - 1
+          const linewidth_value = linewidth.get_array()[0]
+          const scissor = this.regl_wrapper.scissor_for_points(
+            ring.points, 1.5 + 5*linewidth_value, transform.pixel_ratio,
+          )
 
           const [framebuffer, tex] = this.regl_wrapper.framebuffer_and_texture
           this.regl_wrapper.clear_framebuffer(framebuffer)
@@ -226,7 +245,7 @@ export class PatchesGL extends BaseGLGlyph {
           this._line_show_buf.update()
 
           const solid_props: LineGlyphProps = {
-            scissor: this.regl_wrapper.scissor,
+            scissor,
             viewport: this.regl_wrapper.viewport,
             canvas_size,
             antialias: 1.5 / transform.pixel_ratio,
@@ -266,7 +285,7 @@ export class PatchesGL extends BaseGLGlyph {
           }
 
           const accumulate_props: AccumulateProps = {
-            scissor: this.regl_wrapper.scissor,
+            scissor,
             viewport: this.regl_wrapper.viewport,
             framebuffer_tex: tex,
           }
@@ -276,9 +295,14 @@ export class PatchesGL extends BaseGLGlyph {
     }
   }
 
-  _set_data(): void {
+  _set_data(data_changed: boolean = true): void {
     const {sxs, sys} = this.glyph
     const npoly = this.glyph.data_size
+    const topology_changed = data_changed || this._topology == null || this._topology.length != npoly
+    let elements_changed = topology_changed
+    if (topology_changed) {
+      this._topology = new Array(npoly).fill(null)
+    }
 
     // Pass 1: triangulate each polygon, generate skirt geometry, and tally total sizes.
     // Each polygon's rings are classified into groups (outer + holes vs disjoint parts),
@@ -296,6 +320,7 @@ export class PatchesGL extends BaseGLGlyph {
     const fill_element_offsets = new Array<number>(npoly)
     const fill_element_counts = new Array<number>(npoly)
     const line_rings: RingLineData[][] = new Array(npoly)
+    const active_topology: string[] = []
 
     let total_coords = 0
     let total_elements = 0
@@ -308,24 +333,35 @@ export class PatchesGL extends BaseGLGlyph {
       line_rings[i] = []
 
       if (rings.length > 0) {
-        const groups = classify_rings(rings)
+        let topology = this._topology![i]
+        if (topology_changed || topology == null || topology.some(({ring_indices}) =>
+          ring_indices.some((index) => index >= rings.length))) {
+          elements_changed = true
+          const groups = classify_rings(rings)
+          topology = groups.map(({flat_coords, rings: group_rings}) => {
+            const ring_indices = group_rings.map((ring) => rings.indexOf(ring))
+            const hole_indices: number[] = []
+            let offset = 0
+            for (let r = 0; r < group_rings.length; r++) {
+              if (r > 0) {
+                hole_indices.push(offset)
+              }
+              offset += group_rings[r].length / 2
+            }
+            const tri_indices = earcut(flat_coords, hole_indices.length > 0 ? hole_indices : undefined, 2)
+            return {ring_indices, tri_indices}
+          })
+          this._topology![i] = topology
+        }
+        active_topology.push(topology.map(({tri_indices}) => tri_indices.length).join(","))
         const group_results: GroupResult[] = []
 
         let poly_nvertices = 0
         let poly_elements = 0
 
-        for (const group of groups) {
-          const {flat_coords, rings: group_rings} = group
-          const hole_indices: number[] = []
-          let offset = 0
-          for (let r = 0; r < group_rings.length; r++) {
-            if (r > 0) {
-              hole_indices.push(offset)
-            }
-            offset += group_rings[r].length / 2
-          }
-
-          const tri_indices = earcut(flat_coords, hole_indices.length > 0 ? hole_indices : undefined, 2)
+        for (const {ring_indices, tri_indices} of topology) {
+          const group_rings = ring_indices.map((index) => rings[index])
+          const flat_coords = group_rings.flat()
           const geom = generate_skirt_geometry(flat_coords, group_rings, tri_indices, POLYGON_AA_WIDTH)
 
           group_results.push({geom, rings: group_rings})
@@ -340,6 +376,10 @@ export class PatchesGL extends BaseGLGlyph {
         total_coords += poly_nvertices * 2
         total_elements += poly_elements
       } else {
+        active_topology.push("")
+        if (data_changed) {
+          this._topology![i] = null
+        }
         per_poly[i] = null
         fill_nvertices[i] = 0
         fill_element_offsets[i] = total_elements
@@ -359,7 +399,9 @@ export class PatchesGL extends BaseGLGlyph {
     }
     const ed_array = this._edge_distance.get_sized_array(total_vertices)
 
-    const elem_array = new Uint32Array(total_elements)
+    const elements_signature = active_topology.join(";")
+    elements_changed ||= elements_signature != this._elements_signature
+    const elem_array = elements_changed || this._elements == null ? new Uint32Array(total_elements) : null
     let pos_offset = 0
     let ed_offset = 0
     let elem_offset = 0
@@ -381,8 +423,10 @@ export class PatchesGL extends BaseGLGlyph {
         ed_offset += geom.edge_distance.length
 
         // Offset indices by vertex_offset for merged buffer
-        for (let j = 0; j < geom.indices.length; j++) {
-          elem_array[elem_offset + j] = geom.indices[j] + vertex_offset
+        if (elem_array != null) {
+          for (let j = 0; j < geom.indices.length; j++) {
+            elem_array[elem_offset + j] = geom.indices[j] + vertex_offset
+          }
         }
         elem_offset += geom.indices.length
         vertex_offset += geom.nvertices
@@ -411,19 +455,20 @@ export class PatchesGL extends BaseGLGlyph {
 
     // Upload merged element buffer
     this._total_element_count = total_elements
-    if (this._elements != null) {
-      this._elements.destroy()
+    if (elem_array != null) {
+      this._elements?.destroy()
+      if (total_elements > 0) {
+        this._elements = this.regl_wrapper.elements({
+          usage: "static",
+          primitive: "triangles",
+          data: elem_array,
+          type: "uint32",
+        })
+      } else {
+        this._elements = null
+      }
     }
-    if (total_elements > 0) {
-      this._elements = this.regl_wrapper.elements({
-        usage: "static",
-        primitive: "triangles",
-        data: elem_array,
-        type: "uint32",
-      })
-    } else {
-      this._elements = null
-    }
+    this._elements_signature = elements_signature
   }
 
   private _set_visuals(): void {
@@ -438,15 +483,21 @@ export class PatchesGL extends BaseGLGlyph {
 
     // Dash detection
     const {line_dash} = line_visuals
-    this._is_dashed = !(line_dash.is_Scalar() && line_dash.get(0).length == 0)
+    const n = line_dash.is_Scalar() ? 1 : line_dash.length
+    const patterns = new Array<number[]>(n)
+    this._is_dashed = false
+    for (let i = 0; i < n; i++) {
+      const pattern = normalize_dash_pattern(resolve_line_dash(line_dash.get(i)))
+      patterns[i] = pattern
+      this._is_dashed ||= pattern.length != 0
+    }
+    this._dash_tex = []
 
     if (this._is_dashed) {
       if (this._dash_offset == null) {
         this._dash_offset = new Float32Buffer(this.regl_wrapper)
       }
       this._dash_offset.set_from_prop(line_visuals.line_dash_offset)
-
-      const n = line_dash.length
 
       if (this._dash_tex_info == null) {
         this._dash_tex_info = new Float32Buffer(this.regl_wrapper, 4)
@@ -458,9 +509,8 @@ export class PatchesGL extends BaseGLGlyph {
       }
       const dash_scale = this._dash_scale.get_sized_array(n)
 
-      this._dash_tex = []
       for (let i = 0; i < n; i++) {
-        const arr = resolve_line_dash(line_dash.get(i))
+        const arr = patterns[i]
         if (arr.length > 0) {
           const [tex_info, tex, scale] = this.regl_wrapper.get_dash(arr)
           this._dash_tex.push(tex)
