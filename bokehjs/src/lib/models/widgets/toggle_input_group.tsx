@@ -7,6 +7,7 @@ import checkbox_css from "styles/widgets/checkbox.css"
 export abstract class ToggleInputGroupView extends WidgetView {
   declare readonly model: ToggleInputGroup
   declare readonly signals: p.SignalsOf<ToggleInputGroup.Props>
+  declare readonly values: ToggleInputGroup.Props
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), inputs_css, checkbox_css]
