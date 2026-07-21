@@ -7,12 +7,37 @@ import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {cbb} from "core/util/algorithms"
 import * as p from "core/properties"
+import type {PathGL} from "./webgl/path"
+import {cubic_curve} from "./curve"
+import type {ScreenLine} from "./curve"
 
 export interface BezierView extends Bezier.Data {}
 
 export class BezierView extends GlyphView {
   declare model: Bezier
   declare visuals: Bezier.Visuals
+
+  /** @internal */
+  declare glglyph?: PathGL
+
+  override async load_glglyph() {
+    const {PathGL} = await import("./webgl/path")
+    return PathGL
+  }
+
+  webgl_lines(): ScreenLine[] {
+    const lines = new Array<ScreenLine>(this.data_size)
+    for (let i = 0; i < this.data_size; i++) {
+      const values = [
+        this.sx0[i], this.sy0[i], this.scx0[i], this.scy0[i],
+        this.scx1[i], this.scy1[i], this.sx1[i], this.sy1[i],
+      ]
+      lines[i] = values.every(isFinite) ? cubic_curve(
+        [values[0], values[1]], [values[2], values[3]], [values[4], values[5]], [values[6], values[7]],
+      ) : {sx: Float32Array.of(NaN, NaN), sy: Float32Array.of(NaN, NaN)}
+    }
+    return lines
+  }
 
   protected override _project_data(): void {
     this._project_xy<Bezier.Data>("x0", this.x0, "y0", this.y0)

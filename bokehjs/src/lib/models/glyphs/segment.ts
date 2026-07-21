@@ -10,12 +10,46 @@ import {atan2} from "core/util/math"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
+import type {PathGL} from "./webgl/path"
+import type {ScreenLine} from "./curve"
 
 export interface SegmentView extends Segment.Data {}
 
 export class SegmentView extends GlyphView {
   declare model: Segment
   declare visuals: Segment.Visuals
+
+  /** @internal */
+  declare glglyph?: PathGL
+
+  override async load_glglyph() {
+    const {PathGL} = await import("./webgl/path")
+    return PathGL
+  }
+
+  webgl_lines(): ScreenLine[] {
+    const lines = new Array<ScreenLine>(this.data_size)
+    for (let i = 0; i < this.data_size; i++) {
+      lines[i] = {
+        sx: Float32Array.of(this.sx0[i], this.sx1[i]),
+        sy: Float32Array.of(this.sy0[i], this.sy1[i]),
+      }
+    }
+    return lines
+  }
+
+  override paint(ctx: Context2d, indices: number[], data?: Partial<Segment.Data>): void {
+    super.paint(ctx, indices, data)
+    if (this.has_webgl() && this.decorations.size > 0) {
+      this.canvas.blit_webgl(ctx)
+      const {sx0, sy0, sx1, sy1} = {...this, ...data}
+      for (const i of indices) {
+        if (isFinite(sx0[i] + sy0[i] + sx1[i] + sy1[i])) {
+          this._render_decorations(ctx, i, sx0[i], sy0[i], sx1[i], sy1[i])
+        }
+      }
+    }
+  }
 
   protected override _project_data(): void {
     this._project_xy<Segment.Data>("x0", this.x0, "y0", this.y0)

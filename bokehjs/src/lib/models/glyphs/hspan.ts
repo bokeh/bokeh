@@ -11,6 +11,8 @@ import type {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
 import {range} from "core/util/array"
 import * as p from "core/properties"
+import type {PathGL} from "./webgl/path"
+import type {ScreenLine} from "./curve"
 
 const {abs, max} = Math
 
@@ -21,6 +23,23 @@ export interface HSpanView extends HSpan.Data {}
 export class HSpanView extends GlyphView {
   declare model: HSpan
   declare visuals: HSpan.Visuals
+
+  /** @internal */
+  declare glglyph?: PathGL
+
+  override async load_glglyph() {
+    const {PathGL} = await import("./webgl/path")
+    return PathGL
+  }
+
+  webgl_lines(): ScreenLine[] {
+    const {left, right} = this.renderer.plot_view.frame.bbox
+    const lines = new Array<ScreenLine>(this.data_size)
+    for (let i = 0; i < this.data_size; i++) {
+      lines[i] = {sx: Float32Array.of(left, right), sy: Float32Array.of(this.sy[i], this.sy[i])}
+    }
+    return lines
+  }
 
   override after_visuals(): void {
     super.after_visuals()

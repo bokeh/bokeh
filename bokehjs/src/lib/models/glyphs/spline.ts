@@ -6,12 +6,30 @@ import type {Arrayable, Rect} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {catmullrom_spline} from "core/util/interpolation"
 import {generic_line_scalar_legend} from "./utils"
+import type {PathGL} from "./webgl/path"
+import type {ScreenLine} from "./curve"
 
 export interface SplineView extends Spline.Data {}
 
 export class SplineView extends XYGlyphView {
   declare model: Spline
   declare visuals: Spline.Visuals
+
+  /** @internal */
+  declare glglyph?: PathGL
+
+  override async load_glglyph() {
+    const {PathGL} = await import("./webgl/path")
+    return PathGL
+  }
+
+  webgl_lines(): ScreenLine[] {
+    return [{sx: this.sxt, sy: this.syt}]
+  }
+
+  webgl_line_indices(indices: number[], line_count: number): number[] {
+    return indices.length > 0 && line_count > 0 ? [0] : []
+  }
 
   protected override _set_data(): void {
     const {tension, closed} = this.model

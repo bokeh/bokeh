@@ -8,12 +8,51 @@ import {to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
+import type {PathGL} from "./webgl/path"
+import {elliptical_arc} from "./curve"
+import type {ScreenLine} from "./curve"
 
 export interface ArcView extends Arc.Data {}
 
 export class ArcView extends XYGlyphView {
   declare model: Arc
   declare visuals: Arc.Visuals
+
+  /** @internal */
+  declare glglyph?: PathGL
+
+  override async load_glglyph() {
+    const {PathGL} = await import("./webgl/path")
+    return PathGL
+  }
+
+  webgl_lines(): ScreenLine[] {
+    const anticlockwise = this.model.direction == "anticlock"
+    const lines = new Array<ScreenLine>(this.data_size)
+    for (let i = 0; i < this.data_size; i++) {
+      lines[i] = elliptical_arc(
+        [this.sx[i], this.sy[i]], this.sradius[i], this.sradius[i], 0,
+        this.start_angle.get(i), this.end_angle.get(i), anticlockwise,
+      )
+    }
+    return lines
+  }
+
+  override paint(ctx: Context2d, indices: number[], data?: Partial<Arc.Data>): void {
+    super.paint(ctx, indices, data)
+    if (this.has_webgl() && this.decorations.size > 0) {
+      this.canvas.blit_webgl(ctx)
+      const {sx, sy, sradius, start_angle, end_angle} = {...this, ...data}
+      const anticlock = this.model.direction == "anticlock"
+      for (const i of indices) {
+        if (isFinite(sx[i] + sy[i] + sradius[i] + start_angle.get(i) + end_angle.get(i))) {
+          this._render_decorations(
+            ctx, i, sx[i], sy[i], sradius[i], start_angle.get(i), end_angle.get(i), anticlock,
+          )
+        }
+      }
+    }
+  }
 
   protected override _map_data(): void {
     this._define_or_inherit_attr<Arc.Data>("sradius", () => {

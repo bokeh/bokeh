@@ -7,12 +7,35 @@ import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
+import type {PathGL} from "./webgl/path"
+import type {ScreenLine} from "./curve"
 
 export interface RayView extends Ray.Data {}
 
 export class RayView extends XYGlyphView {
   declare model: Ray
   declare visuals: Ray.Visuals
+
+  /** @internal */
+  declare glglyph?: PathGL
+
+  override async load_glglyph() {
+    const {PathGL} = await import("./webgl/path")
+    return PathGL
+  }
+
+  webgl_lines(): ScreenLine[] {
+    const lines = new Array<ScreenLine>(this.data_size)
+    for (let i = 0; i < this.data_size; i++) {
+      const angle = this.angle.get(i)
+      const length = this.slength[i]
+      lines[i] = {
+        sx: Float32Array.of(this.sx[i], this.sx[i] + length*Math.cos(angle)),
+        sy: Float32Array.of(this.sy[i], this.sy[i] + length*Math.sin(angle)),
+      }
+    }
+    return lines
+  }
 
   protected override _map_data(): void {
     this._define_or_inherit_attr<Ray.Data>("slength", () => {

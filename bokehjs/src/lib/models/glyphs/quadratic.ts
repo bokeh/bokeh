@@ -7,12 +7,34 @@ import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {qbb} from "core/util/algorithms"
 import * as p from "core/properties"
+import type {PathGL} from "./webgl/path"
+import {quadratic_curve} from "./curve"
+import type {ScreenLine} from "./curve"
 
 export interface QuadraticView extends Quadratic.Data {}
 
 export class QuadraticView extends GlyphView {
   declare model: Quadratic
   declare visuals: Quadratic.Visuals
+
+  /** @internal */
+  declare glglyph?: PathGL
+
+  override async load_glglyph() {
+    const {PathGL} = await import("./webgl/path")
+    return PathGL
+  }
+
+  webgl_lines(): ScreenLine[] {
+    const lines = new Array<ScreenLine>(this.data_size)
+    for (let i = 0; i < this.data_size; i++) {
+      const values = [this.sx0[i], this.sy0[i], this.scx[i], this.scy[i], this.sx1[i], this.sy1[i]]
+      lines[i] = values.every(isFinite) ?
+        quadratic_curve([values[0], values[1]], [values[2], values[3]], [values[4], values[5]]) :
+        {sx: Float32Array.of(NaN, NaN), sy: Float32Array.of(NaN, NaN)}
+    }
+    return lines
+  }
 
   protected override _project_data(): void {
     this._project_xy<Quadratic.Data>("x0", this.x0, "y0", this.y0)
