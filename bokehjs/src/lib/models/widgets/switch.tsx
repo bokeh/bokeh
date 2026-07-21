@@ -13,24 +13,26 @@ import type {VNode, TargetedEvent} from "preact"
 export class SwitchView extends ToggleInputView {
   declare readonly model: Switch
   declare readonly signals: p.SignalsOf<Switch.Props>
+  declare readonly values: Switch.Attrs
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), icons_css.default, switch_css.default]
   }
 
   override component(): VNode {
-    const {active, label, disabled, on_icon, off_icon, indeterminate_icon} = this.signals
+    const {active, disabled, on_icon, off_icon, indeterminate_icon} = this.values
+    const {label} = this.signals
 
-    const active_cls = active.value != null && active.value ? switch_css.active : null
-    const disabled_cls = disabled.value ? switch_css.disabled : null
-    const indeterminate_cls = active.value == null ? switch_css.indeterminate : null
-    const icon = active.value != null && active.value ? on_icon : active.value == null ? indeterminate_icon : off_icon
-    const aria_checked = active.value != null && active.value ? "true" : active.value == null ? "mixed" : "false"
+    const active_cls = active != null && active ? switch_css.active : null
+    const disabled_cls = disabled ? switch_css.disabled : null
+    const indeterminate_cls = active == null ? switch_css.indeterminate : null
+    const icon = active != null && active ? on_icon : active == null ? indeterminate_icon : off_icon
+    const aria_checked = active != null && active ? "true" : active == null ? "mixed" : "false"
 
     return (
       <UIComponent parent={this.resolved_props} class={cls(active_cls, disabled_cls, indeterminate_cls)} role="switch" aria-checked={aria_checked}>
         <div class={toggle_css.label}>{label}</div>
-        {icon.value != null ? <Icon classes={switch_css.icon} icon={icon.value}></Icon> : null}
+        {icon != null ? <Icon classes={switch_css.icon} icon={icon}></Icon> : null}
         <div class={switch_css.body} onClick={() => this._toggle_active()} onKeyDown={this.on_key_down}>
           <div class={switch_css.bar}></div>
           <div class={switch_css.knob} tabIndex={0}></div>
