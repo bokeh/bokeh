@@ -24,6 +24,9 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2024,
     paths: {
+      "@bokehjs/*": [
+        join(bokehjs_dir, "js/lib/*"),
+      ],
       "*": [
         join(bokehjs_dir, "js/lib/*"),
       ],
