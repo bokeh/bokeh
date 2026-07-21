@@ -16,6 +16,7 @@ test another aspect of WebGL (e.g. blending of transparent glyphs).
 * mixed_markers_streaming.py - mixed marker selection, patching, and streaming
 * nested_evenodd_polygons.py - nested islands and disjoint polygon holes
 * localized_multiline.py - bounded line accumulation and long-dash precision
+* architectural_batching.py - queued composition and cross-renderer batching
 
 
 ### Other WebGL examples in this directory
