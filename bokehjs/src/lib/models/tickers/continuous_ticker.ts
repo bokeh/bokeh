@@ -3,6 +3,7 @@ import {Ticker} from "./ticker"
 import type {Range} from "../ranges/range"
 import type * as p from "core/properties"
 import {range} from "core/util/array"
+import {logger} from "core/logging"
 
 // The base class for all Ticker objects. It needs to be subclassed before
 // being used. The simplest subclass is SingleIntervalTicker.
@@ -43,7 +44,17 @@ export abstract class ContinuousTicker extends Ticker {
   }
 
   get_ticks(data_low: number, data_high: number, _range: Range, cross_loc: number): TickSpec<number> {
-    return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks)
+    try {
+      return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks, this.num_minor_ticks)
+    } catch (error){
+      logger.warn(
+        `Caught an error calculating the ticks for ${this.desired_num_ticks} desired_num_ticks`,
+        `and ${this.num_minor_ticks} num_minor_ticks. The default values are used instead.`
+      )
+      this.desired_num_ticks = 6
+      this.num_minor_ticks = 5
+      return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks, this.num_minor_ticks)
+    }
   }
 
   // Given min and max values and a number of ticks, returns a tick interval
@@ -59,7 +70,7 @@ export abstract class ContinuousTicker extends Ticker {
 
   // The version of get_ticks() that does the work (and the version that
   // should be overridden in subclasses).
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, desired_n_ticks: number, num_minor_ticks: number): TickSpec<number> {
     const interval = this.get_interval(data_low, data_high, desired_n_ticks)
     const start_factor = Math.floor(data_low / interval)
     const end_factor   = Math.ceil(data_high / interval)
@@ -72,7 +83,6 @@ export abstract class ContinuousTicker extends Ticker {
     const ticks = factors
       .map((factor) => factor*interval)
       .filter((tick) => data_low <= tick && tick <= data_high)
-    const num_minor_ticks = this.num_minor_ticks
     const minor_ticks = []
     if (num_minor_ticks > 0 && ticks.length > 0) {
       const minor_interval = interval / num_minor_ticks
