@@ -9,11 +9,11 @@
 // Making it easy to hook up python data analytics tools (NumPy, SciPy,
 // Pandas, etc.) to web presentations using the Bokeh server.
 
-import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {to_object} from "core/util/object"
-import type {Dict, PlainObject} from "core/types"
-import * as p from "core/properties"
+import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {to_object} from "@bokehjs/core/util/object"
+import type {Dict, PlainObject} from "@bokehjs/core/types"
+import * as p from "@bokehjs/core/properties"
 
 declare namespace vis {
   class Graph3d {
@@ -49,7 +49,7 @@ const OPTIONS = {
 // into the DOM, we must create a View subclass for the model. In this case we
 // will subclass from the existing BokehJS ``LayoutDOMView``, corresponding to our.
 export class Surface3dView extends LayoutDOMView {
-  model: Surface3d
+  declare model: Surface3d
 
   private _graph: vis.Graph3d
 
@@ -114,8 +114,8 @@ export namespace Surface3d {
 export interface Surface3d extends Surface3d.Attrs {}
 
 export class Surface3d extends LayoutDOM {
-  properties: Surface3d.Props
-  __view_type__: Surface3dView
+  declare properties: Surface3d.Props
+  declare __view_type__: Surface3dView
 
   constructor(attrs?: Partial<Surface3d.Attrs>) {
     super(attrs)
