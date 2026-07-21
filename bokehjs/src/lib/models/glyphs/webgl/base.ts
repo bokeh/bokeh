@@ -83,7 +83,9 @@ export abstract class BaseGLGlyph {
   }
 
   render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): void {
-    if (indices.length == 0) {
+    const selection_changed = this.revisions.sync_selection(indices)
+    if (indices.length == 0 && !selection_changed &&
+        !this.data_changed && !this.data_mapped && !this.visuals_changed) {
       return
     }
     const canvas_view = this.glyph.renderer.plot_view.canvas_view
@@ -91,7 +93,6 @@ export abstract class BaseGLGlyph {
     canvas_view.enqueue_webgl({
       label: this.glyph.toString(),
       execute: () => {
-        this.revisions.sync_selection(queued_indices)
         const {width, height} = canvas_view.webgl!.canvas
         const {pixel_ratio} = canvas_view
         const trans = {

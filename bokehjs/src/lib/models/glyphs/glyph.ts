@@ -62,14 +62,23 @@ export abstract class GlyphView extends DOMComponentView {
   /** Disable WebGL after a runtime capability failure and repaint on Canvas. */
   disable_webgl(): void {
     if (this._can_use_webgl) {
+      this._runtime_webgl_disabled = true
       this._can_use_webgl = false
       this.request_paint()
     }
   }
 
   private _can_use_webgl: boolean = false
+  private _runtime_webgl_disabled: boolean = false
   protected _compute_can_use_webgl(): boolean {
     return true
+  }
+
+  private _refresh_webgl_capability(): void {
+    if (this.glglyph != null) {
+      this._runtime_webgl_disabled = false
+      this._can_use_webgl = this._compute_can_use_webgl()
+    }
   }
 
   private _index: SpatialIndex | null = null
@@ -141,7 +150,7 @@ export abstract class GlyphView extends DOMComponentView {
   paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
     if (this.has_webgl()) {
       this.glglyph.render(ctx, indices, this.base ?? this)
-    } else if (this.canvas.webgl != null && settings.force_webgl) {
+    } else if (this.canvas.webgl != null && settings.force_webgl && !this._runtime_webgl_disabled) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
       // Preserve ordering inside composite renderers (e.g. WebGL graph edges
@@ -440,6 +449,7 @@ export abstract class GlyphView extends DOMComponentView {
       visual.update()
     }
 
+    this._refresh_webgl_capability()
     if (this.has_webgl()) {
       this.glglyph.set_visuals_changed()
     }
@@ -543,9 +553,7 @@ export abstract class GlyphView extends DOMComponentView {
       decoration.marking.set_data(source, indices)
     }
 
-    if (this.glglyph != null) {
-      this._can_use_webgl = this._compute_can_use_webgl()
-    }
+    this._refresh_webgl_capability()
 
     if (this.has_webgl()) {
       this.glglyph.set_data_changed()

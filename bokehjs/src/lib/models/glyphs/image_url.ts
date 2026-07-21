@@ -87,6 +87,8 @@ export class ImageURLView extends XYGlyphView {
     for (let i = 0; i < n_url; i++) {
       const url_i = url.get(i)
       if (url_i == "") {
+        this.image[i] = null
+        this.resolved.set(i)
         continue
       }
 
