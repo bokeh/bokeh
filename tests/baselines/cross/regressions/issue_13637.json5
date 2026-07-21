@@ -9,6 +9,11 @@
         name: "Notifications",
         id: "p1063",
       },
+      i18n: {
+        type: "object",
+        name: "I18n",
+        id: "p1064",
+      },
     },
   },
   roots: [
