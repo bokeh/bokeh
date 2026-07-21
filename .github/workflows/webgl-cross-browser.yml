@@ -1,0 +1,102 @@
+name: WebGL cross-browser
+
+on:
+  pull_request:
+    paths:
+      - "bokehjs/src/lib/models/canvas/**"
+      - "bokehjs/src/lib/models/glyphs/**"
+      - "bokehjs/src/lib/models/plots/**"
+      - "bokehjs/test/**"
+      - "tests/integration/test_webgl_cross_browser.py"
+      - ".github/workflows/webgl-cross-browser.yml"
+  push:
+    branches:
+      - main
+      - branch-*
+    paths:
+      - "bokehjs/src/lib/models/canvas/**"
+      - "bokehjs/src/lib/models/glyphs/**"
+      - "bokehjs/src/lib/models/plots/**"
+      - "bokehjs/test/**"
+      - "tests/integration/test_webgl_cross_browser.py"
+      - ".github/workflows/webgl-cross-browser.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "30 10 * * WED"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  playwright:
+    name: Playwright ${{ matrix.browser }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      BOKEH_WEBGL_BROWSER: ${{ matrix.browser }}
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: bokehjs/package-lock.json
+      - name: Install BokehJS dependencies
+        working-directory: bokehjs
+        run: npm ci --no-progress
+      - name: Build BokehJS
+        working-directory: bokehjs
+        run: node make build
+      - name: Install Python test dependencies
+        env:
+          BOKEHJS_ACTION: install
+        run: pip install -e . pytest playwright
+      - name: Install ${{ matrix.browser }}
+        run: playwright install --with-deps ${{ matrix.browser }}
+      - name: Run WebGL smoke contract
+        run: pytest -v --color=yes tests/integration/test_webgl_cross_browser.py -k playwright
+
+  safari:
+    name: Real Safari
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: macos-15
+    env:
+      BOKEH_WEBGL_REAL_SAFARI: "1"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: bokehjs/package-lock.json
+      - name: Install BokehJS dependencies
+        working-directory: bokehjs
+        run: npm ci --no-progress
+      - name: Build BokehJS
+        working-directory: bokehjs
+        run: node make build
+      - name: Install Python test dependencies
+        env:
+          BOKEHJS_ACTION: install
+        run: pip install -e . pytest "selenium>=4.4.3,<5"
+      - name: Enable Safari WebDriver
+        run: sudo safaridriver --enable
+      - name: Run real Safari WebGL smoke contract
+        run: pytest -v --color=yes tests/integration/test_webgl_cross_browser.py -k safari --driver safari
