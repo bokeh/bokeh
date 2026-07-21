@@ -72,9 +72,9 @@ export class LegendView extends AnnotationView {
     }
   }
 
-  override children_views(): ChildView[] {
+  override _children_views(): ChildView[] {
     const this_title_view = this._title_view != null ? [this._title_view]:[]
-    return [...super.children_views(), ...this_title_view, ...this._label_views.values()]
+    return [...super._children_views(), ...this_title_view, ...this._label_views.values()]
   }
 
   protected _resize_observer: ResizeObserver

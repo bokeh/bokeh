@@ -32,7 +32,7 @@ export class MenuView extends UIElementView {
   protected _tooltip_views: ViewStorage<TranslatableText> = new Map()
 
   override _children_views(): ChildView[] {
-    return [...super.children_views(), ...this._menu_views.values(), ...this._label_views.values(), ...this._tooltip_views.values()]
+    return [...super._children_views(), ...this._menu_views.values(), ...this._label_views.values(), ...this._tooltip_views.values()]
   }
 
   private _menu_items: MenuItemLike[] = []

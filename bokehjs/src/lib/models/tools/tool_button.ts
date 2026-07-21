@@ -28,8 +28,8 @@ export abstract class ToolButtonView extends UIElementView {
   protected _ui_gestures: UIGestures
   protected _tooltip_view: ViewOf<TranslatableText>
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...[this._tooltip_view]]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...[this._tooltip_view]]
   }
 
   override initialize(): void {
