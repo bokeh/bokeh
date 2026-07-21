@@ -59,6 +59,14 @@ export abstract class GlyphView extends DOMComponentView {
     return this.glglyph != null && this._can_use_webgl
   }
 
+  /** Disable WebGL after a runtime capability failure and repaint on Canvas. */
+  disable_webgl(): void {
+    if (this._can_use_webgl) {
+      this._can_use_webgl = false
+      this.request_paint()
+    }
+  }
+
   private _can_use_webgl: boolean = false
   protected _compute_can_use_webgl(): boolean {
     return true
@@ -461,7 +469,14 @@ export abstract class GlyphView extends DOMComponentView {
           array[i] = range.v_synthetic(array[i] as Arrayable<number | Factor>)
         }
       } else if (prop instanceof p.CoordinateSeqSeqSeqSpec) {
-        // TODO
+        const nested = array as Arrayable<Arrayable<Arrayable<Arrayable<number | Factor>>>>
+        for (const multi_polygon of nested) {
+          for (const polygon of multi_polygon) {
+            for (let i = 0; i < polygon.length; i++) {
+              polygon[i] = range.v_synthetic(polygon[i])
+            }
+          }
+        }
       }
     }
 
@@ -586,11 +601,15 @@ export abstract class GlyphView extends DOMComponentView {
 
     const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
       const scale = prop.dimension == "x" ? x_scale : y_scale
-      const array = this[prop.attr as keyof this] as Arrayable<number> | RaggedArray
-      if (array instanceof RaggedArray) {
+      const array = this[prop.attr as keyof this] as Arrayable<number> | RaggedArray | number[][][][]
+      if (prop instanceof p.CoordinateSeqSeqSeqSpec) {
+        return Array.from(array as number[][][][], (multi_polygon) =>
+          Array.from(multi_polygon, (polygon) =>
+            Array.from(polygon, (ring) => scale.v_compute(ring))))
+      } else if (array instanceof RaggedArray) {
         return new RaggedArray(array.offsets, scale.v_compute(array.data))
       } else {
-        return scale.v_compute(array)
+        return scale.v_compute(array as Arrayable<number>)
       }
     }
 

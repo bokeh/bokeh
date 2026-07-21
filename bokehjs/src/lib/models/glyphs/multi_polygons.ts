@@ -12,12 +12,61 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
+import type {SyntheticPatchesGL, ScreenPatches} from "./webgl/synthetic_patches"
+import {RaggedArray} from "core/util/ragged_array"
 
 export interface MultiPolygonsView extends MultiPolygons.Data {}
 
 export class MultiPolygonsView extends GlyphView {
   declare model: MultiPolygons
   declare visuals: MultiPolygons.Visuals
+
+  /** @internal */
+  declare glglyph?: SyntheticPatchesGL
+
+  override async load_glglyph() {
+    const {SyntheticPatchesGL} = await import("./webgl/synthetic_patches")
+    return SyntheticPatchesGL
+  }
+
+  webgl_patches(): ScreenPatches {
+    const flat_xs = new Array<number[]>(this.data_size)
+    const flat_ys = new Array<number[]>(this.data_size)
+    for (let i = 0; i < this.data_size; i++) {
+      const xs: number[] = []
+      const ys: number[] = []
+      let first_ring = true
+      const polygons_x = this.sxs[i]
+      const polygons_y = this.sys[i]
+      for (let j = 0; j < Math.min(polygons_x.length, polygons_y.length); j++) {
+        const rings_x = polygons_x[j]
+        const rings_y = polygons_y[j]
+        for (let k = 0; k < Math.min(rings_x.length, rings_y.length); k++) {
+          const ring_x = rings_x[k]
+          const ring_y = rings_y[k]
+          const n = Math.min(ring_x.length, ring_y.length)
+          if (n == 0) {
+            continue
+          }
+          if (!first_ring) {
+            xs.push(NaN)
+            ys.push(NaN)
+          }
+          first_ring = false
+          for (let l = 0; l < n; l++) {
+            xs.push(ring_x[l])
+            ys.push(ring_y[l])
+          }
+        }
+      }
+      flat_xs[i] = xs
+      flat_ys[i] = ys
+    }
+    return {
+      sxs: RaggedArray.from(flat_xs, Float32Array),
+      sys: RaggedArray.from(flat_ys, Float32Array),
+    }
+  }
 
   protected _hole_index: SpatialIndex
 
@@ -289,35 +338,6 @@ export class MultiPolygonsView extends GlyphView {
     }
 
     unreachable()
-  }
-
-  override map_data(): void {
-    if (this.inherited_xs && this.inherited_ys) {
-      this._inherit_attr<MultiPolygons.Data>("sxs")
-      this._inherit_attr<MultiPolygons.Data>("sys")
-    } else {
-      const {xs, ys} = this
-      const n_i = xs.length
-      const sxs = new Array(n_i)
-      const sys = new Array(n_i)
-      for (let i = 0; i < n_i; i++) {
-        const n_j = xs[i].length
-        sxs[i] = new Array(n_j)
-        sys[i] = new Array(n_j)
-        for (let j = 0; j < n_j; j++) {
-          const n_k = xs[i][j].length
-          sxs[i][j] = new Array(n_k)
-          sys[i][j] = new Array(n_k)
-          for (let k = 0; k < n_k; k++) {
-            const [sx, sy] = this.renderer.coordinates.map_to_screen(xs[i][j][k], ys[i][j][k])
-            sxs[i][j][k] = sx
-            sys[i][j][k] = sy
-          }
-        }
-      }
-      this._define_attr<MultiPolygons.Data>("sxs", sxs)
-      this._define_attr<MultiPolygons.Data>("sys", sys)
-    }
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {

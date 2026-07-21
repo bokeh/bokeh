@@ -6,6 +6,68 @@ import {linspace} from "@bokehjs/core/util/array"
 import type {Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 
 describe("webgl", () => {
+  it.no_image("should rebuild expanded ellipse visuals when adaptive geometry changes", async () => {
+    const p = fig([500, 350], {
+      output_backend: "webgl", x_range: [0, 100], y_range: [0, 100], toolbar_location: null,
+    })
+    const renderer = p.ellipse({
+      x: [49, 51], y: [50, 50], width: [5, 5], height: [3, 3],
+      fill_color: ["#dc2626", "#2563eb"], fill_alpha: [0.4, 0.8], line_alpha: 0,
+    })
+    const {view} = await display(p)
+    const glyph_view = view.owner.get_one(renderer).glyph
+    const gl = (glyph_view as unknown as {glglyph: {
+      _poly_data: {fill_nvertices: number[]}
+      _pv_fill_color: {length: number}
+      _layout_revision: number
+    }}).glglyph
+    const initial_nvertices = gl._poly_data.fill_nvertices.reduce((total, count) => total + count, 0)
+    const initial_revision = gl._layout_revision
+
+    p.x_range.setv({start: 45, end: 55})
+    p.y_range.setv({start: 45, end: 55})
+    await view.ready
+    await view.ready
+
+    const zoomed_nvertices = gl._poly_data.fill_nvertices.reduce((total, count) => total + count, 0)
+    expect(zoomed_nvertices).to.be.above(initial_nvertices)
+    expect(gl._layout_revision).to.be.above(initial_revision)
+    expect(gl._pv_fill_color.length).to.be.equal(4*zoomed_nvertices)
+  })
+
+  it.no_image("should remap and compact GPU-equivalent MultiPolygon vertices", async () => {
+    const p = fig([400, 300], {
+      output_backend: "webgl", x_range: [0, 4], y_range: [0, 4], toolbar_location: null,
+    })
+    const renderer = p.multi_polygons({
+      xs: [[[[1, 3, 3, 1, 1 + 1e-12]]]],
+      ys: [[[[1, 1, 3, 3, 1 + 1e-12]]]],
+      fill_color: ["#2563eb"], line_color: ["#e0f2fe"], line_width: [2],
+    })
+    const {view} = await display(p)
+    const glyph_view = view.owner.get_one(renderer).glyph
+    const gl = (glyph_view as unknown as {glglyph: {
+      _poly_data: {line_rings: {nline: number, points: Float32Array}[][]}
+    }}).glglyph
+
+    const initial_ring = gl._poly_data.line_rings[0][0]
+    const initial_x = initial_ring.points[2]
+    const initial_y = initial_ring.points[3]
+    expect(initial_ring.nline).to.be.equal(5)
+
+    p.x_range.setv({start: 0.5, end: 3.5})
+    p.y_range.setv({start: 0.5, end: 3.5})
+    await view.ready
+    await view.ready
+
+    const remapped_ring = gl._poly_data.line_rings[0][0]
+    expect(remapped_ring.nline).to.be.equal(5)
+    expect(remapped_ring.points[2]).to.not.be.equal(initial_x)
+    expect(remapped_ring.points[3]).to.not.be.equal(initial_y)
+    expect(remapped_ring.points[2]).to.be.similar(view.frame.x_scale.compute(1), 1e-4)
+    expect(remapped_ring.points[3]).to.be.similar(view.frame.y_scale.compute(1), 1e-4)
+  })
+
   it.no_image("should update line and scatter ranges without re-uploading coordinates", async () => {
     const x = linspace(1_720_000_000_000, 1_720_000_001_000, 10_000)
     const y = x.map((_, i) => Math.sin(i/100))

@@ -7,6 +7,35 @@ import type {Arrayable} from "core/types"
  *  smoothstep fade range equals the skirt geometry extent. */
 export const POLYGON_AA_WIDTH = 0.75
 
+function same_gpu_point(x0: number, y0: number, x1: number, y1: number): boolean {
+  // Polygon positions are uploaded as Float32 values. Points which are
+  // distinct as JS numbers but identical on the GPU create zero-length line
+  // segments and undefined join directions.
+  return Math.fround(x0) == Math.fround(x1) && Math.fround(y0) == Math.fround(y1)
+}
+
+/** Remove vertices which become redundant in the Float32 GPU geometry.
+ *  Returned rings are implicitly closed; fill and line renderers add the
+ *  closing edge without retaining a duplicate endpoint. */
+export function compact_ring(ring: number[]): number[] {
+  const compacted: number[] = []
+  for (let i = 0; i < ring.length; i += 2) {
+    const x = ring[i]
+    const y = ring[i + 1]
+    const n = compacted.length
+    if (n == 0 || !same_gpu_point(x, y, compacted[n - 2], compacted[n - 1])) {
+      compacted.push(x, y)
+    }
+  }
+
+  if (compacted.length >= 4 && same_gpu_point(
+    compacted[0], compacted[1], compacted[compacted.length - 2], compacted[compacted.length - 1],
+  )) {
+    compacted.length -= 2
+  }
+  return compacted
+}
+
 /** Split x/y coordinate arrays on non-finite values into rings (sub-paths).
  *  Each ring is a flat array of interleaved [x0, y0, x1, y1, ...] values. */
 export function split_rings(sx: Arrayable<number>, sy: Arrayable<number>): number[][] {
@@ -19,7 +48,7 @@ export function split_rings(sx: Arrayable<number>, sy: Arrayable<number>): numbe
     const y = sy[i]
     if (!isFinite(x + y)) {
       if (current_ring.length > 0) {
-        rings.push(current_ring)
+        rings.push(compact_ring(current_ring))
         current_ring = []
       }
     } else {
@@ -27,7 +56,7 @@ export function split_rings(sx: Arrayable<number>, sy: Arrayable<number>): numbe
     }
   }
   if (current_ring.length > 0) {
-    rings.push(current_ring)
+    rings.push(compact_ring(current_ring))
   }
 
   return rings

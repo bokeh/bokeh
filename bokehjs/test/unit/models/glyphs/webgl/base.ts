@@ -12,6 +12,7 @@ describe("BaseGLGlyph", () => {
     let destroyed = 0
     const wrapper = {
       flush() {},
+      flush_resource() {},
       buffer() {
         return Object.assign((_options: unknown) => {}, {
           destroy() { destroyed++ },

@@ -96,6 +96,19 @@ describe("polygon_utils", () => {
       const rings = split_rings(sx, sy)
       expect(rings).to.be.equal([[1, 4, 2, 5, 3, 6]])
     })
+
+    it("should remove an explicit closing vertex", () => {
+      const rings = split_rings([0, 2, 2, 0, 0], [0, 0, 2, 2, 0])
+      expect(rings).to.be.equal([[0, 0, 2, 0, 2, 2, 0, 2]])
+    })
+
+    it("should remove consecutive vertices that coincide in Float32 geometry", () => {
+      const rings = split_rings(
+        [1, 3, 3 + 1e-9, 3, 1 + 1e-9],
+        [1, 1, 1, 3, 1 + 1e-9],
+      )
+      expect(rings).to.be.equal([[1, 1, 3, 1, 3, 3]])
+    })
   })
 
   describe("point_in_ring", () => {

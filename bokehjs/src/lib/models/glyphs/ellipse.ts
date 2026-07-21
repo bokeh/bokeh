@@ -7,12 +7,40 @@ import {to_screen} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
+import type {SyntheticPatchesGL, ScreenPatches} from "./webgl/synthetic_patches"
+import {elliptical_arc} from "./curve"
+import {RaggedArray} from "core/util/ragged_array"
 
 export interface EllipseView extends Ellipse.Data {}
 
 export class EllipseView extends CenterRotatableView  {
   declare model: Ellipse
   declare visuals: Ellipse.Visuals
+
+  /** @internal */
+  declare glglyph?: SyntheticPatchesGL
+
+  override async load_glglyph() {
+    const {SyntheticPatchesGL} = await import("./webgl/synthetic_patches")
+    return SyntheticPatchesGL
+  }
+
+  webgl_patches(): ScreenPatches {
+    const xs = new Array<Float32Array>(this.data_size)
+    const ys = new Array<Float32Array>(this.data_size)
+    for (let i = 0; i < this.data_size; i++) {
+      const line = elliptical_arc(
+        [this.sx[i], this.sy[i]], Math.abs(this.swidth[i])/2, Math.abs(this.sheight[i])/2,
+        this.angle.get(i), 0, 2*Math.PI, false,
+      )
+      xs[i] = line.sx as Float32Array
+      ys[i] = line.sy as Float32Array
+    }
+    return {
+      sxs: RaggedArray.from(xs, Float32Array),
+      sys: RaggedArray.from(ys, Float32Array),
+    }
+  }
 
   protected override _map_data(): void {
     this._define_or_inherit_attr<Ellipse.Data>("swidth", () => {
