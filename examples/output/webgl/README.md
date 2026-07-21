@@ -19,6 +19,7 @@ test another aspect of WebGL (e.g. blending of transparent glyphs).
 * architectural_batching.py - queued composition and cross-renderer batching
 * gpu_mapped_ranges.py - immutable data-coordinate buffers for fast range updates
 * gpu_mapper_showcase.py - interactive precision-rebased linear and log GPU mappers
+* complete_glyph_coverage.py - all non-text glyphs using shared WebGL paths, polygons, spans, and textures
 
 
 ### Other WebGL examples in this directory
