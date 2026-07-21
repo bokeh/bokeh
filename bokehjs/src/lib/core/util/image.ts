@@ -34,7 +34,13 @@ export class ImageLoader {
     })()
 
     this.promise = new Promise((resolve, _reject) => {
-      this.image.crossOrigin = "anonymous"
+      // Document-created data and Blob URLs don't require CORS and Safari
+      // rejects SVG image loads when a cross-origin mode is set on them.
+      // Blob URLs also inherit their creator's origin, so omitting the mode
+      // keeps canvases origin-clean without an unnecessary failed first load.
+      if (!/^(?:data|blob):/i.test(url)) {
+        this.image.crossOrigin = "anonymous"
+      }
 
       let retries = 0
       this.image.onerror = () => {

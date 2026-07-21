@@ -20,6 +20,7 @@ import {round_rect} from "../common/painting"
 import type {VectorVisuals} from "./defs"
 import {sqrt, PI} from "core/util/math"
 import type {OutlineShapeName} from "core/enums"
+import type {TextGL} from "./webgl/text"
 
 class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
 class OutlineShapeSpec extends p.DataSpec<OutlineShapeName> {}
@@ -29,6 +30,14 @@ export interface TextView extends Text.Data {}
 export class TextView extends XYGlyphView {
   declare model: Text
   declare visuals: Text.Visuals
+
+  /** @internal */
+  declare glglyph?: TextGL
+
+  override async load_glglyph() {
+    const {TextGL} = await import("./webgl/text")
+    return TextGL
+  }
 
   protected async _build_labels(text: p.Uniform<string | null>): Promise<(GraphicsBox | null)[]> {
     return Array.from(text, (value) => {
@@ -100,53 +109,138 @@ export class TextView extends XYGlyphView {
 
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Text.Data>): void {
     const {sx, sy, x_offset, y_offset, angle, outline_shape} = {...this, ...data}
-    const {text, background_fill, background_hatch, border_line} = this.visuals
-    const {anchor_: anchor, border_radius, padding} = this
-    const {labels, swidth, sheight} = this
 
     for (const i of indices) {
       const sx_i = sx[i] + x_offset.get(i)
       const sy_i = sy[i] + y_offset.get(i)
       const angle_i = angle.get(i)
-      const label_i = labels[i]
       const shape_i = outline_shape.get(i)
 
-      if (!isFinite(sx_i + sy_i + angle_i) || label_i == null) {
-        continue
+      this._paint_one(ctx, i, sx_i, sy_i, angle_i, shape_i)
+    }
+  }
+
+  private _paint_one(
+    ctx: Context2d, i: number, sx: number, sy: number, angle: number, shape: OutlineShapeName,
+  ): void {
+    const {text, background_fill, background_hatch, border_line} = this.visuals
+    const {anchor_: anchor, border_radius, padding} = this
+    const {labels, swidth, sheight} = this
+    const label = labels[i]
+
+    if (!isFinite(sx + sy + angle) || label == null) {
+      return
+    }
+
+    const width = swidth[i]
+    const height = sheight[i]
+    const anchor_i = anchor.get(i)
+
+    const dx = anchor_i.x*width
+    const dy = anchor_i.y*height
+
+    ctx.translate(sx, sy)
+    ctx.rotate(angle)
+    ctx.translate(-dx, -dy)
+
+    if (shape != "none" && (background_fill.v_doit(i) || background_hatch.v_doit(i) || border_line.v_doit(i))) {
+      const bbox = new BBox({x: 0, y: 0, width, height})
+      const visuals = {
+        fill: background_fill,
+        hatch: background_hatch,
+        line: border_line,
       }
+      this._paint_shape(ctx, i, shape, bbox, visuals, border_radius)
+    }
 
-      const swidth_i = swidth[i]
-      const sheight_i = sheight[i]
-      const anchor_i = anchor.get(i)
+    if (text.v_doit(i)) {
+      const {left, top} = padding
+      ctx.translate(left, top)
+      label.visuals = text.values(i)
+      label.paint(ctx)
+      ctx.translate(-left, -top)
+    }
 
-      const dx_i = anchor_i.x*swidth_i
-      const dy_i = anchor_i.y*sheight_i
+    ctx.translate(dx, dy)
+    ctx.rotate(-angle)
+    ctx.translate(-sx, -sy)
+  }
 
-      ctx.translate(sx_i, sy_i)
-      ctx.rotate(angle_i)
-      ctx.translate(-dx_i, -dy_i)
+  /** Bounds of one unrotated rasterized label, relative to its content box. */
+  webgl_bbox(i: number): BBox | null {
+    const {labels, swidth, sheight, outline_shape} = this
+    if (labels[i] == null || !isFinite(swidth[i] + sheight[i])) {
+      return null
+    }
 
-      if (shape_i != "none" && (background_fill.v_doit(i) || background_hatch.v_doit(i) || border_line.v_doit(i))) {
-        const bbox = new BBox({x: 0, y: 0, width: swidth_i, height: sheight_i})
-        const visuals = {
-          fill: background_fill,
-          hatch: background_hatch,
-          line: border_line,
-        }
-        this._paint_shape(ctx, i, shape_i, bbox, visuals, border_radius)
+    const width = swidth[i]
+    const height = sheight[i]
+    const {text, background_fill, background_hatch, border_line} = this.visuals
+    const have_text = text.v_doit(i)
+    let bbox = new BBox({x: 0, y: 0, width, height})
+    const shape = outline_shape.get(i)
+    const have_shape = shape != "none" &&
+      (background_fill.v_doit(i) || background_hatch.v_doit(i) || border_line.v_doit(i))
+    if (!have_text && !have_shape) {
+      return null
+    }
+    if (have_shape) {
+      bbox = bbox.union(this._shape_bbox(shape, bbox))
+    }
+
+    let fringe = 1
+    if (have_text) {
+      fringe = Math.max(fringe, text.text_outline_width.get(i)/2 + 1)
+    }
+    if (border_line.v_doit(i)) {
+      fringe = Math.max(fringe, border_line.line_width.get(i)/2 + 1)
+    }
+    return bbox.grow_by(fringe)
+  }
+
+  /** Paint one unrotated label into an atlas with its content box at (x, y). */
+  webgl_paint(ctx: Context2d, i: number, x: number, y: number): void {
+    const anchor = this.anchor_.get(i)
+    const sx = x + anchor.x*this.swidth[i]
+    const sy = y + anchor.y*this.sheight[i]
+    this._paint_one(ctx, i, sx, sy, 0, this.outline_shape.get(i))
+  }
+
+  private _shape_bbox(shape: OutlineShapeName, bbox: BBox): BBox {
+    const {x, y, width, height, x_center, y_center} = bbox
+    switch (shape) {
+      case "none":
+      case "box":
+      case "rectangle":
+        return bbox
+      case "square": {
+        const size = Math.max(width, height)
+        return new BBox({x: x_center, y: y_center, width: size, height: size, origin: "center"})
       }
-
-      if (text.v_doit(i)) {
-        const {left, top} = padding
-        ctx.translate(left, top)
-        label_i.visuals = text.values(i)
-        label_i.paint(ctx)
-        ctx.translate(-left, -top)
+      case "circle": {
+        const size = sqrt(width**2 + height**2)
+        return new BBox({x: x_center, y: y_center, width: size, height: size, origin: "center"})
       }
-
-      ctx.translate(dx_i, dy_i)
-      ctx.rotate(-angle_i)
-      ctx.translate(-sx_i, -sy_i)
+      case "ellipse": {
+        const rx = width/2
+        const ry = height/2
+        const n = 1.5
+        const a = sqrt(rx**2 + rx**(2/n)*ry**(2 - 2/n))
+        const b = sqrt(ry**2 + ry**(2/n)*rx**(2 - 2/n))
+        return new BBox({x: x_center, y: y_center, width: 2*a, height: 2*b, origin: "center"})
+      }
+      case "trapezoid":
+      case "parallelogram": {
+        const ext = 0.2*width
+        return new BBox({left: x - ext, right: x + width + ext, top: y, bottom: y + height})
+      }
+      case "diamond":
+        return new BBox({left: x - width/2, right: x + 1.5*width, top: y - height/2, bottom: y + 1.5*height})
+      case "triangle": {
+        const l = sqrt(3)/2*width
+        const H = height + l
+        return new BBox({left: x + (width - H)/2, right: x + (width + H)/2, top: y - l, bottom: y + height})
+      }
     }
   }
 

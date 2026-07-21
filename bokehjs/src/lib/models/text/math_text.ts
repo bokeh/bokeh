@@ -61,7 +61,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   color: string
 
   private svg_image: CanvasImage | null = null
+  private svg_url: string | null = null
   private svg_element: SVGElement
+  private _image_request = 0
 
   _rect(): Rect {
     const {width, height} = this._size()
@@ -101,6 +103,16 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   override connect_signals(): void {
     super.connect_signals()
     this.on_change(this.model.properties.text, () => this.load_image())
+  }
+
+  override remove(): void {
+    this._image_request++
+    if (this.svg_url != null) {
+      URL.revokeObjectURL(this.svg_url)
+      this.svg_url = null
+    }
+    this.svg_image = null
+    super.remove()
   }
 
   set visuals(v: visuals.Text["Values"]) {
@@ -344,6 +356,8 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
       return
     }
 
+    const request = ++this._image_request
+
     const mathjax_element = this._process_text()
     if (mathjax_element == null) {
       this._has_finished = true
@@ -351,14 +365,27 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     }
 
     const svg_element = mathjax_element.children[0] as SVGElement
-    this.svg_element = svg_element
 
     svg_element.setAttribute("font", this.font)
     svg_element.setAttribute("stroke", this.color)
 
     const svg = svg_element.outerHTML
-    const src = `data:image/svg+xml;utf-8,${encodeURIComponent(svg)}`
-    this.svg_image = await load_image(src)
+    // Safari rejects data SVG images when an HTMLImageElement has a CORS
+    // policy and can taint the atlas canvas after a policy-free retry. A Blob
+    // URL inherits this document's origin and remains safe for Canvas/WebGL.
+    const url = URL.createObjectURL(new Blob([svg], {type: "image/svg+xml;charset=utf-8"}))
+    const image = await load_image(url)
+    if (request != this._image_request) {
+      URL.revokeObjectURL(url)
+      return
+    }
+
+    if (this.svg_url != null) {
+      URL.revokeObjectURL(this.svg_url)
+    }
+    this.svg_element = svg_element
+    this.svg_image = image
+    this.svg_url = url
   }
 
   private async load_image(): Promise<void> {
@@ -500,7 +527,7 @@ export class MathMLView extends MathTextView {
 
   override get styled_text(): string {
     let styled = this.text.trim()
-    let matches = styled.match(/<math(.*?[^?])?>/s)
+    let matches = styled.match(/<math(?:\s[^>]*)?>/i)
     if (matches == null) {
       return this.text.trim()
     }
@@ -511,7 +538,7 @@ export class MathMLView extends MathTextView {
       `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}" ${this.font.includes("bold") ? 'mathvariant="bold"' : "" }>`,
     )
 
-    matches = styled.match(/<\/[^>]*?math.*?>/s)
+    matches = styled.match(/<\/math\s*>/i)
     if (matches == null) {
       return this.text.trim()
     }

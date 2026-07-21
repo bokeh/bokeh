@@ -83,6 +83,16 @@ export type ImageProps = CommonProps & {
   angle: number
 }
 
+export type TextProps = CommonProps & {
+  bounds: Float32Buffer
+  uv: Float32Buffer
+  origin: Float32Buffer
+  angle: Float32Buffer
+  show: Uint8Buffer
+  tex: Texture2D
+  ntexts: number
+}
+
 // Uniforms are used to pass GLSL uniform values from ReGL functions to shaders.
 export type AccumulateUniforms = {
   u_framebuffer_tex: Texture2D
@@ -121,6 +131,10 @@ export type ImageUniforms = CommonUniforms & {
   u_tex: Texture2D
   u_global_alpha: number
   u_angle: number
+}
+
+export type TextUniforms = CommonUniforms & {
+  u_tex: Texture2D
 }
 
 // Attributes are used to pass GLSL attribute values from ReGL functions to shaders.
@@ -179,6 +193,15 @@ export type MarkerHatchGlyphAttributes = MarkerGlyphAttributes & HatchAttributes
 export type ImageAttributes = {
   a_position: AttributeConfig
   a_bounds: AttributeConfig
+}
+
+export type TextAttributes = {
+  a_position: AttributeConfig
+  a_bounds: AttributeConfig
+  a_uv: AttributeConfig
+  a_origin: AttributeConfig
+  a_angle: AttributeConfig
+  a_show: AttributeConfig
 }
 
 // Polygon fill rendering (for Patch/Patches glyphs)

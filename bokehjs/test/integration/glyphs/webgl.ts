@@ -1,4 +1,5 @@
-import {expect} from "#framework/assertions"
+import {expect, expect_not_null} from "#framework/assertions"
+import {actions, xy} from "#framework/interactive"
 import {display, fig, row} from "#framework/layouts"
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {settings} from "@bokehjs/core/settings"
@@ -112,6 +113,172 @@ describe("webgl", () => {
     }
   })
 
+  it.no_image("should atlas-render Text, TeX, and MathML through WebGL", async () => {
+    const p = fig([600, 400], {
+      output_backend: "webgl", x_range: [0, 10], y_range: [0, 10], toolbar_location: null,
+      x_axis_type: null, y_axis_type: null, background_fill_color: "white",
+    })
+    const renderers = [
+      p.text({
+        x: [2, 5, 8], y: [8, 8, 8], text: ["WebGL", "multi\nline", "rotated"],
+        text_color: "#dc2626", text_font_size: "28px", angle: [0, 0, Math.PI/6],
+        anchor: "center", background_fill_color: "#fef2f2", border_line_color: "#991b1b", padding: 6,
+      }),
+      p.tex({
+        x: [3, 7], y: [5, 5], text: [String.raw`\frac{1}{x^2}`, String.raw`\int_0^\infty e^{-x} dx`],
+        text_color: "#2563eb", text_font_size: "24px", anchor: "center", display: "inline",
+      }),
+      p.mathml({
+        x: [4, 6], y: [2, 2],
+        text: [
+          "<math><msup><mi>x</mi><mn>2</mn></msup></math>",
+          "<math><mrow><msup><mi>a</mi><mn>2</mn></msup><mo>+</mo><msup><mi>b</mi><mn>2</mn></msup></mrow></math>",
+        ],
+        text_color: "#16a34a", text_font_size: "24px", anchor: "center",
+      }),
+    ]
+
+    const {view} = await display(p)
+    const atlas_state: {textures: unknown[], bounds_revisions: number[]}[] = []
+    for (const renderer of renderers) {
+      const glyph_view = view.owner.get_one(renderer).glyph
+      expect(glyph_view.has_webgl()).to.be.true
+      const label_views = (glyph_view as unknown as {
+        _label_views?: Map<unknown, {
+          svg_image: HTMLImageElement | null
+          svg_url: string | null
+          svg_element: SVGElement
+        }>
+      })._label_views
+      if (label_views != null) {
+        for (const label_view of label_views.values()) {
+          expect_not_null(label_view.svg_image)
+          expect_not_null(label_view.svg_url)
+          expect(label_view.svg_url.startsWith("blob:")).to.be.true
+          expect(label_view.svg_image.crossOrigin).to.be.null
+          expect(label_view.svg_element.querySelector(`[data-mml-node="merror"]`)).to.be.null
+        }
+      }
+      const gl = (glyph_view as unknown as {glglyph: {
+        _pages: {texture: unknown, bounds: {uploaded_revision: number}}[]
+      }}).glglyph
+      expect(gl._pages.length).to.be.above(0)
+      atlas_state.push({
+        textures: gl._pages.map(({texture}) => texture),
+        bounds_revisions: gl._pages.map(({bounds}) => bounds.uploaded_revision),
+      })
+    }
+
+    p.x_range.setv({start: 1, end: 9})
+    p.y_range.setv({start: 1, end: 9})
+    await view.ready
+    await view.ready
+
+    for (let i = 0; i < renderers.length; i++) {
+      const glyph_view = view.owner.get_one(renderers[i]).glyph
+      const gl = (glyph_view as unknown as {glglyph: {
+        _pages: {texture: unknown, bounds: {uploaded_revision: number}}[]
+      }}).glglyph
+      expect(gl._pages.map(({texture}) => texture)).to.be.equal(atlas_state[i].textures)
+      for (let page = 0; page < gl._pages.length; page++) {
+        expect(gl._pages[page].bounds.uploaded_revision).to.be.above(atlas_state[i].bounds_revisions[page])
+      }
+    }
+
+    const ctx = view.canvas_view.primary.ctx
+    const {data} = ctx.getImageData(0, 0, view.canvas_view.primary.canvas.width, view.canvas_view.primary.canvas.height)
+    let red = 0
+    let blue = 0
+    let green = 0
+    for (let i = 0; i < data.length; i += 4) {
+      const [r, g, b, a] = data.subarray(i, i + 4)
+      if (a > 32 && r > g + 30 && r > b + 30) {
+        red++
+      }
+      if (a > 32 && b > r + 20 && b > g + 10) {
+        blue++
+      }
+      if (a > 32 && g > r + 20 && g > b + 10) {
+        green++
+      }
+    }
+    expect(red).to.be.above(100)
+    expect(blue).to.be.above(50)
+    expect(green).to.be.above(20)
+  })
+
+  it.no_image("should isolate two atlas plots while one is wheel-zoomed", async () => {
+    function atlas_plot() {
+      return fig([300, 260], {
+        output_backend: "webgl", x_range: [-5, 5], y_range: [-5, 5],
+        x_axis_type: null, y_axis_type: null, background_fill_color: "black",
+        border_fill_color: "black", outline_line_color: null,
+        tools: "wheel_zoom", active_scroll: "wheel_zoom", toolbar_location: null,
+        styles: {margin: "0px"},
+      })
+    }
+
+    const left = atlas_plot()
+    const values = linspace(-4, 4, 80)
+    left.text({
+      x: values, y: values.map((value) => 2*Math.sin(value)),
+      text: values.map((_, i) => `${i}`), text_color: "red", text_font_size: "12px",
+    })
+
+    const right = atlas_plot()
+    right.text({
+      x: values, y: values.map((value) => 2*Math.cos(value)),
+      text: values.map((_, i) => `${i}`), text_color: "lime", text_font_size: "12px",
+    })
+    right.tex({
+      x: [-2, 0, 2], y: [3, 3, 3],
+      text: [String.raw`\frac{1}{x}`, String.raw`e^{i\pi}+1=0`, String.raw`\sqrt{x^2+y^2}`],
+      text_color: "lime", text_font_size: "18px", anchor: "center",
+    })
+    right.mathml({
+      x: [-2, 0, 2], y: [-3, -3, -3],
+      text: [
+        "<math><mfrac><mn>1</mn><mi>x</mi></mfrac></math>",
+        "<math><msup><mi>x</mi><mn>2</mn></msup></math>",
+        "<math><msqrt><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow></msqrt></math>",
+      ],
+      text_color: "lime", text_font_size: "18px", anchor: "center",
+    })
+
+    const {view} = await display(row([left, right], {spacing: 0}))
+    const left_view = view.owner.get_one(left)
+    const right_view = view.owner.get_one(right)
+    expect(left_view.canvas_view.webgl === right_view.canvas_view.webgl).to.be.true
+
+    await actions(right_view).scroll_up(xy(0, 0), 4)
+    await right_view.ready
+    await right_view.ready
+
+    function color_counts(plot_view: typeof left_view) {
+      const {canvas, ctx} = plot_view.canvas_view.primary
+      const {data} = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      let red = 0
+      let green = 0
+      for (let i = 0; i < data.length; i += 4) {
+        const [r, g, b, a] = data.subarray(i, i + 4)
+        if (a > 32 && r > 100 && g < 80 && b < 80) {
+          red++
+        }
+        if (a > 32 && g > 100 && r < 80 && b < 120) {
+          green++
+        }
+      }
+      return {red, green}
+    }
+
+    const left_colors = color_counts(left_view)
+    const right_colors = color_counts(right_view)
+    expect(left_colors.red).to.be.above(5)
+    expect(left_colors.green).to.be.equal(0)
+    expect(right_colors.green).to.be.above(5)
+    expect(right_colors.red).to.be.equal(0)
+  })
+
   it.no_image("should update line and scatter ranges without re-uploading coordinates", async () => {
     const x = linspace(1_720_000_000_000, 1_720_000_001_000, 10_000)
     const y = x.map((_, i) => Math.sin(i/100))
@@ -189,7 +356,7 @@ describe("webgl", () => {
     expect(hit != null && [...hit.indices].includes(2)).to.be.true
   })
 
-  it.no_image("should complete large WebGL batches before a Canvas ordering barrier", async () => {
+  it.no_image("should complete large WebGL batches before the canvas blit", async () => {
     const x = linspace(0, 20, 4096)
     const p = fig([600, 400], {
       output_backend: "webgl", x_range: [0, 20], y_range: [-5, 5], toolbar_location: null,
@@ -202,7 +369,7 @@ describe("webgl", () => {
       })
     }
     p.text({
-      x: [10], y: [1.4], text: ["Canvas ordering barrier"],
+      x: [10], y: [1.4], text: ["WebGL atlas batch"],
       text_align: "center", text_font_size: "22px", text_color: "#dc2626",
     })
     for (let i = 0; i < 80; i++) {
@@ -228,8 +395,8 @@ describe("webgl", () => {
       expect(blue_pixels > 1000).to.be.true
 
       const {submitted, draw_calls} = view.canvas_view.webgl!.regl_wrapper.batch_stats
-      expect(submitted).to.be.equal(160)
-      expect(draw_calls).to.be.equal(2)
+      expect(submitted).to.be.equal(161)
+      expect(draw_calls).to.be.equal(3)
     } finally {
       settings.force_webgl = force_webgl
     }

@@ -9,6 +9,8 @@ import accumulate_vertex_source from "./accumulate.vert"
 import accumulate_fragment_source from "./accumulate.frag"
 import image_vertex_source from "./image.vert"
 import image_fragment_source from "./image.frag"
+import text_vertex_source from "./text.vert"
+import text_fragment_source from "./text.frag"
 import line_vertex_source from "./regl_line.vert"
 import line_fragment_source from "./regl_line.frag"
 import marker_vertex_source from "./marker.vert"
@@ -26,6 +28,8 @@ const accumulate_vertex_shader = assemble_shader(accumulate_vertex_source)
 const accumulate_fragment_shader = assemble_shader(accumulate_fragment_source)
 const image_vertex_shader = assemble_shader(image_vertex_source)
 const image_fragment_shader = assemble_shader(image_fragment_source)
+const text_vertex_shader = assemble_shader(text_vertex_source)
+const text_fragment_shader = assemble_shader(text_fragment_source)
 const line_vertex_shader = assemble_shader(line_vertex_source)
 const line_fragment_shader = assemble_shader(line_fragment_source)
 const marker_vertex_shader = assemble_shader(marker_vertex_source)
@@ -62,6 +66,7 @@ export class ReglWrapper {
   // Drawing functions.
   private _accumulate?: ReglRenderFunction<t.AccumulateProps>
   private _image?: ReglRenderFunction<t.ImageProps>
+  private _text?: ReglRenderFunction<t.TextProps>
   private readonly _solid_line_map = new Map<boolean, ReglRenderFunction<t.LineGlyphProps>>()
   private _dashed_line?: ReglRenderFunction<t.LineDashGlyphProps>
   private _polygon?: ReglRenderFunction<t.PolygonGlyphProps>
@@ -290,6 +295,10 @@ export class ReglWrapper {
     return this._regl.texture(options)
   }
 
+  get max_texture_size(): number {
+    return this._regl.limits.maxTextureSize
+  }
+
   get viewport(): BoundingBox {
     return this._viewport
   }
@@ -326,6 +335,13 @@ export class ReglWrapper {
       this._image = this._batch("image", regl_image(this._regl, this._rect_geometry, this._rect_triangles))
     }
     return this._image
+  }
+
+  public text(): ReglRenderFunction<t.TextProps> {
+    if (this._text == null) {
+      this._text = this._batch("text", regl_text(this._regl, this._rect_geometry))
+    }
+    return this._text
   }
 
   public polygon(): ReglRenderFunction<t.PolygonGlyphProps> {
@@ -459,6 +475,66 @@ function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): RawReglR
     },
 
     elements: triangles,
+
+    blend: {
+      enable: true,
+      func: {
+        srcRGB:   "one",
+        srcAlpha: "one",
+        dstRGB:   "one minus src alpha",
+        dstAlpha: "one minus src alpha",
+      },
+    },
+    depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, "scissor">("scissor"),
+    },
+    viewport: regl.prop<Props, "viewport">("viewport"),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config) as RawReglRenderFunction<Props>
+}
+
+function regl_text(regl: Regl, geometry: Buffer): RawReglRenderFunction<t.TextProps> {
+  type Props = t.TextProps
+  type Uniforms = t.TextUniforms
+  type Attributes = t.TextAttributes
+
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
+    vert: text_vertex_shader,
+    frag: text_fragment_shader,
+
+    attributes: {
+      a_position: {
+        buffer: geometry,
+        divisor: 0,
+      },
+      a_bounds(_, props) {
+        return props.bounds.to_attribute_config(0, props.ntexts)
+      },
+      a_uv(_, props) {
+        return props.uv.to_attribute_config(0, props.ntexts)
+      },
+      a_origin(_, props) {
+        return props.origin.to_attribute_config(0, props.ntexts)
+      },
+      a_angle(_, props) {
+        return props.angle.to_attribute_config(0, props.ntexts)
+      },
+      a_show(_, props) {
+        return props.show.to_attribute_config(0, props.ntexts)
+      },
+    },
+
+    uniforms: {
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_tex: regl.prop<Props, "tex">("tex"),
+    },
+
+    count: 4,
+    primitive: "triangle fan",
+    instances: regl.prop<Props, "ntexts">("ntexts"),
 
     blend: {
       enable: true,
