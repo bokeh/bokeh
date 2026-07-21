@@ -772,7 +772,7 @@ class DataTable(TableWidget):
     ``"fit_columns"``
         Compute column widths based on cell contents but ensure the
         table fits into the available viewport. A horizontal scrollbar may
-        be introduced to ensure readability.
+        appear to ensure readability of contents in all rows.
 
     ``"fit_viewport"``
         Adjust the viewport size after computing columns widths based
