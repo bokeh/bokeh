@@ -1,6 +1,8 @@
 import {expect} from "#framework/assertions"
 
-import {expand_to_per_vertex} from "@bokehjs/models/glyphs/webgl/buffer"
+import {expand_to_per_vertex, Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
+import type {ReglWrapper} from "@bokehjs/models/glyphs/webgl/regl_wrap"
+import type {Buffer} from "regl"
 
 // Lightweight mock objects that satisfy expand_to_per_vertex's duck-typed interfaces.
 function mock_src(data: number[], is_scalar: boolean) {
@@ -145,5 +147,25 @@ describe("expand_to_per_vertex", () => {
       5, 6, 7, 8,      // polygon 1, vertex 1
       9, 10, 11, 12,   // polygon 2, vertex 0
     ])
+  })
+})
+
+describe("WrappedBuffer", () => {
+  it("should release its GPU buffer exactly once", () => {
+    let destroyed = 0
+    const gpu_buffer = Object.assign((_options: unknown) => {}, {
+      destroy() { destroyed++ },
+    }) as unknown as Buffer
+    const regl_wrapper = {
+      buffer() { return gpu_buffer },
+    } as unknown as ReglWrapper
+
+    const buffer = new Float32Buffer(regl_wrapper)
+    buffer.set_from_array([1, 2, 3])
+    buffer.destroy()
+    buffer.destroy()
+
+    expect(destroyed).to.be.equal(1)
+    expect(buffer.length).to.be.equal(0)
   })
 })

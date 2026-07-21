@@ -4,12 +4,63 @@ import {display, fig, row} from "#framework/layouts"
 import {SeededRandom} from "#framework/random"
 import {WebGLScenario, require_glglyph} from "#framework/webgl"
 import {range} from "@bokehjs/core/util/array"
-import type {Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
+import type {Float32Buffer, Uint8Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
 
 describe("WebGL legacy interaction regressions", () => {
+  it.no_image("should pan, zoom, hit test, select, and reset scatter10k", async () => {
+    const n = 10_000
+    const random = new SeededRandom(10)
+    const x = range(n).map(() => 6*(random.float() - 0.5))
+    const y = x.map((value) => Math.sin(value) + 0.4*(random.float() - 0.5))
+    const p = fig([650, 420], {
+      output_backend: "webgl", x_range: [-4, 4], y_range: [-2, 2],
+      tools: "pan,wheel_zoom,reset", active_drag: "pan", active_scroll: "wheel_zoom",
+    })
+    const renderer = p.scatter(x, y, {alpha: 0.1, size: 6})
+    const {view} = await display(p)
+    const renderer_view = view.owner.get_one(renderer)
+    const glyph = renderer_view.glyph
+    require_glglyph(glyph)
+
+    const initial_range = [p.x_range.start, p.x_range.end, p.y_range.start, p.y_range.end]
+    const scenario = new WebGLScenario(view)
+    await scenario.pan(xy(0, 0), xy(0.8, -0.4))
+    await scenario.zoom(xy(0, 0), 3)
+    expect([p.x_range.start, p.x_range.end, p.y_range.start, p.y_range.end]).to.not.be.equal(initial_range)
+
+    const index = 5000
+    const sx = view.frame.x_scale.compute(x[index])
+    const sy = view.frame.y_scale.compute(y[index])
+    const hit = glyph.hit_test({type: "point", sx, sy})
+    expect(hit != null && [...hit.indices].includes(index)).to.be.true
+
+    await scenario.reset()
+    const selected = [10, 20, 30, 40]
+    renderer.data_source.selected.indices = selected
+    await scenario.settle()
+
+    type ScatterGLState = {_show_by_type: Map<string, Uint8Buffer>}
+    const selection_gl = require_glglyph(renderer_view.selection_glyph) as unknown as ScatterGLState
+    const nonselection_gl = require_glglyph(renderer_view.nonselection_glyph) as unknown as ScatterGLState
+    const visible = (state: ScatterGLState) => {
+      let count = 0
+      for (const buffer of state._show_by_type.values()) {
+        for (const show of buffer.get_array()) {
+          count += show != 0 ? 1 : 0
+        }
+      }
+      return count
+    }
+    expect(visible(selection_gl)).to.be.equal(selected.length)
+    expect(visible(nonselection_gl)).to.be.equal(n - selected.length)
+    if (typeof OffscreenCanvas != "undefined") {
+      expect(view.canvas_view.webgl?.canvas instanceof OffscreenCanvas).to.be.true
+    }
+  })
+
   it.no_image("should preserve mixed-marker visuals through stream, patch, zoom, and reset", async () => {
     const n = 2_000
     const random = new SeededRandom(7)

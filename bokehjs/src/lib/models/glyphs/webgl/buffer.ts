@@ -12,7 +12,7 @@ type WrappedArrayType = Float32Array | Uint8Array
 
 // Arrays are sent to GPU using ReGL Buffer objects.  CPU-side arrays used to
 // update the Buffers are also kept for reuse to avoid unnecessary reallocation.
-abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
+export abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   protected regl_wrapper: ReglWrapper
   protected buffer?: Buffer
   protected array?: ArrayType
@@ -166,6 +166,12 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     }
 
     this.is_scalar = is_scalar
+  }
+
+  destroy(): void {
+    this.buffer?.destroy()
+    this.buffer = undefined
+    this.array = undefined
   }
 }
 

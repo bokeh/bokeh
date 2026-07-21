@@ -13,6 +13,9 @@ test another aspect of WebGL (e.g. blending of transparent glyphs).
 * line10k.py - uses the webgl line glyph to plot a relatively large dataset
 * scatter10k.py - uses the webgl circle glyph and selections
 * scatter_blend.py - to test color names and blending of semi-transparent glyphs
+* mixed_markers_streaming.py - mixed marker selection, patching, and streaming
+* nested_evenodd_polygons.py - nested islands and disjoint polygon holes
+* localized_multiline.py - bounded line accumulation and long-dash precision
 
 
 ### Other WebGL examples in this directory

@@ -115,6 +115,12 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
+  override remove(): void {
+    this.glglyph?.destroy()
+    this.glglyph = undefined
+    super.remove()
+  }
+
   request_paint(): void {
     this.parent.request_paint()
   }
@@ -129,6 +135,9 @@ export abstract class GlyphView extends DOMComponentView {
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
+      // Preserve ordering inside composite renderers (e.g. WebGL graph edges
+      // followed by Canvas nodes), not just between top-level renderers.
+      this.canvas.blit_webgl(ctx)
       this._paint(ctx, indices, data)
     }
   }

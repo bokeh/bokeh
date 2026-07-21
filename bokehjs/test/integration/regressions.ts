@@ -3245,7 +3245,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #13150", () => {
-    it("doesn't allow correctly render GraphRenderer with output_backend='webgl'", async () => {
+    it("should preserve edge/node ordering with output_backend='webgl'", async () => {
       function plot(output_backend: OutputBackend) {
         const layout_provider = new StaticLayoutProvider({
           graph_layout: new Map([
@@ -3274,6 +3274,30 @@ describe("Bug", () => {
       const p2 = plot("webgl")
 
       await display(row([p0, p1, p2]))
+    })
+
+    it("should interleave WebGL edges with Canvas-only graph nodes", async () => {
+      function plot(output_backend: OutputBackend) {
+        const layout_provider = new StaticLayoutProvider({
+          graph_layout: new Map([
+            [0, [0, 0]],
+            [1, [1, 1]],
+            [2, [2, 0]],
+          ]),
+        })
+        const node_renderer = new GlyphRenderer({
+          glyph: new Text({text: "●", anchor: "center", text_font_size: "28px", text_color: "firebrick"}),
+          data_source: new ColumnDataSource({data: {index: [0, 1, 2]}}),
+        })
+        const edge_renderer = new GlyphRenderer({
+          glyph: new MultiLine({line_width: 12, line_color: "navy"}),
+          data_source: new ColumnDataSource({data: {start: [0, 1], end: [1, 2]}}),
+        })
+        const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+        return fig([250, 200], {output_backend, title: output_backend, renderers: [graph]})
+      }
+
+      await display(row([plot("canvas"), plot("webgl")]))
     })
   })
 

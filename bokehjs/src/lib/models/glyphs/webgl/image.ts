@@ -70,8 +70,11 @@ export class ImageGL extends BaseGLGlyph {
     const {image} = this.glyph
     const nimage = image.length
 
-    if (this._bounds.length != nimage) {
-      this._bounds = Array(nimage).fill(null)
+    while (this._bounds.length > nimage) {
+      this._bounds.pop()?.destroy()
+    }
+    while (this._bounds.length < nimage) {
+      this._bounds.push(null)
     }
 
     for (let i = 0; i < nimage; i++) {
@@ -82,6 +85,7 @@ export class ImageGL extends BaseGLGlyph {
       const sh_i = sh[i]
 
       if (!isFinite(sx_i + sy_i + sw_i + sh_i)) {
+        this._bounds[i]?.destroy()
         this._bounds[i] = null
         continue
       }
@@ -106,14 +110,18 @@ export class ImageGL extends BaseGLGlyph {
 
     assert(image_data != null)
 
-    if (this._tex.length != nimage) {
-      this._tex = Array(nimage).fill(null)
+    while (this._tex.length > nimage) {
+      this._tex.pop()?.destroy()
+    }
+    while (this._tex.length < nimage) {
+      this._tex.push(null)
     }
 
     for (let i = 0; i < nimage; i++) {
       const image_data_i = image_data[i]
 
       if (image_data_i == null) {
+        this._tex[i]?.destroy()
         this._tex[i] = null
         continue
       }
@@ -132,5 +140,14 @@ export class ImageGL extends BaseGLGlyph {
         this._tex[i]!(tex_options) // Reuse existing WebGL texture
       }
     }
+  }
+
+  override destroy(): void {
+    for (const tex of this._tex) {
+      tex?.destroy()
+    }
+    this._tex = []
+    super.destroy()
+    this._bounds = []
   }
 }

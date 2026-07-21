@@ -1,11 +1,52 @@
 import {expect} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
-import {Canvas} from "@bokehjs/models/canvas/canvas"
+import {Canvas, once_async} from "@bokehjs/models/canvas/canvas"
 import type {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
 import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("Canvas", () => {
+  it("should share in-flight asynchronous initialization", async () => {
+    const resource = {}
+    let calls = 0
+    let resolve: (value: object) => void = () => {}
+    const initialize = once_async(() => {
+      calls++
+      return new Promise<object>((_resolve) => resolve = _resolve)
+    })
+
+    const pending0 = initialize()
+    const pending1 = initialize()
+    expect(pending0 === pending1).to.be.true
+    expect(calls).to.be.equal(1)
+
+    resolve(resource)
+    expect(await pending0).to.be.equal(resource)
+    expect(await initialize()).to.be.equal(resource)
+    expect(calls).to.be.equal(1)
+  })
+
+  it("should retry asynchronous initialization after rejection", async () => {
+    let calls = 0
+    const initialize = once_async(async () => {
+      calls++
+      if (calls == 1) {
+        throw new Error("initialization failed")
+      }
+      return "initialized"
+    })
+
+    let rejected = false
+    try {
+      await initialize()
+    } catch {
+      rejected = true
+    }
+    expect(rejected).to.be.true
+    expect(await initialize()).to.be.equal("initialized")
+    expect(calls).to.be.equal(2)
+  })
+
   describe("should support composing layers", () => {
     it.dpr(1)("with devicePixelRatio == 1", async () => {
       const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})

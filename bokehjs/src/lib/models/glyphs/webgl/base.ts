@@ -2,6 +2,7 @@
 import type {Context2d} from "core/util/canvas"
 import type {GlyphView} from "../glyph"
 import type {ReglWrapper} from "./regl_wrap"
+import {WrappedBuffer} from "./buffer"
 
 export type BaseGLGlyphConstructor = {
   new(regl: ReglWrapper, base_glyph: GlyphView): BaseGLGlyph
@@ -46,9 +47,36 @@ export abstract class BaseGLGlyph {
       height: height / pixel_ratio,
     }
     this.draw(indices, mainglyph, trans)
+    this.glyph.renderer.plot_view.canvas_view.mark_webgl_dirty()
   }
 
   abstract draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
+
+  /** Release every buffer owned by this glyph. Shared shader programs, dash
+   * textures, and framebuffer resources remain owned by ReglWrapper. */
+  destroy(): void {
+    const destroyed = new Set<WrappedBuffer<any>>()
+    const destroy = (value: unknown): void => {
+      if (value instanceof WrappedBuffer) {
+        if (!destroyed.has(value)) {
+          destroyed.add(value)
+          value.destroy()
+        }
+      } else if (Array.isArray(value)) {
+        for (const item of value) {
+          destroy(item)
+        }
+      } else if (value instanceof Map) {
+        for (const item of value.values()) {
+          destroy(item)
+        }
+      }
+    }
+
+    for (const value of Object.values(this)) {
+      destroy(value)
+    }
+  }
 }
 
 export type Transform = {
