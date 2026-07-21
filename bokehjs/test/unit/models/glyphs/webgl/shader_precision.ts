@@ -10,6 +10,7 @@ import marker_vertex_source from "@bokehjs/models/glyphs/webgl/marker.vert"
 import marker_fragment_source from "@bokehjs/models/glyphs/webgl/marker.frag"
 import polygon_vertex_source from "@bokehjs/models/glyphs/webgl/polygon.vert"
 import polygon_fragment_source from "@bokehjs/models/glyphs/webgl/polygon.frag"
+import {assemble_shader} from "@bokehjs/models/glyphs/webgl/shader_modules"
 
 const vertex_sources = new Map([
   ["accumulate", accumulate_vertex_source],
@@ -30,19 +31,21 @@ const fragment_sources = new Map([
 describe("WebGL shader precision", () => {
   it("should request high precision in every vertex shader", () => {
     for (const source of vertex_sources.values()) {
-      expect(source.trimStart().startsWith("precision highp float;")).to.be.true
-      expect(source.includes("#include")).to.be.false
+      const shader = assemble_shader(source)
+      expect(shader.trimStart().startsWith("precision highp float;")).to.be.true
+      expect(shader.includes("#include")).to.be.false
     }
   })
 
   it("should prefer high fragment precision with a portable fallback", () => {
     for (const source of fragment_sources.values()) {
-      expect(source.includes("#ifdef GL_FRAGMENT_PRECISION_HIGH")).to.be.true
-      expect(source.includes("precision highp float;")).to.be.true
-      expect(source.includes("#else")).to.be.true
-      expect(source.includes("precision mediump float;")).to.be.true
-      expect(source.includes("#endif")).to.be.true
-      expect(source.includes("#include")).to.be.false
+      const shader = assemble_shader(source)
+      expect(shader.includes("#ifdef GL_FRAGMENT_PRECISION_HIGH")).to.be.true
+      expect(shader.includes("precision highp float;")).to.be.true
+      expect(shader.includes("#else")).to.be.true
+      expect(shader.includes("precision mediump float;")).to.be.true
+      expect(shader.includes("#endif")).to.be.true
+      expect(shader.includes("#include")).to.be.false
     }
   })
 })
