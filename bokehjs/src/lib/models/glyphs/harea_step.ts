@@ -1,6 +1,6 @@
 import type {PointGeometry} from "core/geometry"
 import type {Arrayable} from "core/types"
-import {Area, AreaView} from "./area"
+import {Area, AreaView, stepped_area_path} from "./area"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
 import * as hittest from "core/hittest"
@@ -8,12 +8,26 @@ import * as p from "core/properties"
 import {StepMode} from "core/enums"
 import {flip_step_mode} from "core/util/flip_step_mode"
 import {Selection} from "../selections/selection"
+import type {AreaGL} from "./webgl/area"
+import type {ScreenLine} from "./curve"
 
 export interface HAreaStepView extends HAreaStep.Data {}
 
 export class HAreaStepView extends AreaView {
   declare model: HAreaStep
   declare visuals: HAreaStep.Visuals
+
+  /** @internal */
+  declare glglyph?: AreaGL
+
+  override async load_glglyph() {
+    const {AreaGL} = await import("./webgl/area")
+    return AreaGL
+  }
+
+  webgl_area_path(): ScreenLine {
+    return stepped_area_path(this.sx1, this.sy, this.sx2, this.sy, this.model.step_mode, "y")
+  }
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math

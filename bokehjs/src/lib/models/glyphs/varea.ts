@@ -1,16 +1,30 @@
 import type {PointGeometry} from "core/geometry"
-import {Area, AreaView} from "./area"
+import {Area, AreaView, area_path} from "./area"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
+import type {AreaGL} from "./webgl/area"
+import type {ScreenLine} from "./curve"
 
 export interface VAreaView extends VArea.Data {}
 
 export class VAreaView extends AreaView {
   declare model: VArea
   declare visuals: VArea.Visuals
+
+  /** @internal */
+  declare glglyph?: AreaGL
+
+  override async load_glglyph() {
+    const {AreaGL} = await import("./webgl/area")
+    return AreaGL
+  }
+
+  webgl_area_path(): ScreenLine {
+    return area_path(this.sx, this.sy1, this.sx, this.sy2)
+  }
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
