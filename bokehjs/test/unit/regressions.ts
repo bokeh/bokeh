@@ -1976,7 +1976,7 @@ ${view.host_selector} {
   })
 
   describe("in issue #13931", () => {
-    it("doesn't allow stale DataTable selections to break data updates", async () => {
+    it("updates data without errors when DataTable selections are stale", async () => {
       const source = new ColumnDataSource({data: {my_col: ["a", "b", "c"]}})
       const columns = [
         new TableColumn({field: "my_col", title: "My Column"}),
@@ -1986,14 +1986,14 @@ ${view.host_selector} {
       const {view} = await display(table)
 
       source.selected.indices = [1, 2]
+      await view.ready
+      expect(view.get_selected_rows()).to.be.equal([1, 2])
 
-      expect(() => {
-        source.data = {my_col: []}
-      }).to.not.throw()
+      source.data = {my_col: ["a", "b"]}
       await view.ready
 
       expect(source.selected.indices).to.be.equal([1, 2])
-      expect(view.get_selected_rows()).to.be.equal([])
+      expect(view.get_selected_rows()).to.be.equal([1])
     })
   })
 
