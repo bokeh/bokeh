@@ -184,6 +184,13 @@ The visual baseline comparison tests are located in the
 macOS, and Windows environments. The baseline files for each environment are
 located in the :bokeh-tree:`bokehjs/test/baselines/` folder.
 
+The CI results are the source of truth for visual baseline comparisons. Local
+test runs are useful for developing tests and reviewing output, but locally
+generated images can differ from CI-generated images, sometimes in visible ways.
+This can happen even on the officially supported Ubuntu Linux platform, because
+font rendering, graphics libraries, browser builds, system packages, and other
+local setup details can affect pixel output.
+
 Follow these steps to write new visual tests or update existing tests:
 
 1. Create or update visual testing scripts:
@@ -266,9 +273,9 @@ Follow these steps to write new visual tests or update existing tests:
     repository, you need to generate and commit the baseline files using
     :ref:`Bokeh's CI <contributor_guide_testing_ci>`.
 
-    The baseline files are platform-dependent. This is why the CI will only work
-    reliably if you upload baseline files that were created by the CI, not
-    locally created files.
+    The baseline files are platform-dependent and sensitive to the exact test
+    environment. This is why the CI will only work reliably if you upload
+    baseline files that were created by the CI, not locally created files.
 
     Before generating new baseline images with Bokeh's CI, `rebase`_ your branch
     to make sure all tests are up to date.

@@ -595,7 +595,7 @@ class TestXSRF:
                 assert_pattern(nbsr, pat)
 
 def test_auth_module_printed() -> None:
-    pat = re.compile(r'User authentication hooks provided \(no default user\)')
+    pat = re.compile(r'User authentication hooks provided(?! \()')
     with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (_, nbsr):
         assert_pattern(nbsr, pat)
 

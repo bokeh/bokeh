@@ -269,6 +269,21 @@ aspects of how the different parts of the library operate and interact.
 To learn about all environment variables available in Bokeh, see
 :ref:`bokeh.settings` in the reference guide.
 
+Only set the environment variables in this section for the command or terminal
+session that needs them. In particular, avoid making them permanent settings in
+your ``bkdev`` environment, because different development tasks need different
+resource configuration:
+
+* To run examples or local applications with your locally built BokehJS, set
+  ``BOKEH_RESOURCES`` for that command or terminal session.
+* To run tests, leave ``BOKEH_RESOURCES`` and ``BOKEH_DEV`` unset. Bokeh's test
+  suite selects the resources it needs, and some tests fail during collection if
+  ``BOKEH_RESOURCES`` is set.
+* To build the documentation, follow the
+  :ref:`documentation build instructions <contributor_guide_documentation_build>`.
+  Documentation builds use ``GOOGLE_API_KEY`` and, when needed,
+  ``BOKEH_DOCS_CDN`` instead of ``BOKEH_RESOURCES``.
+
 ``BOKEH_RESOURCES``
 ~~~~~~~~~~~~~~~~~~~
 
@@ -283,9 +298,10 @@ You will not see any effects of your local changes to BokehJS unless you
 configure Bokeh to use your local version of BokehJS instead of the default
 version from the CDN.
 
-Note that ``BOKEH_RESOURCES`` should only be set when running examples.
-When you run tests or build the docs, you should not set this variable
-(or unset it if it is already set) or you might get an error.
+Note that ``BOKEH_RESOURCES`` should only be set when running examples or
+local applications where you need to load your local BokehJS build. When you
+run tests or build the docs, you should not set this variable (or unset it if
+it is already set) or you might get an error.
 
 You have the following three options to use your local version of BokehJS:
 
@@ -412,7 +428,10 @@ See :class:`~bokeh.resources.Resources` for more details.
 
 There are several other environment variables that are helpful when working on
 Bokeh's codebase. The most common settings for local development are combined in
-the variable ``BOKEH_DEV``.
+the variable ``BOKEH_DEV``. Use ``BOKEH_DEV`` when you are developing examples
+or applications, or when you need to run the local resource server for
+``BOKEH_RESOURCES=server-dev``. Do not leave ``BOKEH_DEV`` enabled when running
+the test suite, because it implies ``BOKEH_RESOURCES=server``.
 
 To enable development settings, set ``BOKEH_DEV`` to ``true``:
 
