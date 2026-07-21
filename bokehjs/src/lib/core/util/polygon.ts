@@ -7,9 +7,8 @@ import type {Arrayable} from "core/types"
  *  smoothstep fade range equals the skirt geometry extent. */
 export const POLYGON_AA_WIDTH = 0.75
 
-/** Split x/y coordinate arrays on NaN values into rings (sub-paths).
- *  Each ring is a flat array of interleaved [x0, y0, x1, y1, ...] values.
- *  The first ring is the outer boundary; subsequent rings are holes. */
+/** Split x/y coordinate arrays on non-finite values into rings (sub-paths).
+ *  Each ring is a flat array of interleaved [x0, y0, x1, y1, ...] values. */
 export function split_rings(sx: Arrayable<number>, sy: Arrayable<number>): number[][] {
   const n = Math.min(sx.length, sy.length)
   const rings: number[][] = []
@@ -320,40 +319,62 @@ export type TriangulationGroup = {
   flat_coords: number[]
 }
 
-/** Classify split rings into triangulation groups.
- *  Each group has one outer ring and zero or more holes.
- *  Rings not contained in ring[0] become separate groups. */
+/** Classify split rings according to the even-odd fill rule.
+ *  Each even-depth ring starts a triangulation group and its direct odd-depth
+ *  children are holes. Nested islands therefore become independent groups,
+ *  and disjoint rings can themselves contain holes. Ring orientation and
+ *  input ordering do not affect classification. */
 export function classify_rings(rings: number[][]): TriangulationGroup[] {
-  if (rings.length <= 1) {
-    return [{rings, flat_coords: rings.length > 0 ? [...rings[0]] : []}]
+  const n = rings.length
+  if (n == 0) {
+    return []
   }
 
-  const outer = rings[0]
-  const holes: number[][] = []
-  const separate: number[][] = []
+  const areas = rings.map((ring) => Math.abs(signed_area_2(ring)))
+  const parents = new Int32Array(n).fill(-1)
 
-  for (let i = 1; i < rings.length; i++) {
-    // Test first point of ring against ring 0
-    if (point_in_ring(rings[i][0], rings[i][1], outer)) {
-      holes.push(rings[i])
-    } else {
-      separate.push(rings[i])
+  for (let i = 0; i < n; i++) {
+    const ring = rings[i]
+    if (ring.length < 2) {
+      continue
+    }
+    let parent_area = Infinity
+    for (let j = 0; j < n; j++) {
+      if (i == j || areas[j] <= areas[i]) {
+        continue
+      }
+      if (areas[j] < parent_area && point_in_ring(ring[0], ring[1], rings[j])) {
+        parents[i] = j
+        parent_area = areas[j]
+      }
     }
   }
 
-  const groups: TriangulationGroup[] = []
-
-  // Group 0: outer ring + its holes
-  const main_rings = [outer, ...holes]
-  const main_flat: number[] = []
-  for (const r of main_rings) {
-    main_flat.push(...r)
+  const depths = new Int32Array(n).fill(-1)
+  const depth_of = (i: number): number => {
+    const known = depths[i]
+    if (known >= 0) {
+      return known
+    }
+    const parent = parents[i]
+    return depths[i] = parent == -1 ? 0 : depth_of(parent) + 1
   }
-  groups.push({rings: main_rings, flat_coords: main_flat})
 
-  // Each separate ring is its own group (no holes)
-  for (const r of separate) {
-    groups.push({rings: [r], flat_coords: [...r]})
+  const groups: TriangulationGroup[] = []
+  for (let i = 0; i < n; i++) {
+    if (depth_of(i) % 2 != 0) {
+      continue
+    }
+    const group_rings = [rings[i]]
+    for (let j = 0; j < n; j++) {
+      if (parents[j] == i && depth_of(j) % 2 == 1) {
+        group_rings.push(rings[j])
+      }
+    }
+    groups.push({
+      rings: group_rings,
+      flat_coords: group_rings.flat(),
+    })
   }
 
   return groups

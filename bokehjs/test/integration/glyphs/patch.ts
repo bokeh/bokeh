@@ -146,6 +146,19 @@ describe("Patch glyph", () => {
     await display(row([p0, p1, p2]))
   })
 
+  it("should support nested islands and holes in arbitrary ring order", async () => {
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([300, 300], {output_backend, title: output_backend})
+      p.patch(
+        [2, 8, 8, 2, NaN, 4, 6, 6, 4, NaN, 0, 10, 10, 0, NaN, 3, 7, 7, 3],
+        [2, 2, 8, 8, NaN, 4, 4, 6, 6, NaN, 0, 0, 10, 10, NaN, 3, 3, 7, 7],
+        {fill_color: "steelblue", line_color: "white", line_width: 2},
+      )
+      return p
+    }
+    await display(row([make_plot("canvas"), make_plot("webgl")]))
+  })
+
   it("should show edge seaming artifact with adjacent semi-transparent fill-only polygons", async () => {
     function make_plot(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
