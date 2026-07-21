@@ -56,22 +56,22 @@ class TestDocumentModelManager:
     def test_len(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 2
+        assert len(dm) == 3
 
         r1 = Row(children=[Div()])
         r2 = Row(children=[Div(), Div()])
 
         d.add_root(r1)
-        assert len(dm) == 4
-
-        d.add_root(r2)
-        assert len(dm) == 7
-
-        d.remove_root(r1)
         assert len(dm) == 5
 
+        d.add_root(r2)
+        assert len(dm) == 8
+
+        d.remove_root(r1)
+        assert len(dm) == 6
+
         d.remove_root(r2)
-        assert len(dm) == 2
+        assert len(dm) == 3
 
     def test_setitem_getitem(self) -> None:
         d = Document()
@@ -122,7 +122,7 @@ class TestDocumentModelManager:
     def test_destroy(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 2
+        assert len(dm) == 3
 
         m1 = Div()
         m2 = Div()
@@ -167,7 +167,7 @@ class TestDocumentModelManager:
     def test_get_all_by_name(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 2
+        assert len(dm) == 3
 
         m1 = Div(name="foo")
         m2 = Div(name="foo")
@@ -184,7 +184,7 @@ class TestDocumentModelManager:
     def test_get_all_by_id(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 2
+        assert len(dm) == 3
 
         m1 = Div()
         m2 = Div()
@@ -199,7 +199,7 @@ class TestDocumentModelManager:
     def test_get_one_by_name(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 2
+        assert len(dm) == 3
 
         m1 = Div(name="foo")
         m2 = Div(name="foo")
@@ -233,7 +233,7 @@ class TestDocumentModelManager:
     def test_recompute(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 2
+        assert len(dm) == 3
 
         r1 = Row(children=[Div(name="dr1")])
         r2 = Row(children=[Div(name="dr2"), Div(name="dr2")])
@@ -260,7 +260,7 @@ class TestDocumentModelManager:
     def test_seen(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 2
+        assert len(dm) == 3
 
         m1 = Div()
         m2 = Div()
@@ -284,7 +284,7 @@ class TestDocumentModelManager:
     def test_update_name(self) -> None:
         d = Document()
         dm = d.models
-        assert len(dm) == 2
+        assert len(dm) == 3
 
         m1 = Div(name="foo")
         m2 = Div()

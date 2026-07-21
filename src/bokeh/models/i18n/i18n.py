@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,21 +22,17 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ..core.enums import ColorScheme
-from ..core.property.enum import Enum
-from ..core.property.instance import Instance, InstanceDefault
-from ..core.property.nullable import Nullable
-from ..core.property.primitive import Bool
-from ..model import Model
-from ..models.i18n.i18n import I18n
-from ..models.ui.notifications import Notifications
+from ...core.property.any import Any as AnyProperty
+from ...core.property.container import List, Tuple
+from ...core.property.primitive import Bool, String
+from ...model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "DocumentConfig",
+    "I18n",
 )
 
 #-----------------------------------------------------------------------------
@@ -48,39 +42,32 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class DocumentConfig(Model):
-    """ Allows to configure various aspects of the document, its models and the application. """
+class I18n(Model):
+    """ Allows to configure i18n aspects of the document, its models and the application. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    reconnect_session = Bool(default=True, help="""
-    Whether to use the session reconnection logic.
-
-    If enabled, when a session is disconnected, Bokeh will attempt to restore the
-    connection. This setting allows to user to completely disable this mechanism.
+    locales_codes = List(String, default=["en"], help="""
+    List of locales codes supported.
     """)
 
-    notify_connection_status = Bool(default=True, help="""
-    Whether to inform the user about connection status in the UI.
-
-    It may be useful to disable the default notification system in Bokeh, if a
-    custom system is being used otherwise.
+    # TODO: Type shoundn't be Any
+    translations = AnyProperty(default={}, help="""
+    Mapping with all the defined translations available.
     """)
 
-    # TODO needs a base class, e.g. NotificationsBase
-    notifications = Nullable(Instance(Notifications), default=InstanceDefault(Notifications), help="""
-    Allows to configure or replace the notifications UI and logic.
+    languages = List(Tuple(String, String), default=[("English", "en")], help="""
+    List of tuples with supported locales codes and their respective label to show.
     """)
 
-    color_scheme = Enum(ColorScheme, default="auto", help="""
-    Allows to configure UI color scheme to use (auto, light or dark).
+    source_language = String(default="en", help="""
+    Language locale code of the source language of the strings.
     """)
 
-    i18n = Instance(I18n, default=InstanceDefault(I18n), help="""
-    Allows to configure i18n logic.
+    auto_t_enabled = Bool(default=False, help="""
+    If auto translations (only Chrome >= 138) should be done.
     """)
 
 #-----------------------------------------------------------------------------
