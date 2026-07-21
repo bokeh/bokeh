@@ -18,6 +18,7 @@ test another aspect of WebGL (e.g. blending of transparent glyphs).
 * localized_multiline.py - bounded line accumulation and long-dash precision
 * architectural_batching.py - queued composition and cross-renderer batching
 * gpu_mapped_ranges.py - immutable data-coordinate buffers for fast range updates
+* gpu_mapper_showcase.py - interactive precision-rebased linear and log GPU mappers
 
 
 ### Other WebGL examples in this directory
