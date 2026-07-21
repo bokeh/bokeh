@@ -1,12 +1,92 @@
 import {expect, expect_not_null} from "#framework/assertions"
 import {actions, xy} from "#framework/interactive"
 import {display, fig, row} from "#framework/layouts"
+import {WebGLScenario, require_glglyph} from "#framework/webgl"
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {settings} from "@bokehjs/core/settings"
 import {linspace} from "@bokehjs/core/util/array"
+import {Float64NDArray, Uint32NDArray} from "@bokehjs/core/util/ndarray"
 import type {Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
+import {EqHistColorMapper, WeightedStackColorMapper} from "@bokehjs/models"
+import {varying_alpha_palette} from "@bokehjs/api/palettes"
 
 describe("webgl", () => {
+  it.no_image("should initialize and remap every non-text WebGL glyph", async () => {
+    const p = fig([600, 400], {
+      output_backend: "webgl", x_range: [0, 10], y_range: [0, 10],
+      tools: "pan,wheel_zoom,reset", active_drag: "pan", active_scroll: "wheel_zoom",
+    })
+    const image = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath fill='%23059669' d='M0 0h8v8H0z'/%3E%3C/svg%3E"
+    const scalar_image = new Float64NDArray([0, 1, 2, 3], [2, 2])
+    const rgba_image = new Uint32NDArray([0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xffffffff], [2, 2])
+    const stack_image = new Float64NDArray([0, 1, 1, 0, 2, 1, 0, 2], [2, 2, 2])
+    const alpha_mapper = new EqHistColorMapper({
+      palette: varying_alpha_palette("#000", 6, 40), rescale_discrete_levels: false,
+    })
+    const stack_mapper = new WeightedStackColorMapper({palette: ["red", "blue"], alpha_mapper})
+
+    const renderers = [
+      p.annular_wedge({
+        x: [1], y: [9], inner_radius: [0.2], outer_radius: [0.7], start_angle: [0.2], end_angle: [4.8],
+      }),
+      p.annulus({x: [2], y: [9], inner_radius: [0.2], outer_radius: [0.7]}),
+      p.arc({x: [1], y: [8], radius: [0.7], start_angle: [0], end_angle: [4.5]}),
+      p.bezier({x0: [2], y0: [7], x1: [4], y1: [7], cx0: [2], cy0: [9], cx1: [4], cy1: [5]}),
+      p.block({x: [8], y: [8], width: [1], height: [1]}),
+      p.circle({x: [9], y: [8], radius: [0.45]}),
+      p.ellipse({x: [5], y: [8], width: [1.5], height: [0.8], angle: [0.4]}),
+      p.hex_tile([0, 1], [0, 0], {size: 0.25, fill_color: ["navy", "orange"]}),
+      p.hbar({y: [6.5], left: [0.5], right: [1.5], height: [0.4]}),
+      p.quadratic({x0: [6], y0: [7], x1: [8], y1: [7], cx: [7], cy: [9]}),
+      p.ray({x: [1], y: [6], length: [1.5], angle: [0.3]}),
+      p.rect({x: [2], y: [6], width: [0.8], height: [0.5], angle: [0.2]}),
+      p.scatter([2.5], [6], {marker: "star", size: 12}),
+      p.segment({x0: [3], y0: [6], x1: [4.5], y1: [5.5]}),
+      p.spline([5, 6, 7, 8], [6, 5.5, 6.5, 6]),
+      p.step({x: [7, 8, 9], y: [5.5, 6.5, 5.8], mode: "center"}),
+      p.vbar({x: [9], bottom: [5.2], top: [6.2], width: [0.4]}),
+      p.wedge({x: [9.5], y: [6], radius: [0.5], start_angle: [0.2], end_angle: [4.5]}),
+      p.harea({x1: [1, 1.5, 1], x2: [2, 2.5, 2], y: [3, 4, 5]}),
+      p.harea_step({x1: [3, 3.5, 3], x2: [4, 4.5, 4], y: [3, 4, 5], step_mode: "center"}),
+      p.varea({x: [5, 6, 7], y1: [3, 3.5, 3], y2: [4, 4.5, 4]}),
+      p.varea_step({x: [7, 8, 9], y1: [3, 3.5, 3], y2: [4, 4.5, 4], step_mode: "after"}),
+      p.line([0.5, 1.5, 2.5], [2.5, 2.8, 2.4]),
+      p.multi_line({xs: [[3, 3.5, 4], [3, 3.7, 4]], ys: [[2.3, 2.8, 2.4], [2, 2.2, 1.9]]}),
+      p.ngon({x: [4.5], y: [2.5], radius: [0.5], n: [7], angle: [0.2]}),
+      p.patch([5, 5.5, 6], [2, 2.8, 2]),
+      p.patches({xs: [[6.2, 6.8, 7.2], [7.3, 7.8, 8.2]], ys: [[2, 2.8, 2], [2, 2.7, 2]]}),
+      p.quad({left: [8.3], right: [9], bottom: [2], top: [2.8]}),
+      p.multi_polygons({
+        xs: [[[[1, 2.5, 2.5, 1]], [[1.4, 2.1, 2.1, 1.4]]]],
+        ys: [[[[0.5, 0.5, 2, 2]], [[0.9, 0.9, 1.6, 1.6]]]],
+      }),
+      p.hspan([2.5], {line_dash: "dashed"}),
+      p.vspan([9.5], {line_dash: "dotted"}),
+      p.image({image: [scalar_image], x: [3], y: [0.5], dw: [0.7], dh: [0.7]}),
+      p.image_rgba({image: [rgba_image], x: [4], y: [0.5], dw: [0.7], dh: [0.7]}),
+      p.image_stack({image: [stack_image], x: [5], y: [0.5], dw: [0.7], dh: [0.7], color_mapper: stack_mapper}),
+      p.image_url({url: [image], x: [5], y: [2], w: [1.5], h: [1], angle: [0.25]}),
+    ]
+
+    const {view} = await display(p)
+    for (const renderer of renderers) {
+      const glyph_view = view.owner.get_one(renderer).glyph
+      expect(glyph_view.has_webgl()).to.be.true
+    }
+
+    const scenario = new WebGLScenario(view)
+    await scenario.pan(xy(5, 5), xy(5.5, 4.75))
+    await scenario.zoom(xy(5, 5), 2)
+    await scenario.reset()
+
+    for (const renderer of renderers) {
+      const glyph_view = view.owner.get_one(renderer).glyph
+      expect(glyph_view.has_webgl()).to.be.true
+      expect(require_glglyph(glyph_view).diagnostics.destroyed).to.be.false
+    }
+    expect(view.canvas_view.webgl_diagnostics.compositor_pending).to.be.equal(0)
+  })
+
   it.no_image("should rebuild expanded ellipse visuals when adaptive geometry changes", async () => {
     const p = fig([500, 350], {
       output_backend: "webgl", x_range: [0, 100], y_range: [0, 100], toolbar_location: null,
@@ -67,50 +147,6 @@ describe("webgl", () => {
     expect(remapped_ring.points[3]).to.not.be.equal(initial_y)
     expect(remapped_ring.points[2]).to.be.similar(view.frame.x_scale.compute(1), 1e-4)
     expect(remapped_ring.points[3]).to.be.similar(view.frame.y_scale.compute(1), 1e-4)
-  })
-
-  it.no_image("should initialize and remap every non-text WebGL glyph", async () => {
-    const p = fig([600, 400], {
-      output_backend: "webgl", x_range: [0, 10], y_range: [0, 10], toolbar_location: null,
-    })
-    const image = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath fill='%23059669' d='M0 0h8v8H0z'/%3E%3C/svg%3E"
-
-    const renderers = [
-      p.arc({x: [1], y: [8], radius: [0.7], start_angle: [0], end_angle: [4.5]}),
-      p.bezier({x0: [2], y0: [7], x1: [4], y1: [7], cx0: [2], cy0: [9], cx1: [4], cy1: [5]}),
-      p.ellipse({x: [5], y: [8], width: [1.5], height: [0.8], angle: [0.4]}),
-      p.quadratic({x0: [6], y0: [7], x1: [8], y1: [7], cx: [7], cy: [9]}),
-      p.ray({x: [1], y: [6], length: [1.5], angle: [0.3]}),
-      p.segment({x0: [3], y0: [6], x1: [4.5], y1: [5.5]}),
-      p.spline([5, 6, 7, 8], [6, 5.5, 6.5, 6]),
-      p.harea({x1: [1, 1.5, 1], x2: [2, 2.5, 2], y: [3, 4, 5]}),
-      p.harea_step({x1: [3, 3.5, 3], x2: [4, 4.5, 4], y: [3, 4, 5], step_mode: "center"}),
-      p.varea({x: [5, 6, 7], y1: [3, 3.5, 3], y2: [4, 4.5, 4]}),
-      p.varea_step({x: [7, 8, 9], y1: [3, 3.5, 3], y2: [4, 4.5, 4], step_mode: "after"}),
-      p.multi_polygons({
-        xs: [[[[1, 2.5, 2.5, 1]], [[1.4, 2.1, 2.1, 1.4]]]],
-        ys: [[[[0.5, 0.5, 2, 2]], [[0.9, 0.9, 1.6, 1.6]]]],
-      }),
-      p.hspan([2.5], {line_dash: "dashed"}),
-      p.vspan([9.5], {line_dash: "dotted"}),
-      p.image_url({url: [image], x: [5], y: [2], w: [1.5], h: [1], angle: [0.25]}),
-    ]
-
-    const {view} = await display(p)
-    for (const renderer of renderers) {
-      const glyph_view = view.owner.get_one(renderer).glyph
-      expect(glyph_view.has_webgl()).to.be.true
-    }
-
-    p.x_range.setv({start: 0.5, end: 9.5})
-    p.y_range.setv({start: 0.5, end: 9.5})
-    await view.ready
-    await view.ready
-
-    for (const renderer of renderers) {
-      const glyph_view = view.owner.get_one(renderer).glyph
-      expect(glyph_view.has_webgl()).to.be.true
-    }
   })
 
   it.no_image("should atlas-render Text, TeX, and MathML through WebGL", async () => {
