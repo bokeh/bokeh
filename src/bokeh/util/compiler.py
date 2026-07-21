@@ -560,9 +560,10 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
 
         return resolved
 
-    def resolve_deps(deps : list[str], root: str) -> dict[str, str]:
+    def resolve_deps(deps: list[str], root: str) -> dict[str, str]:
         custom_modules = {model.module for model in custom_models.values()}
-        missing = set(deps) - known_modules - custom_modules
+        normalized_deps = [dep.removeprefix("@bokehjs/") for dep in deps]
+        missing = set(normalized_deps) - known_modules - custom_modules
         return resolve_modules(missing, root)
 
     for model in custom_models.values():
