@@ -49,6 +49,7 @@ from . import (
     glyphs,
     graphs,
     grids,
+    i18n,
     labeling,
     layouts,
     map_plots,
@@ -84,6 +85,7 @@ from .formatters import *
 from .glyphs import *
 from .graphs import *
 from .grids import *
+from .i18n import *
 from .labeling import *
 from .layouts import *
 from .map_plots import *
@@ -132,6 +134,7 @@ __all__ = (
     *_all(glyphs),
     *_all(graphs),
     *_all(grids),
+    *_all(i18n),
     *_all(labeling),
     *_all(layouts),
     *_all(map_plots),

@@ -30,6 +30,7 @@ from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool
 from ..model import Model
+from ..models.i18n.i18n import I18n
 from ..models.ui.notifications import Notifications
 
 #-----------------------------------------------------------------------------
@@ -76,6 +77,10 @@ class DocumentConfig(Model):
 
     color_scheme = Enum(ColorScheme, default="auto", help="""
     Allows to configure UI color scheme to use (auto, light or dark).
+    """)
+
+    i18n = Instance(I18n, default=InstanceDefault(I18n), help="""
+    Allows to configure i18n logic.
     """)
 
 #-----------------------------------------------------------------------------
