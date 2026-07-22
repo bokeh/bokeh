@@ -22,7 +22,7 @@ export interface I18n extends I18n.Attrs {}
 export class I18n extends Model {
   readonly change_locale = new Signal0(this, "change_locale")
   readonly change_config = new Signal0(this, "change_config")
-  
+
   _translator: Translator | undefined
 
   constructor(attrs?: Partial<I18n.Attrs>) {
