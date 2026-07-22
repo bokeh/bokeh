@@ -3,6 +3,7 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
+import {logger} from "../logging"
 import type {Arrayable} from "../types"
 import {randomIn} from "./math"
 import {assert} from "./assert"
@@ -106,13 +107,22 @@ export function range(start: number, stop?: number, step: number = 1): number[] 
 
   const delta = start <= stop ? step : -step
   const length = max(ceil(abs(stop - start) / step), 0)
-  const range = new Array(length)
-
-  for (let i = 0; i < length; i++, start += delta) {
-    range[i] = start
+  try {
+    // Creating an array too large for V8's allowed array lengths raises an error
+    const range = new Array(length)
+    for (let i = 0; i < length; i++, start += delta) {
+      range[i] = start
+    }
+    return range
+  } catch (error) {
+    if (error instanceof RangeError) {
+      logger.error(
+        "Caught a structural array size limit error, not an JS engine-wide out-of-memory error:",
+        error.message,
+      )
+    }
+    throw (error)
   }
-
-  return range
 }
 
 export function linspace(start: number, stop: number, num: number = 100): number[] {

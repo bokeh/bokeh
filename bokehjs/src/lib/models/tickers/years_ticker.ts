@@ -22,11 +22,11 @@ export class YearsTicker extends BaseSingleIntervalTicker {
   readonly interval = ONE_YEAR
   readonly basic_ticker = new BasicTicker({num_minor_ticks: 0})
 
-  override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+  override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number, num_minor_ticks: number): TickSpec<number> {
     const start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
     const end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear()
 
-    const years = this.basic_ticker.get_ticks_no_defaults(start_year, end_year, cross_loc, desired_n_ticks).major
+    const years = this.basic_ticker.get_ticks_no_defaults(start_year, end_year, cross_loc, desired_n_ticks, num_minor_ticks).major
 
     const all_ticks = years.map((year) => Date.UTC(year, 0, 1))
     const ticks_in_range = all_ticks.filter((tick) => data_low <= tick && tick <= data_high)

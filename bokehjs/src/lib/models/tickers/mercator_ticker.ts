@@ -27,7 +27,7 @@ export class MercatorTicker extends BasicTicker {
     }))
   }
 
-  override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+  override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number, num_minor_ticks: number): TickSpec<number> {
     if (this.dimension == null) {
       throw new Error(`${this}.dimension wasn't configured`)
     }
@@ -35,17 +35,17 @@ export class MercatorTicker extends BasicTicker {
     [data_low, data_high] = clip_mercator(data_low, data_high, this.dimension)
 
     if (this.dimension == "lon") {
-      return this._get_ticks_lon(data_low, data_high, cross_loc, desired_n_ticks)
+      return this._get_ticks_lon(data_low, data_high, cross_loc, desired_n_ticks, num_minor_ticks)
     } else {
-      return this._get_ticks_lat(data_low, data_high, cross_loc, desired_n_ticks)
+      return this._get_ticks_lat(data_low, data_high, cross_loc, desired_n_ticks, num_minor_ticks)
     }
   }
 
-  protected _get_ticks_lon(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+  protected _get_ticks_lon(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number, num_minor_ticks: number): TickSpec<number> {
     const [proj_low] = wgs84_mercator.invert(data_low, cross_loc)
     const [proj_high, proj_cross_loc] = wgs84_mercator.invert(data_high, cross_loc)
 
-    const proj_ticks = super.get_ticks_no_defaults(proj_low, proj_high, cross_loc, desired_n_ticks)
+    const proj_ticks = super.get_ticks_no_defaults(proj_low, proj_high, cross_loc, desired_n_ticks, num_minor_ticks)
 
     const major: number[] = []
     for (const tick of proj_ticks.major) {
@@ -66,11 +66,11 @@ export class MercatorTicker extends BasicTicker {
     return {major, minor}
   }
 
-  protected _get_ticks_lat(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+  protected _get_ticks_lat(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number, num_minor_ticks: number): TickSpec<number> {
     const [, proj_low] = wgs84_mercator.invert(cross_loc, data_low)
     const [proj_cross_loc, proj_high] = wgs84_mercator.invert(cross_loc, data_high)
 
-    const proj_ticks = super.get_ticks_no_defaults(proj_low, proj_high, cross_loc, desired_n_ticks)
+    const proj_ticks = super.get_ticks_no_defaults(proj_low, proj_high, cross_loc, desired_n_ticks, num_minor_ticks)
 
     const major: number[] = []
     for (const tick of proj_ticks.major) {
