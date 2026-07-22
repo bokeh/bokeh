@@ -5214,7 +5214,7 @@ describe("Bug", () => {
       const output = await async_trap(async () => {
         await display(p)
       })
-      expect(output.error.includes("Caught a structural limit error, not an engine-wide OOM:")).to.be.true
+      expect(output.error.includes("Caught a structural array size limit error, not an JS engine-wide out-of-memory error:")).to.be.true
       expect(
         output.warn.includes(
           "Caught an error calculating the ticks for 1e+29 desired_num_ticks and 5 num_minor_ticks. The default values are used instead.",

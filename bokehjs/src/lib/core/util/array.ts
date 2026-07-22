@@ -116,7 +116,10 @@ export function range(start: number, stop?: number, step: number = 1): number[] 
     return range
   } catch (error) {
     if (error instanceof RangeError) {
-      logger.error("Caught a structural limit error, not an engine-wide OOM:", error.message)
+      logger.error(
+        "Caught a structural array size limit error, not an JS engine-wide out-of-memory error:",
+        error.message,
+      )
     }
     throw (error)
   }
