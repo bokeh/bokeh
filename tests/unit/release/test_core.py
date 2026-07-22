@@ -222,6 +222,20 @@ def test_save_and_load_config(tmp_path, monkeypatch):
         assert isinstance(pickle.load(file), Config)
 
 
+def test_load_config_restores_secret_scrubbers(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    config = Config("4.0.0")
+    config.add_secret("TOKEN", "persisted-secret")
+    save_config(config)
+    LOG._scrubbers = []
+
+    loaded = load_config()
+    LOG.record("token=persisted-secret")
+
+    assert loaded.secrets == {"TOKEN": "persisted-secret"}
+    assert capsys.readouterr().out == "token=<xxxxx>\n"
+
+
 def test_skip_for_prerelease_marks_function():
     def step(config, system):
         return PASSED("ok")
