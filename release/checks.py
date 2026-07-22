@@ -172,11 +172,14 @@ def check_version_order(config: Config, system: System) -> ActionReturn:
 
 
 def check_staging_branch_is_available(config: Config, system: System) -> ActionReturn:
-    out = system.run(f"git branch --list {config.staging_branch}")
-    if out:
-        return FAILED(f"Release branch {config.staging_branch!r} ALREADY exists")
-    else:
-        return PASSED(f"Release branch {config.staging_branch!r} does not already exist")
+    try:
+        out = system.run(f"git branch --list {config.staging_branch}")
+        if out:
+            return FAILED(f"Release branch {config.staging_branch!r} ALREADY exists")
+        else:
+            return PASSED(f"Release branch {config.staging_branch!r} does not already exist")
+    except RuntimeError as e:
+        return FAILED("Could not check staging branch availability", details=e.args)
 
 
 @skip_for_prerelease

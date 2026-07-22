@@ -271,6 +271,17 @@ def test_check_staging_branch_available(config, branches, expected):
     assert checks.check_staging_branch_is_available(config, system).kind is expected
 
 
+def test_check_staging_branch_available_reports_command_failure(config):
+    command = "git branch --list staging-4.0.0"
+    system = RecordingSystem(failures={command: ("git error",)})
+
+    result = checks.check_staging_branch_is_available(config, system)
+
+    assert result.kind is ActionResult.FAIL
+    assert result.message == "Could not check staging branch availability"
+    assert result.details == ("git error",)
+
+
 def test_check_milestone_labels_uses_release_milestone(config):
     system = RecordingSystem()
 
