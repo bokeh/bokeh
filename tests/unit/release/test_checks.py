@@ -205,6 +205,26 @@ def test_check_version_order(tags, version, expected):
     assert checks.check_version_order(Config(version), system).kind is expected
 
 
+def test_check_version_order_distinguishes_minor_version_prefixes():
+    command = "git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags"
+    system = RecordingSystem(outputs={command: "3.10.0\n3.1.0\n"})
+
+    result = checks.check_version_order(Config("3.1.1"), system)
+
+    assert result.kind is ActionResult.PASS
+
+
+def test_check_version_order_reports_command_failure(config):
+    command = "git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags"
+    system = RecordingSystem(failures={command: ("git error",)})
+
+    result = checks.check_version_order(config, system)
+
+    assert result.kind is ActionResult.FAIL
+    assert result.message == "Could not compare tag version order"
+    assert result.details == ("git error",)
+
+
 @pytest.mark.parametrize(
     ("branches", "expected"),
     [("", ActionResult.PASS), ("  staging-4.0.0\n", ActionResult.FAIL)],

@@ -160,13 +160,14 @@ def check_version_order(config: Config, system: System) -> ActionReturn:
         out = system.run("git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags")
         tags = [x.strip("'\"") for x in out.split("\n")]
 
-        if all(V(config.version) > V(tag) for tag in tags if tag.startswith(config.release_level)):
+        release_prefix = f"{config.release_level}."
+        if all(V(config.version) > V(tag) for tag in tags if tag.startswith(release_prefix)):
             return PASSED(f"Version {config.version!r} is newer than any tag at release level {config.release_level!r}")
         else:
             return FAILED(f"Version {config.version!r} is older than an existing tag at release level {config.release_level!r}")
 
     except RuntimeError as e:
-        return FAILED("Could compare tag version order", details=e.args)
+        return FAILED("Could not compare tag version order", details=e.args)
 
 
 def check_staging_branch_is_available(config: Config, system: System) -> ActionReturn:
