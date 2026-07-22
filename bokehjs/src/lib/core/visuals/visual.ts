@@ -43,7 +43,7 @@ export abstract class VisualProperties {
   abstract get doit(): boolean
 
   update(): void {
-    this._css_cache?.clear()
+    this._css_cache = null
   }
 
   private _css_cache: Map<string, string> | null = null
@@ -58,7 +58,7 @@ export abstract class VisualProperties {
     const value = getComputedStyle(this.obj.el).getPropertyValue(css_name)
     if (this._css_cache == null) {
       this._css_cache = new Map()
-      queueMicrotask(() => this._css_cache?.clear())
+      queueMicrotask(() => this._css_cache = null)
     }
     this._css_cache.set(css_name, value)
     return value

@@ -1,3 +1,5 @@
+import * as sinon from "sinon"
+
 import {expect} from "#framework/assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
@@ -7,6 +9,7 @@ import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
+import {defer} from "@bokehjs/core/util/defer"
 
 import {Model} from "@bokehjs/model"
 import {DOMComponentView} from "@bokehjs/core/dom_view"
@@ -62,6 +65,46 @@ export class SomeModel extends Model {
 }
 
 describe("core/visuals", () => {
+
+  describe("CSS caching", () => {
+
+    it("should cache CSS property lookups only within the current task", async () => {
+      const view = await build_view(new SomeModel({text_font: "helvetica"}))
+      const {text} = view.visuals
+      const get_computed_style = sinon.spy(window, "getComputedStyle")
+
+      try {
+        expect(text.get_text_font()).to.be.equal("helvetica")
+        expect(text.get_text_font()).to.be.equal("helvetica")
+        expect(get_computed_style.callCount).to.be.equal(1)
+
+        await defer()
+        expect(text.get_text_font()).to.be.equal("helvetica")
+        expect(get_computed_style.callCount).to.be.equal(2)
+
+        await defer()
+        expect(text.get_text_font()).to.be.equal("helvetica")
+        expect(get_computed_style.callCount).to.be.equal(3)
+      } finally {
+        get_computed_style.restore()
+      }
+    })
+
+    it("should clear cached CSS property lookups when visuals update", async () => {
+      const view = await build_view(new SomeModel())
+      const {text} = view.visuals
+      view.render_to(document.body)
+
+      view.el.style.setProperty("--bk-text-font", "serif")
+      expect(text.get_text_font()).to.be.equal("serif")
+
+      view.el.style.setProperty("--bk-text-font", "monospace")
+      expect(text.get_text_font()).to.be.equal("serif")
+
+      text.update()
+      expect(text.get_text_font()).to.be.equal("monospace")
+    })
+  })
 
   describe("Fill", () => {
 

@@ -9,6 +9,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {Row} from "@bokehjs/models/layouts/row"
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
+import {Div} from "@bokehjs/models/widgets/div"
 import {Place} from "@bokehjs/core/enums"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
@@ -94,6 +95,64 @@ describe("Plot module", () => {
       expect(plot_view.views.find_one(graph.edge_renderer)).to.be.instanceof(GlyphRendererView)
       expect(plot_view.views.find_one(graph)).to.be.instanceof(GraphRendererView)
       expect(plot_view.views.find_one(glyph)).to.be.instanceof(GlyphRendererView)
+    })
+
+    it("should refresh cached renderer views when renderers change", async () => {
+      const renderer0 = new Label({x: 0, y: 0, text: "first"})
+      const view = await new_plot_view({renderers: [renderer0]})
+
+      const cached0 = view.computed_renderer_views
+      const renderer_view0 = view.renderer_views.get(renderer0)!
+      expect(view.computed_renderer_views).to.be.identical(cached0)
+      expect(cached0.some((renderer_view) => renderer_view.model == renderer0)).to.be.true
+
+      const renderer1 = new Label({x: 1, y: 1, text: "second"})
+      view.model.renderers = [renderer1]
+      await view.ready
+
+      const cached1 = view.computed_renderer_views
+      expect(cached1).to.not.be.identical(cached0)
+      expect(cached1.some((renderer_view) => renderer_view.model == renderer0)).to.be.false
+      expect(cached1.some((renderer_view) => renderer_view.model == renderer1)).to.be.true
+      expect(renderer_view0.is_destroyed).to.be.true
+    })
+
+    it("should refresh cached composite renderer and element views", async () => {
+      const renderer0 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Rect()})
+      const element0 = new Div({text: "first"})
+      const annotation = new Label({
+        x: 0,
+        y: 0,
+        text: "annotation",
+        renderers: [renderer0],
+        elements: [element0],
+      })
+      const plot_view = await new_plot_view({renderers: [annotation]})
+      const annotation_view = plot_view.renderer_views.get(annotation)! as LabelView
+
+      const renderer_cache0 = annotation_view.computed_renderer_views
+      const element_cache0 = annotation_view.computed_element_views
+      const [renderer_view0] = renderer_cache0
+      const [element_view0] = element_cache0
+      expect(annotation_view.computed_renderer_views).to.be.identical(renderer_cache0)
+      expect(annotation_view.computed_element_views).to.be.identical(element_cache0)
+      expect(renderer_cache0.map((view) => view.model)).to.be.equal([renderer0])
+      expect(element_cache0.map((view) => view.model)).to.be.equal([element0])
+
+      const renderer1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Rect()})
+      const element1 = new Div({text: "second"})
+      annotation.renderers = [renderer1]
+      annotation.elements = [element1]
+      await plot_view.ready
+
+      const renderer_cache1 = annotation_view.computed_renderer_views
+      const element_cache1 = annotation_view.computed_element_views
+      expect(renderer_cache1).to.not.be.identical(renderer_cache0)
+      expect(element_cache1).to.not.be.identical(element_cache0)
+      expect(renderer_cache1.map((view) => view.model)).to.be.equal([renderer1])
+      expect(element_cache1.map((view) => view.model)).to.be.equal([element1])
+      expect(renderer_view0.is_destroyed).to.be.true
+      expect(element_view0.is_destroyed).to.be.true
     })
 
     it("should perform standard reset actions by default", async () => {
