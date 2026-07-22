@@ -419,9 +419,17 @@ Updating from threads
 '''''''''''''''''''''
 
 You can make blocking computations in separate threads. However, you **must**
-schedule document updates via a next tick callback. This callback executes
-as soon as possible with the next iteration of the Tornado event loop and
-automatically acquires necessary locks to safely update the document state.
+schedule document updates so that they run with the document lock held. The
+:meth:`~bokeh.document.Document.locked_callback` decorator creates a callable
+that can be safely invoked from any thread and schedules the decorated function
+on the document's server session.
+
+The default ``policy="every"`` runs the callback once for every invocation, in
+order. Use ``policy="latest"`` for frequent updates where intermediate values
+may be discarded. At most one invocation waits to run: its arguments may be
+replaced before it starts, or while the current invocation is running. This
+bounds queued work when a data producer is faster than the application can
+update.
 
 .. warning::
     The ONLY safe operations to perform on a document from a different thread
@@ -437,39 +445,38 @@ To allow all threads access to the same document, save a local copy of
 
 .. code-block:: python
 
-    import time
-    from functools import partial
     from random import random
-    from threading import Thread
+    from threading import Event, Thread
 
     from bokeh.models import ColumnDataSource
     from bokeh.plotting import curdoc, figure
 
-    # only modify from a Bokeh session callback
     source = ColumnDataSource(data=dict(x=[0], y=[0]))
-
-    # This is important! Save curdoc() to make sure all threads
-    # see the same document.
     doc = curdoc()
+    stop = Event()
 
-    async def update(x, y):
+    @doc.locked_callback(policy="latest")
+    def update(x, y):
         source.stream(dict(x=[x], y=[y]))
 
     def blocking_task():
-        while True:
+        while not stop.wait(0.1):
             # do some blocking computation
-            time.sleep(0.1)
             x, y = random(), random()
 
-            # but update the document from a callback
-            doc.add_next_tick_callback(partial(update, x=x, y=y))
+            # safe from this thread; the function runs later with the lock
+            update(x, y)
+
+    def session_destroyed(session_context):
+        stop.set()
 
     p = figure(x_range=[0, 1], y_range=[0,1])
     l = p.scatter(marker='circle', x='x', y='y', source=source)
 
     doc.add_root(p)
+    doc.on_session_destroyed(session_destroyed)
 
-    thread = Thread(target=blocking_task)
+    thread = Thread(target=blocking_task, daemon=True)
     thread.start()
 
 To see this example in action, save the above code to a Python file, for
@@ -479,11 +486,13 @@ example, ``testapp.py``, and then execute the following command:
 
     bokeh serve --show testapp.py
 
-.. warning::
-    There is currently no locking around adding next tick callbacks to
-    documents. Bokeh should have a more fine-grained locking for callback
-    methods in the future, but for now it is best to have each thread add no
-    more than one callback to the document.
+The decorated callable returns immediately; its return value is always
+``None``. It may wrap either a synchronous or asynchronous function. You can
+inspect its ``pending`` and ``closed`` properties, and call ``close()`` to
+discard pending work. It closes automatically when the session is destroyed.
+
+For lower-level scheduling, you can still use
+:meth:`~bokeh.document.Document.add_next_tick_callback` directly.
 
 Updating from unlocked callbacks
 ''''''''''''''''''''''''''''''''
