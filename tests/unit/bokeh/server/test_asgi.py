@@ -24,14 +24,15 @@ import pytest
 
 # Bokeh imports
 from bokeh.application import Application
+from bokeh.application.handlers.directory import DirectoryHandler
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.types import ID
 from bokeh.document import Document
-from bokeh.models import ColumnDataSource, Select
+from bokeh.models import ColumnDataSource, Div, Select
 from bokeh.protocol import Protocol
 from bokeh.server.asgi import BokehASGI
 from bokeh.server.auth import AuthPolicy
-from bokeh.util.token import generate_jwt_token
+from bokeh.util.token import generate_jwt_token, get_token_payload
 
 
 async def http_request(
@@ -107,6 +108,63 @@ def test_example_application_initializes() -> None:
     assert set(source.data["y"]) == {-1.5, 1.5}
     string_application = BokehASGI(str(path)).core.applications["/"].application
     assert string_application.create_document().title == "Bokeh ASGI signal studio"
+
+
+async def test_directory_application_path_supports_directory_features(tmp_path: Path) -> None:
+    directory = tmp_path / "directory-app"
+    static = directory / "static"
+    templates = directory / "templates"
+    static.mkdir(parents=True)
+    templates.mkdir()
+    (directory / "main.py").write_text("""
+from bokeh.io import curdoc
+from bokeh.models import Div
+
+curdoc().title = "Directory application"
+curdoc().template_variables["message"] = "custom template"
+curdoc().add_root(Div(name="directory-root"))
+""", encoding="utf-8")
+    (directory / "app_hooks.py").write_text("""
+def on_server_loaded(server_context):
+    server_context.application_context._directory_app_loaded = True
+
+def process_request(request):
+    return {"directory_request_path": request.path}
+""", encoding="utf-8")
+    (directory / "theme.yaml").write_text("""
+attrs:
+    Div:
+        visible: false
+""", encoding="utf-8")
+    (templates / "index.html").write_text(
+        '<div id="directory-template">{{ message }}</div>', encoding="utf-8",
+    )
+    (static / "artifact.txt").write_text("directory static", encoding="utf-8")
+
+    app = BokehASGI({"/directory": directory}, keep_alive_milliseconds=0)
+    context = app.core.applications["/directory"]
+    application = context.application
+
+    assert isinstance(application.handlers[0], DirectoryHandler)
+    assert isinstance(BokehASGI(str(directory)).core.applications["/"].application.handlers[0], DirectoryHandler)
+
+    try:
+        document = await http_request(app, "/directory/")
+        artifact = await http_request(app, "/directory/static/artifact.txt")
+
+        assert response_status(document) == 200
+        assert b'<div id="directory-template">custom template</div>' in response_body(document)
+        assert response_status(artifact) == 200
+        assert response_body(artifact) == b"directory static"
+        assert getattr(context, "_directory_app_loaded")
+
+        session = next(iter(context.sessions))
+        root = session.document.select_one({"name": "directory-root"})
+        assert isinstance(root, Div)
+        assert not root.visible
+        assert get_token_payload(session.token)["directory_request_path"] == "/directory/"
+    finally:
+        await app.core.stop()
 
 
 def test_explicit_application_specs_remain_supported() -> None:

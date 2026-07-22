@@ -132,9 +132,10 @@ class BokehASGI:
     served directly by Uvicorn or Hypercorn, or mounted in another ASGI app.
     Applications may be supplied as :class:`~bokeh.application.application.Application`
     objects, document-modifying callables, or paths to Bokeh application
-    scripts. Script paths are executed once for every new session. Supply an
-    :class:`~bokeh.server.auth.AuthPolicy` to authenticate dynamic HTTP and
-    websocket requests without depending on an ASGI framework.
+    scripts or directories. Script and directory applications are executed
+    once for every new session. Supply an :class:`~bokeh.server.auth.AuthPolicy`
+    to authenticate dynamic HTTP and websocket requests without depending on
+    an ASGI framework.
     '''
 
     def __init__(

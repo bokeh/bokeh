@@ -44,10 +44,13 @@ Save this as ``main.py`` and serve it using any ASGI 3 server, for example
    site = FastAPI(lifespan=lifespan)
    site.mount("/bokeh", bokeh_app)
 
-Path applications use the same script format as ``bokeh serve``: their
-top-level code runs once per session and modifies :func:`~bokeh.io.curdoc`.
-Relative paths are resolved from the server process's working directory.
-Existing explicit application forms remain supported:
+Path applications use the same formats as ``bokeh serve``. A path may identify
+a Python script or a directory-style application containing ``main.py`` or
+``main.ipynb``. Directory applications also support ``app_hooks.py``,
+``server_lifecycle.py``, ``static``, ``templates/index.html``, and
+``theme.yaml``. Application code runs once per session and modifies
+:func:`~bokeh.io.curdoc`. Relative paths are resolved from the server process's
+working directory. Existing explicit application forms remain supported:
 
 .. code-block:: python
 

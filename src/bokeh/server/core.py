@@ -13,6 +13,7 @@ import asyncio
 import logging
 from collections.abc import Iterable, Mapping, Sequence
 from os import PathLike as OSPathLike
+from os.path import isdir
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -184,6 +185,7 @@ class BokehServerCore(SessionConfig):
         session_token_expiration: int = DEFAULT_SESSION_TOKEN_EXPIRATION,
         logout_url: str | None = None,
     ) -> None:
+        from ..application.handlers.directory import DirectoryHandler
         from ..application.handlers.document_lifecycle import DocumentLifecycleHandler
         from ..application.handlers.function import FunctionHandler
         from ..application.handlers.script import ScriptHandler
@@ -192,7 +194,7 @@ class BokehServerCore(SessionConfig):
             if isinstance(spec, Application):
                 return spec
             if isinstance(spec, (str, OSPathLike)):
-                handler = ScriptHandler(filename=spec)
+                handler = DirectoryHandler(filename=spec) if isdir(spec) else ScriptHandler(filename=spec)
                 if handler.failed:
                     raise RuntimeError(f"Error loading {spec}:\n\n{handler.error}\n{handler.error_detail}")
                 return Application(handler)
