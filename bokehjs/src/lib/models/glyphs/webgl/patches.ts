@@ -9,6 +9,7 @@ import type {Elements, Texture2D} from "regl"
 import type * as p from "core/properties"
 import type {HatchPattern} from "core/property_mixins"
 import {resolve_line_dash} from "core/visuals/line"
+import {normalize_dash_pattern} from "./dash_cache"
 import {split_rings, classify_rings, build_line_from_ring, generate_skirt_geometry, POLYGON_AA_WIDTH} from "core/util/polygon"
 import type {SkirtGeometry, RingLineData} from "core/util/polygon"
 import earcut from "earcut"
@@ -438,15 +439,21 @@ export class PatchesGL extends BaseGLGlyph {
 
     // Dash detection
     const {line_dash} = line_visuals
-    this._is_dashed = !(line_dash.is_Scalar() && line_dash.get(0).length == 0)
+    const n = line_dash.is_Scalar() ? 1 : line_dash.length
+    const patterns = new Array<number[]>(n)
+    this._is_dashed = false
+    for (let i = 0; i < n; i++) {
+      const pattern = normalize_dash_pattern(resolve_line_dash(line_dash.get(i)))
+      patterns[i] = pattern
+      this._is_dashed ||= pattern.length != 0
+    }
+    this._dash_tex = []
 
     if (this._is_dashed) {
       if (this._dash_offset == null) {
         this._dash_offset = new Float32Buffer(this.regl_wrapper)
       }
       this._dash_offset.set_from_prop(line_visuals.line_dash_offset)
-
-      const n = line_dash.length
 
       if (this._dash_tex_info == null) {
         this._dash_tex_info = new Float32Buffer(this.regl_wrapper, 4)
@@ -458,9 +465,8 @@ export class PatchesGL extends BaseGLGlyph {
       }
       const dash_scale = this._dash_scale.get_sized_array(n)
 
-      this._dash_tex = []
       for (let i = 0; i < n; i++) {
-        const arr = resolve_line_dash(line_dash.get(i))
+        const arr = patterns[i]
         if (arr.length > 0) {
           const [tex_info, tex, scale] = this.regl_wrapper.get_dash(arr)
           this._dash_tex.push(tex)
