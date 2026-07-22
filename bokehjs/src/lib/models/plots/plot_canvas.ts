@@ -1064,11 +1064,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   protected _constrain_range_interval(range: Range): void {
-    this.pause()
-    try {
-      this._range_manager.constrain_interval(range)
-    } finally {
-      this.unpause()
+    const range_info = this._range_manager.constrain_interval(range)
+    if (range_info != null) {
+      this.update_range(range_info)
     }
   }
 

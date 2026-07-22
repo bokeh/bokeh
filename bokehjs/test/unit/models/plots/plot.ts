@@ -188,6 +188,28 @@ describe("Plot module", () => {
       expect(y_range.end).to.be.equal(4)
     })
 
+    it("should keep current range within bounds when min_interval changes", async () => {
+      const x_range = new Range1d({start: 8, end: 10, bounds: [0, 10]})
+      const view = await new_plot_view({x_range})
+
+      x_range.min_interval = 6
+      await view.ready
+
+      expect(x_range.start).to.be.equal(4)
+      expect(x_range.end).to.be.equal(10)
+    })
+
+    it("should prioritize bounds over an incompatible min_interval", async () => {
+      const x_range = new Range1d({start: 8, end: 10, bounds: [0, 10]})
+      const view = await new_plot_view({x_range})
+
+      x_range.min_interval = 12
+      await view.ready
+
+      expect(x_range.start).to.be.equal(0)
+      expect(x_range.end).to.be.equal(10)
+    })
+
     describe("PlotView.pause()", () => {
 
       it("should start unpaused", async () => {
