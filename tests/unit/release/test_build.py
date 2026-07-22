@@ -244,6 +244,21 @@ def test_update_switcher_json_rejects_non_version_tags(tmp_path, monkeypatch):
     assert result.details == ("Got invalid version string 'not-a-version'.",)
 
 
+def test_update_switcher_json_reports_write_failure(tmp_path, monkeypatch):
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(build, "get_tags", lambda config, system: ["4.0.0"])
+    config = Config("4.0.0")
+
+    result = build.update_switcher_json(config, RecordingSystem())
+
+    assert result.kind is ActionResult.FAIL
+    assert result.message == "Switcher.json update failed"
+    assert result.details
+    assert config.modified == set()
+
+
 def test_update_changelog_tracks_modified_file(config):
     system = RecordingSystem()
 

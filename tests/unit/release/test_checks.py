@@ -160,6 +160,21 @@ def test_check_docs_version_config(tmp_path, monkeypatch, versions, expected):
     assert result.kind is expected
 
 
+@pytest.mark.parametrize("content", [None, "not JSON"])
+def test_check_docs_version_config_reports_file_errors(tmp_path, monkeypatch, content):
+    if content is not None:
+        path = tmp_path / "docs" / "bokeh"
+        path.mkdir(parents=True)
+        (path / "switcher.json").write_text(content)
+    monkeypatch.chdir(tmp_path)
+
+    result = checks.check_docs_version_config(Config("4.0.0"), RecordingSystem())
+
+    assert result.kind is ActionResult.FAIL
+    assert result.message == "Could not check docs versions config"
+    assert result.details
+
+
 @pytest.mark.parametrize(
     ("exists", "expected"),
     [(True, ActionResult.PASS), (False, ActionResult.FAIL)],

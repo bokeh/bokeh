@@ -137,7 +137,7 @@ def check_docs_version_config(config: Config, system: System) -> ActionReturn:
             if config.version not in all_versions:
                 return FAILED(f"Version {config.version!r} is missing from switcher.json")
             return PASSED("Docs versions config is correct")
-    except RuntimeError as e:
+    except (OSError, RuntimeError, ValueError) as e:
         return FAILED("Could not check docs versions config", details=e.args)
 
 
