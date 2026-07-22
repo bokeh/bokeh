@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import (
     Any,
     Literal,
+    NotRequired,
     TypedDict,
     cast,
 )
@@ -20,11 +21,13 @@ from typing import (
 import click
 import requests
 
-VALID_TYPES = (
-    "type: bug",
-    "type: feature",
-    "type: task",
+VALID_ISSUE_TYPES = (
+    "Bug",
+    "Feature",
+    "Task",
 )
+
+VALID_TYPE_LABELS = tuple(f"type: {issue_type.lower()}" for issue_type in VALID_ISSUE_TYPES)
 
 MilestoneKind = Literal["issues", "pullRequests"]
 
@@ -41,7 +44,12 @@ class Labels(TypedDict):
     edges: list[LabelEdge]
 
 
+class IssueType(TypedDict):
+    name: str
+
+
 class ItemNode(TypedDict):
+    issueType: NotRequired[IssueType | None]
     labels: Labels
     number: int
     state: str
@@ -116,10 +124,23 @@ def get_label_for(data: MilestoneItem, kind: str) -> str | None:
 
 
 def get_label_type(data: MilestoneItem) -> str | None:
-    """ Returns the type label of the given issue or PR data, otherwise None.
+    """ Returns the type label of the given PR data, otherwise None.
 
     """
     return get_label_for(data, "type: ")
+
+
+def get_type(data: MilestoneItem) -> str | None:
+    """ Returns the native issue type or the type label of the given PR.
+
+    GitHub issue types aren't available for pull requests, so PRs continue to use
+    the legacy type labels.
+    """
+    node = data["node"]
+    if "issueType" in node:
+        issue_type = node["issueType"]
+        return issue_type["name"].lower() if issue_type else None
+    return get_label_type(data)
 
 
 def get_label_component(data: MilestoneItem) -> str | None:
@@ -196,17 +217,11 @@ def check_issue(data: MilestoneItem, problems: list[str]) -> None:
     if any(label.startswith("status:") for label in labels):
         problems.append(f"issue has a status: {description(data)}")
 
-    # no issues without a type: label
-    num_types = sum(1 for label in labels if label.startswith("type:"))
-    if num_types == 0:
+    # no issues without a native issue type
+    issue_type = data["node"].get("issueType")
+    if issue_type is None:
         problems.append(f"issue does not have a type: {description(data)}")
-
-    # no issues with multiple type: labels
-    if num_types > 1:
-        problems.append(f"issue has multiple types: {description(data)}")
-
-    # no issues with invalid type: labels
-    if any(label not in VALID_TYPES for label in labels if label.startswith("type:")):
+    elif issue_type["name"] not in VALID_ISSUE_TYPES:
         problems.append(f"issue has an invalid type: {description(data)}")
 
     # no issues with TRIAGE label
@@ -243,7 +258,7 @@ def check_pr(data: MilestoneItem, problems: list[str]) -> None:
         problems.append(f"PR has multiple types: {description(data)}")
 
     # no prs with invalid type: labels
-    if any(label not in VALID_TYPES for label in labels if label.startswith("type:")):
+    if any(label not in VALID_TYPE_LABELS for label in labels if label.startswith("type:")):
         problems.append(f"PR has an invalid type: {description(data)}")
 
     # no prs with TRIAGE label
@@ -263,6 +278,7 @@ def get_milestone_items(title: str, token: str, allow_closed: bool) -> list[Mile
 
     def helper(kind: MilestoneKind, cursor: str | None = None) -> None:
         cursor_or_null = f'"{cursor}"' if cursor else "null"
+        issue_type_field = "issueType { name }" if kind == "issues" else ""
         query = f"""
         {{
             repository(owner: "bokeh", name: "bokeh") {{
@@ -273,6 +289,7 @@ def get_milestone_items(title: str, token: str, allow_closed: bool) -> list[Mile
                                 number
                                 title
                                 state
+                                {issue_type_field}
                                 labels(first: 20) {{
                                     edges {{
                                         node {{
@@ -381,7 +398,7 @@ def main(milestone: str, log_level: str, verbose: int, check_only: bool, allow_c
     out.write(f"{datetime.date.today()} {milestone:>8}:\n")
     out.write("--------------------\n")
     def grouping(item: MilestoneItem) -> str:
-        return get_label_type(item) or "none"
+        return get_type(item) or "none"
 
     items = sorted(items, key=grouping)
     for group_type, group in groupby(items, grouping):
