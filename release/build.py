@@ -159,20 +159,21 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
     }
 
     system.pushd("bokehjs")
+    try:
+        for filename, action in files.items():
+            try:
+                with open(filename) as f:
+                    content = json.load(f)
+                action(content)
 
-    for filename, action in files.items():
-        content = json.load(open(filename))
-        try:
-            action(content)
-
-            with open(filename, "w") as f:
-                json.dump(content, f, indent=2)
-                f.write("\n")
-            config.add_modified(f"bokehjs/{filename}")
-        except Exception as e:
-            return FAILED(f"Unable to write new version to file {filename!r}", details=e.args)
-
-    system.popd()
+                with open(filename, "w") as f:
+                    json.dump(content, f, indent=2)
+                    f.write("\n")
+                config.add_modified(f"bokehjs/{filename}")
+            except Exception as e:
+                return FAILED(f"Unable to update version in file {filename!r}", details=e.args)
+    finally:
+        system.popd()
 
     return PASSED(f"Updated version to {config.js_version!r} in files: {list(files.keys())!r}")
 

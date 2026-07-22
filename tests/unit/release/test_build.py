@@ -181,6 +181,35 @@ def test_update_bokehjs_versions_rejects_old_lockfile(tmp_path, monkeypatch):
 
     assert result.kind is ActionResult.FAIL
     assert "Expected lock file v3" in result.details
+    assert Path.cwd() == tmp_path
+
+
+def test_update_bokehjs_versions_reports_missing_package_file(tmp_path, monkeypatch):
+    make_bokehjs_package_files(tmp_path)
+    missing = tmp_path / "bokehjs" / "src" / "lib" / "package.json"
+    missing.unlink()
+    monkeypatch.chdir(tmp_path)
+
+    result = build.update_bokehjs_versions(Config("4.0.0"), System(dry_run=True))
+
+    assert result.kind is ActionResult.FAIL
+    assert "src/lib/package.json" in result.message
+    assert result.details
+    assert Path.cwd() == tmp_path
+
+
+def test_update_bokehjs_versions_reports_malformed_package_file(tmp_path, monkeypatch):
+    make_bokehjs_package_files(tmp_path)
+    malformed = tmp_path / "bokehjs" / "package.json"
+    malformed.write_text("not JSON")
+    monkeypatch.chdir(tmp_path)
+
+    result = build.update_bokehjs_versions(Config("4.0.0"), System(dry_run=True))
+
+    assert result.kind is ActionResult.FAIL
+    assert "package.json" in result.message
+    assert result.details
+    assert Path.cwd() == tmp_path
 
 
 def test_update_switcher_json_writes_latest_and_dev_entries(tmp_path, monkeypatch):
