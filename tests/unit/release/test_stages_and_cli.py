@@ -38,12 +38,12 @@ def test_all_deploy_checks_are_recognized_as_checks():
 
 def test_build_pipeline_midflight_checks_are_explicit():
     assert [step.__name__ for step in stages.BUILD_STEPS if is_check(step)] == [
+        "check_docs_version_config",
         "check_checkout_is_clean",
         "verify_pip_install_from_sdist",
         "verify_pip_install_using_sdist",
         "verify_pip_install_using_wheel",
         "verify_conda_install",
-        "check_docs_version_config",
     ]
 
 
@@ -65,6 +65,8 @@ def test_build_pipeline_checks_branch_before_mutating_steps():
 
 
 def test_build_pipeline_commits_before_tagging_and_pushes_last():
+    assert stages.BUILD_STEPS.index(update_switcher_json) < stages.BUILD_STEPS.index(commit_staging_branch)
+    assert stages.BUILD_STEPS.index(check_docs_version_config) < stages.BUILD_STEPS.index(commit_staging_branch)
     assert stages.BUILD_STEPS.index(commit_staging_branch) < stages.BUILD_STEPS.index(tag_release_version)
     assert stages.BUILD_STEPS.index(tag_release_version) < stages.BUILD_STEPS.index(push_to_github)
     assert stages.BUILD_STEPS[-2] is push_to_github

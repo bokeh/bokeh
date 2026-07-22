@@ -15,6 +15,9 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
+# External imports
+from packaging.version import Version as V
+
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import ANY_VERSION, Config
@@ -186,6 +189,12 @@ def update_switcher_json(
 
     try:
         tags = get_tags(config, system)
+        for tag in tags:
+            if re.match(ANY_VERSION, tag) is None:
+                raise ValueError(f"Got invalid version string {tag!r}.")
+        if config.version not in tags:
+            tags.append(config.version)
+            tags.sort(key=V, reverse=True)
 
         major_counter = 0
         minor_counter = 0
@@ -196,8 +205,7 @@ def update_switcher_json(
         dev_dict: dict[str, str | bool] = {}
         for tag in tags:
             m = re.match(ANY_VERSION, tag)
-            if m is None:
-                raise ValueError(f"Got invalid version string {tag!r}.")
+            assert m is not None
             major = m[2]
             minor = m[3]
             dev = m[5]

@@ -210,6 +210,26 @@ def test_update_switcher_json_writes_latest_and_dev_entries(tmp_path, monkeypatc
     assert config.modified == {"docs/bokeh/switcher.json"}
 
 
+def test_update_switcher_json_includes_untagged_release(tmp_path, monkeypatch):
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(build, "get_tags", lambda config, system: ["3.9.1"])
+
+    result = build.update_switcher_json(Config("4.0.0"), RecordingSystem())
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    assert result.kind is ActionResult.PASS
+    assert switcher[0] == {
+        "name": "4.0.0 (latest)",
+        "preferred": True,
+        "url": "https://docs.bokeh.org/en/latest/",
+        "version": "4.0.0",
+    }
+
+
 def test_update_switcher_json_rejects_non_version_tags(tmp_path, monkeypatch):
     release_dir = tmp_path / "release"
     release_dir.mkdir()
