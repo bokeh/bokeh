@@ -178,6 +178,17 @@ def test_log_scrubs_before_printing_and_dumping(capsys):
     assert log.dump() == "<xxxxx>\n<xxxxx>"
 
 
+def test_log_scrubs_longer_overlapping_secrets_first(capsys):
+    log = Log()
+    log.add_scrubber(Scrubber("token", name="SHORT_TOKEN"))
+    log.add_scrubber(Scrubber("token-suffix", name="LONG_TOKEN"))
+
+    log.record("token token-suffix")
+
+    assert capsys.readouterr().out == "<xxxxx> <xxxxx>\n"
+    assert log.dump() == "<xxxxx> <xxxxx>"
+
+
 def test_log_filters_ansi_and_can_preserve_it():
     log = Log()
     log.record("\x1b[31mred\x1b[0m")
