@@ -58,6 +58,8 @@ export abstract class VisualProperties {
     const value = getComputedStyle(this.obj.el).getPropertyValue(css_name)
     if (this._css_cache == null) {
       this._css_cache = new Map()
+      // CSS can change independently of visual properties through stylesheets,
+      // classes, or inheritance. Cache only within a synchronous render pass.
       queueMicrotask(() => this._css_cache = null)
     }
     this._css_cache.set(css_name, value)

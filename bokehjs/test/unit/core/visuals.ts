@@ -104,6 +104,21 @@ describe("core/visuals", () => {
       text.update()
       expect(text.get_text_font()).to.be.equal("monospace")
     })
+
+    it("should observe CSS changes made between tasks without a visual update", async () => {
+      const view = await build_view(new SomeModel())
+      const {text} = view.visuals
+      view.render_to(document.body)
+
+      view.el.style.setProperty("--bk-text-font", "serif")
+      expect(text.get_text_font()).to.be.equal("serif")
+
+      view.el.style.setProperty("--bk-text-font", "monospace")
+      expect(text.get_text_font()).to.be.equal("serif")
+
+      await defer()
+      expect(text.get_text_font()).to.be.equal("monospace")
+    })
   })
 
   describe("Fill", () => {
