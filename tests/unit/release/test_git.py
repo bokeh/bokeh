@@ -56,24 +56,20 @@ def test_single_command_git_actions_report_failure(config, func, command):
     assert result.details == ("git error",)
 
 
-def test_push_to_github_pushes_branch_before_tag(config):
+def test_push_to_github_pushes_branch_and_tag_atomically(config):
     system = RecordingSystem()
 
     result = git.push_to_github(config, system)
 
     assert result.kind is ActionResult.PASS
     assert system.commands == [
-        "git push --no-verify origin branch-4.0",
-        "git push --no-verify origin 4.0.0",
+        "git push --atomic --no-verify origin branch-4.0 4.0.0",
     ]
 
 
-@pytest.mark.parametrize(
-    "failed_command",
-    ["git push --no-verify origin branch-4.0", "git push --no-verify origin 4.0.0"],
-)
-def test_push_to_github_reports_either_push_failure(config, failed_command):
-    system = RecordingSystem(failures={failed_command: ("rejected",)})
+def test_push_to_github_reports_atomic_push_failure(config):
+    command = "git push --atomic --no-verify origin branch-4.0 4.0.0"
+    system = RecordingSystem(failures={command: ("rejected",)})
 
     result = git.push_to_github(config, system)
 
