@@ -230,6 +230,56 @@ def test_update_switcher_json_includes_untagged_release(tmp_path, monkeypatch):
     }
 
 
+def test_update_switcher_json_keeps_new_major_prerelease_and_stable_history(tmp_path, monkeypatch):
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(
+        build,
+        "get_tags",
+        lambda config, system: ["3.10.0.dev6", "3.9.1", "3.8.2", "3.7.3"],
+    )
+
+    result = build.update_switcher_json(Config("4.0.0.dev1"), RecordingSystem())
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    assert result.kind is ActionResult.PASS
+    assert [entry["version"] for entry in switcher] == ["3.9.1", "3.8.2", "3.7.3", "dev-4.0"]
+    assert switcher[-1]["name"] == "dev (4.0.0.dev1)"
+
+
+def test_update_switcher_json_keeps_previous_major_after_full_release(tmp_path, monkeypatch):
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(
+        build,
+        "get_tags",
+        lambda config, system: [
+            "3.10.0.dev6",
+            "3.9.1",
+            "3.8.2",
+            "3.7.3",
+            "2.4.3",
+        ],
+    )
+
+    result = build.update_switcher_json(
+        Config("4.0.0"),
+        RecordingSystem(),
+        minor_versions=3,
+    )
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    assert result.kind is ActionResult.PASS
+    assert [entry["version"] for entry in switcher] == ["4.0.0", "3.9.1", "3.8.2", "3.7.3"]
+    assert all(not entry["version"].startswith("dev-") for entry in switcher)
+
+
 def test_update_switcher_json_rejects_non_version_tags(tmp_path, monkeypatch):
     release_dir = tmp_path / "release"
     release_dir.mkdir()

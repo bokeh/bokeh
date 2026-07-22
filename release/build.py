@@ -194,15 +194,14 @@ def update_switcher_json(
                 raise ValueError(f"Got invalid version string {tag!r}.")
         if config.version not in tags:
             tags.append(config.version)
-            tags.sort(key=V, reverse=True)
+        tags.sort(key=V, reverse=True)
 
-        major_counter = 0
         minor_counter = 0
-        switcher_list = []
-        version_list = []
-        major_list = []
-        latest = True
-        dev_dict: dict[str, str | bool] = {}
+        switcher_list: list[dict[str, str | bool]] = []
+        version_list: set[str] = set()
+        major_list: list[str] = []
+        latest_stable: str | None = None
+        newest_prerelease: tuple[str, str] | None = None
         for tag in tags:
             m = re.match(ANY_VERSION, tag)
             assert m is not None
@@ -211,42 +210,45 @@ def update_switcher_json(
             dev = m[5]
             major_minor = f"{major}.{minor}"
 
+            if dev is not None:
+                if newest_prerelease is None:
+                    newest_prerelease = (tag, major_minor)
+                continue
+
             if major not in major_list:
-                major_counter += 1
+                if len(major_list) == major_versions:
+                    break
                 minor_counter = 0
                 major_list.append(major)
 
-            if major_minor in version_list or (major in major_list and minor_counter == minor_versions):
+            if major_minor in version_list or minor_counter == minor_versions:
                 continue
 
-            if dev is not None:
-                dev_dict = {
-                    "name": f"dev ({tag})",
-                    "version": f"dev-{major_minor}",
-                    "url": f"{base_url}dev-{major_minor}/",
+            minor_counter += 1
+            if latest_stable is None:
+                latest_stable = tag
+                entry: dict[str, str | bool] = {
+                    "name": f"{tag} (latest)",
+                    "version": tag,
+                    "url": f"{base_url}latest/",
+                    "preferred": True,
                 }
             else:
-                minor_counter += 1
-                if latest:
-                    d: dict[str, str | bool] = {
-                        "name": f"{tag} (latest)",
-                        "version": tag,
-                        "url": f"{base_url}latest/",
-                        "preferred": True,
-                    }
-                    latest = False
-                else:
-                    d = {
-                        "version": tag,
-                        "url": f"{base_url}{tag}/",
-                    }
-                switcher_list.append(d)
+                entry = {
+                    "version": tag,
+                    "url": f"{base_url}{tag}/",
+                }
+            switcher_list.append(entry)
+            version_list.add(major_minor)
 
-            version_list.append(major_minor)
-            if major_counter == major_versions:
-                break
-        if dev_dict:
-            switcher_list.append(dev_dict)
+        if newest_prerelease is not None:
+            dev_tag, major_minor = newest_prerelease
+            if latest_stable is None or V(dev_tag) > V(latest_stable):
+                switcher_list.append({
+                    "name": f"dev ({dev_tag})",
+                    "version": f"dev-{major_minor}",
+                    "url": f"{base_url}dev-{major_minor}/",
+                })
 
         with open(switcher_path, "w") as f:
             json.dump(switcher_list, f, indent=2)
