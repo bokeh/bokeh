@@ -4,6 +4,7 @@ from __future__ import annotations
 import ast
 import runpy
 import sys
+from subprocess import run
 
 # External imports
 import pytest
@@ -18,7 +19,7 @@ from release.checks import (
 from release.config import Config
 from release.git import commit_staging_branch, push_to_github, tag_release_version
 from release.pipeline import is_check
-from release.util import load_config
+from release.util import CONFIG_FILENAME, load_config
 
 # Bokeh imports
 from tests.support.util.project import TOP_PATH
@@ -102,6 +103,12 @@ def test_build_workflow_fetches_full_git_history():
     checkout = next(step for step in steps if step.get("uses", "").startswith("actions/checkout@"))
 
     assert checkout["with"]["fetch-depth"] == 0
+
+
+def test_generated_config_is_gitignored():
+    result = run(["git", "check-ignore", "--quiet", CONFIG_FILENAME], cwd=TOP_PATH)
+
+    assert result.returncode == 0
 
 
 @pytest.mark.parametrize(
