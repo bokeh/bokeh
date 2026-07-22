@@ -12,17 +12,23 @@ from release.enums import ActionResult
 from tests.unit.release._support import RecordingSystem
 
 
-def test_collect_credential_requires_environment_variable(monkeypatch):
-    monkeypatch.delenv("TEST_TOKEN", raising=False)
+@pytest.mark.parametrize("value", [None, ""])
+def test_collect_credential_requires_nonempty_environment_variable(monkeypatch, value):
+    if value is None:
+        monkeypatch.delenv("TEST_TOKEN", raising=False)
+    else:
+        monkeypatch.setenv("TEST_TOKEN", value)
 
     @credentials.collect_credential(token="TEST_TOKEN")
     def verify_service(config, system, *, token):
         pytest.fail("credential verifier was called")
 
-    result = verify_service(Config("4.0.0"), RecordingSystem())
+    config = Config("4.0.0")
+    result = verify_service(config, RecordingSystem())
 
     assert result.kind is ActionResult.FAIL
     assert result.message == "Credential TEST_TOKEN is not set"
+    assert config.secrets == {}
 
 
 def test_collect_credential_registers_secret_before_verification(monkeypatch):
