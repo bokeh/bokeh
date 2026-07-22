@@ -13,7 +13,7 @@ from release.system import System
 
 # Bokeh imports
 # Bokeh test imports
-from tests.unit.release._support import RecordingSystem
+from tests.codebase._release_support import RecordingSystem
 
 
 @pytest.mark.parametrize(

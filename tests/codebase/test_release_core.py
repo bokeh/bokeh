@@ -17,7 +17,7 @@ from release.util import load_config, save_config, skip_for_prerelease
 
 # Bokeh imports
 # Bokeh test imports
-from tests.unit.release._support import AbortCalled, RecordingSystem
+from tests.codebase._release_support import AbortCalled, RecordingSystem
 
 
 @pytest.mark.parametrize(
