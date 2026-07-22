@@ -20,15 +20,13 @@ export namespace I18n {
 export interface I18n extends I18n.Attrs {}
 
 export class I18n extends Model {
-  readonly change_locale: Signal0<this>
-  readonly change_config: Signal0<this>
-
+  readonly change_locale = new Signal0(this, "change_locale")
+  readonly change_config = new Signal0(this, "change_config")
+  
   _translator: Translator | undefined
 
   constructor(attrs?: Partial<I18n.Attrs>) {
     super(attrs)
-    this.change_locale = new Signal0(this, "change_locale")
-    this.change_config = new Signal0(this, "change_config")
   }
 
   static {
@@ -47,7 +45,7 @@ export class I18n extends Model {
   }
 
   get_locale(): string {
-    const default_locale = this.locales_codes.includes(navigator.language)? navigator.language: this.source_language
+    const default_locale = this.locales_codes.includes(navigator.language) ? navigator.language : this.source_language
     let current_locale = localStorage.getItem("lang")
     if (!isString(current_locale) || !this.locales_codes.includes(current_locale)) {
       localStorage.setItem("lang", default_locale)
@@ -66,7 +64,7 @@ export class I18n extends Model {
         if (!download_translator.includes(translator_availability)) {
           this.change_locale.emit()
         }
-      } else if (typeof this._translator === "undefined") {
+      } else if (this._translator == null) {
         await this._init_translator()
       }
     } else {
@@ -130,7 +128,7 @@ export class I18n extends Model {
     return key.split(".").reduce(
       (current_level, current_key) => current_level?.[current_key],
       locale_translation as any,
-    ) || key
+    ) ?? key
   }
 
   set_config(locales_codes: string[] | null, translations: string | null, languages: [string, string][] | null, source_language: string | null, auto_t_enabled: boolean | null): void {
