@@ -26,7 +26,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
+  BasicTicker, FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -5012,6 +5012,24 @@ describe("Bug", () => {
 
       const table = new DataTable({source, columns, width: 300, height: 400})
       await display(table, [350, 450])
+    })
+  })
+
+  describe("in issue #15119", () => {
+    it("doesn't render if desired_tick_numbers are too large", async () => {
+      const p = fig([200, 200])
+      p.xaxis.ticker = new BasicTicker({desired_num_ticks: 100000000000000000000000000000})
+      p.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
+
+      const output = await async_trap(async () => {
+        await display(p)
+      })
+      expect(output.error.includes("Caught a structural array size limit error, not an JS engine-wide out-of-memory error:")).to.be.true
+      expect(
+        output.warn.includes(
+          "Caught an error calculating the ticks for 1e+29 desired_num_ticks and 5 num_minor_ticks. The default values are used instead.",
+        ),
+      ).to.be.true
     })
   })
 })

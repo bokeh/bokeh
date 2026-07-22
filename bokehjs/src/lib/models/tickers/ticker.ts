@@ -7,8 +7,8 @@ export type TickSpec<T> = {
   minor: T[]
 }
 
-// The base class for all Ticker objects.  It needs to be subclassed before
-// being used.  The simplest subclass is SingleIntervalTicker.
+// The base class for all Ticker objects. It needs to be subclassed before
+// being used. The simplest subclass is SingleIntervalTicker.
 //
 // The main value of a Ticker is its get_ticks() method, which takes a min and
 // max value and (optionally) a desired number of ticks, and returns an array
@@ -16,7 +16,7 @@ export type TickSpec<T> = {
 // within that range.
 //
 // Different Tickers are suited to different types of data or different
-// magnitudes.  To make it possible to select Tickers programmatically, they
+// magnitudes. To make it possible to select Tickers programmatically, they
 // also support some additional methods: get_interval(), get_min_interval(),
 // and get_max_interval().
 
