@@ -11,7 +11,7 @@ from __future__ import annotations
 # Standard library imports
 import asyncio
 import logging
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Awaitable, Callable, Iterable, Mapping, Sequence
 from os import PathLike as OSPathLike
 from os.path import isdir
 from typing import (
@@ -39,6 +39,7 @@ from .contexts import ApplicationContext
 if TYPE_CHECKING:
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID, PathLike
+    from ..document import Document
     from ..protocol import Protocol
     from .request import RequestLike
     from .session import ServerSession
@@ -443,6 +444,38 @@ class BokehServerCore(SessionConfig):
         if app_path not in self._applications:
             raise ValueError(f"Application {app_path} does not exist on this server")
         return list(self._applications[app_path].sessions)
+
+    async def update_sessions(
+        self,
+        app_path: str,
+        update_document: Callable[[Document], None | Awaitable[None]],
+    ) -> None:
+        ''' Update every active document for an application.
+
+        ``update_document`` is called once for each session that exists when
+        this method starts. Each call receives that session's
+        :class:`~bokeh.document.document.Document` with its document lock held.
+        Synchronous and asynchronous callbacks are both supported, and
+        different sessions are updated concurrently.
+
+        Sessions created after this method takes its snapshot are not updated.
+        Only sessions in this server process are included.
+
+        Args:
+            app_path:
+                The configured application path whose sessions are updated.
+
+            update_document:
+                A callable that mutates one session document.
+
+        '''
+        self._require_running()
+        sessions = self.get_sessions(app_path)
+        updates = (
+            cast(Awaitable[None], session.with_document_locked(update_document, session.document))
+            for session in sessions
+        )
+        await asyncio.gather(*updates)
 
     async def _cleanup_sessions(self) -> None:
         for context in self._applications.values():
