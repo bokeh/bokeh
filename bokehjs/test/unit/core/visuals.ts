@@ -90,6 +90,26 @@ describe("core/visuals", () => {
       }
     })
 
+    it("should schedule a single cache reset per synchronous render pass", async () => {
+      const view = await build_view(new SomeModel({text_font: "helvetica", text_font_size: "13px"}))
+      const {text} = view.visuals
+      const queue_microtask = sinon.spy(globalThis, "queueMicrotask")
+
+      try {
+        expect(text.get_text_font()).to.be.equal("helvetica")
+        expect(text.get_text_font_size()).to.be.equal("13px")
+        expect(queue_microtask.callCount).to.be.equal(1)
+
+        await Promise.resolve()
+        queue_microtask.resetHistory()
+
+        expect(text.get_text_font()).to.be.equal("helvetica")
+        expect(queue_microtask.callCount).to.be.equal(1)
+      } finally {
+        queue_microtask.restore()
+      }
+    })
+
     it("should clear cached CSS property lookups when visuals update", async () => {
       const view = await build_view(new SomeModel())
       const {text} = view.visuals
