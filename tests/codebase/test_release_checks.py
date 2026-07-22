@@ -165,8 +165,26 @@ def test_check_docs_version_config(tmp_path, monkeypatch, versions, expected):
 @pytest.mark.parametrize(
     ("version", "versions", "expected"),
     [
-        ("4.0.0.dev1", [{"version": "dev-4.0"}], ActionResult.PASS),
-        ("4.0.0rc1", [{"version": "dev-4.0"}], ActionResult.PASS),
+        (
+            "4.0.0.dev1",
+            [{"name": "dev (4.0.0.dev1)", "version": "dev-4.0", "url": "https://docs.bokeh.org/en/dev-4.0/"}],
+            ActionResult.PASS,
+        ),
+        (
+            "4.0.0rc1",
+            [{"name": "dev (4.0.0rc1)", "version": "dev-4.0", "url": "https://docs.bokeh.org/en/dev-4.0/"}],
+            ActionResult.PASS,
+        ),
+        (
+            "4.0.0.dev2",
+            [{"name": "dev (4.0.0.dev1)", "version": "dev-4.0", "url": "https://docs.bokeh.org/en/dev-4.0/"}],
+            ActionResult.FAIL,
+        ),
+        (
+            "4.0.0.dev1",
+            [{"name": "dev (4.0.0.dev1)", "version": "dev-4.0", "url": "https://docs.bokeh.org/en/dev-3.10/"}],
+            ActionResult.FAIL,
+        ),
         ("4.0.0.dev1", [{"version": "4.0.0.dev1"}], ActionResult.FAIL),
     ],
 )
@@ -179,6 +197,51 @@ def test_check_docs_version_config_validates_prerelease_entry(tmp_path, monkeypa
     result = checks.check_docs_version_config(Config(version), RecordingSystem())
 
     assert result.kind is expected
+
+
+def test_check_docs_version_config_uses_latest_prerelease_level(tmp_path, monkeypatch):
+    path = tmp_path / "docs" / "bokeh"
+    path.mkdir(parents=True)
+    (path / "switcher.json").write_text(__import__("json").dumps([{
+        "name": "dev (4.1.0.dev2)",
+        "version": "dev-4.1",
+        "url": "https://docs.bokeh.org/en/dev-4.1/",
+    }]))
+    monkeypatch.chdir(tmp_path)
+    system = RecordingSystem(outputs={"git tag": "4.1.0.dev2\n4.0.0\n3.10.0"})
+
+    result = checks.check_docs_version_config(Config("3.10.1rc1"), system)
+
+    assert result.kind is ActionResult.PASS
+
+
+def test_check_docs_version_config_allows_no_dev_entry_for_older_prerelease(tmp_path, monkeypatch):
+    path = tmp_path / "docs" / "bokeh"
+    path.mkdir(parents=True)
+    (path / "switcher.json").write_text(__import__("json").dumps([{"version": "4.0.0"}]))
+    monkeypatch.chdir(tmp_path)
+    system = RecordingSystem(outputs={"git tag": "4.0.0\n3.10.0"})
+
+    result = checks.check_docs_version_config(Config("3.10.1rc1"), system)
+
+    assert result.kind is ActionResult.PASS
+
+
+def test_check_docs_version_config_rejects_multiple_dev_entries(tmp_path, monkeypatch):
+    path = tmp_path / "docs" / "bokeh"
+    path.mkdir(parents=True)
+    (path / "switcher.json").write_text(__import__("json").dumps([
+        {"version": "4.0.0"},
+        {"name": "dev (4.1.0.dev2)", "version": "dev-4.1", "url": "https://docs.bokeh.org/en/dev-4.1/"},
+        {"name": "dev (4.0.1rc1)", "version": "dev-4.0", "url": "https://docs.bokeh.org/en/dev-4.0/"},
+    ]))
+    monkeypatch.chdir(tmp_path)
+    system = RecordingSystem(outputs={"git tag": "4.1.0.dev2\n4.0.0"})
+
+    result = checks.check_docs_version_config(Config("4.0.0"), system)
+
+    assert result.kind is ActionResult.FAIL
+    assert result.message == "Multiple development versions are present in switcher.json"
 
 
 @pytest.mark.parametrize("content", [None, "not JSON"])

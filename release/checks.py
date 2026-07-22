@@ -17,6 +17,7 @@ from packaging.version import Version as V
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
+from .git import get_tags
 from .pipeline import StepType
 from .system import System
 from .util import skip_for_prerelease
@@ -133,10 +134,38 @@ def check_docs_version_config(config: Config, system: System) -> ActionReturn:
     try:
         with open(Path("docs/bokeh/switcher.json")) as fp:
             switcher = json.load(fp)
-            all_versions = set(x["version"] for x in switcher if "version" in x)
-            expected_version = f"dev-{config.release_level}" if config.prerelease else config.version
-            if expected_version not in all_versions:
-                return FAILED(f"Version {expected_version!r} is missing from switcher.json")
+
+            if not config.prerelease and not any(entry.get("version") == config.version for entry in switcher):
+                return FAILED(f"Version {config.version!r} is missing from switcher.json")
+
+            versions = [V(tag) for tag in get_tags(config, system)]
+            current_version = V(config.version)
+            if current_version not in versions:
+                versions.append(current_version)
+            stable_versions = [version for version in versions if not version.is_prerelease]
+            prerelease_versions = [version for version in versions if version.is_prerelease]
+            latest_stable = max(stable_versions, default=None)
+            latest_prerelease = max(prerelease_versions, default=None)
+            if latest_prerelease is not None and latest_stable is not None and latest_prerelease <= latest_stable:
+                latest_prerelease = None
+
+            dev_entries = [entry for entry in switcher if str(entry.get("version", "")).startswith("dev-")]
+            if len(dev_entries) > 1:
+                return FAILED("Multiple development versions are present in switcher.json")
+            if latest_prerelease is None:
+                if dev_entries:
+                    return FAILED("An obsolete development version is present in switcher.json")
+            else:
+                release_level = ".".join(str(part) for part in latest_prerelease.release[:2])
+                expected_entry = {
+                    "name": f"dev ({latest_prerelease})",
+                    "version": f"dev-{release_level}",
+                    "url": f"https://docs.bokeh.org/en/dev-{release_level}/",
+                }
+                if not dev_entries:
+                    return FAILED(f"Version {expected_entry['version']!r} is missing from switcher.json")
+                if any(dev_entries[0].get(key) != value for key, value in expected_entry.items()):
+                    return FAILED(f"Version {expected_entry['version']!r} has stale metadata in switcher.json")
             return PASSED("Docs versions config is correct")
     except (OSError, RuntimeError, ValueError) as e:
         return FAILED("Could not check docs versions config", details=e.args)

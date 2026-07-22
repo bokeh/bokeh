@@ -239,6 +239,82 @@ def test_update_switcher_json_writes_latest_and_dev_entries(tmp_path, monkeypatc
     assert config.modified == {"docs/bokeh/switcher.json"}
 
 
+def test_update_switcher_json_refreshes_dev_name_within_release_level(tmp_path, monkeypatch):
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    (switcher_dir / "switcher.json").write_text(json.dumps([{
+        "name": "dev (3.10.0.dev6)",
+        "url": "https://docs.bokeh.org/en/dev-3.10/",
+        "version": "dev-3.10",
+    }]))
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(build, "get_tags", lambda config, system: ["3.10.0.dev6", "3.9.1"])
+
+    result = build.update_switcher_json(Config("3.10.0.dev7"), RecordingSystem())
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    assert result.kind is ActionResult.PASS
+    assert switcher[-1] == {
+        "name": "dev (3.10.0.dev7)",
+        "url": "https://docs.bokeh.org/en/dev-3.10/",
+        "version": "dev-3.10",
+    }
+
+
+@pytest.mark.parametrize(
+    ("version", "release_level"),
+    [("3.11.0.dev1", "3.11"), ("4.0.0.dev1", "4.0")],
+)
+def test_update_switcher_json_moves_dev_entry_for_new_release_level(tmp_path, monkeypatch, version, release_level):
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    (switcher_dir / "switcher.json").write_text(json.dumps([{
+        "name": "dev (3.10.0.dev6)",
+        "url": "https://docs.bokeh.org/en/dev-3.10/",
+        "version": "dev-3.10",
+    }]))
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(build, "get_tags", lambda config, system: ["3.10.0.dev6", "3.9.1"])
+
+    result = build.update_switcher_json(Config(version), RecordingSystem())
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    assert result.kind is ActionResult.PASS
+    assert switcher[-1] == {
+        "name": f"dev ({version})",
+        "url": f"https://docs.bokeh.org/en/dev-{release_level}/",
+        "version": f"dev-{release_level}",
+    }
+
+
+def test_update_switcher_json_keeps_only_latest_dev_release_level(tmp_path, monkeypatch):
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(
+        build,
+        "get_tags",
+        lambda config, system: ["4.1.0.dev2", "4.0.1rc1", "4.0.0", "3.10.1rc1", "3.10.0"],
+    )
+
+    result = build.update_switcher_json(Config("4.0.1rc2"), RecordingSystem())
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    dev_entries = [entry for entry in switcher if entry["version"].startswith("dev-")]
+    assert result.kind is ActionResult.PASS
+    assert dev_entries == [{
+        "name": "dev (4.1.0.dev2)",
+        "url": "https://docs.bokeh.org/en/dev-4.1/",
+        "version": "dev-4.1",
+    }]
+
+
 def test_update_switcher_json_includes_untagged_release(tmp_path, monkeypatch):
     release_dir = tmp_path / "release"
     release_dir.mkdir()
