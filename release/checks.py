@@ -180,7 +180,9 @@ def check_staging_branch_is_available(config: Config, system: System) -> ActionR
 @skip_for_prerelease
 def check_milestone_labels(config: Config, system: System) -> ActionReturn:
     try:
-        # system.run(f"python scripts/milestone.py {config.version} --check-only")
+        system.run(
+            f"python scripts/milestone.py {config.milestone_version} --check-only --allow-closed",
+        )
         return PASSED("Milestone labels are BEP-1 compliant")
     except RuntimeError as e:
-        return FAILED("Milesstone labels are NOT BEP-1 compliant", e.args)
+        return FAILED("Milestone labels are NOT BEP-1 compliant", details=e.args)

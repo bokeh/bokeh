@@ -215,8 +215,23 @@ def test_check_staging_branch_available(config, branches, expected):
     assert checks.check_staging_branch_is_available(config, system).kind is expected
 
 
-def test_check_milestone_labels_is_currently_a_noop(config):
-    result = checks.check_milestone_labels(config, RecordingSystem())
+def test_check_milestone_labels_uses_release_milestone(config):
+    system = RecordingSystem()
+
+    result = checks.check_milestone_labels(config, system)
 
     assert result.kind is ActionResult.PASS
     assert "BEP-1 compliant" in result.message
+    assert system.commands == [
+        "python scripts/milestone.py 4.0 --check-only --allow-closed",
+    ]
+
+
+def test_check_milestone_labels_reports_command_failure(config):
+    command = "python scripts/milestone.py 4.0 --check-only --allow-closed"
+    system = RecordingSystem(failures={command: ("invalid milestone item",)})
+
+    result = checks.check_milestone_labels(config, system)
+
+    assert result.kind is ActionResult.FAIL
+    assert result.details == ("invalid milestone item",)
