@@ -254,7 +254,7 @@ def update_switcher_json(
 
         config.add_modified("docs/bokeh/switcher.json")
         return PASSED("Switcher.json was updated.")
-    except RuntimeError as e:
+    except (RuntimeError, ValueError) as e:
         return FAILED("Switcher.json update failed", details=e.args)
 
 @skip_for_prerelease
