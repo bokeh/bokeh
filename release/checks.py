@@ -144,7 +144,7 @@ def check_docs_version_config(config: Config, system: System) -> ActionReturn:
 
 def check_release_tag_is_available(config: Config, system: System) -> ActionReturn:
     try:
-        out = system.run("git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags")
+        out = system.run("git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags")
         tags = [x.strip("'\"") for x in out.split("\n")]
 
         if config.version in tags:
@@ -158,7 +158,7 @@ def check_release_tag_is_available(config: Config, system: System) -> ActionRetu
 
 def check_version_order(config: Config, system: System) -> ActionReturn:
     try:
-        out = system.run("git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags")
+        out = system.run("git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags")
         tags = [x.strip("'\"") for x in out.split("\n")]
 
         release_prefix = f"{config.release_level}."

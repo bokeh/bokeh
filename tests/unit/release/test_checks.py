@@ -199,7 +199,7 @@ def test_check_release_notes_present(monkeypatch, exists, expected):
     ],
 )
 def test_check_release_tag_available(tags, version, expected):
-    command = "git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags"
+    command = "git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags"
     system = RecordingSystem(outputs={command: tags})
 
     assert checks.check_release_tag_is_available(Config(version), system).kind is expected
@@ -216,14 +216,14 @@ def test_check_release_tag_available(tags, version, expected):
     ],
 )
 def test_check_version_order(tags, version, expected):
-    command = "git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags"
+    command = "git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags"
     system = RecordingSystem(outputs={command: tags})
 
     assert checks.check_version_order(Config(version), system).kind is expected
 
 
 def test_check_version_order_distinguishes_minor_version_prefixes():
-    command = "git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags"
+    command = "git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags"
     system = RecordingSystem(outputs={command: "3.10.0\n3.1.0\n"})
 
     result = checks.check_version_order(Config("3.1.1"), system)
@@ -232,7 +232,7 @@ def test_check_version_order_distinguishes_minor_version_prefixes():
 
 
 def test_check_version_order_reports_command_failure(config):
-    command = "git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags"
+    command = "git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags"
     system = RecordingSystem(failures={command: ("git error",)})
 
     result = checks.check_version_order(config, system)
