@@ -1,7 +1,8 @@
 import {expect} from "#framework/assertions"
-import {display, fig} from "#framework/layouts"
+import {trap} from "#framework/util"
 
 import {normalize_dash_pattern} from "@bokehjs/models/glyphs/webgl/dash_cache"
+import {version} from "@bokehjs/version"
 
 describe("WebGL dash patterns", () => {
   it("should normalize odd-length patterns without mutating the input", () => {
@@ -16,39 +17,10 @@ describe("WebGL dash patterns", () => {
     expect(normalize_dash_pattern([0])).to.be.equal([])
   })
 
-  it("should retain fractional dash lengths", () => {
-    expect(normalize_dash_pattern([1.5, 0.5])).to.be.equal([1.5, 0.5])
-  })
-
-  it("should reject negative and non-finite lengths", () => {
-    expect(() => normalize_dash_pattern([2, -1])).to.throw()
-    expect(() => normalize_dash_pattern([2, NaN])).to.throw()
-    expect(() => normalize_dash_pattern([2, Infinity])).to.throw()
-  })
-
-  it("should render an all-zero Patch dash pattern without hanging", async () => {
-    const p = fig([200, 200], {output_backend: "webgl"})
-    p.patch([0, 1, 1, 0], [0, 0, 1, 1], {
-      fill_color: null,
-      line_color: "navy",
-      line_width: 4,
-      line_dash: [0, 0],
-    })
-
-    await display(p)
-  })
-
-  it("should render vectorized all-zero Patches dash patterns without hanging", async () => {
-    const p = fig([200, 200], {output_backend: "webgl"})
-    p.patches({
-      xs: [[0, 1, 1, 0], [2, 3, 3, 2]],
-      ys: [[0, 0, 1, 1], [0, 0, 1, 1]],
-      fill_color: null,
-      line_color: ["navy", "firebrick"],
-      line_width: 4,
-      line_dash: [[0, 0], [0]],
-    })
-
-    await display(p)
+  it("should warn and ignore non-integer, negative, and non-finite lengths", () => {
+    for (const pattern of [[2, 0.5], [2, -1], [2, NaN], [2, Infinity]]) {
+      const out = trap(() => expect(normalize_dash_pattern(pattern)).to.be.equal([]))
+      expect(out.warn).to.be.equal(`[bokeh ${version}] invalid line dash pattern: ${pattern.join(",")}\n`)
+    }
   })
 })

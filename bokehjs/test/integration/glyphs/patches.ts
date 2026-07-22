@@ -49,6 +49,28 @@ describe("Patches glyph", () => {
     await display(row([p0, p1, p2]))
   })
 
+  it("should support vectorized all-zero line dash patterns", async () => {
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([300, 300], {output_backend, title: output_backend})
+
+      p.patches({
+        xs: [[0, 1, 1, 0], [2, 3, 3, 2]],
+        ys: [[0, 0, 1, 1], [0, 0, 1, 1]],
+        fill_color: null,
+        line_color: ["navy", "firebrick"],
+        line_width: 4,
+        line_dash: [[0, 0], [0]],
+      })
+
+      return p
+    }
+
+    const p0 = make_plot("canvas")
+    const p1 = make_plot("webgl")
+
+    await display(row([p0, p1]))
+  })
+
   it("should support hatch patterns", async () => {
     function make_plot(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
