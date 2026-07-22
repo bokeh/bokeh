@@ -5207,7 +5207,6 @@ describe("Bug", () => {
 
   describe("in issue #15119", () => {
     it("doesn't render if desired_tick_numbers are too large", async () => {
-
       const p = fig([200, 200])
       p.xaxis.ticker = new BasicTicker({desired_num_ticks: 100000000000000000000000000000})
       p.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
