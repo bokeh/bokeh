@@ -131,7 +131,7 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"mkdir -p {dirname}/docs/bokeh/build")
         system.run(f"cp -r docs/bokeh/build/html {dirname}/docs/bokeh/build")
         system.run(f"cp -r docs/bokeh/switcher.json {dirname}/docs/bokeh")
-        system.run(f"tar cvf {filename} {dirname}")
+        system.run(f"tar czvf {filename} {dirname}")
         return PASSED(f"Packed deployment tarball {filename!r}")
     except RuntimeError as e:
         return FAILED("Could NOT pack deployment tarball", details=e.args)

@@ -115,7 +115,7 @@ def test_pack_deployment_tarball_collects_all_artifacts(config):
         "mkdir -p deployment-4.0.0/docs/bokeh/build",
         "cp -r docs/bokeh/build/html deployment-4.0.0/docs/bokeh/build",
         "cp -r docs/bokeh/switcher.json deployment-4.0.0/docs/bokeh",
-        "tar cvf deployment-4.0.0.tgz deployment-4.0.0",
+        "tar czvf deployment-4.0.0.tgz deployment-4.0.0",
     ]
 
 
