@@ -65,8 +65,9 @@ def check_repo_is_bokeh(config: Config, system: System) -> ActionReturn:
         return FAILED("Executing outside of a git repository")
 
     try:
-        remote = system.run("git config --get remote.origin.url")
-        if remote.strip() in ("git@github.com:bokeh/bokeh.git", "https://github.com/bokeh/bokeh"):
+        remote = system.run("git config --get remote.origin.url").strip()
+        normalized_remote = remote.removesuffix(".git")
+        if normalized_remote in ("git@github.com:bokeh/bokeh", "https://github.com/bokeh/bokeh"):
             return PASSED("Executing inside the bokeh/bokeh repository")
         else:
             return FAILED(f"Executing OUTSIDE the bokeh/bokeh repository (bad remote: {remote})")

@@ -53,7 +53,9 @@ def test_application_checks_fail_when_command_is_missing(config, func, command):
     "remote",
     [
         "git@github.com:bokeh/bokeh.git\n",
+        "git@github.com:bokeh/bokeh\n",
         "https://github.com/bokeh/bokeh\n",
+        "https://github.com/bokeh/bokeh.git\n",
     ],
 )
 def test_check_repo_accepts_supported_origin_urls(config, remote):
