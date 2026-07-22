@@ -323,6 +323,21 @@ def test_update_switcher_json_rejects_non_version_tags(tmp_path, monkeypatch):
     assert result.details == ("Got invalid version string 'not-a-version'.",)
 
 
+def test_update_switcher_json_normalizes_legacy_dev_tags(tmp_path, monkeypatch):
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(build, "get_tags", lambda config, system: ["3.0.0dev1", "3.0.0"])
+
+    result = build.update_switcher_json(Config("4.0.0"), RecordingSystem())
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    assert result.kind is ActionResult.PASS
+    assert [entry["version"] for entry in switcher] == ["4.0.0", "3.0.0"]
+
+
 def test_update_switcher_json_reports_write_failure(tmp_path, monkeypatch):
     release_dir = tmp_path / "release"
     release_dir.mkdir()

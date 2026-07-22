@@ -189,10 +189,15 @@ def update_switcher_json(
     base_url = "https://docs.bokeh.org/en/"
 
     try:
-        tags = get_tags(config, system)
-        for tag in tags:
-            if re.match(ANY_VERSION, tag) is None:
+        tags = []
+        for tag in get_tags(config, system):
+            try:
+                normalized_tag = str(V(tag))
+            except ValueError:
                 raise ValueError(f"Got invalid version string {tag!r}.")
+            if re.match(ANY_VERSION, normalized_tag) is None:
+                raise ValueError(f"Got invalid version string {tag!r}.")
+            tags.append(normalized_tag)
         if config.version not in tags:
             tags.append(config.version)
         tags.sort(key=V, reverse=True)
