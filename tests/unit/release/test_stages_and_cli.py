@@ -7,6 +7,7 @@ import sys
 
 # External imports
 import pytest
+import yaml
 from release import stages
 from release.build import update_changelog, update_hash_manifest, update_switcher_json
 from release.checks import (
@@ -18,6 +19,9 @@ from release.config import Config
 from release.git import commit_staging_branch, push_to_github, tag_release_version
 from release.pipeline import is_check
 from release.util import load_config
+
+# Bokeh imports
+from tests.support.util.project import TOP_PATH
 
 
 @pytest.mark.parametrize(
@@ -88,6 +92,16 @@ def test_deploy_pipeline_downloads_and_unpacks_before_publication():
         "publish_pip_packages",
         "publish_documentation",
     ]
+
+
+def test_build_workflow_fetches_full_git_history():
+    with open(TOP_PATH / ".github/workflows/bokeh-release-build.yml") as f:
+        workflow = yaml.safe_load(f)
+
+    steps = workflow["jobs"]["build"]["steps"]
+    checkout = next(step for step in steps if step.get("uses", "").startswith("actions/checkout@"))
+
+    assert checkout["with"]["fetch-depth"] == 0
 
 
 @pytest.mark.parametrize(

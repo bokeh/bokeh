@@ -45,6 +45,8 @@ jobs:
           exit 1
 
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - uses: conda-incubator/setup-miniconda@v4
         with:
