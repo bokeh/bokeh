@@ -105,6 +105,23 @@ def test_build_workflow_fetches_full_git_history():
     assert checkout["with"]["fetch-depth"] == 0
 
 
+@pytest.mark.parametrize(
+    ("filename", "job_name"),
+    [
+        ("bokeh-release-build.yml", "build"),
+        ("bokeh-release-deploy.yml", "deploy"),
+    ],
+)
+def test_release_confirmation_includes_version(filename, job_name):
+    with open(TOP_PATH / ".github/workflows" / filename) as f:
+        workflow = yaml.safe_load(f)
+
+    steps = workflow["jobs"][job_name]["steps"]
+    confirmation = next(step for step in steps if step.get("name") == "Maintainer confirmed")
+
+    assert confirmation["env"]["BOKEH_VERSION"] == "${{ github.event.inputs.version }}"
+
+
 def test_generated_config_is_gitignored():
     result = run(["git", "check-ignore", "--quiet", CONFIG_FILENAME], cwd=TOP_PATH)
 
