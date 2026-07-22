@@ -53,7 +53,7 @@ def test_deploy_steps_are_not_misclassified_as_checks():
 
 def test_full_release_only_checks_and_steps_are_marked():
     assert check_release_notes_present.skip_for_prerelease is True
-    assert check_docs_version_config.skip_for_prerelease is True
+    assert getattr(check_docs_version_config, "skip_for_prerelease", False) is False
     assert check_milestone_labels.skip_for_prerelease is True
     assert update_changelog.skip_for_prerelease is True
     assert update_hash_manifest.skip_for_prerelease is True

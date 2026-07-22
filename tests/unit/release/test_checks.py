@@ -162,6 +162,25 @@ def test_check_docs_version_config(tmp_path, monkeypatch, versions, expected):
     assert result.kind is expected
 
 
+@pytest.mark.parametrize(
+    ("version", "versions", "expected"),
+    [
+        ("4.0.0.dev1", [{"version": "dev-4.0"}], ActionResult.PASS),
+        ("4.0.0rc1", [{"version": "dev-4.0"}], ActionResult.PASS),
+        ("4.0.0.dev1", [{"version": "4.0.0.dev1"}], ActionResult.FAIL),
+    ],
+)
+def test_check_docs_version_config_validates_prerelease_entry(tmp_path, monkeypatch, version, versions, expected):
+    path = tmp_path / "docs" / "bokeh"
+    path.mkdir(parents=True)
+    (path / "switcher.json").write_text(__import__("json").dumps(versions))
+    monkeypatch.chdir(tmp_path)
+
+    result = checks.check_docs_version_config(Config(version), RecordingSystem())
+
+    assert result.kind is expected
+
+
 @pytest.mark.parametrize("content", [None, "not JSON"])
 def test_check_docs_version_config_reports_file_errors(tmp_path, monkeypatch, content):
     if content is not None:
