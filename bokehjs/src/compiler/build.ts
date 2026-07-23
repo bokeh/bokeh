@@ -123,9 +123,13 @@ export type InitOptions = {
 export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitOptions): Promise<boolean> {
   preamble(base_dir)
 
+  const to_npm_version = (v: string) => {
+    return v.replace(/\+.*$/, "").replace(/\.?(dev|rc|a|b)(\d*)$/, (_, p1, p2) => `-${p1}${p2 ? `.${p2}` : ""}`)
+  }
+
   const setup: Required<InitOptions> = {
     interactive: base_setup.interactive ?? false,
-    bokehjs_version: base_setup.bokehjs_version ?? base_setup.bokeh_version.split("-")[0],
+    bokehjs_version: base_setup.bokehjs_version ?? to_npm_version(base_setup.bokeh_version),
     bokeh_version: base_setup.bokeh_version,
   }
 
