@@ -98,10 +98,12 @@ jobs:
       - parallel:
         - name: Check library types with mypy
           run: |
-            mypy --version && mypy
+            mypy --version
+            mypy --show-traceback
         - name: Check library types with pyright
           run: |
-            pyright --version && pyright
+            pyright --version
+            pyright
 
   examples:
     needs: build
