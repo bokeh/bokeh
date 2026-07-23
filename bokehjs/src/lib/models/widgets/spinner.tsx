@@ -1,16 +1,20 @@
 import {NumericInputView, NumericInput} from "./numeric_input"
-
-import * as p from "core/properties"
+import type {VNode} from "core/vdom"
+import {cls} from "core/vdom"
 import type {Keys} from "core/dom"
-import {button, div, toggle_attribute} from "core/dom"
+import * as p from "core/properties"
+
+import * as inputs_css from "styles/widgets/inputs.css"
 
 const {min, max} = Math
 
-/*
+type TimeoutHandle = ReturnType<typeof setTimeout>
+type IntervalHandle = ReturnType<typeof setInterval>
+
 function debounce(func: () => void, wait: number, immediate: boolean = false) {
   //func must works by side effects
 
-  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  let timeoutId: TimeoutHandle | undefined
 
   return function(this: any, ...args: any): void {
     const context = this
@@ -35,79 +39,49 @@ function debounce(func: () => void, wait: number, immediate: boolean = false) {
     }
   }
 }
-*/
 
 // Inspiration from https://github.com/uNmAnNeR/ispinjs
 export class SpinnerView extends NumericInputView {
-  declare model: Spinner
+  declare readonly model: Spinner
+  declare readonly signals: p.SignalsOf<Spinner.Props>
+  declare readonly values: Spinner.Attrs
 
-  protected wrapper_el: HTMLDivElement
-  protected btn_up_el: HTMLButtonElement
-  protected btn_down_el: HTMLButtonElement
-  private _handles:  {
-    interval: ReturnType<typeof setInterval> | undefined
-    timeout: ReturnType<typeof setTimeout> | undefined
-  }
+  private readonly _handles: {interval?: IntervalHandle, timeout?: TimeoutHandle} = {}
+
   private _counter: number
-  private _interval: number
 
-  *buttons(): Generator<HTMLButtonElement> {
-    yield this.btn_up_el
-    yield this.btn_down_el
+  private readonly _interval: number = 200
+
+  protected override _buttons(): VNode {
+    const {disabled} = this.signals
+    return (
+      <>
+        <button
+          class={cls(inputs_css.spin_btn, inputs_css.spin_btn_up)}
+          disabled={disabled}
+          onMouseDown={(event) => this._btn_mouse_down(event, +1)}
+          onMouseUp={() => this._btn_mouse_up()}
+          onMouseLeave={() => this._btn_mouse_leave()}
+        />
+        <button
+          class={cls(inputs_css.spin_btn, inputs_css.spin_btn_down)}
+          disabled={disabled}
+          onMouseDown={(event) => this._btn_mouse_down(event, -1)}
+          onMouseUp={() => this._btn_mouse_up()}
+          onMouseLeave={() => this._btn_mouse_leave()}
+        />
+      </>
+    )
   }
 
-  override initialize(): void {
-    super.initialize()
-    this._handles = {interval: undefined, timeout: undefined}
-    this._interval = 200
-  }
-
-  override connect_signals(): void {
-    super.connect_signals()
-    const p = this.model.properties
-    this.on_change(p.disabled, () => {
-      for (const btn of this.buttons()) {
-        toggle_attribute(btn, "disabled", this.model.disabled)
-      }
-    })
-  }
-
-  protected override _render_input(): HTMLElement {
-    super._render_input()
-
-    this.btn_up_el = button({class: "bk-spin-btn bk-spin-btn-up"})
-    this.btn_down_el = button({class: "bk-spin-btn bk-spin-btn-down"})
-
-    const {input_el, btn_up_el, btn_down_el} = this
-    this.wrapper_el = div({class: "bk-spin-wrapper"}, input_el, btn_up_el, btn_down_el)
-
-    return this.wrapper_el
-  }
-
-  override render(): void {
-    super.render()
-
-    /*
-    for (const btn of this.buttons()) {
-      toggle_attribute(btn, "disabled", this.model.disabled)
-      btn.addEventListener("mousedown", (evt) => this._btn_mouse_down(evt))
-      btn.addEventListener("mouseup", () => this._btn_mouse_up())
-      btn.addEventListener("mouseleave", () => this._btn_mouse_leave())
-    }
-    this.input_el.addEventListener("keydown", (evt) => {
-      this._input_key_down(evt)
-    })
-    this.input_el.addEventListener("keyup", () => {
-      this.model.value_throttled = this.model.value
-    })
-    this.input_el.addEventListener("wheel", (evt) => {
-      this._input_mouse_wheel(evt)
-    })
-    this.input_el.addEventListener("wheel", debounce(() => {
+  /*
+    onKeydown={(event) => this._input_key_down(event)}
+    onKeyup={(event) => this._input_key_up(event)}
+    onWheel={(event) => this._input_mouse_wheel(event)}
+    onWheel={debounce(() => {
       this.model.value_throttled = this.model.value
     }, this.model.wheel_wait, false))
-    */
-  }
+  */
 
   override remove(): void {
     this._stop_incrementation()
@@ -135,42 +109,43 @@ export class SpinnerView extends NumericInputView {
     this._handles.interval = setInterval(() => increment_with_increasing_rate(sign * step), this._interval)
   }
 
-  _stop_incrementation(): void {
+  protected _stop_incrementation(): void {
     clearTimeout(this._handles.timeout)
-    this._handles.timeout = undefined
     clearInterval(this._handles.interval)
+    this._handles.timeout = undefined
     this._handles.interval = undefined
     this.model.value_throttled = this.model.value
   }
 
-  _btn_mouse_down(event: MouseEvent): void {
+  protected _btn_mouse_down(event: MouseEvent, direction: -1 | 1): void {
     event.preventDefault()
-    const sign = event.currentTarget === this.btn_up_el ? 1 : -1
-    this.increment(sign*this.model.step)
+    this.increment(direction*this.values.step)
     this.input_el.focus()
-    //while mouse is down we increment at a certain rate
-    this._handles.timeout = setTimeout(() => this._start_incrementation(sign), this._interval)
+    // while mouse is down we increment at a certain rate
+    this._handles.timeout = setTimeout(() => {
+      this._start_incrementation(direction)
+    }, this._interval)
   }
 
-  _btn_mouse_up(): void {
+  protected _btn_mouse_up(): void {
     this._stop_incrementation()
   }
 
-  _btn_mouse_leave(): void {
+  protected _btn_mouse_leave(): void {
     this._stop_incrementation()
   }
 
-  _input_mouse_wheel(event: WheelEvent): void {
+  protected _input_mouse_wheel(event: WheelEvent): void {
     if (this.shadow_el.activeElement === this.input_el) {
       event.preventDefault()
       const sign = event.deltaY > 0 ? -1 : 1
-      this.increment(sign*this.model.step)
+      this.increment(sign*this.values.step)
     }
   }
 
-  _input_key_down(event: KeyboardEvent): void {
+  protected _input_key_down(event: KeyboardEvent): void {
     const step = (() => {
-      const {step, page_step_multiplier} = this.model
+      const {step, page_step_multiplier} = this.values
       switch (event.key as Keys) {
         case "ArrowUp":   return step
         case "ArrowDown": return -step
@@ -185,16 +160,20 @@ export class SpinnerView extends NumericInputView {
     }
   }
 
+  protected _input_key_up(_event: KeyboardEvent): void {
+    this.model.value_throttled = this.model.value
+  }
+
   increment(step: number): void {
-    const {low, high} = this.model
-    if (this.model.value == null) {
+    const {low, high, value} = this.values
+    if (value == null) {
       if (step > 0) {
         this.model.value = low != null ? low : (high != null ? min(0, high) : 0)
       } else if (step < 0) {
         this.model.value = high != null ? high : (low != null ? max(low, 0) : 0)
       }
     } else {
-      this.model.value = this.bound_value(this.model.value + step)
+      this.model.value = this.bound_value(value + step)
     }
   }
 
