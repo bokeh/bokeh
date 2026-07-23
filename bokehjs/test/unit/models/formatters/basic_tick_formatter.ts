@@ -1,4 +1,4 @@
-import {expect} from "#framework/assertions"
+import {expect} from "assertions"
 
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
 
