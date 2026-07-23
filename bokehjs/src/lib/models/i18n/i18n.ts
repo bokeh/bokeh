@@ -1,9 +1,11 @@
 // For the moment, basic mock implementation created here that also explores the Chrome Translator API
 import type {PlainObject} from "core/types"
+import {logger} from "core/logging"
 import {isString} from "core/util/types"
 import {Signal0} from "core/signaling"
 import {Model} from "../../model"
 import type * as p from "core/properties"
+
 
 export namespace I18n {
   export type Attrs = p.AttrsOf<Props>
@@ -68,7 +70,8 @@ export class I18n extends Model {
         await this._init_translator()
       }
     } else {
-      throw new Error("I18n.set_locale() expects a locale string available")
+      const locales_codes = this.locales_codes.map(locale => `'${locale}'`).join(', ')
+      logger.warn(`I18n.set_locale() expects a valid locale string: ${locales_codes}. Locale is still '${localStorage.getItem("lang")}'`)
     }
   }
 
