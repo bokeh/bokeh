@@ -98,13 +98,16 @@ jobs:
       - parallel:
         - name: Check library types with mypy
           run: |
-            mypy --version && mypy
+            mypy --version
+            mypy --show-traceback
         - name: Check types in examples with mypy
           run: |
-            mypy --version && mypy --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
+            mypy --version
+            mypy --show-traceback --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
         - name: Check library types with pyright
           run: |
-            pyright --version && pyright
+            pyright --version
+            pyright
 
   examples:
     needs: build
