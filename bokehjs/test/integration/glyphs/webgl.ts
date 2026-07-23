@@ -42,6 +42,36 @@ describe("webgl", () => {
     await display(row([p0, p1]))
   })
 
+  it("should clip patch ring accumulation to the plot frame", async () => {
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([300, 300], {
+        output_backend,
+        title: output_backend,
+        x_range: [0, 10],
+        y_range: [0, 10],
+      })
+      p.xgrid.visible = false
+      p.ygrid.visible = false
+
+      p.patch(
+        [-2, 4, 4, -2, NaN, 12, 14, 14, 12],
+        [2, 2, 8, 8, NaN, 2, 2, 8, 8],
+        {fill_color: null, line_color: "navy", line_width: 8},
+      )
+      p.patches({
+        xs: [[6, 12, 12, 6, NaN, -5, -2, -2, -5]],
+        ys: [[-2, -2, 4, 4, NaN, 12, 12, 15, 15]],
+        fill_color: null,
+        line_color: "firebrick",
+        line_width: 8,
+      })
+
+      return p
+    }
+
+    await display(row([make_plot("canvas"), make_plot("webgl")]))
+  })
+
   it("should support zoom without NaN problems", async () => {
     // See 8th item of issue #11050.
     const x = [-1, 1, 1, -1]
