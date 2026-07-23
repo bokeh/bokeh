@@ -87,11 +87,11 @@ export async function press(el: Element): Promise<void> {
   el.dispatchEvent(ev1)
 }
 
-export async function scroll(el: Element, delta: number): Promise<void> {
+export async function scroll(el: Element, count: number): Promise<void> {
   const event = new WheelEvent("wheel", {
     ..._pointer_common,
     deltaX: 0,
-    deltaY: delta,
+    deltaY: count*DELTA,
     deltaZ: 0,
     deltaMode: WheelEvent.DOM_DELTA_PIXEL,
   })
@@ -100,12 +100,12 @@ export async function scroll(el: Element, delta: number): Promise<void> {
 
 export async function scroll_up(el: Element, count: number = 1): Promise<void> {
   assert(count >= 1)
-  await scroll(el, count*(+DELTA))
+  await scroll(el, count)
 }
 
 export async function scroll_down(el: Element, count: number = 1): Promise<void> {
   assert(count >= 1)
-  await scroll(el, count*(-DELTA))
+  await scroll(el, -count)
 }
 
 type Line = {type: "line", xy0: Point, xy1: Point, n?: number}
