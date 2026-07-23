@@ -1,6 +1,5 @@
 import {expect} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
-import {require_glglyph} from "#framework/webgl"
 import {range} from "@bokehjs/core/util/array"
 import type {Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 
@@ -51,11 +50,14 @@ describe("WebGL patch topology regressions", () => {
     const webgl = koch_plot("webgl")
     const {view} = await display(row([canvas.p, webgl.p]))
     const webgl_view = view.owner.get_one(webgl.p)
-    const gl = require_glglyph(webgl_view.owner.get_one(webgl.renderer).glyph) as unknown as {
-      _nvertices: number
-      _triangle_count: number
-      _positions: Float32Buffer
+    const glyph = webgl_view.owner.get_one(webgl.renderer).glyph as unknown as {
+      glglyph: {
+        _nvertices: number
+        _triangle_count: number
+        _positions: Float32Buffer
+      }
     }
+    const {glglyph: gl} = glyph
     expect(gl._nvertices).to.be.above(65_535)
     expect(gl._triangle_count).to.be.above(65_535)
     expect(gl._positions.length/2).to.be.equal(gl._nvertices)

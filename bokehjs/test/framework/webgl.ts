@@ -1,27 +1,19 @@
-import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
-import type {BaseGLGlyph} from "@bokehjs/models/glyphs/webgl/base"
 import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import {paint} from "@bokehjs/core/util/defer"
 import {actions, xy} from "./interactive"
-import type {Point} from "./interactive"
+import type {PlotActions, Point} from "./interactive"
 
 /** Wait for rendering and browser compositing without depending on a particular
  * WebGL backend implementation. */
 export async function settle_webgl(view: PlotView, frames: number = 2): Promise<void> {
+  await view.ready
   for (let i = 0; i < frames; i++) {
-    await view.ready
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    await paint()
   }
-}
-
-export function require_glglyph(glyph: GlyphView): BaseGLGlyph {
-  if (!glyph.has_webgl()) {
-    throw new Error(`${glyph} did not initialize a WebGL glyph`)
-  }
-  return glyph.glglyph
 }
 
 export class WebGLScenario {
-  private readonly _actions
+  private readonly _actions: PlotActions
 
   constructor(readonly view: PlotView) {
     this._actions = actions(view, {pause: 0})
@@ -37,11 +29,7 @@ export class WebGLScenario {
   }
 
   async zoom(at: Point = xy(5, 5), steps: number = 2): Promise<void> {
-    if (steps > 0) {
-      await this._actions.scroll_up(at, steps)
-    } else if (steps < 0) {
-      await this._actions.scroll_down(at, -steps)
-    }
+    await this._actions.scroll(at, steps)
     await this.settle()
   }
 
