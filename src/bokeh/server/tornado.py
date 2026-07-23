@@ -39,7 +39,7 @@ from urllib.parse import urljoin
 
 # External imports
 from tornado.ioloop import PeriodicCallback
-from tornado.web import Application as TornadoApplication, StaticFileHandler
+from tornado.web import Application as TornadoApplication
 from tornado.websocket import WebSocketClosedError
 
 if TYPE_CHECKING:
@@ -67,7 +67,7 @@ from .core import (
 from .urls import per_app_patterns, toplevel_patterns
 from .views.ico_handler import IcoHandler
 from .views.root_handler import RootHandler
-from .views.static_handler import StaticHandler
+from .views.static_handler import AsyncStaticFileHandler, StaticHandler
 from .views.ws import WSHandler
 
 if TYPE_CHECKING:
@@ -898,11 +898,11 @@ class BokehTornado(TornadoApplication):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, type[StaticFileHandler | StaticHandler], dict[str, Any]]:
+def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, type[AsyncStaticFileHandler | StaticHandler], dict[str, Any]]:
     route = prefix
     route += "/static/(.*)" if key == "/" else key + "/static/(.*)"
     if app.static_path is not None:
-        return (route, StaticFileHandler, {"path" : app.static_path})
+        return (route, AsyncStaticFileHandler, {"path" : app.static_path})
     return (route, StaticHandler, {})
 
 #-----------------------------------------------------------------------------

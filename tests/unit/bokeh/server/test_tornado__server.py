@@ -25,7 +25,6 @@ from unittest.mock import Mock, patch
 
 # External imports
 from _util_server import http_get, url
-from tornado.web import StaticFileHandler
 from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
@@ -34,7 +33,7 @@ from bokeh.application.handlers.function import FunctionHandler
 from bokeh.client import pull_session
 from bokeh.core.types import ID
 from bokeh.server.auth_provider import NullAuth
-from bokeh.server.views.static_handler import StaticHandler
+from bokeh.server.views.static_handler import AsyncStaticFileHandler, StaticHandler
 from bokeh.server.views.ws import WSHandler
 from tests.support.plugins.managed_server_loop import MSL
 from tests.support.util.env import envset
@@ -436,13 +435,13 @@ class Test_create_static_handler:
         result = bst.create_static_handler("/prefix", "/key", app)
         assert len(result) == 3
         assert result[0] == "/prefix/key/static/(.*)"
-        assert result[1] == StaticFileHandler
+        assert result[1] == AsyncStaticFileHandler
         assert result[2] == {"path" : app.static_path}
 
         result = bst.create_static_handler("/prefix", "/", app)
         assert len(result) == 3
         assert result[0] == "/prefix/static/(.*)"
-        assert result[1] == StaticFileHandler
+        assert result[1] == AsyncStaticFileHandler
         assert result[2] == {"path" : app.static_path}
 
     def test_no_app_static_path(self):
