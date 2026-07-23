@@ -197,17 +197,49 @@ export class PlotActions {
   }
 
   async emit(events: Iterable<UIEvent> | AsyncIterable<UIEvent>): Promise<void> {
-    for await (const ev of events) {
-      this.el.dispatchEvent(ev)
-      await delay(this.options.pause)
-    }
+    for await (const _ of this._emit(events)) {}
   }
 
   async *_emit(events: Iterable<UIEvent> | AsyncIterable<UIEvent>): AsyncGenerator<void> {
+    let pointerdown: PointerEvent | null = null
+    let panning = false
+    let deferred_pause = false
+
     for await (const ev of events) {
+      const is_pointermove = ev.type == "pointermove"
+      if (deferred_pause && !is_pointermove) {
+        await delay(this.options.pause)
+        deferred_pause = false
+      }
+
       this.el.dispatchEvent(ev)
-      await delay(this.options.pause)
+
+      if (ev.type == "pointerdown") {
+        pointerdown = ev as PointerEvent
+        panning = false
+      } else if (!panning && is_pointermove && pointerdown != null) {
+        const {x, y} = ev as PointerEvent
+        const dx = x - pointerdown.x
+        const dy = y - pointerdown.y
+        panning = dx**2 + dy**2 > UIGestures.move_threshold**2
+      } else if (ev.type == "pointerup" || ev.type == "pointercancel") {
+        pointerdown = null
+        panning = false
+      }
+
+      // Don't allow the press timeout to win before the synthetic pointer
+      // crosses the movement threshold and is recognized as a pan.
+      if (pointerdown != null && !panning) {
+        deferred_pause = true
+      } else {
+        await delay(this.options.pause)
+        deferred_pause = false
+      }
       yield
+    }
+
+    if (deferred_pause) {
+      await delay(this.options.pause)
     }
   }
 

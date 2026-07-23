@@ -22,6 +22,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 //import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import type {UIEvent} from "@bokehjs/core/ui_events"
 import type {UIEventBus} from "@bokehjs/core/ui_events"
+import {UIGestures} from "@bokehjs/core/ui_gestures"
 //import {build_view} from "@bokehjs/core/build_views"
 import {BBox} from "@bokehjs/core/util/bbox"
 
@@ -109,6 +110,23 @@ describe("UIEventBus", () => {
     await actions(view).pan(xy(4, 4), xy(6, 6), 3)
 
     expect(events.map((ev) => ev.event_name)).to.be.equal(["panstart", "pan", "pan", "panend"])
+  })
+
+  it("should recognize a pan before the press timeout", async () => {
+    const p = plot()
+
+    const events: PointEvent[] = []
+    p.on_event(Events.Press, (event) => events.push(event))
+    p.on_event(Events.PressUp, (event) => events.push(event))
+    p.on_event(Events.PanStart, (event) => events.push(event))
+    p.on_event(Events.Pan, (event) => events.push(event))
+    p.on_event(Events.PanEnd, (event) => events.push(event))
+
+    const {view} = await display(p)
+    const pause = UIGestures.press_threshold + 10
+    await actions(view, {pause}).pan(xy(4, 4), xy(6, 6), 2)
+
+    expect(events.map((ev) => ev.event_name)).to.be.equal(["panstart", "pan", "panend"])
   })
 })
 
