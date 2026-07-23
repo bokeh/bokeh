@@ -27,6 +27,7 @@ import asyncio
 import gc
 import os
 import sys
+from collections import OrderedDict
 from pprint import pformat
 from typing import (
     TYPE_CHECKING,
@@ -64,6 +65,7 @@ from .core import (
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
     create_session as _create_session,
 )
+from .executor import _ServerExecutor
 from .urls import per_app_patterns, toplevel_patterns
 from .views.ico_handler import IcoHandler
 from .views.root_handler import RootHandler
@@ -85,6 +87,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 DEFAULT_MEM_LOG_FREQ_MS                  = 0
+_AUTOLOAD_CACHE_SIZE                     = 32
 
 __all__ = (
     'BokehTornado',
@@ -306,6 +309,9 @@ class BokehTornado(TornadoApplication):
                 app.add(DocumentLifecycleHandler())
 
         self._absolute_url = absolute_url
+        self._executor = _ServerExecutor()
+        self._autoload_cache: OrderedDict[tuple[Any, ...], Any] = OrderedDict()
+        self._pending_autoload: dict[tuple[Any, ...], asyncio.Task[Any]] = {}
 
         if prefix is None:
             prefix = ""
@@ -698,6 +704,7 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             context.run_unload_hook()
         self._clients.clear()
+        self._executor.shutdown(wait=False)
 
     async def stop_async(self) -> None:
         '''Stop the Bokeh Server application and await orderly cleanup.'''
@@ -720,6 +727,7 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             context.run_unload_hook()
         self._clients.clear()
+        self._executor.shutdown()
 
     def stop(self, wait: bool = True) -> None:
         ''' Stop the Bokeh Server application.
@@ -756,6 +764,73 @@ class BokehTornado(TornadoApplication):
             return None
         asyncio_loop.run_until_complete(self.stop_async())
         return None
+
+    async def _bundle_for_autoload(self, resources: Resources | None) -> Any:
+        from ..embed.bundle import bundle_for_objs_and_resources
+
+        resources = resources.clone() if resources is not None else None
+        key = self._autoload_key(resources)
+        cache = not settings.dev and (resources is None or not resources.dev)
+
+        if cache and (bundle := self._autoload_cache.get(key)) is not None:
+            self._autoload_cache.move_to_end(key)
+            return bundle.clone()
+
+        pending = self._pending_autoload.get(key)
+        if pending is None:
+            pending = asyncio.create_task(
+                self._executor.run(bundle_for_objs_and_resources, None, resources),
+            )
+            self._pending_autoload[key] = pending
+            pending.add_done_callback(lambda task: self._autoload_done(key, cache, task))
+
+        bundle = await asyncio.shield(pending)
+        return bundle.clone()
+
+    def _autoload_done(self, key: tuple[Any, ...], cache: bool, task: asyncio.Task[Any]) -> None:
+        if self._pending_autoload.get(key) is task:
+            del self._pending_autoload[key]
+
+        if task.cancelled():
+            return
+
+        error = task.exception()
+        if error is None and cache:
+            self._autoload_cache[key] = task.result()
+            self._autoload_cache.move_to_end(key)
+            while len(self._autoload_cache) > _AUTOLOAD_CACHE_SIZE:
+                self._autoload_cache.popitem(last=False)
+
+    @staticmethod
+    def _autoload_key(resources: Resources | None) -> tuple[Any, ...]:
+        models = tuple(sorted(
+            (name, id(model))
+            for name, model in Model.model_class_reverse_map.items()
+        ))
+
+        if resources is None:
+            return (None, models)
+
+        path_versioner = resources.path_versioner
+        if path_versioner is not None:
+            path_versioner = (
+                getattr(path_versioner, "__self__", None),
+                getattr(path_versioner, "__func__", path_versioner),
+            )
+
+        return (
+            resources.mode,
+            resources.version,
+            resources.root_dir,
+            resources.dev,
+            resources.minified,
+            resources.log_level,
+            resources.root_url,
+            path_versioner,
+            tuple(resources.components),
+            resources.base_dir,
+            models,
+        )
 
     def new_connection(self, protocol: Protocol, socket: WSHandler,
             application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
