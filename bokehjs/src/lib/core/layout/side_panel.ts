@@ -197,6 +197,11 @@ export class SidePanel {
         vertical_align: _vertical_align_lookup[side][orient],
         align: _align_lookup[side][orient],
       }
+    } else if (orient === 0) {
+      return {
+        vertical_align: _vertical_align_lookup[side]["horizontal"],
+        align: _align_lookup[side]["horizontal"],
+      }
     } else {
       return {
         vertical_align: "center",
