@@ -1,0 +1,32 @@
+.. _release-3-9-2:
+
+3.9.2
+=====
+
+Bokeh version ``3.9.2`` (July 2026) is a patch release that fixes a number of
+minor bugs/regressions and documentation issues.
+
+Changes
+-------
+
+* Auth login/logout URLs fixed to respect server prefix (:bokeh-pull:`15046`)
+* Reflect scientific notation change in axis view (:bokeh-pull:`15061`)
+* Verify websocket token before payload parsing (:bokeh-pull:`15107`)
+* Use correct types with ``@pytest.mark.parametrize()`` (:bokeh-pull:`15152`)
+* Fix scientific tick label precision (:bokeh-pull:`15162`)
+* Fix ``ArrowHead`` properties not updating from JS callbacks (:bokeh-pull:`15193`)
+* Fix dynamic ``FlexBox`` spacing updates (:bokeh-pull:`15211`)
+* Fix resource leak in ``View.on_transitive_change()`` (:bokeh-pull:`15213`)
+* Fail gracefully if ``Axis.fixed_location`` cannot be resolved (:bokeh-pull:`15226`)
+* Normalize zero-ish mercator ticks (:bokeh-pull:`15228`)
+* Accept sequence stackers in line stacks (:bokeh-pull:`15229`)
+* Apply themes in ``json_item()`` (:bokeh-pull:`15230`)
+* Fix runtime resizable styling (:bokeh-pull:`15231`)
+* Hide attribution for invisible tile renderers (:bokeh-pull:`15232`)
+* Make PanTool cursor test robust (:bokeh-pull:`15235`)
+* Misc docs and logging fixes (:bokeh-pull:`15245`)
+* Classify nested WebGL patch rings by even-odd fill (:bokeh-pull:`15257`)
+* Normalize WebGL patch dash patterns (:bokeh-pull:`15259`)
+* Fix WebGL patch topology (:bokeh-pull:`15255`)
+* Fix bokeh init generating incompatible npm version format (:bokeh-pull:`15265`)
+* Fix categorical group label centering when orientation is 0.0 (:bokeh-pull:`15266`)
