@@ -412,7 +412,7 @@ class BokehTornado(TornadoApplication):
                 # second arg must be lstrip'd to avoid dropping the prefix
                 # (urljoin treats a leading-slash second arg as an absolute path and discards the base)
                 logout_url = urljoin(self._prefix + "/", logout_url.lstrip("/"))
-            self._applications[url] = ApplicationContext(app, url=url, logout_url=logout_url)
+            self._applications[url] = ApplicationContext(app, url=url, logout_url=logout_url, executor=self._executor)
         self._stopping = False
         self._shutdown_pending_sessions: tuple[asyncio.Task[ServerSession], ...] = ()
         self._stop_task: asyncio.Task[None] | None = None

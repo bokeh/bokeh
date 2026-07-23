@@ -326,6 +326,13 @@ class Message[Content]:
 
             return sent
 
+    def prepare(self) -> None:
+        ''' Eagerly serialize all message fragments and freeze binary buffers. '''
+        self._buffers = [Buffer(buffer.id, buffer.to_bytes()) for buffer in self._buffers]
+        self._header_json = json.dumps(self.header)
+        self._metadata_json = json.dumps(self.metadata)
+        self._content_json = serialize_json(self.payload)
+
     @property
     def complete(self) -> bool:
         ''' Returns whether all required parts of a message are present.

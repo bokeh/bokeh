@@ -25,7 +25,6 @@ from typing import TYPE_CHECKING, Any, Awaitable
 
 ## Bokeh imports
 if TYPE_CHECKING:
-    from ..document.events import DocumentPatchedEvent
     from ..protocol import Protocol, messages as msg
     from ..protocol.message import Message
     from .contexts import ApplicationContext
@@ -81,11 +80,8 @@ class ServerConnection:
     def error(self, message: Message[Any], text: str) -> msg.error:
         return self.protocol.create('ERROR', message.header['msgid'], text)
 
-    def send_patch_document(self, event: DocumentPatchedEvent) -> Awaitable[None]:
-        """ Sends a PATCH-DOC message, returning a Future that's completed when it's written out. """
-        msg = self.protocol.create('PATCH-DOC', [event])
-        # yes, *return* the awaitable, it will be awaited when pending writes are processed
-        return self._socket.send_message(msg)
+    def send_message(self, message: Message[Any]) -> Awaitable[None]:
+        return self._socket.send_message(message)
 
     def send_ping(self) -> None:
         self._socket.ping(str(self._ping_count).encode("utf-8"))

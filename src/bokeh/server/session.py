@@ -26,7 +26,8 @@ import inspect
 import threading
 import time
 from copy import copy
-from functools import wraps
+from dataclasses import dataclass
+from functools import partial, wraps
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -37,9 +38,11 @@ from typing import (
 
 # Bokeh imports
 from ..events import ConnectionLost
+from ..io.doc import patch_curdoc
 from ..util.asyncio import Loop
 from ..util.token import generate_jwt_token
 from .callbacks import DocumentCallbackGroup
+from .executor import _await_cancellation_safe
 
 if TYPE_CHECKING:
     from ..core.types import ID
@@ -49,9 +52,11 @@ if TYPE_CHECKING:
         SessionCallbackAdded,
         SessionCallbackRemoved,
     )
-    from ..protocol import messages as msg
+    from ..protocol import Protocol, messages as msg
+    from ..protocol.message import Message
     from .callbacks import Callback, SessionCallback
     from .connection import ServerConnection
+    from .executor import _ServerExecutor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -65,6 +70,27 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class _PendingPatch:
+    event: DocumentPatchedEvent
+    protocol: Protocol
+    connections: tuple[ServerConnection, ...]
+
+def _serialize_patches(pending: list[_PendingPatch]) -> list[tuple[Message[Any], tuple[ServerConnection, ...]]]:
+    messages: list[tuple[Message[Any], tuple[ServerConnection, ...]]] = []
+    for patch in pending:
+        with patch_curdoc(patch.event.document):
+            message = patch.protocol.create("PATCH-DOC", [patch.event])
+            message.prepare()
+        messages.append((message, patch.connections))
+    return messages
+
+def _serialize_pull_reply(protocol: Protocol, request_id: ID, document: Document) -> Message[Any]:
+    with patch_curdoc(document):
+        message = protocol.create("PULL-DOC-REPLY", request_id, document)
+        message.prepare()
+    return message
 
 def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
     '''Decorator that adds the necessary locking and post-processing
@@ -132,13 +158,16 @@ def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
                 except BaseException as callback_error:
                     error = callback_error
                 finally:
-                    # we want to be very sure we reset this or we'll
-                    # keep hitting the RuntimeError above as soon as
-                    # any callback goes wrong
                     pending_writes = self._pending_writes
                     self._pending_writes = None
-                for p in pending_writes:
-                    await p
+                try:
+                    # Finish response generation and writes before releasing
+                    # the document lock, even if the callback was cancelled.
+                    if pending_writes:
+                        await _await_cancellation_safe(self._send_pending_patches(pending_writes))
+                except BaseException as write_error:
+                    if error is None:
+                        error = write_error
                 if error is not None:
                     raise error
             return result
@@ -163,9 +192,10 @@ class ServerSession:
 
     _subscribed_connections: set[ServerConnection]
     _current_patch_connection: ServerConnection | None
-    _pending_writes: list[Awaitable[None]] | None
+    _pending_writes: list[_PendingPatch] | None
 
-    def __init__(self, session_id: ID, document: Document, io_loop: Loop | None = None, token: str | None = None) -> None:
+    def __init__(self, session_id: ID, document: Document, io_loop: Loop | None = None,
+            token: str | None = None, executor: _ServerExecutor | None = None) -> None:
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
@@ -174,6 +204,7 @@ class ServerSession:
         self._token = token
         self._document = document
         self._loop = io_loop
+        self._executor = executor
         self._subscribed_connections = set()
         self._connections_lock = threading.Lock()
         self._last_unsubscribe_time = current_time()
@@ -293,16 +324,39 @@ class ServerSession:
         # sides change the same attribute at the same time, they will each end
         # up with the state of the other and their final states will differ.
         with self._connections_lock:
-            connections = list(self._subscribed_connections)
-        for connection in connections:
-            if may_suppress and connection is self._current_patch_connection:
-                continue
-            self._pending_writes.append(connection.send_patch_document(event))
+            connections = tuple(
+                connection for connection in self._subscribed_connections
+                if not may_suppress or connection is not self._current_patch_connection
+            )
+        if connections:
+            self._pending_writes.append(_PendingPatch(event, connections[0].protocol, connections))
+
+    async def _run_in_executor[T](self, func: Callable[..., T], *args: Any) -> T:
+        if self._executor is not None:
+            return await self._executor.run(func, *args)
+
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, partial(func, *args))
+
+    async def _send_pending_patches(self, pending: list[_PendingPatch]) -> None:
+        messages = await self._run_in_executor(_serialize_patches, pending)
+        for message, connections in messages:
+            for connection in connections:
+                await connection.send_message(message)
 
     @_needs_document_lock
-    def _handle_pull(self, message: msg.pull_doc_req, connection: ServerConnection) -> msg.pull_doc_reply:
+    async def _handle_pull(self, message: msg.pull_doc_req, connection: ServerConnection) -> None:
         log.debug(f"Sending pull-doc-reply from session {self.id!r}")
-        return connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], self.document)
+        async def send_reply() -> None:
+            reply = await self._run_in_executor(
+                _serialize_pull_reply,
+                connection.protocol,
+                message.header["msgid"],
+                self.document,
+            )
+            await connection.send_message(reply)
+
+        await _await_cancellation_safe(send_reply())
 
     def _session_callback_added(self, event: SessionCallbackAdded) -> None:
         wrapped = self._wrap_session_callback(event.callback)
@@ -312,7 +366,7 @@ class ServerSession:
         self._callbacks.remove_session_callback(event.callback)
 
     @classmethod
-    def pull(cls, message: msg.pull_doc_req, connection: ServerConnection) -> msg.pull_doc_reply:
+    def pull(cls, message: msg.pull_doc_req, connection: ServerConnection) -> Awaitable[None]:
         ''' Handle a PULL-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_pull(message, connection)
 

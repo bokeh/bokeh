@@ -17,7 +17,7 @@ from __future__ import annotations
 
 # Standard library imports
 import asyncio
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from typing import Any
@@ -43,31 +43,33 @@ class _ServerExecutor:
         loop = asyncio.get_running_loop()
         future = loop.run_in_executor(self._executor, partial(func, *args))
 
-        if not cancel_safe:
-            return await future
-
-        cancellation: asyncio.CancelledError | None = None
-        while not future.done():
-            try:
-                await asyncio.shield(future)
-            except asyncio.CancelledError as error:
-                cancellation = error
-                if future.cancelled():
-                    raise
-
-        if cancellation is not None:
-            # Retrieve any worker exception before preserving cancellation of
-            # the coroutine that owns protected state.
-            try:
-                future.result()
-            except BaseException:
-                pass
-            raise cancellation
-
-        return future.result()
+        return await _await_cancellation_safe(future) if cancel_safe else await future
 
     def shutdown(self, wait: bool = True) -> None:
         self._executor.shutdown(wait=wait, cancel_futures=not wait)
+
+async def _await_cancellation_safe[T](awaitable: Awaitable[T]) -> T:
+    future = asyncio.ensure_future(awaitable)
+    cancellation: asyncio.CancelledError | None = None
+
+    while not future.done():
+        try:
+            await asyncio.shield(future)
+        except asyncio.CancelledError as error:
+            cancellation = error
+            if future.cancelled():
+                raise
+
+    if cancellation is not None:
+        # Retrieve any exception before preserving cancellation of the
+        # coroutine that owns protected state.
+        try:
+            future.result()
+        except BaseException:
+            pass
+        raise cancellation
+
+    return future.result()
 
 #-----------------------------------------------------------------------------
 # Code

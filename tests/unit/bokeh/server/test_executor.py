@@ -60,6 +60,33 @@ async def test_cancel_safe_run_finishes_before_propagating_cancellation() -> Non
 
     executor.shutdown()
 
+async def test_worker_concurrency_is_bounded() -> None:
+    executor = _ServerExecutor(max_workers=1)
+    first_started = Event()
+    first_release = Event()
+    second_started = Event()
+
+    def first_work() -> None:
+        first_started.set()
+        assert first_release.wait(timeout=2)
+
+    first = asyncio.create_task(executor.run(first_work))
+    second = asyncio.create_task(executor.run(second_started.set))
+    try:
+        async with asyncio.timeout(1):
+            while not first_started.is_set():
+                await asyncio.sleep(0)
+
+        await asyncio.sleep(0)
+        assert not second_started.is_set()
+    finally:
+        first_release.set()
+
+    await asyncio.gather(first, second)
+    assert second_started.is_set()
+
+    executor.shutdown()
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
