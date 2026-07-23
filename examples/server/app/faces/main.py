@@ -13,7 +13,7 @@ from datetime import datetime as dt
 import cv2
 
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, Div
 from bokeh.plotting import figure
 from bokeh.sampledata.haar_cascade import frontalface_default_path
 
@@ -29,13 +29,26 @@ video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
 # train our cascade classifier
 face_cascade = cv2.CascadeClassifier(str(frontalface_default_path))
 
+haar_feature = Div(
+    text=r"$$f = \sum_{p \in R_+} I(p) - \sum_{p \in R_-} I(p).$$",
+    styles={
+        "background-color": "transparent",
+        "color": "#f8f9fa",
+        "font-size": "1.2rem",
+        "text-align": "center",
+    },
+    sizing_mode="stretch_width",
+    margin=0,
+    name="haar_feature",
+)
+
 img_plot = figure(width=CAMERA_WIDTH//2, height=CAMERA_HEIGHT//2,
                   x_range=(0, CAMERA_WIDTH), y_range=(0, CAMERA_HEIGHT),
                   x_axis_type=None, y_axis_type=None,
                   tools="", toolbar_location=None, name="image")
 
-image_source = ColumnDataSource(dict(image=[]))
-img_plot.image_rgba('image', x=0, y=0, dw=CAMERA_WIDTH, dh=CAMERA_HEIGHT,
+image_source = ColumnDataSource(dict(image=[], w=[], h=[]))
+img_plot.image_rgba('image', x=0, y=0, dw='w', dh='h',
                     source=image_source)
 
 rect_source = ColumnDataSource(dict(x=[], y=[], w=[], h=[]))
@@ -59,6 +72,10 @@ def update():
 
     if not ret: return
 
+    frame_height, frame_width = frame.shape[:2]
+    img_plot.x_range.end = frame_width
+    img_plot.y_range.end = frame_height
+
     faces_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(faces_frame,
                                           scaleFactor=1.1,
@@ -73,16 +90,17 @@ def update():
         rect_source.data = empty_rects
     else:
         # the faces rects origin is top left so we need to fix up
-        faces = [(x+w/2, CAMERA_HEIGHT-y-h/2, w, h) for x, y, w, h in faces]
+        faces = [(x+w/2, frame_height-y-h/2, w, h) for x, y, w, h in faces]
         rect_source.data = dict(zip(('x', 'y', 'w', 'h'), zip(*faces)))
 
-    image_source.data["image"] = [img_frame]
+    image_source.data = dict(image=[img_frame], w=[frame_width], h=[frame_height])
 
     step_source.stream({
         't': [(dt.now() - t0).total_seconds() * 1000],
         'n': [len(faces)],
     }, rollover=200)
 
+curdoc().add_root(haar_feature)
 curdoc().add_root(img_plot)
 curdoc().add_root(ts_plot)
 curdoc().add_periodic_callback(update, 100)
