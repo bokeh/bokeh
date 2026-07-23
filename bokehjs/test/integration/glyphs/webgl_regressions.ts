@@ -4,12 +4,99 @@ import {display, fig, row} from "#framework/layouts"
 import {SeededRandom} from "#framework/random"
 import {WebGLScenario, require_glglyph} from "#framework/webgl"
 import {range} from "@bokehjs/core/util/array"
-import type {Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
+import type {Float32Buffer, Uint8Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
 
 describe("WebGL legacy interaction regressions", () => {
+  it("should preserve mixed-marker selection sizes through patch, stream, and equal-length selection changes", async () => {
+    const source = new ColumnDataSource({data: {
+      x: [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5],
+      y: [0.2, 1.0, -0.7, 0.8, -0.9, 0.0],
+      marker: ["circle", "circle", "square", "square", "triangle", "triangle"],
+      size: [12, 12, 12, 12, 12, 12],
+      selected_size: [26, 26, 26, 26, 26, 26],
+      color: ["#3b82f6", "#f4a261", "#55a868", "#c9a0dc", "#e76f51", "#7ec8e3"],
+    }})
+    source.selected.indices = [0, 2, 4]
+    const glyph = new Scatter({
+      x: {field: "x"}, y: {field: "y"}, marker: {field: "marker"}, size: {field: "size"},
+      fill_color: {field: "color"}, line_color: {field: "color"}, fill_alpha: 0.8,
+    })
+    const selection_glyph = new Scatter({
+      size: {field: "selected_size"}, fill_color: {field: "color"}, line_color: "black", line_width: 2,
+    })
+    const nonselection_glyph = new Scatter({fill_alpha: 0.35, line_alpha: 0.35})
+    const renderer = new GlyphRenderer({data_source: source, glyph, selection_glyph, nonselection_glyph})
+    const p = fig([450, 260], {
+      output_backend: "webgl", x_range: [-3, 3], y_range: [-1.5, 1.5],
+      title: "Mixed markers: streamed selection-size overrides",
+    })
+    p.renderers.push(renderer)
+    const {view} = await display(p)
+    const renderer_view = view.owner.get_one(renderer)
+
+    type ScatterGLState = {_show_by_type: Map<string, Uint8Buffer>}
+    const selection_gl = require_glglyph(renderer_view.selection_glyph) as unknown as ScatterGLState
+    const nonselection_gl = require_glglyph(renderer_view.nonselection_glyph) as unknown as ScatterGLState
+    function visibility(state: ScatterGLState): [string, number[]][] {
+      const result: [string, number[]][] = []
+      for (const [marker_type, buffer] of state._show_by_type) {
+        const indices: number[] = []
+        for (const [index, show] of buffer.get_array().entries()) {
+          if (show != 0) {
+            indices.push(index)
+          }
+        }
+        if (indices.length != 0) {
+          result.push([marker_type, indices])
+        }
+      }
+      return result.sort(([left], [right]) => left.localeCompare(right))
+    }
+
+    expect(visibility(selection_gl)).to.be.equal([
+      ["circle", [0]], ["square", [2]], ["triangle", [4]],
+    ])
+    expect(visibility(nonselection_gl)).to.be.equal([
+      ["circle", [1]], ["square", [3]], ["triangle", [5]],
+    ])
+
+    const scenario = new WebGLScenario(view)
+    await scenario.mutate(() => {
+      source.patch({marker: [[0, "star"]], size: [[0, 16]]})
+    })
+    expect(visibility(selection_gl)).to.be.equal([
+      ["square", [2]], ["star", [0]], ["triangle", [4]],
+    ])
+    expect(visibility(nonselection_gl)).to.be.equal([
+      ["circle", [1]], ["square", [3]], ["triangle", [5]],
+    ])
+
+    await scenario.mutate(() => {
+      source.stream({
+        x: [0], y: [1.3], marker: ["hex"], size: [14], selected_size: [30], color: ["#8b5cf6"],
+      })
+    })
+    expect(visibility(selection_gl)).to.be.equal([
+      ["square", [2]], ["star", [0]], ["triangle", [4]],
+    ])
+    expect(visibility(nonselection_gl)).to.be.equal([
+      ["circle", [1]], ["hex", [6]], ["square", [3]], ["triangle", [5]],
+    ])
+
+    await scenario.mutate(() => {
+      source.selected.indices = [1, 3, 6]
+    })
+    expect(visibility(selection_gl)).to.be.equal([
+      ["circle", [1]], ["hex", [6]], ["square", [3]],
+    ])
+    expect(visibility(nonselection_gl)).to.be.equal([
+      ["square", [2]], ["star", [0]], ["triangle", [4, 5]],
+    ])
+  })
+
   it.no_image("should preserve mixed-marker visuals through stream, patch, zoom, and reset", async () => {
     const n = 2_000
     const random = new SeededRandom(7)
