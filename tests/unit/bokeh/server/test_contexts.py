@@ -28,6 +28,7 @@ from tornado.ioloop import IOLoop
 # Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import CodeHandler, FunctionHandler
+from bokeh.application.handlers.lifecycle import LifecycleHandler
 from bokeh.io import curdoc
 
 # Module under test
@@ -171,6 +172,30 @@ class TestApplicationContext:
                 assert slow_release.wait(timeout=2)
 
         app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        slow = asyncio.create_task(c.create_session_if_needed("slow"))
+        try:
+            await _wait_for_event(slow_started)
+            fast = await asyncio.wait_for(c.create_session_if_needed("fast"), timeout=1)
+            assert fast.id == "fast"
+        finally:
+            slow_release.set()
+
+        assert (await slow).id == "slow"
+
+    async def test_session_created_does_not_block_other_sessions(self) -> None:
+        slow_started = threading.Event()
+        slow_release = threading.Event()
+        handler = LifecycleHandler()
+
+        def on_session_created(session_context) -> None:
+            if session_context.id == "slow":
+                slow_started.set()
+                assert slow_release.wait(timeout=2)
+
+        handler._on_session_created = on_session_created
+        app = Application(handler)
         c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
 
         slow = asyncio.create_task(c.create_session_if_needed("slow"))

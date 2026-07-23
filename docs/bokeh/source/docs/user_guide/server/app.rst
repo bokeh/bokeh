@@ -593,6 +593,12 @@ include any or all of the following conventionally named functions:
         # If present, this function executes when the server closes a session.
         pass
 
+The synchronous ``on_session_created`` function defined in ``app_hooks.py``
+runs on a worker thread so that expensive session startup work does not block
+the server's event loop. Hooks for different sessions may run concurrently.
+Use ``session_context.document`` to access the new session's document, and do
+not rely on event-loop or main-thread state in this hook.
+
 You can also define ``on_session_destroyed`` lifecycle hooks directly on the
 ``Document`` being served. This makes it easy to clean up after a user closes
 a session by performing such actions as database connection shutdown without
