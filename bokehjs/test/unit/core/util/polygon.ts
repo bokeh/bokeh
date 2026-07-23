@@ -615,31 +615,17 @@ describe("polygon_utils", () => {
       }
     })
 
-    it("should straddle boundary symmetrically (inner + outer equidistant from original)", () => {
-      // For an axis-aligned square with 90° corners, each miter has cos(45°)
-      // scaling. The inner and outer vertices should be equidistant from the
-      // original mathematical boundary position, ensuring that the midpoint
-      // of the skirt lies on the original boundary.
-      const flat_coords = [0, 0, 10, 0, 10, 10, 0, 10]
+    it("should preserve fill topology when boundary detail is smaller than the AA width", () => {
+      // Moving these closely spaced concave boundary vertices by the AA width
+      // can flip skinny earcut triangles and make translucent triangles overlap.
+      const flat_coords = [0, 0, 0.1, 0, 0.15, -0.08, 0.2, 0, 1, 0, 1, 1, 0, 1]
       const rings = [flat_coords]
       const aa = 1.5
-      const geom = generate_skirt_geometry(flat_coords, rings, SQUARE_INDICES, aa)
+      const tri_indices = [5, 6, 0, 0, 1, 2, 2, 3, 4, 4, 5, 0, 0, 2, 4]
+      const geom = generate_skirt_geometry(flat_coords, rings, tri_indices, aa)
 
-      for (let i = 0; i < 4; i++) {
-        const orig_x = flat_coords[i * 2]
-        const orig_y = flat_coords[i * 2 + 1]
-
-        const inner_x = geom.positions[i * 2]
-        const inner_y = geom.positions[i * 2 + 1]
-
-        const outer_x = geom.positions[(4 + i) * 2]
-        const outer_y = geom.positions[(4 + i) * 2 + 1]
-
-        // Midpoint of inner and outer should equal the original boundary position
-        const mid_x = (inner_x + outer_x) / 2
-        const mid_y = (inner_y + outer_y) / 2
-        expect(mid_x).to.be.similar(orig_x, 0.001)
-        expect(mid_y).to.be.similar(orig_y, 0.001)
+      for (let i = 0; i < flat_coords.length; i++) {
+        expect(geom.positions[i]).to.be.similar(flat_coords[i], 1e-6)
       }
     })
 

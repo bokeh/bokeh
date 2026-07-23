@@ -14,6 +14,11 @@ import {split_rings, classify_rings, build_line_from_ring, generate_skirt_geomet
 import type {SkirtGeometry, RingLineData} from "core/util/polygon"
 import earcut from "earcut"
 
+type GroupTopology = {
+  ring_indices: number[]
+  tri_indices: number[]
+}
+
 export class PatchGL extends BaseGLGlyph {
   // Fill buffers
   private _positions?: Float32Buffer
@@ -56,6 +61,7 @@ export class PatchGL extends BaseGLGlyph {
   _ring_data: RingLineData[] = []
 
   private _pv_dirty = true
+  private _topology?: GroupTopology[]
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: PatchView) {
     super(regl_wrapper, glyph)
@@ -64,6 +70,7 @@ export class PatchGL extends BaseGLGlyph {
   draw(_indices: number[], main_glyph: GlyphView, transform: Transform): void {
     const main_patch = main_glyph as PatchView
     const main_gl = main_patch.glglyph!
+    const derived_data_changed = this !== main_gl && this.data_changed
 
     if (this.visuals_changed) {
       this._set_visuals()
@@ -71,11 +78,17 @@ export class PatchGL extends BaseGLGlyph {
       this._pv_dirty = true
     }
 
-    const data_changed_or_mapped = main_gl.data_changed || main_gl.data_mapped
+    const data_changed = main_gl.data_changed
+    const data_changed_or_mapped = data_changed || main_gl.data_mapped
     if (data_changed_or_mapped) {
-      main_gl._set_data()
+      main_gl._set_data(data_changed)
       main_gl.data_changed = false
       main_gl.data_mapped = false
+      this._pv_dirty ||= data_changed || derived_data_changed
+    }
+    if (this !== main_gl && (this.data_changed || this.data_mapped)) {
+      this.data_changed = false
+      this.data_mapped = false
       this._pv_dirty = true
     }
 
@@ -217,13 +230,30 @@ export class PatchGL extends BaseGLGlyph {
     }
   }
 
-  _set_data(): void {
+  _set_data(data_changed: boolean = true): void {
     const {sx, sy} = this.glyph
     const rings = split_rings(sx, sy)
 
     if (rings.length > 0) {
-      // Classify rings into groups (outer+holes vs disjoint parts)
-      const groups = classify_rings(rings)
+      const topology_invalid = this._topology == null || this._topology.some(({ring_indices}) =>
+        ring_indices.some((i) => i >= rings.length))
+      const topology_changed = data_changed || topology_invalid
+      if (topology_changed) {
+        const groups = classify_rings(rings)
+        this._topology = groups.map(({flat_coords, rings: group_rings}) => {
+          const ring_indices = group_rings.map((ring) => rings.indexOf(ring))
+          const hole_indices: number[] = []
+          let offset = 0
+          for (let r = 0; r < group_rings.length; r++) {
+            if (r > 0) {
+              hole_indices.push(offset)
+            }
+            offset += group_rings[r].length / 2
+          }
+          const tri_indices = earcut(flat_coords, hole_indices.length > 0 ? hole_indices : undefined, 2)
+          return {ring_indices, tri_indices}
+        })
+      }
 
       let total_nvertices = 0
       let total_ntriangles = 0
@@ -232,18 +262,9 @@ export class PatchGL extends BaseGLGlyph {
 
       // Triangulate each group independently
       const group_geoms: SkirtGeometry[] = []
-      for (const group of groups) {
-        const {flat_coords, rings: group_rings} = group
-        const hole_indices: number[] = []
-        let offset = 0
-        for (let r = 0; r < group_rings.length; r++) {
-          if (r > 0) {
-            hole_indices.push(offset)
-          }
-          offset += group_rings[r].length / 2
-        }
-
-        const tri_indices = earcut(flat_coords, hole_indices.length > 0 ? hole_indices : undefined, 2)
+      for (const {ring_indices, tri_indices} of this._topology!) {
+        const group_rings = ring_indices.map((i) => rings[i])
+        const flat_coords = group_rings.flat()
         const geom = generate_skirt_geometry(flat_coords, group_rings, tri_indices, POLYGON_AA_WIDTH)
 
         group_geoms.push(geom)
@@ -267,7 +288,7 @@ export class PatchGL extends BaseGLGlyph {
       }
       const ed_array = this._edge_distance.get_sized_array(total_nvertices)
 
-      const elem_array = new Uint32Array(total_elements)
+      const elem_array = topology_changed || this._elements == null ? new Uint32Array(total_elements) : null
       let pos_offset = 0
       let ed_offset = 0
       let elem_offset = 0
@@ -280,8 +301,10 @@ export class PatchGL extends BaseGLGlyph {
         ed_array.set(geom.edge_distance, ed_offset)
         ed_offset += geom.edge_distance.length
 
-        for (let j = 0; j < geom.indices.length; j++) {
-          elem_array[elem_offset + j] = geom.indices[j] + vertex_offset
+        if (elem_array != null) {
+          for (let j = 0; j < geom.indices.length; j++) {
+            elem_array[elem_offset + j] = geom.indices[j] + vertex_offset
+          }
         }
         elem_offset += geom.indices.length
         vertex_offset += geom.nvertices
@@ -290,16 +313,16 @@ export class PatchGL extends BaseGLGlyph {
       this._positions.update()
       this._edge_distance.update()
 
-      // Create element buffer via regl
-      if (this._elements != null) {
-        this._elements.destroy()
+      // Element topology is data-space invariant, so retain it across mapping.
+      if (elem_array != null) {
+        this._elements?.destroy()
+        this._elements = this.regl_wrapper.elements({
+          usage: "static",
+          primitive: "triangles",
+          data: elem_array,
+          type: "uint32",
+        })
       }
-      this._elements = this.regl_wrapper.elements({
-        usage: "static",
-        primitive: "triangles",
-        data: elem_array,
-        type: "uint32",
-      })
 
       // Build line data for all rings (outer boundary + holes + disjoint)
       this._ring_data = []
@@ -310,10 +333,14 @@ export class PatchGL extends BaseGLGlyph {
         }
       }
     } else {
+      if (data_changed) {
+        this._elements?.destroy()
+        this._elements = null
+        this._topology = []
+      }
       this._triangle_count = 0
       this._nvertices = 0
       this._ring_data = []
-      this._edge_distance = undefined
     }
   }
 
