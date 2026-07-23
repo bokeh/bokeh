@@ -194,6 +194,16 @@ describe("polygon_utils", () => {
       expect(groups.length).to.be.equal(2)
     })
 
+    it("should reject a partial bbox overlap as containment", () => {
+      const outer = [0, 0, 10, 0, 10, 10, 0, 10]
+      // The first point is inside outer, but the ring extends outside it.
+      const overlap = [5, 5, 13, 5, 13, 13, 5, 13]
+      const groups = classify_rings([outer, overlap])
+      expect(groups.length).to.be.equal(2)
+      expect(groups[0].rings).to.be.equal([outer])
+      expect(groups[1].rings).to.be.equal([overlap])
+    })
+
     it("should handle empty rings array", () => {
       const groups = classify_rings([])
       expect(groups).to.be.equal([])

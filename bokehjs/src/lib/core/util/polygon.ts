@@ -319,6 +319,34 @@ export type TriangulationGroup = {
   flat_coords: number[]
 }
 
+type RingBounds = {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+}
+
+function ring_bounds(ring: number[]): RingBounds {
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+  for (let i = 0; i < ring.length; i += 2) {
+    const x = ring[i]
+    const y = ring[i + 1]
+    x0 = Math.min(x0, x)
+    y0 = Math.min(y0, y)
+    x1 = Math.max(x1, x)
+    y1 = Math.max(y1, y)
+  }
+  return {x0, y0, x1, y1}
+}
+
+function bounds_contain(outer: RingBounds, inner: RingBounds): boolean {
+  return outer.x0 <= inner.x0 && outer.y0 <= inner.y0 &&
+         outer.x1 >= inner.x1 && outer.y1 >= inner.y1
+}
+
 /** Classify split rings according to the even-odd fill rule.
  *  Each even-depth ring starts a triangulation group and its direct odd-depth
  *  children are holes. Nested islands therefore become independent groups,
@@ -331,21 +359,25 @@ export function classify_rings(rings: number[][]): TriangulationGroup[] {
   }
 
   const areas = rings.map((ring) => Math.abs(signed_area_2(ring)))
+  const bounds = rings.map(ring_bounds)
   const parents = new Int32Array(n).fill(-1)
+  const order = Array.from({length: n}, (_, i) => i)
+  order.sort((i, j) => areas[i] - areas[j])
 
-  for (let i = 0; i < n; i++) {
+  for (let k = 0; k < n; k++) {
+    const i = order[k]
     const ring = rings[i]
     if (ring.length < 2) {
       continue
     }
-    let parent_area = Infinity
-    for (let j = 0; j < n; j++) {
-      if (i == j || areas[j] <= areas[i]) {
+    for (let l = k + 1; l < n; l++) {
+      const j = order[l]
+      if (areas[j] <= areas[i] || !bounds_contain(bounds[j], bounds[i])) {
         continue
       }
-      if (areas[j] < parent_area && point_in_ring(ring[0], ring[1], rings[j])) {
+      if (point_in_ring(ring[0], ring[1], rings[j])) {
         parents[i] = j
-        parent_area = areas[j]
+        break
       }
     }
   }
@@ -360,17 +392,20 @@ export function classify_rings(rings: number[][]): TriangulationGroup[] {
     return depths[i] = parent == -1 ? 0 : depth_of(parent) + 1
   }
 
+  const children = Array.from({length: n}, () => new Array<number>())
+  for (let i = 0; i < n; i++) {
+    const parent = parents[i]
+    if (parent != -1) {
+      children[parent].push(i)
+    }
+  }
+
   const groups: TriangulationGroup[] = []
   for (let i = 0; i < n; i++) {
     if (depth_of(i) % 2 != 0) {
       continue
     }
-    const group_rings = [rings[i]]
-    for (let j = 0; j < n; j++) {
-      if (parents[j] == i && depth_of(j) % 2 == 1) {
-        group_rings.push(rings[j])
-      }
-    }
+    const group_rings = [rings[i], ...children[i].map((j) => rings[j])]
     groups.push({
       rings: group_rings,
       flat_coords: group_rings.flat(),
