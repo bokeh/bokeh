@@ -1,11 +1,11 @@
-from typing import Any, Literal, TypeAlias, TypedDict
+from typing import Any, Literal, TypedDict
 
 from ..common.by import _ByType
 from .webelement import WebElement
 
-LogType: TypeAlias = Literal["browser", "driver", "client", "server"]
+type LogType = Literal["browser", "driver", "client", "server"]
 
-LogLevel: TypeAlias = Literal["WARNING", "ERROR", "SEVERE"]
+type LogLevel = Literal["WARNING", "ERROR", "SEVERE"]
 
 class LogEntry(TypedDict):
     message: str

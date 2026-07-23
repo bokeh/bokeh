@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Sequence, TypeAlias
+from typing import Any, Sequence
 
 # External imports
 import numpy as np
@@ -39,10 +39,10 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-Num: TypeAlias = int | float
+type Num = int | float
 
 # XXX: figure out how to type this properly (numpy >= 1.21)
-Data: TypeAlias = dict[str, Sequence[Num] | Sequence[Sequence[Num]] | npt.NDArray[Any]]
+type Data = dict[str, Sequence[Num] | Sequence[Sequence[Num]] | npt.NDArray[Any]]
 
 def cds_data_almost_equal(data1: Data, data2: Data, rtol: float = 1e-09, atol: float = 0.0) -> bool:
     '''Compares data dictionaries containing floats, lists and arrays

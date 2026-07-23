@@ -28,8 +28,8 @@ export class MenuView extends UIElementView {
 
   protected _menu_views: ViewStorage<Menu> = new Map()
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this._menu_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this._menu_views.values()]
   }
 
   private _menu_items: MenuItemLike[] = []

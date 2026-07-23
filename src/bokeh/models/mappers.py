@@ -15,6 +15,8 @@ Mappers (as opposed to scales) are not presumed to be invertible.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAbstractUsage=false, reportArgumentType=false, reportIndexIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

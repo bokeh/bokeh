@@ -33,7 +33,13 @@ import sys
 import uuid
 from functools import lru_cache
 from threading import Lock
-from typing import TYPE_CHECKING, Any, TypeGuard
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Protocol,
+    TypeGuard,
+    cast,
+)
 
 # External imports
 import numpy as np
@@ -48,6 +54,9 @@ if TYPE_CHECKING:
     import pandas as pd
 
     from ..core.types import ID
+
+class _FilledMaskedArray(Protocol):
+    def filled(self, fill_value: Any = ...) -> npt.NDArray[Any]: ...
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -364,13 +373,13 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
         array = _cast_if_can(array, np.uint32)
 
     if isinstance(array, np.ma.MaskedArray):
-        array = array.filled(np.nan)
+        array = cast(_FilledMaskedArray, array).filled(np.nan)
     if not array.flags["C_CONTIGUOUS"]:
         array = np.ascontiguousarray(array)
 
     return array
 
-def transform_series(series: pd.Series[Any] | pd.Index[Any] | pd.api.extensions.ExtensionArray) -> npt.NDArray[Any]:
+def transform_series(series: pd.Series[Any] | pd.Index[Any] | pd.api.extensions.ExtensionArray) -> npt.NDArray[Any]:  # pyright: ignore[reportInvalidTypeArguments]
     ''' Transforms a Pandas series into serialized form
 
     Args:

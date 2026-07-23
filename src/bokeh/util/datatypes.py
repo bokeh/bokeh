@@ -21,7 +21,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Generic, TypeVar, cast
+from collections.abc import (
+    Iterable,
+    Mapping,
+    Set,
+    Sized,
+)
+from typing import Protocol, TypeGuard, cast
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -29,16 +35,26 @@ from typing import Generic, TypeVar, cast
 
 __all__ = (
     'MultiValuedDict',
+    'SequenceLike',
+    'is_SequenceLike',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-K = TypeVar("K")
-V = TypeVar("V")
+class SequenceLike[T](Iterable[T], Sized, Protocol):
+    """A sized iterable with a stable iteration order."""
 
-class MultiValuedDict(Generic[K, V]):
+def is_SequenceLike(obj: object) -> TypeGuard[SequenceLike[object]]:
+    """Whether an object is a sized, ordered iterable."""
+    return (
+        isinstance(obj, Iterable)
+        and isinstance(obj, Sized)
+        and not isinstance(obj, (str, bytes, Mapping, Set))
+    )
+
+class MultiValuedDict[K, V]:
     ''' Store a mapping from keys to multiple values with minimal overhead.
 
     Avoids storing empty collections.

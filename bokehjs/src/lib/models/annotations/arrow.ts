@@ -33,8 +33,8 @@ export class ArrowView extends DataAnnotationView {
 
   protected _angles: ScreenArray
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this.start, this.end]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this.start, this.end]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -54,6 +54,18 @@ export class ArrowView extends DataAnnotationView {
     const indices = Indices.all_set(this._x_start.length)
     this.start?.set_data(source, indices)
     this.end?.set_data(source, indices)
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const update = () => {
+      this.set_data(this.model.source)
+      this.request_paint()
+    }
+
+    this.on_transitive_change(this.model.properties.start, update)
+    this.on_transitive_change(this.model.properties.end, update)
   }
 
   map_data(): void {

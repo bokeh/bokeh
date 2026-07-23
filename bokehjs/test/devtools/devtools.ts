@@ -1,6 +1,3 @@
-import type {Protocol} from "devtools-protocol"
-import CDP from "chrome-remote-interface"
-
 import fs from "node:fs"
 import path from "node:path"
 import readline from "node:readline"
@@ -9,40 +6,15 @@ import chalk from "chalk"
 import yargs from "yargs"
 import {Bar, Presets} from "cli-progress"
 
-import type {Box, State} from "./baselines.js"
-import {create_baseline, diff_baseline, load_baselines} from "./baselines.js"
-import {diff_image} from "./image.js"
+import {load_baselines} from "./baselines.js"
 import {platform} from "./sys.js"
-
-const MAX_INT32 = 2147483647
-export class Random {
-  private seed: number
-
-  constructor(seed: number) {
-    this.seed = seed % MAX_INT32
-    if (this.seed <= 0) {
-      this.seed += MAX_INT32 - 1
-    }
-  }
-
-  integer(): number {
-    this.seed = (48271*this.seed) % MAX_INT32
-    return this.seed
-  }
-
-  float(): number {
-    return (this.integer() - 1) / (MAX_INT32 - 1)
-  }
-}
-
-function shuffle<T>(array: T[], random: Random): void {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(random.float()*(i + 1))
-    const temp = array[i]
-    array[i] = array[j]
-    array[j] = temp
-  }
-}
+import type {Suite, TestRunContext, ScreenshotMode} from "./types.js"
+import {Exit} from "./types.js"
+import {descriptions, description, encode, show_tree} from "./format.js"
+import {BrowserManager, Value, Failure} from "./browser.js"
+import {TestDiscovery, type TestCase} from "./discovery.js"
+import {MetricsCollector} from "./metrics.js"
+import {TestRunner} from "./test-runner.js"
 
 let rl: readline.Interface | undefined
 if (process.platform == "win32") {
@@ -80,325 +52,99 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv
+const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 
-interface CallFrame {
-  name: string
-  url: string
-  line: number
-  col: number
-}
+function format_output(test_case: TestCase): string | null {
+  const [suites, test, status] = test_case
 
-interface Err {
-  text: string
-  url: string
-  line: number
-  col: number
-  trace: CallFrame[]
-}
+  if ((status.failure ?? false) || (status.timeout ?? false)) {
+    const output = show_tree(suites, test)
 
-class Exit extends Error {
-  constructor(public code: number) {
-    super(`exit: ${code}`)
+    for (const error of status.errors) {
+      output.push(error)
+    }
+
+    return output.join("\n")
+  } else {
+    return null
   }
-}
-
-class TimeoutError extends Error {
-  constructor() {
-    super("timeout")
-  }
-}
-
-function timeout(ms: number): Promise<void> {
-  return new Promise((_resolve, reject) => {
-    const timer = setTimeout(() => reject(new TimeoutError()), ms)
-    timer.unref()
-  })
-}
-
-function encode(s: string): string {
-  return s.replace(/[ \/\[\]:]/g, "_")
-}
-
-type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, scale?: number, no_image?: boolean}
-
-type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
-
-type TestRunContext = {
-  chromium_version: number
 }
 
 async function run_tests(ctx: TestRunContext): Promise<boolean> {
-  let client
+  const browser = new BrowserManager()
   let failure = false
   try {
-    client = await CDP({port, host})
-    const {Emulation, Network, Browser, Page, DOM, Runtime, Log, Performance} = client
+    await browser.connect(port, host)
+
     try {
-      function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
-        return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
-          return {name: functionName != "" ? functionName : "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
-        })
-      }
-
-      function handle_exception(exceptionDetails: Protocol.Runtime.ExceptionDetails): Err {
-        const {text, exception, url, lineNumber, columnNumber, stackTrace} = exceptionDetails
-        return {
-          text: exception != null && exception.description != null ? exception.description : text,
-          url: url ?? "(inline)",
-          line: lineNumber+1,
-          col: columnNumber+1,
-          trace: stackTrace != null ? collect_trace(stackTrace) : [],
-        }
-      }
-
-      type LogEntry = {level: "warning" | "error", text: string}
-
-      let entries: LogEntry[] = []
-      let exceptions: Err[] = []
-
-      Runtime.consoleAPICalled(({type, args}) => {
-        if (type == "warning" || type == "error") {
-          const text = args.map(({value}) => value ? value.toString() : "").join(" ")
-          entries.push({level: type, text})
-        }
-      })
-
-      Log.entryAdded(({entry}) => {
-        const {level, text} = entry
-        if (level == "warning" || level == "error") {
-          entries.push({level, text})
-        }
-      })
-
-      Runtime.exceptionThrown(({exceptionDetails}) => {
-        exceptions.push(handle_exception(exceptionDetails))
-      })
-
       function fail(msg: string, code: number = 1): never {
         console.log(msg)
         throw new Exit(code)
       }
 
-      // type Nominal<T, Name> = T & {[Symbol.species]: Name}
+      await browser.initialize_page(url)
+      await browser.evaluate("preload_fonts()")
 
-      class Value<T> {
-        constructor(public value: T) {}
-      }
-      class Failure {
-        constructor(public text: string) {}
-      }
-      class Timeout {}
-
-      async function with_timeout<T>(promise: Promise<T>, wait: number): Promise<T | Timeout> {
-        try {
-          return await Promise.race([promise, timeout(wait)]) as T
-        } catch (err) {
-          if (err instanceof TimeoutError) {
-            return new Timeout()
-          } else {
-            throw err
-          }
-        }
-      }
-
-      async function evaluate<T>(expression: string, timeout: number = 10000): Promise<Value<T> | Failure | Timeout> {
-        const output = await with_timeout(Runtime.evaluate({expression, returnByValue: true, awaitPromise: true}), timeout)
-        if (output instanceof Timeout) {
-          return output
-        } else {
-          const {result, exceptionDetails} = output
-          if (exceptionDetails == null) {
-            return new Value(result.value)
-          } else {
-            const {text} = handle_exception(exceptionDetails)
-            return new Failure(text)
-          }
-        }
-      }
-
-      async function is_ready(): Promise<boolean> {
-        const expr = "typeof Bokeh !== 'undefined'"
-        const result = await evaluate<boolean>(expr)
-        return result instanceof Value && result.value
-      }
-
-      await Network.enable()
-      await Network.setCacheDisabled({cacheDisabled: true})
-
-      await Page.enable()
-      await Page.navigate({url: "about:blank"})
-
-      await DOM.enable({})
-
-      await Runtime.enable()
-      await Log.enable()
-      await Performance.enable({timeDomain: "timeTicks"})
-
-      async function override_metrics(settings: {dpr?: number, scale?: number} = {}): Promise<void> {
-        await Emulation.setDeviceMetricsOverride({
-          width: 2000,
-          height: 4000,
-          deviceScaleFactor: settings.dpr ?? 1,
-          mobile: false,
-          scale: settings.scale ?? 1,
-        })
-      }
-
-      await override_metrics()
-      await Emulation.setFocusEmulationEnabled({enabled: true})
-
-      await Browser.grantPermissions({
-        permissions: ["clipboardReadWrite"],
-      })
-
-      const {errorText} = await Page.navigate({url})
-
-      if (errorText != null) {
-        fail(errorText)
-      }
-
-      if (exceptions.length != 0) {
-        for (const exc of exceptions) {
-          console.log(exc.text)
-        }
-
-        fail(`failed to load ${url}`)
-      }
-
-      await Page.loadEventFired()
-      await evaluate("preload_fonts()")
-
-      const ready = await is_ready()
+      const ready = await browser.is_ready()
       if (!ready) {
         fail(`failed to render ${url}`)
       }
 
-      const result = await evaluate<Suite>("Tests.top_level")
+      const result = await browser.evaluate<Suite>("Tests.top_level")
       if (!(result instanceof Value)) {
-        // TODO: Failure.text
         const reason = result instanceof Failure ? result.text : "timeout"
         fail(`internal error: failed to collect tests: ${reason}`)
       }
 
       const top_level = result.value
 
-      type Status = {
-        success?: boolean
-        failure?: boolean
-        timeout?: boolean
-        skipped?: boolean
-        errors: string[]
-        baseline_name?: string
-        baseline?: string
-        baseline_diff?: string
-        reference?: Buffer
-        image?: Buffer
-        image_diff?: Buffer
-        existing_blf?: string
-        existing_png?: Buffer
-      }
-
-      type TestCase = [Suite[], Test, Status]
-
-      function* iter({suites, tests}: Suite, parents: Suite[] = []): Iterable<TestCase> {
-        for (const suite of suites) {
-          yield* iter(suite, parents.concat(suite))
-        }
-
-        for (const test of tests) {
-          yield [parents, test, {errors: []}]
-        }
-      }
-
-      function descriptions(suites: Suite[], test: Test): string[] {
-        return [...suites, test].map((obj) => obj.description)
-      }
-
-      function description(suites: Suite[], test: Test, sep: string = " "): string {
-        return descriptions(suites, test).join(sep)
-      }
-
-      const all_tests = [...iter(top_level)]
+      const discovery = new TestDiscovery()
+      discovery.collect_tests(top_level)
 
       if (randomize) {
-        const random = new Random(seed)
-        console.log(`randomizing with seed ${seed}`)
-        shuffle(all_tests, random)
+        discovery.randomize(seed)
       }
 
-      function show_tree(suites: Suite[], test: Test): string[] {
-        const output = []
-        let depth = 0
-        for (const suite of [...suites, test]) {
-          const is_last = depth == suites.length
-          const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
-          output.push(`${prefix} ${suite.description}`)
-          depth++
+      const desc_errors = discovery.validate_descriptions()
+      if (desc_errors.length > 0) {
+        for (const error of desc_errors) {
+          console.log(error)
         }
-        return output
-      }
-
-      const invalid_chars = ['"']
-      let has_invalid_chars = false
-      for (const [suites, test] of all_tests) {
-        const test_description = description(suites, test)
-        for (const c of invalid_chars) {
-          if (test_description.includes(c)) {
-            has_invalid_chars = true
-            const output = show_tree(suites, test)
-            output.push(`test description contains invalid characters: ${c}`)
-            console.log(output.join("\n"))
-          }
-        }
-      }
-      if (has_invalid_chars) {
         fail("one or more test descriptions use invalid characters")
       }
 
-      if (keyword != null || grep != null) {
-        if (keyword != null) {
-          const keywords = keyword
-          for (const [suites, test] of all_tests) {
-            if (!keywords.some((keyword) => description(suites, test).includes(keyword))) {
-              test.omit = true
-            }
-          }
-        }
+      discovery.apply_filters(keyword, grep)
 
-        if (grep != null) {
-          const regexes = grep.map((re) => new RegExp(re))
-          for (const [suites, test] of all_tests) {
-            if (!regexes.some((regex) => description(suites, test).match(regex) != null)) {
-              test.omit = true
-            }
-          }
-        }
-      }
-
-      const selected_tests = all_tests.filter(([, test]) => test.omit !== true)
-
-      const num_all_tests = all_tests.length
-      const num_selected_tests = selected_tests.length
+      const all_tests = discovery.get_all_tests()
+      const selected_tests = discovery.get_selected_tests()
+      const {all: num_all_tests, selected: num_selected_tests} = discovery.get_counts()
 
       if (num_selected_tests == 0) {
         fail("nothing to test")
       }
 
-      const baselines_root = argv["baselines-root"]
+      const baselines_root = argv["baselines-root"] ?? null
       const baseline_names = new Set<string>()
 
-      if (baselines_root != null) {
-        const baseline_paths = []
+      for (const test_case of all_tests) {
+        const [suites, test, status] = test_case
 
-        for (const test_case of selected_tests) {
-          const [suites, test, _status] = test_case
-          const baseline_name = encode(description(suites, test, "__"))
-          const baseline_path = path.join(baselines_root, platform, baseline_name)
-          baseline_paths.push(baseline_path)
+        const baseline_name = encode(description(suites, test, "__"))
+        status.baseline_name = baseline_name
+
+        if (baseline_names.has(baseline_name)) {
+          status.errors.push("duplicated description")
+          status.failure = true
+        } else {
+          baseline_names.add(baseline_name)
         }
+      }
+
+      if (baselines_root != null) {
+        const baseline_paths = selected_tests.map(([,, status]) =>
+          path.join(baselines_root, platform, status.baseline_name!),
+        )
 
         const baselines = await load_baselines(baseline_paths, ref)
 
@@ -424,17 +170,6 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       let skipped = 0
       let failed = 0
 
-      function to_seq(suites: Suite[], test: Test): [number[], number] {
-        let current = top_level
-        const si = []
-        for (const suite of suites) {
-          si.push(current.suites.indexOf(suite))
-          current = suite
-        }
-        const ti = current.tests.indexOf(test)
-        return [si, ti]
-      }
-
       function state(): object {
         function format(value: number, single: string, plural?: string): string {
           if (value == 0) {
@@ -453,66 +188,23 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
       progress.start(selected_tests.length, 0, state())
 
-      type MetricKeys = "JSEventListeners" | "Nodes" | "Resources" | "LayoutCount" | "RecalcStyleCount" | "JSHeapUsedSize" | "JSHeapTotalSize"
-      const metrics: {[key in MetricKeys]: number[]} = {
-        JSEventListeners: [],
-        Nodes: [],
-        Resources: [],
-        LayoutCount: [],
-        RecalcStyleCount: [],
-        JSHeapUsedSize: [],
-        JSHeapTotalSize: [],
+      const metrics = baselines_root != null ? new MetricsCollector() : null
+      const runner = new TestRunner(browser, ctx, baselines_root, screenshot, pedantic, top_level, ref, metrics)
+
+      if (metrics != null) {
+        await metrics.add_datapoint(browser)
       }
 
-      async function add_datapoint(): Promise<void> {
-        if (baselines_root == null) {
-          return
-        }
-        const data = await Performance.getMetrics()
-        for (const {name, value} of data.metrics) {
-          switch (name) {
-            case "JSEventListeners":
-            case "Nodes":
-            case "Resources":
-            case "LayoutCount":
-            case "RecalcStyleCount":
-            case "JSHeapUsedSize":
-            case "JSHeapTotalSize":
-              metrics[name].push(value)
-          }
-        }
-      }
-
-      await add_datapoint()
-
-      const out_stream = await (async () => {
+      const out_stream = (() => {
         if (baselines_root != null) {
           const report_out = path.join(baselines_root, platform, "report.out")
-          await fs.promises.writeFile(report_out, "")
-
-          const stream = fs.createWriteStream(report_out, {flags: "a"})
+          const stream = fs.createWriteStream(report_out, {flags: "w"})
           stream.write(`Tests report output generated on ${new Date().toISOString()}:\n`)
           return stream
         } else {
           return null
         }
       })()
-
-      function format_output(test_case: TestCase): string | null {
-        const [suites, test, status] = test_case
-
-        if ((status.failure ?? false) || (status.timeout ?? false)) {
-          const output = show_tree(suites, test)
-
-          for (const error of status.errors) {
-            output.push(error)
-          }
-
-          return output.join("\n")
-        } else {
-          return null
-        }
-      }
 
       function append_report_out(test_case: TestCase): void {
         if (out_stream != null) {
@@ -525,221 +217,11 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
       }
 
-      for (const test_case of all_tests) {
-        const [suites, test, status] = test_case
-
-        const baseline_name = encode(description(suites, test, "__"))
-        status.baseline_name = baseline_name
-
-        if (baseline_names.has(baseline_name)) {
-          status.errors.push("duplicated description")
-          status.failure = true
-        } else {
-          baseline_names.add(baseline_name)
-        }
-      }
-
       try {
         for (const test_case of selected_tests) {
-          const [suites, test, status] = test_case
+          const [,, status] = test_case
 
-          entries = []
-          exceptions = []
-
-          const baseline_name = status.baseline_name!
-
-          if (test.skip) {
-            status.skipped = true
-          } else {
-            async function run_test(attempt: number | null, status: Status): Promise<boolean> {
-              let may_retry = false
-
-              const seq = JSON.stringify(to_seq(suites, test))
-              const ctx_ = JSON.stringify(ctx)
-
-              const output = await (async () => {
-                let attempts = 2
-
-                do {
-                  const output = await (async () => {
-                    if (test.dpr != null || test.scale != null) {
-                      await override_metrics({dpr: test.dpr, scale: test.scale})
-                    }
-                    try {
-                      return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
-                    } finally {
-                      if (test.dpr != null || test.scale != null) {
-                        await override_metrics()
-                      }
-                    }
-                  })()
-
-                  if (attempts-- <= 0 || !(output instanceof Timeout)) {
-                    return output
-                  }
-                } while (true)
-              })()
-
-              await add_datapoint()
-
-              try {
-                const errors = entries.filter((entry) => entry.level == "error")
-                if (errors.length != 0) {
-                  status.errors.push(...errors.map((entry) => entry.text))
-                  // status.failure = true // XXX: too chatty right now
-                }
-
-                if (exceptions.length != 0) {
-                  status.errors.push(...exceptions.map((exc) => exc.text))
-                  status.failure = true // XXX: too chatty right now
-                }
-
-                if (output instanceof Failure) {
-                  status.errors.push(output.text)
-                  status.failure = true
-                } else if (output instanceof Timeout) {
-                  status.errors.push("timeout")
-                  status.timeout = true
-                } else {
-                  const result = output.value
-
-                  if (result.error != null) {
-                    const {str, stack} = result.error
-                    status.errors.push(stack ?? str)
-                    status.failure = true
-                  }
-
-                  if (baselines_root != null) {
-                    const baseline_path = path.join(baselines_root, platform, baseline_name)
-
-                    const {state: state_early} = result
-                    if (state_early == null) {
-                      status.errors.push("state not present in output")
-                      status.failure = true
-                    } else {
-                      const output = await evaluate<State | null>(`Tests.get_state(${seq})`)
-                      if (!(output instanceof Value) || output.value == null) {
-                        status.errors.push("state not present in output")
-                        status.failure = true
-                      } else {
-                        const state = output.value
-
-                        await (async () => {
-                          const baseline_early = create_baseline([state_early])
-                          const baseline = create_baseline([state])
-
-                          if (pedantic) {
-                            // This shouldn't happen, but sometimes does, especially in
-                            // interactive tests. This needs to be resolved earlier, but
-                            // at least the state will be consistent with images.
-                            if (baseline_early != baseline) {
-                              status.errors.push("inconsistent state")
-                              status.errors.push("early:", baseline_early)
-                              status.errors.push("later:", baseline)
-                              status.failure = true
-                              return
-                            }
-                          }
-
-                          const baseline_file = `${baseline_path}.blf`
-                          await fs.promises.writeFile(baseline_file, baseline)
-                          status.baseline = baseline
-
-                          const {existing_blf} = status
-                          if (existing_blf != baseline) {
-                            if (existing_blf == null) {
-                              status.errors.push("missing baseline")
-                            } else {
-                              if (test.retries != null) {
-                                may_retry = true
-                              }
-                            }
-                            const diff = diff_baseline(baseline_file, ref)
-                            status.failure = true
-                            status.baseline_diff = diff
-                            status.errors.push(diff)
-                          }
-                        })()
-                      }
-                    }
-
-                    if (!(test.no_image ?? false)) {
-                      await (async () => {
-                        const {bbox} = result
-                        if (bbox != null) {
-                          const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                          const current = Buffer.from(image.data, "base64")
-                          status.image = current
-
-                          const image_file = `${baseline_path}.png`
-                          const write_image = async () => fs.promises.writeFile(image_file, current)
-                          const {existing_png} = status
-
-                          switch (screenshot) {
-                            case "test": {
-                              if (existing_png == null) {
-                                status.failure = true
-                                status.errors.push("missing baseline image")
-                                await write_image()
-                              } else {
-                                status.reference = existing_png
-
-                                if (!existing_png.equals(current)) {
-                                  const diff_result = diff_image(existing_png, current)
-                                  if (diff_result != null) {
-                                    may_retry = true
-                                    const {diff, pixels, percent} = diff_result
-                                    const threshold = test.threshold ?? 0
-                                    if (pixels > threshold) {
-                                      await write_image()
-                                      status.failure = true
-                                      status.image_diff = diff
-                                      status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${attempt != null ? ` (attempt=${attempt})` : ""}`)
-                                    }
-                                  }
-                                }
-                              }
-                              break
-                            }
-                            case "save": {
-                              await write_image()
-                              break
-                            }
-                            case "skip": {
-                              break
-                            }
-                            default: {
-                              throw new Error(`invalid argument --screenshot=${screenshot}`)
-                            }
-                          }
-                        }
-                      })()
-                    }
-                  }
-                }
-              } finally {
-                const output = await evaluate(`Tests.clear(${seq})`)
-                if (output instanceof Failure) {
-                  status.errors.push(output.text)
-                  status.failure = true
-                }
-              }
-
-              return may_retry
-            }
-
-            const do_retry = await run_test(null, status)
-            if ((retry || test.retries != null) && do_retry) {
-              const retries = test.retries ?? 10
-
-              for (let i = 0; i < retries; i++) {
-                const do_retry = await run_test(i, status)
-                if (!do_retry) {
-                  break
-                }
-              }
-            }
-          }
+          await runner.run_with_retry(test_case, retry)
 
           if (status.skipped ?? false) {
             skipped++
@@ -774,7 +256,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           const {failure, image, image_diff, reference} = status
           return [descriptions(suites, test), {failure, image, image_diff, reference}]
         })
-        const json = JSON.stringify({results, metrics}, (_key, value) => {
+        const json = JSON.stringify({results, metrics: metrics?.get_metrics() ?? {}}, (_key, value) => {
           if (value?.type == "Buffer") {
             return Buffer.from(value.data).toString("base64")
           } else {
@@ -812,7 +294,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         console.log(successful)
       }
     } finally {
-      await Runtime.discardConsoleEntries()
+      await browser.discard_console_entries()
     }
   } catch (error) {
     failure = true
@@ -821,62 +303,15 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       console.error(`INTERNAL ERROR: ${msg}`)
     }
   } finally {
-    if (client != null) {
-      await client.close()
-    }
+    await browser.close()
   }
 
   return !failure
 }
 
-async function get_version(): Promise<{browser: string, protocol: string}> {
-  const version = await CDP.Version({port})
-  return {
-    browser: version.Browser,
-    protocol: version["Protocol-Version"],
-  }
-}
-
-type Version = [number, number, number, number]
-const supported_chromium_version: Version = [141, 0, 7390, 54]
-
-function get_version_tuple(version: string): Version | null {
-  const match = version.match(/(\d+)\.(\d+)\.(\d+)\.(\d+)/)
-  if (match != null) {
-    const [, a, b, c, d] = match.values()
-    return [
-      Number(a),
-      Number(b),
-      Number(c),
-      Number(d),
-    ]
-  }
-  return null
-}
-
-function check_version(current_chromium_version: Version | null): void {
-  if (current_chromium_version == null) {
-    const supported_str = supported_chromium_version.join(".")
-    console.error(`${chalk.yellow("warning:")} unable to determine chromium version; officially supported version is ${supported_str}`)
-    return
-  }
-
-  const [a, b, c, _d] = supported_chromium_version
-  const [A, B, C, _D] = current_chromium_version
-
-  if (a != A || b != B || c != C) {
-    const supported_str = chalk.magenta(supported_chromium_version.join("."))
-    const current_str = chalk.magenta(current_chromium_version.join("."))
-    console.error(`${chalk.yellow("warning:")} ${current_str} is not supported; officially supported version is ${supported_str}`)
-  }
-}
-
 async function run(): Promise<void> {
-  const {browser, protocol} = await get_version()
+  const {browser, protocol, major} = await BrowserManager.get_version(port, host)
   console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
-  const version = get_version_tuple(browser)
-  check_version(version)
-  const major = version != null ? version[0] : 0
   const ok = !info ? await run_tests({chromium_version: major}) : true
   process.exit(ok ? 0 : 1)
 }

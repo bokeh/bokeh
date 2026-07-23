@@ -36,7 +36,6 @@ from typing import (
     Awaitable,
     Callable,
     ClassVar,
-    TypeAlias,
 )
 
 # Bokeh imports
@@ -68,7 +67,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Callback: TypeAlias = Callable[[], None]
+type Callback = Callable[[], None]
 
 class Application:
     ''' An Application is a factory for Document instances.
@@ -83,9 +82,9 @@ class Application:
 
     _static_path: str | None
     _handlers: list[Handler]
-    _metadata: dict[str, Any] | None
+    _metadata: dict[str, Any] | Callable[[], dict[str, Any]] | None
 
-    def __init__(self, *handlers: Handler, metadata: dict[str, Any] | None = None) -> None:
+    def __init__(self, *handlers: Handler, metadata: dict[str, Any] | Callable[[], dict[str, Any]] | None = None) -> None:
         ''' Application factory.
 
         Args:
@@ -129,7 +128,7 @@ class Application:
         return tuple(self._handlers)
 
     @property
-    def metadata(self) -> dict[str, Any] | None:
+    def metadata(self) -> dict[str, Any] | Callable[[], dict[str, Any]] | None:
         ''' Arbitrary user-supplied metadata to associate with this application.
 
         '''
@@ -327,6 +326,14 @@ class SessionContext(metaclass=ABCMeta):
 
         '''
         return self._server_context
+
+    @property
+    @abstractmethod
+    def document(self) -> Document:
+        ''' The document associated with this session context.
+
+        '''
+        pass
 
     # Public methods ----------------------------------------------------------
 

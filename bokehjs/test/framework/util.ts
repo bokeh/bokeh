@@ -63,7 +63,7 @@ export type TrapOutput = {
   error: string
 }
 
-export function trap(fn: () => void): TrapOutput {
+function _stub_console() {
   const result = {
     log: "",
     trace: "",
@@ -75,36 +75,109 @@ export function trap(fn: () => void): TrapOutput {
   function join(...args: unknown[]): string {
     return `${args.map((arg) => `${arg}`).join(" ")}\n`
   }
+
+  const console_log = console.log
+  const console_trace = console.trace
+  const console_debug = console.debug
+  const console_info = console.info
+  const console_warn = console.warn
+  const console_error = console.error
+
+  const logger_log = logger.log
+  const logger_trace = logger.trace
+  const logger_debug = logger.debug
+  const logger_info = logger.info
+  const logger_warn = logger.warn
+  const logger_error = logger.error
+
   // XXX: stubbing both console and logger, and including logger's name manually is a hack,
   // but that's be best we can do (at least for now) while preserving logger's ability to
   // to reference the original location from where a logging method was called.
-  const log    = stub(console, "log").callsFake((...args)   => result.log   += join(...args))
-  const clog   = stub(logger, "log").callsFake((...args)    => result.log   += join(`[bokeh ${version}]`, ...args))
-  const ctrace = stub(console, "trace").callsFake((...args) => result.trace += join(...args))
-  const ltrace = stub(logger, "trace").callsFake((...args)  => result.trace += join(`[bokeh ${version}]`, ...args))
-  const cdebug = stub(console, "debug").callsFake((...args) => result.debug += join(...args))
-  const ldebug = stub(logger, "debug").callsFake((...args)  => result.debug += join(`[bokeh ${version}]`, ...args))
-  const cinfo  = stub(console, "info").callsFake((...args)  => result.info  += join(...args))
-  const linfo  = stub(logger, "info").callsFake((...args)   => result.info  += join(`[bokeh ${version}]`, ...args))
-  const cwarn  = stub(console, "warn").callsFake((...args)  => result.warn  += join(...args))
-  const lwarn  = stub(logger, "warn").callsFake((...args)   => result.warn  += join(`[bokeh ${version}]`, ...args))
-  const cerror = stub(console, "error").callsFake((...args) => result.error += join(...args))
-  const lerror = stub(logger, "error").callsFake((...args)  => result.error += join(`[bokeh ${version}]`, ...args))
+  const log    = stub(console, "log").callsFake((...args)   => {
+    result.log   += join(...args)
+    console_log(...args)
+  })
+  const clog   = stub(logger, "log").callsFake((...args)    => {
+    result.log   += join(`[bokeh ${version}]`, ...args)
+    logger_log(...args)
+  })
+  const ctrace = stub(console, "trace").callsFake((...args) => {
+    result.trace += join(...args)
+    console_trace(...args)
+  })
+  const ltrace = stub(logger, "trace").callsFake((...args)  => {
+    result.trace += join(`[bokeh ${version}]`, ...args)
+    logger_trace(...args)
+  })
+  const cdebug = stub(console, "debug").callsFake((...args) => {
+    result.debug += join(...args)
+    console_debug(...args)
+  })
+  const ldebug = stub(logger, "debug").callsFake((...args)  => {
+    result.debug += join(`[bokeh ${version}]`, ...args)
+    logger_debug(...args)
+  })
+  const cinfo  = stub(console, "info").callsFake((...args)  => {
+    result.info  += join(...args)
+    console_info(...args)
+  })
+  const linfo  = stub(logger, "info").callsFake((...args)   => {
+    result.info  += join(`[bokeh ${version}]`, ...args)
+    logger_info(...args)
+  })
+  const cwarn  = stub(console, "warn").callsFake((...args)  => {
+    result.warn  += join(...args)
+    console_warn(...args)
+  })
+  const lwarn  = stub(logger, "warn").callsFake((...args)   => {
+    result.warn  += join(`[bokeh ${version}]`, ...args)
+    logger_warn(...args)
+  })
+  const cerror = stub(console, "error").callsFake((...args) => {
+    result.error += join(...args)
+    console_error(...args)
+  })
+  const lerror = stub(logger, "error").callsFake((...args)  => {
+    result.error += join(`[bokeh ${version}]`, ...args)
+    logger_error(...args)
+  })
+  return {
+    result() {
+      return result
+    },
+    restore() {
+      log.restore()
+      clog.restore()
+      ctrace.restore()
+      ltrace.restore()
+      cdebug.restore()
+      ldebug.restore()
+      cinfo.restore()
+      linfo.restore()
+      cwarn.restore()
+      lwarn.restore()
+      cerror.restore()
+      lerror.restore()
+    },
+  }
+}
+
+export function trap(fn: () => void): TrapOutput {
+  const stub = _stub_console()
   try {
     fn()
   } finally {
-    log.restore()
-    clog.restore()
-    ctrace.restore()
-    ltrace.restore()
-    cdebug.restore()
-    ldebug.restore()
-    cinfo.restore()
-    linfo.restore()
-    cwarn.restore()
-    lwarn.restore()
-    cerror.restore()
-    lerror.restore()
+    stub.restore()
   }
-  return result
+  return stub.result()
+}
+
+export async function async_trap(fn: () => Promise<void>): Promise<TrapOutput> {
+  const stub = _stub_console()
+  try {
+    await fn()
+  } finally {
+    stub.restore()
+  }
+  return stub.result()
 }

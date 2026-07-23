@@ -26,12 +26,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import types
 from importlib import import_module
-from typing import (
-    Any,
-    Callable,
-    Generic,
-    TypeVar,
-)
+from typing import Any, Callable, cast
 
 # Bokeh imports
 from ..has_props import HasProps
@@ -50,14 +45,11 @@ __all__ = (
     'Object',
 )
 
-T = TypeVar("T", bound=object)
-S = TypeVar("S", bound=Serializable)
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Object(Property[T]):
+class Object[T: object](Property[T]):
     """ Accept values that are instances of any class.
 
         .. note::
@@ -94,12 +86,12 @@ class Object(Property[T]):
 
     @property
     def instance_type(self) -> type[T]:
-        instance_type: type[Serializable]
+        instance_type: type[T]
         if isinstance(self._instance_type, type):
-            instance_type = self._instance_type
+            instance_type = cast(type[T], self._instance_type)
         elif isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
-            instance_type = getattr(import_module(module, "bokeh"), name)
+            instance_type = cast(type[T], getattr(import_module(module, "bokeh"), name))
             self._assert_type(instance_type)
             self._instance_type = instance_type
         else:
@@ -120,11 +112,11 @@ class Object(Property[T]):
         msg = "" if not detail else f"expected an instance of type {instance_type}, got {value} of type {value_type}"
         raise ValueError(msg)
 
-    def _may_have_unstable_default(self):
+    def _may_have_unstable_default(self) -> bool:
         # because the instance value is mutable
         return self._default is not Undefined
 
-class Instance(Object[S]):
+class Instance[S: Serializable](Object[S]):
     """ Accept values that are instances of serializable types (e.g. |HasProps|). """
 
     @staticmethod
@@ -132,9 +124,7 @@ class Instance(Object[S]):
         if not (isinstance(instance_type, type) and issubclass(instance_type, Serializable)):
             raise ValueError(f"expected a subclass of Serializable (e.g. HasProps), got {instance_type}")
 
-I = TypeVar("I", bound=HasProps)
-
-class InstanceDefault(Generic[I]):
+class InstanceDefault[I: HasProps]:
     """ Provide a deferred initializer for Instance defaults.
 
     This is useful for Bokeh models with Instance properties that should have

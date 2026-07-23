@@ -501,8 +501,7 @@ def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
     color = kwargs.get("color")
     color_selection = isinstance(color, (list, tuple))
     selected_colors = []
-    if color_selection:
-        n_color = len(color)
+    n_color = len(color) if color_selection else 0
 
     for i, geometry in enumerate(geometries_collection.geometries()):
         projected_geometrie = projection.project_geometry(geometry, src_crs=ccrs.PlateCarree())

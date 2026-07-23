@@ -87,7 +87,7 @@ export function traverse_views(views: View[], fn: (view: View) => void): void {
       continue
     }
     visited.add(view)
-    queue.push(...view.children())
+    queue.push(...view.children_views())
     fn(view)
   }
 }

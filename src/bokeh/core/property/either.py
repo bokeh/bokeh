@@ -16,6 +16,8 @@ multiple possible types.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportInvalidTypeArguments=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,7 +26,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar
+from typing import Any
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
@@ -44,12 +46,11 @@ __all__ = (
     'Either',
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+# TODO this needs to be parameterized, i.e. Either[T]
 class Either(ParameterizedProperty[Any]):
     """ Accept values according to a sequence of other property types.
 
@@ -76,7 +77,7 @@ class Either(ParameterizedProperty[Any]):
     """
 
     def __init__(self, type_param0: TypeOrInst[Property[Any]], *type_params: TypeOrInst[Property[Any]],
-            default: Init[T] = Intrinsic, help: str | None = None) -> None:
+            default: Init[Any] = Intrinsic, help: str | None = None) -> None:
         super().__init__(type_param0, *type_params, default=default, help=help)
         for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
@@ -101,7 +102,7 @@ class Either(ParameterizedProperty[Any]):
         msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
         raise ValueError(msg)
 
-    def wrap(self, value):
+    def wrap(self, value: Any) -> Any:
         for tp in self.type_params:
             value = tp.wrap(value)
         return value
@@ -126,6 +127,6 @@ class Either(ParameterizedProperty[Any]):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Either)
-def _sphinx_type_link(obj: Either[Any]):
+def _sphinx_type_link(obj: Either) -> str:
     subtypes = ", ".join(type_link(x) for x in obj.type_params)
     return f"{property_link(obj)}({subtypes})"

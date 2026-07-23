@@ -30,7 +30,12 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Literal, assert_type
+from typing import TYPE_CHECKING, Literal, assert_type
+
+if TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing as npt
+    import pandas as pd
 
 # Bokeh imports
 from bokeh.models.annotations import LegendItem
@@ -74,6 +79,18 @@ def mypy_test___init__() -> None:
     Range1d(0, 1, bounds=(0, 10))
     Range1d(start=0, end=1, bounds=(0, 10))
     Range1d(start=0, end=1, bounds="auto")
+
+def mypy_test_stack_methods(
+    array_stackers: npt.NDArray[np.str_],
+    index_stackers: pd.Index[str],
+) -> None:
+    p = figure()
+    p.harea_stack(array_stackers)
+    p.varea_stack(index_stackers)
+    p.hbar_stack(array_stackers)
+    p.vbar_stack(index_stackers)
+    p.hline_stack(array_stackers)
+    p.vline_stack(index_stackers)
 
 #-----------------------------------------------------------------------------
 # Dev API

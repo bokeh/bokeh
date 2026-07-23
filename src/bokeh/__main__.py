@@ -47,7 +47,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def main():
+def main() -> None:
     ''' Execute the "bokeh" command line program.
 
     '''

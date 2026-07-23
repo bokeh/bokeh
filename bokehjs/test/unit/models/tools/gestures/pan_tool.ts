@@ -1,7 +1,10 @@
+import * as sinon from "sinon"
+
 import {expect} from "#framework/assertions"
 import type {XY} from "#framework/interactive"
 import {actions, xy} from "#framework/interactive"
 import {display} from "#framework/layouts"
+import {restorable} from "#framework/util"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
@@ -26,16 +29,15 @@ describe("PanTool", () => {
     return view
   }
 
-  function get_cursor(plot_view: PlotView): string {
-    return getComputedStyle(plot_view.canvas_view.events_el).cursor
-  }
-
   async function expect_cursor(plot_view: PlotView, xy0: XY, xy1: XY, cursor: string): Promise<void> {
     const ac = actions(plot_view, {units: "screen"})
-    const cursors: string[] = []
-    for await (const _ of ac._emit(ac._pan({type: "line", xy0, xy1, n: 5}))) {
-      cursors.push(get_cursor(plot_view))
-    }
+    const {ui_event_bus} = plot_view.canvas_view
+
+    using spy_cursor = restorable(sinon.spy(ui_event_bus, "set_cursor"))
+
+    await ac.pan(xy0, xy1, 5)
+
+    const cursors = spy_cursor.args.map(([cursor]) => cursor ?? "default")
     expect([...no_repeated(cursors)]).to.be.equal([...no_repeated(["default", cursor, "default"])])
   }
 

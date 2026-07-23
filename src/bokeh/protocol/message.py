@@ -59,14 +59,11 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import json
 from typing import (
-    TYPE_CHECKING,
     Any,
     ClassVar,
-    Generic,
     NotRequired,
-    TypeAlias,
+    Protocol,
     TypedDict,
-    TypeVar,
 )
 
 # Bokeh imports
@@ -77,9 +74,6 @@ from ..core.json_encoder import serialize_json
 from ..core.serialization import Buffer, Serialized
 from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
-
-if TYPE_CHECKING:
-    from ..client.websocket import WebSocketClientConnectionWrapper
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -106,16 +100,20 @@ class Header(TypedDict):
 class BufferHeader(TypedDict):
     id: ID
 
-Content = TypeVar("Content")
+type Metadata = dict[str, Any]
 
-Metadata: TypeAlias = dict[str, Any]
-
-BufferRef: TypeAlias = tuple[BufferHeader, bytes]
+type BufferRef = tuple[BufferHeader, bytes]
 
 class Empty(TypedDict):
     pass
 
-class Message(Generic[Content]):
+class MessageConnection(Protocol):
+    write_lock: Any
+
+    async def write_message(self, message: bytes | str,
+            binary: bool = False, locked: bool = True) -> Any: ...
+
+class Message[Content]:
     ''' The Message base class encapsulates creating, assembling, and
     validating the integrity of Bokeh Server messages. Additionally, it
     provide hooks
@@ -248,7 +246,7 @@ class Message(Generic[Content]):
             raise ProtocolError(f"too many buffers received expecting {num_buffers}")
         self._buffers.append(Buffer(buf_header["id"], buf_payload))
 
-    async def write_buffers(self, conn: WebSocketClientConnectionWrapper, locked: bool = True) -> int:
+    async def write_buffers(self, conn: MessageConnection, locked: bool = True) -> int:
         ''' Write any buffer headers and payloads to the given connection.
 
         Args:
@@ -293,7 +291,7 @@ class Message(Generic[Content]):
             header['reqid'] = request_id
         return header
 
-    async def send(self, conn: WebSocketClientConnectionWrapper) -> int:
+    async def send(self, conn: MessageConnection) -> int:
         ''' Send the message on the given connection.
 
         Args:

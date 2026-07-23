@@ -12,7 +12,7 @@ import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
-import type {DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
+import type {DOMBoxSizing} from "../layouts/layout_dom"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
@@ -202,8 +202,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
   /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
   /*protected*/ readonly tool_views: ViewStorage<Tool> = new Map()
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this.renderer_views.values(), ...this.tool_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this.renderer_views.values(), ...this.tool_views.values()]
   }
 
   get child_models(): LayoutDOM[] {
@@ -444,10 +444,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
       width_policy: frame_width != null && width_policy == "auto" ? "fit" : width_policy,
       height_policy: frame_height != null && height_policy == "auto" ? "fit" : height_policy,
     }
-  }
-
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "grid"}
   }
 
   private _compute_layout_panels(): LayoutPanels {
@@ -784,7 +780,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const right_width = max(right.width, layout.min_border.right)
 
     this._computed_style.replace(`
-      :host {
+      ${this.host_selector} {
         grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;
         grid-template-columns: ${left_width}px ${frame.width} ${right_width}px;
       }
@@ -908,7 +904,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _update_attribution(): void {
     const attribution = [
       ...this.model.attribution,
-      ...this.computed_renderer_views.map((rv) => rv.attribution),
+      ...this.computed_renderer_views.filter((rv) => rv.displayed).map((rv) => rv.attribution),
     ].filter((rv) => rv != null)
     const elements = attribution.map((attrib) => isString(attrib) ? new Div({children: [attrib]}) : attrib)
     this._attribution.elements = elements
@@ -918,6 +914,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
     const result = await build_views(this.renderer_views, this.computed_renderers, {parent: (model) => model instanceof LayoutDOM ? null : this})
+    for (const renderer_view of result.created) {
+      this.on_change(renderer_view.model.properties.visible, () => this._update_attribution())
+    }
     this._update_attribution()
     return result
   }
@@ -997,6 +996,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
       await this.build_tool_views()
       await this._update_renderers()
     })
+
+    const {frame_width, frame_height, frame_align} = this.model.properties
+    this.on_change([frame_width, frame_height, frame_align], () => this.invalidate_layout())
 
     const {min_border, min_border_top, min_border_bottom, min_border_left, min_border_right} = this.model.properties
     this.on_change([min_border, min_border_top, min_border_bottom, min_border_left, min_border_right], () => this.invalidate_layout())

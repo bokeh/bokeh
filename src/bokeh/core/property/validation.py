@@ -25,6 +25,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import wraps
+from types import TracebackType
+from typing import Callable
 
 # Bokeh imports
 from .bases import Property
@@ -64,18 +66,18 @@ class validate:
         :func:`~bokeh.core.properties.without_property_validation`: function decorator
 
     """
-    def __init__(self, value) -> None:
+    def __init__(self, value: bool) -> None:
         self.old = Property._should_validate
         Property._should_validate = value
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         pass
 
-    def __exit__(self, typ, value, traceback):
+    def __exit__(self, typ: type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
         Property._should_validate = self.old
 
 
-def without_property_validation(input_function):
+def without_property_validation[**P, R](input_function: Callable[P, R]) -> Callable[P, R]:
     """ Turn off property validation during update callbacks
 
     Example:
@@ -90,7 +92,7 @@ def without_property_validation(input_function):
 
     """
     @wraps(input_function)
-    def func(*args, **kwargs):
+    def func(*args: P.args, **kwargs: P.kwargs) -> R:
         with validate(False):
             return input_function(*args, **kwargs)
     return func

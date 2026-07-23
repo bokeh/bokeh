@@ -42,7 +42,7 @@ export abstract class UIElementView extends StyledElementView {
   }
 
   update_style(): void {
-    this.style.clear()
+    this.self_style.clear()
   }
 
   box_sizing(): DOMBoxSizing {
@@ -109,8 +109,8 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _context_menu: ViewOf<Menu> | null = null
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this._context_menu]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this._context_menu]
   }
 
   /**
@@ -227,7 +227,7 @@ export abstract class UIElementView extends StyledElementView {
     if (this.model.visible) {
       this.display.clear()
     } else {
-      this.display.replace(":host { display: none; }")
+      this.display.replace(`${this.host_selector} { display: none; }`)
     }
   }
 

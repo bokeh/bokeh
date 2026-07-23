@@ -88,17 +88,18 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 import warnings
+from importlib import import_module
 from os import getenv
 from os.path import basename, dirname, join
+from typing import Any, cast
 from uuid import uuid4
 
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
-from sphinx.util import copyfile, ensuredir
-from sphinx.util.display import status_iterator
 from sphinx.util.nodes import set_source_info
+from sphinx.util.osutil import copyfile, ensuredir
 
 # Bokeh imports
 from bokeh.document import Document
@@ -108,7 +109,7 @@ from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
 # Local imports
-from ._internal import PARALLEL_SAFE
+from ._internal import PARALLEL_SAFE, SphinxParallelSpec
 from ._internal.bokeh_directive import BokehDirective
 from ._internal.example_handler import ExampleHandler
 from ._internal.util import get_sphinx_resources
@@ -116,6 +117,8 @@ from ._internal.util import get_sphinx_resources
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
+
+status_iterator = import_module("sphinx.util.display").status_iterator
 
 __all__ = (
     "BokehPlotDirective",
@@ -133,7 +136,7 @@ RESOURCES = get_sphinx_resources()
 class autoload_script(nodes.General, nodes.Element):
 
     @staticmethod
-    def visit_html(visitor, node):
+    def visit_html(visitor: Any, node: Any) -> None:
         script_tag = node["script_tag"]
         height_hint = node["height_hint"]
         if height_hint:
@@ -143,26 +146,32 @@ class autoload_script(nodes.General, nodes.Element):
             visitor.body.append("</div>")
         raise nodes.SkipNode
 
-    html = visit_html.__func__, None
+    html = visit_html.__func__, None # type: ignore[attr-defined]
 
 class BokehPlotDirective(BokehDirective):
 
     has_content = True
     optional_arguments = 2
 
+    @staticmethod
+    def _flag(value: str) -> bool:
+        flag(value)
+        return True
+
     option_spec = {
-        "process-docstring": lambda x: flag(x) is None,
+        "process-docstring": _flag,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
-        "linenos": lambda x: flag(x) is None,
+        "linenos": _flag,
     }
 
-    def run(self):
+    def run(self) -> list[Any]:
         if getenv("BOKEH_SPHINX_QUICK") == "1":
             return []
 
+        env = cast(Any, self.env)
         source, path = self.process_args_or_content()
 
-        dashed_docname = self.env.docname.replace("/", "-")
+        dashed_docname = env.docname.replace("/", "-")
 
         js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.js"
 
@@ -170,7 +179,7 @@ class BokehPlotDirective(BokehDirective):
             (script_tag, js_path, source, docstring, height_hint) = self.process_source(source, path, js_filename)
         except Exception as e:
             raise SphinxError(f"Error generating {js_filename}: \n\n{e}")
-        self.env.bokeh_plot_files.add((js_path, dirname(self.env.docname)))
+        env.bokeh_plot_files.add((js_path, dirname(env.docname)))
 
         # use the source file name to construct a friendly target_id
         target_id = f"{dashed_docname}.{basename(js_path)}"
@@ -187,7 +196,7 @@ class BokehPlotDirective(BokehDirective):
 
         return target + intro + above + autoload + below
 
-    def process_code_block(self, source: str, docstring: str|None):
+    def process_code_block(self, source: str, docstring: str | None) -> tuple[list[Any], list[Any]]:
         source_position = self.options.get("source-position", "below")
 
         if source_position == "none":
@@ -205,38 +214,42 @@ class BokehPlotDirective(BokehDirective):
         if source_position == "below":
             return [], [code_block]
 
-    def process_args_or_content(self):
+        return [], []
+
+    def process_args_or_content(self) -> tuple[str, str]:
         # filename *or* python code content, but not both
         if self.arguments and self.content:
             raise SphinxError("bokeh-plot:: directive can't have both args and content")
 
+        env = cast(Any, self.env)
         if self.content:
-            log.debug(f"[bokeh-plot] handling inline content in {self.env.docname!r}")
-            path = self.env.bokeh_plot_auxdir  # code runner just needs any real path
+            log.debug(f"[bokeh-plot] handling inline content in {env.docname!r}")
+            path = env.bokeh_plot_auxdir  # code runner just needs any real path
             return "\n".join(self.content), path
 
         path = self.arguments[0]
-        log.debug(f"[bokeh-plot] handling external content in {self.env.docname!r}: {path}")
+        log.debug(f"[bokeh-plot] handling external content in {env.docname!r}: {path}")
         if path.startswith("__REPO__/"):
             # __REPO__ is an internal/undocumented convention for Bokeh's own docs
             from ._internal import REPO_TOP
             path = join(REPO_TOP, path.replace("__REPO__/", ""))
         elif not path.startswith("/"):
-            path = join(self.env.app.srcdir, path)
+            path = join(env.app.srcdir, path)
         try:
             with open(path) as f:
                 return f.read(), path
         except Exception as e:
-            raise SphinxError(f"bokeh-plot:: error reading {path!r} for {self.env.docname!r}: {e!r}")
+            raise SphinxError(f"bokeh-plot:: error reading {path!r} for {env.docname!r}: {e!r}")
 
-    def process_source(self, source, path, js_filename):
+    def process_source(self, source: str, path: str, js_filename: str) -> tuple[str, str, str, str | None, int | None]:
         Model.clear_extensions()
 
-        root, docstring = _evaluate_source(source, path, self.env)
+        env = cast(Any, self.env)
+        root, docstring = _evaluate_source(source, path, env)
 
-        height_hint = root._sphinx_height_hint()
+        height_hint = cast(Any, root)._sphinx_height_hint()
 
-        js_path = join(self.env.bokeh_plot_auxdir, js_filename)
+        js_path = join(env.bokeh_plot_auxdir, js_filename)
         js, script_tag = autoload_static(root, RESOURCES, js_filename)
 
         with open(js_path, "w") as f:
@@ -244,23 +257,24 @@ class BokehPlotDirective(BokehDirective):
 
         return (script_tag, js_path, source, docstring, height_hint)
 
-    def process_sampledata(self, source):
+    def process_sampledata(self, source: str) -> None:
 
-        if not hasattr(self.env, 'solved_sampledata'):
-            self.env.solved_sampledata = []
+        env = cast(Any, self.env)
+        if not hasattr(env, 'solved_sampledata'):
+            env.solved_sampledata = []
 
         file, _ = self.get_source_info()
         # collect links to all standalone examples
 
-        if '/docs/examples/' in file and file not in self.env.solved_sampledata:
-            self.env.solved_sampledata.append(file)
-            if not hasattr(self.env, 'all_sampledata_xrefs'):
-                self.env.all_sampledata_xrefs = []
-            if not hasattr(self.env, 'all_gallery_overview'):
-                self.env.all_gallery_overview = []
+        if file is not None and '/docs/examples/' in file and file not in env.solved_sampledata:
+            env.solved_sampledata.append(file)
+            if not hasattr(env, 'all_sampledata_xrefs'):
+                env.all_sampledata_xrefs = []
+            if not hasattr(env, 'all_gallery_overview'):
+                env.all_gallery_overview = []
 
-            self.env.all_gallery_overview.append({
-                'docname': self.env.docname,
+            env.all_gallery_overview.append({
+                'docname': env.docname,
             })
 
             regex = r"(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
@@ -270,8 +284,8 @@ class BokehPlotDirective(BokehDirective):
                 for m in matches:
                     keywords.update(m[2].replace(" ","").split(','))
                 for keyword in keywords:
-                    self.env.all_sampledata_xrefs.append({
-                        'docname': self.env.docname,
+                    env.all_sampledata_xrefs.append({
+                        'docname': env.docname,
                         'keyword': keyword,
                     })
 # -----------------------------------------------------------------------------
@@ -279,7 +293,7 @@ class BokehPlotDirective(BokehDirective):
 # -----------------------------------------------------------------------------
 
 
-def builder_inited(app):
+def builder_inited(app: Any) -> None:
     app.env.bokeh_plot_auxdir = join(app.env.doctreedir, "bokeh_plot")
     ensuredir(app.env.bokeh_plot_auxdir)  # docs/bokeh/build/doctrees/bokeh_plot
 
@@ -287,7 +301,7 @@ def builder_inited(app):
         app.env.bokeh_plot_files = set()
 
 
-def build_finished(app, exception):
+def build_finished(app: Any, exception: Exception | None) -> None:
     files = sorted(app.env.bokeh_plot_files)
     files_iter = status_iterator(files, "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
 
@@ -299,10 +313,10 @@ def build_finished(app, exception):
         except OSError as e:
             raise SphinxError(f"cannot copy local file {file!r}, reason: {e}")
 
-def env_merge_info(app, env, docnames, other):
+def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
     env.bokeh_plot_files |= other.bokeh_plot_files
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
@@ -319,7 +333,7 @@ def setup(app):
 
 
 # quick and dirty way to inject Google API key
-def _replace_google_api_key(source: str, env) -> str:
+def _replace_google_api_key(source: str, env: Any) -> str:
     if "GOOGLE_API_KEY" not in source:
         return source
 
@@ -334,7 +348,7 @@ def _replace_google_api_key(source: str, env) -> str:
     return source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
 
 
-def _evaluate_source(source: str, filename: str, env):
+def _evaluate_source(source: str, filename: str, env: Any) -> tuple[Model, str | None]:
     source = _replace_google_api_key(source, env)
 
     c = ExampleHandler(source=source, filename=filename)
@@ -356,7 +370,7 @@ def _evaluate_source(source: str, filename: str, env):
     return d.roots[0], c.doc.strip() if c.doc else None
 
 
-def _remove_module_docstring(source, docstring):
+def _remove_module_docstring(source: str, docstring: str | None) -> str:
     if docstring is None:
         return source
     # escape backslashes, see https://docs.python.org/3/library/re.html#re.escape

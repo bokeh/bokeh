@@ -13,7 +13,9 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+# Standard library imports
+import logging
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,13 +25,30 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 import sys
+from contextlib import contextmanager
 from os.path import (
     basename,
     dirname,
     join,
     splitext,
 )
+from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import TYPE_CHECKING, Iterator
+
+# Bokeh imports
+from ..embed import file_html
+from ..resources import INLINE
+
+if TYPE_CHECKING:
+    from tempfile import _TemporaryFileWrapper
+
+    from ..document import Document
+    from ..embed.util import ThemeSource
+    from ..model import Model
+    from ..models.plots import Plot
+    from ..models.ui import UIElement
+    from ..resources import Resources
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,6 +58,8 @@ __all__ = (
     'default_filename',
     'detect_current_filename',
     'temp_filename',
+    'tmp_html',
+    'get_layout_html',
 )
 
 #-----------------------------------------------------------------------------
@@ -112,6 +133,67 @@ def temp_filename(ext: str) -> str:
     with NamedTemporaryFile(suffix="." + ext) as f:
         return f.name
 
+@contextmanager
+def tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
+    '''Create a named temporary HTML file that is cleaned up on exit.
+
+    According to https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
+    in order for named temp files to be safely re-openable on Windows, we need
+    to set delete=False, so this context manager explicitly manages the unlink.
+    '''
+    tmp = NamedTemporaryFile(mode="wb", dir=Path.home(), prefix="bokeh", suffix=".html", delete=False)
+    try:
+        yield tmp
+    finally:
+        os.unlink(tmp.name)
+
+
+def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
+        width: int | None = None, height: int | None = None, theme: ThemeSource | None = None) -> str:
+    '''
+
+    '''
+    template = r"""\
+    {% block preamble %}
+    <style>
+        html, body {
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+    {% endblock %}
+    """
+
+    def html() -> str:
+        return file_html(
+            obj,
+            resources=resources,
+            title="",
+            template=template,
+            theme=theme,
+            suppress_callback_warning=True,
+            _always_new=True,
+        )
+
+    if width is not None or height is not None:
+        # Defer this import, it is expensive
+        from ..models.plots import Plot
+        if not isinstance(obj, Plot):
+            from ..util.warnings import warn
+
+            warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
+        else:
+            with _resized(obj, width, height):
+                return html()
+
+    return html()
+
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
@@ -129,6 +211,98 @@ def _shares_exec_prefix(basedir: str) -> bool:
     # XXX: exec_prefix has type str so why the check?
     prefix: str | None = sys.exec_prefix
     return prefix is not None and basedir.startswith(prefix)
+
+@contextmanager
+def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]:
+    old_width = obj.width
+    old_height = obj.height
+
+    if width is not None:
+        obj.width = width
+    if height is not None:
+        obj.height = height
+
+    try:
+        yield
+    finally:
+        obj.width = old_width
+        obj.height = old_height
+
+#-----------------------------------------------------------------------------
+# Shared JavaScript snippets for Selenium and Playwright backends
+#-----------------------------------------------------------------------------
+
+# Check whether Bokeh has loaded and created at least one document.
+_BOKEH_LOADED_CHECK = """\
+return typeof Bokeh !== "undefined"
+    && Bokeh.documents != null
+    && Bokeh.documents.length != 0\
+"""
+
+# Set a flag once the first Bokeh document becomes idle.
+# Both backends poll/wait on ``window._bokeh_render_complete`` afterwards.
+_WAIT_SCRIPT = """\
+window._bokeh_render_complete = false;
+function done() {
+  window._bokeh_render_complete = true;
+}
+
+const doc = Bokeh.documents[0];
+
+if (doc.is_idle)
+  done();
+else
+  doc.idle.connect(done);
+"""
+
+# Read the bounding box of the first root view and the device pixel ratio.
+_ROOT_VIEW_BBOX_SCRIPT = """\
+const root_view = Bokeh.index.roots[0];
+const {x, y, width, height} = root_view.el.getBoundingClientRect();
+return [x, y, Math.round(width), Math.round(height), window.devicePixelRatio];\
+"""
+
+# TODO: consider UIElement like Pane
+_SVGS_SCRIPT = """
+const {LayoutDOMView} = Bokeh.require("models/layouts/layout_dom")
+const {PlotView} = Bokeh.require("models/plots/plot")
+
+function* collect_svgs(views) {
+  for (const view of views) {
+    if (view instanceof LayoutDOMView) {
+      yield* collect_svgs(view.child_views.values())
+    }
+    if (view instanceof PlotView && view.model.output_backend == "svg") {
+      const {ctx} = view.export("svg")
+      yield ctx.get_serialized_svg(true)
+    }
+  }
+}
+
+return [...collect_svgs(Bokeh.index)]
+"""
+
+def _SVG_SCRIPT(obj: Model | Document) -> str:
+    from ..document import Document
+
+    if isinstance(obj, Document):
+        ids = [root.id for root in obj.roots]
+    else:
+        ids = [obj.id]
+    return f"""\
+const ids = new Set({ids})
+function* export_svgs(views) {{
+  for (const view of views) {{
+    // TODO: use to_blob() API in future
+    if (ids.has(view.model.id)) {{
+        const {{ctx}} = view.export("svg")
+        yield ctx.get_serialized_svg(true)
+    }}
+  }}
+}}
+
+return [...export_svgs(Bokeh.index)]
+"""
 
 #-----------------------------------------------------------------------------
 # Code

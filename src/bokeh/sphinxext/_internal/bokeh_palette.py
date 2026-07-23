@@ -79,12 +79,15 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # External imports
 from docutils import nodes
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .templates import PALETTE_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -105,7 +108,15 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=None):
+def bokeh_palette(
+    name: str,
+    rawtext: str,
+    text: str,
+    lineno: int,
+    inliner: Any,
+    options: dict[str, Any] | None = None,
+    content: list[str] | None = None,
+) -> tuple[list[Any], list[Any]]:
     """Generate an inline visual representations of a single color palette.
 
     This function evaluates the expression ``f"palette = {text}"``, in the
@@ -134,7 +145,7 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
     return [node], []
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_role("bokeh-palette", bokeh_palette)
 
@@ -148,5 +159,5 @@ def setup(app):
 # Code
 # -----------------------------------------------------------------------------
 
-_globals = {}
+_globals: dict[str, Any] = {}
 exec("from bokeh.palettes import *", _globals)

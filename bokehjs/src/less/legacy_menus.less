@@ -24,10 +24,10 @@
 
   cursor: pointer;
   font-size: var(--font-size);
-  background-color: light-dark(#fff, var(--background-color));
-  border: 1px solid light-dark(#ccc, var(--border-color));
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
+  box-shadow: 2px 4px 8px var(--box-shadow-color);
 }
 
 :host(.bk-horizontal) {
@@ -40,7 +40,7 @@
 .bk-divider {
   cursor: default;
   overflow: hidden;
-  background-color: light-dark(#e5e5e5, var(--divider-color));
+  background-color: var(--divider-color);
 }
 :host(.bk-horizontal) > .bk-divider {
   width: 1px;
@@ -58,7 +58,7 @@
     border-color: var(--highlight-color);
   }
   &:hover {
-    background-color: light-dark(#f9f9f9, var(--hover-color));
+    background-color: var(--hover-color);
   }
   &:focus, &:focus-visible {
     outline: 1px dotted var(--highlight-color);

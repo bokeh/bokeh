@@ -63,6 +63,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Literal
+
 # Bokeh imports
 from . import (
     _caliber,
@@ -96,25 +99,29 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-CALIBER       = 'caliber'
-CARBON        = 'carbon'
-LIGHT_MINIMAL = 'light_minimal'
-DARK_MINIMAL  = 'dark_minimal'
-FRESH         = 'fresh'
-NIGHT_SKY  = 'night_sky'
-CONTRAST  = 'contrast'
+CALIBER      : Literal['caliber']       = 'caliber'
+CARBON       : Literal['carbon']        = 'carbon'
+FRESH        : Literal['fresh']         = 'fresh'
+LIGHT_MINIMAL: Literal['light_minimal'] = 'light_minimal'
+DARK_MINIMAL : Literal['dark_minimal']  = 'dark_minimal'
+NIGHT_SKY    : Literal['night_sky']     = 'night_sky'
+CONTRAST     : Literal['contrast']      = 'contrast'
 
-default = Theme(json={})
+type BuiltinThemeName = Literal['caliber', 'carbon', 'light_minimal', 'dark_minimal', 'night_sky', 'contrast']
 
-built_in_themes = {
+built_in_themes: dict[BuiltinThemeName, Theme] = {
     CALIBER       : Theme(json=_caliber.json),
     CARBON        : Theme(json=_carbon.json),
     DARK_MINIMAL  : Theme(json=_dark_minimal.json),
     FRESH         : Theme(json=_fresh.json),
     LIGHT_MINIMAL : Theme(json=_light_minimal.json),
-    NIGHT_SKY : Theme(json=_night_sky.json),
-    CONTRAST : Theme(json=_contrast.json),
+    NIGHT_SKY     : Theme(json=_night_sky.json),
+    CONTRAST      : Theme(json=_contrast.json),
 }
+
+default = Theme(json={})
+
+type ThemeLike = None | Theme | BuiltinThemeName
 
 #-----------------------------------------------------------------------------
 # Dev API

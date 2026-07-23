@@ -25,7 +25,7 @@ import type {BaseTextView} from "../text/base_text"
 import {BaseText} from "../text/base_text"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
-import {unreachable} from "core/util/assert"
+import {logger} from "core/logging"
 import {isString} from "core/util/types"
 import {BBox} from "core/util/bbox"
 import {parse_delimited_string} from "models/text/utils"
@@ -101,8 +101,8 @@ export abstract class AxisView extends GuideRendererView {
     }
   }
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this._axis_label_view, ...this._major_label_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this._axis_label_view, ...this._major_label_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -148,7 +148,7 @@ export abstract class AxisView extends GuideRendererView {
 
   override get is_renderable(): boolean {
     const [range, cross_range] = this.ranges
-    return super.is_renderable && range.is_valid && cross_range.is_valid && range.span > 0 && cross_range.span > 0
+    return super.is_renderable && range.is_valid && cross_range.is_valid && range.span > 0 && cross_range.span > 0 && !isNaN(this.loc)
   }
 
   protected abstract _hit_value(sx: number, sy: number): number | Factor | null
@@ -696,6 +696,7 @@ export abstract class AxisView extends GuideRendererView {
     }
   }
 
+  private _warned_bad_loc = false
   get loc(): number {
     const {fixed_location} = this.model
     if (fixed_location != null) {
@@ -708,7 +709,11 @@ export abstract class AxisView extends GuideRendererView {
         return cross_range.synthetic(fixed_location)
       }
 
-      unreachable()
+      if (!this._warned_bad_loc) {
+        this._warned_bad_loc = true
+        logger.warn("cannot determine location of axis based on its fixed_location")
+      }
+      return NaN
     }
 
     const [, cross_range] = this.ranges

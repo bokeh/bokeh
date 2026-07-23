@@ -9,6 +9,7 @@ import type {Elements, Texture2D} from "regl"
 import type * as p from "core/properties"
 import type {HatchPattern} from "core/property_mixins"
 import {resolve_line_dash} from "core/visuals/line"
+import {normalize_dash_pattern} from "./dash_cache"
 import {split_rings, classify_rings, build_line_from_ring, generate_skirt_geometry, POLYGON_AA_WIDTH} from "core/util/polygon"
 import type {SkirtGeometry, RingLineData} from "core/util/polygon"
 import earcut from "earcut"
@@ -328,7 +329,9 @@ export class PatchGL extends BaseGLGlyph {
 
     // Dash detection
     const {line_dash} = line_visuals
-    this._is_dashed = !(line_dash.is_Scalar() && line_dash.get(0).length == 0)
+    const arr = normalize_dash_pattern(resolve_line_dash(line_dash.get(0)))
+    this._is_dashed = arr.length != 0
+    this._dash_tex = []
 
     if (this._is_dashed) {
       if (this._dash_offset == null) {
@@ -346,20 +349,12 @@ export class PatchGL extends BaseGLGlyph {
       }
       const dash_scale = this._dash_scale.get_sized_array(1)
 
-      this._dash_tex = []
-      const arr = resolve_line_dash(line_dash.get(0))
-      if (arr.length > 0) {
-        const [tex_info, tex, scale] = this.regl_wrapper.get_dash(arr)
-        this._dash_tex.push(tex)
-        for (let j = 0; j < 4; j++) {
-          dash_tex_info[j] = tex_info[j]
-        }
-        dash_scale[0] = scale
-      } else {
-        this._dash_tex.push(null)
-        dash_tex_info.fill(0)
-        dash_scale[0] = 0
+      const [tex_info, tex, scale] = this.regl_wrapper.get_dash(arr)
+      this._dash_tex.push(tex)
+      for (let j = 0; j < 4; j++) {
+        dash_tex_info[j] = tex_info[j]
       }
+      dash_scale[0] = scale
 
       // Patch is always scalar (single glyph).
       this._dash_tex_info.update(true)

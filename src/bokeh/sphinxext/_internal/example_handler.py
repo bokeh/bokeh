@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from bokeh.application.handlers.code_runner import CodeRunner
@@ -26,6 +26,8 @@ from bokeh.application.handlers.handler import Handler
 from bokeh.io.doc import curdoc, set_curdoc
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from bokeh.core.types import PathLike
     from bokeh.document import Document
 
@@ -64,6 +66,7 @@ class ExampleHandler(Handler):
             return
 
         module = self._runner.new_module()
+        assert module is not None
 
         doc.modules.add(module)
 
@@ -78,14 +81,14 @@ class ExampleHandler(Handler):
             self._unmonkeypatch(old_io, old_doc)
             set_curdoc(orig_curdoc)
 
-    def _monkeypatch(self):
-        def _pass(*args, **kw):
+    def _monkeypatch(self) -> tuple[dict[str, Any], type[Document]]:
+        def _pass(*args: Any, **kw: Any) -> None:
             pass
 
-        def _add_root(obj, *args, **kw):
+        def _add_root(obj: Any, *args: Any, **kw: Any) -> None:
             curdoc().add_root(obj)
 
-        def _curdoc(*args, **kw):
+        def _curdoc(*args: Any, **kw: Any) -> Document:
             return curdoc()
 
         # these functions are transitively imported from io into plotting,
@@ -95,9 +98,9 @@ class ExampleHandler(Handler):
         import bokeh.io as io
         import bokeh.plotting as p
 
-        mods = [io, p]
+        mods: list[ModuleType] = [io, p]
 
-        old_io = {}
+        old_io: dict[str, Any] = {}
         for f in self._output_funcs + self._io_funcs:
             old_io[f] = getattr(io, f)
 
@@ -110,15 +113,15 @@ class ExampleHandler(Handler):
         import bokeh.document as d
 
         old_doc = d.Document
-        d.Document = _curdoc
+        d.Document = _curdoc # type: ignore[assignment,misc]
 
         return old_io, old_doc
 
-    def _unmonkeypatch(self, old_io, old_doc):
+    def _unmonkeypatch(self, old_io: dict[str, Any], old_doc: type[Document]) -> None:
         import bokeh.io as io
         import bokeh.plotting as p
 
-        mods = [io, p]
+        mods: list[ModuleType] = [io, p]
 
         for mod in mods:
             for f in old_io:
@@ -126,7 +129,7 @@ class ExampleHandler(Handler):
 
         import bokeh.document as d
 
-        d.Document = old_doc
+        d.Document = old_doc # type: ignore[misc]
 
     @property
     def failed(self) -> bool:

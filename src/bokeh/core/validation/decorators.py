@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    Any,
-    Callable,
-    TypeAlias,
-    cast,
-)
+from typing import Any, Callable, cast
 
 # Bokeh imports
 from .check import ValidationIssue, Validator, ValidatorType
@@ -45,8 +40,8 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-ValidationFunction: TypeAlias = Callable[..., str | None]
-ValidationDecorator: TypeAlias = Callable[[ValidationFunction], Validator]
+type ValidationFunction = Callable[..., str | None]
+type ValidationDecorator = Callable[[ValidationFunction], Validator]
 
 def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -> ValidationDecorator:
     """ Internal shared implementation to handle both error and warning

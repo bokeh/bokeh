@@ -25,9 +25,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Sequence,
-    TypeAlias,
     TypeGuard,
-    TypeVar,
 )
 
 # Bokeh imports
@@ -57,9 +55,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-T = TypeVar('T')
-OneOrMore: TypeAlias = T | Sequence[T]
-Showable: TypeAlias = OneOrMore[UIElement | DOMNode]
+
+type OneOrMore[T] = T | Sequence[T]
+type Showable = OneOrMore[UIElement | DOMNode]
 
 def show(
     obj: Showable | Application | ModifyDoc,

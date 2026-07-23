@@ -10,15 +10,15 @@ import {Ref, List} from "@bokehjs/core/kinds"
 class SomeModelView extends View {
   declare model: SomeModel
 
-  protected _children_views: ViewStorage<HasProps> = new Map()
+  protected _children_views_map: ViewStorage<HasProps> = new Map()
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this._children_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this._children_views_map.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this._children_views, this.model.children, {parent: this})
+    await build_views(this._children_views_map, this.model.children, {parent: this})
   }
 }
 
@@ -51,6 +51,97 @@ export class SomeModel extends HasProps {
 describe("core/view", () => {
 
   describe("View", () => {
+    it("should disconnect a previously connected slot", async () => {
+      const model = new SomeModel()
+      const view = await build_view(model)
+
+      let calls = 0
+      const slot = () => calls++
+
+      expect(view.connect(model.change, slot)).to.be.true
+      model.change.emit()
+      expect(calls).to.be.equal(1)
+
+      expect(view.disconnect(model.change, slot)).to.be.true
+      model.change.emit()
+      expect(calls).to.be.equal(1)
+
+      expect(view.connect(model.change, slot)).to.be.true
+      model.change.emit()
+      expect(calls).to.be.equal(2)
+    })
+
+    it("should disconnect changes from former transitive references", async () => {
+      const child0 = new SomeModel()
+      const child1 = new SomeModel({children: [new SomeModel()]})
+      const model = new SomeModel({children: [child0]})
+      const view = await build_view(model)
+
+      let calls = 0
+      view.on_transitive_change(model.properties.children, () => calls++)
+
+      child0.change.emit()
+      expect(calls).to.be.equal(1)
+
+      model.children = [child1]
+      calls = 0
+
+      child0.change.emit()
+      expect(calls).to.be.equal(0)
+      child1.change.emit()
+      expect(calls).to.be.equal(1)
+
+      model.children = [child0]
+      calls = 0
+
+      child1.change.emit()
+      expect(calls).to.be.equal(0)
+      child0.change.emit()
+      expect(calls).to.be.equal(1)
+    })
+
+    it("should not accumulate slots for retained transitive references", async () => {
+      const child0 = new SomeModel()
+      const child1 = new SomeModel()
+      const model = new SomeModel({children: [child0]})
+      const view = await build_view(model)
+
+      let calls = 0
+      view.on_transitive_change(model.properties.children, () => calls++)
+
+      model.children = [child0, child1]
+      calls = 0
+
+      child0.change.emit()
+      expect(calls).to.be.equal(1)
+      child1.change.emit()
+      expect(calls).to.be.equal(2)
+    })
+
+    it("should disconnect changes from former recursive transitive references", async () => {
+      const leaf0 = new SomeModel()
+      const branch0 = new SomeModel({children: [leaf0]})
+      const leaf1 = new SomeModel()
+      const branch1 = new SomeModel({children: [leaf1, new SomeModel()]})
+      const model = new SomeModel({children: [branch0]})
+      const view = await build_view(model)
+
+      let calls = 0
+      view.on_transitive_change(model.properties.children, () => calls++, {recursive: true})
+
+      leaf0.change.emit()
+      expect(calls).to.be.equal(1)
+
+      model.children = [branch1]
+      calls = 0
+
+      branch0.change.emit()
+      leaf0.change.emit()
+      expect(calls).to.be.equal(0)
+      leaf1.change.emit()
+      expect(calls).to.be.equal(1)
+    })
+
     it("should support ViewQuery", async () => {
       const obj0 = new SomeModel()
       const obj1 = new SomeModel()
@@ -74,12 +165,12 @@ describe("core/view", () => {
 
       expect([...view5.views.all_views()]).to.be.equal([view5, view3, view0, view4, view1, view2])
 
-      expect([...view0.children()]).to.be.equal([])
-      expect([...view1.children()]).to.be.equal([])
-      expect([...view2.children()]).to.be.equal([])
-      expect([...view3.children()]).to.be.equal([view0])
-      expect([...view4.children()]).to.be.equal([view1, view2])
-      expect([...view5.children()]).to.be.equal([view3, view4])
+      expect(view0.children_views()).to.be.equal([])
+      expect(view1.children_views()).to.be.equal([])
+      expect(view2.children_views()).to.be.equal([])
+      expect(view3.children_views()).to.be.equal([view0])
+      expect(view4.children_views()).to.be.equal([view1, view2])
+      expect(view5.children_views()).to.be.equal([view3, view4])
     })
   })
 })

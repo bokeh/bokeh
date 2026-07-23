@@ -360,7 +360,7 @@ export class DateFormatter extends StringFormatter {
       case "RFC-1036":
         return "%a, %e %b %y"
       case "TIMESTAMP":
-        return undefined
+        return "@"
       default:
         return this.format
     }

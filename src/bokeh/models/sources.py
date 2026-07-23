@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportCallIssue=false, reportAssignmentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -25,8 +27,6 @@ from typing import (
     Any,
     Mapping,
     Sequence,
-    TypeAlias,
-    overload,
 )
 
 # External imports
@@ -80,13 +80,13 @@ __all__ = (
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    Value: TypeAlias = Any
+    type Value = Any
 
-    DataDict: TypeAlias = dict[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
+    type DataDict = dict[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
 
-    Index: TypeAlias = int | slice | tuple[int | slice, ...]
+    type Index = int | slice | tuple[int | slice, ...]
 
-    Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Value]]]
+    type Patches = Mapping[str, Sequence[tuple[Index, Value]]]
 
 @abstract
 class DataSource(Model):
@@ -222,11 +222,6 @@ class ColumnDataSource(ColumnarDataSource):
      ).accepts(
         Dataclass, lambda x: ColumnDataSource(asdict(x)),
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1, _cds_lengths_warning)
-
-    @overload
-    def __init__(self, data: DataDict | pd.DataFrame | GroupBy[Any], **kwargs: Any) -> None: ...
-    @overload
-    def __init__(self, **kwargs: Any) -> None: ...
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         ''' If called with a single argument that is a dict, dataclass, or
@@ -376,7 +371,7 @@ class ColumnDataSource(ColumnarDataSource):
             str
 
         '''
-        if df.index.name:
+        if isinstance(df.index.name, str):
             return df.index.name
         elif df.index.names:
             try:

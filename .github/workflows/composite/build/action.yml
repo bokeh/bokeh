@@ -33,7 +33,7 @@ runs:
     - name: Build BokehJS
       working-directory: ./bokehjs
       shell: bash -l {0}
-      run: node make build
+      run: node make build pack
 
     - name: Build pip packages
       shell: bash -l {0}

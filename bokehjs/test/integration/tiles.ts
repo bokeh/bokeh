@@ -34,4 +34,31 @@ describe("TileRenderer", () => {
 
     await display(row([p0, p1]))
   })
+
+  it("should hide attribution for invisible renderers", async () => {
+    const visible_source = new WMTSTileSource({
+      url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
+      attribution: "visible attribution",
+    })
+    const hidden_source = new WMTSTileSource({
+      url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
+      attribution: "hidden attribution",
+    })
+
+    const visible = new TileRenderer({tile_source: visible_source})
+    const hidden = new TileRenderer({tile_source: hidden_source})
+
+    const plot = fig([300, 300], {
+      x_range: [-2000000, 6000000],
+      y_range: [-1000000, 7000000],
+      x_axis_type: "mercator",
+      y_axis_type: "mercator",
+      renderers: [visible, hidden],
+    })
+
+    const {view} = await display(plot)
+
+    hidden.visible = false
+    await view.ready
+  })
 })

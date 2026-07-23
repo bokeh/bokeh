@@ -26,7 +26,7 @@ abstract class AbstractViewQuery {
         query_result.push(view)
       }
 
-      for (const child of view.children()) {
+      for (const child of view.children_views()) {
         descend(child)
       }
     }

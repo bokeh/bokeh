@@ -24,6 +24,7 @@ from ..core.enums import (
 from ..core.has_props import HasProps
 from ..core.property_aliases import GridSpacing, TracksSizing
 from ..model.model import Model, _ModelInit
+from .dom import HTML
 from .ui.panes import Pane, _PaneInit
 from .ui.tooltips import Tooltip
 from .ui.ui_element import UIElement
@@ -159,7 +160,7 @@ class Column(FlexBox):
 
 class _TabPanelInit(_ModelInit, total=False):
     title: str
-    tooltip: Tooltip | None
+    tooltip: str | HTML | Tooltip | None
     child: UIElement
     closable: bool
     disabled: bool
@@ -168,7 +169,7 @@ class TabPanel(Model):
     def __init__(self, **kwargs: Unpack[_TabPanelInit]) -> None: ...
 
     title: str = ...
-    tooltip: Tooltip | None = ...
+    tooltip: str | HTML | Tooltip | None = ...
     child: UIElement = ...
     closable: bool = ...
     disabled: bool = ...

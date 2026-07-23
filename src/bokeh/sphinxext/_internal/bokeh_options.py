@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import importlib
 import textwrap
+from typing import Any
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
@@ -44,7 +45,7 @@ from bokeh.core.property._sphinx import type_link
 from bokeh.util.options import Options
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import OPTIONS_DETAIL
 
@@ -73,7 +74,7 @@ class BokehOptionsDirective(BokehDirective):
     optional_arguments = 1
     option_spec = {"module": unchanged}
 
-    def run(self):
+    def run(self) -> list[Any]:
         sig = " ".join(self.arguments)
 
         m = py_sig_re.match(sig)
@@ -114,7 +115,7 @@ class BokehOptionsDirective(BokehDirective):
         return self.parse(rst_text, "<bokeh-options>")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-options", BokehOptionsDirective)
 

@@ -183,10 +183,10 @@ export class ContextMenu {
   render(): void {
     this.empty()
 
-    for (const style of this.stylesheets()) {
-      const stylesheet = isString(style) ? new InlineStyleSheet(style) : style
-      stylesheet.install(this.shadow_el)
-    }
+    this.shadow_el.adoptedStyleSheets = this
+      .stylesheets()
+      .map((style) => isString(style) ? new InlineStyleSheet(style) : style)
+      .map((sheet) => sheet.to_native())
 
     this.class_list.add(menus[this.orientation])
 

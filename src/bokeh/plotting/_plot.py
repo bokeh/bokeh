@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,12 +21,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Sequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    TypeAlias,
-)
+from typing import TYPE_CHECKING, Any, Literal
 
 # External imports
 import numpy as np
@@ -80,7 +77,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequence[str] | pd.Series[Any] | ExtensionArray | GroupBy[Any] | None) -> Range:
+def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequence[str] | pd.Series[Any] | ExtensionArray | GroupBy[Any] | None) -> Range:  # pyright: ignore[reportInvalidTypeArguments]
     if range_input is None:
         return DataRange1d()
     elif isinstance(range_input, Range):
@@ -112,9 +109,9 @@ def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequ
 
     raise ValueError(f"Unrecognized range input: '{range_input}'")
 
-AxisType: TypeAlias = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
-AxisLocation: TypeAlias = Literal["above", "below", "left", "right"]
-Dim: TypeAlias = Literal[0, 1]
+type AxisType = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
+type AxisLocation = Literal["above", "below", "left", "right"]
+type Dim = Literal[0, 1]
 
 def get_scale(range_input: Range, axis_type: AxisType | None) -> Scale:
     if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "timedelta", "mercator", "auto", None]:

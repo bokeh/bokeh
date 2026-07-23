@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportReturnType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -903,7 +905,7 @@ Examples:
         from bokeh.plotting import figure, show
 
         p = figure(width=300, height=300)
-        p.tex(x=[0], y=[0], text=["x^2 y^2])
+        p.tex(x=[0], y=[0], text=["$$x^2 y^2$$"])
 
         show(p)
 

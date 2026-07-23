@@ -54,6 +54,7 @@ export abstract class View implements ISignalable, Equatable {
   readonly views: ViewQuery = new ViewQuery(this)
 
   readonly signals: {readonly [key: string]: PreactSignal<unknown>} = {}
+  readonly values: {readonly [key: string]: unknown} = {}
 
   private _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
@@ -83,7 +84,8 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    return signal.disconnect(slot, this)
+    const new_slot = this._slots.get(slot)
+    return new_slot != null ? signal.disconnect(new_slot, this) : false
   }
 
   constructor(options: View.Options) {
@@ -106,6 +108,11 @@ export abstract class View implements ISignalable, Equatable {
         configurable: false,
         enumerable: true,
       })
+      Object.defineProperty(this.values, prop.attr, {
+        get() { return prop.signal.value },
+        configurable: false,
+        enumerable: true,
+      })
     }
   }
 
@@ -121,7 +128,7 @@ export abstract class View implements ISignalable, Equatable {
     }
     this.disconnect_signals()
     for (const view of this.children_views()) {
-      view?.remove()
+      view.remove()
     }
     this.owner.remove(this)
     this.removed.emit()
@@ -140,12 +147,11 @@ export abstract class View implements ISignalable, Equatable {
     return Object.is(this, that)
   }
 
-  /** @deprecated use children_views */
-  public *children(): IterViews {
-    yield* this.children_views().filter((view) => view != null)
+  children_views(): View[] {
+    return this._children_views().filter((view) => view != null)
   }
 
-  public children_views(): ChildView[] {
+  protected _children_views(): ChildView[] {
     return []
   }
 
@@ -183,7 +189,7 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   serializable_children(): View[] {
-    return [...this.children()].filter((view) => view.model.is_syncable)
+    return this.children_views().filter((view) => view.model.is_syncable)
   }
 
   serializable_state(): SerializableState {
@@ -222,6 +228,8 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   on_transitive_change<T>(property: Property<T>, fn: () => void, {recursive=false, signal=(obj) => obj.change}: TransitiveOpts = {}): void {
+    const slot = () => fn()
+
     const collect = () => {
       const value = property.is_unset ? [] : property.get_value()
       return HasProps.references(value, {recursive})
@@ -229,13 +237,13 @@ export abstract class View implements ISignalable, Equatable {
 
     const connect = (models: Iterable<HasProps>) => {
       for (const model of models) {
-        this.connect(signal(model), () => fn())
+        this.connect(signal(model), slot)
       }
     }
 
     const disconnect = (models: Iterable<HasProps>) => {
       for (const model of models) {
-        this.disconnect(signal(model), () => fn())
+        this.disconnect(signal(model), slot)
       }
     }
 
@@ -297,7 +305,7 @@ export abstract class View implements ISignalable, Equatable {
         } else if (child.model == target) {
           return child
         } else {
-          queue.push(...child.children())
+          queue.push(...child.children_views())
         }
       }
       return null

@@ -4,7 +4,7 @@ import {logger} from "core/logging"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
 import {px} from "core/dom"
-import type {Display, CSSStyles} from "core/css"
+import type {CSSStyles} from "core/css"
 import {isNumber, isArray} from "core/util/types"
 import {enumerate} from "core/util/iterator"
 import type * as p from "core/properties"
@@ -15,16 +15,13 @@ import type {DOMElementView} from "core/dom_view"
 import type {Layoutable, Percent} from "core/layout"
 import {SizingPolicy} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
-import {unreachable} from "core/util/assert"
+import {defer} from "core/util/defer"
 
 export {type DOMBoxSizing}
 
+import {signal} from "@preact/signals"
+
 export type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-content"
-
-type InnerDisplay = "block" | "inline"
-type OuterDisplay = "flow" | "flow-root" | "flex" | "grid" | "table"
-
-export type FullDisplay = {inner: InnerDisplay, outer: OuterDisplay}
 
 export abstract class LayoutDOMView extends PaneView {
   declare model: LayoutDOM
@@ -92,12 +89,22 @@ export abstract class LayoutDOMView extends PaneView {
       p.width_policy, p.height_policy,
       p.flow_mode, p.sizing_mode,
       p.aspect_ratio,
-      p.visible,
+      p.resizable,
     ], () => this.invalidate_layout())
   }
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this.child_views]
+  protected override _update_visible(): void {
+    super._update_visible()
+
+    this._await_ready((async () => {
+      // defer layout invalidation until after CSS layout updated visibility
+      await defer()
+      this.invalidate_layout()
+    })())
+  }
+
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this.child_views]
   }
 
   abstract get child_models(): UIElement[]
@@ -113,8 +120,14 @@ export abstract class LayoutDOMView extends PaneView {
     return this.child_views.filter((c) => c instanceof LayoutDOMView)
   }
 
+  readonly _sig_child_views = signal<UIElementView[]>([])
+  get sig_child_views(): UIElementView[] {
+    return this._sig_child_views.value
+  }
+
   async build_child_views(): Promise<UIElementView[]> { // TODO BuildResult<UIElement>
     const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
+    this._sig_child_views.value = [...this._child_views.values()]
 
     for (const view of removed) {
       this._resize_observer.unobserve(view.el)
@@ -130,9 +143,11 @@ export abstract class LayoutDOMView extends PaneView {
   override render(): void {
     super.render()
 
-    for (const child_view of this.child_views) {
-      const target = child_view.rendering_target() ?? this.shadow_el
-      child_view.render_to(target)
+    if (!this.is_vdom) {
+      for (const child_view of this.child_views) {
+        const target = child_view.rendering_target() ?? this.shadow_el
+        child_view.render_to(target)
+      }
     }
   }
 
@@ -147,6 +162,12 @@ export abstract class LayoutDOMView extends PaneView {
   async update_children(): Promise<void> {
     const created = await this.build_child_views()
     const created_views = new Set(created)
+
+    if (this.is_vdom) {
+      // this is probably too early to call, but it's temporary workaround
+      this.invalidate_layout()
+      return
+    }
 
     // Find index up to which the order of the existing views
     // matches the order of the new views. This allows us to
@@ -185,41 +206,14 @@ export abstract class LayoutDOMView extends PaneView {
   protected readonly _auto_width: CSSSizeKeyword = "fit-content"
   protected readonly _auto_height: CSSSizeKeyword = "fit-content"
 
-  protected _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "flow"}
-  }
-
   protected _update_layout(): void {
     function css_sizing(policy: SizingPolicy | "auto", size: number | null, auto_size: string, margin: string | null) {
       switch (policy) {
-        case "auto":
-          return size != null ? px(size) : auto_size
-        case "fixed":
-          return size != null ? px(size) : "fit-content"
-        case "fit":
-          return "fit-content"
-        case "min":
-          return "min-content"
-        case "max":
-          return margin == null ? "100%" : `calc(100% - ${margin})`
-      }
-    }
-
-    function css_display(display: FullDisplay): Display {
-      // Convert to legacy values due to limited browser support.
-      const {inner, outer} = display
-      switch (`${inner} ${outer}`) {
-        case "block flow": return "block"
-        case "inline flow": return "inline"
-        case "block flow-root": return "flow-root"
-        case "inline flow-root": return "inline-block"
-        case "block flex": return "flex"
-        case "inline flex": return "inline-flex"
-        case "block grid": return "grid"
-        case "inline grid": return "inline-grid"
-        case "block table": return "table"
-        case "inline table": return "inline-table"
-        default: unreachable()
+        case "auto":  return size != null ? px(size) : auto_size
+        case "fixed": return size != null ? px(size) : "fit-content"
+        case "fit":   return "fit-content"
+        case "min":   return "min-content"
+        case "max":   return margin == null ? "100%" : `calc(100% - ${margin})`
       }
     }
 
@@ -228,9 +222,6 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     const styles: CSSStyles = {}
-
-    const display = this._intrinsic_display()
-    styles.display = css_display(display)
 
     const sizing = this.box_sizing()
     const {width_policy, height_policy, width, height, aspect_ratio} = sizing
@@ -362,7 +353,7 @@ export abstract class LayoutDOMView extends PaneView {
       styles.overflow = "auto"
     }
 
-    this.style.append(":host", styles)
+    this.self_style.append(this.host_selector, styles)
   }
 
   update_layout(): void {
@@ -377,6 +368,21 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     this._update_layout()
+
+    // Originally this was supposed to be implemented using CSS variables. However,
+    // due to scoping limitations in shadow DOM, we ended up with this workaround.
+    // We assume default `block` outer display by default. This has to be applied
+    // at the end of style application, to make sure we don't interfere with
+    // components' intrinsic CSS.
+    const {flow_mode} = this.values
+    if (flow_mode == "inline") {
+      const {display} = getComputedStyle(this.el)
+      if (!display.includes("inline")) {
+        this.self_style.append(this.host_selector, {
+          display: `inline ${display}`,
+        })
+      }
+    }
   }
 
   get is_managed(): boolean {
