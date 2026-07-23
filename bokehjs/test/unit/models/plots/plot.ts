@@ -166,6 +166,65 @@ describe("Plot module", () => {
       }
     })
 
+    it("should constrain current range when max_interval changes", async () => {
+      const x_range = new Range1d({start: 0, end: 10})
+      const view = await new_plot_view({x_range})
+
+      x_range.max_interval = 4
+      await view.ready
+
+      expect(x_range.start).to.be.equal(3)
+      expect(x_range.end).to.be.equal(7)
+    })
+
+    it("should constrain DataRange1d when max_interval changes after initial render", async () => {
+      const y_range = new DataRange1d()
+      const source = new ColumnDataSource({data: {x: [0, 1, 2, 3], y: [0, 1, 4, 9]}})
+      const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+      const renderer = new GlyphRenderer({data_source: source, glyph})
+      const view = await new_plot_view({y_range, renderers: [renderer]})
+
+      expect(y_range.end - y_range.start).to.be.above(1)
+
+      y_range.max_interval = 1e-12
+      await view.ready
+
+      expect(y_range.end - y_range.start).to.be.similar(1e-12, 1e-15)
+    })
+
+    it("should constrain current range when min_interval changes", async () => {
+      const y_range = new Range1d({start: 0, end: 2})
+      const view = await new_plot_view({y_range})
+
+      y_range.min_interval = 6
+      await view.ready
+
+      expect(y_range.start).to.be.equal(-2)
+      expect(y_range.end).to.be.equal(4)
+    })
+
+    it("should keep current range within bounds when min_interval changes", async () => {
+      const x_range = new Range1d({start: 8, end: 10, bounds: [0, 10]})
+      const view = await new_plot_view({x_range})
+
+      x_range.min_interval = 6
+      await view.ready
+
+      expect(x_range.start).to.be.equal(4)
+      expect(x_range.end).to.be.equal(10)
+    })
+
+    it("should prioritize bounds over an incompatible min_interval", async () => {
+      const x_range = new Range1d({start: 8, end: 10, bounds: [0, 10]})
+      const view = await new_plot_view({x_range})
+
+      x_range.min_interval = 12
+      await view.ready
+
+      expect(x_range.start).to.be.equal(0)
+      expect(x_range.end).to.be.equal(10)
+    })
+
     describe("PlotView.pause()", () => {
 
       it("should start unpaused", async () => {
