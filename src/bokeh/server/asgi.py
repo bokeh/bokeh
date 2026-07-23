@@ -548,7 +548,7 @@ class BokehASGI:
         if await self._authenticate(request):
             return True
         assert self._auth_policy is not None
-        if (login_url := self._auth_policy.get_login_url(request)) is not None:
+        if (login_url := await self._auth_policy.get_login_url_async(request)) is not None:
             await self._response(
                 send,
                 302,

@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import inspect
 from abc import ABCMeta, abstractmethod
 from typing import (
     TYPE_CHECKING,
@@ -41,6 +42,7 @@ from typing import (
 # Bokeh imports
 from ..document import Document
 from ..settings import settings
+from ..util.asyncio import _run_in_executor
 
 if TYPE_CHECKING:
     from ..core.types import ID
@@ -256,6 +258,21 @@ class Application:
         request_data: dict[str, Any] = {}
         for h in self._handlers:
             request_data.update(h.process_request(request))
+        return request_data
+
+    async def process_request_async(self, request: RequestLike) -> dict[str, Any]:
+        ''' Asynchronously process an incoming HTTP request.
+
+        Synchronous handlers run in a worker, while handlers that return an
+        awaitable continue on the event loop. Handler ordering and dictionary
+        update semantics match :meth:`process_request`.
+        '''
+        request_data: dict[str, Any] = {}
+        for h in self._handlers:
+            result: Any = await _run_in_executor(h.process_request, request)
+            if inspect.isawaitable(result):
+                result = await result
+            request_data.update(result)
         return request_data
 
 

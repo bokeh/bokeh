@@ -11,7 +11,13 @@ from __future__ import annotations
 # Standard library imports
 import asyncio
 import logging
-from collections.abc import Awaitable, Callable, Iterable, Mapping, Sequence
+from collections.abc import (
+    Awaitable,
+    Callable,
+    Iterable,
+    Mapping,
+    Sequence,
+)
 from os import PathLike as OSPathLike
 from os.path import isdir
 from typing import (
@@ -121,7 +127,7 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
             "cookies": cookies,
             "arguments": dict(request.arguments),
         }
-        payload.update(context.application.process_request(request))
+        payload.update(await context.application.process_request_async(request))
         token = generate_jwt_token(
             session_id,
             secret_key=config.secret_key,

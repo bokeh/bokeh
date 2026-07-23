@@ -9,6 +9,11 @@
 from __future__ import annotations
 
 # Bokeh imports
-from .asyncio import _AsyncPeriodic, _CallbackGroup  # noqa: F401
+from .asyncio import (  # noqa: F401
+    _AsyncPeriodic,
+    _CallbackGroup,
+    _run_in_executor,
+    _wait_for_task,
+)
 
 __all__ = ()

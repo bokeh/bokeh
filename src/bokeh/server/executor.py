@@ -11,16 +11,17 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
 # Standard library imports
 import asyncio
 from collections.abc import Awaitable, Callable
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from typing import Any
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -21,6 +21,7 @@ import asyncio
 import gc
 import logging
 import threading
+from threading import Event, get_ident
 
 # External imports
 from tornado.ioloop import IOLoop
@@ -29,7 +30,10 @@ from tornado.ioloop import IOLoop
 from bokeh.application import Application
 from bokeh.application.handlers import CodeHandler, FunctionHandler
 from bokeh.application.handlers.lifecycle import LifecycleHandler
+from bokeh.document import without_document_lock
+from bokeh.events import ConnectionLost
 from bokeh.io import curdoc
+from bokeh.models import Slider
 
 # Module under test
 import bokeh.server.contexts as bsc # isort:skip
@@ -479,47 +483,86 @@ curdoc().template_variables["thread_id"] = get_ident()
         result = await asyncio.wait_for(result_f, 1)
         assert result == message
 
-    async def test_sync_session_callback_does_not_block_event_loop(self) -> None:
+    @pytest.mark.parametrize("callback_type", ["next_tick", "timeout", "periodic"])
+    async def test_sync_session_callbacks_run_in_worker(
+            self, callback_type: str) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
         session = await c.create_session_if_needed("foo")
-        loop_thread = threading.get_ident()
+        loop_thread = get_ident()
         callback_thread = None
-        started = threading.Event()
-        release = threading.Event()
-        finished = threading.Event()
+        started = Event()
+        release = Event()
+        finished = Event()
+        periodic = None
 
         def callback() -> None:
             nonlocal callback_thread
-            callback_thread = threading.get_ident()
+            callback_thread = get_ident()
+            assert curdoc() is session.document
+            if periodic is not None:
+                session.document.remove_periodic_callback(periodic)
             started.set()
-            release.wait()
+            assert release.wait(timeout=2)
             finished.set()
 
-        session.document.add_next_tick_callback(callback)
-        await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
-        await asyncio.wait_for(asyncio.sleep(0), 0.1)
-        release.set()
-        assert await asyncio.wait_for(asyncio.to_thread(finished.wait), 1)
-        await asyncio.sleep(0)
+        if callback_type == "next_tick":
+            session.document.add_next_tick_callback(callback)
+        elif callback_type == "timeout":
+            session.document.add_timeout_callback(callback, 1)
+        else:
+            periodic = session.document.add_periodic_callback(callback, 1)
+
+        try:
+            await _wait_for_event(started)
+            heartbeat = asyncio.Event()
+            asyncio.get_running_loop().call_soon(heartbeat.set)
+            await asyncio.wait_for(heartbeat.wait(), 1)
+        finally:
+            release.set()
+        await _wait_for_event(finished)
 
         assert callback_thread != loop_thread
 
+    async def test_sync_unlocked_callback_runs_in_worker(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        session = await c.create_session_if_needed("foo")
+        loop_thread = get_ident()
+        callback_thread = None
+        callback_doc = None
+        finished = Event()
+
+        @without_document_lock
+        def callback() -> None:
+            nonlocal callback_doc, callback_thread
+            callback_thread = get_ident()
+            callback_doc = curdoc()
+            finished.set()
+
+        session.document.add_next_tick_callback(callback)
+        await _wait_for_event(finished)
+
+        assert callback_thread != loop_thread
+        assert callback_doc is not None
+        with pytest.raises(AttributeError, match="Only 'add_next_tick_callback'"):
+            callback_doc.title
+
     async def test_session_callbacks_are_serialized(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
         session = await c.create_session_if_needed("foo")
-        lock = threading.Lock()
+        state_lock = threading.Lock()
         active = 0
         maximum_active = 0
 
         def callback() -> None:
             nonlocal active, maximum_active
-            with lock:
+            with state_lock:
                 active += 1
                 maximum_active = max(maximum_active, active)
-            threading.Event().wait(0.02)
-            with lock:
+            Event().wait(0.02)
+            with state_lock:
                 active -= 1
 
         await asyncio.gather(
@@ -531,7 +574,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_different_session_callbacks_can_run_concurrently(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
         first = await c.create_session_if_needed("first")
         second = await c.create_session_if_needed("second")
         barrier = threading.Barrier(2)
@@ -546,49 +589,58 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_async_session_callback_runs_on_event_loop(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
         session = await c.create_session_if_needed("foo")
-        loop_thread = threading.get_ident()
+        loop_thread = get_ident()
         callback_thread = None
 
         async def callback() -> None:
             nonlocal callback_thread
-            callback_thread = threading.get_ident()
+            callback_thread = get_ident()
             await asyncio.sleep(0)
 
         await session.with_document_locked(callback)
 
         assert callback_thread == loop_thread
 
-    async def test_session_callback_can_schedule_timeout_from_worker(self) -> None:
+    async def test_callback_can_schedule_timers_from_worker(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
         session = await c.create_session_if_needed("foo")
-        fired = threading.Event()
+        timeout_finished = Event()
+        periodic_finished = Event()
+        periodic = None
+
+        def periodic_callback() -> None:
+            assert periodic is not None
+            session.document.remove_periodic_callback(periodic)
+            periodic_finished.set()
 
         def callback() -> None:
-            session.document.add_timeout_callback(fired.set, 1)
+            nonlocal periodic
+            session.document.add_timeout_callback(timeout_finished.set, 1)
+            periodic = session.document.add_periodic_callback(periodic_callback, 1)
 
         await session.with_document_locked(callback)
-
-        assert await asyncio.wait_for(asyncio.to_thread(fired.wait), 1)
+        await _wait_for_event(timeout_finished)
+        await _wait_for_event(periodic_finished)
 
     async def test_cancelling_locked_callback_waits_for_worker(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
         session = await c.create_session_if_needed("foo")
-        started = threading.Event()
-        release = threading.Event()
-        finished = threading.Event()
+        started = Event()
+        release = Event()
+        finished = Event()
 
         def callback() -> None:
             started.set()
-            release.wait()
+            assert release.wait(timeout=2)
             session.document.title = "finished"
             finished.set()
 
         task = asyncio.create_task(session.with_document_locked(callback))
-        await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+        await _wait_for_event(started)
         task.cancel()
         await asyncio.sleep(0)
 
@@ -616,6 +668,69 @@ curdoc().template_variables["thread_id"] = get_ident()
                 await session.with_document_locked(callback)
 
         assert not session.expiration_blocked
+
+    async def test_protocol_callback_runs_in_worker(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        session = await c.create_session_if_needed("foo")
+        slider = Slider()
+        await session.with_document_locked(session.document.add_root, slider)
+        loop_thread = get_ident()
+        apply_thread = None
+        model_callback_thread = None
+        document_callback_thread = None
+
+        def model_callback(attr, old, new):
+            nonlocal model_callback_thread
+            model_callback_thread = get_ident()
+            assert curdoc() is session.document
+
+        def document_callback(event):
+            nonlocal document_callback_thread
+            if getattr(event, "attr", None) == "value":
+                document_callback_thread = get_ident()
+                assert curdoc() is session.document
+
+        slider.on_change("value", model_callback)
+        session.document.on_change(document_callback)
+
+        class Message:
+            def apply_to_document(self, doc, setter):
+                nonlocal apply_thread
+                apply_thread = get_ident()
+                slider.value = 1
+
+        class Connection:
+            def ok(self, message):
+                assert get_ident() == loop_thread
+                return "ok"
+
+        result = await session._handle_patch(Message(), Connection())
+
+        assert result == "ok"
+        assert apply_thread != loop_thread
+        assert model_callback_thread == apply_thread
+        assert document_callback_thread == apply_thread
+
+    async def test_connection_lost_callback_runs_in_worker_with_curdoc(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        session = await c.create_session_if_needed("foo")
+        loop_thread = get_ident()
+        callback_thread = None
+        finished = Event()
+
+        def callback(event) -> None:
+            nonlocal callback_thread
+            callback_thread = get_ident()
+            assert curdoc() is session.document
+            finished.set()
+
+        session.document.on_event(ConnectionLost, callback)
+        session.notify_connection_lost()
+        await _wait_for_event(finished)
+
+        assert callback_thread != loop_thread
 
 #-----------------------------------------------------------------------------
 # Dev API

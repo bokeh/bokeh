@@ -21,12 +21,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from concurrent.futures import Future
 import hashlib
 import json
 import os
 import re
 import sys
+from concurrent.futures import Future
 from os.path import (
     abspath,
     dirname,
