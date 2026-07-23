@@ -148,7 +148,7 @@ def test_convert_datetime_type_array_ignores_non_datetime_array() -> None:
     assert bus.convert_datetime_array(a) is a
 
 def test_convert_datetime_array() -> None:
-    array = np.array(['2018-01-03T15:37:59', '2018-01-03T15:37:59.922452', '2016-05-11', 'NaT'], dtype='datetime64')
+    array = np.array(['2018-01-03T15:37:59', '2018-01-03T15:37:59.922452', '2016-05-11', 'NaT'], dtype='datetime64[us]')
     assert np.array_equal(
         bus.convert_datetime_array(array),
         np.array([1514993879000.0, 1514993879922.452, 1462924800000.0, np.nan], dtype="float64"),
@@ -162,14 +162,14 @@ def test_convert_datetime_array() -> None:
     )
 
 def test_convert_datetime_array_NaT() -> None:
-    array = np.array(["NaT"], dtype="datetime64")
+    array = np.array(["NaT"], dtype="datetime64[us]")
     assert np.array_equal(
         bus.convert_datetime_array(array),
         np.array([np.nan], dtype="float64"),
         equal_nan=True,
     )
 
-    array = np.array(["NaT"], dtype="timedelta64")
+    array = np.array(["NaT"], dtype="timedelta64[us]")
     assert np.array_equal(
         bus.convert_datetime_array(array),
         np.array([np.nan], dtype="float64"),
