@@ -256,5 +256,39 @@ describe("column_data_source module", () => {
 
       expect(updates).to.be.equal(0)
     })
+
+    it("should update only selection properties that are pruned", () => {
+      const selected = new Selection({
+        indices: [0, 2],
+        line_indices: [0],
+        multiline_indices: new Map([[0, [0]]]),
+        image_indices: [{index: 0, i: 0, j: 0, flat_index: 0}],
+      })
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      let indices_updates = 0
+      let line_indices_updates = 0
+      let multiline_indices_updates = 0
+      let image_indices_updates = 0
+      selected.properties.indices.change.connect(() => indices_updates++)
+      selected.properties.line_indices.change.connect(() => line_indices_updates++)
+      selected.properties.multiline_indices.change.connect(() => multiline_indices_updates++)
+      selected.properties.image_indices.change.connect(() => image_indices_updates++)
+
+      source.data = {foo: [0, 1]}
+
+      expect(indices_updates).to.be.equal(1)
+      expect(line_indices_updates).to.be.equal(0)
+      expect(multiline_indices_updates).to.be.equal(0)
+      expect(image_indices_updates).to.be.equal(0)
+    })
+
+    it("should prune typed-array selection indices", () => {
+      const selected = new Selection({indices: new Int32Array([0, 2])})
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+
+      source.data = {foo: [0, 1]}
+
+      expect(selected.indices).to.be.equal([0])
+    })
   })
 })
