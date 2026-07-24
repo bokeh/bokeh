@@ -50,7 +50,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 K = TypeVar("K")
-T = TypeVar("T")
+T = TypeVar("T", covariant=True)
 V = TypeVar("V")
 
 class SequenceLike(Iterable[T], Sized, Protocol):
