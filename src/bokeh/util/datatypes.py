@@ -27,7 +27,13 @@ from collections.abc import (
     Set,
     Sized,
 )
-from typing import Generic, Protocol, TypeGuard, TypeVar, cast
+from typing import (
+    Generic,
+    Protocol,
+    TypeGuard,
+    TypeVar,
+    cast,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
