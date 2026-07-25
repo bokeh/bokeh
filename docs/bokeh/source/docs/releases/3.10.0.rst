@@ -22,3 +22,4 @@ Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 * Migrated UI components to use adopted CSS stylesheets (:bokeh-pull:`14973`)
 * Fix broken support for DateFormatter in tables when the format "TIMESTAMP" is selected (:bokeh-pull:`15221`)
 * Add NonNegative type for num_minor_ticks and desired_num_ticks on ContinuousTicker (:bokeh-pull:`15227`)
+* Redesign input widgets as virtual DOM and fix toggle in ``PasswordInput`` (:bokeh-pull:`15025`)

@@ -2,6 +2,7 @@ import {Widget, WidgetView} from "./widget"
 import {toggle_attribute} from "core/dom"
 import type * as p from "core/properties"
 
+/** @deprecated */
 export abstract class ControlView extends WidgetView {
   declare model: Control
 

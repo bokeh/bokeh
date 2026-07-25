@@ -11,6 +11,7 @@ import {logger} from "./core/logging"
 import type {CallbackLike0} from "./core/util/callbacks"
 import {execute} from "./core/util/callbacks"
 import {Mapping, Str, List, Func} from "core/kinds"
+import {Signal} from "./core/signaling"
 
 export type ModelSelector<T> = Class<T> | string | {type: string}
 
@@ -105,15 +106,35 @@ export abstract class Model extends HasProps {
   }
 
   protected _update_property_callbacks(): void {
-    const signal_for = (event: string) => {
-      const [evt, attr=null] = event.split(":")
-      return attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
+    const signal_for = (event: string): Signal<unknown, this> | null => {
+      const [signal_name, attr=null] = event.split(":")
+      if (attr != null) {
+        if (!(attr in this.properties)) {
+          logger.warn(`${this}.${attr} property does not exist`)
+          return null
+        }
+        const prop = this.property(attr) as any
+        if (!(signal_name in prop && prop[signal_name] instanceof Signal)) {
+          logger.warn(`${this}.${attr} property does not support '${signal_name}' signal`)
+          return null
+        }
+        return prop[signal_name]
+      } else {
+        const self = this as any
+        if (!(signal_name in self && self[signal_name] instanceof Signal)) {
+          logger.warn(`${this} model does not support '${signal_name}' signal`)
+          return null
+        }
+        return self[signal_name]
+      }
     }
 
     for (const [event, callbacks] of this._js_callbacks) {
       const signal = signal_for(event)
-      for (const cb of callbacks) {
-        this.disconnect(signal, cb)
+      if (signal != null) {
+        for (const cb of callbacks) {
+          this.disconnect(signal, cb)
+        }
       }
     }
     this._js_callbacks.clear()
@@ -122,8 +143,10 @@ export abstract class Model extends HasProps {
       const wrappers = callbacks.map((cb) => () => execute(cb, this))
       this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
-      for (const cb of wrappers) {
-        this.connect(signal, cb)
+      if (signal != null) {
+        for (const cb of wrappers) {
+          this.connect(signal, cb)
+        }
       }
     }
   }

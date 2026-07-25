@@ -3,7 +3,9 @@ import {Orientation} from "core/enums"
 import type * as p from "core/properties"
 
 export abstract class OrientedControlView extends ControlView {
-  declare model: OrientedControl
+  declare readonly model: OrientedControl
+  declare readonly signals: p.SignalsOf<OrientedControl.Props>
+  declare readonly values: OrientedControl.Attrs
 }
 
 export namespace OrientedControl {

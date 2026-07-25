@@ -33,6 +33,10 @@
   -webkit-mask-repeat: @repeat;
 }
 
+.mask-color(@color) {
+  background-color: @color;
+}
+
 .icon-mask(@icon, @color: var(--icon-color)) {
   .mask-image(@icon);
   .icon-mask-base(@color);
@@ -42,7 +46,7 @@
   .mask-size(contain);
   .mask-position(center center);
   .mask-repeat(no-repeat);
-  background-color: @color;
+  .mask-color(@color);
 }
 
 .bk-disabled(@disabled-opacity, @disabled-background-color, @disabled-color, @icon-color-disabled) {
