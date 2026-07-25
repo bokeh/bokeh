@@ -66,6 +66,18 @@ export class ArrowView extends DataAnnotationView {
     super.remove()
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const update = () => {
+      this.set_data(this.model.source)
+      this.request_paint()
+    }
+
+    this.on_transitive_change(this.model.properties.start, update)
+    this.on_transitive_change(this.model.properties.end, update)
+  }
+
   map_data(): void {
     const {frame} = this.plot_view
 

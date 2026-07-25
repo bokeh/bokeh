@@ -65,7 +65,7 @@ if TYPE_CHECKING:
     ModelLike: TypeAlias = Model | Document
     ModelLikeCollection: TypeAlias = Sequence[ModelLike] | dict[str, ModelLike]
 
-    ThemeLike: TypeAlias = None | Theme | type[FromCurdoc]
+    ThemeLike: TypeAlias = None | Theme | str | type[FromCurdoc]
 
 #-----------------------------------------------------------------------------
 # Globals and constants

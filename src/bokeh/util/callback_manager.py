@@ -143,7 +143,7 @@ class PropertyCallbackManager:
 
         Args:
             attr (str) : an attribute name on this object
-            callback (callable) : a callback function to register
+            *callbacks (callable) : one or more callback functions to register
 
         Returns:
             None

@@ -6,6 +6,7 @@ import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {PlotView} from "./plot_canvas"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
+import {clamp} from "core/util/math"
 
 export type RangeState = Map<Range, Interval>
 
@@ -176,6 +177,26 @@ export class RangeManager {
     }
   }
 
+  constrain_interval(rng: Range): RangeInfo | null {
+    const range_info = this._constrain_interval(rng)
+    if (range_info == null) {
+      return null
+    }
+
+    const {x_ranges, y_ranges} = this.ranges()
+    const xrs: Map<Range, Interval> = new Map()
+    const yrs: Map<Range, Interval> = new Map()
+
+    if (x_ranges.includes(rng)) {
+      xrs.set(rng, range_info)
+    }
+    if (y_ranges.includes(rng)) {
+      yrs.set(rng, range_info)
+    }
+
+    return {xrs, yrs}
+  }
+
   compute_initial(): RangeInfo | null {
     // check for good values for ranges before setting initial range
     let good_vals = true
@@ -207,6 +228,37 @@ export class RangeManager {
         logger.warn("could not set initial ranges")
       }
       return null
+    }
+  }
+
+  protected _constrain_interval(rng: Range): Interval | null {
+    const old_interval = Math.abs(rng.end - rng.start)
+    const min_interval = rng.min_interval ?? 0
+    let max_interval = rng.max_interval ?? Infinity
+
+    const [min_bound, max_bound] = rng.computed_bounds
+
+    if (rng.bounds != null) {
+      if (isFinite(min_bound) && isFinite(max_bound)) {
+        max_interval = Math.min(max_interval, Math.abs(max_bound - min_bound))
+      }
+    }
+
+    const new_interval = clamp(old_interval, Math.min(min_interval, max_interval), max_interval)
+    if (new_interval == old_interval) {
+      return null
+    }
+
+    const half_interval = new_interval / 2
+    let center = (rng.start + rng.end) / 2
+    if (rng.bounds != null) {
+      center = clamp(center, min_bound + half_interval, max_bound - half_interval)
+    }
+    const sign = rng.is_reversed ? -1 : 1
+
+    return {
+      start: center - sign*half_interval,
+      end: center + sign*half_interval,
     }
   }
 

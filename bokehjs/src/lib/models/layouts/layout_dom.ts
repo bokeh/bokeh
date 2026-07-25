@@ -101,6 +101,7 @@ export abstract class LayoutDOMView extends PaneView {
       p.flow_mode, p.sizing_mode,
       p.aspect_ratio,
       p.visible,
+      p.resizable,
     ], () => this.invalidate_layout())
   }
 

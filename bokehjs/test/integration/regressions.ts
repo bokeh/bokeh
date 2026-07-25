@@ -3,8 +3,9 @@ import sinon from "sinon"
 import {expect, expect_condition, expect_not_null} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
+import {async_trap} from "../util"
 
-import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -25,7 +26,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4918,6 +4919,76 @@ describe("Bug", () => {
         axis.ticker.num_minor_ticks = 0
       }
       await view.ready
+    })
+  })
+
+  describe("in issue #15031", () => {
+    it("doesn't show correct tick label when scientific notation is disabled", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+    })
+
+    it("doesn't show correct tick labels when scientific notation is toggled repeatedly", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      await view.ready
+    })
+  })
+
+  describe("in issue #15026", () => {
+    it("ArrowHead properties not updating from JS callbacks", async () => {
+      const p = fig([200, 200], {x_range: [0, 2], y_range: [0, 2]})
+      const arrow_head = new OpenHead({line_color: "blue", size: 20, line_width: 2})
+      p.add_layout(new Arrow({end: arrow_head, x_start: 0.5, y_start: 0.5, x_end: 1.5, y_end: 1.5}))
+
+      const {view} = await display(p)
+
+      arrow_head.line_color = "red"
+      arrow_head.line_width = 5
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #15120", () => {
+    it("doesn't allow to render a Plot when Axis.fixed_location points to nowhere", async () => {
+      const plot = fig([200, 200])
+      plot.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
+      const axis = new LinearAxis({fixed_location: "nowhere"})
+      plot.add_layout(axis, "below")
+
+      const output = await async_trap(async () => {
+        await display(plot)
+      })
+      expect(output.warn.includes("cannot determine location of axis based on its fixed_location")).to.be.true
     })
   })
 })

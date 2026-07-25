@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from urllib.parse import urljoin
+
 # External imports
 from tornado.web import RequestHandler
 
@@ -56,10 +59,13 @@ class AuthRequestHandler(RequestHandler):
         ``login_url`` attribute.
 
         '''
-        if self.application.auth_provider.get_login_url is not None:
-            return self.application.auth_provider.get_login_url(self)
-        if self.application.auth_provider.login_url is not None:
-            return self.application.auth_provider.login_url
+        auth_provider = self.application.auth_provider
+        if auth_provider.get_login_url is not None:
+            return auth_provider.get_login_url(self)
+        if auth_provider.login_url is not None:
+            # second arg must be lstrip'd to avoid dropping the prefix
+            # (urljoin treats a leading-slash second arg as an absolute path and discards the base)
+            return urljoin(self.application.prefix + "/", auth_provider.login_url.lstrip("/"))
         raise RuntimeError('login_url or get_login_url() must be supplied when authentication hooks are enabled')
 
     def get_current_user(self):
