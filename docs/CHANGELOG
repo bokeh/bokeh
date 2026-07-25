@@ -1,3 +1,32 @@
+2026-07-25    3.9.2:
+--------------------
+  * bugfixes:
+    - #11991 [component: server] Authentication doesn't work with prefix? [BUG] 
+    - #12160 [BUG] theme is not applied to json_item plot
+    - #14439 [component: bokehjs] Hiding map tiles attribution when multiple tiles renderer are added to the plot
+    - #15006 [component: bokehjs] Python callback updates min interval of y range but fails to update the plot
+    - #15026 [component: bokehjs] JS callback does not change the color of arrow head
+    - #15031 [component: bokehjs] Cannot recover the original state of the plot after toggling scientific notation
+    - #15063 [component: bokehjs] Scientific precision not updating when zooming in
+    - #15034 [component: bokehjs] Bokeh Button is still resizable after setting resizable to false with CustomJS
+    - #15122 [component: bokehjs] DataRange1d.max_interval runtime update does not recompute the visible range
+    - #15135 [component: bokehjs] Primary group labels of a nested categorical axis are not centered
+    - #15151 CI failing due to pytest 9.1.0 deprecations
+    - #15212 [component: bokehjs] on_transitive_change has a resource leak
+    - #15218 [component: tests] Handle precision issue in flaky mercator tick test
+    - #15251 [component: bokehjs] `bokeh init` uses npm incompabible bokehjs version
+
+  * tasks:
+    - #10067 [BUG] _line_stack() doesn't accept np.ndarray in stackers argument
+    - #13177 Remove message "User authentication hooks NOT provided (default user enabled)"
+    - #14026 [component: docs] Update environment variables section in dev docs
+    - #14689 [component: docs] Document caveats of visual integration tests in bokehjs
+    - #15120 [component: bokehjs] Axis.fixed_location string value on numeric range can throw UnreachableError during initial render
+    - #15125 [component: server] Verify WebSocket token signatures before payload parsing
+    - #15234 [component: tests] Fix flaky macos BokehJS Pantool test
+    - #15260 [component: examples] Fix/improve faces example
+    - #15189 [component: docs] Fix parameter name mismatches in docstrings
+
 2026-06-04    3.9.1:
 --------------------
   * bugfixes:
