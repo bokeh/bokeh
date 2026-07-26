@@ -3,22 +3,20 @@
 3.10.0
 ======
 
-Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
+Bokeh version ``3.10.0`` (July 2026) is a minor milestone of Bokeh project.
 
 * Added WebGL rendering support for ``Patch`` and ``Patches`` glyphs (:bokeh-pull:`14853`)
-* Added ``LightDark`` component to switch between light and dark themes (:bokeh-pull:`14807`)
-* Removed PNG icon related CSS and simplified icons' CSS (:bokeh-pull:`14579`)
-* Dropped support for Python 3.10 (:bokeh-pull:`14865`)
-* Dropped support for Python 3.11 (:bokeh-pull:`15174`)
-* Added ``perform_error_diagnostics`` settings flag (:bokeh-pull:`14947`)
-* Redesigned BokehJS' build system to use TypeScript native (tsgo) compiler (:bokeh-pull:`14812`)
-* Redesigned views' internals and components to use virtual DOM (:bokeh-pull:`14829`)
-* Support ``LightDark`` component auto/system option and add tri-state handling to toggle like components (:bokeh-pull:`14915`)
-* Make it easier to theme ``Tooltip`` component and migrate it to vDOM (:bokeh-pull:`14955`)
-* Fix broken inverted color mapping when using LogColorMapper (:bokeh-pull:`15035`)
-* Simplified ``CustomJS`` construction with template strings (Python 3.14+) (:bokeh-pull:`14977`)
+* Fixed various WebGL issues involving property overrides, streaming updates, polygon topology, nested rings, and invalid dash patterns, including browser hangs on all-zero patterns (:bokeh-pull:`14895`, :bokeh-pull:`15255`, :bokeh-pull:`15257`, :bokeh-pull:`15259`)
+* Improved hit testing and panning performance, including correct hover and selection behavior for ``Step`` glyphs (:bokeh-pull:`14737`, :bokeh-pull:`14880`, :bokeh-pull:`15083`, :bokeh-pull:`15109`)
+* Fixed canvas rendering of ``Wedge`` and ``AnnularWedge`` glyph property overrides (:bokeh-pull:`14952`)
+* Added ``Server.from_settings()`` to construct a server from global Bokeh settings (:bokeh-pull:`14874`)
+* Added optional dependency groups, including ``pip install bokeh[all]`` (:bokeh-pull:`14924`)
 * Added Playwright as an alternative export backend for PNG and SVG (:bokeh-pull:`14940`)
-* Redesigned ``Tabs`` as vDOM, added keyboard navigation and improved accessibility (:bokeh-pull:`15168`)
-* Migrated UI components to use adopted CSS stylesheets (:bokeh-pull:`14973`)
-* Fix broken support for DateFormatter in tables when the format "TIMESTAMP" is selected (:bokeh-pull:`15221`)
-* Add NonNegative type for num_minor_ticks and desired_num_ticks on ContinuousTicker (:bokeh-pull:`15227`)
+* Added ``CustomJS.from_template()`` for Python 3.14 template strings (:bokeh-pull:`14978`)
+* Added atomic ``FileInputChange`` events, sequence support for ``show()`` in notebooks, and fractional CSS ``rgb()`` and ``rgba()`` channels (:bokeh-pull:`15093`, :bokeh-pull:`15112`, :bokeh-pull:`15087`)
+* Improved extension and typing support with ``@bokehjs/...`` imports in old-style extensions and the new ``BuiltinThemeName`` type (:bokeh-pull:`15250`, :bokeh-pull:`15241`)
+* Dropped Python 3.10 and 3.11 support; Bokeh now requires Python 3.12 or newer (:bokeh-pull:`14865`, :bokeh-pull:`15174`)
+* Redesigned BokehJS' build system to use the TypeScript native (tsgo) compiler (:bokeh-pull:`14812`)
+* Improved BokehJS model initialization and property comparison robustness (:bokeh-pull:`14819`)
+* Hardened credentialed ``autoload.js`` CORS responses by restricting origins to the websocket origin allowlist (:bokeh-pull:`15105`)
+* Fixed gesture tool state, child view cleanup, dynamic ``FlexBox`` spacing, ``DateFormatter(format="TIMESTAMP")``, and validation of ``ContinuousTicker`` tick counts (:bokeh-pull:`14976`, :bokeh-pull:`15049`, :bokeh-pull:`15211`, :bokeh-pull:`15221`, :bokeh-pull:`15227`)
