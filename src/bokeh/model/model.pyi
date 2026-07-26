@@ -8,11 +8,7 @@
 # Standard library imports
 from dataclasses import dataclass
 from inspect import Parameter
-from typing import (
-    Any,
-    Iterable,
-    Self,
-)
+from typing import Any, Iterable, Self
 
 # Bokeh imports
 from ..core.has_props import HasProps, Setter, abstract

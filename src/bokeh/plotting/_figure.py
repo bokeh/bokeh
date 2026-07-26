@@ -11,7 +11,12 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    cast,
+)
 
 import logging # isort:skip
 

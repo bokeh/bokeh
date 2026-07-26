@@ -7,11 +7,7 @@
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Literal,
-    Sequence,
-)
+from typing import Any, Literal, Sequence
 
 # Bokeh imports
 from ..._types import (
