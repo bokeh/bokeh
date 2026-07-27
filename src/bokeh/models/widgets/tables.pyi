@@ -9,7 +9,6 @@
 from abc import abstractmethod
 from typing import Any, Literal, Unpack
 
-from ..dom import HTML
 # Bokeh imports
 from ..._specs import ColorSpec, FontStyleSpec, TextAlignSpec
 from ...core.enums import (
@@ -20,6 +19,7 @@ from ...core.enums import (
 )
 from ...model.model import Model, _ModelInit
 from ..comparisons import Comparison
+from ..dom import HTML
 from ..sources import (
     CDSView,
     ColumnDataSource,

@@ -16,9 +16,6 @@ from __future__ import annotations
 # pyright: reportAbstractUsage=false, reportArgumentType=false, reportAssignmentType=false
 
 import logging # isort:skip
-
-from ..dom import HTML
-
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -53,6 +50,7 @@ from ...core.property.required import Required
 from ...core.property.singletons import Intrinsic
 from ...model import Model
 from ..comparisons import Comparison
+from ..dom import HTML
 from ..sources import CDSView, ColumnDataSource, DataSource
 from .widget import Widget
 
