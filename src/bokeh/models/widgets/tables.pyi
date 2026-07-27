@@ -9,6 +9,7 @@
 from abc import abstractmethod
 from typing import Any, Literal, Unpack
 
+from ..dom import HTML
 # Bokeh imports
 from ..._specs import ColorSpec, FontStyleSpec, TextAlignSpec
 from ...core.enums import (
@@ -204,7 +205,7 @@ class SumAggregator(RowAggregator):
 
 class _TableColumnInit(_ModelInit, total=False):
     field: str
-    title: str | None
+    title: str | HTML | None
     width: int
     formatter: CellFormatter
     editor: CellEditor
@@ -212,13 +213,12 @@ class _TableColumnInit(_ModelInit, total=False):
     default_sort: Literal["ascending", "descending"]
     visible: bool
     sorter: Comparison | None
-    allow_html_title: bool
 
 class TableColumn(Model):
     def __init__(self, **kwargs: Unpack[_TableColumnInit]) -> None: ...
 
     field: str = ...
-    title: str | None = ...
+    title: str | HTML | None = ...
     width: int = ...
     formatter: CellFormatter = ...
     editor: CellEditor = ...
@@ -226,7 +226,6 @@ class TableColumn(Model):
     default_sort: Literal["ascending", "descending"] = ...
     visible: bool = ...
     sorter: Comparison | None = ...
-    allow_html_title: bool = ...
 
 class _TableWidgetInit(_WidgetInit, total=False):
     source: DataSource

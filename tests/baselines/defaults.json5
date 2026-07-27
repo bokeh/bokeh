@@ -8067,7 +8067,6 @@
     default_sort: "ascending",
     visible: true,
     sorter: null,
-    allow_html_title: false,
   },
   TableWidget: {
     __extends__: "Widget",

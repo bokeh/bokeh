@@ -2,8 +2,7 @@ import {DOMElement, DOMElementView} from "./dom_element"
 import {UIElement} from "../ui/ui_element"
 import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
-import {span} from "core/dom"
-import {assert} from "core/util/assert"
+import {parse_html_fragment} from "core/dom"
 import {isString, isArray} from "core/util/types"
 import type * as p from "core/properties"
 import {Str, Ref, Or} from "core/kinds"
@@ -76,45 +75,15 @@ export class HTMLView extends DOMElementView {
   }
 
   parse_html(html: string): Node[] {
-    const parser = new DOMParser()
-    const document = parser.parseFromString(html, "text/html")
-
-    const iter = document.createNodeIterator(document, NodeFilter.SHOW_ELEMENT, (node) => {
-      return node.nodeName.toLowerCase() == "ref" ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+    return parse_html_fragment(html, (id, name) => {
+      for (const [model, view] of this._refs) {
+        if ((id != null && model.id == id) || (name != null && model.name == name)) {
+          view.render()
+          return view.el
+        }
+      }
+      return null
     })
-
-    let node: Node | null
-    next_node: while ((node = iter.nextNode()) != null) {
-      assert(node instanceof Element)
-
-      const id = node.getAttribute("id")
-      if (id != null) {
-        for (const [model, view] of this._refs) {
-          if (model.id == id) {
-            view.render()
-            node.replaceWith(view.el)
-            continue next_node
-          }
-        }
-        node.replaceWith(span(`<not found: id=${id}>`))
-        continue
-      }
-
-      const name = node.getAttribute("name")
-      if (name != null) {
-        for (const [model, view] of this._refs) {
-          if (model.name == name) {
-            view.render()
-            node.replaceWith(view.el)
-            continue next_node
-          }
-        }
-        node.replaceWith(span(`<not found: name=${name}>`))
-        continue
-      }
-    }
-
-    return [...document.body.childNodes]
   }
 }
 

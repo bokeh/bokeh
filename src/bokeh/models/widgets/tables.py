@@ -16,6 +16,9 @@ from __future__ import annotations
 # pyright: reportAbstractUsage=false, reportArgumentType=false, reportAssignmentType=false
 
 import logging # isort:skip
+
+from ..dom import HTML
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -702,9 +705,9 @@ class TableColumn(Model):
     The name of the field mapping to a column in the data source.
     """)
 
-    title = Nullable(String, help="""
-    The title of this column. If not set, column's data field is
-    used instead.
+    title = Nullable(Either(String, Instance(HTML)), help="""
+    The title of this column. May be a plain string or an HTML element.
+    If not set, column's data field is used instead.
     """)
 
     width = Int(300, help="""
@@ -736,10 +739,6 @@ class TableColumn(Model):
     """)
 
     sorter = Nullable(Instance(Comparison), help="""
-    """)
-
-    allow_html_title = Bool(False, help="""
-    Whether the title should be treated as HTML or plain text.
     """)
 
 @abstract
