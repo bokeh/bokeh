@@ -1,5 +1,6 @@
 from bokeh import events
 from bokeh.io import curdoc, show
+from bokeh.layouts import column
 from bokeh.models import Button, CustomJS
 
 button = Button(label="Change language!")
@@ -60,4 +61,4 @@ curdoc().on_event(events.DocumentReady, CustomJS(code="""
     cb_obj.config.i18n.set_locale("es-CO")
 """))
 
-show([button, button1, button2])
+show(column([button, button1, button2]))
