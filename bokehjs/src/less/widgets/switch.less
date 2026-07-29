@@ -54,18 +54,21 @@
   transition-property: left, background-color;
 }
 
-:host(.bk-active) .bk-bar {
+:host(:not(.bk-disabled).bk-active) .bk-bar {
   background-color: var(--active-bg);
+}
+
+:host(:not(.bk-disabled).bk-active) .bk-knob,
+:host(:not(.bk-disabled).bk-indeterminate) .bk-knob {
+  background-color: var(--active-fg);
 }
 
 :host(.bk-active) .bk-knob {
   left: calc(100% - var(--switch-size));
-  background-color: var(--active-fg);
 }
 
 :host(.bk-indeterminate) .bk-knob {
   left: calc(75% - var(--switch-size));
-  background-color: var(--active-fg);
 }
 
 .bk-label {

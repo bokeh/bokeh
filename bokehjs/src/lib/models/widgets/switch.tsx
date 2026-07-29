@@ -31,7 +31,7 @@ export class SwitchView extends ToggleInputView {
       <UIComponent parent={this.resolved_props} class={cls(active_cls, disabled_cls, indeterminate_cls)} role="switch" aria-checked={aria_checked}>
         <div class={toggle_css.label}>{label}</div>
         {icon.value != null ? <Icon classes={switch_css.icon} icon={icon.value}></Icon> : null}
-        <div class={switch_css.body} onClick={() => this._toggle_active()} onKeyDown={this.on_key_down}>
+        <div class={switch_css.body} onClick={() => this._toggle_active()} onKeyDown={this.on_key_down.bind(this)}>
           <div class={switch_css.bar}></div>
           <div class={switch_css.knob} tabIndex={0}></div>
         </div>
