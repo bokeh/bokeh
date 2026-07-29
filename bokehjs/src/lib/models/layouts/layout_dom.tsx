@@ -19,15 +19,16 @@ import {defer} from "core/util/defer"
 
 export {type DOMBoxSizing}
 
-import {signal} from "@preact/signals"
+import {signal, effect} from "@preact/signals"
 
 export type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-content"
 
 export abstract class LayoutDOMView extends PaneView {
-  declare model: LayoutDOM
-  declare parent: DOMElementView | null
+  declare readonly model: LayoutDOM
+  declare readonly signals: p.SignalsOf<LayoutDOM.Props>
+  declare readonly values: LayoutDOM.Attrs
 
-  protected readonly _child_views: ViewStorage<UIElement> = new Map()
+  declare readonly parent: DOMElementView | null
 
   layout?: Layoutable
 
@@ -60,6 +61,10 @@ export abstract class LayoutDOMView extends PaneView {
 
   override connect_signals(): void {
     super.connect_signals()
+
+    effect(() => {
+      void this.update_children()
+    })
 
     this.el.addEventListener("mouseenter", (event) => {
       this.mouseenter.emit(event)
@@ -107,27 +112,22 @@ export abstract class LayoutDOMView extends PaneView {
     return [...super._children_views(), ...this.child_views]
   }
 
+  protected readonly _child_storage: ViewStorage<UIElement> = new Map()
+
   abstract get child_models(): UIElement[]
 
+  protected readonly _child_views = signal<UIElementView[]>([])
   get child_views(): UIElementView[] {
-    // TODO In case of a race condition somewhere between layout, resize and children updates,
-    // child_models and _child_views may be temporarily inconsistent, resulting in undefined
-    // values. Eventually this shouldn't happen and undefined should be treated as a bug.
-    return this.child_models.map((child) => this._child_views.get(child)).filter((view) => view != null)
+    return this._child_views.value
   }
 
   get layoutable_views(): LayoutDOMView[] {
     return this.child_views.filter((c) => c instanceof LayoutDOMView)
   }
 
-  readonly _sig_child_views = signal<UIElementView[]>([])
-  get sig_child_views(): UIElementView[] {
-    return this._sig_child_views.value
-  }
-
-  async build_child_views(): Promise<UIElementView[]> { // TODO BuildResult<UIElement>
-    const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
-    this._sig_child_views.value = [...this._child_views.values()]
+  async build_child_views(): Promise<UIElementView[]> {
+    const {current, created, removed} = await build_views(this._child_storage, this.child_models, {parent: this})
+    this._child_views.value = current
 
     for (const view of removed) {
       this._resize_observer.unobserve(view.el)
@@ -157,9 +157,7 @@ export abstract class LayoutDOMView extends PaneView {
     this.compute_layout()
   }
 
-  protected _update_children(): void {}
-
-  async update_children(): Promise<void> {
+  private async update_children(): Promise<void> {
     const created = await this.build_child_views()
     const created_views = new Set(created)
 
@@ -199,7 +197,6 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     this.r_after_render()
-    this._update_children()
     this.invalidate_layout()
   }
 

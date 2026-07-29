@@ -8,17 +8,18 @@ type VBoxChild = {child: UIElement, row?: number, span?: number} // XXX: can't i
 const VBoxChild = Struct<VBoxChild>({child: Ref(UIElement), row: Opt(Index), span: Opt(Span)})
 
 export class VBoxView extends CSSGridBoxView {
-  declare model: VBox
+  declare readonly model: VBox
+  declare readonly signals: p.SignalsOf<VBox.Props>
+  declare readonly values: VBox.Attrs
 
   override connect_signals(): void {
     super.connect_signals()
-    const {children, rows} = this.model.properties
-    this.on_change(children, () => this.update_children())
+    const {rows} = this.model.properties
     this.on_change(rows, () => this.invalidate_layout())
   }
 
   protected get _children(): [UIElement, number, number, number?, number?][] {
-    return this.model.children.map(({child, row, span}, i) => [child, row ?? i, 0, span ?? 1, 1])
+    return this.values.children.map(({child, row, span}, i) => [child, row ?? i, 0, span ?? 1, 1])
   }
 
   protected get _rows(): TracksSizing | null {

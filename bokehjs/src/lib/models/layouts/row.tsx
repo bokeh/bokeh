@@ -2,7 +2,10 @@ import {FlexBox, FlexBoxView} from "./flex_box"
 import type * as p from "core/properties"
 
 export class RowView extends FlexBoxView {
-  declare model: Row
+  declare readonly model: Row
+  declare readonly signals: p.SignalsOf<Row.Props>
+  declare readonly values: Row.Attrs
+
   protected _direction = "row" as const
 }
 
