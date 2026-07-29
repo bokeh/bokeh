@@ -1,6 +1,5 @@
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {entries} from "./util/object"
-import {assert} from "./util/assert"
 import {BBox} from "./util/bbox"
 import type {Size, Box, Extents, PlainObject} from "./types"
 import type {CSSStyles} from "./css"
@@ -127,33 +126,6 @@ const _element = <T extends keyof HTMLElementTagNameMap, ElementSpecificAttrs>(t
 export function create_element<T extends keyof HTMLElementTagNameMap>(
     tag: T, attrs: HTMLAttrs<T, object> | null, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
   return _element(tag)(attrs, ...children)
-}
-
-/**
- * Parses a raw HTML string into a list of DOM nodes. Any `<ref id="...">`
- * or `<ref name="...">` placeholders are resolved via `resolve_ref`, if
- * given; otherwise (or if resolution fails) they are replaced with a
- * `<span>` indicating the reference wasn't found.
- */
-export function parse_html_fragment(html: string, resolve_ref?: (id: string | null, name: string | null) => Node | null): Node[] {
-  const parser = new DOMParser()
-  const document = parser.parseFromString(html, "text/html")
-
-  const iter = document.createNodeIterator(document, NodeFilter.SHOW_ELEMENT, (node) => {
-    return node.nodeName.toLowerCase() == "ref" ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
-  })
-
-  let node: Node | null
-  while ((node = iter.nextNode()) != null) {
-    assert(node instanceof Element)
-
-    const id = node.getAttribute("id")
-    const name = node.getAttribute("name")
-    const replacement = resolve_ref?.(id, name) ?? span(`<not found: ${id ?? name ?? "?"}>`)
-    node.replaceWith(replacement)
-  }
-
-  return [...document.body.childNodes]
 }
 
 export type AAttrs = {
