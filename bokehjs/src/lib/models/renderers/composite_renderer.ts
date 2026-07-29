@@ -20,10 +20,14 @@ export abstract class CompositeRendererView extends RendererView {
     return this.computed_renderer_views
   }
 
+  protected _computed_renderer_views: ViewOf<Renderer>[] = []
+
   protected readonly _element_views: ViewStorage<ElementLike> = new Map()
   get element_views(): ViewOf<ElementLike>[] {
     return this.computed_element_views
   }
+
+  protected _computed_element_views: ViewOf<ElementLike>[] = []
 
   override children_views(): ChildView[] {
     return [...super.children_views(), ...this.renderer_views, ...this.element_views]
@@ -40,11 +44,14 @@ export abstract class CompositeRendererView extends RendererView {
     return [...this.model.renderers, ...this._computed_renderers]
   }
   get computed_renderer_views(): ViewOf<Renderer>[] {
-    return this.computed_renderers.map((item) => this._renderer_views.get(item)).filter((rv) => rv != null)
+    return this._computed_renderer_views
   }
 
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
-    return await build_views(this._renderer_views, this.computed_renderers, {parent: this.plot_view})
+    const renderers = this.computed_renderers
+    const result = await build_views(this._renderer_views, renderers, {parent: this.plot_view})
+    this._computed_renderer_views = renderers.map((item) => this._renderer_views.get(item)).filter((rv) => rv != null)
+    return result
   }
 
   protected readonly _computed_elements: ElementLike[] = []
@@ -52,11 +59,14 @@ export abstract class CompositeRendererView extends RendererView {
     return [...this.model.elements, ...this._computed_elements]
   }
   get computed_element_views(): ViewOf<ElementLike>[] {
-    return this.computed_elements.map((item) => this._element_views.get(item)).filter((ev) => ev != null)
+    return this._computed_element_views
   }
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {
-    return await build_views(this._element_views, this.computed_elements, {parent: (model) => model instanceof LayoutDOM ? null : this.plot_view})
+    const elements = this.computed_elements
+    const result = await build_views(this._element_views, elements, {parent: (model) => model instanceof LayoutDOM ? null : this.plot_view})
+    this._computed_element_views = elements.map((item) => this._element_views.get(item)).filter((ev) => ev != null)
+    return result
   }
 
   protected async _update_renderers(): Promise<void> {
