@@ -21,20 +21,29 @@ export class TabsView extends LayoutDOMView {
   declare model: Tabs
 
   protected tooltip_views: ViewStorage<Tooltip> = new Map()
+  protected readonly _materialized_tabs: Set<UIElement> = new Set()
   protected header_el: HTMLElement
   headers_wrapper_el: HTMLElement
   header_els: HTMLElement[]
 
   override connect_signals(): void {
     super.connect_signals()
-    const {tabs, active} = this.model.properties
+    const {tabs, active, link_layouts} = this.model.properties
     this.on_change(tabs, async () => {
       this._update_headers()
       await this.update_children()
-    })
-    this.on_change(active, () => {
       this.update_active()
     })
+
+    this.on_change([active, link_layouts], async () => {
+      await this.update_children()
+      this.update_active()
+    })
+
+    this.on_transitive_change(tabs, async () => {
+      await this.update_children()
+      this.update_active()
+    }, {signal: (tab) => (tab as TabPanel).properties.child.change})
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -49,7 +58,28 @@ export class TabsView extends LayoutDOMView {
   }
 
   get child_models(): UIElement[] {
-    return this.model.tabs.map((tab) => tab.child)
+    const {link_layouts, tabs} = this.model
+    if (link_layouts) {
+      return tabs.map((tab) => tab.child)
+    } else if (tabs.length == 0) {
+      this._materialized_tabs.clear()
+      return []
+    } else {
+      const children = tabs.map((tab) => tab.child)
+      const current = new Set(children)
+      for (const child of this._materialized_tabs) {
+        if (!current.has(child)) {
+          this._materialized_tabs.delete(child)
+        }
+      }
+
+      this._materialized_tabs.add(tabs[this.normalized_active].child)
+      return children.filter((child) => this._materialized_tabs.has(child))
+    }
+  }
+
+  get normalized_active(): number {
+    return Math.max(0, Math.min(this.model.active, this.model.tabs.length - 1))
   }
 
   protected override _intrinsic_display(): FullDisplay {
@@ -166,7 +196,7 @@ export class TabsView extends LayoutDOMView {
   }
 
   update_active(): void {
-    const i = this.model.active
+    const i = this.normalized_active
 
     const {header_els} = this
     for (const el of header_els) {
@@ -182,8 +212,10 @@ export class TabsView extends LayoutDOMView {
       hide(child_view.el)
     }
 
-    if (i in child_views) {
-      show(child_views[i].el)
+    const active_child = this.model.tabs[i]?.child
+    const active_view = child_views.find((view) => view.model == active_child)
+    if (active_view != null) {
+      show(active_view.el)
     }
   }
 }
