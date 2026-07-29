@@ -13,7 +13,7 @@ try:
     import boto3
 except ImportError:
     boto3 = ModuleType("boto3")
-    boto3.client = None  # type: ignore[attr-defined]
+    setattr(boto3, "client", None)
     sys.modules["boto3"] = boto3
 
 # External imports

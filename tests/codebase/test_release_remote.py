@@ -2,12 +2,14 @@ from __future__ import annotations
 
 # Standard library imports
 from pathlib import Path
+from typing import Any
 
 # External imports
 import pytest
 from release import remote
 from release.config import Config
 from release.enums import ActionResult
+from release.pipeline import StepType
 
 # Bokeh imports
 # Bokeh test imports
@@ -27,7 +29,7 @@ from tests.codebase._release_support import RecordingSystem
         ),
     ],
 )
-def test_remote_tarball_transfers(config, func, command):
+def test_remote_tarball_transfers(config: Config, func: StepType, command: str) -> None:
     system = RecordingSystem()
 
     result = func(config, system)
@@ -49,7 +51,7 @@ def test_remote_tarball_transfers(config, func, command):
         ),
     ],
 )
-def test_remote_tarball_transfer_failures(config, func, command):
+def test_remote_tarball_transfer_failures(config: Config, func: StepType, command: str) -> None:
     system = RecordingSystem(failures={command: ("transfer failed",)})
 
     result = func(config, system)
@@ -70,21 +72,27 @@ def make_bokehjs_bundles(root: Path) -> None:
     ("version", "subdir"),
     [("4.0.0", "release"), ("4.0.0rc1", "dev"), ("4.0.0.dev1", "dev")],
 )
-def test_publish_bokehjs_to_cdn_uploads_every_bundle(tmp_path, monkeypatch, version, subdir):
+def test_publish_bokehjs_to_cdn_uploads_every_bundle(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    version: str,
+    subdir: str,
+) -> None:
     make_bokehjs_bundles(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(remote, "BOKEHJS_BUCKETS", (("test-bucket", "test-region"),))
-    clients = []
 
     class Client:
-        def __init__(self, **kw):
+        def __init__(self, **kw: Any) -> None:
             self.kw = kw
-            self.objects = []
+            self.objects: list[dict[str, Any]] = []
 
-        def put_object(self, **kw):
+        def put_object(self, **kw: Any) -> None:
             self.objects.append(kw)
 
-    def client(service, **kw):
+    clients: list[Client] = []
+
+    def client(service: str, **kw: Any) -> Client:
         assert service == "s3"
         result = Client(**kw)
         clients.append(result)
@@ -111,12 +119,15 @@ def test_publish_bokehjs_to_cdn_uploads_every_bundle(tmp_path, monkeypatch, vers
     assert all(f"-{version}." in item["Key"] for item in clients[0].objects)
 
 
-def test_publish_bokehjs_to_cdn_returns_failure_for_missing_bundle(tmp_path, monkeypatch):
+def test_publish_bokehjs_to_cdn_returns_failure_for_missing_bundle(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(remote, "BOKEHJS_BUCKETS", (("test-bucket", "test-region"),))
 
     class Client:
-        def put_object(self, **kw):
+        def put_object(self, **kw: Any) -> None:
             pytest.fail("put_object should not be reached")
 
     monkeypatch.setattr(remote.boto3, "client", lambda *args, **kw: Client())

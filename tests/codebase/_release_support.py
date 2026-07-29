@@ -4,12 +4,15 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+# External imports
+from release.system import System
+
 
 class AbortCalled(Exception):
     pass
 
 
-class RecordingSystem:
+class RecordingSystem(System):
     def __init__(
         self,
         outputs: Mapping[str, str] | None = None,

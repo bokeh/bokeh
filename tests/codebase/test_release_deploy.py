@@ -5,6 +5,7 @@ import pytest
 from release import deploy
 from release.config import Config
 from release.enums import ActionResult
+from release.pipeline import StepType
 
 # Bokeh imports
 # Bokeh test imports
@@ -19,7 +20,7 @@ from tests.codebase._release_support import RecordingSystem
         ("4.0.0.dev1", "npm publish --access=public --tag=dev bokeh-bokehjs-4.0.0-dev.1.tgz"),
     ],
 )
-def test_publish_npm_package_uses_release_appropriate_tag(version, expected_command):
+def test_publish_npm_package_uses_release_appropriate_tag(version: str, expected_command: str) -> None:
     system = RecordingSystem()
 
     result = deploy.publish_npm_package(Config(version), system)
@@ -37,7 +38,7 @@ def test_publish_npm_package_uses_release_appropriate_tag(version, expected_comm
         ("4.0.0.dev1", "  -l dev"),
     ],
 )
-def test_publish_conda_package_uses_release_appropriate_labels(version, labels):
+def test_publish_conda_package_uses_release_appropriate_labels(version: str, labels: str) -> None:
     config = Config(version)
     config.add_secret("ANACONDA_TOKEN", "token")
     system = RecordingSystem()
@@ -50,7 +51,7 @@ def test_publish_conda_package_uses_release_appropriate_labels(version, labels):
     ]
 
 
-def test_publish_full_documentation_updates_version_latest_and_switcher(config):
+def test_publish_full_documentation_updates_version_latest_and_switcher(config: Config) -> None:
     system = RecordingSystem()
 
     result = deploy.publish_documentation(config, system)
@@ -64,7 +65,7 @@ def test_publish_full_documentation_updates_version_latest_and_switcher(config):
 
 
 @pytest.mark.parametrize("version", ["4.0.0rc1", "4.0.0.dev1"])
-def test_publish_prerelease_documentation_updates_dev_and_switcher(version):
+def test_publish_prerelease_documentation_updates_dev_and_switcher(version: str) -> None:
     system = RecordingSystem()
 
     result = deploy.publish_documentation(Config(version), system)
@@ -76,7 +77,7 @@ def test_publish_prerelease_documentation_updates_dev_and_switcher(version):
     assert '"/en/dev-4.0*" "/switcher.json"' in system.commands[2]
 
 
-def test_publish_pip_packages_uploads_sdist_and_wheel(config):
+def test_publish_pip_packages_uploads_sdist_and_wheel(config: Config) -> None:
     system = RecordingSystem()
 
     result = deploy.publish_pip_packages(config, system)
@@ -87,7 +88,7 @@ def test_publish_pip_packages_uploads_sdist_and_wheel(config):
     ]
 
 
-def test_unpack_deployment_tarball(config):
+def test_unpack_deployment_tarball(config: Config) -> None:
     system = RecordingSystem()
 
     result = deploy.unpack_deployment_tarball(config, system)
@@ -111,7 +112,7 @@ def test_unpack_deployment_tarball(config):
         (deploy.unpack_deployment_tarball, "tar xvf deployment-4.0.0.tgz"),
     ],
 )
-def test_deploy_steps_report_command_failures(config, func, failed_command):
+def test_deploy_steps_report_command_failures(config: Config, func: StepType, failed_command: str) -> None:
     config.add_secret("ANACONDA_TOKEN", "token")
     system = RecordingSystem(failures={failed_command: ("failure",)})
 

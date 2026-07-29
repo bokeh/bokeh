@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+# Standard library imports
+from pathlib import Path
+
 # External imports
 import pytest
 from release import checks
 from release.action import FAILED, PASSED
 from release.config import Config
 from release.enums import ActionResult
+from release.pipeline import StepType
 
 # Bokeh imports
 # Bokeh test imports
@@ -22,7 +26,7 @@ from tests.codebase._release_support import RecordingSystem
         (checks.check_twine_present, "which twine"),
     ],
 )
-def test_application_checks_pass_when_command_exists(config, func, command):
+def test_application_checks_pass_when_command_exists(config: Config, func: StepType, command: str) -> None:
     system = RecordingSystem()
 
     result = func(config, system)
@@ -41,7 +45,7 @@ def test_application_checks_pass_when_command_exists(config, func, command):
         (checks.check_twine_present, "which twine"),
     ],
 )
-def test_application_checks_fail_when_command_is_missing(config, func, command):
+def test_application_checks_fail_when_command_is_missing(config: Config, func: StepType, command: str) -> None:
     system = RecordingSystem(failures={command: ("missing",)})
 
     result = func(config, system)
@@ -58,7 +62,7 @@ def test_application_checks_fail_when_command_is_missing(config, func, command):
         "https://github.com/bokeh/bokeh.git\n",
     ],
 )
-def test_check_repo_accepts_supported_origin_urls(config, remote):
+def test_check_repo_accepts_supported_origin_urls(config: Config, remote: str) -> None:
     system = RecordingSystem(outputs={"git config --get remote.origin.url": remote})
 
     result = checks.check_repo_is_bokeh(config, system)
@@ -66,7 +70,7 @@ def test_check_repo_accepts_supported_origin_urls(config, remote):
     assert result.kind is ActionResult.PASS
 
 
-def test_check_repo_rejects_other_origin(config):
+def test_check_repo_rejects_other_origin(config: Config) -> None:
     system = RecordingSystem(outputs={"git config --get remote.origin.url": "git@example.com:fork/bokeh.git\n"})
 
     result = checks.check_repo_is_bokeh(config, system)
@@ -75,7 +79,7 @@ def test_check_repo_rejects_other_origin(config):
     assert "bad remote" in result.message
 
 
-def test_check_repo_fails_outside_git_repository(config):
+def test_check_repo_fails_outside_git_repository(config: Config) -> None:
     system = RecordingSystem(failures={"git status": ("not a repository",)})
 
     result = checks.check_repo_is_bokeh(config, system)
@@ -87,7 +91,7 @@ def test_check_repo_fails_outside_git_repository(config):
     ("branch", "expected"),
     [("branch-4.0\n", ActionResult.PASS), ("main\n", ActionResult.FAIL)],
 )
-def test_check_checkout_on_base_branch(branch, expected):
+def test_check_checkout_on_base_branch(branch: str, expected: ActionResult) -> None:
     config = Config("4.0.0")
     system = RecordingSystem(outputs={"git rev-parse --abbrev-ref HEAD": branch})
 
@@ -102,7 +106,12 @@ def test_check_checkout_on_base_branch(branch, expected):
         ("M a\n?? b\n", ActionResult.FAIL, ["M a", "?? b"]),
     ],
 )
-def test_check_checkout_cleanliness(config, porcelain, expected, details):
+def test_check_checkout_cleanliness(
+    config: Config,
+    porcelain: str,
+    expected: ActionResult,
+    details: list[str] | None,
+) -> None:
     system = RecordingSystem(outputs={"git status --porcelain": porcelain})
 
     result = checks.check_checkout_is_clean(config, system)
@@ -120,7 +129,14 @@ def test_check_checkout_cleanliness(config, porcelain, expected, details):
         ("local\n", "remote\n", "base\n", ActionResult.FAIL, "DIVERGED"),
     ],
 )
-def test_check_checkout_matches_remote(config, local, remote, base, expected, status):
+def test_check_checkout_matches_remote(
+    config: Config,
+    local: str,
+    remote: str,
+    base: str,
+    expected: ActionResult,
+    status: str | None,
+) -> None:
     system = RecordingSystem(outputs={
         "git rev-parse @": local,
         "git rev-parse @{u}": remote,
@@ -134,7 +150,7 @@ def test_check_checkout_matches_remote(config, local, remote, base, expected, st
         assert status in result.message
 
 
-def test_check_checkout_matches_remote_reports_command_failure(config):
+def test_check_checkout_matches_remote_reports_command_failure(config: Config) -> None:
     system = RecordingSystem(failures={"git remote update": ("network",)})
 
     result = checks.check_checkout_matches_remote(config, system)
@@ -151,7 +167,12 @@ def test_check_checkout_matches_remote_reports_command_failure(config):
         ([{"name": "heading"}], ActionResult.FAIL),
     ],
 )
-def test_check_docs_version_config(tmp_path, monkeypatch, versions, expected):
+def test_check_docs_version_config(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    versions: list[dict[str, str]],
+    expected: ActionResult,
+) -> None:
     path = tmp_path / "docs" / "bokeh"
     path.mkdir(parents=True)
     (path / "switcher.json").write_text(__import__("json").dumps(versions))
@@ -188,7 +209,13 @@ def test_check_docs_version_config(tmp_path, monkeypatch, versions, expected):
         ("4.0.0.dev1", [{"version": "4.0.0.dev1"}], ActionResult.FAIL),
     ],
 )
-def test_check_docs_version_config_validates_prerelease_entry(tmp_path, monkeypatch, version, versions, expected):
+def test_check_docs_version_config_validates_prerelease_entry(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    version: str,
+    versions: list[dict[str, str]],
+    expected: ActionResult,
+) -> None:
     path = tmp_path / "docs" / "bokeh"
     path.mkdir(parents=True)
     (path / "switcher.json").write_text(__import__("json").dumps(versions))
@@ -199,7 +226,10 @@ def test_check_docs_version_config_validates_prerelease_entry(tmp_path, monkeypa
     assert result.kind is expected
 
 
-def test_check_docs_version_config_uses_latest_prerelease_level(tmp_path, monkeypatch):
+def test_check_docs_version_config_uses_latest_prerelease_level(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     path = tmp_path / "docs" / "bokeh"
     path.mkdir(parents=True)
     (path / "switcher.json").write_text(__import__("json").dumps([{
@@ -215,7 +245,10 @@ def test_check_docs_version_config_uses_latest_prerelease_level(tmp_path, monkey
     assert result.kind is ActionResult.PASS
 
 
-def test_check_docs_version_config_allows_no_dev_entry_for_older_prerelease(tmp_path, monkeypatch):
+def test_check_docs_version_config_allows_no_dev_entry_for_older_prerelease(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     path = tmp_path / "docs" / "bokeh"
     path.mkdir(parents=True)
     (path / "switcher.json").write_text(__import__("json").dumps([{"version": "4.0.0"}]))
@@ -227,7 +260,10 @@ def test_check_docs_version_config_allows_no_dev_entry_for_older_prerelease(tmp_
     assert result.kind is ActionResult.PASS
 
 
-def test_check_docs_version_config_rejects_multiple_dev_entries(tmp_path, monkeypatch):
+def test_check_docs_version_config_rejects_multiple_dev_entries(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     path = tmp_path / "docs" / "bokeh"
     path.mkdir(parents=True)
     (path / "switcher.json").write_text(__import__("json").dumps([
@@ -245,7 +281,11 @@ def test_check_docs_version_config_rejects_multiple_dev_entries(tmp_path, monkey
 
 
 @pytest.mark.parametrize("content", [None, "not JSON"])
-def test_check_docs_version_config_reports_file_errors(tmp_path, monkeypatch, content):
+def test_check_docs_version_config_reports_file_errors(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    content: str | None,
+) -> None:
     if content is not None:
         path = tmp_path / "docs" / "bokeh"
         path.mkdir(parents=True)
@@ -263,7 +303,11 @@ def test_check_docs_version_config_reports_file_errors(tmp_path, monkeypatch, co
     ("exists", "expected"),
     [(True, ActionResult.PASS), (False, ActionResult.FAIL)],
 )
-def test_check_release_notes_present(monkeypatch, exists, expected):
+def test_check_release_notes_present(
+    monkeypatch: pytest.MonkeyPatch,
+    exists: bool,
+    expected: ActionResult,
+) -> None:
     monkeypatch.setattr(checks.os.path, "exists", lambda path: exists)
 
     result = checks.check_release_notes_present(Config("4.0.0"), RecordingSystem())
@@ -280,7 +324,7 @@ def test_check_release_notes_present(monkeypatch, exists, expected):
         ("'4.0.0'\n", "4.0.0", ActionResult.FAIL),
     ],
 )
-def test_check_release_tag_available(tags, version, expected):
+def test_check_release_tag_available(tags: str, version: str, expected: ActionResult) -> None:
     command = "git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags"
     system = RecordingSystem(outputs={command: tags})
 
@@ -297,14 +341,14 @@ def test_check_release_tag_available(tags, version, expected):
         ("4.1.0\n", "4.0.0", ActionResult.PASS),
     ],
 )
-def test_check_version_order(tags, version, expected):
+def test_check_version_order(tags: str, version: str, expected: ActionResult) -> None:
     command = "git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags"
     system = RecordingSystem(outputs={command: tags})
 
     assert checks.check_version_order(Config(version), system).kind is expected
 
 
-def test_check_version_order_distinguishes_minor_version_prefixes():
+def test_check_version_order_distinguishes_minor_version_prefixes() -> None:
     command = "git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags"
     system = RecordingSystem(outputs={command: "3.10.0\n3.1.0\n"})
 
@@ -313,7 +357,7 @@ def test_check_version_order_distinguishes_minor_version_prefixes():
     assert result.kind is ActionResult.PASS
 
 
-def test_check_version_order_reports_command_failure(config):
+def test_check_version_order_reports_command_failure(config: Config) -> None:
     command = "git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags"
     system = RecordingSystem(failures={command: ("git error",)})
 
@@ -328,13 +372,13 @@ def test_check_version_order_reports_command_failure(config):
     ("branches", "expected"),
     [("", ActionResult.PASS), ("  staging-4.0.0\n", ActionResult.FAIL)],
 )
-def test_check_staging_branch_available(config, branches, expected):
+def test_check_staging_branch_available(config: Config, branches: str, expected: ActionResult) -> None:
     system = RecordingSystem(outputs={"git branch --list staging-4.0.0": branches})
 
     assert checks.check_staging_branch_is_available(config, system).kind is expected
 
 
-def test_check_staging_branch_available_reports_command_failure(config):
+def test_check_staging_branch_available_reports_command_failure(config: Config) -> None:
     command = "git branch --list staging-4.0.0"
     system = RecordingSystem(failures={command: ("git error",)})
 
@@ -345,7 +389,7 @@ def test_check_staging_branch_available_reports_command_failure(config):
     assert result.details == ("git error",)
 
 
-def test_check_milestone_labels_uses_release_milestone(config):
+def test_check_milestone_labels_uses_release_milestone(config: Config) -> None:
     system = RecordingSystem()
 
     result = checks.check_milestone_labels(config, system)
@@ -357,7 +401,7 @@ def test_check_milestone_labels_uses_release_milestone(config):
     ]
 
 
-def test_check_milestone_labels_reports_command_failure(config):
+def test_check_milestone_labels_reports_command_failure(config: Config) -> None:
     command = "python scripts/milestone.py 4.0 --check-only --allow-closed"
     system = RecordingSystem(failures={command: ("invalid milestone item",)})
 

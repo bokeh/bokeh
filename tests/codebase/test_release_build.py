@@ -9,6 +9,7 @@ import pytest
 from release import build
 from release.config import Config
 from release.enums import ActionResult
+from release.pipeline import StepType
 from release.system import System
 
 # Bokeh imports
@@ -49,7 +50,12 @@ from tests.codebase._release_support import RecordingSystem
         (build.verify_conda_install, "bash scripts/ci/verify_conda_install.sh", {"VERSION": "4.0.0"}),
     ],
 )
-def test_command_build_steps(config, func, command, environment):
+def test_command_build_steps(
+    config: Config,
+    func: StepType,
+    command: str,
+    environment: dict[str, str],
+) -> None:
     system = RecordingSystem()
 
     result = func(config, system)
@@ -75,7 +81,7 @@ def test_command_build_steps(config, func, command, environment):
         (build.verify_conda_install, "bash scripts/ci/verify_conda_install.sh"),
     ],
 )
-def test_command_build_steps_report_failure(config, func, command):
+def test_command_build_steps_report_failure(config: Config, func: StepType, command: str) -> None:
     system = RecordingSystem(failures={command: ("command failed",)})
 
     result = func(config, system)
@@ -84,7 +90,7 @@ def test_command_build_steps_report_failure(config, func, command):
     assert result.details == ("command failed",)
 
 
-def test_directory_build_steps_use_expected_working_directories(config):
+def test_directory_build_steps_use_expected_working_directories(config: Config) -> None:
     cases = [
         (build.build_bokehjs, [("cd", "bokehjs"), ("cd", "..")]),
         (build.build_npm_packages, [("cd", "bokehjs"), ("cd", "..")]),
@@ -98,7 +104,7 @@ def test_directory_build_steps_use_expected_working_directories(config):
         assert system.directories == expected
 
 
-def test_pack_deployment_tarball_collects_all_artifacts(config):
+def test_pack_deployment_tarball_collects_all_artifacts(config: Config) -> None:
     system = RecordingSystem()
 
     result = build.pack_deployment_tarball(config, system)
@@ -119,7 +125,7 @@ def test_pack_deployment_tarball_collects_all_artifacts(config):
     ]
 
 
-def test_pack_deployment_tarball_stops_on_first_failure(config):
+def test_pack_deployment_tarball_stops_on_first_failure(config: Config) -> None:
     system = RecordingSystem(failures={"cp dist/bokeh-4.0.0.tar.gz deployment-4.0.0": ("missing",)})
 
     result = build.pack_deployment_tarball(config, system)
@@ -155,7 +161,7 @@ def make_bokehjs_package_files(root: Path, *, lockfile_version: int = 3) -> list
     return [*filenames, "package-lock.json"]
 
 
-def test_update_bokehjs_versions_updates_every_workspace(tmp_path, monkeypatch):
+def test_update_bokehjs_versions_updates_every_workspace(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     filenames = make_bokehjs_package_files(tmp_path)
     monkeypatch.chdir(tmp_path)
     config = Config("4.0.0rc2")
@@ -173,18 +179,19 @@ def test_update_bokehjs_versions_updates_every_workspace(tmp_path, monkeypatch):
     assert lock["packages"]["node_modules/library"]["version"] == "1.0.0"
 
 
-def test_update_bokehjs_versions_rejects_old_lockfile(tmp_path, monkeypatch):
+def test_update_bokehjs_versions_rejects_old_lockfile(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     make_bokehjs_package_files(tmp_path, lockfile_version=2)
     monkeypatch.chdir(tmp_path)
 
     result = build.update_bokehjs_versions(Config("4.0.0"), System(dry_run=True))
 
     assert result.kind is ActionResult.FAIL
+    assert result.details is not None
     assert "Expected lock file v3" in result.details
     assert Path.cwd() == tmp_path
 
 
-def test_update_bokehjs_versions_reports_missing_package_file(tmp_path, monkeypatch):
+def test_update_bokehjs_versions_reports_missing_package_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     make_bokehjs_package_files(tmp_path)
     missing = tmp_path / "bokehjs" / "src" / "lib" / "package.json"
     missing.unlink()
@@ -198,7 +205,7 @@ def test_update_bokehjs_versions_reports_missing_package_file(tmp_path, monkeypa
     assert Path.cwd() == tmp_path
 
 
-def test_update_bokehjs_versions_reports_malformed_package_file(tmp_path, monkeypatch):
+def test_update_bokehjs_versions_reports_malformed_package_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     make_bokehjs_package_files(tmp_path)
     malformed = tmp_path / "bokehjs" / "package.json"
     malformed.write_text("not JSON")
@@ -212,7 +219,7 @@ def test_update_bokehjs_versions_reports_malformed_package_file(tmp_path, monkey
     assert Path.cwd() == tmp_path
 
 
-def test_update_switcher_json_writes_latest_and_dev_entries(tmp_path, monkeypatch):
+def test_update_switcher_json_writes_latest_and_dev_entries(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     switcher_dir = tmp_path / "docs" / "bokeh"
@@ -239,7 +246,10 @@ def test_update_switcher_json_writes_latest_and_dev_entries(tmp_path, monkeypatc
     assert config.modified == {"docs/bokeh/switcher.json"}
 
 
-def test_update_switcher_json_refreshes_dev_name_within_release_level(tmp_path, monkeypatch):
+def test_update_switcher_json_refreshes_dev_name_within_release_level(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     switcher_dir = tmp_path / "docs" / "bokeh"
@@ -267,7 +277,12 @@ def test_update_switcher_json_refreshes_dev_name_within_release_level(tmp_path, 
     ("version", "release_level"),
     [("3.11.0.dev1", "3.11"), ("4.0.0.dev1", "4.0")],
 )
-def test_update_switcher_json_moves_dev_entry_for_new_release_level(tmp_path, monkeypatch, version, release_level):
+def test_update_switcher_json_moves_dev_entry_for_new_release_level(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    version: str,
+    release_level: str,
+) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     switcher_dir = tmp_path / "docs" / "bokeh"
@@ -291,7 +306,10 @@ def test_update_switcher_json_moves_dev_entry_for_new_release_level(tmp_path, mo
     }
 
 
-def test_update_switcher_json_keeps_only_latest_dev_release_level(tmp_path, monkeypatch):
+def test_update_switcher_json_keeps_only_latest_dev_release_level(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     switcher_dir = tmp_path / "docs" / "bokeh"
@@ -315,7 +333,7 @@ def test_update_switcher_json_keeps_only_latest_dev_release_level(tmp_path, monk
     }]
 
 
-def test_update_switcher_json_includes_untagged_release(tmp_path, monkeypatch):
+def test_update_switcher_json_includes_untagged_release(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     switcher_dir = tmp_path / "docs" / "bokeh"
@@ -335,7 +353,10 @@ def test_update_switcher_json_includes_untagged_release(tmp_path, monkeypatch):
     }
 
 
-def test_update_switcher_json_keeps_new_major_prerelease_and_stable_history(tmp_path, monkeypatch):
+def test_update_switcher_json_keeps_new_major_prerelease_and_stable_history(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     switcher_dir = tmp_path / "docs" / "bokeh"
@@ -355,7 +376,10 @@ def test_update_switcher_json_keeps_new_major_prerelease_and_stable_history(tmp_
     assert switcher[-1]["name"] == "dev (4.0.0.dev1)"
 
 
-def test_update_switcher_json_keeps_previous_major_after_full_release(tmp_path, monkeypatch):
+def test_update_switcher_json_keeps_previous_major_after_full_release(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     switcher_dir = tmp_path / "docs" / "bokeh"
@@ -385,7 +409,7 @@ def test_update_switcher_json_keeps_previous_major_after_full_release(tmp_path, 
     assert all(not entry["version"].startswith("dev-") for entry in switcher)
 
 
-def test_update_switcher_json_rejects_non_version_tags(tmp_path, monkeypatch):
+def test_update_switcher_json_rejects_non_version_tags(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     (tmp_path / "docs" / "bokeh").mkdir(parents=True)
@@ -399,7 +423,10 @@ def test_update_switcher_json_rejects_non_version_tags(tmp_path, monkeypatch):
     assert result.details == ("Got invalid version string 'not-a-version'.",)
 
 
-def test_update_switcher_json_normalizes_legacy_dev_tags(tmp_path, monkeypatch):
+def test_update_switcher_json_normalizes_legacy_dev_tags(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     switcher_dir = tmp_path / "docs" / "bokeh"
@@ -414,7 +441,7 @@ def test_update_switcher_json_normalizes_legacy_dev_tags(tmp_path, monkeypatch):
     assert [entry["version"] for entry in switcher] == ["4.0.0", "3.0.0"]
 
 
-def test_update_switcher_json_reports_write_failure(tmp_path, monkeypatch):
+def test_update_switcher_json_reports_write_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     release_dir = tmp_path / "release"
     release_dir.mkdir()
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
@@ -429,7 +456,7 @@ def test_update_switcher_json_reports_write_failure(tmp_path, monkeypatch):
     assert config.modified == set()
 
 
-def test_update_changelog_tracks_modified_file(config):
+def test_update_changelog_tracks_modified_file(config: Config) -> None:
     system = RecordingSystem()
 
     result = build.update_changelog(config, system)
@@ -440,7 +467,7 @@ def test_update_changelog_tracks_modified_file(config):
     assert config.modified == {"docs/CHANGELOG"}
 
 
-def test_update_hash_manifest_tracks_new_file(config):
+def test_update_hash_manifest_tracks_new_file(config: Config) -> None:
     system = RecordingSystem()
 
     result = build.update_hash_manifest(config, system)

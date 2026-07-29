@@ -3,7 +3,9 @@ from __future__ import annotations
 # External imports
 import pytest
 from release import git
+from release.config import Config
 from release.enums import ActionResult
+from release.pipeline import StepType
 
 # Bokeh imports
 # Bokeh test imports
@@ -24,7 +26,7 @@ from tests.codebase._release_support import RecordingSystem
         (git.tag_release_version, "git tag -a 4.0.0 -m 'Release 4.0.0'"),
     ],
 )
-def test_single_command_git_actions(config, func, command):
+def test_single_command_git_actions(config: Config, func: StepType, command: str) -> None:
     system = RecordingSystem()
 
     result = func(config, system)
@@ -47,7 +49,7 @@ def test_single_command_git_actions(config, func, command):
         (git.tag_release_version, "git tag -a 4.0.0 -m 'Release 4.0.0'"),
     ],
 )
-def test_single_command_git_actions_report_failure(config, func, command):
+def test_single_command_git_actions_report_failure(config: Config, func: StepType, command: str) -> None:
     system = RecordingSystem(failures={command: ("git error",)})
 
     result = func(config, system)
@@ -56,7 +58,7 @@ def test_single_command_git_actions_report_failure(config, func, command):
     assert result.details == ("git error",)
 
 
-def test_push_to_github_pushes_branch_and_tag_atomically(config):
+def test_push_to_github_pushes_branch_and_tag_atomically(config: Config) -> None:
     system = RecordingSystem()
 
     result = git.push_to_github(config, system)
@@ -67,7 +69,7 @@ def test_push_to_github_pushes_branch_and_tag_atomically(config):
     ]
 
 
-def test_push_to_github_reports_atomic_push_failure(config):
+def test_push_to_github_reports_atomic_push_failure(config: Config) -> None:
     command = "git push --atomic --no-verify origin branch-4.0 4.0.0"
     system = RecordingSystem(failures={command: ("rejected",)})
 
@@ -77,7 +79,7 @@ def test_push_to_github_reports_atomic_push_failure(config):
     assert result.details == ("rejected",)
 
 
-def test_commit_staging_branch_adds_modified_and_new_files(config):
+def test_commit_staging_branch_adds_modified_and_new_files(config: Config) -> None:
     config.add_modified("modified.json")
     config.add_new("new.json")
     system = RecordingSystem()
@@ -104,7 +106,11 @@ def test_commit_staging_branch_adds_modified_and_new_files(config):
         ("git commit -m 'Deployment updates for release 4.0.0'", "Could not git commit"),
     ],
 )
-def test_commit_staging_branch_reports_each_failure(config, failed_command, message):
+def test_commit_staging_branch_reports_each_failure(
+    config: Config,
+    failed_command: str,
+    message: str,
+) -> None:
     config.add_modified("modified.json")
     config.add_new("new.json")
     system = RecordingSystem(failures={failed_command: ("failure",)})
@@ -115,7 +121,7 @@ def test_commit_staging_branch_reports_each_failure(config, failed_command, mess
     assert message in result.message
 
 
-def test_commit_staging_branch_commits_even_with_no_tracked_changes(config):
+def test_commit_staging_branch_commits_even_with_no_tracked_changes(config: Config) -> None:
     system = RecordingSystem()
 
     result = git.commit_staging_branch(config, system)
@@ -124,7 +130,7 @@ def test_commit_staging_branch_commits_even_with_no_tracked_changes(config):
     assert system.commands == ["git commit -m 'Deployment updates for release 4.0.0'"]
 
 
-def test_get_tags_filters_final_commit_markers_and_sorts_versions(config):
+def test_get_tags_filters_final_commit_markers_and_sorts_versions(config: Config) -> None:
     system = RecordingSystem(outputs={
         "git tag": "3.10.0\n4.0.0rc1\n3.9.3-final-commit\n4.0.0.dev2\n",
     })
@@ -132,7 +138,7 @@ def test_get_tags_filters_final_commit_markers_and_sorts_versions(config):
     assert git.get_tags(config, system) == ["4.0.0rc1", "4.0.0.dev2", "3.10.0"]
 
 
-def test_get_tags_wraps_git_failure(config):
+def test_get_tags_wraps_git_failure(config: Config) -> None:
     system = RecordingSystem(failures={"git tag": ("failure",)})
 
     with pytest.raises(RuntimeError, match="Could NOT get release version tags"):

@@ -4,12 +4,16 @@ from __future__ import annotations
 import ast
 import runpy
 import sys
+from collections.abc import Sequence
+from pathlib import Path
 from subprocess import run
+from typing import Any
 
 # External imports
 import pytest
 import yaml
 from release import stages
+from release.action import ActionReturn
 from release.build import update_changelog, update_hash_manifest, update_switcher_json
 from release.checks import (
     check_docs_version_config,
@@ -18,7 +22,8 @@ from release.checks import (
 )
 from release.config import Config
 from release.git import commit_staging_branch, push_to_github, tag_release_version
-from release.pipeline import is_check
+from release.pipeline import StepType, is_check
+from release.system import System
 from release.util import CONFIG_FILENAME, load_config
 
 # Bokeh imports
@@ -29,19 +34,19 @@ from tests.support.util.project import TOP_PATH
     "steps",
     [stages.BUILD_CHECKS, stages.BUILD_STEPS, stages.DEPLOY_CHECKS, stages.DEPLOY_STEPS],
 )
-def test_stage_lists_do_not_repeat_functions(steps):
+def test_stage_lists_do_not_repeat_functions(steps: list[StepType]) -> None:
     assert len(steps) == len(set(steps))
 
 
-def test_all_build_checks_are_recognized_as_checks():
+def test_all_build_checks_are_recognized_as_checks() -> None:
     assert all(is_check(step) for step in stages.BUILD_CHECKS)
 
 
-def test_all_deploy_checks_are_recognized_as_checks():
+def test_all_deploy_checks_are_recognized_as_checks() -> None:
     assert all(is_check(step) for step in stages.DEPLOY_CHECKS)
 
 
-def test_build_pipeline_midflight_checks_are_explicit():
+def test_build_pipeline_midflight_checks_are_explicit() -> None:
     assert [step.__name__ for step in stages.BUILD_STEPS if is_check(step)] == [
         "check_docs_version_config",
         "check_checkout_is_clean",
@@ -52,24 +57,24 @@ def test_build_pipeline_midflight_checks_are_explicit():
     ]
 
 
-def test_deploy_steps_are_not_misclassified_as_checks():
+def test_deploy_steps_are_not_misclassified_as_checks() -> None:
     assert all(not is_check(step) for step in stages.DEPLOY_STEPS)
 
 
-def test_full_release_only_checks_and_steps_are_marked():
-    assert check_release_notes_present.skip_for_prerelease is True
+def test_full_release_only_checks_and_steps_are_marked() -> None:
+    assert getattr(check_release_notes_present, "skip_for_prerelease") is True
     assert getattr(check_docs_version_config, "skip_for_prerelease", False) is False
-    assert check_milestone_labels.skip_for_prerelease is True
-    assert update_changelog.skip_for_prerelease is True
-    assert update_hash_manifest.skip_for_prerelease is True
+    assert getattr(check_milestone_labels, "skip_for_prerelease") is True
+    assert getattr(update_changelog, "skip_for_prerelease") is True
+    assert getattr(update_hash_manifest, "skip_for_prerelease") is True
 
 
-def test_build_pipeline_checks_branch_before_mutating_steps():
+def test_build_pipeline_checks_branch_before_mutating_steps() -> None:
     assert stages.BUILD_CHECKS.index(stages.check_checkout_on_base_branch) < len(stages.BUILD_CHECKS)
     assert stages.BUILD_STEPS[0].__name__ == "clean_repo"
 
 
-def test_build_pipeline_commits_before_tagging_and_pushes_last():
+def test_build_pipeline_commits_before_tagging_and_pushes_last() -> None:
     assert stages.BUILD_STEPS.index(update_switcher_json) < stages.BUILD_STEPS.index(commit_staging_branch)
     assert stages.BUILD_STEPS.index(check_docs_version_config) < stages.BUILD_STEPS.index(commit_staging_branch)
     assert stages.BUILD_STEPS.index(commit_staging_branch) < stages.BUILD_STEPS.index(tag_release_version)
@@ -77,13 +82,13 @@ def test_build_pipeline_commits_before_tagging_and_pushes_last():
     assert stages.BUILD_STEPS[-2] is push_to_github
 
 
-def test_build_pipeline_updates_and_checks_switcher():
+def test_build_pipeline_updates_and_checks_switcher() -> None:
     assert update_switcher_json in stages.BUILD_STEPS
     assert check_docs_version_config in stages.BUILD_STEPS
     assert stages.BUILD_STEPS.index(update_switcher_json) < stages.BUILD_STEPS.index(check_docs_version_config)
 
 
-def test_deploy_pipeline_downloads_and_unpacks_before_publication():
+def test_deploy_pipeline_downloads_and_unpacks_before_publication() -> None:
     names = [step.__name__ for step in stages.DEPLOY_STEPS]
 
     assert names[:2] == ["download_deployment_tarball", "unpack_deployment_tarball"]
@@ -95,7 +100,7 @@ def test_deploy_pipeline_downloads_and_unpacks_before_publication():
     ]
 
 
-def test_build_workflow_fetches_full_git_history():
+def test_build_workflow_fetches_full_git_history() -> None:
     with open(TOP_PATH / ".github/workflows/bokeh-release-build.yml") as f:
         workflow = yaml.safe_load(f)
 
@@ -112,7 +117,7 @@ def test_build_workflow_fetches_full_git_history():
         ("bokeh-release-deploy.yml", "deploy"),
     ],
 )
-def test_release_confirmation_includes_version(filename, job_name):
+def test_release_confirmation_includes_version(filename: str, job_name: str) -> None:
     with open(TOP_PATH / ".github/workflows" / filename) as f:
         workflow = yaml.safe_load(f)
 
@@ -122,7 +127,7 @@ def test_release_confirmation_includes_version(filename, job_name):
     assert confirmation["env"]["BOKEH_VERSION"] == "${{ github.event.inputs.version }}"
 
 
-def test_generated_config_is_gitignored():
+def test_generated_config_is_gitignored() -> None:
     result = run(["git", "check-ignore", "--quiet", CONFIG_FILENAME], cwd=TOP_PATH)
 
     assert result.returncode == 0
@@ -137,7 +142,12 @@ def test_generated_config_is_gitignored():
         ("generate-deploy-steps", [step.__name__ for step in stages.DEPLOY_STEPS]),
     ],
 )
-def test_cli_generates_stage_names(monkeypatch, capsys, argument, expected):
+def test_cli_generates_stage_names(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    argument: str,
+    expected: list[str],
+) -> None:
     monkeypatch.setattr(sys, "argv", ["release", argument])
 
     with pytest.raises(SystemExit) as error:
@@ -147,7 +157,7 @@ def test_cli_generates_stage_names(monkeypatch, capsys, argument, expected):
     assert ast.literal_eval(capsys.readouterr().out) == expected
 
 
-def test_cli_generates_serialized_config(tmp_path, monkeypatch):
+def test_cli_generates_serialized_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(sys, "argv", ["release", "generate-config", "4.0.0"])
 
@@ -168,15 +178,19 @@ def test_cli_generates_serialized_config(tmp_path, monkeypatch):
         ("deploy", [stages.DEPLOY_CHECKS, stages.DEPLOY_STEPS]),
     ],
 )
-def test_cli_executes_build_and_deploy_pipelines(monkeypatch, command, expected_stages):
-    observed = []
+def test_cli_executes_build_and_deploy_pipelines(
+    monkeypatch: pytest.MonkeyPatch,
+    command: str,
+    expected_stages: list[list[StepType]],
+) -> None:
+    observed: list[list[Any]] = []
 
     class FakePipeline:
-        def __init__(self, steps, config, system):
-            observed.append((steps, config.version, system))
+        def __init__(self, steps: Sequence[StepType], config: Config, system: object) -> None:
+            observed.append([steps, config.version, system])
 
-        def execute(self):
-            observed[-1] += ("executed",)
+        def execute(self) -> None:
+            observed[-1].append("executed")
 
     sentinel_system = object()
     monkeypatch.setattr("release.pipeline.Pipeline", FakePipeline)
@@ -188,26 +202,26 @@ def test_cli_executes_build_and_deploy_pipelines(monkeypatch, command, expected_
 
     assert error.value.code == 0
     assert [item[0] for item in observed] == expected_stages
-    assert all(item[1:] == ("4.0.0", sentinel_system, "executed") for item in observed)
+    assert all(item[1:] == ["4.0.0", sentinel_system, "executed"] for item in observed)
 
 
-def test_cli_executes_and_persists_individual_stage(monkeypatch):
-    observed = []
+def test_cli_executes_and_persists_individual_stage(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: list[object] = []
     config = Config("4.0.0")
 
-    def stage(config, system):
+    def stage(config: Config, system: System) -> ActionReturn:
         raise AssertionError("Fake pipeline should own stage execution")
 
     stage.__name__ = "custom_stage"
 
     class FakePipeline:
-        def __init__(self, steps, actual_config, system):
+        def __init__(self, steps: Sequence[StepType], actual_config: Config, system: object) -> None:
             observed.append((steps, actual_config, system))
 
-        def execute(self):
+        def execute(self) -> None:
             observed.append("executed")
 
-    saved = []
+    saved: list[Config] = []
     sentinel_system = object()
     monkeypatch.setattr(stages, "custom_stage", stage, raising=False)
     monkeypatch.setattr("release.pipeline.Pipeline", FakePipeline)
@@ -225,7 +239,7 @@ def test_cli_executes_and_persists_individual_stage(monkeypatch):
 
 
 @pytest.mark.parametrize("arguments", [[], ["unknown"], ["build"], ["deploy"], ["extra", "arguments", "here"]])
-def test_cli_rejects_unrecognized_arguments(monkeypatch, arguments):
+def test_cli_rejects_unrecognized_arguments(monkeypatch: pytest.MonkeyPatch, arguments: list[str]) -> None:
     monkeypatch.setattr(sys, "argv", ["release", *arguments])
 
     with pytest.raises(RuntimeError, match="Unrecognized args"):

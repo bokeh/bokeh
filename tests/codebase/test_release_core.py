@@ -3,11 +3,19 @@ from __future__ import annotations
 # Standard library imports
 import os
 import pickle
+from collections.abc import Callable, Sequence
+from pathlib import Path
+from typing import Any
 
 # External imports
 import pytest
 from release import ui
-from release.action import FAILED, PASSED, SKIPPED
+from release.action import (
+    FAILED,
+    PASSED,
+    SKIPPED,
+    ActionReturn,
+)
 from release.config import Config
 from release.enums import ActionResult, VersionType
 from release.logger import LOG, Log, Scrubber
@@ -31,7 +39,13 @@ from tests.codebase._release_support import AbortCalled, RecordingSystem
         ("10.20.30.dev42", "10.20.30", ".dev42", "10.20.30-dev.42", VersionType.DEV),
     ],
 )
-def test_config_parses_versions(version, base, extension, js_version, version_type):
+def test_config_parses_versions(
+    version: str,
+    base: str,
+    extension: str | None,
+    js_version: str,
+    version_type: VersionType,
+) -> None:
     config = Config(version)
 
     assert config.base_version == base
@@ -57,7 +71,7 @@ def test_config_parses_versions(version, base, extension, js_version, version_ty
         "release-4.0.0",
     ],
 )
-def test_config_rejects_unsupported_versions(version):
+def test_config_rejects_unsupported_versions(version: str) -> None:
     with pytest.raises(ValueError, match="Invalid version"):
         Config(version)
 
@@ -71,7 +85,13 @@ def test_config_rejects_unsupported_versions(version):
         ("4.1.0.dev3", "4.1", "branch-4.1", "4.1", True),
     ],
 )
-def test_config_release_properties(version, release_level, base_branch, milestone, prerelease):
+def test_config_release_properties(
+    version: str,
+    release_level: str,
+    base_branch: str,
+    milestone: str,
+    prerelease: bool,
+) -> None:
     config = Config(version)
 
     assert config.release_level == release_level
@@ -81,7 +101,7 @@ def test_config_release_properties(version, release_level, base_branch, mileston
     assert config.prerelease is prerelease
 
 
-def test_config_tracks_new_and_modified_files():
+def test_config_tracks_new_and_modified_files() -> None:
     config = Config("4.0.0")
 
     config.add_new("new.json")
@@ -93,7 +113,7 @@ def test_config_tracks_new_and_modified_files():
     assert config.modified == {"old.json"}
 
 
-def test_config_registers_and_protects_secrets(capsys):
+def test_config_registers_and_protects_secrets(capsys: pytest.CaptureFixture[str]) -> None:
     config = Config("4.0.0")
 
     config.add_secret("TOKEN", "very-secret")
@@ -113,7 +133,7 @@ def test_config_registers_and_protects_secrets(capsys):
         (SKIPPED, ActionResult.SKIP, "[SKIP]"),
     ],
 )
-def test_action_results(result_type, kind, marker):
+def test_action_results(result_type: type[ActionReturn], kind: ActionResult, marker: str) -> None:
     result = result_type("message", details=("first", "second"))
 
     assert result.kind is kind
@@ -123,15 +143,15 @@ def test_action_results(result_type, kind, marker):
 
 
 @pytest.mark.parametrize("formatter", [ui.failed, ui.passed])
-def test_ui_result_details(formatter):
+def test_ui_result_details(formatter: Callable[[str, Sequence[str] | None], str]) -> None:
     assert formatter("summary", ("one", "two")).endswith("summary\n    one\n    two")
 
 
-def test_ui_skipped_ignores_details():
+def test_ui_skipped_ignores_details() -> None:
     assert "details" not in ui.skipped("summary", ("details",))
 
 
-def test_ui_banner_and_task():
+def test_ui_banner_and_task() -> None:
     banner = ui.banner(str.upper, "release")
 
     assert "release" in banner
@@ -139,7 +159,7 @@ def test_ui_banner_and_task():
     assert ui.task("work") == "\n------ work"
 
 
-def test_scrubber_repr_length_and_clean():
+def test_scrubber_repr_length_and_clean() -> None:
     scrubber = Scrubber("secret", name="TOKEN")
 
     assert len(scrubber) == 6
@@ -147,14 +167,14 @@ def test_scrubber_repr_length_and_clean():
     assert scrubber.clean("a secret value") == "a <xxxxx> value"
 
 
-def test_scrubber_custom_replacement_repr():
+def test_scrubber_custom_replacement_repr() -> None:
     scrubber = Scrubber("secret", name="TOKEN", replacement="[redacted]")
 
     assert "replacement='[redacted]'" in repr(scrubber)
     assert scrubber.clean("secret") == "[redacted]"
 
 
-def test_log_records_multiline_text_and_ranges(capsys):
+def test_log_records_multiline_text_and_ranges(capsys: pytest.CaptureFixture[str]) -> None:
     log = Log()
 
     first = log.record("one\ntwo")
@@ -167,7 +187,7 @@ def test_log_records_multiline_text_and_ranges(capsys):
     assert capsys.readouterr().out == "one\ntwo\nthree\n"
 
 
-def test_log_scrubs_before_printing_and_dumping(capsys):
+def test_log_scrubs_before_printing_and_dumping(capsys: pytest.CaptureFixture[str]) -> None:
     log = Log()
     log.add_scrubber(Scrubber("secret", name="TOKEN"))
 
@@ -178,7 +198,7 @@ def test_log_scrubs_before_printing_and_dumping(capsys):
     assert log.dump() == "<xxxxx>\n<xxxxx>"
 
 
-def test_log_scrubs_longer_overlapping_secrets_first(capsys):
+def test_log_scrubs_longer_overlapping_secrets_first(capsys: pytest.CaptureFixture[str]) -> None:
     log = Log()
     log.add_scrubber(Scrubber("token", name="SHORT_TOKEN"))
     log.add_scrubber(Scrubber("token-suffix", name="LONG_TOKEN"))
@@ -189,7 +209,7 @@ def test_log_scrubs_longer_overlapping_secrets_first(capsys):
     assert log.dump() == "<xxxxx> <xxxxx>"
 
 
-def test_log_filters_ansi_and_can_preserve_it():
+def test_log_filters_ansi_and_can_preserve_it() -> None:
     log = Log()
     log.record("\x1b[31mred\x1b[0m")
 
@@ -197,7 +217,7 @@ def test_log_filters_ansi_and_can_preserve_it():
     assert log.dump(filter_ansi=False) == "\x1b[31mred\x1b[0m"
 
 
-def test_log_clear_only_clears_records():
+def test_log_clear_only_clears_records() -> None:
     log = Log()
     log.add_scrubber(Scrubber("secret", name="TOKEN"))
     log.record("before")
@@ -208,7 +228,7 @@ def test_log_clear_only_clears_records():
     assert log.dump() == "<xxxxx>"
 
 
-def test_save_and_load_config(tmp_path, monkeypatch):
+def test_save_and_load_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
     config = Config("4.0.0")
     config.add_modified("file")
@@ -222,7 +242,11 @@ def test_save_and_load_config(tmp_path, monkeypatch):
         assert isinstance(pickle.load(file), Config)
 
 
-def test_load_config_restores_secret_scrubbers(tmp_path, monkeypatch, capsys):
+def test_load_config_restores_secret_scrubbers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     monkeypatch.chdir(tmp_path)
     config = Config("4.0.0")
     config.add_secret("TOKEN", "persisted-secret")
@@ -236,18 +260,18 @@ def test_load_config_restores_secret_scrubbers(tmp_path, monkeypatch, capsys):
     assert capsys.readouterr().out == "token=<xxxxx>\n"
 
 
-def test_skip_for_prerelease_marks_function():
-    def step(config, system):
+def test_skip_for_prerelease_marks_function() -> None:
+    def step(config: Config, system: System) -> ActionReturn:
         return PASSED("ok")
 
     assert skip_for_prerelease(step) is step
-    assert step.skip_for_prerelease is True
+    assert getattr(step, "skip_for_prerelease") is True
 
 
-def test_system_run_returns_output_and_passes_environment(monkeypatch):
-    observed = {}
+def test_system_run_returns_output_and_passes_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: dict[str, Any] = {}
 
-    def run(cmd, **kw):
+    def run(cmd: str, **kw: Any) -> Any:
         observed.update(cmd=cmd, **kw)
         return type("Result", (), {"returncode": 0, "stdout": "output\n"})()
 
@@ -259,7 +283,7 @@ def test_system_run_returns_output_and_passes_environment(monkeypatch):
     assert observed["env"]["CUSTOM"] == "value"
 
 
-def test_system_run_raises_each_output_line(monkeypatch):
+def test_system_run_raises_each_output_line(monkeypatch: pytest.MonkeyPatch) -> None:
     result = type("Result", (), {"returncode": 2, "stdout": "first\nsecond\n"})()
     monkeypatch.setattr("release.system.stdlib_run", lambda *args, **kw: result)
 
@@ -269,13 +293,13 @@ def test_system_run_raises_each_output_line(monkeypatch):
     assert error.value.args == ("first", "second")
 
 
-def test_system_dry_run_does_not_spawn(monkeypatch):
+def test_system_dry_run_does_not_spawn(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("release.system.stdlib_run", lambda *args, **kw: pytest.fail("spawned"))
 
     assert System(dry_run=True).run("command") == ""
 
 
-def test_system_directory_stack(tmp_path, monkeypatch):
+def test_system_directory_stack(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     child = tmp_path / "child"
     child.mkdir()
     monkeypatch.chdir(tmp_path)
@@ -287,7 +311,7 @@ def test_system_directory_stack(tmp_path, monkeypatch):
     assert os.getcwd() == str(tmp_path)
 
 
-def test_system_abort_raises_system_exit():
+def test_system_abort_raises_system_exit() -> None:
     with pytest.raises(SystemExit) as error:
         System().abort()
 
@@ -303,22 +327,22 @@ def test_system_abort_raises_system_exit():
         ("verification_step", False),
     ],
 )
-def test_is_check_uses_step_name(name, expected):
-    def step(config, system):
+def test_is_check_uses_step_name(name: str, expected: bool) -> None:
+    def step(config: Config, system: System) -> ActionReturn:
         return PASSED("ok")
 
     step.__name__ = name
     assert is_check(step) is expected
 
 
-def test_pipeline_executes_steps_in_order():
-    called = []
+def test_pipeline_executes_steps_in_order() -> None:
+    called: list[str] = []
 
-    def first(config, system):
+    def first(config: Config, system: System) -> ActionReturn:
         called.append("first")
         return PASSED("first")
 
-    def second(config, system):
+    def second(config: Config, system: System) -> ActionReturn:
         called.append("second")
         return PASSED("second")
 
@@ -327,8 +351,8 @@ def test_pipeline_executes_steps_in_order():
     assert called == ["first", "second"]
 
 
-def test_pipeline_skips_checks_for_dry_run():
-    def check_never(config, system):
+def test_pipeline_skips_checks_for_dry_run() -> None:
+    def check_never(config: Config, system: System) -> ActionReturn:
         pytest.fail("check was called")
 
     Pipeline((check_never,), Config("4.0.0"), RecordingSystem(dry_run=True)).execute()
@@ -336,9 +360,9 @@ def test_pipeline_skips_checks_for_dry_run():
     assert "skipped for dry run" in LOG.dump()
 
 
-def test_pipeline_skips_marked_prerelease_steps():
+def test_pipeline_skips_marked_prerelease_steps() -> None:
     @skip_for_prerelease
-    def never(config, system):
+    def never(config: Config, system: System) -> ActionReturn:
         pytest.fail("step was called")
 
     Pipeline((never,), Config("4.0.0rc1"), RecordingSystem()).execute()
@@ -346,14 +370,14 @@ def test_pipeline_skips_marked_prerelease_steps():
     assert "skipped for pre-releases" in LOG.dump()
 
 
-def test_pipeline_aborts_on_first_failure():
-    called = []
+def test_pipeline_aborts_on_first_failure() -> None:
+    called: list[str] = []
 
-    def failing(config, system):
+    def failing(config: Config, system: System) -> ActionReturn:
         called.append("failing")
         return FAILED("bad")
 
-    def never(config, system):
+    def never(config: Config, system: System) -> ActionReturn:
         called.append("never")
         return PASSED("ok")
 
