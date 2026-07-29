@@ -58,7 +58,7 @@ curdoc().on_event(events.DocumentReady, CustomJS(code="""
       "en",
       true,
     )
-    cb_obj.config.i18n.set_locale("es-CO")
+    cb_obj.config.i18n.set_locale("en")
 """))
 
 show(column([button, button1, button2]))
