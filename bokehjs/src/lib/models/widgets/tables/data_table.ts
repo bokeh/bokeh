@@ -192,7 +192,15 @@ export class DataTableView extends WidgetView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.rerender())
+    this.connect(this.model.change, () => {
+      // If there are any columns that don't have a built view yet,
+      // skip the synchronous rerender. The async on_transitive_change
+      // handler below will build them and trigger the rerender safely.
+      if (this.model.columns.some((col) => !this._column_views.has(col))) {
+        return
+      }
+      this.rerender()
+    })
 
     const {columns} = this.model.properties
     this.on_transitive_change(columns, async () => {
