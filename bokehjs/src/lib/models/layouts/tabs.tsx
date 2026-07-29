@@ -31,10 +31,15 @@ export class TabsView extends LayoutDOMView {
   declare readonly values: Tabs.Attrs
 
   protected tooltip_views: ViewStorage<Tooltip> = new Map()
+  protected readonly _materialized_tabs: Set<UIElement> = new Set()
 
   override connect_signals(): void {
     super.connect_signals()
-    const {tabs} = this.model.properties
+    const {active, link_layouts, tabs} = this.model.properties
+
+    this.on_change([active, link_layouts], async () => {
+      await this.update_children()
+    })
 
     this.on_transitive_change(tabs, async () => {
       await this.update_children()
@@ -63,7 +68,24 @@ export class TabsView extends LayoutDOMView {
   }
 
   get child_models(): UIElement[] {
-    return this.model.tabs.map((tab) => tab.child)
+    const {link_layouts, tabs} = this.model
+    if (link_layouts) {
+      return tabs.map((tab) => tab.child)
+    } else if (tabs.length == 0) {
+      this._materialized_tabs.clear()
+      return []
+    } else {
+      const children = tabs.map((tab) => tab.child)
+      const current = new Set(children)
+      for (const child of this._materialized_tabs) {
+        if (!current.has(child)) {
+          this._materialized_tabs.delete(child)
+        }
+      }
+
+      this._materialized_tabs.add(tabs[this.normalized_active].child)
+      return children.filter((child) => this._materialized_tabs.has(child))
+    }
   }
 
   override _update_layout(): void {
@@ -318,12 +340,14 @@ export class TabsView extends LayoutDOMView {
       )
     })
 
-    const panel_els = this.sig_child_views.map((view, i) => {
+    const child_views = this.sig_child_views
+    const panel_els = tabs.map((tab, i) => {
       const is_active = i == active
       const active_cls = is_active ? tabs_css.active : null
+      const view = child_views.find((view) => view.model == tab.child)
 
       const ref = (el: HTMLElement | null) => {
-        if (el != null) {
+        if (el != null && view != null) {
           view.render_to(el)
           view.r_after_render()
         }
