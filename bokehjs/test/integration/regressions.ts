@@ -2170,7 +2170,8 @@ describe("Bug", () => {
   })
 
   describe("in issue #8469", () => {
-    it("makes child layout update invalidate and re-render entire layout", async () => {
+    // Allow minor Linux rasterization differences at rounded button borders.
+    it.allowing(64)("makes child layout update invalidate and re-render entire layout", async () => {
       const p0 = figure({width: 300, height: 300})
       p0.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
       const button = new Button({label: "click"})
