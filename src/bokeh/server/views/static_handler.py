@@ -29,7 +29,7 @@ from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 # External imports
-from tornado import httputil, iostream
+from tornado import httputil, iostream, version_info as tornado_version_info
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError, StaticFileHandler as TornadoStaticFileHandler
 
@@ -125,7 +125,10 @@ class AsyncStaticFileHandler(TornadoStaticFileHandler):
 
     def get_modified_time(self) -> datetime:
         stat_result = self._stat()
-        return datetime.fromtimestamp(int(stat_result.st_mtime), UTC)
+        modified = datetime.fromtimestamp(int(stat_result.st_mtime), UTC)
+        if tornado_version_info < (6, 4):
+            return modified.replace(tzinfo=None)
+        return modified
 
     async def _run_in_executor(self, func: Callable[..., T], *args: Any) -> T:
         future = IOLoop.current().run_in_executor(None, func, *args)

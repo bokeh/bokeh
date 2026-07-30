@@ -28,6 +28,7 @@ from typing import Any
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPResponse
 
 # Bokeh imports
+import bokeh.server.views.static_handler as static_handler
 from bokeh.application import Application
 from bokeh.server.views.static_handler import AsyncStaticFileHandler
 from tests.support.plugins.managed_server_loop import MSL
@@ -48,6 +49,18 @@ async def _fetch(server: Any, path: str, **kwargs: Any) -> HTTPResponse:
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def test_modified_time_matches_tornado_timezone_contract(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = tmp_path / "asset.txt"
+    path.write_bytes(_CONTENT)
+    handler = object.__new__(AsyncStaticFileHandler)
+    handler.absolute_path = str(path)
+
+    monkeypatch.setattr(static_handler, "tornado_version_info", (6, 3, 3, 0))
+    assert handler.get_modified_time().tzinfo is None
+
+    monkeypatch.setattr(static_handler, "tornado_version_info", (6, 4, 0, 0))
+    assert handler.get_modified_time().tzinfo is not None
 
 async def test_static_response_compatibility(tmp_path: Path, ManagedServerLoop: MSL) -> None:
     (tmp_path / "asset.txt").write_bytes(_CONTENT)
