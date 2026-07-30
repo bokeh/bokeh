@@ -38,6 +38,8 @@ if TYPE_CHECKING:
     import pandas as pd
 
 # Bokeh imports
+from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models.annotations import LegendItem
 from bokeh.plotting import figure
 
@@ -48,6 +50,9 @@ from bokeh.plotting import figure
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def mypy_test_curdoc() -> None:
+    assert_type(curdoc(), Document)
 
 def mypy_test_figure_list_attr_splat() -> None:
     p = figure()

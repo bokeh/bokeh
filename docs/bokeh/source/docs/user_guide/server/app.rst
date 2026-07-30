@@ -396,6 +396,25 @@ plots. For more information, see
     trigger Python callbacks. For further details, see
     :bokeh-tree:`examples/server/api/notebook_embed.ipynb`
 
+Python callbacks in server sessions
+''''''''''''''''''''''''''''''''''''
+
+Bokeh executes synchronous session callbacks in a bounded worker executor, so
+expensive callback code does not occupy the server's event-loop thread. The
+document remains locked for the duration of the callback: callbacks belonging
+to one session execute serially, while callbacks for different sessions can
+execute concurrently. A synchronous callback may safely update its own
+document, but it should not assume that it is running on the event-loop thread.
+
+Asynchronous periodic, timeout, and next-tick callbacks execute on the event
+loop and retain the document lock across ``await`` expressions. They are useful
+for asynchronous I/O and APIs that require a running event loop. CPU-intensive
+work in an async callback should still be delegated to a thread or process
+executor.
+
+Unlocked callbacks are available when a long-running operation should not hold
+the session's document lock. See `Updating from unlocked callbacks`_ below.
+
 Updating from threads
 '''''''''''''''''''''
 

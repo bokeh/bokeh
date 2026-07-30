@@ -96,6 +96,25 @@ class TestDocumentModuleManager:
         assert len(dm) == 0
         assert 'FakeMod' not in sys.modules
 
+    def test_destroy_ignores_sys_modules_snapshot(self, caplog: pytest.LogCaptureFixture) -> None:
+        d = Document()
+        dm = bdm.DocumentModuleManager(d)
+
+        mod = FakeMod()
+        dm.add(mod)
+
+        # Runtime introspection may hold a shallow snapshot while the document
+        # is destroyed, especially during ASGI server shutdown.
+        modules_snapshot = sys.modules.copy()
+
+        with caplog.at_level(logging.ERROR):
+            dm.destroy()
+
+        assert modules_snapshot["FakeMod"] is mod
+        assert caplog.records == []
+        assert 'FakeMod' not in sys.modules
+        assert len(dm) == 0
+
     def test_extra_referrer_error(self, caplog: pytest.LogCaptureFixture) -> None:
         d = Document()
         dm = bdm.DocumentModuleManager(d)

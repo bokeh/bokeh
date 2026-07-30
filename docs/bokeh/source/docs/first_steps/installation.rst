@@ -39,9 +39,10 @@ Bokeh can be installed using either the Python package installer ``pip``, or
 
         .. code-block:: sh
 
-            pip install bokeh[all]
+            pip install "bokeh[all]"
 
         Available options are:
+
         * ``all`` - this includes ``extra``, ``export`` and ``sampledata``
         * ``extra`` - installs ``pandas``, etc.
         * ``export`` - install ``selenium``, etc.

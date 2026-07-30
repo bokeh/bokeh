@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from ..protocol.message import Message
     from .contexts import ApplicationContext
     from .session import ServerSession
-    from .views.ws import WSHandler
+    from .transport import WebSocketTransport
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,7 +51,7 @@ class ServerConnection:
 
     _session: ServerSession | None
 
-    def __init__(self, protocol: Protocol, socket: WSHandler,
+    def __init__(self, protocol: Protocol, socket: WebSocketTransport,
             application_context: ApplicationContext, session: ServerSession) -> None:
         self._protocol = protocol
         self._socket = socket

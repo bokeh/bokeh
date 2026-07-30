@@ -48,7 +48,7 @@ from typing import (
 
 # Bokeh imports
 from ...io.doc import curdoc, patch_curdoc
-from .code_runner import CodeRunner
+from .code_runner import CodeRunner, _hold_process_globals
 from .handler import Handler
 
 if TYPE_CHECKING:
@@ -163,9 +163,8 @@ class CodeHandler(Handler):
         # paths to custom models resolver.
         doc.modules.add(module)
 
-        with _monkeypatch_io(self._loggers):
-            with patch_curdoc(doc):
-                self._runner.run(module, self._make_post_doc_check(doc))
+        with patch_curdoc(doc), _hold_process_globals(), _monkeypatch_io(self._loggers):
+            self._runner.run(module, self._make_post_doc_check(doc))
 
     def url_path(self) -> str | None:
         ''' The last path component for the basename of the configured filename.

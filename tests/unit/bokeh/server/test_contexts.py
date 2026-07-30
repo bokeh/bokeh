@@ -19,12 +19,16 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import gc
+import logging
+import threading
 
 # External imports
 from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from bokeh.application import Application
+from bokeh.application.handlers import CodeHandler, FunctionHandler
+from bokeh.io import curdoc
 
 # Module under test
 import bokeh.server.contexts as bsc # isort:skip
@@ -36,6 +40,11 @@ import bokeh.server.contexts as bsc # isort:skip
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+async def _wait_for_event(event: threading.Event) -> None:
+    async with asyncio.timeout(1):
+        while not event.is_set():
+            await asyncio.sleep(0)
 
 
 class TestBokehServerContext:
@@ -119,12 +128,295 @@ class TestApplicationContext:
         s = await c.create_session_if_needed("foo")
         assert c.get_session("foo") == s
 
+    async def test_create_session_uses_running_loop_by_default(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app)
+        session = await c.create_session_if_needed("foo")
+        assert session._loop is asyncio.get_running_loop()
+
     async def test_create_session_if_needed_exists(self) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
         s1 = await c.create_session_if_needed("foo")
         s2 = await c.create_session_if_needed("foo")
         assert s1 == s2
+
+    async def test_document_initialization_does_not_block_event_loop(self) -> None:
+        started = threading.Event()
+        release = threading.Event()
+
+        def modify_document(doc) -> None:
+            started.set()
+            release.wait()
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        task = asyncio.create_task(c.create_session_if_needed("foo"))
+
+        try:
+            await _wait_for_event(started)
+            # This timeout would fire if modify_document still occupied the loop.
+            await asyncio.wait_for(asyncio.sleep(0), 0.1)
+        finally:
+            release.set()
+        await task
+
+    async def test_document_initialization_is_concurrent_per_application(self) -> None:
+        slow_started = threading.Event()
+        slow_release = threading.Event()
+
+        def modify_document(doc) -> None:
+            if doc.session_context.id == "slow":
+                slow_started.set()
+                assert slow_release.wait(timeout=2)
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        slow = asyncio.create_task(c.create_session_if_needed("slow"))
+        try:
+            await _wait_for_event(slow_started)
+            fast = await asyncio.wait_for(c.create_session_if_needed("fast"), timeout=1)
+            assert fast.id == "fast"
+        finally:
+            slow_release.set()
+
+        assert (await slow).id == "slow"
+
+    async def test_failed_document_initialization_can_be_retried(self) -> None:
+        attempts = 0
+
+        def modify_document(doc) -> None:
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                raise RuntimeError("initialization failed")
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        with pytest.raises(RuntimeError, match="initialization failed"):
+            await c.create_session_if_needed("foo")
+        session = await c.create_session_if_needed("foo")
+
+        assert session.id == "foo"
+        assert attempts == 2
+
+    async def test_concurrent_waiters_share_session_creation(self) -> None:
+        started = threading.Event()
+        release = threading.Event()
+        attempts = 0
+
+        def modify_document(doc) -> None:
+            nonlocal attempts
+            attempts += 1
+            started.set()
+            assert release.wait(timeout=2)
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        first = asyncio.create_task(c.create_session_if_needed("foo"))
+        try:
+            await _wait_for_event(started)
+            second = asyncio.create_task(c.create_session_if_needed("foo"))
+            await asyncio.sleep(0)
+            assert not second.done()
+        finally:
+            release.set()
+
+        first_session, second_session = await asyncio.gather(first, second)
+        assert first_session is second_session
+        assert attempts == 1
+
+    async def test_cancelling_waiter_does_not_cancel_session_creation(self) -> None:
+        started = threading.Event()
+        release = threading.Event()
+
+        def modify_document(doc) -> None:
+            started.set()
+            assert release.wait(timeout=2)
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        first = asyncio.create_task(c.create_session_if_needed("foo"))
+        try:
+            await _wait_for_event(started)
+
+            first.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await first
+
+            second = asyncio.create_task(c.create_session_if_needed("foo"))
+        finally:
+            release.set()
+
+        assert (await second).id == "foo"
+
+    async def test_concurrent_waiters_share_session_creation_failure(self) -> None:
+        started = threading.Event()
+        release = threading.Event()
+        attempts = 0
+
+        def modify_document(doc) -> None:
+            nonlocal attempts
+            attempts += 1
+            started.set()
+            assert release.wait(timeout=2)
+            raise RuntimeError("shared failure")
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        first = asyncio.create_task(c.create_session_if_needed("foo"))
+        try:
+            await _wait_for_event(started)
+            second = asyncio.create_task(c.create_session_if_needed("foo"))
+            await asyncio.sleep(0)
+        finally:
+            release.set()
+
+        results = await asyncio.gather(first, second, return_exceptions=True)
+        assert all(isinstance(result, RuntimeError) for result in results)
+        assert all(str(result) == "shared failure" for result in results)
+        assert attempts == 1
+
+    async def test_abandoned_session_creation_failure_is_logged(self, caplog: pytest.LogCaptureFixture) -> None:
+        started = threading.Event()
+        release = threading.Event()
+
+        def modify_document(doc) -> None:
+            started.set()
+            assert release.wait(timeout=2)
+            raise RuntimeError("failed after disconnect")
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        waiter = asyncio.create_task(c.create_session_if_needed("foo"))
+        try:
+            await _wait_for_event(started)
+
+            waiter.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await waiter
+        finally:
+            release.set()
+
+        with caplog.at_level(logging.ERROR):
+            async with asyncio.timeout(1):
+                while c._pending_sessions:
+                    await asyncio.sleep(0)
+
+        assert "Failed to create session 'foo': failed after disconnect" in caplog.text
+
+    async def test_shutdown_pending_sessions_prevents_session_registration(self) -> None:
+        started = threading.Event()
+        release = threading.Event()
+
+        def modify_document(doc) -> None:
+            started.set()
+            assert release.wait(timeout=2)
+
+        app = Application(FunctionHandler(modify_document))
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+
+        pending = asyncio.create_task(c.create_session_if_needed("foo"))
+        try:
+            await _wait_for_event(started)
+            shutdown = asyncio.create_task(c._shutdown_pending_sessions())
+            await asyncio.sleep(0)
+            assert not shutdown.done()
+        finally:
+            release.set()
+
+        await shutdown
+        with pytest.raises(asyncio.CancelledError):
+            await pending
+        assert not c._pending_sessions
+        assert not list(c.sessions)
+
+    async def test_code_handler_uses_context_local_curdoc_on_event_loop(self) -> None:
+        handler = CodeHandler(filename="app.py", source="""
+from threading import get_ident
+from bokeh.io import curdoc
+
+assert curdoc().session_context.id == "foo"
+curdoc().template_variables["thread_id"] = get_ident()
+""")
+        c = bsc.ApplicationContext(Application(handler), io_loop=asyncio.get_running_loop())
+        loop_doc = curdoc()
+
+        session = await c.create_session_if_needed("foo")
+        assert not handler.failed
+        assert curdoc() is loop_doc
+        assert session.document.template_variables["thread_id"] == threading.get_ident()
+
+    async def test_discard_bookkeeping_runs_on_event_loop(self) -> None:
+        c = bsc.ApplicationContext(Application(), io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        session.request_expiration()
+        destroy_threads: list[int] = []
+        original_destroy = session.destroy
+
+        def destroy() -> None:
+            destroy_threads.append(threading.get_ident())
+            original_destroy()
+
+        session.destroy = destroy
+        await c._cleanup_sessions(1)
+
+        assert destroy_threads == [threading.get_ident()]
+        assert not list(c.sessions)
+
+    async def test_concurrent_discard_runs_destroy_hook_once(self) -> None:
+        app = Application()
+        destroyed = 0
+
+        async def on_session_destroyed(session_context) -> None:
+            nonlocal destroyed
+            destroyed += 1
+
+        app.on_session_destroyed = on_session_destroyed
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        both_started = asyncio.Event()
+        first_checked = asyncio.Event()
+        second_finished = asyncio.Event()
+        arrivals = 0
+
+        async def with_document_locked(func, *args, **kwargs):
+            nonlocal arrivals
+            position = arrivals
+            arrivals += 1
+            session.block_expiration()
+            if arrivals == 2:
+                both_started.set()
+            await both_started.wait()
+
+            if position == 0:
+                result = await func(*args, **kwargs)
+                session.unblock_expiration()
+                first_checked.set()
+                await second_finished.wait()
+                return result
+
+            await first_checked.wait()
+            result = await func(*args, **kwargs)
+            session.unblock_expiration()
+            second_finished.set()
+            return result
+
+        session.with_document_locked = with_document_locked
+        await asyncio.gather(
+            c._discard_session(session, lambda session: True),
+            c._discard_session(session, lambda session: True),
+        )
+
+        assert destroyed == 1
+        assert session.destroyed
+        assert not list(c.sessions)
 
     async def test_create_session_if_needed_bad_sessionid(self) -> None:
         app = Application()
@@ -161,6 +453,144 @@ class TestApplicationContext:
         latch_f.set_result(message)
         result = await asyncio.wait_for(result_f, 1)
         assert result == message
+
+    async def test_sync_session_callback_does_not_block_event_loop(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        loop_thread = threading.get_ident()
+        callback_thread = None
+        started = threading.Event()
+        release = threading.Event()
+        finished = threading.Event()
+
+        def callback() -> None:
+            nonlocal callback_thread
+            callback_thread = threading.get_ident()
+            started.set()
+            release.wait()
+            finished.set()
+
+        session.document.add_next_tick_callback(callback)
+        await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+        await asyncio.wait_for(asyncio.sleep(0), 0.1)
+        release.set()
+        assert await asyncio.wait_for(asyncio.to_thread(finished.wait), 1)
+        await asyncio.sleep(0)
+
+        assert callback_thread != loop_thread
+
+    async def test_session_callbacks_are_serialized(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        lock = threading.Lock()
+        active = 0
+        maximum_active = 0
+
+        def callback() -> None:
+            nonlocal active, maximum_active
+            with lock:
+                active += 1
+                maximum_active = max(maximum_active, active)
+            threading.Event().wait(0.02)
+            with lock:
+                active -= 1
+
+        await asyncio.gather(
+            session.with_document_locked(callback),
+            session.with_document_locked(callback),
+        )
+
+        assert maximum_active == 1
+
+    async def test_different_session_callbacks_can_run_concurrently(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        first = await c.create_session_if_needed("first")
+        second = await c.create_session_if_needed("second")
+        barrier = threading.Barrier(2)
+
+        def callback() -> None:
+            barrier.wait(timeout=1)
+
+        await asyncio.gather(
+            first.with_document_locked(callback),
+            second.with_document_locked(callback),
+        )
+
+    async def test_async_session_callback_runs_on_event_loop(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        loop_thread = threading.get_ident()
+        callback_thread = None
+
+        async def callback() -> None:
+            nonlocal callback_thread
+            callback_thread = threading.get_ident()
+            await asyncio.sleep(0)
+
+        await session.with_document_locked(callback)
+
+        assert callback_thread == loop_thread
+
+    async def test_session_callback_can_schedule_timeout_from_worker(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        fired = threading.Event()
+
+        def callback() -> None:
+            session.document.add_timeout_callback(fired.set, 1)
+
+        await session.with_document_locked(callback)
+
+        assert await asyncio.wait_for(asyncio.to_thread(fired.wait), 1)
+
+    async def test_cancelling_locked_callback_waits_for_worker(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+        started = threading.Event()
+        release = threading.Event()
+        finished = threading.Event()
+
+        def callback() -> None:
+            started.set()
+            release.wait()
+            session.document.title = "finished"
+            finished.set()
+
+        task = asyncio.create_task(session.with_document_locked(callback))
+        await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+        task.cancel()
+        await asyncio.sleep(0)
+
+        assert not task.done()
+        assert session.expiration_blocked
+
+        release.set()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+        assert finished.is_set()
+        assert session.document.title == "finished"
+        assert not session.expiration_blocked
+
+    async def test_locked_callback_can_raise_cancelled_error(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
+        session = await c.create_session_if_needed("foo")
+
+        def callback() -> None:
+            raise asyncio.CancelledError
+
+        async with asyncio.timeout(1):
+            with pytest.raises(asyncio.CancelledError):
+                await session.with_document_locked(callback)
+
+        assert not session.expiration_blocked
 
 #-----------------------------------------------------------------------------
 # Dev API
