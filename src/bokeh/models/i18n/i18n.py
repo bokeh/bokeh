@@ -22,9 +22,8 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-
 from ...core.property.any import Any as AnyProperty
-from ...core.property.container import List, Tuple, Dict
+from ...core.property.container import Dict, List, Tuple
 from ...core.property.either import Either
 from ...core.property.primitive import Bool, String
 from ...model import Model
