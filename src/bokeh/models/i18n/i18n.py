@@ -22,8 +22,10 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
+
 from ...core.property.any import Any as AnyProperty
-from ...core.property.container import List, Tuple
+from ...core.property.container import List, Tuple, Dict
+from ...core.property.either import Either
 from ...core.property.primitive import Bool, String
 from ...model import Model
 
@@ -53,9 +55,8 @@ class I18n(Model):
     List of locales codes supported.
     """)
 
-    # TODO: Type shoundn't be Any
-    translations = AnyProperty(default={}, help="""
-    Mapping with all the defined translations available.
+    translations = Dict(String, Either(Dict(String, String), Dict(String, AnyProperty)), default={}, help="""
+    Dictionary with all the defined translations dictionaries available.
     """)
 
     languages = List(Tuple(String, String), default=[("English", "en")], help="""
