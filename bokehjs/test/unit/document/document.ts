@@ -246,6 +246,27 @@ describe("Document", () => {
     expect(d.all_models.size).to.be.equal(2)
   })
 
+  it("prunes all_models within recompute_timeout when updated continuously", () => {
+    const clock = sinon.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]})
+    try {
+      const d = new Document({recompute_timeout: 1000})
+      const m = new SomeModelWithChildren()
+      d.add_root(m)
+      expect(d.all_models.size).to.be.equal(3)
+
+      // Each update makes the previous child unreachable. Updating more often
+      // than recompute_timeout must not defer pruning indefinitely.
+      for (let i = 0; i < 10; i++) {
+        m.children = [new AnotherModel()]
+        clock.tick(500)
+      }
+
+      expect(d.all_models.size).to.be.equal(4)
+    } finally {
+      clock.restore()
+    }
+  })
+
   it("tracks all_models with list property where list elements have a child", () => {
     const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
