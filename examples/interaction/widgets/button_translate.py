@@ -3,10 +3,10 @@ from bokeh.io import curdoc, show
 from bokeh.layouts import column
 from bokeh.models import Button, CustomJS
 
-button = Button(label="Change language!")
+button = Button(label="Change to a random language!")
 button.js_on_event("button_click", CustomJS(code="""
-     const avialable_locales = ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"]
-     const locale_selection = avialable_locales[Math.floor(Math.random() * avialable_locales.length)]
+     const available_locales = ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"]
+     const locale_selection = available_locales[Math.floor(Math.random() * available_locales.length)]
 
      cb_obj.origin.document.config.i18n.set_locale(locale_selection)
 """))
@@ -58,7 +58,7 @@ curdoc().on_event(events.DocumentReady, CustomJS(code="""
       "en",
       true,
     )
-    cb_obj.config.i18n.set_locale("en")
+    cb_obj.config.i18n.change_locale.emit()
 """))
 
 show(column([button, button1, button2]))
