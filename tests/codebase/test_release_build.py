@@ -353,30 +353,7 @@ def test_update_switcher_json_includes_untagged_release(tmp_path: Path, monkeypa
     }
 
 
-def test_update_switcher_json_keeps_new_major_prerelease_and_stable_history(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
-    switcher_dir = tmp_path / "docs" / "bokeh"
-    switcher_dir.mkdir(parents=True)
-    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
-    monkeypatch.setattr(
-        build,
-        "get_tags",
-        lambda config, system: ["3.10.0.dev6", "3.9.1", "3.8.2", "3.7.3"],
-    )
-
-    result = build.update_switcher_json(Config("4.0.0.dev1"), RecordingSystem())
-
-    switcher = json.loads((switcher_dir / "switcher.json").read_text())
-    assert result.kind is ActionResult.PASS
-    assert [entry["version"] for entry in switcher] == ["3.9.1", "3.8.2", "3.7.3", "dev-4.0"]
-    assert switcher[-1]["name"] == "dev (4.0.0.dev1)"
-
-
-def test_update_switcher_json_keeps_previous_major_after_full_release(
+def test_update_switcher_json_keeps_five_latest_minors_and_one_older_major_for_prerelease(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -389,12 +366,85 @@ def test_update_switcher_json_keeps_previous_major_after_full_release(
         build,
         "get_tags",
         lambda config, system: [
-            "3.10.0.dev6",
-            "3.9.1",
+            "3.9.2",
             "3.8.2",
             "3.7.3",
+            "3.6.3",
+            "3.5.2",
+            "3.4.3",
+            "2.4.3",
+            "2.3.3",
+        ],
+    )
+
+    result = build.update_switcher_json(Config("4.0.0.dev1"), RecordingSystem())
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    assert result.kind is ActionResult.PASS
+    assert [entry["version"] for entry in switcher] == [
+        "3.9.2",
+        "3.8.2",
+        "3.7.3",
+        "3.6.3",
+        "3.5.2",
+        "2.4.3",
+        "dev-4.0",
+    ]
+    assert switcher[-1]["name"] == "dev (4.0.0.dev1)"
+
+
+def test_update_switcher_json_keeps_five_previous_minors_after_full_release(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(
+        build,
+        "get_tags",
+        lambda config, system: [
+            "4.1.0.dev1",
+            "3.9.2",
+            "3.8.2",
+            "3.7.3",
+            "3.6.3",
+            "3.5.2",
+            "3.4.3",
             "2.4.3",
         ],
+    )
+
+    result = build.update_switcher_json(Config("4.0.0"), RecordingSystem())
+
+    switcher = json.loads((switcher_dir / "switcher.json").read_text())
+    assert result.kind is ActionResult.PASS
+    assert [entry["version"] for entry in switcher] == [
+        "4.0.0",
+        "3.9.2",
+        "3.8.2",
+        "3.7.3",
+        "3.6.3",
+        "3.5.2",
+        "dev-4.1",
+    ]
+
+
+def test_update_switcher_json_honors_custom_minor_version_limit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    release_dir = tmp_path / "release"
+    release_dir.mkdir()
+    switcher_dir = tmp_path / "docs" / "bokeh"
+    switcher_dir.mkdir(parents=True)
+    monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
+    monkeypatch.setattr(
+        build,
+        "get_tags",
+        lambda config, system: ["3.9.2", "3.8.2", "3.7.3", "3.6.3", "2.4.3"],
     )
 
     result = build.update_switcher_json(
@@ -405,8 +455,7 @@ def test_update_switcher_json_keeps_previous_major_after_full_release(
 
     switcher = json.loads((switcher_dir / "switcher.json").read_text())
     assert result.kind is ActionResult.PASS
-    assert [entry["version"] for entry in switcher] == ["4.0.0", "3.9.1", "3.8.2", "3.7.3"]
-    assert all(not entry["version"].startswith("dev-") for entry in switcher)
+    assert [entry["version"] for entry in switcher] == ["4.0.0", "3.9.2", "3.8.2", "3.7.3"]
 
 
 def test_update_switcher_json_rejects_non_version_tags(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

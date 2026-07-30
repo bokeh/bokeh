@@ -202,7 +202,9 @@ def update_switcher_json(
             tags.append(config.version)
         tags.sort(key=V, reverse=True)
 
+        major_counter = 0
         minor_counter = 0
+        minor_limit_reached = minor_versions == 0
         switcher_list: list[dict[str, str | bool]] = []
         version_list: set[str] = set()
         major_list: list[str] = []
@@ -221,16 +223,19 @@ def update_switcher_json(
                     newest_prerelease = (tag, major_minor)
                 continue
 
-            if major not in major_list:
-                if len(major_list) == major_versions:
+            is_new_major = major not in major_list
+            if is_new_major:
+                if major_counter == major_versions:
                     break
+                major_counter += 1
                 minor_counter = 0
                 major_list.append(major)
-
-            if major_minor in version_list or minor_counter == minor_versions:
+            elif major_minor in version_list or minor_limit_reached:
                 continue
 
             minor_counter += 1
+            if minor_counter == minor_versions:
+                minor_limit_reached = True
             if latest_stable is None:
                 latest_stable = tag
                 entry: dict[str, str | bool] = {
@@ -246,6 +251,8 @@ def update_switcher_json(
                 }
             switcher_list.append(entry)
             version_list.add(major_minor)
+            if major_counter == major_versions and minor_limit_reached:
+                break
 
         if newest_prerelease is not None:
             dev_tag, major_minor = newest_prerelease
