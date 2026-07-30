@@ -1,6 +1,7 @@
 // For the moment, basic mock implementation created here that also explores the Chrome Translator API
-import type {PlainObject} from "core/types"
+import type {Dict} from "core/types"
 import {logger} from "core/logging"
+import {to_object} from "core/util/object"
 import {isString} from "core/util/types"
 import {Signal0} from "core/signaling"
 import {Model} from "../../model"
@@ -11,7 +12,7 @@ export namespace I18n {
 
   export type Props = Model.Props & {
     locales_codes: p.Property<string[]>
-    translations: p.Property<PlainObject>
+    translations: p.Property<Dict<Dict<string | any>>>
     languages: p.Property<[string, string][]>
     source_language: p.Property<string>
     auto_t_enabled: p.Property<boolean>
@@ -31,10 +32,9 @@ export class I18n extends Model {
   }
 
   static {
-    this.define<I18n.Props>(({Bool, Any, Str, List, Tuple}) => ({
+    this.define<I18n.Props>(({Bool, Str, List, Tuple, Dict, Any, Or}) => ({
       locales_codes: [ List(Str), ["en"] ],
-      // TODO: This shouldn't be Any
-      translations: [ Any, {} ],
+      translations: [ Dict(Dict(Or(Str, Any))), {} ],
       languages: [ List(Tuple(Str, Str)), [["English", "en"]] ],
       source_language: [ Str, "en"],
       auto_t_enabled: [ Bool, false ],
@@ -126,7 +126,7 @@ export class I18n extends Model {
   }
 
   protected _t(key: string): string {
-    const locale_translation = this.translations[this.get_locale()]
+    const locale_translation = to_object(this.translations)[this.get_locale()]
     return key.split(".").reduce(
       (current_level, current_key) => current_level?.[current_key],
       locale_translation as any,
