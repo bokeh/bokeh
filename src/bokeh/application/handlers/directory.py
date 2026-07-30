@@ -71,10 +71,9 @@ from .server_request_handler import ServerRequestHandler
 if TYPE_CHECKING:
     from types import ModuleType
 
-    from tornado.httputil import HTTPServerRequest
-
     from ...core.types import PathLike
     from ...document import Document
+    from ...server.request import RequestLike
     from ...themes import Theme
     from ..application import ServerContext, SessionContext
 
@@ -290,7 +289,7 @@ class DirectoryHandler(Handler):
         '''
         await self._lifecycle_handler.on_session_destroyed(session_context)
 
-    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
+    def process_request(self, request: RequestLike) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 

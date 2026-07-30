@@ -21,7 +21,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import inspect
+import threading
 import time
 from copy import copy
 from functools import wraps
@@ -33,14 +35,9 @@ from typing import (
     cast,
 )
 
-# External imports
-from tornado import locks
-
-if TYPE_CHECKING:
-    from tornado.ioloop import IOLoop
-
 # Bokeh imports
 from ..events import ConnectionLost
+from ..util.asyncio import Loop
 from ..util.token import generate_jwt_token
 from .callbacks import DocumentCallbackGroup
 
@@ -86,17 +83,54 @@ def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
             return None
         self.block_expiration()
         try:
-            with await self._lock.acquire():
+            async with self._lock:
                 if self._pending_writes is not None:
                     raise RuntimeError("internal class invariant violated: _pending_writes " + \
                                        "should be None if lock is not held")
                 self._pending_writes = []
+                error: BaseException | None = None
+                result: Any = None
                 try:
-                    result = func(self, *args, **kwargs)
-                    if inspect.isawaitable(result):
-                        # Note that this must not be outside of the critical section.
-                        # Otherwise, the async callback will be ran without document locking.
+                    # Document operations are serialized by the per-session
+                    # lock, but arbitrary synchronous user callbacks must not
+                    # occupy the shared event-loop thread. ``to_thread`` uses
+                    # the loop's bounded executor and propagates context vars,
+                    # including the active ``curdoc()`` context.
+                    worker = asyncio.create_task(asyncio.to_thread(func, self, *args, **kwargs))
+                    cancelled: asyncio.CancelledError | None = None
+                    while True:
+                        try:
+                            result = await asyncio.shield(worker)
+                            break
+                        except asyncio.CancelledError as cancellation:
+                            if worker.done():
+                                if worker.cancelled():
+                                    error = cancelled or cancellation
+                                else:
+                                    try:
+                                        result = worker.result()
+                                    except BaseException as worker_error:
+                                        error = cancelled or worker_error
+                                    else:
+                                        cancelled = cancelled or cancellation
+                                break
+                            # A running thread cannot be cancelled. Keep the
+                            # document lock and pending-write state alive until
+                            # it finishes, then propagate cancellation.
+                            cancelled = cancelled or cancellation
+                        except BaseException as worker_error:
+                            error = cancelled or worker_error
+                            break
+                    if error is None and cancelled is not None:
+                        if inspect.iscoroutine(result):
+                            result.close()
+                        error = cancelled
+                    elif error is None and inspect.isawaitable(result):
+                        # Async callbacks continue on the event loop while
+                        # retaining the document lock across awaits.
                         result = await result
+                except BaseException as callback_error:
+                    error = callback_error
                 finally:
                     # we want to be very sure we reset this or we'll
                     # keep hitting the RuntimeError above as soon as
@@ -105,6 +139,8 @@ def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
                     self._pending_writes = None
                 for p in pending_writes:
                     await p
+                if error is not None:
+                    raise error
             return result
         finally:
             self.unblock_expiration()
@@ -129,7 +165,7 @@ class ServerSession:
     _current_patch_connection: ServerConnection | None
     _pending_writes: list[Awaitable[None]] | None
 
-    def __init__(self, session_id: ID, document: Document, io_loop: IOLoop | None = None, token: str | None = None) -> None:
+    def __init__(self, session_id: ID, document: Document, io_loop: Loop | None = None, token: str | None = None) -> None:
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
@@ -139,8 +175,9 @@ class ServerSession:
         self._document = document
         self._loop = io_loop
         self._subscribed_connections = set()
+        self._connections_lock = threading.Lock()
         self._last_unsubscribe_time = current_time()
-        self._lock = locks.Lock()
+        self._lock = asyncio.Lock()
         self._current_patch_connection = None
         self._document.callbacks.on_change_dispatch_to(self)
         self._callbacks = DocumentCallbackGroup(cast(Any, io_loop))
@@ -192,6 +229,10 @@ class ServerSession:
         self._callbacks.remove_all_callbacks()
         del self._callbacks
 
+    def _stop_callbacks(self) -> None:
+        """Prevent new document callbacks while orderly shutdown takes the lock."""
+        self._callbacks.remove_all_callbacks()
+
     def request_expiration(self) -> None:
         """ Used in test suite for now. Forces immediate expiration if no connections."""
         self._expiration_requested = True
@@ -206,20 +247,24 @@ class ServerSession:
 
     def subscribe(self, connection: ServerConnection) -> None:
         """This should only be called by ``ServerConnection.subscribe_session`` or our book-keeping will be broken"""
-        self._subscribed_connections.add(connection)
+        with self._connections_lock:
+            self._subscribed_connections.add(connection)
 
     def unsubscribe(self, connection: ServerConnection) -> None:
         """This should only be called by ``ServerConnection.unsubscribe_session`` or our book-keeping will be broken"""
-        self._subscribed_connections.discard(connection)
-        self._last_unsubscribe_time = current_time()
+        with self._connections_lock:
+            self._subscribed_connections.discard(connection)
+            self._last_unsubscribe_time = current_time()
 
     @property
     def connection_count(self) -> int:
-        return len(self._subscribed_connections)
+        with self._connections_lock:
+            return len(self._subscribed_connections)
 
     @property
     def milliseconds_since_last_unsubscribe(self) -> float:
-        return current_time() - self._last_unsubscribe_time
+        with self._connections_lock:
+            return current_time() - self._last_unsubscribe_time
 
     @_needs_document_lock
     def with_document_locked[T](self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
@@ -247,7 +292,9 @@ class ServerSession:
         # TODO (havocp): our "change sync" protocol is flawed because if both
         # sides change the same attribute at the same time, they will each end
         # up with the state of the other and their final states will differ.
-        for connection in self._subscribed_connections:
+        with self._connections_lock:
+            connections = list(self._subscribed_connections)
+        for connection in connections:
             if may_suppress and connection is self._current_patch_connection:
                 continue
             self._pending_writes.append(connection.send_patch_document(event))

@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..model import Model
     from ..server.callbacks import SessionCallback
+    from . import DocumentLike
     from .document import Document
     from .events import (
         DocumentChangeCallback,
@@ -456,7 +457,7 @@ class DocumentCallbackManager:
 def invoke_with_curdoc(doc: Document, f: Callable[[], None]) -> None:
     from ..io.doc import patch_curdoc
 
-    curdoc: Document|UnlockedDocumentProxy = UnlockedDocumentProxy(doc) if getattr(f, "nolock", False) else doc
+    curdoc: DocumentLike = UnlockedDocumentProxy(doc) if getattr(f, "nolock", False) else doc
 
     with patch_curdoc(curdoc):
         return f()
