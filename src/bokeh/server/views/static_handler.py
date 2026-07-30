@@ -25,6 +25,7 @@ import asyncio
 import os
 import stat
 from collections.abc import Callable, Iterator
+from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 # External imports
@@ -122,6 +123,10 @@ class AsyncStaticFileHandler(TornadoStaticFileHandler):
             return self._computed_etag
         return super().compute_etag()
 
+    def get_modified_time(self) -> datetime:
+        stat_result = self._stat()
+        return datetime.fromtimestamp(int(stat_result.st_mtime), UTC)
+
     async def _run_in_executor(self, func: Callable[..., T], *args: Any) -> T:
         future = IOLoop.current().run_in_executor(None, func, *args)
         try:
@@ -169,13 +174,10 @@ class AsyncStaticFileHandler(TornadoStaticFileHandler):
         return os.stat(absolute_path)
 
     async def _stream_content(self, start: int | None, end: int | None) -> None:
-        content = await self._run_in_executor(
+        raw_content: bytes | Iterator[bytes] = await self._run_in_executor(
             self.get_content, self.absolute_path, start, end,
         )
-        if isinstance(content, bytes):
-            content = iter([content])
-        else:
-            content = iter(content)
+        content = iter([raw_content]) if isinstance(raw_content, bytes) else iter(raw_content)
 
         try:
             while True:

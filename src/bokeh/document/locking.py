@@ -112,7 +112,7 @@ class LockedCallback[**P]:
 
         # Keep the lifecycle callback alive without making the Document keep
         # this wrapper (and its user callback) alive after an explicit close.
-        self._session_destroyed_callback = session_destroyed
+        self._session_destroyed_callback: Callable[[SessionContext], None] | None = session_destroyed
         document.on_session_destroyed(session_destroyed)
 
     @property
@@ -209,7 +209,7 @@ class LockedCallback[**P]:
             raise
 
         if inspect.isawaitable(result):
-            return self._wait_for_result(cast(Awaitable[Any], result), document)
+            return self._wait_for_result(result, document)
 
         self._finish()
         return result

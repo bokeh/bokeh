@@ -772,9 +772,11 @@ class BokehTornado(TornadoApplication):
         key = self._autoload_key(resources)
         cache = not settings.dev and (resources is None or not resources.dev)
 
-        if cache and (bundle := self._autoload_cache.get(key)) is not None:
-            self._autoload_cache.move_to_end(key)
-            return bundle.clone()
+        if cache:
+            cached_bundle = self._autoload_cache.get(key)
+            if cached_bundle is not None:
+                self._autoload_cache.move_to_end(key)
+                return cached_bundle.clone()
 
         pending = self._pending_autoload.get(key)
         if pending is None:
@@ -811,11 +813,11 @@ class BokehTornado(TornadoApplication):
         if resources is None:
             return (None, models)
 
-        path_versioner = resources.path_versioner
-        if path_versioner is not None:
-            path_versioner = (
-                getattr(path_versioner, "__self__", None),
-                getattr(path_versioner, "__func__", path_versioner),
+        path_versioner_key: Any = resources.path_versioner
+        if path_versioner_key is not None:
+            path_versioner_key = (
+                getattr(path_versioner_key, "__self__", None),
+                getattr(path_versioner_key, "__func__", path_versioner_key),
             )
 
         return (
@@ -826,7 +828,7 @@ class BokehTornado(TornadoApplication):
             resources.minified,
             resources.log_level,
             resources.root_url,
-            path_versioner,
+            path_versioner_key,
             tuple(resources.components),
             resources.base_dir,
             models,

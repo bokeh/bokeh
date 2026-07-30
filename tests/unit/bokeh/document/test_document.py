@@ -168,7 +168,7 @@ class TestDocument:
                 calls.append(value)
 
             assert update.__name__ == "update"
-            assert update.__doc__ == "Update the value. "
+            assert update.__doc__ == update.__wrapped__.__doc__
             assert update.policy == "latest"
             assert not update.pending
             assert not update.closed
