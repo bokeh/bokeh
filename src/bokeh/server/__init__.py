@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a customizable Bokeh Server Tornadocore application.
+''' Provide Bokeh server applications and framework integrations.
 
 The architecture of Bokeh is such that high-level "model objects"
 (representing things like plots, ranges, axes, glyphs, etc.) are created
@@ -25,5 +25,9 @@ possibilities immediately open up:
 
 **This capability to synchronize between python and the browser is the main
 purpose of the Bokeh Server.**
+
+Use :class:`~bokeh.server.asgi.BokehASGI` with an ASGI server or framework.
+The Tornado frontend remains available through :class:`~bokeh.server.server.Server` and
+:class:`~bokeh.server.tornado.BokehTornado`.
 
 '''

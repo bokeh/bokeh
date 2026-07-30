@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 import calendar
 import datetime as dt
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urlparse
 
 # External imports
@@ -48,6 +48,7 @@ if TYPE_CHECKING:
 
     from ..connection import ServerConnection
     from ..contexts import ApplicationContext
+    from ..request import RequestLike
     from ..tornado import BokehTornado
 
 #-----------------------------------------------------------------------------
@@ -210,7 +211,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         '''
         try:
             session_id = get_session_id(token)
-            await self.application_context.create_session_if_needed(session_id, self.request, token)
+            request = cast("RequestLike", self.request)
+            await self.application.create_session_if_needed(self.application_context, session_id, request, token)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()
