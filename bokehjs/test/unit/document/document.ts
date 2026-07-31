@@ -256,12 +256,16 @@ describe("Document", () => {
 
       // Each update makes the previous child unreachable. Updating more often
       // than recompute_timeout must not defer pruning indefinitely.
-      for (let i = 0; i < 10; i++) {
+      const first_child = new AnotherModel()
+      m.children = [first_child]
+      clock.tick(500)
+      for (let i = 0; i < 9; i++) {
         m.children = [new AnotherModel()]
         clock.tick(500)
       }
 
       expect(d.all_models.size).to.be.equal(4)
+      expect(first_child.document).to.be.null
     } finally {
       clock.restore()
     }
