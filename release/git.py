@@ -98,8 +98,9 @@ def merge_staging_branch(config: Config, system: System) -> ActionReturn:
 def push_to_github(config: Config, system: System) -> ActionReturn:
     try:
         # use --no-verify to prevent git hook that might ask for confirmation
-        system.run(f"git push --no-verify origin {config.base_branch}")
-        system.run(f"git push --no-verify origin {config.version}")
+        system.run(
+            f"git push --atomic --no-verify origin {config.base_branch} {config.version}",
+        )
         return PASSED(f"Pushed base branch and tag for {config.base_branch!r} to GitHub")
     except RuntimeError as e:
         return FAILED("Could NOT push base branch and tag to origin", details=e.args)

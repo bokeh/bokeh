@@ -44,9 +44,10 @@ def collect_credential(**kw: str) -> Callable[[VerifyFunctionType], StepType]:
         def wrapper(config: Config, system: System) -> ActionReturn:
             secrets = dict()
             for argname, envname in kw.items():
-                if envname not in os.environ:
+                secret = os.environ.get(envname)
+                if not secret:
                     return FAILED(f"Credential {envname} is not set")
-                secrets[argname] = os.environ[envname]
+                secrets[argname] = secret
 
                 # this must be added immediately before anything else so a scrubber is registered
                 config.add_secret(envname, secrets[argname])
