@@ -126,14 +126,22 @@ DataSpec Properties
 .. autoclass:: AngleSpec
 .. autoclass:: BoolSpec
 .. autoclass:: ColorSpec
+.. autoclass:: DashPatternSpec
 .. autoclass:: DataSpec
 .. autoclass:: DistanceSpec
 .. autoclass:: FloatSpec
 .. autoclass:: FontSizeSpec
+.. autoclass:: FontStyleSpec
+.. autoclass:: HatchPatternSpec
+.. autoclass:: IntSpec
+.. autoclass:: LineCapSpec
+.. autoclass:: LineJoinSpec
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
 .. autoclass:: SizeSpec
 .. autoclass:: StringSpec
+.. autoclass:: TextAlignSpec
+.. autoclass:: TextBaselineSpec
 .. autoclass:: UnitsSpec
 
 Helpers

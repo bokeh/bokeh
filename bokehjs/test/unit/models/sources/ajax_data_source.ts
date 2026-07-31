@@ -109,7 +109,7 @@ describe("ajax_data_source module", () => {
 
       describe("prepare_request method", () => {
 
-        it("should return an xhr with withCredentials = False", () => {
+        it("should return an xhr with Credentials = False", () => {
           const s = new AjaxDataSource({data_url: "http://foo.com"})
           const xhr = s.prepare_request()
           expect(xhr).to.be.instanceof(XMLHttpRequest)

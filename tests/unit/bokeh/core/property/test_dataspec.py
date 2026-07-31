@@ -63,6 +63,7 @@ ALL = (
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
+    'UnitsSpec',
 )
 
 #-----------------------------------------------------------------------------
