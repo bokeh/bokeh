@@ -121,7 +121,6 @@ for control in (waveform, frequency, amplitude, phase):
 
 update_data()
 doc = curdoc()
-doc.config.color_scheme = "dark"
 doc.add_periodic_callback(advance, 75)
 doc.template = """
     {% block preamble %}
