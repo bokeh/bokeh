@@ -19,8 +19,6 @@ jobs:
 
     steps:
       - name: Check Maintainer
-        env:
-          BOKEH_VERSION: ${{ github.event.inputs.version }}
         uses: tspascoal/get-user-teams-membership@v4
         id: checkUserMember
         with:
@@ -29,6 +27,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Maintainer confirmed
         if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
+        env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
         run: |
           echo
           echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
@@ -45,6 +45,8 @@ jobs:
           exit 1
 
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - uses: conda-incubator/setup-miniconda@v4
         with:

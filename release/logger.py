@@ -52,7 +52,7 @@ class Log:
     def add_scrubber(self, scrubber: Scrubber) -> None:
         """"""
         self._scrubbers.append(scrubber)
-        self._scrubbers.sort(key=len)
+        self._scrubbers.sort(key=len, reverse=True)
 
     def record(self, *lines: str) -> tuple[int, int]:
         """"""
