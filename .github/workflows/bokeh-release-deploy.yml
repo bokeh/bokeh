@@ -22,8 +22,6 @@ jobs:
 
     steps:
       - name: Check Maintainer
-        env:
-          BOKEH_VERSION: ${{ github.event.inputs.version }}
         uses: tspascoal/get-user-teams-membership@v4
         id: checkUserMember
         with:
@@ -32,6 +30,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Maintainer confirmed
         if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
+        env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
         run: |
           echo
           echo "User is authorized to deploy releases, proceeding with release deploy for $BOKEH_VERSION"

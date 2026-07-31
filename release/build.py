@@ -15,6 +15,9 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
+# External imports
+from packaging.version import Version as V
+
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import ANY_VERSION, Config
@@ -128,7 +131,7 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"mkdir -p {dirname}/docs/bokeh/build")
         system.run(f"cp -r docs/bokeh/build/html {dirname}/docs/bokeh/build")
         system.run(f"cp -r docs/bokeh/switcher.json {dirname}/docs/bokeh")
-        system.run(f"tar cvf {filename} {dirname}")
+        system.run(f"tar czvf {filename} {dirname}")
         return PASSED(f"Packed deployment tarball {filename!r}")
     except RuntimeError as e:
         return FAILED("Could NOT pack deployment tarball", details=e.args)
@@ -156,20 +159,21 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
     }
 
     system.pushd("bokehjs")
+    try:
+        for filename, action in files.items():
+            try:
+                with open(filename) as f:
+                    content = json.load(f)
+                action(content)
 
-    for filename, action in files.items():
-        content = json.load(open(filename))
-        try:
-            action(content)
-
-            with open(filename, "w") as f:
-                json.dump(content, f, indent=2)
-                f.write("\n")
-            config.add_modified(f"bokehjs/{filename}")
-        except Exception as e:
-            return FAILED(f"Unable to write new version to file {filename!r}", details=e.args)
-
-    system.popd()
+                with open(filename, "w") as f:
+                    json.dump(content, f, indent=2)
+                    f.write("\n")
+                config.add_modified(f"bokehjs/{filename}")
+            except Exception as e:
+                return FAILED(f"Unable to update version in file {filename!r}", details=e.args)
+    finally:
+        system.popd()
 
     return PASSED(f"Updated version to {config.js_version!r} in files: {list(files.keys())!r}")
 
@@ -185,60 +189,79 @@ def update_switcher_json(
     base_url = "https://docs.bokeh.org/en/"
 
     try:
-        tags = get_tags(config, system)
+        tags = []
+        for tag in get_tags(config, system):
+            try:
+                normalized_tag = str(V(tag))
+            except ValueError:
+                raise ValueError(f"Got invalid version string {tag!r}.")
+            if re.match(ANY_VERSION, normalized_tag) is None:
+                raise ValueError(f"Got invalid version string {tag!r}.")
+            tags.append(normalized_tag)
+        if config.version not in tags:
+            tags.append(config.version)
+        tags.sort(key=V, reverse=True)
 
         major_counter = 0
         minor_counter = 0
-        switcher_list = []
-        version_list = []
-        major_list = []
-        latest = True
-        dev_dict: dict[str, str | bool] = {}
+        minor_limit_reached = minor_versions == 0
+        switcher_list: list[dict[str, str | bool]] = []
+        version_list: set[str] = set()
+        major_list: list[str] = []
+        latest_stable: str | None = None
+        newest_prerelease: tuple[str, str] | None = None
         for tag in tags:
             m = re.match(ANY_VERSION, tag)
-            if m is None:
-                raise ValueError(f"Got invalid version string {tag!r}.")
+            assert m is not None
             major = m[2]
             minor = m[3]
             dev = m[5]
             major_minor = f"{major}.{minor}"
 
-            if major not in major_list:
+            if dev is not None:
+                if newest_prerelease is None:
+                    newest_prerelease = (tag, major_minor)
+                continue
+
+            is_new_major = major not in major_list
+            if is_new_major:
+                if major_counter == major_versions:
+                    break
                 major_counter += 1
                 minor_counter = 0
                 major_list.append(major)
-
-            if major_minor in version_list or (major in major_list and minor_counter == minor_versions):
+            elif major_minor in version_list or minor_limit_reached:
                 continue
 
-            if dev is not None:
-                dev_dict = {
-                    "name": f"dev ({tag})",
-                    "version": f"dev-{major_minor}",
-                    "url": f"{base_url}dev-{major_minor}/",
+            minor_counter += 1
+            if minor_counter == minor_versions:
+                minor_limit_reached = True
+            if latest_stable is None:
+                latest_stable = tag
+                entry: dict[str, str | bool] = {
+                    "name": f"{tag} (latest)",
+                    "version": tag,
+                    "url": f"{base_url}latest/",
+                    "preferred": True,
                 }
             else:
-                minor_counter += 1
-                if latest:
-                    d: dict[str, str | bool] = {
-                        "name": f"{tag} (latest)",
-                        "version": tag,
-                        "url": f"{base_url}latest/",
-                        "preferred": True,
-                    }
-                    latest = False
-                else:
-                    d = {
-                        "version": tag,
-                        "url": f"{base_url}{tag}/",
-                    }
-                switcher_list.append(d)
-
-            version_list.append(major_minor)
-            if major_counter == major_versions:
+                entry = {
+                    "version": tag,
+                    "url": f"{base_url}{tag}/",
+                }
+            switcher_list.append(entry)
+            version_list.add(major_minor)
+            if major_counter == major_versions and minor_limit_reached:
                 break
-        if dev_dict:
-            switcher_list.append(dev_dict)
+
+        if newest_prerelease is not None:
+            dev_tag, major_minor = newest_prerelease
+            if latest_stable is None or V(dev_tag) > V(latest_stable):
+                switcher_list.append({
+                    "name": f"dev ({dev_tag})",
+                    "version": f"dev-{major_minor}",
+                    "url": f"{base_url}dev-{major_minor}/",
+                })
 
         with open(switcher_path, "w") as f:
             json.dump(switcher_list, f, indent=2)
@@ -246,7 +269,7 @@ def update_switcher_json(
 
         config.add_modified("docs/bokeh/switcher.json")
         return PASSED("Switcher.json was updated.")
-    except RuntimeError as e:
+    except (OSError, RuntimeError, ValueError) as e:
         return FAILED("Switcher.json update failed", details=e.args)
 
 @skip_for_prerelease
