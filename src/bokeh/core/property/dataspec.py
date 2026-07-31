@@ -90,6 +90,7 @@ __all__ = (
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
+    'UnitsSpec',
 )
 
 #-----------------------------------------------------------------------------
