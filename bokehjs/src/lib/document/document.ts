@@ -299,8 +299,12 @@ export class Document implements Equatable {
     const timeout = this._recompute_timeout
     if (isNaN(timeout) || timeout <= 0) {
       this._recompute_all_models()
-    } else if (isFinite(timeout)) {
-      this._cancel_recompute_all_models()
+    } else if (isFinite(timeout) && this._recompute_timer == null) {
+      // Throttle, don't debounce: an already pending recomputation is left
+      // alone, so that `timeout` bounds how long unreachable models can linger
+      // in `_all_models`. Restarting the timer on every update would defer the
+      // recomputation indefinitely in a document that is updated more often
+      // than `timeout`, e.g. any server application with a periodic callback.
       this._recompute_timer = setTimeout(() => {
         this._recompute_all_models()
       }, timeout)
