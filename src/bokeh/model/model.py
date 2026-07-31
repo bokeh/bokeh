@@ -99,7 +99,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         if cls.__module__.startswith("bokeh.models"):
             assert "__init__" in cls.__dict__, str(cls)
-            parameters = [x[0] for x in  cls.parameters()]
+            parameters = [x[0] for x in cls.parameters()]
             cls.__init__.__signature__ = Signature(parameters=parameters)
             process_example(cls)
 
@@ -516,10 +516,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def select_one(self, selector: SelectorType) -> Model | None:
         ''' Query this object and all of its references for objects that
-        match the given selector.  Raises an error if more than one object
-        is found.  Returns single matching object, or None if nothing is found
+        match the given selector. Raises an error if more than one object
+        is found. Returns single matching object, or None if nothing is found.
+
         Args:
-            selector (JSON-like) :
+            selector (JSON-like):
 
         Returns:
             Model

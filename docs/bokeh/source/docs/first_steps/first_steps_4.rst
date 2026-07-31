@@ -278,7 +278,7 @@ Bokeh. For example:
 
 * Use one of the |named CSS colors| (for example, ``"firebrick"``)
 * Use hexadecimal values, prefaced with a ``#`` (for example ``"#00ff00"``)
-* Use a 3-tuple for RGB colors (for example, ``(100, 100, 255)``
+* Use a 3-tuple for RGB colors (for example, ``(100, 100, 255)``)
 * Use a 4-tuple for RGBA colors (for example ``(100, 100, 255, 0.5)``)
 
 To change the appearance of the plane that Bokeh draws your plot elements on,
