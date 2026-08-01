@@ -57,7 +57,6 @@ class ServerConnection:
         self._transport = transport
         self._session = session
         self._session.subscribe(self)
-        self._ping_count = 0
 
     @property
     def session(self) -> ServerSession:
@@ -96,10 +95,6 @@ class ServerConnection:
 
     def send_message(self, message: Message[Any]) -> Awaitable[None]:
         return self._transport.send_message(message)
-
-    def send_ping(self) -> None:
-        self._transport.ping(str(self._ping_count).encode("utf-8"))
-        self._ping_count += 1
 
 #-----------------------------------------------------------------------------
 # Dev API

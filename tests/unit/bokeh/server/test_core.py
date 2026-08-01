@@ -76,7 +76,7 @@ async def test_locked_callback_latest_runs_from_threads_with_document_lock() -> 
 
         callbacks.append(update)
 
-    core = BokehServerCore(Application(FunctionHandler(modify_document)), keep_alive_milliseconds=0)
+    core = BokehServerCore(Application(FunctionHandler(modify_document)))
     await core.start()
     loop_thread = threading.get_ident()
     try:
@@ -130,7 +130,7 @@ async def test_locked_callback_every_awaits_async_callbacks_in_order() -> None:
 
         callbacks.append(update)
 
-    core = BokehServerCore(Application(FunctionHandler(modify_document)), keep_alive_milliseconds=0)
+    core = BokehServerCore(Application(FunctionHandler(modify_document)))
     await core.start()
     try:
         context = core.applications["/"]
@@ -157,7 +157,6 @@ async def test_stop_waits_for_periodic_jobs_before_unload() -> None:
     application.on_server_unloaded = lambda context: unloaded.set()
     core = BokehServerCore(
         application,
-        keep_alive_milliseconds=0,
         check_unused_sessions_milliseconds=1,
     )
     started = asyncio.Event()
@@ -197,7 +196,6 @@ async def test_stop_cancels_pending_sessions_before_waiting_for_jobs() -> None:
 
     core = BokehServerCore(
         Application(FunctionHandler(modify_document)),
-        keep_alive_milliseconds=0,
         check_unused_sessions_milliseconds=1,
     )
 
@@ -243,7 +241,6 @@ async def test_concurrent_stop_is_shared_and_rejects_new_work() -> None:
     application.on_server_unloaded = on_server_unloaded
     core = BokehServerCore(
         application,
-        keep_alive_milliseconds=0,
         check_unused_sessions_milliseconds=1,
     )
     job_started = asyncio.Event()
@@ -298,7 +295,7 @@ async def test_stop_destroys_sessions_and_document_callbacks() -> None:
         destroyed.set()
 
     application.on_session_destroyed = on_session_destroyed
-    core = BokehServerCore(application, keep_alive_milliseconds=0)
+    core = BokehServerCore(application)
     await core.start()
     context = core.applications["/"]
     session = await context.create_session_if_needed("session")
@@ -323,7 +320,7 @@ async def test_stop_destroys_sessions_and_document_callbacks() -> None:
 
 
 async def test_stop_detaches_connections_before_destroying_sessions() -> None:
-    core = BokehServerCore(Application(), keep_alive_milliseconds=0)
+    core = BokehServerCore(Application())
     await core.start()
     context = core.applications["/"]
     session = await context.create_session_if_needed("session")
@@ -343,7 +340,7 @@ async def test_lifecycle_hooks_run_on_event_loop() -> None:
     observed: list[asyncio.AbstractEventLoop] = []
     application.on_server_loaded = lambda context: observed.append(asyncio.get_running_loop())
     application.on_server_unloaded = lambda context: observed.append(asyncio.get_running_loop())
-    core = BokehServerCore(application, keep_alive_milliseconds=0)
+    core = BokehServerCore(application)
 
     await core.start()
     await core.stop()
@@ -352,7 +349,7 @@ async def test_lifecycle_hooks_run_on_event_loop() -> None:
 
 
 def test_core_can_restart_on_a_new_event_loop() -> None:
-    core = BokehServerCore(Application(), keep_alive_milliseconds=0)
+    core = BokehServerCore(Application())
 
     async def cycle() -> None:
         await core.start()
@@ -363,7 +360,7 @@ def test_core_can_restart_on_a_new_event_loop() -> None:
 
 
 async def test_cookie_header_is_removed_case_insensitively_from_token() -> None:
-    core = BokehServerCore(Application(), keep_alive_milliseconds=0, exclude_cookies=["secret"])
+    core = BokehServerCore(Application(), exclude_cookies=["secret"])
     request = ServerRequest(
         method="GET",
         uri="/",

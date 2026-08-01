@@ -29,7 +29,7 @@ def connection() -> tuple[ServerConnection, SimpleNamespace]:
         _handle_push=AsyncMock(),
         _handle_patch=AsyncMock(),
     )
-    transport = SimpleNamespace(send_message=AsyncMock(), ping=Mock())
+    transport = SimpleNamespace(send_message=AsyncMock())
     return ServerConnection(transport, session), session
 
 

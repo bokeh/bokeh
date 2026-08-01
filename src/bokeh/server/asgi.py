@@ -84,11 +84,6 @@ class _ASGIWebSocketTransport:
                 # waiting for the application to receive it.
                 self.closed = True
 
-    def ping(self, data: bytes) -> None:
-        # ASGI deliberately has no portable ping-frame event. ASGI servers
-        # provide transport-level keepalive configuration instead.
-        pass
-
     async def close(self, code: int = 1000, reason: str = "") -> None:
         if not self.closed:
             self.closed = True
@@ -111,7 +106,8 @@ class BokehASGI:
     scripts or directories. Script and directory applications are executed
     once for every new session. Supply an :class:`~bokeh.server.auth.AuthPolicy`
     to authenticate dynamic HTTP and websocket requests without depending on
-    an ASGI framework.
+    an ASGI framework. WebSocket keepalive is configured on the ASGI server,
+    because ASGI does not expose portable ping-frame operations.
     '''
 
     def __init__(

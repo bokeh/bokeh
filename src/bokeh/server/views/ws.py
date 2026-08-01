@@ -81,7 +81,6 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         self.receiver = None
         self.connection = None
         self.application_context = kw['application_context']
-        self.latest_pong = -1
         # write_lock allows us to lock the connection to send multiple
         # messages atomically.
         self.write_lock = locks.Lock()
@@ -268,16 +267,6 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             self._internal_error("server failed to handle a message")
 
         return None
-
-    def on_pong(self, data: bytes) -> None:
-        # if we get an invalid integer or utf-8 back, either we
-        # sent a buggy ping or the client is evil/broken.
-        try:
-            self.latest_pong = int(data.decode("utf-8"))
-        except UnicodeDecodeError:
-            log.trace("received invalid unicode in pong %r", data, exc_info=True) # type: ignore[attr-defined]
-        except ValueError:
-            log.trace("received invalid integer in pong %r", data, exc_info=True) # type: ignore[attr-defined]
 
     async def send_message(self, message: Message[Any]) -> None:
         ''' Send a Bokeh Server protocol message to the connected client.

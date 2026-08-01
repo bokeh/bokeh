@@ -25,7 +25,6 @@ from unittest.mock import Mock, patch
 
 # External imports
 from _util_server import http_get, url
-from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
 from bokeh.application import Application
@@ -232,6 +231,12 @@ def test_websocket_max_message_size_bytes() -> None:
     t = bst.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
     assert t.settings['websocket_max_message_size'] == 12345
 
+@pytest.mark.parametrize(("milliseconds", "seconds"), [(0, 0), (100, 0.1)])
+def test_keep_alive_uses_tornado_websocket_ping(milliseconds: int, seconds: float) -> None:
+    t = bst.BokehTornado({"/": Application()}, keep_alive_milliseconds=milliseconds)
+    assert t.settings["websocket_ping_interval"] == seconds
+    assert t.settings["websocket_ping_timeout"] == seconds
+
 def test_websocket_compression_level() -> None:
     app = Application()
     t = bst.BokehTornado({"/": app}, websocket_compression_level=2,
@@ -317,7 +322,6 @@ def test_stop_cancels_pending_sessions_before_unload() -> None:
     t._stats_job = Mock()
     t._mem_job = None
     t._cleanup_job = Mock()
-    t._ping_job = None
     t._clients = set()
 
     t.stop()
@@ -342,7 +346,6 @@ async def test_stop_defers_unload_until_pending_worker_finishes() -> None:
     t._stats_job = Mock()
     t._mem_job = None
     t._cleanup_job = Mock()
-    t._ping_job = None
     t._clients = set()
     context = t._applications["/"]
     pending = asyncio.create_task(context.create_session_if_needed("session"))
@@ -369,7 +372,6 @@ async def test_stop_waits_for_running_cleanup_before_unload() -> None:
     t._stats_job = Mock()
     t._mem_job = None
     t._cleanup_job = Mock()
-    t._ping_job = None
     t._clients = set()
     context = t._applications["/"]
     started = asyncio.Event()
@@ -400,7 +402,6 @@ async def test_concurrent_stop_async_runs_unload_once() -> None:
     t._stats_job = Mock()
     t._mem_job = None
     t._cleanup_job = Mock()
-    t._ping_job = None
     t._clients = set()
     context = t._applications["/"]
     unload_count = 0
@@ -450,16 +451,6 @@ async def test_metadata(ManagedServerLoop: MSL) -> None:
         meta_resp = await http_get(server.io_loop, meta_url)
         meta_json = json.loads(meta_resp.buffer.read().decode())
         assert meta_json == {'data': {'name': 'myname', 'value': 'no value'}, 'url': '/'}
-
-def test_keep_alive_websocket_error(ManagedServerLoop: MSL) -> None:
-    application = Application()
-    mock_client = Mock()
-    mock_client.send_ping.side_effect = WebSocketClosedError()
-    with ManagedServerLoop(application, keep_alive_milliseconds=100) as server:
-        with patch('bokeh.server.tornado.BokehTornado.client_lost') as client_lost:
-            server._tornado._clients = {mock_client}
-            server._tornado._keep_alive()
-            assert client_lost.called
 
 #-----------------------------------------------------------------------------
 # Dev API

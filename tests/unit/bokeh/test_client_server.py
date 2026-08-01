@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import logging
-import sys
-import time
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -353,43 +351,6 @@ class TestClientServer:
 
             assert info['version_info']['bokeh'] == __version__
             assert info['version_info']['server'] == __version__
-
-            session.close()
-            session._loop_until_closed()
-            assert not session.connected
-
-    @pytest.mark.skipif(sys.platform == "win32", reason="uninmportant failure on win")
-    def test_ping(self, ManagedServerLoop: MSL) -> None:
-        application = Application()
-        with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
-            session = ClientSession(session_id=ID("test_ping"),
-                                    websocket_url=ws_url(server),
-                                    io_loop=server.io_loop)
-            session.connect()
-            assert session.connected
-            assert session.document is None
-
-            connection = next(iter(server._tornado._clients))
-
-            def wait_for_pong(pong: int) -> None:
-                # Websocket control frames may be processed after an application-level roundtrip.
-                deadline = time.monotonic() + 1
-                while time.monotonic() < deadline:
-                    session.force_roundtrip()
-                    if connection._socket.latest_pong == pong:
-                        return
-
-            expected_pong = connection._ping_count
-            server._tornado._keep_alive() # send ping
-            wait_for_pong(expected_pong)
-
-            assert expected_pong == connection._socket.latest_pong
-
-            # check that each ping increments by 1
-            server._tornado._keep_alive()
-            wait_for_pong(expected_pong + 1)
-
-            assert (expected_pong + 1) == connection._socket.latest_pong
 
             session.close()
             session._loop_until_closed()
