@@ -907,7 +907,7 @@ async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:
 
         assert sent[0] == {"type": "websocket.accept", "subprotocol": "bokeh"}
         fragments = [event["text"] for event in sent if event["type"] == "websocket.send"]
-        assert len(fragments) == 3
+        assert len(fragments) == 2
         assert json.loads(fragments[0])["msgtype"] == "ACK"
         assert app.core.get_sessions("/")[0].connection_count == 0
     finally:
@@ -1044,7 +1044,6 @@ async def test_websocket_handles_pull_document_round_trip() -> None:
     incoming = deque([
         {"type": "websocket.connect"},
         {"type": "websocket.receive", "text": request.header_json},
-        {"type": "websocket.receive", "text": request.metadata_json},
         {"type": "websocket.receive", "text": request.content_json},
         {"type": "websocket.disconnect", "code": 1000},
     ])

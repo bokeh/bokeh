@@ -56,17 +56,14 @@ class Header(TypedDict):
 class BufferHeader(TypedDict):
     id: ID
 
-type Metadata = dict[str, Any]
-
 class Empty(TypedDict):
     pass
 
 class Message[Content]:
-    '''A validated message header, metadata, content, and optional buffers.'''
+    '''A validated message header, content, and optional buffers.'''
 
-    def __init__(self, header: Header, metadata: Metadata, content: Content, buffers: list[Buffer] | None = None) -> None:
+    def __init__(self, header: Header, content: Content, buffers: list[Buffer] | None = None) -> None:
         self._header = header
-        self._metadata = metadata
         self._content = content
         self._buffers = list(buffers or [])
 
@@ -80,7 +77,7 @@ class Message[Content]:
         return description
 
     @staticmethod
-    def assemble(header_json: str, metadata_json: str, content_json: str) -> Message[dict[str, Any]]:
+    def assemble(header_json: str, content_json: str) -> Message[dict[str, Any]]:
         '''Create a message from its JSON wire fragments.'''
 
         def decode(name: str, value: str) -> dict[str, Any]:
@@ -93,7 +90,6 @@ class Message[Content]:
             return decoded
 
         header = decode("header", header_json)
-        metadata = decode("metadata", metadata_json)
         content = decode("content", content_json)
 
         msgtype = header.get("msgtype")
@@ -109,7 +105,7 @@ class Message[Content]:
         if isinstance(num_buffers, bool) or not isinstance(num_buffers, int) or num_buffers < 0:
             raise MessageError("header num_buffers must be a non-negative integer")
 
-        return Message(cast(Header, header), metadata, content)
+        return Message(cast(Header, header), content)
 
     @staticmethod
     def create_header(msgtype: MessageType, request_id: ID | None = None) -> Header:
@@ -142,7 +138,6 @@ class Message[Content]:
     def fragments(self) -> list[tuple[str | bytes, bool]]:
         fragments: list[tuple[str | bytes, bool]] = [
             (self.header_json, False),
-            (self.metadata_json, False),
             (self.content_json, False),
         ]
         for buffer in self._buffers:
@@ -184,14 +179,6 @@ class Message[Content]:
     @property
     def content_json(self) -> str:
         return serialize_json(self.payload)
-
-    @property
-    def metadata(self) -> Metadata:
-        return self._metadata
-
-    @property
-    def metadata_json(self) -> str:
-        return json.dumps(self.metadata)
 
     @property
     def buffers(self) -> list[Buffer]:

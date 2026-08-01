@@ -339,7 +339,6 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     msg = patch_doc(cast(list["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
 
     handle.comms.send(msg.header_json)
-    handle.comms.send(msg.metadata_json)
     handle.comms.send(msg.content_json)
     for buffer in msg.buffers:
         header = json.dumps(buffer.ref)

@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from bokeh import __version__
 
@@ -81,17 +81,17 @@ type ServerInfoReq = Message[Empty]
 
 _VERSION_INFO = VersionInfo(bokeh=__version__, server=__version__)
 
-def ack(**metadata: Any) -> Ack:
-    return Message(Message.create_header("ACK"), metadata, Empty())
+def ack() -> Ack:
+    return Message(Message.create_header("ACK"), Empty())
 
-def error(request_id: ID, text: str, *, traceback: str | None = None, **metadata: Any) -> ErrorMessage:
+def error(request_id: ID, text: str, *, traceback: str | None = None) -> ErrorMessage:
     content = Error(text=text, traceback=traceback)
-    return Message(Message.create_header("ERROR", request_id), metadata, content)
+    return Message(Message.create_header("ERROR", request_id), content)
 
-def ok(request_id: ID, **metadata: Any) -> Ok:
-    return Message(Message.create_header("OK", request_id), metadata, Empty())
+def ok(request_id: ID) -> Ok:
+    return Message(Message.create_header("OK", request_id), Empty())
 
-def patch_doc(events: list[DocumentPatchedEvent], **metadata: Any) -> PatchDoc:
+def patch_doc(events: list[DocumentPatchedEvent]) -> PatchDoc:
     if not events:
         raise ValueError("PATCH-DOC message requires at least one event")
 
@@ -103,27 +103,27 @@ def patch_doc(events: list[DocumentPatchedEvent], **metadata: Any) -> PatchDoc:
     serializer = Serializer(references=doc.models.synced_references)
     content = PatchJson(events=serializer.encode(events))
     doc.models.flush_synced(lambda model: not serializer.has_ref(model))
-    message = Message(Message.create_header("PATCH-DOC"), metadata, content)
+    message = Message(Message.create_header("PATCH-DOC"), content)
     message.add_buffers(*serializer.buffers)
     return message
 
 def apply_patch(message: PatchDoc, document: Document, setter: Setter | None = None) -> None:
     invoke_with_curdoc(document, lambda: document.apply_json_patch(message.payload, setter=setter))
 
-def pull_doc_reply(request_id: ID, document: Document, **metadata: Any) -> PullDocReply:
+def pull_doc_reply(request_id: ID, document: Document) -> PullDocReply:
     serialized = document.to_json()
     content = PullDoc(doc=serialized.content)
-    message = Message(Message.create_header("PULL-DOC-REPLY", request_id), metadata, content)
+    message = Message(Message.create_header("PULL-DOC-REPLY", request_id), content)
     message.add_buffers(*serialized.buffers)
     return message
 
-def pull_doc_req(**metadata: Any) -> PullDocReq:
-    return Message(Message.create_header("PULL-DOC-REQ"), metadata, Empty())
+def pull_doc_req() -> PullDocReq:
+    return Message(Message.create_header("PULL-DOC-REQ"), Empty())
 
-def push_doc(document: Document, **metadata: Any) -> PushDocMessage:
+def push_doc(document: Document) -> PushDocMessage:
     serialized = document.to_json()
     content = PushDoc(doc=serialized.content)
-    message = Message(Message.create_header("PUSH-DOC"), metadata, content)
+    message = Message(Message.create_header("PUSH-DOC"), content)
     message.add_buffers(*serialized.buffers)
     return message
 
@@ -132,9 +132,9 @@ def replace_document(message: PullDocReply | PushDocMessage, document: Document)
         raise ProtocolError(f"No doc in {message.msgtype}")
     document.replace_with_json(Serialized(message.content["doc"], message.buffers))
 
-def server_info_reply(request_id: ID, **metadata: Any) -> ServerInfoReply:
+def server_info_reply(request_id: ID) -> ServerInfoReply:
     content = ServerInfo(version_info=_VERSION_INFO)
-    return Message(Message.create_header("SERVER-INFO-REPLY", request_id), metadata, content)
+    return Message(Message.create_header("SERVER-INFO-REPLY", request_id), content)
 
-def server_info_req(**metadata: Any) -> ServerInfoReq:
-    return Message(Message.create_header("SERVER-INFO-REQ"), metadata, Empty())
+def server_info_req() -> ServerInfoReq:
+    return Message(Message.create_header("SERVER-INFO-REQ"), Empty())

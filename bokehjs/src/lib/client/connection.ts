@@ -184,7 +184,7 @@ export class ClientConnection {
   }
 
   protected async _pull_doc_json(): Promise<{doc_json: DocJson, buffers: Map<ID, ArrayBuffer>}> {
-    const message = Message.create("PULL-DOC-REQ", {}, {})
+    const message = Message.create("PULL-DOC-REQ", {})
     const reply = await this.send_with_reply<{doc: DocJson}>(message)
     if (!("doc" in reply.content)) {
       throw new Error("No 'doc' field in PULL-DOC-REPLY")

@@ -31,20 +31,7 @@ describe("protocol/receiver module", () => {
         })
       })
 
-      describe("empty metadata consume", () => {
-
-        it("should should leave message null", () => {
-          const res = r.consume("{}")
-          expect(res).to.be.undefined
-          expect(r.message).to.be.null
-        })
-
-        it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
-        })
-      })
-
-      describe("metadata consume", () => {
+      describe("content consume", () => {
 
         it("should should set a complete message", () => {
           const res = r.consume('{"bar": "20"}')
@@ -88,20 +75,7 @@ describe("protocol/receiver module", () => {
         })
       })
 
-      describe("empty metadata consume", () => {
-
-        it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
-        })
-
-        it("should should leave message null", () => {
-          const res = r.consume("{}")
-          expect(res).to.be.undefined
-          expect(r.message).to.be.null
-        })
-      })
-
-      describe("metadata consume", () => {
+      describe("content consume", () => {
 
         it("should throw an error on binary data", () => {
           expect(() => r.consume(new ArrayBuffer(10))).to.throw()

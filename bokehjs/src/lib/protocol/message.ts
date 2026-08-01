@@ -1,4 +1,4 @@
-import type {PlainObject, ID} from "../core/types"
+import type {ID} from "../core/types"
 import {Buffer} from "../core/serialization"
 import {unique_id} from "../core/util/string"
 import {assert} from "../core/util/assert"
@@ -22,13 +22,12 @@ export class Message<T> {
     return this._buffers
   }
 
-  private constructor(readonly header: Header, readonly metadata: PlainObject, readonly content: T) {}
+  private constructor(readonly header: Header, readonly content: T) {}
 
-  static assemble<T>(header_json: string, metadata_json: string, content_json: string): Message<T> {
+  static assemble<T>(header_json: string, content_json: string): Message<T> {
     const header = JSON.parse(header_json)
-    const metadata = JSON.parse(metadata_json)
     const content = JSON.parse(content_json)
-    return new Message(header, metadata, content)
+    return new Message(header, content)
   }
 
   assemble_buffer(buf_header: string, buf_payload: ArrayBuffer): void {
@@ -40,9 +39,9 @@ export class Message<T> {
     this._buffers.set(id, buf_payload)
   }
 
-  static create<T>(msgtype: string, metadata: PlainObject, content: T): Message<T> {
+  static create<T>(msgtype: string, content: T): Message<T> {
     const header = Message.create_header(msgtype)
-    return new Message(header, metadata, content)
+    return new Message(header, content)
   }
 
   static create_header(msgtype: string): Header {
@@ -77,10 +76,7 @@ export class Message<T> {
     }
 
     const header_json = JSON.stringify(this.header)
-    const metadata_json = JSON.stringify(this.metadata)
-
     socket.send(header_json)
-    socket.send(metadata_json)
     socket.send(content_json)
 
     for (const [ref, buffer] of buffers) {

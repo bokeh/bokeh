@@ -64,7 +64,6 @@ class Receiver:
         [
             # these are required
             b'{header}',        # serialized header dict
-            b'{metadata}',      # serialized metadata dict
             b'{content},        # serialized content dict
 
             # these are optional, and come in pairs; header contains num_buffers
@@ -85,10 +84,6 @@ class Receiver:
             # these are optional
             'num_buffers' : <int> # the number of additional buffers, if any
         }
-
-    The ``metadata`` fragment may contain any arbitrary information. It is not
-    processed by Bokeh for any purpose, but may be useful for external
-    monitoring or instrumentation tools.
 
     The ``content`` fragment is defined by the specific message type.
 
@@ -126,20 +121,15 @@ class Receiver:
 
     def _HEADER(self, fragment: Fragment) -> None:
         self._fragments = [self._assume_text(fragment)]
-        self._current_consumer = self._METADATA
-
-    def _METADATA(self, fragment: Fragment) -> None:
-        metadata = self._assume_text(fragment)
-        self._fragments.append(metadata)
         self._current_consumer = self._CONTENT
 
     def _CONTENT(self, fragment: Fragment) -> Message[Any] | None:
         content = self._assume_text(fragment)
         self._fragments.append(content)
 
-        header_json, metadata_json, content_json = (self._assume_text(x) for x in self._fragments[:3])
+        header_json, content_json = (self._assume_text(x) for x in self._fragments[:2])
 
-        self._partial = assemble(header_json, metadata_json, content_json)
+        self._partial = assemble(header_json, content_json)
 
         return self._check_complete()
 

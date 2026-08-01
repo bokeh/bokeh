@@ -64,9 +64,9 @@ def test_fragments_include_buffer_pairs() -> None:
 
     fragments = msg.fragments()
 
-    assert [binary for _, binary in fragments] == [False, False, False, False, True]
-    assert json.loads(fragments[3][0])["id"] == "buffer"
-    assert fragments[4] == (b"payload", True)
+    assert [binary for _, binary in fragments] == [False, False, False, True]
+    assert json.loads(fragments[2][0])["id"] == "buffer"
+    assert fragments[3] == (b"payload", True)
 
 #-----------------------------------------------------------------------------
 # Dev API

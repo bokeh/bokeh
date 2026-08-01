@@ -121,7 +121,7 @@ wss.on("connection", (ws, req: Request) => {
   const receiver = new Receiver()
   log(`Connected to session ${session.id}`)
 
-  const ack = Message.create("ACK", {}, {})
+  const ack = Message.create("ACK", {})
   ack.send(ws)
 
   ws.addEventListener("message", (event) => {
@@ -139,7 +139,7 @@ wss.on("connection", (ws, req: Request) => {
       const reply = (() => {
         switch (msg.msgtype()) {
           case "PULL-DOC-REQ":
-            return Message.create<PullDoc>("PULL-DOC-REPLY", {}, {
+            return Message.create<PullDoc>("PULL-DOC-REPLY", {
               doc: {
                 version: pkg_json.version,
                 title: "NodeJS application",
@@ -147,11 +147,11 @@ wss.on("connection", (ws, req: Request) => {
               },
             })
           case "PUSH-DOC":
-            return Message.create("OK", {}, {})
+            return Message.create("OK", {})
           case "PATCH-DOC":
-            return Message.create("OK", {}, {})
+            return Message.create("OK", {})
           case "SERVER-INFO-REQ": {
-            return Message.create<ServerInfo>("SERVER-INFO-REPLY", {}, {
+            return Message.create<ServerInfo>("SERVER-INFO-REPLY", {
               version_info: {bokeh: pkg_json.version, server: pkg_json.version},
             })
           }

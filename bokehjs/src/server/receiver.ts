@@ -9,7 +9,7 @@ export class Receiver {
 
   protected _partial: Message<unknown> | null = null
 
-  protected _fragments: [string?, string?, string?] = []
+  protected _fragments: [string?, string?] = []
 
   protected _buf_header: string | null = null
 
@@ -25,21 +25,15 @@ export class Receiver {
     this._partial = null
     this._fragments = [fragment]
     this._buf_header = null
-    this._current_consumer = this._METADATA
-  }
-
-  _METADATA(fragment: Fragment): void {
-    this._assume_text(fragment)
-    this._fragments.push(fragment)
     this._current_consumer = this._CONTENT
   }
 
   _CONTENT(fragment: Fragment): void {
     this._assume_text(fragment)
     this._fragments.push(fragment)
-    const [header_json, metadata_json, content_json] = this._fragments
-    assert(header_json != null && metadata_json != null && content_json != null)
-    this._partial = Message.assemble(header_json, metadata_json, content_json)
+    const [header_json, content_json] = this._fragments
+    assert(header_json != null && content_json != null)
+    this._partial = Message.assemble(header_json, content_json)
     this._check_complete()
   }
 

@@ -59,7 +59,7 @@ export class ClientSession {
   // version. Returns a promise, the value of the promise is a free-form dictionary
   // of server details.
   async request_server_info(): Promise<{version_info: string}> {
-    const message = Message.create("SERVER-INFO-REQ", {}, {})
+    const message = Message.create("SERVER-INFO-REQ", {})
     const reply = await this._connection.send_with_reply(message)
     return reply.content as {version_info: string}
   }
@@ -91,7 +91,7 @@ export class ClientSession {
 
     // TODO (havocp) the connection may be closed here, which will
     // cause this send to throw an error - need to deal with it more cleanly.
-    const message = Message.create("PATCH-DOC", {}, patch)
+    const message = Message.create("PATCH-DOC", patch)
     this._connection.send(message)
   }
 
