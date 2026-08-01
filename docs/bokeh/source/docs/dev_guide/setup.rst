@@ -190,7 +190,7 @@ your *source checkout* directory:
 
 .. code-block:: sh
 
-    python scripts/hooks/install.py
+    python tools/hooks/install.py
 
 This configures pre-commit to use two `Git hooks`_ that will check your code
 whenever you push a commit to Bokeh's GitHub repository:
@@ -216,7 +216,7 @@ To uninstall the Git hooks, run the following command from the top level of your
 
 .. code-block:: sh
 
-    python scripts/hooks/uninstall.py
+    python tools/hooks/uninstall.py
 
 .. _contributor_guide_setup_install_locally:
 

@@ -4,8 +4,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-# External imports
-from release.system import System
+# Bokeh imports
+from tools.release.system import System
 
 
 class AbortCalled(Exception):

@@ -28,7 +28,7 @@ runs:
 
     - name: Install node modules
       shell: bash -l {0}
-      run: bash scripts/ci/install_node_modules.sh
+      run: bash tools/ci/install_node_modules.sh
 
     - name: Build BokehJS
       working-directory: ./bokehjs
@@ -43,23 +43,23 @@ runs:
 
     - name: Verify pip install from sdist
       shell: bash -l {0}
-      run: bash scripts/ci/verify_pip_install_from_sdist.sh
+      run: bash tools/ci/verify_pip_install_from_sdist.sh
 
     - name: Verify pip install using sdist
       shell: bash -l {0}
-      run: bash scripts/ci/verify_pip_install_using_sdist.sh
+      run: bash tools/ci/verify_pip_install_using_sdist.sh
 
     - name: Verify pip install using wheel
       shell: bash -l {0}
-      run: bash scripts/ci/verify_pip_install_using_wheel.sh
+      run: bash tools/ci/verify_pip_install_using_wheel.sh
 
     - name: Build conda package
       shell: bash -l {0}
-      run: bash scripts/ci/build_conda_package.sh
+      run: bash tools/ci/build_conda_package.sh
 
     - name: Verify conda install
       shell: bash -l {0}
-      run: bash scripts/ci/verify_conda_install.sh
+      run: bash tools/ci/verify_conda_install.sh
 
     - name: Upload wheel package
       uses: actions/upload-artifact@v6

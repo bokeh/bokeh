@@ -70,7 +70,7 @@ runs:
     - name: Install node modules
       if: ${{ inputs.source-tree == 'keep' }}
       shell: bash -l {0}
-      run: bash scripts/ci/install_node_modules.sh
+      run: bash tools/ci/install_node_modules.sh
 
     - name: Delete repository source tree
       if: ${{ inputs.source-tree == 'delete' }}

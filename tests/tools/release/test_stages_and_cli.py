@@ -12,22 +12,26 @@ from typing import Any
 # External imports
 import pytest
 import yaml
-from release import stages
-from release.action import ActionReturn
-from release.build import update_changelog, update_hash_manifest, update_switcher_json
-from release.checks import (
+
+# Bokeh imports
+from tests.support.util.project import TOP_PATH
+from tools.release import stages
+from tools.release.action import ActionReturn
+from tools.release.build import (
+    update_changelog,
+    update_hash_manifest,
+    update_switcher_json,
+)
+from tools.release.checks import (
     check_docs_version_config,
     check_milestone_labels,
     check_release_notes_present,
 )
-from release.config import Config
-from release.git import commit_staging_branch, push_to_github, tag_release_version
-from release.pipeline import StepType, is_check
-from release.system import System
-from release.util import CONFIG_FILENAME, load_config
-
-# Bokeh imports
-from tests.support.util.project import TOP_PATH
+from tools.release.config import Config
+from tools.release.git import commit_staging_branch, push_to_github, tag_release_version
+from tools.release.pipeline import StepType, is_check
+from tools.release.system import System
+from tools.release.util import CONFIG_FILENAME, load_config
 
 
 @pytest.mark.parametrize(
@@ -148,10 +152,10 @@ def test_cli_generates_stage_names(
     argument: str,
     expected: list[str],
 ) -> None:
-    monkeypatch.setattr(sys, "argv", ["release", argument])
+    monkeypatch.setattr(sys, "argv", ["tools.release", argument])
 
     with pytest.raises(SystemExit) as error:
-        runpy.run_module("release.__main__", run_name="__main__")
+        runpy.run_module("tools.release.__main__", run_name="__main__")
 
     assert error.value.code == 0
     assert ast.literal_eval(capsys.readouterr().out) == expected
@@ -159,10 +163,10 @@ def test_cli_generates_stage_names(
 
 def test_cli_generates_serialized_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(sys, "argv", ["release", "generate-config", "4.0.0"])
+    monkeypatch.setattr(sys, "argv", ["tools.release", "generate-config", "4.0.0"])
 
     with pytest.raises(SystemExit) as error:
-        runpy.run_module("release.__main__", run_name="__main__")
+        runpy.run_module("tools.release.__main__", run_name="__main__")
 
     assert error.value.code == 0
     config = load_config()
@@ -193,12 +197,12 @@ def test_cli_executes_build_and_deploy_pipelines(
             observed[-1].append("executed")
 
     sentinel_system = object()
-    monkeypatch.setattr("release.pipeline.Pipeline", FakePipeline)
-    monkeypatch.setattr("release.system.System", lambda: sentinel_system)
-    monkeypatch.setattr(sys, "argv", ["release", command, "4.0.0"])
+    monkeypatch.setattr("tools.release.pipeline.Pipeline", FakePipeline)
+    monkeypatch.setattr("tools.release.system.System", lambda: sentinel_system)
+    monkeypatch.setattr(sys, "argv", ["tools.release", command, "4.0.0"])
 
     with pytest.raises(SystemExit) as error:
-        runpy.run_module("release.__main__", run_name="__main__")
+        runpy.run_module("tools.release.__main__", run_name="__main__")
 
     assert error.value.code == 0
     assert [item[0] for item in observed] == expected_stages
@@ -224,14 +228,14 @@ def test_cli_executes_and_persists_individual_stage(monkeypatch: pytest.MonkeyPa
     saved: list[Config] = []
     sentinel_system = object()
     monkeypatch.setattr(stages, "custom_stage", stage, raising=False)
-    monkeypatch.setattr("release.pipeline.Pipeline", FakePipeline)
-    monkeypatch.setattr("release.system.System", lambda: sentinel_system)
-    monkeypatch.setattr("release.util.load_config", lambda: config)
-    monkeypatch.setattr("release.util.save_config", saved.append)
-    monkeypatch.setattr(sys, "argv", ["release", "custom_stage"])
+    monkeypatch.setattr("tools.release.pipeline.Pipeline", FakePipeline)
+    monkeypatch.setattr("tools.release.system.System", lambda: sentinel_system)
+    monkeypatch.setattr("tools.release.util.load_config", lambda: config)
+    monkeypatch.setattr("tools.release.util.save_config", saved.append)
+    monkeypatch.setattr(sys, "argv", ["tools.release", "custom_stage"])
 
     with pytest.raises(SystemExit) as error:
-        runpy.run_module("release.__main__", run_name="__main__")
+        runpy.run_module("tools.release.__main__", run_name="__main__")
 
     assert error.value.code == 0
     assert observed == [([stage], config, sentinel_system), "executed"]
@@ -240,7 +244,7 @@ def test_cli_executes_and_persists_individual_stage(monkeypatch: pytest.MonkeyPa
 
 @pytest.mark.parametrize("arguments", [[], ["unknown"], ["build"], ["deploy"], ["extra", "arguments", "here"]])
 def test_cli_rejects_unrecognized_arguments(monkeypatch: pytest.MonkeyPatch, arguments: list[str]) -> None:
-    monkeypatch.setattr(sys, "argv", ["release", *arguments])
+    monkeypatch.setattr(sys, "argv", ["tools.release", *arguments])
 
     with pytest.raises(RuntimeError, match="Unrecognized args"):
-        runpy.run_module("release.__main__", run_name="__main__")
+        runpy.run_module("tools.release.__main__", run_name="__main__")

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 # Standard library imports
 import datetime
 import logging
@@ -7,6 +9,12 @@ import os
 import sys
 from itertools import groupby
 from pathlib import Path
+from typing import (
+    Any,
+    Literal,
+    TypedDict,
+    cast,
+)
 
 # External imports
 import click
@@ -18,11 +26,60 @@ VALID_TYPES = (
     "type: task",
 )
 
+MilestoneKind = Literal["issues", "pullRequests"]
+
+
+class LabelNode(TypedDict):
+    name: str
+
+
+class LabelEdge(TypedDict):
+    node: LabelNode
+
+
+class Labels(TypedDict):
+    edges: list[LabelEdge]
+
+
+class ItemNode(TypedDict):
+    labels: Labels
+    number: int
+    state: str
+    title: str
+
+
+class MilestoneItem(TypedDict):
+    kind: MilestoneKind
+    node: ItemNode
+
+
+class PageInfo(TypedDict):
+    endCursor: str | None
+
+
+class MilestoneSummary(TypedDict):
+    number: int
+    title: str
+
+
+class MilestoneEdge(TypedDict):
+    node: MilestoneSummary
+
+
+class MilestoneConnection(TypedDict):
+    edges: list[MilestoneEdge]
+    pageInfo: PageInfo
+
+
+class ItemConnection(TypedDict):
+    edges: list[dict[str, Any]]
+    pageInfo: PageInfo
+
 SCRIPT_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_ROOT.parent
 
 
-def query_github(query, token):
+def query_github(query: str, token: str) -> dict[str, Any] | None:
     """ Hits the GitHub GraphQL API with the given query and returns the data or None.
 
     """
@@ -32,24 +89,25 @@ def query_github(query, token):
         query_string = " ".join(line.strip() for line in query.split("\n"))
         logging.debug("POST https://api.github.com/graphql; query:%s", query_string)
     response = requests.post(BASE_URL, json={"query": query}, headers=API_HEADERS)
-    errors = response.json().get("errors", [])
+    response_data = cast(dict[str, Any], response.json())
+    errors = cast(list[dict[str, Any]], response_data.get("errors", []))
     for error in errors:
-        path = "/".join(error["path"])
-        msg = error["message"]
+        path = "/".join(cast(list[str], error["path"]))
+        msg = cast(str, error["message"])
         print(f"error: {path}: {msg}", file=sys.stderr)
     if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
         logging.debug(f"Response {response.status_code}: {response.text}")
-    return response.json()["data"] if not errors else None
+    return cast(dict[str, Any], response_data["data"]) if not errors else None
 
 
-def get_labels(data):
+def get_labels(data: MilestoneItem) -> list[str]:
     """ Returns the list of labels for the given issue or PR data.
 
     """
     return [edge["node"]["name"] for edge in data["node"]["labels"]["edges"]]
 
 
-def get_label_for(data, kind):
+def get_label_for(data: MilestoneItem, kind: str) -> str | None:
     labels = get_labels(data)
     for label in labels:
         if label.startswith(kind):
@@ -57,21 +115,21 @@ def get_label_for(data, kind):
     return None
 
 
-def get_label_type(data):
+def get_label_type(data: MilestoneItem) -> str | None:
     """ Returns the type label of the given issue or PR data, otherwise None.
 
     """
     return get_label_for(data, "type: ")
 
 
-def get_label_component(data):
+def get_label_component(data: MilestoneItem) -> str | None:
     """ Returns the component label of the given issue or PR data, otherwise None.
 
     """
     return get_label_for(data, "tag: component: ")
 
 
-def description(data):
+def description(data: MilestoneItem) -> str:
     """ Returns a humanized description of the given issue or PR data.
 
     """
@@ -80,13 +138,13 @@ def description(data):
     return f'#{data["node"]["number"]} {component_str}{data["node"]["title"]}'
 
 
-def get_milestone_number(title, token, allow_closed):
+def get_milestone_number(title: str, token: str, allow_closed: bool) -> int | None:
     """ Iterates over all open milestones looking for one with the given title.
 
     """
     open_str = "" if allow_closed else "states: OPEN,"
 
-    def helper(cursor=None):
+    def helper(cursor: str | None = None) -> int | None:
         cursor_or_null = f'"{cursor}"' if cursor else "null"
         query = f"""
         {{
@@ -109,7 +167,8 @@ def get_milestone_number(title, token, allow_closed):
         if not data:
             print("error: graphql query failure", file=sys.stderr)
             sys.exit(1)
-        milestones = data["repository"]["milestones"]
+        repository = cast(dict[str, Any], data["repository"])
+        milestones = cast(MilestoneConnection, repository["milestones"])
         end_cursor = milestones["pageInfo"]["endCursor"]
         for edge in milestones["edges"]:
             if edge["node"]["title"] == title:
@@ -119,7 +178,7 @@ def get_milestone_number(title, token, allow_closed):
     return helper()
 
 
-def check_issue(data, problems):
+def check_issue(data: MilestoneItem, problems: list[str]) -> None:
     # all issues are closed
     if data["node"]["state"] != "CLOSED":
         problems.append(f"issue not closed: {description(data)}")
@@ -155,7 +214,7 @@ def check_issue(data, problems):
         problems.append(f"issue is in triage: {description(data)}")
 
 
-def check_pr(data, problems):
+def check_pr(data: MilestoneItem, problems: list[str]) -> None:
     # no unmerged prs
     if data["node"]["state"] != "MERGED":
         problems.append(f"PR not merged: {description(data)}")
@@ -192,7 +251,7 @@ def check_pr(data, problems):
         problems.append(f"PR is in triage: {description(data)}")
 
 
-def get_milestone_items(title, token, allow_closed):
+def get_milestone_items(title: str, token: str, allow_closed: bool) -> list[MilestoneItem] | None:
     """ Returns the issues and PRs in the milestone with the given title,
     otherwise None if the milestone doesn't exist.
     """
@@ -200,9 +259,9 @@ def get_milestone_items(title, token, allow_closed):
     if not milestone_number:
         return None
 
-    results = []
+    results: list[MilestoneItem] = []
 
-    def helper(kind, cursor=None):
+    def helper(kind: MilestoneKind, cursor: str | None = None) -> None:
         cursor_or_null = f'"{cursor}"' if cursor else "null"
         query = f"""
         {{
@@ -235,11 +294,13 @@ def get_milestone_items(title, token, allow_closed):
         if not data:
             print("error: graphql query failure", file=sys.stderr)
             sys.exit(1)
-        items = data["repository"]["milestone"][kind]
+        repository = cast(dict[str, Any], data["repository"])
+        milestone = cast(dict[str, Any], repository["milestone"])
+        items = cast(ItemConnection, milestone[kind])
         end_cursor = items["pageInfo"]["endCursor"]
         for edge in items["edges"]:
             edge["kind"] = kind
-            results.append(edge)
+            results.append(cast(MilestoneItem, edge))
         if end_cursor:
             helper(kind, end_cursor)
 
@@ -248,8 +309,8 @@ def get_milestone_items(title, token, allow_closed):
     return results
 
 
-def check_milestone_items(items):
-    problems = []
+def check_milestone_items(items: list[MilestoneItem]) -> list[str]:
+    problems: list[str] = []
     for item in items:
         if item["kind"] == "issues":
             check_issue(item, problems)
@@ -281,7 +342,7 @@ def check_milestone_items(items):
     is_flag=True,
     help="Allow processing of closed milestones",
 )
-def main(milestone, log_level, verbose, check_only, allow_closed):
+def main(milestone: str, log_level: str, verbose: int, check_only: bool, allow_closed: bool) -> None:
     """ Generates a bokeh changelog which includes the given milestone.
 
     Requires that you set GH_TOKEN to your GitHub API Token. Exit code 2
@@ -319,7 +380,9 @@ def main(milestone, log_level, verbose, check_only, allow_closed):
 
     out.write(f"{datetime.date.today()} {milestone:>8}:\n")
     out.write("--------------------\n")
-    grouping = lambda item: get_label_type(item) or "none"
+    def grouping(item: MilestoneItem) -> str:
+        return get_label_type(item) or "none"
+
     items = sorted(items, key=grouping)
     for group_type, group in groupby(items, grouping):
         if group_type == "bug":

@@ -215,7 +215,7 @@ def check_staging_branch_is_available(config: Config, system: System) -> ActionR
 def check_milestone_labels(config: Config, system: System) -> ActionReturn:
     try:
         system.run(
-            f"python scripts/milestone.py {config.milestone_version} --check-only --allow-closed",
+            f"python -m tools.milestone {config.milestone_version} --check-only --allow-closed",
         )
         return PASSED("Milestone labels are BEP-1 compliant")
     except RuntimeError as e:

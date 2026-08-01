@@ -9,23 +9,23 @@ from typing import Any
 
 # External imports
 import pytest
-from release import ui
-from release.action import (
+
+# Bokeh imports
+# Bokeh test imports
+from tests.tools.release._support import AbortCalled, RecordingSystem
+from tools.release import ui
+from tools.release.action import (
     FAILED,
     PASSED,
     SKIPPED,
     ActionReturn,
 )
-from release.config import Config
-from release.enums import ActionResult, VersionType
-from release.logger import LOG, Log, Scrubber
-from release.pipeline import Pipeline, is_check
-from release.system import System
-from release.util import load_config, save_config, skip_for_prerelease
-
-# Bokeh imports
-# Bokeh test imports
-from tests.codebase._release_support import AbortCalled, RecordingSystem
+from tools.release.config import Config
+from tools.release.enums import ActionResult, VersionType
+from tools.release.logger import LOG, Log, Scrubber
+from tools.release.pipeline import Pipeline, is_check
+from tools.release.system import System
+from tools.release.util import load_config, save_config, skip_for_prerelease
 
 
 @pytest.mark.parametrize(
@@ -275,7 +275,7 @@ def test_system_run_returns_output_and_passes_environment(monkeypatch: pytest.Mo
         observed.update(cmd=cmd, **kw)
         return type("Result", (), {"returncode": 0, "stdout": "output\n"})()
 
-    monkeypatch.setattr("release.system.stdlib_run", run)
+    monkeypatch.setattr("tools.release.system.stdlib_run", run)
 
     assert System().run("command", CUSTOM="value") == "output\n"
     assert observed["cmd"] == "command"
@@ -285,7 +285,7 @@ def test_system_run_returns_output_and_passes_environment(monkeypatch: pytest.Mo
 
 def test_system_run_raises_each_output_line(monkeypatch: pytest.MonkeyPatch) -> None:
     result = type("Result", (), {"returncode": 2, "stdout": "first\nsecond\n"})()
-    monkeypatch.setattr("release.system.stdlib_run", lambda *args, **kw: result)
+    monkeypatch.setattr("tools.release.system.stdlib_run", lambda *args, **kw: result)
 
     with pytest.raises(RuntimeError) as error:
         System().run("bad")
@@ -294,7 +294,7 @@ def test_system_run_raises_each_output_line(monkeypatch: pytest.MonkeyPatch) -> 
 
 
 def test_system_dry_run_does_not_spawn(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("release.system.stdlib_run", lambda *args, **kw: pytest.fail("spawned"))
+    monkeypatch.setattr("tools.release.system.stdlib_run", lambda *args, **kw: pytest.fail("spawned"))
 
     assert System(dry_run=True).run("command") == ""
 

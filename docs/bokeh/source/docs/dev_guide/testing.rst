@@ -96,6 +96,18 @@ Run this command from the top level of the repository:
 
     pytest tests/codebase
 
+.. _contributor_guide_testing_local_tools:
+
+Run tools tests
+~~~~~~~~~~~~~~~
+
+Bokeh's developer, CI, and release tooling lives in the :bokeh-tree:`tools`
+directory. Changes to these tools should pass their dedicated test suite:
+
+.. code-block:: sh
+
+    pytest tests/tools
+
 .. _contributor_guide_testing_local_python:
 
 Run Python tests

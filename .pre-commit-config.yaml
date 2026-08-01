@@ -84,6 +84,6 @@ repos:
 
       - id: protect-branches
         name: Protect Git branches
-        entry: python scripts/hooks/protect_branches.py
+        entry: python tools/hooks/protect_branches.py
         language: conda
         pass_filenames: false

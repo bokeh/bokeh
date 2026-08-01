@@ -62,4 +62,4 @@ jobs:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
-        run: python -m release deploy $BOKEH_VERSION
+        run: python -m tools.release deploy $BOKEH_VERSION

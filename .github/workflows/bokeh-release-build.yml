@@ -70,4 +70,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
-        run: python -m release build $BOKEH_VERSION
+        run: python -m tools.release build $BOKEH_VERSION

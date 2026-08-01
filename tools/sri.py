@@ -1,3 +1,4 @@
+# Standard library imports
 import json
 import re
 import sys
@@ -14,10 +15,10 @@ VERSION = re.compile(r"^(\d+\.\d+\.\d+)$")
 
 
 def compute_single_hash(path: Path) -> str:
-    digest = f"openssl dgst -sha384 -binary {path}".split()
+    digest = ["openssl", "dgst", "-sha384", "-binary", str(path)]
     p1 = Popen(digest, stdout=PIPE)
 
-    b64 = "openssl base64 -A".split()
+    b64 = ["openssl", "base64", "-A"]
     p2 = Popen(b64, stdin=p1.stdout, stdout=PIPE)
 
     out, _ = p2.communicate()
@@ -41,13 +42,19 @@ def dump_hash_file(version: str) -> None:
         f.write("\n")
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("usage: python sri.py <new-version>")
+def main(argv: list[str] | None = None) -> None:
+    argv = sys.argv[1:] if argv is None else argv
+
+    if len(argv) != 1:
+        print("usage: python -m tools.sri <new-version>")
         sys.exit(1)
 
-    version = sys.argv[1]
+    version = argv[0]
 
     assert VERSION.match(version), f"{version!r} is not a valid Bokeh release version string"
 
     dump_hash_file(version)
+
+
+if __name__ == "__main__":
+    main()
