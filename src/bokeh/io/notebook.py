@@ -33,7 +33,6 @@ from typing import (
     Literal,
     Protocol,
     TypedDict,
-    cast,
     overload,
 )
 from uuid import uuid4
@@ -51,7 +50,6 @@ if TYPE_CHECKING:
         ColumnDataChangedEvent,
         ColumnsPatchedEvent,
         ColumnsStreamedEvent,
-        DocumentPatchedEvent,
         ModelChangedEvent,
     )
     from ..embed.bundle import Bundle
@@ -302,6 +300,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
             push_notebook(handle=handle)
 
     '''
+    from ..document.events import DocumentPatchedEvent
     from ..protocol import patch_doc
     from .state import curstate
 
@@ -326,7 +325,11 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         warn("Cannot find a last shown plot to update. Call output_notebook() and show(..., notebook_handle=True) before push_notebook()")
         return
 
-    events = list(handle.doc.callbacks._held_events)
+    events = [
+        event for event in handle.doc.callbacks._held_events
+        if isinstance(event, DocumentPatchedEvent)
+    ]
+    handle.doc.callbacks._held_events = []
 
     # This is to avoid having an exception raised for attempting to create a
     # PATCH-DOC with no events. In the notebook, we just want to silently
@@ -334,8 +337,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     if len(events) == 0:
         return
 
-    handle.doc.callbacks._held_events = []
-    msg = patch_doc(cast(list["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
+    msg = patch_doc(events)
 
     handle.comms.send(msg.envelope_json)
     for buffer in msg.buffers:

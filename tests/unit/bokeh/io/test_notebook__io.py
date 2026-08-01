@@ -134,6 +134,26 @@ class Test_push_notebook:
         assert envelope["buffers"] == []
         assert mock_send.call_args[1] == {}
 
+    @patch('bokeh.io.notebook.CommsHandle.comms', new_callable=PropertyMock)
+    def test_filters_non_patch_events(self, mock_comms: PropertyMock) -> None:
+        mock_comm = MagicMock()
+        mock_send = MagicMock(return_value="junk")
+        mock_comm.send = mock_send
+        mock_comms.return_value = mock_comm
+
+        d = Document()
+        handle = binb.CommsHandle("comms", d)
+
+        d.add_next_tick_callback(lambda: None)
+        d.title = "foo"
+        binb.push_notebook(document=d, handle=handle)
+
+        envelope = json.loads(mock_send.call_args[0][0])
+        assert envelope["content"] == {
+            "events": [{"kind": "TitleChanged", "title": "foo"}],
+        }
+        assert d.callbacks._held_events == []
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
