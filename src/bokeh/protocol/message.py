@@ -4,96 +4,52 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a base class for all Bokeh Server Protocol message types.
+'''Represent Bokeh protocol messages independently of their transport.'''
 
-Boker messages are comprised of a sequence of JSON fragments. Specified as
-Python JSON-like data, messages have the general form:
-
-.. code-block:: python
-
-    [
-        # these are required
-        b'{header}',        # serialized header dict
-        b'{metadata}',      # serialized metadata dict
-        b'{content}',       # serialized content dict
-
-        # these are optional, and come in pairs; header contains num_buffers
-        b'{buf_header}',    # serialized buffer header dict
-        b'array'            # raw buffer payload data
-        ...
-    ]
-
-The ``header`` fragment will have the form:
-
-.. code-block:: python
-
-    header = {
-        # these are required
-        'msgid'       : <str> # a unique id for the message
-        'msgtype'     : <str> # a message type, e.g. 'ACK', 'PATCH-DOC', etc
-
-        # these are optional
-        'num_buffers' : <int> # the number of additional buffers, if any
-    }
-
-The ``metadata`` fragment may contain any arbitrary information. It is not
-processed by Bokeh for any purpose, but may be useful for external
-monitoring or instrumentation tools.
-
-The ``content`` fragment is defined by the specific message type.
-
-'''
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
 import json
-from typing import (
-    Any,
-    ClassVar,
-    NotRequired,
-    TypedDict,
-    cast,
-)
+from typing import Any, Literal, NotRequired, TypedDict, cast
 
-# Bokeh imports
 import bokeh.util.serialization as bkserial
 
-# Bokeh imports
 from ..core.json_encoder import serialize_json
 from ..core.serialization import Buffer, Serialized
 from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
 
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
 __all__ = (
     'Message',
+    'MessageType',
 )
 
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
+type MessageType = Literal[
+    "ACK",
+    "ERROR",
+    "OK",
+    "PATCH-DOC",
+    "PULL-DOC-REPLY",
+    "PULL-DOC-REQ",
+    "PUSH-DOC",
+    "SERVER-INFO-REPLY",
+    "SERVER-INFO-REQ",
+]
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
+MESSAGE_TYPES: frozenset[str] = frozenset({
+    "ACK",
+    "ERROR",
+    "OK",
+    "PATCH-DOC",
+    "PULL-DOC-REPLY",
+    "PULL-DOC-REQ",
+    "PUSH-DOC",
+    "SERVER-INFO-REPLY",
+    "SERVER-INFO-REQ",
+})
 
 class Header(TypedDict):
     msgid: ID
-    msgtype: str
+    msgtype: MessageType
     reqid: NotRequired[ID]
     num_buffers: NotRequired[int]
 
@@ -102,69 +58,30 @@ class BufferHeader(TypedDict):
 
 type Metadata = dict[str, Any]
 
-type BufferRef = tuple[BufferHeader, bytes]
-
 class Empty(TypedDict):
     pass
 
 class Message[Content]:
-    ''' The Message base class encapsulates creating, assembling, and
-    validating the integrity of Bokeh Server messages. Additionally, it
-    provide hooks
+    '''A validated message header, metadata, content, and optional buffers.'''
 
-    '''
-
-    msgtype: ClassVar[str]
-
-    _header: Header
-    _content: Content
-    _metadata: Metadata
-    _buffers: list[Buffer]
-
-    def __init__(self, header: Header, metadata: Metadata, content: Content) -> None:
-        ''' Initialize a new message from header, metadata, and content
-        dictionaries.
-
-        To assemble a message from existing JSON fragments, use the
-        ``assemble`` method.
-
-        To create new messages with automatically generated headers,
-        use subclass ``create`` methods.
-
-        Args:
-            header (JSON-like) :
-
-            metadata (JSON-like) :
-
-            content (JSON-like) :
-
-        '''
+    def __init__(self, header: Header, metadata: Metadata, content: Content, buffers: list[Buffer] | None = None) -> None:
         self._header = header
         self._metadata = metadata
         self._content = content
-        self._buffers = []
+        self._buffers = list(buffers or [])
 
     def __repr__(self) -> str:
-        return f"Message({self.msgtype!r}, msgid={self.header.get('msgid')!r})"
+        description = f"Message({self.msgtype!r}, msgid={self.header.get('msgid')!r})"
+        if self.msgtype == "ERROR":
+            content = cast(dict[str, Any], self.content)
+            description += f" --- {content.get('text', '')}"
+            if content.get("traceback") is not None:
+                description += "\n" + content["traceback"]
+        return description
 
-    @classmethod
-    def assemble(cls, header_json: str, metadata_json: str, content_json: str) -> Message[Content]:
-        ''' Creates a new message, assembled from JSON fragments.
-
-        Args:
-            header_json (``JSON``) :
-
-            metadata_json (``JSON``) :
-
-            content_json (``JSON``) :
-
-        Returns:
-            Message subclass
-
-        Raises:
-            MessageError
-
-        '''
+    @staticmethod
+    def assemble(header_json: str, metadata_json: str, content_json: str) -> Message[dict[str, Any]]:
+        '''Create a message from its JSON wire fragments.'''
 
         def decode(name: str, value: str) -> dict[str, Any]:
             try:
@@ -179,8 +96,9 @@ class Message[Content]:
         metadata = decode("metadata", metadata_json)
         content = decode("content", content_json)
 
-        if header.get("msgtype") != cls.msgtype:
-            raise MessageError(f"header msgtype does not match {cls.msgtype!r}")
+        msgtype = header.get("msgtype")
+        if not isinstance(msgtype, str) or msgtype not in MESSAGE_TYPES:
+            raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
         msgid = header.get("msgid")
         if not isinstance(msgid, str) or not msgid:
             raise MessageError("header msgid must be a non-empty string")
@@ -191,7 +109,14 @@ class Message[Content]:
         if isinstance(num_buffers, bool) or not isinstance(num_buffers, int) or num_buffers < 0:
             raise MessageError("header num_buffers must be a non-negative integer")
 
-        return cls(cast(Header, header), metadata, cast(Content, content))
+        return Message(cast(Header, header), metadata, content)
+
+    @staticmethod
+    def create_header(msgtype: MessageType, request_id: ID | None = None) -> Header:
+        header = Header(msgid=bkserial.make_id(), msgtype=msgtype)
+        if request_id is not None:
+            header['reqid'] = request_id
+        return header
 
     def add_buffers(self, *buffers: Buffer) -> None:
         if not buffers:
@@ -203,29 +128,10 @@ class Message[Content]:
                 raise ProtocolError(f"duplicate buffer id {buffer.id!r}")
             ids.add(buffer.id)
 
-        if "num_buffers" in self._header:
-            self._header["num_buffers"] += len(buffers)
-        else:
-            self._header["num_buffers"] = len(buffers)
-
+        self._header["num_buffers"] = self._header.get("num_buffers", 0) + len(buffers)
         self._buffers.extend(buffers)
 
     def assemble_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
-        ''' Add a buffer header and payload that we read from the socket.
-
-        This differs from add_buffer() because we're validating vs.
-        the header's num_buffers, instead of filling in the header.
-
-        Args:
-            buf_header (``JSON``) : a buffer header
-            buf_payload (``JSON`` or bytes) : a buffer payload
-
-        Returns:
-            None
-
-        Raises:
-            ProtocolError
-        '''
         num_buffers = self.header.get("num_buffers", 0)
         if num_buffers <= len(self._buffers):
             raise ProtocolError(f"too many buffers received expecting {num_buffers}")
@@ -233,28 +139,7 @@ class Message[Content]:
             raise ProtocolError(f"duplicate buffer id {buf_header['id']!r}")
         self._buffers.append(Buffer(buf_header["id"], buf_payload))
 
-    @classmethod
-    def create_header(cls, request_id: ID | None = None) -> Header:
-        ''' Return a message header fragment dict.
-
-        Args:
-            request_id (str or None) :
-                Message ID of the message this message replies to
-
-        Returns:
-            dict : a message header
-
-        '''
-        header = Header(
-            msgid   = bkserial.make_id(),
-            msgtype = cls.msgtype,
-        )
-        if request_id is not None:
-            header['reqid'] = request_id
-        return header
-
     def fragments(self) -> list[tuple[str | bytes, bool]]:
-        '''Return the ordered text and binary WebSocket fragments for this message.'''
         fragments: list[tuple[str | bytes, bool]] = [
             (self.header_json, False),
             (self.metadata_json, False),
@@ -274,19 +159,15 @@ class Message[Content]:
 
     @property
     def complete(self) -> bool:
-        ''' Returns whether all required parts of a message are present.
-
-        Returns:
-            bool : True if the message is complete, False otherwise
-
-        '''
         return self.header.get('num_buffers', 0) == len(self._buffers)
 
     @property
     def payload(self) -> Serialized[Content]:
         return Serialized(self.content, self.buffers)
 
-    # header fragment properties
+    @property
+    def msgtype(self) -> MessageType:
+        return self._header["msgtype"]
 
     @property
     def header(self) -> Header:
@@ -296,8 +177,6 @@ class Message[Content]:
     def header_json(self) -> str:
         return json.dumps(self.header)
 
-    # content fragment properties
-
     @property
     def content(self) -> Content:
         return self._content
@@ -305,8 +184,6 @@ class Message[Content]:
     @property
     def content_json(self) -> str:
         return serialize_json(self.payload)
-
-    # metadata fragment properties
 
     @property
     def metadata(self) -> Metadata:
@@ -316,16 +193,6 @@ class Message[Content]:
     def metadata_json(self) -> str:
         return json.dumps(self.metadata)
 
-    # buffer properties
-
     @property
     def buffers(self) -> list[Buffer]:
         return list(self._buffers)
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

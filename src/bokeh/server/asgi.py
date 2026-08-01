@@ -29,7 +29,7 @@ from ..embed.bundle import Script, bundle_for_objs_and_resources, extension_dirs
 from ..embed.elements import script_for_render_items
 from ..embed.server import server_html_page_for_session
 from ..embed.util import RenderItem
-from ..protocol import create
+from ..protocol import ack
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver
@@ -432,7 +432,7 @@ class BokehASGI:
             session = await self._core.create_session_if_needed(context, session_id, request, token)
             receiver = Receiver()
             connection = self._core.new_connection(transport, session)
-            await transport.send_message(create("ACK"))
+            await transport.send_message(ack())
 
             while True:
                 event = await receive()

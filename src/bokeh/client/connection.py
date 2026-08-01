@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 # External imports
 from tornado.httpclient import HTTPClientError, HTTPRequest
@@ -33,10 +33,16 @@ from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketError, websocket_connect
 
 # Bokeh imports
-from ..protocol import create
+from ..protocol import (
+    PatchDoc,
+    ServerInfo,
+    patch_doc,
+    pull_doc_req,
+    push_doc,
+    replace_document,
+    server_info_req,
+)
 from ..protocol.exceptions import ProtocolError
-from ..protocol.messages.patch_doc import patch_doc
-from ..protocol.messages.pull_doc_reply import pull_doc_reply
 from ..protocol.receiver import Receiver
 from ..util.strings import format_url_query_arguments
 from .states import (
@@ -55,7 +61,6 @@ if TYPE_CHECKING:
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
     from ..protocol.message import Message
-    from ..protocol.messages.server_info_reply import ServerInfo
     from .session import ClientSession
 
 #-----------------------------------------------------------------------------
@@ -209,16 +214,16 @@ class ClientConnection:
             None
 
         '''
-        msg = create('PULL-DOC-REQ')
+        msg = pull_doc_req()
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
         elif reply.header['msgtype'] == 'ERROR':
             raise RuntimeError("Failed to pull document: " + reply.content['text'])
         else:
-            if not isinstance(reply, pull_doc_reply):
+            if reply.msgtype != "PULL-DOC-REPLY":
                 raise RuntimeError(f"Unexpected reply {reply!r}")
-            reply.push_to_document(document)
+            replace_document(cast(Any, reply), document)
 
     def push_doc(self, document: Document) -> Message[Any]:
         ''' Push a document to the server, overwriting any existing server-side doc.
@@ -231,7 +236,7 @@ class ClientConnection:
             The server reply
 
         '''
-        msg = create('PUSH-DOC', document)
+        msg = push_doc(document)
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
@@ -308,9 +313,7 @@ class ClientConnection:
         else:
             if message.msgtype == 'PATCH-DOC':
                 log.debug("Got PATCH-DOC, applying to session")
-                if not isinstance(message, patch_doc):
-                    raise RuntimeError(f"Unexpected message {message!r}")
-                self._session._handle_patch(message)
+                self._session._handle_patch(cast(PatchDoc, message))
             else:
                 log.debug("Ignoring %r", message)
             # we don't know about whatever message we got, ignore it.
@@ -385,11 +388,11 @@ class ClientConnection:
         return waiter.reply
 
     def _send_patch_document(self, session_id: ID, event: DocumentPatchedEvent) -> None:
-        msg = create('PATCH-DOC', [event])
+        msg = patch_doc([event])
         self._loop.add_callback(self.send_message, msg)
 
     def _send_request_server_info(self) -> ServerInfo:
-        msg = create('SERVER-INFO-REQ')
+        msg = server_info_req()
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Did not get a reply to server info request before disconnect")

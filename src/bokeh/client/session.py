@@ -59,8 +59,7 @@ if TYPE_CHECKING:
         SessionCallbackRemoved,
     )
     from ..models.ui import UIElement
-    from ..protocol.messages.patch_doc import patch_doc
-    from ..protocol.messages.server_info_reply import ServerInfo
+    from ..protocol import PatchDoc, ServerInfo
     from ..server.callbacks import DocumentCallbackGroup
     from ..util.asyncio import Loop
     from ..util.browser import BrowserLike, BrowserTarget
@@ -543,10 +542,11 @@ class ClientSession:
             session_id = generate_session_id()
         return session_id
 
-    def _handle_patch(self, message: patch_doc) -> None:
+    def _handle_patch(self, message: PatchDoc) -> None:
         document = self.document
         assert document is not None
-        message.apply_to_document(document, self)
+        from ..protocol import apply_patch
+        apply_patch(message, document, self)
 
     def _loop_until_closed(self) -> None:
         ''' Execute a blocking loop that runs and executes event callbacks

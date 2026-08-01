@@ -4,148 +4,68 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Implement and provide message protocols for communication between Bokeh
-Servers and clients.
+'''Implement the messages used to communicate between Bokeh clients and servers.'''
 
-'''
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
-import json
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    overload,
+from .message import Message, MessageType
+from .messages import (
+    Ack,
+    Error,
+    ErrorMessage,
+    Ok,
+    PatchDoc,
+    PullDoc,
+    PullDocReply,
+    PullDocReq,
+    PushDoc,
+    PushDocMessage,
+    ServerInfo,
+    ServerInfoReply,
+    ServerInfoReq,
+    VersionInfo,
+    ack,
+    apply_patch,
+    error,
+    ok,
+    patch_doc,
+    pull_doc_reply,
+    pull_doc_req,
+    push_doc,
+    replace_document,
+    server_info_reply,
+    server_info_req,
 )
 
-# Bokeh imports
-from .exceptions import ProtocolError
-from .message import Message
-from .messages.ack import ack
-from .messages.error import error
-from .messages.ok import ok
-from .messages.patch_doc import patch_doc
-from .messages.pull_doc_reply import pull_doc_reply
-from .messages.pull_doc_req import pull_doc_req
-from .messages.push_doc import push_doc
-from .messages.server_info_reply import server_info_reply
-from .messages.server_info_req import server_info_req
-
-if TYPE_CHECKING:
-    from ..core.types import ID
-    from ..document.document import Document
-    from ..document.events import DocumentPatchedEvent
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
+assemble = Message.assemble
 
 __all__ = (
-    'Protocol',
+    'Ack',
+    'Error',
+    'ErrorMessage',
+    'Message',
+    'MessageType',
+    'Ok',
+    'PatchDoc',
+    'PullDoc',
+    'PullDocReply',
+    'PullDocReq',
+    'PushDoc',
+    'PushDocMessage',
+    'ServerInfo',
+    'ServerInfoReply',
+    'ServerInfoReq',
+    'VersionInfo',
+    'ack',
+    'apply_patch',
     'assemble',
-    'create',
+    'error',
+    'ok',
+    'patch_doc',
+    'pull_doc_reply',
+    'pull_doc_req',
+    'push_doc',
+    'replace_document',
+    'server_info_reply',
+    'server_info_req',
 )
-
-type MessageType = Literal[
-    "ACK",
-    "ERROR",
-    "OK",
-    "PATCH-DOC",
-    "PULL-DOC-REPLY",
-    "PULL-DOC-REQ",
-    "PUSH-DOC",
-    "SERVER-INFO-REPLY",
-    "SERVER-INFO-REQ",
-]
-
-SPEC: dict[MessageType, type[Message[Any]]] = {
-    "ACK": ack,
-    "ERROR": error,
-    "OK": ok,
-    "PATCH-DOC": patch_doc,
-    "PULL-DOC-REPLY": pull_doc_reply,
-    "PULL-DOC-REQ": pull_doc_req,
-    "PUSH-DOC": push_doc,
-    "SERVER-INFO-REPLY": server_info_reply,
-    "SERVER-INFO-REQ": server_info_req,
-}
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-@overload
-def create(msgtype: Literal["ACK"], **metadata: Any) -> ack: ...
-@overload
-def create(msgtype: Literal["ERROR"], request_id: ID, text: str, **metadata: Any) -> error: ...
-@overload
-def create(msgtype: Literal["OK"], request_id: ID, **metadata: Any) -> ok: ...
-@overload
-def create(msgtype: Literal["PATCH-DOC"], events: list[DocumentPatchedEvent], **metadata: Any) -> patch_doc: ...
-@overload
-def create(msgtype: Literal["PULL-DOC-REPLY"], request_id: ID, document: Document, **metadata: Any) -> pull_doc_reply: ...
-@overload
-def create(msgtype: Literal["PULL-DOC-REQ"], **metadata: Any) -> pull_doc_req: ...
-@overload
-def create(msgtype: Literal["PUSH-DOC"], document: Document, **metadata: Any) -> push_doc: ...
-@overload
-def create(msgtype: Literal["SERVER-INFO-REPLY"], request_id: ID, **metadata: Any) -> server_info_reply: ...
-@overload
-def create(msgtype: Literal["SERVER-INFO-REQ"], **metadata: Any) -> server_info_req: ...
-
-def create(msgtype: MessageType, *args: Any, **kwargs: Any) -> Message[Any]:
-    '''Create a new message of the requested type.'''
-    if msgtype not in SPEC:
-        raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
-    return SPEC[msgtype].create(*args, **kwargs)  # type: ignore [attr-defined]
-
-def assemble(header_json: str, metadata_json: str, content_json: str) -> Message[Any]:
-    '''Create a message from JSON wire fragments.'''
-    try:
-        header = json.loads(header_json)
-    except (TypeError, ValueError) as error:
-        raise ProtocolError("header could not be decoded") from error
-    if not isinstance(header, dict):
-        raise ProtocolError("header must be a JSON object")
-    if 'msgtype' not in header:
-        raise ProtocolError("No 'msgtype' in header")
-    msgtype = header["msgtype"]
-    if not isinstance(msgtype, str) or msgtype not in SPEC:
-        raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
-    return SPEC[msgtype].assemble(header_json, metadata_json, content_json)
-
-class Protocol:
-    '''Compatibility facade for the former per-connection protocol object.'''
-
-    def __repr__(self) -> str:
-        return "Protocol()"
-
-    def create(self, msgtype: MessageType, *args: Any, **kwargs: Any) -> Message[Any]:
-        return create(msgtype, *args, **kwargs)
-
-    def assemble(self, header_json: str, metadata_json: str, content_json: str) -> Message[Any]:
-        return assemble(header_json, metadata_json, content_json)
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

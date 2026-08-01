@@ -39,7 +39,7 @@ from bokeh.models import (
     Select,
     Slider,
 )
-from bokeh.protocol import Protocol
+from bokeh.protocol import pull_doc_req
 from bokeh.server.asgi import BokehASGI
 from bokeh.server.auth import AuthPolicy
 from bokeh.util.token import generate_jwt_token, get_token_payload
@@ -1040,7 +1040,7 @@ async def test_websocket_auth_policy_uses_asgi_scope_user() -> None:
 async def test_websocket_handles_pull_document_round_trip() -> None:
     app = BokehASGI(Application(), keep_alive_milliseconds=0)
     token = generate_jwt_token(cast(ID, "session"), expiration=300)
-    request = Protocol().create("PULL-DOC-REQ")
+    request = pull_doc_req()
     incoming = deque([
         {"type": "websocket.connect"},
         {"type": "websocket.receive", "text": request.header_json},

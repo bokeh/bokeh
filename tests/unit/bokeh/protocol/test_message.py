@@ -22,7 +22,7 @@ import json
 # Bokeh imports
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
-from bokeh.protocol.messages.ack import ack
+from bokeh.protocol import ack
 
 # Module under test
 import bokeh.protocol.message as message # isort:skip
@@ -36,16 +36,15 @@ import bokeh.protocol.message as message # isort:skip
 #-----------------------------------------------------------------------------
 
 def test_create_header(monkeypatch: pytest.MonkeyPatch) -> None:
-    message.Message.msgtype = "msgtype"
     monkeypatch.setattr("bokeh.util.serialization.make_id", lambda: "msgid")
-    header = message.Message.create_header(request_id="bar")
+    header = message.Message.create_header("ACK", request_id="bar")
     assert set(header.keys()) == {'msgid', 'msgtype', 'reqid'}
-    assert header['msgtype'] == 'msgtype'
+    assert header['msgtype'] == 'ACK'
     assert header['msgid'] == 'msgid'
     assert header['reqid'] == 'bar'
 
 def test_json_properties_reflect_mutation() -> None:
-    msg = ack.create()
+    msg = ack()
     assert "reqid" not in json.loads(msg.header_json)
 
     msg.header["reqid"] = ID("request")
@@ -53,14 +52,14 @@ def test_json_properties_reflect_mutation() -> None:
     assert json.loads(msg.header_json)["reqid"] == "request"
 
 def test_add_no_buffers_does_not_emit_count() -> None:
-    msg = ack.create()
+    msg = ack()
 
     msg.add_buffers()
 
     assert "num_buffers" not in msg.header
 
 def test_fragments_include_buffer_pairs() -> None:
-    msg = ack.create()
+    msg = ack()
     msg.add_buffers(Buffer(ID("buffer"), b"payload"))
 
     fragments = msg.fragments()

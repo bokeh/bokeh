@@ -24,10 +24,9 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, Awaitable, cast
 
 # Bokeh imports
-from ..protocol import create
+from ..protocol import error, ok, server_info_reply
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
-from ..protocol.messages import patch_doc, pull_doc_req, push_doc, server_info_req
 
 ## Bokeh imports
 if TYPE_CHECKING:
@@ -71,26 +70,26 @@ class ServerConnection:
             self._session.unsubscribe(self)
             self._session = None
 
-    def ok(self, message: Message[Any]) -> msg.ok:
-        return create('OK', message.header['msgid'])
+    def ok(self, message: Message[Any]) -> msg.Ok:
+        return ok(message.header['msgid'])
 
-    def error(self, message: Message[Any], text: str) -> msg.error:
-        return create('ERROR', message.header['msgid'], text)
+    def error(self, message: Message[Any], text: str) -> msg.ErrorMessage:
+        return error(message.header['msgid'], text)
 
     async def handle(self, message: Message[Any]) -> Message[Any] | None:
         '''Handle a client request and return its reply.'''
-        if not isinstance(message, (pull_doc_req, push_doc, patch_doc, server_info_req)):
+        if message.msgtype not in {"PULL-DOC-REQ", "PUSH-DOC", "PATCH-DOC", "SERVER-INFO-REQ"}:
             raise ProtocolError(f"{message} not expected on server")
 
         try:
-            if isinstance(message, pull_doc_req):
-                return await cast(Awaitable[Message[Any] | None], self.session._handle_pull(message, self))
-            elif isinstance(message, push_doc):
-                return await cast(Awaitable[Message[Any] | None], self.session._handle_push(message, self))
-            elif isinstance(message, patch_doc):
-                return await cast(Awaitable[Message[Any] | None], self.session._handle_patch(message, self))
+            if message.msgtype == "PULL-DOC-REQ":
+                return await cast(Awaitable[Message[Any] | None], self.session._handle_pull(cast(Any, message), self))
+            elif message.msgtype == "PUSH-DOC":
+                return await cast(Awaitable[Message[Any] | None], self.session._handle_push(cast(Any, message), self))
+            elif message.msgtype == "PATCH-DOC":
+                return await cast(Awaitable[Message[Any] | None], self.session._handle_patch(cast(Any, message), self))
             else:
-                return create('SERVER-INFO-REPLY', message.header['msgid'])
+                return server_info_reply(message.header['msgid'])
         except Exception:
             log.exception("error handling %s message", message.msgtype)
             return self.error(message, f"Error handling {message.msgtype} message")

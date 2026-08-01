@@ -57,7 +57,7 @@ from bokeh.io.doc import curdoc
 from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
 from bokeh.models.ui.notifications import Notifications
-from bokeh.protocol.messages.patch_doc import patch_doc
+from bokeh.protocol import patch_doc
 from bokeh.server.contexts import BokehSessionContext
 from bokeh.util.logconfig import basicConfig
 
@@ -329,7 +329,7 @@ class TestDocument:
         d.on_change(lambda event: events.append(event))
         setter = object()
         event = ModelChangedEvent(d, d.config, "color_scheme", "dark")
-        patch = patch_doc.create([event]).content
+        patch = patch_doc([event]).content
 
         d.apply_json_patch(patch, setter=setter)
 
@@ -985,13 +985,13 @@ class TestDocument:
         assert len(d.roots) == 2
 
         event1 = ModelChangedEvent(d, root1, 'foo', 57)
-        patch1 = patch_doc.create([event1]).content
+        patch1 = patch_doc([event1]).content
         d.apply_json_patch(patch1)
 
         assert root1.foo == 57
 
         event2 = ModelChangedEvent(d, child1, 'foo', 67)
-        patch2 = patch_doc.create([event2]).content
+        patch2 = patch_doc([event2]).content
         d.apply_json_patch(patch2)
 
         assert child1.foo == 67
@@ -1006,7 +1006,7 @@ class TestDocument:
 
         def patch_test(new_value: Any):
             event1 = ModelChangedEvent(d, root1, 'foo', new_value)
-            patch1 = patch_doc.create([event1]).content
+            patch1 = patch_doc([event1]).content
             d.apply_json_patch(patch1)
             if isinstance(new_value, dict):
                 return root1.lookup('foo').get_value(root1)
@@ -1070,7 +1070,7 @@ class TestDocument:
         assert d.models._new_models == set()
 
         event1 = ModelChangedEvent(d, root1, 'child', child3)
-        patch1 = patch_doc.create([event1]).content
+        patch1 = patch_doc([event1]).content
         d.apply_json_patch(patch1)
         assert d.models._new_models == set()
 
@@ -1082,7 +1082,7 @@ class TestDocument:
 
         # put it back how it was before
         event2 = ModelChangedEvent(d, root1, 'child', child1)
-        patch2 = patch_doc.create([event2]).content
+        patch2 = patch_doc([event2]).content
         d.apply_json_patch(patch2)
         assert d.models._new_models == set()
 
@@ -1110,7 +1110,7 @@ class TestDocument:
 
         event1 = ModelChangedEvent(d, root1, 'foo', 57)
         event2 = ModelChangedEvent(d, root1, 'child', child2)
-        patch1 = patch_doc.create([event1, event2]).content
+        patch1 = patch_doc([event1, event2]).content
         d.apply_json_patch(patch1)
 
         assert root1.foo == 57

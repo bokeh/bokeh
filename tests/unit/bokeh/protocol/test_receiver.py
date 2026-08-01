@@ -19,7 +19,7 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
-from bokeh.protocol import Protocol
+from bokeh.protocol import ack
 from bokeh.protocol.exceptions import ProtocolError, ValidationError
 
 # Module under test
@@ -29,8 +29,6 @@ from bokeh.protocol import receiver # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-proto = Protocol()
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -39,7 +37,7 @@ def test_creation() -> None:
     receiver.Receiver()
 
 def test_validation_success() -> None:
-    msg = proto.create('ACK')
+    msg = ack()
     r = receiver.Receiver()
 
     partial = r.consume(msg.header_json)
@@ -154,7 +152,7 @@ def test_invalid_header_resets_receiver(header: str) -> None:
     with pytest.raises(ProtocolError):
         r.consume('{}')
 
-    msg = proto.create("ACK")
+    msg = ack()
     assert r.consume(msg.header_json) is None
     assert r.consume(msg.metadata_json) is None
     assert r.consume(msg.content_json) is not None
@@ -167,7 +165,7 @@ def test_invalid_content_type_resets_receiver() -> None:
     with pytest.raises(ProtocolError, match="content must be a JSON object"):
         r.consume('[]')
 
-    msg = proto.create("ACK")
+    msg = ack()
     assert r.consume(msg.header_json) is None
     assert r.consume(msg.metadata_json) is None
     assert r.consume(msg.content_json) is not None
@@ -181,7 +179,7 @@ def test_malformed_buffer_header_resets_receiver() -> None:
     with pytest.raises(ValidationError):
         r.consume('{"id": 10}')
 
-    msg = proto.create("ACK")
+    msg = ack()
     assert r.consume(msg.header_json) is None
     assert r.consume(msg.metadata_json) is None
     assert r.consume(msg.content_json) is not None

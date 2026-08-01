@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 
 # Bokeh imports
-from bokeh.protocol import create
+from bokeh.protocol import ack, ok, pull_doc_req, server_info_req
 from bokeh.protocol.exceptions import ProtocolError
 
 # Module under test
@@ -35,8 +35,8 @@ def connection() -> tuple[ServerConnection, SimpleNamespace]:
 
 async def test_handle_dispatches_to_session() -> None:
     conn, session = connection()
-    request = create("PULL-DOC-REQ")
-    expected = create("OK", request.header["msgid"])
+    request = pull_doc_req()
+    expected = ok(request.header["msgid"])
     session._handle_pull.return_value = expected
 
     reply = await conn.handle(request)
@@ -47,7 +47,7 @@ async def test_handle_dispatches_to_session() -> None:
 
 async def test_handle_server_info_request() -> None:
     conn, _ = connection()
-    request = create("SERVER-INFO-REQ")
+    request = server_info_req()
 
     reply = await conn.handle(request)
 
@@ -60,12 +60,12 @@ async def test_handle_rejects_unexpected_message() -> None:
     conn, _ = connection()
 
     with pytest.raises(ProtocolError, match="not expected on server"):
-        await conn.handle(create("ACK"))
+        await conn.handle(ack())
 
 
 async def test_handle_does_not_expose_exception_details() -> None:
     conn, session = connection()
-    request = create("PULL-DOC-REQ")
+    request = pull_doc_req()
     session._handle_pull.side_effect = RuntimeError("private detail")
 
     reply = await conn.handle(request)

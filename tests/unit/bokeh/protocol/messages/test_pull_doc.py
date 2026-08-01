@@ -27,13 +27,11 @@ from bokeh.model import Model
 from bokeh.models import ColumnDataSource
 
 # Module under test
-from bokeh.protocol import Protocol # isort:skip
+from bokeh.protocol import pull_doc_reply, pull_doc_req, replace_document # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-proto = Protocol()
 
 #-----------------------------------------------------------------------------
 # General API
@@ -57,22 +55,22 @@ class TestPullDocument:
         return doc
 
     def test_create_req(self) -> None:
-        proto.create("PULL-DOC-REQ")
+        pull_doc_req()
 
     def test_create_reply(self) -> None:
         sample = self._sample_doc()
-        proto.create("PULL-DOC-REPLY", ID("fakereqid"), sample)
+        pull_doc_reply(ID("fakereqid"), sample)
 
     def test_create_reply_then_parse(self) -> None:
         sample = self._sample_doc()
-        msg = proto.create("PULL-DOC-REPLY", ID("fakereqid"), sample)
+        msg = pull_doc_reply(ID("fakereqid"), sample)
 
         assert len(msg.buffers) == 1
         [buf] = msg.buffers
         assert bytes(buf.data) == np.array([0.0, 1.0, 2.0]).tobytes()
 
         copy = document.Document()
-        msg.push_to_document(copy)
+        replace_document(msg, copy)
 
         assert len(sample.roots) == 3
         assert len(copy.roots) == 3

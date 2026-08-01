@@ -4,61 +4,137 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+'''Construct and apply the messages used by the Bokeh server protocol.'''
 
-'''
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
+from typing import TYPE_CHECKING, Any, TypedDict
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
+from bokeh import __version__
 
-# Bokeh imports
-from .ack import ack
-from .error import error
-from .ok import ok
-from .patch_doc import patch_doc
-from .pull_doc_reply import pull_doc_reply
-from .pull_doc_req import pull_doc_req
-from .push_doc import push_doc
-from .server_info_reply import server_info_reply
-from .server_info_req import server_info_req
+from ...core.serialization import Serialized, Serializer
+from ...document.callbacks import invoke_with_curdoc
+from ...document.json import PatchJson
+from ..exceptions import ProtocolError
+from ..message import Empty, Message
 
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
+if TYPE_CHECKING:
+    from ...core.has_props import Setter
+    from ...core.types import ID
+    from ...document.document import DocJson, Document
+    from ...document.events import DocumentPatchedEvent
 
 __all__ = (
-    "ack",
-    "error",
-    "ok",
-    "patch_doc",
-    "pull_doc_reply",
-    "pull_doc_req",
-    "push_doc",
-    "server_info_reply",
-    "server_info_req",
+    'Ack',
+    'Error',
+    'ErrorMessage',
+    'Ok',
+    'PatchDoc',
+    'PullDoc',
+    'PullDocReply',
+    'PullDocReq',
+    'PushDoc',
+    'PushDocMessage',
+    'ServerInfo',
+    'ServerInfoReply',
+    'ServerInfoReq',
+    'VersionInfo',
+    'ack',
+    'apply_patch',
+    'error',
+    'ok',
+    'patch_doc',
+    'pull_doc_reply',
+    'pull_doc_req',
+    'push_doc',
+    'replace_document',
+    'server_info_reply',
+    'server_info_req',
 )
 
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
+class Error(TypedDict):
+    text: str
+    traceback: str | None
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
+class PullDoc(TypedDict):
+    doc: DocJson
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
+class PushDoc(TypedDict):
+    doc: DocJson
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+class VersionInfo(TypedDict):
+    bokeh: str
+    server: str
+
+class ServerInfo(TypedDict):
+    version_info: VersionInfo
+
+type Ack = Message[Empty]
+type ErrorMessage = Message[Error]
+type Ok = Message[Empty]
+type PatchDoc = Message[PatchJson]
+type PullDocReply = Message[PullDoc]
+type PullDocReq = Message[Empty]
+type PushDocMessage = Message[PushDoc]
+type ServerInfoReply = Message[ServerInfo]
+type ServerInfoReq = Message[Empty]
+
+_VERSION_INFO = VersionInfo(bokeh=__version__, server=__version__)
+
+def ack(**metadata: Any) -> Ack:
+    return Message(Message.create_header("ACK"), metadata, Empty())
+
+def error(request_id: ID, text: str, *, traceback: str | None = None, **metadata: Any) -> ErrorMessage:
+    content = Error(text=text, traceback=traceback)
+    return Message(Message.create_header("ERROR", request_id), metadata, content)
+
+def ok(request_id: ID, **metadata: Any) -> Ok:
+    return Message(Message.create_header("OK", request_id), metadata, Empty())
+
+def patch_doc(events: list[DocumentPatchedEvent], **metadata: Any) -> PatchDoc:
+    if not events:
+        raise ValueError("PATCH-DOC message requires at least one event")
+
+    docs = {event.document for event in events}
+    if len(docs) != 1:
+        raise ValueError("PATCH-DOC message configured with events for more than one document")
+
+    [doc] = docs
+    serializer = Serializer(references=doc.models.synced_references)
+    content = PatchJson(events=serializer.encode(events))
+    doc.models.flush_synced(lambda model: not serializer.has_ref(model))
+    message = Message(Message.create_header("PATCH-DOC"), metadata, content)
+    message.add_buffers(*serializer.buffers)
+    return message
+
+def apply_patch(message: PatchDoc, document: Document, setter: Setter | None = None) -> None:
+    invoke_with_curdoc(document, lambda: document.apply_json_patch(message.payload, setter=setter))
+
+def pull_doc_reply(request_id: ID, document: Document, **metadata: Any) -> PullDocReply:
+    serialized = document.to_json()
+    content = PullDoc(doc=serialized.content)
+    message = Message(Message.create_header("PULL-DOC-REPLY", request_id), metadata, content)
+    message.add_buffers(*serialized.buffers)
+    return message
+
+def pull_doc_req(**metadata: Any) -> PullDocReq:
+    return Message(Message.create_header("PULL-DOC-REQ"), metadata, Empty())
+
+def push_doc(document: Document, **metadata: Any) -> PushDocMessage:
+    serialized = document.to_json()
+    content = PushDoc(doc=serialized.content)
+    message = Message(Message.create_header("PUSH-DOC"), metadata, content)
+    message.add_buffers(*serialized.buffers)
+    return message
+
+def replace_document(message: PullDocReply | PushDocMessage, document: Document) -> None:
+    if "doc" not in message.content:
+        raise ProtocolError(f"No doc in {message.msgtype}")
+    document.replace_with_json(Serialized(message.content["doc"], message.buffers))
+
+def server_info_reply(request_id: ID, **metadata: Any) -> ServerInfoReply:
+    content = ServerInfo(version_info=_VERSION_INFO)
+    return Message(Message.create_header("SERVER-INFO-REPLY", request_id), metadata, content)
+
+def server_info_req(**metadata: Any) -> ServerInfoReq:
+    return Message(Message.create_header("SERVER-INFO-REQ"), metadata, Empty())

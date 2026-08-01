@@ -303,7 +303,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
             push_notebook(handle=handle)
 
     '''
-    from ..protocol import create
+    from ..protocol import patch_doc
     from .state import curstate
 
     if state is None:
@@ -336,7 +336,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         return
 
     handle.doc.callbacks._held_events = []
-    msg = create("PATCH-DOC", cast(list["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
+    msg = patch_doc(cast(list["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
 
     handle.comms.send(msg.header_json)
     handle.comms.send(msg.metadata_json)

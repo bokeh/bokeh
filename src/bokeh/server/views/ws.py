@@ -36,7 +36,7 @@ from bokeh.settings import settings
 from bokeh.util.token import check_token_signature, get_session_id, get_token_payload
 
 # Bokeh imports
-from ...protocol import create
+from ...protocol import ack
 from ...protocol.exceptions import ProtocolError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
@@ -222,7 +222,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             raise e
 
         assert self.connection is not None
-        msg = create('ACK')
+        msg = ack()
         await self.send_message(msg)
 
         return None
