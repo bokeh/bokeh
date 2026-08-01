@@ -55,26 +55,11 @@ export class ClientSession {
     this.document.remove_on_change(this._document_listener)
   }
 
-  // Sends a request to the server for info about the server, such as its Bokeh
-  // version. Returns a promise, the value of the promise is a free-form dictionary
-  // of server details.
-  async request_server_info(): Promise<{version_info: string}> {
-    const message = Message.create("SERVER-INFO-REQ", {})
-    const reply = await this._connection.send_with_reply(message)
-    return reply.content as {version_info: string}
-  }
-
-  // Sends some request to the server (no guarantee about which one) and returns
-  // a promise which is completed when the server replies. The purpose of this
-  // is that if you wait for the promise to be completed, you know the server
-  // has processed the request. This is useful when writing tests because once
-  // the server has processed this request it should also have processed any
-  // events or requests you sent previously, which means you can check for the
-  // results of that processing without a race condition. (This assumes the
-  // server processes events in sequence, which it mostly has to semantically,
-  // since reordering events might change the final state.)
+  // Waits for the server to process all preceding messages. This is useful in
+  // tests that need to observe the result of an asynchronously sent patch.
   async force_roundtrip(): Promise<void> {
-    await this.request_server_info()
+    const message = Message.create("SYNC", {})
+    await this._connection.send_with_reply(message)
   }
 
   protected _document_changed(event: DocumentEvent): void {

@@ -31,8 +31,7 @@ type MessageType = Literal[
     "PULL-DOC-REPLY",
     "PULL-DOC-REQ",
     "PUSH-DOC",
-    "SERVER-INFO-REPLY",
-    "SERVER-INFO-REQ",
+    "SYNC",
 ]
 
 MESSAGE_TYPES: frozenset[str] = frozenset({
@@ -43,8 +42,7 @@ MESSAGE_TYPES: frozenset[str] = frozenset({
     "PULL-DOC-REPLY",
     "PULL-DOC-REQ",
     "PUSH-DOC",
-    "SERVER-INFO-REPLY",
-    "SERVER-INFO-REQ",
+    "SYNC",
 })
 
 MAX_BUFFERS_PER_MESSAGE = 10_000

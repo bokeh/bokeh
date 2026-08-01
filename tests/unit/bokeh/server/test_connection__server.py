@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 
 # Bokeh imports
-from bokeh.protocol import ack, ok, pull_doc_req, server_info_req
+from bokeh.protocol import ack, ok, pull_doc_req, sync
 from bokeh.protocol.exceptions import ProtocolError
 
 # Module under test
@@ -45,14 +45,14 @@ async def test_handle_dispatches_to_session() -> None:
     session._handle_pull.assert_awaited_once_with(request, conn)
 
 
-async def test_handle_server_info_request() -> None:
+async def test_handle_sync_request() -> None:
     conn, _ = connection()
-    request = server_info_req()
+    request = sync()
 
     reply = await conn.handle(request)
 
     assert reply is not None
-    assert reply.msgtype == "SERVER-INFO-REPLY"
+    assert reply.msgtype == "OK"
     assert reply.header["reqid"] == request.header["msgid"]
 
 

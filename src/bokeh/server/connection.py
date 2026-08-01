@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, Awaitable, cast
 
 # Bokeh imports
-from ..protocol import error, ok, server_info_reply
+from ..protocol import error, ok
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
 
@@ -77,7 +77,7 @@ class ServerConnection:
 
     async def handle(self, message: Message[Any]) -> Message[Any] | None:
         '''Handle a client request and return its reply.'''
-        if message.msgtype not in {"PULL-DOC-REQ", "PUSH-DOC", "PATCH-DOC", "SERVER-INFO-REQ"}:
+        if message.msgtype not in {"PULL-DOC-REQ", "PUSH-DOC", "PATCH-DOC", "SYNC"}:
             raise ProtocolError(f"{message} not expected on server")
 
         try:
@@ -88,7 +88,7 @@ class ServerConnection:
             elif message.msgtype == "PATCH-DOC":
                 return await cast(Awaitable[Message[Any] | None], self.session._handle_patch(cast(Any, message), self))
             else:
-                return server_info_reply(message.header['msgid'])
+                return self.ok(message)
         except Exception:
             log.exception("error handling %s message", message.msgtype)
             return self.error(message, f"Error handling {message.msgtype} message")

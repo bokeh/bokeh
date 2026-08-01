@@ -335,27 +335,6 @@ class TestClientServer:
                                               url=url(server) + 'file_not_found',
                                               io_loop=server.io_loop)
 
-    def test_request_server_info(self, ManagedServerLoop: MSL) -> None:
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            session = ClientSession(session_id=ID("test_request_server_info"),
-                                    websocket_url=ws_url(server),
-                                    io_loop=server.io_loop)
-            session.connect()
-            assert session.connected
-            assert session.document is None
-
-            info = session.request_server_info()
-
-            from bokeh import __version__
-
-            assert info['version_info']['bokeh'] == __version__
-            assert info['version_info']['server'] == __version__
-
-            session.close()
-            session._loop_until_closed()
-            assert not session.connected
-
     def test_client_changes_go_to_server(self, ManagedServerLoop: MSL) -> None:
         application = Application()
         with ManagedServerLoop(application) as server:

@@ -10,8 +10,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypedDict
 
-from bokeh import __version__
-
 from ...core.serialization import Serialized, Serializer
 from ...document.callbacks import invoke_with_curdoc
 from ...document.json import PatchJson
@@ -35,10 +33,7 @@ __all__ = (
     'PullDocReq',
     'PushDoc',
     'PushDocMessage',
-    'ServerInfo',
-    'ServerInfoReply',
-    'ServerInfoReq',
-    'VersionInfo',
+    'Sync',
     'ack',
     'apply_patch',
     'error',
@@ -48,8 +43,7 @@ __all__ = (
     'pull_doc_req',
     'push_doc',
     'replace_document',
-    'server_info_reply',
-    'server_info_req',
+    'sync',
 )
 
 class Error(TypedDict):
@@ -62,13 +56,6 @@ class PullDoc(TypedDict):
 class PushDoc(TypedDict):
     doc: DocJson
 
-class VersionInfo(TypedDict):
-    bokeh: str
-    server: str
-
-class ServerInfo(TypedDict):
-    version_info: VersionInfo
-
 type Ack = Message[Empty]
 type ErrorMessage = Message[Error]
 type Ok = Message[Empty]
@@ -76,10 +63,7 @@ type PatchDoc = Message[PatchJson]
 type PullDocReply = Message[PullDoc]
 type PullDocReq = Message[Empty]
 type PushDocMessage = Message[PushDoc]
-type ServerInfoReply = Message[ServerInfo]
-type ServerInfoReq = Message[Empty]
-
-_VERSION_INFO = VersionInfo(bokeh=__version__, server=__version__)
+type Sync = Message[Empty]
 
 def ack() -> Ack:
     return Message(Message.create_header("ACK"), Empty())
@@ -126,9 +110,5 @@ def replace_document(message: PullDocReply | PushDocMessage, document: Document)
         raise ProtocolError(f"No doc in {message.msgtype}")
     document.replace_with_json(Serialized(message.content["doc"], message.buffers))
 
-def server_info_reply(request_id: ID) -> ServerInfoReply:
-    content = ServerInfo(version_info=_VERSION_INFO)
-    return Message(Message.create_header("SERVER-INFO-REPLY", request_id), content)
-
-def server_info_req() -> ServerInfoReq:
-    return Message(Message.create_header("SERVER-INFO-REQ"), Empty())
+def sync() -> Sync:
+    return Message(Message.create_header("SYNC"), Empty())

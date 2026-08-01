@@ -42,15 +42,6 @@ type DocJson = {
   roots: ModelRep[]
 }
 
-type VersionInfo = {
-  bokeh: string
-  server: string
-}
-
-type ServerInfo = {
-  version_info: VersionInfo
-}
-
 type PullDoc = {
   doc: DocJson
 }
@@ -147,14 +138,9 @@ wss.on("connection", (ws, req: Request) => {
               },
             })
           case "PUSH-DOC":
-            return Message.create("OK", {})
           case "PATCH-DOC":
+          case "SYNC":
             return Message.create("OK", {})
-          case "SERVER-INFO-REQ": {
-            return Message.create<ServerInfo>("SERVER-INFO-REPLY", {
-              version_info: {bokeh: pkg_json.version, server: pkg_json.version},
-            })
-          }
           default:
             return null
         }

@@ -59,7 +59,7 @@ if TYPE_CHECKING:
         SessionCallbackRemoved,
     )
     from ..models.ui import UIElement
-    from ..protocol import PatchDoc, ServerInfo
+    from ..protocol import PatchDoc
     from ..server.callbacks import DocumentCallbackGroup
     from ..util.asyncio import Loop
     from ..util.browser import BrowserLike, BrowserTarget
@@ -480,15 +480,6 @@ class ClientSession:
         self._connection.push_doc(doc)
         if self._document is None:
             self._attach_document(doc)
-
-    def request_server_info(self) -> ServerInfo:
-        ''' Ask for information about the server.
-
-        Returns:
-            A dictionary of server attributes.
-
-        '''
-        return self._connection.request_server_info()
 
     def show(self, obj: UIElement | None = None, browser: str | None = None,
             new: Literal["tab", "window"] = "tab") -> None:

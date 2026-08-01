@@ -70,7 +70,7 @@ describe("ClientSession", () => {
     let error: unknown = null
 
     try {
-      await connection.send_with_reply(Message.create("SERVER-INFO-REQ", {}))
+      await connection.send_with_reply(Message.create("SYNC", {}))
     } catch (caught) {
       error = caught
     }
@@ -97,16 +97,6 @@ describe("ClientSession", () => {
   it("should be able to connect again", async () => {
     const session = await pull_session(url, token())
     session.close()
-  })
-
-  it("should get server info", async () => {
-    const session = await pull_session(url, token())
-    try {
-      const info = await session.request_server_info()
-      expect("version_info" in info).to.be.true
-    } finally {
-      session.close()
-    }
   })
 
   it.skip("should sync a document between two connections", async () => {

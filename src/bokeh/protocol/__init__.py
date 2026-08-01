@@ -20,10 +20,7 @@ from .messages import (
     PullDocReq,
     PushDoc,
     PushDocMessage,
-    ServerInfo,
-    ServerInfoReply,
-    ServerInfoReq,
-    VersionInfo,
+    Sync,
     ack,
     apply_patch,
     error,
@@ -33,8 +30,7 @@ from .messages import (
     pull_doc_req,
     push_doc,
     replace_document,
-    server_info_reply,
-    server_info_req,
+    sync,
 )
 
 __all__ = (
@@ -50,10 +46,7 @@ __all__ = (
     'PullDocReq',
     'PushDoc',
     'PushDocMessage',
-    'ServerInfo',
-    'ServerInfoReply',
-    'ServerInfoReq',
-    'VersionInfo',
+    'Sync',
     'ack',
     'apply_patch',
     'error',
@@ -63,6 +56,5 @@ __all__ = (
     'pull_doc_req',
     'push_doc',
     'replace_document',
-    'server_info_reply',
-    'server_info_req',
+    'sync',
 )

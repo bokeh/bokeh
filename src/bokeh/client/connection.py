@@ -35,12 +35,11 @@ from tornado.websocket import WebSocketError, websocket_connect
 # Bokeh imports
 from ..protocol import (
     PatchDoc,
-    ServerInfo,
     patch_doc,
     pull_doc_req,
     push_doc,
     replace_document,
-    server_info_req,
+    sync,
 )
 from ..protocol.exceptions import ProtocolError
 from ..protocol.receiver import Receiver
@@ -88,8 +87,6 @@ class ClientConnection:
     _loop: IOLoop
     _socket: WebSocketClientConnectionWrapper | None
     _until_predicate: Callable[[], bool] | None
-    _server_info: ServerInfo | None
-
     def __init__(self, session: ClientSession, websocket_url: str, io_loop: IOLoop | None = None,
             arguments: dict[str, str] | None = None, max_message_size: int = 20*1024*1024) -> None:
         ''' Opens a websocket connection to the server.
@@ -106,7 +103,6 @@ class ClientConnection:
         # when running inside a notebook since ipython also uses it
         self._loop = io_loop if io_loop is not None else IOLoop()
         self._until_predicate = None
-        self._server_info = None
 
     # Properties --------------------------------------------------------------
 
@@ -182,7 +178,11 @@ class ClientConnection:
            None
 
         '''
-        self._send_request_server_info()
+        reply = self._send_message_wait_for_reply(sync())
+        if reply is None:
+            raise RuntimeError("Connection to server was lost during roundtrip")
+        if reply.msgtype != "OK":
+            raise RuntimeError(f"Unexpected reply {reply!r}")
 
     def loop_until_closed(self) -> None:
         ''' Execute a blocking loop that runs and executes event callbacks
@@ -244,17 +244,6 @@ class ClientConnection:
             raise RuntimeError("Failed to push document: " + reply.content['text'])
         else:
             return reply
-
-    def request_server_info(self) -> ServerInfo:
-        ''' Ask for information about the server.
-
-        Returns:
-            A dictionary of server attributes.
-
-        '''
-        if self._server_info is None:
-            self._server_info = self._send_request_server_info()
-        return self._server_info
 
     async def send_message(self, message: Message[Any]) -> None:
         if self._socket is None:
@@ -390,13 +379,6 @@ class ClientConnection:
     def _send_patch_document(self, session_id: ID, event: DocumentPatchedEvent) -> None:
         msg = patch_doc([event])
         self._loop.add_callback(self.send_message, msg)
-
-    def _send_request_server_info(self) -> ServerInfo:
-        msg = server_info_req()
-        reply = self._send_message_wait_for_reply(msg)
-        if reply is None:
-            raise RuntimeError("Did not get a reply to server info request before disconnect")
-        return reply.content
 
     def _tell_session_about_disconnect(self) -> None:
         if self._session:
