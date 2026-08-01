@@ -3,6 +3,7 @@ import {expect} from "#framework/assertions"
 import {pull_session, ClientConnection} from "@bokehjs/client/connection"
 import {ClientReconnected} from "@bokehjs/core/bokeh_events"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Message} from "@bokehjs/protocol/message"
 import {unique_id} from "@bokehjs/core/util/string"
 import {assert} from "@bokehjs/core/util/assert"
 import {poll} from "@bokehjs/core/util/defer"
@@ -19,6 +20,65 @@ function token(session_id: string = unique_id(), session_expiry: number = Date.n
 }
 
 describe("ClientSession", () => {
+
+  it("should send through an open socket", () => {
+    const connection = new ClientConnection(url, token())
+    let sent = false
+    connection.socket = {
+      readyState: WebSocket.OPEN,
+      send() { sent = true },
+    } as unknown as WebSocket
+
+    const result = connection.send(Message.create("PATCH-DOC", {}))
+
+    expect(result).to.be.true
+    expect(sent).to.be.true
+  })
+
+  it("should report failure instead of sending through a non-open socket", () => {
+    const connection = new ClientConnection(url, token())
+    let sent = false
+    connection.socket = {
+      readyState: WebSocket.CONNECTING,
+      send() { sent = true },
+    } as unknown as WebSocket
+
+    const result = connection.send(Message.create("PATCH-DOC", {}))
+
+    expect(result).to.be.false
+    expect(sent).to.be.false
+  })
+
+  it("should report failure when a socket closes during a send", () => {
+    const connection = new ClientConnection(url, token())
+    const socket = {
+      readyState: WebSocket.OPEN as number,
+      send() {
+        socket.readyState = WebSocket.CLOSED
+        throw new Error("socket closed")
+      },
+    }
+    connection.socket = socket as unknown as WebSocket
+
+    const result = connection.send(Message.create("PATCH-DOC", {}))
+
+    expect(result).to.be.false
+  })
+
+  it("should reject request messages immediately when disconnected", async () => {
+    const connection = new ClientConnection(url, token())
+    let error: unknown = null
+
+    try {
+      await connection.send_with_reply(Message.create("SERVER-INFO-REQ", {}))
+    } catch (caught) {
+      error = caught
+    }
+
+    expect(error).to.be.instanceof(Error)
+    expect((error as Error).message).to.be.equal("Cannot send message because the connection is not open")
+    expect((connection as any)._pending_replies.size).to.be.equal(0)
+  })
 
   it("should be able to connect", async () => {
     const session = await pull_session(url, token())

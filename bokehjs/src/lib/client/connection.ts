@@ -162,18 +162,42 @@ export class ClientConnection {
     }
   }
 
-  send(message: Message<unknown>): void {
-    if (this.socket != null) {
-      message.send(this.socket)
-    } else {
-      logger.error("not connected so cannot send", message)
+  send(message: Message<unknown>): boolean {
+    const socket = this.socket
+    if (socket == null || !this._is_open(socket)) {
+      logger.warn("not connected so cannot send", message)
+      return false
     }
+
+    try {
+      message.send(socket)
+      return true
+    } catch (error) {
+      if (!this._is_open(socket)) {
+        logger.warn("connection closed while sending", message)
+        return false
+      }
+      throw error
+    }
+  }
+
+  protected _is_open(socket: WebSocket): boolean {
+    return socket.readyState === WebSocket.OPEN
   }
 
   async send_with_reply<T>(message: Message<unknown>): Promise<Message<T>> {
     const reply = await new Promise<Message<unknown>>((resolve, reject) => {
-      this._pending_replies.set(message.msgid(), {resolve, reject})
-      this.send(message)
+      const msgid = message.msgid()
+      this._pending_replies.set(msgid, {resolve, reject})
+      try {
+        if (this.send(message)) {
+          return
+        }
+        throw new Error("Cannot send message because the connection is not open")
+      } catch (error) {
+        this._pending_replies.delete(msgid)
+        reject(error)
+      }
     })
 
     if (reply.msgtype() == "ERROR") {

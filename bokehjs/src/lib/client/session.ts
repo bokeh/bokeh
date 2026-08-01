@@ -89,8 +89,6 @@ export class ClientSession {
 
     const patch = this.document.create_json_patch(events)
 
-    // TODO (havocp) the connection may be closed here, which will
-    // cause this send to throw an error - need to deal with it more cleanly.
     const message = Message.create("PATCH-DOC", patch)
     this._connection.send(message)
   }
