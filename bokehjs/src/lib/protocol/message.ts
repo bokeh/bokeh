@@ -1,8 +1,7 @@
 import type {ID} from "../core/types"
-import {Buffer} from "../core/serialization"
+import {Buffer} from "../core/serialization/buffer"
 import {unique_id} from "../core/util/string"
-import {assert} from "../core/util/assert"
-import type {Ref} from "../core/util/refs"
+import {isPlainObject, isString} from "../core/util/types"
 
 export type Socket = {
   send(data: unknown): void
@@ -12,31 +11,46 @@ export type Header = {
   msgid?: string
   msgtype?: string
   reqid?: string
-  num_buffers?: number
 }
 
+export type Envelope<T> = {
+  header: Header
+  content: T
+  buffers: ID[]
+}
+
+const max_buffers_per_message = 10_000
+
 export class Message<T> {
-  protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
+  constructor(readonly header: Header, readonly content: T, readonly buffers: Map<ID, ArrayBuffer> = new Map()) {}
 
-  get buffers(): Map<ID, ArrayBuffer> {
-    return this._buffers
-  }
-
-  private constructor(readonly header: Header, readonly content: T) {}
-
-  static assemble<T>(header_json: string, content_json: string): Message<T> {
-    const header = JSON.parse(header_json)
-    const content = JSON.parse(content_json)
-    return new Message(header, content)
-  }
-
-  assemble_buffer(buf_header: string, buf_payload: ArrayBuffer): void {
-    const nb = this.header.num_buffers ?? 0
-    if (nb <= this._buffers.size) {
-      throw new Error(`too many buffers received, expecting ${nb}`)
+  static decode<T>(envelope_json: string): Envelope<T> {
+    const envelope: unknown = JSON.parse(envelope_json)
+    if (!isPlainObject(envelope) || Object.keys(envelope).sort().join() != "buffers,content,header") {
+      throw new Error("Message envelope must contain header, content, and buffers")
     }
-    const {id} = JSON.parse(buf_header)
-    this._buffers.set(id, buf_payload)
+
+    const {header, content, buffers} = envelope
+    if (!isPlainObject(header) || !isString(header.msgid) || header.msgid.length == 0 || !isString(header.msgtype)) {
+      throw new Error("Message envelope has an invalid header")
+    }
+    if (header.reqid != null && !isString(header.reqid)) {
+      throw new Error("Message envelope has an invalid request id")
+    }
+    if (Object.keys(header).some((key) => !["msgid", "msgtype", "reqid"].includes(key))) {
+      throw new Error("Message header contains unknown fields")
+    }
+    if (!isPlainObject(content)) {
+      throw new Error("Message content must be an object")
+    }
+    if (!Array.isArray(buffers) || !buffers.every((id) => isString(id) && id.length != 0)) {
+      throw new Error("Message buffers must be a list of non-empty strings")
+    }
+    if (buffers.length > max_buffers_per_message) {
+      throw new Error(`Message cannot contain more than ${max_buffers_per_message} buffers`)
+    }
+
+    return {header, content: content as T, buffers}
   }
 
   static create<T>(msgtype: string, content: T): Message<T> {
@@ -51,36 +65,26 @@ export class Message<T> {
     }
   }
 
-  complete(): boolean {
-    const {num_buffers} = this.header
-    return num_buffers == null || this._buffers.size == num_buffers
-  }
-
   send(socket: Socket): void {
-    assert(this.header.num_buffers == null)
-
-    const buffers: [Ref, ArrayBuffer][] = []
-    const content_json = JSON.stringify(this.content, (_, val) => {
+    const buffers: [ID, ArrayBuffer][] = []
+    const buffer_ids: ID[] = []
+    const envelope_json = JSON.stringify({header: this.header, content: this.content, buffers: buffer_ids}, (_, val) => {
       if (val instanceof Buffer) {
-        const ref = {id: `${buffers.length}`}
-        buffers.push([ref, val.buffer])
-        return ref
+        const id = `${buffers.length}`
+        buffer_ids.push(id)
+        buffers.push([id, val.buffer])
+        return {id}
       } else {
         return val
       }
     })
-
-    const num_buffers = buffers.length
-    if (num_buffers > 0) {
-      this.header.num_buffers = num_buffers
+    if (buffers.length > max_buffers_per_message) {
+      throw new Error(`Message cannot contain more than ${max_buffers_per_message} buffers`)
     }
 
-    const header_json = JSON.stringify(this.header)
-    socket.send(header_json)
-    socket.send(content_json)
+    socket.send(envelope_json)
 
-    for (const [ref, buffer] of buffers) {
-      socket.send(JSON.stringify(ref))
+    for (const [, buffer] of buffers) {
       socket.send(buffer)
     }
   }

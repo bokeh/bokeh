@@ -126,10 +126,12 @@ class Test_push_notebook:
         d.title = "foo"
         binb.push_notebook(document=d, handle=handle)
         assert mock_comms.call_count > 0
-        assert mock_send.call_count == 2  # sends header, then content
-        assert json.loads(mock_send.call_args[0][0]) == {
+        assert mock_send.call_count == 1
+        envelope = json.loads(mock_send.call_args[0][0])
+        assert envelope["content"] == {
             "events": [{"kind": "TitleChanged", "title": "foo"}],
         }
+        assert envelope["buffers"] == []
         assert mock_send.call_args[1] == {}
 
 #-----------------------------------------------------------------------------

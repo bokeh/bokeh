@@ -37,8 +37,6 @@ from .messages import (
     server_info_req,
 )
 
-assemble = Message.assemble
-
 __all__ = (
     'Ack',
     'Error',
@@ -58,7 +56,6 @@ __all__ = (
     'VersionInfo',
     'ack',
     'apply_patch',
-    'assemble',
     'error',
     'ok',
     'patch_doc',

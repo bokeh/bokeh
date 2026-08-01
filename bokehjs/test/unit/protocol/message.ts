@@ -1,12 +1,13 @@
 import {expect} from "#framework/assertions"
 
+import {Buffer} from "@bokehjs/core/serialization"
 import {Message} from "@bokehjs/protocol/message"
 import {wildcard} from "@bokehjs/core/util/eq"
 
 class MockSock {
-  readonly sent: string[] = []
+  readonly sent: unknown[] = []
 
-  send(data: string): void {
+  send(data: unknown): void {
     this.sent.push(data)
   }
 }
@@ -15,57 +16,29 @@ describe("protocol/message module", () => {
 
   describe("Message", () => {
 
-    describe("assemble method", () => {
+    it("should decode an envelope", () => {
+      const envelope = Message.decode('{"header":{"msgid":"10","msgtype":"FOO"},"content":{"baz":3},"buffers":[]}')
 
-      it("should create new Messages from JSON", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"baz":3}')
-        expect(m).to.be.instanceof(Message)
-        expect(m.complete()).to.be.true
-
-        expect(m.header).to.be.equal({msgid: "10", msgtype: "FOO"})
-        expect(m.content).to.be.equal({baz: 3})
-        expect(m.buffers).to.be.equal(new Map())
-      })
-    })
-
-    describe("assemble_buffer method", () => {
-      const m = Message.create("FOO", {baz: 3})
-      m.header.num_buffers = 2
-
-      it("should append a new buffer", () => {
-        const buf0 = new ArrayBuffer(0)
-        const buf1 = new ArrayBuffer(1)
-
-        m.assemble_buffer('{"id": "1"}', buf0)
-        expect([...m.buffers.entries()]).to.be.equal([["1", buf0]])
-
-        m.assemble_buffer('{"id": "3"}', buf1)
-        expect([...m.buffers.entries()]).to.be.equal([["1", buf0], ["3", buf1]])
-      })
-
-      it("should raise an error if num_buffers is exceeded", () => {
-        expect(() => m.assemble_buffer('{"id": "5"}', new ArrayBuffer(2))).to.throw()
+      expect(envelope).to.be.equal({
+        header: {msgid: "10", msgtype: "FOO"},
+        content: {baz: 3},
+        buffers: [],
       })
     })
 
     describe("create method", () => {
       const m = Message.create("FOO", {baz: 3})
 
-      it("should return a complete Message", () => {
+      it("should return a message with a generated header", () => {
         expect(m).to.be.instanceof(Message)
-        expect(m.complete()).to.be.true
+        expect(m.header).to.be.equal({msgid: wildcard, msgtype: "FOO"})
       })
 
-      it("with a generated header", () => {
-        const {header} = m
-        expect(header).to.be.equal({msgid: wildcard, msgtype: "FOO"})
-      })
-
-      it("and content as-is", () => {
+      it("should retain content as-is", () => {
         expect(m.content).to.be.equal({baz: 3})
       })
 
-      it("and no buffers", () => {
+      it("should start without buffers", () => {
         expect(m.buffers).to.be.equal(new Map())
       })
     })
@@ -73,7 +46,7 @@ describe("protocol/message module", () => {
     describe("create_header method", () => {
       const h = Message.create_header("FOO")
 
-      it("should return a header obj", () => {
+      it("should return a header", () => {
         expect(h).to.be.equal({msgid: wildcard, msgtype: "FOO"})
       })
 
@@ -83,46 +56,41 @@ describe("protocol/message module", () => {
       })
     })
 
-    describe("complete method", () => {
-
-      it("should return true if num_buffers matches", () => {
-        const m0 = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"baz":3}')
-        expect(m0.complete()).to.be.true
-
-        const m1 = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 1}', '{"baz":3}')
-        m1.assemble_buffer('{"id": "11"}', new ArrayBuffer(0))
-        expect(m1.complete()).to.be.true
-      })
-
-      it("should return false if num_buffers does not match", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 1}', '{"baz":3}')
-        expect(m.complete()).to.be.false
-      })
-    })
-
     describe("send method", () => {
 
-      it("should send header and content as JSON, in order", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"baz":3}')
+      it("should send one JSON envelope without buffers", () => {
+        const m = new Message({msgid: "10", msgtype: "FOO"}, {baz: 3})
         const s = new MockSock()
+
         m.send(s)
-        expect(s.sent.length).to.be.equal(2)
-        expect(JSON.parse(s.sent[0])).to.be.equal({msgid: "10", msgtype: "FOO"})
-        expect(JSON.parse(s.sent[1])).to.be.equal({baz: 3})
+
+        expect(s.sent.length).to.be.equal(1)
+        expect(JSON.parse(s.sent[0] as string)).to.be.equal({
+          header: {msgid: "10", msgtype: "FOO"},
+          content: {baz: 3},
+          buffers: [],
+        })
       })
 
-      /* XXX: ???
-      it("should raise an error if num_buffers is not zero or missing ", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"baz":3}')
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 0}', '{"baz":3}')
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 1}', '{"baz":3}')
-        expect(() => m.send(s)).to.throw()
+      it("should send binary payloads after their envelope", () => {
+        const payload = new ArrayBuffer(8)
+        const m = new Message({msgid: "10", msgtype: "FOO"}, {value: new Buffer(payload)})
+        const s = new MockSock()
+
+        m.send(s)
+
+        expect(s.sent.length).to.be.equal(2)
+        expect(JSON.parse(s.sent[0] as string)).to.be.equal({
+          header: {msgid: "10", msgtype: "FOO"},
+          content: {value: {id: "0"}},
+          buffers: ["0"],
+        })
+        expect(s.sent[1]).to.be.equal(payload)
       })
-      */
     })
 
     describe("getters", () => {
-      const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "reqid": "xyz"}', "{}")
+      const m = new Message({msgid: "10", msgtype: "FOO", reqid: "xyz"}, {})
 
       it("should have msgid", () => {
         expect(m.msgid()).to.be.equal("10")
@@ -139,19 +107,16 @@ describe("protocol/message module", () => {
 
     describe("problem method", () => {
 
-      it("should return null on valid message", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', "{}")
-        expect(m.problem()).to.be.null
+      it("should return null on a valid message", () => {
+        expect(new Message({msgid: "10", msgtype: "FOO"}, {}).problem()).to.be.null
       })
 
-      it("should return message for missing msgtype", () => {
-        const m = Message.assemble('{"msgid": "10"}', "{}")
-        expect(m.problem()).to.be.equal("No msgtype in header")
+      it("should return a message for missing msgtype", () => {
+        expect(new Message({msgid: "10"}, {}).problem()).to.be.equal("No msgtype in header")
       })
 
-      it("should return message for missing msgid", () => {
-        const m = Message.assemble('{"msgtype": "FOO"}', "{}")
-        expect(m.problem()).to.be.equal("No msgid in header")
+      it("should return a message for missing msgid", () => {
+        expect(new Message({msgtype: "FOO"}, {}).problem()).to.be.equal("No msgid in header")
       })
     })
   })

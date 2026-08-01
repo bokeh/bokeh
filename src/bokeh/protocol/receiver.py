@@ -4,165 +4,74 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Assemble WebSocket wire message fragments into complete Bokeh Server
-message objects that can be processed.
+'''Assemble a JSON envelope and its ordered binary payloads into a message.'''
 
-'''
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
-import json
 from typing import Any, Callable
 
-# Bokeh imports
+from ..core.serialization import Buffer
 from ..core.types import ID
-from . import assemble
 from .exceptions import ProtocolError, ValidationError
-from .message import BufferHeader, Message
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
+from .message import Header, Message
 
 __all__ = (
     'Receiver',
 )
 
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
 type Fragment = str | bytes
 
 class Receiver:
-    ''' Receive wire message fragments and assemble complete Bokeh server
-    message objects.
-
-    On ``MessageError`` or ``ValidationError``, the receiver will reset its
-    state and attempt to consume a new message.
-
-    The *fragment* received can be either bytes or unicode, depending on
-    the transport's semantics (WebSocket allows both).
-
-    .. code-block:: python
-
-        [
-            # these are required
-            b'{header}',        # serialized header dict
-            b'{content},        # serialized content dict
-
-            # these are optional, and come in pairs; header contains num_buffers
-            b'{buf_header}',    # serialized buffer header dict
-            b'array'            # raw buffer payload data
-            ...
-        ]
-
-    The ``header`` fragment will have the form:
-
-    .. code-block:: python
-
-        header = {
-            # these are required
-            'msgid'       : <str> # a unique id for the message
-            'msgtype'     : <str> # a message type, e.g. 'ACK', 'PATCH-DOC', etc
-
-            # these are optional
-            'num_buffers' : <int> # the number of additional buffers, if any
-        }
-
-    The ``content`` fragment is defined by the specific message type.
-
-    '''
+    '''Receive one message envelope followed by its declared binary payloads.'''
 
     _current_consumer: Callable[[Fragment], Message[Any] | None]
-    _fragments: list[Fragment]
-    _buf_header: BufferHeader | None
-    _partial: Message[Any] | None
+    _header: Header | None
+    _content: dict[str, Any] | None
+    _buffer_ids: list[ID]
+    _buffers: list[Buffer]
 
     def __init__(self) -> None:
         self._reset()
 
     def _reset(self) -> None:
-        self._current_consumer = self._HEADER
-        self._fragments = []
-        self._partial = None
-        self._buf_header = None
+        self._current_consumer = self._ENVELOPE
+        self._header = None
+        self._content = None
+        self._buffer_ids = []
+        self._buffers = []
 
     def consume(self, fragment: Fragment) -> Message[Any] | None:
-        ''' Consume individual protocol message fragments.
-
-        Args:
-            fragment (``JSON``) :
-                A message fragment to assemble. When a complete message is
-                assembled, the receiver state will reset to begin consuming a
-                new message.
-
-        '''
+        '''Consume an envelope or binary payload and return a completed message.'''
         try:
             return self._current_consumer(fragment)
         except ProtocolError:
             self._reset()
             raise
 
-    def _HEADER(self, fragment: Fragment) -> None:
-        self._fragments = [self._assume_text(fragment)]
-        self._current_consumer = self._CONTENT
+    def _ENVELOPE(self, fragment: Fragment) -> Message[Any] | None:
+        header, content, buffer_ids = Message.decode(self._assume_text(fragment))
+        if not buffer_ids:
+            return Message(header, content)
 
-    def _CONTENT(self, fragment: Fragment) -> Message[Any] | None:
-        content = self._assume_text(fragment)
-        self._fragments.append(content)
-
-        header_json, content_json = (self._assume_text(x) for x in self._fragments[:2])
-
-        self._partial = assemble(header_json, content_json)
-
-        return self._check_complete()
-
-    def _BUFFER_HEADER(self, fragment: Fragment) -> None:
-        try:
-            header = json.loads(self._assume_text(fragment))
-        except (TypeError, ValueError) as error:
-            raise ValidationError("buffer header could not be decoded") from error
-        if not isinstance(header, dict) or set(header) != {"id"} or not isinstance(header["id"], str):
-            raise ValidationError(f"Malformed buffer header {header!r}")
-        self._buf_header = BufferHeader(id=ID(header["id"]))
+        self._header = header
+        self._content = content
+        self._buffer_ids = buffer_ids
         self._current_consumer = self._BUFFER_PAYLOAD
+        return None
 
     def _BUFFER_PAYLOAD(self, fragment: Fragment) -> Message[Any] | None:
         payload = self._assume_binary(fragment)
-        if self._buf_header is None:
-            raise ValidationError("Consuming a buffer payload, but current buffer header is None")
-        if self._partial is None:
-            raise ValidationError("Consuming a buffer payload, but current message is None")
-        self._partial.assemble_buffer(self._buf_header, payload)
+        buffer_id = self._buffer_ids[len(self._buffers)]
+        self._buffers.append(Buffer(buffer_id, payload))
 
-        return self._check_complete()
-
-    def _check_complete(self) -> Message[Any] | None:
-        if self._partial is None:
-            raise ValidationError("No message is being assembled")
-        if self._partial.complete:
-            message = self._partial
-            self._reset()
-            return message
-        else:
-            self._current_consumer = self._BUFFER_HEADER
+        if len(self._buffers) != len(self._buffer_ids):
             return None
+
+        if self._header is None or self._content is None:
+            raise ValidationError("buffer payload received without a message envelope")
+        message = Message(self._header, self._content, self._buffers)
+        self._reset()
+        return message
 
     def _assume_text(self, fragment: Fragment) -> str:
         if not isinstance(fragment, str):
@@ -173,11 +82,3 @@ class Receiver:
         if not isinstance(fragment, bytes):
             raise ValidationError(f"expected binary fragment but received text fragment for {self._current_consumer.__name__}")
         return fragment
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

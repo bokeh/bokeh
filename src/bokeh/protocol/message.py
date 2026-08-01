@@ -47,14 +47,12 @@ MESSAGE_TYPES: frozenset[str] = frozenset({
     "SERVER-INFO-REQ",
 })
 
+MAX_BUFFERS_PER_MESSAGE = 10_000
+
 class Header(TypedDict):
     msgid: ID
     msgtype: MessageType
     reqid: NotRequired[ID]
-    num_buffers: NotRequired[int]
-
-class BufferHeader(TypedDict):
-    id: ID
 
 class Empty(TypedDict):
     pass
@@ -66,6 +64,11 @@ class Message[Content]:
         self._header = header
         self._content = content
         self._buffers = list(buffers or [])
+        self._envelope_json: str | None = None
+        if len(self._buffers) > MAX_BUFFERS_PER_MESSAGE:
+            raise ProtocolError(f"message cannot contain more than {MAX_BUFFERS_PER_MESSAGE} buffers")
+        if len(self._buffers) != len({buffer.id for buffer in self._buffers}):
+            raise ProtocolError("buffer ids must be unique")
 
     def __repr__(self) -> str:
         description = f"Message({self.msgtype!r}, msgid={self.header.get('msgid')!r})"
@@ -77,20 +80,28 @@ class Message[Content]:
         return description
 
     @staticmethod
-    def assemble(header_json: str, content_json: str) -> Message[dict[str, Any]]:
-        '''Create a message from its JSON wire fragments.'''
+    def decode(envelope_json: str) -> tuple[Header, dict[str, Any], list[ID]]:
+        '''Decode and validate a message envelope.'''
+        try:
+            envelope = json.loads(envelope_json)
+        except (TypeError, ValueError) as error:
+            raise MessageError("message envelope could not be decoded") from error
+        if not isinstance(envelope, dict) or set(envelope) != {"header", "content", "buffers"}:
+            raise MessageError("message envelope must contain header, content, and buffers")
 
-        def decode(name: str, value: str) -> dict[str, Any]:
-            try:
-                decoded = json.loads(value)
-            except (TypeError, ValueError) as error:
-                raise MessageError(f"{name} could not be decoded") from error
-            if not isinstance(decoded, dict):
-                raise MessageError(f"{name} must be a JSON object")
-            return decoded
-
-        header = decode("header", header_json)
-        content = decode("content", content_json)
+        header = envelope["header"]
+        content = envelope["content"]
+        buffer_ids = envelope["buffers"]
+        if not isinstance(header, dict):
+            raise MessageError("header must be a JSON object")
+        if not isinstance(content, dict):
+            raise MessageError("content must be a JSON object")
+        if not isinstance(buffer_ids, list) or not all(isinstance(buffer_id, str) and buffer_id for buffer_id in buffer_ids):
+            raise MessageError("buffers must be a list of non-empty strings")
+        if len(buffer_ids) > MAX_BUFFERS_PER_MESSAGE:
+            raise MessageError(f"message cannot contain more than {MAX_BUFFERS_PER_MESSAGE} buffers")
+        if len(buffer_ids) != len(set(buffer_ids)):
+            raise MessageError("buffer ids must be unique")
 
         msgtype = header.get("msgtype")
         if not isinstance(msgtype, str) or msgtype not in MESSAGE_TYPES:
@@ -101,11 +112,9 @@ class Message[Content]:
         reqid = header.get("reqid")
         if reqid is not None and not isinstance(reqid, str):
             raise MessageError("header reqid must be a string")
-        num_buffers = header.get("num_buffers", 0)
-        if isinstance(num_buffers, bool) or not isinstance(num_buffers, int) or num_buffers < 0:
-            raise MessageError("header num_buffers must be a non-negative integer")
-
-        return Message(cast(Header, header), content)
+        if not set(header).issubset({"msgid", "msgtype", "reqid"}):
+            raise MessageError("header contains unknown fields")
+        return cast(Header, header), content, cast(list[ID], buffer_ids)
 
     @staticmethod
     def create_header(msgtype: MessageType, request_id: ID | None = None) -> Header:
@@ -114,47 +123,15 @@ class Message[Content]:
             header['reqid'] = request_id
         return header
 
-    def add_buffers(self, *buffers: Buffer) -> None:
-        if not buffers:
-            return
-
-        ids = {buffer.id for buffer in self._buffers}
-        for buffer in buffers:
-            if buffer.id in ids:
-                raise ProtocolError(f"duplicate buffer id {buffer.id!r}")
-            ids.add(buffer.id)
-
-        self._header["num_buffers"] = self._header.get("num_buffers", 0) + len(buffers)
-        self._buffers.extend(buffers)
-
-    def assemble_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
-        num_buffers = self.header.get("num_buffers", 0)
-        if num_buffers <= len(self._buffers):
-            raise ProtocolError(f"too many buffers received expecting {num_buffers}")
-        if any(buffer.id == buf_header["id"] for buffer in self._buffers):
-            raise ProtocolError(f"duplicate buffer id {buf_header['id']!r}")
-        self._buffers.append(Buffer(buf_header["id"], buf_payload))
-
     def fragments(self) -> list[tuple[str | bytes, bool]]:
-        fragments: list[tuple[str | bytes, bool]] = [
-            (self.header_json, False),
-            (self.content_json, False),
-        ]
-        for buffer in self._buffers:
-            fragments.append((json.dumps(buffer.ref), False))
-            fragments.append((buffer.to_bytes(), True))
+        fragments: list[tuple[str | bytes, bool]] = [(self.envelope_json, False)]
+        fragments.extend((buffer.to_bytes(), True) for buffer in self._buffers)
         return fragments
 
     def prepare(self) -> None:
         ''' Eagerly serialize all message fragments and freeze binary buffers. '''
         self._buffers = [Buffer(buffer.id, buffer.to_bytes()) for buffer in self._buffers]
-        self._header_json = json.dumps(self.header)
-        self._metadata_json = json.dumps(self.metadata)
-        self._content_json = serialize_json(self.payload)
-
-    @property
-    def complete(self) -> bool:
-        return self.header.get('num_buffers', 0) == len(self._buffers)
+        self._envelope_json = self._serialize_envelope()
 
     @property
     def payload(self) -> Serialized[Content]:
@@ -169,16 +146,19 @@ class Message[Content]:
         return self._header
 
     @property
-    def header_json(self) -> str:
-        return json.dumps(self.header)
+    def envelope_json(self) -> str:
+        return self._envelope_json or self._serialize_envelope()
+
+    def _serialize_envelope(self) -> str:
+        return serialize_json({
+            "header": self.header,
+            "content": self.content,
+            "buffers": [buffer.id for buffer in self._buffers],
+        })
 
     @property
     def content(self) -> Content:
         return self._content
-
-    @property
-    def content_json(self) -> str:
-        return serialize_json(self.payload)
 
     @property
     def buffers(self) -> list[Buffer]:

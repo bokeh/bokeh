@@ -90,7 +90,7 @@ class TestPullDocument:
         array = cds.data["a"]
         assert isinstance(array, np.ndarray)
 
-        msg = proto.create("PULL-DOC-REPLY", ID("fakereqid"), sample)
+        msg = pull_doc_reply(ID("fakereqid"), sample)
         msg.prepare()
         [buffer] = msg.buffers
         expected = buffer.data
@@ -98,7 +98,7 @@ class TestPullDocument:
         assert isinstance(expected, bytes)
         array[0] = 10.0
         assert buffer.data == expected
-        assert msg.content_json == msg._content_json
+        assert msg.envelope_json == msg._envelope_json
 
 #-----------------------------------------------------------------------------
 # Dev API

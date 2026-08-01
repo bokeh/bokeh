@@ -103,9 +103,7 @@ def patch_doc(events: list[DocumentPatchedEvent]) -> PatchDoc:
     serializer = Serializer(references=doc.models.synced_references)
     content = PatchJson(events=serializer.encode(events))
     doc.models.flush_synced(lambda model: not serializer.has_ref(model))
-    message = Message(Message.create_header("PATCH-DOC"), content)
-    message.add_buffers(*serializer.buffers)
-    return message
+    return Message(Message.create_header("PATCH-DOC"), content, serializer.buffers)
 
 def apply_patch(message: PatchDoc, document: Document, setter: Setter | None = None) -> None:
     invoke_with_curdoc(document, lambda: document.apply_json_patch(message.payload, setter=setter))
@@ -113,9 +111,7 @@ def apply_patch(message: PatchDoc, document: Document, setter: Setter | None = N
 def pull_doc_reply(request_id: ID, document: Document) -> PullDocReply:
     serialized = document.to_json()
     content = PullDoc(doc=serialized.content)
-    message = Message(Message.create_header("PULL-DOC-REPLY", request_id), content)
-    message.add_buffers(*serialized.buffers)
-    return message
+    return Message(Message.create_header("PULL-DOC-REPLY", request_id), content, serialized.buffers)
 
 def pull_doc_req() -> PullDocReq:
     return Message(Message.create_header("PULL-DOC-REQ"), Empty())
@@ -123,9 +119,7 @@ def pull_doc_req() -> PullDocReq:
 def push_doc(document: Document) -> PushDocMessage:
     serialized = document.to_json()
     content = PushDoc(doc=serialized.content)
-    message = Message(Message.create_header("PUSH-DOC"), content)
-    message.add_buffers(*serialized.buffers)
-    return message
+    return Message(Message.create_header("PUSH-DOC"), content, serialized.buffers)
 
 def replace_document(message: PullDocReply | PushDocMessage, document: Document) -> None:
     if "doc" not in message.content:

@@ -3,8 +3,8 @@ import {WebSocketServer} from "ws"
 import yargs from "yargs"
 
 import pkg_json from "./package.json" with {type: "json"}
-import {Receiver} from "./receiver.js"
-import {Message} from "./message.js"
+import {Receiver} from "../lib/protocol/receiver.js"
+import {Message} from "../lib/protocol/message.js"
 import {isString} from "../lib/core/util/types.js"
 // import {Document} from "document/document"
 

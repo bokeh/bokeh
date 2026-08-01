@@ -907,8 +907,8 @@ async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:
 
         assert sent[0] == {"type": "websocket.accept", "subprotocol": "bokeh"}
         fragments = [event["text"] for event in sent if event["type"] == "websocket.send"]
-        assert len(fragments) == 2
-        assert json.loads(fragments[0])["msgtype"] == "ACK"
+        assert len(fragments) == 1
+        assert json.loads(fragments[0])["header"]["msgtype"] == "ACK"
         assert app.core.get_sessions("/")[0].connection_count == 0
     finally:
         await app.core.stop()
@@ -1043,8 +1043,7 @@ async def test_websocket_handles_pull_document_round_trip() -> None:
     request = pull_doc_req()
     incoming = deque([
         {"type": "websocket.connect"},
-        {"type": "websocket.receive", "text": request.header_json},
-        {"type": "websocket.receive", "text": request.content_json},
+        {"type": "websocket.receive", "text": request.envelope_json},
         {"type": "websocket.disconnect", "code": 1000},
     ])
     sent: list[dict[str, Any]] = []
@@ -1072,10 +1071,10 @@ async def test_websocket_handles_pull_document_round_trip() -> None:
         )
 
         message_types = [
-            value["msgtype"]
+            value["header"]["msgtype"]
             for event in sent
             if event["type"] == "websocket.send"
-            if (value := json.loads(event["text"])) and "msgtype" in value
+            if (value := json.loads(event["text"])) and "header" in value
         ]
         assert message_types == ["ACK", "PULL-DOC-REPLY"]
     finally:

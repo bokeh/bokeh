@@ -43,30 +43,33 @@ def test_create_header(monkeypatch: pytest.MonkeyPatch) -> None:
     assert header['msgid'] == 'msgid'
     assert header['reqid'] == 'bar'
 
-def test_json_properties_reflect_mutation() -> None:
+def test_envelope_reflects_mutation() -> None:
     msg = ack()
-    assert "reqid" not in json.loads(msg.header_json)
+    assert "reqid" not in json.loads(msg.envelope_json)["header"]
 
     msg.header["reqid"] = ID("request")
 
-    assert json.loads(msg.header_json)["reqid"] == "request"
+    assert json.loads(msg.envelope_json)["header"]["reqid"] == "request"
 
-def test_add_no_buffers_does_not_emit_count() -> None:
+def test_envelope_includes_empty_buffer_list() -> None:
     msg = ack()
 
-    msg.add_buffers()
+    assert json.loads(msg.envelope_json)["buffers"] == []
 
-    assert "num_buffers" not in msg.header
-
-def test_fragments_include_buffer_pairs() -> None:
-    msg = ack()
-    msg.add_buffers(Buffer(ID("buffer"), b"payload"))
+def test_fragments_include_ordered_buffers() -> None:
+    msg = message.Message(message.Message.create_header("ACK"), {}, [Buffer(ID("buffer"), b"payload")])
 
     fragments = msg.fragments()
 
-    assert [binary for _, binary in fragments] == [False, False, False, True]
-    assert json.loads(fragments[2][0])["id"] == "buffer"
-    assert fragments[3] == (b"payload", True)
+    assert [binary for _, binary in fragments] == [False, True]
+    assert json.loads(fragments[0][0])["buffers"] == ["buffer"]
+    assert fragments[1] == (b"payload", True)
+
+def test_duplicate_buffer_ids_raise() -> None:
+    buffers = [Buffer(ID("duplicate"), b"one"), Buffer(ID("duplicate"), b"two")]
+
+    with pytest.raises(message.ProtocolError, match="buffer ids must be unique"):
+        message.Message(message.Message.create_header("ACK"), {}, buffers)
 
 #-----------------------------------------------------------------------------
 # Dev API

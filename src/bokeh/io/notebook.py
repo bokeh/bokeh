@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import json
 import os
 import urllib
 from collections.abc import Sequence
@@ -338,12 +337,9 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     handle.doc.callbacks._held_events = []
     msg = patch_doc(cast(list["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
 
-    handle.comms.send(msg.header_json)
-    handle.comms.send(msg.content_json)
+    handle.comms.send(msg.envelope_json)
     for buffer in msg.buffers:
-        header = json.dumps(buffer.ref)
         payload = buffer.to_bytes()
-        handle.comms.send(header)
         handle.comms.send(buffers=[payload])
 
 def run_notebook_hook(notebook_type: NotebookType, action: Literal["load", "doc", "app"], *args: Any, **kwargs: Any) -> Any:
