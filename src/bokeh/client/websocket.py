@@ -28,6 +28,9 @@ from typing import Any, Awaitable, Callable
 from tornado import locks
 from tornado.websocket import WebSocketClientConnection
 
+# Bokeh imports
+from ..protocol.message import Message
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -55,16 +58,14 @@ class WebSocketClientConnectionWrapper:
 
     # Internal methods --------------------------------------------------------
 
-    async def write_message(self, message: str | bytes, binary: bool = False, locked: bool = True) -> None:
-        ''' Write a message to the websocket after obtaining the appropriate
-        Bokeh Document lock.
-
-        '''
-        if locked:
-            with await self.write_lock.acquire():
-                self._socket.write_message(message, binary)
-        else:
-            self._socket.write_message(message, binary)
+    async def send_message(self, message: Message[Any]) -> int:
+        '''Write all fragments of a protocol message atomically.'''
+        sent = 0
+        with await self.write_lock.acquire():
+            for fragment, binary in message.fragments():
+                self._socket.write_message(fragment, binary)
+                sent += len(fragment)
+        return sent
 
     def close(self, code: int | None = None, reason: str | None = None) -> None:
         ''' Close the websocket. '''

@@ -144,11 +144,18 @@ class Protocol:
             message
 
         '''
-        header = json.loads(header_json)
+        try:
+            header = json.loads(header_json)
+        except (TypeError, ValueError) as error:
+            raise ProtocolError("header could not be decoded") from error
+        if not isinstance(header, dict):
+            raise ProtocolError("header must be a JSON object")
         if 'msgtype' not in header:
-            log.error(f"Bad header with no msgtype was: {header!r}")
             raise ProtocolError("No 'msgtype' in header")
-        return self._messages[header["msgtype"]].assemble(header_json, metadata_json, content_json)
+        msgtype = header["msgtype"]
+        if not isinstance(msgtype, str) or msgtype not in self._messages:
+            raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
+        return self._messages[msgtype].assemble(header_json, metadata_json, content_json)
 
 #-----------------------------------------------------------------------------
 # Private API

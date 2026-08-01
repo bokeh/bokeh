@@ -37,7 +37,7 @@ from bokeh.util.token import check_token_signature, get_session_id, get_token_pa
 
 # Bokeh imports
 from ...protocol import Protocol
-from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
+from ...protocol.exceptions import ProtocolError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
 from ..protocol_handler import ProtocolHandler
@@ -295,23 +295,13 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         try:
             if _message_test_port is not None:
                 _message_test_port.sent.append(message)
-            await message.send(self)
+            with await self.write_lock.acquire():
+                for fragment, binary in message.fragments():
+                    await super().write_message(fragment, binary)
         except WebSocketClosedError:
             # on_close() is / will be called anyway
             log.warning("Failed sending message as connection was closed")
         return None
-
-    async def write_message(self, message: bytes | str | dict[str, Any], # type: ignore[override]
-            binary: bool = False, locked: bool = True) -> None:
-        ''' Override parent write_message with a version that acquires a
-        write lock before writing.
-
-        '''
-        if locked:
-            with await self.write_lock.acquire():
-                await super().write_message(message, binary)
-        else:
-            await super().write_message(message, binary)
 
     def on_close(self) -> None:
         ''' Clean up when the connection is closed.
@@ -326,9 +316,9 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         # Receive fragments until a complete message is assembled
         try:
             assert self.receiver is not None
-            message = await self.receiver.consume(fragment)
+            message = self.receiver.consume(fragment)
             return message
-        except (MessageError, ProtocolError, ValidationError) as e:
+        except ProtocolError as e:
             self._protocol_error(str(e))
             return None
 
@@ -339,7 +329,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             assert self.connection is not None
             work = await self.handler.handle(message, self.connection)
             return work
-        except (MessageError, ProtocolError, ValidationError) as e: # TODO (other exceptions?)
+        except ProtocolError as e:
             self._internal_error(str(e))
             return None
 
@@ -353,11 +343,11 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
 
     def _internal_error(self, message: str) -> None:
         log.error("Bokeh Server internal error: %s, closing connection", message)
-        self.close(10000, message)
+        self.close(1011, message)
 
     def _protocol_error(self, message: str) -> None:
         log.error("Bokeh Server protocol error: %s, closing connection", message)
-        self.close(10001, message)
+        self.close(1002, message)
 
 #-----------------------------------------------------------------------------
 # Private API

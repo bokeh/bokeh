@@ -34,7 +34,7 @@ from tornado.websocket import WebSocketError, websocket_connect
 
 # Bokeh imports
 from ..protocol import Protocol
-from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
+from ..protocol.exceptions import ProtocolError
 from ..protocol.messages.patch_doc import patch_doc
 from ..protocol.messages.pull_doc_reply import pull_doc_reply
 from ..protocol.receiver import Receiver
@@ -257,7 +257,7 @@ class ClientConnection:
             log.info("We're disconnected, so not sending message %r", message)
         else:
             try:
-                sent = await message.send(self._socket)
+                sent = await self._socket.send_message(message)
                 log.debug("Sent %r [%d bytes]", message, sent)
             except WebSocketError as e:
                 # A thing that happens is that we detect the
@@ -357,11 +357,11 @@ class ClientConnection:
                 log.info("Connection closed by server")
                 return None
             try:
-                message = await self._receiver.consume(fragment)
+                message = self._receiver.consume(fragment)
                 if message is not None:
                     log.debug(f"Received message {message!r}")
                     return message
-            except (MessageError, ProtocolError, ValidationError) as e:
+            except ProtocolError as e:
                 log.error("%r", e, exc_info=True)
                 self.close(why="error parsing message from server")
 

@@ -62,8 +62,8 @@ from typing import (
     Any,
     ClassVar,
     NotRequired,
-    Protocol,
     TypedDict,
+    cast,
 )
 
 # Bokeh imports
@@ -107,12 +107,6 @@ type BufferRef = tuple[BufferHeader, bytes]
 class Empty(TypedDict):
     pass
 
-class MessageConnection(Protocol):
-    write_lock: Any
-
-    async def write_message(self, message: bytes | str,
-            binary: bool = False, locked: bool = True) -> Any: ...
-
 class Message[Content]:
     ''' The Message base class encapsulates creating, assembling, and
     validating the integrity of Bokeh Server messages. Additionally, it
@@ -123,14 +117,8 @@ class Message[Content]:
     msgtype: ClassVar[str]
 
     _header: Header
-    _header_json: str | None
-
     _content: Content
-    _content_json: str | None
-
     _metadata: Metadata
-    _metadata_json: str | None
-
     _buffers: list[Buffer]
 
     def __init__(self, header: Header, metadata: Metadata, content: Content) -> None:
@@ -151,13 +139,13 @@ class Message[Content]:
             content (JSON-like) :
 
         '''
-        self.header = header
-        self.metadata = metadata
-        self.content = content
+        self._header = header
+        self._metadata = metadata
+        self._content = content
         self._buffers = []
 
     def __repr__(self) -> str:
-        return f"Message {self.msgtype!r} content: {self.content!r}"
+        return f"Message({self.msgtype!r}, msgid={self.header.get('msgid')!r})"
 
     @classmethod
     def assemble(cls, header_json: str, metadata_json: str, content_json: str) -> Message[Content]:
@@ -178,51 +166,48 @@ class Message[Content]:
 
         '''
 
-        try:
-            header = json.loads(header_json)
-        except ValueError:
-            raise MessageError("header could not be decoded")
+        def decode(name: str, value: str) -> dict[str, Any]:
+            try:
+                decoded = json.loads(value)
+            except (TypeError, ValueError) as error:
+                raise MessageError(f"{name} could not be decoded") from error
+            if not isinstance(decoded, dict):
+                raise MessageError(f"{name} must be a JSON object")
+            return decoded
 
-        try:
-            metadata = json.loads(metadata_json)
-        except ValueError:
-            raise MessageError("metadata could not be decoded")
+        header = decode("header", header_json)
+        metadata = decode("metadata", metadata_json)
+        content = decode("content", content_json)
 
-        try:
-            content = json.loads(content_json)
-        except ValueError:
-            raise MessageError("content could not be decoded")
+        if header.get("msgtype") != cls.msgtype:
+            raise MessageError(f"header msgtype does not match {cls.msgtype!r}")
+        msgid = header.get("msgid")
+        if not isinstance(msgid, str) or not msgid:
+            raise MessageError("header msgid must be a non-empty string")
+        reqid = header.get("reqid")
+        if reqid is not None and not isinstance(reqid, str):
+            raise MessageError("header reqid must be a string")
+        num_buffers = header.get("num_buffers", 0)
+        if isinstance(num_buffers, bool) or not isinstance(num_buffers, int) or num_buffers < 0:
+            raise MessageError("header num_buffers must be a non-negative integer")
 
-        msg = cls(header, metadata, content)
-
-        msg._header_json = header_json
-        msg._metadata_json = metadata_json
-        msg._content_json = content_json
-
-        return msg
-
-    def add_buffer(self, buffer: Buffer) -> None:
-        ''' Associate a buffer header and payload with this message.
-
-        Args:
-            buffer (Buffer) : a buffer
-
-        Returns:
-            None
-
-        Raises:
-            MessageError
-
-        '''
-        self.add_buffers(buffer)
+        return cls(cast(Header, header), metadata, cast(Content, content))
 
     def add_buffers(self, *buffers: Buffer) -> None:
+        if not buffers:
+            return
+
+        ids = {buffer.id for buffer in self._buffers}
+        for buffer in buffers:
+            if buffer.id in ids:
+                raise ProtocolError(f"duplicate buffer id {buffer.id!r}")
+            ids.add(buffer.id)
+
         if "num_buffers" in self._header:
             self._header["num_buffers"] += len(buffers)
         else:
             self._header["num_buffers"] = len(buffers)
 
-        self._header_json = None
         self._buffers.extend(buffers)
 
     def assemble_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
@@ -244,32 +229,9 @@ class Message[Content]:
         num_buffers = self.header.get("num_buffers", 0)
         if num_buffers <= len(self._buffers):
             raise ProtocolError(f"too many buffers received expecting {num_buffers}")
+        if any(buffer.id == buf_header["id"] for buffer in self._buffers):
+            raise ProtocolError(f"duplicate buffer id {buf_header['id']!r}")
         self._buffers.append(Buffer(buf_header["id"], buf_payload))
-
-    async def write_buffers(self, conn: MessageConnection, locked: bool = True) -> int:
-        ''' Write any buffer headers and payloads to the given connection.
-
-        Args:
-            conn (object) :
-                May be any object with a ``write_message`` method. Typically,
-                a Tornado ``WSHandler`` or ``WebSocketClientConnection``
-
-            locked (bool) :
-
-        Returns:
-            int : number of bytes sent
-
-        '''
-        if conn is None:
-            raise ValueError("Cannot write_buffers to connection None")
-        sent = 0
-        for buffer in self._buffers:
-            header = json.dumps(buffer.ref)
-            payload = buffer.to_bytes()
-            await conn.write_message(header, locked=locked)
-            await conn.write_message(payload, binary=True, locked=locked)
-            sent += len(header) + len(payload)
-        return sent
 
     @classmethod
     def create_header(cls, request_id: ID | None = None) -> Header:
@@ -291,40 +253,17 @@ class Message[Content]:
             header['reqid'] = request_id
         return header
 
-    async def send(self, conn: MessageConnection) -> int:
-        ''' Send the message on the given connection.
-
-        Args:
-            conn (WebSocketHandler) : a WebSocketHandler to send messages
-
-        Returns:
-            int : number of bytes sent
-
-        '''
-        if conn is None:
-            raise ValueError("Cannot send to connection None")
-
-        with await conn.write_lock.acquire():
-            sent = 0
-
-            await conn.write_message(self.header_json, locked=False)
-            sent += len(self.header_json)
-
-            # uncomment this to make it a lot easier to reproduce lock-related bugs
-            #await asyncio.sleep(0.1)
-
-            await conn.write_message(self.metadata_json, locked=False)
-            sent += len(self.metadata_json)
-
-            # uncomment this to make it a lot easier to reproduce lock-related bugs
-            #await asyncio.sleep(0.1)
-
-            await conn.write_message(self.content_json, locked=False)
-            sent += len(self.content_json)
-
-            sent += await self.write_buffers(conn, locked=False)
-
-            return sent
+    def fragments(self) -> list[tuple[str | bytes, bool]]:
+        '''Return the ordered text and binary WebSocket fragments for this message.'''
+        fragments: list[tuple[str | bytes, bool]] = [
+            (self.header_json, False),
+            (self.metadata_json, False),
+            (self.content_json, False),
+        ]
+        for buffer in self._buffers:
+            fragments.append((json.dumps(buffer.ref), False))
+            fragments.append((buffer.to_bytes(), True))
+        return fragments
 
     def prepare(self) -> None:
         ''' Eagerly serialize all message fragments and freeze binary buffers. '''
@@ -341,10 +280,7 @@ class Message[Content]:
             bool : True if the message is complete, False otherwise
 
         '''
-        return self.header is not None and \
-               self.metadata is not None and \
-               self.content is not None and \
-               self.header.get('num_buffers', 0) == len(self._buffers)
+        return self.header.get('num_buffers', 0) == len(self._buffers)
 
     @property
     def payload(self) -> Serialized[Content]:
@@ -356,16 +292,9 @@ class Message[Content]:
     def header(self) -> Header:
         return self._header
 
-    @header.setter
-    def header(self, value: Header) -> None:
-        self._header = value
-        self._header_json = None
-
     @property
     def header_json(self) -> str:
-        if not self._header_json:
-            self._header_json = json.dumps(self.header)
-        return self._header_json
+        return json.dumps(self.header)
 
     # content fragment properties
 
@@ -373,16 +302,9 @@ class Message[Content]:
     def content(self) -> Content:
         return self._content
 
-    @content.setter
-    def content(self, value: Content) -> None:
-        self._content = value
-        self._content_json = None
-
     @property
     def content_json(self) -> str:
-        if not self._content_json:
-            self._content_json = serialize_json(self.payload)
-        return self._content_json
+        return serialize_json(self.payload)
 
     # metadata fragment properties
 
@@ -390,16 +312,9 @@ class Message[Content]:
     def metadata(self) -> Metadata:
         return self._metadata
 
-    @metadata.setter
-    def metadata(self, value: Metadata) -> None:
-        self._metadata = value
-        self._metadata_json = None
-
     @property
     def metadata_json(self) -> str:
-        if not self._metadata_json:
-            self._metadata_json = json.dumps(self.metadata)
-        return self._metadata_json
+        return json.dumps(self.metadata)
 
     # buffer properties
 

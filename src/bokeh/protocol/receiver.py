@@ -26,7 +26,8 @@ import json
 from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
-from .exceptions import ValidationError
+from ..core.types import ID
+from .exceptions import ProtocolError, ValidationError
 from .message import BufferHeader, Message
 
 if TYPE_CHECKING:
@@ -95,9 +96,8 @@ class Receiver:
 
     '''
 
-    _current_consumer: Callable[[Fragment], None]
+    _current_consumer: Callable[[Fragment], Message[Any] | None]
     _fragments: list[Fragment]
-    _message: Message[Any] | None
     _buf_header: BufferHeader | None
     _partial: Message[Any] | None
 
@@ -110,12 +110,15 @@ class Receiver:
                 fragments.
         '''
         self._protocol = protocol
+        self._reset()
+
+    def _reset(self) -> None:
         self._current_consumer = self._HEADER
-        self._message = None
+        self._fragments = []
         self._partial = None
         self._buf_header = None
 
-    async def consume(self, fragment: Fragment) -> Message[Any]|None:
+    def consume(self, fragment: Fragment) -> Message[Any] | None:
         ''' Consume individual protocol message fragments.
 
         Args:
@@ -125,12 +128,13 @@ class Receiver:
                 new message.
 
         '''
-        self._current_consumer(fragment)
-        return self._message
+        try:
+            return self._current_consumer(fragment)
+        except ProtocolError:
+            self._reset()
+            raise
 
     def _HEADER(self, fragment: Fragment) -> None:
-        self._message = None
-        self._partial = None
         self._fragments = [self._assume_text(fragment)]
         self._current_consumer = self._METADATA
 
@@ -139,7 +143,7 @@ class Receiver:
         self._fragments.append(metadata)
         self._current_consumer = self._CONTENT
 
-    def _CONTENT(self, fragment: Fragment) -> None:
+    def _CONTENT(self, fragment: Fragment) -> Message[Any] | None:
         content = self._assume_text(fragment)
         self._fragments.append(content)
 
@@ -147,32 +151,38 @@ class Receiver:
 
         self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
 
-        self._check_complete()
+        return self._check_complete()
 
     def _BUFFER_HEADER(self, fragment: Fragment) -> None:
-        header = json.loads(self._assume_text(fragment))
-        if set(header) != { "id" }:
+        try:
+            header = json.loads(self._assume_text(fragment))
+        except (TypeError, ValueError) as error:
+            raise ValidationError("buffer header could not be decoded") from error
+        if not isinstance(header, dict) or set(header) != {"id"} or not isinstance(header["id"], str):
             raise ValidationError(f"Malformed buffer header {header!r}")
-        self._buf_header = header
+        self._buf_header = BufferHeader(id=ID(header["id"]))
         self._current_consumer = self._BUFFER_PAYLOAD
 
-    def _BUFFER_PAYLOAD(self, fragment: Fragment) -> None:
+    def _BUFFER_PAYLOAD(self, fragment: Fragment) -> Message[Any] | None:
         payload = self._assume_binary(fragment)
         if self._buf_header is None:
             raise ValidationError("Consuming a buffer payload, but current buffer header is None")
         if self._partial is None:
             raise ValidationError("Consuming a buffer payload, but current message is None")
-        header = BufferHeader(id=self._buf_header["id"])
-        self._partial.assemble_buffer(header, payload)
+        self._partial.assemble_buffer(self._buf_header, payload)
 
-        self._check_complete()
+        return self._check_complete()
 
-    def _check_complete(self) -> None:
-        if self._partial and self._partial.complete:
-            self._message = self._partial
-            self._current_consumer = self._HEADER
+    def _check_complete(self) -> Message[Any] | None:
+        if self._partial is None:
+            raise ValidationError("No message is being assembled")
+        if self._partial.complete:
+            message = self._partial
+            self._reset()
+            return message
         else:
             self._current_consumer = self._BUFFER_HEADER
+            return None
 
     def _assume_text(self, fragment: Fragment) -> str:
         if not isinstance(fragment, str):

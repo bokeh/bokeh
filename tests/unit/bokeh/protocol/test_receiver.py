@@ -20,7 +20,7 @@ import pytest ; pytest
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.protocol import Protocol
-from bokeh.protocol.exceptions import ValidationError
+from bokeh.protocol.exceptions import ProtocolError, ValidationError
 
 # Module under test
 from bokeh.protocol import receiver # isort:skip
@@ -36,41 +36,41 @@ proto = Protocol()
 #-----------------------------------------------------------------------------
 
 def test_creation() -> None:
-    receiver.Receiver(None)
+    receiver.Receiver(proto)
 
-async def test_validation_success() -> None:
+def test_validation_success() -> None:
     msg = proto.create('ACK')
     r = receiver.Receiver(proto)
 
-    partial = await r.consume(msg.header_json)
+    partial = r.consume(msg.header_json)
     assert partial is None
 
-    partial = await r.consume(msg.metadata_json)
+    partial = r.consume(msg.metadata_json)
     assert partial is None
 
-    partial = await r.consume(msg.content_json)
+    partial = r.consume(msg.content_json)
     assert partial is not None
     assert partial.msgtype == msg.msgtype
     assert partial.header == msg.header
     assert partial.content == msg.content
     assert partial.metadata == msg.metadata
 
-async def test_validation_success_with_one_buffer() -> None:
+def test_validation_success_with_one_buffer() -> None:
     r = receiver.Receiver(proto)
 
-    partial = await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
+    partial = r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     assert partial is None
 
-    partial = await r.consume('{}')
+    partial = r.consume('{}')
     assert partial is None
 
-    partial = await r.consume('{"bar": 10}')
+    partial = r.consume('{"bar": 10}')
     assert partial is None
 
-    partial = await r.consume('{"id": "buf_header"}')
+    partial = r.consume('{"id": "buf_header"}')
     assert partial is None
 
-    partial = await r.consume(b'payload')
+    partial = r.consume(b'payload')
     assert partial is not None
     assert partial.msgtype == "PATCH-DOC"
     assert partial.header == {"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}
@@ -78,17 +78,17 @@ async def test_validation_success_with_one_buffer() -> None:
     assert partial.metadata == {}
     assert partial.buffers == [Buffer(ID("buf_header"), b"payload")]
 
-async def test_multiple_validation_success_with_multiple_buffers() -> None:
+def test_multiple_validation_success_with_multiple_buffers() -> None:
     r = receiver.Receiver(proto)
 
     for N in range(10):
-        partial = await r.consume(f'{{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":{N}}}')
-        partial = await r.consume('{}')
-        partial = await r.consume('{"bar": 10}')
+        partial = r.consume(f'{{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":{N}}}')
+        partial = r.consume('{}')
+        partial = r.consume('{"bar": 10}')
 
         for i in range(N):
-            partial = await r.consume(f'{{"id": "header{i}"}}')
-            partial = await r.consume(f'payload{i}'.encode())
+            partial = r.consume(f'{{"id": "header{i}"}}')
+            partial = r.consume(f'payload{i}'.encode())
 
         assert partial is not None
         assert partial.msgtype == "PATCH-DOC"
@@ -98,44 +98,105 @@ async def test_multiple_validation_success_with_multiple_buffers() -> None:
         for i in range(N):
             assert partial.buffers[i] == Buffer(ID(f"header{i}"), f"payload{i}".encode())
 
-async def test_binary_header_raises_error() -> None:
+def test_binary_header_raises_error() -> None:
     r = receiver.Receiver(proto)
 
     with pytest.raises(ValidationError):
-        await r.consume(b'{"msgtype": "PATCH-DOC", "msgid": "10"}')
+        r.consume(b'{"msgtype": "PATCH-DOC", "msgid": "10"}')
 
-async def test_binary_metadata_raises_error() -> None:
+def test_binary_metadata_raises_error() -> None:
     r = receiver.Receiver(proto)
 
-    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
+    r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
     with pytest.raises(ValidationError):
-        await r.consume(b'metadata')
+        r.consume(b'metadata')
 
-async def test_binary_content_raises_error() -> None:
+def test_binary_content_raises_error() -> None:
     r = receiver.Receiver(proto)
 
-    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
-    await r.consume('metadata')
+    r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
+    r.consume('metadata')
     with pytest.raises(ValidationError):
-        await r.consume(b'content')
+        r.consume(b'content')
 
-async def test_binary_payload_header_raises_error() -> None:
+def test_binary_payload_header_raises_error() -> None:
     r = receiver.Receiver(proto)
 
-    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
-    await r.consume('{}')
-    await r.consume('{}')
+    r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
+    r.consume('{}')
+    r.consume('{}')
     with pytest.raises(ValidationError):
-        await r.consume(b'{"id": "buf_header"}')
-async def test_text_payload_buffer_raises_error() -> None:
+        r.consume(b'{"id": "buf_header"}')
+def test_text_payload_buffer_raises_error() -> None:
     r = receiver.Receiver(proto)
 
-    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
-    await r.consume('{}')
-    await r.consume('{}')
-    await r.consume('{"id": "buf_header"}')
+    r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
+    r.consume('{}')
+    r.consume('{}')
+    r.consume('{"id": "buf_header"}')
     with pytest.raises(ValidationError):
-        await r.consume('buf_payload')
+        r.consume('buf_payload')
+
+@pytest.mark.parametrize("header", [
+    "not json",
+    "[]",
+    "{}",
+    '{"msgtype": "NOPE", "msgid": "10"}',
+    '{"msgtype": "ACK", "msgid": ""}',
+    '{"msgtype": "ACK", "msgid": "10", "num_buffers": -1}',
+    '{"msgtype": "ACK", "msgid": "10", "num_buffers": true}',
+])
+def test_invalid_header_resets_receiver(header: str) -> None:
+    r = receiver.Receiver(proto)
+
+    r.consume(header)
+    r.consume('{}')
+    with pytest.raises(ProtocolError):
+        r.consume('{}')
+
+    msg = proto.create("ACK")
+    assert r.consume(msg.header_json) is None
+    assert r.consume(msg.metadata_json) is None
+    assert r.consume(msg.content_json) is not None
+
+def test_invalid_content_type_resets_receiver() -> None:
+    r = receiver.Receiver(proto)
+
+    r.consume('{"msgtype": "ACK", "msgid": "10"}')
+    r.consume('{}')
+    with pytest.raises(ProtocolError, match="content must be a JSON object"):
+        r.consume('[]')
+
+    msg = proto.create("ACK")
+    assert r.consume(msg.header_json) is None
+    assert r.consume(msg.metadata_json) is None
+    assert r.consume(msg.content_json) is not None
+
+def test_malformed_buffer_header_resets_receiver() -> None:
+    r = receiver.Receiver(proto)
+
+    r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers": 1}')
+    r.consume('{}')
+    r.consume('{}')
+    with pytest.raises(ValidationError):
+        r.consume('{"id": 10}')
+
+    msg = proto.create("ACK")
+    assert r.consume(msg.header_json) is None
+    assert r.consume(msg.metadata_json) is None
+    assert r.consume(msg.content_json) is not None
+
+def test_duplicate_buffer_id_raises() -> None:
+    r = receiver.Receiver(proto)
+
+    r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers": 2}')
+    r.consume('{}')
+    r.consume('{}')
+    r.consume('{"id": "duplicate"}')
+    r.consume(b'first')
+    r.consume('{"id": "duplicate"}')
+    with pytest.raises(ProtocolError, match="duplicate buffer id"):
+        r.consume(b'second')
 
 #-----------------------------------------------------------------------------
 # Dev API

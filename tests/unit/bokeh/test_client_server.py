@@ -109,7 +109,7 @@ class TestClientServer:
             session.connect()
             assert session.connected
             # send a bogus message using private fields
-            server.io_loop.add_callback(session._connection._socket.write_message, b"xx", binary=True)
+            server.io_loop.add_callback(session._connection._socket._socket.write_message, b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
             session._loop_until_closed()

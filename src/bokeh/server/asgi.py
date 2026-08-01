@@ -30,7 +30,7 @@ from ..embed.elements import script_for_render_items
 from ..embed.server import server_html_page_for_session
 from ..embed.util import RenderItem
 from ..protocol import Protocol
-from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
+from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..settings import settings
@@ -61,53 +61,29 @@ log = logging.getLogger(__name__)
 __all__ = ("BokehASGI",)
 
 
-class _WriteLock:
-    ''' Adapt an asyncio lock to the historical ``with await lock.acquire()`` API. '''
-
-    def __init__(self) -> None:
-        self._lock = asyncio.Lock()
-
-    async def acquire(self) -> _WriteLock:
-        await self._lock.acquire()
-        return self
-
-    def __enter__(self) -> None:
-        return None
-
-    def __exit__(self, *args: object) -> None:
-        self._lock.release()
-
-
 class _ASGIWebSocketTransport:
     def __init__(self, send: Send, *, supports_close_reason: bool) -> None:
         self._send = send
         self._supports_close_reason = supports_close_reason
-        self.write_lock = _WriteLock()
+        self._write_lock = asyncio.Lock()
         self.closed = False
 
     async def send_message(self, message: Message[Any]) -> None:
         if not self.closed:
             try:
-                await message.send(self)
+                async with self._write_lock:
+                    for fragment, binary in message.fragments():
+                        if binary:
+                            data = fragment if isinstance(fragment, bytes) else fragment.encode("utf-8")
+                            await self._send({"type": "websocket.send", "bytes": data})
+                        else:
+                            text = fragment.decode("utf-8") if isinstance(fragment, bytes) else fragment
+                            await self._send({"type": "websocket.send", "text": text})
             except OSError:
                 # ASGI servers raise OSError when the peer has disconnected.
                 # The corresponding websocket.disconnect event may still be
                 # waiting for the application to receive it.
                 self.closed = True
-
-    async def write_message(self, message: bytes | str, binary: bool = False, locked: bool = True) -> None:
-        if self.closed:
-            return
-        if locked:
-            with await self.write_lock.acquire():
-                await self.write_message(message, binary=binary, locked=False)
-            return
-        if binary:
-            data = message if isinstance(message, bytes) else message.encode("utf-8")
-            await self._send({"type": "websocket.send", "bytes": data})
-        else:
-            text = message.decode("utf-8") if isinstance(message, bytes) else message
-            await self._send({"type": "websocket.send", "text": text})
 
     def ping(self, data: bytes) -> None:
         # ASGI deliberately has no portable ping-frame event. ASGI servers
@@ -472,14 +448,14 @@ class BokehASGI:
                     fragment = event.get("text")
                 if fragment is None:
                     continue
-                message = await receiver.consume(fragment)
+                message = receiver.consume(fragment)
                 if message is not None:
                     work = await handler.handle(message, connection)
                     if isinstance(work, Message):
                         await transport.send_message(work)
                     elif work is not None:
                         raise ProtocolError(f"expected a Message not {work!r}")
-        except (MessageError, ProtocolError, ValidationError) as error:
+        except ProtocolError as error:
             log.error("Bokeh websocket protocol error: %s", error)
             await transport.close(1002, str(error))
         except Exception:
