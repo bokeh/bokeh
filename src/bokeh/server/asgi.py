@@ -29,7 +29,7 @@ from ..embed.bundle import Script, bundle_for_objs_and_resources, extension_dirs
 from ..embed.elements import script_for_render_items
 from ..embed.server import server_html_page_for_session
 from ..embed.util import RenderItem
-from ..protocol import Protocol
+from ..protocol import create
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver
@@ -37,7 +37,6 @@ from ..settings import settings
 from ..util.token import check_token_signature, get_session_id, get_token_payload
 from .auth import AuthPolicy
 from .core import BokehServerCore, SessionError
-from .protocol_handler import ProtocolHandler
 from .request import Cookie, Headers, ServerRequest
 from .util import check_allowlist
 
@@ -431,11 +430,9 @@ class BokehASGI:
         try:
             session_id = get_session_id(token)
             session = await self._core.create_session_if_needed(context, session_id, request, token)
-            protocol = Protocol()
-            receiver = Receiver(protocol)
-            handler = ProtocolHandler()
-            connection = self._core.new_connection(protocol, transport, context, session)
-            await transport.send_message(protocol.create("ACK"))
+            receiver = Receiver()
+            connection = self._core.new_connection(transport, session)
+            await transport.send_message(create("ACK"))
 
             while True:
                 event = await receive()
@@ -450,11 +447,9 @@ class BokehASGI:
                     continue
                 message = receiver.consume(fragment)
                 if message is not None:
-                    work = await handler.handle(message, connection)
-                    if isinstance(work, Message):
-                        await transport.send_message(work)
-                    elif work is not None:
-                        raise ProtocolError(f"expected a Message not {work!r}")
+                    reply = await connection.handle(message)
+                    if reply is not None:
+                        await transport.send_message(reply)
         except ProtocolError as error:
             log.error("Bokeh websocket protocol error: %s", error)
             await transport.close(1002, str(error))

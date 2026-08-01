@@ -19,7 +19,6 @@ from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.io import curdoc
 from bokeh.models import Div
-from bokeh.protocol import Protocol
 from bokeh.server.core import BokehServerCore
 from bokeh.server.request import Cookie, Headers, ServerRequest
 from bokeh.util.asyncio import _AsyncPeriodic
@@ -279,7 +278,7 @@ async def test_concurrent_stop_is_shared_and_rejects_new_work() -> None:
     with pytest.raises(RuntimeError, match="stopping"):
         await core.create_session_if_needed(context, "new-session")
     with pytest.raises(RuntimeError, match="stopping"):
-        core.new_connection(Protocol(), object(), context, session)
+        core.new_connection(object(), session)
     assert not context._pending_sessions
 
     job_release.set()
@@ -328,7 +327,7 @@ async def test_stop_detaches_connections_before_destroying_sessions() -> None:
     await core.start()
     context = core.applications["/"]
     session = await context.create_session_if_needed("session")
-    connection = core.new_connection(Protocol(), object(), context, session)
+    connection = core.new_connection(object(), session)
 
     await core.stop()
 

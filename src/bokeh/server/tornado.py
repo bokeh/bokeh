@@ -75,7 +75,6 @@ from .views.ws import WSHandler
 if TYPE_CHECKING:
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID
-    from ..protocol import Protocol
     from ..util.asyncio import Loop
     from .auth_provider import AuthProvider
     from .request import RequestLike
@@ -834,10 +833,9 @@ class BokehTornado(TornadoApplication):
             models,
         )
 
-    def new_connection(self, protocol: Protocol, socket: WSHandler,
-            application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
+    def new_connection(self, socket: WSHandler, session: ServerSession) -> ServerConnection:
         self._require_running()
-        connection = ServerConnection(protocol, socket, application_context, session)
+        connection = ServerConnection(socket, session)
         self._clients.add(connection)
         return connection
 

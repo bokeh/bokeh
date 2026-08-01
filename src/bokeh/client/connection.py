@@ -33,7 +33,7 @@ from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketError, websocket_connect
 
 # Bokeh imports
-from ..protocol import Protocol
+from ..protocol import create
 from ..protocol.exceptions import ProtocolError
 from ..protocol.messages.patch_doc import patch_doc
 from ..protocol.messages.pull_doc_reply import pull_doc_reply
@@ -94,8 +94,7 @@ class ClientConnection:
         self._session = session
         self._arguments = arguments
         self._max_message_size = max_message_size
-        self._protocol = Protocol()
-        self._receiver = Receiver(self._protocol)
+        self._receiver = Receiver()
         self._socket = None
         self._state = NOT_YET_CONNECTED()
         # We can't use IOLoop.current because then we break
@@ -210,7 +209,7 @@ class ClientConnection:
             None
 
         '''
-        msg = self._protocol.create('PULL-DOC-REQ')
+        msg = create('PULL-DOC-REQ')
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
@@ -232,7 +231,7 @@ class ClientConnection:
             The server reply
 
         '''
-        msg = self._protocol.create('PUSH-DOC', document)
+        msg = create('PUSH-DOC', document)
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
@@ -386,11 +385,11 @@ class ClientConnection:
         return waiter.reply
 
     def _send_patch_document(self, session_id: ID, event: DocumentPatchedEvent) -> None:
-        msg = self._protocol.create('PATCH-DOC', [event])
+        msg = create('PATCH-DOC', [event])
         self._loop.add_callback(self.send_message, msg)
 
     def _send_request_server_info(self) -> ServerInfo:
-        msg = self._protocol.create('SERVER-INFO-REQ')
+        msg = create('SERVER-INFO-REQ')
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Did not get a reply to server info request before disconnect")

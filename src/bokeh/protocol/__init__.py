@@ -54,6 +54,8 @@ if TYPE_CHECKING:
 
 __all__ = (
     'Protocol',
+    'assemble',
+    'create',
 )
 
 type MessageType = Literal[
@@ -88,74 +90,57 @@ SPEC: dict[MessageType, type[Message[Any]]] = {
 # Dev API
 #-----------------------------------------------------------------------------
 
+@overload
+def create(msgtype: Literal["ACK"], **metadata: Any) -> ack: ...
+@overload
+def create(msgtype: Literal["ERROR"], request_id: ID, text: str, **metadata: Any) -> error: ...
+@overload
+def create(msgtype: Literal["OK"], request_id: ID, **metadata: Any) -> ok: ...
+@overload
+def create(msgtype: Literal["PATCH-DOC"], events: list[DocumentPatchedEvent], **metadata: Any) -> patch_doc: ...
+@overload
+def create(msgtype: Literal["PULL-DOC-REPLY"], request_id: ID, document: Document, **metadata: Any) -> pull_doc_reply: ...
+@overload
+def create(msgtype: Literal["PULL-DOC-REQ"], **metadata: Any) -> pull_doc_req: ...
+@overload
+def create(msgtype: Literal["PUSH-DOC"], document: Document, **metadata: Any) -> push_doc: ...
+@overload
+def create(msgtype: Literal["SERVER-INFO-REPLY"], request_id: ID, **metadata: Any) -> server_info_reply: ...
+@overload
+def create(msgtype: Literal["SERVER-INFO-REQ"], **metadata: Any) -> server_info_req: ...
+
+def create(msgtype: MessageType, *args: Any, **kwargs: Any) -> Message[Any]:
+    '''Create a new message of the requested type.'''
+    if msgtype not in SPEC:
+        raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
+    return SPEC[msgtype].create(*args, **kwargs)  # type: ignore [attr-defined]
+
+def assemble(header_json: str, metadata_json: str, content_json: str) -> Message[Any]:
+    '''Create a message from JSON wire fragments.'''
+    try:
+        header = json.loads(header_json)
+    except (TypeError, ValueError) as error:
+        raise ProtocolError("header could not be decoded") from error
+    if not isinstance(header, dict):
+        raise ProtocolError("header must be a JSON object")
+    if 'msgtype' not in header:
+        raise ProtocolError("No 'msgtype' in header")
+    msgtype = header["msgtype"]
+    if not isinstance(msgtype, str) or msgtype not in SPEC:
+        raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
+    return SPEC[msgtype].assemble(header_json, metadata_json, content_json)
+
 class Protocol:
-    ''' Provide a message factory for the Bokeh Server message protocol.
-
-    '''
-    _messages: dict[MessageType, type[Message[Any]]]
-
-    def __init__(self) -> None:
-        self._messages = SPEC
+    '''Compatibility facade for the former per-connection protocol object.'''
 
     def __repr__(self) -> str:
         return "Protocol()"
 
-    @overload
-    def create(self, msgtype: Literal["ACK"], **metadata: Any) -> ack: ...
-    @overload
-    def create(self, msgtype: Literal["ERROR"], request_id: ID, text: str, **metadata: Any) -> error: ...
-    @overload
-    def create(self, msgtype: Literal["OK"], request_id: ID, **metadata: Any) -> ok: ...
-    @overload
-    def create(self, msgtype: Literal["PATCH-DOC"], events: list[DocumentPatchedEvent], **metadata: Any) -> patch_doc: ...
-    @overload
-    def create(self, msgtype: Literal["PULL-DOC-REPLY"], request_id: ID, document: Document, **metadata: Any) -> pull_doc_reply: ...
-    @overload
-    def create(self, msgtype: Literal["PULL-DOC-REQ"], **metadata: Any) -> pull_doc_req: ...
-    @overload
-    def create(self, msgtype: Literal["PUSH-DOC"], document: Document, **metadata: Any) -> push_doc: ...
-    @overload
-    def create(self, msgtype: Literal["SERVER-INFO-REPLY"], request_id: ID, **metadata: Any) -> server_info_reply: ...
-    @overload
-    def create(self, msgtype: Literal["SERVER-INFO-REQ"], **metadata: Any) -> server_info_req: ...
-
     def create(self, msgtype: MessageType, *args: Any, **kwargs: Any) -> Message[Any]:
-        ''' Create a new Message instance for the given type.
-
-        Args:
-            msgtype (str) :
-
-        '''
-        if msgtype not in self._messages:
-            raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
-        return self._messages[msgtype].create(*args, **kwargs)  # type: ignore [attr-defined]
+        return create(msgtype, *args, **kwargs)
 
     def assemble(self, header_json: str, metadata_json: str, content_json: str) -> Message[Any]:
-        ''' Create a Message instance assembled from json fragments.
-
-        Args:
-            header_json (``JSON``) :
-
-            metadata_json (``JSON``) :
-
-            content_json (``JSON``) :
-
-        Returns:
-            message
-
-        '''
-        try:
-            header = json.loads(header_json)
-        except (TypeError, ValueError) as error:
-            raise ProtocolError("header could not be decoded") from error
-        if not isinstance(header, dict):
-            raise ProtocolError("header must be a JSON object")
-        if 'msgtype' not in header:
-            raise ProtocolError("No 'msgtype' in header")
-        msgtype = header["msgtype"]
-        if not isinstance(msgtype, str) or msgtype not in self._messages:
-            raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
-        return self._messages[msgtype].assemble(header_json, metadata_json, content_json)
+        return assemble(header_json, metadata_json, content_json)
 
 #-----------------------------------------------------------------------------
 # Private API

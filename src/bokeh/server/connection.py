@@ -21,13 +21,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Awaitable
+from typing import TYPE_CHECKING, Any, Awaitable, cast
+
+# Bokeh imports
+from ..protocol import create
+from ..protocol.exceptions import ProtocolError
+from ..protocol.message import Message
+from ..protocol.messages import patch_doc, pull_doc_req, push_doc, server_info_req
 
 ## Bokeh imports
 if TYPE_CHECKING:
-    from ..protocol import Protocol, messages as msg
-    from ..protocol.message import Message
-    from .contexts import ApplicationContext
+    from ..protocol import messages as msg
     from .session import ServerSession
     from .transport import WebSocketTransport
 
@@ -50,11 +54,8 @@ class ServerConnection:
 
     _session: ServerSession | None
 
-    def __init__(self, protocol: Protocol, socket: WebSocketTransport,
-            application_context: ApplicationContext, session: ServerSession) -> None:
-        self._protocol = protocol
-        self._socket = socket
-        self._application_context = application_context
+    def __init__(self, transport: WebSocketTransport, session: ServerSession) -> None:
+        self._transport = transport
         self._session = session
         self._session.subscribe(self)
         self._ping_count = 0
@@ -64,10 +65,6 @@ class ServerConnection:
         assert self._session is not None
         return self._session
 
-    @property
-    def application_context(self) -> ApplicationContext:
-        return self._application_context
-
     def detach_session(self) -> None:
         """Allow the session to be discarded and don't get change notifications from it anymore"""
         if self._session is not None:
@@ -75,21 +72,35 @@ class ServerConnection:
             self._session = None
 
     def ok(self, message: Message[Any]) -> msg.ok:
-        return self.protocol.create('OK', message.header['msgid'])
+        return create('OK', message.header['msgid'])
 
     def error(self, message: Message[Any], text: str) -> msg.error:
-        return self.protocol.create('ERROR', message.header['msgid'], text)
+        return create('ERROR', message.header['msgid'], text)
+
+    async def handle(self, message: Message[Any]) -> Message[Any] | None:
+        '''Handle a client request and return its reply.'''
+        if not isinstance(message, (pull_doc_req, push_doc, patch_doc, server_info_req)):
+            raise ProtocolError(f"{message} not expected on server")
+
+        try:
+            if isinstance(message, pull_doc_req):
+                return await cast(Awaitable[Message[Any] | None], self.session._handle_pull(message, self))
+            elif isinstance(message, push_doc):
+                return await cast(Awaitable[Message[Any] | None], self.session._handle_push(message, self))
+            elif isinstance(message, patch_doc):
+                return await cast(Awaitable[Message[Any] | None], self.session._handle_patch(message, self))
+            else:
+                return create('SERVER-INFO-REPLY', message.header['msgid'])
+        except Exception:
+            log.exception("error handling %s message", message.msgtype)
+            return self.error(message, f"Error handling {message.msgtype} message")
 
     def send_message(self, message: Message[Any]) -> Awaitable[None]:
-        return self._socket.send_message(message)
+        return self._transport.send_message(message)
 
     def send_ping(self) -> None:
-        self._socket.ping(str(self._ping_count).encode("utf-8"))
+        self._transport.ping(str(self._ping_count).encode("utf-8"))
         self._ping_count += 1
-
-    @property
-    def protocol(self) -> Protocol:
-        return self._protocol
 
 #-----------------------------------------------------------------------------
 # Dev API

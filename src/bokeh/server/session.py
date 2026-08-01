@@ -40,6 +40,7 @@ from typing import (
 from ..document.callbacks import invoke_with_curdoc
 from ..events import ConnectionLost
 from ..io.doc import patch_curdoc
+from ..protocol import create
 from ..util.asyncio import Loop, _asyncio_loop
 from ..util.token import generate_jwt_token
 from ..util.tornado import _run_in_executor
@@ -54,7 +55,7 @@ if TYPE_CHECKING:
         SessionCallbackAdded,
         SessionCallbackRemoved,
     )
-    from ..protocol import Protocol, messages as msg
+    from ..protocol import messages as msg
     from ..protocol.message import Message
     from .callbacks import Callback, SessionCallback
     from .connection import ServerConnection
@@ -76,21 +77,20 @@ __all__ = (
 @dataclass(frozen=True)
 class _PendingPatch:
     event: DocumentPatchedEvent
-    protocol: Protocol
     connections: tuple[ServerConnection, ...]
 
 def _serialize_patches(pending: list[_PendingPatch]) -> list[tuple[Message[Any], tuple[ServerConnection, ...]]]:
     messages: list[tuple[Message[Any], tuple[ServerConnection, ...]]] = []
     for patch in pending:
         with patch_curdoc(patch.event.document):
-            message = patch.protocol.create("PATCH-DOC", [patch.event])
+            message = create("PATCH-DOC", [patch.event])
             message.prepare()
         messages.append((message, patch.connections))
     return messages
 
-def _serialize_pull_reply(protocol: Protocol, request_id: ID, document: Document) -> Message[Any]:
+def _serialize_pull_reply(request_id: ID, document: Document) -> Message[Any]:
     with patch_curdoc(document):
-        message = protocol.create("PULL-DOC-REPLY", request_id, document)
+        message = create("PULL-DOC-REPLY", request_id, document)
         message.prepare()
     return message
 
@@ -321,7 +321,7 @@ class ServerSession:
                 if not may_suppress or connection is not self._current_patch_connection
             )
         if connections:
-            self._pending_writes.append(_PendingPatch(event, connections[0].protocol, connections))
+            self._pending_writes.append(_PendingPatch(event, connections))
 
     async def _run_in_executor[T](self, func: Callable[..., T], *args: Any) -> T:
         if self._executor is not None:
@@ -342,7 +342,6 @@ class ServerSession:
         async def send_reply() -> None:
             reply = await self._run_in_executor(
                 _serialize_pull_reply,
-                connection.protocol,
                 message.header["msgid"],
                 self.document,
             )
@@ -357,21 +356,11 @@ class ServerSession:
     def _session_callback_removed(self, event: SessionCallbackRemoved) -> None:
         self._callbacks.remove_session_callback(event.callback)
 
-    @classmethod
-    def pull(cls, message: msg.pull_doc_req, connection: ServerConnection) -> Awaitable[None]:
-        ''' Handle a PULL-DOC, return a Future with work to be scheduled. '''
-        return connection.session._handle_pull(message, connection)
-
     @_needs_document_lock_on_loop
     async def _handle_push(self, message: msg.push_doc, connection: ServerConnection) -> msg.ok:
         log.debug(f"pushing doc to session {self.id!r}")
         await _run_in_executor(message.push_to_document, self.document)
         return connection.ok(message)
-
-    @classmethod
-    def push(cls, message: msg.push_doc, connection: ServerConnection) -> Awaitable[msg.ok]:
-        ''' Handle a PUSH-DOC, return a Future with work to be scheduled. '''
-        return connection.session._handle_push(message, connection)
 
     @_needs_document_lock_on_loop
     async def _handle_patch(self, message: msg.patch_doc, connection: ServerConnection) -> msg.ok:
@@ -382,11 +371,6 @@ class ServerSession:
             self._current_patch_connection = None
 
         return connection.ok(message)
-
-    @classmethod
-    def patch(cls, message: msg.patch_doc, connection: ServerConnection) -> Awaitable[msg.ok]:
-        ''' Handle a PATCH-DOC, return a Future with work to be scheduled. '''
-        return connection.session._handle_patch(message, connection)
 
     def notify_connection_lost(self) -> None:
         ''' Notify the document that the connection was lost. '''

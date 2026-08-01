@@ -23,15 +23,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
-from typing import TYPE_CHECKING, Any, Callable
+from typing import Any, Callable
 
 # Bokeh imports
 from ..core.types import ID
+from . import assemble
 from .exceptions import ProtocolError, ValidationError
 from .message import BufferHeader, Message
-
-if TYPE_CHECKING:
-    from . import Protocol
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -101,15 +99,7 @@ class Receiver:
     _buf_header: BufferHeader | None
     _partial: Message[Any] | None
 
-    def __init__(self, protocol: Protocol) -> None:
-        ''' Configure a Receiver with a specific Bokeh protocol.
-
-        Args:
-            protocol (Protocol) :
-                A Bokeh protocol object to use to assemble collected message
-                fragments.
-        '''
-        self._protocol = protocol
+    def __init__(self) -> None:
         self._reset()
 
     def _reset(self) -> None:
@@ -149,7 +139,7 @@ class Receiver:
 
         header_json, metadata_json, content_json = (self._assume_text(x) for x in self._fragments[:3])
 
-        self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
+        self._partial = assemble(header_json, metadata_json, content_json)
 
         return self._check_complete()
 

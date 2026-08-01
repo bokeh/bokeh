@@ -36,11 +36,11 @@ proto = Protocol()
 #-----------------------------------------------------------------------------
 
 def test_creation() -> None:
-    receiver.Receiver(proto)
+    receiver.Receiver()
 
 def test_validation_success() -> None:
     msg = proto.create('ACK')
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     partial = r.consume(msg.header_json)
     assert partial is None
@@ -56,7 +56,7 @@ def test_validation_success() -> None:
     assert partial.metadata == msg.metadata
 
 def test_validation_success_with_one_buffer() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     partial = r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     assert partial is None
@@ -79,7 +79,7 @@ def test_validation_success_with_one_buffer() -> None:
     assert partial.buffers == [Buffer(ID("buf_header"), b"payload")]
 
 def test_multiple_validation_success_with_multiple_buffers() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     for N in range(10):
         partial = r.consume(f'{{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":{N}}}')
@@ -99,20 +99,20 @@ def test_multiple_validation_success_with_multiple_buffers() -> None:
             assert partial.buffers[i] == Buffer(ID(f"header{i}"), f"payload{i}".encode())
 
 def test_binary_header_raises_error() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     with pytest.raises(ValidationError):
         r.consume(b'{"msgtype": "PATCH-DOC", "msgid": "10"}')
 
 def test_binary_metadata_raises_error() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
     with pytest.raises(ValidationError):
         r.consume(b'metadata')
 
 def test_binary_content_raises_error() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
     r.consume('metadata')
@@ -120,7 +120,7 @@ def test_binary_content_raises_error() -> None:
         r.consume(b'content')
 
 def test_binary_payload_header_raises_error() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     r.consume('{}')
@@ -128,7 +128,7 @@ def test_binary_payload_header_raises_error() -> None:
     with pytest.raises(ValidationError):
         r.consume(b'{"id": "buf_header"}')
 def test_text_payload_buffer_raises_error() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     r.consume('{}')
@@ -147,7 +147,7 @@ def test_text_payload_buffer_raises_error() -> None:
     '{"msgtype": "ACK", "msgid": "10", "num_buffers": true}',
 ])
 def test_invalid_header_resets_receiver(header: str) -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     r.consume(header)
     r.consume('{}')
@@ -160,7 +160,7 @@ def test_invalid_header_resets_receiver(header: str) -> None:
     assert r.consume(msg.content_json) is not None
 
 def test_invalid_content_type_resets_receiver() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     r.consume('{"msgtype": "ACK", "msgid": "10"}')
     r.consume('{}')
@@ -173,7 +173,7 @@ def test_invalid_content_type_resets_receiver() -> None:
     assert r.consume(msg.content_json) is not None
 
 def test_malformed_buffer_header_resets_receiver() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers": 1}')
     r.consume('{}')
@@ -187,7 +187,7 @@ def test_malformed_buffer_header_resets_receiver() -> None:
     assert r.consume(msg.content_json) is not None
 
 def test_duplicate_buffer_id_raises() -> None:
-    r = receiver.Receiver(proto)
+    r = receiver.Receiver()
 
     r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers": 2}')
     r.consume('{}')

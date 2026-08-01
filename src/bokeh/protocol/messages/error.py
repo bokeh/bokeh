@@ -18,8 +18,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
-from traceback import format_exception
 from typing import TYPE_CHECKING, Any, TypedDict
 
 # Bokeh imports
@@ -76,7 +74,7 @@ class error(Message[Error]):
         return msg
 
     @classmethod
-    def create(cls, request_id: ID, text: str, **metadata: Any) -> error:
+    def create(cls, request_id: ID, text: str, *, traceback: str | None = None, **metadata: Any) -> error:
         ''' Create an ``ERROR`` message
 
         Args:
@@ -91,8 +89,6 @@ class error(Message[Error]):
 
         '''
         header = cls.create_header(request_id=request_id)
-        ex_type, ex, tb = sys.exc_info()
-        traceback = "".join(format_exception(ex_type, ex, tb)) if ex_type else None
         content = Error(text=text, traceback=traceback)
         return cls(header, metadata, content)
 

@@ -46,7 +46,6 @@ if TYPE_CHECKING:
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID, PathLike
     from ..document import Document
-    from ..protocol import Protocol
     from .request import RequestLike
     from .session import ServerSession
     from .transport import WebSocketTransport
@@ -430,10 +429,9 @@ class BokehServerCore(SessionConfig):
         self._require_running()
         return await context.create_session_if_needed(session_id, request, token)
 
-    def new_connection(self, protocol: Protocol, transport: WebSocketTransport,
-            application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
+    def new_connection(self, transport: WebSocketTransport, session: ServerSession) -> ServerConnection:
         self._require_running()
-        connection = ServerConnection(protocol, transport, application_context, session)
+        connection = ServerConnection(transport, session)
         self._clients.add(connection)
         return connection
 
