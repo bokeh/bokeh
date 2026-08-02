@@ -2,7 +2,7 @@
 BUILDDIR = build
 SPHINXOPTS =
 
-.PHONY: help clean html reference reference-check serve
+.PHONY: help clean html reference reference-check reference-clean serve
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
@@ -11,11 +11,12 @@ help:
 	@echo "  html             to make standalone (non-gallery) HTML files"
 	@echo "  reference        to regenerate the bokeh.models API reference"
 	@echo "  reference-check  to check that the generated API reference is current"
+	@echo "  reference-clean  to remove generated API reference sources"
 	@echo "  serve            to serve the generated HTML and open a browser"
 
 all: html
 
-clean:
+clean: reference-clean
 	-rm -rf $(BUILDDIR)/*
 	-rm -rf source/docs/gallery/*
 	-rm -rf source/docs/examples/*
@@ -24,8 +25,11 @@ clean:
 reference:
 	cd ../.. && python -m tools.api_reference
 
-reference-check:
+reference-check: reference
 	cd ../.. && python -m tools.api_reference --check
+
+reference-clean:
+	cd ../.. && python -m tools.api_reference --clean
 
 html: reference-check
 	@start=$$(date +%s) \
