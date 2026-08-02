@@ -29,7 +29,7 @@ describe("ajax_data_source module", () => {
       describe("do_load method", () => {
 
         it("should replace", async () => {
-          const s = new AjaxDataSource({data_url: "http://foo.com"})
+          const s = AjaxDataSource.create({data_url: "http://foo.com"})
           expect(s.data).to.be.equal({})
 
           const xhr0 = s.prepare_request()
@@ -50,7 +50,7 @@ describe("ajax_data_source module", () => {
         })
 
         it("should append up to max_size", async () => {
-          const s = new AjaxDataSource({data_url: "http://foo.com"})
+          const s = AjaxDataSource.create({data_url: "http://foo.com"})
           expect(s.data).to.be.equal({})
 
           const xhr0 = s.prepare_request()
@@ -76,8 +76,8 @@ describe("ajax_data_source module", () => {
             return {foo, bar}
           }
           `
-          const cb = new CustomJS({code})
-          const s = new AjaxDataSource({data_url: "http://foo.com", adapter: cb as AdapterFn})
+          const cb = CustomJS.create({code})
+          const s = AjaxDataSource.create({data_url: "http://foo.com", adapter: cb as AdapterFn})
           expect(s.data).to.be.equal({})
 
           const xhr = s.prepare_request()
@@ -97,7 +97,7 @@ describe("ajax_data_source module", () => {
             return {foo, bar}
           }
 
-          const s = new AjaxDataSource({data_url: "http://foo.com", adapter: {execute}})
+          const s = AjaxDataSource.create({data_url: "http://foo.com", adapter: {execute}})
           expect(s.data).to.be.equal({})
 
           const xhr = s.prepare_request()
@@ -110,34 +110,34 @@ describe("ajax_data_source module", () => {
       describe("prepare_request method", () => {
 
         it("should return an xhr with Credentials = False", () => {
-          const s = new AjaxDataSource({data_url: "http://foo.com"})
+          const s = AjaxDataSource.create({data_url: "http://foo.com"})
           const xhr = s.prepare_request()
           expect(xhr).to.be.instanceof(XMLHttpRequest)
           expect(xhr.withCredentials).to.be.false
         })
 
         it("should return an xhr with method set from this.method", () => {
-          const s0 = new AjaxDataSource({data_url: "http://foo.com"})
+          const s0 = AjaxDataSource.create({data_url: "http://foo.com"})
           s0.prepare_request()
           expect(last(requests).method).to.be.equal("POST")
 
-          const s1 = new AjaxDataSource({data_url: "http://foo.com", method: "POST"})
+          const s1 = AjaxDataSource.create({data_url: "http://foo.com", method: "POST"})
           s1.prepare_request()
           expect(last(requests).method).to.be.equal("POST")
 
-          const s2 = new AjaxDataSource({data_url: "http://foo.com", method: "GET"})
+          const s2 = AjaxDataSource.create({data_url: "http://foo.com", method: "GET"})
           s2.prepare_request()
           expect(last(requests).method).to.be.equal("GET")
         })
 
         it("should return an xhr with Content-Type header set to json", () => {
-          const s = new AjaxDataSource({data_url: "http://foo.com"})
+          const s = AjaxDataSource.create({data_url: "http://foo.com"})
           s.prepare_request()
           expect(last(requests).requestHeaders).to.be.equal({"Content-Type": "application/json"})
         })
 
         it("should return an xhr with additional headers set from this.http_headers", () => {
-          const s = new AjaxDataSource({data_url: "http://foo.com", http_headers: {foo: "bar", baz: "10"}})
+          const s = AjaxDataSource.create({data_url: "http://foo.com", http_headers: {foo: "bar", baz: "10"}})
           s.prepare_request()
           expect(last(requests).requestHeaders).to.be.equal({"Content-Type": "application/json", foo: "bar", baz: "10"})
         })
@@ -146,7 +146,7 @@ describe("ajax_data_source module", () => {
       describe("get_column() method", () => {
 
         it("should return empty lists for not-yet-existant columns", () => {
-          const s = new AjaxDataSource({data_url: "http://foo.com"})
+          const s = AjaxDataSource.create({data_url: "http://foo.com"})
           const c = s.get_column("foo")
           expect(c).to.be.equal([])
           const n = s.get_length()
@@ -159,7 +159,7 @@ describe("ajax_data_source module", () => {
         it("should call get_data", () => {
           const spy = sinon.spy(AjaxDataSource.prototype, "get_data")
           try {
-            const s = new AjaxDataSource({data_url: "http://foo.com"})
+            const s = AjaxDataSource.create({data_url: "http://foo.com"})
             s.destroy()
             expect(spy.calledOnce).to.be.true
           } finally {
@@ -174,7 +174,7 @@ describe("ajax_data_source module", () => {
         it("should support If-Modified-Since header", async () => {
           const spy = sinon.spy(XMLHttpRequest.prototype, "setRequestHeader")
           try {
-            const source = new AjaxDataSource({data_url: "/ajax/dummy_data", polling_interval: 100, if_modified: true})
+            const source = AjaxDataSource.create({data_url: "/ajax/dummy_data", polling_interval: 100, if_modified: true})
             await poll(() => spy.callCount >= 5, 100, 1000)
             source.destroy()
             expect(spy.calledWith(sinon.match("If-Modified-Since"), sinon.match.string)).to.be.true

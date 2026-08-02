@@ -8,7 +8,7 @@ import {BBox} from "@bokehjs/core/util/bbox"
 describe("Canvas", () => {
   describe("should support composing layers", () => {
     it.dpr(1)("with devicePixelRatio == 1", async () => {
-      const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
+      const canvas = Canvas.create({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
       const {view: canvas_view} = await display(canvas, [650, 650])
       expect(canvas_view.pixel_ratio).to.be.equal(1)
       const composite_layer = canvas_view.compose()
@@ -17,7 +17,7 @@ describe("Canvas", () => {
     })
 
     it.dpr(2)("with devicePixelRatio == 2", async () => {
-      const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
+      const canvas = Canvas.create({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
       const {view: canvas_view} = await display(canvas, [650, 650])
       expect(canvas_view.pixel_ratio).to.be.equal(2)
       const composite_layer = canvas_view.compose()
@@ -26,7 +26,7 @@ describe("Canvas", () => {
     })
 
     it.dpr(3)("with devicePixelRatio == 3", async () => {
-      const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
+      const canvas = Canvas.create({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
       const {view: canvas_view} = await display(canvas, [650, 650])
       expect(canvas_view.pixel_ratio).to.be.equal(3)
       const composite_layer = canvas_view.compose()
@@ -35,7 +35,7 @@ describe("Canvas", () => {
     })
 
     it("with SVG backend", async () => {
-      const canvas = new Canvas({output_backend: "svg", hidpi: true, styles: {width: "600px", height: "600px"}})
+      const canvas = Canvas.create({output_backend: "svg", hidpi: true, styles: {width: "600px", height: "600px"}})
       const {view: canvas_view} = await display(canvas, [650, 650])
 
       canvas_view.primary.prepare()
@@ -77,7 +77,7 @@ describe("Canvas", () => {
   })
 
   it("should floor CSS width and height when computing dimensions of canvas element", async () => {
-    const canvas = new Canvas({output_backend: "canvas", styles: {width: "300.5px", height: "300.5px"}})
+    const canvas = Canvas.create({output_backend: "canvas", styles: {width: "300.5px", height: "300.5px"}})
     const {view: canvas_view} = await display(canvas, [350, 350])
     expect(canvas_view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 300, height: 300}))
 

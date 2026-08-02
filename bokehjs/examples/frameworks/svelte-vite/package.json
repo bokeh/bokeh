@@ -1,0 +1,20 @@
+{
+  "name": "@bokeh-example/svelte-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@bokeh/bokehjs": "4.0.0-dev.1",
+    "@bokeh/framework": "4.0.0-dev.1",
+    "@bokeh/svelte": "4.0.0-dev.1",
+    "svelte": "^5.56.8"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "typescript": "5.9.2",
+    "vite": "^8.2.0"
+  }
+}

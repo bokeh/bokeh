@@ -112,6 +112,8 @@ export class Document implements Equatable {
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
   protected _system_scheme: MediaQueryList
+  protected readonly _on_system_scheme_change: () => void
+  protected _destroyed: boolean = false
 
   private _config?: DocumentConfig
   get config(): DocumentConfig {
@@ -148,9 +150,10 @@ export class Document implements Equatable {
       this.event_manager.trigger(event)
     })
     this._system_scheme = matchMedia("(prefers-color-scheme: dark)")
-    this.config = new DocumentConfig()
+    this._on_system_scheme_change = () => this.set_color_scheme(this.config.color_scheme)
+    this.config = DocumentConfig.create()
     this.set_color_scheme(this.config.color_scheme)
-    this._system_scheme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
+    this._system_scheme.addEventListener("change", this._on_system_scheme_change)
     this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
   }
 
@@ -170,6 +173,37 @@ export class Document implements Equatable {
       }
     }
     return true
+  }
+
+  get is_destroyed(): boolean {
+    return this._destroyed
+  }
+
+  destroy(): void {
+    if (this._destroyed) {
+      return
+    }
+    this._destroyed = true
+
+    this.views_manager?.clear()
+    this.views_manager = undefined
+    this._system_scheme.removeEventListener("change", this._on_system_scheme_change)
+    this._cancel_recompute_all_models()
+
+    const config = this._config
+    this.clear({sync: false})
+    this._recompute_all_models()
+    config?.destroy()
+
+    this._callbacks.clear()
+    this._document_callbacks.clear()
+    this._message_callbacks.clear()
+    this.event_manager.subscribed_models.clear()
+
+    const i = documents.indexOf(this)
+    if (i >= 0) {
+      documents.splice(i, 1)
+    }
   }
 
   private _notified_idle: boolean = false

@@ -71,7 +71,7 @@ describe("core/view", () => {
 
   describe("View", () => {
     it("should disconnect a previously connected slot", async () => {
-      const model = new SomeModel()
+      const model = SomeModel.create()
       const view = await build_view(model)
 
       let calls = 0
@@ -105,9 +105,9 @@ describe("core/view", () => {
     })
 
     it("should disconnect changes from former transitive references", async () => {
-      const child0 = new SomeModel()
-      const child1 = new SomeModel({children: [new SomeModel()]})
-      const model = new SomeModel({children: [child0]})
+      const child0 = SomeModel.create()
+      const child1 = SomeModel.create({children: [SomeModel.create()]})
+      const model = SomeModel.create({children: [child0]})
       const view = await build_view(model)
 
       let calls = 0
@@ -134,9 +134,9 @@ describe("core/view", () => {
     })
 
     it("should not accumulate slots for retained transitive references", async () => {
-      const child0 = new SomeModel()
-      const child1 = new SomeModel()
-      const model = new SomeModel({children: [child0]})
+      const child0 = SomeModel.create()
+      const child1 = SomeModel.create()
+      const model = SomeModel.create({children: [child0]})
       const view = await build_view(model)
 
       let calls = 0
@@ -152,11 +152,11 @@ describe("core/view", () => {
     })
 
     it("should disconnect changes from former recursive transitive references", async () => {
-      const leaf0 = new SomeModel()
-      const branch0 = new SomeModel({children: [leaf0]})
-      const leaf1 = new SomeModel()
-      const branch1 = new SomeModel({children: [leaf1, new SomeModel()]})
-      const model = new SomeModel({children: [branch0]})
+      const leaf0 = SomeModel.create()
+      const branch0 = SomeModel.create({children: [leaf0]})
+      const leaf1 = SomeModel.create()
+      const branch1 = SomeModel.create({children: [leaf1, SomeModel.create()]})
+      const model = SomeModel.create({children: [branch0]})
       const view = await build_view(model)
 
       let calls = 0
@@ -176,12 +176,12 @@ describe("core/view", () => {
     })
 
     it("should support ViewQuery", async () => {
-      const obj0 = new SomeModel()
-      const obj1 = new SomeModel()
-      const obj2 = new SomeModel()
-      const obj3 = new SomeModel({children: [obj0]})
-      const obj4 = new SomeModel({children: [obj1, obj2]})
-      const obj5 = new SomeModel({children: [obj3, obj4]})
+      const obj0 = SomeModel.create()
+      const obj1 = SomeModel.create()
+      const obj2 = SomeModel.create()
+      const obj3 = SomeModel.create({children: [obj0]})
+      const obj4 = SomeModel.create({children: [obj1, obj2]})
+      const obj5 = SomeModel.create({children: [obj3, obj4]})
 
       const view5 = await build_view(obj5, {parent: null})
 

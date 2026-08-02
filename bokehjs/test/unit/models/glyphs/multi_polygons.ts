@@ -18,15 +18,15 @@ describe("MultiPolygons", () => {
         xs: [[[[1, 5, 3]]], [[[3, 5, 5, 3]]], [[[2, 3, 2, 1]]]],
         ys: [[[[1, 1, 3]]], [[[3, 3, 5, 5]]], [[[3, 4, 5, 4]]]],
       }
-      const glyph = new MultiPolygons({
+      const glyph = MultiPolygons.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 
@@ -69,15 +69,15 @@ describe("MultiPolygons", () => {
         xs: [[[[1, 5, 3]]], [[[3, 5, 5, 3]]], [[[2, 3, 2, 1]]]],
         ys: [[[[1, 1, 3]]], [[[3, 3, 5, 5]]], [[[3, 4, 5, 4]]]],
       }
-      const glyph = new MultiPolygons({
+      const glyph = MultiPolygons.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 

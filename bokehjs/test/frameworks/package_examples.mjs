@@ -1,0 +1,97 @@
+import {spawn} from "node:child_process"
+import {cpSync, mkdirSync, readFileSync, rmSync, writeFileSync} from "node:fs"
+import {join, relative, resolve} from "node:path"
+import {fileURLToPath} from "node:url"
+
+const frameworks_dir = fileURLToPath(new URL(".", import.meta.url))
+const bokehjs_dir = resolve(frameworks_dir, "../..")
+const examples_dir = join(bokehjs_dir, "examples/frameworks")
+const build_dir = join(bokehjs_dir, "build/test/frameworks/packaged")
+const packages_dir = join(build_dir, "packages")
+const workspace_dir = join(build_dir, "workspace")
+
+const examples = [
+  "angular-ng",
+  "react-vite",
+  "node-ssr-compat",
+  "svelte-vite",
+  "vanilla-rspack",
+  "vanilla-vite",
+  "vanilla-webpack",
+  "vue-vite",
+  "web-component-webpack",
+]
+
+const package_dirs = new Map([
+  ["@bokeh/bokehjs", bokehjs_dir],
+  ["@bokeh/framework", join(bokehjs_dir, "frameworks/base")],
+  ["@bokeh/react", join(bokehjs_dir, "frameworks/react")],
+  ["@bokeh/svelte", join(bokehjs_dir, "frameworks/svelte")],
+  ["@bokeh/vue", join(bokehjs_dir, "frameworks/vue")],
+  ["@bokeh/web-component", join(bokehjs_dir, "frameworks/web-component")],
+])
+
+function command(name) {
+  return process.platform == "win32" ? `${name}.cmd` : name
+}
+
+async function run(executable, args, cwd) {
+  await new Promise((resolve, reject) => {
+    const child = spawn(command(executable), args, {cwd, stdio: "inherit"})
+    child.on("error", reject)
+    child.on("exit", (code, signal) => {
+      if (code == 0) {
+        resolve()
+      } else {
+        reject(new Error(`${executable} ${args.join(" ")} failed with ${signal ?? `exit code ${code}`}`))
+      }
+    })
+  })
+}
+
+async function pack(name, cwd) {
+  await run("npm", ["pack", "--silent", "--ignore-scripts", `--pack-destination=${packages_dir}`], cwd)
+  const {version} = JSON.parse(readFileSync(join(cwd, "package.json"), "utf-8"))
+  const filename = `${name.replace("@", "").replace("/", "-")}-${version}.tgz`
+  return join(packages_dir, filename)
+}
+
+rmSync(build_dir, {recursive: true, force: true})
+mkdirSync(packages_dir, {recursive: true})
+mkdirSync(workspace_dir, {recursive: true})
+
+const tarballs = new Map()
+for (const [name, cwd] of package_dirs) {
+  tarballs.set(name, await pack(name, cwd))
+}
+
+for (const example of examples) {
+  const destination = join(workspace_dir, example)
+  cpSync(join(examples_dir, example), destination, {recursive: true})
+
+  const package_path = join(destination, "package.json")
+  const pkg = JSON.parse(readFileSync(package_path, "utf-8"))
+  for (const section of ["dependencies", "devDependencies"]) {
+    for (const name of Object.keys(pkg[section] ?? {})) {
+      const tarball = tarballs.get(name)
+      if (tarball != null) {
+        pkg[section][name] = `file:${relative(destination, tarball)}`
+      }
+    }
+  }
+  writeFileSync(package_path, `${JSON.stringify(pkg, null, 2)}\n`)
+}
+
+writeFileSync(join(workspace_dir, "package.json"), `${JSON.stringify({
+  name: "bokeh-framework-examples",
+  private: true,
+  version: "0.0.0",
+  workspaces: examples,
+}, null, 2)}\n`)
+
+await run("npm", ["install", "--no-audit", "--no-fund"], workspace_dir)
+for (const example of examples) {
+  await run("npm", ["run", "build", "--workspace", `@bokeh-example/${example}`], workspace_dir)
+}
+
+console.log(`packed framework examples built in ${workspace_dir}`)

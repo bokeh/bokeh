@@ -284,7 +284,7 @@ export class TextView extends XYGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   rect_i(i: number): Rect {

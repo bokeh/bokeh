@@ -1,0 +1,21 @@
+{
+  "name": "@bokeh-example/vue-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vue-tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "@bokeh/bokehjs": "4.0.0-dev.1",
+    "@bokeh/framework": "4.0.0-dev.1",
+    "@bokeh/vue": "4.0.0-dev.1",
+    "vue": "^3.5.40"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.5",
+    "typescript": "5.9.2",
+    "vite": "^8.2.0",
+    "vue-tsc": "^3.2.6"
+  }
+}

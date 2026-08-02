@@ -45,10 +45,21 @@ function is_HasProps(obj: unknown): obj is typeof HasProps {
   return isObject(obj) && (obj as any).prototype instanceof HasProps
 }
 
-export function register_models(models: {[key: string]: unknown} | unknown[], force: boolean = false): void {
+type ModelCollection = {[key: string]: unknown} | unknown[]
+
+export function register_models(models: ModelCollection, resolver: ModelResolver): void
+export function register_models(models: ModelCollection, force?: boolean, resolver?: ModelResolver): void
+
+export function register_models(models: ModelCollection, force_or_resolver: boolean | ModelResolver = false,
+    resolver: ModelResolver = default_resolver): void {
+  const force = typeof force_or_resolver == "boolean" ? force_or_resolver : false
+  if (force_or_resolver instanceof ModelResolver) {
+    resolver = force_or_resolver
+  }
+
   for (const model of isArray(models) ? models : values(models)) {
     if (is_HasProps(model)) {
-      default_resolver.register(model, force)
+      resolver.register(model, force)
     }
   }
 }

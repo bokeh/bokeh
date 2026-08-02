@@ -29,15 +29,15 @@ describe("Examples", () => {
       })
       plot.circle(x, y, radii, {fill_color: colors, fill_alpha: 0.6, line_color: null})
 
-      const show_plot = new Button({
-        label: new HTML({html: `Show plot using <b>${output_backend}</b> backend ...`}),
+      const show_plot = Button.create({
+        label: HTML.create({html: `Show plot using <b>${output_backend}</b> backend ...`}),
         sizing_mode: "stretch_width",
       })
 
-      const close_plot = new Button({label: "Close"})
-      const dialog = new Dialog({
-        title: new HTML({html: `Dialog with a plot using <b>${output_backend}</b> backend`}),
-        content: new Column({
+      const close_plot = Button.create({label: "Close"})
+      const dialog = Dialog.create({
+        title: HTML.create({html: `Dialog with a plot using <b>${output_backend}</b> backend`}),
+        content: Column.create({
           sizing_mode: "stretch_both",
           children: [
             plot,
@@ -45,13 +45,13 @@ describe("Examples", () => {
           ],
         }),
       })
-      show_plot.on_click(new OpenDialog({dialog}))
-      close_plot.on_click(new CloseDialog({dialog}))
+      show_plot.on_click(OpenDialog.create({dialog}))
+      close_plot.on_click(CloseDialog.create({dialog}))
 
       return show_plot
     }
 
-    const layout = new Column({
+    const layout = Column.create({
       children: [
         ui(1000, "canvas"),
         ui(1000, "svg"),

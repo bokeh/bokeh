@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "baseUrl": ".",
+    "paths": {
+      "@bokeh/bokehjs": ["../../../build/js/lib/bokeh_package.d.ts"]
+    }
+  },
+  "include": ["index.ts"]
+}

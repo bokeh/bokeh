@@ -1179,22 +1179,27 @@ export type CSSStyles = CSSStylesSnake & CSSProps
 
 export type CSSStylesLike = CSSStyles | Dict<string | null> | Styles
 
-const _style_decl = document.createElement("div").style
+let _style_decl: CSSStyleDeclaration | null = null
+
 function _css_name(attr: string): string | null {
   if (attr.startsWith("--")) {
     return attr
   }
   const name = attr.replaceAll(/_/g, "-").replaceAll(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)
+  if (typeof document == "undefined") {
+    return name
+  }
+  const style_decl = _style_decl ??= document.createElement("div").style
   // XXX hasOwnProperty() doesn't work for unknown reasons (e.g. in Firefox)
-  if (name in _style_decl) {
+  if (name in style_decl) {
     return name
   }
   const webkit_name = `-webkit-${name}`
-  if (webkit_name in _style_decl) {
+  if (webkit_name in style_decl) {
     return webkit_name
   }
   const moz_name = `-moz-${name}`
-  if (moz_name in _style_decl) {
+  if (moz_name in style_decl) {
     return moz_name
   }
   logger.warn(`unknown CSS property '${attr}'`)

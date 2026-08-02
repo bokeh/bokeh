@@ -35,8 +35,8 @@ describe("embed", () => {
   describe("implements add_document_standalone()", () => {
     it("which notifies idle on models without views", async () => {
       const doc = new Document()
-      doc.add_root(new ModelWithoutView())
-      doc.add_root(new ModelWithView())
+      doc.add_root(ModelWithoutView.create())
+      doc.add_root(ModelWithView.create())
       const views = await embed.add_document_standalone(doc, document.body)
       await defer() // wait one full loop for NotificationsView; unfortunately view.ready isn't in sync
       try {
@@ -48,7 +48,7 @@ describe("embed", () => {
   })
 
   it("should support view index", async () => {
-    const doc = new Document({roots: [new ModelWithView]})
+    const doc = new Document({roots: [ModelWithView.create()]})
     const views = await embed.add_document_standalone(doc, document.body)
     try {
       expect(views.roots.length).to.be.equal(2) // root + notifications

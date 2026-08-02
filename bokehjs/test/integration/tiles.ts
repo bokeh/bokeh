@@ -9,8 +9,8 @@ describe("TileRenderer", () => {
 
   it.skip("should support smoothed and non-smoothed images", async () => {
     // range bounds supplied in web mercator coordinates
-    const x_range = new Range1d({start: -2000000, end: 6000000})
-    const y_range = new Range1d({start: -1000000, end: 7000000})
+    const x_range = Range1d.create({start: -2000000, end: 6000000})
+    const y_range = Range1d.create({start: -1000000, end: 7000000})
     const x_axis_type = "mercator"
     const y_axis_type = "mercator"
     const p0 = fig([300, 300], {x_range, y_range, x_axis_type, y_axis_type, title: "Smoothed"})
@@ -21,10 +21,10 @@ describe("TileRenderer", () => {
     const attribution =
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,' +
       '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
-    const tile_provider = new WMTSTileSource({url, attribution})
+    const tile_provider = WMTSTileSource.create({url, attribution})
 
     function add_tile(plot: Plot, tile_source: TileSource, attrs: Partial<TileRenderer.Attrs> = {}): TileRenderer {
-      const renderer = new TileRenderer({tile_source, ...attrs})
+      const renderer = TileRenderer.create({tile_source, ...attrs})
       plot.renderers = plot.renderers.concat(renderer)
       return renderer
     }
@@ -36,17 +36,17 @@ describe("TileRenderer", () => {
   })
 
   it("should hide attribution for invisible renderers", async () => {
-    const visible_source = new WMTSTileSource({
+    const visible_source = WMTSTileSource.create({
       url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "visible attribution",
     })
-    const hidden_source = new WMTSTileSource({
+    const hidden_source = WMTSTileSource.create({
       url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "hidden attribution",
     })
 
-    const visible = new TileRenderer({tile_source: visible_source})
-    const hidden = new TileRenderer({tile_source: hidden_source})
+    const visible = TileRenderer.create({tile_source: visible_source})
+    const hidden = TileRenderer.create({tile_source: hidden_source})
 
     const plot = fig([300, 300], {
       x_range: [-2000000, 6000000],

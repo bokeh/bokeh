@@ -25,11 +25,11 @@ describe("Examples", () => {
 
     const p = plot(500)
 
-    const attribution = new Panel({
-      position: new Node({target: "frame", symbol: "bottom_left"}),
+    const attribution = Panel.create({
+      position: Node.create({target: "frame", symbol: "bottom_left"}),
       anchor: "bottom_left",
       css_variables: {
-        "--max-width": new Node({target: "frame", symbol: "width"}),
+        "--max-width": Node.create({target: "frame", symbol: "width"}),
       },
       stylesheets: [`
         :host {
@@ -43,7 +43,7 @@ describe("Examples", () => {
         }
       `],
       elements: [
-        new HTML({html: "&copy; np.<b>random</b>()"}),
+        HTML.create({html: "&copy; np.<b>random</b>()"}),
       ],
     })
     p.elements.push(attribution)

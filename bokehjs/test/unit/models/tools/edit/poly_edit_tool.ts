@@ -32,9 +32,9 @@ export interface PolyEditTestCase {
 
 async function make_testcase(): Promise<PolyEditTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
-  const plot = new Plot({
-    x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1}),
+  const plot = Plot.create({
+    x_range: Range1d.create({start: -1, end: 1}),
+    y_range: Range1d.create({start: -1, end: 1}),
   })
 
   const {view: plot_view} = await display(plot)
@@ -44,26 +44,26 @@ async function make_testcase(): Promise<PolyEditTestCase> {
     ys: [[0, -0.5, -1], [0, -0.5, -1]],
     z: [null, null],
   }
-  const data_source = new ColumnDataSource({data})
-  const vertex_source = new ColumnDataSource({data: {x: [], y: []}})
+  const data_source = ColumnDataSource.create({data})
+  const vertex_source = ColumnDataSource.create({data: {x: [], y: []}})
 
-  const glyph = new Patches({
+  const glyph = Patches.create({
     xs: {field: "xs"},
     ys: {field: "ys"},
   })
-  const vertex_glyph = new Scatter({
+  const vertex_glyph = Scatter.create({
     x: {field: "x"},
     y: {field: "y"},
   })
 
-  const glyph_renderer = new GlyphRenderer({glyph, data_source})
+  const glyph_renderer = GlyphRenderer.create({glyph, data_source})
   const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
   sinon.stub(glyph_renderer_view, "set_data")
 
-  const vertex_renderer = new GlyphRenderer({glyph: vertex_glyph, data_source: vertex_source})
+  const vertex_renderer = GlyphRenderer.create({glyph: vertex_glyph, data_source: vertex_source})
   const vertex_renderer_view = await build_view(vertex_renderer, {parent: plot_view})
 
-  const draw_tool = new PolyEditTool({
+  const draw_tool = PolyEditTool.create({
     active: true,
     default_overrides: {z: "Test"},
     renderers: [glyph_renderer],
@@ -93,10 +93,10 @@ describe("PolyEditTool", (): void => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool0 = new PolyEditTool()
+      const tool0 = PolyEditTool.create()
       expect(tool0.tooltip).to.be.equal("Poly Edit Tool")
 
-      const tool1 = new PolyEditTool({description: "My Poly Edit"})
+      const tool1 = PolyEditTool.create({description: "My Poly Edit"})
       expect(tool1.tooltip).to.be.equal("My Poly Edit")
     })
   })
@@ -108,7 +108,7 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       vertex_hit_test_stub.returns(null)
 
       const tap_event = make_tap_event(300, 300)
@@ -123,10 +123,10 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
       vertex_hit_test_stub.returns(null)
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       let tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
-      hit_test_stub.returns(new Selection({indices: [0]}))
+      hit_test_stub.returns(Selection.create({indices: [0]}))
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -138,7 +138,7 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       vertex_hit_test_stub.returns(null)
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -162,7 +162,7 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
       vertex_hit_test_stub.returns(null)
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -180,7 +180,7 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       sinon.stub(testcase.vertex_glyph_view, "hit_test").returns(null)
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._press(tap_event)
 
@@ -197,10 +197,10 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
       vertex_hit_test_stub.returns(null)
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._press(tap_event)
-      vertex_hit_test_stub.returns(new Selection({indices: [1]}))
+      vertex_hit_test_stub.returns(Selection.create({indices: [1]}))
       testcase.draw_tool_view._tap(tap_event)
       expect(testcase.vertex_source.selected.indices).to.be.equal([1])
     })
@@ -211,11 +211,11 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
       vertex_hit_test_stub.returns(null)
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._press(tap_event)
 
-      vertex_hit_test_stub.returns(new Selection({indices: [1]}))
+      vertex_hit_test_stub.returns(Selection.create({indices: [1]}))
       testcase.draw_tool_view._tap(tap_event)
 
       const moveenter_event = make_move_event(300, 300)
@@ -240,11 +240,11 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       vertex_hit_test_stub.returns(null)
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._press(tap_event)
-      vertex_hit_test_stub.returns(new Selection({indices: [1]}))
+      vertex_hit_test_stub.returns(Selection.create({indices: [1]}))
       const panstart_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(panstart_event)
       const pan_event = make_pan_event(290, 290)
@@ -268,13 +268,13 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       vertex_hit_test_stub.returns(null)
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._press(tap_event) // Poly selected
-      vertex_hit_test_stub.returns(new Selection({indices: [1]}))
+      vertex_hit_test_stub.returns(Selection.create({indices: [1]}))
       testcase.draw_tool_view._press(tap_event) // Vertex selected
-      vertex_hit_test_stub.returns(new Selection({indices: [2]}))
+      vertex_hit_test_stub.returns(Selection.create({indices: [2]}))
       testcase.draw_tool_view._press(make_tap_event(290, 290)) // Add new vertex
 
       const xs = [0, 0.5, 0.04424778761061947, 1]
@@ -296,13 +296,13 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       vertex_hit_test_stub.returns(null)
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._press(tap_event) // Poly selected
-      vertex_hit_test_stub.returns(new Selection({indices: [1]}))
+      vertex_hit_test_stub.returns(Selection.create({indices: [1]}))
       testcase.draw_tool_view._press(tap_event) // Vertex selected
-      vertex_hit_test_stub.returns(new Selection({indices: [2]}))
+      vertex_hit_test_stub.returns(Selection.create({indices: [2]}))
       const tap_event2 = make_tap_event(290, 290)
       const moveenter_event = make_move_event(290, 290)
       const key_event = make_key_event("Escape")

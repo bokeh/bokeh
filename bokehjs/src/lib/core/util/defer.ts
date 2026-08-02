@@ -1,16 +1,22 @@
-const channel = new MessageChannel()
 const tasks: Map<number, () => void> = new Map()
+let channel: MessageChannel | null = null
 
-channel.port1.onmessage = (event) => {
-  const handle = event.data
-  const fn = tasks.get(handle)
-  if (fn != null) {
-    try {
-      fn()
-    } finally {
-      tasks.delete(handle)
+function get_channel(): MessageChannel {
+  if (channel == null) {
+    channel = new MessageChannel()
+    channel.port1.onmessage = (event) => {
+      const handle = event.data
+      const fn = tasks.get(handle)
+      if (fn != null) {
+        try {
+          fn()
+        } finally {
+          tasks.delete(handle)
+        }
+      }
     }
   }
+  return channel
 }
 
 let counter = 1
@@ -19,7 +25,7 @@ export function defer(): Promise<void> {
   return new Promise((resolve) => {
     const handle = counter++
     tasks.set(handle, resolve)
-    channel.port2.postMessage(handle)
+    get_channel().port2.postMessage(handle)
   })
 }
 

@@ -195,7 +195,7 @@ export class RectView extends CenterRotatableView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected _map_dist_corner_for_data_side_length(coord: Arrayable<number>, side_length: p.Uniform<number>,

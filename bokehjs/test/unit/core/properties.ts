@@ -113,7 +113,7 @@ describe("properties module", () => {
 
   describe("Property", () => {
     it("validate() should throw an instance of ValidationError", () => {
-      const obj = new Some()
+      const obj = Some.create()
       expect(() => obj.properties.int.validate(0.5)).to.throw(p.ValidationError)
     })
   })
@@ -127,7 +127,7 @@ describe("properties module", () => {
     expect(prop.valid([])).to.be.false
     expect(prop.valid(null)).to.be.false
     expect(prop.valid(undefined)).to.be.false
-    expect(prop.valid(new Some())).to.be.false
+    expect(prop.valid(Some.create())).to.be.false
   }
 
   describe("isSpec", () => {
@@ -200,14 +200,14 @@ describe("properties module", () => {
       */
 
       it("should set a spec for object attr values", () => {
-        const obj0 = new Some({number_spec: {value: 0}})
+        const obj0 = Some.create({number_spec: {value: 0}})
         expect(obj0.number_spec).to.be.equal({value: 0})
 
-        const obj1 = new Some({number_spec: {field: "some_field"}})
+        const obj1 = Some.create({number_spec: {field: "some_field"}})
         expect(obj1.number_spec).to.be.equal({field: "some_field"})
 
-        const expr = new TestExpression()
-        const obj2 = new Some({number_spec: {expr}})
+        const expr = TestExpression.create()
+        const obj2 = Some.create({number_spec: {expr}})
         expect(obj2.number_spec).to.be.equal({expr})
       })
 
@@ -255,61 +255,61 @@ describe("properties module", () => {
     describe("array", () => {
 
       it("should return an array if there is a value spec", () => {
-        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj1 = new Some({number_spec: 1})
+        const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
+        const obj1 = Some.create({number_spec: 1})
         const p1 = obj1.properties.number_spec
         const arr1 = p1.array(source)
         expect(arr1).to.be.equal(new Float64Array([1, 1, 1, 1, 1]))
 
-        const obj2 = new Some({number_spec: {value: 2}})
+        const obj2 = Some.create({number_spec: {value: 2}})
         const p2 = obj2.properties.number_spec
         const arr2 = p2.array(source)
         expect(arr2).to.be.equal(new Float64Array([2, 2, 2, 2, 2]))
       })
 
       it("should return an array if there is a valid expr spec", () => {
-        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {expr: new TestExpression()}})
+        const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
+        const obj = Some.create({number_spec: {expr: TestExpression.create()}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 4]))
       })
 
       it("should return an array if there is a valid field spec", () => {
-        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {field: "foo"}})
+        const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
+        const obj = Some.create({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
       })
 
       it("should return an array if there is a valid field spec named 'field'", () => {
-        const source = new ColumnDataSource({data: {field: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {field: "field"}})
+        const source = ColumnDataSource.create({data: {field: [0, 1, 2, 3, 10]}})
+        const obj = Some.create({number_spec: {field: "field"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
       })
 
       it("should throw an Error otherwise", () => {
-        const source = new ColumnDataSource({data: {bar: [1, 2, 3]}})
-        const obj = new Some({number_spec: {field: "foo"}})
+        const source = ColumnDataSource.create({data: {bar: [1, 2, 3]}})
+        const obj = Some.create({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([NaN, NaN, NaN]))
       })
 
       it("should apply a spec transform to a field", () => {
-        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {field: "foo", transform: new TestTransform()}} as any) // XXX: transform
+        const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
+        const obj = Some.create({number_spec: {field: "foo", transform: TestTransform.create()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 2, 4, 6, 14]))
       })
 
       it("should apply a spec transform to a value array", () => {
-        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {value: 2, transform: new TestTransform()}} as any) // XXX: transform
+        const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
+        const obj = Some.create({number_spec: {value: 2, transform: TestTransform.create()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([2, 3, 4, 5, 6]))
@@ -317,7 +317,7 @@ describe("properties module", () => {
 
       describe("changing the property attribute value", () => {
         it("should trigger change on the property", () => {
-          const obj = new Some({string_spec: {value: "foo"}})
+          const obj = Some.create({string_spec: {value: "foo"}})
           const prop = obj.properties.string_spec
           const stuff = {called: false}
           prop.change.connect(() => stuff.called = true)
@@ -327,7 +327,7 @@ describe("properties module", () => {
       })
 
       it("should update the spec", () => {
-        const obj = new Some({string_spec: {value: "foo"}})
+        const obj = Some.create({string_spec: {value: "foo"}})
         const prop = obj.properties.string_spec
         obj.string_spec = {value: "bar"}
         expect(prop.get_value()).to.be.equal({value: "bar"})
@@ -336,7 +336,7 @@ describe("properties module", () => {
   })
 
   describe("Anchor", () => {
-    const obj = new Some({anchor: "top_left"})
+    const obj = Some.create({anchor: "top_left"})
     const prop = obj.properties.anchor
 
     describe("valid", () => {
@@ -354,7 +354,7 @@ describe("properties module", () => {
 
   describe("Any", () => {
     class X {}
-    const obj = new Some({any: new X()})
+    const obj = Some.create({any: new X()})
     const prop = obj.properties.any
 
     describe("valid", () => {
@@ -363,7 +363,7 @@ describe("properties module", () => {
       })
 
       it("should accept any other value", () => {
-        for (const x of [true, null, 10, 10.2, "foo", [1, 2, 3], {}, new Some(), new X()]) {
+        for (const x of [true, null, 10, 10.2, "foo", [1, 2, 3], {}, Some.create(), new X()]) {
           expect(prop.valid(x)).to.be.true
         }
       })
@@ -373,7 +373,7 @@ describe("properties module", () => {
   describe("AngleSpec", () => {
     describe("normalize", () => {
       it("should multiply radians by -1", () => {
-        const obj = new Some({angle_spec: {value: 10, units: "rad"}})
+        const obj = Some.create({angle_spec: {value: 10, units: "rad"}})
         const prop = obj.properties.angle_spec
         expect(prop.materialize(-10)).to.be.equal(10)
         expect(prop.materialize(0)).to.be.equal(-0)
@@ -383,7 +383,7 @@ describe("properties module", () => {
       })
 
       it("should convert degrees to -1 * radians", () => {
-        const obj = new Some({angle_spec: {value: 10, units: "deg"}})
+        const obj = Some.create({angle_spec: {value: 10, units: "deg"}})
         const prop = obj.properties.angle_spec
         expect(prop.materialize(-180)).to.be.equal(Math.PI)
         expect(prop.materialize(0)).to.be.equal(-0)
@@ -394,7 +394,7 @@ describe("properties module", () => {
   })
 
   describe("Array", () => {
-    const obj = new Some({array: [1, 2, 3]})
+    const obj = Some.create({array: [1, 2, 3]})
     const prop = obj.properties.array
 
     describe("valid", () => {
@@ -417,7 +417,7 @@ describe("properties module", () => {
   })
 
   describe("Bool", () => {
-    const obj = new Some({boolean: true})
+    const obj = Some.create({boolean: true})
     const prop = obj.properties.boolean
 
     describe("valid", () => {
@@ -439,7 +439,7 @@ describe("properties module", () => {
   })
 
   describe("Color", () => {
-    const obj = new Some({color: "#aabbccdd"})
+    const obj = Some.create({color: "#aabbccdd"})
     const prop = obj.properties.color
 
     describe("valid", () => {
@@ -506,7 +506,7 @@ describe("properties module", () => {
   })
 
   describe("Direction", () => {
-    const obj = new Some({direction: "clock"})
+    const obj = Some.create({direction: "clock"})
     const prop = obj.properties.direction
 
     describe("valid", () => {
@@ -525,33 +525,33 @@ describe("properties module", () => {
 
     describe("units", () => {
       it("should default to data units", () => {
-        const obj = new Some({distance_spec: {value: 10}})
+        const obj = Some.create({distance_spec: {value: 10}})
         const prop = obj.properties.distance_spec
         expect(prop.units).to.be.equal("data")
       })
 
       it("should accept screen units", () => {
-        const obj = new Some({distance_spec: {value: 10, units: "screen"}})
+        const obj = Some.create({distance_spec: {value: 10, units: "screen"}})
         const prop = obj.properties.distance_spec
         expect(prop.units).to.be.equal("screen")
       })
 
       it("should accept data units", () => {
-        const obj = new Some({distance_spec: {value: 10, units: "data"}})
+        const obj = Some.create({distance_spec: {value: 10, units: "data"}})
         const prop = obj.properties.distance_spec
         expect(prop.units).to.be.equal("data")
       })
 
       it("should throw an Error on bad units", () => {
         expect(() => {
-          new Some({distance_spec: {value: 10, units: "bad"}})
+          Some.create({distance_spec: {value: 10, units: "bad"}})
         }).to.throw(Error, "units must be one of screen, data; got: bad")
       })
     })
   })
 
   describe("Font", () => {
-    const obj = new Some({font: "times"})
+    const obj = Some.create({font: "times"})
     const prop = obj.properties.font
 
     describe("valid", () => {
@@ -574,12 +574,12 @@ describe("properties module", () => {
 
   describe("Instance", () => {
     describe("of HasProps", () => {
-      const obj = new Some({instance_has_props: new Some()})
+      const obj = Some.create({instance_has_props: Some.create()})
       const prop = obj.properties.instance_has_props
 
       describe("valid", () => {
         it("should accept HasProps instances", () => {
-          const value = new Some()
+          const value = Some.create()
           expect(prop.valid(value)).to.be.true
         })
 
@@ -600,7 +600,7 @@ describe("properties module", () => {
     })
 
     describe("of BitSet", () => {
-      const obj = new Some({instance_bitset: new BitSet(10)})
+      const obj = Some.create({instance_bitset: new BitSet(10)})
       const prop = obj.properties.instance_bitset
 
       describe("valid", () => {
@@ -609,7 +609,7 @@ describe("properties module", () => {
         })
 
         it("should not accept any other inputs", () => {
-          expect(prop.valid(new Some())).to.be.false
+          expect(prop.valid(Some.create())).to.be.false
           expect(prop.valid(true)).to.be.false
           expect(prop.valid(10)).to.be.false
           expect(prop.valid(10.2)).to.be.false
@@ -626,7 +626,7 @@ describe("properties module", () => {
   })
 
   describe("Number", () => {
-    const obj = new Some({number: 10})
+    const obj = Some.create({number: 10})
     const prop = obj.properties.number
 
     describe("valid", () => {
@@ -642,13 +642,13 @@ describe("properties module", () => {
         expect(prop.valid([])).to.be.false
         expect(prop.valid(null)).to.be.false
         expect(prop.valid(undefined)).to.be.false
-        expect(prop.valid(new Some())).to.be.false
+        expect(prop.valid(Some.create())).to.be.false
       })
     })
   })
 
   describe("String", () => {
-    const obj = new Some({string: "foo"})
+    const obj = Some.create({string: "foo"})
     const prop = obj.properties.string
 
     describe("valid", () => {
@@ -675,7 +675,7 @@ describe("properties module", () => {
       it("with dtype=uint8 and dim=1", () => {
         const array = new Uint8Array([0x11, 0x22])
         const input = ndarray(array, {dtype: "uint8", shape: [2]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x11, 0x11, 0xFF, 0x22, 0x22, 0x22, 0xFF]))
       })
@@ -683,7 +683,7 @@ describe("properties module", () => {
       it("with dtype=uint8 and dim=2 and shape=[_, 3]", () => {
         const array = new Uint8Array([0x11, 0x22, 0x33, 0x22, 0x33, 0x44])
         const input = ndarray(array, {dtype: "uint8", shape: [2, 3]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0xFF, 0x22, 0x33, 0x44, 0xFF]))
       })
@@ -691,7 +691,7 @@ describe("properties module", () => {
       it("with dtype=uint8 and dim=2 and shape=[_, 4]", () => {
         const array = new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55])
         const input = ndarray(array, {dtype: "uint8", shape: [2, 4]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
       })
@@ -699,7 +699,7 @@ describe("properties module", () => {
       it("with dtype=float32 and dim=2 and shape=[_, 3]", () => {
         const array = new Float32Array([0.068, 0.135, 0.200, 0.135, 0.200, 0.268])
         const input = ndarray(array, {dtype: "float32", shape: [2, 3]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0xFF, 0x22, 0x33, 0x44, 0xFF]))
       })
@@ -707,7 +707,7 @@ describe("properties module", () => {
       it("with dtype=float32 and dim=2 and shape=[_, 4]", () => {
         const array = new Float32Array([0.068, 0.135, 0.200, 0.268, 0.135, 0.200, 0.268, 0.335])
         const input = ndarray(array, {dtype: "float32", shape: [2, 4]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
       })
@@ -715,7 +715,7 @@ describe("properties module", () => {
       it("with dtype=float64 and dim=2 and shape=[_, 3]", () => {
         const array = new Float64Array([0.068, 0.135, 0.200, 0.135, 0.200, 0.268])
         const input = ndarray(array, {dtype: "float64", shape: [2, 3]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0xFF, 0x22, 0x33, 0x44, 0xFF]))
       })
@@ -723,7 +723,7 @@ describe("properties module", () => {
       it("with dtype=float64 and dim=2 and shape=[_, 4]", () => {
         const array = new Float64Array([0.068, 0.135, 0.200, 0.268, 0.135, 0.200, 0.268, 0.335])
         const input = ndarray(array, {dtype: "float64", shape: [2, 4]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
       })
@@ -731,7 +731,7 @@ describe("properties module", () => {
       it("with dtype=object and dim=1 (#RGB)", () => {
         const array = ["#112233", "#223344"]
         const input = ndarray(array, {dtype: "object", shape: [2]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0xFF, 0x22, 0x33, 0x44, 0xFF]))
       })
@@ -739,7 +739,7 @@ describe("properties module", () => {
       it("with dtype=object and dim=1 (#RGBA)", () => {
         const array = ["#11223344", "#22334455"]
         const input = ndarray(array, {dtype: "object", shape: [2]})
-        const obj = new Some()
+        const obj = Some.create()
         const output = obj.properties.color_spec.v_materialize(input)
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
       })

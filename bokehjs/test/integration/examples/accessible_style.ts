@@ -68,7 +68,7 @@ describe("Examples", () => {
       }
     `
 
-    const light_dark = new LightDark({active: true, stylesheets: [switch_style]})
+    const light_dark = LightDark.create({active: true, stylesheets: [switch_style]})
 
     const button_style = `
       .bk-btn:hover {
@@ -229,38 +229,38 @@ describe("Examples", () => {
     const legend_style = `
     `
 
-    const w00 = new Button({label: "Default Button", stylesheets: [button_style]})
-    const w01 = new Button({label: "Primary Button", button_type: "primary", stylesheets: [button_style]})
-    const w02 = new Button({label: "Success Button", button_type: "success", stylesheets: [button_style]})
-    const w03 = new Button({label: "Warning Button", button_type: "warning", stylesheets: [button_style]})
-    const w04 = new Button({label: "Danger Button", button_type: "danger", stylesheets: [button_style]})
-    const w05 = new Button({label: "Light Button", button_type: "light", stylesheets: [button_style]})
-    const w1 = new Toggle({label: "Toggle", stylesheets: [button_style]})
-    const w2 = new Dropdown({label: "Dropdown", menu: [["Item 1", "item_1"], ["Item 2", "item_2"], null, ["Item 3", "item_3"]], stylesheets: [button_style, dropdown_style]})
-    const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [input_style]})
-    const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [input_style]})
-    const w50 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [button_style]})
-    const w51 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "primary", stylesheets: [button_style]})
-    const w52 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "success", stylesheets: [button_style]})
-    const w53 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "warning", stylesheets: [button_style]})
-    const w54 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "danger", stylesheets: [button_style]})
-    const w55 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "light", stylesheets: [button_style]})
-    const w60 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [button_style]})
-    const w61 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "primary", stylesheets: [button_style]})
-    const w62 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "success", stylesheets: [button_style]})
-    const w63 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "warning", stylesheets: [button_style]})
-    const w64 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "danger", stylesheets: [button_style]})
-    const w65 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "light", stylesheets: [button_style]})
-    const w7 = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103", stylesheets: [input_style]})
-    const w8 = new PasswordInput({value: "foo", stylesheets: [input_style]})
-    const w9 = new AutocompleteInput({
+    const w00 = Button.create({label: "Default Button", stylesheets: [button_style]})
+    const w01 = Button.create({label: "Primary Button", button_type: "primary", stylesheets: [button_style]})
+    const w02 = Button.create({label: "Success Button", button_type: "success", stylesheets: [button_style]})
+    const w03 = Button.create({label: "Warning Button", button_type: "warning", stylesheets: [button_style]})
+    const w04 = Button.create({label: "Danger Button", button_type: "danger", stylesheets: [button_style]})
+    const w05 = Button.create({label: "Light Button", button_type: "light", stylesheets: [button_style]})
+    const w1 = Toggle.create({label: "Toggle", stylesheets: [button_style]})
+    const w2 = Dropdown.create({label: "Dropdown", menu: [["Item 1", "item_1"], ["Item 2", "item_2"], null, ["Item 3", "item_3"]], stylesheets: [button_style, dropdown_style]})
+    const w3 = CheckboxGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [input_style]})
+    const w4 = RadioGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [input_style]})
+    const w50 = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [button_style]})
+    const w51 = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "primary", stylesheets: [button_style]})
+    const w52 = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "success", stylesheets: [button_style]})
+    const w53 = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "warning", stylesheets: [button_style]})
+    const w54 = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "danger", stylesheets: [button_style]})
+    const w55 = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "light", stylesheets: [button_style]})
+    const w60 = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [button_style]})
+    const w61 = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "primary", stylesheets: [button_style]})
+    const w62 = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "success", stylesheets: [button_style]})
+    const w63 = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "warning", stylesheets: [button_style]})
+    const w64 = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "danger", stylesheets: [button_style]})
+    const w65 = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, button_type: "light", stylesheets: [button_style]})
+    const w7 = TextInput.create({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103", stylesheets: [input_style]})
+    const w8 = PasswordInput.create({value: "foo", stylesheets: [input_style]})
+    const w9 = AutocompleteInput.create({
       placeholder: "Enter value ...",
       completions: ["aaa", "aab", "aac", "baa", "caa"],
       stylesheets: [input_style],
     })
-    const w10 = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], stylesheets: [choices_style]})
-    const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1", stylesheets: [input_style]})
-    const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5, stylesheets: [slider_style]})
+    const w10 = MultiChoice.create({options: ["Option 1", "Option 2", "Option 3"], stylesheets: [choices_style]})
+    const w11 = Select.create({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1", stylesheets: [input_style]})
+    const w12 = Slider.create({value: 10, start: 0, end: 100, step: 0.5, stylesheets: [slider_style]})
 
     const p = figure()
 
@@ -274,10 +274,10 @@ describe("Examples", () => {
     p.legend.stylesheets = [legend_style]
 
     const w_columns = [
-      new Column({children: [light_dark, w00, w01, w02, w03, w04, w05, w1, w2, w3, w4, w50, w51, w52, w53, w54, w55, w60, w61, w62, w63, w64, w65]}),
-      new Column({children: [w7, w8, w9, w10, w11, w12, p]}),
+      Column.create({children: [light_dark, w00, w01, w02, w03, w04, w05, w1, w2, w3, w4, w50, w51, w52, w53, w54, w55, w60, w61, w62, w63, w64, w65]}),
+      Column.create({children: [w7, w8, w9, w10, w11, w12, p]}),
     ]
-    const layout = new Row({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
+    const layout = Row.create({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
       `
       :host {
         --border-width: 2px;

@@ -14,6 +14,7 @@ import * as paths from "../paths.js"
 import {platform, find_port, retry, terminate, keep_alive} from "./_util.js"
 import {compile_typescript} from "./_util.js"
 import {start_server as start_js_server} from "./server.js"
+import {build_frameworks} from "./frameworks.js"
 
 import {Linker} from "#compiler/linker.js"
 import * as preludes from "#compiler/prelude.js"
@@ -416,5 +417,14 @@ task2("test:defaults", [start, build_defaults], async ([devtools_port, server_po
 
 task("test:build", ["test:build:defaults", "test:build:unit", "test:build:integration"])
 
+const test_framework_packages = task("test:frameworks:packages", [build_frameworks], async () => {
+  await node(["./test/frameworks/package_examples.mjs"])
+})
+
+task2("test:frameworks", [test_framework_packages, start_headless], async (_packages, devtools_port) => {
+  await node(["./test/frameworks/run.mjs", `--devtools-port=${devtools_port}`])
+  return success(undefined)
+})
+
 task("test:lib", ["test:unit", "test:integration"])
-task("test", ["test:codebase", "test:defaults", "test:lib"])
+task("test", ["test:codebase", "test:defaults", "test:lib", "test:frameworks"])

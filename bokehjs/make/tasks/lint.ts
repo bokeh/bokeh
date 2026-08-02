@@ -9,11 +9,11 @@ import * as paths from "../paths.js"
 
 import {glob} from "#compiler/sys.js"
 
-async function eslint(dir: string): Promise<void> {
+async function eslint(dir: string, tsconfig_file: string = "tsconfig.json"): Promise<void> {
   const {fix} = argv
   const eslint = new ESLint({cache: true, fix})
 
-  const tsconfig_url = `file://${join(dir, "tsconfig.json")}`
+  const tsconfig_url = `file://${join(dir, tsconfig_file)}`
   const {default: tsconfig_json} = await import(tsconfig_url, {with: {type: "json"}})
   const tsconfig = tsconfig_json as {include?: string[], exclude?: string[]}
 
@@ -57,14 +57,18 @@ task("eslint:test:unit", async () => await eslint(join(paths.src_dir.test, "unit
 task("eslint:test:integration", async () => await eslint(join(paths.src_dir.test, "integration")))
 task("eslint:test:codebase", async () => await eslint(join(paths.src_dir.test, "codebase")))
 task("eslint:test:devtools", async () => await eslint(join(paths.src_dir.test, "devtools")))
+task("eslint:test:frameworks", async () => await eslint(join(paths.src_dir.test, "frameworks")))
+
+task("eslint:frameworks", async () => await eslint(join(paths.base_dir, "frameworks"), "tsconfig.lint.json"))
+task("eslint:examples:frameworks", async () => await eslint(join(paths.src_dir.examples, "frameworks"), "tsconfig.lint.json"))
 
 task("eslint:make", async () => await eslint(paths.make_dir))
 task("eslint:lib", async () => await eslint(paths.src_dir.lib))
 task("eslint:compiler", async () => await eslint(paths.src_dir.compiler))
 task("eslint:server", async () => await eslint(paths.src_dir.server))
-task("eslint:test", ["eslint:test:framework", "eslint:test:defaults", "eslint:test:unit", "eslint:test:integration", "eslint:test:codebase", "eslint:test:devtools"])
+task("eslint:test", ["eslint:test:framework", "eslint:test:defaults", "eslint:test:unit", "eslint:test:integration", "eslint:test:codebase", "eslint:test:devtools", "eslint:test:frameworks"])
 task("eslint:examples", async () => await eslint(paths.src_dir.examples))
 
-task("eslint", ["eslint:make", "eslint:lib", "eslint:compiler", "eslint:server", "eslint:test", "eslint:examples"])
+task("eslint", ["eslint:make", "eslint:lib", "eslint:compiler", "eslint:server", "eslint:test", "eslint:examples", "eslint:examples:frameworks", "eslint:frameworks"])
 
 task("lint", ["eslint"])

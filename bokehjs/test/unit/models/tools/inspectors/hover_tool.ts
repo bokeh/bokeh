@@ -41,18 +41,18 @@ function outer_dom(el: Element | VNode): Element {
 
 async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource, glyph_view: ScatterView}> {
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}
-  const data_source = new ColumnDataSource({data})
+  const data_source = ColumnDataSource.create({data})
 
-  const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
-  const glyph_renderer = new GlyphRenderer({glyph, data_source})
+  const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
+  const glyph_renderer = GlyphRenderer.create({glyph, data_source})
 
-  const plot = new Plot({
-    x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1}),
+  const plot = Plot.create({
+    x_range: Range1d.create({start: -1, end: 1}),
+    y_range: Range1d.create({start: -1, end: 1}),
     renderers: [glyph_renderer],
   })
 
-  const hover_tool = new HoverTool({active: true, renderers: [glyph_renderer]})
+  const hover_tool = HoverTool.create({active: true, renderers: [glyph_renderer]})
   plot.add_tools(hover_tool)
 
   const {view: plot_view} = await display(plot)
@@ -127,7 +127,7 @@ describe("HoverTool", () => {
       ["bar", "@bar"],
     ]
 
-    const hover = new HoverTool({tooltips})
+    const hover = HoverTool.create({tooltips})
     const p = fig([200, 200], {tools: [hover]})
     const r = p.circle({
       x: [1, 2, 3],
@@ -281,7 +281,7 @@ describe("HoverTool", () => {
   })
 
   const test_case = async () => {
-    const hover = new HoverTool()
+    const hover = HoverTool.create()
     const p = fig([200, 200], {tools: [hover]})
     const r = p.circle({
       x: [1, 1, 1, 1, 1, 1],
@@ -392,7 +392,7 @@ describe("HoverTool", () => {
     await hover_view.ready
     expect_indices([0, 1, 2, 3, 4, 5])
 
-    hover.filters = {"@radius": new CustomJS({code: "export default (args, tool, {value}) => value >= 0.4"})}
+    hover.filters = {"@radius": CustomJS.create({code: "export default (args, tool, {value}) => value >= 0.4"})}
     await hover_view.ready
     expect_indices([0, 1, 2])
 
@@ -400,7 +400,7 @@ describe("HoverTool", () => {
     await hover_view.ready
     expect_indices([0, 1, 2])
 
-    hover.filters = {"@radius": new CustomJS({code: "export default (args, tool, {value}) => value < 0.4"})}
+    hover.filters = {"@radius": CustomJS.create({code: "export default (args, tool, {value}) => value < 0.4"})}
     await hover_view.ready
     expect_indices([3, 4, 5])
 
@@ -409,8 +409,8 @@ describe("HoverTool", () => {
     expect_indices([3, 4, 5])
 
     hover.filters = {
-      "@foo": new CustomJS({code: "export default (args, tool, {value: foo}) => foo == 2"}),
-      "@bar": new CustomJS({code: "export default (args, tool, {value: bar}) => bar % 2 == 1"}),
+      "@foo": CustomJS.create({code: "export default (args, tool, {value: foo}) => foo == 2"}),
+      "@bar": CustomJS.create({code: "export default (args, tool, {value: bar}) => bar % 2 == 1"}),
     }
     await hover_view.ready
     expect_indices([3, 5])

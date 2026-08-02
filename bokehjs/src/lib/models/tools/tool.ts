@@ -188,7 +188,7 @@ export abstract class Tool extends Model {
   abstract tool_button(): ToolButton
 
   menu_item(): MenuItem {
-    const item = new MenuItem({
+    const item = MenuItem.create({
       icon: this.computed_icon,
       label: this.tool_name,
       tooltip: this.tooltip != this.tool_name ? this.tooltip : undefined,
@@ -199,7 +199,7 @@ export abstract class Tool extends Model {
 
     const submenu = this.menu
     if (submenu != null) {
-      item.menu = new Menu({items: submenu})
+      item.menu = Menu.create({items: submenu})
     }
     return item
   }

@@ -10,7 +10,7 @@ describe("ImageURL module", () => {
   describe("ImageURL Model", () => {
 
     describe("Default creation", () => {
-      const image_url = new ImageURL()
+      const image_url = ImageURL.create()
 
       it("should have global_alpha=1.0", () => {
         expect(image_url.global_alpha).to.be.equal({value: 1.0})
@@ -30,12 +30,12 @@ describe("ImageURL module", () => {
 
     it.skip("`_set_data` should correctly set Image src", async () => {
       // ImageURLView._set_data is called during GlyphRendererView.initialize
-      const image_url = new ImageURL()
+      const image_url = ImageURL.create()
       image_url.url = "image.jpg"
 
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
-      const source = new ColumnDataSource()
+      const source = ColumnDataSource.create()
       await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
 
@@ -47,7 +47,7 @@ describe("ImageURL module", () => {
 
     it("`_map_data` should correctly map data if w and h units are 'data'", async () => {
       // ImageURLView._map_data is called by ImageURLView.map_data
-      const image_url = new ImageURL()
+      const image_url = ImageURL.create()
       image_url.url = {value: "data:image/png;base64,"}
       image_url.x = 0
       image_url.y = 0
@@ -56,7 +56,7 @@ describe("ImageURL module", () => {
 
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
-      const source = new ColumnDataSource()
+      const source = ColumnDataSource.create()
       await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
@@ -67,7 +67,7 @@ describe("ImageURL module", () => {
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
       // ImageURLView._map_data is called by ImageURLView.map_data
-      const image_url = new ImageURL()
+      const image_url = ImageURL.create()
       image_url.url = {value: "data:image/png;base64,"}
       image_url.x = 0
       image_url.y = 0
@@ -78,7 +78,7 @@ describe("ImageURL module", () => {
 
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
-      const source = new ColumnDataSource()
+      const source = ColumnDataSource.create()
       await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
@@ -89,7 +89,7 @@ describe("ImageURL module", () => {
 
     it("`_map_data` should map data to NaN if w and h are null, 'data' units", async () => {
       // if sw, sh are NaN, then the image width or height are used during render
-      const image_url = new ImageURL()
+      const image_url = ImageURL.create()
       image_url.url = {value: "data:image/png;base64,"}
       image_url.x = 0
       image_url.y = 0
@@ -98,7 +98,7 @@ describe("ImageURL module", () => {
 
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
-      const source = new ColumnDataSource()
+      const source = ColumnDataSource.create()
       await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
@@ -108,7 +108,7 @@ describe("ImageURL module", () => {
     })
 
     it("`_map_data` should map data to NaN if w and h are null, 'screen' units", async () => {
-      const image_url = new ImageURL()
+      const image_url = ImageURL.create()
       image_url.url = {value: "data:image/png;base64,"}
       image_url.x = 0
       image_url.y = 0
@@ -119,7 +119,7 @@ describe("ImageURL module", () => {
 
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
-      const source = new ColumnDataSource()
+      const source = ColumnDataSource.create()
       await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
       image_url_view.map_data()

@@ -44,6 +44,6 @@ export abstract class InspectTool extends Tool {
   override event_type = "move" as "move"
 
   override tool_button(): OnOffButton {
-    return new OnOffButton({tool: this})
+    return OnOffButton.create({tool: this})
   }
 }

@@ -23,8 +23,8 @@ async function show_with_exported(plot: Plot) {
   const canvas_el = canvas({width, height})
   const ctx = canvas_el.getContext("2d")!
 
-  const html = new HTML({html: canvas_el, style: {width: `${width}`, height: `${height}px`}}) // remove ~5px; where is this coming from?
-  const layout = row([plot, new Pane({elements: [html]})])
+  const html = HTML.create({html: canvas_el, style: {width: `${width}`, height: `${height}px`}}) // remove ~5px; where is this coming from?
+  const layout = row([plot, Pane.create({elements: [html]})])
   const result = await display(layout, [2*width + 50, height + 50])
 
   const plot_view = result.view.views.get_one(plot)
@@ -38,8 +38,8 @@ describe("Legend annotation", () => {
     const random = new Random(1)
 
     const p = fig([600, 600])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
+    p.add_layout(LinearAxis.create(), "above")
+    p.add_layout(LinearAxis.create(), "right")
 
     const x = range(0, 10)
     const y0 = random.floats(10)
@@ -57,14 +57,14 @@ describe("Legend annotation", () => {
     const cr3 = p.scatter(x, y3, {marker: "square", fill_color: "yellow", line_color: "blue"})
 
     const items = [
-      new LegendItem({label: "#0", renderers: [cr0]}),
-      new LegendItem({label: "#1", renderers: [cr1, lr1]}),
-      new LegendItem({label: "#2", renderers: [cr2]}),
-      new LegendItem({label: "#3", renderers: [cr3]}),
+      LegendItem.create({label: "#0", renderers: [cr0]}),
+      LegendItem.create({label: "#1", renderers: [cr1, lr1]}),
+      LegendItem.create({label: "#2", renderers: [cr2]}),
+      LegendItem.create({label: "#3", renderers: [cr3]}),
     ]
 
     const legend = (attrs: Partial<Legend.Attrs>) => {
-      return new Legend({items, background_fill_alpha: 0.7, ...attrs})
+      return Legend.create({items, background_fill_alpha: 0.7, ...attrs})
     }
 
     p.add_layout(legend({location: "center_left", orientation: "vertical", item_background_policy: "even", title: "even"}))
@@ -109,8 +109,8 @@ describe("Legend annotation", () => {
       const [width, height] = figure_dimensions ?? (orientation == "horizontal" ? [300, 200] : [200, 300])
       const p = fig([width, height])
 
-      p.add_layout(new LinearAxis(), "above")
-      p.add_layout(new LinearAxis(), "right")
+      p.add_layout(LinearAxis.create(), "above")
+      p.add_layout(LinearAxis.create(), "right")
 
       const random = new Random(1)
       const x = range(0, 10)
@@ -144,7 +144,7 @@ describe("Legend annotation", () => {
       }
 
       const items = legend_items.map(({label, renderers, visible}) => {
-        return new LegendItem({label, renderers: renderers.map(r => gls[r]), visible})
+        return LegendItem.create({label, renderers: renderers.map(r => gls[r]), visible})
       })
 
       if (legends.length == 0) {
@@ -152,7 +152,7 @@ describe("Legend annotation", () => {
       }
 
       legends.map(attrs => {
-        p.add_layout(new Legend({
+        p.add_layout(Legend.create({
           location: "center",
           orientation,
           items,
@@ -320,16 +320,16 @@ describe("Legend annotation", () => {
       const lr6 = p.line(x, y6, {line_color: "pink"})
 
       const items = [
-        new LegendItem({label: "1*sin(x)", renderers: [cr1]}),
-        new LegendItem({label: "2*sin(x)", renderers: [sr2, lr2]}),
-        new LegendItem({label: "3*sin(x)", renderers: [cr3]}),
-        new LegendItem({label: "4*sin(x)", renderers: [sr4, lr4]}),
-        new LegendItem({label: "5*sin(x)", renderers: [cr5]}),
-        new LegendItem({label: "6*sin(x)", renderers: [sr6, lr6]}),
+        LegendItem.create({label: "1*sin(x)", renderers: [cr1]}),
+        LegendItem.create({label: "2*sin(x)", renderers: [sr2, lr2]}),
+        LegendItem.create({label: "3*sin(x)", renderers: [cr3]}),
+        LegendItem.create({label: "4*sin(x)", renderers: [sr4, lr4]}),
+        LegendItem.create({label: "5*sin(x)", renderers: [cr5]}),
+        LegendItem.create({label: "6*sin(x)", renderers: [sr6, lr6]}),
       ]
 
       function legend(policy: "even" | "odd") {
-        return new Legend({
+        return Legend.create({
           location: policy == "even" ? "top_right" : "bottom_right",
           items,
           orientation,
@@ -386,12 +386,12 @@ describe("Legend annotation", () => {
     const r2 = p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20, marker: "circle", color: "green"})
 
     const items = [
-      new LegendItem({label: "Item #0", renderers: [r0]}),
-      new LegendItem({label: "Item #1", renderers: [r1]}),
-      new LegendItem({label: "Item #2", renderers: [r2]}),
+      LegendItem.create({label: "Item #0", renderers: [r0]}),
+      LegendItem.create({label: "Item #1", renderers: [r1]}),
+      LegendItem.create({label: "Item #2", renderers: [r2]}),
     ]
 
-    const legend = new Legend({items, location: "top_left", margin: 0})
+    const legend = Legend.create({items, location: "top_left", margin: 0})
     p.add_layout(legend)
 
     const clicked: LegendItem[] = []
@@ -419,12 +419,12 @@ describe("Legend annotation", () => {
     const r2 = p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20, marker: "circle", color: "green"})
 
     const items = [
-      new LegendItem({label: "Item #0", renderers: [r0]}),
-      new LegendItem({label: "Item #1", renderers: [r1]}),
-      new LegendItem({label: "Item #2", renderers: [r2]}),
+      LegendItem.create({label: "Item #0", renderers: [r0]}),
+      LegendItem.create({label: "Item #1", renderers: [r1]}),
+      LegendItem.create({label: "Item #2", renderers: [r2]}),
     ]
 
-    const legend = new Legend({
+    const legend = Legend.create({
       items,
       title: "Outline color/width",
       title_text_outline_color: "yellow",

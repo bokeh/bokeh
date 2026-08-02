@@ -16,7 +16,8 @@ import type {EmbedTarget} from "./dom"
 import {_resolve_element, _resolve_root_elements} from "./dom"
 
 export type {DocsJson, RenderItem, Roots} from "./json"
-export {add_document_standalone, index} from "./standalone"
+export {add_document_standalone, mount_document_standalone, StandaloneMount, index} from "./standalone"
+export type {StandaloneMountOptions} from "./standalone"
 export {add_document_from_session} from "./server"
 export {embed_items_notebook, kernels} from "./notebook"
 

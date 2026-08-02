@@ -22,10 +22,10 @@ describe("Toolbar", () => {
 
     before_each(() => {
       // by default these tools are inactive
-      pan_1 = new PanTool()
-      pan_2 = new PanTool()
-      toolbar = new Toolbar()
-      toolbar.gestures.pan.tools = [new PanTool(), new PanTool()]
+      pan_1 = PanTool.create()
+      pan_2 = PanTool.create()
+      toolbar = Toolbar.create()
+      toolbar.gestures.pan.tools = [PanTool.create(), PanTool.create()]
     })
 
     it("should correctly activate tool with currently active tool", () => {
@@ -113,39 +113,39 @@ describe("Toolbar", () => {
     let hover_3: HoverTool
 
     before_each(() => {
-      hover_1 = new HoverTool()
-      hover_2 = new HoverTool()
-      hover_3 = new HoverTool()
+      hover_1 = HoverTool.create()
+      hover_2 = HoverTool.create()
+      hover_3 = HoverTool.create()
     })
 
     it("should set inspect tools as array on Toolbar.inspector property", () => {
-      const toolbar = new Toolbar({tools: [hover_1, hover_2, hover_3]})
+      const toolbar = Toolbar.create({tools: [hover_1, hover_2, hover_3]})
       expect(toolbar.inspectors).to.be.equal([hover_1, hover_2, hover_3])
     })
 
     it("should have all inspect tools active when active_inspect='auto'", () => {
-      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: "auto"})
+      Toolbar.create({tools: [hover_1, hover_2, hover_3], active_inspect: "auto"})
       expect(hover_1.active).to.be.true
       expect(hover_2.active).to.be.true
       expect(hover_3.active).to.be.true
     })
 
     it("should have arg inspect tool active when active_inspect=tool instance", () => {
-      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: hover_1})
+      Toolbar.create({tools: [hover_1, hover_2, hover_3], active_inspect: hover_1})
       expect(hover_1.active).to.be.true
       expect(hover_2.active).to.be.false
       expect(hover_3.active).to.be.false
     })
 
     it("should have args inspect tools active when active_inspect=Array(tools)", () => {
-      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: [hover_1, hover_2]})
+      Toolbar.create({tools: [hover_1, hover_2, hover_3], active_inspect: [hover_1, hover_2]})
       expect(hover_1.active).to.be.true
       expect(hover_2.active).to.be.true
       expect(hover_3.active).to.be.false
     })
 
     it("should have none inspect tools active when active_inspect=null)", () => {
-      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: null})
+      Toolbar.create({tools: [hover_1, hover_2, hover_3], active_inspect: null})
       expect(hover_1.active).to.be.false
       expect(hover_2.active).to.be.false
       expect(hover_3.active).to.be.false
@@ -157,14 +157,14 @@ describe("ToolbarView", () => {
 
   describe("visible getter", () => {
     it("should be true if autohide is false and _visible isn't set", async () => {
-      const tb = new Toolbar()
+      const tb = Toolbar.create()
       const tbv = await build_view(tb, {parent: null})
       expect(tbv.model.autohide).to.be.false
       expect(tbv.visible).to.be.true
     })
 
     it("should be true if autohide is false and _visible is true", async () => {
-      const tb = new Toolbar()
+      const tb = Toolbar.create()
       const tbv = await build_view(tb, {parent: null})
       tbv.set_visibility(true)
       expect(tbv.model.autohide).to.be.false
@@ -172,7 +172,7 @@ describe("ToolbarView", () => {
     })
 
     it("should be true if autohide is false and _visible is false", async () => {
-      const tb = new Toolbar()
+      const tb = Toolbar.create()
       const tbv = await build_view(tb, {parent: null})
       tbv.set_visibility(false)
       expect(tbv.model.autohide).to.be.false
@@ -180,14 +180,14 @@ describe("ToolbarView", () => {
     })
 
     it("should be false if autohide is true and _visible isn't set", async () => {
-      const tb = new Toolbar({autohide: true})
+      const tb = Toolbar.create({autohide: true})
       const tbv = await build_view(tb, {parent: null})
       expect(tbv.model.autohide).to.be.true
       expect(tbv.visible).to.be.false
     })
 
     it("should be true if autohide is true and _visible is true", async () => {
-      const tb = new Toolbar({autohide: true})
+      const tb = Toolbar.create({autohide: true})
       const tbv = await build_view(tb, {parent: null})
       tbv.set_visibility(true)
       expect(tbv.model.autohide).to.be.true
@@ -195,7 +195,7 @@ describe("ToolbarView", () => {
     })
 
     it("should be false if autohide is true and _visible is false", async () => {
-      const tb = new Toolbar({autohide: true})
+      const tb = Toolbar.create({autohide: true})
       const tbv = await build_view(tb, {parent: null})
       tbv.set_visibility(false)
       expect(tbv.model.autohide).to.be.true
@@ -205,9 +205,9 @@ describe("ToolbarView", () => {
 
   describe("should allow activation and deactivation", () => {
     it("of ExamineTool", async () => {
-      const tool = new ExamineTool()
-      const toolbar = new Toolbar({tools: [tool]})
-      const plot = new Plot({toolbar})
+      const tool = ExamineTool.create()
+      const toolbar = Toolbar.create({tools: [tool]})
+      const plot = Plot.create({toolbar})
       const {view} = await display(plot)
       const toolbar_view = view.owner.get_one(toolbar)
       const tool_view = view.owner.get_one(tool)
@@ -226,25 +226,25 @@ describe("ToolbarView", () => {
 
     describe("of CustomAction", () => {
       async function test(initial: boolean, fn: (legend: Legend, tool: CustomAction) => void) {
-        const legend = new Legend({
+        const legend = Legend.create({
           visible: initial,
           items: [
-            new LegendItem({label: "Label"}),
+            LegendItem.create({label: "Label"}),
           ],
         })
-        const tool = new CustomAction({
+        const tool = CustomAction.create({
           icon: ".bk-tool-icon-list",
           active: initial,
         })
         fn(legend, tool)
-        const toolbar = new Toolbar({tools: [tool]})
-        const plot = new Plot({
+        const toolbar = Toolbar.create({tools: [tool]})
+        const plot = Plot.create({
           toolbar,
           center: [legend],
           width: 200,
           height: 100,
-          x_range: new Range1d({start: 0, end: 1}),
-          y_range: new Range1d({start: 0, end: 1}),
+          x_range: Range1d.create({start: 0, end: 1}),
+          y_range: Range1d.create({start: 0, end: 1}),
         })
         const {view} = await display(plot)
         const toolbar_view = view.owner.get_one(toolbar)
@@ -316,7 +316,7 @@ describe("ToolbarView", () => {
 
       describe("with CustomJS callbacks", () => {
         const fn = (legend: Legend, tool: CustomAction) => {
-          tool.callback = new CustomJS({
+          tool.callback = CustomJS.create({
             args: {legend},
             code: `
             export default ({legend}) => {
@@ -324,7 +324,7 @@ describe("ToolbarView", () => {
             }
             `,
           })
-          tool.active_callback = new CustomJS({
+          tool.active_callback = CustomJS.create({
             args: {legend},
             code: `
             export default ({legend}) => {
@@ -345,8 +345,8 @@ describe("ToolbarView", () => {
 
   describe("toggleable attribute with inspect tools", () => {
     it("should not show inspect tools if toggleable=false", async () => {
-      const hover = new HoverTool({toggleable: false})
-      const tb = new Toolbar({tools: [hover]})
+      const hover = HoverTool.create({toggleable: false})
+      const tb = Toolbar.create({tools: [hover]})
       const tbv = await build_view(tb, {parent: null})
       tbv.render()
 
@@ -355,8 +355,8 @@ describe("ToolbarView", () => {
     })
 
     it("should show inspect tools if toggleable=true", async () => {
-      const hover = new HoverTool({toggleable: true})
-      const tb = new Toolbar({tools: [hover]})
+      const hover = HoverTool.create({toggleable: true})
+      const tb = Toolbar.create({tools: [hover]})
       const tbv = await build_view(tb, {parent: null})
       tbv.render()
 
@@ -365,8 +365,8 @@ describe("ToolbarView", () => {
     })
 
     it("should show inspect tools if toggleable is not set", async () => {
-      const hover = new HoverTool()
-      const tb = new Toolbar({tools: [hover]})
+      const hover = HoverTool.create()
+      const tb = Toolbar.create({tools: [hover]})
       const tbv = await build_view(tb, {parent: null})
       tbv.render()
 
@@ -378,9 +378,9 @@ describe("ToolbarView", () => {
   describe("visible attribute of tools in toolbar", () => {
 
     it("should have correct visibility status of tools", () => {
-      const hover = new HoverTool()
-      const pan = new PanTool()
-      const tap = new TapTool()
+      const hover = HoverTool.create()
+      const pan = PanTool.create()
+      const tap = TapTool.create()
 
       expect(hover.visible).to.be.true
       expect(pan.visible).to.be.true
@@ -403,11 +403,11 @@ describe("ToolbarView", () => {
     })
 
     it("should not add tools with visible=false", async () => {
-      const pan = new PanTool({visible: false})
-      const tap = new TapTool()
-      const hover = new HoverTool({visible: false})
+      const pan = PanTool.create({visible: false})
+      const tap = TapTool.create()
+      const hover = HoverTool.create({visible: false})
 
-      const tb = new Toolbar({tools: [pan, tap, hover]})
+      const tb = Toolbar.create({tools: [pan, tap, hover]})
       const tbv = await build_view(tb, {parent: null})
       tbv.render()
 
@@ -417,11 +417,11 @@ describe("ToolbarView", () => {
     })
 
     it("should have default tools all be visible", async () => {
-      const pan = new PanTool()
-      const tap = new TapTool()
-      const hover = new HoverTool()
+      const pan = PanTool.create()
+      const tap = TapTool.create()
+      const hover = HoverTool.create()
 
-      const tb = new Toolbar({tools: [pan, tap, hover]})
+      const tb = Toolbar.create({tools: [pan, tap, hover]})
       const tbv = await build_view(tb, {parent: null})
       tbv.render()
 
@@ -431,11 +431,11 @@ describe("ToolbarView", () => {
     })
 
     it("should show no tools if all tools have visible=false", async () => {
-      const pan = new PanTool({visible: false})
-      const tap = new TapTool({visible: false})
-      const hover = new HoverTool({visible: false})
+      const pan = PanTool.create({visible: false})
+      const tap = TapTool.create({visible: false})
+      const hover = HoverTool.create({visible: false})
 
-      const tb = new Toolbar({tools: [pan, tap, hover]})
+      const tb = Toolbar.create({tools: [pan, tap, hover]})
       const tbv = await build_view(tb, {parent: null})
       tbv.render()
 
@@ -445,8 +445,8 @@ describe("ToolbarView", () => {
     })
 
     it("should properly show tools after changing visibility", async () => {
-      const hover = new HoverTool()
-      const tb = new Toolbar({tools: [hover]})
+      const hover = HoverTool.create()
+      const tb = Toolbar.create({tools: [hover]})
       const tbv = await build_view(tb, {parent: null})
       tbv.render()
 
@@ -466,16 +466,16 @@ describe("ToolbarView", () => {
 
   describe("should support tool grouping", () => {
     it("and should group tools when Toolbar.group == true", async () => {
-      const pan0 = new PanTool()
-      const pan1 = new PanTool()
-      const tap0 = new TapTool()
-      const tap1 = new TapTool()
-      const tap2 = new TapTool()
-      const hover0 = new HoverTool()
-      const hover1 = new HoverTool()
-      const hover2 = new HoverTool()
+      const pan0 = PanTool.create()
+      const pan1 = PanTool.create()
+      const tap0 = TapTool.create()
+      const tap1 = TapTool.create()
+      const tap2 = TapTool.create()
+      const hover0 = HoverTool.create()
+      const hover1 = HoverTool.create()
+      const hover2 = HoverTool.create()
 
-      const tb = new Toolbar({
+      const tb = Toolbar.create({
         tools: [pan0, pan1, tap0, tap1, tap2, hover0, hover1, hover2],
         group: true,
       })
@@ -494,16 +494,16 @@ describe("ToolbarView", () => {
     })
 
     it("and should not group tools when Toolbar.group == false", async () => {
-      const pan0 = new PanTool()
-      const pan1 = new PanTool()
-      const tap0 = new TapTool()
-      const tap1 = new TapTool()
-      const tap2 = new TapTool()
-      const hover0 = new HoverTool()
-      const hover1 = new HoverTool()
-      const hover2 = new HoverTool()
+      const pan0 = PanTool.create()
+      const pan1 = PanTool.create()
+      const tap0 = TapTool.create()
+      const tap1 = TapTool.create()
+      const tap2 = TapTool.create()
+      const hover0 = HoverTool.create()
+      const hover1 = HoverTool.create()
+      const hover2 = HoverTool.create()
 
-      const tb = new Toolbar({
+      const tb = Toolbar.create({
         tools: [pan0, pan1, tap0, tap1, tap2, hover0, hover1, hover2],
         group: false,
       })
@@ -513,16 +513,16 @@ describe("ToolbarView", () => {
     })
 
     it("and should allow to configure which types of tools to group", async () => {
-      const pan0 = new PanTool()
-      const pan1 = new PanTool()
-      const tap0 = new TapTool()
-      const tap1 = new TapTool()
-      const tap2 = new TapTool()
-      const hover0 = new HoverTool()
-      const hover1 = new HoverTool()
-      const hover2 = new HoverTool()
+      const pan0 = PanTool.create()
+      const pan1 = PanTool.create()
+      const tap0 = TapTool.create()
+      const tap1 = TapTool.create()
+      const tap2 = TapTool.create()
+      const hover0 = HoverTool.create()
+      const hover1 = HoverTool.create()
+      const hover2 = HoverTool.create()
 
-      const tb = new Toolbar({
+      const tb = Toolbar.create({
         tools: [pan0, pan1, tap0, tap1, tap2, hover0, hover1, hover2],
         group: true,
         group_types: ["tap", "hover"],
@@ -542,25 +542,25 @@ describe("ToolbarView", () => {
     })
 
     it("and should allow to group tools by group name", async () => {
-      const tap0 = new TapTool({group: "A"})
-      const tap1 = new TapTool({group: "A"})
-      const tap2 = new TapTool({group: "A"})
-      const tap3 = new TapTool({group: "B"})
-      const tap4 = new TapTool({group: "B"})
-      const tap5 = new TapTool({group: "C"})
-      const tap6 = new TapTool({group: false})
-      const tap7 = new TapTool()
-      const tap8 = new TapTool()
+      const tap0 = TapTool.create({group: "A"})
+      const tap1 = TapTool.create({group: "A"})
+      const tap2 = TapTool.create({group: "A"})
+      const tap3 = TapTool.create({group: "B"})
+      const tap4 = TapTool.create({group: "B"})
+      const tap5 = TapTool.create({group: "C"})
+      const tap6 = TapTool.create({group: false})
+      const tap7 = TapTool.create()
+      const tap8 = TapTool.create()
 
-      const hover0 = new HoverTool()
-      const hover1 = new HoverTool()
-      const hover2 = new HoverTool({group: false})
-      const hover3 = new HoverTool({group: "A"})
-      const hover4 = new HoverTool({group: "A"})
-      const hover5 = new HoverTool()
-      const hover6 = new HoverTool({group: "A"})
+      const hover0 = HoverTool.create()
+      const hover1 = HoverTool.create()
+      const hover2 = HoverTool.create({group: false})
+      const hover3 = HoverTool.create({group: "A"})
+      const hover4 = HoverTool.create({group: "A"})
+      const hover5 = HoverTool.create()
+      const hover6 = HoverTool.create({group: "A"})
 
-      const tb = new Toolbar({
+      const tb = Toolbar.create({
         tools: [
           tap0, tap1, tap2, tap3, tap4, tap5, tap6, tap7, tap8,
           hover0, hover1, hover2, hover3, hover4, hover5, hover6,
@@ -595,13 +595,13 @@ describe("ToolbarView", () => {
     })
 
     it("and should allow to change Toolbar.group", async () => {
-      const tap0 = new TapTool()
-      const tap1 = new TapTool()
-      const hover0 = new HoverTool()
-      const hover1 = new HoverTool()
-      const hover2 = new HoverTool()
+      const tap0 = TapTool.create()
+      const tap1 = TapTool.create()
+      const hover0 = HoverTool.create()
+      const hover1 = HoverTool.create()
+      const hover2 = HoverTool.create()
 
-      const tb = new Toolbar({
+      const tb = Toolbar.create({
         tools: [tap0, tap1, hover0, hover1, hover2],
         group: true,
         group_types: ["hover"],
@@ -638,27 +638,27 @@ describe("Toolbar Multi Gesture Tool", () => {
     let tap: TapTool
 
     before_each(() => {
-      multi = new MultiTool()
-      pan = new PanTool()
-      tap = new TapTool()
+      multi = MultiTool.create()
+      pan = PanTool.create()
+      tap = TapTool.create()
     })
 
     it("should have multi inactive after initialization", () => {
-      new Toolbar({tools: [multi, tap, pan]})
+      Toolbar.create({tools: [multi, tap, pan]})
       expect(multi.active).to.be.false
       expect(pan.active).to.be.true
       expect(tap.active).to.be.true
     })
 
     it("should have multi active if active_tap", () => {
-      new Toolbar({tools: [multi, tap, pan], active_tap: multi})
+      Toolbar.create({tools: [multi, tap, pan], active_tap: multi})
       expect(multi.active).to.be.true
       expect(pan.active).to.be.false
       expect(tap.active).to.be.false
     })
 
     it("should have gestures inactive after toggling multi active", () => {
-      new Toolbar({tools: [multi, tap, pan]})
+      Toolbar.create({tools: [multi, tap, pan]})
       expect(multi.active).to.be.false
       expect(pan.active).to.be.true
       expect(tap.active).to.be.true
@@ -669,7 +669,7 @@ describe("Toolbar Multi Gesture Tool", () => {
     })
 
     it("should have multi inactive after toggling tap active", () => {
-      new Toolbar({tools: [multi, tap], active_tap: multi})
+      Toolbar.create({tools: [multi, tap], active_tap: multi})
       expect(multi.active).to.be.true
       expect(tap.active).to.be.false
       tap.active = true
@@ -678,7 +678,7 @@ describe("Toolbar Multi Gesture Tool", () => {
     })
 
     it("should have multi inactive after toggling pan active", () => {
-      new Toolbar({tools: [multi, pan], active_drag: multi})
+      Toolbar.create({tools: [multi, pan], active_drag: multi})
       expect(multi.active).to.be.true
       expect(pan.active).to.be.false
       pan.active = true

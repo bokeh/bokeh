@@ -9,7 +9,7 @@ import type {Figure} from "@bokehjs/api/figure"
 describe("BoxEditTool", () => {
   describe("should support moving", () => {
     async function move<T extends BoxLikeGlyph>(glyph: (p: Figure) => GlyphRenderer<T>) {
-      const box_edit = new BoxEditTool()
+      const box_edit = BoxEditTool.create()
       const p = fig([200, 200], {
         x_range: [-1, 2],
         y_range: [-1, 2],

@@ -162,7 +162,7 @@ export class ToolbarView extends UIElementView {
     }
     return Array.from(grouped.values(), (group) => {
       if (group.length > 1) {
-        const proxy = new ToolGroup({tools: group})
+        const proxy = ToolGroup.create({tools: group})
         this._our_proxies.push(proxy)
         return proxy
       } else {
@@ -686,7 +686,7 @@ export class Toolbar extends UIElement {
       .filter((group) => group.length != 0)
       .map((group) => group.map((tool) => tool.menu_item()))
 
-    const items = [...join(entries, () => new DividerItem())]
-    return new Menu({items})
+    const items = [...join(entries, () => DividerItem.create())]
+    return Menu.create({items})
   }
 }

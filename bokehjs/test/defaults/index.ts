@@ -3,7 +3,7 @@ import {describe, it} from "#framework/framework"
 
 import {ExpectationError} from "#framework/assertions"
 
-import {HasProps} from "@bokehjs/core/has_props"
+import {HasProps, construct_deferred} from "@bokehjs/core/has_props"
 import {unset} from "@bokehjs/core/properties"
 import {isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {values, entries, dict} from "@bokehjs/core/util/object"
@@ -337,7 +337,7 @@ describe("Defaults", () => {
       // However, given this is only partial initialization, i.e. we
       // don't finalize instances or connect signals, then any code that
       // may depend on fully initialized state will not run.
-      const obj: HasProps = new (model as any)({id: unique_id()})
+      const obj: HasProps = construct_deferred(model!, unique_id())
       obj.initialize_props({})
 
       const serializer = new DefaultsSerializer()

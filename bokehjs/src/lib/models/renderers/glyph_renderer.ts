@@ -114,7 +114,7 @@ export class GlyphRendererView extends DataRendererView {
       if (has_line) {
         extend(attrs, defaults.line)
       }
-      return new (base_glyph.constructor as any)(attrs)
+      return (base_glyph.constructor as any).create(attrs)
     }
 
     function glyph_from_mode(defaults: Defaults, glyph?: Glyph | "auto" | null): typeof base_glyph {
@@ -571,7 +571,7 @@ export class GlyphRenderer<
 
     this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
       data_source:        [ Ref(ColumnarDataSource) ],
-      view:               [ Ref(CDSView), () => new CDSView() ],
+      view:               [ Ref(CDSView), () => CDSView.create() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
@@ -586,7 +586,7 @@ export class GlyphRenderer<
   }
 
   add_decoration(marking: Marking, node: "start" | "middle" | "end"): Decoration {
-    const decoration = new Decoration({marking, node})
+    const decoration = Decoration.create({marking, node})
 
     const glyphs = [
       this.glyph,

@@ -22,9 +22,22 @@ export class StyleSheetComposer {
 }
 
 export abstract class StyleSheet {
-  protected readonly _dom_stylesheet = new CSSStyleSheet()
+  private _dom_stylesheet: CSSStyleSheet | null = null
+  private _native_css = ""
+
+  protected _replace_native(css: string): void {
+    this._native_css = css
+    this._dom_stylesheet?.replaceSync(css)
+  }
 
   to_native(): CSSStyleSheet {
+    if (this._dom_stylesheet == null) {
+      if (typeof CSSStyleSheet == "undefined") {
+        throw new Error("native stylesheets require a browser environment")
+      }
+      this._dom_stylesheet = new CSSStyleSheet()
+      this._dom_stylesheet.replaceSync(this._native_css)
+    }
     return this._dom_stylesheet
   }
 
@@ -53,7 +66,7 @@ export class InlineStyleSheet extends StyleSheet {
       this._update(compose_stylesheet(css))
     }
     effect(() => {
-      this._dom_stylesheet.replaceSync(this.css)
+      this._replace_native(this.css)
     })
     /*
     if (id != null) {
@@ -114,7 +127,7 @@ export class ImportedStyleSheet extends StyleSheet {
 
   constructor(readonly url: string) {
     super()
-    this._dom_stylesheet.replaceSync(`@import "${this.url}"`)
+    this._replace_native(`@import "${this.url}"`)
   }
 
   to_vdom(): VNode {

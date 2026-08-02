@@ -28,12 +28,12 @@ describe("UI elements", () => {
       const [width, height] = [100, 100]
       const common = {width: `${width}px`, height: `${height}px`}
 
-      const p0 = new Pane({styles: {...common, "background-color": "red"}})
-      const p1 = new Pane({styles: {...common, background_color: "green"}})
-      const p2 = new Pane({styles: {...common, backgroundColor: "blue"}})
-      const p3 = new Pane({styles: {...common, "--bg-color": "yellow"}, stylesheets: [":host { background-color: var(--bg-color); }"]})
+      const p0 = Pane.create({styles: {...common, "background-color": "red"}})
+      const p1 = Pane.create({styles: {...common, background_color: "green"}})
+      const p2 = Pane.create({styles: {...common, backgroundColor: "blue"}})
+      const p3 = Pane.create({styles: {...common, "--bg-color": "yellow"}, stylesheets: [":host { background-color: var(--bg-color); }"]})
 
-      const layout = new Pane({styles: {display: "inline-flex"}, elements: [p0, p1, p2, p3]})
+      const layout = Pane.create({styles: {display: "inline-flex"}, elements: [p0, p1, p2, p3]})
       await display(layout, [layout.elements.length*width + 50, height + 50])
     })
   })
@@ -42,7 +42,7 @@ describe("UI elements", () => {
     it("which should support basic features", async () => {
       const plot = draw(figure({sizing_mode: "stretch_both"}))
 
-      const dialog = new Dialog({
+      const dialog = Dialog.create({
         title: "A dialog",
         content: plot,
         stylesheets: [`
@@ -61,57 +61,57 @@ describe("UI elements", () => {
 
   describe("should implement Menu", () => {
     it("which should support basic features", async () => {
-      const box_select = new BoxSelectTool({persistent: true, continuous: true})
+      const box_select = BoxSelectTool.create({persistent: true, continuous: true})
 
       const palette = Spectral11.map((color) => color2hex(color))
-      const menu = new Menu({
+      const menu = Menu.create({
         items: [
-          new MenuItem({
+          MenuItem.create({
             label: "Count",
             shortcut: "Alt+C",
             disabled: true,
-            action: new CustomJS({code: "console.log('count not implemented')"}),
+            action: CustomJS.create({code: "console.log('count not implemented')"}),
           }),
-          new MenuItem({
+          MenuItem.create({
             label: "Delete",
             shortcut: "Alt+Shift+D",
             icon: "delete",
-            action: new CustomJS({code: "console.log('delete not implemented')"}),
+            action: CustomJS.create({code: "console.log('delete not implemented')"}),
           }),
           null,
-          new MenuItem({
+          MenuItem.create({
             label: "Choose color",
-            menu: new Menu({
+            menu: Menu.create({
               stylesheets: [
                 palette.map((color) => `.color-${color.substring(1)} { background-color: ${color}; }`).join("\n"),
                 ".bk-label { font-family: monospace; }",
               ],
               items: palette.map((color) => {
-                return new MenuItem({
+                return MenuItem.create({
                   label: color,
                   icon: `.color-${color.substring(1)}`,
-                  action: new CustomJS({code: "console.log('color not implemented')"}),
+                  action: CustomJS.create({code: "console.log('color not implemented')"}),
                 })
               }),
             }),
           }),
           null,
-          new MenuItem({
+          MenuItem.create({
             label: "Continuous selection",
             checked: box_select.continuous,
-            action: new CustomJS({code: "console.log('continuous not implemented')"}),
+            action: CustomJS.create({code: "console.log('continuous not implemented')"}),
           }),
           null,
-          new MenuItem({
+          MenuItem.create({
             icon: "invert_selection",
             label: "Invert selection",
-            action: new CustomJS({code: "console.log('invert not implemented')"}),
+            action: CustomJS.create({code: "console.log('invert not implemented')"}),
           }),
-          new MenuItem({
+          MenuItem.create({
             icon: "clear_selection",
             label: "Clear selection",
             shortcut: "Esc",
-            action: new CustomJS({code: "console.log('clear not implemented')"}),
+            action: CustomJS.create({code: "console.log('clear not implemented')"}),
           }),
         ],
       })
@@ -153,12 +153,12 @@ describe("UI elements", () => {
     `
 
     async function drawer(attrs: Partial<Drawer.Attrs>) {
-      const drawer = new Drawer({
+      const drawer = Drawer.create({
         open: true,
         size: "80px",
         ...attrs,
       })
-      const pane = new Pane({
+      const pane = Pane.create({
         elements: [drawer],
         stylesheets: [size(200, 200), checkerboard_background],
       })

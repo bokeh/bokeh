@@ -88,7 +88,7 @@ export class ScaleBarView extends AnnotationView {
     super.initialize()
 
     const {ticker} = this.model
-    this.axis = new LinearAxis({
+    this.axis = LinearAxis.create({
       ticker,
       ...mixins.attrs_of(this.model, "bar_", mixins.Line, "axis_"),
     })
@@ -111,12 +111,12 @@ export class ScaleBarView extends AnnotationView {
     await super.lazy_initialize()
 
     const coordinates = (() => {
-      const axis_source = new Range1d()
-      const axis_target = new Range1d()
-      const cross_source = new Range1d()
-      const cross_target = new Range1d()
-      this.axis_scale = new LinearScale({source_range: axis_source, target_range: axis_target})
-      this.cross_scale = new LinearScale({source_range: cross_source, target_range: cross_target})
+      const axis_source = Range1d.create()
+      const axis_target = Range1d.create()
+      const cross_source = Range1d.create()
+      const cross_target = Range1d.create()
+      this.axis_scale = LinearScale.create({source_range: axis_source, target_range: axis_target})
+      this.cross_scale = LinearScale.create({source_range: cross_source, target_range: cross_target})
       if (this.model.orientation == "horizontal") {
         return new CoordinateTransform(this.axis_scale, this.cross_scale)
       } else {
@@ -631,7 +631,7 @@ export class ScaleBar extends Annotation {
       anchor:           [ AutoAnchor, "auto" ],
       bar_length:       [ NonNegative(Float), 0.2 ],
       bar_length_units: [ LengthUnits, "screen" ],
-      dimensional:      [ Ref(Dimensional), () => new MetricLength() ],
+      dimensional:      [ Ref(Dimensional), () => MetricLength.create() ],
       label:            [ Str, "@{value} @{unit}" ],
       label_align:      [ Align, "center" ],
       label_location:   [ Location, "below" ],
@@ -642,7 +642,7 @@ export class ScaleBar extends Annotation {
       orientation:      [ Orientation, "horizontal" ],
       padding:          [ Float, 10 ],
       range:            [ Or(Ref(Range), Auto), "auto" ],
-      ticker:           [ Ref(Ticker), () => new FixedTicker({ticks: []}) ],
+      ticker:           [ Ref(Ticker), () => FixedTicker.create({ticks: []}) ],
       title:            [ Str, "" ],
       title_align:      [ Align, "center" ],
       title_location:   [ Location, "above" ],

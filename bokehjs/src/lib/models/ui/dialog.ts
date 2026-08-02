@@ -33,7 +33,13 @@ type Position<T> =
 type CSSPosition = Position<CSSVal>
 
 const _stacking_order: DialogView[] = []
-const _minimization_area: HTMLElement = (() => {
+let _minimization_area: HTMLElement | null = null
+
+function minimization_area(): HTMLElement {
+  if (_minimization_area != null) {
+    return _minimization_area
+  }
+
   const el = div()
   const shadow_el = el.attachShadow({mode: "open"})
   const stylesheet = new InlineStyleSheet(`
@@ -53,8 +59,8 @@ const _minimization_area: HTMLElement = (() => {
 `)
   shadow_el.adoptedStyleSheets = [stylesheet.to_native()]
   void dom_ready().then(() => document.body.append(el))
-  return el
-})()
+  return _minimization_area = el
+}
 
 export class DialogView extends UIElementView {
   declare model: Dialog
@@ -82,12 +88,12 @@ export class DialogView extends UIElementView {
 
     const title = (() => {
       const {title} = this.model
-      return isString(title) || title == null ? new Text({content: title ?? ""}) : title
+      return isString(title) || title == null ? Text.create({content: title ?? ""}) : title
     })()
 
     const content = (() => {
       const {content} = this.model
-      return isString(content) ? new Text({content}) : content
+      return isString(content) ? Text.create({content}) : content
     })()
 
     this._title = await build_view(title, {parent: this})
@@ -499,7 +505,8 @@ export class DialogView extends UIElementView {
   protected _minimize(value: boolean): void {
     if (this._minimized != value) {
       this._minimized = value
-      const target = value ? (_minimization_area.shadowRoot ?? _minimization_area) : document.body
+      const area = minimization_area()
+      const target = value ? (area.shadowRoot ?? area) : document.body
       target.append(this.el)
       this.el.classList.toggle(dialogs.minimized, this._minimized)
       this._minimize_el.title = this._minimized ? "Restore" : "Minimize"

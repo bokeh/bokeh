@@ -155,7 +155,7 @@ describe("core/serialization module", () => {
     })
 
     it("should support HasProps instances", () => {
-      const obj0 = new SomeModel()
+      const obj0 = SomeModel.create()
       expect(to_serializable(obj0)).to.be.equal({
         rep: {type: "object", name: "SomeModel", id: obj0.id},
         json: `{"type":"object","name":"SomeModel","id":"${obj0.id}"}`,
@@ -253,9 +253,9 @@ describe("core/serialization module", () => {
     })
 
     it("should support circular model references", () => {
-      const obj0 = new SomeModel({value: 10})
-      const obj1 = new SomeModel({value: 20, obj: obj0})
-      const obj2 = new SomeModel({value: 30, obj: obj1})
+      const obj0 = SomeModel.create({value: 10})
+      const obj1 = SomeModel.create({value: 20, obj: obj0})
+      const obj2 = SomeModel.create({value: 30, obj: obj1})
       obj0.obj = obj2
 
       const serializer = new Serializer()

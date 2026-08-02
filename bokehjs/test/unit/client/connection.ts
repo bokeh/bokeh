@@ -52,7 +52,7 @@ describe("ClientSession", () => {
   it.skip("should sync a document between two connections", async () => {
     const session1 = await pull_session(url, token())
     try {
-      const root = new Range1d({start: 123, end: 456})
+      const root = Range1d.create({start: 123, end: 456})
       session1.document.add_root(root)
       session1.document.set_title("Hello Title")
       await session1.force_roundtrip()

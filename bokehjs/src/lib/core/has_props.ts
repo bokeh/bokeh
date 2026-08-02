@@ -32,6 +32,31 @@ import {stream_to_columns, patch_to_columns} from "./patching"
 
 type AttrsLike = Dict<unknown>
 
+export type HasPropsClass<T extends HasProps = HasProps> = Function & {prototype: T}
+
+export type HasPropsFactory<T extends HasProps = HasProps, A extends object = object> = HasPropsClass<T> & {
+  create(attrs?: A): T
+}
+
+type LifecycleState =
+  "constructing" |
+  "constructed" |
+  "initializing_properties" |
+  "properties_initialized" |
+  "initializing" |
+  "initialized" |
+  "connecting_signals" |
+  "ready" |
+  "failed" |
+  "destroyed"
+
+type ConstructionContext = {
+  cls: HasPropsClass
+  id?: string
+}
+
+const construction_stack: ConstructionContext[] = []
+
 export namespace HasProps {
   export type Attrs = p.AttrsOf<Props>
   export type Props = {}
@@ -60,6 +85,21 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   readonly id: string
 
+  private _lifecycle_state: LifecycleState = "constructing"
+  private _initial_attrs: AttrsLike = {}
+
+  get is_ready(): boolean {
+    return this._lifecycle_state == "ready"
+  }
+
+  get is_destroyed(): boolean {
+    return this._lifecycle_state == "destroyed"
+  }
+
+  protected get is_deferred(): boolean {
+    return construction_stack.at(-1)?.id != null
+  }
+
   get is_syncable(): boolean {
     return true
   }
@@ -86,6 +126,13 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   static set __qualified__(qualified: string) {
     _qualified_names.set(this, qualified)
+  }
+
+  static create<T extends HasProps, A extends object = Record<never, never>>(
+    this: HasPropsClass<T> & (new(attrs?: A) => T),
+    attrs: NoInfer<A> = {} as A,
+  ): T {
+    return construct(this, attrs as AttrsLike)
   }
 
   get [Symbol.toStringTag](): string {
@@ -285,7 +332,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         attrs.set(prop.attr, cloner.clone(prop.get_value()))
       }
     }
-    return new (this.constructor as any)(attrs)
+    return (this.constructor as any).create(attrs)
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -334,8 +381,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   constructor(attrs: {id: string} | AttrsLike = {}) {
     super()
 
-    const deferred = isPlainObject(attrs) && "id" in attrs
-    this.id = deferred ? attrs.id as string : unique_id()
+    const context = construction_stack.at(-1)
+    if (context == null || context.cls != new.target) {
+      const cls = new.target
+      throw new Error(`use ${cls.__qualified__}.create({...}) instead of new ${cls.__qualified__}(...)`)
+    }
+
+    this.id = context.id ?? unique_id()
+    this._initial_attrs = attrs
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>
@@ -361,37 +414,45 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
-    // allowing us to defer initialization when loading many models
-    // when loading a bunch of models, we want to do initialization as a second pass
-    // because other objects that this one depends on might not be loaded yet
-    if (deferred) {
-      assert(keys(attrs).length == 1, "'id' cannot be used together with property initializers")
-    } else {
-      this.initialize_props(attrs)
-      this.finalize()
-      this.connect_signals()
-    }
+    this._lifecycle_state = "constructed"
   }
 
   initialize_props(vals: Dict<unknown>): void {
+    assert(this._lifecycle_state == "constructed")
+    this._lifecycle_state = "initializing_properties"
+
     const vals_proxy = dict(vals)
     const visited = new Set<string>()
-    for (const prop of this) {
-      const val = vals_proxy.get(prop.attr)
-      prop.initialize(val)
-      visited.add(prop.attr)
-    }
-
-    for (const [attr, val] of vals_proxy) {
-      if (!visited.has(attr)) {
-        // either throws for unknown properties or updates aliased properties
-        this.property(attr).set_value(val)
+    try {
+      for (const prop of this) {
+        const val = vals_proxy.get(prop.attr)
+        prop.initialize(val)
+        visited.add(prop.attr)
       }
+
+      for (const [attr, val] of vals_proxy) {
+        if (!visited.has(attr)) {
+          // either throws for unknown properties or updates aliased properties
+          this.property(attr).set_value(val)
+        }
+      }
+      this._lifecycle_state = "properties_initialized"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
     }
   }
 
   finalize(): void {
-    this.initialize()
+    assert(this._lifecycle_state == "properties_initialized")
+    this._lifecycle_state = "initializing"
+    try {
+      this.initialize()
+      this._lifecycle_state = "initialized"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
+    }
   }
 
   initialize(): void {}
@@ -402,6 +463,26 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         prop.get_value()
       }
     }
+  }
+
+  finalize_signals(): void {
+    assert(this._lifecycle_state == "initialized")
+    this._lifecycle_state = "connecting_signals"
+    try {
+      this.connect_signals()
+      this._lifecycle_state = "ready"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
+    }
+  }
+
+  finish(): void {
+    const attrs = this._initial_attrs
+    this._initial_attrs = {}
+    this.initialize_props(attrs)
+    this.finalize()
+    this.finalize_signals()
   }
 
   connect_signals(): void {
@@ -428,6 +509,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   destroy(): void {
+    assert(this._lifecycle_state != "destroyed")
+    this._lifecycle_state = "destroyed"
     this.disconnect_signals()
     this.destroyed.emit()
   }
@@ -704,4 +787,32 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this.document._trigger_on_change(event)
     }
   }
+}
+
+function instantiate<T extends HasProps>(cls: HasPropsClass<T>, attrs: AttrsLike, id?: string): T {
+  const context: ConstructionContext = {cls, id}
+  construction_stack.push(context)
+  try {
+    const instance = Reflect.construct(cls, [attrs]) as T
+    assert(instance instanceof HasProps)
+    return instance
+  } finally {
+    const popped = construction_stack.pop()
+    assert(popped == context)
+  }
+}
+
+export function construct<T extends HasProps>(cls: HasPropsClass<T>, attrs: AttrsLike = {}): T {
+  const instance = instantiate(cls, attrs)
+  try {
+    instance.finish()
+    return instance
+  } catch (error) {
+    instance.destroy()
+    throw error
+  }
+}
+
+export function construct_deferred<T extends HasProps>(cls: HasPropsClass<T>, id: string): T {
+  return instantiate(cls, {}, id)
 }

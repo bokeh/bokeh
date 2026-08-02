@@ -1,0 +1,22 @@
+{
+  "name": "@bokeh-example/react-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "@bokeh/bokehjs": "4.0.0-dev.1",
+    "@bokeh/framework": "4.0.0-dev.1",
+    "@bokeh/react": "4.0.0-dev.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "typescript": "5.9.2",
+    "vite": "^8.2.0"
+  }
+}

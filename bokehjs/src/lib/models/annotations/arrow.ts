@@ -237,7 +237,7 @@ export class Arrow extends DataAnnotation {
       x_end:       [ p.XCoordinateSpec, {field: "x_end"} ],
       y_end:       [ p.YCoordinateSpec, {field: "y_end"} ],
       end_units:   [ CoordinateUnits, "data" ],
-      end:         [ Nullable(Ref(ArrowHead)), () => new OpenHead() ],
+      end:         [ Nullable(Ref(ArrowHead)), () => OpenHead.create() ],
     }))
   }
 }

@@ -12,6 +12,7 @@
     "graph"
   ],
   "license": "BSD-3-Clause",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/bokeh/bokeh.git"
@@ -22,10 +23,26 @@
   },
   "files": [
     "build/js/bokeh*.min.js",
+    "build/esm/bokeh*.js",
+    "build/esm/bokeh*.js.map",
     "build/js/lib/**/*.js",
     "build/js/lib/**/*.d.ts"
   ],
   "workspaces": [
+    "./examples/frameworks/angular-ng",
+    "./examples/frameworks/react-vite",
+    "./examples/frameworks/node-ssr-compat",
+    "./examples/frameworks/svelte-vite",
+    "./examples/frameworks/vanilla-rspack",
+    "./examples/frameworks/vanilla-vite",
+    "./examples/frameworks/vanilla-webpack",
+    "./examples/frameworks/vue-vite",
+    "./examples/frameworks/web-component-webpack",
+    "./frameworks/base",
+    "./frameworks/react",
+    "./frameworks/svelte",
+    "./frameworks/vue",
+    "./frameworks/web-component",
     "./make",
     "./src/compiler",
     "./src/lib",
@@ -35,21 +52,37 @@
   "scripts": {
     "prepare": "node ./prepare.mjs",
     "build": "node make build",
-    "dev-build": "node make dev-build"
+    "dev-build": "node make dev-build",
+    "test:frameworks": "node make test:frameworks"
   },
   "allowScripts": {
     "esbuild": true
   },
-  "main": "build/js/lib/bokeh.js",
-  "types": "build/js/lib/bokeh.d.ts",
+  "main": "build/esm/bokeh.js",
+  "module": "build/esm/bokeh.js",
+  "types": "build/js/lib/bokeh_package.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/js/lib/bokeh_package.d.ts",
+      "import": "./build/esm/bokeh.js",
+      "default": "./build/esm/bokeh.js"
+    },
+    "./build/js/lib/*.js": "./build/js/lib/*.js",
+    "./build/js/lib/*": {
+      "types": "./build/js/lib/*.d.ts",
+      "import": "./build/js/lib/*.js",
+      "default": "./build/js/lib/*.js"
+    },
+    "./package.json": "./package.json"
+  },
   "dependencies": {
     "@bokeh/numbro": "^1.6.2",
     "@preact/signals": "^2.5.1",
     "@types/geojson": "^7946.0.13",
     "@types/google.maps": "^3.55.5",
     "@types/nearley": "^2.11.5",
-    "@types/sortablejs": "^1.15.6",
     "@types/semver": "^7.7.1",
+    "@types/sortablejs": "^1.15.6",
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
     "dompurify": "^3.3.0",
@@ -70,6 +103,16 @@
     "underscore.template": "^0.1.7"
   },
   "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "svelte": "^5.56.8",
+    "vite": "^8.2.0",
+    "vue": "^3.5.40",
+    "webpack": "^5.109.2",
+    "webpack-cli": "^7.2.2",
     "webpack-glsl-minify": "^1.5.0"
   }
 }

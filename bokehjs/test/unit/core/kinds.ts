@@ -269,8 +269,8 @@ describe("core/kinds module", () => {
   it("should support Ref kind", () => {
     const tp = k.Ref(SomeModel)
     expect(`${tp}`).to.be.equal("Ref(SomeModel)")
-    expect(tp.valid(new SomeModel())).to.be.true
-    expect(tp.valid(new OtherModel())).to.be.false
+    expect(tp.valid(SomeModel.create())).to.be.true
+    expect(tp.valid(OtherModel.create())).to.be.false
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
@@ -281,8 +281,8 @@ describe("core/kinds module", () => {
   it("should support AnyRef kind", () => {
     const tp = k.AnyRef()
     expect(`${tp}`).to.be.equal("AnyRef")
-    expect(tp.valid(new SomeModel())).to.be.true
-    expect(tp.valid(new OtherModel())).to.be.true
+    expect(tp.valid(SomeModel.create())).to.be.true
+    expect(tp.valid(OtherModel.create())).to.be.true
     expect(tp.valid(new class {})).to.be.true
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
@@ -296,7 +296,7 @@ describe("core/kinds module", () => {
     expect(tp.valid(async () => 1)).to.be.true
     expect(tp.valid(function() { return 1 })).to.be.true
     expect(tp.valid(async function() { return 1 })).to.be.true
-    expect(tp.valid(new SomeModel())).to.be.false
+    expect(tp.valid(SomeModel.create())).to.be.false
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
@@ -307,7 +307,7 @@ describe("core/kinds module", () => {
     const tp = k.Node
     expect(`${tp}`).to.be.equal("Node")
     expect(tp.valid(document.createElement("div"))).to.be.true
-    expect(tp.valid(new SomeModel())).to.be.false
+    expect(tp.valid(SomeModel.create())).to.be.false
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false

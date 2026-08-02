@@ -96,8 +96,8 @@ export class GMapPlot extends Plot {
     }))
 
     this.override<GMapPlot.Props>({
-      x_range: () => new Range1d(),
-      y_range: () => new Range1d(),
+      x_range: () => Range1d.create(),
+      y_range: () => Range1d.create(),
       background_fill_alpha: 0.0,
     })
   }

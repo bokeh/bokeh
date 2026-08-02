@@ -127,14 +127,14 @@ function svg_image() {
 // only zoom levels 1 and 2 are available as local assets, so `max_zoom` is set
 // accordingly, which also makes the tiles requested independent of the display's
 // pixel ratio
-const osm_source = new WMTSTileSource({
+const osm_source = WMTSTileSource.create({
   // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
   url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
   attribution: "&copy; (0) OSM source attribution",
   max_zoom: 2,
 })
 
-const esri_source = new WMTSTileSource({
+const esri_source = WMTSTileSource.create({
   // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
   url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
   attribution: "&copy; (1) Esri source attribution",
@@ -145,10 +145,10 @@ describe("Bug", () => {
   describe("in issue #9879", () => {
     it("disallows to change FactorRange to a lower dimension with a different number of factors", async () => {
       const p = fig([200, 200], {
-        x_range: new FactorRange({factors: [["a", "b"], ["b", "c"]]}),
-        y_range: new DataRange1d(),
+        x_range: FactorRange.create({factors: [["a", "b"], ["b", "c"]]}),
+        y_range: DataRange1d.create(),
       })
-      const source = new ColumnDataSource({data: {x: [["a", "b"], ["b", "c"]], y: [1, 2]}})
+      const source = ColumnDataSource.create({data: {x: [["a", "b"], ["b", "c"]], y: [1, 2]}})
       p.vbar({x: {field: "x"}, top: {field: "y"}, width: 0.1, source})
       const {view} = await display(p)
 
@@ -160,16 +160,16 @@ describe("Bug", () => {
 
   describe("in issue #9522", () => {
     it("disallows arrow to be positioned correctly in stacked layouts", async () => {
-      const horz = (end?: ArrowHead) => new Arrow({x_start: 1, x_end: 5, y_start: 0, y_end:  0, end})
-      const vert = (end?: ArrowHead) => new Arrow({x_start: 2, x_end: 2, y_start: 1, y_end: -2, end})
+      const horz = (end?: ArrowHead) => Arrow.create({x_start: 1, x_end: 5, y_start: 0, y_end:  0, end})
+      const vert = (end?: ArrowHead) => Arrow.create({x_start: 2, x_end: 2, y_start: 1, y_end: -2, end})
 
       const p1 = fig([200, 200], {x_range: [0, 6], y_range: [-3, 2]})
-      p1.add_layout(horz(new NormalHead({fill_color: "blue"})))
+      p1.add_layout(horz(NormalHead.create({fill_color: "blue"})))
       p1.add_layout(vert())
 
       const p2 = fig([200, 200], {x_range: [0, 6], y_range: [-3, 2]})
       p2.add_layout(horz())
-      p2.add_layout(vert(new NormalHead({fill_color: "green"})))
+      p2.add_layout(vert(NormalHead.create({fill_color: "green"})))
 
       await display(row([p1, p2]))
     })
@@ -212,16 +212,16 @@ describe("Bug", () => {
       }
 
       const p0 = (() => {
-        const x_range = new DataRange1d()
-        const y_range = new DataRange1d(padding)
+        const x_range = DataRange1d.create()
+        const y_range = DataRange1d.create(padding)
         const p = fig([150, 150], {x_range, y_range})
         p.line({x, y: 10, line_width: 2, color: "red"})
         return p
       })()
 
       const p1 = (() => {
-        const x_range = new DataRange1d()
-        const y_range = new DataRange1d(padding)
+        const x_range = DataRange1d.create()
+        const y_range = DataRange1d.create(padding)
         const p = fig([150, 150], {x_range, y_range})
         p.line({x, y: 10, line_width: 2, color: "red"})
         p.line({x, y: 15, line_width: 2, color: "blue"})
@@ -229,16 +229,16 @@ describe("Bug", () => {
       })()
 
       const p2 = (() => {
-        const x_range = new DataRange1d()
-        const y_range = new DataRange1d({start: 0, ...padding})
+        const x_range = DataRange1d.create()
+        const y_range = DataRange1d.create({start: 0, ...padding})
         const p = fig([150, 150], {x_range, y_range})
         p.line({x, y: 10, line_width: 2, color: "red"})
         return p
       })()
 
       const p3 = (() => {
-        const x_range = new DataRange1d()
-        const y_range = new DataRange1d({start: 0, ...padding})
+        const x_range = DataRange1d.create()
+        const y_range = DataRange1d.create({start: 0, ...padding})
         const p = fig([150, 150], {x_range, y_range})
         p.line({x, y: 10, line_width: 2, color: "red"})
         p.line({x, y: 15, line_width: 2, color: "blue"})
@@ -254,7 +254,7 @@ describe("Bug", () => {
       const p = fig([200, 200], {x_range: [0, 3], y_range: [0, 3]})
       p.circle({x: [1, 1, 2, 2], y: [1, 2, 1, 2], radius: 0.5, line_color: null, fill_color: "red"})
 
-      const box = new BoxAnnotation({
+      const box = BoxAnnotation.create({
         bottom: 1, top: 2, left: 1, right: 2,
         fill_color: fill, fill_alpha: 0.5,
         line_color: line, line_alpha: 1.0, line_width: 4,
@@ -282,8 +282,8 @@ describe("Bug", () => {
       const x = [0, 1, 2, 3]
       const y = [0, 1, 2, 3]
       const c = ["black", "red", "green", "blue"]
-      const source = new ColumnDataSource({data: {x, y, c}, selected})
-      const view = new CDSView({filter: new BooleanFilter({booleans: [false, true, true, true]})})
+      const source = ColumnDataSource.create({data: {x, y, c}, selected})
+      const view = CDSView.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
       p.scatter({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
@@ -297,7 +297,7 @@ describe("Bug", () => {
     it("makes GlyphRenderer use incorrect subset indices after selection", async () => {
       const items = []
       for (const indices of subsets([1, 2, 3])) {
-        const selection = new Selection({indices})
+        const selection = Selection.create({indices})
         const p0 = plot("canvas", selection)
         const p1 = plot("webgl", selection)
         items.push(column([p0, p1]))
@@ -314,8 +314,8 @@ describe("Bug", () => {
       const y = [0, 1, 2, 3, 4]
       const c = ["red", "orange", "green", "blue", "purple"]
 
-      const selected = new Selection({indices: [1, 3, 4]})
-      const source = new ColumnDataSource({data: {x, y, c}, selected})
+      const selected = Selection.create({indices: [1, 3, 4]})
+      const source = ColumnDataSource.create({data: {x, y, c}, selected})
       const r = p.scatter({field: "x"}, {field: "y"}, {
         source,
         color: {field: "c"},
@@ -343,7 +343,7 @@ describe("Bug", () => {
         ["A", "01", "AA"], ["A", "01", "AB"], ["A", "01", "AC"], ["A", "01", "AD"], ["A", "01", "AE"],
         ["B", "02", "AA"], ["B", "02", "AB"], ["B", "02", "AC"], ["B", "02", "AD"], ["B", "02", "AE"],
       ]
-      const y_range = new FactorRange({factors})
+      const y_range = FactorRange.create({factors})
 
       const p = fig([200, 300], {y_range})
       p.hbar({
@@ -377,10 +377,10 @@ describe("Bug", () => {
       const upper = y.map((yi) => yi + random.float())
       const lower = y.map((yi) => yi - random.float())
 
-      const source = new ColumnDataSource({data: {x, y, lower, upper}})
-      const whisker = new Whisker({source, dimension: "height", base: {field: "x"}})
+      const source = ColumnDataSource.create({data: {x, y, lower, upper}})
+      const whisker = Whisker.create({source, dimension: "height", base: {field: "x"}})
 
-      const x_range = new FactorRange({factors})
+      const x_range = FactorRange.create({factors})
       const p = fig([400, 200], {x_range})
       p.scatter({source})
       p.add_layout(whisker)
@@ -396,10 +396,10 @@ describe("Bug", () => {
       const upper = x.map((xi) => xi + random.float())
       const lower = x.map((xi) => xi - random.float())
 
-      const source = new ColumnDataSource({data: {x, y, lower, upper}})
-      const whisker = new Whisker({source, dimension: "width", base: {field: "y"}})
+      const source = ColumnDataSource.create({data: {x, y, lower, upper}})
+      const whisker = Whisker.create({source, dimension: "width", base: {field: "y"}})
 
-      const y_range = new FactorRange({factors})
+      const y_range = FactorRange.create({factors})
       const p = fig([200, 400], {y_range})
       p.scatter({source})
       p.add_layout(whisker)
@@ -410,7 +410,7 @@ describe("Bug", () => {
 
   describe("in issue #10219", () => {
     it("disallows correct placement of Rect glyph with partial categorical ranges", async () => {
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         x: ["A", "A", "A", "B", "B", "B", "C", "C", "C"],
         y: ["A", "B", "C", "A", "B", "C", "A", "B", "C"],
       }})
@@ -454,8 +454,8 @@ describe("Bug", () => {
     it("makes extra axes render with invalid data ranges", async () => {
       function make_plot(axis_location: Location) {
         const p = fig([200, 200])
-        p.extra_y_ranges = {yrangename: new Range1d({start: 0, end: 1})}
-        p.add_layout(new LinearAxis({y_range_name: "yrangename"}), axis_location)
+        p.extra_y_ranges = {yrangename: Range1d.create({start: 0, end: 1})}
+        p.add_layout(LinearAxis.create({y_range_name: "yrangename"}), axis_location)
         return p
       }
 
@@ -504,7 +504,7 @@ describe("Bug", () => {
     it("renders image glyphs in wrong orientation using SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
         const image = scalar_image(500)
-        const color_mapper = new LinearColorMapper({palette: Spectral11})
+        const color_mapper = LinearColorMapper.create({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend})
         p.image({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
@@ -533,8 +533,8 @@ describe("Bug", () => {
       const img = svg_image()
       const plots = []
       for (const anchor of [...Anchor].slice(0, 9)) {
-        const x_range = new DataRange1d()
-        const y_range = new DataRange1d()
+        const x_range = DataRange1d.create()
+        const y_range = DataRange1d.create()
         const p = fig([200, 200], {x_range, y_range, title: anchor, match_aspect: true})
         p.image_url({url: [img], x: 0, y: 0, w: 1, h: 1, anchor})
         plots.push(p)
@@ -603,18 +603,18 @@ describe("Bug", () => {
       const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
       p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
 
-      const labels0 = new LabelSet({x: {value: "X1"}, y: {value: "Y3"}, text: {value: "L0"}, text_color: "red"})
+      const labels0 = LabelSet.create({x: {value: "X1"}, y: {value: "Y3"}, text: {value: "L0"}, text_color: "red"})
       p.add_layout(labels0)
 
-      const labels1 = new LabelSet({x: {value: "X3"}, y: {value: "Y1"}, text: {value: "L1"}, text_color: "green"})
+      const labels1 = LabelSet.create({x: {value: "X3"}, y: {value: "Y1"}, text: {value: "L1"}, text_color: "green"})
       p.add_layout(labels1)
 
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         x: ["X1", "X2", "X3"],
         y: ["Y1", "Y2", "Y3"],
         text: ["L20", "L21", "L22"],
       }})
-      const labels2 = new LabelSet({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
+      const labels2 = LabelSet.create({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
       p.add_layout(labels2)
 
       await display(p)
@@ -624,26 +624,26 @@ describe("Bug", () => {
       const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
       p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
 
-      const arrow0 = new Arrow({
+      const arrow0 = Arrow.create({
         x_start: {value: "X1"}, y_start: {value: "Y1"},
         x_end: {value: "X3"}, y_end: {value: "Y3"},
         line_color: "red",
       })
       p.add_layout(arrow0)
-      const arrow1 = new Arrow({
+      const arrow1 = Arrow.create({
         x_start: {value: "X3"}, y_start: {value: "Y1"},
         x_end: {value: "X1"}, y_end: {value: "Y3"},
         line_color: "green",
       })
       p.add_layout(arrow1)
 
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         x_start: ["X2", "X2", "X2", "X2"],
         y_start: ["Y2", "Y2", "Y2", "Y2"],
         x_end: ["X3", "X2", "X1", "X2"],
         y_end: ["Y2", "Y3", "Y2", "Y1"],
       }})
-      const labels2 = new Arrow({
+      const labels2 = Arrow.create({
         x_start: {field: "x_start"},
         y_start: {field: "y_start"},
         x_end: {field: "x_end"},
@@ -661,11 +661,11 @@ describe("Bug", () => {
     it("prevents correct rendering of overlapping arrows", async () => {
       const p = fig([200, 100], {x_range: [0, 3], y_range: [0, 2]})
 
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         x_end: [1, 2, 3],
       }})
-      const head = new OpenHead({size: 30, line_width: 3})
-      const arrow = new Arrow({
+      const head = OpenHead.create({size: 30, line_width: 3})
+      const arrow = Arrow.create({
         end: head,
         x_start: {value: 0},
         y_start: {value: 1},
@@ -734,11 +734,11 @@ describe("Bug", () => {
   describe("in issue #10472", () => {
     it("prevents GraphRenderer to participate in auto-ranging", async () => {
       const p = fig([200, 200], {
-        x_range: new DataRange1d({range_padding: 0.2}),
-        y_range: new DataRange1d({range_padding: 0.2}),
+        x_range: DataRange1d.create({range_padding: 0.2}),
+        y_range: DataRange1d.create({range_padding: 0.2}),
       })
 
-      const layout_provider = new StaticLayoutProvider({
+      const layout_provider = StaticLayoutProvider.create({
         graph_layout: new Map([
           [4, [2, 1]],
           [5, [2, 2]],
@@ -747,16 +747,16 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = new GlyphRenderer({
-        glyph: new Scatter({size: 10, fill_color: "red"}),
-        data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+      const node_renderer = GlyphRenderer.create({
+        glyph: Scatter.create({size: 10, fill_color: "red"}),
+        data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = new GlyphRenderer({
-        glyph: new MultiLine({line_width: 2, line_color: "gray"}),
-        data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+      const edge_renderer = GlyphRenderer.create({
+        glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
+        data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
 
-      const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+      const graph = GraphRenderer.create({layout_provider, node_renderer, edge_renderer})
       p.add_renderers(graph)
 
       await display(p)
@@ -765,14 +765,14 @@ describe("Bug", () => {
 
   describe("in issue #9764", () => {
     it("prevents display of MultiChoice placeholder", async () => {
-      const widget = new MultiChoice({placeholder: "Choose ...", options: ["1", "2", "3"], width: 200})
+      const widget = MultiChoice.create({placeholder: "Choose ...", options: ["1", "2", "3"], width: 200})
       await display(widget, [250, 100])
     })
   })
 
   describe("in issue #10452", () => {
     it("prevents changing MultiChoice.disabled property", async () => {
-      const widget = new MultiChoice({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
+      const widget = MultiChoice.create({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
       const {view} = await display(widget, [250, 100])
       widget.disabled = true
       await view.ready
@@ -781,7 +781,7 @@ describe("Bug", () => {
 
   describe("in issue #10507", () => {
     it.allowing(22)("prevents changing MultiSelect.disabled property", async () => {
-      const widget = new MultiSelect({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
+      const widget = MultiSelect.create({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
       const {view} = await display(widget, [250, 100])
       widget.disabled = true
       await view.ready
@@ -795,19 +795,19 @@ describe("Bug", () => {
       const N = 10
       const columns = ["Apple", "Pear", "Banana"]
 
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         Apple: random.floats(N),
         Pear: random.floats(N),
         Banana: random.floats(N),
       }})
 
-      const choices = new MultiChoice({options: columns})
-      const button = new Button({label: "A button"})
-      const table = new DataTable({
+      const choices = MultiChoice.create({options: columns})
+      const button = Button.create({label: "A button"})
+      const table = DataTable.create({
         width: 300,
         height: 100,
         source,
-        columns: columns.map((field) => new TableColumn({title: field, field})),
+        columns: columns.map((field) => TableColumn.create({title: field, field})),
       })
 
       const layout = column([choices, button, table])
@@ -823,8 +823,8 @@ describe("Bug", () => {
     it.allowing(16)("prevents showing MultiChoice's dropdown menu over subsequent roots", async () => {
       const columns = ["Apple", "Pear", "Banana"]
 
-      const choices = new MultiChoice({options: columns})
-      const button = new Button({label: "A button"})
+      const choices = MultiChoice.create({options: columns})
+      const button = Button.create({label: "A button"})
 
       const layout = column([choices, button])
       const {view, el} = await display(layout, [350, 200])
@@ -846,7 +846,7 @@ describe("Bug", () => {
   describe("in issue #12115", () => {
     it.allowing(16)("prevents showing MultiChoice's dropdown items correctly", async () => {
       const columns = ["Apple", "Pear", "Banana"]
-      const choices = new MultiChoice({options: columns, width: 75, width_policy: "fixed"})
+      const choices = MultiChoice.create({options: columns, width: 75, width_policy: "fixed"})
 
       const {view} = await display(choices, [100, 200])
       view.choice_el.showDropdown()
@@ -857,7 +857,7 @@ describe("Bug", () => {
   describe("in issue #10749", () => {
     it("prevents DataTable from correctly ordering rows and formatting string dates", async () => {
       const indices = range(0, 22)
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           dates: indices.map((i) => `2014-03-${i + 1}`),
           downloads: indices.map((i) => i % 10),
@@ -865,11 +865,11 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "dates", title: "Date", formatter: new DateFormatter()}),
-        new TableColumn({field: "downloads", title: "Downloads"}),
+        TableColumn.create({field: "dates", title: "Date", formatter: DateFormatter.create()}),
+        TableColumn.create({field: "downloads", title: "Downloads"}),
       ]
 
-      const table = new DataTable({source, columns, selectable: "checkbox", width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
       source.selected.indices = indices
@@ -882,7 +882,7 @@ describe("Bug", () => {
   describe("in issue #10488", () => {
     it("disallows correct placement of Rect glyph with datetime values", async () => {
       const t0 = 1600755745624.793
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         x: linspace(t0, t0 + 2*3600*1000, 50),
       }})
       const p = fig([800, 300])
@@ -897,7 +897,7 @@ describe("Bug", () => {
       const p2 = fig([300, 300])
       p1.scatter({x: [0, 1], y: [0, 1], color: "red"})
       p2.scatter({x: [1, 0], y: [0, 1], color: "green"})
-      const box = new GridBox({
+      const box = GridBox.create({
         children: [
           [p1, 0, 0],
           orientation === "cols" ?
@@ -926,7 +926,7 @@ describe("Bug", () => {
       const p = fig([200, 200], {x_range: [-5, 5], y_range: [-5, 5]})
 
       for (const gradient of [1, -1, 0, 2, -0.5]) {
-        const s = new Slope({gradient, y_intercept: -1})
+        const s = Slope.create({gradient, y_intercept: -1})
         p.add_layout(s)
       }
 
@@ -936,12 +936,12 @@ describe("Bug", () => {
 
   describe("in issue #10589", () => {
     it("prevents correctly filtering out indices when using MultiLine glyph", async () => {
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         xs: [[0, 0], [1, 1], [2, 2]],
         ys: [[0, 1], [0, 1], [0, 1]],
       }})
-      const filter = new IndexFilter({indices: [0, 2]})
-      const view = new CDSView({filter})
+      const filter = IndexFilter.create({indices: [0, 2]})
+      const view = CDSView.create({filter})
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
@@ -960,8 +960,8 @@ describe("Bug", () => {
   describe("in issue #11006", () => {
     it("prevents scaling of superscripts when using non-px font size units", async () => {
       const p = fig([300, 50], {
-        x_range: new Range1d({start: 10**-2, end: 10**11}),
-        y_range: new Range1d({start: 0, end: 1}),
+        x_range: Range1d.create({start: 10**-2, end: 10**11}),
+        y_range: Range1d.create({start: 0, end: 1}),
         x_axis_type: "log",
         y_axis_type: null,
         min_border_top: 0,
@@ -1040,14 +1040,14 @@ describe("Bug", () => {
 
   describe("in issue #10407", () => {
     it.allowing(2)("displays incorrect value in Select widget when options change", async () => {
-      const widget = new Select({options: ["1", "2", "3"], value: "2", width: 200})
+      const widget = Select.create({options: ["1", "2", "3"], value: "2", width: 200})
       const {view} = await display(widget, [250, 100])
       widget.options = ["1", "2"]
       await view.ready
     })
 
     it.allowing(2)("displays out-of-range value in Select widget when options change", async () => {
-      const widget = new Select({options: ["1", "2", "3"], value: "3", width: 200})
+      const widget = Select.create({options: ["1", "2", "3"], value: "3", width: 200})
       const {view} = await display(widget, [250, 100])
       widget.options = ["1", "2"]
       await view.ready
@@ -1056,7 +1056,7 @@ describe("Bug", () => {
 
   describe("in issue #11203", () => {
     it("doesn't allow to set RadioGroup.active = null", async () => {
-      const widget = new RadioGroup({labels: ["1", "2", "3"], active: 1, inline: true, width: 200})
+      const widget = RadioGroup.create({labels: ["1", "2", "3"], active: 1, inline: true, width: 200})
       const {view} = await display(widget, [250, 50])
       widget.active = null
       await view.ready
@@ -1065,7 +1065,7 @@ describe("Bug", () => {
 
   describe("in issue holoviews#4589", () => {
     it("disallows rendering two glyphs sharing a source and view", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           x: [0],
           y: [0],
@@ -1076,24 +1076,24 @@ describe("Bug", () => {
         },
       })
 
-      const view = new CDSView() // shared view between renderers
+      const view = CDSView.create() // shared view between renderers
 
-      const scatter_renderer = new GlyphRenderer({
+      const scatter_renderer = GlyphRenderer.create({
         data_source: source,
-        glyph: new Scatter(),
+        glyph: Scatter.create(),
         view,
       })
 
-      const quad_renderer = new GlyphRenderer({
+      const quad_renderer = GlyphRenderer.create({
         data_source: source,
-        glyph: new Quad(),
+        glyph: Quad.create(),
         view,
       })
 
-      const x_range = new Range1d({start: -1, end: 3})
-      const y_range = new Range1d({start: -1, end: 3})
+      const x_range = Range1d.create({start: -1, end: 3})
+      const y_range = Range1d.create({start: -1, end: 3})
 
-      const p = new Plot({
+      const p = Plot.create({
         width: 200, height: 200,
         x_range, y_range,
         title: null, toolbar_location: null,
@@ -1126,8 +1126,8 @@ describe("Bug", () => {
       const p = fig([200, 200])
       p.line([0, 1], [0, 1])
 
-      p.add_layout(new LinearAxis({major_label_text_color: null}), "right")
-      p.add_layout(new LinearAxis({major_label_text_color: null}), "above")
+      p.add_layout(LinearAxis.create({major_label_text_color: null}), "right")
+      p.add_layout(LinearAxis.create({major_label_text_color: null}), "above")
 
       p.axis.major_tick_in = 10
       p.axis.major_tick_out = 0
@@ -1143,8 +1143,8 @@ describe("Bug", () => {
       const random = new Random(1)
       const p = fig([200, 200])
 
-      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
-      const color_bar = new ColorBar({color_mapper, label_standoff: 12})
+      const color_mapper = LinearColorMapper.create({palette: turbo(50), low: 0, high: 1})
+      const color_bar = ColorBar.create({color_mapper, label_standoff: 12})
       p.add_layout(color_bar, "right")
 
       const dw = 10
@@ -1205,11 +1205,11 @@ describe("Bug", () => {
       stub.value(new DelayedInternalProvider())
       try {
         const p0 = fig([200, 150], {
-          x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
+          x_axis_label: TeX.create({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
         })
         p0.scatter([1, 2, 3], [1, 2, 3])
         const p1 = fig([200, 150], {
-          x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
+          x_axis_label: TeX.create({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
         })
         p1.scatter([1, 2, 3], [1, 2, 3])
         await display(row([p0, p1]))
@@ -1257,7 +1257,7 @@ describe("Bug", () => {
       const cr = p.scatter([1, 2, 3, 4], [1, 2, 3, 4], {
         size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
       })
-      p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
+      p.add_tools(HoverTool.create({tooltips: null, renderers: [cr], mode: "vline"}))
       const {view: pv} = await display(p)
 
       await actions(pv).hover(xy(2, 1.5))
@@ -1269,7 +1269,7 @@ describe("Bug", () => {
     it("doesn't allow to use correct subset indices with image glyph during inspection", async () => {
       function plot(indices: number[]) {
         const p = fig([200, 200])
-        const source = new ColumnDataSource({
+        const source = ColumnDataSource.create({
           data: {
             x: [0, 10],
             image: [
@@ -1278,8 +1278,8 @@ describe("Bug", () => {
             ],
           },
         })
-        const color_mapper = new LinearColorMapper({low: 0, high: 6, palette: Spectral11})
-        const cds_view = new CDSView({filter: new IndexFilter({indices})})
+        const color_mapper = LinearColorMapper.create({low: 0, high: 6, palette: Spectral11})
+        const cds_view = CDSView.create({filter: IndexFilter.create({indices})})
         const ir = p.image({
           image: {field: "image"},
           x: {field: "x"},
@@ -1290,7 +1290,7 @@ describe("Bug", () => {
           source,
           view: cds_view,
         })
-        p.add_tools(new HoverTool({
+        p.add_tools(HoverTool.create({
           renderers: [ir],
           tooltips: [
             ["index", "$index"],
@@ -1320,8 +1320,8 @@ describe("Bug", () => {
 
   describe("in issue #11413", () => {
     it("doesn't allow to remove an annotation element associated with a tile renderer", async () => {
-      const osm = new TileRenderer({tile_source: osm_source.clone()})
-      const esri = new TileRenderer({tile_source: esri_source.clone()})
+      const osm = TileRenderer.create({tile_source: osm_source.clone()})
+      const esri = TileRenderer.create({tile_source: esri_source.clone()})
 
       const p0 = fig([300, 200], {
         x_range: [-2000000, 6000000],
@@ -1361,7 +1361,7 @@ describe("Bug", () => {
 
     it("doesn't allow vectorized global alpha in Image glyph", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const color_mapper = new LinearColorMapper({palette: Spectral11})
+        const color_mapper = LinearColorMapper.create({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend, title: output_backend})
         p.image({image: {value: scalar_image()}, x, y, dw: 10, dh: 10, global_alpha, color_mapper})
@@ -1403,7 +1403,7 @@ describe("Bug", () => {
 
   describe("in issue #11551", () => {
     it("doesn't allow SVG backend to respect clip paths when painting images", async () => {
-      const color_mapper = new LinearColorMapper({palette: Spectral11})
+      const color_mapper = LinearColorMapper.create({palette: Spectral11})
 
       const x_range: [number, number] = [0, 10]
       const y_range: [number, number] = [0, 10]
@@ -1437,11 +1437,11 @@ describe("Bug", () => {
   describe("in issue #11547", () => {
     it("doesn't render changes of graph layout provider", async () => {
       const p = fig([200, 200], {
-        x_range: new DataRange1d({range_padding: 0.2}),
-        y_range: new DataRange1d({range_padding: 0.2}),
+        x_range: DataRange1d.create({range_padding: 0.2}),
+        y_range: DataRange1d.create({range_padding: 0.2}),
       })
 
-      const layout_provider = new StaticLayoutProvider({
+      const layout_provider = StaticLayoutProvider.create({
         graph_layout: new Map([
           [4, [2, 1]],
           [5, [2, 2]],
@@ -1450,20 +1450,20 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = new GlyphRenderer({
-        glyph: new Scatter({size: 10, fill_color: "red"}),
-        data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+      const node_renderer = GlyphRenderer.create({
+        glyph: Scatter.create({size: 10, fill_color: "red"}),
+        data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = new GlyphRenderer({
-        glyph: new MultiLine({line_width: 2, line_color: "gray"}),
-        data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+      const edge_renderer = GlyphRenderer.create({
+        glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
+        data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
 
-      const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+      const graph = GraphRenderer.create({layout_provider, node_renderer, edge_renderer})
       p.add_renderers(graph)
       const {view} = await display(p)
 
-      graph.layout_provider = new StaticLayoutProvider({
+      graph.layout_provider = StaticLayoutProvider.create({
         graph_layout: new Map([
           [4, [1, 1]],
           [5, [1, 2]],
@@ -1483,7 +1483,7 @@ describe("Bug", () => {
 
       p.vbar({x: [0], top: [1], alpha: 0.2, hatch_pattern: "."})
 
-      p.xgrid.band_hatch_extra = {mycustom: new ImageURLTexture({url})}
+      p.xgrid.band_hatch_extra = {mycustom: ImageURLTexture.create({url})}
       p.xgrid.band_hatch_pattern = "mycustom"
 
       await display(p)
@@ -1503,8 +1503,8 @@ describe("Bug", () => {
           x_axis_type: null, y_axis_type: null,
         })
 
-        const selected = new Selection({indices})
-        const source = new ColumnDataSource({data: {x, y}, selected})
+        const selected = Selection.create({indices})
+        const source = ColumnDataSource.create({data: {x, y}, selected})
 
         p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
         p.scatter({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
@@ -1531,7 +1531,7 @@ describe("Bug", () => {
       const angles = np.linspace(0, 2*np.pi, 13)
       const x = f`${radius}*np.cos(${angles})`
       const y = f`${radius}*np.sin(${angles})`
-      const source = new ColumnDataSource({data: {x: x.slice(0, 6), y: y.slice(0, 6)}})
+      const source = ColumnDataSource.create({data: {x: x.slice(0, 6), y: y.slice(0, 6)}})
 
       function plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {
@@ -1558,8 +1558,8 @@ describe("Bug", () => {
       const random = new Random(1)
       const p = fig([200, 200])
 
-      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
-      const color_bar = new ColorBar({color_mapper, title: "original title", label_standoff: 12})
+      const color_mapper = LinearColorMapper.create({palette: turbo(50), low: 0, high: 1})
+      const color_bar = ColorBar.create({color_mapper, title: "original title", label_standoff: 12})
       p.add_layout(color_bar, "right")
 
       const dw = 10
@@ -1580,7 +1580,7 @@ describe("Bug", () => {
   describe("in issue #11770", () => {
     it("prevents correct computation of linked data ranges and a subset of plots not visible", async () => {
       function vis(visible: boolean) {
-        const source = new ColumnDataSource({data: {x: [0.1], y: [0.1]}})
+        const source = ColumnDataSource.create({data: {x: [0.1], y: [0.1]}})
 
         const fig0 = fig([200, 200], {visible})
         const fig1 = fig([200, 200], {x_axis_type: "log", y_axis_type: "log"})
@@ -1619,7 +1619,7 @@ describe("Bug", () => {
 
   describe("in issue #11832", () => {
     it("should x-zoom the x-axis when the y-axis is bounded", async () => {
-      const zoom_in_tool = new ZoomInTool({dimensions: "width"})
+      const zoom_in_tool = ZoomInTool.create({dimensions: "width"})
 
       const p = fig([200, 200], {x_range: [-1, 1], y_range: [-1, 1]})
       p.y_range.bounds = [-1, 1]
@@ -1641,7 +1641,7 @@ describe("Bug", () => {
       const p0 = fig([200, 200], {output_backend: "webgl"})
       const p1 = fig([200, 200], {output_backend: "webgl"})
 
-      const source = new ColumnDataSource({data: {x0: [0, 1], y0: [0, 1], x1: [5, 6], y1: [5, 6]}})
+      const source = ColumnDataSource.create({data: {x0: [0, 1], y0: [0, 1], x1: [5, 6], y1: [5, 6]}})
       p0.line({x: {field: "x0"}, y: {field: "y0"}, source})
       p1.line({x: {field: "x1"}, y: {field: "y1"}, source})
       const {view} = await display(row([p0, p1]))
@@ -1708,8 +1708,8 @@ describe("Bug", () => {
       const plot = fig([200, 200])
       plot.scatter([1, 2, 3], [1, 2, 3])
 
-      const div = new Div({text: "some text"})
-      const button = new Button({label: "Click!"})
+      const div = Div.create({text: "some text"})
+      const button = Button.create({label: "Click!"})
 
       const gp = gridplot([[plot, div], [null, button]], {merge_tools: true, toolbar_location: "above"})
 
@@ -1826,8 +1826,8 @@ describe("Bug", () => {
       const random = new Random(1)
       const p = fig([200, 200])
 
-      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
-      const color_bar = new ColorBar({color_mapper, label_standoff: 12})
+      const color_mapper = LinearColorMapper.create({palette: turbo(50), low: 0, high: 1})
+      const color_bar = ColorBar.create({color_mapper, label_standoff: 12})
       p.add_layout(color_bar, "right")
 
       const dw = 10
@@ -1849,7 +1849,7 @@ describe("Bug", () => {
 
     it("doesn't allow updating color mapper of a color bar", async () => {
       await plot((color_bar) => {
-        color_bar.color_mapper = new LinearColorMapper({palette: plasma(50), low: 0, high: 1})
+        color_bar.color_mapper = LinearColorMapper.create({palette: plasma(50), low: 0, high: 1})
       })
     })
   })
@@ -1903,9 +1903,9 @@ describe("Bug", () => {
 
   describe("in issue #11946", () => {
     it("doesn't allow to persist menus after a re-render", async () => {
-      const pan = new PanTool()
+      const pan = PanTool.create()
       const pan_button = pan.tool_button()
-      const toolbar = new Toolbar({buttons: [pan_button], tools: [pan]})
+      const toolbar = Toolbar.create({buttons: [pan_button], tools: [pan]})
 
       const p = fig([200, 100], {toolbar_location: "right", toolbar})
       p.scatter([1, 2, 3], [1, 2, 3])
@@ -1952,8 +1952,8 @@ describe("Bug", () => {
 
       for (const i of [1, 2, 3, 4, 5, 6]) {
         const name = `y${i}`
-        p.extra_y_ranges = {...p.extra_y_ranges, [name]: new Range1d({start: 0, end: 10*i})}
-        p.add_layout(new LinearAxis({y_range_name: name}), "right")
+        p.extra_y_ranges = {...p.extra_y_ranges, [name]: Range1d.create({start: 0, end: 10*i})}
+        p.add_layout(LinearAxis.create({y_range_name: name}), "right")
         await view.ready
       }
     })
@@ -1962,17 +1962,17 @@ describe("Bug", () => {
   describe("in issue #12127", () => {
     it("prevents displaying non-text labels in LabelSet", async () => {
       const p = fig([200, 200], {
-        x_range: new Range1d({start: -1, end: 2}),
-        y_range: new Range1d({start: -1, end: 2}),
+        x_range: Range1d.create({start: -1, end: 2}),
+        y_range: Range1d.create({start: -1, end: 2}),
       })
 
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         a: [0, 0, 1, 1],
         b: [0, 1, 0, 1],
         c: [6, 7, 8, 9],
       }})
 
-      const labels = new LabelSet({
+      const labels = LabelSet.create({
         x: {field: "a"},
         y: {field: "b"},
         text: {field: "c"},
@@ -2013,8 +2013,8 @@ describe("Bug", () => {
       const x = np.cos(angles)
       const y = np.sin(angles)
       y[10] = NaN
-      const selected = new Selection({indices: [0, 1, 2, 4, 6, 7, 9, 10]})
-      const source = new ColumnDataSource({data: {x, y}, selected})
+      const selected = Selection.create({indices: [0, 1, 2, 4, 6, 7, 9, 10]})
+      const source = ColumnDataSource.create({data: {x, y}, selected})
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([150, 150], {output_backend, title: output_backend})
@@ -2048,7 +2048,7 @@ describe("Bug", () => {
 
   describe("in issue #12155", () => {
     it("prevents computing correct layout for inline radio group", async () => {
-      const radio_group = new RadioGroup({
+      const radio_group = RadioGroup.create({
         labels: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
         inline: true,
         active: 0,
@@ -2062,7 +2062,7 @@ describe("Bug", () => {
 
   describe("in issue #12205", () => {
     it("prevents expansion of Div when using sizing_mode='stretch_width'", async () => {
-      const div = new Div({
+      const div = Div.create({
         text: "Some text",
         sizing_mode: "stretch_width",
         styles: {border: "1px solid red"},
@@ -2071,14 +2071,14 @@ describe("Bug", () => {
       const plot = fig([300, 300], {sizing_mode: "stretch_width"})
       plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
 
-      const col = new Column({children: [div, plot], sizing_mode: "stretch_width"})
+      const col = Column.create({children: [div, plot], sizing_mode: "stretch_width"})
       await display(col, [300, 350])
     })
   })
 
   describe("in issue #9113", () => {
     it.allowing(8)("prevents layout update when adding new toggle group buttons", async () => {
-      const group = new RadioButtonGroup({labels: []})
+      const group = RadioButtonGroup.create({labels: []})
       const {view} = await display(group, [300, 100])
 
       group.labels = [...group.labels, "Button 0"]
@@ -2104,7 +2104,7 @@ describe("Bug", () => {
       })
       plot.scatter([1, 2, 3], [1, 2, 3], {size: 10})
 
-      const pane = new Pane({
+      const pane = Pane.create({
         styles: {width: "300px", height: "300px", overflow_y: "scroll"},
         elements: [plot],
       })
@@ -2115,13 +2115,13 @@ describe("Bug", () => {
 
   describe("in issue #11339", () => {
     it.allowing(20)("collapses layout after toggling visibility", async () => {
-      const toggle = new Toggle({label: "Click", active: true})
-      const select1 = new Select({title: "Select 1:", options: ["1", "2"], value: "1"})
-      const select2 = new Select({title: "Select 2:", options: ["1", "2"], value: "1"})
-      const div = new Div({text: "Some text"})
+      const toggle = Toggle.create({label: "Click", active: true})
+      const select1 = Select.create({title: "Select 1:", options: ["1", "2"], value: "1"})
+      const select2 = Select.create({title: "Select 2:", options: ["1", "2"], value: "1"})
+      const div = Div.create({text: "Some text"})
 
-      const selects = new Column({children: [select1, select2]})
-      const layout = new Column({children: [new Column({children: [toggle, selects]}), div]})
+      const selects = Column.create({children: [select1, select2]})
+      const layout = Column.create({children: [Column.create({children: [toggle, selects]}), div]})
 
       // Defer to make sure CSS layout is done after each step. The last one isn't
       // strictly necessary, because test framework defers anyway after a test and
@@ -2142,17 +2142,17 @@ describe("Bug", () => {
 
   describe("in issue #4817", () => {
     it("doesn't correctly align widgets after adding text to a widget", async () => {
-      const button = new Button({label: "Say"})
-      const input = new TextInput({value: "Bokeh"})
-      const output = new Div()
+      const button = Button.create({label: "Say"})
+      const input = TextInput.create({value: "Bokeh"})
+      const output = Div.create()
 
       button.on_click(() => {
         output.text = `Hello, ${input.value}!`
       })
 
-      const layout = new Column({
+      const layout = Column.create({
         children: [
-          new Row({children: [button, input]}),
+          Row.create({children: [button, input]}),
           output,
         ],
       })
@@ -2171,7 +2171,7 @@ describe("Bug", () => {
       const plot = figure({sizing_mode: "stretch_both"})
       plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
 
-      const pane = new Pane({styles: {width: "200px", height: "200px"}, elements: [plot]})
+      const pane = Pane.create({styles: {width: "200px", height: "200px"}, elements: [plot]})
       const {view} = await display(pane, [350, 350])
       await paint()
 
@@ -2185,17 +2185,17 @@ describe("Bug", () => {
     it.allowing(64)("makes child layout update invalidate and re-render entire layout", async () => {
       const p0 = figure({width: 300, height: 300})
       p0.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
-      const button = new Button({label: "click"})
-      const column = new Column({children: [new Column({children: [button, p0]})]})
-      const tab0 = new TabPanel({child: column, title: "circle"})
+      const button = Button.create({label: "click"})
+      const column = Column.create({children: [Column.create({children: [button, p0]})]})
+      const tab0 = TabPanel.create({child: column, title: "circle"})
 
       const p1 = figure({width: 300, height: 300})
       p1.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
-      const tab1 = new TabPanel({child: p1, title: "line"})
+      const tab1 = TabPanel.create({child: p1, title: "line"})
 
-      const tabs = new Tabs({tabs: [tab0, tab1]})
+      const tabs = Tabs.create({tabs: [tab0, tab1]})
       button.on_click(() => {
-        column.children = [...column.children, new Button({label: "new button"})]
+        column.children = [...column.children, Button.create({label: "new button"})]
       })
 
       const {view} = await display(tabs, [350, 650])
@@ -2217,9 +2217,9 @@ describe("Bug", () => {
       const p2 = figure({width: 300, height: 300})
       p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
 
-      const tab1 = new TabPanel({child: p1, title: "circle"})
-      const tab2 = new TabPanel({child: p2, title: "line"})
-      const tabs = new Tabs({tabs: [tab1, tab2], width: 500})
+      const tab1 = TabPanel.create({child: p1, title: "circle"})
+      const tab2 = TabPanel.create({child: p2, title: "line"})
+      const tabs = Tabs.create({tabs: [tab1, tab2], width: 500})
 
       await display(tabs, [550, 350])
     })
@@ -2234,14 +2234,14 @@ describe("Bug", () => {
       }
 
       function create_tabs(plot0: Plot, plot1: Plot, name: string) {
-        const tab0 = new TabPanel({child: plot0, title: "Linear"})
-        const tab1 = new TabPanel({child: plot1, title: "Logarithmic"})
-        return new Tabs({tabs: [tab0, tab1], name})
+        const tab0 = TabPanel.create({child: plot0, title: "Linear"})
+        const tab1 = TabPanel.create({child: plot1, title: "Logarithmic"})
+        return Tabs.create({tabs: [tab0, tab1], name})
       }
 
       function create_selector(figs: Tabs[]) {
         const names = figs.map((fig) => fig.name) as string[]
-        const selector = new Select({title: "Select Curve", value: names[0], options: names, width: 200})
+        const selector = Select.create({title: "Select Curve", value: names[0], options: names, width: 200})
 
         for (const fig of tail(figs)) {
           fig.visible = false
@@ -2288,31 +2288,31 @@ describe("Bug", () => {
 
   describe("in issue #10125", () => {
     function make() {
-      const button = new Button({label: "Click me!"})
+      const button = Button.create({label: "Click me!"})
 
-      const radios = new RadioGroup({
+      const radios = RadioGroup.create({
         labels: ["hello", "there"],
         active: 0,
         inline: true,
       })
 
-      const text_input1 = new TextInput({value: "0.0", title: "text-input1"})
-      const text_input2 = new TextInput({value: "1.0", title: "text-input2"})
-      const text_input3 = new TextInput({value: "2.0", title: "text-input3"})
+      const text_input1 = TextInput.create({value: "0.0", title: "text-input1"})
+      const text_input2 = TextInput.create({value: "1.0", title: "text-input2"})
+      const text_input3 = TextInput.create({value: "2.0", title: "text-input3"})
 
       const plot = figure({width: 300, height: 300, title: "test plot"})
       plot.line({x: [1, 2, 3], y: [2, 4, 6]})
 
-      const hidden_widgets = new Row({
+      const hidden_widgets = Row.create({
         children: [
-          new Column({children: [radios, text_input1, text_input2, text_input3]}),
+          Column.create({children: [radios, text_input1, text_input2, text_input3]}),
           plot,
         ],
         visible: false,
       })
       button.on_click(() => hidden_widgets.visible = true)
 
-      const layout = new Column({children: [button, hidden_widgets]})
+      const layout = Column.create({children: [button, hidden_widgets]})
       return {layout, button}
     }
 
@@ -2351,7 +2351,7 @@ describe("Bug", () => {
 
   describe("in issue #12418", () => {
     function plot(color: Color) {
-      const lasso = new LassoSelectTool({persistent: true})
+      const lasso = LassoSelectTool.create({persistent: true})
       lasso.overlay.line_dash = "solid"
       const p = fig([200, 200], {tools: [lasso]})
       p.scatter([-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], {size: 10, color})
@@ -2372,7 +2372,7 @@ describe("Bug", () => {
     it("doesn't allow to correctly display lasso select overlay in layouts", async () => {
       const p0 = plot("red")
       const p1 = plot("green")
-      const {view} = await display(new Row({children: [p0, p1]}))
+      const {view} = await display(Row.create({children: [p0, p1]}))
 
       const pv0 = view.owner.get_one(p0)
       const pv1 = view.owner.get_one(p1)
@@ -2392,7 +2392,7 @@ describe("Bug", () => {
       const yr81 = Int32Array.from({length: mpg81.length}, () => 81)
       const yr82 = Int32Array.from({length: mpg82.length}, () => 82)
 
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           yr: new Int32Array([...yr81, ...yr82]),
           mpg: new Float64Array([...mpg81, ...mpg82]),
@@ -2402,15 +2402,15 @@ describe("Bug", () => {
       function plot(title: string, transform?: Jitter) {
         const p = fig([200, 300], {title})
         p.xgrid.grid_line_color = null
-        p.xaxis.ticker = new FixedTicker({ticks: [81, 82]})
+        p.xaxis.ticker = FixedTicker.create({ticks: [81, 82]})
         p.scatter({x: {field: "yr", transform}, y: {field: "mpg"}, size: 9, alpha: 0.4, source})
         return p
       }
 
       const p0 = plot("no jitter")
-      const p1 = plot("jitter", new Jitter({width: 0.4, random_generator: new ParkMillerLCG({seed: 54235})}))
+      const p1 = plot("jitter", Jitter.create({width: 0.4, random_generator: ParkMillerLCG.create({seed: 54235})}))
 
-      await display(new Row({children: [p0, p1]}))
+      await display(Row.create({children: [p0, p1]}))
     })
   })
 
@@ -2421,9 +2421,9 @@ describe("Bug", () => {
       const p1 = fig([200, 200])
       p1.scatter([1, 2, 3], [1, 2, 3], {color: "green"})
 
-      const g = new GridPlot({children: [[p0, 0, 0], [p1, 0, 1]]})
-      const r = new Row({children: [g]})
-      const c = new Column({children: [r]})
+      const g = GridPlot.create({children: [[p0, 0, 0], [p1, 0, 1]]})
+      const r = Row.create({children: [g]})
+      const c = Column.create({children: [r]})
 
       await display(c)
     })
@@ -2432,7 +2432,7 @@ describe("Bug", () => {
   describe("in issue #12447", () => {
     it("make tooltips interfere with toolbars", async () => {
       const p = fig([200, 200], {toolbar_location: "above"})
-      p.add_tools(new HoverTool())
+      p.add_tools(HoverTool.create())
       p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
       const {view: pv} = await display(p)
@@ -2452,7 +2452,7 @@ describe("Bug", () => {
         return p
       }
 
-      const g = new GridPlot({
+      const g = GridPlot.create({
         children: [
           [p(true, false), 0, 0], [p(false, false), 0, 1], [p(false, false), 0, 2],
           [p(true, false), 1, 0], [p(false, false), 1, 1], [p(false, false), 1, 2],
@@ -2467,8 +2467,8 @@ describe("Bug", () => {
   describe("in issue #12479", () => {
     function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs>) {
       const p = fig([200, 200], plot_args)
-      p.add_layout(new LinearAxis(), "above")
-      p.add_layout(new LinearAxis(), "right")
+      p.add_layout(LinearAxis.create(), "above")
+      p.add_layout(LinearAxis.create(), "right")
       p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
       p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
       p.xaxis.major_label_orientation = "vertical"
@@ -2480,7 +2480,7 @@ describe("Bug", () => {
     }
 
     it("doesn't allow computing grid plot layout in nested layouts", async () => {
-      const row = new Row({
+      const row = Row.create({
         children: [
           plot(10**1, 10**1, "red"),
           plot(10**2, 10**2, "green"),
@@ -2488,7 +2488,7 @@ describe("Bug", () => {
         ],
       })
 
-      const grid = new GridPlot({
+      const grid = GridPlot.create({
         children: [
           [plot(10**1, 10**1, "red"), 0, 0],
           [plot(10**2, 10**2, "green"), 0, 1],
@@ -2497,7 +2497,7 @@ describe("Bug", () => {
         ],
       })
 
-      const col = new Column({
+      const col = Column.create({
         children: [row, grid],
       })
 
@@ -2508,17 +2508,17 @@ describe("Bug", () => {
   describe("in issue #12465", () => {
     it("doesn't allow to correctly display DataTable in Tabs", async () => {
       function table(n: number) {
-        const source = new ColumnDataSource({
+        const source = ColumnDataSource.create({
           data: {
             col1: [1*n, 2*n, 3*n],
             col2: [55*n, 66*n, 77*n],
           },
         })
         const columns = [
-          new TableColumn({field: "col1", title: "Column 1"}),
-          new TableColumn({field: "col2", title: "Column 2"}),
+          TableColumn.create({field: "col1", title: "Column 1"}),
+          TableColumn.create({field: "col2", title: "Column 2"}),
         ]
-        const table = new DataTable({
+        const table = DataTable.create({
           width: 300,
           height: 150,
           source,
@@ -2527,10 +2527,10 @@ describe("Bug", () => {
         return table
       }
 
-      const tabs = new Tabs({
+      const tabs = Tabs.create({
         tabs: [
-          new TabPanel({title: "Table 0", closable: true, child: table(1)}),
-          new TabPanel({title: "Table 1", closable: true, child: table(10)}),
+          TabPanel.create({title: "Table 0", closable: true, child: table(1)}),
+          TabPanel.create({title: "Table 1", closable: true, child: table(10)}),
         ],
       })
 
@@ -2541,7 +2541,7 @@ describe("Bug", () => {
   describe("in issue #4930", () => {
     function plot(color: Color) {
       const p = fig([150, 150])
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           foo: ["foo1", "foo2", "foo3"],
           bar: ["bar1", "bar2", "bar3"],
@@ -2549,7 +2549,7 @@ describe("Bug", () => {
         },
       })
       p.scatter([1, 2, 3], [3, 1, 2], {size: 10, color, source})
-      const hover = new HoverTool({
+      const hover = HoverTool.create({
         tooltips: [
           ["index",         "$index"],
           ["data (x, y)",   "($x, $y)"],
@@ -2570,7 +2570,7 @@ describe("Bug", () => {
       const p10 = plot("blue")
       const p11 = plot("yellow")
 
-      const layout = new GridPlot({
+      const layout = GridPlot.create({
         toolbar_location: null,
         children: [
           [p00, 0, 0],
@@ -2592,10 +2592,10 @@ describe("Bug", () => {
       const p10 = plot("blue")
       const p11 = plot("yellow")
 
-      const layout = new Column({
+      const layout = Column.create({
         children: [
-          new Row({children: [p00, p01]}),
-          new Row({children: [p10, p11]}),
+          Row.create({children: [p00, p01]}),
+          Row.create({children: [p10, p11]}),
         ],
       })
 
@@ -2643,7 +2643,7 @@ describe("Bug", () => {
   describe("in issue #12578", () => {
     it("doesn't allow to use proxied action tools on all plots", async () => {
       function plot(color: Color) {
-        const tool = new ZoomInTool()
+        const tool = ZoomInTool.create()
         const plot = fig([300, 300], {toolbar_location: null, tools: [tool]})
         plot.scatter([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], {size: 10, color})
         return {plot, tool}
@@ -2654,7 +2654,7 @@ describe("Bug", () => {
       const p10 = plot("blue")
       const p11 = plot("purple")
 
-      const zoom_in = new ToolProxy({
+      const zoom_in = ToolProxy.create({
         tools: [
           p00.tool,
           p01.tool,
@@ -2664,12 +2664,12 @@ describe("Bug", () => {
       })
       const zoom_in_btn = zoom_in.tool_button()
 
-      const toolbar = new Toolbar({
+      const toolbar = Toolbar.create({
         tools: [zoom_in],
         buttons: [zoom_in_btn],
       })
 
-      const gp = new GridPlot({
+      const gp = GridPlot.create({
         children: [
           [p00.plot, 0, 0],
           [p01.plot, 0, 1],
@@ -2688,7 +2688,7 @@ describe("Bug", () => {
 
   describe("in issue #12585", () => {
     it("doesn't allow support for line_policy=none with mode=vline", async () => {
-      const hover = new HoverTool({
+      const hover = HoverTool.create({
         mode: "vline",
         line_policy: "none",
         tooltips: [["x", "$x"], ["y", "$y"]],
@@ -2723,7 +2723,7 @@ describe("Bug", () => {
     }
 
     function gp() {
-      return new GridPlot({
+      return GridPlot.create({
         toolbar_location: null,
         children: [
           [plot("red"), 0, 0],
@@ -2735,29 +2735,29 @@ describe("Bug", () => {
     }
 
     function row() {
-      return new Row({children: [plot("lime"), plot("orange")]})
+      return Row.create({children: [plot("lime"), plot("orange")]})
     }
 
     it("doesn't allow layout propagation in Column(Column(GridPlot()))", async () => {
-      const layout = new Column({
+      const layout = Column.create({
         children: [
-          new Column({children: [gp()]}),
+          Column.create({children: [gp()]}),
         ],
       })
       await display(layout)
     })
 
     it("doesn't allow layout propagation in Column(GridPlot, Row)", async () => {
-      const layout = new Column({
+      const layout = Column.create({
         children: [gp(), row()],
       })
       await display(layout)
     })
 
     it("doesn't allow layout propagation in Column(Column(GridPlot(), Row()))", async () => {
-      const layout = new Column({
+      const layout = Column.create({
         children: [
-          new Column({children: [gp(), row()]}),
+          Column.create({children: [gp(), row()]}),
         ],
       })
       await display(layout)
@@ -2769,7 +2769,7 @@ describe("Bug", () => {
       const plot = fig([200, 200])
       plot.scatter([1, 2, 3], [1, 2, 3], {size: 10})
 
-      const pane = new Pane({
+      const pane = Pane.create({
         stylesheets: [`
           :host {
             display: flex;
@@ -2853,11 +2853,11 @@ describe("Bug", () => {
 
   describe("in issue #5829", () => {
     it("allows PolySelectTool's overlay to stay the same at all zoom levels", async () => {
-      const poly_select = new PolySelectTool()
+      const poly_select = PolySelectTool.create()
       const poly_select_button = poly_select.tool_button()
-      const zoom_out = new ZoomOutTool()
+      const zoom_out = ZoomOutTool.create()
       const zoom_out_button = zoom_out.tool_button()
-      const toolbar = new Toolbar({tools: [poly_select, zoom_out], buttons: [poly_select_button, zoom_out_button]})
+      const toolbar = Toolbar.create({tools: [poly_select, zoom_out], buttons: [poly_select_button, zoom_out_button]})
       const p = fig([200, 200], {toolbar, toolbar_location: "right"})
       p.scatter([10, 20, 30, 40], [10, 20, 30, 40], {size: 10})
 
@@ -2883,12 +2883,12 @@ describe("Bug", () => {
       const p = fig([200, 200], {tools: "pan"})
       p.quad({left: 0, right: 9, top: 0, bottom: 9})
 
-      const range_tool = new RangeTool({
-        x_range: new Range1d({start: 2, end: 7}),
-        y_range: new Range1d({start: 2, end: 7}),
+      const range_tool = RangeTool.create({
+        x_range: Range1d.create({start: 2, end: 7}),
+        y_range: Range1d.create({start: 2, end: 7}),
       })
 
-      const hover_tool = new HoverTool({
+      const hover_tool = HoverTool.create({
         tooltips: [
           ["(dx,dy)", "($x, $y)"],
           ["(sx,sy)", "($sx, $sy)"],
@@ -2915,27 +2915,27 @@ describe("Bug", () => {
       const y = random.floats(100, 0, 1)
       p.scatter(x, y, {size: 10})
 
-      const tool0 = new RangeTool({
-        x_range: new Range1d({start: 1, end: 2}),
-        y_range: new Range1d({start: 0, end: 1}),
+      const tool0 = RangeTool.create({
+        x_range: Range1d.create({start: 1, end: 2}),
+        y_range: Range1d.create({start: 0, end: 1}),
         y_interaction: false,
       })
 
-      const tool1 = new RangeTool({
-        x_range: new Range1d({start: 3, end: 4}),
-        y_range: new Range1d({start: 0, end: 1}),
+      const tool1 = RangeTool.create({
+        x_range: Range1d.create({start: 3, end: 4}),
+        y_range: Range1d.create({start: 0, end: 1}),
         y_interaction: false,
       })
 
-      const tool2 = new RangeTool({
-        x_range: new Range1d({start: 5, end: 6}),
-        y_range: new Range1d({start: 0, end: 1}),
+      const tool2 = RangeTool.create({
+        x_range: Range1d.create({start: 5, end: 6}),
+        y_range: Range1d.create({start: 0, end: 1}),
         y_interaction: false,
       })
 
-      const tool3 = new RangeTool({
-        x_range: new Range1d({start: 7, end: 8}),
-        y_range: new Range1d({start: 0, end: 1}),
+      const tool3 = RangeTool.create({
+        x_range: Range1d.create({start: 7, end: 8}),
+        y_range: Range1d.create({start: 0, end: 1}),
         y_interaction: false,
       })
 
@@ -2961,13 +2961,13 @@ describe("Bug", () => {
       const xx = [20, 22, 21]
       const yy = [2, 3, 4]
 
-      const overview_rng = new Range1d({start: 5, end: 0})
-      const zoomed_rng = new Range1d({start: 4, end: 2})
+      const overview_rng = Range1d.create({start: 5, end: 0})
+      const zoomed_rng = Range1d.create({start: 4, end: 2})
 
       const fig_overview = fig([200, 200], {y_range: overview_rng})
       fig_overview.line(xx, yy)
 
-      const range_tool = new RangeTool({y_range: zoomed_rng})
+      const range_tool = RangeTool.create({y_range: zoomed_rng})
       fig_overview.add_tools(range_tool)
 
       const fig_zoomed = fig([200, 200], {y_range: zoomed_rng})
@@ -2990,7 +2990,7 @@ describe("Bug", () => {
 
   describe("in issue #11955", () => {
     it("does not allow updating DataTable when its CDSView's filters change", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           col1: ["a", "b", "c", "d"],
           col2: [1, 2, 3, 4],
@@ -2998,14 +2998,14 @@ describe("Bug", () => {
         },
       })
 
-      const cds_view = new CDSView({filter: new IndexFilter({indices: [1, 2, 3]})})
+      const cds_view = CDSView.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
 
       const columns = [
-        new TableColumn({field: "col1", title: "col1"}),
-        new TableColumn({field: "col2", title: "col2"}),
-        new TableColumn({field: "col3", title: "col3"}),
+        TableColumn.create({field: "col1", title: "col1"}),
+        TableColumn.create({field: "col2", title: "col2"}),
+        TableColumn.create({field: "col3", title: "col3"}),
       ]
-      const table = new DataTable({source, columns, view: cds_view, width: 200})
+      const table = DataTable.create({source, columns, view: cds_view, width: 200})
 
       const p = fig([200, 200])
       p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
@@ -3013,14 +3013,14 @@ describe("Bug", () => {
       const {view} = await display(row([table, p]))
       await paint()
 
-      cds_view.filter = new IndexFilter({indices: [1, 2]})
+      cds_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
 
   describe("in issue #12157", () => {
     it("doesn't allow MultiChoice widget's menu to persist after selection an option", async () => {
-      const input = new MultiChoice({options: ["A", "B", "C", "D"], width: 200})
+      const input = MultiChoice.create({options: ["A", "B", "C", "D"], width: 200})
       const {view} = await display(input, [300, 200])
       await paint()
 
@@ -3047,7 +3047,7 @@ describe("Bug", () => {
 
   describe("in issue #12584", () => {
     it("doesn't allow auto-completion to work correctly in MultiChoice widget", async () => {
-      const input = new MultiChoice({options: ["A1", "B1", "B2", "B3", "C1", "C2"], search_option_limit: 2, width: 200})
+      const input = MultiChoice.create({options: ["A1", "B1", "B2", "B3", "C1", "C2"], search_option_limit: 2, width: 200})
       const {view} = await display(input, [300, 300])
       await paint()
 
@@ -3071,8 +3071,8 @@ describe("Bug", () => {
       const ys = [0, 1, 4, 9, 16, 25]
       plot.line(xs, ys, {line_width: 2})
 
-      const select = new Select({options: ["A", "B"], value: "A", width: 100})
-      const date_picker = new DatePicker({value: "2023-02-26", width: 100})
+      const select = Select.create({options: ["A", "B"], value: "A", width: 100})
+      const date_picker = DatePicker.create({value: "2023-02-26", width: 100})
 
       const col = column([select, date_picker])
       const layout = row([col, plot])
@@ -3102,10 +3102,10 @@ describe("Bug", () => {
   describe("in issue #12880", () => {
     it("doesn't allow editable BoxAnnotation to respect frame bounds", async () => {
       async function box() {
-        const frame_top = new Node({target: "frame", symbol: "top"})
-        const frame_bottom = new Node({target: "frame", symbol: "bottom"})
+        const frame_top = Node.create({target: "frame", symbol: "top"})
+        const frame_bottom = Node.create({target: "frame", symbol: "bottom"})
 
-        const box = new BoxAnnotation({
+        const box = BoxAnnotation.create({
           left: 1, right: 3, top: frame_top, bottom: frame_bottom,
           editable: true,
           line_color: "blue",
@@ -3129,20 +3129,20 @@ describe("Bug", () => {
   describe("in issue #12917", () => {
     it("doesn't allow BoxAnnotation to participate in auto-ranging when its edges are bound to the frame", async () => {
       function plot(lrtb: LRTB<number | Node>) {
-        const box = new BoxAnnotation({...lrtb, line_color: "blue"})
+        const box = BoxAnnotation.create({...lrtb, line_color: "blue"})
         const p = fig([200, 200], {
           renderers: [box],
-          x_range: new DataRange1d({range_padding: 0.3}),
-          y_range: new DataRange1d({range_padding: 0.3}),
+          x_range: DataRange1d.create({range_padding: 0.3}),
+          y_range: DataRange1d.create({range_padding: 0.3}),
         })
         p.circle({x: 0, y: 0, radius: 1, fill_color: null})
         return p
       }
 
-      const left = new Node({target: "frame", symbol: "left"})
-      const right = new Node({target: "frame", symbol: "right"})
-      const top = new Node({target: "frame", symbol: "top"})
-      const bottom = new Node({target: "frame", symbol: "bottom"})
+      const left = Node.create({target: "frame", symbol: "left"})
+      const right = Node.create({target: "frame", symbol: "right"})
+      const top = Node.create({target: "frame", symbol: "top"})
+      const bottom = Node.create({target: "frame", symbol: "bottom"})
 
       const p00 = plot({left, right, top, bottom})
       const p01 = plot({left: -2, right, top, bottom})
@@ -3174,8 +3174,8 @@ describe("Bug", () => {
       const line_join = "round"
       const line_width = 20
       const line_alpha = 0.8
-      const x_range = new Range1d({start: -0.2, end: 1.2})
-      const y_range = new Range1d({start: -0.2, end: 1.2})
+      const x_range = Range1d.create({start: -0.2, end: 1.2})
+      const y_range = Range1d.create({start: -0.2, end: 1.2})
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([150, 150], {output_backend, title: output_backend, x_range, y_range})
@@ -3209,16 +3209,16 @@ describe("Bug", () => {
         }
       }
 
-      const p00 = new CustomFigure()
+      const p00 = CustomFigure.create()
       p00.scatter([1, 2, 3], [1, 2, 3], {fill_color: "red"})
-      const p01 = new CustomFigure()
+      const p01 = CustomFigure.create()
       p01.scatter([1, 2, 3], [1, 2, 3], {fill_color: "green"})
-      const p10 = new CustomFigure()
+      const p10 = CustomFigure.create()
       p10.scatter([1, 2, 3], [1, 2, 3], {fill_color: "blue"})
-      const p11 = new CustomFigure()
+      const p11 = CustomFigure.create()
       p11.scatter([1, 2, 3], [1, 2, 3], {fill_color: "yellow"})
 
-      const gp = new GridBox({
+      const gp = GridBox.create({
         children: [
           [p00, 0, 0], [p01, 0, 1],
           [p10, 1, 0], [p11, 1, 1],
@@ -3233,22 +3233,22 @@ describe("Bug", () => {
     it("doesn't allow to render Text glyph when using selection indices", async () => {
       const p = fig([200, 200])
 
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           x: [1, 2, 3],
           y: [2, 5, 8],
           color: ["blue", "orange", "green"],
           text: ["A", "B", "C"],
         },
-        selected: new Selection({indices: [0, 2]}),
+        selected: Selection.create({indices: [0, 2]}),
       })
 
-      const selected_glyph = new Circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "red"})
-      const nonselected_glyph = new Circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "white"})
+      const selected_glyph = Circle.create({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "red"})
+      const nonselected_glyph = Circle.create({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "white"})
       p.add_glyph(nonselected_glyph, source, {selection_glyph: selected_glyph, nonselection_glyph: nonselected_glyph})
 
-      const selected_labels = new Text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "red"})
-      const nonselected_labels = new Text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "white"})
+      const selected_labels = Text.create({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "red"})
+      const nonselected_labels = Text.create({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "white"})
       p.add_glyph(nonselected_labels, source, {selection_glyph: selected_labels, nonselection_glyph: nonselected_labels})
 
       await display(p)
@@ -3258,7 +3258,7 @@ describe("Bug", () => {
   describe("in issue #13150", () => {
     it("doesn't allow correctly render GraphRenderer with output_backend='webgl'", async () => {
       function plot(output_backend: OutputBackend) {
-        const layout_provider = new StaticLayoutProvider({
+        const layout_provider = StaticLayoutProvider.create({
           graph_layout: new Map([
             [4, [2, 1]],
             [5, [2, 2]],
@@ -3267,16 +3267,16 @@ describe("Bug", () => {
           ]),
         })
 
-        const node_renderer = new GlyphRenderer({
-          glyph: new Scatter({size: 10, fill_color: "red"}),
-          data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+        const node_renderer = GlyphRenderer.create({
+          glyph: Scatter.create({size: 10, fill_color: "red"}),
+          data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
         })
-        const edge_renderer = new GlyphRenderer({
-          glyph: new MultiLine({line_width: 2, line_color: "gray"}),
-          data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+        const edge_renderer = GlyphRenderer.create({
+          glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
+          data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
         })
 
-        const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+        const graph = GraphRenderer.create({layout_provider, node_renderer, edge_renderer})
         return fig([200, 200], {output_backend, title: output_backend, renderers: [graph]})
       }
 
@@ -3290,8 +3290,8 @@ describe("Bug", () => {
 
   describe("in issue #12951", () => {
     it("doesn't allow usage of Tooltip in description context", async () => {
-      const tooltip = new Tooltip({content: "Select widget description.", position: "right"})
-      const widget = new Select({title: "A dropdown", value: "Test", options: ["Test"], description: tooltip})
+      const tooltip = Tooltip.create({content: "Select widget description.", position: "right"})
+      const widget = Select.create({title: "A dropdown", value: "Test", options: ["Test"], description: tooltip})
       const {doc, view} = await display(widget, [300, 100])
 
       const doc_json = doc.to_json()
@@ -3305,7 +3305,7 @@ describe("Bug", () => {
 
   describe("in issue #13192", () => {
     it("doesn't to clear DatePicker.enabled_dates", async () => {
-      const dp = new DatePicker({enabled_dates: ["2023-05-08"], min_date: "2023-05-01", max_date: "2023-05-31"})
+      const dp = DatePicker.create({enabled_dates: ["2023-05-08"], min_date: "2023-05-01", max_date: "2023-05-31"})
       const {view} = await display(dp, [500, 400])
       dp.enabled_dates = null
       await view.ready
@@ -3332,7 +3332,7 @@ describe("Bug", () => {
         label: ["hi", "hi", "hi"],
       }
 
-      const source = new ColumnDataSource({data})
+      const source = ColumnDataSource.create({data})
 
       const p = fig([200, 200], {x_range: [0, 7], y_range: [0, 3]})
       p.circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, color: {field: "color"}, legend_field: "label", source})
@@ -3353,8 +3353,8 @@ describe("Bug", () => {
         color: ["red", "blue", "green"],
       }
 
-      const source = new ColumnDataSource({data})
-      const cds_view = new CDSView()
+      const source = ColumnDataSource.create({data})
+      const cds_view = CDSView.create()
 
       const p = fig([200, 200])
       p.scatter({
@@ -3372,7 +3372,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      cds_view.filter = new IndexFilter({indices: [1, 2]})
+      cds_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -3381,13 +3381,13 @@ describe("Bug", () => {
     describe("doesn't render line dashes in derived glyphs", () => {
       const x = [0, 1, 2, 3, 4]
       const y = [1.5, 2.5, 1.5, 2.5, 1.5]
-      const selected = new Selection({indices: [0, 1, 3, 4]})
-      const source = new ColumnDataSource({data: {x, y}, selected})
+      const selected = Selection.create({indices: [0, 1, 3, 4]})
+      const source = ColumnDataSource.create({data: {x, y}, selected})
 
       const x2 = [[0, 1, 2], [2, 3, 4]]
       const y2 = [[0, 1, 0], [1, 0, 1]]
-      const selected2 = new Selection({indices: [1]})
-      const source2 = new ColumnDataSource({data: {x: x2, y: y2}, selected: selected2})
+      const selected2 = Selection.create({indices: [1]})
+      const source2 = ColumnDataSource.create({data: {x: x2, y: y2}, selected: selected2})
 
       function single_plot(line_dash: LineDash, nonselection_line_dash: LineDash, output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
@@ -3430,7 +3430,7 @@ describe("Bug", () => {
       }
 
       function gridplot() {
-        return new GridPlot({
+        return GridPlot.create({
           children: [
             [plot("red"),    0, 0],
             [plot("green"),  0, 1],
@@ -3460,7 +3460,7 @@ describe("Bug", () => {
 
   describe("in issue #13255", () => {
     it("doesn't allow to disable DatePicker after display", async () => {
-      const date_picker = new DatePicker({value: "2023-02-26", width: 100})
+      const date_picker = DatePicker.create({value: "2023-02-26", width: 100})
       const {view} = await display(date_picker, [150, 100])
       date_picker.disabled = true
       await view.ready
@@ -3501,8 +3501,8 @@ describe("Bug", () => {
       const random = new Random(1)
       const [a, b, n] = [1, 4, 100]
 
-      const x_range = new Range1d({start: a + 1, end: b - 1, bounds: [a, b]})
-      const y_range = new Range1d({start: a + 1, end: b - 1, bounds: [a, b]})
+      const x_range = Range1d.create({start: a + 1, end: b - 1, bounds: [a, b]})
+      const y_range = Range1d.create({start: a + 1, end: b - 1, bounds: [a, b]})
 
       const p = fig([300, 300], {x_range, y_range, tools: ["pan", "wheel_zoom"]})
 
@@ -3532,14 +3532,14 @@ describe("Bug", () => {
   describe("in issue #7671", () => {
     it("doesn't to refresh tooltips when plot is updated", async () => {
       function plot(title: string) {
-        const hover = new HoverTool({
+        const hover = HoverTool.create({
           tooltips: [
             ["i",  "$index"],
             ["sx", "$sx"   ],
             ["sy", "$sy"   ],
           ],
         })
-        const wheel_pan = new WheelPanTool({dimension: "width"})
+        const wheel_pan = WheelPanTool.create({dimension: "width"})
 
         const p = fig([200, 200], {
           title,
@@ -3600,17 +3600,17 @@ describe("Bug", () => {
         const plot = fig([200, 200])
         const r = plot.scatter([1, 2, 3], [1, 2, 3], {color})
         const columns = [
-          new TableColumn({field: "x", title: "X"}),
-          new TableColumn({field: "y", title: "Y"}),
+          TableColumn.create({field: "x", title: "X"}),
+          TableColumn.create({field: "y", title: "Y"}),
         ]
-        const data_table = new DataTable({source: r.data_source, columns, width: 200, height: 100})
+        const data_table = DataTable.create({source: r.data_source, columns, width: 200, height: 100})
 
         const layout = column([plot, data_table])
-        return new TabPanel({child: layout, title})
+        return TabPanel.create({child: layout, title})
       }
 
       const initial_tab = make_tab("Initial tab", "red")
-      const tabs = new Tabs({tabs: [initial_tab]})
+      const tabs = Tabs.create({tabs: [initial_tab]})
 
       const {view} = await display(tabs, [250, 350])
 
@@ -3667,7 +3667,7 @@ describe("Bug", () => {
 
   describe("in issue #13362", () => {
     it("doesn't correctly apply background and border visuals in SVG backend", async () => {
-      const stylesheet = new InlineStyleSheet({css: ":host { background-color: lightgreen; }"})
+      const stylesheet = InlineStyleSheet.create({css: ":host { background-color: lightgreen; }"})
 
       function plot(backend: OutputBackend) {
         const p = fig([200, 200], {
@@ -3691,8 +3691,8 @@ describe("Bug", () => {
 
   describe("in issue #8890", () => {
     it("doesn't allow to render newly added Span annotation", async () => {
-      const span0 = new Span({location: 0.5, dimension: "width", line_color: "red"})
-      const span1 = new Span({location: 0.5, dimension: "height", line_color: "blue"})
+      const span0 = Span.create({location: 0.5, dimension: "width", line_color: "red"})
+      const span1 = Span.create({location: 0.5, dimension: "height", line_color: "blue"})
 
       const plot = fig([200, 200], {x_range: [0, 1], y_range: [0, 1], renderers: [span0]})
       const {view} = await display(plot)
@@ -3704,7 +3704,7 @@ describe("Bug", () => {
 
   describe("in issue #13574", () => {
     it("doesn't allow to correctly change active menu item with arrows in AutocompleteInput", async () => {
-      const widget = new AutocompleteInput({completions: ["aaa", "aab", "aac", "aad", "aae"], min_characters: 0})
+      const widget = AutocompleteInput.create({completions: ["aaa", "aab", "aac", "aad", "aae"], min_characters: 0})
       const {view} = await display(widget, [300, 200])
       view.input_el.dispatchEvent(new FocusEvent("focusin"))
       view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
@@ -3716,8 +3716,8 @@ describe("Bug", () => {
   describe("in issue #13678", () => {
     it("doesn't render unselected WebGL Image glyphs", async () => {
       const data = scalar_image(5)
-      const selected = new Selection({indices: [1]})
-      const source = new ColumnDataSource({data: {image: [data, data], x: [0, 1.1]}, selected})
+      const selected = Selection.create({indices: [1]})
+      const source = ColumnDataSource.create({data: {image: [data, data], x: [0, 1.1]}, selected})
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
@@ -3736,7 +3736,7 @@ describe("Bug", () => {
 
   describe("in issue #13755", () => {
     it("doesn't allow to re-render when Button.label changes", async () => {
-      const button = new Button({label: "Initial label"})
+      const button = Button.create({label: "Initial label"})
       const {view} = await display(button, [150, 50])
       button.label = "Updated label"
       await view.ready
@@ -3757,17 +3757,17 @@ describe("Bug", () => {
       })
       const cr = p.scatter([1, 2, 3], [1, 2, 3], {size: 20, fill_color: Spectral3})
 
-      const tooltip1 = new Tooltip({
-        position: new Indexed({renderer: cr, index: 1}),
+      const tooltip1 = Tooltip.create({
+        position: Indexed.create({renderer: cr, index: 1}),
         content: "Hover over me!",
         attachment: "right",
         visible: true,
       })
       p.elements.push(tooltip1)
 
-      const box = new BoxAnnotation({left: 1, right: 2, top: 2, bottom: 1})
-      const tooltip2 = new Tooltip({
-        position: new Node({target: box, symbol: "top_center"}),
+      const box = BoxAnnotation.create({left: 1, right: 2, top: 2, bottom: 1})
+      const tooltip2 = Tooltip.create({
+        position: Node.create({target: box, symbol: "top_center"}),
         content: "Select me!",
         attachment: "above",
         visible: true,
@@ -3803,7 +3803,7 @@ describe("Bug", () => {
 
   describe("in issue #13804", () => {
     it("doesn't allow to update InputWidget.title", async () => {
-      const input = new Select({title: "Original title", value: "Value 0", options: ["Value 0", "Value 1"]})
+      const input = Select.create({title: "Original title", value: "Value 0", options: ["Value 0", "Value 1"]})
       const {view} = await display(input, [300, 100])
       input.title = "New title"
       await view.ready
@@ -3812,20 +3812,20 @@ describe("Bug", () => {
 
   describe("in issue #13806", () => {
     it("doesn't allow to change the order of LayoutDOM.children", async () => {
-      const red = new Spacer({width: 50, height: 50, styles: {background_color: "red"}})
-      const green = new Spacer({width: 50, height: 50, styles: {background_color: "green"}})
-      const blue = new Spacer({width: 50, height: 50, styles: {background_color: "blue"}})
-      const layout = new Row({children: [red, green, blue]})
+      const red = Spacer.create({width: 50, height: 50, styles: {background_color: "red"}})
+      const green = Spacer.create({width: 50, height: 50, styles: {background_color: "green"}})
+      const blue = Spacer.create({width: 50, height: 50, styles: {background_color: "blue"}})
+      const layout = Row.create({children: [red, green, blue]})
       const {view} = await display(layout, [200, 100])
       layout.children = [blue, red, green]
       await view.ready
     })
 
     it("doesn't allow to change the order of Pane.elements", async () => {
-      const red = new Pane({styles: {width: "50px", height: "50px", background_color: "red"}})
-      const green = new Pane({styles: {width: "50px", height: "50px", background_color: "green"}})
-      const blue = new Pane({styles: {width: "50px", height: "50px", background_color: "blue"}})
-      const layout = new Pane({elements: [red, green, blue], styles: {display: "flex", flex_direction: "row"}})
+      const red = Pane.create({styles: {width: "50px", height: "50px", background_color: "red"}})
+      const green = Pane.create({styles: {width: "50px", height: "50px", background_color: "green"}})
+      const blue = Pane.create({styles: {width: "50px", height: "50px", background_color: "blue"}})
+      const layout = Pane.create({elements: [red, green, blue], styles: {display: "flex", flex_direction: "row"}})
       const {view} = await display(layout, [200, 100])
       layout.elements = [blue, red, green]
       await view.ready
@@ -3835,11 +3835,11 @@ describe("Bug", () => {
   describe("in issue #13803", () => {
     it("doesn't allow GraphRenderer to utilize secondary glyphs", async () => {
       const p = fig([200, 200], {
-        x_range: new DataRange1d({range_padding: 0.2}),
-        y_range: new DataRange1d({range_padding: 0.2}),
+        x_range: DataRange1d.create({range_padding: 0.2}),
+        y_range: DataRange1d.create({range_padding: 0.2}),
       })
 
-      const layout_provider = new StaticLayoutProvider({
+      const layout_provider = StaticLayoutProvider.create({
         graph_layout: new Map([
           [4, [2, 1]],
           [5, [2, 2]],
@@ -3848,28 +3848,28 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = new GlyphRenderer({
-        glyph: new Scatter({size: 10, fill_color: "red"}),
-        selection_glyph: new Scatter({size: 20, fill_color: "yellow"}),
-        nonselection_glyph: new Scatter({size: 10, fill_color: "pink"}),
-        data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+      const node_renderer = GlyphRenderer.create({
+        glyph: Scatter.create({size: 10, fill_color: "red"}),
+        selection_glyph: Scatter.create({size: 20, fill_color: "yellow"}),
+        nonselection_glyph: Scatter.create({size: 10, fill_color: "pink"}),
+        data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = new GlyphRenderer({
-        glyph: new MultiLine({line_width: 2, line_color: "gray"}),
-        selection_glyph: new MultiLine({line_width: 4, line_color: "blue"}),
-        nonselection_glyph: new MultiLine({line_width: 2, line_color: "gray", line_dash: "dashed"}),
-        data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+      const edge_renderer = GlyphRenderer.create({
+        glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
+        selection_glyph: MultiLine.create({line_width: 4, line_color: "blue"}),
+        nonselection_glyph: MultiLine.create({line_width: 2, line_color: "gray", line_dash: "dashed"}),
+        data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
 
       node_renderer.data_source.selected.indices = [0, 3]
       edge_renderer.data_source.selected.indices = [0, 3]
 
-      const graph = new GraphRenderer({
+      const graph = GraphRenderer.create({
         layout_provider,
         node_renderer,
         edge_renderer,
-        selection_policy: new NodesAndLinkedEdges(),
-        inspection_policy: new NodesAndLinkedEdges(),
+        selection_policy: NodesAndLinkedEdges.create(),
+        inspection_policy: NodesAndLinkedEdges.create(),
       })
       p.add_renderers(graph)
 
@@ -3883,7 +3883,7 @@ describe("Bug", () => {
       const x_values = np.linspace(0, 100, n_points)
       const y_values = cumsum(np.random.default_rng(1).normal(0, 1, n_points))
 
-      const source = new ColumnDataSource({data: {x: x_values, y: y_values}})
+      const source = ColumnDataSource.create({data: {x: x_values, y: y_values}})
 
       const p = figure({
         width: 600, height: 300,
@@ -3905,7 +3905,7 @@ describe("Bug", () => {
 
       select.line({x: {field: "x"}, y: {field: "y"}, source})
 
-      const range_tool = new RangeTool({x_range: p.x_range})
+      const range_tool = RangeTool.create({x_range: p.x_range})
       range_tool.overlay.fill_color = "navy"
       range_tool.overlay.fill_alpha = 0.2
       select.add_tools(range_tool)
@@ -3927,15 +3927,15 @@ describe("Bug", () => {
         }
       }
 
-      const xf = new MercatorTickFormatter({dimension: "lon"})
-      const xt = new MercatorTicker({dimension: "lon"})
-      const xa = new LinearAxis({formatter: xf, ticker: xt, axis_label: "Longitude"})
+      const xf = MercatorTickFormatter.create({dimension: "lon"})
+      const xt = MercatorTicker.create({dimension: "lon"})
+      const xa = LinearAxis.create({formatter: xf, ticker: xt, axis_label: "Longitude"})
 
-      const yf = new MercatorTickFormatter({dimension: "lat"})
-      const yt = new MercatorTicker({dimension: "lat"})
-      const ya = new LinearAxis({formatter: yf, ticker: yt, axis_label: "Latitude"})
+      const yf = MercatorTickFormatter.create({dimension: "lat"})
+      const yt = MercatorTicker.create({dimension: "lat"})
+      const ya = LinearAxis.create({formatter: yf, ticker: yt, axis_label: "Latitude"})
 
-      const plot = new MapFigure({
+      const plot = MapFigure.create({
         x_axis_type: null,
         y_axis_type: null,
         below: [xa],
@@ -3954,7 +3954,7 @@ describe("Bug", () => {
 
   describe("in issue #13787", () => {
     it("doesn't allow to render a DataTable in a Dialog", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           col1: ["a", "b", "c", "d"],
           col2: [1, 2, 3, 4],
@@ -3963,13 +3963,13 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "col1", title: "col1"}),
-        new TableColumn({field: "col2", title: "col2"}),
-        new TableColumn({field: "col3", title: "col3"}),
+        TableColumn.create({field: "col1", title: "col1"}),
+        TableColumn.create({field: "col2", title: "col2"}),
+        TableColumn.create({field: "col3", title: "col3"}),
       ]
-      const data_table = new DataTable({source, columns, sizing_mode: "stretch_both"})
+      const data_table = DataTable.create({source, columns, sizing_mode: "stretch_both"})
 
-      const dialog = new Dialog({
+      const dialog = Dialog.create({
         title: "Dialog with a data table",
         content: data_table,
         stylesheets: [`
@@ -3988,7 +3988,7 @@ describe("Bug", () => {
 
   describe("in issue #13912", () => {
     it("doesn't allow stacking Dialog above non-floating UI elements", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           col1: range(0, 10).map((i) => String.fromCodePoint(0x61 + i)),
           col2: range(0, 10),
@@ -3997,16 +3997,16 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "col1", title: "col1"}),
-        new TableColumn({field: "col2", title: "col2"}),
-        new TableColumn({field: "col3", title: "col3"}),
+        TableColumn.create({field: "col1", title: "col1"}),
+        TableColumn.create({field: "col2", title: "col2"}),
+        TableColumn.create({field: "col3", title: "col3"}),
       ]
-      const data_table = new DataTable({source, columns, width: 300, height: 300})
+      const data_table = DataTable.create({source, columns, width: 300, height: 300})
 
       const plot0 = figure({sizing_mode: "stretch_both", tools: "pan,hover"})
       plot0.circle({x: 0, y: 0, radius: 1, color: "red"})
 
-      const dialog0 = new Dialog({
+      const dialog0 = Dialog.create({
         title: "Dialog #0",
         content: plot0,
         stylesheets: [`
@@ -4023,7 +4023,7 @@ describe("Bug", () => {
       const plot1 = figure({sizing_mode: "stretch_both", tools: "pan,hover"})
       plot1.circle({x: 0, y: 0, radius: 1, color: "blue"})
 
-      const dialog1 = new Dialog({
+      const dialog1 = Dialog.create({
         title: "Dialog #1",
         content: plot1,
         stylesheets: [`
@@ -4037,7 +4037,7 @@ describe("Bug", () => {
         `],
       })
 
-      const layout = new Column({children: [data_table, dialog0, dialog1]})
+      const layout = Column.create({children: [data_table, dialog0, dialog1]})
       const {view} = await display(layout, [350, 350])
 
       const pv1 = view.owner.get_one(plot1)
@@ -4068,18 +4068,18 @@ describe("Bug", () => {
           height: "50px",
         },
       })
-      const content = new HTML({html: ["HTML content"]})
-      const tooltip = new Tooltip({content, attachment: "right", target: box, position: "center_left", visible: true})
+      const content = HTML.create({html: ["HTML content"]})
+      const tooltip = Tooltip.create({content, attachment: "right", target: box, position: "center_left", visible: true})
       const {view} = await display(tooltip, [200, 100], box)
 
-      tooltip.content = new HTML({html: ["<b>New</b> HTML content"]})
+      tooltip.content = HTML.create({html: ["<b>New</b> HTML content"]})
       await view.ready
     })
   })
 
   describe("in issue #13766", () => {
     it("doesn't allow to rebuild Dropdown.menu on change", async () => {
-      const dropdown = new Dropdown({menu: ["Action 1", "Action 2"], label: "Click action"})
+      const dropdown = Dropdown.create({menu: ["Action 1", "Action 2"], label: "Click action"})
       const {view} = await display(dropdown, [150, 200])
 
       await mouse_click(view.button_el) // TODO make tap(view.el) work
@@ -4093,8 +4093,8 @@ describe("Bug", () => {
   describe("in issue #13827", () => {
     it("doesn't allow to respect maintain_focus=false when zooming", async () => {
       const p = fig([200, 200], {
-        x_range: new Range1d({bounds: [1, 5], start: 1, end: 2}),
-        y_range: new Range1d({bounds: [2, 7], start: 4, end: 6.5}),
+        x_range: Range1d.create({bounds: [1, 5], start: 1, end: 2}),
+        y_range: Range1d.create({bounds: [2, 7], start: 4, end: 6.5}),
         tools: "reset,pan",
       })
 
@@ -4103,7 +4103,7 @@ describe("Bug", () => {
         y: [6, 7, 2, 4, 5],
       })
 
-      const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+      const wheel_zoom = WheelZoomTool.create({maintain_focus: false})
       p.add_tools(wheel_zoom)
       p.toolbar.active_scroll = wheel_zoom
 
@@ -4121,15 +4121,15 @@ describe("Bug", () => {
     async function test(fn: (p: Figure) => GlyphRenderer) {
       const p = fig([300, 150])
 
-      p.x_range = new Range1d({start: 0, end: 1000})
-      p.y_range = new Range1d({start: -1000, end: 1000})
+      p.x_range = Range1d.create({start: 0, end: 1000})
+      p.y_range = Range1d.create({start: -1000, end: 1000})
 
       // Set the second Y axis range to be offset from the primary Y axis range
       p.extra_y_ranges = {
-        y_range2: new Range1d({start: 250, end: -750}),
+        y_range2: Range1d.create({start: 250, end: -750}),
       }
 
-      p.add_layout(new LinearAxis({y_range_name: "y_range2"}), "left")
+      p.add_layout(LinearAxis.create({y_range_name: "y_range2"}), "left")
 
       const gr = fn(p)
       gr.y_range_name = "y_range2"
@@ -4168,7 +4168,7 @@ describe("Bug", () => {
       const p4 = fig([200, 200])
       p4.scatter({x: 1, y: 1, size: 50, color: "purple"})
 
-      const gp = new GridPlot({
+      const gp = GridPlot.create({
         children: [
           [p0, 0, 0],
           [p1, 0, 1],
@@ -4193,9 +4193,9 @@ describe("Bug", () => {
       const p = fig([400, 200])
       const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
-      const legend = new Legend({
+      const legend = Legend.create({
         items: [
-          new LegendItem({label: "Short label", renderers: [scatter]}),
+          LegendItem.create({label: "Short label", renderers: [scatter]}),
         ],
       })
       p.add_layout(legend, "left")
@@ -4212,7 +4212,7 @@ describe("Bug", () => {
       const p = fig([400, 200], {toolbar_location: "above"})
       p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
-      const scale_bar = new ScaleBar({
+      const scale_bar = ScaleBar.create({
         margin: 0,
         padding: 0,
         range: p.x_range,
@@ -4227,8 +4227,8 @@ describe("Bug", () => {
 
   describe("in issue #14168", () => {
     it("doesn't allow to add multiple TileRenderer instances to a plot", async () => {
-      const osm = new TileRenderer({tile_source: osm_source.clone()})
-      const esri = new TileRenderer({tile_source: esri_source.clone(), alpha: 0.4})
+      const osm = TileRenderer.create({tile_source: osm_source.clone()})
+      const esri = TileRenderer.create({tile_source: esri_source.clone(), alpha: 0.4})
 
       const p = fig([300, 200], {
         x_range: [-2000000, 6000000],
@@ -4266,11 +4266,11 @@ describe("Bug", () => {
     }
 
     it("doesn't allow updates when properties of ValueOf change", async () => {
-      const obj = new Foo({value: 127})
-      const val = new ValueOf({obj, attr: "value"})
+      const obj = Foo.create({value: 127})
+      const val = ValueOf.create({obj, attr: "value"})
 
-      const html = new HTML({html: ["Value of <tt>Foo.value</tt> is <b>", val, "<b/>"]})
-      const pane = new Pane({elements: [html]})
+      const html = HTML.create({html: ["Value of <tt>Foo.value</tt> is <b>", val, "<b/>"]})
+      const pane = Pane.create({elements: [html]})
       const {view} = await display(pane, [200, 50])
 
       obj.value = 128
@@ -4295,15 +4295,15 @@ describe("Bug", () => {
 
   describe("in issue #14246", () => {
     it("doesn't allow to correctly update Toolbar after changing Tool visiblity", async () => {
-      const pan = new PanTool()
-      const box_select = new BoxSelectTool()
-      const wheel_zoom = new WheelZoomTool()
-      const undo = new UndoTool()
-      const redo = new RedoTool()
-      const reset = new ResetTool()
-      const hover = new HoverTool()
+      const pan = PanTool.create()
+      const box_select = BoxSelectTool.create()
+      const wheel_zoom = WheelZoomTool.create()
+      const undo = UndoTool.create()
+      const redo = RedoTool.create()
+      const reset = ResetTool.create()
+      const hover = HoverTool.create()
       const tools = [pan, box_select, wheel_zoom, undo, redo, reset, hover]
-      const toolbar = new Toolbar({tools})
+      const toolbar = Toolbar.create({tools})
 
       const plot = fig([200, 200], {toolbar, toolbar_location: "above"})
       plot.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: ["red", "green", "blue"]})
@@ -4329,8 +4329,8 @@ describe("Bug", () => {
       plot.line([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
       plot.scatter([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
 
-      const html = new HTML({html: ""})
-      const pane = new Pane({elements: [html]})
+      const html = HTML.create({html: "", style: {width: "200px", height: "200px"}})
+      const pane = Pane.create({elements: [html]})
 
       const {view} = await display(row([plot, pane]), [400, 200])
 
@@ -4343,11 +4343,11 @@ describe("Bug", () => {
 
   describe("in issue #14280", () => {
     it("triggers JS error when adding tile without defining range", async () => {
-      const osm = new TileRenderer({tile_source: osm_source.clone()})
+      const osm = TileRenderer.create({tile_source: osm_source.clone()})
 
       const p0 = fig([300, 200], {
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
         x_axis_type: "mercator",
         y_axis_type: "mercator",
       })
@@ -4362,7 +4362,7 @@ describe("Bug", () => {
 
   describe("in issue #14207", () => {
     it.allowing(1)("has zoom in when visibility changes", async () => {
-      const osm = new TileRenderer({tile_source: osm_source.clone()})
+      const osm = TileRenderer.create({tile_source: osm_source.clone()})
 
       const p0 = fig([300, 200], {
         x_range: [-2000000, 6000000],
@@ -4373,17 +4373,17 @@ describe("Bug", () => {
         renderers: [osm],
       })
 
-      const sw0 = new Switch({active: false})
-      const s0 = new Select({
+      const sw0 = Switch.create({active: false})
+      const s0 = Select.create({
         value: "foo",
         options: ["foo", "baz"],
         sizing_mode: "fixed",
         visible: false,
       })
 
-      const col1 = new Column({children: [p0], sizing_mode: "stretch_height"})
-      const col2 = new Column({children: [sw0, s0], sizing_mode: "stretch_both"})
-      const layout = new Row({children: [col1, col2], sizing_mode: "stretch_both"})
+      const col1 = Column.create({children: [p0], sizing_mode: "stretch_height"})
+      const col2 = Column.create({children: [sw0, s0], sizing_mode: "stretch_both"})
+      const layout = Row.create({children: [col1, col2], sizing_mode: "stretch_both"})
 
       const {view} = await display(layout, [400, 500])
 
@@ -4407,8 +4407,8 @@ describe("Bug", () => {
       canvas.width = 200
       canvas.height = 200
 
-      const html = new HTML({html: canvas, style: {width: "200px", height: "200px"}})
-      const pane = new Pane({elements: [html]})
+      const html = HTML.create({html: canvas, style: {width: "200px", height: "200px"}})
+      const pane = Pane.create({elements: [html]})
 
       const {view} = await display(row([plot, pane]), [400, 200])
 
@@ -4439,11 +4439,11 @@ describe("Bug", () => {
       const r3 = p.scatter(x, f`3*${y}`, {marker: "square", fill_color: null, line_color: "green"})
       const r4 = p.line(x, f`3*${y}`, {line_color: "green"})
 
-      const legend = new Legend({
+      const legend = Legend.create({
         items: [
-          new LegendItem({label: "sin(x)",   renderers: [r0, r1]}),
-          new LegendItem({label: "2*sin(x)", renderers: [r2]}),
-          new LegendItem({label: "3*sin(x)", renderers: [r3, r4]}),
+          LegendItem.create({label: "sin(x)",   renderers: [r0, r1]}),
+          LegendItem.create({label: "2*sin(x)", renderers: [r2]}),
+          LegendItem.create({label: "3*sin(x)", renderers: [r3, r4]}),
         ],
         location: "top_right",
         click_policy: "mute",
@@ -4462,7 +4462,7 @@ describe("Bug", () => {
         return p
       }
 
-      const layout = new Row({
+      const layout = Row.create({
         children: [f("red"), f("green"), f("blue"), f("yellow"), f("purple")],
       })
       const {view} = await display(layout)
@@ -4496,11 +4496,11 @@ describe("Bug", () => {
         const r3 = p.scatter(x, f`3*${y}`, {marker: "square", fill_color: null, line_color: "green"})
         const r4 = p.line(x, f`3*${y}`, {line_color: "green"})
 
-        const legend = new Legend({
+        const legend = Legend.create({
           items: [
-            new LegendItem({label: "sin(x)",   renderers: [r0, r1]}),
-            new LegendItem({label: "2*sin(x)", renderers: [r2]}),
-            new LegendItem({label: "3*sin(x)", renderers: [r3, r4]}),
+            LegendItem.create({label: "sin(x)",   renderers: [r0, r1]}),
+            LegendItem.create({label: "2*sin(x)", renderers: [r2]}),
+            LegendItem.create({label: "3*sin(x)", renderers: [r3, r4]}),
           ],
           location: "center",
           margin: 0,
@@ -4509,9 +4509,9 @@ describe("Bug", () => {
         p.add_layout(legend, location)
 
         if (options?.multiple ?? false) {
-          const legend = new Legend({
+          const legend = Legend.create({
             items: [
-              new LegendItem({label: "sin(x)", renderers: [r0, r1]}),
+              LegendItem.create({label: "sin(x)", renderers: [r0, r1]}),
             ],
             location: "center",
             margin: 0,
@@ -4565,7 +4565,7 @@ describe("Bug", () => {
 
   describe("in issue #12430", () => {
     it("doesn't correctly show selected indices of Step glyph", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           x0: [0, 1, 2, 3, 4, 5, 6],
           x1: [0, 1, 2, 3, 4, 5, 6],
@@ -4592,7 +4592,7 @@ describe("Bug", () => {
     it("doesn't reset value when picker is closed mid selection", async () => {
       const d0 = "2023-01-18"
       const d1 = "2023-01-23"
-      const obj = new DateRangePicker({value: [d0, d1], width: 400})
+      const obj = DateRangePicker.create({value: [d0, d1], width: 400})
       const {view} = await display(obj, [600, 500])
       await open_picker(view)
       const days_el = view.shadow_el.querySelectorAll<HTMLElement>(".flatpickr-day")
@@ -4608,7 +4608,7 @@ describe("Bug", () => {
   describe("in issue #14503", () => {
     it("doesn't keep picked datetime value after closing", async () => {
       const d0 = "2023-01-23 08:30"
-      const obj = new DatetimePicker({value: d0, width: 400})
+      const obj = DatetimePicker.create({value: d0, width: 400})
       const {view} = await display(obj, [600, 500])
       await open_picker(view)
       const days_el = view.shadow_el.querySelectorAll<HTMLElement>(".flatpickr-day")
@@ -4637,8 +4637,8 @@ describe("Bug", () => {
 
   describe("in issue #14536", () => {
     it("doesn't allow a responsive overflowing child layout to fit into the parent flex container", async () => {
-      const html = new Pane({elements: [
-        new HTML({html: `
+      const html = Pane.create({elements: [
+        HTML.create({html: `
           <div style="display: flex; flex-direction: row; width: 300px; height: 50px; background-color: pink;">
             <div style="height: 25px; background-color: red; ">Aaaaaaaaaaaaaa</div>
             <div style="height: 25px; background-color: green; ">Baaaaaaaaaaaaa</div>
@@ -4648,16 +4648,16 @@ describe("Bug", () => {
         `}),
       ]})
 
-      const text = (content: string) => new DOMText({content})
+      const text = (content: string) => DOMText.create({content})
 
-      const s0 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "red"}), elements: [text("Aaaaaaaaaaaaaa")]})
-      const s1 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "green"}), elements: [text("Baaaaaaaaaaaaa")]})
-      const s2 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "blue"}), elements: [text("Caaaaaaaaaaaaa")]})
-      const s3 = new Spacer({width_policy: "min",  height_policy: "fixed", height: 25, styles: new Styles({background_color: "yellow"}), elements: [text("Daaaaaaaaaaaaa")]})
+      const s0 = Spacer.create({width_policy: "auto", height_policy: "fixed", height: 25, styles: Styles.create({background_color: "red"}), elements: [text("Aaaaaaaaaaaaaa")]})
+      const s1 = Spacer.create({width_policy: "auto", height_policy: "fixed", height: 25, styles: Styles.create({background_color: "green"}), elements: [text("Baaaaaaaaaaaaa")]})
+      const s2 = Spacer.create({width_policy: "auto", height_policy: "fixed", height: 25, styles: Styles.create({background_color: "blue"}), elements: [text("Caaaaaaaaaaaaa")]})
+      const s3 = Spacer.create({width_policy: "min",  height_policy: "fixed", height: 25, styles: Styles.create({background_color: "yellow"}), elements: [text("Daaaaaaaaaaaaa")]})
 
-      const row = new Row({children: [s0, s1, s2, s3], width: 300, height: 50, sizing_mode: "fixed", styles: new Styles({background_color: "pink"})})
+      const row = Row.create({children: [s0, s1, s2, s3], width: 300, height: 50, sizing_mode: "fixed", styles: Styles.create({background_color: "pink"})})
 
-      const both = new Pane({
+      const both = Pane.create({
         elements: [
           text("HTML:"), html,
           text("Layout:"), row,
@@ -4672,7 +4672,7 @@ describe("Bug", () => {
     it("doesn't allow BoxAnnotation to support categorical coordinates", async () => {
       const p = fig([300, 200], {y_range: ["A", "B", "C", "D", "E", "F"]})
 
-      const box = new BoxAnnotation({bottom: "B", top: "D", fill_alpha: 0.2, fill_color: "green"})
+      const box = BoxAnnotation.create({bottom: "B", top: "D", fill_alpha: 0.2, fill_color: "green"})
       p.add_layout(box)
 
       p.scatter({
@@ -4690,15 +4690,15 @@ describe("Bug", () => {
     it("doesn't allow to correctly export plots with inner plots", async () => {
       const plot = fig([200, 200])
       const cr = plot.circle({x: [1, 2, 3], y: [1, 2, 3], radius: [0.2, 0.3, 0.4]})
-      const size_bar = new SizeBar({renderer: cr, orientation: "horizontal", width: "max", glyph_fill_alpha: 0.8, border_line_color: "violet"})
+      const size_bar = SizeBar.create({renderer: cr, orientation: "horizontal", width: "max", glyph_fill_alpha: 0.8, border_line_color: "violet"})
       plot.add_layout(size_bar, "below")
 
       const canvas = document.createElement("canvas")
       canvas.width = 200
       canvas.height = 200
 
-      const html = new HTML({html: canvas, style: {width: "200px", height: "200px"}})
-      const pane = new Pane({elements: [html]})
+      const html = HTML.create({html: canvas, style: {width: "200px", height: "200px"}})
+      const pane = Pane.create({elements: [html]})
 
       const {view} = await display(row([plot, pane]), [400, 200])
 
@@ -4722,8 +4722,8 @@ describe("Bug", () => {
       const x = linspace(0, 20, n)
       const y = x
 
-      const div = new Div({text: "some text"})
-      const source = new ColumnDataSource({data: {x, y}})
+      const div = Div.create({text: "some text"})
+      const source = ColumnDataSource.create({data: {x, y}})
 
       function hover_cb(_model: HoverTool, options: {index: Selection}) {
         const {index} = options
@@ -4739,7 +4739,7 @@ describe("Bug", () => {
         div.text = `${y}`
       }
 
-      const hover = new HoverTool({
+      const hover = HoverTool.create({
         mode: "vline",
         tooltips: [
           ["i",  "$index"],
@@ -4748,7 +4748,7 @@ describe("Bug", () => {
         ],
         callback: hover_cb,
       })
-      const wheel_pan = new WheelPanTool({dimension: "width"})
+      const wheel_pan = WheelPanTool.create({dimension: "width"})
 
       const p = fig([200, 200], {
         title: "hover",
@@ -4776,8 +4776,8 @@ describe("Bug", () => {
       const xdata = [1, 2, 3]
       const ydata = [1, 2, 3]
 
-      const range_original = new Range1d({start: -0.5, end: 4.5})
-      const range_reversed = new Range1d({start: 4.5, end: -0.5})
+      const range_original = Range1d.create({start: -0.5, end: 4.5})
+      const range_reversed = Range1d.create({start: 4.5, end: -0.5})
 
       function _fig(x_range: Range1d, y_range: Range1d) {
         const p = fig([200, 200], {x_range, y_range})
@@ -4800,10 +4800,10 @@ describe("Bug", () => {
       for (let i = 0; i < 20; i++) {
         const p = fig([200, 200])
         p.scatter([1, 2, 3, 4, 5], [i+1, i+2, i+3, i+4, i+5], {size: 20, color: "navy", alpha: 0.5})
-        tab_panels.push(new TabPanel({child: p, title: `Tab ${i + 1}`}))
+        tab_panels.push(TabPanel.create({child: p, title: `Tab ${i + 1}`}))
       }
 
-      const tabs = new Tabs({tabs: tab_panels, width: 400, height: 300, tabs_location: "above"})
+      const tabs = Tabs.create({tabs: tab_panels, width: 400, height: 300, tabs_location: "above"})
       const {view} = await display(tabs, [450, 350])
 
       const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
@@ -4821,10 +4821,10 @@ describe("Bug", () => {
       for (let i = 0; i < 20; i++) {
         const p = fig([200, 200])
         p.scatter([1, 2, 3], [4, 5, 6], {size: 20, color: "blue"})
-        tab_panels.push(new TabPanel({child: p, title: `Long Tab Name ${i + 1}`}))
+        tab_panels.push(TabPanel.create({child: p, title: `Long Tab Name ${i + 1}`}))
       }
 
-      const tabs = new Tabs({tabs: tab_panels, width: 450, height: 350, tabs_location: "left"})
+      const tabs = Tabs.create({tabs: tab_panels, width: 450, height: 350, tabs_location: "left"})
       const {view} = await display(tabs, [500, 400])
 
       const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
@@ -4883,11 +4883,11 @@ describe("Bug", () => {
 
   describe("in issue #8787", () => {
     it("doesn't show hover for multi line when values decrease", async () => {
-      const source = new ColumnDataSource({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
+      const source = ColumnDataSource.create({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
       const p = fig([200, 200])
       const ml = p.multi_line({xs: {field: "xs"}, ys: {field: "ys"}, line_width: 5, hover_line_color: "red", source})
 
-      p.add_tools(new HoverTool({tooltips: null, renderers: [ml], mode: "vline"}))
+      p.add_tools(HoverTool.create({tooltips: null, renderers: [ml], mode: "vline"}))
 
       const {view} = await display(p)
 
@@ -4902,8 +4902,8 @@ describe("Bug", () => {
 
   describe("in issue #14218", () => {
     it("allows RangeTool with start gesture pan and PanTool to be active at the same time", async () => {
-      const range_tool = new RangeTool({
-        x_range: new Range1d({start: 2, end: 4}),
+      const range_tool = RangeTool.create({
+        x_range: Range1d.create({start: 2, end: 4}),
         start_gesture: "pan",
       })
       const p = fig([400, 200], {tools: ["pan", range_tool], toolbar_location: "above"})
@@ -4915,11 +4915,11 @@ describe("Bug", () => {
     })
 
     it("should respect active setting", async () => {
-      const range_tool = new RangeTool({
-        x_range: new Range1d({start: 1, end: 2}),
+      const range_tool = RangeTool.create({
+        x_range: Range1d.create({start: 1, end: 2}),
         start_gesture: "pan",
       })
-      const box_zoom_tool = new BoxZoomTool()
+      const box_zoom_tool = BoxZoomTool.create()
       const p = fig([400, 200], {tools: ["pan", range_tool, box_zoom_tool], toolbar_location: "above"})
       const random = new Random(1)
       const x = random.floats(100, 0, 9)
@@ -4985,7 +4985,7 @@ describe("Bug", () => {
 
   describe("in issue #15123", () => {
     it("doesn't allow to render the content of all columns in DataTable with autosize_mode='fit_columns'", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           dates:     [1393632000000, 1393718400000, 1393804800000],  // 2014-03-{01,02,03} as ms
           downloads: [10, 20, 30],
@@ -4993,11 +4993,11 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "dates",     title: "Date",      formatter: new DateFormatter(), width: 80}),
-        new TableColumn({field: "downloads", title: "Downloads",                                 width: 80}),
+        TableColumn.create({field: "dates",     title: "Date",      formatter: DateFormatter.create(), width: 80}),
+        TableColumn.create({field: "downloads", title: "Downloads",                                 width: 80}),
       ]
 
-      const table = new DataTable({
+      const table = DataTable.create({
         source,
         columns,
         width: 200,
@@ -5011,15 +5011,15 @@ describe("Bug", () => {
 
   describe("in issue #13859", () => {
     it("doesn't show updates of ColumnDataSource in DataTable", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {x: ["init"]},
       })
 
       const columns = [
-        new TableColumn({field: "x", title: "x"}),
+        TableColumn.create({field: "x", title: "x"}),
       ]
 
-      const table = new DataTable({
+      const table = DataTable.create({
         source,
         columns,
         autosize_mode: "fit_columns",
@@ -5035,17 +5035,17 @@ describe("Bug", () => {
 
   describe("in issue #13244", () => {
     it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
-      const source = new ColumnDataSource({data: {
+      const source = ColumnDataSource.create({data: {
         x: [1, 2, 3, 4, 5],
         y: [10, 11, 12, 13, 14],
       }})
 
-      const view = new CDSView({filter: new BooleanFilter({booleans: [true, true, false, true, false]})})
+      const view = CDSView.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
 
-      const table = new DataTable({
+      const table = DataTable.create({
         source,
         view,
-        columns: [new TableColumn({field: "x", title: "X", width: 150})],
+        columns: [TableColumn.create({field: "x", title: "X", width: 150})],
         width: 200,
         height: 200,
       })
@@ -5053,26 +5053,26 @@ describe("Bug", () => {
       const p = figure({width: 200, height: 200})
       p.scatter({field: "x"}, {field: "y"}, {source, view})
 
-      await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
+      await display(Row.create({children: [Column.create({children: [table]}), p]}), [450, 250])
     })
   })
   describe("in PR #15184", () => {
     it("should maintain consistent tab widths regardless of the active tab", async () => {
-      const p1 = () => new TabPanel({title: "Short", child: new Div({text: "Tab 1"})})
-      const p2 = () => new TabPanel({title: "Very Long Tab Title", child: new Div({text: "Tab 2"})})
+      const p1 = () => TabPanel.create({title: "Short", child: Div.create({text: "Tab 1"})})
+      const p2 = () => TabPanel.create({title: "Very Long Tab Title", child: Div.create({text: "Tab 2"})})
 
-      const tabs0 = new Tabs({tabs: [p1(), p2()], active: 0})
-      const tabs1 = new Tabs({tabs: [p1(), p2()], active: 1})
+      const tabs0 = Tabs.create({tabs: [p1(), p2()], active: 0})
+      const tabs1 = Tabs.create({tabs: [p1(), p2()], active: 1})
 
-      await display(new Column({children: [tabs0, tabs1]}), [500, 500])
+      await display(Column.create({children: [tabs0, tabs1]}), [500, 500])
     })
   })
 
   describe("in issue #15026", () => {
     it("ArrowHead properties not updating from JS callbacks", async () => {
       const p = fig([200, 200], {x_range: [0, 2], y_range: [0, 2]})
-      const arrow_head = new OpenHead({line_color: "blue", size: 20, line_width: 2})
-      p.add_layout(new Arrow({end: arrow_head, x_start: 0.5, y_start: 0.5, x_end: 1.5, y_end: 1.5}))
+      const arrow_head = OpenHead.create({line_color: "blue", size: 20, line_width: 2})
+      p.add_layout(Arrow.create({end: arrow_head, x_start: 0.5, y_start: 0.5, x_end: 1.5, y_end: 1.5}))
 
       const {view} = await display(p)
 
@@ -5085,12 +5085,12 @@ describe("Bug", () => {
 
   describe("in issue #14565", () => {
     it("doesn't allow to correctly remove items from a DataTable", async () => {
-      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
+      const source = ColumnDataSource.create({data: {my_col: ["a", "b", "c", "d", "e"]}})
       const columns = [
-        new TableColumn({field: "my_col", title: "My Column"}),
+        TableColumn.create({field: "my_col", title: "My Column"}),
       ]
 
-      const table = new DataTable({source, columns})
+      const table = DataTable.create({source, columns})
       const {view} = await display(table)
 
       source.selected.indices = [0, 3, 4]
@@ -5101,7 +5101,7 @@ describe("Bug", () => {
 
   describe("in issue #13857", () => {
     function make_table() {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           name:   ["Alice", "Bob", "Carol"],
           salary: [50000,   70000,  90000],
@@ -5109,11 +5109,11 @@ describe("Bug", () => {
         },
       })
 
-      const col_name   = new TableColumn({field: "name",   title: "Name",   width: 150})
-      const col_salary = new TableColumn({field: "salary", title: "Salary", width: 150})
-      const col_bonus  = new TableColumn({field: "bonus",  title: "Bonus",  width: 150})
+      const col_name   = TableColumn.create({field: "name",   title: "Name",   width: 150})
+      const col_salary = TableColumn.create({field: "salary", title: "Salary", width: 150})
+      const col_bonus  = TableColumn.create({field: "bonus",  title: "Bonus",  width: 150})
 
-      const table = new DataTable({
+      const table = DataTable.create({
         source,
         columns: [col_name, col_salary],
         width: 600,
@@ -5152,7 +5152,7 @@ describe("Bug", () => {
   describe("in issue #15121", () => {
     it("doesn't allow to correctly render time stamps with the format TIMESTAMP", async () => {
       const indices = range(0, 5)
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           dates: indices.map((i) => `1970-01-${i + 1}`),
           downloads: indices,
@@ -5160,11 +5160,11 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "dates", title: "Date", formatter: new DateFormatter({format: "TIMESTAMP"})}),
-        new TableColumn({field: "downloads", title: "Downloads"}),
+        TableColumn.create({field: "dates", title: "Date", formatter: DateFormatter.create({format: "TIMESTAMP"})}),
+        TableColumn.create({field: "downloads", title: "Downloads"}),
       ]
 
-      const table = new DataTable({source, columns, width: 300, height: 400})
+      const table = DataTable.create({source, columns, width: 300, height: 400})
       await display(table, [350, 450])
     })
   })
@@ -5173,7 +5173,7 @@ describe("Bug", () => {
     it("doesn't allow to render a Plot when Axis.fixed_location points to nowhere", async () => {
       const plot = fig([200, 200])
       plot.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
-      const axis = new LinearAxis({fixed_location: "nowhere"})
+      const axis = LinearAxis.create({fixed_location: "nowhere"})
       plot.add_layout(axis, "below")
 
       const output = await async_trap(async () => {
@@ -5185,7 +5185,7 @@ describe("Bug", () => {
 
   describe("in issue #15159", () => {
     it("doesn't autosize individual columns in DataTable with autosize_mode='fit_viewport'", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           short: ["a", "b", "c"],
           long: [
@@ -5198,12 +5198,12 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "short", title: "Short"}),
-        new TableColumn({field: "long", title: "Long"}),
-        new TableColumn({field: "number", title: "Number"}),
+        TableColumn.create({field: "short", title: "Short"}),
+        TableColumn.create({field: "long", title: "Long"}),
+        TableColumn.create({field: "number", title: "Number"}),
       ]
 
-      const table = new DataTable({
+      const table = DataTable.create({
         source,
         columns,
         width: 800,
@@ -5219,7 +5219,7 @@ describe("Bug", () => {
   describe("in issue #15119", () => {
     it("doesn't render if desired_tick_numbers are too large", async () => {
       const p = fig([200, 200])
-      p.xaxis.ticker = new BasicTicker({desired_num_ticks: 100000000000000000000000000000})
+      p.xaxis.ticker = BasicTicker.create({desired_num_ticks: 100000000000000000000000000000})
       p.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
 
       const output = await async_trap(async () => {

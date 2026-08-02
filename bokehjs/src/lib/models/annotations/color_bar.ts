@@ -60,11 +60,11 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (color_mapper instanceof CategoricalColorMapper) {
-      return new CategoricalAxis()
+      return CategoricalAxis.create()
     } else if (color_mapper instanceof LogColorMapper) {
-      return new LogAxis()
+      return LogAxis.create()
     } else {
-      return new LinearAxis()
+      return LinearAxis.create()
     }
   }
 
@@ -72,11 +72,11 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (this._ticker instanceof LogTicker) {
-      return new LogTickFormatter()
+      return LogTickFormatter.create()
     } else if (color_mapper instanceof CategoricalColorMapper) {
-      return new CategoricalTickFormatter()
+      return CategoricalTickFormatter.create()
     } else {
-      return new BasicTickFormatter()
+      return BasicTickFormatter.create()
     }
   }
 
@@ -93,10 +93,10 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (color_mapper instanceof CategoricalColorMapper) {
-      return new FactorRange({factors: color_mapper.factors})
+      return FactorRange.create({factors: color_mapper.factors})
     } else if (color_mapper instanceof ContinuousColorMapper) {
       const {min, max} = this._continuous_metrics(color_mapper)
-      return new Range1d({start: min, end: max})
+      return Range1d.create({start: min, end: max})
     } else {
       unreachable()
     }
@@ -106,13 +106,13 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (color_mapper instanceof LinearColorMapper) {
-      return new LinearScale()
+      return LinearScale.create()
     } else if (color_mapper instanceof LogColorMapper) {
-      return new LogScale()
+      return LogScale.create()
     } else if (color_mapper instanceof ScanningColorMapper) {
-      return new LinearInterpolationScale({binning: this._scanning_binning(color_mapper)})
+      return LinearInterpolationScale.create({binning: this._scanning_binning(color_mapper)})
     } else if (color_mapper instanceof CategoricalColorMapper) {
-      return new CategoricalScale()
+      return CategoricalScale.create()
     } else {
       unreachable()
     }
@@ -122,13 +122,13 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (color_mapper instanceof LogColorMapper) {
-      return new LogTicker()
+      return LogTicker.create()
     } else if (color_mapper instanceof ScanningColorMapper) {
-      return new BinnedTicker({mapper: color_mapper})
+      return BinnedTicker.create({mapper: color_mapper})
     } else if (color_mapper instanceof CategoricalColorMapper) {
-      return new CategoricalTicker()
+      return CategoricalTicker.create()
     } else {
-      return new BasicTicker()
+      return BasicTicker.create()
     }
   }
 
@@ -311,7 +311,7 @@ export class ColorBarView extends BaseColorBarView {
     // We always want to draw the entire palette linearly, so we create a new
     // LinearColorMapper instance and map a monotonic range of values with
     // length = palette.length to get each palette color in order.
-    const cmap = new LinearColorMapper({palette}).rgba_mapper
+    const cmap = LinearColorMapper.create({palette}).rgba_mapper
     const buf8 = cmap.v_compute(range(0, palette.length))
     image_data.data.set(buf8)
     image_ctx.putImageData(image_data, 0, 0)
