@@ -315,6 +315,25 @@ elements:
   those texts to generate the :ref:`reference guide <refguide>` section of
   Bokeh's documentation.
 
+The individual class pages for :mod:`bokeh.models` are generated from the
+public Python API. After adding, removing, or renaming a public model class,
+regenerate these pages from the repository root:
+
+.. code-block:: sh
+
+    python -m tools.api_reference
+
+Documentation builds check that the generated pages are current. Use
+``python -m tools.api_reference --check`` to run the same check
+without changing any files.
+
+The ``bokeh-model`` Sphinx extension discovers inherited Bokeh properties,
+Python properties, and methods for each class page. The
+``bokeh_model_excluded_members`` setting in ``conf.py`` controls names omitted
+from every model page. By default this hides ``js_event_callbacks``,
+``js_property_callbacks``, and ``subscribed_events`` while leaving the JSON
+prototype faithful to the serialized model.
+
 In the file :bokeh-tree:`docs/bokeh/source/rst_epilog.txt`, you can find many common
 substitutions used across the narrative documentation as well as docstrings and
 model help texts. This file is loaded as the

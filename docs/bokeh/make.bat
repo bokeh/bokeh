@@ -21,6 +21,8 @@ if "%1" == "help" (
 	echo.  all               to make standalone HTML files
 	echo.  clean             to clear all built documentation files
 	echo.  html              to make standalone HTML files
+	echo.  reference         to regenerate the bokeh.models API reference
+	echo.  reference-check   to check that the generated API reference is current
 	echo.  serve    	     to serve the generated HTML and open a browser
 
 	goto end
@@ -38,7 +40,36 @@ if "%1" == "all" (
     make html
 )
 
+if "%1" == "reference" (
+	pushd ..\..
+	python -m tools.api_reference
+	if errorlevel 1 (
+		popd
+		exit /b 1
+	)
+	popd
+	goto end
+)
+
+if "%1" == "reference-check" (
+	pushd ..\..
+	python -m tools.api_reference --check
+	if errorlevel 1 (
+		popd
+		exit /b 1
+	)
+	popd
+	goto end
+)
+
 if "%1" == "html" (
+	pushd ..\..
+	python -m tools.api_reference --check
+	if errorlevel 1 (
+		popd
+		exit /b 1
+	)
+	popd
 	xcopy ..\..\bokehjs\src\less\icons\* source\_images\icons\ /y
 	%SPHINXBUILD% -W -b html %ALLSPHINXOPTS% %BUILDDIR%\html
 	xcopy ..\bokeh\server\static %BUILDDIR%\html\static\ /s /e /h /y
