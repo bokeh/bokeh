@@ -12,7 +12,7 @@ import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
   styles: ":host { display: block; }",
 })
 export class BokehComponent implements OnChanges, OnDestroy {
-  /** The Bokeh model or document to render. */
+  /** The Bokeh root, roots array, or document to render in one mount. */
   @Input({required: true}) model!: BokehModel
   /** Options forwarded to Bokeh's mount() API. */
   @Input() mountOptions?: MountOptions

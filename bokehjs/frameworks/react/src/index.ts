@@ -57,6 +57,7 @@ export function useBokeh(model: BokehModel | null, options: UseBokehOptions = {}
 }
 
 export type BokehProps = Omit<HTMLAttributes<HTMLDivElement>, "children" | "onError"> & UseBokehOptions & {
+  /** The Bokeh root, roots array, or document to render in one mount. */
   model: BokehModel
 }
 

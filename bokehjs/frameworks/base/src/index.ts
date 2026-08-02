@@ -1,6 +1,7 @@
 import {mount} from "@bokeh/bokehjs"
 import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
 
+/** A Bokeh root, an array of roots, or a caller-owned Document. */
 export type BokehModel = Parameters<typeof mount>[0]
 export type BokehTarget = HTMLElement | DocumentFragment
 
@@ -25,6 +26,7 @@ export class MountController {
     return this._mounted
   }
 
+  /** Mounts all supplied roots into one Bokeh document and one DOM target. */
   async start(model: BokehModel, target: BokehTarget, request: MountRequest = {}): Promise<BokehMount | null> {
     this.dispose()
 

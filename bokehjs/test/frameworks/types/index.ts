@@ -1,24 +1,39 @@
 import {createElement} from "react"
-import {ref} from "vue"
+import {h} from "vue"
 
-import {ColumnDataSource, ModelResolver, Plotting, Range1d, mount, register_models, register_standard_models} from "@bokeh/bokehjs"
+import {ColumnDataSource, Document, ModelResolver, Plotting, Range1d, mount, register_models, register_standard_models} from "@bokeh/bokehjs"
 import type {properties as p} from "@bokeh/bokehjs"
-import {Bokeh as ReactBokeh, useBokeh as useReactBokeh} from "@bokeh/react"
+import type {BokehComponent as AngularBokeh} from "@bokeh/angular"
+import {Bokeh as ReactBokeh} from "@bokeh/react"
+import type {useBokeh as useReactBokeh} from "@bokeh/react"
 import {bokeh} from "@bokeh/svelte"
-import {Bokeh as VueBokeh, useBokeh as useVueBokeh} from "@bokeh/vue"
-import {BokehElement, defineBokehElement} from "@bokeh/web-component"
+import {Bokeh as VueBokeh} from "@bokeh/vue"
+import type {useBokeh as useVueBokeh} from "@bokeh/vue"
+import {defineBokehElement} from "@bokeh/web-component"
+import type {BokehElement} from "@bokeh/web-component"
 
 const source = ColumnDataSource.create({data: {x: [0, 1], y: [1, 0]}})
 const plot = Plotting.figure({tools: []})
 plot.line({field: "x"}, {field: "y"}, {source})
+const detail = Plotting.figure({tools: [], x_range: plot.x_range})
+detail.scatter({field: "x"}, {field: "y"}, {source})
+const roots = [plot, detail]
+const roots_document = new Document({roots})
 
 void mount(plot, document.createElement("div"))
-createElement(ReactBokeh, {model: plot})
-void useReactBokeh
-void useVueBokeh(() => plot, ref(document.createElement("div")))
-void VueBokeh
-void bokeh(document.createElement("div"), {model: plot})
-void BokehElement
+void mount(roots, document.createElement("div"))
+void mount(roots_document, document.createElement("div"))
+createElement(ReactBokeh, {model: roots})
+const react_hook_model: Parameters<typeof useReactBokeh>[0] = roots
+void react_hook_model
+const vue_composable_model: Parameters<typeof useVueBokeh>[0] = () => roots
+void vue_composable_model
+void h(VueBokeh, {model: roots})
+void bokeh(document.createElement("div"), {model: roots})
+const web_component_model: BokehElement["model"] = roots
+void web_component_model
+const angular_component_model: AngularBokeh["model"] = roots
+void angular_component_model
 void defineBokehElement
 
 namespace CustomRange {

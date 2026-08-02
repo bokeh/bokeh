@@ -1,6 +1,7 @@
 import {ColumnDataSource, ModelResolver, Plotting, Range1d, index, register_models, register_standard_models} from "@bokeh/bokehjs"
 import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
 import {MountController} from "@bokeh/framework"
+import type {BokehModel} from "@bokeh/framework"
 
 declare global {
   interface Window {
@@ -22,11 +23,11 @@ export type AdapterMount = {
 }
 
 export type Adapter = {
-  mount(model: ReturnType<typeof Plotting.figure>, mountOptions?: MountOptions): Promise<AdapterMount>
+  mount(model: BokehModel, mountOptions?: MountOptions): Promise<AdapterMount>
 }
 
 export type FrameworkRenderRequest = {
-  model: ReturnType<typeof Plotting.figure>
+  model: BokehModel
   mountOptions?: MountOptions
   onMounted(mounted: BokehMount): void
   onError(error: unknown): void
@@ -102,6 +103,35 @@ async function validate_controller(model: ReturnType<typeof Plotting.figure>): P
   assert(disposed == 1, "external abort didn't report disposal exactly once")
 }
 
+async function validate_multi_root_mount(adapter: Adapter): Promise<void> {
+  const source = ColumnDataSource.create({data: {x: [0, 1, 2], y: [1, 3, 2], z: [2, 1, 4]}})
+  const x_range = Range1d.create({start: -0.5, end: 2.5})
+  const first = Plotting.figure({width: 220, height: 160, x_range, tools: [], toolbar_location: null})
+  first.line({field: "x"}, {field: "y"}, {source})
+  const second = Plotting.figure({width: 220, height: 160, x_range, tools: [], toolbar_location: null})
+  second.scatter({field: "x"}, {field: "z"}, {source})
+
+  const mounted = await adapter.mount([first, second])
+  assert(!mounted.handle.disposed, "multi-root adapter mount was already disposed")
+  assert(mounted.handle.views.length == 2, "adapter didn't create both root views")
+  assert(mounted.handle.models.length == 2, "multi-root mount didn't retain both roots")
+  assert(first.document == mounted.handle.document, "first root wasn't attached to the shared document")
+  assert(second.document == mounted.handle.document, "second root wasn't attached to the shared document")
+  assert(source.document == mounted.handle.document, "shared source wasn't attached to the roots' document")
+  assert(first.x_range == second.x_range && x_range.document == mounted.handle.document,
+    "shared range wasn't retained in the roots' document")
+  assert(index.get(first) != null && index.get(second) != null, "multi-root views weren't globally indexed")
+  source.stream({x: [3], y: [4], z: [3]})
+  assert(source.get_length() == 4, "shared source didn't remain live after a multi-root mount")
+
+  await mounted.unmount()
+  assert(mounted.handle.disposed, "multi-root framework unmount didn't dispose the Bokeh mount")
+  assert(mounted.target.childElementCount == 0, "multi-root framework unmount retained Bokeh DOM")
+  assert(index.get(first) == null && index.get(second) == null, "multi-root unmount retained globally indexed views")
+  assert([first, second, source, x_range].every((model) => model.document == null),
+    "multi-root unmount retained temporary document ownership")
+}
+
 export async function run_framework_test(framework: string, adapter: Adapter): Promise<FrameworkTestResult> {
   validate_registration()
   const {plot, source} = create_plot()
@@ -133,8 +163,9 @@ export async function run_framework_test(framework: string, adapter: Adapter): P
   await third.unmount()
 
   await validate_controller(plot)
+  await validate_multi_root_mount(adapter)
 
-  return {framework, mounts: 3, streams}
+  return {framework, mounts: 4, streams}
 }
 
 export function install_framework_test(framework: string, render: FrameworkRender): void {

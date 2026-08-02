@@ -3,6 +3,7 @@ import {MountController} from "@bokeh/framework"
 import type {BokehModel} from "@bokeh/framework"
 
 export type BokehActionOptions = {
+  /** The Bokeh root, roots array, or document to render in one mount. */
   model: BokehModel
   mountOptions?: MountOptions
   onMounted?(mounted: BokehMount): void

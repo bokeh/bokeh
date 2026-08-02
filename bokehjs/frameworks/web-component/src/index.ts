@@ -9,6 +9,7 @@ export class BokehElement extends HTMLElementBase {
   private _mount_options: MountOptions | undefined
   private _controller = new MountController()
 
+  /** The Bokeh root, roots array, or document to render in one mount. */
   get model(): BokehModel | null {
     return this._model
   }

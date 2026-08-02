@@ -118,6 +118,43 @@ The same source works with Vite, Webpack, and Rspack:
       mounted.dispose()
     }
 
+Sharing models between plots
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All adapters accept a single Bokeh root, an array of roots, or a ``Document``.
+Mount related roots through one adapter instance when they share a data source,
+range, selection, or other Bokeh model. The array form creates one temporary
+document containing every root, so normal Bokeh linking works:
+
+.. code-block:: typescript
+
+    import {ColumnDataSource, Plotting} from "@bokeh/bokehjs"
+    import {Bokeh} from "@bokeh/react"
+
+    const source = ColumnDataSource.create({
+      data: {x: [1, 2, 3], y: [2, 5, 3], detail: [4, 3, 6]},
+    })
+
+    const overview = Plotting.figure()
+    overview.line({field: "x"}, {field: "y"}, {source})
+
+    const detail = Plotting.figure({x_range: overview.x_range})
+    detail.scatter({field: "x"}, {field: "detail"}, {source})
+
+    export function Dashboard() {
+      return <Bokeh model={[overview, detail]} className="plots" />
+    }
+
+The adapter's host element contains each root view, so its CSS can use grid or
+flexbox for responsive placement. Pass the same roots array with Vue's
+``:model`` binding, Svelte's ``use:bokeh`` action, Angular's ``[model]``
+binding, or the Web Component's ``model`` property.
+
+Do not mount roots that share Bokeh models through separate adapter instances.
+Each mount owns a separate temporary document, and a Bokeh model can belong to
+only one document. Use one multi-root mount or compose the plots into a Bokeh
+layout such as a row, column, or grid.
+
 Complete runnable projects for React, Vue, Svelte, Angular, Web Components,
 vanilla Vite/Webpack/Rspack, and Node.js server-side rendering are in
 :bokeh-tree:`bokehjs/examples/frameworks`. They are kept deliberately small

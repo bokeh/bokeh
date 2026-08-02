@@ -67,7 +67,8 @@ export const Bokeh = defineComponent({
   name: "Bokeh",
   inheritAttrs: false,
   props: {
-    model: {type: Object as PropType<BokehModel>, required: true},
+    /** The Bokeh root, roots array, or document to render in one mount. */
+    model: {type: [Object, Array] as PropType<BokehModel>, required: true},
     mountOptions: {type: Object as PropType<MountOptions>, default: undefined},
   },
   emits: {
