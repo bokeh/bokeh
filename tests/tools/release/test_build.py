@@ -177,7 +177,7 @@ def make_bokehjs_package_files(root: Path, *, lockfile_version: int = 3) -> list
             "frameworks/react/package.json": "@bokeh/react",
             "examples/frameworks/react-vite/package.json": "@bokeh-example/react-vite",
         }.get(filename, "@bokeh/internal")
-        content = {"name": name, "version": "0.0.0"}
+        content: dict[str, object] = {"name": name, "version": "0.0.0"}
         if filename == "package.json":
             content["workspaces"] = [filename.removesuffix("/package.json") for filename in filenames[1:]]
         elif filename == "frameworks/base/package.json":

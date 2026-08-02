@@ -1,5 +1,6 @@
 import {join, normalize} from "node:path"
 
+import {clearCaches} from "@typescript-eslint/typescript-estree"
 import {ESLint} from "eslint"
 import chalk from "chalk"
 
@@ -27,7 +28,7 @@ async function eslint(dir: string, tsconfig_file: string = "tsconfig.json"): Pro
     }
   }
 
-  const results = await eslint.lintFiles(files)
+  const results = await eslint.lintFiles(files).finally(clearCaches)
 
   const errors = results.some(result => result.errorCount != 0)
   const warnings = results.some(result => result.warningCount != 0)
