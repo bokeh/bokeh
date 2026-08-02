@@ -29,3 +29,10 @@ The local `file:` dependencies in these projects connect them to packages in
 this repository. In an external application, install the corresponding
 published packages from npm instead, for example
 `npm install @bokeh/bokehjs @bokeh/react`.
+
+After building BokehJS, run the Angular example locally with:
+
+```bash
+cd bokehjs/examples/frameworks/angular-ng
+npm start
+```

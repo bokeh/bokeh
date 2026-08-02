@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build": "ng build"
+    "build": "ng build",
+    "start": "ng serve --host 127.0.0.1 --port 4200"
   },
   "dependencies": {
     "@angular/common": "21.2.19",

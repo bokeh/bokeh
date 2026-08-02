@@ -21,6 +21,12 @@
             "outputPath": "dist",
             "tsConfig": "tsconfig.app.json"
           }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "angular-ng:build"
+          }
         }
       }
     }
