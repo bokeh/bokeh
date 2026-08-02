@@ -36,11 +36,11 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-from collections.abc import Collection
 import importlib
 import inspect
 import json
 import warnings
+from collections.abc import Collection
 from os import getenv
 from typing import Any
 

@@ -1,20 +1,27 @@
 from __future__ import annotations
 
+# Standard library imports
 import inspect
-from io import StringIO
 import posixpath
+from io import StringIO
 from pathlib import Path
 from typing import Any, cast
 
+# External imports
+from sphinx.application import Sphinx
+from sphinx.util.inventory import InventoryFile
+
+# Bokeh imports
 import bokeh.models as models
 from bokeh.core.properties import Int
 from bokeh.model import Model
 from bokeh.models import BoxSelectTool, Filter
-from bokeh.sphinxext._internal.bokeh_model import _DEFAULT_EXCLUDED_MEMBERS, _model_members
+from bokeh.sphinxext._internal.bokeh_model import (
+    _DEFAULT_EXCLUDED_MEMBERS,
+    _model_members,
+)
 from bokeh.sphinxext._internal.bokeh_prop import _render_property_detail
 from bokeh.sphinxext._internal.templates import MODEL_DETAIL
-from sphinx.application import Sphinx
-from sphinx.util.inventory import InventoryFile
 
 
 class _MemberBase(Model):

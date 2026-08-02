@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+# Standard library imports
 from types import SimpleNamespace
 
+# Bokeh imports
 from bokeh.sphinxext._internal.bokeh_sitemap import _sitemap_links
 
 

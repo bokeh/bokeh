@@ -7,10 +7,12 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import re
 from types import MethodType
 from typing import Any
 
+# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 
 _MODEL_CLASS_DOCNAME = re.compile(

@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+# Standard library imports
 from types import SimpleNamespace
 from typing import Any, cast
 
+# External imports
 from docutils import nodes
 
+# Bokeh imports
 from bokeh.sphinxext._internal.bokeh_toc import _shorten_reference_toc_titles
 
 
