@@ -1,5 +1,5 @@
 import {spawn} from "node:child_process"
-import {createReadStream, existsSync, statSync} from "node:fs"
+import {createReadStream, existsSync, readFileSync, statSync, writeFileSync} from "node:fs"
 import {createServer as createHttpServer} from "node:http"
 import {extname, join, normalize, relative, resolve} from "node:path"
 import {fileURLToPath} from "node:url"
@@ -120,21 +120,42 @@ async function evaluate(client, expression) {
 async function open_page(url) {
   const target = await CDP.New({port: devtools_port, url: "about:blank"})
   const client = await CDP({port: devtools_port, target})
-  await Promise.all([client.Page.enable(), client.Runtime.enable()])
+  await Promise.all([client.Page.enable(), client.Runtime.enable(), client.Network.enable()])
   const exceptions = []
+  const network_errors = []
   client.Runtime.exceptionThrown(({exceptionDetails}) => {
     const description = exceptionDetails.exception?.description ?? exceptionDetails.text
     const location = `${exceptionDetails.url}:${exceptionDetails.lineNumber + 1}:${exceptionDetails.columnNumber + 1}`
     exceptions.push(`${description} (${location})`)
   })
+  const checked_resource_types = new Set(["Document", "Script", "Stylesheet", "XHR", "Fetch", "Wasm"])
+  client.Network.loadingFailed(({type, errorText, canceled}) => {
+    if (!canceled && checked_resource_types.has(type)) {
+      network_errors.push(`${type} failed: ${errorText}`)
+    }
+  })
+  client.Network.responseReceived(({type, response}) => {
+    if (checked_resource_types.has(type) && response.status >= 400) {
+      network_errors.push(`${type} returned ${response.status}: ${response.url}`)
+    }
+  })
   const loaded = new Promise((resolve) => client.Page.loadEventFired(resolve))
   await client.Page.navigate({url})
   await loaded
-  return {client, target, exceptions}
+  return {client, target, exceptions, network_errors}
 }
 
-async function run_page(url, expected_framework, hmr_server = null) {
-  const {client, target} = await open_page(url)
+function assert_page_clean(exceptions, network_errors, context) {
+  if (exceptions.length != 0) {
+    throw new Error(`${context} raised a browser exception:\n${exceptions.join("\n")}`)
+  }
+  if (network_errors.length != 0) {
+    throw new Error(`${context} had a failed application resource:\n${network_errors.join("\n")}`)
+  }
+}
+
+async function run_page(url, expected_framework, hmr_source = null) {
+  const {client, target, exceptions, network_errors} = await open_page(url)
   try {
     const result = await evaluate(client, `(async () => {
       const deadline = Date.now() + 30000
@@ -148,25 +169,32 @@ async function run_page(url, expected_framework, hmr_server = null) {
       throw new Error(`unexpected framework result: ${JSON.stringify(result)}`)
     }
 
-    if (hmr_server == null) {
+    if (hmr_source == null) {
       const hmr = await evaluate(client, "window.__bokeh_hmr__")
       if (hmr != "disabled") {
         throw new Error(`production application unexpectedly enabled HMR: ${hmr}`)
       }
     } else {
-      hmr_server.ws.send({type: "custom", event: "bokeh-ci", data: {}})
-      const hmr = await evaluate(client, `(async () => {
-        const deadline = Date.now() + 10000
-        while (window.__bokeh_hmr__ != "received") {
-          if (Date.now() > deadline) throw new Error("Vite HMR event wasn't received")
-          await new Promise((resolve) => setTimeout(resolve, 20))
+      const original = readFileSync(hmr_source, "utf-8")
+      try {
+        writeFileSync(hmr_source, `export const generation = ${Date.now()}\n`)
+        const hmr = await evaluate(client, `(async () => {
+          const deadline = Date.now() + 10000
+          while (window.__bokeh_hmr__ != "received") {
+            if (Date.now() > deadline) throw new Error("Vite didn't apply a source-module HMR update")
+            await new Promise((resolve) => setTimeout(resolve, 20))
+          }
+          return window.__bokeh_hmr__
+        })()`)
+        if (hmr != "received") {
+          throw new Error(`unexpected HMR state: ${hmr}`)
         }
-        return window.__bokeh_hmr__
-      })()`)
-      if (hmr != "received") {
-        throw new Error(`unexpected HMR state: ${hmr}`)
+      } finally {
+        writeFileSync(hmr_source, original)
       }
     }
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    assert_page_clean(exceptions, network_errors, expected_framework)
     console.log(`passed: ${expected_framework} at ${url}`)
   } finally {
     await client.close()
@@ -176,10 +204,22 @@ async function run_page(url, expected_framework, hmr_server = null) {
 
 async function run_smoke_page(url, name) {
   console.log(`testing packed example: ${name} at ${url}`)
-  const {client, target, exceptions} = await open_page(url)
+  const {client, target, exceptions, network_errors} = await open_page(url)
   try {
     const deadline = Date.now() + 30000
-    while (!await evaluate(client, `document.querySelector(".bk-Figure") != null`)) {
+    while (!await evaluate(client, `(() => {
+      const roots = [document]
+      for (let i = 0; i < roots.length; i++) {
+        const root = roots[i]
+        for (const element of root.querySelectorAll("*")) {
+          if (element.shadowRoot != null) roots.push(element.shadowRoot)
+        }
+        for (const canvas of root.querySelectorAll("canvas")) {
+          if (canvas.width >= 200 && canvas.height >= 100) return true
+        }
+      }
+      return false
+    })()`)) {
       if (exceptions.length != 0) {
         throw new Error(`packed example raised a browser exception:\n${exceptions.join("\n")}`)
       }
@@ -188,6 +228,8 @@ async function run_smoke_page(url, name) {
       }
       await new Promise((resolve) => setTimeout(resolve, 20))
     }
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    assert_page_clean(exceptions, network_errors, `packed example ${name}`)
     console.log(`passed packed example: ${name} at ${url}`)
   } finally {
     await client.close()
@@ -228,7 +270,7 @@ async function test_development_apps() {
       if (url == null) {
         throw new Error(`Vite didn't publish a URL for ${name}`)
       }
-      await run_page(url, name, server)
+      await run_page(url, name, join(root, "src/hmr_state.ts"))
     } finally {
       await server.close()
     }

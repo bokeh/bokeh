@@ -144,6 +144,7 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
 def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
     public_packages = {
         "@bokeh/bokehjs",
+        "@bokeh/angular",
         "@bokeh/framework",
         "@bokeh/react",
         "@bokeh/svelte",

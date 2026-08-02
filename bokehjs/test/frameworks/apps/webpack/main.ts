@@ -5,7 +5,23 @@ import type {BokehElement} from "@bokeh/web-component"
 import {configure_hmr, install_framework_test} from "../shared"
 
 const container = document.querySelector<HTMLElement>("#app")!
-defineBokehElement("bokeh-ci-plot")
+const PrimaryElement = defineBokehElement("bokeh-ci-plot")
+const SecondaryElement = defineBokehElement("bokeh-ci-secondary")
+if (PrimaryElement == SecondaryElement) {
+  throw new Error("different custom-element names unexpectedly reused one constructor")
+}
+
+if (customElements.get("bokeh-ci-conflict") == null) {
+  customElements.define("bokeh-ci-conflict", class extends HTMLElement {})
+}
+try {
+  defineBokehElement("bokeh-ci-conflict")
+  throw new Error("an unrelated custom-element definition was silently accepted")
+} catch (error) {
+  if (!(error instanceof Error) || !error.message.includes("already defined")) {
+    throw error
+  }
+}
 
 install_framework_test("web-component-webpack", ({model, mountOptions, onMounted, onError}) => {
   const element = document.createElement("bokeh-ci-plot") as BokehElement

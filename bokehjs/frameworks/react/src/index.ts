@@ -41,6 +41,9 @@ export function useBokeh(model: BokehModel | null, options: UseBokehOptions = {}
         setMounted(handle)
         callbacks.current.onMounted?.(handle)
       },
+      onDisposed: (handle) => {
+        setMounted((current) => current == handle ? null : current)
+      },
       onError: (reason) => {
         setError(reason)
         callbacks.current.onError?.(reason)

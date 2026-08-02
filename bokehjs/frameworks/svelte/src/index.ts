@@ -9,42 +9,41 @@ export type BokehActionOptions = {
   onError?(error: unknown): void
 }
 
-export type BokehActionValue = BokehModel | BokehActionOptions
-
-function normalize(value: BokehActionValue): BokehActionOptions {
-  if (Object.hasOwn(value as object, "model")) {
-    return value as BokehActionOptions
-  } else {
-    return {model: value as BokehModel}
-  }
-}
-
-export function bokeh(node: HTMLElement, initial: BokehActionValue): {
-  update(value: BokehActionValue): void
+export function bokeh(node: HTMLElement, initial: BokehActionOptions): {
+  update(value: BokehActionOptions): void
   destroy(): void
 } {
   let controller = new MountController()
+  let current = initial
 
-  function start(value: BokehActionValue): void {
-    const options = normalize(value)
+  function start(options: BokehActionOptions): void {
     controller.dispose()
     controller = new MountController()
     void controller.start(options.model, node, {
       mountOptions: options.mountOptions,
       onMounted: (mounted) => {
-        options.onMounted?.(mounted)
+        current.onMounted?.(mounted)
         node.dispatchEvent(new CustomEvent("bokeh-mount", {detail: mounted}))
       },
+      onDisposed: (mounted) => {
+        node.dispatchEvent(new CustomEvent("bokeh-unmount", {detail: mounted}))
+      },
       onError: (error) => {
-        options.onError?.(error)
+        current.onError?.(error)
         node.dispatchEvent(new CustomEvent("bokeh-mount-error", {detail: error}))
       },
     })
   }
 
-  start(initial)
+  start(current)
   return {
-    update: start,
+    update: (value) => {
+      const restart = value.model != current.model || value.mountOptions != current.mountOptions
+      current = value
+      if (restart) {
+        start(current)
+      }
+    },
     destroy: () => controller.dispose(),
   }
 }

@@ -13,6 +13,11 @@
   ],
   "license": "BSD-3-Clause",
   "type": "module",
+  "sideEffects": [
+    "./build/js/lib/**/main.js",
+    "./build/js/lib/models/glyphs/webgl/index.js",
+    "./build/js/lib/models/text/mathjax/index.js"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/bokeh/bokeh.git"
@@ -38,6 +43,7 @@
     "./examples/frameworks/vanilla-webpack",
     "./examples/frameworks/vue-vite",
     "./examples/frameworks/web-component-webpack",
+    "./frameworks/angular",
     "./frameworks/base",
     "./frameworks/react",
     "./frameworks/svelte",
@@ -71,6 +77,31 @@
       "types": "./build/js/lib/index.d.ts",
       "import": "./build/js/lib/index.js",
       "default": "./build/js/lib/index.js"
+    },
+    "./all": {
+      "types": "./build/js/lib/all/register.d.ts",
+      "import": "./build/js/lib/all/register.js",
+      "default": "./build/js/lib/all/register.js"
+    },
+    "./widgets": {
+      "types": "./build/js/lib/models/widgets/index.d.ts",
+      "import": "./build/js/lib/models/widgets/index.js",
+      "default": "./build/js/lib/models/widgets/index.js"
+    },
+    "./tables": {
+      "types": "./build/js/lib/models/widgets/tables/index.d.ts",
+      "import": "./build/js/lib/models/widgets/tables/index.js",
+      "default": "./build/js/lib/models/widgets/tables/index.js"
+    },
+    "./webgl": {
+      "types": "./build/js/lib/models/glyphs/webgl/index.d.ts",
+      "import": "./build/js/lib/models/glyphs/webgl/index.js",
+      "default": "./build/js/lib/models/glyphs/webgl/index.js"
+    },
+    "./mathjax": {
+      "types": "./build/js/lib/models/text/mathjax/index.d.ts",
+      "import": "./build/js/lib/models/text/mathjax/index.js",
+      "default": "./build/js/lib/models/text/mathjax/index.js"
     },
     "./api": {
       "types": "./build/js/lib/api/index.d.ts",

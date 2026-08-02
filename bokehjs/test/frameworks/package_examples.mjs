@@ -1,5 +1,5 @@
 import {spawn} from "node:child_process"
-import {cpSync, mkdirSync, readFileSync, rmSync, writeFileSync} from "node:fs"
+import {cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {join, relative, resolve} from "node:path"
 import {fileURLToPath} from "node:url"
 
@@ -25,6 +25,7 @@ const examples = [
 const package_dirs = new Map([
   ["@bokeh/bokehjs", bokehjs_dir],
   ["@bokeh/framework", join(bokehjs_dir, "frameworks/base")],
+  ["@bokeh/angular", join(bokehjs_dir, "frameworks/angular")],
   ["@bokeh/react", join(bokehjs_dir, "frameworks/react")],
   ["@bokeh/svelte", join(bokehjs_dir, "frameworks/svelte")],
   ["@bokeh/vue", join(bokehjs_dir, "frameworks/vue")],
@@ -54,6 +55,24 @@ async function pack(name, cwd) {
   const {version} = JSON.parse(readFileSync(join(cwd, "package.json"), "utf-8"))
   const filename = `${name.replace("@", "").replace("/", "-")}-${version}.tgz`
   return join(packages_dir, filename)
+}
+
+function verify_bundle_budget(example, root) {
+  const files = readdirSync(root, {recursive: true})
+    .filter((file) => typeof file == "string" && file.endsWith(".js") && !file.replaceAll("\\", "/").startsWith("node_modules/"))
+    .map((file) => ({file, bytes: statSync(join(root, file)).size}))
+  if (files.length == 0) {
+    return
+  }
+
+  const largest = files.reduce((left, right) => left.bytes >= right.bytes ? left : right)
+  const total = files.reduce((sum, file) => sum + file.bytes, 0)
+  const max_chunk_bytes = 2_100_000
+  const max_total_bytes = 4_000_000
+  if (largest.bytes > max_chunk_bytes || total > max_total_bytes) {
+    throw new Error(`${example} exceeded its JavaScript bundle budget: largest=${largest.file} (${largest.bytes}), total=${total}`)
+  }
+  console.log(`bundle budget passed: ${example} (largest ${largest.bytes} bytes, total ${total} bytes)`)
 }
 
 rmSync(build_dir, {recursive: true, force: true})
@@ -87,11 +106,15 @@ writeFileSync(join(workspace_dir, "package.json"), `${JSON.stringify({
   private: true,
   version: "0.0.0",
   workspaces: examples,
+  dependencies: Object.fromEntries(
+    [...tarballs].map(([name, tarball]) => [name, `file:${relative(workspace_dir, tarball)}`]),
+  ),
 }, null, 2)}\n`)
 
 await run("npm", ["install", "--no-audit", "--no-fund"], workspace_dir)
 for (const example of examples) {
   await run("npm", ["run", "build", "--workspace", `@bokeh-example/${example}`], workspace_dir)
+  verify_bundle_budget(example, join(workspace_dir, example))
 }
 
 console.log(`packed framework examples built in ${workspace_dir}`)

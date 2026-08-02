@@ -28,7 +28,7 @@ def test_publish_npm_package_uses_release_appropriate_tag(version: str, expected
     assert result.kind is ActionResult.PASS
     assert system.commands[0] == expected_command
     assert system.commands[-1] == expected_command.replace("bokeh-bokehjs", "bokeh-web-component")
-    assert len(system.commands) == 6
+    assert len(system.commands) == 7
     assert system.directories == [("cd", f"deployment-{version}"), ("cd", "..")]
 
 

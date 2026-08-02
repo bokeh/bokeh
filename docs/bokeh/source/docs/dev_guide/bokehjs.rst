@@ -265,13 +265,14 @@ All model subclasses inherit the lifecycle-aware ``create()`` factory, so a
 custom extension does not need to repeat a constructor. Instantiate the model
 with ``NewActionTool.create({some_property: 1})``. Property defaults,
 ``initialize()``, and ``connect_signals()`` run after all subclass field
-initializers have completed.
+initializers have completed. A custom constructor that does more than forward
+attributes must be ``protected`` so callers cannot bypass ``create()``.
 
 Register extension models explicitly when they will be deserialized. Use a
 dedicated ``ModelResolver`` and call ``register_standard_models()`` and
-``register_models()`` with that resolver. Also assign a stable
-``NewActionTool.__qualified__`` value; relying on the JavaScript class name is
-unsafe after production minification.
+``register_models({NewActionTool}, resolver)`` with that resolver. The object
+key becomes the stable serialized model name, so production minifiers may
+safely rename the JavaScript class identifier.
 
 Views
 ~~~~~

@@ -12,6 +12,7 @@ __all__ = ("NPM_PACKAGES",)
 NPM_PACKAGES = (
     ("", "bokeh-bokehjs"),
     ("frameworks/base", "bokeh-framework"),
+    ("frameworks/angular", "bokeh-angular"),
     ("frameworks/react", "bokeh-react"),
     ("frameworks/svelte", "bokeh-svelte"),
     ("frameworks/vue", "bokeh-vue"),

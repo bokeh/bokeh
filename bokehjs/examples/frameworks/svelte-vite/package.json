@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "@bokeh/bokehjs": "4.0.0-dev.1",
-    "@bokeh/framework": "4.0.0-dev.1",
     "@bokeh/svelte": "4.0.0-dev.1",
     "svelte": "^5.56.8"
   },

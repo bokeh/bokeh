@@ -1,13 +1,11 @@
-import {CUSTOM_ELEMENTS_SCHEMA, Component} from "@angular/core"
+import {Component} from "@angular/core"
 import {bootstrapApplication} from "@angular/platform-browser"
-import {defineBokehElement} from "@bokeh/web-component"
+import {BokehComponent} from "@bokeh/angular"
 import {Plotting} from "@bokeh/bokehjs"
-
-defineBokehElement()
 
 @Component({
   selector: "app-root",
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [BokehComponent],
   template: `<bokeh-plot [model]="plot"></bokeh-plot>`,
 })
 class App {

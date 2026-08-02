@@ -33,7 +33,10 @@ unmounts. The disposal handle owns all views and, when Bokeh created it, the
 temporary document as well.
 
 Thin adapters implement this ownership pattern for the common component
-frameworks. In React, use the ``Bokeh`` component or the lower-level
+frameworks. Install ``@bokeh/bokehjs`` together with the adapter for your
+framework (``@bokeh/react``, ``@bokeh/vue``, ``@bokeh/svelte``, or
+``@bokeh/angular``); the framework itself remains a peer dependency. In React,
+use the ``Bokeh`` component or the lower-level
 ``useBokeh()`` hook from ``@bokeh/react``:
 
 .. code-block:: typescript
@@ -72,7 +75,23 @@ Svelte applications can use the ``bokeh`` action from ``@bokeh/svelte``:
     export let model: Plot
     </script>
 
-    <div use:bokeh={model}></div>
+    <div use:bokeh={{model}}></div>
+
+Angular provides a standalone component in ``@bokeh/angular``:
+
+.. code-block:: typescript
+
+    import {Component} from "@angular/core"
+    import {BokehComponent} from "@bokeh/angular"
+
+    @Component({
+      selector: "app-root",
+      imports: [BokehComponent],
+      template: `<bokeh-plot [model]="plot"></bokeh-plot>`,
+    })
+    export class App {
+      readonly plot = plot
+    }
 
 For other frameworks, ``@bokeh/web-component`` supplies a standards-based
 custom element:
@@ -86,22 +105,6 @@ custom element:
     element.model = plot
     document.body.append(element)
 
-Angular can bind the model directly to the same custom element. Add
-``CUSTOM_ELEMENTS_SCHEMA`` to the component that owns it:
-
-.. code-block:: typescript
-
-    defineBokehElement()
-
-    @Component({
-      selector: "app-root",
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-      template: `<bokeh-plot [model]="plot"></bokeh-plot>`,
-    })
-    export class App {
-      readonly plot = plot
-    }
-
 Applications without a component framework can use the root ``mount()`` API.
 The same source works with Vite, Webpack, and Rspack:
 
@@ -110,7 +113,10 @@ The same source works with Vite, Webpack, and Rspack:
     import {mount} from "@bokeh/bokehjs"
 
     const mounted = await mount(plot, document.querySelector<HTMLElement>("#app")!)
-    window.addEventListener("pagehide", () => mounted.dispose(), {once: true})
+    // Later, when your application removes the host element:
+    function removePlot() {
+      mounted.dispose()
+    }
 
 Complete runnable projects for React, Vue, Svelte, Angular, Web Components,
 vanilla Vite/Webpack/Rspack, and Node.js server-side rendering are in
@@ -120,6 +126,19 @@ artifacts in BokehJS CI.
 
 ``show()`` remains convenient for scripts; component frameworks should prefer
 ``mount()`` because its lifetime is explicit.
+
+Adapters remount only when the model, target, or mount-options object changes
+identity. Keep those values stable across ordinary framework renders. A single
+model can have only one owning temporary document at a time; dispose its current
+mount before moving it to another host. Abort a pending or active mount with
+``mountOptions.signal``. Adapter error callbacks and events report failures;
+failed and superseded mounts clean up any views and temporary document they
+created. A caller-supplied ``Document`` remains owned by the caller.
+
+Importing BokehJS and creating models is safe during server-side rendering, but
+``mount()`` requires a browser DOM. Create or hydrate the adapter from the
+framework's client lifecycle. The Node.js example in the framework-example
+directory continuously verifies the DOM-free import path.
 
 Applications that deserialize custom models can use an isolated registry:
 
@@ -133,11 +152,16 @@ Applications that deserialize custom models can use an isolated registry:
     const resolver = new ModelResolver(null)
     register_standard_models(resolver)
     register_models([MyCustomModel], resolver)
-    const document = new Document({resolver})
+    const document = Document.from_json(json, {resolver})
 
 This avoids relying on module import order or a process-wide registry. Set a
 stable ``__qualified__`` name on custom models because production bundlers are
 allowed to rename JavaScript classes.
+
+Pass the same resolver to ``embed.embed_item(item, target, {resolver})`` when
+embedding JSON directly. ``register_standard_models()`` covers the core model
+set. If JSON can contain optional widgets or tables, import
+``register_all_models`` from ``@bokeh/bokehjs/all`` and call it instead.
 
 
 .. _ug_advanced_bokehjs_models:

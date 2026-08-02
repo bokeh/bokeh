@@ -52,6 +52,7 @@ export class BokehElement extends HTMLElementBase {
     void this._controller.start(this._model, this, {
       mountOptions: this._mount_options,
       onMounted: (mounted) => this.dispatchEvent(new CustomEvent<BokehMount>("bokeh-mount", {detail: mounted})),
+      onDisposed: (mounted) => this.dispatchEvent(new CustomEvent<BokehMount>("bokeh-unmount", {detail: mounted})),
       onError: (error) => this.dispatchEvent(new CustomEvent("bokeh-mount-error", {detail: error})),
     })
   }
@@ -60,8 +61,12 @@ export class BokehElement extends HTMLElementBase {
 export function defineBokehElement(name: string = "bokeh-plot"): typeof BokehElement {
   const existing = customElements.get(name)
   if (existing != null) {
+    if (existing != BokehElement && !(existing.prototype instanceof BokehElement)) {
+      throw new Error(`custom element '${name}' is already defined by another constructor`)
+    }
     return existing as typeof BokehElement
   }
-  customElements.define(name, BokehElement)
-  return BokehElement
+  const DefinedBokehElement = class extends BokehElement {}
+  customElements.define(name, DefinedBokehElement)
+  return DefinedBokehElement
 }

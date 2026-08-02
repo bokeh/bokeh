@@ -1,5 +1,6 @@
 import {ColumnDataSource, ModelResolver, Plotting, Range1d, index, register_models, register_standard_models} from "@bokeh/bokehjs"
 import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
+import {MountController} from "@bokeh/framework"
 
 declare global {
   interface Window {
@@ -52,10 +53,9 @@ function create_plot() {
 function validate_registration(): void {
   interface FrameworkRange extends Range1d.Attrs {}
   class FrameworkRange extends Range1d {}
-  FrameworkRange.__qualified__ = "FrameworkRange"
 
   const resolver = new ModelResolver(null)
-  register_models([FrameworkRange], resolver)
+  register_models({FrameworkRange}, resolver)
   assert(resolver.get("FrameworkRange") == FrameworkRange, "custom model wasn't registered in the isolated resolver")
 
   register_standard_models(resolver)
@@ -74,6 +74,32 @@ async function validate_unmount(model: ReturnType<typeof Plotting.figure>, mount
   assert(mounted.handle.disposed, "framework unmount didn't dispose the Bokeh mount")
   assert(mounted.target.childElementCount == 0, "framework unmount retained Bokeh DOM")
   assert(index.get(model) == null, "framework unmount retained a view in Bokeh's global index")
+}
+
+async function validate_controller(model: ReturnType<typeof Plotting.figure>): Promise<void> {
+  const controller = new MountController()
+  const active_mount = () => controller.mounted
+  const first_target = document.createElement("div")
+  const second_target = document.createElement("div")
+  const first = controller.start(model, first_target)
+  const second = controller.start(model, second_target)
+
+  assert(await first == null, "a superseded mount unexpectedly completed")
+  const mounted = await second
+  assert(mounted != null, "the replacement mount didn't complete")
+  assert(active_mount() == mounted, "the controller didn't expose the active mount")
+  controller.dispose()
+
+  const external_abort = new AbortController()
+  let disposed = 0
+  const aborted = await controller.start(model, document.createElement("div"), {
+    mountOptions: {signal: external_abort.signal},
+    onDisposed: () => disposed += 1,
+  })
+  assert(aborted != null, "the externally abortable mount didn't complete")
+  external_abort.abort()
+  assert(active_mount() == null, "an externally aborted mount remained publicly active")
+  assert(disposed == 1, "external abort didn't report disposal exactly once")
 }
 
 export async function run_framework_test(framework: string, adapter: Adapter): Promise<FrameworkTestResult> {
@@ -106,6 +132,8 @@ export async function run_framework_test(framework: string, adapter: Adapter): P
   assert(index.get(plot) == null, "aborting mountOptions.signal retained a view in Bokeh's global index")
   await third.unmount()
 
+  await validate_controller(plot)
+
   return {framework, mounts: 3, streams}
 }
 
@@ -134,6 +162,8 @@ export function configure_hmr(hot: ImportMeta["hot"]): void {
   }
 
   window.__bokeh_hmr__ = "waiting"
-  hot.on("bokeh-ci", () => window.__bokeh_hmr__ = "received")
-  hot.accept()
+}
+
+export function mark_hmr_received(): void {
+  window.__bokeh_hmr__ = "received"
 }

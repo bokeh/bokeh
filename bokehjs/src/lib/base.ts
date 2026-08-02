@@ -1,5 +1,5 @@
 import {isObject, isArray} from "./core/util/types"
-import {values} from "./core/util/object"
+import {entries} from "./core/util/object"
 import {isString} from "./core/util/types"
 import {HasProps} from "./core/has_props"
 import {ModelResolver} from "./core/resolvers"
@@ -57,8 +57,12 @@ export function register_models(models: ModelCollection, force_or_resolver: bool
     resolver = force_or_resolver
   }
 
-  for (const model of isArray(models) ? models : values(models)) {
+  const named_models = isArray(models) ? models.map((model) => [null, model] as const) : entries(models)
+  for (const [name, model] of named_models) {
     if (is_HasProps(model)) {
+      if (name != null) {
+        model.__qualified__ = name.includes(".") || model.__module__ == null ? name : `${model.__module__}.${name}`
+      }
       resolver.register(model, force)
     }
   }

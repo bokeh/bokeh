@@ -113,6 +113,7 @@ def test_build_npm_packages_packs_every_public_package_in_dependency_order(confi
     assert system.commands == [
         "npm pack",
         "npm pack --workspace frameworks/base",
+        "npm pack --workspace frameworks/angular",
         "npm pack --workspace frameworks/react",
         "npm pack --workspace frameworks/svelte",
         "npm pack --workspace frameworks/vue",
@@ -130,6 +131,7 @@ def test_pack_deployment_tarball_collects_all_artifacts(config: Config) -> None:
         "mkdir deployment-4.0.0",
         "cp bokehjs/bokeh-bokehjs-4.0.0.tgz deployment-4.0.0",
         "cp bokehjs/bokeh-framework-4.0.0.tgz deployment-4.0.0",
+        "cp bokehjs/bokeh-angular-4.0.0.tgz deployment-4.0.0",
         "cp bokehjs/bokeh-react-4.0.0.tgz deployment-4.0.0",
         "cp bokehjs/bokeh-svelte-4.0.0.tgz deployment-4.0.0",
         "cp bokehjs/bokeh-vue-4.0.0.tgz deployment-4.0.0",

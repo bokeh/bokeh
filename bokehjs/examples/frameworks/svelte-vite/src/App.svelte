@@ -4,4 +4,4 @@
   import {plot} from "./plot"
 </script>
 
-<div use:bokeh={plot}></div>
+<div use:bokeh={{model: plot}}></div>

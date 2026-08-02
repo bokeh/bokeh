@@ -6,6 +6,7 @@ export type BokehTarget = HTMLElement | DocumentFragment
 
 export type MountCallbacks = {
   onMounted?(mounted: BokehMount): void
+  onDisposed?(mounted: BokehMount): void
   onError?(error: unknown): void
 }
 
@@ -30,6 +31,20 @@ export class MountController {
     const generation = this._generation
     const abort = new AbortController()
     this._abort = abort
+    abort.signal.addEventListener("abort", () => {
+      if (generation != this._generation) {
+        return
+      }
+      const mounted = this._mounted
+      mounted?.dispose()
+      this._mounted = null
+      this._unlink_signal?.()
+      this._unlink_signal = null
+      this._abort = null
+      if (mounted != null) {
+        request.onDisposed?.(mounted)
+      }
+    }, {once: true})
 
     const external_signal = request.mountOptions?.signal
     if (external_signal != null) {

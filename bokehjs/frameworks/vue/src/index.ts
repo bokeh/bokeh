@@ -41,6 +41,11 @@ export function useBokeh(model: MaybeRefOrGetter<BokehModel | null>, target: Ref
           mounted.value = handle
           options.onMounted?.(handle)
         },
+        onDisposed: (handle) => {
+          if (mounted.value == handle) {
+            mounted.value = null
+          }
+        },
         onError: (reason) => {
           error.value = reason
           options.onError?.(reason)
