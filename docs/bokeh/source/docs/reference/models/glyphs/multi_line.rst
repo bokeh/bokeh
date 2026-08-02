@@ -15,4 +15,4 @@ MultiLine
     <span data-bokeh-model-redirect="MultiLine"></span>
 
 The reference for :class:`bokeh.models.MultiLine` has moved to its
-:doc:`dedicated class page <../classes/MultiLine>`.
+:doc:`dedicated class page <MultiLine/index>`.

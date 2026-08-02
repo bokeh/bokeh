@@ -15,4 +15,4 @@ ImageStack
     <span data-bokeh-model-redirect="ImageStack"></span>
 
 The reference for :class:`bokeh.models.ImageStack` has moved to its
-:doc:`dedicated class page <../classes/ImageStack>`.
+:doc:`dedicated class page <ImageStack/index>`.

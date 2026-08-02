@@ -15,4 +15,4 @@ Block
     <span data-bokeh-model-redirect="Block"></span>
 
 The reference for :class:`bokeh.models.Block` has moved to its
-:doc:`dedicated class page <../classes/Block>`.
+:doc:`dedicated class page <Block/index>`.

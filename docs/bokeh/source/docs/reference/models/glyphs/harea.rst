@@ -15,4 +15,4 @@ HArea
     <span data-bokeh-model-redirect="HArea"></span>
 
 The reference for :class:`bokeh.models.HArea` has moved to its
-:doc:`dedicated class page <../classes/HArea>`.
+:doc:`dedicated class page <HArea/index>`.

@@ -27,10 +27,10 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   DatePicker <../classes/DatePicker>
-   DateRangePicker <../classes/DateRangePicker>
-   DatetimePicker <../classes/DatetimePicker>
-   DatetimeRangePicker <../classes/DatetimeRangePicker>
-   MultipleDatePicker <../classes/MultipleDatePicker>
-   MultipleDatetimePicker <../classes/MultipleDatetimePicker>
-   TimePicker <../classes/TimePicker>
+   DatePicker <pickers/DatePicker/index>
+   DateRangePicker <pickers/DateRangePicker/index>
+   DatetimePicker <pickers/DatetimePicker/index>
+   DatetimeRangePicker <pickers/DatetimeRangePicker/index>
+   MultipleDatePicker <pickers/MultipleDatePicker/index>
+   MultipleDatetimePicker <pickers/MultipleDatetimePicker/index>
+   TimePicker <pickers/TimePicker/index>

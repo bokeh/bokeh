@@ -22,5 +22,5 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   GroupByModels <classes/GroupByModels>
-   GroupByName <classes/GroupByName>
+   GroupByModels <misc/GroupByModels/index>
+   GroupByName <misc/GroupByName/index>

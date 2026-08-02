@@ -15,4 +15,4 @@ Ray
     <span data-bokeh-model-redirect="Ray"></span>
 
 The reference for :class:`bokeh.models.Ray` has moved to its
-:doc:`dedicated class page <../classes/Ray>`.
+:doc:`dedicated class page <Ray/index>`.

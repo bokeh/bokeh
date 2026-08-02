@@ -15,4 +15,4 @@ ImageRGBA
     <span data-bokeh-model-redirect="ImageRGBA"></span>
 
 The reference for :class:`bokeh.models.ImageRGBA` has moved to its
-:doc:`dedicated class page <../classes/ImageRGBA>`.
+:doc:`dedicated class page <ImageRGBA/index>`.

@@ -15,4 +15,4 @@ Circle
     <span data-bokeh-model-redirect="Circle"></span>
 
 The reference for :class:`bokeh.models.Circle` has moved to its
-:doc:`dedicated class page <../classes/Circle>`.
+:doc:`dedicated class page <Circle/index>`.

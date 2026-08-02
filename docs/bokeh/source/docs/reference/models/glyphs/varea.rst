@@ -15,4 +15,4 @@ VArea
     <span data-bokeh-model-redirect="VArea"></span>
 
 The reference for :class:`bokeh.models.VArea` has moved to its
-:doc:`dedicated class page <../classes/VArea>`.
+:doc:`dedicated class page <VArea/index>`.

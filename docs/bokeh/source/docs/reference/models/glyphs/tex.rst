@@ -15,4 +15,4 @@ TeXGlyph
     <span data-bokeh-model-redirect="TeXGlyph"></span>
 
 The reference for :class:`bokeh.models.TeXGlyph` has moved to its
-:doc:`dedicated class page <../classes/TeXGlyph>`.
+:doc:`dedicated class page <TeXGlyph/index>`.

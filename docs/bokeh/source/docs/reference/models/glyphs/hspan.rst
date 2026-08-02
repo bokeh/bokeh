@@ -15,4 +15,4 @@ HSpan
     <span data-bokeh-model-redirect="HSpan"></span>
 
 The reference for :class:`bokeh.models.HSpan` has moved to its
-:doc:`dedicated class page <../classes/HSpan>`.
+:doc:`dedicated class page <HSpan/index>`.

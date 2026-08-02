@@ -29,12 +29,12 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   CompositeRenderer <classes/CompositeRenderer>
-   ContourRenderer <classes/ContourRenderer>
-   DataRenderer <classes/DataRenderer>
-   GlyphRenderer <classes/GlyphRenderer>
-   GraphRenderer <classes/GraphRenderer>
-   GuideRenderer <classes/GuideRenderer>
-   Renderer <classes/Renderer>
-   RendererGroup <classes/RendererGroup>
-   TileRenderer <classes/TileRenderer>
+   CompositeRenderer <renderers/CompositeRenderer/index>
+   ContourRenderer <renderers/ContourRenderer/index>
+   DataRenderer <renderers/DataRenderer/index>
+   GlyphRenderer <renderers/GlyphRenderer/index>
+   GraphRenderer <renderers/GraphRenderer/index>
+   GuideRenderer <renderers/GuideRenderer/index>
+   Renderer <renderers/Renderer/index>
+   RendererGroup <renderers/RendererGroup/index>
+   TileRenderer <renderers/TileRenderer/index>

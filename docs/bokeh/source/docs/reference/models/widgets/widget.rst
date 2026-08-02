@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Widget <../classes/Widget>
+   Widget <widget/Widget/index>

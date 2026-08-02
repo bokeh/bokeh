@@ -23,6 +23,6 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Comparison <classes/Comparison>
-   CustomJSCompare <classes/CustomJSCompare>
-   NanCompare <classes/NanCompare>
+   Comparison <comparisons/Comparison/index>
+   CustomJSCompare <comparisons/CustomJSCompare/index>
+   NanCompare <comparisons/NanCompare/index>

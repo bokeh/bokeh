@@ -24,7 +24,7 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   IntersectRenderers <classes/IntersectRenderers>
-   Selection <classes/Selection>
-   SelectionPolicy <classes/SelectionPolicy>
-   UnionRenderers <classes/UnionRenderers>
+   IntersectRenderers <selections/IntersectRenderers/index>
+   Selection <selections/Selection/index>
+   SelectionPolicy <selections/SelectionPolicy/index>
+   UnionRenderers <selections/UnionRenderers/index>

@@ -15,4 +15,4 @@ VSpan
     <span data-bokeh-model-redirect="VSpan"></span>
 
 The reference for :class:`bokeh.models.VSpan` has moved to its
-:doc:`dedicated class page <../classes/VSpan>`.
+:doc:`dedicated class page <VSpan/index>`.

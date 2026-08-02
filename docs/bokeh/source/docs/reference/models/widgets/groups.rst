@@ -27,10 +27,10 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   AbstractGroup <../classes/AbstractGroup>
-   CheckboxButtonGroup <../classes/CheckboxButtonGroup>
-   CheckboxGroup <../classes/CheckboxGroup>
-   RadioButtonGroup <../classes/RadioButtonGroup>
-   RadioGroup <../classes/RadioGroup>
-   ToggleButtonGroup <../classes/ToggleButtonGroup>
-   ToggleInputGroup <../classes/ToggleInputGroup>
+   AbstractGroup <groups/AbstractGroup/index>
+   CheckboxButtonGroup <groups/CheckboxButtonGroup/index>
+   CheckboxGroup <groups/CheckboxGroup/index>
+   RadioButtonGroup <groups/RadioButtonGroup/index>
+   RadioGroup <groups/RadioGroup/index>
+   ToggleButtonGroup <groups/ToggleButtonGroup/index>
+   ToggleInputGroup <groups/ToggleInputGroup/index>

@@ -15,4 +15,4 @@ Step
     <span data-bokeh-model-redirect="Step"></span>
 
 The reference for :class:`bokeh.models.Step` has moved to its
-:doc:`dedicated class page <../classes/Step>`.
+:doc:`dedicated class page <Step/index>`.

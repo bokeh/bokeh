@@ -31,14 +31,14 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   EdgeCoordinates <classes/EdgeCoordinates>
-   EdgesAndLinkedNodes <classes/EdgesAndLinkedNodes>
-   EdgesOnly <classes/EdgesOnly>
-   GraphCoordinates <classes/GraphCoordinates>
-   GraphHitTestPolicy <classes/GraphHitTestPolicy>
-   LayoutProvider <classes/LayoutProvider>
-   NodeCoordinates <classes/NodeCoordinates>
-   NodesAndAdjacentNodes <classes/NodesAndAdjacentNodes>
-   NodesAndLinkedEdges <classes/NodesAndLinkedEdges>
-   NodesOnly <classes/NodesOnly>
-   StaticLayoutProvider <classes/StaticLayoutProvider>
+   EdgeCoordinates <graphs/EdgeCoordinates/index>
+   EdgesAndLinkedNodes <graphs/EdgesAndLinkedNodes/index>
+   EdgesOnly <graphs/EdgesOnly/index>
+   GraphCoordinates <graphs/GraphCoordinates/index>
+   GraphHitTestPolicy <graphs/GraphHitTestPolicy/index>
+   LayoutProvider <graphs/LayoutProvider/index>
+   NodeCoordinates <graphs/NodeCoordinates/index>
+   NodesAndAdjacentNodes <graphs/NodesAndAdjacentNodes/index>
+   NodesAndLinkedEdges <graphs/NodesAndLinkedEdges/index>
+   NodesOnly <graphs/NodesOnly/index>
+   StaticLayoutProvider <graphs/StaticLayoutProvider/index>

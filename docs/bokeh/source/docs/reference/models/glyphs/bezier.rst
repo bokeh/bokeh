@@ -15,4 +15,4 @@ Bezier
     <span data-bokeh-model-redirect="Bezier"></span>
 
 The reference for :class:`bokeh.models.Bezier` has moved to its
-:doc:`dedicated class page <../classes/Bezier>`.
+:doc:`dedicated class page <Bezier/index>`.

@@ -15,4 +15,4 @@ MathMLGlyph
     <span data-bokeh-model-redirect="MathMLGlyph"></span>
 
 The reference for :class:`bokeh.models.MathMLGlyph` has moved to its
-:doc:`dedicated class page <../classes/MathMLGlyph>`.
+:doc:`dedicated class page <MathMLGlyph/index>`.

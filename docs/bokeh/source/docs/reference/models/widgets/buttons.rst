@@ -26,9 +26,9 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   AbstractButton <../classes/AbstractButton>
-   Button <../classes/Button>
-   ButtonLike <../classes/ButtonLike>
-   Dropdown <../classes/Dropdown>
-   HelpButton <../classes/HelpButton>
-   Toggle <../classes/Toggle>
+   AbstractButton <buttons/AbstractButton/index>
+   Button <buttons/Button/index>
+   ButtonLike <buttons/ButtonLike/index>
+   Dropdown <buttons/Dropdown/index>
+   HelpButton <buttons/HelpButton/index>
+   Toggle <buttons/Toggle/index>

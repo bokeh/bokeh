@@ -15,4 +15,4 @@ Ellipse
     <span data-bokeh-model-redirect="Ellipse"></span>
 
 The reference for :class:`bokeh.models.Ellipse` has moved to its
-:doc:`dedicated class page <../classes/Ellipse>`.
+:doc:`dedicated class page <Ellipse/index>`.

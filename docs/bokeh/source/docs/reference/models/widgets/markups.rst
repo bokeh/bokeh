@@ -24,7 +24,7 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Div <../classes/Div>
-   Markup <../classes/Markup>
-   Paragraph <../classes/Paragraph>
-   PreText <../classes/PreText>
+   Div <markups/Div/index>
+   Markup <markups/Markup/index>
+   Paragraph <markups/Paragraph/index>
+   PreText <markups/PreText/index>

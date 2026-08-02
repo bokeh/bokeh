@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Progress <../classes/Progress>
+   Progress <indicators/Progress/index>

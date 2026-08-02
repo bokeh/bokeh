@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Canvas <classes/Canvas>
+   Canvas <canvas/Canvas/index>

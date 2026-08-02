@@ -15,4 +15,4 @@ Image
     <span data-bokeh-model-redirect="Image"></span>
 
 The reference for :class:`bokeh.models.Image` has moved to its
-:doc:`dedicated class page <../classes/Image>`.
+:doc:`dedicated class page <Image/index>`.

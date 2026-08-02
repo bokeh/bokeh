@@ -26,9 +26,9 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   BBoxTileSource <classes/BBoxTileSource>
-   MercatorTileSource <classes/MercatorTileSource>
-   QUADKEYTileSource <classes/QUADKEYTileSource>
-   TileSource <classes/TileSource>
-   TMSTileSource <classes/TMSTileSource>
-   WMTSTileSource <classes/WMTSTileSource>
+   BBoxTileSource <tiles/BBoxTileSource/index>
+   MercatorTileSource <tiles/MercatorTileSource/index>
+   QUADKEYTileSource <tiles/QUADKEYTileSource/index>
+   TileSource <tiles/TileSource/index>
+   TMSTileSource <tiles/TMSTileSource/index>
+   WMTSTileSource <tiles/WMTSTileSource/index>

@@ -31,7 +31,7 @@ what a serialized version of the model looks like.
     :maxdepth: 3
     :hidden:
 
-    models/classes/index
+    models/class_index
     models/annotations
     models/axes
     models/callbacks

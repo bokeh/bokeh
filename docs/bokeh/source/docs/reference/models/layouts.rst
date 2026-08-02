@@ -32,15 +32,15 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Column <classes/Column>
-   FlexBox <classes/FlexBox>
-   GridBox <classes/GridBox>
-   GroupBox <classes/GroupBox>
-   HBox <classes/HBox>
-   LayoutDOM <classes/LayoutDOM>
-   Row <classes/Row>
-   ScrollBox <classes/ScrollBox>
-   Spacer <classes/Spacer>
-   TabPanel <classes/TabPanel>
-   Tabs <classes/Tabs>
-   VBox <classes/VBox>
+   Column <layouts/Column/index>
+   FlexBox <layouts/FlexBox/index>
+   GridBox <layouts/GridBox/index>
+   GroupBox <layouts/GroupBox/index>
+   HBox <layouts/HBox/index>
+   LayoutDOM <layouts/LayoutDOM/index>
+   Row <layouts/Row/index>
+   ScrollBox <layouts/ScrollBox/index>
+   Spacer <layouts/Spacer/index>
+   TabPanel <layouts/TabPanel/index>
+   Tabs <layouts/Tabs/index>
+   VBox <layouts/VBox/index>

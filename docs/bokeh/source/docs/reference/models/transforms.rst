@@ -27,10 +27,10 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   CustomJSTransform <classes/CustomJSTransform>
-   Dodge <classes/Dodge>
-   Interpolator <classes/Interpolator>
-   Jitter <classes/Jitter>
-   LinearInterpolator <classes/LinearInterpolator>
-   StepInterpolator <classes/StepInterpolator>
-   Transform <classes/Transform>
+   CustomJSTransform <transforms/CustomJSTransform/index>
+   Dodge <transforms/Dodge/index>
+   Interpolator <transforms/Interpolator/index>
+   Jitter <transforms/Jitter/index>
+   LinearInterpolator <transforms/LinearInterpolator/index>
+   StepInterpolator <transforms/StepInterpolator/index>
+   Transform <transforms/Transform/index>

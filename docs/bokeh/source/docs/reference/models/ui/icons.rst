@@ -24,7 +24,7 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   BuiltinIcon <../classes/BuiltinIcon>
-   Icon <../classes/Icon>
-   SVGIcon <../classes/SVGIcon>
-   TablerIcon <../classes/TablerIcon>
+   BuiltinIcon <icons/BuiltinIcon/index>
+   Icon <icons/Icon/index>
+   SVGIcon <icons/SVGIcon/index>
+   TablerIcon <icons/TablerIcon/index>

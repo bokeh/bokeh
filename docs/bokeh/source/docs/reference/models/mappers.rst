@@ -32,15 +32,15 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   CategoricalColorMapper <classes/CategoricalColorMapper>
-   CategoricalMapper <classes/CategoricalMapper>
-   CategoricalMarkerMapper <classes/CategoricalMarkerMapper>
-   CategoricalPatternMapper <classes/CategoricalPatternMapper>
-   ColorMapper <classes/ColorMapper>
-   ContinuousColorMapper <classes/ContinuousColorMapper>
-   EqHistColorMapper <classes/EqHistColorMapper>
-   LinearColorMapper <classes/LinearColorMapper>
-   LogColorMapper <classes/LogColorMapper>
-   Mapper <classes/Mapper>
-   StackColorMapper <classes/StackColorMapper>
-   WeightedStackColorMapper <classes/WeightedStackColorMapper>
+   CategoricalColorMapper <mappers/CategoricalColorMapper/index>
+   CategoricalMapper <mappers/CategoricalMapper/index>
+   CategoricalMarkerMapper <mappers/CategoricalMarkerMapper/index>
+   CategoricalPatternMapper <mappers/CategoricalPatternMapper/index>
+   ColorMapper <mappers/ColorMapper/index>
+   ContinuousColorMapper <mappers/ContinuousColorMapper/index>
+   EqHistColorMapper <mappers/EqHistColorMapper/index>
+   LinearColorMapper <mappers/LinearColorMapper/index>
+   LogColorMapper <mappers/LogColorMapper/index>
+   Mapper <mappers/Mapper/index>
+   StackColorMapper <mappers/StackColorMapper/index>
+   WeightedStackColorMapper <mappers/WeightedStackColorMapper/index>

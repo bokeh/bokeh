@@ -15,4 +15,4 @@ Line
     <span data-bokeh-model-redirect="Line"></span>
 
 The reference for :class:`bokeh.models.Line` has moved to its
-:doc:`dedicated class page <../classes/Line>`.
+:doc:`dedicated class page <Line/index>`.

@@ -15,4 +15,4 @@ VBar
     <span data-bokeh-model-redirect="VBar"></span>
 
 The reference for :class:`bokeh.models.VBar` has moved to its
-:doc:`dedicated class page <../classes/VBar>`.
+:doc:`dedicated class page <VBar/index>`.

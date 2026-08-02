@@ -28,11 +28,11 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   AjaxDataSource <classes/AjaxDataSource>
-   CDSView <classes/CDSView>
-   ColumnarDataSource <classes/ColumnarDataSource>
-   ColumnDataSource <classes/ColumnDataSource>
-   DataSource <classes/DataSource>
-   GeoJSONDataSource <classes/GeoJSONDataSource>
-   ServerSentDataSource <classes/ServerSentDataSource>
-   WebDataSource <classes/WebDataSource>
+   AjaxDataSource <sources/AjaxDataSource/index>
+   CDSView <sources/CDSView/index>
+   ColumnarDataSource <sources/ColumnarDataSource/index>
+   ColumnDataSource <sources/ColumnDataSource/index>
+   DataSource <sources/DataSource/index>
+   GeoJSONDataSource <sources/GeoJSONDataSource/index>
+   ServerSentDataSource <sources/ServerSentDataSource/index>
+   WebDataSource <sources/WebDataSource/index>

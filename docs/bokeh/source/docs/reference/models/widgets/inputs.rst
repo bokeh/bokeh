@@ -36,22 +36,22 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   AutocompleteInput <../classes/AutocompleteInput>
-   Checkbox <../classes/Checkbox>
-   ColorPicker <../classes/ColorPicker>
-   FileInput <../classes/FileInput>
-   InputWidget <../classes/InputWidget>
-   LightDark <../classes/LightDark>
-   MultiChoice <../classes/MultiChoice>
-   MultiSelect <../classes/MultiSelect>
-   NumericInput <../classes/NumericInput>
-   PaletteSelect <../classes/PaletteSelect>
-   PasswordInput <../classes/PasswordInput>
-   Select <../classes/Select>
-   Spinner <../classes/Spinner>
-   Switch <../classes/Switch>
-   TextAreaInput <../classes/TextAreaInput>
-   TextInput <../classes/TextInput>
+   AutocompleteInput <inputs/AutocompleteInput/index>
+   Checkbox <inputs/Checkbox/index>
+   ColorPicker <inputs/ColorPicker/index>
+   FileInput <inputs/FileInput/index>
+   InputWidget <inputs/InputWidget/index>
+   LightDark <inputs/LightDark/index>
+   MultiChoice <inputs/MultiChoice/index>
+   MultiSelect <inputs/MultiSelect/index>
+   NumericInput <inputs/NumericInput/index>
+   PaletteSelect <inputs/PaletteSelect/index>
+   PasswordInput <inputs/PasswordInput/index>
+   Select <inputs/Select/index>
+   Spinner <inputs/Spinner/index>
+   Switch <inputs/Switch/index>
+   TextAreaInput <inputs/TextAreaInput/index>
+   TextInput <inputs/TextInput/index>
 
 
 Functions

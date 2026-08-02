@@ -15,4 +15,4 @@ Quadratic
     <span data-bokeh-model-redirect="Quadratic"></span>
 
 The reference for :class:`bokeh.models.Quadratic` has moved to its
-:doc:`dedicated class page <../classes/Quadratic>`.
+:doc:`dedicated class page <Quadratic/index>`.

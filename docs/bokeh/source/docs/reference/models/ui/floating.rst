@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Drawer <../classes/Drawer>
+   Drawer <floating/Drawer/index>

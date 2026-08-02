@@ -15,4 +15,4 @@ Wedge
     <span data-bokeh-model-redirect="Wedge"></span>
 
 The reference for :class:`bokeh.models.Wedge` has moved to its
-:doc:`dedicated class page <../classes/Wedge>`.
+:doc:`dedicated class page <Wedge/index>`.

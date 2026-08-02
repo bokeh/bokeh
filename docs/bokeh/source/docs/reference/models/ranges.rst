@@ -25,8 +25,8 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   DataRange <classes/DataRange>
-   DataRange1d <classes/DataRange1d>
-   FactorRange <classes/FactorRange>
-   Range <classes/Range>
-   Range1d <classes/Range1d>
+   DataRange <ranges/DataRange/index>
+   DataRange1d <ranges/DataRange1d/index>
+   FactorRange <ranges/FactorRange/index>
+   Range <ranges/Range/index>
+   Range1d <ranges/Range1d/index>

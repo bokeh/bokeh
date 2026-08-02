@@ -15,4 +15,4 @@ Text
     <span data-bokeh-model-redirect="Text"></span>
 
 The reference for :class:`bokeh.models.Text` has moved to its
-:doc:`dedicated class page <../classes/Text>`.
+:doc:`dedicated class page <Text/index>`.

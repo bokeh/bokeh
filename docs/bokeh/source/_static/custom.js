@@ -21,11 +21,15 @@ window.addEventListener('DOMContentLoaded', function () {
   const hash = window.location.hash
   const match = hash.match(/^#bokeh\.models(?:\.[a-z_][a-z0-9_]*)*\.([A-Z][A-Za-z0-9_]*)(\..*)?$/)
   const redirect = document.querySelector("[data-bokeh-model-redirect]")
-  const classesRoot = window.location.pathname.slice(0, markerIndex + marker.length) + "classes/"
+  const modelsRoot = window.location.pathname.slice(0, markerIndex + marker.length)
+  const relativePath = window.location.pathname.slice(modelsRoot.length)
+  const classPage = relativePath.match(/^(?:[a-z_][a-z0-9_]*\/)+[A-Z][A-Za-z0-9_]*\/(?:index\.html)?$/)
 
-  if (!window.location.pathname.startsWith(classesRoot) && (redirect != null || match != null)) {
+  if (classPage == null && (redirect != null || match != null)) {
     const className = redirect?.dataset.bokehModelRedirect ?? match[1]
-    window.location.replace(classesRoot + className + ".html" + window.location.search + hash)
+    const documentPath = relativePath.replace(/\.html$/, "")
+    const categoryPath = redirect == null ? documentPath : documentPath.replace(/\/[^/]+$/, "")
+    window.location.replace(modelsRoot + categoryPath + "/" + className + "/" + window.location.search + hash)
     return
   }
 

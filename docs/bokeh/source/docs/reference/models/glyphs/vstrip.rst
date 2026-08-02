@@ -15,4 +15,4 @@ VStrip
     <span data-bokeh-model-redirect="VStrip"></span>
 
 The reference for :class:`bokeh.models.VStrip` has moved to its
-:doc:`dedicated class page <../classes/VStrip>`.
+:doc:`dedicated class page <VStrip/index>`.

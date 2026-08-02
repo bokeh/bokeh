@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Panel <../classes/Panel>
+   Panel <panels/Panel/index>

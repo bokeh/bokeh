@@ -24,7 +24,7 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   AllLabels <classes/AllLabels>
-   CustomLabelingPolicy <classes/CustomLabelingPolicy>
-   LabelingPolicy <classes/LabelingPolicy>
-   NoOverlap <classes/NoOverlap>
+   AllLabels <labeling/AllLabels/index>
+   CustomLabelingPolicy <labeling/CustomLabelingPolicy/index>
+   LabelingPolicy <labeling/LabelingPolicy/index>
+   NoOverlap <labeling/NoOverlap/index>

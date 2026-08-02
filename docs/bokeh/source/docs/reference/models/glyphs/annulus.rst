@@ -15,4 +15,4 @@ Annulus
     <span data-bokeh-model-redirect="Annulus"></span>
 
 The reference for :class:`bokeh.models.Annulus` has moved to its
-:doc:`dedicated class page <../classes/Annulus>`.
+:doc:`dedicated class page <Annulus/index>`.

@@ -22,4 +22,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Examiner <../classes/Examiner>
+   Examiner <examiner/Examiner/index>

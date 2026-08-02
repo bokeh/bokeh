@@ -23,6 +23,6 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Indexed <classes/Indexed>
-   Node <classes/Node>
-   XY <classes/XY>
+   Indexed <nodes/Indexed/index>
+   Node <nodes/Node/index>
+   XY <nodes/XY/index>

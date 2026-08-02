@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Grid <classes/Grid>
+   Grid <grids/Grid/index>

@@ -15,4 +15,4 @@ HStrip
     <span data-bokeh-model-redirect="HStrip"></span>
 
 The reference for :class:`bokeh.models.HStrip` has moved to its
-:doc:`dedicated class page <../classes/HStrip>`.
+:doc:`dedicated class page <HStrip/index>`.

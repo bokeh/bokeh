@@ -15,4 +15,4 @@ AnnularWedge
     <span data-bokeh-model-redirect="AnnularWedge"></span>
 
 The reference for :class:`bokeh.models.AnnularWedge` has moved to its
-:doc:`dedicated class page <../classes/AnnularWedge>`.
+:doc:`dedicated class page <AnnularWedge/index>`.

@@ -15,4 +15,4 @@ Rect
     <span data-bokeh-model-redirect="Rect"></span>
 
 The reference for :class:`bokeh.models.Rect` has moved to its
-:doc:`dedicated class page <../classes/Rect>`.
+:doc:`dedicated class page <Rect/index>`.

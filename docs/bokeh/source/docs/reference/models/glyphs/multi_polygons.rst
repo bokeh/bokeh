@@ -15,4 +15,4 @@ MultiPolygons
     <span data-bokeh-model-redirect="MultiPolygons"></span>
 
 The reference for :class:`bokeh.models.MultiPolygons` has moved to its
-:doc:`dedicated class page <../classes/MultiPolygons>`.
+:doc:`dedicated class page <MultiPolygons/index>`.

@@ -23,6 +23,6 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   CanvasTexture <classes/CanvasTexture>
-   ImageURLTexture <classes/ImageURLTexture>
-   Texture <classes/Texture>
+   CanvasTexture <textures/CanvasTexture/index>
+   ImageURLTexture <textures/ImageURLTexture/index>
+   Texture <textures/Texture/index>

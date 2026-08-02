@@ -15,4 +15,4 @@ Segment
     <span data-bokeh-model-redirect="Segment"></span>
 
 The reference for :class:`bokeh.models.Segment` has moved to its
-:doc:`dedicated class page <../classes/Segment>`.
+:doc:`dedicated class page <Segment/index>`.

@@ -30,16 +30,16 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   BasicTickFormatter <classes/BasicTickFormatter>
-   CategoricalTickFormatter <classes/CategoricalTickFormatter>
-   CustomJSTickFormatter <classes/CustomJSTickFormatter>
-   DatetimeTickFormatter <classes/DatetimeTickFormatter>
-   LogTickFormatter <classes/LogTickFormatter>
-   MercatorTickFormatter <classes/MercatorTickFormatter>
-   NumeralTickFormatter <classes/NumeralTickFormatter>
-   PrintfTickFormatter <classes/PrintfTickFormatter>
-   TickFormatter <classes/TickFormatter>
-   TimedeltaTickFormatter <classes/TimedeltaTickFormatter>
+   BasicTickFormatter <formatters/BasicTickFormatter/index>
+   CategoricalTickFormatter <formatters/CategoricalTickFormatter/index>
+   CustomJSTickFormatter <formatters/CustomJSTickFormatter/index>
+   DatetimeTickFormatter <formatters/DatetimeTickFormatter/index>
+   LogTickFormatter <formatters/LogTickFormatter/index>
+   MercatorTickFormatter <formatters/MercatorTickFormatter/index>
+   NumeralTickFormatter <formatters/NumeralTickFormatter/index>
+   PrintfTickFormatter <formatters/PrintfTickFormatter/index>
+   TickFormatter <formatters/TickFormatter/index>
+   TimedeltaTickFormatter <formatters/TimedeltaTickFormatter/index>
 
 
 Functions

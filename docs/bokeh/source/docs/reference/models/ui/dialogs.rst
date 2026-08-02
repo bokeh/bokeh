@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Dialog <../classes/Dialog>
+   Dialog <dialogs/Dialog/index>

@@ -24,7 +24,7 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   ByClass <classes/ByClass>
-   ByCSS <classes/ByCSS>
-   ByID <classes/ByID>
-   ByXPath <classes/ByXPath>
+   ByClass <selectors/ByClass/index>
+   ByCSS <selectors/ByCSS/index>
+   ByID <selectors/ByID/index>
+   ByXPath <selectors/ByXPath/index>

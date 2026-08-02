@@ -15,4 +15,4 @@ ImageURL
     <span data-bokeh-model-redirect="ImageURL"></span>
 
 The reference for :class:`bokeh.models.ImageURL` has moved to its
-:doc:`dedicated class page <../classes/ImageURL>`.
+:doc:`dedicated class page <ImageURL/index>`.

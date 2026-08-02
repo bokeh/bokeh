@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   CoordinateMapping <classes/CoordinateMapping>
+   CoordinateMapping <coordinates/CoordinateMapping/index>

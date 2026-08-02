@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Pane <../classes/Pane>
+   Pane <panes/Pane/index>

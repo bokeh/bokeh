@@ -23,5 +23,5 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   GridPlot <classes/GridPlot>
-   Plot <classes/Plot>
+   GridPlot <plots/GridPlot/index>
+   Plot <plots/Plot/index>

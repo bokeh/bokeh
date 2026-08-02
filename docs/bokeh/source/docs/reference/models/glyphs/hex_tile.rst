@@ -15,4 +15,4 @@ HexTile
     <span data-bokeh-model-redirect="HexTile"></span>
 
 The reference for :class:`bokeh.models.HexTile` has moved to its
-:doc:`dedicated class page <../classes/HexTile>`.
+:doc:`dedicated class page <HexTile/index>`.

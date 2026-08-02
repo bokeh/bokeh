@@ -15,4 +15,4 @@ Quad
     <span data-bokeh-model-redirect="Quad"></span>
 
 The reference for :class:`bokeh.models.Quad` has moved to its
-:doc:`dedicated class page <../classes/Quad>`.
+:doc:`dedicated class page <Quad/index>`.

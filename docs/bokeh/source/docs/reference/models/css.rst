@@ -25,8 +25,8 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   GlobalImportedStyleSheet <classes/GlobalImportedStyleSheet>
-   GlobalInlineStyleSheet <classes/GlobalInlineStyleSheet>
-   ImportedStyleSheet <classes/ImportedStyleSheet>
-   InlineStyleSheet <classes/InlineStyleSheet>
-   Styles <classes/Styles>
+   GlobalImportedStyleSheet <css/GlobalImportedStyleSheet/index>
+   GlobalInlineStyleSheet <css/GlobalInlineStyleSheet/index>
+   ImportedStyleSheet <css/ImportedStyleSheet/index>
+   InlineStyleSheet <css/InlineStyleSheet/index>
+   Styles <css/Styles/index>

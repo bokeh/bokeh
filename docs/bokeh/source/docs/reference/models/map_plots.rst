@@ -24,7 +24,7 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   GMapOptions <classes/GMapOptions>
-   GMapPlot <classes/GMapPlot>
-   MapOptions <classes/MapOptions>
-   MapPlot <classes/MapPlot>
+   GMapOptions <map_plots/GMapOptions/index>
+   GMapPlot <map_plots/GMapPlot/index>
+   MapOptions <map_plots/MapOptions/index>
+   MapPlot <map_plots/MapPlot/index>

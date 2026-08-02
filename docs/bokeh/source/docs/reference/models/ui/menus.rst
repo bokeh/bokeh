@@ -25,8 +25,8 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   ActionItem <../classes/ActionItem>
-   CheckableItem <../classes/CheckableItem>
-   DividerItem <../classes/DividerItem>
-   Menu <../classes/Menu>
-   MenuItem <../classes/MenuItem>
+   ActionItem <menus/ActionItem/index>
+   CheckableItem <menus/CheckableItem/index>
+   DividerItem <menus/DividerItem/index>
+   Menu <menus/Menu/index>
+   MenuItem <menus/MenuItem/index>

@@ -22,5 +22,5 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   StyledElement <../classes/StyledElement>
-   UIElement <../classes/UIElement>
+   StyledElement <ui_element/StyledElement/index>
+   UIElement <ui_element/UIElement/index>

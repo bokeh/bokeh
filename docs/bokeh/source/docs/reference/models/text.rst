@@ -25,8 +25,8 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Ascii <classes/Ascii>
-   MathML <classes/MathML>
-   MathText <classes/MathText>
-   PlainText <classes/PlainText>
-   TeX <classes/TeX>
+   Ascii <text/Ascii/index>
+   MathML <text/MathML/index>
+   MathText <text/MathText/index>
+   PlainText <text/PlainText/index>
+   TeX <text/TeX/index>

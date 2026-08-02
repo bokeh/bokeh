@@ -15,4 +15,4 @@ Arc
     <span data-bokeh-model-redirect="Arc"></span>
 
 The reference for :class:`bokeh.models.Arc` has moved to its
-:doc:`dedicated class page <../classes/Arc>`.
+:doc:`dedicated class page <Arc/index>`.

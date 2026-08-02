@@ -27,10 +27,10 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   AbstractSlider <../classes/AbstractSlider>
-   CategoricalSlider <../classes/CategoricalSlider>
-   DateRangeSlider <../classes/DateRangeSlider>
-   DateSlider <../classes/DateSlider>
-   DatetimeRangeSlider <../classes/DatetimeRangeSlider>
-   RangeSlider <../classes/RangeSlider>
-   Slider <../classes/Slider>
+   AbstractSlider <sliders/AbstractSlider/index>
+   CategoricalSlider <sliders/CategoricalSlider/index>
+   DateRangeSlider <sliders/DateRangeSlider/index>
+   DateSlider <sliders/DateSlider/index>
+   DatetimeRangeSlider <sliders/DatetimeRangeSlider/index>
+   RangeSlider <sliders/RangeSlider/index>
+   Slider <sliders/Slider/index>

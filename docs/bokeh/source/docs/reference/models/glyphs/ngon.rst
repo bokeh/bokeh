@@ -15,4 +15,4 @@ Ngon
     <span data-bokeh-model-redirect="Ngon"></span>
 
 The reference for :class:`bokeh.models.Ngon` has moved to its
-:doc:`dedicated class page <../classes/Ngon>`.
+:doc:`dedicated class page <Ngon/index>`.

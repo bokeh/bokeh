@@ -15,4 +15,4 @@ MathTextGlyph
     <span data-bokeh-model-redirect="MathTextGlyph"></span>
 
 The reference for :class:`bokeh.models.MathTextGlyph` has moved to its
-:doc:`dedicated class page <../classes/MathTextGlyph>`.
+:doc:`dedicated class page <MathTextGlyph/index>`.

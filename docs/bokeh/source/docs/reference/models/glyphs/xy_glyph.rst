@@ -15,4 +15,4 @@ XYGlyph
     <span data-bokeh-model-redirect="XYGlyph"></span>
 
 The reference for :class:`bokeh.models.XYGlyph` has moved to its
-:doc:`dedicated class page <../classes/XYGlyph>`.
+:doc:`dedicated class page <XYGlyph/index>`.

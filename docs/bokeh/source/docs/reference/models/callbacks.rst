@@ -27,10 +27,10 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Callback <classes/Callback>
-   CloseDialog <classes/CloseDialog>
-   CustomJS <classes/CustomJS>
-   OpenDialog <classes/OpenDialog>
-   OpenURL <classes/OpenURL>
-   SetValue <classes/SetValue>
-   ToggleVisibility <classes/ToggleVisibility>
+   Callback <callbacks/Callback/index>
+   CloseDialog <callbacks/CloseDialog/index>
+   CustomJS <callbacks/CustomJS/index>
+   OpenDialog <callbacks/OpenDialog/index>
+   OpenURL <callbacks/OpenURL/index>
+   SetValue <callbacks/SetValue/index>
+   ToggleVisibility <callbacks/ToggleVisibility/index>

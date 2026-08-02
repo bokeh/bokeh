@@ -15,4 +15,4 @@ Marker
     <span data-bokeh-model-redirect="Marker"></span>
 
 The reference for :class:`bokeh.models.Marker` has moved to its
-:doc:`dedicated class page <../classes/Marker>`.
+:doc:`dedicated class page <Marker/index>`.

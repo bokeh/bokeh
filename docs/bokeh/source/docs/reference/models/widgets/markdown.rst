@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Markdown <../classes/Markdown>
+   Markdown <markdown/Markdown/index>

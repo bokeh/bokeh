@@ -15,4 +15,4 @@ Scatter
     <span data-bokeh-model-redirect="Scatter"></span>
 
 The reference for :class:`bokeh.models.Scatter` has moved to its
-:doc:`dedicated class page <../classes/Scatter>`.
+:doc:`dedicated class page <Scatter/index>`.

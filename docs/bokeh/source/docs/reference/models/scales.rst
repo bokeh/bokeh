@@ -25,8 +25,8 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   CategoricalScale <classes/CategoricalScale>
-   CompositeScale <classes/CompositeScale>
-   LinearScale <classes/LinearScale>
-   LogScale <classes/LogScale>
-   Scale <classes/Scale>
+   CategoricalScale <scales/CategoricalScale/index>
+   CompositeScale <scales/CompositeScale/index>
+   LinearScale <scales/LinearScale/index>
+   LogScale <scales/LogScale/index>
+   Scale <scales/Scale/index>

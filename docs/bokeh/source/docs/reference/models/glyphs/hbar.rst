@@ -15,4 +15,4 @@ HBar
     <span data-bokeh-model-redirect="HBar"></span>
 
 The reference for :class:`bokeh.models.HBar` has moved to its
-:doc:`dedicated class page <../classes/HBar>`.
+:doc:`dedicated class page <HBar/index>`.

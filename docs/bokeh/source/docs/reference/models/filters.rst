@@ -31,14 +31,14 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   AllIndices <classes/AllIndices>
-   BooleanFilter <classes/BooleanFilter>
-   CustomJSFilter <classes/CustomJSFilter>
-   DifferenceFilter <classes/DifferenceFilter>
-   Filter <classes/Filter>
-   GroupFilter <classes/GroupFilter>
-   IndexFilter <classes/IndexFilter>
-   IntersectionFilter <classes/IntersectionFilter>
-   InversionFilter <classes/InversionFilter>
-   SymmetricDifferenceFilter <classes/SymmetricDifferenceFilter>
-   UnionFilter <classes/UnionFilter>
+   AllIndices <filters/AllIndices/index>
+   BooleanFilter <filters/BooleanFilter/index>
+   CustomJSFilter <filters/CustomJSFilter/index>
+   DifferenceFilter <filters/DifferenceFilter/index>
+   Filter <filters/Filter/index>
+   GroupFilter <filters/GroupFilter/index>
+   IndexFilter <filters/IndexFilter/index>
+   IntersectionFilter <filters/IntersectionFilter/index>
+   InversionFilter <filters/InversionFilter/index>
+   SymmetricDifferenceFilter <filters/SymmetricDifferenceFilter/index>
+   UnionFilter <filters/UnionFilter/index>

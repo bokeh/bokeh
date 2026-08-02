@@ -25,8 +25,8 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   CumSum <classes/CumSum>
-   CustomJSExpr <classes/CustomJSExpr>
-   Expression <classes/Expression>
-   PolarTransform <classes/PolarTransform>
-   Stack <classes/Stack>
+   CumSum <expressions/CumSum/index>
+   CustomJSExpr <expressions/CustomJSExpr/index>
+   Expression <expressions/Expression/index>
+   PolarTransform <expressions/PolarTransform/index>
+   Stack <expressions/Stack/index>

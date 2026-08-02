@@ -15,4 +15,4 @@ VAreaStep
     <span data-bokeh-model-redirect="VAreaStep"></span>
 
 The reference for :class:`bokeh.models.VAreaStep` has moved to its
-:doc:`dedicated class page <../classes/VAreaStep>`.
+:doc:`dedicated class page <VAreaStep/index>`.

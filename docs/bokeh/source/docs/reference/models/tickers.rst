@@ -37,20 +37,20 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   AdaptiveTicker <classes/AdaptiveTicker>
-   BasicTicker <classes/BasicTicker>
-   BinnedTicker <classes/BinnedTicker>
-   CategoricalTicker <classes/CategoricalTicker>
-   CompositeTicker <classes/CompositeTicker>
-   ContinuousTicker <classes/ContinuousTicker>
-   CustomJSTicker <classes/CustomJSTicker>
-   DatetimeTicker <classes/DatetimeTicker>
-   DaysTicker <classes/DaysTicker>
-   FixedTicker <classes/FixedTicker>
-   LogTicker <classes/LogTicker>
-   MercatorTicker <classes/MercatorTicker>
-   MonthsTicker <classes/MonthsTicker>
-   SingleIntervalTicker <classes/SingleIntervalTicker>
-   Ticker <classes/Ticker>
-   TimedeltaTicker <classes/TimedeltaTicker>
-   YearsTicker <classes/YearsTicker>
+   AdaptiveTicker <tickers/AdaptiveTicker/index>
+   BasicTicker <tickers/BasicTicker/index>
+   BinnedTicker <tickers/BinnedTicker/index>
+   CategoricalTicker <tickers/CategoricalTicker/index>
+   CompositeTicker <tickers/CompositeTicker/index>
+   ContinuousTicker <tickers/ContinuousTicker/index>
+   CustomJSTicker <tickers/CustomJSTicker/index>
+   DatetimeTicker <tickers/DatetimeTicker/index>
+   DaysTicker <tickers/DaysTicker/index>
+   FixedTicker <tickers/FixedTicker/index>
+   LogTicker <tickers/LogTicker/index>
+   MercatorTicker <tickers/MercatorTicker/index>
+   MonthsTicker <tickers/MonthsTicker/index>
+   SingleIntervalTicker <tickers/SingleIntervalTicker/index>
+   Ticker <tickers/Ticker/index>
+   TimedeltaTicker <tickers/TimedeltaTicker/index>
+   YearsTicker <tickers/YearsTicker/index>

@@ -15,4 +15,4 @@ HAreaStep
     <span data-bokeh-model-redirect="HAreaStep"></span>
 
 The reference for :class:`bokeh.models.HAreaStep` has moved to its
-:doc:`dedicated class page <../classes/HAreaStep>`.
+:doc:`dedicated class page <HAreaStep/index>`.

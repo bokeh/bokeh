@@ -21,4 +21,4 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Tooltip <../classes/Tooltip>
+   Tooltip <tooltips/Tooltip/index>

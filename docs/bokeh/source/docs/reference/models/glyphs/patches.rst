@@ -15,4 +15,4 @@ Patches
     <span data-bokeh-model-redirect="Patches"></span>
 
 The reference for :class:`bokeh.models.Patches` has moved to its
-:doc:`dedicated class page <../classes/Patches>`.
+:doc:`dedicated class page <Patches/index>`.

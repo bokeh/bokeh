@@ -28,11 +28,11 @@ Classes
    :hidden:
    :maxdepth: 1
 
-   Axis <classes/Axis>
-   CategoricalAxis <classes/CategoricalAxis>
-   ContinuousAxis <classes/ContinuousAxis>
-   DatetimeAxis <classes/DatetimeAxis>
-   LinearAxis <classes/LinearAxis>
-   LogAxis <classes/LogAxis>
-   MercatorAxis <classes/MercatorAxis>
-   TimedeltaAxis <classes/TimedeltaAxis>
+   Axis <axes/Axis/index>
+   CategoricalAxis <axes/CategoricalAxis/index>
+   ContinuousAxis <axes/ContinuousAxis/index>
+   DatetimeAxis <axes/DatetimeAxis/index>
+   LinearAxis <axes/LinearAxis/index>
+   LogAxis <axes/LogAxis/index>
+   MercatorAxis <axes/MercatorAxis/index>
+   TimedeltaAxis <axes/TimedeltaAxis/index>
