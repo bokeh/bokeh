@@ -7,8 +7,8 @@
     "build": "tsc --noEmit && vite build"
   },
   "dependencies": {
-    "@bokeh/bokehjs": "4.0.0-dev.1",
-    "@bokeh/react": "4.0.0-dev.1",
+    "@bokeh/bokehjs": "file:../../..",
+    "@bokeh/react": "file:../../../frameworks/react",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

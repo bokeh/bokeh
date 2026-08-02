@@ -1,18 +1,45 @@
 import {Component} from "@angular/core"
 import {bootstrapApplication} from "@angular/platform-browser"
 import {BokehComponent} from "@bokeh/angular"
-import {Plotting} from "@bokeh/bokehjs"
+import {ColumnDataSource, Plotting} from "@bokeh/bokehjs"
+
+const x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+const baseline = [2, 2.8, 4.2, 5.1, 4.7, 3.8, 3.2, 4.1, 5.6, 6.3, 5.7, 7]
+const response = [0.8, 0.2, -0.8, -1.4, -0.4, 1.2, 1.8, 0.7, -0.9, -1.6, 0.5, -1.2]
 
 @Component({
   selector: "app-root",
   imports: [BokehComponent],
-  template: `<bokeh-plot [model]="plot"></bokeh-plot>`,
+  template: `
+    <main class="app-shell">
+      <p class="eyebrow">Framework integration example</p>
+      <h1>BokehJS + Angular</h1>
+      <p class="intro">A native Angular control updates data in a live Bokeh plot.</p>
+      <section class="demo-card" aria-label="Interactive Bokeh plot example">
+        <div class="control-row">
+          <label for="variation">Signal variation</label>
+          <input id="variation" data-bokeh-control type="range" min="0.5" max="2" step="0.25"
+            [value]="variation" (input)="update($event)">
+          <output data-bokeh-output for="variation">{{variation.toFixed(2)}}×</output>
+        </div>
+        <div class="plot-host"><bokeh-plot [model]="plot"></bokeh-plot></div>
+      </section>
+      <p class="note">Angular owns the controls and page layout; BokehJS owns the plot.</p>
+    </main>
+  `,
 })
 class App {
-  readonly plot = Plotting.figure({title: "BokehJS with Angular", width: 500, height: 300})
+  readonly source = ColumnDataSource.create({data: {x, y: baseline}})
+  readonly plot = Plotting.figure({title: "BokehJS with Angular", width: 560, height: 300})
+  variation = 1
 
   constructor() {
-    this.plot.line([1, 2, 3, 4], [2, 5, 3, 6], {line_width: 3})
+    this.plot.line({field: "x"}, {field: "y"}, {source: this.source, line_width: 3})
+  }
+
+  update(event: Event) {
+    this.variation = (event.currentTarget as HTMLInputElement).valueAsNumber
+    this.source.data = {x, y: baseline.map((value, index) => value + (this.variation - 1)*response[index])}
   }
 }
 
