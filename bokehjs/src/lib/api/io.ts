@@ -24,12 +24,16 @@ export type MountOptions = {
 export class BokehMount<T extends HasProps = HasProps> {
   constructor(
     readonly document: Document,
-    readonly models: readonly T[],
     private readonly _mount: StandaloneMount,
   ) {}
 
+  get models(): readonly T[] {
+    return this.document.roots() as T[]
+  }
+
   get views(): ViewOf<T>[] {
-    return this.models.map((model) => this._mount.views.get(model)).filter((view) => view != null)
+    const roots = this.document.roots()
+    return this._mount.views.roots.filter((view) => roots.includes(view.model)) as ViewOf<T>[]
   }
 
   get view_manager(): ViewManager {
@@ -45,13 +49,13 @@ export class BokehMount<T extends HasProps = HasProps> {
   }
 }
 
-function as_document(obj: Document | Showable): {doc: Document, models: HasProps[], dispose_document: boolean} {
+function as_document(obj: Document | Showable): {doc: Document, dispose_document: boolean} {
   if (obj instanceof Document) {
-    return {doc: obj, models: obj.roots(), dispose_document: false}
+    return {doc: obj, dispose_document: false}
   } else {
     const models = isArray(obj) ? obj : [obj]
     const doc = new Document({roots: models})
-    return {doc, models, dispose_document: true}
+    return {doc, dispose_document: true}
   }
 }
 
@@ -90,17 +94,36 @@ export async function mount(obj: Document | Showable, target?: EmbedTarget | str
 
 export async function mount(obj: Document | Showable, target?: EmbedTarget | string, options: MountOptions = {}): Promise<BokehMount> {
   const script = document.currentScript // This needs to be evaluated before any `await` to avoid `null` value.
-  const {doc, models, dispose_document} = as_document(obj)
+  const {doc, dispose_document} = as_document(obj)
+  const {signal} = options
+
+  const abort_before_mount = () => {
+    if (dispose_document) {
+      doc.destroy()
+    }
+  }
+  if (signal?.aborted == true) {
+    abort_before_mount()
+  } else {
+    signal?.addEventListener("abort", abort_before_mount, {once: true})
+  }
 
   try {
     const element = await resolve_target(target, script)
-    const mounted = await mount_document_standalone(doc, element, {signal: options.signal, dispose_document})
-    return new BokehMount(doc, models, mounted)
+    if (signal?.aborted == true) {
+      throw signal.reason ?? new Error("mount was aborted before rendering started")
+    }
+
+    signal?.removeEventListener("abort", abort_before_mount)
+    const mounted = await mount_document_standalone(doc, element, {signal, dispose_document})
+    return new BokehMount(doc, mounted)
   } catch (error) {
     if (dispose_document) {
       doc.destroy()
     }
     throw error
+  } finally {
+    signal?.removeEventListener("abort", abort_before_mount)
   }
 }
 

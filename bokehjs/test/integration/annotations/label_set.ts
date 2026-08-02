@@ -14,7 +14,7 @@ function turn(value: number) {
 
 describe("LabelSet annotation", () => {
 
-  function plot<T extends LabelSet | HTMLLabelSet>(LabelSetCls: HasPropsFactory<T, any>) {
+  function plot(LabelSetCls: HasPropsFactory<LabelSet | HTMLLabelSet>) {
     const plot = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
 
     const source = ColumnDataSource.create({

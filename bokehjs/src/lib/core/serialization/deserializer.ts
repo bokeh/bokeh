@@ -38,13 +38,15 @@ export class Deserializer {
   constructor(
     readonly resolver: ModelResolver,
     readonly references: Map<ID, HasProps> = new Map(),
-    readonly finalize?: (obj: HasProps) => void,
+    readonly finalize?: (obj: HasProps) => void | (() => void),
   ) {}
 
   protected _decoding: boolean = false
   protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
   protected readonly _finalizable: Set<HasProps> = new Set()
   protected readonly _new_references: Set<ID> = new Set()
+  protected readonly _updated_references: Map<HasProps, Attrs> = new Map()
+  protected readonly _rollbacks: (() => void)[] = []
 
   decode(obj: unknown /*AnyVal*/, buffers?: Map<ID, ArrayBuffer>): unknown {
     if (buffers != null) {
@@ -63,7 +65,10 @@ export class Deserializer {
       const finalizable = new Set(this._finalizable)
 
       for (const instance of finalizable) {
-        this.finalize?.(instance)
+        const rollback = this.finalize?.(instance)
+        if (rollback != null) {
+          this._rollbacks.push(rollback)
+        }
       }
 
       for (const instance of finalizable) {
@@ -81,12 +86,31 @@ export class Deserializer {
 
       return decoded
     } catch (error) {
+      for (const [instance, attrs] of this._updated_references) {
+        try {
+          instance.setv(attrs, {sync: false})
+        } catch (rollback_error) {
+          logger.warn(`failed to restore ${instance} after deserialization failed: ${rollback_error}`)
+        }
+      }
+      for (let i = this._rollbacks.length - 1; i >= 0; i--) {
+        const rollback = this._rollbacks[i]
+        try {
+          rollback()
+        } catch (rollback_error) {
+          logger.warn(`failed to roll back deserialization finalization: ${rollback_error}`)
+        }
+      }
       for (const id of this._new_references) {
         const instance = this.references.get(id)
         this.references.delete(id)
-        instance?.detach_document()
-        if (instance != null && !instance.is_destroyed) {
-          instance.destroy()
+        try {
+          instance?.detach_document()
+          if (instance != null && !instance.is_destroyed) {
+            instance.destroy()
+          }
+        } catch (rollback_error) {
+          logger.warn(`failed to destroy reference '${id}' after deserialization failed: ${rollback_error}`)
         }
       }
       throw error
@@ -95,6 +119,8 @@ export class Deserializer {
       this._buffers.clear()
       this._finalizable.clear()
       this._new_references.clear()
+      this._updated_references.clear()
+      this._rollbacks.splice(0)
     }
   }
 
@@ -330,6 +356,16 @@ export class Deserializer {
     if (ref != null) {
       if (ref.type == type) {
         const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+        let previous = this._updated_references.get(ref)
+        if (previous == null) {
+          previous = {}
+          this._updated_references.set(ref, previous)
+        }
+        for (const attr of Object.keys(decoded_attributes)) {
+          if (!Object.hasOwn(previous, attr)) {
+            previous[attr] = ref.property(attr).get_value()
+          }
+        }
         ref.setv(decoded_attributes, {sync: false})
         return ref
       } else {

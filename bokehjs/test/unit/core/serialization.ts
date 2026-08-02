@@ -363,5 +363,45 @@ describe("core/serialization module", () => {
       const rep = {type: "unknown", attributes: {foo: 1}}
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
     })
+
+    it("restores existing references when a later value fails", () => {
+      const resolver = new ModelResolver(null, [SomeModel])
+      const model = SomeModel.create({value: 1})
+      const references = new Map([[model.id, model]])
+      const deserializer = new Deserializer(resolver, references)
+
+      const rep = [
+        {type: "object", name: "SomeModel", id: model.id, attributes: {value: 2}},
+        {type: "object", name: "MissingModel", id: "missing"},
+      ]
+      expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
+      expect(model.value).to.be.equal(1)
+      expect(references).to.be.equal(new Map([[model.id, model]]))
+    })
+
+    it("rolls back finalized references when initialization fails", () => {
+      class FailingModel extends SomeModel {
+        override initialize(): void {
+          super.initialize()
+          throw new Error("initialization failed")
+        }
+      }
+
+      const resolver = new ModelResolver(null, [SomeModel, FailingModel])
+      const references = new Map<string, HasProps>()
+      const finalized = new Set<HasProps>()
+      const deserializer = new Deserializer(resolver, references, (model) => {
+        finalized.add(model)
+        return () => finalized.delete(model)
+      })
+
+      const rep = [
+        {type: "object", name: "SomeModel", id: "first"},
+        {type: "object", name: "FailingModel", id: "second"},
+      ]
+      expect(() => deserializer.decode(rep)).to.throw(Error, "initialization failed")
+      expect(references.size).to.be.equal(0)
+      expect(finalized.size).to.be.equal(0)
+    })
   })
 })

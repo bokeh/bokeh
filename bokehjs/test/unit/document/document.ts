@@ -4,7 +4,7 @@ import {trap} from "#framework/util"
 import * as sinon from "sinon"
 
 import type {DocJson, Patch} from "@bokehjs/document"
-import {Document, DEFAULT_TITLE} from "@bokehjs/document"
+import {Document, DEFAULT_TITLE, documents} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
 import {register_models} from "@bokehjs/base"
@@ -712,7 +712,7 @@ describe("Document", () => {
 
   it("can replace from JSON with binary buffers", () => {
     const doc = new Document()
-    doc.add_root(new AnotherModel())
+    doc.add_root(AnotherModel.create())
 
     const buffer_id = unique_id()
     const values = new Float64Array([1.25, -2.5, 3.75])
@@ -967,6 +967,20 @@ describe("Document", () => {
     expect_instanceof(root0, ModelWithConstructTimeChanges)
     expect(root0.foo).to.be.equal(4)
     expect(root0.child).to.be.instanceof(AnotherModel)
+  })
+
+  it("destroys a partially deserialized document when a later root fails", () => {
+    const documents_before = documents.length
+    const doc_json = {
+      version: js_version,
+      roots: [
+        {type: "object" as const, name: "SomeModel", id: "valid"},
+        {type: "object" as const, name: "MissingModel", id: "invalid"},
+      ],
+    }
+
+    expect(() => Document.from_json(doc_json)).to.throw(Error, /could not resolve type 'MissingModel'/)
+    expect(documents.length).to.be.equal(documents_before)
   })
 
   it("computes minimal patch for objects referencing known objects", () => {

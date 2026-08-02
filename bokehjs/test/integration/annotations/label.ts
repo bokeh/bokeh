@@ -15,7 +15,7 @@ describe("Label annotation", () => {
   const padding = 10
   const border_radius = 12
 
-  function plot(LabelCls: HasPropsFactory<Label | HTMLLabel, any>) {
+  function plot(LabelCls: HasPropsFactory<Label | HTMLLabel>) {
     const plot = fig([600, 600], {x_range: [0, 10], y_range: [0, 10]})
 
     const label0 = LabelCls.create({

@@ -1,4 +1,4 @@
-//import {logger} from "./logging"
+import {logger} from "./logging"
 import type {View} from "./view"
 import type {Class} from "./class"
 import type {Attrs, Data, Dict} from "./types"
@@ -34,8 +34,10 @@ type AttrsLike = Dict<unknown>
 
 export type HasPropsClass<T extends HasProps = HasProps> = Function & {prototype: T}
 
-export type HasPropsFactory<T extends HasProps = HasProps, A extends object = object> = HasPropsClass<T> & {
-  create(attrs?: A): T
+export type ModelAttrs<T extends HasProps> = Partial<p.AttrsOf<T["properties"]>>
+
+export type HasPropsFactory<T extends HasProps = HasProps> = HasPropsClass<T> & {
+  create(attrs?: ModelAttrs<T>): T
 }
 
 type LifecycleState =
@@ -114,10 +116,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   static __module__?: string
 
+  /** @internal */
+  static __name__?: string
+
   static get __qualified__(): string {
     let qualified = _qualified_names.get(this)
     if (qualified == null) {
-      const {__module__, name} = this
+      const {__module__} = this
+      const name = Object.hasOwn(this, "__name__") ? this.__name__! : this.name
       qualified = __module__ != null ? `${__module__}.${name}` : name
       _qualified_names.set(this, qualified)
     }
@@ -128,9 +134,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     _qualified_names.set(this, qualified)
   }
 
-  static create<T extends HasProps, A extends object = Record<never, never>>(
-    this: HasPropsClass<T> & (new(attrs?: A) => T),
-    attrs: NoInfer<A> = {} as A,
+  static create<T extends HasProps>(
+    this: HasPropsClass<T>,
+    attrs: ModelAttrs<T> = {},
   ): T {
     return construct(this, attrs as AttrsLike)
   }
@@ -378,7 +384,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return is_empty(attributes) ? rep : {...rep, attributes}
   }
 
-  constructor(attrs: {id: string} | AttrsLike = {}) {
+  protected constructor(attrs: {id: string} | AttrsLike = {}) {
     super()
 
     const context = construction_stack.at(-1)
@@ -417,6 +423,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._lifecycle_state = "constructed"
   }
 
+  /** @internal */
   initialize_props(vals: Dict<unknown>): void {
     assert(this._lifecycle_state == "constructed")
     this._lifecycle_state = "initializing_properties"
@@ -443,6 +450,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  /** @internal */
   finalize(): void {
     assert(this._lifecycle_state == "properties_initialized")
     this._lifecycle_state = "initializing"
@@ -465,6 +473,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  /** @internal */
   finalize_signals(): void {
     assert(this._lifecycle_state == "initialized")
     this._lifecycle_state = "connecting_signals"
@@ -477,6 +486,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  /** @internal */
   finish(): void {
     const attrs = this._initial_attrs
     this._initial_attrs = {}
@@ -509,7 +519,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   destroy(): void {
-    assert(this._lifecycle_state != "destroyed")
+    if (this._lifecycle_state == "destroyed") {
+      return
+    }
     this._lifecycle_state = "destroyed"
     this.disconnect_signals()
     this.destroyed.emit()
@@ -808,11 +820,16 @@ export function construct<T extends HasProps>(cls: HasPropsClass<T>, attrs: Attr
     instance.finish()
     return instance
   } catch (error) {
-    instance.destroy()
+    try {
+      instance.destroy()
+    } catch (cleanup_error) {
+      logger.warn(`failed to destroy ${instance} after construction failed: ${cleanup_error}`)
+    }
     throw error
   }
 }
 
+/** @internal */
 export function construct_deferred<T extends HasProps>(cls: HasPropsClass<T>, id: string): T {
   return instantiate(cls, {}, id)
 }

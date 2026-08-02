@@ -7,6 +7,7 @@ import {ViewManager} from "../core/view_manager"
 import {DOMView} from "../core/dom_view"
 import {isString} from "../core/util/types"
 import {assert} from "../core/util/assert"
+import {logger} from "../core/logging"
 import type {EmbedTarget} from "./dom"
 
 type PropertyKey = string | symbol
@@ -111,6 +112,7 @@ export async function mount_document_standalone(document: Document, element: Emb
   const views = new ViewManager([], index)
   document.views_manager = views
   const mount = new StandaloneMount(document, views, dispose_document, signal)
+  const render_tokens = new Map<HasProps, symbol>()
 
   function check_disposed(): void {
     if (mount.disposed) {
@@ -121,32 +123,45 @@ export async function mount_document_standalone(document: Document, element: Emb
   async function render_view(model: HasProps): Promise<View> {
     check_disposed()
     const view = await views.build_view(model)
-    if (mount.disposed) {
-      view.remove()
+    try {
       check_disposed()
-    }
 
-    if (view instanceof DOMView) {
-      const i = document.all_roots.indexOf(model)
-      const root_el = roots[i] ?? element
-      view.build(root_el)
-    }
+      if (view instanceof DOMView) {
+        const i = document.all_roots.indexOf(model)
+        const root_el = roots[i] ?? element
+        view.build(root_el)
+      }
 
-    return view
+      return view
+    } catch (error) {
+      view.remove()
+      throw error
+    }
   }
 
   async function render_model(model: HasProps): Promise<void> {
+    const token = Symbol()
+    render_tokens.set(model, token)
     if (model.default_view != null) {
       const view = await render_view(model)
-      index.add(view)
+      if (render_tokens.get(model) != token || !document.roots().includes(model)) {
+        view.remove()
+      }
     } else {
       document.notify_idle(model)
     }
   }
 
   function unrender_model(model: HasProps): void {
+    render_tokens.delete(model)
     const view = views.get(model)
     view?.remove()
+  }
+
+  function report_render_error(error: unknown): void {
+    if (!mount.disposed) {
+      logger.error(`failed to render a dynamically added document root: ${error}`)
+    }
   }
 
   try {
@@ -166,7 +181,7 @@ export async function mount_document_standalone(document: Document, element: Emb
 
     mount.listen((event) => {
       if (event instanceof RootAddedEvent) {
-        void render_model(event.model)
+        void render_model(event.model).catch(report_render_error)
       } else if (event instanceof RootRemovedEvent) {
         unrender_model(event.model)
       } else if (use_for_title && event instanceof TitleChangedEvent) {

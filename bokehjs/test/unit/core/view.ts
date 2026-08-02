@@ -67,9 +67,69 @@ export class ListeningModel extends HasProps {
   }
 }
 
+let failed_view: View | null = null
+const get_failed_view = (): View | null => failed_view
+
+class LazyFailureView extends SomeModelView {
+  override initialize(): void {
+    super.initialize()
+    failed_view = this
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    throw new Error("lazy initialization failed")
+  }
+}
+
+class LazyFailureModel extends SomeModel {
+  static {
+    this.prototype.default_view = LazyFailureView
+  }
+}
+
+class SignalFailureView extends SomeModelView {
+  override initialize(): void {
+    super.initialize()
+    failed_view = this
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    throw new Error("signal connection failed")
+  }
+}
+
+class SignalFailureModel extends SomeModel {
+  static {
+    this.prototype.default_view = SignalFailureView
+  }
+}
+
 describe("core/view", () => {
 
   describe("View", () => {
+    for (const [model, message] of [
+      [LazyFailureModel.create(), "lazy initialization failed"],
+      [SignalFailureModel.create(), "signal connection failed"],
+    ] as const) {
+      it(`should remove a view when ${message}`, async () => {
+        failed_view = null
+        let thrown: unknown = null
+        try {
+          await build_view(model)
+        } catch (error) {
+          thrown = error
+        }
+
+        expect(thrown).to.be.instanceof(Error)
+        expect((thrown as Error).message).to.be.equal(message)
+        const view = get_failed_view()
+        expect_not_null(view)
+        expect(view.is_destroyed).to.be.true
+      })
+    }
+
     it("should disconnect a previously connected slot", async () => {
       const model = SomeModel.create()
       const view = await build_view(model)
@@ -91,7 +151,7 @@ describe("core/view", () => {
     })
 
     it("should stop listening to DOM events on shared targets after being removed", async () => {
-      const view = await build_view(new ListeningModel())
+      const view = await build_view(ListeningModel.create())
 
       try {
         document.dispatchEvent(new Event("some_event"))

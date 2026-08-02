@@ -1,4 +1,4 @@
-import {expect, expect_instanceof} from "#framework/assertions"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"
@@ -161,6 +161,52 @@ class LifecycleModel extends HasProps {
 
 class ExtensionModel extends LifecycleModel {}
 
+let failed_model: HasProps | null = null
+const get_failed_model = (): HasProps | null => failed_model
+
+namespace PropertyFailureModel {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    value: p.Property<number>
+  }
+}
+interface PropertyFailureModel extends PropertyFailureModel.Attrs {}
+class PropertyFailureModel extends HasProps {
+  declare properties: PropertyFailureModel.Props
+
+  static {
+    this.define<PropertyFailureModel.Props, PropertyFailureModel>(({Float}) => ({
+      value: [Float, (self) => {
+        failed_model = self
+        throw new Error("property initialization failed")
+      }],
+    }))
+  }
+}
+
+class InitializeFailureModel extends HasProps {
+  override initialize(): void {
+    super.initialize()
+    failed_model = this
+    throw new Error("model initialization failed")
+  }
+}
+
+class SignalFailureModel extends HasProps {
+  override connect_signals(): void {
+    super.connect_signals()
+    failed_model = this
+    throw new Error("signal initialization failed")
+  }
+}
+
+class CleanupFailureModel extends InitializeFailureModel {
+  override destroy(): void {
+    super.destroy()
+    throw new Error("cleanup failed")
+  }
+}
+
 describe("core/has_props module", () => {
 
   describe("creation", () => {
@@ -222,6 +268,40 @@ describe("core/has_props module", () => {
       expect(obj.value).to.be.equal(10)
       expect(obj.calls).to.be.equal(["constructor", "initialize", "connect_signals"])
       expect(obj.is_ready).to.be.true
+    })
+
+    for (const [cls, message] of [
+      [PropertyFailureModel, "property initialization failed"],
+      [InitializeFailureModel, "model initialization failed"],
+      [SignalFailureModel, "signal initialization failed"],
+    ] as const) {
+      it(`should destroy a model when ${message}`, () => {
+        failed_model = null
+        expect(() => cls.create()).to.throw(Error, message)
+        const model = get_failed_model()
+        expect_not_null(model)
+        expect(model.is_destroyed).to.be.true
+      })
+    }
+
+    it("should preserve a construction error when cleanup also fails", () => {
+      failed_model = null
+      expect(() => CleanupFailureModel.create()).to.throw(Error, "model initialization failed")
+      const model = get_failed_model()
+      expect_not_null(model)
+      expect(model.is_destroyed).to.be.true
+    })
+
+    it("should allow destroy() to be called more than once", () => {
+      const obj = EmptyModel.create()
+      let destroyed = 0
+      obj.destroyed.connect(() => destroyed += 1)
+
+      obj.destroy()
+      obj.destroy()
+
+      expect(obj.is_destroyed).to.be.true
+      expect(destroyed).to.be.equal(1)
     })
 
     it("should use the same lifecycle during deserialization", () => {
