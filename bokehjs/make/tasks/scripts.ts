@@ -137,26 +137,63 @@ task("scripts:imports", async () => {
       return null
     }
 
-    const rewrites: {new_path: string, start: number, end: number}[] = []
-    for (const imp of module.staticImports) {
-      const {value: module_path, start, end} = imp.moduleRequest
-      const new_path = relativize(module_path)
-      if (new_path != null) {
-        rewrites.push({new_path, start, end})
+    function explicit_esm_path(module_path: string): string {
+      if (!module_path.startsWith(".")) {
+        return module_path
+      }
+
+      const module_file = join(dirname(file), module_path)
+      if (file_exists(`${module_file}.js`)) {
+        return `${module_path}.js`
+      } else if (file_exists(join(module_file, "index.js"))) {
+        return `${module_path}/index.js`
+      } else {
+        return module_path
       }
     }
 
+    function rewrite_import(module_path: string): string | null {
+      let new_path = relativize(module_path) ?? module_path
+      if (file.endsWith(".d.ts")) {
+        new_path = explicit_esm_path(new_path)
+      }
+      return new_path != module_path ? new_path : null
+    }
+
+    const rewrites: {new_path: string, start: number, end: number}[] = []
+    const rewritten = new Set<number>()
+    function add_rewrite(module_path: string, start: number, end: number): void {
+      if (rewritten.has(start)) {
+        return
+      }
+      const new_path = rewrite_import(module_path)
+      if (new_path != null) {
+        rewrites.push({new_path, start, end})
+        rewritten.add(start)
+      }
+    }
+
+    for (const imp of module.staticImports) {
+      const {value: module_path, start, end} = imp.moduleRequest
+      add_rewrite(module_path, start, end)
+    }
+
     if (file.endsWith(".d.ts")) {
+      const from_re = /\bfrom\s+(?<quoted>"(?<module_path>[^"]+)")/g
+      for (const result of source.matchAll(from_re)) {
+        const {index} = result
+        const {quoted, module_path} = result.groups!
+        const start = index + result[0].lastIndexOf(quoted)
+        add_rewrite(module_path, start, start + quoted.length)
+      }
+
       const re = /import\("(?<module_path>[^"]+)"\)/g
       for (const result of source.matchAll(re)) {
         const {index} = result
         const {module_path} = result.groups!
         const start = index + "import(".length
         const end = index + result[0].length - 1
-        const new_path = relativize(module_path)
-        if (new_path != null) {
-          rewrites.push({new_path, start, end})
-        }
+        add_rewrite(module_path, start, end)
       }
     }
 

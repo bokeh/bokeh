@@ -10,6 +10,7 @@ from __future__ import annotations
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
 from .enums import VersionType
+from .npm import NPM_PACKAGES
 from .system import System
 
 __all__ = (
@@ -24,11 +25,11 @@ CLOUDFRONT_ID = "E2OC6Q27H5UQ63"
 REGION = "--region us-east-1"
 
 def publish_npm_package(config: Config, system: System) -> ActionReturn:
-    tarball = f"bokeh-bokehjs-{config.js_version}.tgz"
     tags = "--tag=dev" if config.prerelease else ""
     try:
         system.cd(f"deployment-{config.version}")
-        system.run(f"npm publish --access=public {tags} {tarball}")
+        for _workspace, tarball in NPM_PACKAGES:
+            system.run(f"npm publish --access=public {tags} {tarball}-{config.js_version}.tgz")
         system.cd("..")
         return PASSED("Publish to npmjs.com succeeded")
     except RuntimeError as e:

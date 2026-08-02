@@ -1,4 +1,4 @@
-import type flatpickr from "flatpickr"
+import type {FlatpickrOptions} from "../../external/flatpickr"
 
 import {BaseDatePicker, BaseDatePickerView} from "./base_date_picker"
 import {Clock} from "core/enums"
@@ -30,7 +30,7 @@ export abstract class BaseDatetimePickerView extends BaseDatePickerView {
     this.connect(clock.change, () => this.picker.set("time_24hr", this.model.clock == "24h"))
   }
 
-  protected override get flatpickr_options(): flatpickr.Options.Options {
+  protected override get flatpickr_options(): FlatpickrOptions {
     const {hour_increment, minute_increment, seconds, clock} = this.model
 
     const options = super.flatpickr_options

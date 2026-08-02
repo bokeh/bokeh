@@ -1,4 +1,5 @@
 import type Choices from "choices.js"
+import type {ChoicesInstance} from "../../external/choices"
 
 import type {StyleSheetLike} from "core/dom"
 import {select} from "core/dom"
@@ -52,7 +53,7 @@ export class MultiChoiceView extends InputWidgetView {
   declare model: MultiChoice
 
   declare input_el: HTMLSelectElement
-  choice_el: Choices
+  choice_el: ChoicesInstance
   protected _Choices: typeof Choices
 
   override async lazy_initialize(): Promise<void> {

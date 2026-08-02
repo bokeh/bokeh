@@ -1,4 +1,5 @@
 import flatpickr from "flatpickr"
+import type {FlatpickrInstance, FlatpickrOptions} from "../../external/flatpickr"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import type {StyleSheetLike} from "core/dom"
@@ -14,8 +15,8 @@ import * as inputs from "styles/widgets/inputs.css"
 export abstract class PickerBaseView extends InputWidgetView {
   declare model: PickerBase
 
-  protected _picker?: flatpickr.Instance
-  get picker(): flatpickr.Instance {
+  protected _picker?: FlatpickrInstance
+  get picker(): FlatpickrInstance {
     assert(this._picker != null)
     return this._picker
   }
@@ -40,7 +41,7 @@ export abstract class PickerBaseView extends InputWidgetView {
     this.connect(inline.change, () => this.picker.set("inline", this.model.inline))
   }
 
-  protected get flatpickr_options(): flatpickr.Options.Options {
+  protected get flatpickr_options(): FlatpickrOptions {
     return {
       appendTo: this.group_el,
       inline: this.model.inline,
@@ -67,7 +68,7 @@ export abstract class PickerBaseView extends InputWidgetView {
   }
 
   // https://github.com/flatpickr/flatpickr/pull/2362
-  protected _position(self: flatpickr.Instance, custom_el: HTMLElement | undefined): void {
+  protected _position(self: FlatpickrInstance, custom_el: HTMLElement | undefined): void {
     const positionElement = custom_el ?? self._positionElement
 
     const calendarHeight = [...self.calendarContainer.children].reduce((acc, child) => acc + bounding_box(child).height, 0)

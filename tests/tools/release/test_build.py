@@ -21,7 +21,7 @@ from tools.release.system import System
     ("func", "command", "environment"),
     [
         (build.build_bokehjs, "node make build", {}),
-        (build.build_npm_packages, "npm pack", {}),
+        (build.build_npm_packages, "npm pack --workspace frameworks/web-component", {}),
         (build.build_conda_packages, "conda build conda/recipe --no-test", {"VERSION": "4.0.0"}),
         (
             build.build_docs,
@@ -68,7 +68,7 @@ def test_command_build_steps(
     ("func", "command"),
     [
         (build.build_bokehjs, "node make build"),
-        (build.build_npm_packages, "npm pack"),
+        (build.build_npm_packages, "npm pack --workspace frameworks/web-component"),
         (build.build_conda_packages, "conda build conda/recipe --no-test"),
         (build.build_docs, "make clean all SPHINXOPTS=-v"),
         (build.build_pip_packages, "python -m build ."),
@@ -104,6 +104,22 @@ def test_directory_build_steps_use_expected_working_directories(config: Config) 
         assert system.directories == expected
 
 
+def test_build_npm_packages_packs_every_public_package_in_dependency_order(config: Config) -> None:
+    system = RecordingSystem()
+
+    result = build.build_npm_packages(config, system)
+
+    assert result.kind is ActionResult.PASS
+    assert system.commands == [
+        "npm pack",
+        "npm pack --workspace frameworks/base",
+        "npm pack --workspace frameworks/react",
+        "npm pack --workspace frameworks/svelte",
+        "npm pack --workspace frameworks/vue",
+        "npm pack --workspace frameworks/web-component",
+    ]
+
+
 def test_pack_deployment_tarball_collects_all_artifacts(config: Config) -> None:
     system = RecordingSystem()
 
@@ -113,6 +129,11 @@ def test_pack_deployment_tarball_collects_all_artifacts(config: Config) -> None:
     assert system.commands == [
         "mkdir deployment-4.0.0",
         "cp bokehjs/bokeh-bokehjs-4.0.0.tgz deployment-4.0.0",
+        "cp bokehjs/bokeh-framework-4.0.0.tgz deployment-4.0.0",
+        "cp bokehjs/bokeh-react-4.0.0.tgz deployment-4.0.0",
+        "cp bokehjs/bokeh-svelte-4.0.0.tgz deployment-4.0.0",
+        "cp bokehjs/bokeh-vue-4.0.0.tgz deployment-4.0.0",
+        "cp bokehjs/bokeh-web-component-4.0.0.tgz deployment-4.0.0",
         "cp $CONDA_PREFIX/conda-bld/noarch/bokeh-4.0.0-py_0.tar.bz2 deployment-4.0.0",
         "cp dist/bokeh-4.0.0.tar.gz deployment-4.0.0",
         "cp dist/bokeh-4.0.0-py3-none-any.whl deployment-4.0.0",
@@ -142,11 +163,28 @@ def make_bokehjs_package_files(root: Path, *, lockfile_version: int = 3) -> list
         "src/lib/package.json",
         "src/server/package.json",
         "test/package.json",
+        "frameworks/base/package.json",
+        "frameworks/react/package.json",
+        "examples/frameworks/react-vite/package.json",
     ]
     for filename in filenames:
         path = root / "bokehjs" / filename
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps({"name": "package", "version": "0.0.0"}))
+        name = {
+            "frameworks/base/package.json": "@bokeh/framework",
+            "frameworks/react/package.json": "@bokeh/react",
+            "examples/frameworks/react-vite/package.json": "@bokeh-example/react-vite",
+        }.get(filename, "@bokeh/internal")
+        content = {"name": name, "version": "0.0.0"}
+        if filename == "package.json":
+            content["workspaces"] = [filename.removesuffix("/package.json") for filename in filenames[1:]]
+        elif filename == "frameworks/base/package.json":
+            content["peerDependencies"] = {"@bokeh/bokehjs": ">=0.0.0 <1"}
+        elif filename == "frameworks/react/package.json":
+            content["dependencies"] = {"@bokeh/framework": "0.0.0"}
+        elif filename == "examples/frameworks/react-vite/package.json":
+            content["dependencies"] = {"@bokeh/bokehjs": "0.0.0", "@bokeh/react": "0.0.0"}
+        path.write_text(json.dumps(content))
 
     lock = root / "bokehjs" / "package-lock.json"
     lock.write_text(json.dumps({
@@ -171,7 +209,15 @@ def test_update_bokehjs_versions_updates_every_workspace(tmp_path: Path, monkeyp
     assert result.kind is ActionResult.PASS
     assert config.modified == {f"bokehjs/{filename}" for filename in filenames}
     for filename in filenames[:-1]:
-        assert json.loads((tmp_path / "bokehjs" / filename).read_text())["version"] == "4.0.0-rc.2"
+        package = json.loads((tmp_path / "bokehjs" / filename).read_text())
+        expected = "0.0.0" if package["name"].startswith("@bokeh-example/") else "4.0.0-rc.2"
+        assert package["version"] == expected
+    base = json.loads((tmp_path / "bokehjs/frameworks/base/package.json").read_text())
+    assert base["peerDependencies"]["@bokeh/bokehjs"] == ">=4.0.0-rc.2 <5"
+    react = json.loads((tmp_path / "bokehjs/frameworks/react/package.json").read_text())
+    assert react["dependencies"]["@bokeh/framework"] == "4.0.0-rc.2"
+    example = json.loads((tmp_path / "bokehjs/examples/frameworks/react-vite/package.json").read_text())
+    assert example["dependencies"] == {"@bokeh/bokehjs": "4.0.0-rc.2", "@bokeh/react": "4.0.0-rc.2"}
     lock = json.loads((tmp_path / "bokehjs" / "package-lock.json").read_text())
     assert lock["version"] == "4.0.0-rc.2"
     assert lock["packages"][""]["version"] == "4.0.0-rc.2"

@@ -40,6 +40,7 @@ async function run(executable, args) {
 async function build_fixtures() {
   await run("npx", ["tsc", "-p", "test/frameworks/tsconfig.json"])
   await run("npx", ["tsc", "-p", "test/frameworks/types/tsconfig.json"])
+  await run("npx", ["tsc", "-p", "test/frameworks/types/tsconfig.nodenext.json"])
 
   for (const name of ["react", "vue", "svelte"]) {
     const root = join(apps_dir, name)
