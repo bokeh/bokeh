@@ -15,7 +15,7 @@ export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 export class PrintfTickFormatter extends TickFormatter {
   declare properties: PrintfTickFormatter.Props
 
-  constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {
     super(attrs)
   }
 

@@ -31,7 +31,7 @@ export class Slider extends NumericalSlider {
   declare properties: Slider.Props
   declare __view_type__: SliderView
 
-  constructor(attrs?: Partial<Slider.Attrs>) {
+  protected constructor(attrs?: Partial<Slider.Attrs>) {
     super(attrs)
   }
 

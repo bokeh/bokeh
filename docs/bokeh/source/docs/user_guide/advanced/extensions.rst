@@ -82,6 +82,14 @@ the final BokehJS scripts.
 .. literalinclude:: /../../../examples/advanced/extensions/custom.ts
    :language: typescript
 
+Custom model classes inherit the typed ``create()`` factory. They do not need a
+constructor that only forwards attributes to ``super()``; the example above
+deliberately omits one. Instantiate a custom model with
+``Custom.create({text: "Status", slider})``. Direct ``new Custom(...)`` calls
+are rejected because they bypass Bokeh's property and signal lifecycle. If a
+custom model needs a constructor for its own state, declare that constructor
+``protected``.
+
 .. _ug_advanced_extensions_structure_putting_together:
 
 Putting it together

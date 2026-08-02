@@ -12,7 +12,7 @@ export interface GroupBy extends GroupBy.Attrs {}
 export abstract class GroupBy extends Model {
   declare properties: GroupBy.Props
 
-  constructor(attrs?: Partial<GroupBy.Attrs>) {
+  protected constructor(attrs?: Partial<GroupBy.Attrs>) {
     super(attrs)
   }
 
@@ -31,7 +31,7 @@ export interface GroupByModels extends GroupByModels.Attrs {}
 export class GroupByModels extends GroupBy {
   declare properties: GroupByModels.Props
 
-  constructor(attrs?: Partial<GroupByModels.Attrs>) {
+  protected constructor(attrs?: Partial<GroupByModels.Attrs>) {
     super(attrs)
   }
 
@@ -62,7 +62,7 @@ export interface GroupByName extends GroupByName.Attrs {}
 export class GroupByName extends GroupBy {
   declare properties: GroupByName.Props
 
-  constructor(attrs?: Partial<GroupByName.Attrs>) {
+  protected constructor(attrs?: Partial<GroupByName.Attrs>) {
     super(attrs)
   }
 

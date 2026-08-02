@@ -107,7 +107,7 @@ export class ContourColorBar extends BaseColorBar {
   declare properties: ContourColorBar.Props
   declare __view_type__: ContourColorBarView
 
-  constructor(attrs?: Partial<ContourColorBar.Attrs>) {
+  protected constructor(attrs?: Partial<ContourColorBar.Attrs>) {
     super(attrs)
   }
 

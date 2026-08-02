@@ -30,7 +30,7 @@ export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 export class BasicTickFormatter extends TickFormatter {
   declare properties: BasicTickFormatter.Props
 
-  constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
     super(attrs)
   }
 

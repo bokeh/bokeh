@@ -14,7 +14,7 @@ export interface Selector extends Selector.Attrs {}
 export abstract class Selector extends Model {
   declare properties: Selector.Props
 
-  constructor(attrs?: Partial<Selector.Attrs>) {
+  protected constructor(attrs?: Partial<Selector.Attrs>) {
     super(attrs)
   }
 

@@ -23,7 +23,7 @@ export interface LogColorMapper extends LogColorMapper.Attrs {}
 export class LogColorMapper extends ContinuousColorMapper {
   declare properties: LogColorMapper.Props
 
-  constructor(attrs?: Partial<LogColorMapper.Attrs>) {
+  protected constructor(attrs?: Partial<LogColorMapper.Attrs>) {
     super(attrs)
   }
 

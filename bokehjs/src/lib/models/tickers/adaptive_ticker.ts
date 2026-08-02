@@ -23,7 +23,7 @@ export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
 export class AdaptiveTicker extends ContinuousTicker {
   declare properties: AdaptiveTicker.Props
 
-  constructor(attrs?: Partial<AdaptiveTicker.Attrs>) {
+  protected constructor(attrs?: Partial<AdaptiveTicker.Attrs>) {
     super(attrs)
   }
 

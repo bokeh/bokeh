@@ -39,7 +39,7 @@ export abstract class NumericalRangeSlider extends BaseNumericalSlider {
   declare value: [number, number]
   declare value_throttled: [number, number]
 
-  constructor(attrs?: Partial<NumericalRangeSlider.Attrs>) {
+  protected constructor(attrs?: Partial<NumericalRangeSlider.Attrs>) {
     super(attrs)
   }
 }

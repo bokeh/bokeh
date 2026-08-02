@@ -181,7 +181,7 @@ export class HTMLLabelSet extends DataAnnotation {
   declare properties: HTMLLabelSet.Props
   declare __view_type__: HTMLLabelSetView
 
-  constructor(attrs?: Partial<HTMLLabelSet.Attrs>) {
+  protected constructor(attrs?: Partial<HTMLLabelSet.Attrs>) {
     super(attrs)
   }
 

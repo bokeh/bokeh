@@ -158,7 +158,7 @@ export abstract class CSSGridBox extends LayoutDOM {
   declare properties: CSSGridBox.Props
   declare __view_type__: CSSGridBoxView
 
-  constructor(attrs?: Partial<CSSGridBox.Attrs>) {
+  protected constructor(attrs?: Partial<CSSGridBox.Attrs>) {
     super(attrs)
   }
 

@@ -23,7 +23,7 @@ export interface WeightedStackColorMapper extends WeightedStackColorMapper.Attrs
 export class WeightedStackColorMapper extends StackColorMapper {
   declare properties: WeightedStackColorMapper.Props
 
-  constructor(attrs?: Partial<WeightedStackColorMapper.Attrs>) {
+  protected constructor(attrs?: Partial<WeightedStackColorMapper.Attrs>) {
     super(attrs)
   }
 

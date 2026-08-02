@@ -61,7 +61,7 @@ export class LightDark extends Switch {
   declare properties: LightDark.Props
   declare __view_type__: LightDarkView
 
-  constructor(attrs?: Partial<LightDark.Attrs>) {
+  protected constructor(attrs?: Partial<LightDark.Attrs>) {
     super(attrs)
   }
 

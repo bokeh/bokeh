@@ -11,7 +11,7 @@ export interface ByXPath extends ByXPath.Attrs {}
 export class ByXPath extends Selector {
   declare properties: ByXPath.Props
 
-  constructor(attrs?: Partial<ByXPath.Attrs>) {
+  protected constructor(attrs?: Partial<ByXPath.Attrs>) {
     super(attrs)
   }
 

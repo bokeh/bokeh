@@ -284,7 +284,7 @@ export class Rect extends CenterRotatable {
   declare properties: Rect.Props
   declare __view_type__: RectView
 
-  constructor(attrs?: Partial<Rect.Attrs>) {
+  protected constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)
   }
 

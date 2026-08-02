@@ -42,7 +42,7 @@ export class TextAreaInput extends TextLikeInput {
   declare properties: TextAreaInput.Props
   declare __view_type__: TextAreaInputView
 
-  constructor(attrs?: Partial<TextAreaInput.Attrs>) {
+  protected constructor(attrs?: Partial<TextAreaInput.Attrs>) {
     super(attrs)
   }
 

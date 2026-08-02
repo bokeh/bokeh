@@ -270,7 +270,7 @@ export abstract class UIElement extends StyledElement {
   declare properties: UIElement.Props
   declare __view_type__: UIElementView
 
-  constructor(attrs?: Partial<UIElement.Attrs>) {
+  protected constructor(attrs?: Partial<UIElement.Attrs>) {
     super(attrs)
   }
 

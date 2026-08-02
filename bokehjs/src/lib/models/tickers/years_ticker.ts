@@ -15,7 +15,7 @@ export interface YearsTicker extends YearsTicker.Attrs {}
 export class YearsTicker extends BaseSingleIntervalTicker {
   declare properties: YearsTicker.Props
 
-  constructor(attrs?: Partial<YearsTicker.Attrs>) {
+  protected constructor(attrs?: Partial<YearsTicker.Attrs>) {
     super(attrs)
   }
 

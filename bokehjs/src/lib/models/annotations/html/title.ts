@@ -125,7 +125,7 @@ export class HTMLTitle extends TextAnnotation {
   declare properties: HTMLTitle.Props
   declare __view_type__: HTMLTitleView
 
-  constructor(attrs?: Partial<HTMLTitle.Attrs>) {
+  protected constructor(attrs?: Partial<HTMLTitle.Attrs>) {
     super(attrs)
   }
 

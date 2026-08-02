@@ -29,7 +29,7 @@ export class MathMLGlyph extends MathTextGlyph {
   declare properties: MathMLGlyph.Props
   declare __view_type__: MathMLGlyphView
 
-  constructor(attrs?: Partial<MathMLGlyph.Attrs>) {
+  protected constructor(attrs?: Partial<MathMLGlyph.Attrs>) {
     super(attrs)
   }
 

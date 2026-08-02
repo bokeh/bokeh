@@ -189,7 +189,7 @@ export abstract class Marker extends XYGlyph {
   declare properties: Marker.Props
   declare __view_type__: MarkerView
 
-  constructor(attrs?: Partial<Marker.Attrs>) {
+  protected constructor(attrs?: Partial<Marker.Attrs>) {
     super(attrs)
   }
 

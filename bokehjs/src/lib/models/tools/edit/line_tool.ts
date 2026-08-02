@@ -52,7 +52,7 @@ export abstract class LineTool extends EditTool {
   declare properties: LineTool.Props
   declare __view_type__: LineToolView
 
-  constructor(attrs?: Partial<LineTool.Attrs>) {
+  protected constructor(attrs?: Partial<LineTool.Attrs>) {
     super(attrs)
   }
 

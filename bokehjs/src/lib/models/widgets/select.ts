@@ -125,7 +125,7 @@ export class Select extends InputWidget {
   declare properties: Select.Props
   declare __view_type__: SelectView
 
-  constructor(attrs?: Partial<Select.Attrs>) {
+  protected constructor(attrs?: Partial<Select.Attrs>) {
     super(attrs)
   }
 

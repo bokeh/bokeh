@@ -24,7 +24,7 @@ export abstract class Icon extends UIElement {
   declare properties: Icon.Props
   declare __view_type__: IconView
 
-  constructor(attrs?: Partial<Icon.Attrs>) {
+  protected constructor(attrs?: Partial<Icon.Attrs>) {
     super(attrs)
   }
 

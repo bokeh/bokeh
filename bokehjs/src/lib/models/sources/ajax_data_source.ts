@@ -23,7 +23,7 @@ export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 export class AjaxDataSource extends WebDataSource {
   declare properties: AjaxDataSource.Props
 
-  constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
+  protected constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
     super(attrs)
   }
 

@@ -12,7 +12,7 @@ export interface DifferenceFilter extends DifferenceFilter.Attrs {}
 export class DifferenceFilter extends CompositeFilter {
   declare properties: DifferenceFilter.Props
 
-  constructor(attrs?: Partial<DifferenceFilter.Attrs>) {
+  protected constructor(attrs?: Partial<DifferenceFilter.Attrs>) {
     super(attrs)
   }
 

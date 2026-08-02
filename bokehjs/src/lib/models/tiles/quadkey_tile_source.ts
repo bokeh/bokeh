@@ -12,7 +12,7 @@ export interface QUADKEYTileSource extends QUADKEYTileSource.Attrs {}
 export class QUADKEYTileSource extends MercatorTileSource {
   declare properties: QUADKEYTileSource.Props
 
-  constructor(attrs?: Partial<QUADKEYTileSource.Attrs>) {
+  protected constructor(attrs?: Partial<QUADKEYTileSource.Attrs>) {
     super(attrs)
   }
 

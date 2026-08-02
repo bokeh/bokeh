@@ -12,7 +12,7 @@ export interface TMSTileSource extends TMSTileSource.Attrs {}
 export class TMSTileSource extends MercatorTileSource {
   declare properties: TMSTileSource.Props
 
-  constructor(attrs?: Partial<TMSTileSource.Attrs>) {
+  protected constructor(attrs?: Partial<TMSTileSource.Attrs>) {
     super(attrs)
   }
 

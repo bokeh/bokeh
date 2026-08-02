@@ -185,7 +185,7 @@ export class Segment extends Glyph {
   declare properties: Segment.Props
   declare __view_type__: SegmentView
 
-  constructor(attrs?: Partial<Segment.Attrs>) {
+  protected constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)
   }
 

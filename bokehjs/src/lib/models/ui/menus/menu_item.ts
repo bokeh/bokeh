@@ -27,7 +27,7 @@ export interface MenuItem extends MenuItem.Attrs {}
 export class MenuItem extends Model {
   declare properties: MenuItem.Props
 
-  constructor(attrs?: Partial<MenuItem.Attrs>) {
+  protected constructor(attrs?: Partial<MenuItem.Attrs>) {
     super(attrs)
   }
 

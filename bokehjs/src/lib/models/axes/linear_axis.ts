@@ -26,7 +26,7 @@ export class LinearAxis extends ContinuousAxis {
   declare ticker: ContinuousTicker
   declare formatter: BasicTickFormatter
 
-  constructor(attrs?: Partial<LinearAxis.Attrs>) {
+  protected constructor(attrs?: Partial<LinearAxis.Attrs>) {
     super(attrs)
   }
 

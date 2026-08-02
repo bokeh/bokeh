@@ -19,7 +19,7 @@ export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 export class NumeralTickFormatter extends TickFormatter {
   declare properties: NumeralTickFormatter.Props
 
-  constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
     super(attrs)
   }
 

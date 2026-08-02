@@ -24,7 +24,7 @@ export interface CellFormatter extends CellFormatter.Attrs {}
 export abstract class CellFormatter extends Model {
   declare properties: CellFormatter.Props
 
-  constructor(attrs?: Partial<CellFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<CellFormatter.Attrs>) {
     super(attrs)
   }
 
@@ -55,7 +55,7 @@ export interface StringFormatter extends StringFormatter.Attrs {}
 export class StringFormatter extends CellFormatter {
   declare properties: StringFormatter.Props
 
-  constructor(attrs?: Partial<StringFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<StringFormatter.Attrs>) {
     super(attrs)
   }
 
@@ -179,7 +179,7 @@ export interface ScientificFormatter extends ScientificFormatter.Attrs {}
 export class ScientificFormatter extends StringFormatter {
   declare properties: ScientificFormatter.Props
 
-  constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
     super(attrs)
   }
 
@@ -245,7 +245,7 @@ export interface NumberFormatter extends NumberFormatter.Attrs {}
 export class NumberFormatter extends StringFormatter {
   declare properties: NumberFormatter.Props
 
-  constructor(attrs?: Partial<NumberFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<NumberFormatter.Attrs>) {
     super(attrs)
   }
 
@@ -296,7 +296,7 @@ export interface BooleanFormatter extends BooleanFormatter.Attrs {}
 export class BooleanFormatter extends CellFormatter {
   declare properties: BooleanFormatter.Props
 
-  constructor(attrs?: Partial<BooleanFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<BooleanFormatter.Attrs>) {
     super(attrs)
   }
 
@@ -324,7 +324,7 @@ export interface DateFormatter extends DateFormatter.Attrs {}
 export class DateFormatter extends StringFormatter {
   declare properties: DateFormatter.Props
 
-  constructor(attrs?: Partial<DateFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<DateFormatter.Attrs>) {
     super(attrs)
   }
 
@@ -416,7 +416,7 @@ export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
 export class HTMLTemplateFormatter extends CellFormatter {
   declare properties: HTMLTemplateFormatter.Props
 
-  constructor(attrs?: Partial<HTMLTemplateFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<HTMLTemplateFormatter.Attrs>) {
     super(attrs)
   }
 

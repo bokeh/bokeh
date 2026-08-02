@@ -15,7 +15,7 @@ export interface CloseDialog extends CloseDialog.Attrs {}
 export class CloseDialog extends Callback {
   declare properties: CloseDialog.Props
 
-  constructor(attrs?: Partial<CloseDialog.Attrs>) {
+  protected constructor(attrs?: Partial<CloseDialog.Attrs>) {
     super(attrs)
   }
 

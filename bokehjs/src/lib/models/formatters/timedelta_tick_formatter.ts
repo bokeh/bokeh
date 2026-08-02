@@ -172,7 +172,7 @@ export interface TimedeltaTickFormatter extends TimedeltaTickFormatter.Attrs {}
 export class TimedeltaTickFormatter extends TickFormatter {
   declare properties: TimedeltaTickFormatter.Props
 
-  constructor(attrs?: Partial<TimedeltaTickFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<TimedeltaTickFormatter.Attrs>) {
     super(attrs)
   }
 

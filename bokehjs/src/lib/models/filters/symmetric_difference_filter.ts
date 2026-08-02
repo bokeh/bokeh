@@ -12,7 +12,7 @@ export interface SymmetricDifferenceFilter extends SymmetricDifferenceFilter.Att
 export class SymmetricDifferenceFilter extends CompositeFilter {
   declare properties: SymmetricDifferenceFilter.Props
 
-  constructor(attrs?: Partial<SymmetricDifferenceFilter.Attrs>) {
+  protected constructor(attrs?: Partial<SymmetricDifferenceFilter.Attrs>) {
     super(attrs)
   }
 

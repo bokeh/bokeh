@@ -21,7 +21,7 @@ export interface TimedeltaTicker extends TimedeltaTicker.Attrs {}
 export class TimedeltaTicker extends CompositeTicker {
   declare properties: TimedeltaTicker.Props
 
-  constructor(attrs?: Partial<TimedeltaTicker.Attrs>) {
+  protected constructor(attrs?: Partial<TimedeltaTicker.Attrs>) {
     super(attrs)
   }
 

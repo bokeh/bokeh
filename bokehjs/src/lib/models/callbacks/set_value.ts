@@ -18,7 +18,7 @@ export interface SetValue extends SetValue.Attrs {}
 export class SetValue extends Callback {
   declare properties: SetValue.Props
 
-  constructor(attrs?: Partial<SetValue.Attrs>) {
+  protected constructor(attrs?: Partial<SetValue.Attrs>) {
     super(attrs)
   }
 

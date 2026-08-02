@@ -15,7 +15,7 @@ export interface ToggleVisibility extends ToggleVisibility.Attrs {}
 export class ToggleVisibility extends Callback {
   declare properties: ToggleVisibility.Props
 
-  constructor(attrs?: Partial<ToggleVisibility.Attrs>) {
+  protected constructor(attrs?: Partial<ToggleVisibility.Attrs>) {
     super(attrs)
   }
 

@@ -67,7 +67,7 @@ export class BoxInteractionHandles extends Model {
   declare properties: BoxInteractionHandles.Props
   declare __view_type__: BoxAnnotationView
 
-  constructor(attrs?: Partial<BoxInteractionHandles.Attrs>) {
+  protected constructor(attrs?: Partial<BoxInteractionHandles.Attrs>) {
     super(attrs)
   }
 
@@ -927,7 +927,7 @@ export class BoxAnnotation extends Annotation {
   declare properties: BoxAnnotation.Props
   declare __view_type__: BoxAnnotationView
 
-  constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
+  protected constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)
   }
 

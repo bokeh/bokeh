@@ -17,7 +17,7 @@ export interface Stack extends Stack.Attrs {}
 export class Stack extends Expression {
   declare properties: Stack.Props
 
-  constructor(attrs?: Partial<Stack.Attrs>) {
+  protected constructor(attrs?: Partial<Stack.Attrs>) {
     super(attrs)
   }
 

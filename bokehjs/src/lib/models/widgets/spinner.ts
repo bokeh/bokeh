@@ -228,7 +228,7 @@ export class Spinner extends NumericInput {
   declare properties: Spinner.Props
   declare __view_type__: SpinnerView
 
-  constructor(attrs?: Partial<Spinner.Attrs>) {
+  protected constructor(attrs?: Partial<Spinner.Attrs>) {
     super(attrs)
   }
 

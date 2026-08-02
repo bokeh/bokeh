@@ -21,7 +21,7 @@ export interface ScanningColorMapper extends ScanningColorMapper.Attrs {}
 export abstract class ScanningColorMapper extends ContinuousColorMapper {
   declare properties: ScanningColorMapper.Props
 
-  constructor(attrs?: Partial<ScanningColorMapper.Attrs>) {
+  protected constructor(attrs?: Partial<ScanningColorMapper.Attrs>) {
     super(attrs)
   }
 

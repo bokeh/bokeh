@@ -632,7 +632,7 @@ export abstract class LayoutDOM extends Pane {
   declare properties: LayoutDOM.Props
   declare __view_type__: LayoutDOMView
 
-  constructor(attrs?: Partial<LayoutDOM.Attrs>) {
+  protected constructor(attrs?: Partial<LayoutDOM.Attrs>) {
     super(attrs)
   }
 

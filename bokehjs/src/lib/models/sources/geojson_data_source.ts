@@ -40,7 +40,7 @@ function orNaN(v: number | undefined): number {
 export class GeoJSONDataSource extends ColumnarDataSource {
   declare properties: GeoJSONDataSource.Props
 
-  constructor(attrs?: Partial<GeoJSONDataSource.Attrs>) {
+  protected constructor(attrs?: Partial<GeoJSONDataSource.Attrs>) {
     super(attrs)
   }
 

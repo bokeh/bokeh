@@ -21,7 +21,7 @@ export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 export class CustomJSFilter extends Filter {
   declare properties: CustomJSFilter.Props
 
-  constructor(attrs?: Partial<CustomJSFilter.Attrs>) {
+  protected constructor(attrs?: Partial<CustomJSFilter.Attrs>) {
     super(attrs)
   }
 

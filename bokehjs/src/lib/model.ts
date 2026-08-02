@@ -1,4 +1,5 @@
 import {HasProps} from "./core/has_props"
+import type {HasPropsClass} from "./core/has_props"
 import type {Class} from "./core/class"
 import type {Dict} from "./core/types"
 import type {ModelEvent, ModelEventType, BokehEventMap} from "./core/bokeh_events"
@@ -12,7 +13,7 @@ import type {CallbackLike0} from "./core/util/callbacks"
 import {execute} from "./core/util/callbacks"
 import {Mapping, Str, List, Func} from "core/kinds"
 
-export type ModelSelector<T> = Class<T> | string | {type: string}
+export type ModelSelector<T extends HasProps> = HasPropsClass<T> | string | {type: string}
 
 export type ChangeCallback = CallbackLike0<Model>
 
@@ -51,7 +52,7 @@ export abstract class Model extends HasProps {
     return (cmp.structural ? true : cmp.eq(this.id, that.id)) && super[equals](that, cmp)
   }
 
-  constructor(attrs?: Partial<Model.Attrs>) {
+  protected constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)
   }
 

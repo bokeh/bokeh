@@ -611,7 +611,7 @@ export class ScaleBar extends Annotation {
   declare properties: ScaleBar.Props
   declare __view_type__: ScaleBarView
 
-  constructor(attrs?: Partial<ScaleBar.Attrs>) {
+  protected constructor(attrs?: Partial<ScaleBar.Attrs>) {
     super(attrs)
   }
 

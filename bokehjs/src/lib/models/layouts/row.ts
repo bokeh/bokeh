@@ -17,7 +17,7 @@ export class Row extends FlexBox {
   declare properties: Row.Props
   declare __view_type__: RowView
 
-  constructor(attrs?: Partial<Row.Attrs>) {
+  protected constructor(attrs?: Partial<Row.Attrs>) {
     super(attrs)
   }
 

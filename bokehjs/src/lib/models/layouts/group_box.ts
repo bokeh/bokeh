@@ -73,7 +73,7 @@ export class GroupBox extends LayoutDOM {
   declare properties: GroupBox.Props
   declare __view_type__: GroupBoxView
 
-  constructor(attrs?: Partial<GroupBox.Attrs>) {
+  protected constructor(attrs?: Partial<GroupBox.Attrs>) {
     super(attrs)
   }
 

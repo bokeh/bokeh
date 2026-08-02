@@ -248,7 +248,7 @@ export class HexTile extends Glyph {
   declare properties: HexTile.Props
   declare __view_type__: HexTileView
 
-  constructor(attrs?: Partial<HexTile.Attrs>) {
+  protected constructor(attrs?: Partial<HexTile.Attrs>) {
     super(attrs)
   }
 

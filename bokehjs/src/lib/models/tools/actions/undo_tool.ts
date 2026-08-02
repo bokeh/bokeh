@@ -31,7 +31,7 @@ export class UndoTool extends PlotActionTool {
   declare properties: UndoTool.Props
   declare __view_type__: UndoToolView
 
-  constructor(attrs?: Partial<UndoTool.Attrs>) {
+  protected constructor(attrs?: Partial<UndoTool.Attrs>) {
     super(attrs)
   }
 

@@ -31,7 +31,7 @@ export class Jitter extends RangeTransform {
 
   protected _previous_offsets: Float64Array | null = null
 
-  constructor(attrs?: Partial<Jitter.Attrs>) {
+  protected constructor(attrs?: Partial<Jitter.Attrs>) {
     super(attrs)
   }
 

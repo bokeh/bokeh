@@ -27,7 +27,7 @@ export class CopyTool extends ActionTool {
   declare properties: CopyTool.Props
   declare __view_type__: CopyToolView
 
-  constructor(attrs?: Partial<CopyTool.Attrs>) {
+  protected constructor(attrs?: Partial<CopyTool.Attrs>) {
     super(attrs)
   }
 

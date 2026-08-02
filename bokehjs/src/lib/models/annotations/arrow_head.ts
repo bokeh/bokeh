@@ -25,7 +25,7 @@ export abstract class ArrowHead extends Marking {
   declare properties: ArrowHead.Props
   declare __view_type__: ArrowHeadView
 
-  constructor(attrs?: Partial<ArrowHead.Attrs>) {
+  protected constructor(attrs?: Partial<ArrowHead.Attrs>) {
     super(attrs)
   }
 
@@ -77,7 +77,7 @@ export class OpenHead extends ArrowHead {
   declare properties: OpenHead.Props
   declare __view_type__: OpenHeadView
 
-  constructor(attrs?: Partial<OpenHead.Attrs>) {
+  protected constructor(attrs?: Partial<OpenHead.Attrs>) {
     super(attrs)
   }
 
@@ -132,7 +132,7 @@ export class NormalHead extends ArrowHead {
   declare properties: NormalHead.Props
   declare __view_type__: NormalHeadView
 
-  constructor(attrs?: Partial<NormalHead.Attrs>) {
+  protected constructor(attrs?: Partial<NormalHead.Attrs>) {
     super(attrs)
   }
 
@@ -193,7 +193,7 @@ export class VeeHead extends ArrowHead {
   declare properties: VeeHead.Props
   declare __view_type__: VeeHeadView
 
-  constructor(attrs?: Partial<VeeHead.Attrs>) {
+  protected constructor(attrs?: Partial<VeeHead.Attrs>) {
     super(attrs)
   }
 
@@ -239,7 +239,7 @@ export class TeeHead extends ArrowHead {
   declare properties: TeeHead.Props
   declare __view_type__: TeeHeadView
 
-  constructor(attrs?: Partial<TeeHead.Attrs>) {
+  protected constructor(attrs?: Partial<TeeHead.Attrs>) {
     super(attrs)
   }
 

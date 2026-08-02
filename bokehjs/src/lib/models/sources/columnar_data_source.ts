@@ -55,7 +55,7 @@ export abstract class ColumnarDataSource extends DataSource {
 
   readonly selection_manager = new SelectionManager(this)
 
-  constructor(attrs?: Partial<ColumnarDataSource.Attrs>) {
+  protected constructor(attrs?: Partial<ColumnarDataSource.Attrs>) {
     super(attrs)
   }
 

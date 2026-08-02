@@ -39,7 +39,7 @@ export class OnOffButton extends ToolButton {
   declare properties: OnOffButton.Props
   declare __view_type__: OnOffButtonView
 
-  constructor(attrs?: Partial<OnOffButton.Attrs>) {
+  protected constructor(attrs?: Partial<OnOffButton.Attrs>) {
     super(attrs)
   }
 

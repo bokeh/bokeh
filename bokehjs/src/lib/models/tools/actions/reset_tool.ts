@@ -23,7 +23,7 @@ export class ResetTool extends PlotActionTool {
   declare properties: ResetTool.Props
   declare __view_type__: ResetToolView
 
-  constructor(attrs?: Partial<ResetTool.Attrs>) {
+  protected constructor(attrs?: Partial<ResetTool.Attrs>) {
     super(attrs)
   }
 

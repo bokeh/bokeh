@@ -100,7 +100,7 @@ export class HTMLLabel extends TextAnnotation {
   declare properties: HTMLLabel.Props
   declare __view_type__: HTMLLabelView
 
-  constructor(attrs?: Partial<HTMLLabel.Attrs>) {
+  protected constructor(attrs?: Partial<HTMLLabel.Attrs>) {
     super(attrs)
   }
 

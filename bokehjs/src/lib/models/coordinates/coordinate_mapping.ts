@@ -61,7 +61,7 @@ export interface CoordinateMapping extends CoordinateMapping.Attrs {}
 export class CoordinateMapping extends Model {
   declare properties: CoordinateMapping.Props
 
-  constructor(attrs?: Partial<CoordinateMapping.Attrs>) {
+  protected constructor(attrs?: Partial<CoordinateMapping.Attrs>) {
     super(attrs)
   }
 

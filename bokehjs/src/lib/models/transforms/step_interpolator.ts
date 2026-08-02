@@ -16,7 +16,7 @@ export interface StepInterpolator extends StepInterpolator.Attrs {}
 export class StepInterpolator extends Interpolator {
   declare properties: StepInterpolator.Props
 
-  constructor(attrs?: Partial<StepInterpolator.Attrs>) {
+  protected constructor(attrs?: Partial<StepInterpolator.Attrs>) {
     super(attrs)
   }
 

@@ -11,7 +11,7 @@ export interface ByID extends ByID.Attrs {}
 export class ByID extends Selector {
   declare properties: ByID.Props
 
-  constructor(attrs?: Partial<ByID.Attrs>) {
+  protected constructor(attrs?: Partial<ByID.Attrs>) {
     super(attrs)
   }
 

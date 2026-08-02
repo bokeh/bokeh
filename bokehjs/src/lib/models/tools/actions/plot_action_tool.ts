@@ -23,7 +23,7 @@ export abstract class PlotActionTool extends ActionTool {
   declare properties: PlotActionTool.Props
   declare __view_type__: PlotActionToolView
 
-  constructor(attrs?: Partial<PlotActionTool.Attrs>) {
+  protected constructor(attrs?: Partial<PlotActionTool.Attrs>) {
     super(attrs)
   }
 }

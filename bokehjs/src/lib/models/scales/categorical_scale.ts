@@ -13,7 +13,7 @@ export interface CategoricalScale extends CategoricalScale.Attrs {}
 export class CategoricalScale extends Scale<FactorLike> {
   declare properties: CategoricalScale.Props
 
-  constructor(attrs?: Partial<CategoricalScale.Attrs>) {
+  protected constructor(attrs?: Partial<CategoricalScale.Attrs>) {
     super(attrs)
   }
 

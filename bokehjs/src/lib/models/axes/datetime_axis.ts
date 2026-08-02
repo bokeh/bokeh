@@ -25,7 +25,7 @@ export class DatetimeAxis extends ContinuousAxis {
   declare ticker: DatetimeTicker
   declare formatter: DatetimeTickFormatter
 
-  constructor(attrs?: Partial<DatetimeAxis.Attrs>) {
+  protected constructor(attrs?: Partial<DatetimeAxis.Attrs>) {
     super(attrs)
   }
 

@@ -316,7 +316,7 @@ export class Step extends XYGlyph {
   declare properties: Step.Props
   declare __view_type__: StepView
 
-  constructor(attrs?: Partial<Step.Attrs>) {
+  protected constructor(attrs?: Partial<Step.Attrs>) {
     super(attrs)
   }
 

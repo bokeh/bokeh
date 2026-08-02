@@ -34,7 +34,7 @@ export class CheckboxButtonGroup extends ToggleButtonGroup {
   declare properties: CheckboxButtonGroup.Props
   declare __view_type__: CheckboxButtonGroupView
 
-  constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
+  protected constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
     super(attrs)
   }
 

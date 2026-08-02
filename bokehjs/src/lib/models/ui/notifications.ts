@@ -124,7 +124,7 @@ export class Notifications extends UIElement {
   declare properties: Notifications.Props
   declare __view_type__: NotificationsView
 
-  constructor(attrs?: Partial<Notifications.Attrs>) {
+  protected constructor(attrs?: Partial<Notifications.Attrs>) {
     super(attrs)
   }
 

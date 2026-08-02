@@ -335,7 +335,7 @@ export class ColorBar extends BaseColorBar {
   declare properties: ColorBar.Props
   declare __view_type__: ColorBarView
 
-  constructor(attrs?: Partial<ColorBar.Attrs>) {
+  protected constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)
   }
 

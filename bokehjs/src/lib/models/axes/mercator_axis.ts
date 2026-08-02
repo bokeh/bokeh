@@ -25,7 +25,7 @@ export class MercatorAxis extends LinearAxis {
   declare ticker: MercatorTicker
   declare formatter: MercatorTickFormatter
 
-  constructor(attrs?: Partial<MercatorAxis.Attrs>) {
+  protected constructor(attrs?: Partial<MercatorAxis.Attrs>) {
     super(attrs)
   }
 

@@ -18,7 +18,7 @@ export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}
 export class CategoricalColorMapper extends ColorMapper {
   declare properties: CategoricalColorMapper.Props
 
-  constructor(attrs?: Partial<CategoricalColorMapper.Attrs>) {
+  protected constructor(attrs?: Partial<CategoricalColorMapper.Attrs>) {
     super(attrs)
   }
 

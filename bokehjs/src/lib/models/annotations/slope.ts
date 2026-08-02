@@ -141,7 +141,7 @@ export class Slope extends Annotation {
   declare properties: Slope.Props
   declare __view_type__: SlopeView
 
-  constructor(attrs?: Partial<Slope.Attrs>) {
+  protected constructor(attrs?: Partial<Slope.Attrs>) {
     super(attrs)
   }
 

@@ -24,7 +24,7 @@ export class Spacer extends LayoutDOM {
   declare properties: Spacer.Props
   declare __view_type__: SpacerView
 
-  constructor(attrs?: Partial<Spacer.Attrs>) {
+  protected constructor(attrs?: Partial<Spacer.Attrs>) {
     super(attrs)
   }
 

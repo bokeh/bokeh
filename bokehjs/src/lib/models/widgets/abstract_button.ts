@@ -118,7 +118,7 @@ export abstract class AbstractButton extends Control {
   declare properties: AbstractButton.Props
   declare __view_type__: AbstractButtonView
 
-  constructor(attrs?: Partial<AbstractButton.Attrs>) {
+  protected constructor(attrs?: Partial<AbstractButton.Attrs>) {
     super(attrs)
   }
 

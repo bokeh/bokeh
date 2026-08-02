@@ -111,7 +111,7 @@ export abstract class ZoomBaseTool extends PlotActionTool {
   declare properties: ZoomBaseTool.Props
   declare __view_type__: ZoomBaseToolView
 
-  constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
+  protected constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
   }
 

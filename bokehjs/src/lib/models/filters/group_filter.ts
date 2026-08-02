@@ -19,7 +19,7 @@ export interface GroupFilter extends GroupFilter.Attrs {}
 export class GroupFilter extends Filter {
   declare properties: GroupFilter.Props
 
-  constructor(attrs?: Partial<GroupFilter.Attrs>) {
+  protected constructor(attrs?: Partial<GroupFilter.Attrs>) {
     super(attrs)
   }
 

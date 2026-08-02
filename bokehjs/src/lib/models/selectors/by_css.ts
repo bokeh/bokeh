@@ -11,7 +11,7 @@ export interface ByCSS extends ByCSS.Attrs {}
 export class ByCSS extends Selector {
   declare properties: ByCSS.Props
 
-  constructor(attrs?: Partial<ByCSS.Attrs>) {
+  protected constructor(attrs?: Partial<ByCSS.Attrs>) {
     super(attrs)
   }
 

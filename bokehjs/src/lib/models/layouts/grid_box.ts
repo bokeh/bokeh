@@ -42,7 +42,7 @@ export class GridBox extends CSSGridBox {
   declare properties: GridBox.Props
   declare __view_type__: GridBoxView
 
-  constructor(attrs?: Partial<GridBox.Attrs>) {
+  protected constructor(attrs?: Partial<GridBox.Attrs>) {
     super(attrs)
   }
 

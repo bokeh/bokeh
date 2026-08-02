@@ -30,7 +30,7 @@ export class DatetimeRangeSlider extends NumericalRangeSlider {
   declare properties: DatetimeRangeSlider.Props
   declare __view_type__: DatetimeRangeSliderView
 
-  constructor(attrs?: Partial<DatetimeRangeSlider.Attrs>) {
+  protected constructor(attrs?: Partial<DatetimeRangeSlider.Attrs>) {
     super(attrs)
   }
 

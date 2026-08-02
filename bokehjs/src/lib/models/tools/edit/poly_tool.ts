@@ -79,7 +79,7 @@ export abstract class PolyTool extends EditTool {
   declare properties: PolyTool.Props
   declare __view_type__: PolyToolView
 
-  constructor(attrs?: Partial<PolyTool.Attrs>) {
+  protected constructor(attrs?: Partial<PolyTool.Attrs>) {
     super(attrs)
   }
 

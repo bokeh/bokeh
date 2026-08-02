@@ -806,7 +806,7 @@ export abstract class Axis extends GuideRenderer {
   declare properties: Axis.Props
   declare __view_type__: AxisView
 
-  constructor(attrs?: Partial<Axis.Attrs>) {
+  protected constructor(attrs?: Partial<Axis.Attrs>) {
     super(attrs)
   }
 

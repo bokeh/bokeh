@@ -37,7 +37,7 @@ export interface CustomJS extends CustomJS.Attrs {}
 export class CustomJS extends Callback {
   declare properties: CustomJS.Props
 
-  constructor(attrs?: Partial<CustomJS.Attrs>) {
+  protected constructor(attrs?: Partial<CustomJS.Attrs>) {
     super(attrs)
   }
 

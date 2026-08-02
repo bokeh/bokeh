@@ -349,7 +349,7 @@ export class PolyAnnotation extends Annotation {
   declare properties: PolyAnnotation.Props
   declare __view_type__: PolyAnnotationView
 
-  constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
+  protected constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)
   }
 

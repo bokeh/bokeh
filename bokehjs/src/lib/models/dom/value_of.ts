@@ -96,7 +96,7 @@ export class ValueOf extends DOMElement {
   declare properties: ValueOf.Props
   declare __view_type__: ValueOfView
 
-  constructor(attrs?: Partial<ValueOf.Attrs>) {
+  protected constructor(attrs?: Partial<ValueOf.Attrs>) {
     super(attrs)
   }
 

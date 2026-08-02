@@ -77,7 +77,7 @@ export class TablerIcon extends Icon {
   declare properties: TablerIcon.Props
   declare __view_type__: TablerIconView
 
-  constructor(attrs?: Partial<TablerIcon.Attrs>) {
+  protected constructor(attrs?: Partial<TablerIcon.Attrs>) {
     super(attrs)
   }
 

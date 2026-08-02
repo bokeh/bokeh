@@ -65,7 +65,7 @@ export class TextLikeInput extends InputWidget {
   declare properties: TextLikeInput.Props
   declare __view_type__: TextLikeInputView
 
-  constructor(attrs?: Partial<TextLikeInput.Attrs>) {
+  protected constructor(attrs?: Partial<TextLikeInput.Attrs>) {
     super(attrs)
   }
 

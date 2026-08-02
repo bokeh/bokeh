@@ -100,7 +100,7 @@ export interface GroupingInfo extends GroupingInfo.Attrs {}
 export class GroupingInfo extends Model {
   declare properties: GroupingInfo.Props
 
-  constructor(attrs?: Partial<GroupingInfo.Attrs>) {
+  protected constructor(attrs?: Partial<GroupingInfo.Attrs>) {
     super(attrs)
   }
 
@@ -375,7 +375,7 @@ export interface DataCube extends DataCube.Attrs {}
 export class DataCube extends DataTable {
   declare properties: DataCube.Props
 
-  constructor(attrs?: Partial<DataCube.Attrs>) {
+  protected constructor(attrs?: Partial<DataCube.Attrs>) {
     super(attrs)
   }
 

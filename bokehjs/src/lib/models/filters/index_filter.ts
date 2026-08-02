@@ -16,7 +16,7 @@ export interface IndexFilter extends IndexFilter.Attrs {}
 export class IndexFilter extends Filter {
   declare properties: IndexFilter.Props
 
-  constructor(attrs?: Partial<IndexFilter.Attrs>) {
+  protected constructor(attrs?: Partial<IndexFilter.Attrs>) {
     super(attrs)
   }
 

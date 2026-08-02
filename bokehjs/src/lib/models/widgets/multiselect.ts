@@ -98,7 +98,7 @@ export class MultiSelect extends InputWidget {
   declare properties: MultiSelect.Props
   declare __view_type__: MultiSelectView
 
-  constructor(attrs?: Partial<MultiSelect.Attrs>) {
+  protected constructor(attrs?: Partial<MultiSelect.Attrs>) {
     super(attrs)
   }
 

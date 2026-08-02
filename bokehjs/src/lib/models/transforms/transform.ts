@@ -13,7 +13,7 @@ export interface Transform<From = number, To = number> extends Transform.Attrs {
 export abstract class Transform<From = number, To = number> extends Model {
   declare properties: Transform.Props
 
-  constructor(attrs?: Partial<Transform.Attrs>) {
+  protected constructor(attrs?: Partial<Transform.Attrs>) {
     super(attrs)
   }
 

@@ -14,7 +14,7 @@ export interface Dodge extends Dodge.Attrs {}
 export class Dodge extends RangeTransform {
   declare properties: Dodge.Props
 
-  constructor(attrs?: Partial<Dodge.Attrs>) {
+  protected constructor(attrs?: Partial<Dodge.Attrs>) {
     super(attrs)
   }
 

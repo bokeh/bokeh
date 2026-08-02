@@ -15,7 +15,7 @@ export interface DataRange extends DataRange.Attrs {}
 export abstract class DataRange extends NumericalRange {
   declare properties: DataRange.Props
 
-  constructor(attrs?: Partial<DataRange.Attrs>) {
+  protected constructor(attrs?: Partial<DataRange.Attrs>) {
     super(attrs)
   }
 

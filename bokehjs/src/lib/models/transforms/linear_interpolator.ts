@@ -13,7 +13,7 @@ export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 export class LinearInterpolator extends Interpolator {
   declare properties: LinearInterpolator.Props
 
-  constructor(attrs?: Partial<LinearInterpolator.Attrs>) {
+  protected constructor(attrs?: Partial<LinearInterpolator.Attrs>) {
     super(attrs)
   }
 

@@ -105,7 +105,7 @@ export class ToolbarPanel extends Annotation {
   declare properties: ToolbarPanel.Props
   declare __view_type__: ToolbarPanelView
 
-  constructor(attrs?: Partial<ToolbarPanel.Attrs>) {
+  protected constructor(attrs?: Partial<ToolbarPanel.Attrs>) {
     super(attrs)
   }
 

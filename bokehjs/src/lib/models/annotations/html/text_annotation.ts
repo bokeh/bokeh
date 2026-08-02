@@ -191,7 +191,7 @@ export abstract class TextAnnotation extends Annotation {
   declare properties: TextAnnotation.Props
   declare __view_type__: TextAnnotationView
 
-  constructor(attrs?: Partial<TextAnnotation.Attrs>) {
+  protected constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)
   }
 

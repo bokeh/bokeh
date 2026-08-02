@@ -561,7 +561,7 @@ export abstract class BaseColorBar extends Annotation {
   declare properties: BaseColorBar.Props
   declare __view_type__: BaseColorBarView
 
-  constructor(attrs?: Partial<BaseColorBar.Attrs>) {
+  protected constructor(attrs?: Partial<BaseColorBar.Attrs>) {
     super(attrs)
   }
 

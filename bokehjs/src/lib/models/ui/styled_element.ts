@@ -147,7 +147,7 @@ export abstract class StyledElement extends Model {
   declare properties: StyledElement.Props
   declare __view_type__: StyledElementView
 
-  constructor(attrs?: Partial<StyledElement.Attrs>) {
+  protected constructor(attrs?: Partial<StyledElement.Attrs>) {
     super(attrs)
   }
 

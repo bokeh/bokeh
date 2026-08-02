@@ -161,7 +161,7 @@ export class Wedge extends XYGlyph {
   declare properties: Wedge.Props
   declare __view_type__: WedgeView
 
-  constructor(attrs?: Partial<Wedge.Attrs>) {
+  protected constructor(attrs?: Partial<Wedge.Attrs>) {
     super(attrs)
   }
 

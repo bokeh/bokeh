@@ -22,7 +22,7 @@ export interface CategoricalPatternMapper extends Mapper.Attrs, CategoricalMappe
 export class CategoricalPatternMapper extends Mapper<string> {
   declare properties: CategoricalPatternMapper.Props
 
-  constructor(attrs?: Partial<CategoricalPatternMapper.Attrs>) {
+  protected constructor(attrs?: Partial<CategoricalPatternMapper.Attrs>) {
     super(attrs)
   }
 

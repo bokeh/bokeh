@@ -44,7 +44,7 @@ export class Quad extends LRTB {
   declare properties: Quad.Props
   declare __view_type__: QuadView
 
-  constructor(attrs?: Partial<Quad.Attrs>) {
+  protected constructor(attrs?: Partial<Quad.Attrs>) {
     super(attrs)
   }
 

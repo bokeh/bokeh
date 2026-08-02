@@ -22,7 +22,7 @@ export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
 export class MercatorTickFormatter extends BasicTickFormatter {
   declare properties: MercatorTickFormatter.Props
 
-  constructor(attrs?: Partial<MercatorTickFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<MercatorTickFormatter.Attrs>) {
     super(attrs)
   }
 

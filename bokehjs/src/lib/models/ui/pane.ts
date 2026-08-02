@@ -100,7 +100,7 @@ export class Pane extends UIElement {
   declare properties: Pane.Props
   declare __view_type__: PaneView
 
-  constructor(attrs?: Partial<Pane.Attrs>) {
+  protected constructor(attrs?: Partial<Pane.Attrs>) {
     super(attrs)
   }
 

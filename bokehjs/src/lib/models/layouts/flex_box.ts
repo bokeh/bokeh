@@ -120,7 +120,7 @@ export abstract class FlexBox extends LayoutDOM {
   declare properties: FlexBox.Props
   declare __view_type__: FlexBoxView
 
-  constructor(attrs?: Partial<FlexBox.Attrs>) {
+  protected constructor(attrs?: Partial<FlexBox.Attrs>) {
     super(attrs)
   }
 

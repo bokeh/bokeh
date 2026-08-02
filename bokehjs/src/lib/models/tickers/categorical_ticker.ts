@@ -19,7 +19,7 @@ export interface CategoricalTicker extends CategoricalTicker.Attrs {}
 export class CategoricalTicker extends Ticker {
   declare properties: CategoricalTicker.Props
 
-  constructor(attrs?: Partial<CategoricalTicker.Attrs>) {
+  protected constructor(attrs?: Partial<CategoricalTicker.Attrs>) {
     super(attrs)
   }
 

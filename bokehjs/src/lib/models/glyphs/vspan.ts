@@ -154,7 +154,7 @@ export class VSpan extends Glyph {
   declare properties: VSpan.Props
   declare __view_type__: VSpanView
 
-  constructor(attrs?: Partial<VSpan.Attrs>) {
+  protected constructor(attrs?: Partial<VSpan.Attrs>) {
     super(attrs)
   }
 

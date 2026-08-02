@@ -61,7 +61,7 @@ export class Band extends UpperLower {
   declare properties: Band.Props
   declare __view_type__: BandView
 
-  constructor(attrs?: Partial<Band.Attrs>) {
+  protected constructor(attrs?: Partial<Band.Attrs>) {
     super(attrs)
   }
 

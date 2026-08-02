@@ -111,7 +111,7 @@ export interface UpperLower extends UpperLower.Attrs {}
 export class UpperLower extends DataAnnotation {
   declare properties: UpperLower.Props
 
-  constructor(attrs?: Partial<UpperLower.Attrs>) {
+  protected constructor(attrs?: Partial<UpperLower.Attrs>) {
     super(attrs)
   }
 

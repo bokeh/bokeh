@@ -24,7 +24,7 @@ export abstract class GestureTool extends Tool {
   declare properties: GestureTool.Props
   declare __view_type__: GestureToolView
 
-  constructor(attrs?: Partial<GestureTool.Attrs>) {
+  protected constructor(attrs?: Partial<GestureTool.Attrs>) {
     super(attrs)
   }
 

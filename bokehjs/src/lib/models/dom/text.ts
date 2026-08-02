@@ -39,7 +39,7 @@ export class Text extends DOMNode {
   declare properties: Text.Props
   declare __view_type__: TextView
 
-  constructor(attrs?: Partial<Text.Attrs>) {
+  protected constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)
   }
 

@@ -16,7 +16,7 @@ export interface InversionFilter extends InversionFilter.Attrs {}
 export class InversionFilter extends Filter {
   declare properties: InversionFilter.Props
 
-  constructor(attrs?: Partial<InversionFilter.Attrs>) {
+  protected constructor(attrs?: Partial<InversionFilter.Attrs>) {
     super(attrs)
   }
 

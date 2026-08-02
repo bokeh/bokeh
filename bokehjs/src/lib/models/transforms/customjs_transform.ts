@@ -19,7 +19,7 @@ export interface CustomJSTransform extends CustomJSTransform.Attrs {}
 export class CustomJSTransform extends Transform {
   declare properties: CustomJSTransform.Props
 
-  constructor(attrs?: Partial<CustomJSTransform.Attrs>) {
+  protected constructor(attrs?: Partial<CustomJSTransform.Attrs>) {
     super(attrs)
   }
 

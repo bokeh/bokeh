@@ -12,7 +12,7 @@ export interface UnionFilter extends UnionFilter.Attrs {}
 export class UnionFilter extends CompositeFilter {
   declare properties: UnionFilter.Props
 
-  constructor(attrs?: Partial<UnionFilter.Attrs>) {
+  protected constructor(attrs?: Partial<UnionFilter.Attrs>) {
     super(attrs)
   }
 

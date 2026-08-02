@@ -146,7 +146,7 @@ export class GraphRenderer extends DataRenderer {
   declare properties: GraphRenderer.Props
   declare __view_type__: GraphRendererView
 
-  constructor(attrs?: Partial<GraphRenderer.Attrs>) {
+  protected constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)
   }
 

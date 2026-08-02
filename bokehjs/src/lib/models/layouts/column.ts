@@ -17,7 +17,7 @@ export class Column extends FlexBox {
   declare properties: Column.Props
   declare __view_type__: ColumnView
 
-  constructor(attrs?: Partial<Column.Attrs>) {
+  protected constructor(attrs?: Partial<Column.Attrs>) {
     super(attrs)
   }
 

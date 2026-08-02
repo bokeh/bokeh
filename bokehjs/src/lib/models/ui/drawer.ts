@@ -151,7 +151,7 @@ export class Drawer extends Pane {
   declare properties: Drawer.Props
   declare __view_type__: DrawerView
 
-  constructor(attrs?: Partial<Drawer.Attrs>) {
+  protected constructor(attrs?: Partial<Drawer.Attrs>) {
     super(attrs)
   }
 

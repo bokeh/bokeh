@@ -79,7 +79,7 @@ export class HBar extends LRTB {
   declare properties: HBar.Props
   declare __view_type__: HBarView
 
-  constructor(attrs?: Partial<HBar.Attrs>) {
+  protected constructor(attrs?: Partial<HBar.Attrs>) {
     super(attrs)
   }
 

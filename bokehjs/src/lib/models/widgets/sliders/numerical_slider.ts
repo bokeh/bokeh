@@ -44,7 +44,7 @@ export abstract class NumericalSlider extends BaseNumericalSlider {
   declare value: number
   declare value_throttled: number
 
-  constructor(attrs?: Partial<NumericalSlider.Attrs>) {
+  protected constructor(attrs?: Partial<NumericalSlider.Attrs>) {
     super(attrs)
   }
 }

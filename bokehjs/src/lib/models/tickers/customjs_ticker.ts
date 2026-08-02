@@ -34,7 +34,7 @@ export interface CustomJSTicker extends CustomJSTicker.Attrs {}
 export class CustomJSTicker extends Ticker {
   declare properties: CustomJSTicker.Props
 
-  constructor(attrs?: Partial<CustomJSTicker.Attrs>) {
+  protected constructor(attrs?: Partial<CustomJSTicker.Attrs>) {
     super(attrs)
   }
 

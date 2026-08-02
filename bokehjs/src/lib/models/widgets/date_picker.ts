@@ -41,7 +41,7 @@ export class DatePicker extends BaseDatePicker {
 
   declare value: DateLike | null
 
-  constructor(attrs?: Partial<DatePicker.Attrs>) {
+  protected constructor(attrs?: Partial<DatePicker.Attrs>) {
     super(attrs)
   }
 

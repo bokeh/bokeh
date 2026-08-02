@@ -18,7 +18,7 @@ export interface LinearInterpolationScale extends LinearInterpolationScale.Attrs
 export class LinearInterpolationScale extends Scale<number> {
   declare properties: LinearInterpolationScale.Props
 
-  constructor(attrs?: Partial<LinearInterpolationScale.Attrs>) {
+  protected constructor(attrs?: Partial<LinearInterpolationScale.Attrs>) {
     super(attrs)
   }
 

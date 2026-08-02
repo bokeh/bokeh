@@ -61,7 +61,7 @@ export class CategoricalSlider extends AbstractSlider<string> {
   declare value: string
   declare value_throttled: string
 
-  constructor(attrs?: Partial<CategoricalSlider.Attrs>) {
+  protected constructor(attrs?: Partial<CategoricalSlider.Attrs>) {
     super(attrs)
   }
 

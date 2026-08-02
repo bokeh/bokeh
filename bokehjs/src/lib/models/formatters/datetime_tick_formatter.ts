@@ -158,7 +158,7 @@ export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
 export class DatetimeTickFormatter extends TickFormatter {
   declare properties: DatetimeTickFormatter.Props
 
-  constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
     super(attrs)
   }
 

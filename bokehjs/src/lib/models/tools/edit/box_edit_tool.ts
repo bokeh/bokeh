@@ -343,7 +343,7 @@ export class BoxEditTool extends EditTool {
   declare properties: BoxEditTool.Props
   declare __view_type__: BoxEditToolView
 
-  constructor(attrs?: Partial<BoxEditTool.Attrs>) {
+  protected constructor(attrs?: Partial<BoxEditTool.Attrs>) {
     super(attrs)
   }
 

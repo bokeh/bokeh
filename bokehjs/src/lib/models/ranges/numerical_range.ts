@@ -16,7 +16,7 @@ export interface NumericalRange extends NumericalRange.Attrs {}
 export abstract class NumericalRange extends Range {
   declare properties: NumericalRange.Props
 
-  constructor(attrs?: Partial<NumericalRange.Attrs>) {
+  protected constructor(attrs?: Partial<NumericalRange.Attrs>) {
     super(attrs)
   }
 

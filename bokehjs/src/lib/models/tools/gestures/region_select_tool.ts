@@ -64,7 +64,7 @@ export abstract class RegionSelectTool extends SelectTool {
   declare overlay: BoxAnnotation | PolyAnnotation
   declare mode: RegionSelectionMode
 
-  constructor(attrs?: Partial<RegionSelectTool.Attrs>) {
+  protected constructor(attrs?: Partial<RegionSelectTool.Attrs>) {
     super(attrs)
   }
 

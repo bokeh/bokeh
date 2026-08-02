@@ -17,7 +17,7 @@ export interface CompositeScale extends CompositeScale.Attrs {}
 export class CompositeScale extends Scale {
   declare properties: CompositeScale.Props
 
-  constructor(attrs?: Partial<CompositeScale.Attrs>) {
+  protected constructor(attrs?: Partial<CompositeScale.Attrs>) {
     super(attrs)
   }
 

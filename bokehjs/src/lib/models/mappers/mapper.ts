@@ -14,7 +14,7 @@ export interface Mapper<T> extends Mapper.Attrs {}
 export abstract class Mapper<T> extends Transform<number, T> {
   declare properties: Mapper.Props
 
-  constructor(attrs?: Partial<Mapper.Attrs>) {
+  protected constructor(attrs?: Partial<Mapper.Attrs>) {
     super(attrs)
   }
 

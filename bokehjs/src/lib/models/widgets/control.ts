@@ -31,7 +31,7 @@ export abstract class Control extends Widget {
   declare properties: Control.Props
   declare __view_type__: ControlView
 
-  constructor(attrs?: Partial<Control.Attrs>) {
+  protected constructor(attrs?: Partial<Control.Attrs>) {
     super(attrs)
   }
 }

@@ -69,7 +69,7 @@ export class Image extends ImageBase {
   declare properties: Image.Props
   declare __view_type__: ImageView
 
-  constructor(attrs?: Partial<Image.Attrs>) {
+  protected constructor(attrs?: Partial<Image.Attrs>) {
     super(attrs)
   }
 

@@ -19,7 +19,7 @@ export interface EqHistColorMapper extends EqHistColorMapper.Attrs {}
 export class EqHistColorMapper extends ScanningColorMapper {
   declare properties: EqHistColorMapper.Props
 
-  constructor(attrs?: Partial<EqHistColorMapper.Attrs>) {
+  protected constructor(attrs?: Partial<EqHistColorMapper.Attrs>) {
     super(attrs)
   }
 

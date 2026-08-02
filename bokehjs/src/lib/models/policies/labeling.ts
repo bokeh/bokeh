@@ -19,7 +19,7 @@ export interface LabelingPolicy extends LabelingPolicy.Attrs {}
 export abstract class LabelingPolicy extends Model {
   declare properties: LabelingPolicy.Props
 
-  constructor(attrs?: Partial<LabelingPolicy.Attrs>) {
+  protected constructor(attrs?: Partial<LabelingPolicy.Attrs>) {
     super(attrs)
   }
 
@@ -36,7 +36,7 @@ export interface AllLabels extends AllLabels.Attrs {}
 export class AllLabels extends LabelingPolicy {
   declare properties: AllLabels.Props
 
-  constructor(attrs?: Partial<AllLabels.Attrs>) {
+  protected constructor(attrs?: Partial<AllLabels.Attrs>) {
     super(attrs)
   }
 
@@ -57,7 +57,7 @@ export interface NoOverlap extends NoOverlap.Attrs {}
 export class NoOverlap extends LabelingPolicy {
   declare properties: NoOverlap.Props
 
-  constructor(attrs?: Partial<NoOverlap.Attrs>) {
+  protected constructor(attrs?: Partial<NoOverlap.Attrs>) {
     super(attrs)
   }
 
@@ -95,7 +95,7 @@ export interface CustomLabelingPolicy extends CustomLabelingPolicy.Attrs {}
 export class CustomLabelingPolicy extends LabelingPolicy {
   declare properties: CustomLabelingPolicy.Props
 
-  constructor(attrs?: Partial<CustomLabelingPolicy.Attrs>) {
+  protected constructor(attrs?: Partial<CustomLabelingPolicy.Attrs>) {
     super(attrs)
   }
 

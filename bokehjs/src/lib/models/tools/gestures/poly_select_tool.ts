@@ -189,7 +189,7 @@ export class PolySelectTool extends RegionSelectTool {
   declare __view_type__: PolySelectToolView
   declare overlay: PolyAnnotation
 
-  constructor(attrs?: Partial<PolySelectTool.Attrs>) {
+  protected constructor(attrs?: Partial<PolySelectTool.Attrs>) {
     super(attrs)
   }
 

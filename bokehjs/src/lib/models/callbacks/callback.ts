@@ -12,7 +12,7 @@ export interface Callback extends Callback.Attrs {}
 export abstract class Callback extends Model implements Executable<unknown, any, unknown> {
   declare properties: Callback.Props
 
-  constructor(attrs?: Partial<Callback.Attrs>) {
+  protected constructor(attrs?: Partial<Callback.Attrs>) {
     super(attrs)
   }
 

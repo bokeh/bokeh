@@ -118,7 +118,7 @@ export class TimePicker extends PickerBase {
   declare properties: TimePicker.Props
   declare __view_type__: TimePickerView
 
-  constructor(attrs?: Partial<TimePicker.Attrs>) {
+  protected constructor(attrs?: Partial<TimePicker.Attrs>) {
     super(attrs)
   }
 

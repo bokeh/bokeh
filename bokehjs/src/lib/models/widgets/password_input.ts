@@ -40,7 +40,7 @@ export class PasswordInput extends TextInput {
   declare properties: PasswordInput.Props
   declare __view_type__: PasswordInputView
 
-  constructor(attrs?: Partial<PasswordInput.Attrs>) {
+  protected constructor(attrs?: Partial<PasswordInput.Attrs>) {
     super(attrs)
   }
 

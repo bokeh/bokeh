@@ -74,7 +74,7 @@ export abstract class Widget extends LayoutDOM {
   declare properties: Widget.Props
   declare __view_type__: WidgetView
 
-  constructor(attrs?: Partial<Widget.Attrs>) {
+  protected constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)
   }
 

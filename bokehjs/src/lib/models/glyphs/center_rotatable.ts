@@ -51,7 +51,7 @@ export abstract class CenterRotatable extends XYGlyph {
   declare properties: CenterRotatable.Props
   declare __view_type__: CenterRotatableView
 
-  constructor(attrs?: Partial<CenterRotatable.Attrs>) {
+  protected constructor(attrs?: Partial<CenterRotatable.Attrs>) {
     super(attrs)
   }
 

@@ -49,7 +49,7 @@ export class FullscreenTool extends ActionTool {
   declare properties: FullscreenTool.Props
   declare __view_type__: FullscreenToolView
 
-  constructor(attrs?: Partial<FullscreenTool.Attrs>) {
+  protected constructor(attrs?: Partial<FullscreenTool.Attrs>) {
     super(attrs)
   }
 

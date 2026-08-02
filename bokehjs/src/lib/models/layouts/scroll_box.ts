@@ -58,7 +58,7 @@ export class ScrollBox extends LayoutDOM {
   declare properties: ScrollBox.Props
   declare __view_type__: ScrollBoxView
 
-  constructor(attrs?: Partial<ScrollBox.Attrs>) {
+  protected constructor(attrs?: Partial<ScrollBox.Attrs>) {
     super(attrs)
   }
 

@@ -29,7 +29,7 @@ export abstract class ActionTool extends Tool {
   declare properties: ActionTool.Props
   declare __view_type__: ActionToolView
 
-  constructor(attrs?: Partial<ActionTool.Attrs>) {
+  protected constructor(attrs?: Partial<ActionTool.Attrs>) {
     super(attrs)
   }
 

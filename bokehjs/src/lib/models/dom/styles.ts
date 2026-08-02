@@ -325,7 +325,7 @@ export interface Styles extends Styles.Attrs {}
 export class Styles extends Model {
   declare properties: Styles.Props
 
-  constructor(attrs?: Partial<Styles.Attrs>) {
+  protected constructor(attrs?: Partial<Styles.Attrs>) {
     super(attrs)
   }
 

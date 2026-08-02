@@ -12,7 +12,7 @@ export interface ServerSentDataSource extends ServerSentDataSource.Attrs {}
 export class ServerSentDataSource extends WebDataSource {
   declare properties: ServerSentDataSource.Props
 
-  constructor(attrs?: Partial<ServerSentDataSource.Attrs>) {
+  protected constructor(attrs?: Partial<ServerSentDataSource.Attrs>) {
     super(attrs)
   }
 

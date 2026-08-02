@@ -14,7 +14,7 @@ export interface AllIndices extends AllIndices.Attrs {}
 export class AllIndices extends Filter {
   declare properties: AllIndices.Props
 
-  constructor(attrs?: Partial<AllIndices.Attrs>) {
+  protected constructor(attrs?: Partial<AllIndices.Attrs>) {
     super(attrs)
   }
 

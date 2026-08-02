@@ -15,7 +15,7 @@ export interface Indexed extends Indexed.Attrs {}
 export class Indexed extends Coordinate {
   declare properties: Indexed.Props
 
-  constructor(attrs?: Partial<Indexed.Attrs>) {
+  protected constructor(attrs?: Partial<Indexed.Attrs>) {
     super(attrs)
   }
 

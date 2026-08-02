@@ -210,7 +210,7 @@ export abstract class AbstractSlider<T extends number | string> extends Oriented
   declare properties: AbstractSlider.Props
   declare __view_type__: AbstractSliderView<T>
 
-  constructor(attrs?: Partial<AbstractSlider.Attrs>) {
+  protected constructor(attrs?: Partial<AbstractSlider.Attrs>) {
     super(attrs)
   }
 

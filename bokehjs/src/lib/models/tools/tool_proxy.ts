@@ -31,7 +31,7 @@ export class ToolProxy<T extends Tool> extends Model {
   declare properties: ToolProxy.Props<T>
   declare __view_type__: ToolView
 
-  constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
+  protected constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
     super(attrs)
   }
 

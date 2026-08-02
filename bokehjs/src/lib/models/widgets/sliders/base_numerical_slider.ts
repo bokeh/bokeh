@@ -36,7 +36,7 @@ export abstract class BaseNumericalSlider extends AbstractSlider<number> {
   declare properties: BaseNumericalSlider.Props
   declare declare__view_type__: BaseNumericalSliderView
 
-  constructor(attrs?: Partial<BaseNumericalSlider.Attrs>) {
+  protected constructor(attrs?: Partial<BaseNumericalSlider.Attrs>) {
     super(attrs)
   }
 

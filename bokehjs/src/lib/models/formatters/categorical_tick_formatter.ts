@@ -13,7 +13,7 @@ export interface CategoricalTickFormatter extends CategoricalTickFormatter.Attrs
 export class CategoricalTickFormatter extends TickFormatter {
   declare properties: CategoricalTickFormatter.Props
 
-  constructor(attrs?: Partial<CategoricalTickFormatter.Attrs>) {
+  protected constructor(attrs?: Partial<CategoricalTickFormatter.Attrs>) {
     super(attrs)
   }
 

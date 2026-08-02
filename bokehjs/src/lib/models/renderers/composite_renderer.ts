@@ -166,7 +166,7 @@ export abstract class CompositeRenderer extends Renderer {
   declare properties: CompositeRenderer.Props
   declare __view_type__: CompositeRendererView
 
-  constructor(attrs?: Partial<CompositeRenderer.Attrs>) {
+  protected constructor(attrs?: Partial<CompositeRenderer.Attrs>) {
     super(attrs)
   }
 

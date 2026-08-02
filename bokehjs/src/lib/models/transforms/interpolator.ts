@@ -22,7 +22,7 @@ export interface Interpolator extends Interpolator.Attrs {}
 export abstract class Interpolator extends Transform {
   declare properties: Interpolator.Props
 
-  constructor(attrs?: Partial<Interpolator.Attrs>) {
+  protected constructor(attrs?: Partial<Interpolator.Attrs>) {
     super(attrs)
   }
 

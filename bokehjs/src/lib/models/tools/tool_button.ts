@@ -152,7 +152,7 @@ export abstract class ToolButton extends UIElement {
   declare properties: ToolButton.Props
   declare __view_type__: ToolButtonView
 
-  constructor(attrs?: Partial<ToolButton.Attrs>) {
+  protected constructor(attrs?: Partial<ToolButton.Attrs>) {
     super(attrs)
   }
 

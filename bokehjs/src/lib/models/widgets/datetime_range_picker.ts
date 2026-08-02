@@ -78,7 +78,7 @@ export class DatetimeRangePicker extends BaseDatetimePicker {
 
   declare value: [DateLike, DateLike] | null
 
-  constructor(attrs?: Partial<DatetimeRangePicker.Attrs>) {
+  protected constructor(attrs?: Partial<DatetimeRangePicker.Attrs>) {
     super(attrs)
   }
 

@@ -23,7 +23,7 @@ export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 export class MercatorTileSource extends TileSource {
   declare properties: MercatorTileSource.Props
 
-  constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
+  protected constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
     super(attrs)
   }
 

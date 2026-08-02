@@ -30,7 +30,7 @@ export interface Ticker extends Ticker.Attrs {}
 export abstract class Ticker extends Model {
   declare properties: Ticker.Props
 
-  constructor(attrs?: Partial<Ticker.Attrs>) {
+  protected constructor(attrs?: Partial<Ticker.Attrs>) {
     super(attrs)
   }
 

@@ -15,7 +15,7 @@ export interface BaseSingleIntervalTicker extends BaseSingleIntervalTicker.Attrs
 export abstract class BaseSingleIntervalTicker extends ContinuousTicker {
   declare properties: BaseSingleIntervalTicker.Props
 
-  constructor(attrs?: Partial<BaseSingleIntervalTicker.Attrs>) {
+  protected constructor(attrs?: Partial<BaseSingleIntervalTicker.Attrs>) {
     super(attrs)
   }
 
@@ -47,7 +47,7 @@ export interface SingleIntervalTicker extends SingleIntervalTicker.Attrs {}
 export class SingleIntervalTicker extends BaseSingleIntervalTicker {
   declare properties: SingleIntervalTicker.Props
 
-  constructor(attrs?: Partial<SingleIntervalTicker.Attrs>) {
+  protected constructor(attrs?: Partial<SingleIntervalTicker.Attrs>) {
     super(attrs)
   }
 

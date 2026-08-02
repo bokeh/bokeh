@@ -28,7 +28,7 @@ export abstract class ToggleInputGroup extends Widget {
   declare properties: ToggleInputGroup.Props & {active: p.Property<unknown>}
   declare __view_type__: ToggleInputGroupView
 
-  constructor(attrs?: Partial<ToggleInputGroup.Attrs>) {
+  protected constructor(attrs?: Partial<ToggleInputGroup.Attrs>) {
     super(attrs)
   }
 

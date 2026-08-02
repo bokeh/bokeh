@@ -32,7 +32,7 @@ export abstract class Placeholder extends DOMElement {
   declare properties: Placeholder.Props
   declare __view_type__: PlaceholderView
 
-  constructor(attrs?: Partial<Placeholder.Attrs>) {
+  protected constructor(attrs?: Partial<Placeholder.Attrs>) {
     super(attrs)
   }
 }

@@ -22,7 +22,7 @@ export interface LegendItem extends LegendItem.Attrs {}
 export class LegendItem extends Model {
   declare properties: LegendItem.Props
 
-  constructor(attrs?: Partial<LegendItem.Attrs>) {
+  protected constructor(attrs?: Partial<LegendItem.Attrs>) {
     super(attrs)
   }
 

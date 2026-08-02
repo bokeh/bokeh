@@ -11,7 +11,7 @@ export interface Coordinate extends Coordinate.Attrs {}
 export abstract class Coordinate extends Model {
   declare properties: Coordinate.Props
 
-  constructor(attrs?: Partial<Coordinate.Attrs>) {
+  protected constructor(attrs?: Partial<Coordinate.Attrs>) {
     super(attrs)
   }
 }

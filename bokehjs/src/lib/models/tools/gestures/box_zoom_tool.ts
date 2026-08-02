@@ -253,7 +253,7 @@ export class BoxZoomTool extends GestureTool {
   declare properties: BoxZoomTool.Props
   declare __view_type__: BoxZoomToolView
 
-  constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
+  protected constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
     super(attrs)
   }
 

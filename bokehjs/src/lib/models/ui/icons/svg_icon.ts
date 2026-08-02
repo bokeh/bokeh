@@ -52,7 +52,7 @@ export class SVGIcon extends Icon {
   declare properties: SVGIcon.Props
   declare __view_type__: SVGIconView
 
-  constructor(attrs?: Partial<SVGIcon.Attrs>) {
+  protected constructor(attrs?: Partial<SVGIcon.Attrs>) {
     super(attrs)
   }
 

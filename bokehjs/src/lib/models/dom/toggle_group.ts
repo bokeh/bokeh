@@ -28,7 +28,7 @@ export class ToggleGroup extends Action {
   declare properties: ToggleGroup.Props
   declare __view_type__: ToggleGroupView
 
-  constructor(attrs?: Partial<ToggleGroup.Attrs>) {
+  protected constructor(attrs?: Partial<ToggleGroup.Attrs>) {
     super(attrs)
   }
 

@@ -67,7 +67,7 @@ export abstract class BaseBar extends Annotation {
   declare properties: BaseBar.Props
   declare __view_type__: BaseBarView
 
-  constructor(attrs?: Partial<BaseBar.Attrs>) {
+  protected constructor(attrs?: Partial<BaseBar.Attrs>) {
     super(attrs)
   }
 

@@ -160,7 +160,7 @@ export class LineEditTool extends LineTool {
   declare properties: LineEditTool.Props
   declare __view_type__: LineEditToolView
 
-  constructor(attrs?: Partial<LineEditTool.Attrs>) {
+  protected constructor(attrs?: Partial<LineEditTool.Attrs>) {
     super(attrs)
   }
 

@@ -36,7 +36,7 @@ export interface Dimensional extends Dimensional.Attrs {}
 export abstract class Dimensional extends Model {
   declare properties: Dimensional.Props
 
-  constructor(attrs?: Partial<Dimensional.Attrs>) {
+  protected constructor(attrs?: Partial<Dimensional.Attrs>) {
     super(attrs)
   }
 
@@ -112,7 +112,7 @@ export interface CustomDimensional extends CustomDimensional.Attrs {}
 export abstract class CustomDimensional extends Dimensional {
   declare properties: CustomDimensional.Props
 
-  constructor(attrs?: Partial<CustomDimensional.Attrs>) {
+  protected constructor(attrs?: Partial<CustomDimensional.Attrs>) {
     super(attrs)
   }
 
@@ -140,7 +140,7 @@ export interface Metric extends Metric.Attrs {}
 export class Metric extends Dimensional {
   declare properties: Metric.Props
 
-  constructor(attrs?: Partial<Metric.Attrs>) {
+  protected constructor(attrs?: Partial<Metric.Attrs>) {
     super(attrs)
   }
 
@@ -207,7 +207,7 @@ export interface ReciprocalMetric extends ReciprocalMetric.Attrs {}
 export class ReciprocalMetric extends Metric {
   declare properties: ReciprocalMetric.Props
 
-  constructor(attrs?: Partial<ReciprocalMetric.Attrs>) {
+  protected constructor(attrs?: Partial<ReciprocalMetric.Attrs>) {
     super(attrs)
   }
 
@@ -233,7 +233,7 @@ export interface MetricLength extends MetricLength.Attrs {}
 export class MetricLength extends Metric {
   declare properties: MetricLength.Props
 
-  constructor(attrs?: Partial<MetricLength.Attrs>) {
+  protected constructor(attrs?: Partial<MetricLength.Attrs>) {
     super(attrs)
   }
 
@@ -255,7 +255,7 @@ export interface ReciprocalMetricLength extends MetricLength.Attrs {}
 export class ReciprocalMetricLength extends ReciprocalMetric {
   declare properties: ReciprocalMetricLength.Props
 
-  constructor(attrs?: Partial<ReciprocalMetricLength.Attrs>) {
+  protected constructor(attrs?: Partial<ReciprocalMetricLength.Attrs>) {
     super(attrs)
   }
 
@@ -277,7 +277,7 @@ export interface ImperialLength extends ImperialLength.Attrs {}
 export abstract class ImperialLength extends CustomDimensional {
   declare properties: ImperialLength.Props
 
-  constructor(attrs?: Partial<ImperialLength.Attrs>) {
+  protected constructor(attrs?: Partial<ImperialLength.Attrs>) {
     super(attrs)
   }
 
@@ -307,7 +307,7 @@ export interface Angular extends Angular.Attrs {}
 export abstract class Angular extends CustomDimensional {
   declare properties: Angular.Props
 
-  constructor(attrs?: Partial<Angular.Attrs>) {
+  protected constructor(attrs?: Partial<Angular.Attrs>) {
     super(attrs)
   }
 

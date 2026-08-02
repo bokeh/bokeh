@@ -16,7 +16,7 @@ export class GMap extends GMapPlot {
   declare properties: GMap.Props
   declare __view_type__: GMapView
 
-  constructor(attrs?: Partial<GMap.Attrs>) {
+  protected constructor(attrs?: Partial<GMap.Attrs>) {
     super(attrs)
   }
 

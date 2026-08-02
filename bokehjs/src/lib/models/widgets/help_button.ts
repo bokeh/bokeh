@@ -82,7 +82,7 @@ export class HelpButton extends AbstractButton {
   declare properties: HelpButton.Props
   declare __view_type__: HelpButtonView
 
-  constructor(attrs?: Partial<HelpButton.Attrs>) {
+  protected constructor(attrs?: Partial<HelpButton.Attrs>) {
     super(attrs)
   }
 

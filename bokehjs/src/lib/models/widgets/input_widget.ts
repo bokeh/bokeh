@@ -207,7 +207,7 @@ export abstract class InputWidget extends Control {
   declare properties: InputWidget.Props
   declare __view_type__: InputWidgetView
 
-  constructor(attrs?: Partial<InputWidget.Attrs>) {
+  protected constructor(attrs?: Partial<InputWidget.Attrs>) {
     super(attrs)
   }
 

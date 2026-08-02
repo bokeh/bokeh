@@ -62,7 +62,7 @@ export class ContourRenderer extends DataRenderer {
   declare properties: ContourRenderer.Props
   declare __view_type__: ContourRendererView
 
-  constructor(attrs?: Partial<ContourRenderer.Attrs>) {
+  protected constructor(attrs?: Partial<ContourRenderer.Attrs>) {
     super(attrs)
   }
 

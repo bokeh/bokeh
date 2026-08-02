@@ -17,7 +17,7 @@ export interface MercatorTicker extends MercatorTicker.Attrs {}
 export class MercatorTicker extends BasicTicker {
   declare properties: MercatorTicker.Props
 
-  constructor(attrs?: Partial<MercatorTicker.Attrs>) {
+  protected constructor(attrs?: Partial<MercatorTicker.Attrs>) {
     super(attrs)
   }
 

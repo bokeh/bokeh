@@ -20,7 +20,7 @@ export abstract class OrientedControl extends Control {
   declare properties: OrientedControl.Props
   declare __view_type__: OrientedControlView
 
-  constructor(attrs?: Partial<OrientedControl.Attrs>) {
+  protected constructor(attrs?: Partial<OrientedControl.Attrs>) {
     super(attrs)
   }
 

@@ -628,7 +628,7 @@ export abstract class Glyph extends Model {
   declare properties: Glyph.Props
   declare __view_type__: GlyphView
 
-  constructor(attrs?: Partial<Glyph.Attrs>) {
+  protected constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
   }
 

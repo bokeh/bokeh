@@ -24,7 +24,7 @@ export interface GraphHitTestPolicy extends Model.Attrs {}
 export abstract class GraphHitTestPolicy extends Model {
   declare properties: GraphHitTestPolicy.Props
 
-  constructor(attrs?: Partial<GraphHitTestPolicy.Attrs>) {
+  protected constructor(attrs?: Partial<GraphHitTestPolicy.Attrs>) {
     super(attrs)
   }
 
@@ -60,7 +60,7 @@ export interface EdgesOnly extends EdgesOnly.Attrs {}
 export class EdgesOnly extends GraphHitTestPolicy {
   declare properties: EdgesOnly.Props
 
-  constructor(attrs?: Partial<EdgesOnly.Attrs>) {
+  protected constructor(attrs?: Partial<EdgesOnly.Attrs>) {
     super(attrs)
   }
 
@@ -108,7 +108,7 @@ export interface NodesOnly extends NodesOnly.Attrs {}
 export class NodesOnly extends GraphHitTestPolicy {
   declare properties: NodesOnly.Props
 
-  constructor(attrs?: Partial<NodesOnly.Attrs>) {
+  protected constructor(attrs?: Partial<NodesOnly.Attrs>) {
     super(attrs)
   }
 
@@ -156,7 +156,7 @@ export interface NodesAndLinkedEdges extends NodesAndLinkedEdges.Attrs {}
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   declare properties: NodesAndLinkedEdges.Props
 
-  constructor(attrs?: Partial<NodesAndLinkedEdges.Attrs>) {
+  protected constructor(attrs?: Partial<NodesAndLinkedEdges.Attrs>) {
     super(attrs)
   }
 
@@ -245,7 +245,7 @@ export interface EdgesAndLinkedNodes extends EdgesAndLinkedNodes.Attrs {}
 export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
   declare properties: EdgesAndLinkedNodes.Props
 
-  constructor(attrs?: Partial<EdgesAndLinkedNodes.Attrs>) {
+  protected constructor(attrs?: Partial<EdgesAndLinkedNodes.Attrs>) {
     super(attrs)
   }
 
@@ -325,7 +325,7 @@ export interface NodesAndAdjacentNodes extends NodesAndAdjacentNodes.Attrs {}
 export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
   declare properties: NodesAndAdjacentNodes.Props
 
-  constructor(attrs?: Partial<NodesAndAdjacentNodes.Attrs>) {
+  protected constructor(attrs?: Partial<NodesAndAdjacentNodes.Attrs>) {
     super(attrs)
   }
 

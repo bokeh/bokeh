@@ -106,7 +106,7 @@ export class FreehandDrawTool extends EditTool {
   declare properties: FreehandDrawTool.Props
   declare __view_type__: FreehandDrawToolView
 
-  constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
+  protected constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
     super(attrs)
   }
 

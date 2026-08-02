@@ -62,7 +62,7 @@ export interface Node extends Node.Attrs {}
 export class Node extends Coordinate {
   declare properties: Node.Props
 
-  constructor(attrs?: Partial<Node.Attrs>) {
+  protected constructor(attrs?: Partial<Node.Attrs>) {
     super(attrs)
   }
 

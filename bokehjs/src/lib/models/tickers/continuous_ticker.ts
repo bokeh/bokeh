@@ -32,7 +32,7 @@ export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 export abstract class ContinuousTicker extends Ticker {
   declare properties: ContinuousTicker.Props
 
-  constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
+  protected constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
     super(attrs)
   }
 

@@ -1,11 +1,10 @@
 import {construct} from "../core/has_props"
-import type {HasProps, HasPropsClass} from "../core/has_props"
+import type {HasProps, HasPropsClass, ModelAttrs} from "../core/has_props"
 import type {Attrs} from "../core/types"
 import type {Value, Field, Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
 import type {Property} from "../core/properties"
 import {VectorSpec, UnitsSpec} from "../core/properties"
-import type {Class} from "../core/class"
 import {extend} from "../core/class"
 import type {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
@@ -153,7 +152,7 @@ export class SubFigure extends GlyphAPI {
     super()
   }
 
-  _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: HasPropsClass<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
     const {coordinates} = this
     return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides})
   }
@@ -235,7 +234,22 @@ export class Figure extends BaseFigure {
     extend(this, GlyphAPI)
   }
 
-  constructor(attrs: Partial<Figure.Attrs> = {}) {
+  static override create<T extends Figure>(
+    this: HasPropsClass<T>,
+    attrs?: Partial<Figure.Attrs>,
+  ): T
+  static override create<T extends HasProps>(
+    this: HasPropsClass<T>,
+    attrs?: ModelAttrs<T>,
+  ): T
+  static override create<T extends HasProps>(
+    this: HasPropsClass<T>,
+    attrs: Partial<Figure.Attrs> | ModelAttrs<T> = {},
+  ): T {
+    return construct(this, attrs as Attrs)
+  }
+
+  protected constructor(attrs: Partial<Figure.Attrs> = {}) {
     attrs = {...attrs}
 
     const x_axis_type = attrs.x_axis_type === undefined ? "auto" : attrs.x_axis_type
@@ -418,7 +432,7 @@ export class Figure extends BaseFigure {
     return new SubFigure(mapping, this)
   }
 
-  _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
+  _pop_visuals(cls: HasPropsClass<HasProps>, props: Attrs, prefix: string = "",
       defaults: Attrs = {}, override_defaults: Attrs = {}): Attrs {
 
     const _split_feature_trait = function(ft: string): string[] {
@@ -495,9 +509,9 @@ export class Figure extends BaseFigure {
     }
   }
 
-  _fixup_values(cls: Class<HasProps>, data: Map<string, unknown>, attrs: Attrs): Set<string> {
+  _fixup_values(cls: HasPropsClass<HasProps>, data: Map<string, unknown>, attrs: Attrs): Set<string> {
     const unresolved_attrs = new Set<string>()
-    const props = dict(cls.prototype._props)
+    const props = dict<HasProps["_props"][string]>(cls.prototype._props)
 
     for (const [name, value] of entries(attrs)) {
       const prop = props.get(name)
@@ -546,7 +560,7 @@ export class Figure extends BaseFigure {
     return `the method signature is ${method}(${positional.join(", ")}, args?)`
   }
 
-  _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: HasPropsClass<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
     let attrs: Attrs & Partial<AuxGlyph>
 
     const n_args = args.length
@@ -645,8 +659,8 @@ export class Figure extends BaseFigure {
 
     source.data = data
 
-    const _make_glyph = (cls: Class<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
-      return construct(cls as HasPropsClass<Glyph>, {...attrs, ...extra_attrs})
+    const _make_glyph = (cls: HasPropsClass<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
+      return construct(cls, {...attrs, ...extra_attrs})
     }
 
     const glyph  = _make_glyph(cls, attrs, glyph_ca)

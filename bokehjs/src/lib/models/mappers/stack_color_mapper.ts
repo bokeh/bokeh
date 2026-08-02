@@ -12,7 +12,7 @@ export interface StackColorMapper extends StackColorMapper.Attrs {}
 export abstract class StackColorMapper extends ColorMapper {
   declare properties: StackColorMapper.Props
 
-  constructor(attrs?: Partial<StackColorMapper.Attrs>) {
+  protected constructor(attrs?: Partial<StackColorMapper.Attrs>) {
     super(attrs)
   }
 }

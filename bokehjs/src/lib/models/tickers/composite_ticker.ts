@@ -19,7 +19,7 @@ export interface CompositeTicker extends CompositeTicker.Attrs {}
 export class CompositeTicker extends ContinuousTicker {
   declare properties: CompositeTicker.Props
 
-  constructor(attrs?: Partial<CompositeTicker.Attrs>) {
+  protected constructor(attrs?: Partial<CompositeTicker.Attrs>) {
     super(attrs)
   }
 

@@ -15,7 +15,7 @@ type CoordinateType = Arrayable<number> | Arrayable<number>[]
 export abstract class CoordinateTransform extends Expression<{x: CoordinateType, y: CoordinateType}> {
   declare properties: CoordinateTransform.Props
 
-  constructor(attrs?: Partial<CoordinateTransform.Attrs>) {
+  protected constructor(attrs?: Partial<CoordinateTransform.Attrs>) {
     super(attrs)
   }
 
@@ -41,7 +41,7 @@ export interface XYComponent extends XYComponent.Attrs {}
 export abstract class XYComponent extends Expression {
   declare properties: XYComponent.Props
 
-  constructor(attrs?: Partial<XYComponent.Attrs>) {
+  protected constructor(attrs?: Partial<XYComponent.Attrs>) {
     super(attrs)
   }
 
@@ -62,7 +62,7 @@ export interface XComponent extends XComponent.Attrs {}
 export class XComponent extends XYComponent {
   declare properties: XComponent.Props
 
-  constructor(attrs?: Partial<XComponent.Attrs>) {
+  protected constructor(attrs?: Partial<XComponent.Attrs>) {
     super(attrs)
   }
 
@@ -81,7 +81,7 @@ export interface YComponent extends YComponent.Attrs {}
 export class YComponent extends XYComponent {
   declare properties: YComponent.Props
 
-  constructor(attrs?: Partial<YComponent.Attrs>) {
+  protected constructor(attrs?: Partial<YComponent.Attrs>) {
     super(attrs)
   }
 

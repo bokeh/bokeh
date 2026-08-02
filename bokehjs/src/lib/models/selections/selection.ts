@@ -37,7 +37,7 @@ export interface Selection extends Selection.Attrs {}
 export class Selection extends Model {
   declare properties: Selection.Props
 
-  constructor(attrs?: Partial<Selection.Attrs>) {
+  protected constructor(attrs?: Partial<Selection.Attrs>) {
     super(attrs)
   }
 

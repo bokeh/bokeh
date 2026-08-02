@@ -31,7 +31,7 @@ export interface TileSource extends TileSource.Attrs {}
 export abstract class TileSource extends Model {
   declare properties: TileSource.Props
 
-  constructor(attrs?: Partial<TileSource.Attrs>) {
+  protected constructor(attrs?: Partial<TileSource.Attrs>) {
     super(attrs)
   }
 

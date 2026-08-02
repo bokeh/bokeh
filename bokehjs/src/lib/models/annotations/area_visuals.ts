@@ -27,7 +27,7 @@ export interface AreaVisuals extends AreaVisuals.Attrs {}
 export class AreaVisuals extends Model {
   declare properties: AreaVisuals.Props
 
-  constructor(attrs?: Partial<AreaVisuals.Attrs>) {
+  protected constructor(attrs?: Partial<AreaVisuals.Attrs>) {
     super(attrs)
   }
 

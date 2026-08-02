@@ -105,7 +105,7 @@ export class TableColumn extends Model {
   declare properties: TableColumn.Props
   declare __view_type__: TableColumnView
 
-  constructor(attrs?: Partial<TableColumn.Attrs>) {
+  protected constructor(attrs?: Partial<TableColumn.Attrs>) {
     super(attrs)
   }
 

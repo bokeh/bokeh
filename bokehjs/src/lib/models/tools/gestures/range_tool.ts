@@ -251,7 +251,7 @@ export class RangeTool extends GestureTool {
   declare properties: RangeTool.Props
   declare __view_type__: RangeToolView
 
-  constructor(attrs?: Partial<RangeTool.Attrs>) {
+  protected constructor(attrs?: Partial<RangeTool.Attrs>) {
     super(attrs)
   }
 

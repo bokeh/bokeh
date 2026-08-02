@@ -25,7 +25,7 @@ export interface WebDataSource extends WebDataSource.Attrs {}
 export abstract class WebDataSource extends ColumnDataSource {
   declare properties: WebDataSource.Props
 
-  constructor(attrs?: Partial<WebDataSource.Attrs>) {
+  protected constructor(attrs?: Partial<WebDataSource.Attrs>) {
     super(attrs)
   }
 

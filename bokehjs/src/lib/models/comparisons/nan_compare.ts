@@ -15,7 +15,7 @@ export interface NanCompare extends NanCompare.Attrs {}
 export class NanCompare extends Comparison {
   declare properties: NanCompare.Props
 
-  constructor(attrs?: Partial<NanCompare.Attrs>) {
+  protected constructor(attrs?: Partial<NanCompare.Attrs>) {
     super(attrs)
   }
 

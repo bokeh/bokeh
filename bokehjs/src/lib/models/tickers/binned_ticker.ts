@@ -19,7 +19,7 @@ export interface BinnedTicker extends BinnedTicker.Attrs {}
 export class BinnedTicker extends Ticker {
   declare properties: BinnedTicker.Props
 
-  constructor(attrs?: Partial<BinnedTicker.Attrs>) {
+  protected constructor(attrs?: Partial<BinnedTicker.Attrs>) {
     super(attrs)
   }
 

@@ -778,7 +778,7 @@ export class Legend extends Annotation {
   declare properties: Legend.Props
   declare __view_type__: LegendView
 
-  constructor(attrs?: Partial<Legend.Attrs>) {
+  protected constructor(attrs?: Partial<Legend.Attrs>) {
     super(attrs)
   }
 

@@ -41,7 +41,7 @@ export class LogAxis extends ContinuousAxis {
   declare ticker: LogTicker
   declare formatter: LogTickFormatter
 
-  constructor(attrs?: Partial<LogAxis.Attrs>) {
+  protected constructor(attrs?: Partial<LogAxis.Attrs>) {
     super(attrs)
   }
 

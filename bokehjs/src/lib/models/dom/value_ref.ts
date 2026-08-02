@@ -120,7 +120,7 @@ export class ValueRef extends Placeholder {
   declare properties: ValueRef.Props
   declare __view_type__: ValueRefView
 
-  constructor(attrs?: Partial<ValueRef.Attrs>) {
+  protected constructor(attrs?: Partial<ValueRef.Attrs>) {
     super(attrs)
   }
 

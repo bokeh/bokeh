@@ -22,7 +22,7 @@ export class TimedeltaAxis extends ContinuousAxis {
   declare ticker: TimedeltaTicker
   declare formatter: TimedeltaTickFormatter
 
-  constructor(attrs?: Partial<TimedeltaAxis.Attrs>) {
+  protected constructor(attrs?: Partial<TimedeltaAxis.Attrs>) {
     super(attrs)
   }
 

@@ -18,7 +18,7 @@ export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 export class ColumnDataSource extends ColumnarDataSource {
   declare properties: ColumnDataSource.Props
 
-  constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
+  protected constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
     super(attrs)
   }
 

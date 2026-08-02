@@ -36,7 +36,7 @@ export class MultipleDatetimePicker extends BaseDatetimePicker {
 
   declare value: DateLike[]
 
-  constructor(attrs?: Partial<MultipleDatetimePicker.Attrs>) {
+  protected constructor(attrs?: Partial<MultipleDatetimePicker.Attrs>) {
     super(attrs)
   }
 

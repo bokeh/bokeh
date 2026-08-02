@@ -23,7 +23,7 @@ export interface ContinuousColorMapper extends ContinuousColorMapper.Attrs {}
 export abstract class ContinuousColorMapper extends ColorMapper {
   declare properties: ContinuousColorMapper.Props
 
-  constructor(attrs?: Partial<ContinuousColorMapper.Attrs>) {
+  protected constructor(attrs?: Partial<ContinuousColorMapper.Attrs>) {
     super(attrs)
   }
 

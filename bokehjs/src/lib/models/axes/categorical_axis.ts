@@ -218,7 +218,7 @@ export class CategoricalAxis extends Axis {
   declare ticker: CategoricalTicker
   declare formatter: CategoricalTickFormatter
 
-  constructor(attrs?: Partial<CategoricalAxis.Attrs>) {
+  protected constructor(attrs?: Partial<CategoricalAxis.Attrs>) {
     super(attrs)
   }
 

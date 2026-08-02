@@ -13,7 +13,7 @@ export interface RendererGroup extends RendererGroup.Attrs {}
 export class RendererGroup extends Model {
   declare properties: RendererGroup.Props
 
-  constructor(attrs?: Partial<RendererGroup.Attrs>) {
+  protected constructor(attrs?: Partial<RendererGroup.Attrs>) {
     super(attrs)
   }
 

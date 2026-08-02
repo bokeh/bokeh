@@ -178,7 +178,7 @@ export class Label extends TextAnnotation {
   declare properties: Label.Props
   declare __view_type__: LabelView
 
-  constructor(attrs?: Partial<Label.Attrs>) {
+  protected constructor(attrs?: Partial<Label.Attrs>) {
     super(attrs)
   }
 

@@ -186,7 +186,7 @@ export abstract class LRTB extends Glyph {
   declare properties: LRTB.Props
   declare __view_type__: LRTBView
 
-  constructor(attrs?: Partial<LRTB.Attrs>) {
+  protected constructor(attrs?: Partial<LRTB.Attrs>) {
     super(attrs)
   }
 

@@ -21,7 +21,7 @@ export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}
 export class StaticLayoutProvider extends LayoutProvider {
   declare properties: StaticLayoutProvider.Props
 
-  constructor(attrs?: Partial<StaticLayoutProvider.Attrs>) {
+  protected constructor(attrs?: Partial<StaticLayoutProvider.Attrs>) {
     super(attrs)
   }
 

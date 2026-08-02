@@ -87,7 +87,7 @@ export class HArea extends Area {
   declare properties: HArea.Props
   declare __view_type__: HAreaView
 
-  constructor(attrs?: Partial<HArea.Attrs>) {
+  protected constructor(attrs?: Partial<HArea.Attrs>) {
     super(attrs)
   }
 

@@ -208,7 +208,7 @@ export abstract class EditTool extends GestureTool {
   declare properties: EditTool.Props
   declare __view_type__: EditToolView
 
-  constructor(attrs?: Partial<EditTool.Attrs>) {
+  protected constructor(attrs?: Partial<EditTool.Attrs>) {
     super(attrs)
   }
 

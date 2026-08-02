@@ -31,7 +31,7 @@ export class RangeSlider extends NumericalRangeSlider {
   declare properties: RangeSlider.Props
   declare __view_type__: RangeSliderView
 
-  constructor(attrs?: Partial<RangeSlider.Attrs>) {
+  protected constructor(attrs?: Partial<RangeSlider.Attrs>) {
     super(attrs)
   }
 

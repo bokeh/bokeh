@@ -18,7 +18,7 @@ export interface CustomJSCompare extends CustomJSCompare.Attrs {}
 export class CustomJSCompare extends Comparison {
   declare properties: CustomJSCompare.Props
 
-  constructor(attrs?: Partial<CustomJSCompare.Attrs>) {
+  protected constructor(attrs?: Partial<CustomJSCompare.Attrs>) {
     super(attrs)
   }
 

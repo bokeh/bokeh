@@ -12,7 +12,7 @@ export interface Comparison extends Comparison.Attrs {}
 export abstract class Comparison extends Model {
   declare properties: Comparison.Props
 
-  constructor(attrs?: Partial<Comparison.Attrs>) {
+  protected constructor(attrs?: Partial<Comparison.Attrs>) {
     super(attrs)
   }
 

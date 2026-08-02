@@ -530,7 +530,7 @@ export class TileRenderer extends Renderer {
   declare properties: TileRenderer.Props
   declare __view_type__: TileRendererView
 
-  constructor(attrs?: Partial<TileRenderer.Attrs>) {
+  protected constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)
   }
 

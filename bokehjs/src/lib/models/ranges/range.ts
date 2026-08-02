@@ -27,7 +27,7 @@ export interface Range extends Range.Attrs {}
 export abstract class Range extends Model {
   declare properties: Range.Props
 
-  constructor(attrs?: Partial<Range.Attrs>) {
+  protected constructor(attrs?: Partial<Range.Attrs>) {
     super(attrs)
   }
 

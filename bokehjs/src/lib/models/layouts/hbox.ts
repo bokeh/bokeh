@@ -45,7 +45,7 @@ export class HBox extends CSSGridBox {
   declare properties: HBox.Props
   declare __view_type__: HBoxView
 
-  constructor(attrs?: Partial<HBox.Attrs>) {
+  protected constructor(attrs?: Partial<HBox.Attrs>) {
     super(attrs)
   }
 

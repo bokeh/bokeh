@@ -17,7 +17,7 @@ export interface TableWidget extends TableWidget.Attrs {}
 export class TableWidget extends Widget {
   declare properties: TableWidget.Props
 
-  constructor(attrs?: Partial<TableWidget.Attrs>) {
+  protected constructor(attrs?: Partial<TableWidget.Attrs>) {
     super(attrs)
   }
 

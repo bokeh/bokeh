@@ -27,7 +27,7 @@ export class ZoomOutTool extends ZoomBaseTool {
 
   maintain_focus: boolean
 
-  constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
+  protected constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
   }
 

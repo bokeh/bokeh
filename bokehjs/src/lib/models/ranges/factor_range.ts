@@ -322,7 +322,7 @@ export interface FactorRange extends FactorRange.Attrs {}
 export class FactorRange extends Range {
   declare properties: FactorRange.Props
 
-  constructor(attrs?: Partial<FactorRange.Attrs>) {
+  protected constructor(attrs?: Partial<FactorRange.Attrs>) {
     super(attrs)
   }
 

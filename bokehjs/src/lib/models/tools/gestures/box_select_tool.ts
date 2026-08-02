@@ -226,7 +226,7 @@ export class BoxSelectTool extends RegionSelectTool {
 
   declare overlay: BoxAnnotation
 
-  constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
+  protected constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)
   }
 

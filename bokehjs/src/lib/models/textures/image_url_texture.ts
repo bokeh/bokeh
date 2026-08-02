@@ -21,7 +21,7 @@ export interface ImageURLTexture extends ImageURLTexture.Attrs {}
 export class ImageURLTexture extends Texture {
   declare properties: ImageURLTexture.Props
 
-  constructor(attrs?: Partial<ImageURLTexture.Attrs>) {
+  protected constructor(attrs?: Partial<ImageURLTexture.Attrs>) {
     super(attrs)
   }
 

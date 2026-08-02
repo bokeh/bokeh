@@ -112,7 +112,7 @@ export abstract class BaseDatePicker extends PickerBase {
   declare properties: BaseDatePicker.Props
   declare __view_type__: BaseDatePickerView
 
-  constructor(attrs?: Partial<BaseDatePicker.Attrs>) {
+  protected constructor(attrs?: Partial<BaseDatePicker.Attrs>) {
     super(attrs)
   }
 

@@ -15,7 +15,7 @@ export interface OpenDialog extends OpenDialog.Attrs {}
 export class OpenDialog extends Callback {
   declare properties: OpenDialog.Props
 
-  constructor(attrs?: Partial<OpenDialog.Attrs>) {
+  protected constructor(attrs?: Partial<OpenDialog.Attrs>) {
     super(attrs)
   }
 

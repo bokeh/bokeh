@@ -141,7 +141,7 @@ export class FileInput extends InputWidget {
   declare properties: FileInput.Props
   declare __view_type__: FileInputView
 
-  constructor(attrs?: Partial<FileInput.Attrs>) {
+  protected constructor(attrs?: Partial<FileInput.Attrs>) {
     super(attrs)
   }
 

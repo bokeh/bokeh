@@ -51,7 +51,7 @@ export class ColorRef extends ValueRef {
   declare properties: ColorRef.Props
   declare __view_type__: ColorRefView
 
-  constructor(attrs?: Partial<ColorRef.Attrs>) {
+  protected constructor(attrs?: Partial<ColorRef.Attrs>) {
     super(attrs)
   }
 

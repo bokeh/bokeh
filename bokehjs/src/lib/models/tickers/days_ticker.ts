@@ -50,7 +50,7 @@ export interface DaysTicker extends DaysTicker.Attrs {}
 export class DaysTicker extends BaseSingleIntervalTicker {
   declare properties: DaysTicker.Props
 
-  constructor(attrs?: Partial<DaysTicker.Attrs>) {
+  protected constructor(attrs?: Partial<DaysTicker.Attrs>) {
     super(attrs)
   }
 
