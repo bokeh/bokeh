@@ -17,6 +17,9 @@ module as an option:
 
     .. bokeh-model:: SomeModel
 
+The ``bokeh_model_excluded_members`` Sphinx configuration value controls member
+names omitted from every model page.
+
 """
 
 # -----------------------------------------------------------------------------
@@ -33,7 +36,9 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Collection
 import importlib
+import inspect
 import json
 import warnings
 from os import getenv
@@ -41,9 +46,11 @@ from typing import Any
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
+from sphinx import addnodes
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import AnyRep, Serializer, SymbolRep
 from bokeh.model import Model
@@ -52,7 +59,8 @@ from bokeh.util.warnings import BokehDeprecationWarning
 # Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective, py_sig_re
-from .templates import MODEL_DETAIL
+from .bokeh_prop import _render_property_detail
+from .templates import MODEL_DETAIL, PROP_DETAIL
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -121,17 +129,46 @@ class BokehModelDirective(BokehDirective):
         # we only want to document things as coming from top-level `bokeh.models`
         adjusted_module_name = "bokeh.models" if module_name.startswith("bokeh.models") else module_name
 
+        properties, python_properties, methods = _model_members(
+            model,
+            excluded_members=self.config.bokeh_model_excluded_members,
+        )
+        property_details = [
+            _render_property_detail(model_obj, f"{model_name}.{name}", adjusted_module_name)
+            for name in properties
+        ]
+
         rst_text = MODEL_DETAIL.render(
             name=model_name,
             module_name=adjusted_module_name,
             model_json=model_json,
+            methods=methods,
+            property_details=property_details,
+            property_names=properties + python_properties,
+            python_properties=python_properties,
         )
 
-        return self.parse(rst_text, f"<bokeh-model: {model_name}>")
+        for template in (MODEL_DETAIL, PROP_DETAIL):
+            if template.filename is not None:
+                self.env.note_dependency(template.filename)
+
+        parsed = self.parse(rst_text, f"<bokeh-model: {model_name}>")
+        _shorten_member_signatures(
+            parsed,
+            module_name=adjusted_module_name,
+            model_name=model_name,
+        )
+        return parsed
 
 
 def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
+    app.add_config_value(
+        "bokeh_model_excluded_members",
+        tuple(sorted(_DEFAULT_EXCLUDED_MEMBERS)),
+        "env",
+        types=(list, tuple, set, frozenset),
+    )
     app.add_directive_to_domain("py", "bokeh-model", BokehModelDirective)
 
     return PARALLEL_SAFE
@@ -139,6 +176,66 @@ def setup(app: Any) -> SphinxParallelSpec:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+_DEFAULT_EXCLUDED_MEMBERS = frozenset({
+    "js_event_callbacks",
+    "js_property_callbacks",
+    "subscribed_events",
+})
+
+
+def _shorten_member_signatures(
+    parsed: list[Any],
+    *,
+    module_name: str,
+    model_name: str,
+) -> None:
+    """Remove the redundant class prefix from model member display names.
+
+    The full object IDs and Python-domain registrations are left unchanged so
+    links and intersphinx inventory entries remain fully qualified. Updating
+    the parsed signature nodes also gives the page-local table of contents the
+    shortened display names.
+    """
+    member_id_prefix = f"{module_name}.{model_name}."
+    display_prefix = f"{model_name}."
+
+    for root in parsed:
+        for signature in root.findall(addnodes.desc_signature):
+            if not any(identifier.startswith(member_id_prefix) for identifier in signature.get("ids", ())):
+                continue
+
+            for child in tuple(signature.children):
+                if isinstance(child, addnodes.desc_addname) and child.astext() == display_prefix:
+                    signature.remove(child)
+
+            toc_name = signature.get("_toc_name", "")
+            if toc_name.startswith(display_prefix):
+                signature["_toc_name"] = toc_name.removeprefix(display_prefix)
+
+
+def _model_members(
+    model: type[Model],
+    *,
+    excluded_members: Collection[str] = _DEFAULT_EXCLUDED_MEMBERS,
+) -> tuple[list[str], list[str], list[str]]:
+    """Return documented Bokeh properties, Python properties, and methods."""
+    properties: list[str] = []
+    python_properties: list[str] = []
+    methods: list[str] = []
+
+    for name, member in inspect.getmembers_static(model):
+        if name.startswith("_") or name in excluded_members:
+            continue
+        if isinstance(member, (AliasPropertyDescriptor, PropertyDescriptor)):
+            properties.append(name)
+        elif isinstance(member, property) and inspect.getdoc(member) is not None:
+            python_properties.append(name)
+        elif inspect.isroutine(member) and inspect.getdoc(member) is not None:
+            methods.append(name)
+
+    return properties, python_properties, methods
+
 
 class DocsSerializer(Serializer):
 

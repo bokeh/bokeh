@@ -44,6 +44,7 @@ from sphinx.errors import SphinxError
 
 # Bokeh imports
 from bokeh.core.property._sphinx import type_link
+from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
@@ -59,6 +60,8 @@ __all__ = (
     "BokehPropDirective",
     "setup",
 )
+
+_model_instances: dict[type[Any], Any] = {}
 
 # -----------------------------------------------------------------------------
 # General API
@@ -79,7 +82,7 @@ class BokehPropDirective(BokehDirective):
     def run(self) -> list[Any]:
 
         full_name = self.arguments[0]
-        model_name, prop_name = full_name.rsplit(".")
+        model_name, _ = full_name.rsplit(".")
         module_name = self.options["module"]
 
         try:
@@ -91,27 +94,22 @@ class BokehPropDirective(BokehDirective):
         if model is None:
             raise SphinxError(f"Unable to generate reference docs for {full_name}: no model {model_name} in module {module_name}")
 
-        # We may need to instantiate deprecated objects as part of documenting
-        # them in the reference guide. Suppress any warnings here to keep the
-        # docs build clean just for this case
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
-            model_obj = model()
+        model_obj = _model_instances.get(model)
+        if model_obj is None:
+            # We may need to instantiate deprecated objects as part of
+            # documenting them. Suppress warnings just for this case and cache
+            # the instance because a model page renders every property.
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+                model_obj = model()
+            _model_instances[model] = model_obj
 
-        try:
-            descriptor = model_obj.lookup(prop_name)
-        except AttributeError:
-            raise SphinxError(f"Unable to generate reference docs for {full_name}: no property {prop_name} on model {model_name}")
+        rst_text = _render_property_detail(model_obj, full_name, self.options["module"], qualified=False)
 
-        rst_text = PROP_DETAIL.render(
-            name=prop_name,
-            module=self.options["module"],
-            default=repr(descriptor.instance_default(model_obj)),
-            type_info=type_link(descriptor.property),
-            doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
-        )
+        if PROP_DETAIL.filename is not None:
+            self.env.note_dependency(PROP_DETAIL.filename)
 
-        return self.parse(rst_text, f"<bokeh-prop: {model_name}.{prop_name}>")
+        return self.parse(rst_text, f"<bokeh-prop: {full_name}>")
 
 
 def setup(app: Any) -> SphinxParallelSpec:
@@ -123,6 +121,33 @@ def setup(app: Any) -> SphinxParallelSpec:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+
+def _render_property_detail(model_obj: Any, full_name: str, module: str, *, qualified: bool = True) -> str:
+    """Render one Bokeh property using the standard property template."""
+    model_name, prop_name = full_name.rsplit(".")
+
+    try:
+        descriptor = model_obj.lookup(prop_name)
+    except AttributeError:
+        raise SphinxError(f"Unable to generate reference docs for {full_name}: no property {prop_name} on model {model_name}")
+
+    value_descriptor = descriptor
+    while isinstance(value_descriptor, AliasPropertyDescriptor):
+        value_descriptor = model_obj.lookup(value_descriptor.aliased_name)
+
+    if not isinstance(value_descriptor, PropertyDescriptor):
+        raise SphinxError(
+            f"Unable to generate reference docs for {full_name}: unsupported descriptor {type(descriptor).__name__}",
+        )
+
+    return PROP_DETAIL.render(
+        name=full_name if qualified else prop_name,
+        module=module,
+        default=repr(value_descriptor.instance_default(model_obj)),
+        type_info=type_link(value_descriptor.property),
+        doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
+    )
 
 # -----------------------------------------------------------------------------
 # Code

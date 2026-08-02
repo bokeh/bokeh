@@ -1,0 +1,204 @@
+from __future__ import annotations
+
+import inspect
+from io import StringIO
+import posixpath
+from pathlib import Path
+from typing import Any, cast
+
+import bokeh.models as models
+from bokeh.core.properties import Int
+from bokeh.model import Model
+from bokeh.models import BoxSelectTool, Filter
+from bokeh.sphinxext._internal.bokeh_model import _DEFAULT_EXCLUDED_MEMBERS, _model_members
+from bokeh.sphinxext._internal.bokeh_prop import _render_property_detail
+from bokeh.sphinxext._internal.templates import MODEL_DETAIL
+from sphinx.application import Sphinx
+from sphinx.util.inventory import InventoryFile
+
+
+class _MemberBase(Model):
+    base_value = Int()
+
+    @property
+    def python_property(self) -> int:
+        """A documented Python property."""
+        return 1
+
+    def inherited_method(self) -> None:
+        """A documented inherited method."""
+
+    @classmethod
+    def class_method(cls) -> None:
+        """A documented class method."""
+
+    @staticmethod
+    def static_method() -> None:
+        """A documented static method."""
+
+    def undocumented_method(self) -> None:
+        pass
+
+
+class _MemberChild(_MemberBase):
+    child_value = Int()
+
+    def inherited_method(self) -> None:
+        """A documented override."""
+
+
+def test_model_members_separate_properties_and_methods() -> None:
+    properties, python_properties, methods = _model_members(Filter)
+
+    assert properties == ["name", "syncable", "tags"]
+    assert python_properties == ["document"]
+    assert "apply_theme" in methods
+    assert "properties_with_values" in methods
+    assert "js_event_callbacks" not in properties
+
+
+def test_model_members_handle_inheritance_and_method_kinds() -> None:
+    properties, python_properties, methods = _model_members(_MemberChild)
+
+    assert properties == sorted(properties)
+    assert {"base_value", "child_value"} <= set(properties)
+    assert "python_property" in python_properties
+    assert {"class_method", "inherited_method", "static_method"} <= set(methods)
+    assert "undocumented_method" not in methods
+
+
+def test_model_members_support_global_exclusions() -> None:
+    properties, _, _ = _model_members(Filter, excluded_members={"name", "tags"})
+
+    assert "name" not in properties
+    assert "tags" not in properties
+    assert "js_event_callbacks" in properties
+
+
+def test_all_documented_model_members_are_classified() -> None:
+    model_classes = {
+        member
+        for member in vars(models).values()
+        if inspect.isclass(member) and issubclass(member, Model)
+    }
+
+    for model in model_classes:
+        properties, python_properties, methods = _model_members(model)
+        classified = set(properties) | set(python_properties) | set(methods)
+        documented = set()
+
+        for name, member in inspect.getmembers_static(model):
+            if name.startswith("_") or name in _DEFAULT_EXCLUDED_MEMBERS:
+                continue
+            doc = inspect.getdoc(member)
+            if doc is not None and doc != inspect.getdoc(type(member)):
+                documented.add(name)
+
+        assert documented <= classified, f"Unclassified documented members on {model.__name__}: {documented - classified}"
+        assert not classified.intersection(_DEFAULT_EXCLUDED_MEMBERS)
+
+
+def test_property_detail_preserves_default_type_and_help() -> None:
+    detail = _render_property_detail(Filter(), "Filter.name", "bokeh.models")
+
+    assert ".. attribute:: Filter.name" in detail
+    assert ":annotation: = None" in detail
+    assert ":Type: :class:`~bokeh.core.properties.Nullable`" in detail
+    assert "An arbitrary, user-supplied name for this model." in detail
+
+
+def test_property_detail_supports_deprecated_aliases() -> None:
+    properties, _, _ = _model_members(BoxSelectTool)
+    detail = _render_property_detail(
+        BoxSelectTool(),
+        "BoxSelectTool.select_every_mousemove",
+        "bokeh.models",
+    )
+
+    assert "select_every_mousemove" in properties
+    assert ":annotation: = False" in detail
+    assert ":Type: :class:`~bokeh.core.properties.Bool`" in detail
+    assert "was deprecated in Bokeh 3.1.0" in detail
+
+
+def test_model_detail_includes_property_index() -> None:
+    detail = MODEL_DETAIL.render(
+        methods=[],
+        model_json="{}",
+        module_name="bokeh.models",
+        name="Filter",
+        property_details=[],
+        property_names=["name", "syncable", "tags", "document"],
+        python_properties=[],
+    )
+
+    assert ".. list-table:: Property index" in detail
+    assert ":attr:`~bokeh.models.Filter.name`" in detail
+    assert ":attr:`~bokeh.models.Filter.document`" in detail
+
+
+def test_model_build_registers_inventory_members_and_template_dependencies(tmp_path: Path) -> None:
+    source_dir = tmp_path / "source"
+    output_dir = tmp_path / "output"
+    doctree_dir = tmp_path / "doctrees"
+    source_dir.mkdir()
+    (source_dir / "conf.py").write_text(
+        "extensions = [\n"
+        "    'sphinx.ext.autodoc',\n"
+        "    'sphinx_design',\n"
+        "    'bokeh.sphinxext._internal.bokeh_model',\n"
+        "]\n"
+        "project = 'bokeh-model-test'\n"
+        "bokeh_model_excluded_members = [\n"
+        "    'greedy',\n"
+        "    'js_event_callbacks',\n"
+        "    'js_property_callbacks',\n"
+        "    'subscribed_events',\n"
+        "]\n",
+        encoding="utf-8",
+    )
+    (source_dir / "index.rst").write_text(
+        "Model API\n"
+        "=========\n\n"
+        ".. bokeh-model:: BoxSelectTool\n"
+        "    :module: bokeh.models.tools\n",
+        encoding="utf-8",
+    )
+
+    status = StringIO()
+    warning = StringIO()
+    app = Sphinx(
+        srcdir=source_dir,
+        confdir=source_dir,
+        outdir=output_dir,
+        doctreedir=doctree_dir,
+        buildername="html",
+        status=status,
+        warning=warning,
+        freshenv=True,
+    )
+
+    app.build()
+    assert app.statuscode == 0, warning.getvalue()
+    assert "duplicate object description" not in warning.getvalue()
+    assert "unsupported descriptor" not in warning.getvalue()
+
+    with (output_dir / "objects.inv").open("rb") as inventory_file:
+        inventory = InventoryFile.load(cast(Any, inventory_file), "", posixpath.join)
+
+    assert "bokeh.models.BoxSelectTool" in inventory["py:class"]
+    assert "bokeh.models.BoxSelectTool.continuous" in inventory["py:attribute"]
+    assert "bokeh.models.BoxSelectTool.select_every_mousemove" in inventory["py:attribute"]
+    assert "bokeh.models.BoxSelectTool.document" in inventory["py:property"]
+    assert "bokeh.models.BoxSelectTool.apply_theme" in inventory["py:method"]
+    assert "bokeh.models.BoxSelectTool.greedy" not in inventory["py:attribute"]
+    assert "bokeh.models.BoxSelectTool.js_event_callbacks" not in inventory["py:attribute"]
+
+    local_toc = app.env.tocs["index"].astext()
+    assert "continuous" in local_toc
+    assert "apply_theme" in local_toc
+    assert "BoxSelectTool.continuous" not in local_toc
+    assert "BoxSelectTool.apply_theme" not in local_toc
+
+    dependencies = {Path(dependency).name for dependency in app.env.dependencies["index"]}
+    assert {"model_detail.rst", "prop_detail.rst"} <= dependencies
