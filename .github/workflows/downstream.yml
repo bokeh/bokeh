@@ -35,7 +35,7 @@ jobs:
           source-tree: 'delete'
 
       - name: Install downstream packages
-        run: bash scripts/ci/install_downstream_packages.sh
+        run: bash tools/ci/install_downstream_packages.sh
 
       - name: List installed software
         run: |
@@ -45,4 +45,4 @@ jobs:
           echo "npm $(npm --version)"
 
       - name: Run tests
-        run: bash scripts/ci/run_downstream_tests.sh
+        run: bash tools/ci/run_downstream_tests.sh

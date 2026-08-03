@@ -5,16 +5,16 @@ from typing import Any
 
 # External imports
 import pytest
-from release import credentials
-from release.action import ActionReturn
-from release.config import Config
-from release.enums import ActionResult
-from release.pipeline import StepType
-from release.system import System
 
 # Bokeh imports
 # Bokeh test imports
-from tests.codebase._release_support import RecordingSystem
+from tests.tools.release._support import RecordingSystem
+from tools.release import credentials
+from tools.release.action import ActionReturn
+from tools.release.config import Config
+from tools.release.enums import ActionResult
+from tools.release.pipeline import StepType
+from tools.release.system import System
 
 
 @pytest.mark.parametrize("value", [None, ""])

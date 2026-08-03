@@ -6,15 +6,15 @@ from pathlib import Path
 
 # External imports
 import pytest
-from release import build
-from release.config import Config
-from release.enums import ActionResult
-from release.pipeline import StepType
-from release.system import System
 
 # Bokeh imports
 # Bokeh test imports
-from tests.codebase._release_support import RecordingSystem
+from tests.tools.release._support import RecordingSystem
+from tools.release import build
+from tools.release.config import Config
+from tools.release.enums import ActionResult
+from tools.release.pipeline import StepType
+from tools.release.system import System
 
 
 @pytest.mark.parametrize(
@@ -34,20 +34,20 @@ from tests.codebase._release_support import RecordingSystem
         (build.npm_install, "npm ci", {}),
         (
             build.verify_pip_install_from_sdist,
-            "bash scripts/ci/verify_pip_install_from_sdist.sh",
+            "bash tools/ci/verify_pip_install_from_sdist.sh",
             {"VERSION": "4.0.0"},
         ),
         (
             build.verify_pip_install_using_sdist,
-            "bash scripts/ci/verify_pip_install_using_sdist.sh",
+            "bash tools/ci/verify_pip_install_using_sdist.sh",
             {"VERSION": "4.0.0"},
         ),
         (
             build.verify_pip_install_using_wheel,
-            "bash scripts/ci/verify_pip_install_using_wheel.sh",
+            "bash tools/ci/verify_pip_install_using_wheel.sh",
             {"VERSION": "4.0.0"},
         ),
-        (build.verify_conda_install, "bash scripts/ci/verify_conda_install.sh", {"VERSION": "4.0.0"}),
+        (build.verify_conda_install, "bash tools/ci/verify_conda_install.sh", {"VERSION": "4.0.0"}),
     ],
 )
 def test_command_build_steps(
@@ -75,10 +75,10 @@ def test_command_build_steps(
         (build.dev_install_bokehjs, "pip install -e ."),
         (build.install_bokehjs, "pip install ."),
         (build.npm_install, "npm ci"),
-        (build.verify_pip_install_from_sdist, "bash scripts/ci/verify_pip_install_from_sdist.sh"),
-        (build.verify_pip_install_using_sdist, "bash scripts/ci/verify_pip_install_using_sdist.sh"),
-        (build.verify_pip_install_using_wheel, "bash scripts/ci/verify_pip_install_using_wheel.sh"),
-        (build.verify_conda_install, "bash scripts/ci/verify_conda_install.sh"),
+        (build.verify_pip_install_from_sdist, "bash tools/ci/verify_pip_install_from_sdist.sh"),
+        (build.verify_pip_install_using_sdist, "bash tools/ci/verify_pip_install_using_sdist.sh"),
+        (build.verify_pip_install_using_wheel, "bash tools/ci/verify_pip_install_using_wheel.sh"),
+        (build.verify_conda_install, "bash tools/ci/verify_conda_install.sh"),
     ],
 )
 def test_command_build_steps_report_failure(config: Config, func: StepType, command: str) -> None:
@@ -220,8 +220,8 @@ def test_update_bokehjs_versions_reports_malformed_package_file(tmp_path: Path, 
 
 
 def test_update_switcher_json_writes_latest_and_dev_entries(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
@@ -250,8 +250,8 @@ def test_update_switcher_json_refreshes_dev_name_within_release_level(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     (switcher_dir / "switcher.json").write_text(json.dumps([{
@@ -283,8 +283,8 @@ def test_update_switcher_json_moves_dev_entry_for_new_release_level(
     version: str,
     release_level: str,
 ) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     (switcher_dir / "switcher.json").write_text(json.dumps([{
@@ -310,8 +310,8 @@ def test_update_switcher_json_keeps_only_latest_dev_release_level(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
@@ -334,8 +334,8 @@ def test_update_switcher_json_keeps_only_latest_dev_release_level(
 
 
 def test_update_switcher_json_includes_untagged_release(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
@@ -357,8 +357,8 @@ def test_update_switcher_json_keeps_five_latest_minors_and_one_older_major_for_p
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
@@ -397,8 +397,8 @@ def test_update_switcher_json_keeps_five_previous_minors_after_full_release(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
@@ -436,8 +436,8 @@ def test_update_switcher_json_honors_custom_minor_version_limit(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
@@ -459,8 +459,8 @@ def test_update_switcher_json_honors_custom_minor_version_limit(
 
 
 def test_update_switcher_json_rejects_non_version_tags(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     (tmp_path / "docs" / "bokeh").mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
     monkeypatch.setattr(build, "get_tags", lambda config, system: ["not-a-version"])
@@ -476,8 +476,8 @@ def test_update_switcher_json_normalizes_legacy_dev_tags(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     switcher_dir = tmp_path / "docs" / "bokeh"
     switcher_dir.mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
@@ -491,8 +491,8 @@ def test_update_switcher_json_normalizes_legacy_dev_tags(
 
 
 def test_update_switcher_json_reports_write_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    release_dir = tmp_path / "release"
-    release_dir.mkdir()
+    release_dir = tmp_path / "tools" / "release"
+    release_dir.mkdir(parents=True)
     monkeypatch.setattr(build, "__file__", str(release_dir / "build.py"))
     monkeypatch.setattr(build, "get_tags", lambda config, system: ["4.0.0"])
     config = Config("4.0.0")
@@ -511,8 +511,8 @@ def test_update_changelog_tracks_modified_file(config: Config) -> None:
     result = build.update_changelog(config, system)
 
     assert result.kind is ActionResult.PASS
-    assert system.commands == ["python milestone.py -a 4.0"]
-    assert system.directories == [("pushd", "scripts"), ("popd", None)]
+    assert system.commands == ["python -m tools.milestone -a 4.0"]
+    assert system.directories == []
     assert config.modified == {"docs/CHANGELOG"}
 
 
@@ -522,5 +522,6 @@ def test_update_hash_manifest_tracks_new_file(config: Config) -> None:
     result = build.update_hash_manifest(config, system)
 
     assert result.kind is ActionResult.PASS
-    assert system.commands == ["python sri.py 4.0.0"]
+    assert system.commands == ["python -m tools.sri 4.0.0"]
+    assert system.directories == []
     assert config.new == {"src/bokeh/_sri/4.0.0.json"}

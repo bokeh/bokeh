@@ -6,14 +6,14 @@ from typing import Any
 
 # External imports
 import pytest
-from release import remote
-from release.config import Config
-from release.enums import ActionResult
-from release.pipeline import StepType
 
 # Bokeh imports
 # Bokeh test imports
-from tests.codebase._release_support import RecordingSystem
+from tests.tools.release._support import RecordingSystem
+from tools.release import remote
+from tools.release.config import Config
+from tools.release.enums import ActionResult
+from tools.release.pipeline import StepType
 
 
 @pytest.mark.parametrize(

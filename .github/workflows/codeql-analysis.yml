@@ -9,7 +9,7 @@ on:
     paths:
       - bokehjs
       - examples
-      - release
+      - tools
       - src/bokeh
 
 jobs:

@@ -34,8 +34,8 @@ def test_isort_bokeh() -> None:
 def test_isort_examples() -> None:
     isort("examples")
 
-def test_isort_release() -> None:
-    isort("release")
+def test_isort_tools() -> None:
+    isort("tools")
 
 def test_isort_docs_bokeh() -> None:
     isort("docs/bokeh")

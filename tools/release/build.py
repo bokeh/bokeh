@@ -185,7 +185,7 @@ def update_switcher_json(
         minor_versions:int=5,
     ) -> ActionReturn:
 
-    switcher_path = Path(__file__).parents[1] / "docs" / "bokeh" / "switcher.json"
+    switcher_path = Path(__file__).parents[2] / "docs" / "bokeh" / "switcher.json"
     base_url = "https://docs.bokeh.org/en/"
 
     try:
@@ -275,9 +275,7 @@ def update_switcher_json(
 @skip_for_prerelease
 def update_changelog(config: Config, system: System) -> ActionReturn:
     try:
-        system.pushd("scripts")
-        system.run(f"python milestone.py -a {config.milestone_version}")
-        system.popd()
+        system.run(f"python -m tools.milestone -a {config.milestone_version}")
         config.add_modified("docs/CHANGELOG")
         return PASSED("Updated CHANGELOG with new closed issues")
     except RuntimeError as e:
@@ -287,9 +285,7 @@ def update_changelog(config: Config, system: System) -> ActionReturn:
 @skip_for_prerelease
 def update_hash_manifest(config: Config, system: System) -> ActionReturn:
     try:
-        system.cd("scripts")
-        system.run(f"python sri.py {config.version}")
-        system.cd("..")
+        system.run(f"python -m tools.sri {config.version}")
         config.add_new(f"src/bokeh/_sri/{config.version}.json")
         return PASSED("Updated SRI hash manifest")
     except RuntimeError as e:
@@ -297,28 +293,28 @@ def update_hash_manifest(config: Config, system: System) -> ActionReturn:
 
 def verify_pip_install_from_sdist(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("bash scripts/ci/verify_pip_install_from_sdist.sh", VERSION=config.version)
+        system.run("bash tools/ci/verify_pip_install_from_sdist.sh", VERSION=config.version)
         return PASSED("Verified pip install from sdist")
     except RuntimeError as e:
         return FAILED("Verify pip install from sdist failed", details=e.args)
 
 def verify_pip_install_using_sdist(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("bash scripts/ci/verify_pip_install_using_sdist.sh", VERSION=config.version)
+        system.run("bash tools/ci/verify_pip_install_using_sdist.sh", VERSION=config.version)
         return PASSED("Verified pip install using sdist")
     except RuntimeError as e:
         return FAILED("Verify pip install using sdist failed", details=e.args)
 
 def verify_pip_install_using_wheel(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("bash scripts/ci/verify_pip_install_using_wheel.sh", VERSION=config.version)
+        system.run("bash tools/ci/verify_pip_install_using_wheel.sh", VERSION=config.version)
         return PASSED("Verified pip install using wheel")
     except RuntimeError as e:
         return FAILED("Verify pip install using wheel failed", details=e.args)
 
 def verify_conda_install(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("bash scripts/ci/verify_conda_install.sh", VERSION=config.version)
+        system.run("bash tools/ci/verify_conda_install.sh", VERSION=config.version)
         return PASSED("Verified conda install")
     except RuntimeError as e:
         return FAILED("Verify conda install failed", details=e.args)

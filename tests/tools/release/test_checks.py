@@ -5,15 +5,15 @@ from pathlib import Path
 
 # External imports
 import pytest
-from release import checks
-from release.action import FAILED, PASSED
-from release.config import Config
-from release.enums import ActionResult
-from release.pipeline import StepType
 
 # Bokeh imports
 # Bokeh test imports
-from tests.codebase._release_support import RecordingSystem
+from tests.tools.release._support import RecordingSystem
+from tools.release import checks
+from tools.release.action import FAILED, PASSED
+from tools.release.config import Config
+from tools.release.enums import ActionResult
+from tools.release.pipeline import StepType
 
 
 @pytest.mark.parametrize(
@@ -102,7 +102,7 @@ def test_check_checkout_on_base_branch(branch: str, expected: ActionResult) -> N
     ("porcelain", "expected", "details"),
     [
         ("", ActionResult.PASS, None),
-        ("M release/build.py\n", ActionResult.FAIL, ["M release/build.py"]),
+        ("M tools/release/build.py\n", ActionResult.FAIL, ["M tools/release/build.py"]),
         ("M a\n?? b\n", ActionResult.FAIL, ["M a", "?? b"]),
     ],
 )
@@ -397,12 +397,12 @@ def test_check_milestone_labels_uses_release_milestone(config: Config) -> None:
     assert result.kind is ActionResult.PASS
     assert "BEP-1 compliant" in result.message
     assert system.commands == [
-        "python scripts/milestone.py 4.0 --check-only --allow-closed",
+        "python -m tools.milestone 4.0 --check-only --allow-closed",
     ]
 
 
 def test_check_milestone_labels_reports_command_failure(config: Config) -> None:
-    command = "python scripts/milestone.py 4.0 --check-only --allow-closed"
+    command = "python -m tools.milestone 4.0 --check-only --allow-closed"
     system = RecordingSystem(failures={command: ("invalid milestone item",)})
 
     result = checks.check_milestone_labels(config, system)

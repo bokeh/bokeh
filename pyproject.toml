@@ -136,7 +136,7 @@ omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
 [tool.mypy]
 python_version = "3.12"
 mypy_path = "src/typings/"
-files = ["src/typings", "src/bokeh", "release", "tests"]
+files = ["src/typings", "src/bokeh", "tools", "tests"]
 
 strict = true
 
@@ -152,7 +152,7 @@ warn_return_any = false
 warn_unreachable = true
 
 [tool.pyright]
-include = ["src/bokeh"]
+include = ["src/bokeh", "tools"]
 extraPaths = ["src", "src/typings"]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"

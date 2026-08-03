@@ -16,9 +16,9 @@ except ImportError:
     setattr(boto3, "client", None)
     sys.modules["boto3"] = boto3
 
-# External imports
-from release.config import Config
-from release.logger import LOG
+# Bokeh imports
+from tools.release.config import Config
+from tools.release.logger import LOG
 
 
 @pytest.fixture
