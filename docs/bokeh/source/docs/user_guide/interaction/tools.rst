@@ -734,7 +734,7 @@ formatter that can display derived quantities in the tooltip.
 .. note::
 
     When combining the selection of columns using the @-notation in combination with f-strings,
-    it is neccessary to write three curly braces instead of one to get the wanted behavior.
+    it is necessary to write three curly braces instead of one to get the wanted behavior.
 
     .. bokeh-plot::
 
