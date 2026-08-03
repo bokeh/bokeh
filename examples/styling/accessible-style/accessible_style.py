@@ -22,25 +22,25 @@ switch_style =  InlineStyleSheet(css="""
     cursor: not-allowed;
     outline: none;
     text-decoration: none;
-  }
 
-  :host(.bk-disabled) .bk-label {
-    color: var(--disabled-color);
-  }
+    & .bk-label {
+      color: var(--disabled-color);
+    }
 
-  :host(.bk-disabled) .bk-body {
-    cursor: not-allowed;
-  }
+    & .bk-body {
+      cursor: not-allowed;
+    }
 
-  :host(.bk-disabled) .bk-knob:before {
-    content: "";
-    width: 10px;
-    height: 2px;
-    background-color: var(--inverted-color);
-  }
+    & .bk-knob:before {
+      content: "";
+      width: 10px;
+      height: 2px;
+      background-color: var(--inverted-color);
+    }
 
-  :host(.bk-disabled) .bk-knob:focus-visible {
-    outline: none;
+    & .bk-knob:focus-visible {
+      outline: none;
+    }
   }
 
   .bk-knob {
@@ -53,12 +53,14 @@ switch_style =  InlineStyleSheet(css="""
 light_dark = w.LightDark(active=True, stylesheets=[switch_style])
 
 button_style = InlineStyleSheet(css="""
-  .bk-btn:hover {
-    text-decoration: underline;
-  }
+  .bk-btn {
+    &:hover {
+      text-decoration: underline;
+    }
 
-  .bk-btn:focus {
-    z-index: 100;
+    &:focus {
+      z-index: 100;
+    }
   }
 
   .bk-btn-default:focus,
@@ -82,25 +84,22 @@ button_style = InlineStyleSheet(css="""
     --outline: var(--outline-width) var(--outline-style) var(--danger-hover-color);
   }
 
-  .bk-btn-group.bk-horizontal,
-  .bk-btn-group.bk-vertical {
-    --button-outline-offset: 1px;
+  .bk-btn-group {
+    &.bk-horizontal,
+    &.bk-vertical {
+      --button-outline-offset: 1px;
+
+      & > .bk-btn-default:focus,
+      & > .bk-btn-primary:focus,
+      & > .bk-btn-success:focus,
+      & > .bk-btn-warning:focus,
+      & > .bk-btn-danger:focus,
+      & > .bk-btn-light:focus {
+        --outline: var(--outline-width) var(--outline-style) var(--outline-color);
+      }
+    }
   }
 
-  .bk-btn-group.bk-horizontal > .bk-btn-default:focus,
-  .bk-btn-group.bk-vertical > .bk-btn-default:focus,
-  .bk-btn-group.bk-horizontal > .bk-btn-primary:focus,
-  .bk-btn-group.bk-vertical > .bk-btn-primary:focus,
-  .bk-btn-group.bk-horizontal > .bk-btn-success:focus,
-  .bk-btn-group.bk-vertical > .bk-btn-success:focus,
-  .bk-btn-group.bk-horizontal > .bk-btn-warning:focus,
-  .bk-btn-group.bk-vertical > .bk-btn-warning:focus,
-  .bk-btn-group.bk-horizontal > .bk-btn-danger:focus,
-  .bk-btn-group.bk-vertical > .bk-btn-danger:focus,
-  .bk-btn-group.bk-horizontal > .bk-btn-light:focus,
-  .bk-btn-group.bk-vertical > .bk-btn-light:focus {
-    --outline: var(--outline-width) var(--outline-style) var(--outline-color);
-  }
 """)
 
 dropdown_style = InlineStyleSheet(css="""
@@ -108,10 +107,10 @@ dropdown_style = InlineStyleSheet(css="""
     outline: 2px solid var(--outline-color);
     outline-offset: 0px;
     border-color: var(--default-border-color);
-  }
 
-  .bk-btn:focus > .bk-caret {
-    mask-image: var(--bokeh-icon-chevron-up);
+    & > .bk-caret {
+      mask-image: var(--bokeh-icon-chevron-up);
+    }
   }
 
   .bk-caret {
@@ -123,18 +122,20 @@ slider_style =  InlineStyleSheet(css="""
 """)
 
 input_style =  InlineStyleSheet(css="""
-  .bk-input:focus {
-    border-width: var(--border-width);
-    border-color: var(--outline-color);
-    box-shadow: none;
-  }
+  .bk-input {
+    &:focus {
+      border-width: var(--border-width);
+      border-color: var(--outline-color);
+      box-shadow: none;
+    }
 
-  .bk-input:hover {
-    background-color: var(--hover-color);
-  }
+    &:hover {
+      background-color: var(--hover-color);
+    }
 
-  .bk-input:[disabled], .bk-input.bk-disabled {
-    border-color: var(--disabled-background-color);
+    &:[disabled], &.bk-disabled {
+      border-color: var(--disabled-background-color);
+    }
   }
 
   .bk-input-container.bk-input[disabled]:not(:first-child,:last-child),
@@ -173,29 +174,29 @@ input_style =  InlineStyleSheet(css="""
   input[type="checkbox"], input[type="radio"] {
     accent-color: var(--primary-color);
     margin: 2px;
-  }
 
-  input[type="checkbox"]:focus, input[type="radio"]:focus {
-    outline: none;
-  }
+    &:focus {
+      outline: none;
+    }
 
-  input[type="checkbox"] + *, input[type="radio"] + * {
-    position: relative;
-    top: -2px;
-    margin-left: 3px;
-  }
+    & + * {
+      position: relative;
+      top: -2px;
+      margin-left: 3px;
+    }
 
-  input[type="checkbox"]+span, input[type="radio"]+span {
-    margin-right: 3px;
-  }
+    &+span {
+      margin-right: 3px;
+    }
 
-  input[type="checkbox"]+span:hover, input[type="radio"]+span:hover {
-    text-decoration: underline;
-  }
+    &+span:hover {
+      text-decoration: underline;
+    }
 
-  input[type="checkbox"][disabled]+span, input[type="radio"][disabled]+span {
-    cursor: not-allowed;
-    text-decoration: none;
+    &[disabled]+span {
+      cursor: not-allowed;
+      text-decoration: none;
+    }
   }
 
   input[type="checkbox"]:hover:not([disabled]) {
