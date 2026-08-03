@@ -3,4 +3,4 @@
 export * from "./index"
 export * from "./api/index"
 export {mount, BokehMount} from "./api/io"
-export type {MountOptions, Showable} from "./api/io"
+export type {MountOptions, Showable, ShowableRoot} from "./api/io"

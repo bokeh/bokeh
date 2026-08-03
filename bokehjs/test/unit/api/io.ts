@@ -37,6 +37,29 @@ describe("in api/plotting module", () => {
       target.remove()
     })
 
+    it("mounts document roots into independent targets", async () => {
+      const fallback = document.createDocumentFragment()
+      const first_target = document.createElement("div")
+      const second_target = document.createElement("div")
+      const first = Plot.create()
+      const second = Plot.create()
+
+      const mounted = await mount([first, second], fallback, {root_targets: [first_target, second_target]})
+      const [first_view, second_view] = mounted.views
+      expect_instanceof(first_view, PlotView)
+      expect_instanceof(second_view, PlotView)
+      expect(first_target.contains(first_view.el)).to.be.true
+      expect(second_target.contains(second_view.el)).to.be.true
+      expect(fallback.contains(first_view.el)).to.be.false
+      expect(fallback.contains(second_view.el)).to.be.false
+
+      mounted.dispose()
+      expect(first_target.childElementCount).to.be.equal(0)
+      expect(second_target.childElementCount).to.be.equal(0)
+      expect(first.document).to.be.null
+      expect(second.document).to.be.null
+    })
+
     it("honors an already aborted signal", async () => {
       const target = document.createElement("div")
       const controller = new AbortController()

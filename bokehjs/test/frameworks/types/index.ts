@@ -3,14 +3,14 @@ import {h} from "vue"
 
 import {ColumnDataSource, Document, ModelResolver, Plotting, Range1d, mount, register_models, register_standard_models} from "@bokeh/bokehjs"
 import type {properties as p} from "@bokeh/bokehjs"
-import type {BokehComponent as AngularBokeh} from "@bokeh/angular"
-import {Bokeh as ReactBokeh} from "@bokeh/react"
+import type {BokehComponent as AngularBokeh, BokehDocumentComponent as AngularBokehDocument, BokehRootDirective as AngularBokehRoot} from "@bokeh/angular"
+import {Bokeh as ReactBokeh, BokehDocument as ReactBokehDocument, BokehRoot as ReactBokehRoot} from "@bokeh/react"
 import type {useBokeh as useReactBokeh} from "@bokeh/react"
-import {bokeh} from "@bokeh/svelte"
-import {Bokeh as VueBokeh} from "@bokeh/vue"
+import {bokeh, bokehDocument, bokehRoot} from "@bokeh/svelte"
+import {Bokeh as VueBokeh, BokehDocument as VueBokehDocument, BokehRoot as VueBokehRoot} from "@bokeh/vue"
 import type {useBokeh as useVueBokeh} from "@bokeh/vue"
-import {defineBokehElement} from "@bokeh/web-component"
-import type {BokehElement} from "@bokeh/web-component"
+import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement} from "@bokeh/web-component"
+import type {BokehDocumentElement, BokehElement, BokehRootElement} from "@bokeh/web-component"
 
 const source = ColumnDataSource.create({data: {x: [0, 1], y: [1, 0]}})
 const plot = Plotting.figure({tools: []})
@@ -22,19 +22,42 @@ const roots_document = new Document({roots})
 
 void mount(plot, document.createElement("div"))
 void mount(roots, document.createElement("div"))
+void mount(roots, document.createDocumentFragment(), {
+  root_targets: [document.createElement("div"), document.createElement("div")],
+})
 void mount(roots_document, document.createElement("div"))
 createElement(ReactBokeh, {model: roots})
+createElement(ReactBokehDocument, {models: roots},
+  createElement("section", null, createElement(ReactBokehRoot, {model: plot})),
+  createElement("aside", null, createElement(ReactBokehRoot, {model: detail})),
+)
 const react_hook_model: Parameters<typeof useReactBokeh>[0] = roots
 void react_hook_model
 const vue_composable_model: Parameters<typeof useVueBokeh>[0] = () => roots
 void vue_composable_model
 void h(VueBokeh, {model: roots})
+void h(VueBokehDocument, {models: roots}, () => [
+  h("section", null, h(VueBokehRoot, {model: plot})),
+  h("aside", null, h(VueBokehRoot, {model: detail})),
+])
 void bokeh(document.createElement("div"), {model: roots})
+void bokehDocument(document.createElement("main"), {models: roots})
+void bokehRoot(document.createElement("div"), {model: plot})
 const web_component_model: BokehElement["model"] = roots
 void web_component_model
+const web_component_document_models: BokehDocumentElement["models"] = roots
+const web_component_root_model: BokehRootElement["model"] = plot
+void web_component_document_models
+void web_component_root_model
 const angular_component_model: AngularBokeh["model"] = roots
+const angular_document_models: AngularBokehDocument["models"] = roots
+const angular_root_model: AngularBokehRoot["bokehRoot"] = plot
 void angular_component_model
+void angular_document_models
+void angular_root_model
 void defineBokehElement
+void defineBokehDocumentElement
+void defineBokehRootElement
 
 namespace CustomRange {
   export type Attrs = p.AttrsOf<Props>

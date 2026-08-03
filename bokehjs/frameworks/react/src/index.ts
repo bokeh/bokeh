@@ -1,9 +1,9 @@
-import {createElement, useCallback, useEffect, useRef, useState} from "react"
-import type {HTMLAttributes, ReactElement, RefCallback} from "react"
+import {createContext, createElement, useCallback, useContext, useEffect, useRef, useState} from "react"
+import type {HTMLAttributes, ReactElement, ReactNode, RefCallback} from "react"
 
 import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
-import {MountController} from "@bokeh/framework"
-import type {BokehModel} from "@bokeh/framework"
+import {DocumentMountController, MountController} from "@bokeh/framework"
+import type {BokehModel, BokehRootModel} from "@bokeh/framework"
 
 export type UseBokehOptions = {
   mountOptions?: MountOptions
@@ -63,5 +63,54 @@ export type BokehProps = Omit<HTMLAttributes<HTMLDivElement>, "children" | "onEr
 
 export function Bokeh({model, mountOptions, onMounted, onError, ...attributes}: BokehProps): ReactElement {
   const {ref} = useBokeh(model, {mountOptions, onMounted, onError})
+  return createElement("div", {...attributes, ref})
+}
+
+export type BokehDocumentProps = UseBokehOptions & {
+  /** Roots that will be rendered by descendant BokehRoot slots in one shared document. */
+  models: readonly BokehRootModel[]
+  children?: ReactNode
+}
+
+const BokehDocumentContext = createContext<DocumentMountController | null>(null)
+
+export function BokehDocument({models, mountOptions, onMounted, onError, children}: BokehDocumentProps): ReactElement {
+  const controller = useRef<DocumentMountController | null>(null)
+  controller.current ??= new DocumentMountController()
+  const callbacks = useRef({onMounted, onError})
+  callbacks.current = {onMounted, onError}
+  const signal = mountOptions?.signal
+
+  useEffect(() => {
+    controller.current?.update(models, {
+      mountOptions,
+      onMounted: (mounted) => callbacks.current.onMounted?.(mounted),
+      onError: (error) => callbacks.current.onError?.(error),
+    })
+  }, [models, signal])
+
+  useEffect(() => () => controller.current?.dispose(), [])
+
+  return createElement(BokehDocumentContext.Provider, {value: controller.current}, children)
+}
+
+export type BokehRootProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
+  /** One root listed in the nearest BokehDocument's models property. */
+  model: BokehRootModel
+}
+
+export function BokehRoot({model, ...attributes}: BokehRootProps): ReactElement {
+  const controller = useContext(BokehDocumentContext)
+  if (controller == null) {
+    throw new Error("BokehRoot must be rendered inside a BokehDocument")
+  }
+
+  const detach = useRef<(() => void) | null>(null)
+  const ref = useCallback<RefCallback<HTMLDivElement>>((target) => {
+    detach.current?.()
+    detach.current = target != null ? controller.attach(model, target) : null
+  }, [controller, model])
+  useEffect(() => () => detach.current?.(), [])
+
   return createElement("div", {...attributes, ref})
 }

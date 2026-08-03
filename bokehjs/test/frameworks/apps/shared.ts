@@ -1,6 +1,6 @@
 import {ColumnDataSource, ModelResolver, Plotting, Range1d, index, register_models, register_standard_models} from "@bokeh/bokehjs"
 import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
-import {MountController} from "@bokeh/framework"
+import {DocumentMountController, MountController} from "@bokeh/framework"
 import type {BokehModel} from "@bokeh/framework"
 
 declare global {
@@ -103,6 +103,53 @@ async function validate_controller(model: ReturnType<typeof Plotting.figure>): P
   assert(disposed == 1, "external abort didn't report disposal exactly once")
 }
 
+async function validate_document_controller(): Promise<void> {
+  const source = ColumnDataSource.create({data: {x: [0, 1], first: [1, 2], second: [2, 1]}})
+  const x_range = Range1d.create({start: -0.5, end: 1.5})
+  const first = Plotting.figure({width: 180, height: 120, x_range, tools: [], toolbar_location: null})
+  first.line({field: "x"}, {field: "first"}, {source})
+  const second = Plotting.figure({width: 180, height: 120, x_range, tools: [], toolbar_location: null})
+  second.line({field: "x"}, {field: "second"}, {source})
+  const first_target = document.createElement("div")
+  const second_target = document.createElement("div")
+  const unrelated_content = document.createElement("p")
+  unrelated_content.textContent = "framework content between Bokeh roots"
+  document.body.append(first_target, unrelated_content, second_target)
+
+  let resolve_mounted!: (mounted: BokehMount) => void
+  let reject_mounted!: (error: unknown) => void
+  const mounting = new Promise<BokehMount>((resolve, reject) => {
+    resolve_mounted = resolve
+    reject_mounted = reject
+  })
+  const controller = new DocumentMountController()
+  controller.update([first, second], {onMounted: resolve_mounted, onError: reject_mounted})
+  const detach_first = controller.attach(first, first_target)
+  const detach_second = controller.attach(second, second_target)
+  const mounted = await mounting
+
+  assert(mounted.views.length == 2, "document controller didn't build both root views")
+  assert(first_target.childElementCount > 0 && second_target.childElementCount > 0,
+    "document controller didn't render into independent targets")
+  assert(unrelated_content.isConnected, "document controller disturbed intervening framework content")
+  assert(first.document == mounted.document && second.document == mounted.document && source.document == mounted.document,
+    "distributed roots didn't retain one shared document")
+  assert(index.get(first) != null && index.get(second) != null, "distributed roots weren't globally indexed")
+
+  detach_first()
+  detach_second()
+  await Promise.resolve()
+  assert(mounted.disposed, "detaching a document slot didn't dispose its distributed mount")
+  assert(first_target.childElementCount == 0 && second_target.childElementCount == 0,
+    "distributed mount disposal retained Bokeh DOM")
+  assert([first, second, source].every((model) => model.document == null),
+    "distributed mount disposal retained temporary document ownership")
+  controller.dispose()
+  first_target.remove()
+  unrelated_content.remove()
+  second_target.remove()
+}
+
 async function validate_multi_root_mount(adapter: Adapter): Promise<void> {
   const source = ColumnDataSource.create({data: {x: [0, 1, 2], y: [1, 3, 2], z: [2, 1, 4]}})
   const x_range = Range1d.create({start: -0.5, end: 2.5})
@@ -163,6 +210,7 @@ export async function run_framework_test(framework: string, adapter: Adapter): P
   await third.unmount()
 
   await validate_controller(plot)
+  await validate_document_controller()
   await validate_multi_root_mount(adapter)
 
   return {framework, mounts: 4, streams}

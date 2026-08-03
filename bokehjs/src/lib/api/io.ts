@@ -15,10 +15,13 @@ import type {DOMNode} from "models/dom/dom_node"
 declare type Jq = any
 declare const $: Jq
 
-export type Showable = UIElement | DOMNode | Array<UIElement | DOMNode>
+export type ShowableRoot = UIElement | DOMNode
+export type Showable = ShowableRoot | ShowableRoot[]
 
 export type MountOptions = {
   signal?: AbortSignal
+  /** DOM targets corresponding by index to the mounted document roots. */
+  root_targets?: readonly (EmbedTarget | null)[]
 }
 
 export class BokehMount<T extends HasProps = HasProps> {
@@ -95,7 +98,7 @@ export async function mount(obj: Document | Showable, target?: EmbedTarget | str
 export async function mount(obj: Document | Showable, target?: EmbedTarget | string, options: MountOptions = {}): Promise<BokehMount> {
   const script = document.currentScript // This needs to be evaluated before any `await` to avoid `null` value.
   const {doc, dispose_document} = as_document(obj)
-  const {signal} = options
+  const {signal, root_targets} = options
 
   const abort_before_mount = () => {
     if (dispose_document) {
@@ -115,7 +118,11 @@ export async function mount(obj: Document | Showable, target?: EmbedTarget | str
     }
 
     signal?.removeEventListener("abort", abort_before_mount)
-    const mounted = await mount_document_standalone(doc, element, {signal, dispose_document})
+    const mounted = await mount_document_standalone(doc, element, {
+      roots: root_targets != null ? [...root_targets] : undefined,
+      signal,
+      dispose_document,
+    })
     return new BokehMount(doc, mounted)
   } catch (error) {
     if (dispose_document) {
