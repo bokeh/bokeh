@@ -4,13 +4,11 @@
 {% if property_names %}
 .. list-table:: Property index
     :class: bokeh-property-index
-    :widths: 25 25 25 25
+    :widths: 50 50
 
-{% for row in property_names|batch(4, "") %}
+{% for row in property_names|batch(2, "") %}
     * - {% if row[0] %}:attr:`~{{ module_name }}.{{ name }}.{{ row[0] }}`{% endif %}
       - {% if row[1] %}:attr:`~{{ module_name }}.{{ name }}.{{ row[1] }}`{% endif %}
-      - {% if row[2] %}:attr:`~{{ module_name }}.{{ name }}.{{ row[2] }}`{% endif %}
-      - {% if row[3] %}:attr:`~{{ module_name }}.{{ name }}.{{ row[3] }}`{% endif %}
 {% endfor %}
 {% endif %}
 Properties

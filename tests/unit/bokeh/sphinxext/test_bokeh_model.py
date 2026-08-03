@@ -140,6 +140,7 @@ def test_model_detail_includes_property_index() -> None:
     )
 
     assert ".. list-table:: Property index" in detail
+    assert ":widths: 50 50" in detail
     assert ":attr:`~bokeh.models.Filter.name`" in detail
     assert ":attr:`~bokeh.models.Filter.document`" in detail
 
