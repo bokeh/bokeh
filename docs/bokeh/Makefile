@@ -25,8 +25,13 @@ clean: reference-clean
 reference:
 	cd ../.. && python -m tools.api_reference
 
-reference-check: reference
-	cd ../.. && python -m tools.api_reference --check
+reference-check:
+	@cd ../.. && (python -m tools.api_reference --check || ( \
+		echo "Reference check failed; retrying from a clean generated tree." && \
+		python -m tools.api_reference --clean && \
+		python -m tools.api_reference && \
+		python -m tools.api_reference --check \
+	))
 
 reference-clean:
 	cd ../.. && python -m tools.api_reference --clean

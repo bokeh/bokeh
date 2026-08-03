@@ -23,12 +23,15 @@ if "%1" == "help" (
 	echo.  html              to make standalone HTML files
 	echo.  reference         to regenerate the bokeh.models API reference
 	echo.  reference-check   to check that the generated API reference is current
+	echo.  reference-clean   to remove generated API reference sources
 	echo.  serve    	     to serve the generated HTML and open a browser
 
 	goto end
 )
 
 if "%1" == "clean" (
+	call "%~f0" reference-clean
+	if errorlevel 1 exit /b 1
 	rmdir %BUILDDIR% /s /q
 	del /q /s source\docs\gallery\*
 	del /q /s source\docs\examples\*
@@ -55,6 +58,31 @@ if "%1" == "reference-check" (
 	pushd ..\..
 	python -m tools.api_reference --check
 	if errorlevel 1 (
+		echo.Try to clean old references.
+		python -m tools.api_reference --clean
+		if errorlevel 1 (
+			popd
+			exit /b 1
+		)
+		python -m tools.api_reference
+		if errorlevel 1 (
+			popd
+			exit /b 1
+		)
+		python -m tools.api_reference --check
+		if errorlevel 1 (
+			popd
+			exit /b 1
+		)
+	)
+	popd
+	goto end
+)
+
+if "%1" == "reference-clean" (
+	pushd ..\..
+	python -m tools.api_reference --clean
+	if errorlevel 1 (
 		popd
 		exit /b 1
 	)
@@ -63,13 +91,8 @@ if "%1" == "reference-check" (
 )
 
 if "%1" == "html" (
-	pushd ..\..
-	python -m tools.api_reference --check
-	if errorlevel 1 (
-		popd
-		exit /b 1
-	)
-	popd
+	call "%~f0" reference-check
+	if errorlevel 1 exit /b 1
 	xcopy ..\..\bokehjs\src\less\icons\* source\_images\icons\ /y
 	%SPHINXBUILD% -W -b html %ALLSPHINXOPTS% %BUILDDIR%\html
 	xcopy ..\bokeh\server\static %BUILDDIR%\html\static\ /s /e /h /y
