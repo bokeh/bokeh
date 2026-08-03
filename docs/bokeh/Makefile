@@ -23,18 +23,18 @@ clean: reference-clean
 	-rm -rf source/_images/icons/*.svg
 
 reference:
-	cd ../.. && python -m tools.api_reference
+	python -m api_reference
 
 reference-check:
-	@cd ../.. && (python -m tools.api_reference --check || ( \
+	@python -m api_reference --check || ( \
 		echo "Reference check failed; retrying from a clean generated tree." && \
-		python -m tools.api_reference --clean && \
-		python -m tools.api_reference && \
-		python -m tools.api_reference --check \
-	))
+		python -m api_reference --clean && \
+		python -m api_reference && \
+		python -m api_reference --check \
+	)
 
 reference-clean:
-	cd ../.. && python -m tools.api_reference --clean
+	python -m api_reference --clean
 
 html: reference-check
 	@start=$$(date +%s) \

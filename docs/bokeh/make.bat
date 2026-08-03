@@ -44,49 +44,28 @@ if "%1" == "all" (
 )
 
 if "%1" == "reference" (
-	pushd ..\..
-	python -m tools.api_reference
-	if errorlevel 1 (
-		popd
-		exit /b 1
-	)
-	popd
+	python -m api_reference
+	if errorlevel 1 exit /b 1
 	goto end
 )
 
 if "%1" == "reference-check" (
-	pushd ..\..
-	python -m tools.api_reference --check
+	python -m api_reference --check
 	if errorlevel 1 (
 		echo.Try to clean old references.
-		python -m tools.api_reference --clean
-		if errorlevel 1 (
-			popd
-			exit /b 1
-		)
-		python -m tools.api_reference
-		if errorlevel 1 (
-			popd
-			exit /b 1
-		)
-		python -m tools.api_reference --check
-		if errorlevel 1 (
-			popd
-			exit /b 1
-		)
+		python -m api_reference --clean
+		if errorlevel 1 exit /b 1
+		python -m api_reference
+		if errorlevel 1 exit /b 1
+		python -m api_reference --check
+		if errorlevel 1 exit /b 1
 	)
-	popd
 	goto end
 )
 
 if "%1" == "reference-clean" (
-	pushd ..\..
-	python -m tools.api_reference --clean
-	if errorlevel 1 (
-		popd
-		exit /b 1
-	)
-	popd
+	python -m api_reference --clean
+	if errorlevel 1 exit /b 1
 	goto end
 )
 

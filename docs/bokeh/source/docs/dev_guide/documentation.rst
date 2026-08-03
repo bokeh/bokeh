@@ -317,15 +317,17 @@ elements:
 
 The individual class pages for :mod:`bokeh.models` are generated from the
 public Python API. After adding, removing, or renaming a public model class,
-regenerate these pages from the repository root:
+regenerate these pages from the repository root with the documentation
+Makefile:
 
 .. code-block:: sh
 
-    python -m tools.api_reference
+    make -C docs/bokeh reference
 
 Documentation builds check that the generated pages are current. Use
-``python -m tools.api_reference --check`` to run the same check
-without changing any files.
+``make -C docs/bokeh reference-check`` to run the same check without changing
+any files. The underlying generator is available as ``python -m api_reference``
+when working in ``docs/bokeh``.
 
 The ``bokeh-model`` Sphinx extension discovers inherited Bokeh properties,
 Python properties, and methods for each class page. The
