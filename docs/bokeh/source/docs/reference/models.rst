@@ -22,16 +22,17 @@ figure below:
 
 All of the rectangular boxes above are Bokeh models.
 
-The :ref:`alphabetical class index <bokeh.models.classes>` and the topical
-sections in the sidebar link to every built-in Bokeh model. Each class has a
-dedicated page containing its properties and a JSON prototype illustrating
-what a serialized version of the model looks like.
+The alphabetical class index below and the topical sections in the sidebar
+link to every built-in Bokeh model. Each class has a dedicated page containing
+its properties and a JSON prototype illustrating what a serialized version of
+the model looks like.
+
+.. include:: models/class_index.inc
 
 .. toctree::
     :maxdepth: 3
     :hidden:
 
-    models/class_index
     models/annotations
     models/axes
     models/callbacks

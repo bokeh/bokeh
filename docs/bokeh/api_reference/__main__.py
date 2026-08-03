@@ -16,7 +16,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PACKAGE_ROOT = Path(__file__).resolve().parent
 MODEL_REFERENCE_ROOT = REPO_ROOT / "docs" / "bokeh" / "source" / "docs" / "reference" / "models"
-CLASS_INDEX_PATH = MODEL_REFERENCE_ROOT / "class_index.rst"
+CLASS_INDEX_PATH = MODEL_REFERENCE_ROOT / "class_index.inc"
 SECTION_REGISTRY_PATH = PACKAGE_ROOT / "sections.json"
 LEGACY_URLS_PATH = PACKAGE_ROOT / "legacy_urls.json"
 
@@ -226,7 +226,7 @@ def _render_class_index(refs: list[ClassReference]) -> str:
 
 .. _bokeh.models.classes:
 
-{_heading("Class index")}
+{_heading("Class index", "-")}
 
 This is an alphabetical list of the public classes available from
 :mod:`bokeh.models`. The classes are also grouped by topic in the navigation.
@@ -295,8 +295,8 @@ def _expected_files() -> dict[Path, str]:
 def _generated_files() -> set[Path]:
     return {
         path
-        for path in MODEL_REFERENCE_ROOT.rglob("*.rst")
-        if path.read_text().startswith(GENERATED_MARKER)
+        for path in MODEL_REFERENCE_ROOT.rglob("*")
+        if path.is_file() and path.suffix in {".inc", ".rst"} and path.read_text().startswith(GENERATED_MARKER)
     }
 
 
