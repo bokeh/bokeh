@@ -108,14 +108,14 @@ describe("Examples", () => {
       .bk-tab {
         border: none;
         color: light-dark(var(--background-color), var(--color));
-      }
 
-      .bk-tab.bk-active {
-        font-weight: normal;
-      }
+        &.bk-active {
+          font-weight: normal;
+        }
 
-      .bk-tab:hover {
-        color: var(--color);
+        &:hover {
+          color: var(--color);
+        }
       }
     `
 
