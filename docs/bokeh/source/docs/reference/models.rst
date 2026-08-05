@@ -22,13 +22,48 @@ figure below:
 
 All of the rectangular boxes above are Bokeh models.
 
-This reference links in the sidebar document all built-in Bokeh models,
-together with their property attributes, as well as a JSON prototype
-illustrating what a serialized version of the model looks like.
+The alphabetical class index below and the topical sections in the sidebar
+link to every built-in Bokeh model. Each class has a dedicated page containing
+its properties and a JSON prototype illustrating what a serialized version of
+the model looks like.
+
+.. include:: models/class_index.inc
 
 .. toctree::
     :maxdepth: 3
     :hidden:
-    :glob:
 
-    models/*
+    models/annotations
+    models/axes
+    models/callbacks
+    models/canvas
+    models/comparisons
+    models/coordinates
+    models/css
+    models/expressions
+    models/filters
+    models/formatters
+    models/glyphs
+    models/graphs
+    models/grids
+    models/labeling
+    models/layouts
+    models/map_plots
+    models/mappers
+    models/misc
+    models/nodes
+    models/plots
+    models/ranges
+    models/renderers
+    models/scales
+    models/selections
+    models/selectors
+    models/sources
+    models/text
+    models/textures
+    models/tickers
+    models/tiles
+    models/tools
+    models/transforms
+    models/ui
+    models/widgets
