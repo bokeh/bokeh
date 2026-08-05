@@ -213,12 +213,12 @@ def _format_type_expression(expression: _TypeExpression, indent: int = 0) -> lis
         return [f"{prefix}{expression.head}"]
 
     if not _multiline_type_expression(expression):
-        argument = _format_type_expression(expression.arguments[0])[0]
-        return [f"{prefix}{expression.head}({argument})"]
+        formatted_argument = _format_type_expression(expression.arguments[0])[0]
+        return [f"{prefix}{expression.head}({formatted_argument})"]
 
     lines = [f"{prefix}{expression.head}("]
-    for index, argument in enumerate(expression.arguments):
-        argument_lines = _format_type_expression(argument, indent + 1)
+    for index, argument_expression in enumerate(expression.arguments):
+        argument_lines = _format_type_expression(argument_expression, indent + 1)
         if index < len(expression.arguments) - 1:
             argument_lines[-1] += ","
         lines.extend(argument_lines)
