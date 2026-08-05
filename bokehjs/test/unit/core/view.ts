@@ -48,6 +48,25 @@ export class SomeModel extends HasProps {
   }
 }
 
+class ListeningModelView extends View {
+  declare model: ListeningModel
+
+  received: number = 0
+
+  override connect_signals(): void {
+    super.connect_signals()
+    document.addEventListener("some_event", () => this.received++, {signal: this.abort_signal})
+  }
+}
+
+export class ListeningModel extends HasProps {
+  declare __view_type__: ListeningModelView
+
+  static {
+    this.prototype.default_view = ListeningModelView
+  }
+}
+
 describe("core/view", () => {
 
   describe("View", () => {
@@ -69,6 +88,20 @@ describe("core/view", () => {
       expect(view.connect(model.change, slot)).to.be.true
       model.change.emit()
       expect(calls).to.be.equal(2)
+    })
+
+    it("should stop listening to DOM events on shared targets after being removed", async () => {
+      const view = await build_view(new ListeningModel())
+
+      try {
+        document.dispatchEvent(new Event("some_event"))
+        expect(view.received).to.be.equal(1)
+      } finally {
+        view.remove()
+      }
+
+      document.dispatchEvent(new Event("some_event"))
+      expect(view.received).to.be.equal(1)
     })
 
     it("should disconnect changes from former transitive references", async () => {

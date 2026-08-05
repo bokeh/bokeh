@@ -1,6 +1,6 @@
 import * as sinon from "sinon"
 
-import {expect} from "#framework/assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -153,6 +153,22 @@ describe("Plot module", () => {
       expect(element_cache1.map((view) => view.model)).to.be.equal([element1])
       expect(renderer_view0.is_destroyed).to.be.true
       expect(element_view0.is_destroyed).to.be.true
+    })
+
+    it("should stop responding to visual viewport resizes after being removed", async () => {
+      expect_not_null(visualViewport)
+      const view = await new_plot_view()
+      const spy_resize = sinon.spy(view.canvas, "resize")
+
+      try {
+        visualViewport.dispatchEvent(new Event("resize"))
+        expect(spy_resize.callCount).to.be.equal(1)
+      } finally {
+        view.remove()
+      }
+
+      visualViewport.dispatchEvent(new Event("resize"))
+      expect(spy_resize.callCount).to.be.equal(1)
     })
 
     it("should perform standard reset actions by default", async () => {
