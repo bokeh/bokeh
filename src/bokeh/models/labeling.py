@@ -45,7 +45,9 @@ __all__ = (
 
 @abstract
 class LabelingPolicy(Model):
-    """ Base class for labeling policies. """
+    """ Base class for labeling policies.
+
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:

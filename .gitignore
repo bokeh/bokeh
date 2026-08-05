@@ -17,6 +17,12 @@
 *.html
 !/src/bokeh/core/_templates/*.html
 
+# generated model API reference sources
+/docs/bokeh/source/docs/reference/models/**/*.rst
+/docs/bokeh/source/docs/reference/models/class_index.inc
+!/docs/bokeh/source/docs/reference/models/ui.rst
+!/docs/bokeh/source/docs/reference/models/widgets.rst
+
 # node things
 **/node_modules
 **/package-lock.json

@@ -7,18 +7,8 @@
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
 
-The full list of glyphs is below:
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   glyphs/*
-
-All glyphs share a minimal common interface through the base class ``Glyph``:
-
-.. bokeh-model:: Glyph
-    :module: bokeh.models.glyphs
+All glyphs share a minimal common interface through the base class
+:class:`~bokeh.models.Glyph`.
 
 '''
 

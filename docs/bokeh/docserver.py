@@ -60,6 +60,8 @@ def switcher():
 
 @app.route("/en/latest/<path:filename>")
 def docs(filename):
+    if filename.endswith("/"):
+        filename += "index.html"
     return flask.send_from_directory(SPHINX_TOP / "build" / "html", filename)
 
 
