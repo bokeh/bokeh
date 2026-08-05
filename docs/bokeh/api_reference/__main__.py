@@ -234,7 +234,7 @@ This is an alphabetical list of the public classes available from
 .. hlist::
    :columns: 3
 
-{chr(10).join(items)}
+{"\n".join(items)}
 """.strip() + "\n"
 
 

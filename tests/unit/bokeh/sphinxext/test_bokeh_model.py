@@ -13,7 +13,14 @@ from sphinx.util.inventory import InventoryFile
 
 # Bokeh imports
 import bokeh.models as models
-from bokeh.core.properties import Int
+from bokeh.core.properties import (
+    Either,
+    Enum,
+    Instance,
+    Int,
+    Nullable,
+    String,
+)
 from bokeh.model import Model
 from bokeh.models import BoxSelectTool, Filter
 from bokeh.sphinxext._internal.bokeh_model import (
@@ -52,6 +59,23 @@ class _MemberChild(_MemberBase):
 
     def inherited_method(self) -> None:
         """A documented override."""
+
+
+class _LinkedModel(Model):
+    pass
+
+
+class _PropertyDetailModel(Model):
+    mixed_help = String(help="""
+    Standalone help text.
+
+Unindented suffix text.
+    """)
+
+    complex_type = Nullable(Either(
+        Instance(f"{__name__}._LinkedModel"),
+        Enum("auto"),
+    ))
 
 
 def test_model_members_separate_properties_and_methods() -> None:
@@ -112,6 +136,25 @@ def test_property_detail_preserves_default_type_and_help() -> None:
     assert ":annotation: = None" in detail
     assert ":Type: :class:`~bokeh.core.properties.Nullable`" in detail
     assert "An arbitrary, user-supplied name for this model." in detail
+
+
+def test_property_detail_normalizes_mixed_help_indentation() -> None:
+    detail = _render_property_detail(_PropertyDetailModel(), "_PropertyDetailModel.mixed_help", __name__)
+
+    assert "\n    Standalone help text." in detail
+    assert "\n        Standalone help text." not in detail
+    assert "\n    Unindented suffix text." in detail
+
+
+def test_property_detail_resolves_string_instance_types() -> None:
+    detail = _render_property_detail(_PropertyDetailModel(), "_PropertyDetailModel.complex_type", __name__)
+    target = f"{__name__}._LinkedModel"
+
+    assert f":class:`~{target}`" in detail
+    assert repr(target) not in detail
+    assert "        | :class:`~bokeh.core.properties.Nullable`\\ (" in detail
+    assert "        |   :class:`~bokeh.core.properties.Either`\\ (" in detail
+    assert f"        |     :class:`~bokeh.core.properties.Instance`\\ (:class:`~{target}`\\ )," in detail
 
 
 def test_property_detail_supports_deprecated_aliases() -> None:

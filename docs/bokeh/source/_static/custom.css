@@ -252,7 +252,7 @@ section#methods {
 }
 
 section#properties > dl.py.attribute > dd > dl.field-list {
-  align-items: baseline;
+  align-items: center;
   border-bottom: 1px solid var(--pst-color-border-muted);
   display: grid;
   gap: .5rem;
@@ -274,7 +274,7 @@ section#properties > dl.py.attribute > dd > dl.field-list > dt {
   font-weight: 700;
 }
 
-section#properties > dl.py.attribute > dd > dl.field-list > dd > p {
+section#properties > dl.py.attribute > dd > dl.field-list > dd > :is(p, .line-block) {
   background: var(--pst-color-surface);
   border: 1px solid var(--pst-color-border);
   border-radius: .3rem;
@@ -286,7 +286,11 @@ section#properties > dl.py.attribute > dd > dl.field-list > dd > p {
   padding: .1rem .4rem;
 }
 
-section#properties > dl.py.attribute > dd > dl.field-list > dd > p code {
+section#properties > dl.py.attribute > dd > dl.field-list > dd > .line-block {
+  white-space: nowrap;
+}
+
+section#properties > dl.py.attribute > dd > dl.field-list > dd > :is(p, .line-block) code {
   background: transparent;
   border: 0;
   font-size: inherit;

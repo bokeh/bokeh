@@ -34,8 +34,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import importlib
+import re
 import textwrap
 import warnings
+from dataclasses import dataclass
 from typing import Any
 
 # External imports
@@ -62,6 +64,12 @@ __all__ = (
 )
 
 _model_instances: dict[type[Any], Any] = {}
+
+
+@dataclass
+class _TypeExpression:
+    head: str
+    arguments: list[_TypeExpression]
 
 # -----------------------------------------------------------------------------
 # General API
@@ -145,8 +153,83 @@ def _render_property_detail(model_obj: Any, full_name: str, module: str, *, qual
         name=full_name if qualified else prop_name,
         module=module,
         default=repr(value_descriptor.instance_default(model_obj)),
-        type_info=type_link(value_descriptor.property),
-        doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
+        type_lines=_type_link_lines(type_link(value_descriptor.property)),
+        doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__).strip(),
+    )
+
+
+_TYPE_ROLE_RE = re.compile(r":[a-z]+:`~?([^`]+)`\\ ")
+
+
+def _type_link_lines(type_info: str) -> list[str]:
+    """Format a long nested property type as an indented linked expression."""
+    expression, end = _parse_type_expression(type_info)
+    display = _TYPE_ROLE_RE.sub(lambda match: match.group(1).rsplit(".", 1)[-1], type_info).replace("\\ ", "")
+
+    if expression is None or end != len(type_info) or len(display) <= 48:
+        return [type_info]
+
+    return _format_type_expression(expression)
+
+
+def _parse_type_expression(value: str, start: int = 0) -> tuple[_TypeExpression | None, int]:
+    position = start
+    while position < len(value) and value[position] not in "(),":
+        position += 1
+
+    raw_head = value[start:position]
+    head = raw_head.strip()
+    if raw_head.endswith("\\ "):
+        head += " "
+    if not head:
+        return None, position
+
+    arguments: list[_TypeExpression] = []
+    if position < len(value) and value[position] == "(":
+        position += 1
+        while position < len(value) and value[position] != ")":
+            argument, position = _parse_type_expression(value, position)
+            if argument is None:
+                return None, position
+            arguments.append(argument)
+
+            if position < len(value) and value[position] == ",":
+                position += 1
+                while position < len(value) and value[position].isspace():
+                    position += 1
+            elif position < len(value) and value[position] != ")":
+                return None, position
+
+        if position >= len(value):
+            return None, position
+        position += 1
+
+    return _TypeExpression(head, arguments), position
+
+
+def _format_type_expression(expression: _TypeExpression, indent: int = 0) -> list[str]:
+    prefix = "  " * indent
+    if not expression.arguments:
+        return [f"{prefix}{expression.head}"]
+
+    if not _multiline_type_expression(expression):
+        argument = _format_type_expression(expression.arguments[0])[0]
+        return [f"{prefix}{expression.head}({argument})"]
+
+    lines = [f"{prefix}{expression.head}("]
+    for index, argument in enumerate(expression.arguments):
+        argument_lines = _format_type_expression(argument, indent + 1)
+        if index < len(expression.arguments) - 1:
+            argument_lines[-1] += ","
+        lines.extend(argument_lines)
+    lines.append(f"{prefix})")
+    return lines
+
+
+def _multiline_type_expression(expression: _TypeExpression) -> bool:
+    return len(expression.arguments) > 1 or any(
+        _multiline_type_expression(argument)
+        for argument in expression.arguments
     )
 
 # -----------------------------------------------------------------------------
