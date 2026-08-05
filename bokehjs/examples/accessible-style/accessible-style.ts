@@ -164,26 +164,29 @@ export namespace Accessible {
       border: var(--border);
     }
 
-    select:not([multiple]).bk-input, select:not([size]).bk-input {
-      background-image: var(--bokeh-icon-chevron-down);
-      background-size: 16px 16px;
+    select:not([multiple]), select:not([size]) {
+      &.bk-input {
+        background-image: var(--bokeh-icon-chevron-down);
+        background-size: 16px 16px;
+      }
     }
 
-    select:open:not([multiple]).bk-input,
-    select:open:not([size]).bk-input {
-      height: auto;
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: var(--bokeh-icon-chevron-up);
-      background-position: right 0.5em center;
-      background-size: 16px 16px;
-      background-repeat: no-repeat;
-      padding-right: calc(var(--padding-horizontal) + 8px);
-    }
-
-    select:open:not([multiple]).bk-input:hover,
-      select:open:not([size]).bk-input:hover {
-      background-color: var(--background-color);
+    select:open {
+      &:not([multiple]), &:not([size]) {
+        &.bk-input {
+          height: auto;
+          appearance: none;
+          -webkit-appearance: none;
+          background-image: var(--bokeh-icon-chevron-up);
+          background-position: right 0.5em center;
+          background-size: 16px 16px;
+          background-repeat: no-repeat;
+          padding-right: calc(var(--padding-horizontal) + 8px);
+          &:hover {
+            background-color: var(--background-color);
+          }
+        }
+      }
     }
 
     .bk-input-group > label:focus-within{
