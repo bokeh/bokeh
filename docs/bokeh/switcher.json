@@ -1,7 +1,7 @@
 [
   {
-    "name": "3.9.0 (latest)",
-    "version": "3.9.0",
+    "name": "3.9.2 (latest)",
+    "version": "3.9.2",
     "url": "https://docs.bokeh.org/en/latest/",
     "preferred": true
   },
@@ -22,16 +22,12 @@
     "url": "https://docs.bokeh.org/en/3.5.2/"
   },
   {
-    "version": "3.4.2",
-    "url": "https://docs.bokeh.org/en/3.4.2/"
-  },
-  {
     "version": "2.4.3",
     "url": "https://docs.bokeh.org/en/2.4.3/"
   },
   {
-    "name": "dev (3.9)",
-    "version": "dev-3.9",
-    "url": "https://docs.bokeh.org/en/dev-3.9/"
+    "name": "dev (4.0.0.dev1)",
+    "version": "dev-4.0",
+    "url": "https://docs.bokeh.org/en/dev-4.0/"
   }
 ]
