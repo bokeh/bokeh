@@ -42,6 +42,7 @@ from bokeh.model import Model
 
 # Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
+from .bokeh_toc import _shorten_reference_toc_titles
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -124,6 +125,7 @@ def setup(app: Any) -> SphinxParallelSpec:
     app.add_autodocumenter(EnumDocumenter)
     app.add_autodocumenter(PropDocumenter)
     app.add_autodocumenter(ModelDocumenter)
+    app.connect("env-updated", _shorten_reference_toc_titles)
 
     return PARALLEL_SAFE
 

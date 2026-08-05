@@ -4,11 +4,11 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Generate a ``sitemap.txt`` to aid with search indexing.
+""" Generate a ``sitemap.xml`` to aid with search indexing.
 
-``sitemap.txt`` is a plain text list of all the pages in the docs site.
-Each URL is listed on a line in the text file. It is machine readable
-and used by search engines to know what pages are available for indexing.
+The sitemap contains all HTML pages in the completed build, except pages that
+set the ``no-sitemap`` metadata field. It is machine readable and used by
+search engines to know what pages are available for indexing.
 
 """
 
@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 from html import escape
 from importlib import import_module
 from os.path import join
+from pathlib import Path
 from typing import Any
 
 # External imports
@@ -45,7 +46,6 @@ status_iterator = import_module("sphinx.util.display").status_iterator
 
 __all__ = (
     "build_finished",
-    "html_page_context",
     "setup",
 )
 
@@ -58,35 +58,30 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-def html_page_context(app: Any, pagename: str, templatename: str, context: dict[str, Any], doctree: Any) -> None:
-    """Collect page names for the sitemap as HTML pages are built."""
-    site = context["SITEMAP_BASE_URL"]
-    version = context["version"]
-    app.sitemap_links.add(f"{site}{version}/{pagename}.html")
-
-
 def build_finished(app: Any, exception: Exception | None) -> None:
-    """Generate a ``sitemap.txt`` from the collected HTML page links."""
-    filename = join(app.outdir, "sitemap.xml")
+    """Generate a sitemap from the HTML pages present after the build."""
+    if exception is not None or app.builder.format != "html":
+        return
 
-    links_iter = status_iterator(sorted(app.sitemap_links), "adding links to sitemap... ", "brown", len(app.sitemap_links), app.verbosity)
+    filename = join(app.outdir, "sitemap.xml")
+    links = _sitemap_links(app)
+
+    links_iter = status_iterator(links, "adding links to sitemap... ", "brown", len(links), app.verbosity)
 
     try:
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(_header)
             for link in links_iter:
                 http_link = escape(link.strip().replace("https://", "http://"))
                 f.write(_item.format(link=http_link))
             f.write(_footer)
     except OSError as e:
-        raise SphinxError(f"cannot write sitemap.txt, reason: {e}")
+        raise SphinxError(f"cannot write sitemap.xml, reason: {e}")
 
 
 def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
-    app.connect("html-page-context", html_page_context)
     app.connect("build-finished", build_finished)
-    app.sitemap_links = set()
 
     return PARALLEL_SAFE
 
@@ -111,6 +106,23 @@ _item = """\
 _footer = """\
 </urlset>
 """
+
+
+def _sitemap_links(app: Any) -> list[str]:
+    """Return links for every HTML file in the completed output tree."""
+    site = app.config.html_context["SITEMAP_BASE_URL"]
+    version = app.config.version
+    outdir = Path(app.outdir)
+    links: list[str] = []
+
+    for path in outdir.rglob("*.html"):
+        relative_path = path.relative_to(outdir)
+        pagename = relative_path.with_suffix("").as_posix()
+        if "no-sitemap" in app.env.metadata.get(pagename, {}):
+            continue
+        links.append(f"{site}{version}/{relative_path.as_posix()}")
+
+    return sorted(links)
 
 # -----------------------------------------------------------------------------
 # Code
