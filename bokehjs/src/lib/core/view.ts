@@ -34,6 +34,13 @@ export namespace View {
 
 export type IterViews<T extends View = View> = Generator<T, void, undefined>
 
+/**
+ * Shared abort reason. Aborting without one makes the browser construct a
+ * `DOMException` with a stack trace, which is an order of magnitude more
+ * expensive and is paid by every view being removed.
+ */
+const view_removed = new DOMException("view removed", "AbortError")
+
 type TransitiveOpts = {
   recursive?: boolean
   signal?: (obj: HasProps) => Signal<unknown, HasProps>
@@ -41,6 +48,8 @@ type TransitiveOpts = {
 
 export abstract class View implements ISignalable, Equatable {
   readonly removed = new Signal0<this>(this, "removed")
+
+  private readonly _abort_controller = new AbortController()
 
   readonly model: HasProps
 
@@ -102,6 +111,22 @@ export abstract class View implements ISignalable, Equatable {
 
   async lazy_initialize(): Promise<void> {}
 
+  /**
+   * An `AbortSignal` that is aborted when this view is removed.
+   *
+   * Pass it as `{signal: this.abort_signal}` to `addEventListener()` when
+   * subscribing to an event target that outlives this view (e.g. `document`,
+   * `window` or `visualViewport`). Such a target retains the listener, and
+   * through its closure this view and its model, for the lifetime of the page.
+   *
+   * Don't use it for listeners on elements this view owns. Those are released
+   * with the element itself, and registering an abort algorithm for them only
+   * adds a reference from this view to DOM it would otherwise let go of.
+   */
+  protected get abort_signal(): AbortSignal {
+    return this._abort_controller.signal
+  }
+
   protected _destroyed: boolean = false
   remove(): void {
     if (this._destroyed) {
@@ -109,6 +134,7 @@ export abstract class View implements ISignalable, Equatable {
       return
     }
     this.disconnect_signals()
+    this._abort_controller.abort(view_removed)
     for (const view of this.children_views()) {
       view?.remove()
     }

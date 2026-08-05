@@ -139,11 +139,11 @@ export abstract class InputWidgetView extends ControlView {
             persistent = false
             toggle(false)
           }
-        })
+        }, {signal: this.abort_signal})
         window.addEventListener("blur", () => {
           persistent = false
           toggle(false)
-        })
+        }, {signal: this.abort_signal})
       }
       return desc_el
     }

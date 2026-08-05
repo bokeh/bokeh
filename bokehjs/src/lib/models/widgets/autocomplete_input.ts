@@ -119,7 +119,7 @@ export class AutocompleteInputView extends TextInputView {
           this._hide_menu()
         }
       }
-      document.addEventListener("click", listener)
+      document.addEventListener("click", listener, {signal: this.abort_signal})
     }
   }
 

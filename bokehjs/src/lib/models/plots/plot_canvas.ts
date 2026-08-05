@@ -1065,7 +1065,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
         if (this.canvas.resize()) {
           this.request_repaint()
         }
-      })
+      }, {signal: this.abort_signal})
     }
   }
 
