@@ -258,9 +258,9 @@ export class DialogView extends UIElementView {
         target,
       }
 
-      document.addEventListener("pointermove", pointer_move)
-      document.addEventListener("pointerup", pointer_up)
-      document.addEventListener("keydown", key_press)
+      document.addEventListener("pointermove", pointer_move, {signal: this.abort_signal})
+      document.addEventListener("pointerup", pointer_up, {signal: this.abort_signal})
+      document.addEventListener("keydown", key_press, {signal: this.abort_signal})
 
       const target_el = this._handles[target]
       target_el.setPointerCapture(event.pointerId)

@@ -60,11 +60,11 @@ export class HelpButtonView extends AbstractButtonView {
         persistent = false
         toggle(false)
       }
-    })
+    }, {signal: this.abort_signal})
     window.addEventListener("blur", () => {
       persistent = false
       toggle(false)
-    })
+    }, {signal: this.abort_signal})
   }
 }
 
