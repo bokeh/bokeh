@@ -6,6 +6,7 @@ import {restorable} from "#framework/util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import type {PlotView} from "@bokehjs/models/plots/plot"
+import {build_view} from "@bokehjs/core/build_views"
 
 import {
   AllIndices,
@@ -721,7 +722,10 @@ describe("Bug", () => {
       const indices = BitSet.from_indices(6, [0, 1, 2, 3, 4, 5])
       const view = new CDSView({indices})
       const provider = new TableDataProvider(source, view)
-      const column = new TableColumn({field: "words"}).toColumn()
+
+      const table_column = new TableColumn({field: "words"})
+      const table_column_view = await build_view(table_column, {parent: null})
+      const column = table_column_view.toColumn()
 
       provider.sort_data([{columnId: column.id, sortCol: column, sortAsc: true}])
       const records_asc = provider.getRecords()

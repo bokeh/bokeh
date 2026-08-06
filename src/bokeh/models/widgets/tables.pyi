@@ -20,6 +20,7 @@ from ...core.enums import (
 from ...core.has_props import abstract
 from ...model import Model
 from ..comparisons import Comparison
+from ..dom import HTML
 from ..sources import (
     CDSView,
     ColumnDataSource,
@@ -153,7 +154,7 @@ class TableColumn(Model):
 
     field: str = ...
 
-    title: str | None = ...
+    title: str | HTML | None = ...
 
     width: int = ...
 
