@@ -99,7 +99,7 @@ jobs:
         - name: Check library types with mypy
           run: |
             mypy --version
-            mypy --show-traceback
+            mypy --no-sqlite-cache --show-traceback
         - name: Check library types with pyright
           run: |
             pyright --version

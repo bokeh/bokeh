@@ -92,7 +92,8 @@ jobs:
       - parallel:
         - name: Check library types with mypy
           run: |
-            mypy --version && mypy
+            mypy --version
+            mypy --no-sqlite-cache --show-traceback
         - name: Check library types with pyright
           run: |
             pyright --version && pyright
