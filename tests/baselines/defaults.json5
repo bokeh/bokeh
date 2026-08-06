@@ -6884,7 +6884,6 @@
   CustomAction: {
     __extends__: "ActionTool",
     description: "Perform a Custom Action",
-    active: false,
     disabled: false,
     callback: null,
     active_callback: null,
@@ -6965,6 +6964,7 @@
   },
   InspectTool: {
     __extends__: "GestureTool",
+    active: true,
   },
   LassoSelectTool: {
     __extends__: [
@@ -7076,6 +7076,7 @@
   },
   RangeTool: {
     __extends__: "Drag",
+    active: true,
     x_range: null,
     y_range: null,
     x_interaction: true,
@@ -7209,6 +7210,7 @@
     description: null,
     visible: true,
     group: true,
+    active: false,
   },
   ToolMenu: {
     __extends__: "Menu",

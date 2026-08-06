@@ -603,7 +603,7 @@ export class Toolbar extends UIElement {
       // active attr takes precedence over any active initialization
       if (active_attr != null && this[active_attr] != null && this[active_attr] != "auto") {
         gesture.tools.forEach((tool) => {
-          if (tool.tool_name != this[active_attr]) {
+          if (tool != this[active_attr]) {
             tool.active = false
           }
         })

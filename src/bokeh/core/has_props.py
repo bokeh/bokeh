@@ -55,7 +55,11 @@ else:
 from ..settings import settings
 from ..util.strings import append_docstring
 from .property.descriptor_factory import PropertyDescriptorFactory
-from .property.descriptors import PropertyDescriptor, UnsetValueError
+from .property.descriptors import (
+    AliasPropertyDescriptor,
+    PropertyDescriptor,
+    UnsetValueError,
+)
 from .property.override import Override
 from .property.singletons import Intrinsic, Undefined
 from .property.wrappers import PropertyValueContainer
@@ -504,7 +508,11 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         '''
         attr = getattr(cls, name, None)
-        if attr is not None or (attr is None and not raises):
+        # ``name`` may collide with a method or other class attribute (e.g. "select"
+        # or "update"), which is not a property and must not be reported as one.
+        if not isinstance(attr, (PropertyDescriptor, AliasPropertyDescriptor)):
+            attr = None
+        if attr is not None or not raises:
             return attr
         raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 

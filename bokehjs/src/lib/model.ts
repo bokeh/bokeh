@@ -8,6 +8,7 @@ import {dict} from "./core/util/object"
 import type {Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import {logger} from "./core/logging"
+import {Signal} from "./core/signaling"
 import type {CallbackLike0} from "./core/util/callbacks"
 import {execute} from "./core/util/callbacks"
 import {Mapping, Str, List, Func} from "core/kinds"
@@ -105,13 +106,25 @@ export abstract class Model extends HasProps {
   }
 
   protected _update_property_callbacks(): void {
-    const signal_for = (event: string) => {
-      const [evt, attr=null] = event.split(":")
-      return attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
+    // An event is either the name of an object-level signal (e.g. "streaming") or
+    // a property change signal of the form "change:<property name>". Anything that
+    // doesn't resolve to an actual signal is reported and skipped, because this runs
+    // during deserialization, where throwing would abort the entire document.
+    const signal_for = (event: string): Signal<unknown, HasProps> | null => {
+      const parts = event.split(":")
+      if (parts.length > 2) {
+        return null
+      }
+      const [evt, attr=null] = parts
+      const signal = attr != null ? (this.properties as any)[attr]?.[evt] : (this as any)[evt]
+      return signal instanceof Signal ? signal : null
     }
 
     for (const [event, callbacks] of this._js_callbacks) {
       const signal = signal_for(event)
+      if (signal == null) {
+        continue
+      }
       for (const cb of callbacks) {
         this.disconnect(signal, cb)
       }
@@ -119,9 +132,13 @@ export abstract class Model extends HasProps {
     this._js_callbacks.clear()
 
     for (const [event, callbacks] of dict(this.js_property_callbacks)) {
+      const signal = signal_for(event)
+      if (signal == null) {
+        logger.warn(`${this}: unknown event '${event}' in js_property_callbacks; its callbacks will not be connected`)
+        continue
+      }
       const wrappers = callbacks.map((cb) => () => execute(cb, this))
       this._js_callbacks.set(event, wrappers)
-      const signal = signal_for(event)
       for (const cb of wrappers) {
         this.connect(signal, cb)
       }

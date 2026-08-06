@@ -158,10 +158,10 @@ export abstract class Tool extends Model {
       description: [ Nullable(Str), null ],
       visible: [ Bool, true ],
       group: [ Or(Str, Bool), true ],
+      active: [ Bool, false ],
     }))
 
     this.internal<Tool.Props>(({Bool}) => ({
-      active: [ Bool, false ],
       disabled: [ Bool, false ],
     }))
   }

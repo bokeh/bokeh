@@ -459,6 +459,14 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
             source.js_on_change('streaming', callback)
 
+        An event name of the form ``"change:<property name>"`` is validated
+        against this model's properties, and raises ``AttributeError`` if no
+        such property exists. Any other event name is passed through as-is,
+        because BokehJS models may define signals that have no counterpart in
+        the Python model. If such a name doesn't resolve to a signal in the
+        browser, then a warning is logged to the JavaScript console and the
+        callbacks are not connected.
+
         '''
         if len(callbacks) == 0:
             raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
@@ -468,9 +476,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         if not all(isinstance(x, CustomCode) for x in callbacks):
             raise ValueError("not all callback values are CustomCode instances")
 
-        descriptor = self.lookup(event, raises=False)
-        if descriptor is not None:
-            event = f"change:{descriptor.name}"
+        if event.startswith("change:"):
+            self.lookup(event.removeprefix("change:"))
+        else:
+            descriptor = self.lookup(event, raises=False)
+            if descriptor is not None:
+                event = f"change:{descriptor.name}"
 
         old = {k: [cb for cb in cbs] for k, cbs in self.js_property_callbacks.items()}
         if event not in self.js_property_callbacks:

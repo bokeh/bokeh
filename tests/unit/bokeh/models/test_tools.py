@@ -27,6 +27,7 @@ from bokeh.models import (
     Block,
     Circle,
     ColumnDataSource,
+    CustomJS,
     GlyphRenderer,
     HBar,
     Quad,
@@ -83,6 +84,31 @@ def test_Tool_from_string() -> None:
     assert isinstance(Tool.from_string("poly_draw"), t.PolyDrawTool)
     assert isinstance(Tool.from_string("poly_edit"), t.PolyEditTool)
     assert isinstance(Tool.from_string("hover"), t.HoverTool)
+
+
+def test_Tool_active() -> None:
+    assert t.PanTool().active is False
+    assert t.PanTool(active=True).active is True
+
+    # InspectTool and RangeTool override the default, mirroring bokehjs
+    assert t.HoverTool().active is True
+    assert t.CrosshairTool().active is True
+    assert t.RangeTool().active is True
+    assert t.PanTool(active=True).active is True
+
+    # CustomAction inherits Tool.active rather than redeclaring it
+    assert t.CustomAction().active is False
+    assert "active" not in t.CustomAction.__properties__
+
+
+def test_Tool_js_on_change_active() -> None:
+    # regression test for bokeh/bokeh#15070: "active" used to be missing from the
+    # Python model, so js_on_change() stored the bare key and BokehJS threw
+    # "signal.connect is not a function" while deserializing the document
+    cb = CustomJS(code="")
+    tool = t.PanTool()
+    tool.js_on_change("active", cb)
+    assert tool.js_property_callbacks == {"change:active": [cb]}
 
 
 def test_Toolbar() -> None:

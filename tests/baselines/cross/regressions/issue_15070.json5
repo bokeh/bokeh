@@ -1,0 +1,448 @@
+{
+  config: {
+    type: "object",
+    name: "DocumentConfig",
+    id: "p1047",
+    attributes: {
+      notifications: {
+        type: "object",
+        name: "Notifications",
+        id: "p1048",
+      },
+    },
+  },
+  roots: [
+    {
+      type: "object",
+      name: "Figure",
+      id: "p1015",
+      attributes: {
+        width: 300,
+        height: 300,
+        x_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1016",
+        },
+        y_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1017",
+        },
+        x_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1024",
+        },
+        y_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1025",
+        },
+        title: {
+          type: "object",
+          name: "Title",
+          id: "p1022",
+        },
+        renderers: [
+          {
+            type: "object",
+            name: "GlyphRenderer",
+            id: "p1042",
+            attributes: {
+              data_source: {
+                type: "object",
+                name: "ColumnDataSource",
+                id: "p1036",
+                attributes: {
+                  selected: {
+                    type: "object",
+                    name: "Selection",
+                    id: "p1037",
+                    attributes: {
+                      indices: [],
+                      line_indices: [],
+                    },
+                  },
+                  selection_policy: {
+                    type: "object",
+                    name: "UnionRenderers",
+                    id: "p1038",
+                  },
+                  data: {
+                    type: "map",
+                    entries: [
+                      [
+                        "x",
+                        [
+                          0,
+                          1,
+                          2,
+                        ],
+                      ],
+                      [
+                        "y",
+                        [
+                          0,
+                          1,
+                          2,
+                        ],
+                      ],
+                      [
+                        "fill_color",
+                        [
+                          "red",
+                          "green",
+                          "blue",
+                        ],
+                      ],
+                    ],
+                  },
+                },
+              },
+              view: {
+                type: "object",
+                name: "CDSView",
+                id: "p1043",
+                attributes: {
+                  filter: {
+                    type: "object",
+                    name: "AllIndices",
+                    id: "p1044",
+                  },
+                },
+              },
+              glyph: {
+                type: "object",
+                name: "Scatter",
+                id: "p1039",
+                attributes: {
+                  x: {
+                    type: "field",
+                    field: "x",
+                  },
+                  y: {
+                    type: "field",
+                    field: "y",
+                  },
+                  size: {
+                    type: "value",
+                    value: 10,
+                  },
+                  line_color: {
+                    type: "value",
+                    value: "#1f77b4",
+                  },
+                  fill_color: {
+                    type: "field",
+                    field: "fill_color",
+                  },
+                },
+              },
+              nonselection_glyph: {
+                type: "object",
+                name: "Scatter",
+                id: "p1040",
+                attributes: {
+                  x: {
+                    type: "field",
+                    field: "x",
+                  },
+                  y: {
+                    type: "field",
+                    field: "y",
+                  },
+                  size: {
+                    type: "value",
+                    value: 10,
+                  },
+                  line_color: {
+                    type: "value",
+                    value: "#1f77b4",
+                  },
+                  line_alpha: {
+                    type: "value",
+                    value: 0.1,
+                  },
+                  fill_color: {
+                    type: "field",
+                    field: "fill_color",
+                  },
+                  fill_alpha: {
+                    type: "value",
+                    value: 0.1,
+                  },
+                  hatch_alpha: {
+                    type: "value",
+                    value: 0.1,
+                  },
+                },
+              },
+              muted_glyph: {
+                type: "object",
+                name: "Scatter",
+                id: "p1041",
+                attributes: {
+                  x: {
+                    type: "field",
+                    field: "x",
+                  },
+                  y: {
+                    type: "field",
+                    field: "y",
+                  },
+                  size: {
+                    type: "value",
+                    value: 10,
+                  },
+                  line_color: {
+                    type: "value",
+                    value: "#1f77b4",
+                  },
+                  line_alpha: {
+                    type: "value",
+                    value: 0.2,
+                  },
+                  fill_color: {
+                    type: "field",
+                    field: "fill_color",
+                  },
+                  fill_alpha: {
+                    type: "value",
+                    value: 0.2,
+                  },
+                  hatch_alpha: {
+                    type: "value",
+                    value: 0.2,
+                  },
+                },
+              },
+            },
+          },
+        ],
+        toolbar: {
+          type: "object",
+          name: "Toolbar",
+          id: "p1023",
+          attributes: {
+            tools: [
+              {
+                type: "object",
+                name: "PanTool",
+                id: "p1006",
+                attributes: {
+                  js_property_callbacks: {
+                    type: "map",
+                    entries: [
+                      [
+                        "change:active",
+                        [
+                          {
+                            type: "object",
+                            name: "CustomJS",
+                            id: "p1045",
+                            attributes: {
+                              args: {
+                                type: "map",
+                                entries: [
+                                  [
+                                    "tool",
+                                    {
+                                      id: "p1006",
+                                    },
+                                  ],
+                                ],
+                              },
+                              code: "\n    export default ({tool}) => { tool.tags = [...tool.tags, tool.active] }\n    ",
+                            },
+                          },
+                        ],
+                      ],
+                    ],
+                  },
+                  active: true,
+                },
+              },
+              {
+                type: "object",
+                name: "BoxZoomTool",
+                id: "p1007",
+                attributes: {
+                  js_property_callbacks: {
+                    type: "map",
+                    entries: [
+                      [
+                        "change:active",
+                        [
+                          {
+                            type: "object",
+                            name: "CustomJS",
+                            id: "p1046",
+                            attributes: {
+                              args: {
+                                type: "map",
+                                entries: [
+                                  [
+                                    "tool",
+                                    {
+                                      id: "p1007",
+                                    },
+                                  ],
+                                ],
+                              },
+                              code: "\n    export default ({tool}) => { tool.tags = [...tool.tags, tool.active] }\n    ",
+                            },
+                          },
+                        ],
+                      ],
+                    ],
+                  },
+                  overlay: {
+                    type: "object",
+                    name: "BoxAnnotation",
+                    id: "p1008",
+                    attributes: {
+                      syncable: false,
+                      line_color: "black",
+                      line_alpha: 1.0,
+                      line_width: 2,
+                      line_dash: [
+                        4,
+                        4,
+                      ],
+                      fill_color: "lightgrey",
+                      fill_alpha: 0.5,
+                      level: "overlay",
+                      visible: false,
+                      left: {
+                        type: "number",
+                        value: "nan",
+                      },
+                      right: {
+                        type: "number",
+                        value: "nan",
+                      },
+                      top: {
+                        type: "number",
+                        value: "nan",
+                      },
+                      bottom: {
+                        type: "number",
+                        value: "nan",
+                      },
+                      left_units: "canvas",
+                      right_units: "canvas",
+                      top_units: "canvas",
+                      bottom_units: "canvas",
+                      handles: {
+                        type: "object",
+                        name: "BoxInteractionHandles",
+                        id: "p1014",
+                        attributes: {
+                          all: {
+                            type: "object",
+                            name: "AreaVisuals",
+                            id: "p1013",
+                            attributes: {
+                              fill_color: "white",
+                              hover_fill_color: "lightgray",
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        left: [
+          {
+            type: "object",
+            name: "LinearAxis",
+            id: "p1031",
+            attributes: {
+              ticker: {
+                type: "object",
+                name: "BasicTicker",
+                id: "p1032",
+                attributes: {
+                  mantissas: [
+                    1,
+                    2,
+                    5,
+                  ],
+                },
+              },
+              formatter: {
+                type: "object",
+                name: "BasicTickFormatter",
+                id: "p1033",
+              },
+              major_label_policy: {
+                type: "object",
+                name: "AllLabels",
+                id: "p1034",
+              },
+            },
+          },
+        ],
+        below: [
+          {
+            type: "object",
+            name: "LinearAxis",
+            id: "p1026",
+            attributes: {
+              ticker: {
+                type: "object",
+                name: "BasicTicker",
+                id: "p1027",
+                attributes: {
+                  mantissas: [
+                    1,
+                    2,
+                    5,
+                  ],
+                },
+              },
+              formatter: {
+                type: "object",
+                name: "BasicTickFormatter",
+                id: "p1028",
+              },
+              major_label_policy: {
+                type: "object",
+                name: "AllLabels",
+                id: "p1029",
+              },
+            },
+          },
+        ],
+        center: [
+          {
+            type: "object",
+            name: "Grid",
+            id: "p1030",
+            attributes: {
+              axis: {
+                id: "p1026",
+              },
+            },
+          },
+          {
+            type: "object",
+            name: "Grid",
+            id: "p1035",
+            attributes: {
+              dimension: 1,
+              axis: {
+                id: "p1031",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ],
+}

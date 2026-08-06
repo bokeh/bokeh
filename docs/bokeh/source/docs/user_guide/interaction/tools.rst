@@ -205,6 +205,21 @@ the string names:
     # configures the lasso tool to be active
     plot = figure(tools="pan,lasso_select,box_select", active_drag="lasso_select")
 
+Alternatively, a tool can request to be activated by setting its own ``active``
+property when you construct it:
+
+.. code-block:: python
+
+    from bokeh.models import BoxSelectTool, LassoSelectTool, PanTool
+
+    lasso_select = LassoSelectTool(active=True)
+    plot = figure(tools=[PanTool(), lasso_select, BoxSelectTool()])
+
+The corresponding ``Toolbar.active_*`` property takes precedence: a tool's own
+``active`` setting is honored only while that property is ``"auto"`` (the
+default). If several tools competing for the same gesture are constructed as
+active, only the first one stays active and the rest are deactivated.
+
 .. _ug_interaction_tools_autohide:
 
 Toggling ToolBar autohide

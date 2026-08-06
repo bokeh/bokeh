@@ -83,9 +83,8 @@ export class CustomAction extends ActionTool {
       description: "Perform a Custom Action",
     })
 
-    // `active` and `disabled` are defined in `Tool` model as internal properties
+    // `disabled` is defined in `Tool` model as an internal property
     this.override_options<CustomAction.Props>({
-      active: {internal: false},
       disabled: {internal: false},
     })
   }

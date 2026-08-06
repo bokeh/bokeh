@@ -219,6 +219,21 @@ class Tool(Model):
     (regardless of ``Toolbar.group`` setting).
     """)
 
+    active = Bool(default=False, help="""
+    Whether this tool is currently active.
+
+    Setting this to ``True`` requests that the tool be activated when the plot
+    is first displayed. This is honored only when the corresponding
+    ``Toolbar.active_*`` property is ``"auto"`` (the default); an explicitly
+    configured ``Toolbar.active_drag``, ``Toolbar.active_scroll``,
+    ``Toolbar.active_tap`` or ``Toolbar.active_multi`` takes precedence. If
+    several tools competing for the same gesture are initialized as active,
+    the first one wins and the rest are deactivated.
+
+    For gesture tools this is kept in sync with the toolbar at runtime, so in
+    a Bokeh server application it also reports which tool the user selected.
+    """)
+
     _known_aliases: ClassVar[dict[str, Callable[[], Tool]]] = {}
 
     @classmethod
@@ -379,6 +394,8 @@ class InspectTool(GestureTool):
 
     toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
 
+    active = Override(default=True)
+
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
 
@@ -412,6 +429,9 @@ class Toolbar(UIElement):
 
     active_drag = Either(Null, Auto, Instance(Drag), Instance(ToolProxy), default="auto", help="""
     Specify a drag tool to be active when the plot is displayed.
+
+    This takes precedence over any tool's own ``Tool.active`` setting. Leave
+    as ``"auto"`` to let a tool's own ``active`` decide.
     """)
 
     active_inspect = Either(Null, Auto, Instance(InspectTool), Instance(ToolProxy), Seq(Instance(InspectTool)), default="auto", help="""
@@ -594,6 +614,8 @@ class RangeTool(Drag):
     Configuring this property allows to make this tool simultaneously co-exist
     with another tool that would otherwise share a gesture.
     """)
+
+    active = Override(default=True)
 
     @error(NO_RANGE_TOOL_RANGES)
     def _check_no_range_tool_ranges(self):
@@ -807,10 +829,6 @@ class CustomAction(ActionTool):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-
-    active = Bool(default=False, help="""
-    If ``True``, the tool is currently engaged for its activity.
-    """)
 
     disabled = Bool(default=False, help="""
     If ``True``, users can't interact with the tool in any way.

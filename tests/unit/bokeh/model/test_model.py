@@ -70,6 +70,9 @@ class Test_js_on_change:
             assert m.js_property_callbacks == {f"change:{name}": [cb]}
 
     def test_with_non_propname(self) -> None:
+        # a name that isn't a property is passed through unchanged, because it may
+        # name a BokehJS object-level signal (e.g. "streaming") that has no Python
+        # counterpart. BokehJS warns if it doesn't resolve to a signal there.
         cb = CustomJS(code="")
         m1 = SomeModel()
         m1.js_on_change('foo', cb)
@@ -78,6 +81,22 @@ class Test_js_on_change:
         m2 = SomeModel()
         m2.js_on_change('change:b', cb)
         assert m2.js_property_callbacks == {"change:b": [cb]}
+
+    def test_with_method_name(self) -> None:
+        # "select" is a method of Model, not a property, so it must not be
+        # rewritten to "change:select"
+        cb = CustomJS(code="")
+        m = SomeModel()
+        m.js_on_change('select', cb)
+        assert m.js_property_callbacks == {"select": [cb]}
+
+    def test_exception_for_unknown_change_event(self) -> None:
+        cb = CustomJS(code="")
+        for name in ("nope", "select", ""):
+            m = SomeModel()
+            with pytest.raises(AttributeError):
+                m.js_on_change(f"change:{name}", cb)
+            assert m.js_property_callbacks == {}
 
     def test_with_multple_callbacks(self) -> None:
         cb1 = CustomJS(code="")

@@ -7,9 +7,10 @@ import json5 from "json5"
 import {version} from "@bokehjs/version"
 import type {DocJson} from "@bokehjs/document"
 import {Document} from "@bokehjs/document"
-import {GlyphRenderer} from "@bokehjs/models"
+import {BoxZoomTool, GlyphRenderer, PanTool} from "@bokehjs/models"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {GridPlotView} from "@bokehjs/models/plots/grid_plot"
+import {poll} from "@bokehjs/core/util/defer"
 
 async function test(name: string) {
   const response = await fetch(`/cases/${name}`)
@@ -78,6 +79,29 @@ describe("Bug", () => {
   describe("in issue #13964", () => {
     it.no_image("doesn't allow using 'constructor' key in maps or plain objects in may have refs contexts", async () => {
       await test("regressions/issue_13964.json5")
+    })
+  })
+
+  describe("in issue #15070", () => {
+    it.no_image("doesn't allow js_on_change('active', ...) on a tool", async () => {
+      const {views} = await test("regressions/issue_15070.json5")
+
+      const [pv] = views
+      expect_instanceof(pv, PlotView)
+
+      const [pan] = pv.model.toolbar.tools.filter((tool) => tool instanceof PanTool)
+      const [box_zoom] = pv.model.toolbar.tools.filter((tool) => tool instanceof BoxZoomTool)
+
+      // Tool.active is honored at construction, not only via Toolbar.active_drag
+      expect(pan.active).to.be.true
+      expect(box_zoom.active).to.be.false
+
+      // and the callbacks are connected, i.e. they were serialized as "change:active".
+      // CustomJS compiles its module lazily, so the callbacks resolve asynchronously.
+      box_zoom.active = true
+      await poll(() => pan.tags.length != 0 && box_zoom.tags.length != 0)
+      expect(pan.tags).to.be.equal([false])
+      expect(box_zoom.tags).to.be.equal([true])
     })
   })
 })
