@@ -51,8 +51,13 @@ def publish_conda_package(config: Config, system: System) -> ActionReturn:
 def publish_documentation(config: Config, system: System) -> ActionReturn:
     version, release_level = config.version, config.release_level
     path = f"deployment-{version}/docs/bokeh/build/html"
-    flags = "--only-show-errors --acl bucket-owner-full-control"
+    flags = "--only-show-errors"
     switcher = f"deployment-{version}/docs/bokeh/switcher.json"
+    # CloudFront invalidations cannot evict copies already stored by browsers, so
+    # the switcher must be revalidated on every use. Its dedicated /switcher.json
+    # behavior uses Managed-CachingDisabled and Managed-CORS-S3Origin to disable
+    # CDN caching and preserve S3's CORS handling.
+    switcher_cache = "--cache-control no-cache,max-age=0,must-revalidate"
     WEEK = 3600 * 24 * 7
     YEAR = 3600 * 24 * 365
     def cache(max_age: int) -> str:
@@ -60,12 +65,12 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
     try:
         if config.prerelease:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ --delete {flags} {cache(YEAR)} {REGION}")
-            system.run(f"aws s3 cp {switcher} s3://docs.bokeh.org/ {flags} {cache(WEEK)} {REGION}")
+            system.run(f"aws s3 cp {switcher} s3://docs.bokeh.org/ {flags} {switcher_cache} {REGION}")
             system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*" "/switcher.json" {REGION}')
         else:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {cache(YEAR)} {REGION}")
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ --delete {flags} {cache(WEEK)} {REGION}")
-            system.run(f"aws s3 cp {switcher} s3://docs.bokeh.org/ {flags} {cache(WEEK)} {REGION}")
+            system.run(f"aws s3 cp {switcher} s3://docs.bokeh.org/ {flags} {switcher_cache} {REGION}")
             system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*" "/switcher.json" {REGION}')
         return PASSED("Publish to documentation site succeeded")
     except RuntimeError as e:

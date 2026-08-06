@@ -58,9 +58,14 @@ def test_publish_full_documentation_updates_version_latest_and_switcher(config: 
 
     assert result.kind is ActionResult.PASS
     assert len(system.commands) == 4
+    assert all("--acl" not in command for command in system.commands)
     assert "s3://docs.bokeh.org/en/4.0.0/" in system.commands[0]
     assert "s3://docs.bokeh.org/en/latest/" in system.commands[1]
-    assert "deployment-4.0.0/docs/bokeh/switcher.json" in system.commands[2]
+    assert system.commands[2] == (
+        "aws s3 cp deployment-4.0.0/docs/bokeh/switcher.json s3://docs.bokeh.org/ "
+        "--only-show-errors "
+        "--cache-control no-cache,max-age=0,must-revalidate --region us-east-1"
+    )
     assert '"/en/latest*" "/en/4.0.0*" "/switcher.json"' in system.commands[3]
 
 
@@ -72,8 +77,13 @@ def test_publish_prerelease_documentation_updates_dev_and_switcher(version: str)
 
     assert result.kind is ActionResult.PASS
     assert len(system.commands) == 3
+    assert all("--acl" not in command for command in system.commands)
     assert "s3://docs.bokeh.org/en/dev-4.0/" in system.commands[0]
-    assert "switcher.json" in system.commands[1]
+    assert system.commands[1] == (
+        f"aws s3 cp deployment-{version}/docs/bokeh/switcher.json s3://docs.bokeh.org/ "
+        "--only-show-errors "
+        "--cache-control no-cache,max-age=0,must-revalidate --region us-east-1"
+    )
     assert '"/en/dev-4.0*" "/switcher.json"' in system.commands[2]
 
 
