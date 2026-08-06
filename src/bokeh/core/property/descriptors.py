@@ -692,7 +692,7 @@ class PropertyDescriptor[T]:
             old (obj) :
                 The previous value of the property
 
-            new (obj) :
+            value (obj) :
                 The new value of the property
 
             hint (event hint or None, optional)
@@ -917,7 +917,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
         Args:
             obj: (HasProps) : instance to set the property value on
 
-            json: (JSON-value) : value to set to the attribute to
+            value: (JSON-value) : value to set to the attribute to
 
             models (dict or None, optional) :
                 Mapping of model ids to models (default: None)

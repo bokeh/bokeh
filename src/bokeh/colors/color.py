@@ -255,7 +255,7 @@ class RGB(Color):
         ''' Create an RGB color from a CSS color string.
 
         Args:
-            css_color (str) :
+            css_color_string (str) :
                 String containing RGBA values. Valid formats are "rgb(125, 123, 12)" or
                 "rgba(125, 123, 12, 0.1)". The RGB values can be in the range between 0 and 255 and
                 are allowed to have decimal points. The alpha value can be in range between 0 and 1.
