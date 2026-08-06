@@ -19,6 +19,7 @@ from ...core.enums import (
 )
 from ...model.model import Model, _ModelInit
 from ..comparisons import Comparison
+from ..dom import HTML
 from ..sources import (
     CDSView,
     ColumnDataSource,
@@ -204,7 +205,7 @@ class SumAggregator(RowAggregator):
 
 class _TableColumnInit(_ModelInit, total=False):
     field: str
-    title: str | None
+    title: str | HTML | None
     width: int
     formatter: CellFormatter
     editor: CellEditor
@@ -217,7 +218,7 @@ class TableColumn(Model):
     def __init__(self, **kwargs: Unpack[_TableColumnInit]) -> None: ...
 
     field: str = ...
-    title: str | None = ...
+    title: str | HTML | None = ...
     width: int = ...
     formatter: CellFormatter = ...
     editor: CellEditor = ...

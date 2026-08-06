@@ -50,6 +50,7 @@ from ...core.property.required import Required
 from ...core.property.singletons import Intrinsic
 from ...model import Model
 from ..comparisons import Comparison
+from ..dom import HTML
 from ..sources import CDSView, ColumnDataSource, DataSource
 from .widget import Widget
 
@@ -702,9 +703,9 @@ class TableColumn(Model):
     The name of the field mapping to a column in the data source.
     """)
 
-    title = Nullable(String, help="""
-    The title of this column. If not set, column's data field is
-    used instead.
+    title = Nullable(Either(String, Instance(HTML)), help="""
+    The title of this column. May be a plain string or an HTML element.
+    If not set, column's data field is used instead.
     """)
 
     width = Int(300, help="""
