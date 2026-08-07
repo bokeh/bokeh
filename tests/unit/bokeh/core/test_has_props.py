@@ -17,8 +17,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import gc
 from types import MethodType
 from unittest.mock import MagicMock, patch
+from weakref import ref
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -177,6 +179,45 @@ def test_HasProps_override() -> None:
     assert ov.int1 == 20
     assert ov.ds1 == field("x")
     assert ov.lst1 == []
+
+def test_HasProps_inherited_unstable_override() -> None:
+    calls = 0
+
+    def default() -> int:
+        nonlocal calls
+        calls += 1
+        return calls
+
+    class Base(hp.HasProps, hp.Local):
+        value = Int(default=0)
+
+    class Child(Base):
+        value = Override(default=default)
+
+    class Grandchild(Child):
+        pass
+
+    obj = Grandchild()
+
+    assert obj.value == 1
+    assert obj.value == 1
+    assert calls == 1
+
+def test_HasProps_property_metadata_does_not_retain_class() -> None:
+    class Dynamic(hp.HasProps, hp.Local):
+        value = Int(default=0)
+
+    Dynamic.properties()
+    Dynamic.properties(_with_props=True)
+    Dynamic.descriptors()
+    Dynamic.properties_with_refs()
+    Dynamic.dataspecs()
+
+    dynamic_ref = ref(Dynamic)
+    del Dynamic
+    gc.collect()
+
+    assert dynamic_ref() is None
 
 def test_HasProps_intrinsic() -> None:
     obj0 = Parent(int1=Intrinsic, ds1=Intrinsic, lst1=Intrinsic)

@@ -46,11 +46,6 @@ from typing import (
 )
 from weakref import WeakSet
 
-if TYPE_CHECKING:
-    def lru_cache[F: Callable[..., Any]](arg: int | None) -> Callable[[F], F]: ...
-else:
-    from functools import lru_cache
-
 # Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring
@@ -114,22 +109,105 @@ def is_DataModel(cls: type[HasProps]) -> bool:
     from ..model import DataModel
     return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
 
-def _overridden_defaults(class_dict: dict[str, Any]) -> dict[str, Any]:
-    overridden_defaults: dict[str, Any] = {}
-    for name, prop in tuple(class_dict.items()):
-        if isinstance(prop, Override):
-            del class_dict[name]
-            if prop.default_overridden:
-                overridden_defaults[name] = prop.default
-    return overridden_defaults
+class _PropertyInfo:
+    """Property metadata compiled once for each ``HasProps`` subclass."""
 
-def _generators(class_dict: dict[str, Any]):
+    own_properties: dict[str, Property[Any]]
+    own_overridden_defaults: dict[str, Any]
+
+    _properties: dict[str, Property[Any]] | None
+    _property_names: set[str] | None
+    _descriptors: list[PropertyDescriptor[Any]] | None
+    _properties_with_refs: dict[str, Property[Any]] | None
+    _dataspecs: dict[str, DataSpec] | None
+    _overridden_defaults: dict[str, Any] | None
+
+    def __init__(self, own_properties: dict[str, Property[Any]], own_overridden_defaults: dict[str, Any]) -> None:
+        self.own_properties = own_properties
+        self.own_overridden_defaults = own_overridden_defaults
+
+        self._properties = None
+        self._property_names = None
+        self._descriptors = None
+        self._properties_with_refs = None
+        self._dataspecs = None
+        self._overridden_defaults = None
+
+    def _initialize(self, cls: type[HasProps]) -> None:
+        if self._properties is not None:
+            return
+
+        properties: dict[str, Property[Any]] = {}
+        overridden_defaults: dict[str, Any] = {}
+
+        for base in reversed(cls.__mro__):
+            properties.update(getattr(base, "__properties__", {}))
+            overridden_defaults.update(getattr(base, "__overridden_defaults__", {}))
+
+        self._properties = properties
+        self._property_names = set(properties)
+        self._descriptors = [getattr(cls, name) for name in properties]
+        self._properties_with_refs = {name: prop for name, prop in properties.items() if prop.has_ref}
+        self._overridden_defaults = overridden_defaults
+
+    def properties(self, cls: type[HasProps]) -> dict[str, Property[Any]]:
+        self._initialize(cls)
+        assert self._properties is not None
+        return self._properties
+
+    def property_names(self, cls: type[HasProps]) -> set[str]:
+        self._initialize(cls)
+        assert self._property_names is not None
+        return self._property_names
+
+    def descriptors(self, cls: type[HasProps]) -> list[PropertyDescriptor[Any]]:
+        self._initialize(cls)
+        assert self._descriptors is not None
+        return self._descriptors
+
+    def properties_with_refs(self, cls: type[HasProps]) -> dict[str, Property[Any]]:
+        self._initialize(cls)
+        assert self._properties_with_refs is not None
+        return self._properties_with_refs
+
+    def dataspecs(self, cls: type[HasProps]) -> dict[str, DataSpec]:
+        self._initialize(cls)
+        if self._dataspecs is None:
+            from .property.dataspec import DataSpec  # avoid circular import
+
+            assert self._properties is not None
+            self._dataspecs = {name: prop for name, prop in self._properties.items() if isinstance(prop, DataSpec)}
+        return self._dataspecs
+
+    def overridden_defaults(self, cls: type[HasProps]) -> dict[str, Any]:
+        self._initialize(cls)
+        assert self._overridden_defaults is not None
+        return self._overridden_defaults
+
+
+def _compile_property_info(class_name: str, class_dict: dict[str, Any]) -> _PropertyInfo:
+    own_properties: dict[str, Property[Any]] = {}
+    own_overridden_defaults: dict[str, Any] = {}
     generators: dict[str, PropertyDescriptorFactory[Any]] = {}
-    for name, generator in tuple(class_dict.items()):
-        if isinstance(generator, PropertyDescriptorFactory):
+
+    for name, value in tuple(class_dict.items()):
+        if isinstance(value, Override):
             del class_dict[name]
-            generators[name] = generator
-    return generators
+            if value.default_overridden:
+                own_overridden_defaults[name] = value.default
+        elif isinstance(value, PropertyDescriptorFactory):
+            del class_dict[name]
+            generators[name] = value
+
+    for name, generator in generators.items():
+        for descriptor in generator.make_descriptors(name):
+            descriptor_name = descriptor.name
+            if descriptor_name in class_dict:
+                raise RuntimeError(f"Two property generators both created {class_name}.{descriptor_name}")
+            class_dict[descriptor_name] = descriptor
+            own_properties[descriptor_name] = descriptor.property
+
+    return _PropertyInfo(own_properties, own_overridden_defaults)
 
 class _ModelResolver:
     """ A class responsible for tracking of models and how to resolve them. """
@@ -181,55 +259,45 @@ class MetaHasProps(type):
     __properties__: dict[str, Property[Any]]
     __overridden_defaults__: dict[str, Any]
     __themed_values__: dict[str, Any]
+    __property_info__: _PropertyInfo
 
     def __new__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]):
         '''
 
         '''
-        overridden_defaults = _overridden_defaults(class_dict)
-        generators = _generators(class_dict)
+        property_info = _compile_property_info(class_name, class_dict)
+        class_dict["__property_info__"] = property_info
+        class_dict["__properties__"] = property_info.own_properties
+        class_dict["__overridden_defaults__"] = property_info.own_overridden_defaults
 
-        properties = {}
+        new_cls = super().__new__(cls, class_name, bases, class_dict)
 
-        for name, generator in generators.items():
-            descriptors = generator.make_descriptors(name)
-            for descriptor in descriptors:
-                name = descriptor.name
-                if name in class_dict:
-                    raise RuntimeError(f"Two property generators both created {class_name}.{name}")
-                class_dict[name] = descriptor
-                properties[name] = descriptor.property
-
-        class_dict["__properties__"] = properties
-        class_dict["__overridden_defaults__"] = overridden_defaults
-
-        return super().__new__(cls, class_name, bases, class_dict)
-
-    def __init__(cls, class_name: str, bases: tuple[type, ...], _) -> None:
         # HasProps itself may not have any properties defined
         if class_name == "HasProps":
-            return
+            return new_cls
 
         # Check for improperly redeclared a Property attribute.
         base_properties: dict[str, Any] = {}
         for base in (x for x in bases if issubclass(x, HasProps)):
             base_properties.update(base.properties(_with_props=True))
-        own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
+        own_properties = {k: v for k, v in new_cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
         redeclared = own_properties.keys() & base_properties.keys()
         if redeclared:
             from ..util.warnings import warn
 
-            warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
+            warn(f"Properties {redeclared!r} in class {new_cls.__name__} were previously declared on a parent "
                  "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
                  "the parent class. Override() can be used to change a default value of a base class property.",
                  RuntimeWarning)
 
         # Check for no-op Overrides
-        unused_overrides = cls.__overridden_defaults__.keys() - cls.properties(_with_props=True).keys()
+        unused_overrides = property_info.own_overridden_defaults.keys() - property_info.properties(new_cls).keys()
         if unused_overrides:
             from ..util.warnings import warn
 
-            warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning)
+            warn(f"Overrides of {unused_overrides} in class {new_cls.__name__} does not override anything.", RuntimeWarning)
+
+        return new_cls
 
     @property
     def model_class_reverse_map(cls) -> dict[str, type[HasProps]]:
@@ -510,16 +578,13 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     @overload
     @classmethod
-    @lru_cache(None)
     def properties(cls, *, _with_props: Literal[False] = False) -> set[str]: ...
 
     @overload
     @classmethod
-    @lru_cache(None)
-    def properties(cls, *, _with_props: Literal[True] = True) -> dict[str, Property[Any]]: ...
+    def properties(cls, *, _with_props: Literal[True]) -> dict[str, Property[Any]]: ...
 
     @classmethod
-    @lru_cache(None)
     def properties(cls, *, _with_props: bool = False) -> set[str] | dict[str, Property[Any]]:
         ''' Collect the names of properties on this class.
 
@@ -532,23 +597,16 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             property names
 
         '''
-        props: dict[str, Property[Any]] = {}
-        for c in reversed(cls.__mro__):
-            props.update(getattr(c, "__properties__", {}))
-
-        if not _with_props:
-            return set(props)
-
-        return props
+        if _with_props:
+            return cls.__property_info__.properties(cls)
+        return cls.__property_info__.property_names(cls)
 
     @classmethod
-    @lru_cache(None)
     def descriptors(cls) -> list[PropertyDescriptor[Any]]:
         """ List of property descriptors in the order of definition. """
-        return [ cls.lookup(name) for name, _ in cls.properties(_with_props=True).items() ]
+        return cls.__property_info__.descriptors(cls)
 
     @classmethod
-    @lru_cache(None)
     def properties_with_refs(cls) -> dict[str, Property[Any]]:
         ''' Collect the names of all properties on this class that also have
         references.
@@ -560,10 +618,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             set[str] : names of properties that have references
 
         '''
-        return {k: v for k, v in cls.properties(_with_props=True).items() if v.has_ref}
+        return cls.__property_info__.properties_with_refs(cls)
 
     @classmethod
-    @lru_cache(None)
     def dataspecs(cls) -> dict[str, DataSpec]:
         ''' Collect the names of all ``DataSpec`` properties on this class.
 
@@ -574,8 +631,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             set[str] : names of ``DataSpec`` properties
 
         '''
-        from .property.dataspec import DataSpec  # avoid circular import
-        return {k: v for k, v in cls.properties(_with_props=True).items() if isinstance(v, DataSpec)}
+        return cls.__property_info__.dataspecs(cls)
 
     def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
@@ -609,10 +665,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             This is an implementation detail of ``Property``.
 
         '''
-        defaults: dict[str, Any] = {}
-        for c in reversed(cls.__mro__):
-            defaults.update(getattr(c, "__overridden_defaults__", {}))
-        return defaults
+        return cls.__property_info__.overridden_defaults(cls)
 
     def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any]], bool], *,
             include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
