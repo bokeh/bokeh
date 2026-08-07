@@ -1,4 +1,5 @@
 import {BaseText, BaseTextView} from "./base_text"
+import type {Dict} from "core/types"
 import type {GraphicsBox} from "core/graphics"
 import {TextBox} from "core/graphics"
 import type * as p from "core/properties"
@@ -11,8 +12,12 @@ export class TranslatableTextView extends BaseTextView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {text} = this.model.properties
+    const {text, options} = this.model.properties
     this.on_change(text, async () => {
+      await this._build_text()
+      this.parent.request_paint()
+    })
+    this.on_change(options, async () => {
       await this._build_text()
       this.parent.request_paint()
     })
@@ -50,7 +55,8 @@ export class TranslatableTextView extends BaseTextView {
     // (i.e SizeBar instances)
     const {document} = this.root.model
     if (document != null) {
-      this.translated_text = await document.config.i18n.t(this.model.text)
+      const {text, options} = this.model
+      this.translated_text = await document.config.i18n.t(text, options)
     } else {
       this.translated_text = this.model.text
     }
@@ -61,7 +67,9 @@ export class TranslatableTextView extends BaseTextView {
 
 export namespace TranslatableText {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = BaseText.Props
+  export type Props = BaseText.Props & {
+    options: p.Property<Dict<Dict<string | any>>>
+  }
 }
 
 export interface TranslatableText extends TranslatableText.Attrs {}
@@ -76,5 +84,9 @@ export class TranslatableText extends BaseText {
 
   static {
     this.prototype.default_view = TranslatableTextView
+
+    this.define<TranslatableText.Props>(({Str, Dict, Any, Or}) => ({
+      options: [ Dict(Dict(Or(Str, Any))), {} ],
+    }))
   }
 }

@@ -2746,6 +2746,9 @@
   },
   "bokeh.models.dom.TranslatableText": {
     __extends__: "bokeh.models.dom.Text",
+    options: {
+      type: "map",
+    },
   },
   "bokeh.models.dom.ValueOf": {
     __extends__: "bokeh.models.dom.Placeholder",
