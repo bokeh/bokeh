@@ -212,7 +212,7 @@ def test_HasProps_local_and_effective_property_metadata() -> None:
     assert list(Child.__properties__) == ["y"]
     assert list(Grandchild.__properties__) == ["z"]
 
-    assert list(Grandchild.properties(_with_props=True)) == ["x", "y", "z"]
+    assert list(Grandchild.properties()) == ["x", "y", "z"]
     assert Child.__overridden_defaults__ == {"x": 2}
     assert Grandchild.__overridden_defaults__ == {}
     assert Grandchild._overridden_defaults() == {"x": 2}
@@ -245,7 +245,6 @@ def test_HasProps_property_metadata_does_not_retain_class() -> None:
         value = Int(default=0)
 
     Dynamic.properties()
-    Dynamic.properties(_with_props=True)
     Dynamic.descriptors()
     Dynamic.properties_with_refs()
     Dynamic.dataspecs()

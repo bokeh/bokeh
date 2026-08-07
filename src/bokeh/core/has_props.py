@@ -116,7 +116,6 @@ class _PropertyInfo:
     own_overridden_defaults: dict[str, Any]
 
     _properties: dict[str, Property[Any]]
-    _property_names: set[str]
     _descriptors: list[PropertyDescriptor[Any]]
     _properties_with_refs: dict[str, Property[Any]]
     _dataspecs: dict[str, DataSpec]
@@ -133,12 +132,20 @@ class _PropertyInfo:
         properties: dict[str, Property[Any]] = {}
         overridden_defaults: dict[str, Any] = {}
 
-        for base in reversed(cls.__mro__):
-            properties.update(getattr(base, "__properties__", {}))
-            overridden_defaults.update(getattr(base, "__overridden_defaults__", {}))
+        for base in cls.__bases__:
+            property_info = base.__dict__.get("__property_info__")
+            if not isinstance(property_info, _PropertyInfo):
+                continue
+
+            for name, prop in property_info.properties(base).items():
+                properties.setdefault(name, prop)
+            for name, default in property_info.overridden_defaults(base).items():
+                overridden_defaults.setdefault(name, default)
+
+        properties.update(self.own_properties)
+        overridden_defaults.update(self.own_overridden_defaults)
 
         self._properties = properties
-        self._property_names = set(properties)
         self._descriptors = [getattr(cls, name) for name in properties]
         self._properties_with_refs = {name: prop for name, prop in properties.items() if prop.has_ref}
         self._overridden_defaults = overridden_defaults
@@ -146,10 +153,6 @@ class _PropertyInfo:
     def properties(self, cls: type[HasProps]) -> dict[str, Property[Any]]:
         self._initialize(cls)
         return self._properties
-
-    def property_names(self, cls: type[HasProps]) -> set[str]:
-        self._initialize(cls)
-        return self._property_names
 
     def descriptors(self, cls: type[HasProps]) -> list[PropertyDescriptor[Any]]:
         self._initialize(cls)
@@ -266,7 +269,7 @@ class MetaHasProps(type):
         # Check for improperly redeclared a Property attribute.
         base_properties: dict[str, Any] = {}
         for base in (x for x in bases if issubclass(x, HasProps)):
-            base_properties.update(base.properties(_with_props=True))
+            base_properties.update(base.properties())
         own_properties = {k: v for k, v in new_cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
         redeclared = own_properties.keys() & base_properties.keys()
         if redeclared:
@@ -360,7 +363,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             setattr(self, name, value)
 
         initialized = set(properties.keys())
-        for name in self.properties(_with_props=True): # avoid set[] for deterministic behavior
+        for name in self.properties():
             if name in initialized:
                 continue
             desc = self.lookup(name)
@@ -387,7 +390,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         if name.startswith("_"):
             return super().__setattr__(name, value)
 
-        properties = self.properties(_with_props=True)
+        properties = self.properties()
         if name in properties:
             return super().__setattr__(name, value)
 
@@ -414,7 +417,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         if name.startswith("_"):
             return super().__getattribute__(name)
 
-        properties = self.properties(_with_props=True)
+        properties = self.properties()
         if name in properties:
             return super().__getattribute__(name)
 
@@ -503,7 +506,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             None
 
         '''
-        if name in self.properties(_with_props=True):
+        if name in self.properties():
             log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore # TODO: log.trace()
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, value, setter=setter)
@@ -563,30 +566,15 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             return attr
         raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
-    @overload
     @classmethod
-    def properties(cls, *, _with_props: Literal[False] = False) -> set[str]: ...
-
-    @overload
-    @classmethod
-    def properties(cls, *, _with_props: Literal[True]) -> dict[str, Property[Any]]: ...
-
-    @classmethod
-    def properties(cls, *, _with_props: bool = False) -> set[str] | dict[str, Property[Any]]:
-        ''' Collect the names of properties on this class.
-
-        .. warning::
-            In a future version of Bokeh, this method will return a dictionary
-            mapping property names to property objects. To future-proof this
-            current usage of this method, wrap the return value in ``list``.
+    def properties(cls) -> dict[str, Property[Any]]:
+        ''' Collect the properties on this class.
 
         Returns:
-            property names
+            a mapping of property names to property objects
 
         '''
-        if _with_props:
-            return cls.__property_info__.properties(cls)
-        return cls.__property_info__.property_names(cls)
+        return cls.__property_info__.properties(cls)
 
     @classmethod
     def descriptors(cls) -> list[PropertyDescriptor[Any]]:
@@ -675,7 +663,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         themed_keys: set[str] = set()
         result: dict[str, Any] = {}
 
-        keys = self.properties(_with_props=True)
+        keys = self.properties()
         if include_defaults:
             selected_keys = set(keys)
         else:
