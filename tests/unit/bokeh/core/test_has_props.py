@@ -180,6 +180,42 @@ def test_HasProps_override() -> None:
     assert ov.ds1 == field("x")
     assert ov.lst1 == []
 
+def test_HasProps_warns_on_redeclared_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        value = Int()
+
+    with pytest.warns(RuntimeWarning, match="previously declared on a parent class"):
+        class Child(Base):
+            value = Int()
+
+def test_HasProps_warns_on_unused_override() -> None:
+    class Base(hp.HasProps, hp.Local):
+        pass
+
+    with pytest.warns(RuntimeWarning, match="does not override anything"):
+        class Child(Base):
+            value = Override(default=1)
+
+def test_HasProps_local_and_effective_property_metadata() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int()
+
+    class Child(Base):
+        x = Override(default=2)
+        y = String()
+
+    class Grandchild(Child):
+        z = Int()
+
+    assert list(Base.__properties__) == ["x"]
+    assert list(Child.__properties__) == ["y"]
+    assert list(Grandchild.__properties__) == ["z"]
+
+    assert list(Grandchild.properties(_with_props=True)) == ["x", "y", "z"]
+    assert Child.__overridden_defaults__ == {"x": 2}
+    assert Grandchild.__overridden_defaults__ == {}
+    assert Grandchild._overridden_defaults() == {"x": 2}
+
 def test_HasProps_inherited_unstable_override() -> None:
     calls = 0
 
