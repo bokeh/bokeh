@@ -28,6 +28,7 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import BuiltinFormatter
 from ..core.has_props import HasProps, abstract
+from ..core.property.any import Any as AnyProperty
 from ..core.property.bases import Init
 from ..core.property.container import Dict, List
 from ..core.property.either import Either
@@ -85,6 +86,10 @@ class TranslatableText(Text):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+    options = Dict(String, Either(Dict(String, String), Dict(String, AnyProperty)), default={}, help="""
+    Dictionary with extra options to apply to the translated text.
+    """)
 
 @abstract
 class DOMElement(DOMNode):
