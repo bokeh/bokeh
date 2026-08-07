@@ -1,3 +1,4 @@
+import type {Dict} from "core/types"
 import {Text, TextView} from "./text"
 import type * as p from "core/properties"
 
@@ -8,8 +9,12 @@ export class TranslatableTextView extends TextView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {content} = this.model.properties
+    const {content, options} = this.model.properties
     this.on_change(content, async () => {
+      await this._build_text()
+      this.render()
+    })
+    this.on_change(options, async () => {
       await this._build_text()
       this.render()
     })
@@ -37,14 +42,17 @@ export class TranslatableTextView extends TextView {
     // TODO: This should use this.model.document but it seems to be always null
     const {document} = this.root.model
     if (document != null) {
-      this.translated_text = await document.config.i18n.t(this.model.content)
+      const {content, options} = this.model
+      this.translated_text = await document.config.i18n.t(content, options)
     }
   }
 }
 
 export namespace TranslatableText {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = Text.Props
+  export type Props = Text.Props & {
+    options: p.Property<Dict<Dict<string | any>>>
+  }
 }
 
 export interface TranslatableText extends TranslatableText.Attrs {}
@@ -59,5 +67,9 @@ export class TranslatableText extends Text {
 
   static {
     this.prototype.default_view = TranslatableTextView
+
+    this.define<TranslatableText.Props>(({Str, Dict, Any, Or}) => ({
+      options: [ Dict(Dict(Or(Str, Any))), {} ],
+    }))
   }
 }
