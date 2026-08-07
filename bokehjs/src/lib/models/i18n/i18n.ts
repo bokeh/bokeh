@@ -74,13 +74,11 @@ export class I18n extends Model {
     }
   }
 
-  async t(key: string): Promise<string> {
-    // TODO: Expose args to allow for interpolation, formatting, nesting, plurals, etc
-    // (use Intl - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl - based implementation over `_t`)
+  async t(key: string, options: Dict<Dict<string | any>> = {}): Promise<string> {
     if (this.auto_t_enabled) {
-      return await this._auto_t(key)
+      return await this._auto_t(key, options)
     } else {
-      return this._t(key)
+      return this._t(key, options)
     }
   }
 
@@ -117,22 +115,32 @@ export class I18n extends Model {
     return availability
   }
 
-  protected async _auto_t(key: string): Promise<string> {
-    let translation = this._t(key)
+  protected async _auto_t(key: string, options: Dict<Dict<string | any>> = {}): Promise<string> {
+    let translation = this._t(key, options)
     if (typeof this._translator !== "undefined" && translation === key) {
       translation = await this._translator.translate(key)
     }
     return translation
   }
 
-  protected _t(key: string): string {
+  protected _t(key: string, options: Dict<Dict<string | any>> = {}): string {
     const locale_translation = to_object(this.translations)[this.get_locale()]
-    return key.split(".").reduce(
+    const translation_string = key.split(".").reduce(
       (current_level, current_key) => current_level?.[current_key],
       locale_translation as any,
     ) ?? key
+
+    // TODO: Use args to allow for interpolation, formatting, nesting, plurals, etc
+    // (use Intl for formatting options - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl)
+    if ("interpolation" in options) {
+      const variables = to_object(options.interpolation)
+      return translation_string.replace(/\{{(\w+)}}/g, (_: string, key: string) => variables[key] ?? "")
+    }
+
+    return translation_string
   }
 
+  // TODO: Should this be defined over the document class?
   set_config(locales_codes: string[] | null, translations: string | null, languages: [string, string][] | null, source_language: string | null, auto_t_enabled: boolean | null): void {
     if (locales_codes != null && translations != null && languages != null && source_language != null && auto_t_enabled != null) {
       this.locales_codes = locales_codes
