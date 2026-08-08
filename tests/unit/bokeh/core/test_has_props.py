@@ -23,17 +23,24 @@ from unittest.mock import MagicMock, patch
 from weakref import ref
 
 # Bokeh imports
+from bokeh.core.enums import AngleUnits as AngleUnitsEnum
 from bokeh.core.properties import (
     Alias,
     AngleSpec,
+    AngleUnits,
+    CoordinateSpec,
+    DistanceSpec,
     Either,
+    Enum,
     Instance,
     Int,
     List,
     Nullable,
+    NullDistanceSpec,
     NumberSpec,
     Override,
     Required,
+    SpatialUnits,
     String,
 )
 from bokeh.core.property.descriptors import (
@@ -43,6 +50,7 @@ from bokeh.core.property.descriptors import (
 )
 from bokeh.core.property.singletons import Intrinsic, Undefined
 from bokeh.core.property.vectorization import field, value
+from bokeh.core.serialization import Serializer
 from bokeh.settings import settings
 from bokeh.util.warnings import BokehUserWarning
 
@@ -216,6 +224,32 @@ def test_HasProps_local_and_effective_property_metadata() -> None:
     assert Child.__overridden_defaults__ == {"x": 2}
     assert Grandchild.__overridden_defaults__ == {}
     assert Grandchild._overridden_defaults() == {"x": 2}
+
+def test_HasProps_uses_standard_metaclass() -> None:
+    class CustomMeta(type):
+        pass
+
+    class Custom(hp.HasProps, hp.Local, metaclass=CustomMeta):
+        value = Int(default=10)
+
+    assert type(hp.HasProps) is type
+    assert type(Custom) is CustomMeta
+    assert Custom().value == 10
+    assert Serializer().encode(Custom) == {"id": Custom.__qualified_model__}
+
+def test_HasProps_property_is_bound_before_subclass_hook() -> None:
+    observed: dict[str, bool] = {}
+
+    class Base(hp.HasProps, hp.Local):
+        @classmethod
+        def __init_subclass__(cls) -> None:
+            observed["descriptor"] = isinstance(cls.__dict__["value"], PropertyDescriptor)
+            super().__init_subclass__()
+
+    class Child(Base):
+        value = Int()
+
+    assert observed == {"descriptor": True}
 
 def test_HasProps_inherited_unstable_override() -> None:
     calls = 0
@@ -617,15 +651,45 @@ def test_HasProps_apply_theme_func_default() -> None:
     c.foo = 50
     assert c.foo == 50
 
-def test_has_props_dupe_prop() -> None:
-    try:
-        class DupeProps(hp.HasProps):
+def test_AngleSpec_requires_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Props(hp.HasProps, hp.Local):
             bar = AngleSpec()
-            bar_units = String()
-    except RuntimeError as e:
-        assert str(e) == "Two property generators both created DupeProps.bar_units"
-    else:
-        assert False
+
+
+def test_CoordinateSpec_requires_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses CoordinateSpec.*`bar_units = CoordinateUnits`"):
+        class Props(hp.HasProps, hp.Local):
+            bar = CoordinateSpec()
+
+
+@pytest.mark.parametrize("spec_type", [DistanceSpec, NullDistanceSpec])
+def test_DistanceSpec_requires_units_property(spec_type) -> None:
+    with pytest.raises(TypeError, match=rf"Props\.bar uses {spec_type.__name__}.*`bar_units = SpatialUnits`"):
+        class Props(hp.HasProps, hp.Local):
+            bar = spec_type()
+
+
+def test_AngleSpec_rejects_wrong_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Props(hp.HasProps, hp.Local):
+            bar = AngleSpec()
+            bar_units = SpatialUnits
+
+
+def test_AngleSpec_rejects_serialized_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Props(hp.HasProps, hp.Local):
+            bar = AngleSpec()
+            bar_units = Enum(AngleUnitsEnum)
+
+
+def test_AngleSpec_with_units_contributes_two_properties() -> None:
+    class Props(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = AngleUnits
+
+    assert list(Props.properties()) == ["bar", "bar_units"]
 
 class TopLevelQualified(hp.HasProps, hp.Qualified):
     foo = Int()

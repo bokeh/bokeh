@@ -12,9 +12,12 @@ from typing import Literal, NotRequired, TypedDict
 from .._types import NonNegative
 from ..core.enums import (
     AlignType as Align,
+    AngleUnitsType as AngleUnitsType,
     AnchorType as Anchor_,
     AutoType as Auto,
+    CoordinateUnitsType as CoordinateUnitsType,
     HAlignType as HAlign,
+    SpatialUnitsType as SpatialUnitsType,
     ToolIconType as ToolIcon,
     VAlignType as VAlign,
 )
@@ -23,6 +26,10 @@ from ..core.property.visual import ImageType
 
 type CSSLengthType = str
 class CSSLength(Property[CSSLengthType]): ...     # 10px 1.2em, etc.
+
+class AngleUnits(Property[AngleUnitsType]): ...
+class CoordinateUnits(Property[CoordinateUnitsType]): ...
+class SpatialUnits(Property[SpatialUnitsType]): ...
 
 type CSSClassType = str
 class CSSClass(Property[CSSClassType]): ...       # ^\..*$

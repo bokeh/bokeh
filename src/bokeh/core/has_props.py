@@ -49,9 +49,9 @@ from weakref import WeakSet
 # Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring
-from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
-from .property.override import Override
+from .property.enum import Enum
+from .property.serialized import NotSerialized
 from .property.singletons import Intrinsic, Undefined
 from .property.wrappers import PropertyValueContainer
 from .serialization import (
@@ -74,7 +74,6 @@ if TYPE_CHECKING:
 __all__ = (
     'abstract',
     'HasProps',
-    'MetaHasProps',
     'NonQualified',
     'Qualified',
 )
@@ -175,30 +174,6 @@ class _PropertyInfo:
         return self._overridden_defaults
 
 
-def _compile_property_info(class_name: str, class_dict: dict[str, Any]) -> _PropertyInfo:
-    own_properties: dict[str, Property[Any]] = {}
-    own_overridden_defaults: dict[str, Any] = {}
-    generators: dict[str, PropertyDescriptorFactory[Any]] = {}
-
-    for name, value in tuple(class_dict.items()):
-        if isinstance(value, Override):
-            del class_dict[name]
-            if value.default_overridden:
-                own_overridden_defaults[name] = value.default
-        elif isinstance(value, PropertyDescriptorFactory):
-            del class_dict[name]
-            generators[name] = value
-
-    for name, generator in generators.items():
-        for descriptor in generator.make_descriptors(name):
-            descriptor_name = descriptor.name
-            if descriptor_name in class_dict:
-                raise RuntimeError(f"Two property generators both created {class_name}.{descriptor_name}")
-            class_dict[descriptor_name] = descriptor
-            own_properties[descriptor_name] = descriptor.property
-
-    return _PropertyInfo(own_properties, own_overridden_defaults)
-
 class _ModelResolver:
     """ A class responsible for tracking of models and how to resolve them. """
 
@@ -235,62 +210,8 @@ class _ModelResolver:
 
 _default_resolver = _ModelResolver()
 
-class MetaHasProps(type):
-    ''' Specialize the construction of |HasProps| classes.
-
-    This class is a `metaclass`_ for |HasProps| that is responsible for
-    creating and adding the ``PropertyDescriptor`` instances that delegate
-    validation and serialization to |Property| attributes.
-
-    .. _metaclass: https://docs.python.org/3/reference/datamodel.html#metaclasses
-
-    '''
-
-    __properties__: dict[str, Property[Any]]
-    __overridden_defaults__: dict[str, Any]
-    __themed_values__: dict[str, Any]
-    __property_info__: _PropertyInfo
-
-    def __new__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]):
-        '''
-
-        '''
-        property_info = _compile_property_info(class_name, class_dict)
-        class_dict["__property_info__"] = property_info
-        class_dict["__properties__"] = property_info.own_properties
-        class_dict["__overridden_defaults__"] = property_info.own_overridden_defaults
-
-        new_cls = super().__new__(cls, class_name, bases, class_dict)
-
-        # HasProps itself may not have any properties defined
-        if class_name == "HasProps":
-            return new_cls
-
-        # Check for improperly redeclared a Property attribute.
-        base_properties: dict[str, Any] = {}
-        for base in (x for x in bases if issubclass(x, HasProps)):
-            base_properties.update(base.properties())
-        own_properties = {k: v for k, v in new_cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
-        redeclared = own_properties.keys() & base_properties.keys()
-        if redeclared:
-            from ..util.warnings import warn
-
-            warn(f"Properties {redeclared!r} in class {new_cls.__name__} were previously declared on a parent "
-                 "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
-                 "the parent class. Override() can be used to change a default value of a base class property.",
-                 RuntimeWarning)
-
-        # Check for no-op Overrides
-        unused_overrides = property_info.own_overridden_defaults.keys() - property_info.properties(new_cls).keys()
-        if unused_overrides:
-            from ..util.warnings import warn
-
-            warn(f"Overrides of {sorted(unused_overrides)} in class {new_cls.__name__} do not override anything.", RuntimeWarning)
-
-        return new_cls
-
-    @property
-    def model_class_reverse_map(cls) -> dict[str, type[HasProps]]:
+class _ModelClassReverseMap:
+    def __get__(self, _obj: Any, _owner: type[HasProps]) -> dict[str, type[HasProps]]:
         return _default_resolver.known_models
 
 class Local:
@@ -302,7 +223,7 @@ class Qualified:
 class NonQualified:
     """Resolve this class by a non-qualified name. """
 
-class HasProps(Serializable, metaclass=MetaHasProps):
+class HasProps(Serializable):
     ''' Base class for all class types that have Bokeh properties.
 
     '''
@@ -312,6 +233,12 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     _unstable_default_values: dict[str, Any]
     _unstable_themed_values: dict[str, Any]
 
+    __properties__: dict[str, Property[Any]] = {}
+    __overridden_defaults__: dict[str, Any] = {}
+    __property_info__ = _PropertyInfo(__properties__, __overridden_defaults__)
+
+    model_class_reverse_map = _ModelClassReverseMap()
+
     __view_model__: ClassVar[str]
     __view_module__: ClassVar[str]
     __qualified_model__: ClassVar[str]
@@ -320,7 +247,56 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     @classmethod
     def __init_subclass__(cls):
+        own_includes = cls.__dict__.get("__property_includes__", {})
+        for include in own_includes.values():
+            include._include(cls)
+        if "__property_includes__" in cls.__dict__:
+            delattr(cls, "__property_includes__")
+
+        own_properties = cls.__dict__.get("__properties__", {})
+        own_overridden_defaults = cls.__dict__.get("__overridden_defaults__", {})
+        cls.__properties__ = own_properties
+        cls.__overridden_defaults__ = own_overridden_defaults
+        cls.__property_info__ = property_info = _PropertyInfo(own_properties, own_overridden_defaults)
+
         super().__init_subclass__()
+
+        properties = property_info.properties(cls)
+        for name, prop in own_properties.items():
+            units_enum = getattr(prop, "_units_enum", None)
+            if units_enum is None:
+                continue
+
+            units_name = f"{name}_units"
+            units_prop = properties.get(units_name)
+
+            valid_units_prop = isinstance(units_prop, NotSerialized) and \
+                isinstance(units_prop.type_param, Enum) and \
+                tuple(units_prop.type_param.allowed_values) == tuple(units_enum)
+            if not valid_units_prop:
+                units_alias = getattr(prop, "_units_alias")
+                raise TypeError(
+                    f"{cls.__name__}.{name} uses {type(prop).__name__} and requires a matching "
+                    f"{cls.__name__}.{units_name} property; add `{units_name} = {units_alias}`",
+                )
+
+        base_properties: dict[str, Any] = {}
+        for base in (base for base in cls.__bases__ if issubclass(base, HasProps)):
+            base_properties.update(base.properties())
+        redeclared = own_properties.keys() & base_properties.keys()
+        if redeclared:
+            from ..util.warnings import warn
+
+            warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
+                 "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
+                 "the parent class. Override() can be used to change a default value of a base class property.",
+                 RuntimeWarning)
+
+        unused_overrides = own_overridden_defaults.keys() - properties.keys()
+        if unused_overrides:
+            from ..util.warnings import warn
+
+            warn(f"Overrides of {sorted(unused_overrides)} in class {cls.__name__} do not override anything.", RuntimeWarning)
 
         # use an explicitly provided view model name if there is one
         if "__view_model__" not in cls.__dict__:
@@ -860,7 +836,12 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
 
     return modeldef
 
-Serializer.register(MetaHasProps, _HasProps_to_serializable)
+def _type_to_serializable(cls: type[Any], serializer: Serializer) -> Ref | ModelDef:
+    if issubclass(cls, HasProps):
+        return _HasProps_to_serializable(cls, serializer)
+    serializer.error(f"can't serialize type {cls.__module__}.{cls.__qualname__}")
+
+Serializer.register(type, _type_to_serializable)
 
 #-----------------------------------------------------------------------------
 # Private API

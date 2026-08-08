@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections.abc import Sequence
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -40,8 +39,7 @@ from typing import (
 # Bokeh imports
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
-from .descriptor_factory import PropertyDescriptorFactory, PropertyDescriptorLike
-from .descriptors import PropertyDescriptor
+from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from .singletons import (
     Intrinsic,
     IntrinsicType,
@@ -78,7 +76,7 @@ type TypeOrInst[T] = type[T] | T
 
 type Init[T] = T | UndefinedType | IntrinsicType
 
-class Property[T](PropertyDescriptorFactory[T]):
+class Property[T]:
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -101,6 +99,16 @@ class Property[T](PropertyDescriptorFactory[T]):
 
     alternatives: list[tuple[Property[Any], Callable[[Any], T]]]
     assertions: list[tuple[bool | Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
+
+    def __set_name__(self, owner: type[Any], name: str) -> None:
+        own_properties = owner.__dict__.get("__properties__")
+        if not isinstance(own_properties, dict):
+            own_properties = {}
+            setattr(owner, "__properties__", own_properties)
+
+        descriptor = self.make_descriptor(name)
+        setattr(owner, name, descriptor)
+        own_properties[name] = descriptor.property
 
     def __init__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
         default = default if default is not Intrinsic else Undefined
@@ -151,20 +159,16 @@ class Property[T](PropertyDescriptorFactory[T]):
         else:
             return False
 
-    def make_descriptors(self, name: str) -> Sequence[PropertyDescriptorLike[T]]:
-        """ Return a list of ``PropertyDescriptor`` instances to install
-        on a class, in order to delegate attribute access to this property.
+    def make_descriptor(self, name: str) -> PropertyDescriptor[T] | AliasPropertyDescriptor[T]:
+        """Return the descriptor used to delegate access to this property.
 
         Args:
             name (str) : the name of the property these descriptors are for
 
         Returns:
-            list[PropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+            PropertyDescriptor
         """
-        return [ PropertyDescriptor(name, self) ]
+        return PropertyDescriptor(name, self)
 
     def _may_have_unstable_default(self) -> bool:
         """ False if we have a default that is immutable, and will be the

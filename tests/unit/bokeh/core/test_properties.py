@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # External imports
 import numpy as np
+from tests.support.util.api import verify_all
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps, Local
@@ -38,7 +39,6 @@ from bokeh.core.properties import (
     UnsetValueError,
 )
 from bokeh.model import Model
-from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.properties as bcp # isort:skip
@@ -53,6 +53,7 @@ ALL = (
     'AlphaSpec',
     'Angle',
     'AngleSpec',
+    'AngleUnits',
     'Any',
     'AnyRef',
     'Array',
@@ -68,6 +69,8 @@ ALL = (
     'ColumnData',
     'Complex',
     'CoordinateLike',
+    'CoordinateSpec',
+    'CoordinateUnits',
     'DashPattern',
     'DashPatternSpec',
     'DataSpec',
@@ -130,6 +133,7 @@ ALL = (
     'Set',
     'Size',
     'SizeSpec',
+    'SpatialUnits',
     'String',
     'StringSpec',
     'Struct',
@@ -140,7 +144,6 @@ ALL = (
     'TextLike',
     'Tuple',
     'TypeOfAttr',
-    'UnitsSpec',
     'UnsetValueError',
     'expr',
     'field',

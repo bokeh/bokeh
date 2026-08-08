@@ -33,7 +33,7 @@ ALL = (
 )
 
 class IsDelegate(HasProps):
-    x = Int(12)
+    x = Int(12, help="Original x documentation.")
     y = String("hello")
 
 #-----------------------------------------------------------------------------
@@ -42,10 +42,16 @@ class IsDelegate(HasProps):
 
 
 class Test_Include:
+    def test_is_not_property_factory(self) -> None:
+        include = bcpi.Include(IsDelegate)
+
+        assert not hasattr(include, "make_descriptor")
+        assert not hasattr(include, "make_descriptors")
+
     def test_include_with_prefix(self) -> None:
 
         class IncludesDelegateWithPrefix(HasProps):
-            z = bcpi.Include(IsDelegate, prefix="z")
+            z = bcpi.Include(IsDelegate, prefix="z", help="The {prop} values.")
 
         o = IncludesDelegateWithPrefix()
         assert o.z_x == 12
@@ -61,6 +67,17 @@ class Test_Include:
         assert 'z_y' in o.properties_with_values(include_defaults=True)
         assert 'z_x' not in o.properties_with_values(include_defaults=False)
         assert 'z_y' not in o.properties_with_values(include_defaults=False)
+        assert IncludesDelegateWithPrefix.lookup("z_x").__doc__ == "The x values.\n\nOriginal x documentation."
+
+    def test_include_help_context(self) -> None:
+        class IncludesDelegateWithContext(HasProps):
+            z = bcpi.Include(IsDelegate, prefix="z", help="""
+            ``{model}.{name}`` provides its {prop}.\n\n{doc}
+            """)
+
+        assert IncludesDelegateWithContext.lookup("z_x").__doc__ == (
+            "``IncludesDelegateWithContext.z_x`` provides its x.\n\nOriginal x documentation."
+        )
 
     def test_include_without_prefix(self) -> None:
         class IncludesDelegateWithoutPrefix(HasProps):
@@ -75,7 +92,13 @@ class Test_Include:
         assert 'y' in o.properties_with_values(include_defaults=True)
         assert 'x' not in o.properties_with_values(include_defaults=False)
         assert 'y' not in o.properties_with_values(include_defaults=False)
+        assert IncludesDelegateWithoutPrefix.lookup("x").__doc__ == "Original x documentation."
 
+    def test_include_rejects_duplicate_property(self) -> None:
+        with pytest.raises(RuntimeError, match=r"Multiple property declarations created Duplicate\.x"):
+            class Duplicate(HasProps):
+                x = Int()
+                delegate = bcpi.Include(IsDelegate)
 
     def test_include_without_prefix_using_override(self) -> None:
         class IncludesDelegateWithoutPrefixUsingOverride(HasProps):

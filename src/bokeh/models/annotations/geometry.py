@@ -35,7 +35,7 @@ from ...core.enums import (
 )
 from ...core.property.aliases import CoordinateLike
 from ...core.property.container import Seq
-from ...core.property.dataspec import UnitsSpec
+from ...core.property.dataspec import CoordinateSpec
 from ...core.property.enum import Enum
 from ...core.property.include import Include
 from ...core.property.instance import Instance, InstanceDefault
@@ -45,7 +45,10 @@ from ...core.property.override import Override
 from ...core.property.primitive import Bool, Float, Null
 from ...core.property.required import Required
 from ...core.property.vectorization import field
-from ...core.property_aliases import BorderRadius
+from ...core.property_aliases import (
+    BorderRadius,
+    CoordinateUnits as CoordinateUnitsProperty,
+)
 from ...core.property_mixins import (
     LineProps,
     ScalarFillProps,
@@ -345,17 +348,23 @@ class Band(DataAnnotation):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
+    lower = CoordinateSpec(default=field("lower"), help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
+    lower_units = CoordinateUnitsProperty
+
+    upper = CoordinateSpec(default=field("upper"), help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
+    upper_units = CoordinateUnitsProperty
+
+    base = CoordinateSpec(default=field("base"), help="""
     The orthogonal coordinates of the upper and lower values.
     """)
+
+    base_units = CoordinateUnitsProperty
 
     dimension = Enum(Dimension, default='height', help="""
     The direction of the band can be specified by setting this property
@@ -555,25 +564,31 @@ class Whisker(DataAnnotation):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
+    lower = CoordinateSpec(default=field("lower"), help="""
     The coordinates of the lower end of the whiskers.
     """)
+
+    lower_units = CoordinateUnitsProperty
 
     lower_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
     Instance of ``ArrowHead``.
     """)
 
-    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
+    upper = CoordinateSpec(default=field("upper"), help="""
     The coordinates of the upper end of the whiskers.
     """)
+
+    upper_units = CoordinateUnitsProperty
 
     upper_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
     Instance of ``ArrowHead``.
     """)
 
-    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
+    base = CoordinateSpec(default=field("base"), help="""
     The orthogonal coordinates of the upper and lower values.
     """)
+
+    base_units = CoordinateUnitsProperty
 
     dimension = Enum(Dimension, default='height', help="""
     The direction of the whisker can be specified by setting this property

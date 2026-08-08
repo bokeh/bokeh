@@ -50,7 +50,6 @@ ALL = (
     'DataSpecPropertyDescriptor',
     'DeprecatedAliasPropertyDescriptor',
     'PropertyDescriptor',
-    'UnitsSpecPropertyDescriptor',
     'UnsetValueError',
 )
 
@@ -258,19 +257,6 @@ class Test_PropertyDescriptor:
         d2.trigger_if_changed(Foo, "junk")
         assert mock_trigger.called
 
-
-class Test_UnitSpecDescriptor:
-    def test___init__(self) -> None:
-        class Foo:
-            '''doc'''
-            pass
-        f = Foo()
-        g = Foo()
-        d = bcpd.UnitsSpecPropertyDescriptor("foo", f, g)
-        assert d.name == "foo"
-        assert d.property == f
-        assert d.__doc__ == f.__doc__
-        assert d.units_prop == g
 
 class Test_AliasDescriptor:
     def test___init__(self) -> None:

@@ -33,10 +33,13 @@ as shown here:
         The {prop} values for the annular wedges.
         """)
 
-This adds all the fill properties ``fill_color`` and ``fill_alpha`` to this
-model. The help string contains a placeholder `{prop}`. When docs for this class
-are rendered by the ``bokeh-model`` directive, the placeholder will be replaced with more information
-specific to each property.
+This adds the fill properties ``fill_color`` and ``fill_alpha`` to this model.
+The help string is specialized for each property while retaining the detailed
+help from ``FillProps``. It can use ``{prop}`` for the unprefixed,
+human-readable property name, ``{name}`` for the final property name,
+``{model}`` for the class receiving the properties, and ``{doc}`` to place the
+original property help explicitly. If ``{doc}`` is omitted, the original help
+is appended automatically.
 
 .. |Include| replace:: :class:`~bokeh.core.properties.Include`
 

@@ -29,10 +29,9 @@ be:
         start = Float(help="start point")
         end   = Float(help="end point")
 
-When this class is created, the ``MetaHasProps`` metaclass wires up both
-the ``start`` and ``end`` attributes to a ``Float`` property. Then, when
-a user accesses those attributes, the descriptor delegates all get and
-set operations to the ``Float`` property.
+When this class is created, each property binds its descriptor to the class.
+When a user accesses those attributes, the descriptor delegates all get and
+set operations to the corresponding property.
 
 .. code-block:: python
 
@@ -112,7 +111,6 @@ if TYPE_CHECKING:
     from ..has_props import HasProps, Setter
     from .alias import Alias, DeprecatedAlias
     from .bases import Property
-    from .descriptor_factory import PropertyDescriptorLike
 
 class _HasDocument(Protocol):
     document: Document | None
@@ -139,7 +137,6 @@ __all__ = (
     'DataSpecPropertyDescriptor',
     'DeprecatedAliasPropertyDescriptor',
     'PropertyDescriptor',
-    'UnitsSpecPropertyDescriptor',
     'UnsetValueError',
 )
 
@@ -739,10 +736,8 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor[Any]):
     def __set__(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
         """ Implement the setter for the Python `descriptor protocol`_.
 
-        This method first separately extracts and removes any ``units`` field
-        in the JSON, and sets the associated units property directly. The
-        remaining value is then passed to the superclass ``__set__`` to
-        be handled.
+        This method validates that column data is assigned from a plain
+        dictionary before delegating to the standard property setter.
 
         .. note::
             An optional argument ``setter`` has been added to the standard
@@ -804,6 +799,10 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         """
         return cast(_DataSpecProperty, self.property).to_serializable(obj, self.name, getattr(obj, self.name))
 
+    def __set__(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
+        value = self._extract_units(obj, value)
+        super().__set__(obj, value, setter=setter)
+
     def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
         """ Sets the value of this property from a JSON value.
 
@@ -829,6 +828,8 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
             None
 
         """
+        value = self._extract_units(obj, value)
+
         if isinstance(value, dict):
             # we want to try to keep the "format" of the data spec as string, dict, or number,
             # assuming the serialized dict is compatible with that.
@@ -845,126 +846,18 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
 
         super().set_from_json(obj, value, setter=setter)
 
-class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
-    """ A ``PropertyDescriptor`` for Bokeh ``UnitsSpec`` properties that
-    contribute associated ``_units`` properties automatically as a side effect.
-
-    """
-
-    def __init__(self, name: str, property: Any, units_property: PropertyDescriptorLike[Any]) -> None:
-        """
-
-        Args:
-            name (str) :
-                The attribute name that this property is for
-
-            property (Property) :
-                A basic property to create a descriptor for
-
-            units_property (Property) :
-                An associated property to hold units information
-
-        """
-        super().__init__(name, property)
-        self.units_prop = units_property
-
-    def __set__(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
-        """ Implement the setter for the Python `descriptor protocol`_.
-
-        This method first separately extracts and removes any ``units`` field
-        in the JSON, and sets the associated units property directly. The
-        remaining value is then passed to the superclass ``__set__`` to
-        be handled.
-
-        .. note::
-            An optional argument ``setter`` has been added to the standard
-            setter arguments. When needed, this value should be provided by
-            explicitly invoking ``__set__``. See below for more information.
-
-        Args:
-            obj (HasProps) :
-                The instance to set a new property value on
-
-            value (obj) :
-                The new value to set the property to
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        """
-        value = self._extract_units(obj, value)
-        super().__set__(obj, value, setter=setter)
-
-    def set_from_json(self, obj: HasProps, value: Any, *, models: Any = None, setter: Setter | None = None) -> None:
-        """ Sets the value of this property from a JSON value.
-
-        This method first separately extracts and removes any ``units`` field
-        in the JSON, and sets the associated units property directly. The
-        remaining JSON is then passed to the superclass ``set_from_json`` to
-        be handled.
-
-        Args:
-            obj (HasProps) : instance to set the property value on
-
-            value (JSON-value) : value to set to the attribute to
-
-            models (dict or None, optional) :
-                Mapping of model ids to models (default: None)
-
-                This is needed in cases where the attributes to update also
-                have values that have references.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        """
-        value = self._extract_units(obj, value)
-        super().set_from_json(obj, value, setter=setter)
-
     def _extract_units(self, obj: HasProps, value: Any) -> Any:
-        """ Internal helper for dealing with units associated units properties
-        when setting values on ``UnitsSpec`` properties.
+        if not isinstance(value, dict) or "units" not in value:
+            return value
 
-        When ``value`` is a dict, this function may mutate the value of the
-        associated units property.
+        units_descriptor = obj.lookup(f"{self.name}_units", raises=False)
+        if units_descriptor is None or units_descriptor.serialized:
+            return value
 
-        Args:
-            obj (HasProps) : instance to update units spec property value for
-            value (obj) : new value to set for the property
-
-        Returns:
-            copy of ``value``, with 'units' key and value removed when
-            applicable
-
-        """
-        if isinstance(value, dict):
-            if 'units' in value:
-                value = copy(value) # so we can modify it
-            units = value.pop("units", None)
-            if units:
-                self.units_prop.__set__(obj, units)
+        value = copy(value)
+        units = value.pop("units")
+        if units:
+            units_descriptor.__set__(obj, units)
         return value
 
 #-----------------------------------------------------------------------------

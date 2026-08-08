@@ -45,7 +45,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
-from .descriptors import ColumnDataPropertyDescriptor, PropertyDescriptor
+from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
 from .singletons import Intrinsic, Undefined
@@ -271,21 +271,16 @@ class ColumnData(Dict[str, Any]):
 
     """
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptor[Any]]:
-        """ Return a list of ``ColumnDataPropertyDescriptor`` instances to
-        install on a class, in order to delegate attribute access to this
-        property.
+    def make_descriptor(self, name: str) -> ColumnDataPropertyDescriptor:
+        """Return the descriptor used to delegate access to column data.
 
         Args:
             name (str) : the name of the property these descriptors are for
 
         Returns:
-            list[ColumnDataPropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+            ColumnDataPropertyDescriptor
         """
-        return [ ColumnDataPropertyDescriptor(name, self) ]
+        return ColumnDataPropertyDescriptor(name, self)
 
     def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
         from ...document.events import ColumnDataChangedEvent, ColumnsStreamedEvent

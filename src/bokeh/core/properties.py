@@ -126,6 +126,7 @@ DataSpec Properties
 .. autoclass:: AngleSpec
 .. autoclass:: BoolSpec
 .. autoclass:: ColorSpec
+.. autoclass:: CoordinateSpec
 .. autoclass:: DashPatternSpec
 .. autoclass:: DataSpec
 .. autoclass:: DistanceSpec
@@ -142,7 +143,6 @@ DataSpec Properties
 .. autoclass:: StringSpec
 .. autoclass:: TextAlignSpec
 .. autoclass:: TextBaselineSpec
-.. autoclass:: UnitsSpec
 
 Helpers
 ~~~~~~~
@@ -211,6 +211,7 @@ __all__ = (
     'AlphaSpec',
     'Angle',
     'AngleSpec',
+    'AngleUnits',
     'Any',
     'AnyRef',
     'Array',
@@ -226,6 +227,8 @@ __all__ = (
     'ColumnData',
     'Complex',
     'CoordinateLike',
+    'CoordinateSpec',
+    'CoordinateUnits',
     'DashPattern',
     'DashPatternSpec',
     'DataSpec',
@@ -288,6 +291,7 @@ __all__ = (
     'Set',
     'Size',
     'SizeSpec',
+    'SpatialUnits',
     'String',
     'StringSpec',
     'Struct',
@@ -298,7 +302,6 @@ __all__ = (
     'TextLike',
     'Tuple',
     'TypeOfAttr',
-    'UnitsSpec',
     'UnsetValueError',
     'expr',
     'field',
@@ -314,6 +317,7 @@ __all__ = (
 from .property.alias import Alias, DeprecatedAlias
 
 from .property.aliases import CoordinateLike
+from .property_aliases import AngleUnits, CoordinateUnits, SpatialUnits
 
 from .property.any import Any
 from .property.any import AnyRef
@@ -343,6 +347,7 @@ from .property.dataspec import AlphaSpec
 from .property.dataspec import AngleSpec
 from .property.dataspec import BoolSpec
 from .property.dataspec import ColorSpec
+from .property.dataspec import CoordinateSpec
 from .property.dataspec import DashPatternSpec
 from .property.dataspec import DataSpec
 from .property.dataspec import DistanceSpec
@@ -361,7 +366,6 @@ from .property.dataspec import SizeSpec
 from .property.dataspec import StringSpec
 from .property.dataspec import TextAlignSpec
 from .property.dataspec import TextBaselineSpec
-from .property.dataspec import UnitsSpec
 
 from .property.datetime import Date
 from .property.datetime import Datetime

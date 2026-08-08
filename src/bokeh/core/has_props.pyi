@@ -45,17 +45,6 @@ class _ModelResolver:
 
 _default_resolver: _ModelResolver
 
-class MetaHasProps(type):
-
-    __properties__: dict[str, Property[Any]]
-    __overridden_defaults__: dict[str, Any]
-    __themed_values__: dict[str, Any]
-
-    def __new__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]) -> type[HasProps]: ...
-
-    @property
-    def model_class_reverse_map(cls) -> dict[str, type[HasProps]]: ...
-
 class Local:
     ...
 
@@ -65,13 +54,15 @@ class Qualified:
 class NonQualified:
     ...
 
-class HasProps(Serializable, metaclass=MetaHasProps):
+class HasProps(Serializable):
 
     _initialized: bool = ...
 
     _property_values: dict[str, Any] = ...
     _unstable_default_values: dict[str, Any] = ...
     _unstable_themed_values: dict[str, Any] = ...
+
+    model_class_reverse_map: ClassVar[dict[str, type[HasProps]]]
 
     __view_model__: ClassVar[str]
     __view_module__: ClassVar[str]

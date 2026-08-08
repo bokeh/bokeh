@@ -23,6 +23,7 @@ from copy import copy
 
 # External imports
 import numpy as np
+from tests.support.util.api import verify_all
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps, Local
@@ -32,8 +33,8 @@ from bokeh.core.property.vectorization import (
     field,
     value,
 )
+from bokeh.core.property_aliases import AngleUnits, CoordinateUnits, SpatialUnits
 from bokeh.util.warnings import BokehDeprecationWarning
-from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.property.dataspec as bcpd # isort:skip
@@ -47,6 +48,7 @@ ALL = (
     'AngleSpec',
     'BoolSpec',
     'ColorSpec',
+    'CoordinateSpec',
     'DashPatternSpec',
     'DataSpec',
     'DistanceSpec',
@@ -63,7 +65,6 @@ ALL = (
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
-    'UnitsSpec',
 )
 
 #-----------------------------------------------------------------------------
@@ -94,14 +95,22 @@ class Test_AngleSpec:
         class Foo(HasProps):
             x = bcpd.AngleSpec(default=14)
 
+            x_units = AngleUnits
+
         a = Foo()
 
         assert a.x == 14
         assert a.x_units == 'rad'
+        assert Foo.lookup("x").get_value(a) == value(14)
+
+        a.x_units = "deg"
+        assert Foo.lookup("x").get_value(a) == value(14, units="deg")
 
     def test_setting_dict_sets_units(self) -> None:
         class Foo(HasProps):
             x = bcpd.AngleSpec(default=14)
+
+            x_units = AngleUnits
 
         a = Foo()
 
@@ -116,6 +125,8 @@ class Test_AngleSpec:
         class Foo(HasProps):
             x = bcpd.AngleSpec(default=14)
 
+            x_units = AngleUnits
+
         a = Foo()
 
         assert a.x == 14
@@ -128,6 +139,8 @@ class Test_AngleSpec:
     def test_setting_dict_does_not_modify_original_dict(self) -> None:
         class Foo(HasProps):
             x = bcpd.AngleSpec(default=14)
+
+            x_units = AngleUnits
 
         a = Foo()
 
@@ -310,10 +323,32 @@ class Test_DistanceSpec:
         class Foo(HasProps):
             x = bcpd.DistanceSpec(default=14)
 
+            x_units = SpatialUnits
+
         a = Foo()
 
         assert a.x == 14
         assert a.x_units == 'data'
+        assert Foo.lookup("x").get_value(a) == value(14)
+
+        a.x_units = "screen"
+        assert Foo.lookup("x").get_value(a) == value(14, units="screen")
+
+class Test_CoordinateSpec:
+    def test_default_value(self) -> None:
+        class Foo(HasProps):
+            x = bcpd.CoordinateSpec(default=14)
+
+            x_units = CoordinateUnits
+
+        a = Foo()
+
+        assert a.x == 14
+        assert a.x_units == 'data'
+        assert Foo.lookup("x").get_value(a) == value(14)
+
+        a.x_units = "screen"
+        assert Foo.lookup("x").get_value(a) == value(14, units="screen")
 
 class Test_FontSizeSpec:
     def test_font_size_from_string(self) -> None:
@@ -561,16 +596,20 @@ class Test_NumberSpec:
         assert a.x == field("baz")
 
 
-class Test_UnitSpec:
+class Test_ExplicitUnits:
     def test_strict_key_values(self) -> None:
         class FooSpatialUnits(HasProps):
             x = bcpd.DistanceSpec("x")
+
+            x_units = SpatialUnits
         f = FooSpatialUnits()
         f.x = dict(field="foo", units="screen")
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk", foo="crap")
         class FooAngleUnits(HasProps):
             x = bcpd.AngleSpec("x")
+
+            x_units = AngleUnits
         f = FooAngleUnits()
         f.x = dict(field="foo", units="deg")
         with pytest.raises(ValueError):

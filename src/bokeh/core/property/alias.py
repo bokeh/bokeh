@@ -29,7 +29,6 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from .bases import Property
-from .descriptor_factory import PropertyDescriptorLike
 from .descriptors import AliasPropertyDescriptor, DeprecatedAliasPropertyDescriptor
 
 if TYPE_CHECKING:
@@ -89,8 +88,8 @@ class Alias[T](Property[T]):
         self.alternatives = []
         self.assertions = []
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptorLike[T]]:
-        return [ AliasPropertyDescriptor(name, self) ]
+    def make_descriptor(self, name: str) -> AliasPropertyDescriptor[T]:
+        return AliasPropertyDescriptor(name, self)
 
 class DeprecatedAlias[T](Alias[T]):
     """
@@ -103,8 +102,8 @@ class DeprecatedAlias[T](Alias[T]):
         self.since = since
         self.extra = extra
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptorLike[T]]:
-        return [ DeprecatedAliasPropertyDescriptor(name, self) ]
+    def make_descriptor(self, name: str) -> DeprecatedAliasPropertyDescriptor[T]:
+        return DeprecatedAliasPropertyDescriptor(name, self)
 
 #-----------------------------------------------------------------------------
 # Dev API

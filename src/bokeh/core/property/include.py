@@ -4,16 +4,12 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""
-
-"""
+"""Provide explicit declarations for reusable groups of Bokeh properties."""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import annotations
-
-# pyright: reportIncompatibleMethodOverride=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -24,10 +20,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
+from textwrap import dedent
+from typing import Any
 
 # Bokeh imports
 from ..has_props import HasProps
-from .descriptor_factory import PropertyDescriptorFactory, PropertyDescriptorLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,8 +38,17 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Include[T](PropertyDescriptorFactory[T]):
+class Include:
     """ Include "mix-in" property collection in a Bokeh model.
+
+    Includes are expanded by ``HasProps.__init_subclass__``.
+    They are not properties and do not participate in descriptor creation for
+    ordinary property declarations.
+
+    The ``help`` template can use ``{prop}`` for the unprefixed, human-readable
+    property name, ``{name}`` for its final name, ``{model}`` for the receiving
+    class, and ``{doc}`` for the original property help. The original help is
+    appended automatically when the template does not contain ``{doc}``.
 
     See :ref:`bokeh.core.property_mixins` for more details.
 
@@ -56,15 +62,34 @@ class Include[T](PropertyDescriptorFactory[T]):
         self.help = help
         self.prefix = prefix + "_" if prefix else ""
 
-    def make_descriptors(self, _base_name: str) -> list[PropertyDescriptorLike[T]]:
-        descriptors: list[PropertyDescriptorLike[T]] = []
+    def __set_name__(self, owner: type[Any], name: str) -> None:
+        own_includes = owner.__dict__.get("__property_includes__")
+        if not isinstance(own_includes, dict):
+            own_includes = {}
+            setattr(owner, "__property_includes__", own_includes)
 
+        own_includes[name] = self
+        if owner.__dict__.get(name) is self:
+            delattr(owner, name)
+
+    def _include(self, owner: type[HasProps]) -> None:
         for descriptor in self.delegate.descriptors():
-            prop = copy(descriptor.property)
-            prop.__doc__ = self.help.format(prop=descriptor.name.replace("_", " "))
-            descriptors += prop.make_descriptors(self.prefix + descriptor.name)
+            name = self.prefix + descriptor.name
+            if name in owner.__dict__:
+                raise RuntimeError(f"Multiple property declarations created {owner.__name__}.{name}")
 
-        return descriptors
+            prop = copy(descriptor.property)
+            template = dedent(self.help).strip()
+            original = dedent(descriptor.__doc__ or "").strip()
+            if "{doc}" not in template:
+                template += "\n\n{doc}"
+            prop.__doc__ = template.format(
+                doc=original,
+                model=owner.__name__,
+                name=name,
+                prop=descriptor.name.replace("_", " "),
+            ).strip()
+            prop.__set_name__(owner, name)
 
 #-----------------------------------------------------------------------------
 # Dev API

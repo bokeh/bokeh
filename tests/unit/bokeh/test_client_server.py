@@ -30,7 +30,6 @@ from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import ClientSession, pull_session, push_session
 from bokeh.core.properties import (
-    AngleSpec,
     Any,
     Bytes,
     Dict,
@@ -38,9 +37,11 @@ from bokeh.core.properties import (
     Instance,
     Int,
     Nullable,
+    NumberSpec,
     String,
 )
 from bokeh.core.types import ID
+from bokeh.core.property_aliases import AngleUnits, SpatialUnits
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Model
@@ -78,9 +79,13 @@ class SomeModelInTestClientServer(Model):
 class DictModel(Model):
     values = Dict(String, Any)
 
-class UnitsSpecModel(Model):
+class UnitsModel(Model):
     distance = DistanceSpec(42)
-    angle = AngleSpec(0)
+
+    distance_units = SpatialUnits
+    angle = NumberSpec(0)
+
+    angle_units = AngleUnits
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -934,7 +939,7 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()
-        client_root = UnitsSpecModel()
+        client_root = UnitsModel()
         doc.add_root(client_root)
 
         client_session = push_session(doc,
