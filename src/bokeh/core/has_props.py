@@ -31,6 +31,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
+from collections.abc import Mapping
+from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -49,7 +51,7 @@ from weakref import WeakSet
 # Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring
-from .property.descriptors import PropertyDescriptor, UnsetValueError
+from .property.descriptors import AliasPropertyDescriptor, PropertyDescriptor, UnsetValueError
 from .property.enum import Enum
 from .property.serialized import NotSerialized
 from .property.singletons import Intrinsic, Undefined
@@ -64,6 +66,7 @@ from .serialization import (
 if TYPE_CHECKING:
     from ..client.session import ClientSession
     from ..server.session import ServerSession
+    from ..util.compiler import Implementation
     from .property.bases import Property
     from .property.dataspec import DataSpec
 
@@ -114,7 +117,7 @@ class _PropertyInfo:
     own_properties: dict[str, Property[Any]]
     own_overridden_defaults: dict[str, Any]
 
-    _properties: dict[str, Property[Any]]
+    _properties: Mapping[str, Property[Any]]
     _descriptors: list[PropertyDescriptor[Any]]
     _properties_with_refs: dict[str, Property[Any]]
     _dataspecs: dict[str, DataSpec]
@@ -131,25 +134,33 @@ class _PropertyInfo:
         properties: dict[str, Property[Any]] = {}
         overridden_defaults: dict[str, Any] = {}
 
-        for base in cls.__bases__:
+        for base in reversed(cls.__mro__[1:]):
             property_info = base.__dict__.get("__property_info__")
             if not isinstance(property_info, _PropertyInfo):
                 continue
 
-            for name, prop in property_info.properties(base).items():
-                properties.setdefault(name, prop)
-            for name, default in property_info.overridden_defaults(base).items():
-                overridden_defaults.setdefault(name, default)
+            properties.update(property_info.own_properties)
+            overridden_defaults.update(property_info.own_overridden_defaults)
 
         properties.update(self.own_properties)
         overridden_defaults.update(self.own_overridden_defaults)
 
-        self._properties = properties
-        self._descriptors = [getattr(cls, name) for name in properties]
+        descriptors: list[PropertyDescriptor[Any]] = []
+        for name in properties:
+            descriptor = getattr(cls, name)
+            if not isinstance(descriptor, (AliasPropertyDescriptor, PropertyDescriptor)):
+                raise TypeError(
+                    f"{cls.__name__}.{name} shadows a Bokeh property with "
+                    f"{type(descriptor).__name__}",
+                )
+            descriptors.append(descriptor)
+
+        self._properties = MappingProxyType(properties)
+        self._descriptors = descriptors
         self._properties_with_refs = {name: prop for name, prop in properties.items() if prop.has_ref}
         self._overridden_defaults = overridden_defaults
 
-    def properties(self, cls: type[HasProps]) -> dict[str, Property[Any]]:
+    def properties(self, cls: type[HasProps]) -> Mapping[str, Property[Any]]:
         self._initialize(cls)
         return self._properties
 
@@ -223,6 +234,97 @@ class Qualified:
 class NonQualified:
     """Resolve this class by a non-qualified name. """
 
+def _check_units_props(
+    cls: type[HasProps],
+    own_properties: Mapping[str, Property[Any]],
+    properties: Mapping[str, Property[Any]],
+    property_bases: list[type[HasProps]],
+) -> None:
+    if len(property_bases) > 1:
+        units_specs = {
+            name: prop for name, prop in properties.items()
+            if getattr(prop, "_units_enum", None) is not None
+        }
+    else:
+        units_specs = {
+            name: prop for name, prop in own_properties.items()
+            if getattr(prop, "_units_enum", None) is not None
+        }
+        for units_name in own_properties:
+            if units_name.endswith("_units"):
+                name = units_name.removesuffix("_units")
+                prop = properties.get(name)
+                if prop is not None and getattr(prop, "_units_enum", None) is not None:
+                    units_specs[name] = prop
+
+    for name, prop in units_specs.items():
+        units_enum = getattr(prop, "_units_enum", None)
+
+        units_name = f"{name}_units"
+        units_descriptor = cls.lookup(units_name, raises=False)
+        units_prop = units_descriptor.property if isinstance(units_descriptor, PropertyDescriptor) else None
+
+        valid_units_prop = isinstance(units_prop, NotSerialized) and \
+            isinstance(units_prop.type_param, Enum) and \
+            tuple(units_prop.type_param.allowed_values) == tuple(units_enum)
+        if not valid_units_prop:
+            units_alias = getattr(prop, "_units_alias")
+            raise TypeError(
+                f"{cls.__name__}.{name} uses {type(prop).__name__} and requires a matching "
+                f"{cls.__name__}.{units_name} property; add `{units_name} = {units_alias}`",
+            )
+
+def _warn_redeclared_props(
+    cls: type[HasProps],
+    own_properties: Mapping[str, Property[Any]],
+    property_bases: list[type[HasProps]],
+) -> None:
+    base_properties: dict[str, Any] = {}
+    for base in property_bases:
+        base_properties.update(base.properties())
+
+    redeclared = own_properties.keys() & base_properties.keys()
+    if redeclared:
+        from ..util.warnings import warn
+
+        warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
+             "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
+             "the parent class. Override() can be used to change a default value of a base class property.",
+             RuntimeWarning)
+
+def _warn_unused_overrides(
+    cls: type[HasProps],
+    own_overridden_defaults: Mapping[str, Any],
+    properties: Mapping[str, Property[Any]],
+) -> None:
+    unused_overrides = own_overridden_defaults.keys() - properties.keys()
+    if unused_overrides:
+        from ..util.warnings import warn
+
+        warn(f"Overrides of {sorted(unused_overrides)} in class {cls.__name__} do not override anything.", RuntimeWarning)
+
+def _init_model_name(cls: type[HasProps]) -> None:
+    cls.__view_model__ = cls.__dict__.get(
+        "__view_model__",
+        cls.__qualname__.replace("<locals>.", ""),
+    )
+    cls.__view_module__ = cls.__dict__.get("__view_module__", cls.__module__)
+
+    if "__qualified_model__" in cls.__dict__:
+        return
+
+    module = cls.__view_module__
+    model = cls.__view_model__
+
+    if issubclass(cls, NonQualified):
+        cls.__qualified_model__ = model
+    elif issubclass(cls, Qualified):
+        cls.__qualified_model__ = f"{module}.{model}"
+    elif module.split(".")[0] in ("bokeh", "__main__") or "__implementation__" in cls.__dict__:
+        cls.__qualified_model__ = model
+    else:
+        cls.__qualified_model__ = f"{module}.{model}"
+
 class HasProps(Serializable):
     ''' Base class for all class types that have Bokeh properties.
 
@@ -242,17 +344,11 @@ class HasProps(Serializable):
     __view_model__: ClassVar[str]
     __view_module__: ClassVar[str]
     __qualified_model__: ClassVar[str]
-    __implementation__: ClassVar[Any] # TODO: specific type
+    __implementation__: ClassVar[str | Implementation]
     __data_model__: ClassVar[bool]
 
     @classmethod
     def __init_subclass__(cls):
-        own_includes = cls.__dict__.get("__property_includes__", {})
-        for include in own_includes.values():
-            include._include(cls)
-        if "__property_includes__" in cls.__dict__:
-            delattr(cls, "__property_includes__")
-
         own_properties = cls.__dict__.get("__properties__", {})
         own_overridden_defaults = cls.__dict__.get("__overridden_defaults__", {})
         cls.__properties__ = own_properties
@@ -262,65 +358,13 @@ class HasProps(Serializable):
         super().__init_subclass__()
 
         properties = property_info.properties(cls)
-        for name, prop in own_properties.items():
-            units_enum = getattr(prop, "_units_enum", None)
-            if units_enum is None:
-                continue
 
-            units_name = f"{name}_units"
-            units_prop = properties.get(units_name)
+        property_bases = [base for base in cls.__bases__ if issubclass(base, HasProps)]
+        _check_units_props(cls, own_properties, properties, property_bases)
+        _warn_redeclared_props(cls, own_properties, property_bases)
+        _warn_unused_overrides(cls, own_overridden_defaults, properties)
 
-            valid_units_prop = isinstance(units_prop, NotSerialized) and \
-                isinstance(units_prop.type_param, Enum) and \
-                tuple(units_prop.type_param.allowed_values) == tuple(units_enum)
-            if not valid_units_prop:
-                units_alias = getattr(prop, "_units_alias")
-                raise TypeError(
-                    f"{cls.__name__}.{name} uses {type(prop).__name__} and requires a matching "
-                    f"{cls.__name__}.{units_name} property; add `{units_name} = {units_alias}`",
-                )
-
-        base_properties: dict[str, Any] = {}
-        for base in (base for base in cls.__bases__ if issubclass(base, HasProps)):
-            base_properties.update(base.properties())
-        redeclared = own_properties.keys() & base_properties.keys()
-        if redeclared:
-            from ..util.warnings import warn
-
-            warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
-                 "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
-                 "the parent class. Override() can be used to change a default value of a base class property.",
-                 RuntimeWarning)
-
-        unused_overrides = own_overridden_defaults.keys() - properties.keys()
-        if unused_overrides:
-            from ..util.warnings import warn
-
-            warn(f"Overrides of {sorted(unused_overrides)} in class {cls.__name__} do not override anything.", RuntimeWarning)
-
-        # use an explicitly provided view model name if there is one
-        if "__view_model__" not in cls.__dict__:
-            cls.__view_model__ = cls.__qualname__.replace("<locals>.", "")
-        if "__view_module__" not in cls.__dict__:
-            cls.__view_module__ = cls.__module__
-
-        if "__qualified_model__" not in cls.__dict__:
-            def qualified():
-                module = cls.__view_module__
-                model = cls.__view_model__
-
-                if issubclass(cls, NonQualified):
-                    return model
-
-                if not issubclass(cls, Qualified):
-                    head = module.split(".")[0]
-                    if head == "bokeh" or head == "__main__" or "__implementation__" in cls.__dict__:
-                        return model
-
-                return f"{module}.{model}"
-
-            cls.__qualified_model__ = qualified()
-
+        _init_model_name(cls)
         _default_resolver.add(cls)
 
     def __init__(self, **properties: Any) -> None:
@@ -543,7 +587,7 @@ class HasProps(Serializable):
         raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
     @classmethod
-    def properties(cls) -> dict[str, Property[Any]]:
+    def properties(cls) -> Mapping[str, Property[Any]]:
         ''' Collect the properties on this class.
 
         Returns:

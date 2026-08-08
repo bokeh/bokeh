@@ -37,9 +37,10 @@ This adds the fill properties ``fill_color`` and ``fill_alpha`` to this model.
 The help string is specialized for each property while retaining the detailed
 help from ``FillProps``. It can use ``{prop}`` for the unprefixed,
 human-readable property name, ``{name}`` for the final property name,
-``{model}`` for the class receiving the properties, and ``{doc}`` to place the
-original property help explicitly. If ``{doc}`` is omitted, the original help
-is appended automatically.
+``{model}`` for the class receiving the property, and ``{doc}`` to place the
+original property help explicitly. In the reference guide, ``{model}`` is the
+class whose page contains the property, including subclasses that inherit it.
+If ``{doc}`` is omitted, the original help is appended automatically.
 
 .. |Include| replace:: :class:`~bokeh.core.properties.Include`
 

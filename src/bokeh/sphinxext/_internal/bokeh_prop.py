@@ -149,12 +149,15 @@ def _render_property_detail(model_obj: Any, full_name: str, module: str, *, qual
             f"Unable to generate reference docs for {full_name}: unsupported descriptor {type(descriptor).__name__}",
         )
 
+    include = getattr(descriptor.property, "_include", None)
+    doc = descriptor.__doc__ if include is None else include._render_doc(model_name, prop_name)
+
     return PROP_DETAIL.render(
         name=full_name if qualified else prop_name,
         module=module,
         default=repr(value_descriptor.instance_default(model_obj)),
         type_lines=_type_link_lines(type_link(value_descriptor.property)),
-        doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__).strip(),
+        doc="" if doc is None else textwrap.dedent(doc).strip(),
     )
 
 

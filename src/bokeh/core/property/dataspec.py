@@ -181,6 +181,8 @@ class DataSpec(Either):
 
     """
 
+    _units_enum: Any | None = None
+
     def __init__(self, value_type: Any, default: Any, *, help: str | None = None) -> None:
         super().__init__(
             String,
@@ -240,12 +242,11 @@ class DataSpec(Either):
         if isinstance(val, str):
             val = Field(val)
 
-        units_descriptor = obj.lookup(f"{name}_units", raises=False)
-        if units_descriptor is not None and not units_descriptor.serialized and val.units is Unspecified:
+        if self._units_enum is not None and val.units is Unspecified:
+            units_descriptor = obj.lookup(f"{name}_units")
             units = units_descriptor.get_value(obj)
-            if units != units_descriptor.class_default(type(obj)):
-                val = copy(val)
-                val.units = units
+            val = copy(val)
+            val.units = units
 
         return val
 

@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from operator import delitem, setitem
+
 # External imports
 import numpy as np
 from tests.support.util.api import verify_all
@@ -290,8 +293,8 @@ class TestBasic:
             "sub_num", "sub_container", "sub_child",
         }
         assert list(s.properties()) == [
-            "num", "container", "child",
             "mixin_num", "mixin_container", "mixin_child",
+            "num", "container", "child",
             "sub_num", "sub_container", "sub_child",
         ]
 
@@ -304,8 +307,8 @@ class TestBasic:
             "deep_num", "deep_container", "deep_child",
         }
         assert list(d.properties()) == [
-            "num", "container", "child",
             "mixin_num", "mixin_container", "mixin_child",
+            "num", "container", "child",
             "sub_num", "sub_container", "sub_child",
             "deep_num", "deep_container", "deep_child",
         ]
@@ -313,6 +316,14 @@ class TestBasic:
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
         assert s.properties() is s.properties()
+
+        properties = s.properties()
+        with pytest.raises(TypeError):
+            delitem(properties, "num")
+        with pytest.raises(TypeError):
+            setitem(properties, "num", Int())
+
+        assert "num" in s.properties()
 
     def test_multiple_inheritance_property_precedence(self) -> None:
         class Root(HasProps, Local):
@@ -330,7 +341,7 @@ class TestBasic:
         class Combined(Left, Right):
             combined = Int(default=3)
 
-        assert list(Combined.properties()) == ["shared", "root", "left", "right", "combined"]
+        assert list(Combined.properties()) == ["shared", "root", "right", "left", "combined"]
         assert Combined().shared == 1
 
     def test_accurate_dataspecs(self) -> None:

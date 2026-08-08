@@ -28,14 +28,13 @@ list[float] properties:
 .. code-block:: python
 
     class SomeModel(Model):
-        foo = Int
+        foo = Int()
         bar = String(default="something")
         baz = List(Float, help="docs for baz prop")
 
-As seen, properties can be declared as just the property type, e.g.
-``foo = Int``, in which case the properties are automatically instantiated
-on new Model objects. Or the property can be instantiated on the class,
-and configured with default values and help strings.
+Properties used as model attributes are instantiated in the class body. They
+can be configured with default values and help strings, or constructed without
+arguments when their standard defaults are appropriate.
 
 The properties of this class can be initialized by specifying keyword
 arguments to the initializer:

@@ -1014,7 +1014,7 @@ class TestDocument:
                 return root1.foo
         assert patch_test(57) == 57
         assert 'data' == root1.foo_units
-        assert patch_test(dict(value=58)) == Value(58)
+        assert patch_test(dict(value=58)) == Value(58, units='data')
         assert 'data' == root1.foo_units
 
         assert patch_test(dict(value=58, units='screen')) == Value(58, units='screen')
@@ -1022,11 +1022,11 @@ class TestDocument:
         assert patch_test(dict(value=59, units='screen')) == Value(59, units='screen')
         assert 'screen' == root1.foo_units
 
-        assert patch_test(dict(value=59, units='data')) == Value(59)
+        assert patch_test(dict(value=59, units='data')) == Value(59, units='data')
         assert 'data' == root1.foo_units
-        assert patch_test(dict(value=60, units='data')) == Value(60)
+        assert patch_test(dict(value=60, units='data')) == Value(60, units='data')
         assert 'data' == root1.foo_units
-        assert patch_test(dict(value=60, units='data')) == Value(60)
+        assert patch_test(dict(value=60, units='data')) == Value(60, units='data')
         assert 'data' == root1.foo_units
 
         assert patch_test(61) == 61
@@ -1034,7 +1034,7 @@ class TestDocument:
         root1.foo = "a_string" # so "woot" gets set as a string
         assert patch_test("woot") == "woot"
         assert 'data' == root1.foo_units
-        assert patch_test(dict(field="woot2")) == Field("woot2")
+        assert patch_test(dict(field="woot2")) == Field("woot2", units='data')
         assert 'data' == root1.foo_units
         assert patch_test(dict(field="woot2", units='screen')) == Field("woot2", units='screen')
         assert 'screen' == root1.foo_units

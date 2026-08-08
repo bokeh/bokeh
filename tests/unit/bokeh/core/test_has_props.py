@@ -684,6 +684,58 @@ def test_AngleSpec_rejects_serialized_units_property() -> None:
             bar_units = Enum(AngleUnitsEnum)
 
 
+def test_AngleSpec_rejects_wrong_inherited_units_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = AngleUnits
+
+    with pytest.raises(TypeError, match=r"Child\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Child(Base):
+            bar_units = SpatialUnits
+
+
+def test_AngleSpec_rejects_wrong_units_property_from_multiple_inheritance() -> None:
+    class Base(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = AngleUnits
+
+    class UnitsMixin(hp.HasProps, hp.Local):
+        bar_units = SpatialUnits
+
+    with pytest.raises(TypeError, match=r"Child\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Child(UnitsMixin, Base):
+            pass
+
+
+def test_AngleSpec_accepts_inherited_units_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        bar_units = AngleUnits
+
+    class Child(Base):
+        bar = AngleSpec()
+
+    assert Child().bar_units == "rad"
+
+
+def test_HasProps_rejects_shadowed_inherited_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        value = Int()
+
+    with pytest.raises(TypeError, match=r"Child\.value shadows a Bokeh property with int"):
+        class Child(Base):
+            value = 10
+
+
+def test_AngleSpec_rejects_shadowed_units_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = AngleUnits
+
+    with pytest.raises(TypeError, match=r"Child\.bar_units shadows a Bokeh property with str"):
+        class Child(Base):
+            bar_units = "deg"
+
+
 def test_AngleSpec_with_units_contributes_two_properties() -> None:
     class Props(hp.HasProps, hp.Local):
         bar = AngleSpec()

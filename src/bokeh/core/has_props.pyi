@@ -6,6 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Mapping
 from typing import (
     Any,
     Callable,
@@ -22,6 +23,7 @@ from typing import (
 # Bokeh imports
 from ..client.session import ClientSession
 from ..server.session import ServerSession
+from ..util.compiler import Implementation
 from .property.bases import Property
 from .property.dataspec import DataSpec
 from .property.descriptors import PropertyDescriptor
@@ -67,7 +69,7 @@ class HasProps(Serializable):
     __view_model__: ClassVar[str]
     __view_module__: ClassVar[str]
     __qualified_model__: ClassVar[str]
-    __implementation__: ClassVar[Any] # TODO: specific type
+    __implementation__: ClassVar[str | Implementation]
     __data_model__: ClassVar[bool]
 
     #def __init__(self, **properties: Any) -> None: ...
@@ -99,7 +101,7 @@ class HasProps(Serializable):
     def lookup(cls, name: str, *, raises: Literal[False] = False) -> PropertyDescriptor[Any] | None: ...
 
     @classmethod
-    def properties(cls) -> dict[str, Property[Any]]: ...
+    def properties(cls) -> Mapping[str, Property[Any]]: ...
 
     @classmethod
     def descriptors(cls) -> list[PropertyDescriptor[Any]]: ...

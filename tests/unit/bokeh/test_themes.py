@@ -38,7 +38,7 @@ from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL # i
 #-----------------------------------------------------------------------------
 
 class SomeModel(Model):
-    some = Int
+    some = Int()
 
 class ThemedModel(Model):
     number = Int(42)

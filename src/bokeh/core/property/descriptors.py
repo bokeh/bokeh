@@ -124,6 +124,7 @@ class _HasTrigger(Protocol):
 
 class _DataSpecProperty(Protocol):
     value_type: Property[Any]
+    _units_enum: Any | None
 
     def to_serializable(self, obj: HasProps, name: str, val: Any) -> Any: ...
 
@@ -847,12 +848,11 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         super().set_from_json(obj, value, setter=setter)
 
     def _extract_units(self, obj: HasProps, value: Any) -> Any:
-        if not isinstance(value, dict) or "units" not in value:
+        property = cast(_DataSpecProperty, self.property)
+        if property._units_enum is None or not isinstance(value, dict) or "units" not in value:
             return value
 
-        units_descriptor = obj.lookup(f"{self.name}_units", raises=False)
-        if units_descriptor is None or units_descriptor.serialized:
-            return value
+        units_descriptor = obj.lookup(f"{self.name}_units")
 
         value = copy(value)
         units = value.pop("units")

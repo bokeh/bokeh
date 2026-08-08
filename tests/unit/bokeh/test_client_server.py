@@ -30,6 +30,7 @@ from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import ClientSession, pull_session, push_session
 from bokeh.core.properties import (
+    AngleSpec,
     Any,
     Bytes,
     Dict,
@@ -37,7 +38,6 @@ from bokeh.core.properties import (
     Instance,
     Int,
     Nullable,
-    NumberSpec,
     String,
 )
 from bokeh.core.types import ID
@@ -83,7 +83,7 @@ class UnitsModel(Model):
     distance = DistanceSpec(42)
 
     distance_units = SpatialUnits
-    angle = NumberSpec(0)
+    angle = AngleSpec(0)
 
     angle_units = AngleUnits
 

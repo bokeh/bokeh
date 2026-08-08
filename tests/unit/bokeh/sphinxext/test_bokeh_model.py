@@ -13,9 +13,11 @@ from sphinx.util.inventory import InventoryFile
 
 # Bokeh imports
 import bokeh.models as models
+from bokeh.core.has_props import HasProps, Local
 from bokeh.core.properties import (
     Either,
     Enum,
+    Include,
     Instance,
     Int,
     Nullable,
@@ -76,6 +78,18 @@ Unindented suffix text.
         Instance(f"{__name__}._LinkedModel"),
         Enum("auto"),
     ))
+
+
+class _IncludeDelegate(HasProps, Local):
+    value = Int(help="Original value documentation.")
+
+
+class _IncludeBase(HasProps, Local):
+    values = Include(_IncludeDelegate, help="{model}.{name} provides its {prop}. {doc}")
+
+
+class _IncludeChild(_IncludeBase):
+    pass
 
 
 def test_model_members_separate_properties_and_methods() -> None:
@@ -144,6 +158,13 @@ def test_property_detail_normalizes_mixed_help_indentation() -> None:
     assert "\n    Standalone help text." in detail
     assert "\n        Standalone help text." not in detail
     assert "\n    Unindented suffix text." in detail
+
+
+def test_property_detail_specializes_inherited_include_help() -> None:
+    detail = _render_property_detail(_IncludeChild(), "_IncludeChild.value", __name__)
+
+    assert "_IncludeChild.value provides its value. Original value documentation." in detail
+    assert "_IncludeBase.value" not in detail
 
 
 def test_property_detail_resolves_string_instance_types() -> None:

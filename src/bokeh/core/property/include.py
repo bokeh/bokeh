@@ -25,6 +25,7 @@ from typing import Any
 
 # Bokeh imports
 from ..has_props import HasProps
+from .override import Override
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,14 +42,16 @@ __all__ = (
 class Include:
     """ Include "mix-in" property collection in a Bokeh model.
 
-    Includes are expanded by ``HasProps.__init_subclass__``.
-    They are not properties and do not participate in descriptor creation for
-    ordinary property declarations.
+    Includes expand in place while the receiving class is created. They are not
+    properties and do not participate in descriptor creation for ordinary
+    property declarations.
 
     The ``help`` template can use ``{prop}`` for the unprefixed, human-readable
     property name, ``{name}`` for its final name, ``{model}`` for the receiving
-    class, and ``{doc}`` for the original property help. The original help is
-    appended automatically when the template does not contain ``{doc}``.
+    class, and ``{doc}`` for the original property help. Reference documentation
+    renders ``{model}`` using the class whose page contains the inherited
+    property. The original help is appended automatically when the template
+    does not contain ``{doc}``.
 
     See :ref:`bokeh.core.property_mixins` for more details.
 
@@ -62,34 +65,38 @@ class Include:
         self.help = help
         self.prefix = prefix + "_" if prefix else ""
 
+        template = dedent(help).strip()
+        if "{doc}" not in template:
+            template += "\n\n{doc}"
+        self._template = template
+
+    def _render_doc(self, model: str, name: str, descriptor: Any | None = None) -> str:
+        source_name = name.removeprefix(self.prefix)
+        if descriptor is None:
+            descriptor = self.delegate.lookup(source_name)
+
+        return self._template.format(
+            doc=dedent(descriptor.__doc__ or "").strip(),
+            model=model,
+            name=name,
+            prop=source_name.replace("_", " "),
+        ).strip()
+
     def __set_name__(self, owner: type[Any], name: str) -> None:
-        own_includes = owner.__dict__.get("__property_includes__")
-        if not isinstance(own_includes, dict):
-            own_includes = {}
-            setattr(owner, "__property_includes__", own_includes)
-
-        own_includes[name] = self
-        if owner.__dict__.get(name) is self:
-            delattr(owner, name)
-
-    def _include(self, owner: type[HasProps]) -> None:
         for descriptor in self.delegate.descriptors():
-            name = self.prefix + descriptor.name
-            if name in owner.__dict__:
-                raise RuntimeError(f"Multiple property declarations created {owner.__name__}.{name}")
+            prop_name = self.prefix + descriptor.name
+            if prop_name in owner.__dict__:
+                existing = owner.__dict__[prop_name]
+                if existing is not self and not isinstance(existing, Override):
+                    raise RuntimeError(f"Multiple property declarations created {owner.__name__}.{prop_name}")
 
             prop = copy(descriptor.property)
-            template = dedent(self.help).strip()
-            original = dedent(descriptor.__doc__ or "").strip()
-            if "{doc}" not in template:
-                template += "\n\n{doc}"
-            prop.__doc__ = template.format(
-                doc=original,
-                model=owner.__name__,
-                name=name,
-                prop=descriptor.name.replace("_", " "),
-            ).strip()
-            prop.__set_name__(owner, name)
+            setattr(prop, "_include", self)
+            prop.__doc__ = self._render_doc(owner.__name__, prop_name, descriptor)
+            prop.__set_name__(owner, prop_name)
+
+        if owner.__dict__.get(name) is self:
+            delattr(owner, name)
 
 #-----------------------------------------------------------------------------
 # Dev API
