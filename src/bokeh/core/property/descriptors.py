@@ -425,9 +425,9 @@ class PropertyDescriptor[T]:
         """Sets the value of this property from a JSON value.
 
         Args:
-            obj: (HasProps) : instance to set the property value on
+            obj (HasProps) : instance to set the property value on
 
-            value: (JSON-value) : value to set to the attribute to
+            value (JSON-value) : value to set to the attribute to
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -915,9 +915,9 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
         be handled.
 
         Args:
-            obj: (HasProps) : instance to set the property value on
+            obj (HasProps) : instance to set the property value on
 
-            value: (JSON-value) : value to set to the attribute to
+            value (JSON-value) : value to set to the attribute to
 
             models (dict or None, optional) :
                 Mapping of model ids to models (default: None)
