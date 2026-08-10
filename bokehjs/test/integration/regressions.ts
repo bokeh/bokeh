@@ -5275,7 +5275,7 @@ describe("Bug", () => {
       const table = new DataTable({
         source,
         columns,
-        autosize_mode: "fit_columns"
+        autosize_mode: "fit_columns",
       })
       await display(table, [600, 400])
     })
