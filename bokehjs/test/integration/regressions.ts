@@ -46,7 +46,7 @@ import {
   Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker,
 } from "@bokehjs/models/widgets"
 
-import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
+import {DataTable, TableColumn, DateFormatter, NumberFormatter} from "@bokehjs/models/widgets/tables"
 
 import type {Factor} from "@bokehjs/models/ranges/factor_range"
 
@@ -5221,6 +5221,63 @@ describe("Bug", () => {
           "Caught an error calculating the ticks for 1e+29 desired_num_ticks and 5 num_minor_ticks. The default values are used instead.",
         ),
       ).to.be.true
+    })
+  })
+
+  describe("in issue #11436", () => {
+    it("doesn't fit column to rounded number in DataTable with autosize_mode='fit_viewport'", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          text: ["something"],
+          number: [0.333333333333333333],
+          other_number: [12345],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "text", title: "Text"}),
+        new TableColumn({field: "number", title: "Number", formatter: new NumberFormatter({format: ".00"})}),
+        new TableColumn({field: "other_number", title: "Other number"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        autosize_mode: "fit_viewport",
+      })
+
+      await display(table, [400, 400])
+    })
+  })
+
+  describe("in issue #10512", () => {
+    it("doesn't completely render a DataTable with autosize_mode='fit_columns' and many numeric columns", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          c1: [5, 40000],
+          c2: [5, 40001],
+          c3: [5, 40002],
+          c4: [5, 40003],
+          c5: [5, 40004],
+          c6: [5, 40005],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "c1", title: "c1"}),
+        new TableColumn({field: "c2", title: "c2"}),
+        new TableColumn({field: "c3", title: "c3"}),
+        new TableColumn({field: "c4", title: "c4"}),
+        new TableColumn({field: "c5", title: "c5"}),
+        new TableColumn({field: "c6", title: "c6"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        autosize_mode: "fit_columns",
+      })
+      await display(table, [600, 400])
     })
   })
 })
