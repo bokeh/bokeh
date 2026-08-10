@@ -5554,7 +5554,7 @@ describe("Bug", () => {
 
       const table = new DataTable({source, columns})
 
-      await display(table, [500, 500])
+      await display(table, [600, 4000])
     })
   })
 })
