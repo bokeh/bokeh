@@ -128,6 +128,7 @@ describe("LegendItem", () => {
         },
       })
       const gr = new GlyphRenderer({data_source: source})
+      gr.view.compute_indices(source)
       const legend_item = new LegendItem({label: {field: "label"}, renderers: [gr], visible: false})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.equal([])
@@ -140,6 +141,7 @@ describe("LegendItem", () => {
         },
       })
       const gr = new GlyphRenderer({data_source: source})
+      gr.view.compute_indices(source)
       const legend_item = new LegendItem({label: {field: "label"}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.equal(["foo", "bar"])
@@ -152,6 +154,7 @@ describe("LegendItem", () => {
         },
       })
       const gr = new GlyphRenderer({data_source: source})
+      gr.view.compute_indices(source)
       const legend_item = new LegendItem({label: {field: "milk"}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.equal(["Invalid field"])

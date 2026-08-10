@@ -5387,6 +5387,8 @@ describe("Bug", () => {
       const filter = new BooleanFilter({booleans: [true, false, true, false, true]})
       const view = new CDSView({filter})
 
+      view.compute_indices(source)
+
       const p = fig({width: 400, height: 400})
       p.scatter({
         x: {field: "x_values"},
