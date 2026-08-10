@@ -5552,7 +5552,7 @@ describe("Bug", () => {
         new TableColumn({field: "downloads", title: "Downloads"}),
       ]
 
-      const table = new DataTable({source, columns,})
+      const table = new DataTable({source, columns})
 
       await display(table, [500, 500])
     })
