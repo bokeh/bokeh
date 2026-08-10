@@ -5230,14 +5230,14 @@ describe("Bug", () => {
         data: {
           text: ["something"],
           number: [0.333333333333333333],
-          other_number: [12345]
+          other_number: [12345],
         },
       })
 
       const columns = [
-	    new TableColumn({field: "text", title: "Text"}),
-	    new TableColumn({field: "number", title: "Number", formatter: new NumberFormatter({format: ".00"})}),
-	    new TableColumn({field: "other_number", title: "Other number"}),
+        new TableColumn({field: "text", title: "Text"}),
+        new TableColumn({field: "number", title: "Number", formatter: new NumberFormatter({format: ".00"})}),
+        new TableColumn({field: "other_number", title: "Other number"}),
       ]
 
       const table = new DataTable({
