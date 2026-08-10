@@ -5400,6 +5400,7 @@ describe("Bug", () => {
         y: {field: "y_values"},
         source,
         view,
+        size: 20,
         legend_field: "animal",
         color: {field: "animal", transform: color_mapper},
       })
