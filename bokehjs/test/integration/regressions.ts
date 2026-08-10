@@ -5365,7 +5365,7 @@ describe("Bug", () => {
       const table = new DataTable({source, columns, index_position: null, width: 320, height: 180})
       const {view} = await display(table, [350, 200])
       await view.ready
-      const values = source.data.get("value")
+      const values = source.get_array<number>("value")
       for (let i = 0; i < values.length; i++) {
         values[i] = values[i] + 1
       }
