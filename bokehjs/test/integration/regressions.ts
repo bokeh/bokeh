@@ -16,7 +16,7 @@ import {
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
   StaticLayoutProvider, NodesAndLinkedEdges,
-  LinearColorMapper,
+  LinearColorMapper, CategoricalColorMapper,
   Plot,
   TeX,
   Toolbar, ToolProxy,
@@ -5389,6 +5389,11 @@ describe("Bug", () => {
 
       view.compute_indices(source)
 
+      const color_mapper = new CategoricalColorMapper({
+        factors: ["cat", "dog", "bird"],
+        palette: ["red", "black", "yellow"],
+      })
+
       const p = fig([400, 400])
       p.scatter({
         x: {field: "x_values"},
@@ -5396,6 +5401,7 @@ describe("Bug", () => {
         source,
         view,
         legend_field: "animal",
+        color: {field: "animal", transform: color_mapper},
       })
 
       await display(p, [400, 400])
