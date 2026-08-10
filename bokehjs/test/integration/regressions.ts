@@ -5389,7 +5389,7 @@ describe("Bug", () => {
 
       view.compute_indices(source)
 
-      const p = fig({width: 400, height: 400})
+      const p = fig([400, 400])
       p.scatter({
         x: {field: "x_values"},
         y: {field: "y_values"},
