@@ -5373,4 +5373,30 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #8010", () => {
+    it("doesn't respect CDSView filters when creating the legend via legend_field", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          x_values: [1, 2, 3, 4, 5],
+          y_values: [1, 0, 1, 0, 1],
+          animal: ["cat", "cat", "dog", "bird", "cat"],
+        },
+      })
+
+      const filter = new BooleanFilter({booleans: [true, false, true, false, true]})
+      const view = new CDSView({filter})
+
+      const p = fig({width: 400, height: 400})
+      p.scatter({
+        x: {field: "x_values"},
+        y: {field: "y_values"},
+        source,
+        view,
+        legend_field: "animal",
+      })
+
+      await display(p, [400, 400])
+    })
+  })
 })
