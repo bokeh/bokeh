@@ -5310,7 +5310,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #13340", () => {
-    it("corrupts DataTable rendering when a children are updated in a Row layout", async () => {
+    it("corrupts DataTable rendering when children are updated in a Row layout", async () => {
       const source = new ColumnDataSource({
         data: {
           A: ["seize", "cereal", "notebook", "translate"],
