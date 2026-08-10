@@ -71,7 +71,7 @@ class _ToolInit(_ModelInit, total=False):
     description: str | None
     visible: bool
     group: str | bool
-    active: bool
+    active: bool | Auto
 
 class Tool(Model):
     @abstractmethod
@@ -81,7 +81,7 @@ class Tool(Model):
     description: str | None = ...
     visible: bool = ...
     group: str | bool = ...
-    active: bool = ...
+    active: bool | Auto = ...
 
     _known_aliases: ClassVar[dict[str, Callable[[], Tool]]]
 

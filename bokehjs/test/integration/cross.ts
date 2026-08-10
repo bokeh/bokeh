@@ -92,9 +92,15 @@ describe("Bug", () => {
       const [pan] = pv.model.toolbar.tools.filter((tool) => tool instanceof PanTool)
       const [box_zoom] = pv.model.toolbar.tools.filter((tool) => tool instanceof BoxZoomTool)
 
-      // Tool.active is honored at construction, not only via Toolbar.active_drag
+      // Tool.active is honored at construction, not only via Toolbar.active_drag,
+      // and box_zoom's "auto" resolved to a concrete false
       expect(pan.active).to.be.true
       expect(box_zoom.active).to.be.false
+
+      // resolving "auto" happens in Toolbar.initialize(), before connect_signals(),
+      // so it must not have fired the user's callbacks
+      expect(pan.tags).to.be.equal([])
+      expect(box_zoom.tags).to.be.equal([])
 
       // and the callbacks are connected, i.e. they were serialized as "change:active".
       // CustomJS compiles its module lazily, so the callbacks resolve asynchronously.

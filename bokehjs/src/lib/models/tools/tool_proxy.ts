@@ -42,7 +42,7 @@ export class ToolProxy<T extends Tool> extends Model {
     this.define<ToolProxy.Props<Tool>, ToolProxy<Tool>>(({Bool, List, Ref, Or}) => ({
       tools:    [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       visible:  [ Bool, (self) => some(self.tools, (tool) => tool.visible) ],
-      active:   [ Bool, (self) => some(self.tools, (tool) => tool.active) ],
+      active:   [ Bool, (self) => some(self.tools, (tool) => tool.active == true) ],
       disabled: [ Bool, false ],
     }))
   }
@@ -112,7 +112,7 @@ export class ToolProxy<T extends Tool> extends Model {
     this.connect(this.properties.active.change, () => this.set_active())
     for (const tool of this.tools) {
       this.connect(tool.properties.active.change, () => {
-        this.active = tool.active
+        this.active = tool.active == true
       })
     }
   }

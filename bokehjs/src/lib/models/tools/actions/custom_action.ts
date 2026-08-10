@@ -13,7 +13,7 @@ export class CustomActionView extends ActionToolView {
   protected async _update_active(): Promise<void> {
     const {active_callback} = this.model
     if (active_callback == "auto") {
-      this.model.active = !this.model.active
+      this.model.active = this.model.active != true
     } else if (active_callback != null) {
       const active = await execute(active_callback, this.model)
       if (isBoolean(active)) {

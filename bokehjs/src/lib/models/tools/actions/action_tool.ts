@@ -33,6 +33,13 @@ export abstract class ActionTool extends Tool {
     super(attrs)
   }
 
+  static {
+    // action tools belong to no gesture, so there is nothing to resolve "auto" against
+    this.override<ActionTool.Props>({
+      active: false,
+    })
+  }
+
   readonly do = new Signal<string | undefined, this>(this, "do")
 
   override tool_button(): ToolButton {

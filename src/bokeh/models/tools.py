@@ -219,19 +219,27 @@ class Tool(Model):
     (regardless of ``Toolbar.group`` setting).
     """)
 
-    active = Bool(default=False, help="""
+    active = Either(Auto, Bool, default="auto", help="""
     Whether this tool is currently active.
 
-    Setting this to ``True`` requests that the tool be activated when the plot
-    is first displayed. This is honored only when the corresponding
-    ``Toolbar.active_*`` property is ``"auto"`` (the default); an explicitly
-    configured ``Toolbar.active_drag``, ``Toolbar.active_scroll``,
-    ``Toolbar.active_tap`` or ``Toolbar.active_multi`` takes precedence. If
-    several tools competing for the same gesture are initialized as active,
-    the first one wins and the rest are deactivated.
+    Accepts three values:
 
-    For gesture tools this is kept in sync with the toolbar at runtime, so in
-    a Bokeh server application it also reports which tool the user selected.
+    * ``"auto"`` --- let the toolbar decide, i.e. the tool competes with its
+      peers for the corresponding gesture on equal terms
+    * ``True`` --- request that the tool be activated when the plot is first
+      displayed
+    * ``False`` --- never activate the tool automatically; the toolbar will
+      pass it over and select a different tool for the gesture
+
+    An explicitly configured ``Toolbar.active_drag``, ``Toolbar.active_inspect``,
+    ``Toolbar.active_scroll``, ``Toolbar.active_tap`` or ``Toolbar.active_multi``
+    takes precedence over this property. If several tools competing for the same
+    gesture are set to ``True``, the first one wins and the rest are deactivated.
+
+    The toolbar resolves ``"auto"`` to a concrete boolean when the plot is
+    initialized, so at runtime this property always reads ``True`` or ``False``.
+    For gesture tools it is kept in sync with the toolbar, so in a Bokeh server
+    application it also reports which tool the user selected.
     """)
 
     _known_aliases: ClassVar[dict[str, Callable[[], Tool]]] = {}
@@ -275,6 +283,9 @@ class ActionTool(Tool):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+    # action tools belong to no gesture, so there is nothing to resolve "auto" against
+    active = Override(default=False)
 
 @abstract
 class PlotActionTool(ActionTool):

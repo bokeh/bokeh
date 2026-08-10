@@ -330,7 +330,7 @@ export class ToolbarView extends UIElementView {
 
     for (const tool of this.model.tools) {
       if (tool.event_types.includes("scroll")) {
-        tool.active = force ?? !tool.active
+        tool.active = force ?? tool.active != true
         break
       }
     }
@@ -524,7 +524,13 @@ export class Toolbar extends UIElement {
 
   protected _activate_tools(emit: boolean): void {
     if (this.active_inspect == "auto") {
-      // do nothing as all tools are active be default
+      // inspect tools are active by default, so "auto" resolves to true, but an
+      // explicit `active=false` still keeps the inspector deactivated
+      for (const inspector of this.inspectors) {
+        if (inspector.active == "auto") {
+          inspector.active = true
+        }
+      }
     } else if (this.active_inspect == null) {
       for (const inspector of this.inspectors) {
         inspector.active = false
@@ -535,9 +541,7 @@ export class Toolbar extends UIElement {
         this.active_inspect = active_inspect
       }
       for (const inspector of this.inspectors) {
-        if (!includes(this.active_inspect, inspector)) {
-          inspector.active = false
-        }
+        inspector.active = includes(this.active_inspect, inspector)
       }
     } else {
       let found = false
@@ -545,6 +549,7 @@ export class Toolbar extends UIElement {
         if (inspector != this.active_inspect) {
           inspector.active = false
         } else {
+          inspector.active = true
           found = true
         }
       }
@@ -554,7 +559,7 @@ export class Toolbar extends UIElement {
     }
 
     const _activate_gesture = (tool: ToolLike<GestureTool>) => {
-      if (tool.active) {
+      if (tool.active == true) {
         // tool was activated by a proxy, but we need to finish configuration manually
         this._active_change(tool)
       } else {
@@ -595,23 +600,20 @@ export class Toolbar extends UIElement {
     }
 
     const _resolve_gesture_activation = (gesture: GestureEntry, active_attr: keyof ActiveGestureToolsProps | null): void => {
-      // some tools may already be initialized as active
-      if (gesture.tools.every((tool) => !tool.active)) {
-        return
-      }
-
       // active attr takes precedence over any active initialization
       if (active_attr != null && this[active_attr] != null && this[active_attr] != "auto") {
-        gesture.tools.forEach((tool) => {
+        for (const tool of gesture.tools) {
           if (tool != this[active_attr]) {
             tool.active = false
           }
-        })
+        }
         return
       }
 
+      // otherwise the first tool that explicitly asked to be active wins; tools
+      // still set to "auto" are resolved by the caller
       for (const tool of gesture.tools) {
-        if (!tool.active) {
+        if (tool.active != true) {
           continue
         }
 
@@ -630,9 +632,10 @@ export class Toolbar extends UIElement {
       if (active_attr != null) {
         const active_tool = this[active_attr]
         if (active_tool == "auto") {
-          if (gesture.tools.length != 0 && gesture.active == null) {
-            const [tool] = gesture.tools
-            if (_supports_auto(et, tool)) {
+          if (gesture.active == null) {
+            // skip tools that explicitly opted out with `active=false`
+            const tool = gesture.tools.find((tool) => tool.active != false)
+            if (tool != null && _supports_auto(et, tool)) {
               _activate_gesture(tool)
             }
           }
@@ -651,6 +654,15 @@ export class Toolbar extends UIElement {
       }
     }
 
+    // "auto" is an input-only state; whatever is left wasn't selected for activation,
+    // so resolve it, letting views and user callbacks treat `Tool.active` as a boolean
+    // ponytail: flattens one level of proxies, which is all `gridplot()` produces
+    for (const tool of this.tools.flatMap((tool) => tool instanceof ToolProxy ? tool.tools : [tool])) {
+      if (tool.active == "auto") {
+        tool.active = false
+      }
+    }
+
     if (emit) {
       this.active_changed.emit()
     }
@@ -660,7 +672,7 @@ export class Toolbar extends UIElement {
     const {event_types} = tool
 
     for (const et of event_types) {
-      if (tool.active) {
+      if (tool.active == true) {
         const currently_active_tool = this.gestures[et].active
         if (currently_active_tool != null && tool != currently_active_tool) {
           logger.debug(`Toolbar: deactivating tool: ${currently_active_tool} for event type '${et}'`)
@@ -668,7 +680,7 @@ export class Toolbar extends UIElement {
         }
         this.gestures[et].active = tool
         logger.debug(`Toolbar: activating tool: ${tool} for event type '${et}'`)
-      } else {
+      } else if (this.gestures[et].active == tool) {
         this.gestures[et].active = null
       }
     }

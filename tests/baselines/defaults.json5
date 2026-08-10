@@ -6736,6 +6736,7 @@
   },
   ActionTool: {
     __extends__: "Tool",
+    active: false,
   },
   BoxEditTool: {
     __extends__: [
@@ -7210,7 +7211,7 @@
     description: null,
     visible: true,
     group: true,
-    active: false,
+    active: "auto",
   },
   ToolMenu: {
     __extends__: "Menu",

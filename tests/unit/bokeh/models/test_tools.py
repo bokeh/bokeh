@@ -87,18 +87,23 @@ def test_Tool_from_string() -> None:
 
 
 def test_Tool_active() -> None:
-    assert t.PanTool().active is False
+    # gesture tools default to "auto", i.e. the toolbar decides
+    assert t.PanTool().active == "auto"
     assert t.PanTool(active=True).active is True
+    assert t.PanTool(active=False).active is False
 
     # InspectTool and RangeTool override the default, mirroring bokehjs
     assert t.HoverTool().active is True
     assert t.CrosshairTool().active is True
     assert t.RangeTool().active is True
-    assert t.PanTool(active=True).active is True
 
-    # CustomAction inherits Tool.active rather than redeclaring it
+    # action tools belong to no gesture, so "auto" has nothing to resolve against
+    assert t.SaveTool().active is False
     assert t.CustomAction().active is False
     assert "active" not in t.CustomAction.__properties__
+
+    with pytest.raises(ValueError):
+        t.PanTool(active="sometimes")
 
 
 def test_Tool_js_on_change_active() -> None:

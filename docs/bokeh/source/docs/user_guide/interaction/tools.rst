@@ -205,20 +205,36 @@ the string names:
     # configures the lasso tool to be active
     plot = figure(tools="pan,lasso_select,box_select", active_drag="lasso_select")
 
-Alternatively, a tool can request to be activated by setting its own ``active``
-property when you construct it:
+Alternatively, a tool can say for itself whether it wants to be active, using
+its ``active`` property. This takes one of three values:
+
+* ``"auto"`` --- the default; let the toolbar decide
+* ``True`` --- activate this tool when the plot is first displayed
+* ``False`` --- never activate this tool automatically
 
 .. code-block:: python
 
     from bokeh.models import BoxSelectTool, LassoSelectTool, PanTool
 
-    lasso_select = LassoSelectTool(active=True)
-    plot = figure(tools=[PanTool(), lasso_select, BoxSelectTool()])
+    # the lasso tool starts active, and the pan tool is passed over entirely
+    plot = figure(tools=[
+        PanTool(active=False),
+        LassoSelectTool(active=True),
+        BoxSelectTool(),
+    ])
 
 The corresponding ``Toolbar.active_*`` property takes precedence: a tool's own
 ``active`` setting is honored only while that property is ``"auto"`` (the
-default). If several tools competing for the same gesture are constructed as
-active, only the first one stays active and the rest are deactivated.
+default). If several tools competing for the same gesture are set to ``True``,
+only the first one stays active and the rest are deactivated.
+
+The toolbar resolves ``"auto"`` when the plot is initialized, so from then on
+``active`` always reads ``True`` or ``False``. That makes it usable as a
+notification of which tool the user has selected:
+
+.. code-block:: python
+
+    tool.js_on_change("active", CustomJS(code="..."))
 
 .. _ug_interaction_tools_autohide:
 

@@ -17,7 +17,7 @@ export class PolyEditToolView extends PolyToolView {
   _cur_index: number | null = null
 
   override _press(ev: TapEvent): void {
-    if (this.model.vertex_renderer == null || !this.model.active) {
+    if (this.model.vertex_renderer == null || this.model.active != true) {
       return
     }
     const point = this._map_drag(ev.sx, ev.sy, this.model.vertex_renderer)
@@ -57,7 +57,7 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   _show_vertices(ev: UIEvent): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
     if (this.model.renderers.length == 0) {
@@ -255,7 +255,7 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame) {
+    if (this.model.active != true || !this._mouse_in_frame) {
       return
     }
     let renderers: GlyphRenderer[]

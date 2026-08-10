@@ -5,7 +5,7 @@ from bokeh.models import BoxZoomTool, CustomJS, PanTool
 from bokeh.plotting import figure
 
 pan = PanTool(active=True)
-box_zoom = BoxZoomTool()
+box_zoom = BoxZoomTool()  # left at the "auto" default
 
 plot = figure(tools=[pan, box_zoom], width=300, height=300)
 plot.scatter(x=[0, 1, 2], y=[0, 1, 2], size=10, fill_color=["red", "green", "blue"])

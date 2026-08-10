@@ -1077,7 +1077,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     let has_pan = false
     let has_scroll = false
     for (const tool of toolbar.tools) {
-      if (tool.active) {
+      if (tool.active == true) {
         const {event_types} = tool
         if (event_types.includes("pan")) {
           has_pan = true

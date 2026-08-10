@@ -62,7 +62,7 @@ export class PolySelectToolView extends RegionSelectToolView {
 
     const {active} = this.model.properties
     this.on_change(active, () => {
-      if (!this.model.active && !this.model.persistent) {
+      if (this.model.active != true && !this.model.persistent) {
         this._clear_overlay()
       }
     })
@@ -117,7 +117,7 @@ export class PolySelectToolView extends RegionSelectToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
 
