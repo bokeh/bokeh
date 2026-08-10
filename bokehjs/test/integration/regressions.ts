@@ -5308,4 +5308,45 @@ describe("Bug", () => {
       await display(table, [450, 320])
     })
   })
+
+  describe("in issue #13340", () => {
+    it("corrupts DataTable rendering when a children are updated in a Row layout", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          A: ["seize", "cereal", "notebook", "translate"],
+          B: ["talented", "bang", "seed", "occupation"],
+          C: ["price", "preach", "leave", "dance"],
+          D: ["general", "endure", "monster", "divorce"],
+          E: [0, 1, 2, 3],
+          F: [0, 1, 4, 9],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "A", title: "A"}),
+        new TableColumn({field: "B", title: "B"}),
+        new TableColumn({field: "C", title: "C"}),
+        new TableColumn({field: "D", title: "D"}),
+        new TableColumn({field: "E", title: "E"}),
+        new TableColumn({field: "F", title: "F"}),
+      ]
+      const table = new DataTable({source, columns})
+
+      const button = new Button({label: "Button"})
+      const space_A = new Spacer()
+      const space_B = new Spacer()
+
+      const layout = new Row({children: [button, space_A, table]})
+      button.on_click(() => {
+        layout.children = [layout.children[0], space_B, layout.children[2]]
+      })
+
+      const {view} = await display(layout, [800, 300])
+      const button_view = view.owner.get_one(button)
+
+      await mouse_click(button_view.button_el)
+      await view.ready
+      await paint()
+    })
+  })
 })
