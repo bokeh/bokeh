@@ -5246,7 +5246,7 @@ describe("Bug", () => {
         autosize_mode: "fit_viewport",
       })
 
-      await display(table, [600, 200])
+      await display(table, [400, 400])
     })
   })
 })
