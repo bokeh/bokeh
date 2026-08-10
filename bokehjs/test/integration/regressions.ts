@@ -5263,4 +5263,32 @@ describe("Bug", () => {
       await display(table, [600, 400])
     })
   })
+
+  describe("in issue #13460", () => {
+    it("raises a ReferenceError with autosize_mode='fit_viewport'", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          column_1: ["a", "b", "c"],
+          column_2: [4, 5, 6],
+          column_3: [7, 8, 9],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "column_1", title: "column_1"}),
+        new TableColumn({field: "column_2", title: "column_2"}),
+        new TableColumn({field: "column_3", title: "column_3"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        width: 400,
+        height: 280,
+        autosize_mode: "fit_viewport",
+      })
+
+      await display(table, [450, 320])
+    })
+  })
 })
