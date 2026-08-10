@@ -117,7 +117,7 @@ export class LegendItem extends Model {
         if (data != null) {
           const filtered_data = []
           for (const i of view_indices) {
-             filtered_data.push(data[i])
+            filtered_data.push(data[i])
           }
           return uniq(filtered_data)
         } else {
