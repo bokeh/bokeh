@@ -5349,4 +5349,28 @@ describe("Bug", () => {
       await paint()
     })
   })
+
+  describe("in issue #15328", () => {
+    it("doesn't update a DataTable when its source's data is mutated in place and change.emit() is called", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          name: ["A", "B", "C"],
+          value: [10, 20, 30],
+        },
+      })
+      const columns = [
+        new TableColumn({field: "name", title: "Name"}),
+        new TableColumn({field: "value", title: "Value"}),
+      ]
+      const table = new DataTable({source, columns, index_position: null, width: 320, height: 180})
+      const {view} = await display(table, [350, 200])
+      await view.ready
+      const values = source.get_array<number>("value")
+      for (let i = 0; i < values.length; i++) {
+        values[i] = values[i] + 1
+      }
+      source.change.emit()
+      await view.ready
+    })
+  })
 })
