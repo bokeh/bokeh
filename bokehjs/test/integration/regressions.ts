@@ -5351,7 +5351,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #15328", () => {
-    it("refreshes a DataTable when its source's data is mutated in place and change.emit() is called", async () => {
+    it("doesn't update a DataTable when its source's data is mutated in place and change.emit() is called", async () => {
       const source = new ColumnDataSource({
         data: {
           name: ["A", "B", "C"],
