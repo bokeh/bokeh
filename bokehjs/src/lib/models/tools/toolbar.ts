@@ -656,8 +656,7 @@ export class Toolbar extends UIElement {
 
     // "auto" is an input-only state; whatever is left wasn't selected for activation,
     // so resolve it, letting views and user callbacks treat `Tool.active` as a boolean
-    // ponytail: flattens one level of proxies, which is all `gridplot()` produces
-    for (const tool of this.tools.flatMap((tool) => tool instanceof ToolProxy ? tool.tools : [tool])) {
+    for (const tool of this.tools) {
       if (tool.active == "auto") {
         tool.active = false
       }

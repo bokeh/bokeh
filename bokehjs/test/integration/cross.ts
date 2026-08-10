@@ -10,6 +10,7 @@ import {Document} from "@bokehjs/document"
 import {BoxZoomTool, GlyphRenderer, PanTool} from "@bokehjs/models"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {GridPlotView} from "@bokehjs/models/plots/grid_plot"
+import {ToolProxy} from "@bokehjs/models/tools/tool_proxy"
 import {poll} from "@bokehjs/core/util/defer"
 
 async function test(name: string) {
@@ -108,6 +109,43 @@ describe("Bug", () => {
       await poll(() => pan.tags.length != 0 && box_zoom.tags.length != 0)
       expect(pan.tags).to.be.equal([false])
       expect(box_zoom.tags).to.be.equal([true])
+    })
+
+    it.no_image("resolves a proxied tool's 'auto' and honors the opt-out on drag", async () => {
+      const {views} = await test("regressions/issue_15070_proxy.json5")
+
+      const [gp] = views
+      expect_instanceof(gp, GridPlotView)
+
+      const proxies = gp.model.toolbar.tools.filter((tool) => tool instanceof ToolProxy)
+      const tools = proxies.flatMap((proxy) => proxy.tools)
+      const pans = tools.filter((tool) => tool instanceof PanTool)
+      const box_zooms = tools.filter((tool) => tool instanceof BoxZoomTool)
+      expect(pans.length).to.be.equal(3)
+      expect(box_zooms.length).to.be.equal(3)
+
+      // "auto" must be resolved on the tools the child plots own, and the
+      // grid plot's toolbar must not reach through its proxies to undo that
+      for (const tool of pans) {
+        expect(tool.active).to.be.false
+      }
+      for (const tool of box_zooms) {
+        expect(tool.active).to.be.true
+      }
+
+      // and the opt-out has to hold for a real drag: box zoom wins the gesture,
+      // so dragging over part of the plot zooms in instead of panning
+      for (const pv of gp.grid_box_view.child_views) {
+        expect_instanceof(pv, PlotView)
+
+        const {start, end} = pv.model.x_range
+        await actions(pv).pan(xy(0.5, 0.5), xy(1.5, 1.5))
+        await pv.ready
+
+        expect(pv.model.x_range.start).to.not.be.equal(start)
+        expect(pv.model.x_range.end).to.not.be.equal(end)
+        expect(pv.model.x_range.end - pv.model.x_range.start).to.be.below(end - start)
+      }
     })
   })
 })
