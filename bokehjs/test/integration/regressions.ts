@@ -5341,7 +5341,7 @@ describe("Bug", () => {
         layout.children = [layout.children[0], space_B, layout.children[2]]
       })
 
-      const {view} = await display(layout, [800, 300])
+      const {view} = await display(layout, [700, 450])
       const button_view = view.owner.get_one(button)
 
       await mouse_click(button_view.button_el)
