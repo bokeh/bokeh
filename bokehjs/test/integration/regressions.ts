@@ -46,7 +46,7 @@ import {
   Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker,
 } from "@bokehjs/models/widgets"
 
-import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
+import {DataTable, TableColumn, DateFormatter, NumberFormatter} from "@bokehjs/models/widgets/tables"
 
 import type {Factor} from "@bokehjs/models/ranges/factor_range"
 
@@ -5221,6 +5221,32 @@ describe("Bug", () => {
           "Caught an error calculating the ticks for 1e+29 desired_num_ticks and 5 num_minor_ticks. The default values are used instead.",
         ),
       ).to.be.true
+    })
+  })
+
+  describe("in issue #11436", () => {
+    it("doesn't fit column to rounded number in DataTable with autosize_mode='fit_viewport'", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          text: ["something"],
+          number: [0.333333333333333333],
+          other_number: [12345],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "text", title: "Text"}),
+        new TableColumn({field: "number", title: "Number", formatter: new NumberFormatter({format: ".00"})}),
+        new TableColumn({field: "other_number", title: "Other number"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        autosize_mode: "fit_viewport",
+      })
+
+      await display(table, [400, 400])
     })
   })
 })
