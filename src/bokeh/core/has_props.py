@@ -42,6 +42,7 @@ from typing import (
     NotRequired,
     Self,
     TypedDict,
+    cast,
     overload,
 )
 from weakref import WeakSet
@@ -513,7 +514,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         if not isinstance(attr, (PropertyDescriptor, AliasPropertyDescriptor)):
             attr = None
         if attr is not None or not raises:
-            return attr
+            # aliases are returned as well, as they were before this was type checked;
+            # widening the annotation would have to widen ``descriptors()`` with it
+            return cast("PropertyDescriptor[Any] | None", attr)
         raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
     @overload
