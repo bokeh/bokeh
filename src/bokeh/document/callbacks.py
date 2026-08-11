@@ -25,7 +25,12 @@ log = logging.getLogger(__name__)
 import weakref
 from collections import defaultdict
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+)
 
 # Bokeh imports
 from ..core.enums import HoldPolicy
@@ -80,7 +85,7 @@ __all__ = (
 )
 
 
-Callback = Callable[[], None]
+Callback = Callable[[], None | Awaitable[None]]
 Originator = Callable[..., Any]
 
 MessageCallback = Callable[[Any], None]
@@ -188,7 +193,7 @@ class DocumentCallbackManager:
         actual_callback: Callback
         if one_shot:
             @wraps(callback)
-            def remove_then_invoke() -> None:
+            def remove_then_invoke() -> None | Awaitable[None]:
                 if callback_obj in self._session_callbacks:
                     self.remove_session_callback(callback_obj)
                 return callback()
@@ -454,7 +459,7 @@ class DocumentCallbackManager:
 # Dev API
 #-----------------------------------------------------------------------------
 
-def invoke_with_curdoc(doc: Document, f: Callable[[], None]) -> None:
+def invoke_with_curdoc[T](doc: Document, f: Callable[[], T]) -> T:
     from ..io.doc import patch_curdoc
 
     curdoc: DocumentLike = UnlockedDocumentProxy(doc) if getattr(f, "nolock", False) else doc
@@ -498,7 +503,7 @@ def _combine_document_events(new_event: DocumentChangedEvent, old_events: list[D
 
 def _wrap_with_curdoc(doc: Document, f: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(f)
-    def wrapper(*args: Any, **kwargs: Any) -> None:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         @wraps(f)
         def invoke() -> Any:
             return f(*args, **kwargs)

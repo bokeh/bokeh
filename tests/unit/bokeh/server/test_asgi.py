@@ -179,6 +179,54 @@ def test_explicit_application_specs_remain_supported() -> None:
     assert app.core.applications["/callable"].application.create_document().title == "Callable application"
 
 
+async def test_update_sessions_updates_each_document_with_its_lock() -> None:
+    def modify_document(doc: Document) -> None:
+        doc.add_root(Div(text="initial", name="status"))
+
+    app = BokehASGI(modify_document, keep_alive_milliseconds=0)
+
+    with pytest.raises(RuntimeError, match="not running"):
+        await app.update_sessions("/", lambda doc: None)
+
+    await app.core.start()
+    try:
+        context = app.core.applications["/"]
+        sessions = [
+            await context.create_session_if_needed(cast(ID, "first")),
+            await context.create_session_if_needed(cast(ID, "second")),
+        ]
+        sync_documents: list[Document] = []
+
+        def sync_update(doc: Document) -> None:
+            sync_documents.append(doc)
+            status = doc.select_one({"name": "status"})
+            assert isinstance(status, Div)
+            status.text = "sync"
+
+        await app.update_sessions("/", sync_update)
+
+        assert set(sync_documents) == {session.document for session in sessions}
+
+        def status_text(doc: Document) -> str:
+            status = doc.select_one({"name": "status"})
+            assert isinstance(status, Div)
+            return status.text
+
+        assert [status_text(session.document) for session in sessions] == ["sync", "sync"]
+
+        async def async_update(doc: Document) -> None:
+            await asyncio.sleep(0)
+            status = doc.select_one({"name": "status"})
+            assert isinstance(status, Div)
+            status.text = "async"
+
+        await app.update_sessions("/", async_update)
+
+        assert [status_text(session.document) for session in sessions] == ["async", "async"]
+    finally:
+        await app.core.stop()
+
+
 async def test_framework_free_example_routes_site_and_bokeh() -> None:
     path = Path(__file__).parents[4] / "examples/server/api/asgi/framework_free.py"
     namespace = runpy.run_path(str(path))

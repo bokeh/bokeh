@@ -85,6 +85,23 @@ class TestPullDocument:
         assert isinstance(cds, ColumnDataSource)
         assert isinstance(cds.data["a"], np.ndarray)
 
+    def test_prepare_freezes_buffers(self) -> None:
+        sample = self._sample_doc()
+        _, _, cds = sample.roots
+        assert isinstance(cds, ColumnDataSource)
+        array = cds.data["a"]
+        assert isinstance(array, np.ndarray)
+
+        msg = proto.create("PULL-DOC-REPLY", ID("fakereqid"), sample)
+        msg.prepare()
+        [buffer] = msg.buffers
+        expected = buffer.data
+
+        assert isinstance(expected, bytes)
+        array[0] = 10.0
+        assert buffer.data == expected
+        assert msg.content_json == msg._content_json
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

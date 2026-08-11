@@ -17,6 +17,8 @@ import pytest
 # Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
+from bokeh.io import curdoc
+from bokeh.models import Div
 from bokeh.protocol import Protocol
 from bokeh.server.core import BokehServerCore
 from bokeh.server.request import Cookie, Headers, ServerRequest
@@ -44,6 +46,108 @@ async def test_periodic_callback_continues_after_exception() -> None:
         await periodic.wait()
 
     assert calls >= 2
+
+
+async def test_locked_callback_latest_runs_from_threads_with_document_lock() -> None:
+    callbacks = []
+    models: list[Div] = []
+    calls: list[str] = []
+    callback_threads: list[int] = []
+    started = threading.Event()
+    release = threading.Event()
+    finished = threading.Event()
+
+    def modify_document(doc) -> None:
+        model = Div()
+        models.append(model)
+        doc.add_root(model)
+
+        @doc.locked_callback(policy="latest")
+        def update(value: str) -> None:
+            assert curdoc() is doc
+            calls.append(value)
+            callback_threads.append(threading.get_ident())
+            if value == "first":
+                started.set()
+                assert release.wait(timeout=2)
+            model.text = value
+            if value == "latest":
+                finished.set()
+
+        callbacks.append(update)
+
+    core = BokehServerCore(Application(FunctionHandler(modify_document)), keep_alive_milliseconds=0)
+    await core.start()
+    loop_thread = threading.get_ident()
+    try:
+        context = core.applications["/"]
+        session = await context.create_session_if_needed("session")
+        update = callbacks[0]
+
+        await asyncio.to_thread(update, "first")
+        assert await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+        assert session._lock.locked()
+
+        await asyncio.to_thread(update, "middle")
+        await asyncio.to_thread(update, "latest")
+        release.set()
+        assert await asyncio.wait_for(asyncio.to_thread(finished.wait), 1)
+
+        assert calls == ["first", "latest"]
+        assert models[0].text == "latest"
+        assert all(thread != loop_thread for thread in callback_threads)
+        assert not update.pending
+    finally:
+        release.set()
+        await core.stop()
+
+    assert update.closed
+    update("ignored")
+
+
+async def test_locked_callback_every_awaits_async_callbacks_in_order() -> None:
+    callbacks = []
+    models: list[Div] = []
+    calls: list[int] = []
+    callback_threads: list[int] = []
+    finished = asyncio.Event()
+
+    def modify_document(doc) -> None:
+        model = Div()
+        models.append(model)
+        doc.add_root(model)
+
+        @doc.locked_callback
+        async def update(value: int) -> None:
+            await asyncio.sleep(0)
+            assert curdoc() is doc
+            calls.append(value)
+            callback_threads.append(threading.get_ident())
+            model.text = str(value)
+            if value == 3:
+                finished.set()
+
+        callbacks.append(update)
+
+    core = BokehServerCore(Application(FunctionHandler(modify_document)), keep_alive_milliseconds=0)
+    await core.start()
+    try:
+        context = core.applications["/"]
+        session = await context.create_session_if_needed("session")
+        update = callbacks[0]
+
+        await asyncio.to_thread(update, 1)
+        await asyncio.to_thread(update, 2)
+        await asyncio.to_thread(update, 3)
+        await asyncio.wait_for(finished.wait(), 1)
+
+        assert calls == [1, 2, 3]
+        assert models[0].text == "3"
+        assert callback_threads == [threading.get_ident()] * 3
+        assert not update.pending
+        assert not session._lock.locked()
+    finally:
+        await core.stop()
 
 
 async def test_stop_waits_for_periodic_jobs_before_unload() -> None:

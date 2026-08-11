@@ -27,6 +27,9 @@ from urllib.parse import urljoin
 # External imports
 from tornado.web import RequestHandler
 
+# Bokeh imports
+from ...util.asyncio import _run_in_executor
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -65,6 +68,8 @@ class AuthRequestHandler(RequestHandler):
 
         '''
         auth_provider = self.bokeh_app.auth_provider
+        if hasattr(self, "_bokeh_login_url"):
+            return self._bokeh_login_url
         if auth_provider.get_login_url is not None:
             return auth_provider.get_login_url(self)
         if auth_provider.login_url is not None:
@@ -90,6 +95,17 @@ class AuthRequestHandler(RequestHandler):
         auth_provider = self.bokeh_app.auth_provider
         if auth_provider.get_user_async is not None:
             self.current_user = await auth_provider.get_user_async(self)
+        elif auth_provider.get_user is not None and self.request.method != "OPTIONS":
+            self.current_user = await _run_in_executor(auth_provider.get_user, self)
+        else:
+            return
+
+        if (
+            not self.current_user
+            and self.request.method in ("GET", "HEAD")
+            and auth_provider.get_login_url is not None
+        ):
+            self._bokeh_login_url = await _run_in_executor(auth_provider.get_login_url, self)
 
 #-----------------------------------------------------------------------------
 # Private API

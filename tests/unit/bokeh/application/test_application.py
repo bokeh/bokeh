@@ -17,7 +17,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import logging
+from threading import Event, get_ident
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
@@ -77,6 +79,57 @@ class Test_Application:
         a.add(RequestHandler(dict(b=20)))
         a.add(RequestHandler(dict(a=30)))
         assert a.process_request("request") == dict(a=30, b=20)
+
+    async def test_process_request_async_runs_sync_handlers_in_worker(self) -> None:
+        started = Event()
+        release = Event()
+        loop_thread = get_ident()
+        handler_thread = None
+
+        class BlockingRequestHandler(Handler):
+            def process_request(self, request):
+                nonlocal handler_thread
+                handler_thread = get_ident()
+                started.set()
+                assert release.wait(timeout=2)
+                return dict(a=10)
+
+        a = baa.Application(BlockingRequestHandler())
+        pending = asyncio.create_task(a.process_request_async("request"))
+        try:
+            async with asyncio.timeout(1):
+                while not started.is_set():
+                    await asyncio.sleep(0)
+            heartbeat = asyncio.Event()
+            asyncio.get_running_loop().call_soon(heartbeat.set)
+            await asyncio.wait_for(heartbeat.wait(), 1)
+        finally:
+            release.set()
+
+        assert await pending == dict(a=10)
+        assert handler_thread != loop_thread
+
+    async def test_process_request_async_awaits_async_handlers_in_order(self) -> None:
+        loop_thread = get_ident()
+        calls = []
+
+        class AsyncRequestHandler(Handler):
+            async def process_request(self, request):
+                calls.append(("async", get_ident()))
+                await asyncio.sleep(0)
+                return dict(a=10)
+
+        class SyncRequestHandler(Handler):
+            def process_request(self, request):
+                calls.append(("sync", get_ident()))
+                return dict(a=20, b=30)
+
+        a = baa.Application(AsyncRequestHandler(), SyncRequestHandler())
+
+        assert await a.process_request_async("request") == dict(a=20, b=30)
+        assert calls[0] == ("async", loop_thread)
+        assert calls[1][0] == "sync"
+        assert calls[1][1] != loop_thread
 
     def test_one_handler(self) -> None:
         a = baa.Application()
