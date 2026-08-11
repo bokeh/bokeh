@@ -45,8 +45,7 @@ __all__ = ()
 #-----------------------------------------------------------------------------
 
 type CallbackSync = Callable[[], None]
-type CallbackAsync = Callable[[], Awaitable[None]]
-type Callback = CallbackSync | CallbackAsync
+type Callback = Callable[[], None | Awaitable[None]]
 
 type Remover = Callable[[], None]
 type Removers = dict[ID, Remover]
@@ -69,6 +68,50 @@ def _log_task_exception(task: asyncio.Future[Any]) -> None:
         log.error("Error thrown from callback:")
         lines = format_exception(exception.__class__, exception, exception.__traceback__)
         log.error("".join(lines))
+
+async def _wait_for_task[T](task: asyncio.Future[T]) -> T:
+    ''' Wait for a task to finish before propagating cancellation. '''
+    cancelled: asyncio.CancelledError | None = None
+
+    while True:
+        try:
+            result = await asyncio.shield(task)
+            break
+        except asyncio.CancelledError as cancellation:
+            cancelled = cancelled or cancellation
+            if task.done():
+                if task.cancelled():
+                    raise cancelled
+                try:
+                    result = task.result()
+                except BaseException:
+                    raise cancelled
+                break
+        except BaseException:
+            if cancelled is not None:
+                raise cancelled
+            raise
+
+    if cancelled is not None:
+        raise cancelled
+
+    return result
+
+async def _run_in_executor[T](func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    ''' Run a synchronous callable in a worker without abandoning it on cancellation. '''
+    worker = asyncio.create_task(asyncio.to_thread(func, *args, **kwargs))
+    try:
+        return await _wait_for_task(worker)
+    except asyncio.CancelledError:
+        if not worker.cancelled():
+            try:
+                result = worker.result()
+            except BaseException:
+                pass
+            else:
+                if inspect.iscoroutine(result):
+                    result.close()
+        raise
 
 class _AsyncPeriodic:
     ''' Invoke a callback periodically without overlapping invocations. '''
@@ -222,7 +265,7 @@ class _CallbackGroup:
     def remove_next_tick_callback(self, callback_id: ID) -> None:
         self._execute_remover(callback_id, self._next_tick_callback_removers)
 
-    def add_timeout_callback(self, callback: CallbackSync, timeout_milliseconds: int, callback_id: ID) -> ID:
+    def add_timeout_callback(self, callback: Callback, timeout_milliseconds: int, callback_id: ID) -> ID:
         handle: asyncio.TimerHandle | None = None
         removed = False
         state_lock = threading.Lock()

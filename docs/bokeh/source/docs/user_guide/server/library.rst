@@ -64,6 +64,7 @@ The mount's ASGI ``root_path`` is included automatically in Bokeh resource and
 websocket URLs. Equivalent complete examples are available for:
 
 * :bokeh-tree:`examples/server/api/asgi/fastapi_embed.py`
+* :bokeh-tree:`examples/server/api/asgi/fastapi_shared_data.py`
 * :bokeh-tree:`examples/server/api/asgi/starlette_embed.py`
 * :bokeh-tree:`examples/server/api/asgi/django_embed.py`
 * :bokeh-tree:`examples/server/api/asgi/framework_free.py`
@@ -74,6 +75,34 @@ lifespan events. ASGI does not expose websocket ping frames, so transport
 keepalive should be configured on the ASGI server (for example, Uvicorn's
 websocket ping interval) rather than with Bokeh's
 ``keep_alive_milliseconds`` option.
+
+Updating active sessions from the host
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An enclosing ASGI application's lifespan can own a single background producer
+and publish its output to every currently active Bokeh session. Pass
+:meth:`~bokeh.server.asgi.BokehASGI.update_sessions` a callable that accepts a
+single :class:`~bokeh.document.document.Document`:
+
+.. code-block:: python
+
+   def update_document(doc):
+       source = doc.get_model_by_name("shared-source")
+       source.data = latest_snapshot
+
+   await bokeh_app.update_sessions("/", update_document)
+
+Bokeh invokes ``update_document`` once per local session with that document's
+lock held. The callable may be synchronous or asynchronous, and updates to
+different sessions run concurrently. Sessions created after the call starts
+are not included, so application construction should also initialize a new
+document from the latest snapshot. Shared data read by synchronous application
+code must be immutable or protected for access from worker threads.
+
+This operation is process-local. Deployments with multiple ASGI workers need
+an external broker or data service to deliver each snapshot to every worker.
+See :bokeh-tree:`examples/server/api/asgi/fastapi_shared_data.py` for a complete
+lifespan-managed example.
 
 ASGI servers send lifespan events to the top-level application. When Bokeh is
 mounted under a framework that does not propagate those events to mounts, such

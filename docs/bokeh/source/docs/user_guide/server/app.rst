@@ -346,7 +346,7 @@ available, you can define a custom handler hook.
 
 To do so, create an app in :ref:`directory format<ug_server_apps_directory>` and
 include a file called ``request_handler.py`` in the directory. This file must
-include a ``process_request`` function.
+include a synchronous or asynchronous ``process_request`` function.
 
 .. code-block:: python
 
@@ -355,8 +355,11 @@ include a ``process_request`` function.
         return {}
 
 The process then passes Tornado HTTP requests to the handler, which returns a
-dictionary for ``curdoc().session_context.token_payload``. This lets you work
-around some of the ``--num-procs`` issues and provide additional information.
+dictionary for ``curdoc().session_context.token_payload``. Synchronous request
+hooks run in a worker thread so that they do not block unrelated requests.
+Hooks defined with ``async def`` run on the event loop and are awaited. This
+lets you work around some of the ``--num-procs`` issues and provide additional
+information.
 
 .. _ug_server_apps_callbacks:
 
@@ -399,18 +402,25 @@ plots. For more information, see
 Python callbacks in server sessions
 ''''''''''''''''''''''''''''''''''''
 
-Bokeh executes synchronous session callbacks in a bounded worker executor, so
-expensive callback code does not occupy the server's event-loop thread. The
-document remains locked for the duration of the callback: callbacks belonging
-to one session execute serially, while callbacks for different sessions can
-execute concurrently. A synchronous callback may safely update its own
-document, but it should not assume that it is running on the event-loop thread.
+Bokeh executes synchronous periodic, timeout, and next-tick callbacks in a
+bounded worker executor. Model and document callbacks that they trigger, as
+well as callbacks triggered while applying client protocol updates, execute in
+the same worker. The document remains locked for the duration of each callback,
+so callbacks for one session execute serially while callbacks for different
+sessions can execute concurrently. Synchronous callbacks can update their
+session document normally and :func:`~bokeh.io.curdoc` continues to return that
+document, but callback code should not assume it is running on the event-loop
+thread.
 
-Asynchronous periodic, timeout, and next-tick callbacks execute on the event
-loop and retain the document lock across ``await`` expressions. They are useful
-for asynchronous I/O and APIs that require a running event loop. CPU-intensive
-work in an async callback should still be delegated to a thread or process
-executor.
+Callbacks defined with ``async def`` execute on the event loop and retain the
+document lock across ``await`` expressions. They are appropriate for
+asynchronous I/O and event-loop APIs. CPU-intensive or blocking work in an
+async callback must still be delegated to a thread or process executor. Model
+and document callbacks invoked directly by an async callback execute inline as
+part of that callback and must also remain non-blocking.
+
+Updates triggered by a callback are sent over WebSockets on the event-loop
+thread after the synchronous callback finishes.
 
 Unlocked callbacks are available when a long-running operation should not hold
 the session's document lock. See `Updating from unlocked callbacks`_ below.
@@ -419,57 +429,73 @@ Updating from threads
 '''''''''''''''''''''
 
 You can make blocking computations in separate threads. However, you **must**
-schedule document updates via a next tick callback. This callback executes
-as soon as possible with the next iteration of the Tornado event loop and
-automatically acquires necessary locks to safely update the document state.
+schedule document updates so that they run with the document lock held. The
+:meth:`~bokeh.document.Document.locked_callback` decorator creates a callable
+that can be safely invoked from any thread and schedules the decorated function
+on the document's server session.
+
+The default ``policy="every"`` runs the callback once for every invocation, in
+order. Use ``policy="latest"`` for frequent updates where intermediate values
+may be discarded. At most one invocation waits to run: its arguments may be
+replaced before it starts, or while the current invocation is running. This
+bounds queued work when a data producer is faster than the application can
+update.
 
 .. warning::
-    The ONLY safe operations to perform on a document from a different thread
-    are :func:`~bokeh.document.Document.add_next_tick_callback` and
-    :func:`~bokeh.document.Document.remove_next_tick_callback`
+    The only safe ways to update a document from another thread are to invoke
+    a callable created by :meth:`~bokeh.document.Document.locked_callback`, or
+    to schedule and remove callbacks with
+    :func:`~bokeh.document.Document.add_next_tick_callback` and
+    :func:`~bokeh.document.Document.remove_next_tick_callback`.
 
 Remember, direct updates to the document state issuing from another thread,
 whether through other document methods or setting of Bokeh model properties,
 risk data and protocol corruption.
+
+.. note::
+    The Bokeh server uses a bounded internal worker pool for autoload resources
+    and outbound document and patch serialization. It holds the session's
+    document lock while a worker produces a consistent snapshot, then performs
+    transport writes on the Tornado event loop. This internal use of threads
+    does not make direct document updates from application threads safe.
 
 To allow all threads access to the same document, save a local copy of
 ``curdoc()``. The example below illustrates this process.
 
 .. code-block:: python
 
-    import time
-    from functools import partial
     from random import random
-    from threading import Thread
+    from threading import Event, Thread
 
     from bokeh.models import ColumnDataSource
     from bokeh.plotting import curdoc, figure
 
-    # only modify from a Bokeh session callback
     source = ColumnDataSource(data=dict(x=[0], y=[0]))
-
-    # This is important! Save curdoc() to make sure all threads
-    # see the same document.
     doc = curdoc()
+    stop = Event()
 
-    async def update(x, y):
+    @doc.locked_callback(policy="latest")
+    def update(x, y):
         source.stream(dict(x=[x], y=[y]))
 
     def blocking_task():
-        while True:
+        while not stop.wait(0.1):
             # do some blocking computation
-            time.sleep(0.1)
             x, y = random(), random()
 
-            # but update the document from a callback
-            doc.add_next_tick_callback(partial(update, x=x, y=y))
+            # safe from this thread; the function runs later with the lock
+            update(x, y)
+
+    def session_destroyed(session_context):
+        stop.set()
 
     p = figure(x_range=[0, 1], y_range=[0,1])
     l = p.scatter(marker='circle', x='x', y='y', source=source)
 
     doc.add_root(p)
+    doc.on_session_destroyed(session_destroyed)
 
-    thread = Thread(target=blocking_task)
+    thread = Thread(target=blocking_task, daemon=True)
     thread.start()
 
 To see this example in action, save the above code to a Python file, for
@@ -479,21 +505,27 @@ example, ``testapp.py``, and then execute the following command:
 
     bokeh serve --show testapp.py
 
-.. warning::
-    There is currently no locking around adding next tick callbacks to
-    documents. Bokeh should have a more fine-grained locking for callback
-    methods in the future, but for now it is best to have each thread add no
-    more than one callback to the document.
+The decorated callable returns immediately; its return value is always
+``None``. It may wrap either a synchronous or asynchronous function. You can
+inspect its ``pending`` and ``closed`` properties, and call ``close()`` to
+discard pending work. It closes automatically when the session is destroyed.
+
+For lower-level scheduling, you can still use
+:meth:`~bokeh.document.Document.add_next_tick_callback` directly.
 
 Updating from unlocked callbacks
 ''''''''''''''''''''''''''''''''
 
 Normally Bokeh session callbacks recursively lock the document until all
-future work they initiate is completed. However, you may want to drive
-blocking computations from callbacks using Tornado's ``ThreadPoolExecutor``
-in an asynchronous callback. This requires that you use the
+future work they initiate is completed. However, you may want a long-running
+callback not to prevent other callbacks in the same session from executing.
+This requires that you use the
 :func:`~bokeh.document.without_document_lock` decorator to suppress the normal
 locking behavior.
+
+Synchronous unlocked callbacks run in a worker thread. Asynchronous unlocked
+callbacks run on the event loop; delegate any blocking work they perform to an
+executor as in the following example.
 
 As with the thread example above, **all actions that update document state
 must go through a next tick callback**.
@@ -583,6 +615,12 @@ include any or all of the following conventionally named functions:
     def on_session_destroyed(session_context):
         # If present, this function executes when the server closes a session.
         pass
+
+The synchronous ``on_session_created`` function defined in ``app_hooks.py``
+runs on a worker thread so that expensive session startup work does not block
+the server's event loop. Hooks for different sessions may run concurrently.
+Use ``session_context.document`` to access the new session's document, and do
+not rely on event-loop or main-thread state in this hook.
 
 You can also define ``on_session_destroyed`` lifecycle hooks directly on the
 ``Document`` being served. This makes it easy to clean up after a user closes
