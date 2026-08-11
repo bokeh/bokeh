@@ -150,7 +150,7 @@ describe("Examples", () => {
           background-color: var(--hover-color);
         }
 
-        &:[disabled], &.bk-disabled {
+        &[disabled], &.bk-disabled {
           border-color: var(--disabled-background-color);
         }
       }
