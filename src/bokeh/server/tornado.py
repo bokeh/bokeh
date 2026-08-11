@@ -27,6 +27,7 @@ import asyncio
 import gc
 import os
 import sys
+from collections import OrderedDict
 from pprint import pformat
 from typing import (
     TYPE_CHECKING,
@@ -39,7 +40,7 @@ from urllib.parse import urljoin
 
 # External imports
 from tornado.ioloop import PeriodicCallback
-from tornado.web import Application as TornadoApplication, StaticFileHandler
+from tornado.web import Application as TornadoApplication
 from tornado.websocket import WebSocketClosedError
 
 if TYPE_CHECKING:
@@ -64,10 +65,11 @@ from .core import (
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
     create_session as _create_session,
 )
+from .executor import _ServerExecutor
 from .urls import per_app_patterns, toplevel_patterns
 from .views.ico_handler import IcoHandler
 from .views.root_handler import RootHandler
-from .views.static_handler import StaticHandler
+from .views.static_handler import AsyncStaticFileHandler, StaticHandler
 from .views.ws import WSHandler
 
 if TYPE_CHECKING:
@@ -85,6 +87,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 DEFAULT_MEM_LOG_FREQ_MS                  = 0
+_AUTOLOAD_CACHE_SIZE                     = 32
 
 __all__ = (
     'BokehTornado',
@@ -306,6 +309,9 @@ class BokehTornado(TornadoApplication):
                 app.add(DocumentLifecycleHandler())
 
         self._absolute_url = absolute_url
+        self._executor = _ServerExecutor()
+        self._autoload_cache: OrderedDict[tuple[Any, ...], Any] = OrderedDict()
+        self._pending_autoload: dict[tuple[Any, ...], asyncio.Task[Any]] = {}
 
         if prefix is None:
             prefix = ""
@@ -406,7 +412,7 @@ class BokehTornado(TornadoApplication):
                 # second arg must be lstrip'd to avoid dropping the prefix
                 # (urljoin treats a leading-slash second arg as an absolute path and discards the base)
                 logout_url = urljoin(self._prefix + "/", logout_url.lstrip("/"))
-            self._applications[url] = ApplicationContext(app, url=url, logout_url=logout_url)
+            self._applications[url] = ApplicationContext(app, url=url, logout_url=logout_url, executor=self._executor)
         self._stopping = False
         self._shutdown_pending_sessions: tuple[asyncio.Task[ServerSession], ...] = ()
         self._stop_task: asyncio.Task[None] | None = None
@@ -698,6 +704,7 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             context.run_unload_hook()
         self._clients.clear()
+        self._executor.shutdown(wait=False)
 
     async def stop_async(self) -> None:
         '''Stop the Bokeh Server application and await orderly cleanup.'''
@@ -720,6 +727,7 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             context.run_unload_hook()
         self._clients.clear()
+        self._executor.shutdown()
 
     def stop(self, wait: bool = True) -> None:
         ''' Stop the Bokeh Server application.
@@ -756,6 +764,75 @@ class BokehTornado(TornadoApplication):
             return None
         asyncio_loop.run_until_complete(self.stop_async())
         return None
+
+    async def _bundle_for_autoload(self, resources: Resources | None) -> Any:
+        from ..embed.bundle import bundle_for_objs_and_resources
+
+        resources = resources.clone() if resources is not None else None
+        key = self._autoload_key(resources)
+        cache = not settings.dev and (resources is None or not resources.dev)
+
+        if cache:
+            cached_bundle = self._autoload_cache.get(key)
+            if cached_bundle is not None:
+                self._autoload_cache.move_to_end(key)
+                return cached_bundle.clone()
+
+        pending = self._pending_autoload.get(key)
+        if pending is None:
+            pending = asyncio.create_task(
+                self._executor.run(bundle_for_objs_and_resources, None, resources),
+            )
+            self._pending_autoload[key] = pending
+            pending.add_done_callback(lambda task: self._autoload_done(key, cache, task))
+
+        bundle = await asyncio.shield(pending)
+        return bundle.clone()
+
+    def _autoload_done(self, key: tuple[Any, ...], cache: bool, task: asyncio.Task[Any]) -> None:
+        if self._pending_autoload.get(key) is task:
+            del self._pending_autoload[key]
+
+        if task.cancelled():
+            return
+
+        error = task.exception()
+        if error is None and cache:
+            self._autoload_cache[key] = task.result()
+            self._autoload_cache.move_to_end(key)
+            while len(self._autoload_cache) > _AUTOLOAD_CACHE_SIZE:
+                self._autoload_cache.popitem(last=False)
+
+    @staticmethod
+    def _autoload_key(resources: Resources | None) -> tuple[Any, ...]:
+        models = tuple(sorted(
+            (name, id(model))
+            for name, model in Model.model_class_reverse_map.items()
+        ))
+
+        if resources is None:
+            return (None, models)
+
+        path_versioner_key: Any = resources.path_versioner
+        if path_versioner_key is not None:
+            path_versioner_key = (
+                getattr(path_versioner_key, "__self__", None),
+                getattr(path_versioner_key, "__func__", path_versioner_key),
+            )
+
+        return (
+            resources.mode,
+            resources.version,
+            resources.root_dir,
+            resources.dev,
+            resources.minified,
+            resources.log_level,
+            resources.root_url,
+            path_versioner_key,
+            tuple(resources.components),
+            resources.base_dir,
+            models,
+        )
 
     def new_connection(self, protocol: Protocol, socket: WSHandler,
             application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
@@ -898,11 +975,11 @@ class BokehTornado(TornadoApplication):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, type[StaticFileHandler | StaticHandler], dict[str, Any]]:
+def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, type[AsyncStaticFileHandler | StaticHandler], dict[str, Any]]:
     route = prefix
     route += "/static/(.*)" if key == "/" else key + "/static/(.*)"
     if app.static_path is not None:
-        return (route, StaticFileHandler, {"path" : app.static_path})
+        return (route, AsyncStaticFileHandler, {"path" : app.static_path})
     return (route, StaticHandler, {})
 
 #-----------------------------------------------------------------------------

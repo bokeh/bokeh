@@ -137,6 +137,101 @@ class TestDocument:
         d._session_context = weakref.ref(sc)
         assert d.session_context is sc
 
+    def test_locked_callback_requires_server_session(self) -> None:
+        d = document.Document()
+
+        with pytest.raises(RuntimeError, match="require a Bokeh server session"):
+            @d.locked_callback
+            def update() -> None:
+                pass
+
+    def test_locked_callback_rejects_unknown_policy(self) -> None:
+        d = document.Document()
+
+        with pytest.raises(ValueError, match="unknown locked callback policy"):
+            @d.locked_callback(policy="unknown") # type: ignore[arg-type]
+            def update() -> None:
+                pass
+
+    def test_locked_callback_latest_coalesces_and_preserves_metadata(self) -> None:
+        d = document.Document()
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        scheduled: list[Any] = []
+        calls: list[int] = []
+
+        with patch.object(d, "add_next_tick_callback", side_effect=lambda callback: scheduled.append(callback)):
+            @d.locked_callback(policy="latest")
+            def update(value: int) -> None:
+                ''' Update the value. '''
+                calls.append(value)
+
+            assert update.__name__ == "update"
+            assert update.__doc__ == update.__wrapped__.__doc__
+            assert update.policy == "latest"
+            assert not update.pending
+            assert not update.closed
+
+            update(1)
+            update(2)
+            update(3)
+
+            assert update.pending
+            assert len(scheduled) == 1
+            scheduled.pop(0)()
+
+            assert calls == [3]
+            assert not update.pending
+
+    def test_locked_callback_every_continues_after_exception(self) -> None:
+        d = document.Document()
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        scheduled: list[Any] = []
+        calls: list[int] = []
+
+        with patch.object(d, "add_next_tick_callback", side_effect=lambda callback: scheduled.append(callback)):
+            @d.locked_callback
+            def update(value: int) -> None:
+                calls.append(value)
+                if value == 1:
+                    raise RuntimeError("transient failure")
+
+            update(1)
+            update(2)
+
+            assert len(scheduled) == 1
+            with pytest.raises(RuntimeError, match="transient failure"):
+                scheduled.pop(0)()
+
+            assert len(scheduled) == 1
+            scheduled.pop(0)()
+            assert calls == [1, 2]
+            assert not update.pending
+
+    def test_locked_callback_closes_on_session_destroyed(self) -> None:
+        d = document.Document()
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        scheduled: list[Any] = []
+        calls: list[int] = []
+
+        with patch.object(d, "add_next_tick_callback", side_effect=lambda callback: scheduled.append(callback)):
+            @d.locked_callback()
+            def update(value: int) -> None:
+                calls.append(value)
+
+            update(1)
+            for callback in d.session_destroyed_callbacks:
+                callback(sc)
+
+            assert update.closed
+            assert not update.pending
+
+            update(2)
+            scheduled.pop(0)()
+            assert calls == []
+
     def test_add_roots(self) -> None:
         d = document.Document()
         assert not d.roots

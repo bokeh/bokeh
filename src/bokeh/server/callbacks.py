@@ -22,7 +22,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Callable, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Awaitable,
+    Callable,
+    Sequence,
+)
 
 # Bokeh imports
 from ..util.asyncio import Loop, _CallbackGroup
@@ -45,7 +50,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Callback = Callable[[], None]
+Callback = Callable[[], None | Awaitable[None]]
 
 class SessionCallback:
     ''' A base class for callback objects associated with Bokeh Documents

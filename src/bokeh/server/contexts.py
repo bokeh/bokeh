@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from ..application.application import Application
     from ..core.types import ID
     from ..util.token import TokenPayload
+    from .executor import _ServerExecutor
     from .request import RequestLike
 
 #-----------------------------------------------------------------------------
@@ -155,9 +156,10 @@ class ApplicationContext:
     _server_context: BokehServerContext
 
     def __init__(self, application: Application, io_loop: Loop | None = None,
-            url: str | None = None, logout_url: str | None = None):
+            url: str | None = None, logout_url: str | None = None, executor: _ServerExecutor | None = None):
         self._application = application
         self._loop = io_loop
+        self._executor = executor
         self._sessions = {}
         self._pending_sessions = {}
         self._session_contexts = {}
@@ -306,7 +308,7 @@ class ApplicationContext:
         await self._initialize_document_async(doc)
 
         io_loop = self._loop or asyncio.get_running_loop()
-        session = ServerSession(session_id, doc, io_loop=io_loop, token=token)
+        session = ServerSession(session_id, doc, io_loop=io_loop, token=token, executor=self._executor)
         self._sessions[session_id] = session
         session_context._set_session(session)
         self._session_contexts[session_id] = session_context

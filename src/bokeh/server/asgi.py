@@ -47,6 +47,7 @@ if TYPE_CHECKING:
     from ..application import Application
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID, PathLike
+    from ..document import Document
     from .connection import ServerConnection
     from .contexts import ApplicationContext
 
@@ -157,6 +158,28 @@ class BokehASGI:
     @property
     def core(self) -> BokehServerCore:
         return self._core
+
+    async def update_sessions(
+        self,
+        app_path: str,
+        update_document: Callable[[Document], None | Awaitable[None]],
+    ) -> None:
+        ''' Update every active session document for an application.
+
+        This is a convenience wrapper for
+        :meth:`~bokeh.server.core.BokehServerCore.update_sessions`.
+
+        Args:
+            app_path:
+                The configured application path whose sessions are updated.
+
+            update_document:
+                A synchronous or asynchronous callable that receives one
+                session :class:`~bokeh.document.document.Document` with its
+                document lock held.
+
+        '''
+        await self._core.update_sessions(app_path, update_document)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         scope_type = scope["type"]
@@ -525,7 +548,7 @@ class BokehASGI:
         if await self._authenticate(request):
             return True
         assert self._auth_policy is not None
-        if (login_url := self._auth_policy.get_login_url(request)) is not None:
+        if (login_url := await self._auth_policy.get_login_url_async(request)) is not None:
             await self._response(
                 send,
                 302,

@@ -549,6 +549,9 @@ current user (or ``None``):
 The module passes the function to the Tornado ``RequestHandler`` that can
 inspect cookies or request headers to determine the authenticated user. If
 there is no authenticated user, these functions should return ``None``.
+Synchronous ``get_user`` functions run in a worker thread so that slow
+authentication does not block unrelated requests. Asynchronous
+``get_user_async`` functions run on the event loop and are awaited.
 
 Additionally, the module must specify where to redirect unauthenticated users
 by including either:
@@ -572,7 +575,8 @@ automatically.
 
 The ``get_login_url`` function is useful in cases where the login URL must
 vary based on the request, cookies, or other factors. You can also specify a
-``LoginHandler`` when defining the ``get_url_function``.
+``LoginHandler`` when defining the ``get_url_function``. Bokeh computes a
+request-specific login URL in a worker thread and caches it for the redirect.
 
 To define an endpoint for logging users out, you can also use optional
 ``logout_url`` and ``LogoutHandler`` parameters, similar to the login options.

@@ -25,7 +25,6 @@ from unittest.mock import Mock, patch
 
 # External imports
 from _util_server import http_get, url
-from tornado.web import StaticFileHandler
 from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
@@ -33,8 +32,9 @@ from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.client import pull_session
 from bokeh.core.types import ID
+from bokeh.embed.bundle import Bundle, Script
 from bokeh.server.auth_provider import NullAuth
-from bokeh.server.views.static_handler import StaticHandler
+from bokeh.server.views.static_handler import AsyncStaticFileHandler, StaticHandler
 from bokeh.server.views.ws import WSHandler
 from tests.support.plugins.managed_server_loop import MSL
 from tests.support.util.env import envset
@@ -242,6 +242,44 @@ def test_websocket_compression_level() -> None:
     assert ws_rule.target_kwargs.get('compression_level') == 2
     assert ws_rule.target_kwargs.get('mem_level') == 3
 
+async def test_autoload_bundle_runs_off_loop_and_is_coalesced(monkeypatch: pytest.MonkeyPatch) -> None:
+    started = threading.Event()
+    release = threading.Event()
+    thread_ids: list[int] = []
+
+    def bundle(objs, resources):
+        thread_ids.append(threading.get_ident())
+        started.set()
+        assert release.wait(timeout=2)
+        return Bundle(js_raw=["base"])
+
+    monkeypatch.setattr("bokeh.embed.bundle.bundle_for_objs_and_resources", bundle)
+    app = bst.BokehTornado({})
+
+    first = asyncio.create_task(app._bundle_for_autoload(None))
+    try:
+        async with asyncio.timeout(1):
+            while not started.is_set():
+                await asyncio.sleep(0)
+
+        second = asyncio.create_task(app._bundle_for_autoload(None))
+        await asyncio.sleep(0)
+    finally:
+        release.set()
+
+    first_bundle, second_bundle = await asyncio.gather(first, second)
+    await asyncio.sleep(0)
+
+    assert len(thread_ids) == 1
+    assert thread_ids[0] != threading.get_ident()
+    assert first_bundle is not second_bundle
+
+    first_bundle.add(Script("request-specific"))
+    cached_bundle = await app._bundle_for_autoload(None)
+    assert cached_bundle.js_raw == ["base"]
+
+    app._executor.shutdown()
+
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()
     with ManagedServerLoop(application, port=unused_tcp_port) as server:
@@ -436,13 +474,13 @@ class Test_create_static_handler:
         result = bst.create_static_handler("/prefix", "/key", app)
         assert len(result) == 3
         assert result[0] == "/prefix/key/static/(.*)"
-        assert result[1] == StaticFileHandler
+        assert result[1] == AsyncStaticFileHandler
         assert result[2] == {"path" : app.static_path}
 
         result = bst.create_static_handler("/prefix", "/", app)
         assert len(result) == 3
         assert result[0] == "/prefix/static/(.*)"
-        assert result[1] == StaticFileHandler
+        assert result[1] == AsyncStaticFileHandler
         assert result[2] == {"path" : app.static_path}
 
     def test_no_app_static_path(self):

@@ -14,6 +14,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 # Bokeh imports
+from ..util.asyncio import _run_in_executor
 from .request import ServerRequest
 
 __all__ = (
@@ -52,7 +53,7 @@ class AuthPolicy:
 
     async def authenticate(self, request: ServerRequest) -> Any | None:
         ''' Return the authenticated user for a request, or ``None``. '''
-        user = self._authenticator(request)
+        user = await _run_in_executor(self._authenticator, request)
         if inspect.isawaitable(user):
             user = await user
         return user
@@ -61,6 +62,12 @@ class AuthPolicy:
         ''' Return the login URL for an unauthenticated HTTP request. '''
         if callable(self._login_url):
             return self._login_url(request)
+        return self._login_url
+
+    async def get_login_url_async(self, request: ServerRequest) -> str | None:
+        ''' Return a request-specific login URL without blocking the event loop. '''
+        if callable(self._login_url):
+            return await _run_in_executor(self._login_url, request)
         return self._login_url
 
     @property

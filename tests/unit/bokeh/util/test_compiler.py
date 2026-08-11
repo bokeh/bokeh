@@ -19,6 +19,8 @@ import pytest ; pytest
 # Standard library imports
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
+from threading import Event, Lock
 from unittest.mock import MagicMock, patch
 
 # Module under test
@@ -135,6 +137,37 @@ def test_jsons() -> None:
         if file.endswith('.json'):
             with open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
                 assert all('\\' not in mod for mod in json.load(f))
+
+def test_bundle_models_coalesces_concurrent_compilation(monkeypatch: pytest.MonkeyPatch) -> None:
+    started = Event()
+    release = Event()
+    calls = 0
+    calls_lock = Lock()
+    custom_models = {"TestModel": MagicMock(full_name="TestModel")}
+
+    def bundle(models):
+        nonlocal calls
+        with calls_lock:
+            calls += 1
+        started.set()
+        assert release.wait(timeout=2)
+        return "bundle"
+
+    monkeypatch.setattr(buc, "_bundle_cache", {})
+    monkeypatch.setattr(buc, "_bundle_futures", {})
+    monkeypatch.setattr(buc, "_get_custom_models", lambda models: custom_models)
+    monkeypatch.setattr(buc, "_bundle_models", bundle)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        first = executor.submit(buc.bundle_models, None)
+        assert started.wait(timeout=1)
+        second = executor.submit(buc.bundle_models, None)
+        release.set()
+
+        assert first.result(timeout=1) == "bundle"
+        assert second.result(timeout=1) == "bundle"
+
+    assert calls == 1
 
 def test_inline_extension() -> None:
     from bokeh.io import save

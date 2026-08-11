@@ -26,7 +26,8 @@ import inspect
 import threading
 import time
 from copy import copy
-from functools import wraps
+from dataclasses import dataclass
+from functools import partial, wraps
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -36,10 +37,14 @@ from typing import (
 )
 
 # Bokeh imports
+from ..document.callbacks import invoke_with_curdoc
 from ..events import ConnectionLost
-from ..util.asyncio import Loop
+from ..io.doc import patch_curdoc
+from ..util.asyncio import Loop, _asyncio_loop
 from ..util.token import generate_jwt_token
+from ..util.tornado import _run_in_executor
 from .callbacks import DocumentCallbackGroup
+from .executor import _await_cancellation_safe
 
 if TYPE_CHECKING:
     from ..core.types import ID
@@ -49,9 +54,11 @@ if TYPE_CHECKING:
         SessionCallbackAdded,
         SessionCallbackRemoved,
     )
-    from ..protocol import messages as msg
+    from ..protocol import Protocol, messages as msg
+    from ..protocol.message import Message
     from .callbacks import Callback, SessionCallback
     from .connection import ServerConnection
+    from .executor import _ServerExecutor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -66,7 +73,36 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
+@dataclass(frozen=True)
+class _PendingPatch:
+    event: DocumentPatchedEvent
+    protocol: Protocol
+    connections: tuple[ServerConnection, ...]
+
+def _serialize_patches(pending: list[_PendingPatch]) -> list[tuple[Message[Any], tuple[ServerConnection, ...]]]:
+    messages: list[tuple[Message[Any], tuple[ServerConnection, ...]]] = []
+    for patch in pending:
+        with patch_curdoc(patch.event.document):
+            message = patch.protocol.create("PATCH-DOC", [patch.event])
+            message.prepare()
+        messages.append((message, patch.connections))
+    return messages
+
+def _serialize_pull_reply(protocol: Protocol, request_id: ID, document: Document) -> Message[Any]:
+    with patch_curdoc(document):
+        message = protocol.create("PULL-DOC-REPLY", request_id, document)
+        message.prepare()
+    return message
+
+def _log_connection_lost_error(task: asyncio.Task[Any]) -> None:
+    if not task.cancelled() and (error := task.exception()) is not None:
+        log.error("Failed to notify connection loss: %s", error, exc_info=error)
+
+def _needs_document_lock[**P](
+    func: Callable[P, Any],
+    *,
+    offload: bool = True,
+) -> Callable[P, Awaitable[Any]]:
     '''Decorator that adds the necessary locking and post-processing
        to manipulate the session's document. Expects to decorate a
        method on ServerSession and transforms it into a coroutine
@@ -91,60 +127,39 @@ def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
                 error: BaseException | None = None
                 result: Any = None
                 try:
-                    # Document operations are serialized by the per-session
-                    # lock, but arbitrary synchronous user callbacks must not
-                    # occupy the shared event-loop thread. ``to_thread`` uses
-                    # the loop's bounded executor and propagates context vars,
-                    # including the active ``curdoc()`` context.
-                    worker = asyncio.create_task(asyncio.to_thread(func, self, *args, **kwargs))
-                    cancelled: asyncio.CancelledError | None = None
-                    while True:
-                        try:
-                            result = await asyncio.shield(worker)
-                            break
-                        except asyncio.CancelledError as cancellation:
-                            if worker.done():
-                                if worker.cancelled():
-                                    error = cancelled or cancellation
-                                else:
-                                    try:
-                                        result = worker.result()
-                                    except BaseException as worker_error:
-                                        error = cancelled or worker_error
-                                    else:
-                                        cancelled = cancelled or cancellation
-                                break
-                            # A running thread cannot be cancelled. Keep the
-                            # document lock and pending-write state alive until
-                            # it finishes, then propagate cancellation.
-                            cancelled = cancelled or cancellation
-                        except BaseException as worker_error:
-                            error = cancelled or worker_error
-                            break
-                    if error is None and cancelled is not None:
-                        if inspect.iscoroutine(result):
-                            result.close()
-                        error = cancelled
-                    elif error is None and inspect.isawaitable(result):
+                    callback = cast(Callable[..., Any], func)
+                    if offload:
+                        result = await _run_in_executor(callback, self, *args, **kwargs)
+                    else:
+                        result = callback(self, *args, **kwargs)
+                    if inspect.isawaitable(result):
                         # Async callbacks continue on the event loop while
                         # retaining the document lock across awaits.
                         result = await result
                 except BaseException as callback_error:
                     error = callback_error
                 finally:
-                    # we want to be very sure we reset this or we'll
-                    # keep hitting the RuntimeError above as soon as
-                    # any callback goes wrong
                     pending_writes = self._pending_writes
                     self._pending_writes = None
-                for p in pending_writes:
-                    await p
+                try:
+                    # Finish response generation and writes before releasing
+                    # the document lock, even if the callback was cancelled.
+                    if pending_writes:
+                        await _await_cancellation_safe(self._send_pending_patches(pending_writes))
+                except BaseException as write_error:
+                    if error is None:
+                        error = write_error
                 if error is not None:
                     raise error
             return result
         finally:
             self.unblock_expiration()
-    return cast(F, _needs_document_lock_wrapper)
+    return cast(Callable[P, Awaitable[Any]], _needs_document_lock_wrapper)
+
+def _needs_document_lock_on_loop[**P](
+    func: Callable[P, Any],
+) -> Callable[P, Awaitable[Any]]:
+    return _needs_document_lock(func, offload=False)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -163,9 +178,10 @@ class ServerSession:
 
     _subscribed_connections: set[ServerConnection]
     _current_patch_connection: ServerConnection | None
-    _pending_writes: list[Awaitable[None]] | None
+    _pending_writes: list[_PendingPatch] | None
 
-    def __init__(self, session_id: ID, document: Document, io_loop: Loop | None = None, token: str | None = None) -> None:
+    def __init__(self, session_id: ID, document: Document, io_loop: Loop | None = None,
+            token: str | None = None, executor: _ServerExecutor | None = None) -> None:
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
@@ -174,6 +190,7 @@ class ServerSession:
         self._token = token
         self._document = document
         self._loop = io_loop
+        self._executor = executor
         self._subscribed_connections = set()
         self._connections_lock = threading.Lock()
         self._last_unsubscribe_time = current_time()
@@ -273,10 +290,16 @@ class ServerSession:
 
     def _wrap_document_callback(self, callback: Callback) -> Callback:
         if getattr(callback, "nolock", False):
-            return callback
-        def wrapped_callback(*args: Any, **kwargs: Any) -> Any:
+            @wraps(callback)
+            async def unlocked_callback(*args: Any, **kwargs: Any) -> Any:
+                result = await _run_in_executor(callback, *args, **kwargs)
+                if inspect.isawaitable(result):
+                    await result
+                return None
+            return unlocked_callback
+        def locked_callback(*args: Any, **kwargs: Any) -> Any:
             return self.with_document_locked(callback, *args, **kwargs)
-        return wrapped_callback
+        return locked_callback
 
     def _wrap_session_callback(self, callback: SessionCallback) -> SessionCallback:
         wrapped = copy(callback)
@@ -293,16 +316,39 @@ class ServerSession:
         # sides change the same attribute at the same time, they will each end
         # up with the state of the other and their final states will differ.
         with self._connections_lock:
-            connections = list(self._subscribed_connections)
-        for connection in connections:
-            if may_suppress and connection is self._current_patch_connection:
-                continue
-            self._pending_writes.append(connection.send_patch_document(event))
+            connections = tuple(
+                connection for connection in self._subscribed_connections
+                if not may_suppress or connection is not self._current_patch_connection
+            )
+        if connections:
+            self._pending_writes.append(_PendingPatch(event, connections[0].protocol, connections))
 
-    @_needs_document_lock
-    def _handle_pull(self, message: msg.pull_doc_req, connection: ServerConnection) -> msg.pull_doc_reply:
+    async def _run_in_executor[T](self, func: Callable[..., T], *args: Any) -> T:
+        if self._executor is not None:
+            return await self._executor.run(func, *args)
+
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, partial(func, *args))
+
+    async def _send_pending_patches(self, pending: list[_PendingPatch]) -> None:
+        messages = await self._run_in_executor(_serialize_patches, pending)
+        for message, connections in messages:
+            for connection in connections:
+                await connection.send_message(message)
+
+    @_needs_document_lock_on_loop
+    async def _handle_pull(self, message: msg.pull_doc_req, connection: ServerConnection) -> None:
         log.debug(f"Sending pull-doc-reply from session {self.id!r}")
-        return connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], self.document)
+        async def send_reply() -> None:
+            reply = await self._run_in_executor(
+                _serialize_pull_reply,
+                connection.protocol,
+                message.header["msgid"],
+                self.document,
+            )
+            await connection.send_message(reply)
+
+        await _await_cancellation_safe(send_reply())
 
     def _session_callback_added(self, event: SessionCallbackAdded) -> None:
         wrapped = self._wrap_session_callback(event.callback)
@@ -312,39 +358,55 @@ class ServerSession:
         self._callbacks.remove_session_callback(event.callback)
 
     @classmethod
-    def pull(cls, message: msg.pull_doc_req, connection: ServerConnection) -> msg.pull_doc_reply:
+    def pull(cls, message: msg.pull_doc_req, connection: ServerConnection) -> Awaitable[None]:
         ''' Handle a PULL-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_pull(message, connection)
 
-    @_needs_document_lock
-    def _handle_push(self, message: msg.push_doc, connection: ServerConnection) -> msg.ok:
+    @_needs_document_lock_on_loop
+    async def _handle_push(self, message: msg.push_doc, connection: ServerConnection) -> msg.ok:
         log.debug(f"pushing doc to session {self.id!r}")
-        message.push_to_document(self.document)
+        await _run_in_executor(message.push_to_document, self.document)
         return connection.ok(message)
 
     @classmethod
-    def push(cls, message: msg.push_doc, connection: ServerConnection) -> msg.ok:
+    def push(cls, message: msg.push_doc, connection: ServerConnection) -> Awaitable[msg.ok]:
         ''' Handle a PUSH-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_push(message, connection)
 
-    @_needs_document_lock
-    def _handle_patch(self, message: msg.patch_doc, connection: ServerConnection) -> msg.ok:
+    @_needs_document_lock_on_loop
+    async def _handle_patch(self, message: msg.patch_doc, connection: ServerConnection) -> msg.ok:
         self._current_patch_connection = connection
         try:
-            message.apply_to_document(self.document, self)
+            await _run_in_executor(message.apply_to_document, self.document, self)
         finally:
             self._current_patch_connection = None
 
         return connection.ok(message)
 
     @classmethod
-    def patch(cls, message: msg.patch_doc, connection: ServerConnection) -> msg.ok:
+    def patch(cls, message: msg.patch_doc, connection: ServerConnection) -> Awaitable[msg.ok]:
         ''' Handle a PATCH-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_patch(message, connection)
 
     def notify_connection_lost(self) -> None:
         ''' Notify the document that the connection was lost. '''
-        self.document.callbacks.trigger_event(ConnectionLost())
+        event = ConnectionLost()
+
+        def notify() -> None:
+            invoke_with_curdoc(self.document,
+                               lambda: self.document.callbacks.trigger_event(event))
+
+        assert self._loop is not None
+        loop = _asyncio_loop(self._loop)
+
+        async def notify_locked() -> None:
+            await self.with_document_locked(notify)
+
+        def schedule() -> None:
+            task = loop.create_task(notify_locked())
+            task.add_done_callback(_log_connection_lost_error)
+
+        loop.call_soon_threadsafe(schedule)
 
 #-----------------------------------------------------------------------------
 # Dev API

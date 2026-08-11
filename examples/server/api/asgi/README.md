@@ -8,6 +8,11 @@ the same interactive signal-studio application directly into the host page.
 The Bokeh application in `bkapp.py` is an ordinary script application loaded
 by passing its `Path` directly to `BokehASGI`.
 
+`fastapi_shared_data.py` is a separate, compact example with one background
+producer owned by the FastAPI lifespan. New Bokeh sessions start from its
+latest immutable snapshot, and `BokehASGI.update_sessions()` safely applies
+each subsequent snapshot to every local session document.
+
 FastAPI and Starlette do not forward lifespan events to mounted applications.
 Those examples therefore start and stop Bokeh explicitly from the host
 application's lifespan context so that server load and unload hooks run.
@@ -18,6 +23,7 @@ chosen example, then run one of:
 ```sh
 python -m uvicorn framework_free:application --port 8000
 python -m uvicorn fastapi_embed:app --port 8000
+python -m uvicorn fastapi_shared_data:app --port 8000
 python -m uvicorn starlette_embed:app --port 8000
 python -m uvicorn django_embed:application --port 8000
 ```
