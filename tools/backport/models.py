@@ -75,11 +75,7 @@ class PlanState:
     @property
     def conflict(self) -> Candidate | None:
         return next(
-            (
-                candidate
-                for candidate in self.candidates
-                if candidate.status in {"applying", "conflict"}
-            ),
+            (candidate for candidate in self.candidates if candidate.status in {"applying", "conflict"}),
             None,
         )
 
@@ -93,11 +89,7 @@ class PlanState:
     @property
     def dedicated_conflict(self) -> DedicatedCommit | None:
         return next(
-            (
-                commit
-                for commit in self.dedicated_commits
-                if commit.status in {"applying", "conflict"}
-            ),
+            (commit for commit in self.dedicated_commits if commit.status in {"applying", "conflict"}),
             None,
         )
 

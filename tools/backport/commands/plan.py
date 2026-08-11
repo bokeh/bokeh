@@ -146,11 +146,7 @@ def plan(
                 "Resume it with 'python -m tools.backport plan --resume', then save, publish, or discard it.",
             )
         candidate_numbers = read_pr_numbers(pr_file, BOKEH_REPOSITORY) if pr_file else None
-        source = (
-            f"Reading {len(candidate_numbers)} PRs from {pr_file}"
-            if candidate_numbers is not None
-            else f"Finding PRs labeled {BACKPORT_LABEL!r}"
-        )
+        source = f"Reading {len(candidate_numbers)} PRs from {pr_file}" if candidate_numbers is not None else f"Finding PRs labeled {BACKPORT_LABEL!r}"
         if update is None:
             state = busy(
                 source,
@@ -203,9 +199,7 @@ def plan(
             created = True
             checkpoint(state)
             state = busy(
-                "Replaying existing commits and applying new cherry-picks"
-                if state.pull_request_number is not None
-                else "Applying clean cherry-picks",
+                "Replaying existing commits and applying new cherry-picks" if state.pull_request_number is not None else "Applying clean cherry-picks",
                 lambda: advance_plan(git, state, checkpoint),
             )
 
@@ -241,12 +235,11 @@ def plan(
 
         ensure_publishable(git, state)
         _show_publish_preview(state)
+        updating = state.pull_request_number is not None
         try:
             pull = busy(
-                "Pushing the branch and updating GitHub metadata"
-                if state.pull_request_number is not None
-                else "Pushing the branch and publishing GitHub metadata",
-                lambda: publish_plan(api, git, state),
+                "Pushing the branch and updating GitHub metadata" if updating else "Pushing the branch and publishing GitHub metadata",
+                lambda: publish_plan(api, git, state, checkpoint),
             )
         except BaseException:
             console.print(
@@ -268,10 +261,9 @@ def plan(
                 clear_plan(git)
 
     assert pull is not None
-    updated = state.pull_request_number is not None
     console.print(
         Panel(
-            f"[bold green]{'Updated' if updated else 'Published draft'} PR #{pull['number']}[/]\n"
+            f"[bold green]{'Updated' if updating else 'Published draft'} PR #{pull['number']}[/]\n"
             f"[link={pull['html_url']}]{pull['html_url']}[/]\n\n"
             "The visible aggregate PR summary is now the record for 'python -m tools.backport merge'.",
             border_style="green",
@@ -284,9 +276,7 @@ def _show_publish_preview(state: PlanState) -> None:
     console.print(
         Panel(
             Markdown(render_pr_body(state)),
-            title="[bold]Updated PR body[/]"
-            if state.pull_request_number is not None
-            else "[bold]Draft PR body[/]",
+            title="[bold]Updated PR body[/]" if state.pull_request_number is not None else "[bold]Draft PR body[/]",
             border_style="blue",
         ),
     )
@@ -301,9 +291,7 @@ def _show_publish_preview(state: PlanState) -> None:
 
 def _cleanup(git: GitRepo, state: PlanState) -> list[str]:
     warnings = busy(
-        "Removing the temporary backport worktree"
-        if state.detached_worktree
-        else "Removing the temporary worktree and branch",
+        "Removing the temporary backport worktree" if state.detached_worktree else "Removing the temporary worktree and branch",
         lambda: cleanup_plan(git, state),
     )
     for warning in warnings:

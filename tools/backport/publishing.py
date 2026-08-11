@@ -1,6 +1,7 @@
 """Aggregate pull-request publication and GitHub bookkeeping."""
 
 # Standard library imports
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
@@ -115,7 +116,9 @@ def publish_plan(
     api: GitHubAPI,
     git: GitRepo,
     state: PlanState,
+    checkpoint: Callable[[PlanState], None] | None = None,
 ) -> dict[str, Any]:
+    updating = state.pull_request_number is not None
     worktree = Path(state.worktree)
     git.push(worktree, state.branch)
     title = f"[MERGE WITH CLI] Backports for {state.version}"
@@ -123,7 +126,7 @@ def publish_plan(
     body = render_pr_body(state, range_diff_urls)
     root = repository_path(state.repository)
 
-    if state.pull_request_number is None:
+    if not updating:
         pull = api.request(
             "POST",
             f"{root}/pulls",
@@ -136,7 +139,12 @@ def publish_plan(
                 "title": title,
             },
         )
+        state.pull_request_number = pull["number"]
+        state.pull_request_url = pull["html_url"]
+        if checkpoint is not None:
+            checkpoint(state)
     else:
+        assert state.pull_request_number is not None
         pull = api.request(
             "PATCH",
             f"{root}/pulls/{state.pull_request_number}",
@@ -161,7 +169,7 @@ def publish_plan(
     for candidate in state.rejected:
         publish_rejection(api, state, candidate)
     for candidate in state.accepted:
-        if state.pull_request_number is not None and candidate.replay_sha is None:
+        if updating and candidate.replay_sha is None:
             clear_rejection(api, state, candidate)
 
     return pull

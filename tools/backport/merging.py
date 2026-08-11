@@ -76,9 +76,7 @@ def published_plan_from_pr(
             summaries,
         )
     else:
-        expected_summaries = [
-            BackportSummary(entry.number, entry.adapted) for entry in expected_entries
-        ]
+        expected_summaries = [BackportSummary(entry.number, entry.adapted) for entry in expected_entries]
         if summaries != expected_summaries:
             raise BackportError("aggregate PR summary changed during merge preparation")
         entries = expected_entries
@@ -192,8 +190,7 @@ def merge_plan(api: GitHubAPI, plan: PublishedPlan) -> tuple[str, list[str]]:
         missing = [entry.number for entry in plan.entries if entry.backport_sha not in commit_shas]
         if missing:
             raise BackportError(
-                "summary references commits outside the aggregate PR: "
-                + ", ".join(f"#{number}" for number in missing),
+                "summary references commits outside the aggregate PR: " + ", ".join(f"#{number}" for number in missing),
             )
 
         check_pr_ci(api, plan.repository, pr)

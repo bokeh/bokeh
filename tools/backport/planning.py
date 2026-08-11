@@ -60,11 +60,7 @@ def prepare_plan(
 
     candidates = discover_candidates(api, repository, candidate_numbers)
     if not candidates:
-        message = (
-            "no PRs were selected"
-            if candidate_numbers is not None
-            else f"no merged PRs have the {BACKPORT_LABEL!r} label"
-        )
+        message = "no PRs were selected" if candidate_numbers is not None else f"no merged PRs have the {BACKPORT_LABEL!r} label"
         raise BackportError(message)
     problems = candidate_type_problems(
         candidates,
@@ -131,15 +127,9 @@ def advance_plan(
     state: PlanState,
     checkpoint: Checkpoint | None = None,
 ) -> PlanState:
-    if (
-        state.conflict is not None
-        or state.review is not None
-        or state.dedicated_conflict is not None
-    ):
+    if state.conflict is not None or state.review is not None or state.dedicated_conflict is not None:
         return state
-    if not any(candidate.status == "pending" for candidate in state.candidates) and not any(
-        commit.status == "pending" for commit in state.dedicated_commits
-    ):
+    if not any(candidate.status == "pending" for candidate in state.candidates) and not any(commit.status == "pending" for commit in state.dedicated_commits):
         return state
     worktree = Path(state.worktree)
     if not git.is_clean(worktree):
@@ -162,9 +152,7 @@ def advance_plan(
             candidate.conflict_files = git.conflict_files(worktree)
             _checkpoint(checkpoint, state)
             return state
-        candidate.status = (
-            "review" if state.review_each and candidate.replay_sha is None else "applied"
-        )
+        candidate.status = "review" if state.review_each and candidate.replay_sha is None else "applied"
         candidate.backport_sha = git.head(worktree)
         candidate.conflict_files = []
         _checkpoint(checkpoint, state)
@@ -358,9 +346,7 @@ def resume_plan(
         origin = _cherry_pick_origin(git.commit_message(worktree))
         if origin == candidate.merge_sha:
             was_conflict = candidate.status == "conflict"
-            candidate.status = (
-                "review" if state.review_each and candidate.replay_sha is None else "applied"
-            )
+            candidate.status = "review" if state.review_each and candidate.replay_sha is None else "applied"
             candidate.backport_sha = head
             candidate.adapted = candidate.adapted or was_conflict
             candidate.conflict_files = []
@@ -420,11 +406,7 @@ def resume_plan(
 
 
 def _validate_candidate_sequence(git: GitRepo, state: PlanState, head: str) -> None:
-    active = [
-        candidate
-        for candidate in state.candidates
-        if candidate.status in {"applying", "conflict", "review"}
-    ]
+    active = [candidate for candidate in state.candidates if candidate.status in {"applying", "conflict", "review"}]
     if len(active) > 1:
         raise BackportError("saved plan contains more than one active candidate")
 
@@ -509,17 +491,11 @@ def cleanup_plan(git: GitRepo, state: PlanState) -> list[str]:
 
 
 def ensure_publishable(git: GitRepo, state: PlanState) -> None:
-    unfinished = [
-        candidate
-        for candidate in state.candidates
-        if candidate.status not in {"applied", "rejected"}
-    ]
+    unfinished = [candidate for candidate in state.candidates if candidate.status not in {"applied", "rejected"}]
     if unfinished:
         rendered = ", ".join(f"#{candidate.number}" for candidate in unfinished)
         raise BackportError(f"plan still has unresolved candidates: {rendered}")
-    unfinished_commits = [
-        commit for commit in state.dedicated_commits if commit.status != "applied"
-    ]
+    unfinished_commits = [commit for commit in state.dedicated_commits if commit.status != "applied"]
     if unfinished_commits:
         rendered = ", ".join(commit.sha[:12] for commit in unfinished_commits)
         raise BackportError(f"plan still has unresolved dedicated commits: {rendered}")
@@ -529,25 +505,15 @@ def ensure_publishable(git: GitRepo, state: PlanState) -> None:
         raise BackportError("backport worktree has uncommitted changes")
 
     branch_commits = set(git.commits_since(Path(state.worktree), state.base_sha))
-    missing = [
-        candidate.number
-        for candidate in state.accepted
-        if candidate.backport_sha not in branch_commits
-    ]
+    missing = [candidate.number for candidate in state.accepted if candidate.backport_sha not in branch_commits]
     if missing:
         raise BackportError(
-            "recorded backport commits are no longer in branch history: "
-            + ", ".join(f"#{number}" for number in missing),
+            "recorded backport commits are no longer in branch history: " + ", ".join(f"#{number}" for number in missing),
         )
-    missing_commits = [
-        commit.sha[:12]
-        for commit in state.dedicated_commits
-        if commit.backport_sha not in branch_commits
-    ]
+    missing_commits = [commit.sha[:12] for commit in state.dedicated_commits if commit.backport_sha not in branch_commits]
     if missing_commits:
         raise BackportError(
-            "replayed dedicated commits are no longer in branch history: "
-            + ", ".join(missing_commits),
+            "replayed dedicated commits are no longer in branch history: " + ", ".join(missing_commits),
         )
 
 
@@ -589,8 +555,7 @@ def parse_pr_body(body: str, repository: str) -> list[BackportSummary]:
         or re.fullmatch(r"This PR collects backports for \d+\.\d+\.\d+\.", lines[0]) is None
         or lines[1] != ""
         or lines[2] != "> [!IMPORTANT]"
-        or lines[3]
-        != "> Merge this PR with `python -m tools.backport merge`. Do not use GitHub's web UI."
+        or lines[3] != "> Merge this PR with `python -m tools.backport merge`. Do not use GitHub's web UI."
         or lines[4] != ""
         or lines[5] != "| PR | Result | Details |"
         or lines[6] != "| --- | --- | --- |"

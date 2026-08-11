@@ -90,9 +90,7 @@ def _decode_plan(raw: dict[str, Any]) -> PlanState:
         detached_worktree=_boolean(raw, "detached_worktree"),
         pull_request_number=_optional_integer(raw, "pull_request_number"),
         pull_request_url=_optional_string(raw, "pull_request_url"),
-        dedicated_commits=[
-            _decode_dedicated_commit(item) for item in _list(raw, "dedicated_commits")
-        ],
+        dedicated_commits=[_decode_dedicated_commit(item) for item in _list(raw, "dedicated_commits")],
     )
 
 

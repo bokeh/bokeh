@@ -597,9 +597,7 @@ class CandidateEligibilityTests(unittest.TestCase):
         git = MagicMock()
         git.root = Path("/repo")
         item = candidate(15233)
-        git.commit_messages.return_value = (
-            f"Backport\n\n(cherry picked from commit {item.merge_sha})\n\x00"
-        )
+        git.commit_messages.return_value = f"Backport\n\n(cherry picked from commit {item.merge_sha})\n\x00"
         git.is_ancestor.return_value = False
 
         problems = planning.candidate_target_problems(git, [item], "origin/branch-3.10")
@@ -680,9 +678,7 @@ class UpdatePlanningTests(unittest.TestCase):
         git.remote = "origin"
         git.remote_branch_exists.return_value = True
         git.default_worktree.return_value = Path("/tmp/bokeh-backport-3.9.2")
-        git.rev_parse.side_effect = lambda ref: (
-            head_sha if ref == "origin/backport/3.9.2" else "0" * 40
-        )
+        git.rev_parse.side_effect = lambda ref: head_sha if ref == "origin/backport/3.9.2" else "0" * 40
         return git
 
     def test_adds_new_labeled_prs_in_merge_order_and_preserves_dedicated_tail(self) -> None:
@@ -1026,12 +1022,7 @@ class PRBodyTests(unittest.TestCase):
 
     def test_rejects_hidden_state(self) -> None:
         item = candidate(15233, status="applied", backport_sha="a" * 40)
-        body = (
-            planning.render_pr_body(state_with([item]))
-            + "\n<!-- backport-state\n"
-            + f"15233 {item.merge_sha} {'a' * 40}\n"
-            + "-->\n"
-        )
+        body = planning.render_pr_body(state_with([item])) + "\n<!-- backport-state\n" + f"15233 {item.merge_sha} {'a' * 40}\n" + "-->\n"
 
         with self.assertRaisesRegex(BackportError, "invalid aggregate PR summary row"):
             planning.parse_pr_body(body, "bokeh/bokeh")
@@ -1085,6 +1076,48 @@ class PublicationTests(unittest.TestCase):
             publishing.publish_plan(api, MagicMock(), state)
 
         ensure_milestone.assert_called_once_with(api, "bokeh/bokeh", "3.10")
+
+    def test_resumes_metadata_after_new_pr_creation(self) -> None:
+        state = state_with([candidate(15233, status="applied", backport_sha="a" * 40)])
+        api = MagicMock()
+        api.request.return_value = {
+            "number": 15264,
+            "html_url": "https://github.com/bokeh/bokeh/pull/15264",
+        }
+        checkpoint = MagicMock()
+
+        with (
+            patch.object(publishing, "publish_range_diffs", return_value={}),
+            patch.object(publishing, "ensure_milestone", return_value=7),
+            patch.object(
+                publishing,
+                "set_milestone",
+                side_effect=[BackportError("network failure"), None],
+            ),
+            self.assertRaisesRegex(BackportError, "network failure"),
+        ):
+            publishing.publish_plan(api, MagicMock(), state, checkpoint)
+
+        self.assertEqual(state.pull_request_number, 15264)
+        self.assertEqual(
+            state.pull_request_url,
+            "https://github.com/bokeh/bokeh/pull/15264",
+        )
+        checkpoint.assert_called_once_with(state)
+
+        with (
+            patch.object(publishing, "publish_range_diffs", return_value={}),
+            patch.object(publishing, "ensure_milestone", return_value=7),
+            patch.object(publishing, "set_milestone"),
+            patch.object(publishing, "clear_rejection"),
+        ):
+            publishing.publish_plan(api, MagicMock(), state, checkpoint)
+
+        self.assertEqual(api.request.call_args_list[0].args[:2], ("POST", "/repos/bokeh/bokeh/pulls"))
+        self.assertEqual(
+            api.request.call_args_list[1].args[:2],
+            ("PATCH", "/repos/bokeh/bokeh/pulls/15264"),
+        )
 
     def test_updates_the_same_pr_and_clears_a_retried_rejection(self) -> None:
         existing = candidate(15233, status="applied", backport_sha="a" * 40)
@@ -1290,7 +1323,9 @@ class GitWorkflowTests(unittest.TestCase):
         self.git("commit", "-m", message)
         return self.git("rev-parse", "HEAD")
 
-    def test_diff_check_accepts_crlf_but_rejects_trailing_spaces(self) -> None:
+    def test_diff_check_accepts_crlf_but_rejects_staged_or_unstaged_trailing_spaces(
+        self,
+    ) -> None:
         self.commit_file("value.txt", "base\n", "base")
         (self.root / "value.txt").write_bytes(b"changed\r\n")
 
@@ -1300,6 +1335,12 @@ class GitWorkflowTests(unittest.TestCase):
         self.assertEqual(result.stdout, "")
 
         (self.root / "value.txt").write_bytes(b"changed \r\n")
+        result = GitRepo(self.root).diff_check(self.root)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("trailing whitespace", result.stdout)
+
+        self.git("add", "value.txt")
         result = GitRepo(self.root).diff_check(self.root)
 
         self.assertNotEqual(result.returncode, 0)
@@ -1652,6 +1693,57 @@ class CheckEvaluationTests(unittest.TestCase):
             checks.evaluate_checks(runs, {"statuses": []}),
             ["unit-tests: in_progress"],
         )
+
+    def test_does_not_mask_failed_merge_checks_with_a_green_head(self) -> None:
+        failed = {
+            "id": 1,
+            "name": "merge-tests",
+            "status": "completed",
+            "conclusion": "failure",
+        }
+        passed = {
+            "id": 2,
+            "name": "head-tests",
+            "status": "completed",
+            "conclusion": "success",
+        }
+        api = MagicMock()
+        api.get_all.side_effect = [[failed], [passed]]
+        api.request.return_value = {"statuses": []}
+
+        with self.assertRaisesRegex(BackportError, "merge-tests: failure"):
+            checks.check_pr_ci(
+                api,
+                "bokeh/bokeh",
+                {
+                    "merge_commit_sha": "a" * 40,
+                    "head": {"sha": "b" * 40},
+                },
+            )
+
+        api.get_all.assert_called_once()
+
+    def test_falls_back_to_head_checks_when_merge_sha_has_no_results(self) -> None:
+        passed = {
+            "id": 2,
+            "name": "head-tests",
+            "status": "completed",
+            "conclusion": "success",
+        }
+        api = MagicMock()
+        api.get_all.side_effect = [[], [passed]]
+        api.request.return_value = {"statuses": []}
+
+        checks.check_pr_ci(
+            api,
+            "bokeh/bokeh",
+            {
+                "merge_commit_sha": "a" * 40,
+                "head": {"sha": "b" * 40},
+            },
+        )
+
+        self.assertEqual(api.get_all.call_count, 2)
 
 
 class MergeWorkflowTests(unittest.TestCase):

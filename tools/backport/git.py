@@ -218,6 +218,7 @@ class GitRepo:
             "core.whitespace=cr-at-eol",
             "diff",
             "--check",
+            "HEAD",
             cwd=worktree,
             check=False,
         )

@@ -82,21 +82,13 @@ def prepare_update_plan(
         reverted_matches = by_origin.get(candidate.merge_sha)
         if reverted_matches:
             removed_backports.add(reverted_matches[0]["sha"])
-    missing_reverts = [
-        candidate.number
-        for candidate in reverted_candidates.values()
-        if candidate.merge_sha not in by_origin
-    ]
+    missing_reverts = [candidate.number for candidate in reverted_candidates.values() if candidate.merge_sha not in by_origin]
     if missing_reverts:
         rendered = ", ".join(f"#{number}" for number in sorted(missing_reverts))
         raise BackportError(f"cannot revert PRs that are not in the aggregate PR: {rendered}")
 
-    removed_manual_reverts = {
-        commit["sha"] for commit in commits if _reverted_sha(commit) in removed_backports
-    }
-    known_origins = {candidate.merge_sha for candidate in listed} | {
-        candidate.merge_sha for candidate in reverted_candidates.values()
-    }
+    removed_manual_reverts = {commit["sha"] for commit in commits if _reverted_sha(commit) in removed_backports}
+    known_origins = {candidate.merge_sha for candidate in listed} | {candidate.merge_sha for candidate in reverted_candidates.values()}
     unlisted = sorted(set(by_origin) - known_origins)
     if unlisted:
         rendered = ", ".join(sha[:12] for sha in unlisted)
@@ -288,9 +280,7 @@ def _pr_number(value: str, repository: str) -> int | None:
 
 def _pull_number_for_commit(api: GitHubAPI, repository: str, sha: str) -> int:
     pulls = api.get_all(f"{repository_path(repository)}/commits/{sha}/pulls")
-    matches = [
-        pull for pull in pulls if pull.get("merge_commit_sha") == sha and pull.get("merged_at")
-    ]
+    matches = [pull for pull in pulls if pull.get("merge_commit_sha") == sha and pull.get("merged_at")]
     if len(matches) != 1:
         raise BackportError(f"could not identify one merged PR for commit {sha}")
     return matches[0]["number"]
@@ -309,16 +299,11 @@ def _dedicated_tail(
 ) -> list[DedicatedCommit]:
     positions = {commit["sha"]: index for index, commit in enumerate(commits)}
     last_candidate = max((positions[sha] for sha in candidate_shas), default=-1)
-    interleaved = [
-        commit["sha"]
-        for commit in commits[:last_candidate]
-        if commit["sha"] not in candidate_shas and commit["sha"] not in dropped_shas
-    ]
+    interleaved = [commit["sha"] for commit in commits[:last_candidate] if commit["sha"] not in candidate_shas and commit["sha"] not in dropped_shas]
     if interleaved:
         rendered = ", ".join(sha[:12] for sha in interleaved)
         raise BackportError(
-            "aggregate PR has dedicated commits interleaved with backports and cannot be rebuilt safely: "
-            + rendered,
+            "aggregate PR has dedicated commits interleaved with backports and cannot be rebuilt safely: " + rendered,
         )
     return [
         DedicatedCommit(

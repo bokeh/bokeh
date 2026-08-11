@@ -131,8 +131,11 @@ def check_pr_ci(
         runs = latest_check_runs(runs)
         status = api.request("GET", f"{root}/commits/{sha}/status")
         problems = evaluate_checks(runs, status)
-        if not problems:
+        has_results = bool(runs or status.get("statuses"))
+        if has_results and not problems:
             return
+        if has_results:
+            break
 
     detail = "\n- ".join(problems) if problems else "no check SHA"
     raise BackportError(f"CI is not ready:\n- {detail}")

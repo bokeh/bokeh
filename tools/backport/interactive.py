@@ -94,8 +94,7 @@ def plan_complete_panel(state: PlanState) -> Panel:
     else:
         detail = ""
     return Panel(
-        "Every candidate is applied or rejected."
-        f"{detail} Add and commit an additional dedicated fix only if needed, then publish the aggregate changes.",
+        f"Every candidate is applied or rejected.{detail} Add and commit an additional dedicated fix only if needed, then publish the aggregate changes.",
         title="[bold]Plan complete[/]",
         border_style="green",
     )
@@ -119,11 +118,7 @@ def run_plan_session(
             action = prompt_dedicated_action(state)
         else:
             assert candidate is not None
-            action = (
-                prompt_review_action(candidate)
-                if candidate.status == "review"
-                else prompt_conflict_action(candidate)
-            )
+            action = prompt_review_action(candidate) if candidate.status == "review" else prompt_conflict_action(candidate)
         try:
             match action:
                 case "a":
