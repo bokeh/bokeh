@@ -77,6 +77,10 @@ export class TableDataProvider implements Partial<SlickDataView<Item>> {
     return item as T
   }
 
+  getCellValue(i: number, field: string): unknown {
+    return this.getField(i, field)
+  }
+
   getItemMetadata(_index: number): ItemMetadata | null {
     return null
   }
