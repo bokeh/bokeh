@@ -20,8 +20,8 @@ export class DropdownView extends AbstractButtonView {
   protected _open: boolean = false
   protected menu: MenuView
 
-  override _children_views(): ChildView[] {
-    return [...super._children_views(), this.menu]
+  override children_views(): ChildView[] {
+    return [...super.children_views(), this.menu]
   }
 
   override stylesheets(): StyleSheetLike[] {

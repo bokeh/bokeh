@@ -9,7 +9,7 @@ import type {View} from "@bokehjs/core/view"
 
 describe("InputWidgetView", () => {
   function child_view_of(view: View, model: HasProps): View | null {
-    return view.children_views().find((child) => child.model == model) ?? null
+    return view.children_views().find((child) => child?.model == model) ?? null
   }
 
   it("should remove the previous title view when 'title' changes", async () => {
