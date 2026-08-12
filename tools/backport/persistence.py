@@ -5,7 +5,13 @@ import json
 from dataclasses import asdict, fields
 from pathlib import Path
 from types import UnionType
-from typing import Any, cast, get_args, get_origin, get_type_hints
+from typing import (
+    Any,
+    cast,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 # Bokeh imports
 from . import BackportError

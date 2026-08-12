@@ -3,24 +3,19 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
-from tools.backport import (
-    aggregate,
-    BackportError,
-    candidates as candidate_ops,
-    merging,
-)
-from tools.backport.models import (
-    BackportEntry,
-    PublishedPlan,
-)
-
-# Bokeh test imports
 from tests.tools.backport._support import (
-    candidate,
     RecordingAPI,
+    candidate,
     state_with,
     valid_pr,
 )
+from tools.backport import (
+    BackportError,
+    aggregate,
+    candidates as candidate_ops,
+    merging,
+)
+from tools.backport.models import BackportEntry, PublishedPlan
 
 
 class MergeWorkflowTests(unittest.TestCase):

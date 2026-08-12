@@ -3,16 +3,8 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
-from tools.backport import (
-    BackportError,
-    checks,
-)
-
-# Bokeh test imports
-from tests.tools.backport._support import (
-    RecordingAPI,
-    valid_pr,
-)
+from tests.tools.backport._support import RecordingAPI, valid_pr
+from tools.backport import BackportError, checks
 
 
 class PRValidationTests(unittest.TestCase):

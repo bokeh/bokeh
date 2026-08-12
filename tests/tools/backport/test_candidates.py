@@ -5,18 +5,9 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
-from tools.backport import (
-    BackportError,
-    candidates as candidate_ops,
-    planning,
-)
+from tests.tools.backport._support import FakeGraphQLAPI, candidate
+from tools.backport import BackportError, candidates as candidate_ops, planning
 from tools.backport.models import IssueRef
-
-# Bokeh test imports
-from tests.tools.backport._support import (
-    candidate,
-    FakeGraphQLAPI,
-)
 
 
 class ReleaseConventionTests(unittest.TestCase):

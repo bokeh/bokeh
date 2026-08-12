@@ -4,13 +4,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
+from tests.tools.backport._support import candidate, state_with
 from tools.backport import range_diffs
-
-# Bokeh test imports
-from tests.tools.backport._support import (
-    candidate,
-    state_with,
-)
 
 
 class RangeDiffTests(unittest.TestCase):

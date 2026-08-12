@@ -5,21 +5,9 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 # Bokeh imports
-from tools.backport import (
-    BackportError,
-    candidates as candidate_ops,
-    persistence,
-)
-from tools.backport.models import (
-    DedicatedCommit,
-    IssueRef,
-)
-
-# Bokeh test imports
-from tests.tools.backport._support import (
-    candidate,
-    state_with,
-)
+from tests.tools.backport._support import candidate, state_with
+from tools.backport import BackportError, candidates as candidate_ops, persistence
+from tools.backport.models import DedicatedCommit, IssueRef
 
 
 class PersistenceTests(unittest.TestCase):

@@ -8,6 +8,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 # Bokeh imports
+from tests.tools.backport._support import candidate, state_with
 from tools.backport import ui
 from tools.backport.models import (
     BackportEntry,
@@ -15,9 +16,6 @@ from tools.backport.models import (
     IssueRef,
     PublishedPlan,
 )
-
-# Bokeh test imports
-from tests.tools.backport._support import candidate, state_with
 
 
 class RenderingTests(unittest.TestCase):

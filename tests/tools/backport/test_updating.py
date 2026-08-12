@@ -4,23 +4,14 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
+from tests.tools.backport._support import candidate, state_with, valid_pr
 from tools.backport import (
-    aggregate,
     BackportError,
+    aggregate,
     candidates as candidate_ops,
     updating,
 )
-from tools.backport.models import (
-    DedicatedCommit,
-    IssueRef,
-)
-
-# Bokeh test imports
-from tests.tools.backport._support import (
-    candidate,
-    state_with,
-    valid_pr,
-)
+from tools.backport.models import DedicatedCommit, IssueRef
 
 
 class UpdatePlanningTests(unittest.TestCase):

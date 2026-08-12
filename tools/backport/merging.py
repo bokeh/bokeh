@@ -8,11 +8,7 @@ from urllib.parse import quote
 from . import BackportError
 from .aggregate import AggregateSnapshot, load_aggregate, matching_backport
 from .candidates import BACKPORT_LABEL, milestone_for_version
-from .checks import (
-    TITLE_RE,
-    check_pr_ci,
-    require_rebase_merge,
-)
+from .checks import TITLE_RE, check_pr_ci, require_rebase_merge
 from .github import (
     GitHubAPI,
     closing_issue_numbers,

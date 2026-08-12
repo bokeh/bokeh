@@ -11,11 +11,9 @@ import click
 import tools.backport.__main__ as entrypoint
 import tools.backport.commands.plan as plan_command
 import tools.backport.commands.release as release_command
+from tests.tools.backport._support import candidate, state_with
 from tools.backport import BackportError
 from tools.backport.models import BackportEntry, PublishedPlan
-
-# Bokeh test imports
-from tests.tools.backport._support import candidate, state_with
 
 
 def invoke_plan(**overrides: Any) -> None:

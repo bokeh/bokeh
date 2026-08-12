@@ -3,14 +3,9 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
-from tools.backport import (
-    BackportError,
-    planning,
-)
-from tools.backport.models import IssueRef
-
-# Bokeh test imports
 from tests.tools.backport._support import candidate
+from tools.backport import BackportError, planning
+from tools.backport.models import IssueRef
 
 
 class PlanningOptionTests(unittest.TestCase):
