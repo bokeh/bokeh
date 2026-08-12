@@ -89,7 +89,6 @@ if TYPE_CHECKING:
     from ..core.serialization import Serializer
     from ..model import Model
     from ..models.sources import DataDict, Patches
-    from ..protocol.message import BufferRef
     from ..server.callbacks import SessionCallback
     from .document import Document
 
@@ -121,8 +120,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    type Buffers = list[BufferRef] | None
-
     type Invoker = Callable[..., Any] # TODO
     type PatchEventHandler = Callable[[Document, Setter | None, dict[str, Any]], None]
 

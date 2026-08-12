@@ -15,7 +15,12 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 
 # Bokeh imports
-from bokeh.protocol import ack, ok, pull_doc_req, sync
+from bokeh.protocol import (
+    ack,
+    ok,
+    pull_doc_req,
+    sync,
+)
 from bokeh.protocol.exceptions import ProtocolError
 
 # Module under test

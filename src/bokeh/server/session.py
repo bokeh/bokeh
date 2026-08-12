@@ -40,7 +40,12 @@ from typing import (
 from ..document.callbacks import invoke_with_curdoc
 from ..events import ConnectionLost
 from ..io.doc import patch_curdoc
-from ..protocol import apply_patch, patch_doc, pull_doc_reply, replace_document
+from ..protocol import (
+    apply_patch,
+    patch_doc,
+    pull_doc_reply,
+    replace_document,
+)
 from ..util.asyncio import Loop, _asyncio_loop
 from ..util.token import generate_jwt_token
 from ..util.tornado import _run_in_executor

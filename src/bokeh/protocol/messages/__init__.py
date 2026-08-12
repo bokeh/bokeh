@@ -8,8 +8,10 @@
 
 from __future__ import annotations
 
+# Standard library imports
 from typing import TYPE_CHECKING, Any, TypedDict
 
+# Bokeh imports
 from ...core.serialization import Serialized, Serializer
 from ...document.callbacks import invoke_with_curdoc
 from ...document.json import PatchJson

@@ -671,7 +671,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
         assert not session.expiration_blocked
 
-    async def test_protocol_callback_runs_in_worker(self) -> None:
+    async def test_protocol_callback_runs_in_worker(self, monkeypatch: pytest.MonkeyPatch) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
         session = await c.create_session_if_needed("foo")
@@ -696,11 +696,17 @@ curdoc().template_variables["thread_id"] = get_ident()
         slider.on_change("value", model_callback)
         session.document.on_change(document_callback)
 
+        def apply_patch(message, doc, setter):
+            nonlocal apply_thread
+            apply_thread = get_ident()
+            assert doc is session.document
+            assert setter is session
+            slider.value = 1
+
+        monkeypatch.setattr("bokeh.server.session.apply_patch", apply_patch)
+
         class Message:
-            def apply_to_document(self, doc, setter):
-                nonlocal apply_thread
-                apply_thread = get_ident()
-                slider.value = 1
+            pass
 
         class Connection:
             def ok(self, message):

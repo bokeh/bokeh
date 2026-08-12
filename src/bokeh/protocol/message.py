@@ -8,11 +8,20 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import json
-from typing import Any, Literal, NotRequired, TypedDict, cast
+from typing import (
+    Any,
+    Literal,
+    NotRequired,
+    TypedDict,
+    cast,
+)
 
+# Bokeh imports
 import bokeh.util.serialization as bkserial
 
+# Bokeh imports
 from ..core.json_encoder import serialize_json
 from ..core.serialization import Buffer, Serialized
 from ..core.types import ID

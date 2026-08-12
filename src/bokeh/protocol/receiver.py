@@ -8,8 +8,10 @@
 
 from __future__ import annotations
 
+# Standard library imports
 from typing import Any, Callable
 
+# Bokeh imports
 from ..core.serialization import Buffer
 from ..core.types import ID
 from .exceptions import ProtocolError, ValidationError

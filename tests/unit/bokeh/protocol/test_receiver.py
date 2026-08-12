@@ -9,8 +9,10 @@ from __future__ import annotations # isort:skip
 
 import pytest ; pytest
 
+# Standard library imports
 import json
 
+# Bokeh imports
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.protocol import ack

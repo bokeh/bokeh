@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+# Bokeh imports
 from bokeh.protocol import sync
 
 

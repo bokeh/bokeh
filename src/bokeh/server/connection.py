@@ -28,7 +28,6 @@ from ..protocol import error, ok
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
 
-# Bokeh imports
 if TYPE_CHECKING:
     from .session import ServerSession
     from .transport import WebSocketTransport
