@@ -2191,6 +2191,15 @@ ${view.host_selector} {
 
       // tools providing a setup menu must still resolve their submenu views
       expect(menu_view.shadow_el.querySelectorAll(".bk-item.bk-menu").length).to.be.equal(2)
+
+      // icons resolve at render time, so a tool's state is reflected without
+      // rebuilding the items
+      const icons = () => [...menu_view.shadow_el.querySelectorAll(".bk-icon")].map((el) => el.className).join()
+      const before = icons()
+      menu_view.hide()
+      pan.dimensions = "width"
+      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+      expect(icons()).to.not.be.equal(before)
     })
   })
 })

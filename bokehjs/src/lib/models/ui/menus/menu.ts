@@ -162,7 +162,7 @@ export class MenuView extends UIElementView {
         const chevron_el = div({class: menus.chevron})
 
         const icon_el = (() => {
-          const {icon} = item
+          const icon = to_val(item.icon)
           if (icon != null) {
             const icon_el = div({class: menus.icon})
             apply_icon(icon_el, icon)

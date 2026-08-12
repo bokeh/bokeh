@@ -14,8 +14,12 @@ export class ToolMenuView extends MenuView {
   override connect_signals(): void {
     super.connect_signals()
 
+    // items only change when the toolbar's tool composition does; everything
+    // else about an item (icon, checked, disabled) is resolved at render time
     const {toolbar} = this.model.properties
-    this.on_transitive_change(toolbar, () => this._update_menu())
+    this.on_transitive_change(toolbar, () => this._update_menu(), {
+      signal: (obj) => (obj as Toolbar).properties.tools.change,
+    })
   }
 }
 

@@ -201,9 +201,10 @@ export class ContextMenu {
         el = item.custom
       } else {
         const icon_el = (() => {
-          if (item.icon != null) {
+          const icon = isString(item.icon) ? item.icon : item.icon?.() ?? null
+          if (icon != null) {
             const el = div({class: menus.menu_icon})
-            apply_icon(el, item.icon)
+            apply_icon(el, icon)
             return el
           } else {
             return null
