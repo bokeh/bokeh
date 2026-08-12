@@ -25,18 +25,28 @@ from .ui import busy, console, show_state
 type SessionOutcome = Literal["complete", "discarded", "saved"]
 
 
-def conflict_actions_panel(candidate: Candidate) -> Panel:
+def _actions_panel(title: str, rows: list[tuple[str, str, str]]) -> Panel:
     actions = Table.grid(padding=(0, 1))
     actions.add_column(no_wrap=True)
     actions.add_column()
-    actions.add_row(Text("[c]", style="bold green"), "continue after resolving the files")
-    actions.add_row(Text("[r]", style="bold yellow"), "reject this PR")
-    actions.add_row(Text("[s]", style="bold cyan"), "save progress and exit")
-    actions.add_row(Text("[q]", style="bold"), "discard the saved plan")
+    for key, style, description in rows:
+        actions.add_row(Text(f"[{key}]", style=style), description)
     return Panel(
         actions,
-        title=f"[bold]Next action for PR #{candidate.number}[/]",
+        title=f"[bold]{title}[/]",
         border_style="cyan",
+    )
+
+
+def conflict_actions_panel(candidate: Candidate) -> Panel:
+    return _actions_panel(
+        f"Next action for PR #{candidate.number}",
+        [
+            ("c", "bold green", "continue after resolving the files"),
+            ("r", "bold yellow", "reject this PR"),
+            ("s", "bold cyan", "save progress and exit"),
+            ("q", "bold", "discard the saved plan"),
+        ],
     )
 
 
@@ -46,17 +56,14 @@ def prompt_conflict_action(candidate: Candidate) -> str:
 
 
 def review_actions_panel(candidate: Candidate) -> Panel:
-    actions = Table.grid(padding=(0, 1))
-    actions.add_column(no_wrap=True)
-    actions.add_column()
-    actions.add_row(Text("[a]", style="bold green"), "accept this clean cherry-pick")
-    actions.add_row(Text("[r]", style="bold yellow"), "reject this PR")
-    actions.add_row(Text("[s]", style="bold cyan"), "save progress and exit")
-    actions.add_row(Text("[q]", style="bold"), "discard the saved plan")
-    return Panel(
-        actions,
-        title=f"[bold]Review clean PR #{candidate.number}[/]",
-        border_style="cyan",
+    return _actions_panel(
+        f"Review clean PR #{candidate.number}",
+        [
+            ("a", "bold green", "accept this clean cherry-pick"),
+            ("r", "bold yellow", "reject this PR"),
+            ("s", "bold cyan", "save progress and exit"),
+            ("q", "bold", "discard the saved plan"),
+        ],
     )
 
 
@@ -68,16 +75,13 @@ def prompt_review_action(candidate: Candidate) -> str:
 def dedicated_actions_panel(state: PlanState) -> Panel:
     commit = state.dedicated_conflict
     assert commit is not None
-    actions = Table.grid(padding=(0, 1))
-    actions.add_column(no_wrap=True)
-    actions.add_column()
-    actions.add_row(Text("[c]", style="bold green"), "continue after resolving the files")
-    actions.add_row(Text("[s]", style="bold cyan"), "save progress and exit")
-    actions.add_row(Text("[q]", style="bold"), "discard the saved plan")
-    return Panel(
-        actions,
-        title=f"[bold]Next action for dedicated commit {commit.sha[:12]}[/]",
-        border_style="cyan",
+    return _actions_panel(
+        f"Next action for dedicated commit {commit.sha[:12]}",
+        [
+            ("c", "bold green", "continue after resolving the files"),
+            ("s", "bold cyan", "save progress and exit"),
+            ("q", "bold", "discard the saved plan"),
+        ],
     )
 
 

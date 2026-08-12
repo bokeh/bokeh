@@ -7,17 +7,16 @@ from typing import Any
 
 # Bokeh imports
 from . import BackportError
+from .aggregate import CHERRY_PICK_ORIGIN_RE, load_aggregate, matching_backport
 from .candidates import (
-    candidate_source_problems,
-    candidate_type_problems,
+    candidate_policy_problems,
+    candidate_target_problems,
     discover_candidates,
     target_branch_for,
 )
-from .checks import validate_pr
 from .git import GitRepo
 from .github import GitHubAPI, get_pr, repository_path
 from .models import Candidate, DedicatedCommit, PlanState
-from .planning import CHERRY_PICK_ORIGIN_RE, candidate_target_problems, parse_pr_body
 
 REVERT_RE = re.compile(
     r"^This reverts commit (?P<sha>[0-9a-f]{40})\.$",
@@ -39,34 +38,30 @@ def prepare_update_plan(
     revert_selectors: tuple[str, ...] = (),
 ) -> PlanState:
     pr = get_pr(api, repository, aggregate_number)
-    version = validate_pr(
-        pr,
+    snapshot = load_aggregate(
+        api,
         repository,
+        pr,
         require_open=True,
         require_ready=False,
     )
-    body = pr.get("body") or ""
-    lines = body.splitlines()
-    if not lines or lines[0] != f"This PR collects backports for {version}.":
-        raise BackportError("aggregate PR body version does not match its title")
-    summaries = parse_pr_body(body, repository)
-    commits = api.get_all(f"{repository_path(repository)}/pulls/{aggregate_number}/commits")
-    listed = discover_candidates(api, repository, [summary.number for summary in summaries])
+    version = snapshot.version
+    commits = snapshot.commits
+    by_origin = snapshot.commits_by_origin
+    listed = discover_candidates(
+        api,
+        repository,
+        [summary.number for summary in snapshot.summaries],
+    )
     listed_by_number = {candidate.number: candidate for candidate in listed}
-    adapted_by_number = {summary.number: summary.adapted for summary in summaries}
-    by_origin = _commits_by_origin(commits)
+    adapted_by_number = {summary.number: summary.adapted for summary in snapshot.summaries}
 
     for candidate in listed:
-        matches = by_origin.get(candidate.merge_sha, [])
-        if not matches:
-            raise BackportError(
-                f"no aggregate commit has the cherry-pick trailer for PR #{candidate.number}",
-            )
-        if len(matches) > 1:
-            raise BackportError(
-                f"multiple aggregate commits have the cherry-pick trailer for PR #{candidate.number}",
-            )
-        candidate.replay_sha = matches[0]["sha"]
+        candidate.replay_sha = matching_backport(
+            snapshot,
+            candidate.merge_sha,
+            candidate.number,
+        )["sha"]
         candidate.adapted = adapted_by_number[candidate.number]
 
     reverted_candidates, dropped_commits = _resolve_reverts(
@@ -120,19 +115,13 @@ def prepare_update_plan(
         )
 
     repo = api.request("GET", repository_path(repository))
-    problems = candidate_type_problems(
+    problems = candidate_policy_problems(
         additions,
-        allow_features=version.endswith(".0"),
+        version=version,
+        development_branch=repo["default_branch"],
+        release_branch=target_branch_for(version),
+        explicit=candidate_numbers is not None,
     )
-    if candidate_numbers is None:
-        problems = [
-            *candidate_source_problems(
-                additions,
-                repo["default_branch"],
-                target_branch_for(version),
-            ),
-            *problems,
-        ]
     target_branch = pr["base"]["ref"]
     branch = pr["head"]["ref"]
     if target_branch == repo["default_branch"]:
@@ -186,15 +175,6 @@ def prepare_update_plan(
         pull_request_url=pr["html_url"],
         dedicated_commits=dedicated,
     )
-
-
-def _commits_by_origin(commits: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
-    by_origin: dict[str, list[dict[str, Any]]] = {}
-    for commit in commits:
-        origins = CHERRY_PICK_ORIGIN_RE.findall(commit.get("commit", {}).get("message", ""))
-        if origins:
-            by_origin.setdefault(origins[-1], []).append(commit)
-    return by_origin
 
 
 def _resolve_reverts(

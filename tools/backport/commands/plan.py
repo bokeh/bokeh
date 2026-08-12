@@ -13,6 +13,7 @@ from rich.table import Table
 
 # Bokeh imports
 from .. import BackportError
+from ..aggregate import render_pr_body
 from ..candidates import BACKPORT_LABEL, read_pr_numbers
 from ..git import GitRepo
 from ..github import BOKEH_REPOSITORY, GitHubAPI
@@ -30,7 +31,6 @@ from ..planning import (
     cleanup_plan,
     ensure_publishable,
     prepare_plan,
-    render_pr_body,
     resume_plan,
 )
 from ..publishing import publish_plan

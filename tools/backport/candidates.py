@@ -8,6 +8,8 @@ from typing import Any
 
 # Bokeh imports
 from . import BackportError
+from .aggregate import CHERRY_PICK_ORIGIN_RE
+from .git import GitRepo
 from .github import GitHubAPI, split_repository
 from .models import Candidate, IssueRef
 
@@ -247,5 +249,49 @@ def candidate_source_problems(
             rendered = candidate.milestone or "no milestone"
             problems.append(
                 f"PR #{candidate.number}'s current milestone is {rendered!r}, not {development_milestone!r}",
+            )
+    return problems
+
+
+def candidate_policy_problems(
+    candidates: list[Candidate],
+    *,
+    version: str,
+    development_branch: str,
+    release_branch: str,
+    explicit: bool,
+) -> list[str]:
+    problems = candidate_type_problems(
+        candidates,
+        allow_features=version.endswith(".0"),
+    )
+    if explicit:
+        return problems
+    return [
+        *candidate_source_problems(
+            candidates,
+            development_branch,
+            release_branch,
+        ),
+        *problems,
+    ]
+
+
+def candidate_target_problems(
+    git: GitRepo,
+    candidates: list[Candidate],
+    target_ref: str,
+) -> list[str]:
+    origins = set(CHERRY_PICK_ORIGIN_RE.findall(git.commit_messages(target_ref)))
+    problems: list[str] = []
+    for candidate in candidates:
+        git.ensure_commit(candidate.merge_sha)
+        if git.is_ancestor(candidate.merge_sha, target_ref, git.root):
+            problems.append(
+                f"PR #{candidate.number}'s merge commit is already present in {target_ref}",
+            )
+        elif candidate.merge_sha in origins:
+            problems.append(
+                f"PR #{candidate.number} was already cherry-picked into {target_ref}",
             )
     return problems

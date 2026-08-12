@@ -6,12 +6,12 @@ from urllib.parse import quote
 
 # Bokeh imports
 from . import BackportError
+from .aggregate import AggregateSnapshot, load_aggregate, matching_backport
 from .candidates import BACKPORT_LABEL, milestone_for_version
 from .checks import (
     TITLE_RE,
     check_pr_ci,
     require_rebase_merge,
-    validate_pr,
 )
 from .github import (
     GitHubAPI,
@@ -20,7 +20,6 @@ from .github import (
     repository_path,
 )
 from .models import BackportEntry, BackportSummary, PublishedPlan
-from .planning import CHERRY_PICK_ORIGIN_RE, parse_pr_body
 from .publishing import ensure_milestone, remove_label, set_milestone
 
 
@@ -57,32 +56,28 @@ def published_plan_from_pr(
     require_ready: bool | None = None,
     expected_entries: list[BackportEntry] | None = None,
 ) -> PublishedPlan:
-    version = validate_pr(
-        pr,
+    snapshot = load_aggregate(
+        api,
         repository,
+        pr,
         require_open=require_open,
         require_ready=require_ready,
+        include_commits=expected_entries is None,
     )
-    body = pr.get("body") or ""
-    lines = body.splitlines()
-    if not lines or lines[0] != f"This PR collects backports for {version}.":
-        raise BackportError("aggregate PR body version does not match its title")
-    summaries = parse_pr_body(body, repository)
     if expected_entries is None:
         entries = resolve_backport_entries(
             api,
             repository,
-            pr["number"],
-            summaries,
+            snapshot,
         )
     else:
         expected_summaries = [BackportSummary(entry.number, entry.adapted) for entry in expected_entries]
-        if summaries != expected_summaries:
+        if snapshot.summaries != expected_summaries:
             raise BackportError("aggregate PR summary changed during merge preparation")
         entries = expected_entries
     return PublishedPlan(
         repository=repository,
-        version=version,
+        version=snapshot.version,
         target_branch=pr["base"]["ref"],
         branch=pr["head"]["ref"],
         pull_request_number=pr["number"],
@@ -95,43 +90,24 @@ def published_plan_from_pr(
 def resolve_backport_entries(
     api: GitHubAPI,
     repository: str,
-    aggregate_number: int,
-    summaries: list[BackportSummary],
+    snapshot: AggregateSnapshot,
 ) -> list[BackportEntry]:
-    commits = api.get_all(
-        f"{repository_path(repository)}/pulls/{aggregate_number}/commits",
-    )
-    by_original: dict[str, list[str]] = {}
-    for commit in commits:
-        message = commit.get("commit", {}).get("message", "")
-        origins = CHERRY_PICK_ORIGIN_RE.findall(message)
-        if origins:
-            by_original.setdefault(origins[-1], []).append(commit["sha"])
-
     entries: list[BackportEntry] = []
-    for summary in summaries:
+    for summary in snapshot.summaries:
         source = get_pr(api, repository, summary.number)
         original_sha = source.get("merge_commit_sha")
         if not source.get("merged_at") or not original_sha:
             raise BackportError(f"listed source PR #{summary.number} is not merged")
-        matches = by_original.get(original_sha, [])
-        if not matches:
-            raise BackportError(
-                f"no aggregate commit has the cherry-pick trailer for PR #{summary.number}",
-            )
-        if len(matches) > 1:
-            raise BackportError(
-                f"multiple aggregate commits have the cherry-pick trailer for PR #{summary.number}",
-            )
+        backport = matching_backport(snapshot, original_sha, summary.number)
         entries.append(
             BackportEntry(
                 number=summary.number,
                 original_sha=original_sha,
-                backport_sha=matches[0],
+                backport_sha=backport["sha"],
                 adapted=summary.adapted,
             ),
         )
-    unlisted = sorted(set(by_original) - {entry.original_sha for entry in entries})
+    unlisted = sorted(set(snapshot.commits_by_origin) - {entry.original_sha for entry in entries})
     if unlisted:
         rendered = ", ".join(sha[:12] for sha in unlisted)
         raise BackportError(

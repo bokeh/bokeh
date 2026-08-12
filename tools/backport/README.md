@@ -315,6 +315,7 @@ PR, or merging and changing release metadata.
 ```text
 tools/backport/
 ├── __main__.py       # `python -m tools.backport` entry point
+├── aggregate.py      # Aggregate PR summary codec and commit snapshot
 ├── commands/
 │   ├── plan.py       # Resumable planning and publication
 │   └── release.py    # PR reconstruction, merge, and finalization
@@ -326,7 +327,7 @@ tools/backport/
 ├── merging.py        # Rebase merge and post-merge bookkeeping
 ├── models.py         # In-memory planning and published-PR models
 ├── persistence.py    # Local JSON checkpoints in Git's common directory
-├── planning.py       # Cherry-picks, resume reconciliation, and PR table codec
+├── planning.py       # Cherry-picks, decisions, and resume reconciliation
 ├── publishing.py     # Draft PR and rejection publication
 └── ui.py             # Rich rendering and confirmations
 ```

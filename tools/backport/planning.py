@@ -1,31 +1,26 @@
 """Planning, cherry-picking, interruption recovery, adaptation, and rejection."""
 
 # Standard library imports
-import re
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from pathlib import Path
 
 # Bokeh imports
 from . import BackportError
+from .aggregate import CHERRY_PICK_ORIGIN_RE
 from .candidates import (
     BACKPORT_LABEL,
     backport_branch_for,
-    candidate_source_problems,
-    candidate_type_problems,
+    candidate_policy_problems,
+    candidate_target_problems,
     discover_candidates,
     next_patch_version,
     target_branch_for,
 )
 from .git import GitRepo
 from .github import GitHubAPI, repository_path
-from .models import BackportSummary, Candidate, PlanState
+from .models import PlanState
 
 type Checkpoint = Callable[[PlanState], None]
-
-CHERRY_PICK_ORIGIN_RE = re.compile(
-    r"^\(cherry picked from commit (?P<sha>[0-9a-f]{40})\)$",
-    re.MULTILINE,
-)
 
 
 def prepare_plan(
@@ -62,19 +57,13 @@ def prepare_plan(
     if not candidates:
         message = "no PRs were selected" if candidate_numbers is not None else f"no merged PRs have the {BACKPORT_LABEL!r} label"
         raise BackportError(message)
-    problems = candidate_type_problems(
+    problems = candidate_policy_problems(
         candidates,
-        allow_features=selected_version.endswith(".0"),
+        version=selected_version,
+        development_branch=repo["default_branch"],
+        release_branch=target_branch_for(selected_version),
+        explicit=candidate_numbers is not None,
     )
-    if candidate_numbers is None:
-        problems = [
-            *candidate_source_problems(
-                candidates,
-                repo["default_branch"],
-                target_branch_for(selected_version),
-            ),
-            *problems,
-        ]
     if not problems:
         problems = candidate_target_problems(
             git,
@@ -100,26 +89,6 @@ def prepare_plan(
         review_each=review_each,
         remote=git.remote,
     )
-
-
-def candidate_target_problems(
-    git: GitRepo,
-    candidates: list[Candidate],
-    target_ref: str,
-) -> list[str]:
-    origins = set(CHERRY_PICK_ORIGIN_RE.findall(git.commit_messages(target_ref)))
-    problems: list[str] = []
-    for candidate in candidates:
-        git.ensure_commit(candidate.merge_sha)
-        if git.is_ancestor(candidate.merge_sha, target_ref, git.root):
-            problems.append(
-                f"PR #{candidate.number}'s merge commit is already present in {target_ref}",
-            )
-        elif candidate.merge_sha in origins:
-            problems.append(
-                f"PR #{candidate.number} was already cherry-picked into {target_ref}",
-            )
-    return problems
 
 
 def advance_plan(
@@ -212,23 +181,13 @@ def continue_plan(
     candidate = state.conflict
     if candidate is None:
         raise BackportError("there is no conflicted cherry-pick to continue")
-    worktree = Path(state.worktree)
-    diff_check = git.diff_check(worktree)
-    if diff_check.returncode != 0:
-        detail = diff_check.stdout.strip() or diff_check.stderr.strip()
-        raise BackportError(
-            "resolve conflict markers and patch errors before continuing:\n" + detail,
-        )
-    if not git.cherry_pick_in_progress(worktree):
-        raise BackportError(
-            "Git no longer has a cherry-pick in progress; inspect the worktree manually",
-        )
-    result = git.continue_cherry_pick(worktree)
-    if result.returncode != 0:
-        detail = result.stderr.strip() or result.stdout.strip()
-        raise BackportError(f"could not continue cherry-pick for #{candidate.number}: {detail}")
+    backport_sha = _continue_cherry_pick(
+        git,
+        Path(state.worktree),
+        f"cherry-pick for #{candidate.number}",
+    )
     candidate.status = "applied"
-    candidate.backport_sha = git.head(worktree)
+    candidate.backport_sha = backport_sha
     candidate.adapted = True
     candidate.conflict_files = []
     _checkpoint(checkpoint, state)
@@ -243,7 +202,24 @@ def continue_dedicated_commit(
     commit = state.dedicated_conflict
     if commit is None:
         raise BackportError("there is no conflicted dedicated commit to continue")
-    worktree = Path(state.worktree)
+    backport_sha = _continue_cherry_pick(
+        git,
+        Path(state.worktree),
+        f"dedicated commit {commit.sha[:12]}",
+    )
+    commit.status = "applied"
+    commit.backport_sha = backport_sha
+    commit.previous_head = None
+    commit.conflict_files = []
+    _checkpoint(checkpoint, state)
+    return advance_plan(git, state, checkpoint)
+
+
+def _continue_cherry_pick(
+    git: GitRepo,
+    worktree: Path,
+    description: str,
+) -> str:
     diff_check = git.diff_check(worktree)
     if diff_check.returncode != 0:
         detail = diff_check.stdout.strip() or diff_check.stderr.strip()
@@ -257,13 +233,8 @@ def continue_dedicated_commit(
     result = git.continue_cherry_pick(worktree)
     if result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip()
-        raise BackportError(f"could not continue dedicated commit {commit.sha[:12]}: {detail}")
-    commit.status = "applied"
-    commit.backport_sha = git.head(worktree)
-    commit.previous_head = None
-    commit.conflict_files = []
-    _checkpoint(checkpoint, state)
-    return advance_plan(git, state, checkpoint)
+        raise BackportError(f"could not continue {description}: {detail}")
+    return git.head(worktree)
 
 
 def reject_candidate(
@@ -515,78 +486,3 @@ def ensure_publishable(git: GitRepo, state: PlanState) -> None:
         raise BackportError(
             "replayed dedicated commits are no longer in branch history: " + ", ".join(missing_commits),
         )
-
-
-def _escape_link_text(value: str) -> str:
-    return value.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]").replace("|", "\\|")
-
-
-def render_pr_body(
-    state: PlanState,
-    range_diff_urls: Mapping[int, str] | None = None,
-) -> str:
-    lines = [
-        f"This PR collects backports for {state.version}.",
-        "",
-        "> [!IMPORTANT]",
-        "> Merge this PR with `python -m tools.backport merge`. Do not use GitHub's web UI.",
-        "",
-        "| PR | Result | Details |",
-        "| --- | --- | --- |",
-    ]
-    for candidate in sorted(state.accepted, key=lambda item: item.number):
-        assert candidate.backport_sha is not None
-        result = "adapted" if candidate.adapted else "clean"
-        title = _escape_link_text(candidate.title)
-        range_diff = ""
-        if candidate.adapted:
-            url = (range_diff_urls or {}).get(candidate.number)
-            range_diff = f"[diff]({url})" if url is not None else "generated on publish"
-        lines.append(
-            f"| [#{candidate.number} {title}]({candidate.url}) | {result} | {range_diff} |",
-        )
-    return "\n".join([*lines, ""])
-
-
-def parse_pr_body(body: str, repository: str) -> list[BackportSummary]:
-    lines = body.strip().splitlines()
-    if (
-        len(lines) < 8
-        or re.fullmatch(r"This PR collects backports for \d+\.\d+\.\d+\.", lines[0]) is None
-        or lines[1] != ""
-        or lines[2] != "> [!IMPORTANT]"
-        or lines[3] != "> Merge this PR with `python -m tools.backport merge`. Do not use GitHub's web UI."
-        or lines[4] != ""
-        or lines[5] != "| PR | Result | Details |"
-        or lines[6] != "| --- | --- | --- |"
-    ):
-        raise BackportError("aggregate PR body is not the generated backport summary")
-
-    repo_url = re.escape(f"https://github.com/{repository}")
-    row = re.compile(
-        rf"^\| \[#(?P<number>\d+) (?P<title>(?:\\.|[^\]])+)\]"
-        rf"\({repo_url}/pull/(?P=number)\) "
-        rf"\| (?P<result>clean|adapted) "
-        rf"\| (?P<range_diff>(?:\[diff\]\(https://[^ )]+\))?) \|$",
-    )
-    row_lines = lines[7:]
-
-    entries: list[BackportSummary] = []
-    for line in row_lines:
-        match = row.fullmatch(line)
-        if match is None:
-            raise BackportError(f"invalid aggregate PR summary row: {line}")
-        adapted = match.group("result") == "adapted"
-        if adapted != bool(match.group("range_diff")):
-            raise BackportError(f"range-diff link does not match result for PR #{match['number']}")
-        entries.append(
-            BackportSummary(
-                number=int(match["number"]),
-                adapted=adapted,
-            ),
-        )
-    if len({entry.number for entry in entries}) != len(entries):
-        raise BackportError("aggregate PR summary contains duplicate PRs")
-    if [entry.number for entry in entries] != sorted(entry.number for entry in entries):
-        raise BackportError("aggregate PR summary is not sorted by PR number")
-    return entries
