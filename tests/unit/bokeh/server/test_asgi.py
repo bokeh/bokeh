@@ -27,6 +27,7 @@ import pytest
 from bokeh.application import Application
 from bokeh.application.handlers.directory import DirectoryHandler
 from bokeh.application.handlers.function import FunctionHandler
+from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.models import (
@@ -40,7 +41,9 @@ from bokeh.models import (
     Slider,
 )
 from bokeh.protocol import pull_doc_req
-from bokeh.server.asgi import BokehASGI
+from bokeh.protocol.message import Message
+from bokeh.protocol.receiver import Receiver
+from bokeh.server.asgi import BokehASGI, _ASGIWebSocketTransport
 from bokeh.server.auth import AuthPolicy
 from bokeh.util.token import generate_jwt_token, get_token_payload
 
@@ -1075,6 +1078,134 @@ async def test_websocket_handles_pull_document_round_trip() -> None:
             if (value := json.loads(event["text"])) and "header" in value
         ]
         assert message_types == ["ACK", "PULL-DOC-REPLY"]
+    finally:
+        await app.core.stop()
+
+
+async def test_websocket_pull_document_sends_ordered_binary_buffers() -> None:
+    def modify_document(doc: Document) -> None:
+        doc.add_root(ColumnDataSource(data={
+            "first": np.arange(16, dtype=np.float64),
+            "second": np.arange(16, dtype=np.int32),
+        }))
+
+    app = BokehASGI(Application(FunctionHandler(modify_document)))
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    request = pull_doc_req()
+    incoming = deque([
+        {"type": "websocket.connect"},
+        {"type": "websocket.receive", "text": request.envelope_json},
+        {"type": "websocket.disconnect", "code": 1000},
+    ])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0"},
+                "scheme": "ws",
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        receiver = Receiver()
+        messages: list[Message[Any]] = []
+        frames = [event for event in sent if event["type"] == "websocket.send"]
+        for event in frames:
+            fragment = event.get("bytes", event.get("text"))
+            message = receiver.consume(fragment)
+            if message is not None:
+                messages.append(message)
+
+        assert [message.msgtype for message in messages] == ["ACK", "PULL-DOC-REPLY"]
+        assert len(messages[1].buffers) == 2
+        assert ["bytes" in event for event in frames] == [False, False, True, True]
+    finally:
+        await app.core.stop()
+
+
+async def test_asgi_transport_sends_message_fragments_atomically() -> None:
+    sent: list[dict[str, Any]] = []
+    first_fragment = asyncio.Event()
+    release_first = asyncio.Event()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+        if len(sent) == 1:
+            first_fragment.set()
+            await release_first.wait()
+
+    transport = _ASGIWebSocketTransport(send, supports_close_reason=True)
+    first = Message(
+        Message.create_header("PATCH-DOC"),
+        {},
+        [Buffer(ID("first"), b"first-payload")],
+    )
+    second = Message(
+        Message.create_header("PATCH-DOC"),
+        {},
+        [Buffer(ID("second"), b"second-payload")],
+    )
+
+    first_send = asyncio.create_task(transport.send_message(first))
+    await first_fragment.wait()
+    second_send = asyncio.create_task(transport.send_message(second))
+    await asyncio.sleep(0)
+    release_first.set()
+    await asyncio.gather(first_send, second_send)
+
+    assert ["bytes" in event for event in sent] == [False, True, False, True]
+    assert sent[1]["bytes"] == b"first-payload"
+    assert sent[3]["bytes"] == b"second-payload"
+
+
+async def test_websocket_malformed_framing_closes_with_protocol_error() -> None:
+    app = BokehASGI(Application())
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    incoming = deque([
+        {"type": "websocket.connect"},
+        {"type": "websocket.receive", "bytes": b"not-an-envelope"},
+    ])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0", "spec_version": "2.3"},
+                "scheme": "ws",
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        close = next(event for event in sent if event["type"] == "websocket.close")
+        assert close["code"] == 1002
+        assert "expected text fragment" in close["reason"]
     finally:
         await app.core.stop()
 

@@ -19,6 +19,7 @@ export class Receiver {
       this._current_consumer(fragment)
     } catch (error) {
       this._reset()
+      this.message = null
       throw error
     }
   }
@@ -32,12 +33,9 @@ export class Receiver {
   }
 
   _ENVELOPE(fragment: Fragment): void {
-    this._assume_text(fragment)
     this.message = null
+    this._assume_text(fragment)
     const {header, content, buffers} = Message.decode(fragment)
-    if (new Set(buffers).size != buffers.length) {
-      throw new Error("Expected buffer ids to be unique")
-    }
 
     if (buffers.length == 0) {
       this.message = new Message(header, content)

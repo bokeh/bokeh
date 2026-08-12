@@ -7,9 +7,34 @@ export type Socket = {
   send(data: unknown): void
 }
 
+export type MessageType =
+  | "ACK"
+  | "ERROR"
+  | "OK"
+  | "PATCH-DOC"
+  | "PULL-DOC-REPLY"
+  | "PULL-DOC-REQ"
+  | "PUSH-DOC"
+  | "SYNC"
+
+const message_types: ReadonlySet<string> = new Set<MessageType>([
+  "ACK",
+  "ERROR",
+  "OK",
+  "PATCH-DOC",
+  "PULL-DOC-REPLY",
+  "PULL-DOC-REQ",
+  "PUSH-DOC",
+  "SYNC",
+])
+
+function is_message_type(value: unknown): value is MessageType {
+  return isString(value) && message_types.has(value)
+}
+
 export type Header = {
-  msgid?: string
-  msgtype?: string
+  msgid: string
+  msgtype: MessageType
   reqid?: string
 }
 
@@ -31,7 +56,7 @@ export class Message<T> {
     }
 
     const {header, content, buffers} = envelope
-    if (!isPlainObject(header) || !isString(header.msgid) || header.msgid.length == 0 || !isString(header.msgtype)) {
+    if (!isPlainObject(header) || !isString(header.msgid) || header.msgid.length == 0 || !is_message_type(header.msgtype)) {
       throw new Error("Message envelope has an invalid header")
     }
     if (header.reqid != null && !isString(header.reqid)) {
@@ -49,16 +74,23 @@ export class Message<T> {
     if (buffers.length > max_buffers_per_message) {
       throw new Error(`Message cannot contain more than ${max_buffers_per_message} buffers`)
     }
+    if (new Set(buffers).size != buffers.length) {
+      throw new Error("Message buffer ids must be unique")
+    }
 
-    return {header, content: content as T, buffers}
+    const decoded_header: Header = {msgid: header.msgid, msgtype: header.msgtype}
+    if (header.reqid != null) {
+      decoded_header.reqid = header.reqid
+    }
+    return {header: decoded_header, content: content as T, buffers}
   }
 
-  static create<T>(msgtype: string, content: T): Message<T> {
+  static create<T>(msgtype: MessageType, content: T): Message<T> {
     const header = Message.create_header(msgtype)
     return new Message(header, content)
   }
 
-  static create_header(msgtype: string): Header {
+  static create_header(msgtype: MessageType): Header {
     return {
       msgid: unique_id(),
       msgtype,
@@ -90,25 +122,14 @@ export class Message<T> {
   }
 
   msgid(): string {
-    return this.header.msgid!
+    return this.header.msgid
   }
 
-  msgtype(): string {
-    return this.header.msgtype!
+  msgtype(): MessageType {
+    return this.header.msgtype
   }
 
-  reqid(): string {
-    return this.header.reqid!
-  }
-
-  // return the reason we should close on bad protocol, if there is one
-  problem(): string | null {
-    if (!("msgid" in this.header)) {
-      return "No msgid in header"
-    } else if (!("msgtype" in this.header)) {
-      return "No msgtype in header"
-    } else {
-      return null
-    }
+  reqid(): string | undefined {
+    return this.header.reqid
   }
 }

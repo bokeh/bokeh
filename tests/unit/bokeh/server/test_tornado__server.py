@@ -237,6 +237,16 @@ def test_keep_alive_uses_tornado_websocket_ping(milliseconds: int, seconds: floa
     assert t.settings["websocket_ping_interval"] == seconds
     assert t.settings["websocket_ping_timeout"] == seconds
 
+def test_keep_alive_preserves_explicit_tornado_websocket_ping_settings() -> None:
+    t = bst.BokehTornado(
+        {"/": Application()},
+        keep_alive_milliseconds=100,
+        websocket_ping_interval=2.5,
+        websocket_ping_timeout=7.5,
+    )
+    assert t.settings["websocket_ping_interval"] == 2.5
+    assert t.settings["websocket_ping_timeout"] == 7.5
+
 def test_websocket_compression_level() -> None:
     app = Application()
     t = bst.BokehTornado({"/": app}, websocket_compression_level=2,

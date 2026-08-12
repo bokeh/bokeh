@@ -271,15 +271,11 @@ export class ClientConnection {
       this._receiver.consume(event.data)
     } catch (e) {
       this._close_bad_protocol(`${e}`)
+      return
     }
 
     const msg = this._receiver.message
     if (msg != null) {
-      const problem = msg.problem()
-      if (problem != null) {
-        this._close_bad_protocol(problem)
-      }
-
       this._current_handler!(msg)
     }
   }
@@ -335,11 +331,16 @@ export class ClientConnection {
 
   protected _steady_state_handler(message: Message<unknown>): void {
     const reqid = message.reqid()
-    const pr = this._pending_replies.get(reqid)
-    if (pr != null) {
-      this._pending_replies.delete(reqid)
-      pr.resolve(message)
-    } else if (this.session != null) {
+    if (reqid != null) {
+      const pr = this._pending_replies.get(reqid)
+      if (pr != null) {
+        this._pending_replies.delete(reqid)
+        pr.resolve(message)
+        return
+      }
+    }
+
+    if (this.session != null) {
       this.session.handle(message)
     } else if (message.msgtype() != "PATCH-DOC") {
       // This branch can be executed only before we get the document.

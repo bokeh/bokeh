@@ -80,9 +80,56 @@ describe("ClientSession", () => {
     expect((connection as any)._pending_replies.size).to.be.equal(0)
   })
 
+  it("should reject request messages and clear pending replies when an open socket send fails", async () => {
+    const connection = new ClientConnection(url, token())
+    const failure = new Error("send failed")
+    connection.socket = {
+      readyState: WebSocket.OPEN,
+      send() { throw failure },
+    } as unknown as WebSocket
+    let error: unknown = null
+
+    try {
+      await connection.send_with_reply(Message.create("SYNC", {}))
+    } catch (caught) {
+      error = caught
+    }
+
+    expect(error).to.be.equal(failure)
+    expect((connection as any)._pending_replies.size).to.be.equal(0)
+  })
+
+  it("should not redispatch a completed message after malformed framing", () => {
+    const connection = new ClientConnection(url, token())
+    const received: Message<unknown>[] = []
+    const closed = {code: null as number | null}
+    connection.socket = {
+      close(code: number) { closed.code = code },
+    } as unknown as WebSocket
+    const raw_connection = connection as any
+    raw_connection._current_handler = (message: Message<unknown>) => received.push(message)
+
+    raw_connection._on_message({
+      data: '{"header":{"msgid":"10","msgtype":"PATCH-DOC"},"content":{},"buffers":[]}',
+    })
+    raw_connection._on_message({data: new ArrayBuffer(8)})
+
+    expect(received.length).to.be.equal(1)
+    expect(closed.code).to.be.equal(1002)
+  })
+
   it("should be able to connect", async () => {
     const session = await pull_session(url, token())
     session.close()
+  })
+
+  it("should complete a SYNC round trip", async () => {
+    const session = await pull_session(url, token())
+    try {
+      await session.force_roundtrip()
+    } finally {
+      session.close()
+    }
   })
 
   it("should pass request string to connection", async () => {
