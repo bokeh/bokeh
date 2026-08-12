@@ -59,7 +59,7 @@ if TYPE_CHECKING:
         SessionCallbackRemoved,
     )
     from ..models.ui import UIElement
-    from ..protocol import PatchDoc
+    from ..protocol.message import Message
     from ..server.callbacks import DocumentCallbackGroup
     from ..util.asyncio import Loop
     from ..util.browser import BrowserLike, BrowserTarget
@@ -533,7 +533,7 @@ class ClientSession:
             session_id = generate_session_id()
         return session_id
 
-    def _handle_patch(self, message: PatchDoc) -> None:
+    def _handle_patch(self, message: Message[Any]) -> None:
         document = self.document
         assert document is not None
         from ..protocol import apply_patch

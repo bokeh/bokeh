@@ -781,7 +781,7 @@ class TestClientServer:
         handler = FunctionHandler(setup_stuff)
         application.add(handler)
 
-        # keep_alive_milliseconds=1 sends pings as fast as the OS will let us
+        # Exercise the server with the shortest practical native ping interval.
         with ManagedServerLoop(application, keep_alive_milliseconds=1) as server:
             session = pull_session(session_id=ID("test_lots_of_concurrent_messages"),
                                    url=url(server),

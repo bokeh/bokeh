@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable
 
 # External imports
 from tornado.httpclient import HTTPClientError, HTTPRequest
@@ -34,7 +34,6 @@ from tornado.websocket import WebSocketError, websocket_connect
 
 # Bokeh imports
 from ..protocol import (
-    PatchDoc,
     patch_doc,
     pull_doc_req,
     push_doc,
@@ -223,7 +222,7 @@ class ClientConnection:
         else:
             if reply.msgtype != "PULL-DOC-REPLY":
                 raise RuntimeError(f"Unexpected reply {reply!r}")
-            replace_document(cast(Any, reply), document)
+            replace_document(reply, document)
 
     def push_doc(self, document: Document) -> Message[Any]:
         ''' Push a document to the server, overwriting any existing server-side doc.
@@ -302,7 +301,7 @@ class ClientConnection:
         else:
             if message.msgtype == 'PATCH-DOC':
                 log.debug("Got PATCH-DOC, applying to session")
-                self._session._handle_patch(cast(PatchDoc, message))
+                self._session._handle_patch(message)
             else:
                 log.debug("Ignoring %r", message)
             # we don't know about whatever message we got, ignore it.

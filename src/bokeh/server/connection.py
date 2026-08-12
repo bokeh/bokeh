@@ -21,16 +21,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Awaitable, cast
+from typing import TYPE_CHECKING, Any, Awaitable
 
 # Bokeh imports
 from ..protocol import error, ok
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
 
-## Bokeh imports
+# Bokeh imports
 if TYPE_CHECKING:
-    from ..protocol import messages as msg
     from .session import ServerSession
     from .transport import WebSocketTransport
 
@@ -69,10 +68,10 @@ class ServerConnection:
             self._session.unsubscribe(self)
             self._session = None
 
-    def ok(self, message: Message[Any]) -> msg.Ok:
+    def ok(self, message: Message[Any]) -> Message[Any]:
         return ok(message.header['msgid'])
 
-    def error(self, message: Message[Any], text: str) -> msg.ErrorMessage:
+    def error(self, message: Message[Any], text: str) -> Message[Any]:
         return error(message.header['msgid'], text)
 
     async def handle(self, message: Message[Any]) -> Message[Any] | None:
@@ -82,11 +81,11 @@ class ServerConnection:
 
         try:
             if message.msgtype == "PULL-DOC-REQ":
-                return await cast(Awaitable[Message[Any] | None], self.session._handle_pull(cast(Any, message), self))
+                return await self.session._handle_pull(message, self)
             elif message.msgtype == "PUSH-DOC":
-                return await cast(Awaitable[Message[Any] | None], self.session._handle_push(cast(Any, message), self))
+                return await self.session._handle_push(message, self)
             elif message.msgtype == "PATCH-DOC":
-                return await cast(Awaitable[Message[Any] | None], self.session._handle_patch(cast(Any, message), self))
+                return await self.session._handle_patch(message, self)
             else:
                 return self.ok(message)
         except Exception:

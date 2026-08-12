@@ -55,7 +55,6 @@ if TYPE_CHECKING:
         SessionCallbackAdded,
         SessionCallbackRemoved,
     )
-    from ..protocol import messages as msg
     from ..protocol.message import Message
     from .callbacks import Callback, SessionCallback
     from .connection import ServerConnection
@@ -337,7 +336,7 @@ class ServerSession:
                 await connection.send_message(message)
 
     @_needs_document_lock_on_loop
-    async def _handle_pull(self, message: msg.PullDocReq, connection: ServerConnection) -> None:
+    async def _handle_pull(self, message: Message[Any], connection: ServerConnection) -> None:
         log.debug(f"Sending pull-doc-reply from session {self.id!r}")
         async def send_reply() -> None:
             reply = await self._run_in_executor(
@@ -357,13 +356,13 @@ class ServerSession:
         self._callbacks.remove_session_callback(event.callback)
 
     @_needs_document_lock_on_loop
-    async def _handle_push(self, message: msg.PushDocMessage, connection: ServerConnection) -> msg.Ok:
+    async def _handle_push(self, message: Message[Any], connection: ServerConnection) -> Message[Any]:
         log.debug(f"pushing doc to session {self.id!r}")
         await _run_in_executor(replace_document, message, self.document)
         return connection.ok(message)
 
     @_needs_document_lock_on_loop
-    async def _handle_patch(self, message: msg.PatchDoc, connection: ServerConnection) -> msg.Ok:
+    async def _handle_patch(self, message: Message[Any], connection: ServerConnection) -> Message[Any]:
         self._current_patch_connection = connection
         try:
             await _run_in_executor(apply_patch, message, self.document, self)
