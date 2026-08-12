@@ -330,7 +330,9 @@ class BokehTornado(TornadoApplication):
         keep_alive_seconds = keep_alive_milliseconds / 1000
         if "websocket_ping_interval" not in kwargs:
             kwargs["websocket_ping_interval"] = keep_alive_seconds
-            kwargs.setdefault("websocket_ping_timeout", keep_alive_seconds)
+            # Keepalive pings historically did not disconnect clients that
+            # failed to respond, so preserve that behavior with native pings.
+            kwargs.setdefault("websocket_ping_timeout", 0)
 
         if check_unused_sessions_milliseconds <= 0:
             raise ValueError("check_unused_sessions_milliseconds must be > 0")

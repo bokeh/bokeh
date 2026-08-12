@@ -232,10 +232,19 @@ def test_websocket_max_message_size_bytes() -> None:
     assert t.settings['websocket_max_message_size'] == 12345
 
 @pytest.mark.parametrize(("milliseconds", "seconds"), [(0, 0), (100, 0.1)])
-def test_keep_alive_uses_tornado_websocket_ping(milliseconds: int, seconds: float) -> None:
+def test_keep_alive_uses_tornado_websocket_ping_without_timeout(milliseconds: int, seconds: float) -> None:
     t = bst.BokehTornado({"/": Application()}, keep_alive_milliseconds=milliseconds)
     assert t.settings["websocket_ping_interval"] == seconds
-    assert t.settings["websocket_ping_timeout"] == seconds
+    assert t.settings["websocket_ping_timeout"] == 0
+
+def test_keep_alive_preserves_explicit_tornado_websocket_ping_timeout() -> None:
+    t = bst.BokehTornado(
+        {"/": Application()},
+        keep_alive_milliseconds=100,
+        websocket_ping_timeout=7.5,
+    )
+    assert t.settings["websocket_ping_interval"] == 0.1
+    assert t.settings["websocket_ping_timeout"] == 7.5
 
 def test_keep_alive_preserves_explicit_tornado_websocket_ping_settings() -> None:
     t = bst.BokehTornado(
