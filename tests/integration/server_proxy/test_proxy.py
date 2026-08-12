@@ -26,17 +26,19 @@ playwright = pytest.importorskip("playwright.sync_api")
 
 FRONTEND = os.environ.get("BOKEH_SERVER_FRONTEND")
 PROXY_KIND = os.environ.get("BOKEH_SERVER_PROXY")
+LOCAL_DOCKER = os.environ.get("BOKEH_SERVER_PROXY_LOCAL") == "1"
 pytestmark = pytest.mark.skipif(
-    FRONTEND not in {"asgi", "tornado"} or PROXY_KIND not in {"nginx", "apache"} or sys.platform != "linux",
-    reason="requires the Linux nightly Bokeh proxy job",
+    FRONTEND not in {"asgi", "tornado"} or PROXY_KIND not in {"nginx", "apache"}
+    or (sys.platform != "linux" and not LOCAL_DOCKER),
+    reason="requires the Linux nightly Bokeh proxy job or an explicit local Docker run",
 )
 
 HERE = Path(__file__).parent
 REPO_ROOT = HERE.parents[2]
 CONFIG_ROOT = REPO_ROOT / "examples" / "server" / "deployment"
-PUBLIC_PATH = "/services/bokeh/" if FRONTEND == "asgi" else "/myapp"
+PUBLIC_PATH = "/services/bokeh/" if FRONTEND == "asgi" else "/services/bokeh/myapp"
 PUBLIC_URL = f"http://127.0.0.1:8080{PUBLIC_PATH}"
-BACKEND_URL = f"http://127.0.0.1:5100{'/' if FRONTEND == 'asgi' else '/myapp'}"
+BACKEND_URL = f"http://127.0.0.1:5100{'/' if FRONTEND == 'asgi' else '/services/bokeh/myapp'}"
 
 
 def _wait_for_http(url: str, process: subprocess.Popen[bytes] | None = None) -> None:
@@ -85,6 +87,8 @@ def bokeh_backend() -> Iterator[None]:
         command = [
             sys.executable, "-m", "bokeh", "serve", str(HERE / "myapp.py"),
             "--port", "5100",
+            "--prefix", "/services/bokeh",
+            "--allow-websocket-origin", "127.0.0.1:8080",
             "--keep-alive", "1000",
         ]
 
@@ -108,19 +112,23 @@ def reverse_proxy(bokeh_backend: None) -> Iterator[None]:
     artifact_dir = REPO_ROOT / "work" / "server-proxy" / FRONTEND / PROXY_KIND
     name = f"bokeh-{FRONTEND}-{PROXY_KIND}-{os.getpid()}"
     config_root = CONFIG_ROOT / FRONTEND
+    local_docker = LOCAL_DOCKER and sys.platform != "linux"
+    network_args = ["--publish", "8080:8080"] if local_docker else ["--network", "host"]
+    backend_host = "host.docker.internal" if local_docker else "127.0.0.1"
     if PROXY_KIND == "nginx":
         image = "nginx:stable-alpine"
         config = config_root / "nginx.conf"
         command = [
-            docker, "run", "--detach", "--pull", "always", "--network", "host",
+            docker, "run", "--detach", "--pull", "always", *network_args,
             "--name", name,
             "--volume", f"{config}:/tmp/bokeh-proxy.conf:ro",
             image,
             "sh", "-euc", (
+                f"sed 's/127\\.0\\.0\\.1:5100/{backend_host}:5100/g' /tmp/bokeh-proxy.conf | "
                 "awk '{ if ($0 ~ /proxy_buffering off;/) { "
                 "print \"        proxy_read_timeout 3s;\"; "
                 "print \"        proxy_send_timeout 3s;\" } print }' "
-                "/tmp/bokeh-proxy.conf > /etc/nginx/conf.d/default.conf && "
+                "> /etc/nginx/conf.d/default.conf && "
                 "exec nginx -g 'daemon off;'"
             ),
         ]
@@ -128,9 +136,9 @@ def reverse_proxy(bokeh_backend: None) -> Iterator[None]:
         image = "httpd:2.4-alpine"
         config = config_root / "apache.conf"
         command = [
-            docker, "run", "--detach", "--pull", "always", "--network", "host",
+            docker, "run", "--detach", "--pull", "always", *network_args,
             "--name", name,
-            "--volume", f"{config}:/usr/local/apache2/conf/extra/bokeh-proxy.conf:ro",
+            "--volume", f"{config}:/tmp/bokeh-proxy.conf:ro",
             image,
             "sh", "-euc", (
                 "sed -i "
@@ -138,6 +146,8 @@ def reverse_proxy(bokeh_backend: None) -> Iterator[None]:
                 "-e 's/^#LoadModule proxy_http_module /LoadModule proxy_http_module /' "
                 "-e 's/^#LoadModule proxy_wstunnel_module /LoadModule proxy_wstunnel_module /' "
                 "conf/httpd.conf && "
+                f"sed 's/127\\.0\\.0\\.1:5100/{backend_host}:5100/g' "
+                "/tmp/bokeh-proxy.conf > conf/extra/bokeh-proxy.conf && "
                 "printf '\\nProxyTimeout 3\\nInclude conf/extra/bokeh-proxy.conf\\n' >> conf/httpd.conf && "
                 "exec httpd-foreground"
             ),

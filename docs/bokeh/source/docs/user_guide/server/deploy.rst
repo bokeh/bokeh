@@ -185,7 +185,12 @@ listen on port 5100.
 
 .. code-block:: sh
 
-    bokeh serve myapp.py --port 5100
+    bokeh serve myapp.py --port 5100 --prefix /services/bokeh \
+        --allow-websocket-origin localhost:8080
+
+The application is then available at
+``http://localhost:8080/services/bokeh/myapp``. Replace ``localhost:8080`` in
+both places with the public host name used by browsers.
 
 The basic server block above does not configure any special handling for static
 resources, such as Bokeh JS and CSS files. This means that the Bokeh server
@@ -198,8 +203,8 @@ static assets for ``/path/to/bokeh/server/static``:
 
 .. code-block:: nginx
 
-    location /static {
-        alias /path/to/bokeh/server/static;
+    location /services/bokeh/static/ {
+        alias /path/to/bokeh/server/static/;
     }
 
 Make sure that the account running Nginx has permissions to access Bokeh
@@ -244,7 +249,8 @@ As before, run the Bokeh server with the following command:
 
 .. code-block:: sh
 
-    bokeh serve myapp.py --port 5100
+    bokeh serve myapp.py --port 5100 --prefix /services/bokeh \
+        --allow-websocket-origin localhost:8080
 
 Unix sockets with proxies
 -------------------------
