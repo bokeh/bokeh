@@ -24,16 +24,19 @@ import pytest
 playwright = pytest.importorskip("playwright.sync_api")
 
 
-PROXY_KIND = os.environ.get("BOKEH_ASGI_PROXY")
+FRONTEND = os.environ.get("BOKEH_SERVER_FRONTEND")
+PROXY_KIND = os.environ.get("BOKEH_SERVER_PROXY")
 pytestmark = pytest.mark.skipif(
-    PROXY_KIND not in {"nginx", "apache"} or sys.platform != "linux",
-    reason="requires the Linux nightly ASGI proxy job",
+    FRONTEND not in {"asgi", "tornado"} or PROXY_KIND not in {"nginx", "apache"} or sys.platform != "linux",
+    reason="requires the Linux nightly Bokeh proxy job",
 )
 
 HERE = Path(__file__).parent
 REPO_ROOT = HERE.parents[2]
-CONFIG_ROOT = REPO_ROOT / "examples" / "server" / "deployment" / "asgi"
-PUBLIC_URL = "http://127.0.0.1:8080/services/bokeh/"
+CONFIG_ROOT = REPO_ROOT / "examples" / "server" / "deployment"
+PUBLIC_PATH = "/services/bokeh/" if FRONTEND == "asgi" else "/myapp"
+PUBLIC_URL = f"http://127.0.0.1:8080{PUBLIC_PATH}"
+BACKEND_URL = f"http://127.0.0.1:5100{'/' if FRONTEND == 'asgi' else '/myapp'}"
 
 
 def _wait_for_http(url: str, process: subprocess.Popen[bytes] | None = None) -> None:
@@ -61,15 +64,15 @@ def _stop_process(process: subprocess.Popen[bytes]) -> None:
 
 
 @pytest.fixture(scope="module")
-def asgi_backend() -> Iterator[None]:
+def bokeh_backend() -> Iterator[None]:
+    assert FRONTEND is not None
     assert PROXY_KIND is not None
-    artifact_dir = REPO_ROOT / "work" / "asgi-proxy" / PROXY_KIND
+    artifact_dir = REPO_ROOT / "work" / "server-proxy" / FRONTEND / PROXY_KIND
     artifact_dir.mkdir(parents=True, exist_ok=True)
-    with (artifact_dir / "uvicorn.log").open("wb") as log:
-        process = subprocess.Popen([
-            sys.executable,
-            "-m", "uvicorn",
-            "app:application",
+    if FRONTEND == "asgi":
+        command = [
+            sys.executable, "-m", "uvicorn",
+            "asgi_app:application",
             "--app-dir", str(HERE),
             "--host", "127.0.0.1",
             "--port", "5100",
@@ -77,35 +80,53 @@ def asgi_backend() -> Iterator[None]:
             "--ws-ping-interval", "1",
             "--ws-ping-timeout", "2",
             "--ws-max-size", str(20 * 1024 * 1024),
-        ], stdout=log, stderr=subprocess.STDOUT)
+        ]
+    else:
+        command = [
+            sys.executable, "-m", "bokeh", "serve", str(HERE / "myapp.py"),
+            "--port", "5100",
+            "--keep-alive", "1000",
+        ]
+
+    with (artifact_dir / "backend.log").open("wb") as log:
+        process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
         try:
-            _wait_for_http("http://127.0.0.1:5100/", process)
+            _wait_for_http(BACKEND_URL, process)
             yield
         finally:
             _stop_process(process)
 
 
 @pytest.fixture(scope="module")
-def asgi_proxy(asgi_backend: None) -> Iterator[None]:
+def reverse_proxy(bokeh_backend: None) -> Iterator[None]:
+    assert FRONTEND is not None
     assert PROXY_KIND is not None
     docker = shutil.which("docker")
     if docker is None:
-        raise RuntimeError("docker is required for the nightly ASGI proxy test")
+        raise RuntimeError("docker is required for the nightly Bokeh proxy test")
 
-    artifact_dir = REPO_ROOT / "work" / "asgi-proxy" / PROXY_KIND
-    name = f"bokeh-asgi-{PROXY_KIND}-{os.getpid()}"
+    artifact_dir = REPO_ROOT / "work" / "server-proxy" / FRONTEND / PROXY_KIND
+    name = f"bokeh-{FRONTEND}-{PROXY_KIND}-{os.getpid()}"
+    config_root = CONFIG_ROOT / FRONTEND
     if PROXY_KIND == "nginx":
         image = "nginx:stable-alpine"
-        config = CONFIG_ROOT / "nginx.conf"
+        config = config_root / "nginx.conf"
         command = [
             docker, "run", "--detach", "--pull", "always", "--network", "host",
             "--name", name,
-            "--volume", f"{config}:/etc/nginx/conf.d/default.conf:ro",
+            "--volume", f"{config}:/tmp/bokeh-proxy.conf:ro",
             image,
+            "sh", "-euc", (
+                "awk '{ if ($0 ~ /proxy_buffering off;/) { "
+                "print \"        proxy_read_timeout 3s;\"; "
+                "print \"        proxy_send_timeout 3s;\" } print }' "
+                "/tmp/bokeh-proxy.conf > /etc/nginx/conf.d/default.conf && "
+                "exec nginx -g 'daemon off;'"
+            ),
         ]
     else:
         image = "httpd:2.4-alpine"
-        config = CONFIG_ROOT / "apache.conf"
+        config = config_root / "apache.conf"
         command = [
             docker, "run", "--detach", "--pull", "always", "--network", "host",
             "--name", name,
@@ -117,7 +138,7 @@ def asgi_proxy(asgi_backend: None) -> Iterator[None]:
                 "-e 's/^#LoadModule proxy_http_module /LoadModule proxy_http_module /' "
                 "-e 's/^#LoadModule proxy_wstunnel_module /LoadModule proxy_wstunnel_module /' "
                 "conf/httpd.conf && "
-                "printf '\\nInclude conf/extra/bokeh-proxy.conf\\n' >> conf/httpd.conf && "
+                "printf '\\nProxyTimeout 3\\nInclude conf/extra/bokeh-proxy.conf\\n' >> conf/httpd.conf && "
                 "exec httpd-foreground"
             ),
         ]
@@ -137,7 +158,8 @@ def asgi_proxy(asgi_backend: None) -> Iterator[None]:
             subprocess.run([docker, "rm", "--force", name], check=False, capture_output=True)
 
 
-def test_asgi_application_through_reverse_proxy(asgi_proxy: None) -> None:
+def test_bokeh_application_through_reverse_proxy(reverse_proxy: None) -> None:
+    assert FRONTEND is not None
     with playwright.sync_playwright() as manager:
         browser = manager.chromium.launch()
         try:
@@ -148,13 +170,14 @@ def test_asgi_application_through_reverse_proxy(asgi_proxy: None) -> None:
 
             marker = page.locator("#proxy-request")
             marker.wait_for(state="visible", timeout=15_000)
-            assert marker.text_content() == "ASGI reverse proxy ready"
+            assert marker.text_content() == "Bokeh reverse proxy ready"
             assert marker.get_attribute("data-host") == "127.0.0.1:8080"
-            assert marker.get_attribute("data-root-path") == "/services/bokeh"
+            expected_root_path = "/services/bokeh" if FRONTEND == "asgi" else ""
+            assert marker.get_attribute("data-root-path") == expected_root_path
             assert page.evaluate("Bokeh.documents.length") == 1
 
             # No application messages cross the websocket while idle, so the
-            # ASGI server's ping frames must keep it open past the proxy timeout.
+            # backend's keepalive traffic must keep it open past the proxy timeout.
             page.wait_for_timeout(7_000)
             page.get_by_role("button", name="Check connection").click()
             playwright.expect(marker).to_have_attribute("data-clicks", "1", timeout=5_000)

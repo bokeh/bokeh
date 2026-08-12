@@ -165,35 +165,20 @@ app on an internal network and proxy connections to it through some dedicated
 HTTP server. This subsection provides guidance on how to configure some common
 reverse proxies.
 
+The nginx and Apache configurations below are exercised with a real
+``bokeh serve`` deployment in Bokeh's nightly tests.
+
 Nginx
 ~~~~~
 
 One very common HTTP and reverse-proxying server is Nginx. Here's an example
 of a ``server`` configuration stanza:
 
-.. code-block:: nginx
-
-    server {
-        listen 80 default_server;
-        server_name _;
-
-        access_log  /tmp/bokeh.access.log;
-        error_log   /tmp/bokeh.error.log debug;
-
-        location / {
-            proxy_pass http://127.0.0.1:5100;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-            proxy_http_version 1.1;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header Host $host:$server_port;
-            proxy_buffering off;
-        }
-
-    }
+.. literalinclude:: /../../../examples/server/deployment/tornado/nginx.conf
+   :language: nginx
 
 The above ``server`` block sets up Nginx to proxy incoming connections to
-``127.0.0.1`` on port 80 over to ``127.0.0.1`` on port 5100. To work in this
+``127.0.0.1`` on port 8080 over to ``127.0.0.1`` on port 5100. To work in this
 configuration, you need to use some of the command line options to configure
 the Bokeh server. In particular, use ``--port`` to have the Bokeh server
 listen on port 5100.
@@ -237,38 +222,12 @@ Apache
 Another common HTTP server and proxy is Apache. Here is an example
 configuration for a Bokeh server running behind Apache:
 
-.. code-block:: apache
+.. literalinclude:: /../../../examples/server/deployment/tornado/apache.conf
+   :language: apache
 
-    <VirtualHost *:80>
-        ServerName localhost
-
-        CustomLog "/path/to/logs/access_log" combined
-        ErrorLog "/path/to/logs/error_log"
-
-        ProxyPreserveHost On
-        ProxyPass /myapp/ws ws://127.0.0.1:5100/myapp/ws
-        ProxyPassReverse /myapp/ws ws://127.0.0.1:5100/myapp/ws
-
-        ProxyPass /myapp http://127.0.0.1:5100/myapp
-        ProxyPassReverse /myapp http://127.0.0.1:5100/myapp
-
-        <Directory />
-            Require all granted
-            Options -Indexes
-        </Directory>
-
-        Alias /static /path/to/bokeh/server/static
-        <Directory /path/to/bokeh/server/static>
-            # directives to effect the static directory
-            Options +Indexes
-        </Directory>
-
-    </VirtualHost>
-
-The above configuration aliases `/static` to the location of the Bokeh static
-resources directory. However, it is also possible (and probably preferable) to
-copy the static resources to whatever standard location for static files you
-configure for Apache as part of the deployment.
+The configuration lets Bokeh serve its static resources. You can instead copy
+them to a standard static-file location and configure Apache to serve them
+directly.
 
 You may also need to enable some modules for the above configuration:
 

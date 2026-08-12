@@ -298,6 +298,7 @@ jobs:
           path: docs/bokeh/docs-html.tgz
 
   deployment-proxy:
+    name: deployment-proxy (${{ matrix.frontend }}, ${{ matrix.proxy }})
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -305,6 +306,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        frontend: [asgi, tornado]
         proxy: [nginx, apache]
 
     steps:
@@ -317,22 +319,24 @@ jobs:
           source-tree: 'delete'
 
       - name: Install ASGI server
+        if: matrix.frontend == 'asgi'
         run: python -m pip install 'uvicorn[standard]'
 
       - name: Install Playwright browser
         run: playwright install chromium
 
-      - name: Test ASGI deployment through ${{ matrix.proxy }}
+      - name: Test ${{ matrix.frontend }} deployment through ${{ matrix.proxy }}
         env:
-          BOKEH_ASGI_PROXY: ${{ matrix.proxy }}
-        run: pytest -v --color=yes tests/integration/asgi_proxy/test_proxy.py
+          BOKEH_SERVER_FRONTEND: ${{ matrix.frontend }}
+          BOKEH_SERVER_PROXY: ${{ matrix.proxy }}
+        run: pytest -v --color=yes tests/integration/server_proxy/test_proxy.py
 
       - name: Upload proxy logs
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: asgi-proxy-${{ matrix.proxy }}-logs
-          path: work/asgi-proxy
+          name: server-proxy-${{ matrix.frontend }}-${{ matrix.proxy }}-logs
+          path: work/server-proxy
           if-no-files-found: ignore
 
   notify-nightly-failure:
