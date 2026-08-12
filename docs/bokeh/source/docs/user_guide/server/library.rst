@@ -111,13 +111,13 @@ your proxy strips the prefix instead, leave ``prefix`` unset and configure
 Nginx
 ^^^^^
 
-.. literalinclude:: /../../../examples/server/deployment/nginx.conf
+.. literalinclude:: /docs/includes/nginx.conf
    :language: nginx
 
 Apache
 ^^^^^^
 
-.. literalinclude:: /../../../examples/server/deployment/asgi/apache.conf
+.. literalinclude:: /docs/includes/asgi-apache.conf
    :language: apache
 
 Updating active sessions from the host

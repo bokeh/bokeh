@@ -174,7 +174,7 @@ Nginx
 One very common HTTP and reverse-proxying server is Nginx. Here's an example
 of a ``server`` configuration stanza:
 
-.. literalinclude:: /../../../examples/server/deployment/nginx.conf
+.. literalinclude:: /docs/includes/nginx.conf
    :language: nginx
 
 The above ``server`` block sets up Nginx to proxy incoming connections to
@@ -227,7 +227,7 @@ Apache
 Another common HTTP server and proxy is Apache. Here is an example
 configuration for a Bokeh server running behind Apache:
 
-.. literalinclude:: /../../../examples/server/deployment/tornado/apache.conf
+.. literalinclude:: /docs/includes/tornado-apache.conf
    :language: apache
 
 The configuration lets Bokeh serve its static resources. You can instead copy

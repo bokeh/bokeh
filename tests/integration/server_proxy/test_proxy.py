@@ -35,7 +35,7 @@ pytestmark = pytest.mark.skipif(
 
 HERE = Path(__file__).parent
 REPO_ROOT = HERE.parents[2]
-CONFIG_ROOT = REPO_ROOT / "examples" / "server" / "deployment"
+CONFIG_ROOT = REPO_ROOT / "docs" / "bokeh" / "source" / "docs" / "includes"
 PUBLIC_PATH = "/services/bokeh/" if FRONTEND == "asgi" else "/services/bokeh/myapp"
 PUBLIC_URL = f"http://127.0.0.1:8080{PUBLIC_PATH}"
 BACKEND_URL = f"http://127.0.0.1:5100/services/bokeh/{'' if FRONTEND == 'asgi' else 'myapp'}"
@@ -110,7 +110,6 @@ def reverse_proxy(bokeh_backend: None) -> Iterator[None]:
 
     artifact_dir = REPO_ROOT / "work" / "server-proxy" / FRONTEND / PROXY_KIND
     name = f"bokeh-{FRONTEND}-{PROXY_KIND}-{os.getpid()}"
-    config_root = CONFIG_ROOT / FRONTEND
     local_docker = LOCAL_DOCKER and sys.platform != "linux"
     network_args = ["--publish", "8080:8080"] if local_docker else ["--network", "host"]
     backend_host = "host.docker.internal" if local_docker else "127.0.0.1"
@@ -133,7 +132,7 @@ def reverse_proxy(bokeh_backend: None) -> Iterator[None]:
         ]
     else:
         image = "httpd:2.4-alpine"
-        config = config_root / "apache.conf"
+        config = CONFIG_ROOT / f"{FRONTEND}-apache.conf"
         command = [
             docker, "run", "--detach", "--pull", "always", *network_args,
             "--name", name,
