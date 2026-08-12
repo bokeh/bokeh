@@ -123,6 +123,41 @@ export class I18n extends Model {
     return translation
   }
 
+  protected _interpolation(translation_string: string, options: Dict<Dict<string | any>> = {}): string {
+    // TODO: Use args to allow for interpolation, formatting, nesting, plurals, etc
+    // (use Intl for formatting options - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl)
+    let interpolated_string = translation_string
+    if ("interpolation" in options) {
+      const variables = to_object(options.interpolation)
+      interpolated_string = translation_string.replace(
+        /\{{(\w+)}}/g,
+        (_: string, key: string) => {
+          const variable = variables[key].value ?? ""
+          if (variable != "" && "formatting" in variables[key]) {
+            const formatting = variables[key].formatting
+            switch (formatting.format) {
+              case "date":
+                const date = variable instanceof Date ? variable : new Date(variable)
+                if (!isNaN(date.getTime())) {
+                  return new Intl.DateTimeFormat(this.get_locale(), formatting.options ?? {}).format(date)
+                }
+                return variable
+              case "display":
+                return new Intl.DisplayNames([this.get_locale()], formatting.options ?? {}).of(variable) ?? variable
+              case "list":
+                return new Intl.ListFormat(this.get_locale(), formatting.options ?? {}).format(variable)
+              case "number":
+                return new Intl.NumberFormat(this.get_locale(), formatting.options ?? {}).format(variable)
+              default:
+                return variable
+            }
+          }
+          return variable
+        })
+    }
+    return interpolated_string
+  }
+
   protected _t(key: string, options: Dict<Dict<string | any>> = {}): string {
     const locale_translation = to_object(this.translations)[this.get_locale()]
     const translation_string = key.split(".").reduce(
@@ -130,14 +165,7 @@ export class I18n extends Model {
       locale_translation as any,
     ) ?? key
 
-    // TODO: Use args to allow for interpolation, formatting, nesting, plurals, etc
-    // (use Intl for formatting options - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl)
-    if ("interpolation" in options) {
-      const variables = to_object(options.interpolation)
-      return translation_string.replace(/\{{(\w+)}}/g, (_: string, key: string) => variables[key] ?? "")
-    }
-
-    return translation_string
+    return this._interpolation(translation_string, options)
   }
 
   // TODO: Should this be defined over the document class?
