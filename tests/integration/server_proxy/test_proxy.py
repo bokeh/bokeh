@@ -38,7 +38,7 @@ REPO_ROOT = HERE.parents[2]
 CONFIG_ROOT = REPO_ROOT / "examples" / "server" / "deployment"
 PUBLIC_PATH = "/services/bokeh/" if FRONTEND == "asgi" else "/services/bokeh/myapp"
 PUBLIC_URL = f"http://127.0.0.1:8080{PUBLIC_PATH}"
-BACKEND_URL = f"http://127.0.0.1:5100{'/' if FRONTEND == 'asgi' else '/services/bokeh/myapp'}"
+BACKEND_URL = f"http://127.0.0.1:5100/services/bokeh/{'' if FRONTEND == 'asgi' else 'myapp'}"
 
 
 def _wait_for_http(url: str, process: subprocess.Popen[bytes] | None = None) -> None:
@@ -78,7 +78,6 @@ def bokeh_backend() -> Iterator[None]:
             "--app-dir", str(HERE),
             "--host", "127.0.0.1",
             "--port", "5100",
-            "--root-path", "/services/bokeh",
             "--ws-ping-interval", "1",
             "--ws-ping-timeout", "2",
             "--ws-max-size", str(20 * 1024 * 1024),
@@ -117,7 +116,7 @@ def reverse_proxy(bokeh_backend: None) -> Iterator[None]:
     backend_host = "host.docker.internal" if local_docker else "127.0.0.1"
     if PROXY_KIND == "nginx":
         image = "nginx:stable-alpine"
-        config = config_root / "nginx.conf"
+        config = CONFIG_ROOT / "nginx.conf"
         command = [
             docker, "run", "--detach", "--pull", "always", *network_args,
             "--name", name,
@@ -182,8 +181,7 @@ def test_bokeh_application_through_reverse_proxy(reverse_proxy: None) -> None:
             marker.wait_for(state="visible", timeout=15_000)
             assert marker.text_content() == "Bokeh reverse proxy ready"
             assert marker.get_attribute("data-host") == "127.0.0.1:8080"
-            expected_root_path = "/services/bokeh" if FRONTEND == "asgi" else ""
-            assert marker.get_attribute("data-root-path") == expected_root_path
+            assert marker.get_attribute("data-root-path") == ""
             assert page.evaluate("Bokeh.documents.length") == 1
 
             # No application messages cross the websocket while idle, so the

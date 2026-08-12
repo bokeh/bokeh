@@ -96,16 +96,26 @@ strong ``secret_key`` on every worker. External producers must deliver updates
 to every worker. When Bokeh is mounted, use the parent-lifespan pattern above
 only if the framework does not propagate lifespan events to mounted apps.
 
-The following nginx and Apache configurations proxy a public
-``/services/bokeh`` path to an ASGI server listening on port 5100. They are
-also exercised by Bokeh's nightly deployment tests.
+The following nginx and Apache configurations preserve a public
+``/services/bokeh`` path when proxying to an ASGI server listening on port
+5100. Configure the same prefix on the Bokeh application:
 
-nginx:
+.. code-block:: python
 
-.. literalinclude:: /../../../examples/server/deployment/asgi/nginx.conf
+   application = BokehASGI(modify_document, prefix="/services/bokeh")
+
+Both configurations are exercised by Bokeh's nightly deployment tests. If
+your proxy strips the prefix instead, leave ``prefix`` unset and configure
+``root_path`` as described above.
+
+Nginx
+^^^^^
+
+.. literalinclude:: /../../../examples/server/deployment/nginx.conf
    :language: nginx
 
-Apache:
+Apache
+^^^^^^
 
 .. literalinclude:: /../../../examples/server/deployment/asgi/apache.conf
    :language: apache

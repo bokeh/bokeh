@@ -174,7 +174,7 @@ Nginx
 One very common HTTP and reverse-proxying server is Nginx. Here's an example
 of a ``server`` configuration stanza:
 
-.. literalinclude:: /../../../examples/server/deployment/tornado/nginx.conf
+.. literalinclude:: /../../../examples/server/deployment/nginx.conf
    :language: nginx
 
 The above ``server`` block sets up Nginx to proxy incoming connections to
