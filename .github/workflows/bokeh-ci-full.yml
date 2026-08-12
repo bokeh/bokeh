@@ -297,8 +297,46 @@ jobs:
           name: docs-html-${{ matrix.os }}-${{ matrix.python-version }}
           path: docs/bokeh/docs-html.tgz
 
+  deployment-proxy:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        proxy: [nginx, apache]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.13'
+          source-tree: 'delete'
+
+      - name: Install ASGI server
+        run: python -m pip install 'uvicorn[standard]'
+
+      - name: Install Playwright browser
+        run: playwright install chromium
+
+      - name: Test ASGI deployment through ${{ matrix.proxy }}
+        env:
+          BOKEH_ASGI_PROXY: ${{ matrix.proxy }}
+        run: pytest -v --color=yes tests/integration/asgi_proxy/test_proxy.py
+
+      - name: Upload proxy logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: asgi-proxy-${{ matrix.proxy }}-logs
+          path: work/asgi-proxy
+          if-no-files-found: ignore
+
   notify-nightly-failure:
-    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation]
+    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation, deployment-proxy]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
@@ -340,7 +378,7 @@ jobs:
           *Automated notification from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
 
   notify-pr:
-    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation]
+    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation, deployment-proxy]
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
