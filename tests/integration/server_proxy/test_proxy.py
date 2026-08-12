@@ -36,9 +36,9 @@ pytestmark = pytest.mark.skipif(
 HERE = Path(__file__).parent
 REPO_ROOT = HERE.parents[2]
 CONFIG_ROOT = REPO_ROOT / "docs" / "bokeh" / "source" / "docs" / "includes"
-PUBLIC_PATH = "/services/bokeh/" if FRONTEND == "asgi" else "/services/bokeh/myapp"
+PUBLIC_PATH = "/services/bokeh/myapp"
 PUBLIC_URL = f"http://127.0.0.1:8080{PUBLIC_PATH}"
-BACKEND_URL = f"http://127.0.0.1:5100/services/bokeh/{'' if FRONTEND == 'asgi' else 'myapp'}"
+BACKEND_URL = "http://127.0.0.1:5100/services/bokeh/myapp"
 
 
 def _wait_for_http(url: str, process: subprocess.Popen[bytes] | None = None) -> None:
@@ -132,7 +132,7 @@ def reverse_proxy(bokeh_backend: None) -> Iterator[None]:
         ]
     else:
         image = "httpd:2.4-alpine"
-        config = CONFIG_ROOT / f"{FRONTEND}-apache.conf"
+        config = CONFIG_ROOT / "apache.conf"
         command = [
             docker, "run", "--detach", "--pull", "always", *network_args,
             "--name", name,

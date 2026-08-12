@@ -227,7 +227,7 @@ Apache
 Another common HTTP server and proxy is Apache. Here is an example
 configuration for a Bokeh server running behind Apache:
 
-.. literalinclude:: /docs/includes/tornado-apache.conf
+.. literalinclude:: /docs/includes/apache.conf
    :language: apache
 
 The configuration lets Bokeh serve its static resources. You can instead copy

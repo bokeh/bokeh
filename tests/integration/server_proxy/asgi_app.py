@@ -13,4 +13,4 @@ from shared import modify_document
 # Bokeh imports
 from bokeh.server.asgi import BokehASGI
 
-application = BokehASGI(modify_document, prefix="/services/bokeh")
+application = BokehASGI({"/myapp": modify_document}, prefix="/services/bokeh")

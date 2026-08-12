@@ -102,7 +102,7 @@ The following nginx and Apache configurations preserve a public
 
 .. code-block:: python
 
-   application = BokehASGI(modify_document, prefix="/services/bokeh")
+   application = BokehASGI({"/myapp": modify_document}, prefix="/services/bokeh")
 
 Both configurations are exercised by Bokeh's nightly deployment tests. If
 your proxy strips the prefix instead, leave ``prefix`` unset and configure
@@ -117,7 +117,7 @@ Nginx
 Apache
 ^^^^^^
 
-.. literalinclude:: /docs/includes/asgi-apache.conf
+.. literalinclude:: /docs/includes/apache.conf
    :language: apache
 
 Updating active sessions from the host
