@@ -71,10 +71,30 @@ websocket URLs. Equivalent complete examples are available for:
 
 The ASGI frontend handles Bokeh document, autoload, metadata, static asset, and
 websocket routes, as well as application startup and shutdown through ASGI
-lifespan events. ASGI does not expose websocket ping frames, so transport
-keepalive should be configured on the ASGI server (for example, Uvicorn's
-websocket ping interval) rather than with Bokeh's
-``keep_alive_milliseconds`` option.
+lifespan events.
+
+Reverse proxy deployment
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+A reverse proxy must preserve the public ``Host`` and browser-supplied
+``Origin`` headers. Forward ``Upgrade``, ``Connection``, and
+``Sec-WebSocket-Protocol`` unchanged; Bokeh's websocket handshake requires the
+``bokeh`` subprotocol followed by the session token. If the page origin is not
+the public Bokeh host, add that origin to ``extra_websocket_origins``. If the
+proxy strips a public path prefix, configure the ASGI server or parent mount to
+put that prefix in the ASGI ``root_path`` so Bokeh generates matching resource
+and websocket URLs.
+
+Only trust forwarded client, host, and scheme headers from known proxies.
+Configure websocket ping interval and timeout, proxy idle timeout, and maximum
+websocket message size at the ASGI server: ASGI does not expose portable ping
+frames or message-size controls to Bokeh.
+
+Bokeh session documents and callbacks are process-local. Multi-worker
+deployments therefore need session affinity, and signed sessions need the same
+strong ``secret_key`` on every worker. External producers must deliver updates
+to every worker. When Bokeh is mounted, use the parent-lifespan pattern above
+only if the framework does not propagate lifespan events to mounted apps.
 
 Updating active sessions from the host
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

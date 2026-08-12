@@ -676,6 +676,51 @@ async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:
         await app.core.stop()
 
 
+async def test_websocket_accepts_reverse_proxy_scope() -> None:
+    app = BokehASGI({"/plot": Application()})
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    incoming = deque([
+        {"type": "websocket.connect"},
+        {"type": "websocket.disconnect", "code": 1000},
+    ])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0", "spec_version": "2.3"},
+                "scheme": "wss",
+                "path": "/services/bokeh/plot/ws",
+                "root_path": "/services/bokeh",
+                "query_string": b"",
+                "headers": [
+                    (b"host", b"plots.example.com"),
+                    (b"origin", b"https://plots.example.com"),
+                ],
+                "client": ("192.0.2.10", 1234),
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        assert sent[0] == {"type": "websocket.accept", "subprotocol": "bokeh"}
+        session = app.core.get_sessions("/plot")[0]
+        request = cast(Any, session.document.session_context).request
+        assert request.host == "plots.example.com"
+        assert request.headers["origin"] == "https://plots.example.com"
+        assert request.root_path == "/services/bokeh"
+    finally:
+        await app.core.stop()
+
+
 async def test_websocket_auth_policy_rejects_anonymous_user() -> None:
     app = BokehASGI(Application(), auth_policy=AuthPolicy(lambda request: None), keep_alive_milliseconds=0)
     token = generate_jwt_token(cast(ID, "session"), expiration=300)
