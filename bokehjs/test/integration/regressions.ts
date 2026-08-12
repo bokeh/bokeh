@@ -73,6 +73,7 @@ import {load_image} from "@bokehjs/core/util/image"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
+import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {f} from "@bokehjs/api/expr"
@@ -5406,6 +5407,44 @@ describe("Bug", () => {
       })
 
       await display(p, [400, 400])
+    })
+  })
+
+  describe("in issue #14593", () => {
+    it.no_image("doesn't allow a plot's context menu to work after repeated toolbar property changes", async () => {
+      const pan = new PanTool()
+      const box_select = new BoxSelectTool()
+
+      const p = fig([300, 300], {tools: [pan, box_select], toolbar_location: null})
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
+
+      const {view} = await display(p)
+
+      // emulates a keydown/keyup pair toggling the active drag tool
+      for (let i = 0; i < 5; i++) {
+        p.toolbar.active_drag = box_select
+        p.toolbar.active_drag = pan
+      }
+      await view.ready
+
+      // can't simply dispatchEvent() because of browser security
+      const {left, top} = view.el.getBoundingClientRect()
+      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+
+      const menu_view = view.get_context_menu({x: 50, y: 50})
+      expect_not_null(menu_view)
+      expect(menu_view.is_open).to.be.true
+
+      const items = menu_view.shadow_el.querySelectorAll(".bk-item.bk-menu")
+      expect(items.length).to.be.equal(2)
+
+      // submenu views are rebuilt, not accumulated
+      const submenu_views = menu_view._children_views().filter((view) => view instanceof MenuView)
+      expect(submenu_views.length).to.be.equal(2)
+
+      items[0].dispatchEvent(new PointerEvent("pointerenter"))
+      await view.ready
+      expect(submenu_views.some((view) => view.is_open)).to.be.true
     })
   })
 })

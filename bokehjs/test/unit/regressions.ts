@@ -2167,4 +2167,30 @@ ${view.host_selector} {
       expect(table.source.selected.indices.slice().sort()).to.be.equal([])
     })
   })
+
+  describe("in issue #14593", () => {
+    it("doesn't allow a plot's context menu to work after a toolbar property changed", async () => {
+      const pan = new PanTool()
+      const box_select = new BoxSelectTool()
+
+      const p = fig([300, 300], {tools: [pan, box_select], toolbar_location: null})
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
+
+      const {view} = await display(p)
+
+      p.toolbar.active_drag = box_select
+      await view.ready
+
+      // can't simply dispatchEvent() because of browser security
+      const {left, top} = view.el.getBoundingClientRect()
+      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+
+      const menu_view = view.get_context_menu({x: 50, y: 50})
+      expect_not_null(menu_view)
+      expect(menu_view.is_open).to.be.true
+
+      // tools providing a setup menu must still resolve their submenu views
+      expect(menu_view.shadow_el.querySelectorAll(".bk-item.bk-menu").length).to.be.equal(2)
+    })
+  })
 })
