@@ -194,11 +194,18 @@ async def test_static_streaming_waits_for_flush(tmp_path: Path, ManagedServerLoo
                 cls.close_thread = threading.get_ident()
                 cls.closed.set()
 
-        async def flush(self, include_footers: bool = False) -> None:
-            if not self.first_flush.is_set():
-                self.first_flush.set()
+        def flush(self, include_footers: bool = False) -> asyncio.Future[None]:
+            future = super().flush(include_footers)
+            if self.first_flush.is_set():
+                return future
+
+            self.first_flush.set()
+
+            async def wait_for_release() -> None:
                 await self.release_flush.wait()
-            await super().flush(include_footers)
+                await future
+
+            return asyncio.create_task(wait_for_release())
 
     patterns = [
         (r"/custom/static/(.*)", BackpressureStaticFileHandler, {"path": str(tmp_path)}),
