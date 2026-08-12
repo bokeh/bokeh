@@ -32,6 +32,7 @@ pytestmark = pytest.mark.skipif(
 
 HERE = Path(__file__).parent
 REPO_ROOT = HERE.parents[2]
+CONFIG_ROOT = REPO_ROOT / "examples" / "server" / "deployment" / "asgi"
 PUBLIC_URL = "http://127.0.0.1:8080/services/bokeh/"
 
 
@@ -95,7 +96,7 @@ def asgi_proxy(asgi_backend: None) -> Iterator[None]:
     name = f"bokeh-asgi-{PROXY_KIND}-{os.getpid()}"
     if PROXY_KIND == "nginx":
         image = "nginx:stable-alpine"
-        config = HERE / "nginx.conf"
+        config = CONFIG_ROOT / "nginx.conf"
         command = [
             docker, "run", "--detach", "--pull", "always", "--network", "host",
             "--name", name,
@@ -104,7 +105,7 @@ def asgi_proxy(asgi_backend: None) -> Iterator[None]:
         ]
     else:
         image = "httpd:2.4-alpine"
-        config = HERE / "apache.conf"
+        config = CONFIG_ROOT / "apache.conf"
         command = [
             docker, "run", "--detach", "--pull", "always", "--network", "host",
             "--name", name,

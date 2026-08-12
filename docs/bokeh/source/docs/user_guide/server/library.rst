@@ -96,6 +96,20 @@ strong ``secret_key`` on every worker. External producers must deliver updates
 to every worker. When Bokeh is mounted, use the parent-lifespan pattern above
 only if the framework does not propagate lifespan events to mounted apps.
 
+The following nginx and Apache configurations proxy a public
+``/services/bokeh`` path to an ASGI server listening on port 5100. They are
+also exercised by Bokeh's nightly deployment tests.
+
+nginx:
+
+.. literalinclude:: /../../../examples/server/deployment/asgi/nginx.conf
+   :language: nginx
+
+Apache:
+
+.. literalinclude:: /../../../examples/server/deployment/asgi/apache.conf
+   :language: apache
+
 Updating active sessions from the host
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
