@@ -105,17 +105,21 @@ export class LegendItem extends Model {
 
     const field = this.get_field_from_label_prop()
     if (field != null) {
-      let source: ColumnarDataSource
-      if (this.renderers.length != 0) {
-        source = this.renderers[0].data_source
-      } else {
+      if (this.renderers.length === 0) {
         return ["No source found"]
       }
+      const renderer = this.renderers[0]
+      const source = renderer.data_source
+      const view_indices = renderer.view.indices
 
       if (source instanceof ColumnarDataSource) {
         const data = source.get_column(field)
         if (data != null) {
-          return uniq(Array.from(data))
+          const filtered_data = []
+          for (const i of view_indices) {
+            filtered_data.push(data[i])
+          }
+          return uniq(filtered_data)
         } else {
           return ["Invalid field"]
         }
