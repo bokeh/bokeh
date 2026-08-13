@@ -118,7 +118,7 @@ class _HasDocument(Protocol):
     document: Document | None
 
 class _HasOverriddenDefaults(Protocol):
-    __overridden_defaults__: dict[str, Any]
+    def _overridden_defaults(self) -> dict[str, Any]: ...
 
 class _HasTrigger(Protocol):
     def trigger(self, attr: str, old: Any, new: Any,
@@ -502,7 +502,7 @@ class PropertyDescriptor[T]:
     def has_unstable_default(self, obj: HasProps) -> bool:
         # _may_have_unstable_default() doesn't have access to overrides, so check manually
         return self.property._may_have_unstable_default() or \
-            self.is_unstable(cast(_HasOverriddenDefaults, obj).__overridden_defaults__.get(self.name, None))
+            self.is_unstable(cast(_HasOverriddenDefaults, obj)._overridden_defaults().get(self.name, None))
 
     @classmethod
     def is_unstable(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
