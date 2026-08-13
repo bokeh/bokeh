@@ -6,7 +6,7 @@ import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 import type {Color} from "@bokehjs/core/types"
 
-import {HTML} from "@bokehjs/models/dom"
+import {HTML, TranslatableText} from "@bokehjs/models/dom"
 import {ColumnDataSource, Row} from "@bokehjs/models"
 
 import {
@@ -66,6 +66,61 @@ describe("Widgets", () => {
     })()]
     const obj = column(buttons)
     await display(obj, [350, buttons.length*(30 + 10) + 50])
+  })
+
+  it("should allow Button label translation with interpolation", async () => {
+    const buttons = [...(function* () {
+      for (const button_type of ButtonType) {
+        yield new Button({
+          label: new TranslatableText({
+            content: "button1.label",
+            options: {
+              interpolation: {
+                locale: {
+                  value: "en",
+                  formatting: {
+                    format: "display",
+                    options: {type: "language"},
+                  },
+                },
+                current_date: {
+                  value: new Date("2026-08-14T00:00:00"),
+                  formatting: {
+                    format: "date",
+                    options: {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    },
+                  },
+                },
+              },
+            },
+          }),
+          button_type,
+          width: 300, height: 30, sizing_mode: "fixed",
+        })
+      }
+    })()]
+    const obj = column(buttons)
+    const {view, doc} = await display(obj, [350, buttons.length*(30 + 10) + 50])
+
+    doc.config.i18n.set_config(
+      ["en"],
+      `{
+        "en": {
+            "button1": { "label": "Button {{locale}} - {{current_date}}" }
+        }
+       }`,
+      [
+        ["English", "en"],
+      ],
+      "en",
+      true,
+    )
+    doc.config.i18n.change_locale.emit()
+    await view.ready
   })
 
   it.allowing(6)("should allow Toggle", async () => {
