@@ -6,7 +6,6 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from functools import lru_cache
 from typing import (
     Any,
     Callable,
@@ -53,8 +52,6 @@ class MetaHasProps(type):
     __themed_values__: dict[str, Any]
 
     def __new__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]) -> type[HasProps]: ...
-
-    def __init__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]) -> None: ...
 
     @property
     def model_class_reverse_map(cls) -> dict[str, type[HasProps]]: ...
@@ -119,15 +116,12 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     def properties(cls, *, _with_props: Literal[True]) -> dict[str, Property[Any]]: ...
 
     @classmethod
-    @lru_cache(None)
     def descriptors(cls) -> list[PropertyDescriptor[Any]]: ...
 
     @classmethod
-    @lru_cache(None)
     def properties_with_refs(cls) -> dict[str, Property[Any]]: ...
 
     @classmethod
-    @lru_cache(None)
     def dataspecs(cls) -> dict[str, DataSpec]: ...
 
     def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]: ...
