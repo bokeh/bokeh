@@ -75,21 +75,7 @@ export class CDSViewView extends View {
     // XXX: if the data source is empty, there still may be one
     // index originating from glyph's scalar values.
     const source = this.parent.data_source.get_value()
-
-    const size = source.get_length() ?? 1
-    const indices = Indices.all_set(size)
-
-    const filtered = this.model.filter.compute_indices(source)
-    indices.intersect(filtered)
-
-    this.model.indices = indices
-
-    // reuse mapper if possible
-    if (size !== this.model.indices_map.size) {
-      this.model.indices_map = new SubsetIndexMapper(size)
-    }
-
-    this.model.indices_map.set_subset(indices.ones())
+    this.model.compute_indices(source)
   }
 }
 
@@ -151,6 +137,23 @@ export class CDSView extends Model {
 
   get_reference_point(array: Arrayable, value: unknown): number | null {
     return this.indices_map.subset_index_of(array, value)
+  }
+
+  compute_indices(source: ColumnarDataSource): void {
+    const size = source.get_length() ?? 1
+    const indices = Indices.all_set(size)
+
+    const filtered = this.filter.compute_indices(source)
+    indices.intersect(filtered)
+
+    this.indices = indices
+
+    // reuse mapper if possible
+    if (size !== this.indices_map.size) {
+      this.indices_map = new SubsetIndexMapper(size)
+    }
+
+    this.indices_map.set_subset(indices.ones())
   }
 
   /** @deprecated */
