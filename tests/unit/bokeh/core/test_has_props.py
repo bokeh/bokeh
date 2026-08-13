@@ -192,9 +192,10 @@ def test_HasProps_warns_on_unused_override() -> None:
     class Base(hp.HasProps, hp.Local):
         pass
 
-    with pytest.warns(RuntimeWarning, match="does not override anything"):
+    with pytest.warns(RuntimeWarning, match=r"Overrides of \['alpha', 'value'\].*do not override anything"):
         class Child(Base):
             value = Override(default=1)
+            alpha = Override(default=2)
 
 def test_HasProps_local_and_effective_property_metadata() -> None:
     class Base(hp.HasProps, hp.Local):

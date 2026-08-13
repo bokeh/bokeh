@@ -115,26 +115,19 @@ class _PropertyInfo:
     own_properties: dict[str, Property[Any]]
     own_overridden_defaults: dict[str, Any]
 
-    _properties: dict[str, Property[Any]] | None
-    _property_names: set[str] | None
-    _descriptors: list[PropertyDescriptor[Any]] | None
-    _properties_with_refs: dict[str, Property[Any]] | None
-    _dataspecs: dict[str, DataSpec] | None
-    _overridden_defaults: dict[str, Any] | None
+    _properties: dict[str, Property[Any]]
+    _property_names: set[str]
+    _descriptors: list[PropertyDescriptor[Any]]
+    _properties_with_refs: dict[str, Property[Any]]
+    _dataspecs: dict[str, DataSpec]
+    _overridden_defaults: dict[str, Any]
 
     def __init__(self, own_properties: dict[str, Property[Any]], own_overridden_defaults: dict[str, Any]) -> None:
         self.own_properties = own_properties
         self.own_overridden_defaults = own_overridden_defaults
 
-        self._properties = None
-        self._property_names = None
-        self._descriptors = None
-        self._properties_with_refs = None
-        self._dataspecs = None
-        self._overridden_defaults = None
-
     def _initialize(self, cls: type[HasProps]) -> None:
-        if self._properties is not None:
+        if hasattr(self, "_properties"):
             return
 
         properties: dict[str, Property[Any]] = {}
@@ -152,36 +145,30 @@ class _PropertyInfo:
 
     def properties(self, cls: type[HasProps]) -> dict[str, Property[Any]]:
         self._initialize(cls)
-        assert self._properties is not None
         return self._properties
 
     def property_names(self, cls: type[HasProps]) -> set[str]:
         self._initialize(cls)
-        assert self._property_names is not None
         return self._property_names
 
     def descriptors(self, cls: type[HasProps]) -> list[PropertyDescriptor[Any]]:
         self._initialize(cls)
-        assert self._descriptors is not None
         return self._descriptors
 
     def properties_with_refs(self, cls: type[HasProps]) -> dict[str, Property[Any]]:
         self._initialize(cls)
-        assert self._properties_with_refs is not None
         return self._properties_with_refs
 
     def dataspecs(self, cls: type[HasProps]) -> dict[str, DataSpec]:
         self._initialize(cls)
-        if self._dataspecs is None:
+        if not hasattr(self, "_dataspecs"):
             from .property.dataspec import DataSpec  # avoid circular import
 
-            assert self._properties is not None
             self._dataspecs = {name: prop for name, prop in self._properties.items() if isinstance(prop, DataSpec)}
         return self._dataspecs
 
     def overridden_defaults(self, cls: type[HasProps]) -> dict[str, Any]:
         self._initialize(cls)
-        assert self._overridden_defaults is not None
         return self._overridden_defaults
 
 
@@ -295,7 +282,7 @@ class MetaHasProps(type):
         if unused_overrides:
             from ..util.warnings import warn
 
-            warn(f"Overrides of {unused_overrides} in class {new_cls.__name__} does not override anything.", RuntimeWarning)
+            warn(f"Overrides of {sorted(unused_overrides)} in class {new_cls.__name__} do not override anything.", RuntimeWarning)
 
         return new_cls
 
