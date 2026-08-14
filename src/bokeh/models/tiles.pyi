@@ -15,6 +15,7 @@ from ..model.model import Model, _ModelInit
 class _TileSourceInit(_ModelInit, total=False):
     url: str
     tile_size: int
+    pixel_ratio: float
     min_zoom: int
     max_zoom: int
     extra_url_vars: dict[str, Any]

@@ -75,7 +75,7 @@ class TileSource(Model):
     Tile size in pixels (e.g. 256)
     """)
 
-    pixel_ratio = Float(default=1, help="""
+    pixel_ratio = Float(default=1.0, help="""
     The number of image pixels a tile provides per tile pixel.
 
     Tile services commonly offer higher resolution ("retina" or ``@2x``) tiles,
