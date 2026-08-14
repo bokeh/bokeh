@@ -1,0 +1,163 @@
+[modes.vortex]
+label = "Vortex flow"
+plot_title = "Counter-rotating vortex flow"
+controls = ["Circulation strength", "Flow rate"]
+color_title = "vortex flow speed"
+center_label = "vortex separation"
+description = "Counter-rotating vortices stretch and fold the particle grid."
+equation = '''
+\dot{\mathbf r}_i=\sum_{j=1}^{2}s_j\Gamma\,\frac{\mathbf J(\mathbf r_i-\mathbf c_j)}{\lVert\mathbf r_i-\mathbf c_j\rVert^2+\varepsilon^2}+\mathbf u_{\mathrm{bg}},\qquad \mathbf J(x,y)=(-y,x)
+'''
+source_match = '''
+**Source match:** Nitsche Eq. 6.3 gives the point-vortex kernel $\Gamma\mathbf J(\mathbf d)/(2\pi\lVert\mathbf d\rVert^2)$; Eqs. 6.4a-b show the sum over vortices. The demo absorbs $1/(2\pi)$ into $\Gamma$ and adds $\varepsilon^2$ softening and $\mathbf u_{\mathrm{bg}}$.
+'''
+
+[modes.vortex.wikipedia]
+title = "Two-dimensional point vortex gas"
+url = "https://en.wikipedia.org/wiki/Two-dimensional_point_vortex_gas"
+
+[[modes.vortex.references]]
+title = "Nitsche, Eq. 6.3 and Eqs. 6.4a-b (PDF p. 104)"
+url = "https://math.unm.edu/~nitsche/courses/471/classnotes.pdf#page=104"
+
+
+[modes.gravity]
+label = "Binary gravity"
+plot_title = "Binary softened-gravity field"
+controls = ["Gravity strength", "Time scale"]
+color_title = "gravity particle speed"
+center_label = "gravity-well separation"
+description = "Particles accelerate around two softened gravity wells."
+equation = '''
+\ddot{\mathbf r}_i=-G\sum_{j=1}^{2}\frac{\mathbf r_i-\mathbf c_j}{\left(\lVert\mathbf r_i-\mathbf c_j\rVert^2+\varepsilon^2\right)^{3/2}}
+'''
+source_match = '''
+**Source match:** Shirokov Eq. (1) has exactly the Plummer denominator $(\lVert\mathbf d\rVert^2+\varepsilon^2)^{3/2}$. The demo fixes two equal attractors, absorbs their masses into $G$, and adds light numerical damping; it is not an N-body solver.
+'''
+
+[modes.gravity.wikipedia]
+title = "Plummer model"
+url = "https://en.wikipedia.org/wiki/Plummer_model"
+
+[[modes.gravity.references]]
+title = "Shirokov, Eq. (1): Plummer-softened force (PDF p. 2)"
+url = "https://arxiv.org/pdf/0711.2989#page=2"
+
+
+[modes.wave]
+label = "Wave interference"
+plot_title = "Two-source wave interference"
+controls = ["Wave amplitude", "Propagation speed"]
+color_title = "interference amplitude"
+center_label = "source separation"
+description = "Two emitters produce a continuously evolving interference pattern."
+equation = '''
+\mathbf r_i(t)=\mathbf r_i^0+A\sum_{j=1}^{2}\hat{\mathbf d}_{ij}\cos\!\left(k\lVert\mathbf d_{ij}\rVert-\omega t+\phi_j\right),\qquad \mathbf d_{ij}=\mathbf r_i^0-\mathbf c_j
+'''
+source_match = '''
+**Source match:** Feynman Eqs. 1.2-1.4 establish amplitude addition and phase-dependent two-wave interference. The radial cosine phase and displacement along $\hat{\mathbf d}_{ij}$ are this demo's geometric realization.
+'''
+
+[modes.wave.wikipedia]
+title = "Wave interference"
+url = "https://en.wikipedia.org/wiki/Wave_interference"
+
+[[modes.wave.references]]
+title = "Feynman Vol. III, Eqs. 1.2-1.4: two-wave interference"
+url = "https://www.feynmanlectures.caltech.edu/III_01.html#Eq:III:1:2"
+
+
+[modes.chaotic]
+label = "Chaotic mixer"
+plot_title = "Time-dependent chaotic mixer"
+controls = ["Stirring strength", "Pulse rate"]
+color_title = "mixer flow speed"
+center_label = "mixer-center separation"
+description = "Alternating vortex pulses keep stretching and folding the flow."
+equation = '''
+\dot{\mathbf r}_i=\sum_{j=1}^{2}\Gamma_j(t)\frac{\mathbf J(\mathbf r_i-\mathbf c_j)}{\lVert\mathbf r_i-\mathbf c_j\rVert^2+\varepsilon^2}+\mathbf u_{\mathrm{shear}},\qquad \Gamma_{1,2}(t)=\Gamma_0\!\left[1\pm a\sin(\Omega t)\right]
+'''
+source_match = '''
+**Source match:** Aref et al. Eq. 8 documents a time-periodic blinking vortex-sink flow that produces chaotic advection; the point-vortex velocity kernel is Nitsche Eq. 6.3. This demo keeps both centers active and uses sinusoidal $\Gamma_j(t)$ plus shear rather than the review's exact blinking map.
+'''
+
+[modes.chaotic.wikipedia]
+title = "Chaotic mixing"
+url = "https://en.wikipedia.org/wiki/Chaotic_mixing"
+
+[[modes.chaotic.references]]
+title = "Aref et al. (2017), Eq. (8): blinking vortex-sink flow (PDF p. 7)"
+url = "https://arxiv.org/pdf/1403.2953#page=7"
+
+
+[modes.magnetic]
+label = "Magnetic dipole"
+plot_title = "Magnetic dipole trajectories"
+controls = ["Magnetic strength", "Time scale"]
+color_title = "charged-particle speed"
+center_label = "magnetic-center separation"
+description = "A dipole bends moving particles into curved, field-sensitive paths."
+equation = '''
+\dot{\mathbf r}=\mathbf v,\qquad \dot{\mathbf v}=q\left(\mathbf E+\mathbf v\times B_z\hat{\mathbf z}\right),\qquad B_z=B_0\left(R_1^{-2}-R_2^{-2}\right)
+'''
+source_match = '''
+**Source match:** Feynman Eq. 13.1 is $\mathbf F=q(\mathbf E+\mathbf v\times\mathbf B)$. The two-center $B_z$ profile, weak electric drift, and numerical damping are demo choices.
+'''
+
+[modes.magnetic.wikipedia]
+title = "Lorentz force"
+url = "https://en.wikipedia.org/wiki/Lorentz_force"
+
+[[modes.magnetic.references]]
+title = "Feynman Vol. II, Eq. 13.1: Lorentz force"
+url = "https://www.feynmanlectures.caltech.edu/II_13.html#Eq:II:13:1"
+
+
+[modes.curl_noise]
+label = "Curl-noise turbulence"
+plot_title = "Curl-noise turbulence"
+controls = ["Turbulence strength", "Evolution rate"]
+color_title = "turbulent flow speed"
+center_label = "swirl-center separation"
+description = "A divergence-free noise field produces smoke-like turbulent motion."
+equation = '''
+\mathbf u=\nabla\times\left(\psi\hat{\mathbf z}\right)=\left(\partial_y\psi,-\partial_x\psi\right),\qquad \nabla\cdot\mathbf u=0
+'''
+source_match = '''
+**Source match:** Bridson Eqs. (1)-(2) give $\mathbf v=\nabla\times\boldsymbol\psi$ and, in 2-D, $(\partial_y\psi,-\partial_x\psi)$; the text immediately following proves $\nabla\cdot\mathbf v=0$. The demo evaluates an analytic trigonometric streamfunction.
+'''
+
+[modes.curl_noise.wikipedia]
+title = "Curl (mathematics)"
+url = "https://en.wikipedia.org/wiki/Curl_(mathematics)"
+
+[[modes.curl_noise.references]]
+title = "Bridson et al., Eqs. (1)-(2): curl velocity (PDF p. 2)"
+url = "https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph2007-curlnoise.pdf#page=2"
+
+
+[modes.fountain]
+label = "Particle fountain"
+plot_title = "Emitter-and-deflector particle fountain"
+controls = ["Launch energy", "Gravity"]
+color_title = "projectile speed"
+center_label = "emitter-deflector distance"
+description = "The coral emitter launches particles past the cyan deflector."
+equation = '''
+\dot{\mathbf r}=\mathbf v,\qquad \dot{\mathbf v}=-g\hat{\mathbf y}+\kappa\frac{\mathbf r-\mathbf c_2}{\left(\lVert\mathbf r-\mathbf c_2\rVert^2+\varepsilon^2\right)^{3/2}}+a\sin(ky+\omega t)\hat{\mathbf x}
+'''
+source_match = '''
+**Source match:** NASA's Motion section gives $\dot{\mathbf r}=\mathbf v$ and $\dot v_y=-g$, covering only the constant-gravity component. Shirokov Eq. (1) gives the softened inverse-square spatial kernel; the demo reverses its sign so the cyan center repels. The $a\sin(ky+\omega t)\hat{\mathbf x}$ forcing and particle respawning are demo-only choices.
+'''
+
+[modes.fountain.wikipedia]
+title = "Projectile motion"
+url = "https://en.wikipedia.org/wiki/Projectile_motion"
+
+[[modes.fountain.references]]
+title = "NASA Glenn, Motion: gravity-only ballistic component"
+url = "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/ballistic-flight-equations/#motion"
+
+[[modes.fountain.references]]
+title = "Shirokov, Eq. (1): softened inverse-square kernel (PDF p. 2)"
+url = "https://arxiv.org/pdf/0711.2989#page=2"

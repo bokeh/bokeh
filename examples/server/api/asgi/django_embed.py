@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.asgi import get_asgi_application
 from django.http import HttpRequest, HttpResponse
 from django.urls import path
+from fourier_studio import modify_document
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.embed import server_document
@@ -35,7 +36,7 @@ if not settings.configured:
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", __name__)
 django_application = get_asgi_application()
-bokeh_application = BokehASGI({"/": Path(__file__).with_name("bkapp.py")})
+bokeh_application = BokehASGI(modify_document)
 
 
 async def application(scope, receive, send):

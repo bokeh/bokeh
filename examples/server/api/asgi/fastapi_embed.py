@@ -1,18 +1,20 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
+from fourier_studio import modify_document
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.embed import server_document
 from bokeh.server.asgi import BokehASGI
 
-bokeh_application = BokehASGI({"/": Path(__file__).with_name("bkapp.py")})
+bokeh_application = BokehASGI(modify_document)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     # Mounted Starlette/FastAPI applications don't receive lifespan events.
     # Start and stop Bokeh from the parent application's lifespan instead.
     await bokeh_application.core.start()
