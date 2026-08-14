@@ -61,6 +61,12 @@ kernels, mount routing, and host-managed lifespans. They use light stand-ins for
 optional web frameworks, so the core Bokeh test environment does not need
 Streamlit, FastAPI, or Starlette installed.
 
+The nightly server E2E suite complements those unit tests with the real
+frameworks and Chromium. It launches every entry point under both Uvicorn and
+Hypercorn, exercises Python callbacks and shared-data updates over live Bokeh
+WebSockets, confirms the particle arrays evolve in the browser, and checks that
+two Streamlit viewers retain independent state.
+
 ## Application lifespan
 
 FastAPI and Starlette do not pass lifespan events to mounted applications. The
