@@ -135,6 +135,9 @@ export class TileRendererView extends RendererView {
   private _set_range(range: Range, min: number, max: number, reset: boolean = false): void {
     const [start, end] = range.start <= range.end ? [min, max] : [max, min]
     range.setv({start, end})
+    // matches what interactive tools (pan, zoom, ...) do, so that a DataRange1d
+    // doesn't immediately re-fit to data and undo the constraint on the next pass
+    range.have_updated_interactively = true
     if (reset && range instanceof Range1d) {
       range.reset_start = start
       range.reset_end = end
@@ -156,11 +159,6 @@ export class TileRendererView extends RendererView {
   protected _init_map({width, height}: Size): void {
     const {tile_source} = this.model
     const {x_range, y_range} = this
-
-    if (!(x_range instanceof Range1d) || !(y_range instanceof Range1d)) {
-      logger.warn(`${this}: tile renderers require Range1d ranges; auto-ranged (DataRange1d) \
-ranges are recomputed from data bounds and will distort tiles`)
-    }
 
     const extent = tile_source.constrain_extent(this.get_extent(), height, width)
 
