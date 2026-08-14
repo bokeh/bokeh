@@ -610,8 +610,8 @@ export class Document implements Equatable {
     return doc
   }
 
-  replace_with_json(json: DocJson): void {
-    const replacement = Document.from_json(json)
+  replace_with_json(json: DocJson, buffers: Map<ID, ArrayBuffer> = new Map()): void {
+    const replacement = Document.from_json(json, undefined, buffers)
     replacement.destructively_move(this)
   }
 
