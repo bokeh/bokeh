@@ -220,7 +220,7 @@ export class ClientConnection {
           resolve(this.session)
         }
       } else {
-        this.session.document.replace_with_json(doc_json)
+        this.session.document.replace_with_json(doc_json, buffers)
         logger.debug("Updated existing session with new pulled doc")
         resolve(this.session)
       }
