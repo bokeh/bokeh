@@ -3,7 +3,7 @@ import {trap} from "#framework/util"
 
 import * as sinon from "sinon"
 
-import type {Patch} from "@bokehjs/document"
+import type {DocJson, Patch} from "@bokehjs/document"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
@@ -16,6 +16,8 @@ import {ColumnDataSource} from "@bokehjs/models"
 import {DocumentReady} from "@bokehjs/core/bokeh_events"
 import {Slice} from "@bokehjs/core/util/slice"
 import {unique_id} from "@bokehjs/core/util/string"
+import {BYTE_ORDER} from "@bokehjs/core/util/platform"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 
 namespace AnotherModel {
   export type Attrs = p.AttrsOf<Props>
@@ -706,6 +708,44 @@ describe("Document", () => {
     expect(copy.roots().length).to.be.equal(1)
     expect(copy.roots()[0]).to.be.instanceof(SomeModel)
     expect(copy.title()).to.be.equal("Foo")
+  })
+
+  it("can replace from JSON with binary buffers", () => {
+    const doc = new Document()
+    doc.add_root(new AnotherModel())
+
+    const buffer_id = unique_id()
+    const values = new Float64Array([1.25, -2.5, 3.75])
+    const json: DocJson = {
+      version: js_version,
+      title: "binary replacement",
+      roots: [{
+        type: "object",
+        name: "ColumnDataSource",
+        id: unique_id(),
+        attributes: {
+          data: {
+            type: "map",
+            entries: [["values", {
+              type: "ndarray",
+              array: {type: "bytes", data: {id: buffer_id}},
+              order: BYTE_ORDER,
+              dtype: "float64",
+              shape: [values.length],
+            }]],
+          },
+        },
+      }],
+    }
+
+    doc.replace_with_json(json, new Map([[buffer_id, values.buffer]]))
+
+    expect(doc.title()).to.be.equal("binary replacement")
+    expect(doc.roots().length).to.be.equal(1)
+    const [root] = doc.roots()
+    expect_instanceof(root, ColumnDataSource)
+    expect(root.data.values).to.be.instanceof(Float64NDArray)
+    expect(root.data.values).to.be.equal(values)
   })
 
   it("can serialize excluding defaults", () => {
