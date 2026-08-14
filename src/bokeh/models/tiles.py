@@ -75,6 +75,15 @@ class TileSource(Model):
     Tile size in pixels (e.g. 256)
     """)
 
+    pixel_ratio = Float(default=1, help="""
+    The number of image pixels a tile provides per tile pixel.
+
+    Tile services commonly offer higher resolution ("retina" or ``@2x``) tiles,
+    which contain ``pixel_ratio*tile_size`` image pixels per axis. Setting this
+    allows the zoom level to be chosen so that those tiles are displayed at
+    their natural size.
+    """)
+
     min_zoom = Int(default=0, help="""
     A minimum zoom level for the tile layer. This is the most zoomed-out level.
     """)

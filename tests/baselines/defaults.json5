@@ -6715,6 +6715,7 @@
     __extends__: "Model",
     url: "",
     tile_size: 256,
+    pixel_ratio: 1.0,
     min_zoom: 0,
     max_zoom: 30,
     extra_url_vars: {

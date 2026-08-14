@@ -318,6 +318,25 @@ describe("tile sources", () => {
       expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.equal([0, 1, 1])
     })
 
+    it("should not report a parent tile when none is cached", () => {
+      const source = new MercatorTileSource()
+      expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.null
+    })
+
+    it("should retain the most recently used tiles in the cache", () => {
+      const source = new MercatorTileSource()
+      for (let i = 0; i < 512; i++) {
+        source.set_tile(`${i}`, {tile_coords: [i, 0, 0]})
+      }
+      source.get_tile("0")
+      source.set_tile("512", {tile_coords: [512, 0, 0]})
+
+      expect(source.tiles.size).to.be.equal(512)
+      expect(source.has_tile("0")).to.be.true
+      expect(source.has_tile("1")).to.be.false
+      expect(source.has_tile("512")).to.be.true
+    })
+
     it("should verify whether tile xyz's are valid", () => {
       const tile_options0 = {wrap_around: true}
       const source0 = new MercatorTileSource(tile_options0)
@@ -377,10 +396,52 @@ describe("tile sources", () => {
       expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 1024, 1024)).to.be.equal(2)
     })
 
+    it("should get zoom levels within the range the source provides", () => {
+      const source = new MercatorTileSource({min_zoom: 5, max_zoom: 10})
+
+      expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(5)
+      expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(5)
+
+      expect(source.get_level_by_extent([0, 0, 100, 100], 256, 256)).to.be.equal(10)
+      expect(source.get_closest_level_by_extent([0, 0, 100, 100], 256, 256)).to.be.equal(10)
+    })
+
+    it("should constrain the extent to a single resolution in both axes", () => {
+      const source = new MercatorTileSource()
+
+      const wide = source.constrain_extent([-1000000, -500000, 1000000, 500000], 400, 400)
+      expect(wide).to.be.similar([-1000000, -1000000, 1000000, 1000000])
+
+      const tall = source.constrain_extent([-500000, -1000000, 500000, 1000000], 400, 400)
+      expect(tall).to.be.similar([-1000000, -1000000, 1000000, 1000000])
+
+      // an extent that already is consistent is left alone
+      expect(source.constrain_extent(wide, 400, 400)).to.be.equal(wide)
+      // the extent grows, so that what was asked for stays visible
+      expect(source.constrain_extent(T.MERCATOR_BOUNDS, 200, 400)).to.be.similar([
+        -40075016.68, -20037508.34, 40075016.68, 20037508.34,
+      ])
+    })
+
+    it("should not return children beyond the levels the source provides", () => {
+      const source = new MercatorTileSource({max_zoom: 2})
+      expect(source.children_by_tile_xyz(0, 0, 1).length).to.be.equal(4)
+      expect(source.children_by_tile_xyz(0, 0, 2)).to.be.equal([])
+    })
+
+    it("should limit the number of tiles requested for an extent", () => {
+      const source = new MercatorTileSource()
+      const tiles = source.get_tiles_by_extent(T.MERCATOR_BOUNDS, 12, 0)
+      expect(tiles.length).to.be.equal(4096)
+    })
+
     it("should convert pixel x/y to tile x/y", () => {
       const source = new MercatorTileSource()
       expect(source.pixels_to_tile(1, 1)).to.be.equal([0, 0])
       expect(source.pixels_to_tile(0, 0)).to.be.equal([0, 0])
+      expect(source.pixels_to_tile(-1, -1)).to.be.equal([-1, -1])
+      expect(source.pixels_to_tile(-256, -256)).to.be.equal([-1, -1])
+      expect(source.pixels_to_tile(-257, 257)).to.be.equal([-2, 1])
     })
 
     it("should convert pixel x/y to meters x/y", () => {

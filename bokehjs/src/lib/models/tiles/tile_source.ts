@@ -15,6 +15,7 @@ export namespace TileSource {
   export type Props = Model.Props & {
     url: p.Property<string>
     tile_size: p.Property<number>
+    pixel_ratio: p.Property<number>
     max_zoom: p.Property<number>
     min_zoom: p.Property<number>
     extra_url_vars: p.Property<Dict<string>>
@@ -38,6 +39,7 @@ export abstract class TileSource extends Model {
     this.define<TileSource.Props>(({Float, Str, Dict, Nullable /*, Null, Or, Ref*/}) => ({
       url:                [ Str, "", {convert: (url) => TileSource._normalize_case(url)} ],
       tile_size:          [ Float, 256 ],
+      pixel_ratio:        [ Float, 1 ],
       max_zoom:           [ Float, 30 ],
       min_zoom:           [ Float, 0 ],
       extra_url_vars:     [ Dict(Str), {} ],
@@ -53,6 +55,23 @@ export abstract class TileSource extends Model {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.change, () => this._clear_cache())
+  }
+
+  /**
+   * The number of tiles retained in the cache. Least recently used tiles are
+   * evicted first, so this needs to comfortably exceed the number of tiles a
+   * single viewport can show.
+   */
+  protected get max_cache_size(): number {
+    return 512
+  }
+
+  /**
+   * An upper bound on the number of tiles requested for a single extent, as a
+   * safeguard against extents that don't correspond to the requested level.
+   */
+  protected get max_tiles(): number {
+    return 4096
   }
 
   string_lookup_replace(str: string, lookup: Dict<string>): string {
@@ -77,6 +96,42 @@ export abstract class TileSource extends Model {
 
   protected _clear_cache(): void {
     this.tiles.clear()
+  }
+
+  has_tile(key: string): boolean {
+    return this.tiles.has(key)
+  }
+
+  /**
+   * Looks up a cached tile, marking it as the most recently used.
+   */
+  get_tile(key: string): Tile | undefined {
+    const tile = this.tiles.get(key)
+    if (tile != null) {
+      this.tiles.delete(key)
+      this.tiles.set(key, tile)
+    }
+    return tile
+  }
+
+  set_tile(key: string, tile: Tile): void {
+    this.tiles.set(key, tile)
+
+    const {max_cache_size} = this
+    let excess = this.tiles.size - max_cache_size
+    if (excess > 0) {
+      // relies on maps iterating in insertion order, which `get_tile()` maintains
+      for (const key of this.tiles.keys()) {
+        this.tiles.delete(key)
+        if (--excess == 0) {
+          break
+        }
+      }
+    }
+  }
+
+  delete_tile(key: string): void {
+    this.tiles.delete(key)
   }
 
   tile_xyz_to_key(x: number, y: number, z: number): string {
@@ -113,13 +168,17 @@ export abstract class TileSource extends Model {
 
   abstract children_by_tile_xyz(x: number, y: number, z: number): [number, number, number, Bounds][]
 
-  abstract get_closest_parent_by_tile_xyz(x: number, y: number, z: number): [number, number, number]
+  abstract get_closest_parent_by_tile_xyz(x: number, y: number, z: number): [number, number, number] | null
 
   abstract get_tiles_by_extent(extent: Extent, level: number, tile_border?: number): [number, number, number, Bounds][]
 
   abstract get_level_by_extent(extent: Extent, height: number, width: number): number
 
+  abstract get_closest_level_by_extent(extent: Extent, height: number, width: number): number
+
   abstract snap_to_zoom_level(extent: Extent, height: number, width: number, level: number): Extent
+
+  abstract constrain_extent(extent: Extent, height: number, width: number): Extent
 
   abstract rescale(extent: Extent, height: number, width: number, last_height: number, last_width: number): Extent
 

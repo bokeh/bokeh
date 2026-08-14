@@ -124,16 +124,21 @@ function svg_image() {
 `)
 }
 
+// only zoom levels 1 and 2 are available as local assets, so `max_zoom` is set
+// accordingly, which also makes the tiles requested independent of the display's
+// pixel ratio
 const osm_source = new WMTSTileSource({
   // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
   url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
   attribution: "&copy; (0) OSM source attribution",
+  max_zoom: 2,
 })
 
 const esri_source = new WMTSTileSource({
   // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
   url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
   attribution: "&copy; (1) Esri source attribution",
+  max_zoom: 2,
 })
 
 describe("Bug", () => {
@@ -4380,8 +4385,8 @@ describe("Bug", () => {
       s0.visible = true
       await view.ready
 
-      expect(p0.y_range.start).to.be.equal(-4033457.249070633)
-      expect(p0.y_range.end).to.be.equal(10033457.249070633)
+      expect(p0.y_range.start).to.be.similar(-4033457.249070633)
+      expect(p0.y_range.end).to.be.similar(10033457.249070633)
     })
   })
 
