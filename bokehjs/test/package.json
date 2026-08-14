@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/test",
-  "version": "3.10.0-dev.10",
+  "version": "3.10.0-rc.1",
   "type": "module",
   "private": true,
   "description": "Internal package for bokehjs' testing framework and tests",
