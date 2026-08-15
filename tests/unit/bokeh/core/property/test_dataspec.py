@@ -534,7 +534,7 @@ class Test_ExplicitUnits:
 
         assert Foo.lookup("x").get_value(Foo()) == value(14, units=other_units)
 
-    def test_unstable_default_serialization(self, unit_spec) -> None:
+    def test_default_factory_serialization(self, unit_spec) -> None:
         spec_type, units_property, _, other_units = unit_spec
         calls = 0
 

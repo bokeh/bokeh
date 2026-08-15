@@ -172,10 +172,11 @@ class Property[T]:
         """
         return PropertyDescriptor(name, self)
 
-    def _may_have_unstable_default(self) -> bool:
-        """ False if we have a default that is immutable, and will be the
-        same every time (some defaults are generated on demand by a function
-        to be called).
+    def _needs_materialized_default(self) -> bool:
+        """Whether this property may need a per-instance default value.
+
+        Callable defaults are generated on demand and retained on the
+        instance.
 
         """
         return callable(self._default)
@@ -500,9 +501,9 @@ class ParameterizedProperty[T](Property[T]):
     def has_ref(self) -> bool:
         return any(type_param.has_ref for type_param in self.type_params)
 
-    def _may_have_unstable_default(self) -> bool:
-        return super()._may_have_unstable_default() or \
-            any(type_param._may_have_unstable_default() for type_param in self.type_params)
+    def _needs_materialized_default(self) -> bool:
+        return super()._needs_materialized_default() or \
+            any(type_param._needs_materialized_default() for type_param in self.type_params)
 
     def replace(self, old: type[Property[Any]], new: Property[Any]) -> Property[Any]:
         if self.__class__ == old:
@@ -571,7 +572,7 @@ class ContainerProperty[T](ParameterizedProperty[T]):
 
     """
 
-    def _may_have_unstable_default(self) -> bool:
+    def _needs_materialized_default(self) -> bool:
         # all containers are mutable, so the default can be modified
         return self._default is not Undefined
 

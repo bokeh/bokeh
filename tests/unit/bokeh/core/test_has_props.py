@@ -225,6 +225,17 @@ def test_HasProps_local_and_effective_property_metadata() -> None:
     assert Grandchild.__overridden_defaults__ == {}
     assert Grandchild._overridden_defaults() == {"x": 2}
 
+    with pytest.raises(TypeError):
+        Base.__properties__["y"] = String()
+    with pytest.raises(TypeError):
+        Child.__overridden_defaults__["x"] = 3
+
+    assert isinstance(Grandchild.descriptors(), tuple)
+    with pytest.raises(TypeError):
+        Grandchild.properties_with_refs()["x"] = Int()
+    with pytest.raises(TypeError):
+        Grandchild.dataspecs()["x"] = NumberSpec()
+
 def test_HasProps_uses_standard_metaclass() -> None:
     class CustomMeta(type):
         pass
@@ -251,7 +262,7 @@ def test_HasProps_property_is_bound_before_subclass_hook() -> None:
 
     assert observed == {"descriptor": True}
 
-def test_HasProps_inherited_unstable_override() -> None:
+def test_HasProps_inherited_default_factory_override() -> None:
     calls = 0
 
     def default() -> int:
@@ -507,6 +518,27 @@ def test_HasProps_apply_theme() -> None:
     assert c.str2 == "foo"
     assert c.ds2 == "foo"
     assert c.lst2 == [1,2,3]
+
+def test_HasProps_apply_theme_to_required_property() -> None:
+    class Props(hp.HasProps, hp.Local):
+        value = Required(Int)
+
+    props = Props()
+    theme = {"value": 10}
+
+    props.apply_theme(theme)
+    assert props.value == 10
+
+    with pytest.raises(UnsetValueError, match="would unset"):
+        props.unapply_theme()
+
+    assert props.themed_values() is theme
+    assert props.value == 10
+
+    props.value = 20
+    props.unapply_theme()
+    assert props.themed_values() is None
+    assert props.value == 20
 
 def test_HasProps_unapply_theme() -> None:
     c = Child()
@@ -801,7 +833,7 @@ def test_HasProps_properties_with_values_maintains_order() -> None:
     assert list(v2.properties_with_values(include_defaults=False).items()) == [("f4", 40), ("f1", 10)]
     assert list(v2.properties_with_values(include_defaults=True) .items()) == [("f4", 40), ("f3", 3), ("f2", 2), ("f1", 10)]
 
-def test_HasProps_properties_with_values_unstable() -> None:
+def test_HasProps_properties_with_values_materialized_defaults() -> None:
     v0 = Some0HasProps()
     assert v0.properties_with_values(include_defaults=False) == {}
 
@@ -810,6 +842,39 @@ def test_HasProps_properties_with_values_unstable() -> None:
 
     v2 = Some2HasProps()
     assert v2.properties_with_values(include_defaults=False) == {"f0": v2.f0, "f1": v2.f1}
+
+def test_HasProps_properties_with_values_callable_container_default() -> None:
+    calls = 0
+
+    def default() -> list[int]:
+        nonlocal calls
+        calls += 1
+        return [calls]
+
+    class Props(hp.HasProps, hp.Local):
+        values = List(Int, default=default)
+
+    props = Props()
+
+    assert calls == 0
+    assert props.properties_with_values(include_defaults=False) == {"values": [1]}
+    assert props.properties_with_values(include_defaults=False) == {"values": [1]}
+    assert Serializer().encode(props)["attributes"] == {"values": [1]}
+    assert calls == 1
+
+def test_HasProps_properties_with_values_non_materialized_outer_default() -> None:
+    class Props(hp.HasProps, hp.Local):
+        optional = Nullable(List(Int), default=None)
+        either = Either(String, List(Int), default="a")
+
+    props = Props()
+
+    assert props.properties_with_values(include_defaults=False) == {}
+    assert props._materialized_defaults == {}
+
+    assert props.optional is None
+    assert props.either == "a"
+    assert props.properties_with_values(include_defaults=False) == {}
 
 def test_HasProps_properties_with_values_unset() -> None:
     v0 = Some4HasProps()

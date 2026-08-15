@@ -89,6 +89,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Mapping
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -116,7 +117,7 @@ class _HasDocument(Protocol):
     document: Document | None
 
 class _HasOverriddenDefaults(Protocol):
-    def _overridden_defaults(self) -> dict[str, Any]: ...
+    def _overridden_defaults(self) -> Mapping[str, Any]: ...
 
 class _HasTrigger(Protocol):
     def trigger(self, attr: str, old: Any, new: Any,
@@ -127,6 +128,25 @@ class _DataSpecProperty(Protocol):
     _units_enum: Any | None
 
     def to_serializable(self, obj: HasProps, name: str, val: Any) -> Any: ...
+
+
+def _value_has_ref(value: Any) -> bool:
+    from dataclasses import fields, is_dataclass
+    from types import SimpleNamespace
+
+    from ..has_props import HasProps
+
+    if isinstance(value, HasProps):
+        return True
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return any(_value_has_ref(item) for item in value)
+    if isinstance(value, dict):
+        return any(_value_has_ref(key) or _value_has_ref(item) for key, item in value.items())
+    if isinstance(value, SimpleNamespace):
+        return any(_value_has_ref(item) for item in vars(value).values())
+    if is_dataclass(value) and not isinstance(value, type):
+        return any(_value_has_ref(getattr(value, field.name)) for field in fields(value))
+    return False
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -188,12 +208,21 @@ class AliasPropertyDescriptor[T]:
     def __delete__(self, obj: HasProps) -> None:
         delattr(obj, self.aliased_name)
 
+    def value_is_unset(self, obj: HasProps) -> bool:
+        return obj.lookup(self.aliased_name).value_is_unset(obj)
+
+    def default_is_unset(self, obj: HasProps, themed_values: dict[str, Any] | None = None) -> bool:
+        return obj.lookup(self.aliased_name).default_is_unset(obj, themed_values)
+
+    def value_must_be_serialized(self, obj: HasProps) -> bool:
+        return obj.lookup(self.aliased_name).value_must_be_serialized(obj)
+
     @property
     def readonly(self) -> bool:
         return self.alias.readonly
 
-    def has_unstable_default(self, obj: HasProps) -> bool:
-        return obj.lookup(self.aliased_name).has_unstable_default(obj)
+    def needs_materialized_default(self, obj: HasProps) -> bool:
+        return obj.lookup(self.aliased_name).needs_materialized_default(obj)
 
     def class_default(self, cls: type[HasProps], *, no_eval: bool = False) -> Any:
         return cls.lookup(self.aliased_name).class_default(cls, no_eval=no_eval)
@@ -377,12 +406,18 @@ class PropertyDescriptor[T]:
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
+        if self.name not in obj._property_values:
+            return
+
+        if self.default_is_unset(obj):
+            raise UnsetValueError(f"can't reset {obj}.{self.name} because it doesn't have a default")
+
         old_value = obj._property_values.pop(self.name, Undefined)
         if isinstance(old_value, PropertyValueContainer):
             old_value._unregister_owner(obj, self)
 
-        obj._unstable_default_values.pop(self.name, None)
-        obj._unstable_themed_values.pop(self.name, None)
+        obj._materialized_defaults.pop(self.name, None)
+        obj._materialized_themed_defaults.pop(self.name, None)
 
         if old_value is not Undefined:
             self.trigger_if_changed(obj, old_value)
@@ -474,7 +509,7 @@ class PropertyDescriptor[T]:
             None
 
         """
-        new_value = self.__get__(obj, obj.__class__)
+        new_value = self._get(obj)
         if not self.property.matches(old, new_value):
             self._trigger(obj, old, new_value)
 
@@ -510,17 +545,38 @@ class PropertyDescriptor[T]:
         """
         return self.property.serialized
 
-    def has_unstable_default(self, obj: HasProps) -> bool:
-        # _may_have_unstable_default() doesn't have access to overrides, so check manually
-        return self.property._may_have_unstable_default() or \
-            self.is_unstable(cast(_HasOverriddenDefaults, obj)._overridden_defaults().get(self.name, None))
+    def needs_materialized_default(self, obj: HasProps) -> bool:
+        # _needs_materialized_default() doesn't have access to overrides, so check manually
+        return self.property._needs_materialized_default() or \
+            self.is_default_factory(cast(_HasOverriddenDefaults, obj)._overridden_defaults().get(self.name, None))
 
     @classmethod
-    def is_unstable(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
-        from types import FunctionType
+    def is_default_factory(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
+        return callable(value)
 
-        from .instance import InstanceDefault
-        return isinstance(value, (FunctionType, InstanceDefault))
+    def _effective_raw_default(self, obj: HasProps, themed_values: dict[str, Any] | None) -> Any:
+        if themed_values is not None and self.name in themed_values:
+            return themed_values[self.name]
+        return cast(_HasOverriddenDefaults, obj)._overridden_defaults().get(self.name, self.property._default)
+
+    def default_is_unset(self, obj: HasProps, themed_values: dict[str, Any] | None = None) -> bool:
+        if themed_values is None:
+            themed_values = obj.themed_values()
+        return self._effective_raw_default(obj, themed_values) is Undefined
+
+    def value_is_unset(self, obj: HasProps) -> bool:
+        return self.name not in obj._property_values and self.default_is_unset(obj)
+
+    def value_must_be_serialized(self, obj: HasProps) -> bool:
+        if self.name in obj._property_values:
+            return True
+
+        themed_values = obj.themed_values()
+        if themed_values is not None and self.name in themed_values:
+            return True
+
+        default = self._effective_raw_default(obj, None)
+        return callable(default) or _value_has_ref(default)
 
     def _get(self, obj: HasProps) -> T:
         """ Internal implementation of instance attribute access for the
@@ -564,20 +620,20 @@ class PropertyDescriptor[T]:
         themed_values = obj.themed_values()
         is_themed = themed_values is not None and self.name in themed_values
 
-        unstable_dict = obj._unstable_themed_values if is_themed else obj._unstable_default_values
+        materialized_defaults = obj._materialized_themed_defaults if is_themed else obj._materialized_defaults
 
-        if self.name in unstable_dict:
-            return unstable_dict[self.name]
+        if self.name in materialized_defaults:
+            return materialized_defaults[self.name]
 
         # Ensure we do not look up the default until after we check if it already present
-        # in the unstable_dict because it is a very expensive operation
+        # in materialized_defaults because it is a very expensive operation
         # Ref: https://github.com/bokeh/bokeh/pull/13174
         default = self.instance_default(obj)
 
-        if self.has_unstable_default(obj):
+        if self.needs_materialized_default(obj):
             if isinstance(default, PropertyValueContainer):
                 default._register_owner(obj, self)
-            unstable_dict[self.name] = default
+            materialized_defaults[self.name] = default
 
         return default
 
@@ -586,11 +642,11 @@ class PropertyDescriptor[T]:
         if isinstance(value, PropertyValueContainer):
             value._register_owner(obj, self)
 
-        if self.name in obj._unstable_themed_values:
-            del obj._unstable_themed_values[self.name]
+        if self.name in obj._materialized_themed_defaults:
+            del obj._materialized_themed_defaults[self.name]
 
-        if self.name in obj._unstable_default_values:
-            del obj._unstable_default_values[self.name]
+        if self.name in obj._materialized_defaults:
+            del obj._materialized_defaults[self.name]
 
         obj._property_values[self.name] = value
 

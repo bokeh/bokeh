@@ -33,6 +33,7 @@ from bokeh.core.properties import (
     List,
     Nullable,
     Readonly,
+    Required,
 )
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
@@ -125,24 +126,15 @@ class Test_PropertyDescriptor:
         for name in ['foo', 'bar', 'baz', 'quux']:
             f.on_change(name, cb)
 
-        model_unstable_default_values = dict(
-            js_event_callbacks={},
-            js_property_callbacks={},
-            subscribed_events=set(),
-            tags=[],
-        )
-
         assert f._property_values == {}
-        assert f._unstable_default_values == dict(
-            **model_unstable_default_values,
+        assert f._materialized_defaults == dict(
             bar=[10],
             quux=[30],
         )
 
         del f.foo
         assert f._property_values == {}
-        assert f._unstable_default_values == dict(
-            **model_unstable_default_values,
+        assert f._materialized_defaults == dict(
             bar=[10],
             quux=[30],
         )
@@ -151,8 +143,7 @@ class Test_PropertyDescriptor:
         f.baz = 50
 
         assert f.baz == 50
-        assert f._unstable_default_values == dict(
-            **model_unstable_default_values,
+        assert f._materialized_defaults == dict(
             bar=[10],
             quux=[30],
         )
@@ -160,8 +151,7 @@ class Test_PropertyDescriptor:
 
         del f.baz
         assert f.baz == 20
-        assert f._unstable_default_values == dict(
-            **model_unstable_default_values,
+        assert f._materialized_defaults == dict(
             bar=[10],
             quux=[30],
         )
@@ -169,37 +159,35 @@ class Test_PropertyDescriptor:
 
         del f.bar
         assert f._property_values == {}
-        assert f._unstable_default_values == dict(
-            **model_unstable_default_values,
+        assert f._materialized_defaults == dict(
+            bar=[10],
             quux=[30],
         )
         assert calls == ['baz', 'baz']
 
         f.bar = [60]
         assert f.bar == [60]
-        assert f._unstable_default_values == dict(
-            **model_unstable_default_values,
+        assert f._materialized_defaults == dict(
             quux=[30],
         )
         assert calls == ['baz', 'baz', 'bar']
 
         del f.bar
         assert f.bar == [10]
-        assert f._unstable_default_values == dict(
-            **model_unstable_default_values,
+        assert f._materialized_defaults == dict(
             bar=[10],
             quux=[30],
         )
         assert calls == ['baz', 'baz', 'bar', 'bar']
 
         del f.quux
-        assert f._unstable_default_values == dict(
-            **model_unstable_default_values,
+        assert f._materialized_defaults == dict(
             bar=[10],
+            quux=[30],
         )
         assert calls == ['baz', 'baz', 'bar', 'bar']
 
-    def test___delete___retains_new_unstable_default(self) -> None:
+    def test___delete___retains_new_materialized_default(self) -> None:
         defaults: list[list[int]] = []
 
         def default() -> list[int]:
@@ -229,6 +217,18 @@ class Test_PropertyDescriptor:
 
         with pytest.raises(RuntimeError, match=r"Foo\.value is a readonly property"):
             del f.value
+
+    def test___delete___required_is_atomic(self) -> None:
+        class Foo(Model):
+            value = Required(Int)
+
+        f = Foo(value=10)
+
+        with pytest.raises(bcpd.UnsetValueError, match="doesn't have a default"):
+            del f.value
+
+        assert f.value == 10
+        assert f._property_values == {"value": 10}
 
     def test_class_default(self) -> None:
         result = {}

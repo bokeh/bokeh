@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
@@ -55,7 +55,6 @@ from .property.descriptors import AliasPropertyDescriptor, PropertyDescriptor, U
 from .property.enum import Enum
 from .property.serialized import NotSerialized
 from .property.singletons import Undefined
-from .property.wrappers import PropertyValueContainer
 from .serialization import (
     ObjectRep,
     Ref,
@@ -114,16 +113,16 @@ def is_DataModel(cls: type[HasProps]) -> bool:
 class _PropertyInfo:
     """Property metadata compiled once for each ``HasProps`` subclass."""
 
-    own_properties: dict[str, Property[Any]]
-    own_overridden_defaults: dict[str, Any]
+    own_properties: Mapping[str, Property[Any]]
+    own_overridden_defaults: Mapping[str, Any]
 
     _properties: Mapping[str, Property[Any]]
-    _descriptors: list[PropertyDescriptor[Any]]
-    _properties_with_refs: dict[str, Property[Any]]
-    _dataspecs: dict[str, DataSpec]
-    _overridden_defaults: dict[str, Any]
+    _descriptors: tuple[PropertyDescriptor[Any] | AliasPropertyDescriptor[Any], ...]
+    _properties_with_refs: Mapping[str, Property[Any]]
+    _dataspecs: Mapping[str, DataSpec]
+    _overridden_defaults: Mapping[str, Any]
 
-    def __init__(self, own_properties: dict[str, Property[Any]], own_overridden_defaults: dict[str, Any]) -> None:
+    def __init__(self, own_properties: Mapping[str, Property[Any]], own_overridden_defaults: Mapping[str, Any]) -> None:
         self.own_properties = own_properties
         self.own_overridden_defaults = own_overridden_defaults
 
@@ -145,7 +144,7 @@ class _PropertyInfo:
         properties.update(self.own_properties)
         overridden_defaults.update(self.own_overridden_defaults)
 
-        descriptors: list[PropertyDescriptor[Any]] = []
+        descriptors: list[PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]] = []
         for name in properties:
             descriptor = getattr(cls, name)
             if not isinstance(descriptor, (AliasPropertyDescriptor, PropertyDescriptor)):
@@ -156,31 +155,31 @@ class _PropertyInfo:
             descriptors.append(descriptor)
 
         self._properties = MappingProxyType(properties)
-        self._descriptors = descriptors
-        self._properties_with_refs = {name: prop for name, prop in properties.items() if prop.has_ref}
-        self._overridden_defaults = overridden_defaults
+        self._descriptors = tuple(descriptors)
+        self._properties_with_refs = MappingProxyType({name: prop for name, prop in properties.items() if prop.has_ref})
+        self._overridden_defaults = MappingProxyType(overridden_defaults)
 
     def properties(self, cls: type[HasProps]) -> Mapping[str, Property[Any]]:
         self._initialize(cls)
         return self._properties
 
-    def descriptors(self, cls: type[HasProps]) -> list[PropertyDescriptor[Any]]:
+    def descriptors(self, cls: type[HasProps]) -> tuple[PropertyDescriptor[Any] | AliasPropertyDescriptor[Any], ...]:
         self._initialize(cls)
         return self._descriptors
 
-    def properties_with_refs(self, cls: type[HasProps]) -> dict[str, Property[Any]]:
+    def properties_with_refs(self, cls: type[HasProps]) -> Mapping[str, Property[Any]]:
         self._initialize(cls)
         return self._properties_with_refs
 
-    def dataspecs(self, cls: type[HasProps]) -> dict[str, DataSpec]:
+    def dataspecs(self, cls: type[HasProps]) -> Mapping[str, DataSpec]:
         self._initialize(cls)
         if not hasattr(self, "_dataspecs"):
             from .property.dataspec import DataSpec  # avoid circular import
 
-            self._dataspecs = {name: prop for name, prop in self._properties.items() if isinstance(prop, DataSpec)}
+            self._dataspecs = MappingProxyType({name: prop for name, prop in self._properties.items() if isinstance(prop, DataSpec)})
         return self._dataspecs
 
-    def overridden_defaults(self, cls: type[HasProps]) -> dict[str, Any]:
+    def overridden_defaults(self, cls: type[HasProps]) -> Mapping[str, Any]:
         self._initialize(cls)
         return self._overridden_defaults
 
@@ -332,11 +331,11 @@ class HasProps(Serializable):
     _initialized: bool = False
 
     _property_values: dict[str, Any]
-    _unstable_default_values: dict[str, Any]
-    _unstable_themed_values: dict[str, Any]
+    _materialized_defaults: dict[str, Any]
+    _materialized_themed_defaults: dict[str, Any]
 
-    __properties__: dict[str, Property[Any]] = {}
-    __overridden_defaults__: dict[str, Any] = {}
+    __properties__: Mapping[str, Property[Any]] = MappingProxyType({})
+    __overridden_defaults__: Mapping[str, Any] = MappingProxyType({})
     __property_info__ = _PropertyInfo(__properties__, __overridden_defaults__)
 
     model_class_reverse_map = _ModelClassReverseMap()
@@ -349,8 +348,8 @@ class HasProps(Serializable):
 
     @classmethod
     def __init_subclass__(cls):
-        own_properties = cls.__dict__.get("__properties__", {})
-        own_overridden_defaults = cls.__dict__.get("__overridden_defaults__", {})
+        own_properties = MappingProxyType(dict(cls.__dict__.get("__properties__", {})))
+        own_overridden_defaults = MappingProxyType(dict(cls.__dict__.get("__overridden_defaults__", {})))
         cls.__properties__ = own_properties
         cls.__overridden_defaults__ = own_overridden_defaults
         cls.__property_info__ = property_info = _PropertyInfo(own_properties, own_overridden_defaults)
@@ -373,19 +372,11 @@ class HasProps(Serializable):
         '''
         super().__init__()
         self._property_values = {}
-        self._unstable_default_values = {}
-        self._unstable_themed_values = {}
+        self._materialized_defaults = {}
+        self._materialized_themed_defaults = {}
 
         for name, value in properties.items():
             setattr(self, name, value)
-
-        initialized = set(properties.keys())
-        for name in self.properties():
-            if name in initialized:
-                continue
-            desc = self.lookup(name)
-            if desc.has_unstable_default(self):
-                desc._get(self) # this fills-in `_unstable_*_values`
 
         self._initialized = True
 
@@ -524,7 +515,7 @@ class HasProps(Serializable):
 
         '''
         if name in self.properties():
-            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore # TODO: log.trace()
+            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore[attr-defined]
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, value, setter=setter)
         else:
@@ -594,12 +585,12 @@ class HasProps(Serializable):
         return cls.__property_info__.properties(cls)
 
     @classmethod
-    def descriptors(cls) -> list[PropertyDescriptor[Any]]:
+    def descriptors(cls) -> Sequence[PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]]:
         """ List of property descriptors in the order of definition. """
         return cls.__property_info__.descriptors(cls)
 
     @classmethod
-    def properties_with_refs(cls) -> dict[str, Property[Any]]:
+    def properties_with_refs(cls) -> Mapping[str, Property[Any]]:
         ''' Collect the names of all properties on this class that also have
         references.
 
@@ -607,20 +598,20 @@ class HasProps(Serializable):
         properties defined on any parent classes.
 
         Returns:
-            set[str] : names of properties that have references
+            a mapping of property names to properties that have references
 
         '''
         return cls.__property_info__.properties_with_refs(cls)
 
     @classmethod
-    def dataspecs(cls) -> dict[str, DataSpec]:
+    def dataspecs(cls) -> Mapping[str, DataSpec]:
         ''' Collect the names of all ``DataSpec`` properties on this class.
 
         This method *always* traverses the class hierarchy and includes
         properties defined on any parent classes.
 
         Returns:
-            set[str] : names of ``DataSpec`` properties
+            a mapping of property names to ``DataSpec`` properties
 
         '''
         return cls.__property_info__.dataspecs(cls)
@@ -650,7 +641,7 @@ class HasProps(Serializable):
             include_defaults=include_defaults, include_undefined=include_undefined)
 
     @classmethod
-    def _overridden_defaults(cls) -> dict[str, Any]:
+    def _overridden_defaults(cls) -> Mapping[str, Any]:
         ''' Returns a dictionary of defaults that have been overridden.
 
         .. note::
@@ -677,45 +668,24 @@ class HasProps(Serializable):
             dict : mapping of property names and values for matching properties
 
         '''
-        themed_keys: set[str] = set()
         result: dict[str, Any] = {}
 
         keys = self.properties()
-        if include_defaults:
-            selected_keys = set(keys)
-        else:
-            # TODO (bev) For now, include unstable default values. Things rely on Instances
-            # always getting serialized, even defaults, and adding unstable defaults here
-            # accomplishes that. Unmodified defaults for property value containers will be
-            # weeded out below.
-            selected_keys = set(self._property_values.keys()) | set(self._unstable_default_values.keys())
-            themed_values = self.themed_values()
-            if themed_values is not None:
-                themed_keys = set(themed_values.keys())
-                selected_keys |= themed_keys
 
         for key in keys:
             descriptor = self.lookup(key)
             if not query(descriptor):
                 continue
 
-            try:
-                value = descriptor.get_value(self)
-            except UnsetValueError:
+            if descriptor.value_is_unset(self):
                 if include_undefined:
                     value = Undefined
                 else:
-                    raise
+                    raise UnsetValueError(f"{self}.{key} doesn't have a value set")
+            elif not include_defaults and not descriptor.value_must_be_serialized(self):
+                continue
             else:
-                # TODO: this should happen before get_value(), however there's currently
-                # no reliable way of checking if a property is unset without actually
-                # getting the value.
-                if key not in selected_keys:
-                    continue
-
-                if not include_defaults and key not in themed_keys:
-                    if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
-                        continue
+                value = descriptor.get_value(self)
 
             result[key] = value
 
@@ -762,7 +732,12 @@ class HasProps(Serializable):
         added = set(property_values.keys())
         old_values: dict[str, Any] = {}
         for k in added.union(removed):
-            old_values[k] = getattr(self, k)
+            descriptor = self.lookup(k)
+            if not isinstance(descriptor, PropertyDescriptor):
+                continue
+            if k not in self._property_values and descriptor.default_is_unset(self, property_values):
+                raise UnsetValueError(f"applying this theme would unset {self}.{k}")
+            old_values[k] = descriptor._get(self)
 
         if len(property_values) > 0:
             setattr(self, '__themed_values__', property_values)
@@ -772,8 +747,8 @@ class HasProps(Serializable):
         # Property container values might be cached even if unmodified. Invalidate
         # any cached values that are not modified at this point.
         for k, v in old_values.items():
-            if k in self._unstable_themed_values:
-                del self._unstable_themed_values[k]
+            if k in self._materialized_themed_defaults:
+                del self._materialized_themed_defaults[k]
 
         # Emit any change notifications that result
         for k, v in old_values.items():
@@ -853,7 +828,7 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
         if default is Undefined:
             prop_def = PropertyDef(name=prop_name, kind=kind)
         else:
-            if descriptor.is_unstable(default):
+            if descriptor.is_default_factory(default):
                 default = default()
 
             prop_def = PropertyDef(name=prop_name, kind=kind, default=serializer.encode(default))
