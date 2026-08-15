@@ -503,7 +503,9 @@ class PropertyDescriptor[T]:
                 The object the property is being set on.
 
             old (obj) :
-                The previous value of the property to compare
+                The previous value of the property, or
+                ``OldValueUnavailable`` when an incremental update didn't
+                retain it.
 
         Returns:
             None
@@ -708,7 +710,7 @@ class PropertyDescriptor[T]:
                 old_attr_value._unregister_owner(obj, self)
             self._set_value(obj, value)
 
-        # for notification purposes, "old" should be the logical old
+        # Preserve the caller's old-value semantics for notifications.
         self._trigger(obj, old, value, hint=hint, setter=setter)
 
     # called when a container is mutated "behind our back" and
@@ -724,9 +726,9 @@ class PropertyDescriptor[T]:
             old (object) :
                 The "old" value of the container
 
-                In this case, somewhat weirdly, ``old`` is a copy and the
-                new value should already be set unless we change it due to
-                validation.
+                This is normally a copy. Incremental updates that don't
+                retain the previous value use ``OldValueUnavailable``. The
+                new value is already set unless validation changes it.
 
             hint (event hint or None, optional)
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
@@ -757,7 +759,9 @@ class PropertyDescriptor[T]:
                 The object the property is being set on.
 
             old (obj) :
-                The previous value of the property
+                The previous value of the property, or
+                ``OldValueUnavailable`` when an incremental update didn't
+                retain it.
 
             value (obj) :
                 The new value of the property

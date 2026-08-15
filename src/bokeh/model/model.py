@@ -497,6 +497,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
                 widget.on_change('value', callback1, callback2, ..., callback_n)
 
+        .. note::
+            For changes to ``ColumnDataSource.data`` made by ``stream()`` or
+            ``patch()``, callbacks receive
+            :data:`~bokeh.util.callback_manager.OldValueUnavailable` as
+            ``old``. Incremental updates deliberately don't retain complete
+            copies of the previous columns.
+
         '''
         descriptor = self.lookup(attr)
         super().on_change(descriptor.name, *callbacks)

@@ -29,6 +29,7 @@ import numpy as np
 
 # Bokeh imports
 from bokeh.models import ColumnDataSource, DataTable, NumberFormatter, Selection
+from bokeh.util.callback_manager import OldValueUnavailable
 from bokeh.util.dependencies import is_installed
 from bokeh.util.serialization import convert_datetime_array
 
@@ -299,6 +300,15 @@ class TestColumnDataSource:
         assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None)
         assert stuff['kw'] == {}
 
+    def test_stream_callback_old_value_unavailable(self) -> None:
+        ds = bms.ColumnDataSource(data=dict(a=[10]))
+        old_values = []
+        ds.on_change("data", lambda _attr, old, _new: old_values.append(old))
+
+        ds.stream(dict(a=[11]))
+
+        assert old_values == [OldValueUnavailable]
+
     def test__stream_good_datetime64_data(self) -> None:
         now = dt.datetime.now()
         dates = np.array([now+dt.timedelta(i) for i in range(1, 10)], dtype='datetime64')
@@ -341,6 +351,15 @@ class TestColumnDataSource:
             ds.patch(dict(c=[(0, 100)]))
         with pytest.raises(ValueError, match=r"Can only patch existing columns \(extra: c, d\)"):
             ds.patch(dict(a=[(0,100)], c=[(0, 100)], d=[(0, 100)]))
+
+    def test_patch_callback_old_value_unavailable(self) -> None:
+        ds = bms.ColumnDataSource(data=dict(a=[10]))
+        old_values = []
+        ds.on_change("data", lambda _attr, old, _new: old_values.append(old))
+
+        ds.patch(dict(a=[(0, 11)]))
+
+        assert old_values == [OldValueUnavailable]
 
     def test_patch_bad_simple_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
@@ -740,11 +759,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert len(notify_owners_stuff['args']) == 1
-        self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
-                                           dict(a=np.array([10]),
-                                                b=np.array([20]),
-                                                c=np.array([30])))
+        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),
@@ -791,12 +806,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert len(notify_owners_stuff['args']) == 1
-        self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
-                                           dict(a=np.array([10]),
-                                                b=np.array([20]),
-                                                c=np.array([30]),
-                                                index=np.array([0])))
+        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11]),
@@ -846,11 +856,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert len(notify_owners_stuff['args']) == 1
-        self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
-                                           dict(a=np.array([10]),
-                                                b=np.array([20]),
-                                                c=np.array([30])))
+        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),
@@ -900,12 +906,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert len(notify_owners_stuff['args']) == 1
-        self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
-                                           dict(a=np.array([10]),
-                                                b=np.array([20]),
-                                                c=np.array([30]),
-                                                index=np.array([0])))
+        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),

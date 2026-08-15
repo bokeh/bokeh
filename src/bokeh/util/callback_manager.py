@@ -28,6 +28,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
     Sequence,
     cast,
 )
@@ -49,12 +50,44 @@ if TYPE_CHECKING:
 
 __all__ = (
     'EventCallbackManager',
+    'OldValueUnavailable',
     'PropertyCallbackManager',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class _OldValueUnavailableType:
+    """Indicates that an incremental update didn't retain the previous value."""
+
+    _instance: ClassVar[_OldValueUnavailableType | None] = None
+
+    __slots__ = ()
+
+    def __new__(cls) -> _OldValueUnavailableType:
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __copy__(self) -> _OldValueUnavailableType:
+        return self
+
+    def __deepcopy__(self, _memo: dict[int, Any]) -> _OldValueUnavailableType:
+        return self
+
+    def __reduce__(self) -> tuple[type[_OldValueUnavailableType], tuple[()]]:
+        return (_OldValueUnavailableType, ())
+
+    def __str__(self) -> str:
+        return "OldValueUnavailable"
+
+    def __repr__(self) -> str:
+        return "OldValueUnavailable"
+
+#: Sentinel passed as ``old`` to property callbacks when an incremental
+#: update doesn't retain the complete previous value.
+OldValueUnavailable = _OldValueUnavailableType()
 
 # TODO (bev) the situation with no-argument Button callbacks is a mess. We
 # should migrate to all callbacks receiving the event as the param, even if that

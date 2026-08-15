@@ -17,6 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import pickle
+from copy import copy, deepcopy
 from functools import partial
 
 # Bokeh imports
@@ -104,6 +106,15 @@ def _partially_bad_event(event):
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def test_OldValueUnavailable() -> None:
+    sentinel = cbm.OldValueUnavailable
+
+    assert str(sentinel) == "OldValueUnavailable"
+    assert repr(sentinel) == "OldValueUnavailable"
+    assert copy(sentinel) is sentinel
+    assert deepcopy(sentinel) is sentinel
+    assert pickle.loads(pickle.dumps(sentinel)) is sentinel
 
 
 class TestPropertyCallbackManager:
