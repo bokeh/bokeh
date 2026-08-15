@@ -42,6 +42,8 @@ def is_abstract(cls: type[HasProps]) -> bool: ...
 
 def is_DataModel(cls: type[HasProps]) -> bool: ...
 
+def _data_models_in_dependency_order(data_models: Iterable[type[HasProps]]) -> list[type[HasProps]]: ...
+
 class _ModelResolver:
     ...
 
@@ -128,7 +130,22 @@ class HasProps(Serializable):
 
     def clone(self, **overrides: Any) -> Self: ...
 
-KindRef = Any # TODO
+type PrimitiveKindRef = Literal["Any", "Unknown", "Bool", "Float", "Int", "Bytes", "Str", "Null"]
+type KindRef = (
+    PrimitiveKindRef
+    | tuple[Literal["Regex"], str]
+    | tuple[Literal["Regex"], str, str]
+    | tuple[Literal["Nullable"], KindRef]
+    | tuple[Literal["Or"], KindRef, *tuple[KindRef, ...]]
+    | tuple[Literal["Tuple"], KindRef, *tuple[KindRef, ...]]
+    | tuple[Literal["List"], KindRef]
+    | tuple[Literal["Struct"], *tuple[tuple[str, KindRef], ...]]
+    | tuple[Literal["Dict"], KindRef]
+    | tuple[Literal["Mapping"], KindRef, KindRef]
+    | tuple[Literal["Enum"], *tuple[str, ...]]
+    | tuple[Literal["Ref"], Ref]
+    | tuple[Literal["AnyRef"]]
+)
 
 class PropertyDef(TypedDict):
     name: str

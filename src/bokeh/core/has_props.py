@@ -44,6 +44,7 @@ from typing import (
     NotRequired,
     Self,
     TypedDict,
+    cast,
     overload,
 )
 from weakref import WeakSet
@@ -778,7 +779,22 @@ class HasProps(Serializable):
         properties = {**existing, **overrides}
         return self.__class__(**properties)
 
-KindRef = Any # TODO
+type PrimitiveKindRef = Literal["Any", "Unknown", "Bool", "Float", "Int", "Bytes", "Str", "Null"]
+type KindRef = (
+    PrimitiveKindRef
+    | tuple[Literal["Regex"], str]
+    | tuple[Literal["Regex"], str, str]
+    | tuple[Literal["Nullable"], KindRef]
+    | tuple[Literal["Or"], KindRef, *tuple[KindRef, ...]]
+    | tuple[Literal["Tuple"], KindRef, *tuple[KindRef, ...]]
+    | tuple[Literal["List"], KindRef]
+    | tuple[Literal["Struct"], *tuple[tuple[str, KindRef], ...]]
+    | tuple[Literal["Dict"], KindRef]
+    | tuple[Literal["Mapping"], KindRef, KindRef]
+    | tuple[Literal["Enum"], *tuple[str, ...]]
+    | tuple[Literal["Ref"], Ref]
+    | tuple[Literal["AnyRef"]]
+)
 
 class PropertyDef(TypedDict):
     name: str
@@ -796,8 +812,124 @@ class ModelDef(TypedDict):
     properties: NotRequired[list[PropertyDef]]
     overrides: NotRequired[list[OverrideDef]]
 
-def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
+def _data_model_bases(cls: type[HasProps]) -> list[type[HasProps]]:
     from ..model import DataModel, Model
+
+    return cast(list[type[HasProps]], [base for base in cls.__bases__ if issubclass(base, Model) and base is not DataModel])
+
+def _property_kind(prop: Property[Any], serializer: Serializer) -> KindRef:
+    from .property.any import Any as AnyProperty, AnyRef
+    from .property.bases import SingleParameterizedProperty
+    from .property.container import Dict, List, Tuple
+    from .property.either import Either
+    from .property.enum import Enum
+    from .property.instance import Instance
+    from .property.nullable import Nullable
+    from .property.primitive import Bool, Bytes, Float, Int, Null, String
+    from .property.string import Regex
+    from .property.struct import Struct
+
+    if isinstance(prop, AnyRef):
+        return ("AnyRef",)
+    if isinstance(prop, AnyProperty):
+        return "Any"
+    if isinstance(prop, Regex):
+        return ("Regex", prop.regex.pattern)
+    if isinstance(prop, Bool):
+        return "Bool"
+    if isinstance(prop, Int):
+        return "Int"
+    if isinstance(prop, Float):
+        return "Float"
+    if isinstance(prop, Bytes):
+        return "Bytes"
+    if isinstance(prop, String):
+        return "Str"
+    if isinstance(prop, Null):
+        return "Null"
+    if isinstance(prop, Nullable):
+        return ("Nullable", _property_kind(prop.type_param, serializer))
+    if isinstance(prop, Enum):
+        values = prop.allowed_values
+        return cast(KindRef, ("Enum", *values)) if all(isinstance(value, str) for value in values) else "Any"
+    if isinstance(prop, Either):
+        kinds = tuple(_property_kind(type_param, serializer) for type_param in prop.type_params)
+        if not kinds or "Any" in kinds:
+            return "Any"
+        return cast(KindRef, ("Or", kinds[0], *kinds[1:]))
+    if isinstance(prop, Tuple):
+        kinds = tuple(_property_kind(type_param, serializer) for type_param in prop.type_params)
+        if not kinds:
+            return "Any"
+        return cast(KindRef, ("Tuple", kinds[0], *kinds[1:]))
+    if isinstance(prop, List):
+        return ("List", _property_kind(prop.item_type, serializer))
+    if isinstance(prop, Struct):
+        if prop._optional:
+            return "Any"
+        return ("Struct", *((name, _property_kind(type_param, serializer)) for name, type_param in prop._fields.items()))
+    if isinstance(prop, Dict):
+        key_kind = _property_kind(prop.keys_type, serializer)
+        value_kind = _property_kind(prop.values_type, serializer)
+        if isinstance(prop.keys_type, (String, Regex)) or (
+            isinstance(prop.keys_type, Enum) and all(isinstance(value, str) for value in prop.keys_type.allowed_values)
+        ):
+            return ("Dict", value_kind)
+        return ("Mapping", key_kind, value_kind)
+    if isinstance(prop, Instance):
+        instance_type = prop.instance_type
+        if isinstance(instance_type, type) and issubclass(instance_type, HasProps):
+            if not is_DataModel(instance_type) or serializer.has_ref(instance_type):
+                return ("Ref", Ref(id=instance_type.__qualified_model__))
+            return ("AnyRef",)
+        return "Any"
+    if isinstance(prop, SingleParameterizedProperty):
+        return _property_kind(prop.type_param, serializer)
+    return "Any"
+
+def _property_data_models(prop: Property[Any]) -> set[type[HasProps]]:
+    from .property.instance import Instance
+
+    dependencies: set[type[HasProps]] = set()
+    if isinstance(prop, Instance):
+        instance_type = prop.instance_type
+        if isinstance(instance_type, type) and is_DataModel(instance_type):
+            dependencies.add(instance_type)
+    for type_param in getattr(prop, "type_params", ()):
+        dependencies.update(_property_data_models(type_param))
+    return dependencies
+
+def _data_models_in_dependency_order(data_models: Iterable[type[HasProps]]) -> list[type[HasProps]]:
+    remaining = list(dict.fromkeys(data_models))
+    included = set(remaining)
+    ordered: list[type[HasProps]] = []
+    resolved: set[type[HasProps]] = set()
+
+    while remaining:
+        for cls in remaining:
+            dependencies = set(_data_model_bases(cls))
+            for prop in cls.properties().values():
+                dependencies.update(_property_data_models(prop))
+            dependencies.intersection_update(included)
+            dependencies.discard(cls)
+            if dependencies <= resolved:
+                break
+        else:
+            # Cyclic Instance properties don't constrain definition order. The
+            # first forward edge will use AnyRef and subsequent edges use Ref.
+            cls = remaining[0]
+
+        remaining.remove(cls)
+        ordered.append(cls)
+        resolved.add(cls)
+
+    return ordered
+
+def _same_default(prop: Property[Any], left: Any, right: Any) -> bool:
+    return left is right or prop.matches(left, right)
+
+def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
+    from ..model import Model
     from .types import ID
 
     ref = Ref(id=ID(cls.__qualified_model__))
@@ -806,24 +938,31 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
     if not is_DataModel(cls):
         return ref
 
-    # TODO: consider supporting mixin models
-    bases: list[type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel ]
+    bases = _data_model_bases(cls)
     if len(bases) == 0:
         extends = None
+        base = Model
     elif len(bases) == 1:
         [base] = bases
-        extends = serializer.encode(base)
+        encoded_base = serializer.encode(base)
+        if not (isinstance(encoded_base, dict) and set(encoded_base) == {"id"}):
+            serializer.error(f"base model {base.__qualified_model__} must be defined before {cls.__qualified_model__}")
+        extends = cast(Ref, encoded_base)
     else:
         serializer.error("multiple bases are not supported")
 
     properties: list[PropertyDef] = []
     overrides: list[OverrideDef] = []
 
-    # TODO: don't use unordered sets
-    for prop_name in cls.__properties__:
+    base_properties = base.properties()
+    cls_properties = cls.properties()
+    for prop_name, prop in cls_properties.items():
+        if not prop.serialized or base_properties.get(prop_name) is prop:
+            continue
+
         descriptor = cls.lookup(prop_name)
-        kind = "Any" # TODO: serialize kinds
-        default = descriptor.property._default
+        kind = _property_kind(prop, serializer)
+        default = prop._default
 
         if default is Undefined:
             prop_def = PropertyDef(name=prop_name, kind=kind)
@@ -835,7 +974,17 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
 
         properties.append(prop_def)
 
-    for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
+    for prop_name, default in cls._overridden_defaults().items():
+        prop = cls_properties.get(prop_name)
+        if prop is None or not prop.serialized:
+            continue
+
+        base_descriptor = base.lookup(prop_name, raises=False)
+        if base_descriptor is not None:
+            base_default = base_descriptor.class_default(base, no_eval=True)
+            if _same_default(prop, default, base_default):
+                continue
+
         overrides.append(OverrideDef(name=prop_name, default=serializer.encode(default)))
 
     modeldef = ModelDef(

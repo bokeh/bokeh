@@ -24,13 +24,29 @@ from unittest.mock import patch
 
 # Bokeh imports
 from bokeh.core.enums import HoldPolicy
-from bokeh.core.has_props import ModelDef, OverrideDef, PropertyDef
+from bokeh.core.has_props import HasProps, Local, ModelDef, OverrideDef, PropertyDef, _data_models_in_dependency_order
 from bokeh.core.properties import (
+    Any as AnyProperty,
+    AnyRef,
+    Bool,
+    Bytes,
+    Dict,
+    Either,
+    Enum,
+    Float,
     Instance,
     Int,
     List,
+    NotSerialized,
+    Null,
     Nullable,
     Override,
+    Regex,
+    Required,
+    Set,
+    String,
+    Struct,
+    Tuple,
 )
 from bokeh.core.property.vectorization import Field, Value
 from bokeh.core.serialization import (
@@ -39,6 +55,7 @@ from bokeh.core.serialization import (
     ObjectRefRep,
     Ref,
     Serialized,
+    Serializer,
     UnknownReferenceError,
 )
 from bokeh.core.types import ID
@@ -909,9 +926,9 @@ class TestDocument:
                 type="model",
                 name="test_document.SomeDataModel",
                 properties=[
-                    PropertyDef(name="prop0", kind="Any", default=0),
-                    PropertyDef(name="prop1", kind="Any", default=111),
-                    PropertyDef(name="prop2", kind="Any", default=[1, 2, 3]),
+                    PropertyDef(name="prop0", kind="Int", default=0),
+                    PropertyDef(name="prop1", kind="Int", default=111),
+                    PropertyDef(name="prop2", kind=("List", "Int"), default=[1, 2, 3]),
                 ],
             ),
             ModelDef(
@@ -919,11 +936,11 @@ class TestDocument:
                 name="test_document.DerivedDataModel",
                 extends=Ref(id=ID("test_document.SomeDataModel")),
                 properties=[
-                    PropertyDef(name="prop3", kind="Any", default=0),
-                    PropertyDef(name="prop4", kind="Any", default=112),
-                    PropertyDef(name="prop5", kind="Any", default=[1, 2, 3, 4]),
-                    PropertyDef(name="prop6", kind="Any"),
-                    PropertyDef(name="prop7", kind="Any", default=None),
+                    PropertyDef(name="prop3", kind="Int", default=0),
+                    PropertyDef(name="prop4", kind="Int", default=112),
+                    PropertyDef(name="prop5", kind=("List", "Int"), default=[1, 2, 3, 4]),
+                    PropertyDef(name="prop6", kind=("Ref", Ref(id=ID("test_document.SomeDataModel")))),
+                    PropertyDef(name="prop7", kind=("Nullable", ("Ref", Ref(id=ID("test_document.SomeDataModel")))), default=None),
                 ],
                 overrides=[
                     OverrideDef(name="prop2", default=[4, 5, 6]),
@@ -934,9 +951,9 @@ class TestDocument:
                 name="test_document.CDSDerivedDataModel",
                 extends=Ref(id=ID("ColumnDataSource")),
                 properties=[
-                    PropertyDef(name="prop0", kind="Any", default=0),
-                    PropertyDef(name="prop1", kind="Any", default=111),
-                    PropertyDef(name="prop2", kind="Any", default=[1, 2, 3]),
+                    PropertyDef(name="prop0", kind="Int", default=0),
+                    PropertyDef(name="prop1", kind="Int", default=111),
+                    PropertyDef(name="prop2", kind=("List", "Int"), default=[1, 2, 3]),
                 ],
                 overrides=[
                     OverrideDef(name="data", default=MapRep(type="map", entries=[("default_column", [4, 5, 6])])),
@@ -949,7 +966,7 @@ class TestDocument:
                 properties=[
                     PropertyDef(
                         name="prop3",
-                        kind="Any",
+                        kind=("Ref", Ref(id=ID("test_document.SomeDataModel"))),
                         default=ObjectRefRep(
                             type="object",
                             name="test_document.SomeDataModel",
@@ -964,6 +981,124 @@ class TestDocument:
             ),
         ]
         # TODO: assert json["roots"]["references"] == ...
+
+    def test_serialization_data_model_mixins(self) -> None:
+        class Base(DataModel, Local):
+            base = Bool(default=False)
+
+        class Mixin(HasProps, Local):
+            mixed = Int(default=1)
+
+        class Derived(Mixin, Base):
+            own = String(default="own")
+
+            base = Override(default=True)
+            mixed = Override(default=2)
+
+        assert Serializer().encode([Base, Derived]) == [
+            ModelDef(
+                type="model",
+                name=Base.__qualified_model__,
+                properties=[PropertyDef(name="base", kind="Bool", default=False)],
+            ),
+            ModelDef(
+                type="model",
+                name=Derived.__qualified_model__,
+                extends=Ref(id=ID(Base.__qualified_model__)),
+                properties=[
+                    PropertyDef(name="mixed", kind="Int", default=1),
+                    PropertyDef(name="own", kind="Str", default="own"),
+                ],
+                overrides=[
+                    OverrideDef(name="base", default=True),
+                    OverrideDef(name="mixed", default=2),
+                ],
+            ),
+        ]
+
+    def test_data_model_dependency_order(self) -> None:
+        class Forward(DataModel, Local):
+            child = Instance(lambda: Target)
+
+        class Target(DataModel, Local):
+            value = Int(default=1)
+
+        ordered = _data_models_in_dependency_order([Forward, Target])
+
+        assert ordered == [Target, Forward]
+        [_, forward_def] = Serializer().encode(ordered)
+        assert forward_def["properties"] == [
+            PropertyDef(name="child", kind=("Ref", Ref(id=ID(Target.__qualified_model__)))),
+        ]
+
+    def test_cyclic_data_model_kinds_use_safe_forward_reference(self) -> None:
+        class Left(DataModel, Local):
+            right = Instance(lambda: Right)
+
+        class Right(DataModel, Local):
+            left = Instance(Left)
+
+        ordered = _data_models_in_dependency_order([Left, Right])
+        [left_def, right_def] = Serializer().encode(ordered)
+
+        assert ordered == [Left, Right]
+        assert left_def["properties"] == [PropertyDef(name="right", kind=("AnyRef",))]
+        assert right_def["properties"] == [
+            PropertyDef(name="left", kind=("Ref", Ref(id=ID(Left.__qualified_model__)))),
+        ]
+
+    def test_serialization_data_model_property_kinds(self) -> None:
+        class Target(DataModel, Local):
+            pass
+
+        class Kinds(DataModel, Local):
+            any = AnyProperty()
+            any_ref = AnyRef()
+            boolean = Bool()
+            bytes = Required(Bytes)
+            null = Required(Null)
+            integer = Int()
+            float = Float()
+            string = String()
+            regex = Regex("foo.*")
+            nullable = Nullable(Int)
+            either = Either(Int, String)
+            tuple = Tuple(Int, String)
+            list = List(Float)
+            struct = Struct(x=Int, label=String, default={"x": 0, "label": ""})
+            dict = Dict(String, Int)
+            mapping = Dict(Int, String)
+            enum = Enum("a", "b")
+            ref = Instance(Target)
+            required = Required(Int)
+            unsupported = Set(Int)
+            not_serialized = NotSerialized(Int)
+
+        [_, kinds_def] = Serializer().encode([Target, Kinds])
+        kinds = {prop["name"]: prop["kind"] for prop in kinds_def["properties"]}
+
+        assert kinds == {
+            "any": "Any",
+            "any_ref": ("AnyRef",),
+            "boolean": "Bool",
+            "bytes": "Bytes",
+            "null": "Null",
+            "integer": "Int",
+            "float": "Float",
+            "string": "Str",
+            "regex": ("Regex", "foo.*"),
+            "nullable": ("Nullable", "Int"),
+            "either": ("Or", "Int", "Str"),
+            "tuple": ("Tuple", "Int", "Str"),
+            "list": ("List", "Float"),
+            "struct": ("Struct", ("x", "Int"), ("label", "Str")),
+            "dict": ("Dict", "Int"),
+            "mapping": ("Mapping", "Int", "Str"),
+            "enum": ("Enum", "a", "b"),
+            "ref": ("Ref", Ref(id=ID(Target.__qualified_model__))),
+            "required": "Int",
+            "unsupported": "Any",
+        }
 
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
