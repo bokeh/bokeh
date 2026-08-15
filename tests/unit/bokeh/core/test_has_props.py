@@ -48,7 +48,7 @@ from bokeh.core.property.descriptors import (
     PropertyDescriptor,
     UnsetValueError,
 )
-from bokeh.core.property.singletons import Intrinsic, Undefined
+from bokeh.core.property.singletons import Undefined
 from bokeh.core.property.vectorization import field, value
 from bokeh.core.serialization import Serializer
 from bokeh.settings import settings
@@ -289,26 +289,21 @@ def test_HasProps_property_metadata_does_not_retain_class() -> None:
 
     assert dynamic_ref() is None
 
-def test_HasProps_intrinsic() -> None:
-    obj0 = Parent(int1=Intrinsic, ds1=Intrinsic, lst1=Intrinsic)
+def test_HasProps_property_reset() -> None:
+    obj = Parent(int1=30, ds1=field("y"), lst1=["x", "y", "z"])
 
-    assert obj0.int1 == 10
-    assert obj0.ds1 == field("x")
-    assert obj0.lst1 == []
+    del obj.int1
+    del obj.ds1
+    del obj.lst1
 
-    obj1 = Parent(int1=30, ds1=field("y"), lst1=["x", "y", "z"])
+    assert obj.int1 == 10
+    assert obj.ds1 == field("x")
+    assert obj.lst1 == []
+    assert obj._property_values == {}
 
-    assert obj1.int1 == 30
-    assert obj1.ds1 == field("y")
-    assert obj1.lst1 == ["x", "y", "z"]
-
-    obj1.int1 = Intrinsic
-    obj1.ds1 = Intrinsic
-    obj1.lst1 = Intrinsic
-
-    assert obj1.int1 == 10
-    assert obj1.ds1 == field("x")
-    assert obj1.lst1 == []
+def test_HasProps_rejects_Undefined_values() -> None:
+    with pytest.raises(ValueError, match=r"can't set Parent.*\.int1 to Undefined"):
+        Parent(int1=Undefined)
 
 def test_HasProps_alias() -> None:
     obj0 = AliasedChild()
@@ -336,6 +331,12 @@ def test_HasProps_alias() -> None:
     assert obj0.int2 == 2
     assert obj0.aliased_int1 == 30
     assert obj0.aliased_int2 == 2
+    del obj0.aliased_int1
+    del obj0.aliased_int2
+    assert obj0.int1 == 10
+    assert obj0.int2 is None
+    assert obj0.aliased_int1 == 10
+    assert obj0.aliased_int2 is None
 
     obj1 = AliasedChild(int1=20)
     assert obj1.int1 == 20

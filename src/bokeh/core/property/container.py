@@ -48,7 +48,7 @@ from .bases import (
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
-from .singletons import Intrinsic, Undefined
+from .singletons import Undefined, _NotGiven
 from .wrappers import (
     PropertyValueColumnData,
     PropertyValueDict,
@@ -366,7 +366,7 @@ class RestrictedDict[K, V](Dict[K, V]):
 class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only non-empty containers. """
 
-    def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = Intrinsic,
+    def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
@@ -380,7 +380,7 @@ class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
 class Len[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only containers of the given length. """
 
-    def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = Intrinsic,
+    def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
         self.length = length

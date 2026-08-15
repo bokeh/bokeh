@@ -31,7 +31,7 @@ from typing import TYPE_CHECKING
 from .bases import Init
 from .either import Either
 from .instance import Instance
-from .singletons import Intrinsic
+from .singletons import _NotGiven
 from .string import MathString
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ class TextLike(Either):
 
     """
 
-    def __init__(self, default: Init[str | BaseText] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, default: Init[str | BaseText] = _NotGiven, help: str | None = None) -> None:
         super().__init__(MathString(), Instance("bokeh.models.text.BaseText"), default=default, help=help)
 
 #-----------------------------------------------------------------------------

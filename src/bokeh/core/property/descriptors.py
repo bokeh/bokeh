@@ -185,6 +185,9 @@ class AliasPropertyDescriptor[T]:
     def __set__(self, obj: HasProps | None, value: T) -> None:
         setattr(obj, self.aliased_name, value)
 
+    def __delete__(self, obj: HasProps) -> None:
+        delattr(obj, self.aliased_name)
+
     @property
     def readonly(self) -> bool:
         return self.alias.readonly
@@ -234,6 +237,10 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
     def __set__(self, obj: HasProps | None, value: T) -> None:
         self._warn()
         super().__set__(obj, value)
+
+    def __delete__(self, obj: HasProps) -> None:
+        self._warn()
+        super().__delete__(obj)
 
 class PropertyDescriptor[T]:
     """ A base class for Bokeh properties with simple get/set and serialization
@@ -366,13 +373,19 @@ class PropertyDescriptor[T]:
 
         """
 
-        if self.name in obj._property_values:
-            old_value = obj._property_values[self.name]
-            del obj._property_values[self.name]
-            self.trigger_if_changed(obj, old_value)
+        if self.property.readonly and obj._initialized:
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
-        if self.name in obj._unstable_default_values:
-            del obj._unstable_default_values[self.name]
+        old_value = obj._property_values.pop(self.name, Undefined)
+        if isinstance(old_value, PropertyValueContainer):
+            old_value._unregister_owner(obj, self)
+
+        obj._unstable_default_values.pop(self.name, None)
+        obj._unstable_themed_values.pop(self.name, None)
+
+        if old_value is not Undefined:
+            self.trigger_if_changed(obj, old_value)
 
     def class_default(self, cls: type[HasProps], *, no_eval: bool = False) -> Any:
         """ Get the default value for a specific subtype of ``HasProps``,

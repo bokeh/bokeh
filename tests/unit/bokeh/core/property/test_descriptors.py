@@ -32,6 +32,7 @@ from bokeh.core.properties import (
     Int,
     List,
     Nullable,
+    Readonly,
 )
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
@@ -197,6 +198,37 @@ class Test_PropertyDescriptor:
             bar=[10],
         )
         assert calls == ['baz', 'baz', 'bar', 'bar']
+
+    def test___delete___retains_new_unstable_default(self) -> None:
+        defaults: list[list[int]] = []
+
+        def default() -> list[int]:
+            value: list[int] = []
+            defaults.append(value)
+            return value
+
+        class Foo(Model):
+            values = List(Int, default=default)
+
+        f = Foo(values=[10])
+        observed: list[list[int]] = []
+        f.on_change("values", lambda attr, old, new: observed.append(new))
+        initial_default_count = len(defaults)
+
+        del f.values
+
+        assert len(defaults) == initial_default_count + 1
+        assert observed == [f.values]
+        assert observed[0] is f.values
+
+    def test___delete___readonly(self) -> None:
+        class Foo(Model):
+            value = Readonly(Int, default=10)
+
+        f = Foo()
+
+        with pytest.raises(RuntimeError, match=r"Foo\.value is a readonly property"):
+            del f.value
 
     def test_class_default(self) -> None:
         result = {}

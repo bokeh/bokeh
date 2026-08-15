@@ -26,7 +26,6 @@ from typing import Any
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Intrinsic",
     "Optional",
     "Undefined",
 )
@@ -62,26 +61,25 @@ Undefined = UndefinedType()
 
 type Optional[T] = T | UndefinedType
 
-# TODO turn this into an actual singleton class
-class IntrinsicType:
-    """ Indicates usage of the intrinsic default value of a property. """
+class _NotGivenType:
+    """ Indicates that an optional internal argument wasn't provided. """
 
-    def __copy__(self) -> IntrinsicType:
+    def __copy__(self) -> _NotGivenType:
         return self
 
     def __str__(self) -> str:
-        return "Intrinsic"
+        return "NotGiven"
 
     def __repr__(self) -> str:
-        return "Intrinsic"
+        return "NotGiven"
 
     def __eq__(self, other: Any) -> bool:
-        return other is Intrinsic
+        return other is _NotGiven
 
     def __ne__(self, other: Any) -> bool:
-        return other is not Intrinsic
+        return other is not _NotGiven
 
-Intrinsic = IntrinsicType()
+_NotGiven = _NotGivenType()
 
 #-----------------------------------------------------------------------------
 # Private API

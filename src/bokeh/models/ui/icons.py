@@ -27,13 +27,13 @@ from typing import Any
 # Bokeh imports
 from ...core.enums import ToolIcon
 from ...core.has_props import abstract
-from ...core.property.bases import Init
+from ...core.property.bases import ModelInit
 from ...core.property.color import Color
 from ...core.property.either import Either
 from ...core.property.enum import Enum
 from ...core.property.primitive import Int, String
 from ...core.property.required import Required
-from ...core.property.singletons import Intrinsic
+from ...core.property.singletons import _NotGiven
 from ...core.property.visual import FontSize
 from .ui_element import UIElement
 
@@ -75,8 +75,10 @@ class BuiltinIcon(Icon):
     """ Built-in icons included with BokehJS. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs: Any) -> None:
-        super().__init__(icon_name=icon_name, **kwargs)
+    def __init__(self, icon_name: ModelInit[str] = _NotGiven, **kwargs: Any) -> None:
+        if icon_name is not _NotGiven:
+            kwargs["icon_name"] = icon_name
+        super().__init__(**kwargs)
 
     icon_name = Required(Either(Enum(ToolIcon), String), help="""
     The name of a built-in icon to use. Currently, the following icon names are
@@ -107,8 +109,10 @@ class SVGIcon(Icon):
     """ SVG icons with inline definitions. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, svg: Init[str] = Intrinsic, **kwargs: Any) -> None:
-        super().__init__(svg=svg, **kwargs)
+    def __init__(self, svg: ModelInit[str] = _NotGiven, **kwargs: Any) -> None:
+        if svg is not _NotGiven:
+            kwargs["svg"] = svg
+        super().__init__(**kwargs)
 
     svg = Required(String, help="""
     The SVG definition of an icon.
@@ -131,8 +135,10 @@ class TablerIcon(Icon):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs: Any) -> None:
-        super().__init__(icon_name=icon_name, **kwargs)
+    def __init__(self, icon_name: ModelInit[str] = _NotGiven, **kwargs: Any) -> None:
+        if icon_name is not _NotGiven:
+            kwargs["icon_name"] = icon_name
+        super().__init__(**kwargs)
 
     icon_name = Required(String, help="""
     The name of the icon. See https://tabler-icons.io/ for the list of names.

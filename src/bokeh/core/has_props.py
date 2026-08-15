@@ -54,7 +54,7 @@ from ..util.strings import append_docstring
 from .property.descriptors import AliasPropertyDescriptor, PropertyDescriptor, UnsetValueError
 from .property.enum import Enum
 from .property.serialized import NotSerialized
-from .property.singletons import Intrinsic, Undefined
+from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
 from .serialization import (
     ObjectRep,
@@ -377,9 +377,6 @@ class HasProps(Serializable):
         self._unstable_themed_values = {}
 
         for name, value in properties.items():
-            # TODO: this would be better to handle in descriptors
-            if value is Undefined or value is Intrinsic:
-                continue
             setattr(self, name, value)
 
         initialized = set(properties.keys())

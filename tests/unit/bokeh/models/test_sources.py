@@ -28,7 +28,7 @@ import narwhals.stable.v1 as nw
 import numpy as np
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, DataTable, Selection
+from bokeh.models import ColumnDataSource, DataTable, NumberFormatter, Selection
 from bokeh.util.dependencies import is_installed
 from bokeh.util.serialization import convert_datetime_array
 
@@ -969,6 +969,14 @@ class TestDataTable:
         table = DataTable.from_data(data, columns=['A', 'B'])
         assert isinstance(table, DataTable)
         assert set(table.source.data) == {'A', 'B'}
+
+    def test_from_data_with_formatters(self):
+        formatter = NumberFormatter(format="0.00")
+        table = DataTable.from_data({'A': [1], 'B': [2]}, formatters={'A': formatter})
+
+        columns = {column.field: column for column in table.columns}
+        assert columns['A'].formatter is formatter
+        assert 'formatter' not in columns['B']._property_values
 
     def test_from_data_with_invalid_data(self):
         with pytest.raises(ValueError, match="Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame"):

@@ -29,7 +29,7 @@ from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init, Property
 from .either import Either
 from .primitive import Int, String
-from .singletons import Intrinsic
+from .singletons import _NotGiven
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -64,7 +64,7 @@ class Enum(Either):
     @overload
     def __init__(self, enum: int, *values: int, default: Init[int] = ..., help: str | None = ...) -> None: ...
 
-    def __init__(self, enum: str | int | enums.Enumeration, *values: str | int, default: Init[str | int] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, enum: str | int | enums.Enumeration, *values: str | int, default: Init[str | int] = _NotGiven, help: str | None = None) -> None:
         if isinstance(enum, (str, int)):
             self._enum = enums.enumeration(enum, *values)
         elif values:
@@ -72,12 +72,12 @@ class Enum(Either):
         else:
             self._enum = enum
 
-        default = default if default is not Intrinsic else self._enum._default
+        default = default if default is not _NotGiven else self._enum._default
         super().__init__(String, Int, default=default, help=help)
 
-    def __call__(self, *, default: Init[str | int] = Intrinsic, help: str | None = None) -> Enum:
+    def __call__(self, *, default: Init[str | int] = _NotGiven, help: str | None = None) -> Enum:
         """ Clone this property and allow to override ``default`` and ``help``. """
-        default = self._default if default is Intrinsic else default
+        default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
         prop = self.__class__(self._enum, default=default, help=help)
         prop.alternatives = list(self.alternatives)
