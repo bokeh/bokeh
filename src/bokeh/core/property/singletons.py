@@ -19,14 +19,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
+from typing import Any, ClassVar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Optional",
     "Undefined",
 )
 
@@ -38,46 +37,61 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-# TODO turn this into an actual singleton class
 class UndefinedType:
     """ Indicates no value set, which is not the same as setting ``None``. """
+
+    _instance: ClassVar[UndefinedType | None] = None
+
+    __slots__ = ()
+
+    def __new__(cls) -> UndefinedType:
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def __copy__(self) -> UndefinedType:
         return self
 
+    def __deepcopy__(self, _memo: dict[int, Any]) -> UndefinedType:
+        return self
+
+    def __reduce__(self) -> tuple[type[UndefinedType], tuple[()]]:
+        return (UndefinedType, ())
+
     def __str__(self) -> str:
         return "Undefined"
 
     def __repr__(self) -> str:
         return "Undefined"
 
-    def __eq__(self, other: Any) -> bool:
-        return other is Undefined
-
-    def __ne__(self, other: Any) -> bool:
-        return other is not Undefined
-
 Undefined = UndefinedType()
-
-type Optional[T] = T | UndefinedType
 
 class _NotGivenType:
     """ Indicates that an optional internal argument wasn't provided. """
 
+    _instance: ClassVar[_NotGivenType | None] = None
+
+    __slots__ = ()
+
+    def __new__(cls) -> _NotGivenType:
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __copy__(self) -> _NotGivenType:
         return self
+
+    def __deepcopy__(self, _memo: dict[int, Any]) -> _NotGivenType:
+        return self
+
+    def __reduce__(self) -> tuple[type[_NotGivenType], tuple[()]]:
+        return (_NotGivenType, ())
 
     def __str__(self) -> str:
         return "NotGiven"
 
     def __repr__(self) -> str:
-        return "NotGiven"
-
-    def __eq__(self, other: Any) -> bool:
-        return other is _NotGiven
-
-    def __ne__(self, other: Any) -> bool:
-        return other is not _NotGiven
+        return "..."
 
 _NotGiven = _NotGivenType()
 
