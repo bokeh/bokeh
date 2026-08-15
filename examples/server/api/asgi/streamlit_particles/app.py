@@ -12,7 +12,7 @@ bokeh_application = BokehASGI(modify_document)
 
 
 @asynccontextmanager
-async def lifespan(_app: st.App) -> AsyncGenerator[None]:
+async def lifespan(_app: st.App) -> AsyncGenerator[None, None]:
     # Mounted ASGI applications don't receive lifespan events, so the host
     # starts and stops Bokeh alongside Streamlit.
     await bokeh_application.core.start()

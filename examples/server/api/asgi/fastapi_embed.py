@@ -14,7 +14,7 @@ bokeh_application = BokehASGI(modify_document)
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # Mounted Starlette/FastAPI applications don't receive lifespan events.
     # Start and stop Bokeh from the parent application's lifespan instead.
     await bokeh_application.core.start()
