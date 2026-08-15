@@ -133,10 +133,8 @@ class List[T](Seq[T, list[T]]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[list[T]] = [], help: str | None = None) -> None:
-        # TODO: refactor to not use mutable objects as default values.
-        # Left in place for now because we want to allow None to express
-        # optional values. Also in Dict.
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[list[T]] = _NotGiven, help: str | None = None) -> None:
+        default = [] if default is _NotGiven else default
         super().__init__(item_type, default=default, help=help)
 
     @overload
@@ -165,10 +163,8 @@ class Set[T](Seq[T, set[T]]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[set[T]] = set(), help: str | None = None) -> None:
-        # TODO: refactor to not use mutable objects as default values.
-        # Left in place for now because we want to allow None to express
-        # optional values. Also in Dict.
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[set[T]] = _NotGiven, help: str | None = None) -> None:
+        default = set() if default is _NotGiven else default
         super().__init__(item_type, default=default, help=help)
 
     @overload
@@ -209,7 +205,8 @@ class Dict[K, V](ContainerProperty[dict[K, V]]):
     """
 
     def __init__(self, keys_type: TypeOrInst[Property[K]], values_type: TypeOrInst[Property[V]], *,
-            default: Init[dict[K, V]] = {}, help: str | None = None) -> None:
+            default: Init[dict[K, V]] = _NotGiven, help: str | None = None) -> None:
+        default = {} if default is _NotGiven else default
         super().__init__(keys_type, values_type, default=default, help=help)
 
     @property
@@ -336,7 +333,8 @@ class RelativeDelta(Dict[str, int]):
 
     """
 
-    def __init__(self, default: Init[dict[str, int]] = {}, *, help: str | None = None) -> None:
+    def __init__(self, default: Init[dict[str, int]] = _NotGiven, *, help: str | None = None) -> None:
+        default = {} if default is _NotGiven else default
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super().__init__(keys, values, default=default, help=help)
@@ -350,7 +348,8 @@ class RestrictedDict[K, V](Dict[K, V]):
     """
 
     def __init__(self, keys_type: TypeOrInst[Property[Any]], values_type: TypeOrInst[Property[Any]], disallow: Iterable[Any],
-            default: Init[dict[K, V]] = {}, *, help: str | None = None) -> None:
+            default: Init[dict[K, V]] = _NotGiven, *, help: str | None = None) -> None:
+        default = {} if default is _NotGiven else default
         self._disallow = set(disallow)
         super().__init__(keys_type=keys_type, values_type=values_type, default=default, help=help)
 
