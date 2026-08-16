@@ -7,22 +7,37 @@ inputs:
     description: 'Codecov flags (comma-separated)'
     required: false
     default: 'unit'
+  python-gil:
+    description: 'PYTHON_GIL value to export after activating the test environment'
+    required: false
+    default: ''
 
 runs:
   using: composite
   steps:
     - name: Test defaults
       shell: bash -l {0}
-      run: pytest tests/test_defaults.py
+      run: |
+        if [[ -n "${{ inputs.python-gil }}" ]]; then
+          export PYTHON_GIL="${{ inputs.python-gil }}"
+        fi
+        pytest tests/test_defaults.py
 
     - name: Test cross
       shell: bash -l {0}
-      run: pytest tests/test_cross.py
+      run: |
+        if [[ -n "${{ inputs.python-gil }}" ]]; then
+          export PYTHON_GIL="${{ inputs.python-gil }}"
+        fi
+        pytest tests/test_cross.py
 
     - name: Run tests
       if: success() || failure()
       shell: bash -l {0}
       run: |
+        if [[ -n "${{ inputs.python-gil }}" ]]; then
+          export PYTHON_GIL="${{ inputs.python-gil }}"
+        fi
         COLOR="--color=yes"
         COVERAGE="--cov=bokeh --cov-report=xml"
         POLICY="--last-failed --last-failed-no-failures none"

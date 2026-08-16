@@ -194,11 +194,14 @@ async def test_static_streaming_waits_for_flush(tmp_path: Path, ManagedServerLoo
                 cls.close_thread = threading.get_ident()
                 cls.closed.set()
 
-        async def flush(self, include_footers: bool = False) -> None:
-            if not self.first_flush.is_set():
-                self.first_flush.set()
-                await self.release_flush.wait()
-            await super().flush(include_footers)
+        def flush(self, include_footers: bool = False) -> asyncio.Future[None]:
+            async def flush_with_backpressure() -> None:
+                if not self.first_flush.is_set():
+                    self.first_flush.set()
+                    await self.release_flush.wait()
+                await super(BackpressureStaticFileHandler, self).flush(include_footers)
+
+            return asyncio.ensure_future(flush_with_backpressure())
 
     patterns = [
         (r"/custom/static/(.*)", BackpressureStaticFileHandler, {"path": str(tmp_path)}),
@@ -210,10 +213,10 @@ async def test_static_streaming_waits_for_flush(tmp_path: Path, ManagedServerLoo
 
         BackpressureStaticFileHandler.release_flush.set()
         response = await asyncio.wait_for(response_future, 5)
+        assert await asyncio.to_thread(BackpressureStaticFileHandler.closed.wait, 5)
 
     assert response.code == 200
     assert response.body == b"abc"
-    assert BackpressureStaticFileHandler.closed.is_set()
     assert BackpressureStaticFileHandler.close_thread != loop_thread
 
 async def test_static_content_is_closed_on_read_error(tmp_path: Path, ManagedServerLoop: MSL) -> None:

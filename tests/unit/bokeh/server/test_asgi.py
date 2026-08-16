@@ -570,6 +570,7 @@ async def test_auth_policy_leaves_static_assets_and_preflight_public() -> None:
         await app.core.stop()
 
 
+@pytest.mark.free_threading
 async def test_slow_document_does_not_block_other_http_requests() -> None:
     started = threading.Event()
     release = threading.Event()
@@ -596,6 +597,7 @@ async def test_slow_document_does_not_block_other_http_requests() -> None:
         await app.core.stop()
 
 
+@pytest.mark.free_threading
 async def test_stop_waits_for_pending_initialization_before_unload() -> None:
     started = threading.Event()
     release = threading.Event()

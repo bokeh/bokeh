@@ -92,6 +92,7 @@ def test_patch_curdoc_weakref_raises() -> None:
             bid.curdoc()
         assert str(e.value) == "Patched curdoc has been previously destroyed"
 
+@pytest.mark.free_threading
 def test_patch_curdoc_is_context_local() -> None:
     docs = [Document(), Document()]
     barrier = threading.Barrier(2)

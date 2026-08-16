@@ -48,6 +48,7 @@ async def test_periodic_callback_continues_after_exception() -> None:
     assert calls >= 2
 
 
+@pytest.mark.free_threading
 async def test_locked_callback_latest_runs_from_threads_with_document_lock() -> None:
     callbacks = []
     models: list[Div] = []
@@ -105,6 +106,7 @@ async def test_locked_callback_latest_runs_from_threads_with_document_lock() -> 
     update("ignored")
 
 
+@pytest.mark.free_threading
 async def test_locked_callback_every_awaits_async_callbacks_in_order() -> None:
     callbacks = []
     models: list[Div] = []

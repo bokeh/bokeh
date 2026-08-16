@@ -176,6 +176,7 @@ class TestCodeRunner:
         cr.run(m, lambda: None)
         assert sys.path == old_path
 
+    @pytest.mark.free_threading
     def test_run_serializes_process_global_mutations(self) -> None:
         first_entered = Event()
         first_release = Event()

@@ -209,6 +209,7 @@ class TestCallbackGroup:
         assert 0 == func.count()
         assert "twice" in repr(exc.value)
 
+    @pytest.mark.free_threading
     def test_adding_next_tick_from_another_thread(self) -> None:
         # The test has probabilistic nature - there's a slight change it'll give a false negative
         with LoopAndGroup(quit_after=15) as ctx:

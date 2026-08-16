@@ -90,6 +90,7 @@ asyncio_mode = "auto"
 norecursedirs = "build _build node_modules tests/support"
 python_files = "*_tests.py *_test.py test_*.py"
 markers = [
+    "free_threading: a concurrency test relevant to free-threaded Python",
     "sampledata: a test for bokeh.sampledata",
     "selenium: a test as requiring selenium",
 ]

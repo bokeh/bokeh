@@ -138,6 +138,7 @@ def test_jsons() -> None:
             with open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
                 assert all('\\' not in mod for mod in json.load(f))
 
+@pytest.mark.free_threading
 def test_bundle_models_coalesces_concurrent_compilation(monkeypatch: pytest.MonkeyPatch) -> None:
     started = Event()
     release = Event()
