@@ -1342,9 +1342,13 @@ describe("Bug", () => {
       const {view} = await display(row([p0, p1]))
 
       p0.renderers = [esri]
+      // Rebuilding renderers queues attribution updates after the current ready
+      // promise, so two waits are needed to drain both stages before continuing.
+      await view.ready
       await view.ready
       p1.renderers = [osm]
 
+      await view.ready
       await view.ready
     })
   })
