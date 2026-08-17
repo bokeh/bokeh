@@ -12,8 +12,9 @@ Features
 * Added WebGL rendering support for ``Patch`` and ``Patches`` glyphs
   (:bokeh-pull:`14853`)
 * Added framework-neutral ASGI server support, allowing Bokeh applications to
-  run with frameworks such as FastAPI, Starlette, and Django without requiring
-  Tornado (:bokeh-pull:`15239`, :bokeh-pull:`15295`)
+  run with frameworks such as FastAPI, Starlette, Django, and Streamlit without
+  requiring Tornado (:bokeh-pull:`15239`, :bokeh-pull:`15295`,
+  :bokeh-pull:`15350`)
 * Added Playwright as an alternative backend for exporting plots to PNG and SVG
   (:bokeh-pull:`14940`)
 * Added ``Server.from_settings()`` for constructing a server from global Bokeh
@@ -51,5 +52,11 @@ Bug fixes
   (:bokeh-pull:`15291`, :bokeh-pull:`15298`, :bokeh-pull:`15299`)
 * Fixed canvas rendering of ``Wedge`` and ``AnnularWedge`` glyph property
   overrides (:bokeh-pull:`14952`)
+* Fixed ``LegendItem`` field labels to respect ``CDSView`` filters
+  (:bokeh-pull:`15329`)
+* Fixed binary buffers when re-pulling client sessions (:bokeh-pull:`15348`)
+* Improved tile rendering robustness, including zoom limits, retina pixel
+  ratios, request caching, renderer cleanup, and undistorted ranges
+  (:bokeh-pull:`15346`)
 * Hardened credentialed ``autoload.js`` CORS responses by restricting origins
   to the configured websocket-origin allowlist (:bokeh-pull:`15105`)
