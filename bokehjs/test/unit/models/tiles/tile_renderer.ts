@@ -638,4 +638,58 @@ describe("tile renderer", () => {
     expect(renderer_view._pending.size).to.be.equal(0)
     expect(tile_source.has_tile(key)).to.be.true
   })
+
+  it("should discard pending tiles when the tile source is replaced", async () => {
+    const tile_source = osm_source()
+    const tile_renderer = new TileRenderer({tile_source})
+
+    const plot = fig([300, 200], {
+      x_range: [-2000000, 6000000],
+      y_range: [-1000000, 7000000],
+      x_axis_type: "mercator",
+      y_axis_type: "mercator",
+      renderers: [tile_renderer],
+    })
+
+    const {view} = await display(plot)
+    const renderer_view = view.owner.get_one(tile_renderer) as any
+
+    const [x, y, z] = [0, 0, 1]
+    const key = tile_source.tile_xyz_to_key(x, y, z)
+    const bounds = tile_source.get_tile_meter_bounds(x, y, z)
+    tile_source.delete_tile(key)
+    renderer_view._create_tile(x, y, z, bounds)
+
+    expect(renderer_view._pending.has(key)).to.be.true
+    tile_renderer.tile_source = osm_source()
+    expect(renderer_view._pending.has(key)).to.be.false
+  })
+
+  it("should finish pending work when removed", async () => {
+    const tile_source = osm_source()
+    const tile_renderer = new TileRenderer({tile_source})
+
+    const plot = fig([300, 200], {
+      x_range: [-2000000, 6000000],
+      y_range: [-1000000, 7000000],
+      x_axis_type: "mercator",
+      y_axis_type: "mercator",
+      renderers: [tile_renderer],
+    })
+
+    const {view} = await display(plot)
+    const renderer_view = view.owner.get_one(tile_renderer) as any
+
+    const [x, y, z] = [0, 0, 1]
+    const key = tile_source.tile_xyz_to_key(x, y, z)
+    const bounds = tile_source.get_tile_meter_bounds(x, y, z)
+    tile_source.delete_tile(key)
+    renderer_view._create_tile(x, y, z, bounds)
+
+    expect(renderer_view.has_finished()).to.be.false
+    plot.renderers = []
+    await view.ready
+    expect(renderer_view._pending.size).to.be.equal(0)
+    expect(renderer_view.has_finished()).to.be.true
+  })
 })

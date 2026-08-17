@@ -1342,6 +1342,7 @@ describe("Bug", () => {
       const {view} = await display(row([p0, p1]))
 
       p0.renderers = [esri]
+      await view.ready
       p1.renderers = [osm]
 
       await view.ready

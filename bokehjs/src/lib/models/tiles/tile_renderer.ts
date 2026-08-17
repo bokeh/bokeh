@@ -82,10 +82,12 @@ export class TileRendererView extends RendererView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_paint())
-    this.connect(this.model.tile_source.change, () => {
+    this.on_transitive_change(this.model.properties.tile_source, () => {
       // the source dropped its cache, so requests in flight belong to a tile
       // set that no longer applies; they can't be cancelled, but forgetting
       // them here keeps their images from repopulating the cache
+      this._clear_timers()
+      this._to_fetch = []
       this._pending.clear()
       this._loading.clear()
       this.request_paint()
@@ -95,6 +97,7 @@ export class TileRendererView extends RendererView {
   override remove(): void {
     this._clear_timers()
     this._pending.clear()
+    this.force_finished()
     super.remove()
   }
 
