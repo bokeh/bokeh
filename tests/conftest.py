@@ -15,6 +15,9 @@ pytest_plugins = (
 # Standard library imports
 import importlib
 import importlib.util
+import sys
+import sysconfig
+from collections.abc import Iterator
 
 # External imports
 import _pytest
@@ -84,6 +87,25 @@ if pd and importlib.util.find_spec('pyarrow') is not None:
     constructors.extend([pandas_pyarrow_constructor, pyarrow_table_constructor])
 if importlib.util.find_spec('polars') is not None:
     constructors.append(polars_eager_constructor)
+
+
+def _assert_gil_disabled() -> None:
+    assert sysconfig.get_config_var("Py_GIL_DISABLED") == 1
+    is_gil_enabled = getattr(sys, "_is_gil_enabled", None)
+    assert is_gil_enabled is not None
+    assert not is_gil_enabled()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def ensure_gil_disabled() -> Iterator[None]:
+    required = sysconfig.get_config_var("Py_GIL_DISABLED") == 1
+    if required:
+        _assert_gil_disabled()
+
+    yield
+
+    if required:
+        _assert_gil_disabled()
 
 
 @pytest.fixture(params=constructors)

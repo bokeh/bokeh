@@ -204,6 +204,46 @@ jobs:
       - name: Run unit tests
         uses: ./.github/workflows/composite/run-unit-tests
 
+  unit-test-free-threaded:
+    name: unit-test free-threaded (ubuntu-24.04, 3.14t)
+    needs: build
+    runs-on: ubuntu-24.04
+    env:
+      OS: ubuntu-24.04
+      PYTHON: 3.14t
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.14t'
+          source-tree: 'delete'
+
+      - name: Ensure free-threaded Python 3.14
+        run: PYTHON_GIL=0 python -c 'import sys, sysconfig; assert sys.version_info[:2] == (3, 14), sys.version; assert sysconfig.get_config_var("Py_GIL_DISABLED") == 1, sys.version; assert not sys._is_gil_enabled(), sys.version'
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Install Playwright browsers
+        run: playwright install chromium
+
+      - name: Run unit tests
+        uses: ./.github/workflows/composite/run-unit-tests
+        with:
+          coverage-flags: unit,freethreaded
+          python-gil: '0'
+
+      - name: Run server examples
+        run: PYTHON_GIL=0 pytest -q --color=yes --tb=short --no-js tests/test_examples.py::test_server_examples
+
+      - name: Stress free-threaded concurrency
+        run: |
+          # Keep repetitions in one process so concurrency comes from test threads.
+          PYTHON_GIL=0 pytest --color=yes -n 0 --count=10 -m free_threading tests/unit/bokeh
+
   minimal-deps:
     needs: build
     runs-on: ${{ matrix.os }}
@@ -340,7 +380,7 @@ jobs:
           if-no-files-found: ignore
 
   notify-nightly-failure:
-    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation, deployment-proxy]
+    needs: [build, codebase, typing, examples, unit-test, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
@@ -382,7 +422,7 @@ jobs:
           *Automated notification from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
 
   notify-pr:
-    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation, deployment-proxy]
+    needs: [build, codebase, typing, examples, unit-test, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy]
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 

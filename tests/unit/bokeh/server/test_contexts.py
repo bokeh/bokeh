@@ -548,6 +548,7 @@ curdoc().template_variables["thread_id"] = get_ident()
         with pytest.raises(AttributeError, match="Only 'add_next_tick_callback'"):
             callback_doc.title
 
+    @pytest.mark.free_threading
     async def test_session_callbacks_are_serialized(self) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
@@ -572,6 +573,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
         assert maximum_active == 1
 
+    @pytest.mark.free_threading
     async def test_different_session_callbacks_can_run_concurrently(self) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
