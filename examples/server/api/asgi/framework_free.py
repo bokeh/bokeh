@@ -4,6 +4,7 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
+from fourier_studio import modify_document
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.embed import server_document
@@ -14,7 +15,7 @@ type Receive = Callable[[], Awaitable[Message]]
 type Scope = dict[str, Any]
 type Send = Callable[[Message], Awaitable[None]]
 
-bokeh_application = BokehASGI({"/": Path(__file__).with_name("bkapp.py")})
+bokeh_application = BokehASGI(modify_document)
 template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescape=True).get_template("index.html")
 
 

@@ -103,7 +103,7 @@ class BokehGalleryDirective(BokehDirective):
                     "target": target,
                     "img": str(path.with_suffix("")),
                     "alt": detail.get("alt"),
-                    "title": path.stem,
+                    "title": detail.get("title", path.stem),
                     "desc": detail.get("desc", None),
                 })
 
