@@ -121,7 +121,7 @@ color_title = "turbulent flow speed"
 center_label = "swirl-center separation"
 description = "A divergence-free noise field produces smoke-like turbulent motion."
 equation = '''
-\mathbf u=\nabla\times\left(\psi\hat{\mathbf z}\right)=\left(\partial_y\psi,-\partial_x\psi\right),\qquad \nabla\cdot\mathbf u=0
+\mathbf v=\nabla\times\left(\psi\hat{\mathbf z}\right)=\left(\partial_y\psi,-\partial_x\psi\right),\qquad \nabla\cdot\mathbf v=0
 '''
 source_match = '''
 **Source match:** Bridson Eqs. (1)-(2) give $\mathbf v=\nabla\times\boldsymbol\psi$ and, in 2-D, $(\partial_y\psi,-\partial_x\psi)$; the text immediately following proves $\nabla\cdot\mathbf v=0$. The demo evaluates an analytic trigonometric streamfunction.
