@@ -26,5 +26,6 @@ On Windows, the `num_procs=4` argument must be removed from the Server initialis
 
 ### `asgi/`
 
-Framework-neutral Bokeh ASGI mounting examples for FastAPI, Starlette, and
-Django. See [`asgi/README.md`](asgi/README.md) for installation and run commands.
+Framework-neutral Bokeh ASGI mounting examples for FastAPI, Starlette, Django,
+and Streamlit. See [`asgi/README.md`](asgi/README.md) for installation and run
+commands.

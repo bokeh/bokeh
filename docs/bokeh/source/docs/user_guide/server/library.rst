@@ -67,6 +67,8 @@ websocket URLs. Equivalent complete examples are available for:
 * :bokeh-tree:`examples/server/api/asgi/fastapi_shared_data.py`
 * :bokeh-tree:`examples/server/api/asgi/starlette_embed.py`
 * :bokeh-tree:`examples/server/api/asgi/django_embed.py`
+* :bokeh-tree:`examples/server/api/asgi/streamlit_simple.py`
+* :bokeh-tree:`examples/server/api/asgi/streamlit_particles/app.py`
 * :bokeh-tree:`examples/server/api/asgi/framework_free.py`
 
 The ASGI frontend handles Bokeh document, autoload, metadata, static asset, and

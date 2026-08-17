@@ -1,6 +1,8 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from fourier_studio import modify_document
 from jinja2 import Environment, FileSystemLoader
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -10,7 +12,7 @@ from starlette.routing import Mount, Route
 from bokeh.embed import server_document
 from bokeh.server.asgi import BokehASGI
 
-bokeh_application = BokehASGI({"/": Path(__file__).with_name("bkapp.py")})
+bokeh_application = BokehASGI(modify_document)
 template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescape=True).get_template("index.html")
 
 
@@ -25,7 +27,7 @@ async def index(request: Request) -> HTMLResponse:
 
 
 @asynccontextmanager
-async def lifespan(app: Starlette):
+async def lifespan(_app: Starlette) -> AsyncGenerator[None, None]:
     # Mounted Starlette applications don't receive lifespan events. Start and
     # stop Bokeh from the parent application's lifespan instead.
     await bokeh_application.core.start()
