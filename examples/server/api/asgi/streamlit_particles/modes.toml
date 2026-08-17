@@ -119,12 +119,15 @@ plot_title = "Curl-noise turbulence"
 controls = ["Turbulence strength", "Evolution rate"]
 color_title = "turbulent flow speed"
 center_label = "swirl-center separation"
-description = "A divergence-free noise field produces smoke-like turbulent motion."
+description = "Two drifting trigonometric modes create broad eddies; draggable counter-rotating centers add local swirl."
 equation = '''
-\mathbf v=\nabla\times\left(\psi\hat{\mathbf z}\right)=\left(\partial_y\psi,-\partial_x\psi\right),\qquad \nabla\cdot\mathbf v=0
+\begin{aligned}
+\mathbf v&=\nabla\times(\psi\hat{\mathbf z})=(\partial_y\psi,-\partial_x\psi),\qquad \nabla\cdot\mathbf v=0,\\
+\psi&=\psi_{\mathrm{modes}}(x,y,t)+\frac{\gamma(t)}{2}\log\frac{\lVert\mathbf r-\mathbf c_2\rVert^2+\varepsilon^2}{\lVert\mathbf r-\mathbf c_1\rVert^2+\varepsilon^2}.
+\end{aligned}
 '''
 source_match = '''
-**Source match:** Bridson Eqs. (1)-(2) give $\mathbf v=\nabla\times\boldsymbol\psi$ and, in 2-D, $(\partial_y\psi,-\partial_x\psi)$; the text immediately following proves $\nabla\cdot\mathbf v=0$. The demo evaluates an analytic trigonometric streamfunction.
+**Source match:** Bridson Eqs. (1)-(2) give the divergence-free curl construction. Here $\psi_{\mathrm{modes}}$ is a deterministic, time-varying two-mode sine field. The logarithmic term is a softened version of Nitsche's point-vortex kernel: $\mathbf c_1$ (rose) turns counterclockwise and $\mathbf c_2$ (blue) clockwise.
 '''
 
 [modes.curl_noise.wikipedia]
@@ -134,6 +137,10 @@ url = "https://en.wikipedia.org/wiki/Curl_(mathematics)"
 [[modes.curl_noise.references]]
 title = "Bridson et al., Eqs. (1)-(2): curl velocity (PDF p. 2)"
 url = "https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph2007-curlnoise.pdf#page=2"
+
+[[modes.curl_noise.references]]
+title = "Nitsche, Eq. 6.3: point-vortex kernel (PDF p. 104)"
+url = "https://math.unm.edu/~nitsche/courses/471/classnotes.pdf#page=104"
 
 
 [modes.fountain]
