@@ -1,6 +1,14 @@
 import {expect} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
 
 import {shuffle} from "@bokehjs/core/util/array"
+import {delay} from "@bokehjs/core/util/defer"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import type {Range} from "@bokehjs/models/ranges/range"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import {TileRenderer} from "@bokehjs/models/tiles/tile_renderer"
 import {TileSource} from "@bokehjs/models/tiles/tile_source"
 import {MercatorTileSource} from "@bokehjs/models/tiles/mercator_tile_source"
 import {TMSTileSource} from "@bokehjs/models/tiles/tms_tile_source"
@@ -337,6 +345,32 @@ describe("tile sources", () => {
       expect(source.has_tile("512")).to.be.true
     })
 
+    it("should not evict tiles the current extent needs", () => {
+      const source = new MercatorTileSource()
+      const needed = new Set(["0", "1"])
+      for (let i = 0; i < 600; i++) {
+        source.set_tile(`${i}`, {tile_coords: [i, 0, 0]}, needed)
+      }
+
+      expect(source.tiles.size).to.be.equal(512)
+      expect(source.has_tile("0")).to.be.true
+      expect(source.has_tile("1")).to.be.true
+      expect(source.has_tile("2")).to.be.false
+    })
+
+    it("should retain an extent that needs more tiles than the cache holds", () => {
+      const source = new MercatorTileSource()
+      const needed = new Set<string>()
+      for (let i = 0; i < 600; i++) {
+        needed.add(`${i}`)
+      }
+      for (const key of needed) {
+        source.set_tile(key, {tile_coords: [0, 0, 0]}, needed)
+      }
+
+      expect(source.tiles.size).to.be.equal(600)
+    })
+
     it("should verify whether tile xyz's are valid", () => {
       const tile_options0 = {wrap_around: true}
       const source0 = new MercatorTileSource(tile_options0)
@@ -498,5 +532,110 @@ describe("tile sources", () => {
         expect(expected_tiles.includes(url)).to.be.true
       }
     })
+  })
+})
+
+describe("tile renderer", () => {
+  // only zoom levels 1 and 2 are available as local assets
+  function osm_source(): WMTSTileSource {
+    return new WMTSTileSource({url: "/assets/tiles/osm/{Z}_{X}_{Y}.png", max_zoom: 2})
+  }
+
+  function relative_aspect_error(view: PlotView, x_range: Range, y_range: Range): number {
+    const {width, height} = view.frame.bbox
+    const x_resolution = (x_range.end - x_range.start)/width
+    const y_resolution = (y_range.end - y_range.start)/height
+    return Math.abs(x_resolution/y_resolution - 1)
+  }
+
+  it("should draw tiles at a single resolution in both axes", async () => {
+    const x_range = new Range1d({start: -2000000, end: 6000000})
+    const y_range = new Range1d({start: -1000000, end: 7000000})
+
+    const plot = fig([300, 200], {
+      x_range, y_range,
+      x_axis_type: "mercator",
+      y_axis_type: "mercator",
+      renderers: [new TileRenderer({tile_source: osm_source()})],
+    })
+
+    const {view} = await display(plot)
+
+    expect(relative_aspect_error(view, x_range, y_range)).to.be.below(1e-5)
+    // a Range1d isn't auto-ranged, so nothing has to be frozen to keep the aspect
+    expect(x_range.have_updated_interactively).to.be.false
+    expect(y_range.have_updated_interactively).to.be.false
+  })
+
+  it("should stop auto-ranging in order to keep tiles undistorted", async () => {
+    const source = new ColumnDataSource({data: {x: [-2000000, 6000000], y: [-1000000, 7000000]}})
+    const x_range = new DataRange1d()
+    const y_range = new DataRange1d()
+
+    const plot = fig([300, 200], {
+      x_range, y_range,
+      x_axis_type: "mercator",
+      y_axis_type: "mercator",
+      renderers: [new TileRenderer({tile_source: osm_source()})],
+    })
+    plot.scatter({field: "x"}, {field: "y"}, {source})
+
+    const {view} = await display(plot)
+
+    expect(relative_aspect_error(view, x_range, y_range)).to.be.below(1e-5)
+
+    // an auto-ranged range would re-fit to the data on every paint and undo the
+    // aspect constraint, so the tile renderer deliberately takes the range over,
+    // as pan and zoom tools do; a distorted map is never the better outcome
+    expect(x_range.have_updated_interactively).to.be.true
+    expect(y_range.have_updated_interactively).to.be.true
+
+    const [x_start, x_end] = [x_range.start, x_range.end]
+    const [y_start, y_end] = [y_range.start, y_range.end]
+
+    source.data = {x: [-15000000, 15000000], y: [-1000000, 7000000]}
+    await view.ready
+
+    // consequence of the above: the ranges no longer follow the data
+    expect([x_range.start, x_range.end]).to.be.equal([x_start, x_end])
+    expect([y_range.start, y_range.end]).to.be.equal([y_start, y_end])
+  })
+
+  it("should keep tile requests in flight out of the bounded cache", async () => {
+    const tile_source = osm_source()
+    const tile_renderer = new TileRenderer({tile_source})
+
+    const plot = fig([300, 200], {
+      x_range: [-2000000, 6000000],
+      y_range: [-1000000, 7000000],
+      x_axis_type: "mercator",
+      y_axis_type: "mercator",
+      renderers: [tile_renderer],
+    })
+
+    const {view} = await display(plot)
+    const renderer_view = view.owner.get_one(tile_renderer) as any
+
+    const [x, y, z] = [0, 0, 1]
+    const key = tile_source.tile_xyz_to_key(x, y, z)
+    const bounds = tile_source.get_tile_meter_bounds(x, y, z)
+    tile_source.delete_tile(key)
+
+    renderer_view._create_tile(x, y, z, bounds)
+    // a tile that is being loaded can't be evicted, so its request can't be
+    // lost, and the number of attempts made for it can't reset
+    expect(tile_source.has_tile(key)).to.be.false
+    expect(renderer_view._pending.get(key).attempts).to.be.equal(1)
+
+    renderer_view._create_tile(x, y, z, bounds)
+    expect(renderer_view._pending.get(key).attempts).to.be.equal(1)
+
+    for (let i = 0; i < 100 && renderer_view._pending.size != 0; i++) {
+      await delay(10)
+    }
+
+    // once the image arrives the tile is cached, and thus available for drawing
+    expect(renderer_view._pending.size).to.be.equal(0)
+    expect(tile_source.has_tile(key)).to.be.true
   })
 })

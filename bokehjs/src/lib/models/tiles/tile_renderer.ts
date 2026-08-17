@@ -5,6 +5,7 @@ import {WMTSTileSource} from "./wmts_tile_source"
 import {Renderer, RendererView} from "../renderers/renderer"
 import type {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
+import {DataRange1d} from "../ranges/data_range1d"
 import {HTML} from "../dom/html"
 import type * as p from "core/properties"
 import type {Image} from "core/util/image"
@@ -65,17 +66,35 @@ export class TileRendererView extends RendererView {
   /** Keys of tiles with an image request in flight. */
   protected _loading: Set<string> = new Set()
 
+  /**
+   * Tiles with an image request in flight, held outside the bounded cache so
+   * that they can't be evicted before they arrive, which would lose track of
+   * the request and of how many attempts were already made.
+   */
+  protected _pending: Map<string, TileData> = new Map()
+
+  /** Keys of the tiles the current extent needs, which are never evicted. */
+  protected _current: Set<string> = new Set()
+
   protected _fetch_timer: number | null = null
   protected _prefetch_timer: number | null = null
 
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_paint())
-    this.connect(this.model.tile_source.change, () => this.request_paint())
+    this.connect(this.model.tile_source.change, () => {
+      // the source dropped its cache, so requests in flight belong to a tile
+      // set that no longer applies; they can't be cancelled, but forgetting
+      // them here keeps their images from repopulating the cache
+      this._pending.clear()
+      this._loading.clear()
+      this.request_paint()
+    })
   }
 
   override remove(): void {
     this._clear_timers()
+    this._pending.clear()
     super.remove()
   }
 
@@ -135,9 +154,15 @@ export class TileRendererView extends RendererView {
   private _set_range(range: Range, min: number, max: number, reset: boolean = false): void {
     const [start, end] = range.start <= range.end ? [min, max] : [max, min]
     range.setv({start, end})
-    // matches what interactive tools (pan, zoom, ...) do, so that a DataRange1d
-    // doesn't immediately re-fit to data and undo the constraint on the next pass
-    range.have_updated_interactively = true
+    if (range instanceof DataRange1d) {
+      // An auto-ranged range re-fits to the data bounds on every paint, which
+      // would undo the constraint and leave the tiles distorted. Marking the
+      // range as updated interactively, which is what pan and zoom tools do,
+      // stops that at the cost of the range no longer following the data.
+      // Tiles and auto-ranging are fundamentally incompatible, and a distorted
+      // map is never what's wanted, so the constraint wins.
+      range.have_updated_interactively = true
+    }
     if (reset && range instanceof Range1d) {
       range.reset_start = start
       range.reset_end = end
@@ -238,10 +263,14 @@ export class TileRendererView extends RendererView {
     const cached: string[] = []
     const parents = new Set<string>()
     const children = new Set<string>()
+    const current = new Set<string>()
+    const loading = new Set<string>()
     const need_load: [number, number, number, Bounds][] = []
 
     for (const [x, y, z, bounds] of tile_source.get_tiles_by_extent(extent, level)) {
-      const tile = this._get_tile(tile_source.tile_xyz_to_key(x, y, z))
+      const key = tile_source.tile_xyz_to_key(x, y, z)
+      current.add(key)
+      const tile = this._get_tile(key)
 
       if (tile != null && tile.loaded) {
         cached.push(tile.cache_key)
@@ -250,6 +279,8 @@ export class TileRendererView extends RendererView {
 
       if (this._needs_load(tile)) {
         need_load.push([x, y, z, bounds])
+      } else if (tile != null && !tile.finished) {
+        loading.add(key)
       }
 
       if (render_parents) {
@@ -277,6 +308,8 @@ export class TileRendererView extends RendererView {
     this._render_tiles(ctx, [...parents, ...children, ...cached])
 
     this._to_fetch = need_load
+    this._current = current
+    this._loading = loading
     this._last_level = level
     this._updated = true
 
@@ -290,7 +323,7 @@ export class TileRendererView extends RendererView {
   }
 
   protected _get_tile(key: string): TileData | undefined {
-    return this.model.tile_source.get_tile(key) as TileData | undefined
+    return this._pending.get(key) ?? this.model.tile_source.get_tile(key) as TileData | undefined
   }
 
   protected _is_loaded(key: string): boolean {
@@ -347,7 +380,8 @@ export class TileRendererView extends RendererView {
         if (prefetched == MAX_PREFETCH) {
           return
         }
-        if (!tile_source.has_tile(tile_source.tile_xyz_to_key(cx, cy, cz))) {
+        const child_key = tile_source.tile_xyz_to_key(cx, cy, cz)
+        if (!tile_source.has_tile(child_key) && !this._pending.has(child_key)) {
           this._create_tile(cx, cy, cz, cbounds, true)
           prefetched++
         }
@@ -358,6 +392,14 @@ export class TileRendererView extends RendererView {
   protected _create_tile(x: number, y: number, z: number, bounds: Bounds, cache_only: boolean = false): void {
     const {tile_source} = this.model
     const cache_key = tile_source.tile_xyz_to_key(x, y, z)
+
+    if (this._pending.has(cache_key)) {
+      // already requested, possibly as a prefetch that is now on display
+      if (!cache_only) {
+        this._loading.add(cache_key)
+      }
+      return
+    }
 
     const cached = this._get_tile(cache_key)
     if (!this._needs_load(cached)) {
@@ -374,19 +416,24 @@ export class TileRendererView extends RendererView {
       finished: false,
       attempts: (cached?.attempts ?? 0) + 1,
     }
-    tile_source.set_tile(cache_key, tile)
+    tile_source.delete_tile(cache_key)
+    this._pending.set(cache_key, tile)
 
     if (!cache_only) {
       this._loading.add(cache_key)
     }
 
     const settled = () => {
-      tile.finished = true
-      if (cache_only) {
+      if (this._pending.get(cache_key) !== tile) {
+        // superseded, e.g. because the source changed while loading
         return
       }
-      this._loading.delete(cache_key)
-      if (!this.is_destroyed) {
+      tile.finished = true
+      this._pending.delete(cache_key)
+      tile_source.set_tile(cache_key, tile, this._current)
+
+      const was_loading = this._loading.delete(cache_key)
+      if (!this.is_destroyed && (was_loading || !cache_only)) {
         // the paint reports completion, and draws the tile if it loaded
         this.request_paint()
       }

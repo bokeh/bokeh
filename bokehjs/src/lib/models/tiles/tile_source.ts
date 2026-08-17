@@ -114,7 +114,14 @@ export abstract class TileSource extends Model {
     return tile
   }
 
-  set_tile(key: string, tile: Tile): void {
+  /**
+   * Caches a tile, evicting least recently used tiles beyond `max_cache_size`.
+   * Keys in `preserve` are never evicted, so that a viewport needing more tiles
+   * than the cache nominally holds doesn't discard tiles it is about to draw and
+   * request them again on the next paint.
+   */
+  set_tile(key: string, tile: Tile, preserve?: ReadonlySet<string>): void {
+    this.tiles.delete(key)
     this.tiles.set(key, tile)
 
     const {max_cache_size} = this
@@ -122,6 +129,9 @@ export abstract class TileSource extends Model {
     if (excess > 0) {
       // relies on maps iterating in insertion order, which `get_tile()` maintains
       for (const key of this.tiles.keys()) {
+        if (preserve?.has(key) ?? false) {
+          continue
+        }
         this.tiles.delete(key)
         if (--excess == 0) {
           break
