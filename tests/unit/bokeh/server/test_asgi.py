@@ -20,6 +20,7 @@ from typing import Any, cast
 from urllib.parse import urlencode
 
 # External imports
+import numpy as np
 import pytest
 
 # Bokeh imports
@@ -28,7 +29,16 @@ from bokeh.application.handlers.directory import DirectoryHandler
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.types import ID
 from bokeh.document import Document
-from bokeh.models import ColumnDataSource, Div, Select
+from bokeh.models import (
+    ColorBar,
+    ColumnDataSource,
+    CustomJS,
+    Div,
+    HoverTool,
+    PointDrawTool,
+    Select,
+    Slider,
+)
 from bokeh.protocol import Protocol
 from bokeh.server.asgi import BokehASGI
 from bokeh.server.auth import AuthPolicy
@@ -89,25 +99,37 @@ def response_header(events: list[dict[str, Any]], name: bytes) -> bytes | None:
     return next((value for key, value in headers if key.lower() == name.lower()), None)
 
 
-def test_example_application_initializes() -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/bkapp.py"
-    application = BokehASGI({"/": path}).core.applications["/"].application
+def test_example_application_initializes(monkeypatch: pytest.MonkeyPatch) -> None:
+    path = Path(__file__).parents[4] / "examples/server/api/asgi/fourier_studio.py"
+    monkeypatch.syspath_prepend(str(path.parent))
+    modify_document = runpy.run_path(str(path))["modify_document"]
+    application = BokehASGI(modify_document).core.applications["/"].application
     document = application.create_document()
     second_document = application.create_document()
 
-    assert document.title == "Bokeh ASGI signal studio"
+    assert isinstance(application.handlers[0], FunctionHandler)
+    assert document.title == "Bokeh ASGI Fourier studio"
     assert len(document.roots) == 1
     assert document.roots[0] is not second_document.roots[0]
     waveform = document.select_one({"name": "waveform"})
+    terms = document.select_one({"name": "terms"})
     source = document.select_one({"name": "signal-source"})
+    spectrum = document.select_one({"name": "spectrum-source"})
     assert isinstance(waveform, Select)
+    assert isinstance(terms, Slider)
     assert isinstance(source, ColumnDataSource)
+    assert isinstance(spectrum, ColumnDataSource)
 
-    waveform.value = "Square"
+    terms.value = 3
 
-    assert set(source.data["y"]) == {-1.5, 1.5}
-    string_application = BokehASGI(str(path)).core.applications["/"].application
-    assert string_application.create_document().title == "Bokeh ASGI signal studio"
+    assert list(spectrum.data["harmonic"]) == [1, 3, 5]
+    np.testing.assert_allclose(spectrum.data["magnitude"], 4/(np.pi*np.array([1, 3, 5])))
+    second_terms = second_document.select_one({"name": "terms"})
+    second_spectrum = second_document.select_one({"name": "spectrum-source"})
+    assert isinstance(second_terms, Slider)
+    assert isinstance(second_spectrum, ColumnDataSource)
+    assert second_terms.value == 6
+    assert len(second_spectrum.data["harmonic"]) == 6
 
 
 async def test_directory_application_path_supports_directory_features(tmp_path: Path) -> None:
@@ -227,8 +249,9 @@ async def test_update_sessions_updates_each_document_with_its_lock() -> None:
         await app.core.stop()
 
 
-async def test_framework_free_example_routes_site_and_bokeh() -> None:
+async def test_framework_free_example_routes_site_and_bokeh(monkeypatch: pytest.MonkeyPatch) -> None:
     path = Path(__file__).parents[4] / "examples/server/api/asgi/framework_free.py"
+    monkeypatch.syspath_prepend(str(path.parent))
     namespace = runpy.run_path(str(path))
     application = namespace["application"]
     bokeh_application = cast(BokehASGI, namespace["bokeh_application"])
@@ -245,7 +268,7 @@ async def test_framework_free_example_routes_site_and_bokeh() -> None:
         assert b"bokeh-absolute-url" not in response_body(index)
         assert b"<iframe" not in response_body(index)
         assert response_status(document) == 200
-        assert b"Bokeh ASGI signal studio" in response_body(document)
+        assert b"Bokeh ASGI Fourier studio" in response_body(document)
         assert b'/bkapp/static/js/bokeh' in response_body(document)
         assert response_status(missing) == 404
 
@@ -299,6 +322,7 @@ async def test_framework_example_composes_bokeh_lifespan(monkeypatch: pytest.Mon
     monkeypatch.setitem(sys.modules, "starlette.routing", starlette_routing)
 
     path = Path(__file__).parents[4] / f"examples/server/api/asgi/{framework}_embed.py"
+    monkeypatch.syspath_prepend(str(path.parent))
     namespace = runpy.run_path(str(path))
     application = cast(BokehASGI, namespace["bokeh_application"])
     lifespan = namespace["lifespan"]
@@ -316,6 +340,218 @@ async def test_framework_example_composes_bokeh_lifespan(monkeypatch: pytest.Mon
     async with lifespan(namespace["app"]):
         assert application.core._started
     assert not application.core._started
+
+
+@pytest.mark.parametrize(("example", "ui"), [
+    ("streamlit_simple.py", "streamlit_simple_page.py"),
+    ("streamlit_particles/app.py", "ui.py"),
+])
+async def test_streamlit_example_composes_bokeh_lifespan(
+    monkeypatch: pytest.MonkeyPatch,
+    example: str,
+    ui: str,
+) -> None:
+    class HostApplication:
+        def __init__(self, script_path: Path, *, routes: list[Any], lifespan) -> None:
+            self.script_path = script_path
+            self.routes = routes
+            self.lifespan = lifespan
+
+    class Mount:
+        def __init__(self, path: str, *, app: Any) -> None:
+            self.path = path
+            self.app = app
+
+    streamlit = ModuleType("streamlit")
+    setattr(streamlit, "App", HostApplication)
+    starlette_routing = ModuleType("starlette.routing")
+    setattr(starlette_routing, "Mount", Mount)
+
+    monkeypatch.setitem(sys.modules, "streamlit", streamlit)
+    monkeypatch.setitem(sys.modules, "starlette.routing", starlette_routing)
+
+    examples_root = Path(__file__).parents[4] / "examples/server/api/asgi"
+    path = examples_root / example
+    monkeypatch.syspath_prepend(str(examples_root))
+    namespace = runpy.run_path(str(path))
+    app = namespace["app"]
+    application = cast(BokehASGI, namespace["bokeh_application"])
+    lifespan = namespace["lifespan"]
+
+    assert app.script_path == path.with_name(ui)
+    assert app.lifespan is lifespan
+    assert len(app.routes) == 1
+    assert app.routes[0].path == "/bkapp"
+    assert app.routes[0].app is application
+    assert isinstance(application.core.applications["/"].application.handlers[0], FunctionHandler)
+    assert not application.core._started
+    async with lifespan(app):
+        assert application.core._started
+    assert not application.core._started
+
+
+def test_streamlit_example_state_is_isolated_by_viewer(monkeypatch: pytest.MonkeyPatch) -> None:
+    path = Path(__file__).parents[4] / "examples/server/api/asgi/streamlit_particles/state.py"
+    monkeypatch.syspath_prepend(str(path.parent.parent))
+    namespace = runpy.run_path(str(path))
+    registry = namespace["ViewerRegistry"]()
+
+    modes = namespace["MODES"]
+    assert tuple(modes) == (
+        "vortex",
+        "gravity",
+        "wave",
+        "chaotic",
+        "magnetic",
+        "curl_noise",
+        "fountain",
+    )
+    assert modes["vortex"].equation.startswith(r"\dot{\mathbf r}_i")
+    assert modes["vortex"].wikipedia[0] == "Two-dimensional point vortex gas"
+    assert len(modes["fountain"].references) == 2
+
+    alice = registry.for_viewer("alice")
+    bob = registry.for_viewer("bob")
+    alice.update(
+        strength=2.5,
+        rate=4.0,
+        mode="gravity",
+        paused=True,
+        show_centers=False,
+        reset=True,
+    )
+
+    assert registry.for_viewer("alice") is alice
+    assert alice.read().strength == 2.5
+    assert alice.read().rate == 4.0
+    assert alice.read().mode == "gravity"
+    assert alice.read().paused
+    assert not alice.read().show_centers
+    assert alice.read().reset_count == 1
+    assert bob.read().strength == 1.4
+    assert bob.read().rate == 1.6
+    assert bob.read().mode == "vortex"
+    assert not bob.read().paused
+    assert bob.read().show_centers
+    assert bob.read().reset_count == 0
+
+
+def test_streamlit_particle_app_uses_client_side_mode_kernels(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path = Path(__file__).parents[4] / "examples/server/api/asgi/streamlit_particles/simulation.py"
+    javascript_root = path.with_name("js")
+    monkeypatch.syspath_prepend(str(path.parent.parent))
+    modify_document = runpy.run_path(str(path))["modify_document"]
+    application = Application(FunctionHandler(modify_document))
+    document = application.create_document()
+    particles = document.select_one({"name": "particles"})
+    centers = document.select_one({"name": "centers"})
+    status = document.select_one({"name": "status"})
+    color_bar = document.select_one({"type": ColorBar})
+    point_draw = document.select_one({"type": PointDrawTool})
+    center_hover = document.select_one({"type": HoverTool})
+    driver = document.callbacks._js_event_callbacks["document_ready"][0]
+    controls = driver.args["controls"]
+    evolution = driver.args["evolution"]
+    plot = document.roots[0].children[1]
+
+    assert isinstance(application.handlers[0], FunctionHandler)
+    assert isinstance(particles, ColumnDataSource)
+    assert isinstance(centers, ColumnDataSource)
+    assert isinstance(status, Div)
+    assert isinstance(color_bar, ColorBar)
+    assert isinstance(controls, ColumnDataSource)
+    assert set(particles.data) == {"x", "y", "vx", "vy", "life", "speed"}
+    assert set(controls.data) == {"strength", "rate", "paused"}
+    assert all(len(values) == 50_000 for values in particles.data.values())
+    assert all(values.dtype == np.dtype("float32") for values in particles.data.values())
+    assert point_draw is not None
+    assert point_draw.renderers[0].data_source is centers
+    assert center_hover is not None
+    assert center_hover.renderers == point_draw.renderers
+    assert cast(Any, point_draw.renderers[0].hover_glyph).line_width == 4
+    assert plot.toolbar.active_tap is point_draw
+    assert plot.toolbar.active_drag is point_draw
+    assert plot.toolbar.active_inspect is center_hover
+    assert plot.toolbar_location is None
+    assert plot.toolbar.tools == [point_draw, center_hover]
+    assert "Click and drag either colored center" in status.text
+    assert (plot.x_range.start, plot.x_range.end) == (-3, 3)
+    assert (plot.y_range.start, plot.y_range.end) == (-2, 2)
+    assert isinstance(driver, CustomJS)
+    assert isinstance(evolution, CustomJS)
+    assert driver.document is document
+    assert controls.document is document
+    assert evolution.document is document
+    assert "requestAnimationFrame(frame)" in driver.code
+    assert "evolution.execute" in driver.code
+    assert "reset_particles" not in driver.code
+    helpers = (javascript_root / "helpers.js").read_text()
+    assert evolution.code == f"{helpers}\n{(javascript_root / 'vortex.js').read_text()}"
+    assert {path.stem for path in javascript_root.glob("*.js")} == {
+        "chaotic",
+        "curl_noise",
+        "driver",
+        "fountain",
+        "gravity",
+        "helpers",
+        "magnetic",
+        "vortex",
+        "wave",
+    }
+
+    from streamlit_particles.state import viewer_states
+
+    viewer_state = viewer_states.for_viewer("standalone-bokeh-session")
+    current = viewer_state.read()
+    try:
+        viewer_state.update(
+            strength=current.strength,
+            rate=current.rate,
+            mode="magnetic",
+            paused=current.paused,
+            show_centers=False,
+            reset=True,
+        )
+        document.session_callbacks[0].callback()
+        assert evolution.code == f"{helpers}\n{(javascript_root / 'magnetic.js').read_text()}"
+        assert np.any(particles.data["vx"] != 0)
+        assert not point_draw.renderers[0].visible
+        assert color_bar.title == "charged-particle speed"
+        assert plot.title.text == "50,000 particles · Magnetic dipole trajectories"
+        assert "magnetic-center separation 2.30" in status.text
+
+        centers.data = {
+            "x": [-2.0, 2.0],
+            "y": [0.0, 0.0],
+            "color": ["#fb7185", "#38bdf8"],
+        }
+        assert "magnetic-center separation 4.00" in status.text
+
+        magnetic = viewer_state.read()
+        viewer_state.update(
+            strength=magnetic.strength,
+            rate=magnetic.rate,
+            mode="fountain",
+            paused=magnetic.paused,
+            show_centers=magnetic.show_centers,
+            reset=True,
+        )
+        document.session_callbacks[0].callback()
+        assert centers.data["x"] == [-1.75, -0.05]
+        assert centers.data["y"] == [-1.45, 0.25]
+        assert np.any(particles.data["life"] > 0)
+        assert all(values.dtype == np.dtype("float32") for values in particles.data.values())
+    finally:
+        viewer_state.update(
+            strength=current.strength,
+            rate=current.rate,
+            mode=current.mode,
+            paused=current.paused,
+            show_centers=current.show_centers,
+            reset=True,
+        )
 
 
 async def test_lifespan_starts_and_stops_application() -> None:
