@@ -52,7 +52,11 @@ from weakref import WeakSet
 # Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring
-from .property.descriptors import AliasPropertyDescriptor, PropertyDescriptor, UnsetValueError
+from .property.descriptors import (
+    AliasPropertyDescriptor,
+    PropertyDescriptor,
+    UnsetValueError,
+)
 from .property.enum import Enum
 from .property.serialized import NotSerialized
 from .property.singletons import Undefined
@@ -825,7 +829,14 @@ def _property_kind(prop: Property[Any], serializer: Serializer) -> KindRef:
     from .property.enum import Enum
     from .property.instance import Instance
     from .property.nullable import Nullable
-    from .property.primitive import Bool, Bytes, Float, Int, Null, String
+    from .property.primitive import (
+        Bool,
+        Bytes,
+        Float,
+        Int,
+        Null,
+        String,
+    )
     from .property.string import Regex
     from .property.struct import Struct
 

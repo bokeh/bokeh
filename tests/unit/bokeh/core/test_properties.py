@@ -21,7 +21,6 @@ from operator import delitem, setitem
 
 # External imports
 import numpy as np
-from tests.support.util.api import verify_all
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps, Local
@@ -42,6 +41,7 @@ from bokeh.core.properties import (
     UnsetValueError,
 )
 from bokeh.model import Model
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.properties as bcp # isort:skip

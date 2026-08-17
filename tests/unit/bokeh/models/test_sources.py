@@ -28,7 +28,12 @@ import narwhals.stable.v1 as nw
 import numpy as np
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, DataTable, NumberFormatter, Selection
+from bokeh.models import (
+    ColumnDataSource,
+    DataTable,
+    NumberFormatter,
+    Selection,
+)
 from bokeh.util.callback_manager import OldValueUnavailable
 from bokeh.util.dependencies import is_installed
 from bokeh.util.serialization import convert_datetime_array

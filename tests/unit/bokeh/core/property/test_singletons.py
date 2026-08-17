@@ -10,15 +10,17 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
+# Standard library imports
+from copy import copy, deepcopy
+from pickle import dumps, loads
+
+# External imports
 import pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from copy import copy, deepcopy
-from pickle import dumps, loads
 
 # Module under test
 import bokeh.core.property.singletons as bcpu # isort:skip

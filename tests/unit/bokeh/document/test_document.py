@@ -24,7 +24,14 @@ from unittest.mock import patch
 
 # Bokeh imports
 from bokeh.core.enums import HoldPolicy
-from bokeh.core.has_props import HasProps, Local, ModelDef, OverrideDef, PropertyDef, _data_models_in_dependency_order
+from bokeh.core.has_props import (
+    HasProps,
+    Local,
+    ModelDef,
+    OverrideDef,
+    PropertyDef,
+    _data_models_in_dependency_order,
+)
 from bokeh.core.properties import (
     Any as AnyProperty,
     AnyRef,

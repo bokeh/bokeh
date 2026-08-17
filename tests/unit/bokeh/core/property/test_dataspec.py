@@ -23,7 +23,6 @@ from copy import copy
 
 # External imports
 import numpy as np
-from tests.support.util.api import verify_all
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps, Local
@@ -36,6 +35,7 @@ from bokeh.core.property.vectorization import (
 )
 from bokeh.core.property_aliases import AngleUnits, CoordinateUnits, SpatialUnits
 from bokeh.util.warnings import BokehDeprecationWarning
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.property.dataspec as bcpd # isort:skip

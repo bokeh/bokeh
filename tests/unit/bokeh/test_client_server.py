@@ -40,8 +40,8 @@ from bokeh.core.properties import (
     Nullable,
     String,
 )
-from bokeh.core.types import ID
 from bokeh.core.property_aliases import AngleUnits, SpatialUnits
+from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Model

@@ -12,8 +12,8 @@ from typing import Literal, NotRequired, TypedDict
 from .._types import NonNegative
 from ..core.enums import (
     AlignType as Align,
-    AngleUnitsType as AngleUnitsType,
     AnchorType as Anchor_,
+    AngleUnitsType as AngleUnitsType,
     AutoType as Auto,
     CoordinateUnitsType as CoordinateUnitsType,
     HAlignType as HAlign,
