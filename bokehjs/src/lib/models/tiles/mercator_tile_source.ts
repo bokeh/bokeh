@@ -1,8 +1,9 @@
 import {TileSource} from "./tile_source"
 import type * as p from "core/properties"
-import {range} from "core/util/array"
+import {logger} from "core/logging"
 import type {Extent, Bounds} from "./tile_utils"
 import {meters_extent_to_geographic} from "./tile_utils"
+import {range} from "core/util/array"
 
 export namespace MercatorTileSource {
   export type Attrs = p.AttrsOf<Props>
@@ -45,6 +46,20 @@ export class MercatorTileSource extends TileSource {
     })
   }
 
+  /**
+   * The coarsest zoom level provided by this source.
+   */
+  get min_level(): number {
+    return Math.max(0, Math.floor(this.min_zoom))
+  }
+
+  /**
+   * The finest zoom level provided by this source.
+   */
+  get max_level(): number {
+    return Math.max(this.min_level, Math.floor(this.max_zoom))
+  }
+
   protected _computed_initial_resolution(): number {
     if (this.initial_resolution != null) {
       return this.initial_resolution
@@ -56,6 +71,10 @@ export class MercatorTileSource extends TileSource {
   }
 
   is_valid_tile(x: number, y: number, z: number): boolean {
+    if (z < this.min_level || z > this.max_level) {
+      return false
+    }
+
     if (!this.wrap_around) {
       if (x < 0 || x >= 2**z) {
         return false
@@ -69,12 +88,6 @@ export class MercatorTileSource extends TileSource {
     return true
   }
 
-  parent_by_tile_xyz(x: number, y: number, z: number): [number, number, number] {
-    const quadkey = this.tile_xyz_to_quadkey(x, y, z)
-    const parent_quadkey = quadkey.substring(0, quadkey.length - 1)
-    return this.quadkey_to_tile_xyz(parent_quadkey)
-  }
-
   get_resolution(level: number): number {
     return this._computed_initial_resolution() / 2**level
   }
@@ -85,65 +98,113 @@ export class MercatorTileSource extends TileSource {
     return [x_rs, y_rs]
   }
 
+  /**
+   * The resolution needed to fit `extent` into `width` x `height` pixels.
+   */
+  protected _required_resolution(extent: Extent, height: number, width: number): number {
+    const [x_rs, y_rs] = this.get_resolution_by_extent(extent, height, width)
+    return Math.max(x_rs, y_rs)
+  }
+
+  /**
+   * The finest level whose tiles still cover `extent`, i.e. the extent is
+   * never cropped, at the cost of drawing tiles magnified up to 2x.
+   */
   get_level_by_extent(extent: Extent, height: number, width: number): number {
-    const x_rs = (extent[2] - extent[0]) / width
-    const y_rs = (extent[3] - extent[1]) / height
-    const resolution = Math.max(x_rs, y_rs)
+    const resolution = this._required_resolution(extent, height, width)
+    const {min_level, max_level} = this
 
-    let i = 0
-    for (const r of this._resolutions) {
-      if (resolution > r) {
-        if (i == 0) {
-          return 0
-        }
-        if (i > 0) {
-          return i - 1
-        }
-      }
-      i += 1
+    if (!isFinite(resolution)) {
+      return min_level
     }
 
-    // otherwise return the highest available resolution
-    return (i-1)
+    for (let level = min_level; level <= max_level; level++) {
+      if (resolution > this.get_resolution(level)) {
+        return Math.max(min_level, level - 1)
+      }
+    }
+
+    return max_level
   }
 
+  /**
+   * The level whose resolution is closest to the one `extent` requires, which
+   * keeps tiles within a factor of sqrt(2) of their native size.
+   */
   get_closest_level_by_extent(extent: Extent, height: number, width: number): number {
-    const x_rs = (extent[2] - extent[0]) / width
-    const y_rs = (extent[3] - extent[1]) / height
-    const resolution = Math.max(x_rs, y_rs)
-    const closest = this._resolutions.reduce(function(previous, current) {
-      if (Math.abs(current - resolution) < Math.abs(previous - resolution)) {
-        return current
-      } else {
-        return previous
+    const resolution = this._required_resolution(extent, height, width)
+    const {min_level, max_level} = this
+
+    if (!isFinite(resolution) || resolution <= 0) {
+      return min_level
+    }
+
+    // resolutions form a geometric series, so proximity is measured as a ratio,
+    // not as an absolute difference
+    let closest = min_level
+    let closest_distance = Infinity
+    for (let level = min_level; level <= max_level; level++) {
+      const distance = Math.abs(Math.log2(this.get_resolution(level)/resolution))
+      if (distance >= closest_distance) {
+        break
       }
-    })
-    return this._resolutions.indexOf(closest)
+      closest = level
+      closest_distance = distance
+    }
+
+    return closest
   }
 
-  snap_to_zoom_level(extent: Extent, height: number, width: number, level: number): Extent {
+  /**
+   * `extent` grown or shrunk around its center to `resolution` in both axes.
+   */
+  protected _extent_at_resolution(extent: Extent, height: number, width: number, resolution: number): Extent {
     const [xmin, ymin, xmax, ymax] = extent
-    const desired_res = this._resolutions[level]
-    let desired_x_delta = width * desired_res
-    let desired_y_delta = height * desired_res
-    if (!this.snap_to_zoom) {
-      const xscale = (xmax-xmin)/desired_x_delta
-      const yscale = (ymax-ymin)/desired_y_delta
-      if (xscale > yscale) {
-        desired_x_delta = (xmax-xmin)
-        desired_y_delta = desired_y_delta*xscale
-      } else {
-        desired_x_delta = desired_x_delta*yscale
-        desired_y_delta = (ymax-ymin)
-      }
-    }
-    const x_adjust = (desired_x_delta - (xmax - xmin)) / 2
-    const y_adjust = (desired_y_delta - (ymax - ymin)) / 2
-
+    const x_adjust = ((width*resolution) - (xmax - xmin)) / 2
+    const y_adjust = ((height*resolution) - (ymax - ymin)) / 2
     return [xmin - x_adjust, ymin - y_adjust, xmax + x_adjust, ymax + y_adjust]
   }
 
+  snap_to_zoom_level(extent: Extent, height: number, width: number, level: number): Extent {
+    const resolution = this.snap_to_zoom ? this.get_resolution(level) : this._required_resolution(extent, height, width)
+    return this._extent_at_resolution(extent, height, width, resolution)
+  }
+
+  /**
+   * `extent` adjusted so that both axes resolve to the same number of meters
+   * per pixel, by growing the axis that has room to spare. Tiles are square, so
+   * an extent that scales the axes independently (as a box zoom, a single
+   * dimension wheel zoom, or an auto-ranged range does) draws them distorted.
+   */
+  constrain_extent(extent: Extent, height: number, width: number): Extent {
+    if (!extent.every(isFinite) || !(width > 0) || !(height > 0)) {
+      return extent
+    }
+
+    if (this.snap_to_zoom) {
+      const level = this.get_level_by_extent(extent, height, width)
+      return this.snap_to_zoom_level(extent, height, width, level)
+    }
+
+    const [xmin, ymin, xmax, ymax] = extent
+    const [x_rs, y_rs] = this.get_resolution_by_extent(extent, height, width)
+
+    // only the axis that has to grow is touched, so that constraining an extent
+    // that already is consistent doesn't perturb it
+    if (x_rs > y_rs) {
+      const y_adjust = ((height*x_rs) - (ymax - ymin))/2
+      return [xmin, ymin - y_adjust, xmax, ymax + y_adjust]
+    } else {
+      const x_adjust = ((width*y_rs) - (xmax - xmin))/2
+      return [xmin - x_adjust, ymin, xmax + x_adjust, ymax]
+    }
+  }
+
   rescale(extent: Extent, height: number, width: number, last_height: number, last_width: number): Extent {
+    if (!(last_width > 0) || !(last_height > 0)) {
+      return extent
+    }
+
     const [xmin, ymin, xmax, ymax] = extent
     const x_delta = xmax-xmin
     const y_delta = ymax-ymin
@@ -185,15 +246,8 @@ export class MercatorTileSource extends TileSource {
   }
 
   pixels_to_tile(px: number, py: number): [number, number] {
-    let tx = Math.ceil(px / this.tile_size)
-    tx = tx === 0 ? tx : tx - 1
-    const ty = Math.max(Math.ceil(py / this.tile_size) - 1, 0)
-    return [tx, ty]
-  }
-
-  pixels_to_raster(px: number, py: number, level: number): [number, number] {
-    const mapSize = this.tile_size << level
-    return [px, mapSize - py]
+    const {tile_size} = this
+    return [Math.floor(px / tile_size), Math.floor(py / tile_size)]
   }
 
   meters_to_tile(mx: number, my: number, level: number): [number, number] {
@@ -230,6 +284,23 @@ export class MercatorTileSource extends TileSource {
     tymin -= tile_border
     txmax += tile_border
     tymax += tile_border
+
+    // An extent that doesn't correspond to `level` (e.g. one that was never
+    // constrained to the levels this source provides) can ask for an unbounded
+    // number of tiles, so fall back to the tiles closest to the center.
+    const nx = txmax - txmin + 1
+    const ny = tymax - tymin + 1
+    const {max_tiles} = this
+    if (nx*ny > max_tiles) {
+      logger.warn(`${this}: extent requires ${nx*ny} tiles at zoom level ${level}, limiting to ${max_tiles}`)
+      const scale = Math.sqrt(max_tiles/(nx*ny))
+      const cx = Math.max(1, Math.floor(nx*scale))
+      const cy = Math.max(1, Math.floor(ny*scale))
+      txmin += Math.floor((nx - cx)/2)
+      txmax = txmin + cx - 1
+      tymin += Math.floor((ny - cy)/2)
+      tymax = tymin + cy - 1
+    }
 
     const tiles: [number, number, number, Bounds][] = []
     for (let ty = tymax; ty >= tymin; ty--) {
@@ -300,27 +371,27 @@ export class MercatorTileSource extends TileSource {
     const child_tile_xyz: [number, number, number, Bounds][] = []
 
     for (let i = 0; i <= 3; i++) {
-      const [x, y, z] = this.quadkey_to_tile_xyz(quadkey + i.toString())
-      const b = this.get_tile_meter_bounds(x, y, z)
-      child_tile_xyz.push([x, y, z, b])
+      const [cx, cy, cz] = this.quadkey_to_tile_xyz(quadkey + i.toString())
+      if (this.is_valid_tile(cx, cy, cz)) {
+        child_tile_xyz.push([cx, cy, cz, this.get_tile_meter_bounds(cx, cy, cz)])
+      }
     }
 
     return child_tile_xyz
   }
 
-  get_closest_parent_by_tile_xyz(x: number, y: number, z: number): [number, number, number] {
+  get_closest_parent_by_tile_xyz(x: number, y: number, z: number): [number, number, number] | null {
     const world_x = this.calculate_world_x_by_tile_xyz(x, y, z)
     ;[x, y, z] = this.normalize_xyz(x, y, z)
     let quadkey = this.tile_xyz_to_quadkey(x, y, z)
     while (quadkey.length > 0) {
       quadkey = quadkey.substring(0, quadkey.length - 1)
-      ;[x, y, z] = this.quadkey_to_tile_xyz(quadkey)
-      ;[x, y, z] = this.denormalize_xyz(x, y, z, world_x)
-      if (this.tiles.has(this.tile_xyz_to_key(x, y, z))) {
-        return [x, y, z]
+      const [px, py, pz] = this.denormalize_xyz(...this.quadkey_to_tile_xyz(quadkey), world_x)
+      if (this.has_tile(this.tile_xyz_to_key(px, py, pz))) {
+        return [px, py, pz]
       }
     }
-    return [0, 0, 0]
+    return null
   }
 
   normalize_xyz(x: number, y: number, z: number): [number, number, number] {
@@ -334,10 +405,6 @@ export class MercatorTileSource extends TileSource {
 
   denormalize_xyz(x: number, y: number, z: number, world_x: number): [number, number, number] {
     return [x + (world_x * 2**z), y, z]
-  }
-
-  denormalize_meters(meters_x: number, meters_y: number, _level: number, world_x: number): [number, number] {
-    return [meters_x + (world_x * 2 * Math.PI * 6378137), meters_y]
   }
 
   calculate_world_x_by_tile_xyz(x: number, _y: number, z: number): number {
