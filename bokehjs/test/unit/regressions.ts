@@ -54,6 +54,7 @@ import {
   WMTSTileSource,
   WheelZoomTool,
 } from "@bokehjs/models"
+import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
 import {
   GlobalImportedStyleSheet,
@@ -2178,28 +2179,42 @@ ${view.host_selector} {
 
       const {view} = await display(p)
 
-      p.toolbar.active_drag = box_select
-      await view.ready
-
       // can't simply dispatchEvent() because of browser security
       const {left, top} = view.el.getBoundingClientRect()
-      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+      const open_menu = () => {
+        view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+        const menu_view = view.get_context_menu({x: 50, y: 50})
+        expect_not_null(menu_view)
+        expect(menu_view.is_open).to.be.true
+        return menu_view
+      }
+      // items are recomputed into new models, so the submenu views must follow
+      const submenus = (menu_view: MenuView) => menu_view.shadow_el.querySelectorAll(".bk-item.bk-menu")
 
-      const menu_view = view.get_context_menu({x: 50, y: 50})
-      expect_not_null(menu_view)
-      expect(menu_view.is_open).to.be.true
+      expect(submenus(open_menu()).length).to.be.equal(2)
 
-      // tools providing a setup menu must still resolve their submenu views
-      expect(menu_view.shadow_el.querySelectorAll(".bk-item.bk-menu").length).to.be.equal(2)
+      p.toolbar.tools = [pan]
+      await view.ready
+      expect(submenus(open_menu()).length).to.be.equal(1)
 
-      // icons resolve at render time, so a tool's state is reflected without
-      // rebuilding the items
-      const icons = () => [...menu_view.shadow_el.querySelectorAll(".bk-icon")].map((el) => el.className).join()
-      const before = icons()
+      p.toolbar.tools = [pan, new BoxSelectTool()]
+      await view.ready
+      const menu_view = open_menu()
+      expect(submenus(menu_view).length).to.be.equal(2)
+
+      // stale views are removed, not accumulated
+      const submenu_views = menu_view._children_views().filter((view) => view instanceof MenuView)
+      expect(submenu_views.length).to.be.equal(2)
+
+      // icons and tooltips resolve at render time, so a tool's state is
+      // reflected without rebuilding the items
+      const rendered = () => [...menu_view.shadow_el.querySelectorAll<HTMLElement>(".bk-item")]
+        .map((el) => `${el.querySelector(".bk-icon")?.className}|${el.title}`).join()
+      const before = rendered()
       menu_view.hide()
       pan.dimensions = "width"
-      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
-      expect(icons()).to.not.be.equal(before)
+      open_menu()
+      expect(rendered()).to.not.be.equal(before)
     })
   })
 })

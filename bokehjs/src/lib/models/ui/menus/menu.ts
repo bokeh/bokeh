@@ -173,7 +173,7 @@ export class MenuView extends UIElementView {
         })()
 
         const item_el = div(
-          {class: menus.item, title: item.tooltip, tabIndex: 0},
+          {class: menus.item, title: to_val(item.tooltip), tabIndex: 0},
           check_el, icon_el, label_el, shortcut_el, chevron_el,
         )
 

@@ -5438,7 +5438,7 @@ describe("Bug", () => {
       const items = menu_view.shadow_el.querySelectorAll(".bk-item.bk-menu")
       expect(items.length).to.be.equal(2)
 
-      // submenu views are rebuilt, not accumulated
+      // every item resolved a submenu view
       const submenu_views = menu_view._children_views().filter((view) => view instanceof MenuView)
       expect(submenu_views.length).to.be.equal(2)
 

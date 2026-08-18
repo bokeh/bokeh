@@ -14,7 +14,7 @@ export namespace MenuItem {
     checked: p.Property<(() => boolean) | boolean | null>
     icon: p.Property<(() => IconLike | null) | IconLike | null>
     label: p.Property<string>
-    tooltip: p.Property<string | null>
+    tooltip: p.Property<(() => string | null) | string | null>
     shortcut: p.Property<string | null>
     menu: p.Property<Menu | null>
     disabled: p.Property<(() => boolean) | boolean>
@@ -36,7 +36,7 @@ export class MenuItem extends Model {
       checked: [ Nullable(Or(Bool, Func0(Bool))), null ],
       icon: [ Nullable(Or(IconLike, Func0(Nullable(IconLike)))), null ],
       label: [ Str ],
-      tooltip: [ Nullable(Str), null ],
+      tooltip: [ Nullable(Or(Str, Func0(Nullable(Str)))), null ],
       shortcut: [ Nullable(Str), null ],
       menu: [ Nullable(AnyRef<Menu>()), null ],
       disabled: [ Or(Bool, Func0(Bool)), false ],
