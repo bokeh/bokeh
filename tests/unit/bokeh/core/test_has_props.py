@@ -52,6 +52,7 @@ from bokeh.core.property.descriptors import (
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.property.vectorization import field, value
 from bokeh.core.serialization import Serializer
+from bokeh.model import Model
 from bokeh.settings import settings
 from bokeh.util.warnings import BokehUserWarning
 
@@ -248,6 +249,27 @@ def test_HasProps_uses_standard_metaclass() -> None:
     assert type(Custom) is CustomMeta
     assert Custom().value == 10
     assert Serializer().encode(Custom) == {"id": Custom.__qualified_model__}
+
+def test_HasProps_subclass_hooks_are_cooperative() -> None:
+    class KeywordMixin:
+        marker: str
+
+        def __init_subclass__(cls, *, marker: str, **kwargs: object) -> None:
+            cls.marker = marker
+            super().__init_subclass__(**kwargs)
+
+    class HasPropsFirst(hp.HasProps, KeywordMixin, hp.Local, marker="has-props-first"):
+        pass
+
+    class MixinFirst(KeywordMixin, hp.HasProps, hp.Local, marker="mixin-first"):
+        pass
+
+    class ModelFirst(Model, KeywordMixin, hp.Local, marker="model-first"):
+        pass
+
+    assert HasPropsFirst.marker == "has-props-first"
+    assert MixinFirst.marker == "mixin-first"
+    assert ModelFirst.marker == "model-first"
 
 def test_HasProps_property_is_bound_before_subclass_hook() -> None:
     observed: dict[str, bool] = {}

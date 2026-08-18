@@ -352,14 +352,14 @@ class HasProps(Serializable):
     __data_model__: ClassVar[bool]
 
     @classmethod
-    def __init_subclass__(cls):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         own_properties = MappingProxyType(dict(cls.__dict__.get("__properties__", {})))
         own_overridden_defaults = MappingProxyType(dict(cls.__dict__.get("__overridden_defaults__", {})))
         cls.__properties__ = own_properties
         cls.__overridden_defaults__ = own_overridden_defaults
         cls.__property_info__ = property_info = _PropertyInfo(own_properties, own_overridden_defaults)
 
-        super().__init_subclass__()
+        super().__init_subclass__(**kwargs)
 
         properties = property_info.properties(cls)
 

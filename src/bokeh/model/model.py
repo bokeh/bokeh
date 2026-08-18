@@ -94,8 +94,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     _extra_kws = {}
 
     @classmethod
-    def __init_subclass__(cls):
-        super().__init_subclass__()
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
 
         if cls.__module__.startswith("bokeh.models"):
             assert "__init__" in cls.__dict__, str(cls)
