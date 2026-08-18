@@ -82,6 +82,7 @@ import numpy as np
 
 # Bokeh imports
 from ...util.warnings import BokehUserWarning, warn
+from .singletons import OldValueUnavailable
 
 if TYPE_CHECKING:
     from ...document import Document
@@ -511,7 +512,6 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     dict.__setitem__(self, k, seq)
 
         from ...document.events import ColumnsStreamedEvent
-        from ...util.callback_manager import OldValueUnavailable
         self._notify_owners(OldValueUnavailable, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
@@ -570,7 +570,6 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     array[i][j] = reshaped
 
         from ...document.events import ColumnsPatchedEvent
-        from ...util.callback_manager import OldValueUnavailable
         self._notify_owners(OldValueUnavailable, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
 
 #-----------------------------------------------------------------------------

@@ -39,6 +39,7 @@ ALL = (
 
 @pytest.mark.parametrize(("singleton", "singleton_type"), [
     (bcpu.Undefined, bcpu.UndefinedType),
+    (bcpu.OldValueUnavailable, bcpu._OldValueUnavailableType),
     (bcpu._NotGiven, bcpu._NotGivenType),
 ])
 def test_singleton(singleton: object, singleton_type: type[object]) -> None:
@@ -46,6 +47,9 @@ def test_singleton(singleton: object, singleton_type: type[object]) -> None:
     assert copy(singleton) is singleton
     assert deepcopy(singleton) is singleton
     assert loads(dumps(singleton)) is singleton
+
+def test_singletons_are_distinct() -> None:
+    assert len({bcpu.Undefined, bcpu.OldValueUnavailable, bcpu._NotGiven}) == 3
 
 def test_NotGiven_repr() -> None:
     assert str(bcpu._NotGiven) == "NotGiven"

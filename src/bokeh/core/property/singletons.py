@@ -19,13 +19,19 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, ClassVar
+from typing import (
+    Any,
+    ClassVar,
+    Self,
+    cast,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "OldValueUnavailable",
     "Undefined",
 )
 
@@ -37,61 +43,62 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class UndefinedType:
-    """ Indicates no value set, which is not the same as setting ``None``. """
-
-    _instance: ClassVar[UndefinedType | None] = None
+class _Singleton:
+    _instance: ClassVar[_Singleton | None] = None
+    _name: ClassVar[str]
+    _repr: ClassVar[str | None] = None
 
     __slots__ = ()
 
-    def __new__(cls) -> UndefinedType:
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+    def __new__(cls) -> Self:
+        instance = cls.__dict__.get("_instance")
+        if instance is None:
+            instance = super().__new__(cls)
+            cls._instance = instance
+        return cast(Self, instance)
 
-    def __copy__(self) -> UndefinedType:
+    def __copy__(self) -> Self:
         return self
 
-    def __deepcopy__(self, _memo: dict[int, Any]) -> UndefinedType:
+    def __deepcopy__(self, _memo: dict[int, Any]) -> Self:
         return self
 
-    def __reduce__(self) -> tuple[type[UndefinedType], tuple[()]]:
-        return (UndefinedType, ())
+    def __reduce__(self) -> tuple[type[Any], tuple[()]]:
+        return (type(self), ())
 
     def __str__(self) -> str:
-        return "Undefined"
+        return self._name
 
     def __repr__(self) -> str:
-        return "Undefined"
+        return self._repr if self._repr is not None else self._name
+
+class UndefinedType(_Singleton):
+    """ Indicates no value set, which is not the same as setting ``None``. """
+
+    _name = "Undefined"
+
+    __slots__ = ()
 
 Undefined = UndefinedType()
 
-class _NotGivenType:
-    """ Indicates that an optional internal argument wasn't provided. """
+class _OldValueUnavailableType(_Singleton):
+    """Indicates that an incremental update didn't retain the previous value."""
 
-    _instance: ClassVar[_NotGivenType | None] = None
+    _name = "OldValueUnavailable"
 
     __slots__ = ()
 
-    def __new__(cls) -> _NotGivenType:
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+#: Sentinel passed as ``old`` to property callbacks when an incremental
+#: update doesn't retain the complete previous value.
+OldValueUnavailable = _OldValueUnavailableType()
 
-    def __copy__(self) -> _NotGivenType:
-        return self
+class _NotGivenType(_Singleton):
+    """ Indicates that an optional internal argument wasn't provided. """
 
-    def __deepcopy__(self, _memo: dict[int, Any]) -> _NotGivenType:
-        return self
+    _name = "NotGiven"
+    _repr = "..."
 
-    def __reduce__(self) -> tuple[type[_NotGivenType], tuple[()]]:
-        return (_NotGivenType, ())
-
-    def __str__(self) -> str:
-        return "NotGiven"
-
-    def __repr__(self) -> str:
-        return "..."
+    __slots__ = ()
 
 _NotGiven = _NotGivenType()
 

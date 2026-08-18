@@ -22,6 +22,7 @@ from copy import copy, deepcopy
 from functools import partial
 
 # Bokeh imports
+from bokeh.core.property.singletons import OldValueUnavailable
 from bokeh.document import Document
 from bokeh.model.util import HasDocumentRef
 from bokeh.settings import settings
@@ -110,6 +111,7 @@ def _partially_bad_event(event):
 def test_OldValueUnavailable() -> None:
     sentinel = cbm.OldValueUnavailable
 
+    assert sentinel is OldValueUnavailable
     assert str(sentinel) == "OldValueUnavailable"
     assert repr(sentinel) == "OldValueUnavailable"
     assert copy(sentinel) is sentinel
