@@ -81,3 +81,9 @@ describe("Bug", () => {
     })
   })
 })
+
+describe("Cross-language definitions", () => {
+  it.no_image("decode Python-generated DataModel definitions", async () => {
+    await test("data_models.json5")
+  })
+})

@@ -80,6 +80,15 @@ describe("core/kinds module", () => {
     expect(tp.may_have_refs()).to.be.equal(false)
   })
 
+  it("should support non-validating Regex kind", () => {
+    const tp = k.Regex("(?P<word>foo)")
+    expect(`${tp}`).to.be.equal("Regex((?P<word>foo))")
+    expect(tp.valid(0)).to.be.false
+    expect(tp.valid("")).to.be.true
+    expect(tp.valid("bar")).to.be.true
+    expect(tp.may_have_refs()).to.be.equal(false)
+  })
+
   it("should support Null kind", () => {
     const tp = k.Null
     expect(`${tp}`).to.be.equal("Null")

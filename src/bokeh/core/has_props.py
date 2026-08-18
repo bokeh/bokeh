@@ -787,7 +787,6 @@ type PrimitiveKindRef = Literal["Any", "Unknown", "Bool", "Float", "Int", "Bytes
 type KindRef = (
     PrimitiveKindRef
     | tuple[Literal["Regex"], str]
-    | tuple[Literal["Regex"], str, str]
     | tuple[Literal["Nullable"], KindRef]
     | tuple[Literal["Or"], KindRef, *tuple[KindRef, ...]]
     | tuple[Literal["Tuple"], KindRef, *tuple[KindRef, ...]]
@@ -822,6 +821,7 @@ def _data_model_bases(cls: type[HasProps]) -> list[type[HasProps]]:
     return cast(list[type[HasProps]], [base for base in cls.__bases__ if issubclass(base, Model) and base is not DataModel])
 
 def _property_kind(prop: Property[Any], serializer: Serializer) -> KindRef:
+    from ..model import Model
     from .property.any import Any as AnyProperty, AnyRef
     from .property.bases import SingleParameterizedProperty
     from .property.container import Dict, List, Tuple
@@ -890,7 +890,11 @@ def _property_kind(prop: Property[Any], serializer: Serializer) -> KindRef:
     if isinstance(prop, Instance):
         instance_type = prop.instance_type
         if isinstance(instance_type, type) and issubclass(instance_type, HasProps):
-            if not is_DataModel(instance_type) or serializer.has_ref(instance_type):
+            if is_DataModel(instance_type):
+                if serializer.has_ref(instance_type):
+                    return ("Ref", Ref(id=instance_type.__qualified_model__))
+                return ("AnyRef",)
+            if issubclass(instance_type, Model):
                 return ("Ref", Ref(id=instance_type.__qualified_model__))
             return ("AnyRef",)
         return "Any"
@@ -939,6 +943,11 @@ def _data_models_in_dependency_order(data_models: Iterable[type[HasProps]]) -> l
 def _same_default(prop: Property[Any], left: Any, right: Any) -> bool:
     return left is right or prop.matches(left, right)
 
+def _encode_default(descriptor: PropertyDescriptor[Any], default: Any, serializer: Serializer) -> Any:
+    if descriptor.is_default_factory(default):
+        default = default()
+    return serializer.encode(default)
+
 def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
     from ..model import Model
     from .types import ID
@@ -978,10 +987,7 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
         if default is Undefined:
             prop_def = PropertyDef(name=prop_name, kind=kind)
         else:
-            if descriptor.is_default_factory(default):
-                default = default()
-
-            prop_def = PropertyDef(name=prop_name, kind=kind, default=serializer.encode(default))
+            prop_def = PropertyDef(name=prop_name, kind=kind, default=_encode_default(descriptor, default, serializer))
 
         properties.append(prop_def)
 
@@ -996,7 +1002,8 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
             if _same_default(prop, default, base_default):
                 continue
 
-        overrides.append(OverrideDef(name=prop_name, default=serializer.encode(default)))
+        descriptor = cls.lookup(prop_name)
+        overrides.append(OverrideDef(name=prop_name, default=_encode_default(descriptor, default, serializer)))
 
     modeldef = ModelDef(
         type="model",

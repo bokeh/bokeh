@@ -295,6 +295,9 @@ export class KindPrinter extends BasePrinter {
   }
 
   regex(obj: Kinds.Regex): VNode<HTMLElement> {
+    if (isString(obj.regex)) {
+      return this.string(obj.regex)
+    }
     const T = this.token
     const {source, flags} = obj.regex
     return <span>{T("/")}{source}{T("/")}{flags}</span>

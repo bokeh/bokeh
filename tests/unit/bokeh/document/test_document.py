@@ -1054,6 +1054,36 @@ class TestDocument:
             PropertyDef(name="left", kind=("Ref", Ref(id=ID(Left.__qualified_model__)))),
         ]
 
+    def test_serialization_data_model_callable_override(self) -> None:
+        calls = 0
+
+        def default() -> int:
+            nonlocal calls
+            calls += 1
+            return 2
+
+        class Base(DataModel, Local):
+            value = Int(default=1)
+
+        class Derived(Base):
+            value = Override(default=default)
+
+        [_, derived_def] = Serializer().encode([Base, Derived])
+
+        assert derived_def["overrides"] == [OverrideDef(name="value", default=2)]
+        assert calls == 1
+
+    def test_serialization_non_model_has_props_kind_is_any_ref(self) -> None:
+        class Plain(HasProps, Local):
+            pass
+
+        class Container(DataModel, Local):
+            value = Instance(Plain)
+
+        [container_def] = Serializer().encode([Container])
+
+        assert container_def["properties"] == [PropertyDef(name="value", kind=("AnyRef",))]
+
     def test_serialization_data_model_property_kinds(self) -> None:
         class Target(DataModel, Local):
             pass

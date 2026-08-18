@@ -3,6 +3,7 @@ import * as kinds from "core/kinds"
 import type {HasProps} from "core/has_props"
 import type {AnyVal} from "core/serialization"
 import type {Deserializer} from "core/serialization/deserializer"
+import type {ID} from "core/types"
 import type {Ref} from "core/util/refs"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
@@ -19,7 +20,7 @@ export type PrimitiveKindRef = "Any" | "Unknown" | "Bool" | "Float" | "Int" | "B
 
 export type KindRef =
   PrimitiveKindRef |
-  ["Regex", string, string?] |
+  ["Regex", string] |
   ["Nullable", KindRef] |
   ["Or", KindRef, ...KindRef[]] |
   ["Tuple", KindRef, ...KindRef[]] |
@@ -42,7 +43,30 @@ export type OverrideDef = {
   default: unknown
 }
 
-export function decode_def(def: ModelDef, deserializer: Deserializer): typeof HasProps {
+function create_def(def: ModelDef, deserializer: Deserializer): typeof HasProps {
+  const base: typeof HasProps = (() => {
+    const name = def.extends?.id ?? "Model"
+    if (name == "Model") {
+      // TODO: support base classes in general
+      return Model
+    }
+    const base = deserializer.resolver.get(name)
+    if (base != null) {
+      return base
+    } else {
+      throw new Error(`base model ${name} of ${def.name} is not defined`)
+    }
+  })()
+
+  const model = class extends base {
+    static override __qualified__ = def.name
+  }
+
+  deserializer.resolver.register(model)
+  return model
+}
+
+function finalize_def(def: ModelDef, model: typeof HasProps, deserializer: Deserializer, buffers?: Map<ID, ArrayBuffer>): void {
 
   function kind_of(ref: KindRef): kinds.Kind<unknown> {
     if (isString(ref)) {
@@ -59,8 +83,8 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
     } else {
       switch (ref[0]) {
         case "Regex": {
-          const [, regex, flags] = ref
-          return kinds.Regex(new RegExp(regex, flags))
+          const [, regex] = ref
+          return kinds.Regex(regex)
         }
         case "Nullable": {
           const [, sub_ref] = ref
@@ -111,29 +135,11 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
     }
   }
 
-  const base: typeof HasProps = (() => {
-    const name = def.extends?.id ?? "Model"
-    if (name == "Model") {
-      // TODO: support base classes in general
-      return Model
-    }
-    const base = deserializer.resolver.get(name)
-    if (base != null) {
-      return base
-    } else {
-      throw new Error(`base model ${name} of ${def.name} is not defined`)
-    }
-  })()
-
-  const model = class extends base {
-    static override __qualified__ = def.name
-  }
-
   function decode(value: unknown): unknown {
     if (value === undefined) {
       return value
     } else {
-      return deserializer.decode(value as AnyVal)
+      return deserializer.decode(value as AnyVal, buffers)
     }
   }
 
@@ -145,7 +151,18 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
   for (const prop of def.overrides ?? []) {
     model.override<any>({[prop.name]: decode(prop.default)})
   }
+}
 
-  deserializer.resolver.register(model)
+export function decode_def(def: ModelDef, deserializer: Deserializer): typeof HasProps {
+  const model = create_def(def, deserializer)
+  finalize_def(def, model, deserializer)
   return model
+}
+
+export function decode_defs(defs: ModelDef[], deserializer: Deserializer, buffers?: Map<ID, ArrayBuffer>): (typeof HasProps)[] {
+  const models = defs.map((def) => create_def(def, deserializer))
+  for (let i = 0; i < defs.length; i++) {
+    finalize_def(defs[i], models[i], deserializer, buffers)
+  }
+  return models
 }
