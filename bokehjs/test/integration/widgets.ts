@@ -106,19 +106,17 @@ describe("Widgets", () => {
     const obj = column(buttons)
     const {view, doc} = await display(obj, [350, buttons.length*(30 + 10) + 50])
 
-    doc.config.i18n.set_config(
-      ["en"],
-      `{
-        "en": {
-            "button1": { "label": "Button {{locale}} - {{current_date}}" }
-        }
-       }`,
-      [
-        ["English", "en"],
-      ],
-      "en",
-      true,
-    )
+    doc.config.i18n.locales_codes = ["en"]
+    doc.config.i18n.translations = {
+      en: {
+        button1: {label: "Button {{locale}} - {{current_date}}"},
+      },
+    }
+    doc.config.i18n.languages = [
+      ["English", "en"],
+    ]
+    doc.config.i18n.source_language = "en"
+    doc.config.i18n.auto_t_enabled = true
     doc.config.i18n.change_locale.emit()
     await view.ready
   })
