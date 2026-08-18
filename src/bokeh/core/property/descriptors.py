@@ -221,6 +221,12 @@ class AliasPropertyDescriptor[T]:
     def __delete__(self, obj: HasProps) -> None:
         delattr(obj, self.aliased_name)
 
+    def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
+        obj.lookup(self.aliased_name).set_from_json(obj, value, setter=setter)
+
+    def get_value(self, obj: HasProps) -> T:
+        return getattr(obj, self.aliased_name)
+
     def value_is_unset(self, obj: HasProps) -> bool:
         return obj.lookup(self.aliased_name).value_is_unset(obj)
 
@@ -239,6 +245,9 @@ class AliasPropertyDescriptor[T]:
 
     def class_default(self, cls: type[HasProps], *, no_eval: bool = False) -> Any:
         return cls.lookup(self.aliased_name).class_default(cls, no_eval=no_eval)
+
+    def instance_default(self, obj: HasProps) -> T:
+        return obj.lookup(self.aliased_name).instance_default(obj)
 
 class DeprecatedAliasPropertyDescriptor[T](AliasPropertyDescriptor[T]):
     """

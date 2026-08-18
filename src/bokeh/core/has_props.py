@@ -555,14 +555,14 @@ class HasProps(Serializable):
 
     @overload
     @classmethod
-    def lookup(cls, name: str, *, raises: Literal[True] = True) -> PropertyDescriptor[Any]: ...
+    def lookup(cls, name: str, *, raises: Literal[True] = True) -> PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]: ...
 
     @overload
     @classmethod
-    def lookup(cls, name: str, *, raises: Literal[False] = False) -> PropertyDescriptor[Any] | None: ...
+    def lookup(cls, name: str, *, raises: Literal[False] = False) -> PropertyDescriptor[Any] | AliasPropertyDescriptor[Any] | None: ...
 
     @classmethod
-    def lookup(cls, name: str, *, raises: bool = True) -> PropertyDescriptor[Any] | None:
+    def lookup(cls, name: str, *, raises: bool = True) -> PropertyDescriptor[Any] | AliasPropertyDescriptor[Any] | None:
         ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
         given the property name.
 
@@ -655,7 +655,7 @@ class HasProps(Serializable):
         '''
         return cls.__property_info__.overridden_defaults(cls)
 
-    def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any]], bool], *,
+    def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]], bool], *,
             include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
         ''' Query the properties values of |HasProps| instances with a
         predicate.
@@ -981,6 +981,7 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
             continue
 
         descriptor = cls.lookup(prop_name)
+        assert isinstance(descriptor, PropertyDescriptor)
         kind = _property_kind(prop, serializer)
         default = prop._default
 
@@ -1003,6 +1004,7 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
                 continue
 
         descriptor = cls.lookup(prop_name)
+        assert isinstance(descriptor, PropertyDescriptor)
         overrides.append(OverrideDef(name=prop_name, default=_encode_default(descriptor, default, serializer)))
 
     modeldef = ModelDef(

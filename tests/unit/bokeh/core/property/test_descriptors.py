@@ -328,6 +328,7 @@ class Test_AliasDescriptor:
 
         obj = Some()
 
+        assert Some.lookup("p1").instance_default(obj) == 17
         assert obj.p0 == 17
         assert obj.p1 == 17
 

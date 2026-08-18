@@ -45,6 +45,7 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.core.property.descriptors import (
+    AliasPropertyDescriptor,
     DataSpecPropertyDescriptor,
     PropertyDescriptor,
     UnsetValueError,
@@ -341,6 +342,7 @@ def test_HasProps_rejects_Undefined_values() -> None:
 
 def test_HasProps_alias() -> None:
     obj0 = AliasedChild()
+    assert isinstance(obj0.lookup("aliased_int1"), AliasPropertyDescriptor)
     assert obj0.int1 == 10
     assert obj0.int2 is None
     assert obj0.aliased_int1 == 10
@@ -355,6 +357,8 @@ def test_HasProps_alias() -> None:
     assert obj0.int2 == 1
     assert obj0.aliased_int1 == 20
     assert obj0.aliased_int2 == 1
+    obj0.set_from_json("aliased_int1", 30)
+    assert obj0.int1 == 30
     obj0.aliased_int1 = 30
     assert obj0.int1 == 30
     assert obj0.int2 == 1
