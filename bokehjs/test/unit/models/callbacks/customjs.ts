@@ -159,5 +159,15 @@ describe("CustomJS", () => {
       const obj = Range1d.create({start: 1, end: 2})
       expect(await cb.execute(obj)).to.be.equal(["foo1", "foo2", "foo3", "foo4", "foo5", "foo6"])
     })
+
+    it("should execute ES module code with args and data", async () => {
+      const cb = CustomJS.create({
+        args: {foo: 5},
+        code: "export default (args, obj, data) => [args.foo, obj, data.bar]",
+        module: true,
+      })
+      const obj = Range1d.create({start: 1, end: 2})
+      expect(await cb.execute(obj, {bar: 10})).to.be.equal([5, obj, 10])
+    })
   })
 })
