@@ -1,3 +1,109 @@
+2026-08-18     3.10:
+--------------------
+  * bugfixes:
+    - #14861 Allowed syntax of `show` from `bokeh.io`  depends on output state
+    - #7419 [component: bokehjs] Hover tooltip not showing for step line
+    - #14938 [component: docs] Documentation build failing due to outdated pandas intersphinx URL
+    - #13762 [component: bokehjs] `webgl` backend doesn't support non-visual overrides
+    - #14950 [component: bokehjs] Canvas rendering bug: Annulus/AnnularWedge/Wedge selection glyphs with radius overrides render without fill
+    - #14973 Windows unit tests failing in Bokeh-CI-Full workflow
+    - #14218 [component: bokehjs] [BUG] RangeTool start_gesture="pan" does not work with PanTool
+    - #14979 [component: tests] Remove unnecessary `ruff.target-version`
+    - #14995 Full CI when cancelled, notifies as successful in PRs
+    - #15045 `mypy` 1.20.2 fails in CI due to 3.12 syntax in a dependency
+    - #15068 [component: docs] Local build of docs fails for python version < 3.14
+    - #15028 [component: bokehjs] Clicking button to flip y-range does not work
+    - #15104 [component: server] Restrict autoload.js credentialed CORS origins
+    - #15172 [component: tests] `numpy` version 2.5 broke CI
+    - #15177 [component: build] Release build failed with sphinx errors
+    - #15198 [component: build] npm 12.x is too verbose during `node make build`
+    - #15207 [component: bokehjs] bokehjs CI fails due to missing esbuild's binaries on Windows and OSX
+    - #15115 `test_adding_periodic_twice` fails regularly on Windows (in CI)
+    - #15121 [component: bokehjs] DateFormatter TIMESTAMP format can crash DataTable initial render
+    - #15222 [component: tests] Defaults' tests should not fully initialize abstract classes
+    - #15119 Out-of-range desired_num_ticks can crash initial Bokeh render
+    - #15238 [component: examples] Custom extension examples fail to compile
+    - #15030 [component: bokehjs] Row spacing is not updated visually on change
+    - #15254 [component: bokehjs] WebGL Patch renders erroneous interior lines above the 16-bit topology limit
+    - #15256 [component: bokehjs] WebGL Patch does not honor even-odd fill for nested or out-of-order rings
+    - #15258 [component: bokehjs] WebGL Patch mishandles odd, fractional, and zero-length dash patterns
+    - #13244 [component: bokehjs] [BUG] Rendering using BooleanFilter depends on chosen layout and if glyph shares view with DataTable
+    - #13857 [component: bokehjs] [BUG] TableColumn visible property is not working if a column is added after the DataTable is created
+    - #13859 [BUG] autosize_mode prevents DataTable values to be updated
+    - #13931 [component: bokehjs] [BUG] DataTable update fails when selected indices don't exist in new data
+    - #14040 [component: bokehjs] [BUG] Custom ColumnDataSource selections seem to be overridden by some mechanism in DataTable
+    - #15123 [component: bokehjs] Datatable fails to render completely when using fit_columns under specific conditions.
+    - #15154 [component: bokehjs] Datatable content can be become unreadable with fit_columns autosizing
+    - #15159 [component: bokehjs] Datatable with autosize mode 'fit_viewport' does not autosize columns
+    - #15202 [component: bokehjs] Bokeh 3.x speed is >5x slower than 2.x and is now unusable for my application
+    - #15289 [component: bokehjs] [BUG] Client-side model graph is never pruned in a document that is updated more often than `recompute_timeout`
+    - #10512 [BUG] datatable column autosize_mode = fit_columns not rendering
+    - #11436 [component: bokehjs] [BUG] DataTable doesn't fit column to rounded number
+    - #11854 [BUG] Unsupported title strings in TableColumn 
+    - #13460 [component: bokehjs] [BUG] DataTable autosize_mode="fit_viewport" raises ReferenceError
+    - #14668 DataTable takes forever with many rows + width_policy fixed + autosize_mode fit_viewport
+    - #15248 MyPy randomly crashes on Windows and OSX
+    - #15290 [component: bokehjs] [BUG] Models removed from the model graph are never released, so the client heap grows on every layout replacement
+    - #15319 [BUG] Replaced child views of InputWidgetView and DropdownView are never removed
+    - #15328 DataTable does not refresh/reload when triggered from CustomJS
+    - #8010 [component: bokehjs] color mapping in legend does not take current view (CDSView) into account and color mapping in circle fill is wrong after subsampling with box_select from another plot
+    - #11737 [component: bokehjs] [BUG] Interactivity distorts plot when  background map is added
+    - #13712 [component: bokehjs] [BUG] max_zoom+1 is used for WMTSTileSource/MercatorTileSource
+    - #15347 [component: server] Fix ASGI reconnect issue
+    - #14895 Fix WebGL support for radius/width/height property overrides and streaming data updates
+    - #15299 [component: bokehjs] Remove child views that are replaced or outlive their parent
+
+  * features:
+    - #5057 WebGL Patches
+    - #14921 Playwright backend choice for PNG export
+    - #14923 [component: build] Use `project.optional-dependencies` to install additional dependencies
+    - #14649 Add support for PEP 750 template strings to `CustomJS`, etc.
+    - #11461 [FEATURE] where there are multiple related properties that might need to be responded to as a group, respond to them only after all are guaranteed to be updated
+    - #15153 [component: bokehjs] Add IgnoreViewport autosize option to datatable
+    - #15293 [component: server] Make Bokeh server usable by ASGI frameworks without Tornado
+    - #5138 [component: server] Creating a way to pass objects from Server to Document
+    - #13814 [component: docs] Re-organize API reference docs to be one page per class
+    - #15294 [component: server] Keep synchronous Bokeh server work off the event loop
+
+  * tasks:
+    - #14928 Update GitHub actions to most recent versions
+    - #14781 [component: build] Make sure bokehjs compiles with TS 6.0 and tsgo
+    - #14808 Drop support for Python 3.10
+    - #14748 Performance improvement to group_tools
+    - #14879 [component: bokehjs] Enhance hit_test performance
+    - #13883 Remove typing_extenions at minpy 3.11
+    - #14377 Avoid tedius merge conflicts in release notes (`x.y.z.rst`)
+    - #14850 [component: server] `BOKEH_AUTH_MODULE` envvar is silently ignored
+    - #14930 Reduce the number of CI jobs by default and add weekly workflow
+    - #14889 Overly broad `except Exception` in `bokeh.util.serialization.convert_datetime_array` silently swallows all errors
+    - #14981 Full CI workflow run manually for a PR should comment in that PR
+    - #14985 [component: build] Fix Windows globbing resolution
+    - #14988 [component: tests] Update mypy to 1.20 and add some rudimentary CI testing
+    - #14991 [component: bokehjs] Build all of bokehjs in Windows/MacOS CI and run some tests
+    - #12382 [component: bokehjs] Finalize migration to SVG icons
+    - #15048 [component: bokehjs] Automatically remove child views on view removal
+    - #15082 [component: bokehjs] Implement a custom spatial index
+    - #15108 [component: bokehjs] Carve out separate class for subset index mapping
+    - #14906 [component: build] Drop support for Python 3.11
+    - #14912 Migrate to new `type T = Foo` type alias syntax
+    - #14910 Reduce type duplication in `settings.py` with new generics syntax
+    - #15208 Add pyright checking to CI
+    - #15224 [component: build] Don't include `pack` in `node make build` or `node make build:all`
+    - #15240 Add a type for builtin themes and make theme-like types consistent
+    - #15243 [component: tests] Split up bokehjs' test runner (`devtools.ts`) into manageable modules
+    - #14011 Make RGB serialization more robust
+    - #13423 [component: bokehjs] Upgrade slickgrid to version 5.x
+    - #14210 [component: docs] [FEATURE] DataTable argument autosize_mode="fit_columns" should introduce horizontal scrollbars
+    - #15275 Harden release automation around switcher generation and release validation
+    - #15284 [component: tests] Fix flaky image test
+    - #15287 [component: docs] Fix collection of documentation issues
+    - #15321 Simplify HasProps property metadata
+    - #15332 Upgrade to slickgrid 5.19.0
+    - #15341 [component: docs] Improve server deployment docs and tests
+    - #15349 [component: examples] Add ASGI Streamlit demos
+    - #14902 Add concurrency control to CI workflows
+    - #14903 Add comprehensive npm caching to CI workflows
+
 2026-07-25    3.9.2:
 --------------------
   * bugfixes:
