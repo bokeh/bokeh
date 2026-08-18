@@ -50,6 +50,10 @@ class I18n(Model):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+    locale = String(default="en", help="""
+    Currently selected language locale code.
+    """)
+
     locales_codes = List(String, default=["en"], help="""
     List of locales codes supported.
     """)
