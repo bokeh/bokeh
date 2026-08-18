@@ -136,17 +136,30 @@ def _value_has_ref(value: Any) -> bool:
 
     from ..has_props import HasProps
 
-    if isinstance(value, HasProps):
-        return True
-    if isinstance(value, (list, tuple, set, frozenset)):
-        return any(_value_has_ref(item) for item in value)
-    if isinstance(value, dict):
-        return any(_value_has_ref(key) or _value_has_ref(item) for key, item in value.items())
-    if isinstance(value, SimpleNamespace):
-        return any(_value_has_ref(item) for item in vars(value).values())
-    if is_dataclass(value) and not isinstance(value, type):
-        return any(_value_has_ref(getattr(value, field.name)) for field in fields(value))
-    return False
+    seen: set[int] = set()
+
+    def has_ref(value: Any) -> bool:
+        if isinstance(value, HasProps):
+            return True
+
+        if not isinstance(value, (list, tuple, set, frozenset, dict, SimpleNamespace)) \
+                and (not is_dataclass(value) or isinstance(value, type)):
+            return False
+
+        value_id = id(value)
+        if value_id in seen:
+            return False
+        seen.add(value_id)
+
+        if isinstance(value, (list, tuple, set, frozenset)):
+            return any(has_ref(item) for item in value)
+        if isinstance(value, dict):
+            return any(has_ref(key) or has_ref(item) for key, item in value.items())
+        if isinstance(value, SimpleNamespace):
+            return any(has_ref(item) for item in vars(value).values())
+        return any(has_ref(getattr(value, field.name)) for field in fields(value))
+
+    return has_ref(value)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -407,6 +420,7 @@ class PropertyDescriptor[T]:
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
         if self.name not in obj._property_values:
+            self._clear_materialized_defaults(obj)
             return
 
         if self.default_is_unset(obj):
@@ -416,11 +430,16 @@ class PropertyDescriptor[T]:
         if isinstance(old_value, PropertyValueContainer):
             old_value._unregister_owner(obj, self)
 
-        obj._materialized_defaults.pop(self.name, None)
-        obj._materialized_themed_defaults.pop(self.name, None)
+        self._clear_materialized_defaults(obj)
 
         if old_value is not Undefined:
             self.trigger_if_changed(obj, old_value)
+
+    def _clear_materialized_defaults(self, obj: HasProps) -> None:
+        for materialized_defaults in (obj._materialized_defaults, obj._materialized_themed_defaults):
+            value = materialized_defaults.pop(self.name, Undefined)
+            if isinstance(value, PropertyValueContainer):
+                value._unregister_owner(obj, self)
 
     def class_default(self, cls: type[HasProps], *, no_eval: bool = False) -> Any:
         """ Get the default value for a specific subtype of ``HasProps``,

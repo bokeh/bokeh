@@ -28,6 +28,7 @@ from unittest.mock import (
 # Bokeh imports
 from bokeh.core.properties import (
     Alias,
+    Any,
     DeprecatedAlias,
     Int,
     List,
@@ -114,7 +115,7 @@ class Test_PropertyDescriptor:
             quux = List(Int, default=[30])
         f = Foo()
         f.foo
-        f.bar
+        bar_default = f.bar
         f.baz
         f.quux
 
@@ -160,9 +161,11 @@ class Test_PropertyDescriptor:
         del f.bar
         assert f._property_values == {}
         assert f._materialized_defaults == dict(
-            bar=[10],
             quux=[30],
         )
+        assert calls == ['baz', 'baz']
+
+        bar_default.append(70)
         assert calls == ['baz', 'baz']
 
         f.bar = [60]
@@ -183,9 +186,28 @@ class Test_PropertyDescriptor:
         del f.quux
         assert f._materialized_defaults == dict(
             bar=[10],
-            quux=[30],
         )
         assert calls == ['baz', 'baz', 'bar', 'bar']
+
+    def test___delete___resets_materialized_callable_default(self) -> None:
+        calls = 0
+
+        def default() -> object:
+            nonlocal calls
+            calls += 1
+            return object()
+
+        class Foo(Model):
+            value = Any(default=default)
+
+        f = Foo()
+        first = f.value
+
+        del f.value
+
+        assert "value" not in f._materialized_defaults
+        assert f.value is not first
+        assert calls == 2
 
     def test___delete___retains_new_materialized_default(self) -> None:
         defaults: list[list[int]] = []

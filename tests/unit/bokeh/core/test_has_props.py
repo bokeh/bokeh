@@ -28,6 +28,7 @@ from bokeh.core.properties import (
     Alias,
     AngleSpec,
     AngleUnits,
+    Any,
     CoordinateSpec,
     DistanceSpec,
     Either,
@@ -861,6 +862,25 @@ def test_HasProps_properties_with_values_callable_container_default() -> None:
     assert props.properties_with_values(include_defaults=False) == {"values": [1]}
     assert Serializer().encode(props)["attributes"] == {"values": [1]}
     assert calls == 1
+
+def test_HasProps_properties_with_values_cyclic_default() -> None:
+    cycle: list[object] = []
+    cycle.append(cycle)
+
+    class Props(hp.HasProps, hp.Local):
+        value = Any(default=cycle)
+
+    assert Props().properties_with_values(include_defaults=False) == {}
+
+def test_HasProps_properties_with_values_cyclic_default_with_ref() -> None:
+    cycle: list[object] = []
+    cycle.extend([cycle, Some0HasProps()])
+
+    class Props(hp.HasProps, hp.Local):
+        value = Any(default=cycle)
+
+    props = Props()
+    assert props.properties_with_values(include_defaults=False) == {"value": cycle}
 
 def test_HasProps_properties_with_values_non_materialized_outer_default() -> None:
     class Props(hp.HasProps, hp.Local):
