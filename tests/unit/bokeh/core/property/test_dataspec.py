@@ -513,14 +513,14 @@ class Test_NumberSpec:
 
 class Test_ExplicitUnits:
     def test_value_serialization(self, unit_spec) -> None:
-        spec_type, units_property, default_units, other_units = unit_spec
+        spec_type, units_property, _, other_units = unit_spec
 
         class Foo(HasProps, Local):
             x = spec_type(default=14)
             x_units = units_property
 
         obj = Foo()
-        assert Foo.lookup("x").get_value(obj) == value(14, units=default_units)
+        assert Foo.lookup("x").get_value(obj) == value(14)
 
         obj.x_units = other_units
         assert Foo.lookup("x").get_value(obj) == value(14, units=other_units)
@@ -532,7 +532,7 @@ class Test_ExplicitUnits:
             x = spec_type(default=14)
             x_units = units_property(default=other_units)
 
-        assert Foo.lookup("x").get_value(Foo()) == value(14, units=other_units)
+        assert Foo.lookup("x").get_value(Foo()) == value(14)
 
     def test_default_factory_serialization(self, unit_spec) -> None:
         spec_type, units_property, _, other_units = unit_spec
@@ -564,13 +564,25 @@ class Test_ExplicitUnits:
         assert Child.lookup("x").get_value(Child()) == value(14, units=other_units)
 
     def test_field_serialization(self, unit_spec) -> None:
-        spec_type, units_property, default_units, _ = unit_spec
+        spec_type, units_property, _, _ = unit_spec
 
         class Foo(HasProps, Local):
             x = spec_type(default=field("x"))
             x_units = units_property
 
-        assert Foo.lookup("x").get_value(Foo()) == field("x", units=default_units)
+        assert Foo.lookup("x").get_value(Foo()) == field("x")
+
+    def test_embedded_units_are_preserved(self, unit_spec) -> None:
+        spec_type, units_property, default_units, _ = unit_spec
+
+        class Foo(HasProps, Local):
+            x = spec_type(default=14)
+            x_units = units_property
+
+        obj = Foo()
+        obj.x = value(14, units=default_units)
+
+        assert Foo.lookup("x").get_value(obj) == value(14, units=default_units)
 
     def test_dict_assignment_sets_units_without_mutating_input(self, unit_spec) -> None:
         spec_type, units_property, _, other_units = unit_spec

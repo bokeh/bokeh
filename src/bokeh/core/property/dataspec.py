@@ -96,7 +96,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class DataSpec(Either):
+class DataSpec(Either[Any]):
     """ Base class for properties that accept either a fixed value, or a
     string name that references a column in a
     :class:`~bokeh.models.sources.ColumnDataSource`.
@@ -245,8 +245,9 @@ class DataSpec(Either):
         if self._units_enum is not None and val.units is Unspecified:
             units_descriptor = obj.lookup(f"{name}_units")
             units = units_descriptor.get_value(obj)
-            val = copy(val)
-            val.units = units
+            if units != units_descriptor.property._default:
+                val = copy(val)
+                val.units = units
 
         return val
 

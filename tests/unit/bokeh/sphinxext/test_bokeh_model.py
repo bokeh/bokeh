@@ -274,3 +274,50 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
 
     dependencies = {Path(dependency).name for dependency in app.env.dependencies["index"]}
     assert {"model_detail.rst", "prop_detail.rst"} <= dependencies
+
+
+def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None:
+    source_dir = tmp_path / "source"
+    output_dir = tmp_path / "output"
+    doctree_dir = tmp_path / "doctrees"
+    image_dir = source_dir / "_images"
+    image_dir.mkdir(parents=True)
+
+    for name in ("bevel_join", "butt_cap", "miter_join", "round_cap", "round_join", "square_cap"):
+        (image_dir / f"{name}.png").write_bytes(b"")
+
+    rst_epilog = (Path(__file__).parents[4] / "docs" / "bokeh" / "source" / "rst_epilog.txt").read_text(encoding="utf-8")
+    (source_dir / "conf.py").write_text(
+        "extensions = [\n"
+        "    'sphinx.ext.autodoc',\n"
+        "    'sphinx_design',\n"
+        "    'bokeh.sphinxext._internal.bokeh_model',\n"
+        "]\n"
+        "project = 'bokeh-model-substitution-test'\n"
+        f"rst_epilog = {rst_epilog!r}\n",
+        encoding="utf-8",
+    )
+    (source_dir / "index.rst").write_text(
+        "Arrow API\n"
+        "=========\n\n"
+        ".. bokeh-model:: Arrow\n"
+        "    :module: bokeh.models.annotations\n",
+        encoding="utf-8",
+    )
+
+    status = StringIO()
+    warning = StringIO()
+    app = Sphinx(
+        srcdir=source_dir,
+        confdir=source_dir,
+        outdir=output_dir,
+        doctreedir=doctree_dir,
+        buildername="html",
+        status=status,
+        warning=warning,
+        freshenv=True,
+    )
+
+    app.build()
+    assert app.statuscode == 0, warning.getvalue()
+    assert "Undefined substitution" not in warning.getvalue()

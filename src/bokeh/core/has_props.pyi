@@ -73,6 +73,8 @@ class HasProps(Serializable):
     __qualified_model__: ClassVar[str]
     __implementation__: ClassVar[str | Implementation]
     __data_model__: ClassVar[bool]
+    __properties__: ClassVar[Mapping[str, Property[Any]]]
+    __overridden_defaults__: ClassVar[Mapping[str, Any]]
 
     #def __init__(self, **properties: Any) -> None: ...
 

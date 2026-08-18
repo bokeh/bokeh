@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from .bases import Init
@@ -49,7 +49,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class TextLike(Either):
+class TextLike(Either[Any]):
     """ Accept a string that may be interpreted into text models or the models themselves.
 
     """

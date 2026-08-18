@@ -191,10 +191,7 @@
         selected: {
           type: "object",
           name: "Selection",
-          attributes: {
-            indices: [],
-            line_indices: [],
-          },
+          attributes: {},
         },
         selection_policy: {
           type: "object",
@@ -671,17 +668,14 @@
     lower: {
       type: "field",
       field: "lower",
-      units: "data",
     },
     upper: {
       type: "field",
       field: "upper",
-      units: "data",
     },
     base: {
       type: "field",
       field: "base",
-      units: "data",
     },
     dimension: "height",
     line_color: "#cccccc",
@@ -907,7 +901,6 @@
     lower: {
       type: "field",
       field: "lower",
-      units: "data",
     },
     lower_head: {
       type: "object",
@@ -922,7 +915,6 @@
     upper: {
       type: "field",
       field: "upper",
-      units: "data",
     },
     upper_head: {
       type: "object",
@@ -937,7 +929,6 @@
     base: {
       type: "field",
       field: "base",
-      units: "data",
     },
     dimension: "height",
     line_color: {
@@ -1022,7 +1013,6 @@
     angle: {
       type: "value",
       value: 0,
-      units: "rad",
     },
     x_offset: {
       type: "value",
@@ -1193,7 +1183,6 @@
     angle: {
       type: "value",
       value: 0,
-      units: "rad",
     },
     x_offset: {
       type: "value",
@@ -1636,9 +1625,7 @@
     dimensional: {
       type: "object",
       name: "MetricLength",
-      attributes: {
-        include: null,
-      },
+      attributes: {},
     },
     orientation: "horizontal",
     location: "top_right",
@@ -1688,10 +1675,7 @@
     ticker: {
       type: "object",
       name: "FixedTicker",
-      attributes: {
-        ticks: [],
-        minor_ticks: [],
-      },
+      attributes: {},
     },
     border_line_color: "#e5e5e5",
     border_line_alpha: 0.5,
@@ -1917,11 +1901,6 @@
             name: "AdaptiveTicker",
             attributes: {
               num_minor_ticks: 0,
-              mantissas: [
-                1,
-                2,
-                5,
-              ],
               max_interval: 500.0,
             },
           },
@@ -2166,13 +2145,7 @@
     ticker: {
       type: "object",
       name: "BasicTicker",
-      attributes: {
-        mantissas: [
-          1,
-          2,
-          5,
-        ],
-      },
+      attributes: {},
     },
     formatter: {
       type: "object",
@@ -2185,12 +2158,7 @@
     ticker: {
       type: "object",
       name: "LogTicker",
-      attributes: {
-        mantissas: [
-          1,
-          5,
-        ],
-      },
+      attributes: {},
     },
     formatter: {
       type: "object",
@@ -2204,11 +2172,6 @@
       type: "object",
       name: "MercatorTicker",
       attributes: {
-        mantissas: [
-          1,
-          2,
-          5,
-        ],
         dimension: "lat",
       },
     },
@@ -2232,11 +2195,6 @@
             name: "AdaptiveTicker",
             attributes: {
               num_minor_ticks: 0,
-              mantissas: [
-                1,
-                2,
-                5,
-              ],
               max_interval: 500.0,
             },
           },
@@ -2282,11 +2240,6 @@
             name: "AdaptiveTicker",
             attributes: {
               num_minor_ticks: 0,
-              mantissas: [
-                1,
-                2,
-                5,
-              ],
               min_interval: 86400000.0,
             },
           },
@@ -2916,7 +2869,6 @@
     angle: {
       type: "field",
       field: "angle",
-      units: "rad",
     },
     direction: "anticlock",
   },
@@ -3108,22 +3060,18 @@
     inner_radius: {
       type: "field",
       field: "inner_radius",
-      units: "data",
     },
     outer_radius: {
       type: "field",
       field: "outer_radius",
-      units: "data",
     },
     start_angle: {
       type: "field",
       field: "start_angle",
-      units: "rad",
     },
     end_angle: {
       type: "field",
       field: "end_angle",
-      units: "rad",
     },
     direction: "anticlock",
     line_color: {
@@ -3204,12 +3152,10 @@
     inner_radius: {
       type: "field",
       field: "inner_radius",
-      units: "data",
     },
     outer_radius: {
       type: "field",
       field: "outer_radius",
-      units: "data",
     },
     line_color: {
       type: "value",
@@ -3287,17 +3233,14 @@
     radius: {
       type: "field",
       field: "radius",
-      units: "data",
     },
     start_angle: {
       type: "field",
       field: "start_angle",
-      units: "rad",
     },
     end_angle: {
       type: "field",
       field: "end_angle",
-      units: "rad",
     },
     direction: "anticlock",
     line_color: {
@@ -3408,12 +3351,10 @@
     width: {
       type: "value",
       value: 1,
-      units: "data",
     },
     height: {
       type: "value",
       value: 1,
-      units: "data",
     },
     line_color: {
       type: "value",
@@ -3574,17 +3515,14 @@
     width: {
       type: "field",
       field: "width",
-      units: "data",
     },
     height: {
       type: "field",
       field: "height",
-      units: "data",
     },
     angle: {
       type: "value",
       value: 0.0,
-      units: "rad",
     },
     line_color: {
       type: "value",
@@ -3744,7 +3682,6 @@
     height: {
       type: "value",
       value: 1,
-      units: "data",
     },
     left: {
       type: "value",
@@ -4046,12 +3983,10 @@
     dw: {
       type: "field",
       field: "dw",
-      units: "data",
     },
     dh: {
       type: "field",
       field: "dh",
-      units: "data",
     },
     global_alpha: {
       type: "value",
@@ -4096,17 +4031,14 @@
     w: {
       type: "value",
       value: null,
-      units: "data",
     },
     h: {
       type: "value",
       value: null,
-      units: "data",
     },
     angle: {
       type: "value",
       value: 0,
-      units: "rad",
     },
     global_alpha: {
       type: "value",
@@ -4170,7 +4102,6 @@
     angle: {
       type: "value",
       value: 0.0,
-      units: "rad",
     },
     line_color: {
       type: "value",
@@ -4372,7 +4303,6 @@
     angle: {
       type: "value",
       value: 0,
-      units: "rad",
     },
     n: {
       type: "field",
@@ -4699,12 +4629,10 @@
     angle: {
       type: "value",
       value: 0,
-      units: "rad",
     },
     length: {
       type: "value",
       value: 0,
-      units: "data",
     },
     line_color: {
       type: "value",
@@ -4753,17 +4681,14 @@
     width: {
       type: "field",
       field: "width",
-      units: "data",
     },
     height: {
       type: "field",
       field: "height",
-      units: "data",
     },
     angle: {
       type: "value",
       value: 0.0,
-      units: "rad",
     },
     border_radius: 0,
     dilate: false,
@@ -4938,7 +4863,6 @@
     angle: {
       type: "value",
       value: 0,
-      units: "rad",
     },
     x_offset: {
       type: "value",
@@ -5156,7 +5080,6 @@
     width: {
       type: "value",
       value: 1,
-      units: "data",
     },
     bottom: {
       type: "value",
@@ -5357,17 +5280,14 @@
     radius: {
       type: "field",
       field: "radius",
-      units: "data",
     },
     start_angle: {
       type: "field",
       field: "start_angle",
-      units: "rad",
     },
     end_angle: {
       type: "field",
       field: "end_angle",
-      units: "rad",
     },
     direction: "anticlock",
     line_color: {
@@ -6057,10 +5977,7 @@
             selected: {
               type: "object",
               name: "Selection",
-              attributes: {
-                indices: [],
-                line_indices: [],
-              },
+              attributes: {},
             },
             selection_policy: {
               type: "object",
@@ -6107,10 +6024,7 @@
             selected: {
               type: "object",
               name: "Selection",
-              attributes: {
-                indices: [],
-                line_indices: [],
-              },
+              attributes: {},
             },
             selection_policy: {
               type: "object",
@@ -6316,10 +6230,7 @@
     selected: {
       type: "object",
       name: "Selection",
-      attributes: {
-        indices: [],
-        line_indices: [],
-      },
+      attributes: {},
     },
   },
   GeoJSONDataSource: {
@@ -6443,11 +6354,6 @@
         name: "AdaptiveTicker",
         attributes: {
           num_minor_ticks: 0,
-          mantissas: [
-            1,
-            2,
-            5,
-          ],
           max_interval: 500.0,
         },
       },
@@ -6673,11 +6579,6 @@
         name: "AdaptiveTicker",
         attributes: {
           num_minor_ticks: 0,
-          mantissas: [
-            1,
-            2,
-            5,
-          ],
           max_interval: 500.0,
         },
       },
@@ -6723,11 +6624,6 @@
         name: "AdaptiveTicker",
         attributes: {
           num_minor_ticks: 0,
-          mantissas: [
-            1,
-            2,
-            5,
-          ],
           min_interval: 86400000.0,
         },
       },
@@ -7023,8 +6919,6 @@
         syncable: false,
         level: "overlay",
         visible: false,
-        xs: [],
-        ys: [],
         editable: true,
         line_color: "black",
         line_alpha: 1.0,
@@ -7099,8 +6993,6 @@
         syncable: false,
         level: "overlay",
         visible: false,
-        xs: [],
-        ys: [],
         editable: true,
         line_color: "black",
         line_alpha: 1.0,
@@ -8121,10 +8013,7 @@
         selected: {
           type: "object",
           name: "Selection",
-          attributes: {
-            indices: [],
-            line_indices: [],
-          },
+          attributes: {},
         },
         selection_policy: {
           type: "object",

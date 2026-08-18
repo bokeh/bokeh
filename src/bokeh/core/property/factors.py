@@ -49,14 +49,14 @@ class Factor(SingleParameterizedProperty[FactorType]):
     """ Represents a single categorical factor. """
 
     def __init__(self, default: Init[FactorType] = _NotGiven, *, help: str | None = None) -> None:
-        type_param = Either(L1Factor, L2Factor, L3Factor)
+        type_param: Either[FactorType] = Either(L1Factor, L2Factor, L3Factor)
         super().__init__(type_param, default=default, help=help)
 
 class FactorSeq(SingleParameterizedProperty[FactorSeqType]):
     """ Represents a collection of categorical factors. """
 
     def __init__(self, default: Init[FactorSeqType] = _NotGiven, *, help: str | None = None) -> None:
-        type_param = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
+        type_param: Either[FactorSeqType] = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
         super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------

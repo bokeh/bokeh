@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Mapping
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -208,9 +209,11 @@ class Property[T]:
         """ The default, transformed by prepare_value() and the theme overrides.
 
         """
-        overrides = theme_overrides
-        if overrides is None or name not in overrides:
+        overrides: Mapping[str, Any]
+        if theme_overrides is None or name not in theme_overrides:
             overrides = cls._overridden_defaults()
+        else:
+            overrides = theme_overrides
 
         if name in overrides:
             default = self._copy_default(overrides[name], no_eval=no_eval)

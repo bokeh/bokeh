@@ -56,7 +56,7 @@ from typing import (
 
 # Bokeh imports
 from . import __version__
-from .core.enums import enumeration
+from .core.enums import Enumeration, enumeration
 from .core.templates import CSS_RESOURCES, JS_RESOURCES
 from .model import Model
 from .settings import LogLevel, settings
@@ -81,17 +81,17 @@ def server_url(host: str | None = None, port: int | None = None, ssl: bool = Fal
 DEFAULT_SERVER_HTTP_URL = server_url()
 
 type BaseMode = Literal["inline", "cdn", "server", "relative", "absolute"]
-BaseModeEnum = enumeration(BaseMode)
+BaseModeEnum: Enumeration[str] = enumeration(BaseMode)
 
 type DevMode = Literal["server-dev", "relative-dev", "absolute-dev"]
-DevModeEnum = enumeration(DevMode)
+DevModeEnum: Enumeration[str] = enumeration(DevMode)
 
 type ResourcesMode = BaseMode | DevMode
 
 type Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
-ComponentEnum = enumeration(Component)
+ComponentEnum: Enumeration[str] = enumeration(Component)
 
-LogLevelEnum = enumeration(LogLevel)
+LogLevelEnum: Enumeration[str] = enumeration(LogLevel)
 
 class ComponentDefs(TypedDict):
     js: list[Component]

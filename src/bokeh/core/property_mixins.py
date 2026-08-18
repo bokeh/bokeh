@@ -50,26 +50,6 @@ If ``{doc}`` is omitted, the original help is appended automatically.
 .. |LineProps| replace:: :class:`~bokeh.core.property_mixins.LineProps`
 .. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
 
-.. |miter_join| image:: /_images/miter_join.png
-    :height: 15
-    :alt: Two line segments joined with a miter (sharp-angle) join style.
-.. |round_join| image:: /_images/round_join.png
-    :height: 15
-    :alt: Two line segments joined with a round join style.
-.. |bevel_join| image:: /_images/bevel_join.png
-    :height: 15
-    :alt: Two line segments joined with a bevel (truncated) join style.
-
-.. |butt_cap| image:: /_images/butt_cap.png
-    :height: 12
-    :alt: A  line segment with no end cap extending beyond the explicit end coordinate.
-.. |round_cap| image:: /_images/round_cap.png
-    :height: 12
-    :alt: A  line segment with a rounded end cap extending beyond the explicit end coordinate.
-.. |square_cap| image:: /_images/square_cap.png
-    :height: 12
-    :alt: A  line segment with a squared end cap extending beyond the explicit end coordinate.
-
 '''
 #-----------------------------------------------------------------------------
 # Boilerplate
