@@ -32,7 +32,7 @@ CSS_LENGTH_RE: re.Pattern[str]
 type ImageType = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
 class Image(Property[ImageType]): ...
 
-type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType
+type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType | str
 class HatchPatternType(Property[HatchPatternTypeType]): ...
 
 type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
