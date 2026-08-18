@@ -6,11 +6,13 @@ dependencies:
 
   # build
   - boto3
+  - click
   - colorama
   - conda-build 24*    # pre .conda format
   - libiconv
   - nodejs 24.*
   - python-build
+  - requests
   - setuptools
   - yaml
 
