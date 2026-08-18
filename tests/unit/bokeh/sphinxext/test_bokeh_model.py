@@ -286,7 +286,10 @@ def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None
     for name in ("bevel_join", "butt_cap", "miter_join", "round_cap", "round_join", "square_cap"):
         (image_dir / f"{name}.png").write_bytes(b"")
 
-    rst_epilog = (Path(__file__).parents[4] / "docs" / "bokeh" / "source" / "rst_epilog.txt").read_text(encoding="utf-8")
+    docs_source_dir = Path(__file__).parents[4] / "docs" / "bokeh" / "source"
+    rst_epilog = (docs_source_dir / "rst_epilog.txt").read_text(encoding="utf-8")
+    line_props = (docs_source_dir / "docs" / "includes" / "line_props.rst").read_text(encoding="utf-8")
+    (source_dir / "line_props.rst").write_text(line_props, encoding="utf-8")
     (source_dir / "conf.py").write_text(
         "extensions = [\n"
         "    'sphinx.ext.autodoc',\n"
@@ -300,6 +303,7 @@ def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None
     (source_dir / "index.rst").write_text(
         "Arrow API\n"
         "=========\n\n"
+        ".. include:: line_props.rst\n\n"
         ".. bokeh-model:: Arrow\n"
         "    :module: bokeh.models.annotations\n",
         encoding="utf-8",

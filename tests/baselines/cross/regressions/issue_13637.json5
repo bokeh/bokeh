@@ -2,12 +2,12 @@
   config: {
     type: "object",
     name: "DocumentConfig",
-    id: "p1062",
+    id: "p1028",
     attributes: {
       notifications: {
         type: "object",
         name: "Notifications",
-        id: "p1063",
+        id: "p1029",
       },
     },
   },
@@ -15,38 +15,38 @@
     {
       type: "object",
       name: "Plot",
-      id: "p1055",
+      id: "p1027",
       attributes: {
         x_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1056",
+          id: "p1030",
         },
         y_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1057",
+          id: "p1031",
         },
         x_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1058",
+          id: "p1032",
         },
         y_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1059",
+          id: "p1033",
         },
         title: {
           type: "object",
           name: "Title",
-          id: "p1060",
+          id: "p1034",
         },
         renderers: [
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1016",
+            id: "p1014",
             attributes: {
               data_source: {
                 type: "object",
@@ -56,16 +56,12 @@
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1014",
-                    attributes: {
-                      indices: [],
-                      line_indices: [],
-                    },
+                    id: "p1043",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1015",
+                    id: "p1044",
                   },
                   data: {
                     type: "map",
@@ -75,12 +71,12 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1017",
+                id: "p1036",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1018",
+                    id: "p1045",
                   },
                 },
               },
@@ -117,26 +113,22 @@
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1022",
+            id: "p1016",
             attributes: {
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
-                id: "p1019",
+                id: "p1015",
                 attributes: {
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1020",
-                    attributes: {
-                      indices: [],
-                      line_indices: [],
-                    },
+                    id: "p1046",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1021",
+                    id: "p1047",
                   },
                   data: {
                     type: "map",
@@ -146,12 +138,12 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1023",
+                id: "p1037",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1024",
+                    id: "p1048",
                   },
                 },
               },
@@ -204,26 +196,22 @@
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1028",
+            id: "p1018",
             attributes: {
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
-                id: "p1025",
+                id: "p1017",
                 attributes: {
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1026",
-                    attributes: {
-                      indices: [],
-                      line_indices: [],
-                    },
+                    id: "p1049",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1027",
+                    id: "p1050",
                   },
                   data: {
                     type: "map",
@@ -233,12 +221,12 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1029",
+                id: "p1038",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1030",
+                    id: "p1051",
                   },
                 },
               },
@@ -291,26 +279,22 @@
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1034",
+            id: "p1020",
             attributes: {
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
-                id: "p1031",
+                id: "p1019",
                 attributes: {
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1032",
-                    attributes: {
-                      indices: [],
-                      line_indices: [],
-                    },
+                    id: "p1052",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1033",
+                    id: "p1053",
                   },
                   data: {
                     type: "map",
@@ -320,12 +304,12 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1035",
+                id: "p1039",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1036",
+                    id: "p1054",
                   },
                 },
               },
@@ -378,26 +362,22 @@
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1040",
+            id: "p1022",
             attributes: {
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
-                id: "p1037",
+                id: "p1021",
                 attributes: {
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1038",
-                    attributes: {
-                      indices: [],
-                      line_indices: [],
-                    },
+                    id: "p1055",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1039",
+                    id: "p1056",
                   },
                   data: {
                     type: "map",
@@ -407,12 +387,12 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1041",
+                id: "p1040",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1042",
+                    id: "p1057",
                   },
                 },
               },
@@ -465,26 +445,22 @@
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1046",
+            id: "p1024",
             attributes: {
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
-                id: "p1043",
+                id: "p1023",
                 attributes: {
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1044",
-                    attributes: {
-                      indices: [],
-                      line_indices: [],
-                    },
+                    id: "p1058",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1045",
+                    id: "p1059",
                   },
                   data: {
                     type: "map",
@@ -494,12 +470,12 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1047",
+                id: "p1041",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1048",
+                    id: "p1060",
                   },
                 },
               },
@@ -541,26 +517,22 @@
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1052",
+            id: "p1026",
             attributes: {
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
-                id: "p1049",
+                id: "p1025",
                 attributes: {
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1050",
-                    attributes: {
-                      indices: [],
-                      line_indices: [],
-                    },
+                    id: "p1061",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1051",
+                    id: "p1062",
                   },
                   data: {
                     type: "map",
@@ -570,12 +542,12 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1053",
+                id: "p1042",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1054",
+                    id: "p1063",
                   },
                 },
               },
@@ -618,7 +590,7 @@
         toolbar: {
           type: "object",
           name: "Toolbar",
-          id: "p1061",
+          id: "p1035",
         },
       },
     },
