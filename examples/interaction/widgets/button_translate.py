@@ -38,33 +38,33 @@ button1 = Button(
 button2 = Button(label="String used as key itself to get its translation")
 
 button.js_on_event("button_click", CustomJS(args=dict(button1=button1), code="""
-     const available_locales = ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"]
-     const locale_selection = available_locales[Math.floor(Math.random() * available_locales.length)]
+const available_locales = ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"]
+const locale_selection = available_locales[Math.floor(Math.random() * available_locales.length)]
 
-     cb_obj.origin.document.config.i18n.locale = locale_selection
-     button1.label.options = {
-         interpolation: {
-             locale: {
-                 value: locale_selection,
-                 formatting: {
-                     format: "display",
-                     options: {type: "language"}
-                 }
-             },
-             current_date: {
-                 value: new Date(),
-                 formatting: {
-                     format: "date",
-                     options: {
-                       weekday: "long",
-                       year: "numeric",
-                       month: "long",
-                       day: "numeric"
-                     }
-                 }
-             }
-         }
-     }
+cb_obj.origin.document.config.i18n.locale = locale_selection
+button1.label.options = {
+  interpolation: {
+    locale: {
+      value: locale_selection,
+      formatting: {
+        format: "display",
+        options: {type: "language"}
+      }
+    },
+    current_date: {
+      value: new Date(),
+      formatting: {
+        format: "date",
+        options: {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric"
+            }
+        }
+    }
+}
+}
 """))
 
 curdoc().on_event(events.DocumentReady, CustomJS(code="""

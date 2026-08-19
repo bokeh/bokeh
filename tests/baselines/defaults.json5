@@ -5489,6 +5489,7 @@
   },
   I18n: {
     __extends__: "Model",
+    locale: "en",
     locales_codes: [
       "en",
     ],
