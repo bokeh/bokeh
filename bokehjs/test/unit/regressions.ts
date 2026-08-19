@@ -929,6 +929,7 @@ describe("Bug", () => {
                 js_event_callbacks: {type: "map"},
                 subscribed_events: {type: "set"},
                 syncable: true,
+                locale: "en",
                 locales_codes: ["en"],
                 translations: {type: "map"},
                 languages: [["English", "en"]],
