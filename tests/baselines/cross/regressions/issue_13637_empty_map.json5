@@ -69,6 +69,7 @@
             type: "set",
           },
           syncable: true,
+          locale: "en",
           locales_codes: [
             "en",
           ],
