@@ -29,17 +29,27 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
 
 export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
 
-// Tracks, per view_storage, which models currently have a build in flight
-// (so an overlapping build_views() call doesn't start a second build for
-// the same model) and the most recently requested set of models (so that if
-// a model stops being wanted while its view is still being built, the call
-// holding that build can tear the view down once it finishes, instead of
-// storing and connecting a view nobody asked for any more). Neither call
-// ever awaits the other's completion, so overlapping calls can't deadlock
-// each other, including when a view's own construction reenters
+// Per view_storage: models with a build currently in flight (so overlapping
+// calls don't build the same model twice) and the most recently requested
+// models (so a build that's no longer wanted, once finished, tears itself
+// down instead of getting stored). Neither call awaits the other, so they
+// can't deadlock each other, even if a view's construction reenters
 // build_views() on the same view_storage.
 const _building = new WeakMap<ViewStorage<any>, Set<HasProps>>()
 const _desired = new WeakMap<ViewStorage<any>, Set<HasProps>>()
+
+// Re-appends (delete + set, which moves a key to the end) every stored model
+// in `order`, in that sequence, so Map iteration order matches it. Needed
+// because a model's build can finish after a later-requested model's.
+function _reorder<T extends HasProps>(view_storage: ViewStorage<T>, order: Iterable<T>): void {
+  for (const model of order) {
+    const view = view_storage.get(model)
+    if (view != null) {
+      view_storage.delete(model)
+      view_storage.set(model, view)
+    }
+  }
+}
 
 export async function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
@@ -67,10 +77,8 @@ export async function build_views<T extends HasProps>(
     _building.set(view_storage, building)
   }
 
-  // Reserve the whole batch up front, before awaiting anything, so that an
-  // overlapping build_views() call on the same view_storage sees every
-  // model in this batch as already being built, not just the one whose
-  // turn has come up in the loop below.
+  // Reserve the whole batch up front, before awaiting anything, so an
+  // overlapping call sees every model in this batch as already building.
   const new_models = models.filter((model) => !view_storage.has(model) && !building.has(model))
   for (const model of new_models) {
     building.add(model)
@@ -78,21 +86,15 @@ export async function build_views<T extends HasProps>(
 
   const created_views: ViewOf<T>[] = []
   try {
-    // Build views for new models one at a time, in order, fully awaiting
-    // each one (including any views it recursively builds) before starting
-    // the next. Some renderers and annotations read state off their
-    // siblings while building (e.g. ColorBar deriving its range from an
-    // associated GlyphRenderer's already-mapped data) and rely on that
-    // ordering guarantee. A failure here throws immediately, before
-    // building any model after the one that failed.
+    // Build one at a time, fully awaiting each before starting the next:
+    // some renderers/annotations (e.g. ColorBar) read state off siblings
+    // built earlier in the same batch. A failure throws immediately.
     for (const model of new_models) {
       const view = await _build_view(cls(model), model, options)
       if (_desired.get(view_storage)?.has(model) !== true) {
-        // A later call decided this model isn't wanted any more while this
-        // build was in flight. Tear it down instead of storing it. Still
-        // connect it first: remove() unconditionally calls disconnect_signals(),
-        // and views may assume connect_signals() already ran (e.g. by only
-        // creating an observer or listener there).
+        // No longer wanted: connect then immediately remove, rather than
+        // remove() alone, since some disconnect_signals() implementations
+        // assume connect_signals() already ran.
         removed_views.push(view)
         view.connect_signals()
         view.remove()
@@ -105,6 +107,13 @@ export async function build_views<T extends HasProps>(
     for (const model of new_models) {
       building.delete(model)
     }
+  }
+
+  // Builds can finish out of request order under overlapping calls; re-sort
+  // once to match the latest request.
+  const desired = _desired.get(view_storage)
+  if (desired != null) {
+    _reorder(view_storage, desired)
   }
 
   for (const view of created_views) {
