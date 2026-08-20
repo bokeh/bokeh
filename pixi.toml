@@ -180,10 +180,10 @@ platforms = ["linux-64"]
 
 [feature.downstream.dependencies]
 holoviews = "*"
-nose = "*"
 panel = "*"
 python-dateutil = ">=2.1"
 pytest = ">=7.0"
+pytest-asyncio = "*"
 pytest-cov = "*"
 pytest-repeat = "*"
 pytest-rerunfailures = "*"
@@ -206,7 +206,6 @@ libiconv = "*"
 pip = "*"
 python-build = "*"
 setuptools = "*"
-yaml = "*"
 
 [feature.release-build.dependencies]
 boto3 = "*"
@@ -232,7 +231,6 @@ setuptools = "*"
 squarify = "*"
 sympy = "*"
 toml = "*"
-yaml = "*"
 
 [feature.release-build.pypi-dependencies]
 bokeh_sampledata = "*"
