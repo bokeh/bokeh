@@ -18,6 +18,7 @@ dependencies:
 
   # tests
   - pytest >=7.0
+  - pytest-asyncio  # Panel and HoloViews both set asyncio_mode = "auto"
   - pytest-timeout
   - scipy
   - nodejs 24.*
