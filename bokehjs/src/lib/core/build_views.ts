@@ -66,27 +66,22 @@ export async function build_views<T extends HasProps>(
   const created_views: ViewOf<T>[] = []
   const new_models = models.filter((model) => !view_storage.has(model) && !building.has(model))
 
-  // Start all new builds concurrently (so overlapping build_views() calls can
-  // dedupe against them via the `new_models` filter above), but resolve them
-  // in `new_models` order rather than completion order, so that insertion
-  // order into view_storage (and thus created_views) doesn't depend on how
-  // long each individual view's lazy_initialize() happens to take.
-  const own_promises = new Map<T, Promise<ViewOf<T>>>()
+  // Build views for new models one at a time, in order, fully awaiting each
+  // one (including any views it recursively builds) before starting the
+  // next. Some renderers and annotations read state off their siblings while
+  // building (e.g. ColorBar deriving its range from an associated
+  // GlyphRenderer's already-mapped data) and rely on that ordering guarantee.
+  //
+  // Each model is registered in `building` before it's awaited, so an
+  // overlapping build_views() call on the same view_storage can still dedupe
+  // against it via the `new_models` filter above, even though builds
+  // themselves run serially.
+  let error: unknown
   for (const model of new_models) {
     const promise = _build_view(cls(model), model, options)
     building.set(model, promise)
-    own_promises.set(model, promise)
-  }
-
-  // Always clear `building` for every attempted model, even if its own view
-  // failed to construct, or a sibling's did and would otherwise abort this
-  // loop early. Otherwise a single failed build permanently marks that model
-  // as "in progress" for this view_storage, silently blocking every future
-  // build_views() call for it.
-  let error: unknown
-  for (const model of new_models) {
     try {
-      const view = await own_promises.get(model)!
+      const view = await promise
       view_storage.set(model, view)
       created_views.push(view)
     } catch (e) {
