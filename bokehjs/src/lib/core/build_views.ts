@@ -64,7 +64,7 @@ export async function build_views<T extends HasProps>(
   }
 
   const created_views: ViewOf<T>[] = []
-  const new_models = models.filter((model) => !view_storage.has(model) && !building!.has(model))
+  const new_models = models.filter((model) => !view_storage.has(model) && !building.has(model))
 
   // Start all new builds concurrently (so overlapping build_views() calls can
   // dedupe against them via the `new_models` filter above), but resolve them
