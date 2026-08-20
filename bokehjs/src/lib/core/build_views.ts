@@ -141,9 +141,15 @@ export async function build_views<T extends HasProps>(
         built.push([model, view])
       } else {
         // A later call stopped wanting this model but couldn't see the build in
-        // progress, so cleaning up is up to us.
+        // progress, so cleaning up is up to us. Connect first, so that remove()
+        // is never called on a view that was never connected, which
+        // disconnect_signals() overrides are entitled to assume.
         removed_views.push(view)
-        view.remove()
+        try {
+          view.connect_signals()
+        } finally {
+          view.remove()
+        }
       }
       state.pending.delete(model)
       deferred.resolve()
