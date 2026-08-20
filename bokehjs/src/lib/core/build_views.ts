@@ -89,9 +89,12 @@ export async function build_views<T extends HasProps>(
       const view = await _build_view(cls(model), model, options)
       if (_desired.get(view_storage)?.has(model) !== true) {
         // A later call decided this model isn't wanted any more while this
-        // build was in flight. Tear it down instead of storing/connecting a
-        // view that nothing asked for any more.
+        // build was in flight. Tear it down instead of storing it. Still
+        // connect it first: remove() unconditionally calls disconnect_signals(),
+        // and views may assume connect_signals() already ran (e.g. by only
+        // creating an observer or listener there).
         removed_views.push(view)
+        view.connect_signals()
         view.remove()
         continue
       }
