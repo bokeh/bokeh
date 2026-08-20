@@ -101,14 +101,18 @@ run_suite "Dask -- dask/diagnostics"      dask        dask               15 dask
 run_suite "Dask -- distributed/dashboard" distributed distributed        35 distributed/dashboard
 
 # Panel and HoloViews are tested as installed, so their own pyproject.toml pytest
-# configuration does not apply. Only `asyncio_mode`, which changes what actually runs, is
-# restored here; their `filterwarnings = ["error", ...]` is deliberately not replicated,
-# since warnings-as-errors against a Bokeh dev build would fail for unrelated reasons.
+# configuration does not apply. Only the settings that change what actually runs are
+# restored here: `asyncio_mode` for both, plus `python_classes` for HoloViews, whose
+# suite has classes such as BokehRendererTest that pytest's default `Test*` pattern
+# does not match (37 tests). Their `filterwarnings = ["error", ...]` is deliberately not
+# replicated, since warnings-as-errors against a Bokeh dev build would fail for
+# unrelated reasons.
 run_suite "Panel"                         panel       "$SITE_PACKAGES" 1500 panel/tests \
     -o asyncio_mode=auto -o asyncio_default_fixture_loop_scope=function
 
 run_suite "HoloViews"                     holoviews   "$SITE_PACKAGES"  400 holoviews/tests/plotting/bokeh \
-    -o asyncio_mode=auto -o asyncio_default_fixture_loop_scope=function
+    -o asyncio_mode=auto -o asyncio_default_fixture_loop_scope=function \
+    -o 'python_classes=*Test*'
 
 set +x
 {
