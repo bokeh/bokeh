@@ -35,6 +35,7 @@
 /win-64
 
 # dev files
+/.pixi
 *.patch
 *.diff
 *.rej
