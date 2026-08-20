@@ -39,10 +39,16 @@ def publish_conda_package(config: Config, system: System) -> ActionReturn:
     version = config.version
     path = f"deployment-{version}/bokeh-{version}-py_0.tar.bz2"
     token = config.secrets["ANACONDA_TOKEN"]
-    main_label = "" if config.prerelease else "-l main"
-    rc_label = "-l rc" if config.version_type in (VersionType.RC, VersionType.FULL) else ""
+    labels = ["dev"]
+    if config.version_type in (VersionType.RC, VersionType.FULL):
+        labels.insert(0, "rc")
+    if not config.prerelease:
+        labels.insert(0, "main")
+    channels = " ".join(f"--channel {label}" for label in labels)
     try:
-        system.run(f"anaconda -t {token} upload -u bokeh {path} {main_label} {rc_label} -l dev --force --no-progress")
+        system.run(
+            f"rattler-build upload anaconda --owner bokeh --api-key {token} {channels} --force {path}",
+        )
         return PASSED("Publish to anaconda.org succeeded")
     except RuntimeError as e:
         return FAILED("Could NOT publish to anaconda.org", details=e.args)

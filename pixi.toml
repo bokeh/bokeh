@@ -249,9 +249,10 @@ boto3 = "*"
 colorama = "*"
 packaging = "*"
 pip = "*"
+pyyaml = "*"
+rattler-build = "*"
 setuptools = "*"
 twine = "*"
-yaml = "*"
 
 [environments]
 default = ["py313", "js", "runtime", "test", "full", "standard-only"]

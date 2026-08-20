@@ -23,6 +23,7 @@ from tools.release.pipeline import StepType
         (checks.check_aws_present, "which aws"),
         (checks.check_git_present, "which git"),
         (checks.check_npm_present, "which npm"),
+        (checks.check_rattler_build_present, "which rattler-build"),
         (checks.check_twine_present, "which twine"),
     ],
 )
@@ -42,6 +43,7 @@ def test_application_checks_pass_when_command_exists(config: Config, func: StepT
         (checks.check_aws_present, "which aws"),
         (checks.check_git_present, "which git"),
         (checks.check_npm_present, "which npm"),
+        (checks.check_rattler_build_present, "which rattler-build"),
         (checks.check_twine_present, "which twine"),
     ],
 )

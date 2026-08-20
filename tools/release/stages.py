@@ -36,6 +36,7 @@ from .checks import (
     check_git_present,
     check_milestone_labels,
     check_npm_present,
+    check_rattler_build_present,
     check_release_notes_present,
     check_release_tag_is_available,
     check_repo_is_bokeh,
@@ -132,10 +133,11 @@ BUILD_STEPS: StepListType = (
 )
 
 DEPLOY_CHECKS: StepListType = (
-    check_aws_present,
     check_anaconda_present,
+    check_aws_present,
     check_git_present,
     check_npm_present,
+    check_rattler_build_present,
     check_twine_present,
     check_checkout_on_base_branch,
     verify_anaconda_credentials,

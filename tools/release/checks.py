@@ -34,6 +34,7 @@ __all__ = (
     "check_release_tag_is_available",
     "check_npm_present",
     "check_repo_is_bokeh",
+    "check_rattler_build_present",
     "check_staging_branch_is_available",
     "check_twine_present",
     "check_version_order",
@@ -56,6 +57,7 @@ check_anaconda_present = _check_app_present("anaconda")
 check_aws_present = _check_app_present("aws")
 check_git_present = _check_app_present("git")
 check_npm_present = _check_app_present("npm")
+check_rattler_build_present = _check_app_present("rattler-build")
 check_twine_present = _check_app_present("twine")
 
 

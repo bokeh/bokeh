@@ -31,14 +31,14 @@ def test_publish_npm_package_uses_release_appropriate_tag(version: str, expected
 
 
 @pytest.mark.parametrize(
-    ("version", "labels"),
+    ("version", "channels"),
     [
-        ("4.0.0", "-l main -l rc -l dev"),
-        ("4.0.0rc1", " -l rc -l dev"),
-        ("4.0.0.dev1", "  -l dev"),
+        ("4.0.0", "--channel main --channel rc --channel dev"),
+        ("4.0.0rc1", "--channel rc --channel dev"),
+        ("4.0.0.dev1", "--channel dev"),
     ],
 )
-def test_publish_conda_package_uses_release_appropriate_labels(version: str, labels: str) -> None:
+def test_publish_conda_package_uses_release_appropriate_labels(version: str, channels: str) -> None:
     config = Config(version)
     config.add_secret("ANACONDA_TOKEN", "token")
     system = RecordingSystem()
@@ -47,7 +47,8 @@ def test_publish_conda_package_uses_release_appropriate_labels(version: str, lab
 
     assert result.kind is ActionResult.PASS
     assert system.commands == [
-        f"anaconda -t token upload -u bokeh deployment-{version}/bokeh-{version}-py_0.tar.bz2 {labels} --force --no-progress",
+        f"rattler-build upload anaconda --owner bokeh --api-key token {channels} --force "
+        f"deployment-{version}/bokeh-{version}-py_0.tar.bz2",
     ]
 
 
@@ -113,7 +114,9 @@ def test_unpack_deployment_tarball(config: Config) -> None:
         (deploy.publish_npm_package, "npm publish --access=public  bokeh-bokehjs-4.0.0.tgz"),
         (
             deploy.publish_conda_package,
-            "anaconda -t token upload -u bokeh deployment-4.0.0/bokeh-4.0.0-py_0.tar.bz2 -l main -l rc -l dev --force --no-progress",
+            "rattler-build upload anaconda --owner bokeh --api-key token "
+            "--channel main --channel rc --channel dev --force "
+            "deployment-4.0.0/bokeh-4.0.0-py_0.tar.bz2",
         ),
         (
             deploy.publish_pip_packages,
