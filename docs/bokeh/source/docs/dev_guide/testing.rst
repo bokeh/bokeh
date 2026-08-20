@@ -495,13 +495,18 @@ https://github.com/bokeh/bokeh/actions
 
 .. _contributor_guide_testing_ci_environments:
 
-Environment files
+Pixi environments
 ~~~~~~~~~~~~~~~~~
 
 Bokeh's CI runs tests on Linux, macOS, and Windows. It also runs tests with
-different versions of Python. The various testing environments are defined
-in their respective YAML files in the :bokeh-tree:`conda` folder. In case you
-add or change dependencies, you need to update these files.
+different versions of Python. The environments are assembled from features in
+``pixi.toml``. Exact package versions for every supported platform are recorded
+in ``pixi.lock``.
+
+When adding or changing a dependency, update ``pixi.toml``, run
+``pixi lock``, and commit both files. Use ``pixi run -e <environment>`` to run a
+command in a particular CI environment, such as ``test-py312``, ``minimal``, or
+``core``.
 
 CI Workflows
 ~~~~~~~~~~~~
