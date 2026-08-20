@@ -29,6 +29,15 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
 
 export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
 
+// Tracks views that are currently being built for a given view_storage, so that
+// overlapping build_views() calls (e.g. triggered by two properties changing in
+// the same patch, each independently calling an async update_children()) don't
+// each start building their own view for the same not-yet-registered model. Without
+// this, the loser's view still gets connect_signals() called on it, but is never
+// stored, rendered, or later cleaned up via the to_remove diff, leaking an orphaned
+// view that keeps reacting to model changes forever.
+const _building = new WeakMap<ViewStorage<any>, Map<HasProps, Promise<any>>>()
+
 export async function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
   models: T[],
@@ -48,14 +57,26 @@ export async function build_views<T extends HasProps>(
     }
   }
 
-  const created_views: ViewOf<T>[] = []
-  const new_models = models.filter((model) => !view_storage.has(model))
-
-  for (const model of new_models) {
-    const view = await _build_view(cls(model), model, options)
-    view_storage.set(model, view)
-    created_views.push(view)
+  let building = _building.get(view_storage)
+  if (building == null) {
+    building = new Map()
+    _building.set(view_storage, building)
   }
+
+  const created_views: ViewOf<T>[] = []
+  const new_models = models.filter((model) => !view_storage.has(model) && !building!.has(model))
+
+  const pending: Promise<void>[] = []
+  for (const model of new_models) {
+    const promise = _build_view(cls(model), model, options)
+    building.set(model, promise)
+    pending.push(promise.then((view) => {
+      view_storage.set(model, view)
+      created_views.push(view)
+      building!.delete(model)
+    }))
+  }
+  await Promise.all(pending)
 
   for (const view of created_views) {
     view.connect_signals()
