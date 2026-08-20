@@ -29,34 +29,26 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
 
 export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
 
-// Serializes build_views() calls per view_storage, so that overlapping calls
-// (e.g. triggered by two properties changing in the same patch, each
-// independently calling an async update_children()) run one after another
-// instead of racing. Without this, a later call's to_remove/new_models diff
-// can be computed against a view_storage that an earlier, still in-flight
-// call hasn't finished updating yet, which can build duplicate views for the
-// same model, or drop a model that the earlier call is still building,
-// leaking an orphaned view that keeps reacting to model changes forever.
-const _queues = new WeakMap<ViewStorage<any>, Promise<unknown>>()
+// Tracks, per view_storage, which models currently have a build in flight
+// (so an overlapping build_views() call doesn't start a second build for
+// the same model) and the most recently requested set of models (so that if
+// a model stops being wanted while its view is still being built, the call
+// holding that build can tear the view down once it finishes, instead of
+// storing and connecting a view nobody asked for any more). Neither call
+// ever awaits the other's completion, so overlapping calls can't deadlock
+// each other, including when a view's own construction reenters
+// build_views() on the same view_storage.
+const _building = new WeakMap<ViewStorage<any>, Set<HasProps>>()
+const _desired = new WeakMap<ViewStorage<any>, Set<HasProps>>()
 
-export function build_views<T extends HasProps>(
+export async function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
   models: T[],
   options: Options<ViewOf<T>> = {parent: null},
   cls: (model: T) => T["default_view"] = (model) => model.default_view,
 ): Promise<BuildResult<T>> {
-  const previous = _queues.get(view_storage) ?? Promise.resolve()
-  const current = previous.catch(() => {}).then(() => _build_views(view_storage, models, options, cls))
-  _queues.set(view_storage, current.catch(() => {}))
-  return current
-}
+  _desired.set(view_storage, new Set(models))
 
-async function _build_views<T extends HasProps>(
-  view_storage: ViewStorage<T>,
-  models: T[],
-  options: Options<ViewOf<T>>,
-  cls: (model: T) => T["default_view"],
-): Promise<BuildResult<T>> {
   const to_remove = difference([...view_storage.keys()], models)
 
   const removed_views: ViewOf<T>[] = []
@@ -69,20 +61,47 @@ async function _build_views<T extends HasProps>(
     }
   }
 
-  const created_views: ViewOf<T>[] = []
-  const new_models = models.filter((model) => !view_storage.has(model))
+  let building = _building.get(view_storage)
+  if (building == null) {
+    building = new Set()
+    _building.set(view_storage, building)
+  }
 
-  // Build views for new models one at a time, in order, fully awaiting each
-  // one (including any views it recursively builds) before starting the
-  // next. Some renderers and annotations read state off their siblings while
-  // building (e.g. ColorBar deriving its range from an associated
-  // GlyphRenderer's already-mapped data) and rely on that ordering guarantee.
-  // A failure here throws immediately, before storing or connecting any view
-  // for a model after the one that failed.
+  // Reserve the whole batch up front, before awaiting anything, so that an
+  // overlapping build_views() call on the same view_storage sees every
+  // model in this batch as already being built, not just the one whose
+  // turn has come up in the loop below.
+  const new_models = models.filter((model) => !view_storage.has(model) && !building.has(model))
   for (const model of new_models) {
-    const view = await _build_view(cls(model), model, options)
-    view_storage.set(model, view)
-    created_views.push(view)
+    building.add(model)
+  }
+
+  const created_views: ViewOf<T>[] = []
+  try {
+    // Build views for new models one at a time, in order, fully awaiting
+    // each one (including any views it recursively builds) before starting
+    // the next. Some renderers and annotations read state off their
+    // siblings while building (e.g. ColorBar deriving its range from an
+    // associated GlyphRenderer's already-mapped data) and rely on that
+    // ordering guarantee. A failure here throws immediately, before
+    // building any model after the one that failed.
+    for (const model of new_models) {
+      const view = await _build_view(cls(model), model, options)
+      if (_desired.get(view_storage)?.has(model) !== true) {
+        // A later call decided this model isn't wanted any more while this
+        // build was in flight. Tear it down instead of storing/connecting a
+        // view that nothing asked for any more.
+        removed_views.push(view)
+        view.remove()
+        continue
+      }
+      view_storage.set(model, view)
+      created_views.push(view)
+    }
+  } finally {
+    for (const model of new_models) {
+      building.delete(model)
+    }
   }
 
   for (const view of created_views) {

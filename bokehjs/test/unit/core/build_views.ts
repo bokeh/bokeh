@@ -152,9 +152,10 @@ describe("core/build_views", () => {
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 is still building `model`'s view when call1 asks for an empty
-    // set of models. call1 must not run its to_remove diff until call0 has
-    // finished storing and connecting the view, otherwise the view would be
-    // left stored and connected even though nothing wants it any more.
+    // set of models. call1 returns immediately (it doesn't wait on call0),
+    // so it can't see `model` in its own to_remove diff. call0 must instead
+    // notice, once its build finishes, that `model` isn't wanted any more
+    // and tear the view down itself, rather than storing and connecting it.
     const call0 = build_views(storage, [model], {parent: null})
     const call1 = build_views(storage, [], {parent: null})
 
@@ -162,11 +163,13 @@ describe("core/build_views", () => {
 
     const [result0, result1] = await Promise.all([call0, call1])
 
-    expect(result0.created.length).to.be.equal(1)
-    const view = result0.created[0]
+    expect(result1.created.length).to.be.equal(0)
+    expect(result1.removed.length).to.be.equal(0)
 
-    expect(result1.removed.length).to.be.equal(1)
-    expect(result1.removed[0]).to.be.equal(view)
+    expect(result0.created.length).to.be.equal(0)
+    expect(result0.removed.length).to.be.equal(1)
+    const view = result0.removed[0]
+
     expect(view.is_destroyed).to.be.true
     expect(storage.size).to.be.equal(0)
   })
