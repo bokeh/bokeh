@@ -9,7 +9,7 @@ from __future__ import annotations
 # Bokeh imports
 from .build import (
     build_bokehjs,
-    build_conda_packages,
+    build_conda_package,
     build_docs,
     build_npm_packages,
     build_pip_packages,
@@ -21,7 +21,7 @@ from .build import (
     update_changelog,
     update_hash_manifest,
     update_switcher_json,
-    verify_conda_install,
+    verify_conda_package,
     verify_pip_install_from_sdist,
     verify_pip_install_using_sdist,
     verify_pip_install_using_wheel,
@@ -119,8 +119,8 @@ BUILD_STEPS: StepListType = (
     verify_pip_install_from_sdist,
     verify_pip_install_using_sdist,
     verify_pip_install_using_wheel,
-    build_conda_packages,
-    verify_conda_install,
+    build_conda_package,
+    verify_conda_package,
     build_docs,
     pack_deployment_tarball,
     upload_deployment_tarball,

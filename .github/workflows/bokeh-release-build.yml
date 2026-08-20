@@ -48,19 +48,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: conda-incubator/setup-miniconda@v4
+      - uses: prefix-dev/setup-pixi@v0.10.0
         with:
-          miniforge-version: latest
-          mamba-version: "*"
-          activate-environment: bk-release-build
-          environment-file: conda/environment-release-build.yml
+          pixi-version: v0.76.1
+          environments: release-build
+          activate-environment: release-build
+          locked: true
+          cache: true
+          cache-write: true
 
       - name: List installed software
         run: |
           echo "node $(node --version)"
           echo "npm $(npm --version)"
-          conda info
-          conda list
+          pixi info
+          pixi list --environment release-build
 
       - name: Build Release Tarball
         env:
@@ -70,4 +72,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
-        run: python -m tools.release build $BOKEH_VERSION
+        run: python -m tools.release build "$BOKEH_VERSION"

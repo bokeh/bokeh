@@ -57,7 +57,7 @@ def test_build_pipeline_midflight_checks_are_explicit() -> None:
         "verify_pip_install_from_sdist",
         "verify_pip_install_using_sdist",
         "verify_pip_install_using_wheel",
-        "verify_conda_install",
+        "verify_conda_package",
     ]
 
 
