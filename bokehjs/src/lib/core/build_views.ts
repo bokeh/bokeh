@@ -78,11 +78,25 @@ export async function build_views<T extends HasProps>(
     own_promises.set(model, promise)
   }
 
+  // Always clear `building` for every attempted model, even if its own view
+  // failed to construct, or a sibling's did and would otherwise abort this
+  // loop early. Otherwise a single failed build permanently marks that model
+  // as "in progress" for this view_storage, silently blocking every future
+  // build_views() call for it.
+  let error: unknown
   for (const model of new_models) {
-    const view = await own_promises.get(model)!
-    view_storage.set(model, view)
-    created_views.push(view)
-    building.delete(model)
+    try {
+      const view = await own_promises.get(model)!
+      view_storage.set(model, view)
+      created_views.push(view)
+    } catch (e) {
+      error ??= e
+    } finally {
+      building.delete(model)
+    }
+  }
+  if (error !== undefined) {
+    throw error
   }
 
   for (const view of created_views) {
