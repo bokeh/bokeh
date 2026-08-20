@@ -16,7 +16,7 @@ runs:
   using: composite
   steps:
     - name: Test defaults
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
@@ -24,7 +24,7 @@ runs:
         pytest tests/test_defaults.py
 
     - name: Test cross
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
@@ -33,7 +33,7 @@ runs:
 
     - name: Run tests
       if: success() || failure()
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"

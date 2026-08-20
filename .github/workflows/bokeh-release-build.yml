@@ -10,7 +10,7 @@ on:
 
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
 

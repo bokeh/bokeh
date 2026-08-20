@@ -19,7 +19,7 @@ concurrency:
 
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash --noprofile --norc -eo pipefail {0}
 
 env:
   CHROME_VER: "141.0.7390.54"
@@ -61,11 +61,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.12'
+          environment: test-py312
           source-tree: 'keep'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py312
 
       - name: Run codebase checks
         run: pytest --color=yes tests/codebase
@@ -82,6 +84,13 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
         python-version: ['3.12', '3.13', '3.14']
+        include:
+          - python-version: '3.12'
+            environment: test-py312
+          - python-version: '3.13'
+            environment: test-py313
+          - python-version: '3.14'
+            environment: test-py314
 
     steps:
       - uses: actions/checkout@v6
@@ -89,7 +98,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: ${{ matrix.environment }}
           source-tree: 'keep'
 
       - name: Ensure Python version
@@ -97,6 +106,8 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: ${{ matrix.environment }}
 
       - parallel:
         - name: Check library types with mypy
@@ -122,6 +133,13 @@ jobs:
         # Examples only run on Linux (Chrome/Chromium dependency)
         os: [ubuntu-24.04]
         python-version: ['3.12', '3.13', '3.14']
+        include:
+          - python-version: '3.12'
+            environment: test-py312
+          - python-version: '3.13'
+            environment: test-py313
+          - python-version: '3.14'
+            environment: test-py314
 
     steps:
       - uses: actions/checkout@v6
@@ -129,7 +147,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: ${{ matrix.environment }}
           source-tree: 'delete'
 
       - name: Ensure Python version
@@ -141,6 +159,7 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
+          environment: ${{ matrix.environment }}
           include-chromium: 'true'
 
       - name: Start chrome headless
@@ -179,6 +198,13 @@ jobs:
         # Comprehensive: All platforms × all Python versions
         os: [ubuntu-24.04, macos-latest, windows-latest]
         python-version: ['3.12', '3.13', '3.14']
+        include:
+          - python-version: '3.12'
+            environment: test-py312
+          - python-version: '3.13'
+            environment: test-py313
+          - python-version: '3.14'
+            environment: test-py314
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -189,7 +215,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: ${{ matrix.environment }}
           source-tree: 'delete'
 
       - name: Ensure Python version
@@ -197,6 +223,8 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: ${{ matrix.environment }}
 
       - name: Install Playwright browsers
         run: playwright install chromium
@@ -218,7 +246,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.14t'
+          environment: test-py314t
           source-tree: 'delete'
 
       - name: Ensure free-threaded Python 3.14
@@ -226,6 +254,8 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py314t
 
       - name: Install Playwright browsers
         run: playwright install chromium
@@ -262,11 +292,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: 'minimal-deps'
+          environment: minimal
           source-tree: 'delete'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: minimal
 
       - name: Run dependency tests
         uses: ./.github/workflows/composite/run-deps-tests
@@ -291,11 +323,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: 'core'
+          environment: core
           source-tree: 'delete'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: core
 
       - name: Run dependency tests
         uses: ./.github/workflows/composite/run-deps-tests
@@ -312,6 +346,11 @@ jobs:
         # Comprehensive: All platforms
         os: [ubuntu-24.04, macos-latest, windows-latest]
         python-version: ['3.12', '3.14']
+        include:
+          - python-version: '3.12'
+            environment: test-py312
+          - python-version: '3.14'
+            environment: test-py314
 
     steps:
       - uses: actions/checkout@v6
@@ -319,7 +358,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: ${{ matrix.environment }}
           source-tree: 'delete'
 
       - name: Ensure Python version
@@ -327,6 +366,8 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: ${{ matrix.environment }}
 
       - name: Build docs
         run: bash tools/ci/build_docs.sh
@@ -355,12 +396,8 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.13'
+          environment: server-integration
           source-tree: 'delete'
-
-      - name: Install ASGI server
-        if: matrix.frontend == 'asgi'
-        run: python -m pip install 'uvicorn[standard]'
 
       - name: Install Playwright browser
         run: playwright install chromium
@@ -396,11 +433,8 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.13'
+          environment: server-integration
           source-tree: 'delete'
-
-      - name: Install ASGI example dependencies
-        run: python -m pip install 'uvicorn[standard]' hypercorn 'streamlit==1.57.*' fastapi starlette django
 
       - name: Install Playwright browser
         run: playwright install chromium

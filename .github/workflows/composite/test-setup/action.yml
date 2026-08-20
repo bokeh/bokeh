@@ -3,10 +3,13 @@ name: 'Test Setup'
 description: 'Perform Setup Steps for Bokeh CI Test Jobs'
 
 inputs:
-  test-env:
-    # string: "environment-test-{{ test-env }}.yml"
-    description: 'Test environment file to use'
+  environment:
+    description: 'Pixi environment to install and activate'
     required: true
+  update-packages:
+    description: 'Space-separated Pixi packages to update before installing the Bokeh wheel'
+    required: false
+    default: ''
   source-tree:
     # string: "keep" or "delete"
     # (avoiding booleans: https://github.com/actions/runner/issues/1483)
@@ -16,29 +19,25 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # Remove nodejs from conda environment to avoid duplicate installation
-    # We'll install Node.js via setup-node instead for better npm caching
-    - name: Filter nodejs from environment file
-      shell: bash
+    - name: Set up Pixi
+      uses: prefix-dev/setup-pixi@v0.10.0
+      with:
+        pixi-version: v0.76.1
+        environments: ${{ inputs.environment }}
+        activate-environment: ${{ inputs.environment }}
+        locked: true
+        cache: true
+        cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
+
+    - name: Update selected packages
+      if: ${{ inputs.update-packages != '' }}
+      shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PIXI_ENVIRONMENT: ${{ inputs.environment }}
+        PIXI_UPDATE_PACKAGES: ${{ inputs.update-packages }}
       run: |
-        LOC="conda/environment-test-${{ inputs.test-env }}"
-        grep -v '^\s*-\s*nodejs\b' $LOC.yml > $LOC-no-nodejs.yml
-
-    - name: Setup conda environment
-      uses: conda-incubator/setup-miniconda@v4
-      with:
-        miniforge-version: latest
-        mamba-version: "*"
-        activate-environment: bk-test
-        environment-file: conda/environment-test-${{ inputs.test-env }}-no-nodejs.yml
-        run-post: ${{ runner.os != 'Windows' }}
-
-    - name: Install Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-        cache: 'npm'
-        cache-dependency-path: 'bokehjs/package-lock.json'
+        read -r -a packages <<< "$PIXI_UPDATE_PACKAGES"
+        pixi update --environment "$PIXI_ENVIRONMENT" "${packages[@]}"
 
     - name: Download wheel package
       id: download
@@ -48,8 +47,8 @@ runs:
         path: dist/
 
     - name: Install wheel package
-      shell: bash -l {0}
-      run: pip install dist/bokeh-*-py3-none-any.whl
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: python -m pip install --no-deps dist/bokeh-*-py3-none-any.whl
 
     - name: Download bokehjs package
       uses: actions/download-artifact@v8
@@ -58,21 +57,17 @@ runs:
         path: bokehjs/build/dist/
 
     - name: Symlink bokehjs package
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       working-directory: ./bokehjs/build/dist/
       run: ln -s $(ls -t bokeh-bokehjs-*.tgz | head -n 1) bokeh-bokehjs.tgz
 
-    - name: Upgrade npm
-      shell: bash -l {0}
-      run: |
-        npm install --location=global npm
-
     - name: Install node modules
       if: ${{ inputs.source-tree == 'keep' }}
-      shell: bash -l {0}
-      run: bash tools/ci/install_node_modules.sh
+      working-directory: ./bokehjs
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: npm ci --no-progress
 
     - name: Delete repository source tree
       if: ${{ inputs.source-tree == 'delete' }}
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: rm -rf src/bokeh

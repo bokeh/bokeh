@@ -174,11 +174,32 @@ types-pillow = "*"
 types-pyyaml = "*"
 types-requests = "*"
 
+[feature.downstream]
+channels = [{ channel = "pyviz/label/dev", priority = 1 }]
+platforms = ["linux-64"]
+
 [feature.downstream.dependencies]
+holoviews = "*"
+nose = "*"
+panel = "*"
 python-dateutil = ">=2.1"
 pytest = ">=7.0"
+pytest-cov = "*"
+pytest-repeat = "*"
+pytest-rerunfailures = "*"
 pytest-timeout = "*"
 scipy = "*"
+
+[feature.server-integration]
+platforms = ["linux-64"]
+
+[feature.server-integration.pypi-dependencies]
+django = "*"
+fastapi = "*"
+hypercorn = "*"
+starlette = "*"
+streamlit = "==1.57.*"
+uvicorn = { version = "*", extras = ["standard"] }
 
 [feature.build.dependencies]
 libiconv = "*"
@@ -241,9 +262,10 @@ test-py314t = { features = ["py314t", "js", "runtime", "test", "full", "free-thr
 minimal = ["py312", "js", "runtime", "test", "minimal"]
 core = ["py313", "js", "runtime", "test"]
 downstream = ["py312", "js", "runtime", "downstream"]
-build = { features = ["py312", "js", "build"], no-default-feature = true }
+build = { features = ["py312", "js", "runtime", "build"], no-default-feature = true }
 release-build = { features = ["py312", "js", "runtime", "release-build"], no-default-feature = true }
 release-deploy = { features = ["py312", "js", "release-deploy"], no-default-feature = true }
+server-integration = ["py313", "js", "runtime", "test", "full", "standard-only", "server-integration"]
 
 [tasks]
 js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
