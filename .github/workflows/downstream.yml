@@ -25,6 +25,9 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
 
+    outputs:
+      failed-suites: ${{ steps.tests.outputs.failed-suites }}
+
     steps:
       - uses: actions/checkout@v6
 
@@ -45,4 +48,57 @@ jobs:
           echo "npm $(npm --version)"
 
       - name: Run tests
+        id: tests
         run: bash tools/ci/run_downstream_tests.sh
+
+  notify-failure:
+    needs: [build, downstream]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Post failure notification to GitHub Discussions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Get list of failed jobs
+          FAILED_JOBS=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs \
+            --jq '.jobs[] | select(.conclusion == "failure") | "- `\(.name)`"')
+
+          # Which suites broke, if the test step got far enough to report (empty when the
+          # build job is what failed).
+          SUITES="${{ needs.downstream.outputs.failed-suites }}"
+          BROKEN=${SUITES:+$'\n\n'"**Suites that could not run:** ${SUITES}"}
+
+          # Create discussion post
+          gh api graphql -f query='
+            mutation($repositoryId: ID!, $categoryId: ID!, $body: String!, $title: String!) {
+              createDiscussion(input: {
+                repositoryId: $repositoryId,
+                categoryId: $categoryId,
+                body: $body,
+                title: $title
+              }) {
+                discussion {
+                  url
+                }
+              }
+            }
+          ' \
+          -f repositoryId='MDEwOlJlcG9zaXRvcnkzODM0MzMy' \
+          -f categoryId='DIC_kwDOADqB3M4C5RF1' \
+          -f title="❌ Downstream Failed - $(date +%Y-%m-%d)" \
+          -f body="The weekly Downstream workflow has failed.
+
+          This means at least one downstream suite could not run at all: an import or
+          collection error, no tests collected, or a suite that crashed without writing
+          results. Ordinary test failures do not trigger this notification; see the
+          job summary for the full per-suite table.${BROKEN}
+
+          **Failed jobs:**
+          ${FAILED_JOBS}
+
+          [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ---
+          *Automated notification from [Downstream](${{ github.server_url }}/${{ github.repository }}/actions/workflows/downstream.yml)*"

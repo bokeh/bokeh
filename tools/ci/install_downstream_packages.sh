@@ -20,7 +20,7 @@ banner_and_restore() {
 alias banner='{ save_flags="$-"; set +x;} 2> /dev/null; banner_and_restore'
 
 banner "holoviews" 2> /dev/null
-conda install --yes --quiet -c pyviz/label/dev holoviews nose scipy
+conda install --yes --quiet -c pyviz/label/dev holoviews scipy
 
 banner "dask/distributed" 2> /dev/null
 git clone https://github.com/dask/distributed.git
