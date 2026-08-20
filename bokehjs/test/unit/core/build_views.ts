@@ -125,55 +125,6 @@ describe("core/build_views", () => {
     expect(created.length).to.be.equal(2)
   })
 
-  it("should remove a view after it finishes building if a later call no longer wants it", async () => {
-    let resolve_gate: () => void = () => {}
-    const gate = new Promise<void>((resolve) => {
-      resolve_gate = resolve
-    })
-
-    class SlowModelView extends View {
-      declare model: SlowModel
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        await gate
-      }
-    }
-
-    class SlowModel extends HasProps {
-      declare __view_type__: SlowModelView
-
-      static {
-        this.prototype.default_view = SlowModelView
-      }
-    }
-
-    const model = new SlowModel()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    // call0 is still building `model`'s view when call1 asks for an empty
-    // set of models. call1 returns immediately (it doesn't wait on call0),
-    // so it can't see `model` in its own to_remove diff. call0 must instead
-    // notice, once its build finishes, that `model` isn't wanted any more
-    // and tear the view down itself, rather than storing and connecting it.
-    const call0 = build_views(storage, [model], {parent: null})
-    const call1 = build_views(storage, [], {parent: null})
-
-    resolve_gate()
-
-    const [result0, result1] = await Promise.all([call0, call1])
-
-    expect(result1.created.length).to.be.equal(0)
-    expect(result1.removed.length).to.be.equal(0)
-
-    expect(result0.created.length).to.be.equal(0)
-    expect(result0.removed.length).to.be.equal(1)
-    const view = result0.removed[0]
-
-    expect(view.is_destroyed).to.be.true
-    expect(storage.size).to.be.equal(0)
-  })
-
   it("should stop building the rest of a batch immediately when an earlier model's build fails", async () => {
     let n_built_ok = 0
 
@@ -223,8 +174,6 @@ describe("core/build_views", () => {
     }
 
     expect(error).to.not.be.undefined
-    // ok_model must never be attempted, so it can't end up stored without
-    // ever having had connect_signals() called on it.
     expect(n_built_ok).to.be.equal(0)
     expect(storage.size).to.be.equal(0)
 
@@ -382,8 +331,9 @@ describe("core/build_views", () => {
     expect([...storage.keys()]).to.be.equal([slow_model])
   })
 
-  it("should not connect a view that is discarded before being stored", async () => {
+  it("should tear down a view that is discarded before being stored", async () => {
     let connects = 0
+    let disconnects = 0
 
     let resolve_gate: () => void = () => {}
     const gate = new Promise<void>((resolve) => {
@@ -396,6 +346,11 @@ describe("core/build_views", () => {
       override connect_signals(): void {
         super.connect_signals()
         connects++
+      }
+
+      override disconnect_signals(): void {
+        disconnects++
+        super.disconnect_signals()
       }
 
       override async lazy_initialize(): Promise<void> {
@@ -415,13 +370,25 @@ describe("core/build_views", () => {
     const model = new SlowModel()
     const storage: ViewStorage<HasProps> = new Map()
 
+    // call0 is still building `model`'s view when call1 asks for an empty set of
+    // models. call1 doesn't wait on call0, so it can't see `model` in its own
+    // to_remove diff. call0 must notice, once its build finishes, that `model`
+    // isn't wanted any more and tear the view down itself.
     const call0 = build_views(storage, [model], {parent: null})
     const call1 = build_views(storage, [], {parent: null})
 
     resolve_gate()
-    const [result0] = await Promise.all([call0, call1])
+    const [result0, result1] = await Promise.all([call0, call1])
 
-    expect(connects).to.be.equal(0)
+    // Connected exactly once before being removed, so that remove() is never
+    // called on a view that was never connected.
+    expect(connects).to.be.equal(1)
+    expect(disconnects).to.be.equal(1)
+
+    expect(result1.created.length).to.be.equal(0)
+    expect(result1.removed.length).to.be.equal(0)
+
+    expect(result0.created.length).to.be.equal(0)
     expect(result0.removed.length).to.be.equal(1)
     expect(result0.removed[0].is_destroyed).to.be.true
     expect(storage.size).to.be.equal(0)
@@ -513,7 +480,7 @@ describe("core/build_views", () => {
   })
 
   it("should discard an in-flight build when remove_views() empties the storage", async () => {
-    let connects = 0
+    let disconnects = 0
 
     let resolve_gate: () => void = () => {}
     const gate = new Promise<void>((resolve) => {
@@ -523,9 +490,9 @@ describe("core/build_views", () => {
     class SlowModelView extends View {
       declare model: SlowModel
 
-      override connect_signals(): void {
-        super.connect_signals()
-        connects++
+      override disconnect_signals(): void {
+        disconnects++
+        super.disconnect_signals()
       }
 
       override async lazy_initialize(): Promise<void> {
@@ -546,15 +513,15 @@ describe("core/build_views", () => {
     const storage: ViewStorage<HasProps> = new Map()
 
     // The owner of `storage` is going away (e.g. DataTableView.remove()) while
-    // a build is still in flight. That view must not end up stored in and
-    // connected to a storage that nobody owns any more.
+    // a build is still in flight. That view must not end up stored in a storage
+    // that nobody owns any more.
     const call = build_views(storage, [model], {parent: null})
     remove_views(storage)
 
     resolve_gate()
     const result = await call
 
-    expect(connects).to.be.equal(0)
+    expect(disconnects).to.be.equal(1)
     expect(storage.size).to.be.equal(0)
     expect(result.created.length).to.be.equal(0)
     expect(result.removed.length).to.be.equal(1)
