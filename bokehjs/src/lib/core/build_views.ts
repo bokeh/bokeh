@@ -66,17 +66,24 @@ export async function build_views<T extends HasProps>(
   const created_views: ViewOf<T>[] = []
   const new_models = models.filter((model) => !view_storage.has(model) && !building!.has(model))
 
-  const pending: Promise<void>[] = []
+  // Start all new builds concurrently (so overlapping build_views() calls can
+  // dedupe against them via the `new_models` filter above), but resolve them
+  // in `new_models` order rather than completion order, so that insertion
+  // order into view_storage (and thus created_views) doesn't depend on how
+  // long each individual view's lazy_initialize() happens to take.
+  const own_promises = new Map<T, Promise<ViewOf<T>>>()
   for (const model of new_models) {
     const promise = _build_view(cls(model), model, options)
     building.set(model, promise)
-    pending.push(promise.then((view) => {
-      view_storage.set(model, view)
-      created_views.push(view)
-      building!.delete(model)
-    }))
+    own_promises.set(model, promise)
   }
-  await Promise.all(pending)
+
+  for (const model of new_models) {
+    const view = await own_promises.get(model)!
+    view_storage.set(model, view)
+    created_views.push(view)
+    building.delete(model)
+  }
 
   for (const view of created_views) {
     view.connect_signals()
