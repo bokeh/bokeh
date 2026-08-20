@@ -29,22 +29,34 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
 
 export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
 
-// Tracks views that are currently being built for a given view_storage, so that
-// overlapping build_views() calls (e.g. triggered by two properties changing in
-// the same patch, each independently calling an async update_children()) don't
-// each start building their own view for the same not-yet-registered model. Without
-// this, the loser's view still gets connect_signals() called on it, but is never
-// stored, rendered, or later cleaned up via the to_remove diff, leaking an orphaned
-// view that keeps reacting to model changes forever.
-const _building = new WeakMap<ViewStorage<any>, Map<HasProps, Promise<any>>>()
+// Serializes build_views() calls per view_storage, so that overlapping calls
+// (e.g. triggered by two properties changing in the same patch, each
+// independently calling an async update_children()) run one after another
+// instead of racing. Without this, a later call's to_remove/new_models diff
+// can be computed against a view_storage that an earlier, still in-flight
+// call hasn't finished updating yet, which can build duplicate views for the
+// same model, or drop a model that the earlier call is still building,
+// leaking an orphaned view that keeps reacting to model changes forever.
+const _queues = new WeakMap<ViewStorage<any>, Promise<unknown>>()
 
-export async function build_views<T extends HasProps>(
+export function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
   models: T[],
   options: Options<ViewOf<T>> = {parent: null},
   cls: (model: T) => T["default_view"] = (model) => model.default_view,
 ): Promise<BuildResult<T>> {
+  const previous = _queues.get(view_storage) ?? Promise.resolve()
+  const current = previous.catch(() => {}).then(() => _build_views(view_storage, models, options, cls))
+  _queues.set(view_storage, current.catch(() => {}))
+  return current
+}
 
+async function _build_views<T extends HasProps>(
+  view_storage: ViewStorage<T>,
+  models: T[],
+  options: Options<ViewOf<T>>,
+  cls: (model: T) => T["default_view"],
+): Promise<BuildResult<T>> {
   const to_remove = difference([...view_storage.keys()], models)
 
   const removed_views: ViewOf<T>[] = []
@@ -57,41 +69,20 @@ export async function build_views<T extends HasProps>(
     }
   }
 
-  let building = _building.get(view_storage)
-  if (building == null) {
-    building = new Map()
-    _building.set(view_storage, building)
-  }
-
   const created_views: ViewOf<T>[] = []
-  const new_models = models.filter((model) => !view_storage.has(model) && !building.has(model))
+  const new_models = models.filter((model) => !view_storage.has(model))
 
   // Build views for new models one at a time, in order, fully awaiting each
   // one (including any views it recursively builds) before starting the
   // next. Some renderers and annotations read state off their siblings while
   // building (e.g. ColorBar deriving its range from an associated
   // GlyphRenderer's already-mapped data) and rely on that ordering guarantee.
-  //
-  // Each model is registered in `building` before it's awaited, so an
-  // overlapping build_views() call on the same view_storage can still dedupe
-  // against it via the `new_models` filter above, even though builds
-  // themselves run serially.
-  let error: unknown
+  // A failure here throws immediately, before storing or connecting any view
+  // for a model after the one that failed.
   for (const model of new_models) {
-    const promise = _build_view(cls(model), model, options)
-    building.set(model, promise)
-    try {
-      const view = await promise
-      view_storage.set(model, view)
-      created_views.push(view)
-    } catch (e) {
-      error ??= e
-    } finally {
-      building.delete(model)
-    }
-  }
-  if (error !== undefined) {
-    throw error
+    const view = await _build_view(cls(model), model, options)
+    view_storage.set(model, view)
+    created_views.push(view)
   }
 
   for (const view of created_views) {
