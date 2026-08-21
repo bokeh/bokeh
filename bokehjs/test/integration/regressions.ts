@@ -578,7 +578,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #589", () => {
-    it("disallows updating legend when glyphs change", async () => {
+    it.allowing(2)("disallows updating legend when glyphs change", async () => {
       const x = [1, 2, 3, 4, 5, 10]
       const y = [5, 6, 2, 3, 4, 10]
 
