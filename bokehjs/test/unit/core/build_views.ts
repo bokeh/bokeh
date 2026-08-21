@@ -454,9 +454,10 @@ describe("core/build_views", () => {
     const [result0, result1] = await Promise.all([call0, call1])
 
     // Never connected, so that nothing connect_signals() sets up (listeners,
-    // effects, async work) outlives a view that nothing asked for.
+    // effects, async work) outlives a view that nothing asked for, and so
+    // never disconnected either, because there's nothing to disconnect.
     expect(connects).to.be.equal(0)
-    expect(disconnects).to.be.equal(1)
+    expect(disconnects).to.be.equal(0)
 
     expect(result1.created.length).to.be.equal(0)
     expect(result1.removed.length).to.be.equal(0)
@@ -594,7 +595,7 @@ describe("core/build_views", () => {
     resolve_gate()
     const result = await call
 
-    expect(disconnects).to.be.equal(1)
+    expect(disconnects).to.be.equal(0)
     expect(storage.size).to.be.equal(0)
     expect(result.created.length).to.be.equal(0)
     expect(result.removed.length).to.be.equal(1)
