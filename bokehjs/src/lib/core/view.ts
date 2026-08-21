@@ -133,7 +133,9 @@ export abstract class View implements ISignalable, Equatable {
       logger.warn(`${this}.remove(): view was already destroyed`)
       return
     }
-    this.disconnect_signals()
+    if (this._signals_connected) {
+      this.disconnect_signals()
+    }
     this._abort_controller.abort(view_removed)
     for (const view of this.children_views()) {
       view?.remove()
@@ -224,9 +226,14 @@ export abstract class View implements ISignalable, Equatable {
     return this.has_finished()
   }
 
-  connect_signals(): void {}
+  protected _signals_connected: boolean = false
+
+  connect_signals(): void {
+    this._signals_connected = true
+  }
 
   disconnect_signals(): void {
+    this._signals_connected = false
     Signal.disconnect_receiver(this)
   }
 
