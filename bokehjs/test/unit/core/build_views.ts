@@ -125,6 +125,71 @@ describe("core/build_views", () => {
     expect(created.length).to.be.equal(2)
   })
 
+  it("should not initialize a model ahead of an earlier one that another call is building", async () => {
+    const events: string[] = []
+
+    let resolve_gate: () => void = () => {}
+    const gate = new Promise<void>((resolve) => {
+      resolve_gate = resolve
+    })
+
+    class ModelAView extends View {
+      declare model: ModelA
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        await gate
+        events.push("a:init")
+      }
+
+      override connect_signals(): void {
+        super.connect_signals()
+        events.push("a:connect")
+      }
+    }
+
+    class ModelA extends HasProps {
+      declare __view_type__: ModelAView
+
+      static {
+        this.prototype.default_view = ModelAView
+      }
+    }
+
+    class ModelBView extends View {
+      declare model: ModelB
+
+      override initialize(): void {
+        super.initialize()
+        events.push("b:init")
+      }
+    }
+
+    class ModelB extends HasProps {
+      declare __view_type__: ModelBView
+
+      static {
+        this.prototype.default_view = ModelBView
+      }
+    }
+
+    const model_a = new ModelA()
+    const model_b = new ModelB()
+    const storage: ViewStorage<HasProps> = new Map()
+
+    // call1 doesn't build model_a itself (call0 is already building it), but it
+    // still must not initialize model_b before model_a's view is stored and
+    // connected, the same as it wouldn't if it built both itself.
+    const call0 = build_views(storage, [model_a], {parent: null})
+    const call1 = build_views(storage, [model_a, model_b], {parent: null})
+
+    resolve_gate()
+    await Promise.all([call0, call1])
+
+    expect(events).to.be.equal(["a:init", "a:connect", "b:init"])
+    expect([...storage.keys()]).to.be.equal([model_a, model_b])
+  })
+
   it("should stop building the rest of a batch immediately when an earlier model's build fails", async () => {
     let n_built_ok = 0
 
@@ -259,8 +324,9 @@ describe("core/build_views", () => {
     expect(storage.get(model)).to.not.be.undefined
   })
 
-  it("should not connect a view that an overlapping call removed mid-batch", async () => {
+  it("should not report a view that an overlapping call removed mid-batch", async () => {
     const connected: string[] = []
+    const disconnected: string[] = []
 
     let resolve_gate: () => void = () => {}
     const gate = new Promise<void>((resolve) => {
@@ -273,6 +339,11 @@ describe("core/build_views", () => {
       override connect_signals(): void {
         super.connect_signals()
         connected.push("fast")
+      }
+
+      override disconnect_signals(): void {
+        disconnected.push("fast")
+        super.disconnect_signals()
       }
     }
 
@@ -312,18 +383,20 @@ describe("core/build_views", () => {
 
     // call0 stores fast_model's view, then suspends on slow_model. call1 then
     // removes fast_model's view (it's already in storage, so call1's diff can
-    // see it). Once call0 resumes it must not connect the view it stored, nor
-    // report it as created, because that view is destroyed.
+    // see it). Anything call1 can find in storage must already be connected, and
+    // once call0 resumes it must not report the destroyed view as created.
     const call0 = build_views(storage, [fast_model, slow_model], {parent: null})
     await new Promise<void>((resolve) => setTimeout(resolve, 0))
     expect(storage.has(fast_model)).to.be.true
+    expect(connected).to.be.equal(["fast"])
 
     const call1 = build_views(storage, [slow_model], {parent: null})
 
     resolve_gate()
     const [result0, result1] = await Promise.all([call0, call1])
 
-    expect(connected).to.be.equal(["slow"])
+    expect(connected).to.be.equal(["fast", "slow"])
+    expect(disconnected).to.be.equal(["fast"])
     expect(result0.created.length).to.be.equal(1)
     expect(result0.created[0].model).to.be.equal(slow_model)
     expect(result1.removed.length).to.be.equal(1)
@@ -380,9 +453,9 @@ describe("core/build_views", () => {
     resolve_gate()
     const [result0, result1] = await Promise.all([call0, call1])
 
-    // Connected exactly once before being removed, so that remove() is never
-    // called on a view that was never connected.
-    expect(connects).to.be.equal(1)
+    // Never connected, so that nothing connect_signals() sets up (listeners,
+    // effects, async work) outlives a view that nothing asked for.
+    expect(connects).to.be.equal(0)
     expect(disconnects).to.be.equal(1)
 
     expect(result1.created.length).to.be.equal(0)
@@ -554,5 +627,60 @@ describe("core/build_views", () => {
 
     const results = await Promise.allSettled([call0, call1])
     expect(results.map((result) => result.status)).to.be.equal(["rejected", "rejected"])
+  })
+
+  it("should not let a failing model keep an overlapping call from building the rest", async () => {
+    let n_built_ok = 0
+
+    class FailingModelView extends View {
+      declare model: FailingModel
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        throw new Error("boom")
+      }
+    }
+
+    class FailingModel extends HasProps {
+      declare __view_type__: FailingModelView
+
+      static {
+        this.prototype.default_view = FailingModelView
+      }
+    }
+
+    class OkModelView extends View {
+      declare model: OkModel
+
+      override initialize(): void {
+        super.initialize()
+        n_built_ok++
+      }
+    }
+
+    class OkModel extends HasProps {
+      declare __view_type__: OkModelView
+
+      static {
+        this.prototype.default_view = OkModelView
+      }
+    }
+
+    const failing_model = new FailingModel()
+    const ok_model = new OkModel()
+    const storage: ViewStorage<HasProps> = new Map()
+
+    // call0 gives up on ok_model, because failing_model failed ahead of it in
+    // the same batch. call1 still wants ok_model and nothing ever built it, so
+    // call1 has to build it itself instead of inheriting call0's failure.
+    const call0 = build_views(storage, [failing_model, ok_model], {parent: null})
+    const call1 = build_views(storage, [ok_model], {parent: null})
+
+    const [result0, result1] = await Promise.allSettled([call0, call1])
+
+    expect(result0.status).to.be.equal("rejected")
+    expect(result1.status).to.be.equal("fulfilled")
+    expect(n_built_ok).to.be.equal(1)
+    expect(storage.get(ok_model)).to.not.be.undefined
   })
 })

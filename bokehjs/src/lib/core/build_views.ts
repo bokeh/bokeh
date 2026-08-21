@@ -29,25 +29,15 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
 
 export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
 
-type Deferred = {
-  readonly promise: Promise<void>
-  readonly resolve: () => void
-  readonly reject: (error: unknown) => void
-}
-
-function _deferred(): Deferred {
-  let resolve!: () => void
-  let reject!: (error: unknown) => void
-  const promise = new Promise<void>((res, rej) => {
-    resolve = res
-    reject = rej
-  })
-  promise.catch(() => {})
-  return {promise, resolve, reject}
-}
+/**
+ * A build of a single model's view, shared by all calls that want that model.
+ * Resolves with the view and whether it ended up in `view_storage` (it doesn't
+ * if nothing wants the model any more by the time it's built).
+ */
+type PendingBuild<T extends HasProps> = Promise<{view: ViewOf<T>, stored: boolean}>
 
 type BuildState<T extends HasProps> = {
-  readonly pending: Map<T, Deferred>
+  readonly pending: Map<T, PendingBuild<T>>
   desired: Set<T>
   baseline: Set<T>
 }
@@ -73,17 +63,54 @@ function _reorder<T extends HasProps>(view_storage: ViewStorage<T>, order: Itera
   }
 }
 
+async function _build_into<T extends HasProps>(
+  view_storage: ViewStorage<T>,
+  state: BuildState<T>,
+  model: T,
+  options: Options<ViewOf<T>>,
+  cls: (model: T) => T["default_view"],
+): PendingBuild<T> {
+  try {
+    const view = await _build_view(cls(model), model, options)
+    if (state.desired.has(model)) {
+      view_storage.set(model, view)
+      // Connected before returning, i.e. before anything else gets to run, so
+      // that `view_storage` never holds a view that hasn't been connected yet.
+      // An overlapping call's `to_remove` diff can see anything in there, and
+      // remove() assumes connect_signals() already ran.
+      view.connect_signals()
+      return {view, stored: true}
+    } else {
+      // Nothing wants this model any more, but the call that dropped it couldn't
+      // see this build in progress, so cleaning up is up to us. Never connected,
+      // so that connect_signals() side effects (e.g. an async continuation that
+      // lands on this view later) can't outlive a view nothing asked for.
+      view.remove()
+      return {view, stored: false}
+    }
+  } finally {
+    state.pending.delete(model)
+  }
+}
+
 /**
  * Builds views for `models` into `view_storage` and removes views of models
  * that aren't wanted any more.
  *
  * Overlapping calls on the same `view_storage` cooperate: a model is built at
- * most once, by whichever call reserved it first, and a call wanting a model
- * somebody else is building waits for that build. So once this resolves, every
- * requested model that is still wanted has its view in `view_storage`.
+ * most once, by whichever call got to it first, and a call wanting a model
+ * somebody else is already building waits for that build instead of starting a
+ * second one. So once this resolves, every requested model that is still wanted
+ * has a connected view in `view_storage`.
  *
- * A call only waits on builds it doesn't own, and only after finishing its own,
- * so waiting can't cycle.
+ * Models are processed in request order, waiting included, so a view is never
+ * initialized ahead of a view requested before it.
+ *
+ * A build belongs to the model, not to the call that started it, and never
+ * waits on a call, so waiting can't cycle and a failing model doesn't poison
+ * unrelated models: whatever is still wanted can be built by a later call. The
+ * one thing this can't support is a view whose (lazy) initialization asks the
+ * same `view_storage` for its own model, which would wait for itself.
  */
 export async function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
@@ -111,67 +138,39 @@ export async function build_views<T extends HasProps>(
   }
   const {baseline} = state
 
-  // Reserved up front, before awaiting anything, so an overlapping call can't
-  // start a second build for any of the batch, not even models we haven't
-  // gotten to yet.
-  const owned = new Map<T, Deferred>()
-  const awaited: Promise<void>[] = []
-  for (const model of models) {
-    if (view_storage.has(model) || owned.has(model)) {
-      continue
-    }
-    const pending = state.pending.get(model)
-    if (pending != null) {
-      awaited.push(pending.promise)
-    } else {
-      const deferred = _deferred()
-      state.pending.set(model, deferred)
-      owned.set(model, deferred)
-    }
-  }
-
   const built: [T, ViewOf<T>][] = []
   let failure: unknown = null
 
   try {
-    for (const [model, deferred] of owned) {
-      const view = await _build_view(cls(model), model, options)
-      if (state.desired.has(model)) {
-        view_storage.set(model, view)
+    for (const model of models) {
+      if (view_storage.has(model) || !state.desired.has(model)) {
+        // Either already built, or a later call has stopped wanting it, in which
+        // case building it would just be followed by tearing it down again.
+        continue
+      }
+      const pending = state.pending.get(model)
+      if (pending != null) {
+        // Somebody got here first. Wait for their build, both to not build a
+        // second view for this model, and to keep the rest of our batch behind
+        // this model's initialization.
+        await pending
+        continue
+      }
+      // Registered before awaiting anything, so an overlapping call is
+      // guaranteed to find this build instead of starting its own. The build
+      // clears its own entry as it settles, so a failed one is never left
+      // around for a later call to inherit.
+      const build = _build_into(view_storage, state, model, options, cls)
+      state.pending.set(model, build)
+      const {view, stored} = await build
+      if (stored) {
         built.push([model, view])
       } else {
-        // A later call stopped wanting this model but couldn't see the build in
-        // progress, so cleaning up is up to us. Connect first, so that remove()
-        // is never called on a view that was never connected, which
-        // disconnect_signals() overrides are entitled to assume.
         removed_views.push(view)
-        try {
-          view.connect_signals()
-        } finally {
-          view.remove()
-        }
       }
-      state.pending.delete(model)
-      deferred.resolve()
     }
   } catch (error) {
     failure = error
-  }
-
-  // Release reservations we still hold (i.e. after a failure), so waiters can't hang.
-  for (const [model, deferred] of owned) {
-    if (state.pending.get(model) === deferred) {
-      state.pending.delete(model)
-      deferred.reject(failure ?? new Error(`${model} view build was abandoned`))
-    }
-  }
-
-  if (failure == null) {
-    try {
-      await Promise.all(awaited)
-    } catch (error) {
-      failure = error
-    }
   }
 
   _reorder(view_storage, [...state.desired].filter((model) => !baseline.has(model)))
@@ -185,10 +184,8 @@ export async function build_views<T extends HasProps>(
   const created_views: ViewOf<T>[] = []
   for (const [model, view] of built) {
     // An overlapping call may have removed this view while we built the rest of
-    // the batch. Connecting a removed view would leave it reacting to its model
-    // forever, with nothing left to disconnect it.
+    // the batch, in which case it's destroyed and not ours to report.
     if (view_storage.get(model) === view) {
-      view.connect_signals()
       created_views.push(view)
     }
   }
