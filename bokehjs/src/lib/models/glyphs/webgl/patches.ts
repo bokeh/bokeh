@@ -10,6 +10,7 @@ import type * as p from "core/properties"
 import type {HatchPattern} from "core/property_mixins"
 import {resolve_line_dash} from "core/visuals/line"
 import {normalize_dash_pattern} from "./dash_cache"
+import {LINE_AA_WIDTH, LINE_MITER_LIMIT, line_bounds_padding} from "./base_line"
 import {split_rings, classify_rings, build_line_from_ring, generate_skirt_geometry, POLYGON_AA_WIDTH} from "core/util/polygon"
 import type {SkirtGeometry, RingLineData} from "core/util/polygon"
 import earcut from "earcut"
@@ -221,6 +222,10 @@ export class PatchesGL extends BaseGLGlyph {
           }
 
           const nsegments = ring.nline - 1
+          const linewidth_value = linewidth.get_array()[0]
+          const scissor = this.regl_wrapper.scissor_for_points(
+            ring.points, line_bounds_padding(linewidth_value), transform.pixel_ratio,
+          )
 
           const [framebuffer, tex] = this.regl_wrapper.framebuffer_and_texture
           this.regl_wrapper.clear_framebuffer(framebuffer)
@@ -241,11 +246,11 @@ export class PatchesGL extends BaseGLGlyph {
           this._line_show_buf.update()
 
           const solid_props: LineGlyphProps = {
-            scissor: this.regl_wrapper.scissor,
+            scissor,
             viewport: this.regl_wrapper.viewport,
             canvas_size,
-            antialias: 1.5 / transform.pixel_ratio,
-            miter_limit: 10.0,
+            antialias: LINE_AA_WIDTH / transform.pixel_ratio,
+            miter_limit: LINE_MITER_LIMIT,
             points: this._line_points_buf,
             show: this._line_show_buf,
             nsegments,
@@ -281,7 +286,7 @@ export class PatchesGL extends BaseGLGlyph {
           }
 
           const accumulate_props: AccumulateProps = {
-            scissor: this.regl_wrapper.scissor,
+            scissor,
             viewport: this.regl_wrapper.viewport,
             framebuffer_tex: tex,
           }

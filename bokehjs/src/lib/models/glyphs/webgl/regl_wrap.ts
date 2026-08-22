@@ -159,6 +159,41 @@ export class ReglWrapper {
     this._scissor = {x, y, width, height}
   }
 
+  /** Return a device-pixel scissor tightly enclosing screen-space points,
+   * intersected with the plot frame. Screen y coordinates increase downward,
+   * whereas WebGL scissor coordinates increase upward. */
+  scissor_for_points(points: ArrayLike<number>, padding: number, pixel_ratio: number): BoundingBox {
+    let x0 = Infinity
+    let y0 = Infinity
+    let x1 = -Infinity
+    let y1 = -Infinity
+    for (let i = 0; i + 1 < points.length; i += 2) {
+      const x = points[i]
+      const y = points[i + 1]
+      if (isFinite(x + y)) {
+        x0 = Math.min(x0, x)
+        y0 = Math.min(y0, y)
+        x1 = Math.max(x1, x)
+        y1 = Math.max(y1, y)
+      }
+    }
+    if (!isFinite(x0 + y0 + x1 + y1)) {
+      return {...this._scissor, width: 0, height: 0}
+    }
+
+    const left = Math.floor((x0 - padding)*pixel_ratio)
+    const right = Math.ceil((x1 + padding)*pixel_ratio)
+    const viewport_height = this._viewport.height ?? 0
+    const {x: clip_x = 0, y: clip_y = 0, width: clip_width = 0, height: clip_height = 0} = this._scissor
+    const bottom = Math.floor(viewport_height - (y1 + padding)*pixel_ratio)
+    const top = Math.ceil(viewport_height - (y0 - padding)*pixel_ratio)
+    const sx0 = Math.max(clip_x, left)
+    const sy0 = Math.max(clip_y, bottom)
+    const sx1 = Math.min(clip_x + clip_width, right)
+    const sy1 = Math.min(clip_y + clip_height, top)
+    return {x: sx0, y: sy0, width: Math.max(0, sx1 - sx0), height: Math.max(0, sy1 - sy0)}
+  }
+
   texture(options: Texture2DOptions): Texture2D {
     return this._regl.texture(options)
   }
