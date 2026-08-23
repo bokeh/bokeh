@@ -3,8 +3,8 @@ import {WebSocketServer} from "ws"
 import yargs from "yargs"
 
 import pkg_json from "./package.json" with {type: "json"}
-import {Receiver} from "./receiver.js"
-import {Message} from "./message.js"
+import {Receiver} from "../lib/protocol/receiver.js"
+import {Message} from "../lib/protocol/message.js"
 import {isString} from "../lib/core/util/types.js"
 // import {Document} from "document/document"
 
@@ -40,15 +40,6 @@ type DocJson = {
   title?: string
   //defs?: ModelDef[]
   roots: ModelRep[]
-}
-
-type VersionInfo = {
-  bokeh: string
-  server: string
-}
-
-type ServerInfo = {
-  version_info: VersionInfo
 }
 
 type PullDoc = {
@@ -121,7 +112,7 @@ wss.on("connection", (ws, req: Request) => {
   const receiver = new Receiver()
   log(`Connected to session ${session.id}`)
 
-  const ack = Message.create("ACK", {}, {})
+  const ack = Message.create("ACK", {})
   ack.send(ws)
 
   ws.addEventListener("message", (event) => {
@@ -139,7 +130,7 @@ wss.on("connection", (ws, req: Request) => {
       const reply = (() => {
         switch (msg.msgtype()) {
           case "PULL-DOC-REQ":
-            return Message.create<PullDoc>("PULL-DOC-REPLY", {}, {
+            return Message.create<PullDoc>("PULL-DOC-REPLY", {
               doc: {
                 version: pkg_json.version,
                 title: "NodeJS application",
@@ -147,14 +138,9 @@ wss.on("connection", (ws, req: Request) => {
               },
             })
           case "PUSH-DOC":
-            return Message.create("OK", {}, {})
           case "PATCH-DOC":
-            return Message.create("OK", {}, {})
-          case "SERVER-INFO-REQ": {
-            return Message.create<ServerInfo>("SERVER-INFO-REPLY", {}, {
-              version_info: {bokeh: pkg_json.version, server: pkg_json.version},
-            })
-          }
+          case "SYNC":
+            return Message.create("OK", {})
           default:
             return null
         }

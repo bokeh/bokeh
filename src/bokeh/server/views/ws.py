@@ -36,11 +36,10 @@ from bokeh.settings import settings
 from bokeh.util.token import check_token_signature, get_session_id, get_token_payload
 
 # Bokeh imports
-from ...protocol import Protocol
-from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
+from ...protocol import ack
+from ...protocol.exceptions import ProtocolError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
-from ..protocol_handler import ProtocolHandler
 from .auth_request_handler import AuthRequestHandler
 
 if TYPE_CHECKING:
@@ -75,16 +74,13 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
     application: BokehTornado
     application_context: ApplicationContext
     connection: ServerConnection | None
-    handler: ProtocolHandler | None
     receiver: Receiver | None
     _token: str | None
 
     def __init__(self, tornado_app: Application, *args: Any, **kw: Any) -> None:
         self.receiver = None
-        self.handler = None
         self.connection = None
         self.application_context = kw['application_context']
-        self.latest_pong = -1
         # write_lock allows us to lock the connection to send multiple
         # messages atomically.
         self.write_lock = locks.Lock()
@@ -196,7 +192,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         Specifically, this method coordinates:
 
         * Getting a session for a session ID (creating a new one if needed)
-        * Creating a protocol receiver and handler
+        * Creating a protocol receiver
         * Opening a new ServerConnection and sending it an ACK
 
         Args:
@@ -215,14 +211,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             await self.application.create_session_if_needed(self.application_context, session_id, request, token)
             session = self.application_context.get_session(session_id)
 
-            protocol = Protocol()
-            self.receiver = Receiver(protocol)
-            log.debug("Receiver created for %r", protocol)
-
-            self.handler = ProtocolHandler()
-            log.debug("ProtocolHandler created for %r", protocol)
-
-            self.connection = self.application.new_connection(protocol, self, self.application_context, session)
+            self.receiver = Receiver()
+            self.connection = self.application.new_connection(self, session)
             log.info("ServerConnection created")
 
         except ProtocolError as e:
@@ -231,7 +221,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             raise e
 
         assert self.connection is not None
-        msg = self.connection.protocol.create('ACK')
+        msg = ack()
         await self.send_message(msg)
 
         return None
@@ -263,27 +253,20 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             parsed_message = None
 
         try:
-            if parsed_message:
+            if parsed_message is not None:
                 if _message_test_port is not None:
                     _message_test_port.received.append(parsed_message)
-                work = await self._handle(parsed_message)
-                if work:
-                    await self._schedule(work)
+                assert self.connection is not None
+                reply = await self.connection.handle(parsed_message)
+                if reply is not None:
+                    await self.send_message(reply)
+        except ProtocolError as e:
+            self._protocol_error(str(e))
         except Exception as e:
-            log.error("Handler or its work threw an exception: %r: %r", e, parsed_message, exc_info=True)
+            log.error("Handler threw an exception: %r: %r", e, parsed_message, exc_info=True)
             self._internal_error("server failed to handle a message")
 
         return None
-
-    def on_pong(self, data: bytes) -> None:
-        # if we get an invalid integer or utf-8 back, either we
-        # sent a buggy ping or the client is evil/broken.
-        try:
-            self.latest_pong = int(data.decode("utf-8"))
-        except UnicodeDecodeError:
-            log.trace("received invalid unicode in pong %r", data, exc_info=True) # type: ignore[attr-defined]
-        except ValueError:
-            log.trace("received invalid integer in pong %r", data, exc_info=True) # type: ignore[attr-defined]
 
     async def send_message(self, message: Message[Any]) -> None:
         ''' Send a Bokeh Server protocol message to the connected client.
@@ -295,23 +278,13 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         try:
             if _message_test_port is not None:
                 _message_test_port.sent.append(message)
-            await message.send(self)
+            with await self.write_lock.acquire():
+                for fragment, binary in message.fragments():
+                    await super().write_message(fragment, binary)
         except WebSocketClosedError:
             # on_close() is / will be called anyway
             log.warning("Failed sending message as connection was closed")
         return None
-
-    async def write_message(self, message: bytes | str | dict[str, Any], # type: ignore[override]
-            binary: bool = False, locked: bool = True) -> None:
-        ''' Override parent write_message with a version that acquires a
-        write lock before writing.
-
-        '''
-        if locked:
-            with await self.write_lock.acquire():
-                await super().write_message(message, binary)
-        else:
-            await super().write_message(message, binary)
 
     def on_close(self) -> None:
         ''' Clean up when the connection is closed.
@@ -326,38 +299,19 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         # Receive fragments until a complete message is assembled
         try:
             assert self.receiver is not None
-            message = await self.receiver.consume(fragment)
+            message = self.receiver.consume(fragment)
             return message
-        except (MessageError, ProtocolError, ValidationError) as e:
+        except ProtocolError as e:
             self._protocol_error(str(e))
             return None
 
-    async def _handle(self, message: Message[Any]) -> Any | None:
-        # Handle the message, possibly resulting in work to do
-        try:
-            assert self.handler is not None
-            assert self.connection is not None
-            work = await self.handler.handle(message, self.connection)
-            return work
-        except (MessageError, ProtocolError, ValidationError) as e: # TODO (other exceptions?)
-            self._internal_error(str(e))
-            return None
-
-    async def _schedule(self, work: Any) -> None:
-        if isinstance(work, Message):
-            await self.send_message(work)
-        else:
-            self._internal_error(f"expected a Message not {work!r}")
-
-        return None
-
     def _internal_error(self, message: str) -> None:
         log.error("Bokeh Server internal error: %s, closing connection", message)
-        self.close(10000, message)
+        self.close(1011, message)
 
     def _protocol_error(self, message: str) -> None:
         log.error("Bokeh Server protocol error: %s, closing connection", message)
-        self.close(10001, message)
+        self.close(1002, message)
 
 #-----------------------------------------------------------------------------
 # Private API

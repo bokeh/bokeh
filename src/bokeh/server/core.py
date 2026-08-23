@@ -46,7 +46,6 @@ if TYPE_CHECKING:
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID, PathLike
     from ..document import Document
-    from ..protocol import Protocol
     from .request import RequestLike
     from .session import ServerSession
     from .transport import WebSocketTransport
@@ -54,7 +53,6 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 DEFAULT_CHECK_UNUSED_MS = 17_000
-DEFAULT_KEEP_ALIVE_MS = 37_000
 DEFAULT_STATS_LOG_FREQ_MS = 15_000
 DEFAULT_UNUSED_LIFETIME_MS = 15_000
 DEFAULT_SESSION_TOKEN_EXPIRATION = 300
@@ -181,7 +179,6 @@ class BokehServerCore(SessionConfig):
         secret_key: bytes | None = settings.secret_key_bytes(),
         sign_sessions: bool = settings.sign_sessions(),
         generate_session_ids: bool = True,
-        keep_alive_milliseconds: int = DEFAULT_KEEP_ALIVE_MS,
         check_unused_sessions_milliseconds: int = DEFAULT_CHECK_UNUSED_MS,
         unused_session_lifetime_milliseconds: int = DEFAULT_UNUSED_LIFETIME_MS,
         stats_log_frequency_milliseconds: int = DEFAULT_STATS_LOG_FREQ_MS,
@@ -225,8 +222,6 @@ class BokehServerCore(SessionConfig):
                 app.add(DocumentLifecycleHandler())
             normalized[url] = app
 
-        if keep_alive_milliseconds < 0:
-            raise ValueError("keep_alive_milliseconds must be >= 0")
         if check_unused_sessions_milliseconds <= 0:
             raise ValueError("check_unused_sessions_milliseconds must be > 0")
         if unused_session_lifetime_milliseconds <= 0:
@@ -252,7 +247,6 @@ class BokehServerCore(SessionConfig):
         self._exclude_headers = exclude_headers
         self._include_cookies = include_cookies
         self._exclude_cookies = exclude_cookies
-        self._keep_alive_milliseconds = keep_alive_milliseconds
         self._check_unused_sessions_milliseconds = check_unused_sessions_milliseconds
         self._unused_session_lifetime_milliseconds = unused_session_lifetime_milliseconds
         self._stats_log_frequency_milliseconds = stats_log_frequency_milliseconds
@@ -340,8 +334,6 @@ class BokehServerCore(SessionConfig):
             _AsyncPeriodic(self._log_stats, self._stats_log_frequency_milliseconds, self._loop),
             _AsyncPeriodic(self._cleanup_sessions, self._check_unused_sessions_milliseconds, self._loop),
         ]
-        if self._keep_alive_milliseconds:
-            self._jobs.append(_AsyncPeriodic(self._keep_alive, self._keep_alive_milliseconds, self._loop))
         for job in self._jobs:
             job.start()
         for context in self._applications.values():
@@ -430,10 +422,9 @@ class BokehServerCore(SessionConfig):
         self._require_running()
         return await context.create_session_if_needed(session_id, request, token)
 
-    def new_connection(self, protocol: Protocol, transport: WebSocketTransport,
-            application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
+    def new_connection(self, transport: WebSocketTransport, session: ServerSession) -> ServerConnection:
         self._require_running()
-        connection = ServerConnection(protocol, transport, application_context, session)
+        connection = ServerConnection(transport, session)
         self._clients.add(connection)
         return connection
 
@@ -494,7 +485,3 @@ class BokehServerCore(SessionConfig):
                 sessions = list(context.sessions)
                 unused = sum(session.connection_count == 0 for session in sessions)
                 log.debug("%s has %d sessions with %d unused", path, len(sessions), unused)
-
-    def _keep_alive(self) -> None:
-        for connection in list(self._clients):
-            connection.send_ping()

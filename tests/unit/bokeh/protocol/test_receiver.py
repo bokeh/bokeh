@@ -5,146 +5,99 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
 import pytest ; pytest
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
+# Standard library imports
+import json
 
 # Bokeh imports
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
-from bokeh.protocol import Protocol
-from bokeh.protocol.exceptions import ValidationError
+from bokeh.protocol import ack
+from bokeh.protocol.exceptions import ProtocolError, ValidationError
 
-# Module under test
 from bokeh.protocol import receiver # isort:skip
 
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
 
-proto = Protocol()
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
+def envelope(*, buffers: list[str] | None = None) -> str:
+    return json.dumps({
+        "header": {"msgtype": "PATCH-DOC", "msgid": "10"},
+        "content": {"bar": 10},
+        "buffers": buffers or [],
+    })
 
 def test_creation() -> None:
-    receiver.Receiver(None)
+    receiver.Receiver()
 
-async def test_validation_success() -> None:
-    msg = proto.create('ACK')
-    r = receiver.Receiver(proto)
+def test_validation_success() -> None:
+    msg = ack()
 
-    partial = await r.consume(msg.header_json)
-    assert partial is None
+    complete = receiver.Receiver().consume(msg.envelope_json)
 
-    partial = await r.consume(msg.metadata_json)
-    assert partial is None
+    assert complete is not None
+    assert complete.msgtype == msg.msgtype
+    assert complete.header == msg.header
+    assert complete.content == msg.content
 
-    partial = await r.consume(msg.content_json)
-    assert partial is not None
-    assert partial.msgtype == msg.msgtype
-    assert partial.header == msg.header
-    assert partial.content == msg.content
-    assert partial.metadata == msg.metadata
+def test_validation_success_with_one_buffer() -> None:
+    r = receiver.Receiver()
 
-async def test_validation_success_with_one_buffer() -> None:
-    r = receiver.Receiver(proto)
+    assert r.consume(envelope(buffers=["buffer"])) is None
+    complete = r.consume(b"payload")
 
-    partial = await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
-    assert partial is None
+    assert complete is not None
+    assert complete.msgtype == "PATCH-DOC"
+    assert complete.header == {"msgtype": "PATCH-DOC", "msgid": "10"}
+    assert complete.content == {"bar": 10}
+    assert complete.buffers == [Buffer(ID("buffer"), b"payload")]
 
-    partial = await r.consume('{}')
-    assert partial is None
+def test_multiple_validation_success_with_multiple_buffers() -> None:
+    r = receiver.Receiver()
 
-    partial = await r.consume('{"bar": 10}')
-    assert partial is None
+    for count in range(10):
+        buffer_ids = [f"buffer-{index}" for index in range(count)]
+        complete = r.consume(envelope(buffers=buffer_ids))
+        for index in range(count):
+            complete = r.consume(f"payload-{index}".encode())
 
-    partial = await r.consume('{"id": "buf_header"}')
-    assert partial is None
+        assert complete is not None
+        assert complete.buffers == [
+            Buffer(ID(buffer_id), f"payload-{index}".encode())
+            for index, buffer_id in enumerate(buffer_ids)
+        ]
 
-    partial = await r.consume(b'payload')
-    assert partial is not None
-    assert partial.msgtype == "PATCH-DOC"
-    assert partial.header == {"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}
-    assert partial.content == {"bar":10}
-    assert partial.metadata == {}
-    assert partial.buffers == [Buffer(ID("buf_header"), b"payload")]
+def test_binary_envelope_raises_error() -> None:
+    with pytest.raises(ValidationError):
+        receiver.Receiver().consume(b"envelope")
 
-async def test_multiple_validation_success_with_multiple_buffers() -> None:
-    r = receiver.Receiver(proto)
-
-    for N in range(10):
-        partial = await r.consume(f'{{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":{N}}}')
-        partial = await r.consume('{}')
-        partial = await r.consume('{"bar": 10}')
-
-        for i in range(N):
-            partial = await r.consume(f'{{"id": "header{i}"}}')
-            partial = await r.consume(f'payload{i}'.encode())
-
-        assert partial is not None
-        assert partial.msgtype == "PATCH-DOC"
-        assert partial.header == {"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers": N}
-        assert partial.content == {"bar":10}
-        assert partial.metadata == {}
-        for i in range(N):
-            assert partial.buffers[i] == Buffer(ID(f"header{i}"), f"payload{i}".encode())
-
-async def test_binary_header_raises_error() -> None:
-    r = receiver.Receiver(proto)
+def test_text_payload_raises_error_and_resets() -> None:
+    r = receiver.Receiver()
+    r.consume(envelope(buffers=["buffer"]))
 
     with pytest.raises(ValidationError):
-        await r.consume(b'{"msgtype": "PATCH-DOC", "msgid": "10"}')
+        r.consume("payload")
 
-async def test_binary_metadata_raises_error() -> None:
-    r = receiver.Receiver(proto)
+    assert r.consume(ack().envelope_json) is not None
 
-    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
-    with pytest.raises(ValidationError):
-        await r.consume(b'metadata')
+@pytest.mark.parametrize("invalid", [
+    "not json",
+    "[]",
+    "{}",
+    '{"header": {}, "content": {}, "buffers": []}',
+    '{"header": {"msgtype": "NOPE", "msgid": "10"}, "content": {}, "buffers": []}',
+    '{"header": {"msgtype": "ACK", "msgid": ""}, "content": {}, "buffers": []}',
+    '{"header": {"msgtype": "ACK", "msgid": "10", "num_buffers": 1}, "content": {}, "buffers": []}',
+    '{"header": {"msgtype": "ACK", "msgid": "10"}, "content": [], "buffers": []}',
+    '{"header": {"msgtype": "ACK", "msgid": "10"}, "content": {}, "buffers": "one"}',
+    '{"header": {"msgtype": "ACK", "msgid": "10"}, "content": {}, "buffers": [""]}',
+    '{"header": {"msgtype": "ACK", "msgid": "10"}, "content": {}, "buffers": ["x", "x"]}',
+])
+def test_invalid_envelope_resets_receiver(invalid: str) -> None:
+    r = receiver.Receiver()
 
-async def test_binary_content_raises_error() -> None:
-    r = receiver.Receiver(proto)
+    with pytest.raises(ProtocolError):
+        r.consume(invalid)
 
-    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
-    await r.consume('metadata')
-    with pytest.raises(ValidationError):
-        await r.consume(b'content')
-
-async def test_binary_payload_header_raises_error() -> None:
-    r = receiver.Receiver(proto)
-
-    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
-    await r.consume('{}')
-    await r.consume('{}')
-    with pytest.raises(ValidationError):
-        await r.consume(b'{"id": "buf_header"}')
-async def test_text_payload_buffer_raises_error() -> None:
-    r = receiver.Receiver(proto)
-
-    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
-    await r.consume('{}')
-    await r.consume('{}')
-    await r.consume('{"id": "buf_header"}')
-    with pytest.raises(ValidationError):
-        await r.consume('buf_payload')
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+    assert r.consume(ack().envelope_json) is not None

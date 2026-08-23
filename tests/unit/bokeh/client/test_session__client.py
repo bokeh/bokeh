@@ -118,14 +118,6 @@ class Test_ClientSession:
         assert mock_force_roundtrip.call_args[0] == ()
         assert mock_force_roundtrip.call_args[1] == {}
 
-    @patch("bokeh.client.connection.ClientConnection.request_server_info")
-    def test_request_server_info(self, mock_request_server_info: MagicMock) -> None:
-        s = bcs.ClientSession()
-        s.request_server_info()
-        assert mock_request_server_info.call_count == 1
-        assert mock_request_server_info.call_args[0] == ()
-        assert mock_request_server_info.call_args[1] == {}
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

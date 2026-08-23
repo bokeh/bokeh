@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import logging
-import sys
-import time
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -109,7 +107,7 @@ class TestClientServer:
             session.connect()
             assert session.connected
             # send a bogus message using private fields
-            server.io_loop.add_callback(session._connection._socket.write_message, b"xx", binary=True)
+            server.io_loop.add_callback(session._connection._socket._socket.write_message, b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
             session._loop_until_closed()
@@ -336,64 +334,6 @@ class TestClientServer:
                 pull_session(session_id=ID("test__check_error_404"),
                                               url=url(server) + 'file_not_found',
                                               io_loop=server.io_loop)
-
-    def test_request_server_info(self, ManagedServerLoop: MSL) -> None:
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            session = ClientSession(session_id=ID("test_request_server_info"),
-                                    websocket_url=ws_url(server),
-                                    io_loop=server.io_loop)
-            session.connect()
-            assert session.connected
-            assert session.document is None
-
-            info = session.request_server_info()
-
-            from bokeh import __version__
-
-            assert info['version_info']['bokeh'] == __version__
-            assert info['version_info']['server'] == __version__
-
-            session.close()
-            session._loop_until_closed()
-            assert not session.connected
-
-    @pytest.mark.skipif(sys.platform == "win32", reason="uninmportant failure on win")
-    def test_ping(self, ManagedServerLoop: MSL) -> None:
-        application = Application()
-        with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
-            session = ClientSession(session_id=ID("test_ping"),
-                                    websocket_url=ws_url(server),
-                                    io_loop=server.io_loop)
-            session.connect()
-            assert session.connected
-            assert session.document is None
-
-            connection = next(iter(server._tornado._clients))
-
-            def wait_for_pong(pong: int) -> None:
-                # Websocket control frames may be processed after an application-level roundtrip.
-                deadline = time.monotonic() + 1
-                while time.monotonic() < deadline:
-                    session.force_roundtrip()
-                    if connection._socket.latest_pong == pong:
-                        return
-
-            expected_pong = connection._ping_count
-            server._tornado._keep_alive() # send ping
-            wait_for_pong(expected_pong)
-
-            assert expected_pong == connection._socket.latest_pong
-
-            # check that each ping increments by 1
-            server._tornado._keep_alive()
-            wait_for_pong(expected_pong + 1)
-
-            assert (expected_pong + 1) == connection._socket.latest_pong
-
-            session.close()
-            session._loop_until_closed()
-            assert not session.connected
 
     def test_client_changes_go_to_server(self, ManagedServerLoop: MSL) -> None:
         application = Application()
@@ -841,7 +781,7 @@ class TestClientServer:
         handler = FunctionHandler(setup_stuff)
         application.add(handler)
 
-        # keep_alive_milliseconds=1 sends pings as fast as the OS will let us
+        # Exercise the server with the shortest practical native ping interval.
         with ManagedServerLoop(application, keep_alive_milliseconds=1) as server:
             session = pull_session(session_id=ID("test_lots_of_concurrent_messages"),
                                    url=url(server),
