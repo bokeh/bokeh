@@ -16,10 +16,12 @@ import * as transforms from "./transforms.js"
 import {BuildError} from "./error.js"
 import type {Graph} from "./graph.js"
 import {detect_cycles} from "./graph.js"
+import type {SourceMap} from "./sourcemap.js"
+import {compose} from "./sourcemap.js"
 
 const root_path = process.cwd()
 
-const cache_version = 5
+const cache_version = 6
 
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
@@ -44,6 +46,8 @@ export type ModuleInfo = {
   changed: boolean
   type: ModuleType
   source: string
+  // maps `source` onto `file`, when `file` was itself generated from something
+  map?: SourceMap
   ast?: ts.SourceFile
   dependency_paths: Map<string, Path>
   dependency_map: Map<string, number>
@@ -54,7 +58,7 @@ export type ModuleInfo = {
 
 export type ModuleCode = {
   source: string
-  map?: string
+  map?: SourceMap
   min_source: string
   min_map?: string
 }
@@ -150,7 +154,16 @@ export class Bundle {
       sources += start
       line += newlines(start)
 
-      const source_with_sourcemap = minified ? artifact.code.min_source : artifact.code.source
+      // `combine` only follows a module's own map when it's inlined, and only
+      // then does the bundle's map resolve to `*.ts` rather than to this
+      // module's generated code.
+      const source_with_sourcemap = (() => {
+        const {source, map} = artifact.code
+        if (minified) {
+          return artifact.code.min_source
+        }
+        return map != null ? `${source}\n${convert.fromObject(map).toComment()}` : source
+      })()
       const source = combine.removeComments(source_with_sourcemap).trimEnd()
       sources += source
       const map_path = join("@@", relative(root_path, module.file))
@@ -378,11 +391,47 @@ export class Linker {
       return transformers
     }
 
-    const print = (module: ModuleInfo): string => {
-      let ast = module.ast ?? this.parse_module(module)
-      ast = transforms.apply(ast, ...transformers(module))
-      const source = transforms.print_es(ast)
-      return convert.removeMapFileComments(source)
+    // Note that this deliberately goes through `transpile()` rather than
+    // printing the transformed AST directly: `ts.Printer` emits no source map,
+    // which would sever the chain back to the module's original sources.
+    const print = async (module: ModuleInfo): Promise<{source: string, map?: SourceMap}> => {
+      const transform = {before: transformers(module), after: []}
+      const {map: to_file} = module
+
+      // `ts.transpileModule` keys off the file's extension, and `.mjs` forces ES
+      // module semantics no matter the `module` option: the emitter then appends
+      // `export {}` to preserve module-ness, having just seen `wrap_in_function`
+      // wrap the module's own import/export statements away. That trailing export
+      // is a syntax error once the module is spliced into a bundle. `.json`
+      // misleads it just as badly. By this point the source is plain CommonJS
+      // either way, so name it accordingly.
+      const file = rename(module.file, {ext: ".js"})
+      const {output, map, error} = transpile(file, module.source, this.script_target, transform, to_file != null)
+
+      if (error != null) {
+        throw new BuildError("linker", error)
+      }
+
+      return {source: output, map: await origin_map(module, map)}
+    }
+
+    // Walks the whole chain back to where the code was written by hand:
+    // bundled module -> `module.source` -> `module.file` -> `**/*.ts`. Each
+    // link is only as good as the one before it, so a break anywhere leaves the
+    // module unmapped rather than pointing at intermediate build output.
+    const origin_map = async (module: ModuleInfo, map: SourceMap | undefined): Promise<SourceMap | undefined> => {
+      const {file, map: to_file} = module
+      if (map == null || to_file == null) {
+        return undefined
+      }
+
+      const source = read(file)
+      const origin = source != null ? read_source_map(file, source) : undefined
+      if (origin == null) {
+        return undefined
+      }
+
+      return compose(await compose(map, to_file), origin)
     }
 
     const deps_changed = (module: ModuleInfo, cached: ModuleInfo): boolean => {
@@ -406,10 +455,10 @@ export class Linker {
 
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
-          const source = print(module)
+          const {source, map} = await print(module)
           const ecma = 2020 // the highest version supported by terser
           const minified = await minify(module, source, ecma)
-          code = {source, ...minified}
+          code = {source, map, ...minified}
         } else {
           code = cached!.code
         }
@@ -700,6 +749,14 @@ export class Linker {
     return transforms.parse_es(file, source)
   }
 
+  private get script_target(): ts.ScriptTarget {
+    const {ES2024, ES2022} = ts.ScriptTarget
+    switch (this.target) {
+      case "ES2024": return ES2024
+      case "ES2022": return ES2022
+    }
+  }
+
   new_module(file: Path): ModuleInfo {
     let source = read(file)
     if (source == null) {
@@ -819,6 +876,7 @@ export ${export_type} yaml;
     const cached = this.cache.get(file)
 
     let ast: ts.SourceFile | undefined
+    let source_map: SourceMap | undefined
     let dependency_paths: Map<string, Path>
     let externals: Set<string>
     let shims: Set<string>
@@ -827,13 +885,7 @@ export ${export_type} yaml;
     if (changed) {
       let collected: string[] | null = null
       if (resolution == "ESM" || type == "json") {
-        const {ES2024, ES2022} = ts.ScriptTarget
-        const target = (() => {
-          switch (this.target) {
-            case "ES2024": return ES2024
-            case "ES2022": return ES2022
-          }
-        })()
+        const target = this.script_target
         const imports = new Set<string>()
         if (canonical != "tslib") {
           imports.add("tslib")
@@ -846,11 +898,14 @@ export ${export_type} yaml;
 
         // XXX: .json or .mjs extension will cause an internal error
         const adjusted_file = type == "json" ? `${file}.ts` : (file.endsWith(".mjs") ? file.replace(/\.mjs$/, ".js") : file)
-        const {output, error} = transpile(adjusted_file, source, target, transform)
+        // Only worth mapping this transpilation if the module carries a map of
+        // its own to eventually chain onto; `print()` does the chaining.
+        const {output, map, error} = transpile(adjusted_file, source, target, transform, has_source_map(source))
         if (error != null) {
           throw new BuildError("linker", error)
         } else {
           source = output
+          source_map = map
           collected = [...imports]
         }
       }
@@ -879,6 +934,7 @@ export ${export_type} yaml;
       externals = cached.module.externals
       shims = cached.module.shims
       source = cached.module.source
+      source_map = cached.module.map
     }
 
     return {
@@ -891,6 +947,7 @@ export ${export_type} yaml;
       hash,
       changed,
       source,
+      map: source_map,
       ast,
       type,
       dependency_paths,
@@ -952,9 +1009,40 @@ export ${export_type} yaml;
   }
 }
 
+const source_map_comment = /\/\/[#@]\s*sourceMappingURL=/
+
+/** Whether a file claims to have a source map, without reading it. */
+function has_source_map(source: string): boolean {
+  return source_map_comment.test(source)
+}
+
+/**
+ * Reads the source map a file refers to, either inlined in its
+ * `sourceMappingURL` comment or from the map file that comment points at.
+ */
+function read_source_map(file: Path, source: string): SourceMap | undefined {
+  const converter = (() => {
+    try {
+      return convert.fromSource(source) ?? convert.fromMapFileSource(source, (name) => {
+        const map = read(join(dirname(file), name))
+        if (map == null) {
+          throw new BuildError("linker", `'${name}' referenced by '${file}' doesn't exist`)
+        }
+        return map
+      })
+    } catch {
+      // a missing or malformed map only costs debuggability, so don't fail the build over it
+      return null
+    }
+  })()
+
+  return converter?.toObject() as SourceMap | undefined
+}
+
 export function transpile(file: Path, source: string, target: ts.ScriptTarget,
-    transformers?: {before: Transformers, after: Transformers}): {output: string, error?: string} {
-  const {outputText: output, diagnostics} = ts.transpileModule(source, {
+    transformers?: {before: Transformers, after: Transformers},
+    source_map: boolean = false): {output: string, map?: SourceMap, error?: string} {
+  const {outputText, sourceMapText, diagnostics} = ts.transpileModule(source, {
     fileName: file,
     reportDiagnostics: true,
     compilerOptions: {
@@ -963,15 +1051,22 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
       esModuleInterop: true,
       importHelpers: true,
       downlevelIteration: true,
+      sourceMap: source_map,
     },
     transformers,
   })
 
+  // Drops both the comment referring to the input's own map and, when source
+  // maps were requested, the one the emitter appends for a file we never write.
+  // The map travels in-band instead.
+  const output = convert.removeMapFileComments(outputText)
+  const map = sourceMapText != null ? JSON.parse(sourceMapText) as SourceMap : undefined
+
   if (diagnostics == null || diagnostics.length == 0) {
-    return {output}
+    return {output, map}
   } else {
     const {text} = report_diagnostics(diagnostics)
-    return {output, error: text}
+    return {output, map, error: text}
   }
 }
 
