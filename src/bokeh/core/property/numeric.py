@@ -79,7 +79,7 @@ class Interval[T: int | float](SingleParameterizedProperty[T]):
     """ Accept numeric values that are contained within a given interval.
 
     Args:
-        interval_type (numeric property):
+        type_param (numeric property):
             numeric types for the range, e.g. ``Int``, ``Float``
 
         start (number) :

@@ -245,7 +245,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         to see what we got.
 
         Args:
-            fragment (unicode or bytes) : wire fragment to process
+            message (unicode or bytes) : wire message to process
 
         '''
 
