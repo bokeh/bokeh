@@ -229,7 +229,6 @@
           type: "map",
         },
         window_axis: "none",
-        hidpi: true,
         title: {
           type: "object",
           name: "Title",

@@ -8,7 +8,7 @@ export const exportable = Symbol("exportable")
 
 export interface Exportable {
   [exportable]: boolean
-  export(type?: "auto" | "png" | "svg", hidpi?: boolean): CanvasLayer
+  export(type?: "auto" | "png" | "svg"): CanvasLayer
   readonly bbox: BBox
 }
 
@@ -48,7 +48,7 @@ export class CanvasLayer {
 
   bbox: BBox = new BBox()
 
-  constructor(readonly backend: OutputBackend, readonly hidpi: boolean) {
+  constructor(readonly backend: OutputBackend) {
     switch (backend) {
       case "webgl":
       case "canvas": {
@@ -58,9 +58,7 @@ export class CanvasLayer {
           throw new Error("unable to obtain 2D rendering context")
         }
         this._ctx = ctx
-        if (hidpi) {
-          this._pixel_ratio = devicePixelRatio
-        }
+        this._pixel_ratio = devicePixelRatio
         break
       }
       case "svg": {
@@ -84,7 +82,7 @@ export class CanvasLayer {
   }
 
   get pixel_ratio_changed(): boolean {
-    if (this.hidpi && (this.backend == "canvas" || this.backend == "webgl")) {
+    if (this.backend == "canvas" || this.backend == "webgl") {
       return this.pixel_ratio != devicePixelRatio
     } else {
       return false
@@ -126,12 +124,10 @@ export class CanvasLayer {
   }
 
   prepare(): Context2d {
-    const {ctx, hidpi, pixel_ratio} = this
+    const {ctx, pixel_ratio} = this
     ctx.save()
-    if (hidpi) {
-      ctx.scale(pixel_ratio, pixel_ratio)
-      ctx.translate(0.5, 0.5)
-    }
+    ctx.scale(pixel_ratio, pixel_ratio)
+    ctx.translate(0.5, 0.5)
     this.clear()
     return ctx
   }

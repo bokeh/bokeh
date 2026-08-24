@@ -362,8 +362,8 @@ export class SizeBarView extends BaseBarView implements Exportable {
 
   [exportable] = true
 
-  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
-    return this._size_bar_view.export(type, hidpi)
+  export(type: "auto" | "png" | "svg" = "auto"): CanvasLayer {
+    return this._size_bar_view.export(type)
   }
 
   override get bbox(): BBox {

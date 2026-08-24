@@ -235,9 +235,9 @@ export abstract class UIElementView extends StyledElementView {
     this._apply_visible()
   }
 
-  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+  export(type: "auto" | "png" | "svg" = "auto"): CanvasLayer {
     const output_backend = type == "auto" || type == "png" ? "canvas" : "svg"
-    const canvas = new CanvasLayer(output_backend, hidpi)
+    const canvas = new CanvasLayer(output_backend)
     const {width, height} = this.bbox
     canvas.resize(width, height)
     return canvas

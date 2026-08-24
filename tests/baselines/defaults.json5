@@ -2387,7 +2387,6 @@
   },
   Canvas: {
     __extends__: "UIElement",
-    hidpi: true,
     output_backend: "canvas",
   },
   Comparison: {
@@ -5805,7 +5804,6 @@
       type: "map",
     },
     window_axis: "none",
-    hidpi: true,
     title: {
       type: "object",
       name: "Title",

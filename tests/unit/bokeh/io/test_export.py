@@ -117,6 +117,11 @@ def disable_max_image_pixels():
 # Dev API
 #-----------------------------------------------------------------------------
 
+def _assert_solid_region(image: PIL.Image.Image, box: tuple[int, int, int, int], pixel: bytes) -> None:
+    region = image.crop(box)
+    assert region.tobytes() == pixel*region.width*region.height
+
+
 # -- Selenium-backend tests ---------------------------------------------------
 
 @pytest.mark.selenium
@@ -131,19 +136,20 @@ def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   height=width, width=height,
                   min_border=border,
-                  hidpi=False,
                   toolbar_location=None,
                   outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
 
     with silenced(MISSING_RENDERERS):
         png = bie.get_screenshot_as_png(layout, driver=webdriver)
 
-    # a WxHpx image of white pixels
     assert png.size == (width, height)
 
     data = png.tobytes()
     assert len(data) == 4*width*height
-    assert data == b"\x00\xff\x00\xff"*width*height
+    # The HiDPI half-pixel transform antialiases the canvas and frame edges.
+    green_pixel = b"\x00\xff\x00\xff"
+    _assert_solid_region(png, (border + 1, border + 1, width - border, height - border), green_pixel)
+    assert png.getpixel((border//2, border//2)) == tuple(green_pixel)
 
 
 @pytest.mark.selenium
@@ -159,7 +165,6 @@ def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tupl
                   height=width, width=height,
                   toolbar_location=None,
                   min_border=border,
-                  hidpi=False,
                   outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
     glyph = Rect(x="x", y="y", width=2, height=2, fill_color="#ff0000", line_color="#ff0000")
     source = ColumnDataSource(data=dict(x=[0], y=[0]))
@@ -168,30 +173,13 @@ def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tupl
     png = bie.get_screenshot_as_png(layout, driver=webdriver)
     assert png.size == (width, height)
 
-    data = png.tobytes()
-    assert len(data) == 4*width*height
-
-    # The layout is a green border of width ``border`` surrounding a red
-    # center rectangle. Count pixels of each color to verify both the
-    # center fill (red) and the border (green) render as expected.
+    # The layout is a green border surrounding a red center rectangle. The
+    # HiDPI half-pixel transform antialiases their boundaries, so verify the
+    # solid interior and a border pixel instead of counting edge pixels.
     red_pixel = b"\xff\x00\x00\xff"
     green_pixel = b"\x00\xff\x00\xff"
-    red_count = 0
-    green_count = 0
-    for x in range(width*height):
-        pixel = data[x*4:x*4+4]
-        if pixel == red_pixel:
-            red_count += 1
-        elif pixel == green_pixel:
-            green_count += 1
-
-    w, h, b = width, height, border
-    # Red fills the inner rectangle of size (w-2b) x (h-2b).
-    expected_red = w*h - 2*b*(w + h) + 4*b**2
-    # Green fills the remaining border pixels.
-    expected_green = w*h - expected_red
-    assert red_count == expected_red
-    assert green_count == expected_green
+    _assert_solid_region(png, (border + 1, border + 1, width - border, height - border), red_pixel)
+    assert png.getpixel((border//2, border//2)) == tuple(green_pixel)
 
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_fractional_sizing__issue_12611(webdriver: WebDriver) -> None:
@@ -401,7 +389,6 @@ class TestPlaywrightPNG:
         layout = Plot(x_range=Range1d(), y_range=Range1d(),
                       height=width, width=height,
                       min_border=border,
-                      hidpi=False,
                       toolbar_location=None,
                       outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
 
@@ -411,7 +398,10 @@ class TestPlaywrightPNG:
         assert png.size == (width, height)
         data = png.tobytes()
         assert len(data) == 4*width*height
-        assert data == b"\x00\xff\x00\xff"*width*height
+        # The HiDPI half-pixel transform antialiases the canvas and frame edges.
+        green_pixel = b"\x00\xff\x00\xff"
+        _assert_solid_region(png, (border + 1, border + 1, width - border, height - border), green_pixel)
+        assert png.getpixel((border//2, border//2)) == tuple(green_pixel)
 
     def test_screenshot_with_glyph(self, browser: Browser) -> None:
         width, height = 144, 144
@@ -421,7 +411,6 @@ class TestPlaywrightPNG:
                       height=width, width=height,
                       toolbar_location=None,
                       min_border=border,
-                      hidpi=False,
                       outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
         glyph = Rect(x="x", y="y", width=2, height=2, fill_color="#ff0000", line_color="#ff0000")
         source = ColumnDataSource(data=dict(x=[0], y=[0]))
@@ -430,21 +419,13 @@ class TestPlaywrightPNG:
         png = bie.get_screenshot_as_png(layout, driver=browser)
         assert png.size == (width, height)
 
-        data = png.tobytes()
-
-        # The layout is a green border of width ``border`` surrounding a red
-        # center rectangle. Count pixels of each color to verify both the
-        # center fill (red) and the border (green) render as expected.
+        # The layout is a green border surrounding a red center rectangle. The
+        # HiDPI half-pixel transform antialiases their boundaries, so verify the
+        # solid interior and a border pixel instead of counting edge pixels.
         red_pixel = b"\xff\x00\x00\xff"
         green_pixel = b"\x00\xff\x00\xff"
-        red_count = sum(1 for x in range(width*height) if data[x*4:x*4+4] == red_pixel)
-        green_count = sum(1 for x in range(width*height) if data[x*4:x*4+4] == green_pixel)
-
-        w, h, b = width, height, border
-        expected_red = w*h - 2*b*(w + h) + 4*b**2
-        expected_green = w*h - expected_red
-        assert red_count == expected_red
-        assert green_count == expected_green
+        _assert_solid_region(png, (border + 1, border + 1, width - border, height - border), red_pixel)
+        assert png.getpixel((border//2, border//2)) == tuple(green_pixel)
 
     def test_screenshot_fractional_sizing(self, browser: Browser) -> None:
         div = Div(text="Something", styles=dict(width="100.64px", height="50.34px"))
