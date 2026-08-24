@@ -686,7 +686,7 @@ class PropertyDescriptor[T]:
         """ Unconditionally send a change event notification for the property.
 
         Args:
-            obj (HasProps)
+            obj (HasProps):
                 The object the property is being set on.
 
             old (obj) :
