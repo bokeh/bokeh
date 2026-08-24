@@ -425,9 +425,9 @@ class PropertyDescriptor[T]:
         """Sets the value of this property from a JSON value.
 
         Args:
-            obj: (HasProps) : instance to set the property value on
+            obj (HasProps) : instance to set the property value on
 
-            value: (JSON-value) : value to set to the attribute to
+            value (JSON-value) : value to set to the attribute to
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -686,13 +686,13 @@ class PropertyDescriptor[T]:
         """ Unconditionally send a change event notification for the property.
 
         Args:
-            obj (HasProps)
+            obj (HasProps):
                 The object the property is being set on.
 
             old (obj) :
                 The previous value of the property
 
-            new (obj) :
+            value (obj) :
                 The new value of the property
 
             hint (event hint or None, optional)
@@ -915,9 +915,9 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
         be handled.
 
         Args:
-            obj: (HasProps) : instance to set the property value on
+            obj (HasProps) : instance to set the property value on
 
-            json: (JSON-value) : value to set to the attribute to
+            value (JSON-value) : value to set to the attribute to
 
             models (dict or None, optional) :
                 Mapping of model ids to models (default: None)

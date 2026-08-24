@@ -224,7 +224,7 @@ class DataSpec(Either):
         property.
 
         Args:
-            base_name (str) : the name of the property these descriptors are for
+            name (str) : the name of the property these descriptors are for
 
         Returns:
             list[DataSpecPropertyDescriptor]
@@ -474,7 +474,7 @@ class UnitsSpec(NumberSpec):
         property as well as the associated units property are returned.
 
         Args:
-            base_name (str) : the name of the property these descriptors are for
+            name (str) : the name of the property these descriptors are for
 
         Returns:
             list[PropertyDescriptor]
