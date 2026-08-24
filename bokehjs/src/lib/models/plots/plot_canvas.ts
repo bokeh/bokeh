@@ -350,8 +350,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       toolbar.inner = toolbar_inner
     }
 
-    const {hidpi, output_backend} = this.model
-    this._canvas = new Canvas({hidpi, output_backend})
+    this._canvas = new Canvas({output_backend: this.model.output_backend})
 
     this._attribution = new Panel({
       position: new Node({target: "frame", symbol: "bottom_right"}),
@@ -1426,7 +1425,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+  override export(type: "auto" | "png" | "svg" = "auto"): CanvasLayer {
     const output_backend = (() => {
       switch (type) {
         case "auto": return this.canvas_view.model.output_backend
@@ -1435,7 +1434,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       }
     })()
 
-    const composite = new CanvasLayer(output_backend, hidpi)
+    const composite = new CanvasLayer(output_backend)
 
     const {width, height} = this.bbox
     composite.resize(width, height)
@@ -1450,7 +1449,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
       for (const view of this.renderer_views.values()) {
         if (is_Exportable(view)) {
-          const region = view.export(type, hidpi)
+          const region = view.export(type)
           const {x, y} = view.bbox.scale(composite.pixel_ratio)
           composite.ctx.drawImage(region.canvas, x, y)
         }
