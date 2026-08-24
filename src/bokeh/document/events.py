@@ -441,7 +441,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
             document (Document) :
                 A Bokeh document that is to be updated.
 
-            column_source (ColumnDataSource) :
+            model (ColumnDataSource) :
 
             cols (list[str]) :
                 optional explicit list of column names to update. If None, all
@@ -538,7 +538,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
             document (Document) :
                 A Bokeh document that is to be updated.
 
-            column_source (ColumnDataSource) :
+            model (ColumnDataSource) :
                 The data source to stream new data to.
 
             data (dict or DataFrame) :
@@ -647,7 +647,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
             document (Document) :
                 A Bokeh document that is to be updated.
 
-            column_source (ColumnDataSource) :
+            model (ColumnDataSource) :
                 The data source to apply patches to.
 
             patches (list) :
