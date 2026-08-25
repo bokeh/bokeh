@@ -578,7 +578,7 @@ describe("tile renderer", () => {
       y_axis_type: "mercator",
       renderers: [new TileRenderer({tile_source: osm_source()})],
     })
-    plot.scatter({field: "x"}, {field: "y"}, {source})
+    plot.scatter({type: "field", value: "x"}, {type: "field", value: "y"}, {source})
 
     const {view} = await display(plot)
 

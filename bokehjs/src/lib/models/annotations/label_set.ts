@@ -1,7 +1,6 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import {CoordinateUnits} from "core/enums"
 import {TextBox} from "core/graphics"
 import * as p from "core/properties"
 import type {FloatArray} from "core/types"
@@ -26,7 +25,7 @@ export class LabelSetView extends DataAnnotationView {
     const panel = this.layout != null ? this.layout : this.plot_view.frame
 
     this.sx = (() => {
-      switch (this.model.x_units) {
+      switch (this.model.properties.x.units) {
         case "canvas":
           return new ScreenArray(this._x)
         case "screen":
@@ -37,7 +36,7 @@ export class LabelSetView extends DataAnnotationView {
     })()
 
     this.sy = (() => {
-      switch (this.model.y_units) {
+      switch (this.model.properties.y.units) {
         case "canvas":
           return new ScreenArray(this._y)
         case "screen":
@@ -96,10 +95,8 @@ export namespace LabelSet {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataAnnotation.Props & {
-    x: p.XCoordinateSpec
-    y: p.YCoordinateSpec
-    x_units: p.Property<CoordinateUnits>
-    y_units: p.Property<CoordinateUnits>
+    x: p.XCoordinateUnitsSpec
+    y: p.YCoordinateUnitsSpec
     text: p.NullStringSpec
     angle: p.AngleSpec
     x_offset: p.NumberSpec
@@ -141,14 +138,12 @@ export class LabelSet extends DataAnnotation {
     ])
 
     this.define<LabelSet.Props>(() => ({
-      x:            [ p.XCoordinateSpec, {field: "x"} ],
-      y:            [ p.YCoordinateSpec, {field: "y"} ],
-      x_units:      [ CoordinateUnits, "data" ],
-      y_units:      [ CoordinateUnits, "data" ],
-      text:         [ p.NullStringSpec, {field: "text"} ],
+      x:            [ p.XCoordinateUnitsSpec, {type: "field", value: "x"} ],
+      y:            [ p.YCoordinateUnitsSpec, {type: "field", value: "y"} ],
+      text:         [ p.NullStringSpec, {type: "field", value: "text"} ],
       angle:        [ p.AngleSpec, 0 ],
-      x_offset:     [ p.NumberSpec, {value: 0} ],
-      y_offset:     [ p.NumberSpec, {value: 0} ],
+      x_offset:     [ p.NumberSpec, {type: "value", value: 0} ],
+      y_offset:     [ p.NumberSpec, {type: "value", value: 0} ],
     }))
 
     this.override<LabelSet.Props>({

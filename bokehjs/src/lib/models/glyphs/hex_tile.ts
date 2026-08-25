@@ -256,8 +256,8 @@ export class HexTile extends Glyph {
 
     this.mixins<HexTile.Mixins>([LineVector, FillVector, HatchVector])
     this.define<HexTile.Props>(({Float}) => ({
-      r:            [ p.NumberSpec, {field: "r"} ],
-      q:            [ p.NumberSpec, {field: "q"} ],
+      r:            [ p.NumberSpec, {type: "field", value: "r"} ],
+      q:            [ p.NumberSpec, {type: "field", value: "q"} ],
       scale:        [ p.NumberSpec, 1.0 ],
       size:         [ Float, 1.0 ],
       aspect_scale: [ Float, 1.0 ],

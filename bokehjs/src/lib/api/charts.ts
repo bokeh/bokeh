@@ -7,6 +7,7 @@ import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import {sprintf} from "core/util/templating"
 import type {Anchor, TooltipAttachment} from "core/enums"
+import {field} from "core/vectorization"
 
 import type {Range, Axis, Scale, TickFormatter} from "./models"
 import {
@@ -135,14 +136,14 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
   const g1 = new AnnularWedge({
     x: cx, y: cy,
     inner_radius, outer_radius,
-    start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
-    line_color: null, line_width: 1, fill_color: {field: "colors"},
+    start_angle: field("start_angles"), end_angle: field("end_angles"),
+    line_color: null, line_width: 1, fill_color: field("colors"),
   })
   const h1 = new AnnularWedge({
     x: cx, y: cy,
     inner_radius, outer_radius,
-    start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
-    line_color: null, line_width: 1, fill_color: {field: "colors"}, fill_alpha: 0.8,
+    start_angle: field("start_angles"), end_angle: field("end_angles"),
+    line_color: null, line_width: 1, fill_color: field("colors"), fill_alpha: 0.8,
   })
   const r1 = new GlyphRenderer({
     data_source: source,
@@ -151,11 +152,11 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
   })
 
   const g2 = new Text({
-    x: {field: "text_cx"}, y: {field: "text_cy"},
-    text: {field: opts.slice_labels ?? "labels"},
-    angle: {field: "text_angles"},
+    x: field("text_cx"), y: field("text_cy"),
+    text: field(opts.slice_labels ?? "labels"),
+    angle: field("text_angles"),
     text_align: "center", text_baseline: "middle",
-    text_color: {field: "text_colors"}, text_font_size: "12px",
+    text_color: field("text_colors"), text_font_size: "12px",
   })
   const r2 = new GlyphRenderer({
     data_source: source,
@@ -249,8 +250,8 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
       })
 
       const g1 = new Quad({
-        left: {field: "left"}, bottom: {field: "bottom"},
-        right: {field: "right"}, top: {field: "top"},
+        left: field("left"), bottom: field("bottom"),
+        right: field("right"), top: field("top"),
         line_color: null, fill_color: palette[i % palette.length],
       })
       const r1 = new GlyphRenderer({data_source: source, glyph: g1})
@@ -286,8 +287,8 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
       })
 
       const g1 = new Quad({
-        left: {field: "left"}, bottom: {field: "bottom"},
-        right: {field: "right"}, top: {field: "top"},
+        left: field("left"), bottom: field("bottom"),
+        right: field("right"), top: field("top"),
         line_color: null, fill_color: palette[i % palette.length],
       })
       const r1 = new GlyphRenderer({data_source: source, glyph: g1})

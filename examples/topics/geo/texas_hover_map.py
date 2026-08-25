@@ -10,7 +10,7 @@ demonstrates using a ``LogColorMapper`` and hover tool.
 '''
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
-from bokeh.plotting import figure, show
+from bokeh.plotting import field, figure, show
 from bokeh.sampledata.unemployment import data as unemployment
 from bokeh.sampledata.us_counties import data as counties
 
@@ -46,7 +46,7 @@ p.grid.grid_line_color = None
 p.hover.point_policy = "follow_mouse"
 
 p.patches('x', 'y', source=data,
-          fill_color={'field': 'rate', 'transform': color_mapper},
+          fill_color=field('rate', transform=color_mapper),
           fill_alpha=0.7, line_color="white", line_width=0.5)
 
 show(p)

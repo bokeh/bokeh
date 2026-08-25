@@ -52,10 +52,10 @@ export class Quad extends LRTB {
     this.prototype.default_view = QuadView
 
     this.define<Quad.Props>(({}) => ({
-      right:  [ p.XCoordinateSpec, {field: "right"} ],
-      bottom: [ p.YCoordinateSpec, {field: "bottom"} ],
-      left:   [ p.XCoordinateSpec, {field: "left"} ],
-      top:    [ p.YCoordinateSpec, {field: "top"} ],
+      right:  [ p.XCoordinateSpec, {type: "field", value: "right"} ],
+      bottom: [ p.YCoordinateSpec, {type: "field", value: "bottom"} ],
+      left:   [ p.XCoordinateSpec, {type: "field", value: "left"} ],
+      top:    [ p.YCoordinateSpec, {type: "field", value: "top"} ],
     }))
   }
 }

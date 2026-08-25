@@ -38,8 +38,8 @@ export class PolyDrawToolView extends PolyToolView {
     const cds = renderer.data_source
     const data = dict(cds.data)
     const glyph = renderer.glyph
-    const xkey = isField(glyph.xs) ? glyph.xs.field : null
-    const ykey = isField(glyph.ys) ? glyph.ys.field : null
+    const xkey = isField(glyph.xs) ? glyph.xs.value : null
+    const ykey = isField(glyph.ys) ? glyph.ys.value : null
     if (mode == "new") {
       this._pop_glyphs(cds, this.model.num_objects)
       if (xkey != null) {
@@ -98,8 +98,8 @@ export class PolyDrawToolView extends PolyToolView {
     for (let i = 0; i < this.model.renderers.length; i++) {
       const renderer = this.model.renderers[i]
       const {glyph, data_source} = renderer
-      const xkey = isField(glyph.xs) ? glyph.xs.field : null
-      const ykey = isField(glyph.ys) ? glyph.ys.field : null
+      const xkey = isField(glyph.xs) ? glyph.xs.value : null
+      const ykey = isField(glyph.ys) ? glyph.ys.value : null
       if (xkey != null) {
         for (const array of data_source.get_array<number[]>(xkey)) {
           xs.push(...array)
@@ -141,8 +141,8 @@ export class PolyDrawToolView extends PolyToolView {
   _remove(): void {
     const renderer = this.model.renderers[0]
     const {glyph, data_source} = renderer
-    const xkey = isField(glyph.xs) ? glyph.xs.field : null
-    const ykey = isField(glyph.ys) ? glyph.ys.field : null
+    const xkey = isField(glyph.xs) ? glyph.xs.value : null
+    const ykey = isField(glyph.ys) ? glyph.ys.value : null
     const data = dict(data_source.data)
     if (xkey != null) {
       const column = data.get(xkey) ?? []
@@ -199,8 +199,8 @@ export class PolyDrawToolView extends PolyToolView {
 
       const cds = renderer.data_source
       const {glyph} = renderer
-      const xkey = isField(glyph.xs) ? glyph.xs.field : null
-      const ykey = isField(glyph.ys) ? glyph.ys.field : null
+      const xkey = isField(glyph.xs) ? glyph.xs.value : null
+      const ykey = isField(glyph.ys) ? glyph.ys.value : null
       if (xkey == null && ykey == null) {
         continue
       }

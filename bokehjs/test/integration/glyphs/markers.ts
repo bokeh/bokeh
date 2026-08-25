@@ -5,6 +5,7 @@ import type {HatchPattern} from "@bokehjs/core/property_mixins"
 import type {LineJoin} from "@bokehjs/core/enums"
 import {MarkerType, OutputBackend} from "@bokehjs/core/enums"
 import {Random} from "@bokehjs/core/util/random"
+import {radians} from "@bokehjs/core/util/math"
 
 describe("Marker glyph", () => {
   const random = new Random(1)
@@ -44,8 +45,7 @@ describe("Marker glyph", () => {
 
       for (const marker of MarkerType) {
         p.scatter(X, Y(), {
-          angle: [0, 30, 45, 60, 90],
-          angle_units: "deg",
+          angle: [0, 30, 45, 60, 90].map(radians),
           size: 12,
           marker,
           line_color: "navy",

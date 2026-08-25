@@ -164,7 +164,7 @@ export class VSpan extends Glyph {
     this.mixins<VSpan.Mixins>([LineVector])
 
     this.define<VSpan.Props>(() => ({
-      x: [ p.XCoordinateSpec, {field: "x"} ],
+      x: [ p.XCoordinateSpec, {type: "field", value: "x"} ],
     }))
   }
 }

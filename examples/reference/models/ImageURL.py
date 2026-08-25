@@ -2,6 +2,7 @@ import numpy as np
 
 from bokeh.io import curdoc, show
 from bokeh.models import ColumnDataSource, Grid, ImageURL, LinearAxis, Plot, Range1d
+from bokeh.plotting import value
 
 url = "https://static.bokeh.org/logos/logo.png"
 N = 5
@@ -29,7 +30,7 @@ plot.add_glyph(source, image1)
 image2 = ImageURL(url="url", x="x2", y="y2", w=20, h=20, anchor="top_left")
 plot.add_glyph(source, image2)
 
-image3 = ImageURL(url=dict(value=url), x=200, y=-100, anchor="bottom_right")
+image3 = ImageURL(url=value(url), x=200, y=-100, anchor="bottom_right")
 plot.add_glyph(source, image3)
 
 xaxis = LinearAxis()

@@ -7,7 +7,7 @@ export namespace PolarTransform {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = CoordinateTransform.Props & {
-    radius: p.DistanceSpec
+    radius: p.NumberSpec
     angle: p.AngleSpec
     direction: p.Property<Direction>
   }
@@ -24,8 +24,8 @@ export class PolarTransform extends CoordinateTransform {
 
   static {
     this.define<PolarTransform.Props>(({}) => ({
-      radius: [ p.DistanceSpec, {field: "radius"} ],
-      angle: [ p.AngleSpec, {field: "angle"} ],
+      radius: [ p.NumberSpec, {type: "field", value: "radius"} ],
+      angle: [ p.AngleSpec, {type: "field", value: "angle"} ],
       direction: [ Direction, "anticlock" ],
     }))
   }

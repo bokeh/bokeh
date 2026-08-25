@@ -116,10 +116,10 @@ export class Block extends LRTB {
     this.prototype.default_view = BlockView
 
     this.define<Block.Props>(({}) => ({
-      x:      [ p.XCoordinateSpec, {field: "x"} ],
-      y:      [ p.YCoordinateSpec, {field: "y"} ],
-      width:  [ p.DistanceSpec,    {value: 1}   ],
-      height: [ p.DistanceSpec,    {value: 1}   ],
+      x:      [ p.XCoordinateSpec, {type: "field", value: "x"} ],
+      y:      [ p.YCoordinateSpec, {type: "field", value: "y"} ],
+      width:  [ p.DistanceSpec,    {type: "value", value: 1}   ],
+      height: [ p.DistanceSpec,    {type: "value", value: 1}   ],
     }))
   }
 }

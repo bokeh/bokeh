@@ -65,23 +65,23 @@ class Test_cumsum:
     def test_basic(object) -> None:
         val = bt.cumsum("foo")
         assert isinstance(val, Expr)
-        assert isinstance(val.expr, CumSum)
-        assert val.expr.field == 'foo'
-        assert val.expr.include_zero is False
+        assert isinstance(val.value, CumSum)
+        assert val.value.field == 'foo'
+        assert val.value.include_zero is False
 
     def test_include_zero(object) -> None:
         val = bt.cumsum("foo", include_zero=True)
         assert isinstance(val, Expr)
-        assert isinstance(val.expr, CumSum)
-        assert val.expr.field == 'foo'
-        assert val.expr.include_zero is True
+        assert isinstance(val.value, CumSum)
+        assert val.value.field == 'foo'
+        assert val.value.include_zero is True
 
 
 class Test_dodge:
     def test_basic(self) -> None:
         t = bt.dodge("foo", 0.5)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, Dodge)
         assert t.transform.value == 0.5
         assert t.transform.range is None
@@ -90,7 +90,7 @@ class Test_dodge:
         r = FactorRange("a")
         t = bt.dodge("foo", 0.5, range=r)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, Dodge)
         assert t.transform.value == 0.5
         assert t.transform.range is r
@@ -101,7 +101,7 @@ class Test_eqhist_cmap:
     def test_basic(self) -> None:
         t = bt.eqhist_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, EqHistColorMapper)
         assert t.transform.palette == ["red", "green"]
         assert t.transform.low == 0
@@ -113,7 +113,7 @@ class Test_eqhist_cmap:
     def test_defaults(self) -> None:
         t = bt.eqhist_cmap("foo", ["red", "green"], 0, 10)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, EqHistColorMapper)
         assert t.transform.palette == ["red", "green"]
         assert t.transform.low == 0
@@ -127,7 +127,7 @@ class Test_factor_cmap:
     def test_basic(self) -> None:
         t = bt.factor_cmap("foo", ["red", "green"], ["foo", "bar"], start=1, end=2, nan_color="pink")
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, CategoricalColorMapper)
         assert t.transform.palette == ["red", "green"]
         assert t.transform.factors == ["foo", "bar"]
@@ -138,7 +138,7 @@ class Test_factor_cmap:
     def test_defaults(self) -> None:
         t = bt.factor_cmap("foo", ["red", "green"], ["foo", "bar"])
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, CategoricalColorMapper)
         assert t.transform.palette == ["red", "green"]
         assert t.transform.factors == ["foo", "bar"]
@@ -151,7 +151,7 @@ class Test_factor_hatch:
     def test_basic(self) -> None:
         t = bt.factor_hatch("foo", ["+", "-"], ["foo", "bar"], start=1, end=2)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, CategoricalPatternMapper)
         assert t.transform.patterns == ["+", "-"]
         assert t.transform.factors == ["foo", "bar"]
@@ -161,7 +161,7 @@ class Test_factor_hatch:
     def test_defaults(self) -> None:
         t = bt.factor_hatch("foo", ["+", "-"], ["foo", "bar"])
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, CategoricalPatternMapper)
         assert t.transform.patterns == ["+", "-"]
         assert t.transform.factors == ["foo", "bar"]
@@ -173,7 +173,7 @@ class Test_factor_mark:
     def test_basic(self) -> None:
         t = bt.factor_mark("foo", ["hex", "square"], ["foo", "bar"], start=1, end=2)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, CategoricalMarkerMapper)
         assert t.transform.markers == ["hex", "square"]
         assert t.transform.factors == ["foo", "bar"]
@@ -183,7 +183,7 @@ class Test_factor_mark:
     def test_defaults(self) -> None:
         t = bt.factor_mark("foo", ["hex", "square"], ["foo", "bar"])
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, CategoricalMarkerMapper)
         assert t.transform.markers == ["hex", "square"]
         assert t.transform.factors == ["foo", "bar"]
@@ -195,7 +195,7 @@ class Test_jitter:
     def test_basic(self) -> None:
         t = bt.jitter("foo", width=0.5, mean=0.1, distribution="normal")
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, Jitter)
         assert t.transform.width == 0.5
         assert t.transform.mean == 0.1
@@ -205,7 +205,7 @@ class Test_jitter:
     def test_defaults(self) -> None:
         t = bt.jitter("foo", width=0.5)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, Jitter)
         assert t.transform.width == 0.5
         assert t.transform.mean == 0
@@ -216,7 +216,7 @@ class Test_jitter:
         r = FactorRange("a")
         t = bt.jitter("foo", width=0.5, mean=0.1, range=r)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, Jitter)
         assert t.transform.width == 0.5
         assert t.transform.mean == 0.1
@@ -229,7 +229,7 @@ class Test_linear_cmap:
     def test_basic(self) -> None:
         t = bt.linear_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, LinearColorMapper)
         assert t.transform.palette == ["red", "green"]
         assert t.transform.low == 0
@@ -241,7 +241,7 @@ class Test_linear_cmap:
     def test_defaults(self) -> None:
         t = bt.linear_cmap("foo", ["red", "green"], 0, 10)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, LinearColorMapper)
         assert t.transform.palette == ["red", "green"]
         assert t.transform.low == 0
@@ -255,7 +255,7 @@ class Test_log_cmap:
     def test_basic(self) -> None:
         t = bt.log_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, LogColorMapper)
         assert t.transform.palette == ["red", "green"]
         assert t.transform.low == 0
@@ -267,7 +267,7 @@ class Test_log_cmap:
     def test_defaults(self) -> None:
         t = bt.log_cmap("foo", ["red", "green"], 0, 10)
         assert isinstance(t, Field)
-        assert t.field == "foo"
+        assert t.value == "foo"
         assert isinstance(t.transform, LogColorMapper)
         assert t.transform.palette == ["red", "green"]
         assert t.transform.low == 0
@@ -281,15 +281,15 @@ class Test_stack:
     def test_basic(self) -> None:
         val = bt.stack("foo", "baz")
         assert isinstance(val, Expr)
-        assert isinstance(val.expr, Stack)
-        assert val.expr.fields == ('foo', 'baz')
+        assert isinstance(val.value, Stack)
+        assert val.value.fields == ('foo', 'baz')
 
 
 class Test_transform:
     def test_basic(self) -> None:
         dodge = Dodge()
         t = bt.transform("foo", dodge)
-        assert t == Field(field="foo", transform=dodge)
+        assert t == Field(value="foo", transform=dodge)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -31,8 +31,8 @@ export class PolyEditToolView extends PolyToolView {
     const point_cds = this.model.vertex_renderer.data_source
     // Type once dataspecs are typed
     const point_glyph = this.model.vertex_renderer.glyph
-    const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
-    const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
+    const pxkey = isField(point_glyph.x) ? point_glyph.x.value : null
+    const pykey = isField(point_glyph.y) ? point_glyph.y.value : null
     if (vertex_selected.length != 0 && this._selected_renderer != null) {
       // Insert a new point after the selected vertex and enter draw mode
       const index = point_cds.selected.indices[0]
@@ -86,8 +86,8 @@ export class PolyEditToolView extends PolyToolView {
 
   _update_vertices(renderer: GlyphRenderer<XsYsGlyph>): void {
     const {glyph} = renderer
-    const xkey = isField(glyph.xs) ? glyph.xs.field : null
-    const ykey = isField(glyph.ys) ? glyph.ys.field : null
+    const xkey = isField(glyph.xs) ? glyph.xs.value : null
+    const ykey = isField(glyph.ys) ? glyph.ys.value : null
     const data = dict(renderer.data_source.data)
     const index = this._cur_index
 
@@ -142,8 +142,8 @@ export class PolyEditToolView extends PolyToolView {
       const indices = cds.selected.indices
       ;[x, y] = this._snap_to_vertex(ev, x, y)
       cds.selected.indices = indices
-      const xkey = isField(glyph.x) ? glyph.x.field : null
-      const ykey = isField(glyph.y) ? glyph.y.field : null
+      const xkey = isField(glyph.x) ? glyph.x.value : null
+      const ykey = isField(glyph.y) ? glyph.y.value : null
       const index = indices[0]
       if (xkey != null) {
         data.get(xkey)![index] = x
@@ -169,8 +169,8 @@ export class PolyEditToolView extends PolyToolView {
       const cds = renderer.data_source
       // Type once dataspecs are typed
       const {glyph} = renderer
-      const xkey = isField(glyph.x) ? glyph.x.field : null
-      const ykey = isField(glyph.y) ? glyph.y.field : null
+      const xkey = isField(glyph.x) ? glyph.x.value : null
+      const ykey = isField(glyph.y) ? glyph.y.value : null
       const indices = cds.selected.indices
       ;[x, y] = this._snap_to_vertex(ev, x, y)
       const index = indices[0]
@@ -206,8 +206,8 @@ export class PolyEditToolView extends PolyToolView {
     }
     const {glyph, data_source} = renderer
     const index = data_source.selected.indices[0]
-    const xkey = isField(glyph.x) ? glyph.x.field : null
-    const ykey = isField(glyph.y) ? glyph.y.field : null
+    const xkey = isField(glyph.x) ? glyph.x.value : null
+    const ykey = isField(glyph.y) ? glyph.y.value : null
     if (xkey != null) {
       data_source.get_array(xkey).splice(index, 1)
     }

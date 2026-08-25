@@ -13,6 +13,7 @@ import {named_colors} from  "@bokehjs/core/util/svg_colors"
 import {Transform} from  "@bokehjs/models/transforms/transform"
 import {Expression} from  "@bokehjs/models/expressions/expression"
 import {BitSet} from "@bokehjs/core/util/bitset"
+import {expr, field, value} from "@bokehjs/core/vectorization"
 
 class TestTransform extends Transform {
   compute(x: number): number {
@@ -111,6 +112,17 @@ class Some extends HasProps {
 
 describe("properties module", () => {
 
+  describe("DataSpec helpers", () => {
+    it("should accept a transform as the second argument", () => {
+      const transform = new TestTransform()
+      const expression = new TestExpression()
+
+      expect(value(1, transform)).to.be.equal({type: "value", value: 1, transform})
+      expect(field("foo", transform)).to.be.equal({type: "field", value: "foo", transform})
+      expect(expr(expression, transform)).to.be.equal({type: "expr", value: expression, transform})
+    })
+  })
+
   describe("Property", () => {
     it("validate() should throw an instance of ValidationError", () => {
       const obj = new Some()
@@ -133,16 +145,16 @@ describe("properties module", () => {
   describe("isSpec", () => {
 
     it("should identify field specs", () => {
-      expect(p.isSpec({field: "foo"})).to.be.true
-      expect(p.isSpec({field: "field"})).to.be.true // check corner case
+      expect(p.isSpec(field("foo"))).to.be.true
+      expect(p.isSpec(field("field"))).to.be.true // check corner case
     })
 
     it("should identify value specs", () => {
-      expect(p.isSpec({value: "foo"})).to.be.true
+      expect(p.isSpec(value("foo"))).to.be.true
     })
 
     it("should identify expr specs", () => {
-      expect(p.isSpec({expr: "foo"})).to.be.true
+      expect(p.isSpec({type: "expr", value: "foo"})).to.be.true
     })
 
     it("should reject non-specs", () => {
@@ -154,10 +166,10 @@ describe("properties module", () => {
     })
 
     it("should reject bad specs", () => {
-      expect(p.isSpec({expr: "foo", value: "bar"})).to.be.false
-      expect(p.isSpec({expr: "foo", field: "bar"})).to.be.false
-      expect(p.isSpec({field: "foo", value: "bar"})).to.be.false
-      expect(p.isSpec({field: "foo", value: "bar", expr: "baz"})).to.be.false
+      expect(p.isSpec({type: "expr", value: "foo", extra: "bar"})).to.be.false
+      expect(p.isSpec({type: "other", value: "foo"})).to.be.false
+      expect(p.isSpec({type: "field"})).to.be.false
+      expect(p.isSpec({type: "field", value: "foo", units: "screen", extra: "bar"})).to.be.false
     })
   })
 
@@ -200,15 +212,15 @@ describe("properties module", () => {
       */
 
       it("should set a spec for object attr values", () => {
-        const obj0 = new Some({number_spec: {value: 0}})
-        expect(obj0.number_spec).to.be.equal({value: 0})
+        const obj0 = new Some({number_spec: value(0)})
+        expect(obj0.number_spec).to.be.equal(value(0))
 
-        const obj1 = new Some({number_spec: {field: "some_field"}})
-        expect(obj1.number_spec).to.be.equal({field: "some_field"})
+        const obj1 = new Some({number_spec: field("some_field")})
+        expect(obj1.number_spec).to.be.equal(field("some_field"))
 
-        const expr = new TestExpression()
-        const obj2 = new Some({number_spec: {expr}})
-        expect(obj2.number_spec).to.be.equal({expr})
+        const expression = new TestExpression()
+        const obj2 = new Some({number_spec: expr(expression)})
+        expect(obj2.number_spec).to.be.equal(expr(expression))
       })
 
       /*
@@ -261,7 +273,7 @@ describe("properties module", () => {
         const arr1 = p1.array(source)
         expect(arr1).to.be.equal(new Float64Array([1, 1, 1, 1, 1]))
 
-        const obj2 = new Some({number_spec: {value: 2}})
+        const obj2 = new Some({number_spec: value(2)})
         const p2 = obj2.properties.number_spec
         const arr2 = p2.array(source)
         expect(arr2).to.be.equal(new Float64Array([2, 2, 2, 2, 2]))
@@ -269,7 +281,7 @@ describe("properties module", () => {
 
       it("should return an array if there is a valid expr spec", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {expr: new TestExpression()}})
+        const obj = new Some({number_spec: expr(new TestExpression())})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 4]))
@@ -277,7 +289,7 @@ describe("properties module", () => {
 
       it("should return an array if there is a valid field spec", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {field: "foo"}})
+        const obj = new Some({number_spec: field("foo")})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
@@ -285,7 +297,7 @@ describe("properties module", () => {
 
       it("should return an array if there is a valid field spec named 'field'", () => {
         const source = new ColumnDataSource({data: {field: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {field: "field"}})
+        const obj = new Some({number_spec: field("field")})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
@@ -293,7 +305,7 @@ describe("properties module", () => {
 
       it("should throw an Error otherwise", () => {
         const source = new ColumnDataSource({data: {bar: [1, 2, 3]}})
-        const obj = new Some({number_spec: {field: "foo"}})
+        const obj = new Some({number_spec: field("foo")})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([NaN, NaN, NaN]))
@@ -301,7 +313,7 @@ describe("properties module", () => {
 
       it("should apply a spec transform to a field", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {field: "foo", transform: new TestTransform()}} as any) // XXX: transform
+        const obj = new Some({number_spec: field("foo", new TestTransform())})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 2, 4, 6, 14]))
@@ -309,7 +321,7 @@ describe("properties module", () => {
 
       it("should apply a spec transform to a value array", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = new Some({number_spec: {value: 2, transform: new TestTransform()}} as any) // XXX: transform
+        const obj = new Some({number_spec: value(2, new TestTransform())})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([2, 3, 4, 5, 6]))
@@ -317,20 +329,20 @@ describe("properties module", () => {
 
       describe("changing the property attribute value", () => {
         it("should trigger change on the property", () => {
-          const obj = new Some({string_spec: {value: "foo"}})
+          const obj = new Some({string_spec: value("foo")})
           const prop = obj.properties.string_spec
           const stuff = {called: false}
           prop.change.connect(() => stuff.called = true)
-          obj.string_spec = {value: "bar"}
+          obj.string_spec = value("bar")
           expect(stuff.called).to.be.true
         })
       })
 
       it("should update the spec", () => {
-        const obj = new Some({string_spec: {value: "foo"}})
+        const obj = new Some({string_spec: value("foo")})
         const prop = obj.properties.string_spec
-        obj.string_spec = {value: "bar"}
-        expect(prop.get_value()).to.be.equal({value: "bar"})
+        obj.string_spec = value("bar")
+        expect(prop.get_value()).to.be.equal(value("bar"))
       })
     })
   })
@@ -373,7 +385,7 @@ describe("properties module", () => {
   describe("AngleSpec", () => {
     describe("normalize", () => {
       it("should multiply radians by -1", () => {
-        const obj = new Some({angle_spec: {value: 10, units: "rad"}})
+        const obj = new Some({angle_spec: value(10, {units: "rad"})})
         const prop = obj.properties.angle_spec
         expect(prop.materialize(-10)).to.be.equal(10)
         expect(prop.materialize(0)).to.be.equal(-0)
@@ -383,7 +395,7 @@ describe("properties module", () => {
       })
 
       it("should convert degrees to -1 * radians", () => {
-        const obj = new Some({angle_spec: {value: 10, units: "deg"}})
+        const obj = new Some({angle_spec: value(10, {units: "deg"})})
         const prop = obj.properties.angle_spec
         expect(prop.materialize(-180)).to.be.equal(Math.PI)
         expect(prop.materialize(0)).to.be.equal(-0)
@@ -525,27 +537,72 @@ describe("properties module", () => {
 
     describe("units", () => {
       it("should default to data units", () => {
-        const obj = new Some({distance_spec: {value: 10}})
+        const obj = new Some({distance_spec: value(10)})
         const prop = obj.properties.distance_spec
         expect(prop.units).to.be.equal("data")
       })
 
       it("should accept screen units", () => {
-        const obj = new Some({distance_spec: {value: 10, units: "screen"}})
+        const obj = new Some({distance_spec: value(10, {units: "screen"})})
         const prop = obj.properties.distance_spec
         expect(prop.units).to.be.equal("screen")
       })
 
       it("should accept data units", () => {
-        const obj = new Some({distance_spec: {value: 10, units: "data"}})
+        const obj = new Some({distance_spec: value(10, {units: "data"})})
         const prop = obj.properties.distance_spec
         expect(prop.units).to.be.equal("data")
       })
 
       it("should throw an Error on bad units", () => {
         expect(() => {
-          new Some({distance_spec: {value: 10, units: "bad"}})
+          new Some({distance_spec: value(10, {units: "bad"}) as never})
         }).to.throw(Error, "units must be one of screen, data; got: bad")
+      })
+
+      it("should preserve units on bare assignment", () => {
+        const obj = new Some({distance_spec: field("radius", {units: "screen"})})
+        obj.distance_spec = 20
+        expect(obj.properties.distance_spec.get_value()).to.be.equal(value<number, enums.SpatialUnits>(20, {units: "screen"}))
+      })
+
+      it("should replace the complete spec on explicit assignment", () => {
+        const obj = new Some({distance_spec: field("radius", {units: "screen"})})
+        obj.distance_spec = value(20)
+        expect(obj.properties.distance_spec.get_value()).to.be.equal(value<number, enums.SpatialUnits>(20, {units: "data"}))
+      })
+
+      it("should notify on component mutation", () => {
+        const obj = new Some({distance_spec: 10})
+        let changes = 0
+        obj.properties.distance_spec.change.connect(() => changes++)
+
+        obj.properties.distance_spec.get_value().units = "screen"
+
+        expect(obj.properties.distance_spec.get_value()).to.be.equal(value<number, enums.SpatialUnits>(10, {units: "screen"}))
+        expect(changes).to.be.equal(1)
+      })
+
+      it("should roll back invalid component mutation", () => {
+        const obj = new Some({distance_spec: 10})
+        expect(() => Reflect.set(obj.properties.distance_spec.get_value(), "units", "bad")).to.throw(Error, /units must be one of/)
+        expect(obj.properties.distance_spec.get_value()).to.be.equal(value<number, enums.SpatialUnits>(10, {units: "data"}))
+      })
+
+      it("should reject discriminator mutation", () => {
+        const obj = new Some({distance_spec: 10})
+        expect(() => Reflect.set(obj.properties.distance_spec.get_value(), "type", "field")).to.throw(TypeError, /read-only/)
+      })
+
+      it("should reject deletion of the payload", () => {
+        const obj = new Some({distance_spec: 10})
+        expect(() => Reflect.deleteProperty(obj.properties.distance_spec.get_value(), "value")).to.throw(TypeError, /required/)
+      })
+
+      it("should reset deleted units to their default", () => {
+        const obj = new Some({distance_spec: value(10, {units: "screen"})})
+        Reflect.deleteProperty(obj.properties.distance_spec.get_value(), "units")
+        expect(obj.properties.distance_spec.get_value()).to.be.equal(value<number, enums.SpatialUnits>(10, {units: "data"}))
       })
     })
   })

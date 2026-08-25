@@ -55,9 +55,9 @@ the ``Circle`` glyph and its ``x`` attribute that is a ``NumberSpec``:
 
     c = Circle()
 
-    c.x = 10      # serializes to {'value': 10}
+    c.x = 10      # serializes to {'type': 'value', 'value': 10}
 
-    c.x = 'foo'   # serializes to {'field': 'foo'}
+    c.x = 'foo'   # serializes to {'type': 'field', 'value': 'foo'}
 
 There are many other examples like this throughout Bokeh. In this way users
 may operate simply and naturally, and not be concerned with the low-level
@@ -103,6 +103,7 @@ from typing import (
 
 # Bokeh imports
 from .singletons import Undefined
+from .vectorization import DataSpecValue
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 if TYPE_CHECKING:
@@ -125,7 +126,6 @@ class _HasTrigger(Protocol):
 
 class _DataSpecProperty(Protocol):
     value_type: Property[Any]
-    _units_enum: Any | None
 
     def to_serializable(self, obj: HasProps, name: str, val: Any) -> Any: ...
 
@@ -891,7 +891,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor[Any]):
 
 class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
     """ A ``PropertyDescriptor`` for Bokeh |DataSpec| properties that serialize to
-    field/value dictionaries.
+    discriminated records.
 
     """
 
@@ -902,8 +902,24 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         return cast(_DataSpecProperty, self.property).to_serializable(obj, self.name, getattr(obj, self.name))
 
     def __set__(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
-        value = self._extract_units(obj, value)
-        super().__set__(obj, value, setter=setter)
+        if not hasattr(obj, '_property_values'):
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
+
+        if self.property.readonly and obj._initialized:
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
+
+        old = self._get(obj)
+        explicit = isinstance(value, (DataSpecValue, dict))
+        value = self.property.prepare_value(obj, self.name, value)
+
+        if not explicit and isinstance(old, DataSpecValue):
+            value = copy(value)
+            object.__setattr__(value, "transform", old.transform)
+            object.__setattr__(value, "units", old.units)
+
+        self._set(obj, old, value, setter=setter)
 
     def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
         """ Sets the value of this property from a JSON value.
@@ -930,36 +946,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
             None
 
         """
-        value = self._extract_units(obj, value)
-
-        if isinstance(value, dict):
-            # we want to try to keep the "format" of the data spec as string, dict, or number,
-            # assuming the serialized dict is compatible with that.
-            old = getattr(obj, self.name)
-            if old is not None:
-                try:
-                    cast(_DataSpecProperty, self.property).value_type.validate(old, False)
-                    if 'value' in value:
-                        value = value['value']
-                except ValueError:
-                    if isinstance(old, str) and 'field' in value:
-                        value = value['field']
-                # leave it as a dict if 'old' was a dict
-
         super().set_from_json(obj, value, setter=setter)
-
-    def _extract_units(self, obj: HasProps, value: Any) -> Any:
-        property = cast(_DataSpecProperty, self.property)
-        if property._units_enum is None or not isinstance(value, dict) or "units" not in value:
-            return value
-
-        units_descriptor = obj.lookup(f"{self.name}_units")
-
-        value = copy(value)
-        units = value.pop("units")
-        if units:
-            units_descriptor.__set__(obj, units)
-        return value
 
 #-----------------------------------------------------------------------------
 # Private API

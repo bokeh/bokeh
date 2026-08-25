@@ -193,10 +193,10 @@ export class Segment extends Glyph {
     this.prototype.default_view = SegmentView
 
     this.define<Segment.Props>(({}) => ({
-      x0: [ p.XCoordinateSpec, {field: "x0"} ],
-      y0: [ p.YCoordinateSpec, {field: "y0"} ],
-      x1: [ p.XCoordinateSpec, {field: "x1"} ],
-      y1: [ p.YCoordinateSpec, {field: "y1"} ],
+      x0: [ p.XCoordinateSpec, {type: "field", value: "x0"} ],
+      y0: [ p.YCoordinateSpec, {type: "field", value: "y0"} ],
+      x1: [ p.XCoordinateSpec, {type: "field", value: "x1"} ],
+      y1: [ p.YCoordinateSpec, {type: "field", value: "y1"} ],
     }))
     this.mixins<Segment.Mixins>(LineVector)
   }

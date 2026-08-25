@@ -1,9 +1,7 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
-import type {CoordinateUnits} from "core/enums"
 import {Dimension} from "core/enums"
-import type {Dimensional} from "core/vectorization"
 import * as p from "core/properties"
 
 export abstract class UpperLowerView extends DataAnnotationView {
@@ -78,18 +76,11 @@ export abstract class UpperLowerView extends DataAnnotationView {
   }
 }
 
-export class XOrYCoordinateSpec extends p.CoordinateSpec {
+export class XOrYCoordinateSpec extends p.CoordinateUnitsSpec {
   declare readonly obj: UpperLower
-
-  protected override _value: Dimensional<this["__vector__"], CoordinateUnits> | p.Unset = p.unset
 
   get dimension(): "x" | "y" {
     return this.obj.dimension == "width" ? "x" : "y"
-  }
-
-  // XXX: a hack to make a coordinate & unit spec
-  get units(): CoordinateUnits {
-    return this._value === p.unset ? "data" : this._value.units ?? "data"
   }
 }
 
@@ -118,9 +109,9 @@ export class UpperLower extends DataAnnotation {
   static {
     this.define<UpperLower.Props>(() => ({
       dimension: [ Dimension, "height" ],
-      lower:     [ XOrYCoordinateSpec, {field: "lower"} ],
-      upper:     [ XOrYCoordinateSpec, {field: "upper"} ],
-      base:      [ XOrYCoordinateSpec, {field: "base"} ],
+      lower:     [ XOrYCoordinateSpec, {type: "field", value: "lower"} ],
+      upper:     [ XOrYCoordinateSpec, {type: "field", value: "upper"} ],
+      base:      [ XOrYCoordinateSpec, {type: "field", value: "base"} ],
     }))
   }
 }

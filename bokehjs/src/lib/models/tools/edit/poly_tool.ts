@@ -16,21 +16,21 @@ export abstract class PolyToolView extends EditToolView {
     assert(vertex_renderer != null)
     const point_glyph = vertex_renderer.glyph
     const point_cds = vertex_renderer.data_source
-    const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
-    const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
+    const pxkey = isField(point_glyph.x) ? point_glyph.x.value : null
+    const pykey = isField(point_glyph.y) ? point_glyph.y.value : null
     const data = dict(point_cds.data)
     if (pxkey != null) {
       if (isArray(xs)) {
         data.set(pxkey, xs)
       } else {
-        point_glyph.x = {value: xs}
+        point_glyph.x = {type: "value", value: xs}
       }
     }
     if (pykey != null) {
       if (isArray(ys)) {
         data.set(pykey, ys)
       } else {
-        point_glyph.y = {value: ys}
+        point_glyph.y = {type: "value", value: ys}
       }
     }
     this._emit_cds_changes(point_cds, true, true, false)
@@ -47,8 +47,8 @@ export abstract class PolyToolView extends EditToolView {
       const point_ds = this.model.vertex_renderer.data_source
       // Type once dataspecs are typed
       const point_glyph = this.model.vertex_renderer.glyph
-      const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
-      const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
+      const pxkey = isField(point_glyph.x) ? point_glyph.x.value : null
+      const pykey = isField(point_glyph.y) ? point_glyph.y.value : null
       if (vertex_selected.length != 0) {
         const index = point_ds.selected.indices[0]
         const data = dict(point_ds.data)

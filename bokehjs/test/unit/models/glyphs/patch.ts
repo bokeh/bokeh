@@ -17,8 +17,8 @@ describe("Patch", () => {
         y: [0, 0, 10, 10, NaN, 3, 7, 7, 3],
       }
       const glyph = new Patch({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -54,8 +54,8 @@ describe("Patch", () => {
         y: [0, 0, 20, 20, NaN, 3, 7, 7, 3, NaN, 13, 17, 17, 13],
       }
       const glyph = new Patch({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -91,8 +91,8 @@ describe("Patch", () => {
         y: [0, 0, 5, 5, NaN, 0, 0, 5, 5],
       }
       const glyph = new Patch({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {

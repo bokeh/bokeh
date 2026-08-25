@@ -25,36 +25,68 @@ export type Expression<T> = ScalarExpression<T> | VectorExpression<T>
 
 import type {Serializable} from "./serialization"
 
-export type Value<T> = Partial<Serializable> & {
+export type SpecType = "value" | "field" | "expr"
+
+export type SpecModifiers<T, Units = never> = {
+  transform?: Transform<unknown, T>
+  units?: Units
+}
+
+export type Value<T, Units = never> = Partial<Serializable> & SpecModifiers<T, Units> & {
+  readonly type: "value"
   value: T
 }
 
-export type Field = Partial<Serializable> & {
-  field: string
+export type Field<T = never, Units = never> = Partial<Serializable> & SpecModifiers<T, Units> & {
+  readonly type: "field"
+  value: string
 }
 
-export type Expr<T> = Partial<Serializable> & {
-  expr: Expression<T>
+export type Expr<T, Units = never> = Partial<Serializable> & SpecModifiers<T, Units> & {
+  readonly type: "expr"
+  value: Expression<T>
 }
 
-export type Scalar<T> = Value<T> & Transformed<T>
+export type Scalar<T, Units = never> = Value<T, Units> | Expr<T, Units>
 
-export type Vector<T> = (Value<T> | Field | Expr<T>) & Transformed<T>
+export type Vector<T, Units = never> = Value<T, Units> | Field<T, Units> | Expr<T, Units>
 
-export type Dimensional<T, U> = T & {units?: U}
+export type Transformed<T> = SpecModifiers<T>
 
-export type Transformed<T> = {
-  transform?: Transform<unknown, T>
+function is_transform(obj: object): boolean {
+  return "compute" in obj && "v_compute" in obj && "change" in obj
 }
 
-function is_of_type(obj: unknown, field: string): boolean {
+function spec_modifiers(arg: object): object {
+  return is_transform(arg) ? {transform: arg} : arg
+}
+
+export function value<T, In>(value: T, transform: Transform<In, T>): Value<T>
+export function value<T, Units = never>(value: T, modifiers?: SpecModifiers<T, Units>): Value<T, Units>
+export function value<T, Units = never>(value: T, arg: object = {}): Value<T, Units> {
+  return {type: "value", value, ...spec_modifiers(arg)}
+}
+
+export function field<In, T>(value: string, transform: Transform<In, T>): Field<T>
+export function field<T = never, Units = never>(value: string, modifiers?: SpecModifiers<T, Units>): Field<T, Units>
+export function field<T = never, Units = never>(value: string, arg: object = {}): Field<T, Units> {
+  return {type: "field", value, ...spec_modifiers(arg)}
+}
+
+export function expr<T, In>(value: Expression<T>, transform: Transform<In, T>): Expr<T>
+export function expr<T, Units = never>(value: Expression<T>, modifiers?: SpecModifiers<T, Units>): Expr<T, Units>
+export function expr<T, Units = never>(value: Expression<T>, arg: object = {}): Expr<T, Units> {
+  return {type: "expr", value, ...spec_modifiers(arg)}
+}
+
+function is_of_type(obj: unknown, type: SpecType): boolean {
   if (!isPlainObject(obj)) {
     return false
   }
-  if (!(field in obj)) {
+  if (obj.type != type || !("value" in obj)) {
     return false
   }
-  let n = size(obj) - 1
+  let n = size(obj) - 2
   if ("transform" in obj) {
     n -= 1
   }
@@ -76,6 +108,6 @@ export function isExpr<T>(obj: unknown): obj is Expr<T> {
   return is_of_type(obj, "expr")
 }
 
-export function isVectorized<T>(obj: unknown): obj is Vector<T> {
+export function isVectorized<T = unknown, Units = unknown>(obj: unknown): obj is Vector<T, Units> {
   return isValue(obj) || isField(obj) || isExpr(obj)
 }

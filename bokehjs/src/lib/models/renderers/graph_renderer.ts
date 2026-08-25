@@ -12,6 +12,7 @@ import type {Geometry} from "core/geometry"
 import type {HitTestResult} from "core/hittest"
 import type {Context2d} from "core/util/canvas"
 import type {SelectionManager} from "core/selection_manager"
+import {expr} from "core/vectorization"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
 import {Patches} from "../glyphs/patches"
@@ -57,11 +58,11 @@ export class GraphRendererView extends DataRendererView {
     const edge_coords = this.model.layout_provider.edge_coordinates
     const node_coords = this.model.layout_provider.node_coordinates
 
-    const xs = {expr: edge_coords.x}
-    const ys = {expr: edge_coords.y}
+    const xs = expr(edge_coords.x)
+    const ys = expr(edge_coords.y)
 
-    const x = {expr: node_coords.x}
-    const y = {expr: node_coords.y}
+    const x = expr(node_coords.x)
+    const y = expr(node_coords.y)
 
     const edge_glyphs = [
       edge_renderer.glyph,

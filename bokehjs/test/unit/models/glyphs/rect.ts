@@ -18,8 +18,8 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       stub = sinon.stub((RectView.prototype as any), "_bounds").callsFake((bounds) => bounds) // XXX: protected
 
       glyph = new Rect({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
       })
     })
 
@@ -54,10 +54,10 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
     it("should hit test rects against an index", async () => {
       const data = {x: [20, 40, 60], y: [10, 10, 50]}
       const glyph = new Rect({
-        x: {field: "x"},
-        y: {field: "y"},
-        width: {value: 10},
-        height: {value: 20},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
+        width: {type: "value", value: 10},
+        height: {type: "value", value: 20},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
@@ -85,10 +85,10 @@ describe("Rect", () => {
 
     before_each(() => {
       glyph = new Rect({
-        x: {field: "x"},
-        y: {field: "y"},
-        width: {value: 10},
-        height: {value: 20},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
+        width: {type: "value", value: 10},
+        height: {type: "value", value: 20},
       })
     })
 
@@ -155,10 +155,10 @@ describe("Rect", () => {
     /* XXX
     it("`_map_data` should map values for x0 and y1 with FactorRanges", async () => {
       const glyph = new Rect({
-        x: {field: "x"},
-        y: {field: "y"},
-        width: {value: 0.5},
-        height: {value: 0.5},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
+        width: {type: "value", value: 0.5},
+        height: {type: "value", value: 0.5},
       })
       const data = {x: ['a'], y: ['b']}
       const glyph_view = await create_glyph_view(glyph, data)
@@ -171,10 +171,10 @@ describe("Rect", () => {
 
     it("`_map_data` should map values for swidth and sheight when a height is 0", async () => {
       const glyph = new Rect({
-        x: {field: "x"},
-        y: {field: "y"},
-        width: {value: 10},
-        height: {field: "h"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
+        width: {type: "value", value: 10},
+        height: {type: "field", value: "h"},
       })
       const data = {x: [5], y: [5], h: [0]}
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
@@ -222,11 +222,11 @@ describe("Rect", () => {
 
         it("should work when rects are rotated", async () => {
           const glyph = new Rect({
-            x: {field: "x"},
-            y: {field: "y"},
-            width: {value: 10},
-            height: {value: 20},
-            angle: {value: -0.785398},
+            x: {type: "field", value: "x"},
+            y: {type: "field", value: "y"},
+            width: {type: "value", value: 10},
+            height: {type: "value", value: 20},
+            angle: {type: "value", value: -0.785398},
           })
 
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
@@ -244,11 +244,11 @@ describe("Rect", () => {
         /*
         it("should work when rects are rotated and axes ranges are very different", async () => {
           const glyph = new Rect({
-            x: {field: "x"},
-            y: {field: "y"},
-            width: {value: 10},
-            height: {value: 20},
-            angle: {value: -0.785398},
+            x: {type: "field", value: "x"},
+            y: {type: "field", value: "y"},
+            width: {type: "value", value: 10},
+            height: {type: "value", value: 20},
+            angle: {type: "value", value: -0.785398},
           })
 
           const data = {x: [60, 100, 140], y: [60, 100, 140]}

@@ -418,7 +418,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         this.connect(value.transform.change, () => this.transformchange.emit())
       }
       if (isExpr(value)) {
-        this.connect(value.expr.change, () => this.exprchange.emit())
+        this.connect(value.value.change, () => this.exprchange.emit())
       }
     }
   }

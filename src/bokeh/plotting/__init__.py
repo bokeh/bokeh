@@ -30,6 +30,8 @@ __all__ = (
     'curdoc',
     'DEFAULT_TOOLS',
     'Document',
+    'expr',
+    'field',
     'figure',
     'from_networkx',
     'gmap',
@@ -43,6 +45,7 @@ __all__ = (
     'Row',
     'save',
     'show',
+    'value',
 )
 
 #-----------------------------------------------------------------------------
@@ -64,6 +67,7 @@ from .graph import from_networkx
 
 # extra imports -- just things to add to 'from bokeh.plotting import'
 from ..document import Document
+from ..core.property.vectorization import expr, field, value
 
 from ..models import ColumnDataSource
 from ..models.layouts import Row, Column

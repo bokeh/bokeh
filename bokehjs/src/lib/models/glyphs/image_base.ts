@@ -314,9 +314,9 @@ export abstract class ImageBase extends XYGlyph {
   static {
     this.mixins<ImageBase.Mixins>(mixins.ImageVector)
     this.define<ImageBase.Props>(({Bool}) => ({
-      image:        [ p.NDArraySpec, {field: "image"} ],
-      dw:           [ p.DistanceSpec, {field: "dw"} ],
-      dh:           [ p.DistanceSpec, {field: "dh"} ],
+      image:        [ p.NDArraySpec, {type: "field", value: "image"} ],
+      dw:           [ p.DistanceSpec, {type: "field", value: "dw"} ],
+      dh:           [ p.DistanceSpec, {type: "field", value: "dh"} ],
       dilate:       [ Bool, false ],
       origin:       [ ImageOrigin, "bottom_left" ],
       anchor:       [ Anchor, "bottom_left" ],

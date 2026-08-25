@@ -230,12 +230,12 @@ export class Arrow extends DataAnnotation {
     this.mixins<Arrow.Mixins>(LineVector)
 
     this.define<Arrow.Props>(({Ref, Nullable}) => ({
-      x_start:     [ p.XCoordinateSpec, {field: "x_start"} ],
-      y_start:     [ p.YCoordinateSpec, {field: "y_start"} ],
+      x_start:     [ p.XCoordinateSpec, {type: "field", value: "x_start"} ],
+      y_start:     [ p.YCoordinateSpec, {type: "field", value: "y_start"} ],
       start_units: [ CoordinateUnits, "data" ],
       start:       [ Nullable(Ref(ArrowHead)), null ],
-      x_end:       [ p.XCoordinateSpec, {field: "x_end"} ],
-      y_end:       [ p.YCoordinateSpec, {field: "y_end"} ],
+      x_end:       [ p.XCoordinateSpec, {type: "field", value: "x_end"} ],
+      y_end:       [ p.YCoordinateSpec, {type: "field", value: "y_end"} ],
       end_units:   [ CoordinateUnits, "data" ],
       end:         [ Nullable(Ref(ArrowHead)), () => new OpenHead() ],
     }))

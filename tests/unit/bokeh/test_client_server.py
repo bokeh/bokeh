@@ -39,8 +39,9 @@ from bokeh.core.properties import (
     Int,
     Nullable,
     String,
+    field,
+    value,
 )
-from bokeh.core.property_aliases import AngleUnits, SpatialUnits
 from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
@@ -81,11 +82,7 @@ class DictModel(Model):
 
 class UnitsModel(Model):
     distance = DistanceSpec(42)
-
-    distance_units = SpatialUnits
     angle = AngleSpec(0)
-
-    angle_units = AngleUnits
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -937,8 +934,6 @@ def test_server_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Manage
         client_session._loop_until_closed()
         assert not client_session.connected
 
-# this test is because we do the funky get_value
-# tricks with the units specs
 def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -955,8 +950,8 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
         assert len(server_session.document.roots) == 1
         server_root = next(iter(server_session.document.roots))
 
-        assert client_root.distance == 42
-        assert server_root.angle == 0
+        assert client_root.distance == value(42, units="data")
+        assert server_root.angle == value(0, units="rad")
 
         def change_to(new_distance, new_angle):
             got_angry = {}
@@ -986,9 +981,9 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
             assert got_angry['result'] is None
 
         change_to(57, 1)
-        change_to({ 'value' : 58 }, { 'value' : 2 })
-        change_to({ 'field' : 'foo' }, { 'field' : 'bar' })
-        change_to({ 'value' : 59, 'units' : 'screen' }, { 'value' : 30, 'units' : 'deg' })
+        change_to(value(58), value(2))
+        change_to(field('foo'), field('bar'))
+        change_to(value(59, units='screen'), value(30, units='deg'))
 
         client_session.close()
         server.unlisten() # clean up so next test can run

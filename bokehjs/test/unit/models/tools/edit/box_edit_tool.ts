@@ -46,10 +46,10 @@ async function make_testcase(): Promise<BoxEditTestCase> {
   const data_source = new ColumnDataSource({data, default_values: {b: "d"}})
 
   const glyph = new Rect({
-    x: {field: "x"},
-    y: {field: "y"},
-    width: {field: "width"},
-    height: {field: "height"},
+    x: {type: "field", value: "x"},
+    y: {type: "field", value: "y"},
+    width: {type: "field", value: "width"},
+    height: {type: "field", value: "height"},
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})

@@ -140,7 +140,7 @@ export class Scatter extends Marker {
   static {
     this.prototype.default_view = ScatterView
     this.define<Scatter.Props>(({KeyVal, Or, Func, Ref}) => ({
-      marker: [ p.MarkerSpec, {value: "circle"} ],
+      marker: [ p.MarkerSpec, {type: "value", value: "circle"} ],
       defs: [ KeyVal(p.ExtMarkerType, Or(Func(), Ref(CustomJS)) as any), {} ],
     }))
   }

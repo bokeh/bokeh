@@ -7,6 +7,7 @@ import {load_image} from "@bokehjs/core/util/image"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import type {ImageRGBA} from "@bokehjs/models"
 import {DataRange1d} from "@bokehjs/models"
+import {value as literal} from "@bokehjs/core/vectorization"
 
 function get_image_data(image: HTMLImageElement): ImageData {
   const {width, height} = image
@@ -31,7 +32,7 @@ async function plot(anchor: ImageRGBA["anchor"], x_flipped: boolean = false, y_f
       const y_range = new DataRange1d({flipped: y_flipped})
 
       const p = fig([200, 200], {title: `${output_backend} origin: ${origin}`, x_range, y_range, output_backend})
-      p.image_rgba({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, origin, anchor, global_alpha})
+      p.image_rgba({image: literal(image), x: 0, y: 0, dw: 10, dh: 10, origin, anchor, global_alpha})
 
       onerow.push(p)
     }
@@ -86,9 +87,9 @@ describe("ImageRGBA glyph", () => { // TODO: async describe
 
     function make_plot(output_backend: OutputBackend) {
       const p = fig([350, 150], {output_backend, title: output_backend})
-      p.image_rgba({image: {value: rgba_image()}, x: 0, y: 0, dw: 1, dh: 1, global_alpha: 1.0})
-      p.image_rgba({image: {value: rgba_image()}, x: 1, y: 0, dw: 1, dh: 1, global_alpha: 0.66})
-      p.image_rgba({image: {value: rgba_image()}, x: 2, y: 0, dw: 1, dh: 1, global_alpha: 0.33})
+      p.image_rgba({image: literal(rgba_image()), x: 0, y: 0, dw: 1, dh: 1, global_alpha: 1.0})
+      p.image_rgba({image: literal(rgba_image()), x: 1, y: 0, dw: 1, dh: 1, global_alpha: 0.66})
+      p.image_rgba({image: literal(rgba_image()), x: 2, y: 0, dw: 1, dh: 1, global_alpha: 0.33})
       return p
     }
 

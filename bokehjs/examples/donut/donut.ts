@@ -2,7 +2,7 @@ import Bokeh from "/static/js/bokeh.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace WebBrowserMarketShare {
-  import plt = Bokeh.Plotting
+  const {figure, show} = Bokeh.Plotting
   const {zip, unzip, sum, cumsum} = Bokeh.LinAlg
 
   Bokeh.set_log_level("info")
@@ -81,7 +81,7 @@ export namespace WebBrowserMarketShare {
     info[browser] = {description, color, icon}
   }
 
-  const fig = plt.figure({
+  const fig = figure({
     x_range: [-2, 2], y_range: [-2, 2],
     width: 600, height: 600,
     x_axis_type: null, y_axis_type: null,
@@ -160,5 +160,5 @@ export namespace WebBrowserMarketShare {
     }
   }, 1000)
 
-  void plt.show(fig)
+  void show(fig)
 }

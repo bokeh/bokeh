@@ -312,7 +312,7 @@ describe("core/visuals", () => {
     describe("interacting with GlyphViews", () => {
 
       it("should get initialized with appropriate indices", async () => {
-        const scatter = new Scatter({fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}})
+        const scatter = new Scatter({fill_color: {type: "field", value: "fill_color"}, fill_alpha: {type: "field", value: "fill_alpha"}})
         const data = {fill_color: ["red", "green", "blue"], fill_alpha: [0, 0.6, 0.8]}
         const renderer_view = await create_glyph_renderer_view(scatter, data)
 

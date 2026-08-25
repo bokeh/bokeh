@@ -8,12 +8,11 @@ when plotted with different aspect scales specified.
 '''
 
 from bokeh.layouts import layout
-from bokeh.plotting import figure, show
+from bokeh.plotting import figure, show, value
 
 p1 = figure(match_aspect=True, title="Circle touches all 4 sides of square")
 p1.rect(0, 0, 300, 300, line_color='black')
-p1.circle(x=0, y=0, radius=150, line_color='black', fill_color='grey',
-          radius_units='data')
+p1.circle(x=0, y=0, radius=value(150, units="data"), line_color='black', fill_color='grey')
 
 def draw_test_figure(aspect_scale=1, width=300, height=300):
     p = figure(

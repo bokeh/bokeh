@@ -4,6 +4,7 @@ import {gridplot} from "@bokehjs/api/gridplot"
 import {transpose, linspace} from "@bokehjs/core/util/array"
 import {Plot, ColumnDataSource, Range1d, LinearAxis, Grid, Line, Scatter, Pane, Column} from "@bokehjs/models"
 import {Text} from "@bokehjs/models/dom"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("Examples", () => {
   it("should support Anscombe", async () => {
@@ -58,9 +59,9 @@ describe("Examples", () => {
       const ygrid = new Grid({ticker: yaxis.ticker, dimension: 1})
       plot.add_layout(xgrid)
       plot.add_layout(ygrid)
-      const line = new Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
+      const line = new Line({x: field("x"), y: field("y"), line_color: "#666699", line_width: 2})
       plot.add_glyph(line, lines)
-      const scatter = new Scatter({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
+      const scatter = new Scatter({x: field(xname), y: field(yname), size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
       plot.add_glyph(scatter, circles)
 
       return plot

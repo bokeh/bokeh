@@ -172,9 +172,9 @@ export class VAreaStep extends Area {
     this.prototype.default_view = VAreaStepView
 
     this.define<VAreaStep.Props>(({}) => ({
-      x:         [ p.XCoordinateSpec, {field: "x"} ],
-      y1:        [ p.YCoordinateSpec, {field: "y1"} ],
-      y2:        [ p.YCoordinateSpec, {field: "y2"} ],
+      x:         [ p.XCoordinateSpec, {type: "field", value: "x"} ],
+      y1:        [ p.YCoordinateSpec, {type: "field", value: "y1"} ],
+      y2:        [ p.YCoordinateSpec, {type: "field", value: "y2"} ],
       step_mode: [ StepMode, "before" ],
     }))
   }

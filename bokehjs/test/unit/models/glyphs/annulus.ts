@@ -15,10 +15,10 @@ describe("Glyph (using Annulus as a concrete Glyph)", () => {
         r: [1, 2, 3, 4],
       }
       const glyph = new Annulus({
-        x: {field: "x"},
-        y: {field: "y"},
-        inner_radius: {value: 2},
-        outer_radius: {field: "r"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
+        inner_radius: {type: "value", value: 2},
+        outer_radius: {type: "field", value: "r"},
       })
 
       const glyph_renderer = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})
@@ -31,10 +31,10 @@ describe("Glyph (using Annulus as a concrete Glyph)", () => {
     it("should hit test against an index", async () => {
       const data = {}
       const glyph = new Annulus({
-        x: {value: 50},
-        y: {value: 50},
-        inner_radius: {value: 25},
-        outer_radius: {value: 50},
+        x: {type: "value", value: 50},
+        y: {type: "value", value: 50},
+        inner_radius: {type: "value", value: 25},
+        outer_radius: {type: "value", value: 50},
       })
 
       const glyph_renderer = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})

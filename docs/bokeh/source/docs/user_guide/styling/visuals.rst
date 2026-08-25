@@ -162,10 +162,22 @@ Take a 400 pixel by 400 pixel graph with x and y axes ranging from 0
 through 10, for example. A glyph that is one fifth as wide and tall as the graph
 would have a size of 80 screen units or 2 data-space units.
 
-Objects in Bokeh that support both screen units and data-space units usually
-have a dedicated property to choose which unit to use. This unit-setting
-property is the name of the property with an added ``_units``. For
-example: A :class:`~bokeh.models.annotations.Whisker`
-:ref:`annotation <ug_basic_annotations_whiskers>` has the property ``upper``. To
-define which unit to use, set the ``upper_units`` property to either
-``'screen'`` or ``'data'``.
+For a glyph or another vectorized property, units are part of its data
+specification. Use the ``value`` or ``field`` helper exported by
+``bokeh.plotting``:
+
+.. code-block:: python
+
+    from bokeh.models import ColumnDataSource
+    from bokeh.plotting import field, figure, value
+
+    source = ColumnDataSource(data=dict(x=[1], y=[1], radius=[2]))
+    p = figure()
+    p.circle(x=0, y=0, radius=value(80, units="screen"))
+    p.circle(x="x", y="y", radius=field("radius", units="data"), source=source)
+
+See :ref:`ug_basic_data_specs` for all data specification forms and their
+assignment behavior. Scalar model properties that support multiple coordinate
+systems, such as the ``x`` coordinate of a :class:`~bokeh.models.Label`, retain
+separate properties such as ``x_units`` because they are not data
+specifications.

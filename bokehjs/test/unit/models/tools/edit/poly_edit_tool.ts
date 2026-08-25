@@ -48,12 +48,12 @@ async function make_testcase(): Promise<PolyEditTestCase> {
   const vertex_source = new ColumnDataSource({data: {x: [], y: []}})
 
   const glyph = new Patches({
-    xs: {field: "xs"},
-    ys: {field: "ys"},
+    xs: {type: "field", value: "xs"},
+    ys: {type: "field", value: "ys"},
   })
   const vertex_glyph = new Scatter({
-    x: {field: "x"},
-    y: {field: "y"},
+    x: {type: "field", value: "x"},
+    y: {type: "field", value: "y"},
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})

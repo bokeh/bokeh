@@ -170,9 +170,9 @@ export class Wedge extends XYGlyph {
     this.mixins<Wedge.Mixins>([LineVector, FillVector, HatchVector])
     this.define<Wedge.Props>(({}) => ({
       direction:    [ Direction, "anticlock" ],
-      radius:       [ p.DistanceSpec, {field: "radius"} ],
-      start_angle:  [ p.AngleSpec, {field: "start_angle"} ],
-      end_angle:    [ p.AngleSpec, {field: "end_angle"} ],
+      radius:       [ p.DistanceSpec, {type: "field", value: "radius"} ],
+      start_angle:  [ p.AngleSpec, {type: "field", value: "start_angle"} ],
+      end_angle:    [ p.AngleSpec, {type: "field", value: "end_angle"} ],
     }))
   }
 }

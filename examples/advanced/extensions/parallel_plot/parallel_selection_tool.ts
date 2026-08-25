@@ -7,6 +7,7 @@ import {ColumnarDataSource, MultiLine, Scale} from "models"
 import {MoveEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import {intersection, union, transpose} from "core/util/array"
 import {SelectionMode} from "core/enums"
+import {isField} from "core/vectorization"
 
 export interface HasRectCDS {
   glyph: Rect
@@ -34,6 +35,13 @@ function find_indices_in(array: number[], [inf, sup]: [number, number]): number[
 
 function index_array(array: number[], indices: number[]): number[] {
   return indices.reduce((a: number[], i) => a.concat(array[i]), [])
+}
+
+function field_name(spec: unknown): string {
+  if (isField(spec)) {
+    return spec.value
+  }
+  throw new Error("expected a field data specification")
 }
 
 function combineByKey(key: string, array: any[]) {
@@ -103,7 +111,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     this.cds_select = this.model.renderer_select.data_source
     this.cds_data = this.model.renderer_data.data_source
 
-    const [xskey, yskey] = [(this.glyph_data as any).xs.field, (this.glyph_data as any).ys.field]
+    const [xskey, yskey] = [field_name(this.glyph_data.xs), field_name(this.glyph_data.ys)]
     this.xdata = this.cds_data.get_array(xskey)[0] as number[]
     this.ydataT = transpose(this.cds_data.get_array(yskey))
     this.selection_indices = []
@@ -117,9 +125,9 @@ export class ParallelSelectionView extends BoxSelectToolView {
   }
 
   get _cds_select_keys() {
-    const glyph_select: any = this.glyph_select
-    const [xkey, ykey] = [glyph_select.x.field, glyph_select.y.field]
-    const [wkey, hkey] = [glyph_select.width.field, glyph_select.height.field]
+    const {x, y, width, height} = this.glyph_select
+    const [xkey, ykey] = [field_name(x), field_name(y)]
+    const [wkey, hkey] = [field_name(width), field_name(height)]
     return {xkey, ykey, wkey, hkey}
   }
 
@@ -163,7 +171,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
   _resize_boxes_on_zoom() {
     //resize selection boxes when zooming to keep a constant (pixel) size
     const cds = this.cds_select
-    const array_width = cds.get_array((this.glyph_select as any).width.field)
+    const array_width = cds.get_array(field_name(this.glyph_select.width))
     const new_width = this._box_width
     array_width.forEach((_, i) => array_width[i] = new_width)
     this._emit_cds_changes(cds, true, false, false)

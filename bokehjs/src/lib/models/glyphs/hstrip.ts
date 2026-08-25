@@ -231,8 +231,8 @@ export class HStrip extends Glyph {
     this.mixins<HStrip.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<HStrip.Props>(() => ({
-      y0: [ p.YCoordinateSpec, {field: "y0"} ],
-      y1: [ p.YCoordinateSpec, {field: "y1"} ],
+      y0: [ p.YCoordinateSpec, {type: "field", value: "y0"} ],
+      y1: [ p.YCoordinateSpec, {type: "field", value: "y1"} ],
     }))
   }
 }

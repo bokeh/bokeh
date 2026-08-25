@@ -87,10 +87,10 @@ export class VBar extends LRTB {
     this.prototype.default_view = VBarView
 
     this.define<VBar.Props>(({}) => ({
-      x:      [ p.XCoordinateSpec, {field: "x"} ],
-      bottom: [ p.YCoordinateSpec, {value: 0} ],
-      width:  [ p.DistanceSpec,    {value: 1} ],
-      top:    [ p.YCoordinateSpec, {field: "top"} ],
+      x:      [ p.XCoordinateSpec, {type: "field", value: "x"} ],
+      bottom: [ p.YCoordinateSpec, {type: "value", value: 0} ],
+      width:  [ p.DistanceSpec,    {type: "value", value: 1} ],
+      top:    [ p.YCoordinateSpec, {type: "field", value: "top"} ],
     }))
   }
 }

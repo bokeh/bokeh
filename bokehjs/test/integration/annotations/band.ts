@@ -1,6 +1,7 @@
 import {display, fig} from "#framework/layouts"
 
 import {Band, ColumnDataSource} from "@bokehjs/models"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("Band annotation", () => {
 
@@ -19,17 +20,16 @@ describe("Band annotation", () => {
     })
 
     const band0 = new Band({
-      base: {field: "x1"},
-      lower: {field: "lower1"},
-      upper: {field: "upper1"},
+      base: field("x1"),
+      lower: field("lower1"),
+      upper: field("upper1"),
       line_width: 3, line_color: "red", line_dash: "dashed",
       source,
     })
     const band1 = new Band({
-      // TODO: units are only supported on value level, not type level
-      base: {field: "x2", units: "screen"} as any,
-      lower: {field: "lower2", units: "screen"} as any,
-      upper: {field: "upper2", units: "screen"} as any,
+      base: field("x2", {units: "screen"}),
+      lower: field("lower2", {units: "screen"}),
+      upper: field("upper2", {units: "screen"}),
       dimension: "width", line_width: 3, fill_color: "blue", line_color: "green",
       source,
     })

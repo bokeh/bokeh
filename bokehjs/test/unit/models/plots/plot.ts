@@ -255,7 +255,7 @@ describe("Plot module", () => {
     it("should constrain DataRange1d when max_interval changes after initial render", async () => {
       const y_range = new DataRange1d()
       const source = new ColumnDataSource({data: {x: [0, 1, 2, 3], y: [0, 1, 4, 9]}})
-      const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+      const glyph = new Scatter({x: {type: "field", value: "x"}, y: {type: "field", value: "y"}})
       const renderer = new GlyphRenderer({data_source: source, glyph})
       const view = await new_plot_view({y_range, renderers: [renderer]})
 
