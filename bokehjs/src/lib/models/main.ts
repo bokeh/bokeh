@@ -4,5 +4,5 @@ import * as AllModels from "./"
 register_models(AllModels)
 
 import * as DOMModels from "./dom"
-const {GlobalInlineStyleSheet, ...unregisteredDOMModels} = DOMModels
+const {GlobalInlineStyleSheet, TranslatableText, ...unregisteredDOMModels} = DOMModels
 register_models(unregisteredDOMModels)

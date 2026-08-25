@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportAbstractUsage=false, reportArgumentType=false, reportCallIssue=false
+# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAttributeAccessIssue=false, reportCallIssue=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ from ...core.property.primitive import Bool, String
 from ...core.property.required import Required
 from ...events import ButtonClick, MenuItemClick
 from ..callbacks import Callback
-from ..dom import DOMNode
+from ..dom import DOMNode, TranslatableText
 from ..ui.icons import BuiltinIcon, Icon
 from ..ui.tooltips import Tooltip
 from .widget import Widget
@@ -56,6 +56,7 @@ __all__ = (
     'ButtonLike',
     'Dropdown',
     'HelpButton',
+    'LanguageDropdown',
     'Toggle',
 )
 
@@ -185,7 +186,7 @@ class Dropdown(AbstractButton):
     split = Bool(default=False, help="""
     """)
 
-    menu = List(Nullable(Either(String, Tuple(String, Either(String, Instance(Callback))))), help="""
+    menu = List(Nullable(Either(String, Tuple(Either(String, Instance(TranslatableText)), Either(String, Instance(Callback))))), help="""
     Button's dropdown menu consisting of entries containing item's text and
     value name. Use ``None`` as a menu separator.
     """)
@@ -207,6 +208,23 @@ class Dropdown(AbstractButton):
         ''' Set up a JavaScript handler for button or menu item clicks. '''
         self.js_on_event(ButtonClick, handler)
         self.js_on_event(MenuItemClick, handler)
+
+
+class LanguageDropdown(Dropdown):
+    ''' A language dropdown button.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    label = Override(default="")
+
+    icon = Override(default=lambda: BuiltinIcon("world", size=18))
+
+    button_type = Override(default="default")
+
 
 class HelpButton(AbstractButton):
     """ A button with a help symbol that displays additional text when hovered

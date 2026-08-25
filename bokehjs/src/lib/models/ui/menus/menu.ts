@@ -12,6 +12,7 @@ import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
 import {execute} from "core/util/callbacks"
+import {TranslatableText} from "../../dom/translatable_text"
 
 import menus_css, * as menus from "styles/menus.css"
 import icons_css from "styles/icons.css"
@@ -27,9 +28,11 @@ export class MenuView extends UIElementView {
   declare model: Menu
 
   protected _menu_views: ViewStorage<Menu> = new Map()
+  protected _label_views: ViewStorage<TranslatableText> = new Map()
+  protected _tooltip_views: ViewStorage<TranslatableText> = new Map()
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), ...this._menu_views.values()]
+    return [...super._children_views(), ...this._menu_views.values(), ...this._label_views.values(), ...this._tooltip_views.values()]
   }
 
   private _menu_items: MenuItemLike[] = []
@@ -61,6 +64,18 @@ export class MenuView extends UIElementView {
       .map((item) => item.menu)
       .filter((menu) => menu != null)
     await build_views(this._menu_views, menus, {parent: this})
+
+    const labels = this.menu_items
+      .filter((item) => item instanceof MenuItem)
+      .map((item) => item.label)
+      .filter((label) => label instanceof TranslatableText)
+    await build_views(this._label_views, labels, {parent: this})
+
+    const tooltips = this.menu_items
+      .filter((item) => item instanceof MenuItem)
+      .map((item) => item.tooltip)
+      .filter((tooltip) => tooltip instanceof TranslatableText)
+    await build_views(this._tooltip_views, tooltips, {parent: this})
   }
 
   override connect_signals(): void {
@@ -145,7 +160,23 @@ export class MenuView extends UIElementView {
     for (const item of items) {
       if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
-        const label_el = div({class: menus.label}, item.label)
+        let label_text
+        if (item.label instanceof TranslatableText) {
+          const label_view = this._label_views.get(item.label)!
+          label_view.render()
+          label_text = label_view.el
+        } else {
+          label_text = item.label
+        }
+        let title_text
+        if (item.tooltip instanceof TranslatableText) {
+          const tootlip_view = this._tooltip_views.get(item.tooltip)!
+          tootlip_view.render()
+          title_text = tootlip_view.translated_text
+        } else {
+          title_text = item.tooltip
+        }
+        const label_el = div({class: menus.label}, label_text)
         const shortcut_el = div({class: menus.shortcut}, item.shortcut)
         const chevron_el = div({class: menus.chevron})
 
@@ -161,7 +192,7 @@ export class MenuView extends UIElementView {
         })()
 
         const item_el = div(
-          {class: menus.item, title: item.tooltip, tabIndex: 0},
+          {class: menus.item, title: title_text, tabIndex: 0},
           check_el, icon_el, label_el, shortcut_el, chevron_el,
         )
 

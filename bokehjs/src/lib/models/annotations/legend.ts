@@ -25,6 +25,8 @@ import {Padding, BorderRadius} from "../common/kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import type {XY, LRTB, Corners} from "core/util/bbox"
+import {TranslatableText} from "../dom/translatable_text"
+import type {ChildView, ViewOf, ViewStorage} from "core/build_views"
 
 const {ceil} = Math
 
@@ -42,6 +44,9 @@ type Entry = {
 export class LegendView extends AnnotationView {
   declare model: Legend
   declare visuals: Legend.Visuals
+  protected _title_view?: ViewOf<TranslatableText>
+  protected _label_views: ViewStorage<TranslatableText> = new Map()
+  protected _label_models: Map<string, TranslatableText> = new Map<string, TranslatableText>()
 
   override get is_dual_renderer(): boolean {
     return true
@@ -67,12 +72,24 @@ export class LegendView extends AnnotationView {
     }
   }
 
+  override _children_views(): ChildView[] {
+    const this_title_view = this._title_view != null ? [this._title_view]:[]
+    return [...super._children_views(), ...this_title_view, ...this._label_views.values()]
+  }
+
   protected _resize_observer: ResizeObserver
 
   override initialize(): void {
     super.initialize()
     this._resize_observer = new ResizeObserver((_entries) => this.request_layout())
     this._resize_observer.observe(this.el, {box: "border-box"})
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this._build_title()
+    await this._build_items_labels()
+    this._build_items()
   }
 
   override remove(): void {
@@ -82,10 +99,23 @@ export class LegendView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.rerender())
+    this.connect(this.model.change, async () => {
+      await this._build_title()
+      await this._build_items_labels()
+      this._build_items()
+      this.rerender()
+    })
 
-    const {items} = this.model.properties
-    this.on_transitive_change(items, () => this._render_items(), {recursive: true})
+    const {items, title} = this.model.properties
+    this.on_transitive_change(items, async () => {
+      await this._build_items_labels()
+      this._build_items()
+      this._render_items()
+    }, {recursive: true})
+    this.on_transitive_change(title, async () => {
+      await this._build_title()
+      this._render_title()
+    })
   }
 
   protected _bbox: BBox = new BBox()
@@ -160,7 +190,20 @@ export class LegendView extends AnnotationView {
     el.classList.toggle(legend_css.inactive, !this.is_active(item))
   }
 
-  protected _render_items(): void {
+  protected async _build_items_labels(): Promise<void> {
+    this._label_models.clear()
+    for (const item of this.model.items) {
+      const labels = item.get_labels_list_from_label_prop()
+
+      for (const label of labels) {
+        const translatable_label = new TranslatableText({content: String(label)})
+        this._label_models.set(label, translatable_label)
+        this._label_views.set(translatable_label, await this.owner.build_view(translatable_label, this))
+      }
+    }
+  }
+
+  protected _build_items(): void {
     this.entries = []
 
     const {click_policy} = this
@@ -174,7 +217,9 @@ export class LegendView extends AnnotationView {
         glyph.el.classList.add(legend_css.glyph)
 
         const glyph_el = glyph.canvas
-        const label_el = div({class: legend_css.label}, `${label}`)
+        const label_model = this._label_models.get(label)
+        const translatable_label = label_model instanceof TranslatableText ? this._label_views.get(label_model) : null
+        const label_el = div({class: legend_css.label}, translatable_label?.el)
         const overlay_el = div({class: legend_css.overlay})
         const item_el = div({class: legend_css.item}, glyph_el, label_el, overlay_el)
         item_el.classList.toggle(legend_css.hidden, !item.visible)
@@ -191,7 +236,9 @@ export class LegendView extends AnnotationView {
         })
       }
     }
+  }
 
+  protected _render_items(): void {
     const vertical = this.model.orientation == "vertical"
 
     const {nc: ncols, nr: nrows} = (() => {
@@ -224,6 +271,10 @@ export class LegendView extends AnnotationView {
     let col = 0
 
     for (const entry of this.entries) {
+      const label_model = this._label_models.get(entry.label)
+      if (label_model instanceof TranslatableText) {
+        this._label_views.get(label_model)?.render()
+      }
       entry.el.id = `item_${row}_${col}`
 
       entry.row = row
@@ -260,6 +311,27 @@ export class LegendView extends AnnotationView {
     this.grid_el.append(...this.entries.map(({el}) => el))
   }
 
+  protected async _build_title(): Promise<void> {
+    const title = this.model.title ?? ""
+    this._title_view = await this.owner.build_view(new TranslatableText({content: title}), this)
+    const title_content = this._title_view.el
+    const title_el = div({class: legend_css.title}, title_content)
+    this.title_el.remove()
+    this.title_el = title_el
+  }
+
+  protected _render_title(): void {
+    this._title_view?.render()
+    this.shadow_el.append(...(() => {
+      switch (this.model.title_location) {
+        case "above": return [this.title_el, this.grid_el]
+        case "below": return [this.grid_el, this.title_el]
+        case "left":  return [this.title_el, this.grid_el]
+        case "right": return [this.grid_el, this.title_el]
+      }
+    })())
+  }
+
   override render(): void {
     super.render()
 
@@ -270,10 +342,6 @@ export class LegendView extends AnnotationView {
 
     this.el.classList.toggle(legend_css.interactive, this.is_interactive)
     this.el.classList.toggle(legend_css.vertical, vertical)
-
-    const title_el = div({class: legend_css.title}, this.model.title)
-    this.title_el.remove()
-    this.title_el = title_el
 
     // can't simply use `rotate`, because rotation doesn't affect layout
     const {writing_mode, rotate} = (() => {
@@ -393,14 +461,7 @@ export class LegendView extends AnnotationView {
     }
     `)
 
-    this.shadow_el.append(...(() => {
-      switch (this.model.title_location) {
-        case "above": return [title_el, this.grid_el]
-        case "below": return [this.grid_el, title_el]
-        case "left":  return [title_el, this.grid_el]
-        case "right": return [this.grid_el, title_el]
-      }
-    })())
+    this._render_title()
 
     const {padding, border_radius} = this
     stylesheet.append(`
@@ -636,6 +697,7 @@ export class LegendView extends AnnotationView {
 
     if (this.is_dual_renderer && !this.parent.is_forcing_paint) {
       if (this._should_rerender_items) {
+        this._build_items()
         this._render_items()
       }
       this._paint_glyphs()
@@ -661,7 +723,7 @@ export class LegendView extends AnnotationView {
 
   protected _draw_title(ctx: Context2d, canvas_bbox: BBox): void {
     const {title} = this.model
-    if (title == null || title.length == 0 || !this.visuals.title_text.doit) {
+    if (title == null || (isString(title) && title.length == 0) || !this.visuals.title_text.doit) {
       return
     }
 

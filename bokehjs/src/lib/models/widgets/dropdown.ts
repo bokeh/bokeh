@@ -13,6 +13,7 @@ import {DividerItem, Menu, MenuItem} from "../ui/menus"
 import type {MenuView} from "../ui/menus/menu"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
+import {TranslatableText} from "../dom/translatable_text"
 
 export class DropdownView extends AbstractButtonView {
   declare model: Dropdown
@@ -109,7 +110,7 @@ export class DropdownView extends AbstractButtonView {
       } else {
         const label = isString(item) ? item : item[0]
         const menu_item = new MenuItem({
-          label,
+          label: new TranslatableText({content: label}),
           action: () => { this._item_click(i) },
         })
         return menu_item

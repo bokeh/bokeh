@@ -1,5 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import {MenuItem} from "../../ui/menus"
+import {TranslatableText} from "../../dom/translatable_text"
 import type {MenuItemLike} from "../../ui/menus"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
@@ -88,16 +89,16 @@ export class SaveTool extends ActionTool {
     return [
       new MenuItem({
         icon: `.${icons.tool_icon_save}`,
-        label: "Save",
-        tooltip: "Save image as a local file",
+        label: new TranslatableText({content: "Save"}),
+        tooltip: new TranslatableText({content: "Save image as a local file"}),
         action: () => {
           this.do.emit("save")
         },
       }),
       new MenuItem({
         icon: `.${icons.tool_icon_copy}`,
-        label: "Copy",
-        tooltip: "Copy image to clipboard",
+        label: new TranslatableText({content: "Copy"}),
+        tooltip: new TranslatableText({content: "Copy image to clipboard"}),
         disabled: () => typeof ClipboardItem === "undefined",
         action: () => {
           this.do.emit("copy")
@@ -105,8 +106,8 @@ export class SaveTool extends ActionTool {
       }),
       new MenuItem({
         icon: `.${icons.tool_icon_open}`,
-        label: "Open",
-        tooltip: "Open image in a new tab",
+        label: new TranslatableText({content: "Open"}),
+        tooltip: new TranslatableText({content: "Open image in a new tab"}),
         action: () => {
           this.do.emit("open")
         },

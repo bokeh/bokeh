@@ -10,6 +10,7 @@ import {Comparator} from "core/util/eq"
 import {Model} from "../../model"
 import type {Renderer} from "../renderers/renderer"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
+import {TranslatableText} from "../dom/translatable_text"
 import {MenuItem, Menu} from "../ui/menus"
 import type {MenuItemLike} from "../ui/menus/menu"
 import type {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
@@ -190,8 +191,8 @@ export abstract class Tool extends Model {
   menu_item(): MenuItem {
     const item = new MenuItem({
       icon: this.computed_icon,
-      label: this.tool_name,
-      tooltip: this.tooltip != this.tool_name ? this.tooltip : undefined,
+      label: new TranslatableText({content: this.tool_name}),
+      tooltip: this.tooltip != this.tool_name ? new TranslatableText({content: this.tooltip}) : undefined,
       checked: () => this.active,
       disabled: () => this.disabled,
       action: () => this.active = !this.active,

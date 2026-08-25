@@ -14,6 +14,9 @@ import type {MenuItemLike, MenuItem} from "../../models/ui/menus"
 import {Menu, DividerItem} from "../../models/ui/menus"
 import type {IconLike} from "../../models/common/kinds"
 import {apply_icon} from "../../models/common/resolve"
+import {TranslatableText} from "../../models/dom/translatable_text"
+
+import {build_view} from "../build_views"
 
 export type ScreenPoint = {left?: number, right?: number, top?: number, bottom?: number}
 export type At =
@@ -25,8 +28,8 @@ export type At =
 
 export type MenuEntry = {
   icon?: IconLike
-  label?: string
-  tooltip?: string
+  label?: TranslatableText | string
+  tooltip?: TranslatableText | string
   class?: string
   content?: HTMLElement
   custom?: HTMLElement
@@ -180,7 +183,29 @@ export class ContextMenu {
     this.class_list.clear()
   }
 
-  render(): void {
+  async _build_label(item: MenuEntry | MenuItem): Promise<string | null> {
+    let item_label = null
+    if (this.labels && isString(item.label)) {
+      item_label = item.label
+    } else if (this.labels && item.label instanceof TranslatableText) {
+      const item_label_view = await build_view(item.label)
+      item_label = item_label_view.translated_text
+    }
+    return item_label
+  }
+
+  async _build_tooltip(item: MenuEntry | MenuItem): Promise<string | null> {
+    let item_tooltip = null
+    if (isString(item.tooltip)) {
+      item_tooltip = item.tooltip
+    } else if (item.tooltip instanceof TranslatableText) {
+      const item_tooltip_view = await build_view(item.tooltip)
+      item_tooltip = item_tooltip_view.translated_text
+    }
+    return item_tooltip
+  }
+
+  async render(): Promise<void> {
     this.empty()
 
     this.shadow_el.adoptedStyleSheets = this
@@ -211,8 +236,9 @@ export class ContextMenu {
         })()
         const checked = isBoolean(item.checked) ? item.checked : item.checked?.()
         const active = checked ?? false ? menus.active : null
-        const label = this.labels ? item.label : null
-        el = div({class: [active], title: item.tooltip, tabIndex: 0}, icon_el, label)
+        const label = await this._build_label(item)
+        const tooltip = await this._build_tooltip(item)
+        el = div({class: [active], title: tooltip, tabIndex: 0}, icon_el, label)
         if (isPlainObject(item)) {
           if (item.class != null) {
             el.classList.add(item.class)
@@ -235,11 +261,11 @@ export class ContextMenu {
     }
   }
 
-  show(at?: At): void {
+  async show(at?: At): Promise<void> {
     if (this.items.length == 0) {
       return
     }
-    this.render()
+    await this.render()
     if (this.shadow_el.children.length == 0) {
       return
     }
@@ -258,6 +284,6 @@ export class ContextMenu {
   }
 
   toggle(at?: At): void {
-    this._open ? this.hide() : this.show(at)
+    this._open ? this.hide() : void this.show(at)
   }
 }

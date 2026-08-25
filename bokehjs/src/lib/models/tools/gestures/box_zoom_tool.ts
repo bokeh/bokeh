@@ -5,6 +5,7 @@ import type {CartesianFrameView} from "../../canvas/cartesian_frame"
 import type {RangeState} from "../../plots/range_manager"
 import {MenuItem} from "../../ui/menus"
 import type {MenuItemLike} from "../../ui/menus"
+import {TranslatableText} from "../../dom/translatable_text"
 import type {IconLike} from "../../common/kinds"
 import type * as p from "core/properties"
 import type {PanEvent, KeyEvent, TapEvent} from "core/ui_events"
@@ -302,8 +303,8 @@ export class BoxZoomTool extends GestureTool {
     return [
       new MenuItem({
         icon: `.${icons.tool_icon_box_zoom}`,
-        label: "XY mode",
-        tooltip: "Box zoom in both dimensions",
+        label: new TranslatableText({content: "XY mode"}),
+        tooltip: new TranslatableText({content: "Box zoom in both dimensions"}),
         checked: () => this.dimensions == "both",
         action: () => {
           this.dimensions = "both"
@@ -312,8 +313,8 @@ export class BoxZoomTool extends GestureTool {
       }),
       new MenuItem({
         icon: `.${icons.tool_icon_x_box_zoom}`,
-        label: "X-only",
-        tooltip: "Box zoom in x-dimension",
+        label: new TranslatableText({content: "X-only"}),
+        tooltip: new TranslatableText({content: "Box zoom in x-dimension"}),
         checked: () => this.dimensions == "width",
         action: () => {
           this.dimensions = "width"
@@ -322,8 +323,8 @@ export class BoxZoomTool extends GestureTool {
       }),
       new MenuItem({
         icon: `.${icons.tool_icon_y_box_zoom}`,
-        label: "Y-only",
-        tooltip: "Box zoom in y-dimension",
+        label: new TranslatableText({content: "Y-only"}),
+        tooltip: new TranslatableText({content: "Box zoom in y-dimension"}),
         checked: () => this.dimensions == "height",
         action: () => {
           this.dimensions = "height"
@@ -332,8 +333,8 @@ export class BoxZoomTool extends GestureTool {
       }),
       new MenuItem({
         icon: `.${icons.tool_icon_auto_box_zoom}`,
-        label: "Auto mode",
-        tooltip: "Automatic mode (box zoom in x, y or both dimensions, depending on the mouse gesture)",
+        label: new TranslatableText({content: "Auto mode"}),
+        tooltip: new TranslatableText({content: "Automatic mode (box zoom in x, y or both dimensions, depending on the mouse gesture)"}),
         checked: () => this.dimensions == "auto",
         action: () => {
           this.dimensions = "auto"

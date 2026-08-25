@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAttributeAccessIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -31,6 +33,7 @@ from ...core.property.required import Required
 from ...core.property_aliases import IconLike
 from ...model import Model
 from ..callbacks import Callback
+from ..dom import TranslatableText
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -73,8 +76,8 @@ class MenuItem(Model):
     An optional icon to display left of the label.
     """)
 
-    label = Required(String, help="""
-    A plain text string label.
+    label = Required(Either(String, Instance(TranslatableText)), help="""
+    Either a plain text string or TranslatableText instance for the label.
     """)
 
     shortcut = Nullable(String, default=None, help="""
@@ -89,8 +92,8 @@ class MenuItem(Model):
     An optional sub-menu showed when hovering over this item.
     """)
 
-    tooltip = Nullable(String, default=None, help="""
-    An optional plain text description showed when hovering over this item.
+    tooltip = Nullable(Either(String, Instance(TranslatableText)), default=None, help="""
+    An optional translatable plain text description showed when hovering over this item.
     """)
 
     disabled = Bool(default=False, help="""
