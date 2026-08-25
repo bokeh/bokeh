@@ -90,7 +90,7 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   _show_vertices(): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
     const xs: number[] = []
@@ -120,7 +120,7 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   override _press(ev: TapEvent): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
     if (this._drawing) {
@@ -160,7 +160,7 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame) {
+    if (this.model.active != true || !this._mouse_in_frame) {
       return
     }
     for (const renderer of this.model.renderers) {
@@ -247,7 +247,7 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   override activate(): void {
-    if (this.model.vertex_renderer == null || !this.model.active) {
+    if (this.model.vertex_renderer == null || this.model.active != true) {
       return
     }
     this._show_vertices()

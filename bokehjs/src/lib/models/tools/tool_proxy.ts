@@ -9,7 +9,7 @@ import type {ToolView, EventRole} from "./tool"
 import {Tool} from "./tool"
 import type {ToolButton} from "./tool_button"
 import type {InspectTool} from "./inspectors/inspect_tool"
-import {enumerate, some} from "core/util/iterator"
+import {enumerate, every, some} from "core/util/iterator"
 import {execute} from "core/util/callbacks"
 
 export type ToolLike<T extends Tool> = T | ToolProxy<T>
@@ -20,7 +20,7 @@ export namespace ToolProxy {
   export type Props<T extends Tool> = Model.Props & {
     tools: p.Property<ToolLike<T>[]>
     visible: p.Property<boolean>
-    active: p.Property<boolean>
+    active: p.Property<boolean | "auto">
     disabled: p.Property<boolean>
   }
 }
@@ -39,10 +39,18 @@ export class ToolProxy<T extends Tool> extends Model {
   }
 
   static {
-    this.define<ToolProxy.Props<Tool>, ToolProxy<Tool>>(({Bool, List, Ref, Or}) => ({
+    this.define<ToolProxy.Props<Tool>, ToolProxy<Tool>>(({Bool, List, Ref, Or, Auto}) => ({
       tools:    [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       visible:  [ Bool, (self) => some(self.tools, (tool) => tool.visible) ],
-      active:   [ Bool, (self) => some(self.tools, (tool) => tool.active) ],
+      // mirror the tri-state of the tools held, so that a proxy of tools left at
+      // "auto" stays undecided instead of collapsing to false, which the toolbar
+      // would otherwise read as an explicit opt out
+      active:   [ Or(Bool, Auto), (self) => {
+        if (some(self.tools, (tool) => tool.active == true)) {
+          return true
+        }
+        return every(self.tools, (tool) => tool.active == false) ? false : "auto"
+      } ],
       disabled: [ Bool, false ],
     }))
   }

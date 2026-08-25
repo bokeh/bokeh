@@ -42,6 +42,7 @@ from typing import (
     NotRequired,
     Self,
     TypedDict,
+    cast,
     overload,
 )
 from weakref import WeakSet
@@ -50,7 +51,11 @@ from weakref import WeakSet
 from ..settings import settings
 from ..util.strings import append_docstring
 from .property.descriptor_factory import PropertyDescriptorFactory
-from .property.descriptors import PropertyDescriptor, UnsetValueError
+from .property.descriptors import (
+    AliasPropertyDescriptor,
+    PropertyDescriptor,
+    UnsetValueError,
+)
 from .property.override import Override
 from .property.singletons import Intrinsic, Undefined
 from .property.wrappers import PropertyValueContainer
@@ -559,8 +564,14 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         '''
         attr = getattr(cls, name, None)
-        if attr is not None or (attr is None and not raises):
-            return attr
+        # ``name`` may collide with a method or other class attribute (e.g. "select"
+        # or "update"), which is not a property and must not be reported as one.
+        if not isinstance(attr, (PropertyDescriptor, AliasPropertyDescriptor)):
+            attr = None
+        if attr is not None or not raises:
+            # aliases are returned as well, as they were before this was type checked;
+            # widening the annotation would have to widen ``descriptors()`` with it
+            return cast("PropertyDescriptor[Any] | None", attr)
         raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
     @overload

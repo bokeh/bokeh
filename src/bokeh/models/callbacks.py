@@ -271,7 +271,9 @@ class SetValue(Callback):
 
     @error(INVALID_PROPERTY_VALUE)
     def _check_if_provided_a_valid_value(self):
-        descriptor = self.obj.lookup(self.attr)
+        descriptor = self.obj.lookup(self.attr, raises=False)
+        if descriptor is None:
+            return None # reported by _check_if_an_attribute_is_a_property_of_a_model
 
         if descriptor.property.is_valid(self.value):
             return None

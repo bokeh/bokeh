@@ -39,7 +39,7 @@ export class BoxEditToolView extends EditToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame) {
+    if (this.model.active != true || !this._mouse_in_frame) {
       return
     }
     for (const renderer of this.model.renderers) {
@@ -173,7 +173,7 @@ export class BoxEditToolView extends EditToolView {
   }
 
   override _press(ev: TapEvent): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
     if (this._draw_basepoint != null) {

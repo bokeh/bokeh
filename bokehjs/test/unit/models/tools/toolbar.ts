@@ -4,9 +4,12 @@ import {mouse_enter, mouse_leave} from "#framework/interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {ToolGroup} from "@bokehjs/models/tools/tool_group"
+import {ToolProxy} from "@bokehjs/models/tools/tool_proxy"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
+import {BoxZoomTool} from "@bokehjs/models/tools/gestures/box_zoom_tool"
+import {SaveTool} from "@bokehjs/models/tools/actions/save_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {build_view} from "@bokehjs/core/build_views"
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -21,7 +24,8 @@ describe("Toolbar", () => {
     let toolbar: Toolbar
 
     before_each(() => {
-      // by default these tools are inactive
+      // by default these tools are unresolved ("auto"), i.e. not active; pan_2 is
+      // never registered with the toolbar, so nothing ever resolves it
       pan_1 = new PanTool()
       pan_2 = new PanTool()
       toolbar = new Toolbar()
@@ -32,7 +36,7 @@ describe("Toolbar", () => {
       pan_1.active = true
       toolbar._active_change(pan_1)
       expect(pan_1.active).to.be.true
-      expect(pan_2.active).to.be.false
+      expect(pan_2.active).to.be.equal("auto")
       expect(toolbar.gestures.pan.active).to.be.equal(pan_1)
     })
 
@@ -44,7 +48,7 @@ describe("Toolbar", () => {
       pan_1.active = false
       toolbar._active_change(pan_1)
       expect(pan_1.active).to.be.false
-      expect(pan_2.active).to.be.false
+      expect(pan_2.active).to.be.equal("auto")
       expect(toolbar.gestures.pan.active).to.be.null
     })
 
@@ -149,6 +153,142 @@ describe("Toolbar", () => {
       expect(hover_1.active).to.be.false
       expect(hover_2.active).to.be.false
       expect(hover_3.active).to.be.false
+    })
+
+    it("should honor a gesture tool initialized as active when active_drag='auto'", () => {
+      const pan = new PanTool()
+      const box_zoom = new BoxZoomTool({active: true})
+      const toolbar = new Toolbar({tools: [pan, box_zoom], active_drag: "auto"})
+      expect(toolbar.gestures.pan.active).to.be.identical(box_zoom)
+      expect(box_zoom.active).to.be.true
+      expect(pan.active).to.be.false
+    })
+
+    it("should let active_drag take precedence over a tool initialized as active", () => {
+      const pan = new PanTool()
+      const box_zoom = new BoxZoomTool({active: true})
+      const toolbar = new Toolbar({tools: [pan, box_zoom], active_drag: pan})
+      expect(toolbar.gestures.pan.active).to.be.identical(pan)
+      expect(pan.active).to.be.true
+      expect(box_zoom.active).to.be.false
+    })
+
+    it("should activate only the first of several tools initialized as active", () => {
+      // sorted by default_order, so PanTool (10) precedes BoxZoomTool (20)
+      const pan = new PanTool({active: true})
+      const box_zoom = new BoxZoomTool({active: true})
+      const toolbar = new Toolbar({tools: [box_zoom, pan], active_drag: "auto"})
+      expect(toolbar.gestures.pan.active).to.be.identical(pan)
+      expect(pan.active).to.be.true
+      expect(box_zoom.active).to.be.false
+    })
+
+    it("should not needlessly toggle a tool that active_drag already points at", () => {
+      // the tool ends up active either way, but a spurious true->false->true round
+      // trip emits change events, i.e. two patches per plot load in a server app
+      const pan = new PanTool({active: true})
+      const box_zoom = new BoxZoomTool({active: true})
+
+      let changes = 0
+      pan.properties.active.change.connect(() => changes += 1)
+
+      new Toolbar({tools: [pan, box_zoom], active_drag: pan})
+      expect(pan.active).to.be.true
+      expect(box_zoom.active).to.be.false
+      expect(changes).to.be.equal(0)
+    })
+
+    it("should skip a tool opted out with active=false when active_drag='auto'", () => {
+      // PanTool sorts first by default_order, but has explicitly opted out
+      const pan = new PanTool({active: false})
+      const box_zoom = new BoxZoomTool()
+      const toolbar = new Toolbar({tools: [pan, box_zoom], active_drag: "auto"})
+      expect(toolbar.gestures.pan.active).to.be.identical(box_zoom)
+      expect(pan.active).to.be.false
+      expect(box_zoom.active).to.be.true
+    })
+
+    it("should leave a gesture inactive when every tool opted out", () => {
+      const pan = new PanTool({active: false})
+      const box_zoom = new BoxZoomTool({active: false})
+      const toolbar = new Toolbar({tools: [pan, box_zoom], active_drag: "auto"})
+      expect(toolbar.gestures.pan.active).to.be.null
+      expect(pan.active).to.be.false
+      expect(box_zoom.active).to.be.false
+    })
+
+    it("should resolve 'auto' to a concrete boolean on every tool", () => {
+      // downstream views and user callbacks must never observe "auto"
+      const tools = [new PanTool(), new BoxZoomTool(), new HoverTool(), new SaveTool()]
+      new Toolbar({tools})
+      for (const tool of tools) {
+        expect(tool.active).to.not.be.equal("auto")
+      }
+    })
+
+    it("should resolve 'auto' on tools nested in a proxy", () => {
+      // gridplot(merge_tools=True) puts proxies in Toolbar.tools, and the proxy's
+      // own active is already false, so assigning false to it won't reach the children
+      const pan_1 = new PanTool()
+      const pan_2 = new PanTool()
+      const proxy = new ToolProxy<PanTool>({tools: [pan_1, pan_2]})
+      new Toolbar({tools: [proxy]})
+      expect(pan_1.active).to.not.be.equal("auto")
+      expect(pan_2.active).to.not.be.equal("auto")
+    })
+
+    it("should treat an inspect tool set to 'auto' as active", () => {
+      // InspectTool defaults to active=true, so "auto" has to mean "the default",
+      // not "let the gesture resolution pass me over"
+      const hover = new HoverTool({active: "auto"})
+      new Toolbar({tools: [hover], active_inspect: "auto"})
+      expect(hover.active).to.be.true
+    })
+
+    it("should deactivate every gesture tool when active_drag=null", () => {
+      const pan = new PanTool({active: true})
+      const box_zoom = new BoxZoomTool({active: true})
+      const toolbar = new Toolbar({tools: [pan, box_zoom], active_drag: null})
+      expect(toolbar.gestures.pan.active).to.be.null
+      expect(pan.active).to.be.false
+      expect(box_zoom.active).to.be.false
+    })
+  })
+
+  describe("should track Tool.active changed after initialization", () => {
+    // i.e. a property patch arriving from a Bokeh server application
+
+    it("activating a tool deactivates its competitor for the same gesture", () => {
+      const pan = new PanTool()
+      const box_zoom = new BoxZoomTool()
+      const toolbar = new Toolbar({tools: [pan, box_zoom]})
+      expect(toolbar.gestures.pan.active).to.be.identical(pan)
+
+      box_zoom.active = true
+      expect(toolbar.gestures.pan.active).to.be.identical(box_zoom)
+      expect(pan.active).to.be.false
+      expect(box_zoom.active).to.be.true
+    })
+
+    it("deactivating the active tool leaves the gesture with none", () => {
+      const pan = new PanTool()
+      const toolbar = new Toolbar({tools: [pan]})
+      expect(toolbar.gestures.pan.active).to.be.identical(pan)
+
+      pan.active = false
+      expect(toolbar.gestures.pan.active).to.be.null
+      expect(pan.active).to.be.false
+    })
+
+    it("deactivating an already inactive tool leaves the active one alone", () => {
+      const pan = new PanTool()
+      const box_zoom = new BoxZoomTool()
+      const toolbar = new Toolbar({tools: [pan, box_zoom]})
+      expect(toolbar.gestures.pan.active).to.be.identical(pan)
+
+      box_zoom.active = false
+      expect(toolbar.gestures.pan.active).to.be.identical(pan)
+      expect(pan.active).to.be.true
     })
   })
 })

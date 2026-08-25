@@ -198,7 +198,7 @@ export class RangeToolView extends GestureToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
 
@@ -278,7 +278,7 @@ export class RangeTool extends GestureTool {
   }
 
   update_constraints(): void {
-    this.overlay.editable = this.active
+    this.overlay.editable = this.active == true
 
     const has_x = this.x_range != null && this.x_interaction
     const has_y = this.y_range != null && this.y_interaction

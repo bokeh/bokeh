@@ -107,6 +107,36 @@ describe("Model objects", () => {
       m.baz = 10
       expect(spy.callCount).to.be.equal(0)
     })
+
+    it("should execute on object-level signals", () => {
+      const cb = new CustomJS({code: ""})
+      const spy = sinon.spy(cb, "execute")
+
+      const m = new Some0Model({js_property_callbacks: {change: [cb]}})
+
+      expect(spy.called).to.be.false
+      m.foo = true
+      expect(spy.callCount).to.be.equal(1)
+    })
+
+    it("should not throw on an unresolvable event name (bokeh/bokeh#15070)", () => {
+      const cb = new CustomJS({code: ""})
+
+      // "foo" is a property of the bokehjs model with no Python counterpart, so
+      // `Model.js_on_change()` fails to prefix it with "change:"; "change:nope"
+      // names an unknown property; the rest are malformed
+      for (const event of ["foo", "change:nope", "change:foo:bar", "", "change:", ":foo", "nope:foo"]) {
+        expect(() => new Some0Model({js_property_callbacks: {[event]: [cb]}})).to.not.throw()
+      }
+    })
+
+    it("should not throw when unresolvable callbacks are replaced", () => {
+      const cb = new CustomJS({code: ""})
+      const m = new Some0Model({js_property_callbacks: {foo: [cb]}})
+
+      // re-runs `_update_property_callbacks()`, exercising the disconnect path
+      expect(() => m.js_property_callbacks = {"change:foo": [cb]}).to.not.throw()
+    })
   })
 
   it("should support select() and select_one() methods", () => {

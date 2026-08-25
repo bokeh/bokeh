@@ -82,7 +82,7 @@ export abstract class ToolView extends View {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.active.change, () => {
-      if (this.model.active) {
+      if (this.model.active == true) {
         this.activate()
       } else {
         this.deactivate()
@@ -134,7 +134,7 @@ export namespace Tool {
     icon: p.Property<IconLike | null>
     description: p.Property<string | null>
     visible: p.Property<boolean>
-    active: p.Property<boolean>
+    active: p.Property<boolean | "auto">
     disabled: p.Property<boolean>
     group: p.Property<string | boolean>
   }
@@ -153,15 +153,15 @@ export abstract class Tool extends Model {
   static {
     this.prototype._known_aliases = new Map()
 
-    this.define<Tool.Props>(({Bool, Or, Str, Nullable}) => ({
+    this.define<Tool.Props>(({Bool, Or, Str, Auto, Nullable}) => ({
       icon: [ Nullable(IconLike), null ],
       description: [ Nullable(Str), null ],
       visible: [ Bool, true ],
       group: [ Or(Str, Bool), true ],
+      active: [ Or(Bool, Auto), "auto" ],
     }))
 
     this.internal<Tool.Props>(({Bool}) => ({
-      active: [ Bool, false ],
       disabled: [ Bool, false ],
     }))
   }
@@ -192,9 +192,9 @@ export abstract class Tool extends Model {
       icon: this.computed_icon,
       label: this.tool_name,
       tooltip: this.tooltip != this.tool_name ? this.tooltip : undefined,
-      checked: () => this.active,
+      checked: () => this.active == true,
       disabled: () => this.disabled,
-      action: () => this.active = !this.active,
+      action: () => this.active = this.active != true,
     })
 
     const submenu = this.menu

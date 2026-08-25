@@ -71,7 +71,7 @@ export class CrosshairToolView extends InspectToolView {
   }
 
   override _move(ev: MoveEvent): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
 

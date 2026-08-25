@@ -19,7 +19,7 @@ export class LineEditToolView extends LineToolView {
   _drawing: boolean = false
 
   override _press(ev: TapEvent): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
 
@@ -35,7 +35,7 @@ export class LineEditToolView extends LineToolView {
   }
 
   _show_intersections(): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
 

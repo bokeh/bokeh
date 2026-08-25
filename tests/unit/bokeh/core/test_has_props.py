@@ -37,6 +37,7 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.core.property.descriptors import (
+    AliasPropertyDescriptor,
     DataSpecPropertyDescriptor,
     PropertyDescriptor,
     UnsetValueError,
@@ -436,6 +437,21 @@ def test_HasProps_lookup() -> None:
     d = p.lookup('lst1')
     assert isinstance(d, PropertyDescriptor)
     assert d.name == 'lst1'
+
+def test_HasProps_lookup_alias() -> None:
+    c = AliasedChild()
+    d = c.lookup('aliased_int1')
+    assert isinstance(d, AliasPropertyDescriptor)
+    assert d.name == 'aliased_int1'
+
+def test_HasProps_lookup_non_property() -> None:
+    # class attributes that aren't properties (methods, Python properties, dunders)
+    # must not be reported as property descriptors
+    p = Parent()
+    for name in ('foo_func', 'foo_prop', '_foo_func', '_foo_prop', 'lookup', 'properties', 'nonesuch'):
+        assert p.lookup(name, raises=False) is None
+        with pytest.raises(AttributeError):
+            p.lookup(name)
 
 def test_HasProps_apply_theme() -> None:
     c = Child()

@@ -6,7 +6,7 @@ export class OnOffButtonView extends ToolButtonView {
   declare model: OnOffButton
 
   protected _toggle_active(): void {
-    this.class_list.toggle(tools.active, this.model.tool.active)
+    this.class_list.toggle(tools.active, this.model.tool.active == true)
   }
 
   override connect_signals(): void {
@@ -23,8 +23,7 @@ export class OnOffButtonView extends ToolButtonView {
   }
 
   tap(): void {
-    const {active} = this.model.tool
-    this.model.tool.active = !active
+    this.model.tool.active = this.model.tool.active != true
   }
 }
 

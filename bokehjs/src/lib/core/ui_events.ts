@@ -477,7 +477,7 @@ export class UIEventBus {
           this.trigger(signal, e, active_gesture)
         }
 
-        const active_inspectors = plot_view.model.toolbar.inspectors.filter(t => t.active)
+        const active_inspectors = plot_view.model.toolbar.inspectors.filter(t => t.active == true)
 
         const cursor = (() => {
           const current_view =

@@ -216,7 +216,7 @@ export class HoverToolView extends InspectToolView {
     this.on_change([plot_renderers, renderers, tooltips], async () => await this._update_ttmodels())
 
     this.connect(this.plot_view.repainted, () => {
-      if (this.model.active && this._current_sxy != null) {
+      if (this.model.active == true && this._current_sxy != null) {
         const [sx, sy, dims] = this._current_sxy
         // Avoid triggering inspections if the bbox moves below, as this can lead to infinite
         // loops if bbox changes are caused by the inspection itself.
@@ -298,7 +298,7 @@ export class HoverToolView extends InspectToolView {
   }
 
   override _move(ev: MoveEvent): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
 
@@ -720,7 +720,7 @@ export class HoverToolView extends InspectToolView {
   }
 
   update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
-    if (!this.model.active) {
+    if (this.model.active != true) {
       return
     }
 
