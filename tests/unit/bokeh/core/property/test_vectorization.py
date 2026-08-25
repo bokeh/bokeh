@@ -29,6 +29,7 @@ import bokeh.core.property.vectorization as bcpv # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    "DataSpecValue",
     "Expr",
     "Field",
     "Value",
@@ -49,16 +50,16 @@ def test_value_function() -> None:
 
 def test_field_function() -> None:
     transform = Dodge()
-    assert bcpv.field("foo") == bcpv.Field(field="foo")
-    assert bcpv.field("foo", transform) == bcpv.Field(field="foo", transform=transform)
-    assert bcpv.field("foo", transform=transform) == bcpv.Field(field="foo", transform=transform)
+    assert bcpv.field("foo") == bcpv.Field(value="foo")
+    assert bcpv.field("foo", transform) == bcpv.Field(value="foo", transform=transform)
+    assert bcpv.field("foo", transform=transform) == bcpv.Field(value="foo", transform=transform)
 
 def test_expr_function() -> None:
-    expr = CumSum(field="foo")
+    expression = CumSum(field="foo")
     transform = Dodge()
-    assert bcpv.expr(expr) == bcpv.Expr(expr=expr)
-    assert bcpv.expr(expr, transform) == bcpv.Expr(expr=expr, transform=transform)
-    assert bcpv.expr(expr, transform=transform) == bcpv.Expr(expr=expr, transform=transform)
+    assert bcpv.expr(expression) == bcpv.Expr(value=expression)
+    assert bcpv.expr(expression, transform) == bcpv.Expr(value=expression, transform=transform)
+    assert bcpv.expr(expression, transform=transform) == bcpv.Expr(value=expression, transform=transform)
 
 #-----------------------------------------------------------------------------
 # Dev API

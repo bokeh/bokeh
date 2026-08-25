@@ -4,6 +4,7 @@ import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {Selection} from "../selections/selection"
 
 export interface HAreaView extends HArea.Data {}
@@ -95,9 +96,9 @@ export class HArea extends Area {
     this.prototype.default_view = HAreaView
 
     this.define<HArea.Props>(({}) => ({
-      x1: [ p.XCoordinateSpec, {field: "x1"} ],
-      x2: [ p.XCoordinateSpec, {field: "x2"} ],
-      y:  [ p.YCoordinateSpec, {field: "y"} ],
+      x1: [ p.XCoordinateSpec, field("x1") ],
+      x2: [ p.XCoordinateSpec, field("x2") ],
+      y:  [ p.YCoordinateSpec, field("y") ],
     }))
   }
 }

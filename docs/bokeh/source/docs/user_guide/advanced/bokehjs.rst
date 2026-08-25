@@ -94,13 +94,30 @@ The JavaScript ``Bokeh.Plotting`` API is a port of the Python
 :ref:`ug_basic` section of the User guide can be a useful
 reference in addition to the material provided here.
 
+Use ``value()``, ``field()``, and ``expr()`` to select a data specification
+without constructing its discriminated record by hand. The helpers are
+available both from ``Bokeh.Plotting`` and at the top-level ``Bokeh`` API. The
+browser bundles expose their API through the ``Bokeh`` object, so examples can
+bind the functions they use explicitly::
+
+    const {field, figure, show} = Bokeh.Plotting;
+
+    const plot = figure();
+    plot.line(field("t"), field("price"), {source});
+    show(plot);
+
+Each helper accepts an optional transform as its second argument. For example,
+``field("value", color_mapper)`` applies ``color_mapper`` to a data source
+field. To specify units as well, pass both modifiers in an object, such as
+``field("distance", {transform, units: "screen"})``.
+
 The JavaScript sample below is very similar to the Python code in
 :bokeh-tree:`examples/basic/scatters/color_scatter.py`:
 
 .. bokehjs-content::
     :title: Bokeh color scatter
 
-    const plt = Bokeh.Plotting;
+    const {color, field, figure, show} = Bokeh.Plotting;
 
     // set up some data
     const M = 100;
@@ -112,7 +129,7 @@ The JavaScript sample below is very similar to the Python code in
         for (let x = 0; x <= M; x += 4) {
             xx.push(x);
             yy.push(y);
-            colors.push(plt.color([50+2*x, 30+2*y, 150]));
+            colors.push(color([50+2*x, 30+2*y, 150]));
             radii.push(Math.random() * 1.5);
         }
     }
@@ -123,18 +140,18 @@ The JavaScript sample below is very similar to the Python code in
 
     // make the plot and add some tools
     const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,save";
-    const p = plt.figure({ title: "Colorful Scatter", tools: tools });
+    const p = figure({ title: "Colorful Scatter", tools: tools });
 
     // call the circle glyph method to add some circle glyphs
-    const circles = p.circle({ field: "x" }, { field: "y" }, {field: "radius"}, {
+    const circles = p.circle(field("x"), field("y"), field("radius"), {
         source: source,
-        fill_color: { field: "colors" },
+        fill_color: field("colors"),
         fill_alpha: 0.6,
         line_color: null,
     });
 
     // show the plot
-    plt.show(p);
+    show(p);
 
 .. _ug_advanced_bokehjs_interfaces_charts:
 
@@ -175,7 +192,7 @@ and hover policy. Here is an example of a ``pie`` chart and the plot it generate
 .. bokehjs-content::
     :title: Bokeh pie chart
 
-    const plt = Bokeh.Plotting;
+    const {gridplot} = Bokeh.Plotting;
 
     const pie_data = {
         labels: ['Work', 'Eat', 'Commute', 'Sport', 'Watch TV', 'Sleep'],
@@ -200,7 +217,7 @@ and hover policy. Here is an example of a ``pie`` chart and the plot it generate
 
     // add the plot to a document and display it
     const doc = new Bokeh.Document();
-    doc.add_root(plt.gridplot(
+    doc.add_root(gridplot(
                      [[p1, p2], [p3, p4]],
                      {width: 250, height: 250}));
     Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
@@ -248,7 +265,7 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
 .. bokehjs-content::
     :title: Bokeh bar chart
 
-    const plt = Bokeh.Plotting;
+    const {gridplot, show} = Bokeh.Plotting;
 
     const bar_data = [
         ['City', '2010 Population', '2000 Population'],
@@ -276,7 +293,7 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
         stacked: true
     });
 
-    plt.show(plt.gridplot([[p1, p2], [p3, p4]], {width: 350, height: 350}));
+    show(gridplot([[p1, p2], [p3, p4]], {width: 350, height: 350}));
 
 
 Minimal example
@@ -290,13 +307,15 @@ create and modify plots.
     :include_html: true
     :disable_codepen: true
 
+    const {field, figure, show} = Bokeh.Plotting;
+
     // create a data source to hold data
     const source = new Bokeh.ColumnDataSource({
         data: { x: [], y: [] }
     });
 
     // make a plot with some tools
-    const plot = Bokeh.Plotting.figure({
+    const plot = figure({
         title: 'Example of random data',
         tools: "pan,wheel_zoom,box_zoom,reset,save",
         height: 300,
@@ -304,13 +323,13 @@ create and modify plots.
     });
 
     // add a line with data from the source
-    plot.line({ field: "x" }, { field: "y" }, {
+    plot.line(field("x"), field("y"), {
         source: source,
         line_width: 2
     });
 
     // show the plot, appending it to the end of the current section
-    Bokeh.Plotting.show(plot);
+    show(plot);
 
     function addPoint() {
         // add data --- all fields must be the same length.

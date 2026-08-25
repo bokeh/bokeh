@@ -63,6 +63,7 @@ import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral3, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
+import {field, value} from "@bokehjs/core/vectorization"
 import type {Keys} from "@bokehjs/core/dom"
 import {bounding_box, div} from "@bokehjs/core/dom"
 import type {LRTB} from "@bokehjs/core/util/bbox"
@@ -150,7 +151,7 @@ describe("Bug", () => {
         y_range: new DataRange1d(),
       })
       const source = new ColumnDataSource({data: {x: [["a", "b"], ["b", "c"]], y: [1, 2]}})
-      p.vbar({x: {field: "x"}, top: {field: "y"}, width: 0.1, source})
+      p.vbar({x: field("x"), top: field("y"), width: 0.1, source})
       const {view} = await display(p)
 
       source.data = {x: ["a"], y: [1]}
@@ -285,7 +286,7 @@ describe("Bug", () => {
       const c = ["black", "red", "green", "blue"]
       const source = new ColumnDataSource({data: {x, y, c}, selected})
       const view = new CDSView({filter: new BooleanFilter({booleans: [false, true, true, true]})})
-      p.scatter({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
+      p.scatter(field("x"), field("y"), {source, view, color: field("c"), size: 20})
       return p
     }
 
@@ -317,9 +318,9 @@ describe("Bug", () => {
 
       const selected = new Selection({indices: [1, 3, 4]})
       const source = new ColumnDataSource({data: {x, y, c}, selected})
-      const r = p.scatter({field: "x"}, {field: "y"}, {
+      const r = p.scatter(field("x"), field("y"), {
         source,
-        color: {field: "c"},
+        color: field("c"),
         selection_line_color: "white",
         size: 20,
       })
@@ -379,7 +380,7 @@ describe("Bug", () => {
       const lower = y.map((yi) => yi - random.float())
 
       const source = new ColumnDataSource({data: {x, y, lower, upper}})
-      const whisker = new Whisker({source, dimension: "height", base: {field: "x"}})
+      const whisker = new Whisker({source, dimension: "height", base: field("x")})
 
       const x_range = new FactorRange({factors})
       const p = fig([400, 200], {x_range})
@@ -398,7 +399,7 @@ describe("Bug", () => {
       const lower = x.map((xi) => xi - random.float())
 
       const source = new ColumnDataSource({data: {x, y, lower, upper}})
-      const whisker = new Whisker({source, dimension: "width", base: {field: "y"}})
+      const whisker = new Whisker({source, dimension: "width", base: field("y")})
 
       const y_range = new FactorRange({factors})
       const p = fig([200, 400], {y_range})
@@ -418,8 +419,8 @@ describe("Bug", () => {
 
       const p = fig([300, 300], {x_range: ["B", "C"], y_range: ["C", "B"]})
 
-      p.rect({x: {field: "x"}, y: {field: "y"}, width: 0.9, height: 0.9, source})
-      p.circle({x: {field: "x"}, y: {field: "y"}, radius: 0.2, color: "red", source})
+      p.rect({x: field("x"), y: field("y"), width: 0.9, height: 0.9, source})
+      p.circle({x: field("x"), y: field("y"), radius: 0.2, color: "red", source})
 
       await display(p)
     })
@@ -508,7 +509,7 @@ describe("Bug", () => {
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend})
-        p.image({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+        p.image({image: value(image), x: 0, y: 0, dw: 10, dh: 10, color_mapper})
         return p
       }
 
@@ -604,10 +605,10 @@ describe("Bug", () => {
       const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
       p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
 
-      const labels0 = new LabelSet({x: {value: "X1"}, y: {value: "Y3"}, text: {value: "L0"}, text_color: "red"})
+      const labels0 = new LabelSet({x: value("X1"), y: value("Y3"), text: value("L0"), text_color: "red"})
       p.add_layout(labels0)
 
-      const labels1 = new LabelSet({x: {value: "X3"}, y: {value: "Y1"}, text: {value: "L1"}, text_color: "green"})
+      const labels1 = new LabelSet({x: value("X3"), y: value("Y1"), text: value("L1"), text_color: "green"})
       p.add_layout(labels1)
 
       const source = new ColumnDataSource({data: {
@@ -615,7 +616,7 @@ describe("Bug", () => {
         y: ["Y1", "Y2", "Y3"],
         text: ["L20", "L21", "L22"],
       }})
-      const labels2 = new LabelSet({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
+      const labels2 = new LabelSet({x: field("x"), y: field("y"), text: field("text"), source, text_color: "blue"})
       p.add_layout(labels2)
 
       await display(p)
@@ -626,14 +627,14 @@ describe("Bug", () => {
       p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
 
       const arrow0 = new Arrow({
-        x_start: {value: "X1"}, y_start: {value: "Y1"},
-        x_end: {value: "X3"}, y_end: {value: "Y3"},
+        x_start: value("X1"), y_start: value("Y1"),
+        x_end: value("X3"), y_end: value("Y3"),
         line_color: "red",
       })
       p.add_layout(arrow0)
       const arrow1 = new Arrow({
-        x_start: {value: "X3"}, y_start: {value: "Y1"},
-        x_end: {value: "X1"}, y_end: {value: "Y3"},
+        x_start: value("X3"), y_start: value("Y1"),
+        x_end: value("X1"), y_end: value("Y3"),
         line_color: "green",
       })
       p.add_layout(arrow1)
@@ -645,10 +646,10 @@ describe("Bug", () => {
         y_end: ["Y2", "Y3", "Y2", "Y1"],
       }})
       const labels2 = new Arrow({
-        x_start: {field: "x_start"},
-        y_start: {field: "y_start"},
-        x_end: {field: "x_end"},
-        y_end: {field: "y_end"},
+        x_start: field("x_start"),
+        y_start: field("y_start"),
+        x_end: field("x_end"),
+        y_end: field("y_end"),
         source,
         line_color: "blue",
       })
@@ -668,10 +669,10 @@ describe("Bug", () => {
       const head = new OpenHead({size: 30, line_width: 3})
       const arrow = new Arrow({
         end: head,
-        x_start: {value: 0},
-        y_start: {value: 1},
-        x_end: {field: "x_end"},
-        y_end: {value: 1},
+        x_start: value(0),
+        y_start: value(1),
+        x_end: field("x_end"),
+        y_end: value(1),
         line_width: 3,
         source,
       })
@@ -687,7 +688,7 @@ describe("Bug", () => {
         const title = `[${x_range}] × [${y_range}]`
         const p = fig([150, 150], {x_range, y_range, title})
         p.circle({
-          x: [0, 50, 100], y: [0, 50, 100], radius: {value: 20},
+          x: [0, 50, 100], y: [0, 50, 100], radius: value(20),
           fill_color: ["red", "green", "blue"],
           line_color: "black",
           alpha: 0.5,
@@ -710,7 +711,7 @@ describe("Bug", () => {
         p.scatter({
           x: [0, 50, 100],
           y: [0, 50, 100],
-          size: {value: 30},
+          size: value(30),
           marker,
           fill_color: ["red", "green", "blue"],
           line_color: "black",
@@ -887,7 +888,7 @@ describe("Bug", () => {
         x: linspace(t0, t0 + 2*3600*1000, 50),
       }})
       const p = fig([800, 300])
-      p.rect({x: {field: "x"}, y: 0, width: 100000, height: 1, line_color: "red", fill_alpha: 0.5, line_alpha: 0.5, source})
+      p.rect({x: field("x"), y: 0, width: 100000, height: 1, line_color: "red", fill_alpha: 0.5, line_alpha: 0.5, source})
       await display(p)
     })
   })
@@ -946,7 +947,7 @@ describe("Bug", () => {
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.multi_line({field: "xs"}, {field: "ys"}, {view, source, line_width: 8, line_cap: "round"})
+        p.multi_line(field("xs"), field("ys"), {view, source, line_width: 8, line_cap: "round"})
         return p
       }
 
@@ -1282,8 +1283,8 @@ describe("Bug", () => {
         const color_mapper = new LinearColorMapper({low: 0, high: 6, palette: Spectral11})
         const cds_view = new CDSView({filter: new IndexFilter({indices})})
         const ir = p.image({
-          image: {field: "image"},
-          x: {field: "x"},
+          image: field("image"),
+          x: field("x"),
           y: 0,
           dw: 10,
           dh: 20,
@@ -1365,7 +1366,7 @@ describe("Bug", () => {
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.image({image: {value: scalar_image()}, x, y, dw: 10, dh: 10, global_alpha, color_mapper})
+        p.image({image: value(scalar_image()), x, y, dw: 10, dh: 10, global_alpha, color_mapper})
         return p
       }
 
@@ -1378,7 +1379,7 @@ describe("Bug", () => {
     it("doesn't allow vectorized global alpha in ImageRGBA glyph", async () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.image_rgba({image: {value: rgba_image()}, x, y, dw: 10, dh: 10, global_alpha})
+        p.image_rgba({image: value(rgba_image()), x, y, dw: 10, dh: 10, global_alpha})
         return p
       }
 
@@ -1391,7 +1392,7 @@ describe("Bug", () => {
     it("doesn't allow vectorized global alpha in ImageURL glyph", async () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.image_url({url: {value: svg_image()}, x, y, w: 10, h: 10, global_alpha, anchor: "bottom_left"})
+        p.image_url({url: value(svg_image()), x, y, w: 10, h: 10, global_alpha, anchor: "bottom_left"})
         return p
       }
 
@@ -1410,11 +1411,11 @@ describe("Bug", () => {
       const y_range: [number, number] = [0, 10]
 
       const p0 = fig([100, 100], {output_backend: "svg", x_range, y_range})
-      p0.image({image: {value: scalar_image()}, x: -2, y: -2, dw: 10, dh: 10, color_mapper})
+      p0.image({image: value(scalar_image()), x: -2, y: -2, dw: 10, dh: 10, color_mapper})
       const p1 = fig([100, 100], {output_backend: "svg", x_range, y_range})
-      p1.image_rgba({image: {value: rgba_image()}, x: -2, y: -2, dw: 10, dh: 10})
+      p1.image_rgba({image: value(rgba_image()), x: -2, y: -2, dw: 10, dh: 10})
       const p2 = fig([100, 100], {output_backend: "svg", x_range, y_range})
-      p2.image_url({url: {value: svg_image()}, x: -2, y: -2, w: 10, h: 10, anchor: "bottom_left"})
+      p2.image_url({url: value(svg_image()), x: -2, y: -2, w: 10, h: 10, anchor: "bottom_left"})
 
       await display(row([p0, p1, p2]))
     })
@@ -1507,8 +1508,8 @@ describe("Bug", () => {
         const selected = new Selection({indices})
         const source = new ColumnDataSource({data: {x, y}, selected})
 
-        p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
-        p.scatter({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
+        p.line({x: field("x"), y: field("y"), source, line_width: 3, line_color: "#addd8e"})
+        p.scatter({x: field("x"), y: field("y"), source, size: 3, color: "#31a354"})
 
         return p
       }
@@ -1539,7 +1540,7 @@ describe("Bug", () => {
           output_backend, title: output_backend,
           x_range: [-1, 1], y_range: [-1, 1],
         })
-        p.scatter({x: {field: "x"}, y: {field: "y"}, size: 20, source})
+        p.scatter({x: field("x"), y: field("y"), size: 20, source})
         return p
       }
 
@@ -1586,9 +1587,9 @@ describe("Bug", () => {
         const fig0 = fig([200, 200], {visible})
         const fig1 = fig([200, 200], {x_axis_type: "log", y_axis_type: "log"})
         const fig2 = fig([200, 200], {x_axis_type: "log", x_range: fig1.x_range, y_range: fig1.y_range, visible})
-        fig0.line({x: {field: "x"}, y: {field: "y"}, source})
-        fig1.line({x: {field: "x"}, y: {field: "y"}, source})
-        fig2.line({x: {field: "x"}, y: {field: "y"}, source})
+        fig0.line({x: field("x"), y: field("y"), source})
+        fig1.line({x: field("x"), y: field("y"), source})
+        fig2.line({x: field("x"), y: field("y"), source})
 
         const layout = column([fig0, fig1, fig2])
         return {source, layout}
@@ -1643,8 +1644,8 @@ describe("Bug", () => {
       const p1 = fig([200, 200], {output_backend: "webgl"})
 
       const source = new ColumnDataSource({data: {x0: [0, 1], y0: [0, 1], x1: [5, 6], y1: [5, 6]}})
-      p0.line({x: {field: "x0"}, y: {field: "y0"}, source})
-      p1.line({x: {field: "x1"}, y: {field: "y1"}, source})
+      p0.line({x: field("x0"), y: field("y0"), source})
+      p1.line({x: field("x1"), y: field("y1"), source})
       const {view} = await display(row([p0, p1]))
 
       source.data = {x0: [0, 1], y0: [1, 0], x1: [5, 6], y1: [6, 5]}
@@ -1974,9 +1975,9 @@ describe("Bug", () => {
       }})
 
       const labels = new LabelSet({
-        x: {field: "a"},
-        y: {field: "b"},
-        text: {field: "c"},
+        x: field("a"),
+        y: field("b"),
+        text: field("c"),
         source,
       })
 
@@ -2019,8 +2020,8 @@ describe("Bug", () => {
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([150, 150], {output_backend, title: output_backend})
-        p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 4})
-        p.scatter({x: {field: "x"}, y: {field: "y"}, source, fill_color: "red", size: 8})
+        p.line({x: field("x"), y: field("y"), source, line_width: 4})
+        p.scatter({x: field("x"), y: field("y"), source, fill_color: "red", size: 8})
         return p
       }
 
@@ -2406,7 +2407,7 @@ describe("Bug", () => {
         const p = fig([200, 300], {title})
         p.xgrid.grid_line_color = null
         p.xaxis.ticker = new FixedTicker({ticks: [81, 82]})
-        p.scatter({x: {field: "yr", transform}, y: {field: "mpg"}, size: 9, alpha: 0.4, source})
+        p.scatter({x: field("yr", {transform}), y: field("mpg"), size: 9, alpha: 0.4, source})
         return p
       }
 
@@ -3011,7 +3012,7 @@ describe("Bug", () => {
       const table = new DataTable({source, columns, view: cds_view, width: 200})
 
       const p = fig([200, 200])
-      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
+      p.scatter({x: field("col2"), y: field("col3"), size: 10, source, view: cds_view})
 
       const {view} = await display(row([table, p]))
       await paint()
@@ -3246,12 +3247,12 @@ describe("Bug", () => {
         selected: new Selection({indices: [0, 2]}),
       })
 
-      const selected_glyph = new Circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "red"})
-      const nonselected_glyph = new Circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "white"})
+      const selected_glyph = new Circle({x: field("x"), y: field("y"), radius: 0.5, line_color: "red"})
+      const nonselected_glyph = new Circle({x: field("x"), y: field("y"), radius: 0.5, line_color: "white"})
       p.add_glyph(nonselected_glyph, source, {selection_glyph: selected_glyph, nonselection_glyph: nonselected_glyph})
 
-      const selected_labels = new Text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "red"})
-      const nonselected_labels = new Text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "white"})
+      const selected_labels = new Text({x: field("x"), y: field("y"), text: field("text"), anchor: "center", text_color: "red"})
+      const nonselected_labels = new Text({x: field("x"), y: field("y"), text: field("text"), anchor: "center", text_color: "white"})
       p.add_glyph(nonselected_labels, source, {selection_glyph: selected_labels, nonselection_glyph: nonselected_labels})
 
       await display(p)
@@ -3338,7 +3339,7 @@ describe("Bug", () => {
       const source = new ColumnDataSource({data})
 
       const p = fig([200, 200], {x_range: [0, 7], y_range: [0, 3]})
-      p.circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, color: {field: "color"}, legend_field: "label", source})
+      p.circle({x: field("x"), y: field("y"), radius: 0.5, color: field("color"), legend_field: "label", source})
       p.legend.location = "bottom_right"
 
       const {view} = await display(p)
@@ -3361,9 +3362,9 @@ describe("Bug", () => {
 
       const p = fig([200, 200])
       p.scatter({
-        x: {field: "values"},
-        y: {value: 1},
-        fill_color: {field: "color"},
+        x: field("values"),
+        y: value(1),
+        fill_color: field("color"),
         size: 20,
         source,
         view: cds_view,
@@ -3394,11 +3395,11 @@ describe("Bug", () => {
 
       function single_plot(line_dash: LineDash, nonselection_line_dash: LineDash, output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        const r = p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 10, line_dash})
+        const r = p.line({x: field("x"), y: field("y"), source, line_width: 10, line_dash})
         const glyph = r.nonselection_glyph as Line
         glyph.line_dash = nonselection_line_dash
 
-        const r2 = p.multi_line({xs: {field: "x"}, ys: {field: "y"}, source: source2, line_width: 10, line_color: "red", line_dash})
+        const r2 = p.multi_line({xs: field("x"), ys: field("y"), source: source2, line_width: 10, line_color: "red", line_dash})
         const glyph2 = r2.nonselection_glyph as MultiLine
         glyph2.line_dash = nonselection_line_dash
 
@@ -3724,7 +3725,7 @@ describe("Bug", () => {
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        const im = p.image({source, image: {field: "image"}, x: {field: "x"}, y: 0, dw: 1, dh: 1})
+        const im = p.image({source, image: field("image"), x: field("x"), y: 0, dw: 1, dh: 1})
         const glyph = im.nonselection_glyph as Image
         glyph.global_alpha = 0.3
         return p
@@ -3896,7 +3897,7 @@ describe("Bug", () => {
       p.yaxis.axis_label = "Value"
       p.x_range.max_interval = 10
 
-      p.line({x: {field: "x"}, y: {field: "y"}, source})
+      p.line({x: field("x"), y: field("y"), source})
 
       const select = figure({
         width: 600, height: 100,
@@ -3906,7 +3907,7 @@ describe("Bug", () => {
       })
       select.ygrid.grid_line_color = null
 
-      select.line({x: {field: "x"}, y: {field: "y"}, source})
+      select.line({x: field("x"), y: field("y"), source})
 
       const range_tool = new RangeTool({x_range: p.x_range})
       range_tool.overlay.fill_color = "navy"
@@ -4609,9 +4610,9 @@ describe("Bug", () => {
 
       function p(output_backend: OutputBackend) {
         const p = fig([200, 300], {output_backend, title: output_backend})
-        p.step({x: {field: "x0"}, y: {field: "y0"}, source, line_width: 5, line_cap: "round", mode: "before", line_color: "red"})
-        p.step({x: {field: "x1"}, y: {field: "y1"}, source, line_width: 5, line_cap: "round", mode: "center", line_color: "green"})
-        p.step({x: {field: "x2"}, y: {field: "y2"}, source, line_width: 5, line_cap: "round", mode: "after", line_color: "blue"})
+        p.step({x: field("x0"), y: field("y0"), source, line_width: 5, line_cap: "round", mode: "before", line_color: "red"})
+        p.step({x: field("x1"), y: field("y1"), source, line_width: 5, line_cap: "round", mode: "center", line_color: "green"})
+        p.step({x: field("x2"), y: field("y2"), source, line_width: 5, line_cap: "round", mode: "after", line_color: "blue"})
         return p
       }
       source.selected.indices = [0, 1, 5, 6]
@@ -4787,7 +4788,7 @@ describe("Bug", () => {
         active_scroll: wheel_pan,
         sizing_mode: "stretch_both",
       })
-      p.line({x: {field: "x"}, y: {field: "y"}, color: "red", source})
+      p.line({x: field("x"), y: field("y"), color: "red", source})
 
       const {view} = await display(row([div, p], {sizing_mode: "stretch_both"}))
 
@@ -4916,7 +4917,7 @@ describe("Bug", () => {
     it("doesn't show hover for multi line when values decrease", async () => {
       const source = new ColumnDataSource({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
       const p = fig([200, 200])
-      const ml = p.multi_line({xs: {field: "xs"}, ys: {field: "ys"}, line_width: 5, hover_line_color: "red", source})
+      const ml = p.multi_line({xs: field("xs"), ys: field("ys"), line_width: 5, hover_line_color: "red", source})
 
       p.add_tools(new HoverTool({tooltips: null, renderers: [ml], mode: "vline"}))
 
@@ -5082,7 +5083,7 @@ describe("Bug", () => {
       })
 
       const p = figure({width: 200, height: 200})
-      p.scatter({field: "x"}, {field: "y"}, {source, view})
+      p.scatter(field("x"), field("y"), {source, view})
 
       await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
     })
@@ -5437,13 +5438,13 @@ describe("Bug", () => {
 
       const p = fig([400, 400])
       p.scatter({
-        x: {field: "x_values"},
-        y: {field: "y_values"},
+        x: field("x_values"),
+        y: field("y_values"),
         source,
         view,
         size: 20,
         legend_field: "animal",
-        color: {field: "animal", transform: color_mapper},
+        color: field("animal", color_mapper),
       })
 
       await display(p, [400, 400])

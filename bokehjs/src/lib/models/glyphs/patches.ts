@@ -9,6 +9,7 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import type {PatchesGL} from "./webgl/patches"
@@ -261,8 +262,8 @@ export class Patches extends Glyph {
     this.prototype.default_view = PatchesView
 
     this.define<Patches.Props>(({}) => ({
-      xs: [ p.XCoordinateSeqSpec, {field: "xs"} ],
-      ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
+      xs: [ p.XCoordinateSeqSpec, field("xs") ],
+      ys: [ p.YCoordinateSeqSpec, field("ys") ],
     }))
     this.mixins<Patches.Mixins>([LineVector, FillVector, HatchVector])
   }

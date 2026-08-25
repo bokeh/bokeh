@@ -127,8 +127,8 @@ export abstract class EditToolView extends GestureToolView {
       const {glyph} = renderer
       const cds = renderer.data_source
       const data = dict(cds.data)
-      const xkey = isField(glyph.x) ? glyph.x.field : null
-      const ykey = isField(glyph.y) ? glyph.y.field : null
+      const xkey = isField(glyph.x) ? glyph.x.value : null
+      const ykey = isField(glyph.y) ? glyph.y.value : null
       for (const index of cds.selected.indices) {
         if (xkey != null && (dim == "width" || dim == "both")) {
           const column = (data.get(xkey) ?? []) as number[]

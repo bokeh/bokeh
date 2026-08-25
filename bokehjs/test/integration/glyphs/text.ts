@@ -1,5 +1,6 @@
 import {display, fig} from "#framework/layouts"
 import type {TextAlign, TextBaseline} from "@bokehjs/core/enums"
+import {value as literal} from "@bokehjs/core/vectorization"
 
 describe("Text glyph", () => {
   it("should allow to paint text with embedded scripts", async () => {
@@ -63,7 +64,7 @@ describe("Text glyph", () => {
         text_align,
         text_baseline,
         text_color,
-        angle: {value: angle, units: "deg"},
+        angle: literal(angle, {units: "deg"}),
         text_font_size: "10px",
       })
 

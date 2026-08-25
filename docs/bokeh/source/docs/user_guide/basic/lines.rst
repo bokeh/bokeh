@@ -120,10 +120,10 @@ Rays
 ~~~~
 
 The |ray| method accepts the starting points ``x`` and ``y`` with a ``length``
-(in |screen units|) and an ``angle``. The ``angle_units`` parameter defaults to
-``"rad"`` but you can also set it to ``"deg"`` to have the angle measured in
-degrees instead of radians. To have an "infinite" ray that always extends to the
-edge of the plot, set ``length`` to ``0``.
+and an ``angle``. Both are data specifications, so use
+``value(length, units="screen")`` or ``field("angle", units="deg")`` to select
+non-default units (see :ref:`ug_basic_data_specs`). To have an "infinite" ray
+that always extends to the edge of the plot, set ``length`` to ``0``.
 
 .. bokeh-plot:: __REPO__/examples/basic/lines/ray.py
     :source-position: above

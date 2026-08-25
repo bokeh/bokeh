@@ -10,6 +10,8 @@ import {zip, range, repeat} from "@bokehjs/core/util/array"
 import type {HatchPattern} from "@bokehjs/core/property_mixins"
 import {np} from "@bokehjs/api/linalg"
 import {Spectral11} from "@bokehjs/api/palettes"
+import {field, value} from "@bokehjs/core/vectorization"
+import {radians} from "@bokehjs/core/util/math"
 
 describe("Glyph models", () => {
   const x = [1, 2, 3]
@@ -24,15 +26,15 @@ describe("Glyph models", () => {
       p.annular_wedge({
         x: [1, 2, 3], y,
         inner_radius: 0.5, outer_radius: 1,
-        start_angle, start_angle_units: "deg",
-        end_angle, end_angle_units: "deg",
+        start_angle: value(start_angle, {units: "deg"}),
+        end_angle: value(end_angle, {units: "deg"}),
         fill_color, alpha: 0.6,
       })
       p.annular_wedge({
         x: [3, 4, 5], y,
         inner_radius: 0.5, outer_radius: 1,
-        start_angle, start_angle_units: "deg",
-        end_angle, end_angle_units: "deg",
+        start_angle: value(start_angle, {units: "deg"}),
+        end_angle: value(end_angle, {units: "deg"}),
         fill_color, alpha: 0.6, hatch_pattern,
       })
       return p
@@ -154,13 +156,13 @@ describe("Glyph models", () => {
       p.ellipse({
         x: [1, 2, 3], y,
         width: [1, 1.5, 2], height: [1.5, 2, 2.5],
-        angle: [0, 30, 90], angle_units: "deg",
+        angle: [0, 30, 90].map(radians),
         fill_color, alpha: 0.6,
       })
       p.ellipse({
         x: [3, 4, 5], y,
         width: [1, 1.5, 2], height: [1.5, 2, 2.5],
-        angle: [0, 30, 90], angle_units: "deg",
+        angle: [0, 30, 90].map(radians),
         fill_color, alpha: 0.6,
         hatch_pattern,
       })
@@ -366,7 +368,7 @@ describe("Glyph models", () => {
         n: 3,
         fill_color, alpha: 0.8,
         line_width: 10, line_join: ["round", "miter", "bevel"],
-        angle: [0, 45, 90], angle_units: "deg",
+        angle: [0, 45, 90].map(radians),
       })
       p.ngon({
         x: [3, 4, 5], y,
@@ -385,7 +387,7 @@ describe("Glyph models", () => {
       p.rect({
         x, y,
         width: 1, height: 2,
-        angle: [0, 90, -15], angle_units: "deg",
+        angle: [0, 90, -15].map(radians),
         alpha: 0.7, line_color: "red",
         border_radius: 0,
       })
@@ -400,7 +402,7 @@ describe("Glyph models", () => {
       p.rect({
         x, y,
         width: 1, height: 2,
-        angle: [0, 90, -15], angle_units: "deg",
+        angle: [0, 90, -15].map(radians),
         alpha: 0.7, line_color: "red",
         border_radius: [5, 10, 15, 20],
       })
@@ -414,8 +416,8 @@ describe("Glyph models", () => {
       const p = fig([200, 300], {output_backend, title: output_backend})
       p.rect({
         x, y,
-        width: {value: 50, units: "screen"},
-        height: {value: 100, units: "screen"},
+        width: value(50, {units: "screen"}),
+        height: value(100, {units: "screen"}),
         alpha: 0.7, line_color: "red",
         border_radius: [30, 40, 70, 0],
       })
@@ -537,8 +539,7 @@ describe("Glyph models", () => {
           r`$$F = G \left( \frac{m_1 m_2}{r^2} \right)$$`,
         ],
         text_font_size: "10px",
-        angle: [0, 0, 0, 30],
-        angle_units: "deg",
+        angle: [0, 0, 0, 30].map(radians),
         background_fill_color: "white", background_fill_alpha: 0.8,
         padding: 10,
         border_line_color: "black",
@@ -559,8 +560,7 @@ describe("Glyph models", () => {
           r`F = G \left( \frac{m_1 m_2}{r^2} \right)`,
         ],
         text_font_size: "10px",
-        angle: [0, 0, 0, 30],
-        angle_units: "deg",
+        angle: [0, 0, 0, 30].map(radians),
         background_fill_color: "yellow", background_fill_alpha: 0.8,
         padding: 10,
         border_line_color: "black",
@@ -581,8 +581,7 @@ describe("Glyph models", () => {
           r`F = G \left( \frac{m_1 m_2}{r^2} \right)`,
         ],
         text_font_size: "10px",
-        angle: [0, 0, 0, 30],
-        angle_units: "deg",
+        angle: [0, 0, 0, 30].map(radians),
         background_fill_color: "pink", background_fill_alpha: 0.8,
         padding: 10,
         border_line_color: "black",
@@ -713,8 +712,7 @@ describe("Glyph models", () => {
           x, y,
           text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
           anchor: ["top_left", "center", "bottom_right"],
-          angle: [0, -30, -60],
-          angle_units: "deg",
+          angle: [0, -30, -60].map(radians),
           background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
           background_fill_alpha: 0.7,
           border_line_color: ["blue", "red", "green"],
@@ -735,10 +733,9 @@ describe("Glyph models", () => {
           x, y,
           text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
           anchor: ["top_left", "center", "bottom_right"],
-          angle: [0, -30, -60],
+          angle: [0, -30, -60].map(radians),
           x_offset: [-5, -10, -15],
           y_offset: [-10, -15, -25],
-          angle_units: "deg",
           background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
           background_fill_alpha: 0.7,
           border_line_color: ["blue", "red", "green"],
@@ -878,15 +875,15 @@ describe("Glyph models", () => {
       p.wedge({
         x: [1, 2, 3], y,
         radius: [1, 1.25, 1.5],
-        start_angle: 23, start_angle_units: "deg",
-        end_angle: 275, end_angle_units: "deg",
+        start_angle: value(23, {units: "deg"}),
+        end_angle: value(275, {units: "deg"}),
         fill_color, alpha: 0.6,
       })
       p.wedge({
         x: [3, 4, 5], y,
         radius: [1, 1.25, 1.5],
-        start_angle: 23, start_angle_units: "deg",
-        end_angle: 275, end_angle_units: "deg",
+        start_angle: value(23, {units: "deg"}),
+        end_angle: value(275, {units: "deg"}),
         fill_color, alpha: 0.6, hatch_pattern,
       })
       return p
@@ -900,15 +897,15 @@ describe("Glyph models", () => {
       p.wedge({
         x: [1, 2, 3], y,
         radius: [1, 1.25, 1.5],
-        start_angle: 23, start_angle_units: "deg",
-        end_angle: 135, end_angle_units: "deg",
+        start_angle: value(23, {units: "deg"}),
+        end_angle: value(135, {units: "deg"}),
         fill_color, alpha: 0.6,
       })
       p.wedge({
         x: [3, 4, 5], y,
         radius: [1, 1.25, 1.5],
-        start_angle: 23, start_angle_units: "deg",
-        end_angle: 135, end_angle_units: "deg",
+        start_angle: value(23, {units: "deg"}),
+        end_angle: value(135, {units: "deg"}),
         fill_color, alpha: 0.6, hatch_pattern,
       })
       return p
@@ -1009,29 +1006,29 @@ describe("Glyph models", () => {
       function f(direction: Direction, fill_color: Color, line_color: Color) {
         p.annular_wedge({
           x: 0, y, inner_radius, outer_radius, fill_color, line_color, alpha,
-          start_angle: {value: sign*Math.PI/2, units: "rad"},
-          end_angle: {value: sign*Math.PI/4, units: "rad"},
+          start_angle: value(sign*Math.PI/2, {units: "rad"}),
+          end_angle: value(sign*Math.PI/4, {units: "rad"}),
           direction,
         })
         p.annular_wedge({
           x: 2, y,
           inner_radius, outer_radius, fill_color, line_color, alpha,
-          start_angle: {value: sign*90, units: "deg"},
-          end_angle: {value: sign*45, units: "deg"},
+          start_angle: value(sign*90, {units: "deg"}),
+          end_angle: value(sign*45, {units: "deg"}),
           direction,
         })
         p.annular_wedge({
           x: 4, y,
           inner_radius, outer_radius, fill_color, line_color, alpha,
-          start_angle: {value: sign*100, units: "grad"},
-          end_angle: {value: sign*50, units: "grad"},
+          start_angle: value(sign*100, {units: "grad"}),
+          end_angle: value(sign*50, {units: "grad"}),
           direction,
         })
         p.annular_wedge({
           x: 6, y,
           inner_radius, outer_radius, fill_color, line_color, alpha,
-          start_angle: {value: sign*0.25, units: "turn"},
-          end_angle: {value: sign*0.125, units: "turn"},
+          start_angle: value(sign*0.25, {units: "turn"}),
+          end_angle: value(sign*0.125, {units: "turn"}),
           direction,
         })
       }
@@ -1062,8 +1059,8 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Circle({radius: {field: "radius"}, fill_color: {field: "color"}})
-      const selection_glyph = new Circle({radius: {field: "selection_radius"}, fill_color: {field: "color"}})
+      const glyph = new Circle({radius: field("radius"), fill_color: field("color")})
+      const selection_glyph = new Circle({radius: field("selection_radius"), fill_color: field("color")})
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
@@ -1088,17 +1085,17 @@ describe("Glyph models", () => {
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
       const glyph = new Scatter({
-        x: {field: "x"},
-        y: {field: "y"},
-        marker: {field: "marker"},
-        size: {field: "size"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        x: field("x"),
+        y: field("y"),
+        marker: field("marker"),
+        size: field("size"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const selection_glyph = new Scatter({
-        size: {field: "selection_size"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        size: field("selection_size"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
@@ -1123,16 +1120,16 @@ describe("Glyph models", () => {
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
       const glyph = new HBar({
-        y: {field: "y"},
-        right: {field: "right"},
-        height: {field: "height"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        y: field("y"),
+        right: field("right"),
+        height: field("height"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const selection_glyph = new HBar({
-        height: {field: "selection_height"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        height: field("selection_height"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
@@ -1161,18 +1158,18 @@ describe("Glyph models", () => {
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
       const glyph = new Rect({
-        x: {field: "x"},
-        y: {field: "y"},
-        width: {field: "width"},
-        height: {field: "height"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        x: field("x"),
+        y: field("y"),
+        width: field("width"),
+        height: field("height"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const selection_glyph = new Rect({
-        width: {field: "selection_width"},
-        height: {field: "selection_height"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        width: field("selection_width"),
+        height: field("selection_height"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
@@ -1198,18 +1195,18 @@ describe("Glyph models", () => {
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
       const glyph = new Annulus({
-        x: {field: "x"},
-        y: {field: "y"},
-        inner_radius: {field: "inner_radius"},
-        outer_radius: {field: "outer_radius"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        x: field("x"),
+        y: field("y"),
+        inner_radius: field("inner_radius"),
+        outer_radius: field("outer_radius"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const selection_glyph = new Annulus({
-        inner_radius: {field: "selection_inner_radius"},
-        outer_radius: {field: "selection_outer_radius"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        inner_radius: field("selection_inner_radius"),
+        outer_radius: field("selection_outer_radius"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
@@ -1233,18 +1230,18 @@ describe("Glyph models", () => {
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
       const glyph = new Wedge({
-        x: {field: "x"},
-        y: {field: "y"},
-        radius: {field: "radius"},
-        start_angle: {value: 0},
-        end_angle: {value: Math.PI},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        x: field("x"),
+        y: field("y"),
+        radius: field("radius"),
+        start_angle: value(0),
+        end_angle: value(Math.PI),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const selection_glyph = new Wedge({
-        radius: {field: "selection_radius"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        radius: field("selection_radius"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
@@ -1270,20 +1267,20 @@ describe("Glyph models", () => {
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
       const glyph = new AnnularWedge({
-        x: {field: "x"},
-        y: {field: "y"},
-        inner_radius: {field: "inner_radius"},
-        outer_radius: {field: "outer_radius"},
-        start_angle: {value: 0},
-        end_angle: {value: Math.PI},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        x: field("x"),
+        y: field("y"),
+        inner_radius: field("inner_radius"),
+        outer_radius: field("outer_radius"),
+        start_angle: value(0),
+        end_angle: value(Math.PI),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const selection_glyph = new AnnularWedge({
-        inner_radius: {field: "selection_inner_radius"},
-        outer_radius: {field: "selection_outer_radius"},
-        fill_color: {field: "color"},
-        line_color: {field: "color"},
+        inner_radius: field("selection_inner_radius"),
+        outer_radius: field("selection_outer_radius"),
+        fill_color: field("color"),
+        line_color: field("color"),
       })
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
@@ -1306,8 +1303,8 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Circle({radius: {value: 0.5}, fill_color: {field: "color"}})
-      const selection_glyph = new Circle({x: {field: "x1"}, y: {field: "y1"}, radius: {value: 0.5}, fill_color: {field: "color"}})
+      const glyph = new Circle({radius: value(0.5), fill_color: field("color")})
+      const selection_glyph = new Circle({x: field("x1"), y: field("y1"), radius: value(0.5), fill_color: field("color")})
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
@@ -1330,8 +1327,8 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Circle({radius: {field: "radius"}, fill_color: {field: "color"}})
-      const selection_glyph = new Rect({fill_color: {field: "color"}})
+      const glyph = new Circle({radius: field("radius"), fill_color: field("color")})
+      const selection_glyph = new Rect({fill_color: field("color")})
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p

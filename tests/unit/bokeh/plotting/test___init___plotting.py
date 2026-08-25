@@ -33,6 +33,8 @@ ALL = (
     'curdoc',
     'DEFAULT_TOOLS',
     'Document',
+    'expr',
+    'field',
     'figure',
     'from_networkx',
     'gmap',
@@ -46,6 +48,7 @@ ALL = (
     'Row',
     'save',
     'show',
+    'value',
 )
 
 #-----------------------------------------------------------------------------

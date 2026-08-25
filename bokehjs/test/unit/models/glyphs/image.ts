@@ -4,13 +4,14 @@ import {create_glyph_view} from "./_util"
 import {Image} from "@bokehjs/models/glyphs/image"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {ScreenArray} from "@bokehjs/core/types"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("Image module", () => {
 
   describe("ImageView", () => {
 
     it("`_map_data` should correctly map data if w and h units are 'data'", async () => {
-      const image = new Image({image: {field: "image"}})
+      const image = new Image({image: field("image")})
       image.x = 0
       image.y = 0
       image.dw = 17
@@ -25,7 +26,7 @@ describe("Image module", () => {
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
-      const image = new Image({image: {field: "image"}})
+      const image = new Image({image: field("image")})
       image.x = 0
       image.y = 0
       image.dw = 1

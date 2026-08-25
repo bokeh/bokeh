@@ -58,14 +58,14 @@ export type ValueRep = {
 
 export type FieldRep = {
   type: "field"
-  field: string
+  value: string
   transform?: AnyVal
   units?: AnyVal
 }
 
 export type ExprRep = {
   type: "expr"
-  expr: AnyVal
+  value: AnyVal
   transform?: AnyVal
   units?: AnyVal
 }

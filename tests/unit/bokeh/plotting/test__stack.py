@@ -67,7 +67,7 @@ class Test_single_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[: i + 1]
+            assert list(kw["start"].value.fields) == stackers[: i + 1]
 
     def test_broadcast_with_scalar_kwargs(self) -> None:
         stackers = ['a', 'b', 'c', 'd']
@@ -75,7 +75,7 @@ class Test_single_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "foo", "bar", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[: i + 1]
+            assert list(kw["start"].value.fields) == stackers[: i + 1]
             assert kw["foo"] == 10
             assert kw["bar"] == "baz"
             assert kw["name"] == stackers[i]
@@ -86,7 +86,7 @@ class Test_single_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "foo", "bar", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[: i + 1]
+            assert list(kw["start"].value.fields) == stackers[: i + 1]
             assert kw["foo"] == [10, 20, 30, 40][i]
             assert kw["bar"] == "baz"
             assert kw["name"] == stackers[i]
@@ -97,7 +97,7 @@ class Test_single_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "foo", "bar", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[: i + 1]
+            assert list(kw["start"].value.fields) == stackers[: i + 1]
             assert kw["foo"] == [10, 20, 30, 40][i]
             assert kw["bar"] == "baz"
             assert kw["name"] == "name"
@@ -109,7 +109,7 @@ class Test_single_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "foo", "bar", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[: i + 1]
+            assert list(kw["start"].value.fields) == stackers[: i + 1]
             assert kw["foo"] == [10, 20, 30, 40][i]
             assert kw["bar"] == "baz"
             assert kw["name"] == names[i]
@@ -155,8 +155,8 @@ class Test_double_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "end", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[:i]
-            assert list(kw["end"]["expr"].fields) == stackers[: (i + 1)]
+            assert list(kw["start"].value.fields) == stackers[:i]
+            assert list(kw["end"].value.fields) == stackers[: (i + 1)]
 
     def test_broadcast_with_scalar_kwargs(self) -> None:
         stackers = ['a', 'b', 'c', 'd']
@@ -164,8 +164,8 @@ class Test_double_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "end", "foo", "bar", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[:i]
-            assert list(kw["end"]["expr"].fields) == stackers[: (i + 1)]
+            assert list(kw["start"].value.fields) == stackers[:i]
+            assert list(kw["end"].value.fields) == stackers[: (i + 1)]
             assert kw["foo"] == 10
             assert kw["bar"] == "baz"
             assert kw["name"] == stackers[i]
@@ -176,8 +176,8 @@ class Test_double_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "end", "foo", "bar", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[:i]
-            assert list(kw["end"]["expr"].fields) == stackers[: (i + 1)]
+            assert list(kw["start"].value.fields) == stackers[:i]
+            assert list(kw["end"].value.fields) == stackers[: (i + 1)]
             assert kw["foo"] == [10, 20, 30, 40][i]
             assert kw["bar"] == "baz"
             assert kw["name"] == stackers[i]
@@ -188,8 +188,8 @@ class Test_double_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "end", "foo", "bar", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[:i]
-            assert list(kw["end"]["expr"].fields) == stackers[: (i + 1)]
+            assert list(kw["start"].value.fields) == stackers[:i]
+            assert list(kw["end"].value.fields) == stackers[: (i + 1)]
             assert kw["foo"] == [10, 20, 30, 40][i]
             assert kw["bar"] == "baz"
             assert kw["name"] == "name"
@@ -201,8 +201,8 @@ class Test_double_stack:
         assert len(kws) == len(stackers)
         for i, kw in enumerate(kws):
             assert {"start", "end", "foo", "bar", "name"} == set(kw.keys())
-            assert list(kw["start"]["expr"].fields) == stackers[:i]
-            assert list(kw["end"]["expr"].fields) == stackers[: (i + 1)]
+            assert list(kw["start"].value.fields) == stackers[:i]
+            assert list(kw["end"].value.fields) == stackers[: (i + 1)]
             assert kw["foo"] == [10, 20, 30, 40][i]
             assert kw["bar"] == "baz"
             assert kw["name"] == names[i]

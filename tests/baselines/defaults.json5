@@ -208,21 +208,21 @@
     __extends__: "DataAnnotation",
     x_start: {
       type: "field",
-      field: "x_start",
+      value: "x_start",
     },
     y_start: {
       type: "field",
-      field: "y_start",
+      value: "y_start",
     },
     start_units: "data",
     start: null,
     x_end: {
       type: "field",
-      field: "x_end",
+      value: "x_end",
     },
     y_end: {
       type: "field",
-      field: "y_end",
+      value: "y_end",
     },
     end_units: "data",
     end: {
@@ -667,15 +667,18 @@
     __extends__: "DataAnnotation",
     lower: {
       type: "field",
-      field: "lower",
+      value: "lower",
+      units: "data",
     },
     upper: {
       type: "field",
-      field: "upper",
+      value: "upper",
+      units: "data",
     },
     base: {
       type: "field",
-      field: "base",
+      value: "base",
+      units: "data",
     },
     dimension: "height",
     line_color: "#cccccc",
@@ -900,7 +903,8 @@
     level: "underlay",
     lower: {
       type: "field",
-      field: "lower",
+      value: "lower",
+      units: "data",
     },
     lower_head: {
       type: "object",
@@ -914,7 +918,8 @@
     },
     upper: {
       type: "field",
-      field: "upper",
+      value: "upper",
+      units: "data",
     },
     upper_head: {
       type: "object",
@@ -928,7 +933,8 @@
     },
     base: {
       type: "field",
-      field: "base",
+      value: "base",
+      units: "data",
     },
     dimension: "height",
     line_color: {
@@ -998,21 +1004,22 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
+      units: "data",
     },
-    x_units: "data",
     y: {
       type: "field",
-      field: "y",
+      value: "y",
+      units: "data",
     },
-    y_units: "data",
     text: {
       type: "field",
-      field: "text",
+      value: "text",
     },
     angle: {
       type: "value",
       value: 0,
+      units: "rad",
     },
     x_offset: {
       type: "value",
@@ -1168,21 +1175,22 @@
     __extends__: "DataAnnotation",
     x: {
       type: "field",
-      field: "x",
+      value: "x",
+      units: "data",
     },
-    x_units: "data",
     y: {
       type: "field",
-      field: "y",
+      value: "y",
+      units: "data",
     },
-    y_units: "data",
     text: {
       type: "field",
-      field: "text",
+      value: "text",
     },
     angle: {
       type: "value",
       value: 0,
+      units: "rad",
     },
     x_offset: {
       type: "value",
@@ -2864,11 +2872,12 @@
     __extends__: "CoordinateTransform",
     radius: {
       type: "field",
-      field: "radius",
+      value: "radius",
     },
     angle: {
       type: "field",
-      field: "angle",
+      value: "angle",
+      units: "rad",
     },
     direction: "anticlock",
   },
@@ -3051,27 +3060,31 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     inner_radius: {
       type: "field",
-      field: "inner_radius",
+      value: "inner_radius",
+      units: "data",
     },
     outer_radius: {
       type: "field",
-      field: "outer_radius",
+      value: "outer_radius",
+      units: "data",
     },
     start_angle: {
       type: "field",
-      field: "start_angle",
+      value: "start_angle",
+      units: "rad",
     },
     end_angle: {
       type: "field",
-      field: "end_angle",
+      value: "end_angle",
+      units: "rad",
     },
     direction: "anticlock",
     line_color: {
@@ -3143,19 +3156,21 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     inner_radius: {
       type: "field",
-      field: "inner_radius",
+      value: "inner_radius",
+      units: "data",
     },
     outer_radius: {
       type: "field",
-      field: "outer_radius",
+      value: "outer_radius",
+      units: "data",
     },
     line_color: {
       type: "value",
@@ -3224,23 +3239,26 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     radius: {
       type: "field",
-      field: "radius",
+      value: "radius",
+      units: "data",
     },
     start_angle: {
       type: "field",
-      field: "start_angle",
+      value: "start_angle",
+      units: "rad",
     },
     end_angle: {
       type: "field",
-      field: "end_angle",
+      value: "end_angle",
+      units: "rad",
     },
     direction: "anticlock",
     line_color: {
@@ -3279,35 +3297,35 @@
     ],
     x0: {
       type: "field",
-      field: "x0",
+      value: "x0",
     },
     y0: {
       type: "field",
-      field: "y0",
+      value: "y0",
     },
     x1: {
       type: "field",
-      field: "x1",
+      value: "x1",
     },
     y1: {
       type: "field",
-      field: "y1",
+      value: "y1",
     },
     cx0: {
       type: "field",
-      field: "cx0",
+      value: "cx0",
     },
     cy0: {
       type: "field",
-      field: "cy0",
+      value: "cy0",
     },
     cx1: {
       type: "field",
-      field: "cx1",
+      value: "cx1",
     },
     cy1: {
       type: "field",
-      field: "cy1",
+      value: "cy1",
     },
     line_color: {
       type: "value",
@@ -3342,19 +3360,21 @@
     __extends__: "LRTBGlyph",
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     width: {
       type: "value",
       value: 1,
+      units: "data",
     },
     height: {
       type: "value",
       value: 1,
+      units: "data",
     },
     line_color: {
       type: "value",
@@ -3425,11 +3445,11 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     radius: {
       type: "symbol",
@@ -3506,23 +3526,26 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     width: {
       type: "field",
-      field: "width",
+      value: "width",
+      units: "data",
     },
     height: {
       type: "field",
-      field: "height",
+      value: "height",
+      units: "data",
     },
     angle: {
       type: "value",
       value: 0.0,
+      units: "rad",
     },
     line_color: {
       type: "value",
@@ -3592,15 +3615,15 @@
     ],
     x1: {
       type: "field",
-      field: "x1",
+      value: "x1",
     },
     x2: {
       type: "field",
-      field: "x2",
+      value: "x2",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     fill_color: "gray",
     fill_alpha: 1.0,
@@ -3636,15 +3659,15 @@
     ],
     x1: {
       type: "field",
-      field: "x1",
+      value: "x1",
     },
     x2: {
       type: "field",
-      field: "x2",
+      value: "x2",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     step_mode: "before",
     fill_color: "gray",
@@ -3677,11 +3700,12 @@
     __extends__: "LRTBGlyph",
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     height: {
       type: "value",
       value: 1,
+      units: "data",
     },
     left: {
       type: "value",
@@ -3689,7 +3713,7 @@
     },
     right: {
       type: "field",
-      field: "right",
+      value: "right",
     },
     line_color: {
       type: "value",
@@ -3758,7 +3782,7 @@
     ],
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     line_color: {
       type: "value",
@@ -3798,11 +3822,11 @@
     ],
     y0: {
       type: "field",
-      field: "y0",
+      value: "y0",
     },
     y1: {
       type: "field",
-      field: "y1",
+      value: "y1",
     },
     line_color: {
       type: "value",
@@ -3875,11 +3899,11 @@
     aspect_scale: 1.0,
     r: {
       type: "field",
-      field: "r",
+      value: "r",
     },
     q: {
       type: "field",
-      field: "q",
+      value: "q",
     },
     scale: {
       type: "value",
@@ -3950,7 +3974,7 @@
     __extends__: "ImageBase",
     image: {
       type: "field",
-      field: "image",
+      value: "image",
     },
     color_mapper: {
       type: "object",
@@ -3974,19 +3998,21 @@
     __extends__: "XYGlyph",
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     dw: {
       type: "field",
-      field: "dw",
+      value: "dw",
+      units: "data",
     },
     dh: {
       type: "field",
-      field: "dh",
+      value: "dh",
+      units: "data",
     },
     global_alpha: {
       type: "value",
@@ -4000,14 +4026,14 @@
     __extends__: "ImageBase",
     image: {
       type: "field",
-      field: "image",
+      value: "image",
     },
   },
   ImageStack: {
     __extends__: "ImageBase",
     image: {
       type: "field",
-      field: "image",
+      value: "image",
     },
     color_mapper: {
       type: "symbol",
@@ -4018,27 +4044,30 @@
     __extends__: "XYGlyph",
     url: {
       type: "field",
-      field: "url",
+      value: "url",
     },
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     w: {
       type: "value",
       value: null,
+      units: "data",
     },
     h: {
       type: "value",
       value: null,
+      units: "data",
     },
     angle: {
       type: "value",
       value: 0,
+      units: "rad",
     },
     global_alpha: {
       type: "value",
@@ -4065,11 +4094,11 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     line_color: "black",
     line_alpha: 1.0,
@@ -4088,11 +4117,11 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     hit_dilation: 1.0,
     size: {
@@ -4102,6 +4131,7 @@
     angle: {
       type: "value",
       value: 0.0,
+      units: "rad",
     },
     line_color: {
       type: "value",
@@ -4176,11 +4206,11 @@
     ],
     xs: {
       type: "field",
-      field: "xs",
+      value: "xs",
     },
     ys: {
       type: "field",
-      field: "ys",
+      value: "ys",
     },
     line_color: {
       type: "value",
@@ -4220,11 +4250,11 @@
     ],
     xs: {
       type: "field",
-      field: "xs",
+      value: "xs",
     },
     ys: {
       type: "field",
-      field: "ys",
+      value: "ys",
     },
     line_color: {
       type: "value",
@@ -4290,11 +4320,11 @@
     __extends__: "RadialGlyph",
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     radius: {
       type: "symbol",
@@ -4303,10 +4333,11 @@
     angle: {
       type: "value",
       value: 0,
+      units: "rad",
     },
     n: {
       type: "field",
-      field: "n",
+      value: "n",
     },
     radius_dimension: "x",
     line_color: {
@@ -4378,11 +4409,11 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     line_color: "black",
     line_alpha: 1.0,
@@ -4411,11 +4442,11 @@
     ],
     xs: {
       type: "field",
-      field: "xs",
+      value: "xs",
     },
     ys: {
       type: "field",
-      field: "ys",
+      value: "ys",
     },
     line_color: {
       type: "value",
@@ -4481,19 +4512,19 @@
     __extends__: "LRTBGlyph",
     left: {
       type: "field",
-      field: "left",
+      value: "left",
     },
     right: {
       type: "field",
-      field: "right",
+      value: "right",
     },
     bottom: {
       type: "field",
-      field: "bottom",
+      value: "bottom",
     },
     top: {
       type: "field",
-      field: "top",
+      value: "top",
     },
     line_color: {
       type: "value",
@@ -4562,27 +4593,27 @@
     ],
     x0: {
       type: "field",
-      field: "x0",
+      value: "x0",
     },
     y0: {
       type: "field",
-      field: "y0",
+      value: "y0",
     },
     x1: {
       type: "field",
-      field: "x1",
+      value: "x1",
     },
     y1: {
       type: "field",
-      field: "y1",
+      value: "y1",
     },
     cx: {
       type: "field",
-      field: "cx",
+      value: "cx",
     },
     cy: {
       type: "field",
-      field: "cy",
+      value: "cy",
     },
     line_color: {
       type: "value",
@@ -4620,19 +4651,21 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     angle: {
       type: "value",
       value: 0,
+      units: "rad",
     },
     length: {
       type: "value",
       value: 0,
+      units: "data",
     },
     line_color: {
       type: "value",
@@ -4672,23 +4705,26 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     width: {
       type: "field",
-      field: "width",
+      value: "width",
+      units: "data",
     },
     height: {
       type: "field",
-      field: "height",
+      value: "height",
+      units: "data",
     },
     angle: {
       type: "value",
       value: 0.0,
+      units: "rad",
     },
     border_radius: 0,
     dilate: false,
@@ -4769,19 +4805,19 @@
     ],
     x0: {
       type: "field",
-      field: "x0",
+      value: "x0",
     },
     y0: {
       type: "field",
-      field: "y0",
+      value: "y0",
     },
     x1: {
       type: "field",
-      field: "x1",
+      value: "x1",
     },
     y1: {
       type: "field",
-      field: "y1",
+      value: "y1",
     },
     line_color: {
       type: "value",
@@ -4819,11 +4855,11 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     line_color: "black",
     line_alpha: 1.0,
@@ -4850,19 +4886,20 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     text: {
       type: "field",
-      field: "text",
+      value: "text",
     },
     angle: {
       type: "value",
       value: 0,
+      units: "rad",
     },
     x_offset: {
       type: "value",
@@ -4990,15 +5027,15 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y1: {
       type: "field",
-      field: "y1",
+      value: "y1",
     },
     y2: {
       type: "field",
-      field: "y2",
+      value: "y2",
     },
     fill_color: "gray",
     fill_alpha: 1.0,
@@ -5034,15 +5071,15 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y1: {
       type: "field",
-      field: "y1",
+      value: "y1",
     },
     y2: {
       type: "field",
-      field: "y2",
+      value: "y2",
     },
     step_mode: "before",
     fill_color: "gray",
@@ -5075,11 +5112,12 @@
     __extends__: "LRTBGlyph",
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     width: {
       type: "value",
       value: 1,
+      units: "data",
     },
     bottom: {
       type: "value",
@@ -5087,7 +5125,7 @@
     },
     top: {
       type: "field",
-      field: "top",
+      value: "top",
     },
     line_color: {
       type: "value",
@@ -5156,7 +5194,7 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     line_color: {
       type: "value",
@@ -5196,11 +5234,11 @@
     ],
     x0: {
       type: "field",
-      field: "x0",
+      value: "x0",
     },
     x1: {
       type: "field",
-      field: "x1",
+      value: "x1",
     },
     line_color: {
       type: "value",
@@ -5271,23 +5309,26 @@
     ],
     x: {
       type: "field",
-      field: "x",
+      value: "x",
     },
     y: {
       type: "field",
-      field: "y",
+      value: "y",
     },
     radius: {
       type: "field",
-      field: "radius",
+      value: "radius",
+      units: "data",
     },
     start_angle: {
       type: "field",
-      field: "start_angle",
+      value: "start_angle",
+      units: "rad",
     },
     end_angle: {
       type: "field",
-      field: "end_angle",
+      value: "end_angle",
+      units: "rad",
     },
     direction: "anticlock",
     line_color: {

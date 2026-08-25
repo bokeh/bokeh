@@ -34,7 +34,12 @@ from ...core.enums import (
     VerticalAlign,
 )
 from ...core.has_props import abstract
-from ...core.property.dataspec import AngleSpec, NullStringSpec, NumberSpec
+from ...core.property.dataspec import (
+    AngleSpec,
+    CoordinateSpec,
+    NullStringSpec,
+    NumberSpec,
+)
 from ...core.property.enum import Enum
 from ...core.property.include import Include
 from ...core.property.numeric import Angle
@@ -43,12 +48,7 @@ from ...core.property.primitive import Bool, Float
 from ...core.property.required import Required
 from ...core.property.text_like import TextLike
 from ...core.property.vectorization import field
-from ...core.property_aliases import (
-    AngleUnits as AngleUnitsProperty,
-    BorderRadius,
-    Padding,
-    TextAnchor,
-)
+from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     FillProps,
     HatchProps,
@@ -241,22 +241,12 @@ class LabelSet(DataAnnotation):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    x = NumberSpec(default=field("x"), help="""
+    x = CoordinateSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
 
-    x_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the ``xs`` attribute. Interpreted as |data units| by
-    default.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
+    y = CoordinateSpec(default=field("y"), help="""
     The y-coordinates to locate the text anchors.
-    """)
-
-    y_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the ``ys`` attribute. Interpreted as |data units| by
-    default.
     """)
 
     text = NullStringSpec(default=field("text"), help="""
@@ -266,8 +256,6 @@ class LabelSet(DataAnnotation):
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
     """)
-
-    angle_units = AngleUnitsProperty
 
     x_offset = NumberSpec(default=0, help="""
     Offset values to apply to the x-coordinates.

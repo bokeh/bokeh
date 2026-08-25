@@ -17,6 +17,7 @@ import {build_view} from "@bokehjs/core/build_views"
 import * as visuals from "@bokehjs/core/visuals"
 import * as mixins from "@bokehjs/core/property_mixins"
 import type * as p from "@bokehjs/core/properties"
+import {field} from "@bokehjs/core/vectorization"
 
 class SomeModelView extends DOMComponentView implements visuals.Paintable {
   declare model: SomeModel
@@ -312,7 +313,7 @@ describe("core/visuals", () => {
     describe("interacting with GlyphViews", () => {
 
       it("should get initialized with appropriate indices", async () => {
-        const scatter = new Scatter({fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}})
+        const scatter = new Scatter({fill_color: field("fill_color"), fill_alpha: field("fill_alpha")})
         const data = {fill_color: ["red", "green", "blue"], fill_alpha: [0, 0.6, 0.8]}
         const renderer_view = await create_glyph_renderer_view(scatter, data)
 

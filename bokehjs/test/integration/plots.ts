@@ -9,6 +9,7 @@ import type {Location, WindowAxis} from "@bokehjs/core/enums"
 import {DataRange1d, Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
 import {Text} from "@bokehjs/models/dom"
 import type {Data} from "@bokehjs/core/types"
+import {value as literal, field} from "@bokehjs/core/vectorization"
 
 describe("Plot", () => {
   const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {
@@ -237,7 +238,7 @@ describe("Plot", () => {
         title: `match_aspect == ${match_aspect}`,
       })
       p.rect({x: 0, y: 0, width: 300, height: 300, line_color: "black"})
-      p.circle({x: 0, y: 0, radius: 150, radius_units: "data", line_color: "black", fill_color: "grey"})
+      p.circle({x: 0, y: 0, radius: literal(150, {units: "data"}), line_color: "black", fill_color: "grey"})
       return p
     }
 
@@ -444,8 +445,8 @@ describe("Plot", () => {
       const ax = new LinearAxis({y_range_name: "linear", axis_label: "Linear", axis_label_text_color: "red"})
       f.add_layout(ax, "left")
 
-      const t = {field: "t"}
-      const v = {field: "v"}
+      const t = field("t")
+      const v = field("v")
 
       f.line(t, v, {line_width: 2, source, color: "blue"})
       f.scatter(t, v, {size: 5, line_width: 2, source, color: "blue"})

@@ -20,6 +20,7 @@ import pytest ; pytest
 import numpy as np
 
 # Bokeh imports
+from bokeh.core.properties import field, value
 from bokeh.models import (
     Circle,
     ColumnDataSource,
@@ -104,8 +105,8 @@ class Test_make_glyph:
         glyph_visuals = bpr.pop_visuals(Circle, kwargs)
         muted_visuals = bpr.pop_visuals(Circle, kwargs, prefix='muted_', defaults=glyph_visuals, override_defaults={'alpha':0.2})
         ca = bpr.make_glyph(Circle, kwargs, muted_visuals)
-        assert ca.fill_alpha == 0.2
-        assert ca.line_alpha == 0.2
+        assert ca.fill_alpha == value(0.2)
+        assert ca.line_alpha == value(0.2)
         assert isinstance(ca, Circle)
 
     def test_user_specified_mute_glyph(self) -> None:
@@ -113,10 +114,10 @@ class Test_make_glyph:
         glyph_visuals = bpr.pop_visuals(Circle, kwargs)
         muted_visuals = bpr.pop_visuals(Circle, kwargs, prefix='muted_', defaults=glyph_visuals, override_defaults={'alpha':0.2})
         ca = bpr.make_glyph(Circle, kwargs, muted_visuals)
-        assert ca.fill_alpha == 0.4
-        assert ca.line_alpha == 0.4
-        assert ca.line_color == "blue"
-        assert ca.fill_color == "blue"
+        assert ca.fill_alpha == value(0.4)
+        assert ca.line_alpha == value(0.4)
+        assert ca.line_color == value("blue")
+        assert ca.fill_color == value("blue")
 
 class Test__process_sequence_literals:
     """Test that _process_sequence_literals handles line_dash sequences correctly"""
@@ -178,7 +179,7 @@ class Test__process_sequence_literals:
         r = p.patches([[1, 2, 3]], [[1, 2, 3]], line_dash=[6, 3])
 
         assert isinstance(r.glyph, Patches)
-        assert r.glyph.line_dash == [6, 3]
+        assert r.glyph.line_dash == value([6, 3])
         assert "line_dash" not in r.data_source.data
 
     def test_hspan_line_dash_as_list(self) -> None:
@@ -188,7 +189,7 @@ class Test__process_sequence_literals:
 
         # hspan creates an HSpan glyph
         assert isinstance(r.glyph, HSpan)
-        assert r.glyph.line_dash == [5, 5]
+        assert r.glyph.line_dash == value([5, 5])
         assert "line_dash" not in r.data_source.data
 
     @pytest.mark.parametrize("dtype", [None, np.int32, np.uint8])
@@ -239,7 +240,7 @@ class Test__process_sequence_literals:
         r = p.patches([[1, 2, 3]], [[1, 2, 3]], line_dash=np.array([6, 3]))
 
         assert isinstance(r.glyph, Patches)
-        assert list(r.glyph.line_dash) == [6, 3]
+        assert list(r.glyph.line_dash.value) == [6, 3]
         assert "line_dash" not in r.data_source.data
 
     def test_multi_line_per_glyph_dash_patterns(self) -> None:
@@ -254,7 +255,7 @@ class Test__process_sequence_literals:
 
         assert isinstance(r.glyph, MultiLine)
         # line_dash should reference the field name
-        assert r.glyph.line_dash == 'line_dash'
+        assert r.glyph.line_dash == field('line_dash')
         # Data should be in the source
         assert 'line_dash' in r.data_source.data
         assert r.data_source.data['line_dash'] == [[6, 3], [10, 5], [2, 4]]
@@ -270,7 +271,7 @@ class Test__process_sequence_literals:
 
         assert isinstance(r.glyph, MultiLine)
         # line_dash should reference the auto-generated field name
-        assert r.glyph.line_dash == 'line_dash'
+        assert r.glyph.line_dash == field('line_dash')
         # Data should be automatically added to the source
         assert 'line_dash' in r.data_source.data
         assert r.data_source.data['line_dash'] == [[6, 3], [10, 5], [2, 4]]

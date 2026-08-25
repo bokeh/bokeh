@@ -3,6 +3,7 @@ import type {PointGeometry} from "core/geometry"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import * as p from "core/properties"
+import {field, value} from "core/vectorization"
 import {UniformScalar, UniformVector} from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -397,11 +398,11 @@ export class Text extends XYGlyph {
     ])
 
     this.define<Text.Props>(() => ({
-      text: [ p.NullStringSpec, {field: "text"} ],
+      text: [ p.NullStringSpec, field("text") ],
       angle: [ p.AngleSpec, 0 ],
       x_offset: [ p.NumberSpec, 0 ],
       y_offset: [ p.NumberSpec, 0 ],
-      anchor: [ TextAnchorSpec, {value: "auto"} ],
+      anchor: [ TextAnchorSpec, value("auto") ],
       padding: [ Padding, 0 ],
       border_radius: [ BorderRadius, 0 ],
       outline_shape: [ OutlineShapeSpec, "box" ],

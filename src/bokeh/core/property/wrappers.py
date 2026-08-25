@@ -172,7 +172,7 @@ class PropertyValueContainer:
         self._owners.discard((owner, descriptor))
 
     def _notify_owners(self, old: Any, hint: DocumentPatchedEvent | None = None) -> None:
-        for (owner, descriptor) in self._owners:
+        for (owner, descriptor) in list(self._owners):
             descriptor._notify_mutated(owner, old, hint=hint)
 
     def _saved_copy(self) -> Any:

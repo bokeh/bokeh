@@ -6,6 +6,7 @@ import type {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -173,8 +174,8 @@ export class Annulus extends XYGlyph {
     this.mixins<Annulus.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<Annulus.Props>(({}) => ({
-      inner_radius: [ p.DistanceSpec, {field: "inner_radius"} ],
-      outer_radius: [ p.DistanceSpec, {field: "outer_radius"} ],
+      inner_radius: [ p.DistanceSpec, field("inner_radius") ],
+      outer_radius: [ p.DistanceSpec, field("outer_radius") ],
     }))
   }
 }

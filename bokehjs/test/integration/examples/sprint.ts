@@ -12,6 +12,7 @@ import {
   ColumnDataSource,
   DataRange1d,
 } from "@bokehjs/models"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("Examples", () => {
   it("should support Sprint", async () => {
@@ -95,11 +96,11 @@ describe("Examples", () => {
     plot.ygrid.grid_line_color = null
 
     const medal = plot.scatter({
-      x: {field: "MetersBack"}, y: {field: "Year"},
+      x: field("MetersBack"), y: field("Year"),
       size: 10,
       source,
       level: "overlay",
-      fill_color: {field: "MedalFill"}, line_color: {field: "MedalLine"}, fill_alpha: 0.5,
+      fill_color: field("MedalFill"), line_color: field("MedalLine"), fill_alpha: 0.5,
     })
 
     const tooltips = `
@@ -130,9 +131,9 @@ describe("Examples", () => {
     plot.add_tools(hover, tap)
 
     plot.text({
-      x: {field: "MetersBack"}, y: {field: "Year"},
+      x: field("MetersBack"), y: field("Year"),
       x_offset: 10, y_offset: -5,
-      text: {field: "SelectedName"},
+      text: field("SelectedName"),
       text_align: "left", text_baseline: "middle", text_font_size: "12px",
       source,
     })

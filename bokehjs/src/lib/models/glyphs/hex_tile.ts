@@ -3,6 +3,7 @@ import {Glyph, GlyphView} from "./glyph"
 import type {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type {Rect, Arrayable} from "core/types"
 import type {Context2d} from "core/util/canvas"
@@ -256,8 +257,8 @@ export class HexTile extends Glyph {
 
     this.mixins<HexTile.Mixins>([LineVector, FillVector, HatchVector])
     this.define<HexTile.Props>(({Float}) => ({
-      r:            [ p.NumberSpec, {field: "r"} ],
-      q:            [ p.NumberSpec, {field: "q"} ],
+      r:            [ p.NumberSpec, field("r") ],
+      q:            [ p.NumberSpec, field("q") ],
       scale:        [ p.NumberSpec, 1.0 ],
       size:         [ Float, 1.0 ],
       aspect_scale: [ Float, 1.0 ],

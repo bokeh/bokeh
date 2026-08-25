@@ -24,7 +24,6 @@ from bokeh.core.properties import (
     Nullable,
     String,
 )
-from bokeh.core.property_aliases import SpatialUnits
 from bokeh.model import Model
 
 # Module under test
@@ -49,8 +48,6 @@ class ModelThatOverridesName(Model):
 
 class ModelWithSpecInTestDocument(Model):
     foo = DistanceSpec(2)
-
-    foo_units = SpatialUnits
 
 #-----------------------------------------------------------------------------
 # Dev API

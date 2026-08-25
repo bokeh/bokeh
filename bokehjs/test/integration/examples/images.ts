@@ -8,6 +8,7 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {DataRange1d, LinearColorMapper, Column, ColumnDataSource} from "@bokehjs/models"
 import {Select} from "@bokehjs/models/widgets"
+import {value as literal} from "@bokehjs/core/vectorization"
 
 describe("Examples", () => {
   it("should support topics/images/Image", async () => {
@@ -35,7 +36,7 @@ describe("Examples", () => {
     p.grid.grid_line_width = 0.5
 
     const color_mapper = new LinearColorMapper({palette: Spectral11})
-    p.image({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+    p.image({image: literal(image), x: 0, y: 0, dw: 10, dh: 10, color_mapper})
 
     await display(p)
   })
@@ -67,7 +68,7 @@ describe("Examples", () => {
     })
     p.grid.grid_line_width = 0.5
 
-    p.image_rgba({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10})
+    p.image_rgba({image: literal(image), x: 0, y: 0, dw: 10, dh: 10})
     await display(p)
   })
 

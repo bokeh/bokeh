@@ -486,14 +486,17 @@
                   width: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   height: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   angle: {
                     type: "value",
                     value: 0.0,
+                    units: "rad",
                   },
                   border_radius: 0,
                   dilate: false,

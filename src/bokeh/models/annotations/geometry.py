@@ -45,10 +45,7 @@ from ...core.property.override import Override
 from ...core.property.primitive import Bool, Float, Null
 from ...core.property.required import Required
 from ...core.property.vectorization import field
-from ...core.property_aliases import (
-    BorderRadius,
-    CoordinateUnits as CoordinateUnitsProperty,
-)
+from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
     LineProps,
     ScalarFillProps,
@@ -352,19 +349,13 @@ class Band(DataAnnotation):
     The coordinates of the lower portion of the filled area band.
     """)
 
-    lower_units = CoordinateUnitsProperty
-
     upper = CoordinateSpec(default=field("upper"), help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    upper_units = CoordinateUnitsProperty
-
     base = CoordinateSpec(default=field("base"), help="""
     The orthogonal coordinates of the upper and lower values.
     """)
-
-    base_units = CoordinateUnitsProperty
 
     dimension = Enum(Dimension, default='height', help="""
     The direction of the band can be specified by setting this property
@@ -568,8 +559,6 @@ class Whisker(DataAnnotation):
     The coordinates of the lower end of the whiskers.
     """)
 
-    lower_units = CoordinateUnitsProperty
-
     lower_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
     Instance of ``ArrowHead``.
     """)
@@ -578,8 +567,6 @@ class Whisker(DataAnnotation):
     The coordinates of the upper end of the whiskers.
     """)
 
-    upper_units = CoordinateUnitsProperty
-
     upper_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
     Instance of ``ArrowHead``.
     """)
@@ -587,8 +574,6 @@ class Whisker(DataAnnotation):
     base = CoordinateSpec(default=field("base"), help="""
     The orthogonal coordinates of the upper and lower values.
     """)
-
-    base_units = CoordinateUnitsProperty
 
     dimension = Enum(Dimension, default='height', help="""
     The direction of the whisker can be specified by setting this property

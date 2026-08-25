@@ -84,7 +84,7 @@ export class LegendItem extends Model {
 
   get_field_from_label_prop(): string | null {
     const {label} = this
-    return isField(label) ? label.field : null
+    return isField(label) ? label.value : null
   }
 
   get_labels_list_from_label_prop(): string[] {

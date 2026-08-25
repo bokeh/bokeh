@@ -22,8 +22,8 @@ export class PointDrawToolView extends EditToolView {
     }
 
     const {glyph, data_source} = renderer
-    const xkey = isField(glyph.x) ? glyph.x.field : null
-    const ykey = isField(glyph.y) ? glyph.y.field : null
+    const xkey = isField(glyph.x) ? glyph.x.value : null
+    const ykey = isField(glyph.y) ? glyph.y.value : null
     const [x, y] = point
 
     this._pop_glyphs(data_source, this.model.num_objects)

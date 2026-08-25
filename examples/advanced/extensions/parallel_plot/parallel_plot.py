@@ -3,7 +3,7 @@ import numpy as np
 from bokeh.layouts import column
 from bokeh.models import (BasicTickFormatter, ColumnDataSource, CustomJSTickFormatter,
                           Div, FixedTicker, LinearAxis, LinearColorMapper, Range1d)
-from bokeh.plotting import figure
+from bokeh.plotting import field, figure
 from bokeh.sampledata.autompg import autompg_clean as df
 
 from parallel_reset import ParallelResetTool
@@ -70,7 +70,7 @@ def parallel_plot(df, color=None, palette=None):
     # specify selected and non-selected style
     non_selected_line_style = dict(line_color='grey', line_width=0.1, line_alpha=0.5)
 
-    selected_line_style = dict(line_color={'field': 'color', 'transform': cmap}, line_width=1)
+    selected_line_style = dict(line_color=field('color', transform=cmap), line_width=1)
 
     parallel_renderer = p.multi_line(xs="xs", ys="ys", source=data_source, **non_selected_line_style)
 

@@ -4,6 +4,7 @@ import {marker_funcs} from "./defs"
 import type {VectorVisuals} from "./defs"
 import type {Rect, KeyVal} from "core/types"
 import * as p from "core/properties"
+import {value} from "core/vectorization"
 import * as u from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
 import type {MultiMarkerGL} from "./webgl/multi_marker"
@@ -140,7 +141,7 @@ export class Scatter extends Marker {
   static {
     this.prototype.default_view = ScatterView
     this.define<Scatter.Props>(({KeyVal, Or, Func, Ref}) => ({
-      marker: [ p.MarkerSpec, {value: "circle"} ],
+      marker: [ p.MarkerSpec, value("circle") ],
       defs: [ KeyVal(p.ExtMarkerType, Or(Func(), Ref(CustomJS)) as any), {} ],
     }))
   }

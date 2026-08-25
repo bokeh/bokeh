@@ -2,6 +2,8 @@ import Bokeh from "/static/js/bokeh.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace Anscombe {
+  const {field, gridplot} = Bokeh.Plotting
+
   console.log(`Bokeh ${Bokeh.version}`)
   Bokeh.set_log_level("info")
 
@@ -56,9 +58,9 @@ export namespace Anscombe {
     const ygrid = new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1})
     plot.add_layout(xgrid)
     plot.add_layout(ygrid)
-    const line = new Bokeh.Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
+    const line = new Bokeh.Line({x: field("x"), y: field("y"), line_color: "#666699", line_width: 2})
     plot.add_glyph(line, lines)
-    const circle = new Bokeh.Scatter({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
+    const circle = new Bokeh.Scatter({x: field(xname), y: field(yname), size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
     plot.add_glyph(circle, circles)
 
     return plot
@@ -69,7 +71,7 @@ export namespace Anscombe {
   const III = make_plot("III", "xiii", "yiii")
   const IV  = make_plot("IV",  "xiv",  "yiv")
 
-  const grid = Bokeh.Plotting.gridplot([[I, II], [III, IV]], {toolbar_location: null})
+  const grid = gridplot([[I, II], [III, IV]], {toolbar_location: null})
 
   const doc = new Bokeh.Document()
   doc.add_root(grid)

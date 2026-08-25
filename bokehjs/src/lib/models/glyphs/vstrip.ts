@@ -12,6 +12,7 @@ import {map} from "core/util/arrayable"
 import * as iter from "core/util/iterator"
 import {range} from "core/util/array"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
@@ -231,8 +232,8 @@ export class VStrip extends Glyph {
     this.mixins<VStrip.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<VStrip.Props>(() => ({
-      x0: [ p.XCoordinateSpec, {field: "x0"} ],
-      x1: [ p.XCoordinateSpec, {field: "x1"} ],
+      x0: [ p.XCoordinateSpec, field("x0") ],
+      x1: [ p.XCoordinateSpec, field("x1") ],
     }))
   }
 }

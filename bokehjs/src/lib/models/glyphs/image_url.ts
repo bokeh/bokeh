@@ -4,6 +4,7 @@ import type {Arrayable, Rect} from "core/types"
 import {ScreenArray, to_screen, Indices} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
+import {field, value} from "core/vectorization"
 import {resize} from "core/util/array"
 import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
@@ -305,9 +306,9 @@ export class ImageURL extends XYGlyph {
     this.prototype.default_view = ImageURLView
 
     this.define<ImageURL.Props>(({Bool, Int}) => ({
-      url:            [ p.StringSpec, {field: "url"} ],
+      url:            [ p.StringSpec, field("url") ],
       anchor:         [ Anchor, "top_left" ],
-      global_alpha:   [ p.NumberSpec, {value: 1.0} ],
+      global_alpha:   [ p.NumberSpec, value(1.0) ],
       angle:          [ p.AngleSpec, 0 ],
       w:              [ p.NullDistanceSpec, null ],
       h:              [ p.NullDistanceSpec, null ],

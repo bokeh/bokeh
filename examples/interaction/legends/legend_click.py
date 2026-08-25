@@ -12,11 +12,12 @@ callback = CustomJS(
     args=dict(markers=list(MarkerType)),
     code="""
 export default ({markers}, {item}) => {
+    const {value} = Bokeh
     for (const renderer of item.renderers) {
         const {value: marker} = renderer.glyph.marker
         const i = markers.indexOf(marker)
         const j = (i + 1) % markers.length
-        renderer.glyph.marker = {value: markers[j]}
+        renderer.glyph.marker = value(markers[j])
     }
 }
     """,

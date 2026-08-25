@@ -1,9 +1,9 @@
 import type {HasProps} from "../core/has_props"
 import type {Attrs} from "../core/types"
 import type {Value, Field, Vector} from "../core/vectorization"
-import {isVectorized} from "../core/vectorization"
+import {field as field_spec, isField, isValue, isVectorized, value as value_spec} from "../core/vectorization"
 import type {Property} from "../core/properties"
-import {VectorSpec, UnitsSpec} from "../core/properties"
+import {VectorSpec} from "../core/properties"
 import type {Class} from "../core/class"
 import {extend} from "../core/class"
 import type {Location} from "../core/enums"
@@ -458,19 +458,9 @@ export class Figure extends BaseFigure {
                 data.set(field, value)
               }
 
-              attrs[name] = {field}
+              attrs[name] = field_spec(field)
             } else if (isNumber(value) || isString(value)) { // or Date?
-              attrs[name] = {value}
-            }
-          }
-
-          if (prop.type.prototype instanceof UnitsSpec) {
-            const units_attr = `${name}_units`
-            const units = attrs[units_attr]
-            if (units !== undefined) {
-              attrs[name] = {...attrs[name] as any, units}
-              unresolved_attrs.delete(units_attr)
-              delete attrs[units_attr]
+              attrs[name] = value_spec(value)
             }
           }
         }
@@ -744,12 +734,12 @@ export class Figure extends BaseFigure {
       if (item.label != null && is_equal(item.label, legend_item_label)) {
         // XXX: remove this when vectorable properties are refined
         const label = item.label as Value<string> | Field
-        if ("value" in label) {
+        if (isValue(label)) {
           item.renderers.push(glyph_renderer)
           added = true
           break
         }
-        if ("field" in label && glyph_renderer.data_source == item.renderers[0].data_source) {
+        if (isField(label) && glyph_renderer.data_source == item.renderers[0].data_source) {
           item.renderers.push(glyph_renderer)
           added = true
           break
@@ -763,7 +753,7 @@ export class Figure extends BaseFigure {
   }
 
   protected _handle_legend_label(value: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
-    const label = {value}
+    const label = value_spec(value)
     const item = this._find_legend_item(label, legend)
     if (item != null) {
       item.renderers.push(glyph_renderer)
@@ -774,7 +764,7 @@ export class Figure extends BaseFigure {
   }
 
   protected _handle_legend_field(field: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
-    const label = {field}
+    const label = field_spec<string>(field)
     const item = this._find_legend_item(label, legend)
     if (item != null) {
       item.renderers.push(glyph_renderer)
@@ -792,7 +782,7 @@ export class Figure extends BaseFigure {
     const column = data.get(name) ?? []
     const values = uniq(column).sort()
     for (const value of values) {
-      const label = {value: `${value}`}
+      const label = value_spec(`${value}`)
       const index = column.indexOf(value)
       const new_item = new LegendItem({label, renderers: [glyph_renderer], index})
       legend.items.push(new_item)

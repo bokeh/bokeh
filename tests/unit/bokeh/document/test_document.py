@@ -55,7 +55,7 @@ from bokeh.core.properties import (
     Struct,
     Tuple,
 )
-from bokeh.core.property.vectorization import Field, Value
+from bokeh.core.property.vectorization import field, value
 from bokeh.core.serialization import (
     Deserializer,
     MapRep,
@@ -1180,43 +1180,29 @@ class TestDocument:
             event1 = ModelChangedEvent(d, root1, 'foo', new_value)
             patch1 = patch_doc([event1]).content
             d.apply_json_patch(patch1)
-            if isinstance(new_value, dict):
-                return root1.lookup('foo').get_value(root1)
-            else:
-                return root1.foo
-        assert patch_test(57) == 57
-        assert 'data' == root1.foo_units
-        assert patch_test(dict(value=58)) == Value(58)
-        assert 'data' == root1.foo_units
+            return root1.foo
 
-        assert patch_test(dict(value=58, units='screen')) == Value(58, units='screen')
-        assert 'screen' == root1.foo_units
-        assert patch_test(dict(value=59, units='screen')) == Value(59, units='screen')
-        assert 'screen' == root1.foo_units
+        assert patch_test(57) == value(57, units="data")
+        assert patch_test(dict(type="value", value=58)) == value(58, units="data")
+        assert patch_test(dict(type="value", value=59, units="screen")) == value(59, units="screen")
 
-        assert patch_test(dict(value=59, units='data')) == Value(59)
-        assert 'data' == root1.foo_units
-        assert patch_test(dict(value=60, units='data')) == Value(60)
-        assert 'data' == root1.foo_units
-        assert patch_test(dict(value=60, units='data')) == Value(60)
-        assert 'data' == root1.foo_units
+        # Explicit records replace the complete spec and use the property default
+        # when units aren't supplied.
+        assert patch_test(dict(type="value", value=60)) == value(60, units="data")
 
-        assert patch_test(61) == 61
-        assert 'data' == root1.foo_units
-        root1.foo = "a_string" # so "woot" gets set as a string
-        assert patch_test("woot") == "woot"
-        assert 'data' == root1.foo_units
-        assert patch_test(dict(field="woot2")) == Field("woot2")
-        assert 'data' == root1.foo_units
-        assert patch_test(dict(field="woot2", units='screen')) == Field("woot2", units='screen')
-        assert 'screen' == root1.foo_units
-        assert patch_test(dict(field="woot3")) == Field("woot3", units="screen")
-        assert 'screen' == root1.foo_units
-        assert patch_test(dict(value=70)) == Value(70, units="screen")
-        assert 'screen' == root1.foo_units
-        root1.foo = 123 # so 71 gets set as a number
-        assert patch_test(71) == 71
-        assert 'screen' == root1.foo_units
+        # Bare values replace only the source arm and preserve modifiers.
+        root1.foo = value(61, units="screen")
+        root1.foo = 62
+        assert root1.foo == value(62, units="screen")
+
+        # A wire-level scalar is a complete replacement. BokehJS normally sends
+        # a complete discriminated record for DataSpec changes.
+        assert patch_test(63) == value(63, units="data")
+        assert patch_test("woot") == field("woot", units="data")
+
+        assert patch_test(dict(type="field", value="woot2")) == field("woot2", units="data")
+        assert patch_test(dict(type="field", value="woot3", units="screen")) == field("woot3", units="screen")
+        assert patch_test(dict(type="value", value=70)) == value(70, units="data")
 
     def test_patch_reference_property(self) -> None:
         d = document.Document()

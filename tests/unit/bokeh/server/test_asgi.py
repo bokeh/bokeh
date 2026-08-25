@@ -27,6 +27,7 @@ import pytest
 from bokeh.application import Application
 from bokeh.application.handlers.directory import DirectoryHandler
 from bokeh.application.handlers.function import FunctionHandler
+from bokeh.core.properties import value
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.document import Document
@@ -473,7 +474,7 @@ def test_streamlit_particle_app_uses_client_side_mode_kernels(
     assert point_draw.renderers[0].data_source is centers
     assert center_hover is not None
     assert center_hover.renderers == point_draw.renderers
-    assert cast(Any, point_draw.renderers[0].hover_glyph).line_width == 4
+    assert cast(Any, point_draw.renderers[0].hover_glyph).line_width == value(4)
     assert plot.toolbar.active_tap is point_draw
     assert plot.toolbar.active_drag is point_draw
     assert plot.toolbar.active_inspect is center_hover

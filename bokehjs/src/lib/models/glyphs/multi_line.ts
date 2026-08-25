@@ -5,6 +5,7 @@ import type * as visuals from "core/visuals"
 import type {Rect, RaggedArray, FloatArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
@@ -188,8 +189,8 @@ export class MultiLine extends Glyph {
     this.prototype.default_view = MultiLineView
 
     this.define<MultiLine.Props>(({}) => ({
-      xs: [ p.XCoordinateSeqSpec, {field: "xs"} ],
-      ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
+      xs: [ p.XCoordinateSeqSpec, field("xs") ],
+      ys: [ p.YCoordinateSeqSpec, field("ys") ],
     }))
     this.mixins<MultiLine.Mixins>(LineVector)
   }

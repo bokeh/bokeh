@@ -5,6 +5,7 @@ import {create_glyph_view} from "./_util"
 import {Scatter, ScatterView} from "@bokehjs/models/glyphs/scatter"
 import type {Geometry} from "@bokehjs/core/geometry"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("Glyph (using Scatter as a concrete Glyph)", () => {
 
@@ -16,8 +17,8 @@ describe("Glyph (using Scatter as a concrete Glyph)", () => {
       stub = sinon.stub((ScatterView.prototype as any), "_bounds").callsFake((bounds) => bounds) // XXX: protected
 
       glyph = new Scatter({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: field("x"),
+        y: field("y"),
       })
     })
 
@@ -68,8 +69,8 @@ describe("Glyph (using Scatter as a concrete Glyph)", () => {
     it("should hit rects against an index", async () => {
       const data = {x: [20, 40, 60], y: [10, 10, 50]}
       const glyph = new Scatter({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: field("x"),
+        y: field("y"),
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
@@ -96,8 +97,8 @@ describe("Scatter", () => {
 
     before_each(() => {
       glyph = new Scatter({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: field("x"),
+        y: field("y"),
         size: 10,
       })
     })

@@ -26,7 +26,12 @@ from typing import TYPE_CHECKING, Sequence, cast
 
 # Bokeh imports
 from .core.enums import MarkerTypeType, PaletteType
-from .core.property.vectorization import Expr, Field
+from .core.property.vectorization import (
+    Expr,
+    Field,
+    expr,
+    field,
+)
 from .core.property.visual import HatchPatternType
 from .models.expressions import CumSum, Stack
 from .models.mappers import (
@@ -73,7 +78,7 @@ __all__ = (
 
 
 def cumsum(field_name: str, include_zero: bool = False) -> Expr:
-    ''' Create a ``DataSpec`` dict to generate a ``CumSum`` expression
+    ''' Create a ``DataSpec`` value to generate a ``CumSum`` expression
     for a ``ColumnDataSource``.
 
     Args:
@@ -97,10 +102,10 @@ def cumsum(field_name: str, include_zero: bool = False) -> Expr:
         include the last).
 
     '''
-    return Expr(CumSum(field=field_name, include_zero=include_zero))
+    return expr(CumSum(field=field_name, include_zero=include_zero))
 
 def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
-    ''' Create a ``DataSpec`` dict that applies a client-side ``Dodge``
+    ''' Create a ``DataSpec`` value that applies a client-side ``Dodge``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -116,7 +121,7 @@ def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
         Field
 
     '''
-    return Field(field_name, Dodge(value=value, range=range))
+    return field(field_name, Dodge(value=value, range=range))
 
 def eqhist_cmap(
     field_name: str,
@@ -127,7 +132,7 @@ def eqhist_cmap(
     high_color: ColorType | None = None,
     nan_color: ColorType = "gray",
 ) -> Field:
-    ''' Create a ``DataSpec`` dict that applies a client-side
+    ''' Create a ``DataSpec`` value that applies a client-side
     ``EqHistColorMapper`` transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -153,7 +158,7 @@ def eqhist_cmap(
             from a column does not succeed (default: "gray")
 
     '''
-    return Field(
+    return field(
         field_name,
         EqHistColorMapper(
             palette=palette,
@@ -173,7 +178,7 @@ def factor_cmap(
     end: int | None = None,
     nan_color: ColorType = "gray",
 ) -> Field:
-    ''' Create a ``DataSpec`` dict that applies a client-side
+    ''' Create a ``DataSpec`` value that applies a client-side
     ``CategoricalColorMapper`` transformation to a ``ColumnDataSource``
     column.
 
@@ -198,7 +203,7 @@ def factor_cmap(
         Field
 
     '''
-    return Field(
+    return field(
         field_name,
         CategoricalColorMapper(
             palette=palette,
@@ -216,7 +221,7 @@ def factor_hatch(
     start: int = 0,
     end: int | None = None,
 ) -> Field:
-    ''' Create a ``DataSpec`` dict that applies a client-side
+    ''' Create a ``DataSpec`` value that applies a client-side
     ``CategoricalPatternMapper`` transformation to a ``ColumnDataSource``
     column.
 
@@ -240,7 +245,7 @@ def factor_hatch(
     Added in version 1.1.1
 
     '''
-    return Field(
+    return field(
         field_name,
         CategoricalPatternMapper(
             patterns=cast(Sequence[HatchPatternType], patterns),
@@ -257,7 +262,7 @@ def factor_mark(
     start: int = 0,
     end: int | None = None,
 ) -> Field:
-    ''' Create a ``DataSpec`` dict that applies a client-side
+    ''' Create a ``DataSpec`` value that applies a client-side
     ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
     column.
 
@@ -283,7 +288,7 @@ def factor_mark(
         Field
 
     '''
-    return Field(
+    return field(
         field_name,
         CategoricalMarkerMapper(
             markers=cast(Sequence[MarkerTypeType], markers),
@@ -300,7 +305,7 @@ def jitter(
     distribution: JitterRandomDistributionType = "uniform",
     range: Range | None = None,
 ) -> Field:
-    ''' Create a ``DataSpec`` dict that applies a client-side ``Jitter``
+    ''' Create a ``DataSpec`` value that applies a client-side ``Jitter``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -321,7 +326,7 @@ def jitter(
         Field
 
     '''
-    return Field(
+    return field(
         field_name,
         Jitter(
             mean=mean,
@@ -340,7 +345,7 @@ def linear_cmap(
     high_color: ColorType | None = None,
     nan_color: ColorType = "gray",
 ) -> Field:
-    ''' Create a ``DataSpec`` dict that applies a client-side
+    ''' Create a ``DataSpec`` value that applies a client-side
     ``LinearColorMapper`` transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -366,7 +371,7 @@ def linear_cmap(
             from a column does not succeed (default: "gray")
 
     '''
-    return Field(
+    return field(
         field_name,
         LinearColorMapper(
             palette=palette,
@@ -387,7 +392,7 @@ def log_cmap(
     high_color: ColorType | None = None,
     nan_color: ColorType = "gray",
 ) -> Field:
-    ''' Create a ``DataSpec`` dict that applies a client-side ``LogColorMapper``
+    ''' Create a ``DataSpec`` value that applies a client-side ``LogColorMapper``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -413,7 +418,7 @@ def log_cmap(
             from a column does not succeed (default: "gray")
 
     '''
-    return Field(
+    return field(
         field_name,
         LogColorMapper(
             palette=palette,
@@ -426,7 +431,7 @@ def log_cmap(
     )
 
 def stack(*fields: str) -> Expr:
-    ''' Create a Create a ``DataSpec`` dict to generate a ``Stack`` expression
+    ''' Create a ``DataSpec`` value to generate a ``Stack`` expression
     for a ``ColumnDataSource``.
 
     Examples:
@@ -441,10 +446,10 @@ def stack(*fields: str) -> Expr:
 
     '''
 
-    return Expr(Stack(fields=fields))
+    return expr(Stack(fields=fields))
 
 def transform(field_name: str, transform: Transform) -> Field:
-    ''' Create a ``DataSpec`` dict that applies an arbitrary client-side
+    ''' Create a ``DataSpec`` value that applies an arbitrary client-side
     ``Transform`` to a ``ColumnDataSource`` column.
 
     Args:
@@ -456,7 +461,7 @@ def transform(field_name: str, transform: Transform) -> Field:
         Field
 
     '''
-    return Field(field_name, transform)
+    return field(field_name, transform)
 
 #-----------------------------------------------------------------------------
 # Dev API

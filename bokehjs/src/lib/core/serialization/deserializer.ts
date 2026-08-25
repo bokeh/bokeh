@@ -12,7 +12,7 @@ import {BYTE_ORDER} from "../util/platform"
 import {base64_to_buffer, swap} from "../util/buffer"
 import {isArray, isPlainObject, isString, isNumber} from "../util/types"
 import {Slice} from "../util/slice"
-import type {Value, Field, Expr} from "../vectorization"
+import type {Value, Field, Expr, Transform, Expression} from "../vectorization"
 
 import type {
   SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, DateRep,
@@ -236,25 +236,25 @@ export class Deserializer {
     return new Date(iso)
   }
 
-  protected _decode_value(obj: ValueRep): Value<unknown> {
+  protected _decode_value(obj: ValueRep): Value<unknown, unknown> {
     const value = this._decode(obj.value)
-    const transform = obj.transform != null ? this._decode(obj.transform) : undefined
+    const transform = obj.transform != null ? this._decode(obj.transform) as Transform<unknown, unknown> : undefined
     const units = obj.units != null ? this._decode(obj.units) : undefined
-    return {value, transform, units} as any
+    return {type: "value", value, ...(transform != null ? {transform} : {}), ...(units != null ? {units} : {})}
   }
 
-  protected _decode_field(obj: FieldRep): Field {
-    const field = this._decode(obj.field)
-    const transform = obj.transform != null ? this._decode(obj.transform) : undefined
+  protected _decode_field(obj: FieldRep): Field<unknown, unknown> {
+    const {value} = obj
+    const transform = obj.transform != null ? this._decode(obj.transform) as Transform<unknown, unknown> : undefined
     const units = obj.units != null ? this._decode(obj.units) : undefined
-    return {field, transform, units} as any
+    return {type: "field", value, ...(transform != null ? {transform} : {}), ...(units != null ? {units} : {})}
   }
 
-  protected _decode_expr(obj: ExprRep): Expr<unknown> {
-    const expr = this._decode(obj.expr)
-    const transform = obj.transform != null ? this._decode(obj.transform) : undefined
+  protected _decode_expr(obj: ExprRep): Expr<unknown, unknown> {
+    const value = this._decode(obj.value) as Expression<unknown>
+    const transform = obj.transform != null ? this._decode(obj.transform) as Transform<unknown, unknown> : undefined
     const units = obj.units != null ? this._decode(obj.units) : undefined
-    return {expr, transform, units} as any
+    return {type: "expr", value, ...(transform != null ? {transform} : {}), ...(units != null ? {units} : {})}
   }
 
   protected _decode_typed_array(obj: TypedArrayRep): TypedArray {

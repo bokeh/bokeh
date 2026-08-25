@@ -5,6 +5,7 @@ import {np} from "@bokehjs/api/linalg"
 import {range, reversed, repeat} from "@bokehjs/core/util/array"
 import {enumerate, zip} from "@bokehjs/core/util/iterator"
 import {FactorRange,  ColumnDataSource, Range1d, FixedTicker, PrintfTickFormatter, HoverTool} from "@bokehjs/models"
+import {field} from "@bokehjs/core/vectorization"
 
 // subset of colorcet.rainbow
 const palette = [
@@ -66,7 +67,7 @@ describe("Examples", () => {
         y_target: new Range1d({start: target_start, end: target_end}),
       })
 
-      xy.patch({field: "x"}, {field: cat}, {color: palette[i], alpha: 0.6, line_color: "black", source, name: cat})
+      xy.patch(field("x"), field(cat), {color: palette[i], alpha: 0.6, line_color: "black", source, name: cat})
     }
 
     p.outline_line_color = null
@@ -107,7 +108,7 @@ describe("Examples", () => {
 
     for (const [[cat, data], i] of enumerate(probly.entries())) {
       source.set(cat, ridge(cat, data))
-      p.patch({field: "x"}, {field: cat}, {color: palette[i], alpha: 0.6, line_color: "black", source, name: cat})
+      p.patch(field("x"), field(cat), {color: palette[i], alpha: 0.6, line_color: "black", source, name: cat})
     }
 
     p.outline_line_color = null
