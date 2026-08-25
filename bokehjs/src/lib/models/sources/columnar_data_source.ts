@@ -6,13 +6,14 @@ import {Signal, Signal0} from "core/signaling"
 import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
-import {uniq} from "core/util/array"
+import {map, uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import {Selection} from "../selections/selection"
+import type {OpaqueIndices} from "../selections/selection"
 import {DataSource} from "./data_source"
 import type {Index} from "core/util/templating"
 
@@ -137,6 +138,15 @@ export abstract class ColumnarDataSource extends DataSource {
     return result
   }
 
+  get_rows(indices: OpaqueIndices): {[key: string]: unknown} {
+    const mapped_indices = map(indices, (index: Index) => isNumber(index) ? index : index.index)
+    const result: {[key: string]: unknown} = {}
+    for (const [column, array] of entries(this.data)) {
+      result[column] = map(mapped_indices, (index: number) => array[index])
+    }
+    return result
+  }
+
   columns(): string[] {
     // return the column names in this data source
     return keys(this.data)
@@ -184,5 +194,40 @@ export abstract class ColumnarDataSource extends DataSource {
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
     this.patch_to(this.properties.data, patches, {sync})
+  }
+
+  _row_to_csv(index: Index): string {
+    const values = []
+    const escape_characters = [",", '"']
+    for (const value of Object.values(this.get_row(index))) {
+      let string_value = is_NDArray(value) || isArray(value) ? JSON.stringify(value) : String(value)
+      if (escape_characters.some(escape_character => string_value.includes(escape_character))) {
+        string_value = `"${string_value.replace(/"/g, '""')}"`
+      }
+      values.push(string_value)
+    }
+    return values.join()
+  }
+
+  to_csv(): string {
+    const headers = this.columns().join()
+    const rows = []
+    if (this.selected.indices.length > 0) {
+      for (const row of this.selected.indices) {
+        rows.push(this._row_to_csv(row))
+      }
+    } else {
+      for (let row = 0; row < this.length; row++) {
+        rows.push(this._row_to_csv(row))
+      }
+    }
+    return [headers, ...rows].join("\n")
+  }
+
+  to_json(): string {
+    if (this.selected.indices.length > 0) {
+      return JSON.stringify(this.get_rows(this.selected.indices))
+    }
+    return JSON.stringify(this.data)
   }
 }
