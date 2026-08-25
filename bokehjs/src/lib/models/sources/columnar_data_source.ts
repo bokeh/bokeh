@@ -2,11 +2,12 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import type {Arrayable, ArrayableNew, Data, Dict, PlainObject} from "core/types"
 import type {PatchSet} from "core/patching"
-import {uniq, min} from "core/util/array"
+import {uniq, map, min} from "core/util/array"
 import {is_NDArray, get_array_item} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import {IndexedDataSource} from "./indexed_data_source"
+import type {OpaqueIndices} from "../selections/selection"
 import type {Index} from "core/util/templating"
 
 // Filters often use only a few columns, so unpack shaped values on demand.
@@ -157,6 +158,15 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
     return result
   }
 
+  get_rows(indices: OpaqueIndices): {[key: string]: unknown} {
+    const mapped_indices = map(indices, (index: Index) => isNumber(index) ? index : index.index)
+    const result: {[key: string]: unknown} = {}
+    for (const [column, array] of entries(this.data)) {
+      result[column] = map(mapped_indices, (index: number) => array[index])
+    }
+    return result
+  }
+
   columns(): string[] {
     // return the column names in this data source
     return keys(this.data)
@@ -200,5 +210,41 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
     this.patch_to(this.properties.data, patches, {sync})
+  }
+
+  _row_to_csv(index: Index): string {
+    const values = []
+    const escape_characters = [",", '"']
+    for (const value of Object.values(this.get_row(index))) {
+      let string_value = is_NDArray(value) || isArray(value) ? JSON.stringify(value) : String(value)
+      if (escape_characters.some(escape_character => string_value.includes(escape_character))) {
+        string_value = `"${string_value.replace(/"/g, '""')}"`
+      }
+      values.push(string_value)
+    }
+    return values.join()
+  }
+
+  to_csv(): string {
+    const headers = this.columns().join()
+    const rows = []
+    if (this.selected.indices.length > 0) {
+      for (const row of this.selected.indices) {
+        rows.push(this._row_to_csv(row))
+      }
+    } else {
+      const length = this.get_length() ?? 0
+      for (let row = 0; row < length; row++) {
+        rows.push(this._row_to_csv(row))
+      }
+    }
+    return [headers, ...rows].join("\n")
+  }
+
+  to_json(): string {
+    if (this.selected.indices.length > 0) {
+      return JSON.stringify(this.get_rows(this.selected.indices))
+    }
+    return JSON.stringify(this.data)
   }
 }
