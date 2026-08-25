@@ -465,10 +465,6 @@
     {
       "name": "data_table.py",
       "alt": "Thumbnail link to the examples/interaction/widgets/data_table.py example shows a simple example of a data table widget with multiple columns."
-    },
-    {
-      "name": "data_cube.py",
-      "alt": "Thumbnail link to the examples/interaction/widgets/data_cube.py example shows a simple example of a data cube widget for hierarchical data."
     }
   ],
   "server/app": [
