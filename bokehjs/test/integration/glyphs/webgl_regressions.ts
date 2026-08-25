@@ -1,9 +1,9 @@
 import {expect} from "#framework/assertions"
 import {xy} from "#framework/interactive"
 import {display, fig, row} from "#framework/layouts"
-import {SeededRandom} from "#framework/random"
 import {WebGLScenario, require_glglyph} from "#framework/webgl"
 import {range} from "@bokehjs/core/util/array"
+import {LCGRandom} from "@bokehjs/core/util/random"
 import type {Float32Buffer, Uint8Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
@@ -99,7 +99,7 @@ describe("WebGL legacy interaction regressions", () => {
 
   it.no_image("should preserve mixed-marker visuals through stream, patch, zoom, and reset", async () => {
     const n = 2_000
-    const random = new SeededRandom(7)
+    const random = new LCGRandom(7)
     const markers = ["circle", "square", "triangle", "diamond", "hex", "star"]
     const source = new ColumnDataSource({data: {
       x: range(n).map(() => 4*random.float() - 2),
