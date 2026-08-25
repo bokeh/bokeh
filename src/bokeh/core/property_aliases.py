@@ -30,7 +30,6 @@ from .property.container import Dict, List, Tuple
 from .property.either import Either
 from .property.enum import Enum
 from .property.numeric import Int, NonNegative, Percent
-from .property.serialized import NotSerialized
 from .property.string import Regex, String
 from .property.struct import Optional, Struct
 from .property.visual import Image
@@ -64,15 +63,15 @@ __all__ = (
 type AutoType = Literal["auto"]
 type PercentType = float
 
-AngleUnits = NotSerialized(Enum(enums.AngleUnits), default="rad", help="""
+AngleUnits = Enum(enums.AngleUnits, default="rad", help="""
 The units used for the associated angle property.
 """)
 
-CoordinateUnits = NotSerialized(Enum(enums.CoordinateUnits), default="data", help="""
+CoordinateUnits = Enum(enums.CoordinateUnits, default="data", help="""
 The units used for the associated coordinate property.
 """)
 
-SpatialUnits = NotSerialized(Enum(enums.SpatialUnits), default="data", help="""
+SpatialUnits = Enum(enums.SpatialUnits, default="data", help="""
 The units used for the associated distance property.
 """)
 

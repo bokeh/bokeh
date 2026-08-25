@@ -7,6 +7,7 @@ import type {Arrayable} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {NgonGL} from "./webgl/ngon"
+import {AngleUnits} from "core/enums"
 
 export interface NgonView extends Ngon.Data {}
 
@@ -158,6 +159,7 @@ export namespace Ngon {
 
   export type Props = RadialGlyph.Props & {
     angle: p.AngleSpec
+    angle_units: p.Property<AngleUnits>
     n: p.NumberSpec
   }
 
@@ -181,6 +183,7 @@ export class Ngon extends RadialGlyph {
 
     this.define<Ngon.Props>(() => ({
       angle: [ p.AngleSpec, 0 ],
+      angle_units: [ AngleUnits, "rad" ],
       n:     [ p.NumberSpec, {field: "n"} ],
     }))
   }

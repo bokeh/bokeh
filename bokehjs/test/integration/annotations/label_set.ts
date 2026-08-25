@@ -4,14 +4,6 @@ import {LabelSet, HTMLLabelSet} from "@bokehjs/models/annotations"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import type {Constructor} from "@bokehjs/core/class"
 
-function deg(value: number) {
-  return {value, units: "deg"}
-}
-
-function turn(value: number) {
-  return {value, units: "turn"}
-}
-
 describe("LabelSet annotation", () => {
 
   function plot<T extends LabelSet | HTMLLabelSet>(LabelSetCls: Constructor<T>) {
@@ -29,7 +21,7 @@ describe("LabelSet annotation", () => {
     const label_set0 = new LabelSetCls({
       x: {field: "x1"}, y: {field: "y1"},
       x_offset: -10, y_offset: 25,
-      angle: deg(15),
+      angle: 15, angle_units: "deg",
       text: {field: "text"},
       source,
       text_font_size: "24px", text_color: "red", text_alpha: 0.9, text_baseline: "bottom", text_align: "left",
@@ -41,7 +33,7 @@ describe("LabelSet annotation", () => {
       x: {field: "x2"}, y: 1,
       x_units: "screen", y_units: "data",
       x_offset: 0, y_offset: -5,
-      angle: turn(0.25),
+      angle: 0.25, angle_units: "turn",
       text: {field: "text"},
       source,
       text_font_size: "18px", text_color: "black", text_alpha: 0.9, text_baseline: "top", text_align: "left",

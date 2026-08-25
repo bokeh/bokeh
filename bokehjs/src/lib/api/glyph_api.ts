@@ -2,7 +2,7 @@ import type {HasProps} from "../core/has_props"
 import type {Color, Arrayable} from "../core/types"
 import type {Class} from "../core/class"
 import type {Vector} from "../core/vectorization"
-import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
+import type {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
 import type {MarkerType, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
 
@@ -140,11 +140,7 @@ export type ArgsOf<P> = {[K in keyof P]:
   (P[K] extends Property  <infer T>           ? T                    : never))))
 }
 
-export type UnitsOf<P> = {
-  [K in keyof P & string as `${K}_units`]: P[K] extends UnitsSpec<any, infer Units> ? Units : never
-}
-
-export type GlyphArgs<P> = ArgsOf<P> & UnitsOf<P> & AuxGlyph & ColorAlpha
+export type GlyphArgs<P> = ArgsOf<P> & AuxGlyph & ColorAlpha
 
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch

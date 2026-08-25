@@ -21,11 +21,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from copy import copy
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
-from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
 from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
@@ -150,13 +148,10 @@ class DataSpec(Either[Any]):
         glyph.x = { 'field': 'pressure' } # same as glyph.x = "pressure"
 
     Setting the property directly as a dict can be useful in certain
-    situations. For instance some ``DataSpec`` subclasses also add a
-    ``"units"`` key to the dictionary. This key is often set automatically,
-    but the dictionary format provides a direct mechanism to override as
-    necessary. Additionally, ``DataSpec`` can have a ``"transform"`` key,
-    that specifies a client-side transform that should be applied to any
-    fixed or field values before they are uses. As an example, you might want
-    to apply a ``Jitter`` transform to the ``x`` values:
+    situations. A ``DataSpec`` can have a ``"transform"`` key that specifies
+    a client-side transform to apply to any fixed or field values. As an
+    example, you might want to apply a ``Jitter`` transform to the ``x``
+    values:
 
     .. code-block:: python
 
@@ -241,13 +236,6 @@ class DataSpec(Either[Any]):
         # Check for data source field name
         if isinstance(val, str):
             val = Field(val)
-
-        if self._units_enum is not None and val.units is Unspecified:
-            units_descriptor = obj.lookup(f"{name}_units")
-            units = units_descriptor.get_value(obj)
-            if units != units_descriptor.property._default:
-                val = copy(val)
-                val.units = units
 
         return val
 
@@ -432,33 +420,42 @@ class AngleSpec(NumberSpec):
 
     Acceptable values for units are ``"deg"``, ``"rad"``, ``"grad"`` and ``"turn"``.
     A property named ``foo`` must be accompanied by ``foo_units = AngleUnits``.
+    The companion property is the sole source of units; units cannot be embedded
+    in the ``DataSpec`` value.
 
     """
 
     _units_alias = "AngleUnits"
     _units_enum = enums.AngleUnits
+    _units_default = "rad"
 
 class CoordinateSpec(NumberSpec):
     """A |DataSpec| property that accepts numeric values with coordinate units.
 
     Acceptable values for units are ``"canvas"``, ``"screen"`` and ``"data"``.
     A property named ``foo`` must be accompanied by ``foo_units = CoordinateUnits``.
+    The companion property is the sole source of units; units cannot be embedded
+    in the ``DataSpec`` value.
 
     """
 
     _units_alias = "CoordinateUnits"
     _units_enum = enums.CoordinateUnits
+    _units_default = "data"
 
 class DistanceSpec(NumberSpec):
     """ A |DataSpec| property that accepts numeric fixed values or strings
     that refer to columns in a :class:`~bokeh.models.sources.ColumnDataSource`.
     Acceptable values for units are ``"screen"`` and ``"data"``.
     A property named ``foo`` must be accompanied by ``foo_units = SpatialUnits``.
+    The companion property is the sole source of units; units cannot be embedded
+    in the ``DataSpec`` value.
 
     """
 
     _units_alias = "SpatialUnits"
     _units_enum = enums.SpatialUnits
+    _units_default = "data"
 
     def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> Any:
         try:

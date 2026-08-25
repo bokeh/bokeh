@@ -1435,14 +1435,27 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             '"id":"%s"}'
         ) % (child_obj.id, obj.id) == json_string
 
-    def test_no_units_in_json(self) -> None:
+    def test_units_are_sibling_attributes_in_json(self) -> None:
         from bokeh.models import AnnularWedge
         obj = AnnularWedge()
         json = obj.to_json(include_defaults=True)
         assert 'start_angle' in json
-        assert 'start_angle_units' not in json
+        assert json['start_angle_units'] == "rad"
         assert 'outer_radius' in json
+        assert json['outer_radius_units'] == "data"
+
+    def test_default_units_are_omitted_without_defaults(self) -> None:
+        from bokeh.models import AnnularWedge
+        obj = AnnularWedge()
+        json = obj.to_json(include_defaults=False)
+        assert 'start_angle_units' not in json
         assert 'outer_radius_units' not in json
+
+    def test_changed_units_are_serialized_independently(self) -> None:
+        from bokeh.models import AnnularWedge
+        obj = AnnularWedge(start_angle_units="deg")
+        json = obj.to_json(include_defaults=False)
+        assert json == {"id": obj.id, "start_angle_units": "deg"}
 
     def test_dataspec_field_in_json(self) -> None:
         from bokeh.models import AnnularWedge
@@ -1450,7 +1463,7 @@ def test_transform_series_force_list_default_with_buffers() -> None:
         obj.start_angle = "fieldname"
         json = obj.to_json(include_defaults=True)
         assert 'start_angle' in json
-        assert 'start_angle_units' not in json
+        assert json['start_angle_units'] == "rad"
         assert json["start_angle"] == dict(type="map", entries=[["field", "fieldname"]]) # TODO: dict(type="field", field="fieldname")
 
     def test_dataspec_value_in_json(self) -> None:
@@ -1459,7 +1472,7 @@ def test_transform_series_force_list_default_with_buffers() -> None:
         obj.start_angle = 60
         json = obj.to_json(include_defaults=True)
         assert 'start_angle' in json
-        assert 'start_angle_units' not in json
+        assert json['start_angle_units'] == "rad"
         assert json["start_angle"] == dict(type="map", entries=[["value", 60]]) # TODO: dict(type="value", value=60)
 
 

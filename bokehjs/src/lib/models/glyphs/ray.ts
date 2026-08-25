@@ -6,6 +6,7 @@ import type * as visuals from "core/visuals"
 import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import * as p from "core/properties"
+import {AngleUnits, SpatialUnits} from "core/enums"
 import type {Context2d} from "core/util/canvas"
 
 export interface RayView extends Ray.Data {}
@@ -82,7 +83,9 @@ export namespace Ray {
 
   export type Props = XYGlyph.Props & {
     length: p.DistanceSpec
+    length_units: p.Property<SpatialUnits>
     angle: p.AngleSpec
+    angle_units: p.Property<AngleUnits>
   } & Mixins
 
   export type Mixins = LineVector
@@ -108,7 +111,9 @@ export class Ray extends XYGlyph {
     this.mixins<Ray.Mixins>(LineVector)
     this.define<Ray.Props>(({}) => ({
       length: [ p.DistanceSpec, 0 ],
+      length_units: [ SpatialUnits, "data" ],
       angle:  [ p.AngleSpec, 0 ],
+      angle_units: [ AngleUnits, "rad" ],
     }))
   }
 }

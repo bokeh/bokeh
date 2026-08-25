@@ -55,11 +55,13 @@ namespace Some {
     font: p.Property<string>
     direction: p.Property<enums.Direction>
     angle_spec: p.AngleSpec
+    angle_spec_units: p.Property<enums.AngleUnits>
     boolean_spec: p.BooleanSpec
     color_spec: p.ColorSpec
     coordinate_spec: p.CoordinateSpec
     coordinate_seq_spec: p.CoordinateSeqSpec
     distance_spec: p.DistanceSpec
+    distance_spec_units: p.Property<enums.SpatialUnits>
     font_size_spec: p.FontSizeSpec
     marker_spec: p.MarkerSpec
     number_spec: p.NumberSpec
@@ -95,11 +97,13 @@ class Some extends HasProps {
       font: [ kinds.Font ],
       direction: [ enums.Direction ],
       angle_spec: [ p.AngleSpec ],
+      angle_spec_units: [ enums.AngleUnits, "rad" ],
       boolean_spec: [ p.BooleanSpec ],
       color_spec: [ p.ColorSpec ],
       coordinate_spec: [ p.XCoordinateSpec ],
       coordinate_seq_spec: [ p.XCoordinateSeqSpec ],
       distance_spec: [ p.DistanceSpec ],
+      distance_spec_units: [ enums.SpatialUnits, "data" ],
       font_size_spec: [ p.FontSizeSpec ],
       marker_spec: [ p.MarkerSpec ],
       number_spec: [ p.NumberSpec ],
@@ -373,7 +377,7 @@ describe("properties module", () => {
   describe("AngleSpec", () => {
     describe("normalize", () => {
       it("should multiply radians by -1", () => {
-        const obj = new Some({angle_spec: {value: 10, units: "rad"}})
+        const obj = new Some({angle_spec: {value: 10}})
         const prop = obj.properties.angle_spec
         expect(prop.materialize(-10)).to.be.equal(10)
         expect(prop.materialize(0)).to.be.equal(-0)
@@ -383,13 +387,69 @@ describe("properties module", () => {
       })
 
       it("should convert degrees to -1 * radians", () => {
-        const obj = new Some({angle_spec: {value: 10, units: "deg"}})
+        const obj = new Some({angle_spec: {value: 10}, angle_spec_units: "deg"})
         const prop = obj.properties.angle_spec
         expect(prop.materialize(-180)).to.be.equal(Math.PI)
         expect(prop.materialize(0)).to.be.equal(-0)
         expect(prop.materialize(180)).to.be.equal(-Math.PI)
         expect(prop.v_materialize([-180, 0, 180])).to.be.equal(new Float32Array([Math.PI, -0, -Math.PI]))
       })
+
+      it("should read changed companion units at runtime", () => {
+        const obj = new Some({angle_spec: {value: 180}})
+        const prop = obj.properties.angle_spec
+
+        expect(prop.materialize(180)).to.be.equal(-180)
+        obj.angle_spec_units = "deg"
+        expect(prop.materialize(180)).to.be.equal(-Math.PI)
+      })
+
+      it("should reject embedded units", () => {
+        expect(() => new Some({angle_spec: {value: 10, units: "deg"} as any})).to.throw(
+          p.ValidationError,
+          "embedded 'units' are no longer supported",
+        )
+      })
+    })
+  })
+
+  describe("UnitsSpec companion validation", () => {
+    it("should require a matching companion property", () => {
+      class MissingUnits extends HasProps {
+        static {
+          this.define<{angle: p.AngleSpec}>(() => ({
+            angle: [ p.AngleSpec, 0 ],
+          }))
+        }
+      }
+
+      expect(() => new MissingUnits()).to.throw(p.ValidationError, /requires a matching .*angle_units property/)
+    })
+
+    it("should require the correct companion enum", () => {
+      class WrongUnits extends HasProps {
+        static {
+          this.define<{angle: p.AngleSpec, angle_units: p.Property<enums.SpatialUnits>}>(() => ({
+            angle: [ p.AngleSpec, 0 ],
+            angle_units: [ enums.SpatialUnits, "data" ],
+          }))
+        }
+      }
+
+      expect(() => new WrongUnits()).to.throw(p.ValidationError, /Enum\(deg, rad, grad, turn\).*default "rad"/)
+    })
+
+    it("should require the correct companion default", () => {
+      class WrongDefault extends HasProps {
+        static {
+          this.define<{angle: p.AngleSpec, angle_units: p.Property<enums.AngleUnits>}>(() => ({
+            angle: [ p.AngleSpec, 0 ],
+            angle_units: [ enums.AngleUnits, "deg" ],
+          }))
+        }
+      }
+
+      expect(() => new WrongDefault()).to.throw(p.ValidationError, /Enum\(deg, rad, grad, turn\).*default "rad"/)
     })
   })
 
@@ -531,21 +591,21 @@ describe("properties module", () => {
       })
 
       it("should accept screen units", () => {
-        const obj = new Some({distance_spec: {value: 10, units: "screen"}})
+        const obj = new Some({distance_spec: {value: 10}, distance_spec_units: "screen"})
         const prop = obj.properties.distance_spec
         expect(prop.units).to.be.equal("screen")
       })
 
       it("should accept data units", () => {
-        const obj = new Some({distance_spec: {value: 10, units: "data"}})
+        const obj = new Some({distance_spec: {value: 10}, distance_spec_units: "data"})
         const prop = obj.properties.distance_spec
         expect(prop.units).to.be.equal("data")
       })
 
-      it("should throw an Error on bad units", () => {
+      it("should throw an Error on bad companion units", () => {
         expect(() => {
-          new Some({distance_spec: {value: 10, units: "bad"}})
-        }).to.throw(Error, "units must be one of screen, data; got: bad")
+          new Some({distance_spec: {value: 10}, distance_spec_units: "bad" as any})
+        }).to.throw(p.ValidationError)
       })
     })
   })

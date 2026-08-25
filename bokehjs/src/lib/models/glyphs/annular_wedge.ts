@@ -6,7 +6,7 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import type * as visuals from "core/visuals"
-import {Direction} from "core/enums"
+import {AngleUnits, Direction, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
 import type {SpatialIndex} from "core/util/spatial"
@@ -164,9 +164,13 @@ export namespace AnnularWedge {
   export type Props = XYGlyph.Props & {
     direction: p.Property<Direction>
     inner_radius: p.DistanceSpec
+    inner_radius_units: p.Property<SpatialUnits>
     outer_radius: p.DistanceSpec
+    outer_radius_units: p.Property<SpatialUnits>
     start_angle: p.AngleSpec
+    start_angle_units: p.Property<AngleUnits>
     end_angle: p.AngleSpec
+    end_angle_units: p.Property<AngleUnits>
   } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
@@ -196,9 +200,13 @@ export class AnnularWedge extends XYGlyph {
     this.define<AnnularWedge.Props>(({}) => ({
       direction:    [ Direction, "anticlock" ],
       inner_radius: [ p.DistanceSpec, {field: "inner_radius"} ],
+      inner_radius_units: [ SpatialUnits, "data" ],
       outer_radius: [ p.DistanceSpec, {field: "outer_radius"} ],
+      outer_radius_units: [ SpatialUnits, "data" ],
       start_angle:  [ p.AngleSpec, {field: "start_angle"} ],
+      start_angle_units: [ AngleUnits, "rad" ],
       end_angle:    [ p.AngleSpec, {field: "end_angle"} ],
+      end_angle_units: [ AngleUnits, "rad" ],
     }))
   }
 }

@@ -27,10 +27,9 @@ describe("Whisker annotation", () => {
     })
 
     const whisker1 = new Whisker({
-      // TODO: units are only supported on value level, not type level
-      base: {field: "x2", units: "screen"} as any,
-      lower: {field: "lower2", units: "screen"} as any,
-      upper: {field: "upper2", units: "screen"} as any,
+      base: {field: "x2"}, base_units: "screen",
+      lower: {field: "lower2"}, lower_units: "screen",
+      upper: {field: "upper2"}, upper_units: "screen",
       upper_head: new OpenHead(),
       dimension: "width",
       line_width: 3, line_color: "green",

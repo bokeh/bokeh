@@ -45,7 +45,7 @@ i = 0
 for a in aligns:
     for b in baselines:
         r = p.text(xs(a), ys(b), texts, text_align=a, text_baseline=b,
-                   text_font_size="14px", text_line_height=1.2)
+                   text_font_size="14px", text_line_height=1.2, angle_units="deg")
         renderers["r" + str(i)] = r
         i += 1
 
@@ -53,7 +53,7 @@ slider = Slider(title="Text Angle", start=0, end=45, step=1, value=0)
 slider.js_on_change('value', CustomJS(args=renderers, code="""
     const rs = [r0, r1, r2 , r3, r4, r5, r6, r7, r8];
     for (let i = 0; i < 9; i++) {
-        rs[i].glyph.angle = {value: cb_obj.value, units: "deg"}
+        rs[i].glyph.angle = cb_obj.value
     }
 """))
 

@@ -62,85 +62,85 @@ __all__ = (
 class Value[T](Serializable):
     value: T
     transform: NotRequired[Transform] = Unspecified
-    units: NotRequired[str] = Unspecified
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
-        return serializer.encode_struct(type="value", value=self.value, transform=self.transform, units=self.units)
+        return serializer.encode_struct(type="value", value=self.value, transform=self.transform)
 
     @classmethod
     def from_serializable(cls, rep: dict[str, AnyRep], deserializer: Deserializer) -> Value[Any]:
         if "value" not in rep:
             deserializer.error("expected 'value' field")
+        if "units" in rep:
+            deserializer.error(
+                "embedded 'units' are no longer supported in value specifications; "
+                "set the owning model's companion '<property>_units' property instead",
+            )
         value = deserializer.decode(rep["value"])
         transform = deserializer.decode(rep["transform"]) if "transform" in rep else Unspecified
-        units = deserializer.decode(rep["units"]) if "units" in rep else Unspecified
-        return Value(value, transform, units)
+        return Value(value, transform)
 
     def __getitem__(self, key: str) -> Any:
         if key == "value":
             return self.value
         elif key == "transform" and self.transform is not Unspecified:
             return self.transform
-        elif key == "units" and self.units is not Unspecified:
-            return self.units
-        else:
-            raise KeyError(f"key '{key}' not found")
+        raise KeyError(f"key '{key}' not found")
 
 @dataclass
 class Field(Serializable):
     field: str
     transform: NotRequired[Transform] = Unspecified
-    units: NotRequired[str] = Unspecified
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
-        return serializer.encode_struct(type="field", field=self.field, transform=self.transform, units=self.units)
+        return serializer.encode_struct(type="field", field=self.field, transform=self.transform)
 
     @classmethod
     def from_serializable(cls, rep: dict[str, AnyRep], deserializer: Deserializer) -> Field:
         if "field" not in rep:
             deserializer.error("expected 'field' field")
+        if "units" in rep:
+            deserializer.error(
+                "embedded 'units' are no longer supported in field specifications; "
+                "set the owning model's companion '<property>_units' property instead",
+            )
         field = deserializer.decode(rep["field"])
         transform = deserializer.decode(rep["transform"]) if "transform" in rep else Unspecified
-        units = deserializer.decode(rep["units"]) if "units" in rep else Unspecified
-        return Field(field, transform, units)
+        return Field(field, transform)
 
     def __getitem__(self, key: str) -> Any:
         if key == "field":
             return self.field
         elif key == "transform" and self.transform is not Unspecified:
             return self.transform
-        elif key == "units" and self.units is not Unspecified:
-            return self.units
-        else:
-            raise KeyError(f"key '{key}' not found")
+        raise KeyError(f"key '{key}' not found")
 
 @dataclass
 class Expr(Serializable):
     expr: Expression
     transform: NotRequired[Transform] = Unspecified
-    units: NotRequired[str] = Unspecified
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
-        return serializer.encode_struct(type="expr", expr=self.expr, transform=self.transform, units=self.units)
+        return serializer.encode_struct(type="expr", expr=self.expr, transform=self.transform)
 
     @classmethod
     def from_serializable(cls, rep: dict[str, AnyRep], deserializer: Deserializer) -> Expr:
         if "expr" not in rep:
             deserializer.error("expected 'expr' field")
+        if "units" in rep:
+            deserializer.error(
+                "embedded 'units' are no longer supported in expression specifications; "
+                "set the owning model's companion '<property>_units' property instead",
+            )
         expr = deserializer.decode(rep["expr"])
         transform = deserializer.decode(rep["transform"]) if "transform" in rep else Unspecified
-        units = deserializer.decode(rep["units"]) if "units" in rep else Unspecified
-        return Expr(expr, transform, units)
+        return Expr(expr, transform)
 
     def __getitem__(self, key: str) -> Any:
         if key == "expr":
             return self.expr
         elif key == "transform" and self.transform is not Unspecified:
             return self.transform
-        elif key == "units" and self.units is not Unspecified:
-            return self.units
-        else:
-            raise KeyError(f"key '{key}' not found")
+        raise KeyError(f"key '{key}' not found")
 
 type Vectorized = Value[Any] | Field | Expr
 

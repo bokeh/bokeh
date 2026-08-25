@@ -2,7 +2,7 @@ import {DataAnnotation, DataAnnotationView} from "../data_annotation"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import {CoordinateUnits} from "core/enums"
+import {AngleUnits, CoordinateUnits} from "core/enums"
 import {div, display} from "core/dom"
 import * as p from "core/properties"
 import type {FloatArray} from "core/types"
@@ -159,6 +159,7 @@ export namespace HTMLLabelSet {
     y_units: p.Property<CoordinateUnits>
     text: p.NullStringSpec
     angle: p.AngleSpec
+    angle_units: p.Property<AngleUnits>
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
   } & Mixins
@@ -201,6 +202,7 @@ export class HTMLLabelSet extends DataAnnotation {
       y_units:      [ CoordinateUnits, "data" ],
       text:         [ p.NullStringSpec, {field: "text"} ],
       angle:        [ p.AngleSpec, 0 ],
+      angle_units:  [ AngleUnits, "rad" ],
       x_offset:     [ p.NumberSpec, {value: 0} ],
       y_offset:     [ p.NumberSpec, {value: 0} ],
     }))

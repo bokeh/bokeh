@@ -1,9 +1,7 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
-import type {CoordinateUnits} from "core/enums"
-import {Dimension} from "core/enums"
-import type {Dimensional} from "core/vectorization"
+import {CoordinateUnits, Dimension} from "core/enums"
 import * as p from "core/properties"
 
 export abstract class UpperLowerView extends DataAnnotationView {
@@ -81,15 +79,17 @@ export abstract class UpperLowerView extends DataAnnotationView {
 export class XOrYCoordinateSpec extends p.CoordinateSpec {
   declare readonly obj: UpperLower
 
-  protected override _value: Dimensional<this["__vector__"], CoordinateUnits> | p.Unset = p.unset
-
   get dimension(): "x" | "y" {
     return this.obj.dimension == "width" ? "x" : "y"
   }
 
-  // XXX: a hack to make a coordinate & unit spec
+  override initialize(initial_value: Parameters<p.CoordinateSpec["initialize"]>[0] = p.unset): void {
+    super.initialize(initial_value)
+    p.units_property(this, CoordinateUnits, "data")
+  }
+
   get units(): CoordinateUnits {
-    return this._value === p.unset ? "data" : this._value.units ?? "data"
+    return p.units_property(this, CoordinateUnits, "data").get_value()
   }
 }
 
@@ -99,8 +99,11 @@ export namespace UpperLower {
   export type Props = DataAnnotation.Props & {
     dimension: p.Property<Dimension>
     lower: XOrYCoordinateSpec
+    lower_units: p.Property<CoordinateUnits>
     upper: XOrYCoordinateSpec
+    upper_units: p.Property<CoordinateUnits>
     base: XOrYCoordinateSpec
+    base_units: p.Property<CoordinateUnits>
   }
 
   export type Visuals = DataAnnotation.Visuals
@@ -119,8 +122,11 @@ export class UpperLower extends DataAnnotation {
     this.define<UpperLower.Props>(() => ({
       dimension: [ Dimension, "height" ],
       lower:     [ XOrYCoordinateSpec, {field: "lower"} ],
+      lower_units: [ CoordinateUnits, "data" ],
       upper:     [ XOrYCoordinateSpec, {field: "upper"} ],
+      upper_units: [ CoordinateUnits, "data" ],
       base:      [ XOrYCoordinateSpec, {field: "base"} ],
+      base_units: [ CoordinateUnits, "data" ],
     }))
   }
 }

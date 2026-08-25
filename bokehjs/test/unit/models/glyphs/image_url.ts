@@ -73,8 +73,8 @@ describe("ImageURL module", () => {
       image_url.y = 0
       image_url.w = 1
       image_url.h = 2
-      image_url.properties.w.units = "screen"
-      image_url.properties.h.units = "screen"
+      image_url.w_units = "screen"
+      image_url.h_units = "screen"
 
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
@@ -114,8 +114,8 @@ describe("ImageURL module", () => {
       image_url.y = 0
       image_url.w = null as any // XXX
       image_url.h = null as any // XXX
-      image_url.properties.w.units = "screen"
-      image_url.properties.h.units = "screen"
+      image_url.w_units = "screen"
+      image_url.h_units = "screen"
 
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)

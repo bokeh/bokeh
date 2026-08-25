@@ -12,7 +12,8 @@ describe("Ray", () => {
       return new Ray({
         x: {field: "x"},
         y: {field: "y"},
-        length: {value: 10, units},
+        length: {value: 10},
+        length_units: units,
       })
     }
 

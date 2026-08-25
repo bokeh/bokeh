@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.serialization import DeserializationError, Deserializer
 from bokeh.models.expressions import CumSum
 from bokeh.models.transforms import Dodge
 from tests.support.util.api import verify_all
@@ -59,6 +60,15 @@ def test_expr_function() -> None:
     assert bcpv.expr(expr) == bcpv.Expr(expr=expr)
     assert bcpv.expr(expr, transform) == bcpv.Expr(expr=expr, transform=transform)
     assert bcpv.expr(expr, transform=transform) == bcpv.Expr(expr=expr, transform=transform)
+
+@pytest.mark.parametrize("spec", [
+    {"type": "value", "value": 1, "units": "screen"},
+    {"type": "field", "field": "x", "units": "screen"},
+    {"type": "expr", "expr": None, "units": "screen"},
+])
+def test_deserialization_rejects_embedded_units(spec) -> None:
+    with pytest.raises(DeserializationError, match=r"embedded 'units'.*companion"):
+        Deserializer().decode(spec)
 
 #-----------------------------------------------------------------------------
 # Dev API

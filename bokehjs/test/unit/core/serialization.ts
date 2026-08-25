@@ -12,6 +12,7 @@ import type * as p from "@bokehjs/core/properties"
 import {Slice} from "@bokehjs/core/util/slice"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BYTE_ORDER} from "@bokehjs/core/util/platform"
+import {AnnularWedge} from "@bokehjs/models/glyphs/annular_wedge"
 
 function to_serializable(obj: unknown): {rep: AnyVal, json: string} {
   const serializer = new Serializer()
@@ -295,6 +296,29 @@ describe("core/serialization module", () => {
       const serializer = new Serializer()
       expect(() => serializer.encode(val)).to.throw(SerializationError, /circular reference/)
     })
+
+    it("should serialize units as independently dirty sibling attributes", () => {
+      const glyph = new AnnularWedge({start_angle_units: "deg"})
+
+      const serializer = new Serializer()
+      expect(serializer.encode(glyph)).to.be.equal({
+        type: "object",
+        name: "AnnularWedge",
+        id: glyph.id,
+        attributes: {start_angle_units: "deg"},
+      })
+    })
+
+    it("should include default unit siblings only when requested", () => {
+      const glyph = new AnnularWedge()
+
+      const without_defaults = new Serializer().encode(glyph) as any
+      expect(without_defaults.attributes).to.be.undefined
+
+      const with_defaults = new Serializer({include_defaults: true}).encode(glyph) as any
+      expect(with_defaults.attributes.start_angle_units).to.be.equal("rad")
+      expect(with_defaults.attributes.outer_radius_units).to.be.equal("data")
+    })
   })
 
   describe("implements deserialization protocol", () => {
@@ -362,6 +386,19 @@ describe("core/serialization module", () => {
 
       const rep = {type: "unknown", attributes: {foo: 1}}
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
+    })
+
+    it("should reject embedded units in vectorized specifications", () => {
+      const resolver = new ModelResolver(default_resolver)
+      const deserializer = new Deserializer(resolver)
+
+      for (const rep of [
+        {type: "value", value: 1, units: "screen"},
+        {type: "field", field: "x", units: "screen"},
+        {type: "expr", expr: null, units: "screen"},
+      ]) {
+        expect(() => deserializer.decode(rep)).to.throw(DeserializationError, /embedded 'units'.*companion/)
+      }
     })
   })
 })

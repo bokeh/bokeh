@@ -43,7 +43,7 @@ async function make_testcase(): Promise<PointDrawTestCase> {
   const glyph = new Scatter({
     x: {field: "x"},
     y: {field: "y"},
-    size: {units: "screen", value: 20},
+    size: {value: 20},
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})

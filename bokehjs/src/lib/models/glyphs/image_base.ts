@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {inherit} from "./glyph"
 import type {Arrayable} from "core/types"
 import {to_screen} from "core/types"
-import {ImageOrigin} from "core/enums"
+import {ImageOrigin, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
@@ -279,7 +279,9 @@ export namespace ImageBase {
   export type Props = XYGlyph.Props & {
     image: p.NDArraySpec
     dw: p.DistanceSpec
+    dw_units: p.Property<SpatialUnits>
     dh: p.DistanceSpec
+    dh_units: p.Property<SpatialUnits>
     dilate: p.Property<boolean>
     origin: p.Property<ImageOrigin>
     anchor: p.Property<Anchor>
@@ -316,7 +318,9 @@ export abstract class ImageBase extends XYGlyph {
     this.define<ImageBase.Props>(({Bool}) => ({
       image:        [ p.NDArraySpec, {field: "image"} ],
       dw:           [ p.DistanceSpec, {field: "dw"} ],
+      dw_units:     [ SpatialUnits, "data" ],
       dh:           [ p.DistanceSpec, {field: "dh"} ],
+      dh_units:     [ SpatialUnits, "data" ],
       dilate:       [ Bool, false ],
       origin:       [ ImageOrigin, "bottom_left" ],
       anchor:       [ Anchor, "bottom_left" ],

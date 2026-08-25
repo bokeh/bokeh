@@ -97,7 +97,9 @@ describe("in api/plotting module", () => {
 
         const r0 = p.annular_wedge({...attrs})
         expect(r0.glyph.start_angle).to.be.equal({field: "start_angle"})
+        expect(r0.glyph.start_angle_units).to.be.equal("rad")
         expect(r0.glyph.end_angle).to.be.equal({field: "end_angle"})
+        expect(r0.glyph.end_angle_units).to.be.equal("rad")
 
         const r1 = p.annular_wedge({
           ...attrs,
@@ -105,23 +107,29 @@ describe("in api/plotting module", () => {
           end_angle: [60, 180, 300], end_angle_units: "deg",
         })
         expect(r1.glyph.start_angle).to.be.equal({field: "start_angle"})
-        expect(r1.glyph.end_angle).to.be.equal({field: "end_angle", units: "deg"})
+        expect(r1.glyph.start_angle_units).to.be.equal("rad")
+        expect(r1.glyph.end_angle).to.be.equal({field: "end_angle"})
+        expect(r1.glyph.end_angle_units).to.be.equal("deg")
 
         const r2 = p.annular_wedge({
           ...attrs,
           start_angle: [0, 120, 240], start_angle_units: "deg",
           end_angle: [60, 180, 300],
         })
-        expect(r2.glyph.start_angle).to.be.equal({field: "start_angle", units: "deg"})
+        expect(r2.glyph.start_angle).to.be.equal({field: "start_angle"})
+        expect(r2.glyph.start_angle_units).to.be.equal("deg")
         expect(r2.glyph.end_angle).to.be.equal({field: "end_angle"})
+        expect(r2.glyph.end_angle_units).to.be.equal("rad")
 
         const r3 = p.annular_wedge({
           ...attrs,
           start_angle: [0, 120, 240], start_angle_units: "deg",
           end_angle: [60, 180, 300], end_angle_units: "deg",
         })
-        expect(r3.glyph.start_angle).to.be.equal({field: "start_angle", units: "deg"})
-        expect(r3.glyph.end_angle).to.be.equal({field: "end_angle", units: "deg"})
+        expect(r3.glyph.start_angle).to.be.equal({field: "start_angle"})
+        expect(r3.glyph.start_angle_units).to.be.equal("deg")
+        expect(r3.glyph.end_angle).to.be.equal({field: "end_angle"})
+        expect(r3.glyph.end_angle_units).to.be.equal("deg")
 
         const r4 = p.annular_wedge({
           ...attrs,
@@ -129,26 +137,37 @@ describe("in api/plotting module", () => {
           end_angle: 180, end_angle_units: "deg",
         })
         expect(r4.glyph.start_angle).to.be.equal({value: 120})
-        expect(r4.glyph.end_angle).to.be.equal({value: 180, units: "deg"})
+        expect(r4.glyph.start_angle_units).to.be.equal("rad")
+        expect(r4.glyph.end_angle).to.be.equal({value: 180})
+        expect(r4.glyph.end_angle_units).to.be.equal("deg")
 
         const r5 = p.annular_wedge({
           ...attrs,
           start_angle: 120, start_angle_units: "deg",
           end_angle: 180,
         })
-        expect(r5.glyph.start_angle).to.be.equal({value: 120, units: "deg"})
+        expect(r5.glyph.start_angle).to.be.equal({value: 120})
+        expect(r5.glyph.start_angle_units).to.be.equal("deg")
         expect(r5.glyph.end_angle).to.be.equal({value: 180})
+        expect(r5.glyph.end_angle_units).to.be.equal("rad")
 
         const r6 = p.annular_wedge({
           ...attrs,
           start_angle: 120, start_angle_units: "deg",
           end_angle: 180, end_angle_units: "deg",
         })
-        expect(r6.glyph.start_angle).to.be.equal({value: 120, units: "deg"})
-        expect(r6.glyph.end_angle).to.be.equal({value: 180, units: "deg"})
+        expect(r6.glyph.start_angle).to.be.equal({value: 120})
+        expect(r6.glyph.start_angle_units).to.be.equal("deg")
+        expect(r6.glyph.end_angle).to.be.equal({value: 180})
+        expect(r6.glyph.end_angle_units).to.be.equal("deg")
 
-        expect(() => p.annular_wedge({...attrs, start_angle_units: "deg"})).to.throw(Error)
-        expect(() => p.annular_wedge({...attrs, end_angle_units: "deg"})).to.throw(Error)
+        const r7 = p.annular_wedge({...attrs, start_angle_units: "deg"})
+        expect(r7.glyph.start_angle).to.be.equal({field: "start_angle"})
+        expect(r7.glyph.start_angle_units).to.be.equal("deg")
+
+        const r8 = p.annular_wedge({...attrs, end_angle_units: "deg"})
+        expect(r8.glyph.end_angle).to.be.equal({field: "end_angle"})
+        expect(r8.glyph.end_angle_units).to.be.equal("deg")
       })
     })
 

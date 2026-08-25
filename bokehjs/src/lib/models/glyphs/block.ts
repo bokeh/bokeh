@@ -2,6 +2,7 @@ import {LRTB, LRTBView} from "./lrtb"
 import type {LRTBRect} from "./lrtb"
 import {minmax} from "core/util/math"
 import {ScreenArray} from "core/types"
+import {SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 
 export interface BlockView extends Block.Data {}
@@ -92,7 +93,9 @@ export namespace Block {
     x: p.CoordinateSpec
     y: p.CoordinateSpec
     width: p.DistanceSpec
+    width_units: p.Property<SpatialUnits>
     height: p.DistanceSpec
+    height_units: p.Property<SpatialUnits>
   }
 
   export type Visuals = LRTB.Visuals
@@ -119,7 +122,9 @@ export class Block extends LRTB {
       x:      [ p.XCoordinateSpec, {field: "x"} ],
       y:      [ p.YCoordinateSpec, {field: "y"} ],
       width:  [ p.DistanceSpec,    {value: 1}   ],
+      width_units: [ SpatialUnits, "data" ],
       height: [ p.DistanceSpec,    {value: 1}   ],
+      height_units: [ SpatialUnits, "data" ],
     }))
   }
 }

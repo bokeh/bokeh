@@ -933,8 +933,6 @@ def test_server_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Manage
         client_session._loop_until_closed()
         assert not client_session.connected
 
-# this test is because we do the funky get_value
-# tricks with the units specs
 def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -954,7 +952,7 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
         assert client_root.distance == 42
         assert server_root.angle == 0
 
-        def change_to(new_distance, new_angle):
+        def change_to(new_distance, new_angle, *, distance_units=None, angle_units=None):
             got_angry = {}
             got_angry['result'] = None
             # trap any boomerang
@@ -964,16 +962,24 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
 
             server_previous_distance = server_root.distance
             server_previous_angle = server_root.angle
+            server_previous_distance_units = server_root.distance_units
+            server_previous_angle_units = server_root.angle_units
 
             # Now modify the client document
             client_root.distance = new_distance
             client_root.angle = new_angle
+            if distance_units is not None:
+                client_root.distance_units = distance_units
+            if angle_units is not None:
+                client_root.angle_units = angle_units
 
             # wait until server side change made ... but we may not have the
             # boomerang yet
             def server_change_made():
                 return server_root.distance != server_previous_distance and \
-                    server_root.angle != server_previous_angle
+                    server_root.angle != server_previous_angle and \
+                    (distance_units is None or server_root.distance_units != server_previous_distance_units) and \
+                    (angle_units is None or server_root.angle_units != server_previous_angle_units)
             client_session._connection._loop_until(server_change_made)
 
             # force a round trip to be sure we get the boomerang if we're going to
@@ -984,7 +990,10 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
         change_to(57, 1)
         change_to({ 'value' : 58 }, { 'value' : 2 })
         change_to({ 'field' : 'foo' }, { 'field' : 'bar' })
-        change_to({ 'value' : 59, 'units' : 'screen' }, { 'value' : 30, 'units' : 'deg' })
+        change_to({ 'value' : 59 }, { 'value' : 30 }, distance_units='screen', angle_units='deg')
+
+        assert server_root.distance_units == 'screen'
+        assert server_root.angle_units == 'deg'
 
         client_session.close()
         server.unlisten() # clean up so next test can run

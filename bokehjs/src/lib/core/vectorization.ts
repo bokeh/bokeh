@@ -41,8 +41,6 @@ export type Scalar<T> = Value<T> & Transformed<T>
 
 export type Vector<T> = (Value<T> | Field | Expr<T>) & Transformed<T>
 
-export type Dimensional<T, U> = T & {units?: U}
-
 export type Transformed<T> = {
   transform?: Transform<unknown, T>
 }
@@ -56,9 +54,6 @@ function is_of_type(obj: unknown, field: string): boolean {
   }
   let n = size(obj) - 1
   if ("transform" in obj) {
-    n -= 1
-  }
-  if ("units" in obj) {
     n -= 1
   }
   return n == 0

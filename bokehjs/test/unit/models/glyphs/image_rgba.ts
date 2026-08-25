@@ -30,8 +30,8 @@ describe("ImageRGBA module", () => {
       image_rgba.y = 0
       image_rgba.dw = 1
       image_rgba.dh = 2
-      image_rgba.properties.dw.units = "screen"
-      image_rgba.properties.dh.units = "screen"
+      image_rgba.dw_units = "screen"
+      image_rgba.dh_units = "screen"
 
       const data = {image: [ndarray([1, 2, 3, 4], {dtype: "uint32", shape: [2, 2]})]}
       const image_rgba_view = await create_glyph_view(image_rgba, data)

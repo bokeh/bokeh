@@ -1,12 +1,13 @@
 import {expect} from "#framework/assertions"
 import * as sinon from "sinon"
 
-import {create_glyph_view} from "./_util"
+import {create_glyph_renderer_view, create_glyph_view} from "./_util"
 import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
 //import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 //import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {Geometry} from "@bokehjs/core/geometry"
 import {ScreenArray} from "@bokehjs/core/types"
+import {defer} from "@bokehjs/core/util/defer"
 
 describe("Glyph (using Rect as a concrete Glyph)", () => {
 
@@ -118,8 +119,8 @@ describe("Rect", () => {
     })
 
     it("`_map_data` should correctly map data if width and height units are 'screen'", async () => {
-      glyph.properties.width.units = "screen"
-      glyph.properties.height.units = "screen"
+      glyph.width_units = "screen"
+      glyph.height_units = "screen"
 
       const data = {x: [1], y: [2]}
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
@@ -127,6 +128,26 @@ describe("Rect", () => {
 
       expect(glyph_view.swidth).to.be.equal(new ScreenArray([10]))
       expect(glyph_view.sheight).to.be.equal(new ScreenArray([20]))
+    })
+
+    it("should invalidate uniforms, mapping, and the spatial index when units change", async () => {
+      const data = {x: [1], y: [2]}
+      const renderer_view = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})
+      const glyph_view = renderer_view.glyph as RectView
+      glyph_view.map_data()
+
+      const initial_width = glyph_view.width
+      const initial_index = glyph_view.index
+      const update_data = sinon.spy(renderer_view, "update_data")
+
+      glyph.width_units = "screen"
+      await defer()
+      glyph_view.map_data()
+
+      expect(update_data.calledOnce).to.be.true
+      expect(glyph_view.width).to.not.be.identical(initial_width)
+      expect(glyph_view.swidth).to.be.equal(new ScreenArray([10]))
+      expect(glyph_view.index).to.not.be.identical(initial_index)
     })
 
     // XXX: needs update
@@ -141,8 +162,8 @@ describe("Rect", () => {
 
     // XXX: needs update
     it.skip("`_map_data` should map values for x0 and y1 when width/height units are 'screen'", async () => {
-      glyph.properties.width.units = "screen"
-      glyph.properties.height.units = "screen"
+      glyph.width_units = "screen"
+      glyph.height_units = "screen"
 
       const data = {x: [1], y: [2]}
       const glyph_view = await create_glyph_view(glyph, data)
@@ -205,8 +226,8 @@ describe("Rect", () => {
         })
 
         it("should work when width and height units are 'screen'", async () => {
-          glyph.properties.width.units = "screen"
-          glyph.properties.height.units = "screen"
+          glyph.width_units = "screen"
+          glyph.height_units = "screen"
 
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
           const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})

@@ -14,7 +14,6 @@ from bokeh.core.properties import value
 from bokeh.models import TeeHead, Title, VeeHead
 from bokeh.plotting import figure, show
 
-deg = lambda value: dict(value=value, units="deg")
 cdot = "\u22c5"
 degree = "\u00b0"
 
