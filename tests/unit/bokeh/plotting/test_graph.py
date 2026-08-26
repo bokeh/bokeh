@@ -37,6 +37,8 @@ def test_from_networkx_method(nx) -> None:
     assert renderer.node_renderer.data_source.data["index"] == [0,1,2,3]
     assert renderer.edge_renderer.data_source.data["start"] == [0,0,2]
     assert renderer.edge_renderer.data_source.data["end"] == [1,2,3]
+    assert renderer.data_source.nodes is renderer.node_renderer.data_source
+    assert renderer.data_source.edges is renderer.edge_renderer.data_source
 
     gl = renderer.layout_provider.graph_layout
     assert set(gl.keys()) == {0, 1, 2, 3}

@@ -37,17 +37,11 @@ from .expressions import CoordinateTransform
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'EdgesAndLinkedNodes',
     'EdgeCoordinates',
     'EdgePointCoordinates',
-    'EdgesOnly',
     'GraphCoordinates',
-    'GraphHitTestPolicy',
     'LayoutProvider',
     'NodeCoordinates',
-    'NodesAndAdjacentNodes',
-    'NodesAndLinkedEdges',
-    'NodesOnly',
     'StaticLayoutProvider',
 )
 
@@ -124,7 +118,6 @@ class EdgeCoordinates(GraphCoordinates):
     if TYPE_CHECKING:
         def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
-
 class EdgePointCoordinates(GraphCoordinates):
     """ Scalar endpoint or cubic-control coordinates obtained from a graph layout. """
 
@@ -132,61 +125,6 @@ class EdgePointCoordinates(GraphCoordinates):
         def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     point = Required(Enum("start", "end", "control0", "control1"))
-
-
-@abstract
-class GraphHitTestPolicy(Model):
-    '''
-
-    '''
-
-
-class EdgesOnly(GraphHitTestPolicy):
-    '''
-    With the ``EdgesOnly`` policy, only graph edges are able to be selected and
-    inspected. There is no selection or inspection of graph nodes.
-
-    '''
-
-
-class NodesOnly(GraphHitTestPolicy):
-    '''
-    With the ``NodesOnly`` policy, only graph nodes are able to be selected and
-    inspected. There is no selection or inspection of graph edges.
-
-    '''
-
-
-class NodesAndLinkedEdges(GraphHitTestPolicy):
-    '''
-    With the ``NodesAndLinkedEdges`` policy, inspection or selection of graph
-    nodes will result in the inspection or selection of the node and of the
-    linked graph edges. There is no direct selection or inspection of graph
-    edges.
-
-    '''
-
-
-class EdgesAndLinkedNodes(GraphHitTestPolicy):
-    '''
-    With the ``EdgesAndLinkedNodes`` policy, inspection or selection of graph
-    edges will result in the inspection or selection of the edge and of the
-    linked graph nodes. There is no direct selection or inspection of graph
-    nodes.
-
-    '''
-
-
-class NodesAndAdjacentNodes(GraphHitTestPolicy):
-    '''
-    With the ``NodesAndAdjacentNodes`` policy, inspection or selection of
-    graph nodes will also result in the inspection or selection any nodes that
-    are immediately adjacent (connected by a single edge). There is no
-    selection or inspection of graph edges, and no indication of which node is
-    the tool-selected one from the policy-selected nodes.
-
-    '''
-
 
 #-----------------------------------------------------------------------------
 # Private API

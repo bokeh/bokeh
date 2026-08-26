@@ -19,18 +19,22 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-import sys
+# Standard library imports
+from typing import TYPE_CHECKING
 
 from ..core.property.vectorization import field
 from ..models import (
     Circle,
-    ColumnarDataSource,
     ColumnDataSource,
+    GraphDataSource,
     GlyphRenderer,
     MultiLine,
     Scatter,
 )
 from ._renderer import make_glyph, pop_visuals
+
+if TYPE_CHECKING:
+    from ..models.sources import GraphEdges, GraphNodes
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,7 +45,7 @@ __all__ = (
 )
 
 RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
-                 'selection_policy', 'inspection_policy']
+                 'selection_target', 'inspection_target']
 
 #-----------------------------------------------------------------------------
 # General API
@@ -51,25 +55,17 @@ RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSource, **kwargs) -> dict:
-
-    if not isinstance(node_source, ColumnarDataSource):
-        try:
-            node_source = ColumnDataSource(node_source)
-        except ValueError as err:
-            msg = f"Failed to auto-convert {type(node_source)} to ColumnDataSource.\n Original error: {err}"
-            raise ValueError(msg).with_traceback(sys.exc_info()[2])
-
-    if not isinstance(edge_source, ColumnarDataSource):
-        try:
-            edge_source = ColumnDataSource(edge_source)
-        except ValueError as err:
-            msg = f"Failed to auto-convert {type(edge_source)} to ColumnDataSource.\n Original error: {err}"
-            raise ValueError(msg).with_traceback(sys.exc_info()[2])
+def get_graph_kwargs(node_source: GraphNodes, edge_source: GraphEdges, **kwargs) -> dict:
+    source_kwargs = {}
+    if "selection_policy" in kwargs:
+        source_kwargs["selection_policy"] = kwargs.pop("selection_policy")
+    data_source = GraphDataSource(nodes=node_source, edges=edge_source, **source_kwargs)
+    node_source = data_source.nodes
+    edge_source = data_source.edges
 
     marker = kwargs.pop('node_marker', None)
     marker_type = Scatter
-    if (isinstance(marker, dict) and 'field' in marker) or marker in node_source.data:
+    if (isinstance(marker, dict) and 'field' in marker) or (isinstance(node_source, ColumnDataSource) and marker in node_source.data):
         kwargs['node_marker'] = field(marker)
     else:
         if isinstance(marker, dict) and 'value' in marker:
@@ -157,6 +153,7 @@ def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSourc
 
     renderer_kwargs["node_renderer"] = node_renderer
     renderer_kwargs["edge_renderer"] = edge_renderer
+    renderer_kwargs["data_source"] = data_source
 
     return renderer_kwargs
 

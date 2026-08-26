@@ -16,7 +16,7 @@ from __future__ import annotations
 import pytest
 
 from bokeh.core.properties import field
-from bokeh.models import ColumnDataSource, MultiLine, Scatter
+from bokeh.models import ColumnDataSource, GraphSelectionPolicy, IndexedDataSource, MultiLine, Scatter
 
 # Module under test
 import bokeh.plotting._graph as bpg # isort:skip
@@ -54,6 +54,29 @@ class Test_get_graph_kwargs:
 
         assert set(kw['node_renderer'].data_source.data.keys()) == {"foo"}
         assert set(kw['edge_renderer'].data_source.data.keys()) == {"start", "end", "bar"}
+        assert kw['data_source'].nodes is node_source
+        assert kw['data_source'].edges is edge_source
+
+    def test_handle_storage_neutral_sources(self) -> None:
+        class RecordDataSource(IndexedDataSource):
+            pass
+
+        node_source = RecordDataSource()
+        edge_source = RecordDataSource()
+        kw = bpg.get_graph_kwargs(node_source, edge_source)
+
+        assert kw['node_renderer'].data_source is node_source
+        assert kw['edge_renderer'].data_source is edge_source
+        assert kw['data_source'].nodes is node_source
+        assert kw['data_source'].edges is edge_source
+
+    def test_routes_selection_configuration(self) -> None:
+        policy = GraphSelectionPolicy(node_hops=2)
+        kw = bpg.get_graph_kwargs({}, {}, selection_policy=policy, selection_target="nodes", inspection_target="edges")
+
+        assert kw["data_source"].selection_policy is policy
+        assert kw["selection_target"] == "nodes"
+        assert kw["inspection_target"] == "edges"
 
     def test_handle_node_property_mixins(self) -> None:
         kwargs = dict(node_fill_color="purple", node_selection_fill_color="blue",
@@ -127,13 +150,10 @@ class Test_get_graph_kwargs:
         assert r.muted_glyph.line_color == "blue"
 
     def test_bad_input(self) -> None:
-        msg = """\
-Failed to auto-convert <class 'int'> to ColumnDataSource.
- Original error: expected a dict, dataclass, or eager dataframe support by Narwhals, got 42"""
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(TypeError):
             bpg.get_graph_kwargs(42, {})
 
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(TypeError):
             bpg.get_graph_kwargs({}, 42)
 
 #-----------------------------------------------------------------------------

@@ -11,27 +11,16 @@ Journal of Anthropological Research, 33, 452-473.
 import networkx as nx
 
 from bokeh.io import show
-from bokeh.models import (
-    BoxSelectTool,
-    Column,
-    EdgesAndLinkedNodes,
-    HoverTool,
-    MultiLine,
-    NodesAndAdjacentNodes,
-    NodesAndLinkedEdges,
-    Plot,
-    Range1d,
-    Row,
-    Scatter,
-    TapTool,
-)
+from bokeh.models import (BoxSelectTool, Column, GraphSelectionPolicy,
+                          HoverTool, MultiLine, Plot, Range1d, Row, Scatter,
+                          TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
 
 G = nx.karate_club_graph()
 
 
-def create_graph(layout_func, inspection_policy=None, selection_policy=None, **kwargs):
+def create_graph(layout_func, policy=None, *, selection_target="nodes", inspection_target="nodes", **kwargs):
 
     plot = Plot(width=400, height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
     graph_renderer = from_networkx(G, layout_func, **kwargs)
@@ -46,42 +35,45 @@ def create_graph(layout_func, inspection_policy=None, selection_policy=None, **k
     graph_renderer.edge_renderer.selection_glyph = ml_glyph.clone(line_color=Spectral4[2], line_alpha=1)
     graph_renderer.edge_renderer.hover_glyph = ml_glyph.clone(line_color=Spectral4[1], line_alpha=1)
 
-    if inspection_policy is not None:
-        graph_renderer.inspection_policy = inspection_policy
-    if selection_policy is not None:
-        graph_renderer.selection_policy = selection_policy
+    graph_renderer.selection_target = selection_target
+    graph_renderer.inspection_target = inspection_target
+    if policy is not None:
+        graph_renderer.data_source.selection_policy = policy
 
     plot.renderers.append(graph_renderer)
 
     return plot
 
 
-plot_1 = create_graph(nx.circular_layout, inspection_policy=NodesAndLinkedEdges(), scale=1, center=(0, 0))
-plot_1.title.text = "Circular Layout (NodesAndLinkedEdges inspection policy)"
+plot_1 = create_graph(nx.circular_layout, GraphSelectionPolicy(include_incident_edges=True), scale=1, center=(0, 0))
+plot_1.title.text = "Circular Layout (node inspection includes incident edges)"
 plot_1.add_tools(HoverTool(tooltips=None))
 
-plot_2 = create_graph(nx.spring_layout, selection_policy=NodesAndLinkedEdges(), scale=2, center=(0, 0))
-plot_2.title.text = "Spring Layout (NodesAndLinkedEdges selection policy)"
+plot_2 = create_graph(nx.spring_layout, GraphSelectionPolicy(include_incident_edges=True), scale=2, center=(0, 0))
+plot_2.title.text = "Spring Layout (node selection includes incident edges)"
 plot_2.add_tools(TapTool(), BoxSelectTool())
 
-plot_3 = create_graph(nx.random_layout, inspection_policy=EdgesAndLinkedNodes(), center=(0, 0))
-plot_3.title.text = "Random Layout (EdgesAndLinkedNodes inspection policy)"
+plot_3 = create_graph(nx.random_layout, GraphSelectionPolicy(include_end_nodes=True), inspection_target="edges", center=(0, 0))
+plot_3.title.text = "Random Layout (edge inspection includes endpoints)"
 plot_3.add_tools(HoverTool(tooltips=None))
 
 plot_4 = create_graph(
-    nx.fruchterman_reingold_layout, selection_policy=EdgesAndLinkedNodes(), scale=2, center=(0, 0), dim=2,
+    nx.fruchterman_reingold_layout, GraphSelectionPolicy(include_end_nodes=True),
+    selection_target="edges", scale=2, center=(0, 0), dim=2,
 )
-plot_4.title.text = "FR Layout (EdgesAndLinkedNodes selection policy)"
+plot_4.title.text = "FR Layout (edge selection includes endpoints)"
 plot_4.add_tools(TapTool())
 
-plot_5 = create_graph(nx.circular_layout, inspection_policy=NodesAndAdjacentNodes(), scale=1, center=(0, 0))
-plot_5.title.text = "Circular Layout (NodesAndAdjacentNodes inspection policy)"
+plot_5 = create_graph(nx.circular_layout, GraphSelectionPolicy(node_hops=1), scale=1, center=(0, 0))
+plot_5.title.text = "Circular Layout (one-hop node inspection)"
 plot_5.add_tools(HoverTool(tooltips=None))
 
 plot_6 = create_graph(
-    nx.fruchterman_reingold_layout, selection_policy=NodesAndAdjacentNodes(), scale=2, center=(0, 0), dim=2,
+    nx.fruchterman_reingold_layout,
+    GraphSelectionPolicy(node_hops=2, node_hops_mode="exact", include_direct=False),
+    scale=2, center=(0, 0), dim=2,
 )
-plot_6.title.text = "FR Layout (NodesAndAdjacentNodes selection policy)"
+plot_6.title.text = "FR Layout (exactly two hops from selected node)"
 plot_6.add_tools(TapTool())
 
 layout = Column(Row(plot_1, plot_2), Row(plot_3, plot_4), Row(plot_5, plot_6))

@@ -47,6 +47,7 @@ from ..models import (
     ColumnDataSource,
     CoordinateMapping,
     DataRange1d,
+    IndexedDataSource,
     GraphRenderer,
     LayoutProvider,
     Plot,
@@ -694,16 +695,16 @@ class figure(Plot, GlyphAPI):
         '''
         return self._line_stack(stackers, "y", **kw)
 
-    def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs):
+    def graph(self, node_source: IndexedDataSource, edge_source: IndexedDataSource, layout_provider: LayoutProvider, **kwargs):
         ''' Creates a network graph using the given node, edge and layout provider.
 
         Args:
-            node_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
+            node_source (:class:`~bokeh.models.sources.IndexedDataSource`) : a user-supplied data source
                 for the graph nodes. An attempt will be made to convert the object to
                 :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
 
-            edge_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
+            edge_source (:class:`~bokeh.models.sources.IndexedDataSource`) : a user-supplied data source
                 for the graph edges. An attempt will be made to convert the object to
                 :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
