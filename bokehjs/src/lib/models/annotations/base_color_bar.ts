@@ -15,7 +15,8 @@ import {LinearScale} from "../scales"
 import type {Range} from "../ranges"
 import {Range1d} from "../ranges"
 import {BaseText} from "../text/base_text"
-import {Anchor, Orientation} from "core/enums"
+import {Anchor, Location, Orientation, TextAlign, VerticalAlign} from "core/enums"
+import type {Side} from "core/enums"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
@@ -29,6 +30,8 @@ import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
+import {Padding} from "../common/kinds"
+import * as resolve from "../common/resolve"
 
 const MINOR_DIM = 25
 const MAJOR_DIM_MIN_SCALAR = 0.3
@@ -51,7 +54,8 @@ export abstract class BaseColorBarView extends AnnotationView {
   protected _ticker: Ticker
   protected _formatter: TickFormatter
 
-  protected _inner_layout: BorderLayout
+  protected _inner_layout: BorderLayout | null = null
+  protected _outer_layout: Grid | null = null
 
   protected _major_range: Range
   protected _major_scale: Scale
@@ -65,6 +69,16 @@ export abstract class BaseColorBarView extends AnnotationView {
 
   override _children_views(): ChildView[] {
     return [...super._children_views(), this._axis_view, this._title_view]
+  }
+
+  private _title_location: Location
+  get title_location(): Location {
+    return this._title_location
+  }
+
+  private _title_orientation: Orientation
+  get title_orientation(): Orientation {
+    return this._title_orientation
   }
 
   override initialize(): void {
@@ -159,6 +173,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     const attrs: Partial<Title.Attrs> = {
       text: this.model.title ?? "",
       standoff: this.model.title_standoff,
+      align: this.model.title_text_halign,
+      vertical_align: this.model.title_text_valign,
       // TODO: this needs strict typing
       ...mixins.attrs_of(this.model, "title_", mixins.Text, false),
     }
@@ -170,7 +186,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     this.connect(this.model.change, () => {
       this._apply_title_properties()
       this._apply_axis_properties()
-      // TODO?: this.plot_view.invalidate_layout()
+      this.update_layout()
+      this.plot_view.request_layout(true)
     })
     this.connect(this._ticker.change, () => this.request_paint())
     this.connect(this._formatter.change, () => this.request_paint())
@@ -239,6 +256,28 @@ export abstract class BaseColorBarView extends AnnotationView {
       }
     })()
 
+    const title_location = this._title_location = (() => {
+      const {title_location} = this.model
+      if (title_location == "auto") {
+        return orientation == "horizontal" ? "above" : "left"
+      } else {
+        return title_location
+      }
+    })()
+
+    const title_orientation = this._title_orientation = (() => {
+      const {title_orientation} = this.model
+      if (title_orientation == "auto") {
+        if (orientation == "horizontal" || title_location == "above" || title_location == "below") {
+          return "horizontal"
+        } else {
+          return "vertical"
+        }
+      } else {
+        return title_orientation
+      }
+    })()
+
     this._update_frame()
 
     const center_panel = new NodeLayout()
@@ -255,7 +294,7 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     center_panel.on_resize((bbox) => this._frame_view.set_geometry(bbox))
 
-    const layout = new BorderLayout()
+    const layout = this._inner_layout ?? new BorderLayout()
     this._inner_layout = layout
     layout.absolute = true
 
@@ -265,7 +304,6 @@ export abstract class BaseColorBarView extends AnnotationView {
     layout.left_panel   = left_panel
     layout.right_panel  = right_panel
 
-    const padding_box = {left: padding, right: padding, top: padding, bottom: padding}
     const margin_box = (() => {
       if (this.panel == null) {
         if (isString(location)) {
@@ -340,7 +378,7 @@ export abstract class BaseColorBarView extends AnnotationView {
       }
     })()
 
-    layout.padding = padding_box
+    layout.padding = resolve.padding(padding)
 
     let major_policy: SizingPolicy
     let major_size: number | undefined
@@ -393,17 +431,6 @@ export abstract class BaseColorBarView extends AnnotationView {
     left_panel.set_sizing({width_policy: "min", height_policy: "fit"})
     right_panel.set_sizing({width_policy: "min", height_policy: "fit"})
 
-    const {_title_view} = this
-    if (orientation == "horizontal") {
-      _title_view.panel = new SidePanel("above")
-      _title_view.update_layout()
-      top_panel.children.push(_title_view.layout)
-    } else {
-      _title_view.panel = new SidePanel("left")
-      _title_view.update_layout()
-      left_panel.children.push(_title_view.layout)
-    }
-
     const {panel} = this
     const side = (() => {
       if (panel != null && orientation == panel.orientation) {
@@ -412,6 +439,30 @@ export abstract class BaseColorBarView extends AnnotationView {
         return orientation == "horizontal" ? "below" : "right"
       }
     })()
+
+    const title_direction: Side = (() => {
+      if (title_orientation == "horizontal") {
+        return "above"
+      } else if (title_location == "above" || title_location == "left") {
+        return "left"
+      } else {
+        return "right"
+      }
+    })()
+
+    const {_title_view} = this
+    _title_view.panel = new SidePanel(title_direction)
+    _title_view.update_layout()
+
+    if (title_location == "above") {
+      top_panel.children.push(_title_view.layout)
+    } else if (title_location == "below") {
+      bottom_panel.children.push(_title_view.layout)
+    } else if (title_location == "left") {
+      left_panel.children.push(_title_view.layout)
+    } else {
+      right_panel.children.push(_title_view.layout)
+    }
 
     const stack = (() => {
       switch (side) {
@@ -430,11 +481,16 @@ export abstract class BaseColorBarView extends AnnotationView {
     _axis_view.panel = new SidePanel(side)
     _axis_view.update_layout()
     if (_axis_view.layout != null) {
-      stack.children.push(_axis_view.layout)
+      if (title_location == side && (side == "right" || side == "below")) {
+        stack.children.unshift(_axis_view.layout)
+      } else {
+        stack.children.push(_axis_view.layout)
+      }
     }
 
     if (this.panel != null) {
-      const outer = new Grid([{layout, row: 0, col: 0}])
+      const outer = this._outer_layout ??= new Grid()
+      outer.items = [{layout, row: 0, col: 0}]
       outer.absolute = true
 
       if (orientation == "horizontal") {
@@ -445,7 +501,7 @@ export abstract class BaseColorBarView extends AnnotationView {
 
       this.layout = outer
     } else {
-      this.layout = this._inner_layout
+      this.layout = layout
     }
 
     const {visible} = this.model
@@ -480,8 +536,9 @@ export abstract class BaseColorBarView extends AnnotationView {
 
   protected _paint(ctx: Context2d): void {
     ctx.save()
-    this._paint_bbox(ctx, this._inner_layout.bbox)
-    this._paint_colors(ctx, this._inner_layout.center_panel.bbox)
+    const layout = this._inner_layout!
+    this._paint_bbox(ctx, layout.bbox)
+    this._paint_colors(ctx, layout.center_panel.bbox)
     this._title_view.paint(ctx)
     this._axis_view.paint(ctx)
     ctx.restore()
@@ -518,6 +575,10 @@ export namespace BaseColorBar {
     orientation: p.Property<Orientation | "auto">
     title: p.Property<string | BaseText | null>
     title_standoff: p.Property<number>
+    title_location: p.Property<Location | "auto">
+    title_orientation: p.Property<Orientation | "auto">
+    title_text_halign: p.Property<TextAlign>
+    title_text_valign: p.Property<VerticalAlign>
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
     ticker: p.Property<Ticker | "auto">
@@ -526,7 +587,7 @@ export namespace BaseColorBar {
     major_label_policy: p.Property<LabelingPolicy>
     label_standoff: p.Property<number>
     margin: p.Property<number>
-    padding: p.Property<number>
+    padding: p.Property<Padding>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
     minor_tick_in: p.Property<number>
@@ -582,6 +643,10 @@ export abstract class BaseColorBar extends Annotation {
       orientation:           [ Or(Orientation, Auto), "auto" ],
       title:                 [ Nullable(Or(Str, Ref(BaseText))), null ],
       title_standoff:        [ Float, 2 ],
+      title_location:        [ Or(Location, Auto), "auto" ],
+      title_orientation:     [ Or(Orientation, Auto), "auto" ],
+      title_text_halign:     [ TextAlign, "left" ],
+      title_text_valign:     [ VerticalAlign, "bottom" ],
       width:                 [ Or(Float, Auto), "auto" ],
       height:                [ Or(Float, Auto), "auto" ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
@@ -590,7 +655,7 @@ export abstract class BaseColorBar extends Annotation {
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       label_standoff:        [ Float, 5 ],
       margin:                [ Float, 30 ],
-      padding:               [ Float, 10 ],
+      padding:               [ Padding, 10 ],
       major_tick_in:         [ Float, 5 ],
       major_tick_out:        [ Float, 0 ],
       minor_tick_in:         [ Float, 0 ],

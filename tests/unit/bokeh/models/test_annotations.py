@@ -188,7 +188,11 @@ def test_ColorBar() -> None:
     assert color_bar.width == 'auto'
     assert color_bar.scale_alpha == 1.0
     assert color_bar.title is None
+    assert color_bar.title_orientation == "auto"
+    assert color_bar.title_location == "auto"
     assert color_bar.title_standoff == 2
+    assert color_bar.title_text_halign == "left"
+    assert color_bar.title_text_valign == "bottom"
     assert color_bar.ticker == "auto"
     assert color_bar.formatter == "auto"
     assert color_bar.color_mapper == color_mapper
@@ -217,7 +221,11 @@ def test_ColorBar() -> None:
         "width",
         "scale_alpha",
         "title",
+        "title_orientation",
+        "title_location",
         "title_standoff",
+        "title_text_halign",
+        "title_text_valign",
         "ticker",
         "formatter",
         "color_mapper",

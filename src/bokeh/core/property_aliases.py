@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Literal, NotRequired, TypedDict
+
 # Bokeh imports
 from . import enums
 from .property.auto import Auto
@@ -54,6 +57,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+type AutoType = Literal["auto"]
+type PercentType = float
+
 CSSVariable = Regex(r"^--")
 
 CSSClass = Regex(r"^\.")
@@ -62,9 +68,13 @@ DataImage = Regex(r"^\data:image")
 
 IconLike = Either(Image, Enum(enums.ToolIcon), CSSVariable, CSSClass, DataImage)
 
+type PixelsType = int
 Pixels = NonNegative(Int)
 
+type HAnchorType = enums.AlignType | enums.HAlignType | PercentType
 HAnchor = Either(Enum(enums.Align), Enum(enums.HAlign), Percent)
+
+type VAnchorType = enums.AlignType | enums.VAlignType | PercentType
 VAnchor = Either(Enum(enums.Align), Enum(enums.VAlign), Percent)
 
 Anchor = (
@@ -74,6 +84,7 @@ Anchor = (
     )
 )
 
+type AutoAnchorType = AutoType | enums.AnchorType | tuple[AutoType | HAnchorType, AutoType | VAnchorType]
 AutoAnchor = (
     Either(
         Auto,
@@ -84,6 +95,27 @@ AutoAnchor = (
 
 TextAnchor = Either(Anchor, Auto)
 
+class XYType[T](TypedDict):
+    x: NotRequired[T]
+    y: NotRequired[T]
+
+class LRTBType[T](TypedDict):
+    left: NotRequired[T]
+    right: NotRequired[T]
+    top: NotRequired[T]
+    bottom: NotRequired[T]
+
+class CornersType[T](TypedDict):
+    top_left: NotRequired[T]
+    top_right: NotRequired[T]
+    bottom_right: NotRequired[T]
+    bottom_left: NotRequired[T]
+
+type BorderRadiusType = (
+    PixelsType |
+    tuple[PixelsType, PixelsType, PixelsType, PixelsType] |
+    CornersType[PixelsType]
+)
 BorderRadius = (
     Either(
         Pixels,
@@ -97,6 +129,13 @@ BorderRadius = (
     )
 )
 
+type PaddingType = (
+    PixelsType |
+    tuple[PixelsType, PixelsType] |
+    tuple[PixelsType, PixelsType, PixelsType, PixelsType] |
+    XYType[PixelsType] |
+    LRTBType[PixelsType]
+)
 Padding = (
     Either(
         Pixels,
