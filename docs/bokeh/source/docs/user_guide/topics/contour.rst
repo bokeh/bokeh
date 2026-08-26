@@ -129,8 +129,9 @@ masked array for ``z`` with the excluded grid points masked out, or set the
 ``z`` values of those grid points to ``np.nan``.
 
 Contour lines are implemented using a :class:`~bokeh.models.glyphs.MultiLine`
-glyph and filled contour polygons as a :class:`~bokeh.models.glyphs.MultiPolygons`
-glyph with the ``line_width`` set to zero.
+glyph and filled contour bands as :class:`~bokeh.models.glyphs.Polygons`
+features in a :class:`~bokeh.models.sources.GeometryDataSource`, with the
+``line_width`` set to zero.
 
 The calculation of contours is performed by ``ContourPy``. For information
 about this see the `ContourPy documentation <https://contourpy.readthedocs.io>`_.

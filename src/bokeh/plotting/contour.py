@@ -28,9 +28,9 @@ from typing import (
 import numpy as np
 
 from ..core.property_mixins import FillProps, HatchProps, LineProps
-from ..models.glyphs import MultiLine, MultiPolygons
+from ..models.glyphs import MultiLine, Polygons
 from ..models.renderers import ContourRenderer, GlyphRenderer
-from ..models.sources import ColumnDataSource
+from ..models.sources import ColumnDataSource, GeometryDataSource
 from ..palettes import interp_palette
 from ..plotting._renderer import _process_sequence_literals
 from ..util.dataclasses import entries
@@ -89,6 +89,22 @@ class FillData(FillCoords):
     def asdict(self):
         # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
         return dict(entries(self))
+
+    def as_geometry_data(self) -> tuple[list[dict[str, Any]], dict[str, ArrayLike]]:
+        ''' Convert filled contour coordinates to feature-indexed MultiPolygons. '''
+        geometries = []
+        for polygons_xs, polygons_ys in zip(self.xs, self.ys):
+            coordinates = []
+            for rings_xs, rings_ys in zip(polygons_xs, polygons_ys):
+                rings = [
+                    np.column_stack((ring_xs, ring_ys)).tolist()
+                    for ring_xs, ring_ys in zip(rings_xs, rings_ys)
+                ]
+                coordinates.append(rings)
+            geometries.append({"type": "MultiPolygon", "coordinates": coordinates})
+
+        data = {"lower_levels": self.lower_levels, "upper_levels": self.upper_levels}
+        return geometries, data
 
 @dataclass(frozen=True)
 class LineData(LineCoords):
@@ -230,7 +246,7 @@ def from_contour(
         if "hatch_color" in visuals:
             visuals["hatch_color"] = _color(visuals["hatch_color"], nlevels-1)
 
-        _process_sequence_literals(MultiPolygons, visuals, fill_cds, False)
+        _process_sequence_literals(Polygons, visuals, fill_cds, False)
     else:
         visuals.pop("fill_color", None)
 
@@ -243,7 +259,7 @@ def from_contour(
 
     # Will be other possibilities here like logarithmic....
     contour_renderer = ContourRenderer(
-        fill_renderer=GlyphRenderer(glyph=MultiPolygons(), data_source=ColumnDataSource()),
+        fill_renderer=GlyphRenderer(glyph=Polygons(), data_source=GeometryDataSource()),
         line_renderer=GlyphRenderer(glyph=MultiLine(), data_source=ColumnDataSource()),
         levels=list(levels))
     contour_renderer.set_data(new_contour_data)
@@ -253,9 +269,8 @@ def from_contour(
         for name, value in visuals.items():
             setattr(glyph, name, value)
 
-        cds = cast(ColumnDataSource, contour_renderer.fill_renderer.data_source)
-        for name, value in fill_cds.data.items():
-            cds.add(cast(Sequence[Any], value), name)
+        source = cast(GeometryDataSource, contour_renderer.fill_renderer.data_source)
+        source.data = cast(Any, {**source.data, **fill_cds.data})
 
         glyph.line_alpha = 0  # Don't display lines around fill.
         glyph.line_width = 0

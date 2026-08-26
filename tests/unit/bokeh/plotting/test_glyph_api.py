@@ -15,12 +15,14 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 from bokeh.models import (
     ColumnDataSource,
+    GeometryDataSource,
     GlyphRenderer,
     NormalHead,
     OpenHead,
     glyphs,
 )
 from bokeh.plotting import figure
+from bokeh.util.warnings import BokehDeprecationWarning
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -190,15 +192,32 @@ def test_multi_polygons() -> None:
 
 def test_patch() -> None:
     p = figure()
-    gr = p.patch()
+    with pytest.warns(BokehDeprecationWarning, match=r"patch\(\) method.*deprecated"):
+        gr = p.patch()
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Patch)
 
 def test_patches() -> None:
     p = figure()
-    gr = p.patches()
+    with pytest.warns(BokehDeprecationWarning, match=r"patches\(\) method.*deprecated"):
+        gr = p.patches()
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Patches)
+
+def test_polygons() -> None:
+    p = figure()
+    gr = p.polygons()
+    assert isinstance(gr, GlyphRenderer)
+    assert isinstance(gr.glyph, glyphs.Polygons)
+
+def test_polygons_accepts_geometry_records() -> None:
+    p = figure()
+    gr = p.polygons([{
+        "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [0, 0]]]},
+        "name": "A",
+    }])
+    assert isinstance(gr.data_source, GeometryDataSource)
+    assert gr.data_source.data == {"name": ["A"]}
 
 def test_quad() -> None:
     p = figure()

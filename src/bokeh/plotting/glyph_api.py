@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 from ..models import glyphs
 from ._decorators import glyph_method, marker_method
+from ._renderer import create_renderer
 
 if TYPE_CHECKING:
     from ..models.coordinates import CoordinateMapping
@@ -669,9 +670,17 @@ Examples:
 
 """
 
-    @glyph_method(glyphs.Patch)
+    @glyph_method(
+        glyphs.Patch,
+        deprecated_since=(4, 0, 0),
+        replacement="polygons(geometry, ...) or polygons(source=GeometryDataSource(...), ...)",
+    )
     def patch(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
+.. deprecated:: 4.0
+    Use :meth:`polygons` with natural geometry records or a
+    :class:`~bokeh.models.sources.GeometryDataSource`.
+
 Examples:
 
     .. code-block:: python
@@ -685,9 +694,17 @@ Examples:
 
 """
 
-    @glyph_method(glyphs.Patches)
+    @glyph_method(
+        glyphs.Patches,
+        deprecated_since=(4, 0, 0),
+        replacement="polygons(geometry, ...) or polygons(source=GeometryDataSource(...), ...)",
+    )
     def patches(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
+.. deprecated:: 4.0
+    Use :meth:`polygons` with natural geometry records or a
+    :class:`~bokeh.models.sources.GeometryDataSource`.
+
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
     "array of arrays".
@@ -705,6 +722,38 @@ Examples:
         show(p)
 
 """
+
+    def polygons(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """ Render geometry features from a
+        :class:`~bokeh.models.sources.GeometryDataSource`.
+
+        Polygon and MultiPolygon features, including holes and disjoint parts,
+        share one feature-indexed selection and vector styling axis.
+
+        Pass geometry records directly, or supply an existing geometry source:
+
+        .. code-block:: python
+
+            p.polygons(records, fill_color="color")
+            p.polygons(source=geometry_source, fill_color="color")
+        """
+        from ..models.sources import GeometryDataSource
+
+        if len(args) > 1:
+            raise TypeError(f"polygons takes 1 positional argument but {len(args)} were given")
+
+        geometry = args[0] if args else kwargs.pop("geometry", None)
+        if geometry is not None:
+            if "source" in kwargs:
+                raise ValueError("provide either geometry data or a source, not both")
+            kwargs["source"] = geometry if isinstance(geometry, GeometryDataSource) else GeometryDataSource(geometry)
+
+        if self.coordinates is not None:
+            kwargs.setdefault("coordinates", self.coordinates)
+        plot = self.plot
+        if plot is None:
+            raise RuntimeError("polygons() requires an associated Plot")
+        return create_renderer(glyphs.Polygons, plot, **kwargs)
 
     @marker_method()
     def plus(self, *args: Any, **kwargs: Any) -> GlyphRenderer:

@@ -1,11 +1,14 @@
-from bokeh.models import PolyDrawTool, PolyEditTool
+from bokeh.models import GeometryDataSource, PolyDrawTool, PolyEditTool
 from bokeh.plotting import figure, show
 
 p = figure(x_range=(0, 10), y_range=(0, 10), width=400, height=400,
            title='Poly Edit Tool')
 
-p1 = p.patches([], [], fill_alpha=0.4)
-p2 = p.patches([[1, 2, 3]], [[3, 5, 2]], fill_color='green', fill_alpha=0.4)
+p1 = p.polygons(source=GeometryDataSource(), fill_alpha=0.4)
+p2 = p.polygons(
+    [{"type": "Polygon", "coordinates": [[[1, 3], [2, 5], [3, 2], [1, 3]]]}],
+    fill_color='green', fill_alpha=0.4,
+)
 c1 = p.scatter([], [], size=10, color='red')
 
 draw_tool = PolyDrawTool(renderers=[p1, p2])

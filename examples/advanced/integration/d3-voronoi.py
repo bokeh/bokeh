@@ -2,7 +2,8 @@ import numpy as np
 
 from bokeh.io import curdoc, show
 from bokeh.layouts import column
-from bokeh.models import ColorBar, ColumnDataSource, CustomJS, PointDrawTool, Slider
+from bokeh.models import (ColorBar, ColumnDataSource, CustomJS,
+                          GeometryDataSource, PointDrawTool, Slider)
 from bokeh.palettes import Sunset8
 from bokeh.plotting import figure
 from bokeh.transform import linear_cmap
@@ -16,9 +17,11 @@ source = ColumnDataSource(data=dict(
     x=x,
     y=y,
     z=z,
-    pxs=[[] for _ in range(100)],
-    pys=[[] for _ in range(100)],
 ))
+cells = GeometryDataSource(
+    geometries=[None for _ in range(100)],
+    data=dict(z=z),
+)
 
 p = figure(width=800, height=400, x_range=(-.5, 3.5), y_range=(-0.5, 2.5), title="Move some points!")
 cmap = linear_cmap(field_name="z", palette=Sunset8, low=-1, high=1)
@@ -31,11 +34,11 @@ pdt = PointDrawTool(renderers=[r], num_objects=50)
 p.toolbar.active_multi = pdt
 p.add_tools(pdt)
 
-vr = p.patches(xs="pxs", ys="pys", fill_color=cmap, line_color="black", fill_alpha=0.5, source=source)
+p.polygons(source=cells, fill_color=cmap, line_color="black", fill_alpha=0.5)
 
 slider = Slider(title="Buffer extent", value=0, start=0, end=1, step=0.1)
 
-cb = CustomJS.from_file("d3-voronoi.mjs", source=source, slider=slider)
+cb = CustomJS.from_file("d3-voronoi.mjs", source=source, cells=cells, slider=slider)
 
 source.js_on_change("data", cb)
 slider.js_on_change("value", cb)

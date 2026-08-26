@@ -569,11 +569,11 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     drag: bool = ...
     num_objects: int = ...
 
-class _FreehandDrawToolInit(_EditToolInit, _DragInit, _TapInit, total=False):
+class _FreehandDrawToolInit(_PolyToolInit, _DragInit, _TapInit, total=False):
     renderers: list[GlyphRenderer[MultiLine | Patches]]
     num_objects: int
 
-class FreehandDrawTool(EditTool, Drag, Tap):
+class FreehandDrawTool(PolyTool, Drag, Tap):
     def __init__(self, **kwargs: Unpack[_FreehandDrawToolInit]) -> None: ...
 
     renderers: list[GlyphRenderer[MultiLine | Patches]] = ...

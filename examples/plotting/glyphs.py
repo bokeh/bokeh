@@ -70,12 +70,15 @@ p.multi_polygons(
     color="#FB9A99")
 children.append(p)
 
-p = figure(title="patch")
-p.patch(x, y, color="#A6CEE3")
+p = figure(title="polygon")
+p.polygons({"type": "Polygon", "coordinates": [[*zip(x, y)]]}, color="#A6CEE3")
 children.append(p)
 
-p = figure(title="patches")
-p.patches([xpts+xx for xx in x], [ypts+yy for yy in y], color="#FB9A99")
+p = figure(title="polygons")
+p.polygons([
+    {"type": "Polygon", "coordinates": [[*zip(xpts+xx, ypts+yy)]]}
+    for xx, yy in zip(x, y)
+], color="#FB9A99")
 children.append(p)
 
 p = figure(title="quad")

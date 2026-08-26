@@ -77,7 +77,12 @@ def marker_method() -> GlyphMethodDecorator:
 
     return decorator
 
-def glyph_method(glyphclass: Any) -> GlyphMethodDecorator:
+def glyph_method(
+    glyphclass: Any,
+    *,
+    deprecated_since: tuple[int, int, int] | None = None,
+    replacement: str | None = None,
+) -> GlyphMethodDecorator:
     def decorator(func: GlyphFunction) -> GlyphFunction:
         parameters = cast(list[ParameterSpec], glyphclass.parameters())
 
@@ -85,6 +90,10 @@ def glyph_method(glyphclass: Any) -> GlyphMethodDecorator:
 
         @wraps(func)
         def wrapped(self: Any, *args: Any, **kwargs: Any) -> Any:
+            if deprecated_since is not None:
+                from ..util.deprecation import deprecated
+                assert replacement is not None
+                deprecated(deprecated_since, f"{func.__name__}() method", replacement)
             if len(args) > len(glyphclass._args):
                 raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")
             for arg, param in zip(args, sigparams[1:]):

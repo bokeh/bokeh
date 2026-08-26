@@ -5,9 +5,10 @@ import {isVectorized} from "../core/vectorization"
 import {isPlainObject} from "../core/util/types"
 import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
 import type {MarkerType, RenderLevel} from "../core/enums"
+import {isArray} from "../core/util/types"
 import type * as nd from "core/util/ndarray"
 
-import type {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
+import type {Glyph, GlyphRenderer, IndexedDataSource, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
 
 import {
   AnnularWedge,
@@ -34,6 +35,7 @@ import {
   Ngon,
   Patch,
   Patches,
+  Polygons,
   Quad,
   Quadratic,
   Ray,
@@ -56,6 +58,11 @@ import type {Marker} from "../models/glyphs/marker"
 import type {Marking} from "../models/graphics/marking"
 import type {PathDecoration} from "../models/graphics/decoration"
 import {OpenHead} from "../models/annotations/arrow_head"
+import {
+  GeometryDataSource,
+  geojson_to_geometry_records,
+} from "../models/sources/geometry_data_source"
+import type {GeometryInput} from "../models/sources/geometry_data_source"
 
 export type NamesOf<T extends HasProps> = (Extract<keyof T["properties"], string>)[]
 
@@ -124,7 +131,7 @@ export type AuxText = {
 }
 
 export type AuxGlyph = {
-  source: ColumnarDataSource | ColumnarDataSource["data"]
+  source: IndexedDataSource | ColumnarDataSource["data"]
   view: CDSView
   legend_label: string
   legend_field: string
@@ -187,6 +194,7 @@ export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFi
 export type NgonArgs          = GlyphArgs<Ngon.Props>          & AuxLine & AuxFill & AuxHatch
 export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill & AuxHatch
 export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill & AuxHatch
+export type PolygonsArgs      = GlyphArgs<Polygons.Props>      & AuxLine & AuxFill & AuxHatch
 export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill & AuxHatch
 export type QuadraticArgs     = GlyphArgs<Quadratic.Props>     & AuxLine
 export type RayArgs           = GlyphArgs<Ray.Props>           & AuxLine
@@ -525,6 +533,7 @@ export abstract class GlyphAPI {
     return this._glyph(Ngon, "ngon", ["x", "y", "radius"], args)
   }
 
+  /** @deprecated Use polygons() with GeometryDataSource instead. */
   patch(): GlyphRenderer<Patch>
   patch(args: Partial<PatchArgs>): GlyphRenderer<Patch>
   patch(
@@ -535,6 +544,7 @@ export abstract class GlyphAPI {
     return this._glyph(Patch, "patch", ["x", "y"], args)
   }
 
+  /** @deprecated Use polygons() with GeometryDataSource instead. */
   patches(): GlyphRenderer<Patches>
   patches(args: Partial<PatchesArgs>): GlyphRenderer<Patches>
   patches(
@@ -543,6 +553,30 @@ export abstract class GlyphAPI {
     args?: Partial<PatchesArgs>): GlyphRenderer<Patches>
   patches(...args: unknown[]): GlyphRenderer<Patches> {
     return this._glyph(Patches, "patches", ["xs", "ys"], args)
+  }
+
+  polygons(): GlyphRenderer<Polygons>
+  polygons(args: Partial<PolygonsArgs>): GlyphRenderer<Polygons>
+  polygons(geometry: GeometryInput | GeometryDataSource, args?: Partial<PolygonsArgs>): GlyphRenderer<Polygons>
+  polygons(...args: unknown[]): GlyphRenderer<Polygons> {
+    const geometry = args[0]
+    const is_geometry = geometry instanceof GeometryDataSource || isArray(geometry) || (
+      geometry != null && typeof geometry == "object" && ("type" in geometry || "geometry" in geometry)
+    )
+    if (is_geometry) {
+      if (args.length > 2) {
+        throw new Error("wrong number of arguments for 'polygons' method")
+      }
+      const options = (args[1] ?? {}) as Partial<PolygonsArgs>
+      if (options.source != null) {
+        throw new Error("provide either geometry data or a source, not both")
+      }
+      const source = geometry instanceof GeometryDataSource
+        ? geometry
+        : GeometryDataSource.create(geojson_to_geometry_records(geometry as GeometryInput))
+      return this._glyph(Polygons, "polygons", [], [{...options, source}])
+    }
+    return this._glyph(Polygons, "polygons", [], args)
   }
 
   quad(): GlyphRenderer<Quad>

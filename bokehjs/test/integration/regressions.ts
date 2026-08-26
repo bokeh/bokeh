@@ -15,7 +15,7 @@ import {
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
-  StaticLayoutProvider, NodesAndLinkedEdges,
+  GraphSelectionPolicy, StaticLayoutProvider,
   LinearColorMapper, CategoricalColorMapper,
   Plot,
   TeX,
@@ -3848,9 +3848,8 @@ describe("Bug", () => {
         layout_provider,
         node_renderer,
         edge_renderer,
-        selection_policy: NodesAndLinkedEdges.create(),
-        inspection_policy: NodesAndLinkedEdges.create(),
       })
+      graph.data_source.selection_policy = GraphSelectionPolicy.create({include_incident_edges: true})
       p.add_renderers(graph)
 
       await display(p)

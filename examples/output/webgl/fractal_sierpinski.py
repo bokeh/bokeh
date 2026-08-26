@@ -1,4 +1,4 @@
-"""Sierpinski triangle rendered with WebGL patches.
+"""Sierpinski triangle rendered with WebGL polygons.
 
 Recursively subdivides a triangle into smaller triangles, demonstrating
 WebGL-accelerated rendering of many filled polygons.
@@ -10,7 +10,7 @@ from bokeh.plotting import figure, show
 
 
 def sierpinski(ax, ay, bx, by, cx, cy, depth, max_depth, xs, ys, colors):
-    """Recursively generate Sierpinski triangle patches."""
+    """Recursively generate Sierpinski triangle polygons."""
     if depth >= max_depth:
         xs.append([ax, bx, cx])
         ys.append([ay, by, cy])
@@ -34,12 +34,18 @@ xs, ys, colors = [], [], []
 sierpinski(-1, 0, 1, 0, 0, np.sqrt(3), 0, 9, xs, ys, colors)
 
 p = figure(
-    title=f"Sierpinski Triangle ({len(xs)} patches, WebGL)",
+    title=f"Sierpinski Triangle ({len(xs)} polygons, WebGL)",
     width=800, height=700,
     output_backend="webgl",
     match_aspect=True,
     tools="pan,wheel_zoom,reset",
 )
-p.patches(xs=xs, ys=ys, fill_color=colors, line_color=None, fill_alpha=0.9)
+p.polygons([
+    {
+        "geometry": {"type": "Polygon", "coordinates": [[*zip(poly_xs, poly_ys)]]},
+        "color": color,
+    }
+    for poly_xs, poly_ys, color in zip(xs, ys, colors)
+], fill_color="color", line_color=None, fill_alpha=0.9)
 
 show(p)

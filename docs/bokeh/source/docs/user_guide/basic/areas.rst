@@ -78,70 +78,47 @@ methods.
 
 .. _ug_basic_areas_patches:
 
-Patches
--------
-
-Single patches
-~~~~~~~~~~~~~~
-
-The following example generates a single polygonal patch from one-dimensional
-sequences of ``x`` and ``y`` points using the |patch| glyph method:
-
-.. bokeh-plot:: __REPO__/examples/basic/areas/patch_single.py
-    :source-position: above
-
-Multiple patches
-~~~~~~~~~~~~~~~~
-
-To plot several polygonal patches, use the |patches| glyph method:
-
-.. bokeh-plot:: __REPO__/examples/basic/areas/patch_multiple.py
-    :source-position: above
-
-.. note::
-    Unlike many other glyph methods, |patches| accepts a list of lists of ``x``
-    and ``y`` positions for each line. The |patches| method also expects a
-    scalar value or a list of scalars for each patch for parameters such as
-    color, alpha, and line width. You can similarly use a ``ColumnDataSource``
-    consisting of a list of lists of point coordinates and a list of scalar
-    values of matching length.
-
-Missing points
-~~~~~~~~~~~~~~
-
-Just as with the |line| and |multi_line| methods, you can pass ``NaN`` values
-to |patch| and |patches| glyphs. This produces disjointed patches with gaps
-for ``NaN`` values.
-
-.. bokeh-plot:: __REPO__/examples/basic/areas/patch_missing_points.py
-    :source-position: above
-
-.. warning::
-    Bokeh doesn't currently support hit testing on patch objects with ``NaN``
-    values.
-
 Polygons
 --------
 
-The |multi_polygons| glyph uses nesting to accept a variety of information
-relevant to polygons. The method duplicates the functionality of |patches| but
-you can also use it to render holes inside polygons.
+The |polygons| glyph accepts geometry in the same nested representation used
+by GeoJSON. A Polygon contains an exterior ring followed by any interior
+rings. A MultiPolygon contains one or more Polygons. Bokeh keeps each top-level
+feature as one selectable item, including all of its holes and disjoint parts.
 
-.. note::
-    Unlike many other glyph methods, |multi_polygons| accepts a triple-nested
-    lists of ``x`` and ``y`` positions for the exterior and holes composing
-    each polygon. The |multi_polygons| method also expects a scalar value or a
-    list of scalars for each item for parameters such as color, alpha, and line
-    width. You can similarly use a ``ColumnDataSource`` consisting of a triple-
-    nested list of point coordinates and a list of scalars, with the top-level
-    list of point coordinates being of equal length with the list of scalars.
+You can pass geometry mappings or records directly. Records with a ``geometry``
+value can include additional attributes for colors, alpha values, hover
+tooltips, and callbacks. For geometry reused by multiple renderers, construct a
+:class:`~bokeh.models.sources.GeometryDataSource` explicitly.
 
 Simple polygon
 ~~~~~~~~~~~~~~
 
-The following example generates a single polygon from a triple-nested list of
-one-dimensional sequences of ``x`` and ``y`` points using the |multi_polygons|
-glyph method.
+The following example renders a single Polygon feature:
+
+.. bokeh-plot:: __REPO__/examples/basic/areas/patch_single.py
+    :source-position: above
+
+Multiple polygons
+~~~~~~~~~~~~~~~~~
+
+Each record in the following example is independently selectable and carries
+its own vectorized style attributes:
+
+.. bokeh-plot:: __REPO__/examples/basic/areas/patch_multiple.py
+    :source-position: above
+
+Disjoint parts
+~~~~~~~~~~~~~~
+
+Use a MultiPolygon when one logical feature has disjoint parts. This avoids
+sentinel ``NaN`` coordinates and keeps hit testing and selection attached to
+the complete feature:
+
+.. bokeh-plot:: __REPO__/examples/basic/areas/patch_missing_points.py
+    :source-position: above
+
+The equivalent simple Polygon representation is shown separately here:
 
 .. bokeh-plot:: __REPO__/examples/basic/areas/multipolygon_simple.py
     :source-position: above
@@ -149,9 +126,8 @@ glyph method.
 Polygon with holes
 ~~~~~~~~~~~~~~~~~~
 
-The following example generates a single polygon with holes from three
-sequences of ``x`` and ``y`` points. The first sequence represents
-the exterior of the polygon and the following sequences represent the holes.
+The following example generates a Polygon with two holes. The first ring is
+the exterior and the following rings are holes:
 
 .. bokeh-plot:: __REPO__/examples/basic/areas/multipolygon_with_holes.py
     :source-position: above
@@ -159,10 +135,8 @@ the exterior of the polygon and the following sequences represent the holes.
 Multi-polygon with separate parts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A single polygon concept can comprise multiple polygon geometries. The
-following example generates a multi-polygon glyph from several sequences of
-``x`` and ``y`` points. Each item in the sequence represents a part of the
-glyph.
+A single feature can comprise multiple polygon geometries. Each Polygon in the
+MultiPolygon below represents one part of the same selectable feature:
 
 .. bokeh-plot:: __REPO__/examples/basic/areas/multipolygon_with_separate_parts.py
     :source-position: above
@@ -170,12 +144,15 @@ glyph.
 Multiple multi-polygons
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The top-level of nesting separates each multi-polygon from the rest. You can
-think of each multi-polygon as a row in the data source, potentially with a
-corresponding label or color.
+The top-level sequence separates features. Each record can contain either a
+Polygon or MultiPolygon and corresponding attributes such as a color:
 
 .. bokeh-plot:: __REPO__/examples/basic/areas/multipolygons.py
     :source-position: above
+
+.. note::
+    The legacy |patch| and |patches| methods remain available for 4.x document
+    compatibility but are deprecated. Use |polygons| for new code.
 
 Strips
 ~~~~~~
@@ -210,6 +187,7 @@ ellipse shapes.
 .. |multi_polygons|    replace:: :func:`~bokeh.plotting.figure.multi_polygons`
 .. |patch|             replace:: :func:`~bokeh.plotting.figure.patch`
 .. |patches|           replace:: :func:`~bokeh.plotting.figure.patches`
+.. |polygons|          replace:: :func:`~bokeh.plotting.figure.polygons`
 .. |quad|              replace:: :func:`~bokeh.plotting.figure.quad`
 .. |rect|              replace:: :func:`~bokeh.plotting.figure.rect`
 .. |varea|             replace:: :func:`~bokeh.plotting.figure.varea`

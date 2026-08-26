@@ -5,7 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from typing import Literal, TypedDict, Unpack
+# Standard library imports
+from typing import Any, Literal, TypedDict, Unpack
 
 from .._specs import (
     AlphaArg,
@@ -57,7 +58,7 @@ from ..models.coordinates import CoordinateMapping
 from ..models.graphics import Marking
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
-from ..models.sources import CDSView, ColumnarDataSource, DataDictLike
+from ..models.sources import CDSView, DataDictLike, IndexedDataSource
 from ..models.textures import Texture
 
 class AuxVisuals(TypedDict, total=False):
@@ -178,7 +179,7 @@ class AuxGlyphArgs(TypedDict, total=False):
     visible: bool
 
     # GlyphRenderer
-    source: ColumnarDataSource | DataDictLike
+    source: IndexedDataSource | DataDictLike
     view: CDSView
     muted: bool
 
@@ -382,6 +383,9 @@ class PatchArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
 class PatchesArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # xs: Number1dArg
     # ys: Number1dArg
+    pass
+
+class PolygonsArgs(PatchesArgs, total=False):
     pass
 
 class QuadArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
@@ -706,6 +710,11 @@ class GlyphAPI:
         ys: Number1dArg = ...,
         **kwargs: Unpack[PatchesArgs],
     ) -> GlyphRenderer[glyphs.Patches]: ...
+
+    def polygons(self,
+        geometry: Any = ...,
+        **kwargs: Unpack[PolygonsArgs],
+    ) -> GlyphRenderer[glyphs.Polygons]: ...
 
     def quad(self,
         left: NumberArg = ...,

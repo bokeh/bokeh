@@ -14,7 +14,7 @@ would you assign to the phrase "Highly likely"*.
 
 .. bokeh-example-metadata::
     :sampledata: perceptions
-    :apis: bokeh.plotting.figure.patch, bokeh.models.sources.ColumnDataSource
+    :apis: bokeh.plotting.figure.varea, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`ug_topics_categorical_offsets`
     :keywords: alpha, categorical, palette, patch, ridgeline, sub-coordinates, sub-plot
 
@@ -57,7 +57,9 @@ for i, cat in enumerate(reversed(cats)):
     pdf = gaussian_kde(probly[cat])
     source.add(pdf(x), cat)
 
-    xy.patch("x", cat, color=palette[i], alpha=0.6, line_color="black", source=source, name=cat)
+    xy.varea(x="x", y1=0, y2=cat,
+             color=palette[i], alpha=0.6, source=source, name=cat)
+    xy.line("x", cat, line_color="black", source=source, name=cat)
 
 p.outline_line_color = None
 p.background_fill_color = "#efefef"

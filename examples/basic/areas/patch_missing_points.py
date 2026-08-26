@@ -1,10 +1,14 @@
-from math import nan
-
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)
 
-# add a patch renderer with NaN values
-p.patch([1, 2, 3, nan, 4, 5, 6], [6, 7, 5, nan, 7, 3, 6], alpha=0.5, line_width=2)
+# Disjoint parts are represented naturally as one MultiPolygon feature.
+p.polygons([{
+    "type": "MultiPolygon",
+    "coordinates": [
+        [[[1, 6], [2, 7], [3, 5], [1, 6]]],
+        [[[4, 7], [5, 3], [6, 6], [4, 7]]],
+    ],
+}], alpha=0.5, line_width=2)
 
 show(p)

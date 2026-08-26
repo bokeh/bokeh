@@ -1,5 +1,5 @@
 from bokeh.core.properties import Any, Dict, Instance, String
-from bokeh.models import ColumnDataSource, LayoutDOM
+from bokeh.models import IndexedDataSource, LayoutDOM
 
 # This defines some default options for the Graph3d feature of vis.js
 # See: https://visjs.github.io/vis-graph3d/examples/ for more details. Note
@@ -40,14 +40,13 @@ class Surface3d(LayoutDOM):
     #
     #    https://docs.bokeh.org/en/latest/docs/reference/core/properties.html#bokeh-core-properties
 
-    # This is a Bokeh ColumnDataSource that can be updated in the Bokeh
-    # server by Python code
-    data_source = Instance(ColumnDataSource)
+    # Any indexed Bokeh DataSource can be updated in the Bokeh server by
+    # Python code. Its browser implementation supplies x, y, and z fields.
+    data_source = Instance(IndexedDataSource)
 
     # The vis.js library that we are wrapping expects data for x, y, and z.
-    # The data will actually be stored in the ColumnDataSource, but these
-    # properties let us specify the *name* of the column that should be
-    # used for each field.
+    # These properties select the logical field used for each coordinate;
+    # the source does not have to store those fields as flat columns.
     x = String()
 
     y = String()
