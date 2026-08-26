@@ -1,5 +1,5 @@
 import {Expression} from "../expressions/expression"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type {Arrayable} from "core/types"
 import type * as p from "core/properties"
 
@@ -54,7 +54,7 @@ export interface XComponent extends XComponent.Attrs {}
 export class XComponent extends XYComponent {
   declare properties: XComponent.Props
 
-  protected _v_compute(source: ColumnarDataSource): CoordinateType {
+  protected _v_compute(source: IndexedDataSource): CoordinateType {
     return this.transform.v_compute(source).x
   }
 }
@@ -69,7 +69,7 @@ export interface YComponent extends YComponent.Attrs {}
 export class YComponent extends XYComponent {
   declare properties: YComponent.Props
 
-  protected _v_compute(source: ColumnarDataSource): CoordinateType {
+  protected _v_compute(source: IndexedDataSource): CoordinateType {
     return this.transform.v_compute(source).y
   }
 }

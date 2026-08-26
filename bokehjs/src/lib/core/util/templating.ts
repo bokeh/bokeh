@@ -1,6 +1,6 @@
 import * as Numbro from "@bokeh/numbro"
 import type {ImageIndex} from "models/selections/selection"
-import type {ColumnarDataSource} from "models/sources/columnar_data_source"
+import type {IndexedDataSource} from "models/sources/indexed_data_source"
 import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
@@ -110,8 +110,8 @@ function _get_special_value(name: string, special_vars: Vars) {
   }
 }
 
-export function _get_column_value(name: string, data_source: ColumnarDataSource, ind: Index | null): unknown | null {
-  const column = data_source.get_column(name)
+export function _get_column_value(name: string, data_source: IndexedDataSource, ind: Index | null): unknown | null {
+  const column = data_source.get_field(name)
 
   // missing column
   if (column == null) {
@@ -150,7 +150,7 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
 
 type PlaceholderType = "$" | "@" | "@$"
 
-export function get_value(type: PlaceholderType, name: string, data_source: ColumnarDataSource, index: Index | null, vars: Vars) {
+export function get_value(type: PlaceholderType, name: string, data_source: IndexedDataSource, index: Index | null, vars: Vars) {
   switch (type) {
     case "$":  return _get_special_value(name, vars)
     case "@":  return _get_column_value(name, data_source, index)
@@ -222,7 +222,7 @@ const functions = {
   */
 }
 
-export function replace_placeholders_html(input: string, data_source: ColumnarDataSource,
+export function replace_placeholders_html(input: string, data_source: IndexedDataSource,
     index: Index | null, formatters?: Formatters, special_vars: Vars = {}): Node[] {
 
   const html = process_placeholders(input, (type, name, format, _, spec) => {
@@ -290,7 +290,7 @@ export function replace_placeholders_html(input: string, data_source: ColumnarDa
   return [...document.body.childNodes]
 }
 
-export function replace_placeholders(content: string | {html: string}, data_source: ColumnarDataSource,
+export function replace_placeholders(content: string | {html: string}, data_source: IndexedDataSource,
     i: Index | null, formatters?: Formatters, special_vars: Vars = {}, encode?: (v: string) => string): string | Node[]  {
   let str: string
   let has_html: boolean

@@ -8,7 +8,8 @@ import {VAreaStepView} from "../glyphs/varea_step"
 import {VAreaView} from "../glyphs/varea"
 import type {GlyphView} from "../glyphs/glyph"
 import {Glyph} from "../glyphs/glyph"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import {IndexedDataSource} from "../sources/indexed_data_source"
 import type {CDSViewView} from "../sources/cds_view"
 import {CDSView} from "../sources/cds_view"
 import type {Color} from "core/types"
@@ -98,7 +99,7 @@ export class GlyphRendererView extends DataRendererView {
 
   protected last_dtrender: number
 
-  get data_source(): p.Property<ColumnarDataSource> {
+  get data_source(): p.Property<IndexedDataSource> {
     return this.model.properties.data_source
   }
 
@@ -207,8 +208,8 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.decimated_glyph.model.change, update)
 
     this.connect(this.model.data_source.change, update)
-    this.connect(this.model.data_source.streaming, update)
-    this.connect(this.model.data_source.patching, (indices) => this.update_data(indices))
+    this.connect(this.model.data_source.data_changed, ({indices, structural}) =>
+      this.update_data(structural ? undefined : indices))
     this.connect(this.model.data_source.selected.change, render)
     this.connect(this.model.data_source._select, render)
     if (this.hover_glyph != null) {
@@ -495,7 +496,7 @@ export class GlyphRendererView extends DataRendererView {
 
   _get_reference_point(field: string | null, value?: unknown): number | undefined | null {
     if (field != null) {
-      const array = this.model.data_source.get_column(field)
+      const array = this.model.data_source.get_field(field)
       if (array != null) {
         return this.model.view.get_reference_point(array, value)
       }
@@ -540,7 +541,8 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
-  > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>>
+    Source extends IndexedDataSource = ColumnarDataSource,
+  > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>>
 
   export type Props<
     BaseGlyph,
@@ -548,8 +550,9 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
+    Source extends IndexedDataSource = ColumnarDataSource,
   > = DataRenderer.Props & {
-    data_source: p.Property<ColumnarDataSource>
+    data_source: p.Property<Source>
     view: p.Property<CDSView>
     glyph: p.Property<BaseGlyph>
     hover_glyph: p.Property<HoverGlyph | null>
@@ -566,7 +569,16 @@ export interface GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
-> extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph> {}
+  Source extends IndexedDataSource = ColumnarDataSource,
+> extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source> {}
+
+export type GlyphRendererWithSource<
+  BaseGlyph extends Glyph,
+  Source extends IndexedDataSource,
+> = GlyphRenderer<BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, Source>
+
+export type AnyGlyphRenderer<BaseGlyph extends Glyph = Glyph> =
+  GlyphRendererWithSource<BaseGlyph, IndexedDataSource>
 
 export class GlyphRenderer<
   BaseGlyph extends Glyph = Glyph,
@@ -574,15 +586,16 @@ export class GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
+  Source extends IndexedDataSource = ColumnarDataSource,
 > extends DataRenderer {
-  declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>
+  declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>
   declare __view_type__: GlyphRendererView
 
   static {
     this.prototype.default_view = GlyphRendererView
 
-    this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
-      data_source:        [ Ref(ColumnarDataSource) ],
+    this.define<GlyphRenderer.Props<Glyph, Glyph, Glyph, Glyph, Glyph, IndexedDataSource>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
+      data_source:        [ Ref(IndexedDataSource) ],
       view:               [ Ref(CDSView), () => CDSView.create() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],

@@ -1,21 +1,15 @@
-import type {Geometry} from "core/geometry"
 import type {HasProps} from "core/has_props"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
-import {SelectionManager} from "core/selection_manager"
-import {Signal, Signal0} from "core/signaling"
 import type {Arrayable, ArrayableNew, Attrs, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
-import {assert} from "core/util/assert"
 import {inplace_filter, uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
-import type {GlyphRenderer} from "../renderers/glyph_renderer"
-import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
-import {Selection} from "../selections/selection"
-import {DataSource} from "./data_source"
+import {IndexedDataSource} from "./indexed_data_source"
 import type {Index} from "core/util/templating"
+import type {Selection} from "../selections/selection"
 
 // Abstract base class for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -23,17 +17,15 @@ import type {Index} from "core/util/templating"
 export namespace ColumnarDataSource {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = DataSource.Props & {
+  export type Props = IndexedDataSource.Props & {
     data: p.Property<Data> // XXX: this is hack!!!
     default_values: p.Property<Dict<unknown>>
-    selection_policy: p.Property<SelectionPolicy>
-    inspected: p.Property<Selection>
   }
 }
 
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
-export abstract class ColumnarDataSource extends DataSource {
+export abstract class ColumnarDataSource extends IndexedDataSource {
   declare properties: ColumnarDataSource.Props
 
   declare data: Data
@@ -58,14 +50,6 @@ export abstract class ColumnarDataSource extends DataSource {
     }
   }
 
-  override stream_to(prop: p.Property<Data>, new_data: Data, rollover?: number, options: {sync?: boolean} = {}): void {
-    this._with_selection_sync(options.sync, () => super.stream_to(prop, new_data, rollover, options))
-  }
-
-  override patch_to(prop: p.Property<Data>, patches: PatchSet<unknown>, options: {sync?: boolean} = {}): void {
-    this._with_selection_sync(options.sync, () => super.patch_to(prop, patches, options))
-  }
-
   get_array<T>(key: string): T[] {
     const data = dict(this.data)
     let column = data.get(key)
@@ -79,19 +63,9 @@ export abstract class ColumnarDataSource extends DataSource {
     return column as T[]
   }
 
-  readonly _select: Signal0<this> = new Signal0(this, "select")
-  readonly inspect: Signal<[GlyphRenderer, {geometry: Geometry}], this> = new Signal(this, "inspect")
-
-  readonly selection_manager = new SelectionManager(this)
-
   static {
-    this.define<ColumnarDataSource.Props>(({Ref, Dict, Unknown}) => ({
+    this.define<ColumnarDataSource.Props>(({Dict, Unknown}) => ({
       default_values: [ Dict(Unknown), {} ],
-      selection_policy: [ Ref(SelectionPolicy), () => UnionRenderers.create() ],
-    }))
-
-    this.internal<ColumnarDataSource.Props>(({AnyRef}) => ({
-      inspected:         [ AnyRef(), () => Selection.create() ],
     }))
   }
 
@@ -136,12 +110,6 @@ export abstract class ColumnarDataSource extends DataSource {
       }
     }
     return defaults
-  }
-
-  get<T = unknown>(name: string): Arrayable<T> {
-    const column = this.get_column(name)
-    assert(column != null, `unknown column '${name}' in ${this}`)
-    return column
   }
 
   set(name: string, column: Arrayable<unknown>): void {
@@ -200,23 +168,37 @@ export abstract class ColumnarDataSource extends DataSource {
     }
   }
 
-  get_column(name: string): Arrayable | null {
+  get_field(name: string): Arrayable | null {
     const data = dict(this.data)
     return data.get(name) ?? null
   }
 
-  get_row(index: Index): {[key: string]: unknown} {
+  /** @deprecated use get_field() */
+  get_column(name: string): Arrayable | null {
+    return this.get_field(name)
+  }
+
+  get_record(index: Index): {[key: string]: unknown} {
     const i = isNumber(index) ? index : index.index
     const result: {[key: string]: unknown} = {}
-    for (const [column, array] of entries(this.data)) {
-      result[column] = array[i]
+    for (const [field, array] of entries(this.data)) {
+      result[field] = array[i]
     }
     return result
   }
 
-  columns(): string[] {
-    // return the column names in this data source
+  /** @deprecated use get_record() */
+  get_row(index: Index): {[key: string]: unknown} {
+    return this.get_record(index)
+  }
+
+  fields(): string[] {
     return keys(this.data)
+  }
+
+  /** @deprecated use fields() */
+  columns(): string[] {
+    return this.fields()
   }
 
   get_length(soft: boolean = true): number | null {
@@ -241,10 +223,6 @@ export abstract class ColumnarDataSource extends DataSource {
     }
   }
 
-  get length(): number {
-    return this.get_length() ?? 0
-  }
-
   clear(): void {
     const data = clone(this.data)
     const proxy = dict(data)
@@ -261,5 +239,20 @@ export abstract class ColumnarDataSource extends DataSource {
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
     this.patch_to(this.properties.data, patches, {sync})
+  }
+
+  override stream_to(prop: p.Property<Data>, new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
+    this._with_selection_sync(sync, () => {
+      super.stream_to(prop, new_data, rollover, {sync})
+      this.data_changed.emit({fields: keys(new_data), structural: true})
+    })
+  }
+
+  override patch_to(prop: p.Property<Data>, patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): number[] {
+    return this._with_selection_sync(sync, () => {
+      const indices = super.patch_to(prop, patches, {sync})
+      this.data_changed.emit({fields: keys(patches), indices, structural: false})
+      return indices
+    })
   }
 }

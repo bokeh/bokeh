@@ -23,11 +23,12 @@ import {HTML} from "../dom/html"
 import {Range} from "../ranges/range"
 import {Scale} from "../scales/scale"
 import type {Glyph} from "../glyphs/glyph"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
+import type {GlyphRendererWithSource} from "../renderers/glyph_renderer"
 import type {ToolAliases} from "../tools/tool"
 import {Tool} from "../tools/tool"
 import "../tools/aliases"
@@ -243,9 +244,13 @@ export class Plot extends LayoutDOM {
     this.renderers = [...this.renderers, ...renderers]
   }
 
-  add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph, source: ColumnarDataSource = ColumnDataSource.create(),
-      attrs: Partial<GlyphRenderer.Attrs<BaseGlyph>> = {}): GlyphRenderer<BaseGlyph> {
-    const renderer = GlyphRenderer.create({...attrs, data_source: source, glyph})
+  add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph,
+    source?: ColumnDataSource, attrs?: Partial<GlyphRenderer.Attrs<BaseGlyph>>): GlyphRenderer<BaseGlyph>
+  add_glyph<BaseGlyph extends Glyph, Source extends IndexedDataSource>(glyph: BaseGlyph,
+    source: Source, attrs?: Partial<GlyphRenderer.Attrs<BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, Source>>): GlyphRendererWithSource<BaseGlyph, Source>
+  add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph, source: IndexedDataSource = ColumnDataSource.create(),
+      attrs: Partial<GlyphRenderer.Attrs<BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, IndexedDataSource>> = {}): GlyphRendererWithSource<BaseGlyph, IndexedDataSource> {
+    const renderer = GlyphRenderer.create({...attrs, data_source: source, glyph}) as GlyphRendererWithSource<BaseGlyph, IndexedDataSource>
     this.add_renderers(renderer)
     return renderer
   }

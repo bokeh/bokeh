@@ -9,7 +9,7 @@ from abc import abstractmethod
 from typing import Unpack
 
 from ..renderers.renderer import CompositeRenderer, _CompositeRendererInit
-from ..sources import DataSource
+from ..sources import ColumnarDataSource
 
 class _AnnotationInit(_CompositeRendererInit, total=False):
     ...
@@ -19,10 +19,10 @@ class Annotation(CompositeRenderer):
     def __init__(self, **kwargs: Unpack[_AnnotationInit]) -> None: ...
 
 class _DataAnnotationInit(_AnnotationInit, total=False):
-    source: DataSource
+    source: ColumnarDataSource
 
 class DataAnnotation(Annotation):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DataAnnotationInit]) -> None: ...
 
-    source: DataSource = ...
+    source: ColumnarDataSource = ...

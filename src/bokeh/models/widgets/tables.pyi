@@ -22,7 +22,6 @@ from ..sources import (
     CDSView,
     ColumnDataSource,
     DataDictLike,
-    DataSource,
 )
 from .widget import Widget, _WidgetInit
 
@@ -193,14 +192,14 @@ class TableColumn(Model):
     sorter: Comparison | None = ...
 
 class _TableWidgetInit(_WidgetInit, total=False):
-    source: DataSource
+    source: ColumnDataSource
     view: CDSView
 
 class TableWidget(Widget):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TableWidgetInit]) -> None: ...
 
-    source: DataSource = ...
+    source: ColumnDataSource = ...
     view: CDSView = ...
 
 class _DataTableInit(_TableWidgetInit, total=False):

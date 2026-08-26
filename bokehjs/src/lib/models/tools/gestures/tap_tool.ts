@@ -9,13 +9,13 @@ import type {TapEvent, KeyModifiers} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
 import {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
-import type {ColumnarDataSource} from "../../sources/columnar_data_source"
+import type {DataSource} from "../../sources/data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select, tool_icon_toggle_mode} from "styles/icons.css"
 
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
-  source: ColumnarDataSource
+  source: DataSource
   event: {
     modifiers?: KeyModifiers
   }
@@ -93,7 +93,7 @@ export class TapToolView extends SelectToolView {
     }
   }
 
-  protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: ColumnarDataSource, modifiers?: KeyModifiers): void {
+  protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: DataSource, modifiers?: KeyModifiers): void {
     const {callback} = this.model
     if (callback != null) {
       const x = rv.coordinates.x_scale.invert(geometry.sx)

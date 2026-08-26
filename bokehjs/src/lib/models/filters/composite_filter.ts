@@ -1,7 +1,7 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
 import {Indices} from "core/types"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 
 export namespace CompositeFilter {
   export type Attrs = p.AttrsOf<Props>
@@ -55,7 +55,7 @@ export abstract class CompositeFilter extends Filter {
     })
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices(source: IndexedDataSource): Indices {
     const {operands} = this
     if (operands.length == 0) {
       const size = source.get_length() ?? 1

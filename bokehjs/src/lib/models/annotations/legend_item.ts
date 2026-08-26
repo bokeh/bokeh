@@ -1,6 +1,5 @@
 import {Model} from "../../model"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {isValue, isField} from "core/vectorization"
 import * as p from "core/properties"
 import {logger} from "core/logging"
@@ -54,7 +53,7 @@ export class LegendItem extends Model {
         return false
       }
       const source = this.renderers[0].data_source
-      if (!includes(source.columns(), field)) {
+      if (!includes(source.fields(), field)) {
         return false
       }
     }
@@ -108,17 +107,15 @@ export class LegendItem extends Model {
       const source = renderer.data_source
       const view_indices = renderer.view.indices
 
-      if (source instanceof ColumnarDataSource) {
-        const data = source.get_column(field)
-        if (data != null) {
-          const filtered_data = []
-          for (const i of view_indices) {
-            filtered_data.push(data[i])
-          }
-          return uniq(filtered_data)
-        } else {
-          return ["Invalid field"]
+      const data = source.get_field(field)
+      if (data != null) {
+        const filtered_data = []
+        for (const i of view_indices) {
+          filtered_data.push(data[i])
         }
+        return uniq(filtered_data)
+      } else {
+        return ["Invalid field"]
       }
     }
 

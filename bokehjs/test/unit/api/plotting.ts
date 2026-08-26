@@ -6,8 +6,8 @@ import {figure} from "@bokehjs/api/plotting"
 import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
 import {
-  Circle, ColumnDataSource, LinearAxis,
-  NormalHead, OpenHead, Segment,
+  Circle, ColumnDataSource, GeometryDataSource, LinearAxis,
+  NormalHead, OpenHead, Polygons, Segment,
 } from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
@@ -197,6 +197,21 @@ describe("in api/plotting module", () => {
         expect(renderer.glyph.decorations[1].marking).to.be.identical(end)
         expect(renderer.glyph.decorations[1].node).to.be.equal("end")
         expect(renderer.glyph.decorations[1].inset).to.be.equal({value: 4})
+      })
+
+      it("should accept natural geometry records for polygons", () => {
+        const renderer = figure().polygons([{
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[0, 0], [2, 0], [0, 0]]],
+          },
+          name: "A",
+          type: "region",
+        }])
+
+        expect(renderer.glyph).to.be.instanceof(Polygons)
+        expect(renderer.data_source).to.be.instanceof(GeometryDataSource)
+        expect((renderer.data_source as unknown as GeometryDataSource).data).to.be.equal({name: ["A"], type: ["region"]})
       })
     })
 

@@ -21,7 +21,13 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from ...core.property.instance import Instance, InstanceDefault
+# Standard library imports
+from typing import Any
+
+# Bokeh imports
+from ...core.property.enum import Enum
+from ...core.property.instance import Instance
+from ...core.property.readonly import Readonly
 from ...core.validation import error
 from ...core.validation.errors import INVALID_PROPERTY_VALUE, MALFORMED_GRAPH_SOURCE
 from ..glyphs import (
@@ -31,8 +37,8 @@ from ..glyphs import (
     Scatter,
     Segment,
 )
-from ..graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
-from ..sources import ColumnDataSource
+from ..graphs import LayoutProvider
+from ..sources import ColumnarDataSource, ColumnDataSource, GraphDataSource, IndexedDataSource
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
 
@@ -51,28 +57,54 @@ __all__ = (
 # TODO: (bev) InstanceDefault would be better for these but the property
 # values are also model instances and that is too complicated for now.
 
-_DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
-    glyph=Scatter(), data_source=ColumnDataSource(data=dict(index=[])),
-)
+def _default_node_renderer(source: IndexedDataSource) -> GlyphRenderer:
+    return GlyphRenderer(glyph=Scatter(), data_source=source)
 
-_DEFAULT_EDGE_RENDERER = lambda: GlyphRenderer(
-    glyph=MultiLine(), data_source=ColumnDataSource(data=dict(start=[], end=[])),
-)
+def _default_edge_renderer(source: IndexedDataSource) -> GlyphRenderer:
+    return GlyphRenderer(glyph=MultiLine(), data_source=source)
 
 class GraphRenderer(DataRenderer):
+    ''' Render graph nodes and edges from a coupled ``GraphDataSource``.
+
+    The node and edge glyph renderers remain independently configurable, but
+    their data sources are bound to ``data_source.nodes`` and
+    ``data_source.edges`` respectively.
     '''
 
-    '''
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        data_source = kwargs.get("data_source")
+        node_renderer = kwargs.get("node_renderer")
+        edge_renderer = kwargs.get("edge_renderer")
+
+        if data_source is None:
+            node_source = node_renderer.data_source if node_renderer is not None else ColumnDataSource(data=dict(index=[]))
+            edge_source = edge_renderer.data_source if edge_renderer is not None else ColumnDataSource(data=dict(start=[], end=[]))
+            data_source = GraphDataSource(nodes=node_source, edges=edge_source)
+
+        if node_renderer is None:
+            node_renderer = _default_node_renderer(data_source.nodes)
+        elif node_renderer.data_source is not data_source.nodes:
+            raise ValueError("GraphRenderer node_renderer and data_source must use the same node source")
+
+        if edge_renderer is None:
+            edge_renderer = _default_edge_renderer(data_source.edges)
+        elif edge_renderer.data_source is not data_source.edges:
+            raise ValueError("GraphRenderer edge_renderer and data_source must use the same edge source")
+
+        kwargs.update(data_source=data_source, node_renderer=node_renderer, edge_renderer=edge_renderer)
+        super().__init__(*args, **kwargs)
 
     @error(MALFORMED_GRAPH_SOURCE)
     def _check_malformed_graph_source(self):
         missing = []
-        if "index" not in self.node_renderer.data_source.column_names:
-            missing.append("Column 'index' is missing in GraphSource.node_renderer.data_source")
-        if "start" not in self.edge_renderer.data_source.column_names:
-            missing.append("Column 'start' is missing in GraphSource.edge_renderer.data_source")
-        if "end" not in self.edge_renderer.data_source.column_names:
-            missing.append("Column 'end' is missing in GraphSource.edge_renderer.data_source")
+        node_source = self.data_source.nodes
+        edge_source = self.data_source.edges
+        if isinstance(node_source, ColumnarDataSource) and "index" not in node_source.column_names:
+            missing.append("Field 'index' is missing in GraphDataSource.nodes")
+        if isinstance(edge_source, ColumnarDataSource) and "start" not in edge_source.column_names:
+            missing.append("Field 'start' is missing in GraphDataSource.edges")
+        if isinstance(edge_source, ColumnarDataSource) and "end" not in edge_source.column_names:
+            missing.append("Field 'end' is missing in GraphDataSource.edges")
         if missing:
             return " ,".join(missing) + f" [{self}]"
 
@@ -92,31 +124,35 @@ class GraphRenderer(DataRenderer):
                 if any(name not in data or len(data[name]) != count for name in names):
                     return f"Bezier graph edges require four control columns with one value per edge [{self}]"
 
+    data_source = Readonly(Instance(GraphDataSource), help="""
+    A topology-aware source coupling the graph's node and edge data sources.
+    """)
+
     layout_provider = Instance(LayoutProvider, help="""
     An instance of a ``LayoutProvider`` that supplies the layout of the network
     graph in cartesian space.
     """)
 
-    node_renderer = Instance(GlyphRenderer, default=_DEFAULT_NODE_RENDERER, help="""
+    node_renderer = Readonly(Instance(GlyphRenderer), help="""
     Instance of a ``GlyphRenderer`` containing an ``XYGlyph`` that will be rendered
     as the graph nodes.
     """)
 
-    edge_renderer = Instance(GlyphRenderer, default=_DEFAULT_EDGE_RENDERER, help="""
+    edge_renderer = Readonly(Instance(GlyphRenderer), help="""
     Instance of a ``GlyphRenderer`` containing a ``MultiLine``, ``Patches``, ``Segment``, or ``Bezier`` glyph that will be
     rendered as the graph edges. Segment endpoints follow the layout's edge paths.
     Bezier controls may be supplied in ``cx0``, ``cy0``, ``cx1``, and ``cy1``
     edge-source columns. Without those columns, Bezier edges are straight.
     """)
 
-    selection_policy = Instance(GraphHitTestPolicy, default=InstanceDefault(NodesOnly), help="""
-    An instance of a ``GraphHitTestPolicy`` that provides the logic for selection
-    of graph components.
+    selection_target = Enum("nodes", "edges", default="nodes", help="""
+    Which graph component receives direct hit tests for selection. Topology
+    expansion is configured on ``data_source.selection_policy``.
     """)
 
-    inspection_policy = Instance(GraphHitTestPolicy, default=InstanceDefault(NodesOnly), help="""
-    An instance of a ``GraphHitTestPolicy`` that provides the logic for inspection
-    of graph components.
+    inspection_target = Enum("nodes", "edges", default="nodes", help="""
+    Which graph component receives direct hit tests for inspection. Topology
+    expansion is configured on ``data_source.selection_policy``.
     """)
 
 #-----------------------------------------------------------------------------

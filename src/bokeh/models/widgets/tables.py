@@ -49,7 +49,7 @@ from ...core.property.required import Required
 from ...model import Model
 from ..comparisons import Comparison
 from ..dom import HTML
-from ..sources import CDSView, ColumnDataSource, DataSource
+from ..sources import CDSView, ColumnDataSource
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -618,7 +618,7 @@ class TableWidget(Widget):
 
     '''
 
-    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
+    source = Instance(ColumnDataSource, default=InstanceDefault(ColumnDataSource), help="""
     The source of data for the widget.
     """)
 

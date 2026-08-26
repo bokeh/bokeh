@@ -19,9 +19,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from ..core.has_props import abstract
+# Bokeh imports
 from ..core.property.container import Dict, List, Seq
-from ..core.property.primitive import Int
+from ..core.property.enum import Enum
+from ..core.property.numeric import NonNegative
+from ..core.property.primitive import Bool, Int
 from ..core.property.struct import Struct
 from ..model import Model
 
@@ -30,10 +32,9 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'IntersectRenderers',
+    'GraphSelectionPolicy',
     'Selection',
     'SelectionPolicy',
-    'UnionRenderers',
 )
 
 #-----------------------------------------------------------------------------
@@ -85,30 +86,56 @@ class Selection(Model):
 
     """)
 
-@abstract
 class SelectionPolicy(Model):
+    ''' Control how hits from renderers sharing a data source are combined.
+
+    ``mode="union"`` selects a record hit by any renderer. With
+    ``mode="intersect"``, a record must be hit by every renderer.
     '''
 
+    mode = Enum("union", "intersect", default="union", help="""
+    How to combine hit-test results from renderers sharing a data source.
+    """)
+
+class GraphSelectionPolicy(SelectionPolicy):
+    ''' Control how direct graph hits propagate through graph topology.
+
+    A :class:`~bokeh.models.renderers.GraphRenderer` independently chooses
+    whether nodes or edges receive direct hit tests. This policy then expands
+    those hits. For example, ``node_hops=2`` includes nodes reachable within
+    two hops, while ``node_hops_mode="exact"`` limits the expansion to the
+    two-hop frontier (plus directly selected nodes when ``include_direct`` is
+    true).
+
+    ``include_incident_edges`` expands node selections to their incident
+    edges. ``include_end_nodes`` expands edge selections to their endpoint
+    nodes. These options can be combined.
     '''
 
+    node_hops = NonNegative(Int, default=0, help="""
+    Number of graph hops to traverse from directly selected nodes.
+    """)
 
-class IntersectRenderers(SelectionPolicy):
-    '''
-    When a data source is shared between multiple renderers, a row in the data
-    source will only be selected if that point for each renderer is selected. The
-    selection is made from the intersection of hit test results from all renderers.
+    node_hops_mode = Enum("exact", "up_to", default="up_to", help="""
+    Whether to include only nodes at exactly ``node_hops`` or every node up to
+    that distance.
+    """)
 
-    '''
+    node_direction = Enum("both", "out", "in", default="both", help="""
+    Direction used when traversing graph edges from selected nodes.
+    """)
 
+    include_direct = Bool(default=True, help="""
+    Whether directly hit nodes or edges remain in the expanded selection.
+    """)
 
-class UnionRenderers(SelectionPolicy):
-    '''
-    When a data source is shared between multiple renderers, selecting a point on
-    from any renderer will cause that row in the data source to be selected. The
-    selection is made from the union of hit test results from all renderers.
+    include_incident_edges = Bool(default=False, help="""
+    Whether selecting nodes also selects edges incident to the expanded nodes.
+    """)
 
-    '''
-
+    include_end_nodes = Bool(default=False, help="""
+    Whether selecting edges also selects their endpoint nodes.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

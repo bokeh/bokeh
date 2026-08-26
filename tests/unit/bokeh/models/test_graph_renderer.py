@@ -19,6 +19,8 @@ from bokeh.models import (
     Bezier,
     Circle,
     ColumnDataSource,
+    GraphDataSource,
+    IndexedDataSource,
     MultiLine,
     Patches,
     Segment,
@@ -45,7 +47,34 @@ class TestGraphRenderer:
         assert renderer.y_range_name == "default"
         assert renderer.node_renderer.data_source.data == dict(index=[])
         assert renderer.edge_renderer.data_source.data == dict(start=[], end=[])
+        assert renderer.data_source.nodes is renderer.node_renderer.data_source
+        assert renderer.data_source.edges is renderer.edge_renderer.data_source
         assert renderer.layout_provider == layout_provider
+
+    def test_init_from_graph_data_source(self) -> None:
+        class RecordDataSource(IndexedDataSource):
+            pass
+
+        nodes = RecordDataSource()
+        edges = RecordDataSource()
+        source = GraphDataSource(nodes=nodes, edges=edges)
+        renderer = bmr.GraphRenderer(data_source=source)
+
+        assert renderer.node_renderer.data_source is nodes
+        assert renderer.edge_renderer.data_source is edges
+
+    def test_selection_and_inspection_targets_are_independent(self) -> None:
+        renderer = bmr.GraphRenderer(selection_target="nodes", inspection_target="edges")
+
+        assert renderer.selection_target == "nodes"
+        assert renderer.inspection_target == "edges"
+
+    def test_rejects_mismatched_sources(self) -> None:
+        source = GraphDataSource()
+        node_renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(index=[])), glyph=Circle())
+
+        with pytest.raises(ValueError, match="must use the same node source"):
+            bmr.GraphRenderer(data_source=source, node_renderer=node_renderer)
 
     def test_check_malformed_graph_source_no_errors(self) -> None:
         renderer = bmr.GraphRenderer()
