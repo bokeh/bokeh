@@ -3,6 +3,7 @@ import {display} from "#framework/layouts"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
+import {GraphDataSource} from "@bokehjs/models/sources/graph_data_source"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
@@ -55,6 +56,39 @@ async function create_graph_document(edge_glyph: MultiLine | Segment | Bezier | 
     test_graph_view: view.owner.get_one(graph),
   }
 }
+
+describe("GraphRenderer", () => {
+  it("couples renderer sources in a GraphDataSource", () => {
+    const node_source = ColumnDataSource.create({data: {index: [0, 1]}})
+    const edge_source = ColumnDataSource.create({data: {start: [0], end: [1]}})
+    const node_renderer = GlyphRenderer.create({glyph: Scatter.create(), data_source: node_source})
+    const edge_renderer = GlyphRenderer.create({glyph: MultiLine.create(), data_source: edge_source})
+    const graph = GraphRenderer.create({node_renderer, edge_renderer})
+
+    expect(graph.data_source.nodes).to.be.equal(node_source)
+    expect(graph.data_source.edges).to.be.equal(edge_source)
+  })
+
+  it("constructs renderers from a GraphDataSource", () => {
+    const node_source = ColumnDataSource.create({data: {index: [0, 1]}})
+    const edge_source = ColumnDataSource.create({data: {start: [0], end: [1]}})
+    const data_source = GraphDataSource.create({nodes: node_source, edges: edge_source})
+    const graph = GraphRenderer.create({data_source})
+
+    expect(graph.node_renderer.data_source).to.be.equal(node_source)
+    expect(graph.edge_renderer.data_source).to.be.equal(edge_source)
+  })
+
+  it("rejects mismatched renderer and graph sources", () => {
+    const data_source = GraphDataSource.create()
+    const node_renderer = GlyphRenderer.create({glyph: Scatter.create(), data_source: ColumnDataSource.create()})
+
+    expect(() => GraphRenderer.create({data_source, node_renderer})).to.throw(
+      Error,
+      "GraphRenderer node_renderer and data_source must use the same node source",
+    )
+  })
+})
 
 describe("GraphRendererView", () => {
   it("should keep the plot usable with an unsupported edge glyph", async () => {

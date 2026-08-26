@@ -25,8 +25,10 @@ from bokeh.models import (
     Image,
     ImageRGBA,
     ImageStack,
+    IndexedDataSource,
     IndexFilter,
     Line,
+    Plot,
     MultiLine,
     NormalHead,
     Patch,
@@ -47,6 +49,21 @@ import bokeh.models.renderers as bmr # isort:skip
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class RecordDataSource(IndexedDataSource):
+    pass
+
+def test_accepts_non_columnar_data_source() -> None:
+    source = RecordDataSource()
+    renderer = bmr.GlyphRenderer(data_source=source, glyph=Scatter(x="x", y="y"))
+
+    assert renderer.data_source is source
+
+def test_plot_add_glyph_accepts_non_columnar_data_source() -> None:
+    source = RecordDataSource()
+    renderer = Plot().add_glyph(source, Scatter(x="x", y="y"))
+
+    assert renderer.data_source is source
 
 
 def test_add_path_decoration_accepts_vectorized_inset_and_state_markings() -> None:

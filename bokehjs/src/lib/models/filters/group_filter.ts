@@ -3,7 +3,7 @@ import type * as p from "core/properties"
 import {Indices} from "core/types"
 import {logger} from "core/logging"
 import {Comparator} from "core/util/eq"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 
 export namespace GroupFilter {
   export type Attrs = p.AttrsOf<Props>
@@ -26,8 +26,8 @@ export class GroupFilter extends Filter {
     }))
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
-    const column = source.get_column(this.column_name)
+  compute_indices(source: IndexedDataSource): Indices {
+    const column = source.get_field(this.column_name)
     const size = source.get_length() ?? 1
     if (column == null) {
       logger.warn(`${this}: groupby column '${this.column_name}' not found in the data source`)

@@ -43,7 +43,7 @@ from ..graphics import Marking, PathDecoration, PathMarkings
 from ..sources import (
     CDSView,
     ColumnDataSource,
-    DataSource,
+    IndexedDataSource,
     WebDataSource,
 )
 from .renderer import DataRenderer
@@ -98,7 +98,7 @@ class GlyphRenderer(DataRenderer):
         if missing:
             return f"{', '.join(missing)} {{renderer: {self}}}"
 
-    data_source = Required(Instance(DataSource), help="""
+    data_source = Required(Instance(IndexedDataSource), help="""
     Local data source to use when rendering glyphs on the plot.
     """)
 

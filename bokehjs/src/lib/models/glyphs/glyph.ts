@@ -27,7 +27,7 @@ import type {Factor} from "../ranges/factor_range"
 import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {Decoration, PathDecoration, PathMarkings} from "../graphics/decoration"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
 
@@ -459,7 +459,7 @@ export abstract class GlyphView extends DOMComponentView {
     return this[`inherited_${name}` as keyof this] as boolean
   }
 
-  set_visuals(source: ColumnarDataSource, indices: Indices): void {
+  set_visuals(source: IndexedDataSource, indices: Indices): void {
     for (const prop of this._iter_visuals()) {
       const {base} = this
       if (base != null && this._can_inherit_from(prop, base)) {
@@ -521,7 +521,7 @@ export abstract class GlyphView extends DOMComponentView {
     return final_array
   }
 
-  async set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
+  async set_data(source: IndexedDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
     const visuals = new Set(this._iter_visuals())
     const {base} = this
 

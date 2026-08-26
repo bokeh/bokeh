@@ -1,6 +1,6 @@
 import {Placeholder, PlaceholderView} from "./placeholder"
 import type {Formatters} from "./placeholder"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {DataSource} from "../sources/data_source"
 import type {Index as DataIndex} from "core/util/templating"
 import type {PlainObject} from "core/types"
 import type * as p from "core/properties"
@@ -8,7 +8,7 @@ import type * as p from "core/properties"
 export class IndexView extends PlaceholderView {
   declare model: Index
 
-  update(_source: ColumnarDataSource, i: DataIndex | null, _vars: PlainObject, _formatters?: Formatters): void {
+  update(_source: DataSource, i: DataIndex | null, _vars: PlainObject, _formatters?: Formatters): void {
     this.el.textContent = i == null ? "(null)" : `${i}`
   }
 }

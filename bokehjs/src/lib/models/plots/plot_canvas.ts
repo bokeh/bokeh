@@ -11,7 +11,7 @@ import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
-import type {Selection} from "../selections/selection"
+import type {SelectionState} from "core/selection_manager"
 import type {DOMBoxSizing} from "../layouts/layout_dom"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
@@ -825,25 +825,23 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  get_selection(): Map<DataRenderer, Selection> {
-    const selection = new Map<DataRenderer, Selection>()
+  get_selection(): Map<DataRenderer, SelectionState> {
+    const selection = new Map<DataRenderer, SelectionState>()
     for (const renderer of this.model.data_renderers) {
-      const {selected} = renderer.selection_manager.source
-      selection.set(renderer, selected)
+      selection.set(renderer, renderer.selection_manager.get_selection())
     }
     return selection
   }
 
-  update_selection(selections: Map<DataRenderer, Selection> | null): void {
+  update_selection(selections: Map<DataRenderer, SelectionState> | null): void {
     for (const renderer of this.model.data_renderers) {
-      const ds = renderer.selection_manager.source
       if (selections != null) {
         const selection = selections.get(renderer)
         if (selection != null) {
-          ds.selected.update(selection, true)
+          renderer.selection_manager.update_selection(selection)
         }
       } else {
-        ds.selection_manager.clear()
+        renderer.selection_manager.clear()
       }
     }
   }

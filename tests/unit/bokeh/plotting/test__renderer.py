@@ -24,11 +24,13 @@ from bokeh.models import (
     Circle,
     ColumnDataSource,
     HSpan,
+    IndexedDataSource,
     Line,
     MultiLine,
     Patches,
 )
 from bokeh.plotting import figure
+from bokeh.util.warnings import BokehDeprecationWarning
 
 #from unittest import mock
 
@@ -46,6 +48,22 @@ import bokeh.plotting._renderer as bpr # isort:skip
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class RecordDataSource(IndexedDataSource):
+    pass
+
+class Test_non_columnar_source:
+    def test_accepts_field_specs(self) -> None:
+        source = RecordDataSource()
+        renderer = figure().scatter(x="x", y="y", source=source)
+
+        assert renderer.data_source is source
+
+    def test_rejects_sequence_literals(self) -> None:
+        source = RecordDataSource()
+
+        with pytest.raises(RuntimeError, match="Expected x and y to reference fields"):
+            figure().scatter(x=[1, 2], y=[3, 4], source=source)
 
 
 class Test__pop_visuals:
@@ -175,7 +193,8 @@ class Test__process_sequence_literals:
     def test_patches_line_dash_as_list(self) -> None:
         """Patches glyph should also handle line_dash list correctly"""
         p = figure()
-        r = p.patches([[1, 2, 3]], [[1, 2, 3]], line_dash=[6, 3])
+        with pytest.warns(BokehDeprecationWarning):
+            r = p.patches([[1, 2, 3]], [[1, 2, 3]], line_dash=[6, 3])
 
         assert isinstance(r.glyph, Patches)
         assert r.glyph.line_dash == [6, 3]
@@ -236,7 +255,8 @@ class Test__process_sequence_literals:
     def test_patches_line_dash_numpy_array(self) -> None:
         """Patches glyph should also handle numpy arrays correctly"""
         p = figure()
-        r = p.patches([[1, 2, 3]], [[1, 2, 3]], line_dash=np.array([6, 3]))
+        with pytest.warns(BokehDeprecationWarning):
+            r = p.patches([[1, 2, 3]], [[1, 2, 3]], line_dash=np.array([6, 3]))
 
         assert isinstance(r.glyph, Patches)
         assert list(r.glyph.line_dash) == [6, 3]
