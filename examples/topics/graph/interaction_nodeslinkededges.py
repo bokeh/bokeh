@@ -1,7 +1,7 @@
 import networkx as nx
 
-from bokeh.models import (BoxSelectTool, HoverTool, MultiLine,
-                          NodesAndLinkedEdges, Plot, Range1d, Scatter, TapTool)
+from bokeh.models import (BoxSelectTool, GraphSelectionPolicy, HoverTool,
+                          MultiLine, Plot, Range1d, Scatter, TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx, show
 
@@ -24,8 +24,7 @@ graph_renderer.edge_renderer.glyph = ml_glyph
 graph_renderer.edge_renderer.selection_glyph = ml_glyph.clone(line_color=Spectral4[2], line_alpha=1)
 graph_renderer.edge_renderer.hover_glyph = ml_glyph.clone(line_color=Spectral4[1], line_width=1)
 
-graph_renderer.selection_policy = NodesAndLinkedEdges()
-graph_renderer.inspection_policy = NodesAndLinkedEdges()
+graph_renderer.data_source.selection_policy = GraphSelectionPolicy(include_incident_edges=True)
 
 plot.renderers.append(graph_renderer)
 

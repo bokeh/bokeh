@@ -8,6 +8,7 @@
 '''
 import networkx as nx
 
+from bokeh.models import ColumnDataSource
 from bokeh.palettes import Category20_20
 from bokeh.plotting import figure, from_networkx, show
 
@@ -21,9 +22,11 @@ p.grid.grid_line_color = None
 graph = from_networkx(G, nx.spring_layout, scale=1.8, center=(0,0))
 p.renderers.append(graph)
 
-# Add some new columns to the node renderer data source
-graph.node_renderer.data_source.data['index'] = list(range(len(G)))
-graph.node_renderer.data_source.data['colors'] = Category20_20
+# Add some new fields to the graph's node source
+node_source = graph.data_source.nodes
+assert isinstance(node_source, ColumnDataSource)
+node_source.data['index'] = list(range(len(G)))
+node_source.data['colors'] = Category20_20
 
 graph.node_renderer.glyph.update(size=20, fill_color="colors")
 

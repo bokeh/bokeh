@@ -12,8 +12,10 @@ Overview
 Graph drawing is done using the ``GraphRenderer`` model.
 
 In order to create a network visualization, you need to specify:
-- node data and glyphs using the ``node_renderer`` attribute
-- edge data and glyphs using the ``edge_renderer`` attribute
+
+- node and edge data using the ``data_source`` attribute
+- node glyphs using the ``node_renderer`` attribute
+- edge glyphs using the ``edge_renderer`` attribute
 - the layout strategy using the ``layout_provider`` attribute
 
 While the positions of the nodes could theoretically be stored in the ``node_renderer``,
@@ -24,22 +26,38 @@ depending on the ``layout_provider``, which will dictate the placement of the no
 Edge and node renderers
 -----------------------
 
-By default, the glyph used in ``node_renderer`` is ``Circle``.
-You can replace it by any instance of ``XYGlyph``, like ``Ellipse``, ``Rect`` or even
-:class:`~bokeh.models.Scatter`.
+By default, the glyph used in ``node_renderer`` is
+:class:`~bokeh.models.Scatter`. You can replace it with any ``XYGlyph``, such
+as ``Ellipse`` or ``Rect``.
 
 Similarly, you can modify the style properties
 of edges through the ``edge_renderer`` property. Supported edge glyphs are ``MultiLine``, ``Patches``, ``Segment``, and ``Bezier``.
 Choose the edge glyph before displaying the graph.
 
-Observe the following requirements for the data sources belonging
-to these sub-renderers:
+The :class:`~bokeh.models.sources.GraphDataSource` assigned to
+``data_source`` keeps the node and edge sources together. The sub-renderers
+are bound to these sources: ``node_renderer.data_source`` is
+``data_source.nodes`` and ``edge_renderer.data_source`` is
+``data_source.edges``.
 
-* The ``ColumnDataSource`` of the node sub-renderer must have an
-  ``"index"`` column with the unique indices of the nodes.
-* The ``ColumnDataSource`` of the edge sub-renderer must have a
-  ``"start"`` and ``"end"`` column. These columns contain the node
-  indices for the start and end of the edges.
+Observe the following requirements for the child sources:
+
+* The node source must expose an ``"index"`` field with the unique indices
+  of the nodes.
+* The edge source must expose ``"start"`` and ``"end"`` fields. These fields
+  contain the node indices for the start and end of the edges.
+
+Both children are :class:`~bokeh.models.sources.IndexedDataSource` instances
+and can use any supported storage layout. By default, ``GraphDataSource`` creates
+:class:`~bokeh.models.sources.ColumnDataSource` children using the traditional
+``"index"``, ``"start"``, and ``"end"`` columns.
+
+You do not have to reshape ordinary graph data into those columns yourself.
+``GraphDataSource`` accepts node identifiers, node or edge record mappings,
+edge tuples, and NetworkX-like graph objects. It normalizes familiar ``id``,
+``source``, and ``target`` names internally. The normalized node and edge
+sources are regular Bokeh models, so changes, selections, and server sessions
+use the same synchronization protocol as other data sources.
 
 You can add extra meta-data to these sources to enable vectorized
 glyph styling or make data available for callbacks or hover tooltips.
@@ -55,7 +73,12 @@ The following code snippet
 
     import math
     from bokeh.plotting import figure, show
-    from bokeh.models import GraphRenderer, Ellipse, StaticLayoutProvider
+    from bokeh.models import (
+        Ellipse,
+        GraphDataSource,
+        GraphRenderer,
+        StaticLayoutProvider,
+    )
     from bokeh.palettes import Spectral8
 
     # list the nodes and initialize a plot
@@ -65,22 +88,19 @@ The following code snippet
     plot = figure(title="Graph layout demonstration", x_range=(-1.1,1.1),
                   y_range=(-1.1,1.1), tools="", toolbar_location=None)
 
-    graph = GraphRenderer()
+    graph_source = GraphDataSource(
+        nodes=[
+            {"id": index, "fill_color": color}
+            for index, color in zip(node_indices, Spectral8)
+        ],
+        edges=[(0, index) for index in node_indices],
+    )
+    graph = GraphRenderer(data_source=graph_source)
 
     # replace the node glyph with an ellipse
     # set its height, width, and fill_color
     graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2,
                                         fill_color="fill_color")
-
-    # assign a palette to ``fill_color`` and add it to the data source
-    graph.node_renderer.data_source.data = dict(
-        index=node_indices,
-        fill_color=Spectral8)
-
-    # add the rest of the assigned values to the data source
-    graph.edge_renderer.data_source.data = dict(
-        start=[0]*N,
-        end=node_indices)
 
 Bokeh comes with a built-in ``LayoutProvider`` model that includes
 a dictionary of (x,y) coordinates for nodes. This lets you arrange
@@ -123,7 +143,7 @@ By default, the :class:`~bokeh.models.graphs.StaticLayoutProvider` model
 draws straight-line paths between the supplied node positions. To set
 explicit edge paths, supply lists of paths to the
 :class:`bokeh.models.sources.ColumnDataSource` data source of the
-``edge_renderer``. The :class:`~bokeh.models.graphs.StaticLayoutProvider`
+``GraphDataSource.edges``. The :class:`~bokeh.models.graphs.StaticLayoutProvider`
 model looks for these paths in the ``"xs"`` and ``"ys"`` columns of the
 data source. The paths should be in the same order as the ``"start"``
 and ``"end"`` points. Be extra careful when setting
@@ -194,20 +214,50 @@ Here is how the ``networkx.spring_layout`` method lays out the
 .. bokeh-plot:: __REPO__/examples/topics/graph/from_networkx.py
     :source-position: above
 
-Interaction policies
---------------------
+Graph interactions
+------------------
 
-You can configure the selection or inspection behavior of graphs by
-setting the ``selection_policy`` and ``inspection_policy`` attributes
-of the ``GraphRenderer``. These policy attributes accept a special
-``GraphHitTestPolicy`` model instance.
+Graph interaction has two independent parts:
 
-For example, setting ``selection_policy`` to ``NodesAndLinkedEdges()``
-lets you select a node and all associated edges. Similarly, setting
-``inspection_policy`` to ``EdgesAndLinkedNodes()`` lets you inspect the
-``"start"`` and ``"end"`` nodes of an edge by hovering over it with the
-HoverTool. ``NodesAndAdjacentNodes()`` lets you inspect a node and all
-other nodes connected to it by a graph edge.
+* ``GraphRenderer.selection_target`` and ``inspection_target`` choose which
+  component receives direct hit tests: ``"nodes"`` or ``"edges"``.
+* ``GraphDataSource.selection_policy`` controls how those direct hits propagate
+  through graph topology.
+
+This separation avoids a class for every node/edge behavior combination. For
+example, the following configuration directly selects nodes and includes their
+incident edges, while directly inspecting edges and including their endpoint
+nodes:
+
+.. code-block:: python
+
+    from bokeh.models import GraphSelectionPolicy
+
+    graph.selection_target = "nodes"
+    graph.inspection_target = "edges"
+    graph.data_source.selection_policy = GraphSelectionPolicy(
+        include_incident_edges=True,
+        include_end_nodes=True,
+    )
+
+Node traversal supports arbitrary distances. ``node_hops=2`` includes nodes up
+to two hops from each direct hit. Set ``node_hops_mode="exact"`` to include only
+the two-hop frontier, ``include_direct=False`` to omit the root nodes, or
+``node_direction="in"`` or ``"out"`` for directed traversal.
+
+The expanded result uses the normal selections of the child sources. This
+means standalone JavaScript and Bokeh server callbacks observe the same state,
+and node identifiers can be recovered without a graph-specific callback API:
+
+.. code-block:: python
+
+    node_source = graph.data_source.nodes
+
+    def selected_nodes(attr, old, indices):
+        node_ids = [node_source.data["index"][i] for i in indices]
+        print(node_ids)
+
+    node_source.selected.on_change("indices", selected_nodes)
 
 You can customize the ``selection_glyph``, ``nonselection_glyph``,
 and/or ``hover_glyph`` attributes of the edge and node sub-renderers
@@ -217,19 +267,24 @@ Below are examples of graphs with added node and edge interactions:
 
 .. tab-set::
 
-    .. tab-item:: NodesAndLinkedEdges
+    .. tab-item:: Nodes and incident edges
 
         .. bokeh-plot:: __REPO__/examples/topics/graph/interaction_nodeslinkededges.py
             :source-position: above
 
-    .. tab-item:: EdgesAndLinkedNodes
+    .. tab-item:: Edges and endpoint nodes
 
         .. bokeh-plot:: __REPO__/examples/topics/graph/interaction_edgeslinkednodes.py
             :source-position: above
 
-    .. tab-item:: NodesAndAdjacentNodes
+    .. tab-item:: One-hop neighborhood
 
         .. bokeh-plot:: __REPO__/examples/topics/graph/interaction_nodesadjacentnodes.py
+            :source-position: above
+
+    .. tab-item:: Two-hop neighborhood
+
+        .. bokeh-plot:: __REPO__/examples/topics/graph/interaction_nodes_n_hops.py
             :source-position: above
 
 Node and edge attributes

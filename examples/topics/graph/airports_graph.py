@@ -2,15 +2,14 @@
 
 .. bokeh-example-metadata::
     :sampledata: airport_routes, us_states
-    :apis: bokeh.models.ColumnDataSource, bokeh.models.StaticLayoutProvider, bokeh.models.NodesAndLinkedEdges, bokeh.models.TapTool
+    :apis: bokeh.models.GeometryDataSource, bokeh.models.GraphSelectionPolicy, bokeh.models.StaticLayoutProvider, bokeh.models.TapTool
     :refs: :ref:`ug_topics_graph`
     :keywords: graph, interactive, map, routes, airports, hover tool, tap tool
 '''
 
-import numpy as np
+from math import isfinite
 
-from bokeh.models import (ColumnDataSource, HoverTool, NodesAndLinkedEdges,
-                          StaticLayoutProvider, TapTool)
+from bokeh.models import GraphSelectionPolicy, HoverTool, StaticLayoutProvider, TapTool
 from bokeh.palettes import Set3_12
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airport_routes import airports, routes
@@ -20,9 +19,26 @@ airports.set_index("AirportID", inplace=True)
 airports.index.rename("index", inplace=True)
 routes.rename(columns={"SourceID": "start", "DestinationID": "end"}, inplace=True)
 
-lats = [np.array(v["lats"]) for v in us_states.values()]
-lons = [np.array(v["lons"]) for v in us_states.values()]
-source = ColumnDataSource(data=dict(lats=lats, lons=lons))
+def geometry_from_nan_separated_xy(xs, ys):
+    rings = []
+    ring = []
+    for x, y in zip(xs, ys):
+        if isfinite(x) and isfinite(y):
+            ring.append([x, y])
+        elif ring:
+            rings.append(ring)
+            ring = []
+    if ring:
+        rings.append(ring)
+
+    if len(rings) == 1:
+        return {"type": "Polygon", "coordinates": rings}
+    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
+
+state_geometry = [
+    geometry_from_nan_separated_xy(state["lons"], state["lats"])
+    for state in us_states.values()
+]
 
 graph_layout = dict(zip(airports.index, zip(airports.Longitude, airports.Latitude)))
 layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
@@ -32,8 +48,8 @@ p = figure(x_range=(-180, -60), y_range=(15,75),
            width=800, height=600, background_fill_color=Set3_12[4],
            background_fill_alpha=0.2, tools='box_zoom,reset')
 
-p.patches(xs="lons", ys="lats", line_color='grey', line_width=1.0,
-          fill_color=Set3_12[10], source=source)
+p.polygons(state_geometry, line_color='grey', line_width=1.0,
+           fill_color=Set3_12[10])
 
 r = p.graph(
     airports, routes, layout_provider,
@@ -46,8 +62,8 @@ r = p.graph(
     edge_hover_line_alpha=0.6, edge_hover_line_color=Set3_12[1],
     edge_nonselection_line_color="black", edge_nonselection_line_alpha=0.01,
     edge_selection_line_alpha=0.6, edge_selection_line_color=Set3_12[1],
-    ## graph policies
-    inspection_policy=NodesAndLinkedEdges(), selection_policy=NodesAndLinkedEdges(),
+    ## graph interaction
+    selection_policy=GraphSelectionPolicy(include_incident_edges=True),
 )
 
 hover = HoverTool(tooltips=[("Airport", "@Name (@IATA), @City ")], renderers=[r])
