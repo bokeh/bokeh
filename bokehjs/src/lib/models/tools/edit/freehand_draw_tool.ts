@@ -1,14 +1,13 @@
 import type {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import type * as p from "core/properties"
 import {isField} from "core/vectorization"
-import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
-import {EditTool, EditToolView} from "./edit_tool"
 import type {XsYsGlyph} from "./common"
+import {PolyTool, PolyToolView} from "./poly_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {tool_icon_freehand_draw} from "styles/icons.css"
 
-export class FreehandDrawToolView extends EditToolView {
+export class FreehandDrawToolView extends PolyToolView {
   declare model: FreehandDrawTool
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
@@ -23,24 +22,18 @@ export class FreehandDrawToolView extends EditToolView {
     }
 
     const [x, y] = point
-    const {glyph, data_source} = renderer
+    const {glyph} = renderer
+    const data_source = this._poly_data_source(renderer)
     const xkey = isField(glyph.xs) ? glyph.xs.field : null
     const ykey = isField(glyph.ys) ? glyph.ys.field : null
-    const data = dict(data_source.data)
     if (mode == "new") {
-      this._pop_glyphs(data_source, this.model.num_objects)
-      if (xkey != null) {
-        data_source.get_array(xkey).push([x])
-      }
-      if (ykey != null) {
-        data_source.get_array(ykey).push([y])
-      }
-      this._pad_empty_columns(data_source, [xkey, ykey])
+      this._pop_polygons(data_source, this.model.num_objects)
+      this._append_polygon(data_source, x, y, xkey, ykey, false)
     } else if (mode == "add") {
       if (xkey != null) {
-        const column = data.get(xkey) ?? []
+        const column = this._poly_array<number[]>(data_source, xkey)
         const xidx = column.length-1
-        let xs = data_source.get_array<number[]>(xkey)[xidx]
+        let xs = column[xidx]
         if (!isArray(xs)) {
           xs = Array.from(xs)
           column[xidx] = xs
@@ -48,9 +41,9 @@ export class FreehandDrawToolView extends EditToolView {
         xs.push(x)
       }
       if (ykey != null) {
-        const column = data.get(ykey) ?? []
+        const column = this._poly_array<number[]>(data_source, ykey)
         const yidx = column.length-1
-        let ys = data_source.get_array<number[]>(ykey)[yidx]
+        let ys = column[yidx]
         if (!isArray(ys)) {
           ys = Array.from(ys)
           column[yidx] = ys
@@ -58,7 +51,7 @@ export class FreehandDrawToolView extends EditToolView {
         ys.push(y)
       }
     }
-    this._emit_cds_changes(data_source, true, true, emit)
+    this._emit_poly_changes(data_source, true, true, emit)
   }
 
   override _pan_start(ev: PanEvent): void {
@@ -83,9 +76,9 @@ export class FreehandDrawToolView extends EditToolView {
     }
     for (const renderer of this.model.renderers) {
       if (ev.key == "Escape") {
-        renderer.data_source.selection_manager.clear()
+        this._poly_data_source(renderer).selection_manager.clear()
       } else if (ev.key == "Backspace") {
-        this._delete_selected(renderer)
+        this._delete_selected_poly(renderer)
       }
     }
   }
@@ -94,7 +87,7 @@ export class FreehandDrawToolView extends EditToolView {
 export namespace FreehandDrawTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = EditTool.Props & {
+  export type Props = PolyTool.Props & {
     num_objects: p.Property<number>
     renderers: p.Property<GlyphRenderer<XsYsGlyph>[]>
   }
@@ -102,7 +95,7 @@ export namespace FreehandDrawTool {
 
 export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
-export class FreehandDrawTool extends EditTool {
+export class FreehandDrawTool extends PolyTool {
   declare properties: FreehandDrawTool.Props
   declare __view_type__: FreehandDrawToolView
 

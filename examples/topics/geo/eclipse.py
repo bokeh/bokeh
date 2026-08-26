@@ -4,19 +4,20 @@ eclipse across the United States. This example demonstrates using a
 
 .. bokeh-example-metadata::
     :sampledata: us_states
-    :apis: bokeh.plotting.figure.patches, bokeh.models.sources.ColumnDataSource, bokeh.models.mappers.LinearColorMapper, bokeh.models.ColorBar
+    :apis: bokeh.plotting.figure.polygons, bokeh.models.sources.GeometryDataSource, bokeh.models.mappers.LinearColorMapper, bokeh.models.ColorBar
     :refs: :ref:`ug_basic_annotations_color_bars`
     :keywords: colorbar, label, map, patches
 
 .. _Google search interest data: https://www.reddit.com/r/dataisbeautiful/comments/6qnkg0/google_search_interest_follows_the_path_of_the/
 
 '''
+from math import isfinite
 from os.path import dirname, join, realpath
 
 import pandas as pd
 import shapefile as shp
 
-from bokeh.models import ColumnDataSource, Label
+from bokeh.models import Label
 from bokeh.plotting import figure, show
 from bokeh.sampledata.us_states import data
 from bokeh.transform import linear_cmap
@@ -44,23 +45,41 @@ p.title.align = "center"
 p.title.text_font_size = "21px"
 p.title.text_color = "#333344"
 
-source = ColumnDataSource(data=dict(
-    state_xs=df.lons,
-    state_ys=df.lats,
-    trend=df["solar eclipse"],
-))
+def geometry_from_nan_separated_xy(xs, ys):
+    rings = []
+    ring = []
+    for x, y in zip(xs, ys):
+        if isfinite(x) and isfinite(y):
+            ring.append([x, y])
+        elif ring:
+            rings.append(ring)
+            ring = []
+    if ring:
+        rings.append(ring)
 
-us = p.patches(
-    "state_xs", "state_ys", source=source,
+    if len(rings) == 1:
+        return {"type": "Polygon", "coordinates": rings}
+    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
+
+records = [
+    {
+        "geometry": geometry_from_nan_separated_xy(xs, ys),
+        "trend": trend,
+    }
+    for xs, ys, trend in zip(df.lons, df.lats, df["solar eclipse"])
+]
+
+us = p.polygons(
+    records,
     fill_color=linear_cmap("trend", palette="TolYlOrBr5", low=0, high=100),
     line_color="#333344", line_width=1,
 )
 
 p.x_range.renderers = p.y_range.renderers = [us]
 
-totality_x, totality_y = zip(*totality_path.points)
-p.patch(
-    totality_x, totality_y,
+totality = {"type": "Polygon", "coordinates": [[*totality_path.points]]}
+p.polygons(
+    totality,
     fill_color="black", fill_alpha=0.7, line_color=None,
 )
 

@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 # Bokeh imports
+from bokeh.models import GeometryDataSource, Polygons
 from bokeh.plotting.contour import (
     FillData,
     LineData,
@@ -126,23 +127,26 @@ class Test_from_contour:
         cr = from_contour(x, y, z, levels, **kwargs)
         assert np.allclose(cr.levels, levels)
 
-        fill_data = cr.fill_renderer.data_source.data
-        assert list(fill_data.keys()) == ["xs", "ys", "lower_levels", "upper_levels"]
+        fill_source = cr.fill_renderer.data_source
+        assert isinstance(fill_source, GeometryDataSource)
+        assert isinstance(cr.fill_renderer.glyph, Polygons)
+        fill_data = fill_source.data
+        assert list(fill_data.keys()) == ["lower_levels", "upper_levels"]
         if want_fill:
             assert np.allclose(fill_data["lower_levels"], [-0.5, 1.5])
             assert np.allclose(fill_data["upper_levels"], [1.5, 3.5])
-            assert len(fill_data["xs"]) == 2
-            assert len(fill_data["ys"]) == 2
-            assert np.allclose(fill_data["xs"][0], [0, 1, 1.5, 1, 0.5, 0, 0])
-            assert np.allclose(fill_data["ys"][0], [0, 0, 0, 0.5, 1, 1, 0])
-            assert np.allclose(fill_data["xs"][1], [0.5, 1, 1.5, 2, 2, 1, 0.5])
-            assert np.allclose(fill_data["ys"][1], [1, 0.5, 0, 0, 1, 1, 1])
+            assert len(fill_source.geometries) == 2
+            first_ring = fill_source.geometries[0]["coordinates"][0][0]
+            second_ring = fill_source.geometries[1]["coordinates"][0][0]
+            assert np.allclose(first_ring, np.column_stack(([0, 1, 1.5, 1, 0.5, 0, 0], [0, 0, 0, 0.5, 1, 1, 0])))
+            assert np.allclose(second_ring, np.column_stack(([0.5, 1, 1.5, 2, 2, 1, 0.5], [1, 0.5, 0, 0, 1, 1, 1])))
 
             glyph = cr.fill_renderer.glyph
             assert glyph.fill_color == "red"
             assert glyph.line_width == 0
         else:
-            assert fill_data == dict(xs=[], ys=[], lower_levels=[], upper_levels=[])
+            assert fill_source.geometries == []
+            assert fill_data == dict(lower_levels=[], upper_levels=[])
 
         line_data = cr.line_renderer.data_source.data
         assert list(line_data.keys()) == ["xs", "ys", "levels"]

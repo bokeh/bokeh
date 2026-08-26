@@ -398,6 +398,19 @@ def test_Patch() -> None:
     ], FILL, HATCH, LINE, GLYPH)
 
 
+def test_Polygons() -> None:
+    glyph = m.Polygons()
+    assert glyph.xs == field("xs")
+    assert glyph.ys == field("ys")
+    check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_properties_existence(glyph, [
+        "xs",
+        "ys",
+    ], FILL, HATCH, LINE, GLYPH)
+
+
 def test_Patches() -> None:
     glyph = m.Patches()
     assert glyph.xs == field("xs")

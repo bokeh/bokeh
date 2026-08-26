@@ -10,11 +10,8 @@ def bollinger():
     lowerband = upperband - 100
     x_data = np.arange(1, 101)
 
-    band_x = np.append(x_data, x_data[::-1])
-    band_y = np.append(lowerband, upperband[::-1])
-
     p = figure(width=800, height=600, x_axis_type='datetime', tools='pan')
-    p.patch(band_x, band_y, color='#7570B3', fill_alpha=0.2)
+    p.varea(x_data, lowerband, upperband, color='#7570B3', fill_alpha=0.2)
 
     p.title.text = 'Bollinger Bands'
     p.title_location = 'left'

@@ -301,7 +301,11 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
     ;[xscale, yscale] = [yscale, xscale]
 
     for (const r of renderers) {
-      const data = dict(r.data_source.data)
+      const {data_source} = r
+      if (!(data_source instanceof ColumnDataSource)) {
+        throw new Error("expected a ColumnDataSource")
+      }
+      const data = dict(data_source.data)
       const left = data.get("left")!
       const right = data.get("right")!
       const top = data.get("top")!

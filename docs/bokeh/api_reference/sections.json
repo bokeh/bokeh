@@ -178,6 +178,7 @@
       "Ngon",
       "Patch",
       "Patches",
+      "Polygons",
       "Quad",
       "Quadratic",
       "Ray",
@@ -212,15 +213,9 @@
     "classes": [
       "EdgeCoordinates",
       "EdgePointCoordinates",
-      "EdgesAndLinkedNodes",
-      "EdgesOnly",
       "GraphCoordinates",
-      "GraphHitTestPolicy",
       "LayoutProvider",
       "NodeCoordinates",
-      "NodesAndAdjacentNodes",
-      "NodesAndLinkedEdges",
-      "NodesOnly",
       "StaticLayoutProvider"
     ]
   },
@@ -353,10 +348,9 @@
     "slug": "selections",
     "title": "Selections",
     "classes": [
-      "IntersectRenderers",
+      "GraphSelectionPolicy",
       "Selection",
-      "SelectionPolicy",
-      "UnionRenderers"
+      "SelectionPolicy"
     ]
   },
   {
@@ -379,6 +373,9 @@
       "ColumnDataSource",
       "DataSource",
       "GeoJSONDataSource",
+      "GeometryDataSource",
+      "GraphDataSource",
+      "IndexedDataSource",
       "ServerSentDataSource",
       "WebDataSource"
     ]

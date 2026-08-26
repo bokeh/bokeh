@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Literal, TypedDict, Unpack
+from typing import Any, Literal, TypedDict, Unpack
 
 # Bokeh imports
 from .._specs import (
@@ -59,7 +59,7 @@ from ..models.coordinates import CoordinateMapping
 from ..models.graphics import Marking
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
-from ..models.sources import CDSView, ColumnarDataSource, DataDictLike
+from ..models.sources import CDSView, DataDictLike, IndexedDataSource
 from ..models.textures import Texture
 
 class AuxVisuals(TypedDict, total=False):
@@ -180,7 +180,7 @@ class AuxGlyphArgs(TypedDict, total=False):
     visible: bool
 
     # GlyphRenderer
-    source: ColumnarDataSource | DataDictLike
+    source: IndexedDataSource | DataDictLike
     view: CDSView
     muted: bool
 
@@ -384,6 +384,9 @@ class PatchArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
 class PatchesArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # xs: Number1dArg
     # ys: Number1dArg
+    pass
+
+class PolygonsArgs(PatchesArgs, total=False):
     pass
 
 class QuadArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
@@ -708,6 +711,11 @@ class GlyphAPI:
         ys: Number1dArg = ...,
         **kwargs: Unpack[PatchesArgs],
     ) -> GlyphRenderer[glyphs.Patches]: ...
+
+    def polygons(self,
+        geometry: Any = ...,
+        **kwargs: Unpack[PolygonsArgs],
+    ) -> GlyphRenderer[glyphs.Polygons]: ...
 
     def quad(self,
         left: NumberArg = ...,

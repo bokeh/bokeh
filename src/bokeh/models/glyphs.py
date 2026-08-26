@@ -127,6 +127,7 @@ __all__ = (
     'Ngon',
     'Patch',
     'Patches',
+    'Polygons',
     'Quad',
     'Quadratic',
     'Ray',
@@ -1108,6 +1109,10 @@ class Ngon(RadialGlyph):
 class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render a single patch.
 
+    .. deprecated:: 4.0
+        Use :class:`Polygons` with a
+        :class:`~bokeh.models.sources.GeometryDataSource` instead.
+
     The ``Patch`` glyph is different from most other glyphs in that the vector
     of values only produces one glyph on the Plot.
 
@@ -1150,6 +1155,10 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 class Patches(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render several patches.
 
+    .. deprecated:: 4.0
+        Use :class:`Polygons` with a
+        :class:`~bokeh.models.sources.GeometryDataSource` instead.
+
     The data for the ``Patches`` glyph is different in that the vector of
     values is not a vector of scalars. Rather, it is a "list of lists".
 
@@ -1191,6 +1200,22 @@ class Patches(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the patches.
     """)
+
+class Polygons(Patches):
+    ''' Render Polygon and MultiPolygon features from a geometry-aware source.
+
+    With :class:`~bokeh.models.sources.GeometryDataSource`, the inherited
+    ``xs`` and ``ys`` fields are virtual coordinate views. Geometry remains in
+    its natural GeoJSON hierarchy, including interior rings, while this glyph
+    reuses the mature polygon Canvas and WebGL renderers.
+    '''
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    __example__ = "examples/reference/models/Polygons.py"
+
+    _args = ()
 
 class Quad(LRTBGlyph):
     ''' Render axis-aligned quads.

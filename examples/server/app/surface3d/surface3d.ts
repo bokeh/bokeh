@@ -10,7 +10,7 @@
 // Pandas, etc.) to web presentations using the Bokeh server.
 
 import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
-import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {IndexedDataSource} from "@bokehjs/models/sources/indexed_data_source"
 import {to_object} from "@bokehjs/core/util/object"
 import type {Dict, PlainObject} from "@bokehjs/core/types"
 import * as p from "@bokehjs/core/properties"
@@ -75,19 +75,23 @@ export class Surface3dView extends LayoutDOMView {
     // Set listener so that when the Bokeh data source has a change
     // event, we can process the new data
     this.connect(this.model.data_source.change, () => this._graph.setData(this.get_data()))
+    this.connect(this.model.data_source.data_changed, () => this._graph.setData(this.get_data()))
   }
 
-  // This is the callback executed when the Bokeh data has an change (e.g. when
-  // the server updates the data). It's basic function is simply to adapt the
+  // This is the callback executed when the Bokeh data has a change (e.g. when
+  // the server updates the data). Its basic function is simply to adapt the
   // Bokeh data source to the vis.js DataSet format
   get_data(): vis.DataSet {
     const data = new vis.DataSet()
     const source = this.model.data_source
-    for (let i = 0; i < source.get_length()!; i++) {
+    const x = source.get(this.model.x)
+    const y = source.get(this.model.y)
+    const z = source.get(this.model.z)
+    for (let i = 0; i < (source.get_length() ?? 0); i++) {
       data.add({
-        x: source.get(this.model.x)[i],
-        y: source.get(this.model.y)[i],
-        z: source.get(this.model.z)[i],
+        x: x[i],
+        y: y[i],
+        z: z[i],
       })
     }
     return data
@@ -106,7 +110,7 @@ export namespace Surface3d {
     x: p.Property<string>
     y: p.Property<string>
     z: p.Property<string>
-    data_source: p.Property<ColumnDataSource>
+    data_source: p.Property<IndexedDataSource>
     options: p.Property<Dict<unknown>>
   }
 }
@@ -116,10 +120,6 @@ export interface Surface3d extends Surface3d.Attrs {}
 export class Surface3d extends LayoutDOM {
   declare properties: Surface3d.Props
   declare __view_type__: Surface3dView
-
-  constructor(attrs?: Partial<Surface3d.Attrs>) {
-    super(attrs)
-  }
 
   // The ``__name__`` class attribute should generally match exactly the name
   // of the corresponding Python class. Note that if using TypeScript, this
@@ -141,7 +141,7 @@ export class Surface3d extends LayoutDOM {
       x:           [ Str ],
       y:           [ Str ],
       z:           [ Str ],
-      data_source: [ Ref(ColumnDataSource) ],
+      data_source: [ Ref(IndexedDataSource) ],
       options:     [ Dict(Unknown), OPTIONS ],
     }))
   }

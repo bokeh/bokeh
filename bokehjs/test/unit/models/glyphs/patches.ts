@@ -100,6 +100,30 @@ describe("Patches", () => {
       expect(result2?.indices).to.be.equal([])
     })
 
+    it("should rect hit testing with holes and disjoint parts", async () => {
+      const data = {
+        xs: [[0, 4, 4, 0, NaN, 1, 1, 2, 2, NaN, 6, 8, 8, 6]],
+        ys: [[0, 0, 4, 4, NaN, 1, 2, 2, 1, NaN, 0, 0, 2, 2]],
+      }
+      const glyph = Patches.create({xs: {field: "xs"}, ys: {field: "ys"}})
+      const glyph_view = await create_glyph_view(glyph, data, {
+        axis_type: "linear",
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
+      })
+      const {xscale, yscale} = glyph_view.parent
+      const rect = (x0: number, y0: number, x1: number, y1: number, greedy: boolean): HitTestGeometry => ({
+        type: "rect",
+        sx0: xscale.compute(x0), sy0: yscale.compute(y0),
+        sx1: xscale.compute(x1), sy1: yscale.compute(y1),
+        greedy,
+      })
+
+      expect(glyph_view.hit_test(rect(-1, -1, 9, 5, false))?.indices).to.be.equal([0])
+      expect(glyph_view.hit_test(rect(-1, -1, 5, 5, false))?.indices).to.be.equal([])
+      expect(glyph_view.hit_test(rect(-1, -1, 5, 5, true))?.indices).to.be.equal([0])
+    })
+
     it("should point hit testing with disjoint polygons", async () => {
       // Two disjoint squares (both CCW):
       // Square 1: 0,0 -> 5,0 -> 5,5 -> 0,5

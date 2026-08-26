@@ -3,11 +3,13 @@ demonstrates using a ``LogColorMapper`` and hover tool.
 
 .. bokeh-example-metadata::
     :sampledata: unemployment, us_counties
-    :apis: bokeh.plotting.figure.patches, bokeh.models.mappers.LogColorMapper
+    :apis: bokeh.plotting.figure.polygons, bokeh.models.mappers.LogColorMapper
     :refs: :ref:`ug_interaction_tools_hover_tool`
     :keywords: colormap, map, patches
 
 '''
+from math import isfinite
+
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
 from bokeh.plotting import figure, show
@@ -20,19 +22,32 @@ counties = {
     code: county for code, county in counties.items() if county["state"] == "tx"
 }
 
-county_xs = [county["lons"] for county in counties.values()]
-county_ys = [county["lats"] for county in counties.values()]
-
-county_names = [county['name'] for county in counties.values()]
-county_rates = [unemployment[county_id] for county_id in counties]
 color_mapper = LogColorMapper(palette=palette)
 
-data=dict(
-    x=county_xs,
-    y=county_ys,
-    name=county_names,
-    rate=county_rates,
-)
+def geometry_from_nan_separated_xy(xs, ys):
+    rings = []
+    ring = []
+    for x, y in zip(xs, ys):
+        if isfinite(x) and isfinite(y):
+            ring.append([x, y])
+        elif ring:
+            rings.append(ring)
+            ring = []
+    if ring:
+        rings.append(ring)
+
+    if len(rings) == 1:
+        return {"type": "Polygon", "coordinates": rings}
+    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
+
+records = [
+    {
+        "geometry": geometry_from_nan_separated_xy(county["lons"], county["lats"]),
+        "name": county["name"],
+        "rate": unemployment[county_id],
+    }
+    for county_id, county in counties.items()
+]
 
 TOOLS = "pan,wheel_zoom,reset,hover,save"
 
@@ -45,8 +60,7 @@ p = figure(
 p.grid.grid_line_color = None
 p.hover.point_policy = "follow_mouse"
 
-p.patches('x', 'y', source=data,
-          fill_color={'field': 'rate', 'transform': color_mapper},
-          fill_alpha=0.7, line_color="white", line_width=0.5)
+p.polygons(records, fill_color={'field': 'rate', 'transform': color_mapper},
+           fill_alpha=0.7, line_color="white", line_width=0.5)
 
 show(p)

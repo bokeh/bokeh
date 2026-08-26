@@ -93,20 +93,30 @@ GeoJSON data
 ------------
 
 `GeoJSON`_ is a popular open standard for representing geographical features
-with JSON. It describes points, lines, and polygons (called Patches in Bokeh) as a
+with JSON. It describes points, lines, Polygons, and MultiPolygons as a
 collection of features. Each feature can also have a set of properties.
 
-Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
-``ColumnDataSource``. For example:
+Bokeh's ``GeoJSONDataSource`` retains that geometry hierarchy and exposes
+feature properties as fields for vectorized styling, hover tooltips, and
+callbacks. Coordinate fields such as ``x``, ``y``, ``xs``, and ``ys`` are
+provided as virtual views, so existing point and line glyphs continue to work.
+For example:
 
 .. bokeh-plot:: __REPO__/examples/topics/geo/geojson_source.py
     :source-position: above
 
-.. warning::
-    Bokeh converts the GeoJSON coordinates into columns called
-    ``x`` and ``y`` or ``xs`` and ``ys`` (depending on whether the features are Points,
-    Lines, MultiLines, Polygons, or MultiPolygons). *Properties with clashing names
-    will be overridden when the GeoJSON is converted and should be avoided*.
+For geometry already available as GeoJSON mappings, Shapely objects, GeoPandas
+geometry, or records containing a ``geometry`` value, use
+:class:`~bokeh.models.sources.GeometryDataSource` directly. The
+:func:`~bokeh.plotting.figure.polygons` glyph renders both Polygon and
+MultiPolygon features, including interior rings, while keeping one selection
+index per feature:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/geometry_source.py
+    :source-position: above
+
+Attribute names ``x``, ``y``, ``z``, ``xs``, ``ys``, ``zs``, and ``geometry``
+are reserved for these virtual geometry fields.
 
 .. _ug_topics_geo_projections:
 

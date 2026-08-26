@@ -62,7 +62,7 @@
                   },
                   selection_policy: {
                     type: "object",
-                    name: "UnionRenderers",
+                    name: "SelectionPolicy",
                     id: "p1030",
                   },
                   data: {

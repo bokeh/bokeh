@@ -13,7 +13,7 @@ would you assign to the phrase "Highly likely"*.
 
 .. bokeh-example-metadata::
     :sampledata: perceptions
-    :apis: bokeh.plotting.figure.patch, bokeh.models.sources.ColumnDataSource
+    :apis: bokeh.plotting.figure.varea, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`ug_topics_categorical_offsets`
     :keywords: alpha, categorical, palette, patch, ridgeline
 
@@ -25,6 +25,7 @@ import colorcet as cc
 from numpy import linspace
 from scipy.stats import gaussian_kde
 
+from bokeh.core.properties import value
 from bokeh.models import ColumnDataSource, FixedTicker, PrintfTickFormatter
 from bokeh.plotting import figure, show
 from bokeh.sampledata.perceptions import probly
@@ -47,7 +48,9 @@ for i, cat in enumerate(reversed(cats)):
     pdf = gaussian_kde(probly[cat])
     y = ridge(cat, pdf(x))
     source.add(y, cat)
-    p.patch('x', cat, color=palette[i], alpha=0.6, line_color="black", source=source)
+    p.varea(x='x', y1=value(cat), y2=cat,
+            color=palette[i], alpha=0.6, source=source)
+    p.line('x', cat, line_color="black", source=source)
 
 p.outline_line_color = None
 p.background_fill_color = "#efefef"

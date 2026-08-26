@@ -23,6 +23,7 @@ import {
   ColumnarDataSource,
   ContinuousTicker,
   CoordinateMapping,
+  IndexedDataSource,
   DataRange1d,
   DatetimeAxis,
   FactorRange,
@@ -509,7 +510,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  _fixup_values(cls: HasPropsClass<HasProps>, data: Map<string, unknown>, attrs: Attrs): Set<string> {
+  _fixup_values(cls: HasPropsClass<HasProps>, data: Map<string, unknown> | null, attrs: Attrs): Set<string> {
     const unresolved_attrs = new Set<string>()
     const props = dict<HasProps["_props"][string]>(cls.prototype._props)
 
@@ -519,6 +520,9 @@ export class Figure extends BaseFigure {
         if (prop.type.prototype instanceof VectorSpec) {
           if (value != null) {
             if (isArray(value) || nd.is_NDArray(value)) {
+              if (data == null) {
+                throw new Error("sequence literals cannot be used with a non-columnar data source")
+              }
               let field
               if (data.has(name)) {
                 if (data.get(name) !== value) {
@@ -599,13 +603,13 @@ export class Figure extends BaseFigure {
       const {source} = attrs
       if (source == null) {
         return ColumnDataSource.create()
-      } else if (source instanceof ColumnarDataSource) {
+      } else if (source instanceof IndexedDataSource) {
         return source
       } else {
         return ColumnDataSource.create({data: source})
       }
     })()
-    const data = clone(source.data)
+    const data = source instanceof ColumnarDataSource ? clone(source.data) : null
     delete attrs.source
 
     const {view} = attrs
@@ -648,7 +652,7 @@ export class Figure extends BaseFigure {
     const hglyph_ca = this._pop_visuals(cls, attrs, "hover_", glyph_ca)
     const mglyph_ca = this._pop_visuals(cls, attrs, "muted_", glyph_ca, {alpha: 0.2})
 
-    const data_dict = dict(data)
+    const data_dict = data != null ? dict(data) : null
     this._fixup_values(cls, data_dict,  glyph_ca)
     this._fixup_values(cls, data_dict, nglyph_ca)
     this._fixup_values(cls, data_dict, sglyph_ca)
@@ -657,7 +661,9 @@ export class Figure extends BaseFigure {
 
     this._fixup_values(cls, data_dict, attrs)
 
-    source.data = data
+    if (source instanceof ColumnarDataSource && data != null) {
+      source.data = data
+    }
 
     const _make_glyph = (cls: HasPropsFactory<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
       return cls.create({...attrs, ...extra_attrs})
@@ -685,18 +691,23 @@ export class Figure extends BaseFigure {
       coordinates,
     })
 
+    // GlyphAPI's historic return type promises a columnar source. Keep that
+    // convenience for the usual case while allowing a caller-supplied indexed
+    // source at the renderer boundary.
+    const public_renderer = glyph_renderer as unknown as GlyphRenderer<G>
+
     if (legend_label != null) {
-      this._handle_legend_label(legend_label, this.legend, glyph_renderer)
+      this._handle_legend_label(legend_label, this.legend, public_renderer)
     }
     if (legend_field != null) {
-      this._handle_legend_field(legend_field, this.legend, glyph_renderer)
+      this._handle_legend_field(legend_field, this.legend, public_renderer)
     }
     if (legend_group != null) {
-      this._handle_legend_group(legend_group, this.legend, glyph_renderer)
+      this._handle_legend_group(legend_group, this.legend, public_renderer)
     }
 
     this.add_renderers(glyph_renderer)
-    return glyph_renderer as GlyphRenderer<G>
+    return public_renderer
   }
 
   static _get_range(range?: Range | [number, number] | ArrayLike<string>): Range {
@@ -859,11 +870,10 @@ export class Figure extends BaseFigure {
   }
 
   protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
-    const data = dict(glyph_renderer.data_source.data)
-    if (!data.has(name)) {
-      throw new Error(`column to be grouped does not exist in glyph data source: ${name}`)
+    const column = glyph_renderer.data_source.get_field(name)
+    if (column == null) {
+      throw new Error(`field to be grouped does not exist in glyph data source: ${name}`)
     }
-    const column = data.get(name) ?? []
     const values = uniq(column).sort()
     for (const value of values) {
       const label = {value: `${value}`}

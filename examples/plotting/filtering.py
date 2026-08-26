@@ -1,6 +1,6 @@
 ''' A map representation of unemployment rate in US using the :ref:`US_States Dataset <sampledata_us_states>`.
 This example demonstrates using IndexFilter, ColorMapper and HoverTool with
-basic plot elements such as patches. When hovering over the points,
+polygon geometry. When hovering over the points,
 the state and its umemployment rate is shown.
 
 .. bokeh-example-metadata::
@@ -9,6 +9,8 @@ the state and its umemployment rate is shown.
     :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
     :keywords: hover tool, indexfilter, filtering, US
 '''
+from math import isfinite
+
 from bokeh.core.properties import field
 from bokeh.models import ColorBar, HoverTool, IndexFilter, LinearColorMapper
 from bokeh.palettes import Viridis11
@@ -24,8 +26,30 @@ january_2021 = dict(
     WY= 5.1,
 )
 
-state_xs = [states[code]["lons"] for code in states]
-state_ys = [states[code]["lats"] for code in states]
+def geometry_from_nan_separated_xy(xs, ys):
+    rings = []
+    ring = []
+    for x, y in zip(xs, ys):
+        if isfinite(x) and isfinite(y):
+            ring.append([x, y])
+        elif ring:
+            rings.append(ring)
+            ring = []
+    if ring:
+        rings.append(ring)
+
+    if len(rings) == 1:
+        return {"type": "Polygon", "coordinates": rings}
+    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
+
+records = [
+    {
+        "geometry": geometry_from_nan_separated_xy(states[code]["lons"], states[code]["lats"]),
+        "code": code,
+        "rate": january_2021[code],
+    }
+    for code in states
+]
 
 p = figure(
     title="US unemployment January 2021 (by state)",
@@ -36,14 +60,11 @@ p = figure(
 p.grid.grid_line_color = None
 
 color_mapper = LinearColorMapper(palette=Viridis11)
-r = p.patches(
-    state_xs, state_ys,
+r = p.polygons(
+    records,
     line_color="white", hover_line_color="black",
     fill_color=field("rate", color_mapper),
 )
-
-r.data_source.data["code"] = [ code for code in states ]
-r.data_source.data["rate"] = [ january_2021[code] for code in states ]
 
 HI_i = list(states.keys()).index("HI")
 AK_i = list(states.keys()).index("AK")
