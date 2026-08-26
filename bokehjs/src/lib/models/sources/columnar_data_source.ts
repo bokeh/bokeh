@@ -133,7 +133,7 @@ export abstract class ColumnarDataSource extends DataSource {
     const i = isNumber(index) ? index : index.index
     const result: {[key: string]: unknown} = {}
     for (const [column, array] of entries(this.data)) {
-      result[column] = array[i]
+      result[column] = is_NDArray(array) ? array.get(i) : array[i]
     }
     return result
   }
@@ -142,7 +142,7 @@ export abstract class ColumnarDataSource extends DataSource {
     const mapped_indices = map(indices, (index: Index) => isNumber(index) ? index : index.index)
     const result: {[key: string]: unknown} = {}
     for (const [column, array] of entries(this.data)) {
-      result[column] = map(mapped_indices, (index: number) => array[index])
+      result[column] = map(mapped_indices, (index: number) => is_NDArray(array) ? array.get(index) : array[index])
     }
     return result
   }
@@ -221,6 +221,10 @@ export abstract class ColumnarDataSource extends DataSource {
         rows.push(this._row_to_csv(row))
       }
     }
+    // Push empty string to have last row with newline character
+    // possibliy something worthy to be configurable via an option as well as
+    // separator and characters to escape
+    rows.push("")
     return [headers, ...rows].join("\n")
   }
 
