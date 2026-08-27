@@ -1,6 +1,7 @@
 import type {Dict} from "core/types"
 import {logger} from "core/logging"
 import {to_object} from "core/util/object"
+import {isString} from "core/util/types"
 import {Signal0} from "core/signaling"
 import {Model} from "../../model"
 import type * as p from "core/properties"
@@ -163,11 +164,15 @@ export class I18n extends Model {
   }
 
   protected _t(key: string, options: Dict<Dict<string | any>> = {}): string {
-    const locale_translation = to_object(this.translations)[this.locale]
-    const translation_string = key.split(".").reduce(
-      (current_level, current_key) => current_level?.[current_key],
-      locale_translation as any,
-    ) ?? key
+    const translations = to_object(this.translations)
+    const locale_translation = to_object(translations[this.locale] ?? {})
+    let translation_string = locale_translation?.[key]
+    if (!isString(translation_string)) {
+      translation_string = key.split(".").reduce(
+        (current_level, current_key) => current_level?.[current_key],
+        locale_translation,
+      ) ?? key
+    }
 
     return this._interpolation(translation_string, options)
   }
