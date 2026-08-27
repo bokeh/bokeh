@@ -35,7 +35,7 @@ button1 = Button(
         },
     ),
 )
-button2 = Button(label="String used as key itself to get its translation")
+button2 = Button(label="String used as key itself to get its translation.")
 
 button.js_on_event("button_click", CustomJS(args=dict(button1=button1), code="""
 const available_locales = ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"]
@@ -72,11 +72,11 @@ cb_obj.config.i18n.locales_codes = ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "h
 cb_obj.config.i18n.translations = {
   en: {
     button1: { label: "Test {{locale}} - {{current_date}}" },
-    "String used as key itself to get its translation": "String used as key itself to get its translation (manually set)"
+    "String used as key itself to get its translation.": "String used as key itself to get its translation (manually set)."
     },
     "es-CO": {
       button1: {label: "Prueba {{locale}} - {{current_date}}" },
-      "String used as key itself to get its translation": "Cadena usada en si misma como llave para obtener su traducción (traducida manualmente)"
+      "String used as key itself to get its translation.": "Cadena usada en si misma como llave para obtener su traducción (traducida manualmente)."
     },
     "pl-PL": {
       button1: { label: "Test {{locale}} - {{current_date}}" }
