@@ -114,15 +114,8 @@ uses several :ref:`custom Sphinx extensions <bokeh.sphinxext>`.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To build the documentation, follow the instructions in
-:ref:`contributor_guide_setup`. From the root of your *source checkout*, make
-sure the locked Pixi environment is installed:
-
-.. code-block:: sh
-
-    pixi install --locked
-
-You don't need to activate the environment. The documentation Makefiles use
-the locked Pixi environment automatically.
+:ref:`contributor_guide_setup`. The documentation Makefiles use the locked Pixi
+environment automatically, whether or not its shell is already active.
 
 2. Set environment variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

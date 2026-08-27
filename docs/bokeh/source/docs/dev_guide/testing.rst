@@ -504,9 +504,9 @@ different versions of Python. The environments are assembled from features in
 in ``pixi.lock``.
 
 When adding or changing a dependency, update ``pixi.toml``, run
-``pixi lock``, and commit both files. Use ``pixi run -e <environment>`` to run a
-command in a particular CI environment, such as ``test-py312``, ``minimal``, or
-``core``.
+``pixi lock``, and commit both files. Use
+``pixi run --locked -e <environment>`` to run a command in a particular CI
+environment, such as ``test-py312``, ``minimal``, or ``core``.
 
 CI Workflows
 ~~~~~~~~~~~~

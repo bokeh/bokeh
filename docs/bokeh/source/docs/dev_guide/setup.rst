@@ -96,28 +96,33 @@ upstream with the following commands:
 .. _contributor_guide_setup_creating_conda_env:
 .. _contributor_guide_setup_creating_pixi_env:
 
-3. Install the Pixi environment
--------------------------------
+3. Enter the Pixi environment
+------------------------------
 
 The Bokeh repository contains its development environment definitions in
 ``pixi.toml`` and exact dependency versions in ``pixi.lock``. From the
-root of your *source checkout*, install the default environment with:
+root of your *source checkout*, start a shell in the default environment with:
 
 .. code-block:: sh
 
-    pixi install --locked
+    pixi shell --locked
 
-There is no activation step. Prefix commands with ``pixi run`` to execute them
-in the environment. If you prefer an activated shell, run ``pixi shell``.
+Pixi installs the environment if necessary and opens an activated subshell.
+Keep this shell open while working on Bokeh; the commands in the rest of this
+guide assume it is active. Run ``exit`` to leave it. Ordinary tools such as
+``python``, ``pytest``, and ``node`` can be invoked directly. Commands such as
+``pixi run setup`` and ``pixi run js-install`` invoke repository tasks defined
+in ``pixi.toml``.
 
 .. note::
-    Run ``pixi install --locked`` again after pulling dependency changes or
-    switching branches. Pixi updates the local environment to match the
-    committed lockfile.
+    After pulling dependency changes or switching branches, leave the active
+    shell and run ``pixi shell --locked`` again. Pixi updates the local
+    environment to match the committed lockfile.
 
 Bokeh also defines environments for its supported Python versions and focused
-test configurations. For example, use ``pixi run -e test-py312 <command>`` to
-run a command with Python 3.12. See
+test configurations. Use ``pixi shell --locked -e test-py312`` for an
+interactive Python 3.12 shell, or ``pixi run --locked -e test-py312 <command>``
+for a single command. See
 :ref:`contributor_guide_testing_ci_environments` for more information.
 
 .. _contributor_guide_setup_installing_node_packages:
@@ -154,7 +159,7 @@ your *source checkout* directory:
 
 .. code-block:: sh
 
-    pixi run python tools/hooks/install.py
+    python tools/hooks/install.py
 
 This configures pre-commit to use two `Git hooks`_ that will check your code
 whenever you push a commit to Bokeh's GitHub repository:
@@ -180,7 +185,7 @@ To uninstall the Git hooks, run the following command from the top level of your
 
 .. code-block:: sh
 
-    pixi run python tools/hooks/uninstall.py
+    python tools/hooks/uninstall.py
 
 .. _contributor_guide_setup_install_locally:
 
@@ -200,21 +205,22 @@ This installs the locked JavaScript dependencies, builds BokehJS, and uses
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
-``pixi run python -m pip install --no-deps -e .``
+``python -m pip install --no-deps -e .``
     Bokeh will be installed to refer to your local source directory. Any changes
     you make to the Python source code will be available immediately without
     any additional steps. **This is the recommended mode when working on the
     Bokeh codebase.**
 
-``pixi run python -m pip install --no-deps .``
-    Bokeh will be installed in the ``site-packages`` directory of your local Pixi environment.
+``python -m pip install --no-deps .``
+    Bokeh will be installed in the ``site-packages`` directory of your local
+    Pixi environment.
     In this mode, any changes to the Python source code will have no effect
     until you run the installation command again.
 
 Running either of those two commands also builds and installs a local version of
 :term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
 different local version instead, set the ``BOKEHJS_ACTION`` environment variable:
-``BOKEHJS_ACTION="install" pixi run python -m pip install --no-deps -e .``
+``BOKEHJS_ACTION="install" python -m pip install --no-deps -e .``
 
 .. note::
     You need to **rebuild BokehJS each time the BokehJS source code changes**.
@@ -469,7 +475,7 @@ First, use the following command to test the Bokeh installation:
 
 .. code-block:: sh
 
-    pixi run python -m bokeh info
+    python -m bokeh info
 
 You should see output similar to:
 
@@ -503,7 +509,7 @@ following command(s):
 
         .. code-block:: sh
 
-            BOKEH_RESOURCES=inline pixi run python examples/basic/data/transform_markers.py
+            BOKEH_RESOURCES=inline python examples/basic/data/transform_markers.py
 
     .. tab-item:: Windows (PS)
         :sync: ps
@@ -511,7 +517,7 @@ following command(s):
         .. code-block:: powershell
 
             $Env:BOKEH_RESOURCES = "inline"
-            pixi run python .\examples\basic\data\transform_markers.py
+            python .\examples\basic\data\transform_markers.py
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -519,7 +525,7 @@ following command(s):
         .. code-block:: doscon
 
             set BOKEH_RESOURCES=inline
-            pixi run python examples\basic\data\transform_markers.py
+            python examples\basic\data\transform_markers.py
 
 This creates a file ``transform_markers.html`` locally. When you open this file in
 a web browser, it should display this visualization:
@@ -544,7 +550,7 @@ checkout* directory:
 
         .. code-block:: sh
 
-            BOKEH_DEV=false pixi run python -m bokeh serve --show examples/server/app/sliders.py
+            BOKEH_DEV=false python -m bokeh serve --show examples/server/app/sliders.py
 
     .. tab-item:: Windows (PS)
         :sync: ps
@@ -552,7 +558,7 @@ checkout* directory:
         .. code-block:: powershell
 
             $Env:BOKEH_DEV = "False"
-            pixi run python -m bokeh serve --show .\examples\server\app\sliders.py
+            python -m bokeh serve --show .\examples\server\app\sliders.py
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -560,7 +566,7 @@ checkout* directory:
         .. code-block:: doscon
 
             set BOKEH_DEV=false
-            pixi run python -m bokeh serve --show examples\server\app\sliders.py
+            python -m bokeh serve --show examples\server\app\sliders.py
 
 This should open up a browser with an interactive figure:
 
@@ -635,9 +641,10 @@ setting up a development environment:
 
 .. dropdown:: Errors after updating from an older version
 
-    If you keep getting errors after updating an older environment, run
-    ``pixi clean`` followed by ``pixi run setup``. This recreates the managed
-    environments and local package installation from the committed lockfile.
+    If you keep getting errors after updating an older environment, leave the
+    active shell and run ``pixi clean`` followed by ``pixi run --locked setup``.
+    This recreates the managed environment and local package installation from
+    the committed lockfile. Run ``pixi shell --locked`` to re-enter it.
 
 .. dropdown:: Slow network connections when cloning
 
