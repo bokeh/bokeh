@@ -207,7 +207,7 @@ There are two ways to install a local development version of Bokeh with ``pip``:
     Bokeh codebase.**
 
 ``pixi run python -m pip install --no-deps .``
-    Bokeh will be installed in your local Python ``site-packages`` directory.
+    Bokeh will be installed in the ``site-packages`` directory of your local Pixi environment.
     In this mode, any changes to the Python source code will have no effect
     until you run the installation command again.
 
