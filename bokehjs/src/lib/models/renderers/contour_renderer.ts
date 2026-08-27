@@ -1,7 +1,11 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
-import type {GlyphRendererView} from "./glyph_renderer"
+import type {GlyphRendererView, GlyphRendererWithSource} from "./glyph_renderer"
 import {GlyphRenderer} from "./glyph_renderer"
 import type {GlyphView} from "../glyphs/glyph"
+import type {MultiLine} from "../glyphs/multi_line"
+import type {Polygons} from "../glyphs/polygons"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {GeometryDataSource} from "../sources/geometry_data_source"
 import type * as p from "core/properties"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
@@ -49,9 +53,12 @@ export class ContourRendererView extends DataRendererView {
 export namespace ContourRenderer {
   export type Attrs = p.AttrsOf<Props>
 
+  export type FillRenderer = GlyphRendererWithSource<Polygons, GeometryDataSource>
+  export type LineRenderer = GlyphRendererWithSource<MultiLine, ColumnarDataSource>
+
   export type Props = DataRenderer.Props & {
-    fill_renderer: p.Property<GlyphRenderer>
-    line_renderer: p.Property<GlyphRenderer>
+    fill_renderer: p.Property<FillRenderer>
+    line_renderer: p.Property<LineRenderer>
     levels: p.Property<number[]>
   }
 }

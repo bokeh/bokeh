@@ -135,7 +135,7 @@ export namespace WebBrowserMarketShare {
     behavior: "inspect",
     callback: {
       execute(_obj, {source: cds}): void {
-        if (!paused) {
+        if (!paused && cds instanceof Bokeh.IndexedDataSource) {
           const i = cds.inspected.indices[0]
           const name = cds.get("names")[i]
           const share = Bokeh.sprintf("%.02f%%", cds.get("shares")[i])

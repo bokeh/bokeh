@@ -63,15 +63,8 @@ p.multi_line([xpts+xx for xx in x], [ypts+yy for yy in y],
     color="#8073AC", line_width=2)
 children.append(p)
 
-p = figure(title="multi_polygons")
-p.multi_polygons(
-    [[[xpts*2+xx, xpts+xx]] for xx in x],
-    [[[ypts*3+yy, ypts+yy]] for yy in y],
-    color="#FB9A99")
-children.append(p)
-
 p = figure(title="polygon")
-p.polygons({"type": "Polygon", "coordinates": [[*zip(x, y)]]}, color="#A6CEE3")
+p.polygons(x=x, y=y, color="#A6CEE3")
 children.append(p)
 
 p = figure(title="polygons")

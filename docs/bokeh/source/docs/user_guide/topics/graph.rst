@@ -17,6 +17,7 @@ In order to create a network visualization, you need to specify:
 - node glyphs using the ``node_renderer`` attribute
 - edge glyphs using the ``edge_renderer`` attribute
 - the layout strategy using the ``layout_provider`` attribute
+- optional edge routing using the ``edge_path_provider`` attribute
 
 While the positions of the nodes could theoretically be stored in the ``node_renderer``,
 this approach allows for more flexibility. The same graph data can be viewed differently
@@ -102,11 +103,22 @@ The following code snippet
     graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2,
                                         fill_color="fill_color")
 
-Bokeh comes with a built-in ``LayoutProvider`` model that includes
-a dictionary of (x,y) coordinates for nodes. This lets you arrange
-plot elements in Cartesian space.
+Bokeh layout providers translate graph topology into node positions.
+:class:`~bokeh.models.graphs.StaticLayoutProvider` accepts an
+explicit dictionary of node positions. Other providers compute positions in
+BokehJS, so they work in standalone documents, notebooks, and server sessions
+without a JavaScript graph-layout dependency:
 
-The following codes snippet uses this provider model to produce a
+* :class:`~bokeh.models.graphs.CircularLayoutProvider` places nodes around a circle.
+* :class:`~bokeh.models.graphs.GridLayoutProvider` places nodes on a row-major grid.
+* :class:`~bokeh.models.graphs.ForceDirectedLayoutProvider` runs a deterministic,
+  dependency-free Fruchterman-Reingold layout suitable for small and medium graphs.
+
+The graph data and provider settings synchronize normally in server sessions;
+the derived coordinates stay in the browser and are recomputed when topology
+or layout settings change.
+
+The following code snippet uses this provider model to produce a
 plot based on the setup above.
 
 .. code-block:: python
@@ -122,7 +134,7 @@ plot based on the setup above.
     # and assign each entry to a node on the ``node_indices`` list
     graph_layout = dict(zip(node_indices, zip(x, y)))
 
-    # use the provider model to supply coourdinates to the graph
+    # use the provider model to supply coordinates to the graph
     graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
     # render the graph
@@ -136,16 +148,76 @@ Put together, the above code snippets produce the following result:
 .. bokeh-plot:: __REPO__/examples/topics/graph/graph_customize.py
     :source-position: none
 
+Client-side layouts
+-------------------
+
+Assign an algorithmic provider exactly like a static provider. The following
+example passes ordinary node records and edge tuples to ``GraphDataSource`` and
+does not compute coordinates in Python:
+
+.. bokeh-plot:: __REPO__/examples/topics/graph/client_side_layout.py
+    :source-position: above
+
+NetworkX graphs can also use a client-side provider directly:
+
+.. code-block:: python
+
+    renderer = from_networkx(
+        graph,
+        ForceDirectedLayoutProvider(seed=7, iterations=150),
+        edge_path_provider=BezierEdgePathProvider(curvature=0.15),
+    )
+
+.. _ug_topics_graph_edge_paths:
+
+Edge path providers
+-------------------
+
+The ``GraphRenderer.edge_path_provider`` independently controls how node
+positions are connected. The default
+:class:`~bokeh.models.graphs.StraightEdgePathProvider` draws straight edges.
+Other dependency-free providers derive sampled paths in BokehJS:
+
+* :class:`~bokeh.models.graphs.ArcEdgePathProvider` draws circular arcs.
+* :class:`~bokeh.models.graphs.BezierEdgePathProvider` draws quadratic Bezier curves.
+* :class:`~bokeh.models.graphs.OrthogonalEdgePathProvider` draws horizontal and
+  vertical routes with optional rounded corners.
+
+Curve properties are data specs, so a fixed value or an edge field can control
+each path. Parallel arc and Bezier edges receive stable offsets, and all path
+providers draw self-loops using ``loop_radius``:
+
+.. code-block:: python
+
+    graph.edge_path_provider = BezierEdgePathProvider(
+        curvature="curvature",
+        parallel_spacing=0.15,
+        loop_radius="loop_radius",
+        loop_spacing=0.25,
+        steps=24,
+    )
+
+The same provider can be supplied directly to ``figure.graph(...)`` or
+``from_networkx(...)`` with the ``edge_path_provider`` keyword.
+
+This example compares all four providers using per-edge parameters, parallel
+edges, and a self-loop:
+
+.. bokeh-plot:: __REPO__/examples/topics/graph/edge_paths.py
+    :source-position: above
+
+Changing graph topology, node layout, or path-provider settings recomputes the
+sampled paths in the browser. Only graph data and model settings synchronize in
+server sessions.
+
 Explicit paths
 --------------
 
-By default, the :class:`~bokeh.models.graphs.StaticLayoutProvider` model
-draws straight-line paths between the supplied node positions. To set
-explicit edge paths, supply lists of paths to the
+To override generated paths, supply lists of paths to the
 :class:`bokeh.models.sources.ColumnDataSource` data source of the
-``GraphDataSource.edges``. The :class:`~bokeh.models.graphs.StaticLayoutProvider`
-model looks for these paths in the ``"xs"`` and ``"ys"`` columns of the
-data source. The paths should be in the same order as the ``"start"``
+``GraphDataSource.edges``. Every edge path provider looks for ``"xs"`` and
+``"ys"`` columns and gives them precedence for corresponding edges. The paths
+should be in the same order as the ``"start"``
 and ``"end"`` points. Be extra careful when setting
 explicit paths because there is no validation to check if they match
 with node positions.
@@ -191,9 +263,10 @@ provider. Its endpoint units must be ``"data"``. A ``Bezier`` edge uses those
 same endpoints and accepts four per-edge control columns: ``cx0``, ``cy0``,
 ``cx1``, and ``cy1``. Supply all four with one value per edge. If omitted,
 controls are placed at one-third and two-thirds of the straight connection.
-A custom BokehJS layout provider can override ``get_edge_control_coordinates``
-to compute the controls instead. Layout changes and edge-source updates remap
-these coordinates like existing MultiLine graph edges.
+A custom BokehJS edge path provider can override
+``get_edge_control_coordinates`` to compute the controls instead. Layout
+changes and edge-source updates remap these coordinates like existing
+MultiLine graph edges.
 
 .. bokeh-plot:: __REPO__/examples/topics/graph/edge_glyphs.py
     :source-position: above
@@ -221,8 +294,15 @@ Graph interaction has two independent parts:
 
 * ``GraphRenderer.selection_target`` and ``inspection_target`` choose which
   component receives direct hit tests: ``"nodes"`` or ``"edges"``.
-* ``GraphDataSource.selection_policy`` controls how those direct hits propagate
-  through graph topology.
+* ``GraphDataSource.selection_policy`` controls persistent selection
+  propagation, while ``GraphRenderer.inspection_policy`` independently
+  controls transient hover/inspection propagation.
+
+The former ``UnionRenderers`` and ``IntersectRenderers`` classes are replaced
+by one general source policy. Use ``SelectionPolicy(combine="union")`` (the
+default) or ``SelectionPolicy(combine="intersection")`` on an indexed data
+source. ``GraphSelectionPolicy`` uses the same ``combine`` setting before it
+expands direct hits through graph topology.
 
 This separation avoids a class for every node/edge behavior combination. For
 example, the following configuration directly selects nodes and includes their
@@ -237,6 +317,8 @@ nodes:
     graph.inspection_target = "edges"
     graph.data_source.selection_policy = GraphSelectionPolicy(
         include_incident_edges=True,
+    )
+    graph.inspection_policy = GraphSelectionPolicy(
         include_end_nodes=True,
     )
 
@@ -245,9 +327,10 @@ to two hops from each direct hit. Set ``node_hops_mode="exact"`` to include only
 the two-hop frontier, ``include_direct=False`` to omit the root nodes, or
 ``node_direction="in"`` or ``"out"`` for directed traversal.
 
-The expanded result uses the normal selections of the child sources. This
-means standalone JavaScript and Bokeh server callbacks observe the same state,
-and node identifiers can be recovered without a graph-specific callback API:
+Persistent expansion updates the normal ``selected`` state of the child
+sources; transient expansion updates their ``inspected`` state. This means
+standalone JavaScript and Bokeh server callbacks observe the same state, and
+node identifiers can be recovered without a graph-specific callback API:
 
 .. code-block:: python
 

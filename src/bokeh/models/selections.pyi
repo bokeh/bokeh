@@ -32,12 +32,12 @@ class Selection(Model):
     image_indices: list[ImageIndex] = ...
 
 class _SelectionPolicyInit(_ModelInit, total=False):
-    mode: Literal["union", "intersect"]
+    combine: Literal["union", "intersection"]
 
 class SelectionPolicy(Model):
     def __init__(self, **kwargs: Unpack[_SelectionPolicyInit]) -> None: ...
 
-    mode: Literal["union", "intersect"] = ...
+    combine: Literal["union", "intersection"] = ...
 
 class _GraphSelectionPolicyInit(_SelectionPolicyInit, total=False):
     node_hops: int

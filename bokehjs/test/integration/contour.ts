@@ -1,8 +1,9 @@
 import {display, fig} from "#framework/layouts"
 
-import {ContourColorBar, GlyphRenderer, MultiLine, MultiPolygons} from "@bokehjs/models"
+import {ContourColorBar, GlyphRenderer, MultiLine, Polygons} from "@bokehjs/models"
 import {ContourRenderer} from "@bokehjs/models/renderers/contour_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {GeometryDataSource} from "@bokehjs/models/sources/geometry_data_source"
 
 describe("ContourRenderer", () => {
 
@@ -25,16 +26,20 @@ describe("ContourRenderer", () => {
       data_source: line_source,
     })
 
-    const fill_source = ColumnDataSource.create({data: {
-      xs: [[[[0, 1, 1.5, 1, 0.5, 0, 0]]], [[[0.5, 1, 1.5, 2, 2, 1, 0.5]]]],
-      ys: [[[[0, 0, 0, 0.5, 1, 1, 0]]], [[[1, 0.5, 0, 0, 1, 1, 1]]]],
-      lower_levels: [-0.5,  1.5],
-      upper_levels: [1.5, 3.5],
-      fill_color: ["red", "yellow"],
-      hatch_pattern: ["", "/"],
-    }})
+    const fill_source = GeometryDataSource.create({
+      geometries: [
+        {type: "Polygon", coordinates: [[[0, 0], [1, 0], [1.5, 0], [1, 0.5], [0.5, 1], [0, 1], [0, 0]]]},
+        {type: "Polygon", coordinates: [[[0.5, 1], [1, 0.5], [1.5, 0], [2, 0], [2, 1], [1, 1], [0.5, 1]]]},
+      ],
+      data: {
+        lower_levels: [-0.5,  1.5],
+        upper_levels: [1.5, 3.5],
+        fill_color: ["red", "yellow"],
+        hatch_pattern: ["", "/"],
+      },
+    })
     const fill_renderer = GlyphRenderer.create({
-      glyph: MultiPolygons.create({
+      glyph: Polygons.create({
         fill_color: {field: "fill_color"}, fill_alpha: 0.5, line_width: 0,
         hatch_pattern: {field: "hatch_pattern"}, hatch_alpha: 0.7,
       }),

@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
+import type {AnyGlyphRenderer} from "../renderers/glyph_renderer"
 import {isValue, isField} from "core/vectorization"
 import * as p from "core/properties"
 import {logger} from "core/logging"
@@ -10,7 +11,7 @@ export namespace LegendItem {
 
   export type Props = Model.Props & {
     label: p.DataSpec<string | null> // TODO: spec!
-    renderers: p.Property<GlyphRenderer[]>
+    renderers: p.Property<AnyGlyphRenderer[]>
     index: p.Property<number | null>
     visible: p.Property<boolean>
   }

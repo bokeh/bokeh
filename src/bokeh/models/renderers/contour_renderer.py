@@ -84,15 +84,19 @@ class ContourRenderer(DataRenderer):
 
             for name in old_fill_data.keys():
                 if name not in ("lower_levels", "upper_levels"):
-                    fill_data[name] = old_fill_data[name]
-            fill_source.update(geometries=geometries, data=fill_data)
+                    values = old_fill_data[name]
+                    if len(values) == len(geometries):
+                        fill_data[name] = values
+            fill_source.replace({"geometries": geometries, "data": fill_data})
         elif data.fill_data:
             # Compatibility for manually constructed legacy contour renderers.
             fill_data = data.fill_data.asdict()
             old_fill_data = cast(ColumnarDataSource, fill_source).data
             for name in old_fill_data.keys():
                 if name not in ("xs", "ys", "lower_levels", "upper_levels"):
-                    fill_data[name] = old_fill_data[name]
+                    values = old_fill_data[name]
+                    if len(values) == len(fill_data["xs"]):
+                        fill_data[name] = values
             cast(ColumnarDataSource, fill_source).data = fill_data
         else:
             cast(ColumnarDataSource, fill_source).data = dict(xs=[], ys=[], lower_levels=[], upper_levels=[])
@@ -105,7 +109,9 @@ class ContourRenderer(DataRenderer):
             old_line_data = line_source.data
             for name in old_line_data.keys():
                 if name not in ("xs", "ys", "levels"):
-                    line_data[name] = old_line_data[name]
+                    values = old_line_data[name]
+                    if len(values) == len(line_data["xs"]):
+                        line_data[name] = values
             line_source.data = line_data
         else:
             line_source.data = dict(xs=[], ys=[], levels=[])

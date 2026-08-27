@@ -1,7 +1,7 @@
 # Record-oriented IndexedDataSource extension
 
 This server app implements a custom `IndexedDataSource` backed by nested records
-rather than a dictionary of columns. Ordinary glyphs, a `CDSView`, `GroupFilter`, hover
+rather than a dictionary of columns. Ordinary glyphs, a `DataView`, `GroupFilter`, hover
 tooltips, and selection all consume its logical fields. Dotted field names such
 as `position.x` are resolved by the source without flattening the records.
 

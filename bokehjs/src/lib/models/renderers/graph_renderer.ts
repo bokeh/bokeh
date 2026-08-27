@@ -3,8 +3,10 @@ import type {GlyphRendererView} from "./glyph_renderer"
 import {GlyphRenderer} from "./glyph_renderer"
 import type {GlyphRendererWithSource} from "./glyph_renderer"
 import {GlyphView} from "../glyphs/glyph"
+import {EdgePathProvider} from "../graphs/edge_path_provider"
 import {LayoutProvider} from "../graphs/layout_provider"
-import {GraphSelectionTarget} from "../selections/interaction_policy"
+import {StraightEdgePathProvider} from "../graphs/straight_edge_path_provider"
+import {GraphSelectionPolicy, GraphSelectionTarget} from "../selections/interaction_policy"
 import type * as p from "core/properties"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
@@ -60,9 +62,20 @@ export class GraphRendererView extends DataRendererView {
 
   override connect_signals(): void {
     super.connect_signals()
-
-    this.connect(this.model.layout_provider.change, async () => {
+    this.on_transitive_change(this.model.properties.layout_provider, async () => {
+      this.model.layout_provider.invalidate(this.model.data_source)
       this.apply_coordinates()
+      await this.edge_view.set_data()
+      await this.node_view.set_data()
+      this.request_paint()
+    })
+    this.on_transitive_change(this.model.properties.edge_path_provider, async () => {
+      this.apply_coordinates()
+      await this.edge_view.set_data()
+      this.request_paint()
+    })
+    this.connect(this.model.data_source.data_changed, async () => {
+      this.model.layout_provider.invalidate(this.model.data_source)
       await this.edge_view.set_data()
       await this.node_view.set_data()
       this.request_paint()
@@ -72,13 +85,14 @@ export class GraphRendererView extends DataRendererView {
   protected apply_coordinates(): void {
     const {edge_renderer, node_renderer} = this.model
 
-    const edge_coords = this.model.layout_provider.edge_coordinates
-    const node_coords = this.model.layout_provider.node_coordinates
+    const {data_source, layout_provider, edge_path_provider} = this.model
+    const edge_coords = edge_path_provider.edge_coordinates(data_source, layout_provider)
+    const node_coords = layout_provider.node_coordinates(data_source)
 
-    const start = this.model.layout_provider.edge_point_coordinates("start")
-    const end = this.model.layout_provider.edge_point_coordinates("end")
-    const control0 = this.model.layout_provider.edge_point_coordinates("control0")
-    const control1 = this.model.layout_provider.edge_point_coordinates("control1")
+    const start = edge_path_provider.edge_point_coordinates(data_source, layout_provider, "start")
+    const end = edge_path_provider.edge_point_coordinates(data_source, layout_provider, "end")
+    const control0 = edge_path_provider.edge_point_coordinates(data_source, layout_provider, "control0")
+    const control1 = edge_path_provider.edge_point_coordinates(data_source, layout_provider, "control1")
     const xs = {expr: edge_coords.x}
     const ys = {expr: edge_coords.y}
 
@@ -174,10 +188,12 @@ export namespace GraphRenderer {
   export type Props = DataRenderer.Props & {
     data_source: p.Property<GraphDataSource>
     layout_provider: p.Property<LayoutProvider>
+    edge_path_provider: p.Property<EdgePathProvider>
     node_renderer: p.Property<NodeRenderer>
     edge_renderer: p.Property<EdgeRenderer>
     selection_target: p.Property<GraphSelectionTarget>
     inspection_target: p.Property<GraphSelectionTarget>
+    inspection_policy: p.Property<GraphSelectionPolicy>
   }
 }
 
@@ -212,10 +228,12 @@ export class GraphRenderer extends DataRenderer {
     this.define<GraphRenderer.Props, GraphRenderer>(({Ref}) => ({
       data_source:       [ Ref(GraphDataSource), () => GraphDataSource.create(), {readonly: true} ],
       layout_provider:   [ Ref(LayoutProvider) ],
+      edge_path_provider: [ Ref(EdgePathProvider), () => StraightEdgePathProvider.create() ],
       node_renderer:     [ Ref(GlyphRenderer<XYGlyph>), (self) => default_node_renderer(self.data_source.nodes), {readonly: true} ],
       edge_renderer:     [ Ref(GlyphRenderer<EdgeGlyph>), (self) => default_edge_renderer(self.data_source.edges), {readonly: true} ],
       selection_target:  [ GraphSelectionTarget, "nodes" ],
       inspection_target: [ GraphSelectionTarget, "nodes" ],
+      inspection_policy: [ Ref(GraphSelectionPolicy), () => GraphSelectionPolicy.create() ],
     }))
   }
 

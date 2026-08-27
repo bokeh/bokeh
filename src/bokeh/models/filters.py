@@ -55,8 +55,11 @@ __all__ = (
 
 @abstract
 class Filter(Model):
-    ''' A Filter model represents a filtering operation that returns a row-wise subset of
-    data when applied to a ``ColumnDataSource``.
+    ''' A filtering operation that selects logical items from an indexed data source.
+
+    Filters operate on the primary item axis of an
+    :class:`~bokeh.models.sources.IndexedDataSource`, independently of how the
+    source stores its values.
     '''
 
     def __invert__(self) -> Filter:
@@ -149,12 +152,11 @@ class BooleanFilter(Filter):
         super().__init__(**kwargs)
 
 class GroupFilter(Filter):
-    ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the
-    values of the column indicated by ``column_name`` match the ``group`` variable.
+    ''' Select items whose ``field_name`` value matches ``group``.
     '''
 
-    column_name = Required(String, help="""
-    The name of the column to perform the group filtering operation on.
+    field_name = Required(String, help="""
+    The name of the logical field to perform the group filtering operation on.
     """)
 
     group = Required(AnyRef, help="""
@@ -162,8 +164,8 @@ class GroupFilter(Filter):
     """)
 
     def __init__(self, *args, **kwargs) -> None:
-        if len(args) == 2 and "column_name" not in kwargs and "group" not in kwargs:
-            kwargs["column_name"] = args[0]
+        if len(args) == 2 and "field_name" not in kwargs and "group" not in kwargs:
+            kwargs["field_name"] = args[0]
             kwargs["group"] = args[1]
 
         super().__init__(**kwargs)
@@ -186,14 +188,14 @@ class CustomJSFilter(Filter):
     """)
 
     code = String(default="", help="""
-    A snippet of JavaScript code to filter data contained in a columnar data source.
+    A snippet of JavaScript code to filter an indexed data source.
     The code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. The variable
-    ``source`` will contain the data source that is associated with the ``CDSView`` this
+    ``source`` will contain the data source that is associated with the ``DataView`` this
     filter is added to.
 
     The code should either return the indices of the subset or an array of booleans
-    to use to subset data source rows.
+    to use to subset the source's logical items.
 
     Example:
 
@@ -201,8 +203,9 @@ class CustomJSFilter(Filter):
 
         code = '''
         const indices = []
-        for (let i = 0; i <= source.data['some_column'].length; i++) {
-            if (source.data['some_column'][i] == 'some_value') {
+        const values = source.get_field('some_field')
+        for (let i = 0; i < values.length; i++) {
+            if (values[i] == 'some_value') {
                 indices.push(i)
             }
         }

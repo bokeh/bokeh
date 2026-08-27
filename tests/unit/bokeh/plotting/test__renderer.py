@@ -321,7 +321,7 @@ class Test__process_sequence_literals:
 #     'x_range_name': [None, '', 'x range'],
 #     'y_range_name': [None, '', 'y range'],
 #     'level': [None, 'overlay'],
-#     'view': [None, CDSView()],
+#     'view': [None, DataView()],
 #     'visible': [None, False, True],
 #     'muted': [None, False, True]
 # }

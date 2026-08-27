@@ -27,6 +27,7 @@ graph_renderer.edge_renderer.hover_glyph = ml_glyph.clone(line_color=Spectral4[1
 graph_renderer.selection_target = "edges"
 graph_renderer.inspection_target = "edges"
 graph_renderer.data_source.selection_policy = GraphSelectionPolicy(include_end_nodes=True)
+graph_renderer.inspection_policy = GraphSelectionPolicy(include_end_nodes=True)
 
 plot.renderers.append(graph_renderer)
 

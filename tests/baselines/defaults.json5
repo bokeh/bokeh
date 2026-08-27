@@ -2866,7 +2866,7 @@
   },
   GroupFilter: {
     __extends__: "Filter",
-    column_name: {
+    field_name: {
       type: "symbol",
       name: "unset",
     },
@@ -4184,81 +4184,6 @@
       value: 0,
     },
   },
-  MultiPolygons: {
-    __extends__: [
-      "Glyph",
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
-    xs: {
-      type: "field",
-      field: "xs",
-    },
-    ys: {
-      type: "field",
-      field: "ys",
-    },
-    line_color: {
-      type: "value",
-      value: "black",
-    },
-    line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    line_width: {
-      type: "value",
-      value: 1,
-    },
-    line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    line_dash: {
-      type: "value",
-      value: "solid",
-    },
-    line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
-    fill_color: {
-      type: "value",
-      value: "gray",
-    },
-    fill_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_extra: {
-      type: "map",
-    },
-  },
   Ngon: {
     __extends__: "RadialGlyph",
     x: {
@@ -5361,8 +5286,57 @@
       ],
     },
   },
+  ArcEdgePathProvider: {
+    __extends__: "EdgePathProvider",
+    curvature: {
+      type: "value",
+      value: 0.2,
+    },
+    parallel_spacing: 0.15,
+  },
+  BezierEdgePathProvider: {
+    __extends__: "EdgePathProvider",
+    curvature: {
+      type: "value",
+      value: 0.2,
+    },
+    parallel_spacing: 0.15,
+  },
+  CircularLayoutProvider: {
+    __extends__: "LayoutProvider",
+    center: [
+      0,
+      0,
+    ],
+    radius: 1,
+    start_angle: 0,
+    clockwise: false,
+  },
   EdgeCoordinates: {
     __extends__: "GraphCoordinates",
+    path: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  EdgePathProvider: {
+    __extends__: "Model",
+    loop_radius: {
+      type: "value",
+      value: 0.15,
+    },
+    loop_spacing: 0.25,
+    steps: 24,
+  },
+  ForceDirectedLayoutProvider: {
+    __extends__: "LayoutProvider",
+    center: [
+      0,
+      0,
+    ],
+    scale: 1,
+    seed: 1,
+    iterations: 100,
   },
   EdgePointCoordinates: {
     __extends__: "GraphCoordinates",
@@ -5377,6 +5351,19 @@
       type: "symbol",
       name: "unset",
     },
+    source: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  GridLayoutProvider: {
+    __extends__: "LayoutProvider",
+    center: [
+      0,
+      0,
+    ],
+    spacing: 1,
+    columns: null,
   },
   LayoutProvider: {
     __extends__: "Model",
@@ -5384,11 +5371,26 @@
   NodeCoordinates: {
     __extends__: "GraphCoordinates",
   },
+  OrthogonalEdgePathProvider: {
+    __extends__: "EdgePathProvider",
+    orientation: "horizontal",
+    offset: {
+      type: "value",
+      value: 0,
+    },
+    corner_radius: {
+      type: "value",
+      value: 0,
+    },
+  },
   StaticLayoutProvider: {
     __extends__: "LayoutProvider",
     graph_layout: {
       type: "map",
     },
+  },
+  StraightEdgePathProvider: {
+    __extends__: "EdgePathProvider",
   },
   Grid: {
     __extends__: "GuideRenderer",
@@ -5927,7 +5929,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "DataView",
       attributes: {
         filter: {
           type: "object",
@@ -6017,6 +6019,11 @@
       type: "symbol",
       name: "unset",
     },
+    edge_path_provider: {
+      type: "object",
+      name: "StraightEdgePathProvider",
+      attributes: {},
+    },
     node_renderer: {
       type: "object",
       name: "GlyphRenderer",
@@ -6048,7 +6055,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "DataView",
           attributes: {
             filter: {
               type: "object",
@@ -6099,7 +6106,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "DataView",
           attributes: {
             filter: {
               type: "object",
@@ -6117,6 +6124,11 @@
     },
     selection_target: "nodes",
     inspection_target: "nodes",
+    inspection_policy: {
+      type: "object",
+      name: "GraphSelectionPolicy",
+      attributes: {},
+    },
   },
   CompositeRenderer: {
     __extends__: "Renderer",
@@ -6204,7 +6216,7 @@
   },
   SelectionPolicy: {
     __extends__: "Model",
-    mode: "union",
+    combine: "union",
   },
   ByCSS: {
     __extends__: "Selector",
@@ -6247,14 +6259,6 @@
       type: "map",
     },
   },
-  CDSView: {
-    __extends__: "Model",
-    filter: {
-      type: "object",
-      name: "AllIndices",
-      attributes: {},
-    },
-  },
   ColumnDataSource: {
     __extends__: "ColumnarDataSource",
     data: {
@@ -6270,11 +6274,12 @@
   DataSource: {
     __extends__: "Model",
   },
-  GeoJSONDataSource: {
-    __extends__: "GeometryDataSource",
-    geojson: {
-      type: "symbol",
-      name: "unset",
+  DataView: {
+    __extends__: "Model",
+    filter: {
+      type: "object",
+      name: "AllIndices",
+      attributes: {},
     },
   },
   GeometryDataSource: {
@@ -8127,7 +8132,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "DataView",
       attributes: {
         filter: {
           type: "object",

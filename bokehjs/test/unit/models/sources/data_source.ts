@@ -9,7 +9,7 @@ import type {Index} from "@bokehjs/core/util/templating"
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
-import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {DataView} from "@bokehjs/models/sources/data_view"
 import {DataSource, type DataChange} from "@bokehjs/models/sources/data_source"
 import {IndexedDataSource} from "@bokehjs/models/sources/indexed_data_source"
 
@@ -89,10 +89,10 @@ describe("IndexedDataSource", () => {
   })
 
   it("supports source-neutral filtering and views", () => {
-    const filter = GroupFilter.create({column_name: "group", group: "a"})
+    const filter = GroupFilter.create({field_name: "group", group: "a"})
     expect([...filter.compute_indices(source)]).to.be.equal([0, 2])
 
-    const view = CDSView.create({filter})
+    const view = DataView.create({filter})
     view.compute_indices(source)
     expect([...view.indices]).to.be.equal([0, 2])
   })

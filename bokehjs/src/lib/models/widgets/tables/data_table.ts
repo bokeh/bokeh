@@ -21,7 +21,7 @@ import {DTINDEX_NAME} from "./definitions"
 import {TableWidget} from "./table_widget"
 import {TableColumn} from "./table_column"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
-import type {CDSView, CDSViewView} from "../../sources/cds_view"
+import type {DataView, DataViewView} from "../../sources/data_view"
 import type {ChildView, ViewStorage} from "core/build_views"
 import {build_view, build_views, remove_views} from "core/build_views"
 import type {PatchSet} from "core/patching"
@@ -47,13 +47,13 @@ export type AutosizeMode = "FCV" | "FVC" | "LFF" | "IGV" | "NOA"
 export class TableDataProvider implements Partial<SlickDataView<Item>> {
   index: number[]
   source: ColumnarDataSource
-  view: CDSView
+  view: DataView
 
-  constructor(source: ColumnarDataSource, view: CDSView) {
+  constructor(source: ColumnarDataSource, view: DataView) {
     this.init(source, view)
   }
 
-  init(source: ColumnarDataSource, view: CDSView): void {
+  init(source: ColumnarDataSource, view: DataView): void {
     if (DTINDEX_NAME in source.data) {
       throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`)
     }
@@ -163,7 +163,7 @@ export class TableDataProvider implements Partial<SlickDataView<Item>> {
 export class DataTableView extends WidgetView {
   declare model: DataTable
 
-  protected cds_view: CDSViewView
+  protected data_view: DataViewView
   protected _column_views: ViewStorage<TableColumn> = new Map()
 
   protected data: TableDataProvider
@@ -181,12 +181,12 @@ export class DataTableView extends WidgetView {
   protected wrapper_el: HTMLElement
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), this.cds_view, ...this._column_views.values()]
+    return [...super._children_views(), this.data_view, ...this._column_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    this.cds_view = await build_view(this.model.view, {parent: this})
+    this.data_view = await build_view(this.model.view, {parent: this})
     await build_views(this._column_views, this.model.columns, {parent: this})
   }
 

@@ -49,6 +49,9 @@ export namespace TappyScatter {
   const tap = p.toolbar.get_one(Bokeh.TapTool)
   tap.renderers = [circles]
   tap.callback = (_obj, {source}) => {
+    if (!(source instanceof Bokeh.IndexedDataSource)) {
+      return
+    }
     const indices = source.selected.indices
     if (indices.length == 1) {
       console.log(`Selected index: ${indices[0]}`)

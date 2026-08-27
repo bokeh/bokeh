@@ -260,7 +260,7 @@ describe("Glyph models", () => {
   it("should support MultiPolygon", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.multi_polygons({xs: [[[x]]], ys: [[[y]]]})
+      p.polygons({type: "MultiPolygon", coordinates: [[zip(x, y)]]})
       return p
     }
     await display(row([p("canvas"), p("svg")]))

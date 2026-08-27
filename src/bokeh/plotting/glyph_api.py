@@ -24,8 +24,8 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..models import glyphs
+from ..models.sources import GeometryDataSource
 from ._decorators import glyph_method, marker_method
-from ._renderer import create_renderer
 
 if TYPE_CHECKING:
     from ..models.coordinates import CoordinateMapping
@@ -47,6 +47,19 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def _geometry_source(geometry: Any = None, *, x: Any = None, y: Any = None) -> GeometryDataSource:
+    if geometry is not None:
+        return geometry if isinstance(geometry, GeometryDataSource) else GeometryDataSource(geometry)
+
+    xs = list(x)
+    ys = list(y)
+    if len(xs) != len(ys):
+        raise ValueError("polygon x and y coordinates must have the same length")
+
+    coordinates = [[x_value, y_value] for x_value, y_value in zip(xs, ys)]
+    return GeometryDataSource({"type": "Polygon", "coordinates": [coordinates]})
+
 
 class GlyphAPI:
     """ Convenience API for bundling glyph renderers. """
@@ -635,27 +648,6 @@ Examples:
 
 """
 
-    @glyph_method(glyphs.MultiPolygons)
-    def multi_polygons(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-.. note::
-    For this glyph, the data is not simply an array of scalars, it is a
-    nested array.
-
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        p = figure(width=300, height=300)
-        p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
-                        ys=[[[[4, 3, 3, 4]]], [[[1, 3, 1], [1.5, 2, 1.5]]]],
-                        color=['red', 'green'])
-        show(p)
-
-"""
-
     @glyph_method(glyphs.Ngon)
     def ngon(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
@@ -725,6 +717,14 @@ Examples:
 
 """
 
+    @glyph_method(
+        glyphs.Polygons,
+        source_arg="geometry",
+        source_fields=("x", "y"),
+        source_adapter=_geometry_source,
+        source_default=GeometryDataSource,
+        exclude=("xs", "ys"),
+    )
     def polygons(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """ Render geometry features from a
         :class:`~bokeh.models.sources.GeometryDataSource`.
@@ -732,31 +732,15 @@ Examples:
         Polygon and MultiPolygon features, including holes and disjoint parts,
         share one feature-indexed selection and vector styling axis.
 
-        Pass geometry records directly, or supply an existing geometry source:
+        Pass ``x`` and ``y`` coordinates for one simple polygon, pass geometry
+        records for richer geometry, or supply an existing geometry source:
 
         .. code-block:: python
 
+            p.polygons(x=[1, 2, 3], y=[1, 3, 1], fill_color="navy")
             p.polygons(records, fill_color="color")
             p.polygons(source=geometry_source, fill_color="color")
         """
-        from ..models.sources import GeometryDataSource
-
-        if len(args) > 1:
-            raise TypeError(f"polygons takes 1 positional argument but {len(args)} were given")
-
-        geometry = args[0] if args else kwargs.pop("geometry", None)
-        if geometry is not None:
-            if "source" in kwargs:
-                raise ValueError("provide either geometry data or a source, not both")
-            kwargs["source"] = geometry if isinstance(geometry, GeometryDataSource) else GeometryDataSource(geometry)
-
-        if self.coordinates is not None:
-            kwargs.setdefault("coordinates", self.coordinates)
-        plot = self.plot
-        if plot is None:
-            raise RuntimeError("polygons() requires an associated Plot")
-        return create_renderer(glyphs.Polygons, plot, **kwargs)
-
     @marker_method()
     def plus(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """

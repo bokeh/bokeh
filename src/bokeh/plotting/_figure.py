@@ -50,7 +50,7 @@ from ..models import (
     ColumnDataSource,
     CoordinateMapping,
     DataRange1d,
-    IndexedDataSource,
+    EdgePathProvider,
     GraphRenderer,
     LayoutProvider,
     Plot,
@@ -87,6 +87,7 @@ if TYPE_CHECKING:
     )
     from ..models.renderers.contour_renderer import ContourRenderer
     from ..models.renderers.glyph_renderer import GlyphRenderer
+    from ..models.sources import GraphEdges, GraphNodes
     from ..util.datatypes import SequenceLike
 
 #-----------------------------------------------------------------------------
@@ -150,7 +151,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.line`
         * :func:`~bokeh.plotting.figure.mathml`
         * :func:`~bokeh.plotting.figure.multi_line`
-        * :func:`~bokeh.plotting.figure.multi_polygons`
+        * :func:`~bokeh.plotting.figure.polygons`
         * :func:`~bokeh.plotting.figure.ngon`
         * :func:`~bokeh.plotting.figure.patch`
         * :func:`~bokeh.plotting.figure.patches`
@@ -698,26 +699,35 @@ class figure(Plot, GlyphAPI):
         '''
         return self._line_stack(stackers, "y", **kw)
 
-    def graph(self, node_source: IndexedDataSource, edge_source: IndexedDataSource, layout_provider: LayoutProvider, **kwargs):
+    def graph(
+        self,
+        node_source: GraphNodes,
+        edge_source: GraphEdges,
+        layout_provider: LayoutProvider,
+        *,
+        edge_path_provider: EdgePathProvider | None = None,
+        **kwargs,
+    ):
         ''' Creates a network graph using the given node, edge and layout provider.
 
         Args:
-            node_source (:class:`~bokeh.models.sources.IndexedDataSource`) : a user-supplied data source
-                for the graph nodes. An attempt will be made to convert the object to
-                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
-                for the user automatically.
+            node_source : a user-supplied indexed data source, column mapping,
+                sequence of node identifiers, or sequence of node records.
 
-            edge_source (:class:`~bokeh.models.sources.IndexedDataSource`) : a user-supplied data source
-                for the graph edges. An attempt will be made to convert the object to
-                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
-                for the user automatically.
+            edge_source : a user-supplied indexed data source, column mapping,
+                sequence of edge tuples, or sequence of edge records.
 
             layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
                 provide the graph coordinates in Cartesian space.
 
+            edge_path_provider (:class:`~bokeh.models.graphs.EdgePathProvider`, optional) : an edge path
+                provider used to derive straight or curved paths from the graph topology and node layout.
+
             **kwargs: |line properties| and |fill properties|
 
         '''
+        if edge_path_provider is not None:
+            kwargs["edge_path_provider"] = edge_path_provider
         kw = get_graph_kwargs(node_source, edge_source, **kwargs)
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
@@ -859,7 +869,7 @@ class figure(Plot, GlyphAPI):
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
-            :func:`~bokeh.plotting.figure.multi_polygons` function.
+            :func:`~bokeh.plotting.figure.polygons` function.
 
         Example:
 
@@ -894,7 +904,7 @@ class figure(Plot, GlyphAPI):
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
-            :func:`~bokeh.plotting.figure.multi_polygons` function.
+            :func:`~bokeh.plotting.figure.polygons` function.
 
         Example:
 
@@ -929,7 +939,7 @@ class figure(Plot, GlyphAPI):
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
-            :func:`~bokeh.plotting.figure.multi_polygons` function.
+            :func:`~bokeh.plotting.figure.polygons` function.
 
         Example:
 
@@ -1057,7 +1067,7 @@ class figure(Plot, GlyphAPI):
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
-            :func:`~bokeh.plotting.figure.multi_polygons` function.
+            :func:`~bokeh.plotting.figure.polygons` function.
 
         Example:
 

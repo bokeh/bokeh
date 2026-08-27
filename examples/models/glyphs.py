@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import embed
 from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, Column,
                           ColumnDataSource, Ellipse, Grid, HoverTool, ImageURL,
-                          Line, LinearAxis, MultiLine, MultiPolygons, Paragraph,
+                          Line, LinearAxis, MultiLine, Paragraph,
                           Patch, Patches, Plot, Quad, Quadratic, Ray, Rect,
                           Scatter, Segment, TabPanel, Tabs, Text, Wedge)
 from bokeh.util.browser import view
@@ -30,8 +30,6 @@ source = ColumnDataSource(dict(
     radii = radii,
     xs = xs,
     ys = ys,
-    xsss = [[[x]] for x in xs],
-    ysss = [[[y]] for y in ys],
     xp02 = x + 0.2,
     xp01 = x + 0.1,
     xm01 = x - 0.1,
@@ -54,7 +52,6 @@ glyphs = [
     ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=value("https://static.bokeh.org/logos/logo.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
     ("multi_line", MultiLine(xs="xs", ys="ys", line_color="#8073AC", line_width=2)),
-    ("multi_polygons", MultiPolygons(xs="xsss", ys="ysss", line_color="#8073AC", fill_color="#FB9A99", line_width=2)),
     ("patch", Patch(x="x", y="y", fill_color="#A6CEE3")),
     ("patches", Patches(xs="xs", ys="ys", fill_color="#FB9A99")),
     ("quad", Quad(left="x", right="xp01", top="y", bottom="ym01", fill_color="#B3DE69")),

@@ -71,6 +71,11 @@ class TestGraphRenderer:
         assert renderer.selection_target == "nodes"
         assert renderer.inspection_target == "edges"
 
+    def test_default_edge_path_provider(self) -> None:
+        renderer = bmr.GraphRenderer()
+
+        assert renderer.edge_path_provider.__class__.__name__ == "StraightEdgePathProvider"
+
     def test_rejects_mismatched_sources(self) -> None:
         source = GraphDataSource()
         node_renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(index=[])), glyph=Circle())

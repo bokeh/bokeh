@@ -43,7 +43,6 @@ from ..core.property.data_class import Dataclass
 from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance, InstanceDefault
-from ..core.property.json import JSON
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
 from ..core.property.readonly import Readonly
@@ -67,11 +66,10 @@ if TYPE_CHECKING:
 
 __all__ = (
     'AjaxDataSource',
-    'CDSView',
     'ColumnarDataSource',
     'ColumnDataSource',
     'DataSource',
-    'GeoJSONDataSource',
+    'DataView',
     'GeometryDataSource',
     'GraphDataSource',
     'IndexedDataSource',
@@ -822,13 +820,28 @@ def _rows_source(rows: Iterable[Mapping[str, Any]]) -> ColumnDataSource:
         columns[field] = values
     return ColumnDataSource(columns)
 
+def _dataframe_source(frame: Any, aliases: Mapping[str, str]) -> ColumnDataSource:
+    import narwhals.stable.v1 as nw
+
+    native_columns = set(nw.from_native(frame, eager_only=True).columns)
+    columns = ColumnDataSource._data_from_df(frame)
+    topology_fields = set(aliases) | set(aliases.values())
+    if native_columns & topology_fields:
+        # A dataframe index is materialized as an extra column by CDS. When an
+        # explicit graph identifier/end-point column is present, it is the
+        # topology source of truth and the generated index must not compete
+        # with its canonical name.
+        for generated in set(columns) - native_columns:
+            columns.pop(generated)
+    return _column_source(columns, aliases)
+
 def _node_source(nodes: Any) -> IndexedDataSource:
     if isinstance(nodes, IndexedDataSource):
         return nodes
 
     import narwhals.stable.v1 as nw
     if uses_pandas(nodes) or nw.dependencies.is_into_dataframe(nodes):
-        return ColumnDataSource(nodes)
+        return _dataframe_source(nodes, {"id": "index"})
 
     if isinstance(nodes, Mapping):
         if not nodes:
@@ -870,7 +883,7 @@ def _edge_source(edges: Any) -> IndexedDataSource:
 
     import narwhals.stable.v1 as nw
     if uses_pandas(edges) or nw.dependencies.is_into_dataframe(edges):
-        return ColumnDataSource(edges)
+        return _dataframe_source(edges, {"source": "start", "target": "end"})
 
     if isinstance(edges, Mapping):
         if not edges:
@@ -1008,6 +1021,18 @@ def _geometry_records(value: Any) -> tuple[list[dict[str, Any] | None], dict[str
         if geo_interface is not None:
             value = geo_interface
 
+    if isinstance(value, Mapping) and "geometry" not in value and "geometries" in value and "data" in value:
+        raw_geometries = value["geometries"]
+        raw_data = value["data"]
+        if not isinstance(raw_data, Mapping):
+            raise ValueError("geometry record data must be a mapping of aligned fields")
+        geometries = [_geometry_mapping(geometry) for geometry in raw_geometries]
+        data = {field: list(values) for field, values in raw_data.items()}
+        lengths = {len(values) for values in data.values()}
+        if len(lengths) > 1 or (lengths and lengths != {len(geometries)}):
+            raise ValueError("geometry attributes must have the same length as geometries")
+        return geometries, data
+
     if isinstance(value, Mapping):
         kind = value.get("type")
         if kind == "FeatureCollection":
@@ -1094,6 +1119,20 @@ class GeometryDataSource(IndexedDataSource):
 
         super().__init__(geometries=geometries, data=data, **kwargs)
 
+    def replace(self, data: Any, *, setter: Setter | None = None) -> None:
+        ''' Replace all geometry records and aligned attributes.
+
+        ``data`` accepts the same GeoJSON, ``__geo_interface__``, and natural
+        geometry-record inputs as the constructor.
+        '''
+        geometries, attributes = _geometry_records(data)
+        records = {"geometries": geometries, "data": attributes}
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnDataChangedEvent
+            hint = ColumnDataChangedEvent(self.document, self, "records", records, setter=setter)
+        self._set_records(geometries, attributes, hint=hint, setter=setter)
+
     geometries = Seq(AnyVal, default=[], help="""
     GeoJSON geometry mappings, one per selectable feature.
     """)
@@ -1114,6 +1153,43 @@ class GeometryDataSource(IndexedDataSource):
     def length(self) -> int:
         return len(self.geometries)
 
+    def add(self, data: Sequence[Any], name: str) -> str:
+        ''' Add an attribute field aligned with the geometry records. '''
+        if name in {"geometry", "x", "y", "z", "xs", "ys", "zs"}:
+            raise ValueError(f"geometry field {name!r} is reserved")
+        if len(data) != self.length:
+            raise ValueError(f"attribute {name!r} must have the same length as geometries")
+        self.data[name] = data
+        return name
+
+    def _set_records(self, geometries: Sequence[Any], data: Mapping[str, Sequence[Any]], *,
+            hint: Any = None, setter: Setter | None = None) -> None:
+        old_geometries = list(self.geometries)
+        old_data = {field: list(values) for field, values in self.data.items()}
+
+        # Keep both public properties consistent while one composite document
+        # event carries the change to a server or notebook client.
+        list.clear(self.geometries)
+        list.extend(self.geometries, geometries)
+        dict.clear(self.data)
+        dict.update(self.data, data)
+
+        def invoke() -> None:
+            for attr, old, new in (
+                ("geometries", old_geometries, self.geometries),
+                ("data", old_data, self.data),
+            ):
+                for callback in self._callbacks.get(attr, []):
+                    callback(attr, old, new)
+
+        if self.document is None:
+            invoke()
+        else:
+            self.document.callbacks.notify_change(
+                self, "geometries", old_geometries, self.geometries,
+                hint=hint, setter=setter, callback_invoker=invoke,
+            )
+
     def stream(self, new_data: Any, rollover: int | None = None, setter: Setter | None = None) -> None:
         ''' Append geometry records and attributes, optionally retaining only
         the newest ``rollover`` records.
@@ -1122,23 +1198,23 @@ class GeometryDataSource(IndexedDataSource):
         :meth:`~bokeh.models.sources.ColumnDataSource.stream` and synchronizes
         through normal model property events in server applications.
         '''
+        self._stream(new_data, rollover, setter)
+
+    def _stream(self, new_data: Any, rollover: int | None = None, setter: Setter | None = None) -> None:
         geometries, data = _geometry_records(new_data)
         existing_fields = set(self.data)
         new_fields = set(data)
-        if existing_fields and new_fields != existing_fields:
-            missing = sorted(existing_fields - new_fields)
-            extra = sorted(new_fields - existing_fields)
-            details = []
-            if missing:
-                details.append(f"missing: {', '.join(missing)}")
-            if extra:
-                details.append(f"extra: {', '.join(extra)}")
-            raise ValueError(f"Must stream updates to all existing attributes ({', '.join(details)})")
+        missing = sorted(existing_fields - new_fields)
+        if missing and geometries:
+            raise ValueError(f"Must stream updates to all existing attributes (missing: {', '.join(missing)})")
 
         combined_geometries = [*self.geometries, *geometries]  # pyright: ignore[reportGeneralTypeIssues]
         combined_data = {
-            field: [*self.data.get(field, []), *values]
-            for field, values in data.items()
+            field: [
+                *self.data.get(field, [None] * self.length),
+                *data.get(field, [None] * len(geometries)),
+            ]
+            for field in existing_fields | new_fields
         }
         if rollover is not None:
             if rollover < 0:
@@ -1149,8 +1225,18 @@ class GeometryDataSource(IndexedDataSource):
                 for field, values in combined_data.items()
             }
 
-        self.set_from_json("geometries", combined_geometries, setter=setter)
-        self.set_from_json("data", combined_data, setter=setter)
+        records = [
+            {
+                "geometry": geometry,
+                **{field: values[index] for field, values in data.items()},
+            }
+            for index, geometry in enumerate(geometries)
+        ]
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnsStreamedEvent
+            hint = ColumnsStreamedEvent(self.document, self, "records", records, rollover, setter)
+        self._set_records(combined_geometries, combined_data, hint=hint, setter=setter)
 
     def patch(self, patches: Mapping[str, Sequence[tuple[int, Any]]], setter: Setter | None = None) -> None:
         ''' Replace complete geometry or attribute values at feature indices. '''
@@ -1161,25 +1247,35 @@ class GeometryDataSource(IndexedDataSource):
 
         geometries = list(self.geometries)
         data = {field: list(values) for field, values in self.data.items()}
+        normalized_patches: dict[str, list[tuple[int, Any]]] = {}
         for field, changes in patches.items():
             values = geometries if field == "geometry" else data[field]
+            normalized = normalized_patches[field] = []
             for index, value in changes:
                 if index < 0 or index >= self.length:
                     raise ValueError(f"Out-of bounds index ({index}) in patch for field: {field}")
-                values[index] = _geometry_mapping(value) if field == "geometry" else value
+                value = _geometry_mapping(value) if field == "geometry" else value
+                values[index] = value
+                normalized.append((index, value))
 
-        if "geometry" in patches:
-            self.set_from_json("geometries", geometries, setter=setter)
-        if set(patches) - {"geometry"}:
-            self.set_from_json("data", data, setter=setter)
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnsPatchedEvent
+            hint = ColumnsPatchedEvent(self.document, self, "records", normalized_patches, setter)
+        self._set_records(geometries, data, hint=hint, setter=setter)
 
-class CDSView(Model):
-    ''' A view into a ``ColumnDataSource`` that represents a row-wise subset.
+class DataView(Model):
+    ''' A filtered projection over the logical items of an indexed data source.
 
+    A ``DataView`` is independent of physical storage. Its indices refer to the
+    primary item axis exposed by an ``IndexedDataSource``: rows for a columnar
+    source, features for a geometry source, or nodes and edges for the indexed
+    child sources of a graph.
     '''
 
     filter = Instance(Filter, default=InstanceDefault(AllIndices), help="""
-    Defines the subset of indices to use from the data source this view applies to.
+    Defines the subset of logical item indices to use from the data source this
+    view applies to.
 
     By default all indices are used (``AllIndices`` filter). This can be changed by
     using specialized filters like ``IndexFilter``, ``BooleanFilter``, etc. Filters
@@ -1190,32 +1286,7 @@ class CDSView(Model):
     .. code-block:: python
 
         # filters everything but indexes 10 and 11
-        cds_view.filter &= ~IndexFilter(indices=[10, 11])
-    """)
-
-class GeoJSONDataSource(GeometryDataSource):
-    ''' A geometry source populated from a GeoJSON document.
-
-    Geometry hierarchy is retained, including Polygon holes and every member
-    of a MultiPolygon. Feature properties are exposed as attribute fields.
-
-    '''
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        geojson = kwargs.get("geojson")
-        if geojson is not None and "geometries" not in kwargs and "data" not in kwargs:
-            geometries, data = _geometry_records(geojson)
-            kwargs["geometries"] = geometries
-            kwargs["data"] = data
-        super().__init__(*args, **kwargs)
-        self.on_change("geojson", self._update_geojson)
-
-    def _update_geojson(self, attr: str, old: Any, new: Any) -> None:
-        geometries, data = _geometry_records(new)
-        self.update(geometries=geometries, data=data)
-
-    geojson = Required(JSON, help="""
-    GeoJSON geometry, feature, GeometryCollection, or FeatureCollection.
+        data_view.filter &= ~IndexFilter(indices=[10, 11])
     """)
 
 @abstract

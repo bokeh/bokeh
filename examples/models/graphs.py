@@ -20,7 +20,8 @@ from bokeh.plotting import from_networkx
 G = nx.karate_club_graph()
 
 
-def create_graph(layout_func, policy=None, *, selection_target="nodes", inspection_target="nodes", **kwargs):
+def create_graph(layout_func, *, selection_policy=None, inspection_policy=None,
+        selection_target="nodes", inspection_target="nodes", **kwargs):
 
     plot = Plot(width=400, height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
     graph_renderer = from_networkx(G, layout_func, **kwargs)
@@ -37,40 +38,51 @@ def create_graph(layout_func, policy=None, *, selection_target="nodes", inspecti
 
     graph_renderer.selection_target = selection_target
     graph_renderer.inspection_target = inspection_target
-    if policy is not None:
-        graph_renderer.data_source.selection_policy = policy
+    if selection_policy is not None:
+        graph_renderer.data_source.selection_policy = selection_policy
+    if inspection_policy is not None:
+        graph_renderer.inspection_policy = inspection_policy
 
     plot.renderers.append(graph_renderer)
 
     return plot
 
 
-plot_1 = create_graph(nx.circular_layout, GraphSelectionPolicy(include_incident_edges=True), scale=1, center=(0, 0))
+plot_1 = create_graph(nx.circular_layout,
+                      inspection_policy=GraphSelectionPolicy(include_incident_edges=True),
+                      scale=1, center=(0, 0))
 plot_1.title.text = "Circular Layout (node inspection includes incident edges)"
 plot_1.add_tools(HoverTool(tooltips=None))
 
-plot_2 = create_graph(nx.spring_layout, GraphSelectionPolicy(include_incident_edges=True), scale=2, center=(0, 0))
+plot_2 = create_graph(nx.spring_layout,
+                      selection_policy=GraphSelectionPolicy(include_incident_edges=True),
+                      scale=2, center=(0, 0))
 plot_2.title.text = "Spring Layout (node selection includes incident edges)"
 plot_2.add_tools(TapTool(), BoxSelectTool())
 
-plot_3 = create_graph(nx.random_layout, GraphSelectionPolicy(include_end_nodes=True), inspection_target="edges", center=(0, 0))
+plot_3 = create_graph(nx.random_layout,
+                      inspection_policy=GraphSelectionPolicy(include_end_nodes=True),
+                      inspection_target="edges", center=(0, 0))
 plot_3.title.text = "Random Layout (edge inspection includes endpoints)"
 plot_3.add_tools(HoverTool(tooltips=None))
 
 plot_4 = create_graph(
-    nx.fruchterman_reingold_layout, GraphSelectionPolicy(include_end_nodes=True),
+    nx.fruchterman_reingold_layout,
+    selection_policy=GraphSelectionPolicy(include_end_nodes=True),
     selection_target="edges", scale=2, center=(0, 0), dim=2,
 )
 plot_4.title.text = "FR Layout (edge selection includes endpoints)"
 plot_4.add_tools(TapTool())
 
-plot_5 = create_graph(nx.circular_layout, GraphSelectionPolicy(node_hops=1), scale=1, center=(0, 0))
+plot_5 = create_graph(nx.circular_layout,
+                      inspection_policy=GraphSelectionPolicy(node_hops=1),
+                      scale=1, center=(0, 0))
 plot_5.title.text = "Circular Layout (one-hop node inspection)"
 plot_5.add_tools(HoverTool(tooltips=None))
 
 plot_6 = create_graph(
     nx.fruchterman_reingold_layout,
-    GraphSelectionPolicy(node_hops=2, node_hops_mode="exact", include_direct=False),
+    selection_policy=GraphSelectionPolicy(node_hops=2, node_hops_mode="exact", include_direct=False),
     scale=2, center=(0, 0), dim=2,
 )
 plot_6.title.text = "FR Layout (exactly two hops from selected node)"

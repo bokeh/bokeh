@@ -58,9 +58,9 @@ class Selection(Model):
     selection on a ``Circle`` glyph, this list records the indices of which
     individual circles are selected.
 
-    For "multi" glyphs such as ``Patches``, ``MultiLine``, ``MultiPolygons``,
+    For "multi" glyphs such as ``Patches``, ``MultiLine``, and ``Polygons``,
     etc, this list records the indices of which entire sub-items are selected.
-    For example, which individual polygons of a ``MultiPolygon`` are selected.
+    For example, which feature records of a ``Polygons`` glyph are selected.
     """)
 
     line_indices = Seq(Int, default=[], help="""
@@ -89,11 +89,11 @@ class Selection(Model):
 class SelectionPolicy(Model):
     ''' Control how hits from renderers sharing a data source are combined.
 
-    ``mode="union"`` selects a record hit by any renderer. With
-    ``mode="intersect"``, a record must be hit by every renderer.
+    ``combine="union"`` selects a record hit by any renderer. With
+    ``combine="intersection"``, a record must be hit by every renderer.
     '''
 
-    mode = Enum("union", "intersect", default="union", help="""
+    combine = Enum("union", "intersection", default="union", help="""
     How to combine hit-test results from renderers sharing a data source.
     """)
 

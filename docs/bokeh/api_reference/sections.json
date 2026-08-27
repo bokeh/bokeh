@@ -174,7 +174,6 @@
       "MathMLGlyph",
       "MathTextGlyph",
       "MultiLine",
-      "MultiPolygons",
       "Ngon",
       "Patch",
       "Patches",
@@ -211,12 +210,20 @@
     "slug": "graphs",
     "title": "Graphs",
     "classes": [
+      "ArcEdgePathProvider",
+      "BezierEdgePathProvider",
+      "CircularLayoutProvider",
       "EdgeCoordinates",
       "EdgePointCoordinates",
+      "EdgePathProvider",
+      "ForceDirectedLayoutProvider",
       "GraphCoordinates",
+      "GridLayoutProvider",
       "LayoutProvider",
       "NodeCoordinates",
-      "StaticLayoutProvider"
+      "OrthogonalEdgePathProvider",
+      "StaticLayoutProvider",
+      "StraightEdgePathProvider"
     ]
   },
   {
@@ -368,11 +375,10 @@
     "title": "Sources",
     "classes": [
       "AjaxDataSource",
-      "CDSView",
+      "DataView",
       "ColumnarDataSource",
       "ColumnDataSource",
       "DataSource",
-      "GeoJSONDataSource",
       "GeometryDataSource",
       "GraphDataSource",
       "IndexedDataSource",

@@ -1,11 +1,11 @@
 from bokeh.layouts import gridplot
-from bokeh.models import BooleanFilter, CDSView, ColumnDataSource
+from bokeh.models import BooleanFilter, DataView, ColumnDataSource
 from bokeh.plotting import figure, show
 
 source = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 4, 5]))
 
 bools = [True if y_val > 2 else False for y_val in source.data['y']]
-view = CDSView(filter=BooleanFilter(bools))
+view = DataView(filter=BooleanFilter(bools))
 
 TOOLS = "box_select,hover,reset"
 

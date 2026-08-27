@@ -18,7 +18,7 @@ from numpy import array, cos, cumsum, hstack, linspace, pi, roll, sin
 from bokeh.driving import repeat
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import CDSView, ColumnDataSource, IndexFilter
+from bokeh.models import DataView, ColumnDataSource, IndexFilter
 from bokeh.plotting import figure
 
 palette = ("#08519c", "#3182bd", "#6baed6", "#bdd7e7")
@@ -82,7 +82,7 @@ sum_plot.circle("xsum-circle", "ysum-circle", radius="r",
 
 sum_plot.scatter("xsum-dot", "ysum-dot", size=5, color="color", source=items_source)
 
-segment_view = CDSView(filter=IndexFilter([3]))
+segment_view = DataView(filter=IndexFilter([3]))
 sum_plot.segment(x0="xsum-dot", y0="ysum-dot", x1=2.5, y1="ysum-dot",
                  color="orange", source=items_source, view=segment_view)
 

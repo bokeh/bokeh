@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
-import type {GlyphRenderer} from "../renderers/glyph_renderer"
+import type {AnyGlyphRenderer} from "../renderers/glyph_renderer"
 import {AlternationPolicy, Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
 import type {VAlign, HAlign} from "core/enums"
 import type * as visuals from "core/visuals"
@@ -624,7 +624,7 @@ export class LegendView extends AnnotationView {
     return this.model.click_policy != "none" || dict(this.model.js_event_callbacks).has("legend_item_click")
   }
 
-  get click_policy(): (r: GlyphRenderer) => void {
+  get click_policy(): (r: AnyGlyphRenderer) => void {
     switch (this.model.click_policy) {
       case "hide": return (r) => r.visible = !r.visible
       case "mute": return (r) => r.muted = !r.muted

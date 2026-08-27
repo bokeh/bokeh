@@ -15,7 +15,7 @@ import numpy as np
 
 # Bokeh imports
 from ..models import Plot
-from .glyph_api import LineArgs, MultiLineArgs, MultiPolygonsArgs
+from .glyph_api import LineArgs, MultiLineArgs, PolygonsArgs
 
 def add_line_geometries(
         p: Plot,
@@ -28,7 +28,7 @@ def add_polygon_geometries(
         p: Plot,
         projection: ccrs.Projection,
         geometries_collection: cfeature.NaturalEarthFeature,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
+        **poly_kwargs: Unpack[PolygonsArgs],
     ) -> Plot: ...
 
 def add_borders(
@@ -49,21 +49,21 @@ def add_land(
         p: Plot,
         projection: ccrs.Projection,
         scale: str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
+        **poly_kwargs: Unpack[PolygonsArgs],
     ) -> Plot: ...
 
 def add_lakes(
         p: Plot,
         projection: ccrs.Projection,
         scale: str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
+        **poly_kwargs: Unpack[PolygonsArgs],
     ) -> Plot: ...
 
 def add_ocean(
         p:Plot,
         projection: ccrs.Projection,
         scale: str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
+        **poly_kwargs: Unpack[PolygonsArgs],
     ) -> Plot: ...
 
 def add_rivers(
@@ -90,7 +90,7 @@ def add_states(
         p: Plot,
         projection: ccrs.Projection,
         scale: str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
+        **poly_kwargs: Unpack[PolygonsArgs],
     ) -> Plot: ...
 
 #-----------------------------------------------------------------------------
@@ -106,12 +106,11 @@ def _collect_polygon_geometries(
         projection: ccrs.Projection,
         geometries_collection: cfeature.NaturalEarthFeature,
         **kwargs: Any,
-    )  -> tuple[list[list[np.ndarray]], list[list[np.ndarray]], Any]: ...
+    ) -> tuple[list[dict[str, Any]], Any]: ...
 
 def _collect_lines_from_polygons(
-        polygon_xs:list[list[np.ndarray]],
-        polygon_ys:list[list[np.ndarray]],
-    ) -> tuple[list[np.ndarray], list[np.ndarray]]: ...
+        geometries: list[dict[str, Any]],
+    ) -> tuple[list[list[float]], list[list[float]]]: ...
 
 #-----------------------------------------------------------------------------
 # Code
