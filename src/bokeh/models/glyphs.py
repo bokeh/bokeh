@@ -122,7 +122,6 @@ __all__ = (
     'MathMLGlyph',
     'MathTextGlyph',
     'MultiLine',
-    'MultiPolygons',
     'Ngon',
     'Patch',
     'Patches',
@@ -998,52 +997,6 @@ class MultiLine(Glyph, LineGlyph):
 
     line_props = Include(LineProps, help="""
     The {prop} values for the lines.
-    """)
-
-class MultiPolygons(Glyph, LineGlyph, FillGlyph, HatchGlyph):
-    ''' Render several MultiPolygon.
-
-    Modeled on geoJSON - the data for the ``MultiPolygons`` glyph is
-    different in that the vector of values is not a vector of scalars.
-    Rather, it is a "list of lists of lists of lists".
-
-    During box selection only multi-polygons entirely contained in the
-    selection box will be included.
-
-    '''
-
-    __example__ = "examples/reference/models/MultiPolygons.py"
-
-    _args = ('xs', 'ys')
-
-    xs = NumberSpec(default=field("xs"), help="""
-    The x-coordinates for all the patches, given as a nested list.
-
-    .. note::
-        Each item in ``MultiPolygons`` represents one MultiPolygon and each
-        MultiPolygon is comprised of ``n`` Polygons. Each Polygon is made of
-        one exterior ring optionally followed by ``m`` interior rings (holes).
-    """)
-
-    ys = NumberSpec(default=field("ys"), help="""
-    The y-coordinates for all the patches, given as a "list of lists".
-
-    .. note::
-        Each item in ``MultiPolygons`` represents one MultiPolygon and each
-        MultiPolygon is comprised of ``n`` Polygons. Each Polygon is made of
-        one exterior ring optionally followed by ``m`` interior rings (holes).
-    """)
-
-    line_props = Include(LineProps, help="""
-    The {prop} values for the multipolygons.
-    """)
-
-    fill_props = Include(FillProps, help="""
-    The {prop} values for the multipolygons.
-    """)
-
-    hatch_props = Include(HatchProps, help="""
-    The {prop} values for the multipolygons.
     """)
 
 class Ngon(RadialGlyph):

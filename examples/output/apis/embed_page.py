@@ -3,8 +3,8 @@ import yaml
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.models import (
-    CDSView,
     ColumnDataSource,
+    DataView,
     DataRange1d,
     Grid,
     HoverTool,
@@ -83,7 +83,7 @@ medal = Scatter(x="MetersBack", y="Year", size=10, fill_color="MedalFill", line_
 medal_renderer = plot.add_glyph(source, medal)
 
 #sprint[sprint.Medal=="gold" * sprint.Year in [1988, 1968, 1936, 1896]]
-view = CDSView(filter=IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index)))
+view = DataView(filter=IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index)))
 plot.add_glyph(source, Text(x="MetersBack", y="Year", x_offset=10, text="Name"), view=view)
 
 plot.add_glyph(source, Text(x=7.5, y=1942, text=value("No Olympics in 1940 or 1944"),

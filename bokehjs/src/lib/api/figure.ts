@@ -15,6 +15,7 @@ import {enumerate} from "core/util/iterator"
 import * as nd from "core/util/ndarray"
 
 import type {Glyph, Scale, Plot, Toolbar} from "./models"
+import type {AnyGlyphRenderer, GlyphRendererWithSource} from "../models/renderers/glyph_renderer"
 import {
   Axis,
   CategoricalAxis,
@@ -27,6 +28,7 @@ import {
   DataRange1d,
   DatetimeAxis,
   FactorRange,
+  GeometryDataSource,
   GlyphRenderer,
   Grid,
   LinearAxis,
@@ -153,9 +155,11 @@ export class SubFigure extends GlyphAPI {
     super()
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
+  _glyph<G extends Glyph, S extends IndexedDataSource = ColumnDataSource>(
+    cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object,
+  ): GlyphRendererWithSource<G, S> {
     const {coordinates} = this
-    return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides})
+    return this.parent._glyph<G, S>(cls, method, positional, args, {coordinates, ...overrides})
   }
 }
 
@@ -564,7 +568,9 @@ export class Figure extends BaseFigure {
     return `the method signature is ${method}(${positional.join(", ")}, args?)`
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
+  _glyph<G extends Glyph, S extends IndexedDataSource = ColumnDataSource>(
+    cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {},
+  ): GlyphRendererWithSource<G, S> {
     let attrs: Attrs & Partial<AuxGlyph>
 
     const n_args = args.length
@@ -598,6 +604,8 @@ export class Figure extends BaseFigure {
     }
 
     attrs = {...attrs, ...overrides}
+    const source_is_internal = attrs._source_is_internal === true
+    delete attrs._source_is_internal
 
     const source = (() => {
       const {source} = attrs
@@ -609,7 +617,9 @@ export class Figure extends BaseFigure {
         return ColumnDataSource.create({data: source})
       }
     })()
-    const data = source instanceof ColumnarDataSource ? clone(source.data) : null
+    const data = source instanceof ColumnarDataSource || (source_is_internal && source instanceof GeometryDataSource)
+      ? clone(source.data)
+      : null
     delete attrs.source
 
     const {view} = attrs
@@ -661,7 +671,15 @@ export class Figure extends BaseFigure {
 
     this._fixup_values(cls, data_dict, attrs)
 
-    if (source instanceof ColumnarDataSource && data != null) {
+    if ((source instanceof ColumnarDataSource || source instanceof GeometryDataSource) && data != null) {
+      if (source instanceof GeometryDataSource) {
+        const length = source.get_length()
+        for (const [field, values] of entries(data)) {
+          if (values.length != length) {
+            throw new Error(`expected '${field}' to have length ${length}, got ${values.length}`)
+          }
+        }
+      }
       source.data = data
     }
 
@@ -676,7 +694,7 @@ export class Figure extends BaseFigure {
     const mglyph = !is_empty(mglyph_ca) ? _make_glyph(cls, attrs, mglyph_ca) : "auto"
 
     const glyph_renderer = GlyphRenderer.create({
-      data_source:        source,
+      data_source:        source as S,
       view,
       glyph,
       nonselection_glyph: nglyph,
@@ -689,25 +707,20 @@ export class Figure extends BaseFigure {
       x_range_name,
       y_range_name,
       coordinates,
-    })
-
-    // GlyphAPI's historic return type promises a columnar source. Keep that
-    // convenience for the usual case while allowing a caller-supplied indexed
-    // source at the renderer boundary.
-    const public_renderer = glyph_renderer as unknown as GlyphRenderer<G>
+    }) as GlyphRendererWithSource<G, S>
 
     if (legend_label != null) {
-      this._handle_legend_label(legend_label, this.legend, public_renderer)
+      this._handle_legend_label(legend_label, this.legend, glyph_renderer)
     }
     if (legend_field != null) {
-      this._handle_legend_field(legend_field, this.legend, public_renderer)
+      this._handle_legend_field(legend_field, this.legend, glyph_renderer)
     }
     if (legend_group != null) {
-      this._handle_legend_group(legend_group, this.legend, public_renderer)
+      this._handle_legend_group(legend_group, this.legend, glyph_renderer)
     }
 
     this.add_renderers(glyph_renderer)
-    return public_renderer
+    return glyph_renderer
   }
 
   static _get_range(range?: Range | [number, number] | ArrayLike<string>): Range {
@@ -822,7 +835,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {
+  _update_legend(legend_item_label: Vector<string>, glyph_renderer: AnyGlyphRenderer): void {
     const {legend} = this
     let added = false
     for (const item of legend.items) {
@@ -847,7 +860,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  protected _handle_legend_label(value: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+  protected _handle_legend_label(value: string, legend: Legend, glyph_renderer: AnyGlyphRenderer): void {
     const label = {value}
     const item = this._find_legend_item(label, legend)
     if (item != null) {
@@ -858,7 +871,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  protected _handle_legend_field(field: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+  protected _handle_legend_field(field: string, legend: Legend, glyph_renderer: AnyGlyphRenderer): void {
     const label = {field}
     const item = this._find_legend_item(label, legend)
     if (item != null) {
@@ -869,7 +882,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+  protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: AnyGlyphRenderer): void {
     const column = glyph_renderer.data_source.get_field(name)
     if (column == null) {
       throw new Error(`field to be grouped does not exist in glyph data source: ${name}`)

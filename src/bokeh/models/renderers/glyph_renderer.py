@@ -33,12 +33,12 @@ from ...core.property.nullable import Nullable
 from ...core.property.primitive import Bool
 from ...core.property.required import Required
 from ...core.validation import error
-from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
+from ...core.validation.errors import BAD_COLUMN_NAME, DATAVIEW_FILTERS_WITH_CONNECTED
 from ..filters import AllIndices
 from ..glyph import ConnectedXYGlyph, Glyph
 from ..graphics import Marking, PathDecoration, PathMarkings
 from ..sources import (
-    CDSView,
+    DataView,
     ColumnDataSource,
     IndexedDataSource,
     WebDataSource,
@@ -66,8 +66,8 @@ class GlyphRenderer(DataRenderer):
 
     '''
 
-    @error(CDSVIEW_FILTERS_WITH_CONNECTED)
-    def _check_cdsview_filters_with_connected(self):
+    @error(DATAVIEW_FILTERS_WITH_CONNECTED)
+    def _check_data_view_filters_with_connected(self):
         if isinstance(self.glyph, ConnectedXYGlyph) and not isinstance(self.view.filter, AllIndices):
             return str(self)
 
@@ -99,13 +99,13 @@ class GlyphRenderer(DataRenderer):
     Local data source to use when rendering glyphs on the plot.
     """)
 
-    view = Instance(CDSView, default=InstanceDefault(CDSView), help="""
+    view = Instance(DataView, default=InstanceDefault(DataView), help="""
     A view into the data source to use when rendering glyphs. A default view
     of the entire data source is created when a view is not passed in during
     initialization.
 
     .. note:
-        Only the default (filterless) CDSView is compatible with glyphs that
+        Only the default (filterless) DataView is compatible with glyphs that
         have connected topology, such as Line and Patch. Setting filters on
         views for these glyphs will result in a warning and undefined behavior.
     """)

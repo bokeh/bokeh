@@ -85,7 +85,7 @@ def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
 
 def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
     """ Adds polygon geometries to a map with respect to a given projection.
-    The polygons are added by the :func:`~bokeh.plotting.figure.multi_polygons`
+    The polygons are added by the :func:`~bokeh.plotting.figure.polygons`
     function to allow holes and islands. To draw the border of the geometries,
     set `draw_polygon_border` to `True`.
 
@@ -101,7 +101,7 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
-                :func:`~bokeh.plotting.figure.multi_polygons` function.
+                :func:`~bokeh.plotting.figure.polygons` function.
 
     Example:
 
@@ -120,10 +120,10 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
     """
     draw_border = poly_kwargs.pop("draw_polygon_border", False)
     border_color= poly_kwargs.pop("polygon_border_color", GEO_FEATURE_COLORS.BORDERS)
-    xs, ys, poly_kwargs = _collect_polygon_geometries(projection, geometries_collection, **poly_kwargs)
-    p.multi_polygons(xs, ys, **poly_kwargs)
+    geometries, poly_kwargs = _collect_polygon_geometries(projection, geometries_collection, **poly_kwargs)
+    p.polygons(geometries, **poly_kwargs)
     if draw_border:
-        xs, ys = _collect_lines_from_polygons(xs, ys)
+        xs, ys = _collect_lines_from_polygons(geometries)
         p.multi_line(xs, ys, color=border_color)
     return p
 
@@ -208,7 +208,7 @@ def add_land(p, projection, scale="110m", **poly_kwargs):
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
-                :func:`~bokeh.plotting.figure.multi_polygons` function.
+                :func:`~bokeh.plotting.figure.polygons` function.
 
     Example:
 
@@ -244,7 +244,7 @@ def add_lakes(p, projection, scale="110m", **poly_kwargs):
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
-                :func:`~bokeh.plotting.figure.multi_polygons` function.
+                :func:`~bokeh.plotting.figure.polygons` function.
 
     Example:
 
@@ -280,7 +280,7 @@ def add_ocean(p, projection, scale="110m", **poly_kwargs):
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
-                :func:`~bokeh.plotting.figure.multi_polygons` function.
+                :func:`~bokeh.plotting.figure.polygons` function.
 
     Example:
 
@@ -413,7 +413,7 @@ def add_states(p, projection, scale="110m", **poly_kwargs):
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
-                :func:`~bokeh.plotting.figure.multi_polygons` function.
+                :func:`~bokeh.plotting.figure.polygons` function.
 
     Example:
 
@@ -469,8 +469,8 @@ def _collect_line_geometries(projection, geometries_collection):
 
 
 def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
-    """ Collects the x and y elements for multi-polygon geometries of a NaturalEarthFeature
-    and transforms the coordinates to fit to a given projection.
+    """ Collects Polygon geometry records from a NaturalEarthFeature and
+    transforms the coordinates to fit a given projection.
     If a color palette of list of colors is given, for each geometry the consecutive color
     is selected and the Keyword Arguments are returned with an updated list for colors.
 
@@ -491,49 +491,46 @@ def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
 
             from bokeh.plotting._geo_feature import _collect_polygon_geometries
 
-            xs, ys, _ = _collect_polygon_geometries(ccrs.Mollweide(), cfeature.LAKES)
+            geometries, _ = _collect_polygon_geometries(ccrs.Mollweide(), cfeature.LAKES)
     """
-    xs = []
-    ys = []
+    geometries = []
     color = kwargs.get("color")
     color_selection = isinstance(color, (list, tuple))
     selected_colors = []
     n_color = len(color) if color_selection else 0
 
     for i, geometry in enumerate(geometries_collection.geometries()):
-        projected_geometrie = projection.project_geometry(geometry, src_crs=ccrs.PlateCarree())
-        for geom in projected_geometrie.geoms:
+        projected_geometry = projection.project_geometry(geometry, src_crs=ccrs.PlateCarree())
+        projected_parts = getattr(projected_geometry, "geoms", (projected_geometry,))
+        for geom in projected_parts:
             x, y = np.array(geom.exterior.xy)
-            x_geom = [x]
-            y_geom = [y]
+            coordinates = [np.column_stack((x, y)).tolist()]
             for interior in geom.interiors:
                 x, y = np.array(interior.coords.xy)
-                x_geom.append(x)
-                y_geom.append(y)
+                coordinates.append(np.column_stack((x, y)).tolist())
 
-            xs.append([x_geom])
-            ys.append([y_geom])
+            geometries.append({"type": "Polygon", "coordinates": coordinates})
             if color_selection:
                 selected_colors.append(color[i%n_color])
     if color_selection:
         kwargs.update(color=selected_colors)
-    return xs, ys, kwargs
+    return geometries, kwargs
 
 
-def _collect_lines_from_polygons(polygon_xs, polygon_ys):
-    """ Collects the outline borders of a multi-polygon and returns it as a list.
-    This can safe some time, if multi-polygons are already transformed to fit to
-    a projection and afterwards the borders are needed.
+def _collect_lines_from_polygons(geometries):
+    """ Collect the exterior rings of Polygon and MultiPolygon geometries.
 
     Args:
-        polygon_xs (list[list[np.array]]): collected polygons for the x coordinate
-        polygon_ys (list[list[np.array]]): collected polygons for the y coordinate
+        geometries (list[dict]): GeoJSON Polygon or MultiPolygon geometries.
     """
     line_xs = []
     line_ys = []
-    for xs, ys in zip(polygon_xs, polygon_ys):
-        line_xs.append(xs[0][0])
-        line_ys.append(ys[0][0])
+    for geometry in geometries:
+        polygons = [geometry["coordinates"]] if geometry["type"] == "Polygon" else geometry["coordinates"]
+        for polygon in polygons:
+            exterior = polygon[0]
+            line_xs.append([position[0] for position in exterior])
+            line_ys.append([position[1] for position in exterior])
     return line_xs, line_ys
 
 #-----------------------------------------------------------------------------

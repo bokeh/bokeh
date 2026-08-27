@@ -1,10 +1,10 @@
 from bokeh.layouts import gridplot
-from bokeh.models import CDSView, ColumnDataSource, GroupFilter
+from bokeh.models import DataView, ColumnDataSource, GroupFilter
 from bokeh.plotting import figure, show
 from bokeh.sampledata.penguins import data
 
 source = ColumnDataSource(data)
-view = CDSView(filter=GroupFilter(column_name="species", group="Adelie"))
+view = DataView(filter=GroupFilter(field_name="species", group="Adelie"))
 
 TOOLS = "box_select,reset,help"
 

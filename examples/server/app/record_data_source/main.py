@@ -3,7 +3,7 @@ from typing import Any
 
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import CDSView, GroupFilter, HoverTool, Slider
+from bokeh.models import DataView, GroupFilter, HoverTool, Slider
 from bokeh.plotting import figure
 
 from .record_data_source import RecordDataSource
@@ -66,7 +66,7 @@ plot.scatter(
     line_color="#ffd166",
     line_width=3,
     source=source,
-    view=CDSView(filter=GroupFilter(column_name="hazardous", group=True)),
+    view=DataView(filter=GroupFilter(field_name="hazardous", group=True)),
 )
 plot.circle(x=0, y=0, radius=0.055, fill_color="#ffd166", line_color=None)
 plot.add_tools(HoverTool(tooltips=[

@@ -43,7 +43,7 @@ from bokeh.core.property.descriptors import UnsetValueError
 from bokeh.layouts import column
 from bokeh.models import (
     BoxZoomTool,
-    CDSView,
+    DataView,
     ColumnDataSource,
     CustomJS,
     DataTable,
@@ -333,9 +333,9 @@ class _BokehStructureGraph:
         ]
         prop_source = ColumnDataSource(self._prop_df)
         model_id = self._node_source.data["index"][0]
-        groupfilter = GroupFilter(column_name="id", group=model_id)
+        groupfilter = GroupFilter(field_name="id", group=model_id)
 
-        data_table2_view = CDSView(filter=groupfilter)
+        data_table2_view = DataView(filter=groupfilter)
         data_table2 = DataTable(
             source=prop_source,
             view=data_table2_view,

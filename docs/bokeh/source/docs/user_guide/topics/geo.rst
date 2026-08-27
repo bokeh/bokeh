@@ -93,21 +93,22 @@ GeoJSON data
 ------------
 
 `GeoJSON`_ is a popular open standard for representing geographical features
-with JSON. It describes points, lines, Polygons, and MultiPolygons as a
+with JSON. It describes Point, LineString, Polygon, and MultiPolygon geometries as a
 collection of features. Each feature can also have a set of properties.
 
-Bokeh's ``GeoJSONDataSource`` retains that geometry hierarchy and exposes
+Bokeh's :class:`~bokeh.models.sources.GeometryDataSource` accepts GeoJSON
+strings and mappings directly. It retains the geometry hierarchy and exposes
 feature properties as fields for vectorized styling, hover tooltips, and
 callbacks. Coordinate fields such as ``x``, ``y``, ``xs``, and ``ys`` are
 provided as virtual views, so existing point and line glyphs continue to work.
-For example:
+Call :meth:`~bokeh.models.sources.GeometryDataSource.replace` to replace the
+source from another GeoJSON document. For example:
 
 .. bokeh-plot:: __REPO__/examples/topics/geo/geojson_source.py
     :source-position: above
 
-For geometry already available as GeoJSON mappings, Shapely objects, GeoPandas
-geometry, or records containing a ``geometry`` value, use
-:class:`~bokeh.models.sources.GeometryDataSource` directly. The
+The same source accepts Shapely objects, GeoPandas geometry, or records
+containing a ``geometry`` value. The
 :func:`~bokeh.plotting.figure.polygons` glyph renders both Polygon and
 MultiPolygon features, including interior rings, while keeping one selection
 index per feature:

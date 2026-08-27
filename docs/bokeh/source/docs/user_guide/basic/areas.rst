@@ -86,9 +86,11 @@ by GeoJSON. A Polygon contains an exterior ring followed by any interior
 rings. A MultiPolygon contains one or more Polygons. Bokeh keeps each top-level
 feature as one selectable item, including all of its holes and disjoint parts.
 
-You can pass geometry mappings or records directly. Records with a ``geometry``
-value can include additional attributes for colors, alpha values, hover
-tooltips, and callbacks. For geometry reused by multiple renderers, construct a
+For a single polygon with one exterior ring, pass parallel ``x`` and ``y``
+coordinate sequences directly. For holes, disjoint parts, or multiple features,
+pass geometry mappings or records. Records with a ``geometry`` value can include
+additional attributes for colors, alpha values, hover tooltips, and callbacks.
+For geometry reused by multiple renderers, construct a
 :class:`~bokeh.models.sources.GeometryDataSource` explicitly.
 
 Simple polygon
@@ -184,7 +186,6 @@ ellipse shapes.
 .. |hstrip|            replace:: :func:`~bokeh.plotting.figure.hstrip`
 .. |line|              replace:: :func:`~bokeh.plotting.figure.line`
 .. |multi_line|        replace:: :func:`~bokeh.plotting.figure.multi_line`
-.. |multi_polygons|    replace:: :func:`~bokeh.plotting.figure.multi_polygons`
 .. |patch|             replace:: :func:`~bokeh.plotting.figure.patch`
 .. |patches|           replace:: :func:`~bokeh.plotting.figure.patches`
 .. |polygons|          replace:: :func:`~bokeh.plotting.figure.polygons`

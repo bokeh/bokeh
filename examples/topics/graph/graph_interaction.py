@@ -29,6 +29,8 @@ graph_renderer.selection_target = "nodes"
 graph_renderer.inspection_target = "edges"
 graph_renderer.data_source.selection_policy = GraphSelectionPolicy(
     include_incident_edges=True,
+)
+graph_renderer.inspection_policy = GraphSelectionPolicy(
     include_end_nodes=True,
 )
 

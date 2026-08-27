@@ -10,8 +10,8 @@ import type {GlyphView} from "../glyphs/glyph"
 import {Glyph} from "../glyphs/glyph"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {IndexedDataSource} from "../sources/indexed_data_source"
-import type {CDSViewView} from "../sources/cds_view"
-import {CDSView} from "../sources/cds_view"
+import type {DataViewView} from "../sources/data_view"
+import {DataView} from "../sources/data_view"
 import type {Color} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
@@ -68,7 +68,7 @@ const muted_defaults: Defaults = {
 export class GlyphRendererView extends DataRendererView {
   declare model: GlyphRenderer
 
-  cds_view: CDSViewView
+  data_view: DataViewView
 
   glyph: GlyphView
   selection_glyph: GlyphView
@@ -84,7 +84,7 @@ export class GlyphRendererView extends DataRendererView {
   override _children_views(): ChildView[] {
     return [
       ...super._children_views(),
-      this.cds_view,
+      this.data_view,
       this.glyph,
       this.selection_glyph,
       this.nonselection_glyph,
@@ -106,7 +106,7 @@ export class GlyphRendererView extends DataRendererView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    this.cds_view = await build_view(this.model.view, {parent: this})
+    this.data_view = await build_view(this.model.view, {parent: this})
 
     const base_glyph = this.model.glyph
     this.glyph = await this.build_glyph_view(base_glyph)
@@ -212,6 +212,7 @@ export class GlyphRendererView extends DataRendererView {
       this.update_data(structural ? undefined : indices))
     this.connect(this.model.data_source.selected.change, render)
     this.connect(this.model.data_source._select, render)
+    this.connect(this.model.data_source._inspect, render)
     if (this.hover_glyph != null) {
       this.connect(this.model.data_source.inspect, () => {
         // XXX: hoping for the best, assuming no in-place mutation
@@ -230,8 +231,8 @@ export class GlyphRendererView extends DataRendererView {
       })
     }
     this.connect(this.model.properties.view.change, async () => {
-      this.cds_view.remove()
-      this.cds_view = await build_view(this.model.view, {parent: this})
+      this.data_view.remove()
+      this.data_view = await build_view(this.model.view, {parent: this})
       await update()
     })
     this.connect(this.model.view.properties.indices.change, update)
@@ -553,7 +554,7 @@ export namespace GlyphRenderer {
     Source extends IndexedDataSource = ColumnarDataSource,
   > = DataRenderer.Props & {
     data_source: p.Property<Source>
-    view: p.Property<CDSView>
+    view: p.Property<DataView>
     glyph: p.Property<BaseGlyph>
     hover_glyph: p.Property<HoverGlyph | null>
     nonselection_glyph: p.Property<NonSelectionGlyph | "auto" | null>
@@ -596,7 +597,7 @@ export class GlyphRenderer<
 
     this.define<GlyphRenderer.Props<Glyph, Glyph, Glyph, Glyph, Glyph, IndexedDataSource>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
       data_source:        [ Ref(IndexedDataSource) ],
-      view:               [ Ref(CDSView), () => CDSView.create() ],
+      view:               [ Ref(DataView), () => DataView.create() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],

@@ -10,8 +10,8 @@ import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
 import type {IndexedDataSource} from "./indexed_data_source"
 
-export class CDSViewView extends View {
-  declare model: CDSView
+export class DataViewView extends View {
+  declare model: DataView
   declare readonly parent: View & {
     readonly data_source: p.Property<IndexedDataSource>
   }
@@ -75,7 +75,7 @@ export class CDSViewView extends View {
   }
 }
 
-export namespace CDSView {
+export namespace DataView {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
@@ -88,20 +88,21 @@ export namespace CDSView {
   }
 }
 
-export interface CDSView extends CDSView.Attrs {}
+export interface DataView extends DataView.Attrs {}
 
-export class CDSView extends Model {
-  declare properties: CDSView.Props
-  declare __view_type__: CDSViewView
+/** A filtered projection over the logical item axis of an IndexedDataSource. */
+export class DataView extends Model {
+  declare properties: DataView.Props
+  declare __view_type__: DataViewView
 
   static {
-    this.prototype.default_view = CDSViewView
+    this.prototype.default_view = DataViewView
 
-    this.define<CDSView.Props>(({Ref}) => ({
+    this.define<DataView.Props>(({Ref}) => ({
       filter: [ Ref(Filter), () => AllIndices.create() ],
     }))
 
-    this.internal<CDSView.Props>(({Ref, Nullable}) => ({
+    this.internal<DataView.Props>(({Ref, Nullable}) => ({
       indices:       [ Ref(Indices) ],
       indices_array: [ Ref(Int32Array), () => new Int32Array(0) ],
       indices_map:   [ Ref(SubsetIndexMapper), () => new SubsetIndexMapper(0) ],

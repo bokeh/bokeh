@@ -45,7 +45,8 @@ __all__ = (
 )
 
 RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
-                 'selection_target', 'inspection_target']
+                 'selection_target', 'inspection_target', 'inspection_policy',
+                 'edge_path_provider']
 
 #-----------------------------------------------------------------------------
 # General API

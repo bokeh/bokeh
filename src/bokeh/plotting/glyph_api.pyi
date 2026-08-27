@@ -26,7 +26,6 @@ from .._specs import (
     MarkerArg,
     NullDistanceArg,
     Number1dArg,
-    Number3dArg,
     NumberArg,
     OutlineShapeNameArg,
     SizeArg,
@@ -58,7 +57,7 @@ from ..models.coordinates import CoordinateMapping
 from ..models.graphics import Marking
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
-from ..models.sources import CDSView, DataDictLike, IndexedDataSource
+from ..models.sources import DataView, DataDictLike, IndexedDataSource
 from ..models.textures import Texture
 
 class AuxVisuals(TypedDict, total=False):
@@ -180,7 +179,7 @@ class AuxGlyphArgs(TypedDict, total=False):
 
     # GlyphRenderer
     source: IndexedDataSource | DataDictLike
-    view: CDSView
+    view: DataView
     muted: bool
 
     legend: Legend
@@ -360,11 +359,6 @@ class MultiLineArgs(GlyphArgs, LineVisuals, total=False):
     # ys: Number1dArg
     pass
 
-class MultiPolygonsArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # xs: Number3dArg
-    # ys: Number3dArg
-    pass
-
 class NgonArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
@@ -385,7 +379,7 @@ class PatchesArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False
     # ys: Number1dArg
     pass
 
-class PolygonsArgs(PatchesArgs, total=False):
+class PolygonsArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     pass
 
 class QuadArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
@@ -686,12 +680,6 @@ class GlyphAPI:
         **kwargs: Unpack[MultiLineArgs],
     ) -> GlyphRenderer[glyphs.MultiLine]: ...
 
-    def multi_polygons(self,
-        xs: Number3dArg = ...,
-        ys: Number3dArg = ...,
-        **kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[glyphs.MultiPolygons]: ...
-
     def ngon(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -713,6 +701,9 @@ class GlyphAPI:
 
     def polygons(self,
         geometry: Any = ...,
+        *,
+        x: Any = ...,
+        y: Any = ...,
         **kwargs: Unpack[PolygonsArgs],
     ) -> GlyphRenderer[glyphs.Polygons]: ...
 

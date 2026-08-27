@@ -5,19 +5,19 @@ import type {HitTestResult} from "core/hittest"
 import type {SelectionMode} from "core/enums"
 import {Enum, NonNegative} from "core/kinds"
 import {uniq} from "core/util/array"
-import {index_of, map} from "core/util/arrayable"
+import {map} from "core/util/arrayable"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
 import type {GraphDataSource} from "../sources/graph_data_source"
 import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {Selection} from "./selection"
 
-export const RendererSelectionMode = Enum("union", "intersect")
-export type RendererSelectionMode = typeof RendererSelectionMode["__type__"]
+export const SelectionCombine = Enum("union", "intersection")
+export type SelectionCombine = typeof SelectionCombine["__type__"]
 
 export namespace SelectionPolicy {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Model.Props & {
-    mode: p.Property<RendererSelectionMode>
+    combine: p.Property<SelectionCombine>
   }
 }
 
@@ -29,7 +29,7 @@ export class SelectionPolicy extends Model {
 
   static {
     this.define<SelectionPolicy.Props>(() => ({
-      mode: [ RendererSelectionMode, "union" ],
+      combine: [ SelectionCombine, "union" ],
     }))
   }
 
@@ -47,7 +47,7 @@ export class SelectionPolicy extends Model {
 
     const [result, ...rest] = results
     for (const other of rest) {
-      if (this.mode == "union") {
+      if (this.combine == "union") {
         result.update_through_union(other)
       } else {
         result.update_through_intersection(other)
@@ -112,12 +112,7 @@ export class GraphSelectionPolicy extends SelectionPolicy {
 
   private _incident_edges(source: GraphDataSource, node_selection: Selection): Selection {
     const node_ids = new Set(map(node_selection.indices, (index) => source.node_ids[index]))
-    const edge_indices = []
-    for (let i = 0; i < source.edge_starts.length; i++) {
-      if (node_ids.has(source.edge_starts[i]) || node_ids.has(source.edge_ends[i])) {
-        edge_indices.push(i)
-      }
-    }
+    const edge_indices = source.incident_edge_indices(node_ids)
     return Selection.create({
       indices: edge_indices,
       multiline_indices: new Map(edge_indices.map((index) => [index, [0]])),
@@ -131,14 +126,11 @@ export class GraphSelectionPolicy extends SelectionPolicy {
 
     for (let depth = 0; depth < this.node_hops; depth++) {
       const next = new Set<unknown>()
-      for (let i = 0; i < source.edge_starts.length; i++) {
-        const start = source.edge_starts[i]
-        const end = source.edge_ends[i]
-        if (this.node_direction != "in" && frontier.has(start) && !visited.has(end)) {
-          next.add(end)
-        }
-        if (this.node_direction != "out" && frontier.has(end) && !visited.has(start)) {
-          next.add(start)
+      for (const id of frontier) {
+        for (const neighbor of source.neighbors(id, this.node_direction)) {
+          if (!visited.has(neighbor)) {
+            next.add(neighbor)
+          }
         }
       }
       for (const id of next) {
@@ -158,7 +150,7 @@ export class GraphSelectionPolicy extends SelectionPolicy {
       }
     }
 
-    const indices = [...node_ids].map((id) => index_of(source.node_ids, id)).filter((index) => index >= 0)
+    const indices = [...node_ids].map((id) => source.node_index(id)).filter((index): index is number => index != null)
     return Selection.create({indices})
   }
 
@@ -167,7 +159,7 @@ export class GraphSelectionPolicy extends SelectionPolicy {
     for (const index of edge_selection.indices) {
       node_ids.push(source.edge_starts[index], source.edge_ends[index])
     }
-    const indices = uniq(node_ids).map((id) => index_of(source.node_ids, id)).filter((index) => index >= 0)
+    const indices = uniq(node_ids).map((id) => source.node_index(id)).filter((index): index is number => index != null)
     return Selection.create({indices})
   }
 

@@ -25,7 +25,7 @@ import pytest
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.document.events import ColumnDataChangedEvent
+from bokeh.document.events import ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent
 from bokeh.models import (
     ColumnDataSource,
     DataTable,
@@ -67,7 +67,10 @@ class TestDataSource:
         ds = RecordDataSource()
         assert isinstance(ds.selected, Selection)
         assert isinstance(ds.selection_policy, SelectionPolicy)
-        assert ds.selection_policy.mode == "union"
+        assert ds.selection_policy.combine == "union"
+
+        ds.selection_policy = SelectionPolicy(combine="intersection")
+        assert ds.selection_policy.combine == "intersection"
 
     def test_base_source_has_no_record_axis(self) -> None:
         class CompositeDataSource(bms.DataSource):
@@ -117,6 +120,35 @@ class TestGraphDataSource:
 
         assert source.nodes.data == dict(index=["alice", "bob"])
         assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_accepts_networkx_like_graphs_directly(self) -> None:
+        class Graph:
+            def nodes(self, *, data):
+                assert data is True
+                return [("alice", {"color": "red"}), ("bob", {"color": "blue"})]
+
+            def edges(self, *, data):
+                assert data is True
+                return [("alice", "bob", {"weight": 2})]
+
+        source = bms.GraphDataSource(Graph())
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    @pytest.mark.skipif(pd is None, reason="requires pandas")
+    def test_normalizes_dataframe_topology_aliases(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=pd.DataFrame({"id": ["alice", "bob"], "color": ["red", "blue"]}),
+            edges=pd.DataFrame({"source": ["alice"], "target": ["bob"], "weight": [2]}),
+        )
+
+        assert list(source.nodes.data["index"]) == ["alice", "bob"]
+        assert list(source.nodes.data["color"]) == ["red", "blue"]
+        assert list(source.edges.data["start"]) == ["alice"]
+        assert list(source.edges.data["end"]) == ["bob"]
+        assert "level_0" not in source.nodes.data
+        assert "index" not in source.edges.data
 
     def test_child_updates_use_normal_document_events(self) -> None:
         source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob")])
@@ -234,8 +266,21 @@ class TestGeometryDataSource:
             {"geometry": {"type": "Point", "coordinates": [3, 4]}, "name": "B"},
         ], setter="session")
 
-        assert len(events) == 2
-        assert all(event.setter == "session" for event in events)
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnsStreamedEvent)
+        assert events[0].attr == "records"
+        assert events[0].setter == "session"
+
+    def test_stream_backfills_new_attributes(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
+        ])
+
+        source.stream([
+            {"geometry": {"type": "Point", "coordinates": [3, 4]}, "name": "B", "kind": "city"},
+        ])
+
+        assert source.data == {"name": ["A", "B"], "kind": [None, "city"]}
 
     def test_patches_geometry_and_attributes(self) -> None:
         source = bms.GeometryDataSource([
@@ -250,6 +295,24 @@ class TestGeometryDataSource:
         assert source.geometries == [{"type": "Point", "coordinates": [3, 4]}]
         assert source.data == {"name": ["B"]}
 
+    def test_patch_uses_one_composite_document_event(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
+        ])
+        document = Document()
+        document.add_root(source)
+        events = []
+        document.on_change(events.append)
+
+        source.patch({
+            "geometry": [(0, {"type": "Point", "coordinates": [3, 4]})],
+            "name": [(0, "B")],
+        })
+
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnsPatchedEvent)
+        assert events[0].attr == "records"
+
     def test_stream_requires_aligned_attributes(self) -> None:
         source = bms.GeometryDataSource([
             {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
@@ -258,9 +321,9 @@ class TestGeometryDataSource:
         with pytest.raises(ValueError, match="missing: name"):
             source.stream([{"type": "Point", "coordinates": [3, 4]}])
 
-class TestGeoJSONDataSource:
-    def test_python_state_is_available_for_server_callbacks(self) -> None:
-        source = bms.GeoJSONDataSource(geojson='''{
+class TestGeometryDataSourceReplacement:
+    def test_replace_accepts_geojson_strings(self) -> None:
+        source = bms.GeometryDataSource('''{
             "type": "FeatureCollection",
             "features": [{
                 "type": "Feature",
@@ -272,10 +335,23 @@ class TestGeoJSONDataSource:
         assert source.geometries == [{"type": "Point", "coordinates": [1, 2]}]
         assert source.data == {"name": ["A"]}
 
-        source.geojson = '{"type": "Point", "coordinates": [3, 4]}'
+        source.replace('{"type": "Point", "coordinates": [3, 4]}')
 
         assert source.geometries == [{"type": "Point", "coordinates": [3, 4]}]
         assert source.data == {}
+
+    def test_replace_uses_one_composite_document_event(self) -> None:
+        source = bms.GeometryDataSource({"type": "Point", "coordinates": [1, 2]})
+        document = Document()
+        document.add_root(source)
+        events = []
+        document.on_change(events.append)
+
+        source.replace({"type": "Point", "coordinates": [3, 4]})
+
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnDataChangedEvent)
+        assert events[0].attr == "records"
 
 class TestColumnDataSource:
     def test_basic(self) -> None:

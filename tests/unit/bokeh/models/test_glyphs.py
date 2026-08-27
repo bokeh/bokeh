@@ -368,19 +368,6 @@ def test_MultiLine() -> None:
     ], LINE, GLYPH)
 
 
-def test_MultiPolygons() -> None:
-    glyph = m.MultiPolygons()
-    assert glyph.xs == field("xs")
-    assert glyph.ys == field("ys")
-    check_line_properties(glyph)
-    check_fill_properties(glyph)
-    check_hatch_properties(glyph)
-    check_properties_existence(glyph, [
-        "xs",
-        "ys",
-    ], FILL, HATCH, LINE, GLYPH)
-
-
 def test_Patch() -> None:
     glyph = m.Patch()
     assert glyph.x == field("x")

@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from ..core.property.dataspec import ColorSpec, DashPattern, DashPatternSpec
-from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer, IndexedDataSource
+from ..models import ColumnDataSource, GlyphRenderer, IndexedDataSource
 from ._legends import pop_legend_kwarg, update_legend
 
 if TYPE_CHECKING:
@@ -237,7 +237,8 @@ def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defa
 #-----------------------------------------------------------------------------
 
 def _convert_data_source(kwargs: Attrs) -> bool:
-    is_user_source = kwargs.get('source', None) is not None
+    is_internal_source = kwargs.pop('_source_is_internal', False)
+    is_user_source = kwargs.get('source', None) is not None and not is_internal_source
     if is_user_source:
         source = kwargs['source']
         if not isinstance(source, IndexedDataSource):
@@ -320,9 +321,12 @@ def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: I
         if is_user_source:
             incompatible_literal_spec_values.append(var)
         else:
-            assert isinstance(source, ColumnarDataSource)
-            source.add(val, name=var)
-            kwargs[var] = var
+            add = getattr(source, "add", None)
+            if add is None:
+                incompatible_literal_spec_values.append(var)
+            else:
+                add(val, name=var)
+                kwargs[var] = var
 
     return incompatible_literal_spec_values
 

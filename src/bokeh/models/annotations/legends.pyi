@@ -63,6 +63,7 @@ from ...util.callback_manager import EventCallback as PyEventCallback
 from ..callbacks import Callback as JsEventCallback
 from ..formatters import TickFormatter
 from ..glyph import Glyph, RadialGlyph
+from ..glyphs import MultiLine, Polygons
 from ..labeling import LabelingPolicy
 from ..mappers import ColorMapper
 from ..ranges import Range
@@ -137,15 +138,15 @@ class ColorBar(BaseColorBar):
     scale_alpha: float = ...
 
 class _ContourColorBarInit(_BaseColorBarInit, total=False):
-    fill_renderer: GlyphRenderer[Glyph]
-    line_renderer: GlyphRenderer[Glyph]
+    fill_renderer: GlyphRenderer[Polygons]
+    line_renderer: GlyphRenderer[MultiLine]
     levels: Sequence[float]
 
 class ContourColorBar(BaseColorBar):
     def __init__(self, **kwargs: Unpack[_ContourColorBarInit]) -> None: ...
 
-    fill_renderer: GlyphRenderer[Glyph] = ...
-    line_renderer: GlyphRenderer[Glyph] = ...
+    fill_renderer: GlyphRenderer[Polygons] = ...
+    line_renderer: GlyphRenderer[MultiLine] = ...
     levels: Sequence[float] = ...
 
 class _LegendItemInit(_ModelInit, total=False):

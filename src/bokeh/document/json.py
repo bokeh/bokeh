@@ -31,7 +31,6 @@ from typing import (
 if TYPE_CHECKING:
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
-    from ..models.sources import DataDict, Patches
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -74,21 +73,21 @@ class ColumnDataChanged(TypedDict):
     kind: Literal["ColumnDataChanged"]
     model: Ref
     attr: str
-    data: DataDict
+    data: Any
     cols: list[str] | None
 
 class ColumnsStreamed(TypedDict):
     kind: Literal["ColumnsStreamed"]
     model: Ref
     attr: str
-    data: DataDict
+    data: Any
     rollover: int | None
 
 class ColumnsPatched(TypedDict):
     kind: Literal["ColumnsPatched"]
     model: Ref
     attr: str
-    patches: Patches
+    patches: Any
 
 type DocumentPatched = (
     MessageSent |

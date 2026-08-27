@@ -27,6 +27,7 @@ export abstract class IndexedDataSource extends DataSource {
   declare properties: IndexedDataSource.Props
 
   readonly _select: Signal0<this> = new Signal0(this, "select")
+  readonly _inspect: Signal0<this> = new Signal0(this, "inspect_changed")
   readonly inspect: Signal<[GlyphRenderer, {geometry: Geometry}], this> = new Signal(this, "inspect")
 
   readonly selection_manager = new IndexedSelectionManager(this)

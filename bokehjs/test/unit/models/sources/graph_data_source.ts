@@ -6,6 +6,7 @@ import type {Index} from "@bokehjs/core/util/templating"
 import {dict, keys, to_object} from "@bokehjs/core/util/object"
 import {isNumber} from "@bokehjs/core/util/types"
 import {IndexedDataSource} from "@bokehjs/models/sources/indexed_data_source"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GraphDataSource} from "@bokehjs/models/sources/graph_data_source"
 
 namespace RecordDataSource {
@@ -97,5 +98,31 @@ describe("GraphDataSource", () => {
     expect(source.edge_starts).to.be.equal(["a"])
     expect(source.edge_ends).to.be.equal(["b"])
     expect(source.edges.get("weight")).to.be.equal([2])
+  })
+
+  it("normalizes missing scalar and nested attributes without undefined values", () => {
+    const source = GraphDataSource.create({
+      nodes: [{id: "a", label: "A", tags: ["one"]}, {id: "b"}],
+    })
+
+    expect(source.nodes.get("label")).to.be.equal(["A", null])
+    expect(source.nodes.get("tags")).to.be.equal([["one"], []])
+  })
+
+  it("rejects mixed scalar and nested graph attributes", () => {
+    expect(() => GraphDataSource.create({
+      nodes: [{id: "a", value: [1]}, {id: "b", value: 2}],
+    })).to.throw(Error, "can't mix scalar and non-scalar values for graph attributes")
+  })
+
+  it("invalidates cached topology when edge data changes", () => {
+    const source = GraphDataSource.create({nodes: [0, 1, 2], edges: [[0, 1]]})
+    expect(source.neighbors(0, "out")).to.be.equal([1])
+
+    expect(source.edges).to.be.instanceof(ColumnDataSource)
+    const edges = source.edges as ColumnDataSource
+    edges.data = {start: [0], end: [2]}
+
+    expect(source.neighbors(0, "out")).to.be.equal([2])
   })
 })

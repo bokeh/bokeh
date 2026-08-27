@@ -91,7 +91,7 @@ class FillData(FillCoords):
         return dict(entries(self))
 
     def as_geometry_data(self) -> tuple[list[dict[str, Any]], dict[str, ArrayLike]]:
-        ''' Convert filled contour coordinates to feature-indexed MultiPolygons. '''
+        ''' Convert filled contour coordinates to feature-indexed MultiPolygon geometries. '''
         geometries = []
         for polygons_xs, polygons_ys in zip(self.xs, self.ys):
             coordinates = []

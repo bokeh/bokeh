@@ -207,11 +207,52 @@ describe("in api/plotting module", () => {
           },
           name: "A",
           type: "region",
-        }])
+        }], {fill_color: ["red"]})
 
         expect(renderer.glyph).to.be.instanceof(Polygons)
         expect(renderer.data_source).to.be.instanceof(GeometryDataSource)
-        expect((renderer.data_source as unknown as GeometryDataSource).data).to.be.equal({name: ["A"], type: ["region"]})
+        expect(renderer.data_source.data).to.be.equal({name: ["A"], type: ["region"], fill_color: ["red"]})
+        expect(renderer.glyph.fill_color).to.be.equal({field: "fill_color"})
+
+        const from_json = figure().polygons(JSON.stringify({
+          type: "Polygon",
+          coordinates: [[[0, 0], [1, 0], [0, 0]]],
+        }))
+        expect(from_json.data_source.geometries).to.be.equal([{
+          type: "Polygon",
+          coordinates: [[[0, 0], [1, 0], [0, 0]]],
+        }])
+
+        const source = GeometryDataSource.create({type: "Polygon", coordinates: []})
+        expect(() => figure().polygons({source, fill_color: ["red"]})).to.throw(
+          Error,
+          "sequence literals cannot be used with a non-columnar data source",
+        )
+      })
+
+      it("should accept simple x and y coordinates for polygons", () => {
+        const p0 = figure().polygons({x: [0, 2, 0], y: [0, 1, 0], fill_color: "red"})
+        expect(p0.data_source.geometries).to.be.equal([{
+          type: "Polygon",
+          coordinates: [[[0, 0], [2, 1], [0, 0]]],
+        }])
+        expect(p0.glyph.fill_color).to.be.equal({value: "red"})
+
+        const p1 = figure().polygons([0, 2, 0], [0, 1, 0], {fill_color: "blue"})
+        expect(p1.data_source.geometries).to.be.equal([{
+          type: "Polygon",
+          coordinates: [[[0, 0], [2, 1], [0, 0]]],
+        }])
+        expect(p1.glyph.fill_color).to.be.equal({value: "blue"})
+
+        expect(() => figure().polygons({x: [0, 1]})).to.throw(
+          Error,
+          "polygon x and y coordinates must be provided together",
+        )
+        expect(() => figure().polygons([0, 1], [0])).to.throw(
+          Error,
+          "polygon x and y coordinates must have the same length",
+        )
       })
     })
 

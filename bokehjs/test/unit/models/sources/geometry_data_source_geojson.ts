@@ -1,8 +1,8 @@
 import {expect} from "#framework/assertions"
 
-import {GeoJSONDataSource} from "@bokehjs/models/sources/geojson_data_source"
+import {GeometryDataSource} from "@bokehjs/models/sources/geometry_data_source"
 
-function materialized_data(source: GeoJSONDataSource) {
+function materialized_data(source: GeometryDataSource) {
   return {
     x: source.get("x"), y: source.get("y"), z: source.get("z"),
     xs: source.get("xs"), ys: source.get("ys"), zs: source.get("zs"),
@@ -10,7 +10,7 @@ function materialized_data(source: GeoJSONDataSource) {
   }
 }
 
-describe("geojson_data_source module", () => {
+describe("geometry GeoJSON ingestion", () => {
 
   describe("geojson is not a GeometryCollection or FeatureCollection", () => {
     const geojson = `{
@@ -19,7 +19,7 @@ describe("geojson_data_source module", () => {
     }`
 
     it("should accept a single geometry", () => {
-      const source = GeoJSONDataSource.create({geojson})
+      const source = GeometryDataSource.create(geojson)
       expect(source.length).to.be.equal(1)
     })
   })
@@ -31,7 +31,7 @@ describe("geojson_data_source module", () => {
     }`
 
     it("should accept an empty collection", () => {
-      const source = GeoJSONDataSource.create({geojson})
+      const source = GeometryDataSource.create(geojson)
       expect(source.length).to.be.equal(0)
     })
   })
@@ -43,7 +43,7 @@ describe("geojson_data_source module", () => {
     }`
 
     it("should accept an empty collection", () => {
-      const source = GeoJSONDataSource.create({geojson})
+      const source = GeometryDataSource.create(geojson)
       expect(source.length).to.be.equal(0)
     })
   })
@@ -57,7 +57,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("add x,y,NaN to data", () => {
       const expected_data = {x: [125.6], y: [10.1], z: [NaN], xs: [[]], ys: [[]], zs: [[]]}
@@ -73,7 +73,7 @@ describe("geojson_data_source module", () => {
           }
         ]
       }`
-      geo.geojson = new_geojson
+      geo.replace(new_geojson)
       const expected_data = {x: [125.6], y: [22], z: [NaN], xs: [[]], ys: [[]], zs: [[]]}
       expect(materialized_data(geo)).to.be.equal(expected_data)
     })
@@ -88,7 +88,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("should add x,y,z to data", () => {
       const expected_data = {x: [125.6], y: [10.1], z: [22], xs: [[]], ys: [[]], zs: [[]]}
@@ -105,7 +105,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("should add xs,ys to data", () => {
       const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
@@ -124,7 +124,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("should add xs,ys to data", () => {
       const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
@@ -144,7 +144,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("should add xs,ys to data", () => {
       const expected_data = {
@@ -166,7 +166,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("should not add anything to data", () => {
       // MultiPoint is not supported. There should also be a console warning (not tested)
@@ -187,7 +187,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("should add xs,ys to datai with NaN in between", () => {
       const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1, NaN, 125.4, 100.2]], ys: [[10.1, 9.2, NaN, 10.2, 9.1]], zs: [[NaN, NaN, NaN, NaN, NaN]]}
@@ -210,7 +210,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("should add xs,ys to datai with NaN in between", () => {
       const expected_data = {
@@ -235,7 +235,7 @@ describe("geojson_data_source module", () => {
     }`
 
     it("should add the properties to the data", () => {
-      const geo = GeoJSONDataSource.create({geojson})
+      const geo = GeometryDataSource.create(geojson)
       const expected_data = {x: [102], y: [33], z: [NaN], xs: [[]], ys: [[]], zs: [[]], color: ["pink"], value: [33]}
       expect(materialized_data(geo)).to.be.equal(expected_data)
     })
@@ -250,7 +250,7 @@ describe("geojson_data_source module", () => {
             }
         ]
       }`
-      const geo = GeoJSONDataSource.create({geojson})
+      const geo = GeometryDataSource.create(geojson)
       const expected_data = {x: [102], y: [33], z: [NaN], xs: [[]], ys: [[]], zs: [[]], color: ["pink"], value: [null]}
       expect(materialized_data(geo)).to.be.equal(expected_data)
     })
@@ -270,7 +270,7 @@ describe("geojson_data_source module", () => {
           }
        ]
     }`
-    const geo = GeoJSONDataSource.create({geojson})
+    const geo = GeometryDataSource.create(geojson)
 
     it("should add the properties to the data with NaN's when they're missing", () => {
       const expected_data = {

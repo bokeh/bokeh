@@ -331,7 +331,6 @@ describe("Defaults", () => {
 
   const skipped_models = new Set([
     "Figure",               // it's complicated ...
-    "GeoJSONDataSource",    // geojson and _update_data()
     "WebDataSource",        // data_url and setup()
     "AjaxDataSource",       // data_url and setup()
     "ServerSentDataSource", // data_url and setup()

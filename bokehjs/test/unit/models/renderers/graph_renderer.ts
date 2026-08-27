@@ -5,8 +5,9 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GraphDataSource} from "@bokehjs/models/sources/graph_data_source"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
+import {GraphSelectionPolicy} from "@bokehjs/models/selections/interaction_policy"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
-import {StaticLayoutProvider} from "@bokehjs/models/graphs"
+import {StaticLayoutProvider, StraightEdgePathProvider} from "@bokehjs/models/graphs"
 import {SegmentView} from "@bokehjs/models/glyphs/segment"
 import {Segment} from "@bokehjs/models/glyphs/segment"
 import {BezierView} from "@bokehjs/models/glyphs/bezier"
@@ -88,6 +89,17 @@ describe("GraphRenderer", () => {
       "GraphRenderer node_renderer and data_source must use the same node source",
     )
   })
+
+  it("configures selection and inspection propagation independently", () => {
+    const selection_policy = GraphSelectionPolicy.create({node_hops: 2})
+    const inspection_policy = GraphSelectionPolicy.create({node_hops: 1})
+    const data_source = GraphDataSource.create({selection_policy})
+    const graph = GraphRenderer.create({data_source, inspection_policy})
+
+    expect(graph.data_source.selection_policy).to.be.equal(selection_policy)
+    expect(graph.inspection_policy).to.be.equal(inspection_policy)
+    expect(graph.inspection_policy).to.not.be.equal(graph.data_source.selection_policy)
+  })
 })
 
 describe("GraphRendererView", () => {
@@ -112,7 +124,8 @@ describe("GraphRendererView", () => {
     ])
     test_graph.layout_provider = test_layout_provider
 
-    const {x, y} = test_graph.layout_provider.node_coordinates.v_compute(test_graph.node_renderer.data_source)
+    const coordinates = test_graph.layout_provider.node_coordinates(test_graph.data_source)
+    const {x, y} = coordinates.v_compute(test_graph.node_renderer.data_source)
     expect(x).to.be.equal(new Float64Array([3, 4, 5, 6]))
     expect(y).to.be.equal(new Float64Array([0, 1, 2, 3]))
   })
@@ -172,6 +185,11 @@ describe("alternate graph edges", () => {
   it("should reject partial Bezier controls", () => {
     const layout = StaticLayoutProvider.create({graph_layout: new Map([[0, [0, 0]], [1, [1, 1]]])})
     const source = ColumnDataSource.create({data: {start: [0], end: [1], cx0: [0.3]}})
-    expect(() => layout.get_edge_control_coordinates(source)).to.throw(Error)
+    const graph_source = GraphDataSource.create({
+      nodes: ColumnDataSource.create({data: {index: [0, 1]}}),
+      edges: source,
+    })
+    const path = StraightEdgePathProvider.create()
+    expect(() => path.get_edge_control_coordinates(graph_source, layout)).to.throw(Error)
   })
 })

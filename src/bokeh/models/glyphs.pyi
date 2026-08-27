@@ -396,16 +396,6 @@ class MultiLine(Glyph, LineProps):
     xs: NumberSpec = ...
     ys: NumberSpec = ...
 
-class _MultiPolygonsInit(_GlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
-    xs: NumberSpec
-    ys: NumberSpec
-
-class MultiPolygons(Glyph, LineProps, FillProps, HatchProps):
-    def __init__(self, **kwargs: Unpack[_MultiPolygonsInit]) -> None: ...
-
-    xs: NumberSpec = ...
-    ys: NumberSpec = ...
-
 class _NgonInit(_RadialGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
     x: NumberSpec
     y: NumberSpec

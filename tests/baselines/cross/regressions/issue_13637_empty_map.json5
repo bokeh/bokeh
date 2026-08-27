@@ -409,7 +409,7 @@
                         type: "set",
                       },
                       syncable: true,
-                      mode: "union",
+                      combine: "union",
                     },
                   },
                   default_values: {
@@ -422,7 +422,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1023",
                 attributes: {
                   name: null,
@@ -662,7 +662,7 @@
                         type: "set",
                       },
                       syncable: true,
-                      mode: "union",
+                      combine: "union",
                     },
                   },
                   default_values: {
@@ -675,7 +675,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1024",
                 attributes: {
                   name: null,

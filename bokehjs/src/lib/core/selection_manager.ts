@@ -74,6 +74,7 @@ export class IndexedSelectionManager extends SelectionManager {
         const inspection = this.get_or_create_inspector(renderer_view.model)
         inspection.update(hit_test_result, true, "replace")
         this.source.setv({inspected: inspection}, {silent: true})
+        this.source._inspect.emit()
         this.source.inspect.emit([renderer_view.model, {geometry}])
       }
     }
@@ -142,7 +143,7 @@ export class GraphSelectionManager extends SelectionManager {
         const next = this.source.selection_policy.expand(this.source, target, hit)
         if (expanded == null) {
           expanded = next
-        } else if (this.source.selection_policy.mode == "union") {
+        } else if (this.source.selection_policy.combine == "union") {
           expanded.nodes.update_through_union(next.nodes)
           expanded.edges.update_through_union(next.edges)
         } else {
@@ -162,13 +163,17 @@ export class GraphSelectionManager extends SelectionManager {
     target: "nodes" | "edges",
     selection: Selection,
     geometry: Geometry,
+    emit: boolean,
   ): void {
     const glyph_view = target == "nodes" ? graph_view.node_view : graph_view.edge_view
     const manager = glyph_view.model.data_source.selection_manager
     const inspection = manager.get_or_create_inspector(glyph_view.model)
     inspection.update(selection, true, "replace")
     glyph_view.model.data_source.setv({inspected: inspection}, {silent: true})
-    glyph_view.model.data_source.inspect.emit([glyph_view.model, {geometry}])
+    glyph_view.model.data_source._inspect.emit()
+    if (emit) {
+      glyph_view.model.data_source.inspect.emit([glyph_view.model, {geometry}])
+    }
   }
 
   inspect(renderer_view: DataRendererView, geometry: Geometry): boolean {
@@ -183,9 +188,9 @@ export class GraphSelectionManager extends SelectionManager {
       return false
     }
 
-    const {nodes, edges} = this.source.selection_policy.expand(this.source, target, direct)
-    this._inspect_component(renderer_view, "nodes", nodes, geometry)
-    this._inspect_component(renderer_view, "edges", edges, geometry)
+    const {nodes, edges} = renderer_view.model.inspection_policy.expand(this.source, target, direct)
+    this._inspect_component(renderer_view, "nodes", nodes, geometry, target == "nodes")
+    this._inspect_component(renderer_view, "edges", edges, geometry, target == "edges")
     return !direct.is_empty()
   }
 

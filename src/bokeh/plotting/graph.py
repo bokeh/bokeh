@@ -19,9 +19,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Sequence
 
-from ..models.graphs import StaticLayoutProvider
+# Bokeh imports
+from ..models.graphs import EdgePathProvider, LayoutProvider, StaticLayoutProvider
 from ..models.renderers import GraphRenderer
 from ..models.sources import ColumnDataSource, GraphDataSource
 
@@ -40,7 +43,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[float]], **kwargs: Any) -> GraphRenderer:
+def from_networkx(
+    graph: nx.Graph,
+    layout_function: LayoutProvider | Callable[..., dict[int | str, Sequence[float]]] | dict[int | str, Sequence[float]],
+    *,
+    edge_path_provider: EdgePathProvider | None = None,
+    **kwargs: Any,
+) -> GraphRenderer:
         '''
         Generate a ``GraphRenderer`` from a ``networkx.Graph`` object and networkx
         layout function. Any keyword arguments will be passed to the
@@ -50,8 +59,12 @@ def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[flo
 
         Args:
             graph (networkx.Graph) : a networkx graph to render
-            layout_function (function or dict) : a networkx layout function or mapping of node keys to positions.
-                The position is a two element sequence containing the x and y coordinate.
+            layout_function (LayoutProvider, function, or dict) : a client-side
+                Bokeh layout provider, a NetworkX layout function, or a mapping
+                of node keys to positions. Positions are two element sequences
+                containing x and y coordinates.
+            edge_path_provider (EdgePathProvider, optional) : an edge path
+                provider used to derive straight or curved edge paths.
 
         Returns:
             instance (GraphRenderer)
@@ -71,9 +84,17 @@ def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[flo
         '''
 
         data_source = GraphDataSource(graph)
-        graph_renderer = GraphRenderer(data_source=data_source)
+        if edge_path_provider is None:
+            graph_renderer = GraphRenderer(data_source=data_source)
+        else:
+            graph_renderer = GraphRenderer(data_source=data_source, edge_path_provider=edge_path_provider)
 
-        if callable(layout_function):
+        if isinstance(layout_function, LayoutProvider):
+            if kwargs:
+                raise ValueError("layout keyword arguments cannot be used with a LayoutProvider")
+            graph_renderer.layout_provider = layout_function
+            return graph_renderer
+        elif callable(layout_function):
             graph_layout = layout_function(graph, **kwargs)
         else:
             graph_layout = layout_function

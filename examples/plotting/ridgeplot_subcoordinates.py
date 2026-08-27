@@ -14,9 +14,9 @@ would you assign to the phrase "Highly likely"*.
 
 .. bokeh-example-metadata::
     :sampledata: perceptions
-    :apis: bokeh.plotting.figure.varea, bokeh.models.sources.ColumnDataSource
+    :apis: bokeh.plotting.figure.polygons
     :refs: :ref:`ug_topics_categorical_offsets`
-    :keywords: alpha, categorical, palette, patch, ridgeline, sub-coordinates, sub-plot
+    :keywords: alpha, categorical, palette, polygon, ridgeline, sub-coordinates, sub-plot
 
 .. _ridgeline plot: https://www.data-to-viz.com/graph/ridgeline.html
 .. _Perceptions of Probability: https://github.com/zonination/perceptions
@@ -26,7 +26,7 @@ import colorcet as cc
 from numpy import linspace
 from scipy.stats import gaussian_kde
 
-from bokeh.models import ColumnDataSource, FixedTicker, PrintfTickFormatter, Range1d
+from bokeh.models import FixedTicker, PrintfTickFormatter, Range1d
 from bokeh.plotting import figure, show
 from bokeh.sampledata.perceptions import probly
 
@@ -34,8 +34,6 @@ cats = list(reversed(probly.keys()))
 palette = [cc.rainbow[i*15] for i in range(17)]
 
 x = linspace(-20, 110, 500)
-source = ColumnDataSource(data=dict(x=x))
-
 p = figure(y_range=cats, width=900, x_range=(-5, 105), tools="hover", toolbar_location=None)
 
 p.hover.tooltips = [
@@ -55,11 +53,8 @@ for i, cat in enumerate(reversed(cats)):
     )
 
     pdf = gaussian_kde(probly[cat])
-    source.add(pdf(x), cat)
-
-    xy.varea(x="x", y1=0, y2=cat,
-             color=palette[i], alpha=0.6, source=source, name=cat)
-    xy.line("x", cat, line_color="black", source=source, name=cat)
+    xy.polygons(x=x, y=pdf(x), color=palette[i], alpha=0.6,
+                line_color="black", name=cat)
 
 p.outline_line_color = None
 p.background_fill_color = "#efefef"

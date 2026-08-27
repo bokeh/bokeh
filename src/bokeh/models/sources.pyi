@@ -31,11 +31,10 @@ from .selections import GraphSelectionPolicy, Selection, SelectionPolicy
 
 __all__ = (
     "AjaxDataSource",
-    "CDSView",
     "ColumnarDataSource",
     "ColumnDataSource",
     "DataSource",
-    "GeoJSONDataSource",
+    "DataView",
     "GeometryDataSource",
     "GraphDataSource",
     "IndexedDataSource",
@@ -114,8 +113,8 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-type GraphNodes = IndexedDataSource | Mapping[Any, Any] | Sequence[Any]
-type GraphEdges = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[Any]
+type GraphNodes = IndexedDataSource | DataDictLike | Mapping[Any, Any] | Sequence[Any]
+type GraphEdges = IndexedDataSource | DataDictLike | Mapping[str, Sequence[Any]] | Sequence[Any]
 
 class _GraphDataSourceInit(_DataSourceInit, total=False):
     graph: Any
@@ -157,24 +156,18 @@ class GeometryDataSource(IndexedDataSource):
     @property
     def length(self) -> int: ...
 
+    def add(self, data: Sequence[Any], name: str) -> str: ...
     def stream(self, new_data: Any, rollover: int | None = ..., setter: Setter | None = ...) -> None: ...
     def patch(self, patches: Mapping[str, Sequence[tuple[int, Any]]], setter: Setter | None = ...) -> None: ...
+    def replace(self, data: Any, *, setter: Setter | None = ...) -> None: ...
 
-class _CDSViewInit(_ModelInit, total=False):
+class _DataViewInit(_ModelInit, total=False):
     filter: Filter
 
-class CDSView(Model):
-    def __init__(self, **kwargs: Unpack[_CDSViewInit]) -> None: ...
+class DataView(Model):
+    def __init__(self, **kwargs: Unpack[_DataViewInit]) -> None: ...
 
     filter: Filter = ...
-
-class _GeoJSONDataSourceInit(_GeometryDataSourceInit, total=False):
-    geojson: JSON
-
-class GeoJSONDataSource(GeometryDataSource):
-    def __init__(self, **kwargs: Unpack[_GeoJSONDataSourceInit]) -> None: ...
-
-    geojson: JSON = ...
 
 class _WebDataSourceInit(_ColumnDataSourceInit, total=False):
     adapter: CustomJS | None

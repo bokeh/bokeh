@@ -44,16 +44,16 @@ from ..models.glyphs import (
     HexTile,
     Line,
     MultiLine,
-    MultiPolygons,
+    Polygons,
     VArea,
     VBar,
 )
-from ..models.graphs import LayoutProvider
+from ..models.graphs import EdgePathProvider, LayoutProvider
 from ..models.plots import Plot, _PlotInit
 from ..models.ranges import Range
 from ..models.renderers import ContourRenderer, GlyphRenderer, GraphRenderer
 from ..models.scales import Scale
-from ..models.sources import DataDictLike, IndexedDataSource
+from ..models.sources import GraphEdges, GraphNodes
 from ..models.tools import (
     Drag,
     GestureTool,
@@ -67,7 +67,7 @@ from .glyph_api import (
     GlyphAPI,
     LineArgs,
     MultiLineArgs,
-    MultiPolygonsArgs,
+    PolygonsArgs,
 )
 
 type EagerDataFrame = IntoDataFrame
@@ -147,9 +147,11 @@ class figure(Plot, GlyphAPI):
 
     def graph(
         self,
-        node_source: IndexedDataSource | DataDictLike,
-        edge_source: IndexedDataSource | DataDictLike,
+        node_source: GraphNodes,
+        edge_source: GraphEdges,
         layout_provider: LayoutProvider,
+        *,
+        edge_path_provider: EdgePathProvider | None = None,
         **kwargs: Any,
     ) -> GraphRenderer: ...
 
@@ -179,22 +181,22 @@ class figure(Plot, GlyphAPI):
         self,
         projection: ccrs.Projection,
         scale:str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[MultiPolygons]: ...
+        **poly_kwargs: Unpack[PolygonsArgs],
+    ) -> GlyphRenderer[Polygons]: ...
 
     def lakes(
         self,
         projection: ccrs.Projection,
         scale:str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[MultiPolygons]: ...
+        **poly_kwargs: Unpack[PolygonsArgs],
+    ) -> GlyphRenderer[Polygons]: ...
 
     def ocean(
         self,
         projection: ccrs.Projection,
         scale:str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[MultiPolygons]: ...
+        **poly_kwargs: Unpack[PolygonsArgs],
+    ) -> GlyphRenderer[Polygons]: ...
 
     def rivers(
         self,
@@ -220,8 +222,8 @@ class figure(Plot, GlyphAPI):
         self,
         projection: ccrs.Projection,
         scale:str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[MultiPolygons]: ...
+        **poly_kwargs: Unpack[PolygonsArgs],
+    ) -> GlyphRenderer[Polygons]: ...
 
 
 def markers() -> None: ...

@@ -3,11 +3,14 @@ import type {
 } from "geojson"
 
 import type * as p from "core/properties"
+import {construct} from "core/has_props"
+import type {HasProps, HasPropsClass, ModelAttrs} from "core/has_props"
 import type {Kind} from "core/kinds"
-import type {Arrayable, Data} from "core/types"
+import type {Arrayable, Attrs, Data} from "core/types"
 import {dict, entries, keys} from "core/util/object"
-import {isArray, isNumber} from "core/util/types"
+import {isArray, isNumber, isPlainObject} from "core/util/types"
 import type {Index} from "core/util/templating"
+import {ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../../document/events"
 import {IndexedDataSource} from "./indexed_data_source"
 
 export type GeometryValue = Geometry | null
@@ -18,8 +21,9 @@ export type GeometryRecords = {
 }
 
 export type GeometryRecord = {geometry: GeometryValue} & {[key: string]: unknown}
+export type GeometryPatchSet = {[key: string]: [number, unknown][]}
 export type GeometryInput =
-  | FeatureCollection | GeometryCollection | Feature | Geometry
+  | string | FeatureCollection | GeometryCollection | Feature | Geometry | GeometryRecord | GeometryRecords
   | (Feature | Geometry | GeometryRecord)[]
 
 export namespace GeometryDataSource {
@@ -33,6 +37,14 @@ export namespace GeometryDataSource {
 }
 
 export interface GeometryDataSource extends GeometryDataSource.Attrs {}
+
+function is_geometry_records(value: unknown): value is GeometryRecords {
+  if (!isPlainObject(value)) {
+    return false
+  }
+  const {geometries, data} = value as {geometries?: unknown, data?: unknown}
+  return isArray(geometries) && isPlainObject(data)
+}
 
 function coordinate_paths(geometry: GeometryValue): Position[][] {
   if (geometry == null) {
@@ -139,6 +151,17 @@ function append_geometry(
 export function geojson_to_geometry_records(
   geojson: GeometryInput,
 ): GeometryRecords {
+  if (typeof geojson == "string") {
+    geojson = JSON.parse(geojson) as Exclude<GeometryInput, string>
+  }
+  if (is_geometry_records(geojson)) {
+    const {geometries, data} = geojson
+    const lengths = new Set(entries(data).map(([_, values]) => values.length))
+    if (lengths.size > 1 || (lengths.size == 1 && !lengths.has(geometries.length))) {
+      throw new Error("geometry attributes must have the same length as geometries")
+    }
+    return {geometries: [...geometries], data: {...data}}
+  }
   const geometries: GeometryValue[] = []
   const rows: {[key: string]: unknown}[] = []
 
@@ -161,19 +184,17 @@ export function geojson_to_geometry_records(
       append(item)
     }
   } else {
-    switch (geojson.type) {
-      case "FeatureCollection":
-        for (const feature of geojson.features) {
-          append(feature)
-        }
-        break
-      case "GeometryCollection":
-        for (const geometry of geojson.geometries) {
-          append(geometry)
-        }
-        break
-      default:
-        append(geojson)
+    const kind = (geojson as {type?: unknown}).type
+    if (kind == "FeatureCollection") {
+      for (const feature of (geojson as FeatureCollection).features) {
+        append(feature)
+      }
+    } else if (kind == "GeometryCollection") {
+      for (const geometry of (geojson as GeometryCollection).geometries) {
+        append(geometry)
+      }
+    } else {
+      append(geojson as Feature | Geometry | GeometryRecord)
     }
   }
 
@@ -185,11 +206,41 @@ export function geojson_to_geometry_records(
   return {geometries, data}
 }
 
+function geometry_rows({geometries, data}: GeometryRecords): GeometryRecord[] {
+  return geometries.map((geometry, i) => {
+    const row: GeometryRecord = {geometry}
+    for (const [field, values] of entries(data)) {
+      row[field] = values[i]
+    }
+    return row
+  })
+}
+
 /** A feature-indexed source retaining natural GeoJSON geometry hierarchy. */
 export class GeometryDataSource extends IndexedDataSource {
   declare properties: GeometryDataSource.Props
 
   private _derived = new Map<string, Arrayable>()
+
+  static override create<T extends GeometryDataSource>(
+    this: HasPropsClass<T>, attrs?: Partial<GeometryDataSource.Attrs> | GeometryInput,
+  ): T
+  static override create<T extends HasProps>(
+    this: HasPropsClass<T>, attrs?: ModelAttrs<T>,
+  ): T
+  static override create<T extends HasProps>(
+    this: HasPropsClass<T>, attrs: Partial<GeometryDataSource.Attrs> | GeometryInput | ModelAttrs<T> = {},
+  ): T {
+    return construct(this, attrs as Attrs)
+  }
+
+  protected constructor(attrs: Partial<GeometryDataSource.Attrs> | GeometryInput = {}) {
+    if (typeof attrs == "string" || isArray(attrs) || ("type" in attrs || "geometry" in attrs)) {
+      super(geojson_to_geometry_records(attrs as GeometryInput) as Partial<GeometryDataSource.Attrs>)
+    } else {
+      super(attrs as Partial<GeometryDataSource.Attrs>)
+    }
+  }
 
   static {
     this.define<GeometryDataSource.Props>(({List, Unknown, Dict, Arrayable, Nullable, Str}) => ({
@@ -201,17 +252,114 @@ export class GeometryDataSource extends IndexedDataSource {
 
   override connect_signals(): void {
     super.connect_signals()
+    this.connect(this.data_changed, ({fields}) => {
+      if (fields == null || fields.some((field) => field == "geometry" || field == "x" || field == "y" || field == "z" || field == "xs" || field == "ys" || field == "zs")) {
+        this._derived.clear()
+      }
+    })
     this.connect(this.properties.geometries.change, () => {
       this._derived.clear()
-      this.data_changed.emit({fields: ["geometry", "x", "y", "z", "xs", "ys", "zs"], structural: true})
-    })
-    this.connect(this.properties.data.change, () => {
-      this.data_changed.emit({fields: keys(this.data), structural: true})
     })
   }
 
   get_length(): number {
     return this.geometries.length
+  }
+
+  replace(input: GeometryInput, {sync}: {sync?: boolean} = {}): void {
+    const records = geojson_to_geometry_records(input)
+    this._clear_watchers()
+    this.properties.geometries.set_value(records.geometries)
+    this.properties.data.set_value(records.data)
+    this._derived.clear()
+    this.data_changed.emit({structural: true})
+    if (this.document != null) {
+      const event = new ColumnDataChangedEvent(this.document, this, "records", records)
+      event.sync = sync ?? true
+      this.document._trigger_on_change(event)
+    }
+  }
+
+  stream(input: GeometryInput, rollover?: number, {sync}: {sync?: boolean} = {}): void {
+    if (rollover != null && rollover < 0) {
+      throw new Error("rollover must be non-negative")
+    }
+
+    const incoming = geojson_to_geometry_records(input)
+    const existing_fields = new Set(keys(this.data))
+    const incoming_fields = new Set(keys(incoming.data))
+    const missing = [...existing_fields].filter((field) => !incoming_fields.has(field))
+    if (missing.length != 0 && incoming.geometries.length != 0) {
+      throw new Error(`must stream updates to all existing attributes (missing: ${missing.sort().join(", ")})`)
+    }
+
+    let geometries = [...this.geometries, ...incoming.geometries]
+    const data: Data = {}
+    const current_data = dict(this.data)
+    const incoming_data = dict(incoming.data)
+    for (const field of new Set([...existing_fields, ...incoming_fields])) {
+      const previous = current_data.get(field) ?? Array(this.length).fill(null)
+      const appended = incoming_data.get(field) ?? Array(incoming.geometries.length).fill(null)
+      data[field] = [...previous, ...appended]
+    }
+
+    if (rollover != null) {
+      geometries = rollover == 0 ? [] : geometries.slice(-rollover)
+      for (const field of keys(data)) {
+        const values = data[field]
+        data[field] = rollover == 0 ? [] : Array.from(values).slice(-rollover)
+      }
+    }
+
+    this._clear_watchers()
+    this.properties.geometries.set_value(geometries)
+    this.properties.data.set_value(data)
+    this._derived.clear()
+    this.streaming.emit()
+    this.data_changed.emit({structural: true})
+    if (this.document != null) {
+      const event = new ColumnsStreamedEvent(this.document, this, "records", geometry_rows(incoming), rollover)
+      event.sync = sync ?? true
+      this.document._trigger_on_change(event)
+    }
+  }
+
+  patch(patches: GeometryPatchSet, {sync}: {sync?: boolean} = {}): void {
+    const valid_fields = new Set(["geometry", ...keys(this.data)])
+    const extra = keys(patches).filter((field) => !valid_fields.has(field))
+    if (extra.length != 0) {
+      throw new Error(`can only patch existing geometry fields (extra: ${extra.sort().join(", ")})`)
+    }
+
+    const geometries = [...this.geometries]
+    const data: Data = {}
+    for (const [field, values] of entries(this.data)) {
+      data[field] = Array.from(values)
+    }
+    const indices = new Set<number>()
+    for (const [field, changes] of entries(patches)) {
+      const values = field == "geometry" ? geometries : data[field]
+      for (const [index, value] of changes) {
+        if (index < 0 || index >= this.length) {
+          throw new Error(`out-of-bounds index (${index}) in patch for field: ${field}`)
+        }
+        values[index] = value
+        indices.add(index)
+      }
+    }
+
+    this._clear_watchers()
+    this.properties.geometries.set_value(geometries)
+    this.properties.data.set_value(data)
+    this._derived.clear()
+    const patched = [...indices]
+    this.patching.emit(patched)
+    this.data_changed.emit({fields: keys(patches), structural: false})
+    if (this.document != null) {
+      const event = new ColumnsPatchedEvent(this.document, this, "records", patches)
+      event.sync = sync ?? true
+      this.document._trigger_on_change(event)
+    }
   }
 
   get_array<T>(name: string): T[] {

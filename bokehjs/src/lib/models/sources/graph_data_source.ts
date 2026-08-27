@@ -8,6 +8,7 @@ import {ColumnDataSource} from "./column_data_source"
 import {DataSource} from "./data_source"
 import {IndexedDataSource} from "./indexed_data_source"
 import {GraphSelectionPolicy} from "../selections/interaction_policy"
+import type {GraphTraversalDirection} from "../selections/interaction_policy"
 
 export namespace GraphDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -32,7 +33,14 @@ function rows_source(records: object[]): ColumnDataSource {
   const fields = new Set(records.flatMap((record) => Object.keys(record)))
   const data: Data = {}
   for (const field of fields) {
-    data[field] = records.map((record) => (record as {[key: string]: unknown})[field])
+    const values = records.map((record) => (record as {[key: string]: unknown})[field])
+    const nested = values.some((value) => isArray(value))
+    if (nested && values.some((value) => value != null && !isArray(value))) {
+      throw new Error("can't mix scalar and non-scalar values for graph attributes")
+    }
+    data[field] = nested
+      ? values.map((value) => value == null ? [] : value) as unknown[][]
+      : values.map((value) => value ?? null)
   }
   return ColumnDataSource.create({data})
 }
@@ -143,6 +151,11 @@ export class GraphDataSource extends DataSource {
     return construct(this, attrs as Attrs)
   }
 
+  private _node_index?: Map<unknown, number>
+  private _out_neighbors?: Map<unknown, unknown[]>
+  private _in_neighbors?: Map<unknown, unknown[]>
+  private _incident_edges?: Map<unknown, number[]>
+
   protected constructor(attrs: GraphDataSource.Init = {}) {
     const {nodes: raw_nodes, edges: raw_edges, ...rest} = attrs
     const nodes = node_source(raw_nodes ?? [])
@@ -160,10 +173,24 @@ export class GraphDataSource extends DataSource {
 
   override connect_signals(): void {
     super.connect_signals()
+    this.connect(this.nodes.change, () => {
+      this._node_index = undefined
+      this.data_changed.emit({path: ["nodes"], structural: true})
+    })
+    this.connect(this.edges.change, () => {
+      this._out_neighbors = undefined
+      this._in_neighbors = undefined
+      this._incident_edges = undefined
+      this.data_changed.emit({path: ["edges"], structural: true})
+    })
     this.connect(this.nodes.data_changed, (change) => {
+      this._node_index = undefined
       this.data_changed.emit({...change, path: ["nodes", ...(change.path ?? [])]})
     })
     this.connect(this.edges.data_changed, (change) => {
+      this._out_neighbors = undefined
+      this._in_neighbors = undefined
+      this._incident_edges = undefined
       this.data_changed.emit({...change, path: ["edges", ...(change.path ?? [])]})
     })
   }
@@ -178,5 +205,63 @@ export class GraphDataSource extends DataSource {
 
   get edge_ends(): Arrayable {
     return this.edges.get_field("end") ?? []
+  }
+
+  node_index(id: unknown): number | undefined {
+    if (this._node_index == null) {
+      this._node_index = new Map()
+      for (let i = 0; i < this.node_ids.length; i++) {
+        if (!this._node_index.has(this.node_ids[i])) {
+          this._node_index.set(this.node_ids[i], i)
+        }
+      }
+    }
+    return this._node_index.get(id)
+  }
+
+  private _build_topology(): void {
+    if (this._out_neighbors != null) {
+      return
+    }
+    this._out_neighbors = new Map()
+    this._in_neighbors = new Map()
+    this._incident_edges = new Map()
+    const append = <T>(mapping: Map<unknown, T[]>, key: unknown, value: T) => {
+      const values = mapping.get(key) ?? []
+      values.push(value)
+      mapping.set(key, values)
+    }
+    for (let i = 0; i < this.edge_starts.length; i++) {
+      const start = this.edge_starts[i]
+      const end = this.edge_ends[i]
+      append(this._out_neighbors, start, end)
+      append(this._in_neighbors, end, start)
+      append(this._incident_edges, start, i)
+      if (end !== start) {
+        append(this._incident_edges, end, i)
+      }
+    }
+  }
+
+  neighbors(id: unknown, direction: GraphTraversalDirection): unknown[] {
+    this._build_topology()
+    if (direction == "out") {
+      return this._out_neighbors!.get(id) ?? []
+    } else if (direction == "in") {
+      return this._in_neighbors!.get(id) ?? []
+    } else {
+      return [...(this._out_neighbors!.get(id) ?? []), ...(this._in_neighbors!.get(id) ?? [])]
+    }
+  }
+
+  incident_edge_indices(node_ids: Iterable<unknown>): number[] {
+    this._build_topology()
+    const indices = new Set<number>()
+    for (const id of node_ids) {
+      for (const index of this._incident_edges!.get(id) ?? []) {
+        indices.add(index)
+      }
+    }
+    return [...indices]
   }
 }

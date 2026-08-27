@@ -60,7 +60,7 @@ p = figure(
     tools="pan,wheel_zoom,reset",
 )
 p.polygons(
-    {"type": "Polygon", "coordinates": [[*zip(xs, ys)]]},
+    x=xs, y=ys,
     fill_color="steelblue", fill_alpha=0.7,
     line_color="navy", line_width=1,
 )

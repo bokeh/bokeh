@@ -19,7 +19,7 @@ from ...model.model import Model, _ModelInit
 from ..comparisons import Comparison
 from ..dom import HTML
 from ..sources import (
-    CDSView,
+    DataView,
     ColumnDataSource,
     DataDictLike,
 )
@@ -193,14 +193,14 @@ class TableColumn(Model):
 
 class _TableWidgetInit(_WidgetInit, total=False):
     source: ColumnDataSource
-    view: CDSView
+    view: DataView
 
 class TableWidget(Widget):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TableWidgetInit]) -> None: ...
 
     source: ColumnDataSource = ...
-    view: CDSView = ...
+    view: DataView = ...
 
 class _DataTableInit(_TableWidgetInit, total=False):
     autosize_mode: AutosizeMode

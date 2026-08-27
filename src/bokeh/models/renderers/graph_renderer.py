@@ -26,7 +26,7 @@ from typing import Any
 
 # Bokeh imports
 from ...core.property.enum import Enum
-from ...core.property.instance import Instance
+from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.readonly import Readonly
 from ...core.validation import error
 from ...core.validation.errors import INVALID_PROPERTY_VALUE, MALFORMED_GRAPH_SOURCE
@@ -37,7 +37,8 @@ from ..glyphs import (
     Scatter,
     Segment,
 )
-from ..graphs import LayoutProvider
+from ..graphs import EdgePathProvider, LayoutProvider, StraightEdgePathProvider
+from ..selections import GraphSelectionPolicy
 from ..sources import ColumnarDataSource, ColumnDataSource, GraphDataSource, IndexedDataSource
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
@@ -124,7 +125,7 @@ class GraphRenderer(DataRenderer):
                 if any(name not in data or len(data[name]) != count for name in names):
                     return f"Bezier graph edges require four control columns with one value per edge [{self}]"
 
-    data_source = Readonly(Instance(GraphDataSource), help="""
+    data_source = Readonly(Instance(GraphDataSource), default=InstanceDefault(GraphDataSource), help="""
     A topology-aware source coupling the graph's node and edge data sources.
     """)
 
@@ -133,12 +134,17 @@ class GraphRenderer(DataRenderer):
     graph in cartesian space.
     """)
 
-    node_renderer = Readonly(Instance(GlyphRenderer), help="""
+    edge_path_provider = Instance(EdgePathProvider, default=InstanceDefault(StraightEdgePathProvider), help="""
+    An edge path provider that derives sampled paths from the graph topology
+    and node layout. Explicit ``xs`` and ``ys`` edge fields take precedence.
+    """)
+
+    node_renderer = Readonly(Instance(GlyphRenderer), default=InstanceDefault(GlyphRenderer), help="""
     Instance of a ``GlyphRenderer`` containing an ``XYGlyph`` that will be rendered
     as the graph nodes.
     """)
 
-    edge_renderer = Readonly(Instance(GlyphRenderer), help="""
+    edge_renderer = Readonly(Instance(GlyphRenderer), default=InstanceDefault(GlyphRenderer), help="""
     Instance of a ``GlyphRenderer`` containing a ``MultiLine``, ``Patches``, ``Segment``, or ``Bezier`` glyph that will be
     rendered as the graph edges. Segment endpoints follow the layout's edge paths.
     Bezier controls may be supplied in ``cx0``, ``cy0``, ``cx1``, and ``cy1``
@@ -151,8 +157,12 @@ class GraphRenderer(DataRenderer):
     """)
 
     inspection_target = Enum("nodes", "edges", default="nodes", help="""
-    Which graph component receives direct hit tests for inspection. Topology
-    expansion is configured on ``data_source.selection_policy``.
+    Which graph component receives direct hit tests for inspection.
+    """)
+
+    inspection_policy = Instance(GraphSelectionPolicy, default=InstanceDefault(GraphSelectionPolicy), help="""
+    Controls how transient graph inspections propagate through graph topology,
+    independently of ``data_source.selection_policy``.
     """)
 
 #-----------------------------------------------------------------------------

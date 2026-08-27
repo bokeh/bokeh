@@ -5,10 +5,11 @@ import {isVectorized} from "../core/vectorization"
 import {isPlainObject} from "../core/util/types"
 import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
 import type {MarkerType, RenderLevel} from "../core/enums"
-import {isArray} from "../core/util/types"
+import {isArray, isArrayable} from "../core/util/types"
 import type * as nd from "core/util/ndarray"
 
-import type {Glyph, GlyphRenderer, IndexedDataSource, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
+import type {Glyph, GlyphRenderer, IndexedDataSource, ColumnarDataSource, DataView, CoordinateMapping} from "./models"
+import type {GlyphRendererWithSource} from "../models/renderers/glyph_renderer"
 
 import {
   AnnularWedge,
@@ -31,7 +32,6 @@ import {
   Line,
   MathMLGlyph as MathML,
   MultiLine,
-  MultiPolygons,
   Ngon,
   Patch,
   Patches,
@@ -132,7 +132,7 @@ export type AuxText = {
 
 export type AuxGlyph = {
   source: IndexedDataSource | ColumnarDataSource["data"]
-  view: CDSView
+  view: DataView
   legend_label: string
   legend_field: string
   legend_group: string
@@ -190,11 +190,14 @@ export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
 export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill & AuxHatch
 export type MathMLArgs        = GlyphArgs<MathML.Props>                                       & AuxText
 export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
-export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill & AuxHatch
 export type NgonArgs          = GlyphArgs<Ngon.Props>          & AuxLine & AuxFill & AuxHatch
 export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill & AuxHatch
 export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill & AuxHatch
-export type PolygonsArgs      = GlyphArgs<Polygons.Props>      & AuxLine & AuxFill & AuxHatch
+export type PolygonsArgs      = Omit<GlyphArgs<Polygons.Props>, "xs" | "ys" | "source"> & {
+  source: GeometryDataSource
+  x: Arrayable
+  y: Arrayable
+} & AuxLine & AuxFill & AuxHatch
 export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill & AuxHatch
 export type QuadraticArgs     = GlyphArgs<Quadratic.Props>     & AuxLine
 export type RayArgs           = GlyphArgs<Ray.Props>           & AuxLine
@@ -213,7 +216,9 @@ export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFi
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
 
 export abstract class GlyphAPI {
-  abstract _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
+  abstract _glyph<G extends Glyph, S extends IndexedDataSource = ColumnarDataSource>(
+    cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object,
+  ): GlyphRendererWithSource<G, S>
 
   annular_wedge(): GlyphRenderer<AnnularWedge>
   annular_wedge(args: Partial<AnnularWedgeArgs>): GlyphRenderer<AnnularWedge>
@@ -512,16 +517,6 @@ export abstract class GlyphAPI {
     return this._glyph(MultiLine, "multi_line", ["xs", "ys"], args)
   }
 
-  multi_polygons(): GlyphRenderer<MultiPolygons>
-  multi_polygons(args: Partial<MultiPolygonsArgs>): GlyphRenderer<MultiPolygons>
-  multi_polygons(
-    xs: MultiPolygonsArgs["xs"],
-    ys: MultiPolygonsArgs["ys"],
-    args?: Partial<MultiPolygonsArgs>): GlyphRenderer<MultiPolygons>
-  multi_polygons(...args: unknown[]): GlyphRenderer<MultiPolygons> {
-    return this._glyph(MultiPolygons, "multi_polygons", ["xs", "ys"], args)
-  }
-
   ngon(): GlyphRenderer<Ngon>
   ngon(args: Partial<NgonArgs>): GlyphRenderer<Ngon>
   ngon(
@@ -555,12 +550,29 @@ export abstract class GlyphAPI {
     return this._glyph(Patches, "patches", ["xs", "ys"], args)
   }
 
-  polygons(): GlyphRenderer<Polygons>
-  polygons(args: Partial<PolygonsArgs>): GlyphRenderer<Polygons>
-  polygons(geometry: GeometryInput | GeometryDataSource, args?: Partial<PolygonsArgs>): GlyphRenderer<Polygons>
-  polygons(...args: unknown[]): GlyphRenderer<Polygons> {
+  polygons(): GlyphRendererWithSource<Polygons, GeometryDataSource>
+  polygons(args: Partial<PolygonsArgs>): GlyphRendererWithSource<Polygons, GeometryDataSource>
+  polygons(x: Arrayable, y: Arrayable, args?: Partial<PolygonsArgs>): GlyphRendererWithSource<Polygons, GeometryDataSource>
+  polygons(geometry: GeometryInput | GeometryDataSource, args?: Partial<PolygonsArgs>): GlyphRendererWithSource<Polygons, GeometryDataSource>
+  polygons(...args: unknown[]): GlyphRendererWithSource<Polygons, GeometryDataSource> {
+    if (args.length >= 2 && isArrayable(args[0]) && isArrayable(args[1])) {
+      if (args.length > 3) {
+        throw new Error("wrong number of arguments for 'polygons' method")
+      }
+      const [x, y] = args as [Arrayable, Arrayable, Partial<PolygonsArgs>?]
+      const options = (args[2] ?? {}) as Partial<PolygonsArgs>
+      if (options.source != null) {
+        throw new Error("provide either x and y data or a source, not both")
+      }
+      const {source: _, x: _x, y: _y, ...glyph_options} = options
+      const source = this._polygon_source(x, y)
+      return this._glyph<Polygons, GeometryDataSource>(Polygons, "polygons", [], [{...glyph_options, source}], {
+        _source_is_internal: true,
+      })
+    }
+
     const geometry = args[0]
-    const is_geometry = geometry instanceof GeometryDataSource || isArray(geometry) || (
+    const is_geometry = geometry instanceof GeometryDataSource || typeof geometry == "string" || isArray(geometry) || (
       geometry != null && typeof geometry == "object" && ("type" in geometry || "geometry" in geometry)
     )
     if (is_geometry) {
@@ -571,12 +583,49 @@ export abstract class GlyphAPI {
       if (options.source != null) {
         throw new Error("provide either geometry data or a source, not both")
       }
+      if (options.x != null || options.y != null) {
+        throw new Error("provide either geometry data or x and y data, not both")
+      }
+      const {source: _, x: _x, y: _y, ...glyph_options} = options
       const source = geometry instanceof GeometryDataSource
         ? geometry
         : GeometryDataSource.create(geojson_to_geometry_records(geometry as GeometryInput))
-      return this._glyph(Polygons, "polygons", [], [{...options, source}])
+      return this._glyph<Polygons, GeometryDataSource>(Polygons, "polygons", [], [{...glyph_options, source}], {
+        _source_is_internal: !(geometry instanceof GeometryDataSource),
+      })
     }
-    return this._glyph(Polygons, "polygons", [], args)
+
+    if (args.length > 1) {
+      throw new Error("wrong number of arguments for 'polygons' method")
+    }
+    const options = (args[0] ?? {}) as Partial<PolygonsArgs>
+    const {source: provided_source, x, y, ...glyph_options} = options
+    if ((x == null) != (y == null)) {
+      throw new Error("polygon x and y coordinates must be provided together")
+    }
+    if (x != null && y != null && provided_source != null) {
+      throw new Error("provide either x and y data or a source, not both")
+    }
+    const source = x != null && y != null
+      ? this._polygon_source(x, y)
+      : provided_source ?? GeometryDataSource.create()
+    if (!(source instanceof GeometryDataSource)) {
+      throw new Error("polygons() requires a GeometryDataSource")
+    }
+    return this._glyph<Polygons, GeometryDataSource>(Polygons, "polygons", [], [{...glyph_options, source}], {
+      _source_is_internal: provided_source == null,
+    })
+  }
+
+  private _polygon_source(x: Arrayable, y: Arrayable): GeometryDataSource {
+    if (x.length != y.length) {
+      throw new Error("polygon x and y coordinates must have the same length")
+    }
+    const coordinates = Array.from({length: x.length}, (_, i) => [x[i], y[i]])
+    return GeometryDataSource.create({
+      type: "Polygon",
+      coordinates: [coordinates],
+    } as unknown as GeometryInput)
   }
 
   quad(): GlyphRenderer<Quad>
