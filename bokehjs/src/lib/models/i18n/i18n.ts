@@ -137,8 +137,8 @@ export class I18n extends Model {
       interpolated_string = translation_string.replace(
         /\{{(\w+)}}/g,
         (_: string, key: string) => {
-          const variable = variables[key].value ?? ""
-          if (variable != "" && "formatting" in variables[key]) {
+          const variable = variables[key]?.value ?? `{{${key}}}`
+          if (variable != `{{${key}}}` && "formatting" in variables[key]) {
             const formatting = variables[key].formatting
             switch (formatting.format) {
               case "date":
