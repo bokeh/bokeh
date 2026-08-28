@@ -7,9 +7,10 @@ import json5 from "json5"
 import {version} from "@bokehjs/version"
 import type {DocJson} from "@bokehjs/document"
 import {Document} from "@bokehjs/document"
-import {GlyphRenderer} from "@bokehjs/models"
+import {ColumnarDataSource, GlyphRenderer} from "@bokehjs/models"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {GridPlotView} from "@bokehjs/models/plots/grid_plot"
+import {DataTableView} from "@bokehjs/models/widgets/tables/data_table"
 
 async function test(name: string) {
   const response = await fetch(`/cases/${name}`)
@@ -83,7 +84,19 @@ describe("Bug", () => {
 
   describe("in issue #12187", () => {
     it.no_image("displays dates as zero epoch in a DataTable if one element isn't a date", async () => {
-      await test("regressions/issue_12187.json5")
+      const {views} = await test("regressions/issue_12187.json5")
+      const [t] = views
+      expect_instanceof(t, DataTableView)
+
+      const source = t.model.source as ColumnarDataSource
+      const dates = source.get_array("dates") as number[]
+
+      expect(dates.length).to.be.equal(10)
+      expect(Number.isNaN(dates[0])).to.be.true
+      for (let i = 1; i < dates.length; i++) {
+        const expected_ms = Date.UTC(2014, 2, i + 1)
+        expect(dates[i]).to.be.equal(expected_ms)
+      }
     })
   })
 })
