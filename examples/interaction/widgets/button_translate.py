@@ -71,7 +71,7 @@ curdoc().on_event(events.DocumentReady, CustomJS(code="""
 cb_obj.config.i18n.locales_codes = ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"]
 cb_obj.config.i18n.translations = {
   en: {
-    button1: { label: "Test {{locale}} - {{current_date}}" },
+    button1: { label: "Test {{locale}} - {{current_date}} - {{missing_interpolation_var}}" },
     "String used as key itself to get its translation.": "String used as key itself to get its translation (manually set)."
     },
     "es-CO": {

@@ -144,6 +144,29 @@ describe("Widgets", () => {
     await view.ready
   })
 
+  it("should allow Button label translation with interpolation even when a variable is missing", async () => {
+    const button = new Button({
+      label: new TranslatableText({content: "button1"}),
+      width: 300, height: 30, sizing_mode: "fixed",
+    })
+    const obj = column([button])
+    const {view, doc} = await display(obj, [350, 50])
+
+    doc.config.i18n.locales_codes = ["en"]
+    doc.config.i18n.translations = {
+      en: {
+        "button1": "Button 1 - {{missing_locale_var}}",
+      },
+    }
+    doc.config.i18n.languages = [
+      ["English", "en"],
+    ]
+    doc.config.i18n.source_language = "en"
+    doc.config.i18n.auto_t_enabled = false
+    doc.config.i18n.change_locale.emit()
+    await view.ready
+  })
+
   it.allowing(6)("should allow Toggle", async () => {
     const obj = new Toggle({label: "Toggle 1", button_type: "primary"})
     await display(obj, [500, 100])
