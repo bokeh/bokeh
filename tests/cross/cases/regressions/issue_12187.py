@@ -1,16 +1,20 @@
 # https://github.com/bokeh/bokeh/issues/12187
 
-# External imports
-import numpy as np
-import pandas as pd
-
 # Standard library imports
 from datetime import date
 from random import randint
 
+# External imports
+import numpy as np
+import pandas as pd
+
 # Bokeh imports
-from bokeh.io import show
-from bokeh.models import ColumnDataSource, DataTable, DateFormatter, TableColumn
+from bokeh.models import (
+    ColumnDataSource,
+    DataTable,
+    DateFormatter,
+    TableColumn,
+)
 
 data = pd.DataFrame(dict(
         dates=[date(2014, 3, i+1) for i in range(10)],
