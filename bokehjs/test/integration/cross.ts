@@ -80,4 +80,10 @@ describe("Bug", () => {
       await test("regressions/issue_13964.json5")
     })
   })
+
+  describe("in issue #12187", () => {
+    it.no_image("displays dates as zero epoch in a DataTable if one element isn't a date", async () => {
+      await test("regressions/issue_12187.json5")
+    })
+  })
 })
