@@ -15,9 +15,11 @@ python = "3.12.*"
 
 [feature.py313.dependencies]
 python = "3.13.*"
+python-gil = "*"
 
 [feature.py314.dependencies]
 python = "3.14.*"
+python-gil = "*"
 
 [feature.py314t]
 platforms = ["linux-64"]
@@ -188,7 +190,6 @@ pytest-cov = "*"
 pytest-repeat = "*"
 pytest-rerunfailures = "*"
 pytest-timeout = "*"
-scipy = "*"
 
 [feature.server-integration]
 platforms = ["linux-64"]
