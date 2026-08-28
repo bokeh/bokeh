@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 
 from bokeh import events
 from bokeh.io import curdoc, show
@@ -20,7 +20,7 @@ button1 = Button(
                     },
                 },
                 "current_date": {
-                    "value": date.today(),
+                    "value": datetime.now(),
                     "formatting": {
                         "format": "date",
                         "options": {

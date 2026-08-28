@@ -155,7 +155,7 @@ describe("Widgets", () => {
     doc.config.i18n.locales_codes = ["en"]
     doc.config.i18n.translations = {
       en: {
-        "button1": "Button 1 - {{missing_locale_var}}",
+        button1: "Button 1 - {{missing_locale_var}}",
       },
     }
     doc.config.i18n.languages = [
