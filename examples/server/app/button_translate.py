@@ -1,5 +1,5 @@
 import random
-from datetime import date
+from datetime import datetime
 
 from bokeh.io import curdoc
 from bokeh.layouts import column
@@ -22,7 +22,7 @@ button1 = Button(
                     },
                 },
                 "current_date": {
-                    "value": date.today(),
+                    "value": datetime.now(),
                     "formatting": {
                         "format": "date",
                         "options": {
@@ -37,7 +37,7 @@ button1 = Button(
         },
     ),
 )
-button2 = Button(label="String used as key itself to get its translation")
+button2 = Button(label="String used as key itself to get its translation.")
 
 def change_locale(event):
     locale_selection = random.choice(available_locales)
@@ -52,7 +52,7 @@ def change_locale(event):
                 },
             },
             "current_date": {
-                "value": date.today(),
+                "value": datetime.now(),
                 "formatting": {
                     "format": "date",
                     "options": {
@@ -72,12 +72,12 @@ curdoc().add_root(column([button, button1, button2]))
 curdoc().config.i18n.locales_codes = available_locales
 curdoc().config.i18n.translations = {
     "en": {
-        "button1": {"label": "Test {{locale}} - {{current_date}}"},
-        "String used as key itself to get its translation": "String used as key itself to get its translation (manually set)",
+        "button1": {"label": "Test {{locale}} - {{current_date}} - {{missing_interpolation_var}}"},
+        "String used as key itself to get its translation.": "String used as key itself to get its translation (manually set).",
     },
     "es-CO": {
         "button1": {"label": "Prueba {{locale}} - {{current_date}}"},
-        "String used as key itself to get its translation": "Cadena usada en si misma como llave para obtener su traducción (traducida manualmente)",
+        "String used as key itself to get its translation.": "Cadena usada en si misma como llave para obtener su traducción (traducida manualmente).",
     },
     "pl-PL": {
         "button1": {"label": "Test {{locale}} - {{current_date}}"},
