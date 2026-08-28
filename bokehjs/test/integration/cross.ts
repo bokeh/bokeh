@@ -95,8 +95,8 @@ describe("Bug", () => {
       expect(dates.length).to.be.equal(10)
       expect(Number.isNaN(dates[0])).to.be.true
       for (let i = 1; i < dates.length; i++) {
-        const expected_ms = Date.UTC(2014, 2, i + 1)
-        expect(dates[i]).to.be.equal(expected_ms)
+        const day = String(i + 1).padStart(2, "0")
+        expect(dates[i]).to.be.equal(`2014-03-${day}`)
       }
     })
   })
