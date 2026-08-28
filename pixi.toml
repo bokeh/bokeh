@@ -1,10 +1,11 @@
 [workspace]
 name = "bokeh"
 channels = ["conda-forge"]
-platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
-requires-pixi = ">=0.76.1,<0.77"
+platforms = ["linux-64", "osx-arm64", "win-64"]
+requires-pixi = ">=0.76.1"
 
 [dependencies]
+nomkl = "*"
 pip = "*"
 
 [target.osx.activation]
@@ -57,6 +58,7 @@ pytest-xdist = "*"
 
 [feature.full.dependencies]
 beautifulsoup4 = "*"
+bokeh_sampledata = ">=2025.0"
 cartopy = "*"
 channels = "*"
 click = "*"
@@ -71,44 +73,37 @@ icalendar = "*"
 ipython = "*"
 isort = "5.8.*"
 json5 = "*"
+mypy = ">=1.20"
 nbconvert = ">=5.4"
 networkx = "*"
 notebook = "*"
 numpy = ">=1.20.0"
 pandas = "3.*"
+pandas-stubs = ">=2.2"
+playwright = "*"
 polars = ">=1.0"
-pooch = "*"
+pooch = "*" # Required by scipy.datasets.
 pre-commit = "*"
 psutil = "*"
 pyarrow = ">=14.0"
+pydata-sphinx-theme = "*"
 pygments = "*"
 pyshp = "*"
+pytest-playwright = "*"
 python-dateutil = ">=2.1"
-requests = ">=1.2.3,!=2.32.*"
+requests = ">=1.2.3,!=2.32.*" # See https://github.com/bokeh/bokeh/issues/13910.
+ruff = "0.15.*"
 scikit-learn = "*"
 scipy = "*"
 selenium = "4.2.*"
-sympy = "*"
-toml = "*"
-urllib3 = "<2"
-
-[feature.full.pypi-dependencies]
-bokeh_sampledata = ">=2025.0"
-mypy = ">=1.20"
-pandas-stubs = ">=2.2"
-playwright = "*"
-pydata-sphinx-theme = "*"
-pyright = "*"
-pytest-playwright = "*"
-requests-unixsocket = ">=0.3.0"
-ruff = "==0.15.*"
-sphinx = "==9.*"
+sphinx = "9.*"
 sphinx-copybutton = "*"
 sphinx-design = "*"
 sphinx-favicon = "*"
 sphinxext-opengraph = ">=0.11.0"
 squarify = "*"
-types-boto3 = "*"
+sympy = "*"
+toml = "*"
 types-colorama = "*"
 types-docutils = "*"
 types-mock = "*"
@@ -116,7 +111,13 @@ types-pillow = "*"
 types-pyyaml = "*"
 types-requests = "*"
 types-toml = "*"
+urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
 vermin = "*"
+
+[feature.full.pypi-dependencies]
+pyright = "*"
+requests-unixsocket = ">=0.3.0"
+types-boto3 = "*"
 
 # Packages intentionally omitted from the free-threaded environment because
 # conda-forge does not currently provide a compatible pygraphviz build.
@@ -128,6 +129,7 @@ rich-click = ">=1.8,<2"
 [feature.free-threaded.dependencies]
 pytest-repeat = "*"
 
+# bokeh_sampledata is intentionally omitted from the minimal environment.
 [feature.minimal.dependencies]
 beautifulsoup4 = "*"
 channels = "*"
@@ -142,39 +144,39 @@ icalendar = "*"
 ipython = "*"
 isort = "5.8.*"
 json5 = "*"
+mypy = ">=1.20"
 narwhals = "<1.14"
 nbconvert = ">=5.4"
 numpy = "1.*"
 pandas = "2.*"
 pre-commit = "*"
 psutil = "*"
+pydata-sphinx-theme = "*"
 pygments = "*"
 pygraphviz = "*"
 pyshp = "*"
 python-dateutil = ">=2.1"
-requests = ">=1.2.3,!=2.32.*"
+requests = ">=1.2.3,!=2.32.*" # See https://github.com/bokeh/bokeh/issues/13910.
+ruff = "0.15.*"
 selenium = "4.2.*"
-tornado = "6.3.*"
-urllib3 = "<2"
-
-[feature.minimal.pypi-dependencies]
-mypy = ">=1.20"
-pydata-sphinx-theme = "*"
-pyright = "*"
-requests-unixsocket = ">=0.3.0"
-ruff = "==0.15.*"
-sphinx = "==9.*"
+sphinx = "9.*"
 sphinx-copybutton = "*"
 sphinx-design = "*"
 sphinx-favicon = "*"
 sphinxext-opengraph = ">=0.11.0"
-types-boto3 = "*"
+tornado = "6.3.*"
 types-colorama = "*"
 types-docutils = "*"
 types-mock = "*"
 types-pillow = "*"
 types-pyyaml = "*"
 types-requests = "*"
+urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
+
+[feature.minimal.pypi-dependencies]
+pyright = "*"
+requests-unixsocket = ">=0.3.0"
+types-boto3 = "*"
 
 [feature.downstream]
 channels = [{ channel = "pyviz/label/dev", priority = 1 }]
@@ -185,7 +187,7 @@ holoviews = "*"
 panel = "*"
 python-dateutil = ">=2.1"
 pytest = ">=7.0"
-pytest-asyncio = "*"
+pytest-asyncio = "*" # Panel and HoloViews both set asyncio_mode = "auto".
 pytest-cov = "*"
 pytest-repeat = "*"
 pytest-rerunfailures = "*"
@@ -194,21 +196,21 @@ pytest-timeout = "*"
 [feature.server-integration]
 platforms = ["linux-64"]
 
-[feature.server-integration.pypi-dependencies]
+[feature.server-integration.dependencies]
 django = "*"
 fastapi = "*"
 hypercorn = "*"
 starlette = "*"
-streamlit = "==1.57.*"
-uvicorn = { version = "*", extras = ["standard"] }
+streamlit = "1.57.*"
+uvicorn-standard = "*"
 
 [feature.build.dependencies]
-libiconv = "*"
 pip = "*"
 python-build = "*"
 setuptools = "*"
 
 [feature.release-build.dependencies]
+bokeh_sampledata = "*"
 boto3 = "*"
 cartopy = "*"
 colorama = "*"
@@ -217,10 +219,10 @@ firefox = ">=96"
 geckodriver = "*"
 icalendar = "*"
 ipython = "*"
-libiconv = "*"
 networkx = "*"
 packaging = "*"
 pip = "*"
+pydata-sphinx-theme = "*"
 pygments = "*"
 pygraphviz = "*"
 pyshp = "*"
@@ -229,18 +231,14 @@ rattler-build = "*"
 scikit-learn = "*"
 scipy = "*"
 setuptools = "*"
-squarify = "*"
-sympy = "*"
-toml = "*"
-
-[feature.release-build.pypi-dependencies]
-bokeh_sampledata = "*"
-pydata-sphinx-theme = "*"
-sphinx = "==9.*"
+sphinx = "9.*"
 sphinx-copybutton = "*"
 sphinx-design = "*"
 sphinx-favicon = "*"
 sphinxext-opengraph = ">=0.11.0"
+squarify = "*"
+sympy = "*"
+toml = "*"
 
 [feature.release-deploy.dependencies]
 anaconda-client = "*"
@@ -268,10 +266,14 @@ release-deploy = { features = ["py312", "js", "release-deploy"], no-default-feat
 server-integration = ["py313", "js", "runtime", "test", "full", "standard-only", "server-integration"]
 
 [tasks]
-js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
 setup = { cmd = "python -m pip install --no-deps -e .", depends-on = ["js-install"] }
 test-python = "pytest tests/unit"
+docs = "bash tools/ci/build_docs.sh"
+
+[feature.js.tasks]
+js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
 test-js = { cmd = "node make test", cwd = "bokehjs" }
 build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
+
+[feature.build.tasks]
 build-python = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
-docs = "bash tools/ci/build_docs.sh"

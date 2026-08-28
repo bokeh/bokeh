@@ -50,12 +50,10 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.10.0
         with:
-          pixi-version: v0.76.1
           environments: release-build
           activate-environment: release-build
           locked: true
-          cache: true
-          cache-write: true
+          cache: false
 
       - name: List installed software
         run: |

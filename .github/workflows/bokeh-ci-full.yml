@@ -370,7 +370,7 @@ jobs:
           environment: ${{ matrix.environment }}
 
       - name: Build docs
-        run: bash tools/ci/build_docs.sh
+        run: pixi run --locked --environment ${{ matrix.environment }} docs
 
       - name: Upload docs
         uses: actions/upload-artifact@v6

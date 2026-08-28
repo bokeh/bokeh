@@ -8,28 +8,15 @@ runs:
     - name: Set up Pixi
       uses: prefix-dev/setup-pixi@v0.10.0
       with:
-        pixi-version: v0.76.1
         environments: build
         activate-environment: build
         locked: true
         cache: true
         cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
-    - name: Install node modules
-      working-directory: ./bokehjs
+    - name: Build Bokeh and BokehJS
       shell: bash --noprofile --norc -eo pipefail {0}
-      run: npm ci --no-progress
-
-    - name: Build BokehJS
-      working-directory: ./bokehjs
-      shell: bash --noprofile --norc -eo pipefail {0}
-      run: node make build pack
-
-    - name: Build pip packages
-      shell: bash --noprofile --norc -eo pipefail {0}
-      env:
-        BOKEHJS_ACTION: 'install'
-      run: python -m build .
+      run: pixi run --locked --environment build build-python
 
     - name: Verify pip install from sdist
       shell: bash --noprofile --norc -eo pipefail {0}
