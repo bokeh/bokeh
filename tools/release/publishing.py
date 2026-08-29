@@ -6,52 +6,63 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
+# Standard library imports
+import logging
+from itertools import product
+
+# External imports
+import boto3  # pyright: ignore[reportMissingModuleSource]
+from packaging.version import Version as V
+
 # Bokeh imports
+from . import BOKEHJS_BUCKETS
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
-from .enums import VersionType
 from .system import System
 
 __all__ = (
-    "publish_conda_package",
+    "publish_bokehjs_to_cdn",
     "publish_documentation",
-    "publish_npm_package",
-    "publish_pip_packages",
-    "unpack_deployment_tarball",
 )
 
 CLOUDFRONT_ID = "E2OC6Q27H5UQ63"
 REGION = "--region us-east-1"
 
-def publish_npm_package(config: Config, system: System) -> ActionReturn:
-    tarball = f"bokeh-bokehjs-{config.js_version}.tgz"
-    tags = "--tag=dev" if config.prerelease else ""
-    try:
-        system.cd(f"deployment-{config.version}")
-        system.run(f"npm publish --access=public {tags} {tarball}")
-        system.cd("..")
-        return PASSED("Publish to npmjs.com succeeded")
-    except RuntimeError as e:
-        return FAILED("Could NOT publish to npmjs.com", details=e.args)
+log = logging.getLogger(__name__)
 
 
-def publish_conda_package(config: Config, system: System) -> ActionReturn:
+def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
     version = config.version
-    path = f"deployment-{version}/bokeh-{version}-py_0.tar.bz2"
-    token = config.secrets["ANACONDA_TOKEN"]
-    labels = ["dev"]
-    if config.version_type in (VersionType.RC, VersionType.FULL):
-        labels.insert(0, "rc")
-    if not config.prerelease:
-        labels.insert(0, "main")
-    channels = " ".join(f"--channel {label}" for label in labels)
+    subdir = "dev" if V(version).is_prerelease else "release"
+
+    file_names = ("bokeh", "bokeh-gl", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax")
+    suffixes = ("js", "min.js", "esm.js", "esm.min.js")
+
     try:
-        system.run(
-            f"rattler-build upload anaconda --owner bokeh --api-key {token} {channels} --force {path}",
-        )
-        return PASSED("Publish to anaconda.org succeeded")
-    except RuntimeError as e:
-        return FAILED("Could NOT publish to anaconda.org", details=e.args)
+        for bucket, region_name in BOKEHJS_BUCKETS:
+            s3 = boto3.client("s3", region_name=region_name)
+
+            for name, suffix in product(file_names, suffixes):
+                local_path = f"bokehjs/build/js/{name}.{suffix}"
+                cdn_path = f"bokeh/{subdir}/{name}-{version}.{suffix}"
+
+                with open(local_path) as f:
+                    data = f.read().encode("utf-8")
+
+                log.info(":uploading to CDN [%s]: %s", bucket, cdn_path)
+
+                s3.put_object(
+                    Bucket=bucket,
+                    Key=cdn_path,
+                    Body=data,
+                    ContentType="application/javascript",
+                    CacheControl="max-age=31536000",
+                )
+
+        return PASSED("Uploaded BokehJS to CDN")
+
+    except Exception as e:
+        return FAILED(f"BokehJS CDN upload failed: {e}", details=e.args)
 
 
 def publish_documentation(config: Config, system: System) -> ActionReturn:
@@ -66,8 +77,10 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
     switcher_cache = "--cache-control no-cache,max-age=0,must-revalidate"
     WEEK = 3600 * 24 * 7
     YEAR = 3600 * 24 * 365
+
     def cache(max_age: int) -> str:
         return f"--cache-control max-age={max_age},public"
+
     try:
         if config.prerelease:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ --delete {flags} {cache(YEAR)} {REGION}")
@@ -81,22 +94,3 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
         return PASSED("Publish to documentation site succeeded")
     except RuntimeError as e:
         return FAILED("Could NOT publish to documentation site", details=e.args)
-
-
-def publish_pip_packages(config: Config, system: System) -> ActionReturn:
-    sdist_path = f"deployment-{config.version}/bokeh-{config.version}.tar.gz"
-    wheel_path = f"deployment-{config.version}/bokeh-{config.version}-py3-none-any.whl"
-    try:
-        system.run(f"twine upload -u __token__ -p $PYPI_TOKEN {sdist_path} {wheel_path}")
-        return PASSED("Publish to pypi.org succeeded")
-    except RuntimeError as e:
-        return FAILED("Could NOT publish to pypi.org", details=e.args)
-
-
-def unpack_deployment_tarball(config: Config, system: System) -> ActionReturn:
-    try:
-        filename = f"deployment-{config.version}.tgz"
-        system.run(f"tar xvf {filename}")
-        return PASSED(f"Unpacked deployment tarball {filename!r}")
-    except RuntimeError as e:
-        return FAILED("Could NOT unpack deployment tarball", details=e.args)

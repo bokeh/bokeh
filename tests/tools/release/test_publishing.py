@@ -10,54 +10,45 @@ import pytest
 # Bokeh imports
 # Bokeh test imports
 from tests.tools.release._support import RecordingSystem
-from tools.release import remote
+from tools.release import publishing
 from tools.release.config import Config
 from tools.release.enums import ActionResult
-from tools.release.pipeline import StepType
 
 
-@pytest.mark.parametrize(
-    ("func", "command"),
-    [
-        (
-            remote.download_deployment_tarball,
-            "aws s3 cp s3://bokeh-deployments/deployment-4.0.0.tgz . --region us-east-1",
-        ),
-        (
-            remote.upload_deployment_tarball,
-            "aws s3 cp deployment-4.0.0.tgz s3://bokeh-deployments/ --region us-east-1",
-        ),
-    ],
-)
-def test_remote_tarball_transfers(config: Config, func: StepType, command: str) -> None:
+def test_publish_full_documentation_updates_version_latest_and_switcher(config: Config) -> None:
     system = RecordingSystem()
 
-    result = func(config, system)
+    result = publishing.publish_documentation(config, system)
 
     assert result.kind is ActionResult.PASS
-    assert system.commands == [command]
+    assert len(system.commands) == 4
+    assert all("--acl" not in command for command in system.commands)
+    assert "s3://docs.bokeh.org/en/4.0.0/" in system.commands[0]
+    assert "s3://docs.bokeh.org/en/latest/" in system.commands[1]
+    assert system.commands[2] == (
+        "aws s3 cp deployment-4.0.0/docs/bokeh/switcher.json s3://docs.bokeh.org/ "
+        "--only-show-errors "
+        "--cache-control no-cache,max-age=0,must-revalidate --region us-east-1"
+    )
+    assert '"/en/latest*" "/en/4.0.0*" "/switcher.json"' in system.commands[3]
 
 
-@pytest.mark.parametrize(
-    ("func", "command"),
-    [
-        (
-            remote.download_deployment_tarball,
-            "aws s3 cp s3://bokeh-deployments/deployment-4.0.0.tgz . --region us-east-1",
-        ),
-        (
-            remote.upload_deployment_tarball,
-            "aws s3 cp deployment-4.0.0.tgz s3://bokeh-deployments/ --region us-east-1",
-        ),
-    ],
-)
-def test_remote_tarball_transfer_failures(config: Config, func: StepType, command: str) -> None:
-    system = RecordingSystem(failures={command: ("transfer failed",)})
+@pytest.mark.parametrize("version", ["4.0.0rc1", "4.0.0.dev1"])
+def test_publish_prerelease_documentation_updates_dev_and_switcher(version: str) -> None:
+    system = RecordingSystem()
 
-    result = func(config, system)
+    result = publishing.publish_documentation(Config(version), system)
 
-    assert result.kind is ActionResult.FAIL
-    assert result.details == ("transfer failed",)
+    assert result.kind is ActionResult.PASS
+    assert len(system.commands) == 3
+    assert all("--acl" not in command for command in system.commands)
+    assert "s3://docs.bokeh.org/en/dev-4.0/" in system.commands[0]
+    assert system.commands[1] == (
+        f"aws s3 cp deployment-{version}/docs/bokeh/switcher.json s3://docs.bokeh.org/ "
+        "--only-show-errors "
+        "--cache-control no-cache,max-age=0,must-revalidate --region us-east-1"
+    )
+    assert '"/en/dev-4.0*" "/switcher.json"' in system.commands[2]
 
 
 def make_bokehjs_bundles(root: Path) -> None:
@@ -80,7 +71,7 @@ def test_publish_bokehjs_to_cdn_uploads_every_bundle(
 ) -> None:
     make_bokehjs_bundles(tmp_path)
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(remote, "BOKEHJS_BUCKETS", (("test-bucket", "test-region"),))
+    monkeypatch.setattr(publishing, "BOKEHJS_BUCKETS", (("test-bucket", "test-region"),))
 
     class Client:
         def __init__(self, **kw: Any) -> None:
@@ -98,20 +89,14 @@ def test_publish_bokehjs_to_cdn_uploads_every_bundle(
         clients.append(result)
         return result
 
-    monkeypatch.setattr(remote.boto3, "client", client)
+    monkeypatch.setattr(publishing.boto3, "client", client)
     config = Config(version)
-    config.add_secret("AWS_ACCESS_KEY_ID", "access")
-    config.add_secret("AWS_SECRET_ACCESS_KEY", "secret")
 
-    result = remote.publish_bokehjs_to_cdn(config, RecordingSystem())
+    result = publishing.publish_bokehjs_to_cdn(config, RecordingSystem())
 
     assert result.kind is ActionResult.PASS
     assert len(clients) == 1
-    assert clients[0].kw == {
-        "region_name": "test-region",
-        "aws_access_key_id": "access",
-        "aws_secret_access_key": "secret",
-    }
+    assert clients[0].kw == {"region_name": "test-region"}
     assert len(clients[0].objects) == 24
     assert {item["ContentType"] for item in clients[0].objects} == {"application/javascript"}
     assert {item["CacheControl"] for item in clients[0].objects} == {"max-age=31536000"}
@@ -124,18 +109,16 @@ def test_publish_bokehjs_to_cdn_returns_failure_for_missing_bundle(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(remote, "BOKEHJS_BUCKETS", (("test-bucket", "test-region"),))
+    monkeypatch.setattr(publishing, "BOKEHJS_BUCKETS", (("test-bucket", "test-region"),))
 
     class Client:
         def put_object(self, **kw: Any) -> None:
             pytest.fail("put_object should not be reached")
 
-    monkeypatch.setattr(remote.boto3, "client", lambda *args, **kw: Client())
+    monkeypatch.setattr(publishing.boto3, "client", lambda *args, **kw: Client())
     config = Config("4.0.0")
-    config.add_secret("AWS_ACCESS_KEY_ID", "access")
-    config.add_secret("AWS_SECRET_ACCESS_KEY", "secret")
 
-    result = remote.publish_bokehjs_to_cdn(config, RecordingSystem())
+    result = publishing.publish_bokehjs_to_cdn(config, RecordingSystem())
 
     assert result.kind is ActionResult.FAIL
     assert "No such file" in result.message

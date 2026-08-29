@@ -8,18 +8,46 @@ on:
         description: "Version to deploy a release for (e.g. 3.0.0, 2.4.0.dev8)"
         required: true
 
-permissions:
-  id-token: write  # Required for OIDC and trusted providers for npm publishing
-
 defaults:
   run:
     shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
 
-  deploy:
+  preflight:
     runs-on: ubuntu-24.04
-    environment: publish-npm
+    environment:
+      name: publish-anaconda
+    permissions: {}
+
+    steps:
+      - name: Set up Anaconda CLI
+        uses: anaconda/actions/setup-anaconda-cli@v0.3.1
+        with:
+          version: v0.2.1
+          tools: anaconda-cli
+
+      - name: Validate Anaconda token
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        run: |
+          if ! identity="$("$HOME/.ana/tools/anaconda-cli/bin/anaconda" --token "$ANACONDA_TOKEN" whoami)"; then
+            echo "::error::Anaconda token authentication failed"
+            exit 1
+          fi
+          if [[ "$identity" != *"Username: bokeh"* ]]; then
+            echo "::error::Anaconda token is not authenticated as bokeh"
+            exit 1
+          fi
+
+  prepare:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    environment:
+      name: download-deployment
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Check Maintainer
@@ -55,12 +83,191 @@ jobs:
           locked: true
           cache: false
 
-      - name: Deploy Release Tarball
+      - name: Configure AWS credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_RELEASE_DEPLOY_ROLE_ARN }}
+          role-session-name: bokeh-release-prepare-${{ github.run_id }}
+          aws-region: us-east-1
+          output-env-credentials: false
+          output-credentials: true
+
+      - name: Prepare Release Tarball
         env:
-          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_ACCESS_KEY_ID: ${{ steps.aws.outputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.aws.outputs.aws-secret-access-key }}
+          AWS_SESSION_TOKEN: ${{ steps.aws.outputs.aws-session-token }}
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
-        run: python -m tools.release deploy "$BOKEH_VERSION"
+        run: python -m tools.release prepare-deployment "$BOKEH_VERSION"
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v6
+        with:
+          name: docs-distribution
+          path: deployment-${{ github.event.inputs.version }}/docs/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload Conda distribution
+        uses: actions/upload-artifact@v6
+        with:
+          name: conda-distribution
+          path: deployment-${{ github.event.inputs.version }}/bokeh-${{ github.event.inputs.version }}-py_0.tar.bz2
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload npm distribution
+        uses: actions/upload-artifact@v6
+        with:
+          name: npm-distribution
+          path: deployment-${{ github.event.inputs.version }}/bokeh-bokehjs-*.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload Python distributions
+        uses: actions/upload-artifact@v6
+        with:
+          name: pypi-distributions
+          path: |
+            deployment-${{ github.event.inputs.version }}/bokeh-${{ github.event.inputs.version }}.tar.gz
+            deployment-${{ github.event.inputs.version }}/bokeh-${{ github.event.inputs.version }}-py3-none-any.whl
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-docs:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    environment:
+      name: publish-docs
+      url: https://docs.bokeh.org/
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: release-deploy
+          activate-environment: release-deploy
+          locked: true
+          cache: false
+
+      - name: Download documentation
+        uses: actions/download-artifact@v8
+        with:
+          name: docs-distribution
+          path: deployment-${{ github.event.inputs.version }}/docs/
+
+      - name: Configure AWS credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_RELEASE_DOCS_ROLE_ARN }}
+          role-session-name: bokeh-release-docs-${{ github.run_id }}
+          aws-region: us-east-1
+          output-env-credentials: false
+          output-credentials: true
+
+      - name: Publish documentation
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.aws.outputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.aws.outputs.aws-secret-access-key }}
+          AWS_SESSION_TOKEN: ${{ steps.aws.outputs.aws-session-token }}
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+        run: python -m tools.release publish-docs "$BOKEH_VERSION"
+
+  publish-conda:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    environment:
+      name: publish-anaconda
+      url: https://anaconda.org/bokeh/bokeh
+    permissions: {}
+
+    steps:
+      - name: Download Conda distribution
+        uses: actions/download-artifact@v8
+        with:
+          name: conda-distribution
+          path: dist/
+
+      - name: Publish Conda distribution
+        uses: anaconda/actions/upload-package@v0.3.1
+        with:
+          token: ${{ secrets.ANACONDA_TOKEN }}
+          channel: bokeh
+          packages: dist/bokeh-*.tar.bz2
+          labels: ${{ contains(github.event.inputs.version, '.dev') && 'dev' || contains(github.event.inputs.version, 'rc') && 'rc,dev' || 'main,rc,dev' }}
+          force: true
+
+  publish-npm:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    environment:
+      name: publish-npm
+      url: https://www.npmjs.com/package/@bokeh/bokehjs
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download npm distribution
+        uses: actions/download-artifact@v8
+        with:
+          name: npm-distribution
+          path: dist/
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Publish npm distribution
+        working-directory: dist/
+        env:
+          NPM_TAG: ${{ (contains(github.event.inputs.version, '.dev') || contains(github.event.inputs.version, 'rc')) && 'dev' || 'latest' }}
+        run: npm publish --access=public --tag="$NPM_TAG" bokeh-bokehjs-*.tgz
+
+  publish-pypi:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    environment:
+      name: publish-pypi
+      url: https://pypi.org/p/bokeh
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download Python distributions
+        uses: actions/download-artifact@v8
+        with:
+          name: pypi-distributions
+          path: dist/
+
+      - name: Publish Python distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  finalize:
+    if: ${{ always() }}
+    needs: [preflight, publish-docs, publish-conda, publish-npm, publish-pypi]
+    runs-on: ubuntu-24.04
+    permissions: {}
+
+    steps:
+      - name: Confirm release deployment
+        env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+          PREFLIGHT_RESULT: ${{ needs.preflight.result }}
+          DOCS_RESULT: ${{ needs.publish-docs.result }}
+          CONDA_RESULT: ${{ needs.publish-conda.result }}
+          NPM_RESULT: ${{ needs.publish-npm.result }}
+          PYPI_RESULT: ${{ needs.publish-pypi.result }}
+        run: |
+          if [[ "$PREFLIGHT_RESULT" != success || "$DOCS_RESULT" != success || "$CONDA_RESULT" != success || "$NPM_RESULT" != success || "$PYPI_RESULT" != success ]]; then
+            echo "Release deployment failed: preflight=$PREFLIGHT_RESULT, docs=$DOCS_RESULT, conda=$CONDA_RESULT, npm=$NPM_RESULT, pypi=$PYPI_RESULT"
+            exit 1
+          fi
+          echo "Successfully deployed Bokeh $BOKEH_VERSION"

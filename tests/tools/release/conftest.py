@@ -18,15 +18,8 @@ except ImportError:
 
 # Bokeh imports
 from tools.release.config import Config
-from tools.release.logger import LOG
 
 
 @pytest.fixture
 def config() -> Config:
     return Config("4.0.0")
-
-
-@pytest.fixture(autouse=True)
-def reset_release_log() -> None:
-    LOG._record = []
-    LOG._scrubbers = []

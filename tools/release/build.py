@@ -33,7 +33,6 @@ __all__ = (
     "dev_install_bokehjs",
     "install_bokehjs",
     "npm_install",
-    "pack_deployment_tarball",
     "update_bokehjs_versions",
     "update_changelog",
     "update_hash_manifest",
@@ -119,26 +118,6 @@ def npm_install(config: Config, system: System) -> ActionReturn:
         return PASSED("npm ci succeeded")
     except RuntimeError as e:
         return FAILED("npm ci did NOT succeed", details=e.args)
-
-
-def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
-    try:
-        dirname = f"deployment-{config.version}"
-        filename = f"{dirname}.tgz"
-        system.run(f"mkdir {dirname}")
-        system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
-        system.run(f"cp dist/conda/noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
-        system.run(f"cp dist/bokeh-{config.version}.tar.gz {dirname}")
-        system.run(f"cp dist/bokeh-{config.version}-py3-none-any.whl {dirname}")
-        system.run(f"mkdir {dirname}/bokehjs")
-        system.run(f"cp -r bokehjs/build {dirname}/bokehjs")
-        system.run(f"mkdir -p {dirname}/docs/bokeh/build")
-        system.run(f"cp -r docs/bokeh/build/html {dirname}/docs/bokeh/build")
-        system.run(f"cp -r docs/bokeh/switcher.json {dirname}/docs/bokeh")
-        system.run(f"tar czvf {filename} {dirname}")
-        return PASSED(f"Packed deployment tarball {filename!r}")
-    except RuntimeError as e:
-        return FAILED("Could NOT pack deployment tarball", details=e.args)
 
 
 def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:

@@ -39,7 +39,6 @@
 *.patch
 *.diff
 *.rej
-/bokeh-build-config.pickle
 
 # common editor cruft
 .#*
