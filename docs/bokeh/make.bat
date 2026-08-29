@@ -1,4 +1,19 @@
 @ECHO OFF
+setlocal
+
+REM Re-enter once through Pixi unless this checkout's Pixi environment is active.
+if defined BOKEH_DOCS_PIXI_ACTIVE goto activated
+for %%I in ("%~dp0..\..\.pixi\envs") do set "BOKEH_PIXI_ENVS=%%~fI"
+if not defined CONDA_PREFIX goto run_in_pixi
+for %%I in ("%CONDA_PREFIX%\..") do set "ACTIVE_ENV_ROOT=%%~fI"
+if /I "%ACTIVE_ENV_ROOT%" == "%BOKEH_PIXI_ENVS%" goto activated
+
+:run_in_pixi
+set "BOKEH_DOCS_PIXI_ACTIVE=1"
+pixi run --manifest-path "%~dp0..\.." --locked "%~f0" %*
+exit /b %ERRORLEVEL%
+
+:activated
 
 REM Command file for Sphinx documentation
 
@@ -40,7 +55,9 @@ if "%1" == "clean" (
 )
 
 if "%1" == "all" (
-    make html
+	call "%~f0" html
+	if errorlevel 1 exit /b 1
+	goto end
 )
 
 if "%1" == "reference" (

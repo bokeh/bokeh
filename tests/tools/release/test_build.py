@@ -6,9 +6,13 @@ from pathlib import Path
 
 # External imports
 import pytest
+import tomllib
+import yaml
+from packaging.requirements import Requirement
 
 # Bokeh imports
 # Bokeh test imports
+from tests.support.util.project import TOP_PATH
 from tests.tools.release._support import RecordingSystem
 from tools.release import build
 from tools.release.config import Config
@@ -17,20 +21,40 @@ from tools.release.pipeline import StepType
 from tools.release.system import System
 
 
+def test_conda_recipe_dependencies_match_project_dependencies() -> None:
+    with open(TOP_PATH / "pyproject.toml", "rb") as f:
+        project_dependencies = tomllib.load(f)["project"]["dependencies"]
+    with open(TOP_PATH / "conda/recipe/recipe.yaml") as f:
+        conda_dependencies = yaml.safe_load(f)["requirements"]["run"]
+
+    def constraints(requirements: list[str]) -> dict[str, str]:
+        parsed = (Requirement(requirement) for requirement in requirements)
+        return {requirement.name.lower(): str(requirement.specifier) for requirement in parsed}
+
+    actual = constraints(conda_dependencies)
+    assert actual.pop("python") == ">=3.12"
+    assert actual == constraints(project_dependencies)
+
+
 @pytest.mark.parametrize(
     ("func", "command", "environment"),
     [
         (build.build_bokehjs, "node make build", {}),
         (build.build_npm_packages, "npm pack", {}),
-        (build.build_conda_packages, "conda build conda/recipe --no-test", {"VERSION": "4.0.0"}),
+        (
+            build.build_conda_package,
+            "rattler-build build --recipe conda/recipe --channel conda-forge "
+            "--output-dir dist/conda --package-format tar-bz2 --test skip",
+            {"VERSION": "4.0.0"},
+        ),
         (
             build.build_docs,
             "make clean all SPHINXOPTS=-v",
             {"BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
         ),
         (build.build_pip_packages, "python -m build .", {"BOKEHJS_ACTION": "install"}),
-        (build.dev_install_bokehjs, "pip install -e .", {"BOKEHJS_ACTION": "install"}),
-        (build.install_bokehjs, "pip install .", {"BOKEHJS_ACTION": "install"}),
+        (build.dev_install_bokehjs, "python -m pip install --no-deps -e .", {"BOKEHJS_ACTION": "install"}),
+        (build.install_bokehjs, "python -m pip install --no-deps .", {"BOKEHJS_ACTION": "install"}),
         (build.npm_install, "npm ci", {}),
         (
             build.verify_pip_install_from_sdist,
@@ -47,7 +71,11 @@ from tools.release.system import System
             "bash tools/ci/verify_pip_install_using_wheel.sh",
             {"VERSION": "4.0.0"},
         ),
-        (build.verify_conda_install, "bash tools/ci/verify_conda_install.sh", {"VERSION": "4.0.0"}),
+        (
+            build.verify_conda_package,
+            "rattler-build test --package-file dist/conda/noarch/bokeh-4.0.0-py_0.tar.bz2 --channel conda-forge",
+            {},
+        ),
     ],
 )
 def test_command_build_steps(
@@ -69,16 +97,23 @@ def test_command_build_steps(
     [
         (build.build_bokehjs, "node make build"),
         (build.build_npm_packages, "npm pack"),
-        (build.build_conda_packages, "conda build conda/recipe --no-test"),
+        (
+            build.build_conda_package,
+            "rattler-build build --recipe conda/recipe --channel conda-forge "
+            "--output-dir dist/conda --package-format tar-bz2 --test skip",
+        ),
         (build.build_docs, "make clean all SPHINXOPTS=-v"),
         (build.build_pip_packages, "python -m build ."),
-        (build.dev_install_bokehjs, "pip install -e ."),
-        (build.install_bokehjs, "pip install ."),
+        (build.dev_install_bokehjs, "python -m pip install --no-deps -e ."),
+        (build.install_bokehjs, "python -m pip install --no-deps ."),
         (build.npm_install, "npm ci"),
         (build.verify_pip_install_from_sdist, "bash tools/ci/verify_pip_install_from_sdist.sh"),
         (build.verify_pip_install_using_sdist, "bash tools/ci/verify_pip_install_using_sdist.sh"),
         (build.verify_pip_install_using_wheel, "bash tools/ci/verify_pip_install_using_wheel.sh"),
-        (build.verify_conda_install, "bash tools/ci/verify_conda_install.sh"),
+        (
+            build.verify_conda_package,
+            "rattler-build test --package-file dist/conda/noarch/bokeh-4.0.0-py_0.tar.bz2 --channel conda-forge",
+        ),
     ],
 )
 def test_command_build_steps_report_failure(config: Config, func: StepType, command: str) -> None:
@@ -113,7 +148,7 @@ def test_pack_deployment_tarball_collects_all_artifacts(config: Config) -> None:
     assert system.commands == [
         "mkdir deployment-4.0.0",
         "cp bokehjs/bokeh-bokehjs-4.0.0.tgz deployment-4.0.0",
-        "cp $CONDA_PREFIX/conda-bld/noarch/bokeh-4.0.0-py_0.tar.bz2 deployment-4.0.0",
+        "cp dist/conda/noarch/bokeh-4.0.0-py_0.tar.bz2 deployment-4.0.0",
         "cp dist/bokeh-4.0.0.tar.gz deployment-4.0.0",
         "cp dist/bokeh-4.0.0-py3-none-any.whl deployment-4.0.0",
         "mkdir deployment-4.0.0/bokehjs",

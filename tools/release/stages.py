@@ -9,7 +9,7 @@ from __future__ import annotations
 # Bokeh imports
 from .build import (
     build_bokehjs,
-    build_conda_packages,
+    build_conda_package,
     build_docs,
     build_npm_packages,
     build_pip_packages,
@@ -21,7 +21,7 @@ from .build import (
     update_changelog,
     update_hash_manifest,
     update_switcher_json,
-    verify_conda_install,
+    verify_conda_package,
     verify_pip_install_from_sdist,
     verify_pip_install_using_sdist,
     verify_pip_install_using_wheel,
@@ -36,6 +36,7 @@ from .checks import (
     check_git_present,
     check_milestone_labels,
     check_npm_present,
+    check_rattler_build_present,
     check_release_notes_present,
     check_release_tag_is_available,
     check_repo_is_bokeh,
@@ -119,8 +120,8 @@ BUILD_STEPS: StepListType = (
     verify_pip_install_from_sdist,
     verify_pip_install_using_sdist,
     verify_pip_install_using_wheel,
-    build_conda_packages,
-    verify_conda_install,
+    build_conda_package,
+    verify_conda_package,
     build_docs,
     pack_deployment_tarball,
     upload_deployment_tarball,
@@ -132,10 +133,11 @@ BUILD_STEPS: StepListType = (
 )
 
 DEPLOY_CHECKS: StepListType = (
-    check_aws_present,
     check_anaconda_present,
+    check_aws_present,
     check_git_present,
     check_npm_present,
+    check_rattler_build_present,
     check_twine_present,
     check_checkout_on_base_branch,
     verify_anaconda_credentials,

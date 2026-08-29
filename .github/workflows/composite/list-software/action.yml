@@ -1,8 +1,11 @@
 name: 'List Installed Software'
 
-description: 'List conda environment and Node.js/npm versions'
+description: 'List the Pixi environment and Node.js/npm versions'
 
 inputs:
+  environment:
+    description: 'Pixi environment to list'
+    required: true
   include-chromium:
     description: 'Whether to include chromium version in output'
     required: false
@@ -12,10 +15,11 @@ runs:
   using: composite
   steps:
     - name: List installed software
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
-        conda info
-        conda list
+        pixi info
+        pixi list --locked --environment "${{ inputs.environment }}"
+        echo "python $(python --version)"
         echo "node $(node --version)"
         echo "npm $(npm --version)"
         if [[ "${{ inputs.include-chromium }}" == "true" ]]; then

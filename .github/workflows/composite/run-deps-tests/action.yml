@@ -11,7 +11,7 @@ runs:
   using: composite
   steps:
     - name: Run tests
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         COLOR="--color=yes"
         COVERAGE="--cov=bokeh --cov-report=xml"

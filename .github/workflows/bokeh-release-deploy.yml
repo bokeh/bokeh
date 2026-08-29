@@ -13,7 +13,7 @@ permissions:
 
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
 
@@ -47,12 +47,12 @@ jobs:
 
       - uses: actions/checkout@v6
 
-      - uses: conda-incubator/setup-miniconda@v4
+      - uses: prefix-dev/setup-pixi@v0.10.0
         with:
-          miniforge-version: latest
-          mamba-version: "*"
-          activate-environment: bk-release-deploy
-          environment-file: conda/environment-release-deploy.yml
+          environments: release-deploy
+          activate-environment: release-deploy
+          locked: true
+          cache: false
 
       - name: Deploy Release Tarball
         env:
@@ -62,4 +62,4 @@ jobs:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
-        run: python -m tools.release deploy $BOKEH_VERSION
+        run: python -m tools.release deploy "$BOKEH_VERSION"

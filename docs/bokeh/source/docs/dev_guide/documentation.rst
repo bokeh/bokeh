@@ -113,22 +113,9 @@ uses several :ref:`custom Sphinx extensions <bokeh.sphinxext>`.
 1. Prepare your environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build the documentation, follow the instructions in :ref:`contributor_guide_setup`
-and make sure you have activated the ``bkdev`` environment in your console:
-
-.. code-block:: sh
-
-    conda activate bkdev
-
-Unless you have just installed or updated your conda environment, you should
-make sure that all the packages are up to date. Run this command from the
-root level of your *source checkout* directory to update ``bkdev``:
-
-.. code-block:: sh
-
-    conda env update --name bkdev --file <environment file> --prune
-
-using the environment file you originally used to create ``bkdev``.
+To build the documentation, follow the instructions in
+:ref:`contributor_guide_setup`. The documentation Makefiles use the locked Pixi
+environment automatically, whether or not its shell is already active.
 
 2. Set environment variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,23 +134,33 @@ required to build those plots correctly. You have two options:
   This will only affect your local environment and should have no effect on any
   changes you might commit to the Bokeh repository.
 
-After activating your conda environment, use the following command to set the
-environment variable:
+Set the environment variable for the terminal session that will build the
+documentation:
 
-.. code-block:: sh
+.. tab-set::
 
-    conda env config vars set GOOGLE_API_KEY=some_value
+    .. tab-item:: Linux/macOS
+        :sync: sh
 
-Next, you have to reactivate your environment:
+        .. code-block:: sh
 
-.. code-block:: sh
+            export GOOGLE_API_KEY=some_value
 
-  conda deactivate
-  conda activate bkdev
+    .. tab-item:: Windows (PS)
+        :sync: ps
 
-Using ``conda env config vars set`` makes this environment variable part of your
-``bkdev`` environment. Whenever you activate your ``bkdev`` environment, conda
-will now set this environment variable for you.
+        .. code-block:: powershell
+
+            $Env:GOOGLE_API_KEY = "some_value"
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            set GOOGLE_API_KEY=some_value
+
+Do not add the API key to ``pixi.toml`` or commit it to the repository.
 
 3. Build Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

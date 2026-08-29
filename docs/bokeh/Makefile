@@ -2,6 +2,25 @@
 BUILDDIR = build
 SPHINXOPTS =
 
+PROJECT_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+PROJECT_PIXI_ENVS := $(PROJECT_ROOT)/.pixi/envs
+PROJECT_PIXI_ACTIVE := $(filter $(PROJECT_PIXI_ENVS)/%,$(CONDA_PREFIX))
+
+ifeq ($(BOKEH_DOCS_PIXI_ACTIVE)$(PROJECT_PIXI_ACTIVE),)
+
+.DEFAULT_GOAL := _pixi
+.PHONY: _pixi
+
+ifneq ($(strip $(MAKECMDGOALS)),)
+.PHONY: $(MAKECMDGOALS)
+$(MAKECMDGOALS): _pixi ;
+endif
+
+_pixi:
+	@BOKEH_DOCS_PIXI_ACTIVE=1 pixi run --manifest-path "$(PROJECT_ROOT)" --locked $(MAKE) $(MAKECMDGOALS)
+
+else
+
 .PHONY: help clean html reference reference-check reference-clean serve
 
 help:
@@ -47,3 +66,5 @@ html: reference-check
 
 serve:
 	python docserver.py
+
+endif

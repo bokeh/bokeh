@@ -16,7 +16,7 @@ concurrency:
 
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash --noprofile --norc -eo pipefail {0}
 
 env:
   CHROME_VER: "141.0.7390.54"
@@ -55,11 +55,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.12'
+          environment: test-py312
           source-tree: 'keep'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py312
 
       - name: Run codebase checks
         run: pytest --color=yes tests/codebase
@@ -74,8 +76,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
-        python-version: ['3.12', '3.14']
+        include:
+          - os: ubuntu-24.04
+            python-version: '3.12'
+            environment: test-py312
+          - os: ubuntu-24.04
+            python-version: '3.14'
+            environment: test-py314
 
     steps:
       - uses: actions/checkout@v6
@@ -83,7 +90,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: ${{ matrix.environment }}
           source-tree: 'keep'
 
       - name: Ensure Python version
@@ -91,6 +98,8 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: ${{ matrix.environment }}
 
       - parallel:
         - name: Check library types with mypy
@@ -121,7 +130,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: test-py314
           source-tree: 'delete'
 
       - name: Ensure Python version
@@ -133,6 +142,7 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
+          environment: test-py314
           include-chromium: 'true'
 
       - name: Start chrome headless
@@ -180,7 +190,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: test-py314
           source-tree: 'delete'
 
       - name: Ensure Python version
@@ -188,6 +198,8 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py314
 
       - name: Install Playwright browsers
         run: playwright install chromium
@@ -208,11 +220,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: 'minimal-deps'
+          environment: minimal
           source-tree: 'delete'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: minimal
 
       - name: Run dependency tests
         uses: ./.github/workflows/composite/run-deps-tests
@@ -232,11 +246,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: 'core'
+          environment: core
           source-tree: 'delete'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: core
 
       - name: Run dependency tests
         uses: ./.github/workflows/composite/run-deps-tests
@@ -262,7 +278,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: test-py314
           source-tree: 'delete'
 
       - name: Ensure Python version
@@ -270,9 +286,11 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py314
 
       - name: Build docs
-        run: bash tools/ci/build_docs.sh
+        run: pixi run --locked --environment test-py314 docs
 
       - name: Upload docs
         uses: actions/upload-artifact@v6

@@ -1,0 +1,279 @@
+[workspace]
+name = "bokeh"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "win-64"]
+requires-pixi = ">=0.76.1"
+
+[dependencies]
+nomkl = "*"
+pip = "*"
+
+[target.osx.activation]
+scripts = ["tools/ci/activate_pixi.sh"]
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py313.dependencies]
+python = "3.13.*"
+python-gil = "*"
+
+[feature.py314.dependencies]
+python = "3.14.*"
+python-gil = "*"
+
+[feature.py314t]
+platforms = ["linux-64"]
+
+[feature.py314t.dependencies]
+pip = "*"
+python = "3.14.*"
+python-freethreading = "*"
+
+[feature.js.dependencies]
+nodejs = "24.*"
+
+# Prefer conda-forge builds for Bokeh runtime dependencies. The constraints
+# mirror [project.dependencies] in pyproject.toml and are checked by the
+# codebase tests.
+[feature.runtime.dependencies]
+contourpy = ">=1.2"
+jinja2 = ">=2.9"
+narwhals = ">=1.13"
+numpy = ">=1.16"
+packaging = ">=16.8"
+pillow = ">=7.1.0"
+pyyaml = ">=3.10"
+tornado = ">=6.2"
+xyzservices = ">=2021.09.1"
+
+[feature.test.dependencies]
+pytest = ">=7.0"
+pytest-asyncio = "*"
+pytest-cov = ">=1.8.1"
+pytest-html = "*"
+pytest-timeout = "*"
+pytest-tornado = "*"
+pytest-xdist = "*"
+
+[feature.full.dependencies]
+beautifulsoup4 = "*"
+bokeh_sampledata = ">=2025.0"
+cartopy = "*"
+channels = "*"
+click = "*"
+colorama = "*"
+colorcet = "*"
+coverage = "*"
+firefox = ">=96"
+flask = ">=1.0"
+geckodriver = "*"
+h5py = "*"
+icalendar = "*"
+ipython = "*"
+isort = "5.8.*"
+json5 = "*"
+mypy = ">=1.20"
+nbconvert = ">=5.4"
+networkx = "*"
+notebook = "*"
+numpy = ">=1.20.0"
+pandas = "3.*"
+pandas-stubs = ">=2.2"
+playwright = "*"
+polars = ">=1.0"
+pooch = "*" # Required by scipy.datasets.
+pre-commit = "*"
+psutil = "*"
+pyarrow = ">=14.0"
+pydata-sphinx-theme = "*"
+pygments = "*"
+pyshp = "*"
+pytest-playwright = "*"
+python-dateutil = ">=2.1"
+requests = ">=1.2.3,!=2.32.*" # See https://github.com/bokeh/bokeh/issues/13910.
+ruff = "0.15.*"
+scikit-learn = "*"
+scipy = "*"
+selenium = "4.2.*"
+sphinx = "9.*"
+sphinx-copybutton = "*"
+sphinx-design = "*"
+sphinx-favicon = "*"
+sphinxext-opengraph = ">=0.11.0"
+squarify = "*"
+sympy = "*"
+toml = "*"
+types-colorama = "*"
+types-docutils = "*"
+types-mock = "*"
+types-pillow = "*"
+types-pyyaml = "*"
+types-requests = "*"
+types-toml = "*"
+urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
+vermin = "*"
+
+[feature.full.pypi-dependencies]
+pyright = "*"
+requests-unixsocket = ">=0.3.0"
+types-boto3 = "*"
+
+# Packages intentionally omitted from the free-threaded environment because
+# conda-forge does not currently provide a compatible pygraphviz build.
+[feature.standard-only.dependencies]
+pygraphviz = "*"
+rich = ">=13.9,<15"
+rich-click = ">=1.8,<2"
+
+[feature.free-threaded.dependencies]
+pytest-repeat = "*"
+
+# bokeh_sampledata is intentionally omitted from the minimal environment.
+[feature.minimal.dependencies]
+beautifulsoup4 = "*"
+channels = "*"
+click = "*"
+colorama = "*"
+colorcet = "*"
+coverage = "*"
+firefox = ">=96"
+geckodriver = "*"
+h5py = "*"
+icalendar = "*"
+ipython = "*"
+isort = "5.8.*"
+json5 = "*"
+mypy = ">=1.20"
+narwhals = "<1.14"
+nbconvert = ">=5.4"
+numpy = "1.*"
+pandas = "2.*"
+pre-commit = "*"
+psutil = "*"
+pydata-sphinx-theme = "*"
+pygments = "*"
+pygraphviz = "*"
+pyshp = "*"
+python-dateutil = ">=2.1"
+requests = ">=1.2.3,!=2.32.*" # See https://github.com/bokeh/bokeh/issues/13910.
+ruff = "0.15.*"
+selenium = "4.2.*"
+sphinx = "9.*"
+sphinx-copybutton = "*"
+sphinx-design = "*"
+sphinx-favicon = "*"
+sphinxext-opengraph = ">=0.11.0"
+tornado = "6.3.*"
+types-colorama = "*"
+types-docutils = "*"
+types-mock = "*"
+types-pillow = "*"
+types-pyyaml = "*"
+types-requests = "*"
+urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
+
+[feature.minimal.pypi-dependencies]
+pyright = "*"
+requests-unixsocket = ">=0.3.0"
+types-boto3 = "*"
+
+[feature.downstream]
+channels = [{ channel = "pyviz/label/dev", priority = 1 }]
+platforms = ["linux-64"]
+
+[feature.downstream.dependencies]
+holoviews = "*"
+panel = "*"
+python-dateutil = ">=2.1"
+pytest = ">=7.0"
+pytest-asyncio = "*" # Panel and HoloViews both set asyncio_mode = "auto".
+pytest-cov = "*"
+pytest-repeat = "*"
+pytest-rerunfailures = "*"
+pytest-timeout = "*"
+
+[feature.server-integration]
+platforms = ["linux-64"]
+
+[feature.server-integration.dependencies]
+django = "*"
+fastapi = "*"
+hypercorn = "*"
+starlette = "*"
+streamlit = "1.57.*"
+uvicorn-standard = "*"
+
+[feature.build.dependencies]
+pip = "*"
+python-build = "*"
+setuptools = "*"
+
+[feature.release-build.dependencies]
+bokeh_sampledata = "*"
+boto3 = "*"
+cartopy = "*"
+colorama = "*"
+colorcet = "*"
+firefox = ">=96"
+geckodriver = "*"
+icalendar = "*"
+ipython = "*"
+networkx = "*"
+packaging = "*"
+pip = "*"
+pydata-sphinx-theme = "*"
+pygments = "*"
+pygraphviz = "*"
+pyshp = "*"
+python-build = "*"
+rattler-build = "*"
+scikit-learn = "*"
+scipy = "*"
+setuptools = "*"
+sphinx = "9.*"
+sphinx-copybutton = "*"
+sphinx-design = "*"
+sphinx-favicon = "*"
+sphinxext-opengraph = ">=0.11.0"
+squarify = "*"
+sympy = "*"
+toml = "*"
+
+[feature.release-deploy.dependencies]
+anaconda-client = "*"
+boto3 = "*"
+colorama = "*"
+packaging = "*"
+pip = "*"
+pyyaml = "*"
+rattler-build = "*"
+setuptools = "*"
+twine = "*"
+
+[environments]
+default = ["py313", "js", "runtime", "test", "full", "standard-only"]
+test-py312 = ["py312", "js", "runtime", "test", "full", "standard-only"]
+test-py313 = ["py313", "js", "runtime", "test", "full", "standard-only"]
+test-py314 = ["py314", "js", "runtime", "test", "full", "standard-only"]
+test-py314t = { features = ["py314t", "js", "runtime", "test", "full", "free-threaded"], no-default-feature = true }
+minimal = ["py312", "js", "runtime", "test", "minimal"]
+core = ["py313", "js", "runtime", "test"]
+downstream = ["py312", "js", "runtime", "downstream"]
+build = { features = ["py312", "js", "runtime", "build"], no-default-feature = true }
+release-build = { features = ["py312", "js", "runtime", "release-build"], no-default-feature = true }
+release-deploy = { features = ["py312", "js", "release-deploy"], no-default-feature = true }
+server-integration = ["py313", "js", "runtime", "test", "full", "standard-only", "server-integration"]
+
+[tasks]
+setup = { cmd = "python -m pip install --no-deps -e .", depends-on = ["js-install"] }
+test-python = "pytest tests/unit"
+docs = "bash tools/ci/build_docs.sh"
+
+[feature.js.tasks]
+js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
+test-js = { cmd = "node make test", cwd = "bokehjs" }
+build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
+
+[feature.build.tasks]
+build-python = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }

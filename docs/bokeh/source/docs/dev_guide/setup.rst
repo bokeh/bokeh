@@ -7,9 +7,9 @@ The Bokeh project consists of two major components: the Bokeh package source
 code, written in Python, and the :term:`BokehJS` client-side library, written in
 TypeScript.
 
-Therefore, you need to set up two environments to contribute to Bokeh: A Python
-environment and a TypeScript environment. This chapter walks you through all the
-necessary steps to set up a full development environment.
+The repository's Pixi workspace manages the Python and TypeScript toolchains
+together. This chapter walks you through the steps to set up that development
+environment.
 
 .. _contributor_guide_setup_preliminaries:
 
@@ -29,31 +29,28 @@ Windows, OSX, or Linux. To install Git on any platform, refer to the
 If you have never used Git before, you can find links to several beginner
 tutorials and resources in the `Git documentation`_.
 
-Install or update conda
-~~~~~~~~~~~~~~~~~~~~~~~
+Install or update Pixi
+~~~~~~~~~~~~~~~~~~~~~~
 
 Working on the Bokeh codebase requires installing several software packages that
 are not Python packages. For example, `Node.js`_ for TypeScript development or
 `Selenium`_ for testing and exporting.
 
-To be able to manage Python and non-Python dependencies in one place, Bokeh uses
-the `conda package manager`_. ``conda`` is part of the free `Anaconda`_ Python
-distribution available for Windows, macOS, and Linux. Conda creates and manages
-virtual environments for you. Therefore, you don't need tools like ``venv``,
-``virtualenv``, or ``pipenv``. While it is technically possible to install all
-dependencies manually without ``conda``, this guide will assume that you have
-``conda`` installed.
+To manage Python and non-Python dependencies in one place, Bokeh uses `Pixi`_.
+Pixi is a single executable available for Windows, macOS, and Linux. It creates
+and manages isolated environments, so you don't need to install Python,
+Node.js, Conda, or tools such as ``venv`` separately.
 
-To install or update Conda on your system, see `Installation`_ in the `Conda
-documentation`_.
+Install Pixi by following the `Pixi installation`_ instructions.
 
 .. note::
-    If ``conda`` is already installed on your system, make sure it is up to date
-    by running the following command:
+    Bokeh requires the Pixi version range declared in ``pixi.toml``. Pixi
+    checks this requirement before installing an environment. To check your
+    installed version, run:
 
     .. code-block:: sh
 
-        conda update -n base -c defaults conda
+        pixi --version
 
 .. _contributor_guide_setup_cloning:
 
@@ -97,85 +94,57 @@ upstream with the following commands:
             git fetch upstream
 
 .. _contributor_guide_setup_creating_conda_env:
+.. _contributor_guide_setup_creating_pixi_env:
 
-3. Create a conda environment
------------------------------
+3. Enter the Pixi environment
+------------------------------
 
-The Bokeh repository you just cloned to your local hard drive contains
-:ref:`test environment files <contributor_guide_testing_ci_environments>`
-in the :bokeh-tree:`conda` folder. In these files is all the necessary
-information to automatically create a basic development environment.
-
-Use ``conda env create`` at the root level of your *source checkout* directory
-to set up the environment and install all necessary packages. The "test"
-environment files are versioned by Python version.
-
-For example, to install an environment for Python 3.12, invoke:
+The Bokeh repository contains its development environment definitions in
+``pixi.toml`` and exact dependency versions in ``pixi.lock``. From the
+root of your *source checkout*, start a shell in the default environment with:
 
 .. code-block:: sh
 
-    conda env create -n bkdev -f conda/environment-test-3.12.yml
+    pixi shell --locked
+
+Pixi installs the environment if necessary and opens an activated subshell.
+Keep this shell open while working on Bokeh; the commands in the rest of this
+guide assume it is active. Run ``exit`` to leave it. Ordinary tools such as
+``python``, ``pytest``, and ``node`` can be invoked directly. Commands such as
+``pixi run setup`` and ``pixi run js-install`` invoke repository tasks defined
+in ``pixi.toml``.
 
 .. note::
-    Use the ``conda -n bkdev`` option to make ``bkdev`` the name of your
-    environment. The remainder of this chapter and all other chapters in this
-    guide assume that this is the name of your environment.
+    After pulling dependency changes or switching branches, leave the active
+    shell and run ``pixi shell --locked`` again. Pixi updates the local
+    environment to match the committed lockfile.
 
-Then, activate the environment:
-
-.. code-block:: sh
-
-    conda activate bkdev
-
-.. note::
-    To update your local environment, use
-    ``conda env update --name bkdev -f conda/<environment file>``. Updating your local
-    environment is necessary whenever the dependencies in the test environments
-    change. This can happen when the environment files are updated in the main
-    Bokeh repository or when you switch branches to work on different issues,
-    for example.
-
-To learn more about creating and managing conda environments, see `Managing
-environments`_ in the `Conda documentation`_.
+Bokeh also defines environments for its supported Python versions and focused
+test configurations. Use ``pixi shell --locked -e test-py312`` for an
+interactive Python 3.12 shell, or ``pixi run --locked -e test-py312 <command>``
+for a single command. See
+:ref:`contributor_guide_testing_ci_environments` for more information.
 
 .. _contributor_guide_setup_installing_node_packages:
 
 4. Install Node packages
 ------------------------
 
-Building BokehJS also requires installing JavaScript dependencies using
-the `Node Package Manager (npm) <npm_>`_. If you have followed the
-:ref:`instructions above <contributor_guide_setup_creating_conda_env>`,
-``conda`` has already installed the necessary ``npm`` and ``node.js``
-packages to your system.
-
-Bokeh usually requires the latest major revision of ``npm``. To install the
-newest version globally, start from the top level of the *source checkout*
-directory, and run the following commands:
+Building BokehJS also requires JavaScript dependencies from the
+`Node Package Manager (npm) <npm_>`_. The Pixi environment supplies the
+required versions of Node.js and npm. From the root of the *source checkout*,
+install the JavaScript dependencies with:
 
 .. code-block:: sh
 
-    cd bokehjs
-    npm install --location=global npm
-
-If you do not want to install npm globally, leave out the ``--location=global``
-flag. In this case, you need to adjust all subsequent ``npm`` commands to use
-the local version installed under ``bokehjs/node_modules``.
-
-Next, still in the ``bokehjs`` subdirectory, run the following command
-to install all the JavaScript dependencies for BokehJS:
-
-.. code-block:: sh
-
-    npm ci
+    pixi run js-install
 
 This command installs the necessary packages into the ``node_modules``
 subdirectory.
 
 .. note::
-    Typically, you only need to do this once when you first set up your local
-    environment. However, if dependencies are added or changed, you need to
-    repeat these steps to install and update the respective packages.
+    ``pixi run setup`` also installs the JavaScript dependencies. Run either
+    command again whenever ``bokehjs/package-lock.json`` changes.
 
 .. _contributor_guide_setup_pre-commit:
 
@@ -223,40 +192,46 @@ To uninstall the Git hooks, run the following command from the top level of your
 6. Build and install locally
 ----------------------------
 
-Once you have all the required dependencies installed, the simplest way to
-build and install Bokeh and BokehJS is to use `pip`_. ``pip`` is the package
-installer for Python and is automatically installed when you
-:ref:`set up the conda environment <contributor_guide_setup_creating_conda_env>`.
-Make sure you have activated the ``bkdev`` environment before running ``pip``.
+Once Pixi has installed the environment, set up an editable Bokeh checkout with:
+
+.. code-block:: sh
+
+    pixi run setup
+
+This installs the locked JavaScript dependencies, builds BokehJS, and uses
+`pip`_ to install the local Python package in editable mode. The command passes
+``--no-deps`` to pip because third-party dependencies are managed by Pixi and
+``pixi.lock``.
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
-``pip install -e .``
+``python -m pip install --no-deps -e .``
     Bokeh will be installed to refer to your local source directory. Any changes
     you make to the Python source code will be available immediately without
     any additional steps. **This is the recommended mode when working on the
     Bokeh codebase.**
 
-``pip install .``
-    Bokeh will be installed in your local Python ``site-packages`` directory.
+``python -m pip install --no-deps .``
+    Bokeh will be installed in the ``site-packages`` directory of your local
+    Pixi environment.
     In this mode, any changes to the Python source code will have no effect
-    until you run ``pip install .`` again.
+    until you run the installation command again.
 
 Running either of those two commands also builds and installs a local version of
 :term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
 different local version instead, set the ``BOKEHJS_ACTION`` environment variable:
-``BOKEHJS_ACTION="install" pip install -e .``
+``BOKEHJS_ACTION="install" python -m pip install --no-deps -e .``
 
 .. note::
     You need to **rebuild BokehJS each time the BokehJS source code changes**.
     This can be necessary because you made changes yourself or because you
-    pulled updated code from GitHub. Re-run ``pip install -e .`` to build
-    and install BokehJS.
+    pulled updated code from GitHub. Re-run ``pixi run setup`` to build and
+    install BokehJS.
 
     Occasionally, the **list of JavaScript dependencies also changes**. If this
     happens, you will need to re-run the instructions in the
     :ref:`contributor_guide_setup_installing_node_packages` section above before
-    rebuilding BokehJS.
+    rebuilding BokehJS. ``pixi run setup`` performs both steps.
 
 .. _contributor_guide_setup_environment_variables:
 
@@ -271,8 +246,8 @@ To learn about all environment variables available in Bokeh, see
 
 Only set the environment variables in this section for the command or terminal
 session that needs them. In particular, avoid making them permanent settings in
-your ``bkdev`` environment, because different development tasks need different
-resource configuration:
+your shell profile or Pixi manifest, because different development tasks need
+different resource configuration:
 
 * To run examples or local applications with your locally built BokehJS, set
   ``BOKEH_RESOURCES`` for that command or terminal session.
@@ -506,14 +481,14 @@ You should see output similar to:
 
 .. code-block:: sh
 
-    Python version        :  3.12.3 | packaged by conda-forge | (main, Apr 15 2024, 18:38:13) [GCC 12.3.0]
-    IPython version       :  8.19.0
-    Tornado version       :  6.3.3
-    NumPy version         :  2.0.0
-    Bokeh version         :  3.5.1
-    BokehJS static path   :  /opt/anaconda/envs/test/lib/python3.12/site-packages/bokeh/server/static
-    node.js version       :  v20.12.2
-    npm version           :  10.8.2
+    Python version        :  3.13.5 | packaged by conda-forge | (main, Jun 16 2025, 08:12:13) [Clang 18.1.8]
+    IPython version       :  9.3.0
+    Tornado version       :  6.5.1
+    NumPy version         :  2.3.1
+    Bokeh version         :  4.0.0.dev1
+    BokehJS static path   :  /path/to/bokeh/src/bokeh/server/static
+    node.js version       :  v24.3.0
+    npm version           :  11.4.2
     jupyter_bokeh version :  (not installed)
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
@@ -542,7 +517,7 @@ following command(s):
         .. code-block:: powershell
 
             $Env:BOKEH_RESOURCES = "inline"
-            python.exe .\examples\basic\data\transform_markers.py
+            python .\examples\basic\data\transform_markers.py
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -583,7 +558,7 @@ checkout* directory:
         .. code-block:: powershell
 
             $Env:BOKEH_DEV = "False"
-            python.exe -m bokeh serve --show .\examples\server\app\sliders.py
+            python -m bokeh serve --show .\examples\server\app\sliders.py
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -608,7 +583,7 @@ Troubleshooting
 
 Updating an existing development environment does not always work as
 expected. As a general rule, make sure your
-:ref:`conda environment <contributor_guide_setup_creating_conda_env>`,
+:ref:`Pixi environment <contributor_guide_setup_creating_pixi_env>`,
 :ref:`Node packages <contributor_guide_setup_installing_node_packages>`, and
 :ref:`local build <contributor_guide_setup_install_locally>` are always up to date.
 
@@ -666,10 +641,10 @@ setting up a development environment:
 
 .. dropdown:: Errors after updating from an older version
 
-    If you keep getting errors after updating an older environment, use
-    ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
-    and reinstall your development environment, following the steps in this guide
-    from :ref:`the beginning <contributor_guide_setup_preliminaries>`.
+    If you keep getting errors after updating an older environment, leave the
+    active shell and run ``pixi clean`` followed by ``pixi run --locked setup``.
+    This recreates the managed environment and local package installation from
+    the committed lockfile. Run ``pixi shell --locked`` to re-enter it.
 
 .. dropdown:: Slow network connections when cloning
 
@@ -767,10 +742,9 @@ Slack`_.
 
 .. _Node.js: https://nodejs.org/en/
 .. _Selenium: https://www.selenium.dev/
-.. _Anaconda: https://www.anaconda.com/download/
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
-.. _conda package manager: https://docs.conda.io/projects/conda/en/latest/
-.. _Installation: https://conda.io/projects/conda/en/latest/user-guide/install/index.html
+.. _Pixi: https://pixi.prefix.dev/
+.. _Pixi installation: https://pixi.prefix.dev/latest/installation/
 .. _Bokeh Discourse: https://discourse.bokeh.org/
 .. _Git: https://git-scm.com
 .. _Installing Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
@@ -781,8 +755,6 @@ Slack`_.
 .. _Fork a repo: https://help.github.com/en/github/getting-started-with-github/fork-a-repo
 .. _GitHub Help: https://help.github.com
 .. _cloning a forked repository: https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository
-.. _Managing environments: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
-.. _Conda documentation: https://conda.io/projects/conda/en/latest/index.html
 .. _npm: https://www.npmjs.com/
 .. _pre-commit: https://pre-commit.com/
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks

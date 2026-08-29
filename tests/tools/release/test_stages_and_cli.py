@@ -50,6 +50,11 @@ def test_all_deploy_checks_are_recognized_as_checks() -> None:
     assert all(is_check(step) for step in stages.DEPLOY_CHECKS)
 
 
+def test_deploy_pipeline_preflights_anaconda_before_publication() -> None:
+    assert stages.check_anaconda_present in stages.DEPLOY_CHECKS
+    assert stages.verify_anaconda_credentials in stages.DEPLOY_CHECKS
+
+
 def test_build_pipeline_midflight_checks_are_explicit() -> None:
     assert [step.__name__ for step in stages.BUILD_STEPS if is_check(step)] == [
         "check_docs_version_config",
@@ -57,7 +62,7 @@ def test_build_pipeline_midflight_checks_are_explicit() -> None:
         "verify_pip_install_from_sdist",
         "verify_pip_install_using_sdist",
         "verify_pip_install_using_wheel",
-        "verify_conda_install",
+        "verify_conda_package",
     ]
 
 

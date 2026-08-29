@@ -19,14 +19,11 @@ banner_and_restore() {
 
 alias banner='{ save_flags="$-"; set +x;} 2> /dev/null; banner_and_restore'
 
-banner "holoviews" 2> /dev/null
-conda install --yes --quiet -c pyviz/label/dev holoviews scipy
-
+# Install the downstream projects tested from their current default branches.
 banner "dask/distributed" 2> /dev/null
 git clone https://github.com/dask/distributed.git
-pip install -e "./distributed"
+python -m pip install --no-deps -e "./distributed"
 
 banner "dask/dask" 2> /dev/null
-pip install pytest-timeout pytest-cov pytest-rerunfailures pytest-repeat
 git clone https://github.com/dask/dask.git
-pip install -e "./dask[test]"  # "test" extra installs additional testing dependencies
+python -m pip install -e "./dask[test]"  # "test" extra installs additional testing dependencies

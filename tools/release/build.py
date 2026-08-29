@@ -27,7 +27,7 @@ from .util import skip_for_prerelease
 
 __all__ = (
     "build_bokehjs",
-    "build_conda_packages",
+    "build_conda_package",
     "build_docs",
     "build_pip_packages",
     "dev_install_bokehjs",
@@ -38,7 +38,7 @@ __all__ = (
     "update_changelog",
     "update_hash_manifest",
     "update_switcher_json",
-    "verify_conda_install",
+    "verify_conda_package",
     "verify_pip_install_from_sdist",
     "verify_pip_install_using_sdist",
     "verify_pip_install_using_wheel",
@@ -65,12 +65,16 @@ def build_npm_packages(config: Config, system: System) -> ActionReturn:
         return FAILED("npm pack did NOT succeed", details=e.args)
 
 
-def build_conda_packages(config: Config, system: System) -> ActionReturn:
+def build_conda_package(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("conda build conda/recipe --no-test", VERSION=config.version)
-        return PASSED("conda package build succeeded")
+        system.run(
+            "rattler-build build --recipe conda/recipe --channel conda-forge "
+            "--output-dir dist/conda --package-format tar-bz2 --test skip",
+            VERSION=config.version,
+        )
+        return PASSED("Conda package build succeeded")
     except RuntimeError as e:
-        return FAILED("conda package build did NOT succeed", details=e.args)
+        return FAILED("Conda package build did NOT succeed", details=e.args)
 
 
 def build_docs(config: Config, system: System) -> ActionReturn:
@@ -93,7 +97,7 @@ def build_pip_packages(config: Config, system: System) -> ActionReturn:
 
 def dev_install_bokehjs(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("pip install -e .", BOKEHJS_ACTION="install")
+        system.run("python -m pip install --no-deps -e .", BOKEHJS_ACTION="install")
         return PASSED("Bokeh dev install succeeded")
     except RuntimeError as e:
         return FAILED("Bokeh dev install did NOT succeed", details=e.args)
@@ -101,7 +105,7 @@ def dev_install_bokehjs(config: Config, system: System) -> ActionReturn:
 
 def install_bokehjs(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("pip install .", BOKEHJS_ACTION="install")
+        system.run("python -m pip install --no-deps .", BOKEHJS_ACTION="install")
         return PASSED("BokehJS install succeeded")
     except RuntimeError as e:
         return FAILED("BokehJS install did NOT succeed", details=e.args)
@@ -123,7 +127,7 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         filename = f"{dirname}.tgz"
         system.run(f"mkdir {dirname}")
         system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
-        system.run(f"cp $CONDA_PREFIX/conda-bld/noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
+        system.run(f"cp dist/conda/noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
         system.run(f"cp dist/bokeh-{config.version}.tar.gz {dirname}")
         system.run(f"cp dist/bokeh-{config.version}-py3-none-any.whl {dirname}")
         system.run(f"mkdir {dirname}/bokehjs")
@@ -312,9 +316,12 @@ def verify_pip_install_using_wheel(config: Config, system: System) -> ActionRetu
     except RuntimeError as e:
         return FAILED("Verify pip install using wheel failed", details=e.args)
 
-def verify_conda_install(config: Config, system: System) -> ActionReturn:
+def verify_conda_package(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("bash tools/ci/verify_conda_install.sh", VERSION=config.version)
-        return PASSED("Verified conda install")
+        system.run(
+            f"rattler-build test --package-file dist/conda/noarch/bokeh-{config.version}-py_0.tar.bz2 "
+            "--channel conda-forge",
+        )
+        return PASSED("Verified Conda package")
     except RuntimeError as e:
-        return FAILED("Verify conda install failed", details=e.args)
+        return FAILED("Verify Conda package failed", details=e.args)
