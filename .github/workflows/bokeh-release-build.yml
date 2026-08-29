@@ -89,7 +89,6 @@ jobs:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: python -m tools.release build-artifacts "$BOKEH_VERSION"
 
       - name: Upload Deployment Assets
