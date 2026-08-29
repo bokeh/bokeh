@@ -114,6 +114,7 @@ class DirectoryHandler(Handler):
 
             argv (list[str], optional) : a list of string arguments to make available as sys.argv to main.py
         '''
+        argv = list(argv)
         super().__init__()
 
         src_path = filename

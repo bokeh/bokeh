@@ -925,6 +925,8 @@ class DataTable(TableWidget):
 
         """
 
+          
+        formatters = formatters.copy()
         if isinstance(data, ColumnDataSource):
             source = data.clone()
         else:

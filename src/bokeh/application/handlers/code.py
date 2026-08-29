@@ -100,6 +100,7 @@ class CodeHandler(Handler):
                 available as ``sys.argv`` when the code executes
 
         '''
+        argv = list(argv)
         super().__init__()
 
         self._runner = CodeRunner(source, filename, argv, package=package)

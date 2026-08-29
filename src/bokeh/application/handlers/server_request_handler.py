@@ -68,6 +68,7 @@ class ServerRequestHandler(RequestHandler):
                 ``sys.argv`` when the callback code is executed. (default: [])
 
         '''
+        argv = list(argv)
         super().__init__()
 
         with open(filename, encoding='utf-8') as f:
