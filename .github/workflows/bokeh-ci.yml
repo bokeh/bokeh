@@ -97,8 +97,54 @@ jobs:
       - name: Run codebase checks
         run: pytest --color=yes --durations=20 --durations-min=1 tests/codebase
 
+  tools:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+
+    env:
+      PYTHONPATH: ${{ github.workspace }}/src
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: test-py312
+          activate-environment: test-py312
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
+
+      - name: Install Bokeh from source
+        run: python -m pip install --no-deps --editable .
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py312
+
       - name: Run tools tests
         run: pytest --color=yes --durations=20 --durations-min=1 tests/tools
+
+      - name: Check tools code quality
+        if: runner.os == 'Linux'
+        run: |
+          ruff check tools tests/tools
+          isort --gitignore --diff -c tools
+          isort --gitignore --diff -c tests/tools
+
+      - name: Check tools types
+        if: runner.os == 'Linux'
+        run: |
+          mypy --no-sqlite-cache --show-traceback tools tests/tools
+          pyright tools
 
   typing:
     needs: build
