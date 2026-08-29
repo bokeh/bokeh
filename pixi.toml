@@ -117,7 +117,6 @@ vermin = "*"
 [feature.full.pypi-dependencies]
 pyright = "*"
 requests-unixsocket = ">=0.3.0"
-types-boto3 = "*"
 
 # Packages intentionally omitted from the free-threaded environment because
 # conda-forge does not currently provide a compatible pygraphviz build.
@@ -176,7 +175,6 @@ urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
 [feature.minimal.pypi-dependencies]
 pyright = "*"
 requests-unixsocket = ">=0.3.0"
-types-boto3 = "*"
 
 [feature.downstream]
 channels = [{ channel = "pyviz/label/dev", priority = 1 }]
@@ -211,7 +209,6 @@ setuptools = "*"
 
 [feature.release-build.dependencies]
 bokeh_sampledata = "*"
-boto3 = "*"
 cartopy = "*"
 colorama = "*"
 colorcet = "*"
@@ -242,7 +239,6 @@ toml = "*"
 
 [feature.release-deploy.dependencies]
 anaconda-client = "*"
-boto3 = "*"
 colorama = "*"
 packaging = "*"
 pip = "*"

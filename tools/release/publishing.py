@@ -7,11 +7,9 @@
 from __future__ import annotations
 
 # Standard library imports
-import logging
 from itertools import product
 
 # External imports
-import boto3  # pyright: ignore[reportMissingModuleSource]
 from packaging.version import Version as V
 
 # Bokeh imports
@@ -28,9 +26,6 @@ __all__ = (
 CLOUDFRONT_ID = "E2OC6Q27H5UQ63"
 REGION = "--region us-east-1"
 
-log = logging.getLogger(__name__)
-
-
 def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
     version = config.version
     subdir = "dev" if V(version).is_prerelease else "release"
@@ -40,28 +35,17 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
 
     try:
         for bucket, region_name in BOKEHJS_BUCKETS:
-            s3 = boto3.client("s3", region_name=region_name)
-
             for name, suffix in product(file_names, suffixes):
                 local_path = f"bokehjs/build/js/{name}.{suffix}"
                 cdn_path = f"bokeh/{subdir}/{name}-{version}.{suffix}"
-
-                with open(local_path) as f:
-                    data = f.read().encode("utf-8")
-
-                log.info(":uploading to CDN [%s]: %s", bucket, cdn_path)
-
-                s3.put_object(
-                    Bucket=bucket,
-                    Key=cdn_path,
-                    Body=data,
-                    ContentType="application/javascript",
-                    CacheControl="max-age=31536000",
+                system.run(
+                    f"aws s3 cp {local_path} s3://{bucket}/{cdn_path} "
+                    f"--content-type application/javascript --cache-control max-age=31536000 --region {region_name}",
                 )
 
         return PASSED("Uploaded BokehJS to CDN")
 
-    except Exception as e:
+    except RuntimeError as e:
         return FAILED(f"BokehJS CDN upload failed: {e}", details=e.args)
 
 

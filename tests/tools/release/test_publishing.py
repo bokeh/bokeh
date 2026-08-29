@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
-from pathlib import Path
-from typing import Any
-
 # External imports
 import pytest
 
@@ -51,74 +47,43 @@ def test_publish_prerelease_documentation_updates_dev_and_switcher(version: str)
     assert '"/en/dev-4.0*" "/switcher.json"' in system.commands[2]
 
 
-def make_bokehjs_bundles(root: Path) -> None:
-    directory = root / "bokehjs" / "build" / "js"
-    directory.mkdir(parents=True)
-    for name in ("bokeh", "bokeh-gl", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"):
-        for suffix in ("js", "min.js", "esm.js", "esm.min.js"):
-            (directory / f"{name}.{suffix}").write_text(f"// {name}.{suffix}\n")
-
-
 @pytest.mark.parametrize(
     ("version", "subdir"),
     [("4.0.0", "release"), ("4.0.0rc1", "dev"), ("4.0.0.dev1", "dev")],
 )
 def test_publish_bokehjs_to_cdn_uploads_every_bundle(
-    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     version: str,
     subdir: str,
 ) -> None:
-    make_bokehjs_bundles(tmp_path)
-    monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(publishing, "BOKEHJS_BUCKETS", (("test-bucket", "test-region"),))
-
-    class Client:
-        def __init__(self, **kw: Any) -> None:
-            self.kw = kw
-            self.objects: list[dict[str, Any]] = []
-
-        def put_object(self, **kw: Any) -> None:
-            self.objects.append(kw)
-
-    clients: list[Client] = []
-
-    def client(service: str, **kw: Any) -> Client:
-        assert service == "s3"
-        result = Client(**kw)
-        clients.append(result)
-        return result
-
-    monkeypatch.setattr(publishing.boto3, "client", client)
+    system = RecordingSystem()
     config = Config(version)
 
-    result = publishing.publish_bokehjs_to_cdn(config, RecordingSystem())
+    result = publishing.publish_bokehjs_to_cdn(config, system)
 
     assert result.kind is ActionResult.PASS
-    assert len(clients) == 1
-    assert clients[0].kw == {"region_name": "test-region"}
-    assert len(clients[0].objects) == 24
-    assert {item["ContentType"] for item in clients[0].objects} == {"application/javascript"}
-    assert {item["CacheControl"] for item in clients[0].objects} == {"max-age=31536000"}
-    assert all(item["Key"].startswith(f"bokeh/{subdir}/") for item in clients[0].objects)
-    assert all(f"-{version}." in item["Key"] for item in clients[0].objects)
+    assert len(system.commands) == 24
+    assert all(command.startswith("aws s3 cp bokehjs/build/js/") for command in system.commands)
+    assert all(f"s3://test-bucket/bokeh/{subdir}/" in command for command in system.commands)
+    assert all(f"-{version}." in command for command in system.commands)
+    assert all("--content-type application/javascript" in command for command in system.commands)
+    assert all("--cache-control max-age=31536000" in command for command in system.commands)
+    assert all(command.endswith("--region test-region") for command in system.commands)
 
 
 def test_publish_bokehjs_to_cdn_returns_failure_for_missing_bundle(
-    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(publishing, "BOKEHJS_BUCKETS", (("test-bucket", "test-region"),))
-
-    class Client:
-        def put_object(self, **kw: Any) -> None:
-            pytest.fail("put_object should not be reached")
-
-    monkeypatch.setattr(publishing.boto3, "client", lambda *args, **kw: Client())
+    command = (
+        "aws s3 cp bokehjs/build/js/bokeh.js s3://test-bucket/bokeh/release/bokeh-4.0.0.js "
+        "--content-type application/javascript --cache-control max-age=31536000 --region test-region"
+    )
+    system = RecordingSystem(failures={command: ("The user-provided path does not exist",)})
     config = Config("4.0.0")
 
-    result = publishing.publish_bokehjs_to_cdn(config, RecordingSystem())
+    result = publishing.publish_bokehjs_to_cdn(config, system)
 
     assert result.kind is ActionResult.FAIL
-    assert "No such file" in result.message
+    assert "The user-provided path does not exist" in result.message

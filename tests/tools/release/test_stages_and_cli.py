@@ -8,7 +8,6 @@ from typing import Any
 
 # External imports
 import pytest
-import tomllib
 import yaml
 
 # Bokeh imports
@@ -249,13 +248,6 @@ def test_release_workflows_use_aws_oidc(
             continue
         env = step.get("env", {})
         assert not {"AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"} & set(env)
-
-
-def test_deploy_environment_includes_imported_release_dependencies() -> None:
-    with open(TOP_PATH / "pixi.toml", "rb") as f:
-        environment = tomllib.load(f)
-
-    assert "boto3" in environment["feature"]["release-deploy"]["dependencies"]
 
 
 @pytest.mark.parametrize("version", ["4.0.0.dev1", "4.0.0rc1", "4.0.0"])
