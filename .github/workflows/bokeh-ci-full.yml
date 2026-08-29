@@ -72,8 +72,54 @@ jobs:
       - name: Run codebase checks
         run: pytest --color=yes tests/codebase
 
+  tools:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+
+    env:
+      PYTHONPATH: ${{ github.workspace }}/src
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: test-py312
+          activate-environment: test-py312
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
+
+      - name: Install Bokeh from source
+        run: python -m pip install --no-deps --editable .
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py312
+
       - name: Run tools tests
         run: pytest --color=yes tests/tools
+
+      - name: Check tools code quality
+        if: runner.os == 'Linux'
+        run: |
+          ruff check tools tests/tools
+          isort --gitignore --diff -c tools
+          isort --gitignore --diff -c tests/tools
+
+      - name: Check tools types
+        if: runner.os == 'Linux'
+        run: |
+          mypy --no-sqlite-cache --show-traceback tools tests/tools
+          pyright tools
 
   typing:
     needs: build
@@ -454,7 +500,7 @@ jobs:
           if-no-files-found: ignore
 
   notify-nightly-failure:
-    needs: [build, codebase, typing, examples, unit-test, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [build, codebase, tools, typing, examples, unit-test, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
@@ -496,7 +542,7 @@ jobs:
           *Automated notification from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
 
   notify-pr:
-    needs: [build, codebase, typing, examples, unit-test, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [build, codebase, tools, typing, examples, unit-test, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
