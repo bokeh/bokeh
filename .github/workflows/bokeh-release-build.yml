@@ -48,6 +48,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure detached Pixi environment
+        run: |
+          printf 'detached-environments = "%s/pixi-environments"\n' "$RUNNER_TEMP" > "$RUNNER_TEMP/pixi-config.toml"
+          echo "PIXI_CONFIG_FILE=$RUNNER_TEMP/pixi-config.toml" >> "$GITHUB_ENV"
+
       - uses: prefix-dev/setup-pixi@v0.10.0
         with:
           environments: release-build
