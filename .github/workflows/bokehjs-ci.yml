@@ -23,13 +23,17 @@ jobs:
       contents: read
 
     outputs:
-      docs: ${{ steps.filter.outputs.docs }}
-      tools: ${{ steps.filter.outputs.tools }}
-      bokehjs: ${{ steps.filter.outputs.bokehjs }}
-      python: ${{ steps.filter.outputs.python }}
-      examples: ${{ steps.filter.outputs.examples }}
-      full: ${{ steps.filter.outputs.full }}
-      ci: ${{ steps.filter.outputs.ci }}
+      build: ${{ steps.full.outputs.selected }}
+      codebase: ${{ steps.full.outputs.selected }}
+      typing: ${{ steps.full.outputs.selected }}
+      tools: ${{ steps.full.outputs.selected }}
+      examples: ${{ steps.full.outputs.selected }}
+      unit_test: ${{ steps.full.outputs.selected }}
+      minimal_deps: ${{ steps.full.outputs.selected }}
+      core_deps: ${{ steps.full.outputs.selected }}
+      documentation: ${{ steps.full.outputs.selected }}
+      bokehjs: ${{ steps.full.outputs.selected }}
+      full: ${{ steps.full.outputs.selected }}
       groups: ${{ steps.filter.outputs.changes }}
 
     steps:
@@ -47,7 +51,13 @@ jobs:
           predicate-quantifier: some-with-excludes
           filters: .github/ci-path-filters.yml
 
+      - name: Select full CI
+        id: full
+        run: echo "selected=true" >> "$GITHUB_OUTPUT"
+
   test:
+    needs: changes
+    if: needs.changes.outputs.bokehjs == 'true'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -169,3 +179,22 @@ jobs:
         with:
           name: bokehjs-report
           path: bokehjs-report
+
+  result:
+    name: BokehJS-CI / result
+    if: ${{ always() }}
+    needs: [changes, test]
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Require every selected job to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          jq -e '
+            .changes.result == "success" and
+            (if .changes.outputs.bokehjs == "true"
+             then .test.result == "success"
+             else .test.result == "skipped"
+             end)
+          ' <<<"$RESULTS"
