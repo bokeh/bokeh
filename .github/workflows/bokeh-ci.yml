@@ -23,6 +23,37 @@ env:
   CHROME_REV: "chromium_3265"
 
 jobs:
+  changes:
+    name: Classify changes
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+      tools: ${{ steps.filter.outputs.tools }}
+      bokehjs: ${{ steps.filter.outputs.bokehjs }}
+      python: ${{ steps.filter.outputs.python }}
+      examples: ${{ steps.filter.outputs.examples }}
+      full: ${{ steps.filter.outputs.full }}
+      ci: ${{ steps.filter.outputs.ci }}
+      groups: ${{ steps.filter.outputs.changes }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Classify changed paths
+        id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
+        with:
+          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          token: ''
+          predicate-quantifier: some-with-excludes
+          filters: .github/ci-path-filters.yml
+
   build:
     runs-on: ubuntu-24.04
 
