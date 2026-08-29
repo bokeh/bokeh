@@ -412,7 +412,7 @@ def grid(children: list[UIElement | None], *, sizing_mode: SizingModeType | None
 @overload
 def grid(children: str, *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 
-def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: int | None = None, ncols: int | None = None) -> GridBox:
+def grid(children: Any = None, sizing_mode: SizingModeType | None = None, nrows: int | None = None, ncols: int | None = None) -> GridBox:
     """
     Conveniently create a grid of layoutable objects.
 
@@ -461,6 +461,9 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
        ])
 
     """
+    if children is None:
+        children = []
+
     @dataclass
     class row:
         children: list[row | col]
