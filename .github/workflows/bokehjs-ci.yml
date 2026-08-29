@@ -6,6 +6,7 @@ on:
       - main
       - branch-*
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -23,36 +24,34 @@ jobs:
       contents: read
 
     outputs:
-      build: ${{ steps.full.outputs.selected }}
-      codebase: ${{ steps.full.outputs.selected }}
-      typing: ${{ steps.full.outputs.selected }}
-      tools: ${{ steps.full.outputs.selected }}
-      examples: ${{ steps.full.outputs.selected }}
-      unit_test: ${{ steps.full.outputs.selected }}
-      minimal_deps: ${{ steps.full.outputs.selected }}
-      core_deps: ${{ steps.full.outputs.selected }}
-      documentation: ${{ steps.full.outputs.selected }}
-      bokehjs: ${{ steps.full.outputs.selected }}
-      full: ${{ steps.full.outputs.selected }}
+      bokehjs: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.bokehjs == 'true' }}
+      full: ${{ steps.full.outputs.selected == 'true' }}
       groups: ${{ steps.filter.outputs.changes }}
 
     steps:
       - uses: actions/checkout@v6
+        if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Classify changed paths
+        if: github.event_name == 'pull_request'
         id: filter
         uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
         with:
-          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          base: ${{ github.event.pull_request.base.sha }}
           token: ''
           predicate-quantifier: some-with-excludes
           filters: .github/ci-path-filters.yml
 
       - name: Select full CI
         id: full
+        if: >-
+          github.event_name != 'pull_request' ||
+          contains(github.event.pull_request.labels.*.name, 'ci:full') ||
+          steps.filter.outputs.full == 'true' ||
+          steps.filter.outputs.ci == 'true'
         run: echo "selected=true" >> "$GITHUB_OUTPUT"
 
   test:
