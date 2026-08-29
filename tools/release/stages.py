@@ -61,7 +61,6 @@ from .publishing import publish_bokehjs_to_cdn, publish_documentation
 __all__ = (
     "BUILD_ARTIFACT_STEPS",
     "BUILD_CHECKS",
-    "BUILD_STEPS",
     "DOCS_STEPS",
     "PREPARE_DEPLOYMENT_CHECKS",
     "PREPARE_DEPLOYMENT_STEPS",
@@ -122,8 +121,6 @@ UPDATE_RELEASE_REPOSITORY_STEPS: StepListType = (
     push_to_github,
     delete_staging_branch,
 )
-
-BUILD_STEPS: StepListType = BUILD_ARTIFACT_STEPS + UPLOAD_DEPLOYMENT_STEPS + UPDATE_RELEASE_REPOSITORY_STEPS
 
 PREPARE_DEPLOYMENT_CHECKS: StepListType = (
     check_git_present,

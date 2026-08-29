@@ -34,7 +34,6 @@ from tools.release.pipeline import StepType, is_check
     [
         stages.BUILD_ARTIFACT_STEPS,
         stages.BUILD_CHECKS,
-        stages.BUILD_STEPS,
         stages.DOCS_STEPS,
         stages.PREPARE_DEPLOYMENT_CHECKS,
         stages.PREPARE_DEPLOYMENT_STEPS,
@@ -54,8 +53,8 @@ def test_all_prepare_deployment_checks_are_recognized_as_checks() -> None:
     assert all(is_check(step) for step in stages.PREPARE_DEPLOYMENT_CHECKS)
 
 
-def test_build_pipeline_midflight_checks_are_explicit() -> None:
-    assert [step.__name__ for step in stages.BUILD_STEPS if is_check(step)] == [
+def test_build_artifact_pipeline_midflight_checks_are_explicit() -> None:
+    assert [step.__name__ for step in stages.BUILD_ARTIFACT_STEPS if is_check(step)] == [
         "check_docs_version_config",
         "check_checkout_is_clean",
         "verify_pip_install_from_sdist",
@@ -66,7 +65,6 @@ def test_build_pipeline_midflight_checks_are_explicit() -> None:
 
 
 def test_build_pipeline_is_partitioned_for_scoped_aws_credentials() -> None:
-    assert stages.BUILD_STEPS == (stages.BUILD_ARTIFACT_STEPS + stages.UPLOAD_DEPLOYMENT_STEPS + stages.UPDATE_RELEASE_REPOSITORY_STEPS)
     assert stages.UPLOAD_DEPLOYMENT_STEPS == (
         stages.upload_deployment_tarball,
         stages.publish_bokehjs_to_cdn,
@@ -92,29 +90,28 @@ def test_full_release_only_checks_and_steps_are_marked() -> None:
     assert getattr(update_hash_manifest, "skip_for_prerelease") is True
 
 
-def test_build_pipeline_checks_branch_before_mutating_steps() -> None:
+def test_build_artifact_pipeline_checks_branch_before_mutating_steps() -> None:
     assert stages.BUILD_CHECKS.index(stages.check_checkout_on_base_branch) < len(stages.BUILD_CHECKS)
-    assert stages.BUILD_STEPS[0].__name__ == "clean_repo"
+    assert stages.BUILD_ARTIFACT_STEPS[0].__name__ == "clean_repo"
 
 
-def test_build_pipeline_commits_before_tagging_and_pushes_last() -> None:
-    assert stages.BUILD_STEPS.index(update_switcher_json) < stages.BUILD_STEPS.index(commit_staging_branch)
-    assert stages.BUILD_STEPS.index(check_docs_version_config) < stages.BUILD_STEPS.index(commit_staging_branch)
-    assert stages.BUILD_STEPS.index(commit_staging_branch) < stages.BUILD_STEPS.index(tag_release_version)
-    assert stages.BUILD_STEPS.index(tag_release_version) < stages.BUILD_STEPS.index(push_to_github)
-    assert stages.BUILD_STEPS[-2] is push_to_github
+def test_build_artifact_pipeline_commits_before_tagging() -> None:
+    steps = stages.BUILD_ARTIFACT_STEPS
+    assert steps.index(update_switcher_json) < steps.index(commit_staging_branch)
+    assert steps.index(check_docs_version_config) < steps.index(commit_staging_branch)
+    assert steps.index(commit_staging_branch) < steps.index(tag_release_version)
+    assert stages.UPDATE_RELEASE_REPOSITORY_STEPS[-2] is push_to_github
 
 
 def test_build_pipeline_uploads_deployment_and_cdn_artifacts() -> None:
-    assert stages.BUILD_STEPS.index(stages.build_docs) < stages.BUILD_STEPS.index(stages.pack_deployment_tarball)
-    assert stages.BUILD_STEPS.index(stages.pack_deployment_tarball) < stages.BUILD_STEPS.index(stages.upload_deployment_tarball)
-    assert stages.BUILD_STEPS.index(stages.upload_deployment_tarball) < stages.BUILD_STEPS.index(stages.publish_bokehjs_to_cdn)
+    assert stages.BUILD_ARTIFACT_STEPS.index(stages.build_docs) < stages.BUILD_ARTIFACT_STEPS.index(stages.pack_deployment_tarball)
+    assert stages.UPLOAD_DEPLOYMENT_STEPS.index(stages.upload_deployment_tarball) < stages.UPLOAD_DEPLOYMENT_STEPS.index(stages.publish_bokehjs_to_cdn)
 
 
 def test_build_pipeline_updates_and_checks_switcher() -> None:
-    assert update_switcher_json in stages.BUILD_STEPS
-    assert check_docs_version_config in stages.BUILD_STEPS
-    assert stages.BUILD_STEPS.index(update_switcher_json) < stages.BUILD_STEPS.index(check_docs_version_config)
+    assert update_switcher_json in stages.BUILD_ARTIFACT_STEPS
+    assert check_docs_version_config in stages.BUILD_ARTIFACT_STEPS
+    assert stages.BUILD_ARTIFACT_STEPS.index(update_switcher_json) < stages.BUILD_ARTIFACT_STEPS.index(check_docs_version_config)
 
 
 def test_prepare_deployment_pipeline_only_prepares_release_artifacts() -> None:
@@ -388,7 +385,6 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
 @pytest.mark.parametrize(
     ("command", "expected_stages"),
     [
-        ("build", [stages.BUILD_CHECKS, stages.BUILD_STEPS]),
         ("build-artifacts", [stages.BUILD_CHECKS, stages.BUILD_ARTIFACT_STEPS]),
         ("upload-deployment", [stages.UPLOAD_DEPLOYMENT_STEPS]),
         ("update-release-repository", [stages.UPDATE_RELEASE_REPOSITORY_STEPS]),
@@ -429,6 +425,7 @@ def test_cli_executes_release_pipelines(
         [],
         ["unknown"],
         ["build"],
+        ["build", "4.0.0"],
         ["build-artifacts"],
         ["publish-build", "4.0.0"],
         ["finalize-build", "4.0.0"],

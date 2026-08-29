@@ -21,17 +21,6 @@ logging.getLogger("tools.release").setLevel(logging.INFO)
 
 system = System()
 
-if len(sys.argv) == 3 and sys.argv[1] == "build":
-    config = Config(sys.argv[2])
-
-    check = Pipeline(stages.BUILD_CHECKS, config, system)
-    check.execute()
-
-    steps = Pipeline(stages.BUILD_STEPS, config, system)
-    steps.execute()
-
-    sys.exit(0)
-
 if len(sys.argv) == 3 and sys.argv[1] == "build-artifacts":
     config = Config(sys.argv[2])
 
