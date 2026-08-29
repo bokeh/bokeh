@@ -1,0 +1,26 @@
+docs:
+  - 'docs/**'
+
+tools:
+  - 'tools/**'
+  - '!tools/ci/**'
+
+bokehjs:
+  - 'bokehjs/**'
+
+python:
+  - 'src/**'
+
+examples:
+  - 'examples/**'
+
+full:
+  - '**'
+  - '!docs/**'
+  - '!tools/**'
+  - '!bokehjs/**'
+  - '!src/**'
+  - '!examples/**'
+
+ci:
+  - 'tools/ci/**'
