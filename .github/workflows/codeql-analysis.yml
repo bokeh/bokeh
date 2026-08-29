@@ -7,13 +7,42 @@ on:
     # The branches below must be a subset of the branches above
     branches: [ branch-* ]
     paths:
-      - bokehjs
-      - examples
-      - tools
-      - src/bokeh
+      - 'bokehjs/**'
+      - 'examples/**'
+      - 'tools/**'
+      - 'src/bokeh/**'
+      - '.github/codeql/**'
+      - '.github/codeql-path-filters.yml'
+      - '.github/workflows/codeql-analysis.yml'
 
 jobs:
+  changes:
+    name: Classify changes
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    outputs:
+      codeql_languages: ${{ github.event_name != 'pull_request' && '["javascript","python"]' || steps.filter.outputs.changes }}
+
+    steps:
+      - uses: actions/checkout@v6
+        if: github.event_name == 'pull_request'
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Classify changed paths
+        if: github.event_name == 'pull_request'
+        id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
+        with:
+          base: ${{ github.event.pull_request.base.sha }}
+          token: ''
+          filters: .github/codeql-path-filters.yml
+
   analyze:
+    needs: changes
     name: Analyze
     runs-on: ubuntu-24.04
     permissions:
@@ -24,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python' ]
+        language: ${{ fromJSON(needs.changes.outputs.codeql_languages) }}
 
     steps:
     - name: Checkout repository
