@@ -6,10 +6,6 @@ inputs:
   environment:
     description: 'Pixi environment to list'
     required: true
-  include-chromium:
-    description: 'Whether to include chromium version in output'
-    required: false
-    default: 'false'
 
 runs:
   using: composite
@@ -22,6 +18,3 @@ runs:
         echo "python $(python --version)"
         echo "node $(node --version)"
         echo "npm $(npm --version)"
-        if [[ "${{ inputs.include-chromium }}" == "true" ]]; then
-          chromium --version || echo "chromium not found"
-        fi

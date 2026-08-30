@@ -38,7 +38,10 @@ from urllib.parse import urlparse
 import _pytest.config
 import _pytest.mark
 import _pytest.python
-import playwright.sync_api as playwright
+from playwright.sync_api import (  # type: ignore[attr-defined]
+    TimeoutError as PlaywrightTimeoutError,
+    sync_playwright,
+)
 
 # Bokeh imports
 from bokeh.client import push_session
@@ -120,9 +123,10 @@ def pytest_generate_tests(metafunc: _pytest.python.Metafunc) -> None:
 
 @pytest.fixture(scope="session")
 def examples_browser() -> Iterator[Any]:
-    with playwright.sync_playwright() as manager:
+    manager = sync_playwright().start()
+    try:
         browser = manager.chromium.launch(args=_browser_args)
-        context = browser.new_context(
+        context = browser.new_context(  # type: ignore[attr-defined]
             device_scale_factor=1,
             viewport={"width": 2000, "height": 4000},
         )
@@ -133,6 +137,8 @@ def examples_browser() -> Iterator[Any]:
             page.close()
             context.close()
             browser.close()
+    finally:
+        manager.stop()
 
 def test_file_examples(
     file_example: Example,
@@ -223,8 +229,8 @@ def _print_browser_output(messages: list[Any], errors: list[BrowserError]) -> No
     for message in messages:
         location = message.location
         url = location["url"]
-        line = location["lineNumber"]
-        col = location["columnNumber"]
+        line = location["lineNumber"] + 1
+        col = location["columnNumber"] + 1
 
         msg = f"{{{message.type}}} {url}:{line}:{col} {message.text}"
         info(msg, label="JS")
@@ -276,7 +282,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], page: Any
                         })""",
                     timeout=15_000,
                 )
-            except playwright.TimeoutError:
+            except PlaywrightTimeoutError:
                 timeout = True
 
         image = _screenshot(page)
