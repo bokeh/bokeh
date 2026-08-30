@@ -44,6 +44,7 @@ from typing import (
     Callable,
     ClassVar,
     Generator,
+    Sequence,
 )
 
 # Bokeh imports
@@ -88,7 +89,7 @@ class CodeHandler(Handler):
 
     _origin: ClassVar[str]
 
-    def __init__(self, *, source: str, filename: PathLike, argv: tuple[str, ...] = (), package: ModuleType | None = None) -> None:
+    def __init__(self, *, source: str, filename: PathLike, argv: Sequence[str] = (), package: ModuleType | None = None) -> None:
         '''
 
         Args:

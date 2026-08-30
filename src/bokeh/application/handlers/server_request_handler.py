@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 # Bokeh imports
 from ...util.callback_manager import _check_callback
@@ -58,7 +58,7 @@ class ServerRequestHandler(RequestHandler):
 
     _module: ModuleType
 
-    def __init__(self, *, filename: PathLike, argv: tuple[str, ...] = (), package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: Sequence[str] = (), package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:

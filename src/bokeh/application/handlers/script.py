@@ -46,7 +46,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 # Bokeh imports
 from .code import CodeHandler
@@ -81,7 +81,7 @@ class ScriptHandler(CodeHandler):
 
     _origin = "Script"
 
-    def __init__(self, *, filename: PathLike, argv: tuple[str, ...] = (), package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: Sequence[str] = (), package: ModuleType | None = None) -> None:
         '''
 
         Keywords:

@@ -110,7 +110,7 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
         regarding running directory-style apps by passing the directory instead.
 
     '''
-    argv_ = tuple(argv or [])
+    argv = argv or []
     path = os.path.abspath(os.path.expanduser(path))
     handler: Handler
 
@@ -118,16 +118,16 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
     # in between the isdir/isfile tests and subsequent code. But it would be a
     # failure if they were not there to begin with, too (just a different error)
     if os.path.isdir(path):
-        handler = DirectoryHandler(filename=path, argv=argv_)
+        handler = DirectoryHandler(filename=path, argv=argv)
     elif os.path.isfile(path):
         if path.endswith(".ipynb"):
-            handler = NotebookHandler(filename=path, argv=argv_)
+            handler = NotebookHandler(filename=path, argv=argv)
         elif path.endswith(".py"):
             if path.endswith("main.py"):
                 from bokeh.util.warnings import warn
 
                 warn(DIRSTYLE_MAIN_WARNING)
-            handler = ScriptHandler(filename=path, argv=argv_)
+            handler = ScriptHandler(filename=path, argv=argv)
         else:
             raise ValueError(f"Expected a '.py' script or '.ipynb' notebook, got: '{path}'")
     else:
