@@ -28,7 +28,12 @@ import traceback
 from contextlib import contextmanager
 from os.path import basename
 from threading import RLock
-from typing import TYPE_CHECKING, Callable, Generator, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Generator,
+    Sequence,
+)
 
 # Bokeh imports
 from ...util.serialization import make_globally_unique_id
