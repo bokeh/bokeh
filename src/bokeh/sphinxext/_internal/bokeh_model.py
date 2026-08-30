@@ -215,18 +215,19 @@ def _build_finished(app: Any, exception: Exception | None) -> None:
     if not timings:
         return
 
+    total_seconds = sum(item[0] for item in timings)
+    generate_seconds = sum(item[1] for item in timings)
+    parse_seconds = sum(item[2] for item in timings)
+    post_process_seconds = sum(item[3] for item in timings)
     log.info(
-        "Bokeh model timings: directives=%d total=%.3fs generate=%.3fs parse=%.3fs post-process=%.3fs",
-        len(timings),
-        sum(item[0] for item in timings),
-        sum(item[1] for item in timings),
-        sum(item[2] for item in timings),
-        sum(item[3] for item in timings),
+        f"Bokeh model timings: directives={len(timings)} total={total_seconds:.3f}s "
+        f"generate={generate_seconds:.3f}s parse={parse_seconds:.3f}s "
+        f"post-process={post_process_seconds:.3f}s",
     )
     for total, generate, parse, post_process, docname, model_name in sorted(timings, reverse=True)[:5]:
         log.info(
-            "Bokeh model slow: total=%.3fs generate=%.3fs parse=%.3fs post-process=%.3fs %s (%s)",
-            total, generate, parse, post_process, docname, model_name,
+            f"Bokeh model slow: total={total:.3f}s generate={generate:.3f}s "
+            f"parse={parse:.3f}s post-process={post_process:.3f}s {docname} ({model_name})",
         )
 
 

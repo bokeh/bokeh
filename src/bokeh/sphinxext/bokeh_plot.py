@@ -330,18 +330,18 @@ def build_finished(app: Any, exception: Exception | None) -> None:
 
     timings = app.env.bokeh_plot_timings
     if timings:
+        total_seconds = sum(item[0] for item in timings)
+        evaluate_seconds = sum(item[1] for item in timings)
+        serialize_seconds = sum(item[2] for item in timings)
+        write_seconds = sum(item[3] for item in timings)
         log.info(
-            "Bokeh plot timings: directives=%d total=%.3fs evaluate=%.3fs serialize=%.3fs write=%.3fs",
-            len(timings),
-            sum(item[0] for item in timings),
-            sum(item[1] for item in timings),
-            sum(item[2] for item in timings),
-            sum(item[3] for item in timings),
+            f"Bokeh plot timings: directives={len(timings)} total={total_seconds:.3f}s "
+            f"evaluate={evaluate_seconds:.3f}s serialize={serialize_seconds:.3f}s write={write_seconds:.3f}s",
         )
         for total, evaluate, serialize, write, docname, source in sorted(timings, reverse=True)[:5]:
             log.info(
-                "Bokeh plot slow: total=%.3fs evaluate=%.3fs serialize=%.3fs write=%.3fs %s (%s)",
-                total, evaluate, serialize, write, docname, source,
+                f"Bokeh plot slow: total={total:.3f}s evaluate={evaluate:.3f}s "
+                f"serialize={serialize:.3f}s write={write:.3f}s {docname} ({source})",
             )
 
 def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:

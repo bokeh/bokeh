@@ -198,30 +198,28 @@ def _log_docs_profile(app: Any, exception: Exception | None) -> None:
         key in profile
         for key in ("started", "read_started", "read_finished", "write_started")
     ):
+        read_seconds = profile["read_finished"] - profile["read_started"]
+        prepare_seconds = profile["write_started"] - profile["read_finished"]
+        write_seconds = finished - profile["write_started"]
+        total_seconds = finished - profile["started"]
         log.info(
-            "Bokeh Sphinx timings: read=%.3fs prepare=%.3fs write=%.3fs total=%.3fs documents=%d workers=%d",
-            profile["read_finished"] - profile["read_started"],
-            profile["write_started"] - profile["read_finished"],
-            finished - profile["write_started"],
-            finished - profile["started"],
-            profile["documents"],
-            app.parallel,
+            f"Bokeh Sphinx timings: read={read_seconds:.3f}s prepare={prepare_seconds:.3f}s "
+            f"write={write_seconds:.3f}s total={total_seconds:.3f}s "
+            f"documents={profile['documents']} workers={app.parallel}",
         )
 
         resolve_timings = profile["resolve_timings"]
         log.info(
-            "Bokeh doctree resolution: documents=%d total=%.3fs",
-            len(resolve_timings),
-            sum(item[0] for item in resolve_timings),
+            f"Bokeh doctree resolution: documents={len(resolve_timings)} "
+            f"total={sum(item[0] for item in resolve_timings):.3f}s",
         )
         for duration, docname in sorted(resolve_timings, reverse=True)[:5]:
-            log.info("Bokeh doctree slow: %.3fs %s", duration, docname)
+            log.info(f"Bokeh doctree slow: {duration:.3f}s {docname}")
 
         serialize_timings = profile["serialize_timings"]
         log.info(
-            "Bokeh search-index serialization: documents=%d total=%.3fs",
-            len(serialize_timings),
-            sum(item[0] for item in serialize_timings),
+            f"Bokeh search-index serialization: documents={len(serialize_timings)} "
+            f"total={sum(item[0] for item in serialize_timings):.3f}s",
         )
 
     stats = getattr(app.builder, _FUZZY_LOOKUP_STATS_ATTR, None)
@@ -229,13 +227,9 @@ def _log_docs_profile(app: Any, exception: Exception | None) -> None:
         reused = stats["fallbacks"] - stats["computed"]
         reuse_percent = 100 * reused / stats["fallbacks"] if stats["fallbacks"] else 0
         log.info(
-            "Bokeh Python fuzzy lookups: calls=%d contextual=%d suffix-computed=%d suffix-reused=%d (%.1f%%) compute=%.3fs",
-            stats["calls"],
-            stats["contextual"],
-            stats["computed"],
-            reused,
-            reuse_percent,
-            stats["elapsed"],
+            f"Bokeh Python fuzzy lookups: calls={stats['calls']} contextual={stats['contextual']} "
+            f"suffix-computed={stats['computed']} suffix-reused={reused} ({reuse_percent:.1f}%) "
+            f"compute={stats['elapsed']:.3f}s",
         )
 
 
