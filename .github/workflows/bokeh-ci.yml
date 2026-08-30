@@ -64,10 +64,10 @@ jobs:
           environment: test-py312
 
       - name: Run codebase checks
-        run: pytest --color=yes tests/codebase
+        run: pytest --color=yes --durations=20 --durations-min=1 tests/codebase
 
       - name: Run tools tests
-        run: pytest --color=yes tests/tools
+        run: pytest --color=yes --durations=20 --durations-min=1 tests/tools
 
   typing:
     needs: build
@@ -153,7 +153,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: pytest -s -v --color=yes --tb line tests/test_examples.py
+        run: pytest -s -v --color=yes --tb line --durations=20 --durations-min=1 tests/test_examples.py
 
       - name: Collect results
         if: always()
@@ -206,6 +206,8 @@ jobs:
 
       - name: Run unit tests
         uses: ./.github/workflows/composite/run-unit-tests
+        with:
+          collect-coverage: ${{ runner.os != 'Windows' }}
 
   minimal-deps:
     needs: build
