@@ -58,17 +58,16 @@ class ServerRequestHandler(RequestHandler):
 
     _module: ModuleType
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: tuple[str, ...] = (), package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:
             filename (str) : path to a module to load request handler callbacks from
 
-            argv (list[str], optional) : a list of string arguments to use as
-                ``sys.argv`` when the callback code is executed. (default: [])
+            argv (tuple[str, ...], optional) : a list of string arguments to use as
+                ``sys.argv`` when the callback code is executed. (default: ())
 
         '''
-        argv = list(argv)
         super().__init__()
 
         with open(filename, encoding='utf-8') as f:

@@ -67,14 +67,13 @@ class NotebookHandler(CodeHandler):
 
     _origin = "Notebook"
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: tuple[str, ...] = (), package: ModuleType | None = None) -> None:
         '''
 
         Keywords:
             filename (str) : a path to a Jupyter notebook (".ipynb") file
 
         '''
-        argv = list(argv)
         nbformat = import_required('nbformat', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
         nbconvert = import_required('nbconvert', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
 

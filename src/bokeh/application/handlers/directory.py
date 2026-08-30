@@ -107,14 +107,13 @@ class DirectoryHandler(Handler):
     _static: str | None
     _template: Template | None
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = []) -> None:
+    def __init__(self, *, filename: PathLike, argv: tuple[str, ...] = ()) -> None:
         '''
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
 
-            argv (list[str], optional) : a list of string arguments to make available as sys.argv to main.py
+            argv (tuple[str, ...], optional) : a list of string arguments to make available as sys.argv to main.py
         '''
-        argv = list(argv)
         super().__init__()
 
         src_path = filename

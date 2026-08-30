@@ -81,14 +81,13 @@ class ScriptHandler(CodeHandler):
 
     _origin = "Script"
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: tuple[str, ...] = (), package: ModuleType | None = None) -> None:
         '''
 
         Keywords:
             filename (str) : a path to a Python source (".py") file
 
         '''
-        argv = list(argv)
         with open(filename, encoding='utf-8') as f:
             source = f.read()
 
