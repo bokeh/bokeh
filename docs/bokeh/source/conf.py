@@ -41,6 +41,7 @@ extensions = [
     "sphinx_favicon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.duration",
     "sphinx.ext.ifconfig",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
@@ -154,6 +155,9 @@ intersphinx_mapping = {
 }
 
 napoleon_include_init_with_doc = True
+
+duration_n_slowest = 10
+duration_write_json = None
 
 ogp_site_url = "https://docs.bokeh.org/en/latest/"
 ogp_image = "http://static.bokeh.org/og/logotype-on-hex.png"

@@ -27,7 +27,7 @@ names omitted from every model page.
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging  # isort:skip
+from sphinx.util import logging  # isort:skip
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +42,8 @@ import json
 import warnings
 from collections.abc import Collection
 from os import getenv
-from typing import Any
+from time import perf_counter
+from typing import Any, cast
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
@@ -103,6 +104,7 @@ class BokehModelDirective(BokehDirective):
         if getenv("BOKEH_SPHINX_QUICK") == "1":
             return self.parse(f"{model_name}\n{'-'*len(model_name)}\n", f"<bokeh-model: {model_name}>")
 
+        started = perf_counter()
         module_name = self.options["module"]
 
         try:
@@ -147,17 +149,29 @@ class BokehModelDirective(BokehDirective):
             property_names=properties + python_properties,
             python_properties=python_properties,
         )
+        rendered = perf_counter()
 
         for template in (MODEL_DETAIL, PROP_DETAIL):
             if template.filename is not None:
                 self.env.note_dependency(template.filename)
 
         parsed = self.parse(rst_text, f"<bokeh-model: {model_name}>")
+        parsed_at = perf_counter()
         _shorten_member_signatures(
             parsed,
             module_name=adjusted_module_name,
             model_name=model_name,
         )
+        finished = perf_counter()
+        env = cast(Any, self.env)
+        env.bokeh_model_timings.append((
+            finished - started,
+            rendered - started,
+            parsed_at - rendered,
+            finished - parsed_at,
+            env.docname,
+            model_name,
+        ))
         return parsed
 
 
@@ -170,6 +184,9 @@ def setup(app: Any) -> SphinxParallelSpec:
         types=(list, tuple, set, frozenset),
     )
     app.add_directive_to_domain("py", "bokeh-model", BokehModelDirective)
+    app.connect("builder-inited", _builder_inited)
+    app.connect("env-merge-info", _env_merge_info)
+    app.connect("build-finished", _build_finished)
 
     return PARALLEL_SAFE
 
@@ -182,6 +199,35 @@ _DEFAULT_EXCLUDED_MEMBERS = frozenset({
     "js_property_callbacks",
     "subscribed_events",
 })
+
+
+def _builder_inited(app: Any) -> None:
+    app.env.bokeh_model_timings = []
+
+
+def _env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
+    docnames_set = set(docnames)
+    env.bokeh_model_timings.extend(item for item in other.bokeh_model_timings if item[4] in docnames_set)
+
+
+def _build_finished(app: Any, exception: Exception | None) -> None:
+    timings = app.env.bokeh_model_timings
+    if not timings:
+        return
+
+    log.info(
+        "Bokeh model timings: directives=%d total=%.3fs generate=%.3fs parse=%.3fs post-process=%.3fs",
+        len(timings),
+        sum(item[0] for item in timings),
+        sum(item[1] for item in timings),
+        sum(item[2] for item in timings),
+        sum(item[3] for item in timings),
+    )
+    for total, generate, parse, post_process, docname, model_name in sorted(timings, reverse=True)[:5]:
+        log.info(
+            "Bokeh model slow: total=%.3fs generate=%.3fs parse=%.3fs post-process=%.3fs %s (%s)",
+            total, generate, parse, post_process, docname, model_name,
+        )
 
 
 def _shorten_member_signatures(

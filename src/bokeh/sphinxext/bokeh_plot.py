@@ -91,6 +91,7 @@ import warnings
 from importlib import import_module
 from os import getenv
 from os.path import basename, dirname, join
+from time import perf_counter
 from typing import Any, cast
 from uuid import uuid4
 
@@ -245,15 +246,28 @@ class BokehPlotDirective(BokehDirective):
         Model.clear_extensions()
 
         env = cast(Any, self.env)
+        started = perf_counter()
         root, docstring = _evaluate_source(source, path, env)
+        evaluated = perf_counter()
 
         height_hint = cast(Any, root)._sphinx_height_hint()
 
         js_path = join(env.bokeh_plot_auxdir, js_filename)
         js, script_tag = autoload_static(root, RESOURCES, js_filename)
+        serialized = perf_counter()
 
         with open(js_path, "w") as f:
             f.write(js)
+
+        finished = perf_counter()
+        env.bokeh_plot_timings.append((
+            finished - started,
+            evaluated - started,
+            serialized - evaluated,
+            finished - serialized,
+            env.docname,
+            basename(path),
+        ))
 
         return (script_tag, js_path, source, docstring, height_hint)
 
@@ -299,6 +313,7 @@ def builder_inited(app: Any) -> None:
 
     if not hasattr(app.env, "bokeh_plot_files"):
         app.env.bokeh_plot_files = set()
+    app.env.bokeh_plot_timings = []
 
 
 def build_finished(app: Any, exception: Exception | None) -> None:
@@ -313,8 +328,26 @@ def build_finished(app: Any, exception: Exception | None) -> None:
         except OSError as e:
             raise SphinxError(f"cannot copy local file {file!r}, reason: {e}")
 
+    timings = app.env.bokeh_plot_timings
+    if timings:
+        log.info(
+            "Bokeh plot timings: directives=%d total=%.3fs evaluate=%.3fs serialize=%.3fs write=%.3fs",
+            len(timings),
+            sum(item[0] for item in timings),
+            sum(item[1] for item in timings),
+            sum(item[2] for item in timings),
+            sum(item[3] for item in timings),
+        )
+        for total, evaluate, serialize, write, docname, source in sorted(timings, reverse=True)[:5]:
+            log.info(
+                "Bokeh plot slow: total=%.3fs evaluate=%.3fs serialize=%.3fs write=%.3fs %s (%s)",
+                total, evaluate, serialize, write, docname, source,
+            )
+
 def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
     env.bokeh_plot_files |= other.bokeh_plot_files
+    docnames_set = set(docnames)
+    env.bokeh_plot_timings.extend(item for item in other.bokeh_plot_timings if item[4] in docnames_set)
 
 def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
