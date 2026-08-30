@@ -73,6 +73,20 @@ def test_interp_palette() -> None:
     with pytest.raises(ValueError):
         pal.interp_palette(("black", "red"), -1)
 
+def test_diverging_palette() -> None:
+    # n is the size of the returned palette, including when midpoint * n lands on a
+    # half-integer and rounding both halves separately would not add up to n
+    for n in range(19):
+        assert len(pal.diverging_palette(pal.Blues9, pal.Reds9, n)) == n
+
+    for midpoint in (0.1, 0.25, 0.75, 0.9):
+        for n in range(11):
+            assert len(pal.diverging_palette(pal.Blues9, pal.Reds9, n, midpoint)) == n
+
+    assert pal.diverging_palette(pal.Reds9, pal.Greys9, 18) == pal.Reds9 + pal.Greys9[::-1]
+    assert pal.diverging_palette(pal.Reds9, pal.Greys9, 5) == \
+        pal.linear_palette(pal.Reds9, 2) + pal.linear_palette(pal.Greys9[::-1], 3)
+
 def test_varying_alpha_palette() -> None:
     assert pal.varying_alpha_palette("blue", 3) == ("#0000ff00", "#0000ff80", "#0000ff")
     assert pal.varying_alpha_palette("red", 3, start_alpha=255, end_alpha=128) == ("#ff0000", "#ff0000c0", "#ff000080")

@@ -1563,9 +1563,10 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
     # flip palette2 so that perceptually light colors are joined
     palette2 = palette2[::-1]
 
-    # determine number of colors from each palette
+    # determine number of colors from each palette; n2 is a remainder rather than a
+    # second rounding so that the two always add up to n
     n1 = round(midpoint * n)
-    n2 = round((1 - midpoint) * n)
+    n2 = n - n1
 
     # return piecewise linear interpolation of colors
     return linear_palette(palette1, n1) + linear_palette(palette2, n2)
