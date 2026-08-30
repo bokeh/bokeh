@@ -25,8 +25,10 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass, field
+from heapq import nlargest
 from time import perf_counter
-from typing import Any
+from typing import Any, NamedTuple
 
 # External imports
 from sphinx.ext.autodoc import (
@@ -145,28 +147,54 @@ _PROFILE_ATTR = "_bokeh_docs_profile"
 _FUZZY_LOOKUP_STATS_ATTR = "_bokeh_python_fuzzy_lookup_stats"
 
 
+class _DocumentTiming(NamedTuple):
+    duration: float
+    docname: str
+
+
+@dataclass
+class _DocsProfile:
+    started: float
+    read_started: float | None = None
+    read_finished: float | None = None
+    write_started: float | None = None
+    documents: int = 0
+    resolve_timings: list[_DocumentTiming] = field(default_factory=list)
+    serialize_timings: list[_DocumentTiming] = field(default_factory=list)
+
+
+@dataclass
+class _FuzzyLookupStats:
+    calls: int = 0
+    contextual: int = 0
+    fallbacks: int = 0
+    computed: int = 0
+    elapsed: float = 0.0
+
+
 def _start_docs_profile(app: Any) -> None:
-    setattr(app, _PROFILE_ATTR, {"started": perf_counter()})
+    setattr(app, _PROFILE_ATTR, _DocsProfile(started=perf_counter()))
 
 
 def _start_docs_read(app: Any, env: Any, docnames: list[str]) -> None:
     profile = getattr(app, _PROFILE_ATTR, None)
     if profile is not None:
-        profile.update(read_started=perf_counter(), documents=len(docnames))
+        profile.read_started = perf_counter()
+        profile.documents = len(docnames)
 
 
 def _finish_docs_read(app: Any, env: Any) -> None:
     profile = getattr(app, _PROFILE_ATTR, None)
     if profile is not None:
-        profile["read_finished"] = perf_counter()
+        profile.read_finished = perf_counter()
 
 
 def _start_docs_write(app: Any, builder: Any) -> None:
     profile = getattr(app, _PROFILE_ATTR, None)
     if profile is not None:
-        profile["write_started"] = perf_counter()
-        profile["resolve_timings"] = []
-        profile["serialize_timings"] = []
+        profile.write_started = perf_counter()
+        profile.resolve_timings.clear()
+        profile.serialize_timings.clear()
 
         resolve_doctree = builder.env.get_and_resolve_doctree
 
@@ -175,7 +203,10 @@ def _start_docs_write(app: Any, builder: Any) -> None:
             try:
                 return resolve_doctree(docname, *args, **kwargs)
             finally:
-                profile["resolve_timings"].append((perf_counter() - started, docname))
+                profile.resolve_timings.append(_DocumentTiming(
+                    duration=perf_counter() - started,
+                    docname=docname,
+                ))
 
         builder.env.get_and_resolve_doctree = timed_resolve_doctree
 
@@ -186,7 +217,10 @@ def _start_docs_write(app: Any, builder: Any) -> None:
             try:
                 return write_serialized(docname, *args, **kwargs)
             finally:
-                profile["serialize_timings"].append((perf_counter() - started, docname))
+                profile.serialize_timings.append(_DocumentTiming(
+                    duration=perf_counter() - started,
+                    docname=docname,
+                ))
 
         builder.write_doc_serialized = timed_write_serialized
 
@@ -194,42 +228,46 @@ def _start_docs_write(app: Any, builder: Any) -> None:
 def _log_docs_profile(app: Any, exception: Exception | None) -> None:
     finished = perf_counter()
     profile = getattr(app, _PROFILE_ATTR, None)
-    if profile is not None and all(
-        key in profile
-        for key in ("started", "read_started", "read_finished", "write_started")
+    if (
+        profile is not None
+        and profile.read_started is not None
+        and profile.read_finished is not None
+        and profile.write_started is not None
     ):
-        read_seconds = profile["read_finished"] - profile["read_started"]
-        prepare_seconds = profile["write_started"] - profile["read_finished"]
-        write_seconds = finished - profile["write_started"]
-        total_seconds = finished - profile["started"]
+        read_seconds = profile.read_finished - profile.read_started
+        prepare_seconds = profile.write_started - profile.read_finished
+        write_seconds = finished - profile.write_started
+        total_seconds = finished - profile.started
         log.info(
             f"Bokeh Sphinx timings: read={read_seconds:.3f}s prepare={prepare_seconds:.3f}s "
             f"write={write_seconds:.3f}s total={total_seconds:.3f}s "
-            f"documents={profile['documents']} workers={app.parallel}",
+            f"documents={profile.documents} workers={app.parallel}",
         )
 
-        resolve_timings = profile["resolve_timings"]
+        resolve_timings = profile.resolve_timings
         log.info(
             f"Bokeh doctree resolution: documents={len(resolve_timings)} "
-            f"total={sum(item[0] for item in resolve_timings):.3f}s",
+            f"total={sum(timing.duration for timing in resolve_timings):.3f}s",
         )
-        for duration, docname in sorted(resolve_timings, reverse=True)[:5]:
-            log.info(f"Bokeh doctree slow: {duration:.3f}s {docname}")
+        for timing in nlargest(5, resolve_timings, key=lambda timing: timing.duration):
+            log.info(f"Bokeh doctree slow: {timing.duration:.3f}s {timing.docname}")
 
-        serialize_timings = profile["serialize_timings"]
+        serialize_timings = profile.serialize_timings
         log.info(
             f"Bokeh search-index serialization: documents={len(serialize_timings)} "
-            f"total={sum(item[0] for item in serialize_timings):.3f}s",
+            f"total={sum(timing.duration for timing in serialize_timings):.3f}s",
         )
+        for timing in nlargest(5, serialize_timings, key=lambda timing: timing.duration):
+            log.info(f"Bokeh search-index slow: {timing.duration:.3f}s {timing.docname}")
 
     stats = getattr(app.builder, _FUZZY_LOOKUP_STATS_ATTR, None)
     if stats is not None:
-        reused = stats["fallbacks"] - stats["computed"]
-        reuse_percent = 100 * reused / stats["fallbacks"] if stats["fallbacks"] else 0
+        reused = stats.fallbacks - stats.computed
+        reuse_percent = 100 * reused / stats.fallbacks if stats.fallbacks else 0
         log.info(
-            f"Bokeh Python fuzzy lookups: calls={stats['calls']} contextual={stats['contextual']} "
-            f"suffix-computed={stats['computed']} suffix-reused={reused} ({reuse_percent:.1f}%) "
-            f"compute={stats['elapsed']:.3f}s",
+            f"Bokeh Python fuzzy lookups: calls={stats.calls} contextual={stats.contextual} "
+            f"suffix-computed={stats.computed} suffix-reused={reused} ({reuse_percent:.1f}%) "
+            f"compute={stats.elapsed:.3f}s",
         )
 
 
@@ -255,7 +293,7 @@ def _cache_python_domain_fuzzy_lookups(app: Any, builder: Any) -> None:
     find_obj = domain.find_obj
     fallback_cache: dict[tuple[str, str | None], tuple[Any, ...]] = {}
     objtypes_cache: dict[str | None, list[str] | None] = {}
-    stats = {"calls": 0, "contextual": 0, "fallbacks": 0, "computed": 0, "elapsed": 0.0}
+    stats = _FuzzyLookupStats()
     setattr(builder, _FUZZY_LOOKUP_STATS_ATTR, stats)
 
     def cached_find_obj(
@@ -271,7 +309,7 @@ def _cache_python_domain_fuzzy_lookups(app: Any, builder: Any) -> None:
         if env is not builder.env or searchmode != 1:
             return find_obj(env, modname, classname, name, objtype, searchmode)
 
-        stats["calls"] += 1
+        stats.calls += 1
         name = name.removesuffix("()")
         if not name:
             return []
@@ -293,18 +331,18 @@ def _cache_python_domain_fuzzy_lookups(app: Any, builder: Any) -> None:
         for candidate in candidates:
             entry = domain.objects.get(candidate)
             if entry is not None and entry.objtype in objtypes:
-                stats["contextual"] += 1
+                stats.contextual += 1
                 return [(candidate, entry)]
 
-        stats["fallbacks"] += 1
+        stats.fallbacks += 1
         key = (name, objtype)
         try:
             return list(fallback_cache[key])
         except KeyError:
             started = perf_counter()
             result = find_obj(env, None, None, name, objtype, searchmode)
-            stats["elapsed"] += perf_counter() - started
-            stats["computed"] += 1
+            stats.elapsed += perf_counter() - started
+            stats.computed += 1
             fallback_cache[key] = tuple(result)
             return result
 

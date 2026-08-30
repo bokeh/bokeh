@@ -41,9 +41,10 @@ import inspect
 import json
 import warnings
 from collections.abc import Collection
+from heapq import nlargest
 from os import getenv
 from time import perf_counter
-from typing import Any, cast
+from typing import Any, NamedTuple, cast
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
@@ -164,13 +165,13 @@ class BokehModelDirective(BokehDirective):
         )
         finished = perf_counter()
         env = cast(Any, self.env)
-        env.bokeh_model_timings.append((
-            finished - started,
-            rendered - started,
-            parsed_at - rendered,
-            finished - parsed_at,
-            env.docname,
-            model_name,
+        env.bokeh_model_timings.append(_ModelTiming(
+            total=finished - started,
+            generate=rendered - started,
+            parse=parsed_at - rendered,
+            post_process=finished - parsed_at,
+            docname=env.docname,
+            model_name=model_name,
         ))
         return parsed
 
@@ -201,13 +202,22 @@ _DEFAULT_EXCLUDED_MEMBERS = frozenset({
 })
 
 
+class _ModelTiming(NamedTuple):
+    total: float
+    generate: float
+    parse: float
+    post_process: float
+    docname: str
+    model_name: str
+
+
 def _builder_inited(app: Any) -> None:
     app.env.bokeh_model_timings = []
 
 
 def _env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
     docnames_set = set(docnames)
-    env.bokeh_model_timings.extend(item for item in other.bokeh_model_timings if item[4] in docnames_set)
+    env.bokeh_model_timings.extend(item for item in other.bokeh_model_timings if item.docname in docnames_set)
 
 
 def _build_finished(app: Any, exception: Exception | None) -> None:
@@ -215,19 +225,20 @@ def _build_finished(app: Any, exception: Exception | None) -> None:
     if not timings:
         return
 
-    total_seconds = sum(item[0] for item in timings)
-    generate_seconds = sum(item[1] for item in timings)
-    parse_seconds = sum(item[2] for item in timings)
-    post_process_seconds = sum(item[3] for item in timings)
+    total_seconds = sum(item.total for item in timings)
+    generate_seconds = sum(item.generate for item in timings)
+    parse_seconds = sum(item.parse for item in timings)
+    post_process_seconds = sum(item.post_process for item in timings)
     log.info(
         f"Bokeh model timings: directives={len(timings)} total={total_seconds:.3f}s "
         f"generate={generate_seconds:.3f}s parse={parse_seconds:.3f}s "
         f"post-process={post_process_seconds:.3f}s",
     )
-    for total, generate, parse, post_process, docname, model_name in sorted(timings, reverse=True)[:5]:
+    for timing in nlargest(5, timings, key=lambda timing: timing.total):
         log.info(
-            f"Bokeh model slow: total={total:.3f}s generate={generate:.3f}s "
-            f"parse={parse:.3f}s post-process={post_process:.3f}s {docname} ({model_name})",
+            f"Bokeh model slow: total={timing.total:.3f}s generate={timing.generate:.3f}s "
+            f"parse={timing.parse:.3f}s post-process={timing.post_process:.3f}s "
+            f"{timing.docname} ({timing.model_name})",
         )
 
 

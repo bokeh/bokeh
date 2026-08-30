@@ -88,11 +88,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 import warnings
+from heapq import nlargest
 from importlib import import_module
 from os import getenv
 from os.path import basename, dirname, join
 from time import perf_counter
-from typing import Any, cast
+from typing import Any, NamedTuple, cast
 from uuid import uuid4
 
 # External imports
@@ -129,6 +130,15 @@ __all__ = (
 GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
 
 RESOURCES = get_sphinx_resources()
+
+
+class _PlotTiming(NamedTuple):
+    total: float
+    evaluate: float
+    serialize: float
+    write: float
+    docname: str
+    source: str
 
 # -----------------------------------------------------------------------------
 # General API
@@ -260,13 +270,13 @@ class BokehPlotDirective(BokehDirective):
             f.write(js)
 
         finished = perf_counter()
-        env.bokeh_plot_timings.append((
-            finished - started,
-            evaluated - started,
-            serialized - evaluated,
-            finished - serialized,
-            env.docname,
-            basename(path),
+        env.bokeh_plot_timings.append(_PlotTiming(
+            total=finished - started,
+            evaluate=evaluated - started,
+            serialize=serialized - evaluated,
+            write=finished - serialized,
+            docname=env.docname,
+            source=basename(path),
         ))
 
         return (script_tag, js_path, source, docstring, height_hint)
@@ -330,24 +340,25 @@ def build_finished(app: Any, exception: Exception | None) -> None:
 
     timings = app.env.bokeh_plot_timings
     if timings:
-        total_seconds = sum(item[0] for item in timings)
-        evaluate_seconds = sum(item[1] for item in timings)
-        serialize_seconds = sum(item[2] for item in timings)
-        write_seconds = sum(item[3] for item in timings)
+        total_seconds = sum(item.total for item in timings)
+        evaluate_seconds = sum(item.evaluate for item in timings)
+        serialize_seconds = sum(item.serialize for item in timings)
+        write_seconds = sum(item.write for item in timings)
         log.info(
             f"Bokeh plot timings: directives={len(timings)} total={total_seconds:.3f}s "
             f"evaluate={evaluate_seconds:.3f}s serialize={serialize_seconds:.3f}s write={write_seconds:.3f}s",
         )
-        for total, evaluate, serialize, write, docname, source in sorted(timings, reverse=True)[:5]:
+        for timing in nlargest(5, timings, key=lambda timing: timing.total):
             log.info(
-                f"Bokeh plot slow: total={total:.3f}s evaluate={evaluate:.3f}s "
-                f"serialize={serialize:.3f}s write={write:.3f}s {docname} ({source})",
+                f"Bokeh plot slow: total={timing.total:.3f}s evaluate={timing.evaluate:.3f}s "
+                f"serialize={timing.serialize:.3f}s write={timing.write:.3f}s "
+                f"{timing.docname} ({timing.source})",
             )
 
 def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
     env.bokeh_plot_files |= other.bokeh_plot_files
     docnames_set = set(docnames)
-    env.bokeh_plot_timings.extend(item for item in other.bokeh_plot_timings if item[4] in docnames_set)
+    env.bokeh_plot_timings.extend(item for item in other.bokeh_plot_timings if item.docname in docnames_set)
 
 def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """

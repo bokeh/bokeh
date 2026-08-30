@@ -7,6 +7,7 @@ from typing import Any, cast
 # Bokeh imports
 from bokeh.sphinxext._internal.bokeh_autodoc import (
     _cache_python_domain_fuzzy_lookups,
+    _DocsProfile,
     _prune_empty_viewcode_modules,
     _start_docs_write,
 )
@@ -75,13 +76,11 @@ def test_cache_python_domain_fuzzy_lookups() -> None:
 
     assert len(calls) == 3
     stats = builder._bokeh_python_fuzzy_lookup_stats
-    assert {key: value for key, value in stats.items() if key != "elapsed"} == {
-        "calls": 4,
-        "contextual": 2,
-        "fallbacks": 2,
-        "computed": 1,
-    }
-    assert stats["elapsed"] >= 0
+    assert stats.calls == 4
+    assert stats.contextual == 2
+    assert stats.fallbacks == 2
+    assert stats.computed == 1
+    assert stats.elapsed >= 0
 
 
 def test_start_docs_write_times_main_process_operations() -> None:
@@ -97,7 +96,7 @@ def test_start_docs_write_times_main_process_operations() -> None:
 
     env = SimpleNamespace(get_and_resolve_doctree=resolve)
     builder = SimpleNamespace(env=env, write_doc_serialized=serialize)
-    app = SimpleNamespace(_bokeh_docs_profile={})
+    app = SimpleNamespace(_bokeh_docs_profile=_DocsProfile(started=0.0))
 
     _start_docs_write(cast(Any, app), cast(Any, builder))
 
@@ -107,5 +106,5 @@ def test_start_docs_write_times_main_process_operations() -> None:
         ("resolve", "document", 1),
         ("serialize", "document", 2),
     ]
-    assert app._bokeh_docs_profile["resolve_timings"][0][1] == "document"
-    assert app._bokeh_docs_profile["serialize_timings"][0][1] == "document"
+    assert app._bokeh_docs_profile.resolve_timings[0].docname == "document"
+    assert app._bokeh_docs_profile.serialize_timings[0].docname == "document"
