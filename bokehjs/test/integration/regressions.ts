@@ -64,7 +64,7 @@ import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral3, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import type {Keys} from "@bokehjs/core/dom"
-import {div} from "@bokehjs/core/dom"
+import {bounding_box, div} from "@bokehjs/core/dom"
 import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
@@ -5459,6 +5459,43 @@ describe("Bug", () => {
       items[0].dispatchEvent(new PointerEvent("pointerenter"))
       await view.ready
       expect(submenu_views.some((view) => view.is_open)).to.be.true
+    })
+  })
+
+  describe("in issue #15376", () => {
+    function make(side: "above" | "right") {
+      const p = fig([400, 200], {toolbar_location: null})
+      const items = []
+      for (let i = 0; i < 8; i++) {
+        const r = p.line([1, 2], [i, i + 1])
+        items.push(new LegendItem({label: `item ${i}`, renderers: [r]}))
+      }
+      const orientation = side == "above" ? "horizontal" : "vertical"
+      const legend = new Legend({items, location: [0, 0], orientation})
+      p.add_layout(legend, side)
+      return {gp: gridplot([[p]], {toolbar_location: "above"}), plot: p, legend}
+    }
+
+    async function expect_contained(side: "above" | "right", size: [number, number]) {
+      const {gp, plot, legend} = make(side)
+      const {view} = await display(gp, size)
+
+      const plot_bbox = bounding_box(view.owner.get_one(plot).el)
+      const legend_bbox = bounding_box(view.owner.get_one(legend).el)
+
+      // an oversized legend used to paint outside its plot, over the grid's toolbar
+      expect(legend_bbox.left).to.be.within(plot_bbox.left, plot_bbox.right)
+      expect(legend_bbox.right).to.be.within(plot_bbox.left, plot_bbox.right)
+      expect(legend_bbox.top).to.be.within(plot_bbox.top, plot_bbox.bottom)
+      expect(legend_bbox.bottom).to.be.within(plot_bbox.top, plot_bbox.bottom)
+    }
+
+    it("allows a legend taller than its side panel to overlap a grid plot's toolbar", async () => {
+      await expect_contained("right", [450, 300])
+    })
+
+    it("allows a legend wider than its side panel to overflow its plot", async () => {
+      await expect_contained("above", [450, 350])
     })
   })
 })

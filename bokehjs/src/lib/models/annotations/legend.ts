@@ -576,11 +576,22 @@ export class LegendView extends AnnotationView {
   override update_position(): void {
     if (this.is_visible) {
       const {x, y} = this.css_position
+      // A legend in a side panel is positioned relative to that panel, so one
+      // larger than the panel would paint outside the plot and overlap whatever
+      // component sits next to it. Constrain it to the panel instead; an
+      // oversized legend is then clipped at its far edge.
+      const in_side_panel = this.layout != null
+      const constraint = !in_side_panel ? "" : `
+        max-width: 100%;
+        max-height: 100%;
+        overflow: hidden;
+      `
       this.position.replace(`
       ${this.host_selector} {
-        position: ${this.layout != null ? "relative" : "absolute"};
+        position: ${in_side_panel ? "relative" : "absolute"};
         left: ${x};
         top:  ${y};
+        ${constraint}
       }
       `)
     } else {
