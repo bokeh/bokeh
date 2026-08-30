@@ -1,1 +1,0 @@
-Documentation-only CI routing probe.
