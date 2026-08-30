@@ -10,7 +10,7 @@ from bokeh.sphinxext._internal.bokeh_model import (
     _env_merge_info as merge_model_timings,
     _ModelTiming,
 )
-from bokeh.sphinxext._internal.bokeh_timing import (
+from bokeh.sphinxext._internal.timing import (
     _DocsProfile,
     _setup_docs_profile,
     _start_docs_write,

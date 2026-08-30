@@ -44,8 +44,8 @@ from bokeh.model import Model
 
 # Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
-from .bokeh_timing import _setup_docs_profile
 from .bokeh_toc import _shorten_reference_toc_titles
+from .timing import _setup_docs_profile
 
 # -----------------------------------------------------------------------------
 # Globals and constants
