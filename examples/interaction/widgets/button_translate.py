@@ -109,7 +109,6 @@ cb_obj.config.i18n.languages = [
 ]
 cb_obj.config.i18n.source_language = "en"
 cb_obj.config.i18n.auto_t_enabled = true
-cb_obj.config.i18n.change_locale.emit()
 """))
 
 show(column([button, button1, button2]))

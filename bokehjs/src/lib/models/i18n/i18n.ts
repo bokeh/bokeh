@@ -22,9 +22,10 @@ export namespace I18n {
 export interface I18n extends I18n.Attrs {}
 
 export class I18n extends Model {
-  readonly change_locale = new Signal0(this, "change_locale")
+  readonly change_locale_config = new Signal0(this, "change_locale_config")
 
   _translator: Translator | undefined
+  _locale: string
 
   constructor(attrs?: Partial<I18n.Attrs>) {
     super(attrs)
@@ -41,18 +42,35 @@ export class I18n extends Model {
     }))
   }
 
-  override initialize(): void {
-    super.initialize()
-    void this._set_locale(this.locale, true)
-  }
-
   override connect_signals(): void {
     super.connect_signals()
 
-    const {locale} = this.properties as I18n.Props
+    const {locale, locales_codes, translations, source_language, auto_t_enabled} = this.properties as I18n.Props
     this.on_change(locale, async () => {
-      await this._set_locale(this.locale, true)
+      this._set_locale(this.locale, true)
+      await this._config_update()
     })
+
+    this.on_change(locales_codes, async () => {
+      this._set_locale(this.locale, true)
+      await this._config_update()
+    })
+
+    this.on_change(translations, async () => {
+      await this._config_update()
+    })
+
+    this.on_change(source_language, async () => {
+      await this._config_update()
+    })
+
+    this.on_change(auto_t_enabled, async () => {
+      await this._config_update()
+    })
+
+    this._set_locale(this.locale, true)
+    // TODO: Check better way to handle this
+    this._config_update().catch(() => logger.warn("Failed to change i18n config!"))
   }
 
   async t(key: string, options: Dict<Dict<string | any>> = {}): Promise<string> {
@@ -63,27 +81,30 @@ export class I18n extends Model {
     }
   }
 
-  async _set_locale(locale: string, force: boolean): Promise<void> {
+  protected _set_locale(locale: string, force: boolean): void {
     if (this.locales_codes.includes(locale)) {
-      document.documentElement.setAttribute("lang", locale)
-      if (localStorage.getItem("lang") !== locale || force) {
-        localStorage.setItem("lang", locale)
-        const translator_availability = await this._init_translator()
-        const download_translator = ["downloadable", "downloading"]
-        if (!download_translator.includes(translator_availability)) {
-          this.change_locale.emit()
-        }
-      } else if (this._translator == null) {
-        await this._init_translator()
+      if (this._locale !== locale || force) {
+        this._locale = locale
       }
     } else {
       const fallback_locale = this.locales_codes.includes(navigator.language) ? navigator.language : this.locales_codes[0]
-      this.setv({locale: fallback_locale}, {silent: true})
-      document.documentElement.setAttribute("lang", fallback_locale)
-      localStorage.setItem("lang", this.locale)
+      this._locale = fallback_locale
       const locales_codes = this.locales_codes.map(locale => `'${locale}'`).join(", ")
-      this.change_locale.emit()
-      logger.warn(`I18n.set_locale() expects a valid locale string: ${locales_codes}. Locale provided was ${locale}. Locale is '${this.locale}'`)
+      logger.warn(`I18n.set_locale() expects a valid locale string: ${locales_codes}. Locale provided was ${locale}. Locale is '${this._locale}'`)
+    }
+    this.setv({locale: this._locale}, {silent: true})
+  }
+
+  protected async _config_update(): Promise<void> {
+    if (this.auto_t_enabled) {
+      const translator_availability = await this._init_translator()
+      const download_translator = ["downloadable", "downloading"]
+      if (!download_translator.includes(translator_availability)) {
+        this.change_locale_config.emit()
+      }
+    } else {
+      this._translator = undefined
+      this.change_locale_config.emit()
     }
   }
 
@@ -106,12 +127,12 @@ export class I18n extends Model {
           targetLanguage: this.locale,
           monitor(monitor: CreateMonitor) {
             monitor.addEventListener("downloadprogress", (e: ProgressEvent) => {
-              const progress = Math.floor(e.loaded * 100)
-              logger.debug(`Downloading ${localStorage.getItem("lang")} - ${progress}`)
+              const progress = `${e.loaded}/${e.total}`
+              logger.debug(`Downloading translator model - ${progress}`)
             })
           },
         })
-        this.change_locale.emit()
+        this.change_locale_config.emit()
       } else if (availability === "unavailable") {
         this._translator = undefined
       }
