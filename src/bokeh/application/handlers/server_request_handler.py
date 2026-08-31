@@ -64,7 +64,7 @@ class ServerRequestHandler(RequestHandler):
         Keyword Args:
             filename (str) : path to a module to load request handler callbacks from
 
-            argv (tuple[str, ...], optional) : a list of string arguments to use as
+            argv (Sequence[str], optional) : a sequence of string arguments to use as
                 ``sys.argv`` when the callback code is executed. (default: ())
 
         '''

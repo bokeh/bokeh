@@ -89,8 +89,8 @@ class CodeRunner:
             path (str) :
                 A filename to use in any debugging or error output
 
-            argv (tuple[str, ...]) :
-                A list of string arguments to make available as ``sys.argv``
+            argv (Sequence[str]) :
+                A sequence of string arguments to make available as ``sys.argv``
                 when the code executes
 
             package (bool) :

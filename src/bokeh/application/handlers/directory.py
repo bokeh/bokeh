@@ -112,7 +112,7 @@ class DirectoryHandler(Handler):
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
 
-            argv (tuple[str, ...], optional) : a list of string arguments to make available as sys.argv to main.py
+            argv (Sequence[str], optional) : a sequence of string arguments to make available as sys.argv to main.py
         '''
         super().__init__()
 

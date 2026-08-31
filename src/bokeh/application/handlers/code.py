@@ -97,7 +97,7 @@ class CodeHandler(Handler):
 
             filename (str) : a filename to use in any debugging or error output
 
-            argv (tuple[str, ...], optional) : a list of string arguments to make
+            argv (Sequence[str], optional) : a sequence of string arguments to make
                 available as ``sys.argv`` when the code executes
 
         '''
