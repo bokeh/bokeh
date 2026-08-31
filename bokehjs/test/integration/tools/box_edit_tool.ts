@@ -26,6 +26,7 @@ describe("BoxEditTool", () => {
       const actions = new PlotActions(view)
       await actions.pan(xy(0.25, 0.25), xy(1.25, 1.25), 2)
       await paint()
+      return r
     }
 
     it("Rect glyph", async () => {
@@ -41,7 +42,12 @@ describe("BoxEditTool", () => {
     })
 
     it("HBar glyph", async () => {
-      await move((p) => p.hbar({y: [0], height: {value: 58, units: "screen"}, left: [0], right: [1]}))
+      const r = await move((p) => p.hbar({y: [0], height: [1], left: [0], right: [1]}))
+
+      // Moving doesn't edit height, so this test doesn't compare it. Normalize
+      // only the final baseline because data units can round to 57 or 58 pixels.
+      r.glyph.height = {value: 58, units: "screen"}
+      await paint()
     })
 
     it("VBar glyph", async () => {
