@@ -168,13 +168,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return this._computed_renderer_views
   }
 
-  private _renderer_views_ready: Promise<void> = Promise.resolve()
-
-  /** Resolves when the most recently requested renderer views are built and attached. */
-  get renderer_views_ready(): Promise<void> {
-    return this._renderer_views_ready
-  }
-
   get all_renderer_views(): RendererView[] {
     const collected: RendererView[] = []
     for (const rv of this.computed_renderer_views) {
@@ -926,13 +919,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return result
   }
 
-  protected _update_renderers(): Promise<void> {
-    const ready = this._rebuild_renderers()
-    this._renderer_views_ready = ready
-    return ready
-  }
-
-  protected async _rebuild_renderers(): Promise<void> {
+  protected async _update_renderers(): Promise<void> {
     const {created} = await this._build_renderers()
     const created_views = new Set(created)
 
