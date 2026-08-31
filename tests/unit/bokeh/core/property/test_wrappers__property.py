@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import copy
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -581,7 +582,7 @@ def test_PropertyValueColumnData___copy__() -> None:
 
 def test_PropertyValueColumnData___deepcopy__() -> None:
     source = ColumnDataSource(data=dict(foo=[10]))
-    pvcd = source.data.__deepcopy__()
+    pvcd = copy.deepcopy(source.data)
     assert source.data == pvcd
     assert id(source.data) != id(pvcd)
     pvcd['foo'][0] = 20

@@ -192,6 +192,7 @@ def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defa
         ultimate defaults in case those can't be deduced.
     """
     defaults = defaults.copy()
+    override_defaults = override_defaults.copy()
     defaults.setdefault('text_color', 'black')
     defaults.setdefault('hatch_color', 'black')
 

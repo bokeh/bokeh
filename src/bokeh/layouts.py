@@ -398,7 +398,9 @@ def gridplot(
 
     return gp
 
-# XXX https://github.com/python/mypy/issues/731
+type GridChild = UIElement | None | Sequence[GridChild]
+type GridChildren = Sequence[GridChild]
+
 @overload
 def grid(children: list[UIElement | list[UIElement | list[Any]]], *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 @overload
@@ -412,7 +414,12 @@ def grid(children: list[UIElement | None], *, sizing_mode: SizingModeType | None
 @overload
 def grid(children: str, *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 
-def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: int | None = None, ncols: int | None = None) -> GridBox:
+def grid(
+    children: str | GridChildren | Row | Column = (),
+    sizing_mode: SizingModeType | None = None,
+    nrows: int | None = None,
+    ncols: int | None = None,
+) -> GridBox:
     """
     Conveniently create a grid of layoutable objects.
 
@@ -549,15 +556,18 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
         return GridBox(children=children)
 
     layout: row | col
-    if isinstance(children, list):
+    if isinstance(children, str):
+        raise NotImplementedError
+    elif isinstance(children, Sequence):
+        children = list(children)
         if nrows is not None or ncols is not None:
             N = len(children)
             if ncols is None:
                 ncols = math.ceil(N/nrows)
             layout = col([ row(children[i:i+ncols]) for i in range(0, N, ncols) ])
         else:
-            def traverse_list(children: list[LayoutDOM], level: int = 0):
-                if isinstance(children, list):
+            def traverse_list(children: Sequence[GridChild], level: int = 0):
+                if isinstance(children, Sequence) and not isinstance(children, str):
                     container = col if level % 2 == 0 else row
                     return container([ traverse_list(child, level+1) for child in children ])
                 else:
@@ -576,10 +586,8 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
                 return item
 
         layout = traverse_layout(children, top_level=True)
-    elif isinstance(children, str):
-        raise NotImplementedError
     else:
-        raise ValueError("expected a list, string or model")
+        raise ValueError("expected a sequence, string, Row or Column")
 
     grid = flatten(layout)
 
