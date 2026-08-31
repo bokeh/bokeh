@@ -28,22 +28,8 @@ export class HexTileGL extends SXSYGlyphGL {
     }
 
     const {scale} = this.glyph
-    if (scale.is_Scalar()) {
-      const scale_i = scale.get(0)
-      this._widths.set_from_scalar(width*scale_i)
-      this._heights.set_from_scalar(height*scale_i)
-    } else {
-      const n = this.nvertices
-      const widths = this._widths.get_sized_array(n)
-      const heights = this._heights.get_sized_array(n)
-      for (let i = 0; i < n; i++) {
-        const scale_i = scale.get(i)
-        widths[i] = width*scale_i
-        heights[i] = height*scale_i
-      }
-      this._widths.update()
-      this._heights.update()
-    }
+    this._widths.set_from_prop(scale.map((scale_i) => width*scale_i))
+    this._heights.set_from_prop(scale.map((scale_i) => height*scale_i))
   }
 
   protected override _set_once(): void {
