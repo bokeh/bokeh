@@ -117,7 +117,6 @@ describe("Widgets", () => {
     ]
     doc.config.i18n.source_language = "en"
     doc.config.i18n.auto_t_enabled = true
-    doc.config.i18n.change_locale.emit()
     await view.ready
   })
 
@@ -140,7 +139,6 @@ describe("Widgets", () => {
     ]
     doc.config.i18n.source_language = "en"
     doc.config.i18n.auto_t_enabled = false
-    doc.config.i18n.change_locale.emit()
     await view.ready
   })
 
@@ -163,7 +161,6 @@ describe("Widgets", () => {
     ]
     doc.config.i18n.source_language = "en"
     doc.config.i18n.auto_t_enabled = false
-    doc.config.i18n.change_locale.emit()
     await view.ready
   })
 
@@ -184,7 +181,6 @@ describe("Widgets", () => {
     ]
     doc.config.i18n.source_language = "en"
     doc.config.i18n.auto_t_enabled = false
-    doc.config.i18n.change_locale.emit()
     await view.ready
   })
 
