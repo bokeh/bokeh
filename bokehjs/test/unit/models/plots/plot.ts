@@ -108,7 +108,7 @@ describe("Plot module", () => {
 
       const renderer1 = new Label({x: 1, y: 1, text: "second"})
       view.model.renderers = [renderer1]
-      await view.ready
+      await view.renderer_views_ready
 
       const cached1 = view.computed_renderer_views
       expect(cached1).to.not.be.identical(cached0)

@@ -1340,17 +1340,15 @@ describe("Bug", () => {
         renderers: [esri],
       })
 
-      await display(row([p0, p1]))
+      const {view} = await display(row([p0, p1]))
+      const pv0 = view.owner.get_one(p0)
+      const pv1 = view.owner.get_one(p1)
 
       p0.renderers = [esri]
-      // Renderer replacement spans two frames. Avoid waiting on unrelated tile
-      // requests, which can leave the root ready promise pending indefinitely.
-      await paint()
-      await paint()
+      await pv0.renderer_views_ready
       p1.renderers = [osm]
 
-      await paint()
-      await paint()
+      await pv1.renderer_views_ready
     })
   })
 
