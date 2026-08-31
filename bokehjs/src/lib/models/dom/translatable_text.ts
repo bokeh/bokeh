@@ -22,7 +22,7 @@ export class TranslatableTextView extends TextView {
     // TODO: This should use this.model.document but it seems to be always null
     const {document} = this.root.model
     if (document != null) {
-      this.connect(document.config.i18n.change_locale, async () => {
+      this.connect(document.config.i18n.change_locale_config, async () => {
         await this._build_text()
         this.rerender()
       })

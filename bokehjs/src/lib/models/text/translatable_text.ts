@@ -27,7 +27,7 @@ export class TranslatableTextView extends BaseTextView {
     // (i.e SizeBar instances)
     const {document} = this.root.model
     if (document != null) {
-      this.connect(document.config.i18n.change_locale, async () => {
+      this.connect(document.config.i18n.change_locale_config, async () => {
         await this._build_text()
         this.parent.request_paint()
       })
