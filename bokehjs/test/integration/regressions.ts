@@ -4206,6 +4206,30 @@ describe("Bug", () => {
       legend.items[0].label = "Long ....... label"
       await view.ready
     })
+
+    it("doesn't allot to recompute the layout when a Legend without margin grows", async () => {
+      const p = fig([400, 200])
+      const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+
+      const legend = new Legend({
+        items: [
+          new LegendItem({label: "Short", renderers: [scatter]}),
+        ],
+        margin: 0,
+      })
+      p.add_layout(legend, "left")
+
+      const {view} = await display(p)
+      const legend_view = view.owner.get_one(legend)
+      const before = bounding_box(legend_view.el).width
+
+      legend.items[0].label = "A very much longer legend label than before"
+      await view.ready
+
+      // the side panel derives its width from the legend, so the legend must
+      // stay free to grow along that axis
+      expect(bounding_box(legend_view.el).width).to.be.above(before)
+    })
   })
 
   describe("in issue #14153", () => {

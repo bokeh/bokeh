@@ -579,11 +579,13 @@ export class LegendView extends AnnotationView {
       // A legend in a side panel is positioned relative to that panel, so one
       // larger than the panel would paint outside the plot and overlap whatever
       // component sits next to it. Constrain it to the panel instead; an
-      // oversized legend is then clipped at its far edge.
-      const in_side_panel = this.layout != null
+      // oversized legend is then clipped at its far edge. Only the panel's
+      // spanning axis is capped, because `SideLayout` derives the other one
+      // from the legend's measured size and capping that would freeze it.
+      const {panel} = this
+      const in_side_panel = this.layout != null && panel != null
       const constraint = !in_side_panel ? "" : `
-        max-width: 100%;
-        max-height: 100%;
+        ${panel.is_horizontal ? "max-width" : "max-height"}: 100%;
         overflow: hidden;
       `
       this.position.replace(`
