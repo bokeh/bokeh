@@ -9,9 +9,9 @@ import {paint} from "@bokehjs/core/util/defer"
 
 describe("BoxEditTool", () => {
   describe("should support moving", () => {
-    async function move<T extends BoxLikeGlyph>(glyph: (p: Figure) => GlyphRenderer<T>) {
+    async function move<T extends BoxLikeGlyph>(glyph: (p: Figure) => GlyphRenderer<T>, height: number = 200) {
       const box_edit = new BoxEditTool()
-      const p = fig([200, 200], {
+      const p = fig([200, height], {
         x_range: [-1, 2],
         y_range: [-1, 2],
         toolbar_location: null,
@@ -41,9 +41,9 @@ describe("BoxEditTool", () => {
     })
 
     it("HBar glyph", async () => {
-      // Height isn't edited during the drag. Screen units avoid unstable Linux
-      // baseline rounding of the equivalent data-unit height to 57 or 58 pixels.
-      await move((p) => p.hbar({y: [0], height: {value: 58, units: "screen"}, left: [0], right: [1]}))
+      // A 201px plot has a 174px frame, so this 3-unit y-range maps height=1
+      // to exactly 58px and avoids platform-dependent bounding-box rounding.
+      await move((p) => p.hbar({y: [0], height: [1], left: [0], right: [1]}), 201)
     })
 
     it("VBar glyph", async () => {
