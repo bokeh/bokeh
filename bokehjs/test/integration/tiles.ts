@@ -39,10 +39,12 @@ describe("TileRenderer", () => {
     const visible_source = new WMTSTileSource({
       url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "visible attribution",
+      max_zoom: 3,
     })
     const hidden_source = new WMTSTileSource({
       url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "hidden attribution",
+      max_zoom: 3,
     })
 
     const visible = new TileRenderer({tile_source: visible_source})
