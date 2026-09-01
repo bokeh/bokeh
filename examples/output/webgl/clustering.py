@@ -25,7 +25,7 @@ colors = np.array([x for x in ('#00f', '#0f0', '#f00', '#0ff', '#f0f', '#ff0')])
 colors = np.hstack([colors] * 20)
 
 # create clustering algorithms
-dbscan   = cluster.DBSCAN(eps=.2)
+dbscan   = cluster.DBSCAN(eps=.2, n_jobs=-1)
 birch    = cluster.Birch(n_clusters=2)
 means    = cluster.MiniBatchKMeans(n_clusters=2)
 spectral = cluster.SpectralClustering(n_clusters=2, eigen_solver='arpack', affinity="nearest_neighbors")

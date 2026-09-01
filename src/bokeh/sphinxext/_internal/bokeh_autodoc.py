@@ -16,7 +16,7 @@ Bokeh-specific directives when appropriate.
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging  # isort:skip
+from sphinx.util import logging  # isort:skip
 
 log = logging.getLogger(__name__)
 
@@ -25,6 +25,8 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass
+from time import perf_counter
 from typing import Any
 
 # External imports
@@ -43,6 +45,7 @@ from bokeh.model import Model
 # Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_toc import _shorten_reference_toc_titles
+from .timing import _setup_docs_profile
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -125,13 +128,118 @@ def setup(app: Any) -> SphinxParallelSpec:
     app.add_autodocumenter(EnumDocumenter)
     app.add_autodocumenter(PropDocumenter)
     app.add_autodocumenter(ModelDocumenter)
+    _setup_docs_profile(app)
     app.connect("env-updated", _shorten_reference_toc_titles)
+    app.connect("env-updated", _prune_empty_viewcode_modules)
+    app.connect("write-started", _cache_python_domain_fuzzy_lookups, priority=999)
+    app.connect("build-finished", _log_fuzzy_lookup_stats, priority=999)
 
     return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+_FUZZY_LOOKUP_STATS_ATTR = "_bokeh_python_fuzzy_lookup_stats"
+
+
+@dataclass
+class _FuzzyLookupStats:
+    calls: int = 0
+    contextual: int = 0
+    fallbacks: int = 0
+    computed: int = 0
+    elapsed: float = 0.0
+
+
+def _log_fuzzy_lookup_stats(app: Any, exception: Exception | None) -> None:
+    stats = getattr(app.builder, _FUZZY_LOOKUP_STATS_ATTR, None)
+    if stats is not None:
+        reused = stats.fallbacks - stats.computed
+        reuse_percent = 100 * reused / stats.fallbacks if stats.fallbacks else 0
+        log.info(
+            f"Bokeh Python fuzzy lookups: calls={stats.calls} contextual={stats.contextual} "
+            f"suffix-computed={stats.computed} suffix-reused={reused} ({reuse_percent:.1f}%) "
+            f"compute={stats.elapsed:.3f}s",
+        )
+
+
+def _prune_empty_viewcode_modules(app: Any, env: Any) -> None:
+    """Remove unused module entries retained by parallel viewcode merges."""
+    modules = getattr(env, "_viewcode_modules", None)
+    if modules is None:
+        return
+
+    # Sphinx removes these entries while purging serial builds, but its worker
+    # merge can retain entries whose documented members were removed elsewhere.
+    for name, entry in list(modules.items()):
+        if entry and not entry[2]:
+            del modules[name]
+
+
+def _cache_python_domain_fuzzy_lookups(app: Any, builder: Any) -> None:
+    """Cache fuzzy Python-domain lookups once the object inventory is final."""
+    domain = builder.env.domains.get("py")
+    if domain is None:
+        return
+
+    find_obj = domain.find_obj
+    fallback_cache: dict[tuple[str, str | None], tuple[Any, ...]] = {}
+    objtypes_cache: dict[str | None, list[str] | None] = {}
+    stats = _FuzzyLookupStats()
+    setattr(builder, _FUZZY_LOOKUP_STATS_ATTR, stats)
+
+    def cached_find_obj(
+        env: Any,
+        modname: str | None,
+        classname: str | None,
+        name: str,
+        objtype: str | None,
+        searchmode: int = 0,
+    ) -> Any:
+        # Exact lookups are already constant-time. Fuzzy lookups scan every
+        # Python object, so repeated misses for common annotations are costly.
+        if env is not builder.env or searchmode != 1:
+            return find_obj(env, modname, classname, name, objtype, searchmode)
+
+        stats.calls += 1
+        name = name.removesuffix("()")
+        if not name:
+            return []
+
+        try:
+            objtypes = objtypes_cache[objtype]
+        except KeyError:
+            objtypes = list(domain.object_types) if objtype is None else domain.objtypes_for_role(objtype)
+            objtypes_cache[objtype] = objtypes
+
+        if objtypes is None:
+            return []
+
+        candidates = (
+            f"{modname}.{classname}.{name}" if modname and classname else None,
+            f"{modname}.{name}" if modname else None,
+            name,
+        )
+        for candidate in candidates:
+            entry = domain.objects.get(candidate)
+            if entry is not None and entry.objtype in objtypes:
+                stats.contextual += 1
+                return [(candidate, entry)]
+
+        stats.fallbacks += 1
+        key = (name, objtype)
+        try:
+            return list(fallback_cache[key])
+        except KeyError:
+            started = perf_counter()
+            result = find_obj(env, None, None, name, objtype, searchmode)
+            stats.elapsed += perf_counter() - started
+            stats.computed += 1
+            fallback_cache[key] = tuple(result)
+            return result
+
+    domain.find_obj = cached_find_obj
 
 # -----------------------------------------------------------------------------
 # Code

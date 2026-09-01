@@ -280,11 +280,9 @@ supported by ``make.bat``). For example:
                 make.bat html
                 make.bat serve
 
-To speed up the build of your local documentation, you have the option to use
-an `experimental Sphinx feature`_ that distributes the build process over
-several CPUs and cores. This only works on Linux and macOS (not on Windows). On
-macOS, this feature only works on Python 3.7. To use this experimental feature,
-add the option ``SPHINXOPTS="-j auto"`` to your build command:
+Sphinx can distribute reading and writing over several worker processes. To
+use all available CPUs for a clean local build, add the option
+``SPHINXOPTS="-j auto"`` to your build command:
 
 .. code-block:: sh
 
@@ -462,5 +460,4 @@ For example:
 .. _Napoleon's Google style: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
 .. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
 .. _official reStructuredText website: https://docutils.sourceforge.io/rst.html
-.. _experimental Sphinx feature: https://github.com/sphinx-doc/sphinx/issues/6881
 .. _release management: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
