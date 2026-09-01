@@ -1,5 +1,6 @@
 import type {Dict} from "core/types"
 import {logger} from "core/logging"
+import {assert} from "core/util/assert"
 import {to_object} from "core/util/object"
 import {isString} from "core/util/types"
 import {Signal0} from "core/signaling"
@@ -97,15 +98,11 @@ export class I18n extends Model {
 
   protected async _config_update(): Promise<void> {
     if (this.auto_t_enabled) {
-      const translator_availability = await this._init_translator()
-      const download_translator = ["downloadable", "downloading"]
-      if (!download_translator.includes(translator_availability)) {
-        this.change_locale_config.emit()
-      }
+      await this._init_translator()
     } else {
       this._translator = undefined
-      this.change_locale_config.emit()
     }
+    this.change_locale_config.emit()
   }
 
   protected async _init_translator(): Promise<Availability> {
@@ -116,28 +113,51 @@ export class I18n extends Model {
         sourceLanguage: this.source_language,
         targetLanguage: this.locale,
       })
-      if (availability === "available") {
-        this._translator = await Translator.create({
-          sourceLanguage: this.source_language,
-          targetLanguage: this.locale,
-        })
-      } else if (availability === "downloadable") {
-        this._translator = await Translator.create({
-          sourceLanguage: this.source_language,
-          targetLanguage: this.locale,
-          monitor(monitor: CreateMonitor) {
-            monitor.addEventListener("downloadprogress", (e: ProgressEvent) => {
-              const progress = `${e.loaded}/${e.total}`
-              logger.debug(`Downloading translator model - ${progress}`)
+      try {
+        switch (availability) {
+          case "available": {
+            this._translator = await Translator.create({
+              sourceLanguage: this.source_language,
+              targetLanguage: this.locale,
             })
-          },
-        })
-        this.change_locale_config.emit()
-      } else if (availability === "unavailable") {
+            break
+          }
+          case "downloadable": {
+            this._translator = await Translator.create({
+              sourceLanguage: this.source_language,
+              targetLanguage: this.locale,
+              monitor(monitor: CreateMonitor) {
+                monitor.addEventListener("downloadprogress", (e: ProgressEvent) => {
+                  const progress = `${e.loaded}/${e.total}`
+                  logger.debug(`Downloading translator model - ${progress}`)
+                })
+              },
+            })
+            availability = await Translator.availability({
+              sourceLanguage: this.source_language,
+              targetLanguage: this.locale,
+            })
+            break
+          }
+          case "downloading": {
+            assert(
+              typeof this._translator !== "undefined" &&
+              this._translator.sourceLanguage == this.source_language &&
+              this._translator.targetLanguage == this.locale,
+              "Out of sync translator",
+            )
+            break
+          }
+          case "unavailable": {
+            this._translator = undefined
+          }
+        }
+      } catch (error) {
         this._translator = undefined
+        availability = "unavailable"
+        logger.debug("Failed to create translator!")
       }
     }
-
     return availability
   }
 
