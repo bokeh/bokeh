@@ -702,17 +702,17 @@ class Settings:
     fixes or changes.
     """)
 
-    export_backend: PrioritizedSetting[str] = PrioritizedSetting("export_backend", "BOKEH_EXPORT_BACKEND", default="auto", help="""
+    export_backend: PrioritizedSetting[str] = PrioritizedSetting("export_backend", "BOKEH_EXPORT_BACKEND", default="playwright", help="""
     Which browser backend to use for PNG and SVG export.
 
     Valid values are:
 
-    - ``auto``: try Selenium first, fall back to Playwright (default).
-      This preserves existing behaviour for users who already have
-      Selenium installed.
-    - ``playwright``: use Playwright (requires ``pip install playwright``
-      and ``playwright install chromium``).
-    - ``selenium``: use Selenium with a browser driver on PATH.
+    - ``playwright``: use Playwright (default; requires
+      ``pip install playwright`` and ``playwright install chromium``).
+    - ``auto``: try Playwright first, then fall back to the deprecated
+      Selenium backend.
+    - ``selenium``: use the deprecated Selenium backend with a browser driver
+      on PATH.
 
     This can also be overridden per-call via the ``backend`` parameter
     on ``export_png``, ``export_svg``, etc.

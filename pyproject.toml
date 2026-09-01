@@ -62,7 +62,7 @@ extra = [
     "pandas >=2.0",
 ]
 export = [
-    "selenium ~=4.2",
+    "playwright",
 ]
 all = [
     "bokeh[sampledata,extra,export]",

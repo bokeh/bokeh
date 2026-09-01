@@ -6,16 +6,12 @@
 #-----------------------------------------------------------------------------
 '''Playwright-based browser backend for PNG/SVG export.
 
-This module provides an alternative to the Selenium-based export backend.
-Playwright is generally faster to install and run than Selenium.
+Playwright is the default browser backend for Bokeh export.
 
 To use::
 
     pip install playwright
     playwright install chromium
-
-Then set ``BOKEH_EXPORT_BACKEND=playwright`` or pass ``backend="playwright"``
-to export functions.
 
 '''
 
