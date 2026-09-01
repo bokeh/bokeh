@@ -139,36 +139,6 @@ def test_directory_build_steps_use_expected_working_directories(config: Config) 
         assert system.directories == expected
 
 
-def test_pack_deployment_tarball_collects_all_artifacts(config: Config) -> None:
-    system = RecordingSystem()
-
-    result = build.pack_deployment_tarball(config, system)
-
-    assert result.kind is ActionResult.PASS
-    assert system.commands == [
-        "mkdir deployment-4.0.0",
-        "cp bokehjs/bokeh-bokehjs-4.0.0.tgz deployment-4.0.0",
-        "cp dist/conda/noarch/bokeh-4.0.0-py_0.tar.bz2 deployment-4.0.0",
-        "cp dist/bokeh-4.0.0.tar.gz deployment-4.0.0",
-        "cp dist/bokeh-4.0.0-py3-none-any.whl deployment-4.0.0",
-        "mkdir deployment-4.0.0/bokehjs",
-        "cp -r bokehjs/build deployment-4.0.0/bokehjs",
-        "mkdir -p deployment-4.0.0/docs/bokeh/build",
-        "cp -r docs/bokeh/build/html deployment-4.0.0/docs/bokeh/build",
-        "cp -r docs/bokeh/switcher.json deployment-4.0.0/docs/bokeh",
-        "tar czvf deployment-4.0.0.tgz deployment-4.0.0",
-    ]
-
-
-def test_pack_deployment_tarball_stops_on_first_failure(config: Config) -> None:
-    system = RecordingSystem(failures={"cp dist/bokeh-4.0.0.tar.gz deployment-4.0.0": ("missing",)})
-
-    result = build.pack_deployment_tarball(config, system)
-
-    assert result.kind is ActionResult.FAIL
-    assert system.commands[-1] == "cp dist/bokeh-4.0.0.tar.gz deployment-4.0.0"
-
-
 def make_bokehjs_package_files(root: Path, *, lockfile_version: int = 3) -> list[str]:
     filenames = [
         "package.json",

@@ -10,16 +10,18 @@
 from __future__ import annotations
 
 # Standard library imports
+import logging
 import os
 import sys
 from subprocess import PIPE, STDOUT, run as stdlib_run
 from typing import Any
 
 # Bokeh imports
-from .logger import LOG
 from .ui import shell
 
 __all__ = ("System",)
+
+log = logging.getLogger(__name__)
 
 
 class System:
@@ -32,7 +34,7 @@ class System:
     def run(self, cmd: str, **kw: Any) -> str:
         """"""
         envstr = " ".join(f"{k}={v}" for k, v in kw.items()) + min(len(kw), 1) * " "
-        LOG.record(shell(f"{envstr}{cmd}"))
+        log.info("%s", shell(f"{envstr}{cmd}"))
 
         env = dict(os.environ)
         env.update(kw)
@@ -54,7 +56,7 @@ class System:
     def cd(self, new_dir: str) -> None:
         """"""
         os.chdir(new_dir)
-        LOG.record(shell(f"cd {new_dir} # [now: {os.getcwd()}]"))
+        log.info("%s", shell(f"cd {new_dir} # [now: {os.getcwd()}]"))
 
     def pushd(self, new_dir: str) -> None:
         """"""
