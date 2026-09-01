@@ -47,7 +47,7 @@ from ..resources import INLINE
 from ..util.dependencies import import_required
 from .state import curstate
 from .util import (
-    _BOKEH_LOADED_CHECK,
+    _BOKEH_LOADED_EXPR,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
@@ -254,35 +254,33 @@ class _PlaywrightState:
         return browser
 
 
-def _wrap_script(script: str) -> str:
+def _wrap_function(script: str) -> str:
     stripped = script.strip()
     if stripped.startswith("return ") or stripped.startswith("return\n") or "\nreturn " in stripped:
-        return f"(() => {{ {script} }})()"
+        return f"() => {{ {script} }}"
     return script
 
 
 def execute_script(page: Page, script: str) -> Any:
     '''Execute JavaScript in the page and return the result.
 
-    Wraps Selenium-style scripts (with bare top-level ``return``) in an
-    IIFE so they work with Playwright's ``evaluate``.
+    Wraps Selenium-style scripts (with bare top-level ``return``) in a
+    function so they work with Playwright's ``evaluate``.
     '''
-    return page.evaluate(_wrap_script(script))
+    return page.evaluate(_wrap_function(script))
 
 
 async def _execute_script(page: AsyncPage, script: str) -> Any:
-    return await page.evaluate(_wrap_script(script))
+    return await page.evaluate(_wrap_function(script))
 
 
 def wait_until_render_complete(page: Page, timeout: int) -> None:
     '''Wait for Bokeh to load and render, mirroring the Selenium backend.'''
     timeout_ms = timeout * 1000
 
-    bokeh_loaded_fn = _BOKEH_LOADED_CHECK.replace("return ", "", 1)
-
     try:
         page.wait_for_function(
-            f"() => {{ return {bokeh_loaded_fn}; }}",
+            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
             timeout=timeout_ms,
         )
     except Exception as e:
@@ -308,11 +306,9 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
 async def _wait_until_render_complete(page: AsyncPage, timeout: int) -> None:
     timeout_ms = timeout * 1000
 
-    bokeh_loaded_fn = _BOKEH_LOADED_CHECK.replace("return ", "", 1)
-
     try:
         await page.wait_for_function(
-            f"() => {{ return {bokeh_loaded_fn}; }}",
+            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
             timeout=timeout_ms,
         )
     except Exception as e:
