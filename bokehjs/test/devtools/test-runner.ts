@@ -123,7 +123,7 @@ export class TestRunner {
   }
 
   private async execute_test(seq: string, test: Test): Promise<Value<Result> | Failure | Timeout> {
-    let attempts = MAX_TIMEOUT_RETRIES
+    let retries = MAX_TIMEOUT_RETRIES
 
     do {
       const output = await (async () => {
@@ -139,7 +139,21 @@ export class TestRunner {
         }
       })()
 
-      if (attempts-- <= 0 || !(output instanceof Timeout)) {
+      if (!(output instanceof Timeout)) {
+        return output
+      }
+
+      // A timeout only stops waiting for Runtime.evaluate(); it doesn't cancel
+      // the test running in the page. Reloading destroys that execution context
+      // so retries and subsequent tests don't overlap with outstanding work.
+      await this.browser.reload_page()
+      await this.browser.evaluate("preload_fonts()")
+
+      if (!await this.browser.is_ready()) {
+        throw new Error("Failed to reload test page after timeout")
+      }
+
+      if (retries-- <= 0) {
         return output
       }
     } while (true)

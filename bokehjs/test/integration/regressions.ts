@@ -4387,9 +4387,13 @@ describe("Bug", () => {
       const layout = new Row({children: [col1, col2], sizing_mode: "stretch_both"})
 
       const {view} = await display(layout, [400, 500])
+      const select_view = view.owner.get_one(s0)
 
       s0.visible = true
-      await view.ready
+      // The visibility update invalidates the root layout synchronously after
+      // the Select's deferred CSS update. Don't join unrelated tile requests
+      // through the root view's readiness chain.
+      await select_view.ready
 
       expect(p0.y_range.start).to.be.similar(-4033457.249070633)
       expect(p0.y_range.end).to.be.similar(10033457.249070633)

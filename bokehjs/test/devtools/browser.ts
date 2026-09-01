@@ -70,6 +70,7 @@ export function check_version(current_chromium_version: Version | null): void {
 export class BrowserManager {
   private client: CDPClient | null = null
   private protocol: CDPProtocol | null = null
+  private page_url: string | null = null
   private entries: LogEntry[] = []
   private exceptions: Exception[] = []
 
@@ -160,6 +161,12 @@ export class BrowserManager {
     await Page.enable()
     await Page.navigate({url: "about:blank"})
 
+    // Discard diagnostics from a previous execution context. In particular,
+    // navigating away from a timed-out test can report errors while aborting
+    // its outstanding work.
+    this.clear_entries()
+    this.clear_exceptions()
+
     await DOM.enable({})
 
     await Runtime.enable()
@@ -173,6 +180,7 @@ export class BrowserManager {
       permissions: ["clipboardReadWrite"],
     })
 
+    this.page_url = url
     const {errorText} = await Page.navigate({url})
 
     if (errorText != null) {
@@ -187,6 +195,13 @@ export class BrowserManager {
     }
 
     await Page.loadEventFired()
+  }
+
+  async reload_page(): Promise<void> {
+    if (this.page_url == null) {
+      throw new Error("Page not initialized")
+    }
+    await this.initialize_page(this.page_url)
   }
 
   async override_metrics(settings: {dpr?: number, scale?: number} = {}): Promise<void> {
