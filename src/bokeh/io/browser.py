@@ -254,7 +254,7 @@ class _PlaywrightState:
         return browser
 
 
-def _evaluate_script(script: str) -> str:
+def _wrap_script(script: str) -> str:
     stripped = script.strip()
     if stripped.startswith("return ") or stripped.startswith("return\n") or "\nreturn " in stripped:
         return f"(() => {{ {script} }})()"
@@ -267,11 +267,11 @@ def execute_script(page: Page, script: str) -> Any:
     Wraps Selenium-style scripts (with bare top-level ``return``) in an
     IIFE so they work with Playwright's ``evaluate``.
     '''
-    return page.evaluate(_evaluate_script(script))
+    return page.evaluate(_wrap_script(script))
 
 
 async def _execute_script(page: AsyncPage, script: str) -> Any:
-    return await page.evaluate(_evaluate_script(script))
+    return await page.evaluate(_wrap_script(script))
 
 
 def wait_until_render_complete(page: Page, timeout: int) -> None:
