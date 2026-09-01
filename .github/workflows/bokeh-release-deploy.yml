@@ -31,14 +31,17 @@ jobs:
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
-          if ! identity="$("$HOME/.ana/tools/anaconda-cli/bin/anaconda" --token "$ANACONDA_TOKEN" whoami)"; then
+          if ! identity="$("$HOME/.ana/tools/anaconda-cli/bin/anaconda" -t "$ANACONDA_TOKEN" whoami 2>&1)"; then
+            printf '%s\n' "$identity"
             echo "::error::Anaconda token authentication failed"
             exit 1
           fi
           if [[ "$identity" != *"Username: bokeh"* ]]; then
+            printf '%s\n' "$identity"
             echo "::error::Anaconda token is not authenticated as bokeh"
             exit 1
           fi
+          echo "Verified Anaconda credentials"
 
   prepare:
     needs: preflight

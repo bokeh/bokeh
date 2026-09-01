@@ -303,8 +303,10 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
     assert setup_anaconda["with"] == {"version": "v0.2.1", "tools": "anaconda-cli"}
     validate_anaconda = next(step for step in preflight["steps"] if step.get("name") == "Validate Anaconda token")
     assert validate_anaconda["env"] == {"ANACONDA_TOKEN": "${{ secrets.ANACONDA_TOKEN }}"}
-    assert "--token \"$ANACONDA_TOKEN\" whoami" in validate_anaconda["run"]
+    assert "-t \"$ANACONDA_TOKEN\" whoami 2>&1" in validate_anaconda["run"]
+    assert "printf '%s\\n' \"$identity\"" in validate_anaconda["run"]
     assert "Username: bokeh" in validate_anaconda["run"]
+    assert "Verified Anaconda credentials" in validate_anaconda["run"]
 
     assert prepare["needs"] == "preflight"
 
