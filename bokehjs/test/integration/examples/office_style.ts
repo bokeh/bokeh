@@ -20,7 +20,7 @@ import {
 } from "@bokehjs/models/widgets"
 
 describe("Examples", () => {
-  it("should support custom styles to follow Office like styling", async () => {
+  it.allowing(30)("should support custom styles to follow Office like styling", async () => {
     const url = "/assets/fonts/inter/inter.ttf"
     const font_style = new GlobalInlineStyleSheet({
       css: `

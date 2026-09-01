@@ -11,8 +11,8 @@ import {platform} from "./sys.js"
 import type {Suite, TestRunContext, ScreenshotMode} from "./types.js"
 import {Exit} from "./types.js"
 import {descriptions, description, encode, show_tree} from "./format.js"
-import {BrowserManager, Value, Failure} from "./browser.js"
-import {TestDiscovery, type TestCase} from "./discovery.js"
+import {BrowserError, BrowserManager, Value, Failure} from "./browser.js"
+import {TestDiscovery, type TestCase, type TestStatus} from "./discovery.js"
 import {MetricsCollector} from "./metrics.js"
 import {TestRunner} from "./test-runner.js"
 
@@ -54,6 +54,118 @@ const argv = yargs(process.argv.slice(2)).options({
 
 const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
+const MAX_BROWSER_RESTARTS = 2
+
+type RestartBrowserRequest = {
+  type: "restart-browser"
+  id: number
+  reason: string
+}
+
+type RestartBrowserResponse = {
+  type: "browser-restarted"
+  id: number
+  error?: string
+}
+
+let next_restart_id = 0
+
+async function request_browser_restart(reason: string): Promise<void> {
+  if (process.send == null) {
+    throw new Error("browser restart is unavailable; run tests through 'node make'")
+  }
+
+  const id = next_restart_id++
+  const request: RestartBrowserRequest = {type: "restart-browser", id, reason}
+
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      cleanup()
+      reject(new Error("timed out waiting for the replacement browser"))
+    }, 60000)
+    timer.unref()
+
+    const on_message = (message: unknown) => {
+      const response = message as Partial<RestartBrowserResponse>
+      if (response.type != "browser-restarted" || response.id != id) {
+        return
+      }
+
+      cleanup()
+      if (response.error == null) {
+        resolve()
+      } else {
+        reject(new Error(response.error))
+      }
+    }
+
+    const on_disconnect = () => {
+      cleanup()
+      reject(new Error("test controller disconnected while replacing the browser"))
+    }
+
+    function cleanup(): void {
+      clearTimeout(timer)
+      process.off("message", on_message)
+      process.off("disconnect", on_disconnect)
+    }
+
+    process.on("message", on_message)
+    process.once("disconnect", on_disconnect)
+    process.send!(request)
+  })
+}
+
+function copy_status(status: TestStatus): TestStatus {
+  return {...status, errors: [...status.errors]}
+}
+
+function restore_status(status: TestStatus, checkpoint: TestStatus): void {
+  for (const key of Object.keys(status) as (keyof TestStatus)[]) {
+    delete status[key]
+  }
+  Object.assign(status, copy_status(checkpoint))
+}
+
+type BaselineFilesCheckpoint = Map<string, Buffer | null>
+
+async function read_optional(file: string): Promise<Buffer | null> {
+  try {
+    return await fs.promises.readFile(file)
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code == "ENOENT") {
+      return null
+    }
+    throw error
+  }
+}
+
+async function checkpoint_baseline_files(baselines_root: string | null, baseline_name: string | undefined): Promise<BaselineFilesCheckpoint | null> {
+  if (baselines_root == null || baseline_name == null) {
+    return null
+  }
+
+  const checkpoint: BaselineFilesCheckpoint = new Map()
+  const baseline_path = path.join(baselines_root, platform, baseline_name)
+  for (const extension of [".blf", ".png"]) {
+    const file = `${baseline_path}${extension}`
+    checkpoint.set(file, await read_optional(file))
+  }
+  return checkpoint
+}
+
+async function restore_baseline_files(checkpoint: BaselineFilesCheckpoint | null): Promise<void> {
+  if (checkpoint == null) {
+    return
+  }
+  for (const [file, contents] of checkpoint) {
+    if (contents == null) {
+      await fs.promises.rm(file, {force: true})
+    } else {
+      await fs.promises.writeFile(file, contents)
+    }
+  }
+}
 
 function format_output(test_case: TestCase): string | null {
   const [suites, test, status] = test_case
@@ -73,22 +185,58 @@ function format_output(test_case: TestCase): string | null {
 
 async function run_tests(ctx: TestRunContext): Promise<boolean> {
   const browser = new BrowserManager()
+  const baselines_root = argv["baselines-root"] ?? null
   let failure = false
   try {
-    await browser.connect(port, host)
-
-    try {
-      function fail(msg: string, code: number = 1): never {
-        console.log(msg)
-        throw new Exit(code)
+    if (baselines_root != null) {
+      const report_dir = path.join(baselines_root, platform)
+      await fs.promises.rm(path.join(report_dir, "report.json"), {force: true})
+      await fs.promises.rm(path.join(report_dir, "report.out"), {force: true})
+      for (const file of await fs.promises.readdir(report_dir)) {
+        if (/^report\.json\.\d+\.tmp$/.test(file)) {
+          await fs.promises.rm(path.join(report_dir, file), {force: true})
+        }
       }
+    }
 
+    const initialize_browser = async () => {
+      await browser.connect(port, host)
       await browser.initialize_page(url)
       await browser.evaluate("preload_fonts()")
 
       const ready = await browser.is_ready()
       if (!ready) {
-        fail(`failed to render ${url}`)
+        throw new Error(`failed to render ${url}`)
+      }
+    }
+
+    const recover_browser = async (initial_error: unknown, test_name: string) => {
+      let error = initial_error
+      for (let attempt = 1; attempt <= MAX_BROWSER_RESTARTS + 1; attempt++) {
+        const message = error instanceof Error ? error.message : `${error}`
+        const reason = `${message} while running "${test_name}"`
+        console.error(`Browser became unavailable ${reason}`)
+        await browser.reset()
+        try {
+          await request_browser_restart(reason)
+          await initialize_browser()
+          return
+        } catch (recovery_error) {
+          error = recovery_error
+          const recovery_message = recovery_error instanceof Error ? recovery_error.message : `${recovery_error}`
+          console.error(`Browser recovery attempt ${attempt} failed: ${recovery_message}`)
+        }
+      }
+      const message = error instanceof Error ? error.message : `${error}`
+      throw new BrowserError("Browser.recover", message)
+    }
+
+    await initialize_browser()
+
+    try {
+      function fail(msg: string, code: number = 1): never {
+        console.log(msg)
+        throw new Exit(code)
       }
 
       const result = await browser.evaluate<Suite>("Tests.top_level")
@@ -124,7 +272,6 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         fail("nothing to test")
       }
 
-      const baselines_root = argv["baselines-root"] ?? null
       const baseline_names = new Set<string>()
 
       for (const test_case of all_tests) {
@@ -206,6 +353,15 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
       })()
 
+      const finish_report_out = async () => {
+        if (out_stream != null) {
+          await new Promise<void>((resolve, reject) => {
+            out_stream.once("error", reject)
+            out_stream.end(`\nTests finished on ${new Date().toISOString()} with ${failed} failures.\n`, resolve)
+          })
+        }
+      }
+
       function append_report_out(test_case: TestCase): void {
         if (out_stream != null) {
           const output = format_output(test_case)
@@ -218,10 +374,70 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       try {
+        let browser_ready = true
+        let browser_error: unknown = null
         for (const test_case of selected_tests) {
-          const [,, status] = test_case
+          const [suites, test, status] = test_case
+          const test_name = description(suites, test)
+          const status_checkpoint = copy_status(status)
+          const metrics_checkpoint = metrics?.checkpoint()
+          const files_checkpoint = await checkpoint_baseline_files(baselines_root, status.baseline_name)
+          let browser_restarts = 0
 
-          await runner.run_with_retry(test_case, retry)
+          if (!browser_ready) {
+            try {
+              await recover_browser(browser_error, test_name)
+              browser_ready = true
+              browser_error = null
+            } catch (error) {
+              browser_error = error
+              const message = error instanceof Error ? error.message : `${error}`
+              status.errors.push(`Unable to recover the browser before this test: ${message}`)
+              status.failure = true
+            }
+          }
+
+          while (true) {
+            if (!browser_ready) {
+              break
+            }
+            try {
+              await runner.run_with_retry(test_case, retry)
+              break
+            } catch (error) {
+              if (!(error instanceof BrowserError)) {
+                throw error
+              }
+
+              restore_status(status, status_checkpoint)
+              await restore_baseline_files(files_checkpoint)
+              if (metrics_checkpoint != null) {
+                metrics!.restore(metrics_checkpoint)
+              }
+
+              browser_ready = false
+              browser_error = error
+              try {
+                await recover_browser(error, test_name)
+                browser_ready = true
+                browser_error = null
+              } catch (recovery_error) {
+                browser_error = recovery_error
+                const message = recovery_error instanceof Error ? recovery_error.message : `${recovery_error}`
+                status.errors.push(`Unable to recover the browser: ${message}`)
+                status.failure = true
+                break
+              }
+
+              if (browser_restarts++ < MAX_BROWSER_RESTARTS) {
+                console.error(`Retrying "${test_name}" in a fresh browser`)
+              } else {
+                status.errors.push(`Browser remained unavailable after ${MAX_BROWSER_RESTARTS + 1} attempts: ${error.message}`)
+                status.failure = true
+                break
+              }
+            }
+          }
 
           if (status.skipped ?? false) {
             skipped++
@@ -237,11 +453,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         progress.stop()
       }
 
-      if (out_stream != null) {
-        out_stream.write("\n")
-        out_stream.write(`Tests finished on ${new Date().toISOString()} with ${failed} failures.\n`)
-        out_stream.end()
-      }
+      await finish_report_out()
 
       for (const test_case of selected_tests) {
         const output = format_output(test_case)
@@ -252,18 +464,28 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       if (baselines_root != null) {
+        const selected_baseline_names = selected_tests.map(([,, status]) => status.baseline_name!)
         const results = selected_tests.map(([suites, test, status]) => {
-          const {failure, image, image_diff, reference} = status
-          return [descriptions(suites, test), {failure, image, image_diff, reference}]
+          const {failure, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
+          return [descriptions(suites, test), {failure, baseline_name, baseline, existing_blf, image, image_diff, reference}]
         })
-        const json = JSON.stringify({results, metrics: metrics?.get_metrics() ?? {}}, (_key, value) => {
+        const json = JSON.stringify({
+          completed: true,
+          reference: ref,
+          baseline_names: selected_baseline_names,
+          results,
+          metrics: metrics?.get_metrics() ?? {},
+        }, (_key, value) => {
           if (value?.type == "Buffer") {
             return Buffer.from(value.data).toString("base64")
           } else {
             return value
           }
         })
-        await fs.promises.writeFile(path.join(baselines_root, platform, "report.json"), json)
+        const report_path = path.join(baselines_root, platform, "report.json")
+        const temporary_report_path = `${report_path}.${process.pid}.tmp`
+        await fs.promises.writeFile(temporary_report_path, json)
+        await fs.promises.rename(temporary_report_path, report_path)
 
         const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
         files.delete("report.json")
@@ -294,7 +516,12 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         console.log(successful)
       }
     } finally {
-      await browser.discard_console_entries()
+      try {
+        await browser.discard_console_entries()
+      } catch (error) {
+        const message = error instanceof Error ? error.message : `${error}`
+        console.error(`Unable to discard browser console entries during cleanup: ${message}`)
+      }
     }
   } catch (error) {
     failure = true
@@ -303,7 +530,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       console.error(`INTERNAL ERROR: ${msg}`)
     }
   } finally {
-    await browser.close()
+    await browser.reset()
   }
 
   return !failure
