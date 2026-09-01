@@ -7,8 +7,7 @@ import process from "node:process"
 import {fileURLToPath} from "node:url"
 
 const chrome_version = "141.0.7390.54"
-const image_revision = 1
-const canonical_image = `ghcr.io/bokeh/bokehjs-baselines:${chrome_version}-r${image_revision}`
+const canonical_image = "ghcr.io/bokeh/bokehjs-baselines@sha256:9163c9791b4a5ee80f60344441a16133d7324ece4911550e5fb5b20c4e60db71"
 const local_image = `bokehjs-baselines-local:${chrome_version}`
 
 function usage(stream = process.stdout) {
@@ -32,6 +31,8 @@ Environment:
   BOKEHJS_BASELINE_BUILD    Set to 1 to build and use the Dockerfile locally
                             instead of pulling the canonical Bokeh image.
   BOKEHJS_BASELINE_IMAGE    Override the canonical or local image reference.
+  BOKEHJS_BASELINE_PULL     Set to 0 when BOKEHJS_BASELINE_IMAGE already exists
+                            in the local container engine (default: 1).
   BOKEHJS_BASELINE_REVIEW_PORT
                             Default port for the review server (default: 5777).
 `)
@@ -56,7 +57,8 @@ function output(command, args) {
 
 async function execute(command, args, options = {}) {
   await new Promise((resolve, reject) => {
-    const proc = spawn(command, args, {stdio: "inherit", ...options})
+    const env = {...process.env, DOCKER_CLI_HINTS: "false", ...options.env}
+    const proc = spawn(command, args, {stdio: "inherit", ...options, env})
     proc.on("error", reject)
     proc.on("exit", (code, signal) => {
       if (code === 0) {
@@ -79,6 +81,7 @@ const report_path = path.join(baselines_dir, "report.json")
 const report_out_path = path.join(baselines_dir, "report.out")
 const container_engine = process.env.BOKEHJS_CONTAINER_ENGINE ?? "docker"
 const build_locally = process.env.BOKEHJS_BASELINE_BUILD === "1"
+const pull_image = process.env.BOKEHJS_BASELINE_PULL !== "0"
 const image = process.env.BOKEHJS_BASELINE_IMAGE ?? (build_locally ? local_image : canonical_image)
 
 const user_args = typeof process.getuid === "function" && typeof process.getgid === "function"
@@ -122,7 +125,7 @@ async function prepare_image() {
       "--file", path.join(repo_root, "bokehjs", "test", "baselines", "Dockerfile"),
       path.join(repo_root, "bokehjs", "test", "baselines"),
     ])
-  } else {
+  } else if (pull_image) {
     await execute(container_engine, ["pull", "--platform=linux/amd64", image])
   }
 }
@@ -131,31 +134,12 @@ function has_explicit_ref(args) {
   return args.some((arg) => arg === "--ref" || arg.startsWith("--ref="))
 }
 
-function has_staged_baselines() {
-  const result = spawnSync("git", [
-    "-C", repo_root,
-    "diff", "--cached", "--quiet", "--",
-    "bokehjs/test/baselines/linux/*.blf",
-    "bokehjs/test/baselines/linux/*.png",
-  ])
-  if (result.error != null) {
-    throw result.error
-  }
-  if (result.status === 0) {
-    return false
-  } else if (result.status === 1) {
-    return true
-  } else {
-    throw new Error("unable to inspect staged baseline files")
-  }
-}
-
 async function run_tests(args) {
   const test_args = [...args]
-  if (!has_explicit_ref(test_args) && has_staged_baselines()) {
+  if (!has_explicit_ref(test_args)) {
     const baseline_tree = output("git", ["-C", repo_root, "write-tree"])
     test_args.push(`--ref=${baseline_tree}`)
-    process.stdout.write(`Verifying against staged Linux baselines (${baseline_tree.slice(0, 12)}).\n`)
+    process.stdout.write(`Verifying against the current Git index (${baseline_tree.slice(0, 12)}).\n`)
   }
 
   // Never leave a previous report available while a new run is incomplete.
@@ -167,9 +151,14 @@ async function run_tests(args) {
     "run", ...container_args,
     "--entrypoint=/bin/bash",
     image,
-    "-c", "npm ci --no-progress && node make build:all && node make test:integration \"$@\"",
+    "-c", "npm ci --no-progress --no-audit --no-fund && node make build:all && node make test:integration \"$@\"",
     "bash", ...test_args,
   ])
+
+  const unverified = unverified_baselines(changed_baselines(), load_completed_report())
+  if (unverified.length !== 0) {
+    process.stderr.write(`Warning: changed baseline files do not match this completed report:\n${unverified.join("\n")}\nRun the corresponding tests before reviewing or accepting them.\n`)
+  }
 }
 
 function parse_port(args) {
@@ -200,7 +189,10 @@ function load_completed_report() {
   } catch {
     fail("No completed baseline report found. Run baseline tests first.")
   }
-  if (report.completed !== true || !Array.isArray(report.baseline_names)) {
+  const valid_results = Array.isArray(report.results) && report.results.every((entry) =>
+    Array.isArray(entry) && entry.length === 2 && typeof entry[1]?.baseline_name === "string",
+  )
+  if (report.completed !== true || !Array.isArray(report.baseline_names) || !valid_results) {
     fail("The baseline report is incomplete or from an older runner. Run baseline tests again.")
   }
   return report
@@ -217,7 +209,7 @@ async function review(args) {
     "--publish", `127.0.0.1:${port}:5777`,
     "--entrypoint=/bin/bash",
     image,
-    "-c", "npm ci --no-progress && exec node test/devtools server --host=0.0.0.0 --port=5777",
+    "-c", "npm ci --no-progress --no-audit --no-fund && exec node test/devtools server --host=0.0.0.0 --port=5777",
   ])
 }
 
@@ -237,6 +229,31 @@ function changed_baselines() {
   return result.stdout.toString("utf-8").split("\0").filter((item) => item !== "")
 }
 
+function unverified_baselines(files, report) {
+  const results = new Map(report.results.map(([, result]) => [result.baseline_name, result]))
+  return files.filter((file) => {
+    const extension = path.extname(file)
+    const result = results.get(path.basename(file, extension))
+    const expected = (() => {
+      if (extension === ".blf" && typeof result?.baseline === "string") {
+        return Buffer.from(result.baseline)
+      } else if (extension === ".png" && typeof result?.image === "string") {
+        return Buffer.from(result.image, "base64")
+      } else {
+        return null
+      }
+    })()
+    if (expected == null) {
+      return true
+    }
+    try {
+      return !fs.readFileSync(path.join(repo_root, file)).equals(expected)
+    } catch {
+      return true
+    }
+  })
+}
+
 function accept(args) {
   if (args.length !== 0) {
     usage(process.stderr)
@@ -249,15 +266,9 @@ function accept(args) {
     return
   }
 
-  const report = load_completed_report()
-  const represented = new Set(report.baseline_names)
-  const unreviewed = files.filter((file) => {
-    const extension = path.extname(file)
-    const name = path.basename(file, extension)
-    return !represented.has(name)
-  })
+  const unreviewed = unverified_baselines(files, load_completed_report())
   if (unreviewed.length !== 0) {
-    fail(`Refusing to stage baseline files absent from the completed report:\n${unreviewed.join("\n")}\nRun the corresponding tests and review the new report first.`)
+    fail(`Refusing to stage baseline files that do not match the completed report:\n${unreviewed.join("\n")}\nRun the corresponding tests and review the new report first.`)
   }
 
   const pathspecs = Buffer.from(`${files.join("\0")}\0`)

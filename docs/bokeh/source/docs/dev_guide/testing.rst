@@ -343,6 +343,22 @@ controller reports the current test and relevant Chrome diagnostics, replaces
 the browser, and retries the interrupted test up to two times. It then records
 the failure and continues with the remaining tests.
 
+On Linux, you can run the visual tests directly, without Docker or Podman, from
+the ``bokehjs`` subdirectory:
+
+.. code-block:: sh
+
+    $ node make build:all
+    $ BOKEH_CHROME=/path/to/chrome node make test:integration
+
+Omit ``BOKEH_CHROME`` when a supported Chrome or Chromium executable is already
+available in ``PATH``. The native run reads and writes
+``bokehjs/test/baselines/linux`` and accepts the same ``-k`` and ``--grep`` test
+filters as the containerized run. This is a convenient path for fast iteration
+on Linux, but it is not the canonical baseline environment: the host's browser,
+fonts, system libraries, and rendering stack can all affect pixels. Confirm any
+new or updated baselines with ``node make baseline-test`` before accepting them.
+
 To review the latest results with the same BokehJS report used by CI, start the
 containerized review server:
 
@@ -359,15 +375,17 @@ baseline changes for the current branch with:
     $ node make baseline-test:accept
 
 The ``accept`` command only stages changed ``.blf`` and ``.png`` files under
-``bokehjs/test/baselines/linux``. It does not create a commit.
+``bokehjs/test/baselines/linux`` that exactly match the completed report. This
+prevents candidates left by an earlier or broader run from being staged. It
+does not create a commit.
 
-Normal runs pull an immutable revision tag from Bokeh's public GHCR package.
+Normal runs pull an immutable digest from Bokeh's public GHCR package.
 Maintainers can publish a refreshed container with the manually dispatched
 ``BokehJS - Publish Baseline Image`` GitHub Actions workflow. The workflow
 rebuilds the package layers without a cache, tests the local image before
 publishing it, and records the resulting digest. Bump the image revision
 whenever the versions or system packages in the container are refreshed, then
-update the revision used by ``bokehjs/test/run-baseline-tests.mjs`` in a
+update the digest used by ``bokehjs/test/run-baseline-tests.mjs`` in a
 reviewed pull request. Set ``BOKEHJS_BASELINE_BUILD=1`` to build the Dockerfile
 locally while preparing a new image. Set
 ``BOKEHJS_CONTAINER_ENGINE=podman`` when invoking any ``baseline-test`` task to
