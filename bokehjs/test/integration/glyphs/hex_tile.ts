@@ -1,4 +1,4 @@
-import {display, fig, row} from "#framework/layouts"
+import {column, display, fig, row} from "#framework/layouts"
 
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {repeat} from "@bokehjs/core/util/array"
@@ -74,6 +74,24 @@ describe("HexTile glyph", () => {
     const p1 = fig([300, 300], {match_aspect: true, title: "pointytop, size=10"})
     p1.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop", size: 10})
     await display(p1)
+  })
+
+  it("should support scalar and vector scale with WebGL", async () => {
+    function p(output_backend: OutputBackend, scale: number | number[], label: string) {
+      const p = fig([250, 250], {match_aspect: true, output_backend, title: `${output_backend}: ${label}`})
+      p.hex_tile([0, 0, 0, 0], [-2, -1, 0, 1], {
+        scale,
+        fill_color: ["navy", "royalblue", "orange", "firebrick"],
+        line_color: "white",
+      })
+      return p
+    }
+    const scalar = 0.7
+    const vector = [0.35, 0.65, 1, 1.35]
+    await display(column([
+      row([p("canvas", scalar, "scalar scale"), p("webgl", scalar, "scalar scale")]),
+      row([p("canvas", vector, "vector scale"), p("webgl", vector, "vector scale")]),
+    ]))
   })
 
   it("should support 'pointytop' orientation with hatch patterns", async () => {
