@@ -549,11 +549,13 @@ class _PlaywrightThread:
                     fn, args, result_q = item
                     try:
                         result_q.put(("ok", runner.run(fn(*args))))
-                    except BaseException as e:
+                    except (Exception, asyncio.CancelledError) as e:
                         result_q.put(("error", e))
-        except BaseException as e:
+        except Exception as e:
             if not started:
                 startup_q.put(("error", e))
+            else:
+                raise
 
 
 _playwright_thread = _PlaywrightThread()

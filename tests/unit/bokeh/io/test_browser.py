@@ -76,6 +76,20 @@ def test_playwright_thread_owns_one_event_loop() -> None:
     assert first[3]
 
 
+def test_playwright_thread_propagates_cancellation() -> None:
+    playwright_thread = bib._PlaywrightThread()
+
+    async def cancel() -> None:
+        raise asyncio.CancelledError
+
+    try:
+        with pytest.raises(asyncio.CancelledError):
+            playwright_thread.run(cancel)
+        assert playwright_thread.run(_worker_identity)[0] == os.getpid()
+    finally:
+        playwright_thread.shutdown()
+
+
 @pytest.mark.skipif(not hasattr(os, "fork"), reason="requires POSIX fork")
 def test_playwright_thread_restarts_after_fork() -> None:
     context = multiprocessing.get_context("fork")
