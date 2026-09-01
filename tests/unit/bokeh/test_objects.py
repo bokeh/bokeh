@@ -121,8 +121,12 @@ class TestModelCls:
 
     def test_get_class(self) -> None:
         from bokeh.model import get_class
-        tclass = get_class('test_objects.TestModelCls.mkclass.Test_Class')
-        assert hasattr(tclass, 'foo')
+
+        class LookupClass(Model):
+            foo = 1
+
+        tclass = get_class(LookupClass.__qualified_model__)
+        assert tclass is LookupClass
         with pytest.raises(KeyError):
             get_class('Imaginary_Class')
 

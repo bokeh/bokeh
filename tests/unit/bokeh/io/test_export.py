@@ -60,6 +60,11 @@ import bokeh.io.export as bie # isort:skip
 _has_selenium = is_installed("selenium")
 _has_playwright = is_installed("playwright")
 
+_webdriver_params = [
+    pytest.param("chromium", marks=pytest.mark.xdist_group(name="export-chromium")),
+    pytest.param("firefox", marks=pytest.mark.xdist_group(name="export-firefox")),
+]
+
 if not _has_selenium and not _has_playwright:
     pytest.skip("Neither Selenium nor Playwright is installed", allow_module_level=True)
 
@@ -77,7 +82,7 @@ def browser():
             browser.close()
 
 
-@pytest.fixture(scope="module", params=["chromium", "firefox"])
+@pytest.fixture(scope="module", params=_webdriver_params)
 def webdriver(request: pytest.FixtureRequest):
     if not _has_selenium:
         pytest.skip("Selenium not installed")
@@ -89,7 +94,7 @@ def webdriver(request: pytest.FixtureRequest):
         webdriver_control.terminate(driver)
 
 
-@pytest.fixture(scope="module", params=["chromium", "firefox"])
+@pytest.fixture(scope="module", params=_webdriver_params)
 def webdriver_with_scale_factor(request: pytest.FixtureRequest):
     if not _has_selenium:
         pytest.skip("Selenium not installed")
@@ -312,10 +317,15 @@ def test_get_svg_with_implicit_document_and_theme(webdriver: WebDriver) -> None:
 
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
+    from bokeh.io.webdriver import webdriver_control
+
     layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
-    with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svgs(layout)
+    try:
+        with silenced(MISSING_RENDERERS):
+            svgs = bie.get_svgs(layout)
+    finally:
+        webdriver_control.reset()
 
     assert svgs == []
 

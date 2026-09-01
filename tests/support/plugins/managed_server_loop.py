@@ -57,11 +57,11 @@ class MSL(Protocol):
     def __call__(self, application: Application, port: int | None = None, **server_kwargs: Any) -> ContextManager[Server]: ...
 
 @pytest.fixture
-def ManagedServerLoop(unused_tcp_port: int) -> MSL:
+def ManagedServerLoop() -> MSL:
     @contextmanager
     def msl(application: Application, port: int | None = None, **server_kwargs: Any) -> Iterator[Server]:
         if port is None:
-            port = unused_tcp_port
+            port = 0
         server = Server(application, port=port, **server_kwargs)
         server.start()
         yield server

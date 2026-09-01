@@ -173,65 +173,69 @@ class TestClientServer:
         await self.check_http_gets_fail(server)
         await self.check_connect_session_fails(server, origin=origin)
 
-    async def test_allow_websocket_origin(self, ManagedServerLoop: MSL) -> None:
+    @pytest.mark.parametrize(("server_kwargs", "environment", "origin", "allowed"), [
+        pytest.param({}, None, None, True, id="local-random-port"),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com"]}, None, "http://example.com:80", True,
+            id="explicit-host",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com"}, "http://example.com:80", True,
+            id="environment-host",
+        ),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com:8080"]}, None, "http://example.com:8080", True,
+            id="explicit-port",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com:8080"}, "http://example.com:8080", True,
+            id="environment-port",
+        ),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com"]}, None, "http://example.com", True,
+            id="implicit-port",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com"}, "http://example.com", True,
+            id="environment-implicit-port",
+        ),
+        pytest.param({}, None, "http://example.com:80", False, id="default-blocks-non-host"),
+        pytest.param({}, None, "hsdf:::///%#^$#:8080", False, id="garbage-origin"),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com"]}, None, "http://foobar.com:80", False,
+            id="explicit-wrong-host",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com"}, "http://foobar.com:80", False,
+            id="environment-wrong-host",
+        ),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com:8080"]}, None, "http://example.com:8081", False,
+            id="explicit-wrong-port",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com:8080"}, "http://example.com:8081", False,
+            id="environment-wrong-port",
+        ),
+    ])
+    async def test_allow_websocket_origin(
+        self,
+        ManagedServerLoop: MSL,
+        server_kwargs: dict[str, object],
+        environment: dict[str, str] | None,
+        origin: str | None,
+        allowed: bool,
+    ) -> None:
         application = Application()
-
-        # allow good local origin with random port
-        with ManagedServerLoop(application, port=0) as server:
-            await self.check_http_ok_socket_ok(server, origin=f"http://localhost:{server.port}")
-
-        # allow good origin
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
-
-        # allow good origin from environment variable
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
-                await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
-
-        # allow good origin with port
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
-            await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
-
-        # allow good origin with port from environment variable
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com:8080"):
-                await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
-
-        # allow good origin header with an implicit 80
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            await self.check_http_ok_socket_ok(server, origin="http://example.com")
-
-        # allow good origin header with an implicit 80
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
-                await self.check_http_ok_socket_ok(server, origin="http://example.com")
-
-        # block non-Host origins by default even if no extra origins specified
-        with ManagedServerLoop(application) as server:
-            await self.check_http_ok_socket_blocked(server, origin="http://example.com:80")
-
-        # block on a garbage Origin header
-        with ManagedServerLoop(application) as server:
-            await self.check_http_ok_socket_blocked(server, origin="hsdf:::///%#^$#:8080")
-
-        # block bad origin
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
-
-        # block bad origin from environment variable
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
-                await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
-
-        # block bad origin port
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
-            await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
-
-        # block bad origin port from environment variable
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com:8080"):
-                await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
+        # Let the OS allocate ports so these cases can safely run concurrently.
+        with ManagedServerLoop(application, port=0, **server_kwargs) as server:
+            with envset(environment):
+                if origin is None:
+                    origin = f"http://localhost:{server.port}"
+                if allowed:
+                    await self.check_http_ok_socket_ok(server, origin=origin)
+                else:
+                    await self.check_http_ok_socket_blocked(server, origin=origin)
 
     def test_push_document(self, ManagedServerLoop: MSL) -> None:
         application = Application()

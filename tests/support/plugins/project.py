@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from hashlib import sha256
 from typing import TYPE_CHECKING
 
 # External imports
@@ -48,7 +49,8 @@ __all__ = (
 
 @pytest.fixture
 def test_file_path_and_url(request: pytest.FixtureRequest, file_server: SimpleWebServer) -> tuple[str, str]:
-    file_name = request.function.__name__ + '.html'
+    suffix = sha256(request.node.nodeid.encode()).hexdigest()[:8]
+    file_name = f"{request.function.__name__}-{suffix}.html"
     file_path = request.node.path.with_name(file_name)
 
     def tear_down() -> None:
