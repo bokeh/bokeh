@@ -81,7 +81,9 @@ export async function press(el: Element): Promise<void> {
   const ev0 = new PointerEvent("pointerdown", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev0)
 
-  await delay(UIGestures.press_threshold)
+  // Cross the threshold unambiguously, instead of racing the gesture's timer
+  // against the pointerup timer at exactly the same delay.
+  await delay(UIGestures.press_threshold + 50)
 
   const ev1 = new PointerEvent("pointerup", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev1)
