@@ -17,8 +17,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import re
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 # External imports
@@ -51,6 +53,7 @@ from bokeh.themes import Theme
 from bokeh.util.dependencies import is_installed
 
 # Module under test
+import bokeh.io.browser as bib # isort:skip
 import bokeh.io.export as bie # isort:skip
 
 #-----------------------------------------------------------------------------
@@ -387,6 +390,47 @@ def test_get_svgs_with_Legend__issue_14502(webdriver: WebDriver) -> None:
 
 
 # -- Playwright-backend tests -------------------------------------------------
+
+@pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
+def test_implicit_playwright_browser_across_execution_contexts__issues_15401_15402(tmp_path: Path) -> None:
+    layout = Plot(
+        x_range=Range1d(), y_range=Range1d(),
+        toolbar_location=None, height=20, width=20,
+        min_border=0, outline_line_color=None,
+        border_fill_color=None, background_fill_color="red",
+        output_backend="canvas",
+    )
+
+    previous_policy = asyncio.get_event_loop_policy()
+    if sys.platform == "win32":
+        selector_policy = getattr(asyncio, "WindowsSelectorEventLoopPolicy")
+        asyncio.set_event_loop_policy(selector_policy())
+
+    try:
+        with silenced(MISSING_RENDERERS):
+            svg_filenames = bie.export_svg(
+                layout, filename=tmp_path / "plot.svg", backend="playwright",
+            )
+
+        async def export_png() -> str:
+            with silenced(MISSING_RENDERERS):
+                return bie.export_png(
+                    layout, filename=tmp_path / "plot.png", backend="playwright",
+                )
+
+        png_filename = asyncio.run(export_png())
+    finally:
+        if bib._playwright_thread._started:
+            bib._playwright_thread.run(bib.playwright_control.cleanup)
+        if sys.platform == "win32":
+            asyncio.set_event_loop_policy(previous_policy)
+
+    assert svg_filenames == [str(tmp_path / "plot.svg")]
+    assert 'fill="red"' in (tmp_path / "plot.svg").read_text()
+    assert png_filename == str(tmp_path / "plot.png")
+    with PIL.Image.open(png_filename) as png:
+        assert png.size == (20, 20)
+
 
 @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
 class TestPlaywrightPNG:
