@@ -4,6 +4,7 @@ import {Range1d} from "@bokehjs/models/ranges"
 import type {Plot} from "@bokehjs/models/plots"
 import type {TileSource} from "@bokehjs/models/tiles"
 import {TileRenderer, WMTSTileSource} from "@bokehjs/models/tiles"
+import {paint} from "@bokehjs/core/util/defer"
 
 describe("TileRenderer", () => {
 
@@ -36,14 +37,17 @@ describe("TileRenderer", () => {
   })
 
   it("should hide attribution for invisible renderers", async () => {
+    // The local fixture contains complete zoom levels 1 and 2 only.
     const visible_source = new WMTSTileSource({
       url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "visible attribution",
+      min_zoom: 1,
       max_zoom: 2,
     })
     const hidden_source = new WMTSTileSource({
       url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "hidden attribution",
+      min_zoom: 1,
       max_zoom: 2,
     })
 
@@ -58,9 +62,11 @@ describe("TileRenderer", () => {
       renderers: [visible, hidden],
     })
 
-    const {view} = await display(plot)
+    await display(plot)
 
     hidden.visible = false
-    await view.ready
+    // Visibility updates attribution synchronously; only its DOM paint is
+    // relevant here, not unrelated tile-renderer readiness.
+    await paint()
   })
 })
