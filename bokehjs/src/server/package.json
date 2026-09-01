@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/server",
-  "version": "4.0.0-dev.3",
+  "version": "4.0.0-dev.4",
   "type": "module",
   "private": true,
   "description": "Internal package for bokehjs' server",
