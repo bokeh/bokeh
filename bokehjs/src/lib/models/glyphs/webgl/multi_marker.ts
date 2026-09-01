@@ -7,12 +7,18 @@ import type {ScatterView} from "../scatter"
 import {MarkerType} from "core/enums"
 import type {Uniform} from "core/uniforms"
 import type {ExtMarkerType} from "core/properties"
+import {Uint8Buffer} from "./buffer"
 
 export class MultiMarkerGL extends BaseMarkerGL {
 
   // data properties, either all or none are set.
   protected _marker_types?: Uniform<MarkerType | ExtMarkerType | null>
   protected _unique_marker_types: (MarkerType | null)[]
+  private readonly _show_by_type = new Map<MarkerType, Uint8Buffer>()
+  private readonly _nshow_by_type = new Map<MarkerType, number>()
+  private _show_indices: number[] | null = null
+  private _show_nmarkers: number = -1
+  private _show_marker_types?: Uniform<MarkerType | ExtMarkerType | null>
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: ScatterView) {
     super(regl_wrapper, glyph)
@@ -22,17 +28,19 @@ export class MultiMarkerGL extends BaseMarkerGL {
     // The main glyph has the data, this glyph has the visuals.
     const main_gl_glyph = main_glyph.glglyph!
 
-    if (main_gl_glyph.data_changed || main_gl_glyph.data_mapped) {
-      main_gl_glyph.set_data()
+    const main_data_changed = main_gl_glyph.data_changed
+    if (main_data_changed || main_gl_glyph.data_mapped) {
+      main_gl_glyph.set_data(main_data_changed)
       main_gl_glyph.data_changed = false
       main_gl_glyph.data_mapped = false
     }
 
-    // NOTE: Multi-marker does NOT support derived glyph data updates
-    // because marker type metadata cannot be correctly populated from derived glyphs.
-    // Size overrides for multi-marker scatter plots are not supported in this implementation.
-    // This is a fundamental limitation: changing marker sizes requires knowing which markers
-    // to render, which depends on marker types that must come from the main glyph.
+    const derived_data_changed = this.data_changed
+    if (this !== main_gl_glyph && (derived_data_changed || this.data_mapped)) {
+      this.set_data(derived_data_changed)
+      this.data_changed = false
+      this.data_mapped = false
+    }
 
     if (this.visuals_changed) {
       this._set_visuals()
@@ -41,40 +49,44 @@ export class MultiMarkerGL extends BaseMarkerGL {
 
     const nmarkers = main_gl_glyph.nvertices
 
-    const ntypes = main_gl_glyph._unique_marker_types.length
-    for (const marker_type of main_gl_glyph._unique_marker_types) {
-      if (marker_type == null) {
-        continue
+    const marker_gl = this !== main_gl_glyph && this._marker_types != null ? this : main_gl_glyph
+    const marker_types = marker_gl._marker_types!
+    const rebuild_show = main_data_changed || derived_data_changed || this._show_nmarkers != nmarkers ||
+      this._show_marker_types !== marker_types || this._show_indices?.length != indices.length ||
+      !indices.every((index, i) => this._show_indices![i] == index)
+
+    if (rebuild_show) {
+      for (const buffer of this._show_by_type.values()) {
+        buffer.get_sized_array(nmarkers).fill(0)
       }
-
-      let nshow = nmarkers  // Number of markers to show.
-      const prev_nmarkers = this._show.length
-      const show_array = this._show.get_sized_array(nmarkers)
-      if (ntypes > 1 || indices.length < nmarkers) {
-        this._show_all = false
-
-        // Reset all show values to zero.
-        show_array.fill(0)
-
-        // Set show values of markers to render to 255.
-        nshow = 0
-        for (let k = 0; k < indices.length; k++) {  // Marker index.
-          if (ntypes == 1 || main_gl_glyph._marker_types!.get(k) == marker_type) {
-            show_array[indices[k]] = 255
-            nshow++
-          }
+      this._nshow_by_type.clear()
+      for (const marker_type of marker_gl._unique_marker_types) {
+        if (marker_type != null && !this._show_by_type.has(marker_type)) {
+          const buffer = new Uint8Buffer(this.regl_wrapper)
+          buffer.get_sized_array(nmarkers).fill(0)
+          this._show_by_type.set(marker_type, buffer)
         }
-      } else if (!this._show_all || prev_nmarkers != nmarkers) {
-        this._show_all = true
-        show_array.fill(255)
       }
-      this._show.update()
+      for (const index of indices) {
+        const marker_type = marker_types.get(index)
+        if (MarkerType.valid(marker_type)) {
+          this._show_by_type.get(marker_type)!.get_sized_array(nmarkers)[index] = 255
+          this._nshow_by_type.set(marker_type, (this._nshow_by_type.get(marker_type) ?? 0) + 1)
+        }
+      }
+      for (const buffer of this._show_by_type.values()) {
+        buffer.update()
+      }
+      this._show_indices = [...indices]
+      this._show_nmarkers = nmarkers
+      this._show_marker_types = marker_types
+    }
 
-      if (nshow == 0) {
+    for (const marker_type of marker_gl._unique_marker_types) {
+      if (marker_type == null || this._nshow_by_type.get(marker_type) == null) {
         continue
       }
-
-      this._draw_one_marker_type(marker_type, transform, main_gl_glyph)
+      this._draw_one_marker_type(marker_type, transform, main_gl_glyph, this._show_by_type.get(marker_type))
     }
   }
 
@@ -82,7 +94,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     return this.glyph.visuals
   }
 
-  protected override _set_data(): void {
+  protected override _set_data(data_changed: boolean = true): void {
     const nmarkers = this.nvertices
 
     // Always update positions, sizes, and angles (for streaming updates)
@@ -93,9 +105,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     this._widths.set_from_prop(this.glyph.size)
     this._angles.set_from_prop(this.glyph.angle)
 
-    // Marker types are only set once during main glyph initialization
-    // (prevents derived glyphs from overriding marker type metadata)
-    if (this._marker_types == null) {
+    if (data_changed || this._marker_types == null) {
       this._marker_types = this.glyph.marker
       this._unique_marker_types = this._marker_types.unique().filter((marker) => MarkerType.valid(marker))
     }

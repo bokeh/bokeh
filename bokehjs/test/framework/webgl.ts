@@ -1,3 +1,5 @@
+import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
+import type {BaseGLGlyph} from "@bokehjs/models/glyphs/webgl/base"
 import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
 import {paint} from "@bokehjs/core/util/defer"
 import {actions, xy} from "./interactive"
@@ -10,6 +12,13 @@ export async function settle_webgl(view: PlotView, frames: number = 2): Promise<
   for (let i = 0; i < frames; i++) {
     await paint()
   }
+}
+
+export function require_glglyph(glyph: GlyphView): BaseGLGlyph {
+  if (!glyph.has_webgl()) {
+    throw new Error(`${glyph} did not initialize a WebGL glyph`)
+  }
+  return glyph.glglyph
 }
 
 export class WebGLScenario {
