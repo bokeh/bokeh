@@ -316,7 +316,7 @@ def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | Non
 
     raise RuntimeError(
         "Neither Selenium nor Playwright is installed. Install one of:\n"
-        "  pip install playwright && playwright install chromium\n"
+        "  pip install playwright && playwright install --only-shell chromium\n"
         "  pip install selenium  (+ browser driver on PATH)",
     )
 

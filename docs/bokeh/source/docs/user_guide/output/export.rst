@@ -21,10 +21,11 @@ dependencies and Chromium with:
 .. code-block:: sh
 
     pip install "bokeh[export]"
-    playwright install chromium
+    playwright install --only-shell chromium
 
 You can also install the ``playwright`` package directly. Separate browser
-driver binaries do not have to be managed.
+driver binaries do not have to be managed. Bokeh only requires Chromium's
+headless shell for export.
 
 Using Selenium (deprecated)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

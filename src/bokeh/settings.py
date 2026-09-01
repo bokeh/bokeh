@@ -708,7 +708,8 @@ class Settings:
     Valid values are:
 
     - ``playwright``: use Playwright (default; requires
-      ``pip install playwright`` and ``playwright install chromium``).
+      ``pip install playwright`` and
+      ``playwright install --only-shell chromium``).
     - ``auto``: try Playwright first, then fall back to the deprecated
       Selenium backend.
     - ``selenium``: use the deprecated Selenium backend with a browser driver
