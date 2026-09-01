@@ -381,10 +381,10 @@ def _playwright_render(
                 page.goto(f"file://{tmp.name}")
                 wait_until_render_complete(page, timeout)
                 [x, y, w, h, dpr] = maximize_viewport(page)
-                if not script:
-                    result = page.screenshot(clip={"x": x, "y": y, "width": w, "height": h})
-                else:
+                if script:
                     result = execute_script(page, script)
+                else:
+                    result = page.screenshot(clip={"x": x, "y": y, "width": w, "height": h})
         finally:
             if not page.is_closed():
                 page.close()
@@ -400,10 +400,10 @@ def _playwright_render(
                 await page.goto(f"file://{tmp.name}")
                 await _wait_until_render_complete(page, timeout)
                 [x, y, w, h, dpr] = await _maximize_viewport(page)
-                if not script:
-                    result = await page.screenshot(clip={"x": x, "y": y, "width": w, "height": h})
-                else:
+                if script:
                     result = await _execute_script(page, script)
+                else:
+                    result = await page.screenshot(clip={"x": x, "y": y, "width": w, "height": h})
         finally:
             await playwright_control.close_page(page)
         return (result, w, h, dpr)
