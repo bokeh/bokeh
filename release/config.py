@@ -14,7 +14,6 @@ import re
 
 # Bokeh imports
 from .enums import VersionType
-from .logger import LOG, Scrubber
 
 __all__ = ("Config",)
 
@@ -40,27 +39,14 @@ class Config:
         self.ext_type: str = (groups[5] or "").lstrip(".")
         self.ext_number: str = groups[6]
 
-        self._secrets: dict[str, str] = {}
-
         self._new: set[str] = set()
         self._modified: set[str] = set()
-
-    def add_secret(self, name: str, secret: str) -> None:
-        """"""
-        if name in self._secrets:
-            raise RuntimeError()
-        LOG.add_scrubber(Scrubber(secret, name=name))
-        self._secrets[name] = secret
 
     def add_new(self, path: str) -> None:
         self._new.add(path)
 
     def add_modified(self, path: str) -> None:
         self._modified.add(path)
-
-    @property
-    def secrets(self) -> dict[str, str]:
-        return self._secrets
 
     @property
     def new(self) -> set[str]:

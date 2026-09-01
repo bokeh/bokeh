@@ -67,7 +67,6 @@ dependencies:
     - sphinxext-opengraph >= 0.11.0
     # tests
     - ruff ==0.15.*
-    - types-boto3
     - types-colorama
     - types-docutils
     - types-mock

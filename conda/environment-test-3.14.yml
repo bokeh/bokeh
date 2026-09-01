@@ -82,7 +82,6 @@ dependencies:
     - playwright
     - pytest-playwright
     - ruff ==0.15.*
-    - types-boto3
     - types-docutils
     - types-colorama
     - types-mock

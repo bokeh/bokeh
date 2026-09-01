@@ -10,18 +10,20 @@
 from __future__ import annotations
 
 # Standard library imports
+import logging
 from typing import Callable, Sequence
 
 # Bokeh imports
 from .action import SKIPPED, ActionResult, ActionReturn
 from .config import Config
-from .logger import LOG
 from .system import System
 from .ui import task
 
 __all__ = ("StepType",)
 
 StepType = Callable[[Config, System], ActionReturn]
+
+log = logging.getLogger(__name__)
 
 
 def is_check(step: StepType) -> bool:
@@ -38,23 +40,21 @@ class Pipeline:
 
     def execute(self) -> None:
         """"""
-        LOG.clear()
-
         for step in self._steps:
 
-            LOG.record(task(f"Starting task {step.__name__}"))
+            log.info("%s", task(f"Starting task {step.__name__}"))
 
             if is_check(step) and self._system.dry_run:
-                LOG.record(str(SKIPPED(f"{step.__name__} skipped for dry run")))
+                log.info("%s", SKIPPED(f"{step.__name__} skipped for dry run"))
                 continue
 
             if self._config.prerelease and getattr(step, "skip_for_prerelease", False):
-                LOG.record(str(SKIPPED(f"{step.__name__} skipped for pre-releases")))
+                log.info("%s", SKIPPED(f"{step.__name__} skipped for pre-releases"))
                 continue
 
             result = step(self._config, self._system)
 
-            LOG.record(str(result))
+            log.info("%s", result)
 
             if result.kind is ActionResult.FAIL:
                 self._system.abort()
