@@ -586,7 +586,7 @@ export class LegendView extends AnnotationView {
       const in_side_panel = this.layout != null && panel != null
       const constraint = !in_side_panel ? "" : `
         ${panel.is_horizontal ? "max-width" : "max-height"}: 100%;
-        overflow: hidden;
+        clip-path: inset(-1px);
       `
       this.position.replace(`
       ${this.host_selector} {
