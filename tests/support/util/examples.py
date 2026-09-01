@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from base64 import b64decode
 from glob import iglob
 from os.path import (
     basename,
@@ -144,8 +143,8 @@ class Example:
     def no_js(self) -> bool:
         return bool(self.flags & Flags.no_js)
 
-    def store_img(self, img_data: str) -> None:
-        _store_binary(self.img_path, b64decode(img_data))
+    def store_img(self, image: bytes) -> None:
+        _store_binary(self.img_path, image)
 
 type All = Literal["all"]
 

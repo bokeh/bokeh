@@ -80,7 +80,6 @@ function sys_path(): string {
 // Also update:
 // - bokehjs/test/devtools/devtools.ts
 // - .github/workflows/bokehjs-ci.yml
-// - .github/workflows/bokeh-ci.yml
 const supported_chromium_revision = "r3265" // 141.0.7390.54
 
 function chrome(): string {
@@ -255,12 +254,6 @@ task("test:run:headless", async () => {
   await devtools_info(9222)
   terminate(proc)
   await keep_alive()
-})
-
-task("test:spawn:headless", async () => {
-  const proc = await headless(9222)
-  await devtools_info(9222)
-  console.log(`Exec '${chalk.gray("kill")} ${chalk.magenta(`${proc.pid}`)}' to terminate the browser process`)
 })
 
 const start_headless = task("test:start:headless", async () => {
