@@ -401,7 +401,8 @@ def _call_in_fresh_thread[T](context: Literal["sync", "async"], fn: Callable[[],
         async def call_async() -> T:
             return fn()
 
-        return asyncio.run(call_async())
+        with asyncio.Runner(loop_factory=asyncio.SelectorEventLoop) as runner:
+            return runner.run(call_async())
 
     with ThreadPoolExecutor(max_workers=1) as executor:
         return executor.submit(call).result(timeout=60)
@@ -533,11 +534,6 @@ def test_implicit_playwright_browser_across_execution_contexts__issues_15401_154
         assert bib.playwright_control._browser is not None
         return id(bib.playwright_control._browser)
 
-    previous_policy = asyncio.get_event_loop_policy()
-    if sys.platform == "win32":
-        selector_policy = getattr(asyncio, "WindowsSelectorEventLoopPolicy")
-        asyncio.set_event_loop_policy(selector_policy())
-
     bib._cleanup()
     try:
         svg_filenames = _call_in_fresh_thread(contexts[0], export_svg)
@@ -546,8 +542,6 @@ def test_implicit_playwright_browser_across_execution_contexts__issues_15401_154
         second_browser = bib._playwright_thread.run(browser_identity)
     finally:
         bib._cleanup()
-        if sys.platform == "win32":
-            asyncio.set_event_loop_policy(previous_policy)
 
     assert svg_filenames == [str(svg_path)]
     assert 'fill="red"' in svg_path.read_text()
