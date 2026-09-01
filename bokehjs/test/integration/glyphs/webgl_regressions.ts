@@ -9,7 +9,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
 
-describe("WebGL legacy interaction regressions", () => {
+describe("in issue #15279", () => {
   it("should preserve mixed-marker selection sizes through patch, stream, and equal-length selection changes", async () => {
     const source = new ColumnDataSource({data: {
       x: [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5],
