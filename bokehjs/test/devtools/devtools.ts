@@ -38,8 +38,7 @@ process.on("exit", () => {
 })
 
 const argv = yargs(process.argv.slice(2)).options({
-  host: {type: "string", default: "127.0.0.1"},
-  port: {type: "number", default: 9222},
+  executable: {type: "string", demandOption: true},
   ref: {type: "string", default: "HEAD"},
   randomize: {type: "boolean", default: false},
   seed: {type: "number", default: Date.now()},
@@ -52,69 +51,10 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {executable, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
-
-type RestartBrowserRequest = {
-  type: "restart-browser"
-  id: number
-  reason: string
-}
-
-type RestartBrowserResponse = {
-  type: "browser-restarted"
-  id: number
-  error?: string
-}
-
-let next_restart_id = 0
-
-async function request_browser_restart(reason: string): Promise<void> {
-  if (process.send == null) {
-    throw new Error("browser restart is unavailable; run tests through 'node make'")
-  }
-
-  const id = next_restart_id++
-  const request: RestartBrowserRequest = {type: "restart-browser", id, reason}
-
-  await new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(() => {
-      cleanup()
-      reject(new Error("timed out waiting for the replacement browser"))
-    }, 60000)
-    timer.unref()
-
-    const on_message = (message: unknown) => {
-      const response = message as Partial<RestartBrowserResponse>
-      if (response.type != "browser-restarted" || response.id != id) {
-        return
-      }
-
-      cleanup()
-      if (response.error == null) {
-        resolve()
-      } else {
-        reject(new Error(response.error))
-      }
-    }
-
-    const on_disconnect = () => {
-      cleanup()
-      reject(new Error("test controller disconnected while replacing the browser"))
-    }
-
-    function cleanup(): void {
-      clearTimeout(timer)
-      process.off("message", on_message)
-      process.off("disconnect", on_disconnect)
-    }
-
-    process.on("message", on_message)
-    process.once("disconnect", on_disconnect)
-    process.send!(request)
-  })
-}
+const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
 
 function copy_status(status: TestStatus): TestStatus {
   return {...status, errors: [...status.errors]}
@@ -183,8 +123,7 @@ function format_output(test_case: TestCase): string | null {
   }
 }
 
-async function run_tests(ctx: TestRunContext): Promise<boolean> {
-  const browser = new BrowserManager()
+async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<boolean> {
   const baselines_root = argv["baselines-root"] ?? null
   let failure = false
   try {
@@ -200,7 +139,6 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
     }
 
     const initialize_browser = async () => {
-      await browser.connect(port, host)
       await browser.initialize_page(url)
       await browser.evaluate("preload_fonts()")
 
@@ -212,13 +150,13 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
     const recover_browser = async (initial_error: unknown, test_name: string) => {
       let error = initial_error
-      for (let attempt = 1; attempt <= MAX_BROWSER_RESTARTS + 1; attempt++) {
+      for (let attempt = 1; attempt <= MAX_BROWSER_LAUNCH_ATTEMPTS; attempt++) {
         const message = error instanceof Error ? error.message : `${error}`
         const reason = `${message} while running "${test_name}"`
         console.error(`Browser became unavailable ${reason}`)
         await browser.reset()
         try {
-          await request_browser_restart(reason)
+          await browser.launch()
           await initialize_browser()
           return
         } catch (recovery_error) {
@@ -417,6 +355,12 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
               browser_ready = false
               browser_error = error
+              if (browser_restarts >= MAX_BROWSER_RESTARTS) {
+                status.errors.push(`Browser failed during this test after ${MAX_BROWSER_RESTARTS + 1} attempts: ${error.message}`)
+                status.failure = true
+                break
+              }
+
               try {
                 await recover_browser(error, test_name)
                 browser_ready = true
@@ -429,13 +373,8 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                 break
               }
 
-              if (browser_restarts++ < MAX_BROWSER_RESTARTS) {
-                console.error(`Retrying "${test_name}" in a fresh browser`)
-              } else {
-                status.errors.push(`Browser remained unavailable after ${MAX_BROWSER_RESTARTS + 1} attempts: ${error.message}`)
-                status.failure = true
-                break
-              }
+              browser_restarts++
+              console.error(`Retrying "${test_name}" in a fresh browser`)
             }
           }
 
@@ -516,12 +455,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         console.log(successful)
       }
     } finally {
-      try {
-        await browser.discard_console_entries()
-      } catch (error) {
-        const message = error instanceof Error ? error.message : `${error}`
-        console.error(`Unable to discard browser console entries during cleanup: ${message}`)
-      }
+      browser.clear_entries()
     }
   } catch (error) {
     failure = true
@@ -529,17 +463,22 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       const msg = error instanceof Error && error.stack != null ? error.stack : error
       console.error(`INTERNAL ERROR: ${msg}`)
     }
-  } finally {
-    await browser.reset()
   }
 
   return !failure
 }
 
 async function run(): Promise<void> {
-  const {browser, protocol, major} = await BrowserManager.get_version(port, host)
-  console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
-  const ok = !info ? await run_tests({chromium_version: major}) : true
+  const browser = new BrowserManager(executable)
+  let ok = false
+  try {
+    await browser.launch()
+    const {browser: browser_name, major} = browser.get_version()
+    console.log(`Running in ${chalk.cyan(browser_name)} using ${chalk.cyan("Playwright")}`)
+    ok = !info ? await run_tests(browser, {chromium_version: major}) : true
+  } finally {
+    await browser.reset()
+  }
   process.exit(ok ? 0 : 1)
 }
 

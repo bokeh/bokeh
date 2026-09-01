@@ -1,0 +1,102 @@
+name: BokehJS - Chrome Beta Baselines
+
+on:
+  schedule:
+    - cron: "17 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bokehjs-chrome-beta
+  cancel-in-progress: true
+
+jobs:
+  baseline-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+
+      - name: Resolve Chrome for Testing Beta
+        id: chrome
+        shell: bash
+        run: |
+          API=https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json
+          METADATA="$RUNNER_TEMP/chrome-for-testing.json"
+          ARCHIVE="$RUNNER_TEMP/chrome-linux64.zip"
+
+          curl --fail --location --silent --show-error --output "$METADATA" "$API"
+          VERSION=$(jq --exit-status --raw-output '.channels.Beta.version' "$METADATA")
+          URL=$(jq --exit-status --raw-output '.channels.Beta.downloads.chrome[] | select(.platform == "linux64") | .url' "$METADATA")
+
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "invalid Chrome Beta version: $VERSION" >&2
+            exit 1
+          fi
+          EXPECTED_URL="https://storage.googleapis.com/chrome-for-testing-public/$VERSION/linux64/chrome-linux64.zip"
+          if [[ "$URL" != "$EXPECTED_URL" ]]; then
+            echo "unexpected Chrome Beta download URL: $URL" >&2
+            exit 1
+          fi
+
+          curl --fail --location --silent --show-error --output "$ARCHIVE" "$URL"
+          SHA256=$(sha256sum "$ARCHIVE" | cut -d' ' -f1)
+          if ! [[ "$SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "invalid Chrome Beta archive digest: $SHA256" >&2
+            exit 1
+          fi
+
+          {
+            echo "version=$VERSION"
+            echo "sha256=$SHA256"
+            echo "image=bokehjs-baselines-beta:$VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build transient Chrome Beta image
+        uses: docker/build-push-action@v6
+        with:
+          context: bokehjs/test/baselines
+          file: bokehjs/test/baselines/Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: ${{ steps.chrome.outputs.image }}
+          build-args: |
+            CHROME_VERSION=${{ steps.chrome.outputs.version }}
+            CHROME_SHA256=${{ steps.chrome.outputs.sha256 }}
+          cache-from: type=gha,scope=bokehjs-chrome-beta
+          cache-to: type=gha,mode=max,scope=bokehjs-chrome-beta
+
+      - name: Run baseline tests against Chrome Beta
+        env:
+          BOKEHJS_BASELINE_IMAGE: ${{ steps.chrome.outputs.image }}
+          BOKEHJS_BASELINE_PULL: "0"
+        run: node ./bokehjs/test/run-baseline-tests.mjs
+
+      - name: Collect results
+        if: success() || failure()
+        shell: bash
+        run: |
+          SRC="bokehjs/test/baselines/linux"
+          DST="bokehjs-chrome-beta-report/${SRC}"
+          mkdir -p "${DST}"
+          if [[ -e "${SRC}/report.json" ]]; then
+            cp "${SRC}"/report.{json,out} "${DST}"
+            while IFS= read -r -d '' path; do
+              cp --parents "$path" bokehjs-chrome-beta-report
+            done < <(git ls-files --modified --others --exclude-standard -z -- "${SRC}/*.blf" "${SRC}/*.png")
+          fi
+
+      - name: Upload report
+        if: success() || failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: bokehjs-chrome-beta-${{ steps.chrome.outputs.version }}
+          path: bokehjs-chrome-beta-report
