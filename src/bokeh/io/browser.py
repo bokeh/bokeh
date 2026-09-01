@@ -35,6 +35,7 @@ log = logging.getLogger(__name__)
 import asyncio
 import atexit
 import io
+import os
 import queue
 import sys
 import threading
@@ -435,49 +436,128 @@ class _PlaywrightThread:
     '''
 
     def __init__(self) -> None:
+        self._reset()
+
+    def _reset(self) -> None:
+        self._pid = os.getpid()
         self._thread: threading.Thread | None = None
         self._queue: queue.Queue[
             tuple[Callable[..., Coroutine[Any, Any, Any]], tuple[Any, ...], queue.Queue[Any]] | None
         ] = queue.Queue()
-        self._start_lock = threading.Lock()
+        self._lifecycle_lock = threading.Lock()
+        self._stopped = threading.Event()
+        self._stopped.set()
         self._started = False
+        self._stopping = False
 
     def run[T](self, fn: Callable[..., Coroutine[Any, Any, T]], *args: Any) -> T:
         '''Submit a callable to the Playwright thread and block for the result.'''
-        self._ensure_started()
+        self._ensure_current_process()
         result_q = queue.Queue[tuple[str, Any]]()
-        self._queue.put((fn, args, result_q))
+        with self._lifecycle_lock:
+            if self._stopping:
+                raise RuntimeError("Playwright worker is shutting down")
+            self._ensure_started()
+            self._queue.put((fn, args, result_q))
         status, value = result_q.get()
         if status == "error":
             raise value
         return value
 
-    def shutdown(self) -> None:
-        if self._started:
-            self._queue.put(None)
-            if self._thread is not None:
-                self._thread.join(timeout=5)
-            self._started = False
+    def shutdown(self, finalizer: Callable[..., Coroutine[Any, Any, Any]] | None = None) -> None:
+        '''Stop the worker after completing already-submitted work.'''
+        self._ensure_current_process()
+
+        wait_until_stopped = False
+        finalizer_q: queue.Queue[tuple[str, Any]] | None = None
+        thread: threading.Thread | None = None
+
+        with self._lifecycle_lock:
+            if self._stopping:
+                wait_until_stopped = True
+            elif not self._started:
+                return
+            else:
+                thread = self._thread
+                if thread is threading.current_thread():
+                    raise RuntimeError("Playwright worker cannot shut itself down")
+                self._stopping = True
+                if finalizer is not None:
+                    finalizer_q = queue.Queue()
+                    self._queue.put((finalizer, (), finalizer_q))
+                # The sentinel is queued while submissions are excluded by the
+                # lifecycle lock, so no work can be stranded behind it.
+                self._queue.put(None)
+
+        if wait_until_stopped:
+            self._stopped.wait()
+            return
+
+        finalizer_result: tuple[str, Any] | None = None
+        if finalizer_q is not None:
+            finalizer_result = finalizer_q.get()
+
+        assert thread is not None
+        thread.join()
+
+        with self._lifecycle_lock:
             self._thread = None
+            self._queue = queue.Queue()
+            self._started = False
+            self._stopping = False
+            self._stopped.set()
+
+        if finalizer_result is not None and finalizer_result[0] == "error":
+            raise finalizer_result[1]
+
+    def _ensure_current_process(self) -> None:
+        if self._pid != os.getpid():
+            # Only the thread that called fork survives in the child. Discard
+            # inherited queues and locks without touching the parent's worker.
+            self._reset()
 
     def _ensure_started(self) -> None:
-        with self._start_lock:
-            if not self._started:
-                self._thread = threading.Thread(target=self._worker, daemon=True)
-                self._thread.start()
-                self._started = True
+        thread = self._thread
+        if self._started and thread is not None and thread.is_alive():
+            return
 
-    def _worker(self) -> None:
-        with asyncio.Runner(loop_factory=_new_event_loop) as runner:
-            while True:
-                item = self._queue.get()
-                if item is None:
-                    break
-                fn, args, result_q = item
-                try:
-                    result_q.put(("ok", runner.run(fn(*args))))
-                except BaseException as e:
-                    result_q.put(("error", e))
+        self._thread = None
+        self._queue = queue.Queue()
+        self._started = False
+
+        startup_q = queue.Queue[tuple[str, Any]]()
+        thread = threading.Thread(target=self._worker, args=(startup_q,), daemon=True)
+        self._thread = thread
+        thread.start()
+
+        status, value = startup_q.get()
+        if status == "error":
+            thread.join()
+            self._thread = None
+            self._queue = queue.Queue()
+            raise value
+
+        self._stopped.clear()
+        self._started = True
+
+    def _worker(self, startup_q: queue.Queue[tuple[str, Any]]) -> None:
+        started = False
+        try:
+            with asyncio.Runner(loop_factory=_new_event_loop) as runner:
+                startup_q.put(("ok", None))
+                started = True
+                while True:
+                    item = self._queue.get()
+                    if item is None:
+                        break
+                    fn, args, result_q = item
+                    try:
+                        result_q.put(("ok", runner.run(fn(*args))))
+                    except BaseException as e:
+                        result_q.put(("error", e))
+        except BaseException as e:
+            if not started:
+                startup_q.put(("error", e))
 
 
 _playwright_thread = _PlaywrightThread()
@@ -486,11 +566,9 @@ _playwright_thread = _PlaywrightThread()
 def _cleanup() -> None:
     '''Shutdown Playwright and the background thread at exit.'''
     try:
-        if _playwright_thread._started:
-            _playwright_thread.run(playwright_control.cleanup)
+        _playwright_thread.shutdown(playwright_control.cleanup)
     except Exception:
         pass
-    _playwright_thread.shutdown()
 
 
 #-----------------------------------------------------------------------------
@@ -498,5 +576,15 @@ def _cleanup() -> None:
 #-----------------------------------------------------------------------------
 
 playwright_control = _PlaywrightState()
+
+
+def _reset_after_fork() -> None:
+    global playwright_control
+    _playwright_thread._reset()
+    playwright_control = _PlaywrightState()
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_reset_after_fork)
 
 atexit.register(_cleanup)
