@@ -1,0 +1,15 @@
+javascript:
+  - 'bokehjs/**'
+  - 'examples/**'
+  - 'tools/**'
+  - '.github/codeql/**'
+  - '.github/workflows/codeql-analysis.yml'
+  - '.github/codeql-path-filters.yml'
+
+python:
+  - 'src/bokeh/**'
+  - 'examples/**'
+  - 'tools/**'
+  - '.github/codeql/**'
+  - '.github/workflows/codeql-analysis.yml'
+  - '.github/codeql-path-filters.yml'
