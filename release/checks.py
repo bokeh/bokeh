@@ -23,7 +23,6 @@ from .system import System
 from .util import skip_for_prerelease
 
 __all__ = (
-    "check_anaconda_present",
     "check_aws_present",
     "check_checkout_matches_remote",
     "check_checkout_on_base_branch",
@@ -32,10 +31,8 @@ __all__ = (
     "check_git_present",
     "check_milestone_labels",
     "check_release_tag_is_available",
-    "check_npm_present",
     "check_repo_is_bokeh",
     "check_staging_branch_is_available",
-    "check_twine_present",
     "check_version_order",
 )
 
@@ -52,11 +49,8 @@ def _check_app_present(app: str) -> StepType:
     return func
 
 
-check_anaconda_present = _check_app_present("anaconda")
 check_aws_present = _check_app_present("aws")
 check_git_present = _check_app_present("git")
-check_npm_present = _check_app_present("npm")
-check_twine_present = _check_app_present("twine")
 
 
 def check_repo_is_bokeh(config: Config, system: System) -> ActionReturn:

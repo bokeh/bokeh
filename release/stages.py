@@ -16,7 +16,6 @@ from .build import (
     dev_install_bokehjs,
     install_bokehjs,
     npm_install,
-    pack_deployment_tarball,
     update_bokehjs_versions,
     update_changelog,
     update_hash_manifest,
@@ -27,7 +26,6 @@ from .build import (
     verify_pip_install_using_wheel,
 )
 from .checks import (
-    check_anaconda_present,
     check_aws_present,
     check_checkout_is_clean,
     check_checkout_matches_remote,
@@ -35,27 +33,17 @@ from .checks import (
     check_docs_version_config,
     check_git_present,
     check_milestone_labels,
-    check_npm_present,
     check_release_notes_present,
     check_release_tag_is_available,
     check_repo_is_bokeh,
     check_staging_branch_is_available,
-    check_twine_present,
     check_version_order,
 )
-from .credentials import (
-    verify_anaconda_credentials,
-    verify_aws_credentials,
-    verify_google_credentials,
-    verify_npm_credentials,
-    verify_pypi_credentials,
-)
-from .deploy import (
-    publish_conda_package,
-    publish_documentation,
-    publish_npm_package,
-    publish_pip_packages,
+from .deployment import (
+    download_deployment_tarball,
+    pack_deployment_tarball,
     unpack_deployment_tarball,
+    upload_deployment_tarball,
 )
 from .git import (
     checkout_base_branch,
@@ -68,17 +56,16 @@ from .git import (
     tag_release_version,
 )
 from .pipeline import StepType
-from .remote import (
-    download_deployment_tarball,
-    publish_bokehjs_to_cdn,
-    upload_deployment_tarball,
-)
+from .publishing import publish_bokehjs_to_cdn, publish_documentation
 
 __all__ = (
+    "BUILD_ARTIFACT_STEPS",
     "BUILD_CHECKS",
-    "BUILD_STEPS",
-    "DEPLOY_CHECKS",
-    "DEPLOY_STEPS",
+    "DOCS_STEPS",
+    "PREPARE_DEPLOYMENT_CHECKS",
+    "PREPARE_DEPLOYMENT_STEPS",
+    "UPLOAD_DEPLOYMENT_STEPS",
+    "UPDATE_RELEASE_REPOSITORY_STEPS",
 )
 
 type StepListType = tuple[StepType, ...]
@@ -95,11 +82,9 @@ BUILD_CHECKS: StepListType = (
     check_release_notes_present,
     check_milestone_labels,
     check_staging_branch_is_available,
-    verify_aws_credentials,
-    verify_google_credentials,
 )
 
-BUILD_STEPS: StepListType = (
+BUILD_ARTIFACT_STEPS: StepListType = (
     clean_repo,
     checkout_staging_branch,
     update_bokehjs_versions,
@@ -123,32 +108,28 @@ BUILD_STEPS: StepListType = (
     verify_conda_install,
     build_docs,
     pack_deployment_tarball,
+)
+
+UPLOAD_DEPLOYMENT_STEPS: StepListType = (
     upload_deployment_tarball,
     publish_bokehjs_to_cdn,
+)
+
+UPDATE_RELEASE_REPOSITORY_STEPS: StepListType = (
     checkout_base_branch,
     merge_staging_branch,
     push_to_github,
     delete_staging_branch,
 )
 
-DEPLOY_CHECKS: StepListType = (
-    check_aws_present,
-    check_anaconda_present,
+PREPARE_DEPLOYMENT_CHECKS: StepListType = (
     check_git_present,
-    check_npm_present,
-    check_twine_present,
     check_checkout_on_base_branch,
-    verify_anaconda_credentials,
-    verify_aws_credentials,
-    verify_npm_credentials,
-    verify_pypi_credentials,
 )
 
-DEPLOY_STEPS: StepListType = (
+PREPARE_DEPLOYMENT_STEPS: StepListType = (
     download_deployment_tarball,
     unpack_deployment_tarball,
-    publish_npm_package,
-    publish_conda_package,
-    publish_pip_packages,
-    publish_documentation,
 )
+
+DOCS_STEPS: StepListType = (publish_documentation,)

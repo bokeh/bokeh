@@ -19,11 +19,8 @@ from tests.codebase._release_support import RecordingSystem
 @pytest.mark.parametrize(
     ("func", "command"),
     [
-        (checks.check_anaconda_present, "which anaconda"),
         (checks.check_aws_present, "which aws"),
         (checks.check_git_present, "which git"),
-        (checks.check_npm_present, "which npm"),
-        (checks.check_twine_present, "which twine"),
     ],
 )
 def test_application_checks_pass_when_command_exists(config: Config, func: StepType, command: str) -> None:
@@ -38,11 +35,8 @@ def test_application_checks_pass_when_command_exists(config: Config, func: StepT
 @pytest.mark.parametrize(
     ("func", "command"),
     [
-        (checks.check_anaconda_present, "which anaconda"),
         (checks.check_aws_present, "which aws"),
         (checks.check_git_present, "which git"),
-        (checks.check_npm_present, "which npm"),
-        (checks.check_twine_present, "which twine"),
     ],
 )
 def test_application_checks_fail_when_command_is_missing(config: Config, func: StepType, command: str) -> None:

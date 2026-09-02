@@ -16,6 +16,12 @@ jobs:
 
   build:
     runs-on: ubuntu-24.04
+    environment:
+      name: upload-deployment
+      url: https://cdn.bokeh.org/
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
       - name: Check Maintainer
@@ -62,12 +68,33 @@ jobs:
           conda info
           conda list
 
-      - name: Build Release Tarball
+      - name: Configure AWS credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_RELEASE_BUILD_ROLE_ARN }}
+          role-session-name: bokeh-release-build-${{ github.run_id }}
+          role-duration-seconds: 7200
+          aws-region: us-east-1
+          output-env-credentials: false
+          output-credentials: true
+
+      - name: Build Release Artifacts
         env:
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           BOKEH_VERSION: ${{ github.event.inputs.version }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
-        run: python -m release build $BOKEH_VERSION
+        run: python -m release build-artifacts "$BOKEH_VERSION"
+
+      - name: Upload Deployment Assets
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.aws.outputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.aws.outputs.aws-secret-access-key }}
+          AWS_SESSION_TOKEN: ${{ steps.aws.outputs.aws-session-token }}
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+        run: python -m release upload-deployment "$BOKEH_VERSION"
+
+      - name: Update Release Repository
+        env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+        run: python -m release update-release-repository "$BOKEH_VERSION"
