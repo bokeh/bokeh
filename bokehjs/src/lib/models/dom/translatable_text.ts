@@ -19,8 +19,7 @@ export class TranslatableTextView extends TextView {
       this.render()
     })
 
-    // TODO: This should use this.model.document but it seems to be always null
-    const {document} = this.root.model
+    const {document} = this.model
     if (document != null) {
       this.connect(document.config.i18n.change_locale_config, async () => {
         await this._build_text()
@@ -39,8 +38,7 @@ export class TranslatableTextView extends TextView {
   }
 
   protected async _build_text(): Promise<void> {
-    // TODO: This should use this.model.document but it seems to be always null
-    const {document} = this.root.model
+    const {document} = this.model
     if (document != null) {
       const {content, options} = this.model
       this.translated_text = await document.config.i18n.t(content, options)
