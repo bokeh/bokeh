@@ -17,9 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import re
 import sys
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import TYPE_CHECKING, Literal
 
 # External imports
 import PIL.Image
@@ -51,6 +55,7 @@ from bokeh.themes import Theme
 from bokeh.util.dependencies import is_installed
 
 # Module under test
+import bokeh.io.browser as bib # isort:skip
 import bokeh.io.export as bie # isort:skip
 
 #-----------------------------------------------------------------------------
@@ -390,6 +395,21 @@ def test_get_svgs_with_Legend__issue_14502(webdriver: WebDriver) -> None:
 
 # -- Playwright-backend tests -------------------------------------------------
 
+def _call_in_fresh_thread[T](context: Literal["sync", "async"], fn: Callable[[], T]) -> T:
+    def call() -> T:
+        if context == "sync":
+            return fn()
+
+        async def call_async() -> T:
+            return fn()
+
+        with asyncio.Runner(loop_factory=asyncio.SelectorEventLoop) as runner:
+            return runner.run(call_async())
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        return executor.submit(call).result(timeout=60)
+
+
 @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
 class TestPlaywrightPNG:
 
@@ -491,6 +511,54 @@ class TestPlaywrightSVG:
         assert len(svgs) == 2
         assert "Legend Item: red" in svgs[0]
         assert "Legend Item: blue" in svgs[1]
+
+
+@pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
+@pytest.mark.parametrize("contexts", [("sync", "async"), ("async", "sync")])
+def test_implicit_playwright_browser_across_execution_contexts__issues_15401_15402(
+    tmp_path: Path,
+    contexts: tuple[Literal["sync", "async"], Literal["sync", "async"]],
+) -> None:
+    layout = Plot(
+        x_range=Range1d(), y_range=Range1d(),
+        toolbar_location=None, height=20, width=20,
+        min_border=0, outline_line_color=None,
+        border_fill_color=None, background_fill_color="red",
+        output_backend="canvas",
+    )
+
+    suffix = "-".join(contexts)
+    svg_path = tmp_path / f"plot-{suffix}.svg"
+    png_path = tmp_path / f"plot-{suffix}.png"
+
+    def export_svg() -> list[str]:
+        with silenced(MISSING_RENDERERS):
+            return bie.export_svg(layout, filename=svg_path, backend="playwright")
+
+    def export_png() -> str:
+        with silenced(MISSING_RENDERERS):
+            return bie.export_png(layout, filename=png_path, backend="playwright")
+
+    async def browser_identity() -> int:
+        assert bib.playwright_control._browser is not None
+        return id(bib.playwright_control._browser)
+
+    bib._cleanup()
+    try:
+        svg_filenames = _call_in_fresh_thread(contexts[0], export_svg)
+        first_browser = bib._playwright_thread.run(browser_identity)
+        png_filename = _call_in_fresh_thread(contexts[1], export_png)
+        second_browser = bib._playwright_thread.run(browser_identity)
+    finally:
+        bib._cleanup()
+
+    assert svg_filenames == [str(svg_path)]
+    assert 'fill="red"' in svg_path.read_text()
+    assert png_filename == str(png_path)
+    with PIL.Image.open(png_filename) as png:
+        assert png.size == (20, 20)
+    assert first_browser == second_browser
+
 
 # -- Backend resolution tests --------------------------------------------------
 
