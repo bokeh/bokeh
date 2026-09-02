@@ -6,6 +6,7 @@ import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 import type {Color} from "@bokehjs/core/types"
 
+import type {DOMNode} from "@bokehjs/models/dom/dom_node"
 import {HTML, TranslatableText} from "@bokehjs/models/dom"
 import {ColumnDataSource, Row} from "@bokehjs/models"
 
@@ -182,6 +183,31 @@ describe("Widgets", () => {
     doc.config.i18n.source_language = "en"
     doc.config.i18n.auto_t_enabled = false
     await view.ready
+  })
+
+  it("should allow Button label translation definition without manual TranslatableText instance creation and proper document attachment", async () => {
+    const button = new Button({
+      label: "button1",
+      width: 300, height: 30, sizing_mode: "fixed",
+    })
+    const obj = column([button])
+    const {view, doc} = await display(obj, [350, 50])
+
+    doc.config.i18n.locales_codes = ["en"]
+    doc.config.i18n.translations = {
+      en: {
+        button1: "Button 1",
+      },
+    }
+    doc.config.i18n.languages = [
+      ["English", "en"],
+    ]
+    doc.config.i18n.source_language = "en"
+    doc.config.i18n.auto_t_enabled = false
+    await view.ready
+
+    const label = button.label as DOMNode
+    expect_not_null(label.document)
   })
 
   it.allowing(6)("should allow Toggle", async () => {

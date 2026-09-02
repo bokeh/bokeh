@@ -170,7 +170,7 @@ export class I18n extends Model {
   }
 
   protected _interpolation(translation_string: string, options: Dict<Dict<string | any>> = {}): string {
-    // TODO: Use args to allow for interpolation, formatting, nesting, plurals, etc
+    // TODO: Use args to allow for nesting, plurals, etc
     // (use Intl for formatting options - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl)
     let interpolated_string = translation_string
     if ("interpolation" in options) {
