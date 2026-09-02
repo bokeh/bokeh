@@ -63,7 +63,7 @@ import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral3, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import type {Keys} from "@bokehjs/core/dom"
-import {div} from "@bokehjs/core/dom"
+import {bounding_box, div} from "@bokehjs/core/dom"
 import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
@@ -4205,6 +4205,30 @@ describe("Bug", () => {
       legend.items[0].label = "Long ....... label"
       await view.ready
     })
+
+    it("doesn't allot to recompute the layout when a Legend without margin grows", async () => {
+      const p = fig([400, 200])
+      const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+
+      const legend = new Legend({
+        items: [
+          new LegendItem({label: "Short", renderers: [scatter]}),
+        ],
+        margin: 0,
+      })
+      p.add_layout(legend, "left")
+
+      const {view} = await display(p)
+      const legend_view = view.owner.get_one(legend)
+      const before = bounding_box(legend_view.el).width
+
+      legend.items[0].label = "A very much longer legend label than before"
+      await view.ready
+
+      // the side panel derives its width from the legend, so the legend must
+      // stay free to grow along that axis
+      expect(bounding_box(legend_view.el).width).to.be.above(before)
+    })
   })
 
   describe("in issue #14153", () => {
@@ -5396,6 +5420,52 @@ describe("Bug", () => {
       items[0].dispatchEvent(new PointerEvent("pointerenter"))
       await view.ready
       expect(submenu_views.some((view) => view.is_open)).to.be.true
+    })
+  })
+
+  describe("in issue #15376", () => {
+    function make(side: "above" | "right", location: Legend["location"] = [0, 0]) {
+      const p = fig([400, 200], {toolbar_location: null})
+      const items = []
+      for (let i = 0; i < 8; i++) {
+        const r = p.line([1, 2], [i, i + 1])
+        items.push(new LegendItem({label: `item ${i}`, renderers: [r]}))
+      }
+      const orientation = side == "above" ? "horizontal" : "vertical"
+      const legend = new Legend({items, location, orientation})
+      p.add_layout(legend, side)
+      return {gp: gridplot([[p]], {toolbar_location: "above"}), plot: p, legend}
+    }
+
+    async function expect_contained(side: "above" | "right", size: [number, number],
+        location: Legend["location"] = [0, 0]) {
+      const {gp, plot, legend} = make(side, location)
+      const {view} = await display(gp, size)
+
+      // an oversized legend used to paint outside its panel, and then outside
+      // the plot itself, over the grid's toolbar
+      const plot_view = view.owner.get_one(plot)
+      const panel_view = side == "above" ? plot_view.top_panel : plot_view.right_panel
+      const panel_bbox = bounding_box(panel_view.el)
+      const legend_bbox = bounding_box(view.owner.get_one(legend).el)
+
+      expect(legend_bbox.left).to.be.within(panel_bbox.left, panel_bbox.right)
+      expect(legend_bbox.right).to.be.within(panel_bbox.left, panel_bbox.right)
+      expect(legend_bbox.top).to.be.within(panel_bbox.top, panel_bbox.bottom)
+      expect(legend_bbox.bottom).to.be.within(panel_bbox.top, panel_bbox.bottom)
+    }
+
+    it("allows a legend taller than its side panel to overlap a grid plot's toolbar", async () => {
+      await expect_contained("right", [450, 300])
+    })
+
+    it("allows a legend wider than its side panel to overflow its plot", async () => {
+      await expect_contained("above", [450, 350])
+    })
+
+    it.no_image("allows a legend positioned by a named location to escape its side panel", async () => {
+      await expect_contained("right", [450, 300], "bottom_right")
+      await expect_contained("above", [450, 350], "top_right")
     })
   })
 })
