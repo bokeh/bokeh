@@ -43,7 +43,7 @@ from ..settings import settings
 from ..util.dependencies import import_required
 from .state import curstate
 from .util import (
-    _BOKEH_LOADED_CHECK,
+    _BOKEH_LOADED_EXPR,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
@@ -169,7 +169,7 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     from selenium.webdriver.support.wait import WebDriverWait
 
     def is_bokeh_loaded(driver: WebDriver) -> bool:
-        result: bool = driver.execute_script(_BOKEH_LOADED_CHECK)
+        result: bool = driver.execute_script(f"return {_BOKEH_LOADED_EXPR}")
         return result
 
     try:
