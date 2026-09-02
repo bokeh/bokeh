@@ -582,10 +582,14 @@ export class LegendView extends AnnotationView {
       // oversized legend is then clipped at its far edge. Only the panel's
       // spanning axis is capped, because `SideLayout` derives the other one
       // from the legend's measured size and capping that would freeze it.
+      // A named location also insets the legend by `margin`, which would shift
+      // a full span box back out of the panel, so the cap has to allow for it.
+      // A numeric location is an explicit coordinate and takes no margin.
       const {panel} = this
       const in_side_panel = this.layout != null && panel != null
+      const margin = isString(this.model.location) ? this.model.margin : 0
       const constraint = !in_side_panel ? "" : `
-        ${panel.is_horizontal ? "max-width" : "max-height"}: 100%;
+        ${panel.is_horizontal ? "max-width" : "max-height"}: calc(100% - ${px(2*margin)});
         clip-path: inset(-1px);
       `
       this.position.replace(`

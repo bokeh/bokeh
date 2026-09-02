@@ -5487,7 +5487,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #15376", () => {
-    function make(side: "above" | "right") {
+    function make(side: "above" | "right", location: Legend["location"] = [0, 0]) {
       const p = fig([400, 200], {toolbar_location: null})
       const items = []
       for (let i = 0; i < 8; i++) {
@@ -5495,23 +5495,27 @@ describe("Bug", () => {
         items.push(new LegendItem({label: `item ${i}`, renderers: [r]}))
       }
       const orientation = side == "above" ? "horizontal" : "vertical"
-      const legend = new Legend({items, location: [0, 0], orientation})
+      const legend = new Legend({items, location, orientation})
       p.add_layout(legend, side)
       return {gp: gridplot([[p]], {toolbar_location: "above"}), plot: p, legend}
     }
 
-    async function expect_contained(side: "above" | "right", size: [number, number]) {
-      const {gp, plot, legend} = make(side)
+    async function expect_contained(side: "above" | "right", size: [number, number],
+        location: Legend["location"] = [0, 0]) {
+      const {gp, plot, legend} = make(side, location)
       const {view} = await display(gp, size)
 
-      const plot_bbox = bounding_box(view.owner.get_one(plot).el)
+      // an oversized legend used to paint outside its panel, and then outside
+      // the plot itself, over the grid's toolbar
+      const plot_view = view.owner.get_one(plot)
+      const panel_view = side == "above" ? plot_view.top_panel : plot_view.right_panel
+      const panel_bbox = bounding_box(panel_view.el)
       const legend_bbox = bounding_box(view.owner.get_one(legend).el)
 
-      // an oversized legend used to paint outside its plot, over the grid's toolbar
-      expect(legend_bbox.left).to.be.within(plot_bbox.left, plot_bbox.right)
-      expect(legend_bbox.right).to.be.within(plot_bbox.left, plot_bbox.right)
-      expect(legend_bbox.top).to.be.within(plot_bbox.top, plot_bbox.bottom)
-      expect(legend_bbox.bottom).to.be.within(plot_bbox.top, plot_bbox.bottom)
+      expect(legend_bbox.left).to.be.within(panel_bbox.left, panel_bbox.right)
+      expect(legend_bbox.right).to.be.within(panel_bbox.left, panel_bbox.right)
+      expect(legend_bbox.top).to.be.within(panel_bbox.top, panel_bbox.bottom)
+      expect(legend_bbox.bottom).to.be.within(panel_bbox.top, panel_bbox.bottom)
     }
 
     it("allows a legend taller than its side panel to overlap a grid plot's toolbar", async () => {
@@ -5520,6 +5524,11 @@ describe("Bug", () => {
 
     it("allows a legend wider than its side panel to overflow its plot", async () => {
       await expect_contained("above", [450, 350])
+    })
+
+    it.no_image("allows a legend positioned by a named location to escape its side panel", async () => {
+      await expect_contained("right", [450, 300], "bottom_right")
+      await expect_contained("above", [450, 350], "top_right")
     })
   })
 })
