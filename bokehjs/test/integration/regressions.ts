@@ -5414,7 +5414,7 @@ describe("Bug", () => {
       expect(items.length).to.be.equal(2)
 
       // every item resolved a submenu view
-      const submenu_views = menu_view._children_views().filter((view) => view instanceof MenuView)
+      const submenu_views = menu_view.children_views().filter((view) => view instanceof MenuView)
       expect(submenu_views.length).to.be.equal(2)
 
       items[0].dispatchEvent(new PointerEvent("pointerenter"))
