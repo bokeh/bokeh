@@ -102,7 +102,7 @@ jobs:
         working-directory: ./bokehjs
         shell: bash
         run: |
-          node make build:all
+          node make build
 
       - name: Package bokehjs
         working-directory: ./bokehjs

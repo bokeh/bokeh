@@ -112,6 +112,7 @@ const container_args = [
   "--mount", `type=bind,source=${repo_root},target=/work`,
   "--mount", `type=bind,source=${git_dir},target=/git/worktree,readonly`,
   "--mount", `type=bind,source=${git_common_dir},target=/git/common,readonly`,
+  "--tmpfs", `/work/bokehjs/build:${tmpfs_options}`,
   "--tmpfs", `/work/bokehjs/node_modules:${tmpfs_options}`,
   "--workdir", "/work/bokehjs",
 ]
@@ -151,7 +152,7 @@ async function run_tests(args) {
     "run", ...container_args,
     "--entrypoint=/bin/bash",
     image,
-    "-c", "npm ci --no-progress --no-audit --no-fund && node make build:all && node make test:integration \"$@\"",
+    "-c", "npm ci --no-progress --no-audit --no-fund && node make lib:build test:integration \"$@\"",
     "bash", ...test_args,
   ])
 
