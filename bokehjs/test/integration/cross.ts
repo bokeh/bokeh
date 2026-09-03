@@ -83,7 +83,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #12187", () => {
-    it.no_image("displays dates as zero epoch in a DataTable if one element isn't a date", async () => {
+    it("displays dates as zero epoch in a DataTable if one element isn't a date", async () => {
       const {views} = await test("regressions/issue_12187.json5")
       const [t] = views
       expect_instanceof(t, DataTableView)
