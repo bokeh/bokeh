@@ -2197,7 +2197,7 @@ describe("Bug", () => {
       expect(submenus(menu_view).length).to.be.equal(2)
 
       // stale views are removed, not accumulated
-      const submenu_views = menu_view._children_views().filter((view) => view instanceof MenuView)
+      const submenu_views = menu_view.children_views().filter((view) => view instanceof MenuView)
       expect(submenu_views.length).to.be.equal(2)
 
       // icons and tooltips resolve at render time, so a tool's state is

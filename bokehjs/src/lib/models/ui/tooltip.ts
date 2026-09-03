@@ -137,12 +137,8 @@ export class TooltipView extends UIElementView {
       document.removeEventListener("scroll", this._scroll_listener, {capture: true})
       delete this._scroll_listener
     }
-    super.disconnect_signals()
-  }
-
-  override remove(): void {
     this._observer.disconnect()
-    super.remove()
+    super.disconnect_signals()
   }
 
   override stylesheets(): StyleSheetLike[] {

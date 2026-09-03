@@ -1,0 +1,25 @@
+.. _release-3-10-1:
+
+3.10.1
+======
+
+Bokeh version ``3.10.1`` (September 2026) is a patch release that fixes a
+number of minor bugs and regressions.
+
+Changes
+-------
+
+* Use sufficient numeric precision in WebGL shaders (:bokeh-pull:`15283`)
+* Correct type hints in ``bokeh.transform`` (:bokeh-pull:`15362`)
+* Prevent duplicate and orphaned child views from overlapping
+  ``build_views()`` calls (:bokeh-pull:`15359`)
+* Fix WebGL patch ring accumulation (:bokeh-pull:`15281`)
+* Rebuild submenu views when menu items change (:bokeh-pull:`15340`)
+* Return the requested number of colors from ``diverging_palette()``
+  (:bokeh-pull:`15397`)
+* Avoid shared mutable defaults in ``grid()`` (:bokeh-pull:`15385`)
+* Keep WebGL marker updates correct across data and selection changes
+  (:bokeh-pull:`15282`)
+* Fix Playwright export thread ownership and Python 3.14 Windows event-loop
+  compatibility (:bokeh-pull:`15404`)
+* Constrain side-panel legends to their panels (:bokeh-pull:`15392`)
