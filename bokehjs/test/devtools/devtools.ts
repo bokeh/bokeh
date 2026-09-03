@@ -180,6 +180,12 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       const result = await browser.evaluate<Suite>("Tests.top_level")
       if (!(result instanceof Value)) {
         const reason = result instanceof Failure ? result.text : "timeout"
+        for (const entry of browser.get_entries()) {
+          console.error(`page ${entry.level}: ${entry.text}`)
+        }
+        for (const exception of browser.get_exceptions()) {
+          console.error(`page exception: ${exception.text}`)
+        }
         fail(`internal error: failed to collect tests: ${reason}`)
       }
 

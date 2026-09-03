@@ -24,37 +24,7 @@ jobs:
       - name: Resolve Chrome for Testing Beta
         id: chrome
         shell: bash
-        run: |
-          API=https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json
-          METADATA="$RUNNER_TEMP/chrome-for-testing.json"
-          ARCHIVE="$RUNNER_TEMP/chrome-linux64.zip"
-
-          curl --fail --location --silent --show-error --output "$METADATA" "$API"
-          VERSION=$(jq --exit-status --raw-output '.channels.Beta.version' "$METADATA")
-          URL=$(jq --exit-status --raw-output '.channels.Beta.downloads.chrome[] | select(.platform == "linux64") | .url' "$METADATA")
-
-          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "invalid Chrome Beta version: $VERSION" >&2
-            exit 1
-          fi
-          EXPECTED_URL="https://storage.googleapis.com/chrome-for-testing-public/$VERSION/linux64/chrome-linux64.zip"
-          if [[ "$URL" != "$EXPECTED_URL" ]]; then
-            echo "unexpected Chrome Beta download URL: $URL" >&2
-            exit 1
-          fi
-
-          curl --fail --location --silent --show-error --output "$ARCHIVE" "$URL"
-          SHA256=$(sha256sum "$ARCHIVE" | cut -d' ' -f1)
-          if ! [[ "$SHA256" =~ ^[0-9a-f]{64}$ ]]; then
-            echo "invalid Chrome Beta archive digest: $SHA256" >&2
-            exit 1
-          fi
-
-          {
-            echo "version=$VERSION"
-            echo "sha256=$SHA256"
-            echo "image=bokehjs-baselines-beta:$VERSION"
-          } >> "$GITHUB_OUTPUT"
+        run: tools/ci/resolve_chrome_for_testing.sh BETA linux64 >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -67,7 +37,7 @@ jobs:
           platforms: linux/amd64
           load: true
           push: false
-          tags: ${{ steps.chrome.outputs.image }}
+          tags: bokehjs-baselines-beta:${{ steps.chrome.outputs.version }}
           build-args: |
             CHROME_VERSION=${{ steps.chrome.outputs.version }}
             CHROME_SHA256=${{ steps.chrome.outputs.sha256 }}
@@ -76,7 +46,7 @@ jobs:
 
       - name: Run baseline tests against Chrome Beta
         env:
-          BOKEHJS_BASELINE_IMAGE: ${{ steps.chrome.outputs.image }}
+          BOKEHJS_BASELINE_IMAGE: bokehjs-baselines-beta:${{ steps.chrome.outputs.version }}
           BOKEHJS_BASELINE_PULL: "0"
         run: node ./bokehjs/test/run-baseline-tests.mjs
 
