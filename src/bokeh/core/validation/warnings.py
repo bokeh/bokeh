@@ -16,6 +16,9 @@ validation checks.
 1004 *(BOTH_CHILD_AND_ROOT)*
     Each component can be rendered in only one place, can't be both a root and in a layout.
 
+1009 *(INCOMPATIBLE_SCALED_TICKER)*
+    ScaledTickFormatter is configured on an axis without a ScaledTicker.
+
 9999 *(EXT)*
     Indicates that a custom warning check has failed.
 
@@ -68,6 +71,10 @@ PALETTE_LENGTH_FACTORS_MISMATCH = Warning(
     1008,
     "PALETTE_LENGTH_FACTORS_MISMATCH",
     "Palette length does not match number of factors")
+INCOMPATIBLE_SCALED_TICKER = Warning(
+    1009,
+    "INCOMPATIBLE_SCALED_TICKER",
+    "ScaledTickFormatter is configured on an axis without a ScaledTicker")
 EXT = Warning(
     9999,
     "EXT",

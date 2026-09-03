@@ -8,7 +8,8 @@ languages with a growing number of elements. Currently, you can use LaTeX
 and MathML notations with the following elements:
 
 * :ref:`Axis labels <ug_styling_plots_axes_labels>`
-* Tick labels using :func:`~bokeh.models.Axis.major_label_overrides`
+* Tick labels using :class:`~bokeh.models.ScaledTickFormatter` or
+  :func:`~bokeh.models.Axis.major_label_overrides`
 * :ref:`ug_basic_annotations_titles`
 * :ref:`ug_basic_annotations_labels`
 * :ref:`ug_basic_annotations_color_bars`
@@ -44,17 +45,22 @@ LaTeX on axis labels, titles, and labels
         :source-position: above
 
 LaTeX and tick labels
-    To add LaTeX notations to your tick labels, use the
-    :func:`~bokeh.models.Axis.major_label_overrides` function with an axis.
-
-    This function is used to replace values for existing tick labels with custom
-    text. It accepts a dictionary with the tick label's original value as the
-    key and your custom value as the dict's value.
-
-    Use this function to replace any plain text tick labels with LaTeX notation:
+    To add a LaTeX unit or other repeated decoration to generated tick labels,
+    use a :class:`~bokeh.models.ScaledTicker` with a
+    :class:`~bokeh.models.ScaledTickFormatter`. The formatter accepts delimited
+    LaTeX strings and combines the value, unit, and any fraction into one math
+    expression. Labels therefore continue to update as the visible range
+    changes:
 
     .. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_tick_labels.py
         :source-position: above
+
+    The formatter's ``base_label`` supports signed offsets from a symbolic
+    origin. For example, a base of :math:`\overline{x}` and a suffix of
+    :math:`\sigma` produce labels from :math:`\overline{x}-3\sigma` through
+    :math:`\overline{x}+3\sigma`. For labels that cannot be described by a
+    shared base, scale, prefix, or suffix, use
+    :func:`~bokeh.models.Axis.major_label_overrides`.
 
 LaTeX on RangeSlider and Slider widget titles
     To use LaTeX notation in the title of a :ref:`ug_interaction_widgets_range_slider`

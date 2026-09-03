@@ -17,10 +17,12 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, Toggle
+from bokeh.document import Document
+from bokeh.models import ColumnDataSource, TeX, Toggle
 
 # Module under test
 import bokeh.models.formatters as bmf # isort:skip
+import bokeh.models.tickers as bmt # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -64,6 +66,69 @@ def test_custom_js_tick_formatter() -> None:
             this.precision = this.precision || (ticks.length > cutoff ? 1 : 2);
             return Math.floor(tick) + " + " + (tick % 1).toFixed(this.precision);
         """, cutoff=cutoff)
+
+def test_scaled_tick_formatter() -> None:
+    ticker = bmt.ScaledTicker(scale=3.14)
+    formatter = bmf.ScaledTickFormatter(
+        ticker=ticker,
+        suffix="pi",
+        unit_style="symbolic",
+    )
+
+    assert formatter.ticker is ticker
+    assert isinstance(formatter.formatter, bmf.BasicTickFormatter)
+    assert formatter.base_label == ""
+    assert formatter.prefix == ""
+    assert formatter.suffix == "pi"
+    assert formatter.unit_style == "symbolic"
+    assert formatter.use_fractions is False
+    assert formatter.fraction_style == "stacked"
+    assert formatter.max_denominator == 16
+
+def test_scaled_tick_formatter_serialization() -> None:
+    ticker = bmt.ScaledTicker(scale=3.14, name="ticker")
+    formatter = bmf.ScaledTickFormatter(
+        ticker=ticker,
+        suffix="pi",
+        unit_style="symbolic",
+        use_fractions=True,
+        fraction_style="inline",
+        max_denominator=8,
+        name="formatter",
+    )
+    doc = Document()
+    doc.add_root(formatter)
+
+    copy = Document.from_json(doc.to_json())
+    copied_formatter = copy.get_model_by_name("formatter")
+    copied_ticker = copy.get_model_by_name("ticker")
+
+    assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
+    assert isinstance(copied_ticker, bmt.ScaledTicker)
+    assert copied_formatter.ticker is copied_ticker
+    assert copied_formatter.unit_style == "symbolic"
+    assert copied_formatter.use_fractions is True
+    assert copied_formatter.fraction_style == "inline"
+    assert copied_formatter.max_denominator == 8
+
+def test_scaled_tick_formatter_accepts_math_text_units() -> None:
+    base_label = TeX(text=r"\overline{x}")
+    suffix = TeX(text=r"\pi")
+    formatter = bmf.ScaledTickFormatter(base_label=base_label, suffix=suffix, name="formatter")
+
+    assert formatter.base_label is base_label
+    assert formatter.suffix is suffix
+
+    doc = Document()
+    doc.add_root(formatter)
+    copy = Document.from_json(doc.to_json())
+    copied_formatter = copy.get_model_by_name("formatter")
+
+    assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
+    assert isinstance(copied_formatter.base_label, TeX)
+    assert copied_formatter.base_label.text == r"\overline{x}"
+    assert isinstance(copied_formatter.suffix, TeX)
+    assert copied_formatter.suffix.text == r"\pi"
 
 #-----------------------------------------------------------------------------
 # Dev API

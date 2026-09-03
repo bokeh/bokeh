@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
-from typing import Any
+from typing import Any, cast
 
 # Bokeh imports
 from ..core.enums import (
@@ -43,14 +43,16 @@ from ..core.property.auto import Auto
 from ..core.property.container import Dict, Seq
 from ..core.property.either import Either
 from ..core.property.enum import Enum
-from ..core.property.instance import Instance
+from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
+from ..core.property.numeric import Positive
 from ..core.property.primitive import Bool, Int, String
+from ..core.property.text_like import TextLike
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.strings import format_docstring
-from .tickers import Ticker
+from .tickers import ScaledTicker, Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -67,6 +69,7 @@ __all__ = (
     "MercatorTickFormatter",
     "NumeralTickFormatter",
     "PrintfTickFormatter",
+    "ScaledTickFormatter",
     "TickFormatter",
 )
 
@@ -134,6 +137,92 @@ class BasicTickFormatter(TickFormatter):
 
         log(x) <= power_limit_low
 
+    """)
+
+class ScaledTickFormatter(TickFormatter):
+    r''' Format ticks in the normalized coordinates of a ``ScaledTicker``.
+
+    Tick values are divided by the axis ticker's ``scale`` before being passed
+    to ``formatter``. Optional text can be added before or after each formatted
+    value. This allows symbolic units such as :math:`\pi` to be displayed
+    without a ``CustomJSTickFormatter``.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    ticker = Nullable(Instance(ScaledTicker), default=None, help="""
+    An optional fallback ``ScaledTicker`` used when formatting outside an axis.
+
+    When this formatter belongs to an axis, the axis's ticker is authoritative
+    and must be a ``ScaledTicker``. This property is therefore normally left
+    unset.
+    """)
+
+    # The descriptor accepts subclasses at runtime, but its generic type expects the exact base class.
+    formatter = Instance(TickFormatter, default=cast(Any, InstanceDefault(BasicTickFormatter)), help="""
+    The formatter applied to normalized tick values.
+    """)
+
+    base_label = TextLike(default="", help="""
+    An optional label representing the zero point of the normalized values.
+
+    Nonzero values are displayed as signed offsets from this label. For
+    example, ``base_label=TeX(text=r"\\overline{x}")`` with
+    ``suffix=TeX(text=r"\\sigma")`` can produce labels such as
+    :math:`\\overline{x}-2\\sigma`, :math:`\\overline{x}`, and
+    :math:`\\overline{x}+2\\sigma`. This affects label composition only;
+    normalization remains controlled by the ticker's scale. Strings containing
+    recognized math-text delimiters and explicit text models are supported.
+    """)
+
+    prefix = TextLike(default="", help="""
+    Text placed before each formatted value. Strings containing recognized
+    math-text delimiters and explicit text models are supported. If either
+    decoration is TeX, the complete label is rendered as one TeX expression.
+    """)
+
+    suffix = TextLike(default="", help="""
+    Text placed after each formatted value. Strings containing recognized
+    math-text delimiters and explicit text models are supported. If either
+    decoration is TeX, the complete label is rendered as one TeX expression.
+    """)
+
+    unit_style = Enum("always", "except_zero", "symbolic", default="always", help="""
+    How ``prefix`` and ``suffix`` are combined with the normalized value.
+
+    ``"always"`` applies them to every value, including zero. In fraction
+    mode they surround the complete fraction, for example ``1/2°``.
+    ``"except_zero"`` behaves the same way but leaves zero undecorated.
+    ``"symbolic"`` additionally omits coefficients equal to one when a
+    suffix is present and places that suffix in the fraction numerator,
+    producing labels such as ``π`` and ``3π/4``. The minus sign used for
+    negative one is inherited from ``formatter``.
+    """)
+
+    use_fractions = Bool(default=False, help="""
+    Whether coefficients close to a fraction should be displayed as fractions.
+
+    The denominator is bounded by ``max_denominator``. Values that are not
+    sufficiently close to such a fraction retain the output of ``formatter``.
+    With ``unit_style="symbolic"``, a suffix such as ``"π"`` is placed in
+    the numerator, producing labels such as ``π/2`` and ``3π/4``. Otherwise,
+    the prefix and suffix surround the complete fraction.
+    """)
+
+    fraction_style = Enum("stacked", "inline", default="stacked", help="""
+    How fractions are rendered when a decoration uses TeX.
+
+    ``"stacked"`` uses a TeX fraction such as ``\\frac{\\pi}{2}``, while
+    ``"inline"`` keeps the complete label in math text but uses a compact
+    solidus form such as ``\\pi/2``. Plain-text labels always use the inline
+    form.
+    """)
+
+    max_denominator = Positive(Int, default=16, help="""
+    The largest denominator considered when ``use_fractions`` is true.
     """)
 
 class MercatorTickFormatter(BasicTickFormatter):

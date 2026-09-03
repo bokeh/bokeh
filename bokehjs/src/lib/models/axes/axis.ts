@@ -18,6 +18,7 @@ import type {Context2d} from "core/util/canvas"
 import {sum, repeat} from "core/util/array"
 import {dict} from "core/util/object"
 import {isNumber} from "core/util/types"
+import type {GraphicsBox} from "core/graphics"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import type {Factor} from "models/ranges/factor_range"
 import {FactorRange} from "models/ranges/factor_range"
@@ -67,8 +68,15 @@ export abstract class AxisView extends GuideRendererView {
     this._panel = new SidePanel(panel.side, this.model.face)
   }
 
+  get ticker(): Ticker {
+    return this.model.ticker
+  }
+
   /*private*/ _axis_label_view: BaseTextView | null = null
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
+  /*private*/ _formatter_text_views: Map<BaseText, BaseTextView> = new Map()
+  /*private*/ _formatter_text_views_used: Set<BaseTextView> = new Set()
+  /*private*/ _formatter_text_views_pending: Set<BaseText> = new Set()
 
   override get bbox(): BBox {
     if (this.model.fixed_location != null) {
@@ -102,13 +110,19 @@ export abstract class AxisView extends GuideRendererView {
   }
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), this._axis_label_view, ...this._major_label_views.values()]
+    return [
+      ...super._children_views(),
+      this._axis_label_view,
+      ...this._major_label_views.values(),
+      ...this._formatter_text_views.values(),
+    ]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._init_axis_label()
     await this._init_major_labels()
+    await this._init_formatter_text()
   }
 
   protected async _init_axis_label(): Promise<void> {
@@ -126,6 +140,48 @@ export abstract class AxisView extends GuideRendererView {
       const _label_text = isString(label_text) ? parse_delimited_string(label_text) : label_text
       this._major_label_views.set(label, await build_view(_label_text, {parent: this}))
     }
+  }
+
+  protected async _init_formatter_text(): Promise<void> {
+    const previous = this._formatter_text_views
+    const current = new Map<BaseText, BaseTextView>()
+
+    for (const text of this.model.formatter.get_text_models()) {
+      if (current.has(text)) {
+        continue
+      }
+      const existing = previous.get(text)
+      current.set(text, existing ?? await build_view(text, {parent: this}))
+    }
+
+    for (const [text, view] of previous) {
+      if (!current.has(text)) {
+        view.remove()
+      }
+    }
+
+    this._formatter_text_views = current
+  }
+
+  resolve_text(text: BaseText): GraphicsBox | null {
+    const view = this._formatter_text_views.get(text)
+    if (view == null) {
+      if (!this._formatter_text_views_pending.has(text)) {
+        this._formatter_text_views_pending.add(text)
+        const building = build_view(text, {parent: this}).then((view) => {
+          this._formatter_text_views.set(text, view)
+          this.plot_view.request_layout()
+        }).catch((error) => {
+          logger.error(`failed to build formatted axis text: ${error}`)
+        }).finally(() => {
+          this._formatter_text_views_pending.delete(text)
+        })
+        this._await_ready(building)
+      }
+      return null
+    }
+    this._formatter_text_views_used.add(view)
+    return view.clone_graphics()
   }
 
   update_layout(): void {
@@ -181,7 +237,7 @@ export abstract class AxisView extends GuideRendererView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {axis_label, major_label_overrides} = this.model.properties
+    const {axis_label, formatter: formatter_prop, major_label_overrides} = this.model.properties
 
     this.on_change(axis_label, async () => {
       this._axis_label_view?.remove()
@@ -195,9 +251,21 @@ export abstract class AxisView extends GuideRendererView {
       await this._init_major_labels()
     })
 
+    let formatter = this.model.formatter
+    const formatter_changed = async () => {
+      await this._init_formatter_text()
+      this.plot_view.request_layout()
+    }
+    this.connect(formatter.change, formatter_changed)
+    this.on_change(formatter_prop, async () => {
+      this.disconnect(formatter.change, formatter_changed)
+      formatter = this.model.formatter
+      this.connect(formatter.change, formatter_changed)
+      await formatter_changed()
+    })
+
     this.connect(this.model.change, () => this.plot_view.request_layout())
     this.connect(this.model.ticker.change, () => this.plot_view.request_layout())
-    this.connect(this.model.formatter.change, () => this.plot_view.request_layout())
   }
 
   override get needs_clip(): boolean {
@@ -544,7 +612,16 @@ export abstract class AxisView extends GuideRendererView {
   }
 
   compute_labels(ticks: number[]): GraphicsBoxes {
+    this._formatter_text_views_used.clear()
     const labels = this.model.formatter.format_graphics(ticks, this)
+    const persistent = new Set(this.model.formatter.get_text_models())
+
+    for (const [text, view] of this._formatter_text_views) {
+      if (!persistent.has(text) && !this._formatter_text_views_used.has(view)) {
+        view.remove()
+        this._formatter_text_views.delete(text)
+      }
+    }
     const {_major_label_views} = this
 
     const visited = new Set()
@@ -739,6 +816,10 @@ export abstract class AxisView extends GuideRendererView {
       return false
     }
 
+    if (this._formatter_text_views_pending.size != 0) {
+      return false
+    }
+
     if (this._axis_label_view != null) {
       if (!this._axis_label_view.has_finished()) {
         return false
@@ -747,6 +828,12 @@ export abstract class AxisView extends GuideRendererView {
 
     for (const label_view of this._major_label_views.values()) {
       if (!label_view.has_finished()) {
+        return false
+      }
+    }
+
+    for (const text_view of this._formatter_text_views_used) {
+      if (!text_view.has_finished()) {
         return false
       }
     }

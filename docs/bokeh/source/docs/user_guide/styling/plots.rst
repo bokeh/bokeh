@@ -412,6 +412,8 @@ different situations:
 
 * |LogTickFormatter| --- Default formatter for log axes.
 
+* |ScaledTickFormatter| --- Formatter for values selected by a |ScaledTicker|.
+
 These default tick formatters do not expose many configurable properties.
 To control tick formatting at a finer-grained level, use one of the
 |NumeralTickFormatter| or |PrintfTickFormatter| described below.
@@ -446,6 +448,49 @@ format strings.
 
 For full details about formats, see the full |PrintfTickFormatter|
 documentation in the |reference guide|.
+
+``ScaledTickFormatter``
+'''''''''''''''''''''''
+
+Use a |ScaledTicker| and |ScaledTickFormatter| together when an axis has a
+natural unit that differs from its data coordinates. The ticker selects nice
+values after dividing the visible range by ``scale``, and the formatter uses
+the axis ticker's scale to display the resulting coefficients. Fraction mode
+can display small rational coefficients in forms such as :math:`\pi/2` and
+:math:`3\pi/4`, while larger ranges naturally produce labels such as
+:math:`8\pi`. This example uses a base-two |AdaptiveTicker| to prefer halves
+and quarters without explicitly supplying tick locations or labels. Its
+``unit_style="symbolic"`` setting omits the coefficient one, leaves zero
+undecorated, and places ``π`` in fraction numerators. The suffix is written as
+``r"$$\pi$$"`` so that the unit is rendered as math text; plain Unicode text
+such as ``"π"`` and explicit text models such as ``TeX(text=r"\pi")`` are also
+accepted. When either decoration is TeX, the coefficient, unit, and any
+fraction are combined into one TeX expression, so their typography and
+baselines remain consistent. Set ``fraction_style="stacked"`` for a TeX
+fraction such as :math:`\frac{\pi}{2}`, or ``fraction_style="inline"`` for the
+more compact :math:`\pi/2` form shown here:
+
+.. bokeh-plot:: __REPO__/examples/styling/plots/scaled_tick_formatter.py
+    :source-position: above
+
+Astrophysical data often combines SI storage with more readable unit
+multiples. This blackbody-radiation example keeps frequency in hertz and
+spectral radiance in SI data coordinates, while its axes select petahertz and
+nanowatt multiples. The conversion remains an axis concern rather than being
+applied to every data array:
+
+.. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_blackbody_radiation.py
+    :source-position: above
+
+The same models can express non-symbolic scales. For example,
+``ScaledTicker(scale=pi/180)`` with a ``"°"`` suffix selects round degree
+values for data stored in radians, while ``ScaledTicker(scale=1000)`` with a
+``"k"`` suffix labels values in thousands. The default ``unit_style="always"``
+places literal units after the complete value, including a fraction, while
+``unit_style="except_zero"`` leaves zero undecorated. Fraction mode is opt-in
+and is used only when every visible tick is close to a fraction bounded by
+``max_denominator``; otherwise the complete set retains the wrapped
+formatter's decimal representation.
 
 ``CustomJSTickFormatter``
 '''''''''''''''''''''''''
@@ -853,6 +898,7 @@ You can see a complete example with output in the section
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
 .. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
+.. |AdaptiveTicker| replace:: :class:`~bokeh.models.tickers.AdaptiveTicker`
 .. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
 .. |CustomJSTicker| replace:: :class:`~bokeh.models.tickers.CustomJSTicker`
@@ -860,6 +906,8 @@ You can see a complete example with output in the section
 .. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+.. |ScaledTicker| replace:: :class:`~bokeh.models.tickers.ScaledTicker`
+.. |ScaledTickFormatter| replace:: :class:`~bokeh.models.formatters.ScaledTickFormatter`
 .. |legend| replace:: :class:`~bokeh.plotting.figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.figure.grid`
 .. |xgrid|  replace:: :class:`~bokeh.plotting.figure.xgrid`

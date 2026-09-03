@@ -2950,6 +2950,22 @@
     __extends__: "TickFormatter",
     format: "%s",
   },
+  ScaledTickFormatter: {
+    __extends__: "TickFormatter",
+    ticker: null,
+    formatter: {
+      type: "object",
+      name: "BasicTickFormatter",
+      attributes: {},
+    },
+    base_label: "",
+    prefix: "",
+    suffix: "",
+    unit_style: "always",
+    use_fractions: false,
+    fraction_style: "stacked",
+    max_denominator: 16,
+  },
   TickFormatter: {
     __extends__: "Model",
   },
@@ -6532,6 +6548,15 @@
   MonthsTicker: {
     __extends__: "BaseSingleIntervalTicker",
     months: [],
+  },
+  ScaledTicker: {
+    __extends__: "ContinuousTicker",
+    scale: 1.0,
+    ticker: {
+      type: "object",
+      name: "BasicTicker",
+      attributes: {},
+    },
   },
   SingleIntervalTicker: {
     __extends__: "BaseSingleIntervalTicker",

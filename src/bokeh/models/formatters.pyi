@@ -7,9 +7,10 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Any, Sequence, Unpack
+from typing import Any, Literal, Sequence, Unpack
 
 # Bokeh imports
+from .._types import TextLike
 from ..core.enums import (
     AutoType as Auto,
     ContextWhichType as ContextWhich,
@@ -20,7 +21,7 @@ from ..core.enums import (
     RoundingFunctionType as RoundingFunction,
 )
 from ..model.model import Model, _ModelInit
-from .tickers import Ticker
+from .tickers import ScaledTicker, Ticker
 
 class _TickFormatterInit(_ModelInit, total=False):
     ...
@@ -42,6 +43,30 @@ class BasicTickFormatter(TickFormatter):
     use_scientific: bool = ...
     power_limit_high: int = ...
     power_limit_low: int = ...
+
+class _ScaledTickFormatterInit(_TickFormatterInit, total=False):
+    ticker: ScaledTicker | None
+    formatter: TickFormatter
+    base_label: TextLike
+    prefix: TextLike
+    suffix: TextLike
+    unit_style: Literal["always", "except_zero", "symbolic"]
+    use_fractions: bool
+    fraction_style: Literal["stacked", "inline"]
+    max_denominator: int
+
+class ScaledTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_ScaledTickFormatterInit]) -> None: ...
+
+    ticker: ScaledTicker | None = ...
+    formatter: TickFormatter = ...
+    base_label: TextLike = ...
+    prefix: TextLike = ...
+    suffix: TextLike = ...
+    unit_style: Literal["always", "except_zero", "symbolic"] = ...
+    use_fractions: bool = ...
+    fraction_style: Literal["stacked", "inline"] = ...
+    max_denominator: int = ...
 
 class _MercatorTickFormatterInit(_BasicTickFormatterInit, total=False):
     dimension: LatLon | None
