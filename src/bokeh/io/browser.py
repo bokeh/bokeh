@@ -582,7 +582,8 @@ def _reset_after_fork() -> None:
     playwright_control = _PlaywrightState()
 
 
-if hasattr(os, "register_at_fork"):
-    os.register_at_fork(after_in_child=_reset_after_fork)
+_register_at_fork = cast("Callable[..., None] | None", getattr(os, "register_at_fork", None))
+if _register_at_fork is not None:
+    _register_at_fork(after_in_child=_reset_after_fork)
 
 atexit.register(_cleanup)
