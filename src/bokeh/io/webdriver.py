@@ -4,8 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+'''Selenium-based browser backend for PNG/SVG export.
 
+.. deprecated:: 4.0.0
+    Use the Playwright export backend in :mod:`bokeh.io.browser` instead.
 '''
 
 #-----------------------------------------------------------------------------

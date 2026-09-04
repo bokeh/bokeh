@@ -9,30 +9,30 @@ Additional dependencies
 -----------------------
 
 To use Bokeh's export functions, you need a headless browser backend.
-Bokeh supports two options: `Playwright`_ and `Selenium`_.
+Bokeh uses `Playwright`_ by default and temporarily retains the deprecated
+`Selenium`_ backend for compatibility.
 
 Using Playwright
 ~~~~~~~~~~~~~~~~
 
-Playwright is fast and easy to install:
+Playwright is the default export backend. Install the optional export
+dependencies and Chromium with:
 
 .. code-block:: sh
 
-    pip install playwright
-    playwright install chromium
+    pip install "bokeh[export]"
+    playwright install --only-shell chromium
 
-Separate browser driver binaries do not have to be managed.
+You can also install the ``playwright`` package directly. Separate browser
+driver binaries do not have to be managed. Bokeh only requires Chromium's
+headless shell for export.
 
-.. note::
+Using Selenium (deprecated)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Currently, when both Playwright and Selenium are installed, Bokeh defaults
-    to Selenium to preserve existing behaviour. To opt in to Playwright,
-    set ``BOKEH_EXPORT_BACKEND=playwright`` or pass ``backend="playwright"``
-    to export functions. See :ref:`ug_output_export_backend` below. This
-    default order may change in a future release.
-
-Using Selenium
-~~~~~~~~~~~~~~
+.. deprecated:: 4.0.0
+    The Selenium export backend is deprecated and will be removed in a future
+    release. Use Playwright for new code.
 
 Selenium requires both the ``selenium`` Python package and a
 `web driver`_ binary on your PATH:
@@ -124,10 +124,9 @@ use ``conda`` and install Selenium together with geckodriver.
 Choosing a backend
 ------------------
 
-By default (``auto``), Bokeh tries Selenium first and falls back to
-Playwright. This preserves existing behaviour for users who already have
-Selenium installed. If only Playwright is installed, it is used
-automatically. You can override the auto-detection in three ways:
+Bokeh uses Playwright by default. You can select a backend in three ways. The
+``auto`` setting also prefers Playwright, but falls back to the deprecated
+Selenium backend when Playwright is not installed.
 
 **Environment variable** — set ``BOKEH_EXPORT_BACKEND`` to one of
 ``auto``, ``playwright``, or ``selenium``:
@@ -148,7 +147,9 @@ You can also pass a browser instance directly to any export function using the
 ``webdriver`` keyword argument. This accepts a Selenium ``WebDriver`` or a
 Playwright ``Browser`` / ``BrowserContext``. The appropriate backend is
 selected automatically from the type of instance passed, overriding the
-``backend`` parameter and the ``export_backend`` setting.
+``backend`` parameter and the ``export_backend`` setting. Passing a Selenium
+``WebDriver`` selects the deprecated Selenium backend and emits a deprecation
+warning.
 
 **Global settings** — update the ``export_backend`` setting:
 
