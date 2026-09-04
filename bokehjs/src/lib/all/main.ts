@@ -4,6 +4,8 @@ export * from "../models/glyphs/webgl/index"
 export * from "../models/text/mathjax/index"
 export * from "../models/widgets/index"
 export * from "../models/widgets/tables/index"
+export {mount, BokehMount} from "../api/io"
+export type {MountOptions, Showable} from "../api/io"
 
 import "../main"
 import "../api/main"

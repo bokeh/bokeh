@@ -9,6 +9,7 @@ import * as hittest from "core/hittest"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {LineGL} from "./webgl/line_gl"
+import type {BaseGLGlyphClass} from "./webgl/base"
 
 export interface LineView extends Line.Data {}
 
@@ -19,7 +20,7 @@ export class LineView extends XYGlyphView {
   /** @internal */
   declare glglyph?: LineGL
 
-  override async load_glglyph() {
+  override async load_glglyph(): Promise<BaseGLGlyphClass> {
     const {LineGL} = await import("./webgl/line_gl")
     return LineGL
   }

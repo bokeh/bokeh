@@ -7,6 +7,8 @@ export type BaseGLGlyphConstructor = {
   new(regl: ReglWrapper, base_glyph: GlyphView): BaseGLGlyph
 }
 
+export type BaseGLGlyphClass = Function & {prototype: BaseGLGlyph}
+
 export abstract class BaseGLGlyph {
   protected nvertices: number = 0
   protected size_changed: boolean = false

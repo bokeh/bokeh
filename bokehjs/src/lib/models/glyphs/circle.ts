@@ -6,6 +6,7 @@ import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {CircleGL} from "./webgl/circle"
+import type {BaseGLGlyphClass} from "./webgl/base"
 
 export interface CircleView extends Circle.Data {}
 
@@ -16,7 +17,7 @@ export class CircleView extends RadialGlyphView {
   /** @internal */
   declare glglyph?: CircleGL
 
-  override async load_glglyph() {
+  override async load_glglyph(): Promise<BaseGLGlyphClass> {
     const {CircleGL} = await import("./webgl/circle")
     return CircleGL
   }

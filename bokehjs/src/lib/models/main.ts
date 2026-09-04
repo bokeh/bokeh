@@ -1,8 +1,5 @@
-import {register_models} from "../base"
+import {register_standard_models} from "./register"
 
-import * as AllModels from "./"
-register_models(AllModels)
+register_standard_models()
 
-import * as DOMModels from "./dom"
-const {GlobalInlineStyleSheet, ...unregisteredDOMModels} = DOMModels
-register_models(unregisteredDOMModels)
+export {register_standard_models} from "./register"

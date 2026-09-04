@@ -30,6 +30,7 @@ import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import type {ToolAliases} from "../tools/tool"
 import {Tool} from "../tools/tool"
+import {ensure_tool_aliases} from "../tools/aliases"
 import {DataRange1d} from "../ranges/data_range1d"
 import {StyledElement} from "../ui/styled_element"
 
@@ -250,6 +251,7 @@ export class Plot extends LayoutDOM {
   }
 
   add_tools(...tools: (Tool | keyof ToolAliases)[]): void {
+    ensure_tool_aliases()
     const computed_tools = tools.map((tool) => tool instanceof Tool ? tool : Tool.from_string(tool))
     this.toolbar.tools = [...this.toolbar.tools, ...computed_tools]
   }
