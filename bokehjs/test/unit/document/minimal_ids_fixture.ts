@@ -50,6 +50,7 @@ export const fixture_data = JSON.parse(String.raw`{
             "type": "object",
             "name": "CustomJS",
             "attributes": {
+              "name": "semantic-primary",
               "args": {
                 "type": "map",
                 "entries": [
