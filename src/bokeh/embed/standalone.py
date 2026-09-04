@@ -23,12 +23,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    NoReturn,
-    Sequence,
-)
+from typing import TYPE_CHECKING, Any, Sequence
 
 # Bokeh imports
 from ..core.templates import FILE
@@ -49,7 +44,6 @@ __all__ = (
     'autoload_static',
     'components',
     'file_html',
-    'json_item',
 )
 
 #-----------------------------------------------------------------------------
@@ -67,7 +61,7 @@ def autoload_static(model: Model | Document, resources: Resources, script_path: 
     )
 
 def components(models: Model | Document | Sequence[Model | Document] | dict[str, Model | Document],
-        *removed_flags: Any, theme: ThemeSource = None, **removed_keywords: Any) -> tuple[str, Any]:
+        *, theme: ThemeSource = None) -> tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -133,18 +127,11 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
             # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
 
     '''
-    if removed_flags or removed_keywords:
-        names = ", ".join(["positional wrapping flags", *sorted(removed_keywords)])
-        raise EmbedMigrationError(
-            f"components() wrapping controls were removed in Bokeh 4.0 ({names}). "
-            "Use embed(models).fragment(resources='none') and its script, mounts, and divs fields.",
-        )
-
     from .compiler import embed
 
     artifact = embed(models, theme=theme)
     if artifact.requires.extensions:
-        raise EmbedMigrationError(
+        raise ValueError(
             "components() cannot express custom extension resource ownership in its legacy tuple. "
             "Use embed(models).fragment(resources=...) and choose an explicit resource policy.",
         )
@@ -168,7 +155,6 @@ def file_html(
     template_variables: dict[str, Any] | None = None,
     theme: ThemeSource = None,
     suppress_callback_warning: bool = False,
-    _always_new: bool = False,
 ) -> str:
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
@@ -216,18 +202,10 @@ def file_html(
     from .compiler import embed
 
     callback_policy = "suppress" if suppress_callback_warning else "warn"
-    artifact = embed(models, theme=theme, callback_policy=callback_policy, _always_new=_always_new)
+    artifact = embed(models, theme=theme, callback_policy=callback_policy)
     return artifact.page(
         resources=resources,
         title=title,
         template=template,
         template_variables=template_variables,
-    )
-
-def json_item(model: Model, target: str | None = None, theme: ThemeSource = None) -> NoReturn:
-    """Raise with the Bokeh 4.0 JSON-artifact migration route."""
-    raise EmbedMigrationError(
-        "json_item() and the JsonItem envelope were removed in Bokeh 4.0. "
-        "Return embed(model).to_json() from the endpoint and call Bokeh.mount(artifact, {targets: ...}) "
-        "in the browser; targets are no longer stored in reusable payloads.",
     )

@@ -11,16 +11,19 @@ from __future__ import annotations
 # Standard library imports
 import logging
 from collections.abc import Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Iterator, Literal
 
 # Bokeh imports
-from ..document import Document
-from ..model import Model
+from ..document import DEFAULT_TITLE, Document
+from ..model import Model, collect_models
 from ..resources import DEFAULT_SERVER_HTTP_URL
+from ..settings import settings
+from ..themes import Theme
 from .artifact import ArtifactRoot, EmbedArtifact
 from .resources import ResourceRequirements, requirements_for_objs
-from .util import OutputDocumentFor, ThemeSource, submodel_has_python_callbacks
+from .util import FromCurdoc, ThemeSource, submodel_has_python_callbacks
 
 log = logging.getLogger(__name__)
 
@@ -40,8 +43,8 @@ class EmbedSpec:
 
     ``models`` and ``keys`` are parallel ordered tuples. ``input_shape`` records
     the caller-facing form for diagnostics and metadata; the remaining fields
-    control theme application, callback validation, metadata, and temporary
-    document reuse. Hosts should normally call :func:`embed` rather than build
+    control theme application, callback validation, metadata, and serialization.
+    Hosts should normally call :func:`embed` rather than build
     a specification directly.
     '''
     models: tuple[Model, ...]
@@ -50,7 +53,6 @@ class EmbedSpec:
     theme: ThemeSource = None
     callback_policy: CallbackPolicy = "warn"
     metadata: Mapping[str, Any] | None = None
-    always_new: bool = False
     serialization: SerializationPolicy = "static"
 
     def __post_init__(self) -> None:
@@ -73,7 +75,7 @@ class EmbedSpec:
 
 
 def embed(models: EmbedInput, *, theme: ThemeSource = None, callback_policy: CallbackPolicy = "warn",
-        metadata: Mapping[str, Any] | None = None, _always_new: bool = False) -> EmbedArtifact:
+        metadata: Mapping[str, Any] | None = None) -> EmbedArtifact:
     """Compile standalone Bokeh content into one portable embedding artifact.
 
     Mapping keys become stable logical root keys. Sequences receive ordinal
@@ -81,14 +83,13 @@ def embed(models: EmbedInput, *, theme: ThemeSource = None, callback_policy: Cal
     resource requirements but does not choose how a host delivers them.
     """
     spec = _standalone_spec(
-        models, theme=theme, callback_policy=callback_policy, metadata=metadata, always_new=_always_new,
+        models, theme=theme, callback_policy=callback_policy, metadata=metadata,
     )
     return compile_embed(spec)
 
 
 def embed_protocol(models: EmbedInput, *, theme: ThemeSource = None,
-        callback_policy: CallbackPolicy = "warn", metadata: Mapping[str, Any] | None = None,
-        _always_new: bool = False) -> EmbedArtifact:
+        callback_policy: CallbackPolicy = "warn", metadata: Mapping[str, Any] | None = None) -> EmbedArtifact:
     """Compile an ID-full artifact for a live protocol boundary.
 
     Static embedding should use :func:`embed`. Notebook comms and other live
@@ -97,7 +98,7 @@ def embed_protocol(models: EmbedInput, *, theme: ThemeSource = None,
     """
     spec = _standalone_spec(
         models, theme=theme, callback_policy=callback_policy, metadata=metadata,
-        always_new=_always_new, serialization="protocol",
+        serialization="protocol",
     )
     return compile_embed(spec)
 
@@ -113,7 +114,7 @@ def compile_embed(spec: EmbedSpec) -> EmbedArtifact:
         if spec.callback_policy == "warn":
             log.warning(message)
 
-    with OutputDocumentFor(spec.models, apply_theme=spec.theme, always_new=spec.always_new) as document:
+    with _compiler_document(spec.models, spec.theme) as document:
         positions = {model: index for index, model in enumerate(document.roots)}
         try:
             roots = tuple(ArtifactRoot(key, document=0, root=positions[model]) for key, model in zip(spec.keys, spec.models))
@@ -194,7 +195,7 @@ def embed_server(url: str = "default", *, session_id: str | None = None,
 
 
 def _standalone_spec(models: EmbedInput, *, theme: ThemeSource, callback_policy: CallbackPolicy,
-        metadata: Mapping[str, Any] | None, always_new: bool,
+        metadata: Mapping[str, Any] | None,
         serialization: SerializationPolicy = "static") -> EmbedSpec:
     roots: list[Model] = []
     keys: list[str] = []
@@ -245,8 +246,60 @@ def _standalone_spec(models: EmbedInput, *, theme: ThemeSource, callback_policy:
         raise EmbedCompileError("logical artifact root keys must be unique")
     return EmbedSpec(
         tuple(roots), tuple(keys), input_shape, theme, callback_policy, metadata,
-        always_new, serialization,
+        serialization,
     )
+
+
+def _complete_source_document(models: Sequence[Model]) -> Document | None:
+    documents = {model.document for model in models if model.document is not None}
+    if len(documents) != 1:
+        return None
+    document = documents.pop()
+    return document if set(models) == set(document.roots) else None
+
+
+@contextmanager
+def _compiler_document(models: Sequence[Model], theme: ThemeSource) -> Iterator[Document]:
+    """Stage roots in an ephemeral document without changing their ownership."""
+    source = _complete_source_document(models)
+    document = Document(title=source.title if source is not None else DEFAULT_TITLE)
+
+    if source is not None:
+        document._config = source.config
+        callbacks = source.callbacks.js_event_callbacks
+    else:
+        from ..io import curdoc
+        callbacks = curdoc().callbacks.js_event_callbacks
+
+    document.callbacks._js_event_callbacks.update(
+        (event, list(event_callbacks)) for event, event_callbacks in callbacks.items()
+    )
+
+    compiler_theme: Theme | str | None = None
+    if theme is FromCurdoc:
+        from ..io import curdoc
+        compiler_theme = curdoc().theme
+    elif isinstance(theme, (Theme, str)):
+        compiler_theme = theme
+    elif source is not None:
+        compiler_theme = source.theme
+
+    staged = collect_models(document.config, models, document.callbacks.js_event_callbacks)
+    previous = [(model, model._temp_document, model.themed_values()) for model in staged]
+    try:
+        for model in staged:
+            document.models[model.id] = model
+            model._temp_document = document
+        document._roots = list(models)
+        if compiler_theme is not None:
+            document.theme = compiler_theme
+        if settings.perform_document_validation():
+            document.validate()
+        yield document
+    finally:
+        for model, previous_document, previous_theme in previous:
+            model.apply_theme(previous_theme or {})
+            model._temp_document = previous_document
 
 
 __all__ = (

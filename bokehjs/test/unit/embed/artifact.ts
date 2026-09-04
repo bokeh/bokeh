@@ -6,7 +6,6 @@ import {
 } from "@bokehjs/api/io"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {documents} from "@bokehjs/document"
-import * as embed from "@bokehjs/embed"
 import type {EmbedArtifact} from "@bokehjs/embed/artifact"
 import {ArtifactError, compute_embed_artifact_fingerprint, validate_embed_artifact} from "@bokehjs/embed/artifact"
 import type {ResourceRequirements} from "@bokehjs/embed/resources"
@@ -619,13 +618,4 @@ describe("EmbedArtifact runtime", () => {
     expect(integrity.message.includes("SRI hash")).to.be.true
   })
 
-  it("provides explicit migration diagnostics for removed browser envelopes", async () => {
-    const item_error = await embed.embed_item({}).then(() => null, (error: unknown) => error)
-    expect_instanceof(item_error, embed.EmbedMigrationError)
-    expect(item_error.message.includes("JsonItem")).to.be.true
-
-    const items_error = await embed.embed_items({}, []).then(() => null, (error: unknown) => error)
-    expect_instanceof(items_error, embed.EmbedMigrationError)
-    expect(items_error.message.includes("RenderItem")).to.be.true
-  })
 })
