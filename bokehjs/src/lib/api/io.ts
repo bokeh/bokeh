@@ -19,19 +19,30 @@ declare const $: Jq
 export type ShowableRoot = UIElement | DOMNode
 export type Showable = ShowableRoot | readonly ShowableRoot[]
 
+/** Stable caller-defined address for one root within a mount. */
 export type RootKey = string
+/** Caller-owned DOM destination, provided directly or by selector. */
 export type MountTarget = EmbedTarget | string
+/** Models addressed by logical root key; a model may appear under only one key. */
 export type KeyedRoots<T extends HasProps = HasProps> = ReadonlyMap<RootKey, T> | Readonly<Record<RootKey, T>>
+/** Per-root destinations. Missing or null entries keep that root detached. */
 export type MountTargets = ReadonlyMap<RootKey, MountTarget | null> | Readonly<Record<RootKey, MountTarget | null>>
+/** Whether the caller or mount must destroy the source document. */
 export type DocumentOwnership = "caller" | "mount"
 
+/** Resources whose cleanup is assigned to a mount handle. */
 export type MountOwnership = {
   readonly document: DocumentOwnership
   readonly views: "mount"
   readonly targets: "caller"
 }
 
-/** A normalized runtime source for one document and its addressable logical roots. */
+/**
+ * A decoded runtime source for one document and its addressable logical roots.
+ *
+ * Sources built from an existing document are caller-owned. Sources built from
+ * unattached roots create a temporary document which the resulting mount owns.
+ */
 export class MountSource<T extends HasProps = HasProps> {
   readonly roots: ReadonlyMap<RootKey, T>
 
@@ -97,10 +108,13 @@ export class MountSource<T extends HasProps = HasProps> {
   }
 }
 
+/** Already-decoded content accepted by the core mount lifecycle. */
 export type Mountable = MountSource | Document | ShowableRoot | readonly ShowableRoot[] | KeyedRoots<HasProps>
 
+/** Phase-independent category for a structured mount failure. */
 export type MountErrorKind = "source" | "target" | "render" | "abort" | "disposed"
 
+/** Error reported by mount readiness, mutation, discovery, or disposal. */
 export class MountError extends Error {
   override readonly name = "BokehMountError"
 
@@ -114,16 +128,22 @@ export class MountError extends Error {
   }
 }
 
+/** Observable lifecycle state of a `BokehMount`. */
 export type MountState = "pending" | "ready" | "failed" | "disposed"
 
+/** Caller choices for targeting, cancellation, page-title use, and error observation. */
 export type MountOptions = {
+  /** Cancels pending work and disposes work already owned by the mount. */
   signal?: AbortSignal
   /** Caller-owned DOM targets addressed by logical root key. Missing or null entries remain detached. */
   targets?: MountTargets
+  /** Allow the mounted document to update the browser page title. */
   use_for_title?: boolean
+  /** Called for every structured failure before the same error rejects an operation. */
   on_error?(error: MountError): void
 }
 
+/** Cancellation options for target-local mount discovery. */
 export type WhenMountedOptions = {
   signal?: AbortSignal
 }
@@ -315,6 +335,14 @@ async function resolve_target(target: MountTarget | undefined, script: HTMLScrip
   }
 }
 
+/**
+ * Owning lifecycle handle for Bokeh content attached to caller-owned targets.
+ *
+ * The handle is returned immediately. Await `ready` before reading views or
+ * changing attachments. `dispose()` is idempotent and releases every resource
+ * listed by `ownership`; `when_disposed` also resolves after initialization
+ * failure or early cancellation.
+ */
 export class BokehMount<T extends HasProps = HasProps> {
   private _state: MountState = "pending"
   private _error: MountError | null = null
@@ -324,8 +352,11 @@ export class BokehMount<T extends HasProps = HasProps> {
   private readonly _on_abort = () => this._abort(this.signal?.reason)
   private _resolve_disposed!: () => void
 
+  /** Exact document/view/target responsibilities for this handle. */
   readonly ownership: MountOwnership
+  /** Resolves when initial roots are attached; rejects with `MountError`. */
   readonly ready: Promise<void>
+  /** Resolves after cleanup for success, failure, cancellation, or explicit disposal. */
   readonly when_disposed: Promise<void>
 
   constructor(
@@ -374,10 +405,12 @@ export class BokehMount<T extends HasProps = HasProps> {
 
   private readonly _mount: StandaloneMount
 
+  /** Source document shared by every keyed root. */
   get document(): Document {
     return this._source.document
   }
 
+  /** Logical root keys in deterministic source order. */
   get root_keys(): readonly RootKey[] {
     return this._mount.root_keys
   }
@@ -402,14 +435,17 @@ export class BokehMount<T extends HasProps = HasProps> {
     return this._mount.views
   }
 
+  /** Return a source root by logical key, independently of attachment state. */
   root(key: RootKey): T | null {
     return this._mount.root(key) as T | null
   }
 
+  /** Return the currently attached root view, or null while detached. */
   view(key: RootKey): ViewOf<T> | null {
     return this._mount.view(key) as ViewOf<T> | null
   }
 
+  /** Return the caller-owned target currently associated with a root. */
   target(key: RootKey): EmbedTarget | null {
     return this._mount.target(key)
   }
@@ -540,6 +576,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     }
   }
 
+  /** Attach or move one root after readiness without replacing the mount handle. */
   async attach(key: RootKey, target: MountTarget): Promise<ViewOf<T> | null> {
     this._suppressed_roots.delete(key)
     await this.ready
@@ -561,10 +598,12 @@ export class BokehMount<T extends HasProps = HasProps> {
     }
   }
 
+  /** Alias for `attach()` emphasizing replacement of a root's current target. */
   replace_target(key: RootKey, target: MountTarget): Promise<ViewOf<T> | null> {
     return this.attach(key, target)
   }
 
+  /** Remove one root view while preserving its model, document, and sibling roots. */
   detach(key: RootKey): void {
     if (!this.roots.has(key)) {
       throw new MountError("source", `unknown Bokeh mount root '${key}'`, undefined, key)
@@ -582,6 +621,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     void this.dispose()
   }
 
+  /** Release owned views and documents and remove every target publication. */
   dispose(): Promise<void> {
     if (this._state == "disposed") {
       return this.when_disposed
@@ -600,6 +640,10 @@ export class BokehMount<T extends HasProps = HasProps> {
   }
 }
 
+/**
+ * Establish an owned relationship between decoded Bokeh content and DOM targets.
+ * Returns the handle immediately; await `handle.ready` for completed rendering.
+ */
 export function mount<T extends ShowableRoot>(source: T, options?: MountOptions): BokehMount<T>
 export function mount<T extends ShowableRoot>(source: T, target?: MountTarget, options?: MountOptions): BokehMount<T>
 export function mount<T extends ShowableRoot>(source: readonly T[], options?: MountOptions): BokehMount<T>

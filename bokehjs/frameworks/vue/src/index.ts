@@ -5,17 +5,20 @@ import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
 import {DocumentMountController, MountController} from "@bokeh/framework"
 import type {BokehModel, BokehRootModel} from "@bokeh/framework"
 
+/** Reactive options and callbacks for a Vue-owned Bokeh mount. */
 export type UseBokehOptions = {
   mountOptions?: MaybeRefOrGetter<MountOptions | undefined>
   onMounted?(mounted: BokehMount): void
   onError?(error: unknown): void
 }
 
+/** Reactive readiness/error state returned by `useBokeh()`. */
 export type UseBokehResult = {
   mounted: ShallowRef<BokehMount | null>
   error: ShallowRef<unknown>
 }
 
+/** Mount reactive Bokeh content and dispose it with the current Vue scope. */
 export function useBokeh(model: MaybeRefOrGetter<BokehModel | null>, target: Ref<HTMLElement | null>,
     options: UseBokehOptions = {}): UseBokehResult {
   const mounted = shallowRef<BokehMount | null>(null)
@@ -63,6 +66,7 @@ export function useBokeh(model: MaybeRefOrGetter<BokehModel | null>, target: Ref
   return {mounted, error}
 }
 
+/** Component that owns one Bokeh target and lifecycle handle. */
 export const Bokeh = defineComponent({
   name: "Bokeh",
   inheritAttrs: false,
@@ -89,6 +93,7 @@ export const Bokeh = defineComponent({
 
 const BokehDocumentKey: InjectionKey<DocumentMountController> = Symbol("BokehDocument")
 
+/** Provider for one shared mount and its descendant keyed root slots. */
 export const BokehDocument = defineComponent({
   name: "BokehDocument",
   props: {
@@ -120,6 +125,7 @@ export const BokehDocument = defineComponent({
   },
 })
 
+/** Target slot for one model declared by the nearest `BokehDocument`. */
 export const BokehRoot = defineComponent({
   name: "BokehRoot",
   inheritAttrs: false,

@@ -11,7 +11,6 @@ import {HTML} from "@bokehjs/models/dom"
 import {Button} from "@bokehjs/models/widgets"
 
 describe("Examples", () => {
-  // Allow a few Linux antialiasing differences around the bold button labels.
   it.allowing(10)("should support Dialog", async () => {
     const random = new Random(1)
 

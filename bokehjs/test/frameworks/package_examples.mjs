@@ -22,6 +22,23 @@ const examples = [
   "web-component-webpack",
 ]
 
+// Keep the published examples concise; specialized lifecycle controls belong in
+// test-only entry points that are overlaid when the packed-package matrix runs.
+const applications = [
+  ...examples.map((name) => ({
+    name,
+    source: name,
+    package_name: `@bokeh-example/${name}`,
+    entry_point: null,
+  })),
+  {
+    name: "angular-lifecycle",
+    source: "angular-ng",
+    package_name: "@bokeh-test/angular-lifecycle",
+    entry_point: join(frameworks_dir, "apps/angular/src/main.ts"),
+  },
+]
+
 const package_dirs = new Map([
   ["@bokeh/bokehjs", bokehjs_dir],
   ["@bokeh/framework", join(bokehjs_dir, "frameworks/base")],
@@ -84,12 +101,16 @@ for (const [name, cwd] of package_dirs) {
   tarballs.set(name, await pack(name, cwd))
 }
 
-for (const example of examples) {
-  const destination = join(workspace_dir, example)
-  cpSync(join(examples_dir, example), destination, {recursive: true})
+for (const {name, source, package_name, entry_point} of applications) {
+  const destination = join(workspace_dir, name)
+  cpSync(join(examples_dir, source), destination, {recursive: true})
+  if (entry_point != null) {
+    cpSync(entry_point, join(destination, "src/main.ts"))
+  }
 
   const package_path = join(destination, "package.json")
   const pkg = JSON.parse(readFileSync(package_path, "utf-8"))
+  pkg.name = package_name
   for (const section of ["dependencies", "devDependencies"]) {
     for (const name of Object.keys(pkg[section] ?? {})) {
       const tarball = tarballs.get(name)
@@ -105,16 +126,16 @@ writeFileSync(join(workspace_dir, "package.json"), `${JSON.stringify({
   name: "bokeh-framework-examples",
   private: true,
   version: "0.0.0",
-  workspaces: examples,
+  workspaces: applications.map(({name}) => name),
   dependencies: Object.fromEntries(
     [...tarballs].map(([name, tarball]) => [name, `file:${relative(workspace_dir, tarball)}`]),
   ),
 }, null, 2)}\n`)
 
 await run("npm", ["install", "--no-audit", "--no-fund"], workspace_dir)
-for (const example of examples) {
-  await run("npm", ["run", "build", "--workspace", `@bokeh-example/${example}`], workspace_dir)
-  verify_bundle_budget(example, join(workspace_dir, example))
+for (const {name, package_name} of applications) {
+  await run("npm", ["run", "build", "--workspace", package_name], workspace_dir)
+  verify_bundle_budget(name, join(workspace_dir, name))
 }
 
 console.log(`packed framework examples built in ${workspace_dir}`)

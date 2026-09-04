@@ -5,18 +5,21 @@ import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
 import {DocumentMountController, MountController} from "@bokeh/framework"
 import type {BokehModel, BokehRootModel} from "@bokeh/framework"
 
+/** Options and callbacks for a React-owned Bokeh mount. */
 export type UseBokehOptions = {
   mountOptions?: MountOptions
   onMounted?(mounted: BokehMount): void
   onError?(error: unknown): void
 }
 
+/** Reactive state and target ref returned by `useBokeh()`. */
 export type UseBokehResult = {
   ref: RefCallback<HTMLDivElement>
   mounted: BokehMount | null
   error: unknown
 }
 
+/** Mount a source into the returned ref and dispose it on dependency cleanup. */
 export function useBokeh(model: BokehModel | null, options: UseBokehOptions = {}): UseBokehResult {
   const [target, setTarget] = useState<HTMLDivElement | null>(null)
   const [mounted, setMounted] = useState<BokehMount | null>(null)
@@ -61,6 +64,7 @@ export type BokehProps = Omit<HTMLAttributes<HTMLDivElement>, "children" | "onEr
   model: BokehModel
 }
 
+/** Render one React-owned target backed by a core `BokehMount`. */
 export function Bokeh({model, mountOptions, onMounted, onError, ...attributes}: BokehProps): ReactElement {
   const {ref} = useBokeh(model, {mountOptions, onMounted, onError})
   return createElement("div", {...attributes, ref})
@@ -74,6 +78,7 @@ export type BokehDocumentProps = UseBokehOptions & {
 
 const BokehDocumentContext = createContext<DocumentMountController | null>(null)
 
+/** Provide one shared mount whose roots render through descendant `BokehRoot` slots. */
 export function BokehDocument({models, mountOptions, onMounted, onError, children}: BokehDocumentProps): ReactElement {
   const controller = useRef<DocumentMountController | null>(null)
   controller.current ??= new DocumentMountController()
@@ -99,6 +104,7 @@ export type BokehRootProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & 
   model: BokehRootModel
 }
 
+/** Attach one model from the nearest `BokehDocument` without replacing siblings. */
 export function BokehRoot({model, ...attributes}: BokehRootProps): ReactElement {
   const controller = useContext(BokehDocumentContext)
   if (controller == null) {

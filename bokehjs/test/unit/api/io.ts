@@ -154,6 +154,8 @@ describe("in api/plotting module", () => {
       expect(await discovery).to.be.equal(failed)
       const error = await failed.ready.then(() => null, (error: unknown) => error)
       expect(error).to.be.instanceof(MountError)
+      await failed.when_disposed
+      expect(failed.disposed).to.be.true
       const mounted_error = error as MountError
       expect(target.bokehMount).to.be.undefined
       expect(target.bokehMountError).to.be.equal(mounted_error)
@@ -357,6 +359,7 @@ describe("in api/plotting module", () => {
       expect((error as MountError).root_key).to.be.undefined
       expect(mounted.state).to.be.equal("failed")
       expect(mounted.disposed).to.be.true
+      await mounted.when_disposed
       expect(errors).to.be.equal([error as MountError])
       expect(plot.document).to.be.null
       expect(documents.length).to.be.equal(documents_before)

@@ -3,15 +3,19 @@ import type {BokehMount, MountOptions, ShowableRoot} from "@bokeh/bokehjs"
 
 /** A Bokeh root, an array of roots, or a caller-owned Document. */
 export type BokehModel = Parameters<typeof mount>[0]
+/** One view-producing model accepted by a keyed document mount. */
 export type BokehRootModel = ShowableRoot
+/** Framework-owned destination whose contents Bokeh may manage. */
 export type BokehTarget = HTMLElement | DocumentFragment
 
+/** Observers for successful readiness, completed disposal, and mount failure. */
 export type MountCallbacks = {
   onMounted?(mounted: BokehMount): void
   onDisposed?(mounted: BokehMount): void
   onError?(error: unknown): void
 }
 
+/** One framework request, including options forwarded to core `mount()`. */
 export type MountRequest = MountCallbacks & {
   mountOptions?: MountOptions
 }
@@ -106,6 +110,7 @@ export class MountController {
     }
   }
 
+  /** Cancel pending readiness and dispose the currently published handle. */
   dispose(): void {
     const mounted = this._mounted
     this._generation += 1
@@ -148,6 +153,7 @@ export class DocumentMountController {
     return this._controller.mounted
   }
 
+  /** Replace the provider's root list while preserving a compatible shared mount. */
   update(models: readonly BokehRootModel[], request: MountRequest = {}): void {
     if (new Set(models).size != models.length) {
       throw new Error("a BokehDocument can't contain the same root more than once")
@@ -163,6 +169,7 @@ export class DocumentMountController {
     this._schedule()
   }
 
+  /** Attach one declared root and return an idempotent selective-detach callback. */
   attach(model: BokehRootModel, target: BokehTarget): () => void {
     const current = this._targets.get(model)
     if (current != null && current != target) {
@@ -181,6 +188,7 @@ export class DocumentMountController {
     }
   }
 
+  /** Dispose the shared mount and forget every root slot. */
   dispose(): void {
     this._models = []
     this._targets.clear()

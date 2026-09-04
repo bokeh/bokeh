@@ -201,6 +201,7 @@ export class StandaloneMount {
         return null
       }
 
+      this.document.notify_idle(model)
       this._root_views.set(key, view)
       this.on_targets_changed?.()
       return view
