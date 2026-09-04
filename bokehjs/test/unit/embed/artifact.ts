@@ -480,6 +480,22 @@ describe("EmbedArtifact runtime", () => {
     }]
     expect(() => validate_embed_artifact(module_style)).to.throw(ArtifactError, /style resources cannot be modules/)
 
+    const artifact_nonce = fixture("standalone-keyed-roots") as unknown as {
+      requires: {extensions: unknown[]}
+    }
+    artifact_nonce.requires.extensions = [{
+      name: "bad-nonce",
+      assets: [{kind: "script", content: "void 0", nonce: "artifact"}],
+    }]
+    expect(() => validate_embed_artifact(artifact_nonce)).to.throw(ArtifactError, /nonce is host-owned/)
+
+    const server = fixture("server-existing-session") as unknown as {source: {[key: string]: unknown}}
+    for (const [field, value] of [["session_id", 1], ["token", {}], ["relative_urls", "yes"]] as const) {
+      server.source[field] = value
+      expect(() => validate_embed_artifact(server)).to.throw(ArtifactError, new RegExp(field))
+      delete server.source[field]
+    }
+
     const duplicate_components = fixture("standalone-keyed-roots")
     duplicate_components.requires.components = ["bokeh/core", "bokeh/core"]
     expect(() => validate_embed_artifact(duplicate_components)).to.throw(ArtifactError, /components must be unique/)
@@ -598,6 +614,18 @@ describe("EmbedArtifact runtime", () => {
     expect_instanceof(error, ResourceError)
     expect(error.kind).to.be.equal("conflict")
     expect(error.message.includes("conflicting declarations")).to.be.true
+  })
+
+  it("applies the host CSP nonce to extension requirements", async () => {
+    const loader = new ResourceLoader()
+    const requirements: ResourceRequirements = {components: ["bokeh/core"], extensions: [{
+      name: "host-nonce",
+      assets: [{kind: "script", content: "void 0"}],
+    }]}
+    await loader.ensure(requirements, {mode: "cdn", nonce: "host-nonce"})
+    const script = document.querySelector<HTMLScriptElement>("script[data-bokeh-resource]")
+    expect_not_null(script)
+    expect(script.nonce).to.be.equal("host-nonce")
   })
 
   it("rejects offline URLs and unresolved integrity policies", async () => {

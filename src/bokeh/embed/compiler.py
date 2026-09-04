@@ -13,14 +13,19 @@ import logging
 from collections.abc import Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator, Literal
+from typing import (
+    Any,
+    Iterator,
+    Literal,
+    cast,
+)
 
 # Bokeh imports
 from ..document import DEFAULT_TITLE, Document
 from ..model import Model, collect_models
 from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..settings import settings
-from ..themes import Theme
+from ..themes import Theme, ThemeLike
 from .artifact import ArtifactRoot, EmbedArtifact
 from .resources import ResourceRequirements, requirements_for_objs
 from .util import FromCurdoc, ThemeSource, submodel_has_python_callbacks
@@ -229,7 +234,7 @@ def _standalone_spec(models: EmbedInput, *, theme: ThemeSource, callback_policy:
                 raise EmbedCompileError("embedding mapping keys must be non-empty strings")
             add(value, key)
         input_shape = "mapping"
-    elif isinstance(models, Sequence) and not isinstance(models, (str, bytes)):
+    elif isinstance(models, Sequence):
         for index, value in enumerate(models):
             add(value, f"root-{index}")
         input_shape = "sequence"
@@ -275,12 +280,14 @@ def _compiler_document(models: Sequence[Model], theme: ThemeSource) -> Iterator[
         (event, list(event_callbacks)) for event, event_callbacks in callbacks.items()
     )
 
-    compiler_theme: Theme | str | None = None
+    compiler_theme: ThemeLike = None
     if theme is FromCurdoc:
         from ..io import curdoc
         compiler_theme = curdoc().theme
-    elif isinstance(theme, (Theme, str)):
+    elif isinstance(theme, Theme):
         compiler_theme = theme
+    elif isinstance(theme, str):
+        compiler_theme = cast(ThemeLike, theme)
     elif source is not None:
         compiler_theme = source.theme
 

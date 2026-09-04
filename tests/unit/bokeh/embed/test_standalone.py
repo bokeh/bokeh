@@ -17,12 +17,13 @@ import pytest
 # Bokeh imports
 import bokeh.embed.standalone as bes
 from bokeh.document import Document
+from bokeh.models.plots import Plot
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 
 
 @pytest.fixture
-def test_plot():
+def test_plot() -> Plot:
     plot = figure(title="'foo'")
     plot.scatter([1, 2], [2, 3])
     return plot
@@ -46,7 +47,7 @@ class Test_components:
         _, ordered = bes.components(OrderedDict((("one", plot1), ("two", plot2))))
         assert isinstance(ordered, OrderedDict)
 
-    def test_uses_artifact_declarations_and_logical_targets(self, test_plot) -> None:
+    def test_uses_artifact_declarations_and_logical_targets(self, test_plot: Plot) -> None:
         bs4 = pytest.importorskip("bs4")
         script, div = bes.components(test_plot)
 
@@ -62,13 +63,13 @@ class Test_components:
         assert "data-root-id" not in target.attrs
 
 class Test_file_html:
-    def test_returns_artifact_page_and_escapes_title(self, test_plot) -> None:
+    def test_returns_artifact_page_and_escapes_title(self, test_plot: Plot) -> None:
         html = bes.file_html(test_plot, CDN, "&<")
         assert "<title>&amp;&lt;</title>" in html
         assert "application/vnd.bokeh.embed+json" in html
         assert "mount_artifact_declaration" in html
 
-    def test_custom_template_receives_new_and_compatibility_context(self, test_plot) -> None:
+    def test_custom_template_receives_new_and_compatibility_context(self, test_plot: Plot) -> None:
         class TemplateProbe:
             def render(self, values: dict[str, Any]) -> str:
                 assert {
@@ -86,7 +87,7 @@ class Test_file_html:
         ) == "template result"
 
     def test_does_not_pull_unselected_document_roots(self) -> None:
-        from bokeh.models import Button
+        from bokeh.models.widgets.buttons import Button
 
         plot = figure()
         document = Document()

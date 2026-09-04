@@ -17,6 +17,7 @@ from types import SimpleNamespace
 from typing import Any
 
 # External imports
+import numpy as np
 import pytest
 
 # Bokeh imports
@@ -120,11 +121,27 @@ def test_fingerprint_normalizes_integral_json_numbers() -> None:
     assert first.to_json_string() == first.to_json_string()
 
 
-@pytest.mark.parametrize("value", [float("nan"), float("inf"), 2**53, 1e20, 1e21])
+def test_artifact_accepts_float_subclasses() -> None:
+    artifact = embed(CustomJS(code="return"))
+    actual = EmbedArtifact(artifact.source, artifact.roots, artifact.requires, {"value": np.float64(1.25)})
+
+    assert actual.metadata == {"value": 1.25}
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), 2**53])
 def test_artifact_rejects_numbers_that_javascript_cannot_fingerprint(value: float | int) -> None:
     artifact = embed(CustomJS(code="return"))
     with pytest.raises(ArtifactValidationError, match=r"finite|safe integer"):
         EmbedArtifact(artifact.source, artifact.roots, artifact.requires, {"value": value})
+
+
+@pytest.mark.parametrize("value", [float(2**53), 1e20, 1e21, 1e22])
+def test_artifact_accepts_large_finite_floats(value: float) -> None:
+    artifact = embed(CustomJS(code="return"))
+    actual = EmbedArtifact(artifact.source, artifact.roots, artifact.requires, {"value": value})
+
+    assert actual.metadata == {"value": value}
+    assert isinstance(actual.metadata["value"], float)
 
 
 def test_resource_requirement_inputs_are_canonicalized_to_tuples() -> None:
@@ -204,6 +221,13 @@ def test_artifact_round_trip_validates_fingerprint_and_schema() -> None:
                 "assets": [{"kind": "bogus", "content": "void 0"}],
             }]),
             "kind must be 'script' or 'style'",
+        ),
+        (
+            lambda value: value["requires"].update(extensions=[{
+                "name": "bad",
+                "assets": [{"kind": "script", "content": "void 0", "nonce": "artifact"}],
+            }]),
+            "nonce is host-owned",
         ),
     ],
 )
@@ -388,7 +412,7 @@ def test_compiler_adapts_external_and_legacy_package_assets(
     assert any(asset.content is not None and "legacy_package" in asset.content for asset in assets)
 
 
-def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts() -> None:
+def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts(tmp_path: Path) -> None:
     with pytest.raises(ResourceConflictError, match="unknown resource policy"):
         ResourcePolicy.build("unknown")
 
@@ -401,7 +425,11 @@ def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts() -> No
         f"https://cdn.bokeh.org/bokeh/dev/bokeh-widgets-{__version__.split('+')[0]}.min.js",
     ]
 
-    inline = ResourcePolicy(mode="inline", base_dir=FIXTURE_PATH.parents[3] / "build").resolve(
+    build_dir = tmp_path / "build"
+    (build_dir / "js").mkdir(parents=True)
+    (build_dir / "js" / "bokeh.min.js").write_text("globalThis.Bokeh = {}")
+
+    inline = ResourcePolicy(mode="inline", base_dir=build_dir).resolve(
         ResourceRequirements(("bokeh/core",)),
     )
     assert len(inline.assets) == 1
@@ -415,7 +443,6 @@ def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts() -> No
         "https://example.test/app/static/js/bokeh-api.min.js",
     ]
 
-    build_dir = FIXTURE_PATH.parents[3] / "build"
     relative = ResourcePolicy(mode="relative", root_dir=build_dir, base_dir=build_dir).resolve(
         ResourceRequirements(("bokeh/core",)),
     )
@@ -425,8 +452,8 @@ def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts() -> No
 
     external = ExtensionRequirement("example", (ResourceAssetRequirement("script", url="https://example.test/ext.js"),))
     with pytest.raises(ResourceConflictError, match="offline policy"):
-        ResourcePolicy(mode="offline", base_dir=FIXTURE_PATH.parents[3] / "build").resolve(
-            ResourceRequirements(extensions=(external,)),
+        ResourcePolicy(mode="offline", base_dir=build_dir).resolve(
+            ResourceRequirements((), (external,)),
         )
 
 
@@ -587,3 +614,20 @@ def test_server_artifact_is_deterministic_structured_and_selective() -> None:
 
     with pytest.raises(EmbedCompileError, match="mutually exclusive"):
         embed_server("https://example.test/app", headers={"X": "1"}, with_credentials=True)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("session_id", "", "session_id must be a non-empty string"),
+        ("session_id", 1, "session_id must be a non-empty string"),
+        ("token", {}, "token must be a non-empty string"),
+        ("relative_urls", "yes", "relative_urls must be a boolean"),
+    ],
+)
+def test_server_artifact_rejects_malformed_optional_fields(field: str, value: Any, message: str) -> None:
+    artifact = embed_server("https://example.test/app").to_dict()
+    artifact["source"][field] = value
+
+    with pytest.raises(ArtifactValidationError, match=message):
+        EmbedArtifact.from_dict(artifact)
