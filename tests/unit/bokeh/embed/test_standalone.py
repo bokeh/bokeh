@@ -7,17 +7,19 @@
 
 from __future__ import annotations
 
+# Standard library imports
 from collections import OrderedDict
 from typing import Any
 
+# External imports
 import pytest
 
+# Bokeh imports
+import bokeh.embed.standalone as bes
 from bokeh.document import Document
 from bokeh.embed import EmbedMigrationError
 from bokeh.plotting import figure
 from bokeh.resources import CDN
-
-import bokeh.embed.standalone as bes
 
 
 @pytest.fixture
