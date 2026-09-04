@@ -7,25 +7,23 @@ import {unescape, uuid4} from "../core/util/string"
 import {entries} from "core/util/object"
 import {isString} from "../core/util/types"
 import {defer} from "core/util/defer"
-import type {ViewManager} from "core/view_manager"
 import type {ModelResolver} from "core/resolvers"
 
 import type {DocsJson, RenderItem, Roots} from "./json"
-import {add_document_standalone} from "./standalone"
+import {mount_document_standalone} from "./standalone"
+import type {StandaloneMount} from "./standalone"
 import {add_document_from_session, _get_ws_url} from "./server"
 import type {EmbedTarget} from "./dom"
 import {_resolve_element, _resolve_root_elements} from "./dom"
 
 export type {DocsJson, RenderItem, Roots} from "./json"
-export {add_document_standalone, mount_document_standalone, StandaloneMount, index} from "./standalone"
-export type {StandaloneMountOptions} from "./standalone"
-export {add_document_from_session} from "./server"
+export {index} from "./standalone"
 export {embed_items_notebook, kernels} from "./notebook"
 
 export type JsonItem = {doc: DocJson, root_id: ID, target_id: ID}
 export type EmbedOptions = {resolver?: ModelResolver}
 
-export async function embed_item(item: JsonItem, target?: ID | EmbedTarget, options: EmbedOptions = {}): Promise<ViewManager> {
+export async function embed_item(item: JsonItem, target?: ID | EmbedTarget, options: EmbedOptions = {}): Promise<StandaloneMount> {
   const docs_json: DocsJson = {}
   const doc_id = uuid4()
   docs_json[doc_id] = item.doc
@@ -48,13 +46,13 @@ export async function embed_item(item: JsonItem, target?: ID | EmbedTarget, opti
 // absolute_url as well if non-relative links are needed for resources. This function
 // should probably be split in to two pieces to reflect the different usage patterns
 export async function embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string,
-    options: EmbedOptions = {}): Promise<ViewManager[]> {
+    options: EmbedOptions = {}): Promise<StandaloneMount[]> {
   await defer()
   return _embed_items(docs_json, render_items, app_path, absolute_url, options)
 }
 
 async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string,
-    options: EmbedOptions = {}): Promise<ViewManager[]> {
+    options: EmbedOptions = {}): Promise<StandaloneMount[]> {
   if (isString(docs_json)) {
     docs_json = JSON.parse(unescape(docs_json)) as DocsJson
   }
@@ -64,19 +62,23 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
     docs[docid] = Document.from_json(doc_json, {resolver: options.resolver})
   }
 
-  const views: ViewManager[] = []
+  const mounts: StandaloneMount[] = []
   for (const item of render_items) {
     const element = _resolve_element(item)
     const roots = _resolve_root_elements(item)
 
     if (item.docid != null) {
-      views.push(await add_document_standalone(docs[item.docid], element, roots, item.use_for_title))
+      mounts.push(await mount_document_standalone(docs[item.docid], element, {
+        roots,
+        use_for_title: item.use_for_title,
+        dispose_document: true,
+      }))
     } else if (item.token != null) {
       const websocket_url = _get_ws_url(app_path, absolute_url)
       logger.debug(`embed: computed ws url: ${websocket_url}`)
 
       try {
-        views.push(await add_document_from_session(websocket_url, item.token, element, roots, item.use_for_title))
+        mounts.push(await add_document_from_session(websocket_url, item.token, element, roots, item.use_for_title))
         console.log("Bokeh items were rendered successfully")
       } catch (error) {
         if (settings.dev) {
@@ -90,5 +92,5 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
     }
   }
 
-  return views
+  return mounts
 }
