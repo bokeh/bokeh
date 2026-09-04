@@ -36,6 +36,7 @@
   ],
   "workspaces": [
     "./examples/frameworks/angular-ng",
+    "./examples/frameworks/react-next",
     "./examples/frameworks/react-vite",
     "./examples/frameworks/node-ssr-compat",
     "./examples/frameworks/svelte-vite",
