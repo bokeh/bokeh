@@ -60,6 +60,9 @@ from sphinx.util import logging as sphinx_logging, parselinenos
 from sphinx.util.nodes import set_source_info
 
 # Bokeh imports
+from bokeh.embed.resources import ResourceRequirements
+
+# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .templates import (
     BJS_CODEPEN_INIT,
@@ -100,8 +103,8 @@ class bokehjs_content(nodes.General, nodes.Element):
     def visit_html(visitor: Any, node: Any) -> None:
         if node["include_bjs_header"]:
             # we only want to inject the CODEPEN_INIT on one bokehjs-content block per page
-            resources = get_sphinx_resources(include_bokehjs_api=True)
-            visitor.body.append(BJS_CODEPEN_INIT.render(css_files=resources.css_files, js_files=resources.js_files))
+            css_files, js_files = _resource_files()
+            visitor.body.append(BJS_CODEPEN_INIT.render(css_files=css_files, js_files=js_files))
 
         visitor.body.append(BJS_PROLOGUE.render(id=node["target_id"], title=node["title"]))
 
@@ -206,8 +209,8 @@ class BokehJSContent(CodeBlock):
         # This is largely copied from bokeh_plot
         js_source = self.get_js_source()
         if self.options.get("include_html", False):
-            resources = get_sphinx_resources(include_bokehjs_api=True)
-            html_source = BJS_HTML.render(css_files=resources.css_files, js_files=resources.js_files, hashes=resources.hashes, bjs_script=js_source)
+            css_files, js_files = _resource_files()
+            html_source = BJS_HTML.render(css_files=css_files, js_files=js_files, bjs_script=js_source)
             return html_source, "html"
         else:
             return js_source, "javascript"
@@ -257,6 +260,13 @@ def setup(app: Any) -> SphinxParallelSpec:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+def _resource_files() -> tuple[list[str], list[str]]:
+    policy = get_sphinx_resources(include_bokehjs_api=True)
+    resolved = policy.resolve(ResourceRequirements(("bokeh/core", "bokeh/api")))
+    css_files = [asset.url for asset in resolved.assets if asset.kind == "style" and asset.url is not None]
+    js_files = [asset.url for asset in resolved.assets if asset.kind == "script" and asset.url is not None]
+    return css_files, js_files
 
 # -----------------------------------------------------------------------------
 # Code

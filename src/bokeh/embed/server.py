@@ -117,8 +117,8 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
     if resources is None:
         policy: Any = "none"
     else:
-        from .resources import ResourcePolicy
-        policy = ResourcePolicy(mode="server", root_url=f"{artifact.source['url']}/")
+        from ..resources import Resources
+        policy = Resources(mode="server", root_url=f"{artifact.source['url']}/")
     return artifact.fragment(resources=policy).html
 
 def server_session(model: Model | None = None, session_id: ID | None = None, url: str = "default",
@@ -212,8 +212,8 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
     if resources is None:
         policy: Any = "none"
     else:
-        from .resources import ResourcePolicy
-        policy = ResourcePolicy(mode="server", root_url=f"{artifact.source['url']}/")
+        from ..resources import Resources
+        policy = Resources(mode="server", root_url=f"{artifact.source['url']}/")
     return artifact.fragment(resources=policy).html
 
 #-----------------------------------------------------------------------------

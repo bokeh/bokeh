@@ -38,7 +38,7 @@ from typing import TYPE_CHECKING, Iterator
 
 # Bokeh imports
 from ..embed import file_html
-from ..resources import INLINE
+from ..resources import Resources
 
 if TYPE_CHECKING:
     from tempfile import _TemporaryFileWrapper
@@ -48,7 +48,6 @@ if TYPE_CHECKING:
     from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
-    from ..resources import Resources
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -128,9 +127,7 @@ def temp_filename(ext: str) -> str:
     ''' Generate a temporary, writable filename with the given extension
 
     '''
-    # todo: not safe - the file is deleted before being written to so another
-    # process can generate the same filename
-    with NamedTemporaryFile(suffix="." + ext) as f:
+    with NamedTemporaryFile(suffix="." + ext, delete=False) as f:
         return f.name
 
 @contextmanager
@@ -148,7 +145,7 @@ def tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
         os.unlink(tmp.name)
 
 
-def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
+def get_layout_html(obj: UIElement | Document, *, resources: Resources | str = "inline",
         width: int | None = None, height: int | None = None, theme: ThemeSource | None = None) -> str:
     '''
 

@@ -28,7 +28,6 @@ from typing import Generator, cast
 
 # Bokeh imports
 from ..document import Document, DocumentLike
-from .state import curstate
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,7 +44,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def curdoc() -> Document:
-    ''' Return the document for the current default state.
+    ''' Return the current default document.
 
     Returns:
         Document : the current default document object.
@@ -62,7 +61,7 @@ def curdoc() -> Document:
         if doc is None:
             raise RuntimeError("Patched curdoc has been previously destroyed")
         return cast(Document, doc) # UnlockedDocumentProxy enforces callback safety at runtime
-    return curstate().document
+    return _DEFAULT_DOCUMENT
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -100,7 +99,8 @@ def set_curdoc(doc: Document) -> None:
         Calling this function will replace any existing document.
 
     '''
-    curstate().document = doc
+    global _DEFAULT_DOCUMENT
+    _DEFAULT_DOCUMENT = doc
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -108,6 +108,8 @@ def set_curdoc(doc: Document) -> None:
 
 _PATCHED_CURDOCS: ContextVar[tuple[weakref.ReferenceType[DocumentLike], ...]] = \
     ContextVar("_PATCHED_CURDOCS", default=())
+
+_DEFAULT_DOCUMENT = Document()
 
 #-----------------------------------------------------------------------------
 # Code

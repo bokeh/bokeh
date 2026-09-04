@@ -19,7 +19,6 @@ import bokeh.embed.standalone as bes
 from bokeh.document import Document
 from bokeh.models.plots import Plot
 from bokeh.plotting import figure
-from bokeh.resources import CDN
 
 
 @pytest.fixture
@@ -64,7 +63,7 @@ class Test_components:
 
 class Test_file_html:
     def test_returns_artifact_page_and_escapes_title(self, test_plot: Plot) -> None:
-        html = bes.file_html(test_plot, CDN, "&<")
+        html = bes.file_html(test_plot, "cdn", "&<")
         assert "<title>&amp;&lt;</title>" in html
         assert "application/vnd.bokeh.embed+json" in html
         assert "mount_artifact_declaration" in html
@@ -81,7 +80,7 @@ class Test_file_html:
 
         assert bes.file_html(
             test_plot,
-            CDN,
+            "cdn",
             template=TemplateProbe(),  # type: ignore[arg-type]
             template_variables={"custom": "value"},
         ) == "template result"
@@ -90,7 +89,7 @@ class Test_file_html:
         test_plot.name = "named"
         html = bes.file_html(
             test_plot,
-            CDN,
+            "cdn",
             template="{% block contents %}{{ embed(roots.named) }}{% endblock %}",
         )
 
@@ -105,9 +104,9 @@ class Test_file_html:
         document.add_root(plot)
         document.add_root(Button())
 
-        html = bes.file_html([plot], CDN)
+        html = bes.file_html([plot], "cdn")
         assert "bokeh-widgets" not in html
 
     def test_empty_document_is_rejected(self) -> None:
         with pytest.raises(ValueError, match="no root models"):
-            bes.file_html(Document(), CDN)
+            bes.file_html(Document(), "cdn")

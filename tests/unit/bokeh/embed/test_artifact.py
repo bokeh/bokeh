@@ -30,8 +30,6 @@ from bokeh.embed import (
     EmbedCompileError,
     EmbedSpec,
     ResourceAssetRequirement,
-    ResourceConflictError,
-    ResourcePolicy,
     components,
     embed,
     embed_server,
@@ -45,7 +43,7 @@ from bokeh.io import save
 from bokeh.model import Model
 from bokeh.models import Button, CustomJS, DataTable
 from bokeh.plotting import figure
-from bokeh.resources import CDN, Resources
+from bokeh.resources import ResourceConflictError, Resources
 from bokeh.settings import settings
 from bokeh.themes import Theme
 from bokeh.util.compiler import JavaScript
@@ -413,22 +411,22 @@ def test_compiler_adapts_external_and_legacy_package_assets(
     assert any(asset.content is not None and "legacy_package" in asset.content for asset in assets)
 
 
-def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts(tmp_path: Path) -> None:
-    with pytest.raises(ResourceConflictError, match="unknown resource policy"):
-        ResourcePolicy.build("unknown")
+def test_resources_resolve_none_cdn_inline_and_offline_conflicts(tmp_path: Path) -> None:
+    with pytest.raises(ResourceConflictError, match="unknown resource mode"):
+        Resources.build("unknown")
 
     requirements = ResourceRequirements(("bokeh/core", "bokeh/widgets"))
-    assert ResourcePolicy(mode="none").resolve(requirements).assets == ()
+    assert Resources(mode="none").resolve(requirements).assets == ()
 
     settings.resources = "server-dev"
     try:
-        default = ResourcePolicy.build()
+        default = Resources.build()
         assert default.mode == "server"
         assert default.minified is False
     finally:
         del settings.resources
 
-    cdn = ResourcePolicy(mode="cdn").resolve(requirements)
+    cdn = Resources(mode="cdn").resolve(requirements)
     assert [asset.url for asset in cdn.assets] == [
         f"https://cdn.bokeh.org/bokeh/dev/bokeh-{__version__.split('+')[0]}.min.js",
         f"https://cdn.bokeh.org/bokeh/dev/bokeh-widgets-{__version__.split('+')[0]}.min.js",
@@ -438,13 +436,13 @@ def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts(tmp_pat
     (build_dir / "js").mkdir(parents=True)
     (build_dir / "js" / "bokeh.min.js").write_text("globalThis.Bokeh = {}")
 
-    inline = ResourcePolicy(mode="inline", base_dir=build_dir).resolve(
+    inline = Resources(mode="inline", base_dir=build_dir).resolve(
         ResourceRequirements(("bokeh/core",)),
     )
     assert len(inline.assets) == 1
     assert inline.assets[0].content is not None
 
-    server = ResourcePolicy(mode="server", root_url="https://example.test/app/").resolve(
+    server = Resources(mode="server", root_url="https://example.test/app/").resolve(
         ResourceRequirements(("bokeh/core", "bokeh/api")),
     )
     assert [asset.url for asset in server.assets] == [
@@ -452,16 +450,16 @@ def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts(tmp_pat
         "https://example.test/app/static/js/bokeh-api.min.js",
     ]
 
-    relative = ResourcePolicy(mode="relative", root_dir=build_dir, base_dir=build_dir).resolve(
+    relative = Resources(mode="relative", root_dir=build_dir, base_dir=build_dir).resolve(
         ResourceRequirements(("bokeh/core",)),
     )
     assert relative.assets[0].url == "js/bokeh.min.js"
-    absolute = ResourcePolicy(mode="absolute", base_dir=build_dir).resolve(ResourceRequirements(("bokeh/core",)))
+    absolute = Resources(mode="absolute", base_dir=build_dir).resolve(ResourceRequirements(("bokeh/core",)))
     assert absolute.assets[0].url == str(build_dir / "js" / "bokeh.min.js")
 
     external = ExtensionRequirement("example", (ResourceAssetRequirement("script", url="https://example.test/ext.js"),))
-    with pytest.raises(ResourceConflictError, match="offline policy"):
-        ResourcePolicy(mode="offline", base_dir=build_dir).resolve(
+    with pytest.raises(ResourceConflictError, match="offline resources"):
+        Resources(mode="offline", base_dir=build_dir).resolve(
             ResourceRequirements((), (external,)),
         )
 
@@ -470,14 +468,9 @@ def test_relative_resource_urls_use_url_separators(tmp_path: Path, monkeypatch: 
     build_dir = tmp_path / "build"
     (build_dir / "js").mkdir(parents=True)
     (build_dir / "js" / "bokeh.min.js").write_text("globalThis.Bokeh = {}")
-    resolve = Resources._resolve
-
-    def windows_resolve(self: Resources, kind: str):
-        files, raw, hashes = resolve(self, kind)  # type: ignore[arg-type]
-        return [path.replace("/", "\\") for path in files], raw, hashes
-
-    monkeypatch.setattr(Resources, "_resolve", windows_resolve)
-    relative = ResourcePolicy(mode="relative", root_dir=build_dir, base_dir=build_dir).resolve(
+    import bokeh.resources as resources_module
+    monkeypatch.setattr(resources_module.os.path, "relpath", lambda path, root: "js\\bokeh.min.js")
+    relative = Resources(mode="relative", root_dir=build_dir, base_dir=build_dir).resolve(
         ResourceRequirements(("bokeh/core",)),
     )
 
@@ -503,11 +496,11 @@ def test_resource_requirement_union_is_exact_and_deterministic() -> None:
 
 def test_resource_policy_reports_csp_and_sri_conflicts() -> None:
     with pytest.raises(ResourceConflictError, match="external_only"):
-        ResourcePolicy(mode="inline", external_only=True)
+        Resources(mode="inline", external_only=True)
     with pytest.raises(ResourceConflictError, match="integrity"):
-        ResourcePolicy(mode="server", integrity=True)
+        Resources(mode="server", integrity=True)
 
-    resolved = ResourcePolicy(mode="cdn", integrity=True).resolve(
+    resolved = Resources(mode="cdn", integrity=True).resolve(
         ResourceRequirements(("bokeh/core",)), bokeh_version="3.8.0",
     )
     assert resolved.assets[0].integrity is not None
@@ -519,14 +512,14 @@ def test_resource_policy_reports_csp_and_sri_conflicts() -> None:
     external = ExtensionRequirement("example", (
         ResourceAssetRequirement("script", url="https://example.test/extension.js"),
     ))
-    with pytest.raises(ResourceConflictError, match="integrity policy requires an SRI hash"):
-        ResourcePolicy(mode="cdn", integrity=True).resolve(
+    with pytest.raises(ResourceConflictError, match="integrity requires an SRI hash"):
+        Resources(mode="cdn", integrity=True).resolve(
             ResourceRequirements(extensions=(external,)), bokeh_version="3.8.0",
         )
 
     artifact = embed(_plot())
     with pytest.raises(ValueError, match=r"artifact\.external"):
-        artifact.fragment(resources=ResourcePolicy(mode="cdn", external_only=True), bootstrap_url="/bootstrap.js")
+        artifact.fragment(resources=Resources(mode="cdn", external_only=True), bootstrap_url="/bootstrap.js")
 
 
 def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -> None:
@@ -575,7 +568,7 @@ def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -
 
 def test_external_bootstrap_renderers_preserve_csp_nonce() -> None:
     artifact = embed(CustomJS(code="root"))
-    policy = ResourcePolicy(mode="none", nonce="artifact-nonce")
+    policy = Resources(mode="none", nonce="artifact-nonce")
 
     fragment = artifact.fragment(resources=policy, bootstrap_url="/bootstrap.js")
     page = artifact.page(resources=policy, bootstrap_url="/bootstrap.js")
@@ -598,14 +591,14 @@ def test_retained_facades_delegate_and_preserve_useful_shapes() -> None:
     assert list(divs) == ["left", "right"]
     assert "Bokeh.mount" in script
 
-    html = file_html(plot, resources=CDN, title="Facade")
+    html = file_html(plot, resources="cdn", title="Facade")
     assert "bokeh.embed/v1" in html
     assert "<title>Facade</title>" in html
 
 
 def test_save_and_server_facades_use_artifact_routes(tmp_path: Path) -> None:
     filename = tmp_path / "saved.html"
-    result = save(_plot(), filename=filename, resources=CDN, title="Saved artifact")
+    result = save(_plot(), filename=filename, resources="cdn", title="Saved artifact")
     assert Path(result) == filename
     assert "bokeh.embed/v1" in filename.read_text()
 

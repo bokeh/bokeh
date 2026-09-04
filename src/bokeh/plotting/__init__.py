@@ -36,9 +36,7 @@ __all__ = (
     'GMap',
     'gridplot',
     'markers',
-    'output_file',
     'output_notebook',
-    'reset_output',
     'row',
     'Row',
     'save',
@@ -69,9 +67,7 @@ from ..models import ColumnDataSource
 from ..models.layouts import Row, Column
 
 from ..io import curdoc
-from ..io import output_file
 from ..io import output_notebook
-from ..io import reset_output
 from ..io import save
 from ..io import show
 from ..layouts import column, gridplot, row

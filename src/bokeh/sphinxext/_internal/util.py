@@ -55,9 +55,7 @@ def get_sphinx_resources(include_bokehjs_api: bool = False) -> Resources:
 
         # Otherwise assume it is a dev/rc/full release version and use CDN for it
         else:
-            resources = Resources(mode="cdn", version=docs_cdn)
-    if include_bokehjs_api:
-        resources.components.append("bokeh-api")
+            resources = Resources(mode="cdn")
     return resources
 
 # -----------------------------------------------------------------------------

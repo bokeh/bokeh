@@ -17,7 +17,7 @@ import pytest
 import bokeh.embed.server as bes
 from bokeh.document import Document
 from bokeh.embed import EmbedArtifact
-from bokeh.resources import CDN
+from bokeh.resources import Resources
 
 
 def artifact_from_fragment(fragment: str) -> EmbedArtifact:
@@ -99,7 +99,7 @@ class TestServerSession:
         session = SimpleNamespace(document=document, token="faketoken")
 
         html = bes.server_html_page_for_session(
-            session, CDN, "title",
+            session, Resources(mode="cdn"), "title",
             template="{% block contents %}{{ embed(roots.selected) }}{% endblock %}",  # type: ignore[arg-type]
         )
 

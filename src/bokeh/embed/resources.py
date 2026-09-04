@@ -25,45 +25,26 @@ from typing import (
     TypedDict,
     cast,
 )
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 # Bokeh imports
-from .. import __version__
 from ..core.has_props import HasProps
 from ..document import Document
-from ..resources import Component, Resources
+from ..resources import (
+    _COMPONENT_NAMES,
+    DEFAULT_SERVER_HTTP_URL,
+    ResourceComponent,
+    Resources as _Resources,
+    _inline_resource,
+)
 from ..settings import settings
 from ..util.compiler import bundle_models
 from ._json import canonical_json
 from .util import contains_tex_string
 
-type ResourceComponent = Literal[
-    "bokeh/core",
-    "bokeh/widgets",
-    "bokeh/tables",
-    "bokeh/webgl",
-    "bokeh/mathjax",
-    "bokeh/api",
-]
-
-type ResourcePolicyMode = Literal[
-    "none",
-    "inline",
-    "offline",
-    "cdn",
-    "server",
-    "relative",
-    "absolute",
-]
-
-_RESOURCE_POLICY_MODES = ("none", "inline", "offline", "cdn", "server", "relative", "absolute")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-class ResourceConflictError(ValueError):
-    """Raised when a resource policy cannot satisfy artifact requirements."""
 
 
 @dataclass(frozen=True)
@@ -307,7 +288,7 @@ class ResolvedResource:
 class ResolvedResources:
     '''Requirements plus the policy and concrete assets that satisfy them.'''
     requirements: ResourceRequirements
-    policy: ResourcePolicy
+    policy: _Resources
     bokeh_version: str
     assets: tuple[ResolvedResource, ...] = ()
 
@@ -343,197 +324,6 @@ class ResolvedResources:
         return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
-@dataclass(frozen=True)
-class ResourcePolicy:
-    '''Host-owned rules for satisfying artifact resource requirements.
-
-    ``none`` emits nothing and assigns complete responsibility to the host.
-    ``offline`` permits only inline/local content and rejects external URLs.
-    Other modes resolve matching Bokeh bundles through CDN, server, filesystem,
-    or explicit paths. CSP and SRI choices belong to policy rather than the
-    reusable artifact. Bundle versions always come from the artifact.
-    '''
-    mode: ResourcePolicyMode = "cdn"
-    minified: bool = True
-    root_url: str | None = None
-    root_dir: Path | None = None
-    base_dir: Path | None = None
-    nonce: str | None = None
-    crossorigin: str | None = None
-    integrity: bool = False
-    external_only: bool = False
-
-    def __post_init__(self) -> None:
-        if self.mode not in _RESOURCE_POLICY_MODES:
-            raise ResourceConflictError(
-                f"unknown resource policy {self.mode!r}; expected one of {_RESOURCE_POLICY_MODES!r}",
-            )
-        if self.mode in ("inline", "offline") and self.external_only:
-            raise ResourceConflictError(
-                f"resource policy '{self.mode}' emits inline assets and conflicts with external_only=True",
-            )
-        if self.integrity and self.mode != "cdn":
-            raise ResourceConflictError("subresource integrity is only available for CDN resource policy")
-        if self.root_url is not None and self.mode != "server":
-            raise ResourceConflictError("root_url is only valid for the server resource policy")
-        if self.root_dir is not None and self.mode != "relative":
-            raise ResourceConflictError("root_dir is only valid for the relative resource policy")
-
-    @classmethod
-    def build(cls, value: ResourcePolicy | Resources | str | None = None, **overrides: Any) -> ResourcePolicy:
-        '''Normalize a resource policy specification.
-
-        Args:
-            value: A policy, legacy resources object, mode name, or ``None``.
-            overrides: Policy fields that override the supplied value.
-
-        Returns:
-            The normalized resource policy.
-        '''
-        if value is None:
-            value = Resources()
-        if isinstance(value, ResourcePolicy):
-            if not overrides:
-                return value
-            policy_data = value.to_dict()
-            policy_data.update(overrides)
-            return cls(**policy_data)
-        if isinstance(value, Resources):
-            resource_data: dict[str, Any] = {
-                "mode": value.mode,
-                "minified": value.minified,
-                "base_dir": value.base_dir,
-            }
-            if value.mode == "server":
-                resource_data["root_url"] = value.root_url
-            elif value.mode == "relative":
-                resource_data["root_dir"] = value.root_dir
-            resource_data.update(overrides)
-            return cls(**resource_data)
-        mode = cast(ResourcePolicyMode, value)
-        return cls(mode=mode, **overrides)
-
-    def to_dict(self) -> dict[str, Any]:
-        '''Return the JSON-compatible policy configuration.
-
-        Returns:
-            A detached resource policy mapping.
-        '''
-        result: dict[str, Any] = {
-            "mode": self.mode,
-            "minified": self.minified,
-        }
-        for name in ("root_url", "nonce", "crossorigin"):
-            value = getattr(self, name)
-            if value is not None:
-                result[name] = value
-        if self.root_dir is not None:
-            result["root_dir"] = str(self.root_dir)
-        if self.base_dir is not None:
-            result["base_dir"] = str(self.base_dir)
-        for name in ("integrity", "external_only"):
-            value = getattr(self, name)
-            if value:
-                result[name] = value
-        return result
-
-    def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__) -> ResolvedResources:
-        '''Resolve exact requirements or raise an actionable policy conflict.
-
-        Args:
-            requirements: The artifact requirements to satisfy.
-            bokeh_version: The Bokeh version required by the artifact.
-
-        Returns:
-            The concrete resources selected by this policy.
-        '''
-        if self.mode == "none":
-            return ResolvedResources(requirements, self, bokeh_version)
-
-        component_names: list[Component] = [_COMPONENT_NAMES[component] for component in requirements.components]
-        resources_mode = "inline" if self.mode == "offline" else self.mode
-        resources = Resources(
-            mode=resources_mode,
-            version=bokeh_version.split("+", 1)[0] if resources_mode == "cdn" else None,
-            root_dir=self.root_dir if resources_mode == "relative" else None,
-            root_url=self.root_url if resources_mode == "server" else None,
-            minified=self.minified,
-            components=component_names,
-            base_dir=self.base_dir,
-        )
-
-        js_files, js_raw, hashes = resources._resolve("js")
-        css_files, css_raw, _ = resources._resolve("css")
-        if self.mode == "relative":
-            js_files = [url.replace("\\", "/") for url in js_files]
-            css_files = [url.replace("\\", "/") for url in css_files]
-        assets: list[ResolvedResource] = []
-
-        for url in js_files:
-            integrity = _integrity_for_url(url, hashes) if self.integrity else None
-            if self.integrity and integrity is None:
-                raise ResourceConflictError(f"no SRI hash is available for required resource {url!r}")
-            assets.append(ResolvedResource(
-                "script", url=url, integrity=integrity,
-                crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
-            ))
-        assets.extend(ResolvedResource("script", content=content, nonce=self.nonce) for content in js_raw)
-        for url in css_files:
-            integrity = _integrity_for_url(url, hashes) if self.integrity else None
-            if self.integrity and integrity is None:
-                raise ResourceConflictError(f"no SRI hash is available for required resource {url!r}")
-            assets.append(ResolvedResource(
-                "style", url=url, integrity=integrity,
-                crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
-            ))
-        assets.extend(ResolvedResource("style", content=content, nonce=self.nonce) for content in css_raw)
-
-        for extension in requirements.extensions:
-            for requirement in extension.assets:
-                if self.mode == "offline" and requirement.url is not None:
-                    raise ResourceConflictError(
-                        f"offline policy cannot load external {requirement.kind} {requirement.url!r} "
-                        f"required by extension {extension.name!r}; provide inline extension content",
-                    )
-                if self.mode == "inline" and requirement.url is not None:
-                    raise ResourceConflictError(
-                        f"inline policy cannot inline {requirement.url!r} required by extension {extension.name!r}; "
-                        "declare the extension asset content or choose an external policy",
-                    )
-                if self.external_only and requirement.content is not None:
-                    raise ResourceConflictError(
-                        f"external_only policy rejects inline {requirement.kind} required by extension {extension.name!r}",
-                    )
-                if self.integrity and requirement.url is not None and requirement.integrity is None:
-                    raise ResourceConflictError(
-                        f"integrity policy requires an SRI hash for extension resource {requirement.url!r}",
-                    )
-                assets.append(ResolvedResource(
-                    requirement.kind,
-                    url=requirement.url,
-                    content=requirement.content,
-                    integrity=requirement.integrity,
-                    crossorigin=requirement.crossorigin or self.crossorigin or (
-                        "anonymous" if requirement.integrity is not None else None
-                    ),
-                    nonce=self.nonce,
-                    module=requirement.module,
-                ))
-
-        identities: dict[tuple[str, str], tuple[Any, ...]] = {}
-        deduplicated: list[ResolvedResource] = []
-        for asset in assets:
-            locator = asset.url if asset.url is not None else asset.content
-            assert locator is not None
-            key = (asset.kind, locator)
-            previous = identities.get(key)
-            if previous is not None and previous != asset.identity:
-                raise ResourceConflictError(f"conflicting declarations for {asset.kind} resource {locator!r}")
-            if previous is None:
-                identities[key] = asset.identity
-                deduplicated.append(asset)
-
-        return ResolvedResources(requirements, self, bokeh_version, tuple(deduplicated))
 
 
 #-----------------------------------------------------------------------------
@@ -571,10 +361,10 @@ _DEFAULT_EXTENSION_CDN = URL("https://unpkg.com")
 extension_dirs: dict[str, Path] = {}
 
 
-def bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list[_ExtensionBundle]:
+def bundle_extensions(objs: set[HasProps] | None, policy: _Resources) -> list[_ExtensionBundle]:
     names: set[str] = set()
     bundles: list[_ExtensionBundle] = []
-    extensions = [".min.js", ".js"] if resources.minified else [".js"]
+    extensions = [".min.js", ".js"] if policy.minified else [".js"]
     all_objs = objs if objs is not None else HasProps.model_class_reverse_map.values()
 
     for obj in all_objs:
@@ -627,7 +417,7 @@ def bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list[
                 raise ValueError(f"can't resolve artifact path for '{name}' extension")
 
         extension_dirs[name] = artifact_path.parent
-        server_url = URL(resources.root_url) / "static" / "extensions" / server_path
+        server_url = URL(policy.root_url or DEFAULT_SERVER_HTTP_URL) / "static" / "extensions" / server_path
         bundles.append(_ExtensionBundle(artifact_path, server_url, cdn_url))
 
     return bundles
@@ -708,16 +498,6 @@ def use_gl(all_objs: set[HasProps]) -> bool:
     return any(isinstance(obj, Plot) and obj.output_backend == "webgl" for obj in all_objs)
 
 
-_COMPONENT_NAMES: dict[ResourceComponent, Component] = {
-    "bokeh/core": "bokeh",
-    "bokeh/widgets": "bokeh-widgets",
-    "bokeh/tables": "bokeh-tables",
-    "bokeh/webgl": "bokeh-gl",
-    "bokeh/mathjax": "bokeh-mathjax",
-    "bokeh/api": "bokeh-api",
-}
-
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -759,11 +539,11 @@ def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequir
         if not assets and module == "bokeh":
             extensions.pop(extension_name, None)
 
-    package_resources = Resources(mode="inline", components=[])
-    for package in bundle_extensions(all_objects, package_resources):
+    package_policy = _Resources(mode="inline")
+    for package in bundle_extensions(all_objects, package_policy):
         name = f"package:{package.artifact_path.stem}"
         assets = extensions.setdefault(name, [])
-        assets.append(ResourceAssetRequirement("script", content=Resources._inline(package.artifact_path)))
+        assets.append(ResourceAssetRequirement("script", content=_inline_resource(package.artifact_path)))
 
     custom_classes = sorted(
         {obj.__class__ for obj in all_objects if hasattr(obj, "__implementation__")},
@@ -781,19 +561,11 @@ def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequir
     )
 
 
-def _integrity_for_url(url: str, hashes: Mapping[str, str]) -> str | None:
-    filename = Path(urlparse(url).path).name
-    value = hashes.get(url) or hashes.get(filename)
-    return None if value is None else f"sha384-{value}"
-
-
 __all__ = (
     "ExtensionRequirement",
     "ResolvedResource",
     "ResolvedResources",
     "ResourceAssetRequirement",
-    "ResourceConflictError",
-    "ResourcePolicy",
     "ResourceRequirements",
     "requirements_for_objs",
 )
