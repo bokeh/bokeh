@@ -16,34 +16,30 @@ Use the Bokeh development environment and run:
 
 .. code-block:: sh
 
-    cd src/bokeh/jupyter/frontend
-    npm ci
-    npm run build
-    npm run build:runtime-test
-    cd ../../../..
-    pytest tests/unit/bokeh/io/test_jupyter.py
-    pytest tests/unit/bokeh/io/test_jupyter_runtime.py
-    pytest tests/integration/test_jupyter_extension.py
+    pixi run --locked jupyter-build
+    pixi run --locked jupyter-test
 
-The build performs TypeScript checking, builds the prebuilt JupyterLab
-extension used by both JupyterLab and Notebook 7, and copies installation
-metadata. ``build:runtime-test`` creates a non-shipped browser harness for the
-shared renderer runtime tests. Generated assets must be rebuilt whenever
-``src/bokeh/jupyter/frontend/src`` or the protocol changes. A release check
-should build a wheel, install it into a clean environment, verify
-``jupyter labextension list``, and run the wheel-installed browser tests.
+The build checks the shared protocol manifest, runs the TypeScript source
+tests, type-checks the frontend, builds the AnyWidget adapter and prebuilt
+JupyterLab extension, and copies the generated assets into the Python package.
+The extension is also consumed by Notebook 7, but automated browser coverage
+currently exercises it through JupyterLab. Generated assets must be rebuilt
+whenever ``src/bokeh/jupyter/frontend/src`` or the protocol changes. Run
+``pixi run --locked jupyter-verify`` to rebuild and confirm that every tracked
+generated asset is current.
 
-The CI ``jupyter-classic`` job creates an isolated Notebook 6.5.7 environment
-and runs the Classic frontend smoke test. That test must render both an
-automatic snapshot and ``show()`` output through their standard ``text/html``
-and ``application/javascript`` fallback outputs; no Classic Bokeh extension
-may be installed or enabled.
+The test task verifies extension discovery and packaging, then runs the
+AnyWidget, JupyterLab, and marimo integration suites. Portable Classic
+Notebook fallback behavior is covered by Python/JavaScript contract tests; no
+Classic Bokeh extension is installed or enabled.
 
 Protocol and lifecycle
 ----------------------
 
-``bokeh.io.jupyter`` and ``src/bokeh/jupyter/frontend/src/protocol.ts`` define
-the same stable MIME names and integer protocol version. Change them together.
+``src/bokeh/jupyter/protocol.json`` is the shared source of stable MIME names,
+comm targets, queue bounds, and the integer protocol version. Python imports
+it directly, and the TypeScript behavior check verifies the frontend constants
+against it. Change the manifest first and update both consumers together.
 Resource output owns JS/CSS artifacts once; document and application outputs
 refer to resource manifests. A document's initial serialized graph lives once in an inert HTML
 data owner; both its MIME payload and executable fallback refer to that owner

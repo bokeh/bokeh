@@ -200,16 +200,9 @@ class BokehPngPreprocessor(Preprocessor):
                     "This Bokeh output was not converted to PNG because the notebook is untrusted. "
                     "Trust and save the notebook, then export it again.",
                 )
-            elif isinstance(view_id, str) and view_id in self._transient:
-                try:
-                    replacement = self._capture(html, view_id)
-                except _PngUnavailable as error:
-                    self.log.warning("Bokeh PNG export unavailable: %s", error)
-                    replacement = _static_fallback(str(error))
-                except Exception as error:
-                    self.log.warning("Bokeh PNG export failed", exc_info=True)
-                    replacement = self._capture_failed(error)
-            elif payload.get("source_kind") == "server":
+            elif payload.get("source_kind") == "server" and not (
+                isinstance(view_id, str) and view_id in self._transient
+            ):
                 replacement = self._fallback_only(
                     html,
                     "This Bokeh application requires its running Python server for an offline export. "
@@ -261,7 +254,9 @@ class BokehPngPreprocessor(Preprocessor):
         if not isinstance(artifact_json, str):
             raise _PngUnavailable("This Bokeh output has no embedding artifact available for PNG export.")
         try:
-            artifact = EmbedArtifact.from_json(artifact_json)
+            artifact = EmbedArtifact.from_json(
+                artifact_json, _verify_fingerprint=source != "current-frontend",
+            )
         except ArtifactValidationError as error:
             raise _PngUnavailable(f"This Bokeh output has an invalid embedding artifact: {error}") from error
         if artifact.source.get("kind") != "standalone":
