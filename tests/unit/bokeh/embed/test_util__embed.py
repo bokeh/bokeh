@@ -551,6 +551,8 @@ class Test_standalone_docs_json_and_render_items:
 
         assert doc["roots"][0]["id"] == root.id
         assert "id" not in doc["roots"][0]["attributes"]["child"]
+        decoded = Document.from_json(doc)
+        assert isinstance(decoded.roots[0].child, SomeModel)
 
     def test_static_output_preserves_shared_identity(self) -> None:
         shared = SomeModel()
