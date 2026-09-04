@@ -44,6 +44,11 @@ the artifact's explicit resource requirements and mounts it through the common
 ``Bokeh.mount()`` / ``BokehMount`` lifecycle. No separately installed
 ``jupyter_bokeh`` package is required.
 
+.. image:: /_images/jupyter_artifact_host.png
+    :width: 90%
+    :align: center
+    :alt: JupyterLab displaying a static final-expression plot and a connected Bokeh show output.
+
 Install the ``notebook`` extra to use Bokeh's AnyWidget transport for connected
 views across JupyterLab, Notebook, VS Code, Colab, and marimo:
 
@@ -343,6 +348,31 @@ idempotent. Rebuild the plot in one construction function, or explicitly
 select and update the attached tool. Bokeh does not infer Python name intent or
 replay cell dependencies.
 
+Target-local browser access
+'''''''''''''''''''''''''''
+
+Code outside a cell output, such as a JupyterLab plugin or a custom notebook
+host, acquires the same lifecycle handle from that output's root element. It
+must not search a page-global view or document registry:
+
+.. code-block:: javascript
+
+    const target = output.querySelector("[data-bokeh-root]")
+    const mounted = await Bokeh.when_mounted(target)
+    await mounted.ready
+
+    const source = mounted.document.get_model_by_name("my-source")
+    const source_view = source == null ? null : mounted.view_lookup.find_one(source)
+
+    // Dispose only when this host owns the output.
+    await mounted.dispose()
+
+The target's ``bokehMount`` property is the same handle returned by
+``when_mounted()``. It owns readiness, failures, document access, view lookup,
+and disposal for that one output. Replacing or deleting the output disposes
+the handle; consumers should acquire the replacement target instead of
+retaining models or views from an earlier display.
+
 Diagnostics
 '''''''''''
 
@@ -624,6 +654,33 @@ notebook below:
 
 More example notebooks
 ~~~~~~~~~~~~~~~~~~~~~~
+
+Core-review walkthrough
+''''''''''''''''''''''''
+
+Three short runs expose the important user-facing differences in the 4.0
+notebook host. They intentionally use normal notebook APIs rather than testing
+private renderer hooks:
+
+* **Portable saved output:** run
+  :bokeh-tree:`examples/output/jupyter/automatic_mime.ipynb`, save the notebook,
+  restart the kernel, and reopen it. The final-expression plot remains a static
+  artifact snapshot with an inert fallback for hosts that do not execute its
+  renderer.
+* **Connected output and release:** run
+  :bokeh-tree:`examples/output/jupyter/live/Basic Usage.ipynb`, mutate the data
+  from Python, and observe the existing output update. Reload the browser to
+  exercise snapshot-plus-revision reconnection; clear the output or call
+  ``handle.close()`` to demonstrate that only that view is released.
+* **Static export:** with either notebook open, use the Jupyter **Export to
+  HTML** command or run ``jupyter nbconvert --to bokeh notebook.ipynb``. The
+  exported page contains a browser-captured PNG of the complete current output,
+  while the saved notebook remains unchanged.
+
+Together these cover the three deliberately separate responsibilities: an
+``EmbedArtifact`` persists initial state, the notebook host owns live transport
+and release, and export consumes a one-shot frontend snapshot without creating
+a second runtime or document registry.
 
 You can find many more examples of notebook use in the `bokeh-tutorial`_ repository:
 
