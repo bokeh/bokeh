@@ -87,14 +87,14 @@ class _SavedFile(str):
 
     def _repr_mimebundle_(self, include: set[str] | None = None,
             exclude: set[str] | None = None) -> dict[str, Any]:
-        from .jupyter import FILE_MIME_TYPE, _file_payload
+        from .jupyter import FILE_MIME_TYPE, file_payload
 
         data: dict[str, Any]
         if self._link_path is None:
             data = {"text/plain": "Bokeh HTML file saved. Open it from the notebook file browser."}
         else:
             data = {
-                FILE_MIME_TYPE: _file_payload(self._link_path),
+                FILE_MIME_TYPE: file_payload(self._link_path),
                 "text/html": self._repr_html_(),
                 "text/plain": f"Bokeh HTML file saved: {self._link_path}",
             }

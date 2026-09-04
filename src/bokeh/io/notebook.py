@@ -60,10 +60,52 @@ if TYPE_CHECKING:
 
     class Comm(Protocol):
         comm_id: str
-        def send(self, data: Any = None, buffers: list[bytes] | None = None) -> None: ...
-        def close(self) -> Any: ...
-        def on_close(self, callback: Callable[[Any], None]) -> None: ...
-        def on_msg(self, callback: Callable[[dict[str, Any]], None]) -> None: ...
+
+        def send(self, data: Any = None, buffers: list[bytes] | None = None) -> None:
+            '''Send a message over the comm.
+
+            Args:
+                data: The message payload.
+                buffers: Optional binary message buffers.
+
+            Returns:
+                None
+
+            '''
+            ...
+
+        def close(self) -> Any:
+            '''Close the comm.
+
+            Returns:
+                A host-specific close result.
+
+            '''
+            ...
+
+        def on_close(self, callback: Callable[[Any], None]) -> None:
+            '''Register a close callback.
+
+            Args:
+                callback: The close callback.
+
+            Returns:
+                None
+
+            '''
+            ...
+
+        def on_msg(self, callback: Callable[[dict[str, Any]], None]) -> None:
+            '''Register a message callback.
+
+            Args:
+                callback: The message callback.
+
+            Returns:
+                None
+
+            '''
+            ...
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -92,7 +134,7 @@ __all__ = (
 )
 
 #-----------------------------------------------------------------------------
-# General API
+# Dev API
 #-----------------------------------------------------------------------------
 
 def __getattr__(name: str) -> Any:
@@ -122,7 +164,7 @@ def _is_colab_runtime() -> bool:
     except Exception:
         return False
 
-def _is_marimo_runtime() -> bool:
+def is_marimo_runtime() -> bool:
     if "marimo" not in sys.modules:
         return False
     try:
@@ -132,7 +174,7 @@ def _is_marimo_runtime() -> bool:
     except Exception:
         return False
 
-def _anywidget_available() -> bool:
+def anywidget_available() -> bool:
     try:
         from . import _anywidget
 
@@ -141,9 +183,9 @@ def _anywidget_available() -> bool:
         return False
 
 def _use_anywidget() -> bool:
-    if not _anywidget_available():
+    if not anywidget_available():
         return False
-    if _is_marimo_runtime():
+    if is_marimo_runtime():
         return True
     try:
         from IPython import get_ipython
@@ -154,7 +196,7 @@ def _use_anywidget() -> bool:
         return False
 
 def _require_marimo_anywidget() -> None:
-    if _is_marimo_runtime() and not _anywidget_available():
+    if is_marimo_runtime() and not anywidget_available():
         raise RuntimeError(
             "Bokeh output in marimo requires AnyWidget 0.11 or later. "
             "Install Bokeh's notebook extra with 'pip install bokeh[notebook]'.",
@@ -163,6 +205,11 @@ def _require_marimo_anywidget() -> None:
 def _comm_id(comm: Comm) -> str:
     comm_id = getattr(comm, "comm_id", None)
     return comm_id if isinstance(comm_id, str) and comm_id else str(id(comm))
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 
 class DocumentViewHandle:
     ''' A live artifact handle with one independent comm per frontend view.
@@ -247,7 +294,12 @@ class DocumentViewHandle:
 
     @property
     def closed(self) -> bool:
-        ''' Report whether this handle has been closed. '''
+        '''Report whether this handle has been closed.
+
+        Returns:
+            Whether the handle has been closed.
+
+        '''
         return self._closed
 
     def _retain_frontend(self, frontend: Any) -> None:
@@ -294,7 +346,12 @@ class DocumentViewHandle:
 
     @property
     def views(self) -> int:
-        ''' Return the number of connected frontend views. '''
+        '''Return the number of connected frontend views.
+
+        Returns:
+            The number of connected frontend views.
+
+        '''
         return len(self._comms)
 
     def __enter__(self) -> Self:
@@ -315,6 +372,7 @@ class DocumentViewHandle:
 
     # These dispatch methods receive changes from the source document. Only
     # events for models represented by this output belong to this handle.
+
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
         if self._belongs(event.model):
             self._record(event)
@@ -441,22 +499,42 @@ class ApplicationViewHandle:
 
     @property
     def application(self) -> NotebookApplication:
-        ''' Return the managed application displayed by this view. '''
+        '''Return the managed application displayed by this view.
+
+        Returns:
+            The managed notebook application.
+
+        '''
         return self._application
 
     @property
     def closed(self) -> bool:
-        ''' Report whether this view handle has been closed. '''
+        '''Report whether this view handle has been closed.
+
+        Returns:
+            Whether the view handle has been closed.
+
+        '''
         return self._closed
 
     @property
     def view_id(self) -> str:
-        ''' Return the identifier of this notebook output view. '''
+        '''Return the identifier of this notebook output view.
+
+        Returns:
+            The notebook output view identifier.
+
+        '''
         return self._view_id
 
     @property
     def views(self) -> int:
-        ''' Return the number of connected frontends for this view. '''
+        '''Return the number of connected frontends for this view.
+
+        Returns:
+            The number of connected frontends.
+
+        '''
         return len(self._comms)
 
     def _retain_frontend(self, frontend: Any) -> None:
@@ -600,7 +678,7 @@ def notebook_environment() -> bool:
         Whether an interactive notebook kernel or marimo runtime is active.
 
     '''
-    if _is_marimo_runtime():
+    if is_marimo_runtime():
         return True
     try:
         from IPython import get_ipython
@@ -639,11 +717,11 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     _require_marimo_anywidget()
 
     from ..embed.notebook import notebook_content
-    from .jupyter import DISPLAY_MIME_TYPE, _display_payload
+    from .jupyter import DISPLAY_MIME_TYPE, display_payload
 
-    marimo = _is_marimo_runtime()
+    marimo = is_marimo_runtime()
     colab = _is_colab_runtime()
-    portable_widget = (marimo or colab) and _anywidget_available()
+    portable_widget = (marimo or colab) and anywidget_available()
     artifact, fragment = notebook_content(obj)
     if colab and not portable_widget:
         from ..embed.resources import ResourcePolicy
@@ -657,13 +735,13 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     else:
         resource_id = _ensure_notebook_resources(artifact, resources, publish=not portable_widget)
     view_id = make_id()
-    fallback = _static_fallback(_STATIC_FALLBACK_MESSAGE)
+    fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
     html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
-    payload = _display_payload(artifact, resource_id, view_id)
+    payload = display_payload(artifact, resource_id, view_id)
     if portable_widget:
         from ._anywidget import display_widget
 
-        widget = display_widget(payload, html, _RESOURCE_RECORDS)
+        widget = display_widget(payload, html, RESOURCE_RECORDS)
         bundle = widget._repr_mimebundle_()
         if bundle is None:
             return None
@@ -741,7 +819,7 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
         state.document.add_root(obj)
 
     from ..embed.notebook import notebook_content
-    from .jupyter import DISPLAY_MIME_TYPE, _display_payload
+    from .jupyter import DISPLAY_MIME_TYPE, display_payload
 
     use_anywidget = _use_anywidget()
     _require_marimo_anywidget()
@@ -754,9 +832,9 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
     resource_id = _ensure_notebook_resources(artifact, resources, publish=not use_anywidget)
     live_id = make_id()
     view_id = make_id()
-    fallback = _static_fallback(_STATIC_FALLBACK_MESSAGE)
+    fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
     html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
-    payload = _display_payload(artifact, resource_id, view_id, live_id=live_id)
+    payload = display_payload(artifact, resource_id, view_id, live_id=live_id)
 
     handle = DocumentViewHandle(obj, live_id=live_id, view_id=view_id, resources=resources)
     root_key = (id(state.document), id(obj))
@@ -771,7 +849,7 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
 
             from ._anywidget import display_widget
 
-            widget = display_widget(payload, html, _RESOURCE_RECORDS, handle=handle)
+            widget = display_widget(payload, html, RESOURCE_RECORDS, handle=handle)
             handle._retain_frontend(widget)
             display(widget)
             return handle
@@ -813,7 +891,7 @@ def show_hosted_app(app: NotebookApplication, state: State,
         )
 
     from ..embed import embed_server
-    from .jupyter import DISPLAY_MIME_TYPE, _display_payload
+    from .jupyter import DISPLAY_MIME_TYPE, display_payload
 
     use_anywidget = _use_anywidget()
     _require_marimo_anywidget()
@@ -825,7 +903,7 @@ def show_hosted_app(app: NotebookApplication, state: State,
     view_id = make_id()
     artifact = embed_server(app.url, metadata={"notebook_application_id": app.application_id})
     resource_id = _ensure_notebook_resources(artifact, resources, publish=not use_anywidget)
-    payload = _display_payload(
+    payload = display_payload(
         artifact,
         resource_id,
         view_id,
@@ -833,7 +911,7 @@ def show_hosted_app(app: NotebookApplication, state: State,
         application_url=app.url,
     )
     html = artifact.fragment(resources="none").html
-    html = html.replace("</div>", f"{_static_fallback(_STATIC_FALLBACK_MESSAGE)}</div>", 1)
+    html = html.replace("</div>", f"{static_fallback(_STATIC_FALLBACK_MESSAGE)}</div>", 1)
     handle = ApplicationViewHandle(app, view_id, artifact)
     _retain_application_handle(handle)
     if not use_anywidget:
@@ -844,7 +922,7 @@ def show_hosted_app(app: NotebookApplication, state: State,
 
             from ._anywidget import display_widget
 
-            widget = display_widget(payload, html, _RESOURCE_RECORDS, handle=handle)
+            widget = display_widget(payload, html, RESOURCE_RECORDS, handle=handle)
             handle._retain_frontend(widget)
             display(widget)
             return handle
@@ -859,23 +937,19 @@ def show_hosted_app(app: NotebookApplication, state: State,
         raise
     return handle
 
-def _close_application_views(app: NotebookApplication) -> None:
+def close_application_views(app: NotebookApplication) -> None:
     for handle in tuple(_APPLICATION_VIEW_HANDLES.values()):
         if handle.application is app:
             handle.close()
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
 _PUBLISHED_RESOURCE_IDS: set[str] = set()
 
-_RESOURCE_RECORDS: dict[str, dict[str, Any]] = {}
+RESOURCE_RECORDS: dict[str, dict[str, Any]] = {}
 _ARTIFACT_OWNERS: dict[str, str] = {}
 _RESOURCE_COMM_KERNEL: Any | None = None
 _RESOURCE_COMM_TARGET = RESOURCE_COMM_TARGET
 
-def _static_fallback(message: str, *, title: str = "Interactive Bokeh output unavailable") -> str:
+def static_fallback(message: str, *, title: str = "Interactive Bokeh output unavailable") -> str:
     return (
         f'<div class="bk-notebook-static-fallback" {STATIC_FALLBACK_ATTRIBUTE}="" role="note" '
         'style="border:1px solid #e6a3a3;border-left:4px solid #c33;padding:8px 12px;margin:4px 0;'
@@ -896,7 +970,7 @@ def _register_resource_comm_target() -> None:
         def send_resource(comm: Any, message: dict[str, Any]) -> None:
             data = message.get("content", {}).get("data", {})
             resource_id = data.get("resource_id")
-            record = _RESOURCE_RECORDS.get(resource_id)
+            record = RESOURCE_RECORDS.get(resource_id)
             if record is None:
                 comm.send({
                     "resource_id": resource_id,
@@ -915,13 +989,13 @@ def _register_resource_comm_target() -> None:
 def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, publish: bool = True) -> str:
     from .jupyter import (
         RESOURCES_MIME_TYPE,
-        _resource_artifact_ids,
-        _resource_asset_subset,
-        _resource_javascript,
-        _resource_payload,
+        resource_artifact_ids,
+        resource_asset_subset,
+        resource_javascript,
+        resource_payload,
     )
 
-    required_ids = _resource_artifact_ids(resolved)
+    required_ids = resource_artifact_ids(resolved)
     new_ids = {artifact_id for artifact_id in required_ids if artifact_id not in _ARTIFACT_OWNERS}
     dependencies = list(dict.fromkeys(
         _ARTIFACT_OWNERS[artifact_id]
@@ -938,18 +1012,18 @@ def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, 
         resource_id = dependencies[0]
         if publish and resource_id not in _PUBLISHED_RESOURCE_IDS:
             _PUBLISHED_RESOURCE_IDS.add(resource_id)
-            record = _RESOURCE_RECORDS[resource_id]
+            record = RESOURCE_RECORDS[resource_id]
             publish_display_data({
                 JS_MIME_TYPE: record["javascript"],
                 RESOURCES_MIME_TYPE: record["payload"],
             })
         return resource_id
 
-    delta = _resource_asset_subset(resolved, new_ids)
-    payload = _resource_payload(resolved, load_timeout, dependencies=dependencies, assets=delta)
+    delta = resource_asset_subset(resolved, new_ids)
+    payload = resource_payload(resolved, load_timeout, dependencies=dependencies, assets=delta)
     resource_id = payload["resource_id"]
-    javascript = _resource_javascript(payload, delta)
-    _RESOURCE_RECORDS[resource_id] = {"payload": payload, "javascript": javascript}
+    javascript = resource_javascript(payload, delta)
+    RESOURCE_RECORDS[resource_id] = {"payload": payload, "javascript": javascript}
     for artifact_id in new_ids:
         _ARTIFACT_OWNERS[artifact_id] = resource_id
     _register_resource_comm_target()
@@ -973,21 +1047,21 @@ def _ensure_notebook_resources(artifact: EmbedArtifact, resources: ResourcePolic
     resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
     return _publish_resource_record(resolved, load_timeout, publish=publish)
 
-def _reset_notebook_resources() -> None:
+def reset_notebook_resources() -> None:
     global _NOTEBOOK_COMM_KERNEL, _RESOURCE_COMM_KERNEL
     for handle in tuple(_DOCUMENT_VIEW_HANDLES.values()):
         handle.close()
     for application_handle in tuple(_APPLICATION_VIEW_HANDLES.values()):
         application_handle.close()
     _PUBLISHED_RESOURCE_IDS.clear()
-    _RESOURCE_RECORDS.clear()
+    RESOURCE_RECORDS.clear()
     _ARTIFACT_OWNERS.clear()
     _DOCUMENT_VIEW_HANDLES_BY_VIEW.clear()
     _OUTPUT_DOCUMENT_ROOTS.clear()
     _NOTEBOOK_COMM_KERNEL = None
     _RESOURCE_COMM_KERNEL = None
 
-def _server_url(url: str, port: int | None) -> str:
+def server_url(url: str, port: int | None) -> str:
     '''
 
     '''
@@ -1041,7 +1115,7 @@ def _remote_jupyter_proxy_url(port: int | None) -> str:
     return full_url
 
 
-def _update_notebook_url_from_env(notebook_url: str | ProxyUrlFunc) -> str | ProxyUrlFunc:
+def update_notebook_url_from_env(notebook_url: str | ProxyUrlFunc) -> str | ProxyUrlFunc:
     """If the environment variable ``JUPYTER_BOKEH_EXTERNAL_URL`` is defined, returns a function which
     generates URLs which can traverse the JupyterHub proxy. Otherwise returns ``notebook_url`` unmodified.
 

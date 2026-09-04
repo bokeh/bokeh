@@ -13,6 +13,7 @@ export function withTimeout<T>(promise: Promise<T>, milliseconds: number, error:
   if (signal?.aborted == true) return Promise.reject(signal.reason ?? new DOMException("Rendering was cancelled", "AbortError"))
   return new Promise((resolve, reject) => {
     let settled = false
+
     const finish = (callback: (value: any) => void, value: any) => {
       if (settled) return
       settled = true
@@ -20,6 +21,7 @@ export function withTimeout<T>(promise: Promise<T>, milliseconds: number, error:
       signal?.removeEventListener("abort", aborted)
       callback(value)
     }
+
     const aborted = () => finish(reject, signal?.reason ?? new DOMException("Rendering was cancelled", "AbortError"))
     const timer = window.setTimeout(() => finish(reject, error), milliseconds)
     signal?.addEventListener("abort", aborted, {once: true})

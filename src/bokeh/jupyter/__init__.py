@@ -14,20 +14,31 @@ from tornado import web
 
 # Bokeh imports
 from ..io.jupyter_export import (
-    _reset_export_correlation,
-    _set_export_correlation,
-    _store_export_snapshots,
-    _valid_export_id,
+    reset_export_correlation,
+    set_export_correlation,
+    store_export_snapshots,
+    valid_export_id,
 )
 
 _PNG_PREPROCESSOR = "bokeh.io.jupyter_export.BokehPNGPreprocessor"
 _MAX_TRANSIENT_EXPORT_BYTES = 50 * 1024 * 1024
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 
 class _ExportSnapshotsHandler(JupyterHandler):
     '''Receive in-memory BokehJS state for one UI-initiated export.'''
 
     @web.authenticated
     async def post(self) -> None:
+        '''Store the correlated frontend state for one export request.
+
+        Returns:
+            None
+
+        '''
         if len(self.request.body) > _MAX_TRANSIENT_EXPORT_BYTES:
             raise web.HTTPError(413, "Bokeh frontend export state exceeds the 50 MiB limit")
         body = self.get_json_body()
@@ -40,7 +51,7 @@ class _ExportSnapshotsHandler(JupyterHandler):
             raise web.HTTPError(400, "A notebook path ending in .ipynb is required")
         if not isinstance(snapshots, list) or len(snapshots) > 512:
             raise web.HTTPError(400, "snapshots must be an array with at most 512 entries")
-        if not _valid_export_id(export_id):
+        if not valid_export_id(export_id):
             raise web.HTTPError(400, "A valid export_id correlation value is required")
         if any(not isinstance(snapshot, dict) for snapshot in snapshots):
             raise web.HTTPError(400, "Every snapshot must be an object")
@@ -59,7 +70,7 @@ class _ExportSnapshotsHandler(JupyterHandler):
             resolved_path = resolve_os_path(path)
             if isinstance(resolved_path, str):
                 os_path = resolved_path
-        _store_export_snapshots(path, export_id, snapshots, os_path=os_path)
+        store_export_snapshots(path, export_id, snapshots, os_path=os_path)
         self.set_header("Cache-Control", "no-store")
         self.finish({"accepted": len(snapshots)})
 
@@ -68,20 +79,32 @@ class _CorrelatedNbconvertFileHandler(NbconvertFileHandler):
     '''Run nbconvert with the exact frontend snapshot correlation in context.'''
 
     async def get(self, format: str, path: str) -> None:
+        '''Run nbconvert with a validated export correlation.
+
+        Args:
+            format: The requested nbconvert format.
+            path: The notebook path.
+
+        Returns:
+            None
+
+        '''
         export_id = self.get_argument("export_id", None)
-        if not _valid_export_id(export_id):
+        if not valid_export_id(export_id):
             raise web.HTTPError(400, "A valid export_id correlation value is required")
-        token = _set_export_correlation(export_id)
+        token = set_export_correlation(export_id)
         try:
             await cast(Awaitable[Any], super().get(format, path))
         finally:
-            _reset_export_correlation(token)
+            reset_export_correlation(token)
 
-def _jupyter_labextension_paths() -> list[dict[str, str]]:
+def jupyter_labextension_paths() -> list[dict[str, str]]:
     return [{"src": "labextension", "dest": "@bokeh/bokeh-jupyter"}]
+
 
 def _jupyter_server_extension_points() -> list[dict[str, str]]:
     return [{"module": "bokeh.jupyter"}]
+
 
 def _load_jupyter_server_extension(serverapp: Any) -> None:
     '''Enable export-only PNG capture for the server's HTML nbconvert route.'''

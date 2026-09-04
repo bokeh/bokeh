@@ -31,9 +31,9 @@ from traitlets import Bool, Enum, Integer
 
 # Bokeh imports
 from ..embed.artifact import ArtifactValidationError, EmbedArtifact
-from .export import ExportBackendType, _get_screenshot_as_png_from_html
+from .export import ExportBackendType, get_screenshot_as_png_from_html
 from .jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE
-from .notebook import STATIC_FALLBACK_ATTRIBUTE, _static_fallback
+from .notebook import STATIC_FALLBACK_ATTRIBUTE, static_fallback
 
 _FALLBACK_RE = re.compile(
     rf'<div\b(?=[^>]*\b{STATIC_FALLBACK_ATTRIBUTE}(?:=(?:""|\'\'))?)[^>]*>.*?</div>',
@@ -53,15 +53,43 @@ class _ArtifactPayloadParser(HTMLParser):
         self._collecting = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        '''Start collecting an artifact payload script.
+
+        Args:
+            tag: The HTML tag name.
+            attrs: The tag attributes.
+
+        Returns:
+            None
+
+        '''
         if tag == "script" and any(name == "data-bokeh-artifact-payload" for name, _value in attrs):
             self.payload = []
             self._collecting = True
 
     def handle_endtag(self, tag: str) -> None:
+        '''Stop collecting at the end of a script element.
+
+        Args:
+            tag: The HTML tag name.
+
+        Returns:
+            None
+
+        '''
         if tag == "script":
             self._collecting = False
 
     def handle_data(self, data: str) -> None:
+        '''Collect artifact payload text.
+
+        Args:
+            data: Text from the current HTML element.
+
+        Returns:
+            None
+
+        '''
         if self._collecting and self.payload is not None:
             self.payload.append(data)
 
@@ -78,29 +106,33 @@ _TRANSIENT_EXPORT_LIMIT = 32
 _TRANSIENT_EXPORTS: list[tuple[float, set[str], str, dict[str, dict[str, Any]]]] = []
 _EXPORT_CORRELATION_ID: ContextVar[str | None] = ContextVar("bokeh_notebook_export_id", default=None)
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 
 def _alias(path: str) -> str:
     return os.path.normcase(os.path.normpath(path))
 
 
-def _valid_export_id(value: Any) -> TypeGuard[str]:
+def valid_export_id(value: Any) -> TypeGuard[str]:
     return isinstance(value, str) and _EXPORT_ID_RE.fullmatch(value) is not None
 
 
-def _set_export_correlation(export_id: str) -> Token[str | None]:
-    if not _valid_export_id(export_id):
+def set_export_correlation(export_id: str) -> Token[str | None]:
+    if not valid_export_id(export_id):
         raise ValueError("export_id must be a 16-128 character URL-safe correlation ID")
     return _EXPORT_CORRELATION_ID.set(export_id)
 
 
-def _reset_export_correlation(token: Token[str | None]) -> None:
+def reset_export_correlation(token: Token[str | None]) -> None:
     _EXPORT_CORRELATION_ID.reset(token)
 
 
-def _store_export_snapshots(path: str, export_id: str, snapshots: list[dict[str, Any]], *,
+def store_export_snapshots(path: str, export_id: str, snapshots: list[dict[str, Any]], *,
         os_path: str | None = None) -> None:
     '''Store bounded frontend state for exactly one correlated export request.'''
-    if not _valid_export_id(export_id):
+    if not valid_export_id(export_id):
         raise ValueError("export_id must be a 16-128 character URL-safe correlation ID")
     aliases = {_alias(path)}
     if os_path is not None:
@@ -132,13 +164,12 @@ def _store_export_snapshots(path: str, export_id: str, snapshots: list[dict[str,
         _TRANSIENT_EXPORTS.append((now, aliases, export_id, accepted))
         del _TRANSIENT_EXPORTS[:-_TRANSIENT_EXPORT_LIMIT]
 
-
 def _take_export_snapshots(resources: dict[str, Any], export_id: str | None = None) -> dict[str, dict[str, Any]]:
     metadata = resources.get("metadata", {})
     name = metadata.get("name") if isinstance(metadata, dict) else None
     directory = metadata.get("path") if isinstance(metadata, dict) else None
     correlation = export_id or _EXPORT_CORRELATION_ID.get()
-    if not isinstance(name, str) or not _valid_export_id(correlation):
+    if not isinstance(name, str) or not valid_export_id(correlation):
         return {}
     filename = name if name.endswith(".ipynb") else f"{name}.ipynb"
     aliases = {_alias(filename)}
@@ -154,6 +185,10 @@ def _take_export_snapshots(resources: dict[str, Any], export_id: str | None = No
                 del _TRANSIENT_EXPORTS[index]
                 return snapshots
     return {}
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 
 class BokehPNGPreprocessor(Preprocessor):
@@ -257,7 +292,7 @@ class BokehPNGPreprocessor(Preprocessor):
             view_id = payload.get("view_id")
             html = data.get("text/html")
             if not self._trusted:
-                replacement = _static_fallback(
+                replacement = static_fallback(
                     "This Bokeh output was not converted to PNG because the notebook is untrusted. "
                     "Trust and save the notebook, then export it again.",
                 )
@@ -274,7 +309,7 @@ class BokehPNGPreprocessor(Preprocessor):
                     replacement = self._capture(html, view_id)
                 except _PngUnavailable as error:
                     self.log.warning("Bokeh PNG export unavailable: %s", error)
-                    replacement = _static_fallback(str(error))
+                    replacement = static_fallback(str(error))
                 except Exception as error:
                     self.log.warning("Bokeh PNG export failed", exc_info=True)
                     replacement = self._capture_failed(error)
@@ -286,7 +321,7 @@ class BokehPNGPreprocessor(Preprocessor):
 
     @staticmethod
     def _capture_failed(error: Exception) -> str:
-        return _static_fallback(
+        return static_fallback(
             "This Bokeh output could not be converted to PNG during notebook export. "
             "Install Playwright and its Chromium browser, then export again. "
             f"The exporter reported {type(error).__name__}.",
@@ -330,7 +365,7 @@ class BokehPNGPreprocessor(Preprocessor):
         page = artifact.page(resources="inline")
         if isinstance(width, (int, float)) and 1 <= width <= 10000:
             page = page.replace("<body>", f'<body style="width:{round(width)}px">', 1)
-        image = _get_screenshot_as_png_from_html(
+        image = get_screenshot_as_png_from_html(
             page, timeout=self.timeout, backend=cast(ExportBackendType, self.backend),
         )
         buffer = io.BytesIO()
@@ -376,7 +411,7 @@ class BokehPNGPreprocessor(Preprocessor):
             fallback = _FALLBACK_RE.search(html)
             if fallback is not None:
                 return fallback.group(0)
-        return _static_fallback(default)
+        return static_fallback(default)
 
 
 class BokehHTMLExporter(HTMLExporter):

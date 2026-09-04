@@ -646,10 +646,10 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         # the structural debug representation here would prevent its generic
         # formatter from reaching Bokeh's AnyWidget MIME representation.
         try:
-            from ..io.notebook import _is_marimo_runtime
+            from ..io.notebook import is_marimo_runtime
         except ImportError:
             return html_repr(self)
-        if _is_marimo_runtime():
+        if is_marimo_runtime():
             return None
         return html_repr(self)
 

@@ -183,8 +183,8 @@ def test_marimo_static_representation_uses_anywidget() -> None:
     widget._repr_mimebundle_.return_value = ({"application/vnd.jupyter.widget-view+json": {"model_id": "widget"}}, {})
     with (
         patch("bokeh.io.notebook.notebook_environment", return_value=True),
-        patch("bokeh.io.notebook._is_marimo_runtime", return_value=True),
-        patch("bokeh.io.notebook._anywidget_available", return_value=True),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=True),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resources"),
         patch("bokeh.io._anywidget.display_widget", return_value=widget),
     ):

@@ -12,8 +12,8 @@ nbformat = pytest.importorskip("nbformat")
 
 # Bokeh imports
 from bokeh.embed import embed, embed_server
-from bokeh.io.jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE, _display_payload
-from bokeh.io.notebook import _static_fallback
+from bokeh.io.jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE, display_payload
+from bokeh.io.notebook import static_fallback
 from bokeh.plotting import figure
 
 # Module under test
@@ -30,8 +30,8 @@ def _output(artifact=None, *, view_id: str = "view"):
     return nbformat.v4.new_output(
         "display_data",
         data={
-            "text/html": artifact.fragment(resources="none").html + _static_fallback("fallback"),
-            DISPLAY_MIME_TYPE: _display_payload(artifact, "resources", view_id),
+            "text/html": artifact.fragment(resources="none").html + static_fallback("fallback"),
+            DISPLAY_MIME_TYPE: display_payload(artifact, "resources", view_id),
         },
     )
 
@@ -50,7 +50,7 @@ def _image() -> MagicMock:
 
 def test_transient_snapshots_require_exact_path_and_export_correlation() -> None:
     artifact = embed(figure())
-    m._store_export_snapshots("folder/test.ipynb", "export-identifier-0001", [{
+    m.store_export_snapshots("folder/test.ipynb", "export-identifier-0001", [{
         "view_id": "view", "artifact_json": artifact.to_json_string(), "width": 321.4,
     }])
     resources = {"metadata": {"name": "test", "path": "/tmp/folder"}}
@@ -58,7 +58,7 @@ def test_transient_snapshots_require_exact_path_and_export_correlation() -> None
     assert m._take_export_snapshots(resources, "wrong-identifier-001") == {}
     assert m._take_export_snapshots(resources, "export-identifier-0001")["view"]["width"] == 321
 
-    m._store_export_snapshots("folder/test.ipynb", "export-identifier-0002", [{
+    m.store_export_snapshots("folder/test.ipynb", "export-identifier-0002", [{
         "view_id": "view", "artifact_json": artifact.to_json_string(), "width": 321.4,
     }], os_path="/tmp/folder/test.ipynb")
     snapshots = m._take_export_snapshots(resources, "export-identifier-0002")
@@ -67,17 +67,17 @@ def test_transient_snapshots_require_exact_path_and_export_correlation() -> None
 
 
 def test_context_correlation_propagates_to_preprocessor_lookup() -> None:
-    m._store_export_snapshots("test.ipynb", "export-identifier-0003", [{"view_id": "view", "error": "failure"}])
-    token = m._set_export_correlation("export-identifier-0003")
+    m.store_export_snapshots("test.ipynb", "export-identifier-0003", [{"view_id": "view", "error": "failure"}])
+    token = m.set_export_correlation("export-identifier-0003")
     try:
         assert m._take_export_snapshots({"metadata": {"name": "test"}}) == {"view": {"error": "failure"}}
     finally:
-        m._reset_export_correlation(token)
+        m.reset_export_correlation(token)
 
 
 def test_invalid_correlation_ids_are_rejected() -> None:
     with pytest.raises(ValueError, match="correlation ID"):
-        m._store_export_snapshots("test.ipynb", "spaces are unsafe", [])
+        m.store_export_snapshots("test.ipynb", "spaces are unsafe", [])
 
 
 def test_artifact_payload_is_parsed_from_its_declared_script() -> None:
@@ -90,7 +90,7 @@ def test_saved_artifact_is_captured_through_common_page_and_playwright() -> None
     preprocessor = m.BokehPNGPreprocessor(require_trusted=False)
     with (
         patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html>artifact page</html>") as page,
-        patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html", return_value=_image()) as screenshot,
+        patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()) as screenshot,
     ):
         result, _ = preprocessor.preprocess(copy.deepcopy(notebook), {"output_extension": ".html", "metadata": {"name": "test"}})
 
@@ -106,20 +106,20 @@ def test_current_frontend_artifact_wins_over_saved_state() -> None:
     notebook = _notebook(_output(saved))
     current_snapshot = current.to_dict()
     current_snapshot.pop("fingerprint")
-    m._store_export_snapshots("test.ipynb", "export-identifier-0004", [{
+    m.store_export_snapshots("test.ipynb", "export-identifier-0004", [{
         "view_id": "view", "artifact_json": json.dumps(current_snapshot), "width": 444,
     }])
-    token = m._set_export_correlation("export-identifier-0004")
+    token = m.set_export_correlation("export-identifier-0004")
     try:
         with (
             patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>") as page,
-            patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html", return_value=_image()),
+            patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()),
         ):
             result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
                 copy.deepcopy(notebook), {"output_extension": ".html", "metadata": {"name": "test"}},
             )
     finally:
-        m._reset_export_correlation(token)
+        m.reset_export_correlation(token)
 
     html = result.cells[0].outputs[0].data["text/html"]
     assert 'data-bokeh-notebook-export-state="current-frontend"' in html
@@ -129,7 +129,7 @@ def test_current_frontend_artifact_wins_over_saved_state() -> None:
 
 def test_server_artifact_uses_static_fallback_without_frontend_snapshot() -> None:
     notebook = _notebook(_output(embed_server("http://127.0.0.1:4321/app")))
-    with patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html") as screenshot:
+    with patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html") as screenshot:
         result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
             notebook, {"output_extension": ".html", "metadata": {"name": "test"}},
         )
@@ -141,7 +141,7 @@ def test_server_artifact_uses_static_fallback_without_frontend_snapshot() -> Non
 def test_untrusted_artifact_is_never_executed() -> None:
     notebook = _notebook()
     notebook.cells[0].metadata["trusted"] = False
-    with patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html") as screenshot:
+    with patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html") as screenshot:
         result, _ = m.BokehPNGPreprocessor(require_trusted=True).preprocess(
             notebook, {"output_extension": ".html", "metadata": {"name": "test"}},
         )
@@ -166,7 +166,7 @@ def test_resource_owner_outputs_are_removed_from_export() -> None:
     ))
     with (
         patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>"),
-        patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html", return_value=_image()),
+        patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()),
     ):
         result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
             notebook, {"output_extension": ".html", "metadata": {"name": "test"}},
@@ -184,11 +184,11 @@ def test_anywidget_output_metadata_preserves_saved_artifact_export() -> None:
             "application/vnd.jupyter.widget-view+json": {"model_id": "widget"},
             "text/html": artifact.fragment(resources="none").html,
         },
-        metadata={DISPLAY_MIME_TYPE: _display_payload(artifact, "resources", "view")},
+        metadata={DISPLAY_MIME_TYPE: display_payload(artifact, "resources", "view")},
     )
     with (
         patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>"),
-        patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html", return_value=_image()),
+        patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()),
     ):
         result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
             _notebook(output), {"output_extension": ".html", "metadata": {"name": "test"}},

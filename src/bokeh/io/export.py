@@ -337,10 +337,10 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
     )
 
 
-def _get_screenshot_as_png_from_html(html: str, *, driver: DriverLike | None = None, timeout: int = 5,
+def get_screenshot_as_png_from_html(html: str, *, driver: DriverLike | None = None, timeout: int = 5,
         scale_factor: float = 1, backend: ExportBackendType | None = None) -> Image.Image:
     backend_module = _resolve_backend(driver, backend)
-    return backend_module._get_screenshot_as_png_from_html(
+    return backend_module.get_screenshot_as_png_from_html(
         html, driver=driver, timeout=timeout, scale_factor=scale_factor,
     )
 

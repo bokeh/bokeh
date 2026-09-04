@@ -24,6 +24,7 @@ import {
 
 export class ResourceRenderer extends Widget implements IRenderMime.IRenderer {
   constructor(_options: IRenderMime.IRendererOptions, private manager: ContextManager) {super()}
+
   async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
     const payload = model.data[RESOURCES_MIME_TYPE] as unknown as ResourcePayload
     const javascript = (model.data["application/javascript"] as string | undefined) ?? ""
@@ -40,6 +41,7 @@ export class ResourceRenderer extends Widget implements IRenderMime.IRenderer {
 
 export class FileRenderer extends Widget implements IRenderMime.IRenderer {
   constructor(private manager: ContextManager) {super()}
+
   async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
     const payload = model.data[FILE_MIME_TYPE] as unknown as FilePayload
     try {
@@ -67,13 +69,16 @@ export class DisplayRenderer extends Widget implements IRenderMime.IRenderer {
   private controller?: AbortController
   private generation = 0
   private payload?: DisplayPayload
+
   constructor(_options: IRenderMime.IRendererOptions, private manager: ContextManager) {
     super()
     manager.add(this)
   }
+
   snapshot(): FrontendDocumentSnapshot | undefined {
     return this.payload == null ? undefined : currentDocumentSnapshot(this.node, this.payload)
   }
+
   async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
     const generation = ++this.generation
     this.controller?.abort()
@@ -94,6 +99,7 @@ export class DisplayRenderer extends Widget implements IRenderMime.IRenderer {
       }
     }
   }
+
   dispose(): void {
     if (this.isDisposed) return
     this.generation++
