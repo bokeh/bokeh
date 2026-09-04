@@ -2,6 +2,7 @@ import "./setup"
 
 import {UIElementView} from "@bokehjs/models/ui/ui_element"
 import type {View} from "@bokehjs/core/view"
+import type {BokehMount} from "@bokehjs/api/io"
 import {div, empty, offset_bbox} from "@bokehjs/core/dom"
 import {isNumber, isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {entries} from "@bokehjs/core/util/object"
@@ -33,6 +34,7 @@ export type Test = {
   fn: ItFunc | ItAsyncFunc
   description: string
   skip: boolean
+  mounts: BokehMount[]
   views: View[]
   el?: HTMLElement
   viewport?: [number, number]
@@ -75,7 +77,7 @@ type _It = ItFn & {
 }
 
 function _it(description: string, fn: ItFunc | ItAsyncFunc, skip: boolean, no_image: boolean = false): Test {
-  const test: Test = {description, fn, skip, views: [], no_image}
+  const test: Test = {description, fn, skip, mounts: [], views: [], no_image}
   stack[0].tests.push(test)
   return test
 }
@@ -267,7 +269,14 @@ export async function clear(seq: TestSeq): Promise<void> {
 export const container = document.querySelector(".container")!
 
 function _clear_test(test: Test): void {
+  for (const mounted of test.mounts) {
+    void mounted.dispose()
+  }
+  test.mounts = []
   for (const view of test.views) {
+    if (view.is_destroyed) {
+      continue
+    }
     const {model} = view
     if (model.document != null) {
       model.document.remove_root(model)

@@ -5,7 +5,7 @@ import type {Message} from "protocol/message"
 import {logger} from "core/logging"
 import {size, values} from "core/util/object"
 
-import {add_document_standalone} from "./standalone"
+import {mount_document_standalone} from "./standalone"
 import type {DocsJson, RenderItem} from "./json"
 import {_resolve_element, _resolve_root_elements} from "./dom"
 
@@ -92,7 +92,7 @@ export async function embed_items_notebook(docs_json: DocsJson, render_items: Re
     const element = _resolve_element(item)
     const roots = _resolve_root_elements(item)
 
-    await add_document_standalone(document, element, roots)
+    await mount_document_standalone(document, element, {roots})
 
     for (const root of roots) {
       if (root instanceof HTMLElement) {

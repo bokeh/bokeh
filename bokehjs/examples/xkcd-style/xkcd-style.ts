@@ -146,5 +146,6 @@ export namespace Xkcd {
   doc.add_root(layout)
 
   const div = document.getElementById("dashboard")!
-  void Bokeh.embed.add_document_standalone(doc, div)
+  export const mounted = Bokeh.mount(doc, div)
+  void mounted.ready
 }

@@ -110,13 +110,102 @@ The same source works with Vite, Webpack, and Rspack:
 
 .. code-block:: typescript
 
-    import {mount} from "@bokeh/bokehjs"
+    import {MountError, mount} from "@bokeh/bokehjs"
 
-    const mounted = await mount(plot, document.querySelector<HTMLElement>("#app")!)
+    const mounted = mount(plot, document.querySelector<HTMLElement>("#app")!, {
+      on_error(error) {
+        if (error instanceof MountError) {
+          console.error(error.kind, error.root_key, error)
+        }
+      },
+    })
+    await mounted.ready
+
     // Later, when your application removes the host element:
-    function removePlot() {
-      mounted.dispose()
+    async function removePlot() {
+      await mounted.dispose()
     }
+
+``mount()`` returns its ``BokehMount`` immediately. Await ``ready`` before
+depending on rendered views. Failures are ``MountError`` instances classified
+as source, target, render, abort, or early-disposal errors; keyed failures also
+identify ``root_key``. The handle owns its views and listeners, but never its
+DOM targets. A document created for bare models is mount-owned and released on
+failure or disposal; a supplied ``Document`` remains caller-owned.
+
+Discovering declarative mounts from page JavaScript
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Page JavaScript does not always create the mount it needs to inspect. An
+artifact loader, Sphinx extension, or other declarative bootstrap may run after
+application code. Use the stable host element as the rendezvous point instead
+of searching ``Bokeh.index`` or relying on script order. ``when_mounted()``
+returns an existing ``target.bokehMount`` immediately or waits for that target
+to publish one. The wait is target-local—there is no process-wide mount
+registry—and accepts an ``AbortSignal``.
+
+This example is covered by the BokehJS mount unit suite. The observer script
+intentionally appears before the artifact loader:
+
+.. code-block:: html
+
+    <div id="external-sales-plot"></div>
+    <button id="remove-sales-plot">Remove plot</button>
+
+    <script type="module">
+      const target = document.querySelector("#external-sales-plot")
+      const controller = new AbortController()
+      window.addEventListener("pagehide", () => controller.abort(), {once: true})
+
+      const mounted = await Bokeh.when_mounted(target, {signal: controller.signal})
+      await mounted.ready
+
+      const plot = mounted.root("sales")
+      const source = mounted.document.get_model_by_name("sales-source")
+      const plot_view = plot == null ? null : mounted.view_lookup.find_one(plot)
+      console.log({plot, source, plot_view})
+
+      document.querySelector("#remove-sales-plot").addEventListener("click", async () => {
+        await mounted.dispose()
+      }, {once: true})
+    </script>
+
+    <!-- This later script creates or decodes the mount with logical root "sales". -->
+    <script src="/assets/sales-artifact.js"></script>
+
+Every resolved logical-root target exposes the same ``BokehMount`` through
+``target.bokehMount``. ``HTMLElement`` targets also carry a
+``data-bokeh-mounted`` marker while that handle is current. Disposal, detach,
+and target replacement clear the handle and marker only when they still belong
+to that mount, so disposal of a stale handle cannot erase a newer remount.
+``target.bokehMountError`` retains a structured pre-handle failure until a
+later mount publishes successfully.
+
+Bootstrap authors must report failures that happen before ``mount()`` can
+return a handle. This makes current and later calls to ``when_mounted()`` reject
+instead of waiting forever:
+
+.. code-block:: javascript
+
+    try {
+      await bootstrapArtifact(target)
+    } catch (cause) {
+      Bokeh.publish_mount_error(
+        target,
+        new Bokeh.MountError("source", "Unable to create the sales mount", cause),
+      )
+    }
+
+Normal asynchronous target and render failures are published automatically by
+``BokehMount``. Advanced integrations may also listen for the target-local
+``bokeh:mounted`` and ``bokeh:mount-error`` events, but ``when_mounted()`` is
+the preferred consumer API because it handles existing state, future state,
+and abort cleanup consistently.
+
+``view_lookup`` exposes only view queries such as ``find_one()``, ``query()``,
+and ``get_one()``. It does not expose ``ViewManager`` mutation operations.
+Prefer ``view(key)`` for a logical root and use ``view_lookup`` only when code
+already has a model deeper in the document graph.
 
 Sharing models between plots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -241,16 +330,31 @@ reference when the elements have no common DOM parent:
       document.querySelector(selector)!.append(root)
     }
 
-Direct consumers can supply the corresponding targets by index. A document
-fragment is a convenient unused fallback target:
+Direct consumers name the roots and supply targets with the same logical keys:
 
 .. code-block:: typescript
 
-    const mounted = await mount(
-      [overview, detail],
-      document.createDocumentFragment(),
-      {root_targets: [document.querySelector("#summary")!, document.querySelector("#detail")!]},
-    )
+    import {MountSource, mount} from "@bokeh/bokehjs"
+
+    const source = MountSource.from_roots({summary: overview, detail})
+    const mounted = mount(source, {
+      targets: {
+        summary: document.querySelector("#summary")!,
+        detail: document.querySelector("#detail")!,
+      },
+    })
+    await mounted.ready
+
+    // Selective changes preserve the sibling view and shared document.
+    mounted.detach("detail")
+    await mounted.attach("detail", document.querySelector("#new-detail")!)
+    await mounted.replace_target("summary", document.querySelector("#new-summary")!)
+
+Missing or ``null`` keyed targets leave those roots detached until
+``attach()`` is called. ``detach()`` removes only that root's view;
+``replace_target()`` moves an existing DOM view when possible. Disposing the
+handle removes every remaining view without removing caller-owned target
+elements or destroying a caller-owned document.
 
 Do not mount roots that share Bokeh models through separate adapter instances.
 Each mount owns a separate temporary document, and a Bokeh model can belong to
@@ -263,16 +367,24 @@ vanilla Vite/Webpack/Rspack, and Node.js server-side rendering are in
 for reuse in documentation and are continuously built from packed npm
 artifacts in BokehJS CI.
 
-``show()`` remains convenient for scripts; component frameworks should prefer
-``mount()`` because its lifetime is explicit.
+``show()`` remains convenient for scripts and now returns the same owning
+``BokehMount`` as ``mount()``. Await its ``ready`` promise and retain it for
+disposal; it no longer returns a raw view. The old public
+``Bokeh.embed.add_document_standalone()``, ``mount_document_standalone()``, and
+``add_document_from_session()`` paths are internal rendering bridges. Direct
+JavaScript code should use ``mount()`` or ``show()``; artifact and server hosts
+receive an owning mount from their public bootstrap API.
 
-Adapters remount only when the model, target, or mount-options object changes
-identity. Keep those values stable across ordinary framework renders. A single
-model can have only one owning temporary document at a time; dispose its current
-mount before moving it to another host. Abort a pending or active mount with
-``mountOptions.signal``. Adapter error callbacks and events report failures;
+Adapters remount when their model, target, or abort signal changes. Keep those
+values stable across ordinary framework renders. Removing one root slot from a
+document provider detaches only that view; the provider and its other root
+slots keep the shared document alive. A single model can have only one owning
+temporary document at a time, so dispose its current mount before moving it to
+another host. Abort a pending or active mount with ``mountOptions.signal``.
+Adapter error callbacks and events report the same structured mount failures;
 failed and superseded mounts clean up any views and temporary document they
-created. A caller-supplied ``Document`` remains owned by the caller.
+created. Framework packages do not inject Bokeh resource scripts or implement
+a second embed lifecycle.
 
 Importing BokehJS and creating models is safe during server-side rendering, but
 ``mount()`` requires a browser DOM. Create or hydrate the adapter from the
@@ -489,7 +601,8 @@ and hover policy. Here is an example of a ``pie`` chart and the plot it generate
     doc.add_root(plt.gridplot(
                      [[p1, p2], [p3, p4]],
                      {width: 250, height: 250}));
-    Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
+    const mounted = Bokeh.mount(doc, document.currentScript.parentElement);
+    await mounted.ready;
 
 .. _ug_advanced_bokehjs_interfaces_charts_bar:
 
@@ -595,8 +708,9 @@ create and modify plots.
         line_width: 2
     });
 
-    // show the plot, appending it to the end of the current section
-    Bokeh.Plotting.show(plot);
+    // show the plot and retain its lifecycle handle
+    const mounted = Bokeh.Plotting.show(plot);
+    await mounted.ready;
 
     function addPoint() {
         // add data --- all fields must be the same length.
