@@ -726,7 +726,7 @@ class TestSerializer:
 
     def test_Model_minimal_ids_can_omit_id(self) -> None:
         val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
-        encoder = Serializer(model_ids="minimal")
+        encoder = Serializer(models_with_ids=set())
         rep = encoder.encode(val)
         assert rep == ObjectRep(
             type="object",
@@ -777,6 +777,23 @@ class TestSerializer:
         decoded_root = decoded.roots[0]
         assert decoded_root.p0 == 20
         assert decoded_root.p3.p0 == 10
+
+    def test_Document_minimal_ids_omits_ancestor_of_cycle(self) -> None:
+        child0 = SomeModel(p0=10)
+        child1 = SomeModel(p0=20, p3=child0)
+        child0.p3 = child1
+        root = SomeModel(p0=30, p3=child0)
+
+        doc = Document()
+        doc.add_root(root)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+
+        assert "id" not in rep["roots"][0]
+        child0_rep = rep["roots"][0]["attributes"]["p3"]
+        assert child0_rep["id"] == child0.id
+        assert child0_rep["attributes"]["p3"]["id"] == child1.id
+        assert child0_rep["attributes"]["p3"]["attributes"]["p3"] == Ref(id=child0.id)
 
     def test_Model_circular(self) -> None:
         val0 = SomeModel(p0=10)

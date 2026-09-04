@@ -48,17 +48,15 @@ class Serialized<T> {
 
 export type Options = {
   references: Map<unknown, Ref>
-  models_with_ids: Set<unknown>
-  model_ids: "always" | "minimal"
+  models_with_ids: Set<unknown> | null
   binary: boolean
   include_defaults: boolean
 }
 
 export class Serializer {
   private readonly _references: Map<unknown, Ref>
-  private readonly _models_with_ids: Set<unknown>
+  private readonly _models_with_ids: Set<unknown> | null
 
-  readonly model_ids: "always" | "minimal"
   readonly binary: boolean
   readonly include_defaults: boolean
 
@@ -67,11 +65,11 @@ export class Serializer {
   constructor(options?: Partial<Options>) {
     this.binary = options?.binary ?? false
     this.include_defaults = options?.include_defaults ?? false
-    this.model_ids = options?.model_ids ?? "always"
 
     const references = options?.references
     this._references = references != null ? new Map(references) : new Map()
-    this._models_with_ids = new Set(options?.models_with_ids)
+    const models_with_ids = options?.models_with_ids
+    this._models_with_ids = models_with_ids == null ? null : new Set(models_with_ids)
   }
 
   get_ref(obj: unknown): Ref | undefined {
@@ -84,7 +82,7 @@ export class Serializer {
   }
 
   use_model_id(obj: unknown): boolean {
-    return this.model_ids == "always" || this._models_with_ids.has(obj)
+    return this._models_with_ids == null || this._models_with_ids.has(obj)
   }
 
   to_serializable<T extends SerializableType>(obj: T): Serialized<SerializableOf<T>>
