@@ -1,4 +1,4 @@
-import Choices from "choices.js"
+import type Choices from "choices.js"
 
 import type {StyleSheetLike} from "core/dom"
 import {select} from "core/dom"
@@ -19,30 +19,34 @@ function retarget<T extends Event>(event: T): T {
   return event
 }
 
-class OurChoices extends Choices {
-  override _onFocus(event: FocusEvent): void {
-    super._onFocus(retarget(event))
-  }
-  override _onBlur(event: FocusEvent): void {
-    super._onBlur(retarget(event))
-  }
-  override _onKeyUp(event: KeyboardEvent): void {
-    super._onKeyUp(retarget(event))
-  }
-  override _onKeyDown(event: KeyboardEvent): void {
-    super._onKeyDown(retarget(event))
-  }
-  override _onClick(event: MouseEvent): void {
-    super._onClick(retarget(event))
-  }
-  override _onTouchEnd(event: TouchEvent): void {
-    super._onTouchEnd(retarget(event))
-  }
-  override _onMouseDown(event: MouseEvent): void {
-    super._onMouseDown(retarget(event))
-  }
-  override _onMouseOver(event: MouseEvent): void {
-    super._onMouseOver(retarget(event))
+async function load_retargeting_choices_class(): Promise<typeof Choices> {
+  // Choices.js accesses browser globals when evaluated, so load it only with the view.
+  const {default: Choices} = await import("choices.js")
+  return class RetargetingChoices extends Choices {
+    override _onFocus(event: FocusEvent): void {
+      super._onFocus(retarget(event))
+    }
+    override _onBlur(event: FocusEvent): void {
+      super._onBlur(retarget(event))
+    }
+    override _onKeyUp(event: KeyboardEvent): void {
+      super._onKeyUp(retarget(event))
+    }
+    override _onKeyDown(event: KeyboardEvent): void {
+      super._onKeyDown(retarget(event))
+    }
+    override _onClick(event: MouseEvent): void {
+      super._onClick(retarget(event))
+    }
+    override _onTouchEnd(event: TouchEvent): void {
+      super._onTouchEnd(retarget(event))
+    }
+    override _onMouseDown(event: MouseEvent): void {
+      super._onMouseDown(retarget(event))
+    }
+    override _onMouseOver(event: MouseEvent): void {
+      super._onMouseOver(retarget(event))
+    }
   }
 }
 
@@ -51,6 +55,12 @@ export class MultiChoiceView extends InputWidgetView {
 
   declare input_el: HTMLSelectElement
   choice_el: Choices
+  protected _Choices: typeof Choices
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    this._Choices = await load_retargeting_choices_class()
+  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -113,7 +123,7 @@ export class MultiChoiceView extends InputWidgetView {
       searchResultLimit: this.model.search_option_limit ?? 4,
     }
 
-    this.choice_el = new OurChoices(this.input_el, options)
+    this.choice_el = new this._Choices(this.input_el, options)
     this.input_el.addEventListener("change", () => this.change_input())
   }
 

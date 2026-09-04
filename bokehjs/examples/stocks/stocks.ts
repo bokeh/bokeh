@@ -18,12 +18,12 @@ export namespace Stocks {
     })
 
     // Add axis and grid
-    const xaxis = new Bokeh.DatetimeAxis({axis_line_color: null, axis_label: "time"})
-    const yaxis = new Bokeh.LinearAxis({axis_line_color: null, axis_label: "price"})
+    const xaxis = Bokeh.DatetimeAxis.create({axis_line_color: null, axis_label: "time"})
+    const yaxis = Bokeh.LinearAxis.create({axis_line_color: null, axis_label: "price"})
     plot.add_layout(xaxis, "below")
     plot.add_layout(yaxis, "left")
-    plot.add_layout(new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0}))
-    plot.add_layout(new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1}))
+    plot.add_layout(Bokeh.Grid.create({ticker: xaxis.ticker, dimension: 0}))
+    plot.add_layout(Bokeh.Grid.create({ticker: yaxis.ticker, dimension: 1}))
 
     // Add a line for each entry in the source
     const colors = ["#aa0000", "#00aa00", "#0000aa", "#aaaa00", "#aa00aa", "#00aaaa"]
@@ -41,7 +41,7 @@ export namespace Stocks {
   }
 
   // Create source
-  const source = new Bokeh.ColumnDataSource({
+  const source = Bokeh.ColumnDataSource.create({
     data: {
       t:      [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
       corp_a: [1, 4, 3, 5, 2, 3, 2, 4],

@@ -8,10 +8,10 @@ describe("CompositeTicker Model", () => {
   describe("CompositeTicker get_best_ticker method", () => {
 
     const composite_ticker = () => {
-      return new CompositeTicker({tickers: [
-        new AdaptiveTicker({base: 10, min_interval: 0, max_interval: 5e2}),
-        new AdaptiveTicker({base: 60, min_interval: 1e3, max_interval: 3e4}),
-        new AdaptiveTicker({base: 24, min_interval: 3.6e6, max_interval: 4.32e7}),
+      return CompositeTicker.create({tickers: [
+        AdaptiveTicker.create({base: 10, min_interval: 0, max_interval: 5e2}),
+        AdaptiveTicker.create({base: 60, min_interval: 1e3, max_interval: 3e4}),
+        AdaptiveTicker.create({base: 24, min_interval: 3.6e6, max_interval: 4.32e7}),
       ]})
     }
 

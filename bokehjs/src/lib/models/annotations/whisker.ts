@@ -103,8 +103,8 @@ export class Whisker extends UpperLower {
     this.mixins<Whisker.Mixins>(LineVector)
 
     this.define<Whisker.Props>(({Ref, Nullable}) => ({
-      lower_head: [ Nullable(Ref(ArrowHead)), () => new TeeHead({size: 10}) ],
-      upper_head: [ Nullable(Ref(ArrowHead)), () => new TeeHead({size: 10}) ],
+      lower_head: [ Nullable(Ref(ArrowHead)), () => TeeHead.create({size: 10}) ],
+      upper_head: [ Nullable(Ref(ArrowHead)), () => TeeHead.create({size: 10}) ],
     }))
 
     this.override<Whisker.Props>({

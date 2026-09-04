@@ -30,13 +30,13 @@ import {radians} from "@bokehjs/core/util/math"
 
   function hplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
-      const p = new Plot({
+      const p = Plot.create({
         width: 300,
         height: options?.minor_size ?? 50,
-        x_scale: axis_type == "linear" ? new LinearScale() : new LogScale(),
-        y_scale: new LinearScale(),
-        x_range: axis_type == "linear" ? new Range1d({start: 100, end: 200}) : new Range1d({start: 10**-2, end: 10**11}),
-        y_range: new Range1d({start: 0, end: 1}),
+        x_scale: axis_type == "linear" ? LinearScale.create() : LogScale.create(),
+        y_scale: LinearScale.create(),
+        x_range: axis_type == "linear" ? Range1d.create({start: 100, end: 200}) : Range1d.create({start: 10**-2, end: 10**11}),
+        y_range: Range1d.create({start: 0, end: 1}),
         min_border_top: 0,
         min_border_bottom: 0,
         min_border_left: 20,
@@ -45,7 +45,7 @@ import {radians} from "@bokehjs/core/util/math"
         toolbar_location: null,
       })
 
-      const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
+      const axis = axis_type == "linear" ? LinearAxis.create(attrs) : LogAxis.create(attrs)
       if (options?.num_ticks != null) {
         axis.ticker.desired_num_ticks = options.num_ticks
       }
@@ -57,13 +57,13 @@ import {radians} from "@bokehjs/core/util/math"
 
   function vplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
-      const p = new Plot({
+      const p = Plot.create({
         width: options?.minor_size ?? 50,
         height: 300,
-        x_scale: new LinearScale(),
-        y_scale: axis_type == "linear" ? new LinearScale() : new LogScale(),
-        x_range: new Range1d({start: 0, end: 1}),
-        y_range: axis_type == "linear" ? new Range1d({start: 100, end: 200}) : new Range1d({start: 10**-2, end: 10**11}),
+        x_scale: LinearScale.create(),
+        y_scale: axis_type == "linear" ? LinearScale.create() : LogScale.create(),
+        x_range: Range1d.create({start: 0, end: 1}),
+        y_range: axis_type == "linear" ? Range1d.create({start: 100, end: 200}) : Range1d.create({start: 10**-2, end: 10**11}),
         min_border_top: 20,
         min_border_bottom: 20,
         min_border_left: 0,
@@ -72,7 +72,7 @@ import {radians} from "@bokehjs/core/util/math"
         toolbar_location: null,
       })
 
-      const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
+      const axis = axis_type == "linear" ? LinearAxis.create(attrs) : LogAxis.create(attrs)
       if (options?.num_ticks != null) {
         axis.ticker.desired_num_ticks = options.num_ticks
       }
@@ -174,27 +174,27 @@ import {radians} from "@bokehjs/core/util/math"
     })
 
     it("should support major_label_policy=AllLables with major_label_orientation=parallel", async () => {
-      await plot({major_label_policy: new AllLabels(), major_label_orientation: "parallel"}, {num_ticks: 20})
+      await plot({major_label_policy: AllLabels.create(), major_label_orientation: "parallel"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=NoOverlap(min_distance=10) with major_label_orientation=parallel", async () => {
-      await plot({major_label_policy: new NoOverlap({min_distance: 10}), major_label_orientation: "parallel"}, {num_ticks: 20})
+      await plot({major_label_policy: NoOverlap.create({min_distance: 10}), major_label_orientation: "parallel"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=NoOverlap(min_distance=50) with major_label_orientation=parallel", async () => {
-      await plot({major_label_policy: new NoOverlap({min_distance: 50}), major_label_orientation: "parallel"}, {num_ticks: 20})
+      await plot({major_label_policy: NoOverlap.create({min_distance: 50}), major_label_orientation: "parallel"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=AllLables with major_label_orientation=normal", async () => {
-      await plot({major_label_policy: new AllLabels(), major_label_orientation: "normal"}, {num_ticks: 20})
+      await plot({major_label_policy: AllLabels.create(), major_label_orientation: "normal"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=NoOverlap(min_distance=10) with major_label_orientation=normal", async () => {
-      await plot({major_label_policy: new NoOverlap({min_distance: 10}), major_label_orientation: "normal"}, {num_ticks: 20})
+      await plot({major_label_policy: NoOverlap.create({min_distance: 10}), major_label_orientation: "normal"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=NoOverlap(min_distance=50) with major_label_orientation=normal", async () => {
-      await plot({major_label_policy: new NoOverlap({min_distance: 50}), major_label_orientation: "normal"}, {num_ticks: 20})
+      await plot({major_label_policy: NoOverlap.create({min_distance: 50}), major_label_orientation: "normal"}, {num_ticks: 20})
     })
 
     it("should support single line axis_label and axis_label_standoff=70 and axis_label_standoff_mode=axis", async () => {
@@ -220,15 +220,15 @@ import {radians} from "@bokehjs/core/util/math"
     describe("in both orientations", () => {
       async function hvplot(attrs: Partial<LogAxis.Attrs>): Promise<void> {
         function make_plot(output_backend: OutputBackend) {
-          const p = new Plot({
+          const p = Plot.create({
             output_backend,
             title: output_backend,
             width: 600,
             height: 400,
-            x_scale: new LogScale(),
-            y_scale: new LogScale(),
-            x_range: new Range1d({start: 10**-2, end: 10**11}),
-            y_range: new Range1d({start: 10**-2, end: 10**11}),
+            x_scale: LogScale.create(),
+            y_scale: LogScale.create(),
+            x_range: Range1d.create({start: 10**-2, end: 10**11}),
+            y_range: Range1d.create({start: 10**-2, end: 10**11}),
             min_border_top: 20,
             min_border_bottom: 20,
             min_border_left: 0,
@@ -236,10 +236,10 @@ import {radians} from "@bokehjs/core/util/math"
             toolbar_location: null,
           })
 
-          p.add_layout(new LogAxis(attrs), "left")
-          p.add_layout(new LogAxis(attrs), "right")
-          p.add_layout(new LogAxis(attrs), "above")
-          p.add_layout(new LogAxis(attrs), "below")
+          p.add_layout(LogAxis.create(attrs), "left")
+          p.add_layout(LogAxis.create(attrs), "right")
+          p.add_layout(LogAxis.create(attrs), "above")
+          p.add_layout(LogAxis.create(attrs), "below")
 
           return p
         }
@@ -253,7 +253,7 @@ import {radians} from "@bokehjs/core/util/math"
       it("should support LaTeX notation on axis labels", async () => {
         await with_internal(async () => {
           const text = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
-          await hvplot({axis_label: new TeX({text})})
+          await hvplot({axis_label: TeX.create({text})})
         })
       })
 
@@ -262,9 +262,9 @@ import {radians} from "@bokehjs/core/util/math"
           await hvplot({
             major_label_overrides: new Map<number, string | TeX>([
               [1, "one"],
-              [0.01, new TeX({text: "\\frac{0.133}{\\mu+2\\sigma^2}"})],
-              [10000, new TeX({text: "10 \\ast 1000"})],
-              [1000000, new TeX({text: "\\sigma^2"})],
+              [0.01, TeX.create({text: "\\frac{0.133}{\\mu+2\\sigma^2}"})],
+              [10000, TeX.create({text: "10 \\ast 1000"})],
+              [1000000, TeX.create({text: "\\sigma^2"})],
             ]),
           })
         })
@@ -273,16 +273,16 @@ import {radians} from "@bokehjs/core/util/math"
 
     describe("with fixed location", () => {
       it("should be added without effecting the position of the toolbar", async () => {
-        const tools = [new PanTool(), new WheelZoomTool()]
+        const tools = [PanTool.create(), WheelZoomTool.create()]
         const p = fig([300, 300], {toolbar_location: "right"})
         p.scatter([1, 2, 3], [1, 2, 3])
-        p.extra_x_ranges = {["x"]: new Range1d({start: 0.9, end: 3.1})}
-        p.extra_y_ranges = {["y"]: new Range1d({start: 0.9, end: 3.1})}
-        p.add_layout(new LinearAxis({x_range_name: "x", fixed_location: 1.5}), "below")
-        p.add_layout(new LinearAxis({y_range_name: "y", fixed_location: 2.5}), "right")
-        p.add_layout(new ToolbarPanel({toolbar: new Toolbar({tools, location: "above"})}), "above")
-        p.add_layout(new ToolbarPanel({toolbar: new Toolbar({tools, location: "left"})}), "left")
-        p.add_layout(new ToolbarPanel({toolbar: new Toolbar({tools, location: "below"})}), "below")
+        p.extra_x_ranges = {["x"]: Range1d.create({start: 0.9, end: 3.1})}
+        p.extra_y_ranges = {["y"]: Range1d.create({start: 0.9, end: 3.1})}
+        p.add_layout(LinearAxis.create({x_range_name: "x", fixed_location: 1.5}), "below")
+        p.add_layout(LinearAxis.create({y_range_name: "y", fixed_location: 2.5}), "right")
+        p.add_layout(ToolbarPanel.create({toolbar: Toolbar.create({tools, location: "above"})}), "above")
+        p.add_layout(ToolbarPanel.create({toolbar: Toolbar.create({tools, location: "left"})}), "left")
+        p.add_layout(ToolbarPanel.create({toolbar: Toolbar.create({tools, location: "below"})}), "below")
         await display(p)
       })
     })
@@ -306,13 +306,13 @@ describe("CategoricalAxis", () => {
 
   function hplot(side: Side): PlotFn {
     return async (factors, attrs, options) => {
-      const p = new Plot({
+      const p = Plot.create({
         width: 300,
         height: options?.minor_size ?? 50,
-        x_scale: new CategoricalScale(),
-        y_scale: new LinearScale(),
-        x_range: new FactorRange({factors}),
-        y_range: new Range1d({start: 0, end: 1}),
+        x_scale: CategoricalScale.create(),
+        y_scale: LinearScale.create(),
+        x_range: FactorRange.create({factors}),
+        y_range: Range1d.create({start: 0, end: 1}),
         min_border_top: 0,
         min_border_bottom: 0,
         min_border_left: 20,
@@ -320,7 +320,7 @@ describe("CategoricalAxis", () => {
         title: null,
         toolbar_location: null,
       })
-      const axis = new CategoricalAxis(attrs)
+      const axis = CategoricalAxis.create(attrs)
       p.add_layout(axis, side)
       await display(p)
     }
@@ -328,13 +328,13 @@ describe("CategoricalAxis", () => {
 
   function vplot(side: Side): PlotFn {
     return async (factors, attrs, options) => {
-      const p = new Plot({
+      const p = Plot.create({
         width: options?.minor_size ?? 50,
         height: 300,
-        x_scale: new LinearScale(),
-        y_scale: new CategoricalScale(),
-        x_range: new Range1d({start: 0, end: 1}),
-        y_range: new FactorRange({factors}),
+        x_scale: LinearScale.create(),
+        y_scale: CategoricalScale.create(),
+        x_range: Range1d.create({start: 0, end: 1}),
+        y_range: FactorRange.create({factors}),
         min_border_top: 20,
         min_border_bottom: 20,
         min_border_left: 0,
@@ -342,7 +342,7 @@ describe("CategoricalAxis", () => {
         title: null,
         toolbar_location: null,
       })
-      const axis = new CategoricalAxis(attrs)
+      const axis = CategoricalAxis.create(attrs)
       p.add_layout(axis, side)
       await display(p)
     }

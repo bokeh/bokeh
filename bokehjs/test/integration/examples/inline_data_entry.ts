@@ -25,8 +25,8 @@ describe("Examples", () => {
 
     const p = plot(500)
 
-    const data_entry = new Panel({
-      position: new XY({x: NaN, y: NaN}),
+    const data_entry = Panel.create({
+      position: XY.create({x: NaN, y: NaN}),
       anchor: "top_left",
       stylesheets: [`
         :host {
@@ -37,15 +37,15 @@ describe("Examples", () => {
         }
       `],
       elements: [
-        new Column({
+        Column.create({
           children: [
-            new TextInput({title: "Text input"}),
-            new Slider({title: "Number slider", start: 0, end: 10, step: 1, value: 5}),
-            new Select({value: "Category 1", options: ["Category 1", "Category 2", "Category 3"]}),
-            new Row({
+            TextInput.create({title: "Text input"}),
+            Slider.create({title: "Number slider", start: 0, end: 10, step: 1, value: 5}),
+            Select.create({value: "Category 1", options: ["Category 1", "Category 2", "Category 3"]}),
+            Row.create({
               children: [
-                new Button({label: "Save", button_type: "primary"}),
-                new Button({label: "Cancel"}),
+                Button.create({label: "Save", button_type: "primary"}),
+                Button.create({label: "Cancel"}),
               ],
             }),
           ],
@@ -54,7 +54,7 @@ describe("Examples", () => {
     })
     p.elements.push(data_entry)
 
-    const tap_tool = new TapTool({
+    const tap_tool = TapTool.create({
       behavior: "inspect",
       callback: (_tool, {geometries: {x, y}}) => data_entry.position.setv({x, y}),
     })

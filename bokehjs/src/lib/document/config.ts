@@ -27,7 +27,7 @@ export class DocumentConfig extends Model {
     this.define<DocumentConfig.Props>(({Bool, Ref, Nullable}) => ({
       reconnect_session: [ Bool, true ],
       notify_connection_status: [ Bool, true ],
-      notifications: [ Nullable(Ref(Notifications)), () => new Notifications() ],
+      notifications: [ Nullable(Ref(Notifications)), () => Notifications.create() ],
       color_scheme: [ ColorScheme, "auto"],
     }))
   }

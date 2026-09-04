@@ -16,7 +16,7 @@ export class BoxNodes {
 
   private _node(symbol: BoxSymbol): Node {
     const {target, frozen} = this
-    const node = new Node({target, symbol})
+    const node = Node.create({target, symbol})
     if (frozen) {
       this[`_${symbol}`] = node
     }

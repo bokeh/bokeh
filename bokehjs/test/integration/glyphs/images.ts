@@ -27,8 +27,8 @@ async function plot(anchor: ImageRGBA["anchor"], x_flipped: boolean = false, y_f
   for (const output_backend of output_backends) {
     const onerow = []
     for (const origin of ImageOrigin) {
-      const x_range = new DataRange1d({flipped: x_flipped})
-      const y_range = new DataRange1d({flipped: y_flipped})
+      const x_range = DataRange1d.create({flipped: x_flipped})
+      const y_range = DataRange1d.create({flipped: y_flipped})
 
       const p = fig([200, 200], {title: `${output_backend} origin: ${origin}`, x_range, y_range, output_backend})
       p.image_rgba({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, origin, anchor, global_alpha})

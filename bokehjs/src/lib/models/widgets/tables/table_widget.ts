@@ -23,8 +23,8 @@ export class TableWidget extends Widget {
 
   static {
     this.define<TableWidget.Props>(({Ref}) => ({
-      source: [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
-      view:   [ Ref(CDSView), () => new CDSView() ],
+      source: [ Ref(ColumnDataSource), () => ColumnDataSource.create() ],
+      view:   [ Ref(CDSView), () => CDSView.create() ],
     }))
   }
 }

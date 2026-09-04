@@ -82,7 +82,7 @@ export class VAreaStepView extends AreaView {
   }
 
   protected _line_selection_for(i: number): Selection {
-    return new Selection({line_indices: [i], selected_glyphs: [this.model], view: this})
+    return Selection.create({line_indices: [i], selected_glyphs: [this.model], view: this})
   }
 
   protected _hit_point_before(geometry: PointGeometry): Selection {
@@ -94,7 +94,7 @@ export class VAreaStepView extends AreaView {
         return this._line_selection_for(i)
       }
     }
-    return new Selection()
+    return Selection.create()
   }
 
   protected _hit_point_after(geometry: PointGeometry): Selection {
@@ -106,7 +106,7 @@ export class VAreaStepView extends AreaView {
         return this._line_selection_for(i)
       }
     }
-    return new Selection()
+    return Selection.create()
   }
 
   protected _hit_point_center(geometry: PointGeometry): Selection {
@@ -131,7 +131,7 @@ export class VAreaStepView extends AreaView {
         return this._line_selection_for(i)
       }
     }
-    return new Selection()
+    return Selection.create()
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
