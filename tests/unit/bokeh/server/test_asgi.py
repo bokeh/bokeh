@@ -639,7 +639,6 @@ async def test_embed_bootstrap_cors_matches_websocket_origin_policy() -> None:
     app = BokehASGI(
         Application(),
         extra_websocket_origins=["trusted.example:80"],
-        keep_alive_milliseconds=0,
     )
     try:
         allowed = await http_request(app, "/embed.json", headers=[

@@ -38,6 +38,12 @@ class ArtifactValidationError(ValueError):
 
 @dataclass(frozen=True)
 class ArtifactRoot:
+    '''Address one artifact root without using a DOM or static model ID.
+
+    Standalone roots use ``document`` and ``root`` ordinals. Server roots use
+    ``model_id`` because the live protocol requires an existing identity.
+    ``key`` is the stable name exposed to hosts and mount handles.
+    '''
     key: str
     document: int | None = None
     root: int | None = None
@@ -55,6 +61,7 @@ class ArtifactRoot:
             raise ArtifactValidationError("artifact root ordinals must be non-negative")
 
     def to_dict(self) -> dict[str, Any]:
+        '''Return the schema representation of this root address.'''
         result: dict[str, Any] = {"key": self.key}
         if self.document is not None:
             result.update(document=self.document, root=self.root)
@@ -64,6 +71,7 @@ class ArtifactRoot:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ArtifactRoot:
+        '''Validate and reconstruct a root address from schema data.'''
         return cls(
             key=str(value["key"]),
             document=value.get("document"),
@@ -74,6 +82,13 @@ class ArtifactRoot:
 
 @dataclass(frozen=True)
 class EmbedArtifact:
+    '''Immutable, versioned output of the embedding compiler.
+
+    ``source`` contains standalone document data or a server descriptor;
+    ``roots`` supplies logical addresses; ``requires`` declares runtime assets
+    independently from delivery policy. ``fingerprint`` is derived from the
+    normalized envelope and is verified whenever serialized data is read.
+    '''
     source: Mapping[str, Any]
     roots: tuple[ArtifactRoot, ...]
     requires: ResourceRequirements = field(default_factory=ResourceRequirements)
@@ -141,6 +156,7 @@ class EmbedArtifact:
         return result
 
     def to_dict(self) -> dict[str, Any]:
+        '''Return a detached JSON-compatible envelope including its fingerprint.'''
         return self._data(include_fingerprint=True)
 
     def to_json(self) -> dict[str, Any]:
@@ -148,12 +164,14 @@ class EmbedArtifact:
         return self.to_dict()
 
     def to_json_string(self, *, pretty: bool = False) -> str:
+        '''Serialize the artifact deterministically as compact or indented JSON.'''
         if pretty:
             return json.dumps(self.to_dict(), ensure_ascii=False, sort_keys=True, indent=2)
         return json.dumps(self.to_dict(), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> EmbedArtifact:
+        '''Validate schema, versioned fields, roots, and fingerprint.'''
         schema = value.get("schema")
         if schema != EMBED_ARTIFACT_SCHEMA:
             raise ArtifactValidationError(
@@ -177,6 +195,7 @@ class EmbedArtifact:
 
     @classmethod
     def from_json(cls, value: str) -> EmbedArtifact:
+        '''Parse and validate an artifact JSON object.'''
         try:
             parsed = json.loads(value)
         except json.JSONDecodeError as error:
@@ -186,12 +205,14 @@ class EmbedArtifact:
         return cls.from_dict(parsed)
 
     def fragment(self, resources: ResourcePolicy | Resources | str | None = "none", **kwargs: Any) -> ArtifactFragment:
+        '''Render composable targets, bootstrap code, and resolved resources.'''
         from .renderers import render_fragment
         return render_fragment(self, resources=resources, **kwargs)
 
     def page(self, resources: ResourcePolicy | Resources | str | None = None, *, title: str | None = None,
             template: Template | str | Path | None = None, template_variables: Mapping[str, Any] | None = None,
             **kwargs: Any) -> str:
+        '''Render a complete HTML page from this artifact.'''
         from .renderers import render_page
         return render_page(
             self, resources=resources, title=title, template=template,
@@ -200,6 +221,7 @@ class EmbedArtifact:
 
     def external(self, payload_url: str, resources: ResourcePolicy | Resources | str | None = "none",
             **kwargs: Any) -> ExternalArtifact:
+        '''Render targets that fetch this artifact from ``payload_url``.'''
         from .renderers import render_external
         return render_external(self, payload_url=payload_url, resources=resources, **kwargs)
 
@@ -239,6 +261,10 @@ def _normalize_model_ids(value: Any) -> Any:
             }
         if isinstance(child, (list, tuple)):
             return [replace(item) for item in child]
+        # JSON.stringify() emits integral JavaScript numbers without a decimal
+        # suffix. Match that representation for cross-language fingerprints.
+        if isinstance(child, float) and child.is_integer():
+            return int(child)
         return child
 
     return replace(value)

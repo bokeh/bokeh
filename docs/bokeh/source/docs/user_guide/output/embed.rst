@@ -64,6 +64,73 @@ CDN, inline/offline, server, relative/absolute, or host-owned ``none`` resource
 delivery. BokehJS resource loading is promise-based and deduplicates concurrent
 and later additive requirements.
 
+Requirements and policy answer different questions:
+
+.. list-table:: Artifact requirements versus host policy
+   :header-rows: 1
+   :widths: 20 34 46
+
+   * - Layer
+     - Meaning
+     - Examples
+   * - Requirements
+     - Exact capabilities and extension assets needed by the compiled content.
+     - ``bokeh/core``, ``bokeh/widgets``, ``bokeh/tables``, or a custom extension script.
+   * - ``none`` policy
+     - Emit no assets; the host promises that every declared requirement is already available.
+     - Framework shells, managed portals, and notebook hosts.
+   * - ``cdn`` or ``server`` policy
+     - Resolve matching Bokeh bundles to network URLs.
+     - Complete pages and server application hosts.
+   * - ``inline`` policy
+     - Embed resolved asset content in the output.
+     - Self-contained HTML where inline content is allowed by CSP.
+   * - ``offline`` policy
+     - Require self-contained/local content and reject every external URL.
+     - Disconnected reports and controlled archives.
+   * - ``relative`` or ``absolute`` policy
+     - Resolve installed assets against an explicit filesystem or URL base.
+     - Static-site generators and application asset pipelines.
+
+Renderer tour
+~~~~~~~~~~~~~
+
+The following review-sized example deliberately includes a plot, a widget, and
+a table so the artifact declares three different BokehJS component bundles.
+Each renderer serves a distinct host rather than recompiling the models:
+
+.. code-block:: python
+
+    from bokeh.embed import embed
+    from bokeh.models import Button, ColumnDataSource, DataTable, TableColumn
+    from bokeh.plotting import figure
+
+    source = ColumnDataSource(data={"x": [1, 2, 3], "y": [3, 1, 2]})
+    plot = figure(width=360, height=220, title="Artifact plot")
+    plot.scatter("x", "y", source=source)
+    button = Button(label="Artifact widget")
+    table = DataTable(source=source, columns=[
+        TableColumn(field="x", title="X"),
+        TableColumn(field="y", title="Y"),
+    ])
+
+    artifact = embed({"plot": plot, "button": button, "table": table})
+
+    # Complete document: Bokeh resolves and emits matching CDN resources.
+    page_html = artifact.page(resources="cdn", title="Embedding renderer tour")
+
+    # Host composition: place fragment.divs independently; the host owns assets.
+    fragment = artifact.fragment(resources="none")
+
+    # Data endpoint: return this with application/vnd.bokeh.embed+json.
+    json_payload = artifact.to_json_string()
+
+    # Static asset pipeline: store external.payload at this URL and insert external.html.
+    external = artifact.external("/assets/renderer-tour.json", resources="none")
+
+    # Rich display: notebooks request this automatically through the MIME protocol.
+    mimebundle = artifact._repr_mimebundle_()
+
 .. _ug_output_embed_standalone_html:
 
 HTML files
