@@ -8,11 +8,13 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import logging
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Literal
 
+# Bokeh imports
 from ..document import Document
 from ..model import Model
 from ..resources import DEFAULT_SERVER_HTTP_URL

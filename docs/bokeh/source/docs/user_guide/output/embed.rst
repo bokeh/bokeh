@@ -28,6 +28,42 @@ Standalone documents
 This section describes different ways to publish and embed standalone Bokeh
 documents.
 
+Embedding artifacts
+~~~~~~~~~~~~~~~~~~~
+
+Bokeh 4.0 uses one versioned embedding artifact for complete pages, template
+fragments, JSON endpoints, external static payloads, and rich display. Compile
+the artifact once and choose a delivery form independently:
+
+.. code-block:: python
+
+    from bokeh.embed import embed
+
+    artifact = embed({"summary": summary_plot, "detail": detail_plot})
+    page = artifact.page(resources="cdn", title="Report")
+    fragment = artifact.fragment(resources="none")
+    json_payload = artifact.to_json_string()
+    external = artifact.external("/assets/report.json", resources="none")
+
+Artifacts address roots by stable logical keys. Browser targets are supplied
+when mounting and are not stored in reusable data:
+
+.. code-block:: javascript
+
+    const handle = Bokeh.mount(artifact, {
+      targets: {summary: summaryElement, detail: detailElement},
+      resources: "auto",
+    })
+    await handle.ready
+
+    // Dispose from a framework unmount hook or when replacing the output.
+    await handle.dispose()
+
+The artifact declares what it requires. The page or host separately chooses
+CDN, inline/offline, server, relative/absolute, or host-owned ``none`` resource
+delivery. BokehJS resource loading is promise-based and deduplicates concurrent
+and later additive requirements.
+
 .. _ug_output_embed_standalone_html:
 
 HTML files
@@ -42,18 +78,21 @@ data and are fully portable while still providing interactive tools
 .. code-block:: python
 
     from bokeh.plotting import figure
-    from bokeh.resources import CDN
-    from bokeh.embed import file_html
+    from bokeh.embed import embed
 
     plot = figure()
     plot.scatter([1,2], [3,4])
 
-    html = file_html(plot, CDN, "my plot")
+    html = embed(plot).page(resources="cdn", title="my plot")
 
 You can save the returned HTML text to a file using standard Python file
 operations. You can also provide your own template for the HTML output
 and pass in custom, or additional, template variables. For more details,
 see the |file_html| documentation.
+
+The familiar |file_html| function remains as a thin facade over this artifact
+page renderer. File-backed |save| and |show| routes therefore use the same
+compiler and resource policy.
 
 This is a low-level, explicit way to generate an HTML file, which can be
 useful for web applications such as Flask apps.
@@ -68,79 +107,62 @@ web browser whereas |save| creates an HTML document and saves it locally.
 JSON items
 ~~~~~~~~~~
 
-Bokeh can also supply JSON data that BokehJS can use to render a standalone
-Bokeh document in a specified ``<div>``. The |json_item| function accepts a
-Bokeh model (for example, a plot) and an optional ID of the target ``<div>``.
-
-.. code-block:: python
-
-        p = figure()
-        p.scatter(x, y)
-
-        item_text = json.dumps(json_item(p, "myplot"))
-
-The :func:`~Bokeh.embed.embed_item` function can then use this output
-on a web page:
-
-.. code-block:: javascript
-
-    item = JSON.parse(item_text);
-    Bokeh.embed.embed_item(item);
-
-This renders the plot in the ``<div>`` with the ID *"myplot"*.
-
-You can also omit the target ID when calling |json_item|:
-
-.. code-block:: python
-
-        p = figure()
-        p.scatter(x, y)
-
-        item_text = json.dumps(json_item(p)) # no target ID given
-
-You can then specify the ID in JavaScript:
-
-.. code-block:: javascript
-
-    item = JSON.parse(item_text);
-    Bokeh.embed.embed_item(item, "myplot");
-
-Here's a more complete example of a Flask app serving Bokeh JSON items from a
-*/plot* endpoint:
+``json_item()`` and ``Bokeh.embed.embed_item()`` were removed in Bokeh 4.0.
+Serve the versioned artifact itself; target selection belongs to the page that
+mounts it:
 
 .. code-block:: python
 
     @app.route('/plot')
     def plot():
         p = make_plot('petal_width', 'petal_length')
-        return json.dumps(json_item(p, "myplot"))
+        return embed({"plot": p}).to_json_string(), 200, {
+            "Content-Type": "application/vnd.bokeh.embed+json",
+        }
 
-This produces JavaScript code that looks either like this:
+.. code-block:: javascript
 
-.. code-block:: html
-
-    <script>
-    fetch('/plot')
-        .then(function(response) { return response.json() })
-        .then(function(item) { return Bokeh.embed.embed_item(item) })
-    </script>
-
-Or, with modern syntax, like this:
-
-.. code-block:: html
-
-    <script>
     const response = await fetch('/plot')
-    const item = await response.json()
-    Bokeh.embed.embed_item(item)
-    </script>
+    const artifact = await response.json()
+    const target = document.querySelector("#report [data-bokeh-root='plot']")
+    const mounted = Bokeh.mount(artifact, {
+      targets: {plot: target},
+      resources: "none", // the host page already loaded matching BokehJS
+    })
+    await mounted.ready
 
-For a complete example, see :bokeh-tree:`examples/output/apis/json_item.py`.
+For declarative output from ``artifact.fragment()`` or
+``artifact.external()``, page JavaScript does not need the payload. Select a
+stable logical-root target and acquire the handle published by the shared mount
+lifecycle. This works whether the acquisition code runs before or after the
+declaration bootstrap:
+
+.. code-block:: javascript
+
+    const target = document.querySelector("#report [data-bokeh-root='summary']")
+    const controller = new AbortController()
+    const mounted = await Bokeh.when_mounted(target, {signal: controller.signal})
+    await mounted.ready
+
+    const root = mounted.root("summary")
+    const source = mounted.document.get_model_by_name("sales-source")
+    const view = mounted.view_lookup.find_one(root)
+
+    // Disposal owns views and artifact/session state, never the target element.
+    await mounted.dispose()
 
 .. _ug_output_embed_standalone_components:
 
 Components
 ~~~~~~~~~~
+
+In Bokeh 4.0, |components| is a thin facade over
+``embed(models).fragment(resources="none")`` and retains only its canonical
+``(script, divs)`` return shape. For composable output, use the typed fragment's
+``script``, ``mounts``, ``divs``, ``requirements``, and ``resources`` fields.
+The old wrapping flags were removed and raise a migration error. Generated
+markup uses logical ``data-bokeh-root`` attributes and the shared artifact
+bootstrap; it does not contain ``RenderItem`` data or generated DOM IDs.
 
 You can also have Bokeh return individual components of a standalone document
 to embed them one by one with the |components| function. This function returns
@@ -158,37 +180,36 @@ documents however you like.
 
     script, div = components(plot)
 
-The returned ``<script>`` will look something like this:
+The target markup is declarative and stable by logical root key:
 
 .. code-block:: html
 
-    <script>
-        (function() {
-      const fn = function() {
-        Bokeh.safely(function() {
-          const docs_json = { DOCUMENT DATA HERE };
-          const render_items = [{
-            "docid":"6833819f-9b5b-4904-821e-3f5eec77de9b",
-            "elementid":"9574d123-9332-4b5f-96cc-6323bef37f40",
-            "modelid":"7b328b27-9b14-4f7b-a5d8-0138bc7b0f59"
-          }];
+    <div class="bk-embed-root"
+         data-bokeh-artifact="ARTIFACT_FINGERPRINT"
+         data-bokeh-root="root"></div>
 
-          Bokeh.embed.embed_items(docs_json, render_items);
-        });
-      };
-      if (document.readyState != "loading") fn();
-      else document.addEventListener("DOMContentLoaded", fn);
-    })();
+Place the script and target markup anywhere in the same document. The shared
+bootstrap waits for the DOM, calls ``Bokeh.mount()``, and publishes the owning
+``BokehMount`` on the target for ``Bokeh.when_mounted()`` consumers.
 
-    </script>
+Resource requirements and policy are separate. The artifact records required
+components and extension assets; the renderer or host chooses how to satisfy
+them:
 
-.. note::
-    The generated ``docid``, ``modelid``, and element IDs shown by the
-    standalone embedding methods on this page are embedding plumbing, not
-    durable handles for application JavaScript. For static-page integration,
-    use ``Bokeh.when_mounted()`` with logical root keys, semantic model names,
-    mount-scoped view lookup, or explicit ``CustomJS.args`` as described in
-    :ref:`ug_advanced_bokehjs`.
+.. code-block:: python
+
+    artifact.fragment(resources="cdn")      # matching CDN assets
+    artifact.fragment(resources="inline")   # self-contained assets
+    artifact.fragment(resources="offline")  # rejects every external URL
+    artifact.fragment(resources="none")     # host owns all resource loading
+
+``resources="none"`` is not an assertion that the artifact needs no resources.
+It is an explicit host-owned policy: the page must load a matching core/API
+runtime and every component or extension listed by ``artifact.requires``.
+Policy/version, CSP nonce, SRI, offline, and ``external_only`` conflicts fail
+with actionable errors rather than silently producing incomplete markup. In
+the browser, additive resources are loaded through one promise-based,
+deduplicating loader shared by all artifact mounts.
 
 Static JSON and model identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -234,101 +255,6 @@ one because both roots must reconstruct the same object. Supplying a model via
 ``models_with_ids`` can retain the identity of a model already in the document,
 but cannot add an unrelated model to the serialized graph.
 
-Note that Jupyter notebooks do not allow for use of the |components| and |show|
-functions in the same notebook cell.
-
-The ``docs_json`` contains all the data as well as plot or widget objects
-(omitted here for brevity). The resulting ``<div>`` looks something like
-this:
-
-.. code-block:: html
-
-    <div id="9574d123-9332-4b5f-96cc-6323bef37f40"></div>
-
-You can insert or template this script and its companion ``<div>`` in an HTML
-document and, when the script executes, your plot replaces the ``<div>``.
-
-For this to work, you first need to load BokehJS, either locally or from a
-content delivery network (CDN). To load BokehJS from a CDN, add the following
-lines to your HTML document or template with the appropriate version replacing
-the ``x.y.z``:
-
-.. code-block:: html
-
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-
-Only the Bokeh core library ``bokeh-x.y.z.min.js`` is always required. The
-other scripts are optional and only need to be included if you want to use
-corresponding features:
-
-* The ``"bokeh-widgets"`` files are only necessary if you are using any of the
-  :ref:`Bokeh widgets <ug_interaction_widgets>`.
-* The ``"bokeh-tables"`` files are only necessary if you are using Bokeh's
-  :ref:`data tables <ug_interaction_widgets_examples_datatable>`.
-* The ``"bokeh-gl"`` files are required to enable
-  :ref:`WebGL support <ug_output_webgl>`.
-* the ``"bokeh-mathjax"`` files are required to enable
-  :ref:`MathJax support <ug_styling_mathtext>`.
-
-For example, to use version ``3.0.0`` with support for widgets, tables, and
-math text, include the following in your HTML:
-
-.. code-block:: html
-
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.0.0.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.0.0.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.0.0.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.0.0.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-3.0.0.min.js"
-            crossorigin="anonymous"></script>
-
-.. note::
-    Always provide the closing ``</script>`` tag. This is required by all
-    browsers and the page will typically not render without it. You should also
-    always include the ``crossorigin="anonymous"`` attribute on the script tag.
-
-If you would like to include `Subresource Integrity`_ (SRI) hashes in your
-explicit script tags by setting the ``integrity`` attribute, the necessary
-hashes can be obtained by calling
-:func:`~bokeh.resources.get_sri_hashes_for_version`. Here's an example:
-
-.. code-block:: python
-
-    In [1]: import bokeh.resources
-
-    In [2]: bokeh.resources.get_sri_hashes_for_version("2.2.0")
-    Out[2]:
-    {'bokeh-2.2.0.js': 'TQAjsk2/lDn1NHjYoe8HIascd3/Cw4EWdk6GNtYXVVyAiUkbEZiuP7fEgbSwM37Y',
-
-    ...
-
-    'bokeh-widgets-2.2.0.min.js': '2ltAd1cQhavmLeBEZXGgnna8fjbw+FjvDq9m2dig4+8KVS8JcYFUQaALvLT//qHE'}
-
-These are bare hashes, and you have to prefix them with `sha384-` to use. For
-example:
-
-.. code-block:: html
-
-     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.0.min.js"
-             integrity="sha384-5Y+xuMRAbgBj/2WKUiL8yzV4fBFic1HJPo2hT3pq2IsEzbsJjj8kT2i0b1lZ7C2N"
-             crossorigin="anonymous"></script>
-
-You can produce SRI hashes only for full release versions, not for dev builds
-or release candidates.
-
 In addition to a single Bokeh model, such as a plot, the |components| function
 can also accept a list or tuple of models or a dictionary of keys and models.
 Each returns a tuple with one script and a corresponding data structure for the
@@ -347,160 +273,41 @@ The following illustrates how different input types correlate to outputs:
     components({"Plot 1": plot_1, "Plot 2": plot_2})
     #=> (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
 
-Here's an example of how you could use a multiple plot generator:
+For new code, prefer the typed result when you need more than the legacy tuple:
 
 .. code-block:: python
 
-    # scatter.py
+    fragment = embed({"Red": red, "Blue": blue, "Green": green}).fragment(
+        resources="none",
+    )
 
-    from bokeh.plotting import figure
-    from bokeh.models import Range1d
-    from bokeh.embed import components
-
-    # create some data
-    x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    y1 = [0, 8, 2, 4, 6, 9, 5, 6, 25, 28, 4, 7]
-    x2 = [2, 5, 7, 15, 18, 19, 25, 28, 9, 10, 4]
-    y2 = [2, 4, 6, 9, 15, 18, 0, 8, 2, 25, 28]
-    x3 = [0, 1, 0, 8, 2, 4, 6, 9, 7, 8, 9]
-    y3 = [0, 8, 4, 6, 9, 15, 18, 19, 19, 25, 28]
-
-    # select the tools you want
-    TOOLS="pan,wheel_zoom,box_zoom,reset,save"
-
-    # the red and blue graphs share this data range
-    xr1 = Range1d(start=0, end=30)
-    yr1 = Range1d(start=0, end=30)
-
-    # only the green graph uses this data range
-    xr2 = Range1d(start=0, end=30)
-    yr2 = Range1d(start=0, end=30)
-
-    # build the figures
-    p1 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, width=300, height=300)
-    p1.scatter(x1, y1, size=12, color="red", alpha=0.5)
-
-    p2 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, width=300, height=300)
-    p2.scatter(x2, y2, size=12, color="blue", alpha=0.5)
-
-    p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, width=300, height=300)
-    p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
-
-    # plots can be a single Bokeh model, a list/tuple, or even a dictionary
-    plots = {'Red': p1, 'Blue': p2, 'Green': p3}
-
-    script, div = components(plots)
-    print(script)
-    print(div)
-
-Running ``python scatter.py`` prints out the following:
-
-.. code-block:: shell
-
-    <script>
-        const docs_json = { DOCUMENT DATA HERE }
-        const render_items = [{
-          "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-          "elementid":"e89297cf-a2dc-4edd-8993-e16f0ca6af04",
-          "modelid":"4eff3fdb-80f4-4b4c-a592-f99911e14398"
-        },{
-          "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-          "elementid":"eeb9a417-02a1-47e3-ab82-221abe8a1644",
-          "modelid":"0e5ccbaf-62af-42cc-98de-7c597d83747a"
-        },{
-          "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-          "elementid":"c311f123-368f-43ba-88b6-4e3ecd9aed94",
-          "modelid":"57f18497-9598-4c70-a251-6072baf223ff"
-        }];
-
-        Bokeh.embed.embed_items(docs_json, render_items);
-    </script>
-
-        {
-            'Green': '\n<div id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>',
-            'Blue': '\n<div id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>',
-            'Red': '\n<div id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>'
-        }
-
-You can then insert the resulting script and ``<div>`` elements into a
-boilerplate such as the following:
-
-.. code-block:: html
-
-    <!DOCTYPE html>
-    <html lang="en">
-        <head>
-            <meta charset="utf-8">
-            <title>Bokeh Scatter Plots</title>
-
-            <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.0.min.js"></script>
-
-            <!-- COPY/PASTE SCRIPT HERE -->
-
-        </head>
-        <body>
-            <!-- INSERT DIVS HERE -->
-        </body>
-    </html>
-
-Note that this doesn't include JavaScript and CSS files for ``"-widgets"``
-because the document doesn't use any Bokeh widgets.
-
-You can see an example of multiple plot generation by executing the following:
-
-.. code:: bash
-
-    python /bokeh/examples/embed/embed_multiple.py
+    html = fragment.html
+    script = fragment.script
+    divs = fragment.divs
+    requirements = fragment.requirements
 
 .. _ug_output_embed_standalone_autoload:
 
 Autoloading scripts
 ~~~~~~~~~~~~~~~~~~~
 
-You can also embed standalone documents with the |autoload_static| function.
-This function provides a ``<script>`` tag that replaces itself with a Bokeh
-plot. This script also checks for BokehJS and loads it if necessary. This
-function lets you embed a plot with nothing but this ``<script>`` tag.
-
-This function takes a Bokeh model, such as a plot, that you want to display, a
-``Resources`` object, and a path to load a script from. Then |autoload_static|
-returns a self-contained ``<script>`` tag and a block of JavaScript code. The
-JavaScript code saves to the path you provide and the ``<script>`` loads and
-runs it to display your plot on a web page.
-
-Here is how you might use |autoload_static| with a simple plot:
+``autoload_static()`` and its per-embed JavaScript program were removed in
+Bokeh 4.0. Save the deterministic artifact as data and render a declarative
+external reference instead:
 
 .. code-block:: python
 
-    from bokeh.resources import CDN
-    from bokeh.plotting import figure
-    from bokeh.embed import autoload_static
+    artifact = embed({"plot": plot})
+    Path("static/plot.json").write_text(artifact.to_json_string())
+    external = artifact.external(
+        payload_url="/static/plot.json",
+        resources="none",
+    )
 
-    plot = figure()
-    plot.scatter([1,2], [3,4])
-
-    js, tag = autoload_static(plot, CDN, "some/path")
-
-The resulting ``<script>`` tag looks like this:
-
-.. code-block:: html
-
-    <script
-        src="some/path"
-        id="c5339dfd-a354-4e09-bba4-466f58a574f1"
-        async="true"
-        data-bokeh-modelid="7b226555-8e16-4c29-ba2a-df2d308588dc"
-        data-bokeh-loglevel="info"
-    ></script>
-
-Include this tag anywhere you want your plot to display on an HTML page.
-
-Save the JavaScript code to a file at `"some/path"` on the server where the
-document containing the plot can reach it.
-
-.. note::
-    The ``<script>`` tag replaces itself with a ``<div>``, so it must be placed
-    within the ``<body>`` of the document.
+Insert ``external.html`` in the page. It contains logical-root targets plus one
+shared bootstrap invocation; it never replaces a script tag or stores target
+IDs in the payload. Use ``Bokeh.when_mounted()`` to acquire the published
+handle as shown above.
 
 .. _ug_output_embed_apps:
 
@@ -513,6 +320,13 @@ session and document or outputs a specific, existing session.
 
 App documents
 ~~~~~~~~~~~~~
+
+Bokeh 4.0 represents a server application as a structured server-source
+artifact. ``embed_server(url, ...).fragment()`` is the primary route;
+|server_document| remains a thin facade. The browser obtains a signed bootstrap
+from ``/embed.json`` and exposes HTTP, WebSocket, session, render, readiness, and
+disposal through the same ``BokehMount`` used by standalone artifacts. The old
+``/autoload.js`` program endpoint is not part of the 4.0 route.
 
 If an application is running on a Bokeh server that makes it available at some
 URL, you will typically want to embed the entire application in a web page.

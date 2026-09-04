@@ -7,11 +7,12 @@
 
 from __future__ import annotations
 
+# External imports
 import pytest
 
-from bokeh.embed import EmbedArtifact
-
+# Bokeh imports
 import bokeh.embed.server as bes
+from bokeh.embed import EmbedArtifact
 
 
 def artifact_from_fragment(fragment: str) -> EmbedArtifact:

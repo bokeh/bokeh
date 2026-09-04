@@ -20,15 +20,13 @@ import mimetypes
 import zlib
 from http.cookies import SimpleCookie
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, urlparse
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_JS
-from ..embed.bundle import Script, bundle_for_objs_and_resources, extension_dirs
-from ..embed.elements import script_for_render_items
+from .. import __version__
+from ..embed.bundle import extension_dirs
 from ..embed.server import server_html_page_for_session
-from ..embed.util import RenderItem
 from ..protocol import ack
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
@@ -45,7 +43,7 @@ if TYPE_CHECKING:
 
     from ..application import Application
     from ..application.handlers.function import ModifyDoc
-    from ..core.types import ID, PathLike
+    from ..core.types import PathLike
     from ..document import Document
     from .connection import ServerConnection
     from .contexts import ApplicationContext
@@ -211,8 +209,8 @@ class BokehASGI:
             await self._document(context, request, send)
         elif suffix == "/metadata":
             await self._metadata(context, request, send)
-        elif suffix == "/autoload.js":
-            await self._autoload(context, request, send)
+        elif suffix == "/embed.json":
+            await self._embed_json(context, request, send)
         elif suffix.startswith("/static/"):
             await self._application_static(context, suffix, request, send)
         else:
@@ -299,8 +297,11 @@ class BokehASGI:
         body = json.dumps({"url": context.url, "data": data or {}}).encode()
         await self._response(send, 200, body, "application/json", head=head)
 
-    async def _autoload(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
+    async def _embed_json(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
         method = request.method.upper()
+        if request.headers.get("origin") is not None and not self._origin_allowed(request):
+            await self._response(send, 403, b"Origin is not allowed", "text/plain", head=method == "HEAD")
+            return
         if method == "OPTIONS":
             await self._response(send, 204, b"", "text/plain", extra_headers=self._cors_headers(request))
             return
@@ -315,25 +316,13 @@ class BokehASGI:
         except SessionError as error:
             await self._response(send, error.status, error.reason.encode(), "text/plain", head=head)
             return
-        element_id = self._argument(request, "bokeh-autoload-element")
-        if not element_id:
-            await self._response(send, 400, b"No bokeh-autoload-element query parameter", "text/plain", head=head)
-            return
-        app_path = self._argument(request, "bokeh-app-path") or "/"
-        absolute_url = self._argument(request, "bokeh-absolute-url")
-        server_url = None
-        if absolute_url:
-            uri = urlparse(absolute_url)
-            server_url = f"{uri.scheme}://{uri.netloc}"
-        resources = None if self._argument(request, "resources") == "none" else self._core.resources(
-            server_url, root_path=request.root_path,
-        )
-        bundle = bundle_for_objs_and_resources(None, resources)
-        render_items = [RenderItem(token=session.token, elementid=cast("ID", element_id), use_for_title=False)]
-        bundle.add(Script(script_for_render_items({}, render_items, app_path=app_path, absolute_url=absolute_url)))
-        body = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id).encode()
+        body = json.dumps({
+            "schema": "bokeh.embed-server/v1",
+            "bokeh_version": __version__,
+            "token": session.token,
+        }).encode()
         await self._response(
-            send, 200, body, "application/javascript", head=head, extra_headers=self._cors_headers(request),
+            send, 200, body, "application/json", head=head, extra_headers=self._cors_headers(request),
         )
 
     async def _root(self, request: ServerRequest, send: Send) -> None:
@@ -582,15 +571,19 @@ class BokehASGI:
 
     def _cors_headers(self, request: ServerRequest) -> list[tuple[bytes, bytes]]:
         origin = request.headers.get("origin")
-        allow_origin = origin if origin is not None and self._origin_allowed(request) else "*"
         headers = [
-            (b"access-control-allow-origin", allow_origin.encode()),
-            (b"access-control-allow-headers", b"*"),
-            (b"access-control-allow-credentials", b"true"),
             (b"access-control-allow-methods", b"GET, HEAD, OPTIONS"),
         ]
-        if allow_origin != "*":
-            headers.append((b"vary", b"Origin"))
+        if origin is not None:
+            requested_headers = request.headers.get(
+                "access-control-request-headers", "Bokeh-Session-Id, Content-Type",
+            )
+            headers.extend([
+                (b"access-control-allow-origin", origin.encode()),
+                (b"access-control-allow-headers", requested_headers.encode()),
+                (b"access-control-allow-credentials", b"true"),
+                (b"vary", b"Origin"),
+            ])
         return headers
 
     @staticmethod
