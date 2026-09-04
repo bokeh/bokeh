@@ -66,7 +66,7 @@ composable in ``@bokeh/vue``:
 
 Svelte applications can use the ``bokeh`` action from ``@bokeh/svelte``:
 
-.. code-block:: svelte
+.. code-block:: html
 
     <script lang="ts">
     import {bokeh} from "@bokeh/svelte"

@@ -12,10 +12,11 @@ const configs = [
 ]
 
 export const build_frameworks = task("frameworks:build", ["lib:build"], async () => {
-  const executable = process.platform == "win32" ? "npx.cmd" : "npx"
+  const is_windows = process.platform == "win32"
+  const executable = is_windows ? "npx.cmd" : "npx"
   for (const config of configs) {
     const compiler = config.includes("/angular/") ? "ngc" : "tsc"
-    const {status} = cp.spawnSync(executable, [compiler, "-p", config], {stdio: "inherit"})
+    const {status} = cp.spawnSync(executable, [compiler, "-p", config], {stdio: "inherit", shell: is_windows})
     if (status != 0) {
       throw new BuildError("frameworks", `compilation failed for ${config}`)
     }

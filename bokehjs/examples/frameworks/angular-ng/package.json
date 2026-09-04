@@ -3,15 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build": "ng build"
+    "build": "ng build",
+    "start": "ng serve --host 127.0.0.1 --port 4200"
   },
   "dependencies": {
     "@angular/common": "21.2.19",
     "@angular/compiler": "21.2.19",
     "@angular/core": "21.2.19",
     "@angular/platform-browser": "21.2.19",
-    "@bokeh/bokehjs": "4.0.0-dev.1",
-    "@bokeh/angular": "4.0.0-dev.1",
+    "@bokeh/bokehjs": "file:../../..",
+    "@bokeh/angular": "file:../../../frameworks/angular",
     "rxjs": "^7.8.2",
     "tslib": "^2.8.1",
     "zone.js": "~0.16.0"
