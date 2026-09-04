@@ -1,7 +1,7 @@
 import type {TypedArray} from "../types"
 import {assert} from "../util/assert"
 import {entries} from "../util/object"
-import type {Ref} from "../util/refs"
+import type {ModelRef, Ref} from "../util/refs"
 import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "../util/types"
 import {map} from "../util/iterator"
 import {BYTE_ORDER} from "../util/platform"
@@ -47,7 +47,7 @@ class Serialized<T> {
 }
 
 export type Options = {
-  references: Map<unknown, Ref>
+  references: Map<unknown, Ref | ModelRef>
   /**
    * Exact identity-retention set for graph-minimal static serialization.
    * `null` preserves IDs for every model and is required for live protocol
@@ -56,20 +56,24 @@ export type Options = {
   models_with_ids: Set<unknown> | null
   binary: boolean
   include_defaults: boolean
+  /** Use compact model nodes for graph-minimal static documents. */
+  compact: boolean
 }
 
 export class Serializer {
-  private readonly _references: Map<unknown, Ref>
+  private readonly _references: Map<unknown, Ref | ModelRef>
   private readonly _models_with_ids: Set<unknown> | null
 
   readonly binary: boolean
   readonly include_defaults: boolean
+  readonly compact: boolean
 
   protected readonly _circular: WeakSet<object> = new WeakSet()
 
   constructor(options?: Partial<Options>) {
     this.binary = options?.binary ?? false
     this.include_defaults = options?.include_defaults ?? false
+    this.compact = options?.compact ?? false
 
     const references = options?.references
     this._references = references != null ? new Map(references) : new Map()
@@ -77,11 +81,11 @@ export class Serializer {
     this._models_with_ids = models_with_ids == null ? null : new Set(models_with_ids)
   }
 
-  get_ref(obj: unknown): Ref | undefined {
+  get_ref(obj: unknown): Ref | ModelRef | undefined {
     return this._references.get(obj)
   }
 
-  add_ref(obj: unknown, ref: Ref): void {
+  add_ref(obj: unknown, ref: Ref | ModelRef): void {
     assert(!this._references.has(obj))
     this._references.set(obj, ref)
   }
@@ -89,6 +93,10 @@ export class Serializer {
   /** Decide whether an already-reached model needs an explicit serialized ID. */
   use_model_id(obj: unknown): boolean {
     return this._models_with_ids == null || this._models_with_ids.has(obj)
+  }
+
+  model_ref(ref: Ref): Ref | ModelRef {
+    return this.compact ? {$ref: ref.id} : ref
   }
 
   to_serializable<T extends SerializableType>(obj: T): Serialized<SerializableOf<T>>

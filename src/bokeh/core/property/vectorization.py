@@ -65,6 +65,13 @@ class Value[T](Serializable):
     units: NotRequired[str] = Unspecified
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
+        if serializer.compact:
+            if self.transform is Unspecified and self.units is Unspecified:
+                return serializer.encode(self.value)
+            return {
+                "$value": serializer.encode(self.value),
+                **serializer.encode_struct(transform=self.transform, units=self.units),
+            }
         return serializer.encode_struct(type="value", value=self.value, transform=self.transform, units=self.units)
 
     @classmethod
@@ -93,6 +100,11 @@ class Field(Serializable):
     units: NotRequired[str] = Unspecified
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
+        if serializer.compact:
+            return {
+                "$field": self.field,
+                **serializer.encode_struct(transform=self.transform, units=self.units),
+            }
         return serializer.encode_struct(type="field", field=self.field, transform=self.transform, units=self.units)
 
     @classmethod
@@ -121,6 +133,11 @@ class Expr(Serializable):
     units: NotRequired[str] = Unspecified
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
+        if serializer.compact:
+            return {
+                "$expr": serializer.encode(self.expr),
+                **serializer.encode_struct(transform=self.transform, units=self.units),
+            }
         return serializer.encode_struct(type="expr", expr=self.expr, transform=self.transform, units=self.units)
 
     @classmethod

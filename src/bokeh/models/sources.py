@@ -223,6 +223,17 @@ class ColumnDataSource(ColumnarDataSource):
         Dataclass, lambda x: ColumnDataSource(asdict(x)),
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1, _cds_lengths_warning)
 
+    def to_serializable(self, serializer: Any) -> Any:
+        rep = super().to_serializable(serializer)
+        data = rep.get("data")
+        if serializer.compact and isinstance(data, dict) and data.get("type") == "map":
+            entries = data.get("entries", [])
+            if all(isinstance(key, str) for key, _ in entries):
+                compact = dict(entries)
+                if not {"$type", "$id", "$ref", "$field"} & compact.keys():
+                    rep["data"] = compact
+        return rep
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         ''' If called with a single argument that is a dict, dataclass, or
         ``pandas.DataFrame``, treat that implicitly as the "data" attribute.

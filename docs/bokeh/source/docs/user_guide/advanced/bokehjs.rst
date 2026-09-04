@@ -437,7 +437,7 @@ Use the narrowest stable scope for each kind of integration:
 * Address artifact roots by their logical keys. The artifact's root table maps
   those keys to document-root ordinals, and ``mounted.root(key)`` exposes the
   reconstructed root.
-  Pass an explicit keyed mapping for this contract; keys derived by the bare
+  Pass an explicit keyed mapping for this contract. Keys derived by the bare
   model, array, or ``Document`` convenience forms are runtime conveniences and
   must not be persisted.
 * Give a model a unique :attr:`~bokeh.model.Model.name` when page code needs
@@ -489,7 +489,7 @@ an ID through a template:
 
 Live Bokeh server sessions, patches, and comm messages still require stable
 protocol IDs. ``Document.get_model_by_id()`` remains available for those
-protocol-internal paths; its presence does not make static artifact IDs a
+protocol-internal paths. Its presence does not make static artifact IDs a
 public addressing contract.
 
 Do not mount roots that share Bokeh models through separate adapter instances.

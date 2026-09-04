@@ -359,6 +359,21 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
       const {_value} = this
       this._value[serialize] = (serializer) => {
         const {value, field, expr, transform, units} = _value as any
+        if (serializer.compact && value !== undefined && transform == null && units == null) {
+          return serializer.encode(value)
+        }
+        if (serializer.compact && field !== undefined && transform == null && units == null) {
+          return {$field: field}
+        }
+        if (serializer.compact) {
+          if (value !== undefined) {
+            return serializer.encode_struct({$value: value, transform, units})
+          } else if (field !== undefined) {
+            return serializer.encode_struct({$field: field, transform, units})
+          } else {
+            return serializer.encode_struct({$expr: expr, transform, units})
+          }
+        }
         return serializer.encode_struct((() => {
           if (value !== undefined) {
             return {type: "value", value, transform, units}
@@ -453,6 +468,21 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       const {_value} = this
       this._value[serialize] = (serializer) => {
         const {value, field, expr, transform, units} = _value as any
+        if (serializer.compact && value !== undefined && transform == null && units == null) {
+          return serializer.encode(value)
+        }
+        if (serializer.compact && field !== undefined && transform == null && units == null) {
+          return {$field: field}
+        }
+        if (serializer.compact) {
+          if (value !== undefined) {
+            return serializer.encode_struct({$value: value, transform, units})
+          } else if (field !== undefined) {
+            return serializer.encode_struct({$field: field, transform, units})
+          } else {
+            return serializer.encode_struct({$expr: expr, transform, units})
+          }
+        }
         return serializer.encode_struct((() => {
           if (value !== undefined) {
             return {type: "value", value, transform, units}

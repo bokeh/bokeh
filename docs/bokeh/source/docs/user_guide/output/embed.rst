@@ -229,7 +229,7 @@ artifact:
     print("canonical IDs:", len(ids(canonical)))
     print("static IDs:", len(ids(static)), ids(static))
 
-The two anonymous roots lose their IDs in ``static``; the shared callback keeps
+The two anonymous roots lose their IDs in ``static``. The shared callback keeps
 one because both roots must reconstruct the same object. Supplying a model via
 ``models_with_ids`` can retain the identity of a model already in the document,
 but cannot add an unrelated model to the serialized graph.

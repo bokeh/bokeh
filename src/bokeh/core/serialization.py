@@ -126,16 +126,13 @@ class SliceRep(TypedDict):
     stop: int | None
     step: int | None
 
-class ObjectRep(TypedDict):
-    type: Literal["object"]
-    name: str
-    attributes: NotRequired[dict[str, AnyRep]]
+class ObjectRep(dict[str, AnyRep]):
+    pass
 
-class ObjectRefRep(TypedDict):
-    type: Literal["object"]
-    name: str
-    id: ID
-    attributes: NotRequired[dict[str, AnyRep]]
+class ObjectRefRep(ObjectRep):
+    pass
+
+type ModelRef = dict[str, ID]
 
 ModelRep = ObjectRep | ObjectRefRep
 
@@ -212,7 +209,7 @@ class Serializer:
         assert type not in cls._encoders, f"'{type} is already registered"
         cls._encoders[type] = encoder
 
-    _references: dict[ObjID, Ref]
+    _references: dict[ObjID, Ref | ModelRef]
     _models_with_ids: set[ObjID] | None
     _deferred: bool
     _check_circular: bool
@@ -220,7 +217,7 @@ class Serializer:
     _buffers: list[Buffer]
 
     def __init__(self, *, references: set[Model] = set(), deferred: bool = True, check_circular: bool = False,
-            models_with_ids: set[Model] | None = None) -> None:
+            models_with_ids: set[Model] | None = None, compact: bool = False) -> None:
         ''' Configure serialization identity policy.
 
         ``models_with_ids=None`` retains IDs for every encountered model and is
@@ -231,6 +228,7 @@ class Serializer:
         '''
         self._references = {id(obj): obj.ref for obj in references}
         self._models_with_ids = None if models_with_ids is None else {id(obj) for obj in models_with_ids}
+        self._compact = compact
         self._deferred = deferred
         self._check_circular = check_circular
         self._circular = {}
@@ -239,11 +237,11 @@ class Serializer:
     def has_ref(self, obj: Any) -> bool:
         return id(obj) in self._references
 
-    def add_ref(self, obj: Any, ref: Ref) -> None:
+    def add_ref(self, obj: Any, ref: Ref | ModelRef) -> None:
         assert id(obj) not in self._references
         self._references[id(obj)] = ref
 
-    def get_ref(self, obj: Any) -> Ref | None:
+    def get_ref(self, obj: Any) -> Ref | ModelRef | None:
         return self._references.get(id(obj))
 
     def use_model_id(self, obj: Model) -> bool:
@@ -256,6 +254,13 @@ class Serializer:
             Whether the serialized representation should include the model ID.
         '''
         return self._models_with_ids is None or id(obj) in self._models_with_ids
+
+    @property
+    def compact(self) -> bool:
+        return self._compact
+
+    def model_ref(self, ref: Ref) -> Ref | ModelRef:
+        return {"$ref": ref["id"]} if self.compact else ref
 
     @property
     def buffers(self) -> list[Buffer]:
@@ -384,14 +389,18 @@ class Serializer:
         module = cls.__module__
         name = cls.__qualname__.replace("<locals>.", "")
 
-        rep = ObjectRep(
-            type="object",
-            name=f"{module}.{name}",
-        )
+        if self.compact:
+            rep = ObjectRep({"$type": f"{module}.{name}"})
+        else:
+            rep = ObjectRep(type="object", name=f"{module}.{name}")
 
         attributes = list(entries(obj))
         if attributes:
-            rep["attributes"] = {key: self.encode(val) for key, val in attributes}
+            encoded = {key: self.encode(val) for key, val in attributes}
+            if self.compact:
+                rep.update(encoded)
+            else:
+                rep["attributes"] = encoded
 
         return rep
 
@@ -577,7 +586,8 @@ class Deserializer:
 
     def _reserve_model_ids(self, obj: AnyRep) -> None:
         if isinstance(obj, dict):
-            if obj.get("type") == "object" and isinstance(id := obj.get("id"), str):
+            if ((isinstance(obj.get("$type"), str) and isinstance(id := obj.get("$id"), str)) or
+                    (obj.get("type") == "object" and isinstance(id := obj.get("id"), str))):
                 reserve_id(cast(ID, id))
             for value in obj.values():
                 self._reserve_model_ids(value)
@@ -587,7 +597,31 @@ class Deserializer:
 
     def _decode(self, obj: AnyRep) -> Any:
         if isinstance(obj, dict):
-            if "type" in obj:
+            if isinstance(id := obj.get("$ref"), str):
+                return self._decode_ref({"id": cast(ID, id)})
+            elif "$value" in obj:
+                from .property.vectorization import Value
+                value = self._decode(obj["$value"])
+                transform = self._decode(obj["transform"]) if "transform" in obj else Unspecified
+                units = self._decode(obj["units"]) if "units" in obj else Unspecified
+                return Value(value, transform, units)
+            elif isinstance(field := obj.get("$field"), str):
+                from .property.vectorization import Field
+                transform = self._decode(obj["transform"]) if "transform" in obj else Unspecified
+                units = self._decode(obj["units"]) if "units" in obj else Unspecified
+                return Field(field, transform, units)
+            elif "$expr" in obj:
+                from .property.vectorization import Expr
+                expr = self._decode(obj["$expr"])
+                transform = self._decode(obj["transform"]) if "transform" in obj else Unspecified
+                units = self._decode(obj["units"]) if "units" in obj else Unspecified
+                return Expr(expr, transform, units)
+            elif isinstance(obj.get("$type"), str):
+                if isinstance(obj.get("$id"), str):
+                    return self._decode_object_ref(cast(ObjectRefRep, obj))
+                else:
+                    return self._decode_object(cast(ObjectRep, obj))
+            elif "type" in obj:
                 match obj["type"]:
                     case type if type in self._decoders:
                         return self._decoders[type](obj, self)
@@ -731,8 +765,13 @@ class Deserializer:
         return ndarray
 
     def _decode_object(self, obj: ObjectRep) -> Model:
-        name = obj["name"]
-        attributes = obj.get("attributes")
+        attributes: dict[str, AnyRep] | None
+        if "$type" in obj:
+            name = cast(str, obj["$type"])
+            attributes = {key: value for key, value in obj.items() if key not in {"$type", "$id"}}
+        else:
+            name = cast(str, obj["name"])
+            attributes = cast(dict[str, AnyRep] | None, obj.get("attributes"))
 
         cls = self._resolve_type(name)
         instance = cls._new(make_id())
@@ -745,7 +784,7 @@ class Deserializer:
         return instance
 
     def _decode_object_ref(self, obj: ObjectRefRep) -> Model:
-        id = obj["id"]
+        id = cast(ID, obj["$id"] if "$id" in obj else obj["id"])
         instance = self._references.get(id)
         if instance is not None:
             from ..util.warnings import BokehUserWarning, warn
@@ -753,8 +792,13 @@ class Deserializer:
             warn(f"reference already known '{id}'", BokehUserWarning)
             return instance
 
-        name = obj["name"]
-        attributes = obj.get("attributes")
+        attributes: dict[str, AnyRep] | None
+        if "$type" in obj:
+            name = cast(str, obj["$type"])
+            attributes = {key: value for key, value in obj.items() if key not in {"$type", "$id"}}
+        else:
+            name = cast(str, obj["name"])
+            attributes = cast(dict[str, AnyRep] | None, obj.get("attributes"))
 
         cls = self._resolve_type(name)
         instance = cls._new(id)
@@ -791,7 +835,7 @@ class Deserializer:
         else:
             if type == "Figure":
                 from ..plotting import figure
-                return figure # XXX: helps with push_session(); this needs a better resolution scheme
+                return figure # XXX: helps with push_session(). This needs a better resolution scheme
             else:
                 self.error(f"can't resolve type '{type}'")
 

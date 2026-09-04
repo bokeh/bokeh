@@ -62,7 +62,6 @@ from ..core.serialization import (
 )
 from ..core.templates import FILE
 from ..core.validation import check_integrity, process_validation_issues
-from ..model.util import visit_immediate_value_references
 from ..themes import (
     Theme,
     ThemeLike,
@@ -123,9 +122,11 @@ def _models_with_ids(values: Iterable[Any]) -> set[Model]:
     '''Return reached models whose identity is required by sharing or cycles.
 
     The traversal follows model references through nested containers. It only
-    classifies the supplied document graph; callers cannot use the result to
+    classifies the supplied document graph. Callers cannot use the result to
     introduce an otherwise unreachable model into serialized output.
     '''
+    from ..model.util import visit_immediate_value_references
+
     counts: dict[Model, int] = {}
     children: dict[Model, list[Model]] = {}
 
@@ -320,7 +321,7 @@ class Document:
             except KeyError:
                 from ..util.strings import nice_join
 
-                raise ValueError(f"{theme} is not a built-in theme; available themes are {nice_join(built_in_themes)}")
+                raise ValueError(f"{theme} is not a built-in theme. Available themes are {nice_join(built_in_themes)}")
 
         if not isinstance(theme, Theme):
             raise ValueError("Theme must be a string or an instance of the Theme class")
@@ -911,6 +912,8 @@ side of a communications channel while it was being removed on the other end.\
     def to_json(self, *, deferred: Literal[True] = ...) -> Serialized[DocJson]: ...
     @overload
     def to_json(self, *, deferred: Literal[False]) -> DocJson: ...
+    @overload
+    def to_json(self, *, deferred: bool) -> DocJson | Serialized[DocJson]: ...
 
     def to_json(self, *, deferred: bool = True) -> DocJson | Serialized[DocJson]:
         ''' Convert this document to a serialized representation.
@@ -944,6 +947,9 @@ side of a communications channel while it was being removed on the other end.\
     @overload
     def to_static_json(self, *, deferred: Literal[False],
             models_with_ids: Iterable[Model] = ...) -> DocJson: ...
+    @overload
+    def to_static_json(self, *, deferred: bool,
+            models_with_ids: Iterable[Model] = ...) -> DocJson | Serialized[DocJson]: ...
 
     def to_static_json(self, *, deferred: bool = True,
             models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
@@ -985,6 +991,9 @@ side of a communications channel while it was being removed on the other end.\
     @overload
     def _to_json(self, *, deferred: Literal[False], model_ids: ModelIDPolicy = ...,
             extra_models_with_ids: Iterable[Model] = ...) -> DocJson: ...
+    @overload
+    def _to_json(self, *, deferred: bool, model_ids: ModelIDPolicy = ...,
+            extra_models_with_ids: Iterable[Model] = ...) -> DocJson | Serialized[DocJson]: ...
 
     def _to_json(self, *, deferred: bool = True, model_ids: ModelIDPolicy = "always",
             extra_models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
@@ -998,7 +1007,11 @@ side of a communications channel while it was being removed on the other end.\
         models_with_ids = (
             _models_with_ids([self._config, self._roots, self.callbacks.js_event_callbacks]) | set(extra_models_with_ids)
         ) if model_ids == "minimal" else set()
-        serializer = Serializer(deferred=deferred, models_with_ids=models_with_ids if model_ids == "minimal" else None)
+        serializer = Serializer(
+            deferred=deferred,
+            models_with_ids=models_with_ids if model_ids == "minimal" else None,
+            compact=model_ids == "minimal",
+        )
         defs = serializer.encode(data_models)
         config = serializer.encode(self._config)
         roots = serializer.encode(self._roots)

@@ -20,7 +20,16 @@ import pytest
 from bokeh.core.serialization import ObjectRep, Serializer
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
-from bokeh.models import CustomJS, SetValue
+from bokeh.models import (
+    ColumnDataSource,
+    CumSum,
+    CustomJS,
+    GlyphRenderer,
+    Grid,
+    Line,
+    LinearAxis,
+    SetValue,
+)
 from bokeh.util import serialization as bus
 from bokeh.util.version import __version__
 
@@ -66,7 +75,7 @@ def _fixture_case() -> dict[str, Any]:
 
 def _object_reps(value: Any) -> Iterator[ObjectRep]:
     if isinstance(value, dict):
-        if value.get("type") == "object":
+        if value.get("$type") is not None or value.get("type") == "object":
             yield value
         for child in value.values():
             yield from _object_reps(child)
@@ -79,6 +88,9 @@ def test_static_document_matches_shared_cross_language_fixture() -> None:
     document = _fixture_document()
     actual = document.to_static_json(deferred=False)
     actual["version"] = "__VERSION__"
+    # Registered DataModel definitions are process-global and outside this
+    # fixture's graph-minimal ID contract.
+    actual.pop("defs", None)
     json_compatible = json.loads(json.dumps(actual))
 
     assert json_compatible == _fixture_case()["document"]
@@ -153,13 +165,13 @@ def test_static_document_is_deterministic_and_does_not_force_root_ids() -> None:
     second = document.to_static_json(deferred=False)
 
     assert first == second
-    assert "id" not in first["roots"][0]
-    assert "id" not in first["roots"][1]
+    assert "$id" not in first["roots"][0]
+    assert "$id" not in first["roots"][1]
 
     [primary, secondary] = document.roots
     retained = document.to_static_json(deferred=False, models_with_ids=[primary])
-    assert retained["roots"][0]["id"] == primary.id
-    assert "id" not in retained["roots"][1]
+    assert retained["roots"][0]["$id"] == primary.id
+    assert "$id" not in retained["roots"][1]
     assert secondary.id != primary.id
 
 
@@ -172,7 +184,7 @@ def test_static_identity_analysis_traverses_direct_properties_and_mappings() -> 
     document.add_root(direct)
 
     encoded = document.to_static_json(deferred=False)
-    retained_ids = {rep["id"] for rep in _object_reps(encoded) if "id" in rep}
+    retained_ids = {rep["$id"] for rep in _object_reps(encoded) if "$id" in rep}
 
     assert shared.id in retained_ids
     assert mapping.id not in retained_ids
@@ -185,8 +197,61 @@ def test_models_with_ids_does_not_expand_the_document_graph() -> None:
 
     encoded = document.to_static_json(deferred=False, models_with_ids=[external])
 
-    assert external.id not in {rep.get("id") for rep in _object_reps(encoded)}
-    assert all(rep.get("attributes", {}).get("code") != "outside-document" for rep in _object_reps(encoded))
+    assert external.id not in {rep.get("$id") for rep in _object_reps(encoded)}
+    assert all(rep.get("code") != "outside-document" for rep in _object_reps(encoded))
+
+
+def test_static_document_compacts_literal_specs_and_column_data() -> None:
+    source = ColumnDataSource(data={"x_values": [1, 2], "y_values": [3, 4]})
+    glyph = Line(x={"field": "x_values"}, y={"field": "y_values"}, line_color="#6d4aff", line_width=3)
+    renderer = GlyphRenderer(data_source=source, glyph=glyph)
+    document = Document()
+    document.add_root(renderer)
+
+    [encoded] = document.to_static_json(deferred=False)["roots"]
+    assert encoded["$type"] == "GlyphRenderer"
+    assert encoded["data_source"]["data"] == {"x_values": [1, 2], "y_values": [3, 4]}
+    assert encoded["glyph"]["line_color"] == "#6d4aff"
+    assert encoded["glyph"]["x"] == {"$field": "x_values"}
+
+    [decoded_renderer] = Document.from_json(document.to_static_json(deferred=False)).roots
+    assert isinstance(decoded_renderer, GlyphRenderer)
+    assert decoded_renderer.data_source.data == {"x_values": [1, 2], "y_values": [3, 4]}
+    assert decoded_renderer.glyph.line_color == "#6d4aff"
+
+
+def test_static_document_compacts_expression_specs_and_retains_shared_expressions() -> None:
+    source = ColumnDataSource(data={"x_values": [1, 2], "y_values": [3, 4]})
+    expression = CumSum(field="x_values")
+    first = GlyphRenderer(data_source=source, glyph=Line(x={"expr": expression}, y={"field": "y_values"}))
+    second = GlyphRenderer(data_source=source, glyph=Line(x={"expr": expression}, y={"field": "y_values"}))
+    document = Document()
+    document.add_root(first)
+    document.add_root(second)
+
+    first_rep, second_rep = document.to_static_json(deferred=False)["roots"]
+    assert first_rep["glyph"]["x"]["$expr"] == {"$type": "CumSum", "$id": expression.id, "field": "x_values"}
+    assert second_rep["glyph"]["x"] == {"$expr": {"$ref": expression.id}}
+
+    first_renderer, second_renderer = Document.from_json(document.to_static_json(deferred=False)).roots
+    assert first_renderer.glyph.x["expr"] is second_renderer.glyph.x["expr"]
+
+
+def test_static_document_serializes_default_retained_references() -> None:
+    axis = LinearAxis()
+    grid = Grid(dimension=0, ticker=axis.ticker)
+    document = Document()
+    document.add_root(axis)
+    document.add_root(grid)
+
+    encoded_axis, encoded_grid = document.to_static_json(deferred=False)["roots"]
+    assert encoded_axis["ticker"] == {"$type": "BasicTicker", "$id": axis.ticker.id}
+    assert encoded_grid["ticker"] == {"$ref": axis.ticker.id}
+
+    decoded_axis, decoded_grid = Document.from_json(document.to_static_json(deferred=False)).roots
+    assert isinstance(decoded_axis, LinearAxis)
+    assert isinstance(decoded_grid, Grid)
+    assert decoded_grid.ticker is decoded_axis.ticker
 
 
 def test_canonical_documents_and_patch_values_remain_id_full() -> None:
