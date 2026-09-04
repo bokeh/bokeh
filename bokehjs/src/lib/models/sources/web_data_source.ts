@@ -25,10 +25,6 @@ export interface WebDataSource extends WebDataSource.Attrs {}
 export abstract class WebDataSource extends ColumnDataSource {
   declare properties: WebDataSource.Props
 
-  constructor(attrs?: Partial<WebDataSource.Attrs>) {
-    super(attrs)
-  }
-
   override get_column(name: string): Arrayable {
     const data = dict(this.data)
     return data.get(name) ?? []

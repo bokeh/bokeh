@@ -160,10 +160,6 @@ export abstract class SelectTool extends GestureTool {
   readonly invert = new Signal0(this, "invert")
   readonly clear = new Signal0(this, "clear")
 
-  constructor(attrs?: Partial<SelectTool.Attrs>) {
-    super(attrs)
-  }
-
   declare mode: SelectionMode
 
   static {

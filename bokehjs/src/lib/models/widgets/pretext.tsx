@@ -31,10 +31,6 @@ export class PreText extends Markup {
   declare properties: PreText.Props
   declare __view_type__: PreTextView
 
-  constructor(attrs?: Partial<PreText.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PreTextView
   }

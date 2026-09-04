@@ -42,10 +42,6 @@ export class Decoration extends Model {
   declare properties: Decoration.Props
   declare __view_type__: DecorationView
 
-  constructor(attrs?: Partial<Decoration.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = DecorationView
 

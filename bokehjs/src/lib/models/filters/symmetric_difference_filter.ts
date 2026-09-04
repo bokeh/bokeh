@@ -12,10 +12,6 @@ export interface SymmetricDifferenceFilter extends SymmetricDifferenceFilter.Att
 export class SymmetricDifferenceFilter extends CompositeFilter {
   declare properties: SymmetricDifferenceFilter.Props
 
-  constructor(attrs?: Partial<SymmetricDifferenceFilter.Attrs>) {
-    super(attrs)
-  }
-
   protected _inplace_op(index: Indices, op: Indices): void {
     index.symmetric_subtract(op)
   }

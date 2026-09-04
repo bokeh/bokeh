@@ -15,10 +15,6 @@ export interface LayoutProvider extends LayoutProvider.Attrs {}
 export abstract class LayoutProvider extends Model {
   declare properties: LayoutProvider.Props
 
-  constructor(attrs?: Partial<LayoutProvider.Attrs>) {
-    super(attrs)
-  }
-
   abstract get_node_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>]
 
   abstract get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]]
@@ -44,10 +40,6 @@ export interface GraphCoordinates extends GraphCoordinates.Attrs {}
 export abstract class GraphCoordinates extends CoordinateTransform {
   declare properties: GraphCoordinates.Props
 
-  constructor(attrs?: Partial<GraphCoordinates.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<GraphCoordinates.Props>(({Ref}) => ({
       layout: [ Ref(LayoutProvider)],
@@ -65,10 +57,6 @@ export interface NodeCoordinates extends NodeCoordinates.Attrs {}
 export class NodeCoordinates extends GraphCoordinates {
   declare properties: NodeCoordinates.Props
 
-  constructor(attrs?: Partial<NodeCoordinates.Attrs>) {
-    super(attrs)
-  }
-
   _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>} {
     const [x, y] = this.layout.get_node_coordinates(source)
     return {x, y}
@@ -84,10 +72,6 @@ export interface EdgeCoordinates extends EdgeCoordinates.Attrs {}
 
 export class EdgeCoordinates extends GraphCoordinates {
   declare properties: EdgeCoordinates.Props
-
-  constructor(attrs?: Partial<EdgeCoordinates.Attrs>) {
-    super(attrs)
-  }
 
   _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]} {
     const [x, y] = this.layout.get_edge_coordinates(source)

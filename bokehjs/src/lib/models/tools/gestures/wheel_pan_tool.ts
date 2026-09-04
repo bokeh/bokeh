@@ -89,10 +89,6 @@ export class WheelPanTool extends GestureTool {
   declare properties: WheelPanTool.Props
   declare __view_type__: WheelPanToolView
 
-  constructor(attrs?: Partial<WheelPanTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = WheelPanToolView
 

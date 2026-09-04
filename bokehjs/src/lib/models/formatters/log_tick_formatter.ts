@@ -21,10 +21,6 @@ export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 export class LogTickFormatter extends TickFormatter {
   declare properties: LogTickFormatter.Props
 
-  constructor(attrs?: Partial<LogTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<LogTickFormatter.Props>(({Int, Ref, Nullable}) => ({
       ticker: [ Nullable(Ref(LogTicker)), null ],

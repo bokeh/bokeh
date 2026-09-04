@@ -120,10 +120,6 @@ export class ValueRef extends Placeholder {
   declare properties: ValueRef.Props
   declare __view_type__: ValueRefView
 
-  constructor(attrs?: Partial<ValueRef.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ValueRefView
     this.define<ValueRef.Props>(({Str, Nullable, List, Or}) => ({

@@ -39,10 +39,6 @@ export class OnOffButton extends ToolButton {
   declare properties: OnOffButton.Props
   declare __view_type__: OnOffButtonView
 
-  constructor(attrs?: Partial<OnOffButton.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = OnOffButtonView
   }

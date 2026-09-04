@@ -13,10 +13,6 @@ export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 export class LinearInterpolator extends Interpolator {
   declare properties: LinearInterpolator.Props
 
-  constructor(attrs?: Partial<LinearInterpolator.Attrs>) {
-    super(attrs)
-  }
-
   compute(x: number): number {
     this.sort(false)
 

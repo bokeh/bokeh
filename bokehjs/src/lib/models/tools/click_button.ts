@@ -26,10 +26,6 @@ export class ClickButton extends OnOffButton {
   declare properties: ClickButton.Props
   declare __view_type__: ClickButtonView
 
-  constructor(attrs?: Partial<ClickButton.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ClickButtonView
   }

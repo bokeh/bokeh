@@ -178,10 +178,6 @@ export class Label extends TextAnnotation {
   declare properties: Label.Props
   declare __view_type__: LabelView
 
-  constructor(attrs?: Partial<Label.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = LabelView
 

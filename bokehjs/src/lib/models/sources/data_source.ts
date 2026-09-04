@@ -15,10 +15,6 @@ export interface DataSource extends DataSource.Attrs {}
 export abstract class DataSource extends Model {
   declare properties: DataSource.Props
 
-  constructor(attrs?: Partial<DataSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<DataSource.Props>(({Ref}) => ({
       selected: [ Ref(Selection), () => Selection.create(), {readonly: true} ],

@@ -25,10 +25,6 @@ export class Button extends AbstractButton {
   declare properties: Button.Props
   declare __view_type__: ButtonView
 
-  constructor(attrs?: Partial<Button.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ButtonView
 

@@ -105,10 +105,6 @@ export class TableColumn extends Model {
   declare properties: TableColumn.Props
   declare __view_type__: TableColumnView
 
-  constructor(attrs?: Partial<TableColumn.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TableColumnView
 

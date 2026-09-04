@@ -52,10 +52,6 @@ export abstract class LineTool extends EditTool {
   declare properties: LineTool.Props
   declare __view_type__: LineToolView
 
-  constructor(attrs?: Partial<LineTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<LineTool.Props>(({Ref}) => ({
       intersection_renderer: [ Ref(GlyphRenderer<Line>) ],

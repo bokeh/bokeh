@@ -22,10 +22,6 @@ export interface LegendItem extends LegendItem.Attrs {}
 export class LegendItem extends Model {
   declare properties: LegendItem.Props
 
-  constructor(attrs?: Partial<LegendItem.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<LegendItem.Props>(({Bool, Int, List, Ref, Nullable}) => ({
       label:     [ p.NullStringSpec, null ],

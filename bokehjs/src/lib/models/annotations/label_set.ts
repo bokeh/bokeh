@@ -126,10 +126,6 @@ export class LabelSet extends DataAnnotation {
   declare properties: LabelSet.Props
   declare __view_type__: LabelSetView
 
-  constructor(attrs?: Partial<LabelSet.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = LabelSetView
 

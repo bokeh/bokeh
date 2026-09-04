@@ -308,10 +308,6 @@ export class PolyEditTool extends PolyTool {
   declare properties: PolyEditTool.Props
   declare __view_type__: PolyEditToolView
 
-  constructor(attrs?: Partial<PolyEditTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PolyEditToolView
 

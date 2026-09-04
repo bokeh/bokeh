@@ -349,10 +349,6 @@ export class PolyAnnotation extends Annotation {
   declare properties: PolyAnnotation.Props
   declare __view_type__: PolyAnnotationView
 
-  constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PolyAnnotationView
 

@@ -172,10 +172,6 @@ export interface TimedeltaTickFormatter extends TimedeltaTickFormatter.Attrs {}
 export class TimedeltaTickFormatter extends TickFormatter {
   declare properties: TimedeltaTickFormatter.Props
 
-  constructor(attrs?: Partial<TimedeltaTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<TimedeltaTickFormatter.Props>(({Bool, Nullable, Or, Ref, Str, Arrayable}) => ({
       nanoseconds: [ Str, "%NSns" ],

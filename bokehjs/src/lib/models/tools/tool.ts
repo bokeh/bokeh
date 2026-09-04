@@ -1,7 +1,6 @@
 import type * as p from "core/properties"
 import {View} from "core/view"
 import type {HasProps} from "core/has_props"
-import type {Class} from "core/class"
 import type {Dimensions, ToolName} from "core/enums"
 import {min, max} from "core/util/array"
 import {entries} from "core/util/object"
@@ -33,7 +32,6 @@ import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
-import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
 import type {ToolLike} from "./tool_proxy"
 
@@ -146,10 +144,6 @@ export abstract class Tool extends Model {
   declare properties: Tool.Props
   declare __view_type__: ToolView
 
-  constructor(attrs?: Partial<Tool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype._known_aliases = new Map()
 
@@ -182,8 +176,6 @@ export abstract class Tool extends Model {
     return event_type == null ? [] : (isString(event_type) ? [event_type] : event_type)
   }
   // }}}
-
-  button_view: Class<ToolButtonView>
 
   abstract tool_button(): ToolButton
 

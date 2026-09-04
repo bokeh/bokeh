@@ -151,10 +151,6 @@ export class Drawer extends Pane {
   declare properties: Drawer.Props
   declare __view_type__: DrawerView
 
-  constructor(attrs?: Partial<Drawer.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = DrawerView
 

@@ -203,10 +203,6 @@ export class AutocompleteInput extends TextInput {
   declare properties: AutocompleteInput.Props
   declare __view_type__: AutocompleteInputView
 
-  constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = AutocompleteInputView
 

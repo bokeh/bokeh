@@ -28,10 +28,6 @@ export class ToggleGroup extends Action {
   declare properties: ToggleGroup.Props
   declare __view_type__: ToggleGroupView
 
-  constructor(attrs?: Partial<ToggleGroup.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ToggleGroupView
     this.define<ToggleGroup.Props>(({List, Ref}) => ({

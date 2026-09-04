@@ -31,10 +31,6 @@ export class ToolProxy<T extends Tool> extends Model {
   declare properties: ToolProxy.Props<T>
   declare __view_type__: ToolView
 
-  constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
-    super(attrs)
-  }
-
   static {
     this.define<ToolProxy.Props<Tool>, ToolProxy<Tool>>(({Bool, List, Ref, Or}) => ({
       tools:    [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],

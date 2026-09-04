@@ -628,10 +628,6 @@ export abstract class Glyph extends Model {
   declare properties: Glyph.Props
   declare __view_type__: GlyphView
 
-  constructor(attrs?: Partial<Glyph.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Glyph.Props>(({List, Ref}) => ({
       decorations: [ List(Ref(Decoration)), [] ],

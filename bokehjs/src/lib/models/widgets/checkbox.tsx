@@ -40,10 +40,6 @@ export class Checkbox extends ToggleInput {
   declare properties: Checkbox.Props
   declare __view_type__: CheckboxView
 
-  constructor(attrs?: Partial<Checkbox.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CheckboxView
   }

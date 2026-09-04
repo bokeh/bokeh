@@ -67,10 +67,6 @@ export class Switch extends ToggleInput {
   declare properties: Switch.Props
   declare __view_type__: SwitchView
 
-  constructor(attrs?: Partial<Switch.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = SwitchView
 

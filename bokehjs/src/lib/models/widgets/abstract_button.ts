@@ -118,10 +118,6 @@ export abstract class AbstractButton extends Control {
   declare properties: AbstractButton.Props
   declare __view_type__: AbstractButtonView
 
-  constructor(attrs?: Partial<AbstractButton.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<AbstractButton.Props>(({Str, Ref, Or, Nullable}) => ({
       label:       [ Or(Ref(DOMNode), Str), "Button" ],

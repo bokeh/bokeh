@@ -226,10 +226,6 @@ export class BoxSelectTool extends RegionSelectTool {
 
   declare overlay: BoxAnnotation
 
-  constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = BoxSelectToolView
 

@@ -555,13 +555,13 @@ describe("Widgets", () => {
   })
 
   it("should allow DataTable with and without HTML column titles", async () => {
-    const source = new ColumnDataSource({data: {c1: [0, 1, 2, 10], c2: [10, 20, 30, 40], c3: [3.4, 1.2, 0, -10]}})
+    const source = ColumnDataSource.create({data: {c1: [0, 1, 2, 10], c2: [10, 20, 30, 40], c3: [3.4, 1.2, 0, -10]}})
     const columns = [
-      new TableColumn({field: "c1", title: "a<b", width: 200}),
-      new TableColumn({field: "c2", title: new HTML({html: "a<b"}), width: 200}),
-      new TableColumn({field: "c3", title: new HTML({html: "<b>a&lt;b</b>"}), width: 200}),
+      TableColumn.create({field: "c1", title: "a<b", width: 200}),
+      TableColumn.create({field: "c2", title: HTML.create({html: "a<b"}), width: 200}),
+      TableColumn.create({field: "c3", title: HTML.create({html: "<b>a&lt;b</b>"}), width: 200}),
     ]
-    const table = new DataTable({source, columns, autosize_mode: "none"})
+    const table = DataTable.create({source, columns, autosize_mode: "none"})
     const {view} = await display(table, [600, 400])
     await view.ready
   })

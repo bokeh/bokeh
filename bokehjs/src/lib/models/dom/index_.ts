@@ -24,10 +24,6 @@ export class Index extends Placeholder {
   declare properties: Index.Props
   declare __view_type__: IndexView
 
-  constructor(attrs?: Partial<Index.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = IndexView
   }

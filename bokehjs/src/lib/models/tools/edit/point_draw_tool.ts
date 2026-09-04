@@ -96,10 +96,6 @@ export class PointDrawTool extends EditTool {
   declare properties: PointDrawTool.Props
   declare __view_type__: PointDrawToolView
 
-  constructor(attrs?: Partial<PointDrawTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PointDrawToolView
 

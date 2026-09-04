@@ -218,10 +218,6 @@ export class CategoricalAxis extends Axis {
   declare ticker: CategoricalTicker
   declare formatter: CategoricalTickFormatter
 
-  constructor(attrs?: Partial<CategoricalAxis.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CategoricalAxisView
 

@@ -12,10 +12,6 @@ export interface LogScale extends LogScale.Attrs {}
 export class LogScale extends ContinuousScale {
   declare properties: LogScale.Props
 
-  constructor(attrs?: Partial<LogScale.Attrs>) {
-    super(attrs)
-  }
-
   get s_compute(): (x: number) => number {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
     return (x) => {

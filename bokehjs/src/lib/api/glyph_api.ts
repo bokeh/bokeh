@@ -1,6 +1,5 @@
-import type {HasProps} from "../core/has_props"
+import type {HasProps, HasPropsClass} from "../core/has_props"
 import type {Color, Arrayable} from "../core/types"
-import type {Class} from "../core/class"
 import type {Vector} from "../core/vectorization"
 import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
 import type {MarkerType, RenderLevel} from "../core/enums"
@@ -189,7 +188,7 @@ export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFi
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
 
 export abstract class GlyphAPI {
-  abstract _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
+  abstract _glyph<G extends Glyph>(cls: HasPropsClass<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
 
   annular_wedge(): GlyphRenderer<AnnularWedge>
   annular_wedge(args: Partial<AnnularWedgeArgs>): GlyphRenderer<AnnularWedge>

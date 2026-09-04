@@ -25,10 +25,6 @@ export interface DatetimeTicker extends DatetimeTicker.Attrs {}
 export class DatetimeTicker extends CompositeTicker {
   declare properties: DatetimeTicker.Props
 
-  constructor(attrs?: Partial<DatetimeTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<DatetimeTicker.Props>({
       num_minor_ticks: 0,

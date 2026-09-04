@@ -191,10 +191,6 @@ export abstract class TextAnnotation extends Annotation {
   declare properties: TextAnnotation.Props
   declare __view_type__: TextAnnotationView
 
-  constructor(attrs?: Partial<TextAnnotation.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<TextAnnotation.Props>(() => ({
       padding: [ Padding, 0 ],

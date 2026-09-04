@@ -185,10 +185,6 @@ export abstract class LRTB extends Glyph {
   declare properties: LRTB.Props
   declare __view_type__: LRTBView
 
-  constructor(attrs?: Partial<LRTB.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.mixins<LRTB.Mixins>([LineVector, FillVector, HatchVector])
 

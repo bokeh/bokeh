@@ -19,10 +19,6 @@ export interface DocumentConfig extends DocumentConfig.Attrs {}
 export class DocumentConfig extends Model {
   declare properties: DocumentConfig.Props
 
-  constructor(attrs?: Partial<DocumentConfig.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<DocumentConfig.Props>(({Bool, Ref, Nullable}) => ({
       reconnect_session: [ Bool, true ],

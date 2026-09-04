@@ -563,10 +563,6 @@ export class GlyphRenderer<
   declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>
   declare __view_type__: GlyphRendererView
 
-  constructor(attrs?: Partial<GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = GlyphRendererView
 

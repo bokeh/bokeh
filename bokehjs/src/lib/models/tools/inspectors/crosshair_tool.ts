@@ -143,10 +143,6 @@ export class CrosshairTool extends InspectTool {
   declare properties: CrosshairTool.Props
   declare __view_type__: CrosshairToolView
 
-  constructor(attrs?: Partial<CrosshairTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CrosshairToolView
 

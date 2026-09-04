@@ -266,10 +266,6 @@ export class WheelZoomTool extends GestureTool {
   declare properties: WheelZoomTool.Props
   declare __view_type__: WheelZoomToolView
 
-  constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = WheelZoomToolView
 

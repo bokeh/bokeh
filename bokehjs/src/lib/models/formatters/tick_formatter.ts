@@ -14,10 +14,6 @@ export interface TickFormatter extends TickFormatter.Attrs {}
 export abstract class TickFormatter extends Model {
   declare properties: TickFormatter.Props
 
-  constructor(attrs?: Partial<TickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   abstract doFormat(ticks: string[] | number[], opts: {loc: number}): string[]
 
   format_graphics(ticks: string[] | number[], opts: {loc: number}): GraphicsBox[] {

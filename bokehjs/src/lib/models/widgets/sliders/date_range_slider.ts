@@ -37,10 +37,6 @@ export class DateRangeSlider extends NumericalRangeSlider {
   declare properties: DateRangeSlider.Props
   declare __view_type__: DateRangeSliderView
 
-  constructor(attrs?: Partial<DateRangeSlider.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = DateRangeSliderView
 

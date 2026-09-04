@@ -97,10 +97,6 @@ export class CDSView extends Model {
   declare properties: CDSView.Props
   declare __view_type__: CDSViewView
 
-  constructor(attrs?: Partial<CDSView.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CDSViewView
 

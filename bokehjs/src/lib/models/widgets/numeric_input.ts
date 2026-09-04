@@ -137,10 +137,6 @@ export class NumericInput extends InputWidget {
   declare properties: NumericInput.Props
   declare __view_type__: NumericInputView
 
-  constructor(attrs?: Partial<NumericInput.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = NumericInputView
 

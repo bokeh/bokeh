@@ -219,10 +219,6 @@ export class CartesianFrame extends CanvasPanel {
   declare properties: CartesianFrame.Props
   declare __view_type__: CartesianFrameView
 
-  constructor(attrs?: Partial<CartesianFrame.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CartesianFrameView
 

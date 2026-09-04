@@ -220,10 +220,6 @@ export class Arrow extends DataAnnotation {
   declare properties: Arrow.Props
   declare __view_type__: ArrowView
 
-  constructor(attrs?: Partial<Arrow.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ArrowView
 

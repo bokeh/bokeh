@@ -18,10 +18,6 @@ export interface LinearInterpolationScale extends LinearInterpolationScale.Attrs
 export class LinearInterpolationScale extends Scale<number> {
   declare properties: LinearInterpolationScale.Props
 
-  constructor(attrs?: Partial<LinearInterpolationScale.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.internal<LinearInterpolationScale.Props>(({Float, Arrayable, Ref}) => ({
       binning:      [ Arrayable(Float) ],

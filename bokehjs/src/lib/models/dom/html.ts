@@ -133,10 +133,6 @@ export class HTML extends DOMElement {
   declare properties: HTML.Props
   declare __view_type__: HTMLView
 
-  constructor(attrs?: Partial<HTML.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HTMLView
 

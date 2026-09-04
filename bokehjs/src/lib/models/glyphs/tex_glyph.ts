@@ -48,10 +48,6 @@ export class TeXGlyph extends MathTextGlyph {
   declare properties: TeXGlyph.Props
   declare __view_type__: TeXGlyphView
 
-  constructor(attrs?: Partial<TeXGlyph.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TeXGlyphView
 
