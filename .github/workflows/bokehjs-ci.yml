@@ -63,9 +63,6 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
         node-version: [24.x]
-        include:
-          - os: ubuntu-24.04
-            node-version: 22.x
 
     steps:
       - name: Checkout the repository
@@ -192,10 +189,51 @@ jobs:
           name: bokehjs-report
           path: bokehjs-report
 
+  minimum-node:
+    name: Minimum Node.js 22
+    needs: changes
+    if: needs.changes.outputs.bokehjs == 'true'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+
+      - name: Install node.js 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: 'bokehjs/package-lock.json'
+
+      - name: Upgrade npm
+        run: |
+          npm install -g npm
+
+      - name: Install dependencies
+        working-directory: ./bokehjs
+        run: |
+          npm ci --no-progress
+
+      - name: Build bokehjs
+        working-directory: ./bokehjs
+        run: |
+          node make build
+
+      - name: Package bokehjs
+        working-directory: ./bokehjs
+        run: |
+          node make pack
+
+      - name: Run type, SSR, and framework tests
+        working-directory: ./bokehjs
+        run: |
+          node make test:frameworks
+
   result:
     name: BokehJS-CI / result
     if: ${{ always() }}
-    needs: [changes, test, lint, baseline-test]
+    needs: [changes, test, lint, baseline-test, minimum-node]
     runs-on: ubuntu-24.04
 
     steps:
@@ -208,9 +246,11 @@ jobs:
             (if .changes.outputs.bokehjs == "true"
              then .test.result == "success" and
                   .lint.result == "success" and
-                  ."baseline-test".result == "success"
+                  ."baseline-test".result == "success" and
+                  ."minimum-node".result == "success"
              else .test.result == "skipped" and
                   .lint.result == "skipped" and
-                  ."baseline-test".result == "skipped"
+                  ."baseline-test".result == "skipped" and
+                  ."minimum-node".result == "skipped"
              end)
           ' <<<"$RESULTS"

@@ -1449,8 +1449,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
       for (const view of this.renderer_views.values()) {
         if (is_Exportable(view)) {
-          const region = view.export(type)
+          // Exporting a nested plot can update its internal layout, so retain
+          // the renderer's position in this plot before exporting its region.
           const {x, y} = view.bbox.scale(composite.pixel_ratio)
+          const region = view.export(type)
           composite.ctx.drawImage(region.canvas, x, y)
         }
       }
