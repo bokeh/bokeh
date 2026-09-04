@@ -17,7 +17,7 @@ import sys
 import threading
 from collections import OrderedDict
 from html import escape
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import (
     Any,
     Literal,
@@ -359,8 +359,9 @@ def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
     return payload
 
 def file_payload(path: str) -> FilePayload:
-    candidate = Path(path)
-    if candidate.is_absolute() or candidate.drive or ".." in candidate.parts or "\\" in path:
+    candidate = PurePosixPath(path)
+    windows = PureWindowsPath(path)
+    if not path or candidate.is_absolute() or windows.is_absolute() or windows.drive or ".." in candidate.parts or "\\" in path:
         raise ValueError("notebook file links must be safe paths relative to the notebook")
     return FilePayload(
         protocol_version=PROTOCOL_VERSION,

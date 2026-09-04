@@ -19,6 +19,7 @@ import sys
 import threading
 import time
 from typing import Any
+from unittest.mock import MagicMock
 
 # External imports
 import pytest
@@ -174,6 +175,16 @@ def test_playwright_thread_serializes_shutdown_and_submissions() -> None:
         assert playwright_thread.run(_worker_identity)[0] == os.getpid()
     finally:
         playwright_thread.shutdown()
+
+
+def test_wait_until_render_complete_wraps_multistatement_loaded_check() -> None:
+    page = MagicMock()
+
+    bib.wait_until_render_complete(page, timeout=5)
+
+    loaded_check = page.wait_for_function.call_args_list[0].args[0]
+    assert loaded_check.startswith("() => { const mount = ")
+    assert "return typeof Bokeh" in loaded_check
 
 #-----------------------------------------------------------------------------
 # Code

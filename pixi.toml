@@ -217,6 +217,8 @@ streamlit = "1.57.*"
 uvicorn-standard = "*"
 
 [feature.build-tools.dependencies]
+jupyter-builder = "*"
+pip = "*"
 python-build = "*"
 setuptools = "*"
 
@@ -232,7 +234,6 @@ firefox = ">=96"
 geckodriver = "*"
 icalendar = "*"
 ipython = "*"
-jupyterlab = "4.*"
 networkx = "*"
 packaging = "*"
 pydata-sphinx-theme = "*"

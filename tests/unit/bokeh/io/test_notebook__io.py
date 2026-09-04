@@ -316,6 +316,7 @@ class TestDocumentViewHandle:
 
 
 def test_comm_release_message_closes_the_output_owner() -> None:
+    pytest.importorskip("IPython")
     targets: dict[str, object] = {}
     shell = MagicMock()
     shell.kernel.comm_manager.register_target.side_effect = lambda target, callback: targets.setdefault(target, callback)
