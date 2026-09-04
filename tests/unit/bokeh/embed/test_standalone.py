@@ -86,6 +86,17 @@ class Test_file_html:
             template_variables={"custom": "value"},
         ) == "template result"
 
+    def test_custom_template_can_embed_named_roots(self, test_plot: Plot) -> None:
+        test_plot.name = "named"
+        html = bes.file_html(
+            test_plot,
+            CDN,
+            template="{% block contents %}{{ embed(roots.named) }}{% endblock %}",
+        )
+
+        assert 'data-bokeh-root="root"' in html
+        assert 'data-bokeh-artifact=' in html
+
     def test_does_not_pull_unselected_document_roots(self) -> None:
         from bokeh.models.widgets.buttons import Button
 

@@ -13,7 +13,12 @@ import hashlib
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterator,
+    Mapping,
+)
 
 # Bokeh imports
 from ..core.templates import FILE, MACROS, get_env
@@ -40,6 +45,27 @@ class ArtifactMount:
     html: str
 
 
+class _TemplateRoots:
+    def __init__(self, mounts: tuple[ArtifactMount, ...], aliases: Mapping[str, ArtifactMount]) -> None:
+        self._mounts = mounts
+        self._aliases = aliases
+
+    def __iter__(self) -> Iterator[ArtifactMount]:
+        return iter(self._mounts)
+
+    def __len__(self) -> int:
+        return len(self._mounts)
+
+    def __getitem__(self, key: int | str) -> ArtifactMount:
+        return self._mounts[key] if isinstance(key, int) else self._aliases[key]
+
+    def __getattr__(self, key: str) -> ArtifactMount:
+        try:
+            return self._aliases[key]
+        except KeyError as error:
+            raise AttributeError(key) from error
+
+
 @dataclass(frozen=True)
 class ArtifactFragment:
     '''Composable artifact output for insertion into an existing page.
@@ -57,11 +83,20 @@ class ArtifactFragment:
 
     @property
     def requirements(self) -> ResourceRequirements:
-        '''Resource requirements declared by the underlying artifact.'''
+        '''Return the resource requirements declared by the artifact.
+
+        Returns:
+            The artifact resource requirements.
+        '''
         return self.artifact.requires
 
     @property
     def divs(self) -> dict[str, str]:
+        '''Return target markup keyed by logical root name.
+
+        Returns:
+            A mapping from root keys to target markup.
+        '''
         return {mount.key: mount.html for mount in self.mounts}
 
 
@@ -78,7 +113,11 @@ class ExternalArtifact:
 
     @property
     def payload(self) -> str:
-        '''Return the JSON text a host should store at ``payload_url``.'''
+        '''Return the JSON text a host should store at ``payload_url``.
+
+        Returns:
+            The serialized artifact payload.
+        '''
         return self.artifact.to_json_string()
 
 
@@ -157,7 +196,7 @@ def render_page(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resource
         artifact_mounts=mounts,
         artifact_fragment=f"{plot_div}\n{plot_script}",
         docs=[],
-        roots=[],
+        roots=_template_roots(artifact, mounts),
         base=FILE,
         macros=MACROS,
     )
@@ -173,6 +212,20 @@ def render_page(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resource
     else:
         raise TypeError(f"expected Template, str, Path, or None, got {type(template).__name__}")
     return renderer.render(context)
+
+
+def _template_roots(artifact: EmbedArtifact, mounts: tuple[ArtifactMount, ...]) -> _TemplateRoots:
+    aliases = {mount.key: mount for mount in mounts}
+    if artifact.source.get("kind") == "standalone":
+        documents = artifact.source["documents"]
+        for descriptor, mount in zip(artifact.roots, mounts):
+            assert descriptor.document is not None and descriptor.root is not None
+            root = documents[descriptor.document]["roots"][descriptor.root]
+            attributes = root.get("attributes", {})
+            name = attributes.get("name")
+            if isinstance(name, str) and name:
+                aliases.setdefault(name, mount)
+    return _TemplateRoots(mounts, aliases)
 
 
 def render_mimebundle(artifact: EmbedArtifact) -> dict[str, Any]:

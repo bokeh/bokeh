@@ -60,10 +60,7 @@ async function mount_document_standalone(document: Document, element: EmbedTarge
   const root_map = new Map(document.roots().map((model) => [model.id, model]))
   const root_targets = new Map<string, EmbedTarget>()
   for (const [i, key] of [...root_map.keys()].entries()) {
-    const target = roots[i]
-    if (target != null) {
-      root_targets.set(key, target)
-    }
+    root_targets.set(key, roots[i])
   }
   const mount = new StandaloneMount(document, root_map, false, undefined, undefined, true)
   await mount.initialize(element, root_targets, false)
