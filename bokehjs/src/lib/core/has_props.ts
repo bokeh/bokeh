@@ -13,7 +13,7 @@ import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
 import {keys, values, entries, extend, is_empty, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
-import type {Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
+import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
 import type {Document} from "../document/document"
 import type {DocumentEvent} from "../document/events"
@@ -374,9 +374,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
-  [serialize](serializer: Serializer): ObjectRefRep {
-    const ref = this.ref()
-    serializer.add_ref(this, ref)
+  [serialize](serializer: Serializer): ObjectRep | ObjectRefRep {
+    const use_id = serializer.use_model_id(this)
+    if (use_id) {
+      serializer.add_ref(this, this.ref())
+    }
 
     const attributes: {[key: string]: AnyVal} = {}
     for (const prop of this) {
@@ -387,7 +389,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
 
     const {type: name, id} = this
-    const rep = {type: "object" as const, name, id}
+    const rep = use_id ? {type: "object" as const, name, id} : {type: "object" as const, name}
 
     return is_empty(attributes) ? rep : {...rep, attributes}
   }
