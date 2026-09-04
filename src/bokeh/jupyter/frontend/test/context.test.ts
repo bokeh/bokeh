@@ -6,6 +6,7 @@ describe("notebook context ownership", () => {
   it("collects AnyWidget snapshots only for views owned by this notebook", () => {
     const manager = new ContextManager({path: "one.ipynb"} as any, {} as any)
     manager.setOwnedViews(new Set(["owned"]))
+
     const collect = (event: Event) => {
       const snapshots = (event as CustomEvent).detail.snapshots
       snapshots.push({view_id: "owned", artifact_json: "{}"})

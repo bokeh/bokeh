@@ -62,6 +62,15 @@ class ExampleHandler(Handler):
         self._runner = CodeRunner(source, filename, ())
 
     def modify_document(self, doc: Document) -> None:
+        '''Execute the example source against a document.
+
+        Args:
+            doc: The document to modify.
+
+        Returns:
+            None
+
+        '''
         if self.failed:
             return
 
