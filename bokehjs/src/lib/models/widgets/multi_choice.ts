@@ -26,24 +26,31 @@ async function load_retargeting_choices_class(): Promise<typeof Choices> {
     override _onFocus(event: FocusEvent): void {
       super._onFocus(retarget(event))
     }
+
     override _onBlur(event: FocusEvent): void {
       super._onBlur(retarget(event))
     }
+
     override _onKeyUp(event: KeyboardEvent): void {
       super._onKeyUp(retarget(event))
     }
+
     override _onKeyDown(event: KeyboardEvent): void {
       super._onKeyDown(retarget(event))
     }
+
     override _onClick(event: MouseEvent): void {
       super._onClick(retarget(event))
     }
+
     override _onTouchEnd(event: TouchEvent): void {
       super._onTouchEnd(retarget(event))
     }
+
     override _onMouseDown(event: MouseEvent): void {
       super._onMouseDown(retarget(event))
     }
+
     override _onMouseOver(event: MouseEvent): void {
       super._onMouseOver(retarget(event))
     }

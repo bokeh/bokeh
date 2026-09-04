@@ -4211,9 +4211,9 @@ describe("Bug", () => {
       const p = fig([400, 200])
       const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
-      const legend = new Legend({
+      const legend = Legend.create({
         items: [
-          new LegendItem({label: "Short", renderers: [scatter]}),
+          LegendItem.create({label: "Short", renderers: [scatter]}),
         ],
         margin: 0,
       })
@@ -5492,10 +5492,10 @@ describe("Bug", () => {
       const items = []
       for (let i = 0; i < 8; i++) {
         const r = p.line([1, 2], [i, i + 1])
-        items.push(new LegendItem({label: `item ${i}`, renderers: [r]}))
+        items.push(LegendItem.create({label: `item ${i}`, renderers: [r]}))
       }
       const orientation = side == "above" ? "horizontal" : "vertical"
-      const legend = new Legend({items, location, orientation})
+      const legend = Legend.create({items, location, orientation})
       p.add_layout(legend, side)
       return {gp: gridplot([[p]], {toolbar_location: "above"}), plot: p, legend}
     }
