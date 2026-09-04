@@ -64,6 +64,12 @@ CDN, inline/offline, server, relative/absolute, or host-owned ``none`` resource
 delivery. BokehJS resource loading is promise-based and deduplicates concurrent
 and later additive requirements.
 
+Embedding artifacts are executable content, not a safe interchange format for
+untrusted input. ``CustomJS`` callbacks and extension assets may execute
+JavaScript or load scripts and styles from declared URLs. Only mount artifacts
+from trusted sources; hosts accepting external artifacts should validate or
+allowlist extension resources and apply an appropriate resource policy.
+
 Requirements and policy answer different questions:
 
 .. list-table:: Artifact requirements versus host policy
