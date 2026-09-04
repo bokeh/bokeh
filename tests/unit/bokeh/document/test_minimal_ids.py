@@ -79,6 +79,9 @@ def test_static_document_matches_shared_cross_language_fixture() -> None:
     document = _fixture_document()
     actual = document.to_static_json(deferred=False)
     actual["version"] = "__VERSION__"
+    # Registered DataModel definitions are process-global and outside this
+    # fixture's graph-minimal ID contract.
+    actual.pop("defs", None)
     json_compatible = json.loads(json.dumps(actual))
 
     assert json_compatible == _fixture_case()["document"]
