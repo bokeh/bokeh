@@ -2,5 +2,5 @@
 // `all/main`, which installs the standard model registry for script-tag users.
 export * from "./index"
 export * from "./api/index"
-export {mount, BokehMount} from "./api/io"
-export type {MountOptions, Showable} from "./api/io"
+export {mount, BokehMount, MountError, MountSource} from "./api/io"
+export type {KeyedRoots, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey, Showable, ShowableRoot} from "./api/io"

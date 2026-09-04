@@ -166,7 +166,7 @@ async function run_page(url, expected_framework, hmr_source = null) {
       }
       return await window.__bokeh_framework_test__
     })()`)
-    if (result.framework != expected_framework || result.mounts != 3 || result.streams != 3) {
+    if (result.framework != expected_framework || result.mounts != 4 || result.streams != 3) {
       throw new Error(`unexpected framework result: ${JSON.stringify(result)}`)
     }
 
@@ -298,6 +298,81 @@ async function run_smoke_page(url, name, kind = "packed example") {
   }
 }
 
+async function run_angular_lifecycle_page(url) {
+  console.log(`testing packed Angular lifecycle: ${url}`)
+  const {client, target, exceptions, network_errors} = await open_page(url)
+  try {
+    const read_state = async () => await evaluate(client, "window.__bokeh_angular_test__?.state() ?? null")
+    const wait_for = async (predicate, message) => {
+      const deadline = Date.now() + 10000
+      while (true) {
+        const state = await read_state()
+        if (state != null && predicate(state)) {
+          return state
+        }
+        if (exceptions.length != 0) {
+          throw new Error(`packed Angular lifecycle raised a browser exception:\n${exceptions.join("\n")}`)
+        }
+        if (Date.now() > deadline) {
+          throw new Error(`${message}: ${JSON.stringify(state)}`)
+        }
+        await new Promise((resolve) => setTimeout(resolve, 20))
+      }
+    }
+    const invoke = async (method) => await evaluate(client, `window.__bokeh_angular_test__.${method}()`)
+
+    let state = await wait_for((state) => state.mounts == 1 && state.views == 2,
+      "Angular document adapter didn't mount both shared roots")
+    if (!state.sharedDocument || state.activeDisposed) {
+      throw new Error(`Angular roots didn't share one live document: ${JSON.stringify(state)}`)
+    }
+
+    await invoke("toggleDetail")
+    state = await wait_for((state) => state.views == 1,
+      "Angular selective root removal didn't detach one view")
+    if (state.mounts != 1 || state.disposals != 0 || !state.sharedDocument) {
+      throw new Error(`Angular selective root removal replaced the shared mount: ${JSON.stringify(state)}`)
+    }
+
+    await invoke("toggleDetail")
+    state = await wait_for((state) => state.views == 2,
+      "Angular selective root reattachment didn't rebuild its view")
+    if (state.mounts != 1 || state.disposals != 0) {
+      throw new Error(`Angular selective reattachment replaced the shared mount: ${JSON.stringify(state)}`)
+    }
+
+    await invoke("toggleDocument")
+    state = await wait_for((state) => state.disposals == 1 && state.views == 0,
+      "Angular provider removal didn't dispose its mount")
+    if (state.sharedDocument) {
+      throw new Error(`Angular provider removal retained temporary document ownership: ${JSON.stringify(state)}`)
+    }
+
+    await invoke("toggleDocument")
+    state = await wait_for((state) => state.mounts == 2 && state.views == 2,
+      "Angular provider reattachment didn't remount both roots")
+    if (!state.sharedDocument || state.activeDisposed) {
+      throw new Error(`Angular provider remount didn't restore its shared document: ${JSON.stringify(state)}`)
+    }
+
+    await invoke("triggerError")
+    state = await wait_for((state) => state.errors == 1,
+      "Angular adapter didn't surface its mount failure")
+    if (state.errorKind != "target" || state.errorModelOwned) {
+      throw new Error(`Angular adapter didn't report and roll back a structured target error: ${JSON.stringify(state)}`)
+    }
+
+    await invoke("toggleDocument")
+    state = await wait_for((state) => state.disposals == 2 && state.views == 0,
+      "Angular final unmount didn't dispose exactly once")
+    assert_page_clean(exceptions, network_errors, "packed Angular lifecycle")
+    console.log(`passed packed Angular lifecycle: ${url}`)
+  } finally {
+    await client.close()
+    await CDP.Close({port: devtools_port, id: target.id})
+  }
+}
+
 async function test_production_apps() {
   for (const name of ["react", "vue", "svelte"]) {
     const server = await static_server(join(apps_dir, name, "dist"))
@@ -375,6 +450,9 @@ async function test_packaged_apps() {
     const server = await static_server(root)
     try {
       await run_smoke_page(server.url, name)
+      if (name == "angular-ng") {
+        await run_angular_lifecycle_page(server.url)
+      }
     } finally {
       await server.close()
     }
