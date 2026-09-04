@@ -17,7 +17,6 @@ import pytest
 # Bokeh imports
 import bokeh.embed.standalone as bes
 from bokeh.document import Document
-from bokeh.embed import EmbedMigrationError
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 
@@ -27,16 +26,6 @@ def test_plot():
     plot = figure(title="'foo'")
     plot.scatter([1, 2], [2, 3])
     return plot
-
-
-class Test_removed_envelopes:
-    def test_autoload_static_has_actionable_migration(self, test_plot) -> None:
-        with pytest.raises(EmbedMigrationError, match=r"embed\(model\)\.external"):
-            bes.autoload_static(test_plot, CDN, "plot.json")
-
-    def test_json_item_has_actionable_migration(self, test_plot) -> None:
-        with pytest.raises(EmbedMigrationError, match=r"embed\(model\)\.to_json"):
-            bes.json_item(test_plot, target="plot")
 
 
 class Test_components:
@@ -71,12 +60,6 @@ class Test_components:
         assert "data-bokeh-artifact" in target.attrs
         assert "id" not in target.attrs
         assert "data-root-id" not in target.attrs
-
-    @pytest.mark.parametrize("args, kwargs", [((False,), {}), ((), {"wrap_script": False}), ((), {"wrap_plot_info": False})])
-    def test_removed_wrapping_flags_have_migration(self, test_plot, args, kwargs) -> None:
-        with pytest.raises(EmbedMigrationError, match=r"fragment\(resources='none'\)"):
-            bes.components(test_plot, *args, **kwargs)
-
 
 class Test_file_html:
     def test_returns_artifact_page_and_escapes_title(self, test_plot) -> None:

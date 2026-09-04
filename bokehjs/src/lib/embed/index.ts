@@ -14,21 +14,3 @@ export {ResourceError, ResourceLoader, resource_loader} from "./resources"
 export type {
   ExtensionRequirement, ResourceAsset, ResourceComponent, ResourcePolicy, ResourcePolicyMode, ResourceRequirements,
 } from "./resources"
-
-export class EmbedMigrationError extends Error {
-  override readonly name = "BokehEmbedMigrationError"
-}
-
-export async function embed_item(..._args: unknown[]): Promise<never> {
-  throw new EmbedMigrationError(
-    "Bokeh.embed.embed_item() and JsonItem were removed in Bokeh 4.0. " +
-    "Serve an EmbedArtifact and call Bokeh.mount(artifact, {targets: {root: element}}).",
-  )
-}
-
-export async function embed_items(..._args: unknown[]): Promise<never> {
-  throw new EmbedMigrationError(
-    "Bokeh.embed.embed_items() and RenderItem were removed in Bokeh 4.0. " +
-    "Compile a versioned EmbedArtifact and mount it with keyed caller-owned targets.",
-  )
-}
