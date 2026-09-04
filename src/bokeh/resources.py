@@ -4,18 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" The resources module provides the Resources class for easily configuring
-how BokehJS code and CSS resources should be located, loaded, and embedded in
-Bokeh documents.
-
-Additionally, functions for retrieving `Subresource Integrity`_ hashes for
-Bokeh JavaScript files are provided here.
-
-Some pre-configured Resources objects are made available as attributes.
-
-Attributes:
-    CDN : load minified BokehJS from CDN
-    INLINE : provide minified BokehJS from library static directory
+"""Resource delivery configuration and release hash utilities.
 
 .. _Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 
@@ -40,32 +29,31 @@ log = logging.getLogger(__name__)
 import json
 import os
 import re
-from dataclasses import dataclass, field
-from os.path import relpath
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
-    ClassVar,
+    Final,
     Literal,
+    Mapping,
     Protocol,
     Sequence,
-    TypedDict,
     cast,
 )
+from urllib.parse import urlparse
 
 # Bokeh imports
 from . import __version__
-from .core.enums import enumeration
-from .core.templates import CSS_RESOURCES, JS_RESOURCES
-from .model import Model
-from .settings import LogLevel, settings
+from .settings import settings
 from .util.paths import ROOT_DIR
 from .util.token import generate_session_id
 from .util.version import is_full_release
 
 if TYPE_CHECKING:
     from .core.types import ID, PathLike
+    from .embed.resources import ResolvedResources, ResourceRequirements
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -80,28 +68,252 @@ def server_url(host: str | None = None, port: int | None = None, ssl: bool = Fal
 
 DEFAULT_SERVER_HTTP_URL = server_url()
 
-type BaseMode = Literal["inline", "cdn", "server", "relative", "absolute"]
-BaseModeEnum = enumeration(BaseMode)
+type ResourceComponent = Literal[
+    "bokeh/core",
+    "bokeh/widgets",
+    "bokeh/tables",
+    "bokeh/webgl",
+    "bokeh/mathjax",
+    "bokeh/api",
+]
 
-type DevMode = Literal["server-dev", "relative-dev", "absolute-dev"]
-DevModeEnum = enumeration(DevMode)
+type ResourcesMode = Literal[
+    "none",
+    "inline",
+    "offline",
+    "cdn",
+    "server",
+    "relative",
+    "absolute",
+]
 
-type ResourcesMode = BaseMode | DevMode
+PathVersioner = Callable[[str], str]
 
-type Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
-ComponentEnum = enumeration(Component)
+_RESOURCE_MODES = ("none", "inline", "offline", "cdn", "server", "relative", "absolute")
 
-LogLevelEnum = enumeration(LogLevel)
+_COMPONENT_NAMES: dict[ResourceComponent, str] = {
+    "bokeh/core": "bokeh",
+    "bokeh/widgets": "bokeh-widgets",
+    "bokeh/tables": "bokeh-tables",
+    "bokeh/webgl": "bokeh-gl",
+    "bokeh/mathjax": "bokeh-mathjax",
+    "bokeh/api": "bokeh-api",
+}
 
-class ComponentDefs(TypedDict):
-    js: list[Component]
-    css: list[Component]
+# These names preserve the common ``resources=CDN`` and ``resources=INLINE``
+# spelling without retaining the legacy stateful resource objects.
+CDN: Final[Literal["cdn"]] = "cdn"
+INLINE: Final[Literal["inline"]] = "inline"
 
 # __all__ defined at the bottom on the class module
 
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
+
+class ResourceConflictError(ValueError):
+    """Raised when resources cannot satisfy artifact requirements."""
+
+
+@dataclass(frozen=True)
+class Resources:
+    '''Host-owned rules for satisfying artifact resource requirements.
+
+    ``none`` emits nothing and assigns complete responsibility to the host.
+    ``offline`` permits only inline/local content and rejects external URLs.
+    Other modes resolve matching Bokeh bundles through CDN, server, filesystem,
+    or explicit paths. CSP and SRI choices belong to resources rather than the
+    reusable artifact. Bundle versions always come from the artifact.
+    '''
+    mode: ResourcesMode = "cdn"
+    minified: bool = True
+    root_url: str | None = None
+    root_dir: PathLike | None = None
+    base_dir: PathLike | None = None
+    nonce: str | None = None
+    crossorigin: str | None = None
+    integrity: bool = False
+    external_only: bool = False
+    path_versioner: PathVersioner | None = field(default=None, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        if self.mode not in _RESOURCE_MODES:
+            raise ResourceConflictError(
+                f"unknown resource mode {self.mode!r}; expected one of {_RESOURCE_MODES!r}",
+            )
+        if self.mode in ("inline", "offline") and self.external_only:
+            raise ResourceConflictError(
+                f"resource mode '{self.mode}' emits inline assets and conflicts with external_only=True",
+            )
+        if self.integrity and self.mode != "cdn":
+            raise ResourceConflictError("subresource integrity is only available for CDN resources")
+        if self.root_url is not None and self.mode != "server":
+            raise ResourceConflictError("root_url is only valid for server resources")
+        if self.root_dir is not None and self.mode != "relative":
+            raise ResourceConflictError("root_dir is only valid for relative resources")
+        if self.path_versioner is not None and self.mode != "server":
+            raise ResourceConflictError("path_versioner is only valid for server resources")
+        if self.root_dir is not None and not isinstance(self.root_dir, Path):
+            object.__setattr__(self, "root_dir", Path(self.root_dir))
+        if self.base_dir is not None and not isinstance(self.base_dir, Path):
+            object.__setattr__(self, "base_dir", Path(self.base_dir))
+        if self.root_url is not None and not self.root_url.endswith("/"):
+            object.__setattr__(self, "root_url", f"{self.root_url}/")
+
+    @classmethod
+    def build(cls, value: Resources | str | None = None, **overrides: Any) -> Resources:
+        '''Normalize a resources specification.
+
+        Args:
+            value: A resources object, mode name, or ``None``.
+            overrides: Fields that override the supplied value.
+
+        Returns:
+            The normalized resources configuration.
+        '''
+        if value is None:
+            value = settings.resources()
+            overrides.setdefault("minified", settings.minified())
+        if isinstance(value, Resources):
+            if not overrides:
+                return value
+            return replace(value, **overrides)
+        if value.endswith("-dev"):
+            value = value.removesuffix("-dev")
+            overrides["minified"] = False
+        mode = cast(ResourcesMode, value)
+        return cls(mode=mode, **overrides)
+
+    def to_dict(self) -> dict[str, Any]:
+        '''Return the JSON-compatible resources configuration.'''
+        result: dict[str, Any] = {
+            "mode": self.mode,
+            "minified": self.minified,
+        }
+        for name in ("root_url", "nonce", "crossorigin"):
+            value = getattr(self, name)
+            if value is not None:
+                result[name] = value
+        if self.root_dir is not None:
+            result["root_dir"] = str(self.root_dir)
+        if self.base_dir is not None:
+            result["base_dir"] = str(self.base_dir)
+        for name in ("integrity", "external_only"):
+            value = getattr(self, name)
+            if value:
+                result[name] = value
+        return result
+
+    def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__) -> ResolvedResources:
+        '''Resolve exact requirements or raise an actionable conflict.'''
+        from .embed.resources import ResolvedResource, ResolvedResources
+
+        if self.mode == "none":
+            return ResolvedResources(requirements, self, bokeh_version)
+
+        component_names = [_COMPONENT_NAMES[component] for component in requirements.components]
+        js_files, js_raw, hashes = self._resolve_bokeh_assets(
+            component_names, "js", bokeh_version=bokeh_version,
+        )
+        css_files, css_raw, _ = self._resolve_bokeh_assets(
+            [], "css", bokeh_version=bokeh_version,
+        )
+        assets: list[ResolvedResource] = []
+
+        for url in js_files:
+            integrity = _integrity_for_url(url, hashes) if self.integrity else None
+            if self.integrity and integrity is None:
+                raise ResourceConflictError(f"no SRI hash is available for required resource {url!r}")
+            assets.append(ResolvedResource(
+                "script", url=url, integrity=integrity,
+                crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
+            ))
+        assets.extend(ResolvedResource("script", content=content, nonce=self.nonce) for content in js_raw)
+        for url in css_files:
+            integrity = _integrity_for_url(url, hashes) if self.integrity else None
+            if self.integrity and integrity is None:
+                raise ResourceConflictError(f"no SRI hash is available for required resource {url!r}")
+            assets.append(ResolvedResource(
+                "style", url=url, integrity=integrity,
+                crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
+            ))
+        assets.extend(ResolvedResource("style", content=content, nonce=self.nonce) for content in css_raw)
+
+        for extension in requirements.extensions:
+            for requirement in extension.assets:
+                if self.mode == "offline" and requirement.url is not None:
+                    raise ResourceConflictError(
+                        f"offline resources cannot load external {requirement.kind} {requirement.url!r} "
+                        f"required by extension {extension.name!r}; provide inline extension content",
+                    )
+                if self.mode == "inline" and requirement.url is not None:
+                    raise ResourceConflictError(
+                        f"inline resources cannot inline {requirement.url!r} required by extension {extension.name!r}; "
+                        "declare the extension asset content or choose an external mode",
+                    )
+                if self.external_only and requirement.content is not None:
+                    raise ResourceConflictError(
+                        f"external_only resources reject inline {requirement.kind} required by extension {extension.name!r}",
+                    )
+                if self.integrity and requirement.url is not None and requirement.integrity is None:
+                    raise ResourceConflictError(
+                        f"integrity requires an SRI hash for extension resource {requirement.url!r}",
+                    )
+                assets.append(ResolvedResource(
+                    requirement.kind,
+                    url=requirement.url,
+                    content=requirement.content,
+                    integrity=requirement.integrity,
+                    crossorigin=requirement.crossorigin or self.crossorigin or (
+                        "anonymous" if requirement.integrity is not None else None
+                    ),
+                    nonce=self.nonce,
+                    module=requirement.module,
+                ))
+
+        identities: dict[tuple[str, str], tuple[Any, ...]] = {}
+        deduplicated: list[ResolvedResource] = []
+        for asset in assets:
+            locator = asset.url if asset.url is not None else asset.content
+            assert locator is not None
+            key = (asset.kind, locator)
+            previous = identities.get(key)
+            if previous is not None and previous != asset.identity:
+                raise ResourceConflictError(f"conflicting declarations for {asset.kind} resource {locator!r}")
+            if previous is None:
+                identities[key] = asset.identity
+                deduplicated.append(asset)
+
+        return ResolvedResources(requirements, self, bokeh_version, tuple(deduplicated))
+
+    def _resolve_bokeh_assets(self, components: Sequence[str], kind: Literal["js", "css"], *,
+            bokeh_version: str) -> tuple[list[str], list[str], Mapping[str, str]]:
+        suffix = ".min" if self.minified else ""
+        base_dir = Path(self.base_dir) if self.base_dir is not None else settings.bokehjs_path()
+        paths = [base_dir / kind / f"{component}{suffix}.{kind}" for component in components]
+        mode = "inline" if self.mode == "offline" else self.mode
+
+        if mode == "inline":
+            return [], [_inline_resource(path) for path in paths], {}
+        if mode == "relative":
+            configured_root = self.root_dir or settings.rootdir()
+            root_dir = Path(configured_root) if configured_root is not None else Path(os.curdir)
+            return [os.path.relpath(path, root_dir).replace("\\", "/") for path in paths], [], {}
+        if mode == "absolute":
+            return [str(path) for path in paths], [], {}
+        if mode == "cdn":
+            urls = _get_cdn_urls(bokeh_version.split("+", 1)[0], self.minified)
+            files = urls.urls(components, kind)
+            hashes = urls.hashes(components, kind) if urls.hashes is not None else {}
+            return files, [], hashes
+        if mode == "server":
+            urls = _get_server_urls(
+                self.root_url or DEFAULT_SERVER_HTTP_URL,
+                self.minified,
+                self.path_versioner,
+            )
+            return urls.urls(components, kind), [], {}
+        raise AssertionError(f"unexpected resource mode {self.mode!r}")
 
 # -----------------------------------------------------------------------------
 # Dev API
@@ -215,8 +427,6 @@ def verify_sri_hashes() -> None:
     if bad:
         raise RuntimeError(f"SRI Hash mismatches in the package: {bad!r}")
 
-PathVersioner = Callable[[str], str]
-
 type Kind = Literal["css", "js"]
 
 @dataclass
@@ -238,314 +448,6 @@ class Urls:
     urls: UrlsFn
     messages: list[RuntimeMessage] = field(default_factory=list)
     hashes: HashesFn | None = None
-
-type ResourceAttr = Literal["__css__", "__javascript__"]
-
-class Resources:
-    """
-    The Resources class encapsulates information relating to loading or
-    embedding Bokeh Javascript and CSS.
-
-    Args:
-        mode (str) : how should Bokeh JS and CSS be included in output
-
-            See below for descriptions of available modes
-
-        version (str, optional) : what version of Bokeh JS and CSS to load
-
-            Only valid with the ``'cdn'`` mode
-
-        root_dir (str, optional) : root directory for loading Bokeh JS and CSS assets
-
-            Only valid with ``'relative'`` and ``'relative-dev'`` modes
-
-        minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
-
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from
-
-            Only valid with ``'server'`` and ``'server-dev'`` modes
-
-    The following **mode** values are available for configuring a Resource object:
-
-    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
-    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.bokeh.org``
-    * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-minified assets
-    * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
-    * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
-
-    Once configured, a Resource object exposes the following public attributes:
-
-    Attributes:
-        js_raw : any raw JS that needs to be placed inside ``<script>`` tags
-        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        js_files : URLs of any JS files that need to be loaded by ``<script>`` tags
-        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
-        messages : any informational messages concerning this configuration
-
-    These attributes are often useful as template parameters when embedding
-    Bokeh plots.
-
-    """
-
-    _default_root_dir = Path(os.curdir)
-    _default_root_url = DEFAULT_SERVER_HTTP_URL
-
-    mode: BaseMode
-    messages: list[RuntimeMessage]
-
-    _log_level: LogLevel
-
-    components: list[Component]
-
-    _component_defs: ClassVar[ComponentDefs] = {
-        "js": ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"],
-        "css": [],
-    }
-
-    _default_components: ClassVar[list[Component]] = ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
-
-    def __init__(
-        self,
-        mode: ResourcesMode | None = None,
-        *,
-        version: str | None = None,
-        root_dir: PathLike | None = None,
-        dev: bool | None = None,
-        minified: bool | None = None,
-        log_level: LogLevel | None = None,
-        root_url: str | None = None,
-        path_versioner: PathVersioner | None = None,
-        components: list[Component] | None = None,
-        base_dir: PathLike | None = None,
-    ):
-        self.components = components if components is not None else list(self._default_components)
-        mode = settings.resources(mode)
-
-        mode_dev = mode.endswith("-dev")
-        self.dev = dev if dev is not None else settings.dev or mode_dev
-        self.mode = cast(BaseMode, mode[:-4] if mode_dev else mode)
-
-        if self.mode not in BaseModeEnum:
-            raise ValueError(
-                "wrong value for 'mode' parameter, expected "
-                f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}",
-            )
-
-        if root_dir and not self.mode.startswith("relative"):
-            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
-
-        if version and not self.mode.startswith("cdn"):
-            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
-
-        if root_url and not self.mode.startswith("server"):
-            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
-
-        self.root_dir = settings.rootdir(root_dir)
-        del root_dir
-        self.version = settings.cdn_version(version)
-        del version
-        if minified is None and self.dev:
-            minified = False
-        self.minified = settings.minified(minified)
-        del minified
-        self.log_level = settings.log_level(log_level)
-        del log_level
-        self.path_versioner = path_versioner
-        del path_versioner
-
-        if root_url and not root_url.endswith("/"):
-            # root_url should end with a /, adding one
-            root_url = root_url + "/"
-        self._root_url = root_url
-
-        self.messages = []
-
-        match self.mode:
-            case "cdn":
-                cdn = self._cdn_urls()
-                self.messages.extend(cdn.messages)
-            case "server":
-                server = self._server_urls()
-                self.messages.extend(server.messages)
-            case "inline" | "relative" | "absolute":
-                pass
-
-        self.base_dir = Path(base_dir) if base_dir is not None else settings.bokehjs_path()
-
-    def clone(self, *, components: list[Component] | None = None) -> Resources:
-        """ Make a clone of a resources instance allowing to override its components. """
-        return Resources(
-            mode=self.mode,
-            version=self.version,
-            root_dir=self.root_dir,
-            dev=self.dev,
-            minified=self.minified,
-            log_level=self.log_level,
-            root_url=self._root_url,
-            path_versioner=self.path_versioner,
-            components=components if components is not None else list(self.components),
-            base_dir=self.base_dir,
-        )
-
-    def __repr__(self) -> str:
-        args = [f"mode={self.mode!r}"]
-        if self.dev:
-            args.append("dev=True")
-        if self.components != self._default_components:
-            args.append(f"components={self.components!r}")
-        return f"Resources({', '.join(args)})"
-
-    __str__ = __repr__
-
-    @classmethod
-    def build(cls, resources: ResourcesLike | None = None) -> Resources:
-        if isinstance(resources, Resources):
-            return resources
-        else:
-            return Resources(mode=settings.resources(resources))
-
-    # Properties --------------------------------------------------------------
-
-    @property
-    def log_level(self) -> LogLevel:
-        return self._log_level
-
-    @log_level.setter
-    def log_level(self, level: LogLevel) -> None:
-        valid_levels = LogLevelEnum
-        if not (level is None or level in valid_levels):
-            raise ValueError(f"Unknown log level '{level}', valid levels are: {valid_levels}")
-        self._log_level = level
-
-    @property
-    def root_url(self) -> str:
-        if self._root_url is not None:
-            return self._root_url
-        else:
-            return self._default_root_url
-
-    # Public methods ----------------------------------------------------------
-
-    def components_for(self, kind: Kind) -> list[Component]:
-        return [comp for comp in self.components if comp in self._component_defs[kind]]
-
-    def _file_paths(self, kind: Kind) -> list[Path]:
-        minified = ".min" if self.minified else ""
-
-        files = [f"{component}{minified}.{kind}" for component in self.components_for(kind)]
-        paths = [self.base_dir / kind / file for file in files]
-        return paths
-
-    def _collect_external_resources(self, resource_attr: ResourceAttr) -> list[str]:
-        """ Collect external resources set on resource_attr attribute of all models."""
-        external_resources: list[str] = []
-
-        for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
-            external: list[str] | str | None = getattr(cls, resource_attr, None)
-
-            match external:
-                case str():
-                    if external not in external_resources:
-                        external_resources.append(external)
-                case list():
-                    for e in external:
-                        if e not in external_resources:
-                            external_resources.append(e)
-                case None:
-                    pass
-
-        return external_resources
-
-    def _cdn_urls(self) -> Urls:
-        return _get_cdn_urls(self.version, self.minified)
-
-    def _server_urls(self) -> Urls:
-        return _get_server_urls(self.root_url, self.minified, self.path_versioner)
-
-    def _resolve(self, kind: Kind) -> tuple[list[str], list[str], Hashes]:
-        paths = self._file_paths(kind)
-        files, raw = [], []
-        hashes = {}
-
-        match self.mode:
-            case "inline":
-                raw = [self._inline(path) for path in paths]
-            case "relative":
-                root_dir = self.root_dir or self._default_root_dir
-                files = [str(relpath(path, root_dir)) for path in paths]
-            case "absolute":
-                files = list(map(str, paths))
-            case "cdn":
-                cdn = self._cdn_urls()
-                files = list(cdn.urls(self.components_for(kind), kind))
-                if cdn.hashes:
-                    hashes = cdn.hashes(self.components_for(kind), kind)
-            case "server":
-                server = self._server_urls()
-                files = list(server.urls(self.components_for(kind), kind))
-
-        return (files, raw, hashes)
-
-    @staticmethod
-    def _inline(path: Path) -> str:
-        filename = path.name
-        begin = f"/* BEGIN {filename} */"
-        with open(path, "rb") as f:
-            middle = f.read().decode("utf-8")
-        end = f"/* END {filename} */"
-        return f"{begin}\n{middle}\n{end}"
-
-    @property
-    def js_files(self) -> list[str]:
-        files, _, _ = self._resolve("js")
-        external_resources = self._collect_external_resources("__javascript__")
-        return external_resources + files
-
-    @property
-    def js_raw(self) -> list[str]:
-        _, raw, _ = self._resolve("js")
-
-        if self.log_level is not None:
-            raw.append(f'Bokeh.set_log_level("{self.log_level}");')
-
-        if self.dev:
-            raw.append("Bokeh.settings.dev = true")
-
-        return raw
-
-    @property
-    def hashes(self) -> Hashes:
-        _, _, hashes = self._resolve("js")
-        return hashes
-
-    def render_js(self) -> str:
-        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files, hashes=self.hashes)
-
-
-    @property
-    def css_files(self) -> list[str]:
-        files, _, _ = self._resolve("css")
-        external_resources = self._collect_external_resources("__css__")
-        return external_resources + files
-
-    @property
-    def css_raw(self) -> list[str]:
-        _, raw, _ = self._resolve("css")
-        return raw
-
-    @property
-    def css_raw_str(self) -> list[str]:
-        return [json.dumps(css) for css in self.css_raw]
-
-    def render_css(self) -> str:
-        return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
-
-    def render(self) -> str:
-        css, js = self.render_css(), self.render_js()
-        return f"{css}\n{js}"
 
 class SessionCoordinates:
     """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
@@ -652,6 +554,17 @@ def _get_server_urls(
     return Urls(urls=lambda components, kind: [mk_url(component, kind) for component in components])
 
 
+def _inline_resource(path: Path) -> str:
+    filename = path.name
+    return f"/* BEGIN {filename} */\n{path.read_text(encoding='utf-8')}\n/* END {filename} */"
+
+
+def _integrity_for_url(url: str, hashes: Mapping[str, str]) -> str | None:
+    filename = Path(urlparse(url).path).name
+    value = hashes.get(url) or hashes.get(filename)
+    return None if value is None else f"sha384-{value}"
+
+
 def _compute_single_hash(path: Path) -> str:
     assert path.suffix == ".js"
 
@@ -666,20 +579,12 @@ def _compute_single_hash(path: Path) -> str:
     out, _ = p2.communicate()
     return out.decode("utf-8").strip()
 
-# -----------------------------------------------------------------------------
-# Code
-# -----------------------------------------------------------------------------
-
-type ResourcesLike = Resources | ResourcesMode
-
-CDN = Resources(mode="cdn")
-
-INLINE = Resources(mode="inline")
-
 __all__ = (
     "CDN",
     "INLINE",
+    "ResourceConflictError",
     "Resources",
+    "ResourcesMode",
     "get_all_sri_versions",
     "get_sri_hashes_for_version",
     "verify_sri_hashes",

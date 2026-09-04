@@ -338,8 +338,11 @@ class Document:
     def title(self) -> str:
         ''' A title for this document.
 
-        This title will be set on standalone HTML documents, but not e.g. when
-        ``autoload_server`` is used.
+        This title will be set on standalone HTML documents, but not when a
+        server artifact is mounted into an existing host page.
+
+        Returns:
+            The document title.
 
         '''
         return self._title

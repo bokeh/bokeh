@@ -1,4 +1,5 @@
-from bokeh.io import show
+# Bokeh imports
+from bokeh.io import save
 from bokeh.layouts import column
 from bokeh.models import Div, InlineStyleSheet
 
@@ -60,4 +61,4 @@ div2 = Div(text="""
 div2.css_classes = ["custom", "custom-2"]
 div2.stylesheets = [stylesheet]
 
-show(column(p, div1, div2), template=template)
+save(column(p, div1, div2), template=template)

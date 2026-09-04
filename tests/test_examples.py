@@ -257,7 +257,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], page: Any
             errors.append((request.url, request.failure or "Failed to load resource"))
 
     def on_response(response: Any) -> None:
-        if not response.ok and response.request.resource_type in ("script", "stylesheet"):
+        if response.status >= 400 and response.request.resource_type in ("script", "stylesheet"):
             errors.append((response.url, f"Failed to load resource: {response.status} {response.status_text}"))
 
     page.on("console", on_console)
@@ -335,6 +335,9 @@ np.random.seed(1)
 import warnings
 warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
 
+import bokeh.io.showing
+bokeh.io.showing.temp_filename = lambda ext: {example.path_no_ext!r} + "." + ext
+
 for ext_dir in {example.extensions!r}:
     from bokeh.ext import build
     if not build(ext_dir):
@@ -348,7 +351,6 @@ with open(filename, 'rb') as example:
     cwd = dirname(example.path)
 
     env = os.environ.copy()
-    env['BOKEH_IGNORE_FILENAME'] = 'true'
     env['BOKEH_RESOURCES'] = 'server-dev'
     env['BOKEH_BROWSER'] = 'none'
     port = urlparse(bokeh_server).port

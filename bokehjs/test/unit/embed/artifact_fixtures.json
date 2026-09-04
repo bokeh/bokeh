@@ -1,0 +1,115 @@
+{
+  "schema": "bokeh.embed.fixtures/v1",
+  "cases": [
+    {
+      "name": "standalone-keyed-roots",
+      "artifact": {
+        "schema": "bokeh.embed/v1",
+        "bokeh_version": "__VERSION__",
+        "source": {
+          "kind": "standalone",
+          "documents": [
+            {
+              "version": "__VERSION__",
+              "title": "Fixture document",
+              "config": {
+                "type": "object",
+                "name": "DocumentConfig",
+                "attributes": {
+                  "notifications": {
+                    "type": "object",
+                    "name": "Notifications"
+                  }
+                }
+              },
+              "roots": [
+                {
+                  "type": "object",
+                  "name": "CustomJS",
+                  "attributes": {
+                    "code": "primary"
+                  }
+                },
+                {
+                  "type": "object",
+                  "name": "CustomJS",
+                  "attributes": {
+                    "code": "secondary"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "roots": [
+          {
+            "key": "primary",
+            "document": 0,
+            "root": 0
+          },
+          {
+            "key": "secondary",
+            "document": 0,
+            "root": 1
+          }
+        ],
+        "requires": {
+          "components": [
+            "bokeh/core",
+            "bokeh/api"
+          ],
+          "extensions": []
+        },
+        "metadata": {
+          "fixture": "cross-language",
+          "numbers": {
+            "fixed_threshold": 0.000001,
+            "fraction": 1.23456789012345,
+            "negative_zero": -0.0,
+            "scientific_threshold": 1e-7
+          }
+        },
+        "fingerprint": "7bb82770934bfc846ec2d92d5f4d808063b28778f5c7e7c1e8ab8b8b1dfc9951"
+      }
+    },
+    {
+      "name": "server-existing-session",
+      "artifact": {
+        "schema": "bokeh.embed/v1",
+        "bokeh_version": "__VERSION__",
+        "source": {
+          "kind": "server",
+          "url": "https://example.test/app",
+          "session_id": "fixture-session",
+          "arguments": {
+            "account": "123"
+          },
+          "headers": {},
+          "credentials": "same-origin",
+          "relative_urls": false
+        },
+        "roots": [
+          {
+            "key": "detail",
+            "model_id": "fixture-root"
+          }
+        ],
+        "requires": {
+          "components": [
+            "bokeh/core",
+            "bokeh/widgets",
+            "bokeh/tables",
+            "bokeh/webgl",
+            "bokeh/mathjax",
+            "bokeh/api"
+          ],
+          "extensions": []
+        },
+        "metadata": {
+          "fixture": "cross-language"
+        },
+        "fingerprint": "08d937861b8a70be1c6044bb4f687429d27d67dcffada89c1c4a81071198965a"
+      }
+    }
+  ]
+}

@@ -30,7 +30,7 @@ from urllib.parse import urljoin
 
 # Bokeh imports
 from ..application import Application
-from ..resources import Resources
+from ..resources import Resources, ResourcesMode
 from ..settings import settings
 from ..util.asyncio import _AsyncPeriodic
 from ..util.token import (
@@ -404,14 +404,17 @@ class BokehServerCore(SessionConfig):
 
     def resources(self, absolute_url: str | bool | None = None, *, root_path: str = "") -> Resources:
         mode = settings.resources(default="server")
+        dev = mode.endswith("-dev")
+        resource_mode = cast(ResourcesMode, mode[:-4] if dev else mode)
+        minified = False if dev else settings.minified()
         if mode in ("server", "server-dev"):
             if absolute_url is True:
                 absolute_url = self._absolute_url
             if absolute_url is None or absolute_url is False:
                 absolute_url = "/"
             resource_path = root_path.rstrip("/") + self._prefix
-            return Resources(mode=mode, root_url=urljoin(absolute_url, resource_path))
-        return Resources(mode=mode)
+            return Resources(mode=resource_mode, root_url=urljoin(absolute_url, resource_path), minified=minified)
+        return Resources(mode=resource_mode, minified=minified)
 
     async def create_session(self, context: ApplicationContext, request: RequestLike) -> ServerSession:
         self._require_running()

@@ -140,7 +140,7 @@ class TestClientServer:
         with pytest.raises(HTTPError):
             await http_get(server.io_loop, url(server))
         with pytest.raises(HTTPError):
-            await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+            await http_get(server.io_loop, url(server) + "embed.json")
 
     async def check_connect_session_fails(self, server, origin):
         with pytest.raises(HTTPError):
@@ -152,7 +152,7 @@ class TestClientServer:
 
     async def check_http_gets(self, server):
         await http_get(server.io_loop, url(server))
-        await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+        await http_get(server.io_loop, url(server) + "embed.json")
 
     async def check_connect_session(self, server, origin):
         subprotocols = ["bokeh", generate_jwt_token("foo")]
