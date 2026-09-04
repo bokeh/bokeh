@@ -44,7 +44,6 @@ devtools-server = { cmd = "node test/devtools server", cwd = "bokehjs" }
 build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
 jupyter-build = "bash tools/ci/build_jupyter.sh"
 jupyter-verify = "bash tools/ci/build_jupyter.sh --verify"
-jupyter-test = "bash tools/ci/test_jupyter.sh"
 
 # Prefer conda-forge builds for Bokeh runtime dependencies. The constraints
 # mirror [project.dependencies] in pyproject.toml and are checked by the
@@ -216,6 +215,17 @@ starlette = "*"
 streamlit = "1.57.*"
 uvicorn-standard = "*"
 
+[feature.notebook-test.dependencies]
+anywidget = ">=0.11"
+ipython = "*"
+jupyter-server-proxy = "*"
+jupyterlab = "*"
+marimo = "*"
+nbconvert = ">=5.4"
+notebook = "*"
+playwright-python = "*"
+uvicorn = ">=0.30"
+
 [feature.build-tools.dependencies]
 jupyter-builder = "*"
 pip = "*"
@@ -276,6 +286,7 @@ build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "build-too
 release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "release-build-deps"], no-default-feature = true }
 release-deploy = { features = ["py-base", "py312", "js-tools", "release-deploy-deps"], no-default-feature = true }
 server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps", "server-integration-deps"]
+notebook-test = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps", "notebook-test"]
 
 [tasks]
 setup = { cmd = "python -m pip install --no-deps -e .", depends-on = ["js-install"] }
@@ -288,3 +299,7 @@ test-examples = "pytest tests/test_examples.py"
 test-tools = "pytest tests/tools"
 test = "pytest"
 build-docs = "bash tools/ci/build_docs.sh"
+
+[feature.notebook-test.tasks]
+notebook-browser-install = "python -m playwright install --only-shell chromium"
+test-notebook = "pytest --color=yes -rs tests/integration/test_jupyter_install.py tests/unit/bokeh/io/test_anywidget.py tests/unit/bokeh/io/test_jupyter.py tests/unit/bokeh/io/test_jupyter_app.py tests/unit/bokeh/io/test_jupyter_export.py tests/unit/bokeh/io/test_jupyter_runtime.py tests/unit/bokeh/io/test_notebook__io.py tests/integration/test_jupyter_extension.py tests/integration/test_marimo.py"
