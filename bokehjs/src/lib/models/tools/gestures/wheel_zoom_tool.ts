@@ -283,9 +283,6 @@ export class WheelZoomTool extends GestureTool {
       modifiers:      [ Modifiers, {} ],
     }))
 
-    this.register_alias("wheel_zoom", () => WheelZoomTool.create({dimensions: "both"}))
-    this.register_alias("xwheel_zoom", () => WheelZoomTool.create({dimensions: "width"}))
-    this.register_alias("ywheel_zoom", () => WheelZoomTool.create({dimensions: "height"}))
   }
 
   override tool_name = "Wheel Zoom"

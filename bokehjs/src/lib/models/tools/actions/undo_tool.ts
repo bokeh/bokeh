@@ -38,7 +38,6 @@ export class UndoTool extends PlotActionTool {
       disabled: true,
     })
 
-    this.register_alias("undo", () => UndoTool.create())
   }
 
   override tool_name = "Undo"

@@ -174,9 +174,6 @@ export class PanTool extends GestureTool {
       dimensions: [ Dimensions, "both" ],
     }))
 
-    this.register_alias("pan", () => PanTool.create({dimensions: "both"}))
-    this.register_alias("xpan", () => PanTool.create({dimensions: "width"}))
-    this.register_alias("ypan", () => PanTool.create({dimensions: "height"}))
   }
 
   override tool_name = "Pan"
