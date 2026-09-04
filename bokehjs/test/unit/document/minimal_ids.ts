@@ -57,6 +57,19 @@ describe("minimal ID cross-language fixtures", () => {
     expect(to_object(cycle_b.args).other).to.be.equal(cycle_a)
     expect(cycle_a.id).to.be.equal("cycle-a")
     expect(cycle_b.id).to.be.equal("cycle-b")
+    expect(source.document.get_model_by_name("semantic-primary")).to.be.equal(primary)
+  })
+
+  it("treats anonymous IDs as runtime reconstruction details", () => {
+    const first = decode_fixture()
+    const second = decode_fixture()
+    const first_primary = first.source.roots.get("primary")
+    const second_primary = second.source.roots.get("primary")
+    expect_not_null(first_primary)
+    expect_not_null(second_primary)
+
+    expect(first_primary.id).to.not.be.equal(second_primary.id)
+    expect(first.document.get_model_by_name("semantic-primary")).to.be.equal(first_primary)
   })
 
   it("serializes deterministically without forcing keyed root IDs", () => {
@@ -79,6 +92,7 @@ describe("minimal ID cross-language fixtures", () => {
     const {document, source} = decode_fixture()
     const primary = source.roots.get("primary")
     expect_not_null(primary)
+    expect(document.get_model_by_id(primary.id)).to.be.equal(primary)
 
     const canonical = document.to_json(false)
     expect((canonical.roots[0] as {id?: string}).id).to.be.equal(primary.id)
