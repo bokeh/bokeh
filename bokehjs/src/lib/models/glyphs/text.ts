@@ -382,10 +382,6 @@ export class Text extends XYGlyph {
   declare properties: Text.Props
   declare __view_type__: TextView
 
-  constructor(attrs?: Partial<Text.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TextView
 

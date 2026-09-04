@@ -19,10 +19,6 @@ export interface CompositeTicker extends CompositeTicker.Attrs {}
 export class CompositeTicker extends ContinuousTicker {
   declare properties: CompositeTicker.Props
 
-  constructor(attrs?: Partial<CompositeTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CompositeTicker.Props>(({NonEmptyList, Ref}) => ({
       tickers: [ NonEmptyList(Ref(ContinuousTicker)) ],

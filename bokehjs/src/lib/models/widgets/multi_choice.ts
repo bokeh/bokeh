@@ -167,10 +167,6 @@ export class MultiChoice extends InputWidget {
   declare properties: MultiChoice.Props
   declare __view_type__: MultiChoiceView
 
-  constructor(attrs?: Partial<MultiChoice.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = MultiChoiceView
 

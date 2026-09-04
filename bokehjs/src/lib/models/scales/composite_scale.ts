@@ -17,10 +17,6 @@ export interface CompositeScale extends CompositeScale.Attrs {}
 export class CompositeScale extends Scale {
   declare properties: CompositeScale.Props
 
-  constructor(attrs?: Partial<CompositeScale.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CompositeScale.Props>(({Ref}) => ({
       source_scale: [ Ref(Scale) ],

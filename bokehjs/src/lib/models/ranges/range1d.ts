@@ -20,10 +20,6 @@ export interface Range1d extends Range1d.Attrs {}
 export class Range1d extends NumericalRange {
   declare properties: Range1d.Props
 
-  constructor(attrs?: Partial<Range1d.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.internal<Range1d.Internal>(({Float}) => ({
       _reset_start: [ Float ],

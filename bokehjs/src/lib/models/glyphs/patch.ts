@@ -120,10 +120,6 @@ export class Patch extends XYGlyph {
   declare properties: Patch.Props
   declare __view_type__: PatchView
 
-  constructor(attrs?: Partial<Patch.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PatchView
 

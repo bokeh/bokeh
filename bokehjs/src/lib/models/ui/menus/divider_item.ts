@@ -11,7 +11,4 @@ export interface DividerItem extends DividerItem.Attrs {}
 export class DividerItem extends Model {
   declare properties: DividerItem.Props
 
-  constructor(attrs?: Partial<DividerItem.Attrs>) {
-    super(attrs)
-  }
 }

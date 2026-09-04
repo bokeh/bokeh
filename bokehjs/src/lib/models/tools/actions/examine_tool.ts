@@ -66,10 +66,6 @@ export class ExamineTool extends ActionTool {
   declare properties: ExamineTool.Props
   declare __view_type__: ExamineToolView
 
-  constructor(attrs?: Partial<ExamineTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ExamineToolView
 

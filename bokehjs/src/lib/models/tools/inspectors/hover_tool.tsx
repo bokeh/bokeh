@@ -893,10 +893,6 @@ export class HoverTool extends InspectTool {
   declare properties: HoverTool.Props
   declare __view_type__: HoverToolView
 
-  constructor(attrs?: Partial<HoverTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HoverToolView
 

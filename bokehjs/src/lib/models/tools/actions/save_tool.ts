@@ -67,10 +67,6 @@ export class SaveTool extends ActionTool {
   declare properties: SaveTool.Props
   declare __view_type__: SaveToolView
 
-  constructor(attrs?: Partial<SaveTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = SaveToolView
 

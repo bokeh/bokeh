@@ -100,10 +100,6 @@ export interface GroupingInfo extends GroupingInfo.Attrs {}
 export class GroupingInfo extends Model {
   declare properties: GroupingInfo.Props
 
-  constructor(attrs?: Partial<GroupingInfo.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<GroupingInfo.Props>(({Bool, Str, List, Ref}) => ({
       getter:      [ Str, "" ],
@@ -374,10 +370,6 @@ export interface DataCube extends DataCube.Attrs {}
 
 export class DataCube extends DataTable {
   declare properties: DataCube.Props
-
-  constructor(attrs?: Partial<DataCube.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = DataCubeView

@@ -56,10 +56,6 @@ export class ClickPanTool extends PlotActionTool {
   declare properties: ClickPanTool.Props
   declare __view_type__: ClickPanToolView
 
-  constructor(attrs?: Partial<ClickPanTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ClickPanToolView
 

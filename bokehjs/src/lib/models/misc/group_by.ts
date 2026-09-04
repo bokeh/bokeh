@@ -12,10 +12,6 @@ export interface GroupBy extends GroupBy.Attrs {}
 export abstract class GroupBy extends Model {
   declare properties: GroupBy.Props
 
-  constructor(attrs?: Partial<GroupBy.Attrs>) {
-    super(attrs)
-  }
-
   abstract query_groups(models: Iterable<Model>, pool: Iterable<Model>): Iterable<Model[]>
 }
 
@@ -30,10 +26,6 @@ export interface GroupByModels extends GroupByModels.Attrs {}
 
 export class GroupByModels extends GroupBy {
   declare properties: GroupByModels.Props
-
-  constructor(attrs?: Partial<GroupByModels.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<GroupByModels.Props>({
@@ -61,10 +53,6 @@ export interface GroupByName extends GroupByName.Attrs {}
 
 export class GroupByName extends GroupBy {
   declare properties: GroupByName.Props
-
-  constructor(attrs?: Partial<GroupByName.Attrs>) {
-    super(attrs)
-  }
 
   *query_groups(models: Model[], pool: Model[]): Iterable<Model[]> {
     const groups = new Map<string, Set<Model>>()

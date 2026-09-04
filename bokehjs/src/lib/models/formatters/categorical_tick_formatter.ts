@@ -13,10 +13,6 @@ export interface CategoricalTickFormatter extends CategoricalTickFormatter.Attrs
 export class CategoricalTickFormatter extends TickFormatter {
   declare properties: CategoricalTickFormatter.Props
 
-  constructor(attrs?: Partial<CategoricalTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   doFormat(ticks: string[], _opts: {loc: number}): string[] {
     return copy(ticks)
   }

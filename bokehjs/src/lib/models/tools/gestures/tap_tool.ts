@@ -126,10 +126,6 @@ export class TapTool extends SelectTool {
   declare properties: TapTool.Props
   declare __view_type__: TapToolView
 
-  constructor(attrs?: Partial<TapTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TapToolView
 

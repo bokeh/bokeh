@@ -25,10 +25,6 @@ export class BaseText extends Model {
   declare properties: BaseText.Props
   declare __view_type__: BaseTextView
 
-  constructor(attrs?: Partial<BaseText.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BaseText.Props>(({Str}) => ({
       text: [ Str ],

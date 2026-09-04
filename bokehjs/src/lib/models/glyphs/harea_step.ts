@@ -164,10 +164,6 @@ export class HAreaStep extends Area {
   declare properties: HAreaStep.Props
   declare __view_type__: HAreaStepView
 
-  constructor(attrs?: Partial<HAreaStep.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HAreaStepView
 

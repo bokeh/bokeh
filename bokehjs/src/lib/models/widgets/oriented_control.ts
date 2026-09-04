@@ -20,10 +20,6 @@ export abstract class OrientedControl extends Control {
   declare properties: OrientedControl.Props
   declare __view_type__: OrientedControlView
 
-  constructor(attrs?: Partial<OrientedControl.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<OrientedControl.Props>(() => ({
       orientation: [ Orientation, "horizontal" ],

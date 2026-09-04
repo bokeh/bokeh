@@ -24,10 +24,6 @@ export class HelpTool extends ActionTool {
   declare properties: HelpTool.Props
   declare __view_type__: HelpToolView
 
-  constructor(attrs?: Partial<HelpTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HelpToolView
 

@@ -184,10 +184,6 @@ export class AnnularWedge extends XYGlyph {
   declare properties: AnnularWedge.Props
   declare __view_type__: AnnularWedgeView
 
-  constructor(attrs?: Partial<AnnularWedge.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = AnnularWedgeView
 

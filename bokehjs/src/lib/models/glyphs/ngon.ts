@@ -172,10 +172,6 @@ export class Ngon extends RadialGlyph {
   declare properties: Ngon.Props
   declare __view_type__: NgonView
 
-  constructor(attrs?: Partial<Ngon.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = NgonView
 

@@ -253,10 +253,6 @@ export class Patches extends Glyph {
   declare properties: Patches.Props
   declare __view_type__: PatchesView
 
-  constructor(attrs?: Partial<Patches.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PatchesView
 

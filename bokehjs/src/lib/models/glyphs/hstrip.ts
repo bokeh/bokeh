@@ -221,10 +221,6 @@ export class HStrip extends Glyph {
   declare properties: HStrip.Props
   declare __view_type__: HStripView
 
-  constructor(attrs?: Partial<HStrip.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HStripView
 

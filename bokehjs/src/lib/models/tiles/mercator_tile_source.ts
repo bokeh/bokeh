@@ -23,10 +23,6 @@ export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 export class MercatorTileSource extends TileSource {
   declare properties: MercatorTileSource.Props
 
-  constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<MercatorTileSource.Props>(({Bool}) => ({
       snap_to_zoom: [ Bool, false ],

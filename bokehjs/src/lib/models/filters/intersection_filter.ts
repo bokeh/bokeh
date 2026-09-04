@@ -12,10 +12,6 @@ export interface IntersectionFilter extends IntersectionFilter.Attrs {}
 export class IntersectionFilter extends CompositeFilter {
   declare properties: IntersectionFilter.Props
 
-  constructor(attrs?: Partial<IntersectionFilter.Attrs>) {
-    super(attrs)
-  }
-
   protected _inplace_op(index: Indices, op: Indices): void {
     index.intersect(op)
   }

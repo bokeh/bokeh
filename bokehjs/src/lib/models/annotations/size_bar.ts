@@ -69,10 +69,6 @@ class InternalPlot extends Plot {
   declare properties: InternalPlot.Props
   declare __view_type__: InternalPlotView
 
-  constructor(attrs?: Partial<InternalPlot.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = InternalPlotView
   }
@@ -397,10 +393,6 @@ export interface SizeBar extends SizeBar.Attrs {}
 export class SizeBar extends BaseBar {
   declare properties: SizeBar.Props
   declare __view_type__: SizeBarView
-
-  constructor(attrs?: Partial<SizeBar.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = SizeBarView

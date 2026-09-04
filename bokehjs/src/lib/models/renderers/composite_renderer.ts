@@ -166,10 +166,6 @@ export abstract class CompositeRenderer extends Renderer {
   declare properties: CompositeRenderer.Props
   declare __view_type__: CompositeRendererView
 
-  constructor(attrs?: Partial<CompositeRenderer.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CompositeRenderer.Props>(({List, Ref}) => ({
       renderers: [ List(Ref(Renderer)), [] ],
