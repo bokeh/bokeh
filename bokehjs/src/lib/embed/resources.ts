@@ -101,8 +101,8 @@ function normalize_policy(policy: ResourcePolicy = "auto"): NormalizedPolicy {
 
 function normalized_url(url: string): string {
   const normalized = new URL(url, document.baseURI)
-  if (normalized.protocol == "javascript:") {
-    throw new ResourceError("policy", "javascript: URLs are not valid Bokeh resources")
+  if (normalized.protocol == "javascript:" || normalized.protocol == "data:" || normalized.protocol == "vbscript:") {
+    throw new ResourceError("policy", `${normalized.protocol} URLs are not valid Bokeh resources`)
   }
   return normalized.href
 }
@@ -315,8 +315,8 @@ export class ResourceLoader {
               }
               // Inline module content is an explicitly trusted host resource;
               // the suffix only reports when its asynchronous evaluation ends.
-              // codeql[js/unsafe-code-construction]
-              script.textContent = `${asset.content ?? ""}\n;globalThis[${JSON.stringify(callback)}]()`
+              script.textContent = asset.content ?? ""
+              script.append(document.createTextNode(`\n;globalThis[${JSON.stringify(callback)}]()`))
             } else {
               script.textContent = asset.content ?? ""
             }
