@@ -17,8 +17,11 @@ describe("AnyWidget transport", () => {
     }
     const model = {
       get(name: string) {return name === "payload" ? payload : undefined},
+
       on() {},
+
       off() {},
+
       send(data: unknown) {sent.push(data)},
     }
     const controller = new AbortController()
@@ -39,8 +42,11 @@ describe("AnyWidget transport", () => {
     const sent: unknown[] = []
     const model = {
       get() {return undefined},
+
       on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
+
       off() {},
+
       send(data: unknown) {sent.push(data)},
     }
     const controller = new AbortController()
@@ -60,8 +66,11 @@ describe("AnyWidget transport", () => {
     const sent: unknown[] = []
     const model = {
       get() {return undefined},
+
       on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
+
       off() {},
+
       send(data: unknown) {sent.push(data)},
     }
     const controller = new AbortController()
@@ -78,8 +87,11 @@ describe("AnyWidget transport", () => {
     const sent: unknown[] = []
     const model = {
       get() {return undefined},
+
       on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
+
       off() {},
+
       send(data: unknown) {sent.push(data)},
     }
     const controller = new AbortController()

@@ -64,6 +64,12 @@ class _ASGIServerThread:
 
     @property
     def port(self) -> int:
+        '''Return the assigned server port.
+
+        Returns:
+            The assigned server port.
+
+        '''
         if self._port is None:
             raise RuntimeError("ASGI notebook application has not started")
         return self._port
@@ -81,6 +87,12 @@ class _ASGIServerThread:
             self._finished.set()
 
     def start(self) -> None:
+        '''Start the private ASGI server thread.
+
+        Returns:
+            None
+
+        '''
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
@@ -123,6 +135,12 @@ class _ASGIServerThread:
             raise RuntimeError("ASGI notebook application stopped during startup")
 
     def stop(self) -> None:
+        '''Stop the private ASGI server thread.
+
+        Returns:
+            None
+
+        '''
         if self._finished.is_set():
             if self._failure is not None:
                 raise RuntimeError("ASGI notebook application failed") from self._failure
@@ -140,8 +158,11 @@ class _ASGIServerThread:
         if self._failure is not None:
             raise RuntimeError("ASGI notebook application failed during shutdown") from self._failure
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
-_APPLICATIONS: dict[str, NotebookApplication] = {}
+APPLICATIONS: dict[str, NotebookApplication] = {}
 _CELL_APPLICATIONS: dict[str, NotebookApplication] = {}
 _APPLICATIONS_LOCK = threading.RLock()
 _APPLICATION_START_LOCK = threading.Lock()
@@ -178,14 +199,14 @@ def _start_and_register_application(application: NotebookApplication, cell_key: 
             previous.stop()
         application._host.start()
         with _APPLICATIONS_LOCK:
-            _APPLICATIONS[application.application_id] = application
+            APPLICATIONS[application.application_id] = application
             if cell_key is not None:
                 _CELL_APPLICATIONS[cell_key] = application
 
 
 def _unregister_application(application: NotebookApplication) -> None:
     with _APPLICATIONS_LOCK:
-        _APPLICATIONS.pop(application.application_id, None)
+        APPLICATIONS.pop(application.application_id, None)
         for key, current in tuple(_CELL_APPLICATIONS.items()):
             if current is application:
                 del _CELL_APPLICATIONS[key]
@@ -193,7 +214,7 @@ def _unregister_application(application: NotebookApplication) -> None:
 
 def _stop_all_applications() -> None:
     with _APPLICATIONS_LOCK:
-        applications = tuple(_APPLICATIONS.values())
+        applications = tuple(APPLICATIONS.values())
     for application in applications:
         try:
             application.stop()
@@ -202,6 +223,10 @@ def _stop_all_applications() -> None:
 
 
 atexit.register(_stop_all_applications)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 
 class NotebookApplication:
@@ -240,8 +265,8 @@ class NotebookApplication:
         from ..server.asgi import BokehASGI
         from .notebook import (
             DEFAULT_JUPYTER_URL,
-            _server_url,
-            _update_notebook_url_from_env,
+            server_url,
+            update_notebook_url_from_env,
         )
 
         if address not in ("127.0.0.1", "localhost"):
@@ -260,7 +285,7 @@ class NotebookApplication:
 
         configured_url: str | ProxyUrlFunc | None
         if notebook_url is not None or os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):
-            configured_url = _update_notebook_url_from_env(notebook_url or DEFAULT_JUPYTER_URL)
+            configured_url = update_notebook_url_from_env(notebook_url or DEFAULT_JUPYTER_URL)
         else:
             configured_url = None
         self._accept_frontend_proxy = configured_url is None
@@ -302,7 +327,7 @@ class NotebookApplication:
             if callable(configured_url):
                 base_url = configured_url(self._host.port)
             elif configured_url is not None:
-                base_url = _server_url(configured_url, self._host.port)
+                base_url = server_url(configured_url, self._host.port)
             else:
                 base_url = f"http://127.0.0.1:{self._host.port}/"
             _authorized_origin(base_url)
@@ -319,37 +344,72 @@ class NotebookApplication:
 
     @property
     def application_id(self) -> str:
-        ''' Return the identifier used by notebook application views. '''
+        '''Return the identifier used by notebook application views.
+
+        Returns:
+            The application identifier.
+
+        '''
         return self._application_id
 
     @property
     def asgi(self) -> BokehASGI:
-        ''' Return the hosted :class:`~bokeh.server.asgi.BokehASGI` application. '''
+        '''Return the hosted :class:`~bokeh.server.asgi.BokehASGI` application.
+
+        Returns:
+            The hosted ASGI application.
+
+        '''
         return self._asgi
 
     @property
     def sessions(self) -> list[Any]:
-        ''' Return the active Bokeh server sessions for this application. '''
+        '''Return the active Bokeh server sessions for this application.
+
+        Returns:
+            The active server sessions.
+
+        '''
         return self._asgi.core.get_sessions("/")
 
     @property
     def port(self) -> int:
-        ''' Return the loopback port assigned to this application. '''
+        '''Return the loopback port assigned to this application.
+
+        Returns:
+            The assigned loopback port.
+
+        '''
         return self._host.port
 
     @property
     def status(self) -> str:
-        ''' Return the current application lifecycle status. '''
+        '''Return the current application lifecycle status.
+
+        Returns:
+            The current lifecycle status.
+
+        '''
         return "stopped" if self._stopped else "stopping" if self._stopping else "failed" if self._stop_error is not None else "running"
 
     @property
     def stopped(self) -> bool:
-        ''' Report whether this application has stopped. '''
+        '''Report whether this application has stopped.
+
+        Returns:
+            Whether the application has stopped.
+
+        '''
         return self._stopped
 
     @property
     def url(self) -> str:
-        ''' Return the kernel-local URL for this application. '''
+        '''Return the kernel-local URL for this application.
+
+        Returns:
+            The kernel-local application URL.
+
+        '''
         if self._stopped:
             raise RuntimeError("This notebook application has been stopped; call serve(...) to create a new one")
         return self._url
@@ -387,9 +447,9 @@ class NotebookApplication:
                 return
             self._stopping = True
             try:
-                from .notebook import _close_application_views
+                from .notebook import close_application_views
 
-                _close_application_views(self)
+                close_application_views(self)
                 self._host.stop()
             except BaseException as error:
                 self._stop_error = error
