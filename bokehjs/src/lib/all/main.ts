@@ -4,8 +4,15 @@ export * from "../models/glyphs/webgl/index"
 export * from "../models/text/mathjax/index"
 export * from "../models/widgets/index"
 export * from "../models/widgets/tables/index"
-export {mount, BokehMount, MountError, MountSource} from "../api/io"
-export type {KeyedRoots, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey, Showable, ShowableRoot} from "../api/io"
+export {
+  mount, when_mounted, publish_mount_error,
+  BokehMount, MountError, MountSource,
+  BOKEH_MOUNTED_ATTRIBUTE, BOKEH_MOUNTED_EVENT, BOKEH_MOUNT_ERROR_EVENT,
+} from "../api/io"
+export type {
+  KeyedRoots, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey,
+  Showable, ShowableRoot, ViewLookup, WhenMountedOptions,
+} from "../api/io"
 
 import "../main"
 import "../api/main"
