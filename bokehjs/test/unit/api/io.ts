@@ -36,7 +36,9 @@ describe("in api/plotting module", () => {
       expect(plot.document).to.be.equal(mounted.document)
       expect(documents.length).to.be.equal(documents_before + 1)
       expect(mounted.state).to.be.equal("ready")
-      expect(mounted.ownership).to.be.equal({document: "mount", views: "mount", targets: "caller"})
+      expect(mounted.ownership).to.be.equal({
+        document: "mount", views: "mount", targets: "caller", session: "none", resources: "none",
+      })
 
       const disposal = mounted.dispose()
       expect(mounted.dispose()).to.be.equal(disposal)
