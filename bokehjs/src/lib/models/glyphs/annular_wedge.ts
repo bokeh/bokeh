@@ -14,6 +14,7 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
 import type {AnnularWedgeGL} from "./webgl/annular_wedge"
+import type {BaseGLGlyphClass} from "./webgl/base"
 
 export interface AnnularWedgeView extends AnnularWedge.Data {}
 
@@ -24,7 +25,7 @@ export class AnnularWedgeView extends XYGlyphView {
   /** @internal */
   declare glglyph?: AnnularWedgeGL
 
-  override async load_glglyph() {
+  override async load_glglyph(): Promise<BaseGLGlyphClass> {
     const {AnnularWedgeGL} = await import("./webgl/annular_wedge")
     return AnnularWedgeGL
   }

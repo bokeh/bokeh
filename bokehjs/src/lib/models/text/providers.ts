@@ -1,3 +1,5 @@
+import type {MathJaxAPI} from "../../external/mathjax"
+
 import {Signal0} from "core/signaling"
 import {load_module} from "core/util/modules"
 
@@ -8,7 +10,7 @@ export abstract class MathJaxProvider {
 
   status: MathJaxStatus = "not_started"
 
-  abstract get MathJax(): typeof MathJax | null
+  abstract get MathJax(): MathJaxAPI | null
 
   abstract fetch(): Promise<void>
 }
@@ -24,7 +26,7 @@ export class NoProvider extends MathJaxProvider {
 }
 
 export class CDNProvider extends MathJaxProvider  {
-  get MathJax(): typeof MathJax | null {
+  get MathJax(): MathJaxAPI | null {
     return typeof MathJax !== "undefined" ? MathJax : null
   }
 
@@ -44,9 +46,9 @@ export class CDNProvider extends MathJaxProvider  {
 }
 
 export class BundleProvider extends MathJaxProvider  {
-  _mathjax: typeof MathJax | null
+  _mathjax: MathJaxAPI | null
 
-  get MathJax(): typeof MathJax | null {
+  get MathJax(): MathJaxAPI | null {
     return this._mathjax
   }
 

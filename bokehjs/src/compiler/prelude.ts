@@ -147,7 +147,9 @@ const loader = `\
     const plugin = require(plugin_entry);
 
     for (let name in plugin) {
-      main[name] = plugin[name];
+      if (!(name in main)) {
+        main[name] = plugin[name];
+      }
     }
 
     return plugin;

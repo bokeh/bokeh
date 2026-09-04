@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "lib": ["ES2022", "DOM"],
+    "module": "preserve",
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022"
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  }
+}
