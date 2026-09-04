@@ -336,7 +336,7 @@ def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Mo
 
     docs_json: dict[ID, DocJson] = {}
     for doc, (docid, roots) in docs.items():
-        docs_json[docid] = doc._to_json(deferred=False, model_ids="minimal", extra_models_with_ids=roots)
+        docs_json[docid] = doc.to_static_json(deferred=False, models_with_ids=roots)
 
     render_items: list[RenderItem] = []
     for _, (docid, roots) in docs.items():

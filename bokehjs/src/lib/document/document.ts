@@ -669,6 +669,21 @@ export class Document implements Equatable {
     return this._to_json(include_defaults)
   }
 
+  /**
+   * Serialize this document for a static embed artifact.
+   *
+   * Anonymous models omit IDs, while shared and cyclic models retain the IDs
+   * required to reconstruct identity. `models_with_ids` is only for model
+   * identities referenced outside the serialized graph. Artifact roots should
+   * be addressed by logical key and document-root ordinal, not by forcing a
+   * model ID solely for DOM mounting.
+   *
+   * Canonical documents and live protocol messages must use [[to_json]].
+   */
+  to_static_json(include_defaults: boolean = true, models_with_ids: Iterable<HasProps> = []): DocJson {
+    return this._to_json(include_defaults, "minimal", models_with_ids)
+  }
+
   _to_json(include_defaults: boolean = true, model_ids: "always" | "minimal" = "always", extra_models_with_ids: Iterable<HasProps> = []): DocJson {
     const ids = model_ids == "minimal" ? new Set([...models_with_ids([this.config, this._roots]), ...extra_models_with_ids]) : null
     const serializer = new Serializer({include_defaults, models_with_ids: ids})

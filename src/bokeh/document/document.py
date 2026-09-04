@@ -935,6 +935,45 @@ side of a communications channel while it was being removed on the other end.\
         return self._to_json(deferred=deferred)
 
     @overload
+    def to_static_json(self, *, deferred: Literal[True] = ...,
+            models_with_ids: Iterable[Model] = ...) -> Serialized[DocJson]: ...
+    @overload
+    def to_static_json(self, *, deferred: Literal[False],
+            models_with_ids: Iterable[Model] = ...) -> DocJson: ...
+
+    def to_static_json(self, *, deferred: bool = True,
+            models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
+        ''' Convert this document for inclusion in a static embed artifact.
+
+        Static artifacts use graph-minimal model IDs. Anonymous models omit
+        their server-side IDs, while shared and cyclic models retain the IDs
+        needed to reconstruct object identity. ``models_with_ids`` is reserved
+        for model identities referenced outside the serialized graph.
+
+        Artifact roots should be addressed by logical key and their ordinal in
+        ``Document.roots``. A root ID must not be retained solely to find its
+        mount target. Canonical documents and live protocol messages must use
+        :meth:`to_json` instead.
+
+        Args:
+            deferred (bool) :
+                Whether binary buffers are returned separately. This has the
+                same meaning as in :meth:`to_json`.
+
+            models_with_ids (Iterable[Model]) :
+                Additional models whose IDs cross an external boundary.
+
+        Returns:
+            Serialized[DocJson] | DocJson
+
+        '''
+        return self._to_json(
+            deferred=deferred,
+            model_ids="minimal",
+            extra_models_with_ids=models_with_ids,
+        )
+
+    @overload
     def _to_json(self, *, deferred: Literal[True] = ..., model_ids: ModelIDPolicy = ...,
             extra_models_with_ids: Iterable[Model] = ...) -> Serialized[DocJson]: ...
     @overload
