@@ -1,6 +1,10 @@
 import {BokehNotebookError, DisplayPayload} from "./protocol"
 import {KernelProxy, LiveConnection, ResourceRecord, currentDocumentSnapshot, renderDiagnostic, renderDisplay, renderLoading} from "./runtime"
 
+// AnyWidget is a transport adapter, not a rendering implementation. It owns
+// the comm queues and maps them onto renderDisplay(), which in turn owns the
+// common artifact/resource/BokehMount lifecycle used by every notebook host.
+
 type AnyModel = {
   get(name: string): any
   on(name: string, callback: (...args: any[]) => void): void
@@ -46,6 +50,10 @@ function dataViews(buffers: ArrayBufferView[] = []): DataView[] {
 }
 
 export default function anywidgetFactory() {
+  // initialize() may run before render() and patches may arrive before a view
+  // exists. Keep one bounded, revisioned queue until render() attaches the
+  // listener; overflow requests a complete snapshot instead of retaining an
+  // unbounded or partially ordered history.
   let snapshot: Snapshot | undefined
   let snapshotResolve: ((value: Snapshot) => void) | undefined
   let snapshotReject: ((error: unknown) => void) | undefined
@@ -55,6 +63,7 @@ export default function anywidgetFactory() {
   })
   const patches: Patch[] = []
   let patchBytes = 0
+  let awaitingSnapshot = false
   const patchListeners = new Set<(message: any, buffers: DataView[]) => void>()
   let applicationReady = false
   let applicationResolve: (() => void) | undefined
@@ -63,6 +72,8 @@ export default function anywidgetFactory() {
     applicationResolve = resolve
     applicationReject = reject
   })
+  let liveClosed = false
+  const liveCloseListeners = new Set<() => void>()
   let applicationClosed = false
   const applicationCloseListeners = new Set<() => void>()
   const resourceWaiters = new Map<string, ResourceWaiter>()
@@ -71,6 +82,7 @@ export default function anywidgetFactory() {
   const initialize = ({model, signal}: AnyWidgetContext) => {
     const receive = (data: any, buffers: ArrayBufferView[] = []) => {
       if (data?.kind === "patch" && Number.isSafeInteger(data.revision)) {
+        if (awaitingSnapshot) return
         const views = dataViews(buffers)
         const bytes = views.reduce((total, view) => total + view.byteLength, JSON.stringify(data).length)
         const patch = {message: data, buffers: views, bytes}
@@ -80,12 +92,14 @@ export default function anywidgetFactory() {
           if (patches.length > ANYWIDGET_MAX_PENDING_PATCHES || patchBytes > ANYWIDGET_MAX_PENDING_BYTES) {
             patches.length = 0
             patchBytes = 0
+            awaitingSnapshot = true
             model.send({kind: "resync"})
           }
         } else {
           for (const listener of patchListeners) listener(patch.message, patch.buffers)
         }
       } else if (data?.kind === "snapshot" && typeof data.artifact === "string" && Number.isSafeInteger(data.revision)) {
+        awaitingSnapshot = false
         snapshot = {artifactJson: data.artifact, revision: data.revision}
         patches.splice(0, patches.length, ...patches.filter((patch) => patch.message.revision > data.revision))
         patchBytes = patches.reduce((total, patch) => total + patch.bytes, 0)
@@ -97,8 +111,14 @@ export default function anywidgetFactory() {
         applicationReady = true
         applicationResolve?.()
       } else if (data?.kind === "close") {
-        applicationClosed = true
-        for (const listener of applicationCloseListeners) listener()
+        if (!liveClosed) {
+          liveClosed = true
+          for (const listener of liveCloseListeners) listener()
+        }
+        if (!applicationClosed) {
+          applicationClosed = true
+          for (const listener of applicationCloseListeners) listener()
+        }
       } else if (data?.kind === "resource" && typeof data.request_id === "string") {
         const waiter = resourceWaiters.get(data.request_id)
         if (waiter != null) {
@@ -123,14 +143,24 @@ export default function anywidgetFactory() {
         )
         snapshotReject?.(error)
         applicationReject?.(error)
+        for (const waiter of resourceWaiters.values()) waiter.reject(error)
+        resourceWaiters.clear()
       }
     }
     model.on("msg:custom", receive)
     model.send({kind: "ready"})
     signal.addEventListener("abort", () => {
+      // The AnyWidget abort signal is the host's release boundary. Reject
+      // outstanding work, unsubscribe from the comm, and tell Python to drop
+      // this view; render() separately disposes its BokehMount.
       const error = new DOMException("Rendering was cancelled", "AbortError")
       for (const waiter of resourceWaiters.values()) waiter.reject(error)
       resourceWaiters.clear()
+      patches.length = 0
+      patchBytes = 0
+      patchListeners.clear()
+      liveCloseListeners.clear()
+      applicationCloseListeners.clear()
       model.off("msg:custom", receive)
       try {
         model.send({kind: "disposed"})
@@ -172,12 +202,16 @@ export default function anywidgetFactory() {
         }
       },
       async openLive(_liveId): Promise<LiveConnection> {
+        // A newly rendered or reconnected view starts from the latest complete
+        // snapshot, then drains only later queued revisions. This keeps every
+        // frontend independent and avoids a page-global live document owner.
         const current = snapshot ?? await waitForTransport(snapshotReady, 5000, new BokehNotebookError(
           "ANYWIDGET_LIVE_CONNECTION_TIMEOUT",
           "Python did not open the AnyWidget live document channel within 5000 ms.",
           "Check that the kernel is still running, then re-run show(plot).",
         ), signal)
         let listener: ((message: any, buffers: DataView[]) => void) | undefined
+        let closeListener: (() => void) | undefined
         el.dataset.bokehAnywidgetLive = "connected"
         return {
           artifactJson: current.artifactJson,
@@ -192,11 +226,17 @@ export default function anywidgetFactory() {
             for (const patch of patches.splice(0)) listener(patch.message, patch.buffers)
             patchBytes = 0
           },
+          onClose(callback) {
+            closeListener = callback
+            liveCloseListeners.add(callback)
+            if (liveClosed) queueMicrotask(callback)
+          },
           requestResync() {
             model.send({kind: "resync"})
           },
           close() {
             if (listener != null) patchListeners.delete(listener)
+            if (closeListener != null) liveCloseListeners.delete(closeListener)
           },
         }
       },
@@ -206,12 +246,16 @@ export default function anywidgetFactory() {
           "Python did not open the AnyWidget application-view channel in time.",
           "Check that the kernel and ASGI application are still running, then re-run show(app).",
         ), signal)
+        let listener: (() => void) | undefined
         return {
           onClose(callback: () => void) {
+            listener = callback
             applicationCloseListeners.add(callback)
             if (applicationClosed) queueMicrotask(callback)
           },
-          close() {},
+          close() {
+            if (listener != null) applicationCloseListeners.delete(listener)
+          },
         }
       },
     }

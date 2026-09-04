@@ -45,11 +45,11 @@ from typing import TYPE_CHECKING, Any, cast
 # Bokeh imports
 from ..util.dependencies import import_required
 from .util import (
-    _BOKEH_LOADED_EXPR,
+    _BOKEH_IDLE_CHECK,
+    _BOKEH_LOADED_CHECK,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
-    _WAIT_SCRIPT,
     get_layout_html,
     tmp_html,
 )
@@ -283,7 +283,7 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
 
     try:
         page.wait_for_function(
-            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
+            f"() => {{ {_BOKEH_LOADED_CHECK} }}",
             timeout=timeout_ms,
         )
     except Exception as e:
@@ -294,11 +294,9 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
             "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e
 
-    page.evaluate(f"() => {{ {_WAIT_SCRIPT} }}")
-
     try:
         page.wait_for_function(
-            "() => window._bokeh_render_complete",
+            f"() => {{ {_BOKEH_IDLE_CHECK} }}",
             timeout=timeout_ms,
         )
     except Exception:
@@ -314,19 +312,20 @@ async def _wait_until_render_complete(page: AsyncPage, timeout: int) -> None:
 
     try:
         await page.wait_for_function(
-            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
+            f"() => {{ {_BOKEH_LOADED_CHECK} }}",
             timeout=timeout_ms,
         )
     except Exception as e:
+        error = await page.evaluate("window._bokeh_export_error ?? null")
+        if isinstance(error, str):
+            raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError(
             "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e
 
-    await page.evaluate(f"() => {{ {_WAIT_SCRIPT} }}")
-
     try:
         await page.wait_for_function(
-            "() => window._bokeh_render_complete",
+            f"() => {{ {_BOKEH_IDLE_CHECK} }}",
             timeout=timeout_ms,
         )
     except Exception:

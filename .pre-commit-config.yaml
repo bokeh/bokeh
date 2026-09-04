@@ -30,55 +30,55 @@ repos:
     hooks:
       - id: run-code-quality
         name: Run code quality checks
-        entry: pytest tests/codebase/test_code_quality.py
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase/test_code_quality.py
         language: conda
         pass_filenames: false
 
       - id: run-eslint
         name: Run ESLint
-        entry: pytest tests/codebase/test_eslint.py
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase/test_eslint.py
         language: conda
         pass_filenames: false
 
       - id: run-isort
         name: Run isort checks
-        entry: pytest tests/codebase/test_isort.py
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase/test_isort.py
         language: conda
         pass_filenames: false
 
       - id: run-ruff
         name: Run ruff checks
-        entry: pytest tests/codebase/test_ruff.py
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase/test_ruff.py
         language: conda
         pass_filenames: false
 
       - id: run-vermin
         name: Run vermin checks
-        entry: pytest tests/codebase/test_vermin.py
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase/test_vermin.py
         language: conda
         pass_filenames: false
 
       - id: validate-license
         name: Validate LICENSE file
-        entry: pytest tests/codebase/test_license.py
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase/test_license.py
         language: conda
         pass_filenames: false
 
       - id: check-exclusions
         name: Verify package exclusions
-        entry: pytest tests/codebase -k test_no
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase -k test_no
         language: conda
         pass_filenames: false
 
       - id: check-optimized
         name: Verify that OO mode works
-        entry: pytest tests/codebase/test_python_execution_with_OO.py
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase/test_python_execution_with_OO.py
         language: conda
         pass_filenames: false
 
       - id: check-windows-filenames
         name: Check for reserved windows filenames
-        entry: pytest tests/codebase/test_windows_reserved_filenames.py
+        entry: env PYTHONPATH=src python -m pytest -o pythonpath=src tests/codebase/test_windows_reserved_filenames.py
         language: conda
         pass_filenames: false
 

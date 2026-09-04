@@ -308,21 +308,16 @@ def resource_javascript(payload: ResourcePayload, assets: tuple[ResolvedResource
     if len(assets) != len(payload["artifacts"]):
         raise RuntimeError("Resource artifact metadata does not match the generated bundle")
     artifacts = [
-        {**metadata, **({} if metadata["kind"] == "js" and metadata["source"] == "inline" else {"value": _resource_value(resource)})}
+        {**metadata, "value": _resource_value(resource)}
         for metadata, resource in zip(payload["artifacts"], assets)
-    ]
-    inline_js = [
-        {"id": metadata["id"], "value": _resource_value(resource)}
-        for metadata, resource in zip(payload["artifacts"], assets)
-        if metadata["kind"] == "js" and metadata["source"] == "inline"
     ]
     return PORTABLE_RESOURCES_JS.render(
         resource_id=payload["resource_id"],
         bokeh_version=payload["bokeh_version"],
+        requirements=payload["requirements"],
         dependencies=payload["dependencies"],
         load_timeout=payload["load_timeout"],
         artifacts=artifacts,
-        inline_js=inline_js,
     )
 
 def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,

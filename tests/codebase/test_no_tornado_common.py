@@ -33,7 +33,9 @@ TORNADO_ALLOWED = [
     "tests.support",
     "bokeh.client",
     "bokeh.command",
+    "bokeh.io.jupyter_export",
     "bokeh.io.notebook",
+    "bokeh.jupyter",
     "bokeh.server",
     "bokeh.util.tornado",
 ]
