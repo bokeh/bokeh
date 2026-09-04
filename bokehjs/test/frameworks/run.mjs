@@ -4,7 +4,7 @@ import {createServer as createHttpServer} from "node:http"
 import {extname, join, normalize, relative, resolve} from "node:path"
 import {fileURLToPath} from "node:url"
 
-import CDP from "chrome-remote-interface"
+import {chromium} from "playwright-core"
 import {build as viteBuild, createServer as createViteServer} from "vite"
 import webpack from "webpack"
 
@@ -109,41 +109,33 @@ async function static_server(root) {
   }
 }
 
-async function evaluate(client, expression) {
-  const result = await client.Runtime.evaluate({expression, awaitPromise: true, returnByValue: true})
-  if (result.exceptionDetails != null) {
-    const description = result.exceptionDetails.exception?.description ?? result.exceptionDetails.text
-    throw new Error(description)
-  }
-  return result.result.value
+async function evaluate(page, expression) {
+  return await page.evaluate(expression)
 }
 
 async function open_page(url) {
-  const target = await CDP.New({port: devtools_port, url: "about:blank"})
-  const client = await CDP({port: devtools_port, target})
-  await Promise.all([client.Page.enable(), client.Runtime.enable(), client.Network.enable()])
+  const context = browser.contexts()[0] ?? await browser.newContext()
+  const client = await context.newPage()
   const exceptions = []
   const network_errors = []
-  client.Runtime.exceptionThrown(({exceptionDetails}) => {
-    const description = exceptionDetails.exception?.description ?? exceptionDetails.text
-    const location = `${exceptionDetails.url}:${exceptionDetails.lineNumber + 1}:${exceptionDetails.columnNumber + 1}`
-    exceptions.push(`${description} (${location})`)
+  client.on("pageerror", (error) => {
+    exceptions.push(error.stack ?? error.message)
   })
-  const checked_resource_types = new Set(["Document", "Script", "Stylesheet", "XHR", "Fetch", "Wasm"])
-  client.Network.loadingFailed(({type, errorText, canceled}) => {
-    if (!canceled && checked_resource_types.has(type)) {
-      network_errors.push(`${type} failed: ${errorText}`)
+  const checked_resource_types = new Set(["document", "script", "stylesheet", "xhr", "fetch", "websocket"])
+  client.on("requestfailed", (request) => {
+    const type = request.resourceType()
+    if (checked_resource_types.has(type)) {
+      network_errors.push(`${type} failed: ${request.failure()?.errorText ?? "unknown error"}`)
     }
   })
-  client.Network.responseReceived(({type, response}) => {
-    if (checked_resource_types.has(type) && response.status >= 400) {
-      network_errors.push(`${type} returned ${response.status}: ${response.url}`)
+  client.on("response", (response) => {
+    const type = response.request().resourceType()
+    if (checked_resource_types.has(type) && response.status() >= 400) {
+      network_errors.push(`${type} returned ${response.status()}: ${response.url()}`)
     }
   })
-  const loaded = new Promise((resolve) => client.Page.loadEventFired(resolve))
-  await client.Page.navigate({url})
-  await loaded
-  return {client, target, exceptions, network_errors}
+  await client.goto(url, {waitUntil: "load"})
+  return {client, exceptions, network_errors}
 }
 
 function assert_page_clean(exceptions, network_errors, context) {
@@ -156,7 +148,7 @@ function assert_page_clean(exceptions, network_errors, context) {
 }
 
 async function run_page(url, expected_framework, hmr_source = null) {
-  const {client, target, exceptions, network_errors} = await open_page(url)
+  const {client, exceptions, network_errors} = await open_page(url)
   try {
     const result = await evaluate(client, `(async () => {
       const deadline = Date.now() + 30000
@@ -199,13 +191,12 @@ async function run_page(url, expected_framework, hmr_source = null) {
     console.log(`passed: ${expected_framework} at ${url}`)
   } finally {
     await client.close()
-    await CDP.Close({port: devtools_port, id: target.id})
   }
 }
 
 async function run_smoke_page(url, name, kind = "packed example") {
   console.log(`testing ${kind}: ${name} at ${url}`)
-  const {client, target, exceptions, network_errors} = await open_page(url)
+  const {client, exceptions, network_errors} = await open_page(url)
   try {
     const deadline = Date.now() + 30000
     while (!await evaluate(client, `(() => {
@@ -294,13 +285,12 @@ async function run_smoke_page(url, name, kind = "packed example") {
     console.log(`passed ${kind}: ${name} at ${url}`)
   } finally {
     await client.close()
-    await CDP.Close({port: devtools_port, id: target.id})
   }
 }
 
 async function run_angular_lifecycle_page(url) {
   console.log(`testing packed Angular lifecycle: ${url}`)
-  const {client, target, exceptions, network_errors} = await open_page(url)
+  const {client, exceptions, network_errors} = await open_page(url)
   try {
     const read_state = async () => await evaluate(client, "window.__bokeh_angular_test__?.state() ?? null")
     const wait_for = async (predicate, message) => {
@@ -369,7 +359,6 @@ async function run_angular_lifecycle_page(url) {
     console.log(`passed packed Angular lifecycle: ${url}`)
   } finally {
     await client.close()
-    await CDP.Close({port: devtools_port, id: target.id})
   }
 }
 
@@ -438,6 +427,7 @@ async function test_packaged_apps() {
   const applications = [
     ["angular-ng", join(packaged_dir, "angular-ng/dist/browser")],
     ["angular-lifecycle", join(packaged_dir, "angular-lifecycle/dist/browser")],
+    ["react-next", join(packaged_dir, "react-next/out")],
     ["react-vite", join(packaged_dir, "react-vite/dist")],
     ["svelte-vite", join(packaged_dir, "svelte-vite/dist")],
     ["vanilla-rspack", join(packaged_dir, "vanilla-rspack")],
@@ -461,7 +451,12 @@ async function test_packaged_apps() {
 }
 
 await build_fixtures()
-await test_production_apps()
-await test_development_apps()
-await test_local_development_example()
-await test_packaged_apps()
+const browser = await chromium.connectOverCDP(`http://127.0.0.1:${devtools_port}`)
+try {
+  await test_production_apps()
+  await test_development_apps()
+  await test_local_development_example()
+  await test_packaged_apps()
+} finally {
+  await browser.close()
+}
