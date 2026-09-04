@@ -23,10 +23,6 @@ export interface CustomJSExpr extends CustomJSExpr.Attrs {}
 export class CustomJSExpr extends Expression {
   declare properties: CustomJSExpr.Props
 
-  constructor(attrs?: Partial<CustomJSExpr.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CustomJSExpr.Props>(({Unknown, Str, Dict}) => ({
       args: [ Dict(Unknown), {} ],

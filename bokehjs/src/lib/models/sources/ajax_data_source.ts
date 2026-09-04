@@ -23,10 +23,6 @@ export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 export class AjaxDataSource extends WebDataSource {
   declare properties: AjaxDataSource.Props
 
-  constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<AjaxDataSource.Props>(({Bool, Int, Str, Dict, Nullable}) => ({
       polling_interval: [ Nullable(Int), null ],

@@ -154,10 +154,6 @@ export class HSpan extends Glyph {
   declare properties: HSpan.Props
   declare __view_type__: HSpanView
 
-  constructor(attrs?: Partial<HSpan.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HSpanView
 

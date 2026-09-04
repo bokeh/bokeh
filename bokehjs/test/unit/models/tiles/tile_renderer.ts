@@ -327,12 +327,12 @@ describe("tile sources", () => {
     })
 
     it("should not report a parent tile when none is cached", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.null
     })
 
     it("should retain the most recently used tiles in the cache", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       for (let i = 0; i < 512; i++) {
         source.set_tile(`${i}`, {tile_coords: [i, 0, 0]})
       }
@@ -346,7 +346,7 @@ describe("tile sources", () => {
     })
 
     it("should not evict tiles the current extent needs", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const needed = new Set(["0", "1"])
       for (let i = 0; i < 600; i++) {
         source.set_tile(`${i}`, {tile_coords: [i, 0, 0]}, needed)
@@ -359,7 +359,7 @@ describe("tile sources", () => {
     })
 
     it("should retain an extent that needs more tiles than the cache holds", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const needed = new Set<string>()
       for (let i = 0; i < 600; i++) {
         needed.add(`${i}`)
@@ -431,7 +431,7 @@ describe("tile sources", () => {
     })
 
     it("should get zoom levels within the range the source provides", () => {
-      const source = new MercatorTileSource({min_zoom: 5, max_zoom: 10})
+      const source = MercatorTileSource.create({min_zoom: 5, max_zoom: 10})
 
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(5)
       expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(5)
@@ -441,7 +441,7 @@ describe("tile sources", () => {
     })
 
     it("should constrain the extent to a single resolution in both axes", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
 
       const wide = source.constrain_extent([-1000000, -500000, 1000000, 500000], 400, 400)
       expect(wide).to.be.similar([-1000000, -1000000, 1000000, 1000000])
@@ -458,13 +458,13 @@ describe("tile sources", () => {
     })
 
     it("should not return children beyond the levels the source provides", () => {
-      const source = new MercatorTileSource({max_zoom: 2})
+      const source = MercatorTileSource.create({max_zoom: 2})
       expect(source.children_by_tile_xyz(0, 0, 1).length).to.be.equal(4)
       expect(source.children_by_tile_xyz(0, 0, 2)).to.be.equal([])
     })
 
     it("should limit the number of tiles requested for an extent", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const tiles = source.get_tiles_by_extent(T.MERCATOR_BOUNDS, 12, 0)
       expect(tiles.length).to.be.equal(4096)
     })
@@ -538,7 +538,7 @@ describe("tile sources", () => {
 describe("tile renderer", () => {
   // only zoom levels 1 and 2 are available as local assets
   function osm_source(): WMTSTileSource {
-    return new WMTSTileSource({url: "/assets/tiles/osm/{Z}_{X}_{Y}.png", max_zoom: 2})
+    return WMTSTileSource.create({url: "/assets/tiles/osm/{Z}_{X}_{Y}.png", max_zoom: 2})
   }
 
   function relative_aspect_error(view: PlotView, x_range: Range, y_range: Range): number {
@@ -549,14 +549,14 @@ describe("tile renderer", () => {
   }
 
   it("should draw tiles at a single resolution in both axes", async () => {
-    const x_range = new Range1d({start: -2000000, end: 6000000})
-    const y_range = new Range1d({start: -1000000, end: 7000000})
+    const x_range = Range1d.create({start: -2000000, end: 6000000})
+    const y_range = Range1d.create({start: -1000000, end: 7000000})
 
     const plot = fig([300, 200], {
       x_range, y_range,
       x_axis_type: "mercator",
       y_axis_type: "mercator",
-      renderers: [new TileRenderer({tile_source: osm_source()})],
+      renderers: [TileRenderer.create({tile_source: osm_source()})],
     })
 
     const {view} = await display(plot)
@@ -568,15 +568,15 @@ describe("tile renderer", () => {
   })
 
   it("should stop auto-ranging in order to keep tiles undistorted", async () => {
-    const source = new ColumnDataSource({data: {x: [-2000000, 6000000], y: [-1000000, 7000000]}})
-    const x_range = new DataRange1d()
-    const y_range = new DataRange1d()
+    const source = ColumnDataSource.create({data: {x: [-2000000, 6000000], y: [-1000000, 7000000]}})
+    const x_range = DataRange1d.create()
+    const y_range = DataRange1d.create()
 
     const plot = fig([300, 200], {
       x_range, y_range,
       x_axis_type: "mercator",
       y_axis_type: "mercator",
-      renderers: [new TileRenderer({tile_source: osm_source()})],
+      renderers: [TileRenderer.create({tile_source: osm_source()})],
     })
     plot.scatter({field: "x"}, {field: "y"}, {source})
 
@@ -603,7 +603,7 @@ describe("tile renderer", () => {
 
   it("should keep tile requests in flight out of the bounded cache", async () => {
     const tile_source = osm_source()
-    const tile_renderer = new TileRenderer({tile_source})
+    const tile_renderer = TileRenderer.create({tile_source})
 
     const plot = fig([300, 200], {
       x_range: [-2000000, 6000000],
@@ -641,7 +641,7 @@ describe("tile renderer", () => {
 
   it("should discard pending tiles when the tile source is replaced", async () => {
     const tile_source = osm_source()
-    const tile_renderer = new TileRenderer({tile_source})
+    const tile_renderer = TileRenderer.create({tile_source})
 
     const plot = fig([300, 200], {
       x_range: [-2000000, 6000000],
@@ -667,7 +667,7 @@ describe("tile renderer", () => {
 
   it("should finish pending work when removed", async () => {
     const tile_source = osm_source()
-    const tile_renderer = new TileRenderer({tile_source})
+    const tile_renderer = TileRenderer.create({tile_source})
 
     const plot = fig([300, 200], {
       x_range: [-2000000, 6000000],

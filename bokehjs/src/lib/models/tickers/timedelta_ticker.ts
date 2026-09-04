@@ -21,10 +21,6 @@ export interface TimedeltaTicker extends TimedeltaTicker.Attrs {}
 export class TimedeltaTicker extends CompositeTicker {
   declare properties: TimedeltaTicker.Props
 
-  constructor(attrs?: Partial<TimedeltaTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<TimedeltaTicker.Props>({
       num_minor_ticks: 0,

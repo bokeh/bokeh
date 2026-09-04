@@ -129,10 +129,6 @@ export class GridPlot extends LayoutDOM {
   declare properties: GridPlot.Props
   declare __view_type__: GridPlotView
 
-  constructor(attrs?: Partial<GridPlot.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = GridPlotView
 

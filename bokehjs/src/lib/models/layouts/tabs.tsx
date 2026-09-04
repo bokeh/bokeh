@@ -386,10 +386,6 @@ export class Tabs extends LayoutDOM {
   declare properties: Tabs.Props
   declare __view_type__: TabsView
 
-  constructor(attrs?: Partial<Tabs.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TabsView
 

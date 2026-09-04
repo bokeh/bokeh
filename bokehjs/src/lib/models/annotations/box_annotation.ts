@@ -67,10 +67,6 @@ export class BoxInteractionHandles extends Model {
   declare properties: BoxInteractionHandles.Props
   declare __view_type__: BoxAnnotationView
 
-  constructor(attrs?: Partial<BoxInteractionHandles.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BoxInteractionHandles.Props>(({Ref, Nullable}) => ({
       all:          [ Ref(AreaVisuals) ],
@@ -926,10 +922,6 @@ export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 export class BoxAnnotation extends Annotation {
   declare properties: BoxAnnotation.Props
   declare __view_type__: BoxAnnotationView
-
-  constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
-    super(attrs)
-  }
 
   override clone(attrs?: Partial<BoxAnnotation.Attrs>): this {
     return super.clone(attrs)

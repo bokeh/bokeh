@@ -22,10 +22,6 @@ export interface MapOptions extends MapOptions.Attrs {}
 export class MapOptions extends Model {
   declare properties: MapOptions.Props
 
-  constructor(attrs?: Partial<MapOptions.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<MapOptions.Props>(({Int, Float}) => ({
       lat:  [ Float ],
@@ -50,10 +46,6 @@ export interface GMapOptions extends GMapOptions.Attrs {}
 
 export class GMapOptions extends MapOptions {
   declare properties: GMapOptions.Props
-
-  constructor(attrs?: Partial<GMapOptions.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<GMapOptions.Props>(({Bool, Int, Str, Nullable}) => ({
@@ -81,10 +73,6 @@ export class GMapPlot extends Plot {
   declare properties: GMapPlot.Props
 
   override use_map = true
-
-  constructor(attrs?: Partial<GMapPlot.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = GMapPlotView

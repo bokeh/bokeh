@@ -29,10 +29,6 @@ export abstract class ActionTool extends Tool {
   declare properties: ActionTool.Props
   declare __view_type__: ActionToolView
 
-  constructor(attrs?: Partial<ActionTool.Attrs>) {
-    super(attrs)
-  }
-
   readonly do = new Signal<string | undefined, this>(this, "do")
 
   override tool_button(): ToolButton {

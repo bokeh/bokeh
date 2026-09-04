@@ -54,10 +54,6 @@ export class BuiltinIcon extends Icon {
   declare properties: BuiltinIcon.Props
   declare __view_type__: BuiltinIconView
 
-  constructor(attrs?: Partial<BuiltinIcon.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = BuiltinIconView
 

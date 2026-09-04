@@ -189,10 +189,6 @@ export abstract class Marker extends XYGlyph {
   declare properties: Marker.Props
   declare __view_type__: MarkerView
 
-  constructor(attrs?: Partial<Marker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.mixins<Marker.Mixins>([LineVector, FillVector, HatchVector])
     this.define<Marker.Props>(({Float}) => ({

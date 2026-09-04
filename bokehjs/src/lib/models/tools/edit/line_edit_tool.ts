@@ -160,10 +160,6 @@ export class LineEditTool extends LineTool {
   declare properties: LineEditTool.Props
   declare __view_type__: LineEditToolView
 
-  constructor(attrs?: Partial<LineEditTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = LineEditToolView
     this.define<LineEditTool.Props>(({List, Ref}) => ({

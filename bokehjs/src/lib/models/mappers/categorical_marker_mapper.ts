@@ -22,10 +22,6 @@ export interface CategoricalMarkerMapper extends Mapper.Attrs, CategoricalMapper
 export class CategoricalMarkerMapper extends Mapper<string> {
   declare properties: CategoricalMarkerMapper.Props
 
-  constructor(attrs?: Partial<CategoricalMarkerMapper.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CategoricalMarkerMapper.Props>(({Float, List, Nullable}) => ({
       factors:       [ FactorSeq ],

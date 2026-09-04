@@ -25,10 +25,6 @@ export class MercatorAxis extends LinearAxis {
   declare ticker: MercatorTicker
   declare formatter: MercatorTickFormatter
 
-  constructor(attrs?: Partial<MercatorAxis.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = MercatorAxisView
 

@@ -31,10 +31,6 @@ export interface TileSource extends TileSource.Attrs {}
 export abstract class TileSource extends Model {
   declare properties: TileSource.Props
 
-  constructor(attrs?: Partial<TileSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<TileSource.Props>(({Float, Str, Dict, Nullable /*, Null, Or, Ref*/}) => ({
       url:                [ Str, "", {convert: (url) => TileSource._normalize_case(url)} ],

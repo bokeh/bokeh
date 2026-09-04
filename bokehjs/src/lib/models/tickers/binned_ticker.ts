@@ -19,10 +19,6 @@ export interface BinnedTicker extends BinnedTicker.Attrs {}
 export class BinnedTicker extends Ticker {
   declare properties: BinnedTicker.Props
 
-  constructor(attrs?: Partial<BinnedTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BinnedTicker.Props>(({Float, Ref, Or, Auto}) => ({
       mapper: [ Ref(ScanningColorMapper) ],
