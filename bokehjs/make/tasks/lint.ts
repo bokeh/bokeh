@@ -1,5 +1,6 @@
 import {join, normalize} from "node:path"
 
+import {clearCaches} from "@typescript-eslint/typescript-estree"
 import {ESLint} from "eslint"
 import chalk from "chalk"
 
@@ -29,7 +30,7 @@ async function eslint(dirs: string[], tsconfig_file: string = "tsconfig.json"): 
     }
   }
 
-  const results = await eslint.lintFiles([...files])
+  const results = await eslint.lintFiles([...files]).finally(clearCaches)
 
   const errors = results.some(result => result.errorCount != 0)
   const warnings = results.some(result => result.warningCount != 0)
@@ -82,6 +83,8 @@ task("eslint", async () => {
     paths.src_dir.lib,
     paths.src_dir.compiler,
     paths.src_dir.server,
+  ])
+  await eslint([
     ...test_subdirs.map((name) => join(paths.src_dir.test, name)),
     paths.src_dir.examples,
   ])
