@@ -19,9 +19,7 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
  .. bokeh-plot::
 
-     from bokeh.plotting import figure, output_file, show
-
-     output_file("example.html")
+     from bokeh.plotting import figure, show
 
      x = [1, 2, 3, 4, 5]
      y = [6, 7, 6, 4, 5]
@@ -54,9 +52,7 @@ The inline example code above produces the following output:
 
 .. bokeh-plot::
 
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("example.html")
+    from bokeh.plotting import figure, show
 
     x = [1, 2, 3, 4, 5]
     y = [6, 7, 6, 4, 5]

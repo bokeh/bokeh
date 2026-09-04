@@ -1,134 +1,49 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
+from __future__ import annotations
 
 # Standard library imports
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
+import bokeh.io.saving as bis
 from bokeh.core.templates import FILE
-from bokeh.io.state import curstate
 from bokeh.models import Plot
-from bokeh.resources import INLINE
+from bokeh.resources import Resources
 
-# Module under test
-import bokeh.io.saving as bis # isort:skip
 
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
+def test_get_save_args_preserves_explicit_values() -> None:
+    filename, resources, title = bis._get_save_args(Path("plot.html"), "inline", "Plot")
+    assert filename == Path("plot.html")
+    assert resources == Resources(mode="inline")
+    assert title == "Plot"
 
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-def test__get_save_args_explicit_filename() -> None:
-    filename, _, _ = bis._get_save_args(curstate(), "filename", "inline", "title")
-    assert filename == "filename"
-
-    filename, _, _ = bis._get_save_args(curstate(), Path("some") / "path" / "filename", "inline", "title")
-    assert filename == Path("some") / "path" / "filename"
-
-def test__get_save_args_default_filename() -> None:
-    curstate().reset()
-    curstate().output_file("filename")
-    filename, _, _ = bis._get_save_args(curstate(), None, "inline", "title")
-    assert filename == "filename"
-
-def test__get_save_args_explicit_resources() -> None:
-    _, resources, _ = bis._get_save_args(curstate(), "filename", "inline", "title")
-    assert resources.mode == "inline" # TODO: == Resources(mode="inline")
-
-    _, resources, _ = bis._get_save_args(curstate(), "filename", INLINE, "title")
-    assert resources == INLINE
-
-def test__get_save_args_default_resources() -> None:
-    state = curstate()
-    state.reset()
-    state.output_file("filename", mode="inline")
-    assert state.file is not None
-    assert state.file.resources.mode == "inline"
-    r = state.file.resources
-    _, resources, _ = bis._get_save_args(curstate(), "filename", None, "title")
-    assert resources == r
-
-@patch('bokeh.util.warnings.warn')
-def test__get_save_args_missing_resources(mock_warn: MagicMock) -> None:
-    curstate().reset()
-    _, resources, _ = bis._get_save_args(curstate(), "filename", None, "title")
+@patch("bokeh.io.saving.default_filename", return_value="default.html")
+def test_get_save_args_supplies_stateless_defaults(mock_default_filename: MagicMock) -> None:
+    filename, resources, title = bis._get_save_args(None, None, None)
+    assert filename == "default.html"
     assert resources.mode == "cdn"
-    assert mock_warn.call_count == 1
-    assert mock_warn.call_args[0] == (
-        "save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN",
-    )
-    assert mock_warn.call_args[1] == {}
-
-def test__get_save_args_explicit_title() -> None:
-    _, _, title = bis._get_save_args(curstate(), "filename", "inline", "title")
-    assert title == "title"
-
-def test__get_save_args_default_title() -> None:
-    state = curstate()
-    state.reset()
-    state.output_file("filename", title="title")
-    assert state.file is not None
-    assert state.file.title == "title"
-    _, _, title = bis._get_save_args(curstate(), "filename", "inline", None)
-    assert title == "title"
-
-@patch('bokeh.util.warnings.warn')
-def test__get_save_args_missing_title(mock_warn: MagicMock) -> None:
-    curstate().reset()
-    _, _, title = bis._get_save_args(curstate(), "filename", "inline", None)
     assert title == "Bokeh Plot"
-    assert mock_warn.call_count == 1
-    assert mock_warn.call_args[0] == (
-        "save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'",
-    )
-    assert mock_warn.call_args[1] == {}
+    mock_default_filename.assert_called_once_with("html")
 
 
 @patch("builtins.open")
-@patch("bokeh.embed.file_html")
-def test__save_helper(mock_file_html: MagicMock, mock_open: MagicMock) -> None:
+@patch("bokeh.embed.file_html", return_value="<html></html>")
+def test_save_helper_writes_artifact_html(mock_file_html: MagicMock, mock_open: MagicMock) -> None:
     obj = Plot()
+    policy = Resources(mode="inline")
 
-    filename, resources, title = bis._get_save_args(curstate(), "filename", "inline", "title")
-    mock_open.reset_mock() # remove this entry: call('/usr/share/zoneinfo/UTC', 'rb')
+    bis._save_helper(obj, "plot.html", policy, "Plot", None)
 
-    bis._save_helper(obj, filename, resources, title, None)
-
-    assert mock_file_html.call_count == 1
-    assert mock_file_html.call_args[0] == (obj,)
-    assert mock_file_html.call_args[1] == dict(resources=resources, title="title", template=FILE, theme=None)
-
-    assert mock_open.call_count == 1
-    assert mock_open.call_args[0] == (filename,)
-    assert mock_open.call_args[1] == dict(mode="w", encoding="utf-8")
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+    mock_file_html.assert_called_once_with(
+        obj, resources=policy, title="Plot", template=FILE, theme=None,
+    )
+    mock_open.assert_called_once_with("plot.html", mode="w", encoding="utf-8")
+    mock_open.return_value.__enter__.return_value.write.assert_called_once_with("<html></html>")

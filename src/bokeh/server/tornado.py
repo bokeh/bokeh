@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..application import Application
 from ..model import Model
-from ..resources import Resources
+from ..resources import Resources, ResourcesMode
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.strings import format_docstring
@@ -633,6 +633,9 @@ class BokehTornado(TornadoApplication):
 
         '''
         mode = settings.resources(default="server")
+        dev = mode.endswith("-dev")
+        resource_mode = cast(ResourcesMode, mode[:-4] if dev else mode)
+        minified = False if dev else settings.minified()
         if mode == "server" or mode == "server-dev":
             if absolute_url is True:
                 absolute_url = self._absolute_url
@@ -640,9 +643,14 @@ class BokehTornado(TornadoApplication):
                 absolute_url = "/"
 
             root_url = urljoin(absolute_url, self._prefix)
-            return Resources(mode=mode, root_url=root_url, path_versioner=StaticHandler.append_version)
+            return Resources(
+                mode=resource_mode,
+                root_url=root_url,
+                minified=minified,
+                path_versioner=StaticHandler.append_version,
+            )
 
-        return Resources(mode=mode)
+        return Resources(mode=resource_mode, minified=minified)
 
     def start(self) -> None:
         ''' Start the Bokeh Server application.

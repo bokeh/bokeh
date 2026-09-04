@@ -23,19 +23,13 @@ from typing import (
 # Bokeh imports
 from ..core.templates import FILE, MACROS, get_env
 from ..document import DEFAULT_TITLE
+from ..resources import Resources
 from ._json import canonical_json
 from .artifact import EMBED_ARTIFACT_MIME_TYPE, EmbedArtifact
-from .resources import (
-    ResolvedResource,
-    ResolvedResources,
-    ResourcePolicy,
-    ResourceRequirements,
-)
+from .resources import ResolvedResource, ResolvedResources, ResourceRequirements
 
 if TYPE_CHECKING:
     from jinja2 import Template
-
-    from ..resources import Resources
 
 
 @dataclass(frozen=True)
@@ -121,7 +115,7 @@ class ExternalArtifact:
         return self.artifact.to_json_string()
 
 
-def render_fragment(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resources | str | None = "none",
+def render_fragment(artifact: EmbedArtifact, *, resources: Resources | str | None = "none",
         bootstrap_url: str | None = None) -> ArtifactFragment:
     '''Render an artifact for composition inside a host-owned HTML page.'''
     mounts, script, resolved = _render_inline_parts(artifact, resources, bootstrap_url)
@@ -132,9 +126,9 @@ def render_fragment(artifact: EmbedArtifact, *, resources: ResourcePolicy | Reso
     return ArtifactFragment(artifact, mounts, script, resolved, build_fingerprint, html)
 
 
-def _render_inline_parts(artifact: EmbedArtifact, resources: ResourcePolicy | Resources | str | None,
+def _render_inline_parts(artifact: EmbedArtifact, resources: Resources | str | None,
         bootstrap_url: str | None) -> tuple[tuple[ArtifactMount, ...], str, ResolvedResources]:
-    policy = ResourcePolicy.build(resources)
+    policy = Resources.build(resources)
     resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
     mounts = render_mounts(artifact)
     if policy.external_only:
@@ -153,12 +147,12 @@ def _render_inline_parts(artifact: EmbedArtifact, resources: ResourcePolicy | Re
 
 
 def render_external(artifact: EmbedArtifact, *, payload_url: str,
-        resources: ResourcePolicy | Resources | str | None = "none",
+        resources: Resources | str | None = "none",
         bootstrap_url: str | None = None) -> ExternalArtifact:
     '''Render a declaration that fetches artifact JSON from ``payload_url``.'''
     if not payload_url:
         raise ValueError("external artifact rendering requires a non-empty payload_url")
-    policy = ResourcePolicy.build(resources)
+    policy = Resources.build(resources)
     resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
     mounts = render_mounts(artifact, payload_url=payload_url)
     if bootstrap_url is None:
@@ -176,7 +170,7 @@ def render_external(artifact: EmbedArtifact, *, payload_url: str,
     return ExternalArtifact(artifact, payload_url, mounts, bootstrap, resolved, build_fingerprint, html)
 
 
-def render_page(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resources | str | None = None,
+def render_page(artifact: EmbedArtifact, *, resources: Resources | str | None = None,
         title: str | None = None, template: Template | str | Path | None = None,
         template_variables: Mapping[str, Any] | None = None, bootstrap_url: str | None = None) -> str:
     '''Render a complete HTML document with resolved resources and targets.'''

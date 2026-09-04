@@ -23,7 +23,6 @@ import weakref
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.io.state import curstate
 
 # Module under test
 import bokeh.io.doc as bid # isort:skip
@@ -36,17 +35,17 @@ import bokeh.io.doc as bid # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_curdoc_from_curstate() -> None:
-    assert bid.curdoc() is curstate().document
+def test_curdoc_returns_default_document() -> None:
+    assert isinstance(bid.curdoc(), Document)
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_set_curdoc_sets_curstate() -> None:
+def test_set_curdoc_sets_default_document() -> None:
     d = Document()
     bid.set_curdoc(d)
-    assert curstate().document is d
+    assert bid.curdoc() is d
 
 def test_patch_curdoc() -> None:
     d1 = Document()
