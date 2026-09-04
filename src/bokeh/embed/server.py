@@ -241,7 +241,16 @@ def server_html_page_for_session(session: ServerSession, resources: Resources, t
     '''
     from .compiler import embed_server
 
-    artifact = embed_server(".", token=session.token)
+    roots: dict[str, Model] = {}
+    for index, root in enumerate(session.document.roots):
+        base_key = root.name or ("root" if len(session.document.roots) == 1 else f"root-{index}")
+        key = base_key
+        suffix = 1
+        while key in roots:
+            key = f"{base_key}-{suffix}"
+            suffix += 1
+        roots[key] = root
+    artifact = embed_server(".", token=session.token, roots=roots)
     return artifact.page(
         resources=resources,
         title=title,

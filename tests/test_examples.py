@@ -257,7 +257,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], page: Any
             errors.append((request.url, request.failure or "Failed to load resource"))
 
     def on_response(response: Any) -> None:
-        if not response.ok and response.request.resource_type in ("script", "stylesheet"):
+        if response.status >= 400 and response.request.resource_type in ("script", "stylesheet"):
             errors.append((response.url, f"Failed to load resource: {response.status} {response.status_text}"))
 
     page.on("console", on_console)

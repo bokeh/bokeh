@@ -45,7 +45,8 @@ from bokeh.io import save
 from bokeh.model import Model
 from bokeh.models import Button, CustomJS, DataTable
 from bokeh.plotting import figure
-from bokeh.resources import CDN
+from bokeh.resources import CDN, Resources
+from bokeh.settings import settings
 from bokeh.themes import Theme
 from bokeh.util.compiler import JavaScript
 
@@ -397,7 +398,7 @@ def test_compiler_adapts_external_and_legacy_package_assets(
     package = tmp_path / "legacy-package.js"
     package.write_text("globalThis.legacy_package = true")
     monkeypatch.setattr(
-        "bokeh.embed.resources._bundle_extensions",
+        "bokeh.embed.resources.bundle_extensions",
         lambda objs, resources: [SimpleNamespace(artifact_path=package)],
     )
 
@@ -418,6 +419,14 @@ def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts(tmp_pat
 
     requirements = ResourceRequirements(("bokeh/core", "bokeh/widgets"))
     assert ResourcePolicy(mode="none").resolve(requirements).assets == ()
+
+    settings.resources = "server-dev"
+    try:
+        default = ResourcePolicy.build()
+        assert default.mode == "server"
+        assert default.minified is False
+    finally:
+        del settings.resources
 
     cdn = ResourcePolicy(mode="cdn").resolve(requirements)
     assert [asset.url for asset in cdn.assets] == [
@@ -455,6 +464,24 @@ def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts(tmp_pat
         ResourcePolicy(mode="offline", base_dir=build_dir).resolve(
             ResourceRequirements((), (external,)),
         )
+
+
+def test_relative_resource_urls_use_url_separators(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    build_dir = tmp_path / "build"
+    (build_dir / "js").mkdir(parents=True)
+    (build_dir / "js" / "bokeh.min.js").write_text("globalThis.Bokeh = {}")
+    resolve = Resources._resolve
+
+    def windows_resolve(self: Resources, kind: str):
+        files, raw, hashes = resolve(self, kind)  # type: ignore[arg-type]
+        return [path.replace("/", "\\") for path in files], raw, hashes
+
+    monkeypatch.setattr(Resources, "_resolve", windows_resolve)
+    relative = ResourcePolicy(mode="relative", root_dir=build_dir, base_dir=build_dir).resolve(
+        ResourceRequirements(("bokeh/core",)),
+    )
+
+    assert relative.assets[0].url == "js/bokeh.min.js"
 
 
 def test_resource_requirement_union_is_exact_and_deterministic() -> None:

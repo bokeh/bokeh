@@ -63,6 +63,7 @@ function inline_declaration(artifact: EmbedArtifact, value: unknown = artifact):
     targets,
     payload,
     bootstrap,
+
     remove() {
       targets.forEach((target) => target.remove())
       payload.remove()

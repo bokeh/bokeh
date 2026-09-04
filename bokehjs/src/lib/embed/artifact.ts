@@ -285,8 +285,73 @@ export async function compute_embed_artifact_fingerprint(artifact: EmbedArtifact
     metadata: artifact.metadata,
   }
   const encoded = new TextEncoder().encode(canonical_json(payload))
-  const digest = await globalThis.crypto.subtle.digest("SHA-256", encoded)
-  return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("")
+  const {crypto} = globalThis as unknown as {crypto?: {subtle?: SubtleCrypto}}
+  const subtle = crypto?.subtle
+  const digest = subtle != null
+    ? new Uint8Array(await subtle.digest("SHA-256", encoded))
+    : sha256(encoded)
+  return [...digest].map((value) => value.toString(16).padStart(2, "0")).join("")
+}
+
+// Web Crypto isn't available on non-secure origins such as file:// export pages.
+function sha256(input: Uint8Array): Uint8Array {
+  const constants = new Uint32Array([
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+  ])
+  const state = new Uint32Array([
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+  ])
+  const size = Math.ceil((input.length + 9)/64)*64
+  const padded = new Uint8Array(size)
+  padded.set(input)
+  padded[input.length] = 0x80
+  const view = new DataView(padded.buffer)
+  const bits = input.length*8
+  view.setUint32(size - 8, Math.floor(bits/2**32))
+  view.setUint32(size - 4, bits)
+
+  const words = new Uint32Array(64)
+  const rotate = (value: number, amount: number) => (value >>> amount) | (value << (32 - amount))
+  for (let offset = 0; offset < size; offset += 64) {
+    for (let i = 0; i < 16; i++) {
+      words[i] = view.getUint32(offset + i*4)
+    }
+    for (let i = 16; i < 64; i++) {
+      const x = words[i - 15]
+      const y = words[i - 2]
+      const s0 = rotate(x, 7) ^ rotate(x, 18) ^ (x >>> 3)
+      const s1 = rotate(y, 17) ^ rotate(y, 19) ^ (y >>> 10)
+      words[i] = (words[i - 16] + s0 + words[i - 7] + s1) >>> 0
+    }
+
+    let [a, b, c, d, e, f, g, h] = state
+    for (let i = 0; i < 64; i++) {
+      const sum1 = rotate(e, 6) ^ rotate(e, 11) ^ rotate(e, 25)
+      const choice = (e & f) ^ (~e & g)
+      const temp1 = (h + sum1 + choice + constants[i] + words[i]) >>> 0
+      const sum0 = rotate(a, 2) ^ rotate(a, 13) ^ rotate(a, 22)
+      const majority = (a & b) ^ (a & c) ^ (b & c)
+      const temp2 = (sum0 + majority) >>> 0
+      ;[a, b, c, d, e, f, g, h] = [(temp1 + temp2) >>> 0, a, b, c, (d + temp1) >>> 0, e, f, g]
+    }
+    state.set([
+      (state[0] + a) >>> 0, (state[1] + b) >>> 0, (state[2] + c) >>> 0, (state[3] + d) >>> 0,
+      (state[4] + e) >>> 0, (state[5] + f) >>> 0, (state[6] + g) >>> 0, (state[7] + h) >>> 0,
+    ])
+  }
+
+  const digest = new Uint8Array(32)
+  const digest_view = new DataView(digest.buffer)
+  state.forEach((value, index) => digest_view.setUint32(index*4, value))
+  return digest
 }
 
 function normalize_model_ids(value: unknown): unknown {
@@ -355,15 +420,16 @@ function prepare_standalone(artifact: EmbedArtifact, resolver?: ModelResolver): 
       "schema", "Bokeh 4.0 artifacts currently normalize standalone input to exactly one document; split independent documents",
     )
   }
-  let document: Document
-  try {
-    document = Document.from_json(documents[0], {resolver})
-  } catch (error) {
-    throw new ArtifactError(
-      "decode", `failed to decode standalone Bokeh artifact: ${error}`, error,
-      "deserialize", {kind: "artifact", artifact: artifact.fingerprint},
-    )
-  }
+  const document = (() => {
+    try {
+      return Document.from_json(documents[0], {resolver})
+    } catch (error) {
+      throw new ArtifactError(
+        "decode", `failed to decode standalone Bokeh artifact: ${error}`, error,
+        "deserialize", {kind: "artifact", artifact: artifact.fingerprint},
+      )
+    }
+  })()
   try {
     const roots = new Map<string, HasProps>()
     for (const descriptor of artifact.roots as StructuralArtifactRoot[]) {
@@ -396,8 +462,11 @@ async function prepare_server(artifact: EmbedArtifact, signal?: AbortSignal): Pr
   const app = source.relative_urls == true
     ? new URL(`${configured_app.pathname}${configured_app.search}`, document.baseURI)
     : configured_app
-  let token = source.token
-  if (token == null) {
+  const token = await (async () => {
+    if (source.token != null) {
+      return source.token
+    }
+
     const endpoint = new URL(app.href)
     endpoint.pathname = `${app.pathname.replace(/\/$/, "")}/embed.json`
     endpoint.search = ""
@@ -410,15 +479,16 @@ async function prepare_server(artifact: EmbedArtifact, signal?: AbortSignal): Pr
     if (source.session_id != null) {
       headers.set("Bokeh-Session-Id", source.session_id)
     }
-    let response: Response
-    try {
-      response = await fetch(endpoint, {headers, credentials: source.credentials ?? "same-origin", signal})
-    } catch (error) {
-      throw new ArtifactError(
-        "http", `failed to request Bokeh server artifact from ${endpoint}: ${error}`, error,
-        "payload", {kind: "artifact", artifact: artifact.fingerprint, url: endpoint.href},
-      )
-    }
+    const response = await (async () => {
+      try {
+        return await fetch(endpoint, {headers, credentials: source.credentials ?? "same-origin", signal})
+      } catch (error) {
+        throw new ArtifactError(
+          "http", `failed to request Bokeh server artifact from ${endpoint}: ${error}`, error,
+          "payload", {kind: "artifact", artifact: artifact.fingerprint, url: endpoint.href},
+        )
+      }
+    })()
     if (!response.ok) {
       throw new ArtifactError(
         "http", `Bokeh server artifact request failed: ${response.status} ${response.statusText}`,
@@ -438,23 +508,24 @@ async function prepare_server(artifact: EmbedArtifact, signal?: AbortSignal): Pr
         undefined, "schema", {kind: "artifact", artifact: artifact.fingerprint, url: endpoint.href},
       )
     }
-    token = as_string(bootstrap.token, "Bokeh server bootstrap token")
-  }
+    return as_string(bootstrap.token, "Bokeh server bootstrap token")
+  })()
 
   const websocket_url = `${app.protocol == "https:" ? "wss:" : "ws:"}//${app.host}${app.pathname.replace(/\/$/, "")}/ws`
-  let session: ClientSession
-  try {
-    const args = new URLSearchParams(source.arguments ?? {}).toString()
-    session = await pull_session(websocket_url, token, args, signal)
-  } catch (error) {
-    if (signal?.aborted == true) {
-      throw signal.reason
+  const session = await (async () => {
+    try {
+      const args = new URLSearchParams(source.arguments ?? {}).toString()
+      return await pull_session(websocket_url, token, args, signal)
+    } catch (error) {
+      if (signal?.aborted == true) {
+        throw signal.reason
+      }
+      throw new ArtifactError(
+        "websocket", `failed to open Bokeh server session at ${websocket_url}: ${error}`, error,
+        "session", {kind: "artifact", artifact: artifact.fingerprint, url: websocket_url},
+      )
     }
-    throw new ArtifactError(
-      "websocket", `failed to open Bokeh server session at ${websocket_url}: ${error}`, error,
-      "session", {kind: "artifact", artifact: artifact.fingerprint, url: websocket_url},
-    )
-  }
+  })()
 
   try {
     const roots = new Map<string, HasProps>()
@@ -480,6 +551,7 @@ async function prepare_server(artifact: EmbedArtifact, signal?: AbortSignal): Pr
       document_ownership: "mount",
       track_document_roots: artifact.roots.length == 0,
       session,
+
       release() {
         session.close()
       },
