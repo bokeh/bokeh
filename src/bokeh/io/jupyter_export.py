@@ -20,6 +20,7 @@ import re
 import threading
 import time
 from contextvars import ContextVar, Token
+from html.parser import HTMLParser
 from typing import Any, TypeGuard, cast
 
 # External imports
@@ -38,15 +39,37 @@ _FALLBACK_RE = re.compile(
     rf'<div\b(?=[^>]*\b{STATIC_FALLBACK_ATTRIBUTE}(?:=(?:""|\'\'))?)[^>]*>.*?</div>',
     re.DOTALL,
 )
-_ARTIFACT_RE = re.compile(
-    r'<script\b(?=[^>]*\bdata-bokeh-artifact-payload(?:=(?:""|\'\'))?)[^>]*>(.*?)</script>',
-    re.DOTALL,
-)
 _EXPORT_ID_RE = re.compile(r"^[A-Za-z0-9_-]{16,128}$")
 
 
 class _PngUnavailable(Exception):
     pass
+
+
+class _ArtifactPayloadParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=False)
+        self.payload: list[str] | None = None
+        self._collecting = False
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "script" and any(name == "data-bokeh-artifact-payload" for name, _value in attrs):
+            self.payload = []
+            self._collecting = True
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "script":
+            self._collecting = False
+
+    def handle_data(self, data: str) -> None:
+        if self._collecting and self.payload is not None:
+            self.payload.append(data)
+
+
+def _artifact_payload(html: str) -> str | None:
+    parser = _ArtifactPayloadParser()
+    parser.feed(html)
+    return None if parser.payload is None else "".join(parser.payload)
 
 
 _TRANSIENT_EXPORT_LOCK = threading.Lock()
@@ -167,7 +190,7 @@ class BokehPngPreprocessor(Preprocessor):
         )
         self._transient = _take_export_snapshots(resources)
         try:
-            return super().preprocess(nb, resources)
+            return super().preprocess(nb, resources)  # type: ignore[no-untyped-call]
         finally:
             del self._trusted
             del self._transient
@@ -245,10 +268,9 @@ class BokehPngPreprocessor(Preprocessor):
         else:
             if not isinstance(html, str):
                 raise _PngUnavailable("This Bokeh output has no embedding artifact available for PNG export.")
-            script = _ARTIFACT_RE.search(html)
-            if script is None:
+            artifact_json = _artifact_payload(html)
+            if artifact_json is None:
                 raise _PngUnavailable("This Bokeh output has no embedding artifact available for PNG export.")
-            artifact_json = script.group(1)
             width = None
             source = "saved-notebook"
         if not isinstance(artifact_json, str):
@@ -289,11 +311,16 @@ class BokehPngPreprocessor(Preprocessor):
         )
 
     def _check_signature(self, nb: Any) -> bool:
+        notary: NotebookNotary | None = None
         try:
-            return NotebookNotary(parent=self).check_signature(nb)
+            notary = NotebookNotary(parent=self)  # type: ignore[no-untyped-call]
+            return notary.check_signature(nb)  # type: ignore[no-untyped-call]
         except Exception:
             self.log.warning("Could not verify the notebook trust signature", exc_info=True)
             return False
+        finally:
+            if notary is not None:
+                notary.close()  # type: ignore[no-untyped-call]
 
     @staticmethod
     def _server_marked_trusted(nb: Any, resources: dict[str, Any]) -> bool:
@@ -320,5 +347,5 @@ class BokehHTMLExporter(HTMLExporter):
     export_from_notebook = "Bokeh static HTML"
 
     def _init_preprocessors(self) -> None:
-        super()._init_preprocessors()
-        self.register_preprocessor(BokehPngPreprocessor, enabled=True)
+        super()._init_preprocessors()  # type: ignore[no-untyped-call]
+        self.register_preprocessor(BokehPngPreprocessor, enabled=True)  # type: ignore[no-untyped-call]

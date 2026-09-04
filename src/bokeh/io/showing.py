@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Sequence,
     TypeGuard,
     cast,
@@ -45,6 +46,8 @@ if TYPE_CHECKING:
     from ..util.browser import BrowserLike
     from .jupyter_app import NotebookApplication
     from .notebook import ApplicationViewHandle, DocumentViewHandle
+
+    type _ShowDocable = Model | Sequence[UIElement]
     from .state import State
 
 #-----------------------------------------------------------------------------
@@ -64,7 +67,7 @@ type OneOrMore[T] = T | Sequence[T]
 type Showable = OneOrMore[UIElement | DOMNode]
 
 def show(
-    obj: Showable | NotebookApplication,
+    obj: Showable | NotebookApplication | Application | Callable[..., Any],
     resources: ResourcePolicy | Resources | None = None,
     **kwargs: Any,
 ) -> ApplicationViewHandle | DocumentViewHandle | None:
@@ -176,7 +179,7 @@ def _show_with_state(obj: Showable, state: State,
         notebook_options: dict[str, Any] = {}
         if resources is not None:
             notebook_options["resources"] = resources
-        return show_doc(cast("Model | Sequence[UIElement]", obj), state, **notebook_options)
+        return show_doc(cast("_ShowDocable", obj), state, **notebook_options)
 
     controller = get_browser_controller()
     _show_file_with_state(obj, state, controller)

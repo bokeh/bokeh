@@ -67,9 +67,10 @@ class _SavedFile(str):
         result = str.__new__(cls, filename)
         candidate = Path(link_path)
         parts = candidate.parts
+        link = candidate.as_posix()
         result._link_path = (
-            candidate.as_posix()
-            if not candidate.is_absolute() and candidate.drive == "" and ".." not in parts and "\\" not in str(link_path)
+            link
+            if not candidate.is_absolute() and candidate.drive == "" and ".." not in parts and "\\" not in link
             else None
         )
         return result

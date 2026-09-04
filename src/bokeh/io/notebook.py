@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportAttributeAccessIssue=false
+# pyright: reportAttributeAccessIssue=false, reportMissingModuleSource=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -104,8 +104,8 @@ def __getattr__(name: str) -> Any:
         return _ignore_legacy_colab_notebook_hook
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
-def _ignore_legacy_colab_notebook_hook(*args: Any, **kwargs: Any) -> None:
-    del args, kwargs
+def _ignore_legacy_colab_notebook_hook(*_args: Any, **_kwargs: Any) -> None:
+    pass
 
 def _is_colab_runtime() -> bool:
     # The Bokeh-specific import-hook module is an implementation detail rather
@@ -126,8 +126,7 @@ def _is_marimo_runtime() -> bool:
     if "marimo" not in sys.modules:
         return False
     try:
-        from marimo._runtime.context import \
-            runtime_context_installed  # pyright: ignore[reportMissingImports]
+        from marimo._runtime.context import runtime_context_installed
 
         return runtime_context_installed()
     except Exception:
@@ -250,7 +249,7 @@ class DocumentViewHandle:
             try:
                 self._source_document.remove_on_change(self)
             except KeyError:
-                pass
+                log.debug("Notebook document callback was already removed", exc_info=True)
             self._source_document = None
         if self._output_root_key is not None:
             _release_output_root(self._output_root_key)
