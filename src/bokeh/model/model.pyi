@@ -19,7 +19,12 @@ from typing import (
 from ..core.has_props import HasProps, Setter
 from ..core.property.validation import without_property_validation
 from ..core.query import SelectorType
-from ..core.serialization import ObjectRefRep, ObjectRep, Ref, Serializer
+from ..core.serialization import (
+    ObjectRefRep,
+    ObjectRep,
+    Ref,
+    Serializer,
+)
 from ..core.types import ID
 from ..document import Document
 from ..document.events import DocumentPatchedEvent

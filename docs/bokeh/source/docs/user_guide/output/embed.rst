@@ -182,6 +182,14 @@ The returned ``<script>`` will look something like this:
 
     </script>
 
+.. note::
+    The generated ``docid``, ``modelid``, and element IDs shown by the
+    standalone embedding methods on this page are embedding plumbing, not
+    durable handles for application JavaScript. For static-page integration,
+    use ``Bokeh.when_mounted()`` with logical root keys, semantic model names,
+    mount-scoped view lookup, or explicit ``CustomJS.args`` as described in
+    :ref:`ug_advanced_bokehjs`.
+
 Note that Jupyter notebooks do not allow for use of the |components| and |show|
 functions in the same notebook cell.
 
