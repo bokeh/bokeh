@@ -108,10 +108,10 @@ def get_screenshot_as_png(
     '''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
 
-    return get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
+    return _get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
 
 
-def get_screenshot_as_png_from_html(
+def _get_screenshot_as_png_from_html(
     html: str,
     *,
     driver: Browser | BrowserContext | None = None,

@@ -12,7 +12,7 @@ nbformat = pytest.importorskip("nbformat")
 
 # Bokeh imports
 from bokeh.embed import embed, embed_server
-from bokeh.io.jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE, display_payload
+from bokeh.io.jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE, _display_payload
 from bokeh.io.notebook import _static_fallback
 from bokeh.plotting import figure
 
@@ -31,7 +31,7 @@ def _output(artifact=None, *, view_id: str = "view"):
         "display_data",
         data={
             "text/html": artifact.fragment(resources="none").html + _static_fallback("fallback"),
-            DISPLAY_MIME_TYPE: display_payload(artifact, "resources", view_id),
+            DISPLAY_MIME_TYPE: _display_payload(artifact, "resources", view_id),
         },
     )
 
@@ -184,7 +184,7 @@ def test_anywidget_output_metadata_preserves_saved_artifact_export() -> None:
             "application/vnd.jupyter.widget-view+json": {"model_id": "widget"},
             "text/html": artifact.fragment(resources="none").html,
         },
-        metadata={DISPLAY_MIME_TYPE: display_payload(artifact, "resources", "view")},
+        metadata={DISPLAY_MIME_TYPE: _display_payload(artifact, "resources", "view")},
     )
     with (
         patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>"),

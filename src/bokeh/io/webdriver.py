@@ -87,10 +87,10 @@ def get_screenshot_as_png(
     '''Capture a Bokeh layout as a PNG image using Selenium.'''
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    return get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
+    return _get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
 
 
-def get_screenshot_as_png_from_html(
+def _get_screenshot_as_png_from_html(
     html: str,
     *,
     driver: WebDriver | None = None,
