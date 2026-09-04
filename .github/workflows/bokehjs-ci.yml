@@ -111,7 +111,6 @@ jobs:
           node make pack
 
       - name: Run tests
-        if: success() || failure()
         working-directory: ./bokehjs
         shell: bash
         run: |
