@@ -78,9 +78,12 @@ export class ClientConnection {
     this._try_reconnect(true)
   }
 
-  async connect(): Promise<ClientSession> {
+  async connect(signal?: AbortSignal): Promise<ClientSession> {
     if (this.closed_permanently) {
       throw new Error("Cannot connect() a closed ClientConnection")
+    }
+    if (signal?.aborted == true) {
+      throw signal.reason instanceof Error ? signal.reason : new Error("WebSocket connection was aborted")
     }
     if (this.socket != null) {
       throw new Error("Already connected")
@@ -98,7 +101,9 @@ export class ClientConnection {
 
       this.socket = new WebSocket(versioned_url, ["bokeh", this.token])
 
-      return new Promise((resolve, reject) => {
+      let reject_connection!: Rejecter
+      const connected = new Promise<ClientSession>((resolve, reject) => {
+        reject_connection = reject
         assert(this.socket != null)
         // "arraybuffer" gives us binary data we can look at;
         // if we just needed an opaque blob we could use "blob"
@@ -108,6 +113,21 @@ export class ClientConnection {
         this.socket.onclose = (event) => this._on_close(event, reject)
         this.socket.onerror = () => this._on_error(reject)
       })
+      if (signal == null) {
+        return connected
+      }
+      const on_abort = () => {
+        this.closed_permanently = true
+        const reason = signal.reason instanceof Error ? signal.reason : new Error("WebSocket connection was aborted")
+        reject_connection(reason)
+        try {
+          this.socket?.close(1000, `aborted ClientConnection ${this._number}`)
+        } catch {
+          // Some WebSocket implementations reject close() while still connecting.
+        }
+      }
+      signal.addEventListener("abort", on_abort, {once: true})
+      return connected.finally(() => signal.removeEventListener("abort", on_abort))
     } catch (error) {
       logger.error(`websocket creation failed to url: ${this.url}`)
       logger.error(` - ${error}`)
@@ -122,7 +142,7 @@ export class ClientConnection {
       if (this.socket != null) {
         this.socket.close(1000, `close method called on ClientConnection ${this._number}`)
       }
-      this.session!._connection_closed()
+      this.session?._connection_closed()
     }
   }
 
@@ -354,7 +374,8 @@ export class ClientConnection {
   }
 }
 
-export function pull_session(url?: string, token?: string, args_string?: string): Promise<ClientSession> {
+export function pull_session(url?: string, token?: string, args_string?: string,
+    signal?: AbortSignal): Promise<ClientSession> {
   const connection = new ClientConnection(url, token, args_string)
-  return connection.connect()
+  return connection.connect(signal)
 }
