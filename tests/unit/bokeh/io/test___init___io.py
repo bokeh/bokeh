@@ -10,8 +10,13 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
+# Standard library imports
 import sys
 from types import ModuleType
+
+# Bokeh imports
+import bokeh.io.notebook as binb
+from tests.support.util.api import verify_all
 
 import pytest ; pytest
 
@@ -19,9 +24,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-import bokeh.io.notebook as binb
-from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.io as bi # isort:skip

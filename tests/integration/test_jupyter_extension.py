@@ -18,7 +18,16 @@ from nbclient import NotebookClient
 
 # Bokeh imports
 import bokeh
-from bokeh.io.jupyter import DISPLAY_MIME_TYPE, PROTOCOL_VERSION, RESOURCES_MIME_TYPE
+from bokeh.embed import embed
+from bokeh.io.jupyter import (
+    DISPLAY_MIME_TYPE,
+    PROTOCOL_VERSION,
+    RESOURCES_MIME_TYPE,
+    display_payload,
+)
+from bokeh.io.jupyter_export import BokehPngPreprocessor
+from bokeh.plotting import figure
+from tests.support.util.env import envset
 
 pytestmark = pytest.mark.skipif(shutil.which("jupyter") is None, reason="Jupyter is not installed")
 ROOT = Path(__file__).parents[2]
@@ -26,6 +35,7 @@ ROOT = Path(__file__).parents[2]
 
 def _project_environment() -> dict[str, str]:
     env = os.environ.copy()
+    env["BOKEH_DEV"] = "true"
     env["BOKEH_RESOURCES"] = "inline"
     source = ROOT / "src"
     if source.is_dir():
@@ -111,6 +121,30 @@ save(q, "safe-output.html")
     assert len({payload["resource_id"] for payload in displays}) == 1
     file_output = notebook.cells[2].outputs[-1].data
     assert file_output["application/vnd.bokeh.file+json"]["path"] == "safe-output.html"
+
+
+def test_nbconvert_export_captures_saved_artifact_with_real_playwright() -> None:
+    pytest.importorskip("playwright.sync_api")
+    artifact = embed(figure(width=260, height=160, title="exported-notebook-artifact"))
+    output = nbformat.v4.new_output(
+        "display_data",
+        data={
+            "text/html": artifact.fragment(resources="none").html,
+            DISPLAY_MIME_TYPE: display_payload(artifact, "resources", "export-view"),
+        },
+    )
+    cell = nbformat.v4.new_code_cell("plot", outputs=[output])
+    cell.metadata["trusted"] = True
+    notebook = nbformat.v4.new_notebook(cells=[cell])
+
+    with envset(BOKEH_DEV="true"):
+        result, _ = BokehPngPreprocessor(require_trusted=False, timeout=20).preprocess(
+            notebook, {"metadata": {"name": "export"}},
+        )
+
+    html = result.cells[0].outputs[0].data["text/html"]
+    assert 'data-bokeh-notebook-export-state="saved-notebook"' in html
+    assert "data:image/png;base64,iVBOR" in html
 
 
 def _wait_for_server(base_url: str, process: subprocess.Popen[str]) -> None:
@@ -227,8 +261,32 @@ def _wait_for_mounted_figure(page: Any) -> None:
         ".bk-Figure, .bk-notebook-diagnostic, [data-bokeh-notebook-static-fallback]",
     ).first.wait_for(state="attached", timeout=30_000)
     diagnostics = page.locator(".bk-notebook-diagnostic")
-    assert diagnostics.count() == 0, diagnostics.first.inner_text()
+    technical = diagnostics.first.locator("pre").text_content() if diagnostics.count() else ""
+    assert diagnostics.count() == 0, f"{diagnostics.first.inner_text()}\n{technical}"
     assert page.locator(".bk-Figure").count() > 0, page.locator(".jp-OutputArea").first.inner_text()
+
+
+def _wait_for_named_model(page: Any, name: str, *, title: str | None = None) -> None:
+    page.wait_for_function(
+        """
+        async ({name, title}) => {
+          for (const target of document.querySelectorAll("[data-bokeh-root]")) {
+            const direct = target.bokehMount
+            if (direct?.state !== "ready")
+              continue
+            const mount = await window.Bokeh.when_mounted(target)
+            if (mount !== direct || mount.view_lookup == null)
+              continue
+            const model = mount.document.get_model_by_name(name)
+            if (model != null && (title == null || model.title?.text === title))
+              return true
+          }
+          return false
+        }
+        """,
+        arg={"name": name, "title": title},
+        timeout=30_000,
+    )
 
 
 def _wait_for_saved_output(path: Path, cell_index: int, mime_type: str) -> None:
@@ -254,7 +312,7 @@ p = figure(width=300, height=180); p.line([1, 2, 3], [3, 1, 2]); p
 '''),
             nbformat.v4.new_code_cell('''
 from bokeh.io import show
-live = figure(width=300, height=180); live.line([1, 2], [1, 2]); handle = show(live)
+live = figure(width=300, height=180, name="notebook-live-plot"); live.line([1, 2], [1, 2]); handle = show(live)
 print("live-ready")
 '''),
             nbformat.v4.new_code_cell('''
@@ -271,6 +329,10 @@ app_view = show(app)
 print("application-view-ready")
 '''),
             nbformat.v4.new_code_cell('''
+import time
+deadline = time.monotonic() + 5
+while len(app.sessions) != 1 and time.monotonic() < deadline:
+    time.sleep(0.05)
 print(f"application-sessions:{len(app.sessions)}")
 '''),
         ],
@@ -288,7 +350,10 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
     try:
         with playwright.sync_playwright() as manager:
             browser = manager.chromium.launch()
-            page = browser.new_page()
+            # Keep the application output attached while the following cell
+            # observes its server session. A smaller default viewport lets
+            # Jupyter virtualize the output and correctly dispose that view.
+            page = browser.new_page(viewport={"width": 1440, "height": 1050})
             page.goto(f"{base_url}/lab/tree/lifecycle.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
             editors.nth(4).wait_for(timeout=30_000)
@@ -299,16 +364,13 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
             page.get_by_text("live-ready", exact=True).wait_for(timeout=30_000)
             _execute_cell_once(page, editors, 2)
             page.get_by_text("live-updated", exact=True).wait_for(timeout=30_000)
-            page.wait_for_function("""
-                () => Object.values(window.Bokeh?.index ?? {}).some((view) => view.model?.title?.text === "updated-once")
-            """, timeout=30_000)
+            _wait_for_named_model(page, "notebook-live-plot", title="updated-once")
             _execute_cell_once(page, editors, 3)
             page.get_by_text("application-view-ready", exact=True).wait_for(timeout=30_000)
-            page.wait_for_function("""
-                () => Object.values(window.Bokeh?.index ?? {}).some((view) => view.model?.name === "notebook-app-root")
-            """, timeout=30_000)
+            _wait_for_named_model(page, "notebook-app-root")
             _execute_cell_once(page, editors, 4)
-            page.get_by_text("application-sessions:1", exact=True).wait_for(timeout=30_000)
+            sessions_output = page.locator(".jp-CodeCell").nth(4).locator(".jp-OutputArea").inner_text()
+            assert "application-sessions:1" in sessions_output, sessions_output
 
             # One intentional rerun replaces the cell output. The observation
             # wait never re-executes a cell as a retry.
@@ -318,12 +380,8 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
             _wait_for_saved_output(path, 0, DISPLAY_MIME_TYPE)
             page.reload()
             _wait_for_mounted_figure(page)
-            page.wait_for_function("""
-                () => Object.values(window.Bokeh?.index ?? {}).some((view) => view.model?.title?.text === "updated-once")
-            """, timeout=30_000)
-            page.wait_for_function("""
-                () => Object.values(window.Bokeh?.index ?? {}).some((view) => view.model?.name === "notebook-app-root")
-            """, timeout=30_000)
+            _wait_for_named_model(page, "notebook-live-plot", title="updated-once")
+            _wait_for_named_model(page, "notebook-app-root")
             assert page.locator(".bk-notebook-diagnostic").count() == 0
             browser.close()
     finally:

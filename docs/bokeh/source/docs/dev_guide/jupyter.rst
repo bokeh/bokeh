@@ -57,6 +57,13 @@ browser will not execute it later. Only a definitive load error may release a
 same-version waiter to try another resource representation. Recovery requires
 a page reload, which destroys the browser realm; restarting only the kernel
 must not clear this barrier.
+The portable owner coordinates through DOM markers and delegates resolved
+requirements to BokehJS's common ``resource_loader``. Do not add a notebook
+resource registry, loader program, promise cache, or document registry on
+``window``. Renderers acquire the target-local ``BokehMount`` with
+``when_mounted()``, publish failures that occur before a handle exists with
+``publish_mount_error()``, and use its read-only ``view_lookup`` when a
+non-root view is required.
 The bundled frontends also announce themselves over this comm target after
 processing a resource output; keep that bounded handshake and
 ``notebook_info()`` fields synchronized.

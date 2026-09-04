@@ -39,6 +39,8 @@ def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
     return html.split('\n')
 
 def test_legacy_notebook_templates_are_removed() -> None:
+    assert not hasattr(bct, "DOC_JS")
+    assert not hasattr(bct, "PLOT_DIV")
     assert not hasattr(bct, "DOC_NB_JS")
     assert not hasattr(bct, "NOTEBOOK_RESOURCES_JS")
     assert not hasattr(bct, "APP_NB_CLEANUP")

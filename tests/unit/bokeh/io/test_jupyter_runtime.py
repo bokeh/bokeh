@@ -48,12 +48,37 @@ def test_frontend_has_direct_failure_disposal_and_buffer_coverage() -> None:
 def test_runtime_uses_common_mount_and_revisioned_receiver_only() -> None:
     runtime = (FRONTEND / "src" / "runtime.ts").read_text()
     notebook = (ROOT / "bokehjs" / "src" / "lib" / "embed" / "notebook.ts").read_text()
-    assert "window.Bokeh.mount(" in runtime
+    assert "runtime.mount(" in runtime
+    assert "runtime.when_mounted(" in runtime
+    assert "when_mounted" in runtime
+    assert "publish_mount_error" in runtime
+    assert "view_lookup" in runtime
     assert "create_notebook_patch_receiver" in runtime
     assert "embed_items_notebook" not in runtime
     assert "documentData" not in runtime
     assert "Receiver" not in notebook
     assert "document.apply_json_patch" in notebook
+
+
+@requires_source
+def test_generated_notebook_sources_have_no_private_loader_or_global_view_registry() -> None:
+    sources = "\n".join(
+        path.read_text()
+        for path in [
+            FRONTEND / "src" / "runtime.ts",
+            ROOT / "src" / "bokeh" / "core" / "_templates" / "portable_resources.js.jinja",
+        ]
+    )
+    for stale in (
+        "Bokeh.index",
+        "Bokeh.documents",
+        "view_manager",
+        "_bokeh_notebook_artifacts",
+        "_bokeh_notebook_resource_promises",
+        "_bokeh_notebook_core_load",
+    ):
+        assert stale not in sources
+    assert "resource_loader" in sources
 
 
 @requires_source
@@ -93,3 +118,7 @@ def test_wheel_contains_built_notebook_adapters_without_legacy_protocol() -> Non
     assert "PAYLOAD_INVALID" in anywidget
     assert "application/vnd.bokeh.document+json" not in anywidget + javascript
     assert "embed_items_notebook" not in anywidget + javascript
+    assert "Bokeh.index" not in anywidget + javascript
+    assert "Bokeh.documents" not in anywidget + javascript
+    assert "view_manager" not in anywidget + javascript
+    assert "_bokeh_notebook_artifacts" not in anywidget + javascript

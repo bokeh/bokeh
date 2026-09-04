@@ -20,7 +20,6 @@ from urllib.request import urlopen
 # External imports
 import pytest
 
-
 pytestmark = pytest.mark.skipif(
     shutil.which("marimo") is None or importlib.util.find_spec("anywidget") is None,
     reason="marimo and AnyWidget 0.11 or later are required",
@@ -56,6 +55,7 @@ def test_marimo_renders_static_and_connected_anywidget_views() -> None:
     env = os.environ.copy()
     source = str(root / "src")
     env["PYTHONPATH"] = source + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+    env["BOKEH_DEV"] = "true"
     process = subprocess.Popen(
         [
             sys.executable,
@@ -102,8 +102,13 @@ def test_marimo_renders_static_and_connected_anywidget_views() -> None:
             assert slider.get_attribute("aria-valuenow") == "4"
             slider.press("ArrowLeft")
             page.wait_for_function(
-                "Object.values(window.Bokeh.index).some((view) => "
-                "view.model.document.get_model_by_name('marimo-live-source')?.data.x.length === 3)",
+                "(expected) => [...document.querySelectorAll('marimo-anywidget')].some((host) => {"
+                "const target = host.shadowRoot?.querySelector('[data-bokeh-root]');"
+                "const mount = target?.bokehMount;"
+                "return mount?.state === 'ready' && "
+                "mount.document.get_model_by_name('marimo-live-source')?.data.x.length === expected"
+                "})",
+                arg=3,
                 timeout=10_000,
             )
             assert slider.get_attribute("aria-valuenow") == "3"
@@ -117,8 +122,13 @@ def test_marimo_renders_static_and_connected_anywidget_views() -> None:
                 timeout=10_000,
             )
             page.wait_for_function(
-                "Object.values(window.Bokeh.index).some((view) => "
-                "view.model.document.get_model_by_name('marimo-live-source')?.data.x.length === 6)",
+                "(expected) => [...document.querySelectorAll('marimo-anywidget')].some((host) => {"
+                "const target = host.shadowRoot?.querySelector('[data-bokeh-root]');"
+                "const mount = target?.bokehMount;"
+                "return mount?.state === 'ready' && "
+                "mount.document.get_model_by_name('marimo-live-source')?.data.x.length === expected"
+                "})",
+                arg=6,
                 timeout=10_000,
             )
             assert slider.get_attribute("aria-valuenow") == "6"
