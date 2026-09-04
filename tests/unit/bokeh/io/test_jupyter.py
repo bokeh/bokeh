@@ -59,7 +59,7 @@ def _resolved(mode: str = "cdn") -> ResolvedResources:
 
 
 def test_python_protocol_constants_come_from_the_packaged_manifest() -> None:
-    manifest = json.loads((Path(__file__).parents[4] / "src/bokeh/jupyter/protocol.json").read_text())
+    manifest = json.loads((Path(notebook.__file__).parents[1] / "jupyter/protocol.json").read_text())
 
     assert PROTOCOL_VERSION == manifest["version"]
     assert ARTIFACT_MIME_TYPE == manifest["mime_types"]["artifact"]
@@ -174,7 +174,10 @@ def test_file_payload_only_accepts_safe_notebook_relative_paths() -> None:
         "kind": "file",
         "path": "reports/plot.html",
     }
-    for path in ("/private/output.html", "../output.html", "reports/../../output.html", r"reports\output.html"):
+    for path in (
+        "", "/private/output.html", "C:/private/output.html", "../output.html",
+        "reports/../../output.html", r"reports\output.html",
+    ):
         with pytest.raises(ValueError, match="safe paths relative"):
             file_payload(path)
 
