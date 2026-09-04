@@ -17,6 +17,23 @@ describe("notebook protocol", () => {
     })).not.toThrow()
   })
 
+  it("keeps managed application identity and URL together", () => {
+    const payload = {
+      protocol_version: PROTOCOL_VERSION,
+      kind: "artifact",
+      resource_id: "resource",
+      bokeh_version: "4.0.0",
+      python_version: "4.0.0",
+      artifact_fingerprint: "fingerprint",
+      source_kind: "server",
+      view_id: "view",
+      connect_timeout: 5000,
+      application_id: "application",
+    }
+    expect(() => assertProtocol(payload)).toThrow(/application_id and application_url/)
+    expect(() => assertProtocol({...payload, application_url: "http://127.0.0.1:4312/app/"})).not.toThrow()
+  })
+
   it("rejects the removed document-data lifecycle", () => {
     expect(() => assertProtocol({
       protocol_version: 1,

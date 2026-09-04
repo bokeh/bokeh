@@ -20,7 +20,7 @@ from ..io.jupyter_export import (
     _valid_export_id,
 )
 
-_PNG_PREPROCESSOR = "bokeh.io.jupyter_export.BokehPngPreprocessor"
+_PNG_PREPROCESSOR = "bokeh.io.jupyter_export.BokehPNGPreprocessor"
 _MAX_TRANSIENT_EXPORT_BYTES = 50 * 1024 * 1024
 
 class _ExportSnapshotsHandler(JupyterHandler):

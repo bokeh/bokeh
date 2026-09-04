@@ -17,7 +17,8 @@ Use the Bokeh development environment and run:
 .. code-block:: sh
 
     pixi run --locked jupyter-build
-    pixi run --locked jupyter-test
+    pixi run --locked --environment notebook-test notebook-browser-install
+    pixi run --locked --environment notebook-test test-notebook
 
 The build checks the shared protocol manifest, runs the TypeScript source
 tests, type-checks the frontend, builds the AnyWidget adapter and prebuilt
@@ -28,10 +29,12 @@ whenever ``src/bokeh/jupyter/frontend/src`` or the protocol changes. Run
 ``pixi run --locked jupyter-verify`` to rebuild and confirm that every tracked
 generated asset is current.
 
-The test task verifies extension discovery and packaging, then runs the
-AnyWidget, JupyterLab, and marimo integration suites. Portable Classic
-Notebook fallback behavior is covered by Python/JavaScript contract tests; no
-Classic Bokeh extension is installed or enabled.
+The locked ``notebook-test`` environment contains the optional notebook hosts
+and proxy used by the browser suite. Its test task verifies extension discovery
+and packaging when run against an installed wheel, then runs the AnyWidget,
+JupyterLab, and marimo integration suites. Portable Classic Notebook fallback
+behavior is covered by Python/JavaScript contract tests; no Classic Bokeh
+extension is installed or enabled.
 
 Protocol and lifecycle
 ----------------------

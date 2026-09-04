@@ -156,7 +156,7 @@ def _take_export_snapshots(resources: dict[str, Any], export_id: str | None = No
     return {}
 
 
-class BokehPngPreprocessor(Preprocessor):
+class BokehPNGPreprocessor(Preprocessor):
     '''Replace trusted Bokeh artifact outputs with export-time PNG captures.'''
 
     require_trusted = Bool(
@@ -348,4 +348,4 @@ class BokehHTMLExporter(HTMLExporter):
 
     def _init_preprocessors(self) -> None:
         super()._init_preprocessors()  # type: ignore[no-untyped-call]
-        self.register_preprocessor(BokehPngPreprocessor, enabled=True)  # type: ignore[no-untyped-call]
+        self.register_preprocessor(BokehPNGPreprocessor, enabled=True)  # type: ignore[no-untyped-call]

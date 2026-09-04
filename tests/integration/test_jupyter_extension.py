@@ -9,6 +9,7 @@ import sys
 import time
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 from urllib.request import urlopen
 
 # External imports
@@ -25,7 +26,7 @@ from bokeh.io.jupyter import (
     RESOURCES_MIME_TYPE,
     display_payload,
 )
-from bokeh.io.jupyter_export import BokehPngPreprocessor
+from bokeh.io.jupyter_export import BokehPNGPreprocessor
 from bokeh.plotting import figure
 from tests.support.util.env import envset
 
@@ -35,6 +36,7 @@ ROOT = Path(__file__).parents[2]
 
 def _project_environment() -> dict[str, str]:
     env = os.environ.copy()
+    env.pop("JUPYTER_BOKEH_EXTERNAL_URL", None)
     env["BOKEH_DEV"] = "true"
     env["BOKEH_RESOURCES"] = "inline"
     source = ROOT / "src"
@@ -138,7 +140,7 @@ def test_nbconvert_export_captures_saved_artifact_with_real_playwright() -> None
     notebook = nbformat.v4.new_notebook(cells=[cell])
 
     with envset(BOKEH_DEV="true"):
-        result, _ = BokehPngPreprocessor(require_trusted=False, timeout=20).preprocess(
+        result, _ = BokehPNGPreprocessor(require_trusted=False, timeout=20).preprocess(
             notebook, {"metadata": {"name": "export"}},
         )
 
@@ -161,7 +163,8 @@ def _wait_for_server(base_url: str, process: subprocess.Popen[str]) -> None:
     raise AssertionError("Jupyter did not start")
 
 
-def _start_jupyter(tmp_path: Path, *, extension: bool) -> tuple[subprocess.Popen[str], str, dict[str, str]]:
+def _start_jupyter(tmp_path: Path, *, extension: bool, base_path: str = "/",
+        allow_remote_access: bool = False) -> tuple[subprocess.Popen[str], str, dict[str, str]]:
     env = _project_environment()
     data_dir = tmp_path / "jupyter-data"
     runtime_dir = tmp_path / "jupyter-runtime"
@@ -201,8 +204,11 @@ def _start_jupyter(tmp_path: Path, *, extension: bool) -> tuple[subprocess.Popen
         sys.executable, "-m", "jupyterlab", "--no-browser",
         "--ServerApp.port=0", "--ServerApp.port_retries=0",
         "--ServerApp.token=", "--ServerApp.password=",
+        f"--ServerApp.base_url={base_path}",
         f"--ServerApp.root_dir={tmp_path}",
     ]
+    if allow_remote_access:
+        command.append("--ServerApp.allow_remote_access=True")
     if not extension:
         command.append("--LabApp.core_mode=True")
     process = subprocess.Popen(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -217,8 +223,8 @@ def _start_jupyter(tmp_path: Path, *, extension: bool) -> tuple[subprocess.Popen
             except (OSError, ValueError):
                 continue
             if isinstance(port, int) and port > 0:
-                base_url = f"http://127.0.0.1:{port}"
-                _wait_for_server(base_url, process)
+                base_url = f"http://127.0.0.1:{port}{base_path.rstrip('/')}"
+                _wait_for_server(f"{base_url}/", process)
                 return process, base_url, env
         time.sleep(0.05)
     process.terminate()
@@ -237,23 +243,44 @@ def _stop(process: subprocess.Popen[str]) -> None:
         process.stdout.close()
 
 
-def _execute_cell_once(page: Any, editors: Any, index: int) -> None:
+def _execute_cell_once(page: Any, editors: Any, index: int, *, timeout: int = 30_000) -> None:
+    from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
     cell = page.locator(".jp-CodeCell").nth(index)
     prompt = cell.locator(".jp-InputPrompt")
     previous = prompt.inner_text().strip()
     editors.nth(index).click()
-    page.keyboard.press("Shift+Enter")
-    page.wait_for_function(
-        """
-        ({index, previous}) => {
-          const cell = document.querySelectorAll(".jp-CodeCell")[index]
-          const current = cell?.querySelector(".jp-InputPrompt")?.textContent?.trim()
-          return current != null && current !== previous && !current.includes("*") && current !== "[ ]:"
-        }
-        """,
-        arg={"index": index, "previous": previous},
-        timeout=30_000,
-    )
+    try:
+        page.wait_for_function(
+            """
+            (index) => document.querySelectorAll(".jp-CodeCell")[index]?.classList.contains("jp-mod-active") === true
+            """,
+            arg=index,
+            timeout=timeout,
+        )
+        page.get_by_role("button", name="Run this cell and advance", exact=False).click(timeout=timeout)
+        page.wait_for_function(
+            """
+            ({index, previous}) => {
+              const cell = document.querySelectorAll(".jp-CodeCell")[index]
+              const current = cell?.querySelector(".jp-InputPrompt")?.textContent?.trim()
+              return current != null && current !== previous && !current.includes("*") && current !== "[ ]:"
+            }
+            """,
+            arg={"index": index, "previous": previous},
+            timeout=timeout,
+        )
+    except PlaywrightTimeoutError as error:
+        state = cell.evaluate(
+            """
+            (cell) => ({
+              prompt: cell.querySelector(".jp-InputPrompt")?.textContent?.trim() ?? null,
+              classes: cell.className,
+              output: cell.querySelector(".jp-OutputArea")?.textContent?.trim() ?? null,
+            })
+            """,
+        )
+        raise AssertionError(f"Jupyter cell {index} did not finish; state={state!r}") from error
 
 
 def _wait_for_mounted_figure(page: Any) -> None:
@@ -383,6 +410,49 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
             _wait_for_named_model(page, "notebook-live-plot", title="updated-once")
             _wait_for_named_model(page, "notebook-app-root")
             assert page.locator(".bk-notebook-diagnostic").count() == 0
+            browser.close()
+    finally:
+        _stop(process)
+
+
+def test_jupyterlab_remote_application_discovers_proxy_without_notebook_url(tmp_path: Path) -> None:
+    playwright = pytest.importorskip("playwright.sync_api")
+    pytest.importorskip("jupyter_server_proxy")
+    extension = Path(bokeh.__file__).parent / "jupyter" / "labextension" / "package.json"
+    if not extension.is_file():
+        pytest.skip("the first-party Jupyter extension must be built")
+    path = tmp_path / "proxied.ipynb"
+    nbformat.write(_browser_notebook(), path)
+    process, base_url, _env = _start_jupyter(
+        tmp_path,
+        extension=True,
+        base_path="/user/test/",
+        allow_remote_access=True,
+    )
+    remote_base_url = base_url.replace("127.0.0.1", "jupyter.test", 1)
+    expected = urlsplit(remote_base_url)
+    application_urls: list[str] = []
+    try:
+        with playwright.sync_playwright() as manager:
+            browser = manager.chromium.launch(args=["--host-resolver-rules=MAP jupyter.test 127.0.0.1"])
+            page = browser.new_page(viewport={"width": 1440, "height": 1050})
+            page.on("request", lambda request: application_urls.append(request.url))
+            page.on("websocket", lambda websocket: application_urls.append(websocket.url))
+            page.goto(f"{remote_base_url}/lab/tree/proxied.ipynb")
+            editors = page.locator(".jp-CodeCell .cm-content")
+            editors.nth(4).wait_for(timeout=30_000)
+
+            _execute_cell_once(page, editors, 3, timeout=60_000)
+            page.get_by_text("application-view-ready", exact=True).wait_for(timeout=30_000)
+            _wait_for_named_model(page, "notebook-app-root")
+            _execute_cell_once(page, editors, 4, timeout=60_000)
+            sessions_output = page.locator(".jp-CodeCell").nth(4).locator(".jp-OutputArea").inner_text()
+            assert "application-sessions:1" in sessions_output, sessions_output
+
+            proxied = [urlsplit(url) for url in application_urls if "/bokeh-notebook/" in url]
+            assert proxied, application_urls
+            assert all(url.hostname == expected.hostname and url.port == expected.port for url in proxied)
+            assert all(url.path.startswith("/user/test/proxy/") for url in proxied)
             browser.close()
     finally:
         _stop(process)

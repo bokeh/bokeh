@@ -291,15 +291,18 @@ about Bokeh server applications.
 
 The one-step ``show(modify_document)`` API was removed in Bokeh 4.0. This
 separation prevents a cell output from implicitly owning and leaking a server.
-Configure proxy URLs and ASGI server options on ``serve()``, not ``show(app)``.
+Configure any explicit proxy override and ASGI server options on ``serve()``,
+not ``show(app)``.
 
 The browser must be able to reach the local application server. This is
 browser-tested in local JupyterLab; Notebook 7 consumes the same renderer, but
-does not currently have a separate automated browser run. VS Code webviews may
-need an explicit ``notebook_url`` and allowed origin. Hosted environments such
-as JupyterHub and Colab require a URL proxy. The bundled renderer displays a
-specific connectivity diagnostic when the proxy is missing; portable host
-handling depends on whether that host executes the HTML application bootstrap.
+does not currently have a separate automated browser run. In remote JupyterLab
+and Notebook 7 sessions, the bundled frontend discovers the Jupyter server's
+public base URL and routes kernel-local applications through
+``jupyter-server-proxy`` automatically. Other hosts, including VS Code and
+Colab, may need an explicit ``notebook_url`` because their portable widget
+interface does not expose a standard local-port resolver. The bundled renderer
+displays a specific connectivity diagnostic when a required proxy is missing.
 
 When a host does not provide a stable cell ID, automatic replacement is not
 possible. Use ``serve(..., key="my-app")`` to make re-execution stop and replace
@@ -489,13 +492,10 @@ JupyterLab cell. This is because your browser needs to connect to the port the
 Bokeh server is listening on. However, JupyterHub is acting as a reverse proxy
 between your browser and your JupyterLab container.
 
-Bokeh solves this problem by providing a notebook_url parameter which can be
-passed a callable to compute the final URL based on an integer port.  Further,
-if the JupyterHub admin defines the environment variable
-``JUPYTER_BOKEH_EXTERNAL_URL`` the process of defining notebook_url becomes
-fully automatic and ``notebook_url`` no longer needs to be specified.  This has
-the advantage that the same notebook will run unmodified both on JupyterHub
-and in a standalone JupyterLab session.
+The Bokeh Jupyter frontend reads the server's public base URL from Jupyter and
+maps each kernel-local application port through ``jupyter-server-proxy``. A
+normal JupyterLab or Notebook 7 notebook therefore uses ``serve(application)``
+unchanged in local and JupyterHub sessions.
 
 Required Dependencies
 ~~~~~~~~~~~~~~~~~~~~~
@@ -507,12 +507,11 @@ installing the ``jupyter-server-proxy`` package and enabling its server extensio
 
     pip install jupyter-server-proxy && jupyter server extension enable --py jupyter-server-proxy
 
-JupyterHub for Administrators
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fallback proxy configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are a JupyterHub admin you can make Bokeh work automatically with
-unchanged notebooks by setting an environment variable in the notebook
-environment:
+Notebook hosts that do not expose Jupyter's frontend configuration can still
+provide the external URL in the kernel environment:
 
 .. code:: sh
 
@@ -526,18 +525,9 @@ Often this is done in JupyterHub Helm chart configuration YAML like this:
      extraEnv:
        JUPYTER_BOKEH_EXTERNAL_URL: "https://our-public-hub-name.edu"
 
-The net effect of the above is that the techniques of the next section are
-automatically used by bokeh and no additional actions are required.
-
-JupyterHub for Users
-~~~~~~~~~~~~~~~~~~~~
-
-For Hubs on which ``JUPYTER_BOKEH_EXTERNAL_URL`` is not set, define a function to
-help create the URL for the browser to connect to the Bokeh server.  See below
-for a reference implementation. You'll have to either modify this code or
-assign the URL of your JupyterHub installation to the environment variable
-``EXTERNAL_URL``. JupyterHub defaults to ``JUPYTERHUB_SERVICE_PREFIX`` in this
-case.
+For a nonstandard proxy, define a function that maps the private application
+port to its browser-reachable URL. You will have to modify this example for the
+host's routing scheme or assign its public URL to ``EXTERNAL_URL``:
 
 .. code-block:: python
 
@@ -567,17 +557,14 @@ case.
         full_url = urllib.parse.urljoin(user_url, proxy_url_path)
         return full_url
 
-Pass the function you defined above to :func:`~bokeh.io.serve` as the
-``notebook_url`` keyword argument. Bokeh calls it when starting the server and
-when creating the public URL used by ``show(app)``:
+Pass the function to :func:`~bokeh.io.serve` as the ``notebook_url`` override:
 
 .. code-block:: python
 
     app = serve(modify_document, notebook_url=remote_jupyter_proxy_url)
     show(app)
 
-You may need to restart your server after this, and then Bokeh content should load and
-execute Python callbacks defined in your Jupyter environment.
+This override also supplies the WebSocket origin allowed by the application.
 
 Trusting notebooks
 ~~~~~~~~~~~~~~~~~~
