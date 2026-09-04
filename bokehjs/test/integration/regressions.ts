@@ -5450,8 +5450,8 @@ describe("Bug", () => {
 
   describe("in issue #14593", () => {
     it.no_image("doesn't allow a plot's context menu to work after repeated toolbar property changes", async () => {
-      const pan = new PanTool()
-      const box_select = new BoxSelectTool()
+      const pan = PanTool.create()
+      const box_select = BoxSelectTool.create()
 
       const p = fig([300, 300], {tools: [pan, box_select], toolbar_location: null})
       p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
@@ -5534,7 +5534,7 @@ describe("Bug", () => {
 
   describe("in issue #12187", () => {
     it("shows dates as zero epoch in a DataTable if the date column contains a NaN", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           dates: [
             NaN,
@@ -5548,11 +5548,11 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "dates", title: "Date", formatter: new DateFormatter()}),
-        new TableColumn({field: "downloads", title: "Downloads"}),
+        TableColumn.create({field: "dates", title: "Date", formatter: DateFormatter.create()}),
+        TableColumn.create({field: "downloads", title: "Downloads"}),
       ]
 
-      const table = new DataTable({source, columns})
+      const table = DataTable.create({source, columns})
 
       await display(table, [600, 400])
     })
