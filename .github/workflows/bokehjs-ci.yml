@@ -253,7 +253,7 @@ jobs:
           jq -e '
             .changes.result == "success" and
             (if .changes.outputs.bokehjs == "true"
-             then .test.result == "success" and .minimum-node.result == "success"
-             else .test.result == "skipped" and .minimum-node.result == "skipped"
+             then .test.result == "success" and .["minimum-node"].result == "success"
+             else .test.result == "skipped" and .["minimum-node"].result == "skipped"
              end)
           ' <<<"$RESULTS"
