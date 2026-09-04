@@ -37,7 +37,7 @@ export type HasPropsClass<T extends HasProps = HasProps> = Function & {prototype
 export type ModelAttrs<T extends HasProps> = Partial<p.AttrsOf<T["properties"]>>
 
 export type HasPropsFactory<T extends HasProps = HasProps> = HasPropsClass<T> & {
-  create(attrs?: ModelAttrs<T>): T
+  create: typeof HasProps.create
 }
 
 type LifecycleState =

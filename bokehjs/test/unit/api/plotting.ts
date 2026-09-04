@@ -1,11 +1,30 @@
 import {expect} from "#framework/assertions"
 
 import {figure} from "@bokehjs/api/plotting"
-import {ColumnDataSource, LinearAxis} from "@bokehjs/models"
+import {construct} from "@bokehjs/core/has_props"
+import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
+import {Circle, ColumnDataSource, LinearAxis} from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
   describe("figure()", () => {
     describe("glyph methods", () => {
+      it("should instantiate glyphs through their public factory", () => {
+        let create_calls = 0
+
+        class FactoryCircle extends Circle {
+          static override create<T extends HasProps>(
+            this: HasPropsClass<T>, attrs?: ModelAttrs<T>,
+          ): T {
+            create_calls += 1
+            return construct(this, attrs)
+          }
+        }
+
+        const renderer = figure()._glyph(FactoryCircle, "factory_circle", ["x", "y", "radius"], [])
+        expect(renderer.glyph).to.be.instanceof(FactoryCircle)
+        expect(create_calls).to.be.equal(5)
+      })
+
       it("should validate arguments", () => {
         const source = ColumnDataSource.create()
 

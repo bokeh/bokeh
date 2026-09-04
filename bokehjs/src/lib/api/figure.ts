@@ -1,5 +1,5 @@
 import {construct} from "../core/has_props"
-import type {HasProps, HasPropsClass, ModelAttrs} from "../core/has_props"
+import type {HasProps, HasPropsClass, HasPropsFactory, ModelAttrs} from "../core/has_props"
 import type {Attrs} from "../core/types"
 import type {Value, Field, Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
@@ -152,7 +152,7 @@ export class SubFigure extends GlyphAPI {
     super()
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsClass<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
     const {coordinates} = this
     return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides})
   }
@@ -560,7 +560,7 @@ export class Figure extends BaseFigure {
     return `the method signature is ${method}(${positional.join(", ")}, args?)`
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsClass<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
     let attrs: Attrs & Partial<AuxGlyph>
 
     const n_args = args.length
@@ -659,8 +659,8 @@ export class Figure extends BaseFigure {
 
     source.data = data
 
-    const _make_glyph = (cls: HasPropsClass<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
-      return construct(cls, {...attrs, ...extra_attrs})
+    const _make_glyph = (cls: HasPropsFactory<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
+      return cls.create({...attrs, ...extra_attrs})
     }
 
     const glyph  = _make_glyph(cls, attrs, glyph_ca)
@@ -885,5 +885,5 @@ export class Figure extends BaseFigure {
 }
 
 export function figure(attributes?: Partial<Figure.Attrs>): Figure {
-  return construct(Figure, attributes as Attrs | undefined)
+  return Figure.create(attributes)
 }
