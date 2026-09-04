@@ -51,7 +51,7 @@ def test_python_protocol_constants_come_from_the_packaged_manifest() -> None:
 
 def test_resource_payload_carries_explicit_policy_requirements_and_assets() -> None:
     resolved = _resolved()
-    payload = m.resource_payload(resolved, 1234)
+    payload = m._resource_payload(resolved, 1234)
 
     assert payload["protocol_version"] == m.PROTOCOL_VERSION
     assert payload["kind"] == "resources"
@@ -65,8 +65,8 @@ def test_resource_payload_carries_explicit_policy_requirements_and_assets() -> N
 
 
 def test_resource_identity_ignores_load_timeout_but_not_policy() -> None:
-    assert m.resource_payload(_resolved(), 1000)["resource_id"] == m.resource_payload(_resolved(), 9000)["resource_id"]
-    assert m.resource_payload(_resolved("cdn"), 1000)["resource_id"] != m.resource_payload(_resolved("none"), 1000)["resource_id"]
+    assert m._resource_payload(_resolved(), 1000)["resource_id"] == m._resource_payload(_resolved(), 9000)["resource_id"]
+    assert m._resource_payload(_resolved("cdn"), 1000)["resource_id"] != m._resource_payload(_resolved("none"), 1000)["resource_id"]
 
 
 def test_resource_identity_includes_complete_emitted_security_and_module_policy() -> None:
@@ -88,18 +88,18 @@ def test_resource_identity_includes_complete_emitted_security_and_module_policy(
         for policy, asset in zip(policies, assets, strict=True)
     ]
 
-    artifact_ids = [m.resource_artifact_ids(item)[0] for item in resolved]
-    resource_ids = [m.resource_payload(item, 1000)["resource_id"] for item in resolved]
+    artifact_ids = [m._resource_artifact_ids(item)[0] for item in resolved]
+    resource_ids = [m._resource_payload(item, 1000)["resource_id"] for item in resolved]
     assert len(set(artifact_ids)) == len(artifact_ids)
     assert len(set(resource_ids)) == len(resource_ids)
 
 
 def test_resource_subset_and_portable_owner_are_consistent() -> None:
     resolved = _resolved()
-    ids = m.resource_artifact_ids(resolved)
-    subset = m.resource_asset_subset(resolved, {ids[1]})
-    payload = m.resource_payload(resolved, 5000, assets=subset)
-    javascript = m.resource_javascript(payload, subset)
+    ids = m._resource_artifact_ids(resolved)
+    subset = m._resource_asset_subset(resolved, {ids[1]})
+    payload = m._resource_payload(resolved, 5000, assets=subset)
+    javascript = m._resource_javascript(payload, subset)
 
     assert subset == (resolved.assets[1],)
     assert payload["artifacts"][0]["kind"] == "css"
@@ -112,7 +112,7 @@ def test_resource_subset_and_portable_owner_are_consistent() -> None:
 
 def test_display_payload_references_artifact_without_copying_graph() -> None:
     artifact, _ = notebook_content(figure(), live=True)
-    payload = m.display_payload(artifact, "resource", "view", live_id="live")
+    payload = m._display_payload(artifact, "resource", "view", live_id="live")
 
     assert payload == {
         "protocol_version": m.PROTOCOL_VERSION,
@@ -133,11 +133,11 @@ def test_display_payload_references_artifact_without_copying_graph() -> None:
 def test_display_payload_keeps_managed_application_identity_and_url_together() -> None:
     artifact = embed_server("http://127.0.0.1:4312/app")
     with pytest.raises(ValueError, match="application_id and application_url"):
-        m.display_payload(artifact, "resource", "view", application_id="application")
+        m._display_payload(artifact, "resource", "view", application_id="application")
 
 
 def test_file_payload_only_accepts_safe_notebook_relative_paths() -> None:
-    assert m.file_payload("reports/plot.html") == {
+    assert m._file_payload("reports/plot.html") == {
         "protocol_version": m.PROTOCOL_VERSION,
         "kind": "file",
         "path": "reports/plot.html",
@@ -147,7 +147,7 @@ def test_file_payload_only_accepts_safe_notebook_relative_paths() -> None:
         "reports/../../output.html", r"reports\output.html",
     ):
         with pytest.raises(ValueError, match="safe paths relative"):
-            m.file_payload(path)
+            m._file_payload(path)
 
 
 def test_notebook_info_is_bounded_and_has_no_renderer_handshake() -> None:
@@ -168,3 +168,13 @@ def test_notebook_info_is_bounded_and_has_no_renderer_handshake() -> None:
     assert "Renderer negotiated per output" in html
     assert "Artifact MIME type" in html
     assert "data:image/svg+xml;base64," in html
+
+
+def test_notebook_info_html_escapes_diagnostic_values() -> None:
+    info = m.notebook_info()
+    info["bokeh_version"] = '<script type="text/javascript">alert(1)</script>'
+
+    html = info._repr_html_()
+
+    assert '<script type="text/javascript">' not in html
+    assert "&lt;script type=&#34;text/javascript&#34;&gt;alert(1)&lt;/script&gt;" in html

@@ -39,8 +39,6 @@ __all__ = (
     "ExampleHandler",
 )
 
-_MISSING = object()
-
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
@@ -56,7 +54,7 @@ class ExampleHandler(Handler):
 
     """
 
-    _output_funcs = ["output_notebook"]
+    _output_funcs: list[str] = []
     _io_funcs = ["show", "save"]
 
     def __init__(self, source: str, filename: PathLike) -> None:
@@ -94,8 +92,7 @@ class ExampleHandler(Handler):
             return curdoc()
 
         # These functions are transitively imported from io into plotting, so
-        # patch both modules. Some old examples still import output_notebook,
-        # which is supplied only while the example is being executed.
+        # patch both modules.
         import bokeh.io as io
         import bokeh.plotting as p
 
@@ -104,10 +101,10 @@ class ExampleHandler(Handler):
         old_funcs: list[tuple[ModuleType, str, Any]] = []
         for mod in mods:
             for f in self._output_funcs:
-                old_funcs.append((mod, f, getattr(mod, f, _MISSING)))
+                old_funcs.append((mod, f, getattr(mod, f)))
                 setattr(mod, f, _pass)
             for f in self._io_funcs:
-                old_funcs.append((mod, f, getattr(mod, f, _MISSING)))
+                old_funcs.append((mod, f, getattr(mod, f)))
                 setattr(mod, f, _add_root)
 
         import bokeh.document as d
@@ -119,10 +116,7 @@ class ExampleHandler(Handler):
 
     def _unmonkeypatch(self, old_funcs: list[tuple[ModuleType, str, Any]], old_doc: type[Document]) -> None:
         for mod, name, value in old_funcs:
-            if value is _MISSING:
-                delattr(mod, name)
-            else:
-                setattr(mod, name, value)
+            setattr(mod, name, value)
 
         import bokeh.document as d
 
