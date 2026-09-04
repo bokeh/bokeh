@@ -266,7 +266,7 @@ class ResolvedResource:
         Returns:
             A tuple describing the resource declaration.
         '''
-        return (self.kind, self.url, self.content, self.integrity, self.crossorigin, self.module)
+        return (self.kind, self.url, self.content, self.integrity, self.crossorigin, self.nonce, self.module)
 
     def to_dict(self) -> dict[str, Any]:
         '''Return the JSON-compatible resolved resource.

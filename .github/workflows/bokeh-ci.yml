@@ -35,6 +35,7 @@ jobs:
       tools: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.tools == 'true' }}
       examples: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.examples == 'true' }}
       unit_test: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.unit_test == 'true' }}
+      jupyter: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.jupyter == 'true' }}
       minimal_deps: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.minimal_deps == 'true' }}
       core_deps: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.core_deps == 'true' }}
       documentation: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.documentation == 'true' }}
@@ -304,6 +305,27 @@ jobs:
         with:
           collect-coverage: ${{ runner.os != 'Windows' }}
 
+  jupyter:
+    name: notebook
+    needs: [changes, build]
+    if: needs.changes.outputs.jupyter == 'true' && needs.build.result == 'success'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare wheel-installed environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          environment: notebook-test
+          source-tree: 'delete'
+
+      - name: Install notebook browser
+        run: pixi run --locked --environment notebook-test notebook-browser-install
+
+      - name: Run wheel-installed notebook host tests
+        run: pixi run --locked --environment notebook-test test-notebook
+
   minimal-deps:
     needs: [changes, build]
     if: needs.changes.outputs.minimal_deps == 'true' && needs.build.result == 'success'
@@ -401,7 +423,7 @@ jobs:
   result:
     name: Bokeh-CI / result
     if: ${{ always() }}
-    needs: [changes, build, codebase, tools, typing, examples, unit-test, minimal-deps, core-deps, documentation]
+    needs: [changes, build, codebase, tools, typing, examples, unit-test, jupyter, minimal-deps, core-deps, documentation]
     runs-on: ubuntu-24.04
 
     steps:
@@ -419,6 +441,7 @@ jobs:
                 ["typing", "typing"],
                 ["examples", "examples"],
                 ["unit-test", "unit_test"],
+                ["jupyter", "jupyter"],
                 ["minimal-deps", "minimal_deps"],
                 ["core-deps", "core_deps"],
                 ["documentation", "documentation"]

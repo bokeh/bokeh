@@ -228,12 +228,19 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
 # Shared JavaScript snippets for Selenium and Playwright backends
 #-----------------------------------------------------------------------------
 
-# Check whether Bokeh has loaded and created at least one document.
-_BOKEH_LOADED_EXPR = """\
-typeof Bokeh !== "undefined"
+# Artifact exports publish the mount handle on each root target. Use the mount
+# owned by this export instead of the process-wide Bokeh.index registry.
+_MOUNT_EXPR = "document.querySelector('[data-bokeh-artifact][data-bokeh-root]')?.bokehMount"
+
+# Check whether Bokeh has loaded, created a document, and mounted a root view.
+_BOKEH_LOADED_CHECK = """\
+const mount = $MOUNT;
+return typeof Bokeh !== "undefined"
     && Bokeh.documents != null
-    && Bokeh.documents.length != 0\
-"""
+    && Bokeh.documents.length != 0
+    && mount != null
+    && mount.views.length != 0\
+""".replace("$MOUNT", _MOUNT_EXPR)
 
 # Set a flag once the first Bokeh document becomes idle.
 # Both backends poll/wait on ``window._bokeh_render_complete`` afterwards.
@@ -251,15 +258,26 @@ else
   doc.idle.connect(done);
 """
 
-# Artifact exports contain one mount; use its owned views instead of the legacy
-# process-wide Bokeh.index registry.
-_MOUNT_EXPR = "document.querySelector('[data-bokeh-artifact][data-bokeh-root]').bokehMount"
-
-# Read the bounding box of the first root view and the device pixel ratio.
+# Read the bounding box enclosing every root view and the device pixel ratio.
+# A Document can have several independently mounted roots. Notebook export in
+# particular must preserve that complete output instead of silently cropping to
+# whichever root happened to be registered first.
 _ROOT_VIEW_BBOX_SCRIPT = """\
-const root_view = $MOUNT.views[0];
-const {x, y, width, height} = root_view.el.getBoundingClientRect();
-return [x, y, Math.round(width), Math.round(height), window.devicePixelRatio];\
+const output = document.querySelector("[data-bokeh-export-container]");
+const rects = output != null
+  ? [output.getBoundingClientRect()]
+  : $MOUNT.views.map((view) => view.el.getBoundingClientRect());
+const left = Math.min(...rects.map((rect) => rect.left));
+const top = Math.min(...rects.map((rect) => rect.top));
+const right = Math.max(...rects.map((rect) => rect.right));
+const bottom = Math.max(...rects.map((rect) => rect.bottom));
+return [
+  Math.floor(left),
+  Math.floor(top),
+  Math.ceil(right) - Math.floor(left),
+  Math.ceil(bottom) - Math.floor(top),
+  window.devicePixelRatio,
+];\
 """.replace("$MOUNT", _MOUNT_EXPR)
 
 # TODO: consider UIElement like Pane

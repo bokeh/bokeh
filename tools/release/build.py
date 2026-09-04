@@ -28,6 +28,7 @@ from .util import skip_for_prerelease
 
 __all__ = (
     "build_bokehjs",
+    "build_jupyter",
     "build_conda_package",
     "build_docs",
     "build_pip_packages",
@@ -35,10 +36,12 @@ __all__ = (
     "install_bokehjs",
     "npm_install",
     "update_bokehjs_versions",
+    "update_jupyter_version",
     "update_changelog",
     "update_hash_manifest",
     "update_switcher_json",
     "verify_conda_package",
+    "verify_jupyter_build",
     "verify_pip_install_from_sdist",
     "verify_pip_install_using_sdist",
     "verify_pip_install_using_wheel",
@@ -53,6 +56,16 @@ def build_bokehjs(config: Config, system: System) -> ActionReturn:
         return PASSED("BokehJS build succeeded")
     except RuntimeError as e:
         return FAILED("BokehJS build did NOT succeed", details=e.args)
+
+
+def build_jupyter(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run("bash tools/ci/build_jupyter.sh")
+        config.add_modified("src/bokeh/jupyter/anywidget.js")
+        config.add_modified("src/bokeh/jupyter/labextension")
+        return PASSED("Jupyter frontend build succeeded")
+    except RuntimeError as e:
+        return FAILED("Jupyter frontend build did NOT succeed", details=e.args)
 
 
 def build_npm_packages(config: Config, system: System) -> ActionReturn:
@@ -180,6 +193,50 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
         system.popd()
 
     return PASSED(f"Updated version to {config.js_version!r} in files: {list(files.keys())!r}")
+
+
+def update_jupyter_version(config: Config, system: System) -> ActionReturn:
+    del system
+    root = Path("src/bokeh/jupyter/frontend")
+    files = (root / "package.json", root / "package-lock.json")
+    try:
+        package = json.loads(files[0].read_text())
+        package["version"] = config.js_version
+        files[0].write_text(json.dumps(package, indent=2) + "\n")
+
+        lock = json.loads(files[1].read_text())
+        assert lock["lockfileVersion"] == 3, "Expected Jupyter lock file v3"
+        lock["version"] = config.js_version
+        root_package = lock["packages"][""]
+        assert root_package["name"] == "@bokeh/bokeh-jupyter", "Unexpected Jupyter lock package"
+        root_package["version"] = config.js_version
+        files[1].write_text(json.dumps(lock, indent=2) + "\n")
+    except Exception as e:
+        return FAILED("Unable to update the Jupyter frontend version", details=e.args)
+    for path in files:
+        config.add_modified(path.as_posix())
+    return PASSED(f"Updated Jupyter frontend version to {config.js_version!r}")
+
+
+def verify_jupyter_build(config: Config, system: System) -> ActionReturn:
+    del system
+    root = Path("src/bokeh/jupyter")
+    try:
+        source = json.loads((root / "frontend" / "package.json").read_text())
+        generated = json.loads((root / "labextension" / "package.json").read_text())
+        if source["version"] != config.js_version or generated["version"] != config.js_version:
+            raise ValueError(
+                f"Jupyter source/generated versions must both be {config.js_version!r}; "
+                f"got {source['version']!r} and {generated['version']!r}",
+            )
+        if not (root / "anywidget.js").is_file():
+            raise FileNotFoundError("src/bokeh/jupyter/anywidget.js")
+        load = generated["jupyterlab"]["_build"]["load"]
+        if not (root / "labextension" / load).is_file():
+            raise FileNotFoundError(f"src/bokeh/jupyter/labextension/{load}")
+    except Exception as e:
+        return FAILED("Generated Jupyter frontend verification failed", details=e.args)
+    return PASSED("Generated Jupyter frontend matches the release version")
 
 
 def update_switcher_json(

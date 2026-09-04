@@ -33,12 +33,16 @@ TORNADO_ALLOWED = [
     "tests.support",
     "bokeh.client",
     "bokeh.command",
+    "bokeh.io.jupyter_export",
     "bokeh.io.notebook",
+    "bokeh.jupyter",
     "bokeh.server",
     "bokeh.util.tornado",
 ]
 
 # Raises ImportError if not installed
+if not is_installed("anywidget"):
+    TORNADO_ALLOWED.append("bokeh.io._anywidget")
 if not is_installed("selenium"):
     TORNADO_ALLOWED.append("bokeh.io.webdriver")
 if not is_installed("bokeh_sampledata"):

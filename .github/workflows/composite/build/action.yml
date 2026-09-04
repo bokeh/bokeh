@@ -14,9 +14,25 @@ runs:
         cache: true
         cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
-    - name: Build Bokeh and BokehJS
+    - name: Build BokehJS
       shell: bash --noprofile --norc -eo pipefail {0}
-      run: pixi run --locked --environment build build-python
+      run: pixi run --locked --environment build build-js
+
+    - name: Build first-party Jupyter extension
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: pixi run --locked --environment build jupyter-verify
+
+    - name: Build pip packages
+      shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        BOKEHJS_ACTION: 'install'
+      run: pixi run --locked --environment build python -m build .
+
+    - name: Verify Jupyter frontend sources are not packaged
+      shell: bash -l {0}
+      run: |
+        python -c "from pathlib import Path; from zipfile import ZipFile; wheel = next(Path('dist').glob('bokeh-*.whl')); assert not any(path.startswith('bokeh/jupyter/frontend/') for path in ZipFile(wheel).namelist())"
+        python -c "from pathlib import Path; import tarfile; archive = next(Path('dist').glob('bokeh-*.tar.gz')); assert not any('/src/bokeh/jupyter/frontend/' in path for path in tarfile.open(archive).getnames())"
 
     - name: Verify pip install from sdist
       shell: bash --noprofile --norc -eo pipefail {0}

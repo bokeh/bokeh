@@ -32,6 +32,8 @@ from tests.support.util.project import ls_modules
 SKIP: list[str] = []
 
 # Raises ImportError if not installed
+if not is_installed("anywidget"):
+    SKIP.append("bokeh.io._anywidget")
 if not is_installed("selenium"):
     SKIP.append("bokeh.io.webdriver")
 if not is_installed("bokeh_sampledata"):

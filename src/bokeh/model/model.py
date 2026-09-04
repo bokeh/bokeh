@@ -641,7 +641,16 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         self.document = None
         default_theme.apply_to_model(self)
 
-    def _repr_html_(self) -> str:
+    def _repr_html_(self) -> str | None:
+        # marimo checks rich representations in HTML-first order. Returning
+        # the structural debug representation here would prevent its generic
+        # formatter from reaching Bokeh's AnyWidget MIME representation.
+        try:
+            from ..io.notebook import is_marimo_runtime
+        except ImportError:
+            return html_repr(self)
+        if is_marimo_runtime():
+            return None
         return html_repr(self)
 
     def _sphinx_height_hint(self) -> int|None:

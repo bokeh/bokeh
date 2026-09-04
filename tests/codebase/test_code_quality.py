@@ -81,7 +81,10 @@ def tab_in_leading(s: str) -> bool:
 def use_tab_rule(fname: str) -> bool:
     return not (basename(fname) == 'Makefile' or splitext(fname)[1] == '.bat')
 
-exclude_paths = ("docs/CHANGELOG",)
+exclude_paths = (
+    "docs/CHANGELOG",
+    "src/bokeh/jupyter/anywidget.js",
+)
 
 exclude_exts = (
     ".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc",
@@ -89,7 +92,9 @@ exclude_exts = (
     ".json", ".yaml",
 )
 
-exclude_dirs = ()
+exclude_dirs = (
+    "src/bokeh/jupyter/labextension/static/",
+)
 
 def collect_errors() -> list[str]:
     errors: list[tuple[str, str, int]] = []
