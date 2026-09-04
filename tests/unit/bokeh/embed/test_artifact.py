@@ -99,8 +99,8 @@ def test_compiler_uses_structural_roots_and_graph_minimal_serialization() -> Non
         {"key": "secondary", "document": 0, "root": 1},
     ]
     roots = artifact.source["documents"][0]["roots"]
-    assert "id" not in roots[0]
-    assert "id" not in roots[1]
+    assert "$id" not in roots[0]
+    assert "$id" not in roots[1]
     assert artifact.metadata["compiler"]["static_model_ids"] == "graph-minimal"
 
 
@@ -158,8 +158,8 @@ def test_fingerprint_does_not_normalize_metadata_that_resembles_a_model_id() -> 
 
     def retained_id(value: object) -> str | None:
         if isinstance(value, dict):
-            model_id = value.get("id")
-            if value.get("type") == "object" and isinstance(model_id, str):
+            model_id = value.get("$id")
+            if isinstance(value.get("$type"), str) and isinstance(model_id, str):
                 return model_id
             for child in value.values():
                 if (found := retained_id(child)) is not None:
@@ -240,8 +240,9 @@ def test_artifact_python_validation_matches_browser_contract(
         EmbedArtifact.from_dict(value)
 
 
-def test_shared_fixture_decodes_in_python_without_root_ids() -> None:
-    fixture = deepcopy(_fixture("standalone-keyed-roots"))
+@pytest.mark.parametrize("name", ["standalone-keyed-roots", "standalone-compact-roots"])
+def test_shared_fixture_decodes_in_python_without_root_ids(name: str) -> None:
+    fixture = deepcopy(_fixture(name))
     assert EmbedArtifact.from_dict(fixture).fingerprint == fixture.pop("fingerprint")
     fixture["bokeh_version"] = __version__
     fixture["source"]["documents"][0]["version"] = __version__
@@ -258,6 +259,10 @@ def test_shared_fixture_decodes_in_python_without_root_ids() -> None:
     assert isinstance(roots["primary"], CustomJS)
     assert roots["primary"].code == "primary"
     assert roots["secondary"].code == "secondary"
+    if name == "standalone-compact-roots":
+        shared = roots["primary"].args["shared"]
+        assert roots["secondary"].args["shared"] is shared
+        assert shared.args["self"] is shared
 
 
 def test_named_inputs_preserve_order_and_restore_document_title() -> None:

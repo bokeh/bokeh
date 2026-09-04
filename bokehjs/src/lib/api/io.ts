@@ -399,8 +399,6 @@ export class BokehMount<T extends HasProps = HasProps> {
   private readonly _on_abort = () => this._abort(this.signal?.reason)
   private _resolve_disposed!: () => void
 
-  /** Exact document/view/target responsibilities for this handle. */
-  readonly ownership: MountOwnership
   /** Resolves when initial roots are attached. Rejects with `MountError` on failure. */
   readonly ready: Promise<void>
   /** Resolves after cleanup for success, failure, cancellation, or explicit disposal. */
