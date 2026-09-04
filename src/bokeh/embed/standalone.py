@@ -26,50 +26,26 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Literal,
+    NoReturn,
     Sequence,
-    TypedDict,
-    cast,
-    overload,
 )
 
 # Bokeh imports
-from .. import __version__
-from ..core.templates import (
-    AUTOLOAD_JS,
-    AUTOLOAD_TAG,
-    FILE,
-    MACROS,
-    ROOT_DIV,
-)
-from ..document.document import DEFAULT_TITLE, Document
+from ..core.templates import FILE
+from ..document.document import Document
 from ..model import Model
 from ..resources import Resources, ResourcesLike
-from .bundle import Script, bundle_for_objs_and_resources
-from .elements import html_page_for_render_items, script_for_render_items
-from .util import (
-    OutputDocumentFor,
-    RenderRoot,
-    ThemeSource,
-    standalone_docs_json,
-    standalone_docs_json_and_render_items,
-)
-from .wrappers import wrap_in_onload
+from .util import ThemeSource
 
 if TYPE_CHECKING:
     from jinja2 import Template
-
-    from ..core.types import ID
-    from ..document.document import DocJson
-
-    type ModelLike = Model | Document
-    type ModelLikeCollection = Sequence[ModelLike] | dict[str, ModelLike]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'EmbedMigrationError',
     'autoload_static',
     'components',
     'file_html',
@@ -79,6 +55,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class EmbedMigrationError(RuntimeError):
+    """An actionable Bokeh 4.0 migration error for a removed embed contract."""
 
 def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed
@@ -102,57 +81,13 @@ def autoload_static(model: Model | Document, resources: Resources, script_path: 
         ValueError
 
     '''
-    # TODO: maybe warn that it's not exactly useful, but technically possible
-    # if resources.mode == 'inline':
-    #     raise ValueError("autoload_static() requires non-inline resources")
-
-    if isinstance(model, Model):
-        models = [model]
-    elif isinstance (model, Document):
-        models = model.roots
-    else:
-        raise ValueError("autoload_static expects a single Model or Document")
-
-    with OutputDocumentFor(models):
-        (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
-
-    bundle = bundle_for_objs_and_resources(None, resources)
-    bundle.add(Script(script_for_render_items(docs_json, [render_item])))
-
-    (_, elementid) = next(iter(render_item.roots.to_json().items()))
-
-    js = wrap_in_onload(AUTOLOAD_JS.render(bundle=bundle, elementid=elementid))
-
-    tag = AUTOLOAD_TAG.render(
-        src_path = script_path,
-        elementid = elementid,
+    raise EmbedMigrationError(
+        "autoload_static() was removed in Bokeh 4.0. Use embed(model).external(payload_url=script_path) "
+        "and save artifact.to_json_string() as the payload instead of generating a per-embed loader program.",
     )
 
-    return js, tag
-
-@overload
-def components(models: Model, wrap_script: bool = ...,
-    wrap_plot_info: Literal[True] = ..., theme: ThemeSource = ...) -> tuple[str, str]: ...
-@overload
-def components(models: Model, wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeSource = ...) -> tuple[str, RenderRoot]: ...
-
-@overload
-def components(models: Sequence[Model], wrap_script: bool = ...,
-    wrap_plot_info: Literal[True] = ..., theme: ThemeSource = ...) -> tuple[str, Sequence[str]]: ...
-@overload
-def components(models: Sequence[Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeSource = ...) -> tuple[str, Sequence[RenderRoot]]: ...
-
-@overload
-def components(models: dict[str, Model], wrap_script: bool = ...,
-    wrap_plot_info: Literal[True] = ..., theme: ThemeSource = ...) -> tuple[str, dict[str, str]]: ...
-@overload
-def components(models: dict[str, Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeSource = ...) -> tuple[str, dict[str, RenderRoot]]: ...
-
-def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: bool = True,
-               wrap_plot_info: bool = True, theme: ThemeSource = None) -> tuple[str, Any]:
+def components(models: Model | Document | Sequence[Model | Document] | dict[str, Model | Document],
+        *removed_flags: Any, theme: ThemeSource = None, **removed_keywords: Any) -> tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -170,6 +105,7 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js"></script>
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-api-x.y.z.min.js"></script>
 
     Only the Bokeh core library ``bokeh-x.y.z.min.js`` is always required. The
     other scripts are optional and only need to be included if you want to use
@@ -192,15 +128,6 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
             A single Model, a list/tuple of Models, or a dictionary of keys
             and Models.
 
-        wrap_script (boolean, optional) :
-            If True, the returned javascript is wrapped in a script tag.
-            (default: True)
-
-        wrap_plot_info (boolean, optional) :
-            If True, returns ``<div>`` strings. Otherwise, return
-            :class:`~bokeh.embed.RenderRoot` objects that can be used to build
-            your own divs. (default: True)
-
         theme (Theme, optional) :
             Applies the specified theme when creating the components. If None,
             or not specified, and the supplied models constitute the full set
@@ -208,7 +135,7 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
             components. Otherwise applies the default theme.
 
     Returns:
-        UTF-8 encoded *(script, div[s])* or *(raw_script, plot_info[s])*
+        UTF-8 encoded ``(script, div[s])`` using logical artifact roots.
 
     Examples:
 
@@ -225,68 +152,32 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
             components({"Plot 1": plot1, "Plot 2": plot2})
             # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
 
-    Examples:
-
-        With wrapping parameters set to ``False``:
-
-        .. code-block:: python
-
-            components(plot, wrap_script=False, wrap_plot_info=False)
-            # => (javascript, plot_root)
-
-            components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
-            # => (javascript, (plot1_root, plot2_root))
-
-            components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
-            # => (javascript, {"Plot 1": plot1_root, "Plot 2": plot2_root})
-
     '''
-    # 1) Convert single items and dicts into list
-    # XXX: was_single_object = isinstance(models, Model) #or isinstance(models, Document)
-    was_single_object = False
+    if removed_flags or removed_keywords:
+        names = ", ".join(["positional wrapping flags", *sorted(removed_keywords)])
+        raise EmbedMigrationError(
+            f"components() wrapping controls were removed in Bokeh 4.0 ({names}). "
+            "Use embed(models).fragment(resources='none') and its script, mounts, and divs fields.",
+        )
 
-    if isinstance(models, Model):
-        was_single_object = True
-        models = [models]
+    from .compiler import embed
 
-    models = _check_models_or_docs(models) # type: ignore # XXX: this API needs to be refined
-
-    # now convert dict to list, saving keys in the same order
-    model_keys = None
-    dict_type: type[dict[Any, Any]] = dict
-    if isinstance(models, dict):
-        dict_type = models.__class__
-        model_keys = models.keys()
-        models = list(models.values())
-
-    # 2) Append models to one document. Either pre-existing or new and render
-    with OutputDocumentFor(models, apply_theme=theme):
-        (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
-
-    bundle = bundle_for_objs_and_resources(None, None)
-    bundle.add(Script(script_for_render_items(docs_json, [render_item])))
-
-    script = bundle.scripts(tag=wrap_script)
-
-    def div_for_root(root: RenderRoot) -> str:
-        return ROOT_DIV.render(root=root, macros=MACROS)
-
-    results: list[str] | list[RenderRoot]
-    if wrap_plot_info:
-        results = [div_for_root(root) for root in render_item.roots]
+    artifact = embed(models, theme=theme)
+    if artifact.requires.extensions:
+        raise EmbedMigrationError(
+            "components() cannot express custom extension resource ownership in its legacy tuple. "
+            "Use embed(models).fragment(resources=...) and choose an explicit resource policy.",
+        )
+    fragment = artifact.fragment(resources="none")
+    divs = fragment.divs
+    input_shape = artifact.metadata["compiler"]["input_shape"]
+    if input_shape == "single":
+        result: Any = next(iter(divs.values()))
+    elif input_shape == "mapping":
+        result = models.__class__((key, divs[key]) for key in models)  # type: ignore[union-attr]
     else:
-        results = list(render_item.roots)
-
-    # 3) convert back to the input shape
-    result: Any
-    if was_single_object:
-        result = results[0]
-    elif model_keys is not None:
-        result = dict_type(zip(model_keys, results))
-    else:
-        result = tuple(results)
-
-    return script, result
+        result = tuple(divs.values())
+    return fragment.script, result
 
 def file_html(
     models: Model | Document | Sequence[Model],
@@ -294,7 +185,7 @@ def file_html(
     title: str | None = None,
     *,
     template: Template | str = FILE,
-    template_variables: dict[str, Any] = {},
+    template_variables: dict[str, Any] | None = None,
     theme: ThemeSource = None,
     suppress_callback_warning: bool = False,
     _always_new: bool = False,
@@ -342,32 +233,18 @@ def file_html(
         UTF-8 encoded HTML
 
     '''
-    models_seq: Sequence[Model] = []
-    if isinstance(models, Model):
-        models_seq = [models]
-    elif isinstance(models, Document):
-        if len(models.roots) == 0:
-            raise ValueError("Document has no root Models")
-        models_seq = models.roots
-    else:
-        models_seq = models
+    from .compiler import embed
 
-    resources = Resources.build(resources)
+    callback_policy = "suppress" if suppress_callback_warning else "warn"
+    artifact = embed(models, theme=theme, callback_policy=callback_policy, _always_new=_always_new)
+    return artifact.page(
+        resources=resources,
+        title=title,
+        template=template,
+        template_variables=template_variables,
+    )
 
-    with OutputDocumentFor(models_seq, apply_theme=theme, always_new=_always_new) as doc:
-        (docs_json, render_items) = standalone_docs_json_and_render_items(models_seq, suppress_callback_warning=suppress_callback_warning)
-        title = _title_from_models(models_seq, title)
-        bundle = bundle_for_objs_and_resources([doc], resources)
-        return html_page_for_render_items(bundle, docs_json, render_items, title=title,
-                                          template=template, template_variables=template_variables)
-
-class StandaloneEmbedJson(TypedDict):
-    target_id: ID | None
-    root_id: ID
-    doc: DocJson
-    version: str
-
-def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None) -> StandaloneEmbedJson:
+def json_item(model: Model, target: str | None = None, theme: ThemeSource = None) -> NoReturn:
     ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
@@ -425,74 +302,23 @@ def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None)
         Bokeh.embed.embed_item(item, "myplot");
 
     '''
-    with OutputDocumentFor([model], apply_theme=theme) as doc:
-        doc.title = ""
-        [doc_json] = standalone_docs_json([model]).values()
-
-    root = doc_json["roots"][0]
-    root_id = root.get("id")
-    if not isinstance(root_id, str):
-        raise RuntimeError("canonical standalone documents must retain root model IDs")
-
-    return StandaloneEmbedJson(
-        target_id = target,
-        root_id   = cast("ID", root_id),
-        doc       = doc_json,
-        version   = __version__,
+    raise EmbedMigrationError(
+        "json_item() and the JsonItem envelope were removed in Bokeh 4.0. "
+        "Return embed(model).to_json() from the endpoint and call Bokeh.mount(artifact, {targets: ...}) "
+        "in the browser; targets are no longer stored in reusable payloads.",
     )
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
+autoload_static.__doc__ = """Removed in Bokeh 4.0.
 
-def _check_models_or_docs(models: ModelLike | ModelLikeCollection) -> ModelLikeCollection:
-    '''
+Save ``embed(model).to_json_string()`` as data and render
+``embed(model).external(payload_url=...)``. Calling this function raises an
+actionable :class:`EmbedMigrationError`.
+"""
 
-    '''
-    input_type_valid = False
+json_item.__doc__ = """Removed in Bokeh 4.0.
 
-    # Check for single item
-    if isinstance(models, (Model, Document)):
-        models = [models]
-
-    # Check for sequence
-    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
-        input_type_valid = True
-
-    if isinstance(models, dict) and \
-        all(isinstance(x, str) for x in models.keys()) and \
-        all(isinstance(x, (Model, Document)) for x in models.values()):
-        input_type_valid = True
-
-    if not input_type_valid:
-        raise ValueError(
-            'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document',
-        )
-
-    return models
-
-def _title_from_models(models: Sequence[Model | Document], title: str | None) -> str:
-    # use override title
-    if title is not None:
-        return title
-
-    # use title from any listed document
-    for p in models:
-        if isinstance(p, Document):
-            return p.title
-
-    # use title from any model's document
-    for p in cast(Sequence[Model], models):
-        if p.document is not None:
-            return p.document.title
-
-    # use default title
-    return DEFAULT_TITLE
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+Return ``embed(model).to_json()`` from an endpoint and pass mount-time targets
+to ``Bokeh.mount()``. Calling this function raises an actionable
+:class:`EmbedMigrationError`.
+"""
