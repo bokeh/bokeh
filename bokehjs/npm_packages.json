@@ -1,0 +1,9 @@
+[
+  {"name": "@bokeh/bokehjs", "workspace": "", "tarball": "bokeh-bokehjs"},
+  {"name": "@bokeh/framework", "workspace": "frameworks/base", "tarball": "bokeh-framework", "compiler": "tsc"},
+  {"name": "@bokeh/angular", "workspace": "frameworks/angular", "tarball": "bokeh-angular", "compiler": "ngc"},
+  {"name": "@bokeh/react", "workspace": "frameworks/react", "tarball": "bokeh-react", "compiler": "tsc"},
+  {"name": "@bokeh/svelte", "workspace": "frameworks/svelte", "tarball": "bokeh-svelte", "compiler": "tsc"},
+  {"name": "@bokeh/vue", "workspace": "frameworks/vue", "tarball": "bokeh-vue", "compiler": "tsc"},
+  {"name": "@bokeh/web-component", "workspace": "frameworks/web-component", "tarball": "bokeh-web-component", "compiler": "tsc"}
+]

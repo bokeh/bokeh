@@ -17,6 +17,7 @@ from tests.tools.release._support import RecordingSystem
 from tools.release import build
 from tools.release.config import Config
 from tools.release.enums import ActionResult
+from tools.release.npm import NPM_PACKAGES
 from tools.release.pipeline import StepType
 from tools.release.system import System
 
@@ -154,6 +155,12 @@ def test_build_npm_packages_packs_every_public_package_in_dependency_order(confi
         "npm pack --workspace frameworks/vue",
         "npm pack --workspace frameworks/web-component",
     ]
+
+
+def test_npm_package_manifest_matches_public_package_metadata() -> None:
+    for package in NPM_PACKAGES:
+        metadata = json.loads((TOP_PATH / "bokehjs" / package.workspace / "package.json").read_text())
+        assert metadata["name"] == package.name
 
 
 def make_bokehjs_package_files(root: Path, *, lockfile_version: int = 3) -> list[str]:

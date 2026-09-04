@@ -378,9 +378,13 @@ receive an owning mount from their public bootstrap API.
 Adapters remount when their model, target, or abort signal changes. Keep those
 values stable across ordinary framework renders. Removing one root slot from a
 document provider detaches only that view; the provider and its other root
-slots keep the shared document alive. A single model can have only one owning
+slots keep the shared document alive. Every model supplied to one document
+provider must have a unique model ID; duplicate IDs are rejected before the
+provider changes its active mount. A single model can have only one owning
 temporary document at a time, so dispose its current mount before moving it to
-another host. Abort a pending or active mount with ``mountOptions.signal``.
+another host. Abort a pending or active mount with ``mountOptions.signal``. A
+signal that is already aborted prevents mount creation entirely; aborting
+during or after creation disposes the owned mount and its temporary document.
 Adapter error callbacks and events report the same structured mount failures;
 failed and superseded mounts clean up any views and temporary document they
 created. Framework packages do not inject Bokeh resource scripts or implement

@@ -183,8 +183,9 @@ export class StandaloneMount {
       return null
     }
 
-    const view = await this.views.build_view(model)
+    let view: View | null = null
     try {
+      view = await this.views.build_view(model)
       this._check_active()
       if (this._render_tokens.get(key) != token || !this.document.roots().includes(model)) {
         view.remove()
@@ -206,10 +207,12 @@ export class StandaloneMount {
       this.on_targets_changed?.()
       return view
     } catch (error) {
-      this._render_tokens.delete(key)
-      this._targets.delete(key)
-      view.remove()
-      this.on_targets_changed?.()
+      if (this._render_tokens.get(key) == token) {
+        this._render_tokens.delete(key)
+        this._targets.delete(key)
+        this.on_targets_changed?.()
+      }
+      view?.remove()
       throw error
     }
   }

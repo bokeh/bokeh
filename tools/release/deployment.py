@@ -25,7 +25,8 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         dirname = f"deployment-{config.version}"
         filename = f"{dirname}.tgz"
         system.run(f"mkdir {dirname}")
-        for _workspace, tarball in NPM_PACKAGES:
+        for package in NPM_PACKAGES:
+            tarball = package.tarball
             system.run(f"cp bokehjs/{tarball}-{config.js_version}.tgz {dirname}")
         system.run(f"cp dist/conda/noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
         system.run(f"cp dist/bokeh-{config.version}.tar.gz {dirname}")
