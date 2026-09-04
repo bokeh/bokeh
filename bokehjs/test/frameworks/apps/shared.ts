@@ -145,7 +145,7 @@ async function validate_controller(model: ReturnType<typeof Plotting.figure>): P
   assert(failed == null, "a mount with a disconnected target unexpectedly completed")
   assert(mount_error instanceof MountError && mount_error.kind == "target",
     "the controller didn't surface a structured target error")
-  assert(model.document == null, "a failed controller mount retained temporary document ownership")
+  assert(model_document(model) == null, "a failed controller mount retained temporary document ownership")
 
   let callback_error: unknown = null
   const callback_failed = await controller.start(model, first_target, {

@@ -20,6 +20,10 @@ export type MountRequest = MountCallbacks & {
   mountOptions?: MountOptions
 }
 
+function is_aborted(signal: AbortSignal): boolean {
+  return signal.aborted
+}
+
 /** Coordinates asynchronous Bokeh mounts with a framework's synchronous lifecycle. */
 export class MountController {
   private _generation = 0
@@ -85,7 +89,7 @@ export class MountController {
       })
       this._mounted = mounted
       await mounted.ready
-      if (generation != this._generation || abort.signal.aborted) {
+      if (generation != this._generation || is_aborted(abort.signal)) {
         await mounted.dispose()
         return null
       }
