@@ -7,10 +7,10 @@ auth_request_handler
 .. automodule:: bokeh.server.views.auth_request_handler
    :members:
 
-autoload_js_handler
-~~~~~~~~~~~~~~~~~~~
+embed_json_handler
+~~~~~~~~~~~~~~~~~~
 
-.. automodule:: bokeh.server.views.autoload_js_handler
+.. automodule:: bokeh.server.views.embed_json_handler
    :members:
 
 doc_handler

@@ -60,27 +60,7 @@ class EmbedMigrationError(RuntimeError):
     """An actionable Bokeh 4.0 migration error for a removed embed contract."""
 
 def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
-    ''' Return JavaScript code and a script tag that can be used to embed
-    Bokeh Plots.
-
-    The data for the plot is stored directly in the returned JavaScript code.
-
-    Args:
-        model (Model or Document) :
-
-        resources (Resources) :
-
-        script_path (str) :
-
-    Returns:
-        (js, tag) :
-            JavaScript code to be saved at ``script_path`` and a ``<script>``
-            tag to load it
-
-    Raises:
-        ValueError
-
-    '''
+    """Raise with the Bokeh 4.0 external-artifact migration route."""
     raise EmbedMigrationError(
         "autoload_static() was removed in Bokeh 4.0. Use embed(model).external(payload_url=script_path) "
         "and save artifact.to_json_string() as the payload instead of generating a per-embed loader program.",
@@ -245,80 +225,9 @@ def file_html(
     )
 
 def json_item(model: Model, target: str | None = None, theme: ThemeSource = None) -> NoReturn:
-    ''' Return a JSON block that can be used to embed standalone Bokeh content.
-
-    Args:
-        model (Model) :
-            The Bokeh object to embed
-
-        target (string, optional)
-            A div id to embed the model into. If None, the target id must
-            be supplied in the JavaScript call.
-
-        theme (Theme, optional) :
-            Applies the specified theme to the created html. If ``None``, or
-            not specified, and the function is passed a document or the full set
-            of roots of a document, applies the theme of that document.  Otherwise
-            applies the default theme.
-
-    Returns:
-        JSON-like
-
-    This function returns a JSON block that can be consumed by the BokehJS
-    function ``Bokeh.embed.embed_item``. As an example, a Flask endpoint for
-    ``/plot`` might return the following content to embed a Bokeh plot into
-    a div with id *"myplot"*:
-
-    .. code-block:: python
-
-        @app.route('/plot')
-        def plot():
-            p = make_plot('petal_width', 'petal_length')
-            return json.dumps(json_item(p, "myplot"))
-
-    Then a web page can retrieve this JSON and embed the plot by calling
-    ``Bokeh.embed.embed_item``:
-
-    .. code-block:: html
-
-        <script>
-        fetch('/plot')
-            .then(function(response) { return response.json(); })
-            .then(function(item) { Bokeh.embed.embed_item(item); })
-        </script>
-
-    Alternatively, if is more convenient to supply the target div id directly
-    in the page source, that is also possible. If `target_id` is omitted in the
-    call to this function:
-
-    .. code-block:: python
-
-        return json.dumps(json_item(p))
-
-    Then the value passed to ``embed_item`` is used:
-
-    .. code-block:: javascript
-
-        Bokeh.embed.embed_item(item, "myplot");
-
-    '''
+    """Raise with the Bokeh 4.0 JSON-artifact migration route."""
     raise EmbedMigrationError(
         "json_item() and the JsonItem envelope were removed in Bokeh 4.0. "
         "Return embed(model).to_json() from the endpoint and call Bokeh.mount(artifact, {targets: ...}) "
         "in the browser; targets are no longer stored in reusable payloads.",
     )
-
-
-autoload_static.__doc__ = """Removed in Bokeh 4.0.
-
-Save ``embed(model).to_json_string()`` as data and render
-``embed(model).external(payload_url=...)``. Calling this function raises an
-actionable :class:`EmbedMigrationError`.
-"""
-
-json_item.__doc__ = """Removed in Bokeh 4.0.
-
-Return ``embed(model).to_json()`` from an endpoint and pass mount-time targets
-to ``Bokeh.mount()``. Calling this function raises an actionable
-:class:`EmbedMigrationError`.
-"""
