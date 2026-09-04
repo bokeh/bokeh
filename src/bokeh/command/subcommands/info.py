@@ -27,7 +27,8 @@ settings as part of the output:
     BokehJS static path   :  /opt/anaconda/envs/test/lib/python3.12/site-packages/bokeh/server/static
     node.js version       :  v20.12.2
     npm version           :  10.8.2
-    jupyter_bokeh version :  (not installed)
+    Jupyter protocol      :  1
+    Jupyter renderer      :  bundled
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
     Set (non-default) Bokeh Settings:

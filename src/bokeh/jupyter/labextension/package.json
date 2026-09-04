@@ -1,0 +1,61 @@
+{
+  "name": "@bokeh/bokeh-jupyter",
+  "version": "4.0.0-dev.1",
+  "description": "First-party Jupyter renderer for Bokeh",
+  "license": "BSD-3-Clause",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "npm run check:protocol && npm run test:source && npm run clean && tsc && npm run build:anywidget -- --mode=production && jupyter labextension build . && node scripts/copy-install.mjs",
+    "build:dev": "tsc && npm run build:anywidget -- --mode=development && jupyter labextension build --development True . && node scripts/copy-install.mjs",
+    "build:anywidget": "webpack --config webpack.anywidget.config.js",
+    "check:protocol": "node scripts/check-protocol.mjs",
+    "clean": "rimraf lib build ../labextension/package.json ../labextension/static",
+    "test:source": "vitest run"
+  },
+  "dependencies": {
+    "@jupyterlab/application": "^4",
+    "@jupyterlab/cells": "^4",
+    "@jupyterlab/docregistry": "^4",
+    "@jupyterlab/notebook": "^4",
+    "@jupyterlab/rendermime-interfaces": "^3",
+    "@jupyterlab/services": "^7",
+    "@lumino/coreutils": "^2",
+    "@lumino/disposable": "^2",
+    "@lumino/widgets": "^2"
+  },
+  "devDependencies": {
+    "@jupyterlab/builder": "^4",
+    "jsdom": "^26.1.0",
+    "rimraf": "^6",
+    "typescript": "~5.7.3",
+    "vitest": "^3.2.4",
+    "webpack": "^5",
+    "webpack-cli": "^6"
+  },
+  "jupyterlab": {
+    "extension": true,
+    "outputDir": "../labextension",
+    "sharedPackages": {
+      "@jupyterlab/services": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^7"
+      },
+      "@lumino/disposable": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^2"
+      },
+      "@lumino/widgets": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^2"
+      }
+    },
+    "_build": {
+      "load": "static/remoteEntry.6d50672f96dcc657608c.js",
+      "extension": "./extension"
+    }
+  }
+}

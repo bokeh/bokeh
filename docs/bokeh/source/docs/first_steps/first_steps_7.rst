@@ -56,9 +56,9 @@ You need to import |save| before using it, just like you did for |show|.
 Displaying in a Jupyter notebook
 --------------------------------
 
-If you use Jupyter notebooks, call Bokeh's |output_notebook| function in your
-code. Then, use the |show| function to display your visualization right inside
-your notebook:
+If you use Jupyter notebooks, call |show| directly. Bokeh detects the notebook
+kernel and its bundled renderer automatically; no initialization call or
+separate extension package is needed:
 
 .. image:: /_images/notebook_inline.png
     :scale: 50 %
