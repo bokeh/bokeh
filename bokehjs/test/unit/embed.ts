@@ -4,6 +4,7 @@ import * as embed from "@bokehjs/embed"
 import {register_models} from "@bokehjs/base"
 import {mount} from "@bokehjs/api/io"
 import {index} from "@bokehjs/embed/standalone"
+import {compute_embed_artifact_fingerprint, type EmbedArtifact} from "@bokehjs/embed/artifact"
 import {Document, documents} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
 import {DOMElementView} from "@bokehjs/core/dom_view"
@@ -11,6 +12,7 @@ import {ModelResolver} from "@bokehjs/core/resolvers"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {defer} from "@bokehjs/core/util/defer"
 import {register_standard_models} from "@bokehjs/models/register"
+import {version as js_version} from "@bokehjs/version"
 
 class SomeView extends DOMElementView {
   render(): void {
@@ -85,7 +87,7 @@ describe("embed", () => {
     })
   })
 
-  it("returns an owning mount from embed_item()", async () => {
+  it("returns an owning mount from a serialized artifact", async () => {
     const resolver = new ModelResolver(null)
     register_standard_models(resolver)
     register_models([ModelWithView], resolver)
@@ -95,25 +97,35 @@ describe("embed", () => {
     document.body.append(target)
     const documents_before = documents.length
 
-    const mounted = await embed.embed_item({
-      doc: original.to_json(),
-      root_id: model.id,
-      target_id: "unused",
-    }, target, {resolver})
-    expect(mounted.dispose_document).to.be.true
-    expect(mounted.document).to.not.be.equal(original)
-    expect(mounted.root_views.size).to.be.equal(1)
-    expect(target.childElementCount).to.be.equal(1)
-    expect(documents.length).to.be.equal(documents_before + 1)
+    const artifact: EmbedArtifact = {
+      schema: "bokeh.embed/v1",
+      bokeh_version: js_version,
+      source: {kind: "standalone", documents: [original.to_static_json()]},
+      roots: [{key: "root", document: 0, root: 0}],
+      requires: {components: ["bokeh/core"], extensions: []},
+      metadata: {},
+      fingerprint: "",
+    }
+    artifact.fingerprint = await compute_embed_artifact_fingerprint(artifact)
+    const mounted = mount(artifact, target, {resolver, resources: "none"})
+    try {
+      await mounted.ready
+      expect(mounted.ownership.document).to.be.equal("mount")
+      expect(mounted.document).to.not.be.equal(original)
+      expect(mounted.views.length).to.be.equal(1)
+      expect(target.childElementCount).to.be.equal(2) // root + notifications
+      expect(documents.length).to.be.equal(documents_before + 1)
 
-    mounted.dispose()
-    expect(mounted.disposed).to.be.true
-    expect(mounted.document.is_destroyed).to.be.true
-    expect(target.childElementCount).to.be.equal(0)
-    expect(documents.length).to.be.equal(documents_before)
-
-    original.destroy()
-    target.remove()
+      await mounted.dispose()
+      expect(mounted.disposed).to.be.true
+      expect(mounted.document.is_destroyed).to.be.true
+      expect(target.childElementCount).to.be.equal(0)
+      expect(documents.length).to.be.equal(documents_before)
+    } finally {
+      await mounted.dispose()
+      original.destroy()
+      target.remove()
+    }
   })
 
   it("should support view index", async () => {

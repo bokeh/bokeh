@@ -73,6 +73,67 @@
       }
     },
     {
+      "name": "standalone-compact-roots",
+      "artifact": {
+        "schema": "bokeh.embed/v1",
+        "bokeh_version": "__VERSION__",
+        "source": {
+          "kind": "standalone",
+          "documents": [
+            {
+              "version": "__VERSION__",
+              "title": "Compact fixture document",
+              "config": {
+                "$type": "DocumentConfig",
+                "notifications": {"$type": "Notifications"}
+              },
+              "roots": [
+                {
+                  "$type": "CustomJS",
+                  "args": {
+                    "type": "map",
+                    "entries": [
+                      [
+                        "shared",
+                        {
+                          "$type": "CustomJS",
+                          "$id": "p1006",
+                          "args": {
+                            "type": "map",
+                            "entries": [["self", {"$ref": "p1006"}]]
+                          },
+                          "code": "shared"
+                        }
+                      ]
+                    ]
+                  },
+                  "code": "primary"
+                },
+                {
+                  "$type": "CustomJS",
+                  "args": {
+                    "type": "map",
+                    "entries": [["shared", {"$ref": "p1006"}]]
+                  },
+                  "code": "secondary"
+                }
+              ]
+            }
+          ]
+        },
+        "roots": [
+          {"key": "primary", "document": 0, "root": 0},
+          {"key": "secondary", "document": 0, "root": 1}
+        ],
+        "requires": {
+          "components": ["bokeh/core", "bokeh/api"],
+          "extensions": []
+        },
+        "metadata": {"fixture": "cross-language-compact"},
+        "fingerprint": "cab3954568a8538475d97413fd7832735570d624ea3a80f085bbb8e3ad9ee177"
+      }
+    },
+    {
       "name": "server-existing-session",
       "artifact": {
         "schema": "bokeh.embed/v1",
