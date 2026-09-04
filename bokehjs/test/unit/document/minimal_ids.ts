@@ -1,7 +1,7 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 
 import {default_resolver} from "@bokehjs/base"
-import {Document} from "@bokehjs/document"
+import {Document, type DocJson} from "@bokehjs/document"
 import * as events from "@bokehjs/document/events"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {to_object} from "@bokehjs/core/util/object"
@@ -9,7 +9,25 @@ import {CustomJS, SetValue} from "@bokehjs/models"
 import {MountSource} from "@bokehjs/api/io"
 import {version as js_version} from "@bokehjs/version"
 
-import {fixture_data} from "./minimal_ids_fixture"
+import fixture_json from "./minimal_ids_fixture.json" with {type: "json"}
+
+type RootFixture = {
+  key: string
+  index: number
+}
+
+type MinimalIDFixture = {
+  name: string
+  roots: RootFixture[]
+  document: DocJson
+}
+
+type MinimalIDFixtureData = {
+  schema: string
+  cases: MinimalIDFixture[]
+}
+
+const fixture_data = fixture_json as MinimalIDFixtureData
 
 function fixture() {
   expect(fixture_data.schema).to.be.equal("bokeh.embed.minimal-id-fixtures/v1")

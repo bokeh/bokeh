@@ -63,6 +63,16 @@ class Test_make_id:
             assert len(bus.make_id()) == 36
             assert isinstance(bus.make_id(), str)
 
+    def test_explicit_simple_id_is_reserved(self) -> None:
+        bus._simple_id = 999
+        bus.reserve_id("p1200")
+        assert bus.make_id() == "p1201"
+
+    def test_non_simple_id_does_not_advance_counter(self) -> None:
+        bus._simple_id = 999
+        bus.reserve_id("external-id")
+        assert bus.make_id() == "p1000"
+
 def test_make_globally_unique_id() -> None:
     assert len(bus.make_globally_unique_id()) == 36
     assert isinstance(bus.make_globally_unique_id(), str)

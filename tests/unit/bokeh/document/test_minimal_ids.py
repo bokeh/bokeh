@@ -13,14 +13,18 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterator
 
+# External imports
+import pytest
+
 # Bokeh imports
 from bokeh.core.serialization import ObjectRep, Serializer
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
 from bokeh.models import CustomJS, SetValue
+from bokeh.util import serialization as bus
 from bokeh.util.version import __version__
 
-FIXTURE_PATH = Path(__file__).parents[4] / "bokehjs" / "test" / "unit" / "document" / "minimal_ids_fixture.ts"
+FIXTURE_PATH = Path(__file__).parents[4] / "bokehjs" / "test" / "unit" / "document" / "minimal_ids_fixture.json"
 
 
 def _custom_js(id: str, code: str) -> CustomJS:
@@ -53,9 +57,7 @@ def _fixture_document() -> Document:
 
 
 def _fixture_case() -> dict[str, Any]:
-    fixture_source = FIXTURE_PATH.read_text()
-    fixture_json = fixture_source.split("String.raw`", maxsplit=1)[1].split("`)", maxsplit=1)[0]
-    fixture = json.loads(fixture_json)
+    fixture = json.loads(FIXTURE_PATH.read_text())
     assert fixture["schema"] == "bokeh.embed.minimal-id-fixtures/v1"
     [case] = fixture["cases"]
     assert case["name"] == "keyed-static-graph"
@@ -111,6 +113,27 @@ def test_static_document_round_trips_keyed_anonymous_shared_and_cyclic_models() 
     assert cycle_a.id == "cycle-a"
     assert cycle_b.id == "cycle-b"
     assert document.get_model_by_name("semantic-primary") is primary
+
+
+def test_static_document_reserves_retained_simple_ids_before_anonymous_decoding(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    case = _fixture_case()
+    encoded = deepcopy(case["document"])
+    encoded["version"] = __version__
+    encoded = json.loads(json.dumps(encoded).replace("shared-callback", "p1200"))
+    monkeypatch.setattr(bus, "_simple_id", 1199)
+
+    document = Document.from_json(encoded)
+    primary, secondary = document.roots
+    assert isinstance(primary, CustomJS)
+    assert isinstance(secondary, CustomJS)
+    shared = primary.args["shared"]
+    assert isinstance(shared, CustomJS)
+
+    assert shared.id == "p1200"
+    assert secondary.args["shared"] is shared
+    assert document.get_model_by_id(shared.id) is shared
+    assert len({model.id for model in document.models}) == len(document.models)
 
 
 def test_static_anonymous_ids_are_runtime_details() -> None:

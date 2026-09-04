@@ -54,6 +54,7 @@ from ..util.serialization import (
     is_datetime_type,
     is_timedelta_type,
     make_id,
+    reserve_id,
     transform_array,
     transform_series,
 )
@@ -549,6 +550,15 @@ class Deserializer:
             return self.decode(obj)
 
     def decode(self, obj: AnyRep, buffers: list[Buffer] | None = None) -> Any:
+        ''' Decode a serialized representation.
+
+        Args:
+            obj: The representation to decode.
+            buffers: Optional binary buffers referenced by the representation.
+
+        Returns:
+            The decoded Python value.
+        '''
         if buffers is not None:
             for buffer in buffers:
                 self._buffers[buffer.id] = buffer
@@ -556,6 +566,7 @@ class Deserializer:
         if self._decoding:
             return self._decode(obj)
 
+        self._reserve_model_ids(obj)
         self._decoding = True
 
         try:
@@ -563,6 +574,16 @@ class Deserializer:
         finally:
             self._buffers.clear()
             self._decoding = False
+
+    def _reserve_model_ids(self, obj: AnyRep) -> None:
+        if isinstance(obj, dict):
+            if obj.get("type") == "object" and isinstance(id := obj.get("id"), str):
+                reserve_id(cast(ID, id))
+            for value in obj.values():
+                self._reserve_model_ids(value)
+        elif isinstance(obj, (list, tuple)):
+            for value in obj:
+                self._reserve_model_ids(value)
 
     def _decode(self, obj: AnyRep) -> Any:
         if isinstance(obj, dict):
