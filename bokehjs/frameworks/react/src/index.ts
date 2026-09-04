@@ -28,7 +28,7 @@ export function useBokeh(model: BokehModel | null, options: UseBokehOptions = {}
   callbacks.current = options
 
   const ref = useCallback<RefCallback<HTMLDivElement>>((element) => setTarget(element), [])
-  const signal = options.mountOptions?.signal
+  const mountOptions = options.mountOptions
 
   useEffect(() => {
     if (model == null || target == null) {
@@ -54,7 +54,7 @@ export function useBokeh(model: BokehModel | null, options: UseBokehOptions = {}
     })
 
     return () => controller.dispose()
-  }, [model, target, signal])
+  }, [model, target, mountOptions])
 
   return {ref, mounted, error}
 }
@@ -84,15 +84,13 @@ export function BokehDocument({models, mountOptions, onMounted, onError, childre
   controller.current ??= new DocumentMountController()
   const callbacks = useRef({onMounted, onError})
   callbacks.current = {onMounted, onError}
-  const signal = mountOptions?.signal
-
   useEffect(() => {
     controller.current?.update(models, {
       mountOptions,
       onMounted: (mounted) => callbacks.current.onMounted?.(mounted),
       onError: (error) => callbacks.current.onError?.(error),
     })
-  }, [models, signal])
+  }, [models, mountOptions])
 
   useEffect(() => () => controller.current?.dispose(), [])
 

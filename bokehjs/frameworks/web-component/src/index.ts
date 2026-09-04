@@ -4,6 +4,19 @@ import type {BokehModel, BokehRootModel} from "@bokeh/framework"
 
 const HTMLElementBase = (globalThis as {HTMLElement?: typeof HTMLElement}).HTMLElement ?? class {} as typeof HTMLElement
 
+function define_element<T extends CustomElementConstructor>(name: string, base: T, define: () => T): T {
+  const existing = customElements.get(name)
+  if (existing != null) {
+    if (existing != base && !(existing.prototype instanceof base)) {
+      throw new Error(`custom element '${name}' is already defined by another constructor`)
+    }
+    return existing as T
+  }
+  const element = define()
+  customElements.define(name, element)
+  return element
+}
+
 /** Custom-element base that owns one Bokeh mount while connected. */
 export class BokehElement extends HTMLElementBase {
   private _model: BokehModel | null = null
@@ -62,16 +75,7 @@ export class BokehElement extends HTMLElementBase {
 
 /** Register an idempotent custom element for one Bokeh source. */
 export function defineBokehElement(name: string = "bokeh-plot"): typeof BokehElement {
-  const existing = customElements.get(name)
-  if (existing != null) {
-    if (existing != BokehElement && !(existing.prototype instanceof BokehElement)) {
-      throw new Error(`custom element '${name}' is already defined by another constructor`)
-    }
-    return existing as typeof BokehElement
-  }
-  const DefinedBokehElement = class extends BokehElement {}
-  customElements.define(name, DefinedBokehElement)
-  return DefinedBokehElement
+  return define_element(name, BokehElement, () => class extends BokehElement {})
 }
 
 /** Custom-element provider for one shared keyed document mount. */
@@ -193,28 +197,10 @@ export class BokehRootElement extends HTMLElementBase {
 
 /** Register an idempotent shared-document provider element. */
 export function defineBokehDocumentElement(name: string = "bokeh-document"): typeof BokehDocumentElement {
-  const existing = customElements.get(name)
-  if (existing != null) {
-    if (existing != BokehDocumentElement && !(existing.prototype instanceof BokehDocumentElement)) {
-      throw new Error(`custom element '${name}' is already defined by another constructor`)
-    }
-    return existing as typeof BokehDocumentElement
-  }
-  const DefinedBokehDocumentElement = class extends BokehDocumentElement {}
-  customElements.define(name, DefinedBokehDocumentElement)
-  return DefinedBokehDocumentElement
+  return define_element(name, BokehDocumentElement, () => class extends BokehDocumentElement {})
 }
 
 /** Register an idempotent keyed-root target element. */
 export function defineBokehRootElement(name: string = "bokeh-root"): typeof BokehRootElement {
-  const existing = customElements.get(name)
-  if (existing != null) {
-    if (existing != BokehRootElement && !(existing.prototype instanceof BokehRootElement)) {
-      throw new Error(`custom element '${name}' is already defined by another constructor`)
-    }
-    return existing as typeof BokehRootElement
-  }
-  const DefinedBokehRootElement = class extends BokehRootElement {}
-  customElements.define(name, DefinedBokehRootElement)
-  return DefinedBokehRootElement
+  return define_element(name, BokehRootElement, () => class extends BokehRootElement {})
 }

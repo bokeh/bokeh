@@ -26,7 +26,7 @@ export function useBokeh(model: MaybeRefOrGetter<BokehModel | null>, target: Ref
   let controller: MountController | null = null
 
   const stop = watch(
-    [() => toValue(model), () => target.value, () => toValue(options.mountOptions)?.signal],
+    [() => toValue(model), () => target.value, () => toValue(options.mountOptions)],
     ([current_model, current_target]) => {
       controller?.dispose()
       controller = null
@@ -109,7 +109,7 @@ export const BokehDocument = defineComponent({
     const controller = new DocumentMountController()
     provide(BokehDocumentKey, controller)
     const stop = watch(
-      [() => props.models, () => props.mountOptions?.signal],
+      [() => props.models, () => props.mountOptions],
       () => controller.update(props.models, {
         mountOptions: props.mountOptions,
         onMounted: (mounted) => emit("mounted", mounted),

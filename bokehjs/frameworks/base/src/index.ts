@@ -65,6 +65,10 @@ export class MountController {
       }
     }
 
+    if (abort.signal.aborted) {
+      return null
+    }
+
     let reported_error: unknown = null
     try {
       const mounted = mount(model, target, {
@@ -90,7 +94,7 @@ export class MountController {
       request.onMounted?.(mounted)
       return mounted
     } catch (error) {
-      if (generation == this._generation && !abort.signal.aborted) {
+      if (generation == this._generation) {
         const mounted = this._mounted
         this._mounted = null
         this._unlink_signal?.()
@@ -138,6 +142,20 @@ function same_items<T>(left: readonly T[], right: readonly T[]): boolean {
   return left.length == right.length && left.every((item, index) => item == right[index])
 }
 
+type ControlledMountOptions = Omit<MountOptions, "targets">
+
+function controlled_mount_options(options: MountOptions | undefined): ControlledMountOptions {
+  const controlled = {...options}
+  delete controlled.targets
+  return controlled
+}
+
+function same_mount_options(left: ControlledMountOptions, right: ControlledMountOptions): boolean {
+  const left_keys = Object.keys(left) as (keyof ControlledMountOptions)[]
+  const right_keys = Object.keys(right)
+  return left_keys.length == right_keys.length && left_keys.every((key) => left[key] == right[key])
+}
+
 /** Coordinates one Bokeh document whose roots render into independent framework targets. */
 export class DocumentMountController {
   private readonly _controller = new MountController()
@@ -146,8 +164,9 @@ export class DocumentMountController {
   private _request: MountRequest = {}
   private _active_models: readonly BokehRootModel[] = []
   private _active_targets = new Map<BokehRootModel, BokehTarget>()
-  private _active_signal: AbortSignal | undefined
+  private _active_mount_options: ControlledMountOptions = {}
   private _scheduled = false
+  private _transition = Promise.resolve()
 
   get mounted(): BokehMount | null {
     return this._controller.mounted
@@ -157,6 +176,9 @@ export class DocumentMountController {
   update(models: readonly BokehRootModel[], request: MountRequest = {}): void {
     if (new Set(models).size != models.length) {
       throw new Error("a BokehDocument can't contain the same root more than once")
+    }
+    if (new Set(models.map((model) => model.id)).size != models.length) {
+      throw new Error("a BokehDocument can't contain roots with duplicate model IDs")
     }
 
     this._models = [...models]
@@ -194,7 +216,7 @@ export class DocumentMountController {
     this._targets.clear()
     this._active_models = []
     this._active_targets.clear()
-    this._active_signal = undefined
+    this._active_mount_options = {}
     this._controller.dispose()
   }
 
@@ -205,15 +227,17 @@ export class DocumentMountController {
     this._scheduled = true
     queueMicrotask(() => {
       this._scheduled = false
-      this._refresh()
+      this._transition = this._transition.then(() => this._refresh()).catch((error) => {
+        this._request.onError?.(error)
+      })
     })
   }
 
-  private _refresh(): void {
+  private async _refresh(): Promise<void> {
     if (this._models.length == 0) {
       this._active_models = []
       this._active_targets.clear()
-      this._active_signal = undefined
+      this._active_mount_options = {}
       this._controller.dispose()
       return
     }
@@ -226,40 +250,47 @@ export class DocumentMountController {
       return
     }
 
-    const signal = this._request.mountOptions?.signal
+    const mount_options = controlled_mount_options(this._request.mountOptions)
     const same_models = same_items(this._models, this._active_models)
-    if (same_models && signal == this._active_signal) {
+    if (same_models && same_mount_options(mount_options, this._active_mount_options)) {
       const mounted = this._controller.mounted
       if (mounted != null) {
+        const active_targets = new Map(this._active_targets)
         for (const model of this._models) {
-          const previous = this._active_targets.get(model)
+          const previous = active_targets.get(model)
           const current = this._targets.get(model)
           if (current == null && previous != null) {
             mounted.detach(model.id)
+            active_targets.delete(model)
           } else if (current != null && current != previous) {
-            void mounted.replace_target(model.id, current).catch(() => {})
+            try {
+              await mounted.replace_target(model.id, current)
+              active_targets.set(model, current)
+            } catch {
+              // The mount reports the error through its configured callback.
+              // Retain the previous target so a later update can retry.
+            }
           }
         }
+        this._active_targets = active_targets
       }
-      this._active_targets = new Map(this._targets)
       return
     }
 
-    this._active_models = [...this._models]
-    this._active_targets = new Map(this._targets)
-    this._active_signal = signal
-    const models = new Map(this._models.map((model) => [model.id, model]))
-    const targets = new Map([...this._targets].map(([model, target]) => [model.id, target]))
-    void this._controller.start(models, undefined, {
+    const active_models = [...this._models]
+    const active_targets = new Map(this._targets)
+    const models = new Map(active_models.map((model) => [model.id, model]))
+    const targets = new Map([...active_targets].map(([model, target]) => [model.id, target]))
+    const mounted = await this._controller.start(models, undefined, {
       mountOptions: {...this._request.mountOptions, targets},
       onMounted: (mounted) => this._request.onMounted?.(mounted),
       onDisposed: (mounted) => this._request.onDisposed?.(mounted),
-      onError: (error) => {
-        this._active_models = []
-        this._active_targets.clear()
-        this._active_signal = undefined
-        this._request.onError?.(error)
-      },
+      onError: (error) => this._request.onError?.(error),
     })
+    if (mounted != null) {
+      this._active_models = active_models
+      this._active_targets = active_targets
+      this._active_mount_options = mount_options
+    }
   }
 }

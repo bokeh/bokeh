@@ -213,9 +213,12 @@ jobs:
       name: publish-npm
       url: https://www.npmjs.com/package/@bokeh/bokehjs
     permissions:
+      contents: read
       id-token: write
 
     steps:
+      - uses: actions/checkout@v6
+
       - name: Download npm distribution
         uses: actions/download-artifact@v8
         with:
@@ -233,7 +236,7 @@ jobs:
         env:
           NPM_TAG: ${{ (contains(github.event.inputs.version, '.dev') || contains(github.event.inputs.version, 'rc')) && 'dev' || 'latest' }}
         run: |
-          for package in bokeh-bokehjs bokeh-framework bokeh-angular bokeh-react bokeh-svelte bokeh-vue bokeh-web-component; do
+          for package in $(python ../tools/release/npm.py); do
             npm publish --access=public --tag="$NPM_TAG" "$package"-*.tgz
           done
 
