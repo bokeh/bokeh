@@ -70,8 +70,8 @@ def license() -> None:
         print(lic.read())
 
 def _jupyter_labextension_paths() -> list[dict[str, str]]:
-    from .jupyter import _jupyter_labextension_paths
-    return _jupyter_labextension_paths()
+    from .jupyter import jupyter_labextension_paths
+    return jupyter_labextension_paths()
 
 #-----------------------------------------------------------------------------
 # Dev API
