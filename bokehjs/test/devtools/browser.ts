@@ -28,6 +28,15 @@ export class BrowserTimeoutError extends BrowserError {
   }
 }
 
+function is_browser_lifecycle_error(error: BrowserError): boolean {
+  const message = error.message.toLowerCase()
+  return [
+    "execution context was destroyed",
+    "target page, context or browser has been closed",
+    "page crashed",
+  ].some((pattern) => message.includes(pattern))
+}
+
 async function command<T>(operation: string, promise: Promise<T>, wait: number = DEFAULT_COMMAND_TIMEOUT): Promise<T> {
   const timeout = Promise.withResolvers<never>()
   const timer = setTimeout(() => timeout.reject(new TimeoutError()), wait)
@@ -269,7 +278,9 @@ export class BrowserManager {
       const value = await command("Page.evaluate", page.evaluate<T>(expression), eval_timeout)
       return new Value(value)
     } catch (error) {
-      if (error instanceof BrowserTimeoutError || !this.is_available()) {
+      if (error instanceof BrowserTimeoutError ||
+          (error instanceof BrowserError && is_browser_lifecycle_error(error)) ||
+          !this.is_available()) {
         throw error
       }
       const text = error instanceof BrowserError ? error.message.replace(/^Page\.evaluate: /, "") : error_message(error)
