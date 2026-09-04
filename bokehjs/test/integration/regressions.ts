@@ -842,7 +842,6 @@ describe("Bug", () => {
       const choices_view = view.owner.get_one(choices)
       choices_view.choice_el.showDropdown()
       await paint()
-      await mounted.dispose()
     })
   })
 
