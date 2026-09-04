@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import inspect
 from unittest.mock import MagicMock, Mock, patch
 
 # Bokeh imports
@@ -40,24 +41,31 @@ import bokeh.io.showing as bis # isort:skip
 @patch('bokeh.io.showing._show_with_state')
 def test_show_with_default_args(mock__show_with_state: MagicMock) -> None:
     curstate().reset()
-    default_kwargs = dict(browser=None, new="tab", notebook_handle=False)
     p = Plot()
-    bis.show(p, **default_kwargs)
+    bis.show(p)
     assert mock__show_with_state.call_count == 1
-    assert mock__show_with_state.call_args[0] == (p, curstate(), None, "tab")
+    assert mock__show_with_state.call_args[0] == (p, curstate())
     assert mock__show_with_state.call_args[1] == {'notebook_handle': False}
     assert curdoc().roots == []
 
 @patch('bokeh.io.showing._show_with_state')
-def test_show_with_explicit_args(mock__show_with_state: MagicMock) -> None:
+def test_show_with_explicit_notebook_handle(mock__show_with_state: MagicMock) -> None:
     curstate().reset()
-    kwargs = dict(browser="browser", new="new", notebook_handle=True)
     p = Plot()
-    bis.show(p, **kwargs)
+    bis.show(p, notebook_handle=True)
     assert mock__show_with_state.call_count == 1
-    assert mock__show_with_state.call_args[0] == (p, curstate(), "browser", "new")
+    assert mock__show_with_state.call_args[0] == (p, curstate())
     assert mock__show_with_state.call_args[1] == {'notebook_handle': True}
     assert curdoc().roots == []
+
+def test_show_rejects_removed_file_options() -> None:
+    parameters = inspect.signature(bis.show).parameters
+    assert "browser" not in parameters
+    assert "new" not in parameters
+    with pytest.raises(ValueError, match=r"Unexpected show.*browser"):
+        bis.show(Plot(), browser="firefox")
+    with pytest.raises(ValueError, match=r"Unexpected show.*new"):
+        bis.show(Plot(), new="window")
 
 @patch('bokeh.io.showing.run_notebook_hook')
 def test_show_with_app(mock_run_notebook_hook: MagicMock, ipython) -> None:
@@ -116,7 +124,7 @@ def test__show_with_state_with_notebook(
     p = Plot()
 
     s.output_notebook()
-    bis._show_with_state(p, s, "browser", "new")
+    bis._show_with_state(p, s)
     assert s.notebook_type == "jupyter"
 
     assert mock_run_notebook_hook.call_count == 1
@@ -126,7 +134,7 @@ def test__show_with_state_with_notebook(
     assert mock__show_file_with_state.call_count == 0
 
     s.output_file("foo.html")
-    bis._show_with_state(p, s, "browser", "new")
+    bis._show_with_state(p, s)
     assert s.notebook_type == "jupyter"
 
     assert mock_run_notebook_hook.call_count == 2
@@ -134,7 +142,7 @@ def test__show_with_state_with_notebook(
     assert mock_run_notebook_hook.call_args[1] == {}
 
     assert mock__show_file_with_state.call_count == 1
-    assert mock__show_file_with_state.call_args[0] == (p, s, "new", "controller")
+    assert mock__show_file_with_state.call_args[0] == (p, s, "controller")
     assert mock__show_file_with_state.call_args[1] == {}
 
 @patch('bokeh.io.notebook.get_comms')
@@ -151,13 +159,13 @@ def test__show_with_state_with_no_notebook(
     s = State()
 
     s.output_file("foo.html")
-    bis._show_with_state("obj", s, "browser", "new")
+    bis._show_with_state("obj", s)
     assert s.notebook_type is None
 
     assert mock_show_doc.call_count == 0
 
     assert mock__show_file_with_state.call_count == 1
-    assert mock__show_file_with_state.call_args[0] == ("obj", s, "new", "controller")
+    assert mock__show_file_with_state.call_args[0] == ("obj", s, "controller")
     assert mock__show_file_with_state.call_args[1] == {}
 
 @patch('os.path.abspath')
@@ -169,23 +177,13 @@ def test(mock_save: MagicMock, mock_abspath: MagicMock):
     s = State()
     s.output_file("foo.html")
 
-    bis._show_file_with_state("obj", s, "window", controller)
+    bis._show_file_with_state("obj", s, controller)
 
     assert mock_save.call_count == 1
     assert mock_save.call_args[0] == ("obj",)
     assert mock_save.call_args[1] == {"state": s}
 
     assert controller.open.call_count == 1
-    assert controller.open.call_args[0] == ("file://savepath",)
-    assert controller.open.call_args[1] == {"new": 1}
-
-    bis._show_file_with_state("obj", s, "tab", controller)
-
-    assert mock_save.call_count == 2
-    assert mock_save.call_args[0] == ("obj",)
-    assert mock_save.call_args[1] == {"state": s}
-
-    assert controller.open.call_count == 2
     assert controller.open.call_args[0] == ("file://savepath",)
     assert controller.open.call_args[1] == {"new": 2}
 

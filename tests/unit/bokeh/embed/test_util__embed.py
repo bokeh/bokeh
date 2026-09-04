@@ -17,20 +17,11 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import logging
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 # Bokeh imports
-from bokeh import __version__
-from bokeh.core.properties import (
-    Instance,
-    Int,
-    List,
-    String,
-)
-from bokeh.core.serialization import ObjectRefRep
+from bokeh.core.properties import Instance, Int
 from bokeh.document.document import Document
-from bokeh.events import Tap
 from bokeh.io import curdoc
 from bokeh.model import Model
 from bokeh.themes import DARK_MINIMAL, Theme, built_in_themes
@@ -55,49 +46,6 @@ class SomeModel(Model):
 
 class OtherModel(Model):
     child = Instance(Model)
-
-# Taken from test_callback_manager.py
-class _GoodPropertyCallback:
-    def __init__(self) -> None:
-        self.last_name = None
-        self.last_old = None
-        self.last_new = None
-
-    def __call__(self, name, old, new):
-        self.method(name, old, new)
-
-    def method(self, name, old, new):
-        self.last_name = name
-        self.last_old = old
-        self.last_new = new
-
-    def partially_good(self, name, old, new, newer):
-        pass
-
-    def just_fine(self, name, old, new, extra='default'):
-        pass
-
-
-class _GoodEventCallback:
-    def __init__(self) -> None:
-        self.last_name = None
-        self.last_old = None
-        self.last_new = None
-
-    def __call__(self, event):
-        self.method(event)
-
-    def method(self, event):
-        self.event = event
-
-    def partially_good(self, arg, event):
-        pass
-
-# Taken from test_model
-class EmbedTestUtilModel(Model):
-    a = Int(12)
-    b = String("hello")
-    c = List(Int, default=[1, 2, 3])
 
 #-----------------------------------------------------------------------------
 # General API
@@ -514,138 +462,6 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme:
         assert p2.document is not None
         assert p2.document.theme is orig_theme
 
-
-class Test_standalone_docs_json_and_render_items:
-    def test_passing_model(self) -> None:
-        p1 = SomeModel()
-        d = Document()
-        d.add_root(p1)
-        docs_json, render_items = beu.standalone_docs_json_and_render_items([p1])
-        doc = next(iter(docs_json.values()))
-        assert doc['title'] == "Bokeh Application"
-        assert doc['version'] == __version__
-        assert len(doc['roots']) == 1
-        assert doc['roots'] == [ObjectRefRep(type="object", name="test_util__embed.SomeModel", id=p1.id)]
-        assert len(render_items) == 1
-
-    def test_passing_doc(self) -> None:
-        p1 = SomeModel()
-        d = Document()
-        d.add_root(p1)
-        docs_json, render_items = beu.standalone_docs_json_and_render_items([d])
-        doc = next(iter(docs_json.values()))
-        assert doc['title'] == "Bokeh Application"
-        assert doc['version'] == __version__
-        assert len(doc['roots']) == 1
-        assert doc['roots'] == [ObjectRefRep(type="object", name="test_util__embed.SomeModel", id=p1.id)]
-        assert len(render_items) == 1
-
-    def test_static_output_uses_minimal_model_ids(self) -> None:
-        child = SomeModel()
-        root = OtherModel(child=child)
-        d = Document()
-        d.add_root(root)
-
-        docs_json, _ = beu.standalone_docs_json_and_render_items([root])
-        doc = next(iter(docs_json.values()))
-
-        assert doc["roots"][0]["id"] == root.id
-        assert "id" not in doc["roots"][0]["attributes"]["child"]
-        decoded = Document.from_json(doc)
-        assert isinstance(decoded.roots[0].child, SomeModel)
-
-    def test_static_output_preserves_shared_identity(self) -> None:
-        shared = SomeModel()
-        root0 = OtherModel(child=shared)
-        root1 = OtherModel(child=shared)
-        d = Document()
-        d.add_root(root0)
-        d.add_root(root1)
-
-        docs_json, _ = beu.standalone_docs_json_and_render_items([root0, root1])
-        doc = next(iter(docs_json.values()))
-
-        assert doc["roots"][0]["attributes"]["child"] == ObjectRefRep(type="object", name="test_util__embed.SomeModel", id=shared.id)
-        assert doc["roots"][1]["attributes"]["child"] == shared.ref
-
-    def test_exception_for_missing_doc(self) -> None:
-        p1 = SomeModel()
-        with pytest.raises(ValueError) as e:
-            beu.standalone_docs_json_and_render_items([p1])
-        assert str(e.value) == "A Bokeh Model must be part of a Document to render as standalone content"
-
-    def test_log_warning_if_python_property_callback(self, caplog: pytest.LogCaptureFixture) -> None:
-        d = Document()
-        m1 = EmbedTestUtilModel()
-        c1 = _GoodPropertyCallback()
-        d.add_root(m1)
-
-        m1.on_change('name', c1)
-        assert len(m1._callbacks) != 0
-
-        with caplog.at_level(logging.WARN):
-            beu.standalone_docs_json_and_render_items(m1)
-            assert len(caplog.records) == 1
-            assert caplog.text != ''
-
-    def test_log_warning_if_python_event_callback(self, caplog: pytest.LogCaptureFixture) -> None:
-        d = Document()
-        m1 = EmbedTestUtilModel()
-        c1 = _GoodEventCallback()
-        d.add_root(m1)
-
-        m1.on_event(Tap, c1)
-        assert len(m1._event_callbacks) != 0
-
-        with caplog.at_level(logging.WARN):
-            beu.standalone_docs_json_and_render_items(m1)
-            assert len(caplog.records) == 1
-            assert caplog.text != ''
-
-    def test_suppress_warnings(self, caplog: pytest.LogCaptureFixture) -> None:
-        d = Document()
-        m1 = EmbedTestUtilModel()
-        c1 = _GoodPropertyCallback()
-        c2 = _GoodEventCallback()
-        d.add_root(m1)
-
-        m1.on_change('name', c1)
-        assert len(m1._callbacks) != 0
-
-        m1.on_event(Tap, c2)
-        assert len(m1._event_callbacks) != 0
-
-        with caplog.at_level(logging.WARN):
-            beu.standalone_docs_json_and_render_items(m1, suppress_callback_warning=True)
-            assert len(caplog.records) == 0
-            assert caplog.text == ''
-
-
-class Test_standalone_docs_json:
-    @patch('bokeh.embed.util.standalone_docs_json_and_render_items')
-    def test_delgation(self, mock_sdjari: MagicMock) -> None:
-        p1 = SomeModel()
-        p2 = SomeModel()
-        d = Document()
-        d.add_root(p1)
-        d.add_root(p2)
-        # ignore error unpacking None mock result, just checking to see that
-        # standalone_docs_json_and_render_items is called as expected
-        try:
-            beu.standalone_docs_json([p1, p2])
-        except ValueError:
-            pass
-        mock_sdjari.assert_called_once_with([p1, p2])
-
-    def test_output(self) -> None:
-        p1 = SomeModel()
-        p2 = SomeModel()
-        d = Document()
-        d.add_root(p1)
-        d.add_root(p2)
-        out = beu.standalone_docs_json([p1, p2])
-        expected = beu.standalone_docs_json_and_render_items([p1, p2])[0]
-        assert list(out.values()) ==list(expected.values())
 
 #-----------------------------------------------------------------------------
 # Private API

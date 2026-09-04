@@ -453,8 +453,8 @@ whether through other document methods or setting of Bokeh model properties,
 risk data and protocol corruption.
 
 .. note::
-    The Bokeh server uses a bounded internal worker pool for autoload resources
-    and outbound document and patch serialization. It holds the session's
+    The Bokeh server uses a bounded internal worker pool for application
+    initialization and outbound document and patch serialization. It holds the session's
     document lock while a worker produces a consistent snapshot, then performs
     transport writes on the Tornado event loop. This internal use of threads
     does not make direct document updates from application threads safe.

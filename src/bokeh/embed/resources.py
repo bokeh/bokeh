@@ -11,31 +11,31 @@ from __future__ import annotations
 # Standard library imports
 import hashlib
 import json
+import os
 from dataclasses import dataclass
+from os.path import normpath
 from pathlib import Path
 from typing import (
     Any,
+    Callable,
     Literal,
     Mapping,
+    NotRequired,
     Sequence,
+    TypedDict,
     cast,
 )
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 # Bokeh imports
 from .. import __version__
 from ..core.has_props import HasProps
 from ..document import Document
 from ..resources import Component, Resources
+from ..settings import settings
 from ..util.compiler import bundle_models
-from .bundle import (
-    _all_objs,
-    _bundle_extensions as legacy_bundle_extensions,
-    _use_gl,
-    _use_mathjax,
-    _use_tables,
-    _use_widgets,
-)
+from ._json import canonical_json
+from .util import contains_tex_string
 
 type ResourceComponent = Literal[
     "bokeh/core",
@@ -74,8 +74,18 @@ class ResourceAssetRequirement:
     module: bool = False
 
     def __post_init__(self) -> None:
+        if self.kind not in ("script", "style"):
+            raise ValueError("resource asset requirement kind must be 'script' or 'style'")
         if (self.url is None) == (self.content is None):
             raise ValueError("a resource asset requirement needs exactly one of 'url' or 'content'")
+        for name in ("url", "content", "integrity", "crossorigin"):
+            value = getattr(self, name)
+            if value is not None and not isinstance(value, str):
+                raise ValueError(f"resource asset requirement {name} must be a string")
+        if not isinstance(self.module, bool):
+            raise ValueError("resource asset requirement module must be a boolean")
+        if self.kind == "style" and self.module:
+            raise ValueError("style resource requirements cannot be JavaScript modules")
 
     def to_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {"kind": self.kind}
@@ -89,13 +99,18 @@ class ResourceAssetRequirement:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ResourceAssetRequirement:
+        if not isinstance(value, Mapping):
+            raise ValueError("resource asset requirements must be objects")
+        kind = value.get("kind")
+        if kind not in ("script", "style"):
+            raise ValueError("resource asset requirement kind must be 'script' or 'style'")
         return cls(
-            kind=value["kind"],
+            kind=cast(Literal["script", "style"], kind),
             url=value.get("url"),
             content=value.get("content"),
             integrity=value.get("integrity"),
             crossorigin=value.get("crossorigin"),
-            module=bool(value.get("module", False)),
+            module=value.get("module", False),
         )
 
 
@@ -105,14 +120,29 @@ class ExtensionRequirement:
     name: str
     assets: tuple[ResourceAssetRequirement, ...] = ()
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "assets", tuple(self.assets))
+        if not isinstance(self.name, str) or not self.name:
+            raise ValueError("resource extension names must be non-empty strings")
+        if any(not isinstance(asset, ResourceAssetRequirement) for asset in self.assets):
+            raise ValueError("resource extension assets must be ResourceAssetRequirement instances")
+
     def to_dict(self) -> dict[str, Any]:
         return {"name": self.name, "assets": [asset.to_dict() for asset in self.assets]}
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ExtensionRequirement:
+        if not isinstance(value, Mapping):
+            raise ValueError("resource extension requirements must be objects")
+        assets = value.get("assets", [])
+        if not isinstance(assets, list):
+            raise ValueError("resource extension assets must be an array")
+        name = value.get("name")
+        if not isinstance(name, str) or not name:
+            raise ValueError("resource extension names must be non-empty strings")
         return cls(
-            name=str(value["name"]),
-            assets=tuple(ResourceAssetRequirement.from_dict(asset) for asset in value.get("assets", [])),
+            name=name,
+            assets=tuple(ResourceAssetRequirement.from_dict(asset) for asset in assets),
         )
 
 
@@ -123,6 +153,8 @@ class ResourceRequirements:
     extensions: tuple[ExtensionRequirement, ...] = ()
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "components", tuple(self.components))
+        object.__setattr__(self, "extensions", tuple(self.extensions))
         unknown = [component for component in self.components if component not in _COMPONENT_NAMES]
         if unknown:
             raise ValueError(f"unknown Bokeh resource components: {unknown!r}")
@@ -140,9 +172,19 @@ class ResourceRequirements:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ResourceRequirements:
+        if not isinstance(value, Mapping):
+            raise ValueError("artifact resource requirements must be an object")
+        components = value.get("components")
+        extensions = value.get("extensions")
+        if not isinstance(components, list):
+            raise ValueError("artifact resource components must be an array")
+        if not isinstance(extensions, list):
+            raise ValueError("artifact resource extensions must be an array")
+        if any(not isinstance(component, str) or component not in _COMPONENT_NAMES for component in components):
+            raise ValueError("artifact resource components contain an unknown component")
         return cls(
-            components=tuple(value.get("components", ("bokeh/core",))),
-            extensions=tuple(ExtensionRequirement.from_dict(extension) for extension in value.get("extensions", [])),
+            components=cast(tuple[ResourceComponent, ...], tuple(components)),
+            extensions=tuple(ExtensionRequirement.from_dict(extension) for extension in extensions),
         )
 
     @classmethod
@@ -153,10 +195,10 @@ class ResourceRequirements:
     @classmethod
     def union(cls, *requirements: ResourceRequirements) -> ResourceRequirements:
         """Return a deterministic exact union of resource requirements."""
-        components = tuple(
+        components = cast(tuple[ResourceComponent, ...], tuple(
             component for component in _COMPONENT_NAMES
             if any(component in requirement.components for requirement in requirements)
-        )
+        ))
         extensions: dict[str, list[ResourceAssetRequirement]] = {}
         for requirement in requirements:
             for extension in requirement.extensions:
@@ -201,10 +243,12 @@ class ResolvedResources:
     '''Requirements plus the policy and concrete assets that satisfy them.'''
     requirements: ResourceRequirements
     policy: ResourcePolicy
+    bokeh_version: str
     assets: tuple[ResolvedResource, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "bokeh_version": self.bokeh_version,
             "policy": self.policy.to_dict(),
             "assets": [asset.to_dict() for asset in self.assets],
         }
@@ -219,7 +263,8 @@ class ResolvedResources:
             "policy": policy,
             "assets": [asset.to_dict() for asset in self.assets],
         }
-        encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        payload["bokeh_version"] = self.bokeh_version
+        encoded = canonical_json(payload)
         return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
@@ -230,11 +275,10 @@ class ResourcePolicy:
     ``none`` emits nothing and assigns complete responsibility to the host.
     ``offline`` permits only inline/local content and rejects external URLs.
     Other modes resolve matching Bokeh bundles through CDN, server, filesystem,
-    or explicit paths. CSP, SRI, and retry choices belong to policy rather than
-    the reusable artifact.
+    or explicit paths. CSP and SRI choices belong to policy rather than the
+    reusable artifact. Bundle versions always come from the artifact.
     '''
     mode: ResourcePolicyMode = "cdn"
-    version: str = __version__.split("+")[0]
     minified: bool = True
     root_url: str | None = None
     root_dir: Path | None = None
@@ -243,15 +287,12 @@ class ResourcePolicy:
     crossorigin: str | None = None
     integrity: bool = False
     external_only: bool = False
-    retry: bool = False
 
     def __post_init__(self) -> None:
         if self.mode not in _RESOURCE_POLICY_MODES:
             raise ResourceConflictError(
                 f"unknown resource policy {self.mode!r}; expected one of {_RESOURCE_POLICY_MODES!r}",
             )
-        if not self.version:
-            raise ResourceConflictError("resource policy version must not be empty")
         if self.mode in ("inline", "offline") and self.external_only:
             raise ResourceConflictError(
                 f"resource policy '{self.mode}' emits inline assets and conflicts with external_only=True",
@@ -275,7 +316,6 @@ class ResourcePolicy:
         if isinstance(value, Resources):
             data: dict[str, Any] = {
                 "mode": value.mode,
-                "version": value.version or __version__,
                 "minified": value.minified,
                 "base_dir": value.base_dir,
             }
@@ -291,7 +331,6 @@ class ResourcePolicy:
     def to_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {
             "mode": self.mode,
-            "version": self.version,
             "minified": self.minified,
         }
         for name in ("root_url", "nonce", "crossorigin"):
@@ -302,22 +341,22 @@ class ResourcePolicy:
             result["root_dir"] = str(self.root_dir)
         if self.base_dir is not None:
             result["base_dir"] = str(self.base_dir)
-        for name in ("integrity", "external_only", "retry"):
+        for name in ("integrity", "external_only"):
             value = getattr(self, name)
             if value:
                 result[name] = value
         return result
 
-    def resolve(self, requirements: ResourceRequirements) -> ResolvedResources:
+    def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__) -> ResolvedResources:
         '''Resolve exact requirements or raise an actionable policy conflict.'''
         if self.mode == "none":
-            return ResolvedResources(requirements, self)
+            return ResolvedResources(requirements, self, bokeh_version)
 
         component_names: list[Component] = [_COMPONENT_NAMES[component] for component in requirements.components]
         resources_mode = "inline" if self.mode == "offline" else self.mode
         resources = Resources(
             mode=resources_mode,
-            version=self.version if resources_mode == "cdn" else None,
+            version=bokeh_version.split("+", 1)[0] if resources_mode == "cdn" else None,
             root_dir=self.root_dir if resources_mode == "relative" else None,
             root_url=self.root_url if resources_mode == "server" else None,
             minified=self.minified,
@@ -338,7 +377,14 @@ class ResourcePolicy:
                 crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
             ))
         assets.extend(ResolvedResource("script", content=content, nonce=self.nonce) for content in js_raw)
-        assets.extend(ResolvedResource("style", url=url, crossorigin=self.crossorigin, nonce=self.nonce) for url in css_files)
+        for url in css_files:
+            integrity = _integrity_for_url(url, hashes) if self.integrity else None
+            if self.integrity and integrity is None:
+                raise ResourceConflictError(f"no SRI hash is available for required resource {url!r}")
+            assets.append(ResolvedResource(
+                "style", url=url, integrity=integrity,
+                crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
+            ))
         assets.extend(ResolvedResource("style", content=content, nonce=self.nonce) for content in css_raw)
 
         for extension in requirements.extensions:
@@ -357,12 +403,18 @@ class ResourcePolicy:
                     raise ResourceConflictError(
                         f"external_only policy rejects inline {requirement.kind} required by extension {extension.name!r}",
                     )
+                if self.integrity and requirement.url is not None and requirement.integrity is None:
+                    raise ResourceConflictError(
+                        f"integrity policy requires an SRI hash for extension resource {requirement.url!r}",
+                    )
                 assets.append(ResolvedResource(
                     requirement.kind,
                     url=requirement.url,
                     content=requirement.content,
                     integrity=requirement.integrity,
-                    crossorigin=requirement.crossorigin or self.crossorigin,
+                    crossorigin=requirement.crossorigin or self.crossorigin or (
+                        "anonymous" if requirement.integrity is not None else None
+                    ),
                     nonce=self.nonce,
                     module=requirement.module,
                 ))
@@ -380,7 +432,175 @@ class ResourcePolicy:
                 identities[key] = asset.identity
                 deduplicated.append(asset)
 
-        return ResolvedResources(requirements, self, tuple(deduplicated))
+        return ResolvedResources(requirements, self, bokeh_version, tuple(deduplicated))
+
+
+@dataclass(frozen=True)
+class URL:
+    """Opaque URL used by legacy resource bundles and extension routes."""
+    url: str
+
+    def __truediv__(self, path: str) -> URL:
+        base = self.url if self.url.endswith("/") else f"{self.url}/"
+        return URL(urljoin(base, path.replace(os.sep, "/")))
+
+    def __str__(self) -> str:
+        return self.url
+
+
+@dataclass(frozen=True)
+class _ExtensionBundle:
+    artifact_path: Path
+    server_url: URL
+    cdn_url: URL | None = None
+
+
+class _PackageMetadata(TypedDict):
+    name: NotRequired[str]
+    version: NotRequired[str]
+    module: NotRequired[str]
+    main: NotRequired[str]
+
+
+_DEFAULT_EXTENSION_CDN = URL("https://unpkg.com")
+extension_dirs: dict[str, Path] = {}
+
+
+def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list[_ExtensionBundle]:
+    names: set[str] = set()
+    bundles: list[_ExtensionBundle] = []
+    extensions = [".min.js", ".js"] if resources.minified else [".js"]
+    all_objs = objs if objs is not None else HasProps.model_class_reverse_map.values()
+
+    for obj in all_objs:
+        if hasattr(obj, "__implementation__"):
+            continue
+        name = obj.__view_module__.split(".")[0]
+        if name == "bokeh" or name in names:
+            continue
+        names.add(name)
+        module = __import__(name)
+        if module.__file__ is None:
+            continue
+        base_dir = Path(module.__file__).absolute().parent
+        dist_dir = base_dir / "dist"
+        if not (base_dir / "bokeh.ext.json").exists():
+            continue
+
+        package_path = base_dir / "package.json"
+        package: _PackageMetadata | None = None
+        if package_path.exists():
+            try:
+                package = json.loads(package_path.read_text())
+            except json.JSONDecodeError:
+                pass
+
+        cdn_url: URL | None = None
+        if package is not None:
+            package_name = package.get("name")
+            if package_name is None:
+                raise ValueError("invalid package.json; missing package name")
+            package_version = package.get("version", "latest")
+            package_main = package.get("module", package.get("main"))
+            if package_main is not None:
+                package_main_path = Path(normpath(package_main))
+                cdn_url = _DEFAULT_EXTENSION_CDN / f"{package_name}@{package_version}" / str(package_main_path)
+            else:
+                package_main_path = dist_dir / f"{name}.js"
+            artifact_path = base_dir / package_main_path
+            server_path = f"{name}/{artifact_path.name}"
+            if not settings.dev:
+                version_hash = hashlib.sha256(package_version.encode()).hexdigest()
+                server_path = f"{server_path}?v={version_hash}"
+        else:
+            for extension in extensions:
+                artifact_path = dist_dir / f"{name}{extension}"
+                server_path = f"{name}/{name}{extension}"
+                if artifact_path.exists():
+                    break
+            else:
+                raise ValueError(f"can't resolve artifact path for '{name}' extension")
+
+        extension_dirs[name] = artifact_path.parent
+        server_url = URL(resources.root_url) / "static" / "extensions" / server_path
+        bundles.append(_ExtensionBundle(artifact_path, server_url, cdn_url))
+
+    return bundles
+
+
+def _all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
+    all_objs: set[HasProps] = set()
+    for obj in objs:
+        if isinstance(obj, Document):
+            for root in obj.roots:
+                all_objs |= root.references()
+        else:
+            all_objs |= cast(Any, obj).references()
+    return all_objs
+
+
+def _query_extensions(all_objs: set[HasProps], query: Callable[[type[HasProps]], bool]) -> bool:
+    names: set[str] = set()
+    for obj in all_objs:
+        if hasattr(obj, "__implementation__"):
+            continue
+        name = obj.__view_module__.split(".")[0]
+        if name == "bokeh" or name in names:
+            continue
+        names.add(name)
+        if any(model.__module__.startswith(name) and query(model) for model in HasProps.model_class_reverse_map.values()):
+            return True
+    return False
+
+
+def _use_tables(all_objs: set[HasProps]) -> bool:
+    from ..models.widgets import TableWidget
+    return any(isinstance(obj, TableWidget) for obj in all_objs) or _query_extensions(
+        all_objs, lambda cls: issubclass(cls, TableWidget),
+    )
+
+
+def _use_widgets(all_objs: set[HasProps]) -> bool:
+    from ..models.widgets import Widget
+    return any(isinstance(obj, Widget) for obj in all_objs) or _query_extensions(
+        all_objs, lambda cls: issubclass(cls, Widget),
+    )
+
+
+def _model_requires_mathjax(model: HasProps) -> bool:
+    from ..models.annotations import TextAnnotation
+    from ..models.axes import Axis
+    from ..models.widgets.markups import Div, Paragraph
+    from ..models.widgets.sliders import AbstractSlider
+
+    if isinstance(model, TextAnnotation) and isinstance(model.text, str) and contains_tex_string(model.text):
+        return True
+    if isinstance(model, AbstractSlider) and isinstance(model.title, str) and contains_tex_string(model.title):
+        return True
+    if isinstance(model, Axis):
+        if isinstance(model.axis_label, str) and contains_tex_string(model.axis_label):
+            return True
+        if any(isinstance(value, str) and contains_tex_string(value) for value in model.major_label_overrides.values()):
+            return True
+    if isinstance(model, Div) and not model.disable_math and not model.render_as_text:
+        return contains_tex_string(model.text)
+    if isinstance(model, Paragraph) and not model.disable_math:
+        return contains_tex_string(model.text)
+    return False
+
+
+def _use_mathjax(all_objs: set[HasProps]) -> bool:
+    from ..models.glyphs import MathTextGlyph
+    from ..models.text import MathText
+    return (
+        any(isinstance(obj, (MathTextGlyph, MathText)) or _model_requires_mathjax(obj) for obj in all_objs)
+        or _query_extensions(all_objs, lambda cls: issubclass(cls, MathText))
+    )
+
+
+def _use_gl(all_objs: set[HasProps]) -> bool:
+    from ..models.plots import Plot
+    return any(isinstance(obj, Plot) and obj.output_backend == "webgl" for obj in all_objs)
 
 
 _COMPONENT_NAMES: dict[ResourceComponent, Component] = {
@@ -431,7 +651,7 @@ def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequir
             extensions.pop(extension_name, None)
 
     package_resources = Resources(mode="inline", components=[])
-    for package in legacy_bundle_extensions(all_objs, package_resources):
+    for package in _bundle_extensions(all_objs, package_resources):
         name = f"package:{package.artifact_path.stem}"
         assets = extensions.setdefault(name, [])
         assets.append(ResourceAssetRequirement("script", content=Resources._inline(package.artifact_path)))

@@ -66,9 +66,9 @@ class _ASGIWebSocketTransport:
         self.closed = False
 
     async def send_message(self, message: Message[Any]) -> None:
-        if not self.closed:
-            try:
-                async with self._write_lock:
+        try:
+            async with self._write_lock:
+                if not self.closed:
                     for fragment, binary in message.fragments():
                         if binary:
                             data = fragment if isinstance(fragment, bytes) else fragment.encode("utf-8")
@@ -76,22 +76,23 @@ class _ASGIWebSocketTransport:
                         else:
                             text = fragment.decode("utf-8") if isinstance(fragment, bytes) else fragment
                             await self._send({"type": "websocket.send", "text": text})
-            except OSError:
-                # ASGI servers raise OSError when the peer has disconnected.
-                # The corresponding websocket.disconnect event may still be
-                # waiting for the application to receive it.
-                self.closed = True
+        except OSError:
+            # ASGI servers raise OSError when the peer has disconnected.
+            # The corresponding websocket.disconnect event may still be
+            # waiting for the application to receive it.
+            self.closed = True
 
     async def close(self, code: int = 1000, reason: str = "") -> None:
-        if not self.closed:
-            self.closed = True
-            event: Event = {"type": "websocket.close", "code": code}
-            if self._supports_close_reason:
-                event["reason"] = reason
-            try:
-                await self._send(event)
-            except OSError:
-                pass
+        async with self._write_lock:
+            if not self.closed:
+                self.closed = True
+                event: Event = {"type": "websocket.close", "code": code}
+                if self._supports_close_reason:
+                    event["reason"] = reason
+                try:
+                    await self._send(event)
+                except OSError:
+                    pass
 
 
 class BokehASGI:

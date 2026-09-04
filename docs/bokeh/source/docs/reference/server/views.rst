@@ -19,8 +19,8 @@ doc_handler
 .. automodule:: bokeh.server.views.doc_handler
    :members:
 
-autoload_metadata_handler
-~~~~~~~~~~~~~~~~~~~~~~~~~
+metadata_handler
+~~~~~~~~~~~~~~~~
 
 .. automodule:: bokeh.server.views.metadata_handler
    :members:
