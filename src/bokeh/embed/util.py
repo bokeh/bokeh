@@ -335,8 +335,8 @@ def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Mo
                 roots[model] = make_globally_unique_css_safe_id()
 
     docs_json: dict[ID, DocJson] = {}
-    for doc, (docid, _) in docs.items():
-        docs_json[docid] = doc.to_json(deferred=False)
+    for doc, (docid, roots) in docs.items():
+        docs_json[docid] = doc._to_json(deferred=False, model_ids="minimal", extra_models_with_ids=roots)
 
     render_items: list[RenderItem] = []
     for _, (docid, roots) in docs.items():
