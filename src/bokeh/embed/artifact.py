@@ -367,8 +367,9 @@ def _normalize_model_ids(value: Any) -> Any:
 
     def collect(child: Any) -> None:
         if isinstance(child, dict):
-            model_id = child.get("id")
-            if child.get("type") == "object" and isinstance(model_id, str) and model_id not in seen:
+            compact = isinstance(child.get("$type"), str)
+            model_id = child.get("$id" if compact else "id")
+            if (compact or child.get("type") == "object") and isinstance(model_id, str) and model_id not in seen:
                 seen.add(model_id)
                 ids.append(model_id)
             for key in sorted(child):
@@ -383,7 +384,7 @@ def _normalize_model_ids(value: Any) -> Any:
     def replace(child: Any) -> Any:
         if isinstance(child, dict):
             return {
-                key: replacements.get(item, item) if key == "id" and isinstance(item, str) else replace(item)
+                key: replacements.get(item, item) if key in ("id", "$id", "$ref") and isinstance(item, str) else replace(item)
                 for key, item in child.items()
             }
         if isinstance(child, (list, tuple)):

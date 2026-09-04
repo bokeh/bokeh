@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 # Standard library imports
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -85,4 +86,4 @@ def test_show_file_saves_then_opens_browser(mock_save: MagicMock, mock_get_brows
     mock_save.assert_called_once_with(
         "obj", filename="plot.html", resources="cdn", title="Plot", template=None,
     )
-    controller.open.assert_called_once_with("file:///tmp/saved.html", new=2)
+    controller.open.assert_called_once_with(Path("/tmp/saved.html").resolve().as_uri(), new=2)

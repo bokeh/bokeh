@@ -360,9 +360,11 @@ function normalize_model_ids(value: unknown): unknown {
   const collect = (child: unknown): void => {
     if (isPlainObject(child)) {
       const record = child as {[key: string]: unknown}
-      if (record.type == "object" && typeof record.id == "string" && !seen.has(record.id)) {
-        seen.add(record.id)
-        ids.push(record.id)
+      const compact = typeof record.$type == "string"
+      const id = compact ? record.$id : record.id
+      if ((compact || record.type == "object") && typeof id == "string" && !seen.has(id)) {
+        seen.add(id)
+        ids.push(id)
       }
       for (const key of Object.keys(record).sort()) {
         collect(record[key])
@@ -378,7 +380,7 @@ function normalize_model_ids(value: unknown): unknown {
     if (isPlainObject(child)) {
       return Object.fromEntries(Object.entries(child as {[key: string]: unknown}).map(([key, item]) => [
         key,
-        key == "id" && typeof item == "string" ? replacements.get(item) ?? item : replace(item),
+        ["id", "$id", "$ref"].includes(key) && typeof item == "string" ? replacements.get(item) ?? item : replace(item),
       ]))
     } else if (Array.isArray(child)) {
       return child.map(replace)
