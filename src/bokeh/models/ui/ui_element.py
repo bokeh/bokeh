@@ -119,6 +119,11 @@ class UIElement(StyledElement):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+    def _repr_mimebundle_(self, include: set[str] | None = None,
+            exclude: set[str] | None = None) -> Any:
+        from ...io.notebook import notebook_mimebundle
+        return notebook_mimebundle(self, include=include, exclude=exclude)
+
     visible = Bool(default=True, help="""
     Whether the component should be displayed on screen.
     """)

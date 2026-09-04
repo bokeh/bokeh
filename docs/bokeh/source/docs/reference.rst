@@ -40,8 +40,8 @@ be especially useful.
     from the ``bokeh.layouts`` module.
 
 :ref:`bokeh.io`
-    Functions for saving and showing Bokeh documents, such as |save|, |show|,
-    and |output_notebook|, are in this module.
+    Functions for controlling where and how Bokeh documents are saved
+    or shown, such as |output_file| and |show|, are in this module.
 
 :ref:`bokeh.palettes`
     This section provides visual representations of all the palettes

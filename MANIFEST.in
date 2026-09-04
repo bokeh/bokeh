@@ -9,6 +9,9 @@ include src/bokeh/util/sampledata.json
 include src/bokeh/_sri.json
 include src/bokeh/LICENSE.txt
 include src/bokeh/py.typed
+graft src/bokeh/jupyter
+prune src/bokeh/jupyter/frontend
+global-exclude *.py[cod]
 
 # start with an empty static/ dir
 prune src/bokeh/server/static
