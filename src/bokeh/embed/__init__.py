@@ -22,11 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .artifact import (
-    ArtifactRoot,
-    ArtifactValidationError,
-    EmbedArtifact,
-)
+from .artifact import ArtifactRoot, ArtifactValidationError, EmbedArtifact
 from .compiler import (
     EmbedCompileError,
     EmbedSpec,

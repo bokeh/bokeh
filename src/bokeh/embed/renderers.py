@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import hashlib
 import json
 from dataclasses import dataclass
@@ -15,6 +16,7 @@ from html import escape
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Mapping
 
+# Bokeh imports
 from ..core.templates import FILE, MACROS, get_env
 from ..document import DEFAULT_TITLE
 from .artifact import EMBED_ARTIFACT_MIME_TYPE, EmbedArtifact
@@ -77,7 +79,11 @@ def render_fragment(artifact: EmbedArtifact, *, resources: ResourcePolicy | Reso
             "use artifact.external(payload_url=..., bootstrap_url=...)",
         )
     payload = _payload_tag(artifact, nonce=policy.nonce)
-    bootstrap = _inline_bootstrap(nonce=policy.nonce) if bootstrap_url is None else _external_bootstrap(bootstrap_url)
+    bootstrap = (
+        _inline_bootstrap(artifact.fingerprint, nonce=policy.nonce)
+        if bootstrap_url is None
+        else _external_bootstrap(bootstrap_url, artifact.fingerprint)
+    )
     script = f"{payload}\n{bootstrap}"
     html = "\n".join(filter(None, (_render_resources(resolved), *(mount.html for mount in mounts), script)))
     build_fingerprint = _build_fingerprint(
@@ -98,9 +104,9 @@ def render_external(artifact: EmbedArtifact, *, payload_url: str,
     if bootstrap_url is None:
         if policy.external_only:
             raise ValueError("external_only resource policy requires an external artifact bootstrap_url")
-        bootstrap = _inline_bootstrap(payload_url=payload_url, nonce=policy.nonce)
+        bootstrap = _inline_bootstrap(artifact.fingerprint, payload_url=payload_url, nonce=policy.nonce)
     else:
-        bootstrap = _external_bootstrap(bootstrap_url, payload_url=payload_url)
+        bootstrap = _external_bootstrap(bootstrap_url, artifact.fingerprint, payload_url=payload_url)
     html = "\n".join(filter(None, (_render_resources(resolved), *(mount.html for mount in mounts), bootstrap)))
     build_fingerprint = _build_fingerprint(
         artifact, resolved, "external", {"payload_url": payload_url, "bootstrap_url": bootstrap_url},
@@ -121,7 +127,11 @@ def render_page(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resource
             "use artifact.external(payload_url=..., bootstrap_url=...)",
         )
     payload = _payload_tag(artifact, nonce=policy.nonce)
-    bootstrap = _inline_bootstrap(nonce=policy.nonce) if bootstrap_url is None else _external_bootstrap(bootstrap_url)
+    bootstrap = (
+        _inline_bootstrap(artifact.fingerprint, nonce=policy.nonce)
+        if bootstrap_url is None
+        else _external_bootstrap(bootstrap_url, artifact.fingerprint)
+    )
     plot_script = f"{payload}\n{bootstrap}"
     plot_div = "\n".join(mount.html for mount in mounts)
     bokeh_js = _render_resources(resolved, kind="script")
@@ -194,23 +204,37 @@ def _mounts(artifact: EmbedArtifact, *, payload_url: str | None = None) -> tuple
 
 def _payload_tag(artifact: EmbedArtifact, *, nonce: str | None) -> str:
     payload = _html_safe_json(artifact.to_dict())
-    attrs = [f'type="{EMBED_ARTIFACT_MIME_TYPE}"', "data-bokeh-artifact-payload"]
+    attrs = [
+        f'type="{EMBED_ARTIFACT_MIME_TYPE}"',
+        "data-bokeh-artifact-payload",
+        f'data-bokeh-artifact="{escape(artifact.fingerprint, quote=True)}"',
+    ]
     if nonce is not None:
         attrs.append(f'nonce="{escape(nonce, quote=True)}"')
     return f"<script {' '.join(attrs)}>{payload}</script>"
 
 
-def _inline_bootstrap(*, payload_url: str | None = None, nonce: str | None = None) -> str:
-    attrs = "" if nonce is None else f' nonce="{escape(nonce, quote=True)}"'
-    payload_attr = "" if payload_url is None else f' data-bokeh-payload-url="{escape(payload_url, quote=True)}"'
+def _inline_bootstrap(fingerprint: str, *, payload_url: str | None = None, nonce: str | None = None) -> str:
+    attrs = [
+        "data-bokeh-artifact-bootstrap",
+        f'data-bokeh-artifact="{escape(fingerprint, quote=True)}"',
+    ]
+    if nonce is not None:
+        attrs.append(f'nonce="{escape(nonce, quote=True)}"')
+    if payload_url is not None:
+        attrs.append(f'data-bokeh-payload-url="{escape(payload_url, quote=True)}"')
     code = """void Bokeh.mount_artifact_declaration(document.currentScript).catch((error) => {
   console.error("Failed to mount Bokeh artifact", error);
 });"""
-    return f"<script{attrs}{payload_attr}>{code}</script>"
+    return f"<script {' '.join(attrs)}>{code}</script>"
 
 
-def _external_bootstrap(bootstrap_url: str, *, payload_url: str | None = None) -> str:
-    attrs = [f'src="{escape(bootstrap_url, quote=True)}"', "data-bokeh-artifact-bootstrap"]
+def _external_bootstrap(bootstrap_url: str, fingerprint: str, *, payload_url: str | None = None) -> str:
+    attrs = [
+        f'src="{escape(bootstrap_url, quote=True)}"',
+        "data-bokeh-artifact-bootstrap",
+        f'data-bokeh-artifact="{escape(fingerprint, quote=True)}"',
+    ]
     if payload_url is not None:
         attrs.append(f'data-bokeh-payload-url="{escape(payload_url, quote=True)}"')
     return f"<script {' '.join(attrs)}></script>"

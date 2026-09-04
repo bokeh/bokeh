@@ -8,12 +8,14 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import hashlib
 import json
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Mapping
 
+# Bokeh imports
 from .. import __version__
 from .resources import ResourceRequirements
 

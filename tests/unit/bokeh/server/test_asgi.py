@@ -266,22 +266,20 @@ async def test_framework_free_example_routes_site_and_bokeh(monkeypatch: pytest.
 
         assert response_status(index) == 200
         assert b"Bokeh meets <span>framework-free ASGI</span>" in response_body(index)
-        assert b'xhr.open(\'GET\', "/bkapp/autoload.js?' in response_body(index)
-        assert b"bokeh-app-path=/bkapp" in response_body(index)
-        assert b"bokeh-absolute-url" not in response_body(index)
+        assert b'\"kind\":\"server\"' in response_body(index)
+        assert b'\"url\":\"/bkapp\"' in response_body(index)
+        assert b'\"relative_urls\":true' in response_body(index)
         assert b"<iframe" not in response_body(index)
         assert response_status(document) == 200
         assert b"Bokeh ASGI Fourier studio" in response_body(document)
         assert b'/bkapp/static/js/bokeh' in response_body(document)
         assert response_status(missing) == 404
 
-        autoload = await http_request(application, "/bkapp/autoload.js", query={
-            "bokeh-autoload-element": "target",
-            "bokeh-app-path": "/bkapp",
-        })
-        assert response_status(autoload) == 200
-        assert b"target" in response_body(autoload)
-        assert b'/bkapp/static/js/bokeh' in response_body(autoload)
+        bootstrap = await http_request(application, "/bkapp/embed.json")
+        assert response_status(bootstrap) == 200
+        assert b'"schema": "bokeh.embed-server/v1"' in response_body(bootstrap)
+        assert b'"token"' in response_body(bootstrap)
+        assert b"static/js" not in response_body(bootstrap)
     finally:
         await bokeh_application.core.stop()
 
@@ -333,12 +331,10 @@ async def test_framework_example_composes_bokeh_lifespan(monkeypatch: pytest.Mon
     proxied_page = namespace["render_page"]("/proxy/")
 
     assert namespace["app"].lifespan is lifespan
-    assert "/bkapp/autoload.js" in page
-    assert "bokeh-app-path=/bkapp" in page
-    assert "bokeh-absolute-url" not in page
+    assert '\"url\":\"/bkapp\"' in page
+    assert '\"relative_urls\":true' in page
     assert "<iframe" not in page
-    assert "/proxy/bkapp/autoload.js" in proxied_page
-    assert "bokeh-app-path=/proxy/bkapp" in proxied_page
+    assert '\"url\":\"/proxy/bkapp\"' in proxied_page
     assert not application.core._started
     async with lifespan(namespace["app"]):
         assert application.core._started
@@ -622,21 +618,45 @@ async def test_mount_root_path_is_included_in_root_navigation() -> None:
         await listing.core.stop()
 
 
-async def test_autoload_and_static_routes() -> None:
+async def test_embed_bootstrap_and_static_routes() -> None:
     app = BokehASGI(Application())
     try:
-        autoload = await http_request(app, "/autoload.js", query={
-            "bokeh-autoload-element": "target",
-            "bokeh-app-path": "/",
-        })
+        bootstrap = await http_request(app, "/embed.json")
         static = await http_request(app, "/static/js/bokeh.min.js")
         traversal = await http_request(app, "/static/../asgi.py")
 
-        assert response_status(autoload) == 200
-        assert b"target" in response_body(autoload)
+        assert response_status(bootstrap) == 200
+        assert b'"schema": "bokeh.embed-server/v1"' in response_body(bootstrap)
+        assert b'"token"' in response_body(bootstrap)
         assert response_status(static) == 200
         assert b"Bokeh Contributors" in response_body(static)
         assert response_status(traversal) == 404
+    finally:
+        await app.core.stop()
+
+
+async def test_embed_bootstrap_cors_matches_websocket_origin_policy() -> None:
+    app = BokehASGI(
+        Application(),
+        extra_websocket_origins=["trusted.example:80"],
+        keep_alive_milliseconds=0,
+    )
+    try:
+        allowed = await http_request(app, "/embed.json", headers=[
+            (b"origin", b"http://trusted.example"),
+            (b"access-control-request-headers", b"X-Account"),
+        ])
+        rejected = await http_request(app, "/embed.json", headers=[
+            (b"origin", b"http://evil.example"),
+        ])
+
+        assert response_status(allowed) == 200
+        assert response_header(allowed, b"access-control-allow-origin") == b"http://trusted.example"
+        assert response_header(allowed, b"access-control-allow-headers") == b"X-Account"
+        assert response_header(allowed, b"access-control-allow-credentials") == b"true"
+        assert response_status(rejected) == 403
+        assert response_body(rejected) == b"Origin is not allowed"
+        assert len(app.core.get_sessions("/")) == 1
     finally:
         await app.core.stop()
 
@@ -668,7 +688,7 @@ async def test_root_application_static_files_stream_and_head_only_stats(tmp_path
         await app.core.stop()
 
 
-async def test_options_only_dispatches_autoload_preflight() -> None:
+async def test_options_only_dispatches_embed_preflight() -> None:
     initialized = 0
 
     def modify_document(doc: Document) -> None:
@@ -680,7 +700,7 @@ async def test_options_only_dispatches_autoload_preflight() -> None:
         document = await http_request(app, "/", method="OPTIONS")
         metadata = await http_request(app, "/metadata", method="OPTIONS")
         static = await http_request(app, "/static/js/bokeh.min.js", method="OPTIONS")
-        preflight = await http_request(app, "/autoload.js", method="OPTIONS")
+        preflight = await http_request(app, "/embed.json", method="OPTIONS")
 
         assert [response_status(response) for response in (document, metadata, static)] == [405, 405, 405]
         assert response_header(document, b"allow") == b"GET, HEAD"
@@ -799,7 +819,7 @@ async def test_auth_policy_leaves_static_assets_and_preflight_public() -> None:
     app = BokehASGI(Application(), auth_policy=AuthPolicy(authenticate))
     try:
         static = await http_request(app, "/static/js/bokeh.min.js")
-        preflight = await http_request(app, "/autoload.js", method="OPTIONS")
+        preflight = await http_request(app, "/embed.json", method="OPTIONS")
 
         assert response_status(static) == 200
         assert response_status(preflight) == 204

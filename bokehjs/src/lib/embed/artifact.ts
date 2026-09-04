@@ -55,15 +55,26 @@ export type PreparedArtifact = {
   release(): void
 }
 
+export type ArtifactErrorPhase = "schema" | "fingerprint" | "resource" | "deserialize" | "payload" | "session"
+export type ArtifactErrorSource = {
+  readonly kind: "artifact"
+  readonly artifact?: string
+  readonly url?: string
+}
+
 export class ArtifactError extends Error {
   override readonly name = "BokehArtifactError"
+  readonly phase: ArtifactErrorPhase
 
   constructor(
     readonly kind: "schema" | "decode" | "resource" | "http" | "websocket" | "session",
     message: string,
     override readonly cause?: unknown,
+    phase?: ArtifactErrorPhase,
+    readonly source?: ArtifactErrorSource,
   ) {
     super(message)
+    this.phase = phase ?? (kind == "decode" ? "deserialize" : kind == "http" ? "payload" : kind == "websocket" ? "session" : kind)
   }
 }
 
@@ -175,13 +186,16 @@ export async function prepare_embed_artifact(value: unknown, policy: ResourcePol
   if (artifact.fingerprint != fingerprint) {
     throw new ArtifactError(
       "schema", `artifact fingerprint mismatch: expected '${fingerprint}', received '${artifact.fingerprint}'`,
+      undefined, "fingerprint", {kind: "artifact", artifact: artifact.fingerprint},
     )
   }
   try {
     await resource_loader.ensure(artifact.requires, policy, artifact.bokeh_version)
   } catch (error) {
     if (error instanceof ResourceError) {
-      throw new ArtifactError("resource", error.message, error)
+      throw new ArtifactError(
+        "resource", error.message, error, "resource", {kind: "artifact", artifact: artifact.fingerprint},
+      )
     }
     throw error
   }
@@ -264,7 +278,10 @@ function prepare_standalone(artifact: EmbedArtifact, resolver?: ModelResolver): 
   try {
     document = Document.from_json(documents[0], {resolver})
   } catch (error) {
-    throw new ArtifactError("decode", `failed to decode standalone Bokeh artifact: ${error}`, error)
+    throw new ArtifactError(
+      "decode", `failed to decode standalone Bokeh artifact: ${error}`, error,
+      "deserialize", {kind: "artifact", artifact: artifact.fingerprint},
+    )
   }
   try {
     const roots = new Map<string, HasProps>()
@@ -316,22 +333,28 @@ async function prepare_server(artifact: EmbedArtifact, signal?: AbortSignal): Pr
     try {
       response = await fetch(endpoint, {headers, credentials: source.credentials ?? "same-origin", signal})
     } catch (error) {
-      throw new ArtifactError("http", `failed to request Bokeh server artifact from ${endpoint}: ${error}`, error)
+      throw new ArtifactError(
+        "http", `failed to request Bokeh server artifact from ${endpoint}: ${error}`, error,
+        "payload", {kind: "artifact", artifact: artifact.fingerprint, url: endpoint.href},
+      )
     }
     if (!response.ok) {
       throw new ArtifactError(
         "http", `Bokeh server artifact request failed: ${response.status} ${response.statusText}`,
+        response, "payload", {kind: "artifact", artifact: artifact.fingerprint, url: endpoint.href},
       )
     }
     const bootstrap = as_record(await response.json(), "Bokeh server bootstrap")
     if (bootstrap.schema != "bokeh.embed-server/v1") {
       throw new ArtifactError(
         "schema", `unsupported Bokeh server bootstrap schema '${bootstrap.schema}'; expected 'bokeh.embed-server/v1'`,
+        undefined, "schema", {kind: "artifact", artifact: artifact.fingerprint, url: endpoint.href},
       )
     }
     if (bootstrap.bokeh_version != artifact.bokeh_version) {
       throw new ArtifactError(
         "schema", `Bokeh server bootstrap version '${bootstrap.bokeh_version}' does not match artifact version '${artifact.bokeh_version}'`,
+        undefined, "schema", {kind: "artifact", artifact: artifact.fingerprint, url: endpoint.href},
       )
     }
     token = as_string(bootstrap.token, "Bokeh server bootstrap token")
@@ -343,7 +366,10 @@ async function prepare_server(artifact: EmbedArtifact, signal?: AbortSignal): Pr
     const args = new URLSearchParams(source.arguments ?? {}).toString()
     session = await pull_session(websocket_url, token, args)
   } catch (error) {
-    throw new ArtifactError("websocket", `failed to open Bokeh server session at ${websocket_url}: ${error}`, error)
+    throw new ArtifactError(
+      "websocket", `failed to open Bokeh server session at ${websocket_url}: ${error}`, error,
+      "session", {kind: "artifact", artifact: artifact.fingerprint, url: websocket_url},
+    )
   }
 
   try {

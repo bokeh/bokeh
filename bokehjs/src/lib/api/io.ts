@@ -132,6 +132,27 @@ export type MountErrorKind =
   | "websocket"
   | "session"
 
+/** Precise artifact or mount phase in which a failure occurred. */
+export type MountErrorPhase =
+  | "bootstrap"
+  | "payload"
+  | "schema"
+  | "fingerprint"
+  | "resource"
+  | "deserialize"
+  | "session"
+  | "target"
+  | "render"
+  | "abort"
+  | "dispose"
+
+/** Artifact/declaration identity attached to an externally observable failure. */
+export type MountErrorSource = {
+  readonly kind: "artifact-declaration" | "artifact" | "mount"
+  readonly artifact?: string
+  readonly url?: string
+}
+
 /** Error reported by mount readiness, mutation, discovery, or disposal. */
 export class MountError extends Error {
   override readonly name = "BokehMountError"
@@ -141,6 +162,8 @@ export class MountError extends Error {
     message: string,
     override readonly cause?: unknown,
     readonly root_key?: RootKey,
+    readonly phase?: MountErrorPhase,
+    readonly source?: MountErrorSource,
   ) {
     super(message)
   }
@@ -314,7 +337,7 @@ function mount_error(kind: MountErrorKind, error: unknown, root_key?: RootKey): 
   } else if (error instanceof StandaloneRootError) {
     return mount_error(kind, error.cause, error.root_key)
   } else if (error instanceof ArtifactError) {
-    return new MountError(error.kind, error.message, error, root_key)
+    return new MountError(error.kind, error.message, error, root_key, error.phase, error.source)
   }
   const message = error instanceof Error ? error.message : `${error}`
   return new MountError(kind, message, error, root_key)
@@ -486,6 +509,9 @@ export class BokehMount<T extends HasProps = HasProps> {
   }
 
   get view_lookup(): ViewLookup {
+    if (this._mount == null) {
+      throw new MountError("source", "Bokeh mount view lookup is not available before mount readiness")
+    }
     return this._mount.views
   }
 
@@ -557,6 +583,9 @@ export class BokehMount<T extends HasProps = HasProps> {
   }
 
   private _sync_published_targets(): void {
+    if (this._mount == null) {
+      return
+    }
     const attached = new Set(this._mount.targets.values())
     for (const target of attached) {
       this._publish_target(target)
@@ -754,87 +783,163 @@ export async function mount_artifact_declaration(
   options: MountOptions = {},
 ): Promise<BokehMount> {
   if (script == null) {
-    throw new MountError("source", "an artifact declaration script is required")
+    throw new MountError("source", "an artifact declaration script is required", undefined, undefined, "bootstrap")
   }
-  const payload_url = script.dataset.bokehPayloadUrl
-  let value: unknown
-  if (payload_url != null) {
-    let response: Response
-    try {
-      response = await fetch(payload_url)
-    } catch (error) {
-      throw new MountError("http", `failed to fetch Bokeh artifact from ${payload_url}: ${error}`, error)
-    }
-    if (!response.ok) {
-      throw new MountError("http", `Bokeh artifact request failed: ${response.status} ${response.statusText}`)
-    }
-    try {
-      value = await response.json()
-    } catch (error) {
-      throw new MountError("decode", `failed to decode Bokeh artifact from ${payload_url}: ${error}`, error)
-    }
-  } else {
-    const payload = script.previousElementSibling
-    if (!(payload instanceof HTMLScriptElement) || payload.dataset.bokehArtifactPayload == null) {
-      throw new MountError("source", "an inline artifact declaration must follow its JSON payload script")
-    }
-    try {
-      value = JSON.parse(payload.textContent)
-    } catch (error) {
-      throw new MountError("decode", `failed to decode inline Bokeh artifact: ${error}`, error)
-    }
-  }
-
-  let artifact: EmbedArtifact
+  let source = declaration_source(script)
+  let affected_targets = await declaration_targets(script, source.artifact)
+  affected_targets.forEach(clear_mount_error)
   try {
-    artifact = validate_embed_artifact(value)
-  } catch (error) {
-    throw mount_error("schema", error)
-  }
-  const candidates = [...document.querySelectorAll<HTMLElement>(
-    "[data-bokeh-artifact][data-bokeh-root]:not([data-bokeh-mounted])",
-  )]
-  const targets = new Map<RootKey, HTMLElement>()
-  for (const root of artifact.roots) {
-    const target = candidates.find((candidate) =>
-      candidate.dataset.bokehArtifact == artifact.fingerprint && candidate.dataset.bokehRoot == root.key)
-    if (target == null) {
-      throw new MountError("target", `missing declaration target for Bokeh artifact root '${root.key}'`, undefined, root.key)
+    if (options.signal?.aborted == true) {
+      throw new MountError(
+        "abort", abort_message(options.signal.reason), options.signal.reason, undefined, "abort", source,
+      )
     }
-    targets.set(root.key, target)
-  }
-  const server_default = artifact.source.kind == "server" && artifact.roots.length == 0
-  const default_target = server_default
-    ? candidates.find((candidate) =>
-      candidate.dataset.bokehArtifact == artifact.fingerprint && candidate.dataset.bokehRoot == "*")
-    : undefined
-  if (server_default && default_target == null) {
-    throw new MountError("target", "missing declaration target for Bokeh server artifact", undefined, "*")
-  }
-  for (const target of targets.values()) {
-    target.dataset.bokehMounted = artifact.fingerprint
-  }
-  if (default_target != null) {
-    default_target.dataset.bokehMounted = artifact.fingerprint
-  }
 
-  const handle = server_default
-    ? mount(artifact, default_target, {resources: "none", ...options})
-    : mount(artifact, {targets, resources: "none", ...options})
-  for (const target of [...targets.values(), ...(default_target == null ? [] : [default_target])]) {
-    const decorated = target as HTMLElement & {bokehMount?: BokehMount}
-    decorated.bokehMount = handle
-  }
-  try {
+    const payload_url = script.dataset.bokehPayloadUrl
+    const value = await (async () => {
+      if (payload_url != null) {
+        const response = await (async () => {
+          try {
+            return await fetch(payload_url, {signal: options.signal})
+          } catch (error) {
+            const reason = options.signal?.reason
+            if (error instanceof DOMException && error.name == "AbortError" || reason === error) {
+              throw new MountError("abort", abort_message(reason), error, undefined, "payload", source)
+            }
+            throw new MountError(
+              "http", `failed to fetch Bokeh artifact from ${payload_url}: ${error}`, error, undefined, "payload", source,
+            )
+          }
+        })()
+        if (!response.ok) {
+          throw new MountError(
+            "http", `Bokeh artifact request failed: ${response.status} ${response.statusText}`,
+            response, undefined, "payload", source,
+          )
+        }
+        try {
+          return await response.json()
+        } catch (error) {
+          throw new MountError(
+            "decode", `failed to decode Bokeh artifact from ${payload_url}: ${error}`, error, undefined, "payload", source,
+          )
+        }
+      } else {
+        const payload = script.previousElementSibling
+        if (!(payload instanceof HTMLScriptElement) || payload.dataset.bokehArtifactPayload == null) {
+          throw new MountError(
+            "source", "an inline artifact declaration must follow its JSON payload script",
+            undefined, undefined, "payload", source,
+          )
+        }
+        try {
+          return JSON.parse(payload.textContent)
+        } catch (error) {
+          throw new MountError(
+            "decode", `failed to decode inline Bokeh artifact: ${error}`, error, undefined, "payload", source,
+          )
+        }
+      }
+    })()
+
+    const artifact = (() => {
+      try {
+        return validate_embed_artifact(value)
+      } catch (error) {
+        throw declaration_error(error, source, "schema")
+      }
+    })()
+    if (source.artifact != null && source.artifact != artifact.fingerprint) {
+      throw new MountError(
+        "schema",
+        `artifact declaration fingerprint '${source.artifact}' does not match payload '${artifact.fingerprint}'`,
+        undefined, undefined, "fingerprint", source,
+      )
+    }
+    if (source.artifact == null) {
+      source = {...source, artifact: artifact.fingerprint}
+      affected_targets = await declaration_targets(script, source.artifact)
+      affected_targets.forEach(clear_mount_error)
+    }
+
+    const targets = new Map<RootKey, HTMLElement>()
+    for (const root of artifact.roots) {
+      const target = affected_targets.find((candidate) => candidate.dataset.bokehRoot == root.key)
+      if (target == null) {
+        throw new MountError(
+          "target", `missing declaration target for Bokeh artifact root '${root.key}'`,
+          undefined, root.key, "target", source,
+        )
+      }
+      targets.set(root.key, target)
+    }
+    const server_default = artifact.source.kind == "server" && artifact.roots.length == 0
+    const default_target = server_default
+      ? affected_targets.find((candidate) => candidate.dataset.bokehRoot == "*")
+      : undefined
+    if (server_default && default_target == null) {
+      throw new MountError(
+        "target", "missing declaration target for Bokeh server artifact", undefined, "*", "target", source,
+      )
+    }
+
+    const handle = server_default
+      ? mount(artifact, default_target, {resources: "none", ...options})
+      : mount(artifact, {targets, resources: "none", ...options})
     await handle.ready
+    return handle
   } catch (error) {
-    for (const target of [...targets.values(), ...(default_target == null ? [] : [default_target])]) {
-      delete target.dataset.bokehMounted
-      delete (target as HTMLElement & {bokehMount?: BokehMount}).bokehMount
-    }
-    throw error
+    const mounted_error = declaration_error(error, source)
+    affected_targets.forEach((target) => publish_mount_error(target, mounted_error))
+    throw mounted_error
   }
-  return handle
+}
+
+function declaration_source(script: HTMLScriptElement): MountErrorSource {
+  return {
+    kind: "artifact-declaration",
+    artifact: script.dataset.bokehArtifact,
+    url: script.dataset.bokehPayloadUrl,
+  }
+}
+
+async function declaration_targets(script: HTMLScriptElement, fingerprint?: string): Promise<HTMLElement[]> {
+  await dom_ready()
+  if (fingerprint == null) {
+    return []
+  }
+
+  const bootstraps = [...document.querySelectorAll<HTMLScriptElement>("script[data-bokeh-artifact-bootstrap]")]
+    .filter((candidate) => candidate.dataset.bokehArtifact == fingerprint)
+  const bootstrap_index = Math.max(bootstraps.indexOf(script), 0)
+  const candidates = [...document.querySelectorAll<HTMLElement>("[data-bokeh-artifact][data-bokeh-root]")]
+    .filter((candidate) => candidate.dataset.bokehArtifact == fingerprint)
+  const roots = new Map<string, HTMLElement[]>()
+  for (const candidate of candidates) {
+    const key = candidate.dataset.bokehRoot!
+    const targets = roots.get(key) ?? []
+    targets.push(candidate)
+    roots.set(key, targets)
+  }
+  return [...roots.values()]
+    .filter((targets) => bootstrap_index < targets.length)
+    .map((targets) => targets[bootstrap_index])
+}
+
+function declaration_error(error: unknown, source: MountErrorSource,
+    phase: MountErrorPhase = "bootstrap"): MountError {
+  const mounted_error = mount_error("source", error)
+  if (mounted_error.source == source) {
+    return mounted_error
+  }
+  return new MountError(
+    mounted_error.kind, mounted_error.message, mounted_error, mounted_error.root_key,
+    mounted_error.phase ?? phase, source,
+  )
+}
+
+function abort_message(reason: unknown): string {
+  return reason instanceof Error ? reason.message : "Bokeh artifact declaration was aborted"
 }
 
 export function show<T extends ShowableRoot>(obj: T, target?: MountTarget): BokehMount<T>
