@@ -41,9 +41,11 @@ export function parse_token(token: string): Token {
 // unnecessary reconnect attempt and a UI notification just before page reloads.
 let _prevent_reconnect: boolean = false
 
-addEventListener("beforeunload", () => {
-  _prevent_reconnect = true
-})
+if (typeof addEventListener != "undefined") {
+  addEventListener("beforeunload", () => {
+    _prevent_reconnect = true
+  })
+}
 
 export class ClientConnection {
   protected readonly _number = _connection_count++

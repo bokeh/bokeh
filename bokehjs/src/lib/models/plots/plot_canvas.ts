@@ -279,7 +279,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   protected override _provide_context_menu(): Menu | null {
-    return new ToolMenu({toolbar: this.model.toolbar})
+    return ToolMenu.create({toolbar: this.model.toolbar})
   }
 
   override get_context_menu(xy: XY): ViewOf<Menu> | null {
@@ -305,17 +305,17 @@ export class PlotView extends LayoutDOMView implements Paintable {
       selection: new Map(), // XXX: initial selection?
     }
 
-    this._top_panel = new CanvasPanel({place: "above"})
-    this._bottom_panel = new CanvasPanel({place: "below"})
-    this._left_panel = new CanvasPanel({place: "left"})
-    this._right_panel = new CanvasPanel({place: "right"})
+    this._top_panel = CanvasPanel.create({place: "above"})
+    this._bottom_panel = CanvasPanel.create({place: "below"})
+    this._left_panel = CanvasPanel.create({place: "left"})
+    this._right_panel = CanvasPanel.create({place: "right"})
 
-    this._inner_top_panel = new CanvasPanel({place: "above", inner: true})
-    this._inner_bottom_panel = new CanvasPanel({place: "below", inner: true})
-    this._inner_left_panel = new CanvasPanel({place: "left", inner: true})
-    this._inner_right_panel = new CanvasPanel({place: "right", inner: true})
+    this._inner_top_panel = CanvasPanel.create({place: "above", inner: true})
+    this._inner_bottom_panel = CanvasPanel.create({place: "below", inner: true})
+    this._inner_left_panel = CanvasPanel.create({place: "left", inner: true})
+    this._inner_right_panel = CanvasPanel.create({place: "right", inner: true})
 
-    this._frame = new CartesianFrame({
+    this._frame = CartesianFrame.create({
       place: "center",
       x_scale: this.model.x_scale,
       y_scale: this.model.y_scale,
@@ -340,30 +340,30 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
-      this._title = title instanceof Title ? title : new Title({text: title})
+      this._title = title instanceof Title ? title : Title.create({text: title})
     }
 
     const {toolbar_location, toolbar_inner, toolbar} = this.model
     if (toolbar_location != null) {
-      this._toolbar = new ToolbarPanel({toolbar})
+      this._toolbar = ToolbarPanel.create({toolbar})
       toolbar.location = toolbar_location
       toolbar.inner = toolbar_inner
     }
 
-    this._canvas = new Canvas({output_backend: this.model.output_backend})
+    this._canvas = Canvas.create({output_backend: this.model.output_backend})
 
-    this._attribution = new Panel({
-      position: new Node({target: "frame", symbol: "bottom_right"}),
+    this._attribution = Panel.create({
+      position: Node.create({target: "frame", symbol: "bottom_right"}),
       anchor: "bottom_right",
       elements: [],
       css_variables: {
-        "--max-width": new Node({target: "frame", symbol: "width"}),
+        "--max-width": Node.create({target: "frame", symbol: "width"}),
       },
       stylesheets: [attribution_css.default],
     })
 
-    this._notifications = new Panel({
-      position: new Node({target: this.model, symbol: "top_center"}),
+    this._notifications = Panel.create({
+      position: Node.create({target: this.model, symbol: "top_center"}),
       anchor: "top_center",
       elements: [],
       stylesheets: [`
@@ -903,7 +903,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       ...this.model.attribution,
       ...this.computed_renderer_views.filter((rv) => rv.displayed).map((rv) => rv.attribution),
     ].filter((rv) => rv != null)
-    const elements = attribution.map((attrib) => isString(attrib) ? new Div({children: [attrib]}) : attrib)
+    const elements = attribution.map((attrib) => isString(attrib) ? Div.create({children: [attrib]}) : attrib)
     this._attribution.elements = elements
     // TODO this._attribution.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")
   }
@@ -1037,7 +1037,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       } else {
         if (toolbar_location != null) {
           const {toolbar, toolbar_inner} = this.model
-          this._toolbar = new ToolbarPanel({toolbar})
+          this._toolbar = ToolbarPanel.create({toolbar})
           toolbar.location = toolbar_location
           toolbar.inner = toolbar_inner
           await this._update_renderers()
@@ -1500,7 +1500,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     if (this._messages.has(message)) {
       return
     }
-    const el = new Div({children: [message]})
+    const el = Div.create({children: [message]})
     const timer = setTimeout(() => {
       this._messages.delete(message)
       this._notifications.elements = this._notifications.elements.filter((item) => item != el)

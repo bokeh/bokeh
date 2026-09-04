@@ -6,17 +6,17 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 describe("linear_interpolator_transform module", () => {
 
   function generate_interpolator_ColumnDataSource() {
-    return new LinearInterpolator({
+    return LinearInterpolator.create({
       x: "var1",
       y: "var2",
-      data: new ColumnDataSource({
+      data: ColumnDataSource.create({
         data: {var1: [0, 5, 15], var2: [10, 20, 30]},
       }),
     })
   }
 
   function generate_interpolator_inline() {
-    return new LinearInterpolator({
+    return LinearInterpolator.create({
       x: [0, 5, 15],
       y: [10, 20, 30],
     })

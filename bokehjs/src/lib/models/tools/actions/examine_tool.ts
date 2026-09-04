@@ -35,10 +35,10 @@ export class ExamineToolView extends ActionToolView {
     // TODO add support for VNode to HTML model
     title_el.prepend("Examine ")
 
-    const dialog = new Dialog({
+    const dialog = Dialog.create({
       stylesheets: [pretty_css],
-      title: new HTML({html: title_el}),
-      content: new Examiner({target, stylesheets: [":host { width: 100%; height: 100%; }"]}),
+      title: HTML.create({html: title_el}),
+      content: Examiner.create({target, stylesheets: [":host { width: 100%; height: 100%; }"]}),
       visible: false,
       close_action: "hide",
     })
@@ -66,14 +66,10 @@ export class ExamineTool extends ActionTool {
   declare properties: ExamineTool.Props
   declare __view_type__: ExamineToolView
 
-  constructor(attrs?: Partial<ExamineTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ExamineToolView
 
-    this.register_alias("examine", () => new ExamineTool())
+    this.register_alias("examine", () => ExamineTool.create())
   }
 
   override tool_name = "Examine"

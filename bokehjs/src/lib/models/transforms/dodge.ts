@@ -14,10 +14,6 @@ export interface Dodge extends Dodge.Attrs {}
 export class Dodge extends RangeTransform {
   declare properties: Dodge.Props
 
-  constructor(attrs?: Partial<Dodge.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Dodge.Props>(({Float}) => ({
       value: [ Float, 0 ],

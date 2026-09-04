@@ -31,13 +31,6 @@ export class ToolProxy<T extends Tool> extends Model {
   declare properties: ToolProxy.Props<T>
   declare __view_type__: ToolView
 
-  constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
-    super(attrs)
-    // This is not ideal, because this should be done in connect signals,
-    // but that would fail with accessing undefined 'do' attribute.
-    this.connect(this.do, () => this.doit())
-  }
-
   static {
     this.define<ToolProxy.Props<Tool>, ToolProxy<Tool>>(({Bool, List, Ref, Or}) => ({
       tools:    [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
@@ -109,6 +102,7 @@ export class ToolProxy<T extends Tool> extends Model {
 
   override connect_signals(): void {
     super.connect_signals()
+    this.connect(this.do, () => this.doit())
     this.connect(this.properties.active.change, () => this.set_active())
     for (const tool of this.tools) {
       this.connect(tool.properties.active.change, () => {
@@ -148,7 +142,7 @@ export class ToolProxy<T extends Tool> extends Model {
             }
             const item = menu[i]
             if (item instanceof MenuItem && item.action != null) {
-              void execute(item.action, new Menu(), {item})
+              void execute(item.action, Menu.create(), {item})
             }
           }
         }

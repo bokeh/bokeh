@@ -42,10 +42,6 @@ export abstract class ToggleInput extends Widget {
   declare properties: ToggleInput.Props
   declare __view_type__: ToggleInputView
 
-  constructor(attrs?: Partial<ToggleInput.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ToggleInput.Props>(({Bool, Nullable, Str}) => ({
       active: [ Nullable(Bool), false ],

@@ -20,7 +20,7 @@ describe("Interpolator model", () => {
   }
 
   it("should correctly sort multiple arrays simultaneously (descending = false)", () => {
-    const interpolator = new CustomInterpolator({
+    const interpolator = CustomInterpolator.create({
       x: [15, 1, 0, -3, 15, 17, -4, 18, -5, 100, -15],
       y: [-1, 18, -2, 8, -17, -16, 4, 5, 12, -3, 12],
     })
@@ -30,7 +30,7 @@ describe("Interpolator model", () => {
   })
 
   it("should correctly sort multiple arrays simultaneously (descending = true)", () => {
-    const interpolator = new CustomInterpolator({
+    const interpolator = CustomInterpolator.create({
       x: [15, 1, 0, -3, 15, 17, -4, 18, -5, 100, -15],
       y: [-1, 18, -2, 8, -17, -16, 4, 5, 12, -3, 12],
     })

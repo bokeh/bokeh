@@ -98,7 +98,7 @@ export class HSpanView extends GlyphView {
     const indices = this._find_spans(candidates, (sy, line_width) => {
       return abs(sy - gsy) <= max(line_width/2, 2/*px*/)
     })
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -113,7 +113,7 @@ export class HSpanView extends GlyphView {
         })
       }
     })()
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
@@ -124,7 +124,7 @@ export class HSpanView extends GlyphView {
         return gsy0 - line_width/2 <= sy && sy <= gsy1 + line_width/2
       })
     })()
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -153,10 +153,6 @@ export interface HSpan extends HSpan.Attrs {}
 export class HSpan extends Glyph {
   declare properties: HSpan.Props
   declare __view_type__: HSpanView
-
-  constructor(attrs?: Partial<HSpan.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = HSpanView

@@ -40,7 +40,7 @@ export abstract class AbstractButtonView extends ControlView {
     this.label_view?.remove()
     const label = (() => {
       const {label} = this.model
-      return isString(label) ? new Text({content: label}) : label
+      return isString(label) ? Text.create({content: label}) : label
     })()
     this.label_view = await this.owner.build_view(label, this)
   }
@@ -117,10 +117,6 @@ export interface AbstractButton extends AbstractButton.Attrs {}
 export abstract class AbstractButton extends Control {
   declare properties: AbstractButton.Props
   declare __view_type__: AbstractButtonView
-
-  constructor(attrs?: Partial<AbstractButton.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<AbstractButton.Props>(({Str, Ref, Or, Nullable}) => ({

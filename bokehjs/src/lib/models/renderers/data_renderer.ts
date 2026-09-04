@@ -51,10 +51,6 @@ export abstract class DataRenderer extends Renderer {
   declare properties: DataRenderer.Props
   declare __view_type__: DataRendererView
 
-  constructor(attrs?: Partial<DataRenderer.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<DataRenderer.Props>({
       level: "glyph",

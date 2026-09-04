@@ -114,10 +114,6 @@ export class Title extends TextAnnotation {
   declare properties: Title.Props
   declare __view_type__: TitleView
 
-  constructor(attrs?: Partial<Title.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TitleView
 

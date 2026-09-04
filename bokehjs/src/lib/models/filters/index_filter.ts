@@ -16,10 +16,6 @@ export interface IndexFilter extends IndexFilter.Attrs {}
 export class IndexFilter extends Filter {
   declare properties: IndexFilter.Props
 
-  constructor(attrs?: Partial<IndexFilter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<IndexFilter.Props>(({Int, Iterable, Nullable}) => ({
       indices: [ Nullable(Iterable(Int)), null ],

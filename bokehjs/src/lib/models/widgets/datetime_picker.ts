@@ -43,10 +43,6 @@ export class DatetimePicker extends BaseDatetimePicker {
 
   declare value: DateLike | null
 
-  constructor(attrs?: Partial<DatetimePicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = DatetimePickerView
 

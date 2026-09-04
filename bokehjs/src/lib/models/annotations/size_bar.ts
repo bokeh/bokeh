@@ -69,10 +69,6 @@ class InternalPlot extends Plot {
   declare properties: InternalPlot.Props
   declare __view_type__: InternalPlotView
 
-  constructor(attrs?: Partial<InternalPlot.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = InternalPlotView
   }
@@ -143,16 +139,16 @@ export class SizeBarView extends BaseBarView implements Exportable {
 
     const {orientation} = this
 
-    this._major_range = new Range1d()
-    this._major_scale = new LinearScale()
+    this._major_range = Range1d.create()
+    this._major_scale = LinearScale.create()
 
-    this._minor_range = new Range1d()
-    this._minor_scale = new LinearScale()
+    this._minor_range = Range1d.create()
+    this._minor_scale = LinearScale.create()
 
-    const renderer = this.renderer ?? new GlyphRenderer({glyph: new Circle()})
+    const renderer = this.renderer ?? GlyphRenderer.create({glyph: Circle.create()})
 
-    const Cls = renderer.glyph.constructor as any // expression not constructible
-    const glyph: RadialGlyph = new Cls({
+    const Cls = renderer.glyph.constructor
+    const glyph: RadialGlyph = Cls.create({
       x: {field: "x"},
       y: {field: "y"},
       radius: {field: "s", units: "screen"},
@@ -160,19 +156,19 @@ export class SizeBarView extends BaseBarView implements Exportable {
       ...mixins.attrs_of(this.model, "glyph_", mixins.FillVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.HatchVector),
     } as RadialGlyph.Attrs)
-    this._data_source = new ColumnDataSource({
+    this._data_source = ColumnDataSource.create({
       data: {
         x: [],
         y: [],
         s: [],
       },
     })
-    const circle_renderer = new GlyphRenderer({data_source: this._data_source, glyph})
+    const circle_renderer = GlyphRenderer.create({data_source: this._data_source, glyph})
 
     const {ticker, formatter} = this.model
-    this._major_ticker = ticker != "auto" ? ticker : new FixedTicker({ticks: []})
-    this._major_formatter = formatter != "auto" ? formatter : new BasicTickFormatter()
-    this._major_axis = new LinearAxis({
+    this._major_ticker = ticker != "auto" ? ticker : FixedTicker.create({ticks: []})
+    this._major_formatter = formatter != "auto" ? formatter : BasicTickFormatter.create()
+    this._major_axis = LinearAxis.create({
       ticker: this._major_ticker,
       formatter: this._major_formatter,
       axis_line_color: null,
@@ -190,7 +186,7 @@ export class SizeBarView extends BaseBarView implements Exportable {
 
     const {width, height} = this.model
 
-    const title = new Title({
+    const title = Title.create({
       text: this.model.title ?? undefined,
       standoff: this.model.title_standoff,
       ...mixins.attrs_of(this.model, "title_", mixins.Text, false),
@@ -208,7 +204,7 @@ export class SizeBarView extends BaseBarView implements Exportable {
 
     switch (orientation) {
       case "horizontal": {
-        this._size_bar = new InternalPlot({
+        this._size_bar = InternalPlot.create({
           width_policy: width == "max" ? "max" : "fit",
           height_policy: height == "max" ? "max" : "fit",
           frame_width: width == "max" ? undefined : width,
@@ -223,7 +219,7 @@ export class SizeBarView extends BaseBarView implements Exportable {
         break
       }
       case "vertical": {
-        this._size_bar = new InternalPlot({
+        this._size_bar = InternalPlot.create({
           width_policy: height == "max" ? "max" : "fit",
           height_policy: width == "max" ? "max" : "fit",
           frame_width: height == "max" ? undefined : height,
@@ -315,8 +311,8 @@ export class SizeBarView extends BaseBarView implements Exportable {
     const end = equal ? r_max + eps : r_max
 
     const n_ticks = equal ? 1 : 5
-    const t = new AdaptiveTicker({desired_num_ticks: n_ticks})
-    const ticks = t.get_ticks(start == 0 ? end*eps : start, end, new Range1d(), NaN)
+    const t = AdaptiveTicker.create({desired_num_ticks: n_ticks})
+    const ticks = t.get_ticks(start == 0 ? end*eps : start, end, Range1d.create(), NaN)
     const radii = ticks.major
 
     if (this.model.ticker == "auto" && this._major_ticker instanceof FixedTicker) {
@@ -397,10 +393,6 @@ export interface SizeBar extends SizeBar.Attrs {}
 export class SizeBar extends BaseBar {
   declare properties: SizeBar.Props
   declare __view_type__: SizeBarView
-
-  constructor(attrs?: Partial<SizeBar.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = SizeBarView

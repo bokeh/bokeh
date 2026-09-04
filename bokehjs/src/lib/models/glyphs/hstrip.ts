@@ -166,7 +166,7 @@ export class HStripView extends GlyphView {
     const {sy} = geometry
     const candidates = this._get_candidates(sy)
     const indices = this._find_strips(candidates, (sy0, sy1) => sy0 <= sy && sy <= sy1)
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -179,7 +179,7 @@ export class HStripView extends GlyphView {
         return this._find_strips(candidates, (sy0, sy1) => sy0 <= sy && sy <= sy1)
       }
     })()
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
@@ -190,7 +190,7 @@ export class HStripView extends GlyphView {
         return gsy0 <= sy0 && sy0 <= gsy1 && gsy0 <= sy1 && sy1 <= gsy1
       })
     })()
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -220,10 +220,6 @@ export interface HStrip extends HStrip.Attrs {}
 export class HStrip extends Glyph {
   declare properties: HStrip.Props
   declare __view_type__: HStripView
-
-  constructor(attrs?: Partial<HStrip.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = HStripView

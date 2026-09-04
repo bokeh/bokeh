@@ -35,10 +35,6 @@ export class MultipleDatePicker extends BaseDatePicker {
 
   declare value: DateLike[]
 
-  constructor(attrs?: Partial<MultipleDatePicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = MultipleDatePickerView
 

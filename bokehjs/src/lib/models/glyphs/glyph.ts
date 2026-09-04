@@ -265,7 +265,7 @@ export abstract class GlyphView extends DOMComponentView {
     const [x0, x1] = this.renderer.coordinates.x_scale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.coordinates.y_scale.r_invert(sy0, sy1)
     const indices = [...this.index.indices({x0, x1, y0, y1})]
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected _project_xy<Data>(x: keyof Data, xs: Arrayable<number>, y: keyof Data, ys: Arrayable<number>): void {
@@ -627,10 +627,6 @@ export interface Glyph extends Glyph.Attrs {}
 export abstract class Glyph extends Model {
   declare properties: Glyph.Props
   declare __view_type__: GlyphView
-
-  constructor(attrs?: Partial<Glyph.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<Glyph.Props>(({List, Ref}) => ({

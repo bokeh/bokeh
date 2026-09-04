@@ -44,10 +44,6 @@ export class Div extends Markup {
   declare properties: Div.Props
   declare __view_type__: DivView
 
-  constructor(attrs?: Partial<Div.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = DivView
 

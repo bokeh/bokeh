@@ -2,7 +2,7 @@ import {display, fig} from "#framework/layouts"
 
 import {LabelSet, HTMLLabelSet} from "@bokehjs/models/annotations"
 import {ColumnDataSource} from "@bokehjs/models/sources"
-import type {Constructor} from "@bokehjs/core/class"
+import type {HasPropsFactory} from "@bokehjs/core/has_props"
 
 function deg(value: number) {
   return {value, units: "deg"}
@@ -14,10 +14,10 @@ function turn(value: number) {
 
 describe("LabelSet annotation", () => {
 
-  function plot<T extends LabelSet | HTMLLabelSet>(LabelSetCls: Constructor<T>) {
+  function plot(LabelSetCls: HasPropsFactory<LabelSet | HTMLLabelSet>) {
     const plot = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
 
-    const source = new ColumnDataSource({
+    const source = ColumnDataSource.create({
       data: {
         text: ["First label", "Second label\nspanning two lines", "Third label\nspanning\nthree lines", null, "Not shown"],
         x1: [1, 3, 7, 9, NaN],
@@ -26,7 +26,7 @@ describe("LabelSet annotation", () => {
       },
     })
 
-    const label_set0 = new LabelSetCls({
+    const label_set0 = LabelSetCls.create({
       x: {field: "x1"}, y: {field: "y1"},
       x_offset: -10, y_offset: 25,
       angle: deg(15),
@@ -37,7 +37,7 @@ describe("LabelSet annotation", () => {
       border_line_color: "blue",
     })
 
-    const label_set1 = new LabelSetCls({
+    const label_set1 = LabelSetCls.create({
       x: {field: "x2"}, y: 1,
       x_units: "screen", y_units: "data",
       x_offset: 0, y_offset: -5,

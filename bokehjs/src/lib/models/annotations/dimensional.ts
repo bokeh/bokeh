@@ -36,10 +36,6 @@ export interface Dimensional extends Dimensional.Attrs {}
 export abstract class Dimensional extends Model {
   declare properties: Dimensional.Props
 
-  constructor(attrs?: Partial<Dimensional.Attrs>) {
-    super(attrs)
-  }
-
   abstract get_basis(): Dict<[number, string, string?]>
 
   static {
@@ -112,10 +108,6 @@ export interface CustomDimensional extends CustomDimensional.Attrs {}
 export abstract class CustomDimensional extends Dimensional {
   declare properties: CustomDimensional.Props
 
-  constructor(attrs?: Partial<CustomDimensional.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CustomDimensional.Props>(({Dict, Tuple, Float, Str, Or}) => ({
       basis: [ Dict(Or(Tuple(Float, Str), Tuple(Float, Str, Str))) ],
@@ -139,10 +131,6 @@ export interface Metric extends Metric.Attrs {}
 
 export class Metric extends Dimensional {
   declare properties: Metric.Props
-
-  constructor(attrs?: Partial<Metric.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<Metric.Props>(({Str, Nullable}) => ({
@@ -207,10 +195,6 @@ export interface ReciprocalMetric extends ReciprocalMetric.Attrs {}
 export class ReciprocalMetric extends Metric {
   declare properties: ReciprocalMetric.Props
 
-  constructor(attrs?: Partial<ReciprocalMetric.Attrs>) {
-    super(attrs)
-  }
-
   override get_basis(): Dict<[number, string, string?]> {
     const basis = super.get_basis()
     const reciprocal_basis: {[key: string]: [number, string]} = {}
@@ -233,10 +217,6 @@ export interface MetricLength extends MetricLength.Attrs {}
 export class MetricLength extends Metric {
   declare properties: MetricLength.Props
 
-  constructor(attrs?: Partial<MetricLength.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<MetricLength.Props>({
       base_unit: "m",
@@ -255,10 +235,6 @@ export interface ReciprocalMetricLength extends MetricLength.Attrs {}
 export class ReciprocalMetricLength extends ReciprocalMetric {
   declare properties: ReciprocalMetricLength.Props
 
-  constructor(attrs?: Partial<ReciprocalMetricLength.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<ReciprocalMetricLength.Props>({
       base_unit: "m",
@@ -276,10 +252,6 @@ export interface ImperialLength extends ImperialLength.Attrs {}
 
 export abstract class ImperialLength extends CustomDimensional {
   declare properties: ImperialLength.Props
-
-  constructor(attrs?: Partial<ImperialLength.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.override<ImperialLength.Props>({
@@ -306,10 +278,6 @@ export interface Angular extends Angular.Attrs {}
 
 export abstract class Angular extends CustomDimensional {
   declare properties: Angular.Props
-
-  constructor(attrs?: Partial<Angular.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.override<Angular.Props>({

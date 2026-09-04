@@ -128,7 +128,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: HitTestRect): Selection {
@@ -186,7 +186,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   private _get_snap_coord(array: Arrayable<number>): number {
@@ -252,10 +252,6 @@ export interface Patches extends Patches.Attrs {}
 export class Patches extends Glyph {
   declare properties: Patches.Props
   declare __view_type__: PatchesView
-
-  constructor(attrs?: Partial<Patches.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = PatchesView

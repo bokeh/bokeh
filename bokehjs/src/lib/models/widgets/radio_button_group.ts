@@ -31,10 +31,6 @@ export class RadioButtonGroup extends ToggleButtonGroup {
   declare properties: RadioButtonGroup.Props
   declare __view_type__: RadioButtonGroupView
 
-  constructor(attrs?: Partial<RadioButtonGroup.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = RadioButtonGroupView
 

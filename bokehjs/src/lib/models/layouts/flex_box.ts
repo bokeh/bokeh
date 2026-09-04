@@ -120,10 +120,6 @@ export abstract class FlexBox extends LayoutDOM {
   declare properties: FlexBox.Props
   declare __view_type__: FlexBoxView
 
-  constructor(attrs?: Partial<FlexBox.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<FlexBox.Props>(({Float, List, Ref}) => ({
       children: [ List(Ref(UIElement)), [] ],

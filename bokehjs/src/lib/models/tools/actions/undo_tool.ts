@@ -31,10 +31,6 @@ export class UndoTool extends PlotActionTool {
   declare properties: UndoTool.Props
   declare __view_type__: UndoToolView
 
-  constructor(attrs?: Partial<UndoTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = UndoToolView
 
@@ -42,7 +38,7 @@ export class UndoTool extends PlotActionTool {
       disabled: true,
     })
 
-    this.register_alias("undo", () => new UndoTool())
+    this.register_alias("undo", () => UndoTool.create())
   }
 
   override tool_name = "Undo"

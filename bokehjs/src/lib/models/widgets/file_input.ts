@@ -141,10 +141,6 @@ export class FileInput extends InputWidget {
   declare properties: FileInput.Props
   declare __view_type__: FileInputView
 
-  constructor(attrs?: Partial<FileInput.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = FileInputView
 

@@ -110,10 +110,6 @@ export class Progress extends Indicator {
 
   readonly finished = new Signal0(this, "finished")
 
-  constructor(attrs?: Partial<Progress.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ProgressView
 

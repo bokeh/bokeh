@@ -50,10 +50,6 @@ export class Markdown extends Widget {
   declare properties: Markdown.Props
   declare __view_type__: MarkdownView
 
-  constructor(attrs?: Partial<Markdown.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = MarkdownView
 

@@ -119,10 +119,6 @@ export abstract class DOMElement extends DOMNode {
   declare properties: DOMElement.Props
   declare __view_type__: DOMElementView
 
-  constructor(attrs?: Partial<DOMElement.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<DOMElement.Props>(({Str, List, Or, Ref}) => {
       return {

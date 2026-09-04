@@ -20,10 +20,6 @@ export interface Range1d extends Range1d.Attrs {}
 export class Range1d extends NumericalRange {
   declare properties: Range1d.Props
 
-  constructor(attrs?: Partial<Range1d.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.internal<Range1d.Internal>(({Float}) => ({
       _reset_start: [ Float ],
@@ -81,7 +77,7 @@ export class Range1d extends NumericalRange {
   }
 
   map(fn: (v: number) => number): Range1d {
-    return new Range1d({start: fn(this.start), end: fn(this.end)})
+    return Range1d.create({start: fn(this.start), end: fn(this.end)})
   }
 
   widen(v: number): Range1d {
@@ -93,6 +89,6 @@ export class Range1d extends NumericalRange {
       start -= v
       end += v
     }
-    return new Range1d({start, end})
+    return Range1d.create({start, end})
   }
 }

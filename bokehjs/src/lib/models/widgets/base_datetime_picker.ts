@@ -74,10 +74,6 @@ export abstract class BaseDatetimePicker extends BaseDatePicker {
   declare properties: BaseDatetimePicker.Props
   declare __view_type__: BaseDatetimePickerView
 
-  constructor(attrs?: Partial<BaseDatetimePicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BaseDatetimePicker.Props>(({Bool, Positive, Int}) => ({
       hour_increment: [ Positive(Int), 1 ],

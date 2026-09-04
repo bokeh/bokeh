@@ -177,7 +177,7 @@ export class HexTileView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -197,7 +197,7 @@ export class HexTileView extends GlyphView {
       }
     })()
     const indices =  [...this.index.indices(rect)]
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
@@ -205,7 +205,7 @@ export class HexTileView extends GlyphView {
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     const indices = [...this.index.indices({x0, x1, y0, y1})]
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -246,10 +246,6 @@ export interface HexTile extends HexTile.Attrs { }
 export class HexTile extends Glyph {
   declare properties: HexTile.Props
   declare __view_type__: HexTileView
-
-  constructor(attrs?: Partial<HexTile.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = HexTileView

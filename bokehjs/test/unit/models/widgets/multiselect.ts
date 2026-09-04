@@ -6,7 +6,7 @@ import {MultiSelect} from "@bokehjs/models/widgets/multiselect"
 describe("MultiSelect", () => {
 
   it("view should reflect the initial options", async () => {
-    const s = new MultiSelect({
+    const s = MultiSelect.create({
       value: ["foo", "quux"],
       options: [["foo", "Foo"], ["bar", "BAR"],  ["baz", "bAz"], ["quux", "quux"]],
     })

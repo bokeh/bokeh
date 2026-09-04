@@ -93,18 +93,14 @@ export class Whisker extends UpperLower {
   declare properties: Whisker.Props
   declare __view_type__: WhiskerView
 
-  constructor(attrs?: Partial<Whisker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = WhiskerView
 
     this.mixins<Whisker.Mixins>(LineVector)
 
     this.define<Whisker.Props>(({Ref, Nullable}) => ({
-      lower_head: [ Nullable(Ref(ArrowHead)), () => new TeeHead({size: 10}) ],
-      upper_head: [ Nullable(Ref(ArrowHead)), () => new TeeHead({size: 10}) ],
+      lower_head: [ Nullable(Ref(ArrowHead)), () => TeeHead.create({size: 10}) ],
+      upper_head: [ Nullable(Ref(ArrowHead)), () => TeeHead.create({size: 10}) ],
     }))
 
     this.override<Whisker.Props>({

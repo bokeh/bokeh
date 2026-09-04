@@ -43,7 +43,7 @@ export class HAreaView extends AreaView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     const L = this.sy.length
-    const result = new Selection()
+    const result = Selection.create()
 
     for (let i = 0, end = L-1; i < end; i++) {
       const sx = [this.sx1[i], this.sx1[i+1], this.sx2[i+1], this.sx2[i]]
@@ -86,10 +86,6 @@ export interface HArea extends HArea.Attrs {}
 export class HArea extends Area {
   declare properties: HArea.Props
   declare __view_type__: HAreaView
-
-  constructor(attrs?: Partial<HArea.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = HAreaView

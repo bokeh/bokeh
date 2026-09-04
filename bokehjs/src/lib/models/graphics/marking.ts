@@ -55,10 +55,6 @@ export abstract class Marking extends Model {
   declare properties: Marking.Props
   declare __view_type__: MarkingView
 
-  constructor(attrs?: Partial<Marking.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Marking.Props>(({}) => ({
     }))

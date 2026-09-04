@@ -16,16 +16,23 @@ export type FontMetrics = {
   x_height: number
 }
 
-const _offscreen_context = (() => {
+// Defer canvas setup so importing this module doesn't require browser globals.
+let _offscreen_context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null = null
+
+function offscreen_context(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
+  if (_offscreen_context != null) {
+    return _offscreen_context
+  }
+
   // Support Firefox ESR, etc., see https://github.com/bokeh/bokeh/issues/14006.
   const canvas_el = typeof OffscreenCanvas !== "undefined" ?  new OffscreenCanvas(0, 0) : canvas({width: 0, height: 0})
   const ctx = canvas_el.getContext("2d")
   assert(ctx != null, "can't obtain 2d context")
-  return ctx
-})()
+  return _offscreen_context = ctx
+}
 
 function _font_metrics(font: string): FontMetrics {
-  const ctx = _offscreen_context
+  const ctx = offscreen_context()
   ctx.font = font
 
   const cap_metrics = ctx.measureText("M")

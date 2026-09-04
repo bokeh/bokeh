@@ -25,16 +25,12 @@ export class MercatorAxis extends LinearAxis {
   declare ticker: MercatorTicker
   declare formatter: MercatorTickFormatter
 
-  constructor(attrs?: Partial<MercatorAxis.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = MercatorAxisView
 
     this.override<MercatorAxis.Props>({
-      ticker:    () => new MercatorTicker({dimension: "lat"}),
-      formatter: () => new MercatorTickFormatter({dimension: "lat"}),
+      ticker:    () => MercatorTicker.create({dimension: "lat"}),
+      formatter: () => MercatorTickFormatter.create({dimension: "lat"}),
     })
   }
 }

@@ -11,10 +11,6 @@ export interface ByCSS extends ByCSS.Attrs {}
 export class ByCSS extends Selector {
   declare properties: ByCSS.Props
 
-  constructor(attrs?: Partial<ByCSS.Attrs>) {
-    super(attrs)
-  }
-
   find_one(target: ParentNode): Node | null {
     return target.querySelector(this.query)
   }

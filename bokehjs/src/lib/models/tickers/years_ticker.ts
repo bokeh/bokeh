@@ -15,12 +15,8 @@ export interface YearsTicker extends YearsTicker.Attrs {}
 export class YearsTicker extends BaseSingleIntervalTicker {
   declare properties: YearsTicker.Props
 
-  constructor(attrs?: Partial<YearsTicker.Attrs>) {
-    super(attrs)
-  }
-
   readonly interval = ONE_YEAR
-  readonly basic_ticker = new BasicTicker({num_minor_ticks: 0})
+  readonly basic_ticker = BasicTicker.create({num_minor_ticks: 0})
 
   override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number, num_minor_ticks: number): TickSpec<number> {
     const start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()

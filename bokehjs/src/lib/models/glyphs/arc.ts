@@ -110,10 +110,6 @@ export class Arc extends XYGlyph {
   declare properties: Arc.Props
   declare __view_type__: ArcView
 
-  constructor(attrs?: Partial<Arc.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ArcView
 

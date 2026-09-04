@@ -88,7 +88,7 @@ describe("templating module", () => {
       const f3 = tmpl.get_formatter("@x", "%m/%d/%Y", {"@x": "datetime"})
       expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS.datetime)
 
-      const custom = new CustomJSHover({code: "return format + ' ' + special_vars.special + ' ' + value"})
+      const custom = CustomJSHover.create({code: "return format + ' ' + special_vars.special + ' ' + value"})
       const f4 = tmpl.get_formatter("@x", "custom", {"@x": custom})
       expect(f4(3.123, "custom", {special: 10})).to.be.equal("custom 10 3.123")
     })
@@ -100,9 +100,9 @@ describe("templating module", () => {
 
   describe("get_value", () => {
 
-    const source = new ColumnDataSource({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
+    const source = ColumnDataSource.create({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
 
-    const imsource = new ColumnDataSource({
+    const imsource = ColumnDataSource.create({
       data: {
         arrs: [[[0, 10, 20], [30, 40, 50]]],
         floats: [[0.0, 1.0, 2.0, 3.0, 4.0, 5.0]],
@@ -160,7 +160,7 @@ describe("templating module", () => {
   })
 
   describe("replace_placeholders", () => {
-    const source = new ColumnDataSource({data: {
+    const source = ColumnDataSource.create({data: {
       foo: [10, 1.002, NaN],
       bar: ["a", "<div>b</div>", "'qux'\"quux\""],
       baz: [1492890671885, 1290460671885, 1090410671285],
@@ -247,7 +247,7 @@ describe("templating module", () => {
     })
 
     it("should use a customjs hover formatter if specified", () => {
-      const custom = new CustomJSHover({code: "return format + ' ' + special_vars.special + ' ' + value"})
+      const custom = CustomJSHover.create({code: "return format + ' ' + special_vars.special + ' ' + value"})
       const s = tmpl.replace_placeholders("stuff @foo{custom}", source, 0, {"@foo": custom}, {special: "vars"})
       expect(s).to.be.equal("stuff custom vars 10")
     })

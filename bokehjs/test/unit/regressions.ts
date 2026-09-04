@@ -154,7 +154,7 @@ function scalar_image(N: number = 100) {
 describe("Bug", () => {
   describe("in issue #10612", () => {
     it("prevents hovering over dynamically added glyphs", async () => {
-      const hover = new HoverTool({renderers: "auto"})
+      const hover = HoverTool.create({renderers: "auto"})
       const plot = fig([200, 200], {tools: [hover]})
       plot.scatter([1, 2, 3], [4, 5, 6])
       const {view} = await display(plot)
@@ -173,7 +173,7 @@ describe("Bug", () => {
       const plot = fig([200, 200])
       const r0 = plot.scatter([0, 1, 2], [3, 4, 5], {fill_color: "blue", level: "glyph"})
       const r1 = plot.scatter(1, 3, {fill_color: "red", level: "overlay"})
-      const r2 = new BoxAnnotation({left: 0, right: 2, bottom: 3, top: 5, level: "overlay"})
+      const r2 = BoxAnnotation.create({left: 0, right: 2, bottom: 3, top: 5, level: "overlay"})
       plot.add_layout(r2)
       const {view} = await display(plot)
 
@@ -214,9 +214,9 @@ describe("Bug", () => {
   describe("in issue #10853", () => {
     it("prevents initializing GlyphRenderer with an empty data source", async () => {
       const plot = fig([200, 200])
-      const data_source = new ColumnDataSource({data: {}})
-      const glyph = new Scatter({x: {field: "x_field"}, y: {field: "y_field"}})
-      const renderer = new GlyphRenderer({data_source, glyph})
+      const data_source = ColumnDataSource.create({data: {}})
+      const glyph = Scatter.create({x: {field: "x_field"}, y: {field: "y_field"}})
+      const renderer = GlyphRenderer.create({data_source, glyph})
       plot.add_renderers(renderer)
       const {view} = await display(plot)
       // XXX: no data (!= empty arrays) implies 1 data point, required for
@@ -231,19 +231,19 @@ describe("Bug", () => {
   describe("in issue #10935", () => {
     it("prevents to render a plot with a legend and an empty view", async () => {
       const plot = fig([200, 200])
-      const filter = new BooleanFilter({booleans: [false, false]})
-      const view = new CDSView({filter})
+      const filter = BooleanFilter.create({booleans: [false, false]})
+      const view = CDSView.create({filter})
       plot.scatter([1, 2], [3, 4], {marker: "square", fill_color: ["red", "green"], view, legend_label: "square"})
       await display(plot)
     })
 
     it("prevents to render a plot with a legend and a subset of indices", async () => {
       const plot = fig([200, 200])
-      const filter = new BooleanFilter({booleans: [true, true, false, false]})
-      const view = new CDSView({filter})
-      const data_source = new ColumnDataSource({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
+      const filter = BooleanFilter.create({booleans: [true, true, false, false]})
+      const view = CDSView.create({filter})
+      const data_source = ColumnDataSource.create({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
       const r = plot.scatter("x", "y", {marker: "square", fill_color: ["red", "red", "green", "green"], view, source: data_source})
-      const legend = new Legend({items: [new LegendItem({label: {field: "fld"}, renderers: [r]})]})
+      const legend = Legend.create({items: [LegendItem.create({label: {field: "fld"}, renderers: [r]})]})
       plot.add_layout(legend)
       await display(plot)
     })
@@ -266,10 +266,10 @@ describe("Bug", () => {
   describe("in issue #11750", () => {
     it("makes plots render unnecessarily when hover glyph wasn't defined", async () => {
       async function test(hover_glyph: Line | null) {
-        const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1, 0.1]}})
-        const glyph = new Line({line_color: "red"})
-        const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
-        const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline", attachment: "above"})]})
+        const data_source = ColumnDataSource.create({data: {x: [0, 1], y: [0.1, 0.1]}})
+        const glyph = Line.create({line_color: "red"})
+        const renderer = GlyphRenderer.create({data_source, glyph, hover_glyph})
+        const plot = fig([200, 200], {tools: [HoverTool.create({mode: "vline", attachment: "above"})]})
         plot.add_renderers(renderer)
 
         const {view} = await display(plot)
@@ -284,17 +284,17 @@ describe("Bug", () => {
       }
 
       expect(await test(null)).to.be.equal(0)
-      expect(await test(new Line({line_color: "blue"}))).to.be.equal(1)
+      expect(await test(Line.create({line_color: "blue"}))).to.be.equal(1)
     })
   })
 
   describe("in issue #11999", () => {
     it("makes plots render unnecessarily when inspection indices don't change", async () => {
-      const data_source = new ColumnDataSource({data: {x: [0, 0.6], y: [0.6, 0], width: [0.4, 0.4], height: [0.4, 0.4]}})
-      const glyph = new Rect({line_color: "red"})
-      const hover_glyph = new Rect({line_color: "blue"})
-      const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
-      const plot = fig([200, 200], {tools: [new HoverTool()]})
+      const data_source = ColumnDataSource.create({data: {x: [0, 0.6], y: [0.6, 0], width: [0.4, 0.4], height: [0.4, 0.4]}})
+      const glyph = Rect.create({line_color: "red"})
+      const hover_glyph = Rect.create({line_color: "blue"})
+      const renderer = GlyphRenderer.create({data_source, glyph, hover_glyph})
+      const plot = fig([200, 200], {tools: [HoverTool.create()]})
       plot.add_renderers(renderer)
 
       const {view} = await display(plot)
@@ -493,7 +493,7 @@ describe("Bug", () => {
       const p = fig([100, 100], {
         x_range: [0, 2], y_range: [0, 2],
         x_axis_type: null, y_axis_type: null,
-        tools: [new TapTool({mode: "replace"})],
+        tools: [TapTool.create({mode: "replace"})],
         min_border: 10,
       })
       const r = p.block({x: [0, 1], y: [0, 1], width: 1, height: 1})
@@ -520,9 +520,9 @@ describe("Bug", () => {
   describe("in issue #8531", () => {
     it("initiates multiple downloads when using copy tool in a gridplot", async () => {
       function f(color: Color) {
-        const copy = new CopyTool()
+        const copy = CopyTool.create()
         const copy_btn = copy.tool_button()
-        const toolbar = new Toolbar({tools: [copy], buttons: [copy_btn]})
+        const toolbar = Toolbar.create({tools: [copy], buttons: [copy_btn]})
         const p = fig([100, 100], {toolbar})
         p.scatter({x: [0, 1, 2], y: [0, 1, 2], color})
         return p
@@ -557,7 +557,7 @@ describe("Bug", () => {
   describe("in issue #8168", () => {
     it("allows to start selection from toolbar or axes", async () => {
       const p = fig([200, 200], {
-        tools: [new BoxSelectTool()],
+        tools: [BoxSelectTool.create()],
         toolbar_location: "above",
         x_axis_location: null,
         y_axis_location: null,
@@ -587,7 +587,7 @@ describe("Bug", () => {
 
     async function test(x_range: Range, y_range: Range) {
       const p = fig([200, 200], {x_range, y_range})
-      const color_mapper = new LinearColorMapper({palette: Spectral11})
+      const color_mapper = LinearColorMapper.create({palette: Spectral11})
       const glyph = p.image({image: {value: scalar_image()}, x: -5, y: -5, dw: 10, dh: 10, color_mapper})
 
       const {view} = await display(p)
@@ -689,7 +689,7 @@ describe("Bug", () => {
       p1.on_event(RangesUpdate, (event) => events.push(event))
       p2.on_event(RangesUpdate, (event) => events.push(event))
 
-      const row = new Row({children: [p0, p1, p2]})
+      const row = Row.create({children: [p0, p1, p2]})
       const {view} = await display(row)
 
       const pv0 = view.owner.get_one(p0)
@@ -707,7 +707,7 @@ describe("Bug", () => {
 
   describe("in issue #12797", () => {
     it("allows UIElement with qualified type to use invalid characters in CSS classes", async () => {
-      const obj = new QualifiedModel()
+      const obj = QualifiedModel.create()
       const {view} = await display(obj, [200, 200])
       const cls = "bk-some-external-provider-QualifiedModel"
       expect(view.el.classList.contains(cls)).to.be.true
@@ -716,16 +716,15 @@ describe("Bug", () => {
 
   describe("in issue #6683", () => {
     it("doesn't allow TableDataProvider to correctly sort strings with accents", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           words: ["met", "no", "mute", "méteo", "mill", "mole"],
         },
       })
       const indices = BitSet.from_indices(6, [0, 1, 2, 3, 4, 5])
-      const view = new CDSView({indices})
+      const view = CDSView.create({indices})
       const provider = new TableDataProvider(source, view)
-
-      const table_column = new TableColumn({field: "words"})
+      const table_column = TableColumn.create({field: "words"})
       const table_column_view = await build_view(table_column, {parent: null})
       const column = table_column_view.toColumn()
 
@@ -773,14 +772,14 @@ describe("Bug", () => {
 
   describe("in issue #12078", () => {
     it("doesn't allow to correctly hit test Marker and Scatter glyphs", async () => {
-      const p = new Plot()
-      const source = new ColumnDataSource({
+      const p = Plot.create()
+      const source = ColumnDataSource.create({
         data: {
           x: [0, 1, 3, 4],
           y: [0, 1, 3, 4],
         },
       })
-      const glyph = new Scatter({marker: "circle", size: 20})
+      const glyph = Scatter.create({marker: "circle", size: 20})
       const r = p.add_glyph(glyph, source)
       const {view: pv} = await display(p)
       const rv = pv.owner.get_one(r)
@@ -837,8 +836,8 @@ describe("Bug", () => {
 
   describe("in issue #13217", () => {
     it("doesn't allow to bind this in non-module CustomJS", async () => {
-      const obj = new Plot()
-      const cb = new CustomJS({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
+      const obj = Plot.create()
+      const cb = CustomJS.create({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
       const result = await cb.execute(obj, {data0: 123})
       expect(result).to.be.equal([obj, "abc", obj, 123])
     })
@@ -850,13 +849,13 @@ describe("Bug", () => {
         return div({style: {width: `${width}px`, height: `${height}px`, display: "none"}})
       }
 
-      const osm_source = new WMTSTileSource({
+      const osm_source = WMTSTileSource.create({
         // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
         url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
         attribution: "&copy; (0) OSM source attribution",
       })
 
-      const osm = new TileRenderer({tile_source: osm_source})
+      const osm = TileRenderer.create({tile_source: osm_source})
 
       const p = fig([200, 200], {
         x_range: [-2000000, 6000000],
@@ -878,7 +877,7 @@ describe("Bug", () => {
 
   describe("in issue #13377", () => {
     it("doesn't allow serialization of unset readonly properties", async () => {
-      const obj = new ModelWithUnsetReadonly()
+      const obj = ModelWithUnsetReadonly.create()
       const doc = new Document()
       doc.add_root(obj)
       expect(doc.to_json()).to.be.equal({
@@ -940,7 +939,7 @@ describe("Bug", () => {
 
   describe("in issue #13416", () => {
     it("doesn't allow categorical mapping of non-factors to nan_color", async () => {
-      const mapper = new CategoricalColorMapper({
+      const mapper = CategoricalColorMapper.create({
         factors: ["a", "b"],
         palette: ["red", "green"],
         nan_color: "black",
@@ -955,8 +954,8 @@ describe("Bug", () => {
 
   describe("in issue #13414", () => {
     it("doesn't allow re-render Icon when its properties change", async () => {
-      const icon = new TablerIcon({icon_name: "eye", size: "1.2em"})
-      const button = new Button({icon, label: "Visibility"})
+      const icon = TablerIcon.create({icon_name: "eye", size: "1.2em"})
+      const button = Button.create({icon, label: "Visibility"})
 
       const {view} = await display(button)
 
@@ -972,8 +971,8 @@ describe("Bug", () => {
 
   describe("in issue #13456", () => {
     it("doesn't allow reuse nodes when updating RangeTool's overlay", async () => {
-      const x_range = new Range1d({start: 0, end: 1})
-      const x_range_tool = new RangeTool({x_range})
+      const x_range = Range1d.create({start: 0, end: 1})
+      const x_range_tool = RangeTool.create({x_range})
 
       x_range_tool.update_overlay_from_ranges()
       expect(x_range_tool.overlay.left).to.be.equal(0)
@@ -992,8 +991,8 @@ describe("Bug", () => {
       expect(x_range_tool.overlay.top).to.be.equal(prev_top)
       expect(x_range_tool.overlay.bottom).to.be.equal(prev_bottom)
 
-      const y_range = new Range1d({start: 0, end: 1})
-      const y_range_tool = new RangeTool({y_range})
+      const y_range = Range1d.create({start: 0, end: 1})
+      const y_range_tool = RangeTool.create({y_range})
 
       y_range_tool.update_overlay_from_ranges()
       expect(y_range_tool.overlay.left).to.be.instanceof(Node)
@@ -1016,7 +1015,7 @@ describe("Bug", () => {
 
   describe("in issue #13064", () => {
     it("doesn't allow spinner to follow the correct format when value's precision is higher than step's precision", async () => {
-      const obj = new Spinner({value: 0.3, low: 0, mode: "float", step: 1, format: "0.0"})
+      const obj = Spinner.create({value: 0.3, low: 0, mode: "float", step: 1, format: "0.0"})
       const {view} = await display(obj, [500, 400])
       const button = view.shadow_el.querySelector(".bk-spin-btn-up")!
       const input = view.shadow_el.querySelector(".bk-input") as HTMLInputElement
@@ -1033,13 +1032,13 @@ describe("Bug", () => {
 
   describe("in issue #13556", () => {
     it("doesn't allow creation of correct DOM elements for imported stylesheets", async () => {
-      const style0 = new GlobalImportedStyleSheet({url: "/assets/css/global.css"})
-      const style1 = new ImportedStyleSheet({url: "/assets/css/local.css"})
+      const style0 = GlobalImportedStyleSheet.create({url: "/assets/css/global.css"})
+      const style1 = ImportedStyleSheet.create({url: "/assets/css/local.css"})
 
-      const style2 = new GlobalInlineStyleSheet({css: ":root { --global-inline: 1; }"})
-      const style3 = new InlineStyleSheet({css: ":host { --local-inline: 1; }"})
+      const style2 = GlobalInlineStyleSheet.create({css: ":root { --global-inline: 1; }"})
+      const style3 = InlineStyleSheet.create({css: ":host { --local-inline: 1; }"})
 
-      const pane = new Pane({stylesheets: [style0, style1, style2, style3]})
+      const pane = Pane.create({stylesheets: [style0, style1, style2, style3]})
       const {view} = await display(pane, [100, 100])
 
       expect(document.head.querySelectorAll("link[href='/assets/css/global.css']").length).to.be.equal(1)
@@ -1087,11 +1086,11 @@ describe("Bug", () => {
           height: [2.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {x, y, width, height, color} = fields(data)
         const renderer = p.rect({x, y, width, height, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1123,11 +1122,11 @@ describe("Bug", () => {
           height: [2.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {x, y, width, height, color} = fields(data)
         const renderer = p.rect({x, y, width, height, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1159,11 +1158,11 @@ describe("Bug", () => {
           bottom: [2.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {left, right, top, bottom, color} = fields(data)
         const renderer = p.quad({left, right, top, bottom, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1195,11 +1194,11 @@ describe("Bug", () => {
           right:  [4.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {y, height, left, right, color} = fields(data)
         const renderer = p.hbar({y, height, left, right, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1231,11 +1230,11 @@ describe("Bug", () => {
           bottom: [2.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {x, width, top, bottom, color} = fields(data)
         const renderer = p.vbar({x, width, top, bottom, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1265,11 +1264,11 @@ describe("Bug", () => {
           y1:    [3.0],
           color: ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {y0, y1, color} = fields(data)
         const renderer = p.hstrip({y0, y1, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1297,11 +1296,11 @@ describe("Bug", () => {
           x1:    [4.0],
           color: ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {x0, x1, color} = fields(data)
         const renderer = p.vstrip({x0, x1, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1335,15 +1334,15 @@ describe("Bug", () => {
         }
         const image = ndarray(values, {dtype: "float64", shape: [n, n]})
 
-        const x_range = new DataRange1d({flipped: x_flipped})
-        const y_range = new DataRange1d({flipped: y_flipped})
+        const x_range = DataRange1d.create({flipped: x_flipped})
+        const y_range = DataRange1d.create({flipped: y_flipped})
 
         const p = fig([300, 300], {x_range, y_range, toolbar_location: "right"})
 
-        const color_mapper = new LinearColorMapper({palette: Viridis256})
+        const color_mapper = LinearColorMapper.create({palette: Viridis256})
         const img = p.image({image: [image], x: 0, y: 0, dw: 2*n, dh: 2*n, color_mapper})
 
-        const hover = new TapTool({renderers: [img], behavior: "select"})
+        const hover = TapTool.create({renderers: [img], behavior: "select"})
         p.add_tools(hover)
 
         const {view} = await display(p)
@@ -1411,15 +1410,15 @@ describe("Bug", () => {
         }
         const image = ndarray(values, {dtype: "float64", shape: [n, n]})
 
-        const x_range = new DataRange1d()
-        const y_range = new DataRange1d()
+        const x_range = DataRange1d.create()
+        const y_range = DataRange1d.create()
 
         const p = fig([300, 300], {x_range, y_range, toolbar_location: "right", x_axis_type, y_axis_type})
 
-        const color_mapper = new LinearColorMapper({palette: Viridis256})
+        const color_mapper = LinearColorMapper.create({palette: Viridis256})
         const img = p.image({image: [image], x: x[0], y: y[0], dw, dh, color_mapper})
 
-        const hover = new TapTool({renderers: [img], behavior: "select"})
+        const hover = TapTool.create({renderers: [img], behavior: "select"})
         p.add_tools(hover)
 
         const {view} = await display(p)
@@ -1488,7 +1487,7 @@ describe("Bug", () => {
           y2: [1, 4, 2, 1, 3],
           step_mode: "before",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1508,7 +1507,7 @@ describe("Bug", () => {
           y2: [1, 4, 2, 1, 3],
           step_mode: "center",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1528,7 +1527,7 @@ describe("Bug", () => {
           y2: [1, 4, 2, 1, 3],
           step_mode: "after",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1550,7 +1549,7 @@ describe("Bug", () => {
           x2: [12, 16, 14, 13, 15],
           step_mode: "before",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1570,7 +1569,7 @@ describe("Bug", () => {
           x2: [12, 16, 14, 13, 15],
           step_mode: "center",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1590,7 +1589,7 @@ describe("Bug", () => {
           x2: [12, 16, 14, 13, 15],
           step_mode: "after",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1606,7 +1605,7 @@ describe("Bug", () => {
 
   describe("in issue #13507", () => {
     it("doesn't allow to emit RangesUpdate on plots linked by RangeTool's ranges", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           x: [1, 2, 3, 4, 5],
           y: [1, 2, 3, 4, 5],
@@ -1619,7 +1618,7 @@ describe("Bug", () => {
       const range_plot = fig([300, 200])
       range_plot.scatter({size: 20, source})
 
-      const range_tool = new RangeTool({
+      const range_tool = RangeTool.create({
         x_range: target_plot.x_range,
         y_range: target_plot.y_range,
       })
@@ -1629,7 +1628,7 @@ describe("Bug", () => {
       target_plot.on_event(RangesUpdate, () => updates.target = true)
       range_plot.on_event(RangesUpdate, () => updates.range = true)
 
-      const layout = new Column({children: [target_plot, range_plot]})
+      const layout = Column.create({children: [target_plot, range_plot]})
       const {view} = await display(layout)
 
       const pv = view.owner.get_one(range_plot)
@@ -1642,7 +1641,7 @@ describe("Bug", () => {
 
   describe("in issue #13536", () => {
     it("doesn't allow selected rows to sync correctly when rows are filtered", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           index: [0, 1, 2],
           x: [1, 2, 3],
@@ -1651,14 +1650,14 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "index", title: "#", width: 50}),
-        new TableColumn({field: "x", title: "x", width: 50}),
-        new TableColumn({field: "y", title: "y", width: 50}),
+        TableColumn.create({field: "index", title: "#", width: 50}),
+        TableColumn.create({field: "x", title: "x", width: 50}),
+        TableColumn.create({field: "y", title: "y", width: 50}),
       ]
-      const filter = new AllIndices()
-      const cds_view = new CDSView({filter})
+      const filter = AllIndices.create()
+      const cds_view = CDSView.create({filter})
 
-      const table = new DataTable({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
       await view.ready
@@ -1670,7 +1669,7 @@ describe("Bug", () => {
       expect(view.get_selected_rows()).to.be.equal([2])
       expect(table.source.selected.indices).to.be.equal([2])
 
-      table.view.filter = new IndexFilter({indices: [0, 1]})
+      table.view.filter = IndexFilter.create({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
       expect(table.source.selected.indices).to.be.equal([2])
@@ -1682,7 +1681,7 @@ describe("Bug", () => {
       expect(view.get_selected_rows()).to.be.equal([0])
       expect(table.source.selected.indices).to.be.equal([0, 2])
 
-      table.view.filter = new IndexFilter({indices: [0, 1, 2]})
+      table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
       expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
       expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
@@ -1691,7 +1690,7 @@ describe("Bug", () => {
 
   describe("in issue #13831", () => {
     it("allows addition of new indices to selection by default", async () => {
-      const tap_tool = new TapTool()
+      const tap_tool = TapTool.create()
       const p = fig([200, 200], {tools: [tap_tool]})
       const cr = p.circle({x: [0, 1, 2, 3], y: [0, 1, 2, 3], radius: [0.5, 0.75, 1.0, 1.25], color: ["red", "green", "blue", "yellow"], alpha: 0.8})
       const ds = cr.data_source
@@ -1745,11 +1744,11 @@ describe("Bug", () => {
     it("doesn't allow inheriting image data in Image-like glyphs", async () => {
       const p = fig([400, 400])
 
-      const color_mapper = new EqHistColorMapper({palette: Spectral11})
+      const color_mapper = EqHistColorMapper.create({palette: Spectral11})
       const gr = p.image({image: [scalar_image()], x: 0, y: 0, dw: 10, dh: 10, color_mapper})
 
-      const nonselection_color_mapper = new EqHistColorMapper({palette: Viridis11})
-      gr.nonselection_glyph = new Image({x: 0, y: 0, dw: 10, dh: 10, color_mapper: nonselection_color_mapper})
+      const nonselection_color_mapper = EqHistColorMapper.create({palette: Viridis11})
+      gr.nonselection_glyph = Image.create({x: 0, y: 0, dw: 10, dh: 10, color_mapper: nonselection_color_mapper})
 
       const {view} = await display(p)
       const grv = view.views.get_one(gr)
@@ -1787,7 +1786,7 @@ describe("Bug", () => {
   describe("in issue #13965 and #14645", () => {
     it("doesn't allow to correctly index categories in CategoricalSlider", async () => {
       const categories = range(0, 20).map((i) => `${i}`)
-      const slider = new CategoricalSlider({categories, value: "0"})
+      const slider = CategoricalSlider.create({categories, value: "0"})
       const {view} = await display(slider, [300, 50])
 
       const el = view.shadow_el.querySelector(".noUi-handle")
@@ -1830,7 +1829,7 @@ describe("Bug", () => {
 
   describe("in issue #14072", () => {
     it("doesn't allow Spinner widget to react to wheel events when focused", async () => {
-      const spinner = new Spinner({value: 0, step: 1, width: 100})
+      const spinner = Spinner.create({value: 0, step: 1, width: 100})
       const {view} = await display(spinner, [150, 100])
       expect(spinner.value).to.be.equal(0)
 
@@ -1863,20 +1862,20 @@ describe("Bug", () => {
       const {view: pv0} = await display(p0)
       expect(getComputedStyle(pv0.canvas.events_el).touchAction).to.be.equal("auto")
 
-      const pan1 = new PanTool()
+      const pan1 = PanTool.create()
       const p1 = fig([200, 200], {tools: [pan1], active_drag: pan1, toolbar_location: "right"})
       p1.scatter([1, 2, 3], [1, 2, 3], {size: 20})
       const {view: pv1} = await display(p1)
       expect(getComputedStyle(pv1.canvas.events_el).touchAction).to.be.equal("pinch-zoom")
 
-      const zoom2 = new WheelZoomTool()
+      const zoom2 = WheelZoomTool.create()
       const p2 = fig([200, 200], {tools: [zoom2], active_scroll: zoom2, toolbar_location: "right"})
       p2.scatter([1, 2, 3], [1, 2, 3], {size: 20})
       const {view: pv2} = await display(p2)
       expect(getComputedStyle(pv2.canvas.events_el).touchAction).to.be.equal("pan-x pan-y")
 
-      const pan3 = new PanTool()
-      const zoom3 = new WheelZoomTool()
+      const pan3 = PanTool.create()
+      const zoom3 = WheelZoomTool.create()
       const p3 = fig([200, 200], {tools: [pan3, zoom3], active_drag: pan3, active_scroll: zoom3, toolbar_location: "right"})
       p3.scatter([1, 2, 3], [1, 2, 3], {size: 20})
       const {view: pv3} = await display(p3)
@@ -1886,7 +1885,7 @@ describe("Bug", () => {
 
   describe("in issue #14164", () => {
     it("doesn't allow to use the correct CSS color syntax in SVG output", async () => {
-      const canvas = new Canvas({
+      const canvas = Canvas.create({
         stylesheets: [":host {width: 100px; height: 100px}"],
         output_backend: "svg",
       })
@@ -1910,11 +1909,11 @@ describe("Bug", () => {
 
   describe("in issue #14424", () => {
     it("doesn't allow render a plot with Patches glyph and an empty data source", async () => {
-      const data_source = new ColumnDataSource({data: {}})
+      const data_source = ColumnDataSource.create({data: {}})
 
-      const plot = new Plot()
-      const glyph = new Patches({xs: {field: "xs"}, ys: {field: "ys"}})
-      const renderer = new GlyphRenderer({data_source, glyph})
+      const plot = Plot.create()
+      const glyph = Patches.create({xs: {field: "xs"}, ys: {field: "ys"}})
+      const renderer = GlyphRenderer.create({data_source, glyph})
       plot.renderers.push(renderer)
 
       await display(plot)
@@ -1923,11 +1922,11 @@ describe("Bug", () => {
 
   describe("in issue #14435", () => {
     it("doesn't allow maintain parent layout styles after child re-renders", async () => {
-      const s0 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: red; }"]})
-      const s1 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: green; }"]})
-      const s2 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: blue; }"]})
+      const s0 = Spacer.create({width: 50, height: 50, stylesheets: [":host { background-color: red; }"]})
+      const s1 = Spacer.create({width: 50, height: 50, stylesheets: [":host { background-color: green; }"]})
+      const s2 = Spacer.create({width: 50, height: 50, stylesheets: [":host { background-color: blue; }"]})
 
-      const row = new Row({children: [s0, s1, s2]})
+      const row = Row.create({children: [s0, s1, s2]})
       const {view} = await display(row)
 
       const sv0 = view.owner.get_one(s0)
@@ -1965,10 +1964,10 @@ ${view.host_selector} {
     it("doesn't allow update of Range.{start,end} in RangeTool when there are no linked plots with ranges", async () => {
       let n_start = 0
       let n_end = 0
-      const x_range = new Range1d({start: 10, end: 20})
+      const x_range = Range1d.create({start: 10, end: 20})
       x_range.on_change(x_range.properties.start, () => n_start += 1)
       x_range.on_change(x_range.properties.end, () => n_end += 1)
-      const range_tool = new RangeTool({x_range, x_interaction: true})
+      const range_tool = RangeTool.create({x_range, x_interaction: true})
       const p = fig([300, 200], {x_range: [0, 100], y_range: [0, 1], tools: [range_tool]})
       const {view} = await display(p)
       await actions(view).pan(xy(15, 0.5), xy(55, 0.5))
@@ -1982,12 +1981,12 @@ ${view.host_selector} {
 
   describe("in issue #13931", () => {
     it("updates data without errors when DataTable selections are stale", async () => {
-      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c"]}})
+      const source = ColumnDataSource.create({data: {my_col: ["a", "b", "c"]}})
       const columns = [
-        new TableColumn({field: "my_col", title: "My Column"}),
+        TableColumn.create({field: "my_col", title: "My Column"}),
       ]
 
-      const table = new DataTable({source, columns})
+      const table = DataTable.create({source, columns})
       const {view} = await display(table)
 
       source.selected.indices = [1, 2]
@@ -2005,10 +2004,10 @@ ${view.host_selector} {
   describe("in issue #14568", () => {
     it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
       const factors = ["A", "B", "C"]
-      const x_range = new FactorRange({factors, start: 0, end: 3, bounds: [0, 3]})
-      const y_range = new Range1d({start: 0, end: 3})
+      const x_range = FactorRange.create({factors, start: 0, end: 3, bounds: [0, 3]})
+      const y_range = Range1d.create({start: 0, end: 3})
 
-      const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+      const wheel_zoom = WheelZoomTool.create({maintain_focus: false})
       const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom], active_scroll: wheel_zoom})
       p.scatter({x: factors, y: [1, 2, 3], size: 20})
 
@@ -2027,7 +2026,7 @@ ${view.host_selector} {
   describe("in issue #14815", () => {
     it("doesn't apply explicit bounds on initial render when using FactorRange", async () => {
       const factors = ["a", "b", "c"]
-      const x_range = new FactorRange({factors, bounds: [1, 3]})
+      const x_range = FactorRange.create({factors, bounds: [1, 3]})
       const p = fig([200, 200], {tools: "reset,pan", x_range})
       p.line(factors, [1, 2, 3])
 
@@ -2059,7 +2058,7 @@ ${view.host_selector} {
 
     it("doesn't hide resize cursors if BoxAnnotation is non editable", async () => {
       const p = fig([200, 200], {x_range: [0, 4], y_range: [0, 4]})
-      const box = new BoxAnnotation({left: 1, right: 3, bottom: 1, top: 3})
+      const box = BoxAnnotation.create({left: 1, right: 3, bottom: 1, top: 3})
       p.add_layout(box)
       const {view} = await display(p)
 
@@ -2079,13 +2078,13 @@ ${view.host_selector} {
     it("doesn't support reversed LogColorMapper when low is grater than high", async () => {
       const x = linspace(0.5, 10.5, 21)
       const y = linspace(0.5, 10.5, 21)
-      const source = new ColumnDataSource({data: {x, y}})
+      const source = ColumnDataSource.create({data: {x, y}})
 
       const p = fig([200, 200])
-      const cmap = new LogColorMapper({
+      const cmap = LogColorMapper.create({
         palette: Spectral6, low: 10, high: 1, low_color: "gray", high_color: "black",
       })
-      const cbar = new ColorBar({color_mapper: cmap})
+      const cbar = ColorBar.create({color_mapper: cmap})
       p.scatter("x", "y", {color: {field: "x", transform: cmap}, size: 15, source})
       p.add_layout(cbar, "right")
 
@@ -2095,7 +2094,7 @@ ${view.host_selector} {
 
   describe("in issue #15080", () => {
     it("doesn't allow to change frame width, height and align of a Plot", async () => {
-      const p = new Plot({frame_width: 100, frame_height: 200})
+      const p = Plot.create({frame_width: 100, frame_height: 200})
       const {view} = await display(p, [300, 300])
 
       expect(view.frame.bbox.width).to.be.equal(100)
@@ -2119,7 +2118,7 @@ ${view.host_selector} {
 
   describe("in issue #14040", () => {
     it("doesn't allow clearing the DataTable selection when selected rows are filtered out", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           index: [0, 1, 2],
           x: [1, 2, 3],
@@ -2128,14 +2127,14 @@ ${view.host_selector} {
       })
 
       const columns = [
-        new TableColumn({field: "index", title: "#", width: 50}),
-        new TableColumn({field: "x", title: "x", width: 50}),
-        new TableColumn({field: "y", title: "y", width: 50}),
+        TableColumn.create({field: "index", title: "#", width: 50}),
+        TableColumn.create({field: "x", title: "x", width: 50}),
+        TableColumn.create({field: "y", title: "y", width: 50}),
       ]
-      const filter = new AllIndices()
-      const cds_view = new CDSView({filter})
+      const filter = AllIndices.create()
+      const cds_view = CDSView.create({filter})
 
-      const table = new DataTable({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
       await view.ready
@@ -2147,7 +2146,7 @@ ${view.host_selector} {
       expect(view.get_selected_rows()).to.be.equal([2])
       expect(table.source.selected.indices).to.be.equal([2])
 
-      table.view.filter = new IndexFilter({indices: [0, 1]})
+      table.view.filter = IndexFilter.create({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
       expect(table.source.selected.indices).to.be.equal([2])
@@ -2162,7 +2161,7 @@ ${view.host_selector} {
       table.source.selected.indices = []
       await view.ready
 
-      table.view.filter = new IndexFilter({indices: [0, 1, 2]})
+      table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
       expect(view.get_selected_rows().slice().sort()).to.be.equal([])
       expect(table.source.selected.indices.slice().sort()).to.be.equal([])
@@ -2171,8 +2170,8 @@ ${view.host_selector} {
 
   describe("in issue #14593", () => {
     it("doesn't allow a plot's context menu to work after a toolbar property changed", async () => {
-      const pan = new PanTool()
-      const box_select = new BoxSelectTool()
+      const pan = PanTool.create()
+      const box_select = BoxSelectTool.create()
 
       const p = fig([300, 300], {tools: [pan, box_select], toolbar_location: null})
       p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
@@ -2197,7 +2196,7 @@ ${view.host_selector} {
       await view.ready
       expect(submenus(open_menu()).length).to.be.equal(1)
 
-      p.toolbar.tools = [pan, new BoxSelectTool()]
+      p.toolbar.tools = [pan, BoxSelectTool.create()]
       await view.ready
       const menu_view = open_menu()
       expect(submenus(menu_view).length).to.be.equal(2)

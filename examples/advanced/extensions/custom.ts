@@ -53,10 +53,6 @@ export class Custom extends UIElement {
   declare properties: Custom.Props
   declare __view_type__: CustomView
 
-  constructor(attrs?: Partial<Custom.Attrs>) {
-    super(attrs)
-  }
-
   static {
     // If there is an associated view, this is typically boilerplate.
     this.prototype.default_view = CustomView

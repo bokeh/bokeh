@@ -19,15 +19,11 @@ export interface DocumentConfig extends DocumentConfig.Attrs {}
 export class DocumentConfig extends Model {
   declare properties: DocumentConfig.Props
 
-  constructor(attrs?: Partial<DocumentConfig.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<DocumentConfig.Props>(({Bool, Ref, Nullable}) => ({
       reconnect_session: [ Bool, true ],
       notify_connection_status: [ Bool, true ],
-      notifications: [ Nullable(Ref(Notifications)), () => new Notifications() ],
+      notifications: [ Nullable(Ref(Notifications)), () => Notifications.create() ],
       color_scheme: [ ColorScheme, "auto"],
     }))
   }

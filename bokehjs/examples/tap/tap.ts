@@ -30,7 +30,7 @@ export namespace TappyScatter {
     colors.push([r, g, 150])
   }
 
-  const source = new Bokeh.ColumnDataSource({
+  const source = Bokeh.ColumnDataSource.create({
     data: {x: xx, y: yy, radius: radii, colors},
   })
 

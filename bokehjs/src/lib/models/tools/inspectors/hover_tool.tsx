@@ -241,7 +241,7 @@ export class HoverToolView extends InspectToolView {
 
     const {computed_renderers} = this
     for (const r of computed_renderers) {
-      const tooltip = new Tooltip({
+      const tooltip = Tooltip.create({
         stylesheets: [hover_tool_css.default],
         content: document.createElement("div"),
         attachment: this.model.attachment,
@@ -893,10 +893,6 @@ export class HoverTool extends InspectTool {
   declare properties: HoverTool.Props
   declare __view_type__: HoverToolView
 
-  constructor(attrs?: Partial<HoverTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HoverToolView
 
@@ -921,7 +917,7 @@ export class HoverTool extends InspectTool {
       callback:     [ Nullable(Any /*TODO*/), null ],
     }))
 
-    this.register_alias("hover", () => new HoverTool())
+    this.register_alias("hover", () => HoverTool.create())
   }
 
   override tool_name = "Hover"

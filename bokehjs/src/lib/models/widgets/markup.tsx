@@ -55,10 +55,6 @@ export abstract class Markup extends Widget {
   declare properties: Markup.Props
   declare __view_type__: MarkupView
 
-  constructor(attrs?: Partial<Markup.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Markup.Props>(({Bool, Str}) => ({
       text: [ Str, "" ],

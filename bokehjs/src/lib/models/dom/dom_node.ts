@@ -18,7 +18,4 @@ export abstract class DOMNode extends Model {
   declare __view_type__: DOMNodeView
   static override __module__ = "bokeh.models.dom"
 
-  constructor(attrs?: Partial<DOMNode.Attrs>) {
-    super(attrs)
-  }
 }

@@ -15,12 +15,13 @@ import type {Color} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
-import {extend, clone} from "core/util/object"
+import {extend} from "core/util/object"
 import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionManager} from "core/selection_manager"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
+import type {ModelAttrs} from "core/has_props"
 import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
 import type {BBox} from "core/util/bbox"
@@ -107,14 +108,14 @@ export class GlyphRendererView extends DataRendererView {
     delete glyph_attrs.id
 
     function mk_glyph(defaults: Defaults): typeof base_glyph {
-      const attrs = clone(glyph_attrs)
+      const attrs = {...glyph_attrs} as ModelAttrs<typeof base_glyph>
       if (has_fill) {
         extend(attrs, defaults.fill)
       }
       if (has_line) {
         extend(attrs, defaults.line)
       }
-      return new (base_glyph.constructor as any)(attrs)
+      return base_glyph.constructor.create(attrs)
     }
 
     function glyph_from_mode(defaults: Defaults, glyph?: Glyph | "auto" | null): typeof base_glyph {
@@ -562,16 +563,12 @@ export class GlyphRenderer<
   declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>
   declare __view_type__: GlyphRendererView
 
-  constructor(attrs?: Partial<GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
       data_source:        [ Ref(ColumnarDataSource) ],
-      view:               [ Ref(CDSView), () => new CDSView() ],
+      view:               [ Ref(CDSView), () => CDSView.create() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
@@ -586,7 +583,7 @@ export class GlyphRenderer<
   }
 
   add_decoration(marking: Marking, node: "start" | "middle" | "end"): Decoration {
-    const decoration = new Decoration({marking, node})
+    const decoration = Decoration.create({marking, node})
 
     const glyphs = [
       this.glyph,

@@ -195,7 +195,7 @@ export class RectView extends CenterRotatableView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected _map_dist_corner_for_data_side_length(coord: Arrayable<number>, side_length: p.Uniform<number>,
@@ -282,10 +282,6 @@ export interface Rect extends Rect.Attrs {}
 export class Rect extends CenterRotatable {
   declare properties: Rect.Props
   declare __view_type__: RectView
-
-  constructor(attrs?: Partial<Rect.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = RectView

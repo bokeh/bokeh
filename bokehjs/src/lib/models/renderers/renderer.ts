@@ -300,10 +300,6 @@ export abstract class Renderer extends StyledElement {
   declare properties: Renderer.Props
   declare __view_type__: RendererView
 
-  constructor(attrs?: Partial<Renderer.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Renderer.Props>(({Bool, Str, Ref, Nullable}) => ({
       group:        [ Nullable(Ref(RendererGroup)), null ],

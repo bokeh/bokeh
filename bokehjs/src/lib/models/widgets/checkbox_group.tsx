@@ -59,10 +59,6 @@ export class CheckboxGroup extends ToggleInputGroup {
   declare properties: CheckboxGroup.Props
   declare __view_type__: CheckboxGroupView
 
-  constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CheckboxGroupView
 

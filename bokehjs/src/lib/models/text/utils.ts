@@ -40,7 +40,7 @@ export function parse_delimited_string(text: string): BaseText {
       const end = match.outer.length
       if (start == 0 && end == text.length) {
         const tex_string = match.inner
-        return new TeX({text: tex_string, inline: match.delim.inline})
+        return TeX.create({text: tex_string, inline: match.delim.inline})
       }
     }
 
@@ -54,8 +54,8 @@ export function parse_delimited_string(text: string): BaseText {
       }
     }
     tex_string += end < text.length ? `\\text{${text.slice(end)}}` : ""
-    return new TeX({text: tex_string, inline: false})
+    return TeX.create({text: tex_string, inline: false})
   } else {
-    return new PlainText({text})
+    return PlainText.create({text})
   }
 }

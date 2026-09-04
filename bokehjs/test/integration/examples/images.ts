@@ -29,12 +29,12 @@ describe("Examples", () => {
 
     const p = figure({
       width: 400, height: 400,
-      x_range: new DataRange1d({range_padding: 0}),
-      y_range: new DataRange1d({range_padding: 0}),
+      x_range: DataRange1d.create({range_padding: 0}),
+      y_range: DataRange1d.create({range_padding: 0}),
     })
     p.grid.grid_line_width = 0.5
 
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
     p.image({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
 
     await display(p)
@@ -62,8 +62,8 @@ describe("Examples", () => {
 
     const p = figure({
       width: 400, height: 400,
-      x_range: new DataRange1d({range_padding: 0}),
-      y_range: new DataRange1d({range_padding: 0}),
+      x_range: DataRange1d.create({range_padding: 0}),
+      y_range: DataRange1d.create({range_padding: 0}),
     })
     p.grid.grid_line_width = 0.5
 
@@ -85,7 +85,7 @@ describe("Examples", () => {
     p.scatter(0, 0, {size: 12, fill_color: "black", line_color: "white", line_width: 3})
 
     // a legend to identify the image pixel i, j coordinates
-    const source = new ColumnDataSource({
+    const source = ColumnDataSource.create({
       data: {
         color: Sunset4,
         coord: ["img[0,0]", "img[0,1]", "img[1,0]", "img[1,1]"],
@@ -103,13 +103,13 @@ describe("Examples", () => {
     p.legend.background_fill_color = null
     p.legend.border_line_color = null
 
-    const anchor = new Select({title: "anchor", options: [...Anchor], value: r.glyph.anchor})
+    const anchor = Select.create({title: "anchor", options: [...Anchor], value: r.glyph.anchor})
     anchor.properties.value.change.connect(() => r.glyph.anchor = anchor.value as Anchor)
 
-    const origin = new Select({title: "origin", options: [...ImageOrigin], value: r.glyph.origin})
+    const origin = Select.create({title: "origin", options: [...ImageOrigin], value: r.glyph.origin})
     origin.properties.value.change.connect(() => r.glyph.origin = origin.value as ImageOrigin)
 
-    const layout = new Column({children: [p, anchor, origin]})
+    const layout = Column.create({children: [p, anchor, origin]})
     await display(layout, null)
   })
 })

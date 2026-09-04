@@ -147,10 +147,6 @@ export abstract class StyledElement extends Model {
   declare properties: StyledElement.Props
   declare __view_type__: StyledElementView
 
-  constructor(attrs?: Partial<StyledElement.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<StyledElement.Props>({
       html_attributes: [ Dict(Str), {} ],

@@ -17,11 +17,11 @@ describe("CartesianFrame", () => {
   }
 
   it("should report default scales", async () => {
-    const frame = new CartesianFrame({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
-      x_scale: new LinearScale(),
-      y_scale: new LinearScale(),
+    const frame = CartesianFrame.create({
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
+      x_scale: LinearScale.create(),
+      y_scale: LinearScale.create(),
     })
 
     const frame_view = await build_frame(frame)
@@ -37,22 +37,22 @@ describe("CartesianFrame", () => {
   })
 
   it("should throw an error for incompatible numeric scale and factor range", async () => {
-    const frame = new CartesianFrame({
-      x_range: new FactorRange({factors: ["x", "y", "z"]}),
-      y_range: new Range1d(),
-      x_scale: new LinearScale(),
-      y_scale: new LinearScale(),
+    const frame = CartesianFrame.create({
+      x_range: FactorRange.create({factors: ["x", "y", "z"]}),
+      y_range: Range1d.create(),
+      x_scale: LinearScale.create(),
+      y_scale: LinearScale.create(),
     })
 
     expect(async () => await build_frame(frame)).to.throw(Error, "'FactorRange' is incompatible 'LinearScale'")
   })
 
   it("should throw an error for incompatible factor scale and numeric range", () => {
-    const frame = new CartesianFrame({
-      x_range: new Range1d(),
-      y_range: new Range1d(),
-      x_scale: new CategoricalScale(),
-      y_scale: new LinearScale(),
+    const frame = CartesianFrame.create({
+      x_range: Range1d.create(),
+      y_range: Range1d.create(),
+      x_scale: CategoricalScale.create(),
+      y_scale: LinearScale.create(),
     })
 
     expect(async () => await build_frame(frame)).to.throw(Error, "'Range1d' is incompatible 'CategoricalScale'")

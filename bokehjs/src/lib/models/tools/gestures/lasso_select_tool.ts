@@ -165,10 +165,6 @@ export class LassoSelectTool extends RegionSelectTool {
 
   declare overlay: PolyAnnotation
 
-  constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = LassoSelectToolView
 
@@ -180,7 +176,7 @@ export class LassoSelectTool extends RegionSelectTool {
       continuous: true,
     })
 
-    this.register_alias("lasso_select", () => new LassoSelectTool())
+    this.register_alias("lasso_select", () => LassoSelectTool.create())
   }
 
   override tool_name = "Lasso Select"

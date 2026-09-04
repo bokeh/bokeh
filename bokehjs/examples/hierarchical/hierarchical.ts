@@ -24,7 +24,7 @@ export namespace Hierarchical {
 
   const counts = concat(zip(data["2015"], data["2016"], data["2017"])) // like an hstack
 
-  const p = figure({x_range: new FactorRange({factors: x, range_padding: 0.1}),
+  const p = figure({x_range: FactorRange.create({factors: x, range_padding: 0.1}),
                     height: 250, toolbar_location: null, title: "Fruit Counts by Year"})
   p.vbar({x, top: counts, width: 0.9})
 
