@@ -15,19 +15,23 @@ milestone = import_module("tools.milestone")
 def item(
     kind: str,
     *,
+    issue_type: str | None = None,
     labels: tuple[str, ...] = (),
     number: int = 123,
     state: str = "CLOSED",
     title: str = "Issue title",
 ) -> dict[str, Any]:
+    node: dict[str, Any] = {
+        "labels": {"edges": [{"node": {"name": label}} for label in labels]},
+        "number": number,
+        "state": state,
+        "title": title,
+    }
+    if kind == "issues":
+        node["issueType"] = None if issue_type is None else {"name": issue_type}
     return {
         "kind": kind,
-        "node": {
-            "labels": {"edges": [{"node": {"name": label}} for label in labels]},
-            "number": number,
-            "state": state,
-            "title": title,
-        },
+        "node": node,
     }
 
 
@@ -76,6 +80,7 @@ def test_query_github_reports_errors(monkeypatch: pytest.MonkeyPatch, capsys: py
 def test_label_helpers_and_description() -> None:
     data = item(
         "issues",
+        issue_type="Feature",
         labels=("type: feature", "tag: component: server"),
         number=321,
         title="A descriptive title",
@@ -87,25 +92,42 @@ def test_label_helpers_and_description() -> None:
     assert milestone.description(data) == "#321 [component: server] A descriptive title"
 
 
+def test_get_type_uses_native_issue_type() -> None:
+    data = item("issues", issue_type="Bug", labels=("type: feature",))
+
+    assert milestone.get_type(data) == "bug"
+
+
+def test_get_type_uses_label_for_pull_request() -> None:
+    data = item("pullRequests", labels=("type: task",))
+
+    assert milestone.get_type(data) == "task"
+
+
+def test_get_type_returns_none_without_a_type() -> None:
+    assert milestone.get_type(item("issues")) is None
+    assert milestone.get_type(item("pullRequests")) is None
+
+
 def test_check_issue_accepts_compliant_issue() -> None:
     problems: list[str] = []
 
-    milestone.check_issue(item("issues", labels=("type: task", "reso: completed")), problems)
+    milestone.check_issue(item("issues", issue_type="Task", labels=("reso: completed",)), problems)
 
     assert problems == []
 
 
 @pytest.mark.parametrize(
-    ("labels", "expected"),
+    ("issue_type", "expected"),
     [
-        (("reso: completed",), "issue does not have a type: #123 Issue title"),
-        (("reso: completed", "type: discussion"), "issue has an invalid type: #123 Issue title"),
+        (None, "issue does not have a type: #123 Issue title"),
+        ("Discussion", "issue has an invalid type: #123 Issue title"),
     ],
 )
-def test_check_issue_requires_valid_type(labels: tuple[str, ...], expected: str) -> None:
+def test_check_issue_requires_valid_type(issue_type: str | None, expected: str) -> None:
     problems: list[str] = []
 
-    milestone.check_issue(item("issues", labels=labels), problems)
+    milestone.check_issue(item("issues", issue_type=issue_type, labels=("reso: completed",)), problems)
 
     assert problems == [expected]
 
@@ -117,8 +139,6 @@ def test_check_issue_reports_all_problems() -> None:
             "reso: duplicate",
             "reso: invalid",
             "status: pending",
-            "type: bug",
-            "type: feature",
             "TRIAGE",
         ),
         state="OPEN",
@@ -132,7 +152,7 @@ def test_check_issue_reports_all_problems() -> None:
         "issue missing resolution: #123 Issue title",
         "issue has too many resolutions: #123 Issue title",
         "issue has a status: #123 Issue title",
-        "issue has multiple types: #123 Issue title",
+        "issue does not have a type: #123 Issue title",
         "issue is in triage: #123 Issue title",
     ]
 
@@ -286,6 +306,8 @@ def test_get_milestone_items_follows_pagination(monkeypatch: pytest.MonkeyPatch)
     assert [data["kind"] for data in items] == ["issues", "issues", "pullRequests"]
     assert [data["node"]["number"] for data in items] == [1, 2, 3]
     assert any('after: "next"' in query for query in queries)
+    assert all("issueType { name }" in query for query in queries[:2])
+    assert "issueType { name }" not in queries[2]
 
 
 def test_get_milestone_items_returns_none_for_missing_milestone(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -325,7 +347,7 @@ def test_main_reports_missing_milestone(monkeypatch: pytest.MonkeyPatch) -> None
 
 
 def test_main_reports_milestone_problems(monkeypatch: pytest.MonkeyPatch) -> None:
-    data = item("issues", labels=("type: task", "reso: completed"), state="OPEN")
+    data = item("issues", issue_type="Task", labels=("reso: completed",), state="OPEN")
     monkeypatch.setattr(milestone, "get_milestone_items", lambda *args: [data])
 
     result = CliRunner().invoke(milestone.main, ["4.0"], env={"GH_TOKEN": "token"})
@@ -335,7 +357,7 @@ def test_main_reports_milestone_problems(monkeypatch: pytest.MonkeyPatch) -> Non
 
 
 def test_main_check_only_does_not_update_changelog(monkeypatch: pytest.MonkeyPatch) -> None:
-    data = item("issues", labels=("type: task", "reso: completed"))
+    data = item("issues", issue_type="Task", labels=("reso: completed",))
     monkeypatch.setattr(milestone, "get_milestone_items", lambda *args: [data])
 
     result = CliRunner().invoke(milestone.main, ["--check-only", "4.0"], env={"GH_TOKEN": "token"})
@@ -348,9 +370,9 @@ def test_main_updates_changelog(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     changelog_dir.mkdir()
     (changelog_dir / "CHANGELOG").write_text("old changelog\n")
     items = [
-        item("issues", labels=("type: bug", "reso: completed"), number=1, title="Bug fix"),
-        item("issues", labels=("type: feature", "reso: completed"), number=2, title="Feature"),
-        item("issues", labels=("type: task", "reso: completed"), number=3, title="Task"),
+        item("issues", issue_type="Bug", labels=("reso: completed",), number=1, title="Bug fix"),
+        item("issues", issue_type="Feature", labels=("reso: completed",), number=2, title="Feature"),
+        item("issues", issue_type="Task", labels=("reso: completed",), number=3, title="Task"),
         item("pullRequests", labels=("status: accepted",), number=4, state="MERGED", title="Untyped PR"),
     ]
     monkeypatch.setattr(milestone, "REPO_ROOT", tmp_path)
