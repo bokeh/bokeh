@@ -59,6 +59,11 @@ type ConstructionContext = {
 
 const construction_stack: ConstructionContext[] = []
 
+type ReferenceCollector = {
+  add(ref: HasProps): void
+  has(ref: HasProps): boolean
+}
+
 export namespace HasProps {
   export type Attrs = p.AttrsOf<Props>
   export type Props = {}
@@ -699,7 +704,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(value: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
+  static _value_record_references(value: unknown, refs: ReferenceCollector, options: {recursive: boolean}): void {
     if (!isObject(value) || !may_have_refs(value)) {
       return
     }

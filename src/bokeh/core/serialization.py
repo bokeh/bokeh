@@ -198,7 +198,6 @@ class Serializable:
         raise NotImplementedError()
 
 ObjID = int
-type ModelIDPolicy = Literal["always", "minimal"]
 
 class Serializer:
     """ Convert built-in and custom types into serializable representations.
@@ -213,18 +212,16 @@ class Serializer:
         cls._encoders[type] = encoder
 
     _references: dict[ObjID, Ref]
-    _models_with_ids: set[ObjID]
-    _model_ids: ModelIDPolicy
+    _models_with_ids: set[ObjID] | None
     _deferred: bool
     _check_circular: bool
     _circular: dict[ObjID, Any]
     _buffers: list[Buffer]
 
     def __init__(self, *, references: set[Model] = set(), deferred: bool = True, check_circular: bool = False,
-            model_ids: ModelIDPolicy = "always", models_with_ids: set[Model] = set()) -> None:
+            models_with_ids: set[Model] | None = None) -> None:
         self._references = {id(obj): obj.ref for obj in references}
-        self._models_with_ids = {id(obj) for obj in models_with_ids}
-        self._model_ids = model_ids
+        self._models_with_ids = None if models_with_ids is None else {id(obj) for obj in models_with_ids}
         self._deferred = deferred
         self._check_circular = check_circular
         self._circular = {}
@@ -249,7 +246,7 @@ class Serializer:
         Returns:
             Whether the serialized representation should include the model ID.
         '''
-        return self._model_ids == "always" or id(obj) in self._models_with_ids
+        return self._models_with_ids is None or id(obj) in self._models_with_ids
 
     @property
     def buffers(self) -> list[Buffer]:
