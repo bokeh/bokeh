@@ -3,6 +3,7 @@ import type {NDArrayType} from "core/util/ndarray"
 import {isTypedArray} from "core/util/types"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
+import type {BaseGLGlyphClass} from "./webgl/base"
 
 export interface ImageRGBAView extends ImageRGBA.Data {}
 
@@ -13,7 +14,7 @@ export class ImageRGBAView extends ImageBaseView {
   /** @internal */
   declare glglyph?: ImageGL
 
-  override async load_glglyph() {
+  override async load_glglyph(): Promise<BaseGLGlyphClass> {
     const {ImageGL} = await import("./webgl/image")
     return ImageGL
   }
