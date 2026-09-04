@@ -7,12 +7,9 @@
 ''' Provide Jinja2 templates used by Bokeh to embed Bokeh documents and
 models in various ways.
 
-.. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_NB_JS
 .. bokeh-jinja:: bokeh.core.templates.CSS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.DOC_NB_JS
 .. bokeh-jinja:: bokeh.core.templates.FILE
 .. bokeh-jinja:: bokeh.core.templates.JS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_LOAD
 .. bokeh-jinja:: bokeh.core.templates.ROOT_DIV
 .. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
 
@@ -50,11 +47,9 @@ __all__ = (
     "CSS_RESOURCES",
     "SCRIPT_TAG",
     "ROOT_DIV",
-    "DOC_NB_JS",
     "FILE",
     "MACROS",
-    "NOTEBOOK_LOAD",
-    "AUTOLOAD_NB_JS",
+    "PORTABLE_RESOURCES_JS",
 )
 
 #-----------------------------------------------------------------------------
@@ -90,22 +85,18 @@ JS_RESOURCES: Template
 CSS_RESOURCES: Template
 SCRIPT_TAG: Template
 ROOT_DIV: Template
-DOC_NB_JS: Template
 FILE: Template
 MACROS: Template
-NOTEBOOK_LOAD: Template
-AUTOLOAD_NB_JS: Template
+PORTABLE_RESOURCES_JS: Template
 
 _templates: dict[str, Callable[[], Template]] = dict(
     JS_RESOURCES=lambda: get_env().get_template("js_resources.html.jinja"),
     CSS_RESOURCES=lambda: get_env().get_template("css_resources.html.jinja"),
     SCRIPT_TAG=lambda: get_env().get_template("script_tag.html.jinja"),
     ROOT_DIV=lambda: get_env().get_template("root_div.html.jinja"),
-    DOC_NB_JS=lambda: get_env().get_template("doc_nb_js.js.jinja"),
     FILE=lambda: get_env().get_template("file.html.jinja"),
     MACROS=lambda: get_env().get_template("macros.html.jinja"),
-    NOTEBOOK_LOAD=lambda: get_env().get_template("notebook_load.html.jinja"),
-    AUTOLOAD_NB_JS=lambda: get_env().get_template("autoload_nb_js.js.jinja"),
+    PORTABLE_RESOURCES_JS=lambda: get_env().get_template("portable_resources.js.jinja"),
 )
 
 @lru_cache(None)
