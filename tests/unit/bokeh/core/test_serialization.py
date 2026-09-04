@@ -61,6 +61,7 @@ from bokeh.core.serialization import (
     SliceRep,
     TypedArrayRep,
 )
+from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
 from bokeh.util.dataclasses import NotRequired, Unspecified
@@ -722,6 +723,42 @@ class TestSerializer:
             ),
         )
         assert encoder.buffers == []
+
+    def test_Model_minimal_ids_can_omit_id(self) -> None:
+        val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
+        encoder = Serializer(model_ids="minimal")
+        rep = encoder.encode(val)
+        assert rep == ObjectRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            attributes=dict(
+                p0=3,
+                p1="b",
+                p2=[4, 5, 6],
+            ),
+        )
+        assert encoder.buffers == []
+
+    def test_Document_minimal_ids_preserves_shared_identity(self) -> None:
+        shared = SomeModel(p0=10)
+        val0 = SomeModel(p0=20, p3=shared)
+        val1 = SomeModel(p0=30, p3=shared)
+
+        doc = Document()
+        doc.add_root(val0)
+        doc.add_root(val1)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+
+        assert "id" not in rep["roots"][0]
+        assert "id" not in rep["roots"][1]
+        assert rep["roots"][0]["attributes"]["p3"] == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            id=shared.id,
+            attributes=dict(p0=10),
+        )
+        assert rep["roots"][1]["attributes"]["p3"] == Ref(id=shared.id)
 
     def test_Model_circular(self) -> None:
         val0 = SomeModel(p0=10)

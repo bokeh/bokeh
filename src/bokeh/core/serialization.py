@@ -136,7 +136,7 @@ class ObjectRefRep(TypedDict):
     id: ID
     attributes: NotRequired[dict[str, AnyRep]]
 
-ModelRep = ObjectRefRep
+ModelRep = ObjectRep | ObjectRefRep
 
 type ByteOrder = Literal["little", "big"]
 
@@ -198,6 +198,7 @@ class Serializable:
         raise NotImplementedError()
 
 ObjID = int
+type ModelIDPolicy = Literal["always", "minimal"]
 
 class Serializer:
     """ Convert built-in and custom types into serializable representations.
@@ -212,13 +213,18 @@ class Serializer:
         cls._encoders[type] = encoder
 
     _references: dict[ObjID, Ref]
+    _models_with_ids: set[ObjID]
+    _model_ids: ModelIDPolicy
     _deferred: bool
     _check_circular: bool
     _circular: dict[ObjID, Any]
     _buffers: list[Buffer]
 
-    def __init__(self, *, references: set[Model] = set(), deferred: bool = True, check_circular: bool = False) -> None:
+    def __init__(self, *, references: set[Model] = set(), deferred: bool = True, check_circular: bool = False,
+            model_ids: ModelIDPolicy = "always", models_with_ids: set[Model] = set()) -> None:
         self._references = {id(obj): obj.ref for obj in references}
+        self._models_with_ids = {id(obj) for obj in models_with_ids}
+        self._model_ids = model_ids
         self._deferred = deferred
         self._check_circular = check_circular
         self._circular = {}
@@ -233,6 +239,17 @@ class Serializer:
 
     def get_ref(self, obj: Any) -> Ref | None:
         return self._references.get(id(obj))
+
+    def use_model_id(self, obj: Model) -> bool:
+        ''' Report whether a model should retain its identifier.
+
+        Args:
+            obj: The model being serialized.
+
+        Returns:
+            Whether the serialized representation should include the model ID.
+        '''
+        return self._model_ids == "always" or id(obj) in self._models_with_ids
 
     @property
     def buffers(self) -> list[Buffer]:
