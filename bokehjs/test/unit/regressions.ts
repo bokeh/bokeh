@@ -2223,7 +2223,7 @@ ${view.host_selector} {
     const y2 = y1.map((yi) => yi + 5)
 
     function plot(y_range?: DataRange1d) {
-      const source = new ColumnDataSource({data: {x, y1, y2}})
+      const source = ColumnDataSource.create({data: {x, y1, y2}})
       const p = fig([600, 400], {tools: "xpan,xwheel_zoom,reset", active_scroll: "xwheel_zoom", y_range})
       p.line({field: "x"}, {field: "y1"}, {source, legend_label: "Line 1"})
       const r2 = p.line({field: "x"}, {field: "y2"}, {source, legend_label: "Line 2"})
@@ -2240,7 +2240,7 @@ ${view.host_selector} {
     it("doesn't preserve a manually updated y_range when toggling a legend item after x-only zoom", async () => {
       const {p, r2, source} = plot()
       const {x_range, y_range, legend} = p
-      const autoscale = new CustomJS({args: {y_range, source}, code: `
+      const autoscale = CustomJS.create({args: {y_range, source}, code: `
         const i = Math.max(Math.floor(cb_obj.start), 0)
         const j = Math.min(Math.ceil(cb_obj.end), source.data.y1.length)
         if (j > i) {
@@ -2272,7 +2272,7 @@ ${view.host_selector} {
     })
 
     it("doesn't auto-range y_range with only_visible=true when toggling a legend item after x-only zoom", async () => {
-      const {p, r2} = plot(new DataRange1d({only_visible: true, range_padding: 0}))
+      const {p, r2} = plot(DataRange1d.create({only_visible: true, range_padding: 0}))
       const {y_range, legend} = p
 
       const {view} = await display(p)
@@ -2292,8 +2292,8 @@ ${view.host_selector} {
     })
 
     it("doesn't resume auto-ranging of y_range after reset when an endpoint was changed manually", async () => {
-      const source = new ColumnDataSource({data: {x: [0, 1, 2], y: [1, 2, 3]}})
-      const y_range = new DataRange1d({range_padding: 0})
+      const source = ColumnDataSource.create({data: {x: [0, 1, 2], y: [1, 2, 3]}})
+      const y_range = DataRange1d.create({range_padding: 0})
       const p = fig([200, 200], {y_range})
       p.line({field: "x"}, {field: "y"}, {source})
 

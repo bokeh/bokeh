@@ -193,7 +193,7 @@ describe("column_data_source module", () => {
 
   describe("selection pruning", () => {
     it("should prune out-of-bounds indices when data is replaced", () => {
-      const selected = new Selection({
+      const selected = Selection.create({
         indices: [-1, 0, 2, 3],
         line_indices: [-1, 0, 2, 3],
         multiline_indices: new Map([[-1, [0]], [0, [0]], [2, [0]], [3, [0]]]),
@@ -204,7 +204,7 @@ describe("column_data_source module", () => {
           {index: 3, i: 0, j: 0, flat_index: 0},
         ],
       })
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3]}, selected})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3]}, selected})
 
       source.data = {foo: [0, 1]}
 
@@ -222,8 +222,8 @@ describe("column_data_source module", () => {
     })
 
     it("should prune out-of-bounds indices after streaming with rollover", () => {
-      const selected = new Selection({indices: [0, 1, 2, 3]})
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3]}, selected})
+      const selected = Selection.create({indices: [0, 1, 2, 3]})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3]}, selected})
 
       source.stream({foo: [4]}, 2)
 
@@ -232,8 +232,8 @@ describe("column_data_source module", () => {
     })
 
     it("should prune out-of-bounds indices after patching", () => {
-      const selected = new Selection({indices: [0, 2]})
-      const source = new ColumnDataSource({data: {foo: [0, 1]}, selected})
+      const selected = Selection.create({indices: [0, 2]})
+      const source = ColumnDataSource.create({data: {foo: [0, 1]}, selected})
 
       source.patch({foo: [[0, 2]]})
 
@@ -241,13 +241,13 @@ describe("column_data_source module", () => {
     })
 
     it("should not update the selection when all indices remain in bounds", () => {
-      const selected = new Selection({
+      const selected = Selection.create({
         indices: [0],
         line_indices: [1],
         multiline_indices: new Map([[0, [0]]]),
         image_indices: [{index: 1, i: 0, j: 0, flat_index: 0}],
       })
-      const source = new ColumnDataSource({data: {foo: [0, 1]}, selected})
+      const source = ColumnDataSource.create({data: {foo: [0, 1]}, selected})
       let updates = 0
       selected.change.connect(() => updates++)
 
@@ -259,13 +259,13 @@ describe("column_data_source module", () => {
     })
 
     it("should update only selection properties that are pruned", () => {
-      const selected = new Selection({
+      const selected = Selection.create({
         indices: [0, 2],
         line_indices: [0],
         multiline_indices: new Map([[0, [0]]]),
         image_indices: [{index: 0, i: 0, j: 0, flat_index: 0}],
       })
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
       let indices_updates = 0
       let line_indices_updates = 0
       let multiline_indices_updates = 0
@@ -284,8 +284,8 @@ describe("column_data_source module", () => {
     })
 
     it("should prune typed-array selection indices", () => {
-      const selected = new Selection({indices: new Int32Array([0, 2])})
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      const selected = Selection.create({indices: new Int32Array([0, 2])})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
 
       source.data = {foo: [0, 1]}
 
@@ -293,8 +293,8 @@ describe("column_data_source module", () => {
     })
 
     it("should preserve synchronization mode when pruning", () => {
-      const selected = new Selection({indices: [0, 2]})
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      const selected = Selection.create({indices: [0, 2]})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
       const document = new Document()
       document.add_root(source)
       const events: {sync: boolean}[] = []
@@ -307,9 +307,9 @@ describe("column_data_source module", () => {
     })
 
     it("should notify linked selections when pruning", () => {
-      const selected = new Selection({indices: [0, 2]})
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
-      const linked = new Selection({indices: selected.indices})
+      const selected = Selection.create({indices: [0, 2]})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
+      const linked = Selection.create({indices: selected.indices})
       selected.properties.indices.change.connect(() => linked.indices = selected.indices)
       let updates = 0
       linked.properties.indices.change.connect(() => updates++)
@@ -321,8 +321,8 @@ describe("column_data_source module", () => {
     })
 
     it("should preserve scalar selections when data has no columns", () => {
-      const selected = new Selection({indices: [0]})
-      const source = new ColumnDataSource({data: {unused: [1]}, selected})
+      const selected = Selection.create({indices: [0]})
+      const source = ColumnDataSource.create({data: {unused: [1]}, selected})
 
       source.data = {}
 
