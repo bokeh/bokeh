@@ -2,6 +2,7 @@ import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
 import {DocumentMountController, MountController} from "@bokeh/framework"
 import type {BokehModel, BokehRootModel} from "@bokeh/framework"
 
+/** Source, mount options, and callbacks for the `bokeh` action. */
 export type BokehActionOptions = {
   /** The Bokeh root, roots array, or document to render in one mount. */
   model: BokehModel
@@ -10,6 +11,7 @@ export type BokehActionOptions = {
   onError?(error: unknown): void
 }
 
+/** Mount Bokeh content into an action node and dispose it when the action is destroyed. */
 export function bokeh(node: HTMLElement, initial: BokehActionOptions): {
   update(value: BokehActionOptions): void
   destroy(): void
@@ -49,6 +51,7 @@ export function bokeh(node: HTMLElement, initial: BokehActionOptions): {
   }
 }
 
+/** Shared source and callbacks for a `bokehDocument` provider. */
 export type BokehDocumentActionOptions = {
   models: readonly BokehRootModel[]
   mountOptions?: MountOptions
@@ -56,6 +59,7 @@ export type BokehDocumentActionOptions = {
   onError?(error: unknown): void
 }
 
+/** One root supplied by the nearest `bokehDocument` action. */
 export type BokehRootActionOptions = {
   model: BokehRootModel
 }

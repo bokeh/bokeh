@@ -437,6 +437,7 @@ async function test_local_development_example() {
 async function test_packaged_apps() {
   const applications = [
     ["angular-ng", join(packaged_dir, "angular-ng/dist/browser")],
+    ["angular-lifecycle", join(packaged_dir, "angular-lifecycle/dist/browser")],
     ["react-vite", join(packaged_dir, "react-vite/dist")],
     ["svelte-vite", join(packaged_dir, "svelte-vite/dist")],
     ["vanilla-rspack", join(packaged_dir, "vanilla-rspack")],
@@ -450,7 +451,7 @@ async function test_packaged_apps() {
     const server = await static_server(root)
     try {
       await run_smoke_page(server.url, name)
-      if (name == "angular-ng") {
+      if (name == "angular-lifecycle") {
         await run_angular_lifecycle_page(server.url)
       }
     } finally {

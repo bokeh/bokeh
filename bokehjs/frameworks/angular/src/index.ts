@@ -11,6 +11,7 @@ import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
   template: "<div #target></div>",
   styles: ":host { display: block; }",
 })
+/** Angular component that owns one target and disposes its core mount on destroy. */
 export class BokehComponent implements OnChanges, OnDestroy {
   /** The Bokeh root, roots array, or document to render in one mount. */
   @Input({required: true}) model!: BokehModel
@@ -74,6 +75,7 @@ export class BokehComponent implements OnChanges, OnDestroy {
   template: "<ng-content></ng-content>",
   styles: ":host { display: contents; }",
 })
+/** Angular provider for one shared document mount and descendant root directives. */
 export class BokehDocumentComponent implements OnChanges, OnDestroy {
   /** Roots rendered by descendant elements carrying the bokehRoot directive. */
   @Input({required: true}) models!: readonly BokehRootModel[]
@@ -118,6 +120,7 @@ export class BokehDocumentComponent implements OnChanges, OnDestroy {
   selector: "[bokehRoot]",
   standalone: true,
 })
+/** Selectively attach one declared root to the host element. */
 export class BokehRootDirective implements OnChanges, OnDestroy {
   @Input({required: true}) bokehRoot!: BokehRootModel
 

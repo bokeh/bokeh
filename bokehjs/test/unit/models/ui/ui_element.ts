@@ -6,6 +6,7 @@ import {restorable} from "#framework/util"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {BBox} from "@bokehjs/core/util/bbox"
+import {build_view} from "@bokehjs/core/build_views"
 import {paint} from "@bokehjs/core/util/defer"
 import type {StyleSheetLike} from "@bokehjs/core/dom"
 import vars_css from "@bokehjs/styles/vars.css"
@@ -156,9 +157,15 @@ describe("UIElement", () => {
 
     it("when not connected to DOM", async () => {
       const ui = UI.create({styles: {...size}})
-      const {view} = await display(ui, [100, 100], null)
-      expect(view.is_displayed).to.be.false
-      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
+      const view = await build_view(ui)
+      try {
+        view.build(document.createElement("div"))
+        await view.ready
+        expect(view.is_displayed).to.be.false
+        expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
+      } finally {
+        view.remove()
+      }
     })
 
     it("when switched to 'display: none' after display", async () => {
