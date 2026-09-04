@@ -673,10 +673,11 @@ export class Document implements Equatable {
    * Serialize this document for a static embed artifact.
    *
    * Anonymous models omit IDs, while shared and cyclic models retain the IDs
-   * required to reconstruct identity. `models_with_ids` is only for model
-   * identities referenced outside the serialized graph. Artifact roots should
-   * be addressed by logical key and document-root ordinal, not by forcing a
-   * model ID solely for DOM mounting.
+   * required to reconstruct identity. Any included ID is a graph or runtime
+   * reconstruction detail, not a durable browser address. `models_with_ids`
+   * is only for model identities referenced outside the serialized graph.
+   * Artifact roots should be addressed by logical key and document-root
+   * ordinal, not by forcing a model ID solely for DOM mounting.
    *
    * Canonical documents and live protocol messages must use [[to_json]].
    */

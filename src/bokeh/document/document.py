@@ -34,9 +34,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections import deque
 import gc
 import weakref
+from collections import deque
 from json import loads
 from typing import (
     TYPE_CHECKING,
@@ -62,6 +62,7 @@ from ..core.serialization import (
 )
 from ..core.templates import FILE
 from ..core.validation import check_integrity, process_validation_issues
+from ..model.util import visit_immediate_value_references
 from ..themes import (
     Theme,
     ThemeLike,
@@ -70,9 +71,6 @@ from ..themes import (
 )
 from ..util.serialization import make_id
 from ..util.version import __version__
-from ..model.util import (
-    visit_immediate_value_references,
-)
 from .callbacks import (
     Callback,
     DocumentCallbackManager,
@@ -946,9 +944,11 @@ side of a communications channel while it was being removed on the other end.\
         ''' Convert this document for inclusion in a static embed artifact.
 
         Static artifacts use graph-minimal model IDs. Anonymous models omit
-        their server-side IDs, while shared and cyclic models retain the IDs
-        needed to reconstruct object identity. ``models_with_ids`` is reserved
-        for model identities referenced outside the serialized graph.
+        their construction-time IDs, while shared and cyclic models retain the
+        IDs needed to reconstruct object identity. Any ID in the artifact is a
+        graph or runtime reconstruction detail, not a durable browser address.
+        ``models_with_ids`` is reserved for model identities referenced outside
+        the serialized graph.
 
         Artifact roots should be addressed by logical key and their ordinal in
         ``Document.roots``. A root ID must not be retained solely to find its

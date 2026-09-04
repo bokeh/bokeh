@@ -7,11 +7,13 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import json
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterator
 
+# Bokeh imports
 from bokeh.core.serialization import ObjectRep, Serializer
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
@@ -41,6 +43,7 @@ def _fixture_document() -> Document:
         "shared": shared,
         "cycle": cycle_a,
     })
+    primary.name = "semantic-primary"
     secondary = CustomJS(code="secondary", args={"shared": shared})
 
     document = Document()
@@ -107,6 +110,18 @@ def test_static_document_round_trips_keyed_anonymous_shared_and_cyclic_models() 
     assert cycle_b.args["other"] is cycle_a
     assert cycle_a.id == "cycle-a"
     assert cycle_b.id == "cycle-b"
+    assert document.get_model_by_name("semantic-primary") is primary
+
+
+def test_static_anonymous_ids_are_runtime_details() -> None:
+    source = _fixture_document()
+    source_root_ids = [root.id for root in source.roots]
+
+    encoded = source.to_static_json(deferred=False)
+    reconstructed = Document.from_json(encoded)
+
+    assert all(root.id != source_id for root, source_id in zip(reconstructed.roots, source_root_ids, strict=True))
+    assert reconstructed.get_model_by_name("semantic-primary") is reconstructed.roots[0]
 
 
 def test_static_document_is_deterministic_and_does_not_force_root_ids() -> None:
@@ -134,6 +149,7 @@ def test_canonical_documents_and_patch_values_remain_id_full() -> None:
     assert all("id" in rep for rep in object_reps)
 
     primary = document.roots[0]
+    assert document.get_model_by_id(primary.id) is primary
     replacement = CustomJS(code="replacement")
     event = ModelChangedEvent(document, primary, "args", {"replacement": replacement})
     serialized = event.to_serializable(Serializer())

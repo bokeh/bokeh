@@ -40,7 +40,12 @@ from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, String
 from ..core.property.validation import without_property_validation
-from ..core.serialization import ObjectRefRep, ObjectRep, Ref, Serializer
+from ..core.serialization import (
+    ObjectRefRep,
+    ObjectRep,
+    Ref,
+    Serializer,
+)
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
