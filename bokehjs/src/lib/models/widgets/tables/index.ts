@@ -1,3 +1,5 @@
+export type {SortableInstance} from "../../../external/sortablejs"
+
 export * from "./cell_editors"
 export * from "./cell_formatters"
 

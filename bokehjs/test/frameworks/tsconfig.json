@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "types": ["node", "vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@bokeh/bokehjs": ["../../build/js/lib/bokeh_package.d.ts"]
+    }
+  },
+  "extends": "../../tsconfig.base",
+  "include": ["./**/*.ts", "./**/*.mjs"],
+  "exclude": ["./apps/**/dist"]
+}

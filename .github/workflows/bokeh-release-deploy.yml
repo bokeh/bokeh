@@ -124,7 +124,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: npm-distribution
-          path: deployment-${{ github.event.inputs.version }}/bokeh-bokehjs-*.tgz
+          path: deployment-${{ github.event.inputs.version }}/bokeh-*.tgz
           if-no-files-found: error
           retention-days: 1
 
@@ -232,7 +232,10 @@ jobs:
         working-directory: dist/
         env:
           NPM_TAG: ${{ (contains(github.event.inputs.version, '.dev') || contains(github.event.inputs.version, 'rc')) && 'dev' || 'latest' }}
-        run: npm publish --access=public --tag="$NPM_TAG" bokeh-bokehjs-*.tgz
+        run: |
+          for package in bokeh-bokehjs bokeh-framework bokeh-angular bokeh-react bokeh-svelte bokeh-vue bokeh-web-component; do
+            npm publish --access=public --tag="$NPM_TAG" "$package"-*.tgz
+          done
 
   publish-pypi:
     needs: prepare

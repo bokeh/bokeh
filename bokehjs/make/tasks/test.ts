@@ -14,6 +14,7 @@ import * as paths from "../paths.js"
 import {platform, find_port, retry, terminate, keep_alive} from "./_util.js"
 import {compile_typescript} from "./_util.js"
 import {start_server as start_js_server} from "./server.js"
+import {build_frameworks} from "./frameworks.js"
 
 import {Linker} from "#compiler/linker.js"
 import * as preludes from "#compiler/prelude.js"
@@ -157,14 +158,14 @@ async function headless(devtools_port: number): Promise<HeadlessProcess> {
     "--force-color-profile=srgb",           // ^^^
     "--force-device-scale-factor=1",        // ^^^
   ]
-  const bokeh_in_docker = process.env.BOKEH_IN_DOCKER ?? ""
-  if (bokeh_in_docker == "1") {
-    args.push(
-      "--no-sandbox",
-      // Containers have no hardware GPU. Keep WebGL enabled through Chrome's
-      // supported software renderer instead of disabling GPU-backed coverage.
-      "--enable-unsafe-swiftshader",
-    )
+  const in_docker = process.env.BOKEH_IN_DOCKER == "1"
+  if (in_docker || process.env.CI == "true") {
+    args.push("--no-sandbox")
+  }
+  if (in_docker) {
+    // Containers have no hardware GPU. Keep WebGL enabled through Chrome's
+    // supported software renderer instead of disabling GPU-backed coverage.
+    args.push("--enable-unsafe-swiftshader")
   }
   const exec = chromium_executable()
   const proc = spawn(exec, args, {stdio: "pipe"})
@@ -503,8 +504,23 @@ task2("test:defaults", [start, build_defaults], async (server_port) => {
 
 task("test:build", ["test:build:defaults", "test:build:unit", "test:build:integration"])
 
+const test_framework_packages = task("test:frameworks:packages", [build_frameworks], async () => {
+  await node(["./test/frameworks/package_examples.mjs"])
+})
+
+task2("test:frameworks", [test_framework_packages], async () => {
+  let devtools_port = 9222
+  await retry(async () => {
+    devtools_port = await find_port(devtools_port)
+    const {process: proc} = await headless(devtools_port)
+    terminate(proc)
+  }, 3)
+  await node(["./test/frameworks/run.mjs", `--devtools-port=${devtools_port}`])
+  return success(undefined)
+})
+
 task("test:lib", ["test:unit", "test:integration"])
-task("test", ["test:codebase", "test:defaults", "test:lib"])
+task("test", ["test:codebase", "test:defaults", "test:lib", "test:frameworks"])
 
 task("baseline-test", async () => await run_baseline_test("run", baseline_test_options()))
 task("baseline-test:review", async () => await run_baseline_test("review", baseline_test_review_options()))

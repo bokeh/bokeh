@@ -13,6 +13,7 @@ import {HexTileOrientation} from "core/enums"
 import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 import type {HexTileGL} from "./webgl/hex_tile"
+import type {BaseGLGlyphClass} from "./webgl/base"
 
 export type Vertices = [number, number, number, number, number, number]
 
@@ -25,7 +26,7 @@ export class HexTileView extends GlyphView {
   /** @internal */
   declare glglyph?: HexTileGL
 
-  override async load_glglyph() {
+  override async load_glglyph(): Promise<BaseGLGlyphClass> {
     const {HexTileGL} = await import("./webgl/hex_tile")
     return HexTileGL
   }
