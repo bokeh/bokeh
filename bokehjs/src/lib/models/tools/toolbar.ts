@@ -482,6 +482,7 @@ export class Toolbar extends UIElement {
     type ClassLike<T> = Function & {prototype: T}
 
     const visited = new Set<ToolLike<Tool>>()
+
     function isa<A extends Tool>(tool: ToolLike<Tool>, type: ClassLike<A>): tool is ToolLike<A> {
       const is = tool.underlying instanceof type
       if (is) {
