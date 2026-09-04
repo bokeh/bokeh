@@ -464,15 +464,15 @@ class TestPlaywrightPNG:
 class TestPlaywrightSVG:
 
     def test_get_svg(self, browser: Browser) -> None:
-        # Use an SVG-backend plot with a solid red background. The renderer
-        # emits a concrete filled path that verifies Playwright returns the
-        # serialized SVG rather than merely reporting an element count.
+        # Use a canvas-backend plot with a solid red background; the canvas
+        # renderer emits a single <path> filled with that color, which gives
+        # us a concrete marker to assert on.
         layout = Plot(
             x_range=Range1d(), y_range=Range1d(),
             toolbar_location=None, height=20, width=20,
             min_border=0, outline_line_color=None,
             border_fill_color=None, background_fill_color="red",
-            output_backend="svg",
+            output_backend="canvas",
         )
         with silenced(MISSING_RENDERERS):
             svgs = bie.get_svg(layout, driver=browser)

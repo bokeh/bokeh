@@ -22,7 +22,8 @@ from bokeh.io.notebook import (
     show_hosted_app,
 )
 from bokeh.io.state import State
-from bokeh.models import ColumnDataSource, Div
+from bokeh.layouts import column
+from bokeh.models import ColumnDataSource, Div, Slider
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 
@@ -58,6 +59,7 @@ def test_show_doc_publishes_one_artifact_owned_output() -> None:
     assert "embed_items_notebook" not in html
     assert handle is _DOCUMENT_VIEW_HANDLES[payload["live_id"]]
     handle.close()
+    assert plot not in state.document.roots
 
 
 def test_show_doc_wraps_sequences_in_one_layout_artifact() -> None:
@@ -74,6 +76,60 @@ def test_show_doc_wraps_sequences_in_one_layout_artifact() -> None:
     [root] = state.document.roots
     assert list(root.children) == [first, second]
     handle.close()
+    assert state.document.roots == []
+
+
+def test_repeated_displays_share_output_root_until_final_handle_closes() -> None:
+    plot = figure()
+    state = State()
+    with (
+        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+        patch("bokeh.io.notebook._register_notebook_comm_target"),
+        patch("bokeh.io.notebook.publish_display_data"),
+    ):
+        first = show_doc(plot, state)
+        second = show_doc(plot, state)
+
+    first.close()
+    assert plot in state.document.roots
+    second.close()
+    assert plot not in state.document.roots
+
+
+def test_preexisting_document_root_is_not_owned_by_output() -> None:
+    plot = figure()
+    state = State()
+    state.document.add_root(plot)
+    with (
+        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+        patch("bokeh.io.notebook._register_notebook_comm_target"),
+        patch("bokeh.io.notebook.publish_display_data"),
+    ):
+        handle = show_doc(plot, state)
+
+    handle.close()
+    assert plot in state.document.roots
+
+
+def test_handle_eviction_releases_its_output_root() -> None:
+    first_plot, second_plot = figure(), figure()
+    state = State()
+    with (
+        patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1),
+        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+        patch("bokeh.io.notebook._register_notebook_comm_target"),
+        patch("bokeh.io.notebook.publish_display_data"),
+    ):
+        first = show_doc(first_plot, state)
+        second = show_doc(second_plot, state)
+
+    assert first.closed
+    assert first_plot not in state.document.roots
+    assert second_plot in state.document.roots
+    second.close()
 
 
 def test_automatic_mimebundle_has_one_static_artifact_and_no_live_owner() -> None:
@@ -135,6 +191,7 @@ class TestDocumentViewHandle:
         snapshot = comm.send.call_args.args[0]
         assert snapshot["kind"] == "snapshot"
         assert snapshot["revision"] == 0
+        assert snapshot["resource_id"].startswith("bokeh-")
         artifact = json.loads(snapshot["artifact"])
         assert artifact["schema"] == "bokeh.embed/v1"
         assert artifact["metadata"]["compiler"]["model_ids"] == "protocol-full"
@@ -179,8 +236,45 @@ class TestDocumentViewHandle:
         snapshot = comm.send.call_args.args[0]
         assert snapshot["kind"] == "snapshot"
         assert snapshot["revision"] == 1
+        assert snapshot["resource_id"].startswith("bokeh-")
         assert "after" in snapshot["artifact"]
         handle.close()
+
+    def test_resync_negotiates_resources_added_by_live_models(self) -> None:
+        plot = figure()
+        layout = column(plot)
+        document = Document()
+        document.add_root(layout)
+        comm = MagicMock(comm_id="comm")
+        handle = DocumentViewHandle(layout, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+        initial = comm.send.call_args.args[0]
+
+        layout.children = [plot, Slider(start=0, end=1, value=0)]
+        comm.reset_mock()
+        handle._receive("comm", {"content": {"data": {"kind": "resync"}}})
+
+        updated = comm.send.call_args.args[0]
+        artifact = json.loads(updated["artifact"])
+        assert "bokeh/widgets" in artifact["requires"]["components"]
+        assert updated["resource_id"] != initial["resource_id"]
+        handle.close()
+
+    def test_broadcast_serializes_binary_buffers_once_for_all_frontends(self) -> None:
+        root = Div()
+        handle = DocumentViewHandle(root, live_id="live", view_id="view")
+        first = MagicMock()
+        second = MagicMock()
+        handle._comms = {"first": first, "second": second}
+        buffer = MagicMock(id="buffer", to_bytes=MagicMock(return_value=b"binary"))
+        message = MagicMock(content={"events": []}, buffers=[buffer])
+
+        with patch("bokeh.protocol.patch_doc", return_value=message):
+            handle._broadcast([MagicMock()])
+
+        buffer.to_bytes.assert_called_once_with()
+        assert first.send.call_args.kwargs["buffers"] is second.send.call_args.kwargs["buffers"]
 
     def test_one_comm_close_does_not_destroy_other_views(self) -> None:
         plot = figure()

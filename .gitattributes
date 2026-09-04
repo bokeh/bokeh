@@ -1,1 +1,3 @@
 docs/bokeh/source/docs/releases/*.rst merge=union
+src/bokeh/jupyter/anywidget.js linguist-generated=true
+src/bokeh/jupyter/labextension/static/** linguist-generated=true

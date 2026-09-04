@@ -1,5 +1,6 @@
 import {BokehNotebookError, DisplayPayload} from "./protocol"
 import {KernelProxy, LiveConnection, ResourceRecord, currentDocumentSnapshot, renderDiagnostic, renderDisplay, renderLoading} from "./runtime"
+import {dataViews, LiveRevisionTransport, withTimeout} from "./transport"
 
 // AnyWidget is a transport adapter, not a rendering implementation. It owns
 // the comm queues and maps them onto renderDisplay(), which in turn owns the
@@ -15,38 +16,10 @@ type AnyModel = {
 type AnyWidgetContext = {model: AnyModel, signal: AbortSignal}
 type AnyWidgetRenderContext = AnyWidgetContext & {el: HTMLElement}
 
-type Patch = {message: any, buffers: DataView[], bytes: number}
-type Snapshot = {artifactJson: string, revision: number}
+type Snapshot = {artifactJson: string, resourceId: string, revision: number}
 type ResourceWaiter = {
   resolve(record: ResourceRecord): void
   reject(error: unknown): void
-}
-
-export const ANYWIDGET_MAX_PENDING_PATCHES = 64
-export const ANYWIDGET_MAX_PENDING_BYTES = 8 * 1024 * 1024
-
-function waitForTransport<T>(promise: Promise<T>, milliseconds: number, error: BokehNotebookError,
-    signal: AbortSignal): Promise<T> {
-  return new Promise((resolve, reject) => {
-    let settled = false
-    const finish = (callback: (value: any) => void, value: any) => {
-      if (settled) return
-      settled = true
-      window.clearTimeout(timer)
-      signal.removeEventListener("abort", aborted)
-      callback(value)
-    }
-    const aborted = () => finish(reject, new DOMException("Rendering was cancelled", "AbortError"))
-    const timer = window.setTimeout(() => finish(reject, error), milliseconds)
-    signal.addEventListener("abort", aborted, {once: true})
-    promise.then((value) => finish(resolve, value), (cause) => finish(reject, cause))
-  })
-}
-
-function dataViews(buffers: ArrayBufferView[] = []): DataView[] {
-  return buffers.map((buffer) => buffer instanceof DataView
-    ? buffer
-    : new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength))
 }
 
 export default function anywidgetFactory() {
@@ -61,10 +34,8 @@ export default function anywidgetFactory() {
     snapshotResolve = resolve
     snapshotReject = reject
   })
-  const patches: Patch[] = []
-  let patchBytes = 0
-  let awaitingSnapshot = false
-  const patchListeners = new Set<(message: any, buffers: DataView[]) => void>()
+  let sendResync: () => void = () => undefined
+  const revisions = new LiveRevisionTransport(() => sendResync())
   let applicationReady = false
   let applicationResolve: (() => void) | undefined
   let applicationReject: ((error: unknown) => void) | undefined
@@ -80,33 +51,17 @@ export default function anywidgetFactory() {
   let resourceSequence = 0
 
   const initialize = ({model, signal}: AnyWidgetContext) => {
+    sendResync = () => model.send({kind: "resync"})
     const receive = (data: any, buffers: ArrayBufferView[] = []) => {
       if (data?.kind === "patch" && Number.isSafeInteger(data.revision)) {
-        if (awaitingSnapshot) return
-        const views = dataViews(buffers)
-        const bytes = views.reduce((total, view) => total + view.byteLength, JSON.stringify(data).length)
-        const patch = {message: data, buffers: views, bytes}
-        if (patchListeners.size === 0) {
-          patches.push(patch)
-          patchBytes += bytes
-          if (patches.length > ANYWIDGET_MAX_PENDING_PATCHES || patchBytes > ANYWIDGET_MAX_PENDING_BYTES) {
-            patches.length = 0
-            patchBytes = 0
-            awaitingSnapshot = true
-            model.send({kind: "resync"})
-          }
-        } else {
-          for (const listener of patchListeners) listener(patch.message, patch.buffers)
-        }
-      } else if (data?.kind === "snapshot" && typeof data.artifact === "string" && Number.isSafeInteger(data.revision)) {
-        awaitingSnapshot = false
-        snapshot = {artifactJson: data.artifact, revision: data.revision}
-        patches.splice(0, patches.length, ...patches.filter((patch) => patch.message.revision > data.revision))
-        patchBytes = patches.reduce((total, patch) => total + patch.bytes, 0)
+        revisions.receive(data, dataViews(buffers))
+      } else if (data?.kind === "snapshot" && typeof data.artifact === "string" &&
+          typeof data.resource_id === "string" && Number.isSafeInteger(data.revision)) {
+        const initial = snapshot == null
+        snapshot = {artifactJson: data.artifact, resourceId: data.resource_id, revision: data.revision}
         snapshotResolve?.(snapshot)
-        if (patchListeners.size !== 0) {
-          for (const listener of patchListeners) listener(data, [])
-        }
+        if (initial) revisions.reset(data.revision)
+        else revisions.receive(data)
       } else if (data?.kind === "ready") {
         applicationReady = true
         applicationResolve?.()
@@ -156,9 +111,7 @@ export default function anywidgetFactory() {
       const error = new DOMException("Rendering was cancelled", "AbortError")
       for (const waiter of resourceWaiters.values()) waiter.reject(error)
       resourceWaiters.clear()
-      patches.length = 0
-      patchBytes = 0
-      patchListeners.clear()
+      revisions.clear()
       liveCloseListeners.clear()
       applicationCloseListeners.clear()
       model.off("msg:custom", receive)
@@ -192,7 +145,7 @@ export default function anywidgetFactory() {
           )
         }
         try {
-          return await waitForTransport(response, 5000, new BokehNotebookError(
+          return await withTimeout(response, 5000, new BokehNotebookError(
             "ANYWIDGET_RESOURCE_REQUEST_TIMEOUT",
             `Python did not return the BokehJS resource ${resourceId} within 5000 ms.`,
             "Check that the kernel is still running, then re-run the display cell.",
@@ -205,7 +158,7 @@ export default function anywidgetFactory() {
         // A newly rendered or reconnected view starts from the latest complete
         // snapshot, then drains only later queued revisions. This keeps every
         // frontend independent and avoids a page-global live document owner.
-        const current = snapshot ?? await waitForTransport(snapshotReady, 5000, new BokehNotebookError(
+        const current = snapshot ?? await withTimeout(snapshotReady, 5000, new BokehNotebookError(
           "ANYWIDGET_LIVE_CONNECTION_TIMEOUT",
           "Python did not open the AnyWidget live document channel within 5000 ms.",
           "Check that the kernel is still running, then re-run show(plot).",
@@ -215,16 +168,15 @@ export default function anywidgetFactory() {
         el.dataset.bokehAnywidgetLive = "connected"
         return {
           artifactJson: current.artifactJson,
+          resourceId: current.resourceId,
           revision: current.revision,
           onMessage(callback) {
-            listener = (message, buffers) => {
+            listener = async (message, buffers) => {
               const count = Number(el.dataset.bokehAnywidgetMessages ?? "0") + 1
               el.dataset.bokehAnywidgetMessages = String(count)
-              callback(message, buffers)
+              await callback(message, buffers)
             }
-            patchListeners.add(listener)
-            for (const patch of patches.splice(0)) listener(patch.message, patch.buffers)
-            patchBytes = 0
+            revisions.subscribe(listener)
           },
           onClose(callback) {
             closeListener = callback
@@ -232,16 +184,16 @@ export default function anywidgetFactory() {
             if (liveClosed) queueMicrotask(callback)
           },
           requestResync() {
-            model.send({kind: "resync"})
+            revisions.requestResync()
           },
           close() {
-            if (listener != null) patchListeners.delete(listener)
+            if (listener != null) revisions.unsubscribe(listener)
             if (closeListener != null) liveCloseListeners.delete(closeListener)
           },
         }
       },
       async openApplicationView(_viewId) {
-        if (!applicationReady) await waitForTransport(applicationOpened, payload.connect_timeout, new BokehNotebookError(
+        if (!applicationReady) await withTimeout(applicationOpened, payload.connect_timeout, new BokehNotebookError(
           "ANYWIDGET_APPLICATION_CONNECTION_TIMEOUT",
           "Python did not open the AnyWidget application-view channel in time.",
           "Check that the kernel and ASGI application are still running, then re-run show(app).",

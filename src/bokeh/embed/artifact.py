@@ -224,11 +224,12 @@ class EmbedArtifact:
         return canonical_json(self.to_dict())
 
     @classmethod
-    def from_dict(cls, value: Mapping[str, Any]) -> EmbedArtifact:
+    def from_dict(cls, value: Mapping[str, Any], *, _verify_fingerprint: bool = True) -> EmbedArtifact:
         '''Validate and reconstruct an artifact from schema data.
 
         Args:
             value: The artifact envelope.
+            _verify_fingerprint: Whether to verify the supplied fingerprint.
 
         Returns:
             A validated embedding artifact.
@@ -245,7 +246,7 @@ class EmbedArtifact:
                 "artifact buffers are not part of bokeh.embed/v1; binary server data uses protocol message buffers",
             )
         supplied = value.get("fingerprint")
-        if not isinstance(supplied, str) or not supplied:
+        if _verify_fingerprint and (not isinstance(supplied, str) or not supplied):
             raise ArtifactValidationError("artifact fingerprint must be a non-empty string")
         bokeh_version = value.get("bokeh_version")
         if not isinstance(bokeh_version, str):
@@ -269,18 +270,19 @@ class EmbedArtifact:
             raise
         except (KeyError, TypeError, ValueError) as error:
             raise ArtifactValidationError(f"invalid embedding artifact: {error}") from error
-        if supplied != artifact.fingerprint:
+        if _verify_fingerprint and supplied != artifact.fingerprint:
             raise ArtifactValidationError(
                 f"artifact fingerprint mismatch: expected {artifact.fingerprint!r}, received {supplied!r}",
             )
         return artifact
 
     @classmethod
-    def from_json(cls, value: str) -> EmbedArtifact:
+    def from_json(cls, value: str, *, _verify_fingerprint: bool = True) -> EmbedArtifact:
         '''Parse and validate an artifact JSON object.
 
         Args:
             value: The serialized artifact JSON.
+            _verify_fingerprint: Whether to verify the supplied fingerprint.
 
         Returns:
             A validated embedding artifact.
@@ -291,7 +293,7 @@ class EmbedArtifact:
             raise ArtifactValidationError(f"invalid embedding artifact JSON: {error}") from error
         if not isinstance(parsed, dict):
             raise ArtifactValidationError("an embedding artifact must be a JSON object")
-        return cls.from_dict(parsed)
+        return cls.from_dict(parsed, _verify_fingerprint=_verify_fingerprint)
 
     def fragment(self, resources: Resources | str | None = "none", **kwargs: Any) -> ArtifactFragment:
         '''Render composable targets, bootstrap code, and resolved resources.

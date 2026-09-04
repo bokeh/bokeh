@@ -43,11 +43,11 @@ from ..settings import settings
 from ..util.dependencies import import_required
 from .state import curstate
 from .util import (
-    _BOKEH_IDLE_CHECK,
     _BOKEH_LOADED_CHECK,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
+    _WAIT_SCRIPT,
     get_layout_html,
     tmp_html,
 )
@@ -192,8 +192,10 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
             raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e
 
+    driver.execute_script(_WAIT_SCRIPT)
+
     def is_bokeh_render_complete(driver: WebDriver) -> bool:
-        result: bool = driver.execute_script(_BOKEH_IDLE_CHECK)
+        result: bool = driver.execute_script('return window._bokeh_render_complete')
         return result
 
     try:

@@ -41,6 +41,8 @@ export function installExportInterceptor(app: JupyterFrontEnd, notebooks: Notebo
   if (original == null) return
   manager.exportAs = async (options: NbConvert.IExportOptions) => {
     if (options.format !== "html" && options.format !== "bokeh") return original(options)
+    const popup = window.open("about:blank", "_blank")
+    if (popup != null) popup.opener = null
     const snapshots = notebooks.snapshots(options.path)
     const exportId = correlationId()
     try {
@@ -58,9 +60,17 @@ export function installExportInterceptor(app: JupyterFrontEnd, notebooks: Notebo
       catch {
         // The Bokeh server extension itself is unavailable. Fall back to the
         // standard exporter so the user still receives a saved-state export.
+        popup?.close()
         return original(options)
       }
     }
-    window.open(exportUrl(manager.serverSettings, options, exportId), "_blank", "noopener")
+    const url = exportUrl(manager.serverSettings, options, exportId)
+    if (popup != null) popup.location.replace(url)
+    else {
+      const link = document.createElement("a")
+      link.href = url
+      link.target = "_self"
+      link.click()
+    }
   }
 }

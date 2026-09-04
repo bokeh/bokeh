@@ -20,7 +20,7 @@ function output(viewId: string, trusted = true) {
   }
 }
 
-function harness(initial: ReturnType<typeof output>[]) {
+function harness(initial: ReturnType<typeof output>[], extension = new NotebookExtension({} as any)) {
   const opened: any[] = []
   const outputs = {
     values: initial,
@@ -58,9 +58,8 @@ function harness(initial: ReturnType<typeof output>[]) {
     },
   }
   const rendermime = {addFactory: vi.fn(), removeMimeType: vi.fn()}
-  const extension = new NotebookExtension({} as any)
   const disposable = extension.createNew({content: {rendermime}} as any, context as any)
-  return {cell, cells, context, disposable, opened, outputs}
+  return {cell, cells, context, disposable, extension, opened, outputs}
 }
 
 describe("notebook output ownership", () => {
@@ -93,5 +92,22 @@ describe("notebook output ownership", () => {
     test.cells.changed.emit(test.cells, {oldValues: [test.cell], newValues: []})
     await vi.waitFor(() => expect(test.opened.filter((item) => item.view_id === "second")).toHaveLength(2))
     test.disposable.dispose()
+  })
+
+  it("keeps a shared view alive until the last notebook panel releases it", async () => {
+    const extension = new NotebookExtension({} as any)
+    const first = harness([output("shared")], extension)
+    const second = harness([output("shared")], extension)
+
+    first.outputs.values = []
+    first.outputs.changed.emit(first.outputs, {})
+    await Promise.resolve()
+    expect(first.opened).toEqual([])
+
+    second.outputs.values = []
+    second.outputs.changed.emit(second.outputs, {})
+    await vi.waitFor(() => expect(second.opened).toEqual([{kind: "release", view_id: "shared"}]))
+    first.disposable.dispose()
+    second.disposable.dispose()
   })
 })
