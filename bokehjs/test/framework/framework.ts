@@ -274,13 +274,10 @@ function _clear_test(test: Test): void {
   }
   test.mounts = []
   for (const view of test.views) {
-    if (view.is_destroyed) {
-      continue
-    }
     const {model} = view
     if (model.document != null) {
       model.document.remove_root(model)
-    } else {
+    } else if (!view.is_destroyed) {
       view.remove()
     }
   }
