@@ -9,6 +9,8 @@ from __future__ import annotations
 
 # Standard library imports
 import re
+from pathlib import Path
+from unittest.mock import patch
 
 # External imports
 import pytest
@@ -30,6 +32,20 @@ def test_public_resource_configuration() -> None:
     assert configured.__class__.__module__ == "bokeh.resources"
     assert resources.CDN == "cdn"
     assert resources.INLINE == "inline"
+
+
+def test_inline_resource_cache_is_invalidated_by_file_changes(tmp_path: Path) -> None:
+    path = tmp_path / "resource.js"
+    path.write_text("first")
+    resources._cached_inline_resource.cache_clear()
+
+    with patch.object(Path, "read_text", autospec=True, return_value="content") as read_text:
+        assert resources._inline_resource(path) == "/* BEGIN resource.js */\ncontent\n/* END resource.js */"
+        assert resources._inline_resource(path) == "/* BEGIN resource.js */\ncontent\n/* END resource.js */"
+        path.write_text("second version")
+        assert resources._inline_resource(path) == "/* BEGIN resource.js */\ncontent\n/* END resource.js */"
+
+    assert read_text.call_count == 2
 
 
 def test_get_all_sri_versions_valid_format() -> None:

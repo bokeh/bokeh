@@ -34,21 +34,19 @@ from typing import (
 from ..models.dom import DOMNode
 from ..models.ui import UIElement
 from ..util.browser import get_browser_controller
-from .notebook import show_doc
+from .notebook import notebook_environment, show_doc
 from .saving import save
-from .state import curstate
+from .util import temp_filename
 
 if TYPE_CHECKING:
+    from jinja2 import Template
+
     from ..application.application import Application
-    from ..embed.resources import ResourcePolicy
+    from ..core.types import PathLike
     from ..model import Model
     from ..resources import Resources
-    from ..util.browser import BrowserLike
     from .jupyter_app import NotebookApplication
     from .notebook import ApplicationViewHandle, DocumentViewHandle
-
-    type _ShowDocable = Model | Sequence[UIElement]
-    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -68,7 +66,11 @@ type Showable = OneOrMore[UIElement | DOMNode]
 
 def show(
     obj: Showable | NotebookApplication | Application | Callable[..., Any],
-    resources: ResourcePolicy | Resources | None = None,
+    *,
+    filename: PathLike | None = None,
+    resources: Resources | str | None = None,
+    title: str | None = None,
+    template: Template | str | None = None,
     **kwargs: Any,
 ) -> ApplicationViewHandle | DocumentViewHandle | None:
     '''Immediately display a Bokeh object or application.
@@ -91,11 +93,20 @@ def show(
             Application and callable arguments are rejected with a
             migration message; start them explicitly with ``serve()``.
 
-        resources (Resources or ResourcePolicy, optional) :
-            Select explicit BokehJS resource delivery for notebook output,
-            including inline/offline, CDN, server, host-owned, and CSP-aware
-            policies. Resolved assets are stored once per kernel and shared by
+        filename (PathLike, optional) :
+            HTML filename to save and open. If omitted outside notebook mode,
+            a temporary ``.html`` file is used.
+
+        resources (Resources or str, optional) :
+            Select explicit BokehJS resource delivery for file or notebook
+            output. Notebook assets are stored once per kernel and shared by
             subsequent outputs using the same exact configuration.
+
+        title (str, optional) :
+            HTML document title for file output.
+
+        template (Template or str, optional) :
+            HTML document template for file output.
 
     Additional keyword arguments are not accepted.
 
@@ -108,15 +119,13 @@ def show(
     '''
     from ..models.dom import DOMNode
     from ..models.ui import UIElement
-
-    state = curstate()
-
     from .jupyter_app import NotebookApplication
-    from .notebook import notebook_environment
 
     if isinstance(obj, NotebookApplication):
         if not notebook_environment():
             raise RuntimeError("show(serve(...)) requires an interactive notebook kernel")
+        if filename is not None or title is not None or template is not None:
+            raise ValueError("file output options are not supported when showing a managed notebook application")
         if kwargs:
             names = ", ".join(sorted(kwargs))
             raise ValueError(
@@ -124,16 +133,24 @@ def show(
                 "Configure ASGI server options on serve(...).",
             )
         from .notebook import show_hosted_app
-        return show_hosted_app(obj, state, resources)
+        return show_hosted_app(obj, resources)
 
     if isinstance(obj, UIElement) or isinstance(obj, DOMNode) or isinstance(obj, Sequence):
         if kwargs:
             names = ", ".join(sorted(kwargs))
             raise ValueError(f"Unexpected show() options for a standalone object: {names}")
-        notebook_options: dict[str, Any] = {}
-        if resources is not None:
-            notebook_options["resources"] = resources
-        return _show_with_state(obj, state, **notebook_options)
+        if notebook_environment() and filename is None:
+            if title is not None or template is not None:
+                raise ValueError("filename is required when passing file output options in notebook mode")
+            return show_doc(cast("Model | Sequence[UIElement]", obj), resources=resources)
+        _show_file(
+            obj,
+            filename=filename if filename is not None else temp_filename("html"),
+            resources=resources,
+            title=title,
+            template=template,
+        )
+        return None
 
     def is_application(obj: Any) -> TypeGuard[Application]:
         return getattr(obj, '_is_a_bokeh_application_class', False)
@@ -161,29 +178,15 @@ _BAD_SHOW_MSG = """Invalid object to show. The object passed to show must be one
 * a managed notebook application returned by bokeh.io.serve
 """
 
-def _show_file_with_state(obj: Showable, state: State, controller: BrowserLike) -> None:
+def _show_file(obj: Showable, *, filename: PathLike, resources: Resources | str | None,
+        title: str | None, template: Template | str | None) -> None:
     '''
 
     '''
-    filename = save(obj, state=state)
-    controller.open("file://" + filename, new=2)
-
-def _show_with_state(obj: Showable, state: State,
-        resources: ResourcePolicy | Resources | None = None) -> DocumentViewHandle | None:
-    '''
-
-    '''
-    from .notebook import notebook_environment
-
-    if notebook_environment():
-        notebook_options: dict[str, Any] = {}
-        if resources is not None:
-            notebook_options["resources"] = resources
-        return show_doc(cast("_ShowDocable", obj), state, **notebook_options)
-
     controller = get_browser_controller()
-    _show_file_with_state(obj, state, controller)
-    return None
+    saved = save(obj, filename=filename, resources=resources, title=title, template=template)
+    from pathlib import Path
+    controller.open(Path(saved).as_uri(), new=2)
 
 #-----------------------------------------------------------------------------
 # Code

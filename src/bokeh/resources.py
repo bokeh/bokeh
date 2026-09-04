@@ -30,6 +30,7 @@ import json
 import os
 import re
 from dataclasses import dataclass, field, replace
+from functools import lru_cache
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -554,9 +555,17 @@ def _get_server_urls(
     return Urls(urls=lambda components, kind: [mk_url(component, kind) for component in components])
 
 
+@lru_cache(maxsize=32)
+def _cached_inline_resource(path: str, mtime_ns: int, size: int) -> str:
+    del mtime_ns, size
+    file_path = Path(path)
+    filename = file_path.name
+    return f"/* BEGIN {filename} */\n{file_path.read_text(encoding='utf-8')}\n/* END {filename} */"
+
+
 def _inline_resource(path: Path) -> str:
-    filename = path.name
-    return f"/* BEGIN {filename} */\n{path.read_text(encoding='utf-8')}\n/* END {filename} */"
+    stat = path.stat()
+    return _cached_inline_resource(str(path), stat.st_mtime_ns, stat.st_size)
 
 
 def _integrity_for_url(url: str, hashes: Mapping[str, str]) -> str | None:
