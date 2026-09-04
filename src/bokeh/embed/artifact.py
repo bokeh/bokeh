@@ -154,6 +154,13 @@ class EmbedArtifact:
                     not isinstance(key, str) or not isinstance(value, str) for key, value in values.items()
                 ):
                     raise ArtifactValidationError(f"server artifact {name} must map strings to strings")
+            for name in ("session_id", "token"):
+                value = self.source.get(name)
+                if value is not None and (not isinstance(value, str) or not value):
+                    raise ArtifactValidationError(f"server artifact {name} must be a non-empty string")
+            relative_urls = self.source.get("relative_urls")
+            if relative_urls is not None and not isinstance(relative_urls, bool):
+                raise ArtifactValidationError("server artifact relative_urls must be a boolean")
         keys = [root.key for root in self.roots]
         if len(keys) != len(set(keys)):
             raise ArtifactValidationError("artifact root keys must be unique")

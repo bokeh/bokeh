@@ -26,6 +26,8 @@ log = logging.getLogger(__name__)
 import os
 import urllib
 from collections.abc import Sequence
+from copy import deepcopy
+from html import escape
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -33,6 +35,7 @@ from typing import (
     Literal,
     Protocol,
     TypedDict,
+    cast,
     overload,
 )
 from uuid import uuid4
@@ -45,7 +48,7 @@ if TYPE_CHECKING:
 
     from ..application.application import Application
     from ..core.types import ID
-    from ..document.document import Document
+    from ..document.document import DocJson, Document
     from ..document.events import (
         ColumnDataChangedEvent,
         ColumnsPatchedEvent,
@@ -615,9 +618,8 @@ def show_doc(obj: Model | Sequence[UIElement], state: State, notebook_handle: Co
     if obj not in state.document.roots:
         state.document.add_root(obj)
 
-    from ..embed.notebook import notebook_content
     comms_target = make_id() if notebook_handle else None
-    (script, div, cell_doc) = notebook_content(obj, comms_target)
+    (script, div, cell_doc) = _legacy_notebook_content(obj, comms_target)
 
     publish_display_data({HTML_MIME_TYPE: div})
     publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj.id}})
@@ -632,6 +634,40 @@ def show_doc(obj: Model | Sequence[UIElement], state: State, notebook_handle: Co
         return handle
 
     return None
+
+
+def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str, str, Document]:
+    """Adapt an artifact to the legacy notebook transport retained until v1."""
+    from ..core.json_encoder import serialize_json
+    from ..core.templates import DOC_NB_JS
+    from ..document import Document
+    from ..embed.notebook import notebook_content
+
+    artifact, _ = notebook_content(model, live=True)
+    documents = artifact.source["documents"]
+    assert isinstance(documents, list)
+    [document_json] = documents
+
+    doc_id = make_id()
+    element_id = make_id()
+    render_item: dict[str, Any] = {
+        "docid": doc_id,
+        "roots": {model.id: element_id},
+        "root_ids": [model.id],
+    }
+    if comms_target is not None:
+        render_item["notebook_comms_target"] = comms_target
+
+    script = DOC_NB_JS.render(
+        docs_json=serialize_json({doc_id: document_json}),
+        render_items=serialize_json([render_item]),
+    )
+    div = (
+        f'<div id="{escape(element_id, quote=True)}" '
+        f'data-root-id="{escape(model.id, quote=True)}" style="display: contents;"></div>'
+    )
+    cell_doc = Document.from_json(cast("DocJson", deepcopy(document_json)))
+    return script, div, cell_doc
 
 #-----------------------------------------------------------------------------
 # Private API
