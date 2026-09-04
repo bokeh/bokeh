@@ -6,9 +6,9 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 describe("LogScale module", () => {
 
   function mkscale(): LogScale {
-    return new LogScale({
-      source_range: new Range1d({start: 1, end: 10000}),
-      target_range: new Range1d({start: 10, end: 110}),
+    return LogScale.create({
+      source_range: Range1d.create({start: 1, end: 10000}),
+      target_range: Range1d.create({start: 10, end: 110}),
     })
   }
 

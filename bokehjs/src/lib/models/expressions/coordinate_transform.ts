@@ -20,11 +20,11 @@ export abstract class CoordinateTransform extends Expression<{x: CoordinateType,
   }
 
   get x(): XComponent {
-    return new XComponent({transform: this})
+    return XComponent.create({transform: this})
   }
 
   get y(): YComponent {
-    return new YComponent({transform: this})
+    return YComponent.create({transform: this})
   }
 }
 

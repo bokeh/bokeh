@@ -7,7 +7,7 @@ describe("HTMLLabel annotation", () => {
   it("should allow overriding properties with CSS stylesheets", async () => {
     const plot = fig([200, 200], {x_range: [0, 10], y_range: [0, 10]})
 
-    const label = new HTMLLabel({
+    const label = HTMLLabel.create({
       x: 1,
       y: 1,
       text: "Label",

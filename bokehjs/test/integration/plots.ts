@@ -110,8 +110,8 @@ describe("Plot", () => {
 
   describe("should support windowed auto-ranging", async () => {
     function plot(window_axis: WindowAxis) {
-      const r = new Range1d({start: 0, end: 6})
-      const dr = new DataRange1d({range_padding: 0})
+      const r = Range1d.create({start: 0, end: 6})
+      const dr = DataRange1d.create({range_padding: 0})
       const p = figure({
         sizing_mode: "fixed",
         width: 300,
@@ -241,7 +241,7 @@ describe("Plot", () => {
       return p
     }
 
-    const pane = new Pane({
+    const pane = Pane.create({
       styles: {display: "flex", flex_direction: "row"},
       elements: [plot(true), plot(false)],
     })
@@ -384,11 +384,11 @@ describe("Plot", () => {
     })
     plot.vbar({x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], top: [10, 3, 7, 2, 6, 9, 8, 1, 2, 7]})
 
-    const pane = new Pane({
+    const pane = Pane.create({
       elements: [
-        new Text({content: "This plot should"}),
+        Text.create({content: "This plot should"}),
         plot,
-        new Text({content: "create its own block."}),
+        Text.create({content: "create its own block."}),
       ],
     })
     await display(pane, [300, 100])
@@ -402,11 +402,11 @@ describe("Plot", () => {
     })
     plot.vbar({x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], top: [10, 3, 7, 2, 6, 9, 8, 1, 2, 7]})
 
-    const pane = new Pane({
+    const pane = Pane.create({
       elements: [
-        new Text({content: "This plot should"}),
+        Text.create({content: "This plot should"}),
         plot,
-        new Text({content: "be displayed inline."}),
+        Text.create({content: "be displayed inline."}),
       ],
     })
     await display(pane, [300, 100])
@@ -426,7 +426,7 @@ describe("Plot", () => {
       // const t = Symbol("t")
       // const v = Symbol("v")
 
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           t: [0,  1,   2,    3,     4],
           v: [1, 10, 100, 1000, 10000],
@@ -438,10 +438,10 @@ describe("Plot", () => {
       f.yaxis.axis_label = "Log"
       f.yaxis.axis_label_text_color = "blue"
 
-      f.extra_y_ranges = {linear: new Range1d({start: -1000, end: 20000})}
-      f.extra_y_scales = {linear: new LinearScale()}
+      f.extra_y_ranges = {linear: Range1d.create({start: -1000, end: 20000})}
+      f.extra_y_scales = {linear: LinearScale.create()}
 
-      const ax = new LinearAxis({y_range_name: "linear", axis_label: "Linear", axis_label_text_color: "red"})
+      const ax = LinearAxis.create({y_range_name: "linear", axis_label: "Linear", axis_label_text_color: "red"})
       f.add_layout(ax, "left")
 
       const t = {field: "t"}

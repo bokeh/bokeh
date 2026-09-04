@@ -56,7 +56,7 @@ class Some1Model extends Model {
 describe("Model objects", () => {
 
   describe("default creation", () => {
-    const m = new Some0Model()
+    const m = Some0Model.create()
 
     it("should have null name", () => {
       expect(m.name).to.be.null
@@ -77,13 +77,13 @@ describe("Model objects", () => {
       // unfortunately spy does not seem to have per-instance
       // resolution. This is the best test I could make work.
 
-      const cb1 = new CustomJS({code: ""})
-      const cb2 = new CustomJS({code: ""})
-      const cb3 = new CustomJS({code: ""})
+      const cb1 = CustomJS.create({code: ""})
+      const cb2 = CustomJS.create({code: ""})
+      const cb3 = CustomJS.create({code: ""})
 
       const spy = sinon.spy(cb3, "execute")
 
-      const m = new Some0Model({
+      const m = Some0Model.create({
         js_property_callbacks: {
           "change:foo": [cb1, cb2],
           "change:bar": [cb3],
@@ -110,10 +110,10 @@ describe("Model objects", () => {
   })
 
   it("should support select() and select_one() methods", () => {
-    const some0_0 = new Some0Model({name: "some0"})
-    const some0_1 = new Some0Model({name: "some1"})
-    const some1_0 = new Some1Model({p3: [some0_0]})
-    const some1_1 = new Some1Model({p3: [some1_0, some0_1]})
+    const some0_0 = Some0Model.create({name: "some0"})
+    const some0_1 = Some0Model.create({name: "some1"})
+    const some1_0 = Some1Model.create({p3: [some0_0]})
+    const some1_1 = Some1Model.create({p3: [some1_0, some0_1]})
 
     expect(some1_1.select({type: "Some0Model"})).to.be.equal([some0_0, some0_1])
     expect(() => some1_1.select_one({type: "Some0Model"})).to.throw(Error, "found multiple objects matching the given selector")

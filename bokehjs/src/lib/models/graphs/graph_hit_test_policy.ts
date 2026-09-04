@@ -187,7 +187,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
       }
     }
 
-    const linked_edges = new Selection()
+    const linked_edges = Selection.create()
     for (const i of edge_indices) {
       linked_edges.multiline_indices.set(i, [0]) //currently only supports 2-element multilines, so this is all of it
     }
@@ -273,7 +273,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     const node_data = dict(node_source.data)
     const index = node_data.get("index") ?? []
     const node_indices = uniq(nodes).map((i) => index_of(index, i))
-    return new Selection({indices: node_indices})
+    return Selection.create({indices: node_indices})
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
@@ -365,7 +365,7 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
     }
 
     const adjacent_node_indices = uniq(adjacent_nodes).map((i) => index_of(index, i))
-    return new Selection({indices: adjacent_node_indices})
+    return Selection.create({indices: adjacent_node_indices})
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {

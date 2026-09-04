@@ -258,9 +258,9 @@ describe("core/util/eq module", () => {
   })
 
   it("that supports HasProps instances", () => {
-    const x0 = new SomeHasProps({prop: 0})
-    const x1 = new SomeHasProps({prop: 1})
-    const x2 = new SomeHasProps({prop: 1})
+    const x0 = SomeHasProps.create({prop: 0})
+    const x1 = SomeHasProps.create({prop: 1})
+    const x2 = SomeHasProps.create({prop: 1})
 
     expect(is_equal(x0, x0)).to.be.true
     expect(is_equal(x1, x1)).to.be.true

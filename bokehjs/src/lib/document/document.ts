@@ -13,7 +13,7 @@ import {Version} from "core/util/version"
 import type {Ref} from "core/util/refs"
 import type {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
-import {isString} from "core/util/types"
+import {isArray, isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals, is_equal} from "core/util/eq"
 import {copy} from "core/util/array"
@@ -87,6 +87,12 @@ export type DocumentOptions = {
   recompute_timeout?: number
 }
 
+export type DocumentFromJsonOptions = {
+  events?: Out<DocumentEvent[]>
+  buffers?: Map<ID, ArrayBuffer>
+  resolver?: ModelResolver
+}
+
 // This class should match the API of the Python Document class
 // as much as possible.
 export class Document implements Equatable {
@@ -112,6 +118,8 @@ export class Document implements Equatable {
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
   protected _system_scheme: MediaQueryList
+  protected readonly _on_system_scheme_change: () => void
+  protected _destroyed: boolean = false
 
   private _config?: DocumentConfig
   get config(): DocumentConfig {
@@ -148,9 +156,10 @@ export class Document implements Equatable {
       this.event_manager.trigger(event)
     })
     this._system_scheme = matchMedia("(prefers-color-scheme: dark)")
-    this.config = new DocumentConfig()
+    this._on_system_scheme_change = () => this.set_color_scheme(this.config.color_scheme)
+    this.config = DocumentConfig.create()
     this.set_color_scheme(this.config.color_scheme)
-    this._system_scheme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
+    this._system_scheme.addEventListener("change", this._on_system_scheme_change)
     this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
   }
 
@@ -170,6 +179,37 @@ export class Document implements Equatable {
       }
     }
     return true
+  }
+
+  get is_destroyed(): boolean {
+    return this._destroyed
+  }
+
+  destroy(): void {
+    if (this._destroyed) {
+      return
+    }
+    this._destroyed = true
+
+    this.views_manager?.clear()
+    this.views_manager = undefined
+    this._system_scheme.removeEventListener("change", this._on_system_scheme_change)
+    this._cancel_recompute_all_models()
+
+    const config = this._config
+    this.clear({sync: false})
+    this._recompute_all_models()
+    config?.destroy()
+
+    this._callbacks.clear()
+    this._document_callbacks.clear()
+    this._message_callbacks.clear()
+    this.event_manager.subscribed_models.clear()
+
+    const i = documents.indexOf(this)
+    if (i >= 0) {
+      documents.splice(i, 1)
+    }
   }
 
   private _notified_idle: boolean = false
@@ -540,9 +580,11 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json_string(s: string, events?: Out<DocumentEvent[]>): Document {
+  static from_json_string(s: string, options?: DocumentFromJsonOptions): Document
+  static from_json_string(s: string, events?: Out<DocumentEvent[]>): Document
+  static from_json_string(s: string, events_or_options?: Out<DocumentEvent[]> | DocumentFromJsonOptions): Document {
     const json = JSON.parse(s)
-    return Document.from_json(json, events)
+    return Document.from_json(json, events_or_options as DocumentFromJsonOptions)
   }
 
   private static _handle_version(json: DocJson): void {
@@ -564,11 +606,22 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>, buffers: Map<ID, ArrayBuffer> = new Map()): Document {
+  static from_json(doc_json: DocJson, options?: DocumentFromJsonOptions): Document
+  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>, buffers?: Map<ID, ArrayBuffer>, resolver?: ModelResolver): Document
+  static from_json(doc_json: DocJson, events_or_options?: Out<DocumentEvent[]> | DocumentFromJsonOptions,
+      legacy_buffers: Map<ID, ArrayBuffer> = new Map(), legacy_resolver: ModelResolver = default_resolver): Document {
     logger.debug("Creating Document from JSON")
     Document._handle_version(doc_json)
 
-    const resolver = new ModelResolver(default_resolver)
+    const legacy_call = isArray(events_or_options) || arguments.length >= 3
+    const options = legacy_call ? {
+      events: events_or_options as Out<DocumentEvent[]> | undefined,
+      buffers: legacy_buffers,
+      resolver: legacy_resolver,
+    } : events_or_options ?? {}
+    const {events, buffers = new Map(), resolver: parent_resolver = default_resolver} = options
+
+    const resolver = new ModelResolver(parent_resolver)
     if (doc_json.defs != null) {
       const deserializer = new Deserializer(resolver)
       deserializer.decode(doc_json.defs, buffers)
@@ -576,46 +629,56 @@ export class Document implements Equatable {
 
     const doc = new Document({resolver})
     doc._push_all_models_freeze()
+    let frozen = true
 
     const listener = (event: DocumentEvent) => events?.push(event)
     doc.on_change(listener, true)
+    try {
+      const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
 
-    const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
-
-    const config = deserializer.decode(doc_json.config, buffers)
-    assert(config instanceof DocumentConfig || config == null)
-    if (config != null) {
-      doc.config = config
-      doc.set_color_scheme(config.color_scheme)
-      config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
-    }
-
-    const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
-
-    const callbacks = (() => {
-      if (doc_json.callbacks != null) {
-        return deserializer.decode(doc_json.callbacks, buffers) as {[key: string]: DocumentEventCallback[]}
-      } else {
-        return {}
+      const config = deserializer.decode(doc_json.config, buffers)
+      assert(config instanceof DocumentConfig || config == null)
+      if (config != null) {
+        doc.config = config
+        doc.set_color_scheme(config.color_scheme)
+        config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
       }
-    })()
 
-    doc.remove_on_change(listener)
+      const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
 
-    for (const [event, event_callbacks] of entries(callbacks)) {
-      doc.on_event(event as BokehEventType, ...event_callbacks)
+      const callbacks = (() => {
+        if (doc_json.callbacks != null) {
+          return deserializer.decode(doc_json.callbacks, buffers) as {[key: string]: DocumentEventCallback[]}
+        } else {
+          return {}
+        }
+      })()
+
+      doc.remove_on_change(listener)
+
+      for (const [event, event_callbacks] of entries(callbacks)) {
+        doc.on_event(event as BokehEventType, ...event_callbacks)
+      }
+
+      for (const root of roots) {
+        doc.add_root(root)
+      }
+
+      if (doc_json.title != null) {
+        doc.set_title(doc_json.title)
+      }
+
+      doc._pop_all_models_freeze()
+      frozen = false
+      return doc
+    } catch (error) {
+      doc.remove_on_change(listener)
+      if (frozen) {
+        doc._pop_all_models_freeze()
+      }
+      doc.destroy()
+      throw error
     }
-
-    for (const root of roots) {
-      doc.add_root(root)
-    }
-
-    if (doc_json.title != null) {
-      doc.set_title(doc_json.title)
-    }
-
-    doc._pop_all_models_freeze()
-    return doc
   }
 
   replace_with_json(json: DocJson, buffers: Map<ID, ArrayBuffer> = new Map()): void {
@@ -660,6 +723,12 @@ export class Document implements Equatable {
       obj.attach_document(this)
       this._new_models.add(obj)
       this._all_models.set(obj.id, obj)
+      return () => {
+        this._new_models.delete(obj)
+        if (this._all_models.get(obj.id) == obj) {
+          this._all_models.delete(obj.id)
+        }
+      }
     }
     const deserializer = new Deserializer(this.resolver, this._all_models, finalize)
     const events = deserializer.decode(patch.events, buffers) as Decoded.DocumentChanged[]

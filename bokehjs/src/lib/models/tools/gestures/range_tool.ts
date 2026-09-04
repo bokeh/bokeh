@@ -209,7 +209,7 @@ export class RangeToolView extends GestureToolView {
 }
 
 const DEFAULT_RANGE_OVERLAY = () => {
-  return new BoxAnnotation({
+  return BoxAnnotation.create({
     syncable: false,
     level: "overlay",
     visible: true,
@@ -380,6 +380,6 @@ export class RangeTool extends GestureTool {
   }
 
   override tool_button(): OnOffButton {
-    return new OnOffButton({tool: this})
+    return OnOffButton.create({tool: this})
   }
 }

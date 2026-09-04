@@ -67,10 +67,10 @@ export class CoordinateMapping extends Model {
 
   static {
     this.define<CoordinateMapping.Props>(({Ref}) => ({
-      x_source: [ Ref(Range), () => new DataRange1d() ],
-      y_source: [ Ref(Range), () => new DataRange1d() ],
-      x_scale: [ Ref(Scale), () => new LinearScale() ],
-      y_scale: [ Ref(Scale), () => new LinearScale() ],
+      x_source: [ Ref(Range), () => DataRange1d.create() ],
+      y_source: [ Ref(Range), () => DataRange1d.create() ],
+      x_scale: [ Ref(Scale), () => LinearScale.create() ],
+      y_scale: [ Ref(Scale), () => LinearScale.create() ],
       x_target: [ Ref(Range) ],
       y_target: [ Ref(Range) ],
     }))
@@ -108,11 +108,11 @@ export class CoordinateMapping extends Model {
     const {y_source, y_scale, y_target} = this
     const y_source_scale = this._get_scale(y_source, y_scale, y_target)
 
-    const xscale = new CompositeScale({
+    const xscale = CompositeScale.create({
       source_scale: x_source_scale, source_range: x_source_scale.source_range,
       target_scale: frame.x_scale, target_range: frame.x_target,
     })
-    const yscale = new CompositeScale({
+    const yscale = CompositeScale.create({
       source_scale: y_source_scale, source_range: y_source_scale.source_range,
       target_scale: frame.y_scale, target_range: frame.y_target,
     })

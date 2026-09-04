@@ -42,7 +42,7 @@ export class RedoTool extends PlotActionTool {
       disabled: true,
     })
 
-    this.register_alias("redo", () => new RedoTool())
+    this.register_alias("redo", () => RedoTool.create())
   }
 
   override tool_name = "Redo"

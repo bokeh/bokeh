@@ -92,11 +92,11 @@ export abstract class BaseColorBarView extends AnnotationView {
     this._major_range = this._create_major_range()
     this._major_scale = this._create_major_scale()
 
-    this._minor_range = new Range1d({start: 0, end: 1})
-    this._minor_scale = new LinearScale()
+    this._minor_range = Range1d.create({start: 0, end: 1})
+    this._minor_scale = LinearScale.create()
 
     // configure some frame, update when the layout is known
-    this._frame = new CartesianFrame({
+    this._frame = CartesianFrame.create({
       x_scale: this._major_scale,
       y_scale: this._minor_scale,
       x_range: this._major_range,
@@ -106,7 +106,7 @@ export abstract class BaseColorBarView extends AnnotationView {
     this._axis = this._create_axis()
     this._apply_axis_properties()
 
-    this._title = new Title()
+    this._title = Title.create()
     this._apply_title_properties()
   }
 
@@ -509,23 +509,23 @@ export abstract class BaseColorBarView extends AnnotationView {
   }
 
   protected _create_axis(): Axis {
-    return new LinearAxis()
+    return LinearAxis.create()
   }
 
   protected _create_formatter(): TickFormatter {
-    return new BasicTickFormatter()
+    return BasicTickFormatter.create()
   }
 
   protected _create_major_range(): Range {
-    return new Range1d({start: 0, end: 1})
+    return Range1d.create({start: 0, end: 1})
   }
 
   protected _create_major_scale(): Scale {
-    return new LinearScale()
+    return LinearScale.create()
   }
 
   protected _create_ticker(): Ticker {
-    return new BasicTicker()
+    return BasicTicker.create()
   }
 
   protected _get_major_size_factor(): number | null {
@@ -652,7 +652,7 @@ export abstract class BaseColorBar extends Annotation {
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
       major_label_overrides: [ LabelOverrides, new Map() ],
-      major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
+      major_label_policy:    [ Ref(LabelingPolicy), () => NoOverlap.create() ],
       label_standoff:        [ Float, 5 ],
       margin:                [ Float, 30 ],
       padding:               [ Padding, 10 ],

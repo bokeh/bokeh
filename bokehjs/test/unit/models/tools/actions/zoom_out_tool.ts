@@ -12,22 +12,22 @@ describe("ZoomOutTool", () => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool = new ZoomOutTool()
+      const tool = ZoomOutTool.create()
       expect(tool.tooltip).to.be.equal("Zoom Out")
 
-      const x_tool = new ZoomOutTool({dimensions: "width"})
+      const x_tool = ZoomOutTool.create({dimensions: "width"})
       expect(x_tool.tooltip).to.be.equal("Zoom Out (x-axis)")
 
-      const y_tool = new ZoomOutTool({dimensions: "height"})
+      const y_tool = ZoomOutTool.create({dimensions: "height"})
       expect(y_tool.tooltip).to.be.equal("Zoom Out (y-axis)")
 
-      const tool_custom = new ZoomOutTool({description: "My zoom out tool"})
+      const tool_custom = ZoomOutTool.create({description: "My zoom out tool"})
       expect(tool_custom.tooltip).to.be.equal("My zoom out tool")
 
-      const x_tool_custom = new ZoomOutTool({dimensions: "width", description: "My x-zoom out tool"})
+      const x_tool_custom = ZoomOutTool.create({dimensions: "width", description: "My x-zoom out tool"})
       expect(x_tool_custom.tooltip).to.be.equal("My x-zoom out tool")
 
-      const y_tool_custom = new ZoomOutTool({dimensions: "height", description: "My y-zoom out tool"})
+      const y_tool_custom = ZoomOutTool.create({dimensions: "height", description: "My y-zoom out tool"})
       expect(y_tool_custom.tooltip).to.be.equal("My y-zoom out tool")
     })
   })
@@ -35,9 +35,9 @@ describe("ZoomOutTool", () => {
   describe("View", () => {
     // range values chosen to complement zoom_in test as inverse
     async function mkplot(tool: Tool): Promise<PlotView> {
-      const plot = new Plot({
-        x_range: new Range1d({start: -0.9, end: 0.9}),
-        y_range: new Range1d({start: -0.9, end: 0.9}),
+      const plot = Plot.create({
+        x_range: Range1d.create({start: -0.9, end: 0.9}),
+        y_range: Range1d.create({start: -0.9, end: 0.9}),
       })
       plot.add_tools(tool)
       const {view} = await display(plot)
@@ -45,7 +45,7 @@ describe("ZoomOutTool", () => {
     }
 
     it("should zoom into both ranges", async () => {
-      const zoom_out_tool = new ZoomOutTool()
+      const zoom_out_tool = ZoomOutTool.create()
       const plot_view = await mkplot(zoom_out_tool)
 
       const zoom_out_tool_view = plot_view.owner.get_one(zoom_out_tool)
@@ -61,7 +61,7 @@ describe("ZoomOutTool", () => {
     })
 
     it("should zoom the x-axis only", async () => {
-      const zoom_out_tool = new ZoomOutTool({dimensions: "width"})
+      const zoom_out_tool = ZoomOutTool.create({dimensions: "width"})
       const plot_view = await mkplot(zoom_out_tool)
 
       const zoom_out_tool_view = plot_view.owner.get_one(zoom_out_tool)
@@ -77,7 +77,7 @@ describe("ZoomOutTool", () => {
     })
 
     it("should zoom the y-axis only", async () => {
-      const zoom_out_tool = new ZoomOutTool({dimensions: "height"})
+      const zoom_out_tool = ZoomOutTool.create({dimensions: "height"})
       const plot_view = await mkplot(zoom_out_tool)
 
       const zoom_out_tool_view = plot_view.owner.get_one(zoom_out_tool)

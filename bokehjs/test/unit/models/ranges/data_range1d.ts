@@ -12,7 +12,7 @@ import {build_view} from "@bokehjs/core/build_views"
 describe("DataRange1d", () => {
 
   describe("default creation", () => {
-    const r = new DataRange1d()
+    const r = DataRange1d.create()
 
     it("should have start = NaN", () => {
       expect(r.start).to.be.NaN
@@ -60,7 +60,7 @@ describe("DataRange1d", () => {
   })
 
   describe("explicit bounds=(10,20) creation", () => {
-    const r = new DataRange1d({start: 10, end: 20})
+    const r = DataRange1d.create({start: 10, end: 20})
 
     it("should have start = 10", () => {
       expect(r.start).to.be.equal(10)
@@ -80,7 +80,7 @@ describe("DataRange1d", () => {
   })
 
   describe("explicit inverted bounds=(20,10) creation", () => {
-    const r = new DataRange1d({start: 20, end: 10})
+    const r = DataRange1d.create({start: 20, end: 10})
 
     it("should be reversed", () => {
       expect(r.is_reversed).to.be.true
@@ -88,7 +88,7 @@ describe("DataRange1d", () => {
   })
 
   describe("explicit bounds=(NaN, NaN) creation", () => {
-    const r = new DataRange1d({start: NaN, end: NaN})
+    const r = DataRange1d.create({start: NaN, end: NaN})
 
     it("should be invalid", () => {
       expect(r.is_valid).to.be.false
@@ -98,7 +98,7 @@ describe("DataRange1d", () => {
   describe("reset", () => {
 
     it("should reset configuration to initial values", () => {
-      const r = new DataRange1d({
+      const r = DataRange1d.create({
         range_padding: 0.3,
         range_padding_units: "absolute",
         follow: "end",
@@ -131,18 +131,18 @@ describe("DataRange1d", () => {
 
     // something must call update(...) to update (start, end)
     it("should not reset (start, end)", () => {
-      const r = new DataRange1d({start: 4, end: 10})
+      const r = DataRange1d.create({start: 4, end: 10})
       r.reset()
       expect(r.start).to.be.equal(4)
       expect(r.end).to.be.equal(10)
     })
 
     it("should recompute (start, end) when range_padding changes", async () => {
-      const y_range = new DataRange1d({range_padding: 0, range_padding_units: "absolute"})
-      const source = new ColumnDataSource({data: {x: [0, 1], y: [1, 3]}})
-      const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
-      const renderer = new GlyphRenderer({data_source: source, glyph})
-      const p = new Plot({renderers: [renderer], y_range})
+      const y_range = DataRange1d.create({range_padding: 0, range_padding_units: "absolute"})
+      const source = ColumnDataSource.create({data: {x: [0, 1], y: [1, 3]}})
+      const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
+      const renderer = GlyphRenderer.create({data_source: source, glyph})
+      const p = Plot.create({renderers: [renderer], y_range})
       const pv = await build_view(p)
       const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
@@ -166,10 +166,10 @@ describe("DataRange1d", () => {
         change: (range: DataRange1d) => void,
         expected: [number, number],
       ) => {
-        const source = new ColumnDataSource({data: {x: [0, 1], y}})
-        const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
-        const renderer = new GlyphRenderer({data_source: source, glyph})
-        const p = new Plot({renderers: [renderer], y_range})
+        const source = ColumnDataSource.create({data: {x: [0, 1], y}})
+        const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
+        const renderer = GlyphRenderer.create({data_source: source, glyph})
+        const p = Plot.create({renderers: [renderer], y_range})
         const pv = await build_view(p)
         const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
@@ -184,33 +184,33 @@ describe("DataRange1d", () => {
         expect(y_range.end).to.be.equal(expected[1])
       }
 
-      await check(new DataRange1d({range_padding: 0}), [1, 3], (range) => range.flipped = true, [3, 1])
+      await check(DataRange1d.create({range_padding: 0}), [1, 3], (range) => range.flipped = true, [3, 1])
       await check(
-        new DataRange1d({range_padding: 0, follow_interval: 1}),
+        DataRange1d.create({range_padding: 0, follow_interval: 1}),
         [1, 3],
         (range) => range.follow = "end",
         [2, 3],
       )
       await check(
-        new DataRange1d({range_padding: 0, follow: "end", follow_interval: 10}),
+        DataRange1d.create({range_padding: 0, follow: "end", follow_interval: 10}),
         [1, 3],
         (range) => range.follow_interval = 1,
         [2, 3],
       )
-      await check(new DataRange1d({range_padding: 0}), [2, 2], (range) => range.default_span = 4, [0, 4])
+      await check(DataRange1d.create({range_padding: 0}), [2, 2], (range) => range.default_span = 4, [0, 4])
 
-      const y_range = new DataRange1d({range_padding: 0, only_visible: false})
-      const visible_source = new ColumnDataSource({data: {x: [0, 1], y: [1, 3]}})
-      const invisible_source = new ColumnDataSource({data: {x: [0, 1], y: [10, 12]}})
-      const visible_glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
-      const invisible_glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
-      const visible_renderer = new GlyphRenderer({data_source: visible_source, glyph: visible_glyph})
-      const invisible_renderer = new GlyphRenderer({
+      const y_range = DataRange1d.create({range_padding: 0, only_visible: false})
+      const visible_source = ColumnDataSource.create({data: {x: [0, 1], y: [1, 3]}})
+      const invisible_source = ColumnDataSource.create({data: {x: [0, 1], y: [10, 12]}})
+      const visible_glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
+      const invisible_glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
+      const visible_renderer = GlyphRenderer.create({data_source: visible_source, glyph: visible_glyph})
+      const invisible_renderer = GlyphRenderer.create({
         data_source: invisible_source,
         glyph: invisible_glyph,
         visible: false,
       })
-      const p = new Plot({renderers: [visible_renderer, invisible_renderer], y_range})
+      const p = Plot.create({renderers: [visible_renderer, invisible_renderer], y_range})
       const pv = await build_view(p)
       const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
@@ -231,43 +231,43 @@ describe("DataRange1d", () => {
   describe("computed_renderers", () => {
 
     it("should add renderers from one plot", async () => {
-      const r1 = new DataRange1d()
-      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
-      const p1 = new Plot({renderers: [g1], x_range: r1})
+      const r1 = DataRange1d.create()
+      const g1 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
+      const p1 = Plot.create({renderers: [g1], x_range: r1})
       await build_view(p1)
       expect(r1.computed_renderers()).to.be.equal([g1])
 
-      const r2 = new DataRange1d()
-      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
-      const p2 = new Plot({renderers: [g1, g2], x_range: r2})
+      const r2 = DataRange1d.create()
+      const g2 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
+      const p2 = Plot.create({renderers: [g1, g2], x_range: r2})
       await build_view(p2)
       expect(r2.computed_renderers()).to.be.equal([g1, g2])
     })
 
     it("should add renderers from multiple plot", async () => {
-      const r = new DataRange1d()
+      const r = DataRange1d.create()
 
-      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
-      const p1 = new Plot({renderers: [g1], x_range: r})
+      const g1 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
+      const p1 = Plot.create({renderers: [g1], x_range: r})
       await build_view(p1)
 
-      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
-      const p2 = new Plot({renderers: [g2], x_range: r})
+      const g2 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
+      const p2 = Plot.create({renderers: [g2], x_range: r})
       await build_view(p2)
 
       expect(r.computed_renderers()).to.be.equal([g1, g2])
     })
 
     it("should respect user-set renderers", async () => {
-      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
-      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
+      const g1 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
+      const g2 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
 
-      const r = new DataRange1d({renderers: [g2]})
+      const r = DataRange1d.create({renderers: [g2]})
 
-      const p1 = new Plot({renderers: [g1], x_range: r})
+      const p1 = Plot.create({renderers: [g1], x_range: r})
       await build_view(p1)
 
-      const p2 = new Plot({renderers: [g2], x_range: r})
+      const p2 = Plot.create({renderers: [g2], x_range: r})
       await build_view(p2)
 
       expect(r.computed_renderers()).to.be.equal([g2])
@@ -277,96 +277,96 @@ describe("DataRange1d", () => {
   describe("_compute_range", () => {
 
     it("should use default_span when max=min", () => {
-      const r0 = new DataRange1d()
+      const r0 = DataRange1d.create()
       expect(r0._compute_range(3, 3)).to.be.equal([2, 4])
 
-      const r1 = new DataRange1d({default_span: 4})
+      const r1 = DataRange1d.create({default_span: 4})
       expect(r1._compute_range(3, 3)).to.be.equal([1, 5])
 
-      const r2 = new DataRange1d({default_span: 4, range_padding: 0})
+      const r2 = DataRange1d.create({default_span: 4, range_padding: 0})
       expect(r2._compute_range(3, 3)).to.be.equal([1, 5])
     })
 
     it("should use default_span as powers of 10 when scale_hint='log'", () => {
-      const r0 = new DataRange1d({scale_hint: "log"})
+      const r0 = DataRange1d.create({scale_hint: "log"})
       expect(r0._compute_range(100, 100)).to.be.similar([9.988493699365053, 1001.1519555381683])
 
-      const r1 = new DataRange1d({scale_hint: "log", default_span: 4})
+      const r1 = DataRange1d.create({scale_hint: "log", default_span: 4})
       expect(r1._compute_range(100, 100)).to.be.similar([0.9988493699365047, 10011.519555381703])
     })
 
     it("should swap max, min when flipped", () => {
-      const r = new DataRange1d({flipped: true})
+      const r = DataRange1d.create({flipped: true})
       expect(r._compute_range(3, 3)).to.be.equal([4, 2])
     })
 
     it("should follow min when follow=start and not flipped", () => {
-      const r = new DataRange1d({range_padding: 0, follow: "start", follow_interval: 4})
+      const r = DataRange1d.create({range_padding: 0, follow: "start", follow_interval: 4})
       expect(r._compute_range(1, 3)).to.be.equal([1, 3])
       expect(r._compute_range(1, 7)).to.be.equal([1, 5])
     })
 
     it("should follow max when follow=start and flipped", () => {
-      const r = new DataRange1d({range_padding: 0, follow: "start", follow_interval: 4, flipped: true})
+      const r = DataRange1d.create({range_padding: 0, follow: "start", follow_interval: 4, flipped: true})
       expect(r._compute_range(1, 3)).to.be.equal([3, 1])
       expect(r._compute_range(1, 7)).to.be.equal([7, 3])
     })
 
     it("should follow max when follow=end and not flipped", () => {
-      const r = new DataRange1d({range_padding: 0, follow: "end", follow_interval: 4})
+      const r = DataRange1d.create({range_padding: 0, follow: "end", follow_interval: 4})
       expect(r._compute_range(1, 3)).to.be.equal([1, 3])
       expect(r._compute_range(1, 7)).to.be.equal([3, 7])
     })
 
     it("should follow min when follow=end and flipped", () => {
-      const r = new DataRange1d({range_padding: 0, follow: "end", follow_interval: 4, flipped: true})
+      const r = DataRange1d.create({range_padding: 0, follow: "end", follow_interval: 4, flipped: true})
       expect(r._compute_range(1, 3)).to.be.equal([3, 1])
       expect(r._compute_range(1, 7)).to.be.equal([5, 1])
     })
 
     it("should apply percentage range_padding", () => {
-      const r0 = new DataRange1d({range_padding: 0.5})
+      const r0 = DataRange1d.create({range_padding: 0.5})
       expect(r0._compute_range(1, 3)).to.be.equal([0.5, 3.5])
 
-      const r1 = new DataRange1d({range_padding: 0})
+      const r1 = DataRange1d.create({range_padding: 0})
       expect(r1._compute_range(1, 3)).to.be.equal([1, 3])
     })
 
     it("should apply absolute range_padding", () => {
-      const r0 = new DataRange1d({range_padding: 0.2, range_padding_units: "absolute"})
+      const r0 = DataRange1d.create({range_padding: 0.2, range_padding_units: "absolute"})
       expect(r0._compute_range(1, 3)).to.be.equal([0.8, 3.2])
 
-      const r1 = new DataRange1d({range_padding: 0, range_padding_units: "absolute"})
+      const r1 = DataRange1d.create({range_padding: 0, range_padding_units: "absolute"})
       expect(r1._compute_range(1, 3)).to.be.equal([1, 3])
     })
 
     it("should apply range_padding logly when scale_hint='log'", () => {
-      const r0 = new DataRange1d({range_padding: 0.5, scale_hint: "log"})
+      const r0 = DataRange1d.create({range_padding: 0.5, scale_hint: "log"})
       expect(r0._compute_range(0.01, 10)).to.be.similar([0.0017782794100389264, 56.23413251903488])
 
-      const r1 = new DataRange1d({range_padding: 0, scale_hint: "log"})
+      const r1 = DataRange1d.create({range_padding: 0, scale_hint: "log"})
       expect(r1._compute_range(0.01, 10)).to.be.similar([0.01, 10])
 
-      const r2 = new DataRange1d({range_padding: 0.5, range_padding_units: "absolute", scale_hint: "log"})
+      const r2 = DataRange1d.create({range_padding: 0.5, range_padding_units: "absolute", scale_hint: "log"})
       expect(r2._compute_range(1, 10)).to.be.similar([0.5, 10.5])
 
-      const r3 = new DataRange1d({range_padding: 0, range_padding_units: "absolute", scale_hint: "log"})
+      const r3 = DataRange1d.create({range_padding: 0, range_padding_units: "absolute", scale_hint: "log"})
       expect(r3._compute_range(1, 10)).to.be.similar([1, 10])
     })
 
     it("should apply min_interval and max_interval", () => {
-      const r0 = new DataRange1d({min_interval: 6, range_padding: 0})
+      const r0 = DataRange1d.create({min_interval: 6, range_padding: 0})
       expect(r0._compute_range(1, 5)).to.be.equal([0, 6])
 
-      const r1 = new DataRange1d({max_interval: 2, range_padding: 0})
+      const r1 = DataRange1d.create({max_interval: 2, range_padding: 0})
       expect(r1._compute_range(1, 5)).to.be.equal([2, 4])
     })
 
     it("should apply min_interval and max_interval with scale_hint='log'", () => {
-      const r0 = new DataRange1d({min_interval: 4, range_padding: 0, scale_hint: "log"})
+      const r0 = DataRange1d.create({min_interval: 4, range_padding: 0, scale_hint: "log"})
       expect(r0._compute_range(10, 1000)).to.be.equal([1, 10000])
 
-      const r1 = new DataRange1d({max_interval: 1, range_padding: 0, scale_hint: "log"})
+      const r1 = DataRange1d.create({max_interval: 1, range_padding: 0, scale_hint: "log"})
       expect(r1._compute_range(1, 1000)).to.be.equal([10, 100])
     })
   })
@@ -374,8 +374,8 @@ describe("DataRange1d", () => {
   describe("_compute_min_max", () => {
 
     it("should compute max/min for dimension of a single plot_bounds", async () => {
-      const r = new DataRange1d()
-      const p = new Plot({visible: true, x_range: r})
+      const r = DataRange1d.create()
+      const p = Plot.create({visible: true, x_range: r})
       const pv = await build_view(p)
 
       const bounds = new Map([
@@ -386,11 +386,11 @@ describe("DataRange1d", () => {
     })
 
     it("should compute max/min for dimension of multiple plot_bounds", async () => {
-      const r = new DataRange1d()
+      const r = DataRange1d.create()
 
-      const p0 = new Plot({visible: true, x_range: r})
-      const p1 = new Plot({visible: true, x_range: r})
-      const p2 = new Plot({visible: true, x_range: r})
+      const p0 = Plot.create({visible: true, x_range: r})
+      const p1 = Plot.create({visible: true, x_range: r})
+      const p2 = Plot.create({visible: true, x_range: r})
 
       const pv0 = await build_view(p0)
       const pv1 = await build_view(p1)
@@ -416,11 +416,11 @@ describe("DataRange1d", () => {
   describe("_computed_plot_bounds", () => {
 
     it("should compute bounds from configured renderers", () => {
-      const r = new DataRange1d()
+      const r = DataRange1d.create()
 
-      const g1 = new GlyphRenderer()
-      const g2 = new GlyphRenderer()
-      const g3 = new GlyphRenderer()
+      const g1 = GlyphRenderer.create()
+      const g2 = GlyphRenderer.create()
+      const g3 = GlyphRenderer.create()
 
       const bounds = new Map([
         [g1, {x0: 0, x1: 10, y0: 5, y1: 6}],
@@ -433,11 +433,11 @@ describe("DataRange1d", () => {
     })
 
     it("should use invisible renderers by default", () => {
-      const r = new DataRange1d()
+      const r = DataRange1d.create()
 
-      const g1 = new GlyphRenderer({visible: false})
-      const g2 = new GlyphRenderer()
-      const g3 = new GlyphRenderer()
+      const g1 = GlyphRenderer.create({visible: false})
+      const g2 = GlyphRenderer.create()
+      const g3 = GlyphRenderer.create()
 
       const bounds = new Map([
         [g1, {x0: 0, x1: 10, y0: 5, y1: 6}],
@@ -450,11 +450,11 @@ describe("DataRange1d", () => {
     })
 
     it("should skip invisible renderers if only_visible=false", () => {
-      const r = new DataRange1d({only_visible: true})
+      const r = DataRange1d.create({only_visible: true})
 
-      const g1 = new GlyphRenderer()
-      const g2 = new GlyphRenderer({visible: false})
-      const g3 = new GlyphRenderer()
+      const g1 = GlyphRenderer.create()
+      const g2 = GlyphRenderer.create({visible: false})
+      const g3 = GlyphRenderer.create()
 
       const bounds = new Map([
         [g1, {x0: 0, x1: 10, y0: 5, y1: 6}],
@@ -470,9 +470,9 @@ describe("DataRange1d", () => {
   describe("update", () => {
 
     it("should update its start and end values", async () => {
-      const r = new DataRange1d()
-      const g = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
-      const p = new Plot({renderers: [g], x_range: r})
+      const r = DataRange1d.create()
+      const g = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
+      const p = Plot.create({renderers: [g], x_range: r})
       const pv = await build_view(p)
 
       const bounds = new Map([
@@ -484,9 +484,9 @@ describe("DataRange1d", () => {
     })
 
     it("should not update its start or end values to NaN when log", async () => {
-      const r = new DataRange1d({scale_hint: "log"})
-      const g = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
-      const p = new Plot({renderers: [g], x_range: r})
+      const r = DataRange1d.create({scale_hint: "log"})
+      const g = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
+      const p = Plot.create({renderers: [g], x_range: r})
       const pv = await build_view(p)
 
       const bounds = new Map([
@@ -505,7 +505,7 @@ describe("DataRange1d", () => {
 
   describe("adjust_bounds_for_aspect", () => {
     it("should preserve y axis when it is larger", () => {
-      const r = new DataRange1d()
+      const r = DataRange1d.create()
       const bounds = r.adjust_bounds_for_aspect({x0: 0, x1: 1, y0: 0, y1: 2}, 4)
 
       expect(bounds.x0).to.be.equal(-3.5)
@@ -515,7 +515,7 @@ describe("DataRange1d", () => {
     })
 
     it("should preserve x axis when it is larger", () => {
-      const r = new DataRange1d()
+      const r = DataRange1d.create()
       const bounds = r.adjust_bounds_for_aspect({x0: 0, x1: 8, y0: 0, y1: 1}, 4)
 
       expect(bounds.x0).to.be.equal(0)

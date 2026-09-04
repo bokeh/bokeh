@@ -33,8 +33,8 @@ export class DatetimeAxis extends ContinuousAxis {
     this.prototype.default_view = DatetimeAxisView
 
     this.override<DatetimeAxis.Props>({
-      ticker:    () => new DatetimeTicker(),
-      formatter: () => new DatetimeTickFormatter(),
+      ticker:    () => DatetimeTicker.create(),
+      formatter: () => DatetimeTickFormatter.create(),
     })
   }
 }

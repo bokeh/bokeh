@@ -85,7 +85,7 @@ export class NgonView extends RadialGlyphView {
         indices.push(index)
       }
     }
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -117,7 +117,7 @@ export class NgonView extends RadialGlyphView {
         }
       }
     }
-    return new Selection({indices})
+    return Selection.create({indices})
   }
   protected override _hit_poly(geometry: PolyGeometry): Selection {
     const {sx: gsx, sy: gsy} = geometry
@@ -142,7 +142,7 @@ export class NgonView extends RadialGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {

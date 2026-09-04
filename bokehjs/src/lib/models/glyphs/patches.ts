@@ -128,7 +128,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: HitTestRect): Selection {
@@ -186,7 +186,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   private _get_snap_coord(array: Arrayable<number>): number {

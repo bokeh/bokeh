@@ -10,16 +10,16 @@ import {no_repeated} from "@bokehjs/core/util/iterator"
 describe("BoxAnnotation", () => {
 
   async function mkplot(box: BoxAnnotation): Promise<PlotView> {
-    const plot = new Plot({
+    const plot = Plot.create({
       width: 400,
       height: 400,
       min_border: 0,
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
     })
     plot.add_layout(box)
-    plot.add_layout(new LinearAxis(), "above")
-    plot.add_layout(new LinearAxis(), "left")
+    plot.add_layout(LinearAxis.create(), "above")
+    plot.add_layout(LinearAxis.create(), "left")
     const {view} = await display(plot)
     return view
   }
@@ -38,7 +38,7 @@ describe("BoxAnnotation", () => {
 
   describe("when movable without handles", () => {
     function mkbox() {
-      return new BoxAnnotation({
+      return BoxAnnotation.create({
         left: 0,
         top: 0,
         right: 0.5,
@@ -79,7 +79,7 @@ describe("BoxAnnotation", () => {
 
   describe("when movable with handles", () => {
     function mkbox() {
-      return new BoxAnnotation({
+      return BoxAnnotation.create({
         left: 0,
         top: 0,
         right: 0.5,

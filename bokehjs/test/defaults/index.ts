@@ -4,6 +4,7 @@ import {describe, it} from "#framework/framework"
 import {ExpectationError} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
+import * as has_props from "@bokehjs/core/has_props"
 import {unset} from "@bokehjs/core/properties"
 import {isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {values, entries, dict} from "@bokehjs/core/util/object"
@@ -22,6 +23,16 @@ import "@bokehjs/models/widgets/tables/main"
 import json5 from "json5"
 
 type KV<T = unknown> = {[key: string]: T}
+
+type DeferredHasProps = HasProps & {
+  initialize_props(vals: KV): void
+}
+
+// Defaults need partial construction of abstract models. Keep this test-only
+// access explicit because the production declaration intentionally hides it.
+const construct_deferred = (has_props as unknown as {
+  construct_deferred(cls: Function, id: string): DeferredHasProps
+}).construct_deferred
 
 import defaults_json5 from "./defaults.json5"
 
@@ -337,7 +348,7 @@ describe("Defaults", () => {
       // However, given this is only partial initialization, i.e. we
       // don't finalize instances or connect signals, then any code that
       // may depend on fully initialized state will not run.
-      const obj: HasProps = new (model as any)({id: unique_id()})
+      const obj = construct_deferred(model!, unique_id())
       obj.initialize_props({})
 
       const serializer = new DefaultsSerializer()

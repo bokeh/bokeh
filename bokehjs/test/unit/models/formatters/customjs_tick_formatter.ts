@@ -6,7 +6,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 describe("CustomJSTickFormatter", () => {
 
   describe("_make_func method", () => {
-    const formatter = new CustomJSTickFormatter({code: "return 10"})
+    const formatter = CustomJSTickFormatter.create({code: "return 10"})
 
     it("should return a Function", () => {
       expect(formatter._make_func()).to.be.instanceof(Function)
@@ -18,7 +18,7 @@ describe("CustomJSTickFormatter", () => {
     })
 
     it("should have values as function args", () => {
-      const rng = new Range1d()
+      const rng = Range1d.create()
       formatter.args = {foo: rng.ref()}
       const func = new Function("tick", "index", "ticks", "foo", "'use strict';\nreturn 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
@@ -27,7 +27,7 @@ describe("CustomJSTickFormatter", () => {
 
   describe("doFormat method", () => {
     it("should format numerical ticks appropriately", () => {
-      const formatter = new CustomJSTickFormatter({code: "return tick.toFixed(2)"})
+      const formatter = CustomJSTickFormatter.create({code: "return tick.toFixed(2)"})
       const labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
       expect(labels).to.be.equal(["-10.00", "-0.10", "0.00", "0.10", "10.00"])
     })
@@ -41,8 +41,8 @@ describe("CustomJSTickFormatter", () => {
     */
 
     it("should handle args appropriately", () => {
-      const rng = new Range1d({start: 5, end: 10})
-      const formatter = new CustomJSTickFormatter({
+      const rng = Range1d.create({start: 5, end: 10})
+      const formatter = CustomJSTickFormatter.create({
         code: "return (foo.start + foo.end + tick).toFixed(2)",
         args: {foo: rng},
       })
@@ -51,7 +51,7 @@ describe("CustomJSTickFormatter", () => {
     })
 
     it("should handle array of ticks", () => {
-      const formatter = new CustomJSTickFormatter({
+      const formatter = CustomJSTickFormatter.create({
         code: "this.k = this.k || (ticks.length > 3 ? 10 : 100); return (tick * this.k).toFixed(2)",
       })
       const labels0 = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
@@ -61,7 +61,7 @@ describe("CustomJSTickFormatter", () => {
     })
 
     it("should handle functions that return non-numeric values", () => {
-      const formatter = new CustomJSTickFormatter({
+      const formatter = CustomJSTickFormatter.create({
         code: `
           switch (true) {
             case tick >= 1e9: return (tick / 1e9).toFixed(1) + " G"

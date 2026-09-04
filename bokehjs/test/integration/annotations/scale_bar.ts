@@ -8,20 +8,20 @@ describe("ScaleBar annotation", () => {
     const orientation = "horizontal"
 
     function plot(scale_bar: ScaleBar) {
-      return new Plot({
+      return Plot.create({
         width: 300,
         height: 150,
         min_border: 0,
-        x_range: new Range1d({start: 0, end: 1}),
-        y_range: new Range1d({start: 0, end: 1}),
+        x_range: Range1d.create({start: 0, end: 1}),
+        y_range: Range1d.create({start: 0, end: 1}),
         center: [scale_bar],
         toolbar_location: null,
       })
     }
 
     async function scale_bar_with_label_location(label_location: Location, label_align?: Align, label_standoff?: number) {
-      const scale_bar = new ScaleBar({
-        range: new Range1d({start: 0, end: 1}),
+      const scale_bar = ScaleBar.create({
+        range: Range1d.create({start: 0, end: 1}),
         bar_length: 0.2,
         orientation,
         location: "top_right",
@@ -56,8 +56,8 @@ describe("ScaleBar annotation", () => {
     it(`with label right and ${standoff}px standoff`, async () => await scale_bar_with_label_location("right", "center", standoff))
 
     it("with 0px padding", async () => {
-      const scale_bar = new ScaleBar({
-        range: new Range1d({start: 0, end: 1}),
+      const scale_bar = ScaleBar.create({
+        range: Range1d.create({start: 0, end: 1}),
         bar_length: 0.2,
         orientation,
         location: "top_right",
@@ -68,8 +68,8 @@ describe("ScaleBar annotation", () => {
     })
 
     it("with 20px padding", async () => {
-      const scale_bar = new ScaleBar({
-        range: new Range1d({start: 0, end: 1}),
+      const scale_bar = ScaleBar.create({
+        range: Range1d.create({start: 0, end: 1}),
         bar_length: 0.2,
         orientation,
         location: "top_right",
@@ -80,8 +80,8 @@ describe("ScaleBar annotation", () => {
     })
 
     it("with 0px padding and no border", async () => {
-      const scale_bar = new ScaleBar({
-        range: new Range1d({start: 0, end: 1}),
+      const scale_bar = ScaleBar.create({
+        range: Range1d.create({start: 0, end: 1}),
         bar_length: 0.2,
         orientation,
         location: "top_right",
@@ -95,8 +95,8 @@ describe("ScaleBar annotation", () => {
     for (const length_sizing of ["adaptive", "exact"] as const) {
       describe(`with ${length_sizing} sizing`, () => {
         it("and with 50% percentage length", async () => {
-          const scale_bar = new ScaleBar({
-            range: new Range1d({start: 0, end: 1}),
+          const scale_bar = ScaleBar.create({
+            range: Range1d.create({start: 0, end: 1}),
             bar_length: 0.5,
             length_sizing,
             orientation,
@@ -106,8 +106,8 @@ describe("ScaleBar annotation", () => {
         })
 
         it("and with 200px pixel length", async () => {
-          const scale_bar = new ScaleBar({
-            range: new Range1d({start: 0, end: 1}),
+          const scale_bar = ScaleBar.create({
+            range: Range1d.create({start: 0, end: 1}),
             bar_length: 200,
             length_sizing,
             orientation,
@@ -123,8 +123,8 @@ describe("ScaleBar annotation", () => {
       const length_sizing = "exact"
 
       it("screen and bar_length 0..1 range", async () => {
-        const scale_bar = new ScaleBar({
-          range: new Range1d({start: 0, end: 1}),
+        const scale_bar = ScaleBar.create({
+          range: Range1d.create({start: 0, end: 1}),
           bar_length: 0.5,
           bar_length_units: "screen",
           length_sizing,
@@ -135,8 +135,8 @@ describe("ScaleBar annotation", () => {
       })
 
       it("screen and an integer bar_length", async () => {
-        const scale_bar = new ScaleBar({
-          range: new Range1d({start: 0, end: 1}),
+        const scale_bar = ScaleBar.create({
+          range: Range1d.create({start: 0, end: 1}),
           bar_length: 200,
           bar_length_units: "screen",
           length_sizing,
@@ -147,8 +147,8 @@ describe("ScaleBar annotation", () => {
       })
 
       it("data", async () => {
-        const scale_bar = new ScaleBar({
-          range: new Range1d({start: 0, end: 1}),
+        const scale_bar = ScaleBar.create({
+          range: Range1d.create({start: 0, end: 1}),
           bar_length: 0.3,
           bar_length_units: "data",
           length_sizing,
@@ -159,8 +159,8 @@ describe("ScaleBar annotation", () => {
       })
 
       it("percent", async () => {
-        const scale_bar = new ScaleBar({
-          range: new Range1d({start: 0, end: 1}),
+        const scale_bar = ScaleBar.create({
+          range: Range1d.create({start: 0, end: 1}),
           bar_length: 0.5,
           bar_length_units: "screen",
           length_sizing,
@@ -176,20 +176,20 @@ describe("ScaleBar annotation", () => {
     const orientation = "vertical"
 
     function plot(scale_bar: ScaleBar) {
-      return new Plot({
+      return Plot.create({
         width: 150,
         height: 300,
         min_border: 0,
-        x_range: new Range1d({start: 0, end: 1}),
-        y_range: new Range1d({start: 0, end: 1}),
+        x_range: Range1d.create({start: 0, end: 1}),
+        y_range: Range1d.create({start: 0, end: 1}),
         center: [scale_bar],
         toolbar_location: null,
       })
     }
 
     async function scale_bar_with_label_location(label_location: Location, label_align?: Align, label_standoff?: number) {
-      const scale_bar = new ScaleBar({
-        range: new Range1d({start: 0, end: 1}),
+      const scale_bar = ScaleBar.create({
+        range: Range1d.create({start: 0, end: 1}),
         bar_length: 0.2,
         orientation,
         location: "top_right",
@@ -226,8 +226,8 @@ describe("ScaleBar annotation", () => {
     for (const length_sizing of ["adaptive", "exact"] as const) {
       describe(`with ${length_sizing} sizing`, () => {
         it("and with 50% percentage length", async () => {
-          const scale_bar = new ScaleBar({
-            range: new Range1d({start: 0, end: 1}),
+          const scale_bar = ScaleBar.create({
+            range: Range1d.create({start: 0, end: 1}),
             bar_length: 0.5,
             length_sizing,
             orientation,
@@ -237,8 +237,8 @@ describe("ScaleBar annotation", () => {
         })
 
         it("and with 200px pixel length", async () => {
-          const scale_bar = new ScaleBar({
-            range: new Range1d({start: 0, end: 1}),
+          const scale_bar = ScaleBar.create({
+            range: Range1d.create({start: 0, end: 1}),
             bar_length: 200,
             length_sizing,
             orientation,
@@ -254,8 +254,8 @@ describe("ScaleBar annotation", () => {
       const length_sizing = "exact"
 
       it("screen and bar_length 0..1 range", async () => {
-        const scale_bar = new ScaleBar({
-          range: new Range1d({start: 0, end: 1}),
+        const scale_bar = ScaleBar.create({
+          range: Range1d.create({start: 0, end: 1}),
           bar_length: 0.5,
           bar_length_units: "screen",
           length_sizing,
@@ -266,8 +266,8 @@ describe("ScaleBar annotation", () => {
       })
 
       it("screen and an integer bar_length", async () => {
-        const scale_bar = new ScaleBar({
-          range: new Range1d({start: 0, end: 1}),
+        const scale_bar = ScaleBar.create({
+          range: Range1d.create({start: 0, end: 1}),
           bar_length: 200,
           bar_length_units: "screen",
           length_sizing,
@@ -278,8 +278,8 @@ describe("ScaleBar annotation", () => {
       })
 
       it("data", async () => {
-        const scale_bar = new ScaleBar({
-          range: new Range1d({start: 0, end: 1}),
+        const scale_bar = ScaleBar.create({
+          range: Range1d.create({start: 0, end: 1}),
           bar_length: 0.3,
           bar_length_units: "data",
           length_sizing,
@@ -290,8 +290,8 @@ describe("ScaleBar annotation", () => {
       })
 
       it("percent", async () => {
-        const scale_bar = new ScaleBar({
-          range: new Range1d({start: 0, end: 1}),
+        const scale_bar = ScaleBar.create({
+          range: Range1d.create({start: 0, end: 1}),
           bar_length: 0.5,
           bar_length_units: "screen",
           length_sizing,
@@ -304,21 +304,21 @@ describe("ScaleBar annotation", () => {
   })
 
   it("should support custom units of measurement", async () => {
-    const scale_bar = new ScaleBar({
-      range: new Range1d({start: 0, end: 1}),
+    const scale_bar = ScaleBar.create({
+      range: Range1d.create({start: 0, end: 1}),
       unit: "MeV",
-      dimensional: new Metric({base_unit: "eV"}),
+      dimensional: Metric.create({base_unit: "eV"}),
       bar_length: 0.2,
       orientation: "horizontal",
       location: "center",
     })
 
-    const plot = new Plot({
+    const plot = Plot.create({
       width: 100,
       height: 100,
       min_border: 0,
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
       center: [scale_bar],
       toolbar_location: null,
     })
@@ -328,22 +328,22 @@ describe("ScaleBar annotation", () => {
 
   describe("should support positioning", () => {
     function plot(scale_bar: ScaleBar, attrs: Partial<Plot.Attrs> = {}) {
-      return new Plot({
+      return Plot.create({
         width: 300,
         height: 300,
         min_border: 0,
-        x_range: new Range1d({start: 0, end: 1}),
-        y_range: new FactorRange({factors: ["a", "b", "c", "d"]}),
-        x_scale: new LinearScale(),
-        y_scale: new CategoricalScale(),
+        x_range: Range1d.create({start: 0, end: 1}),
+        y_range: FactorRange.create({factors: ["a", "b", "c", "d"]}),
+        x_scale: LinearScale.create(),
+        y_scale: CategoricalScale.create(),
         center: [scale_bar],
         toolbar_location: null,
         ...attrs,
       })
     }
     function scale_bar(attrs: Partial<ScaleBar.Attrs>) {
-      return new ScaleBar({
-        range: new Range1d({start: 0, end: 1}),
+      return ScaleBar.create({
+        range: Range1d.create({start: 0, end: 1}),
         bar_length: 0.2,
         bar_length_units: "percent",
         length_sizing: "exact",

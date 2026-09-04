@@ -10,9 +10,9 @@ describe("categorical_scale module", () => {
     const factors = ["foo", "bar", "baz"]
 
     function mkscale(): CategoricalScale {
-      return new CategoricalScale({
-        source_range: new FactorRange({factors, range_padding: 0}),
-        target_range: new Range1d({start: 20, end: 80}),
+      return CategoricalScale.create({
+        source_range: FactorRange.create({factors, range_padding: 0}),
+        target_range: Range1d.create({start: 20, end: 80}),
       })
     }
 

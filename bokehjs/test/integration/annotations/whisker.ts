@@ -7,7 +7,7 @@ describe("Whisker annotation", () => {
   it("should support basic positioning", async () => {
     const plot = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
 
-    const source = new ColumnDataSource({
+    const source = ColumnDataSource.create({
       data: {
         x1: [1, 3, 5, 7, 9],
         lower1: [1, 2, 1, 2, 1],
@@ -18,7 +18,7 @@ describe("Whisker annotation", () => {
       },
     })
 
-    const whisker0 = new Whisker({
+    const whisker0 = Whisker.create({
       base: {field: "x1"},
       lower: {field: "lower1"},
       upper: {field: "upper1"},
@@ -26,12 +26,12 @@ describe("Whisker annotation", () => {
       source,
     })
 
-    const whisker1 = new Whisker({
+    const whisker1 = Whisker.create({
       // TODO: units are only supported on value level, not type level
       base: {field: "x2", units: "screen"} as any,
       lower: {field: "lower2", units: "screen"} as any,
       upper: {field: "upper2", units: "screen"} as any,
-      upper_head: new OpenHead(),
+      upper_head: OpenHead.create(),
       dimension: "width",
       line_width: 3, line_color: "green",
       source,

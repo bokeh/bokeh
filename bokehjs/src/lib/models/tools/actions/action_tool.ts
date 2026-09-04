@@ -36,7 +36,7 @@ export abstract class ActionTool extends Tool {
   readonly do = new Signal<string | undefined, this>(this, "do")
 
   override tool_button(): ToolButton {
-    return new ClickButton({tool: this})
+    return ClickButton.create({tool: this})
   }
 
   override menu_item(): MenuItem {

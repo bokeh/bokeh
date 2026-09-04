@@ -12,19 +12,19 @@ describe("WheelZoomTool", () => {
     const factors = ["A", "B", "C"]
 
     function plot(title: string) {
-      const x_range = new Range1d({start: 0, end: 10})
-      const y_range = new FactorRange({factors})
+      const x_range = Range1d.create({start: 0, end: 10})
+      const y_range = FactorRange.create({factors})
 
       const p = fig([300, 300], {x_range, y_range, title, tools: ["hover"]})
 
       for (const [color, i] of enumerate(["red", "green", "blue"])) {
         const xy = p.subplot({
           x_source: p.x_range,
-          y_source: new FactorRange({factors: ["u", "v", "w"]}),
+          y_source: FactorRange.create({factors: ["u", "v", "w"]}),
           x_target: p.x_range,
-          y_target: new Range1d({start: i, end: i + 1}),
-          x_scale: new LinearScale(),
-          y_scale: new CategoricalScale(),
+          y_target: Range1d.create({start: i, end: i + 1}),
+          x_scale: LinearScale.create(),
+          y_scale: CategoricalScale.create(),
         })
 
         xy.scatter({
@@ -46,11 +46,11 @@ describe("WheelZoomTool", () => {
       return p.renderers.filter((r) => r instanceof DataRenderer)
     }
 
-    const wheel_zoom1 = new WheelZoomTool({renderers: data_renderers(p1), level: 0})
+    const wheel_zoom1 = WheelZoomTool.create({renderers: data_renderers(p1), level: 0})
     p1.add_tools(wheel_zoom1)
     p1.toolbar.active_scroll = wheel_zoom1
 
-    const wheel_zoom2 = new WheelZoomTool({renderers: data_renderers(p2), level: 1})
+    const wheel_zoom2 = WheelZoomTool.create({renderers: data_renderers(p2), level: 1})
     p2.add_tools(wheel_zoom2)
     p2.toolbar.active_scroll = wheel_zoom2
 
@@ -72,8 +72,8 @@ describe("WheelZoomTool", () => {
       const factors = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
       function plot(fn: (renderers: DataRenderer[]) => WheelZoomTool) {
-        const x_range = new Range1d({start: 0, end: 10})
-        const y_range = new FactorRange({factors})
+        const x_range = Range1d.create({start: 0, end: 10})
+        const y_range = FactorRange.create({factors})
 
         const p = fig([300, 300], {x_range, y_range, tools: []})
 
@@ -81,11 +81,11 @@ describe("WheelZoomTool", () => {
         for (const [color, i] of enumerate(Category10_10)) {
           const xy = p.subplot({
             x_source: p.x_range,
-            y_source: new FactorRange({factors: ["u", "v", "w"]}),
+            y_source: FactorRange.create({factors: ["u", "v", "w"]}),
             x_target: p.x_range,
-            y_target: new Range1d({start: i, end: i + 1}),
-            x_scale: new LinearScale(),
-            y_scale: new CategoricalScale(),
+            y_target: Range1d.create({start: i, end: i + 1}),
+            x_scale: LinearScale.create(),
+            y_scale: CategoricalScale.create(),
           })
 
           const gr = xy.line({
@@ -108,7 +108,7 @@ describe("WheelZoomTool", () => {
       describe("with hit_test_mode=hline", async () => {
         it("and hit_test_behavior='only_hit'", async () => {
           const p = plot((renderers) => {
-            return new WheelZoomTool({
+            return WheelZoomTool.create({
               renderers,
               level: 1,
               dimensions: "height",
@@ -125,13 +125,13 @@ describe("WheelZoomTool", () => {
 
         it("and hit_test_behavior=GroupByName()", async () => {
           const p = plot((renderers) => {
-            return new WheelZoomTool({
+            return WheelZoomTool.create({
               renderers,
               level: 1,
               dimensions: "height",
               hit_test: true,
               hit_test_mode: "hline",
-              hit_test_behavior: new GroupByName(),
+              hit_test_behavior: GroupByName.create(),
             })
           })
 
@@ -144,13 +144,13 @@ describe("WheelZoomTool", () => {
           const p = plot((renderers) => {
             const even = renderers.filter((_, i) => i % 2 == 0)
             const odd = renderers.filter((_, i) => i % 2 == 1)
-            return new WheelZoomTool({
+            return WheelZoomTool.create({
               renderers,
               level: 1,
               dimensions: "height",
               hit_test: true,
               hit_test_mode: "hline",
-              hit_test_behavior: new GroupByModels({groups: [even, odd]}),
+              hit_test_behavior: GroupByModels.create({groups: [even, odd]}),
             })
           })
 
@@ -163,7 +163,7 @@ describe("WheelZoomTool", () => {
   })
 
   it("should notify when modifiers aren't satisfied", async () => {
-    const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}})
+    const wheel_zoom = WheelZoomTool.create({modifiers: {ctrl: true}})
     const p = fig([200, 200], {tools: [wheel_zoom]})
     p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20})
     const {view} = await display(p)

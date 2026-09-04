@@ -32,7 +32,7 @@ export class LogTickFormatter extends TickFormatter {
     }))
   }
 
-  protected readonly basic_formatter: BasicTickFormatter = new BasicTickFormatter()
+  protected readonly basic_formatter: BasicTickFormatter = BasicTickFormatter.create()
 
   override format_graphics(ticks: number[], opts: {loc: number}): GraphicsBox[] {
     if (ticks.length == 0) {

@@ -15,16 +15,26 @@ export type Options<T extends View> = {
 async function _build_view<T extends HasProps>(view_cls: T["default_view"], model: T, options: Options<ViewOf<T>>): Promise<ViewOf<T>> {
   assert(view_cls != null, "model doesn't implement a view")
   const view = new view_cls({...options, model})
-  view.initialize()
-  await view.lazy_initialize()
-  return view
+  try {
+    view.initialize()
+    await view.lazy_initialize()
+    return view
+  } catch (error) {
+    view.remove()
+    throw error
+  }
 }
 
 export async function build_view<T extends HasProps>(model: T, options: Options<ViewOf<T>> = {parent: null},
     cls: (model: T) => T["default_view"] = (model) => model.default_view): Promise<ViewOf<T>> {
   const view = await _build_view(cls(model), model, options)
-  view.connect_signals()
-  return view
+  try {
+    view.connect_signals()
+    return view
+  } catch (error) {
+    view.remove()
+    throw error
+  }
 }
 
 export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}

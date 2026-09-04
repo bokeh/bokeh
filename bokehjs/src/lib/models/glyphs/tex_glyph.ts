@@ -24,7 +24,7 @@ export class TeXGlyphView extends MathTextGlyphView {
       }
       return obj
     } else {
-      return new TeX({text, macros, inline: display == "inline"})
+      return TeX.create({text, macros, inline: display == "inline"})
     }
   }
 }

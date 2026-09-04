@@ -21,8 +21,8 @@ describe("ColorBar annotation", () => {
     const random = new Random(1)
 
     const p = fig([600, 600], {border_fill_color: "lightgray"})
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
+    p.add_layout(LinearAxis.create(), "above")
+    p.add_layout(LinearAxis.create(), "right")
 
     const x = range(0, 10)
     const y0 = random.floats(10)
@@ -37,8 +37,8 @@ describe("ColorBar annotation", () => {
     p.scatter(x, y2, {fill_color: "green"})
 
     const color_bar = (attrs: Partial<ColorBar.Attrs>) => {
-      const color_mapper = new LinearColorMapper({palette: Spectral11, low: -2, high: 5})
-      return new ColorBar({
+      const color_mapper = LinearColorMapper.create({palette: Spectral11, low: -2, high: 5})
+      return ColorBar.create({
         color_mapper,
         title: "Unspecified title",
         border_line_color: "black", background_fill_color: "white", background_fill_alpha: 0.9,
@@ -190,9 +190,9 @@ describe("ColorBar annotation", () => {
   it("should support horizontal orientation and positioning within the center panel", async () => {
     const random = new Random(1)
 
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
     function color_bar(attrs: Partial<ColorBar.Attrs>) {
-      return new ColorBar({
+      return ColorBar.create({
         color_mapper,
         orientation: "horizontal",
         width: 120,
@@ -229,9 +229,9 @@ describe("ColorBar annotation", () => {
   it("should support vertical orientation and positioning within the center panel", async () => {
     const random = new Random(1)
 
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
     function color_bar(attrs: Partial<ColorBar.Attrs>) {
-      return new ColorBar({
+      return ColorBar.create({
         color_mapper,
         orientation: "vertical",
         height: 120,
@@ -273,7 +273,7 @@ describe("ColorBar annotation", () => {
     const y = random.floats(N)
 
     function color_bar(attrs: Partial<ColorBar.Attrs>) {
-      return new ColorBar({
+      return ColorBar.create({
         padding: 10,
         border_line_color: "gray",
         ...attrs,
@@ -281,7 +281,7 @@ describe("ColorBar annotation", () => {
     }
 
     it("below the frame", async () => {
-      const color_mapper = new LinearColorMapper({palette: Spectral11})
+      const color_mapper = LinearColorMapper.create({palette: Spectral11})
       const p = fig([300, 600], {border_fill_color: "lightgray"})
       p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
 
@@ -294,7 +294,7 @@ describe("ColorBar annotation", () => {
     })
 
     it("above the frame", async () => {
-      const color_mapper = new LinearColorMapper({palette: Spectral11})
+      const color_mapper = LinearColorMapper.create({palette: Spectral11})
       const p = fig([300, 600], {border_fill_color: "lightgray"})
       p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
 
@@ -307,7 +307,7 @@ describe("ColorBar annotation", () => {
     })
 
     it("left of the frame", async () => {
-      const color_mapper = new LinearColorMapper({palette: Spectral11})
+      const color_mapper = LinearColorMapper.create({palette: Spectral11})
       const p = fig([600, 300], {border_fill_color: "lightgray"})
       p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
 
@@ -320,7 +320,7 @@ describe("ColorBar annotation", () => {
     })
 
     it("right of the frame", async () => {
-      const color_mapper = new LinearColorMapper({palette: Spectral11})
+      const color_mapper = LinearColorMapper.create({palette: Spectral11})
       const p = fig([600, 300], {border_fill_color: "lightgray"})
 
       p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
@@ -365,93 +365,93 @@ describe("ColorBar annotation", () => {
   }
 
   it("should allow to be placed above frame in horizontal (auto) orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper})
     const p = make_plot(color_mapper, color_bar, "above")
     await display(p)
   })
 
   it("should allow to be placed above frame in horizontal (auto) orientation with height=50px", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, height: 50})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, height: 50})
     const p = make_plot(color_mapper, color_bar, "above")
     await display(p)
   })
 
   it("should allow to be placed above frame in vertical orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, orientation: "vertical", width: 200, height: 100})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, orientation: "vertical", width: 200, height: 100})
     const p = make_plot(color_mapper, color_bar, "above")
     await display(p)
   })
 
   it("should allow to be placed below frame in horizontal (auto) orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper})
     const p = make_plot(color_mapper, color_bar, "below")
     await display(p)
   })
 
   it("should allow to be placed below frame in horizontal (auto) orientation with height=50px", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, height: 50})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, height: 50})
     const p = make_plot(color_mapper, color_bar, "below")
     await display(p)
   })
 
   it("should allow to be placed below frame in vertical orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, orientation: "vertical", width: 200, height: 100})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, orientation: "vertical", width: 200, height: 100})
     const p = make_plot(color_mapper, color_bar, "below")
     await display(p)
   })
 
   it("should allow to be placed left of frame in vertical (auto) orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper})
     const p = make_plot(color_mapper, color_bar, "left")
     await display(p)
   })
 
   it("should allow to be placed left of frame in vertical (auto) orientation with width=50px", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, width: 50})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, width: 50})
     const p = make_plot(color_mapper, color_bar, "left")
     await display(p)
   })
 
   it("should allow to be placed left of frame in horizontal orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, orientation: "horizontal", width: 100, height: 200})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, orientation: "horizontal", width: 100, height: 200})
     const p = make_plot(color_mapper, color_bar, "left")
     await display(p)
   })
 
   it("should allow to be placed right of frame in vertical (auto) orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper})
     const p = make_plot(color_mapper, color_bar, "right")
     await display(p)
   })
 
   it("should allow to be placed right of frame in vertical (auto) orientation with width=50px", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, width: 50})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, width: 50})
     const p = make_plot(color_mapper, color_bar, "right")
     await display(p)
   })
 
   it("should allow to be placed right of frame in horizontal orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, orientation: "horizontal", width: 100, height: 200})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, orientation: "horizontal", width: 100, height: 200})
     const p = make_plot(color_mapper, color_bar, "right")
     await display(p)
   })
 
   it("should support TeX title", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
     const title = r`$$\text{Right: } x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$`
-    const color_bar = new ColorBar({color_mapper, title, orientation: "horizontal"})
+    const color_bar = ColorBar.create({color_mapper, title, orientation: "horizontal"})
     const p = make_plot(color_mapper, color_bar, "above")
     await display(p)
   })
@@ -459,8 +459,8 @@ describe("ColorBar annotation", () => {
   it("should support LinearColorMapper", async () => {
     const random = new Random(1)
 
-    const color_mapper = new LinearColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, title: "Unspecified title", border_line_color: "black"})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, title: "Unspecified title", border_line_color: "black"})
 
     const n = 30
     const x = random.floats(n, 0, 10)
@@ -478,8 +478,8 @@ describe("ColorBar annotation", () => {
   it("should support LogColorMapper", async () => {
     const random = new Random(1)
 
-    const color_mapper = new LogColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, title: "Unspecified title", border_line_color: "black"})
+    const color_mapper = LogColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, title: "Unspecified title", border_line_color: "black"})
 
     const n = 30
     const x = random.floats(n, 0, 10)
@@ -501,8 +501,8 @@ describe("ColorBar annotation", () => {
   it("should support EqHistColorMapper", async () => {
     const random = new Random(1)
 
-    const color_mapper = new EqHistColorMapper({palette: Spectral11})
-    const color_bar = new ColorBar({color_mapper, title: "Unspecified title", border_line_color: "black"})
+    const color_mapper = EqHistColorMapper.create({palette: Spectral11})
+    const color_bar = ColorBar.create({color_mapper, title: "Unspecified title", border_line_color: "black"})
 
     const n = 30
     const x = random.floats(n, 0, 10)
@@ -525,8 +525,8 @@ describe("ColorBar annotation", () => {
     const random = new Random(1)
 
     const factors = ["foo", "bar", "baz", "qux", "quux", "corge", "grault", "garply", "waldo", "fred", "plugh"]
-    const color_mapper = new CategoricalColorMapper({palette: Spectral11, factors})
-    const color_bar = new ColorBar({color_mapper, title: "Unspecified title", border_line_color: "black"})
+    const color_mapper = CategoricalColorMapper.create({palette: Spectral11, factors})
+    const color_bar = ColorBar.create({color_mapper, title: "Unspecified title", border_line_color: "black"})
 
     const n = 30
     const x = random.floats(n, 0, 10)
@@ -543,7 +543,7 @@ describe("ColorBar annotation", () => {
 
   describe("should support display cutoffs", () => {
     function make_plot(color_mapper: ColorMapper, title: string, display_low: number | null, display_high: number | null): Plot {
-      const color_bar = new ColorBar({color_mapper, display_low, display_high, title, bar_line_color: "black"})
+      const color_bar = ColorBar.create({color_mapper, display_low, display_high, title, bar_line_color: "black"})
       const x = np.arange(11)
       const values = np.linspace(10, 100, 11)
 
@@ -556,10 +556,10 @@ describe("ColorBar annotation", () => {
 
     function make_cutoff_plots(display_low: number | null, display_high: number | null): Column {
       const palette = Spectral11
-      const p0 = make_plot(new LinearColorMapper({palette}), "linear", display_low, display_high)
-      const p1 = make_plot(new LogColorMapper({palette}), "log", display_low, display_high)
-      const p2 = make_plot(new EqHistColorMapper({palette, rescale_discrete_levels: false}), "eq hist", display_low, display_high)
-      const p3 = make_plot(new EqHistColorMapper({palette, rescale_discrete_levels: true}), "eq hist rescaled", display_low, display_high)
+      const p0 = make_plot(LinearColorMapper.create({palette}), "linear", display_low, display_high)
+      const p1 = make_plot(LogColorMapper.create({palette}), "log", display_low, display_high)
+      const p2 = make_plot(EqHistColorMapper.create({palette, rescale_discrete_levels: false}), "eq hist", display_low, display_high)
+      const p3 = make_plot(EqHistColorMapper.create({palette, rescale_discrete_levels: true}), "eq hist rescaled", display_low, display_high)
       return column([p0, p1, p2, p3])
     }
 
@@ -594,10 +594,10 @@ describe("ColorBar annotation", () => {
       const values = np.linspace(0, 10, 11)
       p.scatter({x, y, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
       const cbars = [
-        new ColorBar({color_mapper, title: "Update low"}),
-        new ColorBar({color_mapper, title: "Update high"}),
-        new ColorBar({color_mapper, title: "Update both"}),
-        new ColorBar({color_mapper, title: "Reset", display_low: 3, display_high: 7}),
+        ColorBar.create({color_mapper, title: "Update low"}),
+        ColorBar.create({color_mapper, title: "Update high"}),
+        ColorBar.create({color_mapper, title: "Update both"}),
+        ColorBar.create({color_mapper, title: "Reset", display_low: 3, display_high: 7}),
       ]
       const side = vertical ? "right" : "below"
       for (const cbar of cbars) {
@@ -616,14 +616,14 @@ describe("ColorBar annotation", () => {
     }
 
     it("update EqHist", async () => {
-      const {plot, cbars} = make_multi_cbar_plot(new EqHistColorMapper({palette: Spectral11}), false)
+      const {plot, cbars} = make_multi_cbar_plot(EqHistColorMapper.create({palette: Spectral11}), false)
       const {view} = await display(plot)
       update_cbars(cbars)
       await view.ready
     })
 
     it("update Linear", async () => {
-      const {plot, cbars} = make_multi_cbar_plot(new LinearColorMapper({palette: Spectral11}), true)
+      const {plot, cbars} = make_multi_cbar_plot(LinearColorMapper.create({palette: Spectral11}), true)
       const {view} = await display(plot)
       update_cbars(cbars)
       await view.ready

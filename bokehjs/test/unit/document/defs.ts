@@ -208,11 +208,11 @@ describe("document/defs module", () => {
       expect(Some3.__qualified__).to.be.equal("some.Some3")
       expect(Some4.__qualified__).to.be.equal("some.Some4")
 
-      const some0 = new Some0()
-      const some1 = new Some1()
-      const some2 = new Some2()
-      const some3 = new Some3()
-      const some4 = new Some4()
+      const some0 = Some0.create()
+      const some1 = Some1.create()
+      const some2 = Some2.create()
+      const some3 = Some3.create()
+      const some4 = Some4.create()
 
       expect(some0).to.be.instanceof(Model)
       expect(some1).to.be.instanceof(Model)
@@ -294,8 +294,8 @@ describe("document/defs module", () => {
       expect(some2.prop8).to.be.structurally.equal(new Map([[["a", "a"], 0], [["b"], 1]]))
       expect(some2.prop9).to.be.equal("enum2")
 
-      const some001 = new Some0({prop2: false, prop4: 128})
-      const some002 = new Some0({prop2: false, prop4: 129})
+      const some001 = Some0.create({prop2: false, prop4: 128})
+      const some002 = Some0.create({prop2: false, prop4: 129})
       expect(some2.prop10).to.be.structurally.equal(some001)
       expect(some2.prop11).to.be.structurally.equal([some001, some002])
 
