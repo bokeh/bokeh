@@ -5531,4 +5531,30 @@ describe("Bug", () => {
       await expect_contained("above", [450, 350], "top_right")
     })
   })
+
+  describe("in issue #12187", () => {
+    it("shows dates as zero epoch in a DataTable if the date column contains a NaN", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          dates: [
+            NaN,
+            1393632000000, // 2014-03-01
+            1393718400000, // 2014-03-02
+            1393804800000, // 2014-03-03
+            1393891200000, // 2014-03-04
+          ],
+          downloads: [0, 10, 20, 30, 40],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "dates", title: "Date", formatter: new DateFormatter()}),
+        new TableColumn({field: "downloads", title: "Downloads"}),
+      ]
+
+      const table = new DataTable({source, columns})
+
+      await display(table, [600, 400])
+    })
+  })
 })
