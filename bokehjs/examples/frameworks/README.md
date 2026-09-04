@@ -8,6 +8,7 @@ plot without a remount. The Node.js example remains DOM-free by design.
 
 | Project | Integration | User-facing entry point |
 | --- | --- | --- |
+| [React + Next.js](react-next/) | `@bokeh/react` client component in an App Router page | [`BokehExample.tsx`](react-next/app/BokehExample.tsx) |
 | [React + Vite](react-vite/) | `@bokeh/react` component | [`App.tsx`](react-vite/src/App.tsx) |
 | [Vue + Vite](vue-vite/) | `@bokeh/vue` component | [`App.vue`](vue-vite/src/App.vue) |
 | [Svelte + Vite](svelte-vite/) | `@bokeh/svelte` action | [`App.svelte`](svelte-vite/src/App.svelte) |

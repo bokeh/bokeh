@@ -438,6 +438,7 @@ async function test_packaged_apps() {
   const applications = [
     ["angular-ng", join(packaged_dir, "angular-ng/dist/browser")],
     ["angular-lifecycle", join(packaged_dir, "angular-lifecycle/dist/browser")],
+    ["react-next", join(packaged_dir, "react-next/out")],
     ["react-vite", join(packaged_dir, "react-vite/dist")],
     ["svelte-vite", join(packaged_dir, "svelte-vite/dist")],
     ["vanilla-rspack", join(packaged_dir, "vanilla-rspack")],
