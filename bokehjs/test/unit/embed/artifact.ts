@@ -557,18 +557,20 @@ describe("EmbedArtifact runtime", () => {
 
   it("waits for existing loading resources and validates their declarations", async () => {
     const loader = new ResourceLoader()
-    const state = globalThis as typeof globalThis & {artifact_existing?: number}
-    state.artifact_existing = 0
-    const content = "globalThis.artifact_existing += 1"
-    const url = `data:text/javascript,${encodeURIComponent(content)}`
+    const url = "https://example.invalid/existing.js"
     const script = document.createElement("script")
+    script.type = "application/json"
     script.src = url
     script.dataset.bokehResource = "fixture"
     script.dataset.bokehResourceState = "loading"
     document.head.append(script)
 
-    await loader.ensure(core, {mode: "resolved", assets: [{kind: "script", url}]})
-    expect(state.artifact_existing).to.be.equal(1)
+    let loaded = false
+    const loading = loader.ensure(core, {mode: "resolved", assets: [{kind: "script", url}]}).then(() => loaded = true)
+    expect(loaded).to.be.false
+    script.dispatchEvent(new Event("load"))
+    await loading
+    expect(loaded).to.be.true
     expect(script.dataset.bokehResourceState).to.be.equal("loaded")
 
     loader.clear()
@@ -646,17 +648,21 @@ describe("EmbedArtifact runtime", () => {
     expect(error.message.includes("must be resolved by the host")).to.be.true
   })
 
-  it("rejects javascript resource URLs", async () => {
+  async function rejects_resource_url(url: string): Promise<void> {
     const loader = new ResourceLoader()
     const error = await loader.ensure(core, {
       mode: "resolved",
-      assets: [{kind: "script", url: "javascript:alert(1)"}],
+      assets: [{kind: "script", url}],
     }).then(() => null, (error: unknown) => error)
 
     expect_instanceof(error, ResourceError)
     expect(error.kind).to.be.equal("policy")
-    expect(error.message.includes("javascript: URLs")).to.be.true
-  })
+    expect(error.message.includes("URLs are not valid Bokeh resources")).to.be.true
+  }
+
+  it("rejects javascript resource URLs", async () => rejects_resource_url("javascript:alert(1)"))
+  it("rejects data resource URLs", async () => rejects_resource_url("data:text/javascript,alert(1)"))
+  it("rejects vbscript resource URLs", async () => rejects_resource_url("vbscript:alert(1)"))
 
   it("rejects offline URLs and unresolved integrity policies", async () => {
     const loader = new ResourceLoader()

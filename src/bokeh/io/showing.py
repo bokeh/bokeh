@@ -213,7 +213,7 @@ def _show_file(obj: Showable, *, filename: PathLike, resources: Resources | str 
     '''
     saved = save(obj, filename=filename, resources=resources, title=title, template=template)
     from pathlib import Path
-    get_browser_controller().open(Path(saved).as_uri(), new=2)
+    get_browser_controller().open(Path(saved).resolve().as_uri(), new=2)
 
 #-----------------------------------------------------------------------------
 # Code
