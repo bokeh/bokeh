@@ -1,7 +1,7 @@
 export * from "#framework/framework"
 import {describe, it} from "#framework/framework"
 
-import {ExpectationError} from "#framework/assertions"
+import {ExpectationError, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import * as has_props from "@bokehjs/core/has_props"
@@ -343,12 +343,13 @@ describe("Defaults", () => {
 
     fn(`bokehjs should implement serializable ${name} model and match defaults with bokeh`, () => {
       const model = default_resolver.get(name)
+      expect_not_null(model)
 
       // This will initialize abstract classes, which can lead to errors.
       // However, given this is only partial initialization, i.e. we
       // don't finalize instances or connect signals, then any code that
       // may depend on fully initialized state will not run.
-      const obj = construct_deferred(model!, unique_id())
+      const obj = construct_deferred(model, unique_id())
       obj.initialize_props({})
 
       const serializer = new DefaultsSerializer()
