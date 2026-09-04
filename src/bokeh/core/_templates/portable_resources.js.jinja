@@ -1,0 +1,288 @@
+// Portable BokehJS resource loader for notebook hosts without the MIME extension.
+'use strict';
+(function(root) {
+  const resource_id = {{ resource_id|tojson }};
+  const expected_version = {{ bokeh_version|tojson }};
+  const requires_notebook_runtime = root._bokeh_notebook_requires_live_runtime === true;
+  const dependencies = {{ dependencies|tojson }};
+  const load_timeout = {{ load_timeout|tojson }};
+  const artifacts = {{ artifacts|tojson }};
+  const inline_js = new Map([
+    {%- for artifact in inline_js %}
+    [{{ artifact.id|tojson }}, function(Bokeh) {
+      {{ artifact.value|indent(6) }}
+    }],
+    {%- endfor %}
+  ]);
+  const loaded = root._bokeh_notebook_artifacts ??= new Set();
+  const resource_promises = root._bokeh_notebook_resource_promises ??= new Map();
+
+  function notify(kind, detail = {}) {
+    root.dispatchEvent(new CustomEvent(`bokeh:resources-${kind}`, {
+      detail: {resource_id, ...detail},
+    }));
+  }
+
+  function wait_for_resource(dependency) {
+    const existing = resource_promises.get(dependency);
+    if (existing != null)
+      return existing;
+    return new Promise((resolve, reject) => {
+      let timer;
+      const cleanup = () => {
+        clearTimeout(timer);
+        root.removeEventListener("bokeh:resources-complete", complete);
+        root.removeEventListener("bokeh:resources-error", failed);
+      };
+      const complete = (event) => {
+        if (event.detail?.resource_id !== dependency)
+          return;
+        cleanup();
+        const ready = resource_promises.get(dependency);
+        ready == null ? resolve() : ready.then(resolve, reject);
+      };
+      const failed = (event) => {
+        if (event.detail?.resource_id !== dependency)
+          return;
+        cleanup();
+        reject(new Error(event.detail?.error?.message ?? `Resource dependency ${dependency} failed`));
+      };
+      root.addEventListener("bokeh:resources-complete", complete);
+      root.addEventListener("bokeh:resources-error", failed);
+      timer = setTimeout(() => {
+        cleanup();
+        reject(new Error(`Resource dependency ${dependency} was not published within ${load_timeout} ms`));
+      }, load_timeout);
+    });
+  }
+
+  const pending_elements = new Map();
+  let aborted = false;
+
+  function load_url(artifact) {
+    return new Promise((resolve, reject) => {
+      const element = artifact.kind === "js"
+        ? document.createElement("script")
+        : document.createElement("link");
+      pending_elements.set(element, reject);
+      element.onload = () => {
+        pending_elements.delete(element);
+        resolve();
+      };
+      element.onerror = () => {
+        pending_elements.delete(element);
+        element.remove();
+        reject(new Error(`Failed to load ${artifact.value}`));
+      };
+      element.dataset.bokehArtifactId = artifact.id;
+      if (artifact.kind === "js") {
+        element.async = false;
+        element.src = artifact.value;
+        document.head.append(element);
+      } else {
+        element.rel = "stylesheet";
+        element.href = artifact.value;
+        document.head.append(element);
+      }
+    });
+  }
+
+  function load_inline(artifact) {
+    if (artifact.kind === "css") {
+      const element = document.createElement("style");
+      element.dataset.bokehArtifactId = artifact.id;
+      element.textContent = artifact.value;
+      document.head.append(element);
+    } else {
+      const loader = inline_js.get(artifact.id);
+      if (loader == null)
+        throw new Error(`Missing inline JavaScript artifact ${artifact.id}`);
+      loader.call(root, root.Bokeh);
+    }
+  }
+
+  function has_notebook_runtime(runtime = root.Bokeh) {
+    return typeof runtime?.embed?.create_notebook_patch_receiver === "function";
+  }
+
+  function can_replace_isolated_runtime(active = null) {
+    if (root._bokeh_notebook_isolated_colab !== true)
+      return false;
+    if (active != null && root._bokeh_notebook_core_load === active)
+      delete root._bokeh_notebook_core_load;
+    return true;
+  }
+
+  function select_versioned_notebook_runtime() {
+    if (has_notebook_runtime())
+      return true;
+    const candidate = root.Bokeh?.[expected_version];
+    if (candidate?.version !== expected_version || !has_notebook_runtime(candidate))
+      return false;
+    try {
+      // The host may expose Bokeh as a non-configurable global, but the global
+      // remains writable. BokehJS itself places same-version builds under this
+      // versioned namespace instead of replacing the host object.
+      root.Bokeh = candidate;
+    } catch {
+      return false;
+    }
+    return root.Bokeh === candidate;
+  }
+
+  async function load_core(artifact) {
+    while (true) {
+      let replace_incompatible = false;
+      if (aborted)
+        throw new DOMException("Resource loading was cancelled", "AbortError");
+
+      const active = root._bokeh_notebook_core_load;
+      if (active != null) {
+        if (active.version !== expected_version) {
+          throw new Error(
+            `BokehJS core ${active.version} is already loading; refusing to concurrently load incompatible ${expected_version}`,
+          );
+        }
+        try {
+          await active.ready;
+        } catch (error) {
+          // Removing a timed-out dynamic script does not guarantee that the
+          // browser cancels its fetch or later evaluation. Keep the failed
+          // owner as a terminal barrier so an inline waiter cannot install a
+          // second runtime that the late script could overwrite.
+          if (error?.name === "AbortError") {
+            throw new Error(
+              `BokehJS core ${expected_version} timed out while an external script may still execute; reload the notebook page before changing resource modes`,
+              {cause: error},
+            );
+          }
+          // The owner reports its own failure. A same-version waiter may now
+          // try its independent CDN/server/inline representation only when
+          // the browser reported a definitive loading error.
+          if (root._bokeh_notebook_core_load === active)
+            delete root._bokeh_notebook_core_load;
+          continue;
+        }
+        if (root.Bokeh?.version === expected_version) {
+          if (!requires_notebook_runtime || has_notebook_runtime())
+            return;
+          if (can_replace_isolated_runtime(active))
+            replace_incompatible = true;
+          else
+            return;
+        }
+        if (root.Bokeh != null && !replace_incompatible) {
+          throw new Error(
+            `BokehJS core ${expected_version} completed, but window.Bokeh reports incompatible ${root.Bokeh.version ?? "unknown"}`,
+          );
+        }
+        if (root._bokeh_notebook_core_load === active)
+          delete root._bokeh_notebook_core_load;
+        continue;
+      }
+
+      if (root.Bokeh != null && !replace_incompatible) {
+        if (root.Bokeh.version === expected_version) {
+          if (!requires_notebook_runtime || has_notebook_runtime())
+            return;
+          if (can_replace_isolated_runtime())
+            replace_incompatible = true;
+          else
+            return;
+        }
+        if (!replace_incompatible) {
+          throw new Error(
+            `BokehJS core ${root.Bokeh.version ?? "unknown"} is already active; refusing to load incompatible ${expected_version}`,
+          );
+        }
+      }
+
+      const ready = (async () => {
+        if (artifact.source === "url")
+          await load_url(artifact);
+        else
+          load_inline(artifact);
+        if (root.Bokeh?.version !== expected_version)
+          throw new Error(`BokehJS core ${expected_version} loaded, but window.Bokeh reports ${root.Bokeh?.version ?? "unknown"}`);
+        if (requires_notebook_runtime)
+          select_versioned_notebook_runtime();
+      })();
+      const owned = {version: expected_version, ready};
+      root._bokeh_notebook_core_load = owned;
+      try {
+        await ready;
+        return;
+      } catch (error) {
+        if (error?.name !== "AbortError" && root._bokeh_notebook_core_load === owned)
+          delete root._bokeh_notebook_core_load;
+        throw error;
+      }
+    }
+  }
+
+  async function load() {
+    for (const dependency of dependencies) {
+      await wait_for_resource(dependency);
+      if (aborted)
+        throw new DOMException("Resource loading was cancelled", "AbortError");
+    }
+    for (const artifact of artifacts) {
+      if (aborted)
+        throw new DOMException("Resource loading was cancelled", "AbortError");
+      if (loaded.has(artifact.id))
+        continue;
+
+      // A compatible Bokeh core may already have been provided by the host.
+      // Record only the core artifact; later widget/table/custom artifacts
+      // still have to execute and reach this completion barrier.
+      const is_core = artifact.core === true;
+      if (is_core) {
+        // Different resource modes identify the same core with different
+        // artifact IDs. Serialize them by BokehJS version so a late CDN or
+        // server script cannot replace an inline runtime that won the race.
+        await load_core(artifact);
+      } else {
+        if (artifact.source === "url")
+          await load_url(artifact);
+        else
+          load_inline(artifact);
+      }
+      if (aborted)
+        throw new DOMException("Resource loading was cancelled", "AbortError");
+      loaded.add(artifact.id);
+    }
+    if (root.Bokeh == null)
+      throw new Error("The resource bundle completed without defining window.Bokeh");
+  }
+
+  const previous = resource_promises.get(resource_id);
+  let load_timer;
+  const ready = previous ?? Promise.race([
+    load(),
+    new Promise((_, reject) => load_timer = setTimeout(() => {
+      aborted = true;
+      for (const [element, reject] of pending_elements) {
+        element.remove();
+        reject(new DOMException("Resource loading was cancelled", "AbortError"));
+      }
+      pending_elements.clear();
+      reject(new Error(`Resource ${resource_id} did not load within ${load_timeout} ms`));
+    }, load_timeout)),
+  ]);
+  if (previous == null)
+    ready.then(() => clearTimeout(load_timer), () => clearTimeout(load_timer));
+  resource_promises.set(resource_id, ready);
+
+  void ready.then(() => {
+      notify("complete", {artifact_ids: artifacts.map((artifact) => artifact.id)});
+    }).catch((error) => {
+      resource_promises.delete(resource_id);
+      for (const [element, reject] of pending_elements) {
+        element.remove();
+        reject(new DOMException("Resource loading was cancelled", "AbortError"));
+      }
+      pending_elements.clear();
+      notify("error", {error: error instanceof Error ? {name: error.name, message: error.message, stack: error.stack} : String(error)});
+      console.error(`Bokeh: failed to load notebook resources ${resource_id}`, error);
+    });
+})(window);
