@@ -58,7 +58,8 @@ def build_bokehjs(config: Config, system: System) -> ActionReturn:
 def build_npm_packages(config: Config, system: System) -> ActionReturn:
     try:
         system.cd("bokehjs")
-        for workspace, _tarball in NPM_PACKAGES:
+        for package in NPM_PACKAGES:
+            workspace = package.workspace
             command = "npm pack" if workspace == "" else f"npm pack --workspace {workspace}"
             system.run(command)
         system.cd("..")
@@ -124,15 +125,7 @@ def npm_install(config: Config, system: System) -> ActionReturn:
 
 
 def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
-    public_packages = {
-        "@bokeh/bokehjs",
-        "@bokeh/angular",
-        "@bokeh/framework",
-        "@bokeh/react",
-        "@bokeh/svelte",
-        "@bokeh/vue",
-        "@bokeh/web-component",
-    }
+    public_packages = {package.name for package in NPM_PACKAGES}
 
     def update_dependencies(content: dict[str, Any]) -> None:
         for section in ("dependencies", "devDependencies", "optionalDependencies"):

@@ -433,10 +433,14 @@ describe("in api/plotting module", () => {
     })
 
     it("surfaces dynamic root render failures without disposing a ready caller document", async () => {
+      let fail = true
       class FailingPlotView extends PlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
-          throw new Error("dynamic root failed")
+          if (fail) {
+            fail = false
+            throw new Error("dynamic root failed")
+          }
         }
       }
 
@@ -462,6 +466,12 @@ describe("in api/plotting module", () => {
       expect(mounted.state).to.be.equal("ready")
       expect(mounted.disposed).to.be.false
       expect(doc.is_destroyed).to.be.false
+      expect(mounted.target(plot.id)).to.be.null
+      expect(mounted.view(plot.id)).to.be.null
+
+      const retried = await mounted.attach(plot.id, target)
+      expect(retried).to.be.instanceof(FailingPlotView)
+      expect(mounted.target(plot.id)).to.be.equal(target)
 
       await mounted.dispose()
       doc.destroy()
