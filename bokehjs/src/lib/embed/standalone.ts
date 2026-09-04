@@ -46,13 +46,6 @@ export const index = new Proxy(new ViewManager(), {
   },
 }) as ViewManager & {readonly [key: string]: View}
 
-export type StandaloneMountOptions = {
-  roots?: (EmbedTarget | null)[]
-  use_for_title?: boolean
-  signal?: AbortSignal
-  dispose_document?: boolean
-}
-
 export type StandaloneMountErrorHandler = (error: unknown, root_key?: string) => void
 
 export class StandaloneRootError extends Error {
@@ -338,22 +331,4 @@ export class StandaloneMount {
       this.document.destroy()
     }
   }
-}
-
-/** @internal Legacy positional bridge retained only for notebook rendering. */
-export async function mount_document_standalone(document: Document, element: EmbedTarget,
-    options: StandaloneMountOptions = {}): Promise<StandaloneMount> {
-  const {roots = [], use_for_title = false, signal, dispose_document = false} = options
-  const root_map = new Map(document.roots().map((model) => [model.id, model]))
-  const root_targets = new Map<string, EmbedTarget>()
-  for (const [i, key] of [...root_map.keys()].entries()) {
-    const target = roots[i]
-    if (target != null) {
-      root_targets.set(key, target)
-    }
-  }
-
-  const mount = new StandaloneMount(document, root_map, dispose_document, signal, undefined, true)
-  await mount.initialize(element, root_targets, use_for_title)
-  return mount
 }

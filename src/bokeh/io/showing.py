@@ -31,7 +31,7 @@ from typing import (
 # Bokeh imports
 from ..models.dom import DOMNode
 from ..models.ui import UIElement
-from ..util.browser import NEW_PARAM, get_browser_controller
+from ..util.browser import get_browser_controller
 from .notebook import DEFAULT_JUPYTER_URL, run_notebook_hook
 from .saving import save
 from .state import curstate
@@ -39,7 +39,7 @@ from .state import curstate
 if TYPE_CHECKING:
     from ..application.application import Application
     from ..application.handlers.function import ModifyDoc
-    from ..util.browser import BrowserLike, BrowserTarget
+    from ..util.browser import BrowserLike
     from .notebook import CommsHandle, ProxyUrlFunc
     from .state import State
 
@@ -61,8 +61,6 @@ type Showable = OneOrMore[UIElement | DOMNode]
 
 def show(
     obj: Showable | Application | ModifyDoc,
-    browser: str | None = None,
-    new: BrowserTarget = "tab",
     notebook_handle: bool = False,
     notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
     **kwargs: Any,
@@ -87,23 +85,6 @@ def show(
             be passed. A callable will be turned into an Application using a
             ``FunctionHandler``. The application will be run and displayed
             inline in the associated notebook output cell.
-
-        browser (str, optional) :
-            Specify the browser to use to open output files(default: None)
-
-            For file output, the **browser** argument allows for specifying
-            which browser to display in, e.g. "safari", "firefox", "opera",
-            "windows-default". Not all platforms may support this option, see
-            the documentation for the standard library
-            :doc:`webbrowser <python:library/webbrowser>` module for
-            more information
-
-        new (str, optional) :
-            Specify the browser mode to use for output files (default: "tab")
-
-            For file output, opens or raises the browser window showing the
-            current output file.  If **new** is 'tab', then opens a new tab.
-            If **new** is 'window', then opens a new window.
 
         notebook_handle (bool, optional) :
             Whether to create a notebook interaction handle (default: False)
@@ -136,9 +117,6 @@ def show(
 
     Some parameters are only useful when certain output modes are active:
 
-    * The ``browser`` and ``new`` parameters only apply when |output_file|
-      is active.
-
     * The ``notebook_handle`` parameter only applies when |output_notebook|
       is active, and non-Application objects are being shown. It is only
       supported in Jupyter notebook and raises an exception for other notebook
@@ -162,7 +140,10 @@ def show(
     state = curstate()
 
     if isinstance(obj, UIElement) or isinstance(obj, DOMNode) or isinstance(obj, Sequence):
-        return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
+        if kwargs:
+            names = ", ".join(sorted(kwargs))
+            raise ValueError(f"Unexpected show() options for a standalone object: {names}")
+        return _show_with_state(obj, state, notebook_handle=notebook_handle)
 
     def is_application(obj: Any) -> TypeGuard[Application]:
         return getattr(obj, '_is_a_bokeh_application_class', False)
@@ -191,19 +172,19 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj: Showable, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
+def _show_file_with_state(obj: Showable, state: State, controller: BrowserLike) -> None:
     '''
 
     '''
     filename = save(obj, state=state)
-    controller.open("file://" + filename, new=NEW_PARAM[new])
+    controller.open("file://" + filename, new=2)
 
-def _show_with_state(obj: Showable, state: State, browser: str | None,
-        new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
+def _show_with_state(obj: Showable, state: State,
+        notebook_handle: bool = False) -> CommsHandle | None:
     '''
 
     '''
-    controller = get_browser_controller(browser=browser)
+    controller = get_browser_controller()
 
     comms_handle = None
     shown = False
@@ -214,7 +195,7 @@ def _show_with_state(obj: Showable, state: State, browser: str | None,
         shown = True
 
     if state.file or not shown:
-        _show_file_with_state(obj, state, new, controller)
+        _show_file_with_state(obj, state, controller)
 
     return comms_handle
 

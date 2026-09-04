@@ -92,11 +92,33 @@ Requirements and policy answer different questions:
      - Resolve installed assets against an explicit filesystem or URL base.
      - Static-site generators and application asset pipelines.
 
+Public artifact v1 contract
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The public ``bokeh.embed/v1`` envelope has one standalone document, unique
+logical root keys, and non-negative document/root ordinals that refer into that
+document. Server artifacts use model IDs instead of ordinals. Requirements and
+extension names are unique, while metadata must contain JSON-compatible values;
+the ``compiler`` metadata key is reserved for Bokeh. Python and BokehJS enforce
+the same invariants when reading an artifact.
+
+``fingerprint`` is a SHA-256 content identity over the canonical artifact data,
+excluding the fingerprint field itself and normalizing allocation-specific
+model IDs. It detects mismatched or stale payloads and provides a stable cache
+or deduplication key. It is not a signature, an authentication mechanism, or a
+substitute for subresource integrity.
+
+Standalone v1 artifacts serialize their document data inline and do not carry
+an artifact-level ``buffers`` field. Efficient binary transport remains
+out-of-band where a live protocol exists: protocol messages, ASGI WebSocket
+frames, and connected-notebook patches retain their separate binary buffers.
+
 Renderer tour
 ~~~~~~~~~~~~~
 
 The following review-sized example deliberately includes a plot, a widget, and
-a table so the artifact declares three different BokehJS component bundles.
+a table so the artifact declares four different BokehJS component bundles
+(``bokeh/core``, ``bokeh/api``, ``bokeh/widgets``, and ``bokeh/tables``).
 Each renderer serves a distinct host rather than recompiling the models:
 
 .. code-block:: python
@@ -355,8 +377,8 @@ For new code, prefer the typed result when you need more than the legacy tuple:
 
 .. _ug_output_embed_standalone_autoload:
 
-Autoloading scripts
-~~~~~~~~~~~~~~~~~~~
+External static payloads
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``autoload_static()`` and its per-embed JavaScript program were removed in
 Bokeh 4.0. Save the deterministic artifact as data and render a declarative
@@ -395,6 +417,12 @@ from ``/embed.json`` and exposes HTTP, WebSocket, session, render, readiness, an
 disposal through the same ``BokehMount`` used by standalone artifacts. The old
 ``/autoload.js`` program endpoint is not part of the 4.0 route.
 
+Server artifact ``headers`` and a directly supplied ``token`` are serialized
+into browser-visible page data. Do not put credentials or other secrets there
+unless they are explicitly safe for every page consumer. Prefer the normal
+``/embed.json`` bootstrap, which creates a short-lived signed session token,
+over persisting a token in reusable markup.
+
 If an application is running on a Bokeh server that makes it available at some
 URL, you will typically want to embed the entire application in a web page.
 This way, the page will create a new session and display it to the user every
@@ -411,17 +439,10 @@ Here is an example of the |server_document| function in use:
     from bokeh.embed import server_document
     script = server_document("https://demo.bokeh.org/sliders")
 
-This returns a ``<script>`` tag that looks something like this:
-
-.. code-block:: html
-
-    <script
-        src="https://demo.bokeh.org/sliders/autoload.js?bokeh-autoload-element=1000&bokeh-app-path=/sliders&bokeh-absolute-url=https://demo.bokeh.org/sliders"
-        id="1000">
-    </script>
-
-You can add this tag to an HTML page to include the Bokeh application at that
-point.
+This returns declarative artifact markup: resource tags, a logical-root target,
+the ``bokeh.embed/v1`` server descriptor, and the common artifact bootstrap.
+Add that markup to an HTML page at the point where the application should
+appear. It does not call or emulate the removed ``/autoload.js`` endpoint.
 
 App sessions
 ~~~~~~~~~~~~
@@ -549,7 +570,6 @@ Here's a full template with all the sections that you can override:
     </html>
 
 
-.. |autoload_static| replace:: :func:`~bokeh.embed.autoload_static`
 .. |file_html|       replace:: :func:`~bokeh.embed.file_html`
 .. |json_item|       replace:: :func:`~bokeh.embed.json_item`
 .. |server_document| replace:: :func:`~bokeh.embed.server_document`

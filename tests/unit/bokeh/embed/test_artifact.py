@@ -9,10 +9,12 @@ from __future__ import annotations
 
 # Standard library imports
 import json
+from collections.abc import Callable, Iterator
 from copy import deepcopy
 from dataclasses import fields
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 # External imports
 import pytest
@@ -21,10 +23,12 @@ import pytest
 from bokeh import __version__
 from bokeh.document import Document
 from bokeh.embed import (
+    ArtifactRoot,
     ArtifactValidationError,
     EmbedArtifact,
     EmbedCompileError,
     EmbedMigrationError,
+    EmbedSpec,
     ResourceAssetRequirement,
     ResourceConflictError,
     ResourcePolicy,
@@ -39,6 +43,7 @@ from bokeh.embed import (
 )
 from bokeh.embed.resources import ExtensionRequirement, ResourceRequirements
 from bokeh.io import save
+from bokeh.model import Model
 from bokeh.models import Button, CustomJS, DataTable
 from bokeh.plotting import figure
 from bokeh.resources import CDN
@@ -57,6 +62,12 @@ def _plot():
     plot = figure(width=200, height=150)
     plot.scatter([1, 2], [3, 4])
     return plot
+
+
+@pytest.fixture
+def cleanup_extensions() -> Iterator[None]:
+    yield
+    Model.clear_extensions()
 
 
 def _callback(id: str, code: str) -> CustomJS:
@@ -110,6 +121,48 @@ def test_fingerprint_normalizes_integral_json_numbers() -> None:
     assert first.to_json_string() == first.to_json_string()
 
 
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), 2**53, 1e20, 1e21])
+def test_artifact_rejects_numbers_that_javascript_cannot_fingerprint(value: float | int) -> None:
+    artifact = embed(CustomJS(code="return"))
+    with pytest.raises(ArtifactValidationError, match=r"finite|safe integer"):
+        EmbedArtifact(artifact.source, artifact.roots, artifact.requires, {"value": value})
+
+
+def test_resource_requirement_inputs_are_canonicalized_to_tuples() -> None:
+    asset = ResourceAssetRequirement("script", content="void 0")
+    extension = ExtensionRequirement("example", [asset])  # type: ignore[arg-type]
+    requirements = ResourceRequirements(["bokeh/core"], [extension])  # type: ignore[arg-type]
+
+    assert extension.assets == (asset,)
+    assert requirements.components == ("bokeh/core",)
+    assert requirements.extensions == (extension,)
+
+
+def test_fingerprint_does_not_normalize_metadata_that_resembles_a_model_id() -> None:
+    original = embed(_equivalent_graph("retained"))
+
+    def retained_id(value: object) -> str | None:
+        if isinstance(value, dict):
+            model_id = value.get("id")
+            if value.get("type") == "object" and isinstance(model_id, str):
+                return model_id
+            for child in value.values():
+                if (found := retained_id(child)) is not None:
+                    return found
+        elif isinstance(value, list):
+            for child in value:
+                if (found := retained_id(child)) is not None:
+                    return found
+        return None
+
+    model_id = retained_id(original.source)
+    assert model_id is not None
+    actual = EmbedArtifact(original.source, original.roots, original.requires, {"id": model_id})
+    normalized_lookalike = EmbedArtifact(original.source, original.roots, original.requires, {"id": "model-0"})
+
+    assert actual.fingerprint != normalized_lookalike.fingerprint
+
+
 def test_artifact_round_trip_validates_fingerprint_and_schema() -> None:
     artifact = embed(_plot())
     assert EmbedArtifact.from_json(artifact.to_json_string()) == artifact
@@ -124,20 +177,65 @@ def test_artifact_round_trip_validates_fingerprint_and_schema() -> None:
     with pytest.raises(ArtifactValidationError, match="unsupported embedding artifact schema"):
         EmbedArtifact.from_dict(invalid)
 
+    invalid = artifact.to_dict()
+    invalid.pop("fingerprint")
+    with pytest.raises(ArtifactValidationError, match="fingerprint must be a non-empty string"):
+        EmbedArtifact.from_dict(invalid)
+
+    invalid = artifact.to_dict()
+    invalid["buffers"] = []
+    with pytest.raises(ArtifactValidationError, match=r"not part of bokeh\.embed/v1"):
+        EmbedArtifact.from_dict(invalid)
+
+    invalid = artifact.to_dict()
+    invalid["source"]["documents"].append(invalid["source"]["documents"][0])
+    with pytest.raises(ArtifactValidationError, match="exactly one source document"):
+        EmbedArtifact.from_dict(invalid)
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda value: value["roots"][0].update(key=1), "root keys must be strings"),
+        (lambda value: value["roots"][0].update(document=0.5), "document ordinal must be an integer"),
+        (lambda value: value.update(metadata=[]), "metadata must be an object"),
+        (
+            lambda value: value["requires"].update(extensions=[{
+                "name": "bad",
+                "assets": [{"kind": "bogus", "content": "void 0"}],
+            }]),
+            "kind must be 'script' or 'style'",
+        ),
+    ],
+)
+def test_artifact_python_validation_matches_browser_contract(
+    mutate: Callable[[dict[str, Any]], None], message: str,
+) -> None:
+    value = embed(CustomJS(code="root")).to_dict()
+    mutate(value)
+
+    with pytest.raises(ArtifactValidationError, match=message):
+        EmbedArtifact.from_dict(value)
+
 
 def test_shared_fixture_decodes_in_python_without_root_ids() -> None:
     fixture = deepcopy(_fixture("standalone-keyed-roots"))
     assert EmbedArtifact.from_dict(fixture).fingerprint == fixture.pop("fingerprint")
     fixture["bokeh_version"] = __version__
     fixture["source"]["documents"][0]["version"] = __version__
-    artifact = EmbedArtifact.from_dict(fixture)
+    artifact = EmbedArtifact(
+        source=fixture["source"],
+        roots=tuple(ArtifactRoot.from_dict(root) for root in fixture["roots"]),
+        requires=ResourceRequirements.from_dict(fixture["requires"]),
+        metadata=fixture["metadata"],
+        bokeh_version=fixture["bokeh_version"],
+    )
     document = Document.from_json(artifact.source["documents"][0])
     roots = {root.key: document.roots[root.root] for root in artifact.roots}
 
     assert isinstance(roots["primary"], CustomJS)
     assert roots["primary"].code == "primary"
     assert roots["secondary"].code == "secondary"
-    assert artifact.buffers == ({"id": "buffer-0", "encoding": "base64", "data": "AA=="},)
 
 
 def test_named_inputs_preserve_order_and_restore_document_title() -> None:
@@ -164,6 +262,16 @@ def test_compiler_rejects_empty_duplicate_and_python_callback_inputs() -> None:
         embed(plot, callback_policy="error")
 
 
+def test_embed_spec_rejects_inconsistent_public_inputs() -> None:
+    model = CustomJS(code="root")
+    with pytest.raises(EmbedCompileError, match="equal lengths"):
+        EmbedSpec((model,), (), "single")
+    with pytest.raises(EmbedCompileError, match="keys must be unique"):
+        EmbedSpec((model, CustomJS(code="other")), ("root", "root"), "sequence")
+    with pytest.raises(EmbedCompileError, match="serialization must be"):
+        EmbedSpec((model,), ("root",), "single", serialization="typo")  # type: ignore[arg-type]
+
+
 def test_resource_requirements_are_exact_for_representative_models() -> None:
     assert embed(_plot()).requires.components == ("bokeh/core", "bokeh/api")
     assert embed(Button()).requires.components == ("bokeh/core", "bokeh/widgets", "bokeh/api")
@@ -174,13 +282,17 @@ def test_resource_requirements_are_exact_for_representative_models() -> None:
     assert "bokeh/webgl" in embed(webgl).requires.components
 
 
-def test_compiler_captures_inline_custom_model_bundle(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_compiler_captures_inline_custom_model_bundle(
+    monkeypatch: pytest.MonkeyPatch, cleanup_extensions: None,
+) -> None:
     class InlineCustomJS(CustomJS):
         __implementation__ = JavaScript("export const value = 1")
 
     monkeypatch.setattr("bokeh.embed.resources.bundle_models", lambda models: "compiled-custom-models")
     artifact = embed(InlineCustomJS(code="return value"))
-    requirement = next(extension for extension in artifact.requires.extensions if extension.name == "bokeh.custom-models")
+    requirement = next(
+        extension for extension in artifact.requires.extensions if extension.name == "bokeh.custom-models"
+    )
     assert requirement.assets[0].content == "compiled-custom-models"
     assert artifact.page(resources="cdn").index("compiled-custom-models") > artifact.page(resources="cdn").index("bokeh-api")
     with pytest.raises(EmbedMigrationError, match="custom extension"):
@@ -188,7 +300,7 @@ def test_compiler_captures_inline_custom_model_bundle(monkeypatch: pytest.Monkey
 
 
 def test_compiler_adapts_external_and_legacy_package_assets(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cleanup_extensions: None,
 ) -> None:
     class ExternalCustomJS(CustomJS):
         __javascript__ = ["https://example.test/extension.js"]
@@ -197,7 +309,7 @@ def test_compiler_adapts_external_and_legacy_package_assets(
     package = tmp_path / "legacy-package.js"
     package.write_text("globalThis.legacy_package = true")
     monkeypatch.setattr(
-        "bokeh.embed.resources.legacy_bundle_extensions",
+        "bokeh.embed.resources._bundle_extensions",
         lambda objs, resources: [SimpleNamespace(artifact_path=package)],
     )
 
@@ -277,16 +389,24 @@ def test_resource_policy_reports_csp_and_sri_conflicts() -> None:
     with pytest.raises(ResourceConflictError, match="integrity"):
         ResourcePolicy(mode="server", integrity=True)
 
-    resolved = ResourcePolicy(mode="cdn", version="3.8.0", integrity=True).resolve(
-        ResourceRequirements(("bokeh/core",)),
+    resolved = ResourcePolicy(mode="cdn", integrity=True).resolve(
+        ResourceRequirements(("bokeh/core",)), bokeh_version="3.8.0",
     )
     assert resolved.assets[0].integrity is not None
     assert resolved.assets[0].integrity.startswith("sha384-")
     assert resolved.assets[0].crossorigin == "anonymous"
 
+    assert "bokeh-3.8.0" in resolved.assets[0].url
+
+    external = ExtensionRequirement("example", (
+        ResourceAssetRequirement("script", url="https://example.test/extension.js"),
+    ))
+    with pytest.raises(ResourceConflictError, match="integrity policy requires an SRI hash"):
+        ResourcePolicy(mode="cdn", integrity=True).resolve(
+            ResourceRequirements(extensions=(external,)), bokeh_version="3.8.0",
+        )
+
     artifact = embed(_plot())
-    with pytest.raises(ValueError, match="does not match artifact"):
-        artifact.fragment(resources=ResourcePolicy(mode="cdn", version="3.8.0"))
     with pytest.raises(ValueError, match=r"artifact\.external"):
         artifact.fragment(resources=ResourcePolicy(mode="cdn", external_only=True), bootstrap_url="/bootstrap.js")
 
@@ -333,6 +453,21 @@ def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -
     mime = artifact._repr_mimebundle_()
     assert mime["application/vnd.bokeh.embed+json"] == artifact.to_dict()
     assert "text/html" in mime
+
+
+def test_external_bootstrap_renderers_preserve_csp_nonce() -> None:
+    artifact = embed(CustomJS(code="root"))
+    policy = ResourcePolicy(mode="none", nonce="artifact-nonce")
+
+    fragment = artifact.fragment(resources=policy, bootstrap_url="/bootstrap.js")
+    page = artifact.page(resources=policy, bootstrap_url="/bootstrap.js")
+    external = artifact.external(
+        "/artifact.json", resources=policy, bootstrap_url="/bootstrap.js",
+    )
+
+    assert 'nonce="artifact-nonce"' in fragment.script
+    assert 'nonce="artifact-nonce"' in page
+    assert 'nonce="artifact-nonce"' in external.bootstrap
 
 
 def test_retained_facades_delegate_and_preserve_useful_shapes() -> None:

@@ -1191,6 +1191,38 @@ async def test_asgi_transport_sends_message_fragments_atomically() -> None:
     assert sent[3]["bytes"] == b"second-payload"
 
 
+async def test_asgi_transport_close_waits_for_an_in_flight_message() -> None:
+    sent: list[dict[str, Any]] = []
+    first_fragment = asyncio.Event()
+    release_first = asyncio.Event()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+        if len(sent) == 1:
+            first_fragment.set()
+            await release_first.wait()
+
+    transport = _ASGIWebSocketTransport(send, supports_close_reason=True)
+    message = Message(
+        Message.create_header("PATCH-DOC"),
+        {},
+        [Buffer(ID("payload"), b"payload")],
+    )
+
+    sending = asyncio.create_task(transport.send_message(message))
+    await first_fragment.wait()
+    closing = asyncio.create_task(transport.close(1001, "finished"))
+    await asyncio.sleep(0)
+    assert not closing.done()
+
+    release_first.set()
+    await asyncio.gather(sending, closing)
+    await transport.send_message(message)
+
+    assert [event["type"] for event in sent] == ["websocket.send", "websocket.send", "websocket.close"]
+    assert sent[-1] == {"type": "websocket.close", "code": 1001, "reason": "finished"}
+
+
 async def test_websocket_malformed_framing_closes_with_protocol_error() -> None:
     app = BokehASGI(Application())
     token = generate_jwt_token(cast(ID, "session"), expiration=300)

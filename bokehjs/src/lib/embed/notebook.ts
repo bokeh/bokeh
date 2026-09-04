@@ -1,103 +1,84 @@
-import type {Patch} from "document"
-import {Document} from "document"
-import {Receiver} from "protocol/receiver"
-import type {Message} from "protocol/message"
-import {logger} from "core/logging"
-import {size, values} from "core/util/object"
+import type {Document, Patch} from "document"
+import type {ID} from "core/types"
 
-import {mount_document_standalone} from "./standalone"
-import type {DocsJson, RenderItem} from "./json"
-import {_resolve_element, _resolve_root_elements} from "./dom"
+export type NotebookPatch = {
+  /** Discriminator for incremental document updates. */
+  kind: "patch"
+  /** Consecutive, one-based transport revision. */
+  revision: number
+  /** Canonical Bokeh document patch applied to the mounted document. */
+  content: Patch
+  /** IDs corresponding positionally to the separately transported buffers. */
+  buffer_ids?: ID[]
+}
 
-// This exists to allow the @bokeh/jupyter_bokeh extension to store the
-// notebook kernel so that _init_comms can register the comms target.
-// This has to be available at Bokeh.embed.kernels in JupyterLab.
-export const kernels: {[key: string]: unknown} = {}
+/**
+ * A notebook patch could not be applied without violating transport ordering.
+ *
+ * `invalid` identifies a malformed envelope, `gap` asks the host to recover
+ * from a missing revision with a fresh artifact snapshot, and `buffers`
+ * identifies metadata that does not describe the supplied binary payload.
+ */
+export class NotebookPatchError extends Error {
+  override readonly name = "BokehNotebookPatchError"
 
-function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: CommMessage): void {
-  if (comm_msg.buffers.length > 0) {
-    receiver.consume(comm_msg.buffers[0].buffer)
-  } else {
-    receiver.consume(comm_msg.content.data)
-  }
-
-  const msg = receiver.message
-  if (msg != null) {
-    this.apply_json_patch((msg as Message<Patch>).content, msg.buffers)
+  constructor(readonly code: "invalid" | "gap" | "buffers", message: string) {
+    super(message)
   }
 }
 
-function _init_comms(target: string, doc: Document): void {
-  if (typeof Jupyter !== "undefined" && Jupyter.notebook.kernel != null) {
-    logger.info(`Registering Jupyter comms for target ${target}`)
-    const comm_manager = Jupyter.notebook.kernel.comm_manager
-    try {
-      comm_manager.register_target(target, (comm: Comm) => {
-        logger.info(`Registering Jupyter comms for target ${target}`)
-        const r = new Receiver()
-        comm.on_msg(_handle_notebook_comms.bind(doc, r))
-      })
-    } catch (e) {
-      logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
-    }
-  } else if (doc.roots()[0].id in kernels) {
-    logger.info(`Registering JupyterLab comms for target ${target}`)
-    const kernel = kernels[doc.roots()[0].id] as Kernel
-    try {
-      kernel.registerCommTarget(target, (comm: Comm) => {
-        logger.info(`Registering JupyterLab comms for target ${target}`)
-        const r = new Receiver()
-        comm.onMsg = _handle_notebook_comms.bind(doc, r)
-      })
-    } catch (e) {
-      logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
-    }
-  } else if  (typeof google != "undefined" && google.colab.kernel != null) {
-    logger.info(`Registering Google Colab comms for target ${target}`)
-    const comm_manager = google.colab.kernel.comms
-    try {
-      comm_manager.registerTarget(target, async (comm: google.colab.Comm) => {
-        logger.info(`Registering Google Colab comms for target ${target}`)
-        const r = new Receiver()
-        for await (const message of comm.messages) {
-          const content = {data: message.data}
-          const buffers = []
-          for (const buffer of message.buffers ?? []) {
-            buffers.push(new DataView(buffer))
-          }
-          const msg = {content, buffers}
-          _handle_notebook_comms.bind(doc)(r, msg)
-        }
-      })
-    } catch (e) {
-      logger.warn(`Google Colab comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
-    }
-  } else {
-    console.warn("Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest @bokeh/jupyter_bokeh extension is installed. In an exported notebook this warning is expected.")
+function array_buffer(view: DataView): ArrayBuffer {
+  const {buffer, byteOffset, byteLength} = view
+  if (buffer instanceof ArrayBuffer && byteOffset == 0 && byteLength == buffer.byteLength) {
+    return buffer
   }
+  return buffer.slice(byteOffset, byteOffset + byteLength) as ArrayBuffer
 }
 
-export async function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): Promise<void> {
-  if (size(docs_json) != 1) {
-    throw new Error("embed_items_notebook expects exactly one document in docs_json")
-  }
-
-  const document = Document.from_json(values(docs_json)[0])
-
-  for (const item of render_items) {
-    if (item.notebook_comms_target != null) {
-      _init_comms(item.notebook_comms_target, document)
+/**
+ * Create the incremental patch endpoint for one mounted notebook document.
+ *
+ * The receiver accepts only the revision immediately following the last
+ * successfully applied patch. Replayed revisions are harmless no-ops, while a
+ * gap or invalid binary metadata throws [[NotebookPatchError]] so the notebook
+ * host can request a fresh artifact snapshot. A failed `apply_json_patch()`
+ * does not advance the revision: retry or snapshot recovery still begins from
+ * the last document state known to have succeeded.
+ *
+ * @param document the document owned by the output's current `BokehMount`
+ * @param initial_revision the revision represented by its initial artifact
+ * @returns a receiver scoped to that document and revision sequence
+ */
+export function create_notebook_patch_receiver(document: Document, initial_revision = 0):
+(message: unknown, buffers?: DataView[]) => void {
+  let revision = initial_revision
+  return (message, buffers = []) => {
+    if (typeof message != "object" || message == null) {
+      throw new NotebookPatchError("invalid", "the notebook transport received an invalid patch envelope")
     }
-
-    const element = _resolve_element(item)
-    const roots = _resolve_root_elements(item)
-
-    await mount_document_standalone(document, element, {roots})
-
-    for (const root of roots) {
-      if (root instanceof HTMLElement) {
-        root.removeAttribute("id")
-      }
+    const envelope = message as Partial<NotebookPatch>
+    const next_revision = envelope.revision
+    if (envelope.kind != "patch" || typeof next_revision != "number" || !Number.isSafeInteger(next_revision) ||
+        next_revision < 1 || envelope.content == null) {
+      throw new NotebookPatchError("invalid", "the notebook transport received an invalid patch envelope")
     }
+    if (next_revision <= revision) {
+      return // A reconnected transport may replay an already applied patch.
+    }
+    if (next_revision != revision + 1) {
+      throw new NotebookPatchError(
+        "gap", `notebook patch revision ${next_revision} does not follow ${revision}`,
+      )
+    }
+    const ids = envelope.buffer_ids ?? []
+    if (ids.length != buffers.length || new Set(ids).size != ids.length) {
+      throw new NotebookPatchError("buffers", "notebook patch buffer metadata does not match its binary payload")
+    }
+    const mapped = new Map<ID, ArrayBuffer>()
+    for (let index = 0; index < ids.length; index++) {
+      mapped.set(ids[index], array_buffer(buffers[index]))
+    }
+    document.apply_json_patch(envelope.content, mapped)
+    revision = next_revision
   }
 }

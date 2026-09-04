@@ -48,7 +48,6 @@ export type EmbedArtifact = {
   roots: ArtifactRoot[]
   requires: ResourceRequirements
   metadata: {[key: string]: unknown}
-  buffers: {[key: string]: unknown}[]
   fingerprint: string
 }
 
@@ -117,14 +116,22 @@ export function validate_embed_artifact(value: unknown): EmbedArtifact {
     )
   }
   const source = as_record(artifact.source, "artifact.source")
+  if ("buffers" in artifact) {
+    throw new ArtifactError(
+      "schema", "artifact buffers are not part of bokeh.embed/v1; binary server data uses protocol message buffers",
+    )
+  }
   if (source.kind != "standalone" && source.kind != "server") {
     throw new ArtifactError("schema", "artifact.source.kind must be 'standalone' or 'server'")
   }
   as_string(artifact.bokeh_version, "artifact.bokeh_version")
   as_string(artifact.fingerprint, "artifact.fingerprint")
   if (source.kind == "standalone") {
-    if (!Array.isArray(source.documents) || source.documents.length == 0) {
-      throw new ArtifactError("schema", "standalone artifact.source.documents must be a non-empty array")
+    if (!Array.isArray(source.documents) || source.documents.length != 1) {
+      throw new ArtifactError("schema", "standalone artifact.source.documents must contain exactly one document")
+    }
+    if (source.documents.some((document) => !isPlainObject(document))) {
+      throw new ArtifactError("schema", "standalone artifact documents must be objects")
     }
   } else {
     as_string(source.url, "server artifact source.url")
@@ -152,11 +159,24 @@ export function validate_embed_artifact(value: unknown): EmbedArtifact {
     }
     keys.add(key)
     if (source.kind == "standalone") {
+      if ("model_id" in descriptor) {
+        throw new ArtifactError("schema", `standalone root '${key}' cannot declare model_id`)
+      }
       if (!Number.isInteger(descriptor.document) || !Number.isInteger(descriptor.root) ||
           (descriptor.document as number) < 0 || (descriptor.root as number) < 0) {
         throw new ArtifactError("schema", `standalone root '${key}' requires non-negative integer document/root ordinals`)
       }
+      if (descriptor.document != 0) {
+        throw new ArtifactError("schema", `standalone root '${key}' refers to missing document ${descriptor.document}`)
+      }
+      const document = (source.documents as unknown[])[0] as {[key: string]: unknown}
+      if (!Array.isArray(document.roots) || (descriptor.root as number) >= document.roots.length) {
+        throw new ArtifactError("schema", `standalone root '${key}' refers to missing root ${descriptor.root}`)
+      }
     } else {
+      if ("document" in descriptor || "root" in descriptor) {
+        throw new ArtifactError("schema", `server root '${key}' cannot declare document/root ordinals`)
+      }
       as_string(descriptor.model_id, `server root '${key}' model_id`)
     }
   }
@@ -165,12 +185,20 @@ export function validate_embed_artifact(value: unknown): EmbedArtifact {
     typeof component != "string" || !resource_components.has(component as ResourceComponent))) {
     throw new ArtifactError("schema", "artifact.requires.components contains an unknown resource component")
   }
+  if (new Set(requires.components).size != requires.components.length) {
+    throw new ArtifactError("schema", "artifact.requires.components must be unique")
+  }
   if (!Array.isArray(requires.extensions)) {
     throw new ArtifactError("schema", "artifact.requires.extensions must be an array")
   }
+  const extension_names = new Set<string>()
   for (const extension of requires.extensions) {
     const declaration = as_record(extension, "artifact resource extension")
-    as_string(declaration.name, "artifact resource extension name")
+    const name = as_string(declaration.name, "artifact resource extension name")
+    if (extension_names.has(name)) {
+      throw new ArtifactError("schema", `duplicate artifact resource extension '${name}'`)
+    }
+    extension_names.add(name)
     if (!Array.isArray(declaration.assets)) {
       throw new ArtifactError("schema", "artifact resource extension assets must be an array")
     }
@@ -182,12 +210,20 @@ export function validate_embed_artifact(value: unknown): EmbedArtifact {
       if ((typeof resource.url == "string") == (typeof resource.content == "string")) {
         throw new ArtifactError("schema", "artifact extension resources need exactly one of 'url' or 'content'")
       }
+      for (const field of ["integrity", "crossorigin"] as const) {
+        if (resource[field] != null && typeof resource[field] != "string") {
+          throw new ArtifactError("schema", `artifact extension resource ${field} must be a string`)
+        }
+      }
+      if (resource.module != null && typeof resource.module != "boolean") {
+        throw new ArtifactError("schema", "artifact extension resource module must be a boolean")
+      }
+      if (resource.kind == "style" && resource.module == true) {
+        throw new ArtifactError("schema", "artifact extension style resources cannot be modules")
+      }
     }
   }
   as_record(artifact.metadata, "artifact.metadata")
-  if (!Array.isArray(artifact.buffers) || artifact.buffers.some((buffer) => !isPlainObject(buffer))) {
-    throw new ArtifactError("schema", "artifact.buffers must be an array")
-  }
   return artifact as EmbedArtifact
 }
 
@@ -225,26 +261,31 @@ export async function prepare_embed_artifact(value: unknown, policy: ResourcePol
 
 /** Compute the normalized cross-language SHA-256 artifact identity. */
 export async function compute_embed_artifact_fingerprint(artifact: EmbedArtifact): Promise<string> {
-  const payload = normalize_model_ids({
+  const source = artifact.source.kind == "standalone" ? {
+    ...artifact.source,
+    documents: artifact.source.documents.map(normalize_model_ids) as DocJson[],
+  } : artifact.source
+  const payload = {
     schema: artifact.schema,
     bokeh_version: artifact.bokeh_version,
-    source: artifact.source,
+    source,
     roots: artifact.roots,
     requires: artifact.requires,
     metadata: artifact.metadata,
-    buffers: artifact.buffers,
-  })
-  const encoded = new TextEncoder().encode(JSON.stringify(sort_keys(payload)))
+  }
+  const encoded = new TextEncoder().encode(canonical_json(payload))
   const digest = await globalThis.crypto.subtle.digest("SHA-256", encoded)
   return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("")
 }
 
 function normalize_model_ids(value: unknown): unknown {
   const ids: string[] = []
+  const seen = new Set<string>()
   const collect = (child: unknown): void => {
     if (isPlainObject(child)) {
       const record = child as {[key: string]: unknown}
-      if (record.type == "object" && typeof record.id == "string" && !ids.includes(record.id)) {
+      if (record.type == "object" && typeof record.id == "string" && !seen.has(record.id)) {
+        seen.add(record.id)
         ids.push(record.id)
       }
       for (const key of Object.keys(record).sort()) {
@@ -272,16 +313,28 @@ function normalize_model_ids(value: unknown): unknown {
   return replace(value)
 }
 
-function sort_keys(value: unknown): unknown {
-  if (isPlainObject(value)) {
-    return Object.fromEntries(Object.keys(value).sort().map((key) => [
-      key, sort_keys((value as {[key: string]: unknown})[key]),
-    ]))
-  } else if (Array.isArray(value)) {
-    return value.map(sort_keys)
-  } else {
-    return value
+function canonical_json(value: unknown): string {
+  if (value == null || typeof value == "boolean" || typeof value == "string") {
+    return JSON.stringify(value)
   }
+  if (typeof value == "number") {
+    if (!Number.isFinite(value)) {
+      throw new ArtifactError("schema", "artifact numbers must be finite")
+    }
+    if (Number.isInteger(value) && !Number.isSafeInteger(value)) {
+      throw new ArtifactError("schema", `artifact integer ${value} exceeds JavaScript's safe integer range`)
+    }
+    return JSON.stringify(value)
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(canonical_json).join(",")}]`
+  }
+  if (isPlainObject(value)) {
+    const record = value as {[key: string]: unknown}
+    return `{${Object.keys(record).sort().map((key) =>
+      `${JSON.stringify(key)}:${canonical_json(record[key])}`).join(",")}}`
+  }
+  throw new ArtifactError("schema", `artifact value of type '${typeof value}' is not JSON-compatible`)
 }
 
 function prepare_standalone(artifact: EmbedArtifact, resolver?: ModelResolver): PreparedArtifact {
@@ -381,8 +434,11 @@ async function prepare_server(artifact: EmbedArtifact, signal?: AbortSignal): Pr
   let session: ClientSession
   try {
     const args = new URLSearchParams(source.arguments ?? {}).toString()
-    session = await pull_session(websocket_url, token, args)
+    session = await pull_session(websocket_url, token, args, signal)
   } catch (error) {
+    if (signal?.aborted == true) {
+      throw signal.reason
+    }
     throw new ArtifactError(
       "websocket", `failed to open Bokeh server session at ${websocket_url}: ${error}`, error,
       "session", {kind: "artifact", artifact: artifact.fingerprint, url: websocket_url},

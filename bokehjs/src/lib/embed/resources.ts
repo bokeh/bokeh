@@ -49,7 +49,6 @@ export type ResourcePolicyMode =
 /** Host-owned resource resolution, security, and retry choices. */
 export type ResourcePolicy = ResourcePolicyMode | {
   mode: ResourcePolicyMode
-  version?: string
   minified?: boolean
   root_url?: string
   nonce?: string
@@ -97,15 +96,6 @@ function normalize_policy(policy: ResourcePolicy = "auto"): NormalizedPolicy {
   return normalized
 }
 
-function hash_content(content: string): string {
-  let hash = 2166136261
-  for (let i = 0; i < content.length; i++) {
-    hash ^= content.charCodeAt(i)
-    hash = Math.imul(hash, 16777619)
-  }
-  return (hash >>> 0).toString(16)
-}
-
 function normalized_url(url: string): string {
   return new URL(url, document.baseURI).href
 }
@@ -114,7 +104,7 @@ function locator(asset: ResourceAsset): string {
   if ((asset.url == null) == (asset.content == null)) {
     throw new ResourceError("policy", "a resource needs exactly one of 'url' or 'content'", undefined, asset)
   }
-  return asset.url != null ? normalized_url(asset.url) : `inline:${hash_content(asset.content!)}`
+  return asset.url != null ? normalized_url(asset.url) : `inline:${asset.content!}`
 }
 
 function resource_identity(asset: ResourceAsset): string {
@@ -152,7 +142,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
     return validate_assets(policy.assets, policy, mode)
   }
 
-  const version = (policy.version ?? artifact_version).split("+")[0]
+  const version = artifact_version.split("+")[0]
   const minified = policy.minified ?? true
   const suffix = minified ? ".min.js" : ".js"
   const assets: ResourceAsset[] = []
@@ -173,7 +163,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
     assets.push(...extension.assets.map((asset) => ({
       ...asset,
       nonce: asset.nonce ?? policy.nonce,
-      crossorigin: asset.crossorigin ?? policy.crossorigin,
+      crossorigin: asset.crossorigin ?? policy.crossorigin ?? (asset.integrity != null ? "anonymous" : undefined),
     })))
   }
   return validate_assets(assets, policy, mode)
@@ -187,6 +177,9 @@ function validate_assets(assets: ResourceAsset[], policy: NormalizedPolicy, mode
     }
     if (policy.external_only == true && asset.content != null) {
       throw new ResourceError("policy", "external_only resource policy rejects inline content", undefined, asset)
+    }
+    if (asset.kind == "style" && asset.module == true) {
+      throw new ResourceError("policy", "style resources cannot be JavaScript modules", undefined, asset)
     }
     if (policy.integrity == true && asset.url != null && asset.integrity == null) {
       throw new ResourceError(
@@ -203,19 +196,19 @@ function validate_assets(assets: ResourceAsset[], policy: NormalizedPolicy, mode
  * fail, and a failed entry may be retried only when policy opts in.
  */
 export class ResourceLoader {
-  private readonly _registry = new Map<string, Promise<void>>()
-  private readonly _declarations = new Map<string, string>()
-  private readonly _states = new Map<string, "loading" | "loaded" | "failed">()
+  private readonly _records = new Map<string, {
+    identity: string
+    state: "loading" | "loaded" | "failed"
+    promise: Promise<void>
+  }>()
 
   get size(): number {
-    return this._registry.size
+    return this._records.size
   }
 
   /** Forget loader bookkeeping; intended for isolated hosts and tests. */
   clear(): void {
-    this._registry.clear()
-    this._declarations.clear()
-    this._states.clear()
+    this._records.clear()
   }
 
   /** Resolve and load every required asset before artifact deserialization. */
@@ -231,30 +224,31 @@ export class ResourceLoader {
   private _ensure_asset(asset: ResourceAsset, retry: boolean): Promise<void> {
     const resource_locator = `${asset.kind}:${locator(asset)}`
     const identity = resource_identity(asset)
-    const existing_identity = this._declarations.get(resource_locator)
-    if (existing_identity != null && existing_identity != identity) {
+    const existing = this._records.get(resource_locator)
+    if (existing != null && existing.identity != identity) {
       return Promise.reject(new ResourceError(
         "conflict", `conflicting declarations for Bokeh resource ${resource_locator}`, undefined, asset,
       ))
     }
-    this._declarations.set(resource_locator, identity)
-
-    const existing = this._registry.get(identity)
-    if (existing != null && (!retry || this._states.get(identity) != "failed")) {
-      return existing
+    if (existing != null && (!retry || existing.state != "failed")) {
+      return existing.promise
     }
 
-    this._states.set(identity, "loading")
-    const loading = this._load(asset).then(() => {
-      this._states.set(identity, "loaded")
+    const record = {
+      identity,
+      state: "loading" as "loading" | "loaded" | "failed",
+      promise: Promise.resolve(),
+    }
+    record.promise = this._load(asset).then(() => {
+      record.state = "loaded"
     }, (error) => {
-      this._states.set(identity, "failed")
+      record.state = "failed"
       throw error instanceof ResourceError
         ? error
         : new ResourceError("load", `failed to load Bokeh resource ${resource_locator}: ${error}`, error, asset)
     })
-    this._registry.set(identity, loading)
-    return loading
+    this._records.set(resource_locator, record)
+    return record.promise
   }
 
   private _load(asset: ResourceAsset): Promise<void> {
@@ -266,7 +260,7 @@ export class ResourceLoader {
         return normalized_url(value) == url
       })
       if (existing != null) {
-        return Promise.resolve()
+        return this._reuse_existing(existing, asset)
       }
     }
 
@@ -278,21 +272,46 @@ export class ResourceLoader {
         if (asset.url != null) {
           script.src = asset.url
           script.async = false
-          script.onload = () => resolve()
+          script.onload = () => {
+            script.dataset.bokehResourceState = "loaded"
+            resolve()
+          }
           script.onerror = (event) => {
+            script.dataset.bokehResourceState = "failed"
             script.remove()
             reject(new ResourceError("load", `failed to load script ${asset.url}`, event, asset))
           }
         } else {
-          script.text = asset.content ?? ""
+          if (asset.module == true) {
+            const callback = `__bokeh_resource_module_${crypto.randomUUID().replaceAll("-", "")}`
+            const callbacks = globalThis as unknown as Record<string, unknown>
+            callbacks[callback] = () => {
+              delete callbacks[callback]
+              script.dataset.bokehResourceState = "loaded"
+              resolve()
+            }
+            script.onerror = (event) => {
+              delete callbacks[callback]
+              script.dataset.bokehResourceState = "failed"
+              script.remove()
+              reject(new ResourceError("load", "failed to evaluate inline module", event, asset))
+            }
+            script.textContent = `${asset.content ?? ""}\n;globalThis[${JSON.stringify(callback)}]()`
+          } else {
+            script.textContent = asset.content ?? ""
+          }
         }
         element = script
       } else if (asset.url != null) {
         const link = document.createElement("link")
         link.rel = "stylesheet"
         link.href = asset.url
-        link.onload = () => resolve()
+        link.onload = () => {
+          link.dataset.bokehResourceState = "loaded"
+          resolve()
+        }
         link.onerror = (event) => {
+          link.dataset.bokehResourceState = "failed"
           link.remove()
           reject(new ResourceError("load", `failed to load stylesheet ${asset.url}`, event, asset))
         }
@@ -313,9 +332,61 @@ export class ResourceLoader {
         element.nonce = asset.nonce
       }
       element.dataset.bokehResource = resource_identity(asset)
+      element.dataset.bokehResourceState = "loading"
       document.head.append(element)
-      if (asset.url == null) {
+      if (asset.url == null && !(element instanceof HTMLScriptElement && asset.module == true)) {
+        element.dataset.bokehResourceState = "loaded"
         resolve()
+      }
+    })
+  }
+
+  private _reuse_existing(element: HTMLScriptElement | HTMLLinkElement, asset: ResourceAsset): Promise<void> {
+    const actual = {
+      integrity: element.getAttribute("integrity") ?? undefined,
+      crossorigin: element.getAttribute("crossorigin") ?? undefined,
+      nonce: element.nonce.length != 0 ? element.nonce : undefined,
+      module: element instanceof HTMLScriptElement && element.type == "module",
+    }
+    const expected = {
+      integrity: asset.integrity,
+      crossorigin: asset.crossorigin,
+      nonce: asset.nonce,
+      module: asset.module ?? false,
+    }
+    if (!is_equal(actual, expected)) {
+      return Promise.reject(new ResourceError(
+        "conflict", `existing DOM resource ${locator(asset)} has a different integrity, CORS, nonce, or module declaration`,
+        undefined, asset,
+      ))
+    }
+
+    const state = element.dataset.bokehResourceState
+    if (state == "loaded") {
+      return Promise.resolve()
+    }
+    if (state == "failed") {
+      return Promise.reject(new ResourceError("load", `existing DOM resource ${locator(asset)} failed`, undefined, asset))
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      const loaded = () => {
+        element.dataset.bokehResourceState = "loaded"
+        resolve()
+      }
+      const failed = (event: Event) => {
+        element.dataset.bokehResourceState = "failed"
+        reject(new ResourceError("load", `existing DOM resource ${locator(asset)} failed`, event, asset))
+      }
+      element.addEventListener("load", loaded, {once: true})
+      element.addEventListener("error", failed, {once: true})
+
+      const url = asset.url == null ? null : normalized_url(asset.url)
+      const already_loaded = element instanceof HTMLLinkElement
+        ? element.sheet != null
+        : url != null && performance.getEntriesByName(url, "resource").length != 0
+      if (already_loaded) {
+        queueMicrotask(loaded)
       }
     })
   }

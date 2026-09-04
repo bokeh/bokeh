@@ -78,6 +78,10 @@ def test_autoload_template_has_changed() -> None:
             in notebooks has been completed successfully, update this test
             with the new file SHA256 signature."""
 
+def test_legacy_render_item_templates_are_removed() -> None:
+    assert not hasattr(bct, "DOC_JS")
+    assert not hasattr(bct, "PLOT_DIV")
+
 def test_no_white_space_in_top_of_html() -> None:
     lines = get_html_lines("inline")
     any_character = re.compile(r"\S")
