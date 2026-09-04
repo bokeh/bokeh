@@ -4,6 +4,7 @@ import {
   ResourcePayload,
   assertProtocol,
 } from "./protocol"
+import {withTimeout} from "./transport"
 
 declare global {
   interface Window {
@@ -40,8 +41,9 @@ export interface FrontendDocumentSnapshot {
 
 export interface LiveConnection {
   artifactJson: string
+  resourceId: string
   revision: number
-  onMessage(callback: (message: any, buffers: DataView[]) => void): void
+  onMessage(callback: (message: any, buffers: DataView[]) => void | Promise<void>): void
   onClose(callback: () => void): void
   requestResync(): void
   close(): void
@@ -53,6 +55,7 @@ export interface ApplicationViewConnection {
 }
 
 export interface KernelProxy {
+  readonly scope?: object
   requestResource?(resourceId: string): Promise<ResourceRecord>
   openLive?(liveId: string): Promise<LiveConnection>
   openApplicationView?(viewId: string): Promise<ApplicationViewConnection>
@@ -62,7 +65,7 @@ export interface KernelProxy {
 export const STATIC_FALLBACK_ATTRIBUTE = "data-bokeh-notebook-static-fallback"
 
 type ResourceState = {payload: ResourcePayload, ready: Promise<void>}
-type ResourceWaiter = {resolve: (state: ResourceState) => void, reject: (error: unknown) => void}
+type ResourceWaiter = {scope?: object, resolve: (state: ResourceState) => void, reject: (error: unknown) => void}
 type RenderedArtifactState = {artifact: any, mount: NotebookBokehMount}
 
 const resources = new Map<string, ResourceState>()
@@ -107,23 +110,6 @@ export function currentDocumentSnapshot(node: HTMLElement, payload: DisplayPaylo
       error: error instanceof Error ? `${error.name}: ${error.message}` : String(error),
     }
   }
-}
-
-function withTimeout<T>(promise: Promise<T>, milliseconds: number, message: string, signal?: AbortSignal): Promise<T> {
-  return new Promise((resolve, reject) => {
-    let settled = false
-    const finish = (callback: (value: any) => void, value: any) => {
-      if (settled) return
-      settled = true
-      window.clearTimeout(timer)
-      signal?.removeEventListener("abort", aborted)
-      callback(value)
-    }
-    const aborted = () => finish(reject, new DOMException("Rendering was cancelled", "AbortError"))
-    const timer = window.setTimeout(() => finish(reject, new Error(message)), milliseconds)
-    signal?.addEventListener("abort", aborted, {once: true})
-    promise.then((value) => finish(resolve, value), (error) => finish(reject, error))
-  })
 }
 
 function validateVersion(expected: string, pythonVersion?: string): void {
@@ -282,12 +268,13 @@ function markResourceNode(payload: ResourcePayload, node: HTMLElement): void {
   node.append(warning)
 }
 
-function waitForResourceRegistration(resourceId: string, milliseconds: number): Promise<ResourceState> {
+function waitForResourceRegistration(resourceId: string, milliseconds: number, scope?: object): Promise<ResourceState> {
   const existing = resources.get(resourceId)
   if (existing != null) return Promise.resolve(existing)
   return new Promise((resolve, reject) => {
     let timer = 0
     const waiter: ResourceWaiter = {
+      scope,
       resolve: (state) => {
         window.clearTimeout(timer)
         resolve(state)
@@ -316,6 +303,7 @@ function resourceExecution(payload: ResourcePayload, javascript: string, signal:
     const cleanup = () => {
       window.removeEventListener("bokeh:resources-complete", complete)
       window.removeEventListener("bokeh:resources-error", failed)
+      signal.removeEventListener("abort", aborted)
     }
     complete = (event) => {
       if ((event as CustomEvent<Detail>).detail.resource_id !== payload.resource_id) return
@@ -328,19 +316,38 @@ function resourceExecution(payload: ResourcePayload, javascript: string, signal:
       cleanup()
       reject(detail.error ?? new Error("resource loader failed"))
     }
+    const aborted = () => {
+      cleanup()
+      reject(signal.reason ?? new DOMException("Resource loading was cancelled", "AbortError"))
+    }
     window.addEventListener("bokeh:resources-complete", complete)
     window.addEventListener("bokeh:resources-error", failed)
-    signal.addEventListener("abort", cleanup, {once: true})
+    signal.addEventListener("abort", aborted, {once: true})
     const script = document.createElement("script")
     script.dataset.bokehResourceId = payload.resource_id
+    const nonce = payload.policy.nonce
+    if (typeof nonce === "string" && nonce.length != 0) script.nonce = nonce
     script.textContent = javascript
     document.head.append(script)
     script.remove()
   })
 }
 
-export async function loadResources(payload: ResourcePayload, javascript: string, node: HTMLElement, kernel?: KernelProxy): Promise<void> {
+function dependencyCycle(path: readonly string[], resourceId: string): BokehNotebookError {
+  const start = path.indexOf(resourceId)
+  const cycle = [...path.slice(start), resourceId]
+  return new BokehNotebookError(
+    "RESOURCE_DEPENDENCY_CYCLE",
+    `BokehJS resource records contain a dependency cycle: ${cycle.join(" -> ")}.`,
+    "Re-run the cells that published these resources. If the problem persists, restart the kernel and reload the notebook.",
+    {cycle},
+  )
+}
+
+export async function loadResources(payload: ResourcePayload, javascript: string, node: HTMLElement, kernel?: KernelProxy,
+    path: readonly string[] = []): Promise<void> {
   assertProtocol(payload)
+  if (path.includes(payload.resource_id)) throw dependencyCycle(path, payload.resource_id)
   const existing = resources.get(payload.resource_id)
   if (existing != null) {
     await existing.ready
@@ -351,7 +358,10 @@ export async function loadResources(payload: ResourcePayload, javascript: string
   let state!: ResourceState
   const ready = (async () => {
     for (const dependency of payload.dependencies) {
-      await requireResources(dependency, payload.bokeh_version, payload.python_version, kernel, payload.load_timeout)
+      await requireResources(
+        dependency, payload.bokeh_version, payload.python_version, kernel, payload.load_timeout,
+        [...path, payload.resource_id],
+      )
     }
     if (javascript.length === 0) {
       if (window.Bokeh != null) {
@@ -370,7 +380,7 @@ export async function loadResources(payload: ResourcePayload, javascript: string
       await withTimeout(
         resourceExecution(payload, javascript, controller.signal),
         payload.load_timeout,
-        timeoutMessage,
+        new Error(timeoutMessage),
         controller.signal,
       )
     } catch (cause) {
@@ -414,12 +424,13 @@ export async function loadResources(payload: ResourcePayload, javascript: string
 }
 
 async function requireResources(resourceId: string, version: string, pythonVersion: string | undefined,
-    kernel: KernelProxy | undefined, waitTimeout: number): Promise<void> {
+    kernel: KernelProxy | undefined, waitTimeout: number, path: readonly string[] = []): Promise<void> {
+  if (path.includes(resourceId)) throw dependencyCycle(path, resourceId)
   let state = resources.get(resourceId)
   if (state == null && kernel?.requestResource != null) {
     try {
       const record = await kernel.requestResource(resourceId)
-      await loadResources(record.payload, record.javascript, document.createElement("div"), kernel)
+      await loadResources(record.payload, record.javascript, document.createElement("div"), kernel, path)
       state = resources.get(resourceId)
     } catch (error) {
       if (error instanceof BokehNotebookError) throw error
@@ -428,7 +439,7 @@ async function requireResources(resourceId: string, version: string, pythonVersi
   }
   if (state == null) {
     try {
-      state = await waitForResourceRegistration(resourceId, waitTimeout)
+      state = await waitForResourceRegistration(resourceId, waitTimeout, kernel?.scope)
     } catch (cause) {
       throw new BokehNotebookError(
         "RESOURCE_RECORD_MISSING",
@@ -496,6 +507,17 @@ function artifactTargets(node: HTMLElement, artifact: any): {target?: HTMLElemen
   return {targets, roots}
 }
 
+function renderDisconnected(node: HTMLElement, message: string, failure?: unknown): HTMLElement {
+  const disconnected = document.createElement("div")
+  disconnected.className = "bk-notebook-disconnected"
+  disconnected.setAttribute("role", "status")
+  disconnected.style.cssText = "margin:0 0 6px;padding:6px 9px;border-left:3px solid #b36b00;background:#fff8e6;color:#5c3b00;font:12px/1.4 system-ui,sans-serif"
+  disconnected.textContent = message
+  if (failure instanceof BokehNotebookError) disconnected.title = `${failure.code}: ${failure.message}`
+  node.prepend(disconnected)
+  return disconnected
+}
+
 async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: string,
     kernel?: KernelProxy, signal?: AbortSignal): Promise<() => void> {
   signal?.throwIfAborted()
@@ -524,7 +546,6 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   let viewConnection: ApplicationViewConnection | undefined
   let disconnected: HTMLElement | undefined
   let disposed = false
-  let liveUpdates = Promise.resolve()
   const cleanupRoots = () => targets.roots.forEach((root) => root.remove())
   const publishPreHandleFailure = (cause: unknown) => {
     const runtime = window.Bokeh
@@ -540,7 +561,15 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
       )
     targets.roots.forEach((root) => runtime.publish_mount_error?.(root, error))
   }
-  const mountArtifact = async (nextArtifact: any, revision: number): Promise<void> => {
+  const mountArtifact = async (nextArtifact: any, resourceId: string, revision: number): Promise<void> => {
+    await requireResources(
+      resourceId,
+      String(nextArtifact.bokeh_version ?? payload.bokeh_version),
+      payload.python_version,
+      kernel,
+      5000,
+    )
+    signal?.throwIfAborted()
     const previous = mount
     const runtime = window.Bokeh
     if (runtime == null) throw new Error("BokehJS is unavailable after resource loading")
@@ -557,7 +586,7 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
       await withTimeout(
         next.ready,
         payload.connect_timeout,
-        `Timed out after ${payload.connect_timeout} ms`,
+        new Error(`Timed out after ${payload.connect_timeout} ms`),
         signal,
       )
       const published = await Promise.all(targets.roots.map((root) => runtime.when_mounted(root, {signal})))
@@ -598,31 +627,28 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
       }
       viewConnection = await kernel.openApplicationView(payload.view_id)
     }
-    await mountArtifact(artifact, live?.revision ?? 0)
+    await mountArtifact(artifact, live?.resourceId ?? payload.resource_id, live?.revision ?? 0)
     if (live != null) {
-      live.onMessage((message, buffers) => {
-        liveUpdates = liveUpdates.then(async () => {
-          if (disposed) return
-          try {
-            if (message?.kind === "snapshot" && typeof message.artifact === "string" && Number.isSafeInteger(message.revision)) {
-              await mountArtifact(JSON.parse(message.artifact), message.revision)
-            } else {
-              receivePatch?.(message, buffers)
-            }
-          } catch (error) {
-            console.warn("Bokeh live artifact requires a fresh snapshot", error)
-            live?.requestResync()
+      live.onMessage(async (message, buffers) => {
+        if (disposed) return
+        try {
+          if (message?.kind === "snapshot" && typeof message.artifact === "string" &&
+              typeof message.resource_id === "string" && Number.isSafeInteger(message.revision)) {
+            await mountArtifact(JSON.parse(message.artifact), message.resource_id, message.revision)
+          } else {
+            receivePatch?.(message, buffers)
           }
-        })
+        } catch (error) {
+          console.warn("Bokeh live artifact requires a fresh snapshot", error)
+          live?.requestResync()
+        }
       })
     } else if (payload.live_id != null) {
-      disconnected = document.createElement("div")
-      disconnected.className = "bk-notebook-disconnected"
-      disconnected.setAttribute("role", "status")
-      disconnected.style.cssText = "margin:0 0 6px;padding:6px 9px;border-left:3px solid #b36b00;background:#fff8e6;color:#5c3b00;font:12px/1.4 system-ui,sans-serif"
-      disconnected.textContent = "Static artifact — not connected to Python. Re-run show(plot) to reconnect."
-      if (liveFailure instanceof BokehNotebookError) disconnected.title = `${liveFailure.code}: ${liveFailure.message}`
-      node.prepend(disconnected)
+      disconnected = renderDisconnected(
+        node,
+        "Static artifact — not connected to Python. Re-run show(plot) to reconnect.",
+        liveFailure,
+      )
     }
   } catch (error) {
     live?.close()
@@ -634,12 +660,10 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
 
   live?.onClose(() => {
     if (disposed || disconnected != null) return
-    disconnected = document.createElement("div")
-    disconnected.className = "bk-notebook-disconnected"
-    disconnected.setAttribute("role", "status")
-    disconnected.style.cssText = "margin:0 0 6px;padding:6px 9px;border-left:3px solid #b36b00;background:#fff8e6;color:#5c3b00;font:12px/1.4 system-ui,sans-serif"
-    disconnected.textContent = "Static artifact — the Python connection closed. Re-run show(plot) to reconnect."
-    node.prepend(disconnected)
+    disconnected = renderDisconnected(
+      node,
+      "Static artifact — the Python connection closed. Re-run show(plot) to reconnect.",
+    )
   })
 
   let cleaned = false
@@ -663,13 +687,12 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
 }
 
 function temporarilyAttachForRender(node: HTMLElement): () => void {
-  if (node.isConnected && node.getRootNode() === document) return () => undefined
+  if (node.isConnected) return () => undefined
 
   // Jupyter may ask a MIME renderer to render before attaching its Lumino
-  // widget (and virtualized cells may remain detached). AnyWidget hosts may
-  // also mount output inside a shadow root. BokehJS resolves root elements
-  // through document.getElementById(), so give the renderer a temporary,
-  // non-visible light-DOM host for the duration of the embed.
+  // widget (and virtualized cells may remain detached). Give only genuinely
+  // detached renderers a temporary light-DOM host. Reparenting a connected
+  // shadow-DOM output breaks its host styling and lifecycle ownership.
   const parent = node.parentNode
   const next = node.nextSibling
   const host = document.createElement("div")
@@ -694,8 +717,6 @@ export async function renderDisplay(node: HTMLElement, payload: DisplayPayload, 
     signal?: AbortSignal): Promise<() => void> {
   assertProtocol(payload)
   signal?.throwIfAborted()
-  await requireResources(payload.resource_id, payload.bokeh_version, payload.python_version, kernel, 5000)
-  signal?.throwIfAborted()
   const detachTemporaryHost = temporarilyAttachForRender(node)
   try {
     return await renderArtifact(node, payload, html, kernel, signal)
@@ -713,10 +734,16 @@ export async function renderDisplay(node: HTMLElement, payload: DisplayPayload, 
   }
 }
 
-export function resetResourceRegistry(): void {
-  resources.clear()
+export function resetResourceRegistry(scope?: object): void {
+  if (scope == null) resources.clear()
   for (const waiters of resourceWaiters.values()) {
-    for (const waiter of waiters) waiter.reject(new Error("Resource registry reset"))
+    for (const waiter of [...waiters]) {
+      if (scope != null && waiter.scope !== scope) continue
+      waiters.delete(waiter)
+      waiter.reject(new Error("Notebook kernel changed while waiting for resources"))
+    }
   }
-  resourceWaiters.clear()
+  for (const [resourceId, waiters] of resourceWaiters) {
+    if (waiters.size === 0) resourceWaiters.delete(resourceId)
+  }
 }

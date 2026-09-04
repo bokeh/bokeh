@@ -3,6 +3,10 @@ export const ARTIFACT_MIME_TYPE = "application/vnd.bokeh.embed+json"
 export const RESOURCES_MIME_TYPE = "application/vnd.bokeh.resources+json"
 export const DISPLAY_MIME_TYPE = "application/vnd.bokeh.display+json"
 export const FILE_MIME_TYPE = "application/vnd.bokeh.file+json"
+export const NOTEBOOK_COMM_TARGET = "bokeh.notebook.v1"
+export const RESOURCE_COMM_TARGET = "bokeh.resources.v1"
+export const MAX_PENDING_PATCHES = 64
+export const MAX_PENDING_BYTES = 8 * 1024 * 1024
 
 export interface ResourceArtifact {
   id: string

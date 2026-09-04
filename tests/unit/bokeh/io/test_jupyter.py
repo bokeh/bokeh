@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard library imports
+import json
 import sys
 import types
 from pathlib import Path
@@ -23,7 +24,9 @@ from bokeh.io.jupyter import (
     ARTIFACT_MIME_TYPE,
     DISPLAY_MIME_TYPE,
     FILE_MIME_TYPE,
+    NOTEBOOK_COMM_TARGET,
     PROTOCOL_VERSION,
+    RESOURCE_COMM_TARGET,
     RESOURCES_MIME_TYPE,
     _bokehjs_version,
     display_payload,
@@ -47,11 +50,24 @@ def _resolved(mode: str = "cdn") -> ResolvedResources:
     return ResolvedResources(
         ResourceRequirements(),
         ResourcePolicy(mode=mode),
+        "4.0.0",
         (
             ResolvedResource("script", url="https://cdn.example/bokeh.js", integrity="sha384-test", crossorigin="anonymous"),
             ResolvedResource("style", content=".bk-test{}", nonce="nonce"),
         ),
     )
+
+
+def test_python_protocol_constants_come_from_the_packaged_manifest() -> None:
+    manifest = json.loads((Path(__file__).parents[4] / "src/bokeh/jupyter/protocol.json").read_text())
+
+    assert PROTOCOL_VERSION == manifest["version"]
+    assert ARTIFACT_MIME_TYPE == manifest["mime_types"]["artifact"]
+    assert DISPLAY_MIME_TYPE == manifest["mime_types"]["display"]
+    assert FILE_MIME_TYPE == manifest["mime_types"]["file"]
+    assert RESOURCES_MIME_TYPE == manifest["mime_types"]["resources"]
+    assert NOTEBOOK_COMM_TARGET == manifest["comm_targets"]["notebook"]
+    assert RESOURCE_COMM_TARGET == manifest["comm_targets"]["resources"]
 
 
 def test_resource_payload_carries_explicit_policy_requirements_and_assets() -> None:
@@ -72,6 +88,31 @@ def test_resource_payload_carries_explicit_policy_requirements_and_assets() -> N
 def test_resource_identity_ignores_load_timeout_but_not_policy() -> None:
     assert resource_payload(_resolved(), 1000)["resource_id"] == resource_payload(_resolved(), 9000)["resource_id"]
     assert resource_payload(_resolved("cdn"), 1000)["resource_id"] != resource_payload(_resolved("none"), 1000)["resource_id"]
+
+
+def test_resource_identity_includes_complete_emitted_security_and_module_policy() -> None:
+    requirements = ResourceRequirements()
+    policies = [
+        ResourcePolicy(mode="cdn", nonce="first"),
+        ResourcePolicy(mode="cdn", nonce="second"),
+        ResourcePolicy(mode="cdn", crossorigin="anonymous"),
+        ResourcePolicy(mode="cdn", crossorigin="use-credentials"),
+    ]
+    assets = [
+        ResolvedResource("script", url="https://cdn.example/extension.js", nonce="first"),
+        ResolvedResource("script", url="https://cdn.example/extension.js", nonce="second"),
+        ResolvedResource("script", url="https://cdn.example/extension.js", integrity="sha384-one", crossorigin="anonymous"),
+        ResolvedResource("script", url="https://cdn.example/extension.js", integrity="sha384-two", crossorigin="anonymous", module=True),
+    ]
+    resolved = [
+        ResolvedResources(requirements, policy, "4.0.0", (asset,))
+        for policy, asset in zip(policies, assets, strict=True)
+    ]
+
+    artifact_ids = [resource_artifact_ids(item)[0] for item in resolved]
+    resource_ids = [resource_payload(item, 1000)["resource_id"] for item in resolved]
+    assert len(set(artifact_ids)) == len(artifact_ids)
+    assert len(set(resource_ids)) == len(resource_ids)
 
 
 @pytest.mark.parametrize("policy", [

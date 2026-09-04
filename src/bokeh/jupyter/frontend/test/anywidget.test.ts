@@ -1,6 +1,7 @@
 import {describe, expect, it} from "vitest"
 
-import anywidgetFactory, {ANYWIDGET_MAX_PENDING_BYTES, ANYWIDGET_MAX_PENDING_PATCHES} from "../src/anywidget"
+import anywidgetFactory from "../src/anywidget"
+import {MAX_PENDING_BYTES, MAX_PENDING_PATCHES} from "../src/revision_queue"
 
 describe("AnyWidget transport", () => {
   it("bounds pre-render patch history and requests a revisioned snapshot", () => {
@@ -16,7 +17,7 @@ describe("AnyWidget transport", () => {
     const factory = anywidgetFactory()
     factory.initialize({model, signal: controller.signal} as any)
 
-    for (let revision = 1; revision <= ANYWIDGET_MAX_PENDING_PATCHES + 1; revision++) {
+    for (let revision = 1; revision <= MAX_PENDING_PATCHES + 1; revision++) {
       receive?.({kind: "patch", revision, content: {events: []}})
     }
 
@@ -36,7 +37,7 @@ describe("AnyWidget transport", () => {
     const controller = new AbortController()
     anywidgetFactory().initialize({model, signal: controller.signal} as any)
 
-    receive?.({kind: "patch", revision: 1, content: {events: []}}, [new Uint8Array(ANYWIDGET_MAX_PENDING_BYTES + 1)])
+    receive?.({kind: "patch", revision: 1, content: {events: []}}, [new Uint8Array(MAX_PENDING_BYTES + 1)])
 
     expect(sent).toContainEqual({kind: "resync"})
     controller.abort()
@@ -54,13 +55,13 @@ describe("AnyWidget transport", () => {
     const controller = new AbortController()
     anywidgetFactory().initialize({model, signal: controller.signal} as any)
 
-    for (let revision = 1; revision <= ANYWIDGET_MAX_PENDING_PATCHES + 20; revision++) {
+    for (let revision = 1; revision <= MAX_PENDING_PATCHES + 20; revision++) {
       receive?.({kind: "patch", revision, content: {events: []}})
     }
 
     expect(sent.filter((message: any) => message.kind === "resync")).toHaveLength(1)
-    receive?.({kind: "snapshot", revision: 100, artifact: "{}"})
-    for (let revision = 101; revision <= 101 + ANYWIDGET_MAX_PENDING_PATCHES; revision++) {
+    receive?.({kind: "snapshot", revision: 100, artifact: "{}", resource_id: "resource"})
+    for (let revision = 101; revision <= 101 + MAX_PENDING_PATCHES; revision++) {
       receive?.({kind: "patch", revision, content: {events: []}})
     }
     expect(sent.filter((message: any) => message.kind === "resync")).toHaveLength(2)
