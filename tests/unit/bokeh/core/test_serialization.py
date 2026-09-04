@@ -760,6 +760,24 @@ class TestSerializer:
         )
         assert rep["roots"][1]["attributes"]["p3"] == Ref(id=shared.id)
 
+        decoded = Document.from_json(rep)
+        assert decoded.roots[0].p3 is decoded.roots[1].p3
+
+    def test_Document_minimal_ids_round_trips_anonymous_models(self) -> None:
+        child = SomeModel(p0=10)
+        root = SomeModel(p0=20, p3=child)
+
+        doc = Document()
+        doc.add_root(root)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+        decoded = Document.from_json(rep)
+
+        assert len(decoded.roots) == 1
+        decoded_root = decoded.roots[0]
+        assert decoded_root.p0 == 20
+        assert decoded_root.p3.p0 == 10
+
     def test_Model_circular(self) -> None:
         val0 = SomeModel(p0=10)
         val1 = SomeModel(p0=20, p3=val0)

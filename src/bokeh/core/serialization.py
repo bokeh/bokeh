@@ -702,8 +702,19 @@ class Deserializer:
 
         return ndarray
 
-    def _decode_object(self, obj: ObjectRep) -> object:
-        raise NotImplementedError()
+    def _decode_object(self, obj: ObjectRep) -> Model:
+        name = obj["name"]
+        attributes = obj.get("attributes")
+
+        cls = self._resolve_type(name)
+        instance = cls._new(make_id())
+
+        if instance is None:
+            self.error(f"can't instantiate {name}")
+
+        self._initialize_object(instance, attributes)
+
+        return instance
 
     def _decode_object_ref(self, obj: ObjectRefRep) -> Model:
         id = obj["id"]
@@ -724,7 +735,11 @@ class Deserializer:
             self.error(f"can't instantiate {name}(id={id})")
 
         self._references[instance.id] = instance
+        self._initialize_object(instance, attributes)
 
+        return instance
+
+    def _initialize_object(self, instance: Model, attributes: dict[str, AnyRep] | None) -> None:
         # We want to avoid any Model specific initialization that happens with
         # Slider(...) when reconstituting from JSON, but we do need to perform
         # general HasProps machinery that sets properties, so call it explicitly
@@ -736,8 +751,6 @@ class Deserializer:
             decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
             for key, val in decoded_attributes.items():
                 instance.set_from_json(key, val, setter=self._setter)
-
-        return instance
 
     def _resolve_type(self, type: str) -> type[Model]:
         from ..model import Model
