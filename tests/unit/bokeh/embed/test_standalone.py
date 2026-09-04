@@ -19,7 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import json
 from collections import OrderedDict
-from typing import Any
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -28,6 +28,7 @@ import numpy as np
 # Bokeh imports
 import bokeh.resources as resources
 import bokeh.util.version as buv
+from bokeh.core.serialization import ObjectRefRep
 from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.embed.util import RenderRoot, standalone_docs_json
@@ -358,7 +359,9 @@ class Test_json_item:
     def test_root_id(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))
         assert set(out.keys()) == JSON_ITEMS_KEYS
-        assert out['doc']['roots'][0]["id"] == out['root_id']
+        root = out['doc']['roots'][0]
+        assert "id" in root
+        assert cast(ObjectRefRep, root)["id"] == out['root_id']
 
     def test_version(self, monkeypatch: pytest.MonkeyPatch, test_plot: figure) -> None:
         from bokeh import __version__
