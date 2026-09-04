@@ -5,7 +5,7 @@ import {Document} from "@bokehjs/document"
 import * as events from "@bokehjs/document/events"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {to_object} from "@bokehjs/core/util/object"
-import {CustomJS} from "@bokehjs/models"
+import {CustomJS, SetValue} from "@bokehjs/models"
 import {MountSource} from "@bokehjs/api/io"
 import {version as js_version} from "@bokehjs/version"
 
@@ -86,6 +86,23 @@ describe("minimal ID cross-language fixtures", () => {
     const retained = document.to_static_json(false, [primary])
     expect("id" in retained.roots[0]).to.be.true
     expect("id" in retained.roots[1]).to.be.false
+  })
+
+  it("traverses direct properties and mappings without expanding the graph", () => {
+    const shared = CustomJS.create({code: "shared"})
+    const mapping = CustomJS.create({code: "mapping", args: {shared}})
+    const direct = SetValue.create({obj: shared, attr: "code", value: "updated"})
+    const document = new Document({roots: [mapping, direct]})
+
+    const encoded = JSON.stringify(document.to_static_json(false))
+    expect(encoded.includes(shared.id)).to.be.true
+    expect(encoded.includes(mapping.id)).to.be.false
+    expect(encoded.includes(direct.id)).to.be.false
+
+    const external = CustomJS.create({code: "outside-document"})
+    const with_external_id = JSON.stringify(document.to_static_json(false, [external]))
+    expect(with_external_id.includes(external.id)).to.be.false
+    expect(with_external_id.includes("outside-document")).to.be.false
   })
 
   it("keeps canonical documents and live patches ID-full", () => {
