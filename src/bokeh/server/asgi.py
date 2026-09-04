@@ -66,6 +66,11 @@ class _ASGIWebSocketTransport:
         self.closed = False
 
     async def send_message(self, message: Message[Any]) -> None:
+        '''Send a protocol message over the ASGI WebSocket.
+
+        Args:
+            message: The Bokeh protocol message to send.
+        '''
         try:
             async with self._write_lock:
                 if not self.closed:
@@ -83,6 +88,12 @@ class _ASGIWebSocketTransport:
             self.closed = True
 
     async def close(self, code: int = 1000, reason: str = "") -> None:
+        '''Close the ASGI WebSocket connection.
+
+        Args:
+            code: The WebSocket close code.
+            reason: An optional human-readable close reason.
+        '''
         async with self._write_lock:
             if not self.closed:
                 self.closed = True
@@ -92,7 +103,7 @@ class _ASGIWebSocketTransport:
                 try:
                     await self._send(event)
                 except OSError:
-                    pass
+                    log.debug("Could not send websocket close after peer disconnected", exc_info=True)
 
 
 class BokehASGI:

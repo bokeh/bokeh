@@ -58,6 +58,9 @@ type ResourcePolicyMode = Literal[
 
 _RESOURCE_POLICY_MODES = ("none", "inline", "offline", "cdn", "server", "relative", "absolute")
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class ResourceConflictError(ValueError):
     """Raised when a resource policy cannot satisfy artifact requirements."""
@@ -88,6 +91,11 @@ class ResourceAssetRequirement:
             raise ValueError("style resource requirements cannot be JavaScript modules")
 
     def to_dict(self) -> dict[str, Any]:
+        '''Return the JSON-compatible resource requirement.
+
+        Returns:
+            A detached resource requirement mapping.
+        '''
         result: dict[str, Any] = {"kind": self.kind}
         for name in ("url", "content", "integrity", "crossorigin"):
             value = getattr(self, name)
@@ -99,6 +107,14 @@ class ResourceAssetRequirement:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ResourceAssetRequirement:
+        '''Reconstruct a resource requirement from schema data.
+
+        Args:
+            value: The resource requirement mapping.
+
+        Returns:
+            A validated resource requirement.
+        '''
         if not isinstance(value, Mapping):
             raise ValueError("resource asset requirements must be objects")
         if "nonce" in value:
@@ -130,10 +146,23 @@ class ExtensionRequirement:
             raise ValueError("resource extension assets must be ResourceAssetRequirement instances")
 
     def to_dict(self) -> dict[str, Any]:
+        '''Return the JSON-compatible extension requirement.
+
+        Returns:
+            A detached extension requirement mapping.
+        '''
         return {"name": self.name, "assets": [asset.to_dict() for asset in self.assets]}
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ExtensionRequirement:
+        '''Reconstruct an extension requirement from schema data.
+
+        Args:
+            value: The extension requirement mapping.
+
+        Returns:
+            A validated extension requirement.
+        '''
         if not isinstance(value, Mapping):
             raise ValueError("resource extension requirements must be objects")
         assets = value.get("assets", [])
@@ -167,6 +196,11 @@ class ResourceRequirements:
             raise ValueError("Bokeh extension requirements must have unique names")
 
     def to_dict(self) -> dict[str, Any]:
+        '''Return the JSON-compatible requirement set.
+
+        Returns:
+            A detached resource requirements mapping.
+        '''
         return {
             "components": list(self.components),
             "extensions": [extension.to_dict() for extension in self.extensions],
@@ -174,6 +208,14 @@ class ResourceRequirements:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ResourceRequirements:
+        '''Reconstruct resource requirements from schema data.
+
+        Args:
+            value: The resource requirements mapping.
+
+        Returns:
+            A validated resource requirement set.
+        '''
         if not isinstance(value, Mapping):
             raise ValueError("artifact resource requirements must be an object")
         components = value.get("components")
@@ -191,12 +233,23 @@ class ResourceRequirements:
 
     @classmethod
     def dynamic_server(cls) -> ResourceRequirements:
-        '''Return the conservative requirement set for an unknown live document.'''
+        '''Return the conservative requirement set for an unknown live document.
+
+        Returns:
+            Requirements covering every built-in runtime component.
+        '''
         return cls(("bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax", "bokeh/api"))
 
     @classmethod
     def union(cls, *requirements: ResourceRequirements) -> ResourceRequirements:
-        """Return a deterministic exact union of resource requirements."""
+        '''Return a deterministic exact union of resource requirements.
+
+        Args:
+            requirements: The requirement sets to combine.
+
+        Returns:
+            The combined requirement set.
+        '''
         components = cast(tuple[ResourceComponent, ...], tuple(
             component for component in _COMPONENT_NAMES
             if any(component in requirement.components for requirement in requirements)
@@ -227,9 +280,19 @@ class ResolvedResource:
 
     @property
     def identity(self) -> tuple[Any, ...]:
+        '''Return the host-independent identity used for deduplication.
+
+        Returns:
+            A tuple describing the resource declaration.
+        '''
         return (self.kind, self.url, self.content, self.integrity, self.crossorigin, self.module)
 
     def to_dict(self) -> dict[str, Any]:
+        '''Return the JSON-compatible resolved resource.
+
+        Returns:
+            A detached resolved resource mapping.
+        '''
         result: dict[str, Any] = {"kind": self.kind}
         for name in ("url", "content", "integrity", "crossorigin", "nonce"):
             value = getattr(self, name)
@@ -249,6 +312,11 @@ class ResolvedResources:
     assets: tuple[ResolvedResource, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
+        '''Return the JSON-compatible resolved resource set.
+
+        Returns:
+            A detached resolved resources mapping.
+        '''
         return {
             "bokeh_version": self.bokeh_version,
             "policy": self.policy.to_dict(),
@@ -257,6 +325,11 @@ class ResolvedResources:
 
     @property
     def fingerprint(self) -> str:
+        '''Return a stable fingerprint of the resolved resource plan.
+
+        Returns:
+            A hexadecimal SHA-256 digest.
+        '''
         policy = self.policy.to_dict()
         policy.pop("base_dir", None)
         policy.pop("root_dir", None)
@@ -308,7 +381,17 @@ class ResourcePolicy:
 
     @classmethod
     def build(cls, value: ResourcePolicy | Resources | str | None = None, **overrides: Any) -> ResourcePolicy:
-        '''Normalize a policy, legacy ``Resources`` object, mode name, or default.'''
+        '''Normalize a resource policy specification.
+
+        Args:
+            value: A policy, legacy resources object, mode name, or ``None``.
+            overrides: Policy fields that override the supplied value.
+
+        Returns:
+            The normalized resource policy.
+        '''
+        if value is None:
+            value = Resources()
         if isinstance(value, ResourcePolicy):
             if not overrides:
                 return value
@@ -327,10 +410,15 @@ class ResourcePolicy:
                 resource_data["root_dir"] = value.root_dir
             resource_data.update(overrides)
             return cls(**resource_data)
-        mode = cast(ResourcePolicyMode, "cdn" if value is None else value)
+        mode = cast(ResourcePolicyMode, value)
         return cls(mode=mode, **overrides)
 
     def to_dict(self) -> dict[str, Any]:
+        '''Return the JSON-compatible policy configuration.
+
+        Returns:
+            A detached resource policy mapping.
+        '''
         result: dict[str, Any] = {
             "mode": self.mode,
             "minified": self.minified,
@@ -350,7 +438,15 @@ class ResourcePolicy:
         return result
 
     def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__) -> ResolvedResources:
-        '''Resolve exact requirements or raise an actionable policy conflict.'''
+        '''Resolve exact requirements or raise an actionable policy conflict.
+
+        Args:
+            requirements: The artifact requirements to satisfy.
+            bokeh_version: The Bokeh version required by the artifact.
+
+        Returns:
+            The concrete resources selected by this policy.
+        '''
         if self.mode == "none":
             return ResolvedResources(requirements, self, bokeh_version)
 
@@ -368,6 +464,9 @@ class ResourcePolicy:
 
         js_files, js_raw, hashes = resources._resolve("js")
         css_files, css_raw, _ = resources._resolve("css")
+        if self.mode == "relative":
+            js_files = [url.replace("\\", "/") for url in js_files]
+            css_files = [url.replace("\\", "/") for url in css_files]
         assets: list[ResolvedResource] = []
 
         for url in js_files:
@@ -437,6 +536,10 @@ class ResourcePolicy:
         return ResolvedResources(requirements, self, bokeh_version, tuple(deduplicated))
 
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 @dataclass(frozen=True)
 class URL:
     """Opaque URL used by legacy resource bundles and extension routes."""
@@ -468,7 +571,7 @@ _DEFAULT_EXTENSION_CDN = URL("https://unpkg.com")
 extension_dirs: dict[str, Path] = {}
 
 
-def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list[_ExtensionBundle]:
+def bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list[_ExtensionBundle]:
     names: set[str] = set()
     bundles: list[_ExtensionBundle] = []
     extensions = [".min.js", ".js"] if resources.minified else [".js"]
@@ -495,7 +598,7 @@ def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list
             try:
                 package = json.loads(package_path.read_text())
             except json.JSONDecodeError:
-                pass
+                package = None
 
         cdn_url: URL | None = None
         if package is not None:
@@ -530,7 +633,7 @@ def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list
     return bundles
 
 
-def _all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
+def all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
     all_objs: set[HasProps] = set()
     for obj in objs:
         if isinstance(obj, Document):
@@ -555,14 +658,14 @@ def _query_extensions(all_objs: set[HasProps], query: Callable[[type[HasProps]],
     return False
 
 
-def _use_tables(all_objs: set[HasProps]) -> bool:
+def use_tables(all_objs: set[HasProps]) -> bool:
     from ..models.widgets import TableWidget
     return any(isinstance(obj, TableWidget) for obj in all_objs) or _query_extensions(
         all_objs, lambda cls: issubclass(cls, TableWidget),
     )
 
 
-def _use_widgets(all_objs: set[HasProps]) -> bool:
+def use_widgets(all_objs: set[HasProps]) -> bool:
     from ..models.widgets import Widget
     return any(isinstance(obj, Widget) for obj in all_objs) or _query_extensions(
         all_objs, lambda cls: issubclass(cls, Widget),
@@ -591,7 +694,7 @@ def _model_requires_mathjax(model: HasProps) -> bool:
     return False
 
 
-def _use_mathjax(all_objs: set[HasProps]) -> bool:
+def use_mathjax(all_objs: set[HasProps]) -> bool:
     from ..models.glyphs import MathTextGlyph
     from ..models.text import MathText
     return (
@@ -600,7 +703,7 @@ def _use_mathjax(all_objs: set[HasProps]) -> bool:
     )
 
 
-def _use_gl(all_objs: set[HasProps]) -> bool:
+def use_gl(all_objs: set[HasProps]) -> bool:
     from ..models.plots import Plot
     return any(isinstance(obj, Plot) and obj.output_backend == "webgl" for obj in all_objs)
 
@@ -615,23 +718,27 @@ _COMPONENT_NAMES: dict[ResourceComponent, Component] = {
 }
 
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequirements:
     '''Inspect Bokeh objects and return their exact component/extension requirements.'''
-    all_objs = _all_objs(objs)
+    all_objects = all_objs(objs)
     components: list[ResourceComponent] = ["bokeh/core"]
-    if _use_widgets(all_objs):
+    if use_widgets(all_objects):
         components.append("bokeh/widgets")
-    if _use_tables(all_objs):
+    if use_tables(all_objects):
         components.append("bokeh/tables")
-    if _use_gl(all_objs):
+    if use_gl(all_objects):
         components.append("bokeh/webgl")
-    if _use_mathjax(all_objs):
+    if use_mathjax(all_objects):
         components.append("bokeh/mathjax")
     components.append("bokeh/api")
 
     extensions: dict[str, list[ResourceAssetRequirement]] = {}
     seen_assets: set[tuple[Any, ...]] = set()
-    for obj in sorted(all_objs, key=lambda value: (
+    for obj in sorted(all_objects, key=lambda value: (
         value.__class__.__module__, value.__class__.__name__, getattr(value, "id", ""),
     )):
         cls = obj.__class__
@@ -653,13 +760,13 @@ def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequir
             extensions.pop(extension_name, None)
 
     package_resources = Resources(mode="inline", components=[])
-    for package in _bundle_extensions(all_objs, package_resources):
+    for package in bundle_extensions(all_objects, package_resources):
         name = f"package:{package.artifact_path.stem}"
         assets = extensions.setdefault(name, [])
         assets.append(ResourceAssetRequirement("script", content=Resources._inline(package.artifact_path)))
 
     custom_classes = sorted(
-        {obj.__class__ for obj in all_objs if hasattr(obj, "__implementation__")},
+        {obj.__class__ for obj in all_objects if hasattr(obj, "__implementation__")},
         key=lambda cls: (cls.__module__, cls.__name__),
     )
     custom_bundle = bundle_models(custom_classes) if custom_classes else None

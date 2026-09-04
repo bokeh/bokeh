@@ -7,12 +7,17 @@
 
 from __future__ import annotations
 
+# Standard library imports
+from types import SimpleNamespace
+
 # External imports
 import pytest
 
 # Bokeh imports
 import bokeh.embed.server as bes
+from bokeh.document import Document
 from bokeh.embed import EmbedArtifact
+from bokeh.resources import CDN
 
 
 def artifact_from_fragment(fragment: str) -> EmbedArtifact:
@@ -87,6 +92,19 @@ class TestServerSession:
     def test_entire_existing_session_has_no_selected_roots(self) -> None:
         artifact = artifact_from_fragment(bes.server_session(None, session_id="fakesession"))
         assert artifact.roots == ()
+
+    def test_full_page_template_can_embed_named_session_roots(self, test_plot) -> None:
+        document = Document()
+        document.add_root(test_plot)
+        session = SimpleNamespace(document=document, token="faketoken")
+
+        html = bes.server_html_page_for_session(
+            session, CDN, "title",
+            template="{% block contents %}{{ embed(roots.selected) }}{% endblock %}",  # type: ignore[arg-type]
+        )
+
+        assert 'data-bokeh-root="selected"' in html
+        assert 'data-bokeh-artifact=' in html
 
     def test_session_id_is_required(self) -> None:
         with pytest.raises(ValueError, match="session_id"):

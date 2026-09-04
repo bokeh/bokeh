@@ -254,12 +254,16 @@ else
   doc.idle.connect(done);
 """
 
+# Artifact exports contain one mount; use its owned views instead of the legacy
+# process-wide Bokeh.index registry.
+_MOUNT_EXPR = "document.querySelector('[data-bokeh-artifact][data-bokeh-root]').bokehMount"
+
 # Read the bounding box of the first root view and the device pixel ratio.
 _ROOT_VIEW_BBOX_SCRIPT = """\
-const root_view = Bokeh.index.roots[0];
+const root_view = $MOUNT.views[0];
 const {x, y, width, height} = root_view.el.getBoundingClientRect();
 return [x, y, Math.round(width), Math.round(height), window.devicePixelRatio];\
-"""
+""".replace("$MOUNT", _MOUNT_EXPR)
 
 # TODO: consider UIElement like Pane
 _SVGS_SCRIPT = """
@@ -278,29 +282,20 @@ function* collect_svgs(views) {
   }
 }
 
-return [...collect_svgs(Bokeh.index)]
-"""
+return [...collect_svgs($MOUNT.views)]
+""".replace("$MOUNT", _MOUNT_EXPR)
 
-def _SVG_SCRIPT(obj: Model | Document) -> str:
-    from ..document import Document
-
-    if isinstance(obj, Document):
-        ids = [root.id for root in obj.roots]
-    else:
-        ids = [obj.id]
+def _SVG_SCRIPT(_obj: Model | Document) -> str:
     return f"""\
-const ids = new Set({ids})
 function* export_svgs(views) {{
   for (const view of views) {{
     // TODO: use to_blob() API in future
-    if (ids.has(view.model.id)) {{
-        const {{ctx}} = view.export("svg")
-        yield ctx.get_serialized_svg(true)
-    }}
+    const {{ctx}} = view.export("svg")
+    yield ctx.get_serialized_svg(true)
   }}
 }}
 
-return [...export_svgs(Bokeh.index)]
+return [...export_svgs({_MOUNT_EXPR}.views)]
 """
 
 #-----------------------------------------------------------------------------

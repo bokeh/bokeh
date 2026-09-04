@@ -68,7 +68,11 @@ class ArtifactRoot:
             raise ArtifactValidationError("artifact root ordinals must be non-negative")
 
     def to_dict(self) -> dict[str, Any]:
-        '''Return the schema representation of this root address.'''
+        '''Return the schema representation of this root address.
+
+        Returns:
+            A detached root address mapping.
+        '''
         result: dict[str, Any] = {"key": self.key}
         if self.document is not None:
             result.update(document=self.document, root=self.root)
@@ -78,7 +82,14 @@ class ArtifactRoot:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ArtifactRoot:
-        '''Validate and reconstruct a root address from schema data.'''
+        '''Validate and reconstruct a root address from schema data.
+
+        Args:
+            value: The root address mapping.
+
+        Returns:
+            A validated artifact root.
+        '''
         if not isinstance(value, Mapping):
             raise ArtifactValidationError("artifact roots must be objects")
         key = value.get("key")
@@ -185,22 +196,44 @@ class EmbedArtifact:
         return result
 
     def to_dict(self) -> dict[str, Any]:
-        '''Return a detached JSON-compatible envelope including its fingerprint.'''
+        '''Return a detached JSON-compatible envelope including its fingerprint.
+
+        Returns:
+            The complete artifact envelope.
+        '''
         return self._data(include_fingerprint=True)
 
     def to_json(self) -> dict[str, Any]:
-        """Return the JSON-compatible artifact envelope."""
+        '''Return the JSON-compatible artifact envelope.
+
+        Returns:
+            The complete artifact envelope.
+        '''
         return self.to_dict()
 
     def to_json_string(self, *, pretty: bool = False) -> str:
-        '''Serialize the artifact deterministically as compact or indented JSON.'''
+        '''Serialize the artifact as deterministic JSON.
+
+        Args:
+            pretty: Whether to indent the serialized output.
+
+        Returns:
+            The serialized artifact JSON.
+        '''
         if pretty:
             return json.dumps(self.to_dict(), ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False)
         return canonical_json(self.to_dict())
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> EmbedArtifact:
-        '''Validate schema, versioned fields, roots, and fingerprint.'''
+        '''Validate and reconstruct an artifact from schema data.
+
+        Args:
+            value: The artifact envelope.
+
+        Returns:
+            A validated embedding artifact.
+        '''
         if not isinstance(value, Mapping):
             raise ArtifactValidationError("an embedding artifact must be an object")
         schema = value.get("schema")
@@ -245,7 +278,14 @@ class EmbedArtifact:
 
     @classmethod
     def from_json(cls, value: str) -> EmbedArtifact:
-        '''Parse and validate an artifact JSON object.'''
+        '''Parse and validate an artifact JSON object.
+
+        Args:
+            value: The serialized artifact JSON.
+
+        Returns:
+            A validated embedding artifact.
+        '''
         try:
             parsed = json.loads(value)
         except json.JSONDecodeError as error:
@@ -255,14 +295,33 @@ class EmbedArtifact:
         return cls.from_dict(parsed)
 
     def fragment(self, resources: ResourcePolicy | Resources | str | None = "none", **kwargs: Any) -> ArtifactFragment:
-        '''Render composable targets, bootstrap code, and resolved resources.'''
+        '''Render composable targets, bootstrap code, and resolved resources.
+
+        Args:
+            resources: The resource delivery policy.
+            kwargs: Additional fragment renderer options.
+
+        Returns:
+            A composable artifact fragment.
+        '''
         from .renderers import render_fragment
         return render_fragment(self, resources=resources, **kwargs)
 
     def page(self, resources: ResourcePolicy | Resources | str | None = None, *, title: str | None = None,
             template: Template | str | Path | None = None, template_variables: Mapping[str, Any] | None = None,
             **kwargs: Any) -> str:
-        '''Render a complete HTML page from this artifact.'''
+        '''Render a complete HTML page from this artifact.
+
+        Args:
+            resources: The resource delivery policy.
+            title: An optional document title.
+            template: An optional page template.
+            template_variables: Variables supplied to the page template.
+            kwargs: Additional page renderer options.
+
+        Returns:
+            The rendered HTML page.
+        '''
         from .renderers import render_page
         return render_page(
             self, resources=resources, title=title, template=template,
@@ -271,7 +330,16 @@ class EmbedArtifact:
 
     def external(self, payload_url: str, resources: ResourcePolicy | Resources | str | None = "none",
             **kwargs: Any) -> ExternalArtifact:
-        '''Render targets that fetch this artifact from ``payload_url``.'''
+        '''Render targets that fetch this artifact from a URL.
+
+        Args:
+            payload_url: The URL from which the host will fetch the artifact.
+            resources: The resource delivery policy.
+            kwargs: Additional external renderer options.
+
+        Returns:
+            A declaration for an externally stored artifact.
+        '''
         from .renderers import render_external
         return render_external(self, payload_url=payload_url, resources=resources, **kwargs)
 
