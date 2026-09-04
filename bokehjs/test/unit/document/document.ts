@@ -792,10 +792,10 @@ describe("Document", () => {
 
   it("omits minimal IDs for ancestors of cycles", () => {
     const d = new Document()
-    const child0 = new SomeModel({foo: 10})
-    const child1 = new SomeModel({foo: 20, child: child0})
+    const child0 = SomeModel.create({foo: 10})
+    const child1 = SomeModel.create({foo: 20, child: child0})
     child0.child = child1
-    const root = new SomeModel({foo: 30, child: child0})
+    const root = SomeModel.create({foo: 30, child: child0})
     d.add_root(root)
 
     const json = d._to_json(false, "minimal")
