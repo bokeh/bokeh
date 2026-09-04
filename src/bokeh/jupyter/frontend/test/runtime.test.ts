@@ -14,7 +14,6 @@ const artifact = {
   ],
   requires: {components: ["bokeh/core"], extensions: []},
   metadata: {},
-  buffers: [],
 }
 const display: DisplayPayload = {
   protocol_version: PROTOCOL_VERSION,
@@ -83,6 +82,33 @@ describe("artifact runtime", () => {
     cleanup()
     expect(dispose).toHaveBeenCalledOnce()
     expect(node.querySelectorAll(".bk-embed-root")).toHaveLength(0)
+  })
+
+  it("uses the protocol's BokehJS version for Python development artifacts", async () => {
+    const developmentArtifact = {...artifact, bokeh_version: "4.0.0.dev4+100.gabcdef"}
+    const developmentHtml = `<script type="application/vnd.bokeh.embed+json" data-bokeh-artifact-payload>${JSON.stringify(developmentArtifact)}</script>`
+    const handle = {
+      ready: Promise.resolve(),
+      dispose: vi.fn(async () => undefined),
+      document: {to_json: () => ({roots: []}), roots: () => []},
+      root_keys: [],
+      root: () => null,
+      view_lookup: {},
+    }
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount: vi.fn(() => handle),
+      when_mounted: vi.fn(async () => handle),
+      embed: {create_notebook_patch_receiver: vi.fn()},
+    }
+    const node = document.createElement("div")
+    document.body.append(node)
+    await loadResources(resource, "", node)
+
+    const cleanup = await renderDisplay(node, display, developmentHtml)
+
+    expect((window as any).Bokeh.mount).toHaveBeenCalledWith(developmentArtifact, expect.anything())
+    cleanup()
   })
 
   it("cancels and disposes a mount before readiness", async () => {
