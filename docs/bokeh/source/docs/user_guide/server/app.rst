@@ -387,16 +387,16 @@ Python callbacks with Jupyter interactors
 
 When working with Jupyter notebooks, you can use Jupyter interactors to quickly
 create simple GUI forms. Updates to GUI widgets trigger Python callbacks that
-execute in the Python kernel of Jupyter. It is often useful to have these
-callbacks call :func:`~bokeh.io.push_notebook` to push updates to displayed
-plots. For more information, see
+execute in the Python kernel of Jupyter. Display a standalone plot with
+``show(plot)`` and changes made by these callbacks synchronize
+automatically. For more information, see
 :ref:`ug_output_jupyter_notebook_jupyter_interactors`.
 
 .. note::
-    You can push plot updates from Python to BokehJS with
-    :func:`~bokeh.io.push_notebook`. For two-way communication, embed a Bokeh
-    server in the notebook. For example, this lets range and selection updates
-    trigger Python callbacks. For further details, see
+    Live standalone output synchronizes changes from Python to BokehJS. For
+    two-way communication, serve an ASGI Bokeh application in the notebook.
+    For example, this lets range and selection updates trigger Python
+    callbacks. For further details, see
     :bokeh-tree:`examples/server/api/notebook_embed.ipynb`
 
 Python callbacks in server sessions

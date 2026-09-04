@@ -119,10 +119,10 @@ In addition to the required dependencies, some additional packages are
 necessary for certain optional features:
 
 Jupyter
-    Bokeh can display content in classic Jupyter notebooks as well as in
-    JupyterLab. Depending on your setup, there may be additional packages or
-    Jupyter extensions to install. See :ref:`ug_output_jupyter` for full
-    details.
+    The Bokeh wheel includes the JupyterLab and Notebook renderer. No separate
+    ``jupyter_bokeh`` package is needed. In a split setup, install the same
+    Bokeh wheel in the kernel environment and the Jupyter server environment
+    so the server can discover the bundled assets. See :ref:`ug_output_jupyter`.
 
 NodeJS
     Necessary for :ref:`ug_advanced_extensions` or for defining

@@ -35,10 +35,13 @@ if TYPE_CHECKING:
     from ..document import Document
     from ..models.ui import UIElement
     from ..resources import Resources
+    from .state import State
 
 # Bokeh imports
+from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_required
+from .state import curstate
 from .util import (
     _BOKEH_LOADED_EXPR,
     _ROOT_VIEW_BBOX_SCRIPT,
@@ -75,14 +78,27 @@ def get_screenshot_as_png(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: Resources = INLINE,
     width: int | None = None,
     height: int | None = None,
     scale_factor: float = 1,
+    state: State | None = None,
 ) -> Image.Image:
     '''Capture a Bokeh layout as a PNG image using Selenium.'''
+    theme = (state or curstate()).document.theme
+    html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
+    return get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
+
+
+def get_screenshot_as_png_from_html(
+    html: str,
+    *,
+    driver: WebDriver | None = None,
+    timeout: int = 5,
+    scale_factor: float = 1,
+) -> Image.Image:
+    '''Capture a fully assembled Bokeh HTML document as one PNG image.'''
     with tmp_html() as tmp:
-        html = get_layout_html(obj, resources=resources, width=width, height=height)
         with tmp as f:
             f.write(html.encode("utf-8"))
 
@@ -113,13 +129,15 @@ def get_svg(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: Resources = INLINE,
     width: int | None = None,
     height: int | None = None,
+    state: State | None = None,
 ) -> list[str]:
     '''Export a Bokeh layout as a list of SVG strings using Selenium.'''
     with tmp_html() as tmp:
-        html = get_layout_html(obj, resources=resources, width=width, height=height)
+        theme = (state or curstate()).document.theme
+        html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
         with tmp as f:
             f.write(html.encode("utf-8"))
 
@@ -136,13 +154,15 @@ def get_svgs(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: Resources = INLINE,
     width: int | None = None,
     height: int | None = None,
+    state: State | None = None,
 ) -> list[str]:
     '''Export SVG-enabled plots within a Bokeh layout using Selenium.'''
     with tmp_html() as tmp:
-        html = get_layout_html(obj, resources=resources, width=width, height=height)
+        theme = (state or curstate()).document.theme
+        html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
         with tmp as f:
             f.write(html.encode("utf-8"))
 
@@ -167,6 +187,9 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
         _log_console(driver)
+        error = driver.execute_script('return window._bokeh_export_error ?? null')
+        if isinstance(error, str):
+            raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e
 
     driver.execute_script(_WAIT_SCRIPT)

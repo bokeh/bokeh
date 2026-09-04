@@ -16,6 +16,7 @@ dependencies = [
     "pillow >=7.1.0",
     "pyyaml >=3.10",
     "tornado >=6.2; sys_platform != 'emscripten'",
+    "uvicorn >=0.30; sys_platform != 'emscripten'",
     "xyzservices >=2021.09.1",
 ]
 authors = [
@@ -64,8 +65,11 @@ extra = [
 export = [
     "selenium ~=4.2",
 ]
+notebook = [
+    "anywidget >=0.11",
+]
 all = [
-    "bokeh[sampledata,extra,export]",
+    "bokeh[sampledata,extra,export,notebook]",
 ]
 
 [project.urls]
@@ -76,8 +80,12 @@ repository = "https://github.com/bokeh/bokeh"
 [project.scripts]
 bokeh = "bokeh.__main__:main"
 
+[project.entry-points."nbconvert.exporters"]
+bokeh = "bokeh.io.jupyter_export:BokehHTMLExporter"
+
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["bokeh.jupyter.frontend*"]
 
 [tool.setuptools-git-versioning]
 enabled = true

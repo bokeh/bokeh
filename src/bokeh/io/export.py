@@ -336,6 +336,14 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
         width=width, height=height, scale_factor=scale_factor,
     )
 
+
+def _get_screenshot_as_png_from_html(html: str, *, driver: DriverLike | None = None, timeout: int = 5,
+        scale_factor: float = 1, backend: ExportBackendType | None = None) -> Image.Image:
+    backend_module = _resolve_backend(driver, backend)
+    return backend_module.get_screenshot_as_png_from_html(
+        html, driver=driver, timeout=timeout, scale_factor=scale_factor,
+    )
+
 def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: Resources | str = "inline", width: int | None = None, height: int | None = None,
         backend: ExportBackendType | None = None) -> list[str]:

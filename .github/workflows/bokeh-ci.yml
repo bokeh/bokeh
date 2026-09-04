@@ -304,6 +304,41 @@ jobs:
         with:
           collect-coverage: ${{ runner.os != 'Windows' }}
 
+  jupyter:
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare wheel-installed environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.14'
+          source-tree: 'delete'
+
+      - name: Install Playwright browser
+        run: playwright install chromium
+
+      - name: Install notebook host adapters explicitly
+        run: |
+          python -m pip install 'anywidget>=0.11' marimo
+          python -c "import anywidget, marimo; print(anywidget.__version__, marimo.__version__)"
+
+      - name: Verify automatic extension discovery
+        run: |
+          jupyter labextension list 2>&1 | grep -F '@bokeh/bokeh-jupyter'
+          jupyter server extension list 2>&1 | grep -F 'bokeh.jupyter'
+          python -c "import sys; from pathlib import Path; assert (Path(sys.prefix) / 'share/jupyter/labextensions/@bokeh/bokeh-jupyter/package.json').is_file()"
+          python -c "import json, sys; from pathlib import Path; path = Path(sys.prefix) / 'etc/jupyter/jupyter_server_config.d/bokeh-jupyter.json'; assert json.loads(path.read_text()) == {'ServerApp': {'jpserver_extensions': {'bokeh.jupyter': True}}}"
+
+      - name: Run wheel-installed Jupyter tests
+        run: |
+          pytest --color=yes -rs tests/unit/bokeh/io/test_anywidget.py
+          pytest --color=yes tests/unit/bokeh/io/test_jupyter_runtime.py
+          pytest --color=yes tests/integration/test_jupyter_extension.py
+          pytest --color=yes tests/integration/test_marimo.py
+
   minimal-deps:
     needs: [changes, build]
     if: needs.changes.outputs.minimal_deps == 'true' && needs.build.result == 'success'

@@ -45,6 +45,7 @@ packaging = ">=16.8"
 pillow = ">=7.1.0"
 pyyaml = ">=3.10"
 tornado = ">=6.2"
+uvicorn = ">=0.30"
 xyzservices = ">=2021.09.1"
 
 [feature.test.dependencies]

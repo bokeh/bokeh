@@ -108,6 +108,18 @@ def get_screenshot_as_png(
     '''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
 
+    return get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
+
+
+def get_screenshot_as_png_from_html(
+    html: str,
+    *,
+    driver: Browser | BrowserContext | None = None,
+    timeout: int = 5,
+    scale_factor: float = 1,
+) -> Image.Image:
+    '''Capture a fully assembled Bokeh HTML document as one PNG image.'''
+
     png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, driver=driver)
 
     from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
@@ -275,6 +287,9 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
             timeout=timeout_ms,
         )
     except Exception as e:
+        error = page.evaluate("window._bokeh_export_error ?? null")
+        if isinstance(error, str):
+            raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError(
             "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e

@@ -1,89 +1,204 @@
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
-from __future__ import annotations
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
 # Standard library imports
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-# External imports
-import pytest
+import inspect
+from unittest.mock import MagicMock, Mock, patch
 
 # Bokeh imports
-import bokeh.io.notebook as notebook
-import bokeh.io.showing as bis
 from bokeh.application.application import Application
+from bokeh.io.doc import curdoc
+from bokeh.io.state import State, curstate
 from bokeh.models import ColumnDataSource, GlyphRenderer, Plot
 
+# Module under test
+import bokeh.io.showing as bis # isort:skip
 
-@pytest.fixture(autouse=True)
-def no_notebook_mode(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(notebook, "_NOTEBOOK_TYPE", None)
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-@patch("bokeh.io.showing._show_file")
-@patch("bokeh.io.showing.temp_filename", return_value="/tmp/bokeh.html")
-def test_show_uses_temporary_file_by_default(mock_temp_filename: MagicMock, mock_show_file: MagicMock) -> None:
-    plot = Plot()
-    assert bis.show(plot) is None
-    mock_temp_filename.assert_called_once_with("html")
-    mock_show_file.assert_called_once_with(
-        plot, filename="/tmp/bokeh.html", resources=None, title=None, template=None,
-    )
+@patch('bokeh.io.showing._show_with_state')
+def test_show_with_default_args(mock__show_with_state: MagicMock) -> None:
+    curstate().reset()
+    p = Plot()
+    bis.show(p)
+    assert mock__show_with_state.call_count == 1
+    assert mock__show_with_state.call_args[0] == (p, curstate())
+    assert mock__show_with_state.call_args[1] == {}
+    assert curdoc().roots == []
 
-
-@patch("bokeh.io.showing._show_file")
-def test_show_passes_explicit_file_options_to_save_path(mock_show_file: MagicMock) -> None:
-    plot = Plot()
-    bis.show(plot, filename="plot.html", resources="inline", title="Plot")
-    mock_show_file.assert_called_once_with(
-        plot, filename="plot.html", resources="inline", title="Plot", template=None,
-    )
-
-
-@patch("bokeh.io.showing.run_notebook_hook", return_value="handle")
-def test_show_uses_notebook_hook_without_filename(mock_run_notebook_hook: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(notebook, "_NOTEBOOK_TYPE", "jupyter")
-    plot = Plot()
-    assert bis.show(plot, notebook_handle=True) == "handle"
-    mock_run_notebook_hook.assert_called_once_with("jupyter", "doc", plot, True)
-
-
-@patch("bokeh.io.showing._show_file")
-def test_explicit_filename_uses_file_output_in_notebook_mode(mock_show_file: MagicMock,
-        monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(notebook, "_NOTEBOOK_TYPE", "jupyter")
-    plot = Plot()
-    bis.show(plot, filename="plot.html")
-    mock_show_file.assert_called_once()
-
-
-@patch("bokeh.io.showing.run_notebook_hook")
-def test_show_application_uses_notebook_hook(mock_run_notebook_hook: MagicMock,
-        monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(notebook, "_NOTEBOOK_TYPE", "jupyter")
+def test_show_with_app(ipython) -> None:
+    curstate().reset()
     app = Application()
-    bis.show(app, notebook_url="baz")
-    mock_run_notebook_hook.assert_called_once_with("jupyter", "app", app, "baz")
+    with pytest.raises(RuntimeError, match=r"app = serve.*show\(app\)"):
+        bis.show(app)
 
+def test_show_rejects_live_option() -> None:
+    curstate().reset()
+    with pytest.raises(ValueError, match=r"Unexpected show\(\) options for a standalone object: live"):
+        bis.show(Plot(), live=True)
 
-@pytest.mark.parametrize("obj", [1, 2.3, None, "str", GlyphRenderer(data_source=ColumnDataSource())])
-def test_show_rejects_bad_object(obj: object) -> None:
+def test_show_rejects_removed_file_options() -> None:
+    parameters = inspect.signature(bis.show).parameters
+    assert "browser" not in parameters
+    assert "new" not in parameters
+    with pytest.raises(ValueError, match=r"Unexpected show.*browser"):
+        bis.show(Plot(), browser="firefox")
+    with pytest.raises(ValueError, match=r"Unexpected show.*new"):
+        bis.show(Plot(), new="window")
+
+def test_show_rejects_removed_notebook_handle() -> None:
+    parameters = inspect.signature(bis.show).parameters
+    assert "notebook_handle" not in parameters
+    assert "notebook_url" not in parameters
+    with pytest.raises(ValueError, match=r"Unexpected show.*notebook_handle"):
+        bis.show(Plot(), notebook_handle=True)
+
+def test_show_rejects_removed_notebook_url() -> None:
+    with pytest.raises(ValueError, match=r"Unexpected show.*notebook_url"):
+        bis.show(Plot(), notebook_url="https://example.test")
+
+def test_show_rejects_live_option_for_app(ipython) -> None:
+    curstate().reset()
+    from bokeh.io.jupyter_app import NotebookApplication
+    app = object.__new__(NotebookApplication)
+    with patch('bokeh.io.notebook.notebook_environment', return_value=True):
+        with pytest.raises(ValueError, match=r"Unexpected show\(\) options for a managed notebook application: live"):
+            bis.show(app, live=True)
+
+def test_show_rejects_notebook_url_for_app(ipython) -> None:
+    curstate().reset()
+    from bokeh.io.jupyter_app import NotebookApplication
+    app = object.__new__(NotebookApplication)
+    with patch('bokeh.io.notebook.notebook_environment', return_value=True):
+        with pytest.raises(ValueError, match=r"Unexpected show\(\) options for a managed notebook application: notebook_url"):
+            bis.show(app, notebook_url="https://example.test")
+
+def test_show_rejects_unknown_standalone_options() -> None:
+    with pytest.raises(ValueError, match=r"Unexpected show.*made_up"):
+        bis.show(Plot(), made_up=True)
+
+@patch('bokeh.io.showing._show_with_state')
+def test_show_does_not_adds_obj_to_curdoc(m) -> None:
+    curstate().reset()
+    assert curstate().document.roots == []
+    p = Plot()
+    bis.show(p)
+    assert curstate().document.roots == []
+    p = Plot()
+    bis.show(p)
+    assert curstate().document.roots == []
+
+@patch('bokeh.io.showing._show_with_state')
+def test_show_with_multiple_objects(m) -> None:
+    obj0 = Plot()
+    obj1 = Plot()
+    bis.show([])
+    bis.show([obj0])
+    bis.show([obj0, obj1])
+
+@pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer(data_source=ColumnDataSource())])
+def test_show_with_bad_object(obj) -> None:
     with pytest.raises(ValueError):
-        bis.show(obj)  # type: ignore[arg-type]
+        bis.show(obj)
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
-@patch("bokeh.io.showing.get_browser_controller")
-@patch("bokeh.io.showing.save", return_value="/tmp/saved.html")
-def test_show_file_saves_then_opens_browser(mock_save: MagicMock, mock_get_browser_controller: MagicMock) -> None:
-    controller = mock_get_browser_controller.return_value
-    bis._show_file("obj", filename="plot.html", resources="cdn", title="Plot", template=None)  # type: ignore[arg-type]
-    mock_save.assert_called_once_with(
-        "obj", filename="plot.html", resources="cdn", title="Plot", template=None,
-    )
-    controller.open.assert_called_once_with(Path("/tmp/saved.html").resolve().as_uri(), new=2)
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+@patch('bokeh.io.showing.show_doc')
+@patch('bokeh.io.showing._show_file_with_state')
+@patch('bokeh.io.showing.get_browser_controller')
+def test__show_with_state_with_notebook(
+        mock_get_browser_controller: MagicMock,
+        mock__show_file_with_state: MagicMock,
+        mock_show_doc: MagicMock) -> None:
+    s = State()
+
+    p = Plot()
+
+    with patch("bokeh.io.notebook.notebook_environment", return_value=True):
+        bis._show_with_state(p, s)
+
+    assert mock_show_doc.call_count == 1
+    assert mock_show_doc.call_args.args == (p, s)
+    assert mock_show_doc.call_args.kwargs == {}
+
+    assert mock__show_file_with_state.call_count == 0
+
+    s.output_file("foo.html")
+    with patch("bokeh.io.notebook.notebook_environment", return_value=True):
+        bis._show_with_state(p, s)
+
+    assert mock_show_doc.call_count == 2
+    assert mock_show_doc.call_args.args == (p, s)
+    assert mock_show_doc.call_args.kwargs == {}
+
+    assert mock__show_file_with_state.call_count == 0
+    assert mock_get_browser_controller.call_count == 0
+
+@patch('bokeh.io.showing.show_doc')
+@patch('bokeh.io.showing._show_file_with_state')
+@patch('bokeh.io.showing.get_browser_controller')
+def test__show_with_state_with_no_notebook(
+        mock_get_browser_controller: MagicMock,
+        mock__show_file_with_state: MagicMock,
+        mock_show_doc: MagicMock):
+    mock_get_browser_controller.return_value = "controller"
+    s = State()
+
+    s.output_file("foo.html")
+    bis._show_with_state("obj", s)
+
+    assert mock_show_doc.call_count == 0
+
+    assert mock__show_file_with_state.call_count == 1
+    assert mock__show_file_with_state.call_args[0] == ("obj", s, "controller")
+    assert mock__show_file_with_state.call_args[1] == {}
+
+@patch('os.path.abspath')
+@patch('bokeh.io.showing.save')
+def test(mock_save: MagicMock, mock_abspath: MagicMock):
+    controller = Mock()
+    mock_save.return_value = "savepath"
+
+    s = State()
+    s.output_file("foo.html")
+
+    bis._show_file_with_state("obj", s, controller)
+
+    assert mock_save.call_count == 1
+    assert mock_save.call_args[0] == ("obj",)
+    assert mock_save.call_args[1] == {"state": s}
+
+    assert controller.open.call_count == 1
+    assert controller.open.call_args[0] == ("file://savepath",)
+    assert controller.open.call_args[1] == {"new": 2}
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
