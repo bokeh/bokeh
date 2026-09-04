@@ -210,6 +210,27 @@ class NotebookApplication:
     Each call to ``show(app)`` creates an independent browser session. Clearing
     one output closes only that view and session. The ASGI application remains
     alive until :meth:`stop` is called or the kernel exits.
+
+    Args:
+        application:
+            An Application, document-modifying callable, imported Python
+            module, ``.py`` or ``.ipynb`` path, or directory-style app.
+        notebook_url:
+            An optional public notebook URL or proxy URL callback. JupyterLab
+            and Notebook 7 discover their browser route automatically when
+            this is omitted and ``jupyter-server-proxy`` is installed.
+        port:
+            The loopback port, or zero to allocate an unused port.
+        key:
+            An optional stable replacement key. Starting another application
+            with the same key stops this application first.
+        address:
+            The loopback address on which to host the application.
+        uvicorn_kwargs:
+            Additional keyword arguments for the private Uvicorn host.
+        server_kwargs:
+            Additional keyword arguments for :class:`~bokeh.server.asgi.BokehASGI`.
+
     '''
 
     def __init__(self, application: Application | Callable[[Document], None] | ModuleType | str | OSPathLike[str], *,
@@ -298,30 +319,37 @@ class NotebookApplication:
 
     @property
     def application_id(self) -> str:
+        ''' Return the identifier used by notebook application views. '''
         return self._application_id
 
     @property
     def asgi(self) -> BokehASGI:
+        ''' Return the hosted :class:`~bokeh.server.asgi.BokehASGI` application. '''
         return self._asgi
 
     @property
     def sessions(self) -> list[Any]:
+        ''' Return the active Bokeh server sessions for this application. '''
         return self._asgi.core.get_sessions("/")
 
     @property
     def port(self) -> int:
+        ''' Return the loopback port assigned to this application. '''
         return self._host.port
 
     @property
     def status(self) -> str:
+        ''' Return the current application lifecycle status. '''
         return "stopped" if self._stopped else "stopping" if self._stopping else "failed" if self._stop_error is not None else "running"
 
     @property
     def stopped(self) -> bool:
+        ''' Report whether this application has stopped. '''
         return self._stopped
 
     @property
     def url(self) -> str:
+        ''' Return the kernel-local URL for this application. '''
         if self._stopped:
             raise RuntimeError("This notebook application has been stopped; call serve(...) to create a new one")
         return self._url
@@ -348,7 +376,12 @@ class NotebookApplication:
         return value.rstrip("/")
 
     def stop(self) -> None:
-        ''' Stop the ASGI host and wait for orderly Bokeh session shutdown. '''
+        ''' Stop the ASGI host and wait for orderly Bokeh session shutdown.
+
+        Returns:
+            None
+
+        '''
         with self._stop_lock:
             if self._stopped:
                 return
@@ -369,7 +402,12 @@ class NotebookApplication:
                 _unregister_application(self)
 
     async def stop_async(self) -> None:
-        ''' Asynchronously stop the application without blocking the notebook event loop. '''
+        ''' Asynchronously stop the application without blocking the notebook event loop.
+
+        Returns:
+            None
+
+        '''
         await asyncio.to_thread(self.stop)
 
 

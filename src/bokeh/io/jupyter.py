@@ -16,7 +16,6 @@ import re
 import sys
 import threading
 from collections import OrderedDict
-from html import escape
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import (
     Any,
@@ -25,13 +24,11 @@ from typing import (
     TypedDict,
 )
 
-# External imports
-from packaging.version import Version
-
 # Bokeh imports
 from .. import __version__
 from ..embed.artifact import EMBED_ARTIFACT_MIME_TYPE, EmbedArtifact
 from ..embed.resources import ResolvedResource, ResolvedResources
+from ..util.version import _bokehjs_version
 
 __all__ = (
     "ARTIFACT_MIME_TYPE",
@@ -68,80 +65,37 @@ class _NotebookInfo(dict[str, Any]):
     '''A normal diagnostic mapping with an IPython rich representation.'''
 
     def _repr_html_(self) -> str:
-        def badge(text: str, tone: Literal["neutral", "success", "error"]) -> str:
-            colors = {
-                "neutral": ("#4b5563", "#f1f3f4"),
-                "success": ("#137333", "#e6f4ea"),
-                "error": ("#b3261e", "#fce8e6"),
-            }
-            foreground, background = colors[tone]
-            return (
-                f'<span style="display:inline-block;padding:2px 8px;border-radius:999px;white-space:nowrap;'
-                f'font-weight:600;color:{foreground};background:{background}">{escape(text)}</span>'
-            )
-
-        def code(value: Any) -> str:
-            return (
-                '<code style="font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;'
-                f'overflow-wrap:anywhere">{escape(str(value))}</code>'
-            )
-
-        def row(label: str, value: str) -> str:
-            return (
-                '<tr>'
-                '<th scope="row" style="width:34%;padding:7px 12px;text-align:left;vertical-align:top;'
-                'border-top:1px solid var(--jp-border-color2,#e5e5e5);font-weight:600">'
-                f'{escape(label)}</th>'
-                '<td style="padding:7px 12px;vertical-align:top;'
-                f'border-top:1px solid var(--jp-border-color2,#e5e5e5)">{value}</td>'
-                '</tr>'
-            )
+        from ..core.templates import NOTEBOOK_INFO
 
         logo_path = Path(__file__).parents[1] / "jupyter" / "logotype.svg"
         try:
-            encoded_logo = base64.b64encode(logo_path.read_bytes()).decode("ascii")
-            logo = (
-                '<img alt="Bokeh" width="126" height="36" '
-                f'src="data:image/svg+xml;base64,{encoded_logo}" style="display:block">'
-            )
+            logo_data = base64.b64encode(logo_path.read_bytes()).decode("ascii")
         except OSError:
-            logo = '<strong style="font-size:24px;letter-spacing:-1px">Bokeh</strong>'
+            logo_data = None
 
         anywidget = self.get("anywidget_available") is True
         marimo = self.get("marimo_runtime") is True
         if marimo and anywidget:
-            integration = badge("Connected (AnyWidget)", "success")
+            integration: tuple[str, Literal["neutral", "success", "error"]] = ("Connected (AnyWidget)", "success")
         else:
-            integration = badge("Renderer negotiated per output", "neutral")
+            integration = ("Renderer negotiated per output", "neutral")
 
         kernel = self.get("interactive_kernel") is True
         comms = self.get("comm_manager") is True
         extension = self.get("labextension_packaged") is True
         if marimo and anywidget:
-            environment = badge("marimo; AnyWidget connected", "success")
+            environment: tuple[str, Literal["neutral", "success", "error"]] = ("marimo; AnyWidget connected", "success")
         elif not kernel:
-            environment = badge("No interactive kernel detected", "error")
+            environment = ("No interactive kernel detected", "error")
         elif not comms:
-            environment = badge("Interactive kernel; comm unavailable", "error")
+            environment = ("Interactive kernel; comm unavailable", "error")
         else:
-            environment = badge("Interactive kernel; comm available", "success")
-        if not extension:
-            environment += ' <span style="color:#b3261e">Extension package unavailable</span>'
+            environment = ("Interactive kernel; comm available", "success")
 
-        rows = [row("Environment", environment)]
         resource_records = self.get("resource_records", 0)
         managed_applications = self.get("managed_applications", 0)
-        if resource_records or managed_applications:
-            resource_label = "record" if resource_records == 1 else "records"
-            application_label = "application" if managed_applications == 1 else "applications"
-            active = (
-                f"{escape(str(resource_records))} shared resource {resource_label}"
-                f" &middot; {escape(str(managed_applications))} managed {application_label}"
-            )
-            rows.append(row("Active state", active))
-
-        technical_rows = "".join(
-            row(_NOTEBOOK_INFO_LABELS[key], code(self.get(key)))
+        technical_rows = [
+            (_NOTEBOOK_INFO_LABELS[key], self.get(key))
             for key in (
                 "python_version",
                 "python_executable",
@@ -152,31 +106,20 @@ class _NotebookInfo(dict[str, Any]):
                 "file_mime_type",
                 "resources_mime_type",
             )
+        ]
+
+        return NOTEBOOK_INFO.render(
+            bokeh_version=self.get("bokeh_version", "unknown"),
+            logo_data=logo_data,
+            integration=integration,
+            environment=environment,
+            extension_available=extension,
+            resource_records=resource_records,
+            managed_applications=managed_applications,
+            technical_rows=technical_rows,
         )
 
-        return (
-            '<div class="bk-notebook-info" style="max-width:760px;overflow:hidden;'
-            'border:1px solid var(--jp-border-color2,#d9d9d9);border-radius:8px;'
-            'background:var(--jp-layout-color1,#fff);color:var(--jp-ui-font-color1,#222);'
-            'font:13px/1.45 system-ui,sans-serif">'
-            '<div style="display:flex;align-items:center;gap:18px;padding:12px 14px;flex-wrap:wrap">'
-            '<div style="display:flex;align-items:center;padding:5px 9px;border-radius:6px;background:#fff">'
-            f'{logo}</div>'
-            '<div><strong style="display:block;font-size:15px">Notebook integration</strong>'
-            '<span style="color:var(--jp-ui-font-color2,#666)">'
-            f'Bokeh {escape(str(self.get("bokeh_version", "unknown")))}</span></div>'
-            f'<div style="margin-left:auto" aria-label="Frontend integration">{integration}</div>'
-            '</div>'
-            '<table style="width:100%;border-collapse:collapse">'
-            f'{"".join(rows)}</table>'
-            '<details style="border-top:1px solid var(--jp-border-color2,#e5e5e5)">'
-            '<summary style="padding:8px 12px;cursor:pointer;color:var(--jp-ui-font-color2,#666);font-weight:600">'
-            'Technical details</summary>'
-            f'<table style="width:100%;border-collapse:collapse">{technical_rows}</table>'
-            '</details></div>'
-        )
-
-class ArtifactPayload(TypedDict):
+class _ArtifactPayload(TypedDict):
     id: str
     kind: Literal["js", "css"]
     source: Literal["url", "inline"]
@@ -187,7 +130,7 @@ class ArtifactPayload(TypedDict):
     module: NotRequired[bool]
     core: NotRequired[bool]
 
-class ResourcePayload(TypedDict):
+class _ResourcePayload(TypedDict):
     protocol_version: int
     kind: Literal["resources"]
     resource_id: str
@@ -197,11 +140,11 @@ class ResourcePayload(TypedDict):
     requirements: dict[str, Any]
     policy: dict[str, Any]
     dependencies: list[str]
-    artifacts: list[ArtifactPayload]
+    artifacts: list[_ArtifactPayload]
     warnings: list[str]
     load_timeout: int
 
-class DisplayPayload(TypedDict):
+class _DisplayPayload(TypedDict):
     protocol_version: int
     kind: Literal["artifact"]
     resource_id: str
@@ -215,7 +158,7 @@ class DisplayPayload(TypedDict):
     application_id: NotRequired[str]
     application_url: NotRequired[str]
 
-class FilePayload(TypedDict):
+class _FilePayload(TypedDict):
     protocol_version: int
     kind: Literal["file"]
     path: str
@@ -253,7 +196,7 @@ def _resource_value(resource: ResolvedResource) -> str:
     return value
 
 
-def _artifact(resource: ResolvedResource) -> ArtifactPayload:
+def _artifact(resource: ResolvedResource) -> _ArtifactPayload:
     kind: Literal["js", "css"] = "js" if resource.kind == "script" else "css"
     source: Literal["url", "inline"] = "url" if resource.url is not None else "inline"
     value = _resource_value(resource)
@@ -269,7 +212,7 @@ def _artifact(resource: ResolvedResource) -> ArtifactPayload:
         "core": core,
     }
     digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
-    artifact = ArtifactPayload(id=f"{kind}-{source}-{digest}", kind=kind, source=source)
+    artifact = _ArtifactPayload(id=f"{kind}-{source}-{digest}", kind=kind, source=source)
     if resource.url is not None:
         artifact["url"] = resource.url
     for name in ("integrity", "crossorigin", "nonce"):
@@ -282,8 +225,8 @@ def _artifact(resource: ResolvedResource) -> ArtifactPayload:
     return artifact
 
 
-def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
-        dependencies: list[str] | None = None, assets: tuple[ResolvedResource, ...] | None = None) -> ResourcePayload:
+def _resource_payload(resolved: ResolvedResources, load_timeout: int, *,
+        dependencies: list[str] | None = None, assets: tuple[ResolvedResource, ...] | None = None) -> _ResourcePayload:
     '''Describe one explicit common-policy resource delta for a notebook host.'''
     selected = resolved.assets if assets is None else assets
     artifacts = [_artifact(resource) for resource in selected]
@@ -295,7 +238,7 @@ def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
         "artifacts": [item["id"] for item in artifacts],
     }
     digest = hashlib.sha256(json.dumps(descriptor, sort_keys=True).encode()).hexdigest()[:16]
-    return ResourcePayload(
+    return _ResourcePayload(
         protocol_version=PROTOCOL_VERSION,
         kind="resources",
         resource_id=f"bokeh-{digest}",
@@ -310,15 +253,15 @@ def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
         load_timeout=load_timeout,
     )
 
-def resource_artifact_ids(resolved: ResolvedResources) -> list[str]:
+def _resource_artifact_ids(resolved: ResolvedResources) -> list[str]:
     return [_artifact(resource)["id"] for resource in resolved.assets]
 
 
-def resource_asset_subset(resolved: ResolvedResources, artifact_ids: set[str]) -> tuple[ResolvedResource, ...]:
+def _resource_asset_subset(resolved: ResolvedResources, artifact_ids: set[str]) -> tuple[ResolvedResource, ...]:
     return tuple(resource for resource in resolved.assets if _artifact(resource)["id"] in artifact_ids)
 
 
-def resource_javascript(payload: ResourcePayload, assets: tuple[ResolvedResource, ...]) -> str:
+def _resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResource, ...]) -> str:
     ''' Render the single portable owner of a resource bundle's executable data. '''
     from ..core.templates import PORTABLE_RESOURCES_JS
 
@@ -337,12 +280,12 @@ def resource_javascript(payload: ResourcePayload, assets: tuple[ResolvedResource
         artifacts=artifacts,
     )
 
-def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
+def _display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
         live_id: str | None = None, application_id: str | None = None, application_url: str | None = None,
-        connect_timeout: int = 10_000) -> DisplayPayload:
+        connect_timeout: int = 10_000) -> _DisplayPayload:
     if (application_id is None) != (application_url is None):
         raise ValueError("application_id and application_url must be provided together")
-    payload = DisplayPayload(
+    payload = _DisplayPayload(
         protocol_version=PROTOCOL_VERSION,
         kind="artifact",
         resource_id=resource_id,
@@ -361,12 +304,12 @@ def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
         payload["application_url"] = application_url
     return payload
 
-def file_payload(path: str) -> FilePayload:
+def _file_payload(path: str) -> _FilePayload:
     candidate = PurePosixPath(path)
     windows = PureWindowsPath(path)
     if not path or candidate.is_absolute() or windows.is_absolute() or windows.drive or ".." in candidate.parts or "\\" in path:
         raise ValueError("notebook file links must be safe paths relative to the notebook")
-    return FilePayload(
+    return _FilePayload(
         protocol_version=PROTOCOL_VERSION,
         kind="file",
         path=path,
@@ -374,7 +317,12 @@ def file_payload(path: str) -> FilePayload:
 
 
 def notebook_info() -> _NotebookInfo:
-    ''' Return bounded information about the current notebook integration. '''
+    ''' Return bounded information about the current notebook integration.
+
+    Returns:
+        A diagnostic mapping with an HTML representation for notebook display.
+
+    '''
     from .jupyter_app import _APPLICATIONS
     from .notebook import (
         _RESOURCE_RECORDS,
@@ -393,31 +341,21 @@ def notebook_info() -> _NotebookInfo:
         comms = kernel is not None and getattr(kernel, "comm_manager", None) is not None
     except Exception:
         comms = False
-    return _NotebookInfo({
-        "bokeh_version": __version__,
-        "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-        "python_executable": sys.executable,
-        "bokeh_package_path": str(package),
-        "protocol_version": PROTOCOL_VERSION,
-        "artifact_mime_type": ARTIFACT_MIME_TYPE,
-        "display_mime_type": DISPLAY_MIME_TYPE,
-        "file_mime_type": FILE_MIME_TYPE,
-        "resources_mime_type": RESOURCES_MIME_TYPE,
-        "interactive_kernel": notebook_environment(),
-        "anywidget_available": _anywidget_available(),
-        "marimo_runtime": _is_marimo_runtime(),
-        "comm_manager": comms,
-        "labextension_packaged": labextension.is_file(),
-        "resource_records": len(_RESOURCE_RECORDS),
-        "managed_applications": len(_APPLICATIONS),
-    })
-
-def _bokehjs_version(version: str | None) -> str:
-    parsed = Version(version or __version__)
-    release = ".".join(str(part) for part in parsed.release)
-    if parsed.dev is not None:
-        return f"{release}-dev.{parsed.dev}"
-    if parsed.pre is not None:
-        kind, number = parsed.pre
-        return f"{release}-{kind}.{number}"
-    return release
+    return _NotebookInfo(
+        bokeh_version=__version__,
+        python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+        python_executable=sys.executable,
+        bokeh_package_path=str(package),
+        protocol_version=PROTOCOL_VERSION,
+        artifact_mime_type=ARTIFACT_MIME_TYPE,
+        display_mime_type=DISPLAY_MIME_TYPE,
+        file_mime_type=FILE_MIME_TYPE,
+        resources_mime_type=RESOURCES_MIME_TYPE,
+        interactive_kernel=notebook_environment(),
+        anywidget_available=_anywidget_available(),
+        marimo_runtime=_is_marimo_runtime(),
+        comm_manager=comms,
+        labextension_packaged=labextension.is_file(),
+        resource_records=len(_RESOURCE_RECORDS),
+        managed_applications=len(_APPLICATIONS),
+    )
