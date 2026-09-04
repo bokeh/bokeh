@@ -40,7 +40,7 @@ from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, String
 from ..core.property.validation import without_property_validation
-from ..core.serialization import ObjectRefRep, Ref, Serializer
+from ..core.serialization import ObjectRefRep, ObjectRep, Ref, Serializer
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -557,10 +557,23 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    def to_serializable(self, serializer: Serializer) -> ObjectRefRep:
-        serializer.add_ref(self, self.ref)
+    def to_serializable(self, serializer: Serializer) -> ObjectRep | ObjectRefRep:
+        ''' Create a serialized representation of this model.
+
+        Args:
+            serializer: The serializer defining model identity policy.
+
+        Returns:
+            A model representation, with an ID when the serializer requires one.
+        '''
+        use_id = serializer.use_model_id(self)
+        if use_id:
+            serializer.add_ref(self, self.ref)
 
         super_rep = super().to_serializable(serializer)
+        if not use_id:
+            return super_rep
+
         rep = ObjectRefRep(
             type="object",
             name=super_rep["name"],
