@@ -75,8 +75,10 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
         const comm = kernel.createComm(NOTEBOOK_COMM_TARGET)
         const queued: Array<{message: any, buffers: DataView[]}> = []
         let receive: ((message: any, buffers: DataView[]) => void) | undefined
+        let receiveClose: (() => void) | undefined
         let settled = false
         let closed = false
+        let closedByOwner = false
         const timer = window.setTimeout(() => {
           if (settled) return
           settled = true
@@ -95,12 +97,17 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             receive = callback
             for (const item of queued.splice(0)) callback(item.message, item.buffers)
           },
+          onClose(callback) {
+            receiveClose = callback
+            if (closed && !closedByOwner) queueMicrotask(callback)
+          },
           requestResync() {
             try {comm.send({kind: "resync"})}
             catch { /* A closed connection recovers on the next renderer mount. */ }
           },
           close() {
             if (closed) return
+            closedByOwner = true
             closed = true
             safelyCloseComm(comm)
           },
@@ -133,6 +140,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           }
         }
         comm.onClose = () => {
+          const wasClosed = closed
           closed = true
           if (!settled) {
             settled = true
@@ -142,6 +150,8 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
               `The live document ${liveId} closed before sending its snapshot.`,
               "Re-run the cell that called show(...).",
             ))
+          } else if (!wasClosed) {
+            receiveClose?.()
           }
         }
         try {comm.open({live_id: liveId})}

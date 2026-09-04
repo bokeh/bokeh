@@ -7,9 +7,26 @@ import {
 
 declare global {
   interface Window {
-    Bokeh?: any
-    _bokeh_notebook_artifacts?: Set<string>
+    Bokeh?: NotebookBokehRuntime
   }
+}
+
+interface NotebookBokehMount {
+  readonly ready: Promise<void>
+  readonly document: any
+  readonly root_keys: readonly string[]
+  readonly view_lookup: unknown
+  root(key: string): any
+  dispose(): Promise<void>
+}
+
+interface NotebookBokehRuntime {
+  readonly version: string
+  mount(source: any, targetOrOptions: any, options?: any): NotebookBokehMount
+  when_mounted(target: HTMLElement, options?: {signal?: AbortSignal}): Promise<NotebookBokehMount>
+  publish_mount_error?(target: HTMLElement, error: unknown): void
+  MountError?: new(kind: string, message: string, cause?: unknown, rootKey?: string, phase?: string) => Error
+  embed?: {create_notebook_patch_receiver?: (document: any, revision: number) => (message: any, buffers?: DataView[]) => void}
 }
 
 export interface ResourceRecord {payload: ResourcePayload, javascript: string}
@@ -25,6 +42,7 @@ export interface LiveConnection {
   artifactJson: string
   revision: number
   onMessage(callback: (message: any, buffers: DataView[]) => void): void
+  onClose(callback: () => void): void
   requestResync(): void
   close(): void
 }
@@ -45,7 +63,7 @@ export const STATIC_FALLBACK_ATTRIBUTE = "data-bokeh-notebook-static-fallback"
 
 type ResourceState = {payload: ResourcePayload, ready: Promise<void>}
 type ResourceWaiter = {resolve: (state: ResourceState) => void, reject: (error: unknown) => void}
-type RenderedArtifactState = {artifact: any, mount: any}
+type RenderedArtifactState = {artifact: any, mount: NotebookBokehMount}
 
 const resources = new Map<string, ResourceState>()
 const MAX_RESOURCE_RECORDS = 64
@@ -91,17 +109,20 @@ export function currentDocumentSnapshot(node: HTMLElement, payload: DisplayPaylo
   }
 }
 
-function timeout<T>(milliseconds: number, message: string, signal?: AbortSignal): Promise<T> {
-  return new Promise((_, reject) => {
-    const aborted = () => {
+function withTimeout<T>(promise: Promise<T>, milliseconds: number, message: string, signal?: AbortSignal): Promise<T> {
+  return new Promise((resolve, reject) => {
+    let settled = false
+    const finish = (callback: (value: any) => void, value: any) => {
+      if (settled) return
+      settled = true
       window.clearTimeout(timer)
-      reject(new DOMException("Rendering was cancelled", "AbortError"))
-    }
-    const timer = window.setTimeout(() => {
       signal?.removeEventListener("abort", aborted)
-      reject(new Error(message))
-    }, milliseconds)
+      callback(value)
+    }
+    const aborted = () => finish(reject, new DOMException("Rendering was cancelled", "AbortError"))
+    const timer = window.setTimeout(() => finish(reject, new Error(message)), milliseconds)
     signal?.addEventListener("abort", aborted, {once: true})
+    promise.then((value) => finish(resolve, value), (error) => finish(reject, error))
   })
 }
 
@@ -346,10 +367,12 @@ export async function loadResources(payload: ResourcePayload, javascript: string
     const controller = new AbortController()
     const timeoutMessage = `Timed out after ${payload.load_timeout} ms`
     try {
-      await Promise.race([
+      await withTimeout(
         resourceExecution(payload, javascript, controller.signal),
-        timeout<void>(payload.load_timeout, timeoutMessage, controller.signal),
-      ])
+        payload.load_timeout,
+        timeoutMessage,
+        controller.signal,
+      )
     } catch (cause) {
       const timedOut = cause instanceof Error && cause.message === timeoutMessage
       throw new BokehNotebookError(
@@ -496,23 +519,55 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   }
 
   const targets = artifactTargets(node, artifact)
-  let mount: any
+  let mount: NotebookBokehMount | undefined
   let receivePatch: ((message: any, buffers?: DataView[]) => void) | undefined
   let viewConnection: ApplicationViewConnection | undefined
   let disconnected: HTMLElement | undefined
   let disposed = false
   let liveUpdates = Promise.resolve()
   const cleanupRoots = () => targets.roots.forEach((root) => root.remove())
+  const publishPreHandleFailure = (cause: unknown) => {
+    const runtime = window.Bokeh
+    if (runtime?.publish_mount_error == null) return
+    const error = runtime.MountError == null
+      ? cause
+      : new runtime.MountError(
+        "source",
+        "The notebook host failed before it could create a BokehMount.",
+        cause,
+        undefined,
+        "bootstrap",
+      )
+    targets.roots.forEach((root) => runtime.publish_mount_error?.(root, error))
+  }
   const mountArtifact = async (nextArtifact: any, revision: number): Promise<void> => {
     const previous = mount
-    const next = targets.target != null
-      ? window.Bokeh.mount(nextArtifact, targets.target, {resources: "none", signal})
-      : window.Bokeh.mount(nextArtifact, {targets: targets.targets, resources: "none", signal})
+    const runtime = window.Bokeh
+    if (runtime == null) throw new Error("BokehJS is unavailable after resource loading")
+    let next: NotebookBokehMount
     try {
-      await Promise.race([
+      next = targets.target != null
+        ? runtime.mount(nextArtifact, targets.target, {resources: "none", signal})
+        : runtime.mount(nextArtifact, {targets: targets.targets, resources: "none", signal})
+    } catch (cause) {
+      publishPreHandleFailure(cause)
+      throw cause
+    }
+    try {
+      await withTimeout(
         next.ready,
-        timeout<void>(payload.connect_timeout, `Timed out after ${payload.connect_timeout} ms`, signal),
-      ])
+        payload.connect_timeout,
+        `Timed out after ${payload.connect_timeout} ms`,
+        signal,
+      )
+      const published = await Promise.all(targets.roots.map((root) => runtime.when_mounted(root, {signal})))
+      if (published.some((handle) => handle !== next) || next.view_lookup == null) {
+        throw new BokehNotebookError(
+          "MOUNT_OWNERSHIP_FAILED",
+          "The notebook output did not publish its BokehMount on every owned target.",
+          "Reload the notebook page, then re-run the display cell.",
+        )
+      }
     } catch (error) {
       void next.dispose?.()
       throw error
@@ -523,7 +578,7 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     renderedArtifacts.set(node, {artifact, mount})
     receivePatch = live == null
       ? undefined
-      : window.Bokeh.embed?.create_notebook_patch_receiver?.(mount.document, revision)
+      : runtime.embed?.create_notebook_patch_receiver?.(mount.document, revision)
     if (live != null && receivePatch == null) {
       throw new BokehNotebookError(
         "LIVE_SYNC_SETUP_FAILED",
@@ -576,6 +631,16 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     cleanupRoots()
     throw error
   }
+
+  live?.onClose(() => {
+    if (disposed || disconnected != null) return
+    disconnected = document.createElement("div")
+    disconnected.className = "bk-notebook-disconnected"
+    disconnected.setAttribute("role", "status")
+    disconnected.style.cssText = "margin:0 0 6px;padding:6px 9px;border-left:3px solid #b36b00;background:#fff8e6;color:#5c3b00;font:12px/1.4 system-ui,sans-serif"
+    disconnected.textContent = "Static artifact — the Python connection closed. Re-run show(plot) to reconnect."
+    node.prepend(disconnected)
+  })
 
   let cleaned = false
   const cleanup = () => {
@@ -654,5 +719,4 @@ export function resetResourceRegistry(): void {
     for (const waiter of waiters) waiter.reject(new Error("Resource registry reset"))
   }
   resourceWaiters.clear()
-  window._bokeh_notebook_artifacts = new Set()
 }

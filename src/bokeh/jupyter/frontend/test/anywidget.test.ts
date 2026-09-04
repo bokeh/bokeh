@@ -41,4 +41,30 @@ describe("AnyWidget transport", () => {
     expect(sent).toContainEqual({kind: "resync"})
     controller.abort()
   })
+
+  it("requests only one resync while waiting for a replacement snapshot", () => {
+    let receive: ((data: unknown, buffers?: ArrayBufferView[]) => void) | undefined
+    const sent: unknown[] = []
+    const model = {
+      get() {return undefined},
+      on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
+      off() {},
+      send(data: unknown) {sent.push(data)},
+    }
+    const controller = new AbortController()
+    anywidgetFactory().initialize({model, signal: controller.signal} as any)
+
+    for (let revision = 1; revision <= ANYWIDGET_MAX_PENDING_PATCHES + 20; revision++) {
+      receive?.({kind: "patch", revision, content: {events: []}})
+    }
+
+    expect(sent.filter((message: any) => message.kind === "resync")).toHaveLength(1)
+    receive?.({kind: "snapshot", revision: 100, artifact: "{}"})
+    for (let revision = 101; revision <= 101 + ANYWIDGET_MAX_PENDING_PATCHES; revision++) {
+      receive?.({kind: "patch", revision, content: {events: []}})
+    }
+    expect(sent.filter((message: any) => message.kind === "resync")).toHaveLength(2)
+    controller.abort()
+  })
+
 })
