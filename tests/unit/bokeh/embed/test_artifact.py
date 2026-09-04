@@ -27,26 +27,25 @@ from bokeh.embed import (
     ArtifactValidationError,
     EmbedArtifact,
     EmbedCompileError,
-    EmbedMigrationError,
     EmbedSpec,
     ResourceAssetRequirement,
     ResourceConflictError,
     ResourcePolicy,
-    autoload_static,
     components,
     embed,
     embed_server,
     file_html,
-    json_item,
     server_document,
     server_session,
 )
 from bokeh.embed.resources import ExtensionRequirement, ResourceRequirements
+from bokeh.events import DocumentReady
 from bokeh.io import save
 from bokeh.model import Model
 from bokeh.models import Button, CustomJS, DataTable
 from bokeh.plotting import figure
 from bokeh.resources import CDN
+from bokeh.themes import Theme
 from bokeh.util.compiler import JavaScript
 
 FIXTURE_PATH = Path(__file__).parents[4] / "bokehjs" / "test" / "unit" / "embed" / "artifact_fixtures.json"
@@ -248,6 +247,71 @@ def test_named_inputs_preserve_order_and_restore_document_title() -> None:
     assert document.title == "Original"
 
 
+def test_compiler_staging_does_not_change_model_document_ownership() -> None:
+    unattached = CustomJS(code="unattached")
+    first = CustomJS(code="first")
+    second = CustomJS(code="second")
+    first_document = Document()
+    second_document = Document()
+    first_document.add_root(first)
+    second_document.add_root(second)
+
+    embed({"unattached": unattached, "first": first, "second": second})
+
+    assert unattached.document is None
+    assert first.document is first_document
+    assert second.document is second_document
+
+
+def test_compiler_staging_preserves_complete_document_context() -> None:
+    theme = Theme(json={"attrs": {"Button": {"button_type": "danger"}}})
+    document = Document(title="Original", theme=theme)
+    document.config.color_scheme = "dark"
+    document.js_on_event(DocumentReady, CustomJS(code="ready"))
+    document.add_root(Button(label="themed"))
+
+    artifact = embed(document)
+    decoded = Document.from_json(artifact.source["documents"][0])
+
+    assert decoded.title == "Original"
+    assert decoded.config.color_scheme == "dark"
+    assert decoded.roots[0].button_type == "danger"
+    assert "callbacks" in artifact.source["documents"][0]
+    assert document.roots[0].document is document
+    assert document.theme is theme
+
+
+def test_compiler_staging_applies_explicit_theme_and_restores_model() -> None:
+    button = Button(label="themed")
+    previous_theme = button.themed_values()
+    theme = Theme(json={"attrs": {"Button": {"button_type": "danger"}}})
+
+    artifact = embed(button, theme=theme)
+    decoded = Document.from_json(artifact.source["documents"][0])
+
+    assert decoded.roots[0].button_type == "danger"
+    assert button.button_type == "default"
+    assert button.themed_values() is previous_theme
+
+
+def test_compiler_staging_restores_ownership_after_serialization_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    model = CustomJS(code="failure")
+    document = Document()
+    document.add_root(model)
+
+    def fail(*_args: Any, **_kwargs: Any) -> None:
+        assert model.document is not document
+        raise RuntimeError("serialization failed")
+
+    monkeypatch.setattr(Document, "to_static_json", fail)
+    with pytest.raises(RuntimeError, match="serialization failed"):
+        embed(model)
+
+    assert model.document is document
+
+
 def test_compiler_rejects_empty_duplicate_and_python_callback_inputs() -> None:
     with pytest.raises(EmbedCompileError, match="no root"):
         embed(Document())
@@ -295,7 +359,7 @@ def test_compiler_captures_inline_custom_model_bundle(
     )
     assert requirement.assets[0].content == "compiled-custom-models"
     assert artifact.page(resources="cdn").index("compiled-custom-models") > artifact.page(resources="cdn").index("bokeh-api")
-    with pytest.raises(EmbedMigrationError, match="custom extension"):
+    with pytest.raises(ValueError, match="custom extension"):
         components(InlineCustomJS(code="return value"))
 
 
@@ -503,18 +567,6 @@ def test_save_and_server_facades_use_artifact_routes(tmp_path: Path) -> None:
     selected = server_session(model, session_id="session", url="https://example.test/app", resources=None)
     assert model.id in selected
     assert 'data-bokeh-root="root"' in selected
-
-
-def test_removed_contracts_raise_actionable_migration_errors() -> None:
-    plot = _plot()
-    with pytest.raises(EmbedMigrationError, match=r"embed\(model\)\.external"):
-        autoload_static(plot, CDN, "/assets/plot.json")
-    with pytest.raises(EmbedMigrationError, match=r"embed\(model\)\.to_json"):
-        json_item(plot)
-    with pytest.raises(EmbedMigrationError, match="fragment"):
-        components(plot, False)
-    with pytest.raises(EmbedMigrationError, match="fragment"):
-        components(plot, wrap_script=False)
 
 
 def test_server_artifact_is_deterministic_structured_and_selective() -> None:
