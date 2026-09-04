@@ -375,6 +375,26 @@ describe("core/serialization module", () => {
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError, "duplicate model ID 'duplicate'")
     })
 
+    it("resolves references declared later in the payload", () => {
+      const resolver = new ModelResolver(null, [SomeModel])
+      for (const rep of [
+        [
+          {type: "object", name: "SomeModel", attributes: {obj: {id: "later"}}},
+          {type: "object", name: "SomeModel", id: "later", attributes: {value: 2}},
+        ],
+        [
+          {$type: "SomeModel", obj: {$ref: "later"}},
+          {$type: "SomeModel", $id: "later", value: 2},
+        ],
+      ]) {
+        const deserializer = new Deserializer(resolver)
+        const [first, later] = deserializer.decode(rep) as SomeModel[]
+
+        expect(first.obj).to.be.equal(later)
+        expect(later.value).to.be.equal(2)
+      }
+    })
+
     it("restores existing references when a later value fails", () => {
       const resolver = new ModelResolver(null, [SomeModel])
       const model = SomeModel.create({value: 1})
