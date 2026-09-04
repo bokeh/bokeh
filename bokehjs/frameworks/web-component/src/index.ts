@@ -4,6 +4,7 @@ import type {BokehModel, BokehRootModel} from "@bokeh/framework"
 
 const HTMLElementBase = (globalThis as {HTMLElement?: typeof HTMLElement}).HTMLElement ?? class {} as typeof HTMLElement
 
+/** Custom-element base that owns one Bokeh mount while connected. */
 export class BokehElement extends HTMLElementBase {
   private _model: BokehModel | null = null
   private _mount_options: MountOptions | undefined
@@ -59,6 +60,7 @@ export class BokehElement extends HTMLElementBase {
   }
 }
 
+/** Register an idempotent custom element for one Bokeh source. */
 export function defineBokehElement(name: string = "bokeh-plot"): typeof BokehElement {
   const existing = customElements.get(name)
   if (existing != null) {
@@ -72,6 +74,7 @@ export function defineBokehElement(name: string = "bokeh-plot"): typeof BokehEle
   return DefinedBokehElement
 }
 
+/** Custom-element provider for one shared keyed document mount. */
 export class BokehDocumentElement extends HTMLElementBase {
   private _models: readonly BokehRootModel[] = []
   private _mount_options: MountOptions | undefined
@@ -121,6 +124,7 @@ export class BokehDocumentElement extends HTMLElementBase {
   }
 }
 
+/** Target slot for one model owned by a `BokehDocumentElement`. */
 export class BokehRootElement extends HTMLElementBase {
   private _model: BokehRootModel | null = null
   private _bokeh_document: BokehDocumentElement | null = null
@@ -187,6 +191,7 @@ export class BokehRootElement extends HTMLElementBase {
   }
 }
 
+/** Register an idempotent shared-document provider element. */
 export function defineBokehDocumentElement(name: string = "bokeh-document"): typeof BokehDocumentElement {
   const existing = customElements.get(name)
   if (existing != null) {
@@ -200,6 +205,7 @@ export function defineBokehDocumentElement(name: string = "bokeh-document"): typ
   return DefinedBokehDocumentElement
 }
 
+/** Register an idempotent keyed-root target element. */
 export function defineBokehRootElement(name: string = "bokeh-root"): typeof BokehRootElement {
   const existing = customElements.get(name)
   if (existing != null) {
