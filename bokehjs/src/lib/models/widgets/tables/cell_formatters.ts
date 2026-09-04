@@ -1,5 +1,5 @@
 import * as Numbro from "@bokeh/numbro"
-import {_} from "underscore.template"
+import _ from "underscore.template/lib/underscore.template.js"
 
 import * as p from "core/properties"
 import {div, i} from "core/dom"

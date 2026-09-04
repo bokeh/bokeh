@@ -20,7 +20,7 @@ const spacer =
    width: number | null, height: number | null,
    min_width?: number, min_height?: number,
    max_width?: number, max_height?: number) => (color: Color): Spacer => {
-    return new Spacer({
+    return Spacer.create({
       width_policy, height_policy,
       width, height,
       min_width, min_height,
@@ -36,7 +36,7 @@ describe("Row", () => {
     const s0 = spacer("max", "fixed", null, 40)(["red", 0.5])
     const s1 = spacer("fixed", "fixed", 60, 30)(["green", 0.5])
 
-    const row = new Row({
+    const row = Row.create({
       children: [s0, s1],
       width_policy: "max",
       styles: {background_color: "orange"},
@@ -50,7 +50,7 @@ describe("Column", () => {
     const s0 = spacer("fixed", "max", 40, null)(["red", 0.5])
     const s1 = spacer("fixed", "fixed", 30, 60)(["green", 0.5])
 
-    const col = new Column({
+    const col = Column.create({
       children: [s0, s1],
       height_policy: "max",
       styles: {background_color: "orange"},
@@ -77,7 +77,7 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const grid = new GridBox({
+    const grid = GridBox.create({
       children: items.to_sparse(),
     })
     await display(grid, viewport)
@@ -92,7 +92,7 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const grid = new GridBox({
+    const grid = GridBox.create({
       children: items.to_sparse(),
       spacing: 5,
     })
@@ -108,7 +108,7 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const grid = new GridBox({
+    const grid = GridBox.create({
       children: items.to_sparse(),
       spacing: [5, 10],
     })
@@ -183,10 +183,10 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const grid = new GridBox({
+    const grid = GridBox.create({
       children: items.to_sparse(),
       cols: new Map([
-        [2, {size: "100px", align: "end"}],
+        [2, {size: "100px", align: "end" as const}],
       ]),
     })
     await display(grid, viewport)
@@ -201,7 +201,7 @@ describe("3x3 GridBox", () => {
       [s(90, 90), s(60, 90), s(60, 30)],
     ])
 
-    const grid = new GridBox({
+    const grid = GridBox.create({
       children: items.to_sparse(),
       rows: {align: "start"},
       cols: {align: "start"},
@@ -218,7 +218,7 @@ describe("3x3 GridBox", () => {
       [s(90, 90), s(60, 90), s(60, 30)],
     ])
 
-    const grid = new GridBox({
+    const grid = GridBox.create({
       children: items.to_sparse(),
       rows: {align: "center"},
       cols: {align: "center"},
@@ -235,7 +235,7 @@ describe("3x3 GridBox", () => {
       [s(90, 90), s(60, 90), s(60, 30)],
     ])
 
-    const grid = new GridBox({
+    const grid = GridBox.create({
       children: items.to_sparse(),
       rows: {align: "end"},
       cols: {align: "end"},
@@ -244,7 +244,7 @@ describe("3x3 GridBox", () => {
   })
 })
 
-const s = (color: Color) => new Spacer({
+const s = (color: Color) => Spacer.create({
   sizing_mode: "fixed",
   width: 100,
   height: 100,
@@ -253,8 +253,8 @@ const s = (color: Color) => new Spacer({
 
 function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs>) {
   const p = fig([200, 200], plot_args)
-  p.add_layout(new LinearAxis(), "above")
-  p.add_layout(new LinearAxis(), "right")
+  p.add_layout(LinearAxis.create(), "above")
+  p.add_layout(LinearAxis.create(), "right")
   p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
   p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
   p.xaxis.major_label_orientation = "vertical"
@@ -268,7 +268,7 @@ function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs
 describe("FlexBox", () => {
   describe("should support Row layout", () => {
     it("with 3 spacers of 100x100 size", async () => {
-      const row = new Row({
+      const row = Row.create({
         children: [s("red"), s("green"), s("blue")],
       })
 
@@ -276,7 +276,7 @@ describe("FlexBox", () => {
     })
 
     it("with 3 plots of 200x200 size", async () => {
-      const row = new Row({
+      const row = Row.create({
         children: [
           plot(10**0, 10**0, "red"),
           plot(10**2, 10**2, "green"),
@@ -290,7 +290,7 @@ describe("FlexBox", () => {
 
   describe("should support Column layout", () => {
     it("with 3 spacers of 100x100 size", async () => {
-      const row = new Column({
+      const row = Column.create({
         children: [s("red"), s("green"), s("blue")],
       })
 
@@ -298,7 +298,7 @@ describe("FlexBox", () => {
     })
 
     it("with 3 plots of 200x200 size", async () => {
-      const row = new Column({
+      const row = Column.create({
         children: [
           plot(10**0, 10**0, "red"),
           plot(10**2, 10**2, "green"),
@@ -313,7 +313,7 @@ describe("FlexBox", () => {
 
 describe("HBox", () => {
   it("should allow 3 spacers of 100x100 size", async () => {
-    const row = new HBox({
+    const row = HBox.create({
       children: [
         {child: s("red")},
         {child: s("green")},
@@ -325,7 +325,7 @@ describe("HBox", () => {
   })
 
   it("should allow 3 plots of 200x200 size", async () => {
-    const row = new HBox({
+    const row = HBox.create({
       children: [
         {child: plot(10**0, 10**0, "red")},
         {child: plot(10**2, 10**2, "green")},
@@ -340,7 +340,7 @@ describe("HBox", () => {
     const s0 = spacer("max", "fixed", null, 40)(["red", 0.5])
     const s1 = spacer("fixed", "fixed", 60, 30)(["green", 0.5])
 
-    const row = new HBox({
+    const row = HBox.create({
       children: [{child: s0}, {child: s1}],
       width_policy: "max",
       styles: {background_color: "orange"},
@@ -351,7 +351,7 @@ describe("HBox", () => {
 
 describe("VBox", () => {
   it("should allow 3 spacers of 100x100 size", async () => {
-    const row = new VBox({
+    const row = VBox.create({
       children: [
         {child: s("red")},
         {child: s("green")},
@@ -363,7 +363,7 @@ describe("VBox", () => {
   })
 
   it("should allow 3 plots of 200x200 size", async () => {
-    const row = new VBox({
+    const row = VBox.create({
       children: [
         {child: plot(10**0, 10**0, "red")},
         {child: plot(10**2, 10**2, "green")},
@@ -378,7 +378,7 @@ describe("VBox", () => {
     const s0 = spacer("fixed", "max", 40, null)(["red", 0.5])
     const s1 = spacer("fixed", "fixed", 30, 60)(["green", 0.5])
 
-    const col = new VBox({
+    const col = VBox.create({
       children: [{child: s0}, {child: s1}],
       height_policy: "max",
       styles: {background_color: "orange"},
@@ -388,10 +388,10 @@ describe("VBox", () => {
 })
 
 describe("GridBox", () => {
-  const s = (color: Color) => new Spacer({styles: {background_color: color2css(color)}})
+  const s = (color: Color) => Spacer.create({styles: {background_color: color2css(color)}})
 
   it("should allow 3x3 grid of fixed width and height", async () => {
-    const grid = new GridBox({
+    const grid = GridBox.create({
       width: 300,
       height: 300,
       children: [
@@ -405,7 +405,7 @@ describe("GridBox", () => {
   })
 
   it("should allow 4x3 grid of fixed width and height", async () => {
-    const grid = new GridBox({
+    const grid = GridBox.create({
       width: 300,
       height: 400,
       children: [
@@ -420,7 +420,7 @@ describe("GridBox", () => {
   })
 
   it("should allow 3x4 grid of fixed width and height", async () => {
-    const grid = new GridBox({
+    const grid = GridBox.create({
       width: 400,
       height: 300,
       children: [
@@ -434,7 +434,7 @@ describe("GridBox", () => {
   })
 
   it("should allow 4x4 grid with spans of fixed width and height", async () => {
-    const grid = new GridBox({
+    const grid = GridBox.create({
       width: 400,
       height: 400,
       children: [
@@ -448,7 +448,7 @@ describe("GridBox", () => {
   })
 
   it("should allow 2x2 grid with mixed frame alignment", async () => {
-    const grid = new GridBox({
+    const grid = GridBox.create({
       width: 400,
       height: 400,
       children: [
@@ -476,7 +476,7 @@ describe("GridBox", () => {
     })
 
     const children = items.to_sparse()
-    const grid = new GridBox({children})
+    const grid = GridBox.create({children})
 
     await display(grid, [600, 600])
   })
@@ -489,7 +489,7 @@ describe("GridBox", () => {
       const x = 100.0/ncols*col
       const y = 100.0/nrows*row
       const rgba: RGBA = [Math.floor(50 + 2*x), Math.floor(30 + 2*y), 150, 255]
-      return new Button({
+      return Button.create({
         label: `${row},${col}`,
         sizing_mode: "scale_width",
         margin: 0,
@@ -504,7 +504,7 @@ describe("GridBox", () => {
     })
 
     const children = items.to_sparse()
-    const grid = new GridBox({children, spacing: 5})
+    const grid = GridBox.create({children, spacing: 5})
 
     await display(grid, [700, 700])
   })
@@ -514,11 +514,11 @@ describe("Tabs", () => {
   const panel = (color: string) => {
     const p = fig([100, 100])
     p.scatter([0, 5, 10], [0, 5, 10], {size: 5, color})
-    return new TabPanel({title: color, child: p})
+    return TabPanel.create({title: color, child: p})
   }
 
   const tabs = (tabs_location: Location, tabs: string[]) => {
-    return new Tabs({tabs: tabs.map(panel), tabs_location})
+    return Tabs.create({tabs: tabs.map(panel), tabs_location})
   }
 
   it("should allow tabs header location above", async () => {
@@ -658,11 +658,11 @@ describe("Tabs", () => {
   })
 
   async function linked_tabs(link_layouts: boolean) {
-    const tabs = new Tabs({
+    const tabs = Tabs.create({
       tabs: [
-        new TabPanel({title: "Tab 0", child: plot(10**0, 10**0, "red")}),
-        new TabPanel({title: "Tab 1", child: plot(10**2, 10**2, "green")}),
-        new TabPanel({title: "Tab 2", child: plot(10**4, 10**4, "blue")}),
+        TabPanel.create({title: "Tab 0", child: plot(10**0, 10**0, "red")}),
+        TabPanel.create({title: "Tab 1", child: plot(10**2, 10**2, "green")}),
+        TabPanel.create({title: "Tab 2", child: plot(10**4, 10**4, "blue")}),
       ],
       tabs_location: "above",
       link_layouts,
@@ -747,17 +747,17 @@ describe("gridplot()", () => {
 describe("LayoutDOM", () => {
   describe("should correctly support margin with max width and height policies", () => {
     it("for top-level layouts", async () => {
-      const input = new TextInput({width_policy: "max", height_policy: "max", margin: 20})
+      const input = TextInput.create({width_policy: "max", height_policy: "max", margin: 20})
       await display(input, [200, 100])
     })
 
     it("in nested layouts", async () => {
-      const column = new Column({
+      const column = Column.create({
         width_policy: "max", height_policy: "max", margin: 20,
         children: [
-          new TextInput({width_policy: "max", height_policy: "max", margin: 20}),
-          new TextInput({width_policy: "max", height_policy: "max", margin: 20}),
-          new TextInput({width_policy: "max", height_policy: "max", margin: 20}),
+          TextInput.create({width_policy: "max", height_policy: "max", margin: 20}),
+          TextInput.create({width_policy: "max", height_policy: "max", margin: 20}),
+          TextInput.create({width_policy: "max", height_policy: "max", margin: 20}),
         ],
       })
       await display(column, [200, 300])
@@ -767,14 +767,14 @@ describe("LayoutDOM", () => {
 
 describe("GroupBox", () => {
   it.allowing(3*8)("should allow multiple TextInput widgets", async () => {
-    const group_box = new GroupBox({
+    const group_box = GroupBox.create({
       title: "Head offset:",
       checkable: true,
-      child: new Column({
+      child: Column.create({
         children: [
-          new TextInput({placeholder: "Enter value ...", prefix: "X", suffix: "mm"}),
-          new TextInput({placeholder: "Enter value ...", prefix: "Y", suffix: "mm"}),
-          new TextInput({placeholder: "Enter value ...", prefix: "Z", suffix: "mm"}),
+          TextInput.create({placeholder: "Enter value ...", prefix: "X", suffix: "mm"}),
+          TextInput.create({placeholder: "Enter value ...", prefix: "Y", suffix: "mm"}),
+          TextInput.create({placeholder: "Enter value ...", prefix: "Z", suffix: "mm"}),
         ],
       }),
     })
@@ -782,15 +782,15 @@ describe("GroupBox", () => {
   })
 
   it.allowing(3*8)("should allow changing disabled state with a checkbox", async () => {
-    const group_box = new GroupBox({
+    const group_box = GroupBox.create({
       title: "Head offset:",
       checkable: true,
       disabled: false,
-      child: new Column({
+      child: Column.create({
         children: [
-          new TextInput({placeholder: "Enter value ...", prefix: "X", suffix: "mm"}),
-          new TextInput({placeholder: "Enter value ...", prefix: "Y", suffix: "mm"}),
-          new TextInput({placeholder: "Enter value ...", prefix: "Z", suffix: "mm"}),
+          TextInput.create({placeholder: "Enter value ...", prefix: "X", suffix: "mm"}),
+          TextInput.create({placeholder: "Enter value ...", prefix: "Y", suffix: "mm"}),
+          TextInput.create({placeholder: "Enter value ...", prefix: "Z", suffix: "mm"}),
         ],
       }),
     })
@@ -809,7 +809,7 @@ describe("ScrollBox", () => {
       height: 300,
       sizing_mode: "fixed",
     })
-    const scroll_box = new ScrollBox({
+    const scroll_box = ScrollBox.create({
       child,
       width: 200,
       height: 200,

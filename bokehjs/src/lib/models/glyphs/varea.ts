@@ -49,7 +49,7 @@ export class VAreaView extends AreaView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     const L = this.sx.length
-    const result = new Selection()
+    const result = Selection.create()
 
     for (let i = 0, end = L-1; i < end; i++) {
       const sx = [this.sx[i], this.sx[i+1], this.sx[i+1], this.sx[i]]

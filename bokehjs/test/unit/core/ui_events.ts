@@ -29,13 +29,13 @@ import {BBox} from "@bokehjs/core/util/bbox"
 describe("UIEventBus", () => {
 
   function plot() {
-    const p = new Plot({
+    const p = Plot.create({
       width: 100,
       height: 100,
       min_border: 0,
       toolbar_location: null,
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
     return p
   }
@@ -133,9 +133,9 @@ describe("UIEventBus", () => {
 describe("ui_event_bus module", () => {
 
   async function new_plot(): Promise<PlotView> {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
     })
     const {view} = await display(plot)
     return view
@@ -174,7 +174,7 @@ describe("ui_event_bus module", () => {
       })
 
       it("should trigger move event for active inspectors", async () => {
-        const inspector = new CrosshairTool({active: true})
+        const inspector = CrosshairTool.create({active: true})
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
@@ -185,7 +185,7 @@ describe("ui_event_bus module", () => {
       })
 
       it("should not trigger move event for inactive inspectors", async () => {
-        const inspector = new CrosshairTool({active: false})
+        const inspector = CrosshairTool.create({active: false})
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
@@ -201,7 +201,7 @@ describe("ui_event_bus module", () => {
       })
 
       it("should use default cursor if active inspector but mouse is off-frame", async () => {
-        const inspector = new CrosshairTool()
+        const inspector = CrosshairTool.create()
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
@@ -214,7 +214,7 @@ describe("ui_event_bus module", () => {
       })
 
       it("should change cursor if active inspector is present and over frame", async () => {
-        const inspector = new CrosshairTool()
+        const inspector = CrosshairTool.create()
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
@@ -274,7 +274,7 @@ describe("ui_event_bus module", () => {
       })
 
       it("should trigger tap event if exists an active tap tool", async () => {
-        const gesture = new TapTool()
+        const gesture = TapTool.create()
         plot_view.model.add_tools(gesture)
         await plot_view.ready
 
@@ -330,7 +330,7 @@ describe("ui_event_bus module", () => {
       })
 
       it("should trigger scroll event if exists an active tap tool", async () => {
-        const gesture = new WheelZoomTool()
+        const gesture = WheelZoomTool.create()
         plot_view.model.add_tools(gesture)
         await plot_view.ready
 
@@ -360,7 +360,7 @@ describe("ui_event_bus module", () => {
       })
 
       it("should trigger event if exists an active related tool", async () => {
-        const gesture = new PanTool()
+        const gesture = PanTool.create()
         plot_view.model.add_tools(gesture)
         await plot_view.ready
 

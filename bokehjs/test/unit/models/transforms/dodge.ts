@@ -6,7 +6,7 @@ import {Dodge} from "@bokehjs/models/transforms/dodge"
 describe("Dodge transform module", () => {
 
   describe("Dodge with uniform", () => {
-    const transform = new Dodge({value: -0.5})
+    const transform = Dodge.create({value: -0.5})
 
     it("should add value to data", () => {
       const vals = [-10, -2.5, 0, 0.2, 0.5, 10]
@@ -16,8 +16,8 @@ describe("Dodge transform module", () => {
   })
 
   describe("Dodge with FactorRange", () => {
-    const transform = new Dodge({value: 0.5})
-    transform.range = new FactorRange({factors: ["a", "b"]})
+    const transform = Dodge.create({value: 0.5})
+    transform.range = FactorRange.create({factors: ["a", "b"]})
 
     it("should work with a supplied range", () => {
       const vals = ["a", "b", "a"]

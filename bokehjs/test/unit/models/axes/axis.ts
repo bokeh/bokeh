@@ -17,13 +17,13 @@ import {TeXView, TeX} from "@bokehjs/models/text/math_text"
 describe("Axis", () => {
 
   it("should compute labels with overrides", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({
       ticker,
       formatter,
       major_label_overrides: new Map([[0, "zero"], [4, "four"], [10, "ten"]]),
@@ -37,16 +37,16 @@ describe("Axis", () => {
   })
 
   it("should compute labels with math text on overrides", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({
       ticker,
       formatter,
-      major_label_overrides: new Map<number, string | TeX>([[0, "zero"], [4, new TeX({text: "\\pi"})], [10, "$$ten$$"]]),
+      major_label_overrides: new Map<number, string | TeX>([[0, "zero"], [4, TeX.create({text: "\\pi"})], [10, "$$ten$$"]]),
     })
     plot.add_layout(axis, "below")
     const {view: plot_view} = await display(plot)
@@ -59,17 +59,17 @@ describe("Axis", () => {
   })
 
   it("should convert mathstrings on axis labels to TeX", async () => {
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({
       ticker,
       formatter,
       axis_label: "$$\\sin(x)$$",
     })
 
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
     plot.add_layout(axis, "below")
 
@@ -80,9 +80,9 @@ describe("Axis", () => {
   })
 
   it("should convert mathstrings with line breaks in between delimiters on axis labels to TeX", async () => {
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({
       ticker,
       formatter,
       axis_label: `$$
@@ -90,9 +90,9 @@ describe("Axis", () => {
       $$`,
     })
 
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
     plot.add_layout(axis, "below")
 
@@ -103,13 +103,13 @@ describe("Axis", () => {
   })
 
   it("loc should return numeric fixed_location", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({
       ticker,
       formatter,
       fixed_location: 10,
@@ -121,14 +121,14 @@ describe("Axis", () => {
   })
 
   it("loc should return synthetic for categorical fixed_location", async () => {
-    const plot = new Plot({
-      x_range: new FactorRange({factors: ["foo", "bar"]}),
-      x_scale: new CategoricalScale(),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: FactorRange.create({factors: ["foo", "bar"]}),
+      x_scale: CategoricalScale.create(),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({
       ticker,
       formatter,
       fixed_location: "foo",
@@ -140,10 +140,10 @@ describe("Axis", () => {
   })
 
   it("should allow zooming unsing Range1d when no bounds are set", async () => {
-    const x_range = new Range1d({start: 0, end: 3})
-    const y_range = new Range1d({start: 0, end: 3})
+    const x_range = Range1d.create({start: 0, end: 3})
+    const y_range = Range1d.create({start: 0, end: 3})
 
-    const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+    const wheel_zoom = WheelZoomTool.create({maintain_focus: false})
     const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom], active_scroll: wheel_zoom})
     p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20})
 
@@ -160,10 +160,10 @@ describe("Axis", () => {
   })
 
   it("should respect bounds when zooming unsing Range1d", async () => {
-    const x_range = new Range1d({start: 0, end: 3, bounds: [0, 3]})
-    const y_range = new Range1d({start: 0, end: 3})
+    const x_range = Range1d.create({start: 0, end: 3, bounds: [0, 3]})
+    const y_range = Range1d.create({start: 0, end: 3})
 
-    const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+    const wheel_zoom = WheelZoomTool.create({maintain_focus: false})
     const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom], active_scroll: wheel_zoom})
     p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20})
 
@@ -180,10 +180,10 @@ describe("Axis", () => {
 
   it("should allow zooming unsing FactorRange when no bounds are set", async () => {
     const factors = ["A", "B", "C"]
-    const x_range = new FactorRange({factors, start: 0, end: 3})
-    const y_range = new Range1d({start: 0, end: 3})
+    const x_range = FactorRange.create({factors, start: 0, end: 3})
+    const y_range = Range1d.create({start: 0, end: 3})
 
-    const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+    const wheel_zoom = WheelZoomTool.create({maintain_focus: false})
     const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom], active_scroll: wheel_zoom})
     p.scatter({x: factors, y: [1, 2, 3], size: 20})
 
@@ -203,10 +203,10 @@ describe("Axis", () => {
 describe("AxisView", () => {
 
   async function build(axis_attrs: Partial<LinearAxis.Attrs> = {}) {
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
 
-    const axis = new LinearAxis({
+    const axis = LinearAxis.create({
       major_label_standoff: 11,
       major_tick_out: 12,
       ticker,
@@ -214,10 +214,10 @@ describe("AxisView", () => {
       ...axis_attrs,
     })
 
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
-      toolbar: new Toolbar(),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
+      toolbar: Toolbar.create(),
     })
     plot.add_layout(axis, "below")
 

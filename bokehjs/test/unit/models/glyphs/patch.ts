@@ -16,15 +16,15 @@ describe("Patch", () => {
         x: [0, 10, 10, 0, NaN, 3, 3, 7, 7],
         y: [0, 0, 10, 10, NaN, 3, 7, 7, 3],
       }
-      const glyph = new Patch({
+      const glyph = Patch.create({
         x: {field: "x"},
         y: {field: "y"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 
@@ -53,15 +53,15 @@ describe("Patch", () => {
         x: [0, 20, 20, 0, NaN, 3, 3, 7, 7, NaN, 13, 13, 17, 17],
         y: [0, 0, 20, 20, NaN, 3, 7, 7, 3, NaN, 13, 17, 17, 13],
       }
-      const glyph = new Patch({
+      const glyph = Patch.create({
         x: {field: "x"},
         y: {field: "y"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 
@@ -90,15 +90,15 @@ describe("Patch", () => {
         x: [0, 5, 5, 0, NaN, 10, 15, 15, 10],
         y: [0, 0, 5, 5, NaN, 0, 0, 5, 5],
       }
-      const glyph = new Patch({
+      const glyph = Patch.create({
         x: {field: "x"},
         y: {field: "y"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 

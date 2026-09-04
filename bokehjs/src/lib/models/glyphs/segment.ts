@@ -104,7 +104,7 @@ export class SegmentView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -148,7 +148,7 @@ export class SegmentView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   scenterxy(i: number): [number, number] {

@@ -16,7 +16,7 @@ describe("Glyph (using AnnularWedge as a concrete Glyph)", () => {
         start_angle: [-0.25*Math.PI, 0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI],
         end_angle: [0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI, 1.75*Math.PI],
       }
-      const glyph = new AnnularWedge({
+      const glyph = AnnularWedge.create({
         x: {field: "x"},
         y: {field: "y"},
         inner_radius: {value: 2},
@@ -37,7 +37,7 @@ describe("Glyph (using AnnularWedge as a concrete Glyph)", () => {
         start_angle: [-0.25*Math.PI, 0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI],
         end_angle: [0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI, 1.75*Math.PI],
       }
-      const glyph = new AnnularWedge({
+      const glyph = AnnularWedge.create({
         x: {value: 50},
         y: {value: 50},
         inner_radius: {value: 25},
@@ -111,7 +111,7 @@ describe("Glyph (using AnnularWedge as a concrete Glyph)", () => {
         start_angle: [0],
         end_angle: [2*Math.PI],
       }
-      const glyph = new AnnularWedge({
+      const glyph = AnnularWedge.create({
         x: {value: 50},
         y: {value: 50},
         inner_radius: {value: 25},

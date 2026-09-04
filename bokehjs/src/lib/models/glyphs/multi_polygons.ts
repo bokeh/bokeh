@@ -210,7 +210,7 @@ export class MultiPolygonsView extends GlyphView {
         indices.push(i)
       }
     }
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: HitTestRect): Selection {
@@ -261,7 +261,7 @@ export class MultiPolygonsView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   private _get_snap_coord(array: Arrayable<number>): number {

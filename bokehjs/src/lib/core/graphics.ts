@@ -10,19 +10,21 @@ import {AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import type * as visuals from "./visuals"
 
-export const text_width: (text: string, font: string) => number = (() => {
-  const canvas = document.createElement("canvas")
-  const ctx = canvas.getContext("2d")!
-  let current_font = ""
+// Defer canvas setup so importing this module doesn't require a DOM.
+let _text_ctx: CanvasRenderingContext2D | null = null
+let _current_font = ""
 
-  return (text: string, font: string): number => {
-    if (font != current_font) {
-      current_font = font
-      ctx.font = font
-    }
-    return ctx.measureText(text).width
+export function text_width(text: string, font: string): number {
+  if (_text_ctx == null) {
+    const canvas = document.createElement("canvas")
+    _text_ctx = canvas.getContext("2d")!
   }
-})()
+  if (font != _current_font) {
+    _current_font = font
+    _text_ctx.font = font
+  }
+  return _text_ctx.measureText(text).width
+}
 
 export type Position = {
   sx: number

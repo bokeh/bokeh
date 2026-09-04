@@ -101,7 +101,7 @@ export class MultiLineView extends GlyphView {
       }
     }
 
-    return new Selection({
+    return Selection.create({
       indices: [...hits.keys()],
       multiline_indices: hits,
     })
@@ -134,7 +134,7 @@ export class MultiLineView extends GlyphView {
       }
     }
 
-    return new Selection({
+    return Selection.create({
       indices: [...hits.keys()],
       multiline_indices: hits,
     })

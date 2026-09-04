@@ -14,10 +14,10 @@ describe("ImageStack glyph", () => {
     function plot() {
       const p = fig([200, 200])
       const alpha_palette = varying_alpha_palette("#000", 6, 40)
-      const alpha_mapper = new EqHistColorMapper({palette: alpha_palette, rescale_discrete_levels: false})
-      const color_mapper = new WeightedStackColorMapper({palette: ["red", "blue"], alpha_mapper})
+      const alpha_mapper = EqHistColorMapper.create({palette: alpha_palette, rescale_discrete_levels: false})
+      const color_mapper = WeightedStackColorMapper.create({palette: ["red", "blue"], alpha_mapper})
       const ir = p.image_stack({image: [array], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
-      p.add_tools(new HoverTool({
+      p.add_tools(HoverTool.create({
         renderers: [ir],
         tooltips: [["value", "@image"]],
       }))

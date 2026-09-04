@@ -74,13 +74,13 @@ class SubclassWithDistanceSpec extends DataAnnotation {
 
 describe("AnnotationView", () => {
   async function plot(): Promise<PlotView> {
-    return await build_view(new Plot())
+    return await build_view(Plot.create())
   }
 
   describe("set_data()", () => {
     it("should collect dataspecs", async () => {
-      const ds = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
-      const obj = new SubclassWithNumberSpec()
+      const ds = ColumnDataSource.create({data: {colname: [1, 2, 3, 4]}})
+      const obj = SubclassWithNumberSpec.create()
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
       expect(view.foo).to.be.equal(new p.UniformVector(new Float64Array([1, 2, 3, 4])))
@@ -88,8 +88,8 @@ describe("AnnotationView", () => {
 
     it("should collect shapes when they are present", async () => {
       const array = ndarray([1, 2, 3, 4], {dtype: "float64", shape: [2, 2]})
-      const ds = new ColumnDataSource({data: {colname: array}})
-      const obj = new SubclassWithNumberSpec()
+      const ds = ColumnDataSource.create({data: {colname: array}})
+      const obj = SubclassWithNumberSpec.create()
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
       expect(view.foo).to.be.equal(new p.UniformVector(ndarray([1, 2, 3, 4], {dtype: "float64", shape: [2, 2]})))

@@ -127,7 +127,7 @@ export class TileRendererView extends RendererView {
   }
 
   override get attribution(): HTML | string | null {
-    return new HTML({html: [this.model.tile_source.attribution]})
+    return HTML.create({html: [this.model.tile_source.attribution]})
   }
 
   private get x_range(): Range {
@@ -540,7 +540,7 @@ export class TileRenderer extends Renderer {
     this.define<TileRenderer.Props>(({Bool, Float, Ref}) => ({
       alpha:          [ Float, 1.0 ],
       smoothing:      [ Bool, true ],
-      tile_source:    [ Ref(TileSource), () => new WMTSTileSource() ],
+      tile_source:    [ Ref(TileSource), () => WMTSTileSource.create() ],
       render_parents: [ Bool, true ],
     }))
 

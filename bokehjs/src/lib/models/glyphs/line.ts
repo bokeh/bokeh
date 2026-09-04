@@ -81,7 +81,7 @@ export class LineView extends XYGlyphView {
           * sy (float): screen y coordinate of the point
           * type (str): type of geometry (in this case it's a point)
     */
-    const result = new Selection()
+    const result = Selection.create()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
     const threshold = Math.max(2, this.line_width.value/2)
@@ -125,7 +125,7 @@ export class LineView extends XYGlyphView {
       }
     }
 
-    const result = new Selection()
+    const result = Selection.create()
     if (indices.length != 0) {
       result.add_to_selected_glyphs(this.model)
       result.view = this

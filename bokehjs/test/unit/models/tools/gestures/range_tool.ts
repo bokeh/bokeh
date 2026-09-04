@@ -10,36 +10,36 @@ describe("range_tool module", () => {
   describe("RangeTool", () => {
 
     describe("construction", () => {
-      const x_range = new Range1d(source)
-      const y_range = new Range1d(source)
+      const x_range = Range1d.create(source)
+      const y_range = Range1d.create(source)
 
       it("should configure overlay", () => {
-        const rt0 = new RangeTool()
+        const rt0 = RangeTool.create()
         expect(rt0.overlay.editable).to.be.true
         expect(rt0.overlay.movable).to.be.equal("none")
         expect(rt0.overlay.resizable).to.be.equal("none")
 
-        const rt1 = new RangeTool({x_range})
+        const rt1 = RangeTool.create({x_range})
         expect(rt1.overlay.editable).to.be.true
         expect(rt1.overlay.movable).to.be.equal("x")
         expect(rt1.overlay.resizable).to.be.equal("x")
 
-        const rt2 = new RangeTool({x_range, x_interaction: false})
+        const rt2 = RangeTool.create({x_range, x_interaction: false})
         expect(rt2.overlay.editable).to.be.true
         expect(rt2.overlay.movable).to.be.equal("none")
         expect(rt2.overlay.resizable).to.be.equal("none")
 
-        const rt3 = new RangeTool({y_range})
+        const rt3 = RangeTool.create({y_range})
         expect(rt3.overlay.editable).to.be.true
         expect(rt3.overlay.movable).to.be.equal("y")
         expect(rt3.overlay.resizable).to.be.equal("y")
 
-        const rt4 = new RangeTool({y_range, y_interaction: false})
+        const rt4 = RangeTool.create({y_range, y_interaction: false})
         expect(rt4.overlay.editable).to.be.true
         expect(rt4.overlay.movable).to.be.equal("none")
         expect(rt4.overlay.resizable).to.be.equal("none")
 
-        const rt5 = new RangeTool({x_range, y_range})
+        const rt5 = RangeTool.create({x_range, y_range})
         expect(rt5.overlay.editable).to.be.true
         expect(rt5.overlay.movable).to.be.equal("both")
         expect(rt5.overlay.resizable).to.be.equal("all")
@@ -47,11 +47,11 @@ describe("range_tool module", () => {
     })
 
     describe("update_overlay_from_ranges", () => {
-      const x_range = new Range1d(source)
-      const y_range = new Range1d(source)
+      const x_range = Range1d.create(source)
+      const y_range = Range1d.create(source)
 
       it("should set overlay coords to null if no ranges are set", () => {
-        const rt = new RangeTool()
+        const rt = RangeTool.create()
         rt.update_overlay_from_ranges()
         expect(rt.overlay.left).to.be.structurally.equal(Node.frame.left)
         expect(rt.overlay.right).to.be.structurally.equal(Node.frame.right)
@@ -60,7 +60,7 @@ describe("range_tool module", () => {
       })
 
       it("should set top/bottom overlay coords to null if y range is null", () => {
-        const rt = new RangeTool({x_range})
+        const rt = RangeTool.create({x_range})
         rt.update_overlay_from_ranges()
         expect(rt.overlay.left).to.be.equal(0)
         expect(rt.overlay.right).to.be.equal(10)
@@ -69,7 +69,7 @@ describe("range_tool module", () => {
       })
 
       it("should set left/right overlay coords to null if x range is null", () => {
-        const rt = new RangeTool({y_range})
+        const rt = RangeTool.create({y_range})
         rt.update_overlay_from_ranges()
         expect(rt.overlay.left).to.be.structurally.equal(Node.frame.left)
         expect(rt.overlay.right).to.be.structurally.equal(Node.frame.right)

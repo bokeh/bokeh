@@ -9,7 +9,7 @@ describe("Label annotation", () => {
 
   describe("with MathText", () => {
     function plot_label(attrs: Partial<Label.Attrs>) {
-      const label0 = new Label({
+      const label0 = Label.create({
         x: 0, y: 0,
         text_align: "center", text_baseline: "middle",
         ...attrs,
@@ -31,28 +31,28 @@ describe("Label annotation", () => {
 
     it("should support Ascii notation", async () => {
       await with_internal(async () => {
-        const p = plot_label({text: new Ascii({text: ascii})})
+        const p = plot_label({text: Ascii.create({text: ascii})})
         await display(p)
       })
     })
 
     it("should support MathML notation", async () => {
       await with_internal(async () => {
-        const p = plot_label({text: new MathML({text: mathml})})
+        const p = plot_label({text: MathML.create({text: mathml})})
         await display(p)
       })
     })
 
     it("should support LaTeX notation with a delay in loading", async () => {
       await with_delayed(async () => {
-        const p = plot_label({text: new TeX({text: tex})})
+        const p = plot_label({text: TeX.create({text: tex})})
         await display(p)
       })
     })
 
     it("should fallback to text if MathJax provider is not available", async () => {
       await with_none(async () => {
-        const p = plot_label({text: new TeX({text: tex})})
+        const p = plot_label({text: TeX.create({text: tex})})
         await display(p)
       })
     })

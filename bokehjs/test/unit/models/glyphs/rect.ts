@@ -17,7 +17,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
     before_each(() => {
       stub = sinon.stub((RectView.prototype as any), "_bounds").callsFake((bounds) => bounds) // XXX: protected
 
-      glyph = new Rect({
+      glyph = Rect.create({
         x: {field: "x"},
         y: {field: "y"},
       })
@@ -53,7 +53,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
 
     it("should hit test rects against an index", async () => {
       const data = {x: [20, 40, 60], y: [10, 10, 50]}
-      const glyph = new Rect({
+      const glyph = Rect.create({
         x: {field: "x"},
         y: {field: "y"},
         width: {value: 10},
@@ -84,7 +84,7 @@ describe("Rect", () => {
     let glyph: Rect
 
     before_each(() => {
-      glyph = new Rect({
+      glyph = Rect.create({
         x: {field: "x"},
         y: {field: "y"},
         width: {value: 10},
@@ -170,7 +170,7 @@ describe("Rect", () => {
     */
 
     it("`_map_data` should map values for swidth and sheight when a height is 0", async () => {
-      const glyph = new Rect({
+      const glyph = Rect.create({
         x: {field: "x"},
         y: {field: "y"},
         width: {value: 10},
@@ -221,7 +221,7 @@ describe("Rect", () => {
         })
 
         it("should work when rects are rotated", async () => {
-          const glyph = new Rect({
+          const glyph = Rect.create({
             x: {field: "x"},
             y: {field: "y"},
             width: {value: 10},

@@ -166,7 +166,7 @@ export class VStripView extends GlyphView {
     const {sx} = geometry
     const candidates = this._get_candidates(sx)
     const indices = this._find_strips(candidates, (sx0, sx1) => sx0 <= sx && sx <= sx1)
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -179,7 +179,7 @@ export class VStripView extends GlyphView {
         return this._find_strips(candidates, (sx0, sx1) => sx0 <= sx && sx <= sx1)
       }
     })()
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
@@ -190,7 +190,7 @@ export class VStripView extends GlyphView {
         return gsx0 <= sx0 && sx0 <= gsx1 && gsx0 <= sx1 && sx1 <= gsx1
       })
     })()
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {

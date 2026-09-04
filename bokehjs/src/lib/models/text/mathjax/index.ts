@@ -8,10 +8,17 @@ import {RegisterHTMLHandler} from "mathjax-full/js/handlers/html.js"
 import {AllPackages} from "mathjax-full/js/input/tex/AllPackages.js"
 import {FindTeX} from "mathjax-full/js/input/tex/FindTeX.js"
 
-const adaptor = browserAdaptor()
-RegisterHTMLHandler(adaptor)
+// Defer the browser adaptor so importing this module doesn't require a DOM.
+let svg: SVG<unknown, unknown, unknown> | null = null
 
-const svg = new SVG({fontCache: "local"})
+function svg_output(): SVG<unknown, unknown, unknown> {
+  if (svg == null) {
+    const adaptor = browserAdaptor()
+    RegisterHTMLHandler(adaptor)
+    svg = new SVG({fontCache: "local"})
+  }
+  return svg
+}
 
 const defaults: MathJax.ConvertOptions = {
   display: true,
@@ -22,7 +29,7 @@ const defaults: MathJax.ConvertOptions = {
 
 export function tex2svg(formula: string, options?: MathJax.ConvertOptions, macros: MathJax.TeXMacros = {}): HTMLElement {
   const tex = new TeX({packages: AllPackages, macros})
-  const tex_to_svg = mathjax.document("", {InputJax: tex, OutputJax: svg})
+  const tex_to_svg = mathjax.document("", {InputJax: tex, OutputJax: svg_output()})
   return tex_to_svg.convert(formula, {...defaults, ...options})
 }
 
@@ -36,7 +43,7 @@ export function ascii2svg(_formula: string): HTMLElement {
 
 export function mathml2svg(formula: string): HTMLElement {
   const mathml = new MathML({})
-  const mathml_to_svg = mathjax.document("", {InputJax: mathml, OutputJax: svg})
+  const mathml_to_svg = mathjax.document("", {InputJax: mathml, OutputJax: svg_output()})
   return mathml_to_svg.convert(formula, defaults)
 }
 

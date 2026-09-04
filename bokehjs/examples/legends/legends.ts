@@ -14,8 +14,8 @@ export namespace Legends {
   const y2 = y.map((v) => 2*v)
   const y3 = y.map((v) => 3*v)
 
-  const xr = new Bokeh.DataRange1d()
-  const yr = new Bokeh.DataRange1d()
+  const xr = Bokeh.DataRange1d.create()
+  const yr = Bokeh.DataRange1d.create()
   const p1 = plt.figure({title: "Legends Example", x_range: xr, y_range: yr})
   p1.legend.location = "top_left"
 
@@ -34,5 +34,5 @@ export namespace Legends {
   p2.scatter(x, y3, {legend_label: "3*sin(x)", marker: "square", fill_color: null, line_color: "green"})
   p2.line(x, y3, {legend_label: "3*sin(x)", line_color: "green"})
 
-  void plt.show(new Bokeh.Column({children: [p1, p2]}))
+  void plt.show(Bokeh.Column.create({children: [p1, p2]}))
 }

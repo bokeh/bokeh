@@ -34,8 +34,8 @@ export class LinearAxis extends ContinuousAxis {
     this.prototype.default_view = LinearAxisView
 
     this.override<LinearAxis.Props>({
-      ticker:    () => new BasicTicker(),
-      formatter: () => new BasicTickFormatter(),
+      ticker:    () => BasicTicker.create(),
+      formatter: () => BasicTickFormatter.create(),
     })
   }
 }

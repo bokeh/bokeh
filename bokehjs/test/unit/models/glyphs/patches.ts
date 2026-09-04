@@ -18,15 +18,15 @@ describe("Patches", () => {
         xs: [[1, 5, 3], [3, 5, 5, 3], [2, 3, 2, 1]],
         ys: [[1, 1, 3], [3, 3, 5, 5], [3, 4, 5, 4]],
       }
-      const glyph = new Patches({
+      const glyph = Patches.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 
@@ -71,15 +71,15 @@ describe("Patches", () => {
         xs: [[0, 10, 10, 0, NaN, 3, 3, 7, 7]],
         ys: [[0, 0, 10, 10, NaN, 3, 7, 7, 3]],
       }
-      const glyph = new Patches({
+      const glyph = Patches.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 
@@ -108,15 +108,15 @@ describe("Patches", () => {
         xs: [[0, 5, 5, 0, NaN, 10, 15, 15, 10]],
         ys: [[0, 0, 5, 5, NaN, 0, 0, 5, 5]],
       }
-      const glyph = new Patches({
+      const glyph = Patches.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 
@@ -146,15 +146,15 @@ describe("Patches", () => {
         xs: [[1, 5, 3], [3, 5, 5, 3], [2, 3, 2, 1]],
         ys: [[1, 1, 3], [3, 3, 5, 5], [3, 4, 5, 4]],
       }
-      const glyph = new Patches({
+      const glyph = Patches.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 

@@ -31,7 +31,6 @@ declare interface _Some0 extends _Some0.Attrs {}
 
 declare class _Some0 extends Model {
   declare properties: _Some0.Props
-  constructor(attrs?: Partial<_Some0.Attrs>)
 }
 
 declare namespace _Some1 {
@@ -55,7 +54,6 @@ declare interface _Some1 extends _Some1.Attrs {}
 
 declare class _Some1 extends Model {
   declare properties: _Some1.Props
-  constructor(attrs?: Partial<_Some1.Attrs>)
 }
 
 declare namespace _Some2 {
@@ -71,7 +69,6 @@ declare interface _Some2 extends _Some2.Attrs {}
 
 declare class _Some2 extends _Some1 {
   declare properties: _Some2.Props
-  constructor(attrs?: Partial<_Some2.Attrs>)
 }
 
 declare namespace _Some3 {
@@ -86,7 +83,6 @@ declare interface _Some3 extends _Some3.Attrs {}
 
 declare class _Some3 extends ColumnDataSource {
   declare properties: _Some3.Props
-  constructor(attrs?: Partial<_Some3.Attrs>)
 }
 
 declare namespace _Some4 {
@@ -101,7 +97,6 @@ declare interface _Some4 extends _Some4.Attrs {}
 
 declare class _Some4 extends _Some3 {
   declare properties: _Some4.Props
-  constructor(attrs?: Partial<_Some4.Attrs>)
 }
 
 describe("document/defs module", () => {
@@ -211,11 +206,11 @@ describe("document/defs module", () => {
       expect(Some3.__qualified__).to.be.equal("some.Some3")
       expect(Some4.__qualified__).to.be.equal("some.Some4")
 
-      const some0 = new Some0()
-      const some1 = new Some1()
-      const some2 = new Some2()
-      const some3 = new Some3()
-      const some4 = new Some4()
+      const some0 = Some0.create()
+      const some1 = Some1.create()
+      const some2 = Some2.create()
+      const some3 = Some3.create()
+      const some4 = Some4.create()
 
       expect(some0).to.be.instanceof(Model)
       expect(some1).to.be.instanceof(Model)
@@ -275,8 +270,8 @@ describe("document/defs module", () => {
 
       expect(some1.prop0).to.be.equal("foo")
       expect(`${some1.properties.prop0.kind}`).to.be.equal("Regex((?P<word>foo))")
-      expect(new Some1({prop0: "doesn't match"}).prop0).to.be.equal("doesn't match")
-      expect(() => new Some1({prop0: 10 as any})).to.throw()
+      expect(Some1.create({prop0: "doesn't match"}).prop0).to.be.equal("doesn't match")
+      expect(() => Some1.create({prop0: 10 as any})).to.throw()
       expect(some1.prop1).to.be.equal(null)
       expect(some1.prop2).to.be.equal(1)
       expect(some1.prop3).to.be.equal([1, "a"])
@@ -300,8 +295,8 @@ describe("document/defs module", () => {
       expect(some2.prop8).to.be.structurally.equal(new Map([[["a", "a"], 0], [["b"], 1]]))
       expect(some2.prop9).to.be.equal("enum2")
 
-      const some001 = new Some0({prop2: false, prop4: 128})
-      const some002 = new Some0({prop2: false, prop4: 129})
+      const some001 = Some0.create({prop2: false, prop4: 128})
+      const some002 = Some0.create({prop2: false, prop4: 129})
       expect(some2.prop10).to.be.structurally.equal(some001)
       expect(some2.prop11).to.be.structurally.equal([some001, some002])
 
@@ -338,12 +333,12 @@ describe("document/defs module", () => {
 
       const First = resolver.get("some.First")! as any
       const Later = resolver.get("some.Later")! as any
-      const first = new First()
-      const later = new Later()
+      const first = First.create()
+      const later = Later.create()
 
       expect(first.payload).to.be.instanceof(Later)
       expect(later.child).to.be.equal(null)
-      expect(new Later({child: later} as any)).to.be.instanceof(Later)
+      expect(Later.create({child: later} as any)).to.be.instanceof(Later)
     })
 
     it("that resolves buffered defaults", () => {
@@ -370,7 +365,7 @@ describe("document/defs module", () => {
       decode_defs(defs, deserializer, new Map([[buffer_id, values.buffer]]))
 
       const Buffered = resolver.get("some.Buffered")! as any
-      const buffered = new Buffered()
+      const buffered = Buffered.create()
       expect(buffered.payload).to.be.instanceof(Float64NDArray)
       expect(buffered.payload).to.be.equal(values)
     })

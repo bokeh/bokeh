@@ -191,7 +191,7 @@ export class StepView extends XYGlyphView {
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
-    const result = new Selection()
+    const result = Selection.create()
     const point = {x: geometry.sx, y: geometry.sy}
     const threshold = Math.max(2, this.line_width.value / 2)
     const mode = this.model.mode
@@ -244,7 +244,7 @@ export class StepView extends XYGlyphView {
       }
     }
 
-    const result = new Selection()
+    const result = Selection.create()
     if (indices.length != 0) {
       result.add_to_selected_glyphs(this.model)
       result.view = this

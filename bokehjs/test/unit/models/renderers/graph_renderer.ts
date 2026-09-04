@@ -17,7 +17,7 @@ type GraphComponents = {
 }
 
 async function create_graph_document(): Promise<GraphComponents> {
-  const layout_provider = new StaticLayoutProvider({
+  const layout_provider = StaticLayoutProvider.create({
     graph_layout: new Map([
       [4, [2, 1]],
       [5, [2, 2]],
@@ -26,17 +26,17 @@ async function create_graph_document(): Promise<GraphComponents> {
     ]),
   })
 
-  const node_renderer = new GlyphRenderer({
-    glyph: new Scatter({size: 10, fill_color: "red"}),
-    data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+  const node_renderer = GlyphRenderer.create({
+    glyph: Scatter.create({size: 10, fill_color: "red"}),
+    data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
   })
-  const edge_renderer = new GlyphRenderer({
-    glyph: new MultiLine({line_width: 2, line_color: "gray"}),
-    data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+  const edge_renderer = GlyphRenderer.create({
+    glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
+    data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
   })
 
-  const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
-  const plot = new Plot({renderers: [graph]})
+  const graph = GraphRenderer.create({layout_provider, node_renderer, edge_renderer})
+  const plot = Plot.create({renderers: [graph]})
   await display(plot)
 
   return {

@@ -9,7 +9,7 @@ import {version as js_version} from "@bokehjs/version"
 describe("CustomJSHover", () => {
 
   describe("default constructor", () => {
-    const customjs_hover = new CustomJSHover()
+    const customjs_hover = CustomJSHover.create()
 
     it("should have empty args", () => {
       expect(customjs_hover.args).to.be.equal({})
@@ -21,8 +21,8 @@ describe("CustomJSHover", () => {
   })
 
   describe("values property", () => {
-    const range = new Range1d()
-    const customjs_hover = new CustomJSHover({args: {foo: range}})
+    const range = Range1d.create()
+    const customjs_hover = CustomJSHover.create({args: {foo: range}})
 
     it("should contain the args values", () => {
       expect(customjs_hover.values).to.be.equal([range])
@@ -44,7 +44,7 @@ describe("CustomJSHover", () => {
     })
 
     it("should update when args changes", () => {
-      const rng2 = new Range1d()
+      const rng2 = Range1d.create()
       customjs_hover.args = {foo: rng2}
       expect(customjs_hover.values).to.be.equal([rng2])
     })
@@ -53,20 +53,20 @@ describe("CustomJSHover", () => {
   describe("_make_code method", () => {
 
     it("should return a Function", () => {
-      const r = new CustomJSHover()
+      const r = CustomJSHover.create()
       expect(r._make_code("value", "format", "special_vars", r.code)).to.be.instanceof(Function)
     })
 
     it("should have formatter property as function body", () => {
-      const r = new CustomJSHover({code: "return 10"})
+      const r = CustomJSHover.create({code: "return 10"})
       const f = new Function("value", "format", "special_vars", "'use strict';\nreturn 10")
       const formatter = r._make_code("value", "format", "special_vars", r.code)
       expect(formatter.toString()).to.be.equal(f.toString())
     })
 
     it("should have values as function args", () => {
-      const rng = new Range1d()
-      const r = new CustomJSHover({args: {foo: rng.ref()}, code: "return 10"})
+      const rng = Range1d.create()
+      const r = CustomJSHover.create({args: {foo: rng.ref()}, code: "return 10"})
       const f = new Function("foo", "value", "format", "special_vars", "'use strict';\nreturn 10")
       const formatter = r._make_code("value", "format", "special_vars", r.code)
       expect(formatter.toString()).to.be.equal(f.toString())
@@ -76,12 +76,12 @@ describe("CustomJSHover", () => {
   describe("format method", () => {
 
     it("should execute the code and return the result", () => {
-      const r = new CustomJSHover({code: "return format + ' ' + value + ' ' + 10"})
+      const r = CustomJSHover.create({code: "return format + ' ' + value + ' ' + 10"})
       expect(r.format(0, "custom", {})).to.be.equal("custom 0 10")
     })
 
     it("should execute the code with args parameters passed", () => {
-      const r = new CustomJSHover({args: {foo: 5}, code: "return format + ' ' + value + ' ' + (10 + foo)"})
+      const r = CustomJSHover.create({args: {foo: 5}, code: "return format + ' ' + value + ' ' + (10 + foo)"})
       expect(r.format(0, "custom", {})).to.be.equal("custom 0 15")
     })
   })

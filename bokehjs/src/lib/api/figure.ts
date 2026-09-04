@@ -1,4 +1,5 @@
-import type {HasProps} from "../core/has_props"
+import {construct} from "../core/has_props"
+import type {HasProps, HasPropsClass} from "../core/has_props"
 import type {Attrs} from "../core/types"
 import type {Value, Field, Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
@@ -160,6 +161,22 @@ export class SubFigure extends GlyphAPI {
 
 export interface Figure extends GlyphAPI {}
 export class Figure extends BaseFigure {
+  private readonly _figure_options: {
+    x_axis_type: AxisType
+    y_axis_type: AxisType
+    x_axis_location: AxisLocation
+    y_axis_location: AxisLocation
+    x_axis_label: Axis["axis_label"]
+    y_axis_label: Axis["axis_label"]
+    x_minor_ticks: number | "auto"
+    y_minor_ticks: number | "auto"
+    tools: (Tool | ToolName)[] | null
+    active_drag: Toolbar.Attrs["active_drag"] | string | undefined
+    active_inspect: Toolbar.Attrs["active_inspect"] | string | undefined
+    active_scroll: Toolbar.Attrs["active_scroll"] | string | undefined
+    active_tap: Toolbar.Attrs["active_tap"] | string | undefined
+    active_multi: Toolbar.Attrs["active_multi"] | string | undefined
+  } | null
 
   get xaxes(): Axis[] {
     return [...this.below, ...this.above].filter((r) => r instanceof Axis)
@@ -205,7 +222,7 @@ export class Figure extends BaseFigure {
     const legends = this.panels.filter((r) => r instanceof Legend)
 
     if (legends.length == 0) {
-      const legend = new Legend()
+      const legend = Legend.create()
       this.add_layout(legend)
       return legend
     } else {
@@ -286,6 +303,49 @@ export class Figure extends BaseFigure {
 
     super({...attrs, x_range, y_range, x_scale, y_scale})
 
+    this._figure_options = this.is_deferred ? null : {
+      x_axis_type,
+      y_axis_type,
+      x_axis_location,
+      y_axis_location,
+      x_axis_label,
+      y_axis_label,
+      x_minor_ticks,
+      y_minor_ticks,
+      tools,
+      active_drag,
+      active_inspect,
+      active_scroll,
+      active_tap,
+      active_multi,
+    }
+  }
+
+  override initialize(): void {
+    super.initialize()
+
+    if (this._figure_options == null) {
+      return
+    }
+
+    const {
+      x_axis_type,
+      y_axis_type,
+      x_axis_location,
+      y_axis_location,
+      x_axis_label,
+      y_axis_label,
+      x_minor_ticks,
+      y_minor_ticks,
+      tools,
+      active_drag,
+      active_inspect,
+      active_scroll,
+      active_tap,
+      active_multi,
+    } = this._figure_options
+    const {x_range, y_range} = this
+
     this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, x_range, 0)
     this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, y_range, 1)
 
@@ -354,7 +414,7 @@ export class Figure extends BaseFigure {
   }
 
   subplot(coordinates: ICoordinateMapping): SubFigure {
-    const mapping = new CoordinateMapping(coordinates)
+    const mapping = CoordinateMapping.create(coordinates)
     return new SubFigure(mapping, this)
   }
 
@@ -524,11 +584,11 @@ export class Figure extends BaseFigure {
     const source = (() => {
       const {source} = attrs
       if (source == null) {
-        return new ColumnDataSource()
+        return ColumnDataSource.create()
       } else if (source instanceof ColumnarDataSource) {
         return source
       } else {
-        return new ColumnDataSource({data: source})
+        return ColumnDataSource.create({data: source})
       }
     })()
     const data = clone(source.data)
@@ -586,7 +646,7 @@ export class Figure extends BaseFigure {
     source.data = data
 
     const _make_glyph = (cls: Class<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
-      return new cls({...attrs, ...extra_attrs})
+      return construct(cls as HasPropsClass<Glyph>, {...attrs, ...extra_attrs})
     }
 
     const glyph  = _make_glyph(cls, attrs, glyph_ca)
@@ -595,7 +655,7 @@ export class Figure extends BaseFigure {
     const hglyph = !is_empty(hglyph_ca) ? _make_glyph(cls, attrs, hglyph_ca) : undefined
     const mglyph = !is_empty(mglyph_ca) ? _make_glyph(cls, attrs, mglyph_ca) : "auto"
 
-    const glyph_renderer = new GlyphRenderer({
+    const glyph_renderer = GlyphRenderer.create({
       data_source:        source,
       view,
       glyph,
@@ -627,7 +687,7 @@ export class Figure extends BaseFigure {
 
   static _get_range(range?: Range | [number, number] | ArrayLike<string>): Range {
     if (range == null) {
-      return new DataRange1d()
+      return DataRange1d.create()
     }
     if (range instanceof Range) {
       return range
@@ -635,10 +695,10 @@ export class Figure extends BaseFigure {
     if (isArray(range)) {
       if (isArrayOf(range, isString)) {
         const factors = range
-        return new FactorRange({factors})
+        return FactorRange.create({factors})
       } else {
         const [start, end] = range
-        return new Range1d({start, end})
+        return Range1d.create({start, end})
       }
     }
     throw new Error(`unable to determine proper range for: '${range}'`)
@@ -654,14 +714,14 @@ export class Figure extends BaseFigure {
         case "datetime":
         case "timedelta":
         case "mercator":
-          return new LinearScale()
+          return LinearScale.create()
         case "log":
-          return new LogScale()
+          return LogScale.create()
       }
     }
 
     if (range_input instanceof FactorRange) {
-      return new CategoricalScale()
+      return CategoricalScale.create()
     }
 
     throw new Error(`unable to determine proper scale for: '${range_input}'`)
@@ -673,9 +733,9 @@ export class Figure extends BaseFigure {
     if (axis != null) {
       if (axis instanceof LogAxis) {
         if (dim == 0) {
-          this.x_scale = new LogScale()
+          this.x_scale = LogScale.create()
         } else {
-          this.y_scale = new LogScale()
+          this.y_scale = LogScale.create()
         }
       }
 
@@ -688,7 +748,7 @@ export class Figure extends BaseFigure {
         this.add_layout(axis, axis_location)
       }
 
-      const grid = new Grid({dimension: dim, ticker: axis.ticker})
+      const grid = Grid.create({dimension: dim, ticker: axis.ticker})
       this.add_layout(grid)
     }
   }
@@ -698,15 +758,15 @@ export class Figure extends BaseFigure {
       case null:
         return null
       case "linear":
-        return new LinearAxis()
+        return LinearAxis.create()
       case "log":
-        return new LogAxis()
+        return LogAxis.create()
       case "datetime":
-        return new DatetimeAxis()
+        return DatetimeAxis.create()
       case "timedelta":
-        return new TimedeltaAxis()
+        return TimedeltaAxis.create()
       case "mercator": {
-        const axis = new MercatorAxis()
+        const axis = MercatorAxis.create()
         const dimension = dim == 0 ? "lon" : "lat"
         axis.ticker.dimension = dimension
         axis.formatter.dimension = dimension
@@ -714,9 +774,9 @@ export class Figure extends BaseFigure {
       }
       case "auto":
         if (range instanceof FactorRange) {
-          return new CategoricalAxis()
+          return CategoricalAxis.create()
         } else {
-          return new LinearAxis()
+          return LinearAxis.create()
         } // TODO: return DatetimeAxis (Date type)
       default:
         throw new Error("shouldn't have happened")
@@ -757,7 +817,7 @@ export class Figure extends BaseFigure {
       }
     }
     if (!added) {
-      const new_item = new LegendItem({label: legend_item_label, renderers: [glyph_renderer]})
+      const new_item = LegendItem.create({label: legend_item_label, renderers: [glyph_renderer]})
       legend.items.push(new_item)
     }
   }
@@ -768,7 +828,7 @@ export class Figure extends BaseFigure {
     if (item != null) {
       item.renderers.push(glyph_renderer)
     } else {
-      const new_item = new LegendItem({label, renderers: [glyph_renderer]})
+      const new_item = LegendItem.create({label, renderers: [glyph_renderer]})
       legend.items.push(new_item)
     }
   }
@@ -779,7 +839,7 @@ export class Figure extends BaseFigure {
     if (item != null) {
       item.renderers.push(glyph_renderer)
     } else {
-      const new_item = new LegendItem({label, renderers: [glyph_renderer]})
+      const new_item = LegendItem.create({label, renderers: [glyph_renderer]})
       legend.items.push(new_item)
     }
   }
@@ -794,7 +854,7 @@ export class Figure extends BaseFigure {
     for (const value of values) {
       const label = {value: `${value}`}
       const index = column.indexOf(value)
-      const new_item = new LegendItem({label, renderers: [glyph_renderer], index})
+      const new_item = LegendItem.create({label, renderers: [glyph_renderer], index})
       legend.items.push(new_item)
     }
   }
@@ -811,5 +871,5 @@ export class Figure extends BaseFigure {
 }
 
 export function figure(attributes?: Partial<Figure.Attrs>): Figure {
-  return new Figure(attributes)
+  return construct(Figure, attributes as Attrs | undefined)
 }

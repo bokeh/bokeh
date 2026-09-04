@@ -23,25 +23,25 @@ describe("ContinuousTicker Model", () => {
     }
   }
 
-  const range = new Range1d({start: 0, end: 100})
+  const range = Range1d.create({start: 0, end: 100})
 
   it("shouldn't allow negative tick numbers", () =>{
     with_log_level("off", () => {
-      expect(() => new MyTicker({num_minor_ticks: -1})).to.throw()
-      expect(() => new MyTicker({desired_num_ticks: -1})).to.throw()
+      expect(() => MyTicker.create({num_minor_ticks: -1})).to.throw()
+      expect(() => MyTicker.create({desired_num_ticks: -1})).to.throw()
     })
   })
 
   it("shouldn't allow floats as tick numbers", () =>{
     with_log_level("off", () => {
-      expect(() => new MyTicker({num_minor_ticks: 1.5})).to.throw()
-      expect(() => new MyTicker({desired_num_ticks: 1.5})).to.throw()
+      expect(() => MyTicker.create({num_minor_ticks: 1.5})).to.throw()
+      expect(() => MyTicker.create({desired_num_ticks: 1.5})).to.throw()
     })
   })
 
   it("should use default tick numbers if desired_num_ticks are too large", () =>{
     with_log_level("off", () => {
-      const ticker = new MyTicker({desired_num_ticks: 1e29})
+      const ticker = MyTicker.create({desired_num_ticks: 1e29})
       const ticks = ticker.get_ticks(-200, 200, range, NaN)
       expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
       expect(ticks.minor).to.be.equal([-200, -180, -160, -140, -120, -100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200])
@@ -50,7 +50,7 @@ describe("ContinuousTicker Model", () => {
 
   it("should use default tick numbers if num_minor_ticks are too large", () =>{
     with_log_level("off", () => {
-      const ticker = new MyTicker({num_minor_ticks: 1e29})
+      const ticker = MyTicker.create({num_minor_ticks: 1e29})
       const ticks = ticker.get_ticks(-200, 200, range, NaN)
       expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
       expect(ticks.minor).to.be.equal([-200, -180, -160, -140, -120, -100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200])
@@ -58,7 +58,7 @@ describe("ContinuousTicker Model", () => {
   })
 
   it("should have five major and minor ticks only inside bounds", () => {
-    const ticker = new MyTicker({num_minor_ticks: 2, desired_num_ticks: 5})
+    const ticker = MyTicker.create({num_minor_ticks: 2, desired_num_ticks: 5})
 
     const ticks = ticker.get_ticks(-200, 200, range, NaN)
     expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
@@ -66,7 +66,7 @@ describe("ContinuousTicker Model", () => {
   })
 
   it("should have five major and matching minor ticks", () => {
-    const ticker = new MyTicker({num_minor_ticks: 1, desired_num_ticks: 5})
+    const ticker = MyTicker.create({num_minor_ticks: 1, desired_num_ticks: 5})
 
     const ticks = ticker.get_ticks(-200, 200, range, NaN)
     expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
@@ -74,7 +74,7 @@ describe("ContinuousTicker Model", () => {
   })
 
   it("should have five major and zero minor ticks", () => {
-    const ticker = new MyTicker({num_minor_ticks: 0, desired_num_ticks: 5})
+    const ticker = MyTicker.create({num_minor_ticks: 0, desired_num_ticks: 5})
 
     const ticks = ticker.get_ticks(-200, 200, range, NaN)
     expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
@@ -82,7 +82,7 @@ describe("ContinuousTicker Model", () => {
   })
 
   it("should handle empty start/end case by returning no ticks", () => {
-    const ticker = new MyTicker({num_minor_ticks: 2, desired_num_ticks: 5})
+    const ticker = MyTicker.create({num_minor_ticks: 2, desired_num_ticks: 5})
 
     const ticks = ticker.get_ticks(NaN, NaN, range, NaN)
     expect(ticks.major).to.be.equal([])
@@ -92,7 +92,7 @@ describe("ContinuousTicker Model", () => {
   describe("ContinuousTicker get_min_interval method", () => {
 
     it("should return min_interval property", () => {
-      const ticker = new MyTicker()
+      const ticker = MyTicker.create()
       ticker.min_interval = 1
       expect(ticker.get_min_interval()).to.be.equal(1)
     })
@@ -101,13 +101,13 @@ describe("ContinuousTicker Model", () => {
   describe("ContinuousTicker get_max_interval method", () => {
 
     it("should return max_interval property if set", () => {
-      const ticker = new MyTicker()
+      const ticker = MyTicker.create()
       ticker.max_interval = 2
       expect(ticker.get_max_interval()).to.be.equal(2)
     })
 
     it("should return Infinity if unset", () => {
-      const ticker = new MyTicker()
+      const ticker = MyTicker.create()
       expect(ticker.get_max_interval()).to.be.equal(Infinity)
     })
   })
@@ -115,19 +115,19 @@ describe("ContinuousTicker Model", () => {
   describe("ContinuousTicker get_interval method", () => {
 
     it("should return correct tick interval", () => {
-      const ticker = new MyTicker()
+      const ticker = MyTicker.create()
       const interval = ticker.get_ideal_interval(0, 100, 10)
       expect(interval).to.be.equal(10)
     })
 
     it("should return NaN if start/end is NaN", () => {
-      const ticker = new MyTicker()
+      const ticker = MyTicker.create()
       const interval = ticker.get_ideal_interval(0, NaN, 10)
       expect(interval).to.be.NaN
     })
 
     it("should return NaN if desired_n_ticks is NaN", () => {
-      const ticker = new MyTicker()
+      const ticker = MyTicker.create()
       const interval = ticker.get_ideal_interval(0, 100, NaN)
       expect(interval).to.be.NaN
     })
