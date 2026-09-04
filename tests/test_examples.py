@@ -30,8 +30,8 @@ from os.path import (
     dirname,
     join,
 )
-from types import FrameType
-from typing import Any, Literal, NoReturn
+from pathlib import Path
+from typing import Any, Literal
 from urllib.parse import urlparse
 
 # External imports
@@ -322,6 +322,155 @@ def _screenshot(page: Any) -> bytes:
 
 type ProcStatus = int | Literal["timeout"]
 
+_EXAMPLE_TIMEOUT = 20
+_SLOW_EXAMPLE_TIMEOUT = 60
+_PACKAGE_EXAMPLE_TIMEOUT = 180
+_PROCESS_CLEANUP_TIMEOUT = 5
+
+def _example_timeout(example: Example) -> int:
+    if any(os.path.isfile(join(ext_dir, "package.json")) for ext_dir in example.extensions):
+        return _PACKAGE_EXAMPLE_TIMEOUT
+    return _SLOW_EXAMPLE_TIMEOUT if example.is_slow else _EXAMPLE_TIMEOUT
+
+def _kill_process(proc: subprocess.Popen[bytes]) -> None:
+    if proc.poll() is None:
+        try:
+            proc.kill()
+        except OSError:
+            pass
+
+def _terminate_process_tree(proc: subprocess.Popen[bytes]) -> None:
+    if sys.platform == "win32":
+        try:
+            result = subprocess.run(
+                ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=_PROCESS_CLEANUP_TIMEOUT,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            _kill_process(proc)
+        else:
+            if result.returncode != 0:
+                _kill_process(proc)
+    else:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except OSError:
+            _kill_process(proc)
+
+def _close_process(proc: subprocess.Popen[bytes]) -> None:
+    _kill_process(proc)
+
+    for stream in (proc.stdout, proc.stderr):
+        if stream is not None:
+            try:
+                stream.close()
+            except OSError:
+                pass
+
+    try:
+        proc.wait(timeout=_PROCESS_CLEANUP_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        pass
+
+def _decode_output(output: bytes | str | None) -> str:
+    if output is None:
+        return ""
+    if isinstance(output, bytes):
+        return output.decode("utf-8")
+    return output
+
+def _run_process(cmd: list[str], cwd: str, env: dict[str, str], timeout: float) -> tuple[ProcStatus, float, str, str]:
+    start = time.monotonic()
+    proc = subprocess.Popen(
+        cmd,
+        cwd=cwd,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=sys.platform != "win32",
+    )
+
+    status: ProcStatus
+    out: bytes | str | None
+    err: bytes | str | None
+    try:
+        out, err = proc.communicate(timeout=timeout)
+        assert proc.returncode is not None
+        status = proc.returncode
+    except subprocess.TimeoutExpired:
+        status = "timeout"
+        _terminate_process_tree(proc)
+        try:
+            out, err = proc.communicate(timeout=_PROCESS_CLEANUP_TIMEOUT)
+        except subprocess.TimeoutExpired as error:
+            out, err = error.output, error.stderr
+            _close_process(proc)
+
+    duration = time.monotonic() - start
+    return status, duration, _decode_output(out), _decode_output(err)
+
+@pytest.mark.parametrize(("slow", "package", "expected"), [
+    (False, False, 20),
+    (True, False, 60),
+    (False, True, 180),
+    (True, True, 180),
+])
+def test_example_timeout(tmp_path: Path, slow: bool, package: bool, expected: int) -> None:
+    extension = tmp_path / "extension"
+    extension.mkdir()
+    if package:
+        (extension / "package.json").write_text("{}")
+
+    flags = Flags.file | (Flags.slow if slow else 0)
+    example = Example(str(tmp_path / "example.py"), flags, str(tmp_path), [str(extension)])
+
+    assert _example_timeout(example) == expected
+
+def test_run_process_terminates_descendants(tmp_path: Path) -> None:
+    started = tmp_path / "started"
+    release = tmp_path / "release"
+    survived = tmp_path / "survived"
+
+    child_code = f"""\
+import time
+from pathlib import Path
+
+Path({str(started)!r}).touch()
+while not Path({str(release)!r}).exists():
+    time.sleep(0.01)
+Path({str(survived)!r}).touch()
+"""
+    parent_code = f"""\
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+subprocess.Popen([sys.executable, "-c", {child_code!r}])
+while not Path({str(started)!r}).exists():
+    time.sleep(0.01)
+print("child started", flush=True)
+time.sleep(60)
+"""
+
+    status, duration, out, _ = _run_process(
+        [sys.executable, "-c", parent_code],
+        str(tmp_path),
+        os.environ.copy(),
+        timeout=2,
+    )
+
+    assert status == "timeout"
+    assert "child started" in out
+    assert duration < 2 + 3 * _PROCESS_CLEANUP_TIMEOUT
+
+    release.touch()
+    time.sleep(0.5)
+    assert not survived.exists()
+
 def _run_example(example: Example, bokeh_server: str) -> tuple[ProcStatus, float, str, str]:
     code = f"""\
 __file__ = filename = {example.path!r}
@@ -355,39 +504,7 @@ with open(filename, 'rb') as example:
     assert port is not None
     env['BOKEH_DEFAULT_SERVER_PORT'] = str(port)
 
-    class Timeout(Exception):
-        pass
-
-    if sys.platform != "win32":
-        def alarm_handler(sig: int, frame: FrameType | None) -> NoReturn:
-            raise Timeout
-
-        signal.signal(signal.SIGALRM, alarm_handler)
-        signal.alarm(20 if not example.is_slow else 60)
-
-    start = time.time()
-    with subprocess.Popen(
-        cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    ) as proc:
-        status: ProcStatus
-        try:
-            status = proc.wait()
-        except Timeout:
-            proc.kill()
-            status = 'timeout'
-        finally:
-            if sys.platform != "win32":
-                signal.alarm(0)
-
-        end = time.time()
-
-        assert proc.stdout is not None
-        assert proc.stderr is not None
-
-        out = proc.stdout.read().decode("utf-8")
-        err = proc.stderr.read().decode("utf-8")
-
-    return (status, end - start, out, err)
+    return _run_process(cmd, cwd, env, _example_timeout(example))
 
 #-----------------------------------------------------------------------------
 # Dev API
