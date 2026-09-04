@@ -10,6 +10,7 @@ from __future__ import annotations
 # Standard library imports
 import json
 from copy import deepcopy
+from dataclasses import fields
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -98,6 +99,13 @@ def test_fingerprint_normalizes_allocation_dependent_retained_model_ids() -> Non
     second = embed(_equivalent_graph("two"))
 
     assert first.source != second.source
+    assert first.fingerprint == second.fingerprint
+
+
+def test_fingerprint_normalizes_integral_json_numbers() -> None:
+    first = embed(CustomJS(code="return", args={"value": 1.0}))
+    second = embed(CustomJS(code="return", args={"value": 1}))
+
     assert first.fingerprint == second.fingerprint
     assert first.to_json_string() == first.to_json_string()
 
@@ -246,6 +254,23 @@ def test_resource_policies_resolve_none_cdn_inline_and_offline_conflicts() -> No
         )
 
 
+def test_resource_requirement_union_is_exact_and_deterministic() -> None:
+    extension_asset = ResourceAssetRequirement("script", url="https://example.test/ext.js")
+    first = ResourceRequirements(
+        ("bokeh/core", "bokeh/api"),
+        (ExtensionRequirement("shared", (extension_asset,)),),
+    )
+    second = ResourceRequirements(
+        ("bokeh/core", "bokeh/widgets", "bokeh/api"),
+        (ExtensionRequirement("shared", (extension_asset,)),),
+    )
+
+    combined = ResourceRequirements.union(first, second)
+
+    assert combined.components == ("bokeh/core", "bokeh/widgets", "bokeh/api")
+    assert combined.extensions == (ExtensionRequirement("shared", (extension_asset,)),)
+
+
 def test_resource_policy_reports_csp_and_sri_conflicts() -> None:
     with pytest.raises(ResourceConflictError, match="external_only"):
         ResourcePolicy(mode="inline", external_only=True)
@@ -297,6 +322,13 @@ def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -
     assert "fetch(" not in external.bootstrap
     assert "data-bokeh-payload-url=\"/assets/plot.json\"" in external.html
     assert external.build_fingerprint == artifact.external("/assets/plot.json", resources="none").build_fingerprint
+
+    assert tuple(field.name for field in fields(fragment)) == (
+        "artifact", "mounts", "script", "resources", "build_fingerprint", "html",
+    )
+    assert tuple(field.name for field in fields(external)) == (
+        "artifact", "payload_url", "mounts", "bootstrap", "resources", "build_fingerprint", "html",
+    )
 
     mime = artifact._repr_mimebundle_()
     assert mime["application/vnd.bokeh.embed+json"] == artifact.to_dict()

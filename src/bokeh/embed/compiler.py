@@ -35,6 +35,14 @@ class EmbedCompileError(ValueError):
 
 @dataclass(frozen=True)
 class EmbedSpec:
+    '''Normalized standalone compiler input.
+
+    ``models`` and ``keys`` are parallel ordered tuples. ``input_shape`` records
+    the caller-facing form for diagnostics and metadata; the remaining fields
+    control theme application, callback validation, metadata, and temporary
+    document reuse. Hosts should normally call :func:`embed` rather than build
+    a specification directly.
+    '''
     models: tuple[Model, ...]
     keys: tuple[str, ...]
     input_shape: Literal["single", "sequence", "mapping", "document"]
@@ -46,7 +54,12 @@ class EmbedSpec:
 
 def embed(models: EmbedInput, *, theme: ThemeSource = None, callback_policy: CallbackPolicy = "warn",
         metadata: Mapping[str, Any] | None = None, _always_new: bool = False) -> EmbedArtifact:
-    """Compile standalone Bokeh content into a portable embedding artifact."""
+    """Compile standalone Bokeh content into one portable embedding artifact.
+
+    Mapping keys become stable logical root keys. Sequences receive ordinal
+    keys, and a single model receives ``"root"``. The compiler records exact
+    resource requirements but does not choose how a host delivers them.
+    """
     spec = _standalone_spec(
         models, theme=theme, callback_policy=callback_policy, metadata=metadata, always_new=_always_new,
     )
@@ -54,6 +67,7 @@ def embed(models: EmbedInput, *, theme: ThemeSource = None, callback_policy: Cal
 
 
 def compile_embed(spec: EmbedSpec) -> EmbedArtifact:
+    '''Compile an already-normalized specification into an immutable artifact.'''
     if spec.callback_policy not in ("warn", "error", "suppress"):
         raise EmbedCompileError("callback_policy must be 'warn', 'error', or 'suppress'")
 

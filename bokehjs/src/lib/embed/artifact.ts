@@ -15,15 +15,20 @@ const resource_components = new Set<ResourceComponent>([
   "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax", "bokeh/api",
 ])
 
+/** Logical root address for graph-minimal standalone document data. */
 export type StructuralArtifactRoot = {key: string, document: number, root: number}
+/** Logical root address for an ID-full live server document. */
 export type ServerArtifactRoot = {key: string, model_id: string}
+/** Versioned root address selected by the artifact source kind. */
 export type ArtifactRoot = StructuralArtifactRoot | ServerArtifactRoot
 
+/** Embedded static documents whose anonymous IDs may be reconstructed. */
 export type StandaloneArtifactSource = {
   kind: "standalone"
   documents: DocJson[]
 }
 
+/** Connection parameters for a Bokeh server session. */
 export type ServerArtifactSource = {
   kind: "server"
   url: string
@@ -35,6 +40,7 @@ export type ServerArtifactSource = {
   relative_urls?: boolean
 }
 
+/** Validated cross-language envelope accepted by `Bokeh.mount()`. */
 export type EmbedArtifact = {
   schema: typeof embed_artifact_schema
   bokeh_version: string
@@ -46,6 +52,7 @@ export type EmbedArtifact = {
   fingerprint: string
 }
 
+/** Decoded source plus release hooks transferred to a `BokehMount`. */
 export type PreparedArtifact = {
   document: Document
   roots: Map<string, HasProps>
@@ -55,13 +62,16 @@ export type PreparedArtifact = {
   release(): void
 }
 
+/** Artifact preparation phase attached to structured errors. */
 export type ArtifactErrorPhase = "schema" | "fingerprint" | "resource" | "deserialize" | "payload" | "session"
+/** Artifact identity and URL context attached to a failure. */
 export type ArtifactErrorSource = {
   readonly kind: "artifact"
   readonly artifact?: string
   readonly url?: string
 }
 
+/** Schema, decoding, resource, transport, or session preparation failure. */
 export class ArtifactError extends Error {
   override readonly name = "BokehArtifactError"
   readonly phase: ArtifactErrorPhase
@@ -92,10 +102,12 @@ function as_string(value: unknown, context: string): string {
   return value
 }
 
+/** Return true only for an object carrying the current artifact schema tag. */
 export function is_embed_artifact(value: unknown): value is EmbedArtifact {
   return isPlainObject(value) && (value as {schema?: unknown}).schema == embed_artifact_schema
 }
 
+/** Validate the complete public artifact shape without performing I/O. */
 export function validate_embed_artifact(value: unknown): EmbedArtifact {
   const artifact = as_record(value, "embedding artifact")
   const schema = as_string(artifact.schema, "artifact.schema")
@@ -179,6 +191,10 @@ export function validate_embed_artifact(value: unknown): EmbedArtifact {
   return artifact as EmbedArtifact
 }
 
+/**
+ * Validate, fingerprint, satisfy resources, and decode an artifact for mounting.
+ * The caller assumes ownership of the returned document, session, and release hook.
+ */
 export async function prepare_embed_artifact(value: unknown, policy: ResourcePolicy = "auto",
     resolver?: ModelResolver, signal?: AbortSignal): Promise<PreparedArtifact> {
   const artifact = validate_embed_artifact(value)
@@ -207,6 +223,7 @@ export async function prepare_embed_artifact(value: unknown, policy: ResourcePol
     : prepare_server(artifact, signal)
 }
 
+/** Compute the normalized cross-language SHA-256 artifact identity. */
 export async function compute_embed_artifact_fingerprint(artifact: EmbedArtifact): Promise<string> {
   const payload = normalize_model_ids({
     schema: artifact.schema,

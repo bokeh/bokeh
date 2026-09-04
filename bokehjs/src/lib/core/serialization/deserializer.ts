@@ -43,6 +43,7 @@ export class Deserializer {
 
   protected _decoding: boolean = false
   protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
+  protected readonly _deferred_references: Set<ID> = new Set()
   protected readonly _finalizable: Set<HasProps> = new Set()
   protected readonly _new_references: Set<ID> = new Set()
   protected readonly _updated_references: Map<HasProps, Attrs> = new Map()
@@ -61,6 +62,7 @@ export class Deserializer {
 
     this._decoding = true
     try {
+      this._prepare_references(obj)
       const decoded = this._decode(obj)
       const finalizable = new Set(this._finalizable)
 
@@ -117,6 +119,7 @@ export class Deserializer {
     } finally {
       this._decoding = false
       this._buffers.clear()
+      this._deferred_references.clear()
       this._finalizable.clear()
       this._new_references.clear()
       this._updated_references.clear()
@@ -356,6 +359,11 @@ export class Deserializer {
     if (ref != null) {
       if (ref.type == type) {
         const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+        if (this._deferred_references.delete(id)) {
+          ref.initialize_props(decoded_attributes)
+          this._finalizable.add(ref)
+          return ref
+        }
         const previous = (() => {
           const previous = this._updated_references.get(ref)
           if (previous != null) {
@@ -395,6 +403,33 @@ export class Deserializer {
 
   warning(message: string): void {
     logger.warn(message)
+  }
+
+  private _prepare_references(value: unknown): void {
+    const visit = (child: unknown): void => {
+      if (isArray(child)) {
+        child.forEach(visit)
+      } else if (isPlainObject(child)) {
+        // Registered decoders own the representation nested under their value.
+        // Model definitions, for example, can contain defaults which resemble
+        // references to types that the definition has not registered yet.
+        if (isString(child.type) && _decoders.has(child.type)) {
+          return
+        }
+        if (child.type == "object" && isString(child.id) && isString(child.name) &&
+            !this.references.has(child.id)) {
+          const cls = this._resolve_type(child.name)
+          const instance = construct_deferred(cls, child.id)
+          this.references.set(child.id, instance)
+          this._new_references.add(child.id)
+          this._deferred_references.add(child.id)
+        }
+        for (const item of Object.values(child)) {
+          visit(item)
+        }
+      }
+    }
+    visit(value)
   }
 
   private _resolve_type(type: string): any {
