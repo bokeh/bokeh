@@ -39,8 +39,6 @@ ALL = (
     'GMap',
     'gridplot',
     'markers',
-    'output_file',
-    'reset_output',
     'row',
     'Row',
     'save',
