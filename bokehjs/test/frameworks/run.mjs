@@ -11,6 +11,7 @@ import webpack from "webpack"
 const frameworks_dir = fileURLToPath(new URL(".", import.meta.url))
 const bokehjs_dir = resolve(frameworks_dir, "../..")
 const apps_dir = join(frameworks_dir, "apps")
+const examples_dir = join(bokehjs_dir, "examples/frameworks")
 const packaged_dir = join(bokehjs_dir, "build/test/frameworks/packaged/workspace")
 
 const devtools_arg = process.argv.find((arg) => arg.startsWith("--devtools-port="))
@@ -202,8 +203,8 @@ async function run_page(url, expected_framework, hmr_source = null) {
   }
 }
 
-async function run_smoke_page(url, name) {
-  console.log(`testing packed example: ${name} at ${url}`)
+async function run_smoke_page(url, name, kind = "packed example") {
+  console.log(`testing ${kind}: ${name} at ${url}`)
   const {client, target, exceptions, network_errors} = await open_page(url)
   try {
     const deadline = Date.now() + 30000
@@ -221,16 +222,76 @@ async function run_smoke_page(url, name) {
       return false
     })()`)) {
       if (exceptions.length != 0) {
-        throw new Error(`packed example raised a browser exception:\n${exceptions.join("\n")}`)
+        throw new Error(`${kind} raised a browser exception:\n${exceptions.join("\n")}`)
       }
       if (Date.now() > deadline) {
-        throw new Error("packed example didn't render a Bokeh figure")
+        throw new Error(`${kind} didn't render a Bokeh figure`)
       }
       await new Promise((resolve) => setTimeout(resolve, 20))
     }
     await new Promise((resolve) => setTimeout(resolve, 50))
-    assert_page_clean(exceptions, network_errors, `packed example ${name}`)
-    console.log(`passed packed example: ${name} at ${url}`)
+
+    const state = async () => await evaluate(client, `(() => {
+      const roots = [document]
+      const canvases = []
+      for (let i = 0; i < roots.length; i++) {
+        const root = roots[i]
+        for (const element of root.querySelectorAll("*")) {
+          if (element.shadowRoot != null) roots.push(element.shadowRoot)
+        }
+        for (const canvas of root.querySelectorAll("canvas")) {
+          if (canvas.width >= 200 && canvas.height >= 100) canvases.push(canvas)
+        }
+      }
+
+      let fingerprint = 2166136261
+      for (const canvas of canvases) {
+        const data = canvas.toDataURL()
+        for (let i = 0; i < data.length; i++) {
+          fingerprint = Math.imul(fingerprint ^ data.charCodeAt(i), 16777619)
+        }
+      }
+
+      const control = document.querySelector("[data-bokeh-control]")
+      const output = document.querySelector("[data-bokeh-output]")
+      return {
+        control: control instanceof HTMLInputElement ? control.value : null,
+        output: output?.textContent ?? null,
+        fingerprint: canvases.length == 0 ? null : fingerprint >>> 0,
+      }
+    })()`)
+
+    const before = await state()
+    if (before.control == null || before.output == null || before.fingerprint == null) {
+      throw new Error(`${kind} ${name} didn't expose its interactive plot contract`)
+    }
+
+    const selected = await evaluate(client, `(() => {
+      const control = document.querySelector("[data-bokeh-control]")
+      if (!(control instanceof HTMLInputElement)) throw new Error("missing native plot control")
+      control.value = control.max
+      control.dispatchEvent(new Event("input", {bubbles: true, composed: true}))
+      control.dispatchEvent(new Event("change", {bubbles: true, composed: true}))
+      return control.value
+    })()`)
+
+    const interaction_deadline = Date.now() + 5000
+    while (true) {
+      const after = await state()
+      if (after.control == selected && after.output != before.output && after.fingerprint != before.fingerprint) {
+        break
+      }
+      if (exceptions.length != 0) {
+        throw new Error(`${kind} raised a browser exception:\n${exceptions.join("\n")}`)
+      }
+      if (Date.now() > interaction_deadline) {
+        throw new Error(`${kind} ${name} control didn't update its output and rendered plot`)
+      }
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    }
+
+    assert_page_clean(exceptions, network_errors, `${kind} ${name}`)
+    console.log(`passed ${kind}: ${name} at ${url}`)
   } finally {
     await client.close()
     await CDP.Close({port: devtools_port, id: target.id})
@@ -277,6 +338,27 @@ async function test_development_apps() {
   }
 }
 
+async function test_local_development_example() {
+  const name = "react-vite"
+  const root = join(examples_dir, name)
+  const server = await createViteServer({
+    root,
+    logLevel: "warn",
+    optimizeDeps: {force: true},
+    server: {host: "127.0.0.1", port: 0},
+  })
+  await server.listen()
+  try {
+    const url = server.resolvedUrls?.local[0]
+    if (url == null) {
+      throw new Error(`Vite didn't publish a URL for ${name}`)
+    }
+    await run_smoke_page(url, name, "local development example")
+  } finally {
+    await server.close()
+  }
+}
+
 async function test_packaged_apps() {
   const applications = [
     ["angular-ng", join(packaged_dir, "angular-ng/dist/browser")],
@@ -302,4 +384,5 @@ async function test_packaged_apps() {
 await build_fixtures()
 await test_production_apps()
 await test_development_apps()
+await test_local_development_example()
 await test_packaged_apps()

@@ -1,8 +1,10 @@
 # BokehJS framework examples
 
 These projects are intentionally small enough to use as documentation examples.
-Each one creates the same plot and shows only the integration code required by
-its framework or bundler.
+Each browser project places the same plot in a modest application shell and uses
+a native range input to update its `ColumnDataSource`. This demonstrates that the
+framework owns the surrounding UI and state while BokehJS updates the existing
+plot without a remount. The Node.js example remains DOM-free by design.
 
 | Project | Integration | User-facing entry point |
 | --- | --- | --- |
@@ -20,3 +22,17 @@ All projects are npm workspaces in the BokehJS repository. The framework test
 matrix also copies these projects to an isolated directory, installs packed
 BokehJS and adapter tarballs, and builds them there. This keeps the examples
 readable while continuously checking that the published package shape works.
+The browser smoke test also drives every range input and verifies that both the
+page output and rendered Bokeh canvas change.
+
+The local `file:` dependencies in these projects connect them to packages in
+this repository. In an external application, install the corresponding
+published packages from npm instead, for example
+`npm install @bokeh/bokehjs @bokeh/react`.
+
+After building BokehJS, run the Angular example locally with:
+
+```bash
+cd bokehjs/examples/frameworks/angular-ng
+npm start
+```

@@ -7,7 +7,7 @@
     "build": "rspack build"
   },
   "dependencies": {
-    "@bokeh/bokehjs": "4.0.0-dev.1"
+    "@bokeh/bokehjs": "file:../../.."
   },
   "devDependencies": {
     "@rspack/cli": "^2.1.7",

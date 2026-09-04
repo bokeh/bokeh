@@ -7,8 +7,8 @@
     "build": "vue-tsc --noEmit && vite build"
   },
   "dependencies": {
-    "@bokeh/bokehjs": "4.0.0-dev.1",
-    "@bokeh/vue": "4.0.0-dev.1",
+    "@bokeh/bokehjs": "file:../../..",
+    "@bokeh/vue": "file:../../../frameworks/vue",
     "vue": "^3.5.40"
   },
   "devDependencies": {

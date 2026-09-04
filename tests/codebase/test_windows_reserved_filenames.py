@@ -18,12 +18,11 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
-from os.path import join, splitext
+from os.path import basename, splitext
 
 # Bokeh imports
 from bokeh.util.strings import nice_join
-from tests.support.util.project import TOP_PATH
+from tests.support.util.project import ls_files
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -36,11 +35,9 @@ def test_windows_reserved_filenames() -> None:
 
     '''
     bad: list[str] = []
-    for path, _, files in os.walk(TOP_PATH):
-
-        for file in files:
-            if splitext(file)[0].upper() in RESERVED_NAMES:
-                bad.append(join(path, file))
+    for path in ls_files():
+        if splitext(basename(path))[0].upper() in RESERVED_NAMES:
+            bad.append(path)
 
     assert len(bad) == 0, f"Windows reserved filenames detected:\n{nice_join(bad)}"
 

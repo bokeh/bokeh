@@ -7,7 +7,7 @@
     "build": "tsc --noEmit && vite build"
   },
   "dependencies": {
-    "@bokeh/bokehjs": "4.0.0-dev.1"
+    "@bokeh/bokehjs": "file:../../.."
   },
   "devDependencies": {
     "typescript": "5.9.2",
