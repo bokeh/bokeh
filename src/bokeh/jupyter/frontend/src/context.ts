@@ -16,17 +16,23 @@ export class ContextManager implements IDisposable {
     private _context: DocumentRegistry.IContext<INotebookModel> | null,
     private readonly contents: Contents.IManager,
   ) {}
+
   private readonly renderers = new Set<SnapshotSource>()
   private ownedViews = new Set<string>()
+
   get context(): DocumentRegistry.IContext<INotebookModel> {
     if (this._context == null) throw new Error("Notebook context was disposed")
     return this._context
   }
+
   get isDisposed(): boolean {return this._context == null}
+
   get path(): string {return this.context.path}
+
   applicationUrl(url: string): string {
     return resolveJupyterApplicationUrl(url, this.contents.serverSettings.baseUrl)
   }
+
   async fileUrl(path: string): Promise<string> {
     if (path.startsWith("/") || /^[A-Za-z]:\//.test(path) || path.includes("\\") || path.split("/").includes("..")) {
       throw new BokehNotebookError(
@@ -43,9 +49,13 @@ export class ContextManager implements IDisposable {
     }
     return this.contents.getDownloadUrl(parts.join("/"))
   }
+
   add(renderer: SnapshotSource): void {this.renderers.add(renderer)}
+
   remove(renderer: SnapshotSource): void {this.renderers.delete(renderer)}
+
   setOwnedViews(viewIds: ReadonlySet<string>): void {this.ownedViews = new Set(viewIds)}
+
   snapshots(): FrontendDocumentSnapshot[] {
     const byView = new Map<string, FrontendDocumentSnapshot>()
     for (const renderer of this.renderers) {
@@ -59,6 +69,7 @@ export class ContextManager implements IDisposable {
     }
     return [...byView.values()]
   }
+
   dispose(): void {
     this.renderers.clear()
     this.ownedViews.clear()

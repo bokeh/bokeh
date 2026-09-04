@@ -29,6 +29,10 @@ if TYPE_CHECKING:
 
 _ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 
 class _ResourceResponse(TypedDict):
     kind: Literal["resource"]
@@ -68,30 +72,85 @@ class _WidgetComm:
 
     @property
     def closed(self) -> bool:
+        '''Report whether the transport is closed.
+
+        Returns:
+            Whether the transport is closed.
+
+        '''
         return self._closed
 
     def send(self, data: Any = None, buffers: list[bytes] | None = None) -> None:
+        '''Send a message to the frontend widget.
+
+        Args:
+            data: The message payload.
+            buffers: Optional binary message buffers.
+
+        Returns:
+            None
+
+        '''
         if self._closed:
             raise RuntimeError("The AnyWidget transport is closed")
         self._widget.send(data, buffers=buffers)
 
     def on_close(self, callback: Callable[[Any], None]) -> None:
+        '''Register the frontend-close callback.
+
+        Args:
+            callback: The callback to invoke when the frontend closes.
+
+        Returns:
+            None
+
+        '''
         self._on_close = callback
 
     def on_msg(self, callback: Callable[[dict[str, Any]], None]) -> None:
+        '''Register the frontend-message callback.
+
+        Args:
+            callback: The callback to invoke for frontend messages.
+
+        Returns:
+            None
+
+        '''
         self._on_msg = callback
 
     def frontend_message(self, content: dict[str, Any]) -> None:
+        '''Deliver a frontend message to the registered callback.
+
+        Args:
+            content: The frontend message payload.
+
+        Returns:
+            None
+
+        '''
         if not self._closed and self._on_msg is not None:
             self._on_msg({"content": {"data": content}})
 
     def close(self) -> None:
+        '''Close the transport and its frontend widget.
+
+        Returns:
+            None
+
+        '''
         if self._closed:
             return
         self._closed = True
         self._widget.close()
 
     def frontend_closed(self) -> None:
+        '''Record that the frontend closed the transport.
+
+        Returns:
+            None
+
+        '''
         if self._closed:
             return
         self._closed = True

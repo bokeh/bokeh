@@ -31,11 +31,11 @@ class _Host:
 
 @pytest.fixture(autouse=True)
 def reset_applications() -> None:
-    m._APPLICATIONS.clear()
+    m.APPLICATIONS.clear()
     m._CELL_APPLICATIONS.clear()
     _Host.instances.clear()
     yield
-    m._APPLICATIONS.clear()
+    m.APPLICATIONS.clear()
     m._CELL_APPLICATIONS.clear()
 
 
@@ -51,15 +51,15 @@ def test_serve_replaces_a_reexecuted_cell_owner_and_stops_cleanly() -> None:
     assert first.stopped
     assert _Host.instances[0].starts == 1
     assert _Host.instances[0].stops == 1
-    assert second.application_id in m._APPLICATIONS
+    assert second.application_id in m.APPLICATIONS
     assert m._CELL_APPLICATIONS["cell"] is second
 
-    with patch("bokeh.io.notebook._close_application_views") as close_views:
+    with patch("bokeh.io.notebook.close_application_views") as close_views:
         second.stop()
         second.stop()
     close_views.assert_called_once_with(second)
     assert _Host.instances[1].stops == 1
-    assert second.application_id not in m._APPLICATIONS
+    assert second.application_id not in m.APPLICATIONS
     assert "cell" not in m._CELL_APPLICATIONS
 
 
@@ -106,7 +106,7 @@ def test_failed_host_start_is_not_registered() -> None:
     ):
         m.serve(_modify_document, key="failed")
 
-    assert m._APPLICATIONS == {}
+    assert m.APPLICATIONS == {}
     assert m._CELL_APPLICATIONS == {}
 
 

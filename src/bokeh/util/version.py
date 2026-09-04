@@ -71,11 +71,7 @@ def is_full_release(version: str | None = None) -> bool:
 # Dev API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-def _bokehjs_version(version: str | None) -> str:
+def bokehjs_version(version: str | None) -> str:
     parsed = Version(version or __version__)
     release = ".".join(str(part) for part in parsed.release)
     if parsed.dev is not None:
@@ -84,6 +80,10 @@ def _bokehjs_version(version: str | None) -> str:
         kind, number = parsed.pre
         return f"{release}-{kind}.{number}"
     return release
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 def _base_version_helper(version: str) -> str:
     import re

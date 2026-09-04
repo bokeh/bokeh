@@ -28,7 +28,7 @@ import bokeh.io.notebook as m # isort:skip
 
 @pytest.fixture(autouse=True)
 def reset() -> None:
-    m._reset_notebook_resources()
+    m.reset_notebook_resources()
 
 
 def test_show_doc_publishes_one_artifact_owned_output() -> None:
@@ -134,7 +134,7 @@ def test_automatic_mimebundle_has_one_static_artifact_and_no_live_owner() -> Non
     plot = figure()
     with (
         patch("bokeh.io.notebook.notebook_environment", return_value=True),
-        patch("bokeh.io.notebook._is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
     ):
         bundle = m.notebook_mimebundle(plot)
@@ -150,9 +150,9 @@ def test_automatic_mimebundle_has_one_static_artifact_and_no_live_owner() -> Non
 def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> None:
     with (
         patch("bokeh.io.notebook.notebook_environment", return_value=True),
-        patch("bokeh.io.notebook._is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
         patch("bokeh.io.notebook._is_colab_runtime", return_value=True),
-        patch("bokeh.io.notebook._anywidget_available", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources") as ensure,
     ):
         bundle = m.notebook_mimebundle(figure(), resources=Resources(mode="inline"))
@@ -203,13 +203,13 @@ def test_marimo_and_colab_detection_are_host_capabilities(monkeypatch: pytest.Mo
     monkeypatch.setitem(sys.modules, "marimo", marimo)
     monkeypatch.setitem(sys.modules, "marimo._runtime", runtime)
     monkeypatch.setitem(sys.modules, "marimo._runtime.context", context)
-    assert m._is_marimo_runtime()
+    assert m.is_marimo_runtime()
 
 
 def test_marimo_without_anywidget_has_actionable_install_error() -> None:
     with (
-        patch("bokeh.io.notebook._is_marimo_runtime", return_value=True),
-        patch("bokeh.io.notebook._anywidget_available", return_value=False),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         pytest.raises(RuntimeError, match=r"pip install bokeh\[notebook\]"),
     ):
         m._require_marimo_anywidget()

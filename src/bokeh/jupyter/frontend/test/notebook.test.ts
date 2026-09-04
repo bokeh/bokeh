@@ -5,8 +5,11 @@ import {DISPLAY_MIME_TYPE} from "../src/protocol"
 
 class TestSignal {
   private callbacks = new Set<(...args: any[]) => void>()
+
   connect(callback: (...args: any[]) => void): void {this.callbacks.add(callback)}
+
   disconnect(callback: (...args: any[]) => void): void {this.callbacks.delete(callback)}
+
   emit(sender: unknown, args: unknown): void {
     for (const callback of this.callbacks) callback(sender, args)
   }
@@ -26,7 +29,9 @@ function harness(initial: ReturnType<typeof output>[], extension = new NotebookE
     values: initial,
     trusted: true,
     changed: new TestSignal(),
+
     get length() {return this.values.length},
+
     get(index: number) {return this.values[index]},
   }
   const cell = {
@@ -38,12 +43,14 @@ function harness(initial: ReturnType<typeof output>[], extension = new NotebookE
   const cells = {
     values: [cell],
     changed: new TestSignal(),
+
     [Symbol.iterator]() {return this.values[Symbol.iterator]()},
   }
   const kernel = {
     createComm() {
       return {
         open(data: any) {opened.push(data)},
+
         close() {return {done: Promise.resolve()}},
       }
     },

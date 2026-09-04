@@ -28,7 +28,7 @@ from typing import (
 from .. import __version__
 from ..embed.artifact import EMBED_ARTIFACT_MIME_TYPE, EmbedArtifact
 from ..embed.resources import ResolvedResource, ResolvedResources
-from ..util.version import _bokehjs_version
+from ..util.version import bokehjs_version
 
 __all__ = (
     "ARTIFACT_MIME_TYPE",
@@ -224,14 +224,18 @@ def _artifact(resource: ResolvedResource) -> _ArtifactPayload:
         artifact["core"] = True
     return artifact
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
-def _resource_payload(resolved: ResolvedResources, load_timeout: int, *,
+
+def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
         dependencies: list[str] | None = None, assets: tuple[ResolvedResource, ...] | None = None) -> _ResourcePayload:
     '''Describe one explicit common-policy resource delta for a notebook host.'''
     selected = resolved.assets if assets is None else assets
     artifacts = [_artifact(resource) for resource in selected]
     descriptor = {
-        "bokeh_version": _bokehjs_version(resolved.bokeh_version),
+        "bokeh_version": bokehjs_version(resolved.bokeh_version),
         "policy": resolved.policy.to_dict(),
         "requirements": resolved.requirements.to_dict(),
         "dependencies": dependencies or [],
@@ -243,7 +247,7 @@ def _resource_payload(resolved: ResolvedResources, load_timeout: int, *,
         kind="resources",
         resource_id=f"bokeh-{digest}",
         mode=resolved.policy.mode,
-        bokeh_version=_bokehjs_version(resolved.bokeh_version),
+        bokeh_version=bokehjs_version(resolved.bokeh_version),
         python_version=__version__,
         requirements=resolved.requirements.to_dict(),
         policy=resolved.policy.to_dict(),
@@ -253,15 +257,15 @@ def _resource_payload(resolved: ResolvedResources, load_timeout: int, *,
         load_timeout=load_timeout,
     )
 
-def _resource_artifact_ids(resolved: ResolvedResources) -> list[str]:
+def resource_artifact_ids(resolved: ResolvedResources) -> list[str]:
     return [_artifact(resource)["id"] for resource in resolved.assets]
 
 
-def _resource_asset_subset(resolved: ResolvedResources, artifact_ids: set[str]) -> tuple[ResolvedResource, ...]:
+def resource_asset_subset(resolved: ResolvedResources, artifact_ids: set[str]) -> tuple[ResolvedResource, ...]:
     return tuple(resource for resource in resolved.assets if _artifact(resource)["id"] in artifact_ids)
 
 
-def _resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResource, ...]) -> str:
+def resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResource, ...]) -> str:
     ''' Render the single portable owner of a resource bundle's executable data. '''
     from ..core.templates import PORTABLE_RESOURCES_JS
 
@@ -280,7 +284,7 @@ def _resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResour
         artifacts=artifacts,
     )
 
-def _display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
+def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
         live_id: str | None = None, application_id: str | None = None, application_url: str | None = None,
         connect_timeout: int = 10_000) -> _DisplayPayload:
     if (application_id is None) != (application_url is None):
@@ -289,7 +293,7 @@ def _display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
         protocol_version=PROTOCOL_VERSION,
         kind="artifact",
         resource_id=resource_id,
-        bokeh_version=_bokehjs_version(__version__),
+        bokeh_version=bokehjs_version(__version__),
         python_version=__version__,
         artifact_fingerprint=artifact.fingerprint,
         source_kind=artifact.source["kind"],
@@ -304,7 +308,7 @@ def _display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
         payload["application_url"] = application_url
     return payload
 
-def _file_payload(path: str) -> _FilePayload:
+def file_payload(path: str) -> _FilePayload:
     candidate = PurePosixPath(path)
     windows = PureWindowsPath(path)
     if not path or candidate.is_absolute() or windows.is_absolute() or windows.drive or ".." in candidate.parts or "\\" in path:
@@ -315,6 +319,10 @@ def _file_payload(path: str) -> _FilePayload:
         path=path,
     )
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 
 def notebook_info() -> _NotebookInfo:
     ''' Return bounded information about the current notebook integration.
@@ -323,11 +331,11 @@ def notebook_info() -> _NotebookInfo:
         A diagnostic mapping with an HTML representation for notebook display.
 
     '''
-    from .jupyter_app import _APPLICATIONS
+    from .jupyter_app import APPLICATIONS
     from .notebook import (
-        _RESOURCE_RECORDS,
-        _anywidget_available,
-        _is_marimo_runtime,
+        RESOURCE_RECORDS,
+        anywidget_available,
+        is_marimo_runtime,
         notebook_environment,
     )
 
@@ -352,10 +360,10 @@ def notebook_info() -> _NotebookInfo:
         file_mime_type=FILE_MIME_TYPE,
         resources_mime_type=RESOURCES_MIME_TYPE,
         interactive_kernel=notebook_environment(),
-        anywidget_available=_anywidget_available(),
-        marimo_runtime=_is_marimo_runtime(),
+        anywidget_available=anywidget_available(),
+        marimo_runtime=is_marimo_runtime(),
         comm_manager=comms,
         labextension_packaged=labextension.is_file(),
-        resource_records=len(_RESOURCE_RECORDS),
-        managed_applications=len(_APPLICATIONS),
+        resource_records=len(RESOURCE_RECORDS),
+        managed_applications=len(APPLICATIONS),
     )

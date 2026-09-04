@@ -80,12 +80,15 @@ export function assertProtocol(payload: unknown): void {
     )
   }
   const problems: string[] = []
+
   const stringField = (name: string) => {
     if (typeof record[name] !== "string" || (record[name] as string).length === 0) problems.push(`${name} must be a non-empty string`)
   }
+
   const stringArray = (name: string) => {
     if (!Array.isArray(record[name]) || !(record[name] as unknown[]).every((value) => typeof value === "string")) problems.push(`${name} must be a string array`)
   }
+
   const timeoutField = (name: string) => {
     const value = record[name]
     if (typeof value !== "number" || !Number.isFinite(value) || value < 100 || value > 300_000) problems.push(`${name} must be between 100 and 300000 ms`)
