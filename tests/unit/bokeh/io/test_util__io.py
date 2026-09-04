@@ -149,6 +149,21 @@ def test_get_layout_html_uses_source_or_curdoc_theme_by_default() -> None:
 
     assert mock_file_html.call_args.kwargs["theme"] is ThemePolicy.SOURCE_OR_CURDOC
 
+def test_export_scripts_use_target_scoped_mounts() -> None:
+    scripts = [
+        biu._BOKEH_LOADED_CHECK,
+        biu._BOKEH_IDLE_CHECK,
+        biu._ROOT_VIEW_BBOX_SCRIPT,
+        biu._SVGS_SCRIPT,
+        biu._SVG_SCRIPT(Plot()),
+    ]
+
+    assert all("bokehMount" in script for script in scripts)
+    assert all("Bokeh.index" not in script for script in scripts)
+    assert all("Bokeh.documents" not in script for script in scripts)
+    assert all("view_manager" not in script for script in scripts)
+    assert all("_bokeh_render_complete" not in script for script in scripts)
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

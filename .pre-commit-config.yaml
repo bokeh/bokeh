@@ -3,7 +3,7 @@
 
 ---
 default_stages: [pre-push]
-exclude: ^docs/CHANGELOG$
+exclude: ^(docs/CHANGELOG|src/bokeh/jupyter/anywidget\.js|src/bokeh/jupyter/labextension/static/)
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit

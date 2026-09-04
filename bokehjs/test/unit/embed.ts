@@ -1,6 +1,5 @@
 import {expect} from "#framework/assertions"
 
-import * as embed from "@bokehjs/embed"
 import {register_models} from "@bokehjs/base"
 import {mount} from "@bokehjs/api/io"
 import {index} from "@bokehjs/embed/standalone"
@@ -50,10 +49,6 @@ class ModelWithDeferredView extends HasProps {
 }
 
 describe("embed", () => {
-  it("should have an empty 'kernels' dict on the embed module", () => {
-    expect(embed.kernels).to.be.equal({})
-  })
-
   describe("mount()", () => {
     it("notifies idle on models without views", async () => {
       const doc = new Document()

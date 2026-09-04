@@ -154,7 +154,11 @@ class BokehPngPreprocessor(Preprocessor):
     _transient: dict[str, dict[str, Any]]
 
     def preprocess(self, nb: Any, resources: dict[str, Any]) -> tuple[Any, dict[str, Any]]:
-        if resources.get("output_extension") not in {".html", ".htm"}:
+        # nbconvert does not guarantee that output_extension is populated
+        # before exporter preprocessors run. This preprocessor is registered
+        # only on HTML exporters, but retain the guard for explicit non-HTML
+        # embedding by third-party callers.
+        if resources.get("output_extension") not in {None, "", ".html", ".htm"}:
             return nb, resources
         self._trusted = (
             not self.require_trusted
