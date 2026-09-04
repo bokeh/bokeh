@@ -91,6 +91,14 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         fail(`failed to render ${url}`)
       }
 
+      const load_exceptions = browser.get_exceptions()
+      if (load_exceptions.length != 0) {
+        for (const exception of load_exceptions) {
+          console.log(exception.text)
+        }
+        fail(`failed to initialize ${url}`)
+      }
+
       const result = await browser.evaluate<Suite>("Tests.top_level")
       if (!(result instanceof Value)) {
         const reason = result instanceof Failure ? result.text : "timeout"

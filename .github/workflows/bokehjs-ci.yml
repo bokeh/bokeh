@@ -66,6 +66,9 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
         node-version: [24.x]
+        include:
+          - os: ubuntu-24.04
+            node-version: 22.x
 
     steps:
       - name: Checkout the repository

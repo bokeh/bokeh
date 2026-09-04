@@ -6,6 +6,7 @@ import stylistic from "@stylistic/eslint-plugin"
 export default defineConfig({
     ignores: [
       "build/**",
+      "**/dist/**",
       "**/_build/**",
       "**/node_modules/**",
     ],
@@ -29,6 +30,9 @@ export default defineConfig({
           "./test/integration/tsconfig.json",
           "./test/codebase/tsconfig.json",
           "./test/devtools/tsconfig.json",
+          "./test/frameworks/tsconfig.json",
+          "./frameworks/tsconfig.lint.json",
+          "./examples/frameworks/tsconfig.lint.json",
           "./examples/tsconfig.json",
         ],
         tsconfigRootDir: import.meta.dirname,

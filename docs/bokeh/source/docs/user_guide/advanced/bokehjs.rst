@@ -23,6 +23,146 @@ Obtaining BokehJS
 BokehJS is available via CDN and ``npm``. See the :ref:`install_bokehjs`
 section of the :ref:`installation` page for more details.
 
+Using BokehJS in component frameworks
+-------------------------------------
+
+The npm package provides an ESM entry point and can be imported while doing
+server-side rendering. Creating views still requires a browser, so mount plots
+from the framework's client-side lifecycle and dispose them when the component
+unmounts. The disposal handle owns all views and, when Bokeh created it, the
+temporary document as well.
+
+Thin adapters implement this ownership pattern for the common component
+frameworks. Install ``@bokeh/bokehjs`` together with the adapter for your
+framework (``@bokeh/react``, ``@bokeh/vue``, ``@bokeh/svelte``, or
+``@bokeh/angular``); the framework itself remains a peer dependency. In React,
+use the ``Bokeh`` component or the lower-level
+``useBokeh()`` hook from ``@bokeh/react``:
+
+.. code-block:: typescript
+
+    import {Bokeh} from "@bokeh/react"
+    import type {Plot} from "@bokeh/bokehjs"
+
+    function PlotView({model}: {model: Plot}) {
+      return <Bokeh model={model} className="plot" />
+    }
+
+Vue provides the corresponding ``Bokeh`` component and ``useBokeh()``
+composable in ``@bokeh/vue``:
+
+.. code-block:: vue
+
+    <script setup lang="ts">
+    import {Bokeh} from "@bokeh/vue"
+    import type {Plot} from "@bokeh/bokehjs"
+
+    defineProps<{model: Plot}>()
+    </script>
+
+    <template>
+      <Bokeh :model="model" class="plot" />
+    </template>
+
+Svelte applications can use the ``bokeh`` action from ``@bokeh/svelte``:
+
+.. code-block:: svelte
+
+    <script lang="ts">
+    import {bokeh} from "@bokeh/svelte"
+    import type {Plot} from "@bokeh/bokehjs"
+
+    export let model: Plot
+    </script>
+
+    <div use:bokeh={{model}}></div>
+
+Angular provides a standalone component in ``@bokeh/angular``:
+
+.. code-block:: typescript
+
+    import {Component} from "@angular/core"
+    import {BokehComponent} from "@bokeh/angular"
+
+    @Component({
+      selector: "app-root",
+      imports: [BokehComponent],
+      template: `<bokeh-plot [model]="plot"></bokeh-plot>`,
+    })
+    export class App {
+      readonly plot = plot
+    }
+
+For other frameworks, ``@bokeh/web-component`` supplies a standards-based
+custom element:
+
+.. code-block:: typescript
+
+    import {BokehElement, defineBokehElement} from "@bokeh/web-component"
+
+    defineBokehElement()
+    const element = document.createElement("bokeh-plot") as BokehElement
+    element.model = plot
+    document.body.append(element)
+
+Applications without a component framework can use the root ``mount()`` API.
+The same source works with Vite, Webpack, and Rspack:
+
+.. code-block:: typescript
+
+    import {mount} from "@bokeh/bokehjs"
+
+    const mounted = await mount(plot, document.querySelector<HTMLElement>("#app")!)
+    // Later, when your application removes the host element:
+    function removePlot() {
+      mounted.dispose()
+    }
+
+Complete runnable projects for React, Vue, Svelte, Angular, Web Components,
+vanilla Vite/Webpack/Rspack, and Node.js server-side rendering are in
+:bokeh-tree:`bokehjs/examples/frameworks`. They are kept deliberately small
+for reuse in documentation and are continuously built from packed npm
+artifacts in BokehJS CI.
+
+``show()`` remains convenient for scripts; component frameworks should prefer
+``mount()`` because its lifetime is explicit.
+
+Adapters remount only when the model, target, or mount-options object changes
+identity. Keep those values stable across ordinary framework renders. A single
+model can have only one owning temporary document at a time; dispose its current
+mount before moving it to another host. Abort a pending or active mount with
+``mountOptions.signal``. Adapter error callbacks and events report failures;
+failed and superseded mounts clean up any views and temporary document they
+created. A caller-supplied ``Document`` remains owned by the caller.
+
+Importing BokehJS and creating models is safe during server-side rendering, but
+``mount()`` requires a browser DOM. Create or hydrate the adapter from the
+framework's client lifecycle. The Node.js example in the framework-example
+directory continuously verifies the DOM-free import path.
+
+Applications that deserialize custom models can use an isolated registry:
+
+.. code-block:: typescript
+
+    import {
+      Document, ModelResolver, register_models, register_standard_models,
+    } from "@bokeh/bokehjs"
+
+    MyCustomModel.__qualified__ = "MyCustomModel"
+    const resolver = new ModelResolver(null)
+    register_standard_models(resolver)
+    register_models([MyCustomModel], resolver)
+    const document = Document.from_json(json, {resolver})
+
+This avoids relying on module import order or a process-wide registry. Set a
+stable ``__qualified__`` name on custom models because production bundlers are
+allowed to rename JavaScript classes.
+
+Pass the same resolver to ``embed.embed_item(item, target, {resolver})`` when
+embedding JSON directly. ``register_standard_models()`` covers the core model
+set. If JSON can contain optional widgets or tables, import
+``register_all_models`` from ``@bokeh/bokehjs/all`` and call it instead.
+
 
 .. _ug_advanced_bokehjs_models:
 
@@ -53,12 +193,19 @@ example of how to initialize a `Range1d` model in both languages:
 
   .. code-block:: javascript
 
-    const xdr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
+    const xdr = Bokeh.Range1d.create({ start: -0.5, end: 20.5 });
 
-This pattern works in all similar situations. Once you create a Bokeh model,
+Use the inherited ``create()`` factory for every BokehJS model. It completes
+property initialization only after the most-derived JavaScript constructor has
+finished, so custom model fields are available to defaults, ``initialize()``,
+and ``connect_signals()``. Once you create a Bokeh model,
 you can set its properties in exactly the same way in both languages. For
 example, ``xdr.end = 30`` sets the ``end`` value to 30 on the `Range1d` model
 above in both Python and JavaScript.
+
+When migrating to Bokeh 4.0, replace ``new SomeModel(attributes)`` with
+``SomeModel.create(attributes)``. Custom extensions inherit ``create()`` and do
+not need to repeat a constructor or call a per-class initialization helper.
 
 Below is an example that creates a plot with axes, grids, and a line glyph
 from scratch. Compare with samples in :bokeh-tree:`examples/models` and
@@ -117,7 +264,7 @@ The JavaScript sample below is very similar to the Python code in
         }
     }
     // create a data source
-    const source = new Bokeh.ColumnDataSource({
+    const source = Bokeh.ColumnDataSource.create({
         data: { x: xx, y: yy, radius: radii, colors: colors }
     });
 
@@ -291,7 +438,7 @@ create and modify plots.
     :disable_codepen: true
 
     // create a data source to hold data
-    const source = new Bokeh.ColumnDataSource({
+    const source = Bokeh.ColumnDataSource.create({
         data: { x: [], y: [] }
     });
 

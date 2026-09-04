@@ -263,7 +263,7 @@ def test_deploy_workflow_uploads_distributions_for_all_release_types(version: st
 
     assert conda["with"]["path"].replace("${{ github.event.inputs.version }}", version) == (f"deployment-{version}/bokeh-{version}-py_0.tar.bz2")
     assert docs["with"]["path"].replace("${{ github.event.inputs.version }}", version) == f"deployment-{version}/docs/"
-    assert npm["with"]["path"].replace("${{ github.event.inputs.version }}", version) == (f"deployment-{version}/bokeh-bokehjs-*.tgz")
+    assert npm["with"]["path"].replace("${{ github.event.inputs.version }}", version) == (f"deployment-{version}/bokeh-*.tgz")
     assert pypi["with"]["path"].replace("${{ github.event.inputs.version }}", version).splitlines() == [
         f"deployment-{version}/bokeh-{version}.tar.gz",
         f"deployment-{version}/bokeh-{version}-py3-none-any.whl",
@@ -354,7 +354,11 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
     assert npm_publish["env"]["NPM_TAG"] == (
         "${{ (contains(github.event.inputs.version, '.dev') || contains(github.event.inputs.version, 'rc')) && 'dev' || 'latest' }}"
     )
-    assert npm_publish["run"] == 'npm publish --access=public --tag="$NPM_TAG" bokeh-bokehjs-*.tgz'
+    assert npm_publish["run"].splitlines() == [
+        "for package in bokeh-bokehjs bokeh-framework bokeh-angular bokeh-react bokeh-svelte bokeh-vue bokeh-web-component; do",
+        '  npm publish --access=public --tag="$NPM_TAG" "$package"-*.tgz',
+        "done",
+    ]
 
     pypi_publish = next(step for step in pypi["steps"] if step.get("uses", "").startswith("pypa/gh-action-pypi-publish@"))
     assert pypi_publish["uses"] == "pypa/gh-action-pypi-publish@release/v1"

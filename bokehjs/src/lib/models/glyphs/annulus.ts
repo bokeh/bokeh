@@ -10,6 +10,7 @@ import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {AnnulusGL} from "./webgl/annulus"
+import type {BaseGLGlyphClass} from "./webgl/base"
 
 export interface AnnulusView extends Annulus.Data {}
 
@@ -20,7 +21,7 @@ export class AnnulusView extends XYGlyphView {
   /** @internal */
   declare glglyph?: AnnulusGL
 
-  override async load_glglyph() {
+  override async load_glglyph(): Promise<BaseGLGlyphClass> {
     const {AnnulusGL} = await import("./webgl/annulus")
     return AnnulusGL
   }

@@ -1,9 +1,11 @@
+import type {MathJaxConvertOptions, MathJaxProtoItem, MathJaxTeXMacros} from "../../../external/mathjax"
+
 import {mathjax} from "mathjax-full/js/mathjax.js"
 import {TeX} from "mathjax-full/js/input/tex.js"
-import {MathML} from "mathjax-full/js/input/mathml"
-// import {AsciiMath} from "mathjax-full/js/input/asciimath"
+import {MathML} from "mathjax-full/js/input/mathml.js"
+// import {AsciiMath} from "mathjax-full/js/input/asciimath.js"
 import {SVG} from "mathjax-full/js/output/svg.js"
-import {browserAdaptor} from "mathjax-full/js/adaptors/browserAdaptor"
+import {browserAdaptor} from "mathjax-full/js/adaptors/browserAdaptor.js"
 import {RegisterHTMLHandler} from "mathjax-full/js/handlers/html.js"
 import {AllPackages} from "mathjax-full/js/input/tex/AllPackages.js"
 import {FindTeX} from "mathjax-full/js/input/tex/FindTeX.js"
@@ -20,14 +22,14 @@ function svg_output(): SVG<unknown, unknown, unknown> {
   return svg
 }
 
-const defaults: MathJax.ConvertOptions = {
+const defaults: MathJaxConvertOptions = {
   display: true,
   em: 16,
   ex: 8,
   containerWidth: 80*16,
 }
 
-export function tex2svg(formula: string, options?: MathJax.ConvertOptions, macros: MathJax.TeXMacros = {}): HTMLElement {
+export function tex2svg(formula: string, options?: MathJaxConvertOptions, macros: MathJaxTeXMacros = {}): HTMLElement {
   const tex = new TeX({packages: AllPackages, macros})
   const tex_to_svg = mathjax.document("", {InputJax: tex, OutputJax: svg_output()})
   return tex_to_svg.convert(formula, {...defaults, ...options})
@@ -47,7 +49,7 @@ export function mathml2svg(formula: string): HTMLElement {
   return mathml_to_svg.convert(formula, defaults)
 }
 
-export function find_tex(text: string): MathJax.ProtoItem[] {
+export function find_tex(text: string): MathJaxProtoItem[] {
   const find_text = new FindTeX({
     processEnvironments: false,
     processEscapes: false,
