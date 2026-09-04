@@ -48,6 +48,28 @@ use the ``Bokeh`` component or the lower-level
       return <Bokeh model={model} className="plot" />
     }
 
+The ``@bokeh/react`` entry point declares a React client boundary for use with
+frameworks such as Next.js. In a Next.js App Router application, construct
+Bokeh models inside a Client Component instead of passing them from a Server
+Component because model instances are not serializable props:
+
+.. code-block:: tsx
+
+    "use client"
+
+    import {useState} from "react"
+    import {Plotting} from "@bokeh/bokehjs"
+    import {Bokeh} from "@bokeh/react"
+
+    export function PlotView() {
+      const [plot] = useState(() => {
+        const plot = Plotting.figure({title: "BokehJS with Next.js"})
+        plot.line([1, 2, 3], [2, 5, 3])
+        return plot
+      })
+      return <Bokeh model={plot} className="plot" />
+    }
+
 Vue provides the corresponding ``Bokeh`` component and ``useBokeh()``
 composable in ``@bokeh/vue``:
 
@@ -361,11 +383,11 @@ Each mount owns a separate temporary document, and a Bokeh model can belong to
 only one document. Use one multi-root mount, one document provider with root
 slots, or compose the plots into a Bokeh layout such as a row, column, or grid.
 
-Complete runnable projects for React, Vue, Svelte, Angular, Web Components,
-vanilla Vite/Webpack/Rspack, and Node.js server-side rendering are in
-:bokeh-tree:`bokehjs/examples/frameworks`. They are kept deliberately small
-for reuse in documentation and are continuously built from packed npm
-artifacts in BokehJS CI.
+Complete runnable projects for React with Vite or Next.js, Vue, Svelte,
+Angular, Web Components, vanilla Vite/Webpack/Rspack, and Node.js server-side
+rendering are in :bokeh-tree:`bokehjs/examples/frameworks`. They are kept
+deliberately small for reuse in documentation and are continuously built from
+packed npm artifacts in BokehJS CI.
 
 ``show()`` remains convenient for scripts and now returns the same owning
 ``BokehMount`` as ``mount()``. Await its ``ready`` promise and retain it for
@@ -393,7 +415,8 @@ a second embed lifecycle.
 Importing BokehJS and creating models is safe during server-side rendering, but
 ``mount()`` requires a browser DOM. Create or hydrate the adapter from the
 framework's client lifecycle. The Node.js example in the framework-example
-directory continuously verifies the DOM-free import path.
+directory continuously verifies the DOM-free import path, while the Next.js
+example verifies App Router prerendering and client hydration.
 
 Applications that deserialize custom models can use an isolated registry:
 

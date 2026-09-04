@@ -12,6 +12,7 @@ const workspace_dir = join(build_dir, "workspace")
 
 const examples = [
   "angular-ng",
+  "react-next",
   "react-vite",
   "node-ssr-compat",
   "svelte-vite",
@@ -78,7 +79,7 @@ function verify_bundle_budget(example, root) {
   const largest = files.reduce((left, right) => left.bytes >= right.bytes ? left : right)
   const total = files.reduce((sum, file) => sum + file.bytes, 0)
   const max_chunk_bytes = 2_100_000
-  const max_total_bytes = 4_000_000
+  const max_total_bytes = example == "react-next" ? 4_250_000 : 4_000_000
   if (largest.bytes > max_chunk_bytes || total > max_total_bytes) {
     throw new Error(`${example} exceeded its JavaScript bundle budget: largest=${largest.file} (${largest.bytes}), total=${total}`)
   }
@@ -128,7 +129,8 @@ writeFileSync(join(workspace_dir, "package.json"), `${JSON.stringify({
 await run("npm", ["install", "--no-audit", "--no-fund"], workspace_dir)
 for (const {name, package_name} of applications) {
   await run("npm", ["run", "build", "--workspace", package_name], workspace_dir)
-  verify_bundle_budget(name, join(workspace_dir, name))
+  const root = name == "react-next" ? join(workspace_dir, name, "out") : join(workspace_dir, name)
+  verify_bundle_budget(name, root)
 }
 
 console.log(`packed framework examples built in ${workspace_dir}`)
