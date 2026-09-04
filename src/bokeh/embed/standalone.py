@@ -35,7 +35,7 @@ from typing import (
 from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model
-from ..resources import Resources, ResourcesLike
+from ..resources import Resources
 from .util import ThemeSource
 
 if TYPE_CHECKING:
@@ -59,7 +59,7 @@ __all__ = (
 class EmbedMigrationError(RuntimeError):
     """An actionable Bokeh 4.0 migration error for a removed embed contract."""
 
-def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
+def autoload_static(model: Model | Document, resources: Resources | str, script_path: str) -> tuple[str, str]:
     """Raise with the Bokeh 4.0 external-artifact migration route."""
     raise EmbedMigrationError(
         "autoload_static() was removed in Bokeh 4.0. Use embed(model).external(payload_url=script_path) "
@@ -155,7 +155,7 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
 
 def file_html(
     models: Model | Document | Sequence[Model],
-    resources: ResourcesLike | None = None,
+    resources: Resources | str | None = None,
     title: str | None = None,
     *,
     template: Template | str = FILE,
@@ -173,8 +173,8 @@ def file_html(
         models (Model or Document or seq[Model]) : Bokeh object or objects to render
             typically a Model or Document
 
-        resources (ResourcesLike) :
-            A resources configuration for Bokeh JS & CSS assets.
+        resources (Resources or str) :
+            A resource policy for Bokeh JS & CSS assets.
 
         title (str, optional) :
             A title for the HTML document ``<title>`` tags or None. (default: None)

@@ -192,10 +192,10 @@ compiler and resource policy.
 This is a low-level, explicit way to generate an HTML file, which can be
 useful for web applications such as Flask apps.
 
-In scripts and Jupyter notebooks employing the |bokeh.plotting| interface, you
-can call the |output_file| function in conjunction with |show| or |save|
-instead. The |show| function creates an HTML document and displays it in a
-web browser whereas |save| creates an HTML document and saves it locally.
+In scripts employing the |bokeh.plotting| interface, pass a ``filename``
+directly to |show| or |save|. The |show| function creates an HTML document and
+displays it in a web browser whereas |save| creates an HTML document and saves
+it locally.
 
 .. _ug_output_embed_json_items:
 

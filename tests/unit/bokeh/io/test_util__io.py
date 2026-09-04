@@ -54,7 +54,7 @@ def test_temp_filename() -> None:
         assert r == "Junk.test"
         assert mock_tmp.called
         assert mock_tmp.call_args[0] == ()
-        assert mock_tmp.call_args[1] == {'suffix': '.test'}
+        assert mock_tmp.call_args[1] == {'suffix': '.test', 'delete': False}
 
 def test_default_filename() -> None:
     old_detect_current_filename = biu.detect_current_filename
