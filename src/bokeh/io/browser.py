@@ -314,7 +314,7 @@ async def _wait_until_render_complete(page: AsyncPage, timeout: int) -> None:
 
     try:
         await page.wait_for_function(
-            f"() => {{ {_BOKEH_LOADED_CHECK} }}",
+            _wrap_function(_BOKEH_LOADED_CHECK),
             timeout=timeout_ms,
         )
     except Exception as e:

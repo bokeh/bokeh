@@ -77,13 +77,14 @@ def test_save_omits_rich_paths_that_are_not_notebook_relative(mock_save_helper: 
     assert str(filename) not in next(iter(result._repr_mimebundle_().values()))
 
 
-@pytest.mark.parametrize(("path_type", "expected"), [
-    (PureWindowsPath, "reports/plot.html"),
-    (PurePosixPath, None),
+@pytest.mark.parametrize(("path_type", "path", "expected"), [
+    (PureWindowsPath, r"reports\plot.html", "reports/plot.html"),
+    (PureWindowsPath, "/private/output.html", None),
+    (PurePosixPath, r"reports\plot.html", None),
 ])
-def test_saved_file_normalizes_native_separators(path_type: type[Path], expected: str | None) -> None:
+def test_saved_file_normalizes_native_separators(path_type: type[Path], path: str, expected: str | None) -> None:
     with patch.object(bis, "Path", path_type):
-        result = bis._SavedFile("result.html", r"reports\plot.html")
+        result = bis._SavedFile("result.html", path)
 
     assert result._link_path == expected
 

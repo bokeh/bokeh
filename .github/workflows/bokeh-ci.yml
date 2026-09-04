@@ -306,6 +306,7 @@ jobs:
           collect-coverage: ${{ runner.os != 'Windows' }}
 
   jupyter:
+    name: notebook
     needs: [changes, build]
     if: needs.changes.outputs.jupyter == 'true' && needs.build.result == 'success'
     runs-on: ubuntu-24.04
@@ -316,11 +317,14 @@ jobs:
       - name: Prepare wheel-installed environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          environment: test-py314
+          environment: notebook-test
           source-tree: 'delete'
 
-      - name: Run wheel-installed Jupyter tests
-        run: bash tools/ci/test_jupyter.sh
+      - name: Install notebook browser
+        run: pixi run --locked --environment notebook-test notebook-browser-install
+
+      - name: Run wheel-installed notebook host tests
+        run: pixi run --locked --environment notebook-test test-notebook
 
   minimal-deps:
     needs: [changes, build]

@@ -111,6 +111,59 @@ describe("artifact runtime", () => {
     cleanup()
   })
 
+  it("mounts the browser-routed artifact returned by the application owner", async () => {
+    const localUrl = "http://127.0.0.1:4312/bokeh-notebook/nonce/"
+    const browserUrl = "https://hub.test/user/alice/proxy/4312/bokeh-notebook/nonce/"
+    const serverArtifact = {
+      ...artifact,
+      fingerprint: "local-fingerprint",
+      source: {kind: "server", url: localUrl, arguments: {}, headers: {}, credentials: "same-origin"},
+      roots: [],
+      metadata: {notebook_application_id: "application"},
+    }
+    const browserArtifact = {
+      ...serverArtifact,
+      fingerprint: "browser-fingerprint",
+      source: {...serverArtifact.source, url: browserUrl},
+    }
+    const serverDisplay: DisplayPayload = {
+      ...display,
+      artifact_fingerprint: serverArtifact.fingerprint,
+      source_kind: "server",
+      application_id: "application",
+      application_url: localUrl,
+    }
+    const serverHtml = `<script type="application/vnd.bokeh.embed+json" data-bokeh-artifact-payload>${JSON.stringify(serverArtifact)}</script>`
+    const handle = {
+      ready: Promise.resolve(),
+      dispose: vi.fn(async () => undefined),
+      document: {to_json: () => ({roots: []}), roots: () => []},
+      root_keys: [],
+      root: () => null,
+      view_lookup: {},
+    }
+    const mount = vi.fn(() => handle)
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount,
+      when_mounted: vi.fn(async () => handle),
+    }
+    const openApplicationView = vi.fn(async () => ({
+      artifactJson: JSON.stringify(browserArtifact),
+      onClose() {},
+      close() {},
+    }))
+    const node = document.createElement("div")
+    document.body.append(node)
+    await loadResources(resource, "", node)
+
+    const cleanup = await renderDisplay(node, serverDisplay, serverHtml, {openApplicationView})
+
+    expect(openApplicationView).toHaveBeenCalledWith("view", localUrl)
+    expect(mount).toHaveBeenCalledWith(browserArtifact, expect.anything(), expect.anything())
+    cleanup()
+  })
+
   it("cancels and disposes a mount before readiness", async () => {
     const dispose = vi.fn(async () => undefined)
     ;(window as any).Bokeh = {
