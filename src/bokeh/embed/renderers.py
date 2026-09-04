@@ -85,6 +85,16 @@ class ExternalArtifact:
 def render_fragment(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resources | str | None = "none",
         bootstrap_url: str | None = None) -> ArtifactFragment:
     '''Render an artifact for composition inside a host-owned HTML page.'''
+    mounts, script, resolved = _render_inline_parts(artifact, resources, bootstrap_url)
+    html = "\n".join(filter(None, (_render_resources(resolved), *(mount.html for mount in mounts), script)))
+    build_fingerprint = _build_fingerprint(
+        artifact, resolved, "fragment", {"bootstrap_url": bootstrap_url},
+    )
+    return ArtifactFragment(artifact, mounts, script, resolved, build_fingerprint, html)
+
+
+def _render_inline_parts(artifact: EmbedArtifact, resources: ResourcePolicy | Resources | str | None,
+        bootstrap_url: str | None) -> tuple[tuple[ArtifactMount, ...], str, ResolvedResources]:
     policy = ResourcePolicy.build(resources)
     resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
     mounts = render_mounts(artifact)
@@ -100,11 +110,7 @@ def render_fragment(artifact: EmbedArtifact, *, resources: ResourcePolicy | Reso
         else _external_bootstrap(bootstrap_url, artifact.fingerprint, nonce=policy.nonce)
     )
     script = f"{payload}\n{bootstrap}"
-    html = "\n".join(filter(None, (_render_resources(resolved), *(mount.html for mount in mounts), script)))
-    build_fingerprint = _build_fingerprint(
-        artifact, resolved, "fragment", {"bootstrap_url": bootstrap_url},
-    )
-    return ArtifactFragment(artifact, mounts, script, resolved, build_fingerprint, html)
+    return mounts, script, resolved
 
 
 def render_external(artifact: EmbedArtifact, *, payload_url: str,
@@ -135,21 +141,7 @@ def render_page(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resource
         title: str | None = None, template: Template | str | Path | None = None,
         template_variables: Mapping[str, Any] | None = None, bootstrap_url: str | None = None) -> str:
     '''Render a complete HTML document with resolved resources and targets.'''
-    policy = ResourcePolicy.build(resources)
-    resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
-    mounts = render_mounts(artifact)
-    if policy.external_only:
-        raise ValueError(
-            "external_only resource policy cannot embed an inline artifact payload; "
-            "use artifact.external(payload_url=..., bootstrap_url=...)",
-        )
-    payload = _payload_tag(artifact, nonce=policy.nonce)
-    bootstrap = (
-        _inline_bootstrap(artifact.fingerprint, nonce=policy.nonce)
-        if bootstrap_url is None
-        else _external_bootstrap(bootstrap_url, artifact.fingerprint, nonce=policy.nonce)
-    )
-    plot_script = f"{payload}\n{bootstrap}"
+    mounts, plot_script, resolved = _render_inline_parts(artifact, resources, bootstrap_url)
     plot_div = "\n".join(mount.html for mount in mounts)
     bokeh_js = _render_resources(resolved, kind="script")
     bokeh_css = _render_resources(resolved, kind="style")

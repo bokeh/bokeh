@@ -21,10 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    Iterator,
-    Sequence,
-)
+from typing import Iterator, Sequence
 
 # Bokeh imports
 from ..core.has_props import HasProps
@@ -34,13 +31,13 @@ from ..resources import Hashes, Resources
 from ..util.compiler import bundle_models
 from .resources import (
     URL,
-    _all_objs,
-    _bundle_extensions,
-    _use_gl,
-    _use_mathjax,
-    _use_tables,
-    _use_widgets,
+    all_objs,
+    bundle_extensions,
     extension_dirs,
+    use_gl,
+    use_mathjax,
+    use_tables,
+    use_widgets,
 )
 
 #-----------------------------------------------------------------------------
@@ -153,18 +150,18 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
 
     '''
     if objs is not None:
-        all_objs    = _all_objs(objs)
-        use_widgets = _use_widgets(all_objs)
-        use_tables  = _use_tables(all_objs)
-        use_gl      = _use_gl(all_objs)
-        use_mathjax = _use_mathjax(all_objs)
+        all_objects = all_objs(objs)
+        uses_widgets = use_widgets(all_objects)
+        uses_tables  = use_tables(all_objects)
+        uses_gl      = use_gl(all_objects)
+        uses_mathjax = use_mathjax(all_objects)
     else:
         # XXX: force all components on server and in notebook, because we don't know in advance what will be used
-        all_objs    = None
-        use_widgets = True
-        use_tables  = True
-        use_gl      = True
-        use_mathjax = True
+        all_objects = None
+        uses_widgets = True
+        uses_tables  = True
+        uses_gl      = True
+        uses_mathjax = True
 
     js_files: list[URL] = []
     js_raw: list[str] = []
@@ -173,10 +170,10 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
 
     if resources is not None:
         components = list(resources.components)
-        if not use_widgets: components.remove("bokeh-widgets")
-        if not use_tables:  components.remove("bokeh-tables")
-        if not use_gl:      components.remove("bokeh-gl")
-        if not use_mathjax: components.remove("bokeh-mathjax")
+        if not uses_widgets: components.remove("bokeh-widgets")
+        if not uses_tables:  components.remove("bokeh-tables")
+        if not uses_gl:      components.remove("bokeh-gl")
+        if not uses_mathjax: components.remove("bokeh-mathjax")
 
         resources = resources.clone(components=components)
 
@@ -186,7 +183,7 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
         css_files.extend(map(URL, resources.css_files))
         css_raw.extend(resources.css_raw)
 
-        extensions = _bundle_extensions(all_objs if objs else None, resources)
+        extensions = bundle_extensions(all_objects if objs else None, resources)
         mode = resources.mode
         if mode == "inline":
             js_raw.extend([ Resources._inline(bundle.artifact_path) for bundle in extensions ])
@@ -201,7 +198,7 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
         else:
             js_files.extend([ URL(str(bundle.artifact_path)) for bundle in extensions ])
 
-    models = [ obj.__class__ for obj in all_objs ] if all_objs else None
+    models = [obj.__class__ for obj in all_objects] if all_objects else None
     ext = bundle_models(models)
     if ext is not None:
         js_raw.append(ext)
