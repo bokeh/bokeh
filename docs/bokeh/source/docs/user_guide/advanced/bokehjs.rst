@@ -378,6 +378,77 @@ Missing or ``null`` keyed targets leave those roots detached until
 handle removes every remaining view without removing caller-owned target
 elements or destroying a caller-owned document.
 
+Addressing models after a static mount
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Static embed artifacts use graph-minimal model IDs. An ID is included only
+when it is needed to reconstruct shared or cyclic object identity, or when a
+protocol boundary explicitly requires it. Anonymous models receive runtime IDs
+when BokehJS reconstructs the graph, so a ``Model.id`` in a static artifact is
+not a durable browser address. Do not interpolate a Python model ID into page
+JavaScript, persist it across page loads, or use ``Bokeh.index`` as an
+application registry.
+
+Use the narrowest stable scope for each kind of integration:
+
+* Address artifact roots by their logical keys. The artifact's root table maps
+  those keys to document-root ordinals, and ``mounted.root(key)`` exposes the
+  reconstructed root.
+  Pass an explicit keyed mapping for this contract; keys derived by the bare
+  model, array, or ``Document`` convenience forms are runtime conveniences and
+  must not be persisted.
+* Give a model a unique :attr:`~bokeh.model.Model.name` when page code needs
+  intentional semantic lookup, then call
+  ``mounted.document.get_model_by_name(name)``. Names used this way must be
+  unique within the document.
+* Starting from a model object, use
+  ``mounted.view_lookup.find_one(model)`` for mount-scoped view lookup. It
+  returns ``null`` for a model without a view or for a detached root.
+* Pass models used by callback code explicitly through
+  :attr:`~bokeh.models.callbacks.CustomJS.args`.
+
+For example, external page JavaScript should discover the target-local mount
+and use its logical and semantic scopes:
+
+.. code-block:: typescript
+
+    const target = document.querySelector<HTMLElement>("#detail")!
+    const controller = new AbortController()
+    const mounted = await Bokeh.when_mounted(target, {signal: controller.signal})
+    await mounted.ready
+
+    const detail_root = mounted.root("detail")
+    const detail_root_view = detail_root == null
+      ? null
+      : mounted.view_lookup.find_one(detail_root)
+
+    const threshold = mounted.document.get_model_by_name("alert-threshold")
+    if (threshold == null) {
+      throw new Error("missing alert-threshold model")
+    }
+    const threshold_view = mounted.view_lookup.find_one(threshold)
+
+The bootstrap that creates or decodes the artifact owns mount publication. If
+it fails before producing a ``BokehMount``, it must report the structured
+failure with ``Bokeh.publish_mount_error(target, error)`` so current and future
+``when_mounted()`` calls reject instead of waiting indefinitely.
+
+Set the semantic name and callback dependencies in Python rather than passing
+an ID through a template:
+
+.. code-block:: python
+
+    threshold.name = "alert-threshold"
+    threshold.js_on_change("value", CustomJS(
+        args={"source": source, "status": status},
+        code="status.text = `${source.data.x.length} rows at ${cb_obj.value}`",
+    ))
+
+Live Bokeh server sessions, patches, and comm messages still require stable
+protocol IDs. ``Document.get_model_by_id()`` remains available for those
+protocol-internal paths; its presence does not make static artifact IDs a
+public addressing contract.
+
 Do not mount roots that share Bokeh models through separate adapter instances.
 Each mount owns a separate temporary document, and a Bokeh model can belong to
 only one document. Use one multi-root mount, one document provider with root

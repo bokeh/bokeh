@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import gc
 import weakref
+from collections import deque
 from json import loads
 from typing import (
     TYPE_CHECKING,
@@ -108,6 +109,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 DEFAULT_TITLE = "Bokeh Application"
+type ModelIDPolicy = Literal["always", "minimal"]
 
 __all__ = (
     'Document',
@@ -115,6 +117,65 @@ __all__ = (
 
 def _no_op_callback() -> None:
     pass
+
+def _models_with_ids(values: Iterable[Any]) -> set[Model]:
+    '''Return reached models whose identity is required by sharing or cycles.
+
+    The traversal follows model references through nested containers. It only
+    classifies the supplied document graph; callers cannot use the result to
+    introduce an otherwise unreachable model into serialized output.
+    '''
+    from ..model.util import visit_immediate_value_references
+
+    counts: dict[Model, int] = {}
+    children: dict[Model, list[Model]] = {}
+
+    def count(model: Model) -> None:
+        counts[model] = counts.get(model, 0) + 1
+
+    for value in values:
+        visit_immediate_value_references(value, count)
+
+    queue = deque(counts)
+    seen: set[Model] = set()
+    while queue:
+        model = queue.popleft()
+        if model in seen:
+            continue
+
+        seen.add(model)
+        refs: list[Model] = []
+        visit_immediate_value_references(model, refs.append)
+        children[model] = refs
+        for ref in refs:
+            counts[ref] = counts.get(ref, 0) + 1
+            queue.append(ref)
+
+    cyclic: set[Model] = set()
+    stack: list[Model] = []
+    visiting: set[Model] = set()
+    visited: set[Model] = set()
+
+    def visit(model: Model) -> None:
+        if model in visiting:
+            index = stack.index(model)
+            cyclic.update(stack[index:])
+            return
+        if model in visited:
+            return
+
+        visiting.add(model)
+        stack.append(model)
+        for ref in children.get(model, []):
+            visit(ref)
+        stack.pop()
+        visiting.remove(model)
+        visited.add(model)
+
+    for model in list(counts):
+        visit(model)
+
+    return {model for model, count in counts.items() if count > 1} | cyclic
 
 #-----------------------------------------------------------------------------
 # General API
@@ -851,6 +912,8 @@ side of a communications channel while it was being removed on the other end.\
     def to_json(self, *, deferred: Literal[True] = ...) -> Serialized[DocJson]: ...
     @overload
     def to_json(self, *, deferred: Literal[False]) -> DocJson: ...
+    @overload
+    def to_json(self, *, deferred: bool) -> DocJson | Serialized[DocJson]: ...
 
     def to_json(self, *, deferred: bool = True) -> DocJson | Serialized[DocJson]:
         ''' Convert this document to a serialized representation.
@@ -876,12 +939,73 @@ side of a communications channel while it was being removed on the other end.\
             Serialized[DocJson] | DocJson
 
         '''
+        return self._to_json(deferred=deferred)
+
+    @overload
+    def to_static_json(self, *, deferred: Literal[True] = ...,
+            models_with_ids: Iterable[Model] = ...) -> Serialized[DocJson]: ...
+    @overload
+    def to_static_json(self, *, deferred: Literal[False],
+            models_with_ids: Iterable[Model] = ...) -> DocJson: ...
+    @overload
+    def to_static_json(self, *, deferred: bool,
+            models_with_ids: Iterable[Model] = ...) -> DocJson | Serialized[DocJson]: ...
+
+    def to_static_json(self, *, deferred: bool = True,
+            models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
+        ''' Convert this document for inclusion in a static embed artifact.
+
+        Static artifacts use graph-minimal model IDs. Anonymous models omit
+        their construction-time IDs, while shared and cyclic models retain the
+        IDs needed to reconstruct object identity. Any ID in the artifact is a
+        graph or runtime reconstruction detail, not a durable browser address.
+        ``models_with_ids`` is reserved for model identities referenced outside
+        the serialized graph.
+
+        Artifact roots should be addressed by logical key and their ordinal in
+        ``Document.roots``. A root ID must not be retained solely to find its
+        mount target. Canonical documents and live protocol messages must use
+        :meth:`to_json` instead.
+
+        Args:
+            deferred (bool) :
+                Whether binary buffers are returned separately. This has the
+                same meaning as in :meth:`to_json`.
+
+            models_with_ids (Iterable[Model]) :
+                Additional models whose IDs cross an external boundary.
+
+        Returns:
+            Serialized[DocJson] | DocJson
+
+        '''
+        return self._to_json(
+            deferred=deferred,
+            model_ids="minimal",
+            extra_models_with_ids=models_with_ids,
+        )
+
+    @overload
+    def _to_json(self, *, deferred: Literal[True] = ..., model_ids: ModelIDPolicy = ...,
+            extra_models_with_ids: Iterable[Model] = ...) -> Serialized[DocJson]: ...
+    @overload
+    def _to_json(self, *, deferred: Literal[False], model_ids: ModelIDPolicy = ...,
+            extra_models_with_ids: Iterable[Model] = ...) -> DocJson: ...
+    @overload
+    def _to_json(self, *, deferred: bool, model_ids: ModelIDPolicy = ...,
+            extra_models_with_ids: Iterable[Model] = ...) -> DocJson | Serialized[DocJson]: ...
+
+    def _to_json(self, *, deferred: bool = True, model_ids: ModelIDPolicy = "always",
+            extra_models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
         from ..model import Model
         from .json import DocJson
 
         data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
 
-        serializer = Serializer(deferred=deferred)
+        models_with_ids = (
+            _models_with_ids([self._config, self._roots, self.callbacks.js_event_callbacks]) | set(extra_models_with_ids)
+        ) if model_ids == "minimal" else set()
+        serializer = Serializer(deferred=deferred, models_with_ids=models_with_ids if model_ids == "minimal" else None)
         defs = serializer.encode(data_models)
         config = serializer.encode(self._config)
         roots = serializer.encode(self._roots)

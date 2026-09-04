@@ -429,11 +429,14 @@ def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None)
         doc.title = ""
         [doc_json] = standalone_docs_json([model]).values()
 
-    root_id = doc_json["roots"][0]["id"]
+    root = doc_json["roots"][0]
+    root_id = root.get("id")
+    if not isinstance(root_id, str):
+        raise RuntimeError("canonical standalone documents must retain root model IDs")
 
     return StandaloneEmbedJson(
         target_id = target,
-        root_id   = root_id,
+        root_id   = cast("ID", root_id),
         doc       = doc_json,
         version   = __version__,
     )

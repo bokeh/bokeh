@@ -44,7 +44,7 @@ from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
-from ..util.serialization import make_id
+from ..util.serialization import make_id, reserve_id
 from .docs import html_repr, process_example
 from .util import (
     HasDocumentRef,
@@ -55,6 +55,7 @@ from .util import (
 if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.query import SelectorType
+    from ..core.serialization import ObjectRep
     from ..core.types import ID
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
@@ -120,6 +121,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         if id is not None:
             if args or kwargs:
                 raise ValueError("'id' cannot be used together with property initializers")
+            reserve_id(id)
             obj._id = id
         else:
             obj._id = make_id()
@@ -557,10 +559,23 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    def to_serializable(self, serializer: Serializer) -> ObjectRefRep:
-        serializer.add_ref(self, self.ref)
+    def to_serializable(self, serializer: Serializer) -> ObjectRep | ObjectRefRep:
+        ''' Create a serialized representation of this model.
+
+        Args:
+            serializer: The serializer defining model identity policy.
+
+        Returns:
+            A model representation, with an ID when the serializer requires one.
+        '''
+        use_id = serializer.use_model_id(self)
+        if use_id:
+            serializer.add_ref(self, self.ref)
 
         super_rep = super().to_serializable(serializer)
+        if not use_id:
+            return super_rep
+
         rep = ObjectRefRep(
             type="object",
             name=super_rep["name"],

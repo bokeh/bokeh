@@ -156,8 +156,10 @@ class CustomJS(CustomCode):
     The additional document context is composed of the following members:
 
     * ``index``: The view manager governing all views in the current
-      instance of ``Bokeh``. If only one instance of ``Bokeh`` is
-      loaded, then this is equivalent to using ``Bokeh.index``.
+      instance of ``Bokeh``. This supports callback-local rendering work, but
+      is not a durable model registry. Pass models needed by callback code
+      explicitly through ``args``. External page code should use the
+      target-local ``BokehMount`` returned by ``Bokeh.when_mounted()``.
 
     This function can be an asynchronous function (``async function () {}`` or
     ``async () => {}``) if for example external resources are needed, which

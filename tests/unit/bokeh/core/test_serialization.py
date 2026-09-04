@@ -61,6 +61,7 @@ from bokeh.core.serialization import (
     SliceRep,
     TypedArrayRep,
 )
+from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
 from bokeh.util.dataclasses import NotRequired, Unspecified
@@ -722,6 +723,77 @@ class TestSerializer:
             ),
         )
         assert encoder.buffers == []
+
+    def test_Model_minimal_ids_can_omit_id(self) -> None:
+        val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
+        encoder = Serializer(models_with_ids=set())
+        rep = encoder.encode(val)
+        assert rep == ObjectRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            attributes=dict(
+                p0=3,
+                p1="b",
+                p2=[4, 5, 6],
+            ),
+        )
+        assert encoder.buffers == []
+
+    def test_Document_minimal_ids_preserves_shared_identity(self) -> None:
+        shared = SomeModel(p0=10)
+        val0 = SomeModel(p0=20, p3=shared)
+        val1 = SomeModel(p0=30, p3=shared)
+
+        doc = Document()
+        doc.add_root(val0)
+        doc.add_root(val1)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+
+        assert "id" not in rep["roots"][0]
+        assert "id" not in rep["roots"][1]
+        assert rep["roots"][0]["attributes"]["p3"] == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            id=shared.id,
+            attributes=dict(p0=10),
+        )
+        assert rep["roots"][1]["attributes"]["p3"] == Ref(id=shared.id)
+
+        decoded = Document.from_json(rep)
+        assert decoded.roots[0].p3 is decoded.roots[1].p3
+
+    def test_Document_minimal_ids_round_trips_anonymous_models(self) -> None:
+        child = SomeModel(p0=10)
+        root = SomeModel(p0=20, p3=child)
+
+        doc = Document()
+        doc.add_root(root)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+        decoded = Document.from_json(rep)
+
+        assert len(decoded.roots) == 1
+        decoded_root = decoded.roots[0]
+        assert decoded_root.p0 == 20
+        assert decoded_root.p3.p0 == 10
+
+    def test_Document_minimal_ids_omits_ancestor_of_cycle(self) -> None:
+        child0 = SomeModel(p0=10)
+        child1 = SomeModel(p0=20, p3=child0)
+        child0.p3 = child1
+        root = SomeModel(p0=30, p3=child0)
+
+        doc = Document()
+        doc.add_root(root)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+
+        assert "id" not in rep["roots"][0]
+        child0_rep = rep["roots"][0]["attributes"]["p3"]
+        assert child0_rep["id"] == child0.id
+        assert child0_rep["attributes"]["p3"]["id"] == child1.id
+        assert child0_rep["attributes"]["p3"]["attributes"]["p3"] == Ref(id=child0.id)
 
     def test_Model_circular(self) -> None:
         val0 = SomeModel(p0=10)

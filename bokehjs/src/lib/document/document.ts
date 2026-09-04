@@ -81,6 +81,109 @@ export const documents: Document[] = []
 
 export const DEFAULT_TITLE = "Bokeh Application"
 
+function immediate_refs(value: unknown): HasProps[] {
+  const refs: HasProps[] = []
+  const collector = {
+    add(ref: HasProps): void {
+      refs.push(ref)
+    },
+
+    has(_ref: HasProps): boolean {
+      return false
+    },
+  }
+  HasProps._value_record_references(value, collector, {recursive: false})
+  return refs
+}
+
+function immediate_model_refs(model: HasProps): HasProps[] {
+  const refs: HasProps[] = []
+  for (const prop of model.syncable_properties()) {
+    if (!prop.is_unset && prop.may_have_refs) {
+      refs.push(...immediate_refs(prop.get_value()))
+    }
+  }
+  return refs
+}
+
+/**
+ * Find exactly the reached models whose identity cannot be reconstructed from
+ * tree position: objects referenced more than once and members of cycles.
+ * Traversal covers model properties and nested containers but never expands
+ * beyond the values supplied by the document serializer.
+ */
+function models_with_ids(values: unknown[]): Set<HasProps> {
+  const counts: Map<HasProps, number> = new Map()
+  const children: Map<HasProps, HasProps[]> = new Map()
+
+  function count(model: HasProps): void {
+    counts.set(model, (counts.get(model) ?? 0) + 1)
+  }
+
+  for (const value of values) {
+    for (const ref of immediate_refs(value)) {
+      count(ref)
+    }
+  }
+
+  const queue = [...counts.keys()]
+  const seen: Set<HasProps> = new Set()
+  for (let i = 0; i < queue.length; i++) {
+    const model = queue[i]
+    if (seen.has(model)) {
+      continue
+    }
+
+    seen.add(model)
+    const refs = immediate_model_refs(model)
+    children.set(model, refs)
+    for (const ref of refs) {
+      count(ref)
+      queue.push(ref)
+    }
+  }
+
+  const cyclic: Set<HasProps> = new Set()
+  const stack: HasProps[] = []
+  const visiting: Set<HasProps> = new Set()
+  const visited: Set<HasProps> = new Set()
+
+  function visit(model: HasProps): void {
+    if (visiting.has(model)) {
+      const index = stack.indexOf(model)
+      for (const ref of stack.slice(index)) {
+        cyclic.add(ref)
+      }
+      return
+    }
+    if (visited.has(model)) {
+      return
+    }
+
+    visiting.add(model)
+    stack.push(model)
+    for (const ref of children.get(model) ?? []) {
+      visit(ref)
+    }
+    stack.pop()
+    visiting.delete(model)
+    visited.add(model)
+  }
+
+  for (const model of counts.keys()) {
+    visit(model)
+  }
+
+  const result: Set<HasProps> = new Set(cyclic)
+  for (const [model, count] of counts) {
+    if (count > 1) {
+      result.add(model)
+    }
+  }
+
+  return result
+}
+
 export type DocumentOptions = {
   roots?: Iterable<HasProps>
   resolver?: ModelResolver
@@ -569,7 +672,28 @@ export class Document implements Equatable {
   }
 
   to_json(include_defaults: boolean = true): DocJson {
-    const serializer = new Serializer({include_defaults})
+    return this._to_json(include_defaults)
+  }
+
+  /**
+   * Serialize this document for a static embed artifact.
+   *
+   * Anonymous models omit IDs, while shared and cyclic models retain the IDs
+   * required to reconstruct identity. Any included ID is a graph or runtime
+   * reconstruction detail, not a durable browser address. `models_with_ids`
+   * is only for model identities referenced outside the serialized graph.
+   * Artifact roots should be addressed by logical key and document-root
+   * ordinal, not by forcing a model ID solely for DOM mounting.
+   *
+   * Canonical documents and live protocol messages must use [[to_json]].
+   */
+  to_static_json(include_defaults: boolean = true, models_with_ids: Iterable<HasProps> = []): DocJson {
+    return this._to_json(include_defaults, "minimal", models_with_ids)
+  }
+
+  _to_json(include_defaults: boolean = true, model_ids: "always" | "minimal" = "always", extra_models_with_ids: Iterable<HasProps> = []): DocJson {
+    const ids = model_ids == "minimal" ? new Set([...models_with_ids([this.config, this._roots]), ...extra_models_with_ids]) : null
+    const serializer = new Serializer({include_defaults, models_with_ids: ids})
     const config = serializer.encode(this.config)
     const roots = serializer.encode(this._roots)
     return {

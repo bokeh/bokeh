@@ -182,6 +182,58 @@ The returned ``<script>`` will look something like this:
 
     </script>
 
+.. note::
+    The generated ``docid``, ``modelid``, and element IDs shown by the
+    standalone embedding methods on this page are embedding plumbing, not
+    durable handles for application JavaScript. For static-page integration,
+    use ``Bokeh.when_mounted()`` with logical root keys, semantic model names,
+    mount-scoped view lookup, or explicit ``CustomJS.args`` as described in
+    :ref:`ug_advanced_bokehjs`.
+
+Static JSON and model identity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Static embedding does not use construction-time model IDs as addresses. The
+explicit :meth:`~bokeh.document.document.Document.to_static_json` path omits an
+ID when an object can be reconstructed from its position in the serialized
+tree. It retains IDs only where sharing, a cycle, or an explicitly external
+identity requires them. Canonical documents and live protocol patches remain
+ID-full.
+
+This compact diagnostic makes the difference visible without rendering an
+artifact:
+
+.. code-block:: python
+
+    from bokeh.document import Document
+    from bokeh.models import CustomJS
+
+    shared = CustomJS(code="shared")
+    first = CustomJS(code="first", args={"shared": shared})
+    second = CustomJS(code="second", args={"shared": shared})
+    document = Document()
+    document.add_root(first)
+    document.add_root(second)
+
+    def ids(value):
+        if isinstance(value, dict):
+            return ([value["id"]] if value.get("type") == "object" and "id" in value else []) + [
+                model_id for child in value.values() for model_id in ids(child)
+            ]
+        if isinstance(value, list):
+            return [model_id for child in value for model_id in ids(child)]
+        return []
+
+    canonical = document.to_json(deferred=False)
+    static = document.to_static_json(deferred=False)
+    print("canonical IDs:", len(ids(canonical)))
+    print("static IDs:", len(ids(static)), ids(static))
+
+The two anonymous roots lose their IDs in ``static``; the shared callback keeps
+one because both roots must reconstruct the same object. Supplying a model via
+``models_with_ids`` can retain the identity of a model already in the document,
+but cannot add an unrelated model to the serialized graph.
+
 Note that Jupyter notebooks do not allow for use of the |components| and |show|
 functions in the same notebook cell.
 

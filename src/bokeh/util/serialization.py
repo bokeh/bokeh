@@ -403,6 +403,18 @@ def transform_series(series: pd.Series[Any] | pd.Index[Any] | pd.api.extensions.
 # Dev API
 #-----------------------------------------------------------------------------
 
+def reserve_id(id: ID) -> None:
+    '''Prevent generated simple IDs from colliding with an explicit ID.'''
+    global _simple_id
+
+    if not id.startswith("p") or not id[1:].isdigit():
+        return
+
+    value = int(id[1:])
+    with _simple_id_lock:
+        if value > _simple_id:
+            _simple_id = value
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
