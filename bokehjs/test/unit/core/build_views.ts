@@ -37,7 +37,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SlowModel()
+    const model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // Simulates two on_change listeners on the same signal (e.g. Tabs.tabs
@@ -103,8 +103,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const model_a = new ModelA()
-    const model_b = new ModelB()
+    const model_a = ModelA.create()
+    const model_b = ModelB.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 starts building model_a and is gated there, before it ever gets
@@ -173,8 +173,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const model_a = new ModelA()
-    const model_b = new ModelB()
+    const model_a = ModelA.create()
+    const model_b = ModelB.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call1 doesn't build model_a itself (call0 is already building it), but it
@@ -227,8 +227,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const failing_model = new FailingModel()
-    const ok_model = new OkModel()
+    const failing_model = FailingModel.create()
+    const ok_model = OkModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     let error: unknown
@@ -262,7 +262,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SomeModel()
+    const model = SomeModel.create()
     const storage0: ViewStorage<HasProps> = new Map()
     const storage1: ViewStorage<HasProps> = new Map()
 
@@ -299,7 +299,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SlowModel()
+    const model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call1 doesn't build `model` itself (call0 already reserved it), but it
@@ -377,8 +377,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const fast_model = new FastModel()
-    const slow_model = new SlowModel()
+    const fast_model = FastModel.create()
+    const slow_model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 stores fast_model's view, then suspends on slow_model. call1 then
@@ -440,7 +440,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SlowModel()
+    const model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 is still building `model`'s view when call1 asks for an empty set of
@@ -505,8 +505,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const ok_model = new OkModel()
-    const failing_model = new FailingModel()
+    const ok_model = OkModel.create()
+    const failing_model = FailingModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     let error: unknown
@@ -543,7 +543,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SomeModel()
+    const model = SomeModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     const result = await build_views(storage, [model, model], {parent: null})
@@ -583,7 +583,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SlowModel()
+    const model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // The owner of `storage` is going away (e.g. DataTableView.remove()) while
@@ -620,7 +620,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new FailingModel()
+    const model = FailingModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     const call0 = build_views(storage, [model], {parent: null})
@@ -667,8 +667,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const failing_model = new FailingModel()
-    const ok_model = new OkModel()
+    const failing_model = FailingModel.create()
+    const ok_model = OkModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 gives up on ok_model, because failing_model failed ahead of it in

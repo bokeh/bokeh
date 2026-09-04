@@ -2170,8 +2170,8 @@ ${view.host_selector} {
 
   describe("in issue #14593", () => {
     it("doesn't allow a plot's context menu to work after a toolbar property changed", async () => {
-      const pan = new PanTool()
-      const box_select = new BoxSelectTool()
+      const pan = PanTool.create()
+      const box_select = BoxSelectTool.create()
 
       const p = fig([300, 300], {tools: [pan, box_select], toolbar_location: null})
       p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
@@ -2196,7 +2196,7 @@ ${view.host_selector} {
       await view.ready
       expect(submenus(open_menu()).length).to.be.equal(1)
 
-      p.toolbar.tools = [pan, new BoxSelectTool()]
+      p.toolbar.tools = [pan, BoxSelectTool.create()]
       await view.ready
       const menu_view = open_menu()
       expect(submenus(menu_view).length).to.be.equal(2)

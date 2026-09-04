@@ -186,7 +186,7 @@ describe("core/view", () => {
 
       // build_view() connects, so build the view the way build_views() does when
       // it has to throw away a build nothing wants any more.
-      const view = new UnconnectedModelView({model: new UnconnectedModel(), parent: null})
+      const view = new UnconnectedModelView({model: UnconnectedModel.create(), parent: null})
       view.initialize()
       await view.lazy_initialize()
 
