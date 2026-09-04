@@ -273,7 +273,6 @@ function waitForResourceRegistration(resourceId: string, milliseconds: number, s
   const existing = resources.get(resourceId)
   if (existing != null) return Promise.resolve(existing)
   return new Promise((resolve, reject) => {
-    let timer = 0
     const waiter: ResourceWaiter = {
       scope,
       resolve: (state) => {
@@ -288,7 +287,7 @@ function waitForResourceRegistration(resourceId: string, milliseconds: number, s
     const waiters = resourceWaiters.get(resourceId) ?? new Set<ResourceWaiter>()
     waiters.add(waiter)
     resourceWaiters.set(resourceId, waiters)
-    timer = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       if (!waiters.delete(waiter)) return
       if (waiters.size === 0) resourceWaiters.delete(resourceId)
       reject(new Error(`Resource ${resourceId} was not registered within ${milliseconds} ms`))
@@ -299,24 +298,26 @@ function waitForResourceRegistration(resourceId: string, milliseconds: number, s
 function resourceExecution(payload: ResourcePayload, javascript: string, signal: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     type Detail = {resource_id?: string, error?: unknown}
-    let complete: (event: Event) => void
-    let failed: (event: Event) => void
-    const cleanup = () => {
+
+    function cleanup() {
       window.removeEventListener("bokeh:resources-complete", complete)
       window.removeEventListener("bokeh:resources-error", failed)
       signal.removeEventListener("abort", aborted)
     }
-    complete = (event) => {
+
+    const complete = (event: Event) => {
       if ((event as CustomEvent<Detail>).detail.resource_id !== payload.resource_id) return
       cleanup()
       resolve()
     }
-    failed = (event) => {
+
+    const failed = (event: Event) => {
       const detail = (event as CustomEvent<Detail>).detail
       if (detail.resource_id !== payload.resource_id) return
       cleanup()
       reject(detail.error ?? new Error("resource loader failed"))
     }
+
     const aborted = () => {
       cleanup()
       reject(signal.reason ?? new DOMException("Resource loading was cancelled", "AbortError"))
@@ -465,17 +466,18 @@ function extractArtifact(payload: DisplayPayload, html: string): any {
       "Re-run the cell that displayed this output, then save the notebook again.",
     )
   }
-  let artifact: any
-  try {
-    artifact = JSON.parse(source.textContent ?? "")
-  } catch (cause) {
-    throw new BokehNotebookError(
-      "ARTIFACT_RECORD_INVALID",
-      "The saved Bokeh artifact is not valid JSON.",
-      "Re-run the cell that displayed this output, then save the notebook again.",
-      cause,
-    )
-  }
+  const artifact = (() => {
+    try {
+      return JSON.parse(source.textContent ?? "")
+    } catch (cause) {
+      throw new BokehNotebookError(
+        "ARTIFACT_RECORD_INVALID",
+        "The saved Bokeh artifact is not valid JSON.",
+        "Re-run the cell that displayed this output, then save the notebook again.",
+        cause,
+      )
+    }
+  })()
   if (artifact?.schema !== "bokeh.embed/v1" || artifact.fingerprint !== payload.artifact_fingerprint ||
       artifact.source?.kind !== payload.source_kind) {
     throw new BokehNotebookError(
@@ -488,17 +490,18 @@ function extractArtifact(payload: DisplayPayload, html: string): any {
 }
 
 function applicationArtifact(payload: DisplayPayload, value: string): any {
-  let artifact: any
-  try {
-    artifact = JSON.parse(value)
-  } catch (cause) {
-    throw new BokehNotebookError(
-      "APPLICATION_ARTIFACT_INVALID",
-      "The kernel did not return a valid Bokeh application artifact.",
-      "Restart the kernel and re-run the cells that call serve(...) and show(app).",
-      cause,
-    )
-  }
+  const artifact = (() => {
+    try {
+      return JSON.parse(value)
+    } catch (cause) {
+      throw new BokehNotebookError(
+        "APPLICATION_ARTIFACT_INVALID",
+        "The kernel did not return a valid Bokeh application artifact.",
+        "Restart the kernel and re-run the cells that call serve(...) and show(app).",
+        cause,
+      )
+    }
+  })()
   if (artifact?.schema !== "bokeh.embed/v1" || artifact.source?.kind !== "server" ||
       artifact.metadata?.notebook_application_id !== payload.application_id) {
     throw new BokehNotebookError(
@@ -570,7 +573,9 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   let viewConnection: ApplicationViewConnection | undefined
   let disconnected: HTMLElement | undefined
   let disposed = false
+
   const cleanupRoots = () => targets.roots.forEach((root) => root.remove())
+
   const publishPreHandleFailure = (cause: unknown) => {
     const runtime = window.Bokeh
     if (runtime?.publish_mount_error == null) return
@@ -585,6 +590,7 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
       )
     targets.roots.forEach((root) => runtime.publish_mount_error?.(root, error))
   }
+
   const mountArtifact = async (nextArtifact: any, resourceId: string, revision: number): Promise<void> => {
     await requireResources(
       resourceId,
@@ -597,15 +603,16 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     const previous = mount
     const runtime = window.Bokeh
     if (runtime == null) throw new Error("BokehJS is unavailable after resource loading")
-    let next: NotebookBokehMount
-    try {
-      next = targets.target != null
-        ? runtime.mount(nextArtifact, targets.target, {resources: "none", signal})
-        : runtime.mount(nextArtifact, {targets: targets.targets, resources: "none", signal})
-    } catch (cause) {
-      publishPreHandleFailure(cause)
-      throw cause
-    }
+    const next = (() => {
+      try {
+        return targets.target != null
+          ? runtime.mount(nextArtifact, targets.target, {resources: "none", signal})
+          : runtime.mount(nextArtifact, {targets: targets.targets, resources: "none", signal})
+      } catch (cause) {
+        publishPreHandleFailure(cause)
+        throw cause
+      }
+    })()
     try {
       await withTimeout(
         next.ready,
@@ -692,6 +699,7 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   })
 
   let cleaned = false
+
   const cleanup = () => {
     if (cleaned) return
     cleaned = true

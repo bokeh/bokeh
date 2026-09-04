@@ -30,6 +30,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           if (data.error != null) reject(new Error(String(data.message ?? data.error)))
           else resolve(data as unknown as ResourceRecord)
         }
+
         comm.onClose = () => {
           reject(new Error(`The kernel closed before returning resource ${resourceId}`))
         }
@@ -73,20 +74,25 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           ))
           safelyCloseComm(comm)
         }, 5000)
+
         const connection = (artifactJson: string, resourceId: string, revision: number): LiveConnection => ({
           artifactJson,
           resourceId,
           revision,
+
           onMessage(callback) {
             revisions.subscribe(callback)
           },
+
           onClose(callback) {
             receiveClose = callback
             if (closed && !closedByOwner) queueMicrotask(callback)
           },
+
           requestResync() {
             revisions.requestResync()
           },
+
           close() {
             if (closed) return
             closedByOwner = true
@@ -95,6 +101,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             safelyCloseComm(comm)
           },
         })
+
         comm.onMsg = (message) => {
           const data = message.content.data
           const buffers = dataViews(message.buffers)
@@ -119,6 +126,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           }
           revisions.receive(data, buffers)
         }
+
         comm.onClose = () => {
           const wasClosed = closed
           closed = true
@@ -164,6 +172,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
         let receiveClose: (() => void) | undefined
         let settled = false
         let closed = false
+
         const notifyClosed = () => {
           if (closed) return
           closed = true
@@ -181,16 +190,19 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
         }, 5000)
         const connection: ApplicationViewConnection = {
           artifactJson: "",
+
           onClose(callback) {
             receiveClose = callback
             if (closed) queueMicrotask(callback)
           },
+
           close() {
             if (closed) return
             closed = true
             safelyCloseComm(comm)
           },
         }
+
         comm.onMsg = (message) => {
           const data = message.content.data as ReadonlyJSONObject
           if (!settled) {
@@ -225,6 +237,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             safelyCloseComm(comm)
           }
         }
+
         comm.onClose = () => {
           if (!settled) {
             settled = true
