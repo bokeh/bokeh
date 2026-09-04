@@ -31,14 +31,6 @@ bokeh.io.notebook
 .. automodule:: bokeh.io.notebook
     :members:
 
-.. _bokeh.io.output:
-
-bokeh.io.output
----------------
-
-.. automodule:: bokeh.io.output
-    :members:
-
 .. _bokeh.io.saving:
 
 bokeh.io.saving
