@@ -317,7 +317,8 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
     assert docs["needs"] == conda["needs"] == npm["needs"] == pypi["needs"] == "prepare"
     assert docs["permissions"] == {"contents": "read", "id-token": "write"}
     assert conda["permissions"] == {}
-    assert npm["permissions"] == pypi["permissions"] == {"id-token": "write"}
+    assert npm["permissions"] == {"contents": "read", "id-token": "write"}
+    assert pypi["permissions"] == {"id-token": "write"}
     assert docs["environment"]["name"] == "publish-docs"
     assert conda["environment"]["name"] == "publish-anaconda"
     assert npm["environment"]["name"] == "publish-npm"
@@ -355,7 +356,7 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
         "${{ (contains(github.event.inputs.version, '.dev') || contains(github.event.inputs.version, 'rc')) && 'dev' || 'latest' }}"
     )
     assert npm_publish["run"].splitlines() == [
-        "for package in bokeh-bokehjs bokeh-framework bokeh-angular bokeh-react bokeh-svelte bokeh-vue bokeh-web-component; do",
+        "for package in $(python ../tools/release/npm.py); do",
         '  npm publish --access=public --tag="$NPM_TAG" "$package"-*.tgz',
         "done",
     ]

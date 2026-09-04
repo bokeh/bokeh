@@ -39,15 +39,8 @@ const applications = [
   },
 ]
 
-const package_dirs = new Map([
-  ["@bokeh/bokehjs", bokehjs_dir],
-  ["@bokeh/framework", join(bokehjs_dir, "frameworks/base")],
-  ["@bokeh/angular", join(bokehjs_dir, "frameworks/angular")],
-  ["@bokeh/react", join(bokehjs_dir, "frameworks/react")],
-  ["@bokeh/svelte", join(bokehjs_dir, "frameworks/svelte")],
-  ["@bokeh/vue", join(bokehjs_dir, "frameworks/vue")],
-  ["@bokeh/web-component", join(bokehjs_dir, "frameworks/web-component")],
-])
+const npm_packages = JSON.parse(readFileSync(join(bokehjs_dir, "npm_packages.json"), "utf-8"))
+const package_dirs = new Map(npm_packages.map(({name, workspace}) => [name, join(bokehjs_dir, workspace)]))
 
 function command(name) {
   return process.platform == "win32" ? `${name}.cmd` : name
