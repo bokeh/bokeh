@@ -39,6 +39,7 @@ export function installExportInterceptor(app: JupyterFrontEnd, notebooks: Notebo
   const manager = app.serviceManager.nbconvert
   const original = manager.exportAs?.bind(manager)
   if (original == null) return
+
   manager.exportAs = async (options: NbConvert.IExportOptions) => {
     if (options.format !== "html" && options.format !== "bokeh") return original(options)
     const popup = window.open("about:blank", "_blank")

@@ -150,7 +150,9 @@ describe("artifact runtime", () => {
     }
     const openApplicationView = vi.fn(async () => ({
       artifactJson: JSON.stringify(browserArtifact),
+
       onClose() {},
+
       close() {},
     }))
     const node = document.createElement("div")
@@ -254,9 +256,12 @@ describe("artifact runtime", () => {
         artifactJson: JSON.stringify(artifact),
         resourceId: "resource",
         revision: 0,
+
         onMessage(callback) {receive = callback},
+
         onClose() {},
         requestResync: resync,
+
         close() {},
       }),
     })
@@ -299,9 +304,13 @@ describe("artifact runtime", () => {
         artifactJson: JSON.stringify(artifact),
         resourceId: "resource",
         revision: 0,
+
         onMessage(callback) {receive = callback},
+
         onClose() {},
+
         requestResync() {},
+
         close() {},
       }),
     })
@@ -367,9 +376,13 @@ describe("artifact runtime", () => {
         artifactJson: JSON.stringify(artifact),
         resourceId: "resource",
         revision: 0,
+
         onMessage() {},
+
         onClose(callback) {closed = callback},
+
         requestResync() {},
+
         close() {},
       }),
     })

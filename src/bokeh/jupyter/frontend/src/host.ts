@@ -28,14 +28,15 @@ export function jupyterServerBaseUrl(root: Document = document): string | undefi
 /** Map a kernel-local application URL through a remote Jupyter server. */
 export function resolveJupyterApplicationUrl(applicationUrl: string, serverBaseUrl: string | undefined,
     pageUrl: string = window.location.href): string {
-  let application: URL
-  let page: URL
-  try {
-    application = new URL(applicationUrl)
-    page = new URL(pageUrl)
-  } catch {
-    return applicationUrl
-  }
+  const urls = (() => {
+    try {
+      return {application: new URL(applicationUrl), page: new URL(pageUrl)}
+    } catch {
+      return undefined
+    }
+  })()
+  if (urls == null) return applicationUrl
+  const {application, page} = urls
   if (!loopbackHosts.has(application.hostname.toLowerCase()) || loopbackHosts.has(page.hostname.toLowerCase()) ||
       application.port.length === 0 || serverBaseUrl == null || serverBaseUrl.length === 0) {
     return applicationUrl
