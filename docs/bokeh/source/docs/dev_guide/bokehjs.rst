@@ -138,6 +138,11 @@ system. These are the most common commands:
   packaging.
 * ``node make test``: Runs all BokehJS tests. To only run specific tests, see
   :ref:`contributor_guide_testing_local_javascript_selecting`.
+* ``node make test:frameworks``: Packs and installs BokehJS and its framework
+  adapters, builds the React, Vue, Svelte, Angular/ng, Web Component, vanilla
+  Vite/Webpack/Rspack, and server-side-rendering examples, and runs the browser
+  lifecycle and hot-module-reloading matrix. This is also part of ``node make
+  test`` in continuous integration.
 * ``node make lint`` lint BokehJS with ESLint_. Run ``node make lint --fix`` to
   have ESLint fix some problems automatically.
 
@@ -242,13 +247,6 @@ link model and view.
     // only when a view is required:
     __view_type__: NewActionToolView
 
-    // do not remove this constructor, or you won't be
-    // able to use `new NewActionTool({some_property: 1})`
-    // this constructor
-    constructor(attrs?: Partial<NewActionTool.Attrs>) {
-      super(attrs)
-    }
-
     static {
       this.prototype.default_view = NewActionToolView
 
@@ -262,6 +260,18 @@ link model and view.
       }))
     }
   }
+
+All model subclasses inherit the lifecycle-aware ``create()`` factory, so a
+custom extension does not need to repeat a constructor. Instantiate the model
+with ``NewActionTool.create({some_property: 1})``. Property defaults,
+``initialize()``, and ``connect_signals()`` run after all subclass field
+initializers have completed.
+
+Register extension models explicitly when they will be deserialized. Use a
+dedicated ``ModelResolver`` and call ``register_standard_models()`` and
+``register_models()`` with that resolver. Also assign a stable
+``NewActionTool.__qualified__`` value; relying on the JavaScript class name is
+unsafe after production minification.
 
 Views
 ~~~~~

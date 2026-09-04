@@ -81,7 +81,7 @@ export class Range1d extends NumericalRange {
   }
 
   map(fn: (v: number) => number): Range1d {
-    return new Range1d({start: fn(this.start), end: fn(this.end)})
+    return Range1d.create({start: fn(this.start), end: fn(this.end)})
   }
 
   widen(v: number): Range1d {
@@ -93,6 +93,6 @@ export class Range1d extends NumericalRange {
       start -= v
       end += v
     }
-    return new Range1d({start, end})
+    return Range1d.create({start, end})
   }
 }

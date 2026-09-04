@@ -155,7 +155,7 @@ describe("core/serialization module", () => {
     })
 
     it("should support HasProps instances", () => {
-      const obj0 = new SomeModel()
+      const obj0 = SomeModel.create()
       expect(to_serializable(obj0)).to.be.equal({
         rep: {type: "object", name: "SomeModel", id: obj0.id},
         json: `{"type":"object","name":"SomeModel","id":"${obj0.id}"}`,
@@ -253,9 +253,9 @@ describe("core/serialization module", () => {
     })
 
     it("should support circular model references", () => {
-      const obj0 = new SomeModel({value: 10})
-      const obj1 = new SomeModel({value: 20, obj: obj0})
-      const obj2 = new SomeModel({value: 30, obj: obj1})
+      const obj0 = SomeModel.create({value: 10})
+      const obj1 = SomeModel.create({value: 20, obj: obj0})
+      const obj2 = SomeModel.create({value: 30, obj: obj1})
       obj0.obj = obj2
 
       const serializer = new Serializer()
@@ -362,6 +362,46 @@ describe("core/serialization module", () => {
 
       const rep = {type: "unknown", attributes: {foo: 1}}
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
+    })
+
+    it("restores existing references when a later value fails", () => {
+      const resolver = new ModelResolver(null, [SomeModel])
+      const model = SomeModel.create({value: 1})
+      const references = new Map([[model.id, model]])
+      const deserializer = new Deserializer(resolver, references)
+
+      const rep = [
+        {type: "object", name: "SomeModel", id: model.id, attributes: {value: 2}},
+        {type: "object", name: "MissingModel", id: "missing"},
+      ]
+      expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
+      expect(model.value).to.be.equal(1)
+      expect(references).to.be.equal(new Map([[model.id, model]]))
+    })
+
+    it("rolls back finalized references when initialization fails", () => {
+      class FailingModel extends SomeModel {
+        override initialize(): void {
+          super.initialize()
+          throw new Error("initialization failed")
+        }
+      }
+
+      const resolver = new ModelResolver(null, [SomeModel, FailingModel])
+      const references = new Map<string, HasProps>()
+      const finalized = new Set<HasProps>()
+      const deserializer = new Deserializer(resolver, references, (model) => {
+        finalized.add(model)
+        return () => finalized.delete(model)
+      })
+
+      const rep = [
+        {type: "object", name: "SomeModel", id: "first"},
+        {type: "object", name: "FailingModel", id: "second"},
+      ]
+      expect(() => deserializer.decode(rep)).to.throw(Error, "initialization failed")
+      expect(references.size).to.be.equal(0)
+      expect(finalized.size).to.be.equal(0)
     })
   })
 })

@@ -835,7 +835,7 @@ export abstract class Axis extends GuideRenderer {
       major_label_standoff:     [ Int, 5 ],
       major_label_orientation:  [ Or(LabelOrientation, Float), "horizontal" ],
       major_label_overrides:    [ LabelOverrides, new Map() ],
-      major_label_policy:       [ Ref(LabelingPolicy), () => new AllLabels() ],
+      major_label_policy:       [ Ref(LabelingPolicy), () => AllLabels.create() ],
       major_tick_in:            [ Float, 2 ],
       major_tick_out:           [ Float, 6 ],
       minor_tick_in:            [ Float, 0 ],

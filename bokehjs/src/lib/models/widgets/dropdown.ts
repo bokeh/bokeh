@@ -105,17 +105,17 @@ export class DropdownView extends AbstractButtonView {
   to_menu(): Menu {
     const items = this.model.menu.map((item, i) => {
       if (item == null) {
-        return new DividerItem()
+        return DividerItem.create()
       } else {
         const label = isString(item) ? item : item[0]
-        const menu_item = new MenuItem({
+        const menu_item = MenuItem.create({
           label,
           action: () => { this._item_click(i) },
         })
         return menu_item
       }
     })
-    return new Menu({items})
+    return Menu.create({items})
   }
 }
 

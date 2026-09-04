@@ -9,7 +9,7 @@ export class MathMLGlyphView extends MathTextGlyphView {
   declare visuals: MathMLGlyph.Visuals
 
   protected _build_label(text: string): MathML {
-    return new MathML({text})
+    return MathML.create({text})
   }
 }
 

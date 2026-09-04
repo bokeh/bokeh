@@ -9,94 +9,94 @@ describe("cell_formatters module", () => {
     describe("getFormat method", () => {
 
       it("should map ATOM", () => {
-        const df = new DateFormatter({format: "ATOM"})
+        const df = DateFormatter.create({format: "ATOM"})
         expect(df.getFormat()).to.be.equal("%Y-%m-%d")
       })
 
       it("should map W3C", () => {
-        const df = new DateFormatter({format: "W3C"})
+        const df = DateFormatter.create({format: "W3C"})
         expect(df.getFormat()).to.be.equal("%Y-%m-%d")
       })
 
       it("should map RFC-3339", () => {
-        const df = new DateFormatter({format: "RFC-3339"})
+        const df = DateFormatter.create({format: "RFC-3339"})
         expect(df.getFormat()).to.be.equal("%Y-%m-%d")
       })
 
       it("should map ISO-8601", () => {
-        const df = new DateFormatter({format: "ISO-8601"})
+        const df = DateFormatter.create({format: "ISO-8601"})
         expect(df.getFormat()).to.be.equal("%Y-%m-%d")
       })
 
       it("should map COOKIE", () => {
-        const df = new DateFormatter({format: "COOKIE"})
+        const df = DateFormatter.create({format: "COOKIE"})
         expect(df.getFormat()).to.be.equal("%a, %d %b %Y")
       })
 
       it("should map RFC-850", () => {
-        const df = new DateFormatter({format: "RFC-850"})
+        const df = DateFormatter.create({format: "RFC-850"})
         expect(df.getFormat()).to.be.equal("%A, %d-%b-%y")
       })
 
       it("should map RFC-1123", () => {
-        const df = new DateFormatter({format: "RFC-1123"})
+        const df = DateFormatter.create({format: "RFC-1123"})
         expect(df.getFormat()).to.be.equal("%a, %e %b %Y")
       })
 
       it("should map RFC-2822", () => {
-        const df = new DateFormatter({format: "RFC-2822"})
+        const df = DateFormatter.create({format: "RFC-2822"})
         expect(df.getFormat()).to.be.equal("%a, %e %b %Y")
       })
 
       it("should map RSS", () => {
-        const df = new DateFormatter({format: "RSS"})
+        const df = DateFormatter.create({format: "RSS"})
         expect(df.getFormat()).to.be.equal("%a, %e %b %y")
       })
 
       it("should map RFC-822", () => {
-        const df = new DateFormatter({format: "RFC-822"})
+        const df = DateFormatter.create({format: "RFC-822"})
         expect(df.getFormat()).to.be.equal("%a, %e %b %y")
       })
 
       it("should map RFC-1036", () => {
-        const df = new DateFormatter({format: "RFC-1036"})
+        const df = DateFormatter.create({format: "RFC-1036"})
         expect(df.getFormat()).to.be.equal("%a, %e %b %y")
       })
 
       it("should map TIMESTAMP", () => {
-        const df = new DateFormatter({format: "TIMESTAMP"})
+        const df = DateFormatter.create({format: "TIMESTAMP"})
         expect(df.getFormat()).to.be.equal("@")
       })
 
       it("should map custom formats to themselves", () => {
-        const df = new DateFormatter({format: "CUST"})
+        const df = DateFormatter.create({format: "CUST"})
         expect(df.getFormat()).to.be.equal("CUST")
       })
     })
 
     describe("doFormat method", () => {
       it("should apply default null_format to null", () => {
-        const df = new DateFormatter()
+        const df = DateFormatter.create()
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
       it("should apply default nan_format to NaN", () => {
-        const df = new DateFormatter()
+        const df = DateFormatter.create()
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
       it("should apply null_format to null", () => {
-        const df = new DateFormatter({null_format: "--"})
+        const df = DateFormatter.create({null_format: "--"})
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply nan_format to nan", () => {
-        const df = new DateFormatter({nan_format: "--"})
+        const df = DateFormatter.create({nan_format: "--"})
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply nan_format to NaT", () => {
-        const df = new DateFormatter({nan_format: "--"})
+        const df = DateFormatter.create({nan_format: "--"})
         expect(df.doFormat(0, 0, -9223372036854776, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
     })
@@ -106,42 +106,42 @@ describe("cell_formatters module", () => {
 
     describe("doFormat method", () => {
       it("should apply default null_format to null", () => {
-        const sf = new StringFormatter()
+        const sf = StringFormatter.create()
         expect(sf.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">(null)</div>')
       })
 
       it("should apply default nan_format to nan", () => {
-        const sf = new StringFormatter()
+        const sf = StringFormatter.create()
         expect(sf.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">NaN</div>')
       })
 
       it("should apply null_format to null", () => {
-        const sf = new StringFormatter({null_format: "--"})
+        const sf = StringFormatter.create({null_format: "--"})
         expect(sf.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply nan_format to nan", () => {
-        const sf = new StringFormatter({nan_format: "--"})
+        const sf = StringFormatter.create({nan_format: "--"})
         expect(sf.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply font_style to value", () => {
-        const sf = new StringFormatter({font_style: "bold"})
+        const sf = StringFormatter.create({font_style: "bold"})
         expect(sf.doFormat(0, 0, "foo", {}, {})).to.be.equal('<div style="font-weight: bold; text-align: left;">foo</div>')
       })
 
       it("should apply text_align to value", () => {
-        const sf = new StringFormatter({text_align: "center"})
+        const sf = StringFormatter.create({text_align: "center"})
         expect(sf.doFormat(0, 0, "foo", {}, {})).to.be.equal('<div style="text-align: center;">foo</div>')
       })
 
       it("should apply text_color to value", () => {
-        const sf = new StringFormatter({text_color: "#ff22dd"})
+        const sf = StringFormatter.create({text_color: "#ff22dd"})
         expect(sf.doFormat(0, 0, "foo", {}, {})).to.be.equal('<div style="text-align: left; color: rgb(255, 34, 221);">foo</div>')
       })
 
       it("should apply background_color to value", () => {
-        const sf = new StringFormatter({background_color: "#ff22dd"})
+        const sf = StringFormatter.create({background_color: "#ff22dd"})
         expect(sf.doFormat(0, 0, "foo", {}, {})).to.be.equal('<div style="text-align: left; background-color: rgb(255, 34, 221);">foo</div>')
       })
     })
@@ -151,22 +151,22 @@ describe("cell_formatters module", () => {
 
     describe("doFormat method", () => {
       it("should apply default null_format to null", () => {
-        const df = new NumberFormatter()
+        const df = NumberFormatter.create()
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
       it("should apply default nan_format to nan", () => {
-        const df = new NumberFormatter()
+        const df = NumberFormatter.create()
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
       it("should apply null_format to null", () => {
-        const df = new NumberFormatter({null_format: "--"})
+        const df = NumberFormatter.create({null_format: "--"})
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply nan_format to nan", () => {
-        const df = new NumberFormatter({nan_format: "--"})
+        const df = NumberFormatter.create({nan_format: "--"})
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
     })
@@ -176,47 +176,47 @@ describe("cell_formatters module", () => {
 
     describe("doFormat method", () => {
       it("should apply default nan_format to null", () => {
-        const df = new ScientificFormatter()
+        const df = ScientificFormatter.create()
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
       it("should apply default nan_format to NaN", () => {
-        const df = new ScientificFormatter()
+        const df = ScientificFormatter.create()
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
       it("should apply nan_format to null", () => {
-        const df = new ScientificFormatter({null_format: "--"})
+        const df = ScientificFormatter.create({null_format: "--"})
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply nan_format to nan", () => {
-        const df = new ScientificFormatter({nan_format: "--"})
+        const df = ScientificFormatter.create({nan_format: "--"})
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply to_fixed if value is zero", () => {
-        const df = new ScientificFormatter({precision: 3})
+        const df = ScientificFormatter.create({precision: 3})
         expect(df.doFormat(0, 0, 0, {}, {})).to.be.equal('<div style="text-align: left;">0</div>')
       })
 
       it("should apply to_fixed if value is 10", () => {
-        const df = new ScientificFormatter({precision: 10})
+        const df = ScientificFormatter.create({precision: 10})
         expect(df.doFormat(0, 0, 10, {}, {})).to.be.equal('<div style="text-align: left;">10</div>')
       })
 
       it("should apply toExponential if value is 1e-8", () => {
-        const df = new ScientificFormatter({precision: 3})
+        const df = ScientificFormatter.create({precision: 3})
         expect(df.doFormat(0, 0, 1e-8, {}, {})).to.be.equal('<div style="text-align: left;">1.000e-8</div>')
       })
 
       it("should apply to_fixed if value is 0.123456", () => {
-        const df = new ScientificFormatter({precision: 3, power_limit_high: 6, power_limit_low: -3})
+        const df = ScientificFormatter.create({precision: 3, power_limit_high: 6, power_limit_low: -3})
         expect(df.doFormat(0, 0, 0.123456, {}, {})).to.be.equal('<div style="text-align: left;">0.123</div>')
       })
 
       it("should apply to_fixed if value is -0.123456", () => {
-        const df = new ScientificFormatter({precision: 3, power_limit_high: 6, power_limit_low: -3})
+        const df = ScientificFormatter.create({precision: 3, power_limit_high: 6, power_limit_low: -3})
         expect(df.doFormat(0, 0, -0.123456, {}, {})).to.be.equal('<div style="text-align: left;">-0.123</div>')
       })
     })

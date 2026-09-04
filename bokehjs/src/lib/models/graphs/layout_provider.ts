@@ -24,11 +24,11 @@ export abstract class LayoutProvider extends Model {
   abstract get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]]
 
   get node_coordinates(): NodeCoordinates {
-    return new NodeCoordinates({layout: this})
+    return NodeCoordinates.create({layout: this})
   }
 
   get edge_coordinates(): EdgeCoordinates {
-    return new EdgeCoordinates({layout: this})
+    return EdgeCoordinates.create({layout: this})
   }
 }
 

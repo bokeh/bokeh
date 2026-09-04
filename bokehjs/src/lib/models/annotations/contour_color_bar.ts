@@ -33,9 +33,9 @@ export class ContourColorBarView extends BaseColorBarView {
   override _create_major_range(): Range {
     const levels = this.model.levels
     if (levels.length > 0) {
-      return new Range1d({start: levels[0], end: levels[levels.length-1]})
+      return Range1d.create({start: levels[0], end: levels[levels.length-1]})
     } else {
-      return new Range1d({start: 0, end: 1})
+      return Range1d.create({start: 0, end: 1})
     }
   }
 
@@ -45,9 +45,9 @@ export class ContourColorBarView extends BaseColorBarView {
     const scale = this._major_scale
     scale.source_range = this._major_range
     if (vertical) {
-      scale.target_range = new Range1d({start: bbox.bottom, end: bbox.top})
+      scale.target_range = Range1d.create({start: bbox.bottom, end: bbox.top})
     } else {
-      scale.target_range = new Range1d({start: bbox.left, end: bbox.right})
+      scale.target_range = Range1d.create({start: bbox.left, end: bbox.right})
     }
     const scaled_levels = scale.v_compute(levels)
 

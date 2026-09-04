@@ -59,7 +59,7 @@ export class PatchView extends XYGlyphView {
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
-    const result = new Selection()
+    const result = Selection.create()
     const {sx, sy} = geometry
 
     // Collect NaN-separated sub-paths

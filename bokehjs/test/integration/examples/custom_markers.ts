@@ -12,7 +12,7 @@ describe("Examples", () => {
     const random = new Random(1)
 
     // custom marker producing a Path2D object
-    const bowtie = new CustomJS({code: `\
+    const bowtie = CustomJS.create({code: `\
     const SQ3 = Math.sqrt(3)
 
     export default (args, obj, {r}) => {
@@ -32,7 +32,7 @@ describe("Examples", () => {
     `})
 
     // custom marker painting using Context2d and visuals
-    const wheel = new CustomJS({code: `\
+    const wheel = CustomJS.create({code: `\
     const {PI} = Math
 
     export default (args, obj, {ctx, i, r, visuals}) => {
@@ -51,7 +51,7 @@ describe("Examples", () => {
     }
     `})
 
-    const y_range = new DataRange1d({flipped: true})
+    const y_range = DataRange1d.create({flipped: true})
     const p = figure({title: "Bokeh & Custom Markers", y_range, toolbar_location: null, width: 600, height: 800})
 
     p.grid.grid_line_color = null

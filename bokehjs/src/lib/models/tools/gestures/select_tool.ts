@@ -174,7 +174,7 @@ export abstract class SelectTool extends GestureTool {
 
   override get menu(): MenuItemLike[] {
     return [
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_replace_mode}`,
         label: "Replace mode",
         tooltip: "Replace the current selection",
@@ -184,7 +184,7 @@ export abstract class SelectTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_append_mode}`,
         label: "Append mode",
         tooltip: "Append to the current selection (Shift)",
@@ -194,7 +194,7 @@ export abstract class SelectTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_intersect_mode}`,
         label: "Intersection mode",
         tooltip: "Intersect with the current selection (Ctrl)",
@@ -204,7 +204,7 @@ export abstract class SelectTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_subtract_mode}`,
         label: "Subtraction mode",
         tooltip: "Subtract from the current selection (Shift+Ctrl)",
@@ -214,7 +214,7 @@ export abstract class SelectTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_xor_mode}`,
         label: "XOR mode",
         tooltip: "Symmetric difference with the current selection",
@@ -225,7 +225,7 @@ export abstract class SelectTool extends GestureTool {
         },
       }),
       null,
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_invert_selection}`,
         label: "Invert selection",
         tooltip: "Invert the current selection",
@@ -233,7 +233,7 @@ export abstract class SelectTool extends GestureTool {
           this.invert.emit()
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_clear_selection}`,
         label: "Clear selection",
         tooltip: "Clear the current selection and/or selection overlay (Esc)",

@@ -105,8 +105,8 @@ export class WheelPanTool extends GestureTool {
       speed: [ Float, 1/1000 ],
     }))
 
-    this.register_alias("xwheel_pan", () => new WheelPanTool({dimension: "width"}))
-    this.register_alias("ywheel_pan", () => new WheelPanTool({dimension: "height"}))
+    this.register_alias("xwheel_pan", () => WheelPanTool.create({dimension: "width"}))
+    this.register_alias("ywheel_pan", () => WheelPanTool.create({dimension: "height"}))
   }
 
   override tool_name = "Wheel Pan"

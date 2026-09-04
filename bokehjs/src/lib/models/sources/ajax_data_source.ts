@@ -37,9 +37,8 @@ export class AjaxDataSource extends WebDataSource {
     }))
   }
 
-  // TODO don't use initializers until https://github.com/bokeh/bokeh/issues/13732 is fixed
   protected interval?: number
-  protected initialized?: boolean
+  protected initialized = false
   protected last_fetch_time?: Date
 
   override destroy(): void {

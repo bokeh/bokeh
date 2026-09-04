@@ -186,7 +186,7 @@ export class BoxSelectToolView extends RegionSelectToolView {
 }
 
 const DEFAULT_BOX_OVERLAY = () => {
-  return new BoxAnnotation({
+  return BoxAnnotation.create({
     syncable: false,
     level: "overlay",
     visible: false,
@@ -239,9 +239,9 @@ export class BoxSelectTool extends RegionSelectTool {
       origin:     [ BoxOrigin, "corner" ],
     }))
 
-    this.register_alias("box_select", () => new BoxSelectTool())
-    this.register_alias("xbox_select", () => new BoxSelectTool({dimensions: "width"}))
-    this.register_alias("ybox_select", () => new BoxSelectTool({dimensions: "height"}))
+    this.register_alias("box_select", () => BoxSelectTool.create())
+    this.register_alias("xbox_select", () => BoxSelectTool.create({dimensions: "width"}))
+    this.register_alias("ybox_select", () => BoxSelectTool.create({dimensions: "height"}))
   }
 
   override initialize(): void {
