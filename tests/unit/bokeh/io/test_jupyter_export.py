@@ -13,22 +13,16 @@ nbformat = pytest.importorskip("nbformat")
 # Bokeh imports
 from bokeh.embed import embed, embed_server
 from bokeh.io.jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE, display_payload
-from bokeh.io.jupyter_export import (
-    _TRANSIENT_EXPORTS,
-    BokehPngPreprocessor,
-    _artifact_payload,
-    _reset_export_correlation,
-    _set_export_correlation,
-    _store_export_snapshots,
-    _take_export_snapshots,
-)
 from bokeh.io.notebook import _static_fallback
 from bokeh.plotting import figure
+
+# Module under test
+import bokeh.io.jupyter_export as m # isort:skip
 
 
 @pytest.fixture(autouse=True)
 def clear_transient() -> None:
-    _TRANSIENT_EXPORTS.clear()
+    m._TRANSIENT_EXPORTS.clear()
 
 
 def _output(artifact=None, *, view_id: str = "view"):
@@ -56,44 +50,44 @@ def _image() -> MagicMock:
 
 def test_transient_snapshots_require_exact_path_and_export_correlation() -> None:
     artifact = embed(figure())
-    _store_export_snapshots("folder/test.ipynb", "export-identifier-0001", [{
+    m._store_export_snapshots("folder/test.ipynb", "export-identifier-0001", [{
         "view_id": "view", "artifact_json": artifact.to_json_string(), "width": 321.4,
     }])
     resources = {"metadata": {"name": "test", "path": "/tmp/folder"}}
 
-    assert _take_export_snapshots(resources, "wrong-identifier-001") == {}
-    assert _take_export_snapshots(resources, "export-identifier-0001")["view"]["width"] == 321
+    assert m._take_export_snapshots(resources, "wrong-identifier-001") == {}
+    assert m._take_export_snapshots(resources, "export-identifier-0001")["view"]["width"] == 321
 
-    _store_export_snapshots("folder/test.ipynb", "export-identifier-0002", [{
+    m._store_export_snapshots("folder/test.ipynb", "export-identifier-0002", [{
         "view_id": "view", "artifact_json": artifact.to_json_string(), "width": 321.4,
     }], os_path="/tmp/folder/test.ipynb")
-    snapshots = _take_export_snapshots(resources, "export-identifier-0002")
+    snapshots = m._take_export_snapshots(resources, "export-identifier-0002")
     assert snapshots["view"]["width"] == 321
-    assert _take_export_snapshots(resources, "export-identifier-0002") == {}
+    assert m._take_export_snapshots(resources, "export-identifier-0002") == {}
 
 
 def test_context_correlation_propagates_to_preprocessor_lookup() -> None:
-    _store_export_snapshots("test.ipynb", "export-identifier-0003", [{"view_id": "view", "error": "failure"}])
-    token = _set_export_correlation("export-identifier-0003")
+    m._store_export_snapshots("test.ipynb", "export-identifier-0003", [{"view_id": "view", "error": "failure"}])
+    token = m._set_export_correlation("export-identifier-0003")
     try:
-        assert _take_export_snapshots({"metadata": {"name": "test"}}) == {"view": {"error": "failure"}}
+        assert m._take_export_snapshots({"metadata": {"name": "test"}}) == {"view": {"error": "failure"}}
     finally:
-        _reset_export_correlation(token)
+        m._reset_export_correlation(token)
 
 
 def test_invalid_correlation_ids_are_rejected() -> None:
     with pytest.raises(ValueError, match="correlation ID"):
-        _store_export_snapshots("test.ipynb", "spaces are unsafe", [])
+        m._store_export_snapshots("test.ipynb", "spaces are unsafe", [])
 
 
 def test_artifact_payload_is_parsed_from_its_declared_script() -> None:
-    assert _artifact_payload('<script data-other>ignored</script><script nonce="test" data-bokeh-artifact-payload>{"value":"ok"}</script>') == '{"value":"ok"}'
-    assert _artifact_payload('<script data-bokeh-artifact-payload-malformed>{}</script>') is None
+    assert m._artifact_payload('<script data-other>ignored</script><script nonce="test" data-bokeh-artifact-payload>{"value":"ok"}</script>') == '{"value":"ok"}'
+    assert m._artifact_payload('<script data-bokeh-artifact-payload-malformed>{}</script>') is None
 
 
 def test_saved_artifact_is_captured_through_common_page_and_playwright() -> None:
     notebook = _notebook()
-    preprocessor = BokehPngPreprocessor(require_trusted=False)
+    preprocessor = m.BokehPNGPreprocessor(require_trusted=False)
     with (
         patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html>artifact page</html>") as page,
         patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html", return_value=_image()) as screenshot,
@@ -112,20 +106,20 @@ def test_current_frontend_artifact_wins_over_saved_state() -> None:
     notebook = _notebook(_output(saved))
     current_snapshot = current.to_dict()
     current_snapshot.pop("fingerprint")
-    _store_export_snapshots("test.ipynb", "export-identifier-0004", [{
+    m._store_export_snapshots("test.ipynb", "export-identifier-0004", [{
         "view_id": "view", "artifact_json": json.dumps(current_snapshot), "width": 444,
     }])
-    token = _set_export_correlation("export-identifier-0004")
+    token = m._set_export_correlation("export-identifier-0004")
     try:
         with (
             patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>") as page,
             patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html", return_value=_image()),
         ):
-            result, _ = BokehPngPreprocessor(require_trusted=False).preprocess(
+            result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
                 copy.deepcopy(notebook), {"output_extension": ".html", "metadata": {"name": "test"}},
             )
     finally:
-        _reset_export_correlation(token)
+        m._reset_export_correlation(token)
 
     html = result.cells[0].outputs[0].data["text/html"]
     assert 'data-bokeh-notebook-export-state="current-frontend"' in html
@@ -136,7 +130,7 @@ def test_current_frontend_artifact_wins_over_saved_state() -> None:
 def test_server_artifact_uses_static_fallback_without_frontend_snapshot() -> None:
     notebook = _notebook(_output(embed_server("http://127.0.0.1:4321/app")))
     with patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html") as screenshot:
-        result, _ = BokehPngPreprocessor(require_trusted=False).preprocess(
+        result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
             notebook, {"output_extension": ".html", "metadata": {"name": "test"}},
         )
 
@@ -148,7 +142,7 @@ def test_untrusted_artifact_is_never_executed() -> None:
     notebook = _notebook()
     notebook.cells[0].metadata["trusted"] = False
     with patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html") as screenshot:
-        result, _ = BokehPngPreprocessor(require_trusted=True).preprocess(
+        result, _ = m.BokehPNGPreprocessor(require_trusted=True).preprocess(
             notebook, {"output_extension": ".html", "metadata": {"name": "test"}},
         )
 
@@ -160,7 +154,7 @@ def test_signature_store_is_closed() -> None:
     notary = MagicMock()
     notary.check_signature.return_value = True
     with patch("bokeh.io.jupyter_export.NotebookNotary", return_value=notary):
-        assert BokehPngPreprocessor()._check_signature(_notebook())
+        assert m.BokehPNGPreprocessor()._check_signature(_notebook())
 
     notary.close.assert_called_once_with()
 
@@ -174,7 +168,7 @@ def test_resource_owner_outputs_are_removed_from_export() -> None:
         patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>"),
         patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html", return_value=_image()),
     ):
-        result, _ = BokehPngPreprocessor(require_trusted=False).preprocess(
+        result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
             notebook, {"output_extension": ".html", "metadata": {"name": "test"}},
         )
 
@@ -196,7 +190,7 @@ def test_anywidget_output_metadata_preserves_saved_artifact_export() -> None:
         patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>"),
         patch("bokeh.io.jupyter_export._get_screenshot_as_png_from_html", return_value=_image()),
     ):
-        result, _ = BokehPngPreprocessor(require_trusted=False).preprocess(
+        result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
             _notebook(output), {"output_extension": ".html", "metadata": {"name": "test"}},
         )
 
@@ -220,4 +214,4 @@ def test_server_extension_registers_snapshot_and_correlated_export_routes() -> N
     assert handlers[0] == ("/prefix/bokeh-notebook/export-snapshots", _ExportSnapshotsHandler)
     assert handlers[1][1] is _CorrelatedNbconvertFileHandler
     assert "bokeh-notebook/export" in handlers[1][0]
-    assert "bokeh.io.jupyter_export.BokehPngPreprocessor" in serverapp.config.HTMLExporter.preprocessors
+    assert "bokeh.io.jupyter_export.BokehPNGPreprocessor" in serverapp.config.HTMLExporter.preprocessors

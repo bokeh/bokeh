@@ -12,13 +12,16 @@ pytest.importorskip("anywidget", minversion="0.11")
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.io._anywidget import display_widget
-from bokeh.io.notebook import DocumentViewHandle
+from bokeh.embed import embed_server
+from bokeh.io.notebook import ApplicationViewHandle, DocumentViewHandle
 from bokeh.models import Div
+
+# Module under test
+import bokeh.io._anywidget as m # isort:skip
 
 
 def test_display_widget_uses_standard_widget_mime_bundle() -> None:
-    widget = display_widget({"kind": "artifact", "view_id": "view"}, "<div></div>", {})
+    widget = m.display_widget({"kind": "artifact", "view_id": "view"}, "<div></div>", {})
     bundle = widget._repr_mimebundle_()
     assert bundle is not None
     assert bundle[0]["application/vnd.jupyter.widget-view+json"]["model_id"] == widget.model_id
@@ -29,7 +32,7 @@ def test_display_widget_uses_standard_widget_mime_bundle() -> None:
 
 def test_widget_returns_and_rejects_explicit_resource_requests() -> None:
     record = {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"}
-    widget = display_widget({"kind": "artifact"}, "", {"resources": record})
+    widget = m.display_widget({"kind": "artifact"}, "", {"resources": record})
     with patch.object(widget, "send") as send:
         widget._receive(widget, {
             "kind": "request_resource", "request_id": "one", "resource_id": "resources",
@@ -44,13 +47,30 @@ def test_widget_returns_and_rejects_explicit_resource_requests() -> None:
     widget.close()
 
 
+def test_resource_reply_validates_ids_and_returns_typed_protocol_messages() -> None:
+    record = {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"}
+
+    assert m._resource_reply("one", "resources", {"resources": record}) == {
+        "kind": "resource",
+        "request_id": "one",
+        "record": record,
+    }
+    assert m._resource_reply("two", "missing", {"resources": record}) == {
+        "kind": "resource_error",
+        "request_id": "two",
+        "code": "RESOURCE_RECORD_MISSING",
+        "message": "The shared BokehJS resource missing is unavailable.",
+    }
+    assert m._resource_reply(None, None, {})["request_id"] == ""
+
+
 def test_widget_ready_connects_revisioned_artifact_transport() -> None:
     root = Div(text="before")
     document = Document()
     document.add_root(root)
     handle = DocumentViewHandle(root, live_id="live", view_id="view")
     handle._attach(document)
-    widget = display_widget({"kind": "artifact", "live_id": "live"}, "", {}, handle=handle)
+    widget = m.display_widget({"kind": "artifact", "live_id": "live"}, "", {}, handle=handle)
     sent: list[tuple[Any, list[bytes] | None]] = []
 
     def send(data: Any, buffers: list[bytes] | None = None) -> None:
@@ -74,7 +94,7 @@ def test_widget_ready_connects_revisioned_artifact_transport() -> None:
 def test_widget_disposal_disconnects_without_closing_python_owner() -> None:
     root = Div()
     handle = DocumentViewHandle(root, live_id="live", view_id="view")
-    widget = display_widget({"kind": "artifact"}, "", {}, handle=handle)
+    widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
     widget._receive(widget, {"kind": "ready"}, [])
 
     widget._receive(widget, {"kind": "disposed"}, [])
@@ -84,13 +104,35 @@ def test_widget_disposal_disconnects_without_closing_python_owner() -> None:
     handle.close()
 
 
+def test_widget_forwards_the_browser_application_url_to_its_owner() -> None:
+    local_url = "http://127.0.0.1:4321/bokeh-notebook/nonce/"
+    browser_url = "https://hub.example.test/user/alice/proxy/4321/bokeh-notebook/nonce/"
+    app = MagicMock(application_id="application")
+    app._resolve_browser_url.return_value = browser_url.rstrip("/")
+    artifact = embed_server(local_url, metadata={"notebook_application_id": "application"})
+    handle = ApplicationViewHandle(app, "view", artifact)
+    widget = m.display_widget({
+        "kind": "artifact",
+        "application_id": "application",
+        "application_url": local_url,
+    }, "", {}, handle=handle)
+
+    with patch.object(widget, "send") as send:
+        widget._receive(widget, {"kind": "ready", "application_url": browser_url}, [])
+
+    app._resolve_browser_url.assert_called_once_with(browser_url)
+    assert send.call_args.args[0]["kind"] == "ready"
+    assert "artifact" in send.call_args.args[0]
+    handle.close()
+
+
 def test_widget_reconnect_after_page_reload_receives_a_fresh_snapshot() -> None:
     root = Div(text="before")
     document = Document()
     document.add_root(root)
     handle = DocumentViewHandle(root, live_id="live", view_id="view")
     handle._attach(document)
-    widget = display_widget({"kind": "artifact"}, "", {}, handle=handle)
+    widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
     sent: list[dict[str, Any]] = []
 
     with patch.object(widget, "send", side_effect=lambda data, buffers=None: sent.append(data)):
