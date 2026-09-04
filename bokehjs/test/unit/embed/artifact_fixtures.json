@@ -1,0 +1,117 @@
+{
+  "schema": "bokeh.embed.fixtures/v1",
+  "cases": [
+    {
+      "name": "standalone-keyed-roots",
+      "artifact": {
+        "schema": "bokeh.embed/v1",
+        "bokeh_version": "__VERSION__",
+        "source": {
+          "kind": "standalone",
+          "documents": [
+            {
+              "version": "__VERSION__",
+              "title": "Fixture document",
+              "config": {
+                "type": "object",
+                "name": "DocumentConfig",
+                "attributes": {
+                  "notifications": {
+                    "type": "object",
+                    "name": "Notifications"
+                  }
+                }
+              },
+              "roots": [
+                {
+                  "type": "object",
+                  "name": "CustomJS",
+                  "attributes": {
+                    "code": "primary"
+                  }
+                },
+                {
+                  "type": "object",
+                  "name": "CustomJS",
+                  "attributes": {
+                    "code": "secondary"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "roots": [
+          {
+            "key": "primary",
+            "document": 0,
+            "root": 0
+          },
+          {
+            "key": "secondary",
+            "document": 0,
+            "root": 1
+          }
+        ],
+        "requires": {
+          "components": [
+            "bokeh/core",
+            "bokeh/api"
+          ],
+          "extensions": []
+        },
+        "metadata": {
+          "fixture": "cross-language"
+        },
+        "buffers": [
+          {
+            "id": "buffer-0",
+            "encoding": "base64",
+            "data": "AA=="
+          }
+        ],
+        "fingerprint": "8c39e1021fecb7f72564d8bb5a828d8e9672a83149185ff662d2eb5cd9f7fafc"
+      }
+    },
+    {
+      "name": "server-existing-session",
+      "artifact": {
+        "schema": "bokeh.embed/v1",
+        "bokeh_version": "__VERSION__",
+        "source": {
+          "kind": "server",
+          "url": "https://example.test/app",
+          "session_id": "fixture-session",
+          "arguments": {
+            "account": "123"
+          },
+          "headers": {},
+          "credentials": "same-origin",
+          "relative_urls": false
+        },
+        "roots": [
+          {
+            "key": "detail",
+            "model_id": "fixture-root"
+          }
+        ],
+        "requires": {
+          "components": [
+            "bokeh/core",
+            "bokeh/widgets",
+            "bokeh/tables",
+            "bokeh/webgl",
+            "bokeh/mathjax",
+            "bokeh/api"
+          ],
+          "extensions": []
+        },
+        "metadata": {
+          "fixture": "cross-language"
+        },
+        "buffers": [],
+        "fingerprint": "a783cf2645b171ce72f4b76824338df8456dadc9b0748d8fd63970dea25f423e"
+      }
+    }
+  ]
+}
