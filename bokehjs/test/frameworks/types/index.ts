@@ -1,7 +1,10 @@
 import {createElement} from "react"
 import {h} from "vue"
 
-import {ColumnDataSource, Document, ModelResolver, MountSource, Plotting, Range1d, mount, register_models, register_standard_models} from "@bokeh/bokehjs"
+import {
+  ColumnDataSource, Document, ModelResolver, MountError, MountSource, Plotting, Range1d,
+  mount, publish_mount_error, register_models, register_standard_models, when_mounted,
+} from "@bokeh/bokehjs"
 import type {properties as p} from "@bokeh/bokehjs"
 import type {BokehComponent as AngularBokeh, BokehDocumentComponent as AngularBokehDocument, BokehRootDirective as AngularBokehRoot} from "@bokeh/angular"
 import {Bokeh as ReactBokeh, BokehDocument as ReactBokehDocument, BokehRoot as ReactBokehRoot} from "@bokeh/react"
@@ -20,7 +23,14 @@ detail.scatter({field: "x"}, {field: "y"}, {source})
 const roots = [plot, detail]
 const roots_document = new Document({roots})
 
-void mount(plot, document.createElement("div"))
+const target = document.createElement("div")
+const direct_mount = mount(plot, target)
+void direct_mount
+void target.bokehMount?.ready
+void target.bokehMountError
+void when_mounted(target)
+void when_mounted(target, {signal: new AbortController().signal})
+publish_mount_error(target, new MountError("source", "test bootstrap failure"))
 void mount(roots, document.createElement("div"))
 const keyed_source = new MountSource(roots_document, {overview: plot, detail})
 const keyed_mount = mount(keyed_source, {
@@ -30,7 +40,14 @@ void keyed_mount.ready
 void keyed_mount.root("overview")
 void keyed_mount.attach("overview", document.createElement("div"))
 keyed_mount.detach("detail")
+void keyed_mount.view_lookup.find_one(plot)
+void keyed_mount.view_lookup.find_one_by_id(plot.id)
+// @ts-expect-error Mount view lookup is query-only and doesn't expose ViewManager mutation.
+keyed_mount.view_lookup.clear()
 void mount(roots_document, document.createElement("div"))
+const shown = Plotting.show(plot, target)
+void shown.ready
+void shown.dispose()
 createElement(ReactBokeh, {model: roots})
 createElement(ReactBokehDocument, {models: roots},
   createElement("section", null, createElement(ReactBokehRoot, {model: plot})),

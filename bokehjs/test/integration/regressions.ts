@@ -836,11 +836,13 @@ describe("Bug", () => {
       // will be increasing more useful in future testing.
       const plot = fig([300, 100])
       plot.scatter([1, 2, 3], [1, 2, 3])
-      await show(plot, el)
+      const mounted = show(plot, el)
+      await mounted.ready
 
       const choices_view = view.owner.get_one(choices)
       choices_view.choice_el.showDropdown()
       await paint()
+      await mounted.dispose()
     })
   })
 
