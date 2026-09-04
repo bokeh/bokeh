@@ -8,20 +8,34 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal, Mapping, Sequence, cast
+from typing import (
+    Any,
+    Literal,
+    Mapping,
+    Sequence,
+    cast,
+)
 from urllib.parse import urlparse
 
+# Bokeh imports
 from .. import __version__
 from ..core.has_props import HasProps
 from ..document import Document
 from ..resources import Component, Resources
 from ..util.compiler import bundle_models
-from .bundle import _all_objs, _use_gl, _use_mathjax, _use_tables, _use_widgets
-from .bundle import _bundle_extensions as legacy_bundle_extensions
+from .bundle import (
+    _all_objs,
+    _bundle_extensions as legacy_bundle_extensions,
+    _use_gl,
+    _use_mathjax,
+    _use_tables,
+    _use_widgets,
+)
 
 type ResourceComponent = Literal[
     "bokeh/core",
