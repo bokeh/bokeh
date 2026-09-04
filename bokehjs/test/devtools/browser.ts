@@ -1,14 +1,60 @@
-import CDP from "chrome-remote-interface"
+import type {Browser, CDPSession, Page} from "playwright-core"
+import {chromium} from "playwright-core"
 import chalk from "chalk"
 
 import type {Version} from "./types.js"
-import {Exit, TimeoutError} from "./types.js"
+import {TimeoutError} from "./types.js"
 
-function timeout(ms: number): Promise<void> {
-  return new Promise((_resolve, reject) => {
-    const timer = setTimeout(() => reject(new TimeoutError()), ms)
-    timer.unref()
-  })
+// page.evaluate() includes the complete async test body and doesn't have its
+// own timeout. A few integration tests legitimately need more than ten seconds
+// under software-rendered CI, while this still puts a firm bound on a hung page.
+const DEFAULT_COMMAND_TIMEOUT = 30_000
+
+function error_message(error: unknown): string {
+  return error instanceof Error ? error.stack ?? error.message : `${error}`
+}
+
+export class BrowserError extends Error {
+  constructor(public operation: string, message: string) {
+    super(`${operation}: ${message}`)
+    this.name = "BrowserError"
+  }
+}
+
+export class BrowserTimeoutError extends BrowserError {
+  constructor(operation: string, public timeout: number) {
+    super(operation, `browser did not respond within ${timeout} ms`)
+    this.name = "BrowserTimeoutError"
+  }
+}
+
+function is_browser_lifecycle_error(error: BrowserError): boolean {
+  const message = error.message.toLowerCase()
+  return [
+    "execution context was destroyed",
+    "target page, context or browser has been closed",
+    "page crashed",
+  ].some((pattern) => message.includes(pattern))
+}
+
+async function command<T>(operation: string, promise: Promise<T>, wait: number = DEFAULT_COMMAND_TIMEOUT): Promise<T> {
+  const timeout = Promise.withResolvers<never>()
+  const timer = setTimeout(() => timeout.reject(new TimeoutError()), wait)
+  timer.unref()
+
+  try {
+    return await Promise.race([promise, timeout.promise])
+  } catch (error) {
+    if (error instanceof TimeoutError) {
+      throw new BrowserTimeoutError(operation, wait)
+    } else if (error instanceof BrowserError) {
+      throw error
+    } else {
+      throw new BrowserError(operation, error_message(error))
+    }
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 export type LogEntry = {
@@ -20,10 +66,6 @@ export type Exception = {
   text: string
 }
 
-type CDPClient = Awaited<ReturnType<typeof CDP>>
-
-type CDPProtocol = Pick<CDPClient, "Emulation" | "Network" | "Browser" | "Page" | "DOM" | "Runtime" | "Log" | "Performance">
-
 export class Value<T> {
   constructor(public value: T) {}
 }
@@ -31,8 +73,6 @@ export class Value<T> {
 export class Failure {
   constructor(public text: string) {}
 }
-
-export class Timeout {}
 
 export const supported_chromium_version: Version = [141, 0, 7390, 54]
 
@@ -67,67 +107,136 @@ export function check_version(current_chromium_version: Version | null): void {
   }
 }
 
+type PerformanceMetrics = {
+  metrics: Array<{name: string, value: number}>
+}
+
 export class BrowserManager {
-  private client: CDPClient | null = null
-  private protocol: CDPProtocol | null = null
-  private page_url: string | null = null
+  private browser: Browser | null = null
+  private page: Page | null = null
+  private session: CDPSession | null = null
   private entries: LogEntry[] = []
   private exceptions: Exception[] = []
+  private crashed = false
 
-  static async get_version(port: number, host: string = "localhost"): Promise<{browser: string, protocol: string, major: number}> {
-    const version = await CDP.Version({port, host})
-    const browser_str = version.Browser
-    const protocol_str = version["Protocol-Version"]
+  constructor(private readonly executable: string) {}
 
-    const version_tuple = get_version_tuple(browser_str)
-    check_version(version_tuple)
-    const major = version_tuple != null ? version_tuple[0] : 0
-
-    return {
-      browser: browser_str,
-      protocol: protocol_str,
-      major,
+  async launch(): Promise<void> {
+    const in_docker = (process.env.BOKEH_IN_DOCKER ?? "") == "1"
+    const args = [
+      "--font-render-hinting=none",           // fixes measureText() on Linux with external fonts
+      "--disable-font-subpixel-positioning",  // makes images look similar on all platforms
+      "--force-color-profile=srgb",           // ^^^
+      "--force-device-scale-factor=1",        // ^^^
+    ]
+    if (in_docker) {
+      // Containers have no hardware GPU. Keep WebGL enabled through Chrome's
+      // supported software renderer instead of disabling GPU-backed coverage.
+      args.push("--enable-unsafe-swiftshader")
     }
+
+    const browser = await command("Browser.launch", chromium.launch({
+      executablePath: this.executable,
+      headless: true,
+      // Ubuntu CI runners disable the unprivileged user namespaces Chromium's
+      // sandbox requires. Preserve sandboxing for ordinary local runs.
+      chromiumSandbox: !in_docker && process.env.CI != "true",
+      // Scrollbars are part of widget layout and visual baselines. Playwright
+      // hides them by default, unlike the former BokehJS Chrome launcher.
+      ignoreDefaultArgs: ["--hide-scrollbars"],
+      args,
+    }))
+    browser.on("disconnected", () => {
+      this.crashed = true
+    })
+    this.browser = browser
+
+    const context = await command("Browser.newContext", browser.newContext({
+      viewport: {width: 2000, height: 4000},
+      deviceScaleFactor: 1,
+    }))
+    await command("Browser.grantPermissions", context.grantPermissions(["clipboard-read", "clipboard-write"]))
+
+    const page = await command("Browser.newPage", context.newPage())
+    page.on("console", (message) => {
+      const level = message.type()
+      if (level == "warning" || level == "error") {
+        this.entries.push({level, text: message.text()})
+      }
+    })
+    page.on("pageerror", (error) => {
+      this.exceptions.push({text: error.stack ?? error.message})
+    })
+    page.on("crash", () => {
+      this.crashed = true
+    })
+    page.on("requestfailed", (request) => {
+      const failure = request.failure()
+      this.entries.push({level: "error", text: `${request.url()}: ${failure?.errorText ?? "request failed"}`})
+    })
+
+    const session = await command("Browser.newCDPSession", context.newCDPSession(page))
+    await command("Network.enable", session.send("Network.enable"))
+    await command("Network.setCacheDisabled", session.send("Network.setCacheDisabled", {cacheDisabled: true}))
+    await command("Performance.enable", session.send("Performance.enable", {timeDomain: "timeTicks"}))
+
+    this.page = page
+    this.session = session
+    this.crashed = false
   }
 
-  async connect(port: number, host: string = "localhost"): Promise<void> {
-    this.client = await CDP({port, host})
-    const {Emulation, Network, Browser, Page, DOM, Runtime, Log, Performance} = this.client
-
-    this.protocol = {Emulation, Network, Browser, Page, DOM, Runtime, Log, Performance}
-
-    Runtime.exceptionThrown(({exceptionDetails}) => {
-      this.exceptions.push(this.handle_exception(exceptionDetails))
-    })
-
-    Runtime.consoleAPICalled(({type, args}) => {
-      if (type == "warning" || type == "error") {
-        const text = args.map(({value}) => value ? value.toString() : "").join(" ")
-        this.entries.push({level: type, text})
-      }
-    })
-
-    Log.entryAdded(({entry}) => {
-      const {level, text} = entry
-      if (level == "warning" || level == "error") {
-        this.entries.push({level, text})
-      }
-    })
+  get_version(): {browser: string, major: number} {
+    const version = this.get_browser().version()
+    const version_tuple = get_version_tuple(version)
+    check_version(version_tuple)
+    return {
+      browser: `Chrome/${version}`,
+      major: version_tuple != null ? version_tuple[0] : 0,
+    }
   }
 
   async close(): Promise<void> {
-    if (this.client != null) {
-      await this.client.close()
-      this.client = null
-      this.protocol = null
+    const browser = this.browser
+    this.browser = null
+    this.page = null
+    this.session = null
+    this.crashed = false
+    if (browser != null) {
+      await command("Browser.close", browser.close(), 5000)
     }
   }
 
-  get_protocol(): CDPProtocol {
-    if (this.protocol == null) {
-      throw new Error("Browser not connected")
+  async reset(): Promise<void> {
+    try {
+      await this.close()
+    } catch {}
+    this.entries = []
+    this.exceptions = []
+  }
+
+  private get_browser(): Browser {
+    if (this.browser == null) {
+      throw new Error("Browser not launched")
     }
-    return this.protocol
+    return this.browser
+  }
+
+  private get_page(): Page {
+    if (this.page == null) {
+      throw new Error("Browser not launched")
+    }
+    return this.page
+  }
+
+  private get_session(): CDPSession {
+    if (this.session == null) {
+      throw new Error("Browser not launched")
+    }
+    return this.session
+  }
+
+  private is_available(): boolean {
+    return !this.crashed && this.browser?.isConnected() == true && this.page?.isClosed() == false
   }
 
   get_entries(): LogEntry[] {
@@ -146,93 +255,36 @@ export class BrowserManager {
     this.exceptions = []
   }
 
-  private handle_exception(exceptionDetails: any): Exception {
-    const {text, exception} = exceptionDetails
-    const formatted = exception != null && exception.description != null ? exception.description : text
-    return {text: formatted}
-  }
-
   async initialize_page(url: string): Promise<void> {
-    const {Emulation, Network, Browser, Page, DOM, Runtime, Log, Performance} = this.get_protocol()
-
-    await Network.enable()
-    await Network.setCacheDisabled({cacheDisabled: true})
-
-    await Page.enable()
-    await Page.navigate({url: "about:blank"})
-
-    // Discard diagnostics from a previous execution context. In particular,
-    // navigating away from a timed-out test can report errors while aborting
-    // its outstanding work.
-    this.clear_entries()
-    this.clear_exceptions()
-
-    await DOM.enable({})
-
-    await Runtime.enable()
-    await Log.enable()
-    await Performance.enable({timeDomain: "timeTicks"})
-
-    await this.override_metrics()
-    await Emulation.setFocusEmulationEnabled({enabled: true})
-
-    await Browser.grantPermissions({
-      permissions: ["clipboardReadWrite"],
-    })
-
-    this.page_url = url
-    const {errorText} = await Page.navigate({url})
-
-    if (errorText != null) {
-      this.fail(errorText)
-    }
-
-    if (this.exceptions.length != 0) {
-      for (const exc of this.exceptions) {
-        console.log(exc.text)
-      }
-      this.fail(`failed to load ${url}`)
-    }
-
-    await Page.loadEventFired()
-  }
-
-  async reload_page(): Promise<void> {
-    if (this.page_url == null) {
-      throw new Error("Page not initialized")
-    }
-    await this.initialize_page(this.page_url)
+    const page = this.get_page()
+    await command("Page.navigate(about:blank)", page.goto("about:blank", {waitUntil: "load"}))
+    await command(`Page.navigate(${url})`, page.goto(url, {waitUntil: "load"}))
   }
 
   async override_metrics(settings: {dpr?: number, scale?: number} = {}): Promise<void> {
-    const {Emulation} = this.get_protocol()
-    await Emulation.setDeviceMetricsOverride({
+    const session = this.get_session()
+    await command("Emulation.setDeviceMetricsOverride", session.send("Emulation.setDeviceMetricsOverride", {
       width: 2000,
       height: 4000,
       deviceScaleFactor: settings.dpr ?? 1,
       mobile: false,
       scale: settings.scale ?? 1,
-    })
+    }))
   }
 
-  async evaluate<T>(expression: string, eval_timeout: number = 10000): Promise<Value<T> | Failure | Timeout> {
-    const {Runtime} = this.get_protocol()
-
-    const output = await this.with_timeout(
-      Runtime.evaluate({expression, returnByValue: true, awaitPromise: true}),
-      eval_timeout,
-    )
-
-    if (output instanceof Timeout) {
-      return output
-    } else {
-      const {result, exceptionDetails} = output
-      if (exceptionDetails == null) {
-        return new Value(result.value)
-      } else {
-        const {text} = this.handle_exception(exceptionDetails)
-        return new Failure(text)
+  async evaluate<T>(expression: string, eval_timeout: number = DEFAULT_COMMAND_TIMEOUT): Promise<Value<T> | Failure> {
+    const page = this.get_page()
+    try {
+      const value = await command("Page.evaluate", page.evaluate<T>(expression), eval_timeout)
+      return new Value(value)
+    } catch (error) {
+      if (error instanceof BrowserTimeoutError ||
+          (error instanceof BrowserError && is_browser_lifecycle_error(error)) ||
+          !this.is_available()) {
+        throw error
       }
+      const text = error instanceof BrowserError ? error.message.replace(/^Page\.evaluate: /, "") : error_message(error)
+      return new Failure(text)
     }
   }
 
@@ -243,36 +295,20 @@ export class BrowserManager {
   }
 
   async capture_screenshot(bbox: {x: number, y: number, width: number, height: number}): Promise<Buffer> {
-    const {Page} = this.get_protocol()
-    const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-    return Buffer.from(image.data, "base64")
-  }
-
-  async discard_console_entries(): Promise<void> {
-    const {Runtime} = this.get_protocol()
-    await Runtime.discardConsoleEntries()
+    const page = this.get_page()
+    const image = await command("Page.screenshot", page.screenshot({
+      type: "png",
+      clip: bbox,
+      animations: "allow",
+      caret: "initial",
+      scale: "device",
+    }))
+    return Buffer.from(image)
   }
 
   async get_metrics(): Promise<Array<{name: string, value: number}>> {
-    const {Performance} = this.get_protocol()
-    const data = await Performance.getMetrics()
+    const session = this.get_session()
+    const data = await command("Performance.getMetrics", session.send("Performance.getMetrics")) as PerformanceMetrics
     return data.metrics
-  }
-
-  private async with_timeout<T>(promise: Promise<T>, wait: number): Promise<T | Timeout> {
-    try {
-      return await Promise.race([promise, timeout(wait)]) as T
-    } catch (err) {
-      if (err instanceof TimeoutError) {
-        return new Timeout()
-      } else {
-        throw err
-      }
-    }
-  }
-
-  private fail(msg: string, code: number = 1): never {
-    console.log(msg)
-    throw new Exit(code)
   }
 }

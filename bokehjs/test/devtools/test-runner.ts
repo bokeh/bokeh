@@ -4,14 +4,12 @@ import path from "node:path"
 import type {State} from "./baselines.js"
 import {create_baseline, diff_baseline} from "./baselines.js"
 import type {BrowserManager} from "./browser.js"
-import {Value, Failure, Timeout} from "./browser.js"
+import {BrowserError, Value, Failure} from "./browser.js"
 import type {TestCase} from "./discovery.js"
 import {diff_image} from "./image.js"
 import type {MetricsCollector} from "./metrics.js"
 import {platform} from "./sys.js"
 import type {Suite, Test, Result, TestRunContext, ScreenshotMode} from "./types.js"
-
-const MAX_TIMEOUT_RETRIES = 2 // Retry timeout failures up to 2 times
 
 export class TestRunner {
   private readonly ctx_json: string
@@ -57,10 +55,14 @@ export class TestRunner {
 
     const seq = JSON.stringify(this.to_seq(suites, test))
 
-    let output: Value<Result> | Failure | Timeout
+    let output: Value<Result> | Failure
+    let browser_available = true
     try {
       output = await this.execute_test(seq, test)
     } catch (error) {
+      if (error instanceof BrowserError) {
+        throw error
+      }
       status.errors.push(`Unexpected error during test execution: ${error}`)
       status.failure = true
       return false
@@ -88,9 +90,6 @@ export class TestRunner {
       if (output instanceof Failure) {
         status.errors.push(output.text)
         status.failure = true
-      } else if (output instanceof Timeout) {
-        status.errors.push("timeout")
-        status.timeout = true
       } else {
         const result = output.value
 
@@ -111,52 +110,41 @@ export class TestRunner {
           }
         }
       }
+    } catch (error) {
+      if (error instanceof BrowserError) {
+        browser_available = false
+      }
+      throw error
     } finally {
-      const output = await this.browser.evaluate(`Tests.clear(${seq})`)
-      if (output instanceof Failure) {
-        status.errors.push(output.text)
-        status.failure = true
+      if (browser_available) {
+        const output = await this.browser.evaluate(`Tests.clear(${seq})`)
+        if (output instanceof Failure) {
+          status.errors.push(output.text)
+          status.failure = true
+        }
       }
     }
 
     return should_retry
   }
 
-  private async execute_test(seq: string, test: Test): Promise<Value<Result> | Failure | Timeout> {
-    let retries = MAX_TIMEOUT_RETRIES
-
-    do {
-      const output = await (async () => {
-        if (test.dpr != null || test.scale != null) {
-          await this.browser.override_metrics({dpr: test.dpr, scale: test.scale})
-        }
-        try {
-          return await this.browser.evaluate<Result>(`Tests.run(${seq}, ${this.ctx_json})`)
-        } finally {
-          if (test.dpr != null || test.scale != null) {
-            await this.browser.override_metrics()
-          }
-        }
-      })()
-
-      if (!(output instanceof Timeout)) {
-        return output
+  private async execute_test(seq: string, test: Test): Promise<Value<Result> | Failure> {
+    if (test.dpr != null || test.scale != null) {
+      await this.browser.override_metrics({dpr: test.dpr, scale: test.scale})
+    }
+    let browser_available = true
+    try {
+      return await this.browser.evaluate<Result>(`Tests.run(${seq}, ${this.ctx_json})`, test.timeout)
+    } catch (error) {
+      if (error instanceof BrowserError) {
+        browser_available = false
       }
-
-      // A timeout only stops waiting for Runtime.evaluate(); it doesn't cancel
-      // the test running in the page. Reloading destroys that execution context
-      // so retries and subsequent tests don't overlap with outstanding work.
-      await this.browser.reload_page()
-      await this.browser.evaluate("preload_fonts()")
-
-      if (!await this.browser.is_ready()) {
-        throw new Error("Failed to reload test page after timeout")
+      throw error
+    } finally {
+      if (browser_available && (test.dpr != null || test.scale != null)) {
+        await this.browser.override_metrics()
       }
-
-      if (retries-- <= 0) {
-        return output
-      }
-    } while (true)
+    }
   }
 
   private async validate_baseline(result: Result, baseline_path: string, status: TestCase[2], test: Test, seq: string): Promise<boolean> {

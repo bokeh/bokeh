@@ -22,6 +22,10 @@ import {
 describe("Examples", () => {
   it("should support custom styles to follow XKCD styling", async () => {
     const url = "/assets/fonts/XKCD/xkcd.ttf"
+    const font = new FontFace("XKCD", `url(${url})`)
+    await font.load()
+    document.fonts.add(font)
+
     const font_style = new GlobalInlineStyleSheet({
       css: `
           @font-face {

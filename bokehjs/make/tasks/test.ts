@@ -79,7 +79,7 @@ function sys_path(): string {
 //
 // Also update:
 // - bokehjs/test/devtools/devtools.ts
-// - .github/workflows/bokehjs-ci.yml
+// - bokehjs/test/run-baseline-tests.mjs
 const supported_chromium_revision = "r3265" // 141.0.7390.54
 
 function chrome(): string {
@@ -110,7 +110,33 @@ function chromium_executable(): string {
 
 const devtools_host = argv.host
 
-async function headless(devtools_port: number): Promise<ChildProcess> {
+type HeadlessProcess = {
+  process: ChildProcess
+  stderr: () => string
+}
+
+const expected_browser_exits = new WeakSet<ChildProcess>()
+
+function format_chrome_stderr(stderr: string): string {
+  const lines = stderr.trim().split("\n")
+  const routine_noise = [
+    "ERROR:dbus/",
+    "ERROR:google_apis/gcm/",
+    "DevTools listening",
+  ]
+  const relevant = lines.filter((line) => line.trim() != "" && !routine_noise.some((pattern) => line.includes(pattern)))
+  if (relevant.length == 0) {
+    return "(no relevant Chrome stderr; routine startup messages suppressed)"
+  }
+  const max_lines = 20
+  if (relevant.length <= max_lines) {
+    return relevant.join("\n")
+  } else {
+    return `[showing last ${max_lines} of ${relevant.length} relevant lines]\n${relevant.slice(-max_lines).join("\n")}`
+  }
+}
+
+async function headless(devtools_port: number): Promise<HeadlessProcess> {
   const data_dir = fs.mkdtempSync(join(os.tmpdir(), "headless"))
   if (fs.existsSync(data_dir)) {
     fs.rmSync(data_dir, {recursive: true, force: true})
@@ -128,34 +154,66 @@ async function headless(devtools_port: number): Promise<ChildProcess> {
   ]
   const bokeh_in_docker = process.env.BOKEH_IN_DOCKER ?? ""
   if (bokeh_in_docker == "1") {
-    args.push("--no-sandbox")
+    args.push(
+      "--no-sandbox",
+      // Containers have no hardware GPU. Keep WebGL enabled through Chrome's
+      // supported software renderer instead of disabling GPU-backed coverage.
+      "--enable-unsafe-swiftshader",
+    )
   }
   const exec = chromium_executable()
   const proc = spawn(exec, args, {stdio: "pipe"})
+  const max_stderr = 64*1024
+  let stderr = ""
+  let ready = false
 
-  return new Promise((resolve, reject) => {
+  const browser = await new Promise<HeadlessProcess>((resolve, reject) => {
+    const reject_startup = (error: Error) => {
+      expected_browser_exits.add(proc)
+      if (proc.exitCode == null && proc.signalCode == null) {
+        proc.kill("SIGKILL")
+      }
+      reject(error)
+    }
     const timer = setTimeout(() => {
-      reject(new BuildError("headless", `timeout starting ${exec}`))
+      reject_startup(new BuildError("headless", `timeout starting ${exec}`))
     }, 30000)
-    proc.on("error", reject)
-    let buffer = ""
+    proc.on("error", (error) => {
+      clearTimeout(timer)
+      reject(error)
+    })
+    proc.on("exit", (code, signal) => {
+      clearTimeout(timer)
+      if (!ready) {
+        reject(new BuildError("headless", `${exec} exited during startup with code=${code} signal=${signal}`))
+      } else if (!expected_browser_exits.has(proc)) {
+        console.error(`Headless browser exited unexpectedly with code=${code} signal=${signal}`)
+        if (stderr.trim() != "") {
+          console.error(`Chrome stderr:\n${format_chrome_stderr(stderr)}`)
+        }
+      }
+    })
     proc.stderr.on("data", (chunk) => {
-      buffer += `${chunk}`
+      stderr += `${chunk}`
+      if (stderr.length > max_stderr) {
+        stderr = stderr.slice(-max_stderr)
+      }
 
-      const result = buffer.match(/DevTools listening [^\n]*\n/)
-      if (result != null) {
-        proc.stderr.removeAllListeners()
+      const result = stderr.match(/DevTools listening [^\n]*\n/)
+      if (!ready && result != null) {
+        ready = true
         clearTimeout(timer)
         const [line] = result
         console.log(line.trim())
-        resolve(proc)
-      } else if (buffer.match(/bind\(\)/) != null) {
-        proc.stderr.removeAllListeners()
+        resolve({process: proc, stderr: () => stderr})
+      } else if (stderr.match(/bind\(\)/) != null) {
         clearTimeout(timer)
-        reject(new BuildError("headless", `can't start headless browser on port ${devtools_port}`))
+        reject_startup(new BuildError("headless", `can't start headless browser on port ${devtools_port}`))
       }
     })
   })
+
+  return browser
 }
 
 async function server(port: number): Promise<ChildProcess> {
@@ -195,7 +253,43 @@ function opt(name: string, value: unknown): string[] {
   }
 }
 
-function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string, dev: boolean = true): Promise<void> {
+function run_baseline_test(command: "run" | "review" | "accept", args: string[] = []): Promise<void> {
+  const runner = join("test", "run-baseline-tests.mjs")
+  const proc = spawn(process.execPath, [runner, command, ...args], {stdio: "inherit"})
+  terminate(proc)
+
+  return new Promise((resolve, reject) => {
+    proc.on("error", reject)
+    proc.on("exit", (code, signal) => {
+      if (code === 0) {
+        resolve()
+      } else {
+        const comment = signal === "SIGINT" || code === 130 ? "interrupted" : "failed"
+        reject(new BuildError("baseline-test", `${command} ${comment}`))
+      }
+    })
+  })
+}
+
+function baseline_test_options(): string[] {
+  return [
+    ...opt("keyword", argv.keyword),
+    ...opt("grep", argv.grep),
+    ...opt("ref", argv.ref),
+    ...opt("randomize", argv.randomize),
+    ...opt("seed", argv.seed),
+    ...opt("pedantic", argv.pedantic),
+    ...opt("rebuild", argv.rebuild),
+    `--screenshot=${argv.screenshot}`,
+  ]
+}
+
+function baseline_test_review_options(): string[] {
+  const has_port = process.argv.slice(2).some((arg) => arg == "--port" || arg.startsWith("--port="))
+  return has_port ? [`--port=${argv.port}`] : []
+}
+
+function devtools(executable: string, server_port: number, name: string, baselines_root?: string, dev: boolean = true): Promise<void> {
   const args = [
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
@@ -207,19 +301,18 @@ function devtools(devtools_port: number, server_port: number, name: string, base
     `--screenshot=${argv.screenshot}`,
     `http://localhost:${server_port}/${name}${!dev ? "?dev=false" : ""}`,
   ]
-  return _devtools(devtools_port, args)
+  return _devtools(executable, args)
 }
 
-function devtools_info(devtools_port: number): Promise<void> {
-  return _devtools(devtools_port, ["--info"])
+function devtools_info(executable: string): Promise<void> {
+  return _devtools(executable, ["--info"])
 }
 
-function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
+function _devtools(executable: string, user_args: string[]): Promise<void> {
   const args = [
     "--no-warnings",
     "./test/devtools",
-    `--host=${devtools_host}`,
-    `--port=${devtools_port}`,
+    `--executable=${executable}`,
     ...user_args,
   ]
 
@@ -244,26 +337,18 @@ function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
 }
 
 task("test:info", async () => {
-  const proc = await headless(9222)
-  await devtools_info(9222)
-  proc.kill()
+  await devtools_info(chromium_executable())
 })
 
 task("test:run:headless", async () => {
-  const proc = await headless(9222)
-  await devtools_info(9222)
+  const {process: proc} = await headless(9222)
   terminate(proc)
   await keep_alive()
 })
 
-const start_headless = task("test:start:headless", async () => {
-  let port = 9222
-  await retry(async () => {
-    port = await find_port(port)
-    const proc = await headless(port)
-    terminate(proc)
-  }, 3)
-  return success(port)
+task("test:spawn:headless", async () => {
+  const {process: proc} = await headless(9222)
+  console.log(`Exec '${chalk.gray("kill")} ${chalk.magenta(`${proc.pid}`)}' to terminate the browser process`)
 })
 
 const start_server = task("test:start:server", async () => {
@@ -275,8 +360,8 @@ const start_server = task("test:start:server", async () => {
   return success(port)
 })
 
-const start = task2("test:start", [start_headless, start_server], async (devtools_port, server_port) => {
-  return success([devtools_port, server_port] as [number, number])
+const start = task2("test:start", [start_server], async (server_port) => {
+  return success(server_port)
 })
 
 async function tsc(name: string) {
@@ -353,13 +438,13 @@ export const build_unit = task("test:build:unit", [
   await bundle("unit")
 })
 
-task2("test:unit", [start, start_js_server, build_unit], async ([devtools_port, server_port]) => {
-  await devtools(devtools_port, server_port, "unit")
+task2("test:unit", [start, start_js_server, build_unit], async (server_port) => {
+  await devtools(chromium_executable(), server_port, "unit")
   return success(undefined)
 })
 
-task2("test:unit:minified", [start, start_js_server, build_unit], async ([devtools_port, server_port]) => {
-  await devtools(devtools_port, server_port, "unit", undefined, false)
+task2("test:unit:minified", [start, start_js_server, build_unit], async (server_port) => {
+  await devtools(chromium_executable(), server_port, "unit", undefined, false)
   return success(undefined)
 })
 
@@ -375,7 +460,7 @@ export const build_integration = task("test:build:integration", [
   await bundle("integration")
 })
 
-task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
+task2("test:integration", [start, build_integration], async (server_port) => {
   const baselines_root = (() => {
     if (platform == "linux") {
       return "test/baselines"
@@ -384,7 +469,7 @@ task2("test:integration", [start, build_integration], async ([devtools_port, ser
       return undefined
     }
   })()
-  await devtools(devtools_port, server_port, "integration", baselines_root)
+  await devtools(chromium_executable(), server_port, "integration", baselines_root)
   return success(undefined)
 })
 
@@ -402,8 +487,8 @@ export const build_defaults = task("test:build:defaults", [passthrough("test:def
   await bundle("defaults")
 })
 
-task2("test:defaults", [start, build_defaults], async ([devtools_port, server_port]) => {
-  await devtools(devtools_port, server_port, "defaults")
+task2("test:defaults", [start, build_defaults], async (server_port) => {
+  await devtools(chromium_executable(), server_port, "defaults")
   return success(undefined)
 })
 
@@ -411,3 +496,7 @@ task("test:build", ["test:build:defaults", "test:build:unit", "test:build:integr
 
 task("test:lib", ["test:unit", "test:integration"])
 task("test", ["test:codebase", "test:defaults", "test:lib"])
+
+task("baseline-test", async () => await run_baseline_test("run", baseline_test_options()))
+task("baseline-test:review", async () => await run_baseline_test("review", baseline_test_review_options()))
+task("baseline-test:accept", async () => await run_baseline_test("accept"))

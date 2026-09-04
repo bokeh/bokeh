@@ -325,6 +325,76 @@ checkout:
 
 You can combine the last two test suites by running ``node make test:lib``.
 
+To run visual integration tests against the canonical Linux baselines on any
+platform with Docker, run these commands from the root of the source checkout:
+
+.. code-block:: sh
+
+    $ cd bokehjs
+    $ node make baseline-test
+
+New or updated baseline files are written directly into the current checkout.
+The run exits with a failure when it creates or updates baselines because it
+compares against the committed Git reference. After accepting reviewed
+changes, subsequent runs automatically verify against the staged baselines, so
+you can confirm that they are stable before committing.
+Browser commands have deadlines. If Chrome stops responding, the test
+controller reports the current test and relevant Chrome diagnostics, replaces
+the browser, and retries the interrupted test up to two times. It then records
+the failure and continues with the remaining tests.
+
+On Linux, you can run the visual tests directly, without Docker or Podman, from
+the ``bokehjs`` subdirectory:
+
+.. code-block:: sh
+
+    $ node make build:all
+    $ BOKEH_CHROME=/path/to/chrome node make test:integration
+
+Omit ``BOKEH_CHROME`` when a supported Chrome or Chromium executable is already
+available in ``PATH``. The native run reads and writes
+``bokehjs/test/baselines/linux`` and accepts the same ``-k`` and ``--grep`` test
+filters as the containerized run. This is a convenient path for fast iteration
+on Linux, but it is not the canonical baseline environment: the host's browser,
+fonts, system libraries, and rendering stack can all affect pixels. Confirm any
+new or updated baselines with ``node make baseline-test`` before accepting them.
+
+To review the latest results with the same BokehJS report used by CI, start the
+containerized review server:
+
+.. code-block:: sh
+
+    $ node make baseline-test:review
+
+Open the URL printed by the command. After reviewing the generated images,
+pixel differences, selected references, and layout baselines, stage the
+baseline changes for the current branch with:
+
+.. code-block:: sh
+
+    $ node make baseline-test:accept
+
+The ``accept`` command only stages changed ``.blf`` and ``.png`` files under
+``bokehjs/test/baselines/linux`` that exactly match the completed report. This
+prevents candidates left by an earlier or broader run from being staged. It
+does not create a commit.
+
+Normal runs pull an immutable digest from Bokeh's public GHCR package.
+Maintainers can publish a refreshed container with the manually dispatched
+``BokehJS - Publish Baseline Image`` GitHub Actions workflow. The workflow
+rebuilds the package layers without a cache, tests the local image before
+publishing it, and records the resulting digest. Bump the image revision
+whenever the versions or system packages in the container are refreshed, then
+update the digest used by ``bokehjs/test/run-baseline-tests.mjs`` in a
+reviewed pull request. Set ``BOKEHJS_BASELINE_BUILD=1`` to build the Dockerfile
+locally while preparing a new image. Set
+``BOKEHJS_CONTAINER_ENGINE=podman`` when invoking any ``baseline-test`` task to
+use Podman instead of Docker. On Apple Silicon, the image's canonical
+``linux/amd64`` Chrome binary requires a Rosetta-enabled AppleHV Podman
+machine; QEMU-only machines may abort while starting Chrome. Configure
+``rosetta = true`` in the ``[machine]`` section of ``containers.conf`` before
+creating the Podman machine.
+
 Additionally, you can use search strings to select individual tests or groups
 of tests. Use the ``-k`` argument to supply your search string. The search
 string is case-sensitive. The BokehJS testing framework tries to match your
