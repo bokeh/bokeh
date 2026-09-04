@@ -390,18 +390,28 @@ describe("core/serialization module", () => {
       const resolver = new ModelResolver(null, [SomeModel, FailingModel])
       const references = new Map<string, HasProps>()
       const finalized = new Set<HasProps>()
+      const order: string[] = []
       const deserializer = new Deserializer(resolver, references, (model) => {
+        order.push(`finalize:${model.id}`)
         finalized.add(model)
-        return () => finalized.delete(model)
+        return () => {
+          order.push(`rollback:${model.id}`)
+          finalized.delete(model)
+        }
       })
 
       const rep = [
         {type: "object", name: "SomeModel", id: "first"},
-        {type: "object", name: "FailingModel", id: "second"},
+        {type: "object", name: "SomeModel", id: "second"},
+        {type: "object", name: "FailingModel", id: "third"},
       ]
       expect(() => deserializer.decode(rep)).to.throw(Error, "initialization failed")
       expect(references.size).to.be.equal(0)
       expect(finalized.size).to.be.equal(0)
+      expect(order).to.be.equal([
+        "finalize:first", "finalize:second", "finalize:third",
+        "rollback:third", "rollback:second", "rollback:first",
+      ])
     })
   })
 })
