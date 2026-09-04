@@ -647,11 +647,10 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         # formatter from reaching Bokeh's AnyWidget MIME representation.
         try:
             from ..io.notebook import _is_marimo_runtime
-
-            if _is_marimo_runtime():
-                return None
         except ImportError:
-            pass
+            return html_repr(self)
+        if _is_marimo_runtime():
+            return None
         return html_repr(self)
 
     def _sphinx_height_hint(self) -> int|None:

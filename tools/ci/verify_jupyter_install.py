@@ -1,23 +1,24 @@
 from __future__ import annotations
 
+# Standard library imports
 import json
 import subprocess
 import sys
 from pathlib import Path
 
 
-labextensions = subprocess.run(
-    ["jupyter", "labextension", "list"],
-    check=True,
-    capture_output=True,
-    text=True,
-).stdout
-server_extensions = subprocess.run(
-    ["jupyter", "server", "extension", "list"],
-    check=True,
-    capture_output=True,
-    text=True,
-).stdout
+def _jupyter_output(*args: str) -> str:
+    result = subprocess.run(
+        ["jupyter", *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout + result.stderr
+
+
+labextensions = _jupyter_output("labextension", "list")
+server_extensions = _jupyter_output("server", "extension", "list")
 assert "@bokeh/bokeh-jupyter" in labextensions
 assert "bokeh.jupyter" in server_extensions
 

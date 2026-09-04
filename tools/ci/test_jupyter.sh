@@ -8,6 +8,7 @@ playwright install --only-shell chromium
 python tools/ci/verify_jupyter_install.py
 pytest --color=yes -rs \
   tests/unit/bokeh/io/test_anywidget.py \
-  tests/unit/bokeh/io/test_jupyter_runtime.py \
+  tests/unit/bokeh/io/test_jupyter*.py \
+  tests/unit/bokeh/io/test_notebook__io.py \
   tests/integration/test_jupyter_extension.py \
   tests/integration/test_marimo.py

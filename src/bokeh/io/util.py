@@ -228,12 +228,19 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
 # Shared JavaScript snippets for Selenium and Playwright backends
 #-----------------------------------------------------------------------------
 
-# Check whether Bokeh has loaded and created at least one document.
-_BOKEH_LOADED_EXPR = """\
-typeof Bokeh !== "undefined"
+# Artifact exports publish the mount handle on each root target. Use the mount
+# owned by this export instead of the process-wide Bokeh.index registry.
+_MOUNT_EXPR = "document.querySelector('[data-bokeh-artifact][data-bokeh-root]')?.bokehMount"
+
+# Check whether Bokeh has loaded, created a document, and mounted a root view.
+_BOKEH_LOADED_CHECK = """\
+const mount = $MOUNT;
+return typeof Bokeh !== "undefined"
     && Bokeh.documents != null
-    && Bokeh.documents.length != 0\
-"""
+    && Bokeh.documents.length != 0
+    && mount != null
+    && mount.views.length != 0\
+""".replace("$MOUNT", _MOUNT_EXPR)
 
 # Set a flag once the first Bokeh document becomes idle.
 # Both backends poll/wait on ``window._bokeh_render_complete`` afterwards.

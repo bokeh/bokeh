@@ -6,8 +6,8 @@
   "private": true,
   "main": "lib/index.js",
   "scripts": {
-    "build": "npm run check:protocol && npm run test:source && npm run clean && tsc && npm run build:anywidget -- --mode=production && jupyter labextension build . && node scripts/copy-install.mjs",
-    "build:dev": "tsc && npm run build:anywidget -- --mode=development && jupyter labextension build --development True . && node scripts/copy-install.mjs",
+    "build": "npm run check:protocol && npm run test:source && npm run clean && tsc && npm run build:anywidget -- --mode=production && jupyter-builder build && node scripts/copy-install.mjs",
+    "build:dev": "tsc && npm run build:anywidget -- --mode=development && jupyter-builder build --development=True && node scripts/copy-install.mjs",
     "build:anywidget": "webpack --config webpack.anywidget.config.js",
     "check:protocol": "node scripts/check-protocol.mjs",
     "clean": "rimraf lib build ../labextension/package.json ../labextension/static",
@@ -36,6 +36,7 @@
   "jupyterlab": {
     "extension": true,
     "outputDir": "../labextension",
+    "webpackConfig": "webpack.labextension.config.js",
     "sharedPackages": {
       "@jupyterlab/services": {
         "bundled": false,
@@ -54,7 +55,7 @@
       }
     },
     "_build": {
-      "load": "static/remoteEntry.9150c270b70dd9f8c715.js",
+      "load": "static/remoteEntry.03fe70b060e911e1fff3.js",
       "extension": "./extension"
     }
   }

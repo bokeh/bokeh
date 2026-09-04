@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
@@ -75,6 +75,17 @@ def test_save_omits_rich_paths_that_are_not_notebook_relative(mock_save_helper: 
         "text/plain": "Bokeh HTML file saved. Open it from the notebook file browser.",
     }
     assert str(filename) not in next(iter(result._repr_mimebundle_().values()))
+
+
+@pytest.mark.parametrize(("path_type", "expected"), [
+    (PureWindowsPath, "reports/plot.html"),
+    (PurePosixPath, None),
+])
+def test_saved_file_normalizes_native_separators(path_type: type[Path], expected: str | None) -> None:
+    with patch.object(bis, "Path", path_type):
+        result = bis._SavedFile("result.html", r"reports\plot.html")
+
+    assert result._link_path == expected
 
 #-----------------------------------------------------------------------------
 # Dev API

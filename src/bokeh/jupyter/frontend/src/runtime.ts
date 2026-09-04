@@ -564,7 +564,7 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   const mountArtifact = async (nextArtifact: any, resourceId: string, revision: number): Promise<void> => {
     await requireResources(
       resourceId,
-      String(nextArtifact.bokeh_version ?? payload.bokeh_version),
+      payload.bokeh_version,
       payload.python_version,
       kernel,
       5000,

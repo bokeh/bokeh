@@ -281,11 +281,9 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
     '''Wait for Bokeh to load and render, mirroring the Selenium backend.'''
     timeout_ms = timeout * 1000
 
-    bokeh_loaded_fn = _BOKEH_LOADED_CHECK.replace("return ", "", 1)
-
     try:
         page.wait_for_function(
-            f"() => {{ return {bokeh_loaded_fn}; }}",
+            _wrap_function(_BOKEH_LOADED_CHECK),
             timeout=timeout_ms,
         )
     except Exception as e:
