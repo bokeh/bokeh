@@ -50,5 +50,5 @@ def notebook_content(content: NotebookContent, *, theme: ThemeSource = FromCurdo
     artifact and mount contracts used by other embedding consumers.
     """
     compiler = embed_protocol if live else embed
-    artifact = compiler(content, theme=theme, _always_new=True)
+    artifact = compiler(content, theme=theme)
     return artifact, artifact.fragment(resources="none")
