@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Mapping
 
 # Bokeh imports
 from .. import __version__
+from ._json import canonical_json, json_copy
 from .resources import ResourceRequirements
 
 if TYPE_CHECKING:
@@ -50,8 +51,14 @@ class ArtifactRoot:
     model_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not self.key:
+        if not isinstance(self.key, str) or not self.key:
             raise ArtifactValidationError("artifact root keys must not be empty")
+        if self.document is not None and (isinstance(self.document, bool) or not isinstance(self.document, int)):
+            raise ArtifactValidationError("artifact root document ordinal must be an integer")
+        if self.root is not None and (isinstance(self.root, bool) or not isinstance(self.root, int)):
+            raise ArtifactValidationError("artifact root ordinal must be an integer")
+        if self.model_id is not None and (not isinstance(self.model_id, str) or not self.model_id):
+            raise ArtifactValidationError("artifact server root model_id must be a non-empty string")
         structural = self.document is not None or self.root is not None
         if structural and (self.document is None or self.root is None or self.model_id is not None):
             raise ArtifactValidationError("a structural root requires document/root ordinals and no model_id")
@@ -72,8 +79,13 @@ class ArtifactRoot:
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ArtifactRoot:
         '''Validate and reconstruct a root address from schema data.'''
+        if not isinstance(value, Mapping):
+            raise ArtifactValidationError("artifact roots must be objects")
+        key = value.get("key")
+        if not isinstance(key, str):
+            raise ArtifactValidationError("artifact root keys must be strings")
         return cls(
-            key=str(value["key"]),
+            key=key,
             document=value.get("document"),
             root=value.get("root"),
             model_id=value.get("model_id"),
@@ -93,7 +105,6 @@ class EmbedArtifact:
     roots: tuple[ArtifactRoot, ...]
     requires: ResourceRequirements = field(default_factory=ResourceRequirements)
     metadata: Mapping[str, Any] = field(default_factory=dict)
-    buffers: tuple[Mapping[str, Any], ...] = ()
     bokeh_version: str = __version__
     schema: str = EMBED_ARTIFACT_SCHEMA
     fingerprint: str = field(init=False)
@@ -103,15 +114,25 @@ class EmbedArtifact:
             raise ArtifactValidationError(
                 f"unsupported embedding artifact schema {self.schema!r}; expected {EMBED_ARTIFACT_SCHEMA!r}",
             )
-        kind = self.source.get("kind")
-        if not self.bokeh_version:
+        if not isinstance(self.bokeh_version, str) or not self.bokeh_version:
             raise ArtifactValidationError("artifact bokeh_version must not be empty")
+        if not isinstance(self.source, Mapping):
+            raise ArtifactValidationError("artifact source must be an object")
+        if not isinstance(self.metadata, Mapping):
+            raise ArtifactValidationError("artifact metadata must be an object")
+        if not isinstance(self.requires, ResourceRequirements):
+            raise ArtifactValidationError("artifact requires must be a ResourceRequirements instance")
+        if not isinstance(self.roots, tuple) or any(not isinstance(root, ArtifactRoot) for root in self.roots):
+            raise ArtifactValidationError("artifact roots must be ArtifactRoot instances")
+        kind = self.source.get("kind")
         if kind not in ("standalone", "server"):
             raise ArtifactValidationError("artifact source.kind must be 'standalone' or 'server'")
         if kind == "standalone":
             documents = self.source.get("documents")
-            if not isinstance(documents, list) or not documents:
-                raise ArtifactValidationError("standalone artifacts require a non-empty source.documents list")
+            if not isinstance(documents, list) or len(documents) != 1:
+                raise ArtifactValidationError("standalone artifacts require exactly one source document")
+            if any(not isinstance(document, Mapping) for document in documents):
+                raise ArtifactValidationError("standalone artifact documents must be objects")
             for root in self.roots:
                 if root.document is None or root.root is None:
                     raise ArtifactValidationError("standalone artifact roots must use document/root ordinals")
@@ -136,9 +157,11 @@ class EmbedArtifact:
         keys = [root.key for root in self.roots]
         if len(keys) != len(set(keys)):
             raise ArtifactValidationError("artifact root keys must be unique")
-        object.__setattr__(self, "source", _json_copy(dict(self.source)))
-        object.__setattr__(self, "metadata", _json_copy(dict(self.metadata)))
-        object.__setattr__(self, "buffers", tuple(_json_copy(dict(buffer)) for buffer in self.buffers))
+        try:
+            object.__setattr__(self, "source", json_copy(dict(self.source)))
+            object.__setattr__(self, "metadata", json_copy(dict(self.metadata)))
+        except ValueError as error:
+            raise ArtifactValidationError(str(error)) from error
         object.__setattr__(self, "fingerprint", _fingerprint(self._data(include_fingerprint=False)))
 
     def _data(self, *, include_fingerprint: bool) -> dict[str, Any]:
@@ -149,7 +172,6 @@ class EmbedArtifact:
             "roots": [root.to_dict() for root in self.roots],
             "requires": self.requires.to_dict(),
             "metadata": deepcopy(dict(self.metadata)),
-            "buffers": [deepcopy(dict(buffer)) for buffer in self.buffers],
         }
         if include_fingerprint:
             result["fingerprint"] = self.fingerprint
@@ -166,28 +188,49 @@ class EmbedArtifact:
     def to_json_string(self, *, pretty: bool = False) -> str:
         '''Serialize the artifact deterministically as compact or indented JSON.'''
         if pretty:
-            return json.dumps(self.to_dict(), ensure_ascii=False, sort_keys=True, indent=2)
-        return json.dumps(self.to_dict(), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            return json.dumps(self.to_dict(), ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False)
+        return canonical_json(self.to_dict())
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> EmbedArtifact:
         '''Validate schema, versioned fields, roots, and fingerprint.'''
+        if not isinstance(value, Mapping):
+            raise ArtifactValidationError("an embedding artifact must be an object")
         schema = value.get("schema")
         if schema != EMBED_ARTIFACT_SCHEMA:
             raise ArtifactValidationError(
                 f"unsupported embedding artifact schema {schema!r}; expected {EMBED_ARTIFACT_SCHEMA!r}",
             )
-        artifact = cls(
-            schema=schema,
-            bokeh_version=str(value.get("bokeh_version", "")),
-            source=value.get("source", {}),
-            roots=tuple(ArtifactRoot.from_dict(root) for root in value.get("roots", [])),
-            requires=ResourceRequirements.from_dict(value.get("requires", {})),
-            metadata=value.get("metadata", {}),
-            buffers=tuple(value.get("buffers", [])),
-        )
+        if "buffers" in value:
+            raise ArtifactValidationError(
+                "artifact buffers are not part of bokeh.embed/v1; binary server data uses protocol message buffers",
+            )
         supplied = value.get("fingerprint")
-        if supplied is not None and supplied != artifact.fingerprint:
+        if not isinstance(supplied, str) or not supplied:
+            raise ArtifactValidationError("artifact fingerprint must be a non-empty string")
+        bokeh_version = value.get("bokeh_version")
+        if not isinstance(bokeh_version, str):
+            raise ArtifactValidationError("artifact bokeh_version must be a string")
+        roots = value.get("roots")
+        if not isinstance(roots, list):
+            raise ArtifactValidationError("artifact roots must be an array")
+        requires = value.get("requires")
+        if not isinstance(requires, Mapping):
+            raise ArtifactValidationError("artifact requires must be an object")
+        try:
+            artifact = cls(
+                schema=schema,
+                bokeh_version=bokeh_version,
+                source=value.get("source", {}),
+                roots=tuple(ArtifactRoot.from_dict(root) for root in roots),
+                requires=ResourceRequirements.from_dict(requires),
+                metadata=value.get("metadata", {}),
+            )
+        except ArtifactValidationError:
+            raise
+        except (KeyError, TypeError, ValueError) as error:
+            raise ArtifactValidationError(f"invalid embedding artifact: {error}") from error
+        if supplied != artifact.fingerprint:
             raise ArtifactValidationError(
                 f"artifact fingerprint mismatch: expected {artifact.fingerprint!r}, received {supplied!r}",
             )
@@ -231,18 +274,28 @@ class EmbedArtifact:
 
 
 def _fingerprint(value: Mapping[str, Any]) -> str:
-    normalized = _normalize_model_ids(deepcopy(dict(value)))
-    payload = json.dumps(normalized, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    normalized = dict(value)
+    source = normalized.get("source")
+    if isinstance(source, Mapping) and source.get("kind") == "standalone":
+        documents = source.get("documents")
+        if isinstance(documents, list):
+            normalized["source"] = {
+                **source,
+                "documents": [_normalize_model_ids(document) for document in documents],
+            }
+    payload = canonical_json(normalized)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _normalize_model_ids(value: Any) -> Any:
     ids: list[str] = []
+    seen: set[str] = set()
 
     def collect(child: Any) -> None:
         if isinstance(child, dict):
             model_id = child.get("id")
-            if child.get("type") == "object" and isinstance(model_id, str) and model_id not in ids:
+            if child.get("type") == "object" and isinstance(model_id, str) and model_id not in seen:
+                seen.add(model_id)
                 ids.append(model_id)
             for key in sorted(child):
                 collect(child[key])
@@ -261,20 +314,9 @@ def _normalize_model_ids(value: Any) -> Any:
             }
         if isinstance(child, (list, tuple)):
             return [replace(item) for item in child]
-        # JSON.stringify() emits integral JavaScript numbers without a decimal
-        # suffix. Match that representation for cross-language fingerprints.
-        if isinstance(child, float) and child.is_integer():
-            return int(child)
         return child
 
     return replace(value)
-
-
-def _json_copy(value: Any) -> Any:
-    try:
-        return json.loads(json.dumps(value, ensure_ascii=False))
-    except (TypeError, ValueError) as error:
-        raise ArtifactValidationError(f"embedding artifacts must be JSON-compatible: {error}") from error
 
 
 __all__ = (
