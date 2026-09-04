@@ -28,6 +28,22 @@ class ModelWithView extends HasProps {
   }
 }
 
+let finish_deferred_view: (() => void) | undefined
+
+class DeferredView extends DOMElementView {
+  render(): void {
+    finish_deferred_view = () => this.finish()
+  }
+}
+
+class ModelWithDeferredView extends HasProps {
+  declare __view_type__: DeferredView
+
+  static {
+    this.prototype.default_view = DeferredView
+  }
+}
+
 describe("embed", () => {
   it("should have an empty 'kernels' dict on the embed module", () => {
     expect(embed.kernels).to.be.equal({})
@@ -40,10 +56,27 @@ describe("embed", () => {
       doc.add_root(ModelWithView.create())
       const mounted = mount(doc, document.body)
       await mounted.ready
-      await defer() // wait one full loop for NotificationsView; unfortunately view.ready isn't in sync
       try {
         expect(doc.is_idle).to.be.true
       } finally {
+        await mounted.dispose()
+      }
+    })
+
+    it("doesn't resolve readiness before root views finish", async () => {
+      const model = ModelWithDeferredView.create()
+      const mounted = mount(new Document({roots: [model]}), document.body)
+      let ready = false
+      void mounted.ready.then(() => ready = true)
+      await defer()
+      try {
+        expect(ready).to.be.false
+        finish_deferred_view!()
+        await mounted.ready
+        expect(ready).to.be.true
+        expect(model.document!.is_idle).to.be.true
+      } finally {
+        finish_deferred_view = undefined
         await mounted.dispose()
       }
     })
