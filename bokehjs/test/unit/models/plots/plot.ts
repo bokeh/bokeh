@@ -55,6 +55,18 @@ describe("Plot module", () => {
       expect(tools[0]).to.be.identical(reset)
     })
 
+    it("should add tools by their registered aliases", () => {
+      const plot = Plot.create()
+
+      plot.add_tools("xpan", "reset")
+
+      const {tools} = plot.toolbar
+      expect(tools.length).to.be.equal(2)
+      expect(tools[0]).to.be.instanceof(PanTool)
+      expect((tools[0] as PanTool).dimensions).to.be.equal("width")
+      expect(tools[1]).to.be.instanceof(ResetTool)
+    })
+
     it("should remove a single tool using remove_tools method", () => {
       const {plot, reset, pan} = new_plot_with_tools()
 

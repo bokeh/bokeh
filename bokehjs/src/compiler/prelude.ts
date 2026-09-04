@@ -147,6 +147,8 @@ const loader = `\
     const plugin = require(plugin_entry);
 
     for (let name in plugin) {
+      // Plugins augment the public namespace. Preserve getter-only exports already
+      // defined by the main bundle, such as Document from the Bokeh API plugin.
       if (!(name in main)) {
         main[name] = plugin[name];
       }

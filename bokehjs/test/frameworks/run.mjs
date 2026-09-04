@@ -66,7 +66,7 @@ async function build_fixtures() {
     })
   })
 
-  await import("../../frameworks/ssr.mjs")
+  await import("./ssr.mjs")
 }
 
 const mime_types = new Map([

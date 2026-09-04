@@ -263,10 +263,6 @@ export class BoxZoomTool extends GestureTool {
       origin:       [ BoxOrigin, "corner" ],
     }))
 
-    this.register_alias("box_zoom", () => BoxZoomTool.create({dimensions: "both"}))
-    this.register_alias("xbox_zoom", () => BoxZoomTool.create({dimensions: "width"}))
-    this.register_alias("ybox_zoom", () => BoxZoomTool.create({dimensions: "height"}))
-    this.register_alias("auto_box_zoom", () => BoxZoomTool.create({dimensions: "auto"}))
   }
 
   override tool_name = "Box Zoom"

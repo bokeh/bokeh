@@ -74,7 +74,6 @@ export class SaveTool extends ActionTool {
       filename: [ Nullable(Str), null ],
     }))
 
-    this.register_alias("save", () => SaveTool.create())
   }
 
   override tool_name = "Save"
