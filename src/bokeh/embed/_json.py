@@ -26,9 +26,24 @@ def canonical_json(value: Any) -> str:
 def json_copy(value: Any) -> Any:
     """Validate and detach one JSON-compatible value."""
     try:
-        return json.loads(canonical_json(value))
+        canonical_json(value)
     except (TypeError, ValueError, UnicodeError) as error:
         raise ValueError(f"embedding values must be JSON-compatible: {error}") from error
+    return _copy(value)
+
+
+def _copy(value: Any) -> Any:
+    if value is None or isinstance(value, (bool, str)):
+        return value
+    if isinstance(value, int):
+        return int(value)
+    if isinstance(value, float):
+        return float(value)
+    if isinstance(value, Mapping):
+        return {key: _copy(child) for key, child in value.items()}
+    if isinstance(value, Sequence):
+        return [_copy(child) for child in value]
+    raise AssertionError("canonical JSON validation accepted an unsupported value")
 
 
 def _encode(value: Any) -> str:
@@ -61,13 +76,11 @@ def _encode_float(value: float) -> str:
         raise ValueError("non-finite numbers are not valid embedding JSON")
     if value == 0:
         return "0"
-    if value.is_integer():
-        if abs(value) > _MAX_SAFE_INTEGER:
-            raise ValueError(f"integer-valued float {value!r} exceeds JavaScript's safe integer range")
+    if value.is_integer() and abs(value) <= _MAX_SAFE_INTEGER:
         return str(int(value))
 
     absolute = abs(value)
-    text = repr(value).lower()
+    text = repr(float(value)).lower()
     if 1e-6 <= absolute < 1e21:
         return format(Decimal(text), "f")
 

@@ -146,6 +146,14 @@ export function validate_embed_artifact(value: unknown): EmbedArtifact {
         }
       }
     }
+    for (const field of ["session_id", "token"] as const) {
+      if (source[field] != null) {
+        as_string(source[field], `server artifact source.${field}`)
+      }
+    }
+    if (source.relative_urls != null && typeof source.relative_urls != "boolean") {
+      throw new ArtifactError("schema", "server artifact source.relative_urls must be a boolean")
+    }
   }
   if (!Array.isArray(artifact.roots)) {
     throw new ArtifactError("schema", "artifact.roots must be an array")
@@ -209,6 +217,9 @@ export function validate_embed_artifact(value: unknown): EmbedArtifact {
       }
       if ((typeof resource.url == "string") == (typeof resource.content == "string")) {
         throw new ArtifactError("schema", "artifact extension resources need exactly one of 'url' or 'content'")
+      }
+      if ("nonce" in resource) {
+        throw new ArtifactError("schema", "artifact extension resource nonce is host-owned")
       }
       for (const field of ["integrity", "crossorigin"] as const) {
         if (resource[field] != null && typeof resource[field] != "string") {

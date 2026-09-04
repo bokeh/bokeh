@@ -22,10 +22,12 @@ export type ResourceAsset = {
   module?: boolean
 }
 
+export type ResourceRequirementAsset = Omit<ResourceAsset, "nonce">
+
 /** Named extension and the assets it contributes. */
 export type ExtensionRequirement = {
   name: string
-  assets: ResourceAsset[]
+  assets: ResourceRequirementAsset[]
 }
 
 /** Exact capabilities and extensions declared by an artifact. */
@@ -162,7 +164,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
   for (const extension of requirements.extensions) {
     assets.push(...extension.assets.map((asset) => ({
       ...asset,
-      nonce: asset.nonce ?? policy.nonce,
+      nonce: policy.nonce,
       crossorigin: asset.crossorigin ?? policy.crossorigin ?? (asset.integrity != null ? "anonymous" : undefined),
     })))
   }
@@ -265,62 +267,63 @@ export class ResourceLoader {
     }
 
     return new Promise<void>((resolve, reject) => {
-      let element: HTMLScriptElement | HTMLLinkElement | HTMLStyleElement
-      if (asset.kind == "script") {
-        const script = document.createElement("script")
-        script.type = asset.module == true ? "module" : "text/javascript"
-        if (asset.url != null) {
-          script.src = asset.url
-          script.async = false
-          script.onload = () => {
-            script.dataset.bokehResourceState = "loaded"
-            resolve()
-          }
-          script.onerror = (event) => {
-            script.dataset.bokehResourceState = "failed"
-            script.remove()
-            reject(new ResourceError("load", `failed to load script ${asset.url}`, event, asset))
-          }
-        } else {
-          if (asset.module == true) {
-            const callback = `__bokeh_resource_module_${crypto.randomUUID().replaceAll("-", "")}`
-            const callbacks = globalThis as unknown as Record<string, unknown>
-            callbacks[callback] = () => {
-              delete callbacks[callback]
+      const element = (() => {
+        if (asset.kind == "script") {
+          const script = document.createElement("script")
+          script.type = asset.module == true ? "module" : "text/javascript"
+          if (asset.url != null) {
+            script.src = asset.url
+            script.async = false
+            script.onload = () => {
               script.dataset.bokehResourceState = "loaded"
               resolve()
             }
             script.onerror = (event) => {
-              delete callbacks[callback]
               script.dataset.bokehResourceState = "failed"
               script.remove()
-              reject(new ResourceError("load", "failed to evaluate inline module", event, asset))
+              reject(new ResourceError("load", `failed to load script ${asset.url}`, event, asset))
             }
-            script.textContent = `${asset.content ?? ""}\n;globalThis[${JSON.stringify(callback)}]()`
           } else {
-            script.textContent = asset.content ?? ""
+            if (asset.module == true) {
+              const callback = `__bokeh_resource_module_${crypto.randomUUID().replaceAll("-", "")}`
+              const callbacks = globalThis as unknown as Record<string, unknown>
+              callbacks[callback] = () => {
+                delete callbacks[callback]
+                script.dataset.bokehResourceState = "loaded"
+                resolve()
+              }
+              script.onerror = (event) => {
+                delete callbacks[callback]
+                script.dataset.bokehResourceState = "failed"
+                script.remove()
+                reject(new ResourceError("load", "failed to evaluate inline module", event, asset))
+              }
+              script.textContent = `${asset.content ?? ""}\n;globalThis[${JSON.stringify(callback)}]()`
+            } else {
+              script.textContent = asset.content ?? ""
+            }
           }
+          return script
+        } else if (asset.url != null) {
+          const link = document.createElement("link")
+          link.rel = "stylesheet"
+          link.href = asset.url
+          link.onload = () => {
+            link.dataset.bokehResourceState = "loaded"
+            resolve()
+          }
+          link.onerror = (event) => {
+            link.dataset.bokehResourceState = "failed"
+            link.remove()
+            reject(new ResourceError("load", `failed to load stylesheet ${asset.url}`, event, asset))
+          }
+          return link
+        } else {
+          const style = document.createElement("style")
+          style.textContent = asset.content ?? ""
+          return style
         }
-        element = script
-      } else if (asset.url != null) {
-        const link = document.createElement("link")
-        link.rel = "stylesheet"
-        link.href = asset.url
-        link.onload = () => {
-          link.dataset.bokehResourceState = "loaded"
-          resolve()
-        }
-        link.onerror = (event) => {
-          link.dataset.bokehResourceState = "failed"
-          link.remove()
-          reject(new ResourceError("load", `failed to load stylesheet ${asset.url}`, event, asset))
-        }
-        element = link
-      } else {
-        const style = document.createElement("style")
-        style.textContent = asset.content ?? ""
-        element = style
-      }
+      })()
 
       if (asset.integrity != null) {
         element.setAttribute("integrity", asset.integrity)
