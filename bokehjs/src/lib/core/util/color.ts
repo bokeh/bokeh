@@ -122,10 +122,11 @@ function css4_normalize(color: string): string | null {
     const ctx = canvas.getContext("2d")!
     const gradient = ctx.createLinearGradient(0, 0, 1, 1)
     _css4_normalize = (color) => {
-      ctx.fillStyle = gradient // lgtm [js/useless-assignment-to-property]
+      ctx.fillStyle = gradient
+      const sentinel = ctx.fillStyle
       ctx.fillStyle = color
       const style = ctx.fillStyle
-      return (style as typeof ctx["fillStyle"]) != gradient ? style : null
+      return (style as typeof ctx["fillStyle"]) != sentinel ? style : null
     }
   }
   return _css4_normalize(color)

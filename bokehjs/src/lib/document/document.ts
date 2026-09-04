@@ -629,56 +629,53 @@ export class Document implements Equatable {
 
     const doc = new Document({resolver})
     doc._push_all_models_freeze()
-    let frozen = true
 
     const listener = (event: DocumentEvent) => events?.push(event)
     doc.on_change(listener, true)
     try {
-      const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
+      try {
+        const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
 
-      const config = deserializer.decode(doc_json.config, buffers)
-      assert(config instanceof DocumentConfig || config == null)
-      if (config != null) {
-        doc.config = config
-        doc.set_color_scheme(config.color_scheme)
-        config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
-      }
-
-      const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
-
-      const callbacks = (() => {
-        if (doc_json.callbacks != null) {
-          return deserializer.decode(doc_json.callbacks, buffers) as {[key: string]: DocumentEventCallback[]}
-        } else {
-          return {}
+        const config = deserializer.decode(doc_json.config, buffers)
+        assert(config instanceof DocumentConfig || config == null)
+        if (config != null) {
+          doc.config = config
+          doc.set_color_scheme(config.color_scheme)
+          config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
         }
-      })()
 
-      doc.remove_on_change(listener)
+        const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
 
-      for (const [event, event_callbacks] of entries(callbacks)) {
-        doc.on_event(event as BokehEventType, ...event_callbacks)
-      }
+        const callbacks = (() => {
+          if (doc_json.callbacks != null) {
+            return deserializer.decode(doc_json.callbacks, buffers) as {[key: string]: DocumentEventCallback[]}
+          } else {
+            return {}
+          }
+        })()
 
-      for (const root of roots) {
-        doc.add_root(root)
-      }
+        doc.remove_on_change(listener)
 
-      if (doc_json.title != null) {
-        doc.set_title(doc_json.title)
-      }
+        for (const [event, event_callbacks] of entries(callbacks)) {
+          doc.on_event(event as BokehEventType, ...event_callbacks)
+        }
 
-      doc._pop_all_models_freeze()
-      frozen = false
-      return doc
-    } catch (error) {
-      doc.remove_on_change(listener)
-      if (frozen) {
+        for (const root of roots) {
+          doc.add_root(root)
+        }
+
+        if (doc_json.title != null) {
+          doc.set_title(doc_json.title)
+        }
+      } finally {
         doc._pop_all_models_freeze()
       }
+    } catch (error) {
+      doc.remove_on_change(listener)
       doc.destroy()
       throw error
     }
+    return doc
   }
 
   replace_with_json(json: DocJson, buffers: Map<ID, ArrayBuffer> = new Map()): void {

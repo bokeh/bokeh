@@ -25,7 +25,7 @@ describe("WebGL multiline stability", () => {
   const colors = ["#d62728", "#9467bd", "#2ca02c", "#1f77b4"]
 
   function plot(output_backend: OutputBackend) {
-    const source = new ColumnDataSource({
+    const source = ColumnDataSource.create({
       data: {
         xs,
         ys,
@@ -33,7 +33,7 @@ describe("WebGL multiline stability", () => {
         colors,
         dashes: [[1.5, 0.5], [2.25, 0.75], [3.5, 1.25], [0.75, 1.5]],
       },
-      selected: new Selection({indices: [0, 3]}),
+      selected: Selection.create({indices: [0, 3]}),
     })
     const p = fig([300, 360], {
       output_backend,
@@ -72,7 +72,7 @@ describe("WebGL multiline stability", () => {
   it("should replace dash textures after a post-render dash-field update", async () => {
     function updated_plot(output_backend: OutputBackend) {
       const dashes: DashPattern[] = [[8, 4], [8, 4], [8, 4], [8, 4]]
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           xs,
           ys,
