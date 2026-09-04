@@ -52,7 +52,7 @@ def test_install_notebook_hook() -> None:
 
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.publish_display_data')
-@patch('bokeh.embed.notebook.notebook_content')
+@patch('bokeh.io.notebook._legacy_notebook_content')
 def test_show_doc_no_server(mock_notebook_content: MagicMock,
                             mock__publish_display_data: MagicMock,
                             mock_get_comms: MagicMock) -> None:
@@ -79,7 +79,7 @@ def test_show_doc_no_server(mock_notebook_content: MagicMock,
 
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.publish_display_data')
-@patch('bokeh.embed.notebook.notebook_content')
+@patch('bokeh.io.notebook._legacy_notebook_content')
 def test_show_doc_wraps_sequence_in_layout(mock_notebook_content: MagicMock,
                                            mock__publish_display_data: MagicMock,
                                            mock_get_comms: MagicMock) -> None:
@@ -100,6 +100,19 @@ def test_show_doc_wraps_sequence_in_layout(mock_notebook_content: MagicMock,
     assert len(roots) == 1
     assert isinstance(roots[0], Column)
     assert list(roots[0].children) == [child_0, child_1]
+
+
+def test_legacy_notebook_content_adapts_protocol_artifact() -> None:
+    from bokeh.core.types import ID
+    from bokeh.plotting import figure
+
+    plot = figure()
+    script, div, cell_doc = binb._legacy_notebook_content(plot, ID("target"))
+
+    assert "embed_items_notebook" in script
+    assert '"notebook_comms_target":"target"' in script
+    assert f'data-root-id="{plot.id}"' in div
+    assert cell_doc.get_model_by_id(plot.id) is not None
 
 
 class Test_push_notebook:

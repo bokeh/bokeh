@@ -16,7 +16,7 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
+# Bokeh imports
 from tests.support.util.api import verify_all
 
 # Module under test

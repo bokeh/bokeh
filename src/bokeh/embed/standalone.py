@@ -23,7 +23,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Sequence,
+    cast,
+)
 
 # Bokeh imports
 from ..core.templates import FILE
@@ -141,7 +147,8 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
     if input_shape == "single":
         result: Any = next(iter(divs.values()))
     elif input_shape == "mapping":
-        result = models.__class__((key, divs[key]) for key in models)  # type: ignore[union-attr]
+        assert isinstance(models, dict)
+        result = cast(Any, models).__class__((key, divs[key]) for key in models)
     else:
         result = tuple(divs.values())
     return fragment.script, result
@@ -201,7 +208,7 @@ def file_html(
     '''
     from .compiler import embed
 
-    callback_policy = "suppress" if suppress_callback_warning else "warn"
+    callback_policy: Literal["suppress", "warn"] = "suppress" if suppress_callback_warning else "warn"
     artifact = embed(models, theme=theme, callback_policy=callback_policy)
     return artifact.page(
         resources=resources,

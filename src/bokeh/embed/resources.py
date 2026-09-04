@@ -101,6 +101,8 @@ class ResourceAssetRequirement:
     def from_dict(cls, value: Mapping[str, Any]) -> ResourceAssetRequirement:
         if not isinstance(value, Mapping):
             raise ValueError("resource asset requirements must be objects")
+        if "nonce" in value:
+            raise ValueError("resource asset requirement nonce is host-owned")
         kind = value.get("kind")
         if kind not in ("script", "style"):
             raise ValueError("resource asset requirement kind must be 'script' or 'style'")
@@ -310,21 +312,21 @@ class ResourcePolicy:
         if isinstance(value, ResourcePolicy):
             if not overrides:
                 return value
-            data = value.to_dict()
-            data.update(overrides)
-            return cls(**data)
+            policy_data = value.to_dict()
+            policy_data.update(overrides)
+            return cls(**policy_data)
         if isinstance(value, Resources):
-            data: dict[str, Any] = {
+            resource_data: dict[str, Any] = {
                 "mode": value.mode,
                 "minified": value.minified,
                 "base_dir": value.base_dir,
             }
             if value.mode == "server":
-                data["root_url"] = value.root_url
+                resource_data["root_url"] = value.root_url
             elif value.mode == "relative":
-                data["root_dir"] = value.root_dir
-            data.update(overrides)
-            return cls(**data)
+                resource_data["root_dir"] = value.root_dir
+            resource_data.update(overrides)
+            return cls(**resource_data)
         mode = cast(ResourcePolicyMode, "cdn" if value is None else value)
         return cls(mode=mode, **overrides)
 

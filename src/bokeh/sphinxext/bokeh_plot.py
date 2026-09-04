@@ -105,7 +105,7 @@ from sphinx.util.osutil import copyfile, ensuredir
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.embed import autoload_static
+from bokeh.embed import embed
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -114,7 +114,6 @@ from bokeh.util.warnings import BokehDeprecationWarning
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
 from ._internal.bokeh_directive import BokehDirective
 from ._internal.example_handler import ExampleHandler
-from ._internal.util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -128,9 +127,6 @@ __all__ = (
 )
 
 GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
-
-RESOURCES = get_sphinx_resources()
-
 
 class _PlotTiming(NamedTuple):
     total: float
@@ -176,6 +172,11 @@ class BokehPlotDirective(BokehDirective):
     }
 
     def run(self) -> list[Any]:
+        '''Execute the directive and return its document nodes.
+
+        Returns:
+            The nodes representing the source and embedded plot.
+        '''
         if getenv("BOKEH_SPHINX_QUICK") == "1":
             return []
 
@@ -184,7 +185,7 @@ class BokehPlotDirective(BokehDirective):
 
         dashed_docname = env.docname.replace("/", "-")
 
-        js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.js"
+        js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.json"
 
         try:
             (script_tag, js_path, source, docstring, height_hint) = self.process_source(source, path, js_filename)
@@ -253,6 +254,16 @@ class BokehPlotDirective(BokehDirective):
             raise SphinxError(f"bokeh-plot:: error reading {path!r} for {env.docname!r}: {e!r}")
 
     def process_source(self, source: str, path: str, js_filename: str) -> tuple[str, str, str, str | None, int | None]:
+        '''Evaluate source and write its external artifact payload.
+
+        Args:
+            source: The Python source to evaluate.
+            path: The source path used for evaluation context.
+            js_filename: The artifact payload filename.
+
+        Returns:
+            Rendered markup, payload path, source, docstring, and height hint.
+        '''
         Model.clear_extensions()
 
         env = cast(Any, self.env)
@@ -263,11 +274,11 @@ class BokehPlotDirective(BokehDirective):
         height_hint = cast(Any, root)._sphinx_height_hint()
 
         js_path = join(env.bokeh_plot_auxdir, js_filename)
-        js, script_tag = autoload_static(root, RESOURCES, js_filename)
+        external = embed(root).external(js_filename)
         serialized = perf_counter()
 
         with open(js_path, "w") as f:
-            f.write(js)
+            f.write(external.payload)
 
         finished = perf_counter()
         env.bokeh_plot_timings.append(_PlotTiming(
@@ -279,7 +290,7 @@ class BokehPlotDirective(BokehDirective):
             source=basename(path),
         ))
 
-        return (script_tag, js_path, source, docstring, height_hint)
+        return (external.html, js_path, source, docstring, height_hint)
 
     def process_sampledata(self, source: str) -> None:
 
