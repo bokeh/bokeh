@@ -16,7 +16,8 @@
   "sideEffects": [
     "./build/js/lib/**/main.js",
     "./build/js/lib/models/glyphs/webgl/index.js",
-    "./build/js/lib/models/text/mathjax/index.js"
+    "./build/js/lib/models/text/mathjax/index.js",
+    "./build/js/lib/models/tools/aliases.js"
   ],
   "repository": {
     "type": "git",

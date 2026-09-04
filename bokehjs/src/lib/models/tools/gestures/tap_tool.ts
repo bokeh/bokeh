@@ -137,9 +137,6 @@ export class TapTool extends SelectTool {
       callback:  [ Nullable(Any /*TODO*/), null ],
     }))
 
-    this.register_alias("click", () => TapTool.create({behavior: "inspect"}))
-    this.register_alias("tap", () => TapTool.create())
-    this.register_alias("doubletap", () => TapTool.create({gesture: "doubletap"}))
   }
 
   override tool_name = "Tap"
