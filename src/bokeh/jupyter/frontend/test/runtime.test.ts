@@ -51,15 +51,21 @@ describe("artifact runtime", () => {
 
   it("mounts keyed caller-owned targets and disposes exactly once", async () => {
     const dispose = vi.fn(async () => undefined)
-    const mount = vi.fn((_artifact: unknown, options: any) => ({
+    const handle = {
       ready: Promise.resolve(),
       dispose,
       document: {to_json: () => ({roots: []}), roots: () => []},
       root_keys: [],
       root: () => null,
-      options,
-    }))
-    ;(window as any).Bokeh = {version: "4.0.0", mount, embed: {create_notebook_patch_receiver: vi.fn()}}
+      view_lookup: {},
+    }
+    const mount = vi.fn((_artifact: unknown, options: any) => ({...handle, options}))
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount,
+      when_mounted: vi.fn(async () => mount.mock.results[0].value),
+      embed: {create_notebook_patch_receiver: vi.fn()},
+    }
     const node = document.createElement("div")
     document.body.append(node)
     await loadResources(resource, "", node)
@@ -78,7 +84,8 @@ describe("artifact runtime", () => {
     const dispose = vi.fn(async () => undefined)
     ;(window as any).Bokeh = {
       version: "4.0.0",
-      mount: vi.fn(() => ({ready: new Promise(() => undefined), dispose})),
+      mount: vi.fn(() => ({ready: new Promise(() => undefined), dispose, view_lookup: {}})),
+      when_mounted: vi.fn(),
     }
     const node = document.createElement("div")
     document.body.append(node)
@@ -98,7 +105,8 @@ describe("artifact runtime", () => {
     const dispose = vi.fn(async () => undefined)
     ;(window as any).Bokeh = {
       version: "4.0.0",
-      mount: vi.fn(() => ({ready: Promise.reject(new Error("decode failed")), dispose})),
+      mount: vi.fn(() => ({ready: Promise.reject(new Error("decode failed")), dispose, view_lookup: {}})),
+      when_mounted: vi.fn(),
     }
     const node = document.createElement("div")
     document.body.append(node)
@@ -109,24 +117,48 @@ describe("artifact runtime", () => {
     expect(node.querySelectorAll(".bk-embed-root")).toHaveLength(0)
   })
 
+  it("publishes a structured failure when mount creation fails before returning a handle", async () => {
+    const publish = vi.fn()
+    class MountError extends Error {}
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount: vi.fn(() => {throw new Error("synchronous source failure")}),
+      when_mounted: vi.fn(),
+      publish_mount_error: publish,
+      MountError,
+    }
+    const node = document.createElement("div")
+    document.body.append(node)
+    await loadResources(resource, "", node)
+
+    await expect(renderDisplay(node, display, html)).rejects.toMatchObject({code: "ARTIFACT_RENDER_FAILED"})
+    expect(publish).toHaveBeenCalledTimes(2)
+    expect(publish.mock.calls.every(([, error]) => error instanceof MountError)).toBe(true)
+    expect(node.querySelectorAll(".bk-embed-root")).toHaveLength(0)
+  })
+
   it("serializes concurrent resource registration and remounts a resync snapshot", async () => {
     const disposals: Array<ReturnType<typeof vi.fn>> = []
     const mount = vi.fn(() => {
       const dispose = vi.fn(async () => undefined)
       disposals.push(dispose)
-      return {
+      current = {
         ready: Promise.resolve(),
         dispose,
         document: {to_json: () => ({roots: []}), roots: () => []},
         root_keys: [],
         root: () => null,
+        view_lookup: {},
       }
+      return current
     })
+    let current: any
     let receive: ((message: unknown, buffers: DataView[]) => void) | undefined
     const resync = vi.fn()
     ;(window as any).Bokeh = {
       version: "4.0.0",
       mount,
+      when_mounted: vi.fn(async () => current),
       embed: {create_notebook_patch_receiver: vi.fn(() => vi.fn())},
     }
     const node = document.createElement("div")
@@ -138,6 +170,7 @@ describe("artifact runtime", () => {
         artifactJson: JSON.stringify(artifact),
         revision: 0,
         onMessage(callback) {receive = callback},
+        onClose() {},
         requestResync: resync,
         close() {},
       }),
@@ -151,5 +184,41 @@ describe("artifact runtime", () => {
     expect(resync).not.toHaveBeenCalled()
     cleanup()
     expect(disposals[1]).toHaveBeenCalledOnce()
+  })
+
+  it("keeps the last mounted artifact visible and labels a closed live connection", async () => {
+    const handle = {
+      ready: Promise.resolve(),
+      dispose: vi.fn(async () => undefined),
+      document: {to_json: () => ({roots: []}), roots: () => []},
+      root_keys: [],
+      root: () => null,
+      view_lookup: {},
+    }
+    let closed: (() => void) | undefined
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount: vi.fn(() => handle),
+      when_mounted: vi.fn(async () => handle),
+      embed: {create_notebook_patch_receiver: vi.fn(() => vi.fn())},
+    }
+    const node = document.createElement("div")
+    document.body.append(node)
+    await loadResources(resource, "", node)
+    const cleanup = await renderDisplay(node, {...display, live_id: "live"}, html, {
+      openLive: async () => ({
+        artifactJson: JSON.stringify(artifact),
+        revision: 0,
+        onMessage() {},
+        onClose(callback) {closed = callback},
+        requestResync() {},
+        close() {},
+      }),
+    })
+
+    closed?.()
+    expect(node.querySelector(".bk-notebook-disconnected")?.textContent).toContain("connection closed")
+    cleanup()
+    expect(node.querySelector(".bk-notebook-disconnected")).toBeNull()
   })
 })

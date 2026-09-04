@@ -101,6 +101,10 @@ def test_resource_subset_and_portable_owner_are_consistent() -> None:
     assert subset == (resolved.assets[1],)
     assert payload["artifacts"][0]["kind"] == "css"
     assert ".bk-test{}" in javascript
+    assert "root.Bokeh?.embed?.resource_loader" in javascript
+    assert "loader.ensure" in javascript
+    assert "data-bokeh-notebook-resource" in javascript
+    assert "_bokeh_notebook_" not in javascript
 
 
 def test_display_payload_references_artifact_without_copying_graph() -> None:
