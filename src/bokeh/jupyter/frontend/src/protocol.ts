@@ -47,6 +47,7 @@ export interface DisplayPayload {
   connect_timeout: number
   live_id?: string
   application_id?: string
+  application_url?: string
 }
 
 export interface FilePayload {
@@ -123,6 +124,10 @@ export function assertProtocol(payload: unknown): void {
     if (record.source_kind !== "standalone" && record.source_kind !== "server") problems.push("source_kind must be standalone or server")
     if (record.live_id != null) stringField("live_id")
     if (record.application_id != null) stringField("application_id")
+    if (record.application_url != null) stringField("application_url")
+    if ((record.application_id == null) !== (record.application_url == null)) {
+      problems.push("application_id and application_url must be provided together")
+    }
   }
   if (problems.length !== 0) {
     throw new BokehNotebookError(

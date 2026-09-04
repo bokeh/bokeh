@@ -360,14 +360,15 @@ class DocumentViewHandle:
 class ApplicationViewHandle:
     '''Control one notebook view of a managed ASGI application.'''
 
-    def __init__(self, application: NotebookApplication, view_id: str) -> None:
+    def __init__(self, application: NotebookApplication, view_id: str, artifact: EmbedArtifact) -> None:
         self._application = application
         self._view_id = view_id
+        self._artifact = artifact
         self._comms: dict[str, Comm] = {}
         self._closed = False
         self._frontend: Any | None = None
 
-    def _connect(self, comm: Comm) -> None:
+    def _connect(self, comm: Comm, application_url: Any = None) -> None:
         if self._closed:
             comm.send({
                 "kind": "error",
@@ -376,12 +377,35 @@ class ApplicationViewHandle:
             })
             comm.close()
             return
+        try:
+            browser_url = self._application._resolve_browser_url(application_url)
+            if browser_url == self._artifact.source["url"]:
+                artifact = self._artifact
+            else:
+                from ..embed.artifact import EmbedArtifact
+
+                artifact = EmbedArtifact(
+                    source={**self._artifact.source, "url": browser_url},
+                    roots=self._artifact.roots,
+                    requires=self._artifact.requires,
+                    metadata=self._artifact.metadata,
+                    bokeh_version=self._artifact.bokeh_version,
+                    schema=self._artifact.schema,
+                )
+        except ValueError as error:
+            comm.send({
+                "kind": "error",
+                "code": "APPLICATION_URL_INVALID",
+                "message": str(error),
+            })
+            comm.close()
+            return
         comm_id = _comm_id(comm)
         self._comms[comm_id] = comm
         on_close = getattr(comm, "on_close", None)
         if on_close is not None:
             on_close(lambda _message: self._disconnect(comm_id))
-        comm.send({"kind": "ready"})
+        comm.send({"kind": "ready", "artifact": artifact.to_json_string()})
 
     def _disconnect(self, comm_id: str) -> None:
         self._comms.pop(comm_id, None)
@@ -524,7 +548,7 @@ def _register_notebook_comm_target() -> None:
                 })
                 comm.close()
                 return
-            view._connect(comm)
+            view._connect(comm, data.get("application_url"))
 
         kernel.comm_manager.register_target(_NOTEBOOK_COMM_TARGET, connect)
         _NOTEBOOK_COMM_KERNEL = kernel
@@ -705,10 +729,16 @@ def show_hosted_app(app: NotebookApplication, state: State,
     view_id = make_id()
     artifact = embed_server(app.url, metadata={"notebook_application_id": app.application_id})
     resource_id = _ensure_notebook_resources(artifact, resources, publish=not use_anywidget)
-    payload = display_payload(artifact, resource_id, view_id, application_id=app.application_id)
+    payload = display_payload(
+        artifact,
+        resource_id,
+        view_id,
+        application_id=app.application_id,
+        application_url=app.url,
+    )
     html = artifact.fragment(resources="none").html
     html = html.replace("</div>", f"{_static_fallback(_STATIC_FALLBACK_MESSAGE)}</div>", 1)
-    handle = ApplicationViewHandle(app, view_id)
+    handle = ApplicationViewHandle(app, view_id, artifact)
     _retain_application_handle(handle)
     if not use_anywidget:
         _register_notebook_comm_target()

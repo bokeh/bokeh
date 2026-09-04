@@ -224,7 +224,7 @@ class NotebookApplication:
         )
 
         if address not in ("127.0.0.1", "localhost"):
-            raise ValueError("Notebook applications must bind to loopback; use notebook_url with a trusted proxy for remote access")
+            raise ValueError("Notebook applications must bind to loopback and use a trusted proxy for remote access")
 
         if isinstance(application, (str, OSPathLike, ModuleType)):
             from ..command.util import build_single_handler_application
@@ -242,6 +242,7 @@ class NotebookApplication:
             configured_url = _update_notebook_url_from_env(notebook_url or DEFAULT_JUPYTER_URL)
         else:
             configured_url = None
+        self._accept_frontend_proxy = configured_url is None
 
         if callable(configured_url):
             origins = [_authorized_origin(configured_url(None))]
@@ -325,6 +326,27 @@ class NotebookApplication:
             raise RuntimeError("This notebook application has been stopped; call serve(...) to create a new one")
         return self._url
 
+    def _resolve_browser_url(self, value: Any) -> str:
+        if not self._accept_frontend_proxy or value is None or value == self._url:
+            return self._url.rstrip("/")
+        if not isinstance(value, str):
+            raise ValueError("the notebook frontend returned a non-string application URL")
+        parsed = urlparse(value)
+        expected_path = f"/proxy/{self.port}/{self._prefix}/"
+        if (
+            parsed.scheme not in ("http", "https")
+            or not parsed.netloc
+            or parsed.hostname is None
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.query
+            or parsed.fragment
+            or not parsed.path.endswith(expected_path)
+        ):
+            raise ValueError("the notebook frontend returned an invalid Jupyter application proxy URL")
+        self._asgi.core.websocket_origins.add(parsed.netloc)
+        return value.rstrip("/")
+
     def stop(self) -> None:
         ''' Stop the ASGI host and wait for orderly Bokeh session shutdown. '''
         with self._stop_lock:
@@ -361,8 +383,10 @@ def serve(application: Application | Callable[[Document], None] | ModuleType | s
             An Application, document-modifying callable, imported Python
             module, ``.py`` or ``.ipynb`` path, or directory-style app.
         notebook_url:
-            Public notebook/proxy URL or a callable that maps the private port
-            to a browser-reachable URL.
+            Optional public proxy URL or callable for notebook hosts that
+            cannot resolve kernel-local ports. JupyterLab and Notebook 7
+            discover their browser route automatically when
+            ``jupyter-server-proxy`` is installed.
         port:
             Loopback port, or zero to allocate an unused port.
         key:

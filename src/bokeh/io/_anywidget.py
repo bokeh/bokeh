@@ -15,6 +15,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Literal,
+    TypedDict,
     cast,
 )
 
@@ -26,6 +28,34 @@ if TYPE_CHECKING:
     from .notebook import ApplicationViewHandle, DocumentViewHandle
 
 _ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
+
+
+class _ResourceResponse(TypedDict):
+    kind: Literal["resource"]
+    request_id: str
+    record: dict[str, Any]
+
+
+class _ResourceError(TypedDict):
+    kind: Literal["resource_error"]
+    request_id: str
+    code: Literal["RESOURCE_RECORD_MISSING"]
+    message: str
+
+
+def _resource_reply(request_id: object, resource_id: object,
+        records: Mapping[str, dict[str, Any]]) -> _ResourceResponse | _ResourceError:
+    normalized_request_id = request_id if isinstance(request_id, str) else ""
+    if normalized_request_id and isinstance(resource_id, str) and resource_id:
+        record = records.get(resource_id)
+        if record is not None:
+            return _ResourceResponse(kind="resource", request_id=normalized_request_id, record=record)
+    return _ResourceError(
+        kind="resource_error",
+        request_id=normalized_request_id,
+        code="RESOURCE_RECORD_MISSING",
+        message=f"The shared BokehJS resource {resource_id!s} is unavailable.",
+    )
 
 
 class _WidgetComm:
@@ -101,32 +131,27 @@ class _DisplayWidget(anywidget.AnyWidget):
         return data, metadata
 
     def _receive(self, _widget: Any, content: dict[str, Any], _buffers: list[Any]) -> None:
-        kind = content.get("kind")
-        if kind == "ready":
-            if self._transport.closed:
-                self._transport = _WidgetComm(self)
-            self._connected = True
-            if self._handle is not None:
-                self._handle._connect(cast(Any, self._transport))
-        elif kind == "request_resource":
-            request_id = content.get("request_id")
-            resource_id = content.get("resource_id")
-            if isinstance(request_id, str) and request_id and isinstance(resource_id, str) and resource_id:
-                record = self._records.get(resource_id)
-                if record is not None:
-                    self.send({"kind": "resource", "request_id": request_id, "record": record})
-                    return
-            self.send({
-                "kind": "resource_error",
-                "request_id": request_id,
-                "code": "RESOURCE_RECORD_MISSING",
-                "message": f"The shared BokehJS resource {resource_id!s} is unavailable.",
-            })
-        elif kind == "disposed":
-            self._transport.frontend_closed()
-            self._connected = False
-        elif kind == "resync":
-            self._transport.frontend_message(content)
+        match content.get("kind"):
+            case "ready":
+                if self._transport.closed:
+                    self._transport = _WidgetComm(self)
+                self._connected = True
+                if self._handle is not None:
+                    from .notebook import ApplicationViewHandle
+
+                    if isinstance(self._handle, ApplicationViewHandle):
+                        self._handle._connect(cast(Any, self._transport), content.get("application_url"))
+                    else:
+                        self._handle._connect(cast(Any, self._transport))
+            case "request_resource":
+                self.send(_resource_reply(
+                    content.get("request_id"), content.get("resource_id"), self._records,
+                ))
+            case "disposed":
+                self._transport.frontend_closed()
+                self._connected = False
+            case "resync":
+                self._transport.frontend_message(content)
 
 
 def display_widget(payload: Mapping[str, Any], html: str, records: dict[str, dict[str, Any]], *,
