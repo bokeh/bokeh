@@ -363,7 +363,7 @@ async function run_angular_lifecycle_page(url) {
     }
 
     await invoke("toggleDocument")
-    state = await wait_for((state) => state.disposals == 2 && state.views == 0,
+    await wait_for((state) => state.disposals == 2 && state.views == 0,
       "Angular final unmount didn't dispose exactly once")
     assert_page_clean(exceptions, network_errors, "packed Angular lifecycle")
     console.log(`passed packed Angular lifecycle: ${url}`)

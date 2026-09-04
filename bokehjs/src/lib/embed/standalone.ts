@@ -154,6 +154,24 @@ export class StandaloneMount {
     return key
   }
 
+  private async _wait_for_finished(view: View): Promise<void> {
+    if (view.has_finished()) {
+      return
+    }
+    await new Promise<void>((resolve) => {
+      const done = () => {
+        view.finished.disconnect(done)
+        view.removed.disconnect(done)
+        resolve()
+      }
+      view.finished.connect(done)
+      view.removed.connect(done)
+      if (view.has_finished() || view.is_destroyed) {
+        done()
+      }
+    })
+  }
+
   async attach(key: string, target: EmbedTarget): Promise<View | null> {
     this._check_active()
     const model = this.roots.get(key)
@@ -196,13 +214,13 @@ export class StandaloneMount {
         view.build(target)
       }
       await view.ready
+      await this._wait_for_finished(view)
       this._check_active()
       if (this._render_tokens.get(key) != token || !this.document.roots().includes(model)) {
         view.remove()
         return null
       }
 
-      this.document.notify_idle(model)
       this._root_views.set(key, view)
       this.on_targets_changed?.()
       return view
