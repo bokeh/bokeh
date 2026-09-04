@@ -1,3 +1,4 @@
+# External imports
 import marimo
 
 __generated_with = "0.24.0"
@@ -18,6 +19,7 @@ def _():
 @app.cell
 def _():
     import marimo as mo
+
     from bokeh.io import show
     from bokeh.models import HoverTool
     from bokeh.plotting import figure
