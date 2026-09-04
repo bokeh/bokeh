@@ -19,21 +19,8 @@ runs:
       run: pixi run --locked --environment build build-js
 
     - name: Build first-party Jupyter extension
-      working-directory: ./src/bokeh/jupyter/frontend
       shell: bash --noprofile --norc -eo pipefail {0}
-      run: |
-        pixi run --locked --environment build npm ci --no-progress
-        pixi run --locked --environment build npm run build
-
-    - name: Verify generated Jupyter assets are committed
-      shell: bash --noprofile --norc -eo pipefail {0}
-      run: |
-        test -f src/bokeh/jupyter/anywidget.js
-        test -f src/bokeh/jupyter/labextension/package.json
-        test -f src/bokeh/jupyter/labextension/install.json
-        find src/bokeh/jupyter/labextension/static -name 'remoteEntry.*.js' -print -quit | grep -q .
-        git diff --exit-code -- src/bokeh/jupyter/anywidget.js src/bokeh/jupyter/labextension
-        test -z "$(git ls-files --others --exclude-standard -- src/bokeh/jupyter/anywidget.js src/bokeh/jupyter/labextension)"
+      run: pixi run --locked --environment build jupyter-verify
 
     - name: Build pip packages
       shell: bash --noprofile --norc -eo pipefail {0}

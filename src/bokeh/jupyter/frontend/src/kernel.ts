@@ -2,11 +2,9 @@ import {Kernel} from "@jupyterlab/services"
 import {ReadonlyJSONObject} from "@lumino/coreutils"
 
 import {ContextManager} from "./context"
-import {BokehNotebookError} from "./protocol"
+import {BokehNotebookError, NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET} from "./protocol"
 import {ApplicationViewConnection, KernelProxy, LiveConnection, ResourceRecord} from "./runtime"
-
-const RESOURCE_COMM_TARGET = "bokeh.resources.v1"
-const NOTEBOOK_COMM_TARGET = "bokeh.notebook.v1"
+import {dataViews, LiveRevisionTransport, withTimeout} from "./transport"
 
 export function safelyCloseComm(comm: Kernel.IComm): void {
   try {
@@ -17,55 +15,38 @@ export function safelyCloseComm(comm: Kernel.IComm): void {
   }
 }
 
-function views(buffers: readonly (ArrayBuffer | ArrayBufferView)[] | undefined): DataView[] {
-  return (buffers ?? []).map((buffer) => {
-    if (buffer instanceof DataView) return buffer
-    if (ArrayBuffer.isView(buffer)) return new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength)
-    return new DataView(buffer)
-  })
-}
-
 export function kernelProxy(manager: ContextManager): KernelProxy {
   const current = () => manager.context.sessionContext.session?.kernel
   return {
+    scope: manager,
     requestResource: async (resourceId) => {
       await manager.context.sessionContext.ready
       const kernel = current()
       if (kernel == null) throw new Error("The notebook kernel is not connected")
-      return new Promise<ResourceRecord>((resolve, reject) => {
-        const comm = kernel.createComm(RESOURCE_COMM_TARGET)
-        let settled = false
-        const timer = window.setTimeout(() => {
-          if (settled) return
-          settled = true
-          reject(new Error(`The kernel did not return resource ${resourceId}`))
-          safelyCloseComm(comm)
-        }, 5000)
+      const comm = kernel.createComm(RESOURCE_COMM_TARGET)
+      const response = new Promise<ResourceRecord>((resolve, reject) => {
         comm.onMsg = (message) => {
-          if (settled) return
-          settled = true
-          window.clearTimeout(timer)
           const data = message.content.data as ReadonlyJSONObject
           if (data.error != null) reject(new Error(String(data.message ?? data.error)))
           else resolve(data as unknown as ResourceRecord)
-          safelyCloseComm(comm)
         }
         comm.onClose = () => {
-          if (settled) return
-          settled = true
-          window.clearTimeout(timer)
           reject(new Error(`The kernel closed before returning resource ${resourceId}`))
         }
         try {comm.open({resource_id: resourceId})}
         catch (error) {
-          if (!settled) {
-            settled = true
-            window.clearTimeout(timer)
-            reject(error)
-          }
-          safelyCloseComm(comm)
+          reject(error)
         }
       })
+      try {
+        return await withTimeout(
+          response,
+          5000,
+          new Error(`The kernel did not return resource ${resourceId}`),
+        )
+      } finally {
+        safelyCloseComm(comm)
+      }
     },
     openLive: async (liveId) => {
       await manager.context.sessionContext.ready
@@ -73,8 +54,10 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
       if (kernel == null) throw new Error("The notebook kernel is not connected")
       return new Promise<LiveConnection>((resolve, reject) => {
         const comm = kernel.createComm(NOTEBOOK_COMM_TARGET)
-        const queued: Array<{message: any, buffers: DataView[]}> = []
-        let receive: ((message: any, buffers: DataView[]) => void) | undefined
+        const revisions = new LiveRevisionTransport(() => {
+          try {comm.send({kind: "resync"})}
+          catch { /* A closed connection recovers on the next renderer mount. */ }
+        })
         let receiveClose: (() => void) | undefined
         let settled = false
         let closed = false
@@ -90,31 +73,31 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           ))
           safelyCloseComm(comm)
         }, 5000)
-        const connection = (artifactJson: string, revision: number): LiveConnection => ({
+        const connection = (artifactJson: string, resourceId: string, revision: number): LiveConnection => ({
           artifactJson,
+          resourceId,
           revision,
           onMessage(callback) {
-            receive = callback
-            for (const item of queued.splice(0)) callback(item.message, item.buffers)
+            revisions.subscribe(callback)
           },
           onClose(callback) {
             receiveClose = callback
             if (closed && !closedByOwner) queueMicrotask(callback)
           },
           requestResync() {
-            try {comm.send({kind: "resync"})}
-            catch { /* A closed connection recovers on the next renderer mount. */ }
+            revisions.requestResync()
           },
           close() {
             if (closed) return
             closedByOwner = true
             closed = true
+            revisions.clear()
             safelyCloseComm(comm)
           },
         })
         comm.onMsg = (message) => {
           const data = message.content.data
-          const buffers = views(message.buffers)
+          const buffers = dataViews(message.buffers)
           if (!settled) {
             const initial = data as ReadonlyJSONObject
             if (initial.kind === "error") {
@@ -126,22 +109,20 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
                 "Re-run the cell that called show(...).",
               ))
               safelyCloseComm(comm)
-            } else if (initial.kind === "snapshot" && typeof initial.artifact === "string" && Number.isSafeInteger(initial.revision)) {
+            } else if (initial.kind === "snapshot" && typeof initial.artifact === "string" &&
+                typeof initial.resource_id === "string" && Number.isSafeInteger(initial.revision)) {
               settled = true
               window.clearTimeout(timer)
-              resolve(connection(initial.artifact, initial.revision as number))
+              resolve(connection(initial.artifact, initial.resource_id, initial.revision as number))
             }
             return
           }
-          const kind = (data as ReadonlyJSONObject)?.kind
-          if (kind === "patch" || kind === "snapshot") {
-            if (receive == null) queued.push({message: data, buffers})
-            else receive(data, buffers)
-          }
+          revisions.receive(data, buffers)
         }
         comm.onClose = () => {
           const wasClosed = closed
           closed = true
+          revisions.clear()
           if (!settled) {
             settled = true
             window.clearTimeout(timer)

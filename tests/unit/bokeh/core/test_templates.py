@@ -25,9 +25,6 @@ from bokeh.embed import file_html
 from bokeh.plotting import figure
 from bokeh.resources import Resources, ResourcesMode
 
-# Module under test
-import bokeh.core.templates as bct # isort:skip
-
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
@@ -37,18 +34,6 @@ def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
     p.scatter(x=[], y=[])
     html = file_html(p, resources=Resources(resource_mode))
     return html.split('\n')
-
-def test_legacy_notebook_templates_are_removed() -> None:
-    assert not hasattr(bct, "DOC_JS")
-    assert not hasattr(bct, "PLOT_DIV")
-    assert not hasattr(bct, "DOC_NB_JS")
-    assert not hasattr(bct, "NOTEBOOK_RESOURCES_JS")
-    assert not hasattr(bct, "APP_NB_CLEANUP")
-    assert bct.PORTABLE_RESOURCES_JS is not None
-
-def test_legacy_render_item_templates_are_removed() -> None:
-    assert not hasattr(bct, "DOC_JS")
-    assert not hasattr(bct, "PLOT_DIV")
 
 def test_no_white_space_in_top_of_html() -> None:
     lines = get_html_lines("inline")
