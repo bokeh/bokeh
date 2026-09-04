@@ -75,6 +75,19 @@ class Test__base_version_helper:
         assert buv._base_version_helper("0.2.3.rc2") == "0.2.3"
         assert buv._base_version_helper("1.2.3.rc10") == "1.2.3"
 
+
+class Test__bokehjs_version:
+    @pytest.mark.parametrize(
+        ("version", "expected"),
+        [
+            ("4.0.0", "4.0.0"),
+            ("4.0.0rc12", "4.0.0-rc.12"),
+            ("10.20.30.dev42", "10.20.30-dev.42"),
+        ],
+    )
+    def test_converts_python_versions_to_npm_versions(self, version: str, expected: str) -> None:
+        assert buv._bokehjs_version(version) == expected
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
