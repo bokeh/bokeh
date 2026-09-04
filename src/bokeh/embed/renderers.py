@@ -20,7 +20,12 @@ from typing import TYPE_CHECKING, Any, Mapping
 from ..core.templates import FILE, MACROS, get_env
 from ..document import DEFAULT_TITLE
 from .artifact import EMBED_ARTIFACT_MIME_TYPE, EmbedArtifact
-from .resources import ResolvedResource, ResolvedResources, ResourcePolicy
+from .resources import (
+    ResolvedResource,
+    ResolvedResources,
+    ResourcePolicy,
+    ResourceRequirements,
+)
 
 if TYPE_CHECKING:
     from jinja2 import Template
@@ -30,12 +35,19 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class ArtifactMount:
+    '''One logical root key and its declarative target markup.'''
     key: str
     html: str
 
 
 @dataclass(frozen=True)
 class ArtifactFragment:
+    '''Composable artifact output for insertion into an existing page.
+
+    ``mounts`` and ``divs`` expose caller-placeable targets; ``script`` contains
+    payload/bootstrap declarations; ``resources`` records the resolved host
+    policy; ``build_fingerprint`` includes renderer and policy choices.
+    '''
     artifact: EmbedArtifact
     mounts: tuple[ArtifactMount, ...]
     script: str
@@ -44,7 +56,8 @@ class ArtifactFragment:
     html: str
 
     @property
-    def requirements(self):
+    def requirements(self) -> ResourceRequirements:
+        '''Resource requirements declared by the underlying artifact.'''
         return self.artifact.requires
 
     @property
@@ -54,6 +67,7 @@ class ArtifactFragment:
 
 @dataclass(frozen=True)
 class ExternalArtifact:
+    '''Declarative targets and bootstrap for an externally stored JSON artifact.'''
     artifact: EmbedArtifact
     payload_url: str
     mounts: tuple[ArtifactMount, ...]
@@ -64,11 +78,13 @@ class ExternalArtifact:
 
     @property
     def payload(self) -> str:
+        '''Return the JSON text a host should store at ``payload_url``.'''
         return self.artifact.to_json_string()
 
 
 def render_fragment(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resources | str | None = "none",
         bootstrap_url: str | None = None) -> ArtifactFragment:
+    '''Render an artifact for composition inside a host-owned HTML page.'''
     policy = ResourcePolicy.build(resources)
     _validate_resource_version(artifact, policy)
     resolved = policy.resolve(artifact.requires)
@@ -95,6 +111,7 @@ def render_fragment(artifact: EmbedArtifact, *, resources: ResourcePolicy | Reso
 def render_external(artifact: EmbedArtifact, *, payload_url: str,
         resources: ResourcePolicy | Resources | str | None = "none",
         bootstrap_url: str | None = None) -> ExternalArtifact:
+    '''Render a declaration that fetches artifact JSON from ``payload_url``.'''
     if not payload_url:
         raise ValueError("external artifact rendering requires a non-empty payload_url")
     policy = ResourcePolicy.build(resources)
@@ -117,6 +134,7 @@ def render_external(artifact: EmbedArtifact, *, payload_url: str,
 def render_page(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resources | str | None = None,
         title: str | None = None, template: Template | str | Path | None = None,
         template_variables: Mapping[str, Any] | None = None, bootstrap_url: str | None = None) -> str:
+    '''Render a complete HTML document with resolved resources and targets.'''
     policy = ResourcePolicy.build(resources)
     _validate_resource_version(artifact, policy)
     resolved = policy.resolve(artifact.requires)
@@ -167,6 +185,7 @@ def render_page(artifact: EmbedArtifact, *, resources: ResourcePolicy | Resource
 
 
 def render_mimebundle(artifact: EmbedArtifact) -> dict[str, Any]:
+    '''Return artifact, HTML fallback, and text representations for rich display.'''
     fragment = render_fragment(artifact, resources="none")
     return {
         EMBED_ARTIFACT_MIME_TYPE: artifact.to_dict(),

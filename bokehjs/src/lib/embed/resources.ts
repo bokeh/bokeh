@@ -2,6 +2,7 @@ import {version as js_version} from "../version"
 import {is_equal} from "../core/util/eq"
 import {Version} from "../core/util/version"
 
+/** BokehJS bundle capability that an artifact may require. */
 export type ResourceComponent =
   | "bokeh/core"
   | "bokeh/widgets"
@@ -10,6 +11,7 @@ export type ResourceComponent =
   | "bokeh/mathjax"
   | "bokeh/api"
 
+/** Concrete external or inline script/style declaration. */
 export type ResourceAsset = {
   kind: "script" | "style"
   url?: string
@@ -20,16 +22,19 @@ export type ResourceAsset = {
   module?: boolean
 }
 
+/** Named extension and the assets it contributes. */
 export type ExtensionRequirement = {
   name: string
   assets: ResourceAsset[]
 }
 
+/** Exact capabilities and extensions declared by an artifact. */
 export type ResourceRequirements = {
   components: ResourceComponent[]
   extensions: ExtensionRequirement[]
 }
 
+/** Supported host strategies for satisfying requirements. */
 export type ResourcePolicyMode =
   | "none"
   | "auto"
@@ -41,6 +46,7 @@ export type ResourcePolicyMode =
   | "offline"
   | "resolved"
 
+/** Host-owned resource resolution, security, and retry choices. */
 export type ResourcePolicy = ResourcePolicyMode | {
   mode: ResourcePolicyMode
   version?: string
@@ -54,6 +60,7 @@ export type ResourcePolicy = ResourcePolicyMode | {
   assets?: ResourceAsset[]
 }
 
+/** Structured policy, conflict, load, or version failure. */
 export class ResourceError extends Error {
   override readonly name = "BokehResourceError"
 
@@ -190,6 +197,11 @@ function validate_assets(assets: ResourceAsset[], policy: NormalizedPolicy, mode
   return assets
 }
 
+/**
+ * Page-shared promise registry for additive artifact resources.
+ * Concurrent identical declarations share a promise; conflicting declarations
+ * fail, and a failed entry may be retried only when policy opts in.
+ */
 export class ResourceLoader {
   private readonly _registry = new Map<string, Promise<void>>()
   private readonly _declarations = new Map<string, string>()
@@ -199,12 +211,14 @@ export class ResourceLoader {
     return this._registry.size
   }
 
+  /** Forget loader bookkeeping; intended for isolated hosts and tests. */
   clear(): void {
     this._registry.clear()
     this._declarations.clear()
     this._states.clear()
   }
 
+  /** Resolve and load every required asset before artifact deserialization. */
   async ensure(requirements: ResourceRequirements, policy: ResourcePolicy = "auto",
       artifact_version: string = js_version): Promise<void> {
     const normalized = normalize_policy(policy)
@@ -307,4 +321,5 @@ export class ResourceLoader {
   }
 }
 
+/** Shared loader used by every artifact mount on the page. */
 export const resource_loader = new ResourceLoader()

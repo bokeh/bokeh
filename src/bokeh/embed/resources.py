@@ -65,6 +65,7 @@ class ResourceConflictError(ValueError):
 
 @dataclass(frozen=True)
 class ResourceAssetRequirement:
+    '''One extension asset required by an artifact, before host resolution.'''
     kind: Literal["script", "style"]
     url: str | None = None
     content: str | None = None
@@ -100,6 +101,7 @@ class ResourceAssetRequirement:
 
 @dataclass(frozen=True)
 class ExtensionRequirement:
+    '''Named extension and its ordered script/style requirements.'''
     name: str
     assets: tuple[ResourceAssetRequirement, ...] = ()
 
@@ -116,6 +118,7 @@ class ExtensionRequirement:
 
 @dataclass(frozen=True)
 class ResourceRequirements:
+    '''Exact runtime components and extension assets declared by artifacts.'''
     components: tuple[ResourceComponent, ...] = ("bokeh/core",)
     extensions: tuple[ExtensionRequirement, ...] = ()
 
@@ -144,11 +147,32 @@ class ResourceRequirements:
 
     @classmethod
     def dynamic_server(cls) -> ResourceRequirements:
+        '''Return the conservative requirement set for an unknown live document.'''
         return cls(("bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax", "bokeh/api"))
+
+    @classmethod
+    def union(cls, *requirements: ResourceRequirements) -> ResourceRequirements:
+        """Return a deterministic exact union of resource requirements."""
+        components = tuple(
+            component for component in _COMPONENT_NAMES
+            if any(component in requirement.components for requirement in requirements)
+        )
+        extensions: dict[str, list[ResourceAssetRequirement]] = {}
+        for requirement in requirements:
+            for extension in requirement.extensions:
+                assets = extensions.setdefault(extension.name, [])
+                for asset in extension.assets:
+                    if asset not in assets:
+                        assets.append(asset)
+        return cls(
+            components,
+            tuple(ExtensionRequirement(name, tuple(assets)) for name, assets in sorted(extensions.items())),
+        )
 
 
 @dataclass(frozen=True)
 class ResolvedResource:
+    '''One concrete script or style selected by a host resource policy.'''
     kind: Literal["script", "style"]
     url: str | None = None
     content: str | None = None
@@ -174,6 +198,7 @@ class ResolvedResource:
 
 @dataclass(frozen=True)
 class ResolvedResources:
+    '''Requirements plus the policy and concrete assets that satisfy them.'''
     requirements: ResourceRequirements
     policy: ResourcePolicy
     assets: tuple[ResolvedResource, ...] = ()
@@ -200,6 +225,14 @@ class ResolvedResources:
 
 @dataclass(frozen=True)
 class ResourcePolicy:
+    '''Host-owned rules for satisfying artifact resource requirements.
+
+    ``none`` emits nothing and assigns complete responsibility to the host.
+    ``offline`` permits only inline/local content and rejects external URLs.
+    Other modes resolve matching Bokeh bundles through CDN, server, filesystem,
+    or explicit paths. CSP, SRI, and retry choices belong to policy rather than
+    the reusable artifact.
+    '''
     mode: ResourcePolicyMode = "cdn"
     version: str = __version__.split("+")[0]
     minified: bool = True
@@ -232,6 +265,7 @@ class ResourcePolicy:
 
     @classmethod
     def build(cls, value: ResourcePolicy | Resources | str | None = None, **overrides: Any) -> ResourcePolicy:
+        '''Normalize a policy, legacy ``Resources`` object, mode name, or default.'''
         if isinstance(value, ResourcePolicy):
             if not overrides:
                 return value
@@ -275,6 +309,7 @@ class ResourcePolicy:
         return result
 
     def resolve(self, requirements: ResourceRequirements) -> ResolvedResources:
+        '''Resolve exact requirements or raise an actionable policy conflict.'''
         if self.mode == "none":
             return ResolvedResources(requirements, self)
 
@@ -359,6 +394,7 @@ _COMPONENT_NAMES: dict[ResourceComponent, Component] = {
 
 
 def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequirements:
+    '''Inspect Bokeh objects and return their exact component/extension requirements.'''
     all_objs = _all_objs(objs)
     components: list[ResourceComponent] = ["bokeh/core"]
     if _use_widgets(all_objs):
