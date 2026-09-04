@@ -61,7 +61,7 @@ from typing import Any
 from tornado.web import RequestHandler
 
 # Bokeh imports
-from ..embed.bundle import extension_dirs
+from ..embed.resources import extension_dirs
 from .views.doc_handler import DocHandler
 from .views.embed_json_handler import EmbedJsonHandler
 from .views.metadata_handler import MetadataHandler

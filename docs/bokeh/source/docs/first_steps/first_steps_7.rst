@@ -18,18 +18,16 @@ All examples so far have used the |show| function to save your visualization to
 an HTML file. This HTML file contains all the necessary information to display
 your plot.
 
-To customize the file Bokeh creates for your visualization, import and call the
-|output_file| function. ``output_file()`` accepts various file-related
-arguments. For example:
+To customize the file Bokeh creates for your visualization, pass file-related
+arguments directly to |show| or |save|. For example:
 
 * ``filename``: the filename for the HTML file
-* ``title``: the title for you document (to be used in the HTML's ``<title>``
+* ``title``: the title for your document (to be used in the HTML's ``<title>``
   tag)
 
-If you don't use the ``output_file()`` function to define a custom file name,
-Bokeh defaults to using the file name of the currently running Python script for
-the filename of the HTML output. If a script filename is not available (for
-instance, in a Jupyter notebook), then Bokeh will generate a random filename.
+When |show| is called outside a notebook without a filename, Bokeh generates a
+temporary HTML filename. When |save| is called without a filename, Bokeh derives
+the output name from the currently running Python script when possible.
 
 Bokeh creates the HTML file when you call the |show| function. This function
 also automatically opens a web browser to display the HTML file.
@@ -37,12 +35,11 @@ also automatically opens a web browser to display the HTML file.
 If you want Bokeh to only generate the file but not open it in a web browser,
 use the |save| function instead.
 
-You need to import the |save| and |output_file| functions before using,
-just like you did for |show|.
+You need to import |save| before using it, just like you did for |show|.
 
 .. literalinclude:: examples/first_steps_7_export_html.py
    :language: python
-   :emphasize-lines: 1,8,17
+   :emphasize-lines: 1,14
 
 .. seealso::
     For more information on embedding Bokeh visualizations online, see
@@ -50,10 +47,9 @@ just like you did for |show|.
 
 .. note::
     By default, Bokeh-generated HTML files include a standard version of BokehJS
-    that is automatically downloaded from Bokeh's servers. Use the argument
-    ``mode`` with the function ``output_file()`` to change this behavior. For
-    more information, see |output_file| and :class:`~bokeh.resources.Resources`
-    in the reference guide.
+    that is automatically downloaded from Bokeh's servers. Pass a
+    :class:`~bokeh.resources.Resources` or a mode string through the
+    ``resources`` argument to change this behavior.
 
 .. _first_steps_7_jupyter_notebook:
 
