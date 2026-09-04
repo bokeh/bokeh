@@ -9,6 +9,7 @@ from __future__ import annotations
 
 # Standard library imports
 import inspect
+from pathlib import Path
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
@@ -141,13 +142,16 @@ def test_show_rejects_bad_object(obj: object) -> None:
 
 
 @patch("bokeh.io.showing.get_browser_controller")
-@patch("bokeh.io.showing.save", return_value="/tmp/saved.html")
-def test_show_file_saves_then_opens_browser(mock_save: MagicMock, mock_get_browser_controller: MagicMock) -> None:
+@patch("bokeh.io.showing.save")
+def test_show_file_saves_then_opens_browser(mock_save: MagicMock, mock_get_browser_controller: MagicMock,
+        tmp_path: Path) -> None:
     controller = mock_get_browser_controller.return_value
+    saved = tmp_path / "saved.html"
+    mock_save.return_value = str(saved)
 
     m._show_file("obj", filename="plot.html", resources="cdn", title="Plot", template=None)  # type: ignore[arg-type]
 
     mock_save.assert_called_once_with(
         "obj", filename="plot.html", resources="cdn", title="Plot", template=None,
     )
-    controller.open.assert_called_once_with("file:///tmp/saved.html", new=2)
+    controller.open.assert_called_once_with(saved.as_uri(), new=2)
