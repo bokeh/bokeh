@@ -1,12 +1,14 @@
 import type {BokehMount} from "@bokeh/bokehjs"
-import {defineBokehElement} from "@bokeh/web-component"
-import type {BokehElement} from "@bokeh/web-component"
+import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement} from "@bokeh/web-component"
+import type {BokehDocumentElement, BokehElement, BokehRootElement} from "@bokeh/web-component"
 
 import {configure_hmr, install_framework_test} from "../shared"
 
 const container = document.querySelector<HTMLElement>("#app")!
 const PrimaryElement = defineBokehElement("bokeh-ci-plot")
 const SecondaryElement = defineBokehElement("bokeh-ci-secondary")
+defineBokehDocumentElement("bokeh-ci-document")
+defineBokehRootElement("bokeh-ci-root")
 if (PrimaryElement == SecondaryElement) {
   throw new Error("different custom-element names unexpectedly reused one constructor")
 }
@@ -24,6 +26,31 @@ try {
 }
 
 install_framework_test("web-component-webpack", ({model, mountOptions, onMounted, onError}) => {
+  if (Array.isArray(model)) {
+    const host = document.createElement("div")
+    const provider = document.createElement("bokeh-ci-document") as BokehDocumentElement
+    provider.models = model
+    provider.mountOptions = mountOptions
+    provider.addEventListener("bokeh-mount", (event) => onMounted((event as CustomEvent<BokehMount>).detail), {once: true})
+    provider.addEventListener("bokeh-mount-error", (event) => onError((event as CustomEvent<unknown>).detail), {once: true})
+    const first = document.createElement("bokeh-ci-root") as BokehRootElement
+    first.className = "bokeh-target"
+    first.model = model[0]
+    first.bokehDocument = provider
+    const second = document.createElement("bokeh-ci-root") as BokehRootElement
+    second.className = "bokeh-target"
+    second.model = model[1]
+    second.bokehDocument = provider
+    const content = document.createElement("p")
+    content.textContent = "ordinary DOM content between roots"
+    host.append(provider, first, content, second)
+    container.append(host)
+    return {
+      target: () => first,
+      unmount: () => host.remove(),
+    }
+  }
+
   const element = document.createElement("bokeh-ci-plot") as BokehElement
   element.model = model
   element.mountOptions = mountOptions
