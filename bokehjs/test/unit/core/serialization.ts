@@ -364,6 +364,20 @@ describe("core/serialization module", () => {
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
     })
 
+    it("resolves references declared later in the payload", () => {
+      const resolver = new ModelResolver(null, [SomeModel])
+      const deserializer = new Deserializer(resolver)
+      const rep = [
+        {type: "object", name: "SomeModel", attributes: {obj: {id: "later"}}},
+        {type: "object", name: "SomeModel", id: "later", attributes: {value: 2}},
+      ]
+
+      const [first, later] = deserializer.decode(rep) as SomeModel[]
+
+      expect(first.obj).to.be.equal(later)
+      expect(later.value).to.be.equal(2)
+    })
+
     it("restores existing references when a later value fails", () => {
       const resolver = new ModelResolver(null, [SomeModel])
       const model = SomeModel.create({value: 1})
