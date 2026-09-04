@@ -1,4 +1,4 @@
-export {add_document_standalone, mount_document_standalone, StandaloneMount, index} from "./standalone"
+export {mount_document_standalone, StandaloneMount, index} from "./standalone"
 export type {StandaloneMountOptions} from "./standalone"
 export {add_document_from_session} from "./server"
 export {embed_items_notebook, kernels} from "./notebook"
@@ -6,9 +6,14 @@ export {
   ArtifactError, compute_embed_artifact_fingerprint, embed_artifact_schema,
   is_embed_artifact, validate_embed_artifact,
 } from "./artifact"
-export type {ArtifactRoot, EmbedArtifact, ServerArtifactSource, StandaloneArtifactSource} from "./artifact"
+export type {
+  ArtifactErrorPhase, ArtifactErrorSource, ArtifactRoot, EmbedArtifact,
+  ServerArtifactSource, StandaloneArtifactSource,
+} from "./artifact"
 export {ResourceError, ResourceLoader, resource_loader} from "./resources"
-export type {ResourceAsset, ResourceComponent, ResourcePolicy, ResourceRequirements} from "./resources"
+export type {
+  ExtensionRequirement, ResourceAsset, ResourceComponent, ResourcePolicy, ResourcePolicyMode, ResourceRequirements,
+} from "./resources"
 
 export class EmbedMigrationError extends Error {
   override readonly name = "BokehEmbedMigrationError"
