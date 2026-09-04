@@ -215,7 +215,7 @@ def _template_roots(artifact: EmbedArtifact, mounts: tuple[ArtifactMount, ...]) 
         for descriptor, mount in zip(artifact.roots, mounts):
             assert descriptor.document is not None and descriptor.root is not None
             root = documents[descriptor.document]["roots"][descriptor.root]
-            attributes = root.get("attributes", {})
+            attributes = root if "$type" in root else root.get("attributes", {})
             name = attributes.get("name")
             if isinstance(name, str) and name:
                 aliases.setdefault(name, mount)

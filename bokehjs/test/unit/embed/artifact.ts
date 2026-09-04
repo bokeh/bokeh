@@ -5,6 +5,7 @@ import {
   BOKEH_MOUNTED_ATTRIBUTE, mount, mount_artifact_declaration, MountError, type MountErrorPhase, when_mounted,
 } from "@bokehjs/api/io"
 import {ModelResolver} from "@bokehjs/core/resolvers"
+import {to_object} from "@bokehjs/core/util/object"
 import {documents} from "@bokehjs/document"
 import type {EmbedArtifact} from "@bokehjs/embed/artifact"
 import {ArtifactError, compute_embed_artifact_fingerprint, validate_embed_artifact} from "@bokehjs/embed/artifact"
@@ -99,6 +100,25 @@ describe("EmbedArtifact runtime", () => {
     expect(mounted.disposed).to.be.true
     expect(documents.length).to.be.equal(documents_before)
     target.remove()
+  })
+
+  it("mounts compact shared and cyclic model data", async () => {
+    const artifact = await mountable_fixture("standalone-compact-roots")
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const mounted = mount(artifact, {resources: "none", resolver})
+    try {
+      await mounted.ready
+      const primary = mounted.root("primary")
+      const secondary = mounted.root("secondary")
+      expect_instanceof(primary, CustomJS)
+      expect_instanceof(secondary, CustomJS)
+      const shared = to_object(primary.args).shared
+      expect_instanceof(shared, CustomJS)
+      expect(to_object(secondary.args).shared).to.be.equal(shared)
+      expect(to_object(shared.args).self).to.be.equal(shared)
+    } finally {
+      await mounted.dispose()
+    }
   })
 
   it("creates independent documents for repeated mounts of one artifact", async () => {
@@ -557,18 +577,20 @@ describe("EmbedArtifact runtime", () => {
 
   it("waits for existing loading resources and validates their declarations", async () => {
     const loader = new ResourceLoader()
-    const state = globalThis as typeof globalThis & {artifact_existing?: number}
-    state.artifact_existing = 0
-    const content = "globalThis.artifact_existing += 1"
-    const url = `data:text/javascript,${encodeURIComponent(content)}`
+    const url = "https://example.invalid/existing.js"
     const script = document.createElement("script")
+    script.type = "application/json"
     script.src = url
     script.dataset.bokehResource = "fixture"
     script.dataset.bokehResourceState = "loading"
     document.head.append(script)
 
-    await loader.ensure(core, {mode: "resolved", assets: [{kind: "script", url}]})
-    expect(state.artifact_existing).to.be.equal(1)
+    let loaded = false
+    const loading = loader.ensure(core, {mode: "resolved", assets: [{kind: "script", url}]}).then(() => loaded = true)
+    expect(loaded).to.be.false
+    script.dispatchEvent(new Event("load"))
+    await loading
+    expect(loaded).to.be.true
     expect(script.dataset.bokehResourceState).to.be.equal("loaded")
 
     loader.clear()
@@ -646,17 +668,21 @@ describe("EmbedArtifact runtime", () => {
     expect(error.message.includes("must be resolved by the host")).to.be.true
   })
 
-  it("rejects javascript resource URLs", async () => {
+  async function rejects_resource_url(url: string): Promise<void> {
     const loader = new ResourceLoader()
     const error = await loader.ensure(core, {
       mode: "resolved",
-      assets: [{kind: "script", url: "javascript:alert(1)"}],
+      assets: [{kind: "script", url}],
     }).then(() => null, (error: unknown) => error)
 
     expect_instanceof(error, ResourceError)
     expect(error.kind).to.be.equal("policy")
-    expect(error.message.includes("javascript: URLs")).to.be.true
-  })
+    expect(error.message.includes("URLs are not valid Bokeh resources")).to.be.true
+  }
+
+  it("rejects javascript resource URLs", async () => rejects_resource_url("javascript:alert(1)"))
+  it("rejects data resource URLs", async () => rejects_resource_url("data:text/javascript,alert(1)"))
+  it("rejects vbscript resource URLs", async () => rejects_resource_url("vbscript:alert(1)"))
 
   it("rejects offline URLs and unresolved integrity policies", async () => {
     const loader = new ResourceLoader()
