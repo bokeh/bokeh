@@ -53,23 +53,46 @@ export type StandaloneMountOptions = {
   dispose_document?: boolean
 }
 
+export type StandaloneMountErrorHandler = (error: unknown, root_key?: string) => void
+
+export class StandaloneRootError extends Error {
+  override readonly name = "BokehStandaloneRootError"
+
+  constructor(readonly root_key: string, override readonly cause: unknown) {
+    super(cause instanceof Error ? cause.message : `${cause}`)
+  }
+}
+
 export class StandaloneMount {
   private _disposed = false
   private _on_change?: (event: DocumentChangedEvent) => void
   private readonly _on_abort = () => this.dispose()
+  private readonly _render_tokens = new Map<string, symbol>()
+  private readonly _root_views = new Map<string, View>()
+  private readonly _targets = new Map<string, EmbedTarget>()
+  private _default_target: EmbedTarget | null = null
+  private _use_for_title = false
 
   constructor(
     readonly document: Document,
-    readonly views: ViewManager,
+    readonly roots: Map<string, HasProps>,
     readonly dispose_document: boolean,
     readonly signal?: AbortSignal,
+    readonly on_error?: StandaloneMountErrorHandler,
+    readonly track_document_roots: boolean = false,
   ) {
+    assert(document.views_manager == null)
+    this.views = new ViewManager([], index)
+    document.views_manager = this.views
+
     if (signal?.aborted == true) {
       this.dispose()
     } else {
       signal?.addEventListener("abort", this._on_abort, {once: true})
     }
   }
+
+  readonly views: ViewManager
 
   get disposed(): boolean {
     return this._disposed
@@ -79,6 +102,189 @@ export class StandaloneMount {
     assert(!this._disposed)
     this._on_change = on_change
     this.document.on_change(on_change)
+  }
+
+  get root_keys(): readonly string[] {
+    return [...this.roots.keys()]
+  }
+
+  get root_views(): ReadonlyMap<string, View> {
+    return this._root_views
+  }
+
+  get targets(): ReadonlyMap<string, EmbedTarget> {
+    return this._targets
+  }
+
+  root(key: string): HasProps | null {
+    return this.roots.get(key) ?? null
+  }
+
+  view(key: string): View | null {
+    return this._root_views.get(key) ?? null
+  }
+
+  target(key: string): EmbedTarget | null {
+    return this._targets.get(key) ?? null
+  }
+
+  private _check_active(): void {
+    if (this._disposed) {
+      throw this.signal?.reason ?? new Error("mount was disposed")
+    }
+  }
+
+  private _key_for(model: HasProps): string | null {
+    for (const [key, root] of this.roots) {
+      if (root == model) {
+        return key
+      }
+    }
+    return null
+  }
+
+  private _key_for_added_root(model: HasProps): string {
+    const base = model.id
+    let key = base
+    let suffix = 1
+    while (this.roots.has(key)) {
+      key = `${base}-${suffix++}`
+    }
+    return key
+  }
+
+  async attach(key: string, target: EmbedTarget): Promise<View | null> {
+    this._check_active()
+    const model = this.roots.get(key)
+    if (model == null) {
+      throw new Error(`unknown Bokeh mount root '${key}'`)
+    }
+    if (!this.document.roots().includes(model)) {
+      throw new Error(`Bokeh mount root '${key}' is no longer a document root`)
+    }
+
+    const existing = this._root_views.get(key)
+    if (existing != null) {
+      if (existing instanceof DOMView && this._targets.get(key) != target) {
+        target.appendChild(existing.el)
+      }
+      this._targets.set(key, target)
+      return existing
+    }
+
+    const token = Symbol(key)
+    this._render_tokens.set(key, token)
+    this._targets.set(key, target)
+    if (model.default_view == null) {
+      this.document.notify_idle(model)
+      return null
+    }
+
+    const view = await this.views.build_view(model)
+    try {
+      this._check_active()
+      if (this._render_tokens.get(key) != token || !this.document.roots().includes(model)) {
+        view.remove()
+        return null
+      }
+
+      if (view instanceof DOMView) {
+        view.build(target)
+      }
+      await view.ready
+      this._check_active()
+      if (this._render_tokens.get(key) != token || !this.document.roots().includes(model)) {
+        view.remove()
+        return null
+      }
+
+      this._root_views.set(key, view)
+      return view
+    } catch (error) {
+      this._render_tokens.delete(key)
+      this._targets.delete(key)
+      view.remove()
+      throw error
+    }
+  }
+
+  detach(key: string): void {
+    this._render_tokens.delete(key)
+    this._targets.delete(key)
+    const view = this._root_views.get(key)
+    this._root_views.delete(key)
+    view?.remove()
+  }
+
+  async initialize(default_target: EmbedTarget | null, targets: ReadonlyMap<string, EmbedTarget>,
+      use_for_title: boolean = false): Promise<void> {
+    this._check_active()
+    this._default_target = default_target
+    this._use_for_title = use_for_title
+
+    try {
+      for (const key of this.root_keys) {
+        const target = targets.get(key) ?? default_target
+        if (target != null) {
+          try {
+            await this.attach(key, target)
+          } catch (error) {
+            throw new StandaloneRootError(key, error)
+          }
+        }
+      }
+
+      const {notifications} = this.document.config
+      if (notifications != null && default_target != null) {
+        const view = await this.views.build_view(notifications)
+        try {
+          this._check_active()
+          if (view instanceof DOMView) {
+            view.build(default_target)
+          }
+          await view.ready
+        } catch (error) {
+          view.remove()
+          throw error
+        }
+      }
+
+      if (use_for_title) {
+        window.document.title = this.document.title()
+      }
+
+      this.listen((event) => {
+        if (event instanceof RootAddedEvent && this.track_document_roots) {
+          const key = this._key_for_added_root(event.model)
+          this.roots.set(key, event.model)
+          if (this._default_target != null) {
+            void this.attach(key, this._default_target).catch((error) => this._report_render_error(error, key))
+          }
+        } else if (event instanceof RootRemovedEvent) {
+          const key = this._key_for(event.model)
+          if (key != null) {
+            this.detach(key)
+            this.roots.delete(key)
+          }
+        } else if (this._use_for_title && event instanceof TitleChangedEvent) {
+          window.document.title = event.title
+        }
+      })
+    } catch (error) {
+      this.dispose()
+      throw error
+    }
+  }
+
+  private _report_render_error(error: unknown, root_key?: string): void {
+    if (this._disposed) {
+      return
+    }
+    if (this.on_error != null) {
+      this.on_error(error, root_key)
+    } else {
+      logger.error(`failed to render a dynamically added document root: ${error}`)
+    }
   }
 
   dispose(): void {
@@ -92,7 +298,10 @@ export class StandaloneMount {
       this.document.remove_on_change(this._on_change)
       this._on_change = undefined
     }
+    this._render_tokens.clear()
     this.views.clear()
+    this._root_views.clear()
+    this._targets.clear()
     if (this.document.views_manager == this.views) {
       this.document.views_manager = undefined
     }
@@ -105,94 +314,18 @@ export class StandaloneMount {
 export async function mount_document_standalone(document: Document, element: EmbedTarget,
     options: StandaloneMountOptions = {}): Promise<StandaloneMount> {
   const {roots = [], use_for_title = false, signal, dispose_document = false} = options
-
-  // This is a LOCAL index of views used only by this particular rendering.
-  assert(document.views_manager == null)
-
-  const views = new ViewManager([], index)
-  document.views_manager = views
-  const mount = new StandaloneMount(document, views, dispose_document, signal)
-  const render_tokens = new Map<HasProps, symbol>()
-
-  function check_disposed(): void {
-    if (mount.disposed) {
-      throw signal?.reason ?? new Error("mount was disposed before rendering completed")
+  const root_map = new Map(document.roots().map((model) => [model.id, model]))
+  const root_targets = new Map<string, EmbedTarget>()
+  for (const [i, key] of [...root_map.keys()].entries()) {
+    const target = roots[i]
+    if (target != null) {
+      root_targets.set(key, target)
     }
   }
 
-  async function render_view(model: HasProps): Promise<View> {
-    check_disposed()
-    const view = await views.build_view(model)
-    try {
-      check_disposed()
-
-      if (view instanceof DOMView) {
-        const i = document.all_roots.indexOf(model)
-        const root_el = roots[i] ?? element
-        view.build(root_el)
-      }
-
-      return view
-    } catch (error) {
-      view.remove()
-      throw error
-    }
-  }
-
-  async function render_model(model: HasProps): Promise<void> {
-    const token = Symbol()
-    render_tokens.set(model, token)
-    if (model.default_view != null) {
-      const view = await render_view(model)
-      if (render_tokens.get(model) != token || !document.roots().includes(model)) {
-        view.remove()
-      }
-    } else {
-      document.notify_idle(model)
-    }
-  }
-
-  function unrender_model(model: HasProps): void {
-    render_tokens.delete(model)
-    const view = views.get(model)
-    view?.remove()
-  }
-
-  function report_render_error(error: unknown): void {
-    if (!mount.disposed) {
-      logger.error(`failed to render a dynamically added document root: ${error}`)
-    }
-  }
-
-  try {
-    check_disposed()
-    for (const model of document.all_roots) {
-      await render_model(model)
-    }
-
-    const {notifications} = document.config
-    if (notifications != null) {
-      await render_view(notifications)
-    }
-
-    if (use_for_title) {
-      window.document.title = document.title()
-    }
-
-    mount.listen((event) => {
-      if (event instanceof RootAddedEvent) {
-        void render_model(event.model).catch(report_render_error)
-      } else if (event instanceof RootRemovedEvent) {
-        unrender_model(event.model)
-      } else if (use_for_title && event instanceof TitleChangedEvent) {
-        window.document.title = event.title
-      }
-    })
-    return mount
-  } catch (error) {
-    mount.dispose()
-    throw error
-  }
+  const mount = new StandaloneMount(document, root_map, dispose_document, signal, undefined, true)
+  await mount.initialize(element, root_targets, use_for_title)
+  return mount
 }
 
 export async function add_document_standalone(document: Document, element: EmbedTarget,
