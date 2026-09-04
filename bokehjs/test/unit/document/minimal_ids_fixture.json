@@ -1,23 +1,4 @@
-import type {DocJson} from "@bokehjs/document"
-
-export type RootFixture = {
-  key: string
-  index: number
-}
-
-export type MinimalIDFixture = {
-  name: string
-  roots: RootFixture[]
-  document: DocJson
-}
-
-export type MinimalIDFixtureData = {
-  schema: string
-  cases: MinimalIDFixture[]
-}
-
-// Keep this as strict JSON: the Python fixture test reads the same payload.
-export const fixture_data = JSON.parse(String.raw`{
+{
   "schema": "bokeh.embed.minimal-id-fixtures/v1",
   "cases": [
     {
@@ -140,4 +121,4 @@ export const fixture_data = JSON.parse(String.raw`{
       }
     }
   ]
-}`) as MinimalIDFixtureData
+}
