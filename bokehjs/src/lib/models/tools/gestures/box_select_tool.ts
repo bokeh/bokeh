@@ -235,9 +235,6 @@ export class BoxSelectTool extends RegionSelectTool {
       origin:     [ BoxOrigin, "corner" ],
     }))
 
-    this.register_alias("box_select", () => BoxSelectTool.create())
-    this.register_alias("xbox_select", () => BoxSelectTool.create({dimensions: "width"}))
-    this.register_alias("ybox_select", () => BoxSelectTool.create({dimensions: "height"}))
   }
 
   override initialize(): void {

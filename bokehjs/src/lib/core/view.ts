@@ -50,6 +50,7 @@ type TransitiveOpts = {
 
 export abstract class View implements ISignalable, Equatable {
   readonly removed = new Signal0<this>(this, "removed")
+  readonly finished = new Signal0<this>(this, "finished")
 
   private readonly _abort_controller = new AbortController()
 
@@ -205,14 +206,13 @@ export abstract class View implements ISignalable, Equatable {
   notify_finished(): void {
     if (!this.is_root) {
       this.root.notify_finished()
-    } else {
-      if (!this._idle_notified && this.has_finished()) {
-        const {document} = this.model
-        if (document != null) {
-          this._idle_notified = true
-          document.notify_idle(this.model)
-        }
+    } else if (!this._idle_notified && this.has_finished()) {
+      this._idle_notified = true
+      const {document} = this.model
+      if (document != null) {
+        document.notify_idle(this.model)
       }
+      this.finished.emit()
     }
   }
 

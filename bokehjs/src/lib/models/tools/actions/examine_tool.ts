@@ -69,7 +69,6 @@ export class ExamineTool extends ActionTool {
   static {
     this.prototype.default_view = ExamineToolView
 
-    this.register_alias("examine", () => ExamineTool.create())
   }
 
   override tool_name = "Examine"

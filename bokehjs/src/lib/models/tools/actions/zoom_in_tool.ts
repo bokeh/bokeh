@@ -20,9 +20,6 @@ export class ZoomInTool extends ZoomBaseTool {
   static {
     this.prototype.default_view = ZoomInToolView
 
-    this.register_alias("zoom_in", () => ZoomInTool.create({dimensions: "both"}))
-    this.register_alias("xzoom_in", () => ZoomInTool.create({dimensions: "width"}))
-    this.register_alias("yzoom_in", () => ZoomInTool.create({dimensions: "height"}))
   }
 
   override tool_name = "Zoom In"

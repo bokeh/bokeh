@@ -3,17 +3,17 @@ import {expect} from "#framework/assertions"
 
 import {Div} from "@bokehjs/models/widgets/div"
 import {MathJaxProvider} from "@bokehjs/models/text/providers"
-import {find_tex} from "@bokehjs/models/text/mathjax"
+import {ascii2svg, find_tex, mathml2svg} from "@bokehjs/models/text/mathjax"
 import {build_view} from "@bokehjs/core/build_views"
 import {WidgetView} from "@bokehjs/models/widgets/widget"
 
 function tex2svg(text: string, options: {display: boolean}) {
-  return {outerHTML: `<svg display="${options.display}">${text}</svg>`}
+  return {outerHTML: `<svg display="${options.display}">${text}</svg>`} as HTMLElement
 }
 
 class InternalProvider extends MathJaxProvider {
   get MathJax() {
-    return this.status == "loaded" ? {tex2svg, find_tex} : null
+    return this.status == "loaded" ? {ascii2svg, find_tex, mathml2svg, tex2svg} : null
   }
   async fetch() {
     this.status = "loaded"

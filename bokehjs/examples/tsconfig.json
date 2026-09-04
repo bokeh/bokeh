@@ -8,5 +8,6 @@
     "outDir": "../build/examples"
   },
   "extends": "../tsconfig.base",
-  "include": ["./**/*.ts", "./bokehjs.d.ts"]
+  "include": ["./**/*.ts", "./bokehjs.d.ts"],
+  "exclude": ["./frameworks"]
 }

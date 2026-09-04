@@ -1,5 +1,5 @@
 import {isObject, isArray} from "./core/util/types"
-import {values} from "./core/util/object"
+import {entries} from "./core/util/object"
 import {isString} from "./core/util/types"
 import {HasProps} from "./core/has_props"
 import {ModelResolver} from "./core/resolvers"
@@ -45,10 +45,25 @@ function is_HasProps(obj: unknown): obj is typeof HasProps {
   return isObject(obj) && (obj as any).prototype instanceof HasProps
 }
 
-export function register_models(models: {[key: string]: unknown} | unknown[], force: boolean = false): void {
-  for (const model of isArray(models) ? models : values(models)) {
+type ModelCollection = {[key: string]: unknown} | unknown[]
+
+export function register_models(models: ModelCollection, resolver: ModelResolver): void
+export function register_models(models: ModelCollection, force?: boolean, resolver?: ModelResolver): void
+
+export function register_models(models: ModelCollection, force_or_resolver: boolean | ModelResolver = false,
+    resolver: ModelResolver = default_resolver): void {
+  const force = typeof force_or_resolver == "boolean" ? force_or_resolver : false
+  if (force_or_resolver instanceof ModelResolver) {
+    resolver = force_or_resolver
+  }
+
+  const named_models = isArray(models) ? models.map((model) => [null, model] as const) : entries(models)
+  for (const [name, model] of named_models) {
     if (is_HasProps(model)) {
-      default_resolver.register(model, force)
+      if (name != null) {
+        model.__qualified__ = name.includes(".") || model.__module__ == null ? name : `${model.__module__}.${name}`
+      }
+      resolver.register(model, force)
     }
   }
 }

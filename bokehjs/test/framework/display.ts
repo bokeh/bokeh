@@ -69,8 +69,10 @@ export async function display(obj: Document | UIElement | DOMNode, viewport: [nu
     container.appendChild(viewport_el)
   }
 
-  const views = await show(doc, el ?? viewport_el)
-  test.views = views
+  const mounted = show(doc, el ?? viewport_el)
+  await mounted.ready
+  test.mounts.push(mounted)
+  test.views = mounted.views
   test.el = viewport_el
   test.viewport = size ?? undefined
   if (obj instanceof Document) {

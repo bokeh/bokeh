@@ -1,5 +1,5 @@
 import * as Tables from "./index"
 export {Tables}
 
-import {register_models} from "../../../base"
-register_models(Tables)
+import {register_table_models} from "./register"
+register_table_models()
