@@ -86,10 +86,6 @@ export class Spline extends XYGlyph {
   declare properties: Spline.Props
   declare __view_type__: SplineView
 
-  constructor(attrs?: Partial<Spline.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = SplineView
 

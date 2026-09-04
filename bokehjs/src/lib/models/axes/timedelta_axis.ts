@@ -22,10 +22,6 @@ export class TimedeltaAxis extends ContinuousAxis {
   declare ticker: TimedeltaTicker
   declare formatter: TimedeltaTickFormatter
 
-  constructor(attrs?: Partial<TimedeltaAxis.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TimedeltaAxisView
 

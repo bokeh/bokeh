@@ -158,10 +158,6 @@ export abstract class CSSGridBox extends LayoutDOM {
   declare properties: CSSGridBox.Props
   declare __view_type__: CSSGridBoxView
 
-  constructor(attrs?: Partial<CSSGridBox.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CSSGridBox.Props>(() => ({
       spacing: [ GridSpacing, 0 ],

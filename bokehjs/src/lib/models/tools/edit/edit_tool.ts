@@ -208,10 +208,6 @@ export abstract class EditTool extends GestureTool {
   declare properties: EditTool.Props
   declare __view_type__: EditToolView
 
-  constructor(attrs?: Partial<EditTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<EditTool.Props>(({Unknown, Dict}) => ({
       default_overrides: [ Dict(Unknown), {} ],

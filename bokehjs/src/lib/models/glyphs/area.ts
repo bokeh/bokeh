@@ -35,10 +35,6 @@ export class Area extends Glyph {
   declare properties: Area.Props
   declare __view_type__: AreaView
 
-  constructor(attrs?: Partial<Area.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.mixins<Area.Mixins>([mixins.FillScalar, mixins.HatchScalar])
   }

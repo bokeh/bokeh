@@ -67,10 +67,6 @@ export class CustomAction extends ActionTool {
   declare properties: CustomAction.Props
   declare __view_type__: CustomActionView
 
-  constructor(attrs?: Partial<CustomAction.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CustomActionView
 

@@ -182,10 +182,6 @@ export class Circle extends RadialGlyph {
   declare properties: Circle.Props
   declare __view_type__: CircleView
 
-  constructor(attrs?: Partial<Circle.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CircleView
 

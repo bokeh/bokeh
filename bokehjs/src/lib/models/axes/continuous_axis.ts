@@ -32,7 +32,4 @@ export abstract class ContinuousAxis extends Axis {
   declare properties: ContinuousAxis.Props
   declare __view_type__: ContinuousAxisView
 
-  constructor(attrs?: Partial<ContinuousAxis.Attrs>) {
-    super(attrs)
-  }
 }

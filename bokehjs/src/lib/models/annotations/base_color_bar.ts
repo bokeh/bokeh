@@ -622,10 +622,6 @@ export abstract class BaseColorBar extends Annotation {
   declare properties: BaseColorBar.Props
   declare __view_type__: BaseColorBarView
 
-  constructor(attrs?: Partial<BaseColorBar.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.mixins<BaseColorBar.Mixins>([
       ["major_label_", mixins.Text],

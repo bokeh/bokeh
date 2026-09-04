@@ -45,10 +45,6 @@ export class VBox extends CSSGridBox {
   declare properties: VBox.Props
   declare __view_type__: VBoxView
 
-  constructor(attrs?: Partial<VBox.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = VBoxView
 

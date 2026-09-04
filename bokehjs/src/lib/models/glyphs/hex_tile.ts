@@ -247,10 +247,6 @@ export class HexTile extends Glyph {
   declare properties: HexTile.Props
   declare __view_type__: HexTileView
 
-  constructor(attrs?: Partial<HexTile.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HexTileView
 

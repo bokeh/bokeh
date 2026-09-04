@@ -185,10 +185,6 @@ export class Segment extends Glyph {
   declare properties: Segment.Props
   declare __view_type__: SegmentView
 
-  constructor(attrs?: Partial<Segment.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = SegmentView
 

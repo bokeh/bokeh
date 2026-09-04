@@ -62,10 +62,6 @@ export interface Node extends Node.Attrs {}
 export class Node extends Coordinate {
   declare properties: Node.Props
 
-  constructor(attrs?: Partial<Node.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Node.Props>(({Str, Int}) => ({
       target: [ NodeTarget ],

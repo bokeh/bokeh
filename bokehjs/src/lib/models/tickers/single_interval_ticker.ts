@@ -15,10 +15,6 @@ export interface BaseSingleIntervalTicker extends BaseSingleIntervalTicker.Attrs
 export abstract class BaseSingleIntervalTicker extends ContinuousTicker {
   declare properties: BaseSingleIntervalTicker.Props
 
-  constructor(attrs?: Partial<BaseSingleIntervalTicker.Attrs>) {
-    super(attrs)
-  }
-
   abstract interval: number
 
   get_interval(_data_low: number, _data_high: number, _n_desired_ticks: number): number {
@@ -46,10 +42,6 @@ export interface SingleIntervalTicker extends SingleIntervalTicker.Attrs {}
 
 export class SingleIntervalTicker extends BaseSingleIntervalTicker {
   declare properties: SingleIntervalTicker.Props
-
-  constructor(attrs?: Partial<SingleIntervalTicker.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<SingleIntervalTicker.Props>(({Float}) => ({

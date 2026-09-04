@@ -15,10 +15,6 @@ export interface Indexed extends Indexed.Attrs {}
 export class Indexed extends Coordinate {
   declare properties: Indexed.Props
 
-  constructor(attrs?: Partial<Indexed.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Indexed.Props>(({Int, AnyRef}) => ({
       index: [ Int ],

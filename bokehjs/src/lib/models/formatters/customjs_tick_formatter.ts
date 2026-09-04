@@ -18,10 +18,6 @@ export interface CustomJSTickFormatter extends CustomJSTickFormatter.Attrs {}
 export class CustomJSTickFormatter extends TickFormatter {
   declare properties: CustomJSTickFormatter.Props
 
-  constructor(attrs?: Partial<CustomJSTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CustomJSTickFormatter.Props>(({Unknown, Str, Dict}) => ({
       args: [ Dict(Unknown), {} ],

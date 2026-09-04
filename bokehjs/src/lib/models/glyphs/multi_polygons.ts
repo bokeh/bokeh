@@ -346,10 +346,6 @@ export class MultiPolygons extends Glyph {
   declare properties: MultiPolygons.Props
   declare __view_type__: MultiPolygonsView
 
-  constructor(attrs?: Partial<MultiPolygons.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = MultiPolygonsView
 

@@ -167,10 +167,6 @@ export class PanTool extends GestureTool {
   declare properties: PanTool.Props
   declare __view_type__: PanToolView
 
-  constructor(attrs?: Partial<PanTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PanToolView
 

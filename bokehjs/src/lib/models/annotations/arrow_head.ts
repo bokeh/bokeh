@@ -25,10 +25,6 @@ export abstract class ArrowHead extends Marking {
   declare properties: ArrowHead.Props
   declare __view_type__: ArrowHeadView
 
-  constructor(attrs?: Partial<ArrowHead.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ArrowHead.Props>(() => ({
       size: [ p.NumberSpec, 25 ],
@@ -76,10 +72,6 @@ export interface OpenHead extends OpenHead.Attrs {}
 export class OpenHead extends ArrowHead {
   declare properties: OpenHead.Props
   declare __view_type__: OpenHeadView
-
-  constructor(attrs?: Partial<OpenHead.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = OpenHeadView
@@ -131,10 +123,6 @@ export interface NormalHead extends NormalHead.Attrs {}
 export class NormalHead extends ArrowHead {
   declare properties: NormalHead.Props
   declare __view_type__: NormalHeadView
-
-  constructor(attrs?: Partial<NormalHead.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = NormalHeadView
@@ -193,10 +181,6 @@ export class VeeHead extends ArrowHead {
   declare properties: VeeHead.Props
   declare __view_type__: VeeHeadView
 
-  constructor(attrs?: Partial<VeeHead.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = VeeHeadView
 
@@ -238,10 +222,6 @@ export interface TeeHead extends TeeHead.Attrs {}
 export class TeeHead extends ArrowHead {
   declare properties: TeeHead.Props
   declare __view_type__: TeeHeadView
-
-  constructor(attrs?: Partial<TeeHead.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = TeeHeadView

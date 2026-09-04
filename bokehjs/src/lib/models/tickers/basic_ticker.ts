@@ -12,7 +12,4 @@ export interface BasicTicker extends BasicTicker.Attrs {}
 export class BasicTicker extends AdaptiveTicker {
   declare properties: BasicTicker.Props
 
-  constructor(attrs?: Partial<BasicTicker.Attrs>) {
-    super(attrs)
-  }
 }

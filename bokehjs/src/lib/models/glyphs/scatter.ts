@@ -133,10 +133,6 @@ export class Scatter extends Marker {
   declare properties: Scatter.Props
   declare __view_type__: ScatterView
 
-  constructor(attrs?: Partial<Scatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ScatterView
     this.define<Scatter.Props>(({KeyVal, Or, Func, Ref}) => ({

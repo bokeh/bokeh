@@ -163,10 +163,6 @@ export class Annulus extends XYGlyph {
   declare properties: Annulus.Props
   declare __view_type__: AnnulusView
 
-  constructor(attrs?: Partial<Annulus.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = AnnulusView
 

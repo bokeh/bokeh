@@ -42,10 +42,6 @@ export class Toggle extends AbstractButton {
   declare properties: Toggle.Props
   declare __view_type__: ToggleView
 
-  constructor(attrs?: Partial<Toggle.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ToggleView
 

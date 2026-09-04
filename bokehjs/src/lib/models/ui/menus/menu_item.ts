@@ -27,10 +27,6 @@ export interface MenuItem extends MenuItem.Attrs {}
 export class MenuItem extends Model {
   declare properties: MenuItem.Props
 
-  constructor(attrs?: Partial<MenuItem.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<MenuItem.Props>(({Bool, Str, Nullable, AnyRef, Ref, Func, Func0, Or}) => ({
       checked: [ Nullable(Or(Bool, Func0(Bool))), null ],

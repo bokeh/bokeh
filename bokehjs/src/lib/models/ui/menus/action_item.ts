@@ -14,7 +14,4 @@ export interface ActionItem extends ActionItem.Attrs {}
 export class ActionItem extends MenuItem {
   declare properties: ActionItem.Props
 
-  constructor(attrs?: Partial<ActionItem.Attrs>) {
-    super(attrs)
-  }
 }

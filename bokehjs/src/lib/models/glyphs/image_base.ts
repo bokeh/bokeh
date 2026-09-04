@@ -307,10 +307,6 @@ export abstract class ImageBase extends XYGlyph {
   declare properties: ImageBase.Props
   declare __view_type__: ImageBaseView
 
-  constructor(attrs?: Partial<ImageBase.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.mixins<ImageBase.Mixins>(mixins.ImageVector)
     this.define<ImageBase.Props>(({Bool}) => ({

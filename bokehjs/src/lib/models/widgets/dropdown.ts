@@ -134,10 +134,6 @@ export class Dropdown extends AbstractButton {
   declare properties: Dropdown.Props
   declare __view_type__: DropdownView
 
-  constructor(attrs?: Partial<Dropdown.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = DropdownView
 

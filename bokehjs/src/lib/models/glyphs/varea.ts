@@ -87,10 +87,6 @@ export class VArea extends Area {
   declare properties: VArea.Props
   declare __view_type__: VAreaView
 
-  constructor(attrs?: Partial<VArea.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = VAreaView
 

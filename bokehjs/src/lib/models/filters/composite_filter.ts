@@ -16,10 +16,6 @@ export interface CompositeFilter extends CompositeFilter.Attrs {}
 export abstract class CompositeFilter extends Filter {
   declare properties: CompositeFilter.Props
 
-  constructor(attrs?: Partial<CompositeFilter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CompositeFilter.Props>(({List, Ref}) => ({
       operands: [ List(Ref(Filter)) ],

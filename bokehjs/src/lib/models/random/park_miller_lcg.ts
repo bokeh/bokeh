@@ -16,10 +16,6 @@ export interface ParkMillerLCG extends ParkMillerLCG.Attrs {}
 export class ParkMillerLCG extends RandomGenerator {
   declare properties: ParkMillerLCG.Props
 
-  constructor(attrs?: Partial<ParkMillerLCG.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ParkMillerLCG.Props>(({Int, Nullable}) => ({
       seed: [ Nullable(Int), null ],

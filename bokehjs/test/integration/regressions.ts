@@ -5265,7 +5265,7 @@ describe("Bug", () => {
 
   describe("in issue #11436", () => {
     it("doesn't fit column to rounded number in DataTable with autosize_mode='fit_viewport'", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           text: ["something"],
           number: [0.333333333333333333],
@@ -5274,12 +5274,12 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "text", title: "Text"}),
-        new TableColumn({field: "number", title: "Number", formatter: new NumberFormatter({format: ".00"})}),
-        new TableColumn({field: "other_number", title: "Other number"}),
+        TableColumn.create({field: "text", title: "Text"}),
+        TableColumn.create({field: "number", title: "Number", formatter: NumberFormatter.create({format: ".00"})}),
+        TableColumn.create({field: "other_number", title: "Other number"}),
       ]
 
-      const table = new DataTable({
+      const table = DataTable.create({
         source,
         columns,
         autosize_mode: "fit_viewport",
@@ -5291,7 +5291,7 @@ describe("Bug", () => {
 
   describe("in issue #10512", () => {
     it("doesn't completely render a DataTable with autosize_mode='fit_columns' and many numeric columns", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           c1: [5, 40000],
           c2: [5, 40001],
@@ -5303,15 +5303,15 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "c1", title: "c1"}),
-        new TableColumn({field: "c2", title: "c2"}),
-        new TableColumn({field: "c3", title: "c3"}),
-        new TableColumn({field: "c4", title: "c4"}),
-        new TableColumn({field: "c5", title: "c5"}),
-        new TableColumn({field: "c6", title: "c6"}),
+        TableColumn.create({field: "c1", title: "c1"}),
+        TableColumn.create({field: "c2", title: "c2"}),
+        TableColumn.create({field: "c3", title: "c3"}),
+        TableColumn.create({field: "c4", title: "c4"}),
+        TableColumn.create({field: "c5", title: "c5"}),
+        TableColumn.create({field: "c6", title: "c6"}),
       ]
 
-      const table = new DataTable({
+      const table = DataTable.create({
         source,
         columns,
         autosize_mode: "fit_columns",
@@ -5322,7 +5322,7 @@ describe("Bug", () => {
 
   describe("in issue #13460", () => {
     it("raises a ReferenceError with autosize_mode='fit_viewport'", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           column_1: ["a", "b", "c"],
           column_2: [4, 5, 6],
@@ -5331,12 +5331,12 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "column_1", title: "column_1"}),
-        new TableColumn({field: "column_2", title: "column_2"}),
-        new TableColumn({field: "column_3", title: "column_3"}),
+        TableColumn.create({field: "column_1", title: "column_1"}),
+        TableColumn.create({field: "column_2", title: "column_2"}),
+        TableColumn.create({field: "column_3", title: "column_3"}),
       ]
 
-      const table = new DataTable({
+      const table = DataTable.create({
         source,
         columns,
         width: 400,
@@ -5350,7 +5350,7 @@ describe("Bug", () => {
 
   describe("in issue #13340", () => {
     it("corrupts DataTable rendering when children are updated in a Row layout", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           A: ["seize", "cereal", "notebook", "translate"],
           B: ["talented", "bang", "seed", "occupation"],
@@ -5362,20 +5362,20 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "A", title: "A"}),
-        new TableColumn({field: "B", title: "B"}),
-        new TableColumn({field: "C", title: "C"}),
-        new TableColumn({field: "D", title: "D"}),
-        new TableColumn({field: "E", title: "E"}),
-        new TableColumn({field: "F", title: "F"}),
+        TableColumn.create({field: "A", title: "A"}),
+        TableColumn.create({field: "B", title: "B"}),
+        TableColumn.create({field: "C", title: "C"}),
+        TableColumn.create({field: "D", title: "D"}),
+        TableColumn.create({field: "E", title: "E"}),
+        TableColumn.create({field: "F", title: "F"}),
       ]
-      const table = new DataTable({source, columns})
+      const table = DataTable.create({source, columns})
 
-      const button = new Button({label: "Button"})
-      const space_A = new Spacer()
-      const space_B = new Spacer()
+      const button = Button.create({label: "Button"})
+      const space_A = Spacer.create()
+      const space_B = Spacer.create()
 
-      const layout = new Row({children: [button, space_A, table]})
+      const layout = Row.create({children: [button, space_A, table]})
       button.on_click(() => {
         layout.children = [layout.children[0], space_B, layout.children[2]]
       })
@@ -5391,17 +5391,17 @@ describe("Bug", () => {
 
   describe("in issue #15328", () => {
     it("doesn't update a DataTable when its source's data is mutated in place and change.emit() is called", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           name: ["A", "B", "C"],
           value: [10, 20, 30],
         },
       })
       const columns = [
-        new TableColumn({field: "name", title: "Name"}),
-        new TableColumn({field: "value", title: "Value"}),
+        TableColumn.create({field: "name", title: "Name"}),
+        TableColumn.create({field: "value", title: "Value"}),
       ]
-      const table = new DataTable({source, columns, index_position: null, width: 320, height: 180})
+      const table = DataTable.create({source, columns, index_position: null, width: 320, height: 180})
       const {view} = await display(table, [350, 200])
       await view.ready
       const values = source.get_array<number>("value")
@@ -5415,7 +5415,7 @@ describe("Bug", () => {
 
   describe("in issue #8010", () => {
     it("doesn't respect CDSView filters when creating the legend via legend_field", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           x_values: [1, 2, 3, 4, 5],
           y_values: [1, 0, 1, 0, 1],
@@ -5423,12 +5423,12 @@ describe("Bug", () => {
         },
       })
 
-      const filter = new BooleanFilter({booleans: [true, false, true, false, true]})
-      const view = new CDSView({filter})
+      const filter = BooleanFilter.create({booleans: [true, false, true, false, true]})
+      const view = CDSView.create({filter})
 
       view.compute_indices(source)
 
-      const color_mapper = new CategoricalColorMapper({
+      const color_mapper = CategoricalColorMapper.create({
         factors: ["cat", "dog", "bird"],
         palette: ["red", "black", "yellow"],
       })

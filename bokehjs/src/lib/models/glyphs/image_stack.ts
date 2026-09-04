@@ -68,10 +68,6 @@ export class ImageStack extends ImageBase {
   declare properties: ImageStack.Props
   declare __view_type__: ImageStackView
 
-  constructor(attrs?: Partial<ImageStack.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ImageStackView
 

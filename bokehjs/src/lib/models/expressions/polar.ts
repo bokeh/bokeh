@@ -18,10 +18,6 @@ export interface PolarTransform extends PolarTransform.Attrs {}
 export class PolarTransform extends CoordinateTransform {
   declare properties: PolarTransform.Props
 
-  constructor(attrs?: Partial<PolarTransform.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<PolarTransform.Props>(({}) => ({
       radius: [ p.DistanceSpec, {field: "radius"} ],

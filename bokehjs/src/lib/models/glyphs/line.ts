@@ -162,10 +162,6 @@ export class Line extends XYGlyph {
   declare properties: Line.Props
   declare __view_type__: LineView
 
-  constructor(attrs?: Partial<Line.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = LineView
 

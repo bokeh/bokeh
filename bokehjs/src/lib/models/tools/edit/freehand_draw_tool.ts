@@ -106,10 +106,6 @@ export class FreehandDrawTool extends EditTool {
   declare properties: FreehandDrawTool.Props
   declare __view_type__: FreehandDrawToolView
 
-  constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = FreehandDrawToolView
 

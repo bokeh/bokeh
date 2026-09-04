@@ -95,7 +95,4 @@ export abstract class MathTextGlyph extends Text {
   declare properties: MathTextGlyph.Props
   declare __view_type__: MathTextGlyphView
 
-  constructor(attrs?: Partial<MathTextGlyph.Attrs>) {
-    super(attrs)
-  }
 }

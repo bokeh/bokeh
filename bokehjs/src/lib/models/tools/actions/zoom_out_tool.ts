@@ -27,10 +27,6 @@ export class ZoomOutTool extends ZoomBaseTool {
 
   maintain_focus: boolean
 
-  constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ZoomOutToolView
 

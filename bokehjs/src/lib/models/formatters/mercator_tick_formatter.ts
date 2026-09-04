@@ -22,10 +22,6 @@ export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
 export class MercatorTickFormatter extends BasicTickFormatter {
   declare properties: MercatorTickFormatter.Props
 
-  constructor(attrs?: Partial<MercatorTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<MercatorTickFormatter.Props>(({Nullable}) => ({
       dimension: [ Nullable(LatLon), null ],

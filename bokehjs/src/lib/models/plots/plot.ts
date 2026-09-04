@@ -130,10 +130,6 @@ export class Plot extends LayoutDOM {
 
   readonly reset = new Signal0(this, "reset")
 
-  constructor(attrs?: Partial<Plot.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PlotView
 

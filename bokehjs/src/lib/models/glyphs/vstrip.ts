@@ -221,10 +221,6 @@ export class VStrip extends Glyph {
   declare properties: VStrip.Props
   declare __view_type__: VStripView
 
-  constructor(attrs?: Partial<VStrip.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = VStripView
 

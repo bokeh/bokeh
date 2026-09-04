@@ -31,10 +31,6 @@ export class RedoTool extends PlotActionTool {
   declare properties: RedoTool.Props
   declare __view_type__: RedoToolView
 
-  constructor(attrs?: Partial<RedoTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = RedoToolView
 

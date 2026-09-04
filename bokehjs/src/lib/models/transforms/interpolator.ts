@@ -22,10 +22,6 @@ export interface Interpolator extends Interpolator.Attrs {}
 export abstract class Interpolator extends Transform {
   declare properties: Interpolator.Props
 
-  constructor(attrs?: Partial<Interpolator.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Interpolator.Props>(({Bool, Float, Str, Ref, List, Or, Nullable}) => ({
       x:    [ Or(Str, List(Float)) ],

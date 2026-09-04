@@ -144,10 +144,6 @@ export class Ellipse extends CenterRotatable {
   declare properties: Ellipse.Props
   declare __view_type__: EllipseView
 
-  constructor(attrs?: Partial<Ellipse.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = EllipseView
   }

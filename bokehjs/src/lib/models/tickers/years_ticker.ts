@@ -15,10 +15,6 @@ export interface YearsTicker extends YearsTicker.Attrs {}
 export class YearsTicker extends BaseSingleIntervalTicker {
   declare properties: YearsTicker.Props
 
-  constructor(attrs?: Partial<YearsTicker.Attrs>) {
-    super(attrs)
-  }
-
   readonly interval = ONE_YEAR
   readonly basic_ticker = BasicTicker.create({num_minor_ticks: 0})
 

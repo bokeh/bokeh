@@ -5,7 +5,7 @@ export interface Class<T, Args extends any[] = any[]> {
 
 export type Constructor<T = object> = new (...args: any[]) => T
 
-export function extend(ctor: Class<any>, ...mixins: any[]): void {
+export function extend(ctor: Function & {prototype: any}, ...mixins: Array<Function & {prototype: any}>): void {
   for (const mixin of mixins) {
     for (const name of Object.getOwnPropertyNames(mixin.prototype)) {
       if (name == "constructor") {

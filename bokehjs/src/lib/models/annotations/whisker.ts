@@ -93,10 +93,6 @@ export class Whisker extends UpperLower {
   declare properties: Whisker.Props
   declare __view_type__: WhiskerView
 
-  constructor(attrs?: Partial<Whisker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = WhiskerView
 

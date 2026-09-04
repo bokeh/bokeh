@@ -27,10 +27,6 @@ export class PlainText extends BaseText {
   declare properties: PlainText.Props
   declare __view_type__: PlainTextView
 
-  constructor(attrs?: Partial<PlainText.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PlainTextView
   }

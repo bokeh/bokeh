@@ -125,10 +125,6 @@ export class Notifications extends UIElement {
   declare properties: Notifications.Props
   declare __view_type__: NotificationsView
 
-  constructor(attrs?: Partial<Notifications.Attrs>) {
-    super(attrs)
-  }
-
   readonly push = new Signal<Message, this>(this, "push")
 
   static {

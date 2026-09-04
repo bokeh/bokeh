@@ -14,10 +14,6 @@ export interface LogTicker extends LogTicker.Attrs {}
 export class LogTicker extends AdaptiveTicker {
   declare properties: LogTicker.Props
 
-  constructor(attrs?: Partial<LogTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<LogTicker.Props>({
       mantissas: [1, 5],

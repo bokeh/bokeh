@@ -30,10 +30,6 @@ export interface Ticker extends Ticker.Attrs {}
 export abstract class Ticker extends Model {
   declare properties: Ticker.Props
 
-  constructor(attrs?: Partial<Ticker.Attrs>) {
-    super(attrs)
-  }
-
   // Generates a nice series of ticks for a given range.
   // TODO: any -> unknown or number | Factor
   abstract get_ticks(data_low: number, data_high: number, range: Range, cross_loc: number): TickSpec<any>

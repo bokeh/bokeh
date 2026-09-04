@@ -37,10 +37,6 @@ export class ToolMenu extends Menu {
   declare properties: ToolMenu.Props
   declare __view_type__: ToolMenuView
 
-  constructor(attrs?: Partial<ToolMenu.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ToolMenuView
 

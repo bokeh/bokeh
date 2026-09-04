@@ -14,9 +14,5 @@ export interface Filter extends Filter.Attrs {}
 export abstract class Filter extends Model {
   declare properties: Filter.Props
 
-  constructor(attrs?: Partial<Filter.Attrs>) {
-    super(attrs)
-  }
-
   abstract compute_indices(source: DataSource): Indices
 }

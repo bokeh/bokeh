@@ -24,10 +24,6 @@ export abstract class GestureTool extends Tool {
   declare properties: GestureTool.Props
   declare __view_type__: GestureToolView
 
-  constructor(attrs?: Partial<GestureTool.Attrs>) {
-    super(attrs)
-  }
-
   abstract readonly default_order: number
 
   abstract override readonly event_type: EventType | EventType[]
