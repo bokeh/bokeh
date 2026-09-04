@@ -38,8 +38,6 @@ ALL = (
     'ExtensionRequirement',
     'ExternalArtifact',
     'ResourceAssetRequirement',
-    'ResourceConflictError',
-    'ResourcePolicy',
     'ResourceRequirements',
     'autoload_static',
     'components',
