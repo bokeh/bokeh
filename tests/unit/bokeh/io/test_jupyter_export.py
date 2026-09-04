@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Standard library imports
 import copy
+import json
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -102,8 +103,10 @@ def test_current_frontend_artifact_wins_over_saved_state() -> None:
     saved = embed(figure(title="saved"))
     current = embed(figure(title="current"))
     notebook = _notebook(_output(saved))
+    current_snapshot = current.to_dict()
+    current_snapshot.pop("fingerprint")
     _store_export_snapshots("test.ipynb", "export-identifier-0004", [{
-        "view_id": "view", "artifact_json": current.to_json_string(), "width": 444,
+        "view_id": "view", "artifact_json": json.dumps(current_snapshot), "width": 444,
     }])
     token = _set_export_correlation("export-identifier-0004")
     try:
