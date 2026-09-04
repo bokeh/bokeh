@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections import deque
 import gc
 import weakref
 from json import loads
@@ -55,7 +56,6 @@ from ..core.has_props import is_DataModel
 from ..core.query import find, is_single_string_selector
 from ..core.serialization import (
     Deserializer,
-    ModelIDPolicy,
     Serialized,
     Serializer,
     UnknownReferenceError,
@@ -112,6 +112,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 DEFAULT_TITLE = "Bokeh Application"
+type ModelIDPolicy = Literal["always", "minimal"]
 
 __all__ = (
     'Document',
@@ -130,10 +131,10 @@ def _models_with_ids(values: Iterable[Any]) -> set[Model]:
     for value in values:
         visit_immediate_value_references(value, count)
 
-    queue = list(counts)
+    queue = deque(counts)
     seen: set[Model] = set()
     while queue:
-        model = queue.pop(0)
+        model = queue.popleft()
         if model in seen:
             continue
 
@@ -146,20 +147,23 @@ def _models_with_ids(values: Iterable[Any]) -> set[Model]:
             queue.append(ref)
 
     cyclic: set[Model] = set()
+    stack: list[Model] = []
     visiting: set[Model] = set()
     visited: set[Model] = set()
 
     def visit(model: Model) -> None:
         if model in visiting:
-            cyclic.update(visiting)
-            cyclic.add(model)
+            index = stack.index(model)
+            cyclic.update(stack[index:])
             return
         if model in visited:
             return
 
         visiting.add(model)
+        stack.append(model)
         for ref in children.get(model, []):
             visit(ref)
+        stack.pop()
         visiting.remove(model)
         visited.add(model)
 
@@ -947,7 +951,7 @@ side of a communications channel while it was being removed on the other end.\
         models_with_ids = (
             _models_with_ids([self._config, self._roots, self.callbacks.js_event_callbacks]) | set(extra_models_with_ids)
         ) if model_ids == "minimal" else set()
-        serializer = Serializer(deferred=deferred, model_ids=model_ids, models_with_ids=models_with_ids)
+        serializer = Serializer(deferred=deferred, models_with_ids=models_with_ids if model_ids == "minimal" else None)
         defs = serializer.encode(data_models)
         config = serializer.encode(self._config)
         roots = serializer.encode(self._roots)

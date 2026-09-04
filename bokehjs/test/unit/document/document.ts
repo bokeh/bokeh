@@ -790,6 +790,22 @@ describe("Document", () => {
     expect(copy_root0.child).to.be.equal(copy_root1.child)
   })
 
+  it("omits minimal IDs for ancestors of cycles", () => {
+    const d = new Document()
+    const child0 = new SomeModel({foo: 10})
+    const child1 = new SomeModel({foo: 20, child: child0})
+    child0.child = child1
+    const root = new SomeModel({foo: 30, child: child0})
+    d.add_root(root)
+
+    const json = d._to_json(false, "minimal")
+    expect("id" in json.roots[0]).to.be.false
+    const child0_rep: any = json.roots[0].attributes!.child
+    expect(child0_rep.id).to.be.equal(child0.id)
+    expect(child0_rep.attributes.child.id).to.be.equal(child1.id)
+    expect(child0_rep.attributes.child.attributes.child).to.be.equal({id: child0.id})
+  })
+
   it("can serialize excluding defaults", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
