@@ -61,6 +61,8 @@ requests, and application-view lifecycle messages. The artifact MIME record is
 the durable representation for saved Jupyter notebooks, static previews, and
 HTML/PNG export. AnyWidget bounds queued patches to 64 messages and 8 MiB; on
 overflow or a revision gap it discards the queue and requests a fresh snapshot.
+The same bound remains in force while a frontend is processing updates, so a
+slow remount cannot grow an unbounded promise chain.
 The browser caches each shared resource ID, so ``INLINE`` resources execute
 once per frontend rather than being copied into every displayed widget.
 
@@ -111,10 +113,10 @@ Host capabilities
       - Browser-tested; AnyWidget or bundled comm
       - Browser-tested
     * - Notebook 7
-      - Auto-starting; browser-tested
+      - Auto-starting; shares the JupyterLab renderer
       - Contract-tested
-      - Browser-tested; AnyWidget or bundled comm
-      - Browser-tested
+      - Contract-tested; AnyWidget or bundled comm
+      - Browser reachability applies
     * - Classic Notebook 6
       - None required
       - Contract-tested for trusted output
@@ -292,9 +294,10 @@ separation prevents a cell output from implicitly owning and leaking a server.
 Configure proxy URLs and ASGI server options on ``serve()``, not ``show(app)``.
 
 The browser must be able to reach the local application server. This is
-browser-tested in local JupyterLab and Notebook 7. VS Code webviews may need an
-explicit ``notebook_url`` and allowed origin. Hosted environments such as
-JupyterHub and Colab require a URL proxy. The bundled renderer displays a
+browser-tested in local JupyterLab; Notebook 7 consumes the same renderer, but
+does not currently have a separate automated browser run. VS Code webviews may
+need an explicit ``notebook_url`` and allowed origin. Hosted environments such
+as JupyterHub and Colab require a URL proxy. The bundled renderer displays a
 specific connectivity diagnostic when the proxy is missing; portable host
 handling depends on whether that host executes the HTML application bootstrap.
 
@@ -318,6 +321,9 @@ applies. There are three distinct synchronization models:
   virtualizing a renderer does not release its output, but deleting a cell,
   replacing its output, or closing the notebook sends an explicit release for
   that view. A frontend opened later receives a current artifact snapshot.
+  If an update introduces a newly required built-in bundle or custom
+  extension, that snapshot first publishes and identifies the corresponding
+  resource record; the frontend loads it before remounting the artifact.
   Use ``handle.views`` for diagnostics and ``handle.close()`` when finished.
   To send several
   changes as one update, use the handle as a batching context:

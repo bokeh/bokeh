@@ -42,6 +42,9 @@ test-js-integration = { cmd = "node make test:integration", cwd = "bokehjs" }
 devtools-headless = { cmd = "node make test:run:headless", cwd = "bokehjs" }
 devtools-server = { cmd = "node test/devtools server", cwd = "bokehjs" }
 build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
+jupyter-build = "bash tools/ci/build_jupyter.sh"
+jupyter-verify = "bash tools/ci/build_jupyter.sh --verify"
+jupyter-test = "bash tools/ci/test_jupyter.sh"
 
 # Prefer conda-forge builds for Bokeh runtime dependencies. The constraints
 # mirror [project.dependencies] in pyproject.toml and are checked by the
@@ -55,7 +58,6 @@ packaging = ">=16.8"
 pillow = ">=7.1.0"
 pyyaml = ">=3.10"
 tornado = ">=6.2"
-uvicorn = ">=0.30"
 xyzservices = ">=2021.09.1"
 
 [feature.test-deps.dependencies]
@@ -123,6 +125,7 @@ types-pyyaml = "*"
 types-requests = "*"
 types-toml = "*"
 urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
+uvicorn = ">=0.30"
 vermin = "*"
 
 [feature.full-deps.pypi-dependencies]
@@ -229,6 +232,7 @@ firefox = ">=96"
 geckodriver = "*"
 icalendar = "*"
 ipython = "*"
+jupyterlab = "4.*"
 networkx = "*"
 packaging = "*"
 pydata-sphinx-theme = "*"

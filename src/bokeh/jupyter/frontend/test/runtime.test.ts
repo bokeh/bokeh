@@ -1,7 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from "vitest"
 
 import {DisplayPayload, PROTOCOL_VERSION, ResourcePayload} from "../src/protocol"
-import {loadResources, renderDisplay, resetResourceRegistry} from "../src/runtime"
+import {currentDocumentSnapshot, loadResources, renderDisplay, resetResourceRegistry} from "../src/runtime"
 
 const artifact = {
   schema: "bokeh.embed/v1",
@@ -74,6 +74,11 @@ describe("artifact runtime", () => {
     expect(mount).toHaveBeenCalledOnce()
     const options = mount.mock.calls[0][1]
     expect([...options.targets.keys()]).toEqual(["first", "second"])
+    const snapshot = currentDocumentSnapshot(node, display)
+    expect(snapshot?.view_id).toBe("view")
+    const current = JSON.parse(snapshot?.artifact_json ?? "{}")
+    expect(current.fingerprint).toBeUndefined()
+    expect(current.metadata.notebook_export).toEqual({view_id: "view"})
     cleanup()
     cleanup()
     expect(dispose).toHaveBeenCalledOnce()
@@ -168,6 +173,7 @@ describe("artifact runtime", () => {
     const cleanup = await renderDisplay(node, liveDisplay, html, {
       openLive: async () => ({
         artifactJson: JSON.stringify(artifact),
+        resourceId: "resource",
         revision: 0,
         onMessage(callback) {receive = callback},
         onClose() {},
@@ -176,7 +182,7 @@ describe("artifact runtime", () => {
       }),
     })
 
-    receive?.({kind: "snapshot", artifact: JSON.stringify(artifact), revision: 3}, [])
+    receive?.({kind: "snapshot", artifact: JSON.stringify(artifact), resource_id: "resource", revision: 3}, [])
     await vi.waitFor(() => {
       expect(mount).toHaveBeenCalledTimes(2)
       expect(disposals[0]).toHaveBeenCalledOnce()
@@ -184,6 +190,78 @@ describe("artifact runtime", () => {
     expect(resync).not.toHaveBeenCalled()
     cleanup()
     expect(disposals[1]).toHaveBeenCalledOnce()
+  })
+
+  it("loads resources introduced by a live replacement snapshot", async () => {
+    const handle = {
+      ready: Promise.resolve(),
+      dispose: vi.fn(async () => undefined),
+      document: {to_json: () => ({roots: []}), roots: () => []},
+      root_keys: [],
+      root: () => null,
+      view_lookup: {},
+    }
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount: vi.fn(() => handle),
+      when_mounted: vi.fn(async () => handle),
+      embed: {create_notebook_patch_receiver: vi.fn(() => vi.fn())},
+    }
+    const dynamic = {...resource, resource_id: "dynamic"}
+    const requestResource = vi.fn(async () => ({payload: dynamic, javascript: ""}))
+    const node = document.createElement("div")
+    document.body.append(node)
+    await loadResources(resource, "", node)
+    let receive: ((message: unknown, buffers: DataView[]) => void) | undefined
+
+    const cleanup = await renderDisplay(node, {...display, live_id: "live"}, html, {
+      requestResource,
+      openLive: async () => ({
+        artifactJson: JSON.stringify(artifact),
+        resourceId: "resource",
+        revision: 0,
+        onMessage(callback) {receive = callback},
+        onClose() {},
+        requestResync() {},
+        close() {},
+      }),
+    })
+
+    expect(requestResource).not.toHaveBeenCalled()
+    receive?.({kind: "snapshot", artifact: JSON.stringify(artifact), resource_id: "dynamic", revision: 1}, [])
+    await vi.waitFor(() => {
+      expect(requestResource).toHaveBeenCalledWith("dynamic")
+      expect((window as any).Bokeh.mount).toHaveBeenCalledTimes(2)
+    })
+    cleanup()
+  })
+
+  it("applies the declared CSP nonce to the executable resource wrapper", async () => {
+    ;(window as any).Bokeh = {version: "4.0.0"}
+    const append = vi.spyOn(document.head, "append").mockImplementation((...nodes: (Node | string)[]) => {
+      const script = nodes[0] as HTMLScriptElement
+      expect(script.nonce).toBe("notebook-nonce")
+      queueMicrotask(() => window.dispatchEvent(new CustomEvent("bokeh:resources-complete", {
+        detail: {resource_id: "nonced"},
+      })))
+    })
+    const nonced = {...resource, resource_id: "nonced", policy: {mode: "inline", nonce: "notebook-nonce"}}
+
+    try {
+      await loadResources(nonced, "void 0", document.createElement("div"))
+      expect(append).toHaveBeenCalledOnce()
+    } finally {
+      append.mockRestore()
+    }
+  })
+
+  it("retains page-global loaded resources when one notebook kernel changes", async () => {
+    ;(window as any).Bokeh = {version: "4.0.0"}
+    const node = document.createElement("div")
+    await loadResources(resource, "", node)
+
+    resetResourceRegistry({notebook: "changed"})
+    await expect(loadResources(resource, "", node)).resolves.toBeUndefined()
   })
 
   it("keeps the last mounted artifact visible and labels a closed live connection", async () => {
@@ -208,6 +286,7 @@ describe("artifact runtime", () => {
     const cleanup = await renderDisplay(node, {...display, live_id: "live"}, html, {
       openLive: async () => ({
         artifactJson: JSON.stringify(artifact),
+        resourceId: "resource",
         revision: 0,
         onMessage() {},
         onClose(callback) {closed = callback},
@@ -220,5 +299,59 @@ describe("artifact runtime", () => {
     expect(node.querySelector(".bk-notebook-disconnected")?.textContent).toContain("connection closed")
     cleanup()
     expect(node.querySelector(".bk-notebook-disconnected")).toBeNull()
+  })
+
+  it("rejects self and cross resource-dependency cycles with diagnostics", async () => {
+    const node = document.createElement("div")
+    const self = {...resource, resource_id: "self", dependencies: ["self"]}
+    await expect(loadResources(self, "", node)).rejects.toMatchObject({
+      code: "RESOURCE_DEPENDENCY_CYCLE",
+      cause: {cycle: ["self", "self"]},
+    })
+
+    resetResourceRegistry()
+    const first = {...resource, resource_id: "first", dependencies: ["second"]}
+    const second = {...resource, resource_id: "second", dependencies: ["first"]}
+    await expect(loadResources(first, "", node, {
+      requestResource: async (resourceId) => ({
+        payload: resourceId === "second" ? second : first,
+        javascript: "",
+      }),
+    })).rejects.toMatchObject({
+      code: "RESOURCE_DEPENDENCY_CYCLE",
+      cause: {cycle: ["first", "second", "first"]},
+    })
+  })
+
+  it("does not reparent connected shadow-DOM output", async () => {
+    const dispose = vi.fn(async () => undefined)
+    const handle = {
+      ready: Promise.resolve(),
+      dispose,
+      document: {to_json: () => ({roots: []}), roots: () => []},
+      root_keys: [],
+      root: () => null,
+      view_lookup: {},
+    }
+    const host = document.createElement("div")
+    const shadow = host.attachShadow({mode: "open"})
+    const node = document.createElement("div")
+    shadow.append(node)
+    document.body.append(host)
+    const mount = vi.fn(() => {
+      expect(node.parentNode).toBe(shadow)
+      return handle
+    })
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount,
+      when_mounted: vi.fn(async () => handle),
+    }
+    await loadResources(resource, "", node)
+
+    const cleanup = await renderDisplay(node, display, html)
+    expect(node.parentNode).toBe(shadow)
+    cleanup()
+    host.remove()
   })
 })
