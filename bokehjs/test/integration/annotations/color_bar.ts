@@ -62,13 +62,13 @@ describe("ColorBar annotation", () => {
   })
 
   it("should support title locations and orientations", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11, low: 0, high: 1})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11, low: 0, high: 1})
     const plots = []
     for (const orientation of Orientation) {
       for (const title_location of Location) {
         for (const title_orientation of Orientation) {
           const p = fig([360, 330], {border_fill_color: "lightgray"})
-          const color_bar = new ColorBar({
+          const color_bar = ColorBar.create({
             color_mapper,
             location: "center",
             orientation,
@@ -96,7 +96,7 @@ describe("ColorBar annotation", () => {
   })
 
   it("should support title text alignments", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11, low: 0, high: 1})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11, low: 0, high: 1})
     const plots = []
     for (const orientation of Orientation) {
       for (const title_text_halign of TextAlign) {
@@ -104,7 +104,7 @@ describe("ColorBar annotation", () => {
         const p = fig([260, 200], {
           border_fill_color: horizontal ? "aliceblue" : "lightyellow",
         })
-        const color_bar = new ColorBar({
+        const color_bar = ColorBar.create({
           color_mapper,
           location: "center",
           orientation,
@@ -129,7 +129,7 @@ describe("ColorBar annotation", () => {
   })
 
   it("should support asymmetric padding", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11, low: 0, high: 1})
+    const color_mapper = LinearColorMapper.create({palette: Spectral11, low: 0, high: 1})
     const plots = []
     for (const orientation of Orientation) {
       const horizontal = orientation == "horizontal"
@@ -137,7 +137,7 @@ describe("ColorBar annotation", () => {
         background_fill_color: "whitesmoke",
         border_fill_color: "whitesmoke",
       })
-      const color_bar = new ColorBar({
+      const color_bar = ColorBar.create({
         color_mapper,
         location: "center",
         orientation,
@@ -161,8 +161,8 @@ describe("ColorBar annotation", () => {
   })
 
   it("should update the title location and orientation", async () => {
-    const color_mapper = new LinearColorMapper({palette: Spectral11, low: 0, high: 1})
-    const color_bar = new ColorBar({
+    const color_mapper = LinearColorMapper.create({palette: Spectral11, low: 0, high: 1})
+    const color_bar = ColorBar.create({
       color_mapper,
       location: "center",
       orientation: "horizontal",
