@@ -134,6 +134,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     _qualified_names.set(this, qualified)
   }
 
+  /**
+   * Construct an instance through the complete BokehJS object lifecycle.
+   *
+   * Subclass field initializers run before property defaults, `initialize()`,
+   * and `connect_signals()`. If any phase fails, the partial instance is
+   * destroyed before the original error is rethrown. Model and extension code
+   * must use this factory instead of invoking a constructor directly.
+   */
   static create<T extends HasProps>(
     this: HasPropsClass<T>,
     attrs: ModelAttrs<T> = {},
@@ -423,7 +431,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._lifecycle_state = "constructed"
   }
 
-  /** @internal */
+  /**
+   * Initialize declared properties after every subclass constructor and field
+   * initializer has completed.
+   * @internal
+   */
   initialize_props(vals: Dict<unknown>): void {
     assert(this._lifecycle_state == "constructed")
     this._lifecycle_state = "initializing_properties"
@@ -450,7 +462,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  /** @internal */
+  /**
+   * Run the object initialization hook after properties are readable.
+   * Deserialization invokes this only after all referenced objects exist.
+   * @internal
+   */
   finalize(): void {
     assert(this._lifecycle_state == "properties_initialized")
     this._lifecycle_state = "initializing"
@@ -463,6 +479,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  /** Initialize derived state that may read this object's properties. */
   initialize(): void {}
 
   assert_initialized(): void {
@@ -473,7 +490,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  /** @internal */
+  /**
+   * Connect signals only after every object in the construction graph has
+   * completed `initialize()`.
+   * @internal
+   */
   finalize_signals(): void {
     assert(this._lifecycle_state == "initialized")
     this._lifecycle_state = "connecting_signals"
@@ -486,7 +507,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  /** @internal */
+  /** Complete property, initialization, and signal phases for a new object. @internal */
   finish(): void {
     const attrs = this._initial_attrs
     this._initial_attrs = {}
@@ -495,6 +516,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this.finalize_signals()
   }
 
+  /** Connect change listeners owned by this object. Overrides must call `super`. */
   connect_signals(): void {
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
@@ -829,7 +851,14 @@ export function construct<T extends HasProps>(cls: HasPropsClass<T>, attrs: Attr
   }
 }
 
-/** @internal */
+/**
+ * Allocate an unfinished object for cyclic deserialization.
+ *
+ * Only `Deserializer` may use this entry point. It must later initialize
+ * properties, finalize every object in the graph, and connect signals, or
+ * destroy all newly allocated objects if any phase fails.
+ * @internal
+ */
 export function construct_deferred<T extends HasProps>(cls: HasPropsClass<T>, id: string): T {
   return instantiate(cls, {}, id)
 }
