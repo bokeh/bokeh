@@ -51,12 +51,11 @@ if TYPE_CHECKING:
         ModelChangedEvent,
     )
     from ..embed.artifact import EmbedArtifact
-    from ..embed.resources import ResolvedResources, ResourcePolicy
+    from ..embed.resources import ResolvedResources
     from ..model import Model
     from ..models.ui import UIElement
     from ..resources import Resources
     from .jupyter_app import NotebookApplication
-    from .state import State
 
     class Comm(Protocol):
         comm_id: str
@@ -229,7 +228,7 @@ class DocumentViewHandle:
     _MAX_HELD_EVENTS = 256
 
     def __init__(self, root: Model, *, live_id: str, view_id: str,
-            resources: ResourcePolicy | Resources | None = None) -> None:
+            resources: Resources | str | None = None) -> None:
         self._comms: dict[str, Comm] = {}
         self._root = root
         self._live_id = live_id
@@ -689,7 +688,7 @@ def notebook_environment() -> bool:
 
 def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         exclude: set[str] | None = None,
-        resources: ResourcePolicy | Resources | None = None) -> tuple[dict[str, Any], dict[str, Any]] | None:
+        resources: Resources | str | None = None) -> tuple[dict[str, Any], dict[str, Any]] | None:
     ''' Return the automatic static-display MIME bundle for a notebook object.
 
     The serialized graph occurs once, inside the common artifact declaration
@@ -724,11 +723,9 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     portable_widget = (marimo or colab) and anywidget_available()
     artifact, fragment = notebook_content(obj)
     if colab and not portable_widget:
-        from ..embed.resources import ResourcePolicy
         from ..resources import Resources
-        from ..settings import settings
 
-        policy = ResourcePolicy.build(resources or Resources(mode=settings.resources()))
+        policy = Resources.build(resources)
         resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
         fragment = artifact.fragment(resources=policy)
         resource_id = f"bokeh-{resolved.fingerprint[:16]}"
@@ -790,15 +787,13 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
 
 type ProxyUrlFunc = Callable[[int | None], str]
 
-def show_doc(obj: Model | Sequence[UIElement], state: State,
-        resources: ResourcePolicy | Resources | None = None) -> DocumentViewHandle:
+def show_doc(obj: Model | Sequence[UIElement],
+        resources: Resources | str | None = None) -> DocumentViewHandle:
     ''' Display a model as connected notebook output.
 
     Args:
         obj:
             The model or sequence of UI elements to display.
-        state:
-            The current output state whose document owns the source models.
         resources:
             The resource configuration for the artifact.
 
@@ -814,9 +809,12 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
         from ..layouts import column
         obj = column(*obj)
 
-    added_root = obj not in state.document.roots
+    from .doc import curdoc
+
+    source_document = obj.document or curdoc()
+    added_root = obj.document is None
     if added_root:
-        state.document.add_root(obj)
+        source_document.add_root(obj)
 
     from ..embed.notebook import notebook_content
     from .jupyter import DISPLAY_MIME_TYPE, display_payload
@@ -837,8 +835,8 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
     payload = display_payload(artifact, resource_id, view_id, live_id=live_id)
 
     handle = DocumentViewHandle(obj, live_id=live_id, view_id=view_id, resources=resources)
-    root_key = (id(state.document), id(obj))
-    handle._attach(state.document, output_root=added_root or root_key in _OUTPUT_DOCUMENT_ROOTS)
+    root_key = (id(source_document), id(obj))
+    handle._attach(source_document, output_root=added_root or root_key in _OUTPUT_DOCUMENT_ROOTS)
     _retain_document_handle(handle)
     if not use_anywidget:
         _register_notebook_comm_target()
@@ -866,16 +864,13 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
 
     return handle
 
-def show_hosted_app(app: NotebookApplication, state: State,
-        resources: ResourcePolicy | Resources | None = None) -> ApplicationViewHandle:
+def show_hosted_app(app: NotebookApplication,
+        resources: Resources | str | None = None) -> ApplicationViewHandle:
     ''' Display a running :class:`~bokeh.io.NotebookApplication`.
 
     Args:
         app:
             The managed notebook application to display.
-        state:
-            The current output state. Application display does not modify its
-            document.
         resources:
             The resource configuration for the application artifact.
 
@@ -883,7 +878,6 @@ def show_hosted_app(app: NotebookApplication, state: State,
         A handle that owns the frontend connections for this application view.
 
     '''
-    del state
     if app.stopped:
         raise RuntimeError(
             "This notebook application has stopped. Re-run the cell that calls serve(...) "
@@ -1036,14 +1030,11 @@ def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, 
         })
     return resource_id
 
-def _ensure_notebook_resources(artifact: EmbedArtifact, resources: ResourcePolicy | Resources | None = None,
+def _ensure_notebook_resources(artifact: EmbedArtifact, resources: Resources | str | None = None,
         load_timeout: int = 5000, *, publish: bool = True) -> str:
-    from ..embed.resources import ResourcePolicy
     from ..resources import Resources
-    from ..settings import settings
 
-    selected = resources or Resources(mode=settings.resources())
-    policy = ResourcePolicy.build(selected)
+    policy = Resources.build(resources)
     resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
     return _publish_resource_record(resolved, load_timeout, publish=publish)
 

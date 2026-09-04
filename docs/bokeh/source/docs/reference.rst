@@ -41,7 +41,7 @@ be especially useful.
 
 :ref:`bokeh.io`
     Functions for controlling where and how Bokeh documents are saved
-    or shown, such as |output_file| and |show|, are in this module.
+    or shown, such as |save| and |show|, are in this module.
 
 :ref:`bokeh.palettes`
     This section provides visual representations of all the palettes

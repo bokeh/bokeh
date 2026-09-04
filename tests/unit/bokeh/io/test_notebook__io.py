@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 import sys
 import types
+from collections.abc import Callable
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -14,11 +16,14 @@ from bokeh.document import Document
 from bokeh.embed import embed_server
 from bokeh.embed.artifact import EmbedArtifact
 from bokeh.embed.notebook import notebook_content
-from bokeh.embed.resources import ResourcePolicy
 from bokeh.io.jupyter import DISPLAY_MIME_TYPE, PROTOCOL_VERSION
-from bokeh.io.state import State
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, Div, Slider
+from bokeh.models import (
+    Column,
+    ColumnDataSource,
+    Div,
+    Slider,
+)
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 
@@ -31,16 +36,21 @@ def reset() -> None:
     m.reset_notebook_resources()
 
 
-def test_show_doc_publishes_one_artifact_owned_output() -> None:
+@pytest.fixture
+def document() -> Document:
+    return Document()
+
+
+def test_show_doc_publishes_one_artifact_owned_output(document: Document) -> None:
     plot = figure(width=300, height=200)
-    state = State()
     with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
         patch("bokeh.io.notebook._use_anywidget", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data") as publish,
     ):
-        handle = m.show_doc(plot, state)
+        handle = m.show_doc(plot)
 
     publish.assert_called_once()
     data = publish.call_args.args[0]
@@ -57,76 +67,77 @@ def test_show_doc_publishes_one_artifact_owned_output() -> None:
     assert "embed_items_notebook" not in html
     assert handle is m._DOCUMENT_VIEW_HANDLES[payload["live_id"]]
     handle.close()
-    assert plot not in state.document.roots
+    assert plot not in document.roots
 
 
-def test_show_doc_wraps_sequences_in_one_layout_artifact() -> None:
+def test_show_doc_wraps_sequences_in_one_layout_artifact(document: Document) -> None:
     first, second = Div(), Div()
-    state = State()
     with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
         patch("bokeh.io.notebook._use_anywidget", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data"),
     ):
-        handle = m.show_doc([first, second], state)
+        handle = m.show_doc([first, second])
 
-    [root] = state.document.roots
+    [root] = document.roots
+    assert isinstance(root, Column)
     assert list(root.children) == [first, second]
     handle.close()
-    assert state.document.roots == []
+    assert document.roots == []
 
 
-def test_repeated_displays_share_output_root_until_final_handle_closes() -> None:
+def test_repeated_displays_share_output_root_until_final_handle_closes(document: Document) -> None:
     plot = figure()
-    state = State()
     with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
         patch("bokeh.io.notebook._use_anywidget", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data"),
     ):
-        first = m.show_doc(plot, state)
-        second = m.show_doc(plot, state)
+        first = m.show_doc(plot)
+        second = m.show_doc(plot)
 
     first.close()
-    assert plot in state.document.roots
+    assert plot in document.roots
     second.close()
-    assert plot not in state.document.roots
+    assert plot not in document.roots
 
 
-def test_preexisting_document_root_is_not_owned_by_output() -> None:
+def test_preexisting_document_root_is_not_owned_by_output(document: Document) -> None:
     plot = figure()
-    state = State()
-    state.document.add_root(plot)
+    document.add_root(plot)
     with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
         patch("bokeh.io.notebook._use_anywidget", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data"),
     ):
-        handle = m.show_doc(plot, state)
+        handle = m.show_doc(plot)
 
     handle.close()
-    assert plot in state.document.roots
+    assert plot in document.roots
 
 
-def test_handle_eviction_releases_its_output_root() -> None:
+def test_handle_eviction_releases_its_output_root(document: Document) -> None:
     first_plot, second_plot = figure(), figure()
-    state = State()
     with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
         patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1),
         patch("bokeh.io.notebook._use_anywidget", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data"),
     ):
-        first = m.show_doc(first_plot, state)
-        second = m.show_doc(second_plot, state)
+        first = m.show_doc(first_plot)
+        second = m.show_doc(second_plot)
 
     assert first.closed
-    assert first_plot not in state.document.roots
-    assert second_plot in state.document.roots
+    assert first_plot not in document.roots
+    assert second_plot in document.roots
     second.close()
 
 
@@ -166,22 +177,23 @@ def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> Non
     ensure.assert_not_called()
 
 
-def test_colab_connected_output_requires_anywidget() -> None:
+def test_colab_connected_output_requires_anywidget(document: Document) -> None:
     with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
         patch("bokeh.io.notebook._use_anywidget", return_value=False),
         patch("bokeh.io.notebook._is_colab_runtime", return_value=True),
         pytest.raises(RuntimeError, match="Connected Bokeh output in Colab requires AnyWidget"),
     ):
-        m.show_doc(figure(), State())
+        m.show_doc(figure())
 
 
 @pytest.mark.parametrize("policy", [
-    ResourcePolicy(mode="inline"),
-    ResourcePolicy(mode="offline"),
-    ResourcePolicy(mode="cdn", nonce="csp-nonce", crossorigin="anonymous"),
-    ResourcePolicy(mode="none"),
+    Resources(mode="inline"),
+    Resources(mode="offline"),
+    Resources(mode="cdn", nonce="csp-nonce", crossorigin="anonymous"),
+    Resources(mode="none"),
 ])
-def test_notebook_resource_resolution_preserves_explicit_host_policy(policy: ResourcePolicy) -> None:
+def test_notebook_resource_resolution_preserves_explicit_host_policy(policy: Resources) -> None:
     artifact, _ = notebook_content(figure())
     with patch("bokeh.io.notebook._publish_resource_record", return_value="resource") as publish:
         assert m._ensure_notebook_resources(artifact, policy) == "resource"
@@ -204,6 +216,14 @@ def test_marimo_and_colab_detection_are_host_capabilities(monkeypatch: pytest.Mo
     monkeypatch.setitem(sys.modules, "marimo._runtime", runtime)
     monkeypatch.setitem(sys.modules, "marimo._runtime.context", context)
     assert m.is_marimo_runtime()
+
+
+def test_legacy_colab_import_hook_is_ignored(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setitem(sys.modules, "google.colab._import_hooks._bokeh", types.ModuleType("_bokeh"))
+
+    install = getattr(m, "install_notebook_hook")
+
+    assert install("jupyter", object(), object(), object(), overwrite=True) is None
 
 
 def test_marimo_without_anywidget_has_actionable_install_error() -> None:
@@ -368,7 +388,7 @@ def test_comm_release_message_closes_the_output_owner() -> None:
         import bokeh.io.notebook as module
         module._NOTEBOOK_COMM_KERNEL = None
         module._register_notebook_comm_target()
-    callback = targets["bokeh.notebook.v1"]
+    callback = cast(Callable[[Any, dict[str, Any]], None], targets["bokeh.notebook.v1"])
     callback(comm, {"content": {"data": {"kind": "release", "view_id": "view"}}})
 
     assert handle.closed
@@ -387,7 +407,7 @@ def test_show_hosted_app_uses_server_artifact_and_view_ownership() -> None:
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data") as publish,
     ):
-        handle = m.show_hosted_app(app, State())
+        handle = m.show_hosted_app(app)
 
     assert isinstance(handle, m.ApplicationViewHandle)
     data = publish.call_args.args[0]
