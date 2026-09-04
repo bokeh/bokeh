@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
-from bokeh.io.state import curstate
+from bokeh.document import Document
 from bokeh.layouts import row
 from bokeh.models import (
     Circle,
@@ -293,32 +293,29 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
     assert svgs1 == svgs2
 
 @pytest.mark.selenium
-def test_get_svg_with_implicit_document_and_theme(webdriver: WebDriver) -> None:
-    state = curstate()
-    state.reset()
-    try:
-        state.document.theme = Theme(json={
-            "attrs": {
-                "Plot": {
-                    "background_fill_color": "#2f3f4f",
-                },
+def test_get_svg_with_document_theme(webdriver: WebDriver) -> None:
+    document = Document()
+    document.theme = Theme(json={
+        "attrs": {
+            "Plot": {
+                "background_fill_color": "#2f3f4f",
             },
-        })
+        },
+    })
 
-        def p(color: str):
-            plot = Plot(
-                x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
-                height=200, width=200,
-                toolbar_location=None,
-                output_backend="svg",
-            )
-            plot.add_glyph(Circle(x=0, y=0, radius=1, fill_color=color))
-            return plot
+    def p(color: str):
+        plot = Plot(
+            x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
+            height=200, width=200,
+            toolbar_location=None,
+            output_backend="svg",
+        )
+        plot.add_glyph(Circle(x=0, y=0, radius=1, fill_color=color))
+        return plot
 
-        [svg] = bie.get_svg(row([p("red"), p("blue")]), driver=webdriver)
-        assert len(re.findall(r'fill="#2f3f4f"', svg)) == 2
-    finally:
-        state.reset()
+    document.add_root(row([p("red"), p("blue")]))
+    [svg] = bie.get_svg(document, driver=webdriver)
+    assert len(re.findall(r'fill="#2f3f4f"', svg)) == 2
 
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:

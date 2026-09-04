@@ -25,7 +25,7 @@ from urllib.parse import parse_qs, urlparse
 
 # Bokeh imports
 from .. import __version__
-from ..embed.bundle import extension_dirs
+from ..embed.resources import extension_dirs
 from ..embed.server import server_html_page_for_session
 from ..protocol import ack
 from ..protocol.exceptions import ProtocolError

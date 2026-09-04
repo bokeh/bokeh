@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
     from ..resources import Resources
     from .renderers import ArtifactFragment, ExternalArtifact
-    from .resources import ResourcePolicy
 
 EMBED_ARTIFACT_SCHEMA = "bokeh.embed/v1"
 EMBED_ARTIFACT_MIME_TYPE = "application/vnd.bokeh.embed+json"
@@ -294,7 +293,7 @@ class EmbedArtifact:
             raise ArtifactValidationError("an embedding artifact must be a JSON object")
         return cls.from_dict(parsed)
 
-    def fragment(self, resources: ResourcePolicy | Resources | str | None = "none", **kwargs: Any) -> ArtifactFragment:
+    def fragment(self, resources: Resources | str | None = "none", **kwargs: Any) -> ArtifactFragment:
         '''Render composable targets, bootstrap code, and resolved resources.
 
         Args:
@@ -307,7 +306,7 @@ class EmbedArtifact:
         from .renderers import render_fragment
         return render_fragment(self, resources=resources, **kwargs)
 
-    def page(self, resources: ResourcePolicy | Resources | str | None = None, *, title: str | None = None,
+    def page(self, resources: Resources | str | None = None, *, title: str | None = None,
             template: Template | str | Path | None = None, template_variables: Mapping[str, Any] | None = None,
             **kwargs: Any) -> str:
         '''Render a complete HTML page from this artifact.
@@ -328,7 +327,7 @@ class EmbedArtifact:
             template_variables=template_variables, **kwargs,
         )
 
-    def external(self, payload_url: str, resources: ResourcePolicy | Resources | str | None = "none",
+    def external(self, payload_url: str, resources: Resources | str | None = "none",
             **kwargs: Any) -> ExternalArtifact:
         '''Render targets that fetch this artifact from a URL.
 

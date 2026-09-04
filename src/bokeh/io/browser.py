@@ -43,9 +43,7 @@ from collections.abc import Callable, Coroutine
 from typing import TYPE_CHECKING, Any, cast
 
 # Bokeh imports
-from ..resources import INLINE
 from ..util.dependencies import import_required
-from .state import curstate
 from .util import (
     _BOKEH_LOADED_EXPR,
     _ROOT_VIEW_BBOX_SCRIPT,
@@ -68,7 +66,6 @@ if TYPE_CHECKING:
     from ..document import Document
     from ..models.ui import UIElement
     from ..resources import Resources
-    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -93,11 +90,10 @@ def get_screenshot_as_png(
     *,
     driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources = INLINE,
+    resources: Resources | str = "inline",
     width: int | None = None,
     height: int | None = None,
     scale_factor: float = 1,
-    state: State | None = None,
 ) -> Image.Image:
     '''Capture a Bokeh layout as a PNG image using Playwright.
 
@@ -110,8 +106,7 @@ def get_screenshot_as_png(
             ``playwright_control`` instance.  This allows callers to
             supply a ``launch_persistent_context`` or a custom browser.
     '''
-    theme = (state or curstate()).document.theme
-    html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
+    html = get_layout_html(obj, resources=resources, width=width, height=height)
 
     png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, driver=driver)
 
@@ -128,18 +123,16 @@ def get_svg(
     *,
     driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources = INLINE,
+    resources: Resources | str = "inline",
     width: int | None = None,
     height: int | None = None,
-    state: State | None = None,
 ) -> list[str]:
     '''Export a Bokeh layout as a list of SVG strings using Playwright.
 
     This is the Playwright equivalent of the Selenium code path in
     :func:`~bokeh.io.export.get_svg`.
     '''
-    theme = (state or curstate()).document.theme
-    html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
+    html = get_layout_html(obj, resources=resources, width=width, height=height)
     svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, driver=driver)[0]
     return svgs
 
@@ -149,18 +142,16 @@ def get_svgs(
     *,
     driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources = INLINE,
+    resources: Resources | str = "inline",
     width: int | None = None,
     height: int | None = None,
-    state: State | None = None,
 ) -> list[str]:
     '''Export SVG-enabled plots within a Bokeh layout using Playwright.
 
     This is the Playwright equivalent of the Selenium code path in
     :func:`~bokeh.io.export.get_svgs`.
     '''
-    theme = (state or curstate()).document.theme
-    html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
+    html = get_layout_html(obj, resources=resources, width=width, height=height)
     svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, driver=driver)[0]
     return svgs
 

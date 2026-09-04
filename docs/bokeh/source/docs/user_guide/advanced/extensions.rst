@@ -121,7 +121,7 @@ the custom extension exactly you would any built-in Bokeh model.
 
 .. code-block:: python
 
-    from bokeh.io import show, output_file
+    from bokeh.io import show
     from bokeh.layouts import column
     from bokeh.models import Slider
 
