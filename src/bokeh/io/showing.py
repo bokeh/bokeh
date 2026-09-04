@@ -141,7 +141,7 @@ def show(
     if is_application(obj) or callable(obj): # TODO (bev) check callable signature more thoroughly
         raise RuntimeError(
             "Bokeh 4.0 no longer starts an application from show(...). "
-            "Use app = serve(..., notebook_url=...), then show(app) in an interactive notebook.",
+            "Use app = serve(...), then show(app) in an interactive notebook.",
         )
 
     raise ValueError(_BAD_SHOW_MSG)

@@ -46,14 +46,12 @@ __all__ = (
 
 _PROTOCOL = json.loads((Path(__file__).parents[1] / "jupyter" / "protocol.json").read_text())
 PROTOCOL_VERSION = _PROTOCOL["version"]
-ARTIFACT_MIME_TYPE = _PROTOCOL["mime_types"]["artifact"]
+ARTIFACT_MIME_TYPE = EMBED_ARTIFACT_MIME_TYPE
 DISPLAY_MIME_TYPE = _PROTOCOL["mime_types"]["display"]
 FILE_MIME_TYPE = _PROTOCOL["mime_types"]["file"]
 RESOURCES_MIME_TYPE = _PROTOCOL["mime_types"]["resources"]
 NOTEBOOK_COMM_TARGET = _PROTOCOL["comm_targets"]["notebook"]
 RESOURCE_COMM_TARGET = _PROTOCOL["comm_targets"]["resources"]
-
-assert ARTIFACT_MIME_TYPE == EMBED_ARTIFACT_MIME_TYPE
 
 _NOTEBOOK_INFO_LABELS = {
     "python_version": "Python version",
@@ -215,6 +213,7 @@ class DisplayPayload(TypedDict):
     connect_timeout: int
     live_id: NotRequired[str]
     application_id: NotRequired[str]
+    application_url: NotRequired[str]
 
 class FilePayload(TypedDict):
     protocol_version: int
@@ -339,8 +338,10 @@ def resource_javascript(payload: ResourcePayload, assets: tuple[ResolvedResource
     )
 
 def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
-        live_id: str | None = None, application_id: str | None = None,
+        live_id: str | None = None, application_id: str | None = None, application_url: str | None = None,
         connect_timeout: int = 10_000) -> DisplayPayload:
+    if (application_id is None) != (application_url is None):
+        raise ValueError("application_id and application_url must be provided together")
     payload = DisplayPayload(
         protocol_version=PROTOCOL_VERSION,
         kind="artifact",
@@ -356,6 +357,8 @@ def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
         payload["live_id"] = live_id
     if application_id is not None:
         payload["application_id"] = application_id
+    if application_url is not None:
+        payload["application_url"] = application_url
     return payload
 
 def file_payload(path: str) -> FilePayload:

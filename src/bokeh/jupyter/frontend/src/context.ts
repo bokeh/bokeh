@@ -3,6 +3,7 @@ import {INotebookModel} from "@jupyterlab/notebook"
 import {Contents} from "@jupyterlab/services"
 import {IDisposable} from "@lumino/disposable"
 
+import {resolveJupyterApplicationUrl} from "./host"
 import {BokehNotebookError} from "./protocol"
 import {FrontendDocumentSnapshot} from "./runtime"
 
@@ -23,6 +24,9 @@ export class ContextManager implements IDisposable {
   }
   get isDisposed(): boolean {return this._context == null}
   get path(): string {return this.context.path}
+  applicationUrl(url: string): string {
+    return resolveJupyterApplicationUrl(url, this.contents.serverSettings.baseUrl)
+  }
   async fileUrl(path: string): Promise<string> {
     if (path.startsWith("/") || /^[A-Za-z]:\//.test(path) || path.includes("\\") || path.split("/").includes("..")) {
       throw new BokehNotebookError(

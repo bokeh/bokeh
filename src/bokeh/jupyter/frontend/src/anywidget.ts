@@ -1,3 +1,4 @@
+import {jupyterServerBaseUrl, resolveJupyterApplicationUrl} from "./host"
 import {BokehNotebookError, DisplayPayload} from "./protocol"
 import {KernelProxy, LiveConnection, ResourceRecord, currentDocumentSnapshot, renderDiagnostic, renderDisplay, renderLoading} from "./runtime"
 import {dataViews, LiveRevisionTransport, withTimeout} from "./transport"
@@ -36,10 +37,10 @@ export default function anywidgetFactory() {
   })
   let sendResync: () => void = () => undefined
   const revisions = new LiveRevisionTransport(() => sendResync())
-  let applicationReady = false
-  let applicationResolve: (() => void) | undefined
+  let applicationArtifact: string | undefined
+  let applicationResolve: ((artifact: string) => void) | undefined
   let applicationReject: ((error: unknown) => void) | undefined
-  const applicationOpened = new Promise<void>((resolve, reject) => {
+  const applicationOpened = new Promise<string>((resolve, reject) => {
     applicationResolve = resolve
     applicationReject = reject
   })
@@ -62,9 +63,15 @@ export default function anywidgetFactory() {
         snapshotResolve?.(snapshot)
         if (initial) revisions.reset(data.revision)
         else revisions.receive(data)
+      } else if (data?.kind === "ready" && typeof data.artifact === "string") {
+        applicationArtifact = data.artifact
+        applicationResolve?.(data.artifact)
       } else if (data?.kind === "ready") {
-        applicationReady = true
-        applicationResolve?.()
+        applicationReject?.(new BokehNotebookError(
+          "APPLICATION_ARTIFACT_INVALID",
+          "Python opened the AnyWidget application-view channel without returning its artifact.",
+          "Restart the kernel and re-run the cells that call serve(...) and show(app).",
+        ))
       } else if (data?.kind === "close") {
         if (!liveClosed) {
           liveClosed = true
@@ -103,7 +110,14 @@ export default function anywidgetFactory() {
       }
     }
     model.on("msg:custom", receive)
-    model.send({kind: "ready"})
+    const payload = model.get("payload") as DisplayPayload | undefined
+    const applicationUrl = payload?.application_url
+    model.send({
+      kind: "ready",
+      ...(applicationUrl == null ? {} : {
+        application_url: resolveJupyterApplicationUrl(applicationUrl, jupyterServerBaseUrl()),
+      }),
+    })
     signal.addEventListener("abort", () => {
       // The AnyWidget abort signal is the host's release boundary. Reject
       // outstanding work, unsubscribe from the comm, and tell Python to drop
@@ -192,14 +206,15 @@ export default function anywidgetFactory() {
           },
         }
       },
-      async openApplicationView(_viewId) {
-        if (!applicationReady) await withTimeout(applicationOpened, payload.connect_timeout, new BokehNotebookError(
+      async openApplicationView(_viewId, _applicationUrl) {
+        const artifactJson = applicationArtifact ?? await withTimeout(applicationOpened, payload.connect_timeout, new BokehNotebookError(
           "ANYWIDGET_APPLICATION_CONNECTION_TIMEOUT",
           "Python did not open the AnyWidget application-view channel in time.",
           "Check that the kernel and ASGI application are still running, then re-run show(app).",
         ), signal)
         let listener: (() => void) | undefined
         return {
+          artifactJson,
           onClose(callback: () => void) {
             listener = callback
             applicationCloseListeners.add(callback)

@@ -50,6 +50,7 @@ export interface LiveConnection {
 }
 
 export interface ApplicationViewConnection {
+  artifactJson: string
   onClose(callback: () => void): void
   close(): void
 }
@@ -58,7 +59,7 @@ export interface KernelProxy {
   readonly scope?: object
   requestResource?(resourceId: string): Promise<ResourceRecord>
   openLive?(liveId: string): Promise<LiveConnection>
-  openApplicationView?(viewId: string): Promise<ApplicationViewConnection>
+  openApplicationView?(viewId: string, applicationUrl: string): Promise<ApplicationViewConnection>
   releaseView?(viewId: string): Promise<void>
 }
 
@@ -486,6 +487,29 @@ function extractArtifact(payload: DisplayPayload, html: string): any {
   return artifact
 }
 
+function applicationArtifact(payload: DisplayPayload, value: string): any {
+  let artifact: any
+  try {
+    artifact = JSON.parse(value)
+  } catch (cause) {
+    throw new BokehNotebookError(
+      "APPLICATION_ARTIFACT_INVALID",
+      "The kernel did not return a valid Bokeh application artifact.",
+      "Restart the kernel and re-run the cells that call serve(...) and show(app).",
+      cause,
+    )
+  }
+  if (artifact?.schema !== "bokeh.embed/v1" || artifact.source?.kind !== "server" ||
+      artifact.metadata?.notebook_application_id !== payload.application_id) {
+    throw new BokehNotebookError(
+      "APPLICATION_ARTIFACT_INVALID",
+      "The kernel returned an artifact for a different notebook application.",
+      "Restart the kernel and re-run the cells that call serve(...) and show(app).",
+    )
+  }
+  return artifact
+}
+
 function artifactTargets(node: HTMLElement, artifact: any): {target?: HTMLElement, targets?: Map<string, HTMLElement>, roots: HTMLElement[]} {
   const roots: HTMLElement[] = []
   if (artifact.source.kind === "server" && artifact.roots.length === 0) {
@@ -625,7 +649,8 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
           "Use JupyterLab, Notebook, or AnyWidget with the bundled Bokeh integration.",
         )
       }
-      viewConnection = await kernel.openApplicationView(payload.view_id)
+      viewConnection = await kernel.openApplicationView(payload.view_id, payload.application_url!)
+      artifact = applicationArtifact(payload, viewConnection.artifactJson)
     }
     await mountArtifact(artifact, live?.resourceId ?? payload.resource_id, live?.revision ?? 0)
     if (live != null) {

@@ -70,7 +70,7 @@ class _SavedFile(str):
         link = candidate.as_posix()
         result._link_path = (
             link
-            if not candidate.is_absolute() and candidate.drive == "" and ".." not in parts and "\\" not in link
+            if candidate.root == "" and candidate.drive == "" and ".." not in parts and "\\" not in link
             else None
         )
         return result
