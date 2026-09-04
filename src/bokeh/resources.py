@@ -52,7 +52,7 @@ from .util.token import generate_session_id
 from .util.version import is_full_release
 
 if TYPE_CHECKING:
-    from .core.types import ID
+    from .core.types import ID, PathLike
     from .embed.resources import ResolvedResources, ResourceRequirements
 
 # -----------------------------------------------------------------------------
@@ -128,8 +128,8 @@ class Resources:
     mode: ResourcesMode = "cdn"
     minified: bool = True
     root_url: str | None = None
-    root_dir: Path | None = None
-    base_dir: Path | None = None
+    root_dir: PathLike | None = None
+    base_dir: PathLike | None = None
     nonce: str | None = None
     crossorigin: str | None = None
     integrity: bool = False
@@ -289,14 +289,15 @@ class Resources:
     def _resolve_bokeh_assets(self, components: Sequence[str], kind: Literal["js", "css"], *,
             bokeh_version: str) -> tuple[list[str], list[str], Mapping[str, str]]:
         suffix = ".min" if self.minified else ""
-        base_dir = self.base_dir or settings.bokehjs_path()
+        base_dir = Path(self.base_dir) if self.base_dir is not None else settings.bokehjs_path()
         paths = [base_dir / kind / f"{component}{suffix}.{kind}" for component in components]
         mode = "inline" if self.mode == "offline" else self.mode
 
         if mode == "inline":
             return [], [_inline_resource(path) for path in paths], {}
         if mode == "relative":
-            root_dir = self.root_dir or settings.rootdir() or Path(os.curdir)
+            configured_root = self.root_dir or settings.rootdir()
+            root_dir = Path(configured_root) if configured_root is not None else Path(os.curdir)
             return [os.path.relpath(path, root_dir).replace("\\", "/") for path in paths], [], {}
         if mode == "absolute":
             return [str(path) for path in paths], [], {}
