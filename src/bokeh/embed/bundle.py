@@ -21,35 +21,27 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import hashlib
-import json
-import os
-from dataclasses import dataclass
-from os.path import normpath
-from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
     Iterator,
-    NotRequired,
     Sequence,
-    TypedDict,
-    cast,
 )
-from urllib.parse import urljoin
 
 # Bokeh imports
 from ..core.has_props import HasProps
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES
 from ..document.document import Document
-from ..resources import Resources
-from ..settings import settings
+from ..resources import Hashes, Resources
 from ..util.compiler import bundle_models
-from .util import contains_tex_string
-
-if TYPE_CHECKING:
-    from ..resources import Hashes
+from .resources import (
+    URL,
+    _all_objs,
+    _bundle_extensions,
+    _use_gl,
+    _use_mathjax,
+    _use_tables,
+    _use_widgets,
+    extension_dirs,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -58,6 +50,7 @@ if TYPE_CHECKING:
 __all__ = (
     'Bundle',
     'bundle_for_objs_and_resources',
+    'extension_dirs',
 )
 
 #-----------------------------------------------------------------------------
@@ -214,269 +207,3 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
         js_raw.append(ext)
 
     return Bundle(js_files, js_raw, css_files, css_raw, resources.hashes if resources else {})
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-def _query_extensions(all_objs: set[HasProps], query: Callable[[type[HasProps]], bool]) -> bool:
-    names: set[str] = set()
-
-    for obj in all_objs:
-        if hasattr(obj, "__implementation__"):
-            continue
-        name = obj.__view_module__.split(".")[0]
-        if name == "bokeh":
-            continue
-        if name in names:
-            continue
-        names.add(name)
-
-        for model in HasProps.model_class_reverse_map.values():
-            if model.__module__.startswith(name):
-                if query(model):
-                    return True
-
-    return False
-
-@dataclass(frozen=True)
-class URL:
-    """ Opaque type for representing URLs. """
-
-    url: str
-
-    def __truediv__(self, path: str) -> URL:
-        url = self.url if self.url.endswith("/") else f"{self.url}/"
-        return URL(urljoin(url, path.replace(os.sep, "/")))
-
-    def __str__(self) -> str:
-        return self.url
-
-@dataclass(frozen=True)
-class ExtensionEmbed:
-    artifact_path: Path
-    server_url: URL
-    cdn_url: URL | None = None
-
-class Pkg(TypedDict):
-    name: NotRequired[str]
-    version: NotRequired[str]
-    module: NotRequired[str]
-    main: NotRequired[str]
-
-_default_cdn_host = URL("https://unpkg.com")
-
-extension_dirs: dict[str, Path] = {}
-
-def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list[ExtensionEmbed]:
-    names: set[str] = set()
-    bundles: list[ExtensionEmbed] = []
-
-    extensions = [".min.js", ".js"] if resources.minified else [".js"]
-
-    all_objs = objs if objs is not None else HasProps.model_class_reverse_map.values()
-
-    for obj in all_objs:
-        if hasattr(obj, "__implementation__"):
-            continue
-        name = obj.__view_module__.split(".")[0]
-        if name == "bokeh":
-            continue
-        if name in names:
-            continue
-        names.add(name)
-        module = __import__(name)
-        if module.__file__ is None:
-            continue
-        this_file = Path(module.__file__).absolute()
-        base_dir = this_file.parent
-        dist_dir = base_dir / "dist"
-
-        ext_path = base_dir / "bokeh.ext.json"
-        if not ext_path.exists():
-            continue
-
-        server_prefix = URL(resources.root_url) / "static" / "extensions"
-        package_path = base_dir / "package.json"
-
-        pkg: Pkg | None = None
-        if package_path.exists():
-            with open(package_path) as io:
-                try:
-                    pkg = json.load(io)
-                except json.decoder.JSONDecodeError:
-                    pass
-
-        artifact_path: Path
-        server_url: URL
-        cdn_url: URL | None = None
-
-        if pkg is not None:
-            pkg_name: str | None = pkg.get("name", None)
-            if pkg_name is None:
-                raise ValueError("invalid package.json; missing package name")
-            pkg_version = pkg.get("version", "latest")
-            pkg_main = pkg.get("module", pkg.get("main", None))
-            if pkg_main is not None:
-                pkg_main_path = Path(normpath(pkg_main))
-                cdn_url = _default_cdn_host / f"{pkg_name}@{pkg_version}" / f"{pkg_main_path}"
-            else:
-                pkg_main_path = dist_dir / f"{name}.js"
-            artifact_path = base_dir / pkg_main_path
-            artifacts_dir = artifact_path.parent
-            artifact_name = artifact_path.name
-            server_path = f"{name}/{artifact_name}"
-            if not settings.dev:
-                sha = hashlib.sha256()
-                sha.update(pkg_version.encode())
-                vstring = sha.hexdigest()
-                server_path = f"{server_path}?v={vstring}"
-        else:
-            for ext in extensions:
-                artifact_path = dist_dir / f"{name}{ext}"
-                artifacts_dir = dist_dir
-                server_path = f"{name}/{name}{ext}"
-                if artifact_path.exists():
-                    break
-            else:
-                raise ValueError(f"can't resolve artifact path for '{name}' extension")
-
-        extension_dirs[name] = Path(artifacts_dir)
-        server_url = server_prefix / server_path
-        embed = ExtensionEmbed(artifact_path, server_url, cdn_url)
-        bundles.append(embed)
-
-    return bundles
-
-def _all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
-    all_objs: set[HasProps] = set()
-
-    for obj in objs:
-        if isinstance(obj, Document):
-            for root in obj.roots:
-                all_objs |= root.references()
-        else:
-            all_objs |= cast(Any, obj).references()
-
-    return all_objs
-
-def _any(objs: set[HasProps], query: Callable[[HasProps], bool]) -> bool:
-    ''' Whether any of a collection of objects satisfies a given query predicate
-
-    Args:
-        objs (set[HasProps]) :
-
-        query (callable)
-
-    Returns:
-        True, if ``query(obj)`` is True for some object in ``objs``, else False
-
-    '''
-    return any(query(x) for x in objs)
-
-def _use_tables(all_objs: set[HasProps]) -> bool:
-    ''' Whether a collection of Bokeh objects contains a TableWidget
-
-    Args:
-        all_objs (seq[HasProps or Document]) :
-
-    Returns:
-        bool
-
-    '''
-    from ..models.widgets import TableWidget
-    return _any(all_objs, lambda obj: isinstance(obj, TableWidget)) or _ext_use_tables(all_objs)
-
-def _use_widgets(all_objs: set[HasProps]) -> bool:
-    ''' Whether a collection of Bokeh objects contains a any Widget
-
-    Args:
-        all_objs (seq[HasProps or Document]) :
-
-    Returns:
-        bool
-
-    '''
-    from ..models.widgets import Widget
-    return _any(all_objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(all_objs)
-
-def _model_requires_mathjax(model: HasProps) -> bool:
-    """Whether a model requires MathJax to be loaded
-    Args:
-        model (HasProps): HasProps to check
-    Returns:
-        bool: True if MathJax required, False if not
-    """
-    # TODO query model's properties that include TextLike or better
-    # yet load mathjax bundle dynamically on bokehjs' side.
-
-    from ..models.annotations import TextAnnotation
-    from ..models.axes import Axis
-    from ..models.widgets.markups import Div, Paragraph
-    from ..models.widgets.sliders import AbstractSlider
-
-    if isinstance(model, TextAnnotation):
-        if isinstance(model.text, str) and contains_tex_string(model.text):
-            return True
-
-    if isinstance(model, AbstractSlider):
-        if isinstance(model.title, str) and contains_tex_string(model.title):
-            return True
-
-    if isinstance(model, Axis):
-        if isinstance(model.axis_label, str) and contains_tex_string(model.axis_label):
-            return True
-
-        for val in model.major_label_overrides.values():
-            if isinstance(val, str) and contains_tex_string(val):
-                return True
-
-    if isinstance(model, Div) and not model.disable_math and not model.render_as_text:
-        if contains_tex_string(model.text):
-            return True
-
-    if isinstance(model, Paragraph) and not model.disable_math:
-        if contains_tex_string(model.text):
-            return True
-
-    return False
-
-def _use_mathjax(all_objs: set[HasProps]) -> bool:
-    ''' Whether a collection of Bokeh objects contains a model requesting MathJax
-    Args:
-        all_objs (seq[HasProps or Document]) :
-    Returns:
-        bool
-    '''
-    from ..models.glyphs import MathTextGlyph
-    from ..models.text import MathText
-
-    return _any(all_objs, lambda obj: isinstance(obj, (MathTextGlyph, MathText)) or _model_requires_mathjax(obj)) or _ext_use_mathjax(all_objs)
-
-def _use_gl(all_objs: set[HasProps]) -> bool:
-    ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
-
-    Args:
-        all_objs (seq[HasProps or Document]) :
-
-    Returns:
-        bool
-
-    '''
-    from ..models.plots import Plot
-    return _any(all_objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
-
-def _ext_use_tables(all_objs: set[HasProps]) -> bool:
-    from ..models.widgets import TableWidget
-    return _query_extensions(all_objs, lambda cls: issubclass(cls, TableWidget))
-
-def _ext_use_widgets(all_objs: set[HasProps]) -> bool:
-    from ..models.widgets import Widget
-    return _query_extensions(all_objs, lambda cls: issubclass(cls, Widget))
-
-def _ext_use_mathjax(all_objs: set[HasProps]) -> bool:
-    from ..models.text import MathText
-    return _query_extensions(all_objs, lambda cls: issubclass(cls, MathText))
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
