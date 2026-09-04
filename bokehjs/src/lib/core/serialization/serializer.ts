@@ -48,6 +48,11 @@ class Serialized<T> {
 
 export type Options = {
   references: Map<unknown, Ref>
+  /**
+   * Exact identity-retention set for graph-minimal static serialization.
+   * `null` preserves IDs for every model and is required for live protocol
+   * documents and patches. Membership never adds an object to the graph.
+   */
   models_with_ids: Set<unknown> | null
   binary: boolean
   include_defaults: boolean
@@ -81,6 +86,7 @@ export class Serializer {
     this._references.set(obj, ref)
   }
 
+  /** Decide whether an already-reached model needs an explicit serialized ID. */
   use_model_id(obj: unknown): boolean {
     return this._models_with_ids == null || this._models_with_ids.has(obj)
   }

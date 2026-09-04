@@ -106,6 +106,12 @@ function immediate_model_refs(model: HasProps): HasProps[] {
   return refs
 }
 
+/**
+ * Find exactly the reached models whose identity cannot be reconstructed from
+ * tree position: objects referenced more than once and members of cycles.
+ * Traversal covers model properties and nested containers but never expands
+ * beyond the values supplied by the document serializer.
+ */
 function models_with_ids(values: unknown[]): Set<HasProps> {
   const counts: Map<HasProps, number> = new Map()
   const children: Map<HasProps, HasProps[]> = new Map()
