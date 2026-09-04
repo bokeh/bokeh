@@ -6,8 +6,9 @@ import json
 from unittest.mock import MagicMock, patch
 
 # External imports
-import nbformat
 import pytest
+
+nbformat = pytest.importorskip("nbformat")
 
 # Bokeh imports
 from bokeh.embed import embed, embed_server
@@ -15,6 +16,7 @@ from bokeh.io.jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE, display_pay
 from bokeh.io.jupyter_export import (
     _TRANSIENT_EXPORTS,
     BokehPngPreprocessor,
+    _artifact_payload,
     _reset_export_correlation,
     _set_export_correlation,
     _store_export_snapshots,
@@ -84,6 +86,11 @@ def test_invalid_correlation_ids_are_rejected() -> None:
         _store_export_snapshots("test.ipynb", "spaces are unsafe", [])
 
 
+def test_artifact_payload_is_parsed_from_its_declared_script() -> None:
+    assert _artifact_payload('<script data-other>ignored</script><script nonce="test" data-bokeh-artifact-payload>{"value":"ok"}</script>') == '{"value":"ok"}'
+    assert _artifact_payload('<script data-bokeh-artifact-payload-malformed>{}</script>') is None
+
+
 def test_saved_artifact_is_captured_through_common_page_and_playwright() -> None:
     notebook = _notebook()
     preprocessor = BokehPngPreprocessor(require_trusted=False)
@@ -149,6 +156,15 @@ def test_untrusted_artifact_is_never_executed() -> None:
     screenshot.assert_not_called()
 
 
+def test_signature_store_is_closed() -> None:
+    notary = MagicMock()
+    notary.check_signature.return_value = True
+    with patch("bokeh.io.jupyter_export.NotebookNotary", return_value=notary):
+        assert BokehPngPreprocessor()._check_signature(_notebook())
+
+    notary.close.assert_called_once_with()
+
+
 def test_resource_owner_outputs_are_removed_from_export() -> None:
     notebook = _notebook()
     notebook.cells[0].outputs.insert(0, nbformat.v4.new_output(
@@ -188,6 +204,7 @@ def test_anywidget_output_metadata_preserves_saved_artifact_export() -> None:
 
 
 def test_server_extension_registers_snapshot_and_correlated_export_routes() -> None:
+    pytest.importorskip("jupyter_server")
     from bokeh.jupyter import (
         _CorrelatedNbconvertFileHandler,
         _ExportSnapshotsHandler,

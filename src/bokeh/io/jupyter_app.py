@@ -11,6 +11,7 @@ from __future__ import annotations
 # Standard library imports
 import asyncio
 import atexit
+import logging
 import os
 import secrets
 import socket
@@ -22,6 +23,8 @@ from types import ModuleType
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 from uuid import uuid4
+
+log = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from ..application import Application
@@ -195,7 +198,7 @@ def _stop_all_applications() -> None:
         try:
             application.stop()
         except Exception:
-            pass
+            log.debug("Could not stop notebook application at interpreter shutdown", exc_info=True)
 
 
 atexit.register(_stop_all_applications)
@@ -286,7 +289,7 @@ class NotebookApplication:
             try:
                 self.stop()
             except BaseException:
-                pass
+                log.debug("Could not stop notebook application after setup failed", exc_info=True)
             raise
 
     def __repr__(self) -> str:
