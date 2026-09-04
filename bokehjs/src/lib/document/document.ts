@@ -693,7 +693,7 @@ export class Document implements Equatable {
 
   _to_json(include_defaults: boolean = true, model_ids: "always" | "minimal" = "always", extra_models_with_ids: Iterable<HasProps> = []): DocJson {
     const ids = model_ids == "minimal" ? new Set([...models_with_ids([this.config, this._roots]), ...extra_models_with_ids]) : null
-    const serializer = new Serializer({include_defaults, models_with_ids: ids})
+    const serializer = new Serializer({include_defaults, models_with_ids: ids, compact: model_ids == "minimal"})
     const config = serializer.encode(this.config)
     const roots = serializer.encode(this._roots)
     return {

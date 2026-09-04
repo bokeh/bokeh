@@ -755,8 +755,8 @@ describe("Document", () => {
     d.add_root(root)
 
     const json = d._to_json(false, "minimal")
-    expect("id" in json.config!).to.be.false
-    expect("id" in json.roots[0]).to.be.false
+    expect("$id" in json.config!).to.be.false
+    expect("$id" in json.roots[0]).to.be.false
 
     const copy = Document.from_json(json)
     expect(copy.roots().length).to.be.equal(1)
@@ -774,15 +774,10 @@ describe("Document", () => {
     d.add_root(root1)
 
     const json = d._to_json(false, "minimal")
-    expect("id" in json.roots[0]).to.be.false
-    expect("id" in json.roots[1]).to.be.false
-    expect(json.roots[0].attributes!.child).to.be.equal({
-      type: "object",
-      name: "SomeModel",
-      id: shared.id,
-      attributes: {foo: 10},
-    })
-    expect(json.roots[1].attributes!.child).to.be.equal({id: shared.id})
+    expect("$id" in json.roots[0]).to.be.false
+    expect("$id" in json.roots[1]).to.be.false
+    expect((json.roots[0] as any).child).to.be.equal({$type: "SomeModel", $id: shared.id, foo: 10})
+    expect((json.roots[1] as any).child).to.be.equal({$ref: shared.id})
 
     const copy = Document.from_json(json)
     const copy_root0 = copy.roots()[0] as SomeModel
@@ -799,11 +794,11 @@ describe("Document", () => {
     d.add_root(root)
 
     const json = d._to_json(false, "minimal")
-    expect("id" in json.roots[0]).to.be.false
-    const child0_rep: any = json.roots[0].attributes!.child
-    expect(child0_rep.id).to.be.equal(child0.id)
-    expect(child0_rep.attributes.child.id).to.be.equal(child1.id)
-    expect(child0_rep.attributes.child.attributes.child).to.be.equal({id: child0.id})
+    expect("$id" in json.roots[0]).to.be.false
+    const child0_rep: any = (json.roots[0] as any).child
+    expect(child0_rep.$id).to.be.equal(child0.id)
+    expect(child0_rep.child.$id).to.be.equal(child1.id)
+    expect(child0_rep.child.child).to.be.equal({$ref: child0.id})
   })
 
   it("can serialize excluding defaults", () => {

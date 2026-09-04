@@ -750,15 +750,10 @@ class TestSerializer:
 
         rep = doc._to_json(deferred=False, model_ids="minimal")
 
-        assert "id" not in rep["roots"][0]
-        assert "id" not in rep["roots"][1]
-        assert rep["roots"][0]["attributes"]["p3"] == ObjectRefRep(
-            type="object",
-            name="test_serialization.SomeModel",
-            id=shared.id,
-            attributes=dict(p0=10),
-        )
-        assert rep["roots"][1]["attributes"]["p3"] == Ref(id=shared.id)
+        assert "$id" not in rep["roots"][0]
+        assert "$id" not in rep["roots"][1]
+        assert rep["roots"][0]["p3"] == {"$type": "test_serialization.SomeModel", "$id": shared.id, "p0": 10}
+        assert rep["roots"][1]["p3"] == {"$ref": shared.id}
 
         decoded = Document.from_json(rep)
         assert decoded.roots[0].p3 is decoded.roots[1].p3
@@ -789,11 +784,11 @@ class TestSerializer:
 
         rep = doc._to_json(deferred=False, model_ids="minimal")
 
-        assert "id" not in rep["roots"][0]
-        child0_rep = rep["roots"][0]["attributes"]["p3"]
-        assert child0_rep["id"] == child0.id
-        assert child0_rep["attributes"]["p3"]["id"] == child1.id
-        assert child0_rep["attributes"]["p3"]["attributes"]["p3"] == Ref(id=child0.id)
+        assert "$id" not in rep["roots"][0]
+        child0_rep = rep["roots"][0]["p3"]
+        assert child0_rep["$id"] == child0.id
+        assert child0_rep["p3"]["$id"] == child1.id
+        assert child0_rep["p3"]["p3"] == {"$ref": child0.id}
 
     def test_Model_circular(self) -> None:
         val0 = SomeModel(p0=10)

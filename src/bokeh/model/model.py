@@ -40,12 +40,7 @@ from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, String
 from ..core.property.validation import without_property_validation
-from ..core.serialization import (
-    ObjectRefRep,
-    ObjectRep,
-    Ref,
-    Serializer,
-)
+from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -60,6 +55,7 @@ from .util import (
 if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.query import SelectorType
+    from ..core.serialization import ObjectRep
     from ..core.types import ID
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
@@ -581,23 +577,24 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         '''
         use_id = serializer.use_model_id(self)
         if use_id:
-            serializer.add_ref(self, self.ref)
+            serializer.add_ref(self, serializer.model_ref(self.ref))
 
         super_rep = super().to_serializable(serializer)
         if not use_id:
             return super_rep
 
-        rep = ObjectRefRep(
-            type="object",
-            name=super_rep["name"],
-            id=self.id,
-        )
-
-        attributes = super_rep.get("attributes")
-        if attributes is not None:
-            rep["attributes"] = attributes
-
-        return rep
+        if serializer.compact:
+            return ObjectRefRep({
+                "$type": super_rep["$type"],
+                "$id": self.id,
+                **{key: value for key, value in super_rep.items() if key != "$type"},
+            })
+        else:
+            rep = ObjectRefRep(type="object", name=super_rep["name"], id=self.id)
+            attributes = super_rep.get("attributes")
+            if attributes is not None:
+                rep["attributes"] = attributes
+            return rep
 
     def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:

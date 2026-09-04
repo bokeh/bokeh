@@ -382,20 +382,40 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   [serialize](serializer: Serializer): ObjectRep | ObjectRefRep {
     const use_id = serializer.use_model_id(this)
     if (use_id) {
-      serializer.add_ref(this, this.ref())
+      serializer.add_ref(this, serializer.model_ref(this.ref()))
     }
 
     const attributes: {[key: string]: AnyVal} = {}
     for (const prop of this) {
-      if (prop.syncable && (serializer.include_defaults || prop.dirty) && !(prop.readonly && prop.is_unset)) {
+      const has_retained_ref = (() => {
+        if (!serializer.compact || !prop.may_have_refs || prop.is_unset) {
+          return false
+        }
+        let retained = false
+        const collector = {
+          add(ref: HasProps): void {
+            retained ||= serializer.use_model_id(ref)
+          },
+
+          has(_ref: HasProps): boolean {
+            return false
+          },
+        }
+        HasProps._value_record_references(prop.get_value(), collector, {recursive: false})
+        return retained
+      })()
+      if (prop.syncable && (serializer.include_defaults || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
         attributes[prop.attr] = serializer.encode(value) as AnyVal
       }
     }
 
     const {type: name, id} = this
-    const rep = use_id ? {type: "object" as const, name, id} : {type: "object" as const, name}
+    if (serializer.compact) {
+      return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
+    }
 
+    const rep = use_id ? {type: "object" as const, name, id} : {type: "object" as const, name}
     return is_empty(attributes) ? rep : {...rep, attributes}
   }
 
