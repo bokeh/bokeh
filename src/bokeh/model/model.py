@@ -40,12 +40,7 @@ from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, String
 from ..core.property.validation import without_property_validation
-from ..core.serialization import (
-    ObjectRefRep,
-    ObjectRep,
-    Ref,
-    Serializer,
-)
+from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -60,6 +55,7 @@ from .util import (
 if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.query import SelectorType
+    from ..core.serialization import ObjectRep
     from ..core.types import ID
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
