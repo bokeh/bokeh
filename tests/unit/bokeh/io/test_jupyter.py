@@ -16,10 +16,10 @@ from bokeh.embed.notebook import notebook_content
 from bokeh.embed.resources import (
     ResolvedResource,
     ResolvedResources,
-    ResourcePolicy,
     ResourceRequirements,
 )
 from bokeh.plotting import figure
+from bokeh.resources import Resources
 from bokeh.util.version import bokehjs_version
 
 # Module under test
@@ -29,7 +29,7 @@ import bokeh.io.jupyter as m # isort:skip
 def _resolved(mode: Literal["cdn", "none"] = "cdn") -> ResolvedResources:
     return ResolvedResources(
         ResourceRequirements(),
-        ResourcePolicy(mode=mode),
+        Resources(mode=mode),
         "4.0.0",
         (
             ResolvedResource("script", url="https://cdn.example/bokeh.js", integrity="sha384-test", crossorigin="anonymous"),
@@ -73,10 +73,10 @@ def test_resource_identity_ignores_load_timeout_but_not_policy() -> None:
 def test_resource_identity_includes_complete_emitted_security_and_module_policy() -> None:
     requirements = ResourceRequirements()
     policies = [
-        ResourcePolicy(mode="cdn", nonce="first"),
-        ResourcePolicy(mode="cdn", nonce="second"),
-        ResourcePolicy(mode="cdn", crossorigin="anonymous"),
-        ResourcePolicy(mode="cdn", crossorigin="use-credentials"),
+        Resources(mode="cdn", nonce="first"),
+        Resources(mode="cdn", nonce="second"),
+        Resources(mode="cdn", crossorigin="anonymous"),
+        Resources(mode="cdn", crossorigin="use-credentials"),
     ]
     assets = [
         ResolvedResource("script", url="https://cdn.example/extension.js", nonce="first"),

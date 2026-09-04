@@ -151,19 +151,20 @@ def test_widget_reconnect_after_page_reload_receives_a_fresh_snapshot() -> None:
 
 def test_show_doc_uses_anywidget_without_duplicate_mime_outputs() -> None:
     from bokeh.io.notebook import show_doc
-    from bokeh.io.state import State
     from bokeh.plotting import figure
 
     plot = figure()
+    document = Document()
     widget = MagicMock()
     with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
         patch("bokeh.io.notebook._use_anywidget", return_value=True),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resources") as ensure,
         patch("bokeh.io.notebook.publish_display_data") as publish,
         patch("bokeh.io._anywidget.display_widget", return_value=widget) as make_widget,
         patch("IPython.display.display") as display,
     ):
-        handle = show_doc(plot, State())
+        handle = show_doc(plot)
 
     ensure.assert_called_once()
     assert ensure.call_args.args[0].schema == "bokeh.embed/v1"

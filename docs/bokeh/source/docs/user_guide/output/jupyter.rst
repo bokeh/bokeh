@@ -70,7 +70,7 @@ The former ``output_notebook()`` initialization function and extensible
 notebook-hook registry were removed in Bokeh 4.0. Pass ``resources=`` to an
 individual ``show()`` call when the default resource mode is not appropriate.
 ``show()`` only displays inline when called from a notebook; it does not also
-write or open a file configured by ``output_file()``.
+write or open a file unless an explicit ``filename=`` is supplied.
 
 To save a standalone HTML document, call ``save()`` as the cell's final
 expression:
@@ -210,12 +210,11 @@ multiple times in the input cell. The plots will display in order.
 Resource modes
 ''''''''''''''
 
-Notebook output accepts either a :class:`~bokeh.resources.Resources`
-configuration or the common :class:`~bokeh.embed.ResourcePolicy`. Use
+Notebook output accepts a :class:`~bokeh.resources.Resources` configuration. Use
 ``inline`` or ``offline`` for self-contained output, ``cdn`` for versioned
 external assets, ``server``/``relative``/``absolute`` for host-served assets,
 and ``none`` only when the notebook host already owns every declared
-requirement. ``ResourcePolicy(nonce=...)`` propagates a CSP nonce to emitted
+requirement. ``Resources(nonce=...)`` propagates a CSP nonce to emitted
 elements; ``external_only=True`` rejects policies or extension assets that
 would require inline code instead of silently weakening the host's CSP.
 The first output that needs a resolved resource asset owns it, and later
@@ -227,13 +226,12 @@ MathJax, or a custom model, only the new assets are added.
 
 .. code-block:: python
 
-    from bokeh.embed import ResourcePolicy
     from bokeh.resources import CDN, INLINE, Resources
 
     show(p, resources=INLINE)
     show(p, resources=CDN)
-    show(p, resources=ResourcePolicy(mode="offline"))
-    show(p, resources=ResourcePolicy(mode="none"))  # host already loaded every requirement
+    show(p, resources=Resources(mode="offline"))
+    show(p, resources=Resources(mode="none"))  # host already loaded every requirement
     # Schematic: this URL must actually serve Bokeh's ``static/`` directory.
     show(p, resources=Resources(mode="server", root_url="https://assets.example.test/bokeh/"))
 
