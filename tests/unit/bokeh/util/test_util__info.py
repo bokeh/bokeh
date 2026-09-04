@@ -38,7 +38,7 @@ def test_print_info(capsys: Capture) -> None:
     bui.print_info()
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 11
+    assert len(lines) == 12
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Tornado version")
@@ -47,9 +47,10 @@ def test_print_info(capsys: Capture) -> None:
     assert lines[5].startswith("BokehJS static")
     assert lines[6].startswith("node.js version")
     assert lines[7].startswith("npm version")
-    assert lines[8].startswith("jupyter_bokeh version")
-    assert lines[9].startswith("Operating system")
-    assert lines[10] == ""
+    assert lines[8].startswith("Jupyter protocol")
+    assert lines[9].startswith("Jupyter renderer")
+    assert lines[10].startswith("Operating system")
+    assert lines[11] == ""
     assert err == ""
 
 def test__version_missing(ipython: Any) -> None:

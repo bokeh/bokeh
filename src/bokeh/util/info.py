@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import platform
 import sys
+from pathlib import Path
 
 # Bokeh imports
 from bokeh import __version__
@@ -56,7 +57,10 @@ def print_info() -> None:
     print(f"BokehJS static path   :  {settings.bokehjs_path()}")
     print(f"node.js version       :  {_if_installed(nodejs_version())}")
     print(f"npm version           :  {_if_installed(npmjs_version())}")
-    print(f"jupyter_bokeh version :  {_if_installed(_version('jupyter_bokeh', '__version__'))}")
+    from bokeh.io.jupyter import PROTOCOL_VERSION
+    renderer = Path(__file__).parents[1] / "jupyter" / "labextension" / "package.json"
+    print(f"Jupyter protocol      :  {PROTOCOL_VERSION}")
+    print(f"Jupyter renderer      :  {'bundled' if renderer.is_file() else 'not built'}")
     print(f"Operating system      :  {platform.platform()}")
 
 def print_non_default_settings() -> None:
