@@ -623,10 +623,39 @@ describe("EmbedArtifact runtime", () => {
       name: "host-nonce",
       assets: [{kind: "script", content: "void 0"}],
     }]}
-    await loader.ensure(requirements, {mode: "cdn", nonce: "host-nonce"})
+    await loader.ensure(requirements, {
+      mode: "cdn",
+      nonce: "host-nonce",
+      assets: requirements.extensions[0].assets,
+    })
     const script = document.querySelector<HTMLScriptElement>("script[data-bokeh-resource]")
     expect_not_null(script)
     expect(script.nonce).to.be.equal("host-nonce")
+  })
+
+  it("requires hosts to resolve artifact extension resources", async () => {
+    const loader = new ResourceLoader()
+    const requirements: ResourceRequirements = {components: ["bokeh/core"], extensions: [{
+      name: "untrusted-extension",
+      assets: [{kind: "script", url: "https://example.test/extension.js"}],
+    }]}
+
+    const error = await loader.ensure(requirements, "cdn").then(() => null, (error: unknown) => error)
+    expect_instanceof(error, ResourceError)
+    expect(error.kind).to.be.equal("policy")
+    expect(error.message.includes("must be resolved by the host")).to.be.true
+  })
+
+  it("rejects javascript resource URLs", async () => {
+    const loader = new ResourceLoader()
+    const error = await loader.ensure(core, {
+      mode: "resolved",
+      assets: [{kind: "script", url: "javascript:alert(1)"}],
+    }).then(() => null, (error: unknown) => error)
+
+    expect_instanceof(error, ResourceError)
+    expect(error.kind).to.be.equal("policy")
+    expect(error.message.includes("javascript: URLs")).to.be.true
   })
 
   it("rejects offline URLs and unresolved integrity policies", async () => {

@@ -58,6 +58,7 @@ export type ResourcePolicy = ResourcePolicyMode | {
   integrity?: boolean
   external_only?: boolean
   retry?: boolean
+  /** Trusted, fully resolved assets supplied by the artifact host. */
   assets?: ResourceAsset[]
 }
 
@@ -99,7 +100,11 @@ function normalize_policy(policy: ResourcePolicy = "auto"): NormalizedPolicy {
 }
 
 function normalized_url(url: string): string {
-  return new URL(url, document.baseURI).href
+  const normalized = new URL(url, document.baseURI)
+  if (normalized.protocol == "javascript:") {
+    throw new ResourceError("policy", "javascript: URLs are not valid Bokeh resources")
+  }
+  return normalized.href
 }
 
 function locator(asset: ResourceAsset): string {
@@ -144,7 +149,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
     return validate_assets(policy.assets, policy, mode)
   }
 
-  const version = artifact_version.split("+")[0]
+  const version = js_version.split("+")[0]
   const minified = policy.minified ?? true
   const suffix = minified ? ".min.js" : ".js"
   const assets: ResourceAsset[] = []
@@ -161,10 +166,17 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
       : `https://cdn.bokeh.org/bokeh/${version.includes("dev") || version.includes("rc") ? "dev" : "release"}/${filename}`
     assets.push({kind: "script", url, nonce: policy.nonce, crossorigin: policy.crossorigin})
   }
-  for (const extension of requirements.extensions) {
-    assets.push(...extension.assets.map((asset) => ({
+  const extension_assets = requirements.extensions.flatMap((extension) => extension.assets)
+  if (extension_assets.length != 0 && policy.assets == null) {
+    throw new ResourceError(
+      "policy",
+      "artifact extension resources must be resolved by the host; provide policy assets or load them separately",
+    )
+  }
+  if (policy.assets != null) {
+    assets.push(...policy.assets.map((asset) => ({
       ...asset,
-      nonce: policy.nonce,
+      nonce: asset.nonce ?? policy.nonce,
       crossorigin: asset.crossorigin ?? policy.crossorigin ?? (asset.integrity != null ? "anonymous" : undefined),
     })))
   }
@@ -213,7 +225,10 @@ export class ResourceLoader {
     this._records.clear()
   }
 
-  /** Resolve and load every required asset before artifact deserialization. */
+  /**
+   * Resolve and load every required asset before artifact deserialization.
+   * Explicit policy assets may contain executable code and must be trusted.
+   */
   async ensure(requirements: ResourceRequirements, policy: ResourcePolicy = "auto",
       artifact_version: string = js_version): Promise<void> {
     const normalized = normalize_policy(policy)
@@ -272,7 +287,7 @@ export class ResourceLoader {
           const script = document.createElement("script")
           script.type = asset.module == true ? "module" : "text/javascript"
           if (asset.url != null) {
-            script.src = asset.url
+            script.src = normalized_url(asset.url)
             script.async = false
             script.onload = () => {
               script.dataset.bokehResourceState = "loaded"
@@ -298,6 +313,9 @@ export class ResourceLoader {
                 script.remove()
                 reject(new ResourceError("load", "failed to evaluate inline module", event, asset))
               }
+              // Inline module content is an explicitly trusted host resource;
+              // the suffix only reports when its asynchronous evaluation ends.
+              // codeql[js/unsafe-code-construction]
               script.textContent = `${asset.content ?? ""}\n;globalThis[${JSON.stringify(callback)}]()`
             } else {
               script.textContent = asset.content ?? ""
@@ -307,7 +325,7 @@ export class ResourceLoader {
         } else if (asset.url != null) {
           const link = document.createElement("link")
           link.rel = "stylesheet"
-          link.href = asset.url
+          link.href = normalized_url(asset.url)
           link.onload = () => {
             link.dataset.bokehResourceState = "loaded"
             resolve()
