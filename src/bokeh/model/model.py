@@ -49,7 +49,7 @@ from ..core.serialization import (
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
-from ..util.serialization import make_id
+from ..util.serialization import make_id, reserve_id
 from .docs import html_repr, process_example
 from .util import (
     HasDocumentRef,
@@ -125,6 +125,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         if id is not None:
             if args or kwargs:
                 raise ValueError("'id' cannot be used together with property initializers")
+            reserve_id(id)
             obj._id = id
         else:
             obj._id = make_id()
