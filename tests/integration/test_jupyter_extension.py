@@ -24,7 +24,7 @@ from bokeh.io.jupyter import (
     DISPLAY_MIME_TYPE,
     PROTOCOL_VERSION,
     RESOURCES_MIME_TYPE,
-    display_payload,
+    _display_payload,
 )
 from bokeh.io.jupyter_export import BokehPNGPreprocessor
 from bokeh.plotting import figure
@@ -132,7 +132,7 @@ def test_nbconvert_export_captures_saved_artifact_with_real_playwright() -> None
         "display_data",
         data={
             "text/html": artifact.fragment(resources="none").html,
-            DISPLAY_MIME_TYPE: display_payload(artifact, "resources", "export-view"),
+            DISPLAY_MIME_TYPE: _display_payload(artifact, "resources", "export-view"),
         },
     )
     cell = nbformat.v4.new_code_cell("plot", outputs=[output])

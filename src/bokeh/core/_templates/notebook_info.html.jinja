@@ -1,0 +1,60 @@
+{# Renders diagnostic information about the active notebook integration. #}
+{% macro badge(text, tone) -%}
+{% set colors = {
+  "neutral": ("#4b5563", "#f1f3f4"),
+  "success": ("#137333", "#e6f4ea"),
+  "error": ("#b3261e", "#fce8e6"),
+}[tone] -%}
+<span style="display:inline-block;padding:2px 8px;border-radius:999px;white-space:nowrap;font-weight:600;color:{{ colors[0] }};background:{{ colors[1] }}">{{ text|e }}</span>
+{%- endmacro %}
+{% macro row(label, value, code=false) -%}
+<tr>
+  <th scope="row" style="width:34%;padding:7px 12px;text-align:left;vertical-align:top;border-top:1px solid var(--jp-border-color2,#e5e5e5);font-weight:600">{{ label|e }}</th>
+  <td style="padding:7px 12px;vertical-align:top;border-top:1px solid var(--jp-border-color2,#e5e5e5)">
+    {%- if code -%}
+    <code style="font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere">{{ value|e }}</code>
+    {%- else -%}
+    {{ value|e }}
+    {%- endif -%}
+  </td>
+</tr>
+{%- endmacro %}
+<div class="bk-notebook-info" style="max-width:760px;overflow:hidden;border:1px solid var(--jp-border-color2,#d9d9d9);border-radius:8px;background:var(--jp-layout-color1,#fff);color:var(--jp-ui-font-color1,#222);font:13px/1.45 system-ui,sans-serif">
+  <div style="display:flex;align-items:center;gap:18px;padding:12px 14px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;padding:5px 9px;border-radius:6px;background:#fff">
+      {% if logo_data is not none -%}
+      <img alt="Bokeh" width="126" height="36" src="data:image/svg+xml;base64,{{ logo_data|e }}" style="display:block">
+      {%- else -%}
+      <strong style="font-size:24px;letter-spacing:-1px">Bokeh</strong>
+      {%- endif %}
+    </div>
+    <div>
+      <strong style="display:block;font-size:15px">Notebook integration</strong>
+      <span style="color:var(--jp-ui-font-color2,#666)">Bokeh {{ bokeh_version|e }}</span>
+    </div>
+    <div style="margin-left:auto" aria-label="Frontend integration">{{ badge(integration[0], integration[1]) }}</div>
+  </div>
+  <table style="width:100%;border-collapse:collapse">
+    <tr>
+      <th scope="row" style="width:34%;padding:7px 12px;text-align:left;vertical-align:top;border-top:1px solid var(--jp-border-color2,#e5e5e5);font-weight:600">Environment</th>
+      <td style="padding:7px 12px;vertical-align:top;border-top:1px solid var(--jp-border-color2,#e5e5e5)">
+        {{- badge(environment[0], environment[1]) }}
+        {%- if not extension_available %} <span style="color:#b3261e">Extension package unavailable</span>{% endif %}
+      </td>
+    </tr>
+    {% if resource_records or managed_applications -%}
+    <tr>
+      <th scope="row" style="width:34%;padding:7px 12px;text-align:left;vertical-align:top;border-top:1px solid var(--jp-border-color2,#e5e5e5);font-weight:600">Active state</th>
+      <td style="padding:7px 12px;vertical-align:top;border-top:1px solid var(--jp-border-color2,#e5e5e5)">{{ resource_records|e }} shared resource{{ "" if resource_records == 1 else "s" }} &middot; {{ managed_applications|e }} managed application{{ "" if managed_applications == 1 else "s" }}</td>
+    </tr>
+    {%- endif %}
+  </table>
+  <details style="border-top:1px solid var(--jp-border-color2,#e5e5e5)">
+    <summary style="padding:8px 12px;cursor:pointer;color:var(--jp-ui-font-color2,#666);font-weight:600">Technical details</summary>
+    <table style="width:100%;border-collapse:collapse">
+      {% for label, value in technical_rows -%}
+      {{ row(label, value, code=true) }}
+      {%- endfor %}
+    </table>
+  </details>
+</div>

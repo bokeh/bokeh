@@ -157,7 +157,19 @@ def _take_export_snapshots(resources: dict[str, Any], export_id: str | None = No
 
 
 class BokehPNGPreprocessor(Preprocessor):
-    '''Replace trusted Bokeh artifact outputs with export-time PNG captures.'''
+    ''' Replace trusted Bokeh artifact outputs with export-time PNG captures.
+
+    Attributes:
+        require_trusted:
+            Whether notebook outputs must have a valid Jupyter trust signature.
+        timeout:
+            The seconds allowed for each PNG capture.
+        backend:
+            The browser backend used for capture.
+        max_bytes:
+            The maximum encoded PNG size accepted for one output.
+
+    '''
 
     require_trusted = Bool(
         True,
@@ -177,6 +189,18 @@ class BokehPNGPreprocessor(Preprocessor):
     _transient: dict[str, dict[str, Any]]
 
     def preprocess(self, nb: Any, resources: dict[str, Any]) -> tuple[Any, dict[str, Any]]:
+        ''' Prepare trust and transient state before processing notebook cells.
+
+        Args:
+            nb:
+                The notebook node to process.
+            resources:
+                The nbconvert resources mapping for this export.
+
+        Returns:
+            The processed notebook and updated resources mapping.
+
+        '''
         # nbconvert does not guarantee that output_extension is populated
         # before exporter preprocessors run. This preprocessor is registered
         # only on HTML exporters, but retain the guard for explicit non-HTML
@@ -196,6 +220,20 @@ class BokehPNGPreprocessor(Preprocessor):
             del self._transient
 
     def preprocess_cell(self, cell: Any, resources: dict[str, Any], index: int) -> tuple[Any, dict[str, Any]]:
+        ''' Replace Bokeh outputs in one notebook cell with static fallbacks.
+
+        Args:
+            cell:
+                The notebook cell to process.
+            resources:
+                The nbconvert resources mapping for this export.
+            index:
+                The position of the cell in the notebook.
+
+        Returns:
+            The processed cell and updated resources mapping.
+
+        '''
         del index
         if cell.get("cell_type") != "code":
             return cell, resources

@@ -165,7 +165,19 @@ def _comm_id(comm: Comm) -> str:
     return comm_id if isinstance(comm_id, str) and comm_id else str(id(comm))
 
 class DocumentViewHandle:
-    '''A live artifact handle with one independent comm per frontend view.'''
+    ''' A live artifact handle with one independent comm per frontend view.
+
+    Args:
+        root:
+            The model displayed by this notebook output.
+        live_id:
+            The identifier of the kernel-side live document channel.
+        view_id:
+            The identifier of this notebook output view.
+        resources:
+            The resource configuration used to serialize fresh snapshots.
+
+    '''
 
     _MAX_HELD_EVENTS = 256
 
@@ -235,13 +247,19 @@ class DocumentViewHandle:
 
     @property
     def closed(self) -> bool:
+        ''' Report whether this handle has been closed. '''
         return self._closed
 
     def _retain_frontend(self, frontend: Any) -> None:
         self._frontend = frontend
 
     def close(self) -> None:
-        '''Release all frontend comms, detach the source, and clear pending events.'''
+        ''' Release all frontend comms, detach the source, and clear pending events.
+
+        Returns:
+            None
+
+        '''
         if self._closed:
             return
         self._closed = True
@@ -276,6 +294,7 @@ class DocumentViewHandle:
 
     @property
     def views(self) -> int:
+        ''' Return the number of connected frontend views. '''
         return len(self._comms)
 
     def __enter__(self) -> Self:
@@ -358,7 +377,17 @@ class DocumentViewHandle:
 
 
 class ApplicationViewHandle:
-    '''Control one notebook view of a managed ASGI application.'''
+    ''' Control one notebook view of a managed ASGI application.
+
+    Args:
+        application:
+            The managed notebook application displayed by this view.
+        view_id:
+            The identifier of this notebook output view.
+        artifact:
+            The server artifact used to initialize new frontend connections.
+
+    '''
 
     def __init__(self, application: NotebookApplication, view_id: str, artifact: EmbedArtifact) -> None:
         self._application = application
@@ -412,25 +441,34 @@ class ApplicationViewHandle:
 
     @property
     def application(self) -> NotebookApplication:
+        ''' Return the managed application displayed by this view. '''
         return self._application
 
     @property
     def closed(self) -> bool:
+        ''' Report whether this view handle has been closed. '''
         return self._closed
 
     @property
     def view_id(self) -> str:
+        ''' Return the identifier of this notebook output view. '''
         return self._view_id
 
     @property
     def views(self) -> int:
+        ''' Return the number of connected frontends for this view. '''
         return len(self._comms)
 
     def _retain_frontend(self, frontend: Any) -> None:
         self._frontend = frontend
 
     def close(self) -> None:
-        '''Close every frontend session for this view without stopping the application.'''
+        ''' Close every frontend session for this view without stopping the application.
+
+        Returns:
+            None
+
+        '''
         if self._closed:
             return
         self._closed = True
@@ -556,7 +594,12 @@ def _register_notebook_comm_target() -> None:
         log.debug("Could not register the notebook comm target: %s", error)
 
 def notebook_environment() -> bool:
-    ''' Report whether Python is executing in an interactive notebook kernel. '''
+    ''' Report whether Python is executing in an interactive notebook kernel.
+
+    Returns:
+        Whether an interactive notebook kernel or marimo runtime is active.
+
+    '''
     if _is_marimo_runtime():
         return True
     try:
@@ -574,6 +617,21 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     The serialized graph occurs once, inside the common artifact declaration
     in ``text/html``. The notebook MIME member carries only host ownership and
     transport metadata.
+
+    Args:
+        obj:
+            The model to represent as notebook output.
+        include:
+            An optional set of MIME types to retain.
+        exclude:
+            An optional set of MIME types to omit.
+        resources:
+            The resource configuration for the artifact.
+
+    Returns:
+        The MIME data and metadata mappings, or ``None`` outside a notebook
+        environment.
+
     '''
     if not notebook_environment():
         return None
@@ -581,7 +639,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     _require_marimo_anywidget()
 
     from ..embed.notebook import notebook_content
-    from .jupyter import DISPLAY_MIME_TYPE, display_payload
+    from .jupyter import DISPLAY_MIME_TYPE, _display_payload
 
     marimo = _is_marimo_runtime()
     colab = _is_colab_runtime()
@@ -601,7 +659,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     view_id = make_id()
     fallback = _static_fallback(_STATIC_FALLBACK_MESSAGE)
     html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
-    payload = display_payload(artifact, resource_id, view_id)
+    payload = _display_payload(artifact, resource_id, view_id)
     if portable_widget:
         from ._anywidget import display_widget
 
@@ -631,7 +689,20 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     }}
 
 def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None = None, *, transient: dict[str, Any] | None = None, **kwargs: Any) -> None:
-    '''
+    ''' Publish MIME data through IPython without introducing a module dependency.
+
+    Args:
+        data:
+            The MIME bundle to publish.
+        metadata:
+            Optional metadata associated with the MIME bundle.
+        transient:
+            Optional transient display data, such as a display ID.
+        kwargs:
+            Additional keyword arguments for IPython's display publisher.
+
+    Returns:
+        None
 
     '''
     # This import MUST be deferred or it will introduce a hard dependency on IPython
@@ -643,7 +714,18 @@ type ProxyUrlFunc = Callable[[int | None], str]
 
 def show_doc(obj: Model | Sequence[UIElement], state: State,
         resources: ResourcePolicy | Resources | None = None) -> DocumentViewHandle:
-    '''
+    ''' Display a model as connected notebook output.
+
+    Args:
+        obj:
+            The model or sequence of UI elements to display.
+        state:
+            The current output state whose document owns the source models.
+        resources:
+            The resource configuration for the artifact.
+
+    Returns:
+        A handle that owns live updates and frontend connections for the output.
 
     '''
     # Notebook output only supports a single document root, but ``show`` accepts
@@ -659,7 +741,7 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
         state.document.add_root(obj)
 
     from ..embed.notebook import notebook_content
-    from .jupyter import DISPLAY_MIME_TYPE, display_payload
+    from .jupyter import DISPLAY_MIME_TYPE, _display_payload
 
     use_anywidget = _use_anywidget()
     _require_marimo_anywidget()
@@ -674,7 +756,7 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
     view_id = make_id()
     fallback = _static_fallback(_STATIC_FALLBACK_MESSAGE)
     html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
-    payload = display_payload(artifact, resource_id, view_id, live_id=live_id)
+    payload = _display_payload(artifact, resource_id, view_id, live_id=live_id)
 
     handle = DocumentViewHandle(obj, live_id=live_id, view_id=view_id, resources=resources)
     root_key = (id(state.document), id(obj))
@@ -708,7 +790,21 @@ def show_doc(obj: Model | Sequence[UIElement], state: State,
 
 def show_hosted_app(app: NotebookApplication, state: State,
         resources: ResourcePolicy | Resources | None = None) -> ApplicationViewHandle:
-    ''' Display a running :class:`~bokeh.io.NotebookApplication`. '''
+    ''' Display a running :class:`~bokeh.io.NotebookApplication`.
+
+    Args:
+        app:
+            The managed notebook application to display.
+        state:
+            The current output state. Application display does not modify its
+            document.
+        resources:
+            The resource configuration for the application artifact.
+
+    Returns:
+        A handle that owns the frontend connections for this application view.
+
+    '''
     del state
     if app.stopped:
         raise RuntimeError(
@@ -717,7 +813,7 @@ def show_hosted_app(app: NotebookApplication, state: State,
         )
 
     from ..embed import embed_server
-    from .jupyter import DISPLAY_MIME_TYPE, display_payload
+    from .jupyter import DISPLAY_MIME_TYPE, _display_payload
 
     use_anywidget = _use_anywidget()
     _require_marimo_anywidget()
@@ -729,7 +825,7 @@ def show_hosted_app(app: NotebookApplication, state: State,
     view_id = make_id()
     artifact = embed_server(app.url, metadata={"notebook_application_id": app.application_id})
     resource_id = _ensure_notebook_resources(artifact, resources, publish=not use_anywidget)
-    payload = display_payload(
+    payload = _display_payload(
         artifact,
         resource_id,
         view_id,
@@ -819,13 +915,13 @@ def _register_resource_comm_target() -> None:
 def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, publish: bool = True) -> str:
     from .jupyter import (
         RESOURCES_MIME_TYPE,
-        resource_artifact_ids,
-        resource_asset_subset,
-        resource_javascript,
-        resource_payload,
+        _resource_artifact_ids,
+        _resource_asset_subset,
+        _resource_javascript,
+        _resource_payload,
     )
 
-    required_ids = resource_artifact_ids(resolved)
+    required_ids = _resource_artifact_ids(resolved)
     new_ids = {artifact_id for artifact_id in required_ids if artifact_id not in _ARTIFACT_OWNERS}
     dependencies = list(dict.fromkeys(
         _ARTIFACT_OWNERS[artifact_id]
@@ -849,10 +945,10 @@ def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, 
             })
         return resource_id
 
-    delta = resource_asset_subset(resolved, new_ids)
-    payload = resource_payload(resolved, load_timeout, dependencies=dependencies, assets=delta)
+    delta = _resource_asset_subset(resolved, new_ids)
+    payload = _resource_payload(resolved, load_timeout, dependencies=dependencies, assets=delta)
     resource_id = payload["resource_id"]
-    javascript = resource_javascript(payload, delta)
+    javascript = _resource_javascript(payload, delta)
     _RESOURCE_RECORDS[resource_id] = {"payload": payload, "javascript": javascript}
     for artifact_id in new_ids:
         _ARTIFACT_OWNERS[artifact_id] = resource_id
