@@ -6,10 +6,12 @@ import json5 from "json5"
 
 import {version} from "@bokehjs/version"
 import type {DocJson} from "@bokehjs/document"
+import type {ColumnarDataSource} from "@bokehjs/models"
 import {Document} from "@bokehjs/document"
 import {GlyphRenderer} from "@bokehjs/models"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {GridPlotView} from "@bokehjs/models/plots/grid_plot"
+import {DataTableView} from "@bokehjs/models/widgets/tables/data_table"
 
 async function test(name: string) {
   const response = await fetch(`/cases/${name}`)
@@ -78,6 +80,24 @@ describe("Bug", () => {
   describe("in issue #13964", () => {
     it.no_image("doesn't allow using 'constructor' key in maps or plain objects in may have refs contexts", async () => {
       await test("regressions/issue_13964.json5")
+    })
+  })
+
+  describe("in issue #12187", () => {
+    it("displays dates as zero epoch in a DataTable if one element isn't a date", async () => {
+      const {views} = await test("regressions/issue_12187.json5")
+      const [t] = views
+      expect_instanceof(t, DataTableView)
+
+      const source = t.model.source as ColumnarDataSource
+      const dates = source.get_array("dates")
+
+      expect(dates.length).to.be.equal(10)
+      expect(Number.isNaN(dates[0])).to.be.true
+      for (let i = 1; i < dates.length; i++) {
+        const day = String(i + 1).padStart(2, "0")
+        expect(dates[i]).to.be.equal(`2014-03-${day}`)
+      }
     })
   })
 })

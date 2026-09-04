@@ -1,0 +1,159 @@
+{
+  config: {
+    type: "object",
+    name: "DocumentConfig",
+    id: "p1022",
+    attributes: {
+      notifications: {
+        type: "object",
+        name: "Notifications",
+        id: "p1023",
+      },
+    },
+  },
+  roots: [
+    {
+      type: "object",
+      name: "DataTable",
+      id: "p1016",
+      attributes: {
+        width: 400,
+        height: 280,
+        source: {
+          type: "object",
+          name: "ColumnDataSource",
+          id: "p1006",
+          attributes: {
+            selected: {
+              type: "object",
+              name: "Selection",
+              id: "p1007",
+              attributes: {
+                indices: [],
+                line_indices: [],
+              },
+            },
+            selection_policy: {
+              type: "object",
+              name: "UnionRenderers",
+              id: "p1008",
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "index",
+                  {
+                    type: "ndarray",
+                    array: {
+                      type: "bytes",
+                      data: "H4sIAAEAAAAA/w3DiQ0AIAwEoNP6df+FhYQkGU7L5fZ4fbYfAnnvjSgAAAA=",
+                    },
+                    shape: [
+                      10,
+                    ],
+                    dtype: "int32",
+                    order: "little",
+                  },
+                ],
+                [
+                  "dates",
+                  {
+                    type: "ndarray",
+                    array: [
+                      {
+                        type: "number",
+                        value: "nan",
+                      },
+                      "2014-03-02",
+                      "2014-03-03",
+                      "2014-03-04",
+                      "2014-03-05",
+                      "2014-03-06",
+                      "2014-03-07",
+                      "2014-03-08",
+                      "2014-03-09",
+                      "2014-03-10",
+                    ],
+                    shape: [
+                      10,
+                    ],
+                    dtype: "object",
+                    order: "little",
+                  },
+                ],
+                [
+                  "downloads",
+                  {
+                    type: "ndarray",
+                    array: {
+                      type: "bytes",
+                      data: "H4sIAAEAAAAA/xNkYGDwAOJEIOYAYgUg5gdie6iYJZC2AWIASpCZLCgAAAA=",
+                    },
+                    shape: [
+                      10,
+                    ],
+                    dtype: "int32",
+                    order: "little",
+                  },
+                ],
+              ],
+            },
+          },
+        },
+        view: {
+          type: "object",
+          name: "CDSView",
+          id: "p1020",
+          attributes: {
+            filter: {
+              type: "object",
+              name: "AllIndices",
+              id: "p1021",
+            },
+          },
+        },
+        columns: [
+          {
+            type: "object",
+            name: "TableColumn",
+            id: "p1010",
+            attributes: {
+              field: "dates",
+              title: "Date",
+              formatter: {
+                type: "object",
+                name: "DateFormatter",
+                id: "p1009",
+              },
+              editor: {
+                type: "object",
+                name: "StringEditor",
+                id: "p1012",
+              },
+            },
+          },
+          {
+            type: "object",
+            name: "TableColumn",
+            id: "p1013",
+            attributes: {
+              field: "downloads",
+              title: "Downloads",
+              formatter: {
+                type: "object",
+                name: "StringFormatter",
+                id: "p1014",
+              },
+              editor: {
+                type: "object",
+                name: "StringEditor",
+                id: "p1015",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ],
+}
