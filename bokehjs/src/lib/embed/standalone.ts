@@ -80,6 +80,7 @@ export class StandaloneMount {
     readonly signal?: AbortSignal,
     readonly on_error?: StandaloneMountErrorHandler,
     readonly track_document_roots: boolean = false,
+    readonly on_targets_changed?: () => void,
   ) {
     assert(document.views_manager == null)
     this.views = new ViewManager([], index)
@@ -169,6 +170,7 @@ export class StandaloneMount {
         target.appendChild(existing.el)
       }
       this._targets.set(key, target)
+      this.on_targets_changed?.()
       return existing
     }
 
@@ -177,6 +179,7 @@ export class StandaloneMount {
     this._targets.set(key, target)
     if (model.default_view == null) {
       this.document.notify_idle(model)
+      this.on_targets_changed?.()
       return null
     }
 
@@ -199,11 +202,13 @@ export class StandaloneMount {
       }
 
       this._root_views.set(key, view)
+      this.on_targets_changed?.()
       return view
     } catch (error) {
       this._render_tokens.delete(key)
       this._targets.delete(key)
       view.remove()
+      this.on_targets_changed?.()
       throw error
     }
   }
@@ -214,6 +219,7 @@ export class StandaloneMount {
     const view = this._root_views.get(key)
     this._root_views.delete(key)
     view?.remove()
+    this.on_targets_changed?.()
   }
 
   async initialize(default_target: EmbedTarget | null, targets: ReadonlyMap<string, EmbedTarget>,
@@ -302,6 +308,7 @@ export class StandaloneMount {
     this.views.clear()
     this._root_views.clear()
     this._targets.clear()
+    this.on_targets_changed?.()
     if (this.document.views_manager == this.views) {
       this.document.views_manager = undefined
     }
@@ -311,6 +318,7 @@ export class StandaloneMount {
   }
 }
 
+/** @internal Legacy positional bridge retained only for notebook rendering. */
 export async function mount_document_standalone(document: Document, element: EmbedTarget,
     options: StandaloneMountOptions = {}): Promise<StandaloneMount> {
   const {roots = [], use_for_title = false, signal, dispose_document = false} = options
@@ -326,10 +334,4 @@ export async function mount_document_standalone(document: Document, element: Emb
   const mount = new StandaloneMount(document, root_map, dispose_document, signal, undefined, true)
   await mount.initialize(element, root_targets, use_for_title)
   return mount
-}
-
-export async function add_document_standalone(document: Document, element: EmbedTarget,
-    roots: (EmbedTarget | null)[] = [], use_for_title: boolean = false): Promise<ViewManager> {
-  const mount = await mount_document_standalone(document, element, {roots, use_for_title})
-  return mount.views
 }

@@ -1,16 +1,23 @@
 import {expect, expect_instanceof} from "#framework/assertions"
 
-import {MountError, MountSource, mount, show} from "@bokehjs/api/io"
+import {
+  BOKEH_MOUNTED_ATTRIBUTE, MountError, MountSource, mount, publish_mount_error, show, when_mounted,
+} from "@bokehjs/api/io"
+import {figure} from "@bokehjs/api/plotting"
 import {Document, documents} from "@bokehjs/document"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {defer} from "@bokehjs/core/util/defer"
 
 describe("in api/plotting module", () => {
   describe("show() function", () => {
-    it("must support specific view types", async () => {
+    it("returns an owning mount with specific view types", async () => {
+      const mounted = show(Plot.create())
+      await mounted.ready
       // tsc will fail with TS2740 if this doesn't produce the correct type
-      const v: PlotView = await show(Plot.create())
-      expect(v).to.be.instanceof(PlotView)
+      const [view]: PlotView[] = mounted.views
+      expect(view).to.be.instanceof(PlotView)
+      await mounted.dispose()
     })
   })
 
@@ -39,6 +46,150 @@ describe("in api/plotting module", () => {
       expect(documents.length).to.be.equal(documents_before)
       expect(target.contains(view.el)).to.be.false
 
+      target.remove()
+    })
+
+    it("publishes one handle to every logical-root target and clears it on disposal", async () => {
+      const first_target = document.createElement("div")
+      const second_target = document.createElement("div")
+      document.body.append(first_target, second_target)
+      const first_waiter = when_mounted(first_target)
+      const second_waiter = when_mounted(second_target)
+
+      const mounted = mount({first: Plot.create(), second: Plot.create()}, {
+        targets: {first: first_target, second: second_target},
+      })
+      const [first_discovery, second_discovery] = await Promise.all([first_waiter, second_waiter])
+      expect(first_discovery).to.be.equal(mounted)
+      expect(second_discovery).to.be.equal(mounted)
+      await mounted.ready
+      expect(first_target.bokehMount).to.be.equal(mounted)
+      expect(second_target.bokehMount).to.be.equal(mounted)
+      expect(first_target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.true
+      expect(second_target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.true
+
+      await mounted.dispose()
+      expect(first_target.bokehMount).to.be.undefined
+      expect(second_target.bokehMount).to.be.undefined
+      expect(first_target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.false
+      expect(second_target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.false
+      first_target.remove()
+      second_target.remove()
+    })
+
+    it("supports target-local discovery before bootstrap and query-only view lookup", async () => {
+      const host = document.createElement("div")
+      host.id = "external-sales-plot"
+      document.body.append(host)
+
+      // This is the external script. It can run before the artifact bootstrap.
+      const target = document.querySelector<HTMLElement>("#external-sales-plot")!
+      const discovery = when_mounted(target)
+
+      // This stands in for the later artifact or Sphinx bootstrap.
+      const source = ColumnDataSource.create({
+        name: "sales-source",
+        data: {x: [1, 2], y: [3, 4]},
+      })
+      const plot = figure({name: "sales-plot"})
+      plot.line({field: "x"}, {field: "y"}, {source})
+      const mounted = mount({sales: plot}, {targets: {sales: target}})
+
+      const discovered = await discovery
+      expect(discovered).to.be.equal(mounted)
+      await discovered.ready
+      const root = discovered.root("sales")
+      expect(root).to.be.equal(plot)
+      const named = discovered.document.get_model_by_name("sales-source")
+      expect(named).to.be.equal(source)
+      expect(discovered.view_lookup.find_one(plot)).to.be.equal(mounted.view("sales"))
+
+      await discovered.dispose()
+      expect(target.bokehMount).to.be.undefined
+      host.remove()
+    })
+
+    it("makes target-local discovery abortable", async () => {
+      const target = document.createElement("div")
+      const controller = new AbortController()
+      const discovery = when_mounted(target, {signal: controller.signal})
+      controller.abort(new Error("external script removed"))
+
+      const error = await discovery.then(() => null, (error: unknown) => error)
+      expect(error).to.be.instanceof(MountError)
+      expect((error as MountError).kind).to.be.equal("abort")
+      expect((error as Error).message).to.be.equal("external script removed")
+    })
+
+    it("rejects discovery with structured errors published before a handle exists", async () => {
+      const target = document.createElement("div")
+      const discovery = when_mounted(target)
+      const published = new MountError("source", "artifact decoding failed")
+      publish_mount_error(target, published)
+
+      const error = await discovery.then(() => null, (error: unknown) => error)
+      expect(error).to.be.equal(published)
+      expect(target.bokehMountError).to.be.equal(published)
+      expect(await when_mounted(target).then(() => null, (error: unknown) => error)).to.be.equal(published)
+    })
+
+    it("publishes readiness failures and clears them on remount", async () => {
+      class FailingPlotView extends PlotView {
+        override async lazy_initialize(): Promise<void> {
+          await super.lazy_initialize()
+          throw new Error("target-local render failure")
+        }
+      }
+
+      class FailingPlot extends Plot {
+        static {
+          this.prototype.default_view = FailingPlotView
+        }
+      }
+
+      const target = document.createElement("div")
+      document.body.append(target)
+      const discovery = when_mounted(target)
+      const failed = mount(FailingPlot.create(), target)
+      expect(await discovery).to.be.equal(failed)
+      const error = await failed.ready.then(() => null, (error: unknown) => error)
+      expect(error).to.be.instanceof(MountError)
+      const mounted_error = error as MountError
+      expect(target.bokehMount).to.be.undefined
+      expect(target.bokehMountError).to.be.equal(mounted_error)
+      expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.false
+      expect(await when_mounted(target).then(() => null, (error: unknown) => error)).to.be.equal(mounted_error)
+
+      const remounted = mount(Plot.create(), target)
+      expect(await when_mounted(target)).to.be.equal(remounted)
+      await remounted.ready
+      expect(target.bokehMountError).to.be.undefined
+      await remounted.dispose()
+      target.remove()
+    })
+
+    it("doesn't let a stale mount clear a newer target publication", async () => {
+      const target = document.createElement("div")
+      document.body.append(target)
+      const first = mount(Plot.create(), target)
+      await first.ready
+      const second = mount(Plot.create(), target)
+      await second.ready
+      expect(target.bokehMount).to.be.equal(second)
+
+      await first.dispose()
+      expect(target.bokehMount).to.be.equal(second)
+      expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.true
+
+      await second.dispose()
+      expect(target.bokehMount).to.be.undefined
+      expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.false
+
+      const discovery = when_mounted(target)
+      const third = mount(Plot.create(), target)
+      expect(await discovery).to.be.equal(third)
+      await third.ready
+      await third.dispose()
       target.remove()
     })
 
@@ -383,7 +534,7 @@ describe("in api/plotting module", () => {
       continue_initialization()
       await defer()
 
-      expect(mounted.view_manager.get(plot)).to.be.null
+      expect(mounted.view_lookup.find_one(plot)).to.be.null
       expect(mounted.models.includes(plot)).to.be.false
       expect(mounted.views.length).to.be.equal(0)
 
