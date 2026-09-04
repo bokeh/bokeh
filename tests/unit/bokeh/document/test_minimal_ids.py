@@ -17,7 +17,7 @@ from typing import Any, Iterator
 from bokeh.core.serialization import ObjectRep, Serializer
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
-from bokeh.models import CustomJS
+from bokeh.models import CustomJS, SetValue
 from bokeh.util.version import __version__
 
 FIXTURE_PATH = Path(__file__).parents[4] / "bokehjs" / "test" / "unit" / "document" / "minimal_ids_fixture.ts"
@@ -138,6 +138,32 @@ def test_static_document_is_deterministic_and_does_not_force_root_ids() -> None:
     assert retained["roots"][0]["id"] == primary.id
     assert "id" not in retained["roots"][1]
     assert secondary.id != primary.id
+
+
+def test_static_identity_analysis_traverses_direct_properties_and_mappings() -> None:
+    shared = CustomJS(code="shared")
+    mapping = CustomJS(code="mapping", args={"shared": shared})
+    direct = SetValue(obj=shared, attr="code", value="updated")
+    document = Document()
+    document.add_root(mapping)
+    document.add_root(direct)
+
+    encoded = document.to_static_json(deferred=False)
+    retained_ids = {rep["id"] for rep in _object_reps(encoded) if "id" in rep}
+
+    assert shared.id in retained_ids
+    assert mapping.id not in retained_ids
+    assert direct.id not in retained_ids
+
+
+def test_models_with_ids_does_not_expand_the_document_graph() -> None:
+    document = _fixture_document()
+    external = CustomJS(code="outside-document")
+
+    encoded = document.to_static_json(deferred=False, models_with_ids=[external])
+
+    assert external.id not in {rep.get("id") for rep in _object_reps(encoded)}
+    assert all(rep.get("attributes", {}).get("code") != "outside-document" for rep in _object_reps(encoded))
 
 
 def test_canonical_documents_and_patch_values_remain_id_full() -> None:

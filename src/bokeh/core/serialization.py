@@ -220,6 +220,14 @@ class Serializer:
 
     def __init__(self, *, references: set[Model] = set(), deferred: bool = True, check_circular: bool = False,
             models_with_ids: set[Model] | None = None) -> None:
+        ''' Configure serialization identity policy.
+
+        ``models_with_ids=None`` retains IDs for every encountered model and is
+        required for canonical documents and live protocol messages. A set
+        enables graph-minimal static serialization: only encountered members
+        retain IDs, and membership does not add an otherwise unreachable model
+        to the serialized graph.
+        '''
         self._references = {id(obj): obj.ref for obj in references}
         self._models_with_ids = None if models_with_ids is None else {id(obj) for obj in models_with_ids}
         self._deferred = deferred

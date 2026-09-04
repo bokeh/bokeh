@@ -120,6 +120,12 @@ def _no_op_callback() -> None:
     pass
 
 def _models_with_ids(values: Iterable[Any]) -> set[Model]:
+    '''Return reached models whose identity is required by sharing or cycles.
+
+    The traversal follows model references through nested containers. It only
+    classifies the supplied document graph; callers cannot use the result to
+    introduce an otherwise unreachable model into serialized output.
+    '''
     counts: dict[Model, int] = {}
     children: dict[Model, list[Model]] = {}
 
