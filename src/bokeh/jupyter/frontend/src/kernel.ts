@@ -155,7 +155,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
       try {comm.open({kind: "release", view_id: viewId})}
       finally {window.setTimeout(() => safelyCloseComm(comm), 250)}
     },
-    openApplicationView: async (viewId) => {
+    openApplicationView: async (viewId, applicationUrl) => {
       await manager.context.sessionContext.ready
       const kernel = current()
       if (kernel == null) throw new Error("The notebook kernel is not connected")
@@ -180,6 +180,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           safelyCloseComm(comm)
         }, 5000)
         const connection: ApplicationViewConnection = {
+          artifactJson: "",
           onClose(callback) {
             receiveClose = callback
             if (closed) queueMicrotask(callback)
@@ -202,10 +203,20 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
                 "Re-run show(app) to create a new application view.",
               ))
               safelyCloseComm(comm)
+            } else if (data.kind === "ready" && typeof data.artifact === "string") {
+              settled = true
+              window.clearTimeout(timer)
+              connection.artifactJson = data.artifact
+              resolve(connection)
             } else if (data.kind === "ready") {
               settled = true
               window.clearTimeout(timer)
-              resolve(connection)
+              reject(new BokehNotebookError(
+                "APPLICATION_ARTIFACT_INVALID",
+                "The kernel opened the application view without returning its artifact.",
+                "Restart the kernel and re-run the cells that call serve(...) and show(app).",
+              ))
+              safelyCloseComm(comm)
             }
             return
           }
@@ -227,7 +238,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             notifyClosed()
           }
         }
-        try {comm.open({view_id: viewId})}
+        try {comm.open({view_id: viewId, application_url: manager.applicationUrl(applicationUrl)})}
         catch (error) {
           if (!settled) {
             settled = true
