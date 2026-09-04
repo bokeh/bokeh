@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokeh-jupyter",
-  "version": "4.0.0-dev.4",
+  "version": "4.0.0-dev.5",
   "description": "First-party Jupyter renderer for Bokeh",
   "license": "BSD-3-Clause",
   "private": true,

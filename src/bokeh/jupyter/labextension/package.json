@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokeh-jupyter",
-  "version": "4.0.0-dev.4",
+  "version": "4.0.0-dev.5",
   "description": "First-party Jupyter renderer for Bokeh",
   "license": "BSD-3-Clause",
   "private": true,
@@ -55,7 +55,7 @@
       }
     },
     "_build": {
-      "load": "static/remoteEntry.1908c108ec8c2e728e9b.js",
+      "load": "static/remoteEntry.83904b078c344b933851.js",
       "extension": "./extension"
     }
   }
