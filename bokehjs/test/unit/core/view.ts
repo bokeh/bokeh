@@ -70,6 +70,19 @@ export class ListeningModel extends HasProps {
 let failed_view: View | null = null
 const get_failed_view = (): View | null => failed_view
 
+class InitializeFailureView extends SomeModelView {
+  override initialize(): void {
+    failed_view = this
+    throw new Error("initialization failed")
+  }
+}
+
+class InitializeFailureModel extends SomeModel {
+  static {
+    this.prototype.default_view = InitializeFailureView
+  }
+}
+
 class LazyFailureView extends SomeModelView {
   override initialize(): void {
     super.initialize()
@@ -110,6 +123,7 @@ describe("core/view", () => {
 
   describe("View", () => {
     for (const [model, message] of [
+      [InitializeFailureModel.create(), "initialization failed"],
       [LazyFailureModel.create(), "lazy initialization failed"],
       [SignalFailureModel.create(), "signal connection failed"],
     ] as const) {
