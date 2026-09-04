@@ -1,5 +1,5 @@
 export {figure, Figure} from "./figure"
-export {show, mount, BokehMount} from "./io"
-export type {MountOptions} from "./io"
+export {show, mount, BokehMount, MountError, MountSource} from "./io"
+export type {KeyedRoots, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey} from "./io"
 export {gridplot} from "./gridplot"
 export {color2css as color} from "../core/util/color"

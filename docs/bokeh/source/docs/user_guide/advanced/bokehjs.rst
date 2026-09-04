@@ -39,7 +39,7 @@ framework (``@bokeh/react``, ``@bokeh/vue``, ``@bokeh/svelte``, or
 use the ``Bokeh`` component or the lower-level
 ``useBokeh()`` hook from ``@bokeh/react``:
 
-.. code-block:: typescript
+.. code-block:: tsx
 
     import {Bokeh} from "@bokeh/react"
     import type {Plot} from "@bokeh/bokehjs"
@@ -66,7 +66,7 @@ composable in ``@bokeh/vue``:
 
 Svelte applications can use the ``bokeh`` action from ``@bokeh/svelte``:
 
-.. code-block:: html
+.. code-block:: text
 
     <script lang="ts">
     import {bokeh} from "@bokeh/svelte"
@@ -117,6 +117,145 @@ The same source works with Vite, Webpack, and Rspack:
     function removePlot() {
       mounted.dispose()
     }
+
+Sharing models between plots
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All adapters accept a single Bokeh root, an array of roots, or a ``Document``.
+Mount related roots through one adapter instance when they share a data source,
+range, selection, or other Bokeh model. The array form creates one temporary
+document containing every root, so normal Bokeh linking works:
+
+.. code-block:: typescript
+
+    import {ColumnDataSource, Plotting} from "@bokeh/bokehjs"
+    import {Bokeh} from "@bokeh/react"
+
+    const source = ColumnDataSource.create({
+      data: {x: [1, 2, 3], y: [2, 5, 3], detail: [4, 3, 6]},
+    })
+
+    const overview = Plotting.figure()
+    overview.line({field: "x"}, {field: "y"}, {source})
+
+    const detail = Plotting.figure({x_range: overview.x_range})
+    detail.scatter({field: "x"}, {field: "detail"}, {source})
+
+    export function Dashboard() {
+      return <Bokeh model={[overview, detail]} className="plots" />
+    }
+
+The adapter's host element contains each root view, so its CSS can use grid or
+flexbox for responsive placement. Pass the same roots array with Vue's
+``:model`` binding, Svelte's ``use:bokeh`` action, Angular's ``[model]``
+binding, or the Web Component's ``model`` property.
+
+Placing linked roots independently
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Roots in one Bokeh document do not have to be siblings in one grid. Framework
+adapters provide a document owner and lightweight root slots, allowing normal
+application content between plots. In React, wrap the nearest common component
+ancestor with ``BokehDocument`` and put each ``BokehRoot`` wherever its plot
+belongs:
+
+.. code-block:: tsx
+
+    import {BokehDocument, BokehRoot} from "@bokeh/react"
+
+    export function Dashboard() {
+      return <BokehDocument models={[overview, detail]}>
+        <section className="summary"><BokehRoot model={overview} /></section>
+        <ArticleContent />
+        <aside className="detail"><BokehRoot model={detail} /></aside>
+      </BokehDocument>
+    }
+
+Vue uses the same provider/root vocabulary:
+
+.. code-block:: vue
+
+    <script setup lang="ts">
+    import {BokehDocument, BokehRoot} from "@bokeh/vue"
+    </script>
+
+    <template>
+      <BokehDocument :models="[overview, detail]">
+        <section><BokehRoot :model="overview" /></section>
+        <ArticleContent />
+        <aside><BokehRoot :model="detail" /></aside>
+      </BokehDocument>
+    </template>
+
+Svelte and Angular express the same relationship with actions and a directive,
+respectively:
+
+.. code-block:: text
+
+    <script lang="ts">
+    import {bokehDocument, bokehRoot} from "@bokeh/svelte"
+    </script>
+
+    <main use:bokehDocument={{models: [overview, detail]}}>
+      <section><div use:bokehRoot={{model: overview}}></div></section>
+      <ArticleContent />
+      <aside><div use:bokehRoot={{model: detail}}></div></aside>
+    </main>
+
+.. code-block:: typescript
+
+    import {BokehDocumentComponent, BokehRootDirective} from "@bokeh/angular"
+
+    @Component({
+      imports: [BokehDocumentComponent, BokehRootDirective],
+      template: `
+        <bokeh-document [models]="[overview, detail]">
+          <section [bokehRoot]="overview"></section>
+          <article>Ordinary Angular content</article>
+          <aside [bokehRoot]="detail"></aside>
+        </bokeh-document>
+      `,
+    })
+    export class Dashboard {}
+
+The Web Component adapter supports nested roots or an explicit provider
+reference when the elements have no common DOM parent:
+
+.. code-block:: typescript
+
+    import {
+      BokehDocumentElement, BokehRootElement,
+      defineBokehDocumentElement, defineBokehRootElement,
+    } from "@bokeh/web-component"
+
+    defineBokehDocumentElement()
+    defineBokehRootElement()
+    const provider = document.createElement("bokeh-document") as BokehDocumentElement
+    provider.models = [overview, detail]
+    document.body.append(provider)
+
+    for (const [selector, model] of [["#summary", overview], ["#detail", detail]] as const) {
+      const root = document.createElement("bokeh-root") as BokehRootElement
+      root.model = model
+      root.bokehDocument = provider
+      document.querySelector(selector)!.append(root)
+    }
+
+Direct consumers can supply the corresponding targets by index. A document
+fragment is a convenient unused fallback target:
+
+.. code-block:: typescript
+
+    const mounted = await mount(
+      [overview, detail],
+      document.createDocumentFragment(),
+      {root_targets: [document.querySelector("#summary")!, document.querySelector("#detail")!]},
+    )
+
+Do not mount roots that share Bokeh models through separate adapter instances.
+Each mount owns a separate temporary document, and a Bokeh model can belong to
+only one document. Use one multi-root mount, one document provider with root
+slots, or compose the plots into a Bokeh layout such as a row, column, or grid.
 
 Complete runnable projects for React, Vue, Svelte, Angular, Web Components,
 vanilla Vite/Webpack/Rspack, and Node.js server-side rendering are in

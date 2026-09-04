@@ -1,8 +1,8 @@
-import {afterNextRender, Component, EventEmitter, Input, Output, ViewChild} from "@angular/core"
-import type {ElementRef, OnChanges, OnDestroy, SimpleChanges} from "@angular/core"
+import {afterNextRender, Component, Directive, ElementRef, EventEmitter, Input, Output, ViewChild, inject} from "@angular/core"
+import type {OnChanges, OnDestroy, SimpleChanges} from "@angular/core"
 
-import {MountController} from "@bokeh/framework"
-import type {BokehModel} from "@bokeh/framework"
+import {DocumentMountController, MountController} from "@bokeh/framework"
+import type {BokehModel, BokehRootModel} from "@bokeh/framework"
 import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
 
 @Component({
@@ -12,7 +12,7 @@ import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
   styles: ":host { display: block; }",
 })
 export class BokehComponent implements OnChanges, OnDestroy {
-  /** The Bokeh model or document to render. */
+  /** The Bokeh root, roots array, or document to render in one mount. */
   @Input({required: true}) model!: BokehModel
   /** Options forwarded to Bokeh's mount() API. */
   @Input() mountOptions?: MountOptions
@@ -65,5 +65,73 @@ export class BokehComponent implements OnChanges, OnDestroy {
       },
       onError: (error) => this.bokehMountError.emit(error),
     })
+  }
+}
+
+@Component({
+  selector: "bokeh-document",
+  standalone: true,
+  template: "<ng-content></ng-content>",
+  styles: ":host { display: contents; }",
+})
+export class BokehDocumentComponent implements OnChanges, OnDestroy {
+  /** Roots rendered by descendant elements carrying the bokehRoot directive. */
+  @Input({required: true}) models!: readonly BokehRootModel[]
+  @Input() mountOptions?: MountOptions
+
+  @Output() readonly bokehMounted = new EventEmitter<BokehMount>()
+  @Output() readonly bokehDisposed = new EventEmitter<BokehMount>()
+  @Output() readonly bokehMountError = new EventEmitter<unknown>()
+
+  mounted: BokehMount | null = null
+
+  private readonly _controller = new DocumentMountController()
+
+  ngOnChanges(): void {
+    this._controller.update(this.models, {
+      mountOptions: this.mountOptions,
+      onMounted: (mounted) => {
+        this.mounted = mounted
+        this.bokehMounted.emit(mounted)
+      },
+      onDisposed: (mounted) => {
+        if (this.mounted == mounted) {
+          this.mounted = null
+        }
+        this.bokehDisposed.emit(mounted)
+      },
+      onError: (error) => this.bokehMountError.emit(error),
+    })
+  }
+
+  attach(model: BokehRootModel, target: HTMLElement): () => void {
+    return this._controller.attach(model, target)
+  }
+
+  ngOnDestroy(): void {
+    this._controller.dispose()
+    this.mounted = null
+  }
+}
+
+@Directive({
+  selector: "[bokehRoot]",
+  standalone: true,
+})
+export class BokehRootDirective implements OnChanges, OnDestroy {
+  @Input({required: true}) bokehRoot!: BokehRootModel
+
+  private readonly _element = inject<ElementRef<HTMLElement>>(ElementRef)
+  private readonly _document = inject(BokehDocumentComponent)
+  private _detach: (() => void) | null = null
+
+  ngOnChanges(): void {
+    this._detach?.()
+    this._detach = this._document.attach(this.bokehRoot, this._element.nativeElement)
+  }
+
+  ngOnDestroy(): void {
+    this._detach?.()
+    this._detach = null
   }
 }
