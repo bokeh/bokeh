@@ -2092,6 +2092,8 @@ describe("Bug", () => {
 
       group.labels = [...group.labels, "Button 2"]
       await view.ready
+      expect(view.shadow_el.querySelectorAll("button").length).to.be.equal(3)
+      await paint()
       await paint()
     })
   })

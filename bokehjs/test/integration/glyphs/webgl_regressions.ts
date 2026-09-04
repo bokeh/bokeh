@@ -154,7 +154,7 @@ describe("in issue #15279", () => {
 })
 
 describe("WebGL patch topology regressions", () => {
-  it("should preserve antialiasing topology for a depth-8 Koch patch", async () => {
+  it.timeout(120_000)("should preserve antialiasing topology for a depth-8 Koch patch", async () => {
     type Point = [number, number]
     function koch(a: Point, b: Point, depth: number, points: Point[]): void {
       if (depth == 0) {

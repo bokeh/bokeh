@@ -134,7 +134,7 @@ export class TestRunner {
     }
     let browser_available = true
     try {
-      return await this.browser.evaluate<Result>(`Tests.run(${seq}, ${this.ctx_json})`)
+      return await this.browser.evaluate<Result>(`Tests.run(${seq}, ${this.ctx_json})`, test.timeout)
     } catch (error) {
       if (error instanceof BrowserError) {
         browser_available = false

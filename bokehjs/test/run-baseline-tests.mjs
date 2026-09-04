@@ -84,6 +84,19 @@ const build_locally = process.env.BOKEHJS_BASELINE_BUILD === "1"
 const pull_image = process.env.BOKEHJS_BASELINE_PULL !== "0"
 const image = process.env.BOKEHJS_BASELINE_IMAGE ?? (build_locally ? local_image : canonical_image)
 
+function warn_if_emulated() {
+  try {
+    const podman = path.basename(container_engine).toLowerCase().startsWith("podman")
+    const format = podman ? "{{.Host.Arch}}" : "{{.Architecture}}"
+    const architecture = output(container_engine, ["info", "--format", format]).toLowerCase()
+    if (architecture !== "amd64" && architecture !== "x86_64") {
+      process.stderr.write(`Warning: the baseline image is linux/amd64 but the container engine reports ${architecture}; emulation can make browser tests substantially slower.\n`)
+    }
+  } catch {
+    // Image preparation below will report an unavailable container engine.
+  }
+}
+
 const user_args = typeof process.getuid === "function" && typeof process.getgid === "function"
   ? ["--user", `${process.getuid()}:${process.getgid()}`]
   : []
@@ -147,6 +160,7 @@ async function run_tests(args) {
   fs.rmSync(report_path, {force: true})
   fs.rmSync(report_out_path, {force: true})
 
+  warn_if_emulated()
   await prepare_image()
   await execute(container_engine, [
     "run", ...container_args,
