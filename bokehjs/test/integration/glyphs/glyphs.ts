@@ -1104,10 +1104,7 @@ describe("Glyph models", () => {
       p.renderers.push(glyph_renderer)
       return p
     }
-    // Note: WebGL does not support size overrides for multi-marker (Scatter) glyphs
-    // because marker type metadata cannot be correctly populated from derived glyphs.
-    // See multi_marker.ts lines 31-35 for architectural explanation.
-    // WebGL is included in the baseline to document the issue.
+    // Keep this description stable unless the matching Linux baseline is renamed.
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 

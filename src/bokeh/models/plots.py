@@ -69,6 +69,7 @@ from ..core.validation.errors import (
 )
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
+from ..util.deprecation import deprecated
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .dom import HTML
@@ -120,6 +121,14 @@ class Plot(LayoutDOM):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "hidpi":
+            deprecated(
+                "Plot.hidpi is deprecated and will be removed in Bokeh 4.0. "
+                "HiDPI rendering will always be enabled.",
+            )
+        super().__setattr__(name, value)
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that

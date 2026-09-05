@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 
 const int butt_cap   = 0;
 const int round_cap  = 1;

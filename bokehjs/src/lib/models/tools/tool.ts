@@ -189,9 +189,9 @@ export abstract class Tool extends Model {
 
   menu_item(): MenuItem {
     const item = new MenuItem({
-      icon: this.computed_icon,
+      icon: () => this.computed_icon ?? null,
       label: this.tool_name,
-      tooltip: this.tooltip != this.tool_name ? this.tooltip : undefined,
+      tooltip: () => this.tooltip != this.tool_name ? this.tooltip : null,
       checked: () => this.active,
       disabled: () => this.disabled,
       action: () => this.active = !this.active,

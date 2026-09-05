@@ -277,7 +277,7 @@ class ColumnData(Dict[str, Any]):
         property.
 
         Args:
-            base_name (str) : the name of the property these descriptors are for
+            name (str) : the name of the property these descriptors are for
 
         Returns:
             list[ColumnDataPropertyDescriptor]

@@ -35,16 +35,19 @@ log = logging.getLogger(__name__)
 import asyncio
 import atexit
 import io
+import os
 import queue
+import sys
 import threading
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable, Coroutine
+from typing import TYPE_CHECKING, Any, cast
 
 # Bokeh imports
 from ..resources import INLINE
 from ..util.dependencies import import_required
 from .state import curstate
 from .util import (
-    _BOKEH_LOADED_CHECK,
+    _BOKEH_LOADED_EXPR,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
@@ -55,12 +58,12 @@ from .util import (
 
 if TYPE_CHECKING:
     from PIL import Image
-    from playwright.sync_api import (
-        Browser,
-        BrowserContext,
-        Page,
-        Playwright,
+    from playwright.async_api import (
+        Browser as AsyncBrowser,
+        Page as AsyncPage,
+        Playwright as AsyncPlaywright,
     )
+    from playwright.sync_api import Browser, BrowserContext, Page
 
     from ..document import Document
     from ..models.ui import UIElement
@@ -165,13 +168,15 @@ def get_svgs(
 class _PlaywrightState:
     '''Manages a reusable Playwright browser instance for export operations.
 
-    Mirrors :class:`~bokeh.io.webdriver._WebdriverState`.
+    The state is owned by ``_playwright_thread``. All methods must be called
+    on that thread so that Playwright's event loop and browser objects stay on
+    the thread where they were created.
     '''
 
     reuse: bool
 
-    _playwright: Playwright | None
-    _browser: Browser | None
+    _playwright: AsyncPlaywright | None
+    _browser: AsyncBrowser | None
     _scale_factor: float
 
     def __init__(self, *, reuse: bool = True) -> None:
@@ -180,7 +185,7 @@ class _PlaywrightState:
         self._browser = None
         self._scale_factor = 1
 
-    def get_page(self, *, scale_factor: float = 1) -> Page:
+    async def get_page(self, *, scale_factor: float = 1) -> AsyncPage:
         '''Create a new browser page, launching the browser if needed.
 
         If the requested ``scale_factor`` exceeds the factor the current
@@ -189,49 +194,49 @@ class _PlaywrightState:
         if (self._browser is not None and self._browser.is_connected()
                 and scale_factor > self._scale_factor):
             # Need a higher DPI than the current browser was launched with.
-            self.cleanup()
-        browser = self._ensure_browser(scale_factor=scale_factor)
-        return browser.new_page()
+            await self.cleanup()
+        browser = await self._ensure_browser(scale_factor=scale_factor)
+        return await browser.new_page()
 
-    def close_page(self, page: Page) -> None:
+    async def close_page(self, page: AsyncPage) -> None:
         '''Close a page after export is complete.'''
         if not page.is_closed():
-            page.close()
+            await page.close()
 
-    def cleanup(self) -> None:
+    async def cleanup(self) -> None:
         '''Shut down the browser and Playwright.'''
         if self._browser is not None:
             try:
-                self._browser.close()
+                await self._browser.close()
             except Exception:
                 pass
             self._browser = None
 
         if self._playwright is not None:
             try:
-                self._playwright.stop()
+                await self._playwright.stop()
             except Exception:
                 pass
             self._playwright = None
 
-    def _ensure_browser(self, scale_factor: float = 1) -> Browser:
+    async def _ensure_browser(self, scale_factor: float = 1) -> AsyncBrowser:
         if self._browser is not None and self._browser.is_connected():
             return self._browser
 
-        self.cleanup()
+        await self.cleanup()
         self._scale_factor = scale_factor
 
-        sync_api = import_required(
-            "playwright.sync_api",
+        async_api = import_required(
+            "playwright.async_api",
             "To use the Playwright export backend you need playwright "
             "('pip install playwright' then 'playwright install chromium')",
         )
 
-        playwright = sync_api.sync_playwright().start()
+        playwright = await async_api.async_playwright().start()
         self._playwright = playwright
 
         try:
-            browser = playwright.chromium.launch(
+            browser = await playwright.chromium.launch(
                 args=[
                     "--hide-scrollbars",
                     f"--force-device-scale-factor={scale_factor}",
@@ -240,7 +245,7 @@ class _PlaywrightState:
             )
             self._browser = browser
         except Exception as e:
-            self.cleanup()
+            await self.cleanup()
             raise RuntimeError(
                 "Failed to launch Playwright Chromium. Make sure browser binaries "
                 "are installed by running 'playwright install chromium'.",
@@ -249,27 +254,33 @@ class _PlaywrightState:
         return browser
 
 
+def _wrap_function(script: str) -> str:
+    stripped = script.strip()
+    if stripped.startswith("return ") or stripped.startswith("return\n") or "\nreturn " in stripped:
+        return f"() => {{ {script} }}"
+    return script
+
+
 def execute_script(page: Page, script: str) -> Any:
     '''Execute JavaScript in the page and return the result.
 
-    Wraps Selenium-style scripts (with bare top-level ``return``) in an
-    IIFE so they work with Playwright's ``evaluate``.
+    Wraps Selenium-style scripts (with bare top-level ``return``) in a
+    function so they work with Playwright's ``evaluate``.
     '''
-    stripped = script.strip()
-    if stripped.startswith("return ") or stripped.startswith("return\n") or "\nreturn " in stripped:
-        script = f"(() => {{ {script} }})()"
-    return page.evaluate(script)
+    return page.evaluate(_wrap_function(script))
+
+
+async def _execute_script(page: AsyncPage, script: str) -> Any:
+    return await page.evaluate(_wrap_function(script))
 
 
 def wait_until_render_complete(page: Page, timeout: int) -> None:
     '''Wait for Bokeh to load and render, mirroring the Selenium backend.'''
     timeout_ms = timeout * 1000
 
-    bokeh_loaded_fn = _BOKEH_LOADED_CHECK.replace("return ", "", 1)
-
     try:
         page.wait_for_function(
-            f"() => {{ return {bokeh_loaded_fn}; }}",
+            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
             timeout=timeout_ms,
         )
     except Exception as e:
@@ -292,11 +303,46 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
         )
 
 
+async def _wait_until_render_complete(page: AsyncPage, timeout: int) -> None:
+    timeout_ms = timeout * 1000
+
+    try:
+        await page.wait_for_function(
+            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
+            timeout=timeout_ms,
+        )
+    except Exception as e:
+        raise RuntimeError(
+            "Bokeh was not loaded in time. Something may have gone wrong.",
+        ) from e
+
+    await page.evaluate(f"() => {{ {_WAIT_SCRIPT} }}")
+
+    try:
+        await page.wait_for_function(
+            "() => window._bokeh_render_complete",
+            timeout=timeout_ms,
+        )
+    except Exception:
+        log.warning(
+            "The Playwright page raised a timeout while waiting for "
+            "a 'bokeh:idle' event to signify that the layout has rendered. "
+            "Something may have gone wrong.",
+        )
+
+
 def maximize_viewport(page: Page) -> tuple[float, float, int, int, int]:
     '''Resize viewport to fit the Bokeh layout. Returns (x, y, width, height, dpr).'''
     [_, _, w, h, _] = execute_script(page, _ROOT_VIEW_BBOX_SCRIPT)
     page.set_viewport_size({"width": w + 100, "height": h + 100})
     [x, y, w, h, dpr] = execute_script(page, _ROOT_VIEW_BBOX_SCRIPT)
+    return (x, y, w, h, dpr)
+
+
+async def _maximize_viewport(page: AsyncPage) -> tuple[float, float, int, int, int]:
+    [_, _, w, h, _] = await _execute_script(page, _ROOT_VIEW_BBOX_SCRIPT)
+    await page.set_viewport_size({"width": w + 100, "height": h + 100})
+    [x, y, w, h, dpr] = await _execute_script(page, _ROOT_VIEW_BBOX_SCRIPT)
     return (x, y, w, h, dpr)
 
 
@@ -325,13 +371,8 @@ def _playwright_render(
         (result, width, height, dpr) where result is the script return value
         or PNG bytes if script is empty.
     '''
-    user_driver = driver is not None
-
-    def _do_export() -> tuple[Any, int, int, int]:
-        if user_driver:
-            page = driver.new_page()  # type: ignore[union-attr]
-        else:
-            page = playwright_control.get_page(scale_factor=scale_factor)
+    def _do_export(user_driver: Browser | BrowserContext) -> tuple[Any, int, int, int]:
+        page = user_driver.new_page()
         try:
             with tmp_html() as tmp:
                 with tmp as f:
@@ -340,77 +381,181 @@ def _playwright_render(
                 page.goto(f"file://{tmp.name}")
                 wait_until_render_complete(page, timeout)
                 [x, y, w, h, dpr] = maximize_viewport(page)
-                if not script:
-                    result = page.screenshot(clip={"x": x, "y": y, "width": w, "height": h})
-                else:
+                if script:
                     result = execute_script(page, script)
+                else:
+                    result = page.screenshot(clip={"x": x, "y": y, "width": w, "height": h})
         finally:
             if not page.is_closed():
                 page.close()
         return (result, w, h, dpr)
 
-    if _in_async_context() and not user_driver:
-        return _playwright_thread.run(_do_export)
-    return _do_export()
+    async def _do_export_async() -> tuple[Any, int, int, int]:
+        page = await playwright_control.get_page(scale_factor=scale_factor)
+        try:
+            with tmp_html() as tmp:
+                with tmp as f:
+                    f.write(html.encode("utf-8"))
+
+                await page.goto(f"file://{tmp.name}")
+                await _wait_until_render_complete(page, timeout)
+                [x, y, w, h, dpr] = await _maximize_viewport(page)
+                if script:
+                    result = await _execute_script(page, script)
+                else:
+                    result = await page.screenshot(clip={"x": x, "y": y, "width": w, "height": h})
+        finally:
+            await playwright_control.close_page(page)
+        return (result, w, h, dpr)
+
+    if driver is not None:
+        return _do_export(driver)
+    return _playwright_thread.run(_do_export_async)
 
 
-def _in_async_context() -> bool:
-    '''Return True if there is a running asyncio event loop (e.g. Jupyter).'''
-    try:
-        asyncio.get_running_loop()
-        return True
-    except RuntimeError:
-        return False
+def _new_event_loop() -> asyncio.AbstractEventLoop:
+    if sys.platform == "win32":
+        loop_factory = cast("Callable[[], asyncio.AbstractEventLoop]", getattr(asyncio, "ProactorEventLoop"))
+        loop = loop_factory()
+    else:
+        loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop
 
 
 class _PlaywrightThread:
     '''A dedicated long-lived daemon thread for Playwright operations.
 
-    Playwright's sync API starts its own event loop, which conflicts with
-    an already-running loop (e.g. Jupyter). This class keeps a single
-    background thread alive so that all Playwright objects (browser, pages)
-    remain valid across multiple export calls.
+    The worker runs Playwright's async API on an event loop that Bokeh owns.
+    On Windows it explicitly uses a proactor loop because Playwright launches
+    its driver as an asyncio subprocess, which selector loops don't support.
     '''
 
     def __init__(self) -> None:
-        self._thread: threading.Thread | None = None
-        self._queue: queue.Queue[tuple[Callable[..., Any], tuple[Any, ...], queue.Queue[Any]] | None] = queue.Queue()
-        self._started = False
+        self._reset()
 
-    def run[T](self, fn: Callable[..., T], *args: Any) -> T:
+    def _reset(self) -> None:
+        self._pid = os.getpid()
+        self._thread: threading.Thread | None = None
+        self._queue: queue.Queue[
+            tuple[Callable[..., Coroutine[Any, Any, Any]], tuple[Any, ...], queue.Queue[Any]] | None
+        ] = queue.Queue()
+        self._lifecycle_lock = threading.Lock()
+        self._stopped = threading.Event()
+        self._stopped.set()
+        self._started = False
+        self._stopping = False
+
+    def run[T](self, fn: Callable[..., Coroutine[Any, Any, T]], *args: Any) -> T:
         '''Submit a callable to the Playwright thread and block for the result.'''
-        self._ensure_started()
+        self._ensure_current_process()
         result_q = queue.Queue[tuple[str, Any]]()
-        self._queue.put((fn, args, result_q))
+        with self._lifecycle_lock:
+            if self._stopping:
+                raise RuntimeError("Playwright worker is shutting down")
+            self._ensure_started()
+            self._queue.put((fn, args, result_q))
         status, value = result_q.get()
         if status == "error":
             raise value
         return value
 
-    def shutdown(self) -> None:
-        if self._started:
-            self._queue.put(None)
-            if self._thread is not None:
-                self._thread.join(timeout=5)
-            self._started = False
+    def shutdown(self, finalizer: Callable[..., Coroutine[Any, Any, Any]] | None = None) -> None:
+        '''Stop the worker after completing already-submitted work.'''
+        self._ensure_current_process()
+
+        wait_until_stopped = False
+        finalizer_q: queue.Queue[tuple[str, Any]] | None = None
+        thread: threading.Thread | None = None
+
+        with self._lifecycle_lock:
+            if self._stopping:
+                wait_until_stopped = True
+            elif not self._started:
+                return
+            else:
+                thread = self._thread
+                if thread is threading.current_thread():
+                    raise RuntimeError("Playwright worker cannot shut itself down")
+                self._stopping = True
+                if finalizer is not None:
+                    finalizer_q = queue.Queue()
+                    self._queue.put((finalizer, (), finalizer_q))
+                # The sentinel is queued while submissions are excluded by the
+                # lifecycle lock, so no work can be stranded behind it.
+                self._queue.put(None)
+
+        if wait_until_stopped:
+            self._stopped.wait()
+            return
+
+        finalizer_result: tuple[str, Any] | None = None
+        if finalizer_q is not None:
+            finalizer_result = finalizer_q.get()
+
+        assert thread is not None
+        thread.join()
+
+        with self._lifecycle_lock:
             self._thread = None
+            self._queue = queue.Queue()
+            self._started = False
+            self._stopping = False
+            self._stopped.set()
+
+        if finalizer_result is not None and finalizer_result[0] == "error":
+            raise finalizer_result[1]
+
+    def _ensure_current_process(self) -> None:
+        if self._pid != os.getpid():
+            # Only the thread that called fork survives in the child. Discard
+            # inherited queues and locks without touching the parent's worker.
+            self._reset()
 
     def _ensure_started(self) -> None:
-        if not self._started:
-            self._thread = threading.Thread(target=self._worker, daemon=True)
-            self._thread.start()
-            self._started = True
+        thread = self._thread
+        if self._started and thread is not None and thread.is_alive():
+            return
 
-    def _worker(self) -> None:
-        while True:
-            item = self._queue.get()
-            if item is None:
-                break
-            fn, args, result_q = item
-            try:
-                result_q.put(("ok", fn(*args)))
-            except BaseException as e:
-                result_q.put(("error", e))
+        self._thread = None
+        self._queue = queue.Queue()
+        self._started = False
+
+        startup_q = queue.Queue[tuple[str, Any]]()
+        thread = threading.Thread(target=self._worker, args=(startup_q,), daemon=True)
+        self._thread = thread
+        thread.start()
+
+        status, value = startup_q.get()
+        if status == "error":
+            thread.join()
+            self._thread = None
+            self._queue = queue.Queue()
+            raise value
+
+        self._stopped.clear()
+        self._started = True
+
+    def _worker(self, startup_q: queue.Queue[tuple[str, Any]]) -> None:
+        started = False
+        try:
+            with asyncio.Runner(loop_factory=_new_event_loop) as runner:
+                startup_q.put(("ok", None))
+                started = True
+                while True:
+                    item = self._queue.get()
+                    if item is None:
+                        break
+                    fn, args, result_q = item
+                    try:
+                        result_q.put(("ok", runner.run(fn(*args))))
+                    except (Exception, asyncio.CancelledError) as e:
+                        result_q.put(("error", e))
+        except Exception as e:
+            if not started:
+                startup_q.put(("error", e))
+            else:
+                raise
 
 
 _playwright_thread = _PlaywrightThread()
@@ -419,13 +564,9 @@ _playwright_thread = _PlaywrightThread()
 def _cleanup() -> None:
     '''Shutdown Playwright and the background thread at exit.'''
     try:
-        if _playwright_thread._started:
-            _playwright_thread.run(playwright_control.cleanup)
-        else:
-            playwright_control.cleanup()
+        _playwright_thread.shutdown(playwright_control.cleanup)
     except Exception:
         pass
-    _playwright_thread.shutdown()
 
 
 #-----------------------------------------------------------------------------
@@ -433,5 +574,16 @@ def _cleanup() -> None:
 #-----------------------------------------------------------------------------
 
 playwright_control = _PlaywrightState()
+
+
+def _reset_after_fork() -> None:
+    global playwright_control
+    _playwright_thread._reset()
+    playwright_control = _PlaywrightState()
+
+
+_register_at_fork = cast("Callable[..., None] | None", getattr(os, "register_at_fork", None))
+if _register_at_fork is not None:
+    _register_at_fork(after_in_child=_reset_after_fork)
 
 atexit.register(_cleanup)

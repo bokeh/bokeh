@@ -411,8 +411,8 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
     def __copy__(self) -> PropertyValueColumnData:
         return PropertyValueColumnData(dict(self))
 
-    def __deepcopy__(self, memodict: dict[Any, Any] = {}) -> PropertyValueColumnData:
-        return PropertyValueColumnData(copy.deepcopy(dict(self), memodict))
+    def __deepcopy__(self, memo: dict[Any, Any]) -> PropertyValueColumnData:
+        return PropertyValueColumnData(copy.deepcopy(dict(self), memo))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def update(self, *args: Any, **kwargs: Sequence[Any]) -> None:
