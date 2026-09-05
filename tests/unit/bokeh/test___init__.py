@@ -87,6 +87,10 @@ def test_license(capsys: Capture) -> None:
     out, _ = capsys.readouterr()
     assert out == _LICENSE
 
+def test_download_deprecated() -> None:
+    with pytest.warns(BokehDeprecationWarning, match=r"bokeh\.download\(\) is deprecated and will be removed in Bokeh 4\.0"):
+        b.download()
+
 class TestWarnings:
     @pytest.mark.parametrize('cat', (BokehDeprecationWarning, BokehUserWarning))
     def test_bokeh_custom(self, cat) -> None:

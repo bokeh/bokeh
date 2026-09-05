@@ -24,6 +24,7 @@ from typing import Any
 from ..core.enums import OutputBackend
 from ..core.property.enum import Enum
 from ..core.property.primitive import Bool
+from ..util.deprecation import deprecated
 from .ui import UIElement
 
 #-----------------------------------------------------------------------------
@@ -44,6 +45,14 @@ class Canvas(UIElement):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "hidpi":
+            deprecated(
+                "Canvas.hidpi is deprecated and will be removed in Bokeh 4.0. "
+                "HiDPI rendering will always be enabled.",
+            )
+        super().__setattr__(name, value)
 
     hidpi = Bool(default=True, help="""
     Whether to use HiDPI mode when available.
