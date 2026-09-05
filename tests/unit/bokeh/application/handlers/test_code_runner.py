@@ -207,6 +207,7 @@ class TestCodeRunner:
 
         assert second_entered.is_set()
 
+    @pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
     def test_doc(self) -> None:
         cr = bahc.CodeRunner("'''some docstring\n\nfoo bar'''", "path", [])
         assert cr.failed is False

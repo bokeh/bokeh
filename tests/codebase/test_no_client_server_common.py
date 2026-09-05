@@ -39,20 +39,12 @@ modules = [
 # Tests
 #-----------------------------------------------------------------------------
 
-def test_no_client_common() -> None:
-    ''' Basic usage of Bokeh should not result in any client code being
-    imported. This test ensures that importing basic modules does not bring in
-    bokeh.client.
+def test_no_client_server_or_tornado_common() -> None:
+    ''' Basic usage of Bokeh should not result in any client, server, or Tornado code
+    being imported. This test ensures that importing basic modules does not
+    bring in bokeh.client, bokeh.server, or tornado.
 
     '''
-    proc = run([python, "-c", verify_clean_imports('bokeh.client', modules)])
-    assert proc.returncode == 0, "bokeh.client imported in common modules"
-
-def test_no_server_common() -> None:
-    ''' Basic usage of Bokeh should not result in any server code being
-    imported. This test ensures that importing basic modules does not bring in
-    bokeh.server.
-
-    '''
-    proc = run([python, "-c", verify_clean_imports('bokeh.server', modules)])
-    assert proc.returncode == 0, "bokeh.server imported in common modules"
+    targets = ("bokeh.client", "bokeh.server", "tornado")
+    proc = run([python, "-c", verify_clean_imports(targets, modules)], capture_output=True, text=True)
+    assert proc.returncode == 0, f"client, server, or Tornado modules imported in common modules:\n{proc.stdout}"

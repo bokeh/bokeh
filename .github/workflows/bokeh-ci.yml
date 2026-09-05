@@ -110,7 +110,7 @@ jobs:
           environment: test-py312
 
       - name: Run codebase checks
-        run: pytest --color=yes --durations=20 --durations-min=1 tests/codebase
+        run: pytest -n logical --maxprocesses=5 --color=yes --durations=20 --durations-min=1 tests/codebase
 
   tools:
     needs: changes

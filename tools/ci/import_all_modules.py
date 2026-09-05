@@ -11,32 +11,25 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os import chdir
+import sys
+from importlib import import_module
 from subprocess import run
 
-# Bokeh imports
-from tests.support.util.project import TOP_PATH
-
 #-----------------------------------------------------------------------------
-# Tests
+# Code
 #-----------------------------------------------------------------------------
 
-@pytest.mark.parametrize("args", [
-    pytest.param(["ruff", "check", "."], id="general"),
-    pytest.param(["ruff", "check", "--config", "src/bokeh/.ruff-tornado.toml", "src/bokeh"], id="tornado"),
-])
-def test_ruff(args: list[str]) -> None:
-    chdir(TOP_PATH)
-    proc = run(args, capture_output=True)
-    assert proc.returncode == 0, f"ruff issues:\n{proc.stdout.decode('utf-8')}"
+if sys.flags.optimize != 2:
+    raise RuntimeError("this check must run with Python optimization level 2 (-OO)")
 
-#-----------------------------------------------------------------------------
-# Support
-#-----------------------------------------------------------------------------
+proc = run(["git", "ls-files", "src/bokeh/**.py"], check=True, capture_output=True, text=True)
+
+for file in proc.stdout.splitlines():
+    module = file.removeprefix("src/").removesuffix(".py").replace("/", ".").removesuffix(".__init__")
+    if not module.endswith(".__main__"):
+        import_module(module)

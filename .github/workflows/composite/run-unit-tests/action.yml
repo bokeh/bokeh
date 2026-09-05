@@ -15,12 +15,18 @@ inputs:
     description: 'PYTHON_GIL value to export after activating the test environment'
     required: false
     default: ''
+  python-optimize:
+    description: 'PYTHONOPTIMIZE level to use while running tests (2 is equivalent to -OO)'
+    required: false
+    default: ''
 
 runs:
   using: composite
   steps:
     - name: Test defaults
       shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
@@ -29,6 +35,8 @@ runs:
 
     - name: Test cross
       shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
@@ -38,6 +46,8 @@ runs:
     - name: Run tests
       if: success() || failure()
       shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
@@ -54,6 +64,13 @@ runs:
         fi
         POLICY="--last-failed --last-failed-no-failures none"
         pytest $COLOR "${COVERAGE[@]}" $DURATIONS "${PARALLEL[@]}" tests/unit || pytest $COLOR $DURATIONS $POLICY tests/unit
+
+    - name: Import all modules
+      if: (success() || failure()) && inputs.python-optimize == '2'
+      shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
+      run: python tools/ci/import_all_modules.py
 
     - name: Upload code coverage
       uses: codecov/codecov-action@v7
