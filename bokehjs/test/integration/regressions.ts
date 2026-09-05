@@ -4879,6 +4879,28 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #14629", () => {
+    it("shows outdated hover glyph", async () => {
+      const source = new ColumnDataSource({data: {ys: [[1, 2, 1]], xs1: [[1, 2, 3]], xs2: [[4, 5, 6]]}})
+      const x_range = new Range1d({start: 0, end: 7})
+      const p = fig([200, 200], {x_range})
+      const ml = p.multi_line({xs: {field: "xs1"}, ys: {field: "ys"}, line_width: 10, hover_line_color: "red", source})
+
+      p.add_tools(new HoverTool({tooltips: null, renderers: [ml]}))
+
+      const {view} = await display(p)
+      const pv0 = view.owner.get_one(p)
+
+      ml.glyph.xs = {field: "xs2"}
+      ml.glyph.change.emit()
+      await view.ready
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(5.0, 1.9))
+      await view.ready
+    })
+  })
+
   describe("in issue #14665", () => {
     it("triggers call stack size error for certain inputs", async () => {
       const p = fig([200, 200])
@@ -4919,12 +4941,10 @@ describe("Bug", () => {
       p.add_tools(new HoverTool({tooltips: null, renderers: [ml], mode: "vline"}))
 
       const {view} = await display(p)
-
       const pv0 = view.owner.get_one(p)
 
       const actions0 = new PlotActions(pv0)
       await actions0.hover(xy(-2, 1.5))
-
       await view.ready
     })
   })
