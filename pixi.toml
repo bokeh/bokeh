@@ -213,7 +213,7 @@ setuptools = "*"
 [feature.build-tools.tasks]
 build-python = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
 
-[feature.release-build-tools.dependencies]
+[feature.release-build-deps.dependencies]
 bokeh_sampledata = "*"
 cartopy = "*"
 colorama = "*"
@@ -242,7 +242,7 @@ squarify = "*"
 sympy = "*"
 toml = "*"
 
-[feature.release-deploy-tools.dependencies]
+[feature.release-deploy-deps.dependencies]
 anaconda-client = "*"
 colorama = "*"
 packaging = "*"
@@ -261,8 +261,8 @@ minimal = ["py-base", "py312", "js-tools", "runtime-deps", "test-deps", "minimal
 core = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps"]
 downstream = ["py-base", "py312", "js-tools", "runtime-deps", "downstream-deps"]
 build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "build-tools"], no-default-feature = true }
-release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "release-build-tools"], no-default-feature = true }
-release-deploy = { features = ["py-base", "py312", "js-tools", "release-deploy-tools"], no-default-feature = true }
+release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "release-build-deps"], no-default-feature = true }
+release-deploy = { features = ["py-base", "py312", "js-tools", "release-deploy-deps"], no-default-feature = true }
 server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps", "server-integration-deps"]
 
 [tasks]
