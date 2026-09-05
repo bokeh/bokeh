@@ -91,7 +91,7 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
-      # Required for codebase tests that check file formatting (line endings, whitespace, etc).
+      # Required for repository formatting checks (line endings, whitespace, etc).
       - name: Configure line endings in git
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
@@ -103,6 +103,13 @@ jobs:
         with:
           environment: test-py312
           source-tree: 'keep'
+
+      - name: Run repository formatting checks
+        run: |
+          pre-commit run trailing-whitespace --all-files
+          pre-commit run end-of-file-fixer --all-files
+          pre-commit run mixed-line-ending --all-files
+          pre-commit run reject-static-docs-links --all-files
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software

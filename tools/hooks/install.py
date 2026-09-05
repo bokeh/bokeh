@@ -3,7 +3,8 @@ import subprocess
 
 
 def InstallHooks() -> None:
-    subprocess.run("pre-commit install --install-hooks --hook-type pre-push".split())
+    for hook_type in ("pre-commit", "pre-push"):
+        subprocess.run(["pre-commit", "install", "--install-hooks", "--hook-type", hook_type])
 
 
 if __name__ == "__main__":
