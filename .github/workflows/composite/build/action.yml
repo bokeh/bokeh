@@ -16,7 +16,7 @@ runs:
 
     - name: Build Bokeh and BokehJS
       shell: bash --noprofile --norc -eo pipefail {0}
-      run: pixi run --locked --environment build build-python
+      run: pixi run --locked --environment build build-py
 
     - name: Verify pip install from sdist
       shell: bash --noprofile --norc -eo pipefail {0}

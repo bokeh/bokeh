@@ -211,7 +211,7 @@ python-build = "*"
 setuptools = "*"
 
 [feature.build-tools.tasks]
-build-python = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
+build-py = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
 
 [feature.release-build-deps.dependencies]
 bokeh_sampledata = "*"
