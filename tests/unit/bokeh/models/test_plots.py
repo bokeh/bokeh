@@ -409,8 +409,16 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
 @pytest.mark.parametrize("test_input, provider", [
     ("OpenStreetMap Mapnik", xyz.OpenStreetMap.Mapnik),
     ("OSM", xyz.OpenStreetMap.Mapnik),
-    ("CARTODBPOSITRON", xyz.CartoDB.Positron),
-    ("CARTODBPOSITRON_RETINA", xyz.CartoDB.Positron),
+    pytest.param(
+        "CARTODBPOSITRON",
+        xyz.CartoDB.Positron,
+        marks=pytest.mark.filterwarnings("ignore:CartoDB tiles now require an API key:UserWarning"),
+    ),
+    pytest.param(
+        "CARTODBPOSITRON_RETINA",
+        xyz.CartoDB.Positron,
+        marks=pytest.mark.filterwarnings("ignore:CartoDB tiles now require an API key:UserWarning"),
+    ),
     ("STAMEN_TERRAIN", xyz.Stadia.StamenTerrain),
     ("STAMEN_TERRAIN_RETINA", xyz.Stadia.StamenTerrain),
     ("STAMEN_TONER", xyz.Stadia.StamenToner),
