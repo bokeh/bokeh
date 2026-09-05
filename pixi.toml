@@ -4,7 +4,7 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "osx-arm64", "win-64"]
 requires-pixi = ">=0.76.1"
 
-[dependencies]
+[feature.py-base.dependencies]
 nomkl = "*"
 pip = "*"
 
@@ -26,17 +26,21 @@ python-gil = "*"
 platforms = ["linux-64"]
 
 [feature.py314t.dependencies]
-pip = "*"
 python = "3.14.*"
 python-freethreading = "*"
 
-[feature.js.dependencies]
+[feature.js-tools.dependencies]
 nodejs = "24.*"
+
+[feature.js-tools.tasks]
+js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
+test-js = { cmd = "node make test", cwd = "bokehjs" }
+build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
 
 # Prefer conda-forge builds for Bokeh runtime dependencies. The constraints
 # mirror [project.dependencies] in pyproject.toml and are checked by the
 # codebase tests.
-[feature.runtime.dependencies]
+[feature.runtime-deps.dependencies]
 contourpy = ">=1.2"
 jinja2 = ">=2.9"
 narwhals = ">=1.13"
@@ -47,7 +51,7 @@ pyyaml = ">=3.10"
 tornado = ">=6.2"
 xyzservices = ">=2021.09.1"
 
-[feature.test.dependencies]
+[feature.test-deps.dependencies]
 pytest = ">=7.0"
 pytest-asyncio = "*"
 pytest-cov = ">=1.8.1"
@@ -56,7 +60,7 @@ pytest-timeout = "*"
 pytest-tornado = "*"
 pytest-xdist = "*"
 
-[feature.full.dependencies]
+[feature.full-deps.dependencies]
 beautifulsoup4 = "*"
 bokeh_sampledata = ">=2025.0"
 cartopy = "*"
@@ -114,22 +118,22 @@ types-toml = "*"
 urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
 vermin = "*"
 
-[feature.full.pypi-dependencies]
+[feature.full-deps.pypi-dependencies]
 pyright = "*"
 requests-unixsocket = ">=0.3.0"
 
 # Packages intentionally omitted from the free-threaded environment because
 # conda-forge does not currently provide a compatible pygraphviz build.
-[feature.standard-only.dependencies]
+[feature.standard-only-deps.dependencies]
 pygraphviz = "*"
 rich = ">=13.9,<15"
 rich-click = ">=1.8,<2"
 
-[feature.free-threaded.dependencies]
+[feature.free-threaded-deps.dependencies]
 pytest-repeat = "*"
 
 # bokeh_sampledata is intentionally omitted from the minimal environment.
-[feature.minimal.dependencies]
+[feature.minimal-deps.dependencies]
 beautifulsoup4 = "*"
 channels = "*"
 click = "*"
@@ -172,15 +176,15 @@ types-pyyaml = "*"
 types-requests = "*"
 urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
 
-[feature.minimal.pypi-dependencies]
+[feature.minimal-deps.pypi-dependencies]
 pyright = "*"
 requests-unixsocket = ">=0.3.0"
 
-[feature.downstream]
+[feature.downstream-deps]
 channels = [{ channel = "pyviz/label/dev", priority = 1 }]
 platforms = ["linux-64"]
 
-[feature.downstream.dependencies]
+[feature.downstream-deps.dependencies]
 holoviews = "*"
 panel = "*"
 python-dateutil = ">=2.1"
@@ -191,10 +195,10 @@ pytest-repeat = "*"
 pytest-rerunfailures = "*"
 pytest-timeout = "*"
 
-[feature.server-integration]
+[feature.server-integration-deps]
 platforms = ["linux-64"]
 
-[feature.server-integration.dependencies]
+[feature.server-integration-deps.dependencies]
 django = "*"
 fastapi = "*"
 hypercorn = "*"
@@ -202,12 +206,14 @@ starlette = "*"
 streamlit = "1.57.*"
 uvicorn-standard = "*"
 
-[feature.build.dependencies]
-pip = "*"
+[feature.build-tools.dependencies]
 python-build = "*"
 setuptools = "*"
 
-[feature.release-build.dependencies]
+[feature.build-tools.tasks]
+build-py = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
+
+[feature.release-build-deps.dependencies]
 bokeh_sampledata = "*"
 cartopy = "*"
 colorama = "*"
@@ -218,7 +224,6 @@ icalendar = "*"
 ipython = "*"
 networkx = "*"
 packaging = "*"
-pip = "*"
 pydata-sphinx-theme = "*"
 pygments = "*"
 pygraphviz = "*"
@@ -237,39 +242,36 @@ squarify = "*"
 sympy = "*"
 toml = "*"
 
-[feature.release-deploy.dependencies]
+[feature.release-deploy-deps.dependencies]
 anaconda-client = "*"
 colorama = "*"
 packaging = "*"
-pip = "*"
 pyyaml = "*"
 rattler-build = "*"
 setuptools = "*"
 twine = "*"
 
 [environments]
-default = ["py313", "js", "runtime", "test", "full", "standard-only"]
-test-py312 = ["py312", "js", "runtime", "test", "full", "standard-only"]
-test-py313 = ["py313", "js", "runtime", "test", "full", "standard-only"]
-test-py314 = ["py314", "js", "runtime", "test", "full", "standard-only"]
-test-py314t = { features = ["py314t", "js", "runtime", "test", "full", "free-threaded"], no-default-feature = true }
-minimal = ["py312", "js", "runtime", "test", "minimal"]
-core = ["py313", "js", "runtime", "test"]
-downstream = ["py312", "js", "runtime", "downstream"]
-build = { features = ["py312", "js", "runtime", "build"], no-default-feature = true }
-release-build = { features = ["py312", "js", "runtime", "release-build"], no-default-feature = true }
-release-deploy = { features = ["py312", "js", "release-deploy"], no-default-feature = true }
-server-integration = ["py313", "js", "runtime", "test", "full", "standard-only", "server-integration"]
+default = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps"]
+test-py312 = ["py-base", "py312", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps"]
+test-py313 = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps"]
+test-py314 = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps"]
+test-py314t = ["py-base", "py314t", "js-tools", "runtime-deps", "test-deps", "full-deps", "free-threaded-deps"]
+minimal = ["py-base", "py312", "js-tools", "runtime-deps", "test-deps", "minimal-deps"]
+core = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps"]
+downstream = ["py-base", "py312", "js-tools", "runtime-deps", "downstream-deps"]
+build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "build-tools"], no-default-feature = true }
+release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "release-build-deps"], no-default-feature = true }
+release-deploy = { features = ["py-base", "py312", "js-tools", "release-deploy-deps"], no-default-feature = true }
+server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps", "server-integration-deps"]
 
 [tasks]
 setup = { cmd = "python -m pip install --no-deps -e .", depends-on = ["js-install"] }
-test-python = "pytest tests/unit"
+reinstall = "python -m pip install --no-deps -e ."
+test-py = "pytest tests/unit"
+test-py-parallel = "pytest tests/unit -n logical --dist=loadgroup"
+test-defaults = "pytest tests/test_defaults.py"
+test-cross = "pytest tests/test_cross.py"
+test-codebase = "pytest tests/codebase"
+test-examples = "pytest tests/test_examples.py"
 docs = "bash tools/ci/build_docs.sh"
-
-[feature.js.tasks]
-js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
-test-js = { cmd = "node make test", cwd = "bokehjs" }
-build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
-
-[feature.build.tasks]
-build-python = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
