@@ -269,4 +269,9 @@ server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps
 setup = { cmd = "python -m pip install --no-deps -e .", depends-on = ["js-install"] }
 reinstall = "python -m pip install --no-deps -e ."
 test-python = "pytest tests/unit"
+test-python-parallel = "pytest tests/unit -n logical --dist=loadgroup"
+test-defaults = "pytest tests/test_defaults.py"
+test-cross = "pytest tests/test_cross.py"
+test-codebase = "pytest tests/codebase"
+test-examples = "pytest tests/test_examples.py"
 docs = "bash tools/ci/build_docs.sh"
