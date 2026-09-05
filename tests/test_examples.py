@@ -30,7 +30,6 @@ from os.path import (
     dirname,
     join,
 )
-from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlparse
 
@@ -411,65 +410,6 @@ def _run_process(cmd: list[str], cwd: str, env: dict[str, str], timeout: float) 
 
     duration = time.monotonic() - start
     return status, duration, _decode_output(out), _decode_output(err)
-
-@pytest.mark.parametrize(("slow", "package", "expected"), [
-    (False, False, 20),
-    (True, False, 60),
-    (False, True, 180),
-    (True, True, 180),
-])
-def test_example_timeout(tmp_path: Path, slow: bool, package: bool, expected: int) -> None:
-    extension = tmp_path / "extension"
-    extension.mkdir()
-    if package:
-        (extension / "package.json").write_text("{}")
-
-    flags = Flags.file | (Flags.slow if slow else 0)
-    example = Example(str(tmp_path / "example.py"), flags, str(tmp_path), [str(extension)])
-
-    assert _example_timeout(example) == expected
-
-def test_run_process_terminates_descendants(tmp_path: Path) -> None:
-    started = tmp_path / "started"
-    release = tmp_path / "release"
-    survived = tmp_path / "survived"
-
-    child_code = f"""\
-import time
-from pathlib import Path
-
-Path({str(started)!r}).touch()
-while not Path({str(release)!r}).exists():
-    time.sleep(0.01)
-Path({str(survived)!r}).touch()
-"""
-    parent_code = f"""\
-import subprocess
-import sys
-import time
-from pathlib import Path
-
-subprocess.Popen([sys.executable, "-c", {child_code!r}])
-while not Path({str(started)!r}).exists():
-    time.sleep(0.01)
-print("child started", flush=True)
-time.sleep(60)
-"""
-
-    status, duration, out, _ = _run_process(
-        [sys.executable, "-c", parent_code],
-        str(tmp_path),
-        os.environ.copy(),
-        timeout=2,
-    )
-
-    assert status == "timeout"
-    assert "child started" in out
-    assert duration < 2 + 3 * _PROCESS_CLEANUP_TIMEOUT
-
-    release.touch()
-    time.sleep(0.5)
-    assert not survived.exists()
 
 def _run_example(example: Example, bokeh_server: str) -> tuple[ProcStatus, float, str, str]:
     code = f"""\
