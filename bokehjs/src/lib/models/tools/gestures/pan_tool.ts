@@ -10,6 +10,8 @@ import {Dimensions} from "core/enums"
 import type {SXY} from "core/util/bbox"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
+import type {Axis} from "../../axes/axis"
+import type {ViewOf} from "core/build_views"
 
 export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): RangeState {
   const r: RangeState = new Map()
@@ -42,10 +44,27 @@ export class PanToolView extends GestureToolView {
     return super.cursor(sx, sy)
   }
 
-  protected _interactive_dims({sx, sy}: SXY): Dimensions | null {
+  protected _hits_axis({sx, sy}: SXY): ViewOf<Axis> | undefined {
+    return this.plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
+  }
+
+  protected _hits_frame({sx, sy}: SXY): boolean {
+    return this.plot_view.frame.bbox.contains(sx, sy)
+  }
+
+  override ui_hint(pt: SXY): string | null {
+    const dims = this._interactive_dims(pt)
+    switch (dims) {
+      case "width":  return "Drag horizontally to pan"
+      case "height": return "Drag vertically to pan"
+      case "both":   return "Drag in any direction to pan"
+      case null:     return super.ui_hint(pt)
+    }
+  }
+
+  protected _interactive_dims(pt: SXY): Dimensions | null {
     const {dimensions} = this.model
-    const {plot_view} = this
-    const axis_view = plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
+    const axis_view = this._hits_axis(pt)
     if (axis_view != null) {
       switch (axis_view.dimension) {
         case 0: {
@@ -61,7 +80,7 @@ export class PanToolView extends GestureToolView {
           break
         }
       }
-    } else if (plot_view.frame.bbox.contains(sx, sy)) {
+    } else if (this._hits_frame(pt)) {
       return "both"
     }
 

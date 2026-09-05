@@ -10,7 +10,7 @@ from typing import Unpack
 
 # Bokeh imports
 from ...core.enums import AutoType as Auto
-from ...core.property_aliases import Anchor
+from ...core.property_aliases import AnchorType as Anchor
 from ..nodes import Coordinate, Node
 from .panes import Pane, _PaneInit
 
