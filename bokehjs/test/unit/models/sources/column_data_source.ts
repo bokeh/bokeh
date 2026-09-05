@@ -188,4 +188,108 @@ describe("column_data_source module", () => {
       // TODO ["d15", new Map([[0, "a"], [1, "b"], [2, "c"]])],
     ]))
   })
+
+  describe("to_csv", () => {
+    it("should return string with only newline for empty data source", () => {
+      const cds = new ColumnDataSource()
+      expect(cds.to_csv()).to.be.equal("\n")
+
+      const cds2 = new ColumnDataSource({data: {}})
+      expect(cds2.to_csv()).to.be.equal("\n")
+    })
+
+    it("should handle empty columns", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [],
+      }})
+      expect(cds.to_csv()).to.be.equal("foo\n")
+
+      const cds2 = new ColumnDataSource({data: {
+        foo: [],
+        bar: [],
+      }})
+      expect(cds2.to_csv()).to.be.equal("foo,bar\n")
+    })
+
+    it("should handle single column", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [1],
+      }})
+      expect(cds.to_csv()).to.be.equal("foo\n1\n")
+    })
+
+    it("should treat 1-dimensional ndarray just like a normal array", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: ndarray([1, 0, 1], {dtype: "bool", shape: [3]}),
+        bar: ndarray([10, 9, 8], {dtype: "uint8", shape: [3]}),
+      }})
+      expect(cds.to_csv()).to.be.equal("foo,bar\ntrue,10\nfalse,9\ntrue,8\n")
+    })
+
+    it("should handle values for ndarray with dimension > 1", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: ndarray([255, 0, 0, 0, 255, 0], {dtype: "uint8", shape: [2, 3]}),
+        bar: ndarray([0.5, 3.5, 10.25, -0.125, 3.75, 0.25, 0.5, -0.125], {dtype: "float32", shape: [2, 4]}),
+      }})
+      // NDArrays implementation doesn't handle yet multi-dimensional indices
+      // See src\lib\core\util\ndarray.ts
+      expect(cds.to_csv()).to.be.equal(
+        "foo,bar\n" +
+        "255,0.5\n" +
+        "0,3.5\n",
+      )
+    })
+  })
+
+  describe("to_json", () => {
+    it("should return string with empty object for empty data source", () => {
+      const cds = new ColumnDataSource()
+      expect(cds.to_json()).to.be.equal("{}")
+
+      const cds2 = new ColumnDataSource({data: {}})
+      expect(cds2.to_json()).to.be.equal("{}")
+    })
+
+    it("should handle empty columns", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [],
+      }})
+      expect(cds.to_json()).to.be.equal('{"foo":[]}')
+
+      const cds2 = new ColumnDataSource({data: {
+        foo: [],
+        bar: [],
+      }})
+      expect(cds2.to_json()).to.be.equal('{"foo":[],"bar":[]}')
+    })
+
+    it("should handle single column", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [1],
+      }})
+      expect(cds.to_json()).to.be.equal('{"foo":[1]}')
+    })
+
+    it("should handle 1-dimensional ndarray properties", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: ndarray([1, 0, 1], {dtype: "bool", shape: [3]}),
+        bar: ndarray([10, 9, 8], {dtype: "uint8", shape: [3]}),
+      }})
+      expect(cds.to_json()).to.be.equal(
+        '{"foo":{"0":1,"1":0,"2":1,"dtype":"bool","shape":[3],"dimension":1},'+
+        '"bar":{"0":10,"1":9,"2":8,"dtype":"uint8","shape":[3],"dimension":1}}',
+      )
+    })
+
+    it("should handle properties for ndarray with dimension > 1", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: ndarray([255, 0, 0, 0, 255, 0], {dtype: "uint8", shape: [2, 3]}),
+        bar: ndarray([0.5, 3.5, 10.25, -0.125, 3.75, 0.25, 0.5, -0.125], {dtype: "float32", shape: [2, 4]}),
+      }})
+      expect(cds.to_json()).to.be.equal(
+        '{"foo":{"0":255,"1":0,"2":0,"3":0,"4":255,"5":0,"dtype":"uint8","shape":[2,3],"dimension":2},'+
+        '"bar":{"0":0.5,"1":3.5,"2":10.25,"3":-0.125,"4":3.75,"5":0.25,"6":0.5,"7":-0.125,"dtype":"float32","shape":[2,4],"dimension":2}}',
+      )
+    })
+  })
 })
