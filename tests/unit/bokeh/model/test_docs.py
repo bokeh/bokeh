@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import sys
+
 # Module under test
 import bokeh.model.docs as bmd # isort:skip
 
@@ -39,6 +42,7 @@ def test_html_repr() -> None:
     assert elts[2].name == "script"
     assert elts[3].name is None
 
+@pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
 def test_process_example() -> None:
     class Foo:
         """doc"""

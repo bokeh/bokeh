@@ -3,11 +3,13 @@ from __future__ import annotations
 # Standard library imports
 import inspect
 import posixpath
+import sys
 from io import StringIO
 from pathlib import Path
 from typing import Any, cast
 
 # External imports
+import pytest
 from sphinx.application import Sphinx
 from sphinx.util.inventory import InventoryFile
 
@@ -78,6 +80,7 @@ Unindented suffix text.
     ))
 
 
+@pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
 def test_model_members_separate_properties_and_methods() -> None:
     properties, python_properties, methods = _model_members(Filter)
 
@@ -88,6 +91,7 @@ def test_model_members_separate_properties_and_methods() -> None:
     assert "js_event_callbacks" not in properties
 
 
+@pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
 def test_model_members_handle_inheritance_and_method_kinds() -> None:
     properties, python_properties, methods = _model_members(_MemberChild)
 
@@ -188,6 +192,7 @@ def test_model_detail_includes_property_index() -> None:
     assert ":attr:`~bokeh.models.Filter.document`" in detail
 
 
+@pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
 def test_model_build_registers_inventory_members_and_template_dependencies(tmp_path: Path) -> None:
     source_dir = tmp_path / "source"
     output_dir = tmp_path / "output"
