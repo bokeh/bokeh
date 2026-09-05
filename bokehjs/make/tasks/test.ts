@@ -200,6 +200,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
     ...opt("ref", argv.ref),
+    ...opt("suite", name),
     ...opt("baselines-root", baselines_root),
     ...opt("randomize", argv.randomize),
     ...opt("seed", argv.seed),
@@ -388,6 +389,23 @@ task2("test:integration", [start, build_integration], async ([devtools_port, ser
   return success(undefined)
 })
 
+task("test:compile:cross_backend", [passthrough("test:framework:compile")], async () => {
+  await tsc("cross_backend")
+})
+task("test:auto_index:cross_backend", async () => {
+  await auto_index("cross_backend")
+})
+export const build_cross_backend = task("test:build:cross_backend", [
+  passthrough("test:compile:cross_backend"), passthrough("test:auto_index:cross_backend"),
+], async () => {
+  await bundle("cross_backend")
+})
+
+task2("test:cross_backend", [start, build_cross_backend], async ([devtools_port, server_port]) => {
+  await devtools(devtools_port, server_port, "cross_backend")
+  return success(undefined)
+})
+
 async function copy_defaults() {
   const bokehjs_dir = process.cwd()
   const name = "defaults.json5"
@@ -407,7 +425,7 @@ task2("test:defaults", [start, build_defaults], async ([devtools_port, server_po
   return success(undefined)
 })
 
-task("test:build", ["test:build:defaults", "test:build:unit", "test:build:integration"])
+task("test:build", ["test:build:defaults", "test:build:unit", "test:build:integration", "test:build:cross_backend"])
 
-task("test:lib", ["test:unit", "test:integration"])
+task("test:lib", ["test:unit", "test:integration", "test:cross_backend"])
 task("test", ["test:codebase", "test:defaults", "test:lib"])

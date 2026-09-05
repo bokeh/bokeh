@@ -1,20 +1,33 @@
 import fs from "node:fs"
 import path from "node:path"
 
-import type {State} from "./baselines.js"
+import type {Box, State} from "./baselines.js"
 import {create_baseline, diff_baseline} from "./baselines.js"
 import type {BrowserManager} from "./browser.js"
 import {Value, Failure, Timeout} from "./browser.js"
 import type {TestCase} from "./discovery.js"
-import {diff_image} from "./image.js"
+import {crop_image, cross_compare_images, diff_image} from "./image.js"
 import type {MetricsCollector} from "./metrics.js"
 import {platform} from "./sys.js"
 import type {Suite, Test, Result, TestRunContext, ScreenshotMode} from "./types.js"
 
 const MAX_TIMEOUT_RETRIES = 2 // Retry timeout failures up to 2 times
 
+export type CrossResult = {
+  name: string
+  description: string[]
+  pixels: number
+  percent: number
+  avg_distance: number
+  max_distance: number
+  threshold: number
+  passed: boolean
+  files_dir: string
+}
+
 export class TestRunner {
   private readonly ctx_json: string
+  readonly cross_results: CrossResult[] = []
 
   constructor(
     private browser: BrowserManager,
@@ -25,6 +38,7 @@ export class TestRunner {
     private top_level: Suite,
     private ref: string,
     private metrics: MetricsCollector | null,
+    private cross_backend: boolean = false,
   ) {
     this.ctx_json = JSON.stringify(ctx)
   }
@@ -110,6 +124,10 @@ export class TestRunner {
             should_retry = await this.compare_screenshot(result, baseline_path, status, test, attempt) || should_retry
           }
         }
+
+        if (this.cross_backend) {
+          await this.compare_backends(result, status, suites, test, seq)
+        }
       }
     } finally {
       const output = await this.browser.evaluate(`Tests.clear(${seq})`)
@@ -120,6 +138,64 @@ export class TestRunner {
     }
 
     return should_retry
+  }
+
+  private async compare_backends(result: Result, status: TestCase[2], suites: Suite[], test: Test, seq: string): Promise<void> {
+    const {bbox} = result
+    if (bbox == null) {
+      return
+    }
+
+    let state = result.state
+    const later_output = await this.browser.evaluate<State | null>(`Tests.get_state(${seq})`)
+    if (later_output instanceof Value && later_output.value != null) {
+      state = later_output.value
+    }
+
+    const child_bboxes = state?.children?.flatMap((child) => child.bbox != null ? [child.bbox] : []) ?? []
+    if (child_bboxes.length < 2) {
+      status.errors.push("cross-backend comparison requires two rendered child views")
+      status.failure = true
+      return
+    }
+
+    const image = await this.browser.capture_screenshot(bbox)
+    const files_dir = path.join("test", "cross_backend", "results", platform)
+    await fs.promises.mkdir(files_dir, {recursive: true})
+
+    const parts = [...suites, test].map(({description}) => description)
+    const name = parts
+      .map((part) => part.replace(/^Cross-backend comparison$/i, "Comparison").replace(/^all /i, ""))
+      .filter((part) => part.length > 0)
+      .join("_")
+      .replace(/[ \/\[\]:]/g, "_")
+
+    const [canvas_bbox, webgl_bbox] = child_bboxes as [Box, Box, ...Box[]]
+    const comparison = cross_compare_images(image, canvas_bbox, webgl_bbox)
+    await fs.promises.writeFile(path.join(files_dir, `${name}_canvas.png`), crop_image(image, canvas_bbox))
+    await fs.promises.writeFile(path.join(files_dir, `${name}_webgl.png`), crop_image(image, webgl_bbox))
+    if (comparison != null) {
+      await fs.promises.writeFile(path.join(files_dir, `${name}_diff.png`), comparison.diff)
+    }
+
+    const threshold = test.threshold ?? 0
+    const pixels = comparison?.pixels ?? 0
+    const passed = pixels <= threshold
+    this.cross_results.push({
+      name,
+      description: parts,
+      pixels,
+      percent: comparison?.percent ?? 0,
+      avg_distance: comparison?.avg_distance ?? 0,
+      max_distance: comparison?.max_distance ?? 0,
+      threshold,
+      passed,
+      files_dir,
+    })
+    if (!passed) {
+      status.errors.push(`backends differ by ${pixels}px (${(comparison?.percent ?? 0).toFixed(2)}%)`)
+      status.failure = true
+    }
   }
 
   private async execute_test(seq: string, test: Test): Promise<Value<Result> | Failure | Timeout> {

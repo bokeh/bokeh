@@ -105,6 +105,17 @@ jobs:
             cp ${SRC}/report.{json,out} ${CHANGED} ${DST}
           fi
 
+      - name: Collect cross-backend results
+        if: runner.os == 'Linux' && (success() || failure())
+        shell: bash
+        run: |
+          SRC="bokehjs/test/cross_backend/results/linux"
+          DST="bokehjs-report/${SRC}"
+          if [[ -d ${SRC} ]]; then
+            mkdir -p ${DST}
+            cp -r ${SRC}/* ${DST}/
+          fi
+
       - name: Upload package
         if: runner.os == 'Linux' && (success() || failure())
         uses: actions/upload-artifact@v6

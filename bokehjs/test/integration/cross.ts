@@ -24,7 +24,7 @@ async function test(name: string) {
 
 describe("Bug", () => {
   describe("in issue #11694", () => {
-    it.no_image("doesn't allow 'id' key in mappings and confuses them with refs", async () => {
+    it.no_baseline("doesn't allow 'id' key in mappings and confuses them with refs", async () => {
       await test("regressions/issue_11694.json5")
     })
   })
@@ -36,13 +36,13 @@ describe("Bug", () => {
   })
 
   describe("in issue #13134", () => {
-    it.no_image("doesn't allow using ndarrays in IndexFilter.indices", async () => {
+    it.no_baseline("doesn't allow using ndarrays in IndexFilter.indices", async () => {
       await test("regressions/issue_13134.json5")
     })
   })
 
   describe("in issue #13660", () => {
-    it.no_image("doesn't allow using ndarrays in BooleanFilter.booleans", async () => {
+    it.no_baseline("doesn't allow using ndarrays in BooleanFilter.booleans", async () => {
       await test("regressions/issue_13660.json5")
     })
   })
@@ -52,7 +52,7 @@ describe("Bug", () => {
       await test("regressions/issue_13637.json5")
     })
 
-    it.no_image("doesn't allow deserialization of an empty dict as an empty Map", async () => {
+    it.no_baseline("doesn't allow deserialization of an empty dict as an empty Map", async () => {
       await test("regressions/issue_13637_empty_map.json5")
     })
   })
@@ -78,7 +78,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #13964", () => {
-    it.no_image("doesn't allow using 'constructor' key in maps or plain objects in may have refs contexts", async () => {
+    it.no_baseline("doesn't allow using 'constructor' key in maps or plain objects in may have refs contexts", async () => {
       await test("regressions/issue_13964.json5")
     })
   })

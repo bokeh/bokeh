@@ -41,6 +41,7 @@ const argv = yargs(process.argv.slice(2)).options({
   host: {type: "string", default: "127.0.0.1"},
   port: {type: "number", default: 9222},
   ref: {type: "string", default: "HEAD"},
+  suite: {type: "string"},
   randomize: {type: "boolean", default: false},
   seed: {type: "number", default: Date.now()},
   pedantic: {type: "boolean", default: false},
@@ -52,8 +53,10 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {host, port, ref, suite, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
+
+const is_cross_backend = suite === "cross_backend"
 
 function format_output(test_case: TestCase): string | null {
   const [suites, test, status] = test_case
@@ -189,7 +192,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       progress.start(selected_tests.length, 0, state())
 
       const metrics = baselines_root != null ? new MetricsCollector() : null
-      const runner = new TestRunner(browser, ctx, baselines_root, screenshot, pedantic, top_level, ref, metrics)
+      const runner = new TestRunner(browser, ctx, baselines_root, screenshot, pedantic, top_level, ref, metrics, is_cross_backend)
 
       if (metrics != null) {
         await metrics.add_datapoint(browser)
@@ -277,6 +280,20 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         if (files.size != 0) {
           fail(`there are outdated baselines:\n${[...files].join("\n")}`)
         }
+      }
+
+      if (is_cross_backend) {
+        const results_dir = path.join("test", "cross_backend", "results", platform)
+        await fs.promises.mkdir(results_dir, {recursive: true})
+        const report = {
+          generated_at: new Date().toISOString(),
+          platform,
+          total: runner.cross_results.length,
+          passed: runner.cross_results.filter(({passed}) => passed).length,
+          failed: runner.cross_results.filter(({passed}) => !passed).length,
+          results: runner.cross_results,
+        }
+        await fs.promises.writeFile(path.join(results_dir, "report.json"), JSON.stringify(report, null, 2))
       }
 
       const passed = num_selected_tests - failed - skipped
