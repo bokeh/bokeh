@@ -1127,6 +1127,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
     super._after_layout()
     this.unpause(true)
 
+    this.canvas._after_resize()
+
     const left = this.layout.left_panel.bbox
     const right = this.layout.right_panel.bbox
     const center = this.layout.center_panel.bbox
@@ -1166,7 +1168,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
       this.unpause(true)
     }
 
-    if (this.canvas_view.update_bbox()) {
+    if (this.canvas_view.size_changed) {
+      this.canvas_view.size_changed = false
       this._invalidate_all = true
       this._needs_paint = true
     }

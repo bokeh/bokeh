@@ -125,8 +125,6 @@ export class DialogView extends UIElementView {
       width: "width" in position ? px(position.width) : "unset",
       height: "height" in position ? px(position.height) : "unset",
     })
-
-    this.update_bbox()
   }
 
   override render(): void {
