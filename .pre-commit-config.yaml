@@ -3,6 +3,7 @@
 
 ---
 default_stages: [pre-push]
+exclude: ^docs/CHANGELOG$
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -20,6 +21,13 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
+      - id: trailing-whitespace
+        stages: [pre-commit]
+      - id: end-of-file-fixer
+        stages: [pre-commit]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        stages: [pre-commit]
       - id: check-yaml
         name: Validate YAML files
         exclude: conda/recipe/meta.yaml
@@ -28,6 +36,13 @@ repos:
 
   - repo: local
     hooks:
+      - id: reject-static-docs-links
+        name: Reject static links to Bokeh documentation
+        entry: '^\s*\.\..*https://docs\.bokeh\.org'
+        language: pygrep
+        types: [text]
+        stages: [pre-commit]
+
       - id: run-codebase
         name: Run codebase checks
         entry: pytest -n logical --maxprocesses=5 tests/codebase
