@@ -53,6 +53,7 @@ from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.themes import Theme
 from bokeh.util.dependencies import is_installed
+from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 import bokeh.io.browser as bib # isort:skip
@@ -133,12 +134,13 @@ def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]
     width, height = dimensions
     border = 5
 
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  height=width, width=height,
-                  min_border=border,
-                  hidpi=False,
-                  toolbar_location=None,
-                  outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
+    with pytest.warns(BokehDeprecationWarning, match=r"Plot\.hidpi is deprecated"):
+        layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                      height=width, width=height,
+                      min_border=border,
+                      hidpi=False,
+                      toolbar_location=None,
+                      outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
 
     with silenced(MISSING_RENDERERS):
         png = bie.get_screenshot_as_png(layout, driver=webdriver)
@@ -160,12 +162,13 @@ def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tupl
     width, height = dimensions
     border = 5
 
-    layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
-                  height=width, width=height,
-                  toolbar_location=None,
-                  min_border=border,
-                  hidpi=False,
-                  outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
+    with pytest.warns(BokehDeprecationWarning, match=r"Plot\.hidpi is deprecated"):
+        layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
+                      height=width, width=height,
+                      toolbar_location=None,
+                      min_border=border,
+                      hidpi=False,
+                      outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
     glyph = Rect(x="x", y="y", width=2, height=2, fill_color="#ff0000", line_color="#ff0000")
     source = ColumnDataSource(data=dict(x=[0], y=[0]))
     layout.add_glyph(source, glyph)
@@ -418,12 +421,13 @@ class TestPlaywrightPNG:
         width, height = dimensions
         border = 5
 
-        layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                      height=width, width=height,
-                      min_border=border,
-                      hidpi=False,
-                      toolbar_location=None,
-                      outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
+        with pytest.warns(BokehDeprecationWarning, match=r"Plot\.hidpi is deprecated"):
+            layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                          height=width, width=height,
+                          min_border=border,
+                          hidpi=False,
+                          toolbar_location=None,
+                          outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
 
         with silenced(MISSING_RENDERERS):
             png = bie.get_screenshot_as_png(layout, driver=browser)
@@ -437,12 +441,13 @@ class TestPlaywrightPNG:
         width, height = 144, 144
         border = 5
 
-        layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
-                      height=width, width=height,
-                      toolbar_location=None,
-                      min_border=border,
-                      hidpi=False,
-                      outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
+        with pytest.warns(BokehDeprecationWarning, match=r"Plot\.hidpi is deprecated"):
+            layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
+                          height=width, width=height,
+                          toolbar_location=None,
+                          min_border=border,
+                          hidpi=False,
+                          outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
         glyph = Rect(x="x", y="y", width=2, height=2, fill_color="#ff0000", line_color="#ff0000")
         source = ColumnDataSource(data=dict(x=[0], y=[0]))
         layout.add_glyph(source, glyph)
