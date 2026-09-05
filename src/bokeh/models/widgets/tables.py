@@ -973,6 +973,13 @@ class DataCube(DataTable):
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        from ...util.deprecation import deprecated
+
+        deprecated(
+            "DataCube is deprecated and will be removed in Bokeh 4.0. "
+            "For hierarchical tables, use Panel's Tabulator widget. "
+            "Bokeh-only applications can use DataTable with pre-aggregated data.",
+        )
         super().__init__(*args, **kwargs)
 
     grouping = List(Instance(GroupingInfo), help="""
