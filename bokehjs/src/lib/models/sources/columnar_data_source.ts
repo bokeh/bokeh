@@ -6,7 +6,7 @@ import {Signal, Signal0} from "core/signaling"
 import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
-import {uniq} from "core/util/array"
+import {inplace_filter, uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
@@ -121,6 +121,54 @@ export abstract class ColumnarDataSource extends DataSource {
 
   set(name: string, column: Arrayable<unknown>): void {
     dict(this.data).set(name, column)
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const prune_selection = () => this._prune_selection()
+    this.connect(this.properties.data.change, prune_selection)
+    this.connect(this.streaming, prune_selection)
+    this.connect(this.patching, prune_selection)
+  }
+
+  protected _prune_selection(): void {
+    const {selected, length} = this
+    const in_bounds = (index: number) => 0 <= index && index < length
+
+    const updates: Partial<Selection.Attrs> = {}
+    const prune = <T>(values: Arrayable<T>, predicate: (value: T) => boolean): T[] | null => {
+      const array = isArray<T>(values) ? values : Array.from(values)
+      const previous_length = array.length
+      inplace_filter(array, predicate)
+      return array.length == previous_length ? null : array
+    }
+
+    const indices = prune(selected.indices, in_bounds)
+    if (indices != null) {
+      updates.indices = indices
+    }
+
+    const line_indices = prune(selected.line_indices, in_bounds)
+    if (line_indices != null) {
+      updates.line_indices = line_indices
+    }
+
+    const multiline_entries = [...selected.multiline_indices]
+    const previous_multiline_size = multiline_entries.length
+    inplace_filter(multiline_entries, ([index]) => in_bounds(index))
+    if (multiline_entries.length != previous_multiline_size) {
+      updates.multiline_indices = new Map(multiline_entries)
+    }
+
+    const image_indices = prune(selected.image_indices, ({index}) => in_bounds(index))
+    if (image_indices != null) {
+      updates.image_indices = image_indices
+    }
+
+    if (entries(updates).length != 0) {
+      selected.setv(updates, {check_eq: false})
+    }
   }
 
   get_column(name: string): Arrayable | null {

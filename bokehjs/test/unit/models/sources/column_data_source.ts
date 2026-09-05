@@ -5,6 +5,7 @@ import {with_log_level} from "@bokehjs/core/logging"
 import {version} from "@bokehjs/version"
 
 import {keys} from "@bokehjs/core/util/object"
+import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Int32NDArray, Float32NDArray, Float64NDArray, ndarray} from "@bokehjs/core/util/ndarray"
 
@@ -187,5 +188,107 @@ describe("column_data_source module", () => {
       ["d14", null],
       // TODO ["d15", new Map([[0, "a"], [1, "b"], [2, "c"]])],
     ]))
+  })
+
+  describe("selection pruning", () => {
+    it("should prune out-of-bounds indices when data is replaced", () => {
+      const selected = new Selection({
+        indices: [-1, 0, 2, 3],
+        line_indices: [-1, 0, 2, 3],
+        multiline_indices: new Map([[-1, [0]], [0, [0]], [2, [0]], [3, [0]]]),
+        image_indices: [
+          {index: -1, i: 0, j: 0, flat_index: 0},
+          {index: 0, i: 0, j: 0, flat_index: 0},
+          {index: 2, i: 0, j: 0, flat_index: 0},
+          {index: 3, i: 0, j: 0, flat_index: 0},
+        ],
+      })
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3]}, selected})
+
+      source.data = {foo: [0, 1]}
+
+      expect(selected.indices).to.be.equal([0])
+      expect(selected.line_indices).to.be.equal([0])
+      expect(selected.multiline_indices).to.be.equal(new Map([[0, [0]]]))
+      expect(selected.image_indices).to.be.equal([{index: 0, i: 0, j: 0, flat_index: 0}])
+
+      source.clear()
+
+      expect(selected.indices).to.be.empty
+      expect(selected.line_indices).to.be.empty
+      expect(selected.multiline_indices).to.be.equal(new Map())
+      expect(selected.image_indices).to.be.empty
+    })
+
+    it("should prune out-of-bounds indices after streaming with rollover", () => {
+      const selected = new Selection({indices: [0, 1, 2, 3]})
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3]}, selected})
+
+      source.stream({foo: [4]}, 2)
+
+      expect(source.length).to.be.equal(2)
+      expect(selected.indices).to.be.equal([0, 1])
+    })
+
+    it("should prune out-of-bounds indices after patching", () => {
+      const selected = new Selection({indices: [0, 2]})
+      const source = new ColumnDataSource({data: {foo: [0, 1]}, selected})
+
+      source.patch({foo: [[0, 2]]})
+
+      expect(selected.indices).to.be.equal([0])
+    })
+
+    it("should not update the selection when all indices remain in bounds", () => {
+      const selected = new Selection({
+        indices: [0],
+        line_indices: [1],
+        multiline_indices: new Map([[0, [0]]]),
+        image_indices: [{index: 1, i: 0, j: 0, flat_index: 0}],
+      })
+      const source = new ColumnDataSource({data: {foo: [0, 1]}, selected})
+      let updates = 0
+      selected.change.connect(() => updates++)
+
+      source.data = {foo: [2, 3]}
+      source.stream({foo: [4]})
+      source.patch({foo: [[0, 5]]})
+
+      expect(updates).to.be.equal(0)
+    })
+
+    it("should update only selection properties that are pruned", () => {
+      const selected = new Selection({
+        indices: [0, 2],
+        line_indices: [0],
+        multiline_indices: new Map([[0, [0]]]),
+        image_indices: [{index: 0, i: 0, j: 0, flat_index: 0}],
+      })
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      let indices_updates = 0
+      let line_indices_updates = 0
+      let multiline_indices_updates = 0
+      let image_indices_updates = 0
+      selected.properties.indices.change.connect(() => indices_updates++)
+      selected.properties.line_indices.change.connect(() => line_indices_updates++)
+      selected.properties.multiline_indices.change.connect(() => multiline_indices_updates++)
+      selected.properties.image_indices.change.connect(() => image_indices_updates++)
+
+      source.data = {foo: [0, 1]}
+
+      expect(indices_updates).to.be.equal(1)
+      expect(line_indices_updates).to.be.equal(0)
+      expect(multiline_indices_updates).to.be.equal(0)
+      expect(image_indices_updates).to.be.equal(0)
+    })
+
+    it("should prune typed-array selection indices", () => {
+      const selected = new Selection({indices: new Int32Array([0, 2])})
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+
+      source.data = {foo: [0, 1]}
+
+      expect(selected.indices).to.be.equal([0])
+    })
   })
 })

@@ -39,6 +39,21 @@ export function copy<T>(array: T[]): T[] {
   return slice.call(array)
 }
 
+export function inplace_filter<T>(array: T[], pred: (item: T, i: number) => boolean): void {
+  const n = array.length
+  let k = 0
+  for (let i = 0; i < n; i++) {
+    const value = array[i]
+    if (pred(value, i)) {
+      if (k != i) {
+        array[k] = value
+      }
+      k++
+    }
+  }
+  array.splice(k)
+}
+
 export function concat<T>(arrays: T[][]): T[] {
   return ([] as T[]).concat(...arrays)
 }
