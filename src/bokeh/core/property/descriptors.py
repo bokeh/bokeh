@@ -90,7 +90,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Mapping
-from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -902,7 +901,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         return cast(_DataSpecProperty, self.property).to_serializable(obj, self.name, getattr(obj, self.name))
 
     def __set__(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
-        value = self._extract_units(obj, value)
+        self._reject_embedded_units(value)
         super().__set__(obj, value, setter=setter)
 
     def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
@@ -930,7 +929,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
             None
 
         """
-        value = self._extract_units(obj, value)
+        self._reject_embedded_units(value)
 
         if isinstance(value, dict):
             # we want to try to keep the "format" of the data spec as string, dict, or number,
@@ -948,18 +947,12 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
 
         super().set_from_json(obj, value, setter=setter)
 
-    def _extract_units(self, obj: HasProps, value: Any) -> Any:
-        property = cast(_DataSpecProperty, self.property)
-        if property._units_enum is None or not isinstance(value, dict) or "units" not in value:
-            return value
-
-        units_descriptor = obj.lookup(f"{self.name}_units")
-
-        value = copy(value)
-        units = value.pop("units")
-        if units:
-            units_descriptor.__set__(obj, units)
-        return value
+    def _reject_embedded_units(self, value: Any) -> None:
+        if isinstance(value, dict) and "units" in value:
+            raise ValueError(
+                f"embedded 'units' are no longer supported for DataSpec property {self.name!r}; "
+                f"set the owning model's companion {self.name + '_units'!r} property instead",
+            )
 
 #-----------------------------------------------------------------------------
 # Private API

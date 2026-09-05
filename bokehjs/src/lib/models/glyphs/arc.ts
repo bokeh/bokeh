@@ -5,7 +5,7 @@ import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Rect} from "core/types"
 import {to_screen} from "core/types"
-import {Direction} from "core/enums"
+import {AngleUnits, Direction, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 
@@ -93,8 +93,11 @@ export namespace Arc {
   export type Props = XYGlyph.Props & {
     direction: p.Property<Direction>
     radius: p.DistanceSpec
+    radius_units: p.Property<SpatialUnits>
     start_angle: p.AngleSpec
+    start_angle_units: p.Property<AngleUnits>
     end_angle: p.AngleSpec
+    end_angle_units: p.Property<AngleUnits>
   } & Mixins
 
   export type Mixins = LineVector
@@ -122,8 +125,11 @@ export class Arc extends XYGlyph {
     this.define<Arc.Props>(({}) => ({
       direction:   [ Direction, "anticlock" ],
       radius:      [ p.DistanceSpec, {field: "radius"} ],
+      radius_units: [ SpatialUnits, "data" ],
       start_angle: [ p.AngleSpec, {field: "start_angle"} ],
+      start_angle_units: [ AngleUnits, "rad" ],
       end_angle:   [ p.AngleSpec, {field: "end_angle"} ],
+      end_angle_units: [ AngleUnits, "rad" ],
     }))
   }
 }

@@ -155,7 +155,8 @@ export class SizeBarView extends BaseBarView implements Exportable {
     const glyph: RadialGlyph = new Cls({
       x: {field: "x"},
       y: {field: "y"},
-      radius: {field: "s", units: "screen"},
+      radius: {field: "s"},
+      radius_units: "screen",
       ...mixins.attrs_of(this.model, "glyph_", mixins.LineVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.FillVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.HatchVector),

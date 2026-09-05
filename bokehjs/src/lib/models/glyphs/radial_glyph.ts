@@ -4,7 +4,7 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Rect, Indices} from "core/types"
 import {to_screen} from "core/types"
-import {RadiusDimension} from "core/enums"
+import {RadiusDimension, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 import type {SpatialIndex} from "core/util/spatial"
 import {elementwise} from "core/util/array"
@@ -99,6 +99,7 @@ export namespace RadialGlyph {
 
   export type Props = XYGlyph.Props & {
     radius: p.DistanceSpec
+    radius_units: p.Property<SpatialUnits>
     radius_dimension: p.Property<RadiusDimension>
   } & Mixins
 
@@ -124,6 +125,7 @@ export class RadialGlyph extends XYGlyph {
 
     this.define<RadialGlyph.Props>(() => ({
       radius:           [ p.DistanceSpec ],
+      radius_units:     [ SpatialUnits, "data" ],
       radius_dimension: [ RadiusDimension, "x" ],
     }))
   }

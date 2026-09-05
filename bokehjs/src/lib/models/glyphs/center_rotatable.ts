@@ -2,6 +2,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Rect} from "core/types"
+import {AngleUnits, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 
 export interface CenterRotatableView extends CenterRotatable.Data {}
@@ -34,8 +35,11 @@ export namespace CenterRotatable {
 
   export type Props = XYGlyph.Props & {
     angle: p.AngleSpec
+    angle_units: p.Property<AngleUnits>
     width: p.DistanceSpec
+    width_units: p.Property<SpatialUnits>
     height: p.DistanceSpec
+    height_units: p.Property<SpatialUnits>
   } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
@@ -60,8 +64,11 @@ export abstract class CenterRotatable extends XYGlyph {
 
     this.define<CenterRotatable.Props>(({}) => ({
       angle:  [ p.AngleSpec, 0 ],
+      angle_units: [ AngleUnits, "rad" ],
       width:  [ p.DistanceSpec, {field: "width"} ],
+      width_units: [ SpatialUnits, "data" ],
       height: [ p.DistanceSpec, {field: "height"} ],
+      height_units: [ SpatialUnits, "data" ],
     }))
   }
 }

@@ -29,10 +29,6 @@ plot.add_glyph(Circle(x=0, y=0, radius=0.05, fill_color="gray", line_color="blac
 plot.add_glyph(Text(x=0, y=+0.15, text=value("km/h"), text_color="red", text_align="center", text_baseline="bottom", text_font_style="bold"))
 plot.add_glyph(Text(x=0, y=-0.15, text=value("mph"), text_color="blue", text_align="center", text_baseline="top", text_font_style="bold"))
 
-def data(val: float):
-    """Shorthand to override default units with "data", for e.g. `Ray.length`. """
-    return value(val, units="data")
-
 def speed_to_angle(speed: float, units: str) -> float:
     max_speed = max_kmh if units == "kmh" else max_mph
     speed = min(max(speed, 0), max_speed)
@@ -42,8 +38,8 @@ def speed_to_angle(speed: float, units: str) -> float:
 
 def add_needle(speed: float, units: str) -> None:
     angle = speed_to_angle(speed, units)
-    plot.add_glyph(Ray(x=0, y=0, length=data(0.75), angle=angle,    line_color="black", line_width=3))
-    plot.add_glyph(Ray(x=0, y=0, length=data(0.10), angle=angle-pi, line_color="black", line_width=3))
+    plot.add_glyph(Ray(x=0, y=0, length=0.75, angle=angle,    line_color="black", line_width=3))
+    plot.add_glyph(Ray(x=0, y=0, length=0.10, angle=angle-pi, line_color="black", line_width=3))
 
 def add_gauge(radius: float, max_value: float, length: float, direction: Literal[-1, 1], color: Any, major_step: int, minor_step: int) -> None:
     major_angles, minor_angles = [], []
@@ -79,14 +75,14 @@ def add_gauge(radius: float, max_value: float, length: float, direction: Literal
     source = ColumnDataSource(dict(major_angles=major_angles, angle=angles))
 
     t = PolarTransform(radius=radius, angle="major_angles")
-    glyph = Ray(x=expr(t.x), y=expr(t.y), length=data(length), angle="angle", line_color=color, line_width=2)
+    glyph = Ray(x=expr(t.x), y=expr(t.y), length=length, angle="angle", line_color=color, line_width=2)
     plot.add_glyph(source, glyph)
 
     angles = [ angle + rotation for angle in minor_angles ]
     source = ColumnDataSource(dict(minor_angles=minor_angles, angle=angles))
 
     t = PolarTransform(radius=radius, angle="minor_angles")
-    glyph = Ray(x=expr(t.x), y=expr(t.y), length=data(length/2), angle="angle", line_color=color, line_width=1)
+    glyph = Ray(x=expr(t.x), y=expr(t.y), length=length/2, angle="angle", line_color=color, line_width=1)
     plot.add_glyph(source, glyph)
 
     text_angles = [ angle - pi/2 for angle in major_angles ]

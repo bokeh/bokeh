@@ -53,21 +53,18 @@ export type ValueRep = {
   type: "value"
   value: AnyVal
   transform?: AnyVal
-  units?: AnyVal
 }
 
 export type FieldRep = {
   type: "field"
   field: string
   transform?: AnyVal
-  units?: AnyVal
 }
 
 export type ExprRep = {
   type: "expr"
   expr: AnyVal
   transform?: AnyVal
-  units?: AnyVal
 }
 
 export type ObjectRep = {

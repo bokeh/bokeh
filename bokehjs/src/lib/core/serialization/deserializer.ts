@@ -237,24 +237,30 @@ export class Deserializer {
   }
 
   protected _decode_value(obj: ValueRep): Value<unknown> {
+    if ("units" in obj) {
+      this.error("embedded 'units' are no longer supported in value specifications; set the owning model's companion '<property>_units' property instead")
+    }
     const value = this._decode(obj.value)
     const transform = obj.transform != null ? this._decode(obj.transform) : undefined
-    const units = obj.units != null ? this._decode(obj.units) : undefined
-    return {value, transform, units} as any
+    return {value, transform} as any
   }
 
   protected _decode_field(obj: FieldRep): Field {
+    if ("units" in obj) {
+      this.error("embedded 'units' are no longer supported in field specifications; set the owning model's companion '<property>_units' property instead")
+    }
     const field = this._decode(obj.field)
     const transform = obj.transform != null ? this._decode(obj.transform) : undefined
-    const units = obj.units != null ? this._decode(obj.units) : undefined
-    return {field, transform, units} as any
+    return {field, transform} as any
   }
 
   protected _decode_expr(obj: ExprRep): Expr<unknown> {
+    if ("units" in obj) {
+      this.error("embedded 'units' are no longer supported in expression specifications; set the owning model's companion '<property>_units' property instead")
+    }
     const expr = this._decode(obj.expr)
     const transform = obj.transform != null ? this._decode(obj.transform) : undefined
-    const units = obj.units != null ? this._decode(obj.units) : undefined
-    return {expr, transform, units} as any
+    return {expr, transform} as any
   }
 
   protected _decode_typed_array(obj: TypedArrayRep): TypedArray {

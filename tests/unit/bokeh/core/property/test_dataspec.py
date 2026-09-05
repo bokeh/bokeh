@@ -19,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import datetime
 import warnings
-from copy import copy
 
 # External imports
 import numpy as np
@@ -523,18 +522,17 @@ class Test_ExplicitUnits:
         assert Foo.lookup("x").get_value(obj) == value(14)
 
         obj.x_units = other_units
-        assert Foo.lookup("x").get_value(obj) == value(14, units=other_units)
+        assert Foo.lookup("x").get_value(obj) == value(14)
 
-    def test_custom_default_serialization(self, unit_spec) -> None:
+    def test_rejects_custom_default(self, unit_spec) -> None:
         spec_type, units_property, _, other_units = unit_spec
 
-        class Foo(HasProps, Local):
-            x = spec_type(default=14)
-            x_units = units_property(default=other_units)
+        with pytest.raises(TypeError, match="requires a matching"):
+            class Foo(HasProps, Local):
+                x = spec_type(default=14)
+                x_units = units_property(default=other_units)
 
-        assert Foo.lookup("x").get_value(Foo()) == value(14)
-
-    def test_default_factory_serialization(self, unit_spec) -> None:
+    def test_rejects_default_factory_with_wrong_default(self, unit_spec) -> None:
         spec_type, units_property, _, other_units = unit_spec
         calls = 0
 
@@ -543,25 +541,23 @@ class Test_ExplicitUnits:
             calls += 1
             return other_units
 
-        class Foo(HasProps, Local):
-            x = spec_type(default=14)
-            x_units = units_property(default=make_units)
+        with pytest.raises(TypeError, match="requires a matching"):
+            class Foo(HasProps, Local):
+                x = spec_type(default=14)
+                x_units = units_property(default=make_units)
 
-        obj = Foo()
-        assert Foo.lookup("x").get_value(obj) == value(14, units=other_units)
         assert calls == 1
 
-    def test_inherited_override_serialization(self, unit_spec) -> None:
+    def test_rejects_inherited_override_with_wrong_default(self, unit_spec) -> None:
         spec_type, units_property, _, other_units = unit_spec
 
         class Base(HasProps, Local):
             x = spec_type(default=14)
             x_units = units_property
 
-        class Child(Base):
-            x_units = Override(default=other_units)
-
-        assert Child.lookup("x").get_value(Child()) == value(14, units=other_units)
+        with pytest.raises(TypeError, match="requires a matching"):
+            class Child(Base):
+                x_units = Override(default=other_units)
 
     def test_field_serialization(self, unit_spec) -> None:
         spec_type, units_property, _, _ = unit_spec
@@ -572,19 +568,17 @@ class Test_ExplicitUnits:
 
         assert Foo.lookup("x").get_value(Foo()) == field("x")
 
-    def test_embedded_units_are_preserved(self, unit_spec) -> None:
+    def test_value_helper_rejects_embedded_units(self, unit_spec) -> None:
         spec_type, units_property, default_units, _ = unit_spec
 
         class Foo(HasProps, Local):
             x = spec_type(default=14)
             x_units = units_property
 
-        obj = Foo()
-        obj.x = value(14, units=default_units)
+        with pytest.raises(TypeError, match="unexpected keyword argument 'units'"):
+            value(14, units=default_units)
 
-        assert Foo.lookup("x").get_value(obj) == value(14, units=default_units)
-
-    def test_dict_assignment_sets_units_without_mutating_input(self, unit_spec) -> None:
+    def test_dict_assignment_rejects_embedded_units(self, unit_spec) -> None:
         spec_type, units_property, _, other_units = unit_spec
 
         class Foo(HasProps, Local):
@@ -593,15 +587,12 @@ class Test_ExplicitUnits:
 
         obj = Foo()
         new_value = {"value": 180, "units": other_units}
-        original = copy(new_value)
+        with pytest.raises(ValueError, match=r"embedded 'units'.*companion 'x_units'"):
+            obj.x = new_value
 
-        obj.x = new_value
+        assert obj.x == 14
 
-        assert obj.x == value(180)
-        assert obj.x_units == other_units
-        assert new_value == original
-
-    def test_json_assignment_sets_units(self, unit_spec) -> None:
+    def test_json_assignment_rejects_embedded_units(self, unit_spec) -> None:
         spec_type, units_property, _, other_units = unit_spec
 
         class Foo(HasProps, Local):
@@ -609,10 +600,8 @@ class Test_ExplicitUnits:
             x_units = units_property
 
         obj = Foo()
-        obj.set_from_json("x", {"value": 180, "units": other_units})
-
-        assert obj.x == 180
-        assert obj.x_units == other_units
+        with pytest.raises(ValueError, match=r"embedded 'units'.*companion 'x_units'"):
+            obj.set_from_json("x", {"value": 180, "units": other_units})
 
     def test_plain_dataspec_does_not_consume_units(self) -> None:
         class Foo(HasProps, Local):
@@ -632,16 +621,18 @@ class Test_ExplicitUnits:
 
             x_units = SpatialUnits
         f = FooSpatialUnits()
-        f.x = dict(field="foo", units="screen")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="embedded 'units'"):
+            f.x = dict(field="foo", units="screen")
+        with pytest.raises(ValueError, match="embedded 'units'"):
             f.x = dict(field="foo", units="junk", foo="crap")
         class FooAngleUnits(HasProps):
             x = bcpd.AngleSpec("x")
 
             x_units = AngleUnits
         f = FooAngleUnits()
-        f.x = dict(field="foo", units="deg")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="embedded 'units'"):
+            f.x = dict(field="foo", units="deg")
+        with pytest.raises(ValueError, match="embedded 'units'"):
             f.x = dict(field="foo", units="junk", foo="crap")
 
 

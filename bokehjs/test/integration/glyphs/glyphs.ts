@@ -414,8 +414,8 @@ describe("Glyph models", () => {
       const p = fig([200, 300], {output_backend, title: output_backend})
       p.rect({
         x, y,
-        width: {value: 50, units: "screen"},
-        height: {value: 100, units: "screen"},
+        width: 50, width_units: "screen",
+        height: 100, height_units: "screen",
         alpha: 0.7, line_color: "red",
         border_radius: [30, 40, 70, 0],
       })
@@ -1009,29 +1009,29 @@ describe("Glyph models", () => {
       function f(direction: Direction, fill_color: Color, line_color: Color) {
         p.annular_wedge({
           x: 0, y, inner_radius, outer_radius, fill_color, line_color, alpha,
-          start_angle: {value: sign*Math.PI/2, units: "rad"},
-          end_angle: {value: sign*Math.PI/4, units: "rad"},
+          start_angle: sign*Math.PI/2, start_angle_units: "rad",
+          end_angle: sign*Math.PI/4, end_angle_units: "rad",
           direction,
         })
         p.annular_wedge({
           x: 2, y,
           inner_radius, outer_radius, fill_color, line_color, alpha,
-          start_angle: {value: sign*90, units: "deg"},
-          end_angle: {value: sign*45, units: "deg"},
+          start_angle: sign*90, start_angle_units: "deg",
+          end_angle: sign*45, end_angle_units: "deg",
           direction,
         })
         p.annular_wedge({
           x: 4, y,
           inner_radius, outer_radius, fill_color, line_color, alpha,
-          start_angle: {value: sign*100, units: "grad"},
-          end_angle: {value: sign*50, units: "grad"},
+          start_angle: sign*100, start_angle_units: "grad",
+          end_angle: sign*50, end_angle_units: "grad",
           direction,
         })
         p.annular_wedge({
           x: 6, y,
           inner_radius, outer_radius, fill_color, line_color, alpha,
-          start_angle: {value: sign*0.25, units: "turn"},
-          end_angle: {value: sign*0.125, units: "turn"},
+          start_angle: sign*0.25, start_angle_units: "turn",
+          end_angle: sign*0.125, end_angle_units: "turn",
           direction,
         })
       }

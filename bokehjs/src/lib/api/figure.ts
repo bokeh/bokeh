@@ -3,7 +3,7 @@ import type {Attrs} from "../core/types"
 import type {Value, Field, Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
 import type {Property} from "../core/properties"
-import {VectorSpec, UnitsSpec} from "../core/properties"
+import {VectorSpec} from "../core/properties"
 import type {Class} from "../core/class"
 import {extend} from "../core/class"
 import type {Location} from "../core/enums"
@@ -464,15 +464,6 @@ export class Figure extends BaseFigure {
             }
           }
 
-          if (prop.type.prototype instanceof UnitsSpec) {
-            const units_attr = `${name}_units`
-            const units = attrs[units_attr]
-            if (units !== undefined) {
-              attrs[name] = {...attrs[name] as any, units}
-              unresolved_attrs.delete(units_attr)
-              delete attrs[units_attr]
-            }
-          }
         }
       } else {
         unresolved_attrs.add(name)

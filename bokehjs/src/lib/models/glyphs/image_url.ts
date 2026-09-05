@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {inherit} from "./glyph"
 import type {Arrayable, Rect} from "core/types"
 import {ScreenArray, to_screen, Indices} from "core/types"
-import {Anchor} from "core/enums"
+import {Anchor, AngleUnits, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 import {resize} from "core/util/array"
 import {minmax2} from "core/util/arrayable"
@@ -279,8 +279,11 @@ export namespace ImageURL {
     anchor: p.Property<Anchor>
     global_alpha: p.NumberSpec
     angle: p.AngleSpec
+    angle_units: p.Property<AngleUnits>
     w: p.NullDistanceSpec
+    w_units: p.Property<SpatialUnits>
     h: p.NullDistanceSpec
+    h_units: p.Property<SpatialUnits>
     dilate: p.Property<boolean>
     retry_attempts: p.Property<number>
     retry_timeout: p.Property<number>
@@ -309,8 +312,11 @@ export class ImageURL extends XYGlyph {
       anchor:         [ Anchor, "top_left" ],
       global_alpha:   [ p.NumberSpec, {value: 1.0} ],
       angle:          [ p.AngleSpec, 0 ],
+      angle_units:    [ AngleUnits, "rad" ],
       w:              [ p.NullDistanceSpec, null ],
+      w_units:        [ SpatialUnits, "data" ],
       h:              [ p.NullDistanceSpec, null ],
+      h_units:        [ SpatialUnits, "data" ],
       dilate:         [ Bool, false ],
       retry_attempts: [ Int, 0 ],
       retry_timeout:  [ Int, 0 ],

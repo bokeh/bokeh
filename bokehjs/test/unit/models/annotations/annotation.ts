@@ -7,6 +7,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {build_view} from "@bokehjs/core/build_views"
 import * as p from "@bokehjs/core/properties"
+import {SpatialUnits} from "@bokehjs/core/enums"
 
 class SubclassWithNumberSpecView extends DataAnnotationView {
   declare model: SubclassWithNumberSpec
@@ -50,6 +51,7 @@ namespace SubclassWithDistanceSpec {
   export type Attrs = p.AttrsOf<Props>
   export type Props = DataAnnotation.Props & {
     foo: p.DistanceSpec
+    foo_units: p.Property<SpatialUnits>
     bar: p.Property<boolean>
   }
 }
@@ -67,6 +69,7 @@ class SubclassWithDistanceSpec extends DataAnnotation {
 
     this.define<SubclassWithDistanceSpec.Props>(({Bool}) => ({
       foo: [ p.DistanceSpec, {field: "colname"} ],
+      foo_units: [ SpatialUnits, "data" ],
       bar: [ Bool, true ],
     }))
   }

@@ -26,10 +26,9 @@ describe("Band annotation", () => {
       source,
     })
     const band1 = new Band({
-      // TODO: units are only supported on value level, not type level
-      base: {field: "x2", units: "screen"} as any,
-      lower: {field: "lower2", units: "screen"} as any,
-      upper: {field: "upper2", units: "screen"} as any,
+      base: {field: "x2"}, base_units: "screen",
+      lower: {field: "lower2"}, lower_units: "screen",
+      upper: {field: "upper2"}, upper_units: "screen",
       dimension: "width", line_width: 3, fill_color: "blue", line_color: "green",
       source,
     })

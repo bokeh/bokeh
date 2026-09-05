@@ -58,7 +58,6 @@ from .property.descriptors import (
     UnsetValueError,
 )
 from .property.enum import Enum
-from .property.serialized import NotSerialized
 from .property.singletons import Undefined
 from .serialization import (
     ObjectRep,
@@ -241,6 +240,7 @@ class NonQualified:
 def _check_units_props(
     cls: type[HasProps],
     own_properties: Mapping[str, Property[Any]],
+    own_overridden_defaults: Mapping[str, Any],
     properties: Mapping[str, Property[Any]],
     property_bases: list[type[HasProps]],
 ) -> None:
@@ -254,7 +254,7 @@ def _check_units_props(
             name: prop for name, prop in own_properties.items()
             if getattr(prop, "_units_enum", None) is not None
         }
-        for units_name in own_properties:
+        for units_name in own_properties.keys() | own_overridden_defaults.keys():
             if units_name.endswith("_units"):
                 name = units_name.removesuffix("_units")
                 prop = properties.get(name)
@@ -268,9 +268,11 @@ def _check_units_props(
         units_descriptor = cls.lookup(units_name, raises=False)
         units_prop = units_descriptor.property if isinstance(units_descriptor, PropertyDescriptor) else None
 
-        valid_units_prop = isinstance(units_prop, NotSerialized) and \
-            isinstance(units_prop.type_param, Enum) and \
-            tuple(units_prop.type_param.allowed_values) == tuple(units_enum)
+        units_default = getattr(prop, "_units_default")
+        valid_units_prop = isinstance(units_descriptor, PropertyDescriptor) and \
+            isinstance(units_prop, Enum) and \
+            tuple(units_prop.allowed_values) == tuple(units_enum) and \
+            units_descriptor.class_default(cls) == units_default
         if not valid_units_prop:
             units_alias = getattr(prop, "_units_alias")
             raise TypeError(
@@ -364,7 +366,7 @@ class HasProps(Serializable):
         properties = property_info.properties(cls)
 
         property_bases = [base for base in cls.__bases__ if issubclass(base, HasProps)]
-        _check_units_props(cls, own_properties, properties, property_bases)
+        _check_units_props(cls, own_properties, own_overridden_defaults, properties, property_bases)
         _warn_redeclared_props(cls, own_properties, property_bases)
         _warn_unused_overrides(cls, own_overridden_defaults, properties)
 

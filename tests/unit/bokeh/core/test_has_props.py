@@ -737,11 +737,19 @@ def test_AngleSpec_rejects_wrong_units_property() -> None:
             bar_units = SpatialUnits
 
 
-def test_AngleSpec_rejects_serialized_units_property() -> None:
+def test_AngleSpec_accepts_matching_enum_property() -> None:
+    class Props(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = Enum(AngleUnitsEnum, default="rad")
+
+    assert Props().bar_units == "rad"
+
+
+def test_AngleSpec_rejects_wrong_units_default() -> None:
     with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
         class Props(hp.HasProps, hp.Local):
             bar = AngleSpec()
-            bar_units = Enum(AngleUnitsEnum)
+            bar_units = Enum(AngleUnitsEnum, default="deg")
 
 
 def test_AngleSpec_rejects_wrong_inherited_units_property() -> None:

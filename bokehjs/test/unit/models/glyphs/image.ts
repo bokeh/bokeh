@@ -30,8 +30,8 @@ describe("Image module", () => {
       image.y = 0
       image.dw = 1
       image.dh = 2
-      image.properties.dw.units = "screen"
-      image.properties.dh.units = "screen"
+      image.dw_units = "screen"
+      image.dh_units = "screen"
 
       const data = {image: [ndarray([1, 2, 3, 4], {dtype: "uint32", shape: [2, 2]})]}
       const image_view = await create_glyph_view(image, data)

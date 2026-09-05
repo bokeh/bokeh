@@ -238,6 +238,15 @@ def test_wedge() -> None:
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Wedge)
 
+def test_dimensional_units_are_glyph_properties() -> None:
+    p = figure()
+    gr = p.wedge(radius="radius", radius_units="screen", start_angle=0, start_angle_units="deg")
+    assert isinstance(gr.glyph, glyphs.Wedge)
+    assert gr.glyph.radius == "radius"
+    assert gr.glyph.radius_units == "screen"
+    assert gr.glyph.start_angle == 0
+    assert gr.glyph.start_angle_units == "deg"
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

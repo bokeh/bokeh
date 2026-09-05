@@ -669,14 +669,17 @@
       type: "field",
       field: "lower",
     },
+    lower_units: "data",
     upper: {
       type: "field",
       field: "upper",
     },
+    upper_units: "data",
     base: {
       type: "field",
       field: "base",
     },
+    base_units: "data",
     dimension: "height",
     line_color: "#cccccc",
     line_alpha: 0.3,
@@ -902,6 +905,7 @@
       type: "field",
       field: "lower",
     },
+    lower_units: "data",
     lower_head: {
       type: "object",
       name: "TeeHead",
@@ -916,6 +920,7 @@
       type: "field",
       field: "upper",
     },
+    upper_units: "data",
     upper_head: {
       type: "object",
       name: "TeeHead",
@@ -930,6 +935,7 @@
       type: "field",
       field: "base",
     },
+    base_units: "data",
     dimension: "height",
     line_color: {
       type: "value",
@@ -1014,6 +1020,7 @@
       type: "value",
       value: 0,
     },
+    angle_units: "rad",
     x_offset: {
       type: "value",
       value: 0,
@@ -1184,6 +1191,7 @@
       type: "value",
       value: 0,
     },
+    angle_units: "rad",
     x_offset: {
       type: "value",
       value: 0,
@@ -2870,6 +2878,7 @@
       type: "field",
       field: "angle",
     },
+    angle_units: "rad",
     direction: "anticlock",
   },
   ScalarExpression: {
@@ -3061,18 +3070,22 @@
       type: "field",
       field: "inner_radius",
     },
+    inner_radius_units: "data",
     outer_radius: {
       type: "field",
       field: "outer_radius",
     },
+    outer_radius_units: "data",
     start_angle: {
       type: "field",
       field: "start_angle",
     },
+    start_angle_units: "rad",
     end_angle: {
       type: "field",
       field: "end_angle",
     },
+    end_angle_units: "rad",
     direction: "anticlock",
     line_color: {
       type: "value",
@@ -3153,10 +3166,12 @@
       type: "field",
       field: "inner_radius",
     },
+    inner_radius_units: "data",
     outer_radius: {
       type: "field",
       field: "outer_radius",
     },
+    outer_radius_units: "data",
     line_color: {
       type: "value",
       value: "black",
@@ -3234,14 +3249,17 @@
       type: "field",
       field: "radius",
     },
+    radius_units: "data",
     start_angle: {
       type: "field",
       field: "start_angle",
     },
+    start_angle_units: "rad",
     end_angle: {
       type: "field",
       field: "end_angle",
     },
+    end_angle_units: "rad",
     direction: "anticlock",
     line_color: {
       type: "value",
@@ -3352,10 +3370,12 @@
       type: "value",
       value: 1,
     },
+    width_units: "data",
     height: {
       type: "value",
       value: 1,
     },
+    height_units: "data",
     line_color: {
       type: "value",
       value: "black",
@@ -3435,6 +3455,7 @@
       type: "symbol",
       name: "unset",
     },
+    radius_units: "data",
     radius_dimension: "x",
     hit_dilation: 1.0,
     line_color: {
@@ -3516,14 +3537,17 @@
       type: "field",
       field: "width",
     },
+    width_units: "data",
     height: {
       type: "field",
       field: "height",
     },
+    height_units: "data",
     angle: {
       type: "value",
       value: 0.0,
     },
+    angle_units: "rad",
     line_color: {
       type: "value",
       value: "black",
@@ -3683,6 +3707,7 @@
       type: "value",
       value: 1,
     },
+    height_units: "data",
     left: {
       type: "value",
       value: 0,
@@ -3984,10 +4009,12 @@
       type: "field",
       field: "dw",
     },
+    dw_units: "data",
     dh: {
       type: "field",
       field: "dh",
     },
+    dh_units: "data",
     global_alpha: {
       type: "value",
       value: 1.0,
@@ -4032,14 +4059,17 @@
       type: "value",
       value: null,
     },
+    w_units: "data",
     h: {
       type: "value",
       value: null,
     },
+    h_units: "data",
     angle: {
       type: "value",
       value: 0,
     },
+    angle_units: "rad",
     global_alpha: {
       type: "value",
       value: 1.0,
@@ -4103,6 +4133,7 @@
       type: "value",
       value: 0.0,
     },
+    angle_units: "rad",
     line_color: {
       type: "value",
       value: "black",
@@ -4300,10 +4331,12 @@
       type: "symbol",
       name: "unset",
     },
+    radius_units: "data",
     angle: {
       type: "value",
       value: 0,
     },
+    angle_units: "rad",
     n: {
       type: "field",
       field: "n",
@@ -4630,10 +4663,12 @@
       type: "value",
       value: 0,
     },
+    angle_units: "rad",
     length: {
       type: "value",
       value: 0,
     },
+    length_units: "data",
     line_color: {
       type: "value",
       value: "black",
@@ -4682,14 +4717,17 @@
       type: "field",
       field: "width",
     },
+    width_units: "data",
     height: {
       type: "field",
       field: "height",
     },
+    height_units: "data",
     angle: {
       type: "value",
       value: 0.0,
     },
+    angle_units: "rad",
     border_radius: 0,
     dilate: false,
     line_color: {
@@ -4864,6 +4902,7 @@
       type: "value",
       value: 0,
     },
+    angle_units: "rad",
     x_offset: {
       type: "value",
       value: 0,
@@ -5081,6 +5120,7 @@
       type: "value",
       value: 1,
     },
+    width_units: "data",
     bottom: {
       type: "value",
       value: 0,
@@ -5281,14 +5321,17 @@
       type: "field",
       field: "radius",
     },
+    radius_units: "data",
     start_angle: {
       type: "field",
       field: "start_angle",
     },
+    start_angle_units: "rad",
     end_angle: {
       type: "field",
       field: "end_angle",
     },
+    end_angle_units: "rad",
     direction: "anticlock",
     line_color: {
       type: "value",

@@ -38,6 +38,7 @@ from bokeh.core.properties import (
     Bool,
     Bytes,
     Dict,
+    DistanceSpec,
     Either,
     Enum,
     Float,
@@ -51,6 +52,7 @@ from bokeh.core.properties import (
     Regex,
     Required,
     Set,
+    SpatialUnits,
     String,
     Struct,
     Tuple,
@@ -1137,6 +1139,21 @@ class TestDocument:
             "unsupported": "Any",
         }
 
+    def test_serialization_data_model_dimensional_spec_units(self) -> None:
+        class Dimensional(DataModel, Local):
+            distance = DistanceSpec(default=1)
+            distance_units = SpatialUnits
+
+        [model_def] = Serializer().encode([Dimensional])
+        properties = {prop["name"]: prop for prop in model_def["properties"]}
+
+        assert properties["distance"] == PropertyDef(name="distance", kind="Any", default=1)
+        assert properties["distance_units"] == PropertyDef(
+            name="distance_units",
+            kind=("Enum", "screen", "data"),
+            default="data",
+        )
+
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
         d = document.Document()
@@ -1189,30 +1206,26 @@ class TestDocument:
         assert patch_test(dict(value=58)) == Value(58)
         assert 'data' == root1.foo_units
 
-        assert patch_test(dict(value=58, units='screen')) == Value(58, units='screen')
-        assert 'screen' == root1.foo_units
-        assert patch_test(dict(value=59, units='screen')) == Value(59, units='screen')
-        assert 'screen' == root1.foo_units
+        with pytest.raises(ValueError, match=r"embedded 'units'.*companion 'foo_units'"):
+            patch_test(dict(value=58, units='screen'))
 
-        assert patch_test(dict(value=59, units='data')) == Value(59)
-        assert 'data' == root1.foo_units
-        assert patch_test(dict(value=60, units='data')) == Value(60)
-        assert 'data' == root1.foo_units
-        assert patch_test(dict(value=60, units='data')) == Value(60)
-        assert 'data' == root1.foo_units
+        units_event = ModelChangedEvent(d, root1, 'foo_units', 'screen')
+        units_patch = patch_doc([units_event]).content
+        d.apply_json_patch(units_patch)
+        assert root1.foo == 58
+        assert root1.foo_units == 'screen'
+
+        assert patch_test(dict(value=59)) == Value(59)
+        assert root1.foo_units == 'screen'
 
         assert patch_test(61) == 61
-        assert 'data' == root1.foo_units
+        assert 'screen' == root1.foo_units
         root1.foo = "a_string" # so "woot" gets set as a string
         assert patch_test("woot") == "woot"
-        assert 'data' == root1.foo_units
+        assert 'screen' == root1.foo_units
         assert patch_test(dict(field="woot2")) == Field("woot2")
-        assert 'data' == root1.foo_units
-        assert patch_test(dict(field="woot2", units='screen')) == Field("woot2", units='screen')
         assert 'screen' == root1.foo_units
-        assert patch_test(dict(field="woot3")) == Field("woot3", units="screen")
-        assert 'screen' == root1.foo_units
-        assert patch_test(dict(value=70)) == Value(70, units="screen")
+        assert patch_test(dict(field="woot3")) == Field("woot3")
         assert 'screen' == root1.foo_units
         root1.foo = 123 # so 71 gets set as a number
         assert patch_test(71) == 71

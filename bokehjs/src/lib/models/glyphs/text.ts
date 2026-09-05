@@ -12,6 +12,7 @@ import {enumerate} from "core/util/iterator"
 import type {Rect} from "core/util/affine"
 import {rotate_around, AffineTransform} from "core/util/affine"
 import type {GraphicsBox} from "core/graphics"
+import {AngleUnits} from "core/enums"
 import {TextBox} from "core/graphics"
 import type {TextAnchor} from "../common/kinds"
 import {BorderRadius, Padding} from "../common/kinds"
@@ -343,6 +344,7 @@ export namespace Text {
   export type Props = XYGlyph.Props & {
     text: p.NullStringSpec
     angle: p.AngleSpec
+    angle_units: p.Property<AngleUnits>
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
     anchor: TextAnchorSpec
@@ -399,6 +401,7 @@ export class Text extends XYGlyph {
     this.define<Text.Props>(() => ({
       text: [ p.NullStringSpec, {field: "text"} ],
       angle: [ p.AngleSpec, 0 ],
+      angle_units: [ AngleUnits, "rad" ],
       x_offset: [ p.NumberSpec, 0 ],
       y_offset: [ p.NumberSpec, 0 ],
       anchor: [ TextAnchorSpec, {value: "auto"} ],

@@ -63,7 +63,8 @@ describe("Text glyph", () => {
         text_align,
         text_baseline,
         text_color,
-        angle: {value: angle, units: "deg"},
+        angle,
+        angle_units: "deg",
         text_font_size: "10px",
       })
 

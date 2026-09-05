@@ -9,6 +9,7 @@ import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 import {minmax2} from "core/util/arrayable"
 import {Selection} from "../selections/selection"
+import {AngleUnits} from "core/enums"
 
 export interface MarkerView extends Marker.Data {}
 
@@ -171,8 +172,9 @@ export namespace Marker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & {
-    size: p.DistanceSpec
+    size: p.ScreenSizeSpec
     angle: p.AngleSpec
+    angle_units: p.Property<AngleUnits>
     hit_dilation: p.Property<number>
   } & Mixins
 
@@ -198,6 +200,7 @@ export abstract class Marker extends XYGlyph {
     this.define<Marker.Props>(({Float}) => ({
       size:  [ p.ScreenSizeSpec, {value: 4} ],
       angle: [ p.AngleSpec, 0  ],
+      angle_units: [ AngleUnits, "rad" ],
       hit_dilation: [ Float, 1.0 ],
     }))
   }

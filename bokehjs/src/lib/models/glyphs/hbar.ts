@@ -1,6 +1,7 @@
 import {LRTB, LRTBView} from "./lrtb"
 import type {LRTBRect} from "./lrtb"
 import {ScreenArray} from "core/types"
+import {SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 
 export interface HBarView extends HBar.Data {}
@@ -65,6 +66,7 @@ export namespace HBar {
     left: p.XCoordinateSpec
     y: p.YCoordinateSpec
     height: p.DistanceSpec
+    height_units: p.Property<SpatialUnits>
     right: p.XCoordinateSpec
   }
 
@@ -90,6 +92,7 @@ export class HBar extends LRTB {
       left:   [ p.XCoordinateSpec, {value: 0} ],
       y:      [ p.YCoordinateSpec, {field: "y"} ],
       height: [ p.DistanceSpec,    {value: 1} ],
+      height_units: [ SpatialUnits, "data" ],
       right:  [ p.XCoordinateSpec, {field: "right"} ],
     }))
   }
