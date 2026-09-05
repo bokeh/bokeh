@@ -78,3 +78,113 @@ interface Uint8ArrayConstructor {
 interface HTMLElement {
   showPopover(options?: {source?: Element}): void
 }
+
+// Translator and LanguageDetector API typing
+// Taken from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/dom-chromium-ai/index.d.ts
+// to not add a dependency on npm package @types/dom-chromium-ai for the moment
+// Shared infrastructure
+// https://webmachinelearning.github.io/writing-assistance-apis/#supporting
+
+interface CreateMonitor extends EventTarget {
+  ondownloadprogress: ((this: CreateMonitor, ev: ProgressEvent) => any) | null
+
+  addEventListener<K extends keyof CreateMonitorEventMap>(
+    type: K,
+    listener: (this: CreateMonitor, ev: CreateMonitorEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions,
+  ): void
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void
+  removeEventListener<K extends keyof CreateMonitorEventMap>(
+    type: K,
+    listener: (this: CreateMonitor, ev: CreateMonitorEventMap[K]) => any,
+    options?: boolean | EventListenerOptions,
+  ): void
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions,
+  ): void
+}
+
+interface CreateMonitorEventMap {
+  downloadprogress: ProgressEvent
+}
+
+type CreateMonitorCallback = (monitor: CreateMonitor) => void
+
+type Availability = "unavailable" | "downloadable" | "downloading" | "available"
+
+interface DestroyableModel {
+  destroy(): void
+}
+
+// Translator and Language Detector APIs
+// https://webmachinelearning.github.io/translation-api/#idl-index
+
+declare abstract class Translator implements DestroyableModel {
+  static create(options: TranslatorCreateOptions): Promise<Translator>
+  static availability(options: TranslatorCreateCoreOptions): Promise<Availability>
+
+  translate(input: string, options?: TranslatorTranslateOptions): Promise<string>
+  translateStreaming(input: string, options?: TranslatorTranslateOptions): ReadableStream<string>
+
+  readonly sourceLanguage: string
+  readonly targetLanguage: string
+
+  measureInputUsage(input: string, options?: TranslatorTranslateOptions): Promise<number>
+
+  readonly inputQuota: number
+
+  destroy(): void
+}
+
+interface TranslatorCreateCoreOptions {
+  sourceLanguage: string
+  targetLanguage: string
+}
+
+interface TranslatorCreateOptions extends TranslatorCreateCoreOptions {
+  signal?: AbortSignal
+  monitor?: CreateMonitorCallback
+}
+
+interface TranslatorTranslateOptions {
+  signal?: AbortSignal
+}
+
+declare abstract class LanguageDetector implements DestroyableModel {
+  static create(options?: LanguageDetectorCreateOptions): Promise<LanguageDetector>
+  static availability(options?: LanguageDetectorCreateCoreOptions): Promise<Availability>
+
+  detect(input: string, options?: LanguageDetectorDetectOptions): Promise<LanguageDetectionResult[]>
+
+  readonly expectedInputLanguages: ReadonlyArray<string>
+
+  measureInputUsage(input: string, options?: LanguageDetectorDetectOptions): Promise<number>
+
+  readonly inputQuota: number
+
+  destroy(): void
+}
+
+interface LanguageDetectorCreateCoreOptions {
+  expectedInputLanguages?: string[]
+}
+
+interface LanguageDetectorCreateOptions extends LanguageDetectorCreateCoreOptions {
+  signal?: AbortSignal
+  monitor?: CreateMonitorCallback
+}
+
+interface LanguageDetectorDetectOptions {
+  signal?: AbortSignal
+}
+
+interface LanguageDetectionResult {
+  detectedLanguage?: string
+  confidence?: number
+}
