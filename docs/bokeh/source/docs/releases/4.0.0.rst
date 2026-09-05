@@ -1,0 +1,14 @@
+.. _release-4-0-0:
+
+4.0.0
+=====
+
+Bokeh version ``4.0.0`` is a major milestone of the Bokeh project.
+
+Removals
+--------
+
+* Removed ``DataCube`` and its supporting grouping and aggregation models. For
+  hierarchical tables, use Panel's ``Tabulator`` widget. Bokeh-only
+  applications can use ``DataTable`` with pre-aggregated data. See
+  :ref:`ug_topics_hierarchical` for migration guidance.

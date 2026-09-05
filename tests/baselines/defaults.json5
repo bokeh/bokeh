@@ -7914,9 +7914,6 @@
     },
     step: 1,
   },
-  AvgAggregator: {
-    __extends__: "RowAggregator",
-  },
   BooleanFormatter: {
     __extends__: "CellFormatter",
     icon: "check",
@@ -7929,14 +7926,6 @@
   },
   CheckboxEditor: {
     __extends__: "CellEditor",
-  },
-  DataCube: {
-    __extends__: "DataTable",
-    grouping: [],
-    target: {
-      type: "symbol",
-      name: "unset",
-    },
   },
   DataTable: {
     __extends__: "TableWidget",
@@ -7969,12 +7958,6 @@
     null_format: "-",
     format: "ISO-8601",
   },
-  GroupingInfo: {
-    __extends__: "Model",
-    getter: "",
-    aggregators: [],
-    collapsed: false,
-  },
   HTMLTemplateFormatter: {
     __extends__: "CellFormatter",
     template: "<%= value %>",
@@ -7982,12 +7965,6 @@
   IntEditor: {
     __extends__: "CellEditor",
     step: 1,
-  },
-  MaxAggregator: {
-    __extends__: "RowAggregator",
-  },
-  MinAggregator: {
-    __extends__: "RowAggregator",
   },
   NumberEditor: {
     __extends__: "CellEditor",
@@ -8003,10 +7980,6 @@
   },
   PercentEditor: {
     __extends__: "CellEditor",
-  },
-  RowAggregator: {
-    __extends__: "Model",
-    field_: "",
   },
   ScientificFormatter: {
     __extends__: "StringFormatter",
@@ -8044,9 +8017,6 @@
     },
     nan_format: "NaN",
     null_format: "(null)",
-  },
-  SumAggregator: {
-    __extends__: "RowAggregator",
   },
   TableColumn: {
     __extends__: "Model",

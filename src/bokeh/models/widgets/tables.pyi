@@ -42,15 +42,6 @@ class CellEditor(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_CellEditorInit]) -> None: ...
 
-class _RowAggregatorInit(_ModelInit, total=False):
-    field_: str
-
-class RowAggregator(Model):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_RowAggregatorInit]) -> None: ...
-
-    field_: str = ...
-
 class _StringFormatterInit(_CellFormatterInit, total=False):
     font_style: FontStyleSpec
     text_align: TextAlignSpec
@@ -179,30 +170,6 @@ class _DateEditorInit(_CellEditorInit, total=False):
 class DateEditor(CellEditor):
     def __init__(self, **kwargs: Unpack[_DateEditorInit]) -> None: ...
 
-class _AvgAggregatorInit(_RowAggregatorInit, total=False):
-    ...
-
-class AvgAggregator(RowAggregator):
-    def __init__(self, **kwargs: Unpack[_AvgAggregatorInit]) -> None: ...
-
-class _MinAggregatorInit(_RowAggregatorInit, total=False):
-    ...
-
-class MinAggregator(RowAggregator):
-    def __init__(self, **kwargs: Unpack[_MinAggregatorInit]) -> None: ...
-
-class _MaxAggregatorInit(_RowAggregatorInit, total=False):
-    ...
-
-class MaxAggregator(RowAggregator):
-    def __init__(self, **kwargs: Unpack[_MaxAggregatorInit]) -> None: ...
-
-class _SumAggregatorInit(_RowAggregatorInit, total=False):
-    ...
-
-class SumAggregator(RowAggregator):
-    def __init__(self, **kwargs: Unpack[_SumAggregatorInit]) -> None: ...
-
 class _TableColumnInit(_ModelInit, total=False):
     field: str
     title: str | HTML | None
@@ -279,25 +246,3 @@ class DataTable(TableWidget):
     @staticmethod
     def from_data(data: ColumnDataSource | DataDictLike, columns: list[str] | None = None,
         formatters: dict[str, CellFormatter] = {}, **kwargs: Any) -> DataTable: ...
-
-class _GroupingInfoInit(_ModelInit, total=False):
-    getter: str
-    aggregators: list[RowAggregator]
-    collapsed: bool
-
-class GroupingInfo(Model):
-    def __init__(self, **kwargs: Unpack[_GroupingInfoInit]) -> None: ...
-
-    getter: str = ...
-    aggregators: list[RowAggregator] = ...
-    collapsed: bool = ...
-
-class _DataCubeInit(_DataTableInit, total=False):
-    grouping: list[GroupingInfo]
-    target: DataSource
-
-class DataCube(DataTable):
-    def __init__(self, **kwargs: Unpack[_DataCubeInit]) -> None: ...
-
-    grouping: list[GroupingInfo] = ...
-    target: DataSource = ...

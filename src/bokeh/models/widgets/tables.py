@@ -59,20 +59,15 @@ from .widget import Widget
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'AvgAggregator',
     'BooleanFormatter',
     'CellFormatter',
     'CellEditor',
     'CheckboxEditor',
-    'DataCube',
     'DataTable',
     'DateEditor',
     'DateFormatter',
-    'GroupingInfo',
     'HTMLTemplateFormatter',
     'IntEditor',
-    'MaxAggregator',
-    'MinAggregator',
     'NumberEditor',
     'NumberFormatter',
     'PercentEditor',
@@ -80,7 +75,6 @@ __all__ = (
     'SelectEditor',
     'StringEditor',
     'StringFormatter',
-    'SumAggregator',
     'TableColumn',
     'TableWidget',
     'TextEditor',
@@ -110,20 +104,6 @@ class CellEditor(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-
-@abstract
-class RowAggregator(Model):
-    ''' Abstract base class for data cube's row formatters.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    field_ = String('', help="""
-    Refers to the table column being aggregated
-    """)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -654,42 +634,6 @@ class DateEditor(CellEditor):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-class AvgAggregator(RowAggregator):
-    ''' Simple average across multiple rows.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-class MinAggregator(RowAggregator):
-    ''' Smallest value across multiple rows.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-class MaxAggregator(RowAggregator):
-    ''' Largest value across multiple rows.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-class SumAggregator(RowAggregator):
-    ''' Simple sum across multiple rows.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class TableColumn(Model):
     ''' Table column widget.
 
@@ -944,45 +888,6 @@ class DataTable(TableWidget):
             table_columns.append(TableColumn(field=c, title=c, formatter=formatter))
 
         return DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
-
-class GroupingInfo(Model):
-    '''Describes how to calculate totals and sub-totals
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    getter = String('', help="""
-    References the column which generates the unique keys of this sub-total (groupby).
-    """)
-
-    aggregators = List(Instance(RowAggregator), help="""
-    Describes how to aggregate the columns which will populate this sub-total.
-    """)
-
-    collapsed = Bool(False, help="""
-    Whether the corresponding sub-total is expanded or collapsed by default.
-    """)
-
-class DataCube(DataTable):
-    '''Specialized DataTable with collapsing groups, totals, and sub-totals.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    grouping = List(Instance(GroupingInfo), help="""
-    Describe what aggregation operations used to define sub-totals and totals
-    """)
-
-    target = Instance(DataSource, help="""
-    Two column datasource (row_indices & labels) describing which rows of the
-    data cubes are expanded or collapsed
-    """)
 
 #-----------------------------------------------------------------------------
 # Private API
