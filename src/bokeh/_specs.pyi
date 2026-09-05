@@ -76,7 +76,7 @@ type Number3dArray = NumberArray # TODO shape
 type StringArray = npt.NDArray[np.str_]
 
 type DataSpec[T] = Vectorized[T, Never]
-type UnitsSpec[T, U] = Vectorized[T, U]
+type DataSpecWithUnits[T, U] = Vectorized[T, U]
 
 type IntVal = int
 type IntSpec = DataSpec[IntVal]
@@ -175,17 +175,17 @@ type OutlineShapeNameSpec = DataSpec[OutlineShapeNameVal]
 type OutlineShapeNameArg = FieldName | OutlineShapeNameVal | Sequence[OutlineShapeNameVal] | OutlineShapeNameSpec | StringArray
 
 type AngleVal = float
-type AngleSpec = UnitsSpec[AngleVal, AngleUnits]
+type AngleSpec = DataSpecWithUnits[AngleVal, AngleUnits]
 type AngleArg = FieldName | AngleVal | Sequence[AngleVal] | AngleSpec | FloatArray
 
 type CoordinateVal = float | Datetime | TimeDelta
-type CoordinateSpec = UnitsSpec[float | Datetime | TimeDelta, CoordinateUnits]
+type CoordinateSpec = DataSpecWithUnits[float | Datetime | TimeDelta, CoordinateUnits]
 type CoordinateArg = FieldName | CoordinateVal | CoordinateSpec | Sequence[CoordinateVal] | NumberArray
 
 type DistanceVal = NonNegative[float] | Datetime | TimeDelta
-type DistanceSpec = UnitsSpec[DistanceVal, SpatialUnits]
+type DistanceSpec = DataSpecWithUnits[DistanceVal, SpatialUnits]
 type DistanceArg = FieldName | DistanceVal | DistanceSpec | Sequence[DistanceVal] | NumberArray
 
 type NullDistanceVal = DistanceVal | None
-type NullDistanceSpec = UnitsSpec[NullDistanceVal, SpatialUnits]
+type NullDistanceSpec = DataSpecWithUnits[NullDistanceVal, SpatialUnits]
 type NullDistanceArg = FieldName | NullDistanceVal | NullDistanceSpec | Sequence[NullDistanceVal] | NumberArray

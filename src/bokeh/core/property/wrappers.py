@@ -82,6 +82,7 @@ import numpy as np
 
 # Bokeh imports
 from ...util.warnings import BokehUserWarning, warn
+from .singletons import OldValueUnavailable
 
 if TYPE_CHECKING:
     from ...document import Document
@@ -472,12 +473,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
             been verified.
 
         """
-        old = self._saved_copy()
-
-        # TODO (bev) Currently this reports old differently for array vs list
-        # For arrays is reports the actual old value. For lists, the old value
-        # is actually the already updated value. This is because the method
-        # self._saved_copy() makes a shallow copy.
+        # Retaining complete old columns would defeat incremental streaming.
         for k in new_data:
             old_seq: Any = self[k]
             new_seq: Any = new_data[k]
@@ -516,7 +512,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     dict.__setitem__(self, k, seq)
 
         from ...document.events import ColumnsStreamedEvent
-        self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
+        self._notify_owners(OldValueUnavailable, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _patch(self, doc: Document, source: ColumnarDataSource, patches: Any, setter: Setter | None = None) -> None:
@@ -544,8 +540,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
             been verified.
 
         """
-        old = self._saved_copy()
-
+        # Retaining complete old columns would defeat incremental patching.
         for name, patch in patches.items():
             array: Any = self[name]
 
@@ -575,7 +570,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     array[i][j] = reshaped
 
         from ...document.events import ColumnsPatchedEvent
-        self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
+        self._notify_owners(OldValueUnavailable, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
 
 #-----------------------------------------------------------------------------
 # Private API

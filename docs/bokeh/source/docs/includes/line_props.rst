@@ -35,17 +35,3 @@
 
 ``line_dash_offset``
     the distance in pixels into the ``line_dash`` that the pattern should start from
-
-.. |miter_join| image:: /_images/miter_join.png
-   :height: 15
-.. |round_join| image:: /_images/round_join.png
-   :height: 15
-.. |bevel_join| image:: /_images/bevel_join.png
-   :height: 15
-
-.. |butt_cap| image:: /_images/butt_cap.png
-   :height: 25
-.. |round_cap| image:: /_images/round_cap.png
-   :height: 25
-.. |square_cap| image:: /_images/square_cap.png
-   :height: 25

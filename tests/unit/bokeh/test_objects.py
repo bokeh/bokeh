@@ -304,8 +304,11 @@ class TestModel:
             value = Int(default=next_value)
         obj1 = HasFuncDefaultInt()
         obj2 = HasFuncDefaultInt()
-        assert counter == 2
+        assert counter == 0
+        assert obj1.value == 1
+        assert obj1.value == 1
         assert obj2.value == obj1.value + 1
+        assert counter == 2
 
         # 'value' is a default, but it gets included as a
         # non-default because it's unstable.

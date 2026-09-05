@@ -49,6 +49,7 @@ from bokeh.core.properties import (
     Tuple,
 )
 from bokeh.models import ColumnDataSource
+from bokeh.util.callback_manager import OldValueUnavailable
 from tests.support.util.api import verify_all
 
 from _util_property import _TestModel
@@ -72,6 +73,9 @@ ALL = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def _assert_old_value_unavailable(mock_notify: MagicMock) -> None:
+    assert mock_notify.call_args.args == (OldValueUnavailable,)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -188,13 +192,24 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify: MagicMock) ->
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [10, 20]},) # streaming to list, "old" is actually updated value
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
     assert event.rollover is None
     assert event.data == {'foo': [20]}
+
+@patch.object(bcpw.PropertyValueColumnData, '_saved_copy')
+def test_PropertyValueColumnData__stream_does_not_copy_old_data(mock_saved_copy: MagicMock) -> None:
+    source = ColumnDataSource(data=dict(foo=[10]))
+    pvcd = bcpw.PropertyValueColumnData(source.data)
+
+    mock_saved_copy.reset_mock()
+    pvcd._stream("doc", source, dict(foo=[20]))
+
+    mock_saved_copy.assert_not_called()
+    assert pvcd == dict(foo=[10, 20])
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -> None:
@@ -208,7 +223,7 @@ def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
     assert mock_notify.call_count == 1
-    assert (mock_notify.call_args[0][0]['foo'] == np.array([10])).all()
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -227,7 +242,7 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify: MagicMo
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=3, setter="setter")
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [20, 30, 40]},) # streaming to list, "old" is actually updated value
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -245,7 +260,7 @@ def test_PropertyValueColumnData__stream_list_with_rollover_equals_zero(mock_not
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=0, setter="setter")
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': []},) # streaming to list, "old" is actually updated value
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -263,7 +278,7 @@ def test_PropertyValueColumnData__stream_list_with_rollover_greater_than_list_le
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=5, setter="setter")
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [10, 20, 30, 40]},) # streaming to list, "old" is actually updated value
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -283,9 +298,7 @@ def test_PropertyValueColumnData__stream_array_to_array(mock_notify: MagicMock) 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
     assert mock_notify.call_count == 1
-    assert len(mock_notify.call_args[0]) == 1
-    assert 'foo' in mock_notify.call_args[0][0]
-    assert (mock_notify.call_args[0][0]['foo'] == np.array([10])).all()
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -303,9 +316,7 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify: MagicMock) -
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
     assert mock_notify.call_count == 1
-    assert len(mock_notify.call_args[0]) == 1
-    assert 'foo' in mock_notify.call_args[0][0]
-    assert mock_notify.call_args[0] == ({'foo': [10, 20]},) # streaming to list, "old" is actually updated value
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -325,9 +336,7 @@ def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify: MagicM
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=3, setter="setter")
     assert mock_notify.call_count == 1
-    assert len(mock_notify.call_args[0]) == 1
-    assert 'foo' in mock_notify.call_args[0][0]
-    assert (mock_notify.call_args[0][0]['foo'] == np.array([10, 20, 30])).all()
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -347,9 +356,7 @@ def test_PropertyValueColumnData__stream_array_with_rollover_equals_zero(mock_no
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=0, setter="setter")
     assert mock_notify.call_count == 1
-    assert len(mock_notify.call_args[0]) == 1
-    assert 'foo' in mock_notify.call_args[0][0]
-    assert (mock_notify.call_args[0][0]['foo'] == np.array([10, 20, 30])).all()
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -369,9 +376,7 @@ def test_PropertyValueColumnData__stream_array_greater_than_array_length(mock_no
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=5, setter="setter")
     assert mock_notify.call_count == 1
-    assert len(mock_notify.call_args[0]) == 1
-    assert 'foo' in mock_notify.call_args[0][0]
-    assert (mock_notify.call_args[0][0]['foo'] == np.array([10, 20, 30])).all()
+    _assert_old_value_unavailable(mock_notify)
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
@@ -388,12 +393,23 @@ def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify: MagicMo
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(1, 40)]), setter='setter')
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [10, 40]},)
+    _assert_old_value_unavailable(mock_notify)
     assert pvcd == dict(foo=[10, 40])
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsPatchedEvent)
     assert event.setter == 'setter'
+
+@patch.object(bcpw.PropertyValueColumnData, '_saved_copy')
+def test_PropertyValueColumnData__patch_does_not_copy_old_data(mock_saved_copy: MagicMock) -> None:
+    source = ColumnDataSource(data=dict(foo=[10, 20]))
+    pvcd = bcpw.PropertyValueColumnData(source.data)
+
+    mock_saved_copy.reset_mock()
+    pvcd._patch("doc", source, dict(foo=[(1, 40)]))
+
+    mock_saved_copy.assert_not_called()
+    assert pvcd == dict(foo=[10, 40])
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify: MagicMock) -> None:
@@ -404,7 +420,7 @@ def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(1, 40), (1, 50)]), setter='setter')
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [10, 50]},)
+    _assert_old_value_unavailable(mock_notify)
     assert pvcd == dict(foo=[10, 50])
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
@@ -421,10 +437,9 @@ def test_PropertyValueColumnData__patch_with_list_indices(mock_notify: MagicMock
     pvcd._patch("doc", source, dict(foo=[([1, 0], 60)]), setter='setter')
     assert mock_notify.call_count == 1
 
-    expected = [np.array([1, 40]), np.array([60, 50])]
-    assert (mock_notify.call_args[0][0]["foo"][0] == expected[0]).all()
-    assert (mock_notify.call_args[0][0]["foo"][1] == expected[1]).all()
+    _assert_old_value_unavailable(mock_notify)
 
+    expected = [np.array([1, 40]), np.array([60, 50])]
     assert set(pvcd) == {"foo"}
     assert (pvcd["foo"][0] == expected[0]).all()
     assert (pvcd["foo"][1] == expected[1]).all()
@@ -443,7 +458,7 @@ def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify: MagicMoc
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(slice(2), [1,2])]), setter='setter')
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [1, 2, 30, 40, 50]},)
+    _assert_old_value_unavailable(mock_notify)
     assert pvcd == dict(foo=[1, 2, 30, 40, 50])
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
@@ -459,7 +474,7 @@ def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_noti
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(slice(2), [1,2]), (slice(1,3), [1000,2000])]), setter='setter')
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [1, 1000, 2000, 40, 50]},)
+    _assert_old_value_unavailable(mock_notify)
     assert pvcd == dict(foo=[1, 1000, 2000, 40, 50])
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
@@ -583,10 +598,15 @@ def test_PropertyValueColumnData___copy__() -> None:
 def test_PropertyValueColumnData___deepcopy__() -> None:
     source = ColumnDataSource(data=dict(foo=[10]))
     pvcd = copy.deepcopy(source.data)
+    pvcd2 = copy.deepcopy(source.data)
     assert source.data == pvcd
+    assert source.data == pvcd2
     assert id(source.data) != id(pvcd)
+    assert id(source.data) != id(pvcd2)
+    assert id(pvcd) != id(pvcd2)
     pvcd['foo'][0] = 20
     assert source.data['foo'][0] == 10
+    assert pvcd2['foo'][0] == 10
 
 def test_Property_wrap() -> None:
     types = [

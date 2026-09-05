@@ -29,7 +29,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
-from .singletons import Intrinsic
+from .singletons import _NotGiven
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,7 +51,7 @@ class NotSerialized[T](SingleParameterizedProperty[T]):
     _serialized = False
 
     def __init__(self, type_param: TypeOrInst[Property[T]], *,
-            default: Init[T] = Intrinsic, help: str | None = None) -> None:
+            default: Init[T] = _NotGiven, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------

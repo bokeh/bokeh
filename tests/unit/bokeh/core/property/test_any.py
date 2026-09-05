@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.property.singletons import Undefined
 from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel
@@ -39,6 +40,10 @@ ALL = (
 
 
 class Test_Any:
+    def test_default(self) -> None:
+        assert bcpa.Any().default is Undefined
+        assert bcpa.Any(default=None).default is None
+
     def test_valid(self) -> None:
         prop = bcpa.Any()
         assert prop.is_valid(None)

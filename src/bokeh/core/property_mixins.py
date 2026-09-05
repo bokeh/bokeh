@@ -33,10 +33,14 @@ as shown here:
         The {prop} values for the annular wedges.
         """)
 
-This adds all the fill properties ``fill_color`` and ``fill_alpha`` to this
-model. The help string contains a placeholder `{prop}`. When docs for this class
-are rendered by the ``bokeh-model`` directive, the placeholder will be replaced with more information
-specific to each property.
+This adds the fill properties ``fill_color`` and ``fill_alpha`` to this model.
+The help string is specialized for each property while retaining the detailed
+help from ``FillProps``. It can use ``{prop}`` for the unprefixed,
+human-readable property name, ``{name}`` for the final property name,
+``{model}`` for the class receiving the property, and ``{doc}`` to place the
+original property help explicitly. In the reference guide, ``{model}`` is the
+class whose page contains the property, including subclasses that inherit it.
+If ``{doc}`` is omitted, the original help is appended automatically.
 
 .. |Include| replace:: :class:`~bokeh.core.properties.Include`
 
@@ -45,26 +49,6 @@ specific to each property.
 .. |ImageProps| replace:: :class:`~bokeh.core.property_mixins.ImageProps`
 .. |LineProps| replace:: :class:`~bokeh.core.property_mixins.LineProps`
 .. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
-
-.. |miter_join| image:: /_images/miter_join.png
-    :height: 15
-    :alt: Two line segments joined with a miter (sharp-angle) join style.
-.. |round_join| image:: /_images/round_join.png
-    :height: 15
-    :alt: Two line segments joined with a round join style.
-.. |bevel_join| image:: /_images/bevel_join.png
-    :height: 15
-    :alt: Two line segments joined with a bevel (truncated) join style.
-
-.. |butt_cap| image:: /_images/butt_cap.png
-    :height: 12
-    :alt: A  line segment with no end cap extending beyond the explicit end coordinate.
-.. |round_cap| image:: /_images/round_cap.png
-    :height: 12
-    :alt: A  line segment with a rounded end cap extending beyond the explicit end coordinate.
-.. |square_cap| image:: /_images/square_cap.png
-    :height: 12
-    :alt: A  line segment with a squared end cap extending beyond the explicit end coordinate.
 
 '''
 #-----------------------------------------------------------------------------

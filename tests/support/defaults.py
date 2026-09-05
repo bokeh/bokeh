@@ -29,7 +29,7 @@ import json5
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps
-from bokeh.core.property.descriptors import PropertyDescriptor
+from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import (
     AnyRep,
@@ -61,7 +61,7 @@ class DefaultsSerializer(Serializer):
 
     def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Model):
-            def query(prop: PropertyDescriptor[Any]) -> bool:
+            def query(prop: PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]) -> bool:
                 return prop.readonly or prop.serialized
 
             properties = obj.query_properties_with_values(query, include_defaults=False, include_undefined=True)
@@ -95,7 +95,7 @@ def collect_defaults() -> dict[str, Any]:
             obj = model()
 
         # filter only own properties and overrides
-        def query(prop: PropertyDescriptor[Any]) -> bool:
+        def query(prop: PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]) -> bool:
             return (prop.readonly or prop.serialized) and \
                 (prop.name in obj.__class__.__properties__ or prop.name in obj.__class__.__overridden_defaults__)
 

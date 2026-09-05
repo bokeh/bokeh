@@ -2,7 +2,7 @@
   config: {
     type: "object",
     name: "DocumentConfig",
-    id: "p1028",
+    id: "p1015",
     attributes: {
       name: null,
       tags: [],
@@ -21,7 +21,7 @@
       notifications: {
         type: "object",
         name: "Notifications",
-        id: "p1029",
+        id: "p1016",
         attributes: {
           name: null,
           tags: [],
@@ -58,7 +58,7 @@
     {
       type: "object",
       name: "Plot",
-      id: "p1021",
+      id: "p1014",
       attributes: {
         name: null,
         tags: [],
@@ -105,7 +105,7 @@
         x_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1022",
+          id: "p1017",
           attributes: {
             name: null,
             tags: [],
@@ -143,7 +143,7 @@
         y_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1023",
+          id: "p1018",
           attributes: {
             name: null,
             tags: [],
@@ -181,7 +181,7 @@
         x_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1024",
+          id: "p1019",
           attributes: {
             name: null,
             tags: [],
@@ -200,7 +200,7 @@
         y_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1025",
+          id: "p1020",
           attributes: {
             name: null,
             tags: [],
@@ -232,7 +232,7 @@
         title: {
           type: "object",
           name: "Title",
-          id: "p1026",
+          id: "p1021",
           attributes: {
             name: null,
             tags: [],
@@ -316,7 +316,7 @@
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1010",
+            id: "p1008",
             attributes: {
               name: null,
               tags: [],
@@ -370,7 +370,7 @@
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1008",
+                    id: "p1025",
                     attributes: {
                       name: null,
                       tags: [],
@@ -398,7 +398,7 @@
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1009",
+                    id: "p1026",
                     attributes: {
                       name: null,
                       tags: [],
@@ -422,7 +422,7 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1011",
+                id: "p1023",
                 attributes: {
                   name: null,
                   tags: [],
@@ -439,7 +439,7 @@
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1012",
+                    id: "p1027",
                     attributes: {
                       name: null,
                       tags: [],
@@ -568,7 +568,7 @@
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1018",
+            id: "p1013",
             attributes: {
               name: null,
               tags: [],
@@ -605,7 +605,7 @@
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
-                id: "p1015",
+                id: "p1011",
                 attributes: {
                   name: null,
                   tags: [],
@@ -622,7 +622,7 @@
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1014",
+                    id: "p1010",
                     attributes: {
                       name: null,
                       tags: [],
@@ -650,7 +650,7 @@
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1017",
+                    id: "p1028",
                     attributes: {
                       name: null,
                       tags: [],
@@ -674,7 +674,7 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1019",
+                id: "p1024",
                 attributes: {
                   name: null,
                   tags: [],
@@ -691,7 +691,7 @@
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1020",
+                    id: "p1029",
                     attributes: {
                       name: null,
                       tags: [],
@@ -712,7 +712,7 @@
               glyph: {
                 type: "object",
                 name: "MultiLine",
-                id: "p1013",
+                id: "p1009",
                 attributes: {
                   name: null,
                   tags: [],
@@ -784,7 +784,7 @@
         toolbar: {
           type: "object",
           name: "Toolbar",
-          id: "p1027",
+          id: "p1022",
           attributes: {
             name: null,
             tags: [],

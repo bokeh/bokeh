@@ -29,10 +29,9 @@ be:
         start = Float(help="start point")
         end   = Float(help="end point")
 
-When this class is created, the ``MetaHasProps`` metaclass wires up both
-the ``start`` and ``end`` attributes to a ``Float`` property. Then, when
-a user accesses those attributes, the descriptor delegates all get and
-set operations to the ``Float`` property.
+When this class is created, each property binds its descriptor to the class.
+When a user accesses those attributes, the descriptor delegates all get and
+set operations to the corresponding property.
 
 .. code-block:: python
 
@@ -90,6 +89,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Mapping
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -112,13 +112,12 @@ if TYPE_CHECKING:
     from ..has_props import HasProps, Setter
     from .alias import Alias, DeprecatedAlias
     from .bases import Property
-    from .descriptor_factory import PropertyDescriptorLike
 
 class _HasDocument(Protocol):
     document: Document | None
 
 class _HasOverriddenDefaults(Protocol):
-    def _overridden_defaults(self) -> dict[str, Any]: ...
+    def _overridden_defaults(self) -> Mapping[str, Any]: ...
 
 class _HasTrigger(Protocol):
     def trigger(self, attr: str, old: Any, new: Any,
@@ -126,8 +125,41 @@ class _HasTrigger(Protocol):
 
 class _DataSpecProperty(Protocol):
     value_type: Property[Any]
+    _units_enum: Any | None
 
     def to_serializable(self, obj: HasProps, name: str, val: Any) -> Any: ...
+
+
+def _value_has_ref(value: Any) -> bool:
+    from dataclasses import fields, is_dataclass
+    from types import SimpleNamespace
+
+    from ..has_props import HasProps
+
+    seen: set[int] = set()
+
+    def has_ref(value: Any) -> bool:
+        if isinstance(value, HasProps):
+            return True
+
+        if not isinstance(value, (list, tuple, set, frozenset, dict, SimpleNamespace)) \
+                and (not is_dataclass(value) or isinstance(value, type)):
+            return False
+
+        value_id = id(value)
+        if value_id in seen:
+            return False
+        seen.add(value_id)
+
+        if isinstance(value, (list, tuple, set, frozenset)):
+            return any(has_ref(item) for item in value)
+        if isinstance(value, dict):
+            return any(has_ref(key) or has_ref(item) for key, item in value.items())
+        if isinstance(value, SimpleNamespace):
+            return any(has_ref(item) for item in vars(value).values())
+        return any(has_ref(getattr(value, field.name)) for field in fields(value))
+
+    return has_ref(value)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -139,7 +171,6 @@ __all__ = (
     'DataSpecPropertyDescriptor',
     'DeprecatedAliasPropertyDescriptor',
     'PropertyDescriptor',
-    'UnitsSpecPropertyDescriptor',
     'UnsetValueError',
 )
 
@@ -187,15 +218,36 @@ class AliasPropertyDescriptor[T]:
     def __set__(self, obj: HasProps | None, value: T) -> None:
         setattr(obj, self.aliased_name, value)
 
+    def __delete__(self, obj: HasProps) -> None:
+        delattr(obj, self.aliased_name)
+
+    def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
+        obj.lookup(self.aliased_name).set_from_json(obj, value, setter=setter)
+
+    def get_value(self, obj: HasProps) -> T:
+        return getattr(obj, self.aliased_name)
+
+    def value_is_unset(self, obj: HasProps) -> bool:
+        return obj.lookup(self.aliased_name).value_is_unset(obj)
+
+    def default_is_unset(self, obj: HasProps, themed_values: dict[str, Any] | None = None) -> bool:
+        return obj.lookup(self.aliased_name).default_is_unset(obj, themed_values)
+
+    def value_must_be_serialized(self, obj: HasProps) -> bool:
+        return obj.lookup(self.aliased_name).value_must_be_serialized(obj)
+
     @property
     def readonly(self) -> bool:
         return self.alias.readonly
 
-    def has_unstable_default(self, obj: HasProps) -> bool:
-        return obj.lookup(self.aliased_name).has_unstable_default(obj)
+    def needs_materialized_default(self, obj: HasProps) -> bool:
+        return obj.lookup(self.aliased_name).needs_materialized_default(obj)
 
     def class_default(self, cls: type[HasProps], *, no_eval: bool = False) -> Any:
         return cls.lookup(self.aliased_name).class_default(cls, no_eval=no_eval)
+
+    def instance_default(self, obj: HasProps) -> T:
+        return obj.lookup(self.aliased_name).instance_default(obj)
 
 class DeprecatedAliasPropertyDescriptor[T](AliasPropertyDescriptor[T]):
     """
@@ -236,6 +288,10 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
     def __set__(self, obj: HasProps | None, value: T) -> None:
         self._warn()
         super().__set__(obj, value)
+
+    def __delete__(self, obj: HasProps) -> None:
+        self._warn()
+        super().__delete__(obj)
 
 class PropertyDescriptor[T]:
     """ A base class for Bokeh properties with simple get/set and serialization
@@ -368,13 +424,31 @@ class PropertyDescriptor[T]:
 
         """
 
-        if self.name in obj._property_values:
-            old_value = obj._property_values[self.name]
-            del obj._property_values[self.name]
+        if self.property.readonly and obj._initialized:
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
+
+        if self.name not in obj._property_values:
+            self._clear_materialized_defaults(obj)
+            return
+
+        if self.default_is_unset(obj):
+            raise UnsetValueError(f"can't reset {obj}.{self.name} because it doesn't have a default")
+
+        old_value = obj._property_values.pop(self.name, Undefined)
+        if isinstance(old_value, PropertyValueContainer):
+            old_value._unregister_owner(obj, self)
+
+        self._clear_materialized_defaults(obj)
+
+        if old_value is not Undefined:
             self.trigger_if_changed(obj, old_value)
 
-        if self.name in obj._unstable_default_values:
-            del obj._unstable_default_values[self.name]
+    def _clear_materialized_defaults(self, obj: HasProps) -> None:
+        for materialized_defaults in (obj._materialized_defaults, obj._materialized_themed_defaults):
+            value = materialized_defaults.pop(self.name, Undefined)
+            if isinstance(value, PropertyValueContainer):
+                value._unregister_owner(obj, self)
 
     def class_default(self, cls: type[HasProps], *, no_eval: bool = False) -> Any:
         """ Get the default value for a specific subtype of ``HasProps``,
@@ -457,13 +531,15 @@ class PropertyDescriptor[T]:
                 The object the property is being set on.
 
             old (obj) :
-                The previous value of the property to compare
+                The previous value of the property, or
+                ``OldValueUnavailable`` when an incremental update didn't
+                retain it.
 
         Returns:
             None
 
         """
-        new_value = self.__get__(obj, obj.__class__)
+        new_value = self._get(obj)
         if not self.property.matches(old, new_value):
             self._trigger(obj, old, new_value)
 
@@ -499,17 +575,38 @@ class PropertyDescriptor[T]:
         """
         return self.property.serialized
 
-    def has_unstable_default(self, obj: HasProps) -> bool:
-        # _may_have_unstable_default() doesn't have access to overrides, so check manually
-        return self.property._may_have_unstable_default() or \
-            self.is_unstable(cast(_HasOverriddenDefaults, obj)._overridden_defaults().get(self.name, None))
+    def needs_materialized_default(self, obj: HasProps) -> bool:
+        # _needs_materialized_default() doesn't have access to overrides, so check manually
+        return self.property._needs_materialized_default() or \
+            self.is_default_factory(cast(_HasOverriddenDefaults, obj)._overridden_defaults().get(self.name, None))
 
     @classmethod
-    def is_unstable(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
-        from types import FunctionType
+    def is_default_factory(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
+        return callable(value)
 
-        from .instance import InstanceDefault
-        return isinstance(value, (FunctionType, InstanceDefault))
+    def _effective_raw_default(self, obj: HasProps, themed_values: dict[str, Any] | None) -> Any:
+        if themed_values is not None and self.name in themed_values:
+            return themed_values[self.name]
+        return cast(_HasOverriddenDefaults, obj)._overridden_defaults().get(self.name, self.property._default)
+
+    def default_is_unset(self, obj: HasProps, themed_values: dict[str, Any] | None = None) -> bool:
+        if themed_values is None:
+            themed_values = obj.themed_values()
+        return self._effective_raw_default(obj, themed_values) is Undefined
+
+    def value_is_unset(self, obj: HasProps) -> bool:
+        return self.name not in obj._property_values and self.default_is_unset(obj)
+
+    def value_must_be_serialized(self, obj: HasProps) -> bool:
+        if self.name in obj._property_values:
+            return True
+
+        themed_values = obj.themed_values()
+        if themed_values is not None and self.name in themed_values:
+            return True
+
+        default = self._effective_raw_default(obj, None)
+        return callable(default) or _value_has_ref(default)
 
     def _get(self, obj: HasProps) -> T:
         """ Internal implementation of instance attribute access for the
@@ -553,20 +650,20 @@ class PropertyDescriptor[T]:
         themed_values = obj.themed_values()
         is_themed = themed_values is not None and self.name in themed_values
 
-        unstable_dict = obj._unstable_themed_values if is_themed else obj._unstable_default_values
+        materialized_defaults = obj._materialized_themed_defaults if is_themed else obj._materialized_defaults
 
-        if self.name in unstable_dict:
-            return unstable_dict[self.name]
+        if self.name in materialized_defaults:
+            return materialized_defaults[self.name]
 
         # Ensure we do not look up the default until after we check if it already present
-        # in the unstable_dict because it is a very expensive operation
+        # in materialized_defaults because it is a very expensive operation
         # Ref: https://github.com/bokeh/bokeh/pull/13174
         default = self.instance_default(obj)
 
-        if self.has_unstable_default(obj):
+        if self.needs_materialized_default(obj):
             if isinstance(default, PropertyValueContainer):
                 default._register_owner(obj, self)
-            unstable_dict[self.name] = default
+            materialized_defaults[self.name] = default
 
         return default
 
@@ -575,11 +672,11 @@ class PropertyDescriptor[T]:
         if isinstance(value, PropertyValueContainer):
             value._register_owner(obj, self)
 
-        if self.name in obj._unstable_themed_values:
-            del obj._unstable_themed_values[self.name]
+        if self.name in obj._materialized_themed_defaults:
+            del obj._materialized_themed_defaults[self.name]
 
-        if self.name in obj._unstable_default_values:
-            del obj._unstable_default_values[self.name]
+        if self.name in obj._materialized_defaults:
+            del obj._materialized_defaults[self.name]
 
         obj._property_values[self.name] = value
 
@@ -641,7 +738,7 @@ class PropertyDescriptor[T]:
                 old_attr_value._unregister_owner(obj, self)
             self._set_value(obj, value)
 
-        # for notification purposes, "old" should be the logical old
+        # Preserve the caller's old-value semantics for notifications.
         self._trigger(obj, old, value, hint=hint, setter=setter)
 
     # called when a container is mutated "behind our back" and
@@ -657,9 +754,9 @@ class PropertyDescriptor[T]:
             old (object) :
                 The "old" value of the container
 
-                In this case, somewhat weirdly, ``old`` is a copy and the
-                new value should already be set unless we change it due to
-                validation.
+                This is normally a copy. Incremental updates that don't
+                retain the previous value use ``OldValueUnavailable``. The
+                new value is already set unless validation changes it.
 
             hint (event hint or None, optional)
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
@@ -690,7 +787,9 @@ class PropertyDescriptor[T]:
                 The object the property is being set on.
 
             old (obj) :
-                The previous value of the property
+                The previous value of the property, or
+                ``OldValueUnavailable`` when an incremental update didn't
+                retain it.
 
             value (obj) :
                 The new value of the property
@@ -739,10 +838,8 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor[Any]):
     def __set__(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
         """ Implement the setter for the Python `descriptor protocol`_.
 
-        This method first separately extracts and removes any ``units`` field
-        in the JSON, and sets the associated units property directly. The
-        remaining value is then passed to the superclass ``__set__`` to
-        be handled.
+        This method validates that column data is assigned from a plain
+        dictionary before delegating to the standard property setter.
 
         .. note::
             An optional argument ``setter`` has been added to the standard
@@ -804,6 +901,10 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         """
         return cast(_DataSpecProperty, self.property).to_serializable(obj, self.name, getattr(obj, self.name))
 
+    def __set__(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
+        value = self._extract_units(obj, value)
+        super().__set__(obj, value, setter=setter)
+
     def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
         """ Sets the value of this property from a JSON value.
 
@@ -829,6 +930,8 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
             None
 
         """
+        value = self._extract_units(obj, value)
+
         if isinstance(value, dict):
             # we want to try to keep the "format" of the data spec as string, dict, or number,
             # assuming the serialized dict is compatible with that.
@@ -845,126 +948,17 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
 
         super().set_from_json(obj, value, setter=setter)
 
-class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
-    """ A ``PropertyDescriptor`` for Bokeh ``UnitsSpec`` properties that
-    contribute associated ``_units`` properties automatically as a side effect.
-
-    """
-
-    def __init__(self, name: str, property: Any, units_property: PropertyDescriptorLike[Any]) -> None:
-        """
-
-        Args:
-            name (str) :
-                The attribute name that this property is for
-
-            property (Property) :
-                A basic property to create a descriptor for
-
-            units_property (Property) :
-                An associated property to hold units information
-
-        """
-        super().__init__(name, property)
-        self.units_prop = units_property
-
-    def __set__(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
-        """ Implement the setter for the Python `descriptor protocol`_.
-
-        This method first separately extracts and removes any ``units`` field
-        in the JSON, and sets the associated units property directly. The
-        remaining value is then passed to the superclass ``__set__`` to
-        be handled.
-
-        .. note::
-            An optional argument ``setter`` has been added to the standard
-            setter arguments. When needed, this value should be provided by
-            explicitly invoking ``__set__``. See below for more information.
-
-        Args:
-            obj (HasProps) :
-                The instance to set a new property value on
-
-            value (obj) :
-                The new value to set the property to
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        """
-        value = self._extract_units(obj, value)
-        super().__set__(obj, value, setter=setter)
-
-    def set_from_json(self, obj: HasProps, value: Any, *, models: Any = None, setter: Setter | None = None) -> None:
-        """ Sets the value of this property from a JSON value.
-
-        This method first separately extracts and removes any ``units`` field
-        in the JSON, and sets the associated units property directly. The
-        remaining JSON is then passed to the superclass ``set_from_json`` to
-        be handled.
-
-        Args:
-            obj (HasProps) : instance to set the property value on
-
-            value (JSON-value) : value to set to the attribute to
-
-            models (dict or None, optional) :
-                Mapping of model ids to models (default: None)
-
-                This is needed in cases where the attributes to update also
-                have values that have references.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        """
-        value = self._extract_units(obj, value)
-        super().set_from_json(obj, value, setter=setter)
-
     def _extract_units(self, obj: HasProps, value: Any) -> Any:
-        """ Internal helper for dealing with units associated units properties
-        when setting values on ``UnitsSpec`` properties.
+        property = cast(_DataSpecProperty, self.property)
+        if property._units_enum is None or not isinstance(value, dict) or "units" not in value:
+            return value
 
-        When ``value`` is a dict, this function may mutate the value of the
-        associated units property.
+        units_descriptor = obj.lookup(f"{self.name}_units")
 
-        Args:
-            obj (HasProps) : instance to update units spec property value for
-            value (obj) : new value to set for the property
-
-        Returns:
-            copy of ``value``, with 'units' key and value removed when
-            applicable
-
-        """
-        if isinstance(value, dict):
-            if 'units' in value:
-                value = copy(value) # so we can modify it
-            units = value.pop("units", None)
-            if units:
-                self.units_prop.__set__(obj, units)
+        value = copy(value)
+        units = value.pop("units")
+        if units:
+            units_descriptor.__set__(obj, units)
         return value
 
 #-----------------------------------------------------------------------------

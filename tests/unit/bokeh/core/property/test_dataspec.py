@@ -26,12 +26,14 @@ import numpy as np
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps, Local
+from bokeh.core.property.override import Override
 from bokeh.core.property.vectorization import (
     Field,
     Value,
     field,
     value,
 )
+from bokeh.core.property_aliases import AngleUnits, CoordinateUnits, SpatialUnits
 from bokeh.util.warnings import BokehDeprecationWarning
 from tests.support.util.api import verify_all
 
@@ -47,6 +49,7 @@ ALL = (
     'AngleSpec',
     'BoolSpec',
     'ColorSpec',
+    'CoordinateSpec',
     'DashPatternSpec',
     'DataSpec',
     'DistanceSpec',
@@ -63,8 +66,21 @@ ALL = (
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
-    'UnitsSpec',
 )
+
+UNIT_SPECS = (
+    (bcpd.AngleSpec, AngleUnits, "rad", "deg"),
+    (bcpd.CoordinateSpec, CoordinateUnits, "data", "screen"),
+    (bcpd.DistanceSpec, SpatialUnits, "data", "screen"),
+    (bcpd.NullDistanceSpec, SpatialUnits, "data", "screen"),
+)
+
+UNIT_SPEC_IDS = ("angle", "coordinate", "distance", "null-distance")
+
+
+@pytest.fixture(params=UNIT_SPECS, ids=UNIT_SPEC_IDS)
+def unit_spec(request: pytest.FixtureRequest):
+    return request.param
 
 #-----------------------------------------------------------------------------
 # General API
@@ -87,62 +103,6 @@ def test_dataspec_dict_to_serializable() -> None:
         assert isinstance(props['x'], Field)
         assert props['x'].field == 'foo'
         assert props['x'] is foo.x
-
-
-class Test_AngleSpec:
-    def test_default_value(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.AngleSpec(default=14)
-
-        a = Foo()
-
-        assert a.x == 14
-        assert a.x_units == 'rad'
-
-    def test_setting_dict_sets_units(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.AngleSpec(default=14)
-
-        a = Foo()
-
-        assert a.x == 14
-        assert a.x_units == 'rad'
-
-        a.x = {'value': 180, 'units': 'deg'}
-        assert a.x == value(180)
-        assert a.x_units == 'deg'
-
-    def test_setting_json_sets_units_keeps_dictness(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.AngleSpec(default=14)
-
-        a = Foo()
-
-        assert a.x == 14
-        assert a.x_units == 'rad'
-
-        a.set_from_json('x', {'value': 180, 'units': 'deg'})
-        assert a.x == 180
-        assert a.x_units == 'deg'
-
-    def test_setting_dict_does_not_modify_original_dict(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.AngleSpec(default=14)
-
-        a = Foo()
-
-        assert a.x == 14
-        assert a.x_units == 'rad'
-
-        new_value = {'value': 180, 'units': 'deg'}
-        new_value_copy = copy(new_value)
-        assert new_value_copy == new_value
-
-        a.x = new_value
-        assert a.x == value(180)
-        assert a.x_units == 'deg'
-
-        assert new_value_copy == new_value
 
 
 class Test_BoolSpec:
@@ -304,16 +264,6 @@ class Test_ColorSpec:
         assert not bcpd.ColorSpec.is_color_tuple_shape("#ff1234")
         assert not bcpd.ColorSpec.is_color_tuple_shape(None)
         assert not bcpd.ColorSpec.is_color_tuple_shape(10)
-
-class Test_DistanceSpec:
-    def test_default_value(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.DistanceSpec(default=14)
-
-        a = Foo()
-
-        assert a.x == 14
-        assert a.x_units == 'data'
 
 class Test_FontSizeSpec:
     def test_font_size_from_string(self) -> None:
@@ -561,16 +511,134 @@ class Test_NumberSpec:
         assert a.x == field("baz")
 
 
-class Test_UnitSpec:
+class Test_ExplicitUnits:
+    def test_value_serialization(self, unit_spec) -> None:
+        spec_type, units_property, _, other_units = unit_spec
+
+        class Foo(HasProps, Local):
+            x = spec_type(default=14)
+            x_units = units_property
+
+        obj = Foo()
+        assert Foo.lookup("x").get_value(obj) == value(14)
+
+        obj.x_units = other_units
+        assert Foo.lookup("x").get_value(obj) == value(14, units=other_units)
+
+    def test_custom_default_serialization(self, unit_spec) -> None:
+        spec_type, units_property, _, other_units = unit_spec
+
+        class Foo(HasProps, Local):
+            x = spec_type(default=14)
+            x_units = units_property(default=other_units)
+
+        assert Foo.lookup("x").get_value(Foo()) == value(14)
+
+    def test_default_factory_serialization(self, unit_spec) -> None:
+        spec_type, units_property, _, other_units = unit_spec
+        calls = 0
+
+        def make_units():
+            nonlocal calls
+            calls += 1
+            return other_units
+
+        class Foo(HasProps, Local):
+            x = spec_type(default=14)
+            x_units = units_property(default=make_units)
+
+        obj = Foo()
+        assert Foo.lookup("x").get_value(obj) == value(14, units=other_units)
+        assert calls == 1
+
+    def test_inherited_override_serialization(self, unit_spec) -> None:
+        spec_type, units_property, _, other_units = unit_spec
+
+        class Base(HasProps, Local):
+            x = spec_type(default=14)
+            x_units = units_property
+
+        class Child(Base):
+            x_units = Override(default=other_units)
+
+        assert Child.lookup("x").get_value(Child()) == value(14, units=other_units)
+
+    def test_field_serialization(self, unit_spec) -> None:
+        spec_type, units_property, _, _ = unit_spec
+
+        class Foo(HasProps, Local):
+            x = spec_type(default=field("x"))
+            x_units = units_property
+
+        assert Foo.lookup("x").get_value(Foo()) == field("x")
+
+    def test_embedded_units_are_preserved(self, unit_spec) -> None:
+        spec_type, units_property, default_units, _ = unit_spec
+
+        class Foo(HasProps, Local):
+            x = spec_type(default=14)
+            x_units = units_property
+
+        obj = Foo()
+        obj.x = value(14, units=default_units)
+
+        assert Foo.lookup("x").get_value(obj) == value(14, units=default_units)
+
+    def test_dict_assignment_sets_units_without_mutating_input(self, unit_spec) -> None:
+        spec_type, units_property, _, other_units = unit_spec
+
+        class Foo(HasProps, Local):
+            x = spec_type(default=14)
+            x_units = units_property
+
+        obj = Foo()
+        new_value = {"value": 180, "units": other_units}
+        original = copy(new_value)
+
+        obj.x = new_value
+
+        assert obj.x == value(180)
+        assert obj.x_units == other_units
+        assert new_value == original
+
+    def test_json_assignment_sets_units(self, unit_spec) -> None:
+        spec_type, units_property, _, other_units = unit_spec
+
+        class Foo(HasProps, Local):
+            x = spec_type(default=14)
+            x_units = units_property
+
+        obj = Foo()
+        obj.set_from_json("x", {"value": 180, "units": other_units})
+
+        assert obj.x == 180
+        assert obj.x_units == other_units
+
+    def test_plain_dataspec_does_not_consume_units(self) -> None:
+        class Foo(HasProps, Local):
+            x = bcpd.NumberSpec(default=14)
+            x_units = AngleUnits
+
+        obj = Foo()
+        obj.x_units = "deg"
+
+        assert Foo.lookup("x").get_value(obj) == value(14)
+        with pytest.raises(ValueError):
+            obj.x = {"value": 180, "units": "deg"}
+
     def test_strict_key_values(self) -> None:
         class FooSpatialUnits(HasProps):
             x = bcpd.DistanceSpec("x")
+
+            x_units = SpatialUnits
         f = FooSpatialUnits()
         f.x = dict(field="foo", units="screen")
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk", foo="crap")
         class FooAngleUnits(HasProps):
             x = bcpd.AngleSpec("x")
+
+            x_units = AngleUnits
         f = FooAngleUnits()
         f.x = dict(field="foo", units="deg")
         with pytest.raises(ValueError):

@@ -31,7 +31,7 @@ from .bases import (
     TypeOrInst,
 )
 from .primitive import Float, Int
-from .singletons import Intrinsic, Undefined
+from .singletons import Undefined, _NotGiven
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,7 +54,7 @@ __all__ = (
 class NonNegative[T: int | float](SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = _NotGiven, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -66,7 +66,7 @@ class NonNegative[T: int | float](SingleParameterizedProperty[T]):
 class Positive[T: int | float](SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = _NotGiven, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:

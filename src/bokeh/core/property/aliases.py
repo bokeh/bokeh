@@ -20,7 +20,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import datetime
+
 # Bokeh imports
+from ..types import FactorType
 from .datetime import Datetime
 from .either import Either
 from .factors import Factor
@@ -38,7 +42,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-CoordinateLike = Either(Float, Datetime, Factor)
+type CoordinateLikeType = float | datetime.date | datetime.datetime | FactorType
+
+CoordinateLike: Either[CoordinateLikeType] = Either(Float, Datetime, Factor)
 
 #-----------------------------------------------------------------------------
 # Dev API
