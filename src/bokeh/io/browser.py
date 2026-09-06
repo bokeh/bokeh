@@ -97,7 +97,7 @@ def get_screenshot_as_png(
     :func:`~bokeh.io.export.get_screenshot_as_png`.
 
     Args:
-        obj (UIElement or Document) : a Layout (e.g. Row/Column), Plot or Widget
+        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
             object or Document to export.
 
         driver: An optional Playwright ``Browser`` or ``BrowserContext``.
@@ -124,34 +124,8 @@ def get_screenshot_as_png(
             A :class:`State` object. If None, then the current default
             implicit state is used. (default: None).
     '''
-    html = get_layout_html(obj, resources=resources, width=width, height=height)
-
-    return get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
-
-
-def get_screenshot_as_png_from_html(
-    html: str,
-    *,
-    driver: Browser | BrowserContext | None = None,
-    timeout: int = 5,
-    scale_factor: float = 1,
-) -> Image.Image:
-    '''Capture a fully assembled Bokeh HTML document as one PNG image.
-
-    Args:
-        html:
-            The complete HTML document to render.
-        driver:
-            An optional Playwright browser or browser context.
-        timeout:
-            Maximum time in seconds to wait for Bokeh rendering.
-        scale_factor:
-            The output image scale factor.
-
-    Returns:
-        The rendered PNG image.
-
-    '''
+    theme = (state or curstate()).document.theme
+    html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
 
     png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, driver=driver)
 
