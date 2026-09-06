@@ -603,7 +603,7 @@ side of a communications channel while it was being removed on the other end.\
         hold will be applied according to the hold policy.
 
         Args:
-            policy ('combine' or 'collect', optional)
+            policy ('combine' or 'collect', optional):
                 Whether events collected during a hold should attempt to be
                 combined (default: 'combine')
 
@@ -823,7 +823,7 @@ side of a communications channel while it was being removed on the other end.\
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
                 name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-            updates (dict) :
+            updates (dict) : new values to set
 
         Returns:
             None

@@ -688,6 +688,9 @@ class ColumnDataSource(ColumnarDataSource):
 
         Args:
             patches (dict[str, list[tuple]]) : lists of patches for each column
+            setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
 
         Returns:
             None

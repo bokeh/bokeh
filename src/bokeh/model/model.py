@@ -361,7 +361,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         property whenever another changes value.
 
         Args:
-
             attr (str) :
                 The name of a Bokeh property on this model
 
@@ -512,7 +511,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         match the given selector.
 
         Args:
-            selector (JSON-like) :
+            selector (JSON-like) : query selector
 
         Returns:
             seq[Model]
@@ -527,7 +526,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         is found. Returns single matching object, or None if nothing is found.
 
         Args:
-            selector (JSON-like):
+            selector (JSON-like) : query selector
 
         Returns:
             Model
@@ -544,8 +543,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         attribute/value updates.
 
         Args:
-            selector (JSON-like) :
-            updates (dict) :
+            selector (JSON-like) : query selector
+            updates (dict) : data to add
 
         Returns:
             None

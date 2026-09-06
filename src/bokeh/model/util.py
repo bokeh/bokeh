@@ -93,13 +93,13 @@ def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_valu
     collecting all nested ``Models`` on the go.
 
     Args:
-        *discard (Callable[[Model], bool])
+        discard (Callable[[Model], bool]):
             a callable which accepts a *Model* instance as its single argument
             and returns a boolean stating whether to discard the instance. The
             latter means that the instance will not be added to collected
             models nor will its references be explored.
 
-        *input_values (Model)
+        *input_values (Model):
             Bokeh models to collect other models from
 
     Returns:
@@ -136,7 +136,7 @@ def collect_models(*input_values: Any) -> list[Model]:
     duplicate-free based on objects' identifiers.
 
     Args:
-        *input_values (Model)
+        *input_values (Model):
             Bokeh models to collect other models from
 
     Returns:

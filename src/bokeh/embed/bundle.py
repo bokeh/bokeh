@@ -151,9 +151,10 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
     collection of Bokeh objects
 
     Args:
-        objs (seq[HasProps or Document]) :
+        objs (seq[HasProps or Document]) : collection of objects
 
-        resources (Resources)
+        resources (Resources) : information relating to loading or embedding Bokeh
+            JavaScript and CSS
 
     Returns:
         Bundle
@@ -364,9 +365,9 @@ def _any(objs: set[HasProps], query: Callable[[HasProps], bool]) -> bool:
     ''' Whether any of a collection of objects satisfies a given query predicate
 
     Args:
-        objs (set[HasProps]) :
+        objs (set[HasProps]) : set of objects
 
-        query (callable)
+        query (callable): callable query
 
     Returns:
         True, if ``query(obj)`` is True for some object in ``objs``, else False
@@ -378,7 +379,7 @@ def _use_tables(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
-        all_objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) : collection of objects
 
     Returns:
         bool
@@ -391,7 +392,7 @@ def _use_widgets(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a any Widget
 
     Args:
-        all_objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) : collection of objects
 
     Returns:
         bool
@@ -443,8 +444,10 @@ def _model_requires_mathjax(model: HasProps) -> bool:
 
 def _use_mathjax(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a model requesting MathJax
+
     Args:
-        all_objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) : collection of objects
+
     Returns:
         bool
     '''
@@ -457,7 +460,7 @@ def _use_gl(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
 
     Args:
-        all_objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) : collection of objects
 
     Returns:
         bool

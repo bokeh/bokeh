@@ -364,6 +364,8 @@ class Plot(LayoutDOM):
         and then add it to the plot's list of renderers.
 
         Args:
+            source_or_glyph (Glyph | ColumnarDataSource): a data source for the
+                glyphs or a glyph to add to the Plot
             source (DataSource) : a data source for the glyphs to all use
             glyph (Glyph) : the glyph to add to the Plot
 

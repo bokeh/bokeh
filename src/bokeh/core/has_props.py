@@ -637,6 +637,10 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 Whether to include properties that haven't been explicitly set
                 since the object was created. (default: True)
 
+            include_undefined  (bool, optional) :
+                Whether to include properties that are undefined
+                since the object was created. (default: False)
+
         Returns:
            dict : mapping from property names to their values
 
@@ -667,6 +671,10 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             include_defaults (bool, optional) :
                 Whether to include properties that have not been explicitly
                 set by a user (default: True)
+
+            include_undefined  (bool, optional) :
+                Whether to include properties that are undefined
+                since the object was created. (default: False)
 
         Returns:
             dict : mapping of property names and values for matching properties

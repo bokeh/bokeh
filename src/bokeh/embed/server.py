@@ -89,17 +89,17 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-       arguments (dict[str, str], optional) :
+        arguments (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP request arguments
             to Bokeh application code (default: None)
 
-       headers (dict[str, str], optional) :
+        headers (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
             Mutually exclusive with ``with_credentials``
 
-       with_credentials (bool, optional):
+        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
 
             Mutually exclusive with ``headers``
@@ -186,13 +186,13 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-       headers (dict[str, str], optional) :
+        headers (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
             Mutually exclusive with ``with_credentials``
 
-       with_credentials (bool, optional):
+        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
 
             Mutually exclusive with ``headers``
@@ -250,15 +250,16 @@ def server_html_page_for_session(session: ServerSession, resources: Resources, t
     '''
 
     Args:
-        session (ServerSession) :
+        session (ServerSession) : server session object
 
-        resources (Resources) :
+        resources (Resources) : information relating to loading or embedding Bokeh
+            JavaScript and CSS
 
-        title (str) :
+        title (str) : title information
 
-        template (Template) :
+        template (Template) : template file to use
 
-        template_variables (dict) :
+        template_variables (dict) : variables to use in the template file
 
     Returns:
         str
@@ -286,8 +287,8 @@ def _clean_url(url: str) -> str:
     ''' Produce a canonical Bokeh server URL.
 
     Args:
-        url (str)
-            A URL to clean, or "defatul". If "default" then the
+        url (str):
+            A URL to clean, or "default". If "default" then the
             ``BOKEH_SERVER_HTTP_URL`` will be returned.
 
     Returns:
@@ -306,7 +307,7 @@ def _get_app_path(url: str) -> str:
     ''' Extract the app path from a Bokeh server URL
 
     Args:
-        url (str) :
+        url (str) : Bokeh server URL
 
     Returns:
         str
