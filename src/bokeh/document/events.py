@@ -253,7 +253,7 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
         *Sub-classes must implement this method.*
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         raise NotImplementedError()
@@ -398,7 +398,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         to clients.
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return ModelChanged(
@@ -436,7 +436,12 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
             document (Document) :
                 A Bokeh document that is to be updated.
 
-            model (ColumnDataSource) :
+            model (ColumnDataSource) : bokeh model
+
+            attr (str):
+                The name of the attribute to change on the model.
+
+            data (DataDict, optional): data object
 
             cols (list[str]) :
                 optional explicit list of column names to update. If None, all
@@ -486,7 +491,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         data = self.data if self.data is not None else getattr(self.model, self.attr)
@@ -535,6 +540,9 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
 
             model (ColumnDataSource) :
                 The data source to stream new data to.
+
+            attr (str):
+                The name of the attribute to stream on the model.
 
             data (dict or DataFrame) :
                 New data to stream.
@@ -599,7 +607,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return ColumnsStreamed(
@@ -645,7 +653,10 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
             model (ColumnDataSource) :
                 The data source to apply patches to.
 
-            patches (list) :
+            attr (str):
+                The name of the attribute to patch on the model.
+
+            patches (list) : patches
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -688,7 +699,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return ColumnsPatched(
@@ -779,7 +790,7 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return TitleChanged(
@@ -842,7 +853,7 @@ class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return RootAdded(
@@ -907,7 +918,7 @@ class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return RootRemoved(
