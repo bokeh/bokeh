@@ -396,7 +396,7 @@ jobs:
           environment: test-py314
 
       - name: Build docs
-        run: pixi run --locked --environment test-py314 docs
+        run: pixi run --locked --environment test-py314 build-docs
 
       - name: Upload docs
         uses: actions/upload-artifact@v6
