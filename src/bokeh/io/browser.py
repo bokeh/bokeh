@@ -6,16 +6,12 @@
 #-----------------------------------------------------------------------------
 '''Playwright-based browser backend for PNG/SVG export.
 
-This module provides an alternative to the Selenium-based export backend.
-Playwright is generally faster to install and run than Selenium.
+Playwright is the default browser backend for Bokeh export.
 
 To use::
 
     pip install playwright
-    playwright install chromium
-
-Then set ``BOKEH_EXPORT_BACKEND=playwright`` or pass ``backend="playwright"``
-to export functions.
+    playwright install --only-shell chromium
 
 '''
 
@@ -229,7 +225,8 @@ class _PlaywrightState:
         async_api = import_required(
             "playwright.async_api",
             "To use the Playwright export backend you need playwright "
-            "('pip install playwright' then 'playwright install chromium')",
+            "('pip install playwright' then "
+            "'playwright install --only-shell chromium')",
         )
 
         playwright = await async_api.async_playwright().start()
@@ -247,8 +244,8 @@ class _PlaywrightState:
         except Exception as e:
             await self.cleanup()
             raise RuntimeError(
-                "Failed to launch Playwright Chromium. Make sure browser binaries "
-                "are installed by running 'playwright install chromium'.",
+                "Failed to launch Playwright Chromium. If the headless shell is "
+                "not installed, run 'playwright install --only-shell chromium'.",
             ) from e
 
         return browser
