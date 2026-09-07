@@ -1,8 +1,9 @@
-import {expect, expect_instanceof} from "#framework/assertions"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {fig, display} from "#framework/layouts"
 import {mouse_enter, mouse_leave} from "#framework/interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
+import type {ToolbarView} from "@bokehjs/models/tools/toolbar"
 import {ToolGroup} from "@bokehjs/models/tools/tool_group"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool} from "@bokehjs/models/tools/gestures/select_tool"
@@ -12,6 +13,10 @@ import {build_view} from "@bokehjs/core/build_views"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {ExamineTool, Plot, CustomAction, Legend, LegendItem, CustomJS, Range1d} from "@bokehjs/models"
 import * as tb_css from "@bokehjs/styles/tool_button.css"
+import * as toolbar_css from "@bokehjs/styles/toolbar.css"
+import * as logo_css from "@bokehjs/styles/logo.css"
+import type {Size} from "@bokehjs/core/layout"
+import type {Location} from "@bokehjs/core/enums"
 
 describe("Toolbar", () => {
 
@@ -621,6 +626,178 @@ describe("ToolbarView", () => {
       await tbv.ready
 
       expect(tbv.tool_buttons.map((button) => button.tool)).to.be.equal([tap0, tap1, hover0, hover1, hover2])
+    })
+  })
+
+  describe("should support customization with CSS variables", () => {
+    const pixel_styles = `
+      :host {
+        --bokeh-tool-button-width: 40px;
+        --bokeh-tool-button-height: 45px;
+        --bokeh-toolbar-divider-color: red;
+      }
+    `
+
+    const small_button_styles = `
+      :host {
+        --bokeh-tool-button-width: 10px;
+        --bokeh-tool-button-height: 10px;
+      }
+    `
+
+    const rem_styles = `
+      :host {
+        --bokeh-tool-button-width: 2rem;
+        --bokeh-tool-button-height: 3rem;
+      }
+    `
+
+    const button_width = 40
+    const button_height = 45
+
+    function plot(location: Location, styles: string) {
+      const p = fig([200, 200], {
+        tools: "pan,box_zoom,reset",
+        toolbar_location: location,
+        stylesheets: [styles],
+      })
+      p.scatter([0, 1], [1, 0])
+      return p
+    }
+
+    function logo_size(toolbar_view: ToolbarView): Size {
+      const logo = toolbar_view.shadow_el.querySelector(`.${logo_css.logo}`)
+      expect_not_null(logo)
+      const rect = logo.getBoundingClientRect()
+      const style = getComputedStyle(logo)
+      return {
+        width: rect.width + parseFloat(style.marginLeft) + parseFloat(style.marginRight),
+        height: rect.height + parseFloat(style.marginTop) + parseFloat(style.marginBottom),
+      }
+    }
+
+    function expected_size(location: Location, button: Size, logo: Size | null, count: number): Size {
+      const horizontal = location == "above" || location == "below"
+      const length = horizontal ? button.width : button.height
+      const thickness = horizontal ? button.height : button.width
+      const logo_length = logo == null ? 0 : horizontal ? logo.width : logo.height
+      const logo_thickness = logo == null ? 0 : horizontal ? logo.height : logo.width
+      return {
+        width: count*length + logo_length + 15,
+        height: Math.max(thickness, logo_thickness),
+      }
+    }
+
+    for (const location of ["above", "right"] as Location[]) {
+      it(`should keep toolbar sizes finite after detach with toolbar_location=${location}`, async () => {
+        const p = plot(location, pixel_styles)
+        const {view} = await display(p)
+        const panel = view.toolbar_panel
+        expect_not_null(panel)
+        const toolbar_view = view.owner.get_one(p.toolbar)
+        const logo = toolbar_view.shadow_el.querySelector(`.${logo_css.logo}`)
+        expect_not_null(logo)
+        const parent = toolbar_view.el.parentNode
+        expect_not_null(parent)
+        const next_sibling = toolbar_view.el.nextSibling
+
+        toolbar_view.el.remove()
+        try {
+          expect(logo.isConnected).to.be.false
+          const {width, height} = panel.get_size()
+          expect(Number.isFinite(width)).to.be.true
+          expect(Number.isFinite(height)).to.be.true
+        } finally {
+          parent.insertBefore(toolbar_view.el, next_sibling)
+        }
+
+        expect(logo.isConnected).to.be.true
+      })
+
+      it(`should allow to customize tool button width and height with toolbar_location=${location}`, async () => {
+        const p = plot(location, pixel_styles)
+        const {view} = await display(p)
+        const toolbar_view = view.owner.get_one(p.toolbar)
+        const tool_button_view = toolbar_view.tool_button_views[0]
+
+        const {width, height} = tool_button_view.el.getBoundingClientRect()
+        expect(width).to.be.equal(button_width)
+        expect(height).to.be.equal(button_height)
+      })
+
+      it(`should account for customizable tool button size in toolbar panel's size with toolbar_location=${location}`, async () => {
+        const p = plot(location, pixel_styles)
+        const {view} = await display(p)
+        const panel = view.toolbar_panel
+        expect_not_null(panel)
+        const toolbar_view = view.owner.get_one(p.toolbar)
+        const button = {width: button_width, height: button_height}
+        const expected = expected_size(location, button, logo_size(toolbar_view), p.toolbar.tools.length)
+        expect(panel.get_size()).to.be.equal(expected)
+      })
+
+      it(`should resolve non-pixel units when sizing the toolbar panel with toolbar_location=${location}`, async () => {
+        const p = plot(location, rem_styles)
+        const {view} = await display(p)
+        const panel = view.toolbar_panel
+        expect_not_null(panel)
+        const toolbar_view = view.owner.get_one(p.toolbar)
+        const root_font_size = parseFloat(getComputedStyle(document.documentElement).fontSize)
+        const button = {width: 2*root_font_size, height: 3*root_font_size}
+        const expected = expected_size(location, button, logo_size(toolbar_view), p.toolbar.tools.length)
+        expect(panel.get_size()).to.be.equal(expected)
+      })
+
+      it(`should allow to customize toolbar divider color with toolbar_location=${location}`, async () => {
+        const p = plot(location, pixel_styles)
+        const {view} = await display(p)
+        const toolbar_view = view.owner.get_one(p.toolbar)
+        const divider_el = toolbar_view.shadow_el.querySelector(`.${toolbar_css.divider}`)
+        expect_not_null(divider_el)
+        expect(getComputedStyle(divider_el).backgroundColor).to.be.equal("rgb(255, 0, 0)")
+      })
+    }
+
+    it("should size the panel to contain the logo when it is larger than the buttons", async () => {
+      const p = plot("above", small_button_styles)
+      const {view} = await display(p)
+      const panel = view.toolbar_panel
+      expect_not_null(panel)
+      const toolbar_view = view.owner.get_one(p.toolbar)
+      const logo = logo_size(toolbar_view)
+
+      expect(panel.get_size()).to.be.equal({
+        width: p.toolbar.tools.length*10 + logo.width + 15,
+        height: logo.height,
+      })
+    })
+
+    it("should size the panel from a rendered button when the first tool is hidden", async () => {
+      const p = plot("right", rem_styles)
+      p.toolbar.tools[0].visible = false
+      const {view} = await display(p)
+      const toolbar_view = view.owner.get_one(p.toolbar)
+      expect(toolbar_view.tool_button_views[0].el.isConnected).to.be.false
+      const button_view = toolbar_view.tool_button_views.find((view) => view.el.isConnected)
+      expect_not_null(button_view)
+      const {width} = button_view.el.getBoundingClientRect()
+
+      const panel = view.toolbar_panel
+      expect_not_null(panel)
+      expect(panel.layout.bbox.width).to.be.above(width - 0.01)
+    })
+
+    it("should resolve CSS lengths when every tool is hidden", async () => {
+      const p = plot("right", rem_styles)
+      for (const tool of p.toolbar.tools) {
+        tool.visible = false
+      }
+      const {view} = await display(p)
+      const root_font_size = parseFloat(getComputedStyle(document.documentElement).fontSize)
+
+      const panel = view.toolbar_panel
+      expect_not_null(panel)
+      expect(panel.layout.bbox.width).to.be.above(2*root_font_size - 0.01)
     })
   })
 })
