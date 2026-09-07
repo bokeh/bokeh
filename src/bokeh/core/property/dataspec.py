@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from copy import copy
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
@@ -29,8 +30,7 @@ from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
 from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
-from .descriptor_factory import PropertyDescriptorLike
-from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
+from .descriptors import DataSpecPropertyDescriptor
 from .either import Either
 from .enum import Enum
 from .instance import Instance
@@ -43,7 +43,6 @@ from .primitive import (
     Null,
     String,
 )
-from .serialized import NotSerialized
 from .singletons import Undefined
 from .string import Regex
 from .struct import Optional, Struct
@@ -74,6 +73,7 @@ __all__ = (
     'AngleSpec',
     'BoolSpec',
     'ColorSpec',
+    'CoordinateSpec',
     'DashPatternSpec',
     'DataSpec',
     'DistanceSpec',
@@ -90,14 +90,13 @@ __all__ = (
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
-    'UnitsSpec',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class DataSpec(Either):
+class DataSpec(Either[Any]):
     """ Base class for properties that accept either a fixed value, or a
     string name that references a column in a
     :class:`~bokeh.models.sources.ColumnDataSource`.
@@ -182,6 +181,8 @@ class DataSpec(Either):
 
     """
 
+    _units_enum: Any | None = None
+
     def __init__(self, value_type: Any, default: Any, *, help: str | None = None) -> None:
         super().__init__(
             String,
@@ -218,33 +219,35 @@ class DataSpec(Either):
 
         return super().transform(value)
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptorLike[Any]]:
-        """ Return a list of ``DataSpecPropertyDescriptor`` instances to
-        install on a class, in order to delegate attribute access to this
-        property.
+    def make_descriptor(self, name: str) -> DataSpecPropertyDescriptor:
+        """Return the descriptor used to delegate access to this DataSpec.
 
         Args:
             name (str) : the name of the property these descriptors are for
 
         Returns:
-            list[DataSpecPropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+            DataSpecPropertyDescriptor
         """
-        return [ DataSpecPropertyDescriptor(name, self) ]
+        return DataSpecPropertyDescriptor(name, self)
 
     def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
         # Check for spec type value
         try:
             self.value_type.replace(String, Nothing()).validate(val, False)
-            return Value(val)
+            val = Value(val)
         except ValueError:
             pass
 
         # Check for data source field name
         if isinstance(val, str):
-            return Field(val)
+            val = Field(val)
+
+        if self._units_enum is not None and val.units is Unspecified:
+            units_descriptor = obj.lookup(f"{name}_units")
+            units = units_descriptor.get_value(obj)
+            if units != units_descriptor.property._default:
+                val = copy(val)
+                val.units = units
 
         return val
 
@@ -424,95 +427,38 @@ class MarkerSpec(DataSpec):
     def __init__(self, default: Any, *, help: str | None = None) -> None:
         super().__init__(Either(MarkerType, Regex("^@.*$")), default=default, help=help)
 
-class UnitsSpec(NumberSpec):
-    """ A |DataSpec| property that accepts numeric fixed values, and also
-    provides an associated units property to store units information.
-
-    """
-
-    def __init__(self, default: Any, units_enum: Any, units_default: Any, *, help: str | None = None) -> None:
-        super().__init__(default=default, help=help)
-
-        from ...util.strings import nice_join
-
-        units_type = NotSerialized(Enum(units_enum), default=units_default, help=f"""
-        Units to use for the associated property: {nice_join(units_enum)}
-        """)
-        self._units_type = self._validate_type_param(units_type, help_allowed=True)
-
-        self._type_params += [
-            Struct(
-                value=self.value_type,
-                transform=Optional(Instance("bokeh.models.transforms.Transform")),
-                units=Optional(units_type),
-            ),
-            Struct(
-                field=String,
-                transform=Optional(Instance("bokeh.models.transforms.Transform")),
-                units=Optional(units_type),
-            ),
-            Struct(
-                expr=Instance("bokeh.models.expressions.Expression"),
-                transform=Optional(Instance("bokeh.models.transforms.Transform")),
-                units=Optional(units_type),
-            ),
-        ]
-
-    def __str__(self) -> str:
-        units_default = self._units_type._default
-        return f"{self.__class__.__name__}(units_default={units_default!r})"
-
-    def get_units(self, obj: HasProps, name: str) -> str:
-        return getattr(obj, name + "_units")
-
-    def make_descriptors(self, name: str) -> list[PropertyDescriptorLike[Any]]:
-        """ Return a list of ``PropertyDescriptor`` instances to install on a
-        class, in order to delegate attribute access to this property.
-
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
-        descriptors to install. In particular, descriptors for the base
-        property as well as the associated units property are returned.
-
-        Args:
-            name (str) : the name of the property these descriptors are for
-
-        Returns:
-            list[PropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
-        """
-        units_name = name + "_units"
-        units_props = self._units_type.make_descriptors(units_name)
-        return [*units_props, UnitsSpecPropertyDescriptor(name, self, units_props[0])]
-
-    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
-        val = super().to_serializable(obj, name, val)
-        if val.units is Unspecified:
-            units = self.get_units(obj, name)
-            if units != self._units_type._default:
-                val.units = units # XXX: clone and update?
-        return val
-
-class AngleSpec(UnitsSpec):
-    """ A |DataSpec| property that accepts numeric fixed values, and also
-    provides an associated units property to store angle units.
+class AngleSpec(NumberSpec):
+    """A |DataSpec| property that accepts numeric values with angle units.
 
     Acceptable values for units are ``"deg"``, ``"rad"``, ``"grad"`` and ``"turn"``.
+    A property named ``foo`` must be accompanied by ``foo_units = AngleUnits``.
 
     """
-    def __init__(self, default: Any = Undefined, units_default: Any = "rad", *, help: str | None = None) -> None:
-        super().__init__(default=default, units_enum=enums.AngleUnits, units_default=units_default, help=help)
 
-class DistanceSpec(UnitsSpec):
+    _units_alias = "AngleUnits"
+    _units_enum = enums.AngleUnits
+
+class CoordinateSpec(NumberSpec):
+    """A |DataSpec| property that accepts numeric values with coordinate units.
+
+    Acceptable values for units are ``"canvas"``, ``"screen"`` and ``"data"``.
+    A property named ``foo`` must be accompanied by ``foo_units = CoordinateUnits``.
+
+    """
+
+    _units_alias = "CoordinateUnits"
+    _units_enum = enums.CoordinateUnits
+
+class DistanceSpec(NumberSpec):
     """ A |DataSpec| property that accepts numeric fixed values or strings
-    that refer to columns in a :class:`~bokeh.models.sources.ColumnDataSource`,
-    and also provides an associated units property to store units information.
+    that refer to columns in a :class:`~bokeh.models.sources.ColumnDataSource`.
     Acceptable values for units are ``"screen"`` and ``"data"``.
+    A property named ``foo`` must be accompanied by ``foo_units = SpatialUnits``.
 
     """
-    def __init__(self, default: Any = Undefined, units_default: Any = "data", *, help: str | None = None) -> None:
-        super().__init__(default=default, units_enum=enums.SpatialUnits, units_default=units_default, help=help)
+
+    _units_alias = "SpatialUnits"
+    _units_enum = enums.SpatialUnits
 
     def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> Any:
         try:
@@ -524,8 +470,8 @@ class DistanceSpec(UnitsSpec):
 
 class NullDistanceSpec(DistanceSpec):
 
-    def __init__(self, default: Any = None, units_default: Any = "data", *, help: str | None = None) -> None:
-        super().__init__(default=default, units_default=units_default, help=help)
+    def __init__(self, default: Any = None, *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
         self.value_type = Nullable(Float)
         self._type_params = [Null(), *self._type_params]
 

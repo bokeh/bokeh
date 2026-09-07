@@ -28,7 +28,6 @@ import numpy as np
 
 # Bokeh imports
 from ..core.property.datetime import Datetime
-from ..core.property.singletons import Intrinsic
 from ..models import (
     Axis,
     CategoricalAxis,
@@ -88,11 +87,12 @@ def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequ
         if len(range_input) == 2:
             try:
                 start, end = range_input
-                if start is None:
-                    start = Intrinsic
-                if end is None:
-                    end = Intrinsic
-                return Range1d(start=start, end=end)
+                properties = {}
+                if start is not None:
+                    properties["start"] = start
+                if end is not None:
+                    properties["end"] = end
+                return Range1d(**properties)
             except ValueError:  # @mattpap suggests ValidationError instead
                 pass
     elif uses_pandas(range_input):

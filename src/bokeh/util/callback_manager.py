@@ -33,6 +33,7 @@ from typing import (
 )
 
 # Bokeh imports
+from ..core.property.singletons import OldValueUnavailable
 from ..events import Event, ModelEvent
 from ..settings import settings
 from ..util.functions import get_param_info
@@ -49,6 +50,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     'EventCallbackManager',
+    'OldValueUnavailable',
     'PropertyCallbackManager',
 )
 

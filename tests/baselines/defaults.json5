@@ -191,10 +191,7 @@
         selected: {
           type: "object",
           name: "Selection",
-          attributes: {
-            indices: [],
-            line_indices: [],
-          },
+          attributes: {},
         },
         selection_policy: {
           type: "object",
@@ -1628,9 +1625,7 @@
     dimensional: {
       type: "object",
       name: "MetricLength",
-      attributes: {
-        include: null,
-      },
+      attributes: {},
     },
     orientation: "horizontal",
     location: "top_right",
@@ -1680,10 +1675,7 @@
     ticker: {
       type: "object",
       name: "FixedTicker",
-      attributes: {
-        ticks: [],
-        minor_ticks: [],
-      },
+      attributes: {},
     },
     border_line_color: "#e5e5e5",
     border_line_alpha: 0.5,
@@ -1909,11 +1901,6 @@
             name: "AdaptiveTicker",
             attributes: {
               num_minor_ticks: 0,
-              mantissas: [
-                1,
-                2,
-                5,
-              ],
               max_interval: 500.0,
             },
           },
@@ -2158,13 +2145,7 @@
     ticker: {
       type: "object",
       name: "BasicTicker",
-      attributes: {
-        mantissas: [
-          1,
-          2,
-          5,
-        ],
-      },
+      attributes: {},
     },
     formatter: {
       type: "object",
@@ -2177,12 +2158,7 @@
     ticker: {
       type: "object",
       name: "LogTicker",
-      attributes: {
-        mantissas: [
-          1,
-          5,
-        ],
-      },
+      attributes: {},
     },
     formatter: {
       type: "object",
@@ -2196,11 +2172,6 @@
       type: "object",
       name: "MercatorTicker",
       attributes: {
-        mantissas: [
-          1,
-          2,
-          5,
-        ],
         dimension: "lat",
       },
     },
@@ -2224,11 +2195,6 @@
             name: "AdaptiveTicker",
             attributes: {
               num_minor_ticks: 0,
-              mantissas: [
-                1,
-                2,
-                5,
-              ],
               max_interval: 500.0,
             },
           },
@@ -2274,11 +2240,6 @@
             name: "AdaptiveTicker",
             attributes: {
               num_minor_ticks: 0,
-              mantissas: [
-                1,
-                2,
-                5,
-              ],
               min_interval: 86400000.0,
             },
           },
@@ -6016,10 +5977,7 @@
             selected: {
               type: "object",
               name: "Selection",
-              attributes: {
-                indices: [],
-                line_indices: [],
-              },
+              attributes: {},
             },
             selection_policy: {
               type: "object",
@@ -6066,10 +6024,7 @@
             selected: {
               type: "object",
               name: "Selection",
-              attributes: {
-                indices: [],
-                line_indices: [],
-              },
+              attributes: {},
             },
             selection_policy: {
               type: "object",
@@ -6275,10 +6230,7 @@
     selected: {
       type: "object",
       name: "Selection",
-      attributes: {
-        indices: [],
-        line_indices: [],
-      },
+      attributes: {},
     },
   },
   GeoJSONDataSource: {
@@ -6402,11 +6354,6 @@
         name: "AdaptiveTicker",
         attributes: {
           num_minor_ticks: 0,
-          mantissas: [
-            1,
-            2,
-            5,
-          ],
           max_interval: 500.0,
         },
       },
@@ -6632,11 +6579,6 @@
         name: "AdaptiveTicker",
         attributes: {
           num_minor_ticks: 0,
-          mantissas: [
-            1,
-            2,
-            5,
-          ],
           max_interval: 500.0,
         },
       },
@@ -6682,11 +6624,6 @@
         name: "AdaptiveTicker",
         attributes: {
           num_minor_ticks: 0,
-          mantissas: [
-            1,
-            2,
-            5,
-          ],
           min_interval: 86400000.0,
         },
       },
@@ -6982,8 +6919,6 @@
         syncable: false,
         level: "overlay",
         visible: false,
-        xs: [],
-        ys: [],
         editable: true,
         line_color: "black",
         line_alpha: 1.0,
@@ -7058,8 +6993,6 @@
         syncable: false,
         level: "overlay",
         visible: false,
-        xs: [],
-        ys: [],
         editable: true,
         line_color: "black",
         line_alpha: 1.0,
@@ -8080,10 +8013,7 @@
         selected: {
           type: "object",
           name: "Selection",
-          attributes: {
-            indices: [],
-            line_indices: [],
-          },
+          attributes: {},
         },
         selection_policy: {
           type: "object",

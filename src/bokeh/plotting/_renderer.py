@@ -286,7 +286,7 @@ def _validate_color_array(val: np.ndarray, var: str) -> None:
 def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: ColumnarDataSource, is_user_source: bool) -> list[str]:
     incompatible_literal_spec_values: list[str] = []
     dataspecs = glyphclass.dataspecs()
-    all_properties = glyphclass.properties(_with_props=True)
+    all_properties = glyphclass.properties()
 
     for var, val in kwargs.items():
         # Skip non-iterables and dicts

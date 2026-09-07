@@ -378,16 +378,16 @@ def gridplot(
     active_tap = assert_unique(active_taps, "active_tap")
     active_multi = assert_unique(active_multis, "active_multi")
 
-    toolbar = Toolbar(
-        tools=tools,
-        logo=logo,
-        autohide=autohide,
-        active_drag=active_drag,
-        active_inspect=active_inspect,
-        active_scroll=active_scroll,
-        active_tap=active_tap,
-        active_multi=active_multi,
-    )
+    toolbar_props = {
+        "logo": logo,
+        "autohide": autohide,
+        "active_drag": active_drag,
+        "active_inspect": active_inspect,
+        "active_scroll": active_scroll,
+        "active_tap": active_tap,
+        "active_multi": active_multi,
+    }
+    toolbar = Toolbar(tools=tools, **{name: value for name, value in toolbar_props.items() if value is not Undefined})
 
     gp = GridPlot(
         children=items,
