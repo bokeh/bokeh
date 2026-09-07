@@ -64,9 +64,9 @@
   // Tools (tool buttons and toolbar)
   --active-tool-border-color: #colors[active-tool-border];
   --active-tool-background: #colors[active-tool-background];
-  --button-width: 30px;
-  --button-height: 30px;
-  --button-color: lightgray;
+  --button-width: var(--bokeh-tool-button-width, 30px);
+  --button-height: var(--bokeh-tool-button-height, 30px);
+  --button-color: var(--bokeh-tool-button-color, lightgray);
   --disabled-tool-color: #colors[disabled-tool];
 
   // Buttons colors
