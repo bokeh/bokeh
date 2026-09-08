@@ -61,6 +61,9 @@ def curdoc() -> Document:
         if doc is None:
             raise RuntimeError("Patched curdoc has been previously destroyed")
         return cast(Document, doc) # UnlockedDocumentProxy enforces callback safety at runtime
+    global _DEFAULT_DOCUMENT
+    if _DEFAULT_DOCUMENT is None:
+        _DEFAULT_DOCUMENT = Document()
     return _DEFAULT_DOCUMENT
 
 #-----------------------------------------------------------------------------
@@ -109,7 +112,7 @@ def set_curdoc(doc: Document) -> None:
 _PATCHED_CURDOCS: ContextVar[tuple[weakref.ReferenceType[DocumentLike], ...]] = \
     ContextVar("_PATCHED_CURDOCS", default=())
 
-_DEFAULT_DOCUMENT = Document()
+_DEFAULT_DOCUMENT: Document | None = None
 
 #-----------------------------------------------------------------------------
 # Code
