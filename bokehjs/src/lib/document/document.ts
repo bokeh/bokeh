@@ -724,7 +724,8 @@ export class Document implements Equatable {
   set_color_scheme(color_scheme: ColorScheme): void {
     const system_scheme = this._system_scheme.matches ? "dark" : "light"
     const scheme = color_scheme == "auto" ? system_scheme : color_scheme
-    // TODO: Check reliable way to update --bokeh-color-scheme without setting it in documentElement
-    document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
+    for (const root of this.roots()) {
+      document.querySelector<HTMLElement>(`.bk-${root.id}`)?.style.setProperty("--bokeh-color-scheme", scheme)
+    }
   }
 }
