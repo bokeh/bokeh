@@ -38,6 +38,14 @@ import bokeh.io.doc as bid # isort:skip
 def test_curdoc_returns_default_document() -> None:
     assert isinstance(bid.curdoc(), Document)
 
+def test_curdoc_initializes_default_document_lazily(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(bid, "_DEFAULT_DOCUMENT", None)
+
+    doc = bid.curdoc()
+
+    assert isinstance(doc, Document)
+    assert bid.curdoc() is doc
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
