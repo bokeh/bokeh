@@ -37,7 +37,19 @@ function is_browser_lifecycle_error(error: BrowserError): boolean {
   ].some((pattern) => message.includes(pattern))
 }
 
-async function command<T>(operation: string, promise: Promise<T>, wait: number = DEFAULT_COMMAND_TIMEOUT): Promise<T> {
+async function command<T>(operation: string, promise: Promise<T>, wait: number | null = DEFAULT_COMMAND_TIMEOUT): Promise<T> {
+  if (wait == null) {
+    try {
+      return await promise
+    } catch (error) {
+      if (error instanceof BrowserError) {
+        throw error
+      } else {
+        throw new BrowserError(operation, error_message(error))
+      }
+    }
+  }
+
   const timeout = Promise.withResolvers<never>()
   const timer = setTimeout(() => timeout.reject(new TimeoutError()), wait)
   timer.unref()
@@ -272,7 +284,7 @@ export class BrowserManager {
     }))
   }
 
-  async evaluate<T>(expression: string, eval_timeout: number = DEFAULT_COMMAND_TIMEOUT): Promise<Value<T> | Failure> {
+  async evaluate<T>(expression: string, eval_timeout: number | null = DEFAULT_COMMAND_TIMEOUT): Promise<Value<T> | Failure> {
     const page = this.get_page()
     try {
       const value = await command("Page.evaluate", page.evaluate<T>(expression), eval_timeout)

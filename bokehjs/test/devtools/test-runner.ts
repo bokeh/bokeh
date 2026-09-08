@@ -23,6 +23,7 @@ export class TestRunner {
     private top_level: Suite,
     private ref: string,
     private metrics: MetricsCollector | null,
+    private test_timeout: number | null,
   ) {
     this.ctx_json = JSON.stringify(ctx)
   }
@@ -134,7 +135,8 @@ export class TestRunner {
     }
     let browser_available = true
     try {
-      return await this.browser.evaluate<Result>(`Tests.run(${seq}, ${this.ctx_json})`, test.timeout)
+      const timeout = this.test_timeout == null ? null : test.timeout ?? this.test_timeout
+      return await this.browser.evaluate<Result>(`Tests.run(${seq}, ${this.ctx_json})`, timeout)
     } catch (error) {
       if (error instanceof BrowserError) {
         browser_available = false

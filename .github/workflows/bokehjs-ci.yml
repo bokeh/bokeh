@@ -55,6 +55,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.bokehjs == 'true'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     strategy:
       fail-fast: false

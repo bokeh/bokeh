@@ -9,6 +9,7 @@ import {fileURLToPath} from "node:url"
 const chrome_version = "141.0.7390.54"
 const canonical_image = "ghcr.io/bokeh/bokehjs-baselines@sha256:9163c9791b4a5ee80f60344441a16133d7324ece4911550e5fb5b20c4e60db71"
 const local_image = `bokehjs-baselines-local:${chrome_version}`
+const windows_test_timeout = 120
 
 function usage(stream = process.stdout) {
   stream.write(`\
@@ -24,6 +25,11 @@ Commands:
            http://127.0.0.1:5777.
   accept   Stage changed Linux .blf and .png files represented by the most
            recent completed report.
+
+Test arguments:
+  --test-timeout=SECONDS
+            Set the default test-body deadline. Use 0 to disable it. The
+            default is 120 on Windows hosts and 30 elsewhere.
 
 Environment:
   BOKEHJS_CONTAINER_ENGINE  Container CLI to use (default: docker). Set this to
@@ -148,8 +154,15 @@ function has_explicit_ref(args) {
   return args.some((arg) => arg === "--ref" || arg.startsWith("--ref="))
 }
 
+function has_explicit_test_timeout(args) {
+  return args.some((arg) => arg === "--test-timeout" || arg.startsWith("--test-timeout="))
+}
+
 async function run_tests(args) {
   const test_args = [...args]
+  if (process.platform === "win32" && !has_explicit_test_timeout(test_args)) {
+    test_args.push(`--test-timeout=${windows_test_timeout}`)
+  }
   if (!has_explicit_ref(test_args)) {
     const baseline_tree = output("git", ["-C", repo_root, "write-tree"])
     test_args.push(`--ref=${baseline_tree}`)

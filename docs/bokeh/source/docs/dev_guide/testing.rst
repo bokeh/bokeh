@@ -341,7 +341,12 @@ you can confirm that they are stable before committing.
 Browser commands have deadlines. If Chrome stops responding, the test
 controller reports the current test and relevant Chrome diagnostics, replaces
 the browser, and retries the interrupted test up to two times. It then records
-the failure and continues with the remaining tests.
+the failure and continues with the remaining tests. Test bodies have a
+30-second deadline by default, increased to 120 seconds on Windows hosts. Set a
+different default in seconds with ``--test-timeout``; use
+``--test-timeout=0`` to disable test-body deadlines for an attended local run.
+Browser startup and navigation retain their own deadlines, and CI jobs remain
+bounded even when individual tests have a longer deadline.
 
 On Linux, you can run the visual tests directly, without Docker or Podman, from
 the ``bokehjs`` subdirectory:

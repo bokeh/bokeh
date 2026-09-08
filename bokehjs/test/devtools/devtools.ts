@@ -47,6 +47,7 @@ const argv = yargs(process.argv.slice(2)).options({
   grep: {type: "string", array: true, demandOption: false},
   "baselines-root": {type: "string", demandOption: false},
   screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
+  "test-timeout": {type: "number", demandOption: false},
   retry: {type: "boolean", default: false},
   info: {type: "boolean", default: false},
 }).parseSync()
@@ -55,6 +56,16 @@ const {executable, ref, randomize, seed, pedantic, keyword, grep, screenshot, re
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
 const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
+const DEFAULT_TEST_TIMEOUT = 30
+const MAX_TEST_TIMEOUT = 2_147_483 // Largest whole-second Node.js timer.
+
+const configured_test_timeout = argv.testTimeout
+if (configured_test_timeout != null &&
+    (!Number.isSafeInteger(configured_test_timeout) || configured_test_timeout < 0 || configured_test_timeout > MAX_TEST_TIMEOUT)) {
+  throw new Error(`--test-timeout must be a whole number of seconds between 0 and ${MAX_TEST_TIMEOUT}`)
+}
+const test_timeout_s = configured_test_timeout ?? DEFAULT_TEST_TIMEOUT
+const test_timeout = test_timeout_s == 0 ? null : test_timeout_s*1000
 
 function copy_status(status: TestStatus): TestStatus {
   return {...status, errors: [...status.errors]}
@@ -280,7 +291,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       progress.start(selected_tests.length, 0, state())
 
       const metrics = baselines_root != null ? new MetricsCollector() : null
-      const runner = new TestRunner(browser, ctx, baselines_root, screenshot, pedantic, top_level, ref, metrics)
+      const runner = new TestRunner(browser, ctx, baselines_root, screenshot, pedantic, top_level, ref, metrics, test_timeout)
 
       if (metrics != null) {
         await metrics.add_datapoint(browser)
@@ -481,6 +492,7 @@ async function run(): Promise<void> {
     await browser.launch()
     const {browser: browser_name, major} = browser.get_version()
     console.log(`Running in ${chalk.cyan(browser_name)} using ${chalk.cyan("Playwright")}`)
+    console.log(`Default test timeout: ${test_timeout == null ? "disabled" : `${test_timeout_s} s`}`)
     ok = !info ? await run_tests(browser, {chromium_version: major}) : true
   } finally {
     await browser.reset()

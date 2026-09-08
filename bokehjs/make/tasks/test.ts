@@ -81,6 +81,11 @@ function sys_path(): string {
 // - bokehjs/test/devtools/devtools.ts
 // - bokehjs/test/run-baseline-tests.mjs
 const supported_chromium_revision = "r3265" // 141.0.7390.54
+const windows_test_timeout = 120
+
+function test_timeout(): number | undefined {
+  return argv.testTimeout ?? (platform == "windows" ? windows_test_timeout : undefined)
+}
 
 function chrome(): string {
   const bokeh_chrome = process.env.BOKEH_CHROME
@@ -279,6 +284,7 @@ function baseline_test_options(): string[] {
     ...opt("randomize", argv.randomize),
     ...opt("seed", argv.seed),
     ...opt("pedantic", argv.pedantic),
+    ...opt("test-timeout", test_timeout()),
     ...opt("rebuild", argv.rebuild),
     `--screenshot=${argv.screenshot}`,
   ]
@@ -298,6 +304,7 @@ function devtools(executable: string, server_port: number, name: string, baselin
     ...opt("randomize", argv.randomize),
     ...opt("seed", argv.seed),
     ...opt("pedantic", argv.pedantic),
+    ...opt("test-timeout", test_timeout()),
     `--screenshot=${argv.screenshot}`,
     `http://localhost:${server_port}/${name}${!dev ? "?dev=false" : ""}`,
   ]

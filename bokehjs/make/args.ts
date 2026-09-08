@@ -26,5 +26,6 @@ export const argv = yargs(process.argv.slice(2)).help(false).options({
   randomize: {type: "boolean"},
   seed: {type: "number"},
   pedantic: {type: "boolean"},
+  "test-timeout": {type: "number"},
   screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
 }).parseSync()
