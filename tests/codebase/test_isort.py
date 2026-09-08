@@ -18,7 +18,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 # External imports
@@ -42,16 +41,10 @@ DIRECTORIES = (
     "src/typings",
 )
 
-def test_isort() -> None:
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        results = executor.map(isort, DIRECTORIES)
-
-    errors = [
-        f"isort issues in {directory}:\n" + "\n".join(files)
-        for directory, files in zip(DIRECTORIES, results)
-        if files
-    ]
-    assert not errors, "\n".join(errors)
+@pytest.mark.parametrize("directory", DIRECTORIES)
+def test_isort(directory: str) -> None:
+    files = isort(directory)
+    assert not files, f"isort issues in {directory}:\n" + "\n".join(files)
 
 #-----------------------------------------------------------------------------
 # Support
