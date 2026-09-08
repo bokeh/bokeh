@@ -241,8 +241,8 @@ There are two ways to install a local development version of Bokeh with ``pip``:
     Pixi environment. In this mode, any changes to the Python source code will
     have no effect until you run the installation command again. Unlike the
     ``-e`` mode above, there's no dedicated pixi task for this — run the command
-    directly, or prefix it with ``pixi run`` from a standard terminal, e.g.
-    ``pixi run python -m pip install --no-deps .``.
+    directly, or prefix it with ``pixi run`` from a standard terminal:
+    ``pixi run python -m pip install --no-deps .``
 
 Running either of those two commands also builds and installs a local version of
 :term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
