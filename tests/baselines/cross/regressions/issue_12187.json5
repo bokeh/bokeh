@@ -2,12 +2,12 @@
   config: {
     type: "object",
     name: "DocumentConfig",
-    id: "p1022",
+    id: "p1013",
     attributes: {
       notifications: {
         type: "object",
         name: "Notifications",
-        id: "p1023",
+        id: "p1014",
       },
     },
   },
@@ -15,7 +15,7 @@
     {
       type: "object",
       name: "DataTable",
-      id: "p1016",
+      id: "p1011",
       attributes: {
         width: 400,
         height: 280,
@@ -27,16 +27,12 @@
             selected: {
               type: "object",
               name: "Selection",
-              id: "p1007",
-              attributes: {
-                indices: [],
-                line_indices: [],
-              },
+              id: "p1016",
             },
             selection_policy: {
               type: "object",
               name: "UnionRenderers",
-              id: "p1008",
+              id: "p1017",
             },
             data: {
               type: "map",
@@ -104,12 +100,12 @@
         view: {
           type: "object",
           name: "CDSView",
-          id: "p1020",
+          id: "p1015",
           attributes: {
             filter: {
               type: "object",
               name: "AllIndices",
-              id: "p1021",
+              id: "p1018",
             },
           },
         },
@@ -117,38 +113,38 @@
           {
             type: "object",
             name: "TableColumn",
-            id: "p1010",
+            id: "p1008",
             attributes: {
               field: "dates",
               title: "Date",
               formatter: {
                 type: "object",
                 name: "DateFormatter",
-                id: "p1009",
+                id: "p1007",
               },
               editor: {
                 type: "object",
                 name: "StringEditor",
-                id: "p1012",
+                id: "p1019",
               },
             },
           },
           {
             type: "object",
             name: "TableColumn",
-            id: "p1013",
+            id: "p1010",
             attributes: {
               field: "downloads",
               title: "Downloads",
               formatter: {
                 type: "object",
                 name: "StringFormatter",
-                id: "p1014",
+                id: "p1020",
               },
               editor: {
                 type: "object",
                 name: "StringEditor",
-                id: "p1015",
+                id: "p1021",
               },
             },
           },
