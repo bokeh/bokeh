@@ -35,6 +35,12 @@ nodejs = "24.*"
 [feature.js-tools.tasks]
 js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
 test-js = { cmd = "node make test", cwd = "bokehjs" }
+test-js-codebase = { cmd = "node make test:codebase", cwd = "bokehjs" }
+test-js-defaults = { cmd = "node make test:defaults", cwd = "bokehjs" }
+test-js-unit = { cmd = "node make test:unit", cwd = "bokehjs" }
+test-js-integration = { cmd = "node make test:integration", cwd = "bokehjs" }
+devtools-headless = { cmd = "node make test:run:headless", cwd = "bokehjs" }
+devtools-server = { cmd = "node test/devtools server", cwd = "bokehjs" }
 build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
 
 # Prefer conda-forge builds for Bokeh runtime dependencies. The constraints
@@ -269,9 +275,10 @@ server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps
 setup = { cmd = "python -m pip install --no-deps -e .", depends-on = ["js-install"] }
 reinstall = "python -m pip install --no-deps -e ."
 test-py = "pytest tests/unit"
-test-py-parallel = "pytest tests/unit -n logical --dist=loadgroup"
 test-defaults = "pytest tests/test_defaults.py"
 test-cross = "pytest tests/test_cross.py"
 test-codebase = "pytest tests/codebase"
 test-examples = "pytest tests/test_examples.py"
+test-tools = "pytest tests/tools"
+tests = "pytest"
 build-docs = "bash tools/ci/build_docs.sh"
