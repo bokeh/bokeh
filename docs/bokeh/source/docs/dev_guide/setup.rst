@@ -96,33 +96,49 @@ upstream with the following commands:
 .. _contributor_guide_setup_creating_conda_env:
 .. _contributor_guide_setup_creating_pixi_env:
 
-3. Enter the Pixi environment
+3. Set up the Pixi environment
 ------------------------------
 
 The Bokeh repository contains its development environment definitions in
-``pixi.toml`` and exact dependency versions in ``pixi.lock``. From the
-root of your *source checkout*, start a shell in the default environment with:
+``pixi.toml`` and exact dependency versions in ``pixi.lock``.
+
+.. note::
+    **Running commands with Pixi**
+
+    Throughout this guide, you are shown two ways to execute commands:
+
+    * **Standard terminal:** Use ``pixi run <task>`` from the repository root
+      to execute predefined tasks, or ``pixi run <command>`` for anything
+      else. This works from an ordinary terminal, does not require
+      activating anything, and ensures your environment is in sync with the
+      lockfile before the command runs.
+    * **Inside a pixi shell:** Run the underlying command directly (e.g.,
+      ``python``, ``pytest``, or ``node``). To avoid environment syncing
+      issues, do not use ``pixi run`` if you are already inside an active
+      shell.
+
+To start an interactive shell with the default environment activated, run
+this from the root of your *source checkout*:
 
 .. code-block:: sh
 
     pixi shell --locked
 
-Pixi installs the environment if necessary and opens an activated subshell.
-Keep this shell open while working on Bokeh; the commands in the rest of this
-guide assume it is active. Run ``exit`` to leave it. Ordinary tools such as
-``python``, ``pytest``, and ``node`` can be invoked directly. Commands such as
-``pixi run setup`` and ``pixi run js-install`` invoke repository tasks defined
-in ``pixi.toml``.
+Keep this shell open while working on Bokeh, and run ``exit`` to leave it.
+You don't have to use ``pixi shell`` at all, though — every command shown
+elsewhere in this guide also works unmodified when prefixed with
+``pixi run`` from an ordinary terminal.
 
 .. note::
-    After pulling dependency changes or switching branches, leave the active
-    shell and run ``pixi shell --locked`` again. Pixi updates the local
-    environment to match the committed lockfile.
+    After pulling dependency changes or switching branches, Pixi updates the
+    local environment to match the committed lockfile automatically the next
+    time you use it. If you left an old shell open, exit it and run
+    ``pixi shell --locked`` again to pick up the change there too.
 
 Bokeh also defines environments for its supported Python versions and focused
 test configurations. Use ``pixi shell --locked -e test-py312`` for an
 interactive Python 3.12 shell, or ``pixi run --locked -e test-py312 <command>``
-for a single command. See
+for a single command without activating a shell. See
 :ref:`contributor_guide_testing_ci_environments` for more information.
 
 .. _contributor_guide_setup_installing_node_packages:
@@ -135,9 +151,17 @@ Building BokehJS also requires JavaScript dependencies from the
 required versions of Node.js and npm. From the root of the *source checkout*,
 install the JavaScript dependencies with:
 
+**Standard terminal:**
+
 .. code-block:: sh
 
     pixi run js-install
+
+**Inside a pixi shell (from the ``bokehjs`` subdirectory):**
+
+.. code-block:: sh
+
+    npm ci --no-progress
 
 This command installs the necessary packages into the ``node_modules``
 subdirectory.
@@ -198,10 +222,11 @@ Once Pixi has installed the environment, set up an editable Bokeh checkout with:
 
     pixi run setup
 
-This installs the locked JavaScript dependencies, builds BokehJS, and uses
-`pip`_ to install the local Python package in editable mode. The command passes
-``--no-deps`` to pip because third-party dependencies are managed by Pixi and
-``pixi.lock``.
+This performs the :ref:`Node package installation
+<contributor_guide_setup_installing_node_packages>` from step 4, builds
+BokehJS, and uses `pip`_ to install the local Python package in editable
+mode. The command passes ``--no-deps`` to pip because third-party
+dependencies are managed by Pixi and ``pixi.lock``.
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
@@ -213,9 +238,11 @@ There are two ways to install a local development version of Bokeh with ``pip``:
 
 ``python -m pip install --no-deps .``
     Bokeh will be installed in the ``site-packages`` directory of your local
-    Pixi environment.
-    In this mode, any changes to the Python source code will have no effect
-    until you run the installation command again.
+    Pixi environment. In this mode, any changes to the Python source code will
+    have no effect until you run the installation command again. Unlike the
+    ``-e`` mode above, there's no dedicated pixi task for this — run the command
+    directly, or prefix it with ``pixi run`` from a standard terminal, e.g.
+    ``pixi run python -m pip install --no-deps .``.
 
 Running either of those two commands also builds and installs a local version of
 :term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
@@ -225,13 +252,13 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
 .. note::
     You need to **rebuild BokehJS each time the BokehJS source code changes**.
     This can be necessary because you made changes yourself or because you
-    pulled updated code from GitHub. Re-run ``pixi run setup`` to build and
-    install BokehJS.
+    pulled updated code from GitHub.
 
-    Occasionally, the **list of JavaScript dependencies also changes**. If this
-    happens, you will need to re-run the instructions in the
-    :ref:`contributor_guide_setup_installing_node_packages` section above before
-    rebuilding BokehJS. ``pixi run setup`` performs both steps.
+    * **JavaScript dependencies unchanged:** run ``pixi run reinstall``
+      (equivalent to ``python -m pip install --no-deps -e .``), which
+      rebuilds BokehJS and reinstalls the Python package.
+    * **JavaScript dependencies changed:** run ``pixi run setup`` instead,
+      which also reinstalls the JavaScript dependencies first.
 
 .. _contributor_guide_setup_environment_variables:
 
@@ -641,10 +668,12 @@ setting up a development environment:
 
 .. dropdown:: Errors after updating from an older version
 
-    If you keep getting errors after updating an older environment, leave the
-    active shell and run ``pixi clean`` followed by ``pixi run --locked setup``.
-    This recreates the managed environment and local package installation from
-    the committed lockfile. Run ``pixi shell --locked`` to re-enter it.
+    If you keep getting errors after updating an older environment, run
+    ``pixi clean`` followed by ``pixi run --locked setup``. This recreates
+    the managed environment and local package installation from the
+    committed lockfile. If you had an old ``pixi shell`` session open, exit
+    it first, then run ``pixi shell --locked`` again afterwards if you'd
+    like to keep working inside one.
 
 .. dropdown:: Slow network connections when cloning
 
