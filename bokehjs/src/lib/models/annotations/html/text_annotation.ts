@@ -19,6 +19,11 @@ export abstract class TextAnnotationView extends AnnotationView {
     return this.plot_view.canvas_view.overlays_el
   }
 
+  private _update_overflow(): void {
+    const overflowing = this.panel == null && this.model.level == "overlay"
+    this.plot_view.frame_view.set_overflowing(this, overflowing)
+  }
+
   override update_layout(): void {
     const {panel} = this
     if (panel != null) {
@@ -31,6 +36,12 @@ export abstract class TextAnnotationView extends AnnotationView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.paint(this.layer.ctx))
+    this.on_change(this.model.properties.level, () => this._update_overflow())
+  }
+
+  override remove(): void {
+    this.plot_view.frame_view.set_overflowing(this, false)
+    super.remove()
   }
 
   override paint(ctx: Context2d): void {
@@ -54,6 +65,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.render()
     this.text_el = document.createTextNode("")
     this.shadow_el.append(this.text_el)
+    this._update_overflow()
   }
 
   protected _paint_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
