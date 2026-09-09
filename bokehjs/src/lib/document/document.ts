@@ -149,9 +149,9 @@ export class Document implements Equatable {
     })
     this._system_scheme = matchMedia("(prefers-color-scheme: dark)")
     this.config = new DocumentConfig()
-    this.set_color_scheme(this.config.color_scheme)
     this._system_scheme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
     this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
+    document.addEventListener("DOMContentLoaded", () => this.set_color_scheme(this.config.color_scheme))
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
