@@ -138,7 +138,9 @@ The callback function uses four positional arguments:
 * ``context``
     this is an additional broader context provided by bokehjs, which is a
     mapping between names and values, similarly to ``data``. Currently only
-    ``index`` is provided, which allows the user to access bokehjs' view index.
+    ``index`` is provided, which allows callback-local access to BokehJS views.
+    It is not a durable model registry. Pass every model the callback depends
+    on explicitly through ``CustomJS.args``.
 
 It may be convenient to the user to use object destructuring syntax to gain
 immediate access to passed values, for example:
@@ -148,8 +150,8 @@ immediate access to passed values, for example:
     from bokeh.models.callbacks import CustomJS
 
     callback = CustomJS(args=dict(xr=plot.x_range, yr=plot.y_range, slider=slider), code="""
-    export default ({xr, yr, slider}, obj, {geometry}, {index}) => {
-        // use xr, yr, slider, geometry and index
+    export default ({xr, yr, slider}, obj, {geometry}) => {
+        // use xr, yr, slider and geometry
     }
     """)
 

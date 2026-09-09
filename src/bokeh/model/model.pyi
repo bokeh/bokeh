@@ -19,7 +19,12 @@ from typing import (
 from ..core.has_props import HasProps, Setter
 from ..core.property.validation import without_property_validation
 from ..core.query import SelectorType
-from ..core.serialization import ObjectRefRep, Ref, Serializer
+from ..core.serialization import (
+    ObjectRefRep,
+    ObjectRep,
+    Ref,
+    Serializer,
+)
 from ..core.types import ID
 from ..document import Document
 from ..document.events import DocumentPatchedEvent
@@ -90,7 +95,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def set_select(self, selector: type[Model] | SelectorType, updates: dict[str, Any]) -> None: ...
 
-    def to_serializable(self, serializer: Serializer) -> ObjectRefRep: ...
+    def to_serializable(self, serializer: Serializer) -> ObjectRep | ObjectRefRep: ...
 
     def trigger(self, attr: str, old: Any, new: Any,
         hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None: ...

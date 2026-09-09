@@ -83,7 +83,7 @@ export type ObjectRefRep = {
   attributes?: {[key: string]: AnyVal}
 }
 
-export type ModelRep = ObjectRefRep
+export type ModelRep = ObjectRep | ObjectRefRep
 
 export type TypedArrayRep = {
   type: "typed_array"

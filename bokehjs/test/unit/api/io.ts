@@ -229,6 +229,7 @@ describe("in api/plotting module", () => {
       document.body.append(first_target, replacement_target, second_target)
       const first = Plot.create()
       const second = Plot.create()
+      second.name = "semantic-detail"
       const doc = new Document({roots: [first, second]})
       const source = new MountSource(doc, {summary: first, detail: second})
 
@@ -239,11 +240,16 @@ describe("in api/plotting module", () => {
       expect(mounted.view("summary")).to.be.null
       expect(mounted.views.length).to.be.equal(1)
       expect(mounted.ownership.document).to.be.equal("caller")
+      expect(mounted.document.get_model_by_name("semantic-detail")).to.be.equal(second)
+      const detail_view = mounted.view("detail")
+      expect_instanceof(detail_view, PlotView)
+      expect(mounted.view_lookup.find_one(second)).to.be.equal(detail_view)
 
       const first_view = await mounted.attach("summary", first_target)
       expect_instanceof(first_view, PlotView)
       expect(first_target.contains(first_view.el)).to.be.true
       expect(mounted.views.length).to.be.equal(2)
+      expect(mounted.view_lookup.find_one(first)).to.be.equal(first_view)
 
       const replaced = await mounted.replace_target("summary", replacement_target)
       expect(replaced).to.be.equal(first_view)

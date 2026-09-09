@@ -702,6 +702,7 @@ describe("Document", () => {
 
     const json = d.to_json_string()
     const parsed = JSON.parse(json)
+    expect("id" in parsed.roots[0]).to.be.true
     parsed.version = js_version
     const copy = Document.from_json_string(JSON.stringify(parsed))
 
@@ -746,6 +747,63 @@ describe("Document", () => {
     expect_instanceof(root, ColumnDataSource)
     expect(root.data.values).to.be.instanceof(Float64NDArray)
     expect(root.data.values).to.be.equal(values)
+  })
+
+  it("can serialize with minimal model IDs", () => {
+    const d = new Document()
+    const root = SomeModel.create({foo: 10})
+    d.add_root(root)
+
+    const json = d._to_json(false, "minimal")
+    expect("id" in json.config!).to.be.false
+    expect("id" in json.roots[0]).to.be.false
+
+    const copy = Document.from_json(json)
+    expect(copy.roots().length).to.be.equal(1)
+    expect(copy.roots()[0]).to.be.instanceof(SomeModel)
+    const copy_root = copy.roots()[0] as SomeModel
+    expect(copy_root.foo).to.be.equal(10)
+  })
+
+  it("preserves shared identity with minimal model IDs", () => {
+    const d = new Document()
+    const shared = SomeModel.create({foo: 10})
+    const root0 = SomeModel.create({foo: 20, child: shared})
+    const root1 = SomeModel.create({foo: 30, child: shared})
+    d.add_root(root0)
+    d.add_root(root1)
+
+    const json = d._to_json(false, "minimal")
+    expect("id" in json.roots[0]).to.be.false
+    expect("id" in json.roots[1]).to.be.false
+    expect(json.roots[0].attributes!.child).to.be.equal({
+      type: "object",
+      name: "SomeModel",
+      id: shared.id,
+      attributes: {foo: 10},
+    })
+    expect(json.roots[1].attributes!.child).to.be.equal({id: shared.id})
+
+    const copy = Document.from_json(json)
+    const copy_root0 = copy.roots()[0] as SomeModel
+    const copy_root1 = copy.roots()[1] as SomeModel
+    expect(copy_root0.child).to.be.equal(copy_root1.child)
+  })
+
+  it("omits minimal IDs for ancestors of cycles", () => {
+    const d = new Document()
+    const child0 = SomeModel.create({foo: 10})
+    const child1 = SomeModel.create({foo: 20, child: child0})
+    child0.child = child1
+    const root = SomeModel.create({foo: 30, child: child0})
+    d.add_root(root)
+
+    const json = d._to_json(false, "minimal")
+    expect("id" in json.roots[0]).to.be.false
+    const child0_rep: any = json.roots[0].attributes!.child
+    expect(child0_rep.id).to.be.equal(child0.id)
+    expect(child0_rep.attributes.child.id).to.be.equal(child1.id)
+    expect(child0_rep.attributes.child.attributes.child).to.be.equal({id: child0.id})
   })
 
   it("can serialize excluding defaults", () => {
