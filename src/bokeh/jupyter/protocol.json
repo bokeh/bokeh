@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "mime_types": {
+    "artifact": "application/vnd.bokeh.embed+json",
+    "display": "application/vnd.bokeh.display+json",
+    "file": "application/vnd.bokeh.file+json",
+    "resources": "application/vnd.bokeh.resources+json"
+  },
+  "comm_targets": {
+    "notebook": "bokeh.notebook.v1",
+    "resources": "bokeh.resources.v1"
+  },
+  "limits": {
+    "pending_patches": 64,
+    "pending_bytes": 8388608
+  }
+}

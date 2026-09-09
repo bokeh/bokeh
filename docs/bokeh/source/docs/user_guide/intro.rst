@@ -99,18 +99,15 @@ Output methods
 --------------
 
 Bokeh offers a variety of ways to produce interactive output. The following
-functions are the most common:
+two functions are the most common:
 
 |show|
-    Save and open standalone HTML, or display inline in an active notebook.
+    Display Bokeh visualizations, including automatic inline Jupyter output.
 
 |save|
-    Generate standalone HTML documents without opening a browser.
+    Save Bokeh visualizations without opening them.
 
-|output_notebook|
-    Display Bokeh visualizations in Jupyter/Zeppelin notebooks.
-
-Here's an example:
+Pass a filename directly to |show| for file output. Here's an example:
 
 .. code-block:: python
 
@@ -180,8 +177,7 @@ Some of most useful settings are:
     * ``server`` to load from a Bokeh server
     * ``relative`` to load a local version relative to the given directory.
 
-    All available options are listed at
-    :class:`~bokeh.resources.Resources`.
+    All available options are listed at :class:`~bokeh.resources.Resources`.
 
     You can combine some of the values for this variable with other
     configuration values, such as ``cdn_version`` (``BOKEH_CDN_VERSION``) and
@@ -242,7 +238,7 @@ plot:
     p.circle([1, 2.5, 3, 2], [2, 3, 1, 1.5], radius=0.3, alpha=0.5)
 
     # display the figure
-    show(p, filename="foo.html")
+    show(p)
 
 Calling the |figure| function is all it takes to create a basic plot object. To
 add data renderers to your plot object, call a glyph method such as

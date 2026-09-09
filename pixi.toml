@@ -112,6 +112,7 @@ types-pyyaml = "*"
 types-requests = "*"
 types-toml = "*"
 urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
+uvicorn = ">=0.30"
 vermin = "*"
 
 [feature.full.pypi-dependencies]
@@ -202,7 +203,19 @@ starlette = "*"
 streamlit = "1.57.*"
 uvicorn-standard = "*"
 
+[feature.notebook-test.dependencies]
+anywidget = ">=0.11"
+ipython = "*"
+jupyter-server-proxy = "*"
+jupyterlab = "*"
+marimo = "*"
+nbconvert = ">=5.4"
+notebook = "*"
+playwright-python = "*"
+uvicorn = ">=0.30"
+
 [feature.build.dependencies]
+jupyter-builder = "*"
 pip = "*"
 python-build = "*"
 setuptools = "*"
@@ -253,6 +266,7 @@ test-py312 = ["py312", "js", "runtime", "test", "full", "standard-only"]
 test-py313 = ["py313", "js", "runtime", "test", "full", "standard-only"]
 test-py314 = ["py314", "js", "runtime", "test", "full", "standard-only"]
 test-py314t = { features = ["py314t", "js", "runtime", "test", "full", "free-threaded"], no-default-feature = true }
+notebook-test = ["py314", "js", "runtime", "test", "notebook-test"]
 minimal = ["py312", "js", "runtime", "test", "minimal"]
 core = ["py313", "js", "runtime", "test"]
 downstream = ["py312", "js", "runtime", "downstream"]
@@ -270,6 +284,12 @@ docs = "bash tools/ci/build_docs.sh"
 js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
 test-js = { cmd = "node make test", cwd = "bokehjs" }
 build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
+jupyter-build = "bash tools/ci/build_jupyter.sh"
+jupyter-verify = "bash tools/ci/build_jupyter.sh --verify"
+
+[feature.notebook-test.tasks]
+notebook-browser-install = "playwright install --only-shell chromium"
+test-notebook = "pytest --color=yes -rs tests/integration/test_jupyter_install.py tests/unit/bokeh/io/test_anywidget.py tests/unit/bokeh/io/test_jupyter.py tests/unit/bokeh/io/test_jupyter_app.py tests/unit/bokeh/io/test_jupyter_export.py tests/unit/bokeh/io/test_jupyter_runtime.py tests/unit/bokeh/io/test_notebook__io.py tests/integration/test_jupyter_extension.py tests/integration/test_marimo.py"
 
 [feature.build.tasks]
 build-python = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
