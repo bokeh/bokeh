@@ -262,6 +262,10 @@ Cross integration tests
     and then commit any new baselines and re-run tests. Only committed
     baselines are considered by the test runner.
 
+    .. warning::
+        Cross tests are not supported on Windows and therefore skipped. Use Linux or
+        macOS to add or refresh baseline images.
+
     Each test case must have a corresponding integration test in BokehJS,
     under ``bokehjs/test/integration/cross.ts``. These are equivalent to
     typical BokehJS' integration tests. However, it's recommended that
