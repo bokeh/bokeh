@@ -204,7 +204,7 @@ Cross integration tests
     and then commit any new baselines and re-run tests. Only committed
     baselines are considered by the test runner.
 
-    .. note::
+    .. warning::
         Cross tests are not supported on Windows and therefore skipped. Use Linux or
         macOS to add or refresh baseline images.
 
