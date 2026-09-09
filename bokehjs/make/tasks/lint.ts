@@ -1,5 +1,6 @@
 import {join, normalize} from "node:path"
 
+import {clearCaches} from "@typescript-eslint/typescript-estree"
 import {ESLint} from "eslint"
 import chalk from "chalk"
 
@@ -9,13 +10,13 @@ import * as paths from "../paths.js"
 
 import {glob} from "#compiler/sys.js"
 
-async function eslint(dirs: string[]): Promise<void> {
+async function eslint(dirs: string[], tsconfig_file: string = "tsconfig.json"): Promise<void> {
   const {fix} = argv
   const eslint = new ESLint({cache: true, cacheStrategy: "content", fix})
 
   const files = new Set<string>()
   for (const dir of dirs) {
-    const tsconfig_url = `file://${join(dir, "tsconfig.json")}`
+    const tsconfig_url = `file://${join(dir, tsconfig_file)}`
     const {default: tsconfig_json} = await import(tsconfig_url, {with: {type: "json"}})
     const tsconfig = tsconfig_json as {include?: string[], exclude?: string[]}
 
@@ -29,7 +30,7 @@ async function eslint(dirs: string[]): Promise<void> {
     }
   }
 
-  const results = await eslint.lintFiles([...files])
+  const results = await eslint.lintFiles([...files]).finally(clearCaches)
 
   const errors = results.some(result => result.errorCount != 0)
   const warnings = results.some(result => result.warningCount != 0)
@@ -60,6 +61,7 @@ const test_subdirs = [
   "integration",
   "codebase",
   "devtools",
+  "frameworks",
 ]
 
 for (const name of test_subdirs) {
@@ -72,14 +74,24 @@ task("eslint:compiler", async () => await eslint([paths.src_dir.compiler]))
 task("eslint:server", async () => await eslint([paths.src_dir.server]))
 task("eslint:test", async () => await eslint(test_subdirs.map((name) => join(paths.src_dir.test, name))))
 task("eslint:examples", async () => await eslint([paths.src_dir.examples]))
+task("eslint:frameworks", async () => await eslint([join(paths.base_dir, "frameworks")], "tsconfig.lint.json"))
+task("eslint:examples:frameworks", async () => await eslint([join(paths.src_dir.examples, "frameworks")], "tsconfig.lint.json"))
 
-task("eslint", async () => await eslint([
-  paths.make_dir,
-  paths.src_dir.lib,
-  paths.src_dir.compiler,
-  paths.src_dir.server,
-  ...test_subdirs.map((name) => join(paths.src_dir.test, name)),
-  paths.src_dir.examples,
-]))
+task("eslint", async () => {
+  await eslint([
+    paths.make_dir,
+    paths.src_dir.lib,
+    paths.src_dir.compiler,
+    paths.src_dir.server,
+  ])
+  await eslint([
+    ...test_subdirs.map((name) => join(paths.src_dir.test, name)),
+    paths.src_dir.examples,
+  ])
+  await eslint([
+    join(paths.base_dir, "frameworks"),
+    join(paths.src_dir.examples, "frameworks"),
+  ], "tsconfig.lint.json")
+})
 
 task("lint", ["eslint"])

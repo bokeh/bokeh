@@ -22,6 +22,7 @@ from packaging.version import Version as V
 from .action import FAILED, PASSED, ActionReturn
 from .config import ANY_VERSION, Config
 from .git import get_tags
+from .npm import NPM_PACKAGES
 from .system import System
 from .util import skip_for_prerelease
 
@@ -57,7 +58,10 @@ def build_bokehjs(config: Config, system: System) -> ActionReturn:
 def build_npm_packages(config: Config, system: System) -> ActionReturn:
     try:
         system.cd("bokehjs")
-        system.run("npm pack")
+        for package in NPM_PACKAGES:
+            workspace = package.workspace
+            command = "npm pack" if workspace == "" else f"npm pack --workspace {workspace}"
+            system.run(command)
         system.cd("..")
         return PASSED("npm pack succeeded")
     except RuntimeError as e:
@@ -121,8 +125,23 @@ def npm_install(config: Config, system: System) -> ActionReturn:
 
 
 def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
+    public_packages = {package.name for package in NPM_PACKAGES}
+
+    def update_dependencies(content: dict[str, Any]) -> None:
+        for section in ("dependencies", "devDependencies", "optionalDependencies"):
+            for dependency in content.get(section, {}):
+                if dependency in public_packages:
+                    content[section][dependency] = config.js_version
+
+        peer_dependencies = content.get("peerDependencies", {})
+        for dependency in peer_dependencies:
+            if dependency in public_packages:
+                    peer_dependencies[dependency] = f">={config.js_version} <{V(config.version).major + 1}"
+
     def update_package_json(content: dict[str, Any]) -> None:
-        content["version"] = config.js_version
+        if content.get("name", "").startswith("@bokeh/"):
+            content["version"] = config.js_version
+        update_dependencies(content)
 
     def update_package_lock_json(content: dict[str, Any]) -> None:
         assert content["lockfileVersion"] == 3, "Expected lock file v3"
@@ -130,19 +149,21 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
         for pkg in content["packages"].values():
             if pkg.get("name", "").startswith("@bokeh/"):
                 pkg["version"] = config.js_version
-
-    files: dict[str, Callable[[dict[str, Any]], None]] = {
-        "package.json": update_package_json,
-        "make/package.json": update_package_json,
-        "src/compiler/package.json": update_package_json,
-        "src/lib/package.json": update_package_json,
-        "src/server/package.json": update_package_json,
-        "test/package.json": update_package_json,
-        "package-lock.json": update_package_lock_json,
-    }
+            update_dependencies(pkg)
 
     system.pushd("bokehjs")
     try:
+        try:
+            with open("package.json") as f:
+                root_package = json.load(f)
+            package_files = ["package.json", *(f"{workspace.removeprefix('./')}/package.json" for workspace in root_package["workspaces"])]
+        except Exception as e:
+            return FAILED("Unable to discover BokehJS workspaces from 'package.json'", details=e.args)
+
+        files: dict[str, Callable[[dict[str, Any]], None]] = {
+            **{filename: update_package_json for filename in package_files},
+            "package-lock.json": update_package_lock_json,
+        }
         for filename, action in files.items():
             try:
                 with open(filename) as f:

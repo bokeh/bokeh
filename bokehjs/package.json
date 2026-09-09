@@ -12,20 +12,45 @@
     "graph"
   ],
   "license": "BSD-3-Clause",
+  "type": "module",
+  "sideEffects": [
+    "./build/js/lib/**/main.js",
+    "./build/js/lib/models/glyphs/webgl/index.js",
+    "./build/js/lib/models/text/mathjax/index.js",
+    "./build/js/lib/models/tools/aliases.js"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/bokeh/bokeh.git"
   },
   "engines": {
-    "node": ">=16.0",
-    "npm": ">=8.0"
+    "node": ">=22.0",
+    "npm": ">=10.0"
   },
   "files": [
     "build/js/bokeh*.min.js",
+    "build/esm/bokeh*.js",
+    "build/esm/bokeh*.js.map",
     "build/js/lib/**/*.js",
     "build/js/lib/**/*.d.ts"
   ],
   "workspaces": [
+    "./examples/frameworks/angular-ng",
+    "./examples/frameworks/react-next",
+    "./examples/frameworks/react-vite",
+    "./examples/frameworks/node-ssr-compat",
+    "./examples/frameworks/svelte-vite",
+    "./examples/frameworks/vanilla-rspack",
+    "./examples/frameworks/vanilla-vite",
+    "./examples/frameworks/vanilla-webpack",
+    "./examples/frameworks/vue-vite",
+    "./examples/frameworks/web-component-webpack",
+    "./frameworks/angular",
+    "./frameworks/base",
+    "./frameworks/react",
+    "./frameworks/svelte",
+    "./frameworks/vue",
+    "./frameworks/web-component",
     "./make",
     "./src/compiler",
     "./src/lib",
@@ -35,21 +60,97 @@
   "scripts": {
     "prepare": "node ./prepare.mjs",
     "build": "node make build",
-    "dev-build": "node make dev-build"
+    "dev-build": "node make dev-build",
+    "test:frameworks": "node make test:frameworks"
   },
   "allowScripts": {
     "esbuild": true
   },
-  "main": "build/js/lib/bokeh.js",
-  "types": "build/js/lib/bokeh.d.ts",
+  "main": "build/js/lib/bokeh_package.js",
+  "module": "build/js/lib/bokeh_package.js",
+  "types": "build/js/lib/bokeh_package.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/js/lib/bokeh_package.d.ts",
+      "import": "./build/js/lib/bokeh_package.js",
+      "default": "./build/js/lib/bokeh_package.js"
+    },
+    "./core": {
+      "types": "./build/js/lib/index.d.ts",
+      "import": "./build/js/lib/index.js",
+      "default": "./build/js/lib/index.js"
+    },
+    "./all": {
+      "types": "./build/js/lib/all/register.d.ts",
+      "import": "./build/js/lib/all/register.js",
+      "default": "./build/js/lib/all/register.js"
+    },
+    "./widgets": {
+      "types": "./build/js/lib/models/widgets/index.d.ts",
+      "import": "./build/js/lib/models/widgets/index.js",
+      "default": "./build/js/lib/models/widgets/index.js"
+    },
+    "./tables": {
+      "types": "./build/js/lib/models/widgets/tables/index.d.ts",
+      "import": "./build/js/lib/models/widgets/tables/index.js",
+      "default": "./build/js/lib/models/widgets/tables/index.js"
+    },
+    "./webgl": {
+      "types": "./build/js/lib/models/glyphs/webgl/index.d.ts",
+      "import": "./build/js/lib/models/glyphs/webgl/index.js",
+      "default": "./build/js/lib/models/glyphs/webgl/index.js"
+    },
+    "./mathjax": {
+      "types": "./build/js/lib/models/text/mathjax/index.d.ts",
+      "import": "./build/js/lib/models/text/mathjax/index.js",
+      "default": "./build/js/lib/models/text/mathjax/index.js"
+    },
+    "./api": {
+      "types": "./build/js/lib/api/index.d.ts",
+      "import": "./build/js/lib/api/index.js",
+      "default": "./build/js/lib/api/index.js"
+    },
+    "./api/*": {
+      "types": "./build/js/lib/api/*.d.ts",
+      "import": "./build/js/lib/api/*.js",
+      "default": "./build/js/lib/api/*.js"
+    },
+    "./models": {
+      "types": "./build/js/lib/models/index.d.ts",
+      "import": "./build/js/lib/models/index.js",
+      "default": "./build/js/lib/models/index.js"
+    },
+    "./models/*": {
+      "types": "./build/js/lib/models/*.d.ts",
+      "import": "./build/js/lib/models/*.js",
+      "default": "./build/js/lib/models/*.js"
+    },
+    "./document": {
+      "types": "./build/js/lib/document/index.d.ts",
+      "import": "./build/js/lib/document/index.js",
+      "default": "./build/js/lib/document/index.js"
+    },
+    "./document/*": {
+      "types": "./build/js/lib/document/*.d.ts",
+      "import": "./build/js/lib/document/*.js",
+      "default": "./build/js/lib/document/*.js"
+    },
+    "./build/js/lib/*.js": "./build/js/lib/*.js",
+    "./build/js/lib/*": {
+      "types": "./build/js/lib/*.d.ts",
+      "import": "./build/js/lib/*.js",
+      "default": "./build/js/lib/*.js"
+    },
+    "./package.json": "./package.json"
+  },
   "dependencies": {
     "@bokeh/numbro": "^1.6.2",
     "@preact/signals": "^2.5.1",
     "@types/geojson": "^7946.0.13",
     "@types/google.maps": "^3.55.5",
     "@types/nearley": "^2.11.5",
-    "@types/sortablejs": "^1.15.6",
     "@types/semver": "^7.7.1",
+    "@types/sortablejs": "^1.15.6",
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
     "dompurify": "^3.3.0",
@@ -70,6 +171,16 @@
     "underscore.template": "^0.1.7"
   },
   "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "svelte": "^5.56.8",
+    "vite": "^8.2.0",
+    "vue": "^3.5.40",
+    "webpack": "^5.109.2",
+    "webpack-cli": "^7.2.2",
     "webpack-glsl-minify": "^1.5.0"
   }
 }

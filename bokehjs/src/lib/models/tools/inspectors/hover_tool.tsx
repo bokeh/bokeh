@@ -917,7 +917,6 @@ export class HoverTool extends InspectTool {
       callback:     [ Nullable(Any /*TODO*/), null ],
     }))
 
-    this.register_alias("hover", () => HoverTool.create())
   }
 
   override tool_name = "Hover"

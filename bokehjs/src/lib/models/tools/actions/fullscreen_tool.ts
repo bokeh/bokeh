@@ -52,7 +52,6 @@ export class FullscreenTool extends ActionTool {
   static {
     this.prototype.default_view = FullscreenToolView
 
-    this.register_alias("fullscreen", () => FullscreenTool.create())
   }
 
   override tool_name = "Fullscreen"

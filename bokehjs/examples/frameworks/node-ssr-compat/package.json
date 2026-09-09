@@ -1,0 +1,12 @@
+{
+  "name": "@bokeh-example/node-ssr-compat",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node main.mjs"
+  },
+  "dependencies": {
+    "@bokeh/bokehjs": "file:../../.."
+  }
+}

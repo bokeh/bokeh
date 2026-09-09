@@ -1,0 +1,30 @@
+{
+  "name": "@bokeh/svelte",
+  "version": "4.0.0-dev.1",
+  "description": "Svelte action for BokehJS",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "files": ["dist"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@bokeh/framework": "4.0.0-dev.1"
+  },
+  "peerDependencies": {
+    "@bokeh/bokehjs": ">=4.0.0-dev.1 <5",
+    "svelte": ">=4 <6"
+  },
+  "peerDependenciesMeta": {
+    "svelte": {"optional": true}
+  }
+}

@@ -7,6 +7,7 @@ import * as p from "core/properties"
 import * as u from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
 import type {MultiMarkerGL} from "./webgl/multi_marker"
+import type {BaseGLGlyphClass} from "./webgl/base"
 import {CustomJS} from "../callbacks/customjs"
 import {execute_sync} from "core/util/callbacks"
 import type {SyncExecutableLike} from "core/util/callbacks"
@@ -24,7 +25,7 @@ export class ScatterView extends MarkerView {
   /** @internal */
   declare glglyph?: MultiMarkerGL
 
-  override async load_glglyph() {
+  override async load_glglyph(): Promise<BaseGLGlyphClass> {
     const {MultiMarkerGL} = await import("./webgl/multi_marker")
     return MultiMarkerGL
   }

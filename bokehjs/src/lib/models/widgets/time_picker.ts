@@ -1,4 +1,4 @@
-import type flatpickr from "flatpickr"
+import type {FlatpickrOptions} from "../../external/flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
 import {Str, Float, Or} from "core/kinds"
@@ -43,7 +43,7 @@ export class TimePickerView extends PickerBaseView {
     this.connect(clock.change, () => this.picker.set("time_24hr", this.model.clock == "24h"))
   }
 
-  protected override get flatpickr_options(): flatpickr.Options.Options {
+  protected override get flatpickr_options(): FlatpickrOptions {
     const {value, min_time, max_time, time_format, hour_increment, minute_increment, seconds, clock} = this.model
 
     const options = super.flatpickr_options

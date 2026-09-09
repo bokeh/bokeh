@@ -1,4 +1,4 @@
-import type flatpickr from "flatpickr"
+import type {FlatpickrDateLimit, FlatpickrOptions} from "../../external/flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
 import type * as p from "core/properties"
@@ -51,7 +51,7 @@ export abstract class BaseDatePickerView extends PickerBaseView {
     this.connect(date_format.change, () => this.picker.set("altFormat", this.model.date_format))
   }
 
-  protected override get flatpickr_options(): flatpickr.Options.Options {
+  protected override get flatpickr_options(): FlatpickrOptions {
     const {value, min_date, max_date, disabled_dates, enabled_dates, date_format} = this.model
 
     const options = super.flatpickr_options
@@ -79,8 +79,8 @@ export abstract class BaseDatePickerView extends PickerBaseView {
     return options
   }
 
-  protected _convert_date_list(value: DateLikeList): flatpickr.Options.DateLimit[] {
-    const result: flatpickr.Options.DateLimit[] = []
+  protected _convert_date_list(value: DateLikeList): FlatpickrDateLimit[] {
+    const result: FlatpickrDateLimit[] = []
     for (const item of value) {
       if (isArray(item)) {
         const [from, to] = item

@@ -5,13 +5,13 @@ import {logger} from "@bokehjs/core/logging"
 import {version} from "@bokehjs/version"
 
 import {delay} from "@bokehjs/core/util/defer"
-import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
+import {ascii2svg, find_tex, tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
 import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 
 export class DelayedInternalProvider extends MathJaxProvider {
   get MathJax() {
-    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
+    return this.status == "loaded" ? {ascii2svg, find_tex, tex2svg, mathml2svg} : null
   }
 
   async fetch() {
@@ -25,7 +25,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
 
 export class InternalProvider extends MathJaxProvider {
   get MathJax() {
-    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
+    return this.status == "loaded" ? {ascii2svg, find_tex, tex2svg, mathml2svg} : null
   }
   async fetch() {
     this.status = "loaded"

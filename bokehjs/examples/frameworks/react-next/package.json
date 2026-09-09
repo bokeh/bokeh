@@ -1,0 +1,20 @@
+{
+  "name": "@bokeh-example/react-next",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "@bokeh/bokehjs": "file:../../..",
+    "@bokeh/react": "file:../../../frameworks/react",
+    "next": "16.3.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "typescript": "5.9.2"
+  }
+}

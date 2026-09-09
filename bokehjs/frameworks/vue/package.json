@@ -1,0 +1,27 @@
+{
+  "name": "@bokeh/vue",
+  "version": "4.0.0-dev.1",
+  "description": "Vue adapter for BokehJS",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "files": ["dist"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@bokeh/framework": "4.0.0-dev.1"
+  },
+  "peerDependencies": {
+    "@bokeh/bokehjs": ">=4.0.0-dev.1 <5",
+    "vue": ">=3.3 <4"
+  }
+}
