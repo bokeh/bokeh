@@ -92,9 +92,23 @@ export async function retry(fn: () => Promise<void>, attempts: number): Promise<
 }
 
 export function terminate(proc: ChildProcess): void {
-  process.once("exit",    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+  if (proc.exitCode != null || proc.signalCode != null) {
+    return
+  }
+
+  const on_exit = () => proc.kill()
+  const on_sigint = () => proc.kill("SIGINT")
+  const on_sigterm = () => proc.kill("SIGTERM")
+  const cleanup = () => {
+    process.off("exit", on_exit)
+    process.off("SIGINT", on_sigint)
+    process.off("SIGTERM", on_sigterm)
+  }
+
+  process.once("exit", on_exit)
+  process.once("SIGINT", on_sigint)
+  process.once("SIGTERM", on_sigterm)
+  proc.once("exit", cleanup)
 }
 
 export async function keep_alive(): Promise<void> {

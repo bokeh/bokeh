@@ -1,0 +1,154 @@
+name: BokehJS - Publish Baseline Image
+run-name: BokehJS - Publish Baseline Image r${{ inputs.revision }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: "Image revision for the versions pinned in the Dockerfile"
+        required: true
+        default: "1"
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: bokeh/bokehjs-baselines
+
+concurrency:
+  group: bokehjs-baseline-image-${{ inputs.revision }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+
+      - name: Determine image tag
+        id: image
+        shell: bash
+        env:
+          REVISION: ${{ inputs.revision }}
+        run: |
+          if ! [[ "$REVISION" =~ ^[1-9][0-9]*$ ]]; then
+            echo "revision must be a positive integer" >&2
+            exit 2
+          fi
+
+          CHROME_VERSION=$(sed -n 's/^ARG CHROME_VERSION=//p' bokehjs/test/baselines/Dockerfile)
+          if ! [[ "$CHROME_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "unable to read CHROME_VERSION from the Dockerfile" >&2
+            exit 1
+          fi
+
+          IMAGE="$REGISTRY/$IMAGE_NAME"
+          TAG="$CHROME_VERSION-r$REVISION"
+          {
+            echo "image=$IMAGE"
+            echo "tag=$TAG"
+            echo "ref=$IMAGE:$TAG"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify image tag is new
+        shell: bash
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: |
+          if docker buildx imagetools inspect "$IMAGE_REF" > /dev/null 2>&1; then
+            echo "$IMAGE_REF already exists; increment the image revision" >&2
+            exit 1
+          fi
+
+      - name: Build image without cached package layers
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: bokehjs/test/baselines
+          file: bokehjs/test/baselines/Dockerfile
+          platforms: linux/amd64
+          load: true
+          no-cache: true
+          push: false
+          tags: ${{ steps.image.outputs.ref }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.image.outputs.tag }}
+
+      - name: Smoke test local image
+        shell: bash
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: |
+          docker run --rm --platform=linux/amd64 "$IMAGE_REF" node --version
+          docker run --rm --platform=linux/amd64 "$IMAGE_REF" \
+            /opt/chrome/chrome --version
+          timeout 30s docker run --rm --platform=linux/amd64 --shm-size=2g \
+            "$IMAGE_REF" /opt/chrome/chrome --headless=new --no-sandbox \
+            --dump-dom about:blank
+
+      - name: Publish verified image
+        id: publish
+        shell: bash
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: |
+          docker push "$IMAGE_REF"
+          DIGEST=$(docker buildx imagetools inspect "$IMAGE_REF" | sed -n 's/^Digest:[[:space:]]*//p' | head -n 1)
+          if ! [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "unable to determine the published image digest" >&2
+            exit 1
+          fi
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Attest image provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ${{ steps.image.outputs.image }}
+          subject-digest: ${{ steps.publish.outputs.digest }}
+          push-to-registry: true
+
+      - name: Verify published image by digest
+        shell: bash
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        run: |
+          docker pull --platform=linux/amd64 "$IMAGE@$DIGEST"
+          docker image inspect "$IMAGE@$DIGEST" > /dev/null
+
+      - name: Record published image
+        shell: bash
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+          IMAGE: ${{ steps.image.outputs.image }}
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        run: |
+          {
+            echo "### Published BokehJS baseline image"
+            echo
+            echo "- Tag: \`$IMAGE_REF\`"
+            echo "- Digest: \`$DIGEST\`"
+            echo "- Canonical reference: \`$IMAGE@$DIGEST\`"
+            echo
+            echo "Update the immutable image revision in \`bokehjs/test/run-baseline-tests.mjs\` in a reviewed pull request."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -38,12 +38,24 @@ const test = (main: string, title: string) => {
 }
 
 type Base64 = string
+type ReportStatus = {
+  failure: boolean
+  baseline_name?: string
+  baseline?: string
+  existing_blf?: string
+  image?: Base64
+  image_diff?: Base64
+  reference?: Base64
+}
 type Report = {
-  results: [string[], {failure: boolean, image?: Base64, image_diff?: Base64, reference?: Base64}][]
+  completed: boolean
+  reference: string
+  baseline_names: string[]
+  results: [string[], ReportStatus][]
   metrics: {[key: string]: number[]}
 }
 
-function using_report(fn: (report: Report, req: express.Request, res: express.Response) => void) {
+function using_report(fn: (report: Report, platform: string, req: express.Request, res: express.Response) => void) {
   return async (req: express.Request, res: express.Response) => {
     const platform = typeof req.query.platform == "string" ? req.query.platform : sys.platform
     switch (platform) {
@@ -53,7 +65,7 @@ function using_report(fn: (report: Report, req: express.Request, res: express.Re
         const report_path = join("test", "baselines", platform, "report.json")
         try {
           const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
-          fn(JSON.parse(json), req, res)
+          fn(JSON.parse(json), platform, req, res)
         } catch {
           res.status(404).send("Report unavailable")
         }
@@ -81,12 +93,12 @@ app.get("/unit/run", unit(true))
 app.get("/defaults/run", defaults(true))
 app.get("/integration/run", integration(true))
 
-app.get("/integration/report", using_report(({results}, req, res) => {
+app.get("/integration/report", using_report(({results, reference}, platform, req, res) => {
   const full = req.query.full == ""
-  res.render("test/devtools/report.html", {title: "Integration Tests Report", results, full})
+  res.render("test/devtools/report.html", {title: "Integration Tests Report", results, full, platform, reference})
 }))
 
-app.get("/integration/metrics", using_report(({metrics}, _, res) => {
+app.get("/integration/metrics", using_report(({metrics}, _platform, _, res) => {
   res.render("test/devtools/metrics.html", {title: "Integration Tests Metrics", metrics, js: js_path})
 }))
 
