@@ -58,7 +58,7 @@ def test_pixi_runtime_covers_project_dependencies() -> None:
     pyproject, pixi = _load_manifests()
 
     expected = _constraints(pyproject["project"]["dependencies"])
-    dependencies = pixi["feature"]["runtime"]["dependencies"]
+    dependencies = pixi["feature"]["runtime-deps"]["dependencies"]
     actual = _constraints([f"{name} {constraint}" for name, constraint in dependencies.items()])
 
     assert {name: actual.get(name) for name in expected} == expected

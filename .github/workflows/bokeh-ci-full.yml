@@ -454,7 +454,7 @@ jobs:
           environment: ${{ matrix.environment }}
 
       - name: Build docs
-        run: pixi run --locked --environment ${{ matrix.environment }} docs
+        run: pixi run --locked --environment ${{ matrix.environment }} build-docs
 
       - name: Upload docs
         uses: actions/upload-artifact@v6
