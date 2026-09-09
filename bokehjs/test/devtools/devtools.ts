@@ -45,7 +45,7 @@ const argv = yargs(process.argv.slice(2)).options({
   pedantic: {type: "boolean", default: false},
   keyword: {type: "string", array: true, demandOption: false, alias: "k"},
   grep: {type: "string", array: true, demandOption: false},
-  "skip-grep": {type: "string", array: true, demandOption: false},
+  skip: {type: "string", array: true, demandOption: false},
   "baselines-root": {type: "string", demandOption: false},
   screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
   "test-timeout": {type: "number", demandOption: false},
@@ -53,7 +53,7 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {executable, ref, randomize, seed, pedantic, keyword, grep, skipGrep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
 const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
@@ -218,7 +218,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         fail("one or more test descriptions use invalid characters")
       }
 
-      discovery.apply_filters(keyword, grep, skipGrep)
+      discovery.apply_filters(keyword, grep, skip)
 
       const all_tests = discovery.get_all_tests()
       const selected_tests = discovery.get_selected_tests()

@@ -95,7 +95,7 @@ export class TestDiscovery {
   apply_filters(
     keyword: string[] | null | undefined,
     grep: string[] | null | undefined,
-    skip_grep: string[] | null | undefined,
+    skip: string[] | null | undefined,
   ): void {
     if (keyword != null) {
       const keywords = keyword
@@ -115,10 +115,10 @@ export class TestDiscovery {
       }
     }
 
-    if (skip_grep != null) {
-      const regexes = skip_grep.map((re) => new RegExp(re))
+    if (skip != null) {
+      const descriptions = new Set(skip)
       for (const [suites, test] of this.all_tests) {
-        if (regexes.some((regex) => description(suites, test).match(regex) != null)) {
+        if (descriptions.has(description(suites, test))) {
           test.skip = true
         }
       }

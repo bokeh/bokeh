@@ -21,7 +21,7 @@ export const argv = yargs(process.argv.slice(2)).help(false).options({
   debug: {type: "boolean", default: false},
   keyword: {type: "string", array: true, alias: "k"},
   grep: {type: "string", array: true},
-  "skip-grep": {type: "string", array: true},
+  skip: {type: "string", array: true},
   ref: {type: "string"},
   "baselines-root": {type: "string"},
   randomize: {type: "boolean"},

@@ -280,7 +280,7 @@ function baseline_test_options(): string[] {
   return [
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
-    ...opt("skip-grep", argv.skipGrep),
+    ...opt("skip", argv.skip),
     ...opt("ref", argv.ref),
     ...opt("randomize", argv.randomize),
     ...opt("seed", argv.seed),
@@ -300,7 +300,7 @@ function devtools(executable: string, server_port: number, name: string, baselin
   const args = [
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
-    ...opt("skip-grep", argv.skipGrep),
+    ...opt("skip", argv.skip),
     ...opt("ref", argv.ref),
     ...opt("baselines-root", baselines_root),
     ...opt("randomize", argv.randomize),

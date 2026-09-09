@@ -14,10 +14,7 @@ const windows_test_timeout = 120
 // Windows-hosted container even with host IPC and fresh-browser retries.
 // Native Linux CI continues to provide strict coverage.
 const windows_unstable_tests = [
-  {
-    description: "Bug in issue #14451 doesn't allow to keep toolbar visible if renderers change",
-    pattern: "^Bug in issue #14451 doesn't allow to keep toolbar visible if renderers change$",
-  },
+  "Bug in issue #14451 doesn't allow to keep toolbar visible if renderers change",
 ]
 
 function usage(stream = process.stdout) {
@@ -36,8 +33,8 @@ Commands:
            recent completed report.
 
 Test arguments:
-  --skip-grep=REGEXP
-            Skip tests whose full descriptions match REGEXP. May be repeated.
+  --skip=DESCRIPTION
+            Skip a test with this exact full description. May be repeated.
   --test-timeout=SECONDS
             Set the default test-body deadline. Use 0 to disable it. The
             default is 120 on Windows hosts and 30 elsewhere.
@@ -193,8 +190,8 @@ async function run_tests(args) {
       test_args.push(`--test-timeout=${windows_test_timeout}`)
     }
     if (!include_windows_unstable) {
-      test_args.push(...windows_unstable_tests.map(({pattern}) => `--skip-grep=${pattern}`))
-      const skipped = windows_unstable_tests.map(({description}) => `  ${description}`).join("\n")
+      test_args.push(...windows_unstable_tests.map((description) => `--skip=${description}`))
+      const skipped = windows_unstable_tests.map((description) => `  ${description}`).join("\n")
       process.stderr.write(`Skipping tests known to crash Chrome in Windows-hosted containers:\n${skipped}\nSet BOKEHJS_BASELINE_INCLUDE_WINDOWS_UNSTABLE=1 to include them.\n`)
     }
   }
