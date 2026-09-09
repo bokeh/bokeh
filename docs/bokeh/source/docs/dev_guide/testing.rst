@@ -20,7 +20,8 @@ This chapter describes how to run various tests in a
     * **Standard terminal:** Use ``pixi run <task>`` from the repository root to execute predefined testing tasks.
       This automatically ensures your environment dependencies are in sync with the lockfile before the test runs.
     * **Inside a pixi shell:** Run the underlying command directly (e.g., ``pytest`` or ``node``).
-      To avoid environment syncing issues, do not use ``pixi run`` if you are already inside an active shell.
+      Using pixi run inside an active shell is redundant and, while usually harmless, can occasionally cause
+      subtle PATH precedence or activation script conflicts due to nested environment layers.
 
 .. _contributor_guide_testing_local:
 
