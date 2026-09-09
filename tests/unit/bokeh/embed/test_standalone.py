@@ -19,12 +19,11 @@ import pytest ; pytest
 # Standard library imports
 import json
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 # External imports
 import numpy as np
-from jinja2 import Template
 
 # Bokeh imports
 import bokeh.resources as resources
@@ -49,10 +48,6 @@ from bokeh.themes import (
     built_in_themes,
 )
 
-if TYPE_CHECKING:
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.remote.webdriver import WebDriver
-
 # Module under test
 import bokeh.embed.standalone as bes # isort:skip
 
@@ -60,13 +55,18 @@ import bokeh.embed.standalone as bes # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "tests.support.plugins.project",
-    "tests.support.plugins.selenium",
-)
-
 def stable_id() -> ID:
     return ID('ID')
+
+def _autoload_js_urls(js: str) -> list[str]:
+    prefix = "const js_urls = "
+    line = next(line.strip() for line in js.splitlines() if line.strip().startswith(prefix))
+    return json.loads(line.removeprefix(prefix).removesuffix(";"))
+
+def _assert_script_urls(js: str, expected: list[str]) -> None:
+    assert _autoload_js_urls(js) == expected
+    assert "crossorigin" not in js.lower()
+    assert "integrity" not in js.lower()
 
 @pytest.fixture
 def test_plot() -> figure:
@@ -74,22 +74,6 @@ def test_plot() -> figure:
     test_plot = figure(title="'foo'")
     test_plot.scatter(np.array([1, 2]), np.array([2, 3]))
     return test_plot
-
-PAGE = Template("""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-</head>
-
-<body>
-  <script>
-  {{js}}
-  </script>
-  {{tag}}
-</body>
-""")
-
-CSS_SELECTOR: By.CSS_SELECTOR = "css selector"  # type: ignore[valid-type]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -111,105 +95,38 @@ class Test_autoload_static:
         assert set(attrs) == {"src", "id"}
         assert attrs["src"] == "some/path"
 
-    @pytest.mark.selenium
-    def test_by_css_selector(self) -> None:
-        # Should match upstream, this is to avoid importing it
-        pytest.importorskip("selenium")
-        from selenium.webdriver.common.by import By
-
-        assert By.CSS_SELECTOR == CSS_SELECTOR
-
     @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
-    @pytest.mark.selenium
-    def test_js_dev_cdn(self, version: str, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
-        monkeypatch.setattr(buv, "__version__", "1.4.0rc1")
-        monkeypatch.setattr(resources, "__version__", "1.4.0rc1")
-        js, tag = bes.autoload_static(test_plot, CDN, "some/path")
+    def test_js_dev_cdn(self, version: str, monkeypatch: pytest.MonkeyPatch, test_plot: figure) -> None:
+        monkeypatch.setattr(buv, "__version__", version)
+        monkeypatch.setattr(resources, "__version__", version)
+        js, _ = bes.autoload_static(test_plot, CDN, "some/path")
 
-        page = PAGE.render(js=js, tag=tag)
+        _assert_script_urls(js, CDN.js_files)
 
-        path, url = test_file_path_and_url
-        with open(path, "w") as f:
-            f.write(page)
-
-        driver.get(url)
-
-        scripts = driver.find_elements(CSS_SELECTOR, 'head script')
-        assert len(scripts) == 5
-        for script in scripts:
-            assert script.get_attribute("crossorigin") is None
-            assert script.get_attribute("integrity") == ""
-
-    @pytest.mark.selenium
-    def test_js_release_cdn(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
+    def test_js_release_cdn(self, monkeypatch: pytest.MonkeyPatch, test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         r = CDN.clone()
         # Skip bokeh-mathjax for older versions
         r.components.remove("bokeh-mathjax")
-        js, tag = bes.autoload_static(test_plot, r, "some/path")
+        js, _ = bes.autoload_static(test_plot, r, "some/path")
 
-        page = PAGE.render(js=js, tag=tag)
+        _assert_script_urls(js, r.js_files)
 
-        path, url = test_file_path_and_url
-        with open(path, "w") as f:
-            f.write(page)
-
-        driver.get(url)
-
-        scripts = driver.find_elements(CSS_SELECTOR, 'head script')
-        for x in scripts:
-            print(x.get_attribute("src"))
-        assert len(scripts) == 4
-        for script in scripts:
-            assert script.get_attribute("crossorigin") is None
-            assert script.get_attribute("integrity") == ""
-
-    @pytest.mark.selenium
-    def test_js_release_dev_cdn(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
+    def test_js_release_dev_cdn(self, monkeypatch: pytest.MonkeyPatch, test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
-        js, tag = bes.autoload_static(test_plot, CDN, "some/path")
+        js, _ = bes.autoload_static(test_plot, CDN, "some/path")
 
-        page = PAGE.render(js=js, tag=tag)
+        _assert_script_urls(js, CDN.js_files)
 
-        path, url = test_file_path_and_url
-        with open(path, "w") as f:
-            f.write(page)
-
-        driver.get(url)
-
-        scripts = driver.find_elements(CSS_SELECTOR, 'head script')
-        for x in scripts:
-            print(x.get_attribute("src"))
-        assert len(scripts) == 5
-        for script in scripts:
-            assert script.get_attribute("crossorigin") is None
-            assert script.get_attribute("integrity") == ""
-
-    @pytest.mark.selenium
-    def test_js_release_server(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
+    def test_js_release_server(self, monkeypatch: pytest.MonkeyPatch, test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
-        js, tag = bes.autoload_static(test_plot, resources.Resources(mode="server"), "some/path")
+        r = resources.Resources(mode="server")
+        js, _ = bes.autoload_static(test_plot, r, "some/path")
 
-        page = PAGE.render(js=js, tag=tag)
-
-        path, url = test_file_path_and_url
-        with open(path, "w") as f:
-            f.write(page)
-
-        driver.get(url)
-
-        scripts = driver.find_elements(CSS_SELECTOR, 'head script')
-        assert len(scripts) == 5
-        for script in scripts:
-            assert script.get_attribute("crossorigin") is None
-            assert script.get_attribute("integrity") == ""
+        _assert_script_urls(js, r.js_files)
 
 
 class Test_components:

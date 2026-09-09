@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import sys
+
 # Module under test
 import bokeh.command as command # isort:skip
 
@@ -31,6 +34,7 @@ import bokeh.command as command # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
+@pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
 def test_doc() -> None:
     import bokeh.command.subcommands as sc
     assert len(command.__doc__.split("\n")) == 5 + 3*len(sc.all)

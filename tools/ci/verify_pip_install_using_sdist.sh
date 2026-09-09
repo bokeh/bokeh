@@ -7,7 +7,7 @@ export VERSION="$(echo $(basename "$(ls dist/*.tar.gz)" .tar.gz) | cut -d- -f2)"
 
 cp "dist/bokeh-$VERSION.tar.gz" /tmp
 pushd /tmp
-pip install "bokeh-$VERSION.tar.gz"
+python -m pip install --no-deps "bokeh-$VERSION.tar.gz"
 popd
 
 bokeh info

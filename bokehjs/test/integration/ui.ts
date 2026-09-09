@@ -120,8 +120,9 @@ describe("UI elements", () => {
       const plot = draw(figure({width: 400, height: 400, tools: [box_select], active_drag: box_select}))
       const {view} = await display(plot)
 
-      await actions(view).pan(xy(20, 20), xy(80, 80))
-      await view.ready
+      // Only the final persistent box matters here. Using the two endpoints
+      // avoids repeated continuous-selection paints over all 4,000 glyphs.
+      await actions(view).pan(xy(20, 20), xy(80, 80), 2)
 
       // can't dispatch `contextmenu` with `el.dispatchEvent()`
       const {x, y} = view.el.getBoundingClientRect()

@@ -15,15 +15,21 @@ export class HexTileGL extends SXSYGlyphGL {
   protected override _set_data(): void {
     super._set_data()
 
+    let width: number
+    let height: number
     if (this.glyph.model.orientation == "pointytop") {
       this._angles.set_from_scalar(0.5*Math.PI)
-      this._widths.set_from_scalar(this.glyph.svy[0]*2)
-      this._heights.set_from_scalar(this.glyph.svx[4]*4/Math.sqrt(3))
+      width = this.glyph.svy[0]*2
+      height = this.glyph.svx[4]*4/Math.sqrt(3)
     } else {
       this._angles.set_from_scalar(0)
-      this._widths.set_from_scalar(this.glyph.svx[0]*2)
-      this._heights.set_from_scalar(this.glyph.svy[4]*4/Math.sqrt(3))
+      width = this.glyph.svx[0]*2
+      height = this.glyph.svy[4]*4/Math.sqrt(3)
     }
+
+    const {scale} = this.glyph
+    this._widths.set_from_prop(scale.map((scale_i) => width*scale_i))
+    this._heights.set_from_prop(scale.map((scale_i) => height*scale_i))
   }
 
   protected override _set_once(): void {

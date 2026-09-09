@@ -1,4 +1,5 @@
-from bokeh.core.properties import AngleSpec, BoolSpec, Include, NumberSpec
+# Bokeh imports
+from bokeh.core.properties import AngleSpec, AngleUnits, BoolSpec, Include, NumberSpec
 from bokeh.core.property_mixins import FillProps, HatchProps, LineProps
 from bokeh.models.glyph import Glyph
 
@@ -26,6 +27,8 @@ class Gear(Glyph):
     angle = AngleSpec(default=0, help="""
     The angle the gears are rotated from horizontal. [rad]
     """)
+
+    angle_units = AngleUnits
 
     module = NumberSpec(help="""
     A scaling factor, given by::
@@ -57,13 +60,13 @@ class Gear(Glyph):
     """)
 
     line_props = Include(LineProps, help="""
-    The %s values for the gears.
+    The {prop} values for the gears.
     """)
 
     fill_props = Include(FillProps, help="""
-    The %s values for the gears.
+    The {prop} values for the gears.
     """)
 
     hatch_props = Include(HatchProps, help="""
-    The %s values for the gears.
+    The {prop} values for the gears.
     """)

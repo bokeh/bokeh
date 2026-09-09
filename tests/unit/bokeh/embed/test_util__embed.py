@@ -51,7 +51,7 @@ def test_plot() -> None:
     return test_plot
 
 class SomeModel(Model):
-    some = Int
+    some = Int()
 
 class OtherModel(Model):
     child = Instance(Model)

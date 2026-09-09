@@ -45,6 +45,22 @@ export class MenuView extends UIElementView {
     this._menu_items = this._compute_menu_items()
   }
 
+  protected async _rebuild_menu_views(): Promise<void> {
+    const menus = this.menu_items
+      .filter((item) => item instanceof MenuItem)
+      .map((item) => item.menu)
+      .filter((menu) => menu != null)
+    await build_views(this._menu_views, menus, {parent: this})
+  }
+
+  private _rebuilding: Promise<void> = Promise.resolve()
+
+  protected _update_menu(): void {
+    this._update_menu_items()
+    // serialized: interleaved build_views() can remove views a later call created
+    this._rebuilding = this._rebuilding.then(() => this._rebuild_menu_views())
+  }
+
   get is_empty(): boolean {
     return this.menu_items.length == 0
   }
@@ -56,18 +72,14 @@ export class MenuView extends UIElementView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    const menus = this.menu_items
-      .filter((item) => item instanceof MenuItem)
-      .map((item) => item.menu)
-      .filter((menu) => menu != null)
-    await build_views(this._menu_views, menus, {parent: this})
+    await this._rebuild_menu_views()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {items} = this.model.properties
-    this.on_change(items, () => this._update_menu_items())
+    this.on_change(items, () => this._update_menu())
   }
 
   prevent_hide?: (event: MouseEvent) => boolean
@@ -150,7 +162,7 @@ export class MenuView extends UIElementView {
         const chevron_el = div({class: menus.chevron})
 
         const icon_el = (() => {
-          const {icon} = item
+          const icon = to_val(item.icon)
           if (icon != null) {
             const icon_el = div({class: menus.icon})
             apply_icon(icon_el, icon)
@@ -161,11 +173,11 @@ export class MenuView extends UIElementView {
         })()
 
         const item_el = div(
-          {class: menus.item, title: item.tooltip, tabIndex: 0},
+          {class: menus.item, title: to_val(item.tooltip), tabIndex: 0},
           check_el, icon_el, label_el, shortcut_el, chevron_el,
         )
 
-        const has_menu = item.menu != null && !this._menu_views.get(item.menu)!.is_empty
+        const has_menu = item.menu != null && this._menu_views.get(item.menu)?.is_empty === false
         item_el.classList.toggle(menus.menu, has_menu)
         item_el.classList.toggle(menus.disabled, to_val(item.disabled))
 
@@ -176,14 +188,12 @@ export class MenuView extends UIElementView {
 
         const show_submenu = (item: MenuItem): void => {
           if (item.menu != null) {
-            const menu_view = this._menu_views.get(item.menu)!
-            menu_view._show_submenu(item_el)
+            this._menu_views.get(item.menu)?._show_submenu(item_el)
           }
         }
         const hide_submenu = (item: MenuItem): void => {
           if (item.menu != null) {
-            const menu_view = this._menu_views.get(item.menu)!
-            menu_view.hide()
+            this._menu_views.get(item.menu)?.hide()
           }
         }
 

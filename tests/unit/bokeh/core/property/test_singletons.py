@@ -10,14 +10,17 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
+# Standard library imports
+from copy import copy, deepcopy
+from pickle import dumps, loads
+
+# External imports
+import pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from copy import copy
 
 # Module under test
 import bokeh.core.property.singletons as bcpu # isort:skip
@@ -27,7 +30,6 @@ import bokeh.core.property.singletons as bcpu # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
-    "Intrinsic",
     "Undefined",
 )
 
@@ -35,18 +37,20 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-def test_Undefined() -> None:
-    assert (bcpu.Undefined == bcpu.Undefined) is True
-    assert (bcpu.Undefined != bcpu.Undefined) is False
-    assert (bcpu.Undefined is bcpu.Undefined) is True
-    assert (bcpu.Undefined is not bcpu.Undefined) is False
-    assert (copy(bcpu.Undefined) is bcpu.Undefined) is True
-    assert (copy(bcpu.Undefined) is not bcpu.Undefined) is False
+@pytest.mark.parametrize(("singleton", "singleton_type"), [
+    (bcpu.Undefined, bcpu.UndefinedType),
+    (bcpu.OldValueUnavailable, bcpu._OldValueUnavailableType),
+    (bcpu._NotGiven, bcpu._NotGivenType),
+])
+def test_singleton(singleton: object, singleton_type: type[object]) -> None:
+    assert singleton_type() is singleton
+    assert copy(singleton) is singleton
+    assert deepcopy(singleton) is singleton
+    assert loads(dumps(singleton)) is singleton
 
-def test_Intrinsic() -> None:
-    assert (bcpu.Intrinsic == bcpu.Intrinsic) is True
-    assert (bcpu.Intrinsic != bcpu.Intrinsic) is False
-    assert (bcpu.Intrinsic is bcpu.Intrinsic) is True
-    assert (bcpu.Intrinsic is not bcpu.Intrinsic) is False
-    assert (copy(bcpu.Intrinsic) is bcpu.Intrinsic) is True
-    assert (copy(bcpu.Intrinsic) is not bcpu.Intrinsic) is False
+def test_singletons_are_distinct() -> None:
+    assert len({bcpu.Undefined, bcpu.OldValueUnavailable, bcpu._NotGiven}) == 3
+
+def test_NotGiven_repr() -> None:
+    assert str(bcpu._NotGiven) == "NotGiven"
+    assert repr(bcpu._NotGiven) == "..."

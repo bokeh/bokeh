@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 # Bokeh imports
 from ...util.dependencies import import_required
@@ -67,7 +67,7 @@ class NotebookHandler(CodeHandler):
 
     _origin = "Notebook"
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: Sequence[str] = (), package: ModuleType | None = None) -> None:
         '''
 
         Keywords:

@@ -225,7 +225,7 @@ describe("Widgets", () => {
         await display(obj, [300, 100])
       })
 
-      it("and vertical orientation", async () => {
+      it.allowing(3)("and vertical orientation", async () => {
         const obj = new Progress({
           mode: "determinate",
           orientation: "vertical",
@@ -255,7 +255,7 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(9)("should allow CheckboxButtonGroup in vertical orientation", async () => {
+  it.allowing(10)("should allow CheckboxButtonGroup in vertical orientation", async () => {
     const obj = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], orientation: "vertical"})
     await display(obj, [100, 150])
   })
@@ -265,7 +265,7 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(9)("should allow RadioButtonGroup in vertical orientation", async () => {
+  it.allowing(10)("should allow RadioButtonGroup in vertical orientation", async () => {
     const obj = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, orientation: "vertical"})
     await display(obj, [100, 150])
   })

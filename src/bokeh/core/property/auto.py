@@ -35,7 +35,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Auto(Enum):
+class Auto(Enum[str]):
     """ Accepts only the string "auto".
 
     Useful for properties that can be configured to behave "automatically".

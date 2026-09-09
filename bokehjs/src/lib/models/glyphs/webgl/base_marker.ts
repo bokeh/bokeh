@@ -113,7 +113,12 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     }
   }
 
-  protected _draw_one_marker_type(marker_type: GLMarkerType, transform: Transform, main_gl_glyph: BaseMarkerGL): void {
+  protected _draw_one_marker_type(
+    marker_type: GLMarkerType,
+    transform: Transform,
+    main_gl_glyph: BaseMarkerGL,
+    show: Uint8Buffer = this._show,
+  ): void {
     const props_no_hatch: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,
       viewport: this.regl_wrapper.viewport,
@@ -121,7 +126,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       size_hint: marker_type_to_size_hint(marker_type),
       nmarkers: main_gl_glyph.nvertices,
       antialias: this._antialias / transform.pixel_ratio,
-      show: this._show,
+      show,
       center: main_gl_glyph._centers,  // Always from main (position overrides not supported)
       ...this.marker_props(this, main_gl_glyph),
       ...this.line_props,
@@ -139,15 +144,15 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   }
 
   private _did_set_once: boolean = false
-  set_data(): void {
+  set_data(data_changed: boolean = this.data_changed): void {
     if (!this._did_set_once) {
       this._did_set_once = true
       this._set_once()
     }
-    this._set_data()
+    this._set_data(data_changed)
   }
 
-  protected abstract _set_data(): void
+  protected abstract _set_data(data_changed?: boolean): void
 
   protected _set_once(): void {}
 

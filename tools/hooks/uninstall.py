@@ -3,7 +3,8 @@ import subprocess
 
 
 def UninstallHooks() -> None:
-    subprocess.run("pre-commit uninstall -t pre-push".split())
+    for hook_type in ("pre-commit", "pre-push"):
+        subprocess.run(["pre-commit", "uninstall", "--hook-type", hook_type])
 
 
 if __name__ == "__main__":

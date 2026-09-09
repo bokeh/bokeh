@@ -423,12 +423,12 @@ export namespace Kinds {
   }
 
   export class Regex extends Str {
-    constructor(readonly regex: RegExp) {
+    constructor(readonly regex: RegExp | string) {
       super()
     }
 
     override valid(value: unknown): value is string {
-      return super.valid(value) && this.regex.test(value)
+      return super.valid(value) && (tp.isString(this.regex) || this.regex.test(value))
     }
 
     override get kind_args(): unknown[] {
@@ -676,7 +676,7 @@ export const Int = new Kinds.Int()
 export const Bytes = new Kinds.Bytes()
 export const Str = new Kinds.Str()
 export const PrefixedStr = <Prefix extends string>(prefix: Prefix) => new Kinds.PrefixedStr(prefix)
-export const Regex = (regex: RegExp) => new Kinds.Regex(regex)
+export const Regex = (regex: RegExp | string) => new Kinds.Regex(regex)
 export const Null = new Kinds.Null()
 export const Nullable = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Nullable(base_type)
 export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_type)

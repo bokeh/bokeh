@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections.abc import Sequence
+from collections.abc import Mapping
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -40,13 +40,12 @@ from typing import (
 # Bokeh imports
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
-from .descriptor_factory import PropertyDescriptorFactory, PropertyDescriptorLike
-from .descriptors import PropertyDescriptor
+from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from .singletons import (
-    Intrinsic,
-    IntrinsicType,
     Undefined,
     UndefinedType,
+    _NotGiven,
+    _NotGivenType,
 )
 
 if TYPE_CHECKING:
@@ -76,9 +75,11 @@ __all__ = (
 
 type TypeOrInst[T] = type[T] | T
 
-type Init[T] = T | UndefinedType | IntrinsicType
+type Init[T] = T | UndefinedType | _NotGivenType
 
-class Property[T](PropertyDescriptorFactory[T]):
+type ModelInit[T] = T | _NotGivenType
+
+class Property[T]:
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -102,8 +103,18 @@ class Property[T](PropertyDescriptorFactory[T]):
     alternatives: list[tuple[Property[Any], Callable[[Any], T]]]
     assertions: list[tuple[bool | Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
-    def __init__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
-        default = default if default is not Intrinsic else Undefined
+    def __set_name__(self, owner: type[Any], name: str) -> None:
+        own_properties = owner.__dict__.get("__properties__")
+        if not isinstance(own_properties, dict):
+            own_properties = {}
+            setattr(owner, "__properties__", own_properties)
+
+        descriptor = self.make_descriptor(name)
+        setattr(owner, name, descriptor)
+        own_properties[name] = descriptor.property
+
+    def __init__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> None:
+        default = default if default is not _NotGiven else Undefined
 
         if self._serialized:
             self._self_serialized = not (self.readonly and default is Undefined)
@@ -131,9 +142,9 @@ class Property[T](PropertyDescriptorFactory[T]):
     def __repr__(self) -> str:
         return str(self)
 
-    def __call__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> Property[T]:
+    def __call__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> Property[T]:
         """ Clone this property and allow to override ``default`` and ``help``. """
-        default = self._default if default is Intrinsic else default
+        default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
         prop = self.__class__(default=default, help=help)
         prop.alternatives = list(self.alternatives)
@@ -151,25 +162,22 @@ class Property[T](PropertyDescriptorFactory[T]):
         else:
             return False
 
-    def make_descriptors(self, name: str) -> Sequence[PropertyDescriptorLike[T]]:
-        """ Return a list of ``PropertyDescriptor`` instances to install
-        on a class, in order to delegate attribute access to this property.
+    def make_descriptor(self, name: str) -> PropertyDescriptor[T] | AliasPropertyDescriptor[T]:
+        """Return the descriptor used to delegate access to this property.
 
         Args:
             name (str) : the name of the property these descriptors are for
 
         Returns:
-            list[PropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+            PropertyDescriptor
         """
-        return [ PropertyDescriptor(name, self) ]
+        return PropertyDescriptor(name, self)
 
-    def _may_have_unstable_default(self) -> bool:
-        """ False if we have a default that is immutable, and will be the
-        same every time (some defaults are generated on demand by a function
-        to be called).
+    def _needs_materialized_default(self) -> bool:
+        """Whether this property may need a per-instance default value.
+
+        Callable defaults are generated on demand and retained on the
+        instance.
 
         """
         return callable(self._default)
@@ -201,9 +209,11 @@ class Property[T](PropertyDescriptorFactory[T]):
         """ The default, transformed by prepare_value() and the theme overrides.
 
         """
-        overrides = theme_overrides
-        if overrides is None or name not in overrides:
+        overrides: Mapping[str, Any]
+        if theme_overrides is None or name not in theme_overrides:
             overrides = cls._overridden_defaults()
+        else:
+            overrides = theme_overrides
 
         if name in overrides:
             default = self._copy_default(overrides[name], no_eval=no_eval)
@@ -337,9 +347,11 @@ class Property[T](PropertyDescriptorFactory[T]):
         return value
 
     def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> T:
-        if value is Intrinsic:
-            value = self._raw_default()
+        from ..has_props import HasProps
+
         if value is Undefined:
+            if isinstance(owner, HasProps):
+                raise ValueError(f"can't set {owner}.{name} to Undefined")
             return cast(T, value)
 
         error = None
@@ -354,8 +366,6 @@ class Property[T](PropertyDescriptorFactory[T]):
                     break
             else:
                 error = e
-
-        from ..has_props import HasProps
 
         if error is None:
             value = self.transform(value)
@@ -445,9 +455,9 @@ class ParameterizedProperty[T](Property[T]):
 
     _type_params: list[Property[Any]]
 
-    def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[T] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[T] = _NotGiven, help: str | None = None) -> None:
         _type_params = [ self._validate_type_param(param) for param in type_params ]
-        default = default if default is not Intrinsic else _type_params[0]._raw_default()
+        default = default if default is not _NotGiven else _type_params[0]._raw_default()
         self._type_params = _type_params
         super().__init__(default=default, help=help)
 
@@ -456,9 +466,9 @@ class ParameterizedProperty[T](Property[T]):
         item_types = ", ".join(str(x) for x in self.type_params)
         return f"{class_name}({item_types})"
 
-    def __call__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> ParameterizedProperty[T]:
+    def __call__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> ParameterizedProperty[T]:
         """ Clone this property and allow to override ``default`` and ``help``. """
-        default = self._default if default is Intrinsic else default
+        default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
         prop = self.__class__(*self.type_params, default=default, help=help)
         prop.alternatives = list(self.alternatives)
@@ -494,9 +504,9 @@ class ParameterizedProperty[T](Property[T]):
     def has_ref(self) -> bool:
         return any(type_param.has_ref for type_param in self.type_params)
 
-    def _may_have_unstable_default(self) -> bool:
-        return super()._may_have_unstable_default() or \
-            any(type_param._may_have_unstable_default() for type_param in self.type_params)
+    def _needs_materialized_default(self) -> bool:
+        return super()._needs_materialized_default() or \
+            any(type_param._needs_materialized_default() for type_param in self.type_params)
 
     def replace(self, old: type[Property[Any]], new: Property[Any]) -> Property[Any]:
         if self.__class__ == old:
@@ -512,7 +522,7 @@ class SingleParameterizedProperty[T](ParameterizedProperty[T]):
     def type_param(self) -> Property[T]:
         return self._type_params[0]
 
-    def __init__(self, type_param: TypeOrInst[Property[Any]], *, default: Init[T] = Intrinsic, help: str | None = None):
+    def __init__(self, type_param: TypeOrInst[Property[Any]], *, default: Init[T] = _NotGiven, help: str | None = None):
         super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -565,7 +575,7 @@ class ContainerProperty[T](ParameterizedProperty[T]):
 
     """
 
-    def _may_have_unstable_default(self) -> bool:
+    def _needs_materialized_default(self) -> bool:
         # all containers are mutable, so the default can be modified
         return self._default is not Undefined
 

@@ -81,22 +81,22 @@ your notebook:
 Exporting PNG files
 -------------------
 
-To export PNG or SVG files, you need to install a headless browser backend.
-Bokeh supports two options: **Playwright** and **Selenium**.
-Bokeh uses one of these backends to run in a browser without a graphical user
-interface and render the PNG or SVG files.
+To export PNG or SVG files, you need to install Playwright, Bokeh's default
+headless browser backend. Bokeh uses this backend to run in a browser without
+a graphical user interface and render the PNG or SVG files.
 
 To get started with
 `Playwright <https://github.com/microsoft/playwright-python>`_:
 
 .. code-block:: sh
 
-    pip install playwright
-    playwright install chromium
+    pip install "bokeh[export]"
+    playwright install --only-shell chromium
 
-Alternatively, you can use `Selenium <https://github.com/SeleniumHQ/selenium>`_. Selenium
+The Selenium export backend is deprecated in Bokeh 4.0. Existing applications
+can temporarily select it explicitly while migrating to Playwright. Selenium
 needs to be able to access either a Firefox browser (through the geckodriver
-package) or a Chrome/Chromium browser (through the chromedriver package), thus
+package) or a Chrome/Chromium browser (through the chromedriver package), so
 you need to install the appropriate packages for your choice of browser:
 
 .. code-block:: sh

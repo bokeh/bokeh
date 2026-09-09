@@ -47,7 +47,6 @@ from ...core.property.primitive import (
     String,
 )
 from ...core.property.required import Required
-from ...core.property.singletons import Intrinsic
 from ...model import Model
 from ..comparisons import Comparison
 from ..dom import HTML
@@ -869,6 +868,8 @@ class DataTable(TableWidget):
 
         """
 
+
+        formatters = formatters.copy()
         if isinstance(data, ColumnDataSource):
             source = data.clone()
         else:
@@ -882,8 +883,10 @@ class DataTable(TableWidget):
 
         table_columns = []
         for c in source.data.keys():
-            formatter = formatters.get(c, Intrinsic)
-            table_columns.append(TableColumn(field=c, title=c, formatter=formatter))
+            column = TableColumn(field=c, title=c)
+            if c in formatters:
+                column.formatter = formatters[c]
+            table_columns.append(column)
 
         return DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
 

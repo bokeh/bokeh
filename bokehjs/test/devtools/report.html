@@ -32,7 +32,7 @@
         display: grid;
         padding: 10px;
         grid-gap: 10px;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .header {
@@ -48,8 +48,43 @@
         background: white;
         font-weight: bold;
         font-size: 18px;
-        height: 30px;
         padding: 5px;
+      }
+
+      .filename {
+        display: block;
+        font-family: monospace;
+        font-size: 14px;
+        font-weight: normal;
+        margin-top: 5px;
+      }
+
+      .baseline {
+        background: white;
+        min-height: 40px;
+        overflow: auto;
+        padding: 5px;
+        white-space: pre;
+      }
+
+      .empty {
+        align-content: center;
+        background: white;
+        color: #666;
+        min-height: 40px;
+        padding: 5px;
+        text-align: center;
+      }
+
+      a {
+        align-self: start;
+        background: white;
+      }
+
+      img {
+        display: block;
+        height: auto;
+        max-width: 100%;
       }
     </style>
   </head>
@@ -57,13 +92,19 @@
     <div class="container">
       <div class="header">Current</div>
       <div class="header">Diff</div>
-      <div class="header">Reference</div>
+      <div class="header">Reference <span class="filename">{{ reference }}</span></div>
     {%- for description, status in results %}
       {%- if full or status.failure %}
-      <div class="description">{{ description | join(" ⇒ ") }}</div>
-      <img src="data:image/png;base64,{{ status.image }}"></img>
-      <img src="data:image/png;base64,{{ status.image_diff }}"></img>
-      <img src="data:image/png;base64,{{ status.reference }}"></img>
+      <div class="description">
+        {{ description | join(" ⇒ ") }}
+        <span class="filename">test/baselines/{{ platform }}/{{ status.baseline_name }}.{blf,png}</span>
+      </div>
+      {% if status.image %}<a href="data:image/png;base64,{{ status.image }}" target="_blank" title="Open current image at full size"><img src="data:image/png;base64,{{ status.image }}"></img></a>{% else %}<div class="empty">No image</div>{% endif %}
+      {% if status.image_diff %}<a href="data:image/png;base64,{{ status.image_diff }}" target="_blank" title="Open image difference at full size"><img src="data:image/png;base64,{{ status.image_diff }}"></img></a>{% else %}<div class="empty">No image difference</div>{% endif %}
+      {% if status.reference %}<a href="data:image/png;base64,{{ status.reference }}" target="_blank" title="Open reference image at full size"><img src="data:image/png;base64,{{ status.reference }}"></img></a>{% else %}<div class="empty">No reference image</div>{% endif %}
+      <pre class="baseline">{{ status.baseline }}</pre>
+      <div class="empty">Layout baseline</div>
+      {% if status.existing_blf %}<pre class="baseline">{{ status.existing_blf }}</pre>{% else %}<div class="empty">No reference layout baseline</div>{% endif %}
       {% endif -%}
     {% endfor -%}
     </div>

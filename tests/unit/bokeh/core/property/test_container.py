@@ -63,7 +63,14 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-# TODO (bev) class Test_RelativeDelta
+class Test_RelativeDelta:
+    def test_default_is_not_shared(self) -> None:
+        prop0 = bcpc.RelativeDelta()
+        prop1 = bcpc.RelativeDelta()
+
+        assert prop0.default == {}
+        assert prop1.default == {}
+        assert prop0.default is not prop1.default
 
 class Test_ColumnData:
 
@@ -148,6 +155,14 @@ class Test_Dict:
         with pytest.raises(TypeError):
             bcpc.Dict()
 
+    def test_default_is_not_shared(self) -> None:
+        prop0 = bcpc.Dict(String, Int)
+        prop1 = bcpc.Dict(String, Int)
+
+        assert prop0.default == {}
+        assert prop1.default == {}
+        assert prop0.default is not prop1.default
+
     def test_valid(self) -> None:
         prop = bcpc.Dict(String, bcpc.List(Int))
 
@@ -197,6 +212,14 @@ class Test_List:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpc.List()
+
+    def test_default_is_not_shared(self) -> None:
+        prop0 = bcpc.List(Int)
+        prop1 = bcpc.List(Int)
+
+        assert prop0.default == []
+        assert prop1.default == []
+        assert prop0.default is not prop1.default
 
     def test_valid(self) -> None:
         prop = bcpc.List(Int)
@@ -341,6 +364,14 @@ class Test_Set:
         with pytest.raises(TypeError):
             bcpc.Set() # type: ignore
 
+    def test_default_is_not_shared(self) -> None:
+        prop0 = bcpc.Set(Int)
+        prop1 = bcpc.Set(Int)
+
+        assert prop0.default == set()
+        assert prop1.default == set()
+        assert prop0.default is not prop1.default
+
     def test_valid(self) -> None:
         prop = bcpc.Set(Int)
 
@@ -457,6 +488,14 @@ class Test_Tuple:
         assert str(prop) == "Tuple(Int, Int)"
 
 class Test_RestrictedDict:
+    def test_default_is_not_shared(self) -> None:
+        prop0 = bcpc.RestrictedDict(String, Int, disallow=())
+        prop1 = bcpc.RestrictedDict(String, Int, disallow=())
+
+        assert prop0.default == {}
+        assert prop1.default == {}
+        assert prop0.default is not prop1.default
+
     def test_valid(self) -> None:
         prop = bcpc.RestrictedDict(String, bcpc.List(Int), disallow=("disallowed_key_1", "disallowed_key_2"))
 

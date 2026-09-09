@@ -44,6 +44,7 @@ from typing import (
     Callable,
     ClassVar,
     Generator,
+    Sequence,
 )
 
 # Bokeh imports
@@ -88,7 +89,7 @@ class CodeHandler(Handler):
 
     _origin: ClassVar[str]
 
-    def __init__(self, *, source: str, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, source: str, filename: PathLike, argv: Sequence[str] = (), package: ModuleType | None = None) -> None:
         '''
 
         Args:
@@ -96,7 +97,7 @@ class CodeHandler(Handler):
 
             filename (str) : a filename to use in any debugging or error output
 
-            argv (list[str], optional) : a list of string arguments to make
+            argv (Sequence[str], optional) : a sequence of string arguments to make
                 available as ``sys.argv`` when the code executes
 
         '''
