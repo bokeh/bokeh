@@ -8,11 +8,11 @@ describe("step_interpolator_transform module", () => {
 
   describe("creation with ColumnDataSource ranges", () => {
     function step_interpolator(mode: StepMode) {
-      return new StepInterpolator({
+      return StepInterpolator.create({
         mode,
         x: "var1",
         y: "var2",
-        data: new ColumnDataSource({
+        data: ColumnDataSource.create({
           data: {var1: [0, 5, 15], var2: [10, 20, 30]},
         }),
       })
@@ -85,7 +85,7 @@ describe("step_interpolator_transform module", () => {
   describe("creation with inline ranges", () => {
 
     function step_interpolator(mode: StepMode) {
-      return new StepInterpolator({
+      return StepInterpolator.create({
         mode,
         x: [0, 5, 15],
         y: [10, 20, 30],

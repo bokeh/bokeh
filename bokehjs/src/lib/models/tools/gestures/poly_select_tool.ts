@@ -158,7 +158,7 @@ export class PolySelectToolView extends RegionSelectToolView {
 }
 
 export const DEFAULT_POLY_OVERLAY = () => {
-  return new PolyAnnotation({
+  return PolyAnnotation.create({
     syncable: false,
     level: "overlay",
     visible: false,
@@ -189,10 +189,6 @@ export class PolySelectTool extends RegionSelectTool {
   declare __view_type__: PolySelectToolView
   declare overlay: PolyAnnotation
 
-  constructor(attrs?: Partial<PolySelectTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PolySelectToolView
 
@@ -200,7 +196,7 @@ export class PolySelectTool extends RegionSelectTool {
       overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
     }))
 
-    this.register_alias("poly_select", () => new PolySelectTool())
+    this.register_alias("poly_select", () => PolySelectTool.create())
   }
 
   override tool_name = "Poly Select"

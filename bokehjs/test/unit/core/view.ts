@@ -67,11 +67,85 @@ export class ListeningModel extends HasProps {
   }
 }
 
+let failed_view: View | null = null
+const get_failed_view = (): View | null => failed_view
+
+class InitializeFailureView extends SomeModelView {
+  override initialize(): void {
+    failed_view = this
+    throw new Error("initialization failed")
+  }
+}
+
+class InitializeFailureModel extends SomeModel {
+  static {
+    this.prototype.default_view = InitializeFailureView
+  }
+}
+
+class LazyFailureView extends SomeModelView {
+  override initialize(): void {
+    super.initialize()
+    failed_view = this
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    throw new Error("lazy initialization failed")
+  }
+}
+
+class LazyFailureModel extends SomeModel {
+  static {
+    this.prototype.default_view = LazyFailureView
+  }
+}
+
+class SignalFailureView extends SomeModelView {
+  override initialize(): void {
+    super.initialize()
+    failed_view = this
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    throw new Error("signal connection failed")
+  }
+}
+
+class SignalFailureModel extends SomeModel {
+  static {
+    this.prototype.default_view = SignalFailureView
+  }
+}
+
 describe("core/view", () => {
 
   describe("View", () => {
+    for (const [model, message] of [
+      [InitializeFailureModel.create(), "initialization failed"],
+      [LazyFailureModel.create(), "lazy initialization failed"],
+      [SignalFailureModel.create(), "signal connection failed"],
+    ] as const) {
+      it(`should remove a view when ${message}`, async () => {
+        failed_view = null
+        let thrown: unknown = null
+        try {
+          await build_view(model)
+        } catch (error) {
+          thrown = error
+        }
+
+        expect(thrown).to.be.instanceof(Error)
+        expect((thrown as Error).message).to.be.equal(message)
+        const view = get_failed_view()
+        expect_not_null(view)
+        expect(view.is_destroyed).to.be.true
+      })
+    }
+
     it("should disconnect a previously connected slot", async () => {
-      const model = new SomeModel()
+      const model = SomeModel.create()
       const view = await build_view(model)
 
       let calls = 0
@@ -112,7 +186,7 @@ describe("core/view", () => {
 
       // build_view() connects, so build the view the way build_views() does when
       // it has to throw away a build nothing wants any more.
-      const view = new UnconnectedModelView({model: new UnconnectedModel(), parent: null})
+      const view = new UnconnectedModelView({model: UnconnectedModel.create(), parent: null})
       view.initialize()
       await view.lazy_initialize()
 
@@ -125,7 +199,7 @@ describe("core/view", () => {
     })
 
     it("should stop listening to DOM events on shared targets after being removed", async () => {
-      const view = await build_view(new ListeningModel())
+      const view = await build_view(ListeningModel.create())
 
       try {
         document.dispatchEvent(new Event("some_event"))
@@ -139,9 +213,9 @@ describe("core/view", () => {
     })
 
     it("should disconnect changes from former transitive references", async () => {
-      const child0 = new SomeModel()
-      const child1 = new SomeModel({children: [new SomeModel()]})
-      const model = new SomeModel({children: [child0]})
+      const child0 = SomeModel.create()
+      const child1 = SomeModel.create({children: [SomeModel.create()]})
+      const model = SomeModel.create({children: [child0]})
       const view = await build_view(model)
 
       let calls = 0
@@ -168,9 +242,9 @@ describe("core/view", () => {
     })
 
     it("should not accumulate slots for retained transitive references", async () => {
-      const child0 = new SomeModel()
-      const child1 = new SomeModel()
-      const model = new SomeModel({children: [child0]})
+      const child0 = SomeModel.create()
+      const child1 = SomeModel.create()
+      const model = SomeModel.create({children: [child0]})
       const view = await build_view(model)
 
       let calls = 0
@@ -186,11 +260,11 @@ describe("core/view", () => {
     })
 
     it("should disconnect changes from former recursive transitive references", async () => {
-      const leaf0 = new SomeModel()
-      const branch0 = new SomeModel({children: [leaf0]})
-      const leaf1 = new SomeModel()
-      const branch1 = new SomeModel({children: [leaf1, new SomeModel()]})
-      const model = new SomeModel({children: [branch0]})
+      const leaf0 = SomeModel.create()
+      const branch0 = SomeModel.create({children: [leaf0]})
+      const leaf1 = SomeModel.create()
+      const branch1 = SomeModel.create({children: [leaf1, SomeModel.create()]})
+      const model = SomeModel.create({children: [branch0]})
       const view = await build_view(model)
 
       let calls = 0
@@ -210,12 +284,12 @@ describe("core/view", () => {
     })
 
     it("should support ViewQuery", async () => {
-      const obj0 = new SomeModel()
-      const obj1 = new SomeModel()
-      const obj2 = new SomeModel()
-      const obj3 = new SomeModel({children: [obj0]})
-      const obj4 = new SomeModel({children: [obj1, obj2]})
-      const obj5 = new SomeModel({children: [obj3, obj4]})
+      const obj0 = SomeModel.create()
+      const obj1 = SomeModel.create()
+      const obj2 = SomeModel.create()
+      const obj3 = SomeModel.create({children: [obj0]})
+      const obj4 = SomeModel.create({children: [obj1, obj2]})
+      const obj5 = SomeModel.create({children: [obj3, obj4]})
 
       const view5 = await build_view(obj5, {parent: null})
 

@@ -15,10 +15,6 @@ export interface NanCompare extends NanCompare.Attrs {}
 export class NanCompare extends Comparison {
   declare properties: NanCompare.Props
 
-  constructor(attrs?: Partial<NanCompare.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<NanCompare.Props>(({Bool}) => ({
       ascending_first: [ Bool, false ],

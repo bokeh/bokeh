@@ -12,14 +12,14 @@ describe("PolyAnnotation annotation", () => {
         output_backend, title: output_backend,
       })
 
-      const poly0 = new PolyAnnotation({
+      const poly0 = PolyAnnotation.create({
         xs: [-8, -8, 3, 3], ys: [2, -4, -4, 2],
         line_color: "red", line_alpha: 0.9, line_width: 4,
         fill_color: "blue", fill_alpha: 0.7,
       })
       p.add_layout(poly0)
 
-      const poly1 = new PolyAnnotation({
+      const poly1 = PolyAnnotation.create({
         xs: [-2, -2, 7, 7], ys: [8, -1, -1, 8],
         line_color: "red", line_alpha: 0.9, line_width: 2,
         fill_color: "orange", fill_alpha: 0.7,

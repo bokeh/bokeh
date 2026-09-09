@@ -6,7 +6,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 describe("CustomJSTransform", () => {
 
   describe("default constructor", () => {
-    const r = new CustomJSTransform()
+    const r = CustomJSTransform.create()
 
     it("should have empty args", () => {
       expect(r.args).to.be.equal({})
@@ -24,14 +24,14 @@ describe("CustomJSTransform", () => {
   describe("values property", () => {
 
     it("should return an array", () => {
-      const r = new CustomJSTransform()
+      const r = CustomJSTransform.create()
       expect(r.values).to.be.instanceof(Array)
     })
 
     it("should contain the args values in order", () => {
-      const rng1 = new Range1d()
-      const rng2 = new Range1d()
-      const r = new CustomJSTransform({args: {foo: rng1, bar: rng2}})
+      const rng1 = Range1d.create()
+      const rng2 = Range1d.create()
+      const r = CustomJSTransform.create({args: {foo: rng1, bar: rng2}})
       expect(r.values).to.be.equal([rng1, rng2])
     })
   })
@@ -39,20 +39,20 @@ describe("CustomJSTransform", () => {
   describe("scalar_transform property", () => {
 
     it("should return a Function", () => {
-      const r = new CustomJSTransform()
+      const r = CustomJSTransform.create()
       expect(r.scalar_transform).to.be.instanceof(Function)
     })
 
     it("should have func property as function body", () => {
-      const r = new CustomJSTransform({func: "return x"})
+      const r = CustomJSTransform.create({func: "return x"})
       const f = new Function("x", "'use strict';\nreturn x")
       expect(r.scalar_transform.toString()).to.be.equal(f.toString())
     })
 
     it("should include args values in order in function signature", () => {
-      const rng1 = new Range1d()
-      const rng2 = new Range1d()
-      const r = new CustomJSTransform({args: {foo: rng1, bar: rng2}, func: "return x"})
+      const rng1 = Range1d.create()
+      const rng2 = Range1d.create()
+      const r = CustomJSTransform.create({args: {foo: rng1, bar: rng2}, func: "return x"})
       const f = new Function("foo", "bar", "x", "'use strict';\nreturn x")
       expect(r.scalar_transform.toString()).to.be.equal(f.toString())
     })
@@ -61,20 +61,20 @@ describe("CustomJSTransform", () => {
   describe("vector_transform property", () => {
 
     it("should return a Function", () => {
-      const r = new CustomJSTransform()
+      const r = CustomJSTransform.create()
       expect(r.vector_transform).to.be.instanceof(Function)
     })
 
     it("should have v_func property as function body", () => {
-      const r = new CustomJSTransform({v_func: "return xs"})
+      const r = CustomJSTransform.create({v_func: "return xs"})
       const f = new Function("xs", "'use strict';\nreturn xs")
       expect(r.vector_transform.toString()).to.be.equal(f.toString())
     })
 
     it("should include args values in order in function signature", () => {
-      const rng1 = new Range1d()
-      const rng2 = new Range1d()
-      const r = new CustomJSTransform({args: {foo: rng1, bar: rng2}, v_func: "return xs"})
+      const rng1 = Range1d.create()
+      const rng2 = Range1d.create()
+      const r = CustomJSTransform.create({args: {foo: rng1, bar: rng2}, v_func: "return xs"})
       const f = new Function("foo", "bar", "xs", "'use strict';\nreturn xs")
       expect(r.vector_transform.toString()).to.be.equal(f.toString())
     })
@@ -83,13 +83,13 @@ describe("CustomJSTransform", () => {
   describe("compute method", () => {
 
     it("should properly transform a single value", () => {
-      const r = new CustomJSTransform({func: "return x + 10"})
+      const r = CustomJSTransform.create({func: "return x + 10"})
       expect(r.compute(5)).to.be.equal(15)
     })
 
     it("should properly transform a single value using an arg property", () => {
-      const rng = new Range1d({start: 11, end: 21})
-      const r = new CustomJSTransform({args: {foo: rng}, func: "return x + foo.start"})
+      const rng = Range1d.create({start: 11, end: 21})
+      const r = CustomJSTransform.create({args: {foo: rng}, func: "return x + foo.start"})
       expect(r.compute(5)).to.be.equal(16)
     })
   })
@@ -104,7 +104,7 @@ for (let i = 0; i < xs.length; i++) {
 }
 return new_xs\
 `
-      const r = new CustomJSTransform({v_func})
+      const r = CustomJSTransform.create({v_func})
       expect(r.v_compute([1, 2, 3])).to.be.equal(new Array(11, 12, 13))
     })
 
@@ -116,8 +116,8 @@ for (let i = 0; i < xs.length; i++) {
 }
 return new_xs\
 `
-      const rng = new Range1d({start: 11, end: 21})
-      const r = new CustomJSTransform({args: {foo: rng}, v_func})
+      const rng = Range1d.create({start: 11, end: 21})
+      const r = CustomJSTransform.create({args: {foo: rng}, v_func})
       expect(r.v_compute([1, 2, 3])).to.be.equal(new Array(12, 13, 14))
     })
   })

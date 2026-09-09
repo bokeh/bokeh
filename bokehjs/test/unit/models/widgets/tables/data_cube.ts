@@ -13,7 +13,7 @@ describe("data_cube module", () => {
 
   describe("DataCube class", () => {
     it("DataCube constructs", () => {
-      const dataCube = new DataCube()
+      const dataCube = DataCube.create()
       expect(dataCube).to.not.be.null
     })
   })
@@ -25,38 +25,38 @@ describe("data_cube module", () => {
     let grouping: GroupingInfo[]
 
     before_each(async () => {
-      source = new ColumnDataSource({
+      source = ColumnDataSource.create({
         data: {
           color: ["red", "red", "red", "green", "green", "blue"],
           width: ["wide", "wide", "narrow", "wide", "narrow", "wide"],
           value: [10, 20, 30, 40, 50, 60],
         },
       })
-      view = new CDSView()
+      view = CDSView.create()
       await build(view, source)
 
       columns = [
-        new TableColumn({field: "color"}),
-        new TableColumn({field: "width"}),
-        new TableColumn({field: "value"}),
+        TableColumn.create({field: "color"}),
+        TableColumn.create({field: "width"}),
+        TableColumn.create({field: "value"}),
       ]
 
-      const aggregators = [new SumAggregator({field_: "value"})]
+      const aggregators = [SumAggregator.create({field_: "value"})]
       grouping = [
-        new GroupingInfo({getter: "color", aggregators, collapsed: true}),
-        new GroupingInfo({getter: "width", aggregators, collapsed: true}),
+        GroupingInfo.create({getter: "color", aggregators, collapsed: true}),
+        GroupingInfo.create({getter: "width", aggregators, collapsed: true}),
       ]
     })
 
     it("DataCube groups as expected", () => {
-      const target = new ColumnDataSource({data: {row_indices: [], labels: []}})
+      const target = ColumnDataSource.create({data: {row_indices: [], labels: []}})
       const provider = new DataCubeProvider(source, view, columns, target)
       provider.setGrouping(grouping)
       expect(target.get("row_indices")).to.be.equal([[5], [3, 4], [0, 1, 2]])
     })
 
     it("Expanding modifies groups", () => {
-      const target = new ColumnDataSource({data: {row_indices: [], labels: []}})
+      const target = ColumnDataSource.create({data: {row_indices: [], labels: []}})
       const provider = new DataCubeProvider(source, view, columns, target)
       provider.setGrouping(grouping)
       provider.expandGroup("red")
@@ -68,7 +68,7 @@ describe("data_cube module", () => {
     })
 
     it("Collapsing inverts expanding", () => {
-      const target = new ColumnDataSource({data: {row_indices: [], labels: []}})
+      const target = ColumnDataSource.create({data: {row_indices: [], labels: []}})
       const provider = new DataCubeProvider(source, view, columns, target)
       provider.setGrouping(grouping)
       provider.expandGroup("red")
@@ -84,7 +84,7 @@ describe("data_cube module", () => {
     })
 
     it("Respect 'target' on initial creation", () => {
-      const target = new ColumnDataSource({data: {
+      const target = ColumnDataSource.create({data: {
         row_indices: [[5], 5, [3, 4], 4, 3, [0, 1, 2], 2, 0, 1],
         labels: ["blue", "wide", "green", "narrow", "wide", "red", "narrow", "wide", "wide"],
       }})

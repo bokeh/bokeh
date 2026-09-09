@@ -18,10 +18,6 @@ export interface LinearInterpolationScale extends LinearInterpolationScale.Attrs
 export class LinearInterpolationScale extends Scale<number> {
   declare properties: LinearInterpolationScale.Props
 
-  constructor(attrs?: Partial<LinearInterpolationScale.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.internal<LinearInterpolationScale.Props>(({Float, Arrayable, Ref}) => ({
       binning:      [ Arrayable(Float) ],
@@ -34,7 +30,7 @@ export class LinearInterpolationScale extends Scale<number> {
 
     const {source_range, target_range} = this.properties
     if (!source_range.is_unset && !target_range.is_unset) {
-      this.linear_scale = new LinearScale({
+      this.linear_scale = LinearScale.create({
         source_range: source_range.get_value(),
         target_range: target_range.get_value(),
       })
@@ -45,7 +41,7 @@ export class LinearInterpolationScale extends Scale<number> {
     super.connect_signals()
     const {source_range, target_range} = this.properties
     this.on_change([source_range, target_range], () => {
-      this.linear_scale = new LinearScale({
+      this.linear_scale = LinearScale.create({
         source_range: this.source_range,
         target_range: this.target_range,
       })

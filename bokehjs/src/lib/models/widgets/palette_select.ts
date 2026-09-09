@@ -250,10 +250,6 @@ export class PaletteSelect extends InputWidget {
   declare properties: PaletteSelect.Props
   declare __view_type__: PaletteSelectView
 
-  constructor(attrs?: Partial<PaletteSelect.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PaletteSelectView
 

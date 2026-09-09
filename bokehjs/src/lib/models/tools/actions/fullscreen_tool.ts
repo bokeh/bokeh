@@ -2,13 +2,13 @@ import {ActionTool, ActionToolView} from "./action_tool"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
-const request_fullscreen = (() => {
+function request_fullscreen(el: Element, options?: FullscreenOptions): Promise<void> {
   if (typeof Element.prototype.webkitRequestFullscreen !== "undefined") {
-    return (el: Element, options?: FullscreenOptions) => el.webkitRequestFullscreen(options)
+    return el.webkitRequestFullscreen(options)
   } else {
-    return (el: Element, options?: FullscreenOptions) => el.requestFullscreen(options)
+    return el.requestFullscreen(options)
   }
-})()
+}
 
 export class FullscreenToolView extends ActionToolView {
   declare model: FullscreenTool
@@ -49,14 +49,10 @@ export class FullscreenTool extends ActionTool {
   declare properties: FullscreenTool.Props
   declare __view_type__: FullscreenToolView
 
-  constructor(attrs?: Partial<FullscreenTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = FullscreenToolView
 
-    this.register_alias("fullscreen", () => new FullscreenTool())
+    this.register_alias("fullscreen", () => FullscreenTool.create())
   }
 
   override tool_name = "Fullscreen"

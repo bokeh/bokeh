@@ -8,7 +8,7 @@ describe("StaticLayoutProvider", () => {
   describe("default props", () => {
 
     it("should create an empty dict", () => {
-      const layout_provider = new StaticLayoutProvider()
+      const layout_provider = StaticLayoutProvider.create()
       expect(layout_provider.graph_layout).to.be.equal(new Map())
     })
   })
@@ -17,7 +17,7 @@ describe("StaticLayoutProvider", () => {
     let layout_provider: StaticLayoutProvider
 
     before_each(() => {
-      layout_provider = new StaticLayoutProvider({
+      layout_provider = StaticLayoutProvider.create({
         graph_layout: new Map([[0, [-1, 0]], [1, [0, 1]], [2, [1, 0]], [3, [0, -1]]]),
       })
     })
@@ -25,7 +25,7 @@ describe("StaticLayoutProvider", () => {
     describe("get_node_coordinates method", () => {
 
       it("should return node coords if exist", () => {
-        const node_source = new ColumnDataSource({
+        const node_source = ColumnDataSource.create({
           data: {
             index: [0, 1, 2, 3],
           },
@@ -37,7 +37,7 @@ describe("StaticLayoutProvider", () => {
       })
 
       it("should return NaNs if coords don't exist", () => {
-        const node_source = new ColumnDataSource({
+        const node_source = ColumnDataSource.create({
           data: {
             index: [4, 5, 6],
           },
@@ -52,7 +52,7 @@ describe("StaticLayoutProvider", () => {
     describe("get_edge_coordinates method", () => {
 
       it("should return edge coords if exist", () => {
-        const edge_source = new ColumnDataSource({
+        const edge_source = ColumnDataSource.create({
           data: {
             start: [0, 0, 0],
             end: [1, 2, 3],
@@ -65,7 +65,7 @@ describe("StaticLayoutProvider", () => {
       })
 
       it("should return explicit edge coords if exist", () => {
-        const edge_source = new ColumnDataSource({
+        const edge_source = ColumnDataSource.create({
           data: {
             start: [0, 0, 0],
             end: [1, 2, 3],
@@ -80,7 +80,7 @@ describe("StaticLayoutProvider", () => {
       })
 
       it("should return NaNs if coords don't exist", () => {
-        const edge_source = new ColumnDataSource({
+        const edge_source = ColumnDataSource.create({
           data: {
             start: [4, 4, 4],
             end: [5, 6, 7],
@@ -93,7 +93,7 @@ describe("StaticLayoutProvider", () => {
       })
 
       it("should not return explicit edge coords if coords don't exist", () => {
-        const edge_source = new ColumnDataSource({
+        const edge_source = ColumnDataSource.create({
           data: {
             start: [4, 4, 4],
             end: [5, 6, 7],

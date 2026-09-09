@@ -219,10 +219,6 @@ export class Grid extends GuideRenderer {
   declare properties: Grid.Props
   declare __view_type__: GridView
 
-  constructor(attrs?: Partial<Grid.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = GridView
 

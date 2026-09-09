@@ -10,7 +10,7 @@ import {paint} from "@bokehjs/core/util/defer"
 describe("BoxEditTool", () => {
   describe("should support moving", () => {
     async function move<T extends BoxLikeGlyph>(glyph: (p: Figure) => GlyphRenderer<T>, height: number = 200) {
-      const box_edit = new BoxEditTool()
+      const box_edit = BoxEditTool.create()
       const p = fig([200, height], {
         x_range: [-1, 2],
         y_range: [-1, 2],

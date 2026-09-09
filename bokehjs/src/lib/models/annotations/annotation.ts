@@ -57,10 +57,6 @@ export abstract class Annotation extends CompositeRenderer {
   declare properties: Annotation.Props
   declare __view_type__: AnnotationView
 
-  constructor(attrs?: Partial<Annotation.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<Annotation.Props>({
       level: "annotation",

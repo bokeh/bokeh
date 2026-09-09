@@ -126,10 +126,6 @@ export class TapTool extends SelectTool {
   declare properties: TapTool.Props
   declare __view_type__: TapToolView
 
-  constructor(attrs?: Partial<TapTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TapToolView
 
@@ -141,9 +137,9 @@ export class TapTool extends SelectTool {
       callback:  [ Nullable(Any /*TODO*/), null ],
     }))
 
-    this.register_alias("click", () => new TapTool({behavior: "inspect"}))
-    this.register_alias("tap", () => new TapTool())
-    this.register_alias("doubletap", () => new TapTool({gesture: "doubletap"}))
+    this.register_alias("click", () => TapTool.create({behavior: "inspect"}))
+    this.register_alias("tap", () => TapTool.create())
+    this.register_alias("doubletap", () => TapTool.create({gesture: "doubletap"}))
   }
 
   override tool_name = "Tap"
@@ -153,7 +149,7 @@ export class TapTool extends SelectTool {
 
   override get menu(): MenuItemLike[] {
     return [
-      new MenuItem({
+      MenuItem.create({
         icon: `.${tool_icon_toggle_mode}`,
         label: "Toggle mode",
         tooltip: "Toggle the current selection",

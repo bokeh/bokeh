@@ -15,7 +15,7 @@ describe("Glyph (using Scatter as a concrete Glyph)", () => {
     before_each(() => {
       stub = sinon.stub((ScatterView.prototype as any), "_bounds").callsFake((bounds) => bounds) // XXX: protected
 
-      glyph = new Scatter({
+      glyph = Scatter.create({
         x: {field: "x"},
         y: {field: "y"},
       })
@@ -35,7 +35,7 @@ describe("Glyph (using Scatter as a concrete Glyph)", () => {
 
     it("should calculate bounds based on data in an x-axis window", async () => {
       const data = {x: [1, 2, 3, 4], y: [-20, 10, 0, 30]}
-      const glyph_view = await create_glyph_view(glyph, data, {x_range: new Range1d({start: 1.5, end: 3.5})})
+      const glyph_view = await create_glyph_view(glyph, data, {x_range: Range1d.create({start: 1.5, end: 3.5})})
       const bounds = glyph_view.bounds("x")
 
       expect(bounds).to.be.equal({x0: 2, y0: 0, x1: 3, y1: 10})
@@ -43,7 +43,7 @@ describe("Glyph (using Scatter as a concrete Glyph)", () => {
 
     it("should calculate bounds based on data in a y-axis window", async () => {
       const data = {x: [1, 2, 3, 4], y: [-20, 10, 0, 30]}
-      const glyph_view = await create_glyph_view(glyph, data, {y_range: new Range1d({start: -1, end: 12})})
+      const glyph_view = await create_glyph_view(glyph, data, {y_range: Range1d.create({start: -1, end: 12})})
       const bounds = glyph_view.bounds("y")
 
       expect(bounds).to.be.equal({x0: 2, y0: 0, x1: 3, y1: 10})
@@ -67,7 +67,7 @@ describe("Glyph (using Scatter as a concrete Glyph)", () => {
 
     it("should hit rects against an index", async () => {
       const data = {x: [20, 40, 60], y: [10, 10, 50]}
-      const glyph = new Scatter({
+      const glyph = Scatter.create({
         x: {field: "x"},
         y: {field: "y"},
       })
@@ -95,7 +95,7 @@ describe("Scatter", () => {
     let glyph: Scatter
 
     before_each(() => {
-      glyph = new Scatter({
+      glyph = Scatter.create({
         x: {field: "x"},
         y: {field: "y"},
         size: 10,
@@ -112,7 +112,7 @@ describe("Scatter", () => {
 
     it("should calculate bounds based on data in an x-axis window", async () => {
       const data = {x: [1, 2, 3, 4], y: [-20, 10, 0, 30]}
-      const glyph_view = await create_glyph_view(glyph, data, {x_range: new Range1d({start: 1.5, end: 3.5})})
+      const glyph_view = await create_glyph_view(glyph, data, {x_range: Range1d.create({start: 1.5, end: 3.5})})
       const bounds = glyph_view.bounds("x")
 
       expect(bounds).to.be.equal({x0: 2, y0: 0, x1: 3, y1: 10})
@@ -120,7 +120,7 @@ describe("Scatter", () => {
 
     it("should calculate bounds based on data in a y-axis window", async () => {
       const data = {x: [1, 2, 3, 4], y: [-20, 10, 0, 30]}
-      const glyph_view = await create_glyph_view(glyph, data, {y_range: new Range1d({start: -1, end: 12})})
+      const glyph_view = await create_glyph_view(glyph, data, {y_range: Range1d.create({start: -1, end: 12})})
       const bounds = glyph_view.bounds("y")
 
       expect(bounds).to.be.equal({x0: 2, y0: 0, x1: 3, y1: 10})

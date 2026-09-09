@@ -19,10 +19,6 @@ export interface CustomJSTransform extends CustomJSTransform.Attrs {}
 export class CustomJSTransform extends Transform {
   declare properties: CustomJSTransform.Props
 
-  constructor(attrs?: Partial<CustomJSTransform.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CustomJSTransform.Props>(({Unknown, Str, Dict}) => ({
       args:   [ Dict(Unknown), {} ],

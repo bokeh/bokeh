@@ -24,10 +24,6 @@ export class HelpTool extends ActionTool {
   declare properties: HelpTool.Props
   declare __view_type__: HelpToolView
 
-  constructor(attrs?: Partial<HelpTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = HelpToolView
 
@@ -39,7 +35,7 @@ export class HelpTool extends ActionTool {
       description: "Click the question mark to learn more about Bokeh plot tools.",
     })
 
-    this.register_alias("help", () => new HelpTool())
+    this.register_alias("help", () => HelpTool.create())
   }
 
   override tool_name = "Help"

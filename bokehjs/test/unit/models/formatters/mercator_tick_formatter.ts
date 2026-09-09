@@ -7,14 +7,14 @@ import {wgs84_mercator} from "@bokehjs/core/util/projections"
 describe("mercator_tick_formatter module", () => {
 
   it("should throw exception if dimension not configured", () => {
-    const obj = new MercatorTickFormatter()
+    const obj = MercatorTickFormatter.create()
     expect(() => obj.doFormat([30, 60, 90], {loc: 90})).to.throw()
   })
 
   // these tests assume default superclass BasicTickFormatter behavior, re: displayed precision
 
   it("should compute latitude tick labels when dimension=lat", () => {
-    const obj = new MercatorTickFormatter({dimension: "lat"})
+    const obj = MercatorTickFormatter.create({dimension: "lat"})
     for (const lat of [-72, -60.5, -30, -2, 1, -0.5, 0, 0.5, 1, 10, 33.7, 42.123, 50]) {
       for (const lon of [-120, -90, -88, -32.7, -10, -1, 0, 0.5, 1, 5, 12.3, 57, 60.123, 95, 110.1, 120, 130]) {
         const [mlon, mlat] = wgs84_mercator.compute(lon, lat)
@@ -25,15 +25,15 @@ describe("mercator_tick_formatter module", () => {
   })
 
   it("should decay tick values close to zero", () => {
-    const lat = new MercatorTickFormatter({dimension: "lat"})
-    const lon = new MercatorTickFormatter({dimension: "lon"})
+    const lat = MercatorTickFormatter.create({dimension: "lat"})
+    const lon = MercatorTickFormatter.create({dimension: "lon"})
 
     expect(lat.doFormat([-1e-7, 1e-7], {loc: 0})).to.be.equal(["0", "0"])
     expect(lon.doFormat([-1e-7, 1e-7], {loc: 0})).to.be.equal(["0", "0"])
   })
 
   it("should compute longitude tick labels when dimension=lon", () => {
-    const obj = new MercatorTickFormatter({dimension: "lon"})
+    const obj = MercatorTickFormatter.create({dimension: "lon"})
     for (const lat of [-72, -60.5, -30, -2, 1, -0.5, 0, 0.5, 1, 10, 33.7, 42.123, 50]) {
       for (const lon of [-120, -90, -88, -32.7, -10, -1, 0, 0.5, 1, 5, 12.3, 57, 60.123, 95, 110.1, 120, 130]) {
         const [mlon, mlat] = wgs84_mercator.compute(lon, lat)

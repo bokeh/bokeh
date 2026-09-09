@@ -176,10 +176,6 @@ export abstract class PickerBase extends InputWidget {
   declare properties: PickerBase.Props
   declare __view_type__: PickerBaseView
 
-  constructor(attrs?: Partial<PickerBase.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<PickerBase.Props>(({Bool}) => {
       return {

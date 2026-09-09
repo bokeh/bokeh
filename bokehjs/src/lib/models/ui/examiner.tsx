@@ -555,10 +555,6 @@ export class Examiner extends UIElement {
   declare properties: Examiner.Props
   declare __view_type__: ExaminerView
 
-  constructor(attrs?: Partial<Examiner.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ExaminerView
 

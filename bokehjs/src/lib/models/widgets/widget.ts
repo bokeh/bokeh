@@ -74,10 +74,6 @@ export abstract class Widget extends LayoutDOM {
   declare properties: Widget.Props
   declare __view_type__: WidgetView
 
-  constructor(attrs?: Partial<Widget.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<Widget.Props>({
       margin: 5,

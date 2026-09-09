@@ -1,4 +1,4 @@
-//import {logger} from "./logging"
+import {logger} from "./logging"
 import type {View} from "./view"
 import type {Class} from "./class"
 import type {Attrs, Data, Dict} from "./types"
@@ -32,6 +32,33 @@ import {stream_to_columns, patch_to_columns} from "./patching"
 
 type AttrsLike = Dict<unknown>
 
+export type HasPropsClass<T extends HasProps = HasProps> = Function & {prototype: T}
+
+export type ModelAttrs<T extends HasProps> = Partial<p.AttrsOf<T["properties"]>>
+
+export type HasPropsFactory<T extends HasProps = HasProps> = HasPropsClass<T> & {
+  create: typeof HasProps.create
+}
+
+type LifecycleState =
+  "constructing" |
+  "constructed" |
+  "initializing_properties" |
+  "properties_initialized" |
+  "initializing" |
+  "initialized" |
+  "connecting_signals" |
+  "ready" |
+  "failed" |
+  "destroyed"
+
+type ConstructionContext = {
+  cls: HasPropsClass
+  id?: string
+}
+
+const construction_stack: ConstructionContext[] = []
+
 export namespace HasProps {
   export type Attrs = p.AttrsOf<Props>
   export type Props = {}
@@ -45,7 +72,7 @@ export namespace HasProps {
 }
 
 export interface HasProps extends HasProps.Attrs, ISignalable {
-  constructor: Function & {
+  constructor: HasPropsFactory<this> & {
     __module__?: string
     __qualified__: string
   }
@@ -59,6 +86,21 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   declare __view_type__: View
 
   readonly id: string
+
+  private _lifecycle_state: LifecycleState = "constructing"
+  private _initial_attrs: AttrsLike = {}
+
+  get is_ready(): boolean {
+    return this._lifecycle_state == "ready"
+  }
+
+  get is_destroyed(): boolean {
+    return this._lifecycle_state == "destroyed"
+  }
+
+  protected get is_deferred(): boolean {
+    return construction_stack.at(-1)?.id != null
+  }
 
   get is_syncable(): boolean {
     return true
@@ -74,10 +116,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   static __module__?: string
 
+  /** @internal */
+  static __name__?: string
+
   static get __qualified__(): string {
     let qualified = _qualified_names.get(this)
     if (qualified == null) {
-      const {__module__, name} = this
+      const {__module__} = this
+      const name = Object.hasOwn(this, "__name__") ? this.__name__! : this.name
       qualified = __module__ != null ? `${__module__}.${name}` : name
       _qualified_names.set(this, qualified)
     }
@@ -86,6 +132,21 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   static set __qualified__(qualified: string) {
     _qualified_names.set(this, qualified)
+  }
+
+  /**
+   * Construct an instance through the complete BokehJS object lifecycle.
+   *
+   * Subclass field initializers run before property defaults, `initialize()`,
+   * and `connect_signals()`. If any phase fails, the partial instance is
+   * destroyed before the original error is rethrown. Model and extension code
+   * must use this factory instead of invoking a constructor directly.
+   */
+  static create<T extends HasProps>(
+    this: HasPropsClass<T>,
+    attrs: ModelAttrs<T> = {},
+  ): T {
+    return construct(this, attrs as AttrsLike)
   }
 
   get [Symbol.toStringTag](): string {
@@ -285,7 +346,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         attrs.set(prop.attr, cloner.clone(prop.get_value()))
       }
     }
-    return new (this.constructor as any)(attrs)
+    return (this.constructor as any).create(attrs)
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -331,11 +392,17 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return is_empty(attributes) ? rep : {...rep, attributes}
   }
 
-  constructor(attrs: {id: string} | AttrsLike = {}) {
+  protected constructor(attrs: {id: string} | AttrsLike = {}) {
     super()
 
-    const deferred = isPlainObject(attrs) && "id" in attrs
-    this.id = deferred ? attrs.id as string : unique_id()
+    const context = construction_stack.at(-1)
+    if (context == null || context.cls != new.target) {
+      const cls = new.target
+      throw new Error(`use ${cls.__qualified__}.create({...}) instead of new ${cls.__qualified__}(...)`)
+    }
+
+    this.id = context.id ?? unique_id()
+    this._initial_attrs = attrs
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>
@@ -361,39 +428,58 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
-    // allowing us to defer initialization when loading many models
-    // when loading a bunch of models, we want to do initialization as a second pass
-    // because other objects that this one depends on might not be loaded yet
-    if (deferred) {
-      assert(keys(attrs).length == 1, "'id' cannot be used together with property initializers")
-    } else {
-      this.initialize_props(attrs)
-      this.finalize()
-      this.connect_signals()
-    }
+    this._lifecycle_state = "constructed"
   }
 
+  /**
+   * Initialize declared properties after every subclass constructor and field
+   * initializer has completed.
+   * @internal
+   */
   initialize_props(vals: Dict<unknown>): void {
+    assert(this._lifecycle_state == "constructed")
+    this._lifecycle_state = "initializing_properties"
+
     const vals_proxy = dict(vals)
     const visited = new Set<string>()
-    for (const prop of this) {
-      const val = vals_proxy.get(prop.attr)
-      prop.initialize(val)
-      visited.add(prop.attr)
-    }
-
-    for (const [attr, val] of vals_proxy) {
-      if (!visited.has(attr)) {
-        // either throws for unknown properties or updates aliased properties
-        this.property(attr).set_value(val)
+    try {
+      for (const prop of this) {
+        const val = vals_proxy.get(prop.attr)
+        prop.initialize(val)
+        visited.add(prop.attr)
       }
+
+      for (const [attr, val] of vals_proxy) {
+        if (!visited.has(attr)) {
+          // either throws for unknown properties or updates aliased properties
+          this.property(attr).set_value(val)
+        }
+      }
+      this._lifecycle_state = "properties_initialized"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
     }
   }
 
+  /**
+   * Run the object initialization hook after properties are readable.
+   * Deserialization invokes this only after all referenced objects exist.
+   * @internal
+   */
   finalize(): void {
-    this.initialize()
+    assert(this._lifecycle_state == "properties_initialized")
+    this._lifecycle_state = "initializing"
+    try {
+      this.initialize()
+      this._lifecycle_state = "initialized"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
+    }
   }
 
+  /** Initialize derived state that may read this object's properties. */
   initialize(): void {}
 
   assert_initialized(): void {
@@ -404,6 +490,33 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  /**
+   * Connect signals only after every object in the construction graph has
+   * completed `initialize()`.
+   * @internal
+   */
+  finalize_signals(): void {
+    assert(this._lifecycle_state == "initialized")
+    this._lifecycle_state = "connecting_signals"
+    try {
+      this.connect_signals()
+      this._lifecycle_state = "ready"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
+    }
+  }
+
+  /** Complete property, initialization, and signal phases for a new object. @internal */
+  finish(): void {
+    const attrs = this._initial_attrs
+    this._initial_attrs = {}
+    this.initialize_props(attrs)
+    this.finalize()
+    this.finalize_signals()
+  }
+
+  /** Connect change listeners owned by this object. Overrides must call `super`. */
   connect_signals(): void {
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
@@ -428,6 +541,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   destroy(): void {
+    if (this._lifecycle_state == "destroyed") {
+      return
+    }
+    this._lifecycle_state = "destroyed"
     this.disconnect_signals()
     this.destroyed.emit()
   }
@@ -704,4 +821,44 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this.document._trigger_on_change(event)
     }
   }
+}
+
+function instantiate<T extends HasProps>(cls: HasPropsClass<T>, attrs: AttrsLike, id?: string): T {
+  const context: ConstructionContext = {cls, id}
+  construction_stack.push(context)
+  try {
+    const instance = Reflect.construct(cls, [attrs]) as T
+    assert(instance instanceof HasProps)
+    return instance
+  } finally {
+    const popped = construction_stack.pop()
+    assert(popped == context)
+  }
+}
+
+export function construct<T extends HasProps>(cls: HasPropsClass<T>, attrs: AttrsLike = {}): T {
+  const instance = instantiate(cls, attrs)
+  try {
+    instance.finish()
+    return instance
+  } catch (error) {
+    try {
+      instance.destroy()
+    } catch (cleanup_error) {
+      logger.warn(`failed to destroy ${instance} after construction failed: ${cleanup_error}`)
+    }
+    throw error
+  }
+}
+
+/**
+ * Allocate an unfinished object for cyclic deserialization.
+ *
+ * Only `Deserializer` may use this entry point. It must later initialize
+ * properties, finalize every object in the graph, and connect signals, or
+ * destroy all newly allocated objects if any phase fails.
+ * @internal
+ */
+export function construct_deferred<T extends HasProps>(cls: HasPropsClass<T>, id: string): T {
+  return instantiate(cls, {}, id)
 }

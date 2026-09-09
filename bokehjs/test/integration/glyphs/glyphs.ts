@@ -923,7 +923,7 @@ describe("Glyph models", () => {
         output_backend, title: output_backend,
       })
 
-      p.add_tools(new HoverTool({mode: "vline"}))
+      p.add_tools(HoverTool.create({mode: "vline"}))
 
       p.hspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "red"})
       p.vspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "blue"})
@@ -939,7 +939,7 @@ describe("Glyph models", () => {
         output_backend, title: output_backend,
       })
 
-      p.add_tools(new HoverTool({mode: "vline"}))
+      p.add_tools(HoverTool.create({mode: "vline"}))
 
       p.hstrip({
         y0: [40, 60, 80], y1: [50, 70, 90],
@@ -996,8 +996,8 @@ describe("Glyph models", () => {
 
   it("should support rotation with all angle units", async () => {
     function p(sign: -1 | 1, output_backend: OutputBackend) {
-      const x_range = new Range1d({start: -1, end: 7})
-      const y_range = new Range1d({start: -1, end: 1})
+      const x_range = Range1d.create({start: -1, end: 7})
+      const y_range = Range1d.create({start: -1, end: 1})
 
       const p = fig([400, 150], {output_backend, title: output_backend, x_range, y_range})
 
@@ -1052,7 +1052,7 @@ describe("Glyph models", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           x: range(N),
           y: range(N),
@@ -1062,9 +1062,9 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Circle({radius: {field: "radius"}, fill_color: {field: "color"}})
-      const selection_glyph = new Circle({radius: {field: "selection_radius"}, fill_color: {field: "color"}})
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph = Circle.create({radius: {field: "radius"}, fill_color: {field: "color"}})
+      const selection_glyph = Circle.create({radius: {field: "selection_radius"}, fill_color: {field: "color"}})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }
@@ -1076,7 +1076,7 @@ describe("Glyph models", () => {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
       const markers = ["circle", "square", "triangle", "diamond", "hex", "star", "circle_cross", "square_x", "inverted_triangle", "cross", "asterisk"]
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           x: range(N),
           y: range(N),
@@ -1087,7 +1087,7 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Scatter({
+      const glyph = Scatter.create({
         x: {field: "x"},
         y: {field: "y"},
         marker: {field: "marker"},
@@ -1095,12 +1095,12 @@ describe("Glyph models", () => {
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const selection_glyph = new Scatter({
+      const selection_glyph = Scatter.create({
         size: {field: "selection_size"},
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }
@@ -1112,7 +1112,7 @@ describe("Glyph models", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           y: range(N),
           right: range(N).map((i) => i + 1),
@@ -1122,19 +1122,19 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new HBar({
+      const glyph = HBar.create({
         y: {field: "y"},
         right: {field: "right"},
         height: {field: "height"},
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const selection_glyph = new HBar({
+      const selection_glyph = HBar.create({
         height: {field: "selection_height"},
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }
@@ -1148,7 +1148,7 @@ describe("Glyph models", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           x: range(N),
           y: range(N),
@@ -1160,7 +1160,7 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Rect({
+      const glyph = Rect.create({
         x: {field: "x"},
         y: {field: "y"},
         width: {field: "width"},
@@ -1168,13 +1168,13 @@ describe("Glyph models", () => {
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const selection_glyph = new Rect({
+      const selection_glyph = Rect.create({
         width: {field: "selection_width"},
         height: {field: "selection_height"},
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }
@@ -1185,7 +1185,7 @@ describe("Glyph models", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           x: range(N),
           y: range(N),
@@ -1197,7 +1197,7 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Annulus({
+      const glyph = Annulus.create({
         x: {field: "x"},
         y: {field: "y"},
         inner_radius: {field: "inner_radius"},
@@ -1205,13 +1205,13 @@ describe("Glyph models", () => {
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const selection_glyph = new Annulus({
+      const selection_glyph = Annulus.create({
         inner_radius: {field: "selection_inner_radius"},
         outer_radius: {field: "selection_outer_radius"},
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }
@@ -1222,7 +1222,7 @@ describe("Glyph models", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           x: range(N),
           y: range(N),
@@ -1232,7 +1232,7 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Wedge({
+      const glyph = Wedge.create({
         x: {field: "x"},
         y: {field: "y"},
         radius: {field: "radius"},
@@ -1241,12 +1241,12 @@ describe("Glyph models", () => {
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const selection_glyph = new Wedge({
+      const selection_glyph = Wedge.create({
         radius: {field: "selection_radius"},
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }
@@ -1257,7 +1257,7 @@ describe("Glyph models", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           x: range(N),
           y: range(N),
@@ -1269,7 +1269,7 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new AnnularWedge({
+      const glyph = AnnularWedge.create({
         x: {field: "x"},
         y: {field: "y"},
         inner_radius: {field: "inner_radius"},
@@ -1279,13 +1279,13 @@ describe("Glyph models", () => {
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const selection_glyph = new AnnularWedge({
+      const selection_glyph = AnnularWedge.create({
         inner_radius: {field: "selection_inner_radius"},
         outer_radius: {field: "selection_outer_radius"},
         fill_color: {field: "color"},
         line_color: {field: "color"},
       })
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }
@@ -1296,7 +1296,7 @@ describe("Glyph models", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           x: range(N),
           y: range(N),
@@ -1306,9 +1306,9 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Circle({radius: {value: 0.5}, fill_color: {field: "color"}})
-      const selection_glyph = new Circle({x: {field: "x1"}, y: {field: "y1"}, radius: {value: 0.5}, fill_color: {field: "color"}})
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph = Circle.create({radius: {value: 0.5}, fill_color: {field: "color"}})
+      const selection_glyph = Circle.create({x: {field: "x1"}, y: {field: "y1"}, radius: {value: 0.5}, fill_color: {field: "color"}})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }
@@ -1319,7 +1319,7 @@ describe("Glyph models", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
       const N = 11
-      const data_source = new ColumnDataSource({
+      const data_source = ColumnDataSource.create({
         data: {
           x: range(N),
           y: range(N),
@@ -1330,9 +1330,9 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Circle({radius: {field: "radius"}, fill_color: {field: "color"}})
-      const selection_glyph = new Rect({fill_color: {field: "color"}})
-      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      const glyph = Circle.create({radius: {field: "radius"}, fill_color: {field: "color"}})
+      const selection_glyph = Rect.create({fill_color: {field: "color"}})
+      const glyph_renderer = GlyphRenderer.create({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
       return p
     }

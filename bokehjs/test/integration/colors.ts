@@ -25,7 +25,7 @@ describe("Color support", () => {
 
   function plot_glyph(color: ColorArg, alpha?: AlphaArg) {
     const p = fig([120, 120], {x_range: [-6, 6], y_range: [-6, 6]})
-    const source = new ColumnDataSource({data: {x, y, radius}})
+    const source = ColumnDataSource.create({data: {x, y, radius}})
     const fill_color: Vector<Color | null> = (() => {
       if (isArrayable(color) || nd.is_NDArray(color)) {
         source.set("fill_color", color)
@@ -42,8 +42,8 @@ describe("Color support", () => {
         return alpha
       }
     })()
-    const glyph = new Circle({radius: {field: "radius"}, fill_color, fill_alpha, line_color: null})
-    const circle = new GlyphRenderer({data_source: source, glyph})
+    const glyph = Circle.create({radius: {field: "radius"}, fill_color, fill_alpha, line_color: null})
+    const circle = GlyphRenderer.create({data_source: source, glyph})
     p.add_renderers(circle)
     return p
   }

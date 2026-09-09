@@ -9,7 +9,7 @@ describe("EqHistColorMapper module", () => {
     function scan_check(values: number[], expected_binning: number[], ncolors: number = 3, rescale_discrete_levels: boolean = false, low_cutoff_index: number = 0) {
       const n = values.length
       const palette = new Array(ncolors).fill("red")  // Colors not used but needed for constructor
-      const color_mapper = new EqHistColorMapper({palette, rescale_discrete_levels})
+      const color_mapper = EqHistColorMapper.create({palette, rescale_discrete_levels})
       const scan = color_mapper.scan(values, ncolors)
 
       let {binning} = scan

@@ -7,43 +7,43 @@ describe("Arrow annotation", () => {
   const make_arrow_heads = (size: number) => [
     {start: null, end: null},
 
-    {start: null, end: new NormalHead({size})},
-    {start: null, end: new OpenHead({size})},
-    {start: null, end: new TeeHead({size})},
-    {start: null, end: new VeeHead({size})},
+    {start: null, end: NormalHead.create({size})},
+    {start: null, end: OpenHead.create({size})},
+    {start: null, end: TeeHead.create({size})},
+    {start: null, end: VeeHead.create({size})},
 
-    {start: new NormalHead({size}), end: null},
-    {start: new OpenHead({size}), end: null},
-    {start: new TeeHead({size}), end: null},
-    {start: new VeeHead({size}), end: null},
+    {start: NormalHead.create({size}), end: null},
+    {start: OpenHead.create({size}), end: null},
+    {start: TeeHead.create({size}), end: null},
+    {start: VeeHead.create({size}), end: null},
 
-    {start: new NormalHead({size}), end: new NormalHead({size})},
-    {start: new NormalHead({size}), end: new OpenHead({size})},
-    {start: new NormalHead({size}), end: new TeeHead({size})},
-    {start: new NormalHead({size}), end: new VeeHead({size})},
+    {start: NormalHead.create({size}), end: NormalHead.create({size})},
+    {start: NormalHead.create({size}), end: OpenHead.create({size})},
+    {start: NormalHead.create({size}), end: TeeHead.create({size})},
+    {start: NormalHead.create({size}), end: VeeHead.create({size})},
 
-    {start: new OpenHead({size}), end: new NormalHead({size})},
-    {start: new OpenHead({size}), end: new OpenHead({size})},
-    {start: new OpenHead({size}), end: new TeeHead({size})},
-    {start: new OpenHead({size}), end: new VeeHead({size})},
+    {start: OpenHead.create({size}), end: NormalHead.create({size})},
+    {start: OpenHead.create({size}), end: OpenHead.create({size})},
+    {start: OpenHead.create({size}), end: TeeHead.create({size})},
+    {start: OpenHead.create({size}), end: VeeHead.create({size})},
 
-    {start: new TeeHead({size}), end: new NormalHead({size})},
-    {start: new TeeHead({size}), end: new OpenHead({size})},
-    {start: new TeeHead({size}), end: new TeeHead({size})},
-    {start: new TeeHead({size}), end: new VeeHead({size})},
+    {start: TeeHead.create({size}), end: NormalHead.create({size})},
+    {start: TeeHead.create({size}), end: OpenHead.create({size})},
+    {start: TeeHead.create({size}), end: TeeHead.create({size})},
+    {start: TeeHead.create({size}), end: VeeHead.create({size})},
 
-    {start: new VeeHead({size}), end: new NormalHead({size})},
-    {start: new VeeHead({size}), end: new OpenHead({size})},
-    {start: new VeeHead({size}), end: new TeeHead({size})},
-    {start: new VeeHead({size}), end: new VeeHead({size})},
+    {start: VeeHead.create({size}), end: NormalHead.create({size})},
+    {start: VeeHead.create({size}), end: OpenHead.create({size})},
+    {start: VeeHead.create({size}), end: TeeHead.create({size})},
+    {start: VeeHead.create({size}), end: VeeHead.create({size})},
   ]
 
   it("should support support horizontal arrows with all arrow heads", async () => {
     function make_plot(output_backend: OutputBackend) {
       const arrow_heads = make_arrow_heads(12)
 
-      const x_range = new Range1d({start: 0, end: 8})
-      const y_range = new Range1d({start: 0, end: arrow_heads.length + 1})
+      const x_range = Range1d.create({start: 0, end: 8})
+      const y_range = Range1d.create({start: 0, end: arrow_heads.length + 1})
       const p = fig([200, 600], {
         x_range, y_range,
         x_axis_type: null, y_axis_type: null,
@@ -56,7 +56,7 @@ describe("Arrow annotation", () => {
 
       let y = 0
       for (const {start, end} of arrow_heads) {
-        p.add_layout(new Arrow({x_start, y_start: ++y, x_end, y_end: y, line_width: width, start, end}))
+        p.add_layout(Arrow.create({x_start, y_start: ++y, x_end, y_end: y, line_width: width, start, end}))
       }
 
       return p
@@ -72,8 +72,8 @@ describe("Arrow annotation", () => {
     function make_plot(output_backend: OutputBackend) {
       const arrow_heads = make_arrow_heads(12)
 
-      const x_range = new Range1d({start: 0, end: arrow_heads.length + 1})
-      const y_range = new Range1d({start: 0, end: 8})
+      const x_range = Range1d.create({start: 0, end: arrow_heads.length + 1})
+      const y_range = Range1d.create({start: 0, end: 8})
       const p = fig([600, 200], {
         x_range, y_range,
         x_axis_type: null, y_axis_type: null,
@@ -86,7 +86,7 @@ describe("Arrow annotation", () => {
 
       let x = 0
       for (const {start, end} of arrow_heads) {
-        p.add_layout(new Arrow({y_start, x_start: ++x, y_end, x_end: x, line_width: width, start, end}))
+        p.add_layout(Arrow.create({y_start, x_start: ++x, y_end, x_end: x, line_width: width, start, end}))
       }
 
       return p

@@ -21,10 +21,6 @@ export interface RangeTransform extends RangeTransform.Attrs {}
 export abstract class RangeTransform extends Transform {
   declare properties: RangeTransform.Props
 
-  constructor(attrs?: Partial<RangeTransform.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<RangeTransform.Props>(({Ref, Nullable}) => ({
       range: [ Nullable(Ref(Range)), null ],

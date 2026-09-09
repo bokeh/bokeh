@@ -15,16 +15,16 @@ import {no_repeated} from "@bokehjs/core/util/iterator"
 describe("PanTool", () => {
 
   async function mkplot(tool: Tool): Promise<PlotView> {
-    const plot = new Plot({
+    const plot = Plot.create({
       width: 400,
       height: 400,
       min_border: 0,
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
     })
     plot.add_tools(tool)
-    plot.add_layout(new LinearAxis(), "above")
-    plot.add_layout(new LinearAxis(), "left")
+    plot.add_layout(LinearAxis.create(), "above")
+    plot.add_layout(LinearAxis.create(), "left")
     const {view} = await display(plot)
     return view
   }
@@ -43,7 +43,7 @@ describe("PanTool", () => {
 
   describe("should support cursor", () => {
     it("width dimensions='both'", async () => {
-      const tool = new PanTool({dimensions: "both"})
+      const tool = PanTool.create({dimensions: "both"})
       const plot_view = await mkplot(tool)
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "move")
@@ -52,7 +52,7 @@ describe("PanTool", () => {
     })
 
     it("width dimensions='width'", async () => {
-      const tool = new PanTool({dimensions: "width"})
+      const tool = PanTool.create({dimensions: "width"})
       const plot_view = await mkplot(tool)
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "ew-resize")
@@ -61,7 +61,7 @@ describe("PanTool", () => {
     })
 
     it("width dimensions='height'", async () => {
-      const tool = new PanTool({dimensions: "height"})
+      const tool = PanTool.create({dimensions: "height"})
       const plot_view = await mkplot(tool)
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "ns-resize")

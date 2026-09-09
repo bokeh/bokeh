@@ -15,7 +15,7 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
         start_angle: [-0.25*Math.PI, 0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI],
         end_angle: [0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI, 1.75*Math.PI],
       }
-      const glyph = new Wedge({
+      const glyph = Wedge.create({
         x: {field: "x"},
         y: {field: "y"},
         radius: {field: "r"},
@@ -35,7 +35,7 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
         start_angle: [-0.25*Math.PI, 0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI],
         end_angle: [0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI, 1.75*Math.PI],
       }
-      const glyph = new Wedge({
+      const glyph = Wedge.create({
         x: {value: 50},
         y: {value: 50},
         radius: {value: 50},
@@ -91,7 +91,7 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
         start_angle: [0],
         end_angle: [2*Math.PI],
       }
-      const glyph = new Wedge({
+      const glyph = Wedge.create({
         x: {value: 50},
         y: {value: 50},
         radius: {value: 50},

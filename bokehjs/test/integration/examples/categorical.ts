@@ -44,7 +44,7 @@ describe("Examples", () => {
       return fig
     }
 
-    const layout = new Row({children: [hm(), dot()]})
+    const layout = Row.create({children: [hm(), dot()]})
     await display(layout)
   })
 })

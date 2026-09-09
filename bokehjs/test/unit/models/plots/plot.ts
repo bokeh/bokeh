@@ -19,9 +19,9 @@ import {ColumnDataSource} from "@bokehjs/models/sources"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 
 async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView> {
-  const plot = new Plot({
-    x_range: new Range1d({start: 0, end: 10}),
-    y_range: new Range1d({start: 0, end: 10}),
+  const plot = Plot.create({
+    x_range: Range1d.create({start: 0, end: 10}),
+    y_range: Range1d.create({start: 0, end: 10}),
     ...attrs,
   })
   const {view} = await display(plot)
@@ -35,9 +35,9 @@ interface PlotWithTools {
 }
 
 function new_plot_with_tools(): PlotWithTools {
-  const reset = new ResetTool()
-  const pan = new PanTool()
-  const plot = new Plot({toolbar: new Toolbar({tools: [reset, pan]})})
+  const reset = ResetTool.create()
+  const pan = PanTool.create()
+  const plot = Plot.create({toolbar: Toolbar.create({tools: [reset, pan]})})
   return {plot, reset, pan}
 }
 
@@ -45,8 +45,8 @@ describe("Plot module", () => {
 
   describe("Plot", () => {
     it("should add single tool using add_tools method", () => {
-      const plot = new Plot()
-      const reset = new ResetTool()
+      const plot = Plot.create()
+      const reset = ResetTool.create()
 
       plot.add_tools(reset)
 
@@ -77,19 +77,19 @@ describe("Plot module", () => {
 
   describe("PlotView", () => {
     it("should allow to resolve child renderers of its composite renderers", async () => {
-      const graph = new GraphRenderer({
-        layout_provider: new StaticLayoutProvider(),
-        node_renderer: new GlyphRenderer({
-          data_source: new ColumnDataSource({data: {start: [], end: []}}),
-          glyph: new Scatter(),
+      const graph = GraphRenderer.create({
+        layout_provider: StaticLayoutProvider.create(),
+        node_renderer: GlyphRenderer.create({
+          data_source: ColumnDataSource.create({data: {start: [], end: []}}),
+          glyph: Scatter.create(),
         }),
-        edge_renderer: new GlyphRenderer({
-          data_source: new ColumnDataSource({data: {index: []}}),
-          glyph: new MultiLine(),
+        edge_renderer: GlyphRenderer.create({
+          data_source: ColumnDataSource.create({data: {index: []}}),
+          glyph: MultiLine.create(),
         }),
       })
-      const glyph = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Rect()})
-      const plot = new Plot({renderers: [graph, glyph]})
+      const glyph = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Rect.create()})
+      const plot = Plot.create({renderers: [graph, glyph]})
       const {view: plot_view} = await display(plot)
       expect(plot_view.views.find_one(graph.node_renderer)).to.be.instanceof(GlyphRendererView)
       expect(plot_view.views.find_one(graph.edge_renderer)).to.be.instanceof(GlyphRendererView)
@@ -98,7 +98,7 @@ describe("Plot module", () => {
     })
 
     it("should refresh cached renderer views when renderers change", async () => {
-      const renderer0 = new Label({x: 0, y: 0, text: "first"})
+      const renderer0 = Label.create({x: 0, y: 0, text: "first"})
       const view = await new_plot_view({renderers: [renderer0]})
 
       const cached0 = view.computed_renderer_views
@@ -106,7 +106,7 @@ describe("Plot module", () => {
       expect(view.computed_renderer_views).to.be.identical(cached0)
       expect(cached0.some((renderer_view) => renderer_view.model == renderer0)).to.be.true
 
-      const renderer1 = new Label({x: 1, y: 1, text: "second"})
+      const renderer1 = Label.create({x: 1, y: 1, text: "second"})
       view.model.renderers = [renderer1]
       await view.ready
 
@@ -118,9 +118,9 @@ describe("Plot module", () => {
     })
 
     it("should refresh cached composite renderer and element views", async () => {
-      const renderer0 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Rect()})
-      const element0 = new Div({text: "first"})
-      const annotation = new Label({
+      const renderer0 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Rect.create()})
+      const element0 = Div.create({text: "first"})
+      const annotation = Label.create({
         x: 0,
         y: 0,
         text: "annotation",
@@ -139,8 +139,8 @@ describe("Plot module", () => {
       expect(renderer_cache0.map((view) => view.model)).to.be.equal([renderer0])
       expect(element_cache0.map((view) => view.model)).to.be.equal([element0])
 
-      const renderer1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Rect()})
-      const element1 = new Div({text: "second"})
+      const renderer1 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Rect.create()})
+      const element1 = Div.create({text: "second"})
       annotation.renderers = [renderer1]
       annotation.elements = [element1]
       await plot_view.ready
@@ -231,7 +231,7 @@ describe("Plot module", () => {
     it("should rebuild renderer views after add_layout", async () => {
       const view = await new_plot_view()
       for (const side of Place) {
-        const label = new Label({x: 0, y: 0, text: side})
+        const label = Label.create({x: 0, y: 0, text: side})
         view.model.add_layout(label, side)
         // We need to do this for each side separately because otherwise
         // even if only e.g. `center.change` is connected, all other changes
@@ -242,7 +242,7 @@ describe("Plot module", () => {
     })
 
     it("should constrain current range when max_interval changes", async () => {
-      const x_range = new Range1d({start: 0, end: 10})
+      const x_range = Range1d.create({start: 0, end: 10})
       const view = await new_plot_view({x_range})
 
       x_range.max_interval = 4
@@ -253,10 +253,10 @@ describe("Plot module", () => {
     })
 
     it("should constrain DataRange1d when max_interval changes after initial render", async () => {
-      const y_range = new DataRange1d()
-      const source = new ColumnDataSource({data: {x: [0, 1, 2, 3], y: [0, 1, 4, 9]}})
-      const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
-      const renderer = new GlyphRenderer({data_source: source, glyph})
+      const y_range = DataRange1d.create()
+      const source = ColumnDataSource.create({data: {x: [0, 1, 2, 3], y: [0, 1, 4, 9]}})
+      const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
+      const renderer = GlyphRenderer.create({data_source: source, glyph})
       const view = await new_plot_view({y_range, renderers: [renderer]})
 
       expect(y_range.end - y_range.start).to.be.above(1)
@@ -268,7 +268,7 @@ describe("Plot module", () => {
     })
 
     it("should constrain current range when min_interval changes", async () => {
-      const y_range = new Range1d({start: 0, end: 2})
+      const y_range = Range1d.create({start: 0, end: 2})
       const view = await new_plot_view({y_range})
 
       y_range.min_interval = 6
@@ -279,7 +279,7 @@ describe("Plot module", () => {
     })
 
     it("should keep current range within bounds when min_interval changes", async () => {
-      const x_range = new Range1d({start: 8, end: 10, bounds: [0, 10]})
+      const x_range = Range1d.create({start: 8, end: 10, bounds: [0, 10]})
       const view = await new_plot_view({x_range})
 
       x_range.min_interval = 6
@@ -290,7 +290,7 @@ describe("Plot module", () => {
     })
 
     it("should prioritize bounds over an incompatible min_interval", async () => {
-      const x_range = new Range1d({start: 8, end: 10, bounds: [0, 10]})
+      const x_range = Range1d.create({start: 8, end: 10, bounds: [0, 10]})
       const view = await new_plot_view({x_range})
 
       x_range.min_interval = 12
@@ -331,12 +331,12 @@ describe("Plot module", () => {
     })
 
     it("should configure data ranges", async () => {
-      const x_range = new DataRange1d()
-      const y_range = new DataRange1d()
+      const x_range = DataRange1d.create()
+      const y_range = DataRange1d.create()
 
-      const p0 = new Plot({x_range, y_range})
-      const p1 = new Plot({x_range, y_range})
-      const row = new Row({children: [p0, p1]})
+      const p0 = Plot.create({x_range, y_range})
+      const p1 = Plot.create({x_range, y_range})
+      const row = Row.create({children: [p0, p1]})
 
       const {view} = await display(row, null)
 

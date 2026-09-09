@@ -9,7 +9,7 @@ import {YearsTicker} from "@bokehjs/models/tickers/years_ticker"
 describe("DatetimeTicker Model", () => {
 
   it("should configure standard subtickers", () => {
-    const ticker = new DatetimeTicker()
+    const ticker = DatetimeTicker.create()
     expect(ticker.tickers.length).to.be.equal(12)
     expect(ticker.tickers[0]).to.be.instanceof(AdaptiveTicker)
     expect(ticker.tickers[1]).to.be.instanceof(AdaptiveTicker)

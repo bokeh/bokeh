@@ -17,10 +17,6 @@ export class Row extends FlexBox {
   declare properties: Row.Props
   declare __view_type__: RowView
 
-  constructor(attrs?: Partial<Row.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = RowView
   }

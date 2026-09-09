@@ -17,14 +17,10 @@ export interface TableWidget extends TableWidget.Attrs {}
 export class TableWidget extends Widget {
   declare properties: TableWidget.Props
 
-  constructor(attrs?: Partial<TableWidget.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<TableWidget.Props>(({Ref}) => ({
-      source: [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
-      view:   [ Ref(CDSView), () => new CDSView() ],
+      source: [ Ref(ColumnDataSource), () => ColumnDataSource.create() ],
+      view:   [ Ref(CDSView), () => CDSView.create() ],
     }))
   }
 }

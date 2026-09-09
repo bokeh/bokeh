@@ -15,8 +15,8 @@ describe("Examples", () => {
     const y = f`np.sin(${x})`
     p.line(x, y, {line_color: "#3577b3"})
 
-    p.xaxis.ticker = new SingleIntervalTicker({interval: PI/2})
-    p.xgrid.ticker = new SingleIntervalTicker({interval: PI})
+    p.xaxis.ticker = SingleIntervalTicker.create({interval: PI/2})
+    p.xgrid.ticker = SingleIntervalTicker.create({interval: PI})
 
     p.xaxis.major_label_overrides = new Map([
       [  PI/2, "π/2"],

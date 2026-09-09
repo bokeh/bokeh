@@ -6,32 +6,32 @@ import {Toolbar} from "@bokehjs/models"
 
 describe("Tools", () => {
   const tools = [
-    new all.BoxEditTool(),
-    new all.BoxSelectTool(),
-    new all.BoxZoomTool(),
-    new all.CopyTool(),
-    new all.CrosshairTool(),
-    new all.CustomAction(),
-    new all.FreehandDrawTool(),
-    new all.HelpTool(),
-    new all.HoverTool(),
-    new all.LassoSelectTool(),
-    new all.LineEditTool(),
-    new all.PanTool(),
-    new all.PointDrawTool(),
-    new all.PolyDrawTool(),
-    new all.PolyEditTool(),
-    new all.PolySelectTool(),
-    new all.RangeTool(),
-    new all.RedoTool(),
-    new all.ResetTool(),
-    new all.SaveTool(),
-    new all.TapTool(),
-    new all.UndoTool(),
-    new all.WheelPanTool(),
-    new all.WheelZoomTool(),
-    new all.ZoomInTool(),
-    new all.ZoomOutTool(),
+    all.BoxEditTool.create(),
+    all.BoxSelectTool.create(),
+    all.BoxZoomTool.create(),
+    all.CopyTool.create(),
+    all.CrosshairTool.create(),
+    all.CustomAction.create(),
+    all.FreehandDrawTool.create(),
+    all.HelpTool.create(),
+    all.HoverTool.create(),
+    all.LassoSelectTool.create(),
+    all.LineEditTool.create(),
+    all.PanTool.create(),
+    all.PointDrawTool.create(),
+    all.PolyDrawTool.create(),
+    all.PolyEditTool.create(),
+    all.PolySelectTool.create(),
+    all.RangeTool.create(),
+    all.RedoTool.create(),
+    all.ResetTool.create(),
+    all.SaveTool.create(),
+    all.TapTool.create(),
+    all.UndoTool.create(),
+    all.WheelPanTool.create(),
+    all.WheelZoomTool.create(),
+    all.ZoomInTool.create(),
+    all.ZoomOutTool.create(),
   ]
 
   for (const tool of tools) {
@@ -41,7 +41,7 @@ describe("Tools", () => {
 
     it(`should support ${tool.type}'s setup menu`, async () => {
       const tool_button = tool.tool_button()
-      const toolbar = new Toolbar({buttons: [tool_button], tools: [tool]})
+      const toolbar = Toolbar.create({buttons: [tool_button], tools: [tool]})
       const p = fig([300, 100], {toolbar_location: "right", toolbar})
       p.scatter([1, 2, 3], [1, 2, 3])
       const {view} = await display(p)

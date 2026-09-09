@@ -13,15 +13,15 @@ import {defer} from "@bokehjs/core/util/defer"
 describe("Tabs", () => {
   function new_tabs(num_panels: number, add_tooltip: boolean = false): Tabs {
     const create_panel = (i: number) => {
-      const plot = new Plot({
-        x_range: new Range1d({start: 0, end: 10}),
-        y_range: new Range1d({start: 0, end: 10}),
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
       })
-      const tooltip = add_tooltip ? new Tooltip({content: `Tab #${i}`, position: "bottom_center"}) : null
-      return new TabPanel({child: plot, tooltip})
+      const tooltip = add_tooltip ? Tooltip.create({content: `Tab #${i}`, position: "bottom_center"}) : null
+      return TabPanel.create({child: plot, tooltip})
     }
     const panels = range(num_panels).map(create_panel)
-    return new Tabs({tabs: panels})
+    return Tabs.create({tabs: panels})
   }
 
   it("should have children matching tabs.child after initialization", () => {
@@ -179,9 +179,9 @@ describe("Tabs", () => {
     expect(view0.is_destroyed).to.be.true
     expect(view2.model).to.be.identical(tab2.child)
 
-    const replacement = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const replacement = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
     tab2.child = replacement
     await defer()

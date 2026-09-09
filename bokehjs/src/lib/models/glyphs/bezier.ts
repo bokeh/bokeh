@@ -106,10 +106,6 @@ export class Bezier extends Glyph {
   declare properties: Bezier.Props
   declare __view_type__: BezierView
 
-  constructor(attrs?: Partial<Bezier.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = BezierView
 

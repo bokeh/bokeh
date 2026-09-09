@@ -12,20 +12,20 @@ describe("ContourRenderer", () => {
 
     const levels = [-0.5, 1.5, 3.5]
 
-    const line_source = new ColumnDataSource({data: {
+    const line_source = ColumnDataSource.create({data: {
       xs: [[], [0.5, 1, 1.5], []],
       ys: [[], [1, 0.5, 0], []],
       levels,
     }})
-    const line_renderer = new GlyphRenderer({
-      glyph: new MultiLine({
+    const line_renderer = GlyphRenderer.create({
+      glyph: MultiLine.create({
         line_color: "blue", line_width: 5, line_alpha: 0.8, line_dash: [20, 30],
         line_cap: "round",
       }),
       data_source: line_source,
     })
 
-    const fill_source = new ColumnDataSource({data: {
+    const fill_source = ColumnDataSource.create({data: {
       xs: [[[[0, 1, 1.5, 1, 0.5, 0, 0]]], [[[0.5, 1, 1.5, 2, 2, 1, 0.5]]]],
       ys: [[[[0, 0, 0, 0.5, 1, 1, 0]]], [[[1, 0.5, 0, 0, 1, 1, 1]]]],
       lower_levels: [-0.5,  1.5],
@@ -33,8 +33,8 @@ describe("ContourRenderer", () => {
       fill_color: ["red", "yellow"],
       hatch_pattern: ["", "/"],
     }})
-    const fill_renderer = new GlyphRenderer({
-      glyph: new MultiPolygons({
+    const fill_renderer = GlyphRenderer.create({
+      glyph: MultiPolygons.create({
         fill_color: {field: "fill_color"}, fill_alpha: 0.5, line_width: 0,
         hatch_pattern: {field: "hatch_pattern"}, hatch_alpha: 0.7,
       }),
@@ -42,9 +42,9 @@ describe("ContourRenderer", () => {
     })
 
     const p = fig([300, 250])
-    const contour_renderer = new ContourRenderer({fill_renderer, line_renderer, levels})
+    const contour_renderer = ContourRenderer.create({fill_renderer, line_renderer, levels})
     p.add_renderers(contour_renderer)
-    const color_bar = new ContourColorBar({fill_renderer, line_renderer, levels})
+    const color_bar = ContourColorBar.create({fill_renderer, line_renderer, levels})
     p.add_layout(color_bar, "right")
 
     await display(p)

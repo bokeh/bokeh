@@ -68,15 +68,11 @@ export class Image extends ImageBase {
   declare properties: Image.Props
   declare __view_type__: ImageView
 
-  constructor(attrs?: Partial<Image.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ImageView
 
     this.define<Image.Props>(({Ref}) => ({
-      color_mapper: [ Ref(ColorMapper), () => new LinearColorMapper({palette: Greys9()}) ],
+      color_mapper: [ Ref(ColorMapper), () => LinearColorMapper.create({palette: Greys9()}) ],
     }))
   }
 }

@@ -15,6 +15,8 @@ namespace SomeModel {
 interface SomeModel extends SomeModel.Attrs {}
 
 class SomeModel extends Model {
+  declare properties: SomeModel.Props
+
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)
   }
@@ -28,8 +30,8 @@ class SomeModel extends Model {
 
 describe("models/dom/value_of", () => {
   it("should support ValueOf with default formatter", async () => {
-    const obj = new SomeModel({p0: Math.PI})
-    const val = new ValueOf({obj, attr: "p0"})
+    const obj = SomeModel.create({p0: Math.PI})
+    const val = ValueOf.create({obj, attr: "p0"})
 
     const {view} = await display(val, [200, 50])
     expect(view.el.textContent).to.be.equal("3.141592653589793")
@@ -41,8 +43,8 @@ describe("models/dom/value_of", () => {
   })
 
   it("should support ValueOf with printf formatter", async () => {
-    const obj = new SomeModel({p0: Math.PI})
-    const val = new ValueOf({obj, attr: "p0", formatter: "printf", format: "%.4f"})
+    const obj = SomeModel.create({p0: Math.PI})
+    const val = ValueOf.create({obj, attr: "p0", formatter: "printf", format: "%.4f"})
 
     const {view} = await display(val, [200, 50])
     expect(view.el.textContent).to.be.equal("3.1416")

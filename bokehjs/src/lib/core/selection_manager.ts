@@ -88,7 +88,7 @@ export class SelectionManager {
   get_or_create_inspector(renderer: DataRenderer): Selection {
     let selection = this.inspectors.get(renderer)
     if (selection == null) {
-      selection = new Selection()
+      selection = Selection.create()
       this.inspectors.set(renderer, selection)
     }
     return selection

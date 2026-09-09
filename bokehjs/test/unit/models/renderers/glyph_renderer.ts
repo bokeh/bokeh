@@ -14,7 +14,7 @@ import {FactorRange} from "@bokehjs/models/ranges"
 import {CategoricalScale} from "@bokehjs/models/scales"
 
 function mkrenderer(glyph: Scatter): GlyphRenderer {
-  const data_source = new ColumnDataSource({
+  const data_source = ColumnDataSource.create({
     data: {
       x: [10, 20, 30, 40],
       y: [1, 2, 3, 4],
@@ -22,17 +22,17 @@ function mkrenderer(glyph: Scatter): GlyphRenderer {
       label: ["foo", "bar", "foo", "bar"],
     },
   })
-  return new GlyphRenderer({glyph, data_source})
+  return GlyphRenderer.create({glyph, data_source})
 }
 
 describe("GlyphRendererView", () => {
   // Basic case with no all glyphs going to their defaults
   async function make_grv() {
-    const basic_circle = new Scatter({fill_color: "red"})
+    const basic_circle = Scatter.create({fill_color: "red"})
     const glyph_renderer = mkrenderer(basic_circle)
     const grv = await build_view(
       glyph_renderer,
-      {parent: await build_view(new Plot())},
+      {parent: await build_view(Plot.create())},
     )
     return grv
   }
@@ -91,22 +91,22 @@ describe("GlyphRendererView", () => {
   })
 
   it("should call set_data() once when working with FactorRange", async () => {
-    const x_range = new FactorRange({factors: ["a", "b", "c"]})
-    const y_range = new FactorRange({factors: ["u", "v", "w"]})
+    const x_range = FactorRange.create({factors: ["a", "b", "c"]})
+    const y_range = FactorRange.create({factors: ["u", "v", "w"]})
 
-    const x_scale = new CategoricalScale()
-    const y_scale = new CategoricalScale()
+    const x_scale = CategoricalScale.create()
+    const y_scale = CategoricalScale.create()
 
-    const data_source = new ColumnDataSource({
+    const data_source = ColumnDataSource.create({
       data: {
         x: ["a", "b", "c"],
         y: ["u", "v", "w"],
       },
     })
-    const gr = new GlyphRenderer({glyph: new Circle({radius: 0.5}), data_source})
+    const gr = GlyphRenderer.create({glyph: Circle.create({radius: 0.5}), data_source})
 
     const bare = {toolbar_location: null, title: null, min_border: 0}
-    const p = new Plot({width: 300, height: 300, x_range, y_range, x_scale, y_scale, renderers: [gr], ...bare})
+    const p = Plot.create({width: 300, height: 300, x_range, y_range, x_scale, y_scale, renderers: [gr], ...bare})
 
     using spy = restorable(sinon.spy(GlyphRendererView.prototype, "set_data"))
     const {view} = await display(p)

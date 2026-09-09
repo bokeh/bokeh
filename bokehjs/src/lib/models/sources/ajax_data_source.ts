@@ -23,10 +23,6 @@ export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 export class AjaxDataSource extends WebDataSource {
   declare properties: AjaxDataSource.Props
 
-  constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<AjaxDataSource.Props>(({Bool, Int, Str, Dict, Nullable}) => ({
       polling_interval: [ Nullable(Int), null ],
@@ -37,9 +33,8 @@ export class AjaxDataSource extends WebDataSource {
     }))
   }
 
-  // TODO don't use initializers until https://github.com/bokeh/bokeh/issues/13732 is fixed
   protected interval?: number
-  protected initialized?: boolean
+  protected initialized = false
   protected last_fetch_time?: Date
 
   override destroy(): void {

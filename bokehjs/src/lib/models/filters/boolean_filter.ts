@@ -16,10 +16,6 @@ export interface BooleanFilter extends BooleanFilter.Attrs {}
 export class BooleanFilter extends Filter {
   declare properties: BooleanFilter.Props
 
-  constructor(attrs?: Partial<BooleanFilter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BooleanFilter.Props>(({Bool, Iterable, Nullable}) => ({
       booleans: [ Nullable(Iterable(Bool)), null ],

@@ -1,13 +1,32 @@
 import {expect} from "#framework/assertions"
 
 import {figure} from "@bokehjs/api/plotting"
-import {ColumnDataSource, LinearAxis} from "@bokehjs/models"
+import {construct} from "@bokehjs/core/has_props"
+import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
+import {Circle, ColumnDataSource, LinearAxis} from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
   describe("figure()", () => {
     describe("glyph methods", () => {
+      it("should instantiate glyphs through their public factory", () => {
+        let create_calls = 0
+
+        class FactoryCircle extends Circle {
+          static override create<T extends HasProps>(
+            this: HasPropsClass<T>, attrs?: ModelAttrs<T>,
+          ): T {
+            create_calls += 1
+            return construct(this, attrs)
+          }
+        }
+
+        const renderer = figure()._glyph(FactoryCircle, "factory_circle", ["x", "y", "radius"], [])
+        expect(renderer.glyph).to.be.instanceof(FactoryCircle)
+        expect(create_calls).to.be.equal(5)
+      })
+
       it("should validate arguments", () => {
-        const source = new ColumnDataSource()
+        const source = ColumnDataSource.create()
 
         const gr0 = figure().circle()
         expect(gr0.glyph.x).to.be.equal({field: "x"})
@@ -162,11 +181,11 @@ describe("in api/plotting module", () => {
       expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X0"])
       expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y0"])
 
-      p.add_layout(new LinearAxis(), "left")
-      p.add_layout(new LinearAxis(), "right")
+      p.add_layout(LinearAxis.create(), "left")
+      p.add_layout(LinearAxis.create(), "right")
 
-      p.add_layout(new LinearAxis(), "above")
-      p.add_layout(new LinearAxis(), "below")
+      p.add_layout(LinearAxis.create(), "above")
+      p.add_layout(LinearAxis.create(), "below")
 
       expect(p.xaxes.length).to.be.equal(3)
       expect(p.yaxes.length).to.be.equal(3)
@@ -190,11 +209,11 @@ describe("in api/plotting module", () => {
       expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X3", "X3", "X3"])
       expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y3", "Y3", "Y3"])
 
-      p.add_layout(new LinearAxis(), "left")
-      p.add_layout(new LinearAxis(), "right")
+      p.add_layout(LinearAxis.create(), "left")
+      p.add_layout(LinearAxis.create(), "right")
 
-      p.add_layout(new LinearAxis(), "above")
-      p.add_layout(new LinearAxis(), "below")
+      p.add_layout(LinearAxis.create(), "above")
+      p.add_layout(LinearAxis.create(), "below")
 
       p.xaxis.axis_label = "X4"
       p.yaxis.axis_label = "Y4"

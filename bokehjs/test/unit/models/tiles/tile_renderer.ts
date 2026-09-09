@@ -91,7 +91,7 @@ describe("tile sources", () => {
       url: "http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png",
     }
 
-    const source = new AbstractTileSource(tile_options)
+    const source = AbstractTileSource.create(tile_options)
 
     it("should convert tile xyz into a tile key", () => {
       const k = source.tile_xyz_to_key(1, 1, 1)
@@ -108,7 +108,7 @@ describe("tile sources", () => {
         x_origin_offset: 0,
         y_origin_offset: 0,
       }
-      const offset_source = new AbstractTileSource(tile_options)
+      const offset_source = AbstractTileSource.create(tile_options)
       expect(offset_source.x_origin_offset).to.be.equal(0)
       expect(offset_source.y_origin_offset).to.be.equal(0)
     })
@@ -124,7 +124,7 @@ describe("tile sources", () => {
         extra_url_vars: test_extra_url_vars,
       }
 
-      const tile_source = new AbstractTileSource(tile_options)
+      const tile_source = AbstractTileSource.create(tile_options)
       const expect_url = "http://test_value/test_value2/0/0/0.png"
       expect(tile_source.extra_url_vars).to.be.equal(test_extra_url_vars)
       expect(tile_source.get_image_url(0, 0, 0)).to.be.equal(expect_url)
@@ -136,13 +136,13 @@ describe("tile sources", () => {
       const tile_options0 = {
         url: "http://mock/{x}/{y}/{z}.png",
       }
-      const tile_source0 = new AbstractTileSource(tile_options0)
+      const tile_source0 = AbstractTileSource.create(tile_options0)
       expect(tile_source0.get_image_url(0, 0, 0)).to.be.equal(expect_url)
 
       const tile_options1 = {
         url: "http://mock/{X}/{Y}/{Z}.png",
       }
-      const tile_source1 = new AbstractTileSource(tile_options1)
+      const tile_source1 = AbstractTileSource.create(tile_options1)
       expect(tile_source1.get_image_url(0, 0, 0)).to.be.equal(expect_url)
     })
 
@@ -168,7 +168,7 @@ describe("tile sources", () => {
       const tile_options = {
         url: "http://mock/{x}/{y}/{z}.png",
       }
-      const tile_source = new AbstractTileSource(tile_options)
+      const tile_source = AbstractTileSource.create(tile_options)
       const tile = {tile_coords: [0, 1, 2]}
       tile_source.tiles.mock_key = tile
       tile_source.url = "http://mock/{x}/{y}/{z}.png"
@@ -178,7 +178,7 @@ describe("tile sources", () => {
 
   describe("tms tile source", () => {
     const url = "http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png"
-    const source = new TMSTileSource({url})
+    const source = TMSTileSource.create({url})
 
     it("should get tiles for extent correctly", () => {
       T.expect_mercator_tile_counts(source)
@@ -189,7 +189,7 @@ describe("tile sources", () => {
         x_origin_offset: 0,
         y_origin_offset: 0,
       }
-      const offset_source = new TMSTileSource(tile_options)
+      const offset_source = TMSTileSource.create(tile_options)
       expect(offset_source.x_origin_offset).to.be.equal(0)
       expect(offset_source.y_origin_offset).to.be.equal(0)
     })
@@ -199,7 +199,7 @@ describe("tile sources", () => {
         x_origin_offset: 0,
         y_origin_offset: 0,
       }
-      const offset_source = new TMSTileSource(tile_options)
+      const offset_source = TMSTileSource.create(tile_options)
       const bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
       expect(bounds.includes(0)).to.be.true
     })
@@ -215,7 +215,7 @@ describe("tile sources", () => {
       url: "http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga",
     }
 
-    const source = new WMTSTileSource(tile_options)
+    const source = WMTSTileSource.create(tile_options)
 
     it("should get tiles for extent correctly", () => {
       T.expect_mercator_tile_counts(source)
@@ -248,7 +248,7 @@ describe("tile sources", () => {
     const tile_options = {
       url: "http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0",
     }
-    const source = new QUADKEYTileSource(tile_options)
+    const source = QUADKEYTileSource.create(tile_options)
 
     it("should get tiles for extent correctly", () => {
       T.expect_mercator_tile_counts(source)
@@ -273,7 +273,7 @@ describe("tile sources", () => {
     const tile_options = {
       url: "http://maps.ngdc.noaa.gov/soap/web_mercator/dem_hillshades/MapServer/WMSServer?request=GetMap&service=WMS&styles=default&version=1.3.0&format=image/png&bbox={XMIN},{YMIN},{XMAX},{YMAX}&width=256&height=256&crs=3857&layers=DEM%20Hillshades&BGCOLOR=0x000000&transparent=true",
     }
-    const source = new BBoxTileSource(tile_options)
+    const source = BBoxTileSource.create(tile_options)
 
     it("should get tiles for extent correctly", () => {
       T.expect_mercator_tile_counts(source)
@@ -281,7 +281,7 @@ describe("tile sources", () => {
 
     it("should handle case-insensitive url parameters (template url)", () => {
       const tile_options0 = {url: "http://mock?bbox={xmin},{ymin},{xmax},{ymax}"}
-      const tile_source0 = new BBoxTileSource(tile_options0)
+      const tile_source0 = BBoxTileSource.create(tile_options0)
       const url0 = tile_source0.get_image_url(0, 0, 0)
       expect(url0.indexOf("{xmin}")).to.be.equal(-1)
       expect(url0.indexOf("{ymin}")).to.be.equal(-1)
@@ -289,7 +289,7 @@ describe("tile sources", () => {
       expect(url0.indexOf("{ymax}")).to.be.equal(-1)
 
       const tile_options1 = {url: "http://mock?bbox={XMIN},{YMIN},{XMAX},{YMAX}"}
-      const tile_source1 = new BBoxTileSource(tile_options1)
+      const tile_source1 = BBoxTileSource.create(tile_options1)
       const url1 = tile_source1.get_image_url(0, 0, 0)
       expect(url1.indexOf("{XMIN}")).to.be.equal(-1)
       expect(url1.indexOf("{YMIN}")).to.be.equal(-1)
@@ -300,39 +300,39 @@ describe("tile sources", () => {
 
   describe("mercator tile source", () => {
     it("should calculate resolution", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.get_resolution(1)).to.be.similar(78271.517)
       expect(source.get_resolution(12)).to.be.similar(38.2185)
     })
 
     it("should convert tile x,y,z into cache key", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.tile_xyz_to_key(1, 1, 1)).to.be.equal("1:1:1")
     })
 
     it("should convert cache key into tile x,y,z", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.key_to_tile_xyz("1:1:1")).to.be.equal([1, 1, 1])
     })
 
     it("should successfully wrap around (x-axis) for normalized tile coordinates", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.normalize_xyz(-1, 1, 2)).to.be.equal([3, 1, 2])
     })
 
     it("should successfully get closest parent tile by xyz", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       source.tiles.set(source.tile_xyz_to_key(0, 1, 1), {tile_coords: [0, 0, 0]})
       expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.equal([0, 1, 1])
     })
 
     it("should not report a parent tile when none is cached", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.null
     })
 
     it("should retain the most recently used tiles in the cache", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       for (let i = 0; i < 512; i++) {
         source.set_tile(`${i}`, {tile_coords: [i, 0, 0]})
       }
@@ -346,7 +346,7 @@ describe("tile sources", () => {
     })
 
     it("should not evict tiles the current extent needs", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const needed = new Set(["0", "1"])
       for (let i = 0; i < 600; i++) {
         source.set_tile(`${i}`, {tile_coords: [i, 0, 0]}, needed)
@@ -359,7 +359,7 @@ describe("tile sources", () => {
     })
 
     it("should retain an extent that needs more tiles than the cache holds", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const needed = new Set<string>()
       for (let i = 0; i < 600; i++) {
         needed.add(`${i}`)
@@ -373,22 +373,22 @@ describe("tile sources", () => {
 
     it("should verify whether tile xyz's are valid", () => {
       const tile_options0 = {wrap_around: true}
-      const source0 = new MercatorTileSource(tile_options0)
+      const source0 = MercatorTileSource.create(tile_options0)
       expect(source0.is_valid_tile(-1, 1, 1)).to.be.equal(true)
 
       const tile_options1 = {wrap_around: false}
-      const source1 = new MercatorTileSource(tile_options1)
+      const source1 = MercatorTileSource.create(tile_options1)
       expect(source1.is_valid_tile(-1, 1, 1)).to.be.equal(false)
     })
 
     it("should not snap_to_zoom_level", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const bounds = source.snap_to_zoom_level(T.MERCATOR_BOUNDS, 400, 400, 2)
       expect(bounds).to.be.similar(T.MERCATOR_BOUNDS)
     })
 
     it("should snap_to_zoom_level", () => {
-      const source = new MercatorTileSource({snap_to_zoom: true})
+      const source = MercatorTileSource.create({snap_to_zoom: true})
       const bounds = source.snap_to_zoom_level(T.MERCATOR_BOUNDS, 400, 400, 2)
       expect(bounds).to.be.similar([
         -7827151.69,
@@ -399,39 +399,39 @@ describe("tile sources", () => {
     })
 
     it("should rescale", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const rescaled_bounds = source.rescale(T.MERCATOR_BOUNDS, 400, 400, 600, 600)
       expect(rescaled_bounds).to.be.similar([-13358338.8933333, -13358338.8933333, 13358338.8933333, 13358338.8933333])
     })
 
     it("should rescale and reverse rescale", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const rescaled_bounds = source.rescale(T.MERCATOR_BOUNDS, 400, 400, 350, 300)
       const reversed_rescaled_bounds = source.rescale(rescaled_bounds, 350, 300, 400, 400)
       expect(reversed_rescaled_bounds).to.be.equal(T.MERCATOR_BOUNDS)
     })
 
     it("should get best zoom level based on extent and height/width", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(0)
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 512, 512)).to.be.equal(1)
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 1024, 1024)).to.be.equal(2)
     })
 
     it("should get last zoom level as best when there are no others", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 1e40, 1e40)).to.be.equal(30)
     })
 
     it("should get closest zoom level based on extent and height/width", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(0)
       expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 513, 512)).to.be.equal(1)
       expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 1024, 1024)).to.be.equal(2)
     })
 
     it("should get zoom levels within the range the source provides", () => {
-      const source = new MercatorTileSource({min_zoom: 5, max_zoom: 10})
+      const source = MercatorTileSource.create({min_zoom: 5, max_zoom: 10})
 
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(5)
       expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(5)
@@ -441,7 +441,7 @@ describe("tile sources", () => {
     })
 
     it("should constrain the extent to a single resolution in both axes", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
 
       const wide = source.constrain_extent([-1000000, -500000, 1000000, 500000], 400, 400)
       expect(wide).to.be.similar([-1000000, -1000000, 1000000, 1000000])
@@ -458,19 +458,19 @@ describe("tile sources", () => {
     })
 
     it("should not return children beyond the levels the source provides", () => {
-      const source = new MercatorTileSource({max_zoom: 2})
+      const source = MercatorTileSource.create({max_zoom: 2})
       expect(source.children_by_tile_xyz(0, 0, 1).length).to.be.equal(4)
       expect(source.children_by_tile_xyz(0, 0, 2)).to.be.equal([])
     })
 
     it("should limit the number of tiles requested for an extent", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const tiles = source.get_tiles_by_extent(T.MERCATOR_BOUNDS, 12, 0)
       expect(tiles.length).to.be.equal(4096)
     })
 
     it("should convert pixel x/y to tile x/y", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.pixels_to_tile(1, 1)).to.be.equal([0, 0])
       expect(source.pixels_to_tile(0, 0)).to.be.equal([0, 0])
       expect(source.pixels_to_tile(-1, -1)).to.be.equal([-1, -1])
@@ -479,12 +479,12 @@ describe("tile sources", () => {
     })
 
     it("should convert pixel x/y to meters x/y", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       expect(source.pixels_to_meters(0, 0, 0)).to.be.equal([-20037508.34, -20037508.34])
     })
 
     it("should get tile bounds in meters", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const bounds = source.get_tile_meter_bounds(511, 1202, 11)
       expect(bounds).to.be.similar([
         -10038322.050635627,
@@ -495,7 +495,7 @@ describe("tile sources", () => {
     })
 
     it("should get tile bounds in lat/lng", () => {
-      const source = new MercatorTileSource()
+      const source = MercatorTileSource.create()
       const bounds = source.get_tile_geographic_bounds(511, 1202, 11)
       expect(bounds).to.be.similar([
         -90.17578125,
@@ -512,7 +512,7 @@ describe("tile sources", () => {
         url: "http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
       }
 
-      const source = new TMSTileSource(tile_options)
+      const source = TMSTileSource.create(tile_options)
 
       const extent: Extent = [-90.283741, 29.890626, -89.912952, 30.057766]
       const level = 11
@@ -538,7 +538,7 @@ describe("tile sources", () => {
 describe("tile renderer", () => {
   // only zoom levels 1 and 2 are available as local assets
   function osm_source(): WMTSTileSource {
-    return new WMTSTileSource({url: "/assets/tiles/osm/{Z}_{X}_{Y}.png", max_zoom: 2})
+    return WMTSTileSource.create({url: "/assets/tiles/osm/{Z}_{X}_{Y}.png", max_zoom: 2})
   }
 
   function relative_aspect_error(view: PlotView, x_range: Range, y_range: Range): number {
@@ -549,14 +549,14 @@ describe("tile renderer", () => {
   }
 
   it("should draw tiles at a single resolution in both axes", async () => {
-    const x_range = new Range1d({start: -2000000, end: 6000000})
-    const y_range = new Range1d({start: -1000000, end: 7000000})
+    const x_range = Range1d.create({start: -2000000, end: 6000000})
+    const y_range = Range1d.create({start: -1000000, end: 7000000})
 
     const plot = fig([300, 200], {
       x_range, y_range,
       x_axis_type: "mercator",
       y_axis_type: "mercator",
-      renderers: [new TileRenderer({tile_source: osm_source()})],
+      renderers: [TileRenderer.create({tile_source: osm_source()})],
     })
 
     const {view} = await display(plot)
@@ -568,15 +568,15 @@ describe("tile renderer", () => {
   })
 
   it("should stop auto-ranging in order to keep tiles undistorted", async () => {
-    const source = new ColumnDataSource({data: {x: [-2000000, 6000000], y: [-1000000, 7000000]}})
-    const x_range = new DataRange1d()
-    const y_range = new DataRange1d()
+    const source = ColumnDataSource.create({data: {x: [-2000000, 6000000], y: [-1000000, 7000000]}})
+    const x_range = DataRange1d.create()
+    const y_range = DataRange1d.create()
 
     const plot = fig([300, 200], {
       x_range, y_range,
       x_axis_type: "mercator",
       y_axis_type: "mercator",
-      renderers: [new TileRenderer({tile_source: osm_source()})],
+      renderers: [TileRenderer.create({tile_source: osm_source()})],
     })
     plot.scatter({field: "x"}, {field: "y"}, {source})
 
@@ -603,7 +603,7 @@ describe("tile renderer", () => {
 
   it("should keep tile requests in flight out of the bounded cache", async () => {
     const tile_source = osm_source()
-    const tile_renderer = new TileRenderer({tile_source})
+    const tile_renderer = TileRenderer.create({tile_source})
 
     const plot = fig([300, 200], {
       x_range: [-2000000, 6000000],
@@ -641,7 +641,7 @@ describe("tile renderer", () => {
 
   it("should discard pending tiles when the tile source is replaced", async () => {
     const tile_source = osm_source()
-    const tile_renderer = new TileRenderer({tile_source})
+    const tile_renderer = TileRenderer.create({tile_source})
 
     const plot = fig([300, 200], {
       x_range: [-2000000, 6000000],
@@ -667,7 +667,7 @@ describe("tile renderer", () => {
 
   it("should finish pending work when removed", async () => {
     const tile_source = osm_source()
-    const tile_renderer = new TileRenderer({tile_source})
+    const tile_renderer = TileRenderer.create({tile_source})
 
     const plot = fig([300, 200], {
       x_range: [-2000000, 6000000],

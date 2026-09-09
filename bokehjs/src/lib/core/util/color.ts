@@ -107,19 +107,30 @@ export function _color2rgba(color: string | null, alpha: number = 1.0): RGBA {
 const rgb_modern = /^rgba?\(\s*(?<r>[^\s,]+?)\s+(?<g>[^\s,]+?)\s+(?<b>[^\s,]+?)(?:\s*\/\s*(?<a>[^\s,]+?))?\s*\)$/
 const rgb_legacy = /^rgba?\(\s*(?<r>[^\s,]+?)\s*,\s*(?<g>[^\s,]+?)\s*,\s*(?<b>[^\s,]+?)(?:\s*,\s*(?<a>[^\s,]+?))?\s*\)$/
 
-const css4_normalize = (() => {
-  const canvas = document.createElement("canvas")
-  canvas.width = 1
-  canvas.height = 1
-  const ctx = canvas.getContext("2d")!
-  const gradient = ctx.createLinearGradient(0, 0, 1, 1)
-  return (color: string): string | null => {
-    ctx.fillStyle = gradient // lgtm [js/useless-assignment-to-property]
-    ctx.fillStyle = color
-    const style = ctx.fillStyle
-    return (style as typeof ctx["fillStyle"]) != gradient ? style : null
+// Defer canvas setup so importing this module doesn't require a DOM.
+let _css4_normalize: ((color: string) => string | null) | null = null
+
+function css4_normalize(color: string): string | null {
+  if (_css4_normalize == null) {
+    if (typeof document == "undefined") {
+      return null
+    }
+
+    const canvas = document.createElement("canvas")
+    canvas.width = 1
+    canvas.height = 1
+    const ctx = canvas.getContext("2d")!
+    const gradient = ctx.createLinearGradient(0, 0, 1, 1)
+    _css4_normalize = (color) => {
+      ctx.fillStyle = gradient
+      const sentinel = ctx.fillStyle
+      ctx.fillStyle = color
+      const style = ctx.fillStyle
+      return (style as typeof ctx["fillStyle"]) != sentinel ? style : null
+    }
   }
-})()
+  return _css4_normalize(color)
+}
 
 export function css4_parse(color: string): RGBAf | null {
   /**

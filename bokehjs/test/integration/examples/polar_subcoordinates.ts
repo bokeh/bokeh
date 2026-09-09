@@ -37,8 +37,8 @@ describe("Examples", () => {
       const angle = np.linspace(0, T*np.pi, T*100)
       const radius = f`${A}*np.cos(${k}*${angle})`
 
-      const source = new ColumnDataSource({data: {radius, angle}})
-      const t = new PolarTransform()
+      const source = ColumnDataSource.create({data: {radius, angle}})
+      const t = PolarTransform.create()
 
       // XXX: Map keys are compared by reference
       const hash = k.toString()
@@ -61,10 +61,10 @@ describe("Examples", () => {
     for (const d of range(1, D + 1)) {
       for (const n of range(1, N + 1)) {
         const xy = plot.subplot({
-          x_source: new Range1d({start: -1, end: 1}),
-          y_source: new Range1d({start: -1, end: 1}),
-          x_target: new Range1d({start: n - h, end: n + h}),
-          y_target: new Range1d({start: d - h, end: d + h}),
+          x_source: Range1d.create({start: -1, end: 1}),
+          y_source: Range1d.create({start: -1, end: 1}),
+          x_target: Range1d.create({start: n - h, end: n + h}),
+          y_target: Range1d.create({start: d - h, end: d + h}),
         })
         rose(xy, new Fraction(n, d))
       }

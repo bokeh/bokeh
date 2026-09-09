@@ -56,10 +56,6 @@ export class ClickPanTool extends PlotActionTool {
   declare properties: ClickPanTool.Props
   declare __view_type__: ClickPanToolView
 
-  constructor(attrs?: Partial<ClickPanTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ClickPanToolView
 
@@ -68,15 +64,15 @@ export class ClickPanTool extends PlotActionTool {
       factor: [ Float, 0.1 ],
     }))
 
-    this.register_alias("pan_left", () => new ClickPanTool({direction: "left"}))
-    this.register_alias("pan_right", () => new ClickPanTool({direction: "right"}))
-    this.register_alias("pan_up", () => new ClickPanTool({direction: "up"}))
-    this.register_alias("pan_down", () => new ClickPanTool({direction: "down"}))
+    this.register_alias("pan_left", () => ClickPanTool.create({direction: "left"}))
+    this.register_alias("pan_right", () => ClickPanTool.create({direction: "right"}))
+    this.register_alias("pan_up", () => ClickPanTool.create({direction: "up"}))
+    this.register_alias("pan_down", () => ClickPanTool.create({direction: "down"}))
 
-    this.register_alias("pan_west", () => new ClickPanTool({direction: "west"}))
-    this.register_alias("pan_east", () => new ClickPanTool({direction: "east"}))
-    this.register_alias("pan_north", () => new ClickPanTool({direction: "north"}))
-    this.register_alias("pan_south", () => new ClickPanTool({direction: "south"}))
+    this.register_alias("pan_west", () => ClickPanTool.create({direction: "west"}))
+    this.register_alias("pan_east", () => ClickPanTool.create({direction: "east"}))
+    this.register_alias("pan_north", () => ClickPanTool.create({direction: "north"}))
+    this.register_alias("pan_south", () => ClickPanTool.create({direction: "south"}))
   }
 
   override tool_name = "Click Pan"

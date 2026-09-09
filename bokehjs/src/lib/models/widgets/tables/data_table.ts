@@ -31,7 +31,9 @@ import slickgrid_css from "styles/widgets/slickgrid.css"
 import Sortable from "sortablejs"
 
 // Explicitly attach it to the window so SlickGrid can see it
-(window as any).Sortable = Sortable
+if (typeof window != "undefined") {
+  (window as any).Sortable = Sortable
+}
 
 export const AutosizeModes = {
   fit_columns: "FCV" as const,
@@ -547,10 +549,6 @@ export class DataTable extends TableWidget {
   private _sort_columns: ColumnSort[] = []
   get sort_columns(): ColumnSort[] {
     return this._sort_columns
-  }
-
-  constructor(attrs?: Partial<DataTable.Attrs>) {
-    super(attrs)
   }
 
   static {

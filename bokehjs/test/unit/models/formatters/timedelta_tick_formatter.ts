@@ -121,53 +121,53 @@ const DAY = 3600 * 24 * 1000
 describe("TimedeltaTickFormatter", () => {
   describe("doFormat method", () => {
     it("should handle empty list", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([], {loc: 0})
       expect(labels).to.be.equal([])
     })
     it("should handle nanoseconds", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t/1000000, t/1000000+0.000001, t/1000000+0.000002], {loc: 0})
       expect(labels).to.be.equal(["752ns", "753ns", "754ns"])
     })
     it("should handle microseconds", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t, t+0.001, t+0.002], {loc: 0})
       expect(labels).to.be.equal(["000us", "001us", "002us"])
     })
     it("should handle milliseconds", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t, t+1, t+2], {loc: 0})
       expect(labels).to.be.equal(["752ms", "753ms", "754ms"])
     })
     it("should handle seconds", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t, t+1000, t+2000], {loc: 0})
       expect(labels).to.be.equal(["00:55:19", "00:55:20", "00:55:21"])
     })
     it("should handle minsec", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t, t+50000, t+100000], {loc: 0})
       expect(labels).to.be.equal(["00:55:19", "00:56:09", "00:56:59"])
     })
     it("should handle minutes", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t, t+MIN, t+MIN*2], {loc: 0})
       expect(labels).to.be.equal(["00:55", "00:56", "00:57"])
     })
     it("should handle hourmin", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t, t+MIN*30, t+MIN*60], {loc: 0})
       expect(labels).to.be.equal(["00:55", "01:25", "01:55"])
     })
     it("should handle hours", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       // happens to test near day boundary
       expect(labels).to.be.equal(["00:55", "01:55", "02:55"])
     })
     it("should handle days", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter()
+      const formatter = tdtf.TimedeltaTickFormatter.create()
       const labels = formatter.doFormat([t, t+DAY, t+DAY*2], {loc: 0})
       expect(labels).to.be.equal(["19166 days", "19167 days", "19168 days"])
     })
@@ -175,34 +175,34 @@ describe("TimedeltaTickFormatter", () => {
 
   describe("strip_leading_zeros", () => {
     it("should handle boolean", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({strip_leading_zeros: true})
+      const formatter = tdtf.TimedeltaTickFormatter.create({strip_leading_zeros: true})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["0:55", "1:55", "2:55"])
     })
     it("should handle resolution type hours", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({strip_leading_zeros: ["hours"]})
+      const formatter = tdtf.TimedeltaTickFormatter.create({strip_leading_zeros: ["hours"]})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["0:55", "1:55", "2:55"])
     })
     it("should handle resolution type days", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({strip_leading_zeros: ["days"]})
+      const formatter = tdtf.TimedeltaTickFormatter.create({strip_leading_zeros: ["days"]})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55", "01:55", "02:55"])
     })
     it("should handle resolution type milliseconds", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({strip_leading_zeros: ["milliseconds"]})
+      const formatter = tdtf.TimedeltaTickFormatter.create({strip_leading_zeros: ["milliseconds"]})
       const labels = formatter.doFormat([t-752, t-747, t-742], {loc: 0})
       expect(labels).to.be.equal(["0ms", "5ms", "10ms"])
     })
   })
   describe("hide_repeats", () => {
     it("should handle boolean", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({hours: "%d", hide_repeats: true})
+      const formatter = tdtf.TimedeltaTickFormatter.create({hours: "%d", hide_repeats: true})
       const labels = formatter.doFormat([t+HOUR, t+HOUR*2, t+HOUR*3], {loc: 0})
       expect(labels).to.be.equal(["19166", "", ""])
     })
     it("should handle boolean within context", () => {
-      const context = new tdtf.TimedeltaTickFormatter({
+      const context = tdtf.TimedeltaTickFormatter.create({
         nanoseconds: "nanoseconds",
         microseconds: "microseconds",
         milliseconds: "milliseconds",
@@ -213,24 +213,24 @@ describe("TimedeltaTickFormatter", () => {
         hours: "hours",
         days: "days",
         hide_repeats: true})
-      const formatter = new tdtf.TimedeltaTickFormatter({context, context_which: "all"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context, context_which: "all"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\nhours", "01:55\n", "02:55\n"])
     })
   })
   describe("context", () => {
     it("should handle plain string", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "FOO"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "FOO"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\nFOO", "01:55\n", "02:55\n"])
     })
     it("should handle a format string", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n19", "01:55\n", "02:55\n"])
     })
     it("should handle a TimedeltaTickFormatter", () => {
-      const context = new tdtf.TimedeltaTickFormatter({
+      const context = tdtf.TimedeltaTickFormatter.create({
         microseconds: "microseconds",
         milliseconds: "milliseconds",
         seconds: "s",
@@ -239,7 +239,7 @@ describe("TimedeltaTickFormatter", () => {
         hourmin: "hourmin",
         hours: "hours",
         days: "days"})
-      const formatter = new tdtf.TimedeltaTickFormatter({context})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context})
 
       // A tick formatter used for context will format according to the "parent" resolution
       const us_labels = formatter.doFormat([t, t+0.001, t+0.002], {loc: 0})
@@ -254,44 +254,44 @@ describe("TimedeltaTickFormatter", () => {
   })
   describe("context_which", () => {
     it("should handle start", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_which: "start"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S", context_which: "start"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n19", "01:55\n", "02:55\n"])
     })
     it("should handle end", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_which: "end"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S", context_which: "end"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n", "01:55\n", "02:55\n19"])
     })
     it("should handle center", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_which: "center"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S", context_which: "center"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n", "01:55\n19", "02:55\n"])
     })
     it("should handle all", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_which: "all"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S", context_which: "all"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n19", "01:55\n19", "02:55\n19"])
     })
   })
   describe("context_location", () => {
     it("should handle left", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_location: "left"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S", context_location: "left"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["19 00:55", "01:55", "02:55"])
     })
     it("should handle right", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_location: "right"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S", context_location: "right"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55 19", "01:55", "02:55"])
     })
     it("should handle above", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_location: "above"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S", context_location: "above"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["19\n00:55", "\n01:55", "\n02:55"])
     })
     it("should handle below", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_location: "below"})
+      const formatter = tdtf.TimedeltaTickFormatter.create({context: "%S", context_location: "below"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n19", "01:55\n", "02:55\n"])
     })

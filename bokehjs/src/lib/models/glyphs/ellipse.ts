@@ -98,7 +98,7 @@ export class EllipseView extends CenterRotatableView  {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
@@ -143,10 +143,6 @@ export interface Ellipse extends Ellipse.Attrs {}
 export class Ellipse extends CenterRotatable {
   declare properties: Ellipse.Props
   declare __view_type__: EllipseView
-
-  constructor(attrs?: Partial<Ellipse.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = EllipseView

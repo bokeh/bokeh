@@ -55,18 +55,14 @@ export abstract class ColumnarDataSource extends DataSource {
 
   readonly selection_manager = new SelectionManager(this)
 
-  constructor(attrs?: Partial<ColumnarDataSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ColumnarDataSource.Props>(({Ref, Dict, Unknown}) => ({
       default_values: [ Dict(Unknown), {} ],
-      selection_policy: [ Ref(SelectionPolicy), () => new UnionRenderers() ],
+      selection_policy: [ Ref(SelectionPolicy), () => UnionRenderers.create() ],
     }))
 
     this.internal<ColumnarDataSource.Props>(({AnyRef}) => ({
-      inspected:         [ AnyRef(), () => new Selection() ],
+      inspected:         [ AnyRef(), () => Selection.create() ],
     }))
   }
 

@@ -21,10 +21,6 @@ export interface ScanningColorMapper extends ScanningColorMapper.Attrs {}
 export abstract class ScanningColorMapper extends ContinuousColorMapper {
   declare properties: ScanningColorMapper.Props
 
-  constructor(attrs?: Partial<ScanningColorMapper.Attrs>) {
-    super(attrs)
-  }
-
   declare MatricsType: {min: number, max: number, binning: Arrayable<number>, force_low_cutoff: boolean}
 
   override index_to_value(index: number): number {

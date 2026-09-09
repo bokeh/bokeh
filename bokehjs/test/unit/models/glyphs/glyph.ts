@@ -30,11 +30,11 @@ describe("glyph module", () => {
         }
 
         protected override _hit_point?(_geometry: PointGeometry): Selection {
-          return new Selection()
+          return Selection.create()
         }
 
         protected override _hit_span?(_geometry: SpanGeometry): Selection {
-          return new Selection()
+          return Selection.create()
         }
       }
 
@@ -44,7 +44,7 @@ describe("glyph module", () => {
         }
       }
 
-      const glyph = new SomeGlyph()
+      const glyph = SomeGlyph.create()
       const data = {}
       const glyph_view = await create_glyph_view(glyph, data) as SomeGlyphView // XXX
 

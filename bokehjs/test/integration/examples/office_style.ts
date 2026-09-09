@@ -22,7 +22,7 @@ import {
 describe("Examples", () => {
   it("should support custom styles to follow Office like styling", async () => {
     const url = "/assets/fonts/inter/inter.ttf"
-    const font_style = new GlobalInlineStyleSheet({
+    const font_style = GlobalInlineStyleSheet.create({
       css: `
           @font-face {
             font-family: 'Inter';
@@ -54,7 +54,7 @@ describe("Examples", () => {
       }
     `
 
-    const light_dark = new LightDark({active: true, stylesheets: [switch_style]})
+    const light_dark = LightDark.create({active: true, stylesheets: [switch_style]})
 
     const button_style = `
       .bk-btn {
@@ -119,23 +119,23 @@ describe("Examples", () => {
       }
     `
 
-    const w0 = new Button({label: "Button", stylesheets: [button_style]})
-    const w1 = new Toggle({label: "Toggle", stylesheets: [button_style]})
-    const w2 = new Dropdown({label: "Dropdown", stylesheets: [button_style]})
-    const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
-    const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
-    const w5 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [button_style]})
-    const w6 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [button_style]})
-    const w7 = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103", stylesheets: [input_style]})
-    const w8 = new PasswordInput({value: "foo", stylesheets: [input_style]})
-    const w9 = new AutocompleteInput({
+    const w0 = Button.create({label: "Button", stylesheets: [button_style]})
+    const w1 = Toggle.create({label: "Toggle", stylesheets: [button_style]})
+    const w2 = Dropdown.create({label: "Dropdown", stylesheets: [button_style]})
+    const w3 = CheckboxGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
+    const w4 = RadioGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+    const w5 = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [button_style]})
+    const w6 = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [button_style]})
+    const w7 = TextInput.create({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103", stylesheets: [input_style]})
+    const w8 = PasswordInput.create({value: "foo", stylesheets: [input_style]})
+    const w9 = AutocompleteInput.create({
       placeholder: "Enter value ...",
       completions: ["aaa", "aab", "aac", "baa", "caa"],
       stylesheets: [input_style],
     })
-    const w10 = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], stylesheets: [choices_style]})
-    const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1", stylesheets: [input_style]})
-    const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5, stylesheets: [slider_style]})
+    const w10 = MultiChoice.create({options: ["Option 1", "Option 2", "Option 3"], stylesheets: [choices_style]})
+    const w11 = Select.create({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1", stylesheets: [input_style]})
+    const w12 = Slider.create({value: 10, start: 0, end: 100, step: 0.5, stylesheets: [slider_style]})
 
     const p = figure()
 
@@ -180,15 +180,15 @@ describe("Examples", () => {
     p2.yaxis.major_tick_line_color = "transparent"
     p2.yaxis.minor_tick_line_color = "transparent"
 
-    const tab1 = new TabPanel({child: p1, title: "Circle"})
-    const tab2 = new TabPanel({child: p2, title: "Line"})
-    const tabs = new Tabs({tabs: [tab1, tab2], stylesheets: [tabs_style]})
+    const tab1 = TabPanel.create({child: p1, title: "Circle"})
+    const tab2 = TabPanel.create({child: p2, title: "Line"})
+    const tabs = Tabs.create({tabs: [tab1, tab2], stylesheets: [tabs_style]})
 
     const w_columns = [
-      new Column({children: [light_dark, w0, w1, w2, w3, w4, w5, w6, tabs]}),
-      new Column({children: [w7, w8, w9, w10, w11, w12, p]}),
+      Column.create({children: [light_dark, w0, w1, w2, w3, w4, w5, w6, tabs]}),
+      Column.create({children: [w7, w8, w9, w10, w11, w12, p]}),
     ]
-    const layout = new Row({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
+    const layout = Row.create({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
       font_style,
       `
       :host {

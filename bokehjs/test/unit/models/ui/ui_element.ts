@@ -40,7 +40,7 @@ class UI extends UIElement {
 
 describe("UIElement", () => {
   it("should allow updating 'css_classes' without re-rendering", async () => {
-    const ui = new UI({css_classes: ["user_cls0", "user_cls1"]})
+    const ui = UI.create({css_classes: ["user_cls0", "user_cls1"]})
     const {view} = await display(ui, [100, 100])
 
     const render_spy = sinon.spy(view, "render")
@@ -59,7 +59,7 @@ describe("UIElement", () => {
   })
 
   it("should allow updating 'stylesheets' without re-rendering", async () => {
-    const ui = new UI({
+    const ui = UI.create({
       stylesheets: [":host { background-color: #f00; }"],
       css_variables: {"--foo": "violet"},
       visible: false,
@@ -120,49 +120,49 @@ describe("UIElement", () => {
     const size = {width: "50px", height: "75px"}
 
     it("under normal conditions", async () => {
-      const ui = new UI({styles: {...size}})
+      const ui = UI.create({styles: {...size}})
       const {view} = await display(ui, [100, 100])
       expect(view.is_displayed).to.be.true
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 50, height: 75}))
     })
 
     it("when using 'visibility: hidden'", async () => {
-      const ui = new UI({styles: {...size, visibility: "hidden"}})
+      const ui = UI.create({styles: {...size, visibility: "hidden"}})
       const {view} = await display(ui, [100, 100])
       expect(view.is_displayed).to.be.true
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 50, height: 75}))
     })
 
     it("when using 'display: none'", async () => {
-      const ui = new UI({styles: {...size, display: "none"}})
+      const ui = UI.create({styles: {...size, display: "none"}})
       const {view} = await display(ui, [100, 100])
       expect(view.is_displayed).to.be.false
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
     })
 
     it("when using 'position: fixed'", async () => {
-      const ui = new UI({styles: {...size, position: "fixed"}})
+      const ui = UI.create({styles: {...size, position: "fixed"}})
       const {view} = await display(ui, [100, 100])
       expect(view.is_displayed).to.be.true
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 50, height: 75}))
     })
 
     it("when using 'position: fixed' and 'display: none'", async () => {
-      const ui = new UI({styles: {...size, position: "fixed", display: "none"}})
+      const ui = UI.create({styles: {...size, position: "fixed", display: "none"}})
       const {view} = await display(ui, [100, 100])
       expect(view.is_displayed).to.be.false
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
     })
 
     it("when not connected to DOM", async () => {
-      const ui = new UI({styles: {...size}})
+      const ui = UI.create({styles: {...size}})
       const {view} = await display(ui, [100, 100], null)
       expect(view.is_displayed).to.be.false
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
     })
 
     it("when switched to 'display: none' after display", async () => {
-      const ui = new UI({styles: {...size}})
+      const ui = UI.create({styles: {...size}})
       const {view} = await display(ui, [100, 100])
       await paint()
 
@@ -174,7 +174,7 @@ describe("UIElement", () => {
     })
 
     it("when disconnected from DOM after display", async () => {
-      const ui = new UI({styles: {...size}})
+      const ui = UI.create({styles: {...size}})
       const {view} = await display(ui, [100, 100])
 
       expect(view.is_displayed).to.be.true
@@ -190,7 +190,7 @@ describe("UIElement", () => {
   })
 
   it("should support html_id", async () => {
-    const ui = new UI({html_id: "my_id"})
+    const ui = UI.create({html_id: "my_id"})
     const {view} = await display(ui, [100, 100])
 
     expect(view.el.getAttribute("id")).to.be.equal("my_id")
@@ -212,7 +212,7 @@ describe("UIElement", () => {
   })
 
   it("should support html_attributes", async () => {
-    const ui = new UI({html_attributes: {role: "button"}})
+    const ui = UI.create({html_attributes: {role: "button"}})
     const {view} = await display(ui, [100, 100])
 
     expect(view.el.getAttribute("role")).to.be.equal("button")
@@ -232,7 +232,7 @@ describe("UIElement", () => {
   })
 
   it("should prefer html_id over html_attributes", async () => {
-    const ui = new UI({html_id: "my_actual_id", html_attributes: {id: "my_id"}})
+    const ui = UI.create({html_id: "my_actual_id", html_attributes: {id: "my_id"}})
     const {view} = await display(ui, [100, 100])
 
     expect(view.el.getAttribute("id")).to.be.equal("my_actual_id")
@@ -244,7 +244,7 @@ describe("UIElement", () => {
   })
 
   it("should merge css_classes with html_attributes['class']", async () => {
-    const ui = new UI({
+    const ui = UI.create({
       css_classes: ["a", "b"],
       html_attributes: {class: "c d"},
     })

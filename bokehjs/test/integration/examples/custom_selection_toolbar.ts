@@ -31,26 +31,26 @@ describe("Examples", () => {
 
     const [p, renderer] = plot(500)
 
-    const box_select = new BoxSelectTool({persistent: true})
+    const box_select = BoxSelectTool.create({persistent: true})
     p.add_tools(box_select)
 
     const common = {margin: 0, sizing_mode: "stretch_height" as const}
 
-    const remove = new Button({label: "Delete", ...common})
-    const select = new PaletteSelect({
+    const remove = Button.create({label: "Delete", ...common})
+    const select = PaletteSelect.create({
       value: Spectral11[0],
-      items: Spectral11.map((color) => [color, [color]]),
+      items: Spectral11.map((color): [string, string[]] => [color, [color]]),
       swatch_width: 30,
       ...common,
     })
-    const clear = new Button({label: "Clear", ...common})
+    const clear = Button.create({label: "Clear", ...common})
 
-    const toolbar = new Panel({
+    const toolbar = Panel.create({
       position: box_select.overlay.nodes.bottom_left,
       anchor: "top_left",
       width: box_select.overlay.nodes.width,
       elements: [
-        new Row({
+        Row.create({
           children: [remove, select, clear],
           spacing: 5,
         }),

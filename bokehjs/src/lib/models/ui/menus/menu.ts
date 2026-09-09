@@ -309,10 +309,6 @@ export class Menu extends UIElement {
   declare properties: Menu.Props
   declare __view_type__: MenuView
 
-  constructor(attrs?: Partial<Menu.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = MenuView
 

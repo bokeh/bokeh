@@ -47,10 +47,6 @@ export interface MonthsTicker extends MonthsTicker.Attrs {}
 export class MonthsTicker extends BaseSingleIntervalTicker {
   declare properties: MonthsTicker.Props
 
-  constructor(attrs?: Partial<MonthsTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<MonthsTicker.Props>(({Int, List}) => ({
       months: [ List(Int), [] ],

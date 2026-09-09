@@ -79,10 +79,6 @@ export abstract class PolyTool extends EditTool {
   declare properties: PolyTool.Props
   declare __view_type__: PolyToolView
 
-  constructor(attrs?: Partial<PolyTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<PolyTool.Props>(({Ref, Nullable}) => ({
       vertex_renderer: [ Nullable(Ref(GlyphRenderer<XYGlyph>)), null ],

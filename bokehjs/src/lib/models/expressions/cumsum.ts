@@ -18,10 +18,6 @@ export interface CumSum extends CumSum.Attrs {}
 export class CumSum extends Expression {
   declare properties: CumSum.Props
 
-  constructor(attrs?: Partial<CumSum.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CumSum.Props>(({Bool, Str}) => ({
       field:        [ Str         ],
