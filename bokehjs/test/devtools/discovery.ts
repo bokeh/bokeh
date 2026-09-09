@@ -92,7 +92,11 @@ export class TestDiscovery {
     return errors
   }
 
-  apply_filters(keyword: string[] | null | undefined, grep: string[] | null | undefined): void {
+  apply_filters(
+    keyword: string[] | null | undefined,
+    grep: string[] | null | undefined,
+    skip_grep: string[] | null | undefined,
+  ): void {
     if (keyword != null) {
       const keywords = keyword
       for (const [suites, test] of this.all_tests) {
@@ -107,6 +111,15 @@ export class TestDiscovery {
       for (const [suites, test] of this.all_tests) {
         if (!regexes.some((regex) => description(suites, test).match(regex) != null)) {
           test.omit = true
+        }
+      }
+    }
+
+    if (skip_grep != null) {
+      const regexes = skip_grep.map((re) => new RegExp(re))
+      for (const [suites, test] of this.all_tests) {
+        if (regexes.some((regex) => description(suites, test).match(regex) != null)) {
+          test.skip = true
         }
       }
     }

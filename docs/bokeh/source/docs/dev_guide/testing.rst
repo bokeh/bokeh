@@ -348,6 +348,13 @@ different default in seconds with ``--test-timeout``; use
 Browser startup and navigation retain their own deadlines, and CI jobs remain
 bounded even when individual tests have a longer deadline.
 
+The container shares the host IPC namespace to give Chrome sufficient shared
+memory. On Windows hosts, including WSL, the wrapper also skips individual
+tests known to crash Chrome under Docker Desktop while native Linux CI
+continues to run the complete suite. Set
+``BOKEHJS_BASELINE_INCLUDE_WINDOWS_UNSTABLE=1`` to include these tests when
+investigating the container runtime.
+
 On Linux, you can run the visual tests directly, without Docker or Podman, from
 the ``bokehjs`` subdirectory:
 
