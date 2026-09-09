@@ -205,10 +205,8 @@ Cross integration tests
     baselines are considered by the test runner.
 
     .. note::
-        Cross tests are not supported on Windows. ``tests/test_cross.py``
-        carries a ``skipif`` marker for ``win32``, so running it there reports
-        only skips and neither generates nor updates baselines. Use Linux or
-        macOS to add or refresh them.
+        Cross tests are not supported on Windows and therefore skipped. Use Linux or
+        macOS to add or refresh baseline images.
 
     Each test case must have a corresponding integration test in BokehJS,
     under ``bokehjs/test/integration/cross.ts``. These are equivalent to
