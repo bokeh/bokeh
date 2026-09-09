@@ -217,6 +217,10 @@ def check_issue(data: MilestoneItem, problems: list[str]) -> None:
     if any(label.startswith("status:") for label in labels):
         problems.append(f"issue has a status: {description(data)}")
 
+    # no issues have type: labels
+    if any(label.startswith("type:") for label in labels):
+        problems.append(f"issue has a type label: {description(data)}")
+
     # no issues without a native issue type
     issue_type = data["node"].get("issueType")
     if issue_type is None:

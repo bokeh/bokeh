@@ -79,8 +79,7 @@ def test_query_github_reports_errors(monkeypatch: pytest.MonkeyPatch, capsys: py
 
 def test_label_helpers_and_description() -> None:
     data = item(
-        "issues",
-        issue_type="Feature",
+        "pullRequests",
         labels=("type: feature", "tag: component: server"),
         number=321,
         title="A descriptive title",
@@ -93,7 +92,7 @@ def test_label_helpers_and_description() -> None:
 
 
 def test_get_type_uses_native_issue_type() -> None:
-    data = item("issues", issue_type="Bug", labels=("type: feature",))
+    data = item("issues", issue_type="Bug")
 
     assert milestone.get_type(data) == "bug"
 
@@ -132,6 +131,17 @@ def test_check_issue_requires_valid_type(issue_type: str | None, expected: str) 
     assert problems == [expected]
 
 
+def test_check_issue_rejects_type_labels() -> None:
+    problems: list[str] = []
+
+    milestone.check_issue(
+        item("issues", issue_type="Task", labels=("reso: completed", "type: task")),
+        problems,
+    )
+
+    assert problems == ["issue has a type label: #123 Issue title"]
+
+
 def test_check_issue_reports_all_problems() -> None:
     data = item(
         "issues",
@@ -139,6 +149,8 @@ def test_check_issue_reports_all_problems() -> None:
             "reso: duplicate",
             "reso: invalid",
             "status: pending",
+            "type: bug",
+            "type: feature",
             "TRIAGE",
         ),
         state="OPEN",
@@ -152,6 +164,7 @@ def test_check_issue_reports_all_problems() -> None:
         "issue missing resolution: #123 Issue title",
         "issue has too many resolutions: #123 Issue title",
         "issue has a status: #123 Issue title",
+        "issue has a type label: #123 Issue title",
         "issue does not have a type: #123 Issue title",
         "issue is in triage: #123 Issue title",
     ]
