@@ -9,14 +9,17 @@ in this directory, and navigate to:
     http://localhost:5000
 
 '''
+# Standard library imports
 import atexit
 import subprocess
 
+# External imports
 from flask import Flask, render_template_string
 
+# Bokeh imports
 from bokeh.client import pull_session
 from bokeh.embed.server import server_html_page_for_session
-from bokeh.resources import INLINE
+from bokeh.resources import Resources
 
 app_html = """
 <!DOCTYPE html>
@@ -59,7 +62,11 @@ def add_security_headers(resp):
 def home():
     app_url = "http://localhost:5151/bokeh_server"
     with pull_session(url=app_url) as session:
-        code = server_html_page_for_session(session=session, resources=INLINE, title='test')
+        code = server_html_page_for_session(
+            session=session,
+            resources=Resources(mode="inline"),
+            title='test',
+        )
     return render_template_string(app_html, code=code, app_url=app_url)
 
 

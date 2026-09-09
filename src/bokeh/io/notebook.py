@@ -26,6 +26,9 @@ log = logging.getLogger(__name__)
 import os
 import urllib
 from collections.abc import Sequence
+from copy import deepcopy
+from dataclasses import dataclass
+from html import escape
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -33,7 +36,7 @@ from typing import (
     Literal,
     Protocol,
     TypedDict,
-    overload,
+    cast,
 )
 from uuid import uuid4
 
@@ -45,18 +48,19 @@ if TYPE_CHECKING:
 
     from ..application.application import Application
     from ..core.types import ID
-    from ..document.document import Document
+    from ..document.document import DocJson, Document
     from ..document.events import (
         ColumnDataChangedEvent,
         ColumnsPatchedEvent,
         ColumnsStreamedEvent,
         ModelChangedEvent,
     )
-    from ..embed.bundle import Bundle
     from ..model import Model
     from ..models.ui import UIElement
-    from ..resources import Resources
-    from .state import State
+
+# Bokeh imports
+from ..embed.resources import ResolvedResources
+from ..resources import Resources
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -157,13 +161,13 @@ class CommsHandle:
             self.doc.callbacks.trigger_on_change(event)
 
 class Load(Protocol):
-    def __call__(self, resources: Resources, verbose: bool, hide_banner: bool, load_timeout: int) -> None: ...
+    def __call__(self, resources: Resources | str | None, verbose: bool, hide_banner: bool, load_timeout: int) -> None: ...
 
 class ShowDoc(Protocol):
-    def __call__(self, obj: Model, state: State, notebook_handle: CommsHandle) -> CommsHandle: ...
+    def __call__(self, obj: Model | Sequence[UIElement], notebook_handle: bool) -> CommsHandle | None: ...
 
 class ShowApp(Protocol):
-    def __call__(self, app: Application, state: State, notebook_url: str | ProxyUrlFunc, **kw: Any) -> None: ...
+    def __call__(self, app: Application, notebook_url: str | ProxyUrlFunc, **kw: Any) -> None: ...
 
 class Hooks(TypedDict):
     load: Load
@@ -196,7 +200,7 @@ def install_notebook_hook(notebook_type: NotebookType, load: Load, show_doc: Sho
             .. code-block:: python
 
                 load(
-                    resources,   # A Resources object for how to load BokehJS
+                    resources,   # A resource policy for how to load BokehJS
                     verbose,     # Whether to display verbose loading banner
                     hide_banner, # Whether to hide the output banner entirely
                     load_timeout # Time after which to report a load fail error
@@ -211,7 +215,6 @@ def install_notebook_hook(notebook_type: NotebookType, load: Load, show_doc: Sho
 
                 show_doc(
                     obj,            # the Bokeh object to display
-                    state,          # current bokeh.io "state"
                     notebook_handle # whether a notebook handle was requested
                 )
 
@@ -229,7 +232,6 @@ def install_notebook_hook(notebook_type: NotebookType, load: Load, show_doc: Sho
 
                 show_app(
                     app,          # the Bokeh Application to display
-                    state,        # current bokeh.io "state"
                     notebook_url, # URL to the current active notebook page
                     **kw          # any backend-specific keywords passed as-is
                 )
@@ -250,8 +252,7 @@ def install_notebook_hook(notebook_type: NotebookType, load: Load, show_doc: Sho
         raise RuntimeError(f"hook for notebook type {notebook_type!r} already exists")
     _HOOKS[notebook_type] = Hooks(load=load, doc=show_doc, app=show_app)
 
-def push_notebook(*, document: Document | None = None, state: State | None = None,
-        handle: CommsHandle | None = None) -> None:
+def push_notebook(*, document: Document | None = None, handle: CommsHandle | None = None) -> None:
     ''' Update Bokeh plots in a Jupyter notebook output cells with new data
     or property values.
 
@@ -271,10 +272,6 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         document (Document, optional):
             A |Document| to push from. If None uses ``curdoc()``. (default:
             None)
-
-        state (State, optional) :
-            A :class:`State` object. If None, then the current default
-            state (set by |output_file|, etc.) is used. (default: None)
 
     Returns:
         None
@@ -302,13 +299,9 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     '''
     from ..document.events import DocumentPatchedEvent
     from ..protocol import patch_doc
-    from .state import curstate
-
-    if state is None:
-        state = curstate()
-
     if not document:
-        document = state.document
+        from .doc import curdoc
+        document = curdoc()
 
     if not document:
         from ..util.warnings import warn
@@ -317,7 +310,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         return
 
     if handle is None:
-        handle = state.last_comms_handle
+        handle = _LAST_COMMS_HANDLE
 
     if not handle:
         from ..util.warnings import warn
@@ -380,9 +373,7 @@ def destroy_server(server_id: ID) -> None:
     notebook, destroy the corresponding server sessions and stop it.
 
     '''
-    from .state import curstate
-
-    server = curstate().uuid_to_server.get(server_id, None)
+    server = _NOTEBOOK_SERVERS.get(server_id)
     if server is None:
         log.debug(f"No server instance found for uuid: {server_id!r}")
         return
@@ -391,10 +382,15 @@ def destroy_server(server_id: ID) -> None:
         for session in server.get_sessions():
             session.destroy()
         server.stop()
-        del curstate().uuid_to_server[server_id]
+        del _NOTEBOOK_SERVERS[server_id]
 
     except Exception as e:
         log.debug(f"Could not destroy server for id {server_id!r}: {e}")
+
+def server_root_id(server_id: ID) -> ID:
+    '''Return the first root ID for a notebook-embedded server application.'''
+    server = _NOTEBOOK_SERVERS[server_id]
+    return server.get_sessions()[0].document.roots[0].id
 
 def get_comms(target_name: str) -> Comm:
     ''' Create a Jupyter comms object for a specific target, that can
@@ -417,7 +413,7 @@ def install_jupyter_hooks() -> None:
     '''
     install_notebook_hook('jupyter', load_notebook, show_doc, show_app)
 
-def load_notebook(resources: Resources | None = None, verbose: bool = False,
+def load_notebook(resources: Resources | str | None = None, verbose: bool = False,
         hide_banner: bool = False, load_timeout: int = 5000) -> None:
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
@@ -446,26 +442,33 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
 
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
-    from ..embed.bundle import bundle_for_objs_and_resources
-    from ..resources import Resources
-    from ..settings import settings
+    from ..embed.resources import ResourceRequirements
     from ..util.serialization import make_globally_unique_css_safe_id
 
-    if resources is None:
-        resources = Resources(mode=settings.resources())
+    policy = Resources.build(resources)
+    resolved = policy.resolve(ResourceRequirements((
+        "bokeh/core",
+        "bokeh/webgl",
+        "bokeh/widgets",
+        "bokeh/tables",
+        "bokeh/mathjax",
+        "bokeh/api",
+    )))
 
     element_id: ID | None
     html: str | None
 
     if not hide_banner:
-        if resources.mode == 'inline':
+        js_files = [asset.url for asset in resolved.assets if asset.kind == "script" and asset.url is not None]
+        css_files = [asset.url for asset in resolved.assets if asset.kind == "style" and asset.url is not None]
+        if policy.mode in ('inline', 'offline'):
             js_info: str | list[str] = 'inline'
             css_info: str | list[str] = 'inline'
         else:
-            js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
-            css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
+            js_info = js_files[0] if len(js_files) == 1 else js_files
+            css_info = css_files[0] if len(css_files) == 1 else css_files
 
-        warnings = ["Warning: " + msg.text for msg in resources.messages if msg.type == 'warn']
+        warnings: list[str] = []
         if _NOTEBOOK_LOADED and verbose:
             warnings.append('Warning: BokehJS previously loaded')
 
@@ -483,9 +486,9 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
         element_id = None
         html = None
 
-    _NOTEBOOK_LOADED = resources
+    _NOTEBOOK_LOADED = policy
 
-    bundle = bundle_for_objs_and_resources(None, resources)
+    bundle = _NotebookBundle.from_resolved(resolved)
 
     nb_js = _loading_js(bundle, element_id, load_timeout, register_mime=True)
     jl_js = _loading_js(bundle, element_id, load_timeout, register_mime=False)
@@ -511,7 +514,6 @@ type ProxyUrlFunc = Callable[[int | None], str]
 
 def show_app(
     app: Application,
-    state: State,
     notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
     port: int = 0,
     **kw: Any,
@@ -521,9 +523,6 @@ def show_app(
     Args:
         app (Application or callable) :
             A Bokeh Application to embed inline in a Jupyter notebook.
-
-        state (State) :
-            ** Unused **
 
         notebook_url (str or callable) :
             The URL of the notebook server that is running the embedded app.
@@ -559,8 +558,6 @@ def show_app(
 
     from ..core.types import ID
     from ..server.server import Server
-    from .state import curstate
-
     loop = IOLoop.current()
 
     notebook_url = _update_notebook_url_from_env(notebook_url)
@@ -573,7 +570,7 @@ def show_app(
     server = Server({"/": app}, io_loop=loop, port=port, allow_websocket_origin=[origin], **kw)
 
     server_id = ID(uuid4().hex)
-    curstate().uuid_to_server[server_id] = server
+    _NOTEBOOK_SERVERS[server_id] = server
 
     server.start()
 
@@ -595,12 +592,7 @@ def show_app(
         EXEC_MIME_TYPE: {"server_id": server_id},
     })
 
-@overload
-def show_doc(obj: Model | Sequence[UIElement], state: State) -> None: ...
-@overload
-def show_doc(obj: Model | Sequence[UIElement], state: State, notebook_handle: CommsHandle) -> CommsHandle: ...
-
-def show_doc(obj: Model | Sequence[UIElement], state: State, notebook_handle: CommsHandle | None = None) -> CommsHandle | None:
+def show_doc(obj: Model | Sequence[UIElement], notebook_handle: bool = False) -> CommsHandle | None:
     '''
 
     '''
@@ -612,12 +604,14 @@ def show_doc(obj: Model | Sequence[UIElement], state: State, notebook_handle: Co
         from ..layouts import column
         obj = column(*obj)
 
-    if obj not in state.document.roots:
-        state.document.add_root(obj)
+    from .doc import curdoc
 
-    from ..embed.notebook import notebook_content
+    document = curdoc()
+    if obj not in document.roots:
+        document.add_root(obj)
+
     comms_target = make_id() if notebook_handle else None
-    (script, div, cell_doc) = notebook_content(obj, comms_target)
+    (script, div, cell_doc) = _legacy_notebook_content(obj, comms_target)
 
     publish_display_data({HTML_MIME_TYPE: div})
     publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj.id}})
@@ -626,22 +620,99 @@ def show_doc(obj: Model | Sequence[UIElement], state: State, notebook_handle: Co
     # notebook copy has models with the same IDs as the original curdoc
     # they were copied from
     if comms_target:
+        global _LAST_COMMS_HANDLE
         handle = CommsHandle(get_comms(comms_target), cell_doc)
-        state.document.callbacks.on_change_dispatch_to(handle)
-        state.last_comms_handle = handle
+        document.callbacks.on_change_dispatch_to(handle)
+        _LAST_COMMS_HANDLE = handle
         return handle
 
     return None
+
+
+def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str, str, Document]:
+    """Adapt an artifact to the legacy notebook transport retained until v1."""
+    from ..core.json_encoder import serialize_json
+    from ..core.templates import DOC_NB_JS
+    from ..document import Document
+    from ..embed.notebook import notebook_content
+
+    artifact, _ = notebook_content(model, live=True)
+    documents = artifact.source["documents"]
+    assert isinstance(documents, list)
+    [document_json] = documents
+
+    doc_id = make_id()
+    element_id = make_id()
+    render_item: dict[str, Any] = {
+        "docid": doc_id,
+        "roots": {model.id: element_id},
+        "root_ids": [model.id],
+    }
+    if comms_target is not None:
+        render_item["notebook_comms_target"] = comms_target
+
+    script = DOC_NB_JS.render(
+        docs_json=serialize_json({doc_id: document_json}),
+        render_items=serialize_json([render_item]),
+    )
+    div = (
+        f'<div id="{escape(element_id, quote=True)}" '
+        f'data-root-id="{escape(model.id, quote=True)}" style="display: contents;"></div>'
+    )
+    cell_doc = Document.from_json(cast("DocJson", deepcopy(document_json)))
+    return script, div, cell_doc
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
+@dataclass(frozen=True)
+class _NotebookURL:
+    url: str
+
+
+@dataclass(frozen=True)
+class _NotebookBundle:
+    js_urls: tuple[_NotebookURL, ...]
+    js_raw: tuple[str, ...]
+    css_urls: tuple[_NotebookURL, ...]
+    css_raw: tuple[str, ...]
+
+    @classmethod
+    def from_resolved(cls, resolved: ResolvedResources) -> _NotebookBundle:
+        return cls(
+            tuple(_NotebookURL(asset.url) for asset in resolved.assets
+                if asset.kind == "script" and asset.url is not None),
+            tuple(asset.content for asset in resolved.assets
+                if asset.kind == "script" and asset.content is not None),
+            tuple(_NotebookURL(asset.url) for asset in resolved.assets
+                if asset.kind == "style" and asset.url is not None),
+            tuple(asset.content for asset in resolved.assets
+                if asset.kind == "style" and asset.content is not None),
+        )
+
+
+def _activate_notebook(notebook_type: NotebookType) -> None:
+    if notebook_type not in _HOOKS:
+        raise RuntimeError(f"no display hook installed for notebook type {notebook_type!r}")
+    global _NOTEBOOK_TYPE
+    _NOTEBOOK_TYPE = notebook_type
+
+
+def _notebook_type() -> NotebookType | None:
+    return _NOTEBOOK_TYPE
+
 _HOOKS: dict[str, Hooks] = {}
 
 _NOTEBOOK_LOADED: Resources | None = None
 
-def _loading_js(bundle: Bundle, element_id: ID | None, load_timeout: int = 5000, register_mime: bool = True) -> str:
+_NOTEBOOK_TYPE: NotebookType | None = None
+
+_LAST_COMMS_HANDLE: CommsHandle | None = None
+
+_NOTEBOOK_SERVERS: dict[ID, Any] = {}
+
+def _loading_js(bundle: _NotebookBundle, element_id: ID | None, load_timeout: int = 5000, register_mime: bool = True) -> str:
     '''
 
     '''

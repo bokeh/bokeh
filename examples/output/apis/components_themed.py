@@ -1,8 +1,7 @@
 from jinja2 import Template
 
-from bokeh.embed import components
+from bokeh.embed import file_html
 from bokeh.plotting import figure
-from bokeh.resources import INLINE
 from bokeh.sampledata.penguins import data
 from bokeh.themes import Theme
 from bokeh.transform import factor_cmap, factor_mark
@@ -49,15 +48,14 @@ theme = Theme(json={
         },
     })
 
-script, div = components(p, theme=theme)
-
 template = Template('''<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
         <title>Bokeh Scatter Plots</title>
-        {{ resources }}
-        {{ script }}
+        {{ bokeh_css }}
+        {{ bokeh_js }}
+        {{ plot_script }}
         <style>
             body {
                 background: #3f3f3f;
@@ -72,19 +70,15 @@ template = Template('''<!DOCTYPE html>
     </head>
     <body>
         <div class="embed-wrapper">
-        {{ div }}
+        {{ plot_div }}
         </div>
     </body>
 </html>
 ''')
 
-resources = INLINE.render()
-
 filename = 'embed_themed.html'
 
-html = template.render(resources=resources,
-                       script=script,
-                       div=div)
+html = file_html(p, resources="inline", title="Bokeh Scatter Plots", template=template, theme=theme)
 
 with open(filename, mode="w", encoding="utf-8") as f:
     f.write(html)

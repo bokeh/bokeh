@@ -19,13 +19,12 @@ import pytest ; pytest
 # Standard library imports
 import json
 import os
-from typing import Any
 from unittest.mock import MagicMock, PropertyMock, patch
 
 # Bokeh imports
 from bokeh.document.document import Document
+from bokeh.io.doc import set_curdoc
 from bokeh.io.notebook import log
-from bokeh.io.state import State
 
 # Module under test
 import bokeh.io.notebook as binb # isort:skip
@@ -49,28 +48,27 @@ def test_install_notebook_hook() -> None:
     assert binb._HOOKS["foo"]['load'] == "load2"
     assert binb._HOOKS["foo"]['doc'] == "doc2"
     assert binb._HOOKS["foo"]['app'] == "app2"
+    del binb._HOOKS["foo"]
 
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.publish_display_data')
-@patch('bokeh.embed.notebook.notebook_content')
+@patch('bokeh.io.notebook._legacy_notebook_content')
 def test_show_doc_no_server(mock_notebook_content: MagicMock,
                             mock__publish_display_data: MagicMock,
                             mock_get_comms: MagicMock) -> None:
     mock_get_comms.return_value = "comms"
-    s = State()
     d = Document()
+    set_curdoc(d)
     mock_notebook_content.return_value = ["notebook_script", "notebook_div", d]
 
-    class Obj:
-        id = None
-        def references(self) -> set[Any]:
-            return set()
+    from bokeh.models import Div
+    obj = Div()
 
     assert mock__publish_display_data.call_count == 0
-    binb.show_doc(Obj(), s, True)
+    binb.show_doc(obj, True)
 
     expected_args = ({'application/javascript': 'notebook_script', 'application/vnd.bokehjs_exec.v0+json': ''},)
-    expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
+    expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': obj.id}}}
 
     assert d.callbacks._hold is not None
     assert mock__publish_display_data.call_count == 2 # two mime types
@@ -79,7 +77,7 @@ def test_show_doc_no_server(mock_notebook_content: MagicMock,
 
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.publish_display_data')
-@patch('bokeh.embed.notebook.notebook_content')
+@patch('bokeh.io.notebook._legacy_notebook_content')
 def test_show_doc_wraps_sequence_in_layout(mock_notebook_content: MagicMock,
                                            mock__publish_display_data: MagicMock,
                                            mock_get_comms: MagicMock) -> None:
@@ -87,19 +85,33 @@ def test_show_doc_wraps_sequence_in_layout(mock_notebook_content: MagicMock,
     from bokeh.models import Div
 
     mock_get_comms.return_value = "comms"
-    s = State()
+    document = Document()
+    set_curdoc(document)
     mock_notebook_content.return_value = ["notebook_script", "notebook_div", Document()]
 
     child_0, child_1 = Div(), Div()
 
     # A sequence of UIElements should not raise in notebook output mode (#14861);
     # it is wrapped in a single column layout root.
-    binb.show_doc([child_0, child_1], s)
+    binb.show_doc([child_0, child_1])
 
-    roots = list(s.document.roots)
+    roots = list(document.roots)
     assert len(roots) == 1
     assert isinstance(roots[0], Column)
     assert list(roots[0].children) == [child_0, child_1]
+
+
+def test_legacy_notebook_content_adapts_protocol_artifact() -> None:
+    from bokeh.core.types import ID
+    from bokeh.plotting import figure
+
+    plot = figure()
+    script, div, cell_doc = binb._legacy_notebook_content(plot, ID("target"))
+
+    assert "embed_items_notebook" in script
+    assert '"notebook_comms_target":"target"' in script
+    assert f'data-root-id="{plot.id}"' in div
+    assert cell_doc.get_model_by_id(plot.id) is not None
 
 
 class Test_push_notebook:

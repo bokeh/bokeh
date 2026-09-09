@@ -17,7 +17,7 @@
   slow: ["clustering.py"]
 
 - path: "examples/output/apis/*"
-  skip: ["autoload_static.py", "autoload_static_flask.py", "components.py", "components_themed.py", "iframe_embed", "json_item.py", "json_item_themed.py", "server_document", "server_session"]
+  skip: ["components.py", "components_themed.py", "iframe_embed", "server_document", "server_session"]
 
 - path: "examples/plotting/*"
 

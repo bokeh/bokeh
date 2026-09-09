@@ -22,16 +22,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import TYPE_CHECKING, Any, Literal
-from urllib.parse import quote_plus, urlparse
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_REQUEST_TAG, FILE
+from ..core.templates import FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
-from ..util.serialization import make_globally_unique_css_safe_id
 from ..util.strings import format_docstring
-from .bundle import bundle_for_objs_and_resources
-from .elements import html_page_for_render_items
-from .util import RenderItem
 
 if TYPE_CHECKING:
     from jinja2 import Template
@@ -57,7 +52,7 @@ __all__ = (
 
 def server_document(url: str = "default", relative_urls: bool = False, resources: Literal["default"] | None = "default",
         arguments: dict[str, str] | None = None, headers: dict[str, str] | None = None, with_credentials: bool = False) -> str:
-    ''' Return a script tag that embeds content from a Bokeh server.
+    ''' Return an artifact fragment that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
 
@@ -105,40 +100,31 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             Mutually exclusive with ``headers``
 
     Returns:
-        A ``<script>`` tag that will embed content from a Bokeh Server.
+        Artifact declaration HTML that mounts content from a Bokeh Server.
 
     '''
-    url = _clean_url(url)
+    if resources not in ("default", None):
+        raise ValueError("resources must be 'default' or None")
+    from .compiler import embed_server
 
-    app_path = _get_app_path(url)
-
-    elementid = make_globally_unique_css_safe_id()
-    src_path = _src_path(url, elementid)
-
-    src_path += _process_app_path(app_path)
-    src_path += _process_relative_urls(relative_urls, url)
-    src_path += _process_resources(resources)
-    src_path += _process_arguments(arguments)
-
-    if headers and with_credentials:
-        raise ValueError("'headers' and 'with_credentials' are mutually exclusive")
-    elif not headers:
-        headers = {}
-
-    tag = AUTOLOAD_REQUEST_TAG.render(
-        src_path         = src_path,
-        app_path         = app_path,
-        elementid        = elementid,
-        headers          = headers,
-        with_credentials = with_credentials,
+    artifact = embed_server(
+        url,
+        arguments=arguments,
+        headers=headers,
+        with_credentials=with_credentials,
+        relative_urls=relative_urls,
     )
-
-    return tag
+    if resources is None:
+        policy: Any = "none"
+    else:
+        from ..resources import Resources
+        policy = Resources(mode="server", root_url=f"{artifact.source['url']}/")
+    return artifact.fragment(resources=policy).html
 
 def server_session(model: Model | None = None, session_id: ID | None = None, url: str = "default",
-        relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: dict[str, str] = {},
+        relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: dict[str, str] | None = None,
         with_credentials: bool = False) -> str:
-    ''' Return a script tag that embeds content from a specific existing session on
+    ''' Return an artifact fragment for a specific existing session on
     a Bokeh server.
 
     This function is typically only useful for serving from a a specific session
@@ -198,7 +184,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             Mutually exclusive with ``headers``
 
     Returns:
-        A ``<script>`` tag that will embed content from a Bokeh Server.
+        Artifact declaration HTML that mounts content from a Bokeh Server.
 
         .. warning::
             It is typically a bad idea to reuse the same ``session_id`` for
@@ -210,36 +196,25 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
     if session_id is None:
         raise ValueError("Must supply a session_id")
 
-    url = _clean_url(url)
+    if resources not in ("default", None):
+        raise ValueError("resources must be 'default' or None")
+    from .compiler import embed_server
 
-    app_path = _get_app_path(url)
-
-    elementid = make_globally_unique_css_safe_id()
-    modelid = "" if model is None else model.id
-    src_path = _src_path(url, elementid)
-
-    src_path += _process_app_path(app_path)
-    src_path += _process_relative_urls(relative_urls, url)
-    src_path += _process_resources(resources)
-
-    if headers and with_credentials:
-        raise ValueError("'headers' and 'with_credentials' are mutually exclusive")
-    elif not headers:
-        headers = {}
-    else:
-        headers = dict(headers)
-    headers['Bokeh-Session-Id'] = session_id
-
-    tag = AUTOLOAD_REQUEST_TAG.render(
-        src_path         = src_path,
-        app_path         = app_path,
-        elementid        = elementid,
-        modelid          = modelid,
-        headers          = headers,
-        with_credentials = with_credentials,
+    selected = None if model is None else {model.name or "root": model}
+    artifact = embed_server(
+        url,
+        session_id=session_id,
+        roots=selected,
+        headers=headers,
+        with_credentials=with_credentials,
+        relative_urls=relative_urls,
     )
-
-    return tag
+    if resources is None:
+        policy: Any = "none"
+    else:
+        from ..resources import Resources
+        policy = Resources(mode="server", root_url=f"{artifact.source['url']}/")
+    return artifact.fragment(resources=policy).html
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -264,140 +239,28 @@ def server_html_page_for_session(session: ServerSession, resources: Resources, t
         str
 
     '''
-    render_item = RenderItem(
-        token = session.token,
-        roots = session.document.roots,
-        use_for_title = True,
+    from .compiler import embed_server
+
+    roots: dict[str, Model] = {}
+    for index, root in enumerate(session.document.roots):
+        base_key = root.name or ("root" if len(session.document.roots) == 1 else f"root-{index}")
+        key = base_key
+        suffix = 1
+        while key in roots:
+            key = f"{base_key}-{suffix}"
+            suffix += 1
+        roots[key] = root
+    artifact = embed_server(".", token=session.token, roots=roots)
+    return artifact.page(
+        resources=resources,
+        title=title,
+        template=template,
+        template_variables=template_variables,
     )
-
-    if template_variables is None:
-        template_variables = {}
-
-    bundle = bundle_for_objs_and_resources(None, resources)
-    html = html_page_for_render_items(bundle, {}, [render_item], title,
-        template=template, template_variables=template_variables)
-    return html
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-def _clean_url(url: str) -> str:
-    ''' Produce a canonical Bokeh server URL.
-
-    Args:
-        url (str)
-            A URL to clean, or "defatul". If "default" then the
-            ``BOKEH_SERVER_HTTP_URL`` will be returned.
-
-    Returns:
-        str
-
-    '''
-    if url == 'default':
-        url = DEFAULT_SERVER_HTTP_URL
-
-    if url.startswith("ws"):
-        raise ValueError("url should be the http or https URL for the server, not the websocket URL")
-
-    return url.rstrip("/")
-
-def _get_app_path(url: str) -> str:
-    ''' Extract the app path from a Bokeh server URL
-
-    Args:
-        url (str) :
-
-    Returns:
-        str
-
-    '''
-    app_path = urlparse(url).path.rstrip("/")
-    if not app_path.startswith("/"):
-        app_path = "/" + app_path
-    return app_path
-
-def _process_arguments(arguments: dict[str, str] | None) -> str:
-    ''' Return user-supplied HTML arguments to add to a Bokeh server URL.
-
-    Args:
-        arguments (dict[str, object]) :
-            Key/value pairs to add to the URL
-
-    Returns:
-        str
-
-    '''
-    if arguments is None:
-        return ""
-    result = ""
-    for key, value in arguments.items():
-        if not key.startswith("bokeh-"):
-            result += f"&{quote_plus(str(key))}={quote_plus(str(value))}"
-    return result
-
-def _process_app_path(app_path: str) -> str:
-    ''' Return an app path HTML argument to add to a Bokeh server URL.
-
-    Args:
-        app_path (str) :
-            The app path to add. If the app path is ``/`` then it will be
-            ignored and an empty string returned.
-
-    '''
-    if app_path == "/": return ""
-    return "&bokeh-app-path=" + app_path
-
-def _process_relative_urls(relative_urls: bool, url: str) -> str:
-    ''' Return an absolute URL HTML argument to add to a Bokeh server URL, if
-    requested.
-
-    Args:
-        relative_urls (book) :
-            If false, generate an absolute URL to add.
-
-        url (str) :
-            The absolute URL to add as an HTML argument
-
-    Returns:
-        str
-
-    '''
-    if relative_urls: return ""
-    return "&bokeh-absolute-url=" + url
-
-def _process_resources(resources: Literal["default"] | None) -> str:
-    ''' Return an argument to suppress normal Bokeh server resources, if requested.
-
-    Args:
-        resources ("default" or None) :
-            If None, return an HTML argument to suppress default resources.
-
-    Returns:
-        str
-
-    '''
-    if resources not in ("default", None):
-        raise ValueError("`resources` must be either 'default' or None.")
-    if resources is None:
-        return "&resources=none"
-    return ""
-
-def _src_path(url: str, elementid: ID) -> str:
-    ''' Return a base autoload URL for a given element ID
-
-    Args:
-        url (str) :
-            The base server URL
-
-        elementid (str) :
-            The div ID for autload to target
-
-    Returns:
-        str
-
-    '''
-    return url + "/autoload.js?bokeh-autoload-element=" + elementid
 
 #-----------------------------------------------------------------------------
 # Code

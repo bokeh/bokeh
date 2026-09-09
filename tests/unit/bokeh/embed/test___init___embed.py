@@ -27,13 +27,25 @@ import bokeh.embed as be # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'ArtifactFragment',
+    'ArtifactMount',
+    'ArtifactRoot',
+    'ArtifactValidationError',
+    'EmbedArtifact',
+    'EmbedCompileError',
+    'EmbedMigrationError',
+    'EmbedSpec',
+    'ExtensionRequirement',
+    'ExternalArtifact',
+    'ResourceAssetRequirement',
+    'ResourceRequirements',
     'autoload_static',
     'components',
+    'embed',
+    'embed_server',
     'file_html',
-    'json_item',
     'server_document',
     'server_session',
-    'RenderRoot',
 )
 
 #-----------------------------------------------------------------------------
