@@ -96,6 +96,7 @@ markers = [
 ]
 filterwarnings = [
     "error",
+    '''ignore:assertions not in test modules or plugins will be ignored because assert statements are not executed by the underlying Python interpreter.*:pytest.PytestConfigWarning''',
     '''ignore:Module already imported so cannot be rewritten. tests\.support\.plugins\.project:pytest.PytestAssertRewriteWarning''',
     '''ignore:Properties {'name'} in class ModelThatOverridesName were previously declared on a parent class\. .*:RuntimeWarning''',
     '''ignore:Jupyter is migrating its paths to use standard platformdirs.*:DeprecationWarning''',

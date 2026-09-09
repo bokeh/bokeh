@@ -161,18 +161,24 @@ your *source checkout* directory:
 
     python tools/hooks/install.py
 
-This configures pre-commit to use two `Git hooks`_ that will check your code
-whenever you push a commit to Bokeh's GitHub repository:
+This configures pre-commit to use `Git hooks`_ that check your code whenever
+you commit or push changes:
+
+File formatting
+    The pre-commit hook will remove trailing whitespace, ensure files end with
+    a newline, and normalize line endings.
+
+Python linting
+    The pre-commit hook will run `Ruff`_ on changed Python files.
 
 Codebase tests
-    git-commit will run Bokeh's
-    :ref:`codebase tests <contributor_guide_testing_local_codebase>` to check
-    for codebase quality issues such as whitespaces and imports. This includes
-    testing with `Ruff`_, `ESLint`_, and `isort`_.
+    The pre-push hook will run Bokeh's
+    :ref:`codebase tests <contributor_guide_testing_local_codebase>`. This includes
+    testing with `ESLint`_, `Ruff`_, and `isort`_.
 
 Protected branches
-    git-commit will make sure you don't accidentally push a commit to `Bokeh's
-    protected branches`_ ``main`` and ``branch-x.y`` on GitHub.
+    The pre-push hook will make sure you don't accidentally push a commit to
+    `Bokeh's protected branches`_ ``main`` and ``branch-x.y`` on GitHub.
 
 .. note::
     Depending on your system, running those tests may take several dozen
@@ -624,12 +630,11 @@ setting up a development environment:
     If there are no tags present, make sure that you follow the steps of
     :ref:`setting the Bokeh repository as an additional upstream <contributor_guide_setup_cloning>`.
 
-.. dropdown:: Git commit fails due to line endings (``test_code_quality.py``, ``File contains carriage returns``)
+.. dropdown:: Git commit fails due to line endings (``mixed-line-ending``)
 
-    On Windows systems, you may get a ``File contains carriage returns at end of line:
-    <file path>`` error while trying to push your local branch to your remote branch on
-    GitHub. This is because Bokeh only allows LF line endings, while some Windows-based
-    tools may add CR LF line endings.
+    On Windows systems, the ``mixed-line-ending`` pre-commit check may fail because
+    Bokeh only allows LF line endings, while some Windows-based tools may add CR LF
+    line endings.
 
     If you see this error, try running the following command:
     ``git config --global core.autocrlf false``. After running this command, delete and

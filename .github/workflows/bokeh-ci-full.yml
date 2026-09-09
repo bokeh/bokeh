@@ -47,7 +47,7 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
-      # Required for codebase tests that check file formatting (line endings, whitespace, etc).
+      # Required for repository formatting checks (line endings, whitespace, etc).
       - name: Configure line endings in git
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
@@ -60,13 +60,20 @@ jobs:
           environment: test-py312
           source-tree: 'keep'
 
+      - name: Run repository formatting checks
+        run: |
+          pre-commit run trailing-whitespace --all-files
+          pre-commit run end-of-file-fixer --all-files
+          pre-commit run mixed-line-ending --all-files
+          pre-commit run reject-static-docs-links --all-files
+
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
           environment: test-py312
 
       - name: Run codebase checks
-        run: pytest --color=yes --durations=20 --durations-min=1 tests/codebase
+        run: pytest -n logical --maxprocesses=5 --color=yes --durations=20 --durations-min=1 tests/codebase
 
   tools:
     runs-on: ${{ matrix.os }}
@@ -273,6 +280,41 @@ jobs:
         uses: ./.github/workflows/composite/run-unit-tests
         with:
           collect-coverage: ${{ runner.os != 'Windows' }}
+
+  unit-test-optimized:
+    name: unit-test optimized (ubuntu-24.04, 3.14, -OO)
+    needs: build
+    runs-on: ubuntu-24.04
+
+    env:
+      OS: ubuntu-24.04
+      PYTHON: '3.14'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          environment: test-py314
+          source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "3.14"* ]]; then exit 1; fi
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py314
+
+      - name: Install Playwright browsers
+        run: playwright install chromium
+
+      - name: Run optimized unit tests
+        uses: ./.github/workflows/composite/run-unit-tests
+        with:
+          collect-coverage: false
+          python-optimize: '2'
 
   unit-test-free-threaded:
     name: unit-test free-threaded (ubuntu-24.04, 3.14t)
@@ -496,7 +538,7 @@ jobs:
           if-no-files-found: ignore
 
   notify-nightly-failure:
-    needs: [build, codebase, tools, typing, examples, unit-test, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [build, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
@@ -538,7 +580,7 @@ jobs:
           *Automated notification from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
 
   notify-pr:
-    needs: [build, codebase, tools, typing, examples, unit-test, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [build, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 

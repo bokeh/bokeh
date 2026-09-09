@@ -1,0 +1,12 @@
+extend = "../../pyproject.toml"
+
+[lint]
+select = ["TID253"]
+
+[lint.flake8-tidy-imports]
+banned-module-level-imports = ["tornado"]
+
+[lint.per-file-ignores]
+"src/bokeh/client/**/*.py" = ["TID253"]
+"src/bokeh/command/subcommands/serve.py" = ["TID253"]
+"src/bokeh/server/**/*.py" = ["TID253"]
