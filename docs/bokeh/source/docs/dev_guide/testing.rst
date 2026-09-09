@@ -282,7 +282,7 @@ Run all available tests
 
     .. code-block:: sh
 
-        pixi run tests
+        pixi run test
 
     **Inside a pixi shell:**
 
