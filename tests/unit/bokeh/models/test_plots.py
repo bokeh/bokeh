@@ -513,7 +513,7 @@ def test_remove_tools_invalid():
 
     with pytest.raises(ValueError) as e:
         plot.remove_tools(zoom_in)
-        assert str(e.value).startswith("ValueError: Invalid tool ZoomInTool")
+    assert str(e.value).startswith("Invalid tool ZoomInTool")
 
 #-----------------------------------------------------------------------------
 # Dev API
