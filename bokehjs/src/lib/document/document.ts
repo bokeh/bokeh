@@ -149,9 +149,9 @@ export class Document implements Equatable {
     })
     this._system_scheme = matchMedia("(prefers-color-scheme: dark)")
     this.config = new DocumentConfig()
-    this.set_color_scheme(this.config.color_scheme)
     this._system_scheme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
     this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
+    this.on_event("document_ready", () => this.set_color_scheme(this.config.color_scheme))
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -588,6 +588,7 @@ export class Document implements Equatable {
       doc.config = config
       doc.set_color_scheme(config.color_scheme)
       config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
+      doc.on_event("document_ready", () => doc.set_color_scheme(config.color_scheme))
     }
 
     const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
@@ -724,7 +725,8 @@ export class Document implements Equatable {
   set_color_scheme(color_scheme: ColorScheme): void {
     const system_scheme = this._system_scheme.matches ? "dark" : "light"
     const scheme = color_scheme == "auto" ? system_scheme : color_scheme
-    // TODO: Check reliable way to update --bokeh-color-scheme without setting it in documentElement
-    document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
+    for (const root of this.roots()) {
+      document.querySelector<HTMLElement>(`.bk-${root.id}`)?.style.setProperty("--bokeh-color-scheme", scheme)
+    }
   }
 }
