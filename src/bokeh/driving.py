@@ -124,6 +124,7 @@ def force(f: Callable[[Any], None], sequence: Iterator[Any]) -> Callable[[], Non
     supplied generator
 
     Args:
+        f (callable): function to call
         sequence (iterable) :
             generator to drive f with
 

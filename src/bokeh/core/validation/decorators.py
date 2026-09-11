@@ -48,7 +48,7 @@ def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -
     validation checks.
 
     Args:
-        code code_or_name (int, str or Issue) : a defined error code or custom message
+        code_or_name (int, str or Issue) : a defined error code or custom message
         validator_type (str) : either "error" or "warning"
 
     Returns:

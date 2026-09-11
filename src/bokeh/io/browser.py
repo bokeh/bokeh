@@ -101,10 +101,32 @@ def get_screenshot_as_png(
     :func:`~bokeh.io.export.get_screenshot_as_png`.
 
     Args:
+        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
+            object or Document to export.
+
         driver: An optional Playwright ``Browser`` or ``BrowserContext``.
             If provided, pages are created from it instead of the global
             ``playwright_control`` instance.  This allows callers to
             supply a ``launch_persistent_context`` or a custom browser.
+
+        timeout (int) : the maximum amount of time to wait for initialization.
+            It will be used as a timeout for loading Bokeh, then when waiting for
+            the layout to be rendered.
+
+        resources (Resources): information relating to loading or embedding Bokeh
+            JavaScript and CSS, defaults to ``"inline"`` mode
+
+        width (int) : the desired width of the exported layout.
+
+        height (int) : the desired height of the exported layout.
+
+        scale_factor (float, optional) : A factor to scale the output PNG by,
+            providing a higher resolution while maintaining element relative
+            scales.
+
+        state (State, optional) :
+            A :class:`State` object. If None, then the current default
+            implicit state is used. (default: None).
     '''
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)

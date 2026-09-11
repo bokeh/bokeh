@@ -88,7 +88,7 @@ class LifecycleHandler(Handler):
         it is defined) when the server is first started.
 
         Args:
-            server_context (ServerContext) :
+            server_context (ServerContext) : server-specific information
 
         '''
         return self._on_server_loaded(server_context)
@@ -99,7 +99,7 @@ class LifecycleHandler(Handler):
         server's ``IOLoop``.)
 
         Args:
-            server_context (ServerContext) :
+            server_context (ServerContext) : server-specific information
 
         .. warning::
             In practice this code may not run, since servers are often killed
@@ -113,7 +113,7 @@ class LifecycleHandler(Handler):
         it is defined) when a new session is created.
 
         Args:
-            session_context (SessionContext) :
+            session_context (SessionContext) : session-specific information
 
         '''
         if self._on_session_created is not _do_nothing:
@@ -124,7 +124,7 @@ class LifecycleHandler(Handler):
         it is defined) when a new session is destroyed.
 
         Args:
-            session_context (SessionContext) :
+            session_context (SessionContext) : session-specific information
 
         '''
         self._on_session_destroyed(session_context)
