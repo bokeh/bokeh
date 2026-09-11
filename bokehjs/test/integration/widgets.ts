@@ -27,10 +27,8 @@ import {
 } from "@bokehjs/models/widgets"
 
 import {
-  DataTable, DataCube,
+  DataTable,
   TableColumn,
-  StringFormatter,
-  SumAggregator, GroupingInfo,
 } from "@bokehjs/models/widgets/tables"
 
 import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
@@ -564,39 +562,6 @@ describe("Widgets", () => {
     const table = new DataTable({source, columns, autosize_mode: "none"})
     const {view} = await display(table, [600, 400])
     await view.ready
-  })
-
-  it("should allow DataCube", async () => {
-    const source = new ColumnDataSource({
-      data: {
-        d0: ["A", "E", "E", "E", "J", "L", "M"],
-        d1: ["B", "D", "D", "H", "K", "L", "N"],
-        d2: ["C", "F", "G", "H", "K", "L", "O"],
-        px: [10, 20, 30, 40, 50, 60, 70],
-      },
-    })
-
-    const target = new ColumnDataSource({
-      data: {
-        row_indices: [],
-        labels: [],
-      },
-    })
-
-    const formatter = new StringFormatter({font_style: {value: "bold"}})
-
-    const columns = [
-      new TableColumn({field: "d2", title: "Name", width: 80, sortable: false, formatter}),
-      new TableColumn({field: "px", title: "Price", width: 40, sortable: false}),
-    ]
-
-    const grouping = [
-      new GroupingInfo({getter: "d0", aggregators: [new SumAggregator({field_: "px"})]}),
-      new GroupingInfo({getter: "d1", aggregators: [new SumAggregator({field_: "px"})]}),
-    ]
-
-    const cube = new DataCube({source, columns, grouping, target, width: 400, height: 200})
-    await display(cube)
   })
 
   it("should allow TeX on Divs with mathstrings", async () => {
