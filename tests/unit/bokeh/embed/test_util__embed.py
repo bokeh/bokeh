@@ -150,7 +150,7 @@ class Test_OutputDocumentFor_general:
         with pytest.raises(RuntimeError) as e:
             with beu.OutputDocumentFor([p1, p2]):
                 pass
-            assert "already in a doc" in str(e.value)
+        assert "already in a doc" in str(e.value)
 
     @patch('bokeh.document.document.check_integrity')
     def test_validates_document_by_default(self, check_integrity, test_plot) -> None:
@@ -169,7 +169,7 @@ class Test_OutputDocumentFor_general:
         p = SomeModel()
         theme = Theme(json={})
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError):  # noqa: PT012  (the raise is the point: it proves the context manager unwinds)
             with beu.OutputDocumentFor([p], always_new=True, apply_theme=theme) as doc:
                 assert p.document is doc
                 assert doc.theme is theme

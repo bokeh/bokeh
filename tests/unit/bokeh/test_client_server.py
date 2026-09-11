@@ -148,8 +148,8 @@ class TestClientServer:
             await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
     async def check_connect_session_fails(self, server, origin):
+        subprotocols = ["bokeh", generate_jwt_token("foo")]
         with pytest.raises(HTTPError):
-            subprotocols = ["bokeh", generate_jwt_token("foo")]
             await websocket_open(server.io_loop,
                                  ws_url(server),
                                  origin=origin,
