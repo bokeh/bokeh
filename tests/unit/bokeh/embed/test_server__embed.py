@@ -119,6 +119,14 @@ class TestServerDocument:
         request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-app-path=/foo/bar/sliders\", true);"
         assert request in script.string
 
+    def test_root_relative_url(self) -> None:
+        url = "/bkapp"
+        r = bes.server_document(url=url, relative_urls=True)
+
+        assert f'xhr.open(\'GET\', "{url}/autoload.js?' in r
+        assert "bokeh-app-path=/bkapp" in r
+        assert "bokeh-absolute-url" not in r
+
     @pytest.mark.parametrize("with_credentials", [True, False])
     def test_with_credentials(self, with_credentials):
         script = bes.server_document("http://localhost:8081/foo/bar/sliders", with_credentials=with_credentials)

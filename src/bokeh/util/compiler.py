@@ -26,6 +26,7 @@ import json
 import os
 import re
 import sys
+from concurrent.futures import Future
 from os.path import (
     abspath,
     dirname,
@@ -35,6 +36,7 @@ from os.path import (
 )
 from pathlib import Path
 from subprocess import PIPE, Popen
+from threading import Lock
 from typing import Any, Callable, Sequence
 
 # Bokeh imports
@@ -296,6 +298,9 @@ def calc_cache_key(custom_models: dict[str, CustomModel]) -> str:
     return hashlib.sha256(encoded_names).hexdigest()
 
 _bundle_cache: dict[str, str] = {}
+_bundle_futures: dict[str, Future[str]] = {}
+_bundle_cache_lock = Lock()
+_bundle_compile_lock = Lock()
 
 def bundle_models(models: Sequence[type[HasProps]] | None) -> str | None:
     """Create a bundle of selected `models`. """
@@ -304,15 +309,41 @@ def bundle_models(models: Sequence[type[HasProps]] | None) -> str | None:
         return None
 
     key = calc_cache_key(custom_models)
-    bundle = _bundle_cache.get(key, None)
-    if bundle is None:
+    with _bundle_cache_lock:
+        if (bundle := _bundle_cache.get(key)) is not None:
+            return bundle
+
+        future = _bundle_futures.get(key)
+        if future is None:
+            future = _bundle_futures[key] = Future()
+            compile = True
+        else:
+            compile = False
+
+    if not compile:
+        return future.result()
+
+    try:
         try:
-            _bundle_cache[key] = bundle = _bundle_models(custom_models)
+            # npm installation and module resolution use shared process state,
+            # so distinct bundles are compiled serially.
+            with _bundle_compile_lock:
+                bundle = _bundle_models(custom_models)
         except CompilationError as error:
             print("Compilation failed:", file=sys.stderr)
             print(str(error), file=sys.stderr)
             sys.exit(1)
-    return bundle
+    except BaseException as error:
+        with _bundle_cache_lock:
+            del _bundle_futures[key]
+            future.set_exception(error)
+        raise
+    else:
+        with _bundle_cache_lock:
+            _bundle_cache[key] = bundle
+            del _bundle_futures[key]
+            future.set_result(bundle)
+        return bundle
 
 def bundle_all_models() -> str | None:
     """Create a bundle of all models. """

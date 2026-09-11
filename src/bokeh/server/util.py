@@ -27,9 +27,6 @@ from typing import TYPE_CHECKING, Sequence
 if TYPE_CHECKING:
     from socket import socket
 
-# External imports
-from tornado import netutil
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -65,14 +62,8 @@ def bind_sockets(address: str | None, port: int) -> tuple[list[socket], int]:
         (socket, port)
 
     '''
-    ss = netutil.bind_sockets(port=port or 0, address=address)
-    assert len(ss)
-    ports = {s.getsockname()[1] for s in ss}
-    assert len(ports) == 1, "Multiple ports assigned??"
-    actual_port = ports.pop()
-    if port:
-        assert actual_port == port
-    return ss, actual_port
+    from .server import bind_sockets
+    return bind_sockets(address, port)
 
 def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
     ''' Check a given request host against a allowlist.

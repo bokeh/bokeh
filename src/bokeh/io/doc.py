@@ -23,14 +23,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import weakref
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Generator, cast
+from contextvars import ContextVar
+from typing import Generator, cast
 
 # Bokeh imports
-from ..document import Document
+from ..document import Document, DocumentLike
 from .state import curstate
-
-if TYPE_CHECKING:
-    from ..document.locking import UnlockedDocumentProxy
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -52,12 +50,18 @@ def curdoc() -> Document:
     Returns:
         Document : the current default document object.
 
+    .. note::
+        Inside a callback decorated with
+        :func:`~bokeh.document.without_document_lock`, this function returns
+        a restricted proxy that permits only safe next-tick callbacks.
+
     '''
-    if len(_PATCHED_CURDOCS) > 0:
-        doc = _PATCHED_CURDOCS[-1]()
+    patched_curdocs = _PATCHED_CURDOCS.get()
+    if len(patched_curdocs) > 0:
+        doc = patched_curdocs[-1]()
         if doc is None:
             raise RuntimeError("Patched curdoc has been previously destroyed")
-        return cast(Document, doc) # UnlockedDocumentProxy -> Document
+        return cast(Document, doc) # UnlockedDocumentProxy enforces callback safety at runtime
     return curstate().document
 
 #-----------------------------------------------------------------------------
@@ -65,7 +69,7 @@ def curdoc() -> Document:
 #-----------------------------------------------------------------------------
 
 @contextmanager
-def patch_curdoc(doc: Document | UnlockedDocumentProxy) -> Generator[None]:
+def patch_curdoc(doc: DocumentLike) -> Generator[None]:
     ''' Temporarily override the value of ``curdoc()`` and then return it to
     its original state.
 
@@ -76,13 +80,12 @@ def patch_curdoc(doc: Document | UnlockedDocumentProxy) -> Generator[None]:
         doc (Document) : new Document to use for ``curdoc()``
 
     '''
-    global _PATCHED_CURDOCS
-    _PATCHED_CURDOCS.append(weakref.ref(doc))
+    token = _PATCHED_CURDOCS.set((*_PATCHED_CURDOCS.get(), weakref.ref(doc)))
     del doc
     try:
         yield
     finally:
-        _PATCHED_CURDOCS.pop()
+        _PATCHED_CURDOCS.reset(token)
 
 def set_curdoc(doc: Document) -> None:
     ''' Configure the current document (returned by curdoc()).
@@ -103,7 +106,8 @@ def set_curdoc(doc: Document) -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-_PATCHED_CURDOCS: list[weakref.ReferenceType[Document | UnlockedDocumentProxy]] = []
+_PATCHED_CURDOCS: ContextVar[tuple[weakref.ReferenceType[DocumentLike], ...]] = \
+    ContextVar("_PATCHED_CURDOCS", default=())
 
 #-----------------------------------------------------------------------------
 # Code

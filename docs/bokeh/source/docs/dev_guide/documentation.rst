@@ -113,22 +113,9 @@ uses several :ref:`custom Sphinx extensions <bokeh.sphinxext>`.
 1. Prepare your environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build the documentation, follow the instructions in :ref:`contributor_guide_setup`
-and make sure you have activated the ``bkdev`` environment in your console:
-
-.. code-block:: sh
-
-    conda activate bkdev
-
-Unless you have just installed or updated your conda environment, you should
-make sure that all the packages are up to date. Run this command from the
-root level of your *source checkout* directory to update ``bkdev``:
-
-.. code-block:: sh
-
-    conda env update --name bkdev --file <environment file> --prune
-
-using the environment file you originally used to create ``bkdev``.
+To build the documentation, follow the instructions in
+:ref:`contributor_guide_setup`. The documentation Makefiles use the locked Pixi
+environment automatically, whether or not its shell is already active.
 
 2. Set environment variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,23 +134,33 @@ required to build those plots correctly. You have two options:
   This will only affect your local environment and should have no effect on any
   changes you might commit to the Bokeh repository.
 
-After activating your conda environment, use the following command to set the
-environment variable:
+Set the environment variable for the terminal session that will build the
+documentation:
 
-.. code-block:: sh
+.. tab-set::
 
-    conda env config vars set GOOGLE_API_KEY=some_value
+    .. tab-item:: Linux/macOS
+        :sync: sh
 
-Next, you have to reactivate your environment:
+        .. code-block:: sh
 
-.. code-block:: sh
+            export GOOGLE_API_KEY=some_value
 
-  conda deactivate
-  conda activate bkdev
+    .. tab-item:: Windows (PS)
+        :sync: ps
 
-Using ``conda env config vars set`` makes this environment variable part of your
-``bkdev`` environment. Whenever you activate your ``bkdev`` environment, conda
-will now set this environment variable for you.
+        .. code-block:: powershell
+
+            $Env:GOOGLE_API_KEY = "some_value"
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            set GOOGLE_API_KEY=some_value
+
+Do not add the API key to ``pixi.toml`` or commit it to the repository.
 
 3. Build Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -283,11 +280,9 @@ supported by ``make.bat``). For example:
                 make.bat html
                 make.bat serve
 
-To speed up the build of your local documentation, you have the option to use
-an `experimental Sphinx feature`_ that distributes the build process over
-several CPUs and cores. This only works on Linux and macOS (not on Windows). On
-macOS, this feature only works on Python 3.7. To use this experimental feature,
-add the option ``SPHINXOPTS="-j auto"`` to your build command:
+Sphinx can distribute reading and writing over several worker processes. To
+use all available CPUs for a clean local build, add the option
+``SPHINXOPTS="-j auto"`` to your build command:
 
 .. code-block:: sh
 
@@ -314,6 +309,27 @@ elements:
   interpreter and within most Python development environments. Sphinx also uses
   those texts to generate the :ref:`reference guide <refguide>` section of
   Bokeh's documentation.
+
+The individual class pages for :mod:`bokeh.models` are generated from the
+public Python API. After adding, removing, or renaming a public model class,
+regenerate these pages from the repository root with the documentation
+Makefile:
+
+.. code-block:: sh
+
+    make -C docs/bokeh reference
+
+Documentation builds check that the generated pages are current. Use
+``make -C docs/bokeh reference-check`` to run the same check without changing
+any files. The underlying generator is available as ``python -m api_reference``
+when working in ``docs/bokeh``.
+
+The ``bokeh-model`` Sphinx extension discovers inherited Bokeh properties,
+Python properties, and methods for each class page. The
+``bokeh_model_excluded_members`` setting in ``conf.py`` controls names omitted
+from every model page. By default this hides ``js_event_callbacks``,
+``js_property_callbacks``, and ``subscribed_events`` while leaving the JSON
+prototype faithful to the serialized model.
 
 In the file :bokeh-tree:`docs/bokeh/source/rst_epilog.txt`, you can find many common
 substitutions used across the narrative documentation as well as docstrings and
@@ -444,5 +460,4 @@ For example:
 .. _Napoleon's Google style: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
 .. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
 .. _official reStructuredText website: https://docutils.sourceforge.io/rst.html
-.. _experimental Sphinx feature: https://github.com/sphinx-doc/sphinx/issues/6881
 .. _release management: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management

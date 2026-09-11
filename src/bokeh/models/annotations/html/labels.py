@@ -44,7 +44,11 @@ from ....core.property.override import Override
 from ....core.property.primitive import Float, String
 from ....core.property.required import Required
 from ....core.property.vectorization import field
-from ....core.property_aliases import BorderRadius, Padding
+from ....core.property_aliases import (
+    AngleUnits as AngleUnitsProperty,
+    BorderRadius,
+    Padding,
+)
 from ....core.property_mixins import (
     FillProps,
     LineProps,
@@ -237,6 +241,8 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     The angles to rotate the text, as measured from the horizontal.
     """)
 
+    angle_units = AngleUnitsProperty
+
     x_offset = NumberSpec(default=0, help="""
     Offset values to apply to the x-coordinates.
 
@@ -300,10 +306,10 @@ class HTMLTitle(HTMLTextAnnotation):
     Offset the text by a number of pixels (can be positive or negative). Shifts the text in
     different directions based on the location of the title:
 
-        * above: shifts title right
-        * right: shifts title down
-        * below: shifts title right
-        * left: shifts title up
+    * above: shifts title right
+    * right: shifts title down
+    * below: shifts title right
+    * left: shifts title up
 
     """)
 

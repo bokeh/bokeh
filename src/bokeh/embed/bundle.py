@@ -143,6 +143,9 @@ class Bundle:
         elif isinstance(artifact, Style):
             self.css_raw.append(artifact.content)
 
+    def clone(self) -> Bundle:
+        return Bundle(self.js_files, self.js_raw, self.css_files, self.css_raw, self.hashes)
+
 def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, resources: Resources | None) -> Bundle:
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects

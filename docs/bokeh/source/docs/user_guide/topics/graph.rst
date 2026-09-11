@@ -16,7 +16,7 @@ In order to create a network visualization, you need to specify:
 - edge data and glyphs using the ``edge_renderer`` attribute
 - the layout strategy using the ``layout_provider`` attribute
 
-While the positions of the nodes could theorically be stored in the ``node_renderer``,
+While the positions of the nodes could theoretically be stored in the ``node_renderer``,
 this approach allows for more flexibility. The same graph data can be viewed differently
 depending on the ``layout_provider``, which will dictate the placement of the nodes.
 

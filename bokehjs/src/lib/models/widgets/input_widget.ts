@@ -139,17 +139,20 @@ export abstract class InputWidgetView extends ControlView {
             persistent = false
             toggle(false)
           }
-        })
+        }, {signal: this.abort_signal})
         window.addEventListener("blur", () => {
           persistent = false
           toggle(false)
-        })
+        }, {signal: this.abort_signal})
       }
       return desc_el
     }
   }
 
   protected async _build_title(): Promise<void> {
+    if (this.title instanceof View) {
+      this.title.remove()
+    }
     const {title} = this.model
     if (title instanceof HTML) {
       this.title = await build_view(title, {parent: this})
@@ -159,6 +162,9 @@ export abstract class InputWidgetView extends ControlView {
   }
 
   protected async _build_description(): Promise<void> {
+    if (this.description instanceof View) {
+      this.description.remove()
+    }
     const {description} = this.model
     if (description instanceof Tooltip) {
       this.description = await build_view(description, {parent: this})

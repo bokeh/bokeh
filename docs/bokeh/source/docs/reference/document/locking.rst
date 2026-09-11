@@ -5,3 +5,4 @@ bokeh.document.locking
 
 .. automodule:: bokeh.document.locking
     :members:
+    :exclude-members: LockedCallback, LockedCallbackPolicy

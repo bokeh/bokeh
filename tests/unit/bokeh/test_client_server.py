@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import logging
-import sys
-import time
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -42,6 +40,7 @@ from bokeh.core.properties import (
     Nullable,
     String,
 )
+from bokeh.core.property_aliases import AngleUnits, SpatialUnits
 from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
@@ -80,9 +79,13 @@ class SomeModelInTestClientServer(Model):
 class DictModel(Model):
     values = Dict(String, Any)
 
-class UnitsSpecModel(Model):
+class UnitsModel(Model):
     distance = DistanceSpec(42)
+
+    distance_units = SpatialUnits
     angle = AngleSpec(0)
+
+    angle_units = AngleUnits
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -109,7 +112,7 @@ class TestClientServer:
             session.connect()
             assert session.connected
             # send a bogus message using private fields
-            server.io_loop.add_callback(session._connection._socket.write_message, b"xx", binary=True)
+            server.io_loop.add_callback(session._connection._socket._socket.write_message, b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
             session._loop_until_closed()
@@ -175,65 +178,69 @@ class TestClientServer:
         await self.check_http_gets_fail(server)
         await self.check_connect_session_fails(server, origin=origin)
 
-    async def test_allow_websocket_origin(self, ManagedServerLoop: MSL) -> None:
+    @pytest.mark.parametrize(("server_kwargs", "environment", "origin", "allowed"), [
+        pytest.param({}, None, None, True, id="local-random-port"),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com"]}, None, "http://example.com:80", True,
+            id="explicit-host",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com"}, "http://example.com:80", True,
+            id="environment-host",
+        ),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com:8080"]}, None, "http://example.com:8080", True,
+            id="explicit-port",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com:8080"}, "http://example.com:8080", True,
+            id="environment-port",
+        ),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com"]}, None, "http://example.com", True,
+            id="implicit-port",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com"}, "http://example.com", True,
+            id="environment-implicit-port",
+        ),
+        pytest.param({}, None, "http://example.com:80", False, id="default-blocks-non-host"),
+        pytest.param({}, None, "hsdf:::///%#^$#:8080", False, id="garbage-origin"),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com"]}, None, "http://foobar.com:80", False,
+            id="explicit-wrong-host",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com"}, "http://foobar.com:80", False,
+            id="environment-wrong-host",
+        ),
+        pytest.param(
+            {"allow_websocket_origin": ["example.com:8080"]}, None, "http://example.com:8081", False,
+            id="explicit-wrong-port",
+        ),
+        pytest.param(
+            {}, {"BOKEH_ALLOW_WS_ORIGIN": "example.com:8080"}, "http://example.com:8081", False,
+            id="environment-wrong-port",
+        ),
+    ])
+    async def test_allow_websocket_origin(
+        self,
+        ManagedServerLoop: MSL,
+        server_kwargs: dict[str, object],
+        environment: dict[str, str] | None,
+        origin: str | None,
+        allowed: bool,
+    ) -> None:
         application = Application()
-
-        # allow good local origin with random port
-        with ManagedServerLoop(application, port=0) as server:
-            await self.check_http_ok_socket_ok(server, origin=f"http://localhost:{server.port}")
-
-        # allow good origin
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
-
-        # allow good origin from environment variable
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
-                await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
-
-        # allow good origin with port
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
-            await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
-
-        # allow good origin with port from environment variable
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com:8080"):
-                await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
-
-        # allow good origin header with an implicit 80
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            await self.check_http_ok_socket_ok(server, origin="http://example.com")
-
-        # allow good origin header with an implicit 80
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
-                await self.check_http_ok_socket_ok(server, origin="http://example.com")
-
-        # block non-Host origins by default even if no extra origins specified
-        with ManagedServerLoop(application) as server:
-            await self.check_http_ok_socket_blocked(server, origin="http://example.com:80")
-
-        # block on a garbage Origin header
-        with ManagedServerLoop(application) as server:
-            await self.check_http_ok_socket_blocked(server, origin="hsdf:::///%#^$#:8080")
-
-        # block bad origin
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
-
-        # block bad origin from environment variable
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
-                await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
-
-        # block bad origin port
-        with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
-            await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
-
-        # block bad origin port from environment variable
-        with ManagedServerLoop(application) as server:
-            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com:8080"):
-                await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
+        # Let the OS allocate ports so these cases can safely run concurrently.
+        with ManagedServerLoop(application, port=0, **server_kwargs) as server:
+            with envset(environment):
+                if origin is None:
+                    origin = f"http://localhost:{server.port}"
+                if allowed:
+                    await self.check_http_ok_socket_ok(server, origin=origin)
+                else:
+                    await self.check_http_ok_socket_blocked(server, origin=origin)
 
     def test_push_document(self, ManagedServerLoop: MSL) -> None:
         application = Application()
@@ -336,64 +343,6 @@ class TestClientServer:
                 pull_session(session_id=ID("test__check_error_404"),
                                               url=url(server) + 'file_not_found',
                                               io_loop=server.io_loop)
-
-    def test_request_server_info(self, ManagedServerLoop: MSL) -> None:
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            session = ClientSession(session_id=ID("test_request_server_info"),
-                                    websocket_url=ws_url(server),
-                                    io_loop=server.io_loop)
-            session.connect()
-            assert session.connected
-            assert session.document is None
-
-            info = session.request_server_info()
-
-            from bokeh import __version__
-
-            assert info['version_info']['bokeh'] == __version__
-            assert info['version_info']['server'] == __version__
-
-            session.close()
-            session._loop_until_closed()
-            assert not session.connected
-
-    @pytest.mark.skipif(sys.platform == "win32", reason="uninmportant failure on win")
-    def test_ping(self, ManagedServerLoop: MSL) -> None:
-        application = Application()
-        with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
-            session = ClientSession(session_id=ID("test_ping"),
-                                    websocket_url=ws_url(server),
-                                    io_loop=server.io_loop)
-            session.connect()
-            assert session.connected
-            assert session.document is None
-
-            connection = next(iter(server._tornado._clients))
-
-            def wait_for_pong(pong: int) -> None:
-                # Websocket control frames may be processed after an application-level roundtrip.
-                deadline = time.monotonic() + 1
-                while time.monotonic() < deadline:
-                    session.force_roundtrip()
-                    if connection._socket.latest_pong == pong:
-                        return
-
-            expected_pong = connection._ping_count
-            server._tornado._keep_alive() # send ping
-            wait_for_pong(expected_pong)
-
-            assert expected_pong == connection._socket.latest_pong
-
-            # check that each ping increments by 1
-            server._tornado._keep_alive()
-            wait_for_pong(expected_pong + 1)
-
-            assert (expected_pong + 1) == connection._socket.latest_pong
-
-            session.close()
-            session._loop_until_closed()
-            assert not session.connected
 
     def test_client_changes_go_to_server(self, ManagedServerLoop: MSL) -> None:
         application = Application()
@@ -841,7 +790,7 @@ class TestClientServer:
         handler = FunctionHandler(setup_stuff)
         application.add(handler)
 
-        # keep_alive_milliseconds=1 sends pings as fast as the OS will let us
+        # Exercise the server with the shortest practical native ping interval.
         with ManagedServerLoop(application, keep_alive_milliseconds=1) as server:
             session = pull_session(session_id=ID("test_lots_of_concurrent_messages"),
                                    url=url(server),
@@ -994,7 +943,7 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()
-        client_root = UnitsSpecModel()
+        client_root = UnitsModel()
         doc.add_root(client_root)
 
         client_session = push_session(doc,

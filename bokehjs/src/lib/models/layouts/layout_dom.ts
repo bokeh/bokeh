@@ -576,7 +576,7 @@ export abstract class LayoutDOMView extends PaneView {
     }
   }
 
-  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+  override export(type: "auto" | "png" | "svg" = "auto"): CanvasLayer {
     const output_backend = (() => {
       switch (type) {
         case "auto": // TODO: actually infer the best type
@@ -585,7 +585,7 @@ export abstract class LayoutDOMView extends PaneView {
       }
     })()
 
-    const composite = new CanvasLayer(output_backend, hidpi)
+    const composite = new CanvasLayer(output_backend)
 
     const {x, y, width, height} = this.bbox
     composite.resize(width, height)
@@ -595,7 +595,7 @@ export abstract class LayoutDOMView extends PaneView {
     composite.ctx.fillRect(x, y, width, height)
 
     for (const view of this.child_views) {
-      const region = view.export(type, hidpi)
+      const region = view.export(type)
       const {x, y} = view.bbox.scale(composite.pixel_ratio)
       composite.ctx.drawImage(region.canvas, x, y)
     }

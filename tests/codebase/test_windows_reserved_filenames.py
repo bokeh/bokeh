@@ -18,12 +18,28 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
-from os.path import join, splitext
+import sys
+
+if sys.version_info >= (3, 13):
+    from ntpath import isreserved as _is_reserved
+else:
+    from pathlib import PureWindowsPath
+
+    def _is_reserved(path: str) -> bool:
+        # PureWindowsPath.is_reserved() covers device names on Python 3.12,
+        # while ntpath.isreserved() adds these rules in Python 3.13.
+        for part in path.replace("\\", "/").split("/"):
+            if PureWindowsPath(part).is_reserved():
+                return True
+            if part[-1:] in (".", " ") and part not in (".", ".."):
+                return True
+            if any(ord(char) < 32 or char in ':*?"<>|' for char in part):
+                return True
+        return False
 
 # Bokeh imports
 from bokeh.util.strings import nice_join
-from tests.support.util.project import TOP_PATH
+from tests.support.util.project import ls_files
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -35,42 +51,6 @@ def test_windows_reserved_filenames() -> None:
     names are not present in the codebase.
 
     '''
-    bad: list[str] = []
-    for path, _, files in os.walk(TOP_PATH):
-
-        for file in files:
-            if splitext(file)[0].upper() in RESERVED_NAMES:
-                bad.append(join(path, file))
+    bad = [path for path in ls_files() if path and _is_reserved(path)]
 
     assert len(bad) == 0, f"Windows reserved filenames detected:\n{nice_join(bad)}"
-
-#-----------------------------------------------------------------------------
-# Support
-#-----------------------------------------------------------------------------
-
-# list taken from https://msdn.microsoft.com/en-us/library/aa578688.aspx
-RESERVED_NAMES = (
-    "CON",
-    "PRN",
-    "AUX",
-    "CLOCK$",
-    "NUL",
-    "COM1",
-    "COM2",
-    "COM3",
-    "COM4",
-    "COM5",
-    "COM6",
-    "COM7",
-    "COM8",
-    "COM9",
-    "LPT1",
-    "LPT2",
-    "LPT3",
-    "LPT4",
-    "LPT5",
-    "LPT6",
-    "LPT7",
-    "LPT8",
-    "LPT9",
-)

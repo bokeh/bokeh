@@ -32,13 +32,11 @@ from bokeh.document.events import (
 )
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
-from bokeh.protocol import Protocol
+from bokeh.protocol import apply_patch, patch_doc
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-proto = Protocol()
 
 #-----------------------------------------------------------------------------
 # General API
@@ -63,7 +61,7 @@ class TestPatchDocument:
 
     def test_create_no_events(self) -> None:
         with pytest.raises(ValueError):
-            proto.create("PATCH-DOC", [])
+            patch_doc([])
 
     def test_create_multiple_docs(self) -> None:
         sample1 = self._sample_doc()
@@ -74,13 +72,13 @@ class TestPatchDocument:
         obj2 = next(iter(sample2.roots))
         event2 = ModelChangedEvent(sample2, obj2, 'foo', 42)
         with pytest.raises(ValueError):
-            proto.create("PATCH-DOC", [event1, event2])
+            patch_doc([event1, event2])
 
     def test_create_model_changed(self) -> None:
         sample = self._sample_doc()
         obj = next(iter(sample.roots))
         event = ModelChangedEvent(sample, obj, 'foo', 42)
-        proto.create("PATCH-DOC", [event])
+        patch_doc([event])
 
     def test_create_then_apply_model_changed(self) -> None:
         sample = self._sample_doc()
@@ -93,10 +91,10 @@ class TestPatchDocument:
         obj = next(iter(sample.roots))
         assert obj.foo == 2
         event = ModelChangedEvent(sample, obj, 'foo', 42)
-        msg = proto.create("PATCH-DOC", [event])
+        msg = patch_doc([event])
 
         copy = document.Document.from_json(sample.to_json())
-        msg.apply_to_document(copy)
+        apply_patch(msg, copy)
 
         foos = []
         for r in copy.roots:
@@ -128,38 +126,38 @@ class TestPatchDocument:
 
         # Model property changed
         event = ModelChangedEvent(sample, root, 'child', new_child)
-        msg = proto.create("PATCH-DOC", [event])
-        msg.apply_to_document(sample, mock_session)
+        msg = patch_doc([event])
+        apply_patch(msg, sample, mock_session)
         assert msg.buffers == []
 
         # RootAdded
         event2 = RootAddedEvent(sample, root)
-        msg2 = proto.create("PATCH-DOC", [event2])
-        msg2.apply_to_document(sample, mock_session)
+        msg2 = patch_doc([event2])
+        apply_patch(msg2, sample, mock_session)
         assert msg2.buffers == []
 
         # RootRemoved
         event3 = RootRemovedEvent(sample, root)
-        msg3 = proto.create("PATCH-DOC", [event3])
-        msg3.apply_to_document(sample, mock_session)
+        msg3 = patch_doc([event3])
+        apply_patch(msg3, sample, mock_session)
         assert msg3.buffers == []
 
         # ColumnsStreamed
         event4 = ColumnsStreamedEvent(sample, cds, "data", {"a": [3]}, None, mock_session)
-        msg4 = proto.create("PATCH-DOC", [event4])
-        msg4.apply_to_document(sample, mock_session)
+        msg4 = patch_doc([event4])
+        apply_patch(msg4, sample, mock_session)
         assert msg4.buffers == []
 
         # ColumnsPatched
         event5 = ColumnsPatchedEvent(sample, cds, "data", {"a": [(0, 11)]})
-        msg5 = proto.create("PATCH-DOC", [event5])
-        msg5.apply_to_document(sample, mock_session)
+        msg5 = patch_doc([event5])
+        apply_patch(msg5, sample, mock_session)
         assert msg5.buffers == []
 
         # ColumnDataChanged
         event7 = ColumnDataChangedEvent(sample, cds, "data")
-        msg7 = proto.create("PATCH-DOC", [event7])
-        msg7.apply_to_document(sample, mock_session)
+        msg7 = patch_doc([event7])
+        apply_patch(msg7, sample, mock_session)
         assert len(msg7.buffers) == 1
 
         # reports CDS buffer *as it is* Normally events called by setter and

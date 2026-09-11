@@ -22,14 +22,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Callable, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Awaitable,
+    Callable,
+    Sequence,
+)
 
 # Bokeh imports
-from ..util.tornado import _CallbackGroup
+from ..util.asyncio import Loop, _CallbackGroup
 
 if TYPE_CHECKING:
-    from tornado.ioloop import IOLoop
-
     from ..core.types import ID
 
 #-----------------------------------------------------------------------------
@@ -47,7 +50,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Callback = Callable[[], None]
+Callback = Callable[[], None | Awaitable[None]]
 
 class SessionCallback:
     ''' A base class for callback objects associated with Bokeh Documents
@@ -63,7 +66,7 @@ class SessionCallback:
          Args:
             callback (callable) :
 
-            id (ID) :
+            callback_id (ID) :
 
         '''
         self._id = callback_id
@@ -99,7 +102,7 @@ class NextTickCallback(SessionCallback):
          Args:
             callback (callable) :
 
-            id (ID) :
+            callback_id (ID) :
 
         '''
         super().__init__(callback=callback, callback_id=callback_id)
@@ -120,7 +123,7 @@ class PeriodicCallback(SessionCallback):
 
             period (int) :
 
-            id (ID) :
+            callback_id (ID) :
 
         '''
         super().__init__(callback=callback, callback_id=callback_id)
@@ -150,7 +153,7 @@ class TimeoutCallback(SessionCallback):
 
             timeout (int) :
 
-            id (ID) :
+            callback_id (ID) :
 
         '''
         super().__init__(callback=callback, callback_id=callback_id)
@@ -171,7 +174,7 @@ class DocumentCallbackGroup:
     '''
 
     '''
-    def __init__(self, io_loop: IOLoop) -> None:
+    def __init__(self, io_loop: Loop) -> None:
         '''
 
         '''

@@ -427,6 +427,7 @@ def test_add_tile(test_input, provider):
     sf = "@2x" if "RETINA" in test_input else None
     assert tile_source.url == provider.build_url(scale_factor=sf)
     assert tile_source.attribution == provider.html_attribution
+    assert tile_source.pixel_ratio == (2 if sf and "{r}" in provider.url else 1)
     if hasattr(provider, "max_zoom"):
         assert tile_source.max_zoom == provider.max_zoom
 
@@ -437,6 +438,7 @@ def test_add_tile(test_input, provider):
         plot2.add_tile(test_input, retina=True)
         tile_source2 = plot2.renderers[0].tile_source
         assert tile_source2.url == provider.build_url(scale_factor="@2x")
+        assert tile_source2.pixel_ratio == 2
 
 def test_add_tile_tilesource():
     mapnik = xyz.OpenStreetMap.Mapnik

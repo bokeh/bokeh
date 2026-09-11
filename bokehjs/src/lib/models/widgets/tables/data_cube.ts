@@ -334,7 +334,9 @@ export class DataCubeView extends DataTableView {
       shadowRoot: this.shadow_el,
     }
 
-    const columns = this.model.columns.map(column => column.toColumn())
+    const columns = this.model.columns.map((column) => {
+      return this._column_views.get(column)!.toColumn()
+    })
     columns[0].formatter = indentFormatter(columns[0].formatter, this.model.grouping.length)
     delete columns[0].editor
 

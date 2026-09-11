@@ -11,6 +11,7 @@ import dropdown_css from "styles/dropdown.css"
 import carets_css, * as carets from "styles/caret.css"
 import {DividerItem, Menu, MenuItem} from "../ui/menus"
 import type {MenuView} from "../ui/menus/menu"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 
 export class DropdownView extends AbstractButtonView {
@@ -18,6 +19,10 @@ export class DropdownView extends AbstractButtonView {
 
   protected _open: boolean = false
   protected menu: MenuView
+
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this.menu]
+  }
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), dropdown_css, carets_css]
@@ -35,6 +40,7 @@ export class DropdownView extends AbstractButtonView {
     const {menu} = this.model.properties
     this.on_change(menu, async () => {
       const menu_open = this.menu.is_open
+      this.menu.remove()
       await this._build_menu()
       this.rerender()
       if (menu_open) {

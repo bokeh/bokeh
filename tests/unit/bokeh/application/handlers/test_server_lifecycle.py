@@ -16,6 +16,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from threading import get_ident
+from types import SimpleNamespace
+
 # Bokeh imports
 from bokeh.application.handlers.handler import Handler
 from bokeh.document import Document
@@ -167,6 +171,27 @@ def on_session_destroyed(a,b):
         assert "on_server_unloaded" == handler.on_server_unloaded(None)
         assert await handler.on_session_created(None) is None
         assert await handler.on_session_destroyed(None) is None
+
+    async def test_session_created_runs_off_event_loop(self) -> None:
+        result: dict[str, Handler] = {}
+        def load(filename: str):
+            handler = result['handler'] = bahs.ServerLifecycleHandler(filename=filename)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+        with_file_contents("""
+from threading import get_ident
+
+def on_session_created(session_context):
+    session_context.thread_id = get_ident()
+""", load)
+
+        handler = result['handler']
+        session_context = SimpleNamespace(thread_id=None)
+        loop_thread_id = get_ident()
+
+        await handler.on_session_created(session_context)
+
+        assert session_context.thread_id != loop_thread_id
 
     def test_url_path(self) -> None:
         result: dict[str, Handler] = {}

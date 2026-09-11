@@ -162,12 +162,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected throttled_paint: () => Promise<void>
 
   computed_renderers: Renderer[] = []
+  protected _computed_renderer_views: RendererView[] = []
 
   get computed_renderer_views(): RendererView[] {
-    return this
-      .computed_renderers
-      .map((r) => this.renderer_views.get(r))
-      .filter((rv) => rv != null) // TODO race condition again
+    return this._computed_renderer_views
   }
 
   get all_renderer_views(): RendererView[] {
@@ -352,8 +350,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       toolbar.inner = toolbar_inner
     }
 
-    const {hidpi, output_backend} = this.model
-    this._canvas = new Canvas({hidpi, output_backend})
+    this._canvas = new Canvas({output_backend: this.model.output_backend})
 
     this._attribution = new Panel({
       position: new Node({target: "frame", symbol: "bottom_right"}),
@@ -914,6 +911,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
     const result = await build_views(this.renderer_views, this.computed_renderers, {parent: (model) => model instanceof LayoutDOM ? null : this})
+    this._computed_renderer_views = this.computed_renderers.map((r) => this.renderer_views.get(r)).filter((rv) => rv != null) // TODO race condition again
     for (const renderer_view of result.created) {
       this.on_change(renderer_view.model.properties.visible, () => this._update_attribution())
     }
@@ -1062,7 +1060,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
         if (this.canvas.resize()) {
           this.request_repaint()
         }
-      })
+      }, {signal: this.abort_signal})
     }
   }
 
@@ -1427,7 +1425,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+  override export(type: "auto" | "png" | "svg" = "auto"): CanvasLayer {
     const output_backend = (() => {
       switch (type) {
         case "auto": return this.canvas_view.model.output_backend
@@ -1436,7 +1434,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       }
     })()
 
-    const composite = new CanvasLayer(output_backend, hidpi)
+    const composite = new CanvasLayer(output_backend)
 
     const {width, height} = this.bbox
     composite.resize(width, height)
@@ -1451,7 +1449,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
       for (const view of this.renderer_views.values()) {
         if (is_Exportable(view)) {
-          const region = view.export(type, hidpi)
+          const region = view.export(type)
           const {x, y} = view.bbox.scale(composite.pixel_ratio)
           composite.ctx.drawImage(region.canvas, x, y)
         }

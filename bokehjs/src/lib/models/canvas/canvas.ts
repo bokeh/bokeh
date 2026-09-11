@@ -214,22 +214,20 @@ export class CanvasView extends UIElementView {
   }
 
   blit_webgl(ctx: Context2d): void {
-    // This should be called when the ctx has no state except the HIDPI transform
+    // This should be called when the ctx has no state except the HiDPI transform
     const {webgl} = this
     if (webgl != null && webgl.canvas.width*webgl.canvas.height > 0) {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
-      // to remove the hidpi transform, then blit, then restore.
+      // to remove the HiDPI transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
       logger.debug("Blitting WebGL canvas")
       ctx.restore()
       ctx.drawImage(webgl.canvas, 0, 0)
-      // Set back hidpi transform
+      // Set back the HiDPI transform
       ctx.save()
-      if (this.model.hidpi) {
-        const ratio = this.pixel_ratio
-        ctx.scale(ratio, ratio)
-        ctx.translate(0.5, 0.5)
-      }
+      const ratio = this.pixel_ratio
+      ctx.scale(ratio, ratio)
+      ctx.translate(0.5, 0.5)
       this._clear_webgl()
     }
   }
@@ -253,13 +251,11 @@ export class CanvasView extends UIElementView {
   }
 
   create_layer(): CanvasLayer {
-    const {output_backend, hidpi} = this.model
-    return new CanvasLayer(output_backend, hidpi)
+    return new CanvasLayer(this.model.output_backend)
   }
 
   create_layer_svg(): CanvasLayer {
-    const {hidpi} = this.model
-    return new CanvasLayer("svg", hidpi)
+    return new CanvasLayer("svg")
   }
 
   to_blob(): Promise<Blob> {
@@ -278,7 +274,6 @@ export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
   }
 }
@@ -296,8 +291,7 @@ export class Canvas extends UIElement {
   static {
     this.prototype.default_view = CanvasView
 
-    this.define<Canvas.Props>(({Bool}) => ({
-      hidpi:          [ Bool, true ],
+    this.define<Canvas.Props>(() => ({
       output_backend: [ OutputBackend, "canvas" ],
     }))
   }

@@ -28,7 +28,7 @@ from typing import TYPE_CHECKING, Any, Callable
 from .handler import Handler
 
 if TYPE_CHECKING:
-    from tornado.httputil import HTTPServerRequest
+    from ...server.request import RequestLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,7 +51,7 @@ class RequestHandler(Handler):
 
     '''
 
-    _process_request: Callable[[HTTPServerRequest], dict[str, Any]]
+    _process_request: Callable[[RequestLike], dict[str, Any]]
 
     def __init__(self) -> None:
         super().__init__()
@@ -59,7 +59,7 @@ class RequestHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
+    def process_request(self, request: RequestLike) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 
@@ -80,7 +80,7 @@ class RequestHandler(Handler):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _return_empty(request: HTTPServerRequest) -> dict[str, Any]:
+def _return_empty(request: RequestLike) -> dict[str, Any]:
     return {}
 
 #-----------------------------------------------------------------------------

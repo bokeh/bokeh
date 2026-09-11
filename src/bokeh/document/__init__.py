@@ -42,6 +42,9 @@ log = logging.getLogger(__name__)
 __all__ = (
     'DEFAULT_TITLE',
     'Document',
+    'DocumentLike',
+    'LockedCallback',
+    'LockedCallbackPolicy',
     'without_document_lock',
 )
 
@@ -51,7 +54,9 @@ __all__ = (
 
 from .document import DEFAULT_TITLE
 from .document import Document
-from .locking import without_document_lock
+from .locking import LockedCallback, LockedCallbackPolicy, UnlockedDocumentProxy, without_document_lock
+
+type DocumentLike = Document | UnlockedDocumentProxy
 
 #-----------------------------------------------------------------------------
 # Dev API

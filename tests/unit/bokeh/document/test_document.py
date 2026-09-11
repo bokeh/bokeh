@@ -24,13 +24,36 @@ from unittest.mock import patch
 
 # Bokeh imports
 from bokeh.core.enums import HoldPolicy
-from bokeh.core.has_props import ModelDef, OverrideDef, PropertyDef
+from bokeh.core.has_props import (
+    HasProps,
+    Local,
+    ModelDef,
+    OverrideDef,
+    PropertyDef,
+    _data_models_in_dependency_order,
+)
 from bokeh.core.properties import (
+    Any as AnyProperty,
+    AnyRef,
+    Bool,
+    Bytes,
+    Dict,
+    Either,
+    Enum,
+    Float,
     Instance,
     Int,
     List,
+    NotSerialized,
+    Null,
     Nullable,
     Override,
+    Regex,
+    Required,
+    Set,
+    String,
+    Struct,
+    Tuple,
 )
 from bokeh.core.property.vectorization import Field, Value
 from bokeh.core.serialization import (
@@ -39,6 +62,7 @@ from bokeh.core.serialization import (
     ObjectRefRep,
     Ref,
     Serialized,
+    Serializer,
     UnknownReferenceError,
 )
 from bokeh.core.types import ID
@@ -57,7 +81,7 @@ from bokeh.io.doc import curdoc
 from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
 from bokeh.models.ui.notifications import Notifications
-from bokeh.protocol.messages.patch_doc import patch_doc
+from bokeh.protocol import patch_doc
 from bokeh.server.contexts import BokehSessionContext
 from bokeh.util.logconfig import basicConfig
 
@@ -137,6 +161,101 @@ class TestDocument:
         sc = BokehSessionContext(None, None, d)
         d._session_context = weakref.ref(sc)
         assert d.session_context is sc
+
+    def test_locked_callback_requires_server_session(self) -> None:
+        d = document.Document()
+
+        with pytest.raises(RuntimeError, match="require a Bokeh server session"):
+            @d.locked_callback
+            def update() -> None:
+                pass
+
+    def test_locked_callback_rejects_unknown_policy(self) -> None:
+        d = document.Document()
+
+        with pytest.raises(ValueError, match="unknown locked callback policy"):
+            @d.locked_callback(policy="unknown") # type: ignore[arg-type]
+            def update() -> None:
+                pass
+
+    def test_locked_callback_latest_coalesces_and_preserves_metadata(self) -> None:
+        d = document.Document()
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        scheduled: list[Any] = []
+        calls: list[int] = []
+
+        with patch.object(d, "add_next_tick_callback", side_effect=lambda callback: scheduled.append(callback)):
+            @d.locked_callback(policy="latest")
+            def update(value: int) -> None:
+                ''' Update the value. '''
+                calls.append(value)
+
+            assert update.__name__ == "update"
+            assert update.__doc__ == update.__wrapped__.__doc__
+            assert update.policy == "latest"
+            assert not update.pending
+            assert not update.closed
+
+            update(1)
+            update(2)
+            update(3)
+
+            assert update.pending
+            assert len(scheduled) == 1
+            scheduled.pop(0)()
+
+            assert calls == [3]
+            assert not update.pending
+
+    def test_locked_callback_every_continues_after_exception(self) -> None:
+        d = document.Document()
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        scheduled: list[Any] = []
+        calls: list[int] = []
+
+        with patch.object(d, "add_next_tick_callback", side_effect=lambda callback: scheduled.append(callback)):
+            @d.locked_callback
+            def update(value: int) -> None:
+                calls.append(value)
+                if value == 1:
+                    raise RuntimeError("transient failure")
+
+            update(1)
+            update(2)
+
+            assert len(scheduled) == 1
+            with pytest.raises(RuntimeError, match="transient failure"):
+                scheduled.pop(0)()
+
+            assert len(scheduled) == 1
+            scheduled.pop(0)()
+            assert calls == [1, 2]
+            assert not update.pending
+
+    def test_locked_callback_closes_on_session_destroyed(self) -> None:
+        d = document.Document()
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        scheduled: list[Any] = []
+        calls: list[int] = []
+
+        with patch.object(d, "add_next_tick_callback", side_effect=lambda callback: scheduled.append(callback)):
+            @d.locked_callback()
+            def update(value: int) -> None:
+                calls.append(value)
+
+            update(1)
+            for callback in d.session_destroyed_callbacks:
+                callback(sc)
+
+            assert update.closed
+            assert not update.pending
+
+            update(2)
+            scheduled.pop(0)()
+            assert calls == []
 
     def test_add_roots(self) -> None:
         d = document.Document()
@@ -234,7 +353,7 @@ class TestDocument:
         d.on_change(lambda event: events.append(event))
         setter = object()
         event = ModelChangedEvent(d, d.config, "color_scheme", "dark")
-        patch = patch_doc.create([event]).content
+        patch = patch_doc([event]).content
 
         d.apply_json_patch(patch, setter=setter)
 
@@ -814,9 +933,9 @@ class TestDocument:
                 type="model",
                 name="test_document.SomeDataModel",
                 properties=[
-                    PropertyDef(name="prop0", kind="Any", default=0),
-                    PropertyDef(name="prop1", kind="Any", default=111),
-                    PropertyDef(name="prop2", kind="Any", default=[1, 2, 3]),
+                    PropertyDef(name="prop0", kind="Int", default=0),
+                    PropertyDef(name="prop1", kind="Int", default=111),
+                    PropertyDef(name="prop2", kind=("List", "Int"), default=[1, 2, 3]),
                 ],
             ),
             ModelDef(
@@ -824,11 +943,11 @@ class TestDocument:
                 name="test_document.DerivedDataModel",
                 extends=Ref(id=ID("test_document.SomeDataModel")),
                 properties=[
-                    PropertyDef(name="prop3", kind="Any", default=0),
-                    PropertyDef(name="prop4", kind="Any", default=112),
-                    PropertyDef(name="prop5", kind="Any", default=[1, 2, 3, 4]),
-                    PropertyDef(name="prop6", kind="Any"),
-                    PropertyDef(name="prop7", kind="Any", default=None),
+                    PropertyDef(name="prop3", kind="Int", default=0),
+                    PropertyDef(name="prop4", kind="Int", default=112),
+                    PropertyDef(name="prop5", kind=("List", "Int"), default=[1, 2, 3, 4]),
+                    PropertyDef(name="prop6", kind=("Ref", Ref(id=ID("test_document.SomeDataModel")))),
+                    PropertyDef(name="prop7", kind=("Nullable", ("Ref", Ref(id=ID("test_document.SomeDataModel")))), default=None),
                 ],
                 overrides=[
                     OverrideDef(name="prop2", default=[4, 5, 6]),
@@ -839,9 +958,9 @@ class TestDocument:
                 name="test_document.CDSDerivedDataModel",
                 extends=Ref(id=ID("ColumnDataSource")),
                 properties=[
-                    PropertyDef(name="prop0", kind="Any", default=0),
-                    PropertyDef(name="prop1", kind="Any", default=111),
-                    PropertyDef(name="prop2", kind="Any", default=[1, 2, 3]),
+                    PropertyDef(name="prop0", kind="Int", default=0),
+                    PropertyDef(name="prop1", kind="Int", default=111),
+                    PropertyDef(name="prop2", kind=("List", "Int"), default=[1, 2, 3]),
                 ],
                 overrides=[
                     OverrideDef(name="data", default=MapRep(type="map", entries=[("default_column", [4, 5, 6])])),
@@ -854,7 +973,7 @@ class TestDocument:
                 properties=[
                     PropertyDef(
                         name="prop3",
-                        kind="Any",
+                        kind=("Ref", Ref(id=ID("test_document.SomeDataModel"))),
                         default=ObjectRefRep(
                             type="object",
                             name="test_document.SomeDataModel",
@@ -869,6 +988,154 @@ class TestDocument:
             ),
         ]
         # TODO: assert json["roots"]["references"] == ...
+
+    def test_serialization_data_model_mixins(self) -> None:
+        class Base(DataModel, Local):
+            base = Bool(default=False)
+
+        class Mixin(HasProps, Local):
+            mixed = Int(default=1)
+
+        class Derived(Mixin, Base):
+            own = String(default="own")
+
+            base = Override(default=True)
+            mixed = Override(default=2)
+
+        assert Serializer().encode([Base, Derived]) == [
+            ModelDef(
+                type="model",
+                name=Base.__qualified_model__,
+                properties=[PropertyDef(name="base", kind="Bool", default=False)],
+            ),
+            ModelDef(
+                type="model",
+                name=Derived.__qualified_model__,
+                extends=Ref(id=ID(Base.__qualified_model__)),
+                properties=[
+                    PropertyDef(name="mixed", kind="Int", default=1),
+                    PropertyDef(name="own", kind="Str", default="own"),
+                ],
+                overrides=[
+                    OverrideDef(name="base", default=True),
+                    OverrideDef(name="mixed", default=2),
+                ],
+            ),
+        ]
+
+    def test_data_model_dependency_order(self) -> None:
+        class Forward(DataModel, Local):
+            child = Instance(lambda: Target)
+
+        class Target(DataModel, Local):
+            value = Int(default=1)
+
+        ordered = _data_models_in_dependency_order([Forward, Target])
+
+        assert ordered == [Target, Forward]
+        [_, forward_def] = Serializer().encode(ordered)
+        assert forward_def["properties"] == [
+            PropertyDef(name="child", kind=("Ref", Ref(id=ID(Target.__qualified_model__)))),
+        ]
+
+    def test_cyclic_data_model_kinds_use_safe_forward_reference(self) -> None:
+        class Left(DataModel, Local):
+            right = Instance(lambda: Right)
+
+        class Right(DataModel, Local):
+            left = Instance(Left)
+
+        ordered = _data_models_in_dependency_order([Left, Right])
+        [left_def, right_def] = Serializer().encode(ordered)
+
+        assert ordered == [Left, Right]
+        assert left_def["properties"] == [PropertyDef(name="right", kind=("AnyRef",))]
+        assert right_def["properties"] == [
+            PropertyDef(name="left", kind=("Ref", Ref(id=ID(Left.__qualified_model__)))),
+        ]
+
+    def test_serialization_data_model_callable_override(self) -> None:
+        calls = 0
+
+        def default() -> int:
+            nonlocal calls
+            calls += 1
+            return 2
+
+        class Base(DataModel, Local):
+            value = Int(default=1)
+
+        class Derived(Base):
+            value = Override(default=default)
+
+        [_, derived_def] = Serializer().encode([Base, Derived])
+
+        assert derived_def["overrides"] == [OverrideDef(name="value", default=2)]
+        assert calls == 1
+
+    def test_serialization_non_model_has_props_kind_is_any_ref(self) -> None:
+        class Plain(HasProps, Local):
+            pass
+
+        class Container(DataModel, Local):
+            value = Instance(Plain)
+
+        [container_def] = Serializer().encode([Container])
+
+        assert container_def["properties"] == [PropertyDef(name="value", kind=("AnyRef",))]
+
+    def test_serialization_data_model_property_kinds(self) -> None:
+        class Target(DataModel, Local):
+            pass
+
+        class Kinds(DataModel, Local):
+            any = AnyProperty()
+            any_ref = AnyRef()
+            boolean = Bool()
+            bytes = Required(Bytes)
+            null = Required(Null)
+            integer = Int()
+            float = Float()
+            string = String()
+            regex = Regex("foo.*")
+            nullable = Nullable(Int)
+            either = Either(Int, String)
+            tuple = Tuple(Int, String)
+            list = List(Float)
+            struct = Struct(x=Int, label=String, default={"x": 0, "label": ""})
+            dict = Dict(String, Int)
+            mapping = Dict(Int, String)
+            enum = Enum("a", "b")
+            ref = Instance(Target)
+            required = Required(Int)
+            unsupported = Set(Int)
+            not_serialized = NotSerialized(Int)
+
+        [_, kinds_def] = Serializer().encode([Target, Kinds])
+        kinds = {prop["name"]: prop["kind"] for prop in kinds_def["properties"]}
+
+        assert kinds == {
+            "any": "Any",
+            "any_ref": ("AnyRef",),
+            "boolean": "Bool",
+            "bytes": "Bytes",
+            "null": "Null",
+            "integer": "Int",
+            "float": "Float",
+            "string": "Str",
+            "regex": ("Regex", "foo.*"),
+            "nullable": ("Nullable", "Int"),
+            "either": ("Or", "Int", "Str"),
+            "tuple": ("Tuple", "Int", "Str"),
+            "list": ("List", "Float"),
+            "struct": ("Struct", ("x", "Int"), ("label", "Str")),
+            "dict": ("Dict", "Int"),
+            "mapping": ("Mapping", "Int", "Str"),
+            "enum": ("Enum", "a", "b"),
+            "ref": ("Ref", Ref(id=ID(Target.__qualified_model__))),
+            "required": "Int",
+            "unsupported": "Any",
+        }
 
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
@@ -890,13 +1157,13 @@ class TestDocument:
         assert len(d.roots) == 2
 
         event1 = ModelChangedEvent(d, root1, 'foo', 57)
-        patch1 = patch_doc.create([event1]).content
+        patch1 = patch_doc([event1]).content
         d.apply_json_patch(patch1)
 
         assert root1.foo == 57
 
         event2 = ModelChangedEvent(d, child1, 'foo', 67)
-        patch2 = patch_doc.create([event2]).content
+        patch2 = patch_doc([event2]).content
         d.apply_json_patch(patch2)
 
         assert child1.foo == 67
@@ -911,7 +1178,7 @@ class TestDocument:
 
         def patch_test(new_value: Any):
             event1 = ModelChangedEvent(d, root1, 'foo', new_value)
-            patch1 = patch_doc.create([event1]).content
+            patch1 = patch_doc([event1]).content
             d.apply_json_patch(patch1)
             if isinstance(new_value, dict):
                 return root1.lookup('foo').get_value(root1)
@@ -975,7 +1242,7 @@ class TestDocument:
         assert d.models._new_models == set()
 
         event1 = ModelChangedEvent(d, root1, 'child', child3)
-        patch1 = patch_doc.create([event1]).content
+        patch1 = patch_doc([event1]).content
         d.apply_json_patch(patch1)
         assert d.models._new_models == set()
 
@@ -987,7 +1254,7 @@ class TestDocument:
 
         # put it back how it was before
         event2 = ModelChangedEvent(d, root1, 'child', child1)
-        patch2 = patch_doc.create([event2]).content
+        patch2 = patch_doc([event2]).content
         d.apply_json_patch(patch2)
         assert d.models._new_models == set()
 
@@ -1015,7 +1282,7 @@ class TestDocument:
 
         event1 = ModelChangedEvent(d, root1, 'foo', 57)
         event2 = ModelChangedEvent(d, root1, 'child', child2)
-        patch1 = patch_doc.create([event1, event2]).content
+        patch1 = patch_doc([event1, event2]).content
         d.apply_json_patch(patch1)
 
         assert root1.foo == 57

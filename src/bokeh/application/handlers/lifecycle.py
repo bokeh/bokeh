@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
@@ -115,7 +116,8 @@ class LifecycleHandler(Handler):
             session_context (SessionContext) :
 
         '''
-        self._on_session_created(session_context)
+        if self._on_session_created is not _do_nothing:
+            await asyncio.to_thread(self._on_session_created, session_context)
 
     async def on_session_destroyed(self, session_context: SessionContext) -> None:
         ''' Execute ``on_session_destroyed`` from the configured module (if

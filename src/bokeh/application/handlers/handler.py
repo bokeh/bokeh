@@ -49,9 +49,8 @@ import traceback
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from tornado.httputil import HTTPServerRequest
-
     from ...document import Document
+    from ...server.request import RequestLike
     from ..application import ServerContext, SessionContext
     from .code_runner import CodeRunner
 
@@ -193,7 +192,7 @@ class Handler:
         '''
         pass
 
-    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
+    def process_request(self, request: RequestLike) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 

@@ -112,7 +112,7 @@ class Object[T: object](Property[T]):
         msg = "" if not detail else f"expected an instance of type {instance_type}, got {value} of type {value_type}"
         raise ValueError(msg)
 
-    def _may_have_unstable_default(self) -> bool:
+    def _needs_materialized_default(self) -> bool:
         # because the instance value is mutable
         return self._default is not Undefined
 
@@ -164,8 +164,13 @@ def _sphinx_type_link(obj: Instance[Any]) -> str:
     if isinstance(obj._instance_type, types.FunctionType):
         return f"{property_link(obj)}"
     if isinstance(obj._instance_type, str):
-        return f"{property_link(obj)}({obj._instance_type!r})"
+        instance_type = obj._instance_type
+        try:
+            model = obj.instance_type
+        except (AttributeError, ImportError):
+            return f"{property_link(obj)}({instance_type!r})"
+    else:
+        model = obj.instance_type
 
-    model = obj.instance_type
     model_name = f"{model.__module__}.{model.__name__}"
     return f"{property_link(obj)}({model_link(model_name)})"

@@ -155,6 +155,148 @@ img.gallery {
   height:200px
 }
 
+/* Provide a compact jump table before the detailed model properties. */
+table.bokeh-property-index {
+  font-size: .9rem;
+  margin: 0 0 2rem 2rem;
+  table-layout: fixed;
+  width: calc(100% - 2rem);
+}
+
+table.bokeh-property-index caption {
+  caption-side: top;
+  color: var(--pst-color-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 0 0 .5rem;
+  text-align: left;
+}
+
+table.bokeh-property-index td {
+  padding: .45rem .75rem;
+}
+
+table.bokeh-property-index tbody tr:nth-child(odd),
+table.bokeh-property-index tbody tr:nth-child(even) {
+  background-color: var(--pst-color-background);
+}
+
+table.bokeh-property-index td > p {
+  margin: 0;
+}
+
+table.bokeh-property-index code {
+  background: transparent;
+  border: 0;
+  font-size: inherit;
+  padding: 0;
+}
+
+ul.bokeh-model-classes code {
+  background: transparent;
+  border: 0;
+  font-size: inherit;
+  padding: 0;
+}
+
+.bd-article dl.py.class:has(+ .pst-scrollable-table-container > table.bokeh-property-index) {
+  margin-bottom: 1rem;
+}
+
+/* Present model members as content nested beneath the class definition. */
+section#properties,
+section#methods {
+  margin-left: 2rem;
+}
+
+/* Use one lightweight member treatment across the Python reference docs. */
+.bd-article dl.py:is(.attribute, .function, .method, .property) {
+  margin: 1.25rem 0 2rem;
+}
+
+.bd-article dl.py:is(.attribute, .function, .method, .property) > dt.sig {
+  background: var(--pst-color-surface);
+  border-bottom: 1px solid var(--pst-color-border);
+  margin: 0;
+  padding: .65rem .75rem;
+  position: relative;
+}
+
+.bd-article dl.py:is(.attribute, .function, .method, .property) > dt.sig:first-child {
+  border-top: 1px solid var(--pst-color-border);
+}
+
+.bd-article dl.py:is(.attribute, .function, .method, .property) > dd {
+  margin-left: .75rem;
+  padding: .75rem 0 0;
+}
+
+.bd-article dl.py:is(.attribute, .function, .method, .property) > dt.sig:has(> a > .viewcode-link) {
+  padding-right: 5rem;
+}
+
+.bd-article dl.py:is(.attribute, .function, .method, .property) > dt.sig > a:has(.viewcode-link) {
+  float: none;
+  font-size: .8rem;
+  position: absolute;
+  right: .75rem;
+  top: .65rem;
+}
+
+/* Keep anchored section headings visible without highlighting their full width. */
+.bd-main .bd-content .bd-article-container .bd-article section:target > :is(h1, h2, h3, h4, h5, h6) {
+  background-color: transparent;
+  border-left: .25rem solid var(--pst-color-target);
+  margin-left: -.75rem;
+  padding-left: .5rem;
+}
+
+section#properties > dl.py.attribute > dd > dl.field-list {
+  align-items: center;
+  border-bottom: 1px solid var(--pst-color-border-muted);
+  display: grid;
+  gap: .5rem;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  margin: 0 0 1rem;
+  padding: 0 0 .75rem;
+}
+
+section#properties > dl.py.attribute > dd > dl.field-list > dt,
+section#properties > dl.py.attribute > dd > dl.field-list > dd {
+  background: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+section#properties > dl.py.attribute > dd > dl.field-list > dt {
+  color: var(--pst-color-text-muted);
+  font-size: .875rem;
+  font-weight: 700;
+}
+
+section#properties > dl.py.attribute > dd > dl.field-list > dd > :is(p, .line-block) {
+  background: var(--pst-color-surface);
+  border: 1px solid var(--pst-color-border);
+  border-radius: .3rem;
+  display: inline-block;
+  font-family: var(--pst-font-family-monospace);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 100%;
+  padding: .1rem .4rem;
+}
+
+section#properties > dl.py.attribute > dd > dl.field-list > dd > .line-block {
+  white-space: nowrap;
+}
+
+section#properties > dl.py.attribute > dd > dl.field-list > dd > :is(p, .line-block) code {
+  background: transparent;
+  border: 0;
+  font-size: inherit;
+  padding: 0;
+}
+
 /* Pandas dataframe css */
 /* Source: https://github.com/spatialaudio/nbsphinx/blob/fb3ba670fc1ba5f54d4c487573dbc1b4ecf7e9ff/src/nbsphinx.py#L587-L619 */
 

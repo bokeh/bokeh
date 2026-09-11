@@ -17,30 +17,43 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import gc
 from types import MethodType
 from unittest.mock import MagicMock, patch
+from weakref import ref
 
 # Bokeh imports
+from bokeh.core.enums import AngleUnits as AngleUnitsEnum
 from bokeh.core.properties import (
     Alias,
     AngleSpec,
+    AngleUnits,
+    Any,
+    CoordinateSpec,
+    DistanceSpec,
     Either,
+    Enum,
     Instance,
     Int,
     List,
     Nullable,
+    NullDistanceSpec,
     NumberSpec,
     Override,
     Required,
+    SpatialUnits,
     String,
 )
 from bokeh.core.property.descriptors import (
+    AliasPropertyDescriptor,
     DataSpecPropertyDescriptor,
     PropertyDescriptor,
     UnsetValueError,
 )
-from bokeh.core.property.singletons import Intrinsic, Undefined
+from bokeh.core.property.singletons import Undefined
 from bokeh.core.property.vectorization import field, value
+from bokeh.core.serialization import Serializer
+from bokeh.model import Model
 from bokeh.settings import settings
 from bokeh.util.warnings import BokehUserWarning
 
@@ -178,29 +191,158 @@ def test_HasProps_override() -> None:
     assert ov.ds1 == field("x")
     assert ov.lst1 == []
 
-def test_HasProps_intrinsic() -> None:
-    obj0 = Parent(int1=Intrinsic, ds1=Intrinsic, lst1=Intrinsic)
+def test_HasProps_warns_on_redeclared_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        value = Int()
 
-    assert obj0.int1 == 10
-    assert obj0.ds1 == field("x")
-    assert obj0.lst1 == []
+    with pytest.warns(RuntimeWarning, match="previously declared on a parent class"):
+        class Child(Base):
+            value = Int()
 
-    obj1 = Parent(int1=30, ds1=field("y"), lst1=["x", "y", "z"])
+def test_HasProps_warns_on_unused_override() -> None:
+    class Base(hp.HasProps, hp.Local):
+        pass
 
-    assert obj1.int1 == 30
-    assert obj1.ds1 == field("y")
-    assert obj1.lst1 == ["x", "y", "z"]
+    with pytest.warns(RuntimeWarning, match=r"Overrides of \['alpha', 'value'\].*do not override anything"):
+        class Child(Base):
+            value = Override(default=1)
+            alpha = Override(default=2)
 
-    obj1.int1 = Intrinsic
-    obj1.ds1 = Intrinsic
-    obj1.lst1 = Intrinsic
+def test_HasProps_local_and_effective_property_metadata() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int()
 
-    assert obj1.int1 == 10
-    assert obj1.ds1 == field("x")
-    assert obj1.lst1 == []
+    class Child(Base):
+        x = Override(default=2)
+        y = String()
+
+    class Grandchild(Child):
+        z = Int()
+
+    assert list(Base.__properties__) == ["x"]
+    assert list(Child.__properties__) == ["y"]
+    assert list(Grandchild.__properties__) == ["z"]
+
+    assert list(Grandchild.properties()) == ["x", "y", "z"]
+    assert Child.__overridden_defaults__ == {"x": 2}
+    assert Grandchild.__overridden_defaults__ == {}
+    assert Grandchild._overridden_defaults() == {"x": 2}
+
+    with pytest.raises(TypeError):
+        Base.__properties__["y"] = String()
+    with pytest.raises(TypeError):
+        Child.__overridden_defaults__["x"] = 3
+
+    assert isinstance(Grandchild.descriptors(), tuple)
+    with pytest.raises(TypeError):
+        Grandchild.properties_with_refs()["x"] = Int()
+    with pytest.raises(TypeError):
+        Grandchild.dataspecs()["x"] = NumberSpec()
+
+def test_HasProps_uses_standard_metaclass() -> None:
+    class CustomMeta(type):
+        pass
+
+    class Custom(hp.HasProps, hp.Local, metaclass=CustomMeta):
+        value = Int(default=10)
+
+    assert type(hp.HasProps) is type
+    assert type(Custom) is CustomMeta
+    assert Custom().value == 10
+    assert Serializer().encode(Custom) == {"id": Custom.__qualified_model__}
+
+def test_HasProps_subclass_hooks_are_cooperative() -> None:
+    class KeywordMixin:
+        marker: str
+
+        def __init_subclass__(cls, *, marker: str, **kwargs: object) -> None:
+            cls.marker = marker
+            super().__init_subclass__(**kwargs)
+
+    class HasPropsFirst(hp.HasProps, KeywordMixin, hp.Local, marker="has-props-first"):
+        pass
+
+    class MixinFirst(KeywordMixin, hp.HasProps, hp.Local, marker="mixin-first"):
+        pass
+
+    class ModelFirst(Model, KeywordMixin, hp.Local, marker="model-first"):
+        pass
+
+    assert HasPropsFirst.marker == "has-props-first"
+    assert MixinFirst.marker == "mixin-first"
+    assert ModelFirst.marker == "model-first"
+
+def test_HasProps_property_is_bound_before_subclass_hook() -> None:
+    observed: dict[str, bool] = {}
+
+    class Base(hp.HasProps, hp.Local):
+        @classmethod
+        def __init_subclass__(cls) -> None:
+            observed["descriptor"] = isinstance(cls.__dict__["value"], PropertyDescriptor)
+            super().__init_subclass__()
+
+    class Child(Base):
+        value = Int()
+
+    assert observed == {"descriptor": True}
+
+def test_HasProps_inherited_default_factory_override() -> None:
+    calls = 0
+
+    def default() -> int:
+        nonlocal calls
+        calls += 1
+        return calls
+
+    class Base(hp.HasProps, hp.Local):
+        value = Int(default=0)
+
+    class Child(Base):
+        value = Override(default=default)
+
+    class Grandchild(Child):
+        pass
+
+    obj = Grandchild()
+
+    assert obj.value == 1
+    assert obj.value == 1
+    assert calls == 1
+
+def test_HasProps_property_metadata_does_not_retain_class() -> None:
+    class Dynamic(hp.HasProps, hp.Local):
+        value = Int(default=0)
+
+    Dynamic.properties()
+    Dynamic.descriptors()
+    Dynamic.properties_with_refs()
+    Dynamic.dataspecs()
+
+    dynamic_ref = ref(Dynamic)
+    del Dynamic
+    gc.collect()
+
+    assert dynamic_ref() is None
+
+def test_HasProps_property_reset() -> None:
+    obj = Parent(int1=30, ds1=field("y"), lst1=["x", "y", "z"])
+
+    del obj.int1
+    del obj.ds1
+    del obj.lst1
+
+    assert obj.int1 == 10
+    assert obj.ds1 == field("x")
+    assert obj.lst1 == []
+    assert obj._property_values == {}
+
+def test_HasProps_rejects_Undefined_values() -> None:
+    with pytest.raises(ValueError, match=r"can't set Parent.*\.int1 to Undefined"):
+        Parent(int1=Undefined)
 
 def test_HasProps_alias() -> None:
     obj0 = AliasedChild()
+    assert isinstance(obj0.lookup("aliased_int1"), AliasPropertyDescriptor)
     assert obj0.int1 == 10
     assert obj0.int2 is None
     assert obj0.aliased_int1 == 10
@@ -215,6 +357,8 @@ def test_HasProps_alias() -> None:
     assert obj0.int2 == 1
     assert obj0.aliased_int1 == 20
     assert obj0.aliased_int2 == 1
+    obj0.set_from_json("aliased_int1", 30)
+    assert obj0.int1 == 30
     obj0.aliased_int1 = 30
     assert obj0.int1 == 30
     assert obj0.int2 == 1
@@ -225,6 +369,12 @@ def test_HasProps_alias() -> None:
     assert obj0.int2 == 2
     assert obj0.aliased_int1 == 30
     assert obj0.aliased_int2 == 2
+    del obj0.aliased_int1
+    del obj0.aliased_int2
+    assert obj0.int1 == 10
+    assert obj0.int2 is None
+    assert obj0.aliased_int1 == 10
+    assert obj0.aliased_int2 is None
 
     obj1 = AliasedChild(int1=20)
     assert obj1.int1 == 20
@@ -396,6 +546,27 @@ def test_HasProps_apply_theme() -> None:
     assert c.ds2 == "foo"
     assert c.lst2 == [1,2,3]
 
+def test_HasProps_apply_theme_to_required_property() -> None:
+    class Props(hp.HasProps, hp.Local):
+        value = Required(Int)
+
+    props = Props()
+    theme = {"value": 10}
+
+    props.apply_theme(theme)
+    assert props.value == 10
+
+    with pytest.raises(UnsetValueError, match="would unset"):
+        props.unapply_theme()
+
+    assert props.themed_values() is theme
+    assert props.value == 10
+
+    props.value = 20
+    props.unapply_theme()
+    assert props.themed_values() is None
+    assert props.value == 20
+
 def test_HasProps_unapply_theme() -> None:
     c = Child()
     theme = dict(int2=10, lst1=["foo", "bar"])
@@ -540,15 +711,97 @@ def test_HasProps_apply_theme_func_default() -> None:
     c.foo = 50
     assert c.foo == 50
 
-def test_has_props_dupe_prop() -> None:
-    try:
-        class DupeProps(hp.HasProps):
+def test_AngleSpec_requires_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Props(hp.HasProps, hp.Local):
             bar = AngleSpec()
-            bar_units = String()
-    except RuntimeError as e:
-        assert str(e) == "Two property generators both created DupeProps.bar_units"
-    else:
-        assert False
+
+
+def test_CoordinateSpec_requires_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses CoordinateSpec.*`bar_units = CoordinateUnits`"):
+        class Props(hp.HasProps, hp.Local):
+            bar = CoordinateSpec()
+
+
+@pytest.mark.parametrize("spec_type", [DistanceSpec, NullDistanceSpec])
+def test_DistanceSpec_requires_units_property(spec_type) -> None:
+    with pytest.raises(TypeError, match=rf"Props\.bar uses {spec_type.__name__}.*`bar_units = SpatialUnits`"):
+        class Props(hp.HasProps, hp.Local):
+            bar = spec_type()
+
+
+def test_AngleSpec_rejects_wrong_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Props(hp.HasProps, hp.Local):
+            bar = AngleSpec()
+            bar_units = SpatialUnits
+
+
+def test_AngleSpec_rejects_serialized_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Props(hp.HasProps, hp.Local):
+            bar = AngleSpec()
+            bar_units = Enum(AngleUnitsEnum)
+
+
+def test_AngleSpec_rejects_wrong_inherited_units_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = AngleUnits
+
+    with pytest.raises(TypeError, match=r"Child\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Child(Base):
+            bar_units = SpatialUnits
+
+
+def test_AngleSpec_rejects_wrong_units_property_from_multiple_inheritance() -> None:
+    class Base(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = AngleUnits
+
+    class UnitsMixin(hp.HasProps, hp.Local):
+        bar_units = SpatialUnits
+
+    with pytest.raises(TypeError, match=r"Child\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
+        class Child(UnitsMixin, Base):
+            pass
+
+
+def test_AngleSpec_accepts_inherited_units_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        bar_units = AngleUnits
+
+    class Child(Base):
+        bar = AngleSpec()
+
+    assert Child().bar_units == "rad"
+
+
+def test_HasProps_rejects_shadowed_inherited_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        value = Int()
+
+    with pytest.raises(TypeError, match=r"Child\.value shadows a Bokeh property with int"):
+        class Child(Base):
+            value = 10
+
+
+def test_AngleSpec_rejects_shadowed_units_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = AngleUnits
+
+    with pytest.raises(TypeError, match=r"Child\.bar_units shadows a Bokeh property with str"):
+        class Child(Base):
+            bar_units = "deg"
+
+
+def test_AngleSpec_with_units_contributes_two_properties() -> None:
+    class Props(hp.HasProps, hp.Local):
+        bar = AngleSpec()
+        bar_units = AngleUnits
+
+    assert list(Props.properties()) == ["bar", "bar_units"]
 
 class TopLevelQualified(hp.HasProps, hp.Qualified):
     foo = Int()
@@ -607,7 +860,7 @@ def test_HasProps_properties_with_values_maintains_order() -> None:
     assert list(v2.properties_with_values(include_defaults=False).items()) == [("f4", 40), ("f1", 10)]
     assert list(v2.properties_with_values(include_defaults=True) .items()) == [("f4", 40), ("f3", 3), ("f2", 2), ("f1", 10)]
 
-def test_HasProps_properties_with_values_unstable() -> None:
+def test_HasProps_properties_with_values_materialized_defaults() -> None:
     v0 = Some0HasProps()
     assert v0.properties_with_values(include_defaults=False) == {}
 
@@ -616,6 +869,58 @@ def test_HasProps_properties_with_values_unstable() -> None:
 
     v2 = Some2HasProps()
     assert v2.properties_with_values(include_defaults=False) == {"f0": v2.f0, "f1": v2.f1}
+
+def test_HasProps_properties_with_values_callable_container_default() -> None:
+    calls = 0
+
+    def default() -> list[int]:
+        nonlocal calls
+        calls += 1
+        return [calls]
+
+    class Props(hp.HasProps, hp.Local):
+        values = List(Int, default=default)
+
+    props = Props()
+
+    assert calls == 0
+    assert props.properties_with_values(include_defaults=False) == {"values": [1]}
+    assert props.properties_with_values(include_defaults=False) == {"values": [1]}
+    assert Serializer().encode(props)["attributes"] == {"values": [1]}
+    assert calls == 1
+
+def test_HasProps_properties_with_values_cyclic_default() -> None:
+    cycle: list[object] = []
+    cycle.append(cycle)
+
+    class Props(hp.HasProps, hp.Local):
+        value = Any(default=cycle)
+
+    assert Props().properties_with_values(include_defaults=False) == {}
+
+def test_HasProps_properties_with_values_cyclic_default_with_ref() -> None:
+    cycle: list[object] = []
+    cycle.extend([cycle, Some0HasProps()])
+
+    class Props(hp.HasProps, hp.Local):
+        value = Any(default=cycle)
+
+    props = Props()
+    assert props.properties_with_values(include_defaults=False) == {"value": cycle}
+
+def test_HasProps_properties_with_values_non_materialized_outer_default() -> None:
+    class Props(hp.HasProps, hp.Local):
+        optional = Nullable(List(Int), default=None)
+        either = Either(String, List(Int), default="a")
+
+    props = Props()
+
+    assert props.properties_with_values(include_defaults=False) == {}
+    assert props._materialized_defaults == {}
+
+    assert props.optional is None
+    assert props.either == "a"
+    assert props.properties_with_values(include_defaults=False) == {}
 
 def test_HasProps_properties_with_values_unset() -> None:
     v0 = Some4HasProps()

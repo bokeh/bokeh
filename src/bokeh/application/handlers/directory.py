@@ -55,7 +55,7 @@ from os.path import (
     exists,
     join,
 )
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Sequence
 
 # External imports
 from jinja2 import Environment, FileSystemLoader, Template
@@ -71,10 +71,9 @@ from .server_request_handler import ServerRequestHandler
 if TYPE_CHECKING:
     from types import ModuleType
 
-    from tornado.httputil import HTTPServerRequest
-
     from ...core.types import PathLike
     from ...document import Document
+    from ...server.request import RequestLike
     from ...themes import Theme
     from ..application import ServerContext, SessionContext
 
@@ -108,12 +107,12 @@ class DirectoryHandler(Handler):
     _static: str | None
     _template: Template | None
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = []) -> None:
+    def __init__(self, *, filename: PathLike, argv: Sequence[str] = ()) -> None:
         '''
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
 
-            argv (list[str], optional) : a list of string arguments to make available as sys.argv to main.py
+            argv (Sequence[str], optional) : a sequence of string arguments to make available as sys.argv to main.py
         '''
         super().__init__()
 
@@ -290,7 +289,7 @@ class DirectoryHandler(Handler):
         '''
         await self._lifecycle_handler.on_session_destroyed(session_context)
 
-    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
+    def process_request(self, request: RequestLike) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 

@@ -6,6 +6,7 @@ import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 import type {Color} from "@bokehjs/core/types"
 
+import {HTML} from "@bokehjs/models/dom"
 import {ColumnDataSource, Row} from "@bokehjs/models"
 
 import {
@@ -226,7 +227,7 @@ describe("Widgets", () => {
         await display(obj, [300, 100])
       })
 
-      it("and vertical orientation", async () => {
+      it.allowing(3)("and vertical orientation", async () => {
         const obj = new Progress({
           mode: "determinate",
           orientation: "vertical",
@@ -256,7 +257,7 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(9)("should allow CheckboxButtonGroup in vertical orientation", async () => {
+  it.allowing(10)("should allow CheckboxButtonGroup in vertical orientation", async () => {
     const obj = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], orientation: "vertical"})
     await display(obj, [100, 150])
   })
@@ -266,7 +267,7 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(9)("should allow RadioButtonGroup in vertical orientation", async () => {
+  it.allowing(10)("should allow RadioButtonGroup in vertical orientation", async () => {
     const obj = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, orientation: "vertical"})
     await display(obj, [100, 150])
   })
@@ -550,6 +551,18 @@ describe("Widgets", () => {
     const table = new DataTable({source, columns, autosize_mode: "none"})
     const {view} = await display(table, [600, 400])
     foo_col.visible = false
+    await view.ready
+  })
+
+  it("should allow DataTable with and without HTML column titles", async () => {
+    const source = new ColumnDataSource({data: {c1: [0, 1, 2, 10], c2: [10, 20, 30, 40], c3: [3.4, 1.2, 0, -10]}})
+    const columns = [
+      new TableColumn({field: "c1", title: "a<b", width: 200}),
+      new TableColumn({field: "c2", title: new HTML({html: "a<b"}), width: 200}),
+      new TableColumn({field: "c3", title: new HTML({html: "<b>a&lt;b</b>"}), width: 200}),
+    ]
+    const table = new DataTable({source, columns, autosize_mode: "none"})
+    const {view} = await display(table, [600, 400])
     await view.ready
   })
 

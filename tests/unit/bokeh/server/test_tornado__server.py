@@ -17,21 +17,23 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import json
 import logging
+import threading
 from unittest.mock import Mock, patch
 
 # External imports
 from _util_server import http_get, url
-from tornado.web import StaticFileHandler
-from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
 from bokeh.application import Application
+from bokeh.application.handlers.function import FunctionHandler
 from bokeh.client import pull_session
 from bokeh.core.types import ID
+from bokeh.embed.bundle import Bundle, Script
 from bokeh.server.auth_provider import NullAuth
-from bokeh.server.views.static_handler import StaticHandler
+from bokeh.server.views.static_handler import AsyncStaticFileHandler, StaticHandler
 from bokeh.server.views.ws import WSHandler
 from tests.support.plugins.managed_server_loop import MSL
 from tests.support.util.env import envset
@@ -229,6 +231,31 @@ def test_websocket_max_message_size_bytes() -> None:
     t = bst.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
     assert t.settings['websocket_max_message_size'] == 12345
 
+@pytest.mark.parametrize(("milliseconds", "seconds"), [(0, 0), (100, 0.1)])
+def test_keep_alive_uses_tornado_websocket_ping_without_timeout(milliseconds: int, seconds: float) -> None:
+    t = bst.BokehTornado({"/": Application()}, keep_alive_milliseconds=milliseconds)
+    assert t.settings["websocket_ping_interval"] == seconds
+    assert t.settings["websocket_ping_timeout"] == 0
+
+def test_keep_alive_preserves_explicit_tornado_websocket_ping_timeout() -> None:
+    t = bst.BokehTornado(
+        {"/": Application()},
+        keep_alive_milliseconds=100,
+        websocket_ping_timeout=7.5,
+    )
+    assert t.settings["websocket_ping_interval"] == 0.1
+    assert t.settings["websocket_ping_timeout"] == 7.5
+
+def test_keep_alive_preserves_explicit_tornado_websocket_ping_settings() -> None:
+    t = bst.BokehTornado(
+        {"/": Application()},
+        keep_alive_milliseconds=100,
+        websocket_ping_interval=2.5,
+        websocket_ping_timeout=7.5,
+    )
+    assert t.settings["websocket_ping_interval"] == 2.5
+    assert t.settings["websocket_ping_timeout"] == 7.5
+
 def test_websocket_compression_level() -> None:
     app = Application()
     t = bst.BokehTornado({"/": app}, websocket_compression_level=2,
@@ -238,6 +265,44 @@ def test_websocket_compression_level() -> None:
     ws_rule = ws_rules[0]
     assert ws_rule.target_kwargs.get('compression_level') == 2
     assert ws_rule.target_kwargs.get('mem_level') == 3
+
+async def test_autoload_bundle_runs_off_loop_and_is_coalesced(monkeypatch: pytest.MonkeyPatch) -> None:
+    started = threading.Event()
+    release = threading.Event()
+    thread_ids: list[int] = []
+
+    def bundle(objs, resources):
+        thread_ids.append(threading.get_ident())
+        started.set()
+        assert release.wait(timeout=2)
+        return Bundle(js_raw=["base"])
+
+    monkeypatch.setattr("bokeh.embed.bundle.bundle_for_objs_and_resources", bundle)
+    app = bst.BokehTornado({})
+
+    first = asyncio.create_task(app._bundle_for_autoload(None))
+    try:
+        async with asyncio.timeout(1):
+            while not started.is_set():
+                await asyncio.sleep(0)
+
+        second = asyncio.create_task(app._bundle_for_autoload(None))
+        await asyncio.sleep(0)
+    finally:
+        release.set()
+
+    first_bundle, second_bundle = await asyncio.gather(first, second)
+    await asyncio.sleep(0)
+
+    assert len(thread_ids) == 1
+    assert thread_ids[0] != threading.get_ident()
+    assert first_bundle is not second_bundle
+
+    first_bundle.add(Script("request-specific"))
+    cached_bundle = await app._bundle_for_autoload(None)
+    assert cached_bundle.js_raw == ["base"]
+
+    app._executor.shutdown()
 
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()
@@ -266,6 +331,108 @@ def test_default_app_paths() -> None:
 
     t = bst.BokehTornado({"/": app, "/foo": app}, prefix="", extra_websocket_origins=[])
     assert t.app_paths == { "/", "/foo"}
+
+def test_stop_cancels_pending_sessions_before_unload() -> None:
+    t = bst.BokehTornado({"/": Application()})
+    context = t._applications["/"]
+    calls = []
+    context._cancel_pending_sessions = Mock(side_effect=lambda: calls.append("cancel") or ())
+    context.run_unload_hook = Mock(side_effect=lambda: calls.append("unload"))
+    t._stats_job = Mock()
+    t._mem_job = None
+    t._cleanup_job = Mock()
+    t._clients = set()
+
+    t.stop()
+
+    assert calls == ["cancel", "unload"]
+
+
+async def test_stop_defers_unload_until_pending_worker_finishes() -> None:
+    started = threading.Event()
+    release = threading.Event()
+    finished = threading.Event()
+    unloaded = threading.Event()
+
+    def modify_document(doc) -> None:
+        started.set()
+        assert release.wait(timeout=2)
+        finished.set()
+
+    handler = FunctionHandler(modify_document)
+    handler.on_server_unloaded = lambda context: unloaded.set()
+    t = bst.BokehTornado({"/": Application(handler)})
+    t._stats_job = Mock()
+    t._mem_job = None
+    t._cleanup_job = Mock()
+    t._clients = set()
+    context = t._applications["/"]
+    pending = asyncio.create_task(context.create_session_if_needed("session"))
+    await asyncio.wait_for(asyncio.to_thread(started.wait), 1)
+
+    stopping = asyncio.create_task(t.stop_async())
+    await asyncio.sleep(0)
+    assert not stopping.done()
+    assert not unloaded.is_set()
+    with pytest.raises(RuntimeError, match="stopping"):
+        await t.create_session_if_needed(context, "late-session")
+    assert "late-session" not in context._pending_sessions
+
+    release.set()
+    await stopping
+    with pytest.raises(asyncio.CancelledError):
+        await pending
+    assert finished.is_set()
+    assert unloaded.is_set()
+
+
+async def test_stop_waits_for_running_cleanup_before_unload() -> None:
+    t = bst.BokehTornado({"/": Application()})
+    t._stats_job = Mock()
+    t._mem_job = None
+    t._cleanup_job = Mock()
+    t._clients = set()
+    context = t._applications["/"]
+    started = asyncio.Event()
+    release = asyncio.Event()
+    unloaded = asyncio.Event()
+
+    async def cleanup(unused_session_linger_milliseconds: int) -> None:
+        started.set()
+        await release.wait()
+
+    context._cleanup_sessions = cleanup
+    context.run_unload_hook = lambda: unloaded.set()
+    cleaning = asyncio.create_task(t._cleanup_sessions())
+    await asyncio.wait_for(started.wait(), 1)
+
+    stopping = asyncio.create_task(t.stop_async())
+    await asyncio.sleep(0)
+    assert not stopping.done()
+    assert not unloaded.is_set()
+
+    release.set()
+    await asyncio.gather(cleaning, stopping)
+    assert unloaded.is_set()
+
+
+async def test_concurrent_stop_async_runs_unload_once() -> None:
+    t = bst.BokehTornado({"/": Application()})
+    t._stats_job = Mock()
+    t._mem_job = None
+    t._cleanup_job = Mock()
+    t._clients = set()
+    context = t._applications["/"]
+    unload_count = 0
+
+    def unload() -> None:
+        nonlocal unload_count
+        unload_count += 1
+
+    context.run_unload_hook = unload
+    await asyncio.gather(t.stop_async(), t.stop_async())
+
+    assert unload_count == 1
 
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
@@ -304,16 +471,6 @@ async def test_metadata(ManagedServerLoop: MSL) -> None:
         meta_json = json.loads(meta_resp.buffer.read().decode())
         assert meta_json == {'data': {'name': 'myname', 'value': 'no value'}, 'url': '/'}
 
-def test_keep_alive_websocket_error(ManagedServerLoop: MSL) -> None:
-    application = Application()
-    mock_client = Mock()
-    mock_client.send_ping.side_effect = WebSocketClosedError()
-    with ManagedServerLoop(application, keep_alive_milliseconds=100) as server:
-        with patch('bokeh.server.tornado.BokehTornado.client_lost') as client_lost:
-            server._tornado._clients = {mock_client}
-            server._tornado._keep_alive()
-            assert client_lost.called
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -327,13 +484,13 @@ class Test_create_static_handler:
         result = bst.create_static_handler("/prefix", "/key", app)
         assert len(result) == 3
         assert result[0] == "/prefix/key/static/(.*)"
-        assert result[1] == StaticFileHandler
+        assert result[1] == AsyncStaticFileHandler
         assert result[2] == {"path" : app.static_path}
 
         result = bst.create_static_handler("/prefix", "/", app)
         assert len(result) == 3
         assert result[0] == "/prefix/static/(.*)"
-        assert result[1] == StaticFileHandler
+        assert result[1] == AsyncStaticFileHandler
         assert result[2] == {"path" : app.static_path}
 
     def test_no_app_static_path(self):

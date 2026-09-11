@@ -94,12 +94,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     _extra_kws = {}
 
     @classmethod
-    def __init_subclass__(cls):
-        super().__init_subclass__()
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
 
         if cls.__module__.startswith("bokeh.models"):
             assert "__init__" in cls.__dict__, str(cls)
-            parameters = [x[0] for x in  cls.parameters()]
+            parameters = [x[0] for x in cls.parameters()]
             cls.__init__.__signature__ = Signature(parameters=parameters)
             process_example(cls)
 
@@ -497,6 +497,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
                 widget.on_change('value', callback1, callback2, ..., callback_n)
 
+        .. note::
+            For changes to ``ColumnDataSource.data`` made by ``stream()`` or
+            ``patch()``, callbacks receive
+            :data:`~bokeh.util.callback_manager.OldValueUnavailable` as
+            ``old``. Incremental updates deliberately don't retain complete
+            copies of the previous columns.
+
         '''
         descriptor = self.lookup(attr)
         super().on_change(descriptor.name, *callbacks)
@@ -523,10 +530,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def select_one(self, selector: SelectorType) -> Model | None:
         ''' Query this object and all of its references for objects that
-        match the given selector.  Raises an error if more than one object
-        is found.  Returns single matching object, or None if nothing is found
+        match the given selector. Raises an error if more than one object
+        is found. Returns single matching object, or None if nothing is found.
+
         Args:
-            selector (JSON-like) :
+            selector (JSON-like):
 
         Returns:
             Model

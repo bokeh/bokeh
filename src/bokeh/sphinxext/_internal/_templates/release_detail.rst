@@ -1,6 +1,6 @@
 .. include:: releases/{{ version }}.rst
 
-For full details and help with with updating, consult the `CHANGELOG`_ and
+For full details and help with updating, consult the `CHANGELOG`_ and
 `Migration Guides`_.
 
 {% if version.split('.')[0]|int >= 1 %}

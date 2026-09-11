@@ -13,7 +13,12 @@ Rectangles
 Bars
 ~~~~
 
-.. TODO: refs to bars
+To create a basic bar chart, use the |hbar| (horizontal bars) or |vbar|
+(vertical bars) glyph methods. Please visit the detailed documentation page
+:ref:`ug_basic_bars`, because this type is so common.
+
+.. bokeh-plot:: __REPO__/examples/basic/bars/vbar.py
+    :source-position: above
 
 Quads
 ~~~~~
@@ -198,6 +203,7 @@ ellipse shapes.
 .. |ellipse|           replace:: :func:`~bokeh.plotting.figure.ellipse`
 .. |harea|             replace:: :func:`~bokeh.plotting.figure.harea`
 .. |harea_stack|       replace:: :func:`~bokeh.plotting.figure.harea_stack`
+.. |hbar|              replace:: :func:`~bokeh.plotting.figure.hbar`
 .. |hstrip|            replace:: :func:`~bokeh.plotting.figure.hstrip`
 .. |line|              replace:: :func:`~bokeh.plotting.figure.line`
 .. |multi_line|        replace:: :func:`~bokeh.plotting.figure.multi_line`
@@ -208,4 +214,5 @@ ellipse shapes.
 .. |rect|              replace:: :func:`~bokeh.plotting.figure.rect`
 .. |varea|             replace:: :func:`~bokeh.plotting.figure.varea`
 .. |varea_stack|       replace:: :func:`~bokeh.plotting.figure.varea_stack`
+.. |vbar|              replace:: :func:`~bokeh.plotting.figure.vbar`
 .. |vstrip|            replace:: :func:`~bokeh.plotting.figure.vstrip`

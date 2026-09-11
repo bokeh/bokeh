@@ -10,17 +10,21 @@ on:
 
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
 
   build:
     runs-on: ubuntu-24.04
+    environment:
+      name: upload-deployment
+      url: https://cdn.bokeh.org/
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
       - name: Check Maintainer
-        env:
-          BOKEH_VERSION: ${{ github.event.inputs.version }}
         uses: tspascoal/get-user-teams-membership@v4
         id: checkUserMember
         with:
@@ -29,6 +33,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Maintainer confirmed
         if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
+        env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
         run: |
           echo
           echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
@@ -45,27 +51,55 @@ jobs:
           exit 1
 
       - uses: actions/checkout@v6
-
-      - uses: conda-incubator/setup-miniconda@v4
         with:
-          miniforge-version: latest
-          mamba-version: "*"
-          activate-environment: bk-release-build
-          environment-file: conda/environment-release-build.yml
+          fetch-depth: 0
+
+      - name: Configure detached Pixi environment
+        run: |
+          printf 'detached-environments = "%s/pixi-environments"\n' "$RUNNER_TEMP" > "$RUNNER_TEMP/pixi-config.toml"
+          echo "PIXI_CONFIG_FILE=$RUNNER_TEMP/pixi-config.toml" >> "$GITHUB_ENV"
+
+      - uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: release-build
+          activate-environment: release-build
+          locked: true
+          cache: false
 
       - name: List installed software
         run: |
           echo "node $(node --version)"
           echo "npm $(npm --version)"
-          conda info
-          conda list
+          pixi info
+          pixi list --environment release-build
 
-      - name: Build Release Tarball
+      - name: Configure AWS credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_RELEASE_BUILD_ROLE_ARN }}
+          role-session-name: bokeh-release-build-${{ github.run_id }}
+          role-duration-seconds: 7200
+          aws-region: us-east-1
+          output-env-credentials: false
+          output-credentials: true
+
+      - name: Build Release Artifacts
         env:
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           BOKEH_VERSION: ${{ github.event.inputs.version }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
-        run: python -m release build $BOKEH_VERSION
+        run: python -m tools.release build-artifacts "$BOKEH_VERSION"
+
+      - name: Upload Deployment Assets
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.aws.outputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.aws.outputs.aws-secret-access-key }}
+          AWS_SESSION_TOKEN: ${{ steps.aws.outputs.aws-session-token }}
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+        run: python -m tools.release upload-deployment "$BOKEH_VERSION"
+
+      - name: Update Release Repository
+        env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+        run: python -m tools.release update-release-repository "$BOKEH_VERSION"

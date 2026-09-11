@@ -21,8 +21,8 @@ export class FullscreenToolView extends ActionToolView {
       this.model.active = active
     }
 
-    document.addEventListener("fullscreenchange", handler)
-    document.addEventListener("webkitfullscreenchange", handler)
+    document.addEventListener("fullscreenchange", handler, {signal: this.abort_signal})
+    document.addEventListener("webkitfullscreenchange", handler, {signal: this.abort_signal})
   }
 
   async fullscreen(): Promise<void> {

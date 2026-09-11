@@ -25,8 +25,15 @@ log = logging.getLogger(__name__)
 import os
 import sys
 import traceback
+from contextlib import contextmanager
 from os.path import basename
-from typing import TYPE_CHECKING, Callable
+from threading import RLock
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Generator,
+    Sequence,
+)
 
 # Bokeh imports
 from ...util.serialization import make_globally_unique_id
@@ -64,7 +71,7 @@ class CodeRunner:
     _permanent_error_detail: str | None
     _path: PathLike
     _source: str
-    _argv: list[str]
+    _argv: Sequence[str]
     _package: ModuleType | None
     ran: bool
 
@@ -72,7 +79,7 @@ class CodeRunner:
     _error: str | None
     _error_detail: str | None
 
-    def __init__(self, source: str, path: PathLike, argv: list[str], package: ModuleType | None = None) -> None:
+    def __init__(self, source: str, path: PathLike, argv: Sequence[str], package: ModuleType | None = None) -> None:
         '''
 
         Args:
@@ -82,8 +89,8 @@ class CodeRunner:
             path (str) :
                 A filename to use in any debugging or error output
 
-            argv (list[str]) :
-                A list of string arguments to make available as ``sys.argv``
+            argv (Sequence[str]) :
+                A sequence of string arguments to make available as ``sys.argv``
                 when the code executes
 
             package (bool) :
@@ -218,35 +225,47 @@ class CodeRunner:
                 are not met after code execution.
 
         '''
-        # Simulate the sys.path behaviour described here:
-        #
-        # https://docs.python.org/2/library/sys.html#sys.path
-        _cwd = os.getcwd()
-        _sys_path = list(sys.path)
-        _sys_argv = list(sys.argv)
-        sys.path.insert(0, os.path.dirname(self._path))
-        sys.argv = [os.path.basename(self._path), *self._argv]
-
         # XXX: self._code shouldn't be None at this point but types don't reflect this
         assert self._code is not None
 
-        try:
-            exec(self._code, module.__dict__)
+        with _hold_process_globals(), _patch_process_state(self._path, self._argv):
+            try:
+                exec(self._code, module.__dict__)
 
-            if post_check:
-                post_check()
-        except Exception as e:
-            handle_exception(self, e)
-        finally:
-            # undo sys.path, CWD fixups
-            os.chdir(_cwd)
-            sys.path = _sys_path
-            sys.argv = _sys_argv
-            self.ran = True
+                if post_check:
+                    post_check()
+            except Exception as e:
+                handle_exception(self, e)
+            finally:
+                self.ran = True
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+_PROCESS_GLOBALS_LOCK = RLock()
+
+@contextmanager
+def _hold_process_globals() -> Generator[None, None, None]:
+    with _PROCESS_GLOBALS_LOCK:
+        yield
+
+@contextmanager
+def _patch_process_state(path: PathLike, argv: Sequence[str]) -> Generator[None, None, None]:
+    # Simulate the sys.path behaviour described here:
+    #
+    # https://docs.python.org/2/library/sys.html#sys.path
+    old_cwd = os.getcwd()
+    old_sys_path = list(sys.path)
+    old_sys_argv = list(sys.argv)
+    sys.path.insert(0, os.path.dirname(path))
+    sys.argv = [os.path.basename(path), *argv]
+    try:
+        yield
+    finally:
+        os.chdir(old_cwd)
+        sys.path = old_sys_path
+        sys.argv = old_sys_argv
 
 #-----------------------------------------------------------------------------
 # Code

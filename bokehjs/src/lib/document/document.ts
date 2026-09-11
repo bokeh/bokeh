@@ -25,7 +25,7 @@ import {assert} from "core/util/assert"
 import {Model} from "model"
 import {DocumentConfig} from "./config"
 import type {ModelDef} from "./defs"
-import {decode_def} from "./defs"
+import {decode_def, decode_defs} from "./defs"
 import type {BokehEvent, BokehEventType, BokehEventMap} from "core/bokeh_events"
 import {ModelEvent} from "core/bokeh_events"
 import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
@@ -305,8 +305,12 @@ export class Document implements Equatable {
     const timeout = this._recompute_timeout
     if (isNaN(timeout) || timeout <= 0) {
       this._recompute_all_models()
-    } else if (isFinite(timeout)) {
-      this._cancel_recompute_all_models()
+    } else if (isFinite(timeout) && this._recompute_timer == null) {
+      // Throttle, don't debounce: an already pending recomputation is left
+      // alone, so that `timeout` bounds how long unreachable models can linger
+      // in `_all_models`. Restarting the timer on every update would defer the
+      // recomputation indefinitely in a document that is updated more often
+      // than `timeout`, e.g. any server application with a periodic callback.
       this._recompute_timer = setTimeout(() => {
         this._recompute_all_models()
       }, timeout)
@@ -567,7 +571,7 @@ export class Document implements Equatable {
     const resolver = new ModelResolver(default_resolver)
     if (doc_json.defs != null) {
       const deserializer = new Deserializer(resolver)
-      deserializer.decode(doc_json.defs, buffers)
+      decode_defs(doc_json.defs, deserializer, buffers)
     }
 
     const doc = new Document({resolver})
@@ -614,8 +618,8 @@ export class Document implements Equatable {
     return doc
   }
 
-  replace_with_json(json: DocJson): void {
-    const replacement = Document.from_json(json)
+  replace_with_json(json: DocJson, buffers: Map<ID, ArrayBuffer> = new Map()): void {
+    const replacement = Document.from_json(json, undefined, buffers)
     replacement.destructively_move(this)
   }
 

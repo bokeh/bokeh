@@ -79,7 +79,6 @@ export namespace Plot {
     lod_threshold: p.Property<number | null>
     lod_timeout: p.Property<number>
 
-    hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
 
     min_border: p.Property<number | null>
@@ -190,7 +189,6 @@ export class Plot extends LayoutDOM {
       lod_threshold:     [ Nullable(Float), 2000 ],
       lod_timeout:       [ Float, 500 ],
 
-      hidpi:             [ Bool, true ],
       output_backend:    [ OutputBackend, "canvas" ],
 
       min_border:        [ Nullable(Float), 5 ],

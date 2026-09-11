@@ -42,11 +42,28 @@ export abstract class VisualProperties {
 
   abstract get doit(): boolean
 
-  update(): void {}
+  update(): void {
+    this._css_cache = null
+  }
+
+  private _css_cache: Map<string, string> | null = null
 
   protected _get_css_value(name: string): string {
-    const style = getComputedStyle(this.obj.el)
-    return style.getPropertyValue(`${this.css_prefix}${name}`)
+    const css_name = `${this.css_prefix}${name}`
+    const cached = this._css_cache?.get(css_name)
+    if (cached != null) {
+      return cached
+    }
+
+    const value = getComputedStyle(this.obj.el).getPropertyValue(css_name)
+    if (this._css_cache == null) {
+      this._css_cache = new Map()
+      // CSS can change independently of visual properties through stylesheets,
+      // classes, or inheritance. Cache only within a synchronous render pass.
+      queueMicrotask(() => this._css_cache = null)
+    }
+    this._css_cache.set(css_name, value)
+    return value
   }
 }
 

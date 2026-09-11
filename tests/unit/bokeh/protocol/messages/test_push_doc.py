@@ -22,13 +22,11 @@ from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.model import Model
 
 # Module under test
-from bokeh.protocol import Protocol # isort:skip
+from bokeh.protocol import push_doc, replace_document # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-proto = Protocol()
 
 #-----------------------------------------------------------------------------
 # General API
@@ -52,13 +50,13 @@ class TestPushDocument:
 
     def test_create(self) -> None:
         sample = self._sample_doc()
-        proto.create("PUSH-DOC", sample)
+        push_doc(sample)
 
     def test_create_then_parse(self) -> None:
         sample = self._sample_doc()
-        msg = proto.create("PUSH-DOC", sample)
+        msg = push_doc(sample)
         copy = document.Document()
-        msg.push_to_document(copy)
+        replace_document(msg, copy)
         assert len(sample.roots) == 2
         assert len(copy.roots) == 2
 

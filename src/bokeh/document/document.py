@@ -40,6 +40,7 @@ from json import loads
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Iterable,
     Literal,
     overload,
@@ -50,7 +51,7 @@ from jinja2 import Template
 
 # Bokeh imports
 from ..core.enums import HoldPolicyType
-from ..core.has_props import is_DataModel
+from ..core.has_props import _data_models_in_dependency_order, is_DataModel
 from ..core.query import find, is_single_string_selector
 from ..core.serialization import (
     Deserializer,
@@ -100,6 +101,7 @@ if TYPE_CHECKING:
     )
     from .events import DocumentChangeCallback
     from .json import DocJson, PatchJson
+    from .locking import LockedCallback, LockedCallbackPolicy
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -306,6 +308,68 @@ class Document:
         from ..server.callbacks import NextTickCallback
         cb = NextTickCallback(callback=_no_op_callback, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
+
+    @overload
+    def locked_callback[**P](self, callback: Callable[P, Any], *, policy: LockedCallbackPolicy = "every") -> LockedCallback[P]: ...
+
+    @overload
+    def locked_callback[**P](self, callback: None = None, *, policy: LockedCallbackPolicy = "every") -> Callable[[Callable[P, Any]], LockedCallback[P]]: ...
+
+    def locked_callback[**P](
+        self, callback: Callable[P, Any] | None = None, *, policy: LockedCallbackPolicy = "every",
+    ) -> LockedCallback[P] | Callable[[Callable[P, Any]], LockedCallback[P]]:
+        ''' Decorate a callback to safely update this document from any thread.
+
+        The decorated function schedules its work on this document's server
+        session and executes with the document lock held. Calls return
+        immediately instead of returning the wrapped function's result.
+
+        Parentheses are optional when using the default policy. That is,
+        ``@doc.locked_callback`` and ``@doc.locked_callback()`` are equivalent.
+
+        Args:
+            callback (callable, optional):
+                The function to decorate when this method is used without
+                parentheses.
+
+            policy (``"every"`` or ``"latest"``, optional):
+                With ``"every"``, invoke the callback once for every call, in
+                order. With ``"latest"``, keep at most one waiting invocation,
+                replacing its arguments with those from the most recent call.
+
+        Returns:
+            A decorator that produces a
+            :class:`~bokeh.document.locking.LockedCallback`.
+
+        Example:
+
+            .. code-block:: python
+
+                @curdoc().locked_callback(policy="latest")
+                def update(value):
+                    source.data = value
+
+                @curdoc().locked_callback
+                def notify(value):
+                    status.text = value
+
+                # Safe to call from another thread:
+                update(new_data)
+
+        .. note::
+            Locked callbacks require a Bokeh server session and are closed
+            automatically when that session is destroyed.
+
+        '''
+        from .locking import LockedCallback
+
+        if callback is not None:
+            return LockedCallback(self, callback, policy=policy)
+
+        def decorator(callback: Callable[P, Any]) -> LockedCallback[P]:
+            return LockedCallback(self, callback, policy=policy)
+
+        return decorator
 
     def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> PeriodicCallback:
         ''' Add a callback to be invoked on a session periodically.
@@ -815,7 +879,9 @@ side of a communications channel while it was being removed on the other end.\
         from ..model import Model
         from .json import DocJson
 
-        data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
+        data_models = _data_models_in_dependency_order(
+            model for model in Model.model_class_reverse_map.values() if is_DataModel(model)
+        )
 
         serializer = Serializer(deferred=deferred)
         defs = serializer.encode(data_models)

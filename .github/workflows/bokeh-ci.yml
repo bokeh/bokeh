@@ -1,6 +1,6 @@
 name: Bokeh-CI
 
-# Standard testing for faster feedback on common configurations
+# Standard testing for pull requests and protected branches
 # Runs unit tests on latest Python across all platforms, everything else on Linux only
 
 on:
@@ -9,6 +9,9 @@ on:
       - main
       - branch-*
   pull_request:
+    types: [opened, synchronize, reopened]
+  merge_group:
+    types: [checks_requested]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -16,14 +19,56 @@ concurrency:
 
 defaults:
   run:
-    shell: bash -l {0}
-
-env:
-  CHROME_VER: "141.0.7390.54"
-  CHROME_REV: "chromium_3265"
+    shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
+  changes:
+    name: Classify changes
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    outputs:
+      build: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.build == 'true' }}
+      codebase: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.codebase == 'true' }}
+      typing: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.typing == 'true' }}
+      tools: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.tools == 'true' }}
+      examples: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.examples == 'true' }}
+      unit_test: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.unit_test == 'true' }}
+      minimal_deps: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.minimal_deps == 'true' }}
+      core_deps: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.core_deps == 'true' }}
+      documentation: ${{ steps.full.outputs.selected == 'true' || steps.filter.outputs.documentation == 'true' }}
+      full: ${{ steps.full.outputs.selected == 'true' }}
+      groups: ${{ steps.filter.outputs.changes }}
+
+    steps:
+      - uses: actions/checkout@v6
+        if: github.event_name == 'pull_request'
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Classify changed paths
+        if: github.event_name == 'pull_request'
+        id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
+        with:
+          base: ${{ github.event.pull_request.base.sha }}
+          token: ''
+          predicate-quantifier: some-with-excludes
+          filters: .github/ci-path-filters.yml
+
+      - name: Select full CI
+        id: full
+        if: >-
+          github.event_name != 'pull_request' ||
+          steps.filter.outputs.full == 'true' ||
+          steps.filter.outputs.ci == 'true'
+        run: echo "selected=true" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     runs-on: ubuntu-24.04
 
     steps:
@@ -35,7 +80,8 @@ jobs:
         uses: ./.github/workflows/composite/build
 
   codebase:
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.codebase == 'true' && needs.build.result == 'success'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -45,7 +91,7 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
-      # Required for codebase tests that check file formatting (line endings, whitespace, etc).
+      # Required for repository formatting checks (line endings, whitespace, etc).
       - name: Configure line endings in git
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
@@ -55,24 +101,90 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.12'
+          environment: test-py312
           source-tree: 'keep'
+
+      - name: Run repository formatting checks
+        run: |
+          pre-commit run trailing-whitespace --all-files
+          pre-commit run end-of-file-fixer --all-files
+          pre-commit run mixed-line-ending --all-files
+          pre-commit run reject-static-docs-links --all-files
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py312
 
       - name: Run codebase checks
-        run: pytest --color=yes tests/codebase
+        run: pytest -n logical --maxprocesses=5 --color=yes --durations=20 --durations-min=1 tests/codebase
 
-  typing:
-    needs: build
+  tools:
+    needs: changes
+    if: needs.changes.outputs.tools == 'true'
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
-        python-version: ['3.12', '3.14']
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+
+    env:
+      PYTHONPATH: ${{ github.workspace }}/src
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: test-py312
+          activate-environment: test-py312
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
+
+      - name: Install Bokeh from source
+        run: python -m pip install --no-deps --editable .
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py312
+
+      - name: Run tools tests
+        run: pytest --color=yes --durations=20 --durations-min=1 tests/tools
+
+      - name: Check tools code quality
+        if: runner.os == 'Linux'
+        run: |
+          ruff check tools tests/tools
+          isort --gitignore --diff -c tools
+          isort --gitignore --diff -c tests/tools
+
+      - name: Check tools types
+        if: runner.os == 'Linux'
+        run: |
+          mypy --no-sqlite-cache --show-traceback tools tests/tools
+          pyright tools
+
+  typing:
+    needs: [changes, build]
+    if: needs.changes.outputs.typing == 'true' && needs.build.result == 'success'
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            python-version: '3.12'
+            environment: test-py312
+          - os: ubuntu-24.04
+            python-version: '3.14'
+            environment: test-py314
 
     steps:
       - uses: actions/checkout@v6
@@ -80,7 +192,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: ${{ matrix.environment }}
           source-tree: 'keep'
 
       - name: Ensure Python version
@@ -88,20 +200,25 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: ${{ matrix.environment }}
 
       - parallel:
         - name: Check library types with mypy
           run: |
-            mypy --version && mypy
+            mypy --version
+            mypy --no-sqlite-cache --show-traceback
         - name: Check types in examples with mypy
           run: |
-            mypy --version && mypy --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
+            mypy --version
+            mypy --no-sqlite-cache --show-traceback --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
         - name: Check library types with pyright
           run: |
             pyright --version && pyright
 
   examples:
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.examples == 'true' && needs.build.result == 'success'
     runs-on: ubuntu-24.04
 
     strategy:
@@ -116,37 +233,36 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: test-py314
           source-tree: 'delete'
 
       - name: Ensure Python version
         run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
-      - name: Install chromium
-        uses: ./.github/workflows/composite/install-chromium
+      - name: Install Playwright browser
+        run: playwright install chromium
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
-          include-chromium: 'true'
-
-      - name: Start chrome headless
-        working-directory: ./bokehjs
-        run: node make test:spawn:headless
+          environment: test-py314
 
       - name: Run tests
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: pytest -s -v --color=yes --tb line tests/test_examples.py
+        run: pytest -s -v --color=yes --tb line -n logical --durations=20 --durations-min=1 tests/test_examples.py
 
       - name: Collect results
         if: always()
         env:
           DST: "examples-report"
         run: |
-          mkdir -p ${DST}
-          cp --parents examples-report.html $(cat .images-list) ${DST}
+          mkdir -p "$DST"
+          cp examples-report.html "$DST"
+          while IFS= read -r image; do
+            cp --parents "$image" "$DST"
+          done < .images-list
 
       - name: Upload report
         if: always()
@@ -156,7 +272,8 @@ jobs:
           path: examples-report
 
   unit-test:
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.unit_test == 'true' && needs.build.result == 'success'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -175,7 +292,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: test-py314
           source-tree: 'delete'
 
       - name: Ensure Python version
@@ -183,15 +300,20 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py314
 
       - name: Install Playwright browsers
         run: playwright install chromium
 
       - name: Run unit tests
         uses: ./.github/workflows/composite/run-unit-tests
+        with:
+          collect-coverage: ${{ runner.os != 'Windows' }}
 
   minimal-deps:
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.minimal_deps == 'true' && needs.build.result == 'success'
     runs-on: ubuntu-24.04
 
     env:
@@ -203,11 +325,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: 'minimal-deps'
+          environment: minimal
           source-tree: 'delete'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: minimal
 
       - name: Run dependency tests
         uses: ./.github/workflows/composite/run-deps-tests
@@ -215,7 +339,8 @@ jobs:
           dep-type: 'minimal'
 
   core-deps:
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.core_deps == 'true' && needs.build.result == 'success'
     runs-on: ubuntu-24.04
 
     env:
@@ -227,11 +352,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: 'core'
+          environment: core
           source-tree: 'delete'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: core
 
       - name: Run dependency tests
         uses: ./.github/workflows/composite/run-deps-tests
@@ -239,7 +366,8 @@ jobs:
           dep-type: 'core'
 
   documentation:
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.documentation == 'true' && needs.build.result == 'success'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -257,7 +385,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: ${{ matrix.python-version }}
+          environment: test-py314
           source-tree: 'delete'
 
       - name: Ensure Python version
@@ -265,12 +393,45 @@ jobs:
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
+        with:
+          environment: test-py314
 
       - name: Build docs
-        run: bash scripts/ci/build_docs.sh
+        run: pixi run --locked --environment test-py314 build-docs
 
       - name: Upload docs
         uses: actions/upload-artifact@v6
         with:
           name: docs-html
           path: docs/bokeh/docs-html.tgz
+
+  result:
+    name: Bokeh-CI / result
+    if: ${{ always() }}
+    needs: [changes, build, codebase, tools, typing, examples, unit-test, minimal-deps, core-deps, documentation]
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Require every selected job to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          jq -e '
+            . as $results
+            | $results.changes.result == "success" and
+              ([
+                ["build", "build"],
+                ["codebase", "codebase"],
+                ["tools", "tools"],
+                ["typing", "typing"],
+                ["examples", "examples"],
+                ["unit-test", "unit_test"],
+                ["minimal-deps", "minimal_deps"],
+                ["core-deps", "core_deps"],
+                ["documentation", "documentation"]
+              ] | all(.[]; . as [$job, $output]
+                | if $results.changes.outputs[$output] == "true"
+                  then $results[$job].result == "success"
+                  else $results[$job].result == "skipped"
+                  end))
+          ' <<<"$RESULTS"

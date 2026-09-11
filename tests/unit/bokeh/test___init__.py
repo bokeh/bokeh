@@ -82,6 +82,9 @@ def test___version___defined() -> None:
     VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:\.dev|\.rc).*)?")
     assert VERSION_PAT.match(b.__version__.strip(".dirty"))
 
+def test_download_removed() -> None:
+    assert not hasattr(b, "download")
+
 def test_license(capsys: Capture) -> None:
     b.license()
     out, _ = capsys.readouterr()

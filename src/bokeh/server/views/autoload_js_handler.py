@@ -33,7 +33,7 @@ from tornado.web import HTTPError
 # Bokeh imports
 from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.core.types import ID
-from bokeh.embed.bundle import Script, bundle_for_objs_and_resources
+from bokeh.embed.bundle import Script
 from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.util import RenderItem
 from bokeh.settings import settings
@@ -110,7 +110,7 @@ class AutoloadJsHandler(SessionHandler):
 
         resources_param = self.get_argument("resources", "default")
         resources = self.application.resources(server_url) if resources_param != "none" else None
-        bundle = bundle_for_objs_and_resources(None, resources)
+        bundle = await self.application._bundle_for_autoload(resources)
 
         render_items = [RenderItem(token=session.token, elementid=element_id, use_for_title=False)]
         bundle.add(Script(script_for_render_items({}, render_items, app_path=app_path, absolute_url=absolute_url)))

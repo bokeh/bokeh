@@ -34,7 +34,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    cast,
+)
 from urllib.parse import quote_plus
 
 # Bokeh imports
@@ -54,9 +59,9 @@ if TYPE_CHECKING:
         SessionCallbackRemoved,
     )
     from ..models.ui import UIElement
-    from ..protocol.messages.patch_doc import patch_doc
-    from ..protocol.messages.server_info_reply import ServerInfo
+    from ..protocol.message import Message
     from ..server.callbacks import DocumentCallbackGroup
+    from ..util.asyncio import Loop
     from ..util.browser import BrowserLike, BrowserTarget
     from .connection import ClientConnection
     from .states import ErrorReason
@@ -317,7 +322,10 @@ class ClientSession:
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url, arguments=arguments, max_message_size=max_message_size)
 
         from ..server.callbacks import DocumentCallbackGroup
-        self._callbacks = DocumentCallbackGroup(self._connection.io_loop)
+
+        # Tornado's IOLoop exposes ``asyncio_loop`` at runtime, but its type
+        # declarations don't include that attribute required by ``Loop``.
+        self._callbacks = DocumentCallbackGroup(cast("Loop", self._connection.io_loop))
 
     def __enter__(self) -> ClientSession:
         '''
@@ -473,15 +481,6 @@ class ClientSession:
         if self._document is None:
             self._attach_document(doc)
 
-    def request_server_info(self) -> ServerInfo:
-        ''' Ask for information about the server.
-
-        Returns:
-            A dictionary of server attributes.
-
-        '''
-        return self._connection.request_server_info()
-
     def show(self, obj: UIElement | None = None, browser: str | None = None,
             new: Literal["tab", "window"] = "tab") -> None:
         ''' Open a browser displaying this session.
@@ -534,10 +533,11 @@ class ClientSession:
             session_id = generate_session_id()
         return session_id
 
-    def _handle_patch(self, message: patch_doc) -> None:
+    def _handle_patch(self, message: Message[Any]) -> None:
         document = self.document
         assert document is not None
-        message.apply_to_document(document, self)
+        from ..protocol import apply_patch
+        apply_patch(message, document, self)
 
     def _loop_until_closed(self) -> None:
         ''' Execute a blocking loop that runs and executes event callbacks

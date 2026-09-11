@@ -48,6 +48,25 @@ export class SomeModel extends HasProps {
   }
 }
 
+class ListeningModelView extends View {
+  declare model: ListeningModel
+
+  received: number = 0
+
+  override connect_signals(): void {
+    super.connect_signals()
+    document.addEventListener("some_event", () => this.received++, {signal: this.abort_signal})
+  }
+}
+
+export class ListeningModel extends HasProps {
+  declare __view_type__: ListeningModelView
+
+  static {
+    this.prototype.default_view = ListeningModelView
+  }
+}
+
 describe("core/view", () => {
 
   describe("View", () => {
@@ -69,6 +88,54 @@ describe("core/view", () => {
       expect(view.connect(model.change, slot)).to.be.true
       model.change.emit()
       expect(calls).to.be.equal(2)
+    })
+
+    it("should not disconnect signals of a view that was never connected", async () => {
+      let disconnects = 0
+
+      class UnconnectedModelView extends View {
+        declare model: UnconnectedModel
+
+        override disconnect_signals(): void {
+          disconnects++
+          super.disconnect_signals()
+        }
+      }
+
+      class UnconnectedModel extends HasProps {
+        declare __view_type__: UnconnectedModelView
+
+        static {
+          this.prototype.default_view = UnconnectedModelView
+        }
+      }
+
+      // build_view() connects, so build the view the way build_views() does when
+      // it has to throw away a build nothing wants any more.
+      const view = new UnconnectedModelView({model: new UnconnectedModel(), parent: null})
+      view.initialize()
+      await view.lazy_initialize()
+
+      view.remove()
+
+      // disconnect_signals() overrides are entitled to assume connect_signals()
+      // already ran (e.g. only creating an observer there).
+      expect(disconnects).to.be.equal(0)
+      expect(view.is_destroyed).to.be.true
+    })
+
+    it("should stop listening to DOM events on shared targets after being removed", async () => {
+      const view = await build_view(new ListeningModel())
+
+      try {
+        document.dispatchEvent(new Event("some_event"))
+        expect(view.received).to.be.equal(1)
+      } finally {
+        view.remove()
+      }
+
+      document.dispatchEvent(new Event("some_event"))
+      expect(view.received).to.be.equal(1)
     })
 
     it("should disconnect changes from former transitive references", async () => {

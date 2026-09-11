@@ -28,7 +28,7 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import BuiltinFormatter
 from ..core.has_props import HasProps, abstract
-from ..core.property.bases import Init
+from ..core.property.bases import ModelInit
 from ..core.property.container import Dict, List
 from ..core.property.either import Either
 from ..core.property.enum import Enum
@@ -36,7 +36,7 @@ from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, String
 from ..core.property.required import Required
-from ..core.property.singletons import Intrinsic
+from ..core.property.singletons import _NotGiven
 from ..core.validation import error
 from ..core.validation.errors import NOT_A_PROPERTY_OF
 from ..model import Model, Qualified
@@ -147,8 +147,12 @@ class Placeholder(DOMElement):
 class ValueOf(Placeholder):
     """ A placeholder for the value of a model's property. """
 
-    def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, **kwargs) -> None:
-        super().__init__(obj=obj, attr=attr, **kwargs)
+    def __init__(self, obj: ModelInit[HasProps] = _NotGiven, attr: ModelInit[str] = _NotGiven, **kwargs) -> None:
+        if obj is not _NotGiven:
+            kwargs["obj"] = obj
+        if attr is not _NotGiven:
+            kwargs["attr"] = attr
+        super().__init__(**kwargs)
 
     obj = Required(Instance(HasProps), help="""
     The object whose property will be observed.
@@ -256,13 +260,10 @@ class HTML(DOMElement):
         if html and "html" in kwargs:
             raise TypeError("'html' argument specified multiple times")
 
-        processed_html: Init[str | list[str | DOMNode | UIElement]]
-        if not html:
-            processed_html = kwargs.pop("html", Intrinsic)
-        else:
-            processed_html = list(html)
+        if html:
+            kwargs["html"] = list(html)
 
-        super().__init__(html=processed_html, **kwargs)
+        super().__init__(**kwargs)
 
     html = Required(Either(String, List(Either(String, Instance(DOMNode), Instance(UIElement)))), help="""
     Either a parsed HTML string with optional references to Bokeh objects using

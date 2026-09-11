@@ -63,12 +63,13 @@ async def http_get(io_loop: IOLoop, url: str, headers: dict[str, str] | None = N
     return await http_client.fetch(url, headers=headers)
 
 async def websocket_open(io_loop: IOLoop, url: str, origin: str | None = None,
-        subprotocols: list[str] = []) -> WebSocketClientConnection:
+        subprotocols: list[str] | None = None, auto_close: bool = True) -> WebSocketClientConnection:
     request = HTTPRequest(url)
     if origin is not None:
         request.headers["Origin"] = origin
     result = await websocket_connect(request, subprotocols=subprotocols)
-    result.close()
+    if auto_close:
+        result.close()
     return result
 
 #-----------------------------------------------------------------------------

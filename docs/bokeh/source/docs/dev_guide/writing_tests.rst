@@ -180,16 +180,13 @@ Visual baseline comparison
 
 The visual baseline comparison tests are located in the
 :bokeh-tree:`bokehjs/test/integration/` folder and sub-folders.
-:ref:`Bokeh's CI <contributor_guide_testing_ci>` runs these tests on Linux,
-macOS, and Windows environments. The baseline files for each environment are
-located in the :bokeh-tree:`bokehjs/test/baselines/` folder.
+:ref:`Bokeh's CI <contributor_guide_testing_ci>` runs these tests in a
+repository-defined Linux container. The baseline files are located in the
+:bokeh-tree:`bokehjs/test/baselines/linux` folder.
 
-The CI results are the source of truth for visual baseline comparisons. Local
-test runs are useful for developing tests and reviewing output, but locally
-generated images can differ from CI-generated images, sometimes in visible ways.
-This can happen even on the officially supported Ubuntu Linux platform, because
-font rendering, graphics libraries, browser builds, system packages, and other
-local setup details can affect pixel output.
+The container standardizes the browser, fonts, graphics libraries, and system
+packages that affect pixel output. It can run with Docker on Linux, macOS, or
+Windows, so local and CI runs use the same baseline environment.
 
 Follow these steps to write new visual tests or update existing tests:
 
@@ -244,8 +241,13 @@ Follow these steps to write new visual tests or update existing tests:
     Always run ``node make lint`` before committing TypeScript files.
 
 2. Run tests locally:
-    Run ``node make tests`` to test your changes on your system. To only run
-    integration tests, use ``node make test:integration``.
+    From the root of the source checkout, run the visual integration tests in
+    their baseline container:
+
+    .. code-block:: sh
+
+        $ cd bokehjs
+        $ node make baseline-test
 
     If you want to run a specific test only, use the ``-k`` argument and supply
     a search string. The search string is case-sensitive. The BokehJS testing
@@ -254,66 +256,49 @@ Follow these steps to write new visual tests or update existing tests:
 
     .. code-block:: sh
 
-        $ node make test:integration -k 'Legend annotation'
+        $ node make baseline-test -k 'Legend annotation'
 
     The first time you run a new or updated visual test, the BokehJS testing
     framework will notify you that baseline files are missing or outdated. At
     this point, it will also generate all missing or outdated baseline files for
-    your operating system. The baseline files will be in a subfolder of
-    :bokeh-tree:`bokehjs/test/baselines/`.
+    the container environment. The baseline files will be in
+    :bokeh-tree:`bokehjs/test/baselines/linux` in your current checkout.
+    A run that creates or updates baselines exits with a failure because it
+    compares against the committed Git reference. This is expected until the
+    intended changes have been reviewed and accepted. Subsequent runs verify
+    against the staged baselines so you can confirm stability before committing.
 
-    Use the BokehJS :ref:`devtools server
-    <contributor_guide_testing_local_javascript_devtools>` to review your local
-    test results. Optionally, you can use any PNG viewer to inspect the
-    generated PNG files. Adjust your testing code until the test's visual output
-    matches your expectations.
+3. Review and commit baselines:
+    From the ``bokehjs`` directory, start the containerized report server:
 
-3. Generate CI baselines and commit test:
-    As a final step before pushing your visual tests to Bokeh's GitHub
-    repository, you need to generate and commit the baseline files using
-    :ref:`Bokeh's CI <contributor_guide_testing_ci>`.
+    .. code-block:: sh
 
-    The baseline files are platform-dependent and sensitive to the exact test
-    environment. This is why the CI will only work reliably if you upload
-    baseline files that were created by the CI, not locally created files.
+        $ node make baseline-test:review
 
-    Before generating new baseline images with Bokeh's CI, `rebase`_ your branch
-    to make sure all tests are up to date.
+    Open the displayed URL to compare each generated image and layout baseline
+    with its committed reference. Adjust your testing code and rerun the test
+    until the output matches your expectations. Press :kbd:`Ctrl-C` when you
+    are finished reviewing.
 
-    Follow these steps to generate the necessary baseline files and upload them
-    to Bokeh's CI:
+    Stage all reviewed Linux baseline changes with:
 
-    1. Push your changes to GitHub and wait for CI to finish.
-    2. The CI will expectedly fail because baseline images are either missing
-       (in case you created new tests) or outdated (in case you updated existing
-       tests).
-    3. After the CI has finished running, go to Bokeh's GitHubCI_ page. Find
-       the most recent test run for your PR and download the associated
-       ``bokehjs-report`` artifact.
-    4. Unzip the downloaded artifact file into the root folder of your local
-       Bokeh repository.
-    5. Use the :ref:`devtools server
-       <contributor_guide_testing_local_javascript_devtools>` to review the
-       baseline files the CI has created for each platform: first, go to
-       ``/integration/report?platform=linux``, then to
-       ``/integration/report?platform=macos``, and finally to
-       ``/integration/report?platform=windows``.
-    6. If you did not detect any unintentional differences, commit all new or
-       modified ``*.blf`` and ``*.png`` files from the folder
-       :bokeh-tree:`bokehjs/test/baselines/linux`.
-    7. Push your changes to GitHub again and verify that the tests pass this
-       time.
+    .. code-block:: sh
+
+        $ node make baseline-test:accept
+
+    This command stages only changed ``*.blf`` and ``*.png`` files from
+    :bokeh-tree:`bokehjs/test/baselines/linux`; it does not create a commit.
+    Inspect the staged changes, then commit them with the test change. Push the
+    changes and verify that the ``baseline-test`` CI job passes.
+
+    If CI fails, download the ``bokehjs-report`` artifact from the run and
+    unzip it into the root of your source checkout to inspect the report and
+    changed baseline files.
 
 .. note::
-    Make sure to only push baseline files to the CI that the CI created for
-    your specific pull request. Do not include any locally created baseline
-    files in your pull request.
-
-    After downloading and unpacking the baseline files from the CI, check your
-    local :bokeh-tree:`bokehjs/test/baselines` directory for any modified files
-    that are not part of your changes. Make sure only to commit baseline files
-    that are necessary for your pull request. Reset the ``baselines`` directory
-    after every failed test run with ``git clean`` or ``git clean -f``.
+    Check your local :bokeh-tree:`bokehjs/test/baselines` directory for modified
+    files that are not part of your changes. Commit only the baseline files
+    needed for your pull request.
 
     If you encounter any problems with the steps described here, feel free to
     get in touch at the `Bokeh Discourse`_ or `Bokeh's contributor

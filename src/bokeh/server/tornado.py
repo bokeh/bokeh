@@ -23,22 +23,24 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import gc
 import os
 import sys
+from collections import OrderedDict
 from pprint import pformat
 from typing import (
     TYPE_CHECKING,
     Any,
     Mapping,
     Sequence,
+    cast,
 )
 from urllib.parse import urljoin
 
 # External imports
 from tornado.ioloop import PeriodicCallback
-from tornado.web import Application as TornadoApplication, StaticFileHandler
-from tornado.websocket import WebSocketClosedError
+from tornado.web import Application as TornadoApplication
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
@@ -53,17 +55,27 @@ from ..util.strings import format_docstring
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
+from .core import (
+    DEFAULT_CHECK_UNUSED_MS,
+    DEFAULT_SESSION_TOKEN_EXPIRATION,
+    DEFAULT_STATS_LOG_FREQ_MS,
+    DEFAULT_UNUSED_LIFETIME_MS,
+    DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+    create_session as _create_session,
+)
+from .executor import _ServerExecutor
 from .urls import per_app_patterns, toplevel_patterns
 from .views.ico_handler import IcoHandler
 from .views.root_handler import RootHandler
-from .views.static_handler import StaticHandler
+from .views.static_handler import AsyncStaticFileHandler, StaticHandler
 from .views.ws import WSHandler
 
 if TYPE_CHECKING:
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID
-    from ..protocol import Protocol
+    from ..util.asyncio import Loop
     from .auth_provider import AuthProvider
+    from .request import RequestLike
     from .session import ServerSession
     from .urls import RouteContext, URLRoutes
 
@@ -71,13 +83,9 @@ if TYPE_CHECKING:
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-DEFAULT_CHECK_UNUSED_MS                  = 17000
-DEFAULT_KEEP_ALIVE_MS                    = 37000  # heroku, nginx default to 60s timeout, so use less than that
+DEFAULT_KEEP_ALIVE_MS                   = 37_000
 DEFAULT_MEM_LOG_FREQ_MS                  = 0
-DEFAULT_STATS_LOG_FREQ_MS                = 15000
-DEFAULT_UNUSED_LIFETIME_MS               = 15000
-DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
-DEFAULT_SESSION_TOKEN_EXPIRATION         = 300
+_AUTOLOAD_CACHE_SIZE                     = 32
 
 __all__ = (
     'BokehTornado',
@@ -248,8 +256,6 @@ class BokehTornado(TornadoApplication):
     _clients: set[ServerConnection]
 
     _mem_job: PeriodicCallback | None
-    _ping_job: PeriodicCallback | None
-
     def __init__(self,
                  applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
                  *,
@@ -299,6 +305,9 @@ class BokehTornado(TornadoApplication):
                 app.add(DocumentLifecycleHandler())
 
         self._absolute_url = absolute_url
+        self._executor = _ServerExecutor()
+        self._autoload_cache: OrderedDict[tuple[Any, ...], Any] = OrderedDict()
+        self._pending_autoload: dict[tuple[Any, ...], asyncio.Task[Any]] = {}
 
         if prefix is None:
             prefix = ""
@@ -318,7 +327,12 @@ class BokehTornado(TornadoApplication):
                 log.info("Keep-alive ping disabled")
             elif keep_alive_milliseconds != DEFAULT_KEEP_ALIVE_MS:
                 log.info("Keep-alive ping configured every %d milliseconds", keep_alive_milliseconds)
-        self._keep_alive_milliseconds = keep_alive_milliseconds
+        keep_alive_seconds = keep_alive_milliseconds / 1000
+        if "websocket_ping_interval" not in kwargs:
+            kwargs["websocket_ping_interval"] = keep_alive_seconds
+            # Keepalive pings historically did not disconnect clients that
+            # failed to respond, so preserve that behavior with native pings.
+            kwargs.setdefault("websocket_ping_timeout", 0)
 
         if check_unused_sessions_milliseconds <= 0:
             raise ValueError("check_unused_sessions_milliseconds must be > 0")
@@ -399,7 +413,12 @@ class BokehTornado(TornadoApplication):
                 # second arg must be lstrip'd to avoid dropping the prefix
                 # (urljoin treats a leading-slash second arg as an absolute path and discards the base)
                 logout_url = urljoin(self._prefix + "/", logout_url.lstrip("/"))
-            self._applications[url] = ApplicationContext(app, url=url, logout_url=logout_url)
+            self._applications[url] = ApplicationContext(app, url=url, logout_url=logout_url, executor=self._executor)
+        self._stopping = False
+        self._shutdown_pending_sessions: tuple[asyncio.Task[ServerSession], ...] = ()
+        self._stop_task: asyncio.Task[None] | None = None
+        self._cleanup_idle = asyncio.Event()
+        self._cleanup_idle.set()
 
         extra_patterns = extra_patterns or []
         extra_patterns.extend(self.auth_provider.endpoints)
@@ -468,9 +487,14 @@ class BokehTornado(TornadoApplication):
         self._loop = io_loop
 
         for app_context in self._applications.values():
-            app_context._loop = self._loop
+            app_context._loop = cast("Loop", self._loop)
 
         self._clients = set()
+        self._stopping = False
+        self._shutdown_pending_sessions = ()
+        self._stop_task = None
+        self._cleanup_idle = asyncio.Event()
+        self._cleanup_idle.set()
 
         self._stats_job = PeriodicCallback(self._log_stats,
                                            self._stats_log_frequency_milliseconds)
@@ -483,12 +507,6 @@ class BokehTornado(TornadoApplication):
 
         self._cleanup_job = PeriodicCallback(self._cleanup_sessions,
                                              self._check_unused_sessions_milliseconds)
-
-        if self._keep_alive_milliseconds > 0:
-            self._ping_job = PeriodicCallback(self._keep_alive,
-                                              self._keep_alive_milliseconds)
-        else:
-            self._ping_job = None
 
     @property
     def applications(self) -> Mapping[str, ApplicationContext]:
@@ -635,19 +653,71 @@ class BokehTornado(TornadoApplication):
         ''' Start the Bokeh Server application.
 
         Starting the Bokeh Server Tornado application will run periodic
-        callbacks for stats logging, cleanup, pinging, etc. Additionally, any
+        callbacks for stats logging and cleanup. Additionally, any
         startup hooks defined by the configured Bokeh applications will be run.
 
         '''
+        if self._stopping:
+            raise RuntimeError("Bokeh Tornado application is stopping")
         self._stats_job.start()
         if self._mem_job is not None:
             self._mem_job.start()
         self._cleanup_job.start()
-        if self._ping_job is not None:
-            self._ping_job.start()
-
         for context in self._applications.values():
             self._loop.add_callback(context.run_load_hook)
+
+    def _stop_jobs(self) -> None:
+        self._stats_job.stop()
+        if self._mem_job is not None:
+            self._mem_job.stop()
+        self._cleanup_job.stop()
+
+    def _begin_shutdown(self) -> None:
+        if self._stopping:
+            return
+        self._stopping = True
+        self._stop_jobs()
+        self._shutdown_pending_sessions = tuple(
+            task
+            for context in self._applications.values()
+            for task in context._cancel_pending_sessions()
+        )
+
+    def _require_running(self) -> None:
+        if self._stopping:
+            raise RuntimeError("Bokeh Tornado application is stopping")
+
+    def _stop_without_waiting(self) -> None:
+        self._begin_shutdown()
+        for connection in list(self._clients):
+            self.client_lost(connection)
+        for context in self._applications.values():
+            context.run_unload_hook()
+        self._clients.clear()
+        self._executor.shutdown(wait=False)
+
+    async def stop_async(self) -> None:
+        '''Stop the Bokeh Server application and await orderly cleanup.'''
+
+        self._begin_shutdown()
+        if self._stop_task is None:
+            self._stop_task = asyncio.create_task(self._finish_stop())
+        elif self._stop_task.done():
+            self._stop_task.result()
+            return
+        await asyncio.shield(self._stop_task)
+
+    async def _finish_stop(self) -> None:
+        pending = asyncio.gather(*self._shutdown_pending_sessions, return_exceptions=True)
+        await asyncio.gather(self._cleanup_idle.wait(), pending)
+
+        for connection in list(self._clients):
+            self.client_lost(connection)
+        await asyncio.gather(*(context._shutdown_sessions() for context in self._applications.values()))
+        for context in self._applications.values():
+            context.run_unload_hook()
+        self._clients.clear()
+        self._executor.shutdown()
 
     def stop(self, wait: bool = True) -> None:
         ''' Stop the Bokeh Server application.
@@ -660,24 +730,114 @@ class BokehTornado(TornadoApplication):
 
         '''
 
-        # TODO should probably close all connections and shut down all sessions here
-        for context in self._applications.values():
-            context.run_unload_hook()
+        if not wait:
+            self._stop_without_waiting()
+            return None
 
-        self._stats_job.stop()
-        if self._mem_job is not None:
-            self._mem_job.stop()
-        self._cleanup_job.stop()
-        if self._ping_job is not None:
-            self._ping_job.stop()
+        try:
+            running_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            running_loop = None
 
-        self._clients.clear()
+        tornado_loop = getattr(self, "_loop", None)
+        asyncio_loop = getattr(tornado_loop, "asyncio_loop", None)
+        if asyncio_loop is None:
+            if running_loop is not None:
+                raise RuntimeError("Cannot synchronously wait on a running event loop; use 'await stop_async()'")
+            asyncio.run(self.stop_async())
+            return None
+        if asyncio_loop.is_running():
+            if running_loop is asyncio_loop:
+                raise RuntimeError("Cannot synchronously wait on a running event loop; use 'await stop_async()'")
+            future = asyncio.run_coroutine_threadsafe(self.stop_async(), asyncio_loop)
+            future.result()
+            return None
+        asyncio_loop.run_until_complete(self.stop_async())
+        return None
 
-    def new_connection(self, protocol: Protocol, socket: WSHandler,
-            application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
-        connection = ServerConnection(protocol, socket, application_context, session)
+    async def _bundle_for_autoload(self, resources: Resources | None) -> Any:
+        from ..embed.bundle import bundle_for_objs_and_resources
+
+        resources = resources.clone() if resources is not None else None
+        key = self._autoload_key(resources)
+        cache = not settings.dev and (resources is None or not resources.dev)
+
+        if cache:
+            cached_bundle = self._autoload_cache.get(key)
+            if cached_bundle is not None:
+                self._autoload_cache.move_to_end(key)
+                return cached_bundle.clone()
+
+        pending = self._pending_autoload.get(key)
+        if pending is None:
+            pending = asyncio.create_task(
+                self._executor.run(bundle_for_objs_and_resources, None, resources),
+            )
+            self._pending_autoload[key] = pending
+            pending.add_done_callback(lambda task: self._autoload_done(key, cache, task))
+
+        bundle = await asyncio.shield(pending)
+        return bundle.clone()
+
+    def _autoload_done(self, key: tuple[Any, ...], cache: bool, task: asyncio.Task[Any]) -> None:
+        if self._pending_autoload.get(key) is task:
+            del self._pending_autoload[key]
+
+        if task.cancelled():
+            return
+
+        error = task.exception()
+        if error is None and cache:
+            self._autoload_cache[key] = task.result()
+            self._autoload_cache.move_to_end(key)
+            while len(self._autoload_cache) > _AUTOLOAD_CACHE_SIZE:
+                self._autoload_cache.popitem(last=False)
+
+    @staticmethod
+    def _autoload_key(resources: Resources | None) -> tuple[Any, ...]:
+        models = tuple(sorted(
+            (name, id(model))
+            for name, model in Model.model_class_reverse_map.items()
+        ))
+
+        if resources is None:
+            return (None, models)
+
+        path_versioner_key: Any = resources.path_versioner
+        if path_versioner_key is not None:
+            path_versioner_key = (
+                getattr(path_versioner_key, "__self__", None),
+                getattr(path_versioner_key, "__func__", path_versioner_key),
+            )
+
+        return (
+            resources.mode,
+            resources.version,
+            resources.root_dir,
+            resources.dev,
+            resources.minified,
+            resources.log_level,
+            resources.root_url,
+            path_versioner_key,
+            tuple(resources.components),
+            resources.base_dir,
+            models,
+        )
+
+    def new_connection(self, socket: WSHandler, session: ServerSession) -> ServerConnection:
+        self._require_running()
+        connection = ServerConnection(socket, session)
         self._clients.add(connection)
         return connection
+
+    async def create_session(self, application_context: ApplicationContext, request: RequestLike) -> ServerSession:
+        self._require_running()
+        return await _create_session(self, application_context, request)
+
+    async def create_session_if_needed(self, application_context: ApplicationContext, session_id: ID,
+            request: RequestLike | None = None, token: str | None = None) -> ServerSession:
+        self._require_running()
+        return await application_context.create_session_if_needed(session_id, request, token)
 
     def client_lost(self, connection: ServerConnection) -> None:
         self._clients.discard(connection)
@@ -722,8 +882,12 @@ class BokehTornado(TornadoApplication):
 
     async def _cleanup_sessions(self) -> None:
         log.trace("Running session cleanup job") # type: ignore[attr-defined]
-        for app in self._applications.values():
-            await app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
+        self._cleanup_idle.clear()
+        try:
+            for app in self._applications.values():
+                await app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
+        finally:
+            self._cleanup_idle.set()
         return None
 
     def _log_stats(self) -> None:
@@ -788,23 +952,15 @@ class BokehTornado(TornadoApplication):
         # mem = tracker.SummaryTracker()
         # pprint.pprint(sorted(mem.create_summary(), reverse=True, key=itemgetter(2))[:30])
 
-    def _keep_alive(self) -> None:
-        log.trace("Running keep alive job") # type: ignore[attr-defined]
-        for c in list(self._clients):
-            try:
-                c.send_ping()
-            except WebSocketClosedError:
-                self.client_lost(c)
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, type[StaticFileHandler | StaticHandler], dict[str, Any]]:
+def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, type[AsyncStaticFileHandler | StaticHandler], dict[str, Any]]:
     route = prefix
     route += "/static/(.*)" if key == "/" else key + "/static/(.*)"
     if app.static_path is not None:
-        return (route, StaticFileHandler, {"path" : app.static_path})
+        return (route, AsyncStaticFileHandler, {"path" : app.static_path})
     return (route, StaticHandler, {})
 
 #-----------------------------------------------------------------------------

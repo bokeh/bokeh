@@ -3,5 +3,5 @@ name: "CodeQL config"
 paths:
   - bokehjs
   - examples
-  - release
+  - tools
   - src/bokeh

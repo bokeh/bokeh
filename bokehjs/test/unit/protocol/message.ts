@@ -1,12 +1,13 @@
 import {expect} from "#framework/assertions"
 
+import {Buffer} from "@bokehjs/core/serialization"
 import {Message} from "@bokehjs/protocol/message"
 import {wildcard} from "@bokehjs/core/util/eq"
 
 class MockSock {
-  readonly sent: string[] = []
+  readonly sent: unknown[] = []
 
-  send(data: string): void {
+  send(data: unknown): void {
     this.sent.push(data)
   }
 }
@@ -15,146 +16,121 @@ describe("protocol/message module", () => {
 
   describe("Message", () => {
 
-    describe("assemble method", () => {
+    it("should decode an envelope", () => {
+      const envelope = Message.decode('{"header":{"msgid":"10","msgtype":"ACK"},"content":{"baz":3},"buffers":[]}')
 
-      it("should create new Messages from JSON", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', '{"baz":3}')
-        expect(m).to.be.instanceof(Message)
-        expect(m.complete()).to.be.true
-
-        expect(m.header).to.be.equal({msgid: "10", msgtype: "FOO"})
-        expect(m.metadata).to.be.equal({bar: 2})
-        expect(m.content).to.be.equal({baz: 3})
-        expect(m.buffers).to.be.equal(new Map())
+      expect(envelope).to.be.equal({
+        header: {msgid: "10", msgtype: "ACK"},
+        content: {baz: 3},
+        buffers: [],
       })
     })
 
-    describe("assemble_buffer method", () => {
-      const m = Message.create("FOO", {bar: 2}, {baz: 3})
-      m.header.num_buffers = 2
+    const invalid_envelopes: [string, unknown][] = [
+      ["a non-object envelope", []],
+      ["missing envelope fields", {header: {msgid: "10", msgtype: "ACK"}, content: {}}],
+      ["extra envelope fields", {header: {msgid: "10", msgtype: "ACK"}, content: {}, buffers: [], extra: true}],
+      ["a non-object header", {header: [], content: {}, buffers: []}],
+      ["a missing message id", {header: {msgtype: "ACK"}, content: {}, buffers: []}],
+      ["an empty message id", {header: {msgid: "", msgtype: "ACK"}, content: {}, buffers: []}],
+      ["an unknown message type", {header: {msgid: "10", msgtype: "NOPE"}, content: {}, buffers: []}],
+      ["an invalid request id", {header: {msgid: "10", msgtype: "ACK", reqid: 20}, content: {}, buffers: []}],
+      ["an extra header field", {header: {msgid: "10", msgtype: "ACK", extra: true}, content: {}, buffers: []}],
+      ["non-object content", {header: {msgid: "10", msgtype: "ACK"}, content: [], buffers: []}],
+      ["a non-list buffer index", {header: {msgid: "10", msgtype: "ACK"}, content: {}, buffers: "a"}],
+      ["an empty buffer id", {header: {msgid: "10", msgtype: "ACK"}, content: {}, buffers: [""]}],
+      ["duplicate buffer ids", {header: {msgid: "10", msgtype: "ACK"}, content: {}, buffers: ["a", "a"]}],
+      ["too many buffers", {
+        header: {msgid: "10", msgtype: "ACK"}, content: {}, buffers: Array.from({length: 10_001}, (_, i) => `${i}`),
+      }],
+    ]
 
-      it("should append a new buffer", () => {
-        const buf0 = new ArrayBuffer(0)
-        const buf1 = new ArrayBuffer(1)
-
-        m.assemble_buffer('{"id": "1"}', buf0)
-        expect([...m.buffers.entries()]).to.be.equal([["1", buf0]])
-
-        m.assemble_buffer('{"id": "3"}', buf1)
-        expect([...m.buffers.entries()]).to.be.equal([["1", buf0], ["3", buf1]])
+    for (const [description, envelope] of invalid_envelopes) {
+      it(`should reject ${description}`, () => {
+        expect(() => Message.decode(JSON.stringify(envelope))).to.throw()
       })
-
-      it("should raise an error if num_buffers is exceeded", () => {
-        expect(() => m.assemble_buffer('{"id": "5"}', new ArrayBuffer(2))).to.throw()
-      })
-    })
+    }
 
     describe("create method", () => {
-      const m = Message.create("FOO", {bar: 2}, {baz: 3})
+      const m = Message.create("PATCH-DOC", {baz: 3})
 
-      it("should return a complete Message", () => {
+      it("should return a message with a generated header", () => {
         expect(m).to.be.instanceof(Message)
-        expect(m.complete()).to.be.true
+        expect(m.header).to.be.equal({msgid: wildcard, msgtype: "PATCH-DOC"})
       })
 
-      it("with a generated header", () => {
-        const {header} = m
-        expect(header).to.be.equal({msgid: wildcard, msgtype: "FOO"})
-      })
-
-      it("and metadata and content as-is", () => {
-        expect(m.metadata).to.be.equal({bar: 2})
+      it("should retain content as-is", () => {
         expect(m.content).to.be.equal({baz: 3})
       })
 
-      it("and no buffers", () => {
+      it("should start without buffers", () => {
         expect(m.buffers).to.be.equal(new Map())
       })
     })
 
     describe("create_header method", () => {
-      const h = Message.create_header("FOO")
+      const h = Message.create_header("ACK")
 
-      it("should return a header obj", () => {
-        expect(h).to.be.equal({msgid: wildcard, msgtype: "FOO"})
+      it("should return a header", () => {
+        expect(h).to.be.equal({msgid: wildcard, msgtype: "ACK"})
       })
 
       it("should generate new ids", () => {
-        const h2 = Message.create_header("FOO")
+        const h2 = Message.create_header("ACK")
         expect(h.msgid).to.not.be.equal(h2.msgid)
-      })
-    })
-
-    describe("complete method", () => {
-
-      it("should return true if num_buffers matches", () => {
-        const m0 = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', '{"baz":3}')
-        expect(m0.complete()).to.be.true
-
-        const m1 = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 1}', '{"bar":2}', '{"baz":3}')
-        m1.assemble_buffer('{"id": "11"}', new ArrayBuffer(0))
-        expect(m1.complete()).to.be.true
-      })
-
-      it("should return false if num_buffers does not match", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 1}', '{"bar":2}', '{"baz":3}')
-        expect(m.complete()).to.be.false
       })
     })
 
     describe("send method", () => {
 
-      it("should send header, metadata, and content as JSON, in order", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', '{"baz":3}')
+      it("should send one JSON envelope without buffers", () => {
+        const m = new Message({msgid: "10", msgtype: "PATCH-DOC"}, {baz: 3})
         const s = new MockSock()
+
         m.send(s)
-        expect(s.sent.length).to.be.equal(3)
-        expect(JSON.parse(s.sent[0])).to.be.equal({msgid: "10", msgtype: "FOO"})
-        expect(JSON.parse(s.sent[1])).to.be.equal({bar: 2})
-        expect(JSON.parse(s.sent[2])).to.be.equal({baz: 3})
+
+        expect(s.sent.length).to.be.equal(1)
+        expect(JSON.parse(s.sent[0] as string)).to.be.equal({
+          header: {msgid: "10", msgtype: "PATCH-DOC"},
+          content: {baz: 3},
+          buffers: [],
+        })
       })
 
-      /* XXX: ???
-      it("should raise an error if num_buffers is not zero or missing ", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', '{"baz":3}')
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 0}', '{"bar":2}', '{"baz":3}')
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 1}', '{"bar":2}', '{"baz":3}')
-        expect(() => m.send(s)).to.throw()
+      it("should send binary payloads after their envelope", () => {
+        const payload = new ArrayBuffer(8)
+        const m = new Message({msgid: "10", msgtype: "PATCH-DOC"}, {value: new Buffer(payload)})
+        const s = new MockSock()
+
+        m.send(s)
+
+        expect(s.sent.length).to.be.equal(2)
+        expect(JSON.parse(s.sent[0] as string)).to.be.equal({
+          header: {msgid: "10", msgtype: "PATCH-DOC"},
+          content: {value: {id: "0"}},
+          buffers: ["0"],
+        })
+        expect(s.sent[1]).to.be.equal(payload)
       })
-      */
     })
 
     describe("getters", () => {
-      const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "reqid": "xyz"}', "{}", "{}")
+      const m = new Message({msgid: "10", msgtype: "OK", reqid: "xyz"}, {})
 
       it("should have msgid", () => {
         expect(m.msgid()).to.be.equal("10")
       })
 
       it("should have msgtype", () => {
-        expect(m.msgtype()).to.be.equal("FOO")
+        expect(m.msgtype()).to.be.equal("OK")
       })
 
       it("should have reqid", () => {
         expect(m.reqid()).to.be.equal("xyz")
       })
-    })
 
-    describe("problem method", () => {
-
-      it("should return null on valid message", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', "{}", "{}")
-        expect(m.problem()).to.be.null
-      })
-
-      it("should return message for missing msgtype", () => {
-        const m = Message.assemble('{"msgid": "10"}', "{}", "{}")
-        expect(m.problem()).to.be.equal("No msgtype in header")
-      })
-
-      it("should return message for missing msgid", () => {
-        const m = Message.assemble('{"msgtype": "FOO"}', "{}", "{}")
-        expect(m.problem()).to.be.equal("No msgid in header")
+      it("should have an optional reqid", () => {
+        expect(new Message({msgid: "10", msgtype: "PATCH-DOC"}, {}).reqid()).to.be.undefined
       })
     })
   })

@@ -28,7 +28,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 # External imports
-from tornado.web import HTTPError, StaticFileHandler
+from tornado.web import HTTPError
+
+# Bokeh imports
+from .static_handler import AsyncStaticFileHandler
 
 if TYPE_CHECKING:
     from ...core.types import PathLike
@@ -51,7 +54,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class MultiRootStaticHandler(StaticFileHandler):
+class MultiRootStaticHandler(AsyncStaticFileHandler):
 
     def initialize(self, root: RootPathLike, default_filename: str | None = None) -> None:
         self.root = root  # type: ignore[assignment]
@@ -80,6 +83,16 @@ class MultiRootStaticHandler(StaticFileHandler):
         for artifacts_dir in root.values():
             if Path(absolute_path).is_relative_to(artifacts_dir):
                 return super().validate_absolute_path(str(artifacts_dir), absolute_path)
+
+        return None
+
+    async def _validate_absolute_path(self, root: RootPathLike, absolute_path: str) -> str | None:
+        if isinstance(root, str):
+            return await super()._validate_absolute_path(root, absolute_path)
+
+        for artifacts_dir in root.values():
+            if Path(absolute_path).is_relative_to(artifacts_dir):
+                return await super()._validate_absolute_path(str(artifacts_dir), absolute_path)
 
         return None
 

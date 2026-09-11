@@ -156,9 +156,9 @@ Things to keep in mind when working on a pull request:
   necessary rights to). If you find code or text that is compatible with
   `Bokeh's BSD license`_ and that you think would be useful to add to Bokeh,
   :ref:`file an issue <contributor_guide_issues>` and start a discussion first.
-* In case your pull request includes additional or updated dependencies, you
-  need to update :ref:`Bokeh's environment files <contributor_guide_testing_ci_environments>`
-  in the :bokeh-tree:`conda` folder.
+* If your pull request adds or updates dependencies, update Bokeh's
+  :ref:`Pixi environments <contributor_guide_testing_ci_environments>` in
+  ``pixi.toml`` and refresh ``pixi.lock``.
 
 See the `"Pull Requests" section in BEP 1: Issues and PRs management <wiki pull requests_>`_
 for more information about labels and the pull request management process.

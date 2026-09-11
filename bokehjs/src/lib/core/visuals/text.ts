@@ -36,6 +36,7 @@ export class Text extends VisualProperties {
   }
 
   override update(): void {
+    super.update()
     if (!this.doit) {
       return
     }
