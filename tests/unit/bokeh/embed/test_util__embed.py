@@ -169,7 +169,7 @@ class Test_OutputDocumentFor_general:
         p = SomeModel()
         theme = Theme(json={})
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError):  # noqa: PT012  (the raise is the point: it proves the context manager unwinds)
             with beu.OutputDocumentFor([p], always_new=True, apply_theme=theme) as doc:
                 assert p.document is doc
                 assert doc.theme is theme

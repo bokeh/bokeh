@@ -71,9 +71,9 @@ def test_args() -> None:
     assert p.add_argument.call_count == 2
 
 def test_base_invoke() -> None:
+    p = MagicMock()
+    obj = _Good(p)
     with pytest.raises(NotImplementedError):
-        p = MagicMock()
-        obj = _Good(p)
         super(_Good, obj).invoke("foo") # note super special case
 
 #-----------------------------------------------------------------------------

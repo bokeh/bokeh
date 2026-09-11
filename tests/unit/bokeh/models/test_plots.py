@@ -481,7 +481,7 @@ def test_Plot_add_tools() -> None:
 def test_Plot_hold_restores_after_exception() -> None:
     plot = Plot()
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError):  # noqa: PT012  (the raise is the point: it proves the context manager unwinds)
         with plot.hold(render=True):
             assert plot.hold_render is True
             raise RuntimeError("boom")
