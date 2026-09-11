@@ -280,6 +280,33 @@ Cross integration tests
     random number generators. Follow BokehJS' guidelines for creating
     robust integration tests.
 
+Defaults tests
+    Bokeh replicates each Python model as an instance of the equivalent BokehJS
+    class. Only properties that differ from their default get sent across, so
+    BokehJS has to already know the same defaults to reconstruct models correctly.
+    Whenever a model property is added or its default changes, regenerate the
+    baseline both sides are checked against:
+
+    **Standard terminal:**
+
+    .. code-block:: sh
+
+        pixi run test-defaults
+
+    **Inside a pixi shell:**
+
+    .. code-block:: sh
+
+        pytest tests/test_defaults.py
+
+    Then commit the updated ``defaults.json5`` file and re-run the test. Only
+    committed baselines are considered by the test runner.
+
+    .. seealso::
+        There is an equivalent test that compares the models on the BokehJS side
+        against the same baseline. For more information, see :ref:`Select specific
+        BokehJS tests <contributor_guide_testing_local_javascript_selecting>`.
+
 Run all available tests
     You can run all available Python tests by running the following command:
 
