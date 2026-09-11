@@ -17,14 +17,16 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import dirname, join
+import importlib
+import sys
+from pathlib import Path
+from shutil import copy
 
 # Bokeh imports
 from bokeh import models
 from bokeh.core.has_props import _default_resolver
 from bokeh.document import Document
 from bokeh.embed.bundle import URL, extension_dirs
-from bokeh.ext import build
 from bokeh.resources import CDN, INLINE, Resources
 from tests.support.util.env import envset
 
@@ -37,6 +39,34 @@ import bokeh.embed.bundle as beb # isort:skip
 
 ABSOLUTE = Resources(mode="absolute")
 SERVER = Resources(mode="server")
+
+@pytest.fixture(scope="module", autouse=True)
+def _extension_packages(tmp_path_factory: pytest.TempPathFactory):
+    """Provide extension artifacts without rebuilding their npm packages."""
+    source_dir = Path(__file__).parent
+    packages_dir = tmp_path_factory.mktemp("extension_packages")
+    artifacts = {
+        "latex_label": "class LatexLabelView {}\n",
+        "ext_package_no_main": "const AModel = {}\n",
+    }
+
+    for name, artifact in artifacts.items():
+        package_dir = packages_dir / name
+        package_dir.mkdir()
+        for filename in ("__init__.py", "bokeh.ext.json", "package.json"):
+            copy(source_dir / name / filename, package_dir / filename)
+        dist_dir = package_dir / "dist"
+        dist_dir.mkdir()
+        (dist_dir / f"{name}.js").write_text(artifact, encoding="utf-8")
+
+    sys.path.insert(0, str(packages_dir))
+    importlib.invalidate_caches()
+    try:
+        yield
+    finally:
+        sys.path.remove(str(packages_dir))
+        for name in artifacts:
+            sys.modules.pop(name, None)
 
 def plot() -> models.Plot:
     from bokeh.plotting import figure
@@ -101,11 +131,6 @@ class Test_bundle_for_objs_and_resources:
 class Test_bundle_custom_extensions:
 
     @classmethod
-    def setup_class(cls):
-        base_dir = dirname(__file__)
-        build(join(base_dir, "latex_label"), rebuild=True)
-
-    @classmethod
     def teardown_class(cls):
         from latex_label import LatexLabel
         _default_resolver.remove(LatexLabel)
@@ -147,11 +172,6 @@ class Test_bundle_custom_extensions:
         assert bundle.js_files[1] == URL("http://localhost:5006/static/extensions/latex_label/latex_label.js")
 
 class Test_bundle_ext_package_no_main:
-
-    @classmethod
-    def setup_class(cls):
-        base_dir = dirname(__file__)
-        build(join(base_dir, "ext_package_no_main"), rebuild=True)
 
     @classmethod
     def teardown_class(cls):

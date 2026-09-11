@@ -12,6 +12,8 @@ export type SingleMarkerGlyphView = GlyphView & {
 
 export abstract class SingleMarkerGL extends BaseMarkerGL {
 
+  private _show_indices: number[] | null = null
+
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: SingleMarkerGlyphView) {
     super(regl_wrapper, glyph)
   }
@@ -28,15 +30,16 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
 
   protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL): void {
     if (main_gl_glyph.data_changed || main_gl_glyph.data_mapped) {
-      main_gl_glyph.set_data()
+      main_gl_glyph.set_data(main_gl_glyph.data_changed)
       main_gl_glyph.data_changed = false
       main_gl_glyph.data_mapped = false
     }
 
     // Update derived glyph data if it has overrides
-    if (this !== main_gl_glyph && this.data_changed) {
-      this.set_data()  // Populate derived buffers
+    if (this !== main_gl_glyph && (this.data_changed || this.data_mapped)) {
+      this.set_data(this.data_changed)  // Populate derived buffers
       this.data_changed = false
+      this.data_mapped = false
     }
 
     if (this.visuals_changed) {
@@ -48,22 +51,29 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
 
     const prev_nmarkers = this._show.length
     const show_array = this._show.get_sized_array(nmarkers)
+    let show_changed = false
     if (indices.length < nmarkers) {
       this._show_all = false
-
-      // Reset all show values to zero.
-      show_array.fill(0)
-
-      // Set show values of markers to render to 255.
-      for (let j = 0; j < indices.length; j++) {
-        show_array[indices[j]] = 255
+      const same_indices = this._show_indices?.length == indices.length &&
+        indices.every((index, i) => this._show_indices![i] == index)
+      if (prev_nmarkers != nmarkers || !same_indices) {
+        show_array.fill(0)
+        for (const index of indices) {
+          show_array[index] = 255
+        }
+        this._show_indices = [...indices]
+        show_changed = true
       }
     } else if (!this._show_all || prev_nmarkers != nmarkers) {
       this._show_all = true
+      this._show_indices = null
       show_array.fill(255)
+      show_changed = true
     }
-    this._show.update()
+    if (show_changed) {
+      this._show.update()
+    }
 
-    this._draw_one_marker_type(main_gl_glyph.marker_type, transform, main_gl_glyph)
+    this._draw_one_marker_type(this.marker_type, transform, main_gl_glyph)
   }
 }

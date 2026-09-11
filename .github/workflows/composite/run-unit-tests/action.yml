@@ -1,8 +1,12 @@
 name: 'Run Unit Tests'
 
-description: 'Run Bokeh unit tests with coverage'
+description: 'Run Bokeh unit tests with optional coverage'
 
 inputs:
+  collect-coverage:
+    description: 'Whether to collect and upload Python coverage'
+    required: false
+    default: 'true'
   coverage-flags:
     description: 'Codecov flags (comma-separated)'
     required: false
@@ -11,12 +15,18 @@ inputs:
     description: 'PYTHON_GIL value to export after activating the test environment'
     required: false
     default: ''
+  python-optimize:
+    description: 'PYTHONOPTIMIZE level to use while running tests (2 is equivalent to -OO)'
+    required: false
+    default: ''
 
 runs:
   using: composite
   steps:
     - name: Test defaults
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
@@ -24,7 +34,9 @@ runs:
         pytest tests/test_defaults.py
 
     - name: Test cross
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
@@ -33,19 +45,36 @@ runs:
 
     - name: Run tests
       if: success() || failure()
-      shell: bash -l {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
       run: |
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
         fi
         COLOR="--color=yes"
-        COVERAGE="--cov=bokeh --cov-report=xml"
+        COVERAGE=()
+        if [[ "${{ inputs.collect-coverage }}" == "true" ]]; then
+          COVERAGE=(--cov=bokeh --cov-report=xml)
+        fi
+        DURATIONS="--durations=20 --durations-min=1"
+        PARALLEL=(-n logical)
+        if [[ "${{ runner.os }}" != "Windows" ]]; then
+          PARALLEL+=(--dist=loadgroup)
+        fi
         POLICY="--last-failed --last-failed-no-failures none"
-        pytest $COLOR $COVERAGE tests/unit -n logical || pytest $COLOR $POLICY tests/unit
+        pytest $COLOR "${COVERAGE[@]}" $DURATIONS "${PARALLEL[@]}" tests/unit || pytest $COLOR $DURATIONS $POLICY tests/unit
+
+    - name: Import all modules
+      if: (success() || failure()) && inputs.python-optimize == '2'
+      shell: bash --noprofile --norc -eo pipefail {0}
+      env:
+        PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
+      run: python tools/ci/import_all_modules.py
 
     - name: Upload code coverage
       uses: codecov/codecov-action@v7
-      if: success() || failure()
+      if: (success() || failure()) && inputs.collect-coverage == 'true'
       with:
         env_vars: OS,PYTHON
         flags: ${{ inputs.coverage-flags }}

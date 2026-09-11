@@ -24,6 +24,7 @@ from typing import Generator
 from unittest import mock
 
 # External imports
+from tornado import locks
 from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.httpserver import HTTPServer
 from tornado.websocket import WebSocketClosedError, websocket_connect
@@ -57,12 +58,13 @@ pytestmark = [
 
 async def test_send_message_raises(caplog: pytest.LogCaptureFixture) -> None:
     class ExcMessage:
-        def send(self, handler):
+        def fragments(self):
             raise WebSocketClosedError()
+    handler = WSHandler.__new__(WSHandler)
+    handler.write_lock = locks.Lock()
     # TODO: assert len(caplog.records) == 0
     with caplog.at_level(logging.WARN):
-        # fake self not great but much easier than setting up a real view
-        ret = await WSHandler.send_message("self", ExcMessage())
+        ret = await handler.send_message(ExcMessage())
         assert ret is None
         # TODO: assert len(caplog.records) == 1
         # TODO: assert caplog.text.endswith("Failed sending message as connection was closed\n")
@@ -73,6 +75,20 @@ async def test_send_message_raises(caplog: pytest.LogCaptureFixture) -> None:
 
 def test_uses_auth_request_handler() -> None:
     assert issubclass(WSHandler, AuthRequestHandler)
+
+def test_internal_error_uses_standard_close_code() -> None:
+    handler = SimpleNamespace(close=mock.Mock())
+
+    WSHandler._internal_error(handler, "failure")
+
+    handler.close.assert_called_once_with(1011, "failure")
+
+def test_protocol_error_uses_standard_close_code() -> None:
+    handler = SimpleNamespace(close=mock.Mock())
+
+    WSHandler._protocol_error(handler, "failure")
+
+    handler.close.assert_called_once_with(1002, "failure")
 
 
 GOOD_ORIGIN_CASES = (

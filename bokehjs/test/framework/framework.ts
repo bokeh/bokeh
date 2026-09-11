@@ -38,6 +38,7 @@ export type Test = {
   viewport?: [number, number]
   threshold?: number
   retries?: number
+  timeout?: number
   dpr?: number
   scale?: number
   no_image?: boolean
@@ -69,6 +70,7 @@ type ItFn = (description: string, fn: ItFunc | ItAsyncFunc) => Test
 type _It = ItFn & {
   skip: ItFn
   allowing: (settings: number | TestSettings) => ItFn
+  timeout: (timeout: number) => ItFn
   dpr: (dpr: number) => ItFn
   scale: (scale: number) => ItFn
   no_image: ItFn
@@ -106,6 +108,14 @@ export function dpr(dpr: number): ItFn {
   }
 }
 
+export function timeout(timeout: number): ItFn {
+  return (description: string, fn: ItFunc | ItAsyncFunc): Test => {
+    const test = it(description, fn)
+    test.timeout = timeout
+    return test
+  }
+}
+
 export function scale(scale: number): ItFn {
   return (description: string, fn: ItFunc | ItAsyncFunc): Test => {
     const test = it(description, fn)
@@ -127,6 +137,7 @@ export const it: _It = ((description: string, fn: ItFunc | ItAsyncFunc): Test =>
 }) as _It
 it.skip = skip
 it.allowing = allowing
+it.timeout = timeout
 it.dpr = dpr
 it.scale = scale
 it.no_image = no_image

@@ -1,114 +1,135 @@
-import type {PlainObject, ID} from "../core/types"
-import {Buffer} from "../core/serialization"
+import type {ID} from "../core/types"
+import {Buffer} from "../core/serialization/buffer"
 import {unique_id} from "../core/util/string"
-import {assert} from "../core/util/assert"
-import type {Ref} from "../core/util/refs"
+import {isPlainObject, isString} from "../core/util/types"
 
 export type Socket = {
   send(data: unknown): void
 }
 
-export type Header = {
-  msgid?: string
-  msgtype?: string
-  reqid?: string
-  num_buffers?: number
+export type MessageType =
+  | "ACK"
+  | "ERROR"
+  | "OK"
+  | "PATCH-DOC"
+  | "PULL-DOC-REPLY"
+  | "PULL-DOC-REQ"
+  | "PUSH-DOC"
+  | "SYNC"
+
+const message_types: ReadonlySet<string> = new Set<MessageType>([
+  "ACK",
+  "ERROR",
+  "OK",
+  "PATCH-DOC",
+  "PULL-DOC-REPLY",
+  "PULL-DOC-REQ",
+  "PUSH-DOC",
+  "SYNC",
+])
+
+function is_message_type(value: unknown): value is MessageType {
+  return isString(value) && message_types.has(value)
 }
 
+export type Header = {
+  msgid: string
+  msgtype: MessageType
+  reqid?: string
+}
+
+export type Envelope<T> = {
+  header: Header
+  content: T
+  buffers: ID[]
+}
+
+const max_buffers_per_message = 10_000
+
 export class Message<T> {
-  protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
+  constructor(readonly header: Header, readonly content: T, readonly buffers: Map<ID, ArrayBuffer> = new Map()) {}
 
-  get buffers(): Map<ID, ArrayBuffer> {
-    return this._buffers
-  }
-
-  private constructor(readonly header: Header, readonly metadata: PlainObject, readonly content: T) {}
-
-  static assemble<T>(header_json: string, metadata_json: string, content_json: string): Message<T> {
-    const header = JSON.parse(header_json)
-    const metadata = JSON.parse(metadata_json)
-    const content = JSON.parse(content_json)
-    return new Message(header, metadata, content)
-  }
-
-  assemble_buffer(buf_header: string, buf_payload: ArrayBuffer): void {
-    const nb = this.header.num_buffers ?? 0
-    if (nb <= this._buffers.size) {
-      throw new Error(`too many buffers received, expecting ${nb}`)
+  static decode<T>(envelope_json: string): Envelope<T> {
+    const envelope: unknown = JSON.parse(envelope_json)
+    if (!isPlainObject(envelope) || Object.keys(envelope).sort().join() != "buffers,content,header") {
+      throw new Error("Message envelope must contain header, content, and buffers")
     }
-    const {id} = JSON.parse(buf_header)
-    this._buffers.set(id, buf_payload)
+
+    const {header, content, buffers} = envelope
+    if (!isPlainObject(header) || !isString(header.msgid) || header.msgid.length == 0 || !is_message_type(header.msgtype)) {
+      throw new Error("Message envelope has an invalid header")
+    }
+    if (header.reqid != null && !isString(header.reqid)) {
+      throw new Error("Message envelope has an invalid request id")
+    }
+    if (Object.keys(header).some((key) => !["msgid", "msgtype", "reqid"].includes(key))) {
+      throw new Error("Message header contains unknown fields")
+    }
+    if (!isPlainObject(content)) {
+      throw new Error("Message content must be an object")
+    }
+    if (!Array.isArray(buffers) || !buffers.every((id) => isString(id) && id.length != 0)) {
+      throw new Error("Message buffers must be a list of non-empty strings")
+    }
+    if (buffers.length > max_buffers_per_message) {
+      throw new Error(`Message cannot contain more than ${max_buffers_per_message} buffers`)
+    }
+    if (new Set(buffers).size != buffers.length) {
+      throw new Error("Message buffer ids must be unique")
+    }
+
+    const decoded_header: Header = {msgid: header.msgid, msgtype: header.msgtype}
+    if (header.reqid != null) {
+      decoded_header.reqid = header.reqid
+    }
+    return {header: decoded_header, content: content as T, buffers}
   }
 
-  static create<T>(msgtype: string, metadata: PlainObject, content: T): Message<T> {
+  static create<T>(msgtype: MessageType, content: T): Message<T> {
     const header = Message.create_header(msgtype)
-    return new Message(header, metadata, content)
+    return new Message(header, content)
   }
 
-  static create_header(msgtype: string): Header {
+  static create_header(msgtype: MessageType): Header {
     return {
       msgid: unique_id(),
       msgtype,
     }
   }
 
-  complete(): boolean {
-    const {num_buffers} = this.header
-    return num_buffers == null || this._buffers.size == num_buffers
-  }
-
   send(socket: Socket): void {
-    assert(this.header.num_buffers == null)
-
-    const buffers: [Ref, ArrayBuffer][] = []
-    const content_json = JSON.stringify(this.content, (_, val) => {
+    const buffers: [ID, ArrayBuffer][] = []
+    const buffer_ids: ID[] = []
+    const envelope_json = JSON.stringify({header: this.header, content: this.content, buffers: buffer_ids}, (_, val) => {
       if (val instanceof Buffer) {
-        const ref = {id: `${buffers.length}`}
-        buffers.push([ref, val.buffer])
-        return ref
+        const id = `${buffers.length}`
+        buffer_ids.push(id)
+        buffers.push([id, val.buffer])
+        return {id}
       } else {
         return val
       }
     })
-
-    const num_buffers = buffers.length
-    if (num_buffers > 0) {
-      this.header.num_buffers = num_buffers
+    if (buffers.length > max_buffers_per_message) {
+      throw new Error(`Message cannot contain more than ${max_buffers_per_message} buffers`)
     }
 
-    const header_json = JSON.stringify(this.header)
-    const metadata_json = JSON.stringify(this.metadata)
+    socket.send(envelope_json)
 
-    socket.send(header_json)
-    socket.send(metadata_json)
-    socket.send(content_json)
-
-    for (const [ref, buffer] of buffers) {
-      socket.send(JSON.stringify(ref))
+    for (const [, buffer] of buffers) {
       socket.send(buffer)
     }
   }
 
   msgid(): string {
-    return this.header.msgid!
+    return this.header.msgid
   }
 
-  msgtype(): string {
-    return this.header.msgtype!
+  msgtype(): MessageType {
+    return this.header.msgtype
   }
 
-  reqid(): string {
-    return this.header.reqid!
-  }
-
-  // return the reason we should close on bad protocol, if there is one
-  problem(): string | null {
-    if (!("msgid" in this.header)) {
-      return "No msgid in header"
-    } else if (!("msgtype" in this.header)) {
-      return "No msgtype in header"
-    } else {
-      return null
-    }
+  reqid(): string | undefined {
+    return this.header.reqid
   }
 }

@@ -59,12 +59,12 @@ import {range, linspace, cumsum, reversed, subselect} from "@bokehjs/core/util/a
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {paint, delay, defer} from "@bokehjs/core/util/defer"
+import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral3, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import type {Keys} from "@bokehjs/core/dom"
-import {div} from "@bokehjs/core/dom"
+import {bounding_box, div} from "@bokehjs/core/dom"
 import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
@@ -73,6 +73,7 @@ import {load_image} from "@bokehjs/core/util/image"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
+import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {f} from "@bokehjs/api/expr"
@@ -1339,17 +1340,17 @@ describe("Bug", () => {
         renderers: [esri],
       })
 
-      const {view} = await display(row([p0, p1]))
+      await display(row([p0, p1]))
 
       p0.renderers = [esri]
-      // Rebuilding renderers queues attribution updates after the current ready
-      // promise, so two waits are needed to drain both stages before continuing.
-      await view.ready
-      await view.ready
+      // Renderer replacement spans two frames. Avoid waiting on unrelated tile
+      // requests, which can leave the root ready promise pending indefinitely.
+      await paint()
+      await paint()
       p1.renderers = [osm]
 
-      await view.ready
-      await view.ready
+      await paint()
+      await paint()
     })
   })
 
@@ -2077,7 +2078,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #9113", () => {
-    it.allowing(8)("prevents layout update when adding new toggle group buttons", async () => {
+    it.allowing(10)("prevents layout update when adding new toggle group buttons", async () => {
       const group = new RadioButtonGroup({labels: []})
       const {view} = await display(group, [300, 100])
 
@@ -2091,6 +2092,8 @@ describe("Bug", () => {
 
       group.labels = [...group.labels, "Button 2"]
       await view.ready
+      expect(view.shadow_el.querySelectorAll("button").length).to.be.equal(3)
+      await paint()
       await paint()
     })
   })
@@ -4205,6 +4208,30 @@ describe("Bug", () => {
       legend.items[0].label = "Long ....... label"
       await view.ready
     })
+
+    it("doesn't allot to recompute the layout when a Legend without margin grows", async () => {
+      const p = fig([400, 200])
+      const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+
+      const legend = new Legend({
+        items: [
+          new LegendItem({label: "Short", renderers: [scatter]}),
+        ],
+        margin: 0,
+      })
+      p.add_layout(legend, "left")
+
+      const {view} = await display(p)
+      const legend_view = view.owner.get_one(legend)
+      const before = bounding_box(legend_view.el).width
+
+      legend.items[0].label = "A very much longer legend label than before"
+      await view.ready
+
+      // the side panel derives its width from the legend, so the legend must
+      // stay free to grow along that axis
+      expect(bounding_box(legend_view.el).width).to.be.above(before)
+    })
   })
 
   describe("in issue #14153", () => {
@@ -4329,7 +4356,7 @@ describe("Bug", () => {
       plot.line([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
       plot.scatter([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
 
-      const html = new HTML({html: ""})
+      const html = new HTML({html: "", style: {width: "200px", height: "200px"}})
       const pane = new Pane({elements: [html]})
 
       const {view} = await display(row([plot, pane]), [400, 200])
@@ -4386,9 +4413,13 @@ describe("Bug", () => {
       const layout = new Row({children: [col1, col2], sizing_mode: "stretch_both"})
 
       const {view} = await display(layout, [400, 500])
+      const select_view = view.owner.get_one(s0)
 
       s0.visible = true
-      await view.ready
+      // The visibility update invalidates the root layout synchronously after
+      // the Select's deferred CSS update. Don't join unrelated tile requests
+      // through the root view's readiness chain.
+      await select_view.ready
 
       expect(p0.y_range.start).to.be.similar(-4033457.249070633)
       expect(p0.y_range.end).to.be.similar(10033457.249070633)
@@ -4702,9 +4733,9 @@ describe("Bug", () => {
 
       const {view} = await display(row([plot, pane]), [400, 200])
 
-      await defer() // give time for SizeBar's layout; this should be included in pv.ready
-
       const pv = view.owner.get_one(plot)
+      await paint()
+      await pv.ready
       const blob = await pv.export().to_blob()
       const ctx = canvas.getContext("2d")!
       const url = URL.createObjectURL(blob)
@@ -5416,6 +5447,116 @@ describe("Bug", () => {
       })
 
       await display(p, [400, 400])
+    })
+  })
+
+  describe("in issue #14593", () => {
+    it.no_image("doesn't allow a plot's context menu to work after repeated toolbar property changes", async () => {
+      const pan = new PanTool()
+      const box_select = new BoxSelectTool()
+
+      const p = fig([300, 300], {tools: [pan, box_select], toolbar_location: null})
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
+
+      const {view} = await display(p)
+
+      // emulates a keydown/keyup pair toggling the active drag tool
+      for (let i = 0; i < 5; i++) {
+        p.toolbar.active_drag = box_select
+        p.toolbar.active_drag = pan
+      }
+      await view.ready
+
+      // can't simply dispatchEvent() because of browser security
+      const {left, top} = view.el.getBoundingClientRect()
+      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+
+      const menu_view = view.get_context_menu({x: 50, y: 50})
+      expect_not_null(menu_view)
+      expect(menu_view.is_open).to.be.true
+
+      const items = menu_view.shadow_el.querySelectorAll(".bk-item.bk-menu")
+      expect(items.length).to.be.equal(2)
+
+      // every item resolved a submenu view
+      const submenu_views = menu_view._children_views().filter((view) => view instanceof MenuView)
+      expect(submenu_views.length).to.be.equal(2)
+
+      items[0].dispatchEvent(new PointerEvent("pointerenter"))
+      await view.ready
+      expect(submenu_views.some((view) => view.is_open)).to.be.true
+    })
+  })
+
+  describe("in issue #15376", () => {
+    function make(side: "above" | "right", location: Legend["location"] = [0, 0]) {
+      const p = fig([400, 200], {toolbar_location: null})
+      const items = []
+      for (let i = 0; i < 8; i++) {
+        const r = p.line([1, 2], [i, i + 1])
+        items.push(new LegendItem({label: `item ${i}`, renderers: [r]}))
+      }
+      const orientation = side == "above" ? "horizontal" : "vertical"
+      const legend = new Legend({items, location, orientation})
+      p.add_layout(legend, side)
+      return {gp: gridplot([[p]], {toolbar_location: "above"}), plot: p, legend}
+    }
+
+    async function expect_contained(side: "above" | "right", size: [number, number],
+        location: Legend["location"] = [0, 0]) {
+      const {gp, plot, legend} = make(side, location)
+      const {view} = await display(gp, size)
+
+      // an oversized legend used to paint outside its panel, and then outside
+      // the plot itself, over the grid's toolbar
+      const plot_view = view.owner.get_one(plot)
+      const panel_view = side == "above" ? plot_view.top_panel : plot_view.right_panel
+      const panel_bbox = bounding_box(panel_view.el)
+      const legend_bbox = bounding_box(view.owner.get_one(legend).el)
+
+      expect(legend_bbox.left).to.be.within(panel_bbox.left, panel_bbox.right)
+      expect(legend_bbox.right).to.be.within(panel_bbox.left, panel_bbox.right)
+      expect(legend_bbox.top).to.be.within(panel_bbox.top, panel_bbox.bottom)
+      expect(legend_bbox.bottom).to.be.within(panel_bbox.top, panel_bbox.bottom)
+    }
+
+    it("allows a legend taller than its side panel to overlap a grid plot's toolbar", async () => {
+      await expect_contained("right", [450, 300])
+    })
+
+    it("allows a legend wider than its side panel to overflow its plot", async () => {
+      await expect_contained("above", [450, 350])
+    })
+
+    it.no_image("allows a legend positioned by a named location to escape its side panel", async () => {
+      await expect_contained("right", [450, 300], "bottom_right")
+      await expect_contained("above", [450, 350], "top_right")
+    })
+  })
+
+  describe("in issue #12187", () => {
+    it("shows dates as zero epoch in a DataTable if the date column contains a NaN", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          dates: [
+            NaN,
+            1393632000000, // 2014-03-01
+            1393718400000, // 2014-03-02
+            1393804800000, // 2014-03-03
+            1393891200000, // 2014-03-04
+          ],
+          downloads: [0, 10, 20, 30, 40],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "dates", title: "Date", formatter: new DateFormatter()}),
+        new TableColumn({field: "downloads", title: "Downloads"}),
+      ]
+
+      const table = new DataTable({source, columns})
+
+      await display(table, [600, 400])
     })
   })
 })

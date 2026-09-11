@@ -20,7 +20,7 @@ set -x #echo on
 # turning every async test into "async def functions are not natively supported", 200+
 # ordinary-looking failures instead of an obvious error. Fail loudly instead.
 if ! python -c 'import pytest_asyncio' 2> /dev/null; then
-  banner "pytest-asyncio is not installed, see conda/environment-test-downstream.yml"
+  banner "pytest-asyncio is not installed, see the downstream environment in pixi.toml"
   exit 1
 fi
 

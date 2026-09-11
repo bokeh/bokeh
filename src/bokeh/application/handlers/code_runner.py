@@ -28,7 +28,12 @@ import traceback
 from contextlib import contextmanager
 from os.path import basename
 from threading import RLock
-from typing import TYPE_CHECKING, Callable, Generator
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Generator,
+    Sequence,
+)
 
 # Bokeh imports
 from ...util.serialization import make_globally_unique_id
@@ -66,7 +71,7 @@ class CodeRunner:
     _permanent_error_detail: str | None
     _path: PathLike
     _source: str
-    _argv: list[str]
+    _argv: Sequence[str]
     _package: ModuleType | None
     ran: bool
 
@@ -74,7 +79,7 @@ class CodeRunner:
     _error: str | None
     _error_detail: str | None
 
-    def __init__(self, source: str, path: PathLike, argv: list[str], package: ModuleType | None = None) -> None:
+    def __init__(self, source: str, path: PathLike, argv: Sequence[str], package: ModuleType | None = None) -> None:
         '''
 
         Args:
@@ -84,8 +89,8 @@ class CodeRunner:
             path (str) :
                 A filename to use in any debugging or error output
 
-            argv (list[str]) :
-                A list of string arguments to make available as ``sys.argv``
+            argv (Sequence[str]) :
+                A sequence of string arguments to make available as ``sys.argv``
                 when the code executes
 
             package (bool) :
@@ -246,7 +251,7 @@ def _hold_process_globals() -> Generator[None, None, None]:
         yield
 
 @contextmanager
-def _patch_process_state(path: PathLike, argv: list[str]) -> Generator[None, None, None]:
+def _patch_process_state(path: PathLike, argv: Sequence[str]) -> Generator[None, None, None]:
     # Simulate the sys.path behaviour described here:
     #
     # https://docs.python.org/2/library/sys.html#sys.path

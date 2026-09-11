@@ -591,10 +591,6 @@ class Plot(LayoutDOM):
     data, regardless of viewport.
     """)
 
-    hidpi = Bool(default=True, help="""
-    Whether to use HiDPI mode when available.
-    """)
-
     title = Either(Null, Instance(Title), default=InstanceDefault(Title, text=""), help="""
     A title for the plot. Can be a text string or a Title annotation.
     """).accepts(String, lambda text: Title(text=text))

@@ -687,8 +687,9 @@ describe("tile renderer", () => {
     renderer_view._create_tile(x, y, z, bounds)
 
     expect(renderer_view.has_finished()).to.be.false
+    // Existing renderer views are removed synchronously while the broader plot
+    // update continues asynchronously, so no plot readiness wait is needed.
     plot.renderers = []
-    await view.ready
     expect(renderer_view._pending.size).to.be.equal(0)
     expect(renderer_view.has_finished()).to.be.true
   })

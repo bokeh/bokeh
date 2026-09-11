@@ -41,7 +41,6 @@ from urllib.parse import urljoin
 # External imports
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
-from tornado.websocket import WebSocketClosedError
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
@@ -58,7 +57,6 @@ from .connection import ServerConnection
 from .contexts import ApplicationContext
 from .core import (
     DEFAULT_CHECK_UNUSED_MS,
-    DEFAULT_KEEP_ALIVE_MS,
     DEFAULT_SESSION_TOKEN_EXPIRATION,
     DEFAULT_STATS_LOG_FREQ_MS,
     DEFAULT_UNUSED_LIFETIME_MS,
@@ -75,7 +73,6 @@ from .views.ws import WSHandler
 if TYPE_CHECKING:
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID
-    from ..protocol import Protocol
     from ..util.asyncio import Loop
     from .auth_provider import AuthProvider
     from .request import RequestLike
@@ -86,6 +83,7 @@ if TYPE_CHECKING:
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+DEFAULT_KEEP_ALIVE_MS                   = 37_000
 DEFAULT_MEM_LOG_FREQ_MS                  = 0
 _AUTOLOAD_CACHE_SIZE                     = 32
 
@@ -258,8 +256,6 @@ class BokehTornado(TornadoApplication):
     _clients: set[ServerConnection]
 
     _mem_job: PeriodicCallback | None
-    _ping_job: PeriodicCallback | None
-
     def __init__(self,
                  applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
                  *,
@@ -331,7 +327,12 @@ class BokehTornado(TornadoApplication):
                 log.info("Keep-alive ping disabled")
             elif keep_alive_milliseconds != DEFAULT_KEEP_ALIVE_MS:
                 log.info("Keep-alive ping configured every %d milliseconds", keep_alive_milliseconds)
-        self._keep_alive_milliseconds = keep_alive_milliseconds
+        keep_alive_seconds = keep_alive_milliseconds / 1000
+        if "websocket_ping_interval" not in kwargs:
+            kwargs["websocket_ping_interval"] = keep_alive_seconds
+            # Keepalive pings historically did not disconnect clients that
+            # failed to respond, so preserve that behavior with native pings.
+            kwargs.setdefault("websocket_ping_timeout", 0)
 
         if check_unused_sessions_milliseconds <= 0:
             raise ValueError("check_unused_sessions_milliseconds must be > 0")
@@ -507,12 +508,6 @@ class BokehTornado(TornadoApplication):
         self._cleanup_job = PeriodicCallback(self._cleanup_sessions,
                                              self._check_unused_sessions_milliseconds)
 
-        if self._keep_alive_milliseconds > 0:
-            self._ping_job = PeriodicCallback(self._keep_alive,
-                                              self._keep_alive_milliseconds)
-        else:
-            self._ping_job = None
-
     @property
     def applications(self) -> Mapping[str, ApplicationContext]:
         ''' The configured applications
@@ -658,7 +653,7 @@ class BokehTornado(TornadoApplication):
         ''' Start the Bokeh Server application.
 
         Starting the Bokeh Server Tornado application will run periodic
-        callbacks for stats logging, cleanup, pinging, etc. Additionally, any
+        callbacks for stats logging and cleanup. Additionally, any
         startup hooks defined by the configured Bokeh applications will be run.
 
         '''
@@ -668,9 +663,6 @@ class BokehTornado(TornadoApplication):
         if self._mem_job is not None:
             self._mem_job.start()
         self._cleanup_job.start()
-        if self._ping_job is not None:
-            self._ping_job.start()
-
         for context in self._applications.values():
             self._loop.add_callback(context.run_load_hook)
 
@@ -679,8 +671,6 @@ class BokehTornado(TornadoApplication):
         if self._mem_job is not None:
             self._mem_job.stop()
         self._cleanup_job.stop()
-        if self._ping_job is not None:
-            self._ping_job.stop()
 
     def _begin_shutdown(self) -> None:
         if self._stopping:
@@ -834,10 +824,9 @@ class BokehTornado(TornadoApplication):
             models,
         )
 
-    def new_connection(self, protocol: Protocol, socket: WSHandler,
-            application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
+    def new_connection(self, socket: WSHandler, session: ServerSession) -> ServerConnection:
         self._require_running()
-        connection = ServerConnection(protocol, socket, application_context, session)
+        connection = ServerConnection(socket, session)
         self._clients.add(connection)
         return connection
 
@@ -962,14 +951,6 @@ class BokehTornado(TornadoApplication):
         # from pympler import tracker
         # mem = tracker.SummaryTracker()
         # pprint.pprint(sorted(mem.create_summary(), reverse=True, key=itemgetter(2))[:30])
-
-    def _keep_alive(self) -> None:
-        log.trace("Running keep alive job") # type: ignore[attr-defined]
-        for c in list(self._clients):
-            try:
-                c.send_ping()
-            except WebSocketClosedError:
-                self.client_lost(c)
 
 #-----------------------------------------------------------------------------
 # Dev API

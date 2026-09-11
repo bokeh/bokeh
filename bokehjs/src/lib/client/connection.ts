@@ -162,18 +162,42 @@ export class ClientConnection {
     }
   }
 
-  send(message: Message<unknown>): void {
-    if (this.socket != null) {
-      message.send(this.socket)
-    } else {
-      logger.error("not connected so cannot send", message)
+  send(message: Message<unknown>): boolean {
+    const socket = this.socket
+    if (socket == null || !this._is_open(socket)) {
+      logger.warn("not connected so cannot send", message)
+      return false
     }
+
+    try {
+      message.send(socket)
+      return true
+    } catch (error) {
+      if (!this._is_open(socket)) {
+        logger.warn("connection closed while sending", message)
+        return false
+      }
+      throw error
+    }
+  }
+
+  protected _is_open(socket: WebSocket): boolean {
+    return socket.readyState === WebSocket.OPEN
   }
 
   async send_with_reply<T>(message: Message<unknown>): Promise<Message<T>> {
     const reply = await new Promise<Message<unknown>>((resolve, reject) => {
-      this._pending_replies.set(message.msgid(), {resolve, reject})
-      this.send(message)
+      const msgid = message.msgid()
+      this._pending_replies.set(msgid, {resolve, reject})
+      try {
+        if (this.send(message)) {
+          return
+        }
+        throw new Error("Cannot send message because the connection is not open")
+      } catch (error) {
+        this._pending_replies.delete(msgid)
+        reject(error)
+      }
     })
 
     if (reply.msgtype() == "ERROR") {
@@ -184,7 +208,7 @@ export class ClientConnection {
   }
 
   protected async _pull_doc_json(): Promise<{doc_json: DocJson, buffers: Map<ID, ArrayBuffer>}> {
-    const message = Message.create("PULL-DOC-REQ", {}, {})
+    const message = Message.create("PULL-DOC-REQ", {})
     const reply = await this.send_with_reply<{doc: DocJson}>(message)
     if (!("doc" in reply.content)) {
       throw new Error("No 'doc' field in PULL-DOC-REPLY")
@@ -247,15 +271,11 @@ export class ClientConnection {
       this._receiver.consume(event.data)
     } catch (e) {
       this._close_bad_protocol(`${e}`)
+      return
     }
 
     const msg = this._receiver.message
     if (msg != null) {
-      const problem = msg.problem()
-      if (problem != null) {
-        this._close_bad_protocol(problem)
-      }
-
       this._current_handler!(msg)
     }
   }
@@ -311,11 +331,16 @@ export class ClientConnection {
 
   protected _steady_state_handler(message: Message<unknown>): void {
     const reqid = message.reqid()
-    const pr = this._pending_replies.get(reqid)
-    if (pr != null) {
-      this._pending_replies.delete(reqid)
-      pr.resolve(message)
-    } else if (this.session != null) {
+    if (reqid != null) {
+      const pr = this._pending_replies.get(reqid)
+      if (pr != null) {
+        this._pending_replies.delete(reqid)
+        pr.resolve(message)
+        return
+      }
+    }
+
+    if (this.session != null) {
       this.session.handle(message)
     } else if (message.msgtype() != "PATCH-DOC") {
       // This branch can be executed only before we get the document.

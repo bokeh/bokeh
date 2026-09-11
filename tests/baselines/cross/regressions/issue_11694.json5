@@ -2,12 +2,12 @@
   config: {
     type: "object",
     name: "DocumentConfig",
-    id: "p1013",
+    id: "p1007",
     attributes: {
       notifications: {
         type: "object",
         name: "Notifications",
-        id: "p1014",
+        id: "p1008",
       },
     },
   },
@@ -31,32 +31,32 @@
         x_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1007",
+          id: "p1009",
         },
         y_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1008",
+          id: "p1010",
         },
         x_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1009",
+          id: "p1011",
         },
         y_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1010",
+          id: "p1012",
         },
         title: {
           type: "object",
           name: "Title",
-          id: "p1011",
+          id: "p1013",
         },
         toolbar: {
           type: "object",
           name: "Toolbar",
-          id: "p1012",
+          id: "p1014",
         },
       },
     },

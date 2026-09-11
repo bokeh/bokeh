@@ -27,6 +27,7 @@ import pytest
 from bokeh.application import Application
 from bokeh.application.handlers.directory import DirectoryHandler
 from bokeh.application.handlers.function import FunctionHandler
+from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.models import (
@@ -39,8 +40,10 @@ from bokeh.models import (
     Select,
     Slider,
 )
-from bokeh.protocol import Protocol
-from bokeh.server.asgi import BokehASGI
+from bokeh.protocol import pull_doc_req
+from bokeh.protocol.message import Message
+from bokeh.protocol.receiver import Receiver
+from bokeh.server.asgi import BokehASGI, _ASGIWebSocketTransport
 from bokeh.server.auth import AuthPolicy
 from bokeh.util.token import generate_jwt_token, get_token_payload
 
@@ -163,7 +166,7 @@ attrs:
     )
     (static / "artifact.txt").write_text("directory static", encoding="utf-8")
 
-    app = BokehASGI({"/directory": directory}, keep_alive_milliseconds=0)
+    app = BokehASGI({"/directory": directory})
     context = app.core.applications["/directory"]
     application = context.application
 
@@ -205,7 +208,7 @@ async def test_update_sessions_updates_each_document_with_its_lock() -> None:
     def modify_document(doc: Document) -> None:
         doc.add_root(Div(text="initial", name="status"))
 
-    app = BokehASGI(modify_document, keep_alive_milliseconds=0)
+    app = BokehASGI(modify_document)
 
     with pytest.raises(RuntimeError, match="not running"):
         await app.update_sessions("/", lambda doc: None)
@@ -555,7 +558,7 @@ def test_streamlit_particle_app_uses_client_side_mode_kernels(
 
 
 async def test_lifespan_starts_and_stops_application() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     incoming = deque([{"type": "lifespan.startup"}, {"type": "lifespan.shutdown"}])
     sent: list[dict[str, Any]] = []
 
@@ -577,7 +580,7 @@ async def test_lifespan_starts_and_stops_application() -> None:
 async def test_document_and_metadata_routes() -> None:
     application = Application()
     application._metadata = {"meaning": 42}
-    app = BokehASGI({"/plot": application}, keep_alive_milliseconds=0)
+    app = BokehASGI({"/plot": application})
     try:
         document = await http_request(app, "/plot/")
         metadata = await http_request(app, "/plot/metadata")
@@ -591,7 +594,7 @@ async def test_document_and_metadata_routes() -> None:
 
 
 async def test_mount_root_path_is_removed_before_routing() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     try:
         response = await http_request(app, "/dashboard/", root_path="/dashboard")
         assert response_status(response) == 200
@@ -601,12 +604,11 @@ async def test_mount_root_path_is_removed_before_routing() -> None:
 
 
 async def test_mount_root_path_is_included_in_root_navigation() -> None:
-    redirecting = BokehASGI({"/plot": Application()}, prefix="pre", keep_alive_milliseconds=0)
+    redirecting = BokehASGI({"/plot": Application()}, prefix="pre")
     listing = BokehASGI(
         {"/one": Application(), "/two": Application()},
         prefix="pre",
         redirect_root=False,
-        keep_alive_milliseconds=0,
     )
     try:
         redirect = await http_request(redirecting, "/dashboard/pre/", root_path="/dashboard/")
@@ -621,7 +623,7 @@ async def test_mount_root_path_is_included_in_root_navigation() -> None:
 
 
 async def test_autoload_and_static_routes() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     try:
         autoload = await http_request(app, "/autoload.js", query={
             "bokeh-autoload-element": "target",
@@ -643,7 +645,7 @@ async def test_root_application_static_files_stream_and_head_only_stats(tmp_path
     content = b"a" * (64*1024 + 1)
     (tmp_path / "artifact.bin").write_bytes(content)
     application = Application()
-    app = BokehASGI(application, keep_alive_milliseconds=0)
+    app = BokehASGI(application)
     application._static_path = str(tmp_path)
     try:
         get = await http_request(app, "/static/artifact.bin")
@@ -673,7 +675,7 @@ async def test_options_only_dispatches_autoload_preflight() -> None:
         nonlocal initialized
         initialized += 1
 
-    app = BokehASGI(Application(FunctionHandler(modify_document)), keep_alive_milliseconds=0)
+    app = BokehASGI(Application(FunctionHandler(modify_document)))
     try:
         document = await http_request(app, "/", method="OPTIONS")
         metadata = await http_request(app, "/metadata", method="OPTIONS")
@@ -693,7 +695,7 @@ async def test_options_only_dispatches_autoload_preflight() -> None:
 
 
 def test_request_preserves_non_utf8_query_bytes() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     scope = {
         "type": "http",
         "method": "GET",
@@ -712,7 +714,7 @@ def test_request_preserves_non_utf8_query_bytes() -> None:
 
 
 def test_request_combines_repeated_headers_case_insensitively() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     scope = {
         "type": "http",
         "method": "GET",
@@ -749,7 +751,7 @@ async def test_auth_policy_redirects_and_propagates_user() -> None:
         doc.title = doc.session_context.request.user
 
     policy = AuthPolicy(authenticate, login_url=lambda request: f"/login?next={request.path}", logout_url="/logout")
-    app = BokehASGI(Application(FunctionHandler(modify_document)), auth_policy=policy, keep_alive_milliseconds=0)
+    app = BokehASGI(Application(FunctionHandler(modify_document)), auth_policy=policy)
     try:
         anonymous = await http_request(app, "/", state={"request_id": "anonymous"})
         authenticated = await http_request(
@@ -776,7 +778,7 @@ async def test_auth_policy_redirects_and_propagates_user() -> None:
 
 
 async def test_auth_policy_returns_401_without_login_url() -> None:
-    app = BokehASGI(Application(), auth_policy=AuthPolicy(lambda request: None), keep_alive_milliseconds=0)
+    app = BokehASGI(Application(), auth_policy=AuthPolicy(lambda request: None))
     try:
         response = await http_request(app, "/metadata")
 
@@ -794,7 +796,7 @@ async def test_auth_policy_leaves_static_assets_and_preflight_public() -> None:
         authenticated.append(request.path)
         return None
 
-    app = BokehASGI(Application(), auth_policy=AuthPolicy(authenticate), keep_alive_milliseconds=0)
+    app = BokehASGI(Application(), auth_policy=AuthPolicy(authenticate))
     try:
         static = await http_request(app, "/static/js/bokeh.min.js")
         preflight = await http_request(app, "/autoload.js", method="OPTIONS")
@@ -820,7 +822,6 @@ async def test_slow_document_does_not_block_other_http_requests() -> None:
             "/slow": Application(FunctionHandler(slow_document)),
             "/fast": Application(),
         },
-        keep_alive_milliseconds=0,
     )
     slow = asyncio.create_task(http_request(app, "/slow/"))
     try:
@@ -845,7 +846,7 @@ async def test_stop_waits_for_pending_initialization_before_unload() -> None:
 
     handler = FunctionHandler(slow_document)
     handler.on_server_unloaded = lambda server_context: unloaded.set()
-    app = BokehASGI(Application(handler), keep_alive_milliseconds=0)
+    app = BokehASGI(Application(handler))
     await app.core.start()
     context = app.core.applications["/"]
     pending = asyncio.create_task(context.create_session_if_needed(ID("session")))
@@ -874,7 +875,7 @@ async def test_stop_waits_for_pending_initialization_before_unload() -> None:
 
 
 async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     token = generate_jwt_token(cast(ID, "session"), expiration=300)
     incoming = deque([
         {"type": "websocket.connect"},
@@ -907,8 +908,8 @@ async def test_websocket_accepts_bokeh_protocol_and_sends_ack() -> None:
 
         assert sent[0] == {"type": "websocket.accept", "subprotocol": "bokeh"}
         fragments = [event["text"] for event in sent if event["type"] == "websocket.send"]
-        assert len(fragments) == 3
-        assert json.loads(fragments[0])["msgtype"] == "ACK"
+        assert len(fragments) == 1
+        assert json.loads(fragments[0])["header"]["msgtype"] == "ACK"
         assert app.core.get_sessions("/")[0].connection_count == 0
     finally:
         await app.core.stop()
@@ -960,7 +961,7 @@ async def test_websocket_accepts_reverse_proxy_scope() -> None:
 
 
 async def test_websocket_auth_policy_rejects_anonymous_user() -> None:
-    app = BokehASGI(Application(), auth_policy=AuthPolicy(lambda request: None), keep_alive_milliseconds=0)
+    app = BokehASGI(Application(), auth_policy=AuthPolicy(lambda request: None))
     token = generate_jwt_token(cast(ID, "session"), expiration=300)
     sent: list[dict[str, Any]] = []
 
@@ -998,7 +999,7 @@ async def test_websocket_auth_policy_rejects_anonymous_user() -> None:
 
 async def test_websocket_auth_policy_uses_asgi_scope_user() -> None:
     policy = AuthPolicy(lambda request: request.user if request.user == "alice" else None)
-    app = BokehASGI(Application(), auth_policy=policy, keep_alive_milliseconds=0)
+    app = BokehASGI(Application(), auth_policy=policy)
     token = generate_jwt_token(cast(ID, "session"), expiration=300)
     incoming = deque([
         {"type": "websocket.connect"},
@@ -1038,14 +1039,12 @@ async def test_websocket_auth_policy_uses_asgi_scope_user() -> None:
 
 
 async def test_websocket_handles_pull_document_round_trip() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     token = generate_jwt_token(cast(ID, "session"), expiration=300)
-    request = Protocol().create("PULL-DOC-REQ")
+    request = pull_doc_req()
     incoming = deque([
         {"type": "websocket.connect"},
-        {"type": "websocket.receive", "text": request.header_json},
-        {"type": "websocket.receive", "text": request.metadata_json},
-        {"type": "websocket.receive", "text": request.content_json},
+        {"type": "websocket.receive", "text": request.envelope_json},
         {"type": "websocket.disconnect", "code": 1000},
     ])
     sent: list[dict[str, Any]] = []
@@ -1073,18 +1072,146 @@ async def test_websocket_handles_pull_document_round_trip() -> None:
         )
 
         message_types = [
-            value["msgtype"]
+            value["header"]["msgtype"]
             for event in sent
             if event["type"] == "websocket.send"
-            if (value := json.loads(event["text"])) and "msgtype" in value
+            if (value := json.loads(event["text"])) and "header" in value
         ]
         assert message_types == ["ACK", "PULL-DOC-REPLY"]
     finally:
         await app.core.stop()
 
 
+async def test_websocket_pull_document_sends_ordered_binary_buffers() -> None:
+    def modify_document(doc: Document) -> None:
+        doc.add_root(ColumnDataSource(data={
+            "first": np.arange(16, dtype=np.float64),
+            "second": np.arange(16, dtype=np.int32),
+        }))
+
+    app = BokehASGI(Application(FunctionHandler(modify_document)))
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    request = pull_doc_req()
+    incoming = deque([
+        {"type": "websocket.connect"},
+        {"type": "websocket.receive", "text": request.envelope_json},
+        {"type": "websocket.disconnect", "code": 1000},
+    ])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0"},
+                "scheme": "ws",
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        receiver = Receiver()
+        messages: list[Message[Any]] = []
+        frames = [event for event in sent if event["type"] == "websocket.send"]
+        for event in frames:
+            fragment = event.get("bytes", event.get("text"))
+            message = receiver.consume(fragment)
+            if message is not None:
+                messages.append(message)
+
+        assert [message.msgtype for message in messages] == ["ACK", "PULL-DOC-REPLY"]
+        assert len(messages[1].buffers) == 2
+        assert ["bytes" in event for event in frames] == [False, False, True, True]
+    finally:
+        await app.core.stop()
+
+
+async def test_asgi_transport_sends_message_fragments_atomically() -> None:
+    sent: list[dict[str, Any]] = []
+    first_fragment = asyncio.Event()
+    release_first = asyncio.Event()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+        if len(sent) == 1:
+            first_fragment.set()
+            await release_first.wait()
+
+    transport = _ASGIWebSocketTransport(send, supports_close_reason=True)
+    first = Message(
+        Message.create_header("PATCH-DOC"),
+        {},
+        [Buffer(ID("first"), b"first-payload")],
+    )
+    second = Message(
+        Message.create_header("PATCH-DOC"),
+        {},
+        [Buffer(ID("second"), b"second-payload")],
+    )
+
+    first_send = asyncio.create_task(transport.send_message(first))
+    await first_fragment.wait()
+    second_send = asyncio.create_task(transport.send_message(second))
+    await asyncio.sleep(0)
+    release_first.set()
+    await asyncio.gather(first_send, second_send)
+
+    assert ["bytes" in event for event in sent] == [False, True, False, True]
+    assert sent[1]["bytes"] == b"first-payload"
+    assert sent[3]["bytes"] == b"second-payload"
+
+
+async def test_websocket_malformed_framing_closes_with_protocol_error() -> None:
+    app = BokehASGI(Application())
+    token = generate_jwt_token(cast(ID, "session"), expiration=300)
+    incoming = deque([
+        {"type": "websocket.connect"},
+        {"type": "websocket.receive", "bytes": b"not-an-envelope"},
+    ])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0", "spec_version": "2.3"},
+                "scheme": "ws",
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost")],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+
+        close = next(event for event in sent if event["type"] == "websocket.close")
+        assert close["code"] == 1002
+        assert "expected text fragment" in close["reason"]
+    finally:
+        await app.core.stop()
+
+
 async def test_websocket_rejects_missing_token() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     sent: list[dict[str, Any]] = []
 
     async def receive() -> dict[str, Any]:
@@ -1128,7 +1255,7 @@ async def test_websocket_rejects_malformed_token(token: str | None, session_id: 
         assert session_id is not None
         token = generate_jwt_token(cast(ID, session_id), expiration=300)
 
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     sent: list[dict[str, Any]] = []
 
     async def receive() -> dict[str, Any]:
@@ -1162,7 +1289,7 @@ async def test_websocket_rejects_malformed_token(token: str | None, session_id: 
 
 
 async def test_websocket_waits_for_connect_and_gates_close_reason() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     connect_received = False
     sent: list[dict[str, Any]] = []
 
@@ -1196,7 +1323,7 @@ async def test_websocket_waits_for_connect_and_gates_close_reason() -> None:
 
 
 async def test_websocket_send_oserror_is_treated_as_disconnect() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     token = generate_jwt_token(cast(ID, "session"), expiration=300)
     incoming = deque([
         {"type": "websocket.connect"},
@@ -1235,7 +1362,7 @@ async def test_websocket_send_oserror_is_treated_as_disconnect() -> None:
 
 
 async def test_websocket_disconnect_after_core_stop_does_not_reuse_detached_session() -> None:
-    app = BokehASGI(Application(), keep_alive_milliseconds=0)
+    app = BokehASGI(Application())
     token = generate_jwt_token(cast(ID, "session"), expiration=300)
     incoming: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
     await incoming.put({"type": "websocket.connect"})

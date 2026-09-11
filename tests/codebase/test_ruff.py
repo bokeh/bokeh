@@ -28,9 +28,13 @@ from tests.support.util.project import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-def test_ruff() -> None:
+@pytest.mark.parametrize("args", [
+    pytest.param(["ruff", "check", "."], id="general"),
+    pytest.param(["ruff", "check", "--config", "src/bokeh/.ruff-tornado.toml", "src/bokeh"], id="tornado"),
+])
+def test_ruff(args: list[str]) -> None:
     chdir(TOP_PATH)
-    proc = run(["ruff", "check", "."], capture_output=True)
+    proc = run(args, capture_output=True)
     assert proc.returncode == 0, f"ruff issues:\n{proc.stdout.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------

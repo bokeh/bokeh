@@ -248,6 +248,7 @@ describe("ToolbarView", () => {
         })
         const {view} = await display(plot)
         const toolbar_view = view.owner.get_one(toolbar)
+        const tool_view = view.owner.get_one(tool)
         const tool_button_view = toolbar_view.tool_button_views[0]
         expect(tool_button_view.model.tool.active).to.be.equal(initial)
         expect(legend.visible).to.be.equal(initial)
@@ -257,11 +258,11 @@ describe("ToolbarView", () => {
           scrolling or something like that).
          */
         tool_button_view.tap()
-        await view.ready
+        await tool_view.ready
         expect(tool_button_view.model.tool.active).to.be.equal(!initial)
         expect(legend.visible).to.be.equal(!initial)
         tool_button_view.tap()
-        await view.ready
+        await tool_view.ready
         expect(tool_button_view.model.tool.active).to.be.equal(initial)
         expect(legend.visible).to.be.equal(initial)
       }

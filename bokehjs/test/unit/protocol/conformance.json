@@ -1,0 +1,47 @@
+[
+  {
+    "name": "acknowledgement",
+    "envelope": {
+      "header": {"msgid": "ack-1", "msgtype": "ACK"},
+      "content": {},
+      "buffers": []
+    },
+    "payloads": []
+  },
+  {
+    "name": "pull request",
+    "envelope": {
+      "header": {"msgid": "pull-1", "msgtype": "PULL-DOC-REQ"},
+      "content": {},
+      "buffers": []
+    },
+    "payloads": []
+  },
+  {
+    "name": "pull reply",
+    "envelope": {
+      "header": {"msgid": "pull-2", "msgtype": "PULL-DOC-REPLY", "reqid": "pull-1"},
+      "content": {"doc": {"version": "4.0.0", "title": "Conformance", "roots": []}},
+      "buffers": []
+    },
+    "payloads": []
+  },
+  {
+    "name": "multi-buffer patch",
+    "envelope": {
+      "header": {"msgid": "patch-1", "msgtype": "PATCH-DOC"},
+      "content": {"events": [], "first": {"id": "array-1"}, "second": {"id": "array-2"}},
+      "buffers": ["array-1", "array-2"]
+    },
+    "payloads": [[1, 2, 3], [4, 5]]
+  },
+  {
+    "name": "synchronization barrier",
+    "envelope": {
+      "header": {"msgid": "sync-1", "msgtype": "SYNC"},
+      "content": {},
+      "buffers": []
+    },
+    "payloads": []
+  }
+]

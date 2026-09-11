@@ -23,11 +23,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import TYPE_CHECKING, Any, Awaitable
 
-## Bokeh imports
+# Bokeh imports
+from ..protocol import error, ok
+from ..protocol.exceptions import ProtocolError
+from ..protocol.message import Message
+
 if TYPE_CHECKING:
-    from ..protocol import Protocol, messages as msg
-    from ..protocol.message import Message
-    from .contexts import ApplicationContext
     from .session import ServerSession
     from .transport import WebSocketTransport
 
@@ -50,23 +51,15 @@ class ServerConnection:
 
     _session: ServerSession | None
 
-    def __init__(self, protocol: Protocol, socket: WebSocketTransport,
-            application_context: ApplicationContext, session: ServerSession) -> None:
-        self._protocol = protocol
-        self._socket = socket
-        self._application_context = application_context
+    def __init__(self, transport: WebSocketTransport, session: ServerSession) -> None:
+        self._transport = transport
         self._session = session
         self._session.subscribe(self)
-        self._ping_count = 0
 
     @property
     def session(self) -> ServerSession:
         assert self._session is not None
         return self._session
-
-    @property
-    def application_context(self) -> ApplicationContext:
-        return self._application_context
 
     def detach_session(self) -> None:
         """Allow the session to be discarded and don't get change notifications from it anymore"""
@@ -74,22 +67,32 @@ class ServerConnection:
             self._session.unsubscribe(self)
             self._session = None
 
-    def ok(self, message: Message[Any]) -> msg.ok:
-        return self.protocol.create('OK', message.header['msgid'])
+    def ok(self, message: Message[Any]) -> Message[Any]:
+        return ok(message.header['msgid'])
 
-    def error(self, message: Message[Any], text: str) -> msg.error:
-        return self.protocol.create('ERROR', message.header['msgid'], text)
+    def error(self, message: Message[Any], text: str) -> Message[Any]:
+        return error(message.header['msgid'], text)
+
+    async def handle(self, message: Message[Any]) -> Message[Any] | None:
+        '''Handle a client request and return its reply.'''
+        if message.msgtype not in {"PULL-DOC-REQ", "PUSH-DOC", "PATCH-DOC", "SYNC"}:
+            raise ProtocolError(f"{message} not expected on server")
+
+        try:
+            if message.msgtype == "PULL-DOC-REQ":
+                return await self.session._handle_pull(message, self)
+            elif message.msgtype == "PUSH-DOC":
+                return await self.session._handle_push(message, self)
+            elif message.msgtype == "PATCH-DOC":
+                return await self.session._handle_patch(message, self)
+            else:
+                return self.ok(message)
+        except Exception:
+            log.exception("error handling %s message", message.msgtype)
+            return self.error(message, f"Error handling {message.msgtype} message")
 
     def send_message(self, message: Message[Any]) -> Awaitable[None]:
-        return self._socket.send_message(message)
-
-    def send_ping(self) -> None:
-        self._socket.ping(str(self._ping_count).encode("utf-8"))
-        self._ping_count += 1
-
-    @property
-    def protocol(self) -> Protocol:
-        return self._protocol
+        return self._transport.send_message(message)
 
 #-----------------------------------------------------------------------------
 # Dev API

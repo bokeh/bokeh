@@ -1,0 +1,73 @@
+{
+  config: {
+    type: "object",
+    name: "DocumentConfig",
+    id: "p1007",
+    attributes: {
+      notifications: {
+        type: "object",
+        name: "Notifications",
+        id: "p1008",
+      },
+    },
+  },
+  roots: [
+    {
+      type: "object",
+      name: "Div",
+      id: "p1006",
+      attributes: {
+        text: "DataModel definitions loaded",
+      },
+    },
+  ],
+  defs: [
+    {
+      type: "model",
+      name: "builtins.ForwardDefault",
+      properties: [
+        {
+          name: "payload",
+          kind: "Any",
+          "default": {
+            type: "object",
+            name: "builtins.Later",
+            id: "p1009",
+          },
+        },
+        {
+          name: "pattern",
+          kind: [
+            "Regex",
+            "(?P<word>foo)",
+          ],
+          "default": "foo",
+        },
+      ],
+    },
+    {
+      type: "model",
+      name: "builtins.Later",
+      properties: [
+        {
+          name: "child",
+          kind: [
+            "Nullable",
+            [
+              "Ref",
+              {
+                id: "builtins.Later",
+              },
+            ],
+          ],
+          "default": null,
+        },
+        {
+          name: "value",
+          kind: "Int",
+          "default": 1,
+        },
+      ],
+    },
+  ],
+}

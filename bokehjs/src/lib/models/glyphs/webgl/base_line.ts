@@ -11,9 +11,19 @@ import type {Arrayable} from "core/types"
 
 export type BaseLineVisuals = visuals.LineVector | visuals.LineScalar
 
+export const LINE_AA_WIDTH = 1.5
+export const LINE_MITER_LIMIT = 10.0
+
+/** Extra screen-space padding needed to enclose a rendered line. A miter join
+ * can extend by half the line width times the miter limit, and antialiasing
+ * adds a fringe beyond that geometry. */
+export function line_bounds_padding(linewidth: number): number {
+  return LINE_AA_WIDTH + LINE_MITER_LIMIT*linewidth/2
+}
+
 export abstract class BaseLineGL extends BaseGLGlyph {
-  protected readonly _antialias: number = 1.5  // Make this larger to test antialiasing at edges.
-  protected readonly _miter_limit = 10.0  // Threshold for miters to be replaced by bevels.
+  protected readonly _antialias: number = LINE_AA_WIDTH  // Make this larger to test antialiasing at edges.
+  protected readonly _miter_limit = LINE_MITER_LIMIT  // Threshold for miters to be replaced by bevels.
 
   // data properties
   protected _points?: Float32Buffer

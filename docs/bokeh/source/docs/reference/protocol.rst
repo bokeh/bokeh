@@ -14,14 +14,6 @@ bokeh.protocol.exceptions
 .. automodule:: bokeh.protocol.exceptions
    :members:
 
-.. _bokeh.protocol.message:
-
-bokeh.protocol.message
-----------------------
-
-.. automodule:: bokeh.protocol.message
-   :members:
-
 bokeh.protocol.messages
 -----------------------
 

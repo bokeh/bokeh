@@ -112,7 +112,7 @@ class Object[T: object](Property[T]):
         msg = "" if not detail else f"expected an instance of type {instance_type}, got {value} of type {value_type}"
         raise ValueError(msg)
 
-    def _may_have_unstable_default(self) -> bool:
+    def _needs_materialized_default(self) -> bool:
         # because the instance value is mutable
         return self._default is not Undefined
 

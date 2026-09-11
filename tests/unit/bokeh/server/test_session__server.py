@@ -30,7 +30,7 @@ from bokeh.document import Document
 from bokeh.io import curdoc
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
-from bokeh.protocol import Protocol
+from bokeh.protocol import pull_doc_req
 from bokeh.server.connection import ServerConnection
 from bokeh.server.executor import _ServerExecutor
 
@@ -48,25 +48,23 @@ import bokeh.server.session as bss # isort:skip
 class SomeModelInTestServerSession(Model):
     value = Int(default=0)
 
-class TrackingProtocol(Protocol):
+class TrackingConstructor:
 
-    def __init__(self, tracked: str, started: Event | None = None, release: Event | None = None) -> None:
-        super().__init__()
-        self.tracked = tracked
+    def __init__(self, constructor, started: Event | None = None, release: Event | None = None) -> None:
+        self.constructor = constructor
         self.started = started
         self.release = release
         self.thread_ids: list[int] = []
         self.current_documents: list[Document] = []
 
-    def create(self, msgtype, *args, **kwargs):
-        if msgtype == self.tracked:
-            self.thread_ids.append(get_ident())
-            self.current_documents.append(curdoc())
-            if self.started is not None:
-                self.started.set()
-            if self.release is not None:
-                assert self.release.wait(timeout=2)
-        return super().create(msgtype, *args, **kwargs)
+    def __call__(self, *args, **kwargs):
+        self.thread_ids.append(get_ident())
+        self.current_documents.append(curdoc())
+        if self.started is not None:
+            self.started.set()
+        if self.release is not None:
+            assert self.release.wait(timeout=2)
+        return self.constructor(*args, **kwargs)
 
 class RecordingSocket:
 
@@ -84,10 +82,10 @@ class RecordingSocket:
         await self.release.wait()
         self.messages.append(message)
 
-def make_connection(document: Document, protocol: Protocol, executor: _ServerExecutor) -> tuple[bss.ServerSession, RecordingSocket, ServerConnection]:
+def make_connection(document: Document, executor: _ServerExecutor) -> tuple[bss.ServerSession, RecordingSocket, ServerConnection]:
     session = bss.ServerSession("some-id", document, executor=executor)
     socket = RecordingSocket()
-    connection = ServerConnection(protocol, socket, mock.Mock(), session)
+    connection = ServerConnection(socket, session)
     return session, socket, connection
 
 def test_creation() -> None:
@@ -129,21 +127,22 @@ async def test_patch_serialization_runs_off_loop_and_freezes_buffers() -> None:
     source = ColumnDataSource(data={"a": np.array([0.0])})
     document.add_root(source)
     document.to_json()
-    protocol = TrackingProtocol("PATCH-DOC")
-    session, socket, _ = make_connection(document, protocol, executor)
+    constructor = TrackingConstructor(bss.patch_doc)
+    session, socket, _ = make_connection(document, executor)
     array = np.array([1.0, 2.0])
 
     try:
-        await session.with_document_locked(lambda: setattr(source, "data", {"a": array}))
+        with mock.patch.object(bss, "patch_doc", constructor):
+            await session.with_document_locked(lambda: setattr(source, "data", {"a": array}))
         [message] = socket.messages
         [buffer] = message.buffers
         expected = buffer.data
 
-        assert protocol.thread_ids and protocol.thread_ids[0] != main_thread
-        assert protocol.current_documents == [document]
+        assert constructor.thread_ids and constructor.thread_ids[0] != main_thread
+        assert constructor.current_documents == [document]
         assert socket.thread_ids == [main_thread]
         assert isinstance(expected, bytes)
-        assert message.content_json == message._content_json
+        assert message.envelope_json == message._envelope_json
 
         array[0] = 10.0
         assert buffer.data == expected
@@ -158,25 +157,26 @@ async def test_patch_cancellation_waits_for_serialization_and_write() -> None:
     root = SomeModelInTestServerSession()
     document.add_root(root)
     document.to_json()
-    protocol = TrackingProtocol("PATCH-DOC", started, release)
-    session, socket, _ = make_connection(document, protocol, executor)
+    constructor = TrackingConstructor(bss.patch_doc, started, release)
+    session, socket, _ = make_connection(document, executor)
 
-    task = asyncio.create_task(session.with_document_locked(lambda: setattr(root, "value", 1)))
-    try:
-        async with asyncio.timeout(1):
-            while not started.is_set():
-                await asyncio.sleep(0)
+    with mock.patch.object(bss, "patch_doc", constructor):
+        task = asyncio.create_task(session.with_document_locked(lambda: setattr(root, "value", 1)))
+        try:
+            async with asyncio.timeout(1):
+                while not started.is_set():
+                    await asyncio.sleep(0)
 
-        task.cancel()
-        await asyncio.sleep(0)
-        assert not task.done()
-        assert not socket.messages
-    finally:
-        release.set()
+            task.cancel()
+            await asyncio.sleep(0)
+            assert not task.done()
+            assert not socket.messages
+        finally:
+            release.set()
 
-    with pytest.raises(asyncio.CancelledError):
-        await task
-    assert len(socket.messages) == 1
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        assert len(socket.messages) == 1
 
     executor.shutdown()
 
@@ -186,15 +186,16 @@ async def test_patch_messages_preserve_event_order() -> None:
     root = SomeModelInTestServerSession()
     document.add_root(root)
     document.to_json()
-    protocol = TrackingProtocol("PATCH-DOC")
-    session, socket, _ = make_connection(document, protocol, executor)
+    constructor = TrackingConstructor(bss.patch_doc)
+    session, socket, _ = make_connection(document, executor)
 
     def update() -> None:
         root.value = 1
         root.value = 2
 
     try:
-        await session.with_document_locked(update)
+        with mock.patch.object(bss, "patch_doc", constructor):
+            await session.with_document_locked(update)
         assert [
             message.content["events"][0]["new"]
             for message in socket.messages
@@ -207,33 +208,34 @@ async def test_pull_reply_precedes_later_patch_and_is_cancellation_safe() -> Non
     document = Document()
     root = SomeModelInTestServerSession()
     document.add_root(root)
-    protocol = TrackingProtocol("PULL-DOC-REPLY")
+    constructor = TrackingConstructor(bss.pull_doc_reply)
     session = bss.ServerSession("some-id", document, executor=executor)
     socket = RecordingSocket(block_first=True)
-    connection = ServerConnection(protocol, socket, mock.Mock(), session)
-    request = protocol.create("PULL-DOC-REQ")
+    connection = ServerConnection(socket, session)
+    request = pull_doc_req()
 
-    pull = asyncio.create_task(bss.ServerSession.pull(request, connection))
-    try:
-        await asyncio.wait_for(socket.started.wait(), timeout=1)
-        pull.cancel()
-        patch = asyncio.create_task(session.with_document_locked(lambda: setattr(root, "value", 1)))
-        await asyncio.sleep(0)
+    with mock.patch.object(bss, "pull_doc_reply", constructor):
+        pull = asyncio.create_task(connection.handle(request))
+        try:
+            await asyncio.wait_for(socket.started.wait(), timeout=1)
+            pull.cancel()
+            patch = asyncio.create_task(session.with_document_locked(lambda: setattr(root, "value", 1)))
+            await asyncio.sleep(0)
 
-        assert not pull.done()
-        assert not patch.done()
+            assert not pull.done()
+            assert not patch.done()
 
-        socket.release.set()
-        with pytest.raises(asyncio.CancelledError):
-            await pull
-        await patch
+            socket.release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await pull
+            await patch
 
-        assert [message.msgtype for message in socket.messages] == ["PULL-DOC-REPLY", "PATCH-DOC"]
-        assert all(thread_id == get_ident() for thread_id in socket.thread_ids)
-        assert protocol.thread_ids and protocol.thread_ids[0] != get_ident()
-        assert protocol.current_documents == [document]
-    finally:
-        executor.shutdown()
+            assert [message.msgtype for message in socket.messages] == ["PULL-DOC-REPLY", "PATCH-DOC"]
+            assert all(thread_id == get_ident() for thread_id in socket.thread_ids)
+            assert constructor.thread_ids and constructor.thread_ids[0] != get_ident()
+            assert constructor.current_documents == [document]
+        finally:
+            executor.shutdown()
 
 #-----------------------------------------------------------------------------
 # Dev API

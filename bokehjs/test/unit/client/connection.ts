@@ -3,6 +3,7 @@ import {expect} from "#framework/assertions"
 import {pull_session, ClientConnection} from "@bokehjs/client/connection"
 import {ClientReconnected} from "@bokehjs/core/bokeh_events"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Message} from "@bokehjs/protocol/message"
 import {unique_id} from "@bokehjs/core/util/string"
 import {assert} from "@bokehjs/core/util/assert"
 import {poll} from "@bokehjs/core/util/defer"
@@ -20,9 +21,115 @@ function token(session_id: string = unique_id(), session_expiry: number = Date.n
 
 describe("ClientSession", () => {
 
+  it("should send through an open socket", () => {
+    const connection = new ClientConnection(url, token())
+    let sent = false
+    connection.socket = {
+      readyState: WebSocket.OPEN,
+      send() { sent = true },
+    } as unknown as WebSocket
+
+    const result = connection.send(Message.create("PATCH-DOC", {}))
+
+    expect(result).to.be.true
+    expect(sent).to.be.true
+  })
+
+  it("should report failure instead of sending through a non-open socket", () => {
+    const connection = new ClientConnection(url, token())
+    let sent = false
+    connection.socket = {
+      readyState: WebSocket.CONNECTING,
+      send() { sent = true },
+    } as unknown as WebSocket
+
+    const result = connection.send(Message.create("PATCH-DOC", {}))
+
+    expect(result).to.be.false
+    expect(sent).to.be.false
+  })
+
+  it("should report failure when a socket closes during a send", () => {
+    const connection = new ClientConnection(url, token())
+    const socket = {
+      readyState: WebSocket.OPEN as number,
+      send() {
+        socket.readyState = WebSocket.CLOSED
+        throw new Error("socket closed")
+      },
+    }
+    connection.socket = socket as unknown as WebSocket
+
+    const result = connection.send(Message.create("PATCH-DOC", {}))
+
+    expect(result).to.be.false
+  })
+
+  it("should reject request messages immediately when disconnected", async () => {
+    const connection = new ClientConnection(url, token())
+    let error: unknown = null
+
+    try {
+      await connection.send_with_reply(Message.create("SYNC", {}))
+    } catch (caught) {
+      error = caught
+    }
+
+    expect(error).to.be.instanceof(Error)
+    expect((error as Error).message).to.be.equal("Cannot send message because the connection is not open")
+    expect((connection as any)._pending_replies.size).to.be.equal(0)
+  })
+
+  it("should reject request messages and clear pending replies when an open socket send fails", async () => {
+    const connection = new ClientConnection(url, token())
+    const failure = new Error("send failed")
+    connection.socket = {
+      readyState: WebSocket.OPEN,
+      send() { throw failure },
+    } as unknown as WebSocket
+    let error: unknown = null
+
+    try {
+      await connection.send_with_reply(Message.create("SYNC", {}))
+    } catch (caught) {
+      error = caught
+    }
+
+    expect(error).to.be.equal(failure)
+    expect((connection as any)._pending_replies.size).to.be.equal(0)
+  })
+
+  it("should not redispatch a completed message after malformed framing", () => {
+    const connection = new ClientConnection(url, token())
+    const received: Message<unknown>[] = []
+    const closed = {code: null as number | null}
+    connection.socket = {
+      close(code: number) { closed.code = code },
+    } as unknown as WebSocket
+    const raw_connection = connection as any
+    raw_connection._current_handler = (message: Message<unknown>) => received.push(message)
+
+    raw_connection._on_message({
+      data: '{"header":{"msgid":"10","msgtype":"PATCH-DOC"},"content":{},"buffers":[]}',
+    })
+    raw_connection._on_message({data: new ArrayBuffer(8)})
+
+    expect(received.length).to.be.equal(1)
+    expect(closed.code).to.be.equal(1002)
+  })
+
   it("should be able to connect", async () => {
     const session = await pull_session(url, token())
     session.close()
+  })
+
+  it("should complete a SYNC round trip", async () => {
+    const session = await pull_session(url, token())
+    try {
+      await session.force_roundtrip()
+    } finally {
+      session.close()
+    }
   })
 
   it("should pass request string to connection", async () => {
@@ -37,16 +144,6 @@ describe("ClientSession", () => {
   it("should be able to connect again", async () => {
     const session = await pull_session(url, token())
     session.close()
-  })
-
-  it("should get server info", async () => {
-    const session = await pull_session(url, token())
-    try {
-      const info = await session.request_server_info()
-      expect("version_info" in info).to.be.true
-    } finally {
-      session.close()
-    }
   })
 
   it.skip("should sync a document between two connections", async () => {

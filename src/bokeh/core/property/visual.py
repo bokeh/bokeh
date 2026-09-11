@@ -25,6 +25,7 @@ import base64
 import datetime
 import re
 import tempfile
+from collections.abc import Sequence
 from io import BytesIO
 from pathlib import Path
 from typing import Any, BinaryIO, Literal
@@ -34,7 +35,7 @@ from urllib.parse import quote
 from ...util.serialization import convert_datetime_type
 from .. import enums
 from .auto import Auto
-from .bases import Property
+from .bases import Init, Property
 from .container import Seq, Tuple
 from .datetime import Datetime, TimeDelta
 from .either import Either
@@ -62,7 +63,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class DashPattern(Either):
+type DashPatternType = enums.DashPatternType | str | Sequence[int]
+
+class DashPattern(Either[DashPatternType]):
     """ Accept line dash specifications.
 
     Express patterns that describe line dashes.  ``DashPattern`` values
@@ -130,7 +133,9 @@ class FontSize(String):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 
-class HatchPatternType(Either):
+type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType | str
+
+class HatchPatternType(Either[HatchPatternTypeType]):
     """ Accept built-in fill hatching specifications.
 
     Accepts either "long" names, e.g. "horizontal-wave" or the single letter
@@ -210,7 +215,10 @@ class Image(Property[str]):
 
         raise ValueError(f"Could not transform {value!r}")
 
-class MinMaxBounds(Either):
+type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
+type MinMaxBoundsType = Literal["auto"] | Bounds[float] | Bounds[datetime.datetime] | Bounds[datetime.timedelta]
+
+class MinMaxBounds(Either[MinMaxBoundsType]):
     """ Accept (min, max) bounds tuples for use with Ranges.
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
@@ -221,7 +229,7 @@ class MinMaxBounds(Either):
     want to constrain one end of the plot, you can set min or max to
     ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
 
-    def __init__(self, default='auto', *, accept_datetime: bool = False, help: str | None = None) -> None:
+    def __init__(self, default: Init[MinMaxBoundsType] = "auto", *, accept_datetime: bool = False, help: str | None = None) -> None:
         types = (
             Auto,
 
@@ -263,7 +271,7 @@ class MinMaxBounds(Either):
         msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
         raise ValueError(msg)
 
-class MarkerType(Enum):
+class MarkerType(Enum[str]):
     """
 
     """

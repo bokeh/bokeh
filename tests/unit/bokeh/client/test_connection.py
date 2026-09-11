@@ -46,7 +46,6 @@ class Test_ClientConnection:
         assert c._session == "session"
         assert isinstance(c._state, NOT_YET_CONNECTED)
         assert c._until_predicate is None
-        assert c._server_info is None
         assert c._arguments is None
 
     def test_creation_with_arguments(self) -> None:
@@ -58,7 +57,6 @@ class Test_ClientConnection:
         assert c._session == "session"
         assert isinstance(c._state, NOT_YET_CONNECTED)
         assert c._until_predicate is None
-        assert c._server_info is None
         assert c._arguments == dict(foo="bar")
 
 #-----------------------------------------------------------------------------

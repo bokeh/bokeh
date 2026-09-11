@@ -12,6 +12,17 @@ This chapter describes how to run various tests in a
 :ref:`Bokeh's continuous integration (CI) system on GitHub
 <contributor_guide_testing_ci>`.
 
+.. note::
+    **Running commands with Pixi**
+
+    Throughout this guide, you are shown two ways to execute tests:
+
+    * **Standard terminal:** Use ``pixi run <task>`` from the repository root to execute predefined testing tasks.
+      This automatically ensures your environment dependencies are in sync with the lockfile before the test runs.
+    * **Inside a pixi shell:** Run the underlying command directly (e.g., ``pytest`` or ``node``).
+      Using pixi run inside an active shell is redundant and, while usually harmless, can occasionally cause
+      subtle PATH precedence or activation script conflicts due to nested environment layers.
+
 .. _contributor_guide_testing_local:
 
 Local testing
@@ -90,7 +101,13 @@ spaces.
 Any edits you make to Bokeh's Python or JavaScript codebase should pass this
 test.
 
-Run this command from the top level of the repository:
+**Standard terminal:**
+
+.. code-block:: sh
+
+    pixi run test-codebase
+
+**Inside a pixi shell:**
 
 .. code-block:: sh
 
@@ -102,7 +119,15 @@ Run tools tests
 ~~~~~~~~~~~~~~~
 
 Bokeh's developer, CI, and release tooling lives in the :bokeh-tree:`tools`
-directory. Changes to these tools should pass their dedicated test suite:
+directory. Changes to these tools should pass their dedicated test suite.
+
+**Standard terminal:**
+
+.. code-block:: sh
+
+    pixi run test-tools
+
+**Inside a pixi shell:**
 
 .. code-block:: sh
 
@@ -139,13 +164,22 @@ when working with Bokeh's pytest-based tests:
   ``pytest --driver="firefox" tests/unit/``.
 * ``--no-js``: Skip any JavaScript code and only test Python code.
 
-See the `pytest documentation`_ for more options.
+See the `pytest documentation`_ for more options. Note that any arguments appended
+to ``pixi run <task>`` are automatically passed through to the underlying ``pytest`` command.
 
 .. _contributor_guide_testing_local_python_unit:
 
 Unit tests
-    To run Bokeh's Python unit tests, use the following command at the top
+    To run Bokeh's Python unit tests, execute the following command at the top
     level of the repository:
+
+    **Standard terminal:**
+
+    .. code-block:: sh
+
+        pixi run test-py -m "not selenium"
+
+    **Inside a pixi shell:**
 
     .. code-block:: sh
 
@@ -161,17 +195,25 @@ Unit tests
         <contributor_guide_testing_ci>` will run all tests, including
         Selenium-based unit tests. In case Selenium with both geckodriver and
         ChromeDriver is available on your system, you can run all unit tests
-        with ``pytest tests/unit``.
+        by omitting the ``-m`` flag.
 
 .. _contributor_guide_testing_local_python_coverage:
 
 Code coverage (Python unit tests)
-    To create a coverage report for Python unit tests, use ``pytest`` with the
+    To create a coverage report for Python unit tests, append the
     command-line option ``--cov=bokeh``:
+
+    **Standard terminal:**
 
     .. code-block:: sh
 
-        pytest --cov=bokeh
+        pixi run test-py --cov=bokeh
+
+    **Inside a pixi shell:**
+
+    .. code-block:: sh
+
+        pytest tests/unit --cov=bokeh
 
     Coverage with Bokeh's Python unit tests should be around 90%. Coverage
     reports are only relevant for Python unit tests. There are no coverage
@@ -180,6 +222,14 @@ Code coverage (Python unit tests)
     You also have the option to add ``--cov=bokeh`` when running a specific
     subset of Python unit tests. This adds a coverage report to the test
     results. For example:
+
+    **Standard terminal:**
+
+    .. code-block:: sh
+
+        pixi run pytest tests/unit/bokeh/test_objects.py -m "not selenium" --cov=bokeh --cov-report=html
+
+    **Inside a pixi shell:**
 
     .. code-block:: sh
 
@@ -197,12 +247,24 @@ Cross integration tests
     serialized document. That JSON is then stored in the repository under
     ``tests/baselines/cross``. When adding a new test case, run:
 
+    **Standard terminal:**
+
+    .. code-block:: sh
+
+        pixi run test-cross
+
+    **Inside a pixi shell:**
+
     .. code-block:: sh
 
         pytest tests/test_cross.py
 
     and then commit any new baselines and re-run tests. Only committed
     baselines are considered by the test runner.
+
+    .. warning::
+        Cross tests are not supported on Windows and therefore skipped. Use Linux or
+        macOS to add or refresh baseline images.
 
     Each test case must have a corresponding integration test in BokehJS,
     under ``bokehjs/test/integration/cross.ts``. These are equivalent to
@@ -219,9 +281,15 @@ Cross integration tests
     robust integration tests.
 
 Run all available tests
-    You can run all available tests (Python and JavaScript unit tests, examples,
-    and integration tests) by running the following command from the top-level
-    directory:
+    You can run all available Python tests by running the following command:
+
+    **Standard terminal:**
+
+    .. code-block:: sh
+
+        pixi run test
+
+    **Inside a pixi shell:**
 
     .. code-block:: sh
 
@@ -232,6 +300,16 @@ Run all available tests
 Run unit tests in parallel
     To speed up the Python unit test suite, use the ``-n`` option to distribute tests
     across multiple CPU cores. Some examples are given below:
+
+    **Standard terminal:**
+
+    .. code-block:: sh
+
+        pixi run test-py -n auto     # All physically available CPU cores
+        pixi run test-py -n logical  # All physically available CPU cores
+        pixi run test-py -n 4        # All physically available CPU cores
+
+    **Inside a pixi shell:**
 
     .. code-block:: sh
 
@@ -245,14 +323,29 @@ Run unit tests in parallel
 .. _contributor_guide_testing_local_python_select:
 
 Select specific tests
-    To test a subset of the Bokeh package, pass a path to ``pytest``:
+    To test a subset of the Bokeh package, pass a path:
+
+    **Standard terminal:**
+
+    .. code-block:: sh
+
+        pixi run pytest tests/unit/bokeh/models/
+
+    **Inside a pixi shell:**
 
     .. code-block:: sh
 
         pytest tests/unit/bokeh/models/
 
-    Similarly, you can run a specific test by passing a specific file to
-    ``pytest``:
+    Similarly, you can run a specific test by passing a specific file:
+
+    **Standard terminal:**
+
+    .. code-block:: sh
+
+        pixi run pytest tests/unit/bokeh/models/test_grids.py
+
+    **Inside a pixi shell:**
 
     .. code-block:: sh
 
@@ -290,40 +383,130 @@ the executable if desired.
 Run all BokehJS tests
 '''''''''''''''''''''
 
-You can use ``pytest`` to run all available tests for BokehJS:
+You can run a combination of the codebase, defaults, unit, and integration
+test suites:
+
+**Standard terminal (from the repository top level):**
 
 .. code-block:: sh
 
-    pytest tests/test_bokehjs.py
+    pixi run test-js
 
-This is a shortcut to run all BokehJS tests. You can run the same set of tests
-directly with ``node make``, from the `bokehjs` subdirectory
-of the source checkout:
+**Inside a pixi shell (from the ``bokehjs`` subdirectory):**
 
 .. code-block:: sh
 
     node make test
-
-This runs a combination of codebase, defaults, unit, and integration test
-suites.
 
 .. _contributor_guide_testing_local_javascript_selecting:
 
 Select specific BokehJS tests
 '''''''''''''''''''''''''''''
 
-You also have the option to run these test suites individually, using
-``node make test:suite_name`` in the `bokehjs` subdirectory of the source
-checkout:
+You also have the option to run these test suites individually. The following commands
+will automatically execute from the correct directory:
 
-* ``node make test:codebase``: Codebase tests checking file size limits
-* ``node make test:defaults``: Tests checking whether the defaults in Bokeh’s
-  Python models match those of Bokeh’s JavaScript models
-* ``node make test:unit``: Unit tests for BokehJS
-* ``node make test:integration``: Visual integration tests comparing locally
-  generated plots against a set of baseline files
+* **Codebase tests:** Checking file size limits
 
-You can combine the last two test suites by running ``node make test:lib``.
+  * Standard (from repository root): ``pixi run test-js-codebase``
+  * Shell (inside bokehjs): ``node make test:codebase``
+
+* **Defaults tests:** Checking whether Python defaults match BokehJS defaults
+
+  * Standard (from repository root): ``pixi run test-js-defaults``
+  * Shell (inside bokehjs): ``node make test:defaults``
+
+* **Unit tests:** Core unit tests for BokehJS
+
+  * Standard (from repository root): ``pixi run test-js-unit``
+  * Shell (inside bokehjs): ``node make test:unit``
+
+* **Integration tests:** Visual integration tests comparing plots against baselines
+
+  * Standard (from repository root): ``pixi run test-js-integration``
+  * Shell (inside bokehjs): ``node make test:integration``
+
+To run visual integration tests against the canonical Linux baselines on any
+platform with Docker, run these commands from the root of the source checkout:
+
+.. code-block:: sh
+
+    $ cd bokehjs
+    $ node make baseline-test
+
+New or updated baseline files are written directly into the current checkout.
+The run exits with a failure when it creates or updates baselines because it
+compares against the committed Git reference. After accepting reviewed
+changes, subsequent runs automatically verify against the staged baselines, so
+you can confirm that they are stable before committing.
+Browser commands have deadlines. If Chrome stops responding, the test
+controller reports the current test and relevant Chrome diagnostics, replaces
+the browser, and retries the interrupted test up to two times. It then records
+the failure and continues with the remaining tests. Test bodies have a
+30-second deadline by default, increased to 120 seconds on Windows hosts. Set a
+different default in seconds with ``--test-timeout``; use
+``--test-timeout=0`` to disable test-body deadlines for an attended local run.
+Browser startup and navigation retain their own deadlines, and CI jobs remain
+bounded even when individual tests have a longer deadline.
+
+The container shares the host IPC namespace to give Chrome sufficient shared
+memory. On Windows hosts, including WSL, the wrapper also skips individual
+tests known to crash Chrome under Docker Desktop while native Linux CI
+continues to run the complete suite. Set
+``BOKEHJS_BASELINE_INCLUDE_WINDOWS_UNSTABLE=1`` to include these tests when
+investigating the container runtime.
+
+On Linux, you can run the visual tests directly, without Docker or Podman, from
+the ``bokehjs`` subdirectory:
+
+.. code-block:: sh
+
+    $ node make build:all
+    $ BOKEH_CHROME=/path/to/chrome node make test:integration
+
+Omit ``BOKEH_CHROME`` when a supported Chrome or Chromium executable is already
+available in ``PATH``. The native run reads and writes
+``bokehjs/test/baselines/linux`` and accepts the same ``-k`` and ``--grep`` test
+filters as the containerized run. This is a convenient path for fast iteration
+on Linux, but it is not the canonical baseline environment: the host's browser,
+fonts, system libraries, and rendering stack can all affect pixels. Confirm any
+new or updated baselines with ``node make baseline-test`` before accepting them.
+
+To review the latest results with the same BokehJS report used by CI, start the
+containerized review server:
+
+.. code-block:: sh
+
+    $ node make baseline-test:review
+
+Open the URL printed by the command. After reviewing the generated images,
+pixel differences, selected references, and layout baselines, stage the
+baseline changes for the current branch with:
+
+.. code-block:: sh
+
+    $ node make baseline-test:accept
+
+The ``accept`` command only stages changed ``.blf`` and ``.png`` files under
+``bokehjs/test/baselines/linux`` that exactly match the completed report. This
+prevents candidates left by an earlier or broader run from being staged. It
+does not create a commit.
+
+Normal runs pull an immutable digest from Bokeh's public GHCR package.
+Maintainers can publish a refreshed container with the manually dispatched
+``BokehJS - Publish Baseline Image`` GitHub Actions workflow. The workflow
+rebuilds the package layers without a cache, tests the local image before
+publishing it, and records the resulting digest. Bump the image revision
+whenever the versions or system packages in the container are refreshed, then
+update the digest used by ``bokehjs/test/run-baseline-tests.mjs`` in a
+reviewed pull request. Set ``BOKEHJS_BASELINE_BUILD=1`` to build the Dockerfile
+locally while preparing a new image. Set
+``BOKEHJS_CONTAINER_ENGINE=podman`` when invoking any ``baseline-test`` task to
+use Podman instead of Docker. On Apple Silicon, the image's canonical
+``linux/amd64`` Chrome binary requires a Rosetta-enabled AppleHV Podman
+machine; QEMU-only machines may abort while starting Chrome. Configure
+``rosetta = true`` in the ``[machine]`` section of ``containers.conf`` before
+creating the Podman machine.
 
 Additionally, you can use search strings to select individual tests or groups
 of tests. Use the ``-k`` argument to supply your search string. The search
@@ -331,9 +514,17 @@ string is case-sensitive. The BokehJS testing framework tries to match your
 search string to the strings defined in the tests' ``describe()`` and
 ``it()`` functions. For example:
 
+**Standard terminal:**
+
 .. code-block:: sh
 
-    $ node make test:integration -k "Legend"
+    pixi run test-js-integration -k "Legend"
+
+**Inside a pixi shell (from the ``bokehjs`` subdirectory):**
+
+.. code-block:: sh
+
+    node make test:integration -k "Legend"
 
 This will only run integration tests that contain the string "Legend".
 
@@ -352,15 +543,21 @@ the BokehJS devtools server. This system requires the Chrome web browser to be
 available on your system. Use the BokehJS devtools server to run tests and
 review the visual tests' output.
 
-First, start the devtools server from the :bokeh-tree:`bokehjs` subdirectory
-with the following command:
+First, start the devtools server.
+
+**Standard terminal:**
 
 .. code-block:: sh
 
-    $ node test/devtools server
-    listening on 127.0.0.1:5777
+    pixi run devtools-server
 
-You can now use the devtools server for the following operations:
+**Inside a pixi shell (from the ``bokehjs`` subdirectory):**
+
+.. code-block:: sh
+
+    node test/devtools server
+
+This will output ``listening on 127.0.0.1:5777``. You can now use the devtools server for the following operations:
 
 .. _contributor_guide_testing_local_javascript_devtools_endpoints:
 
@@ -446,17 +643,30 @@ all examples tests once you :ref:`create a Pull Request
 <contributor_guide_pull_requests>`.
 
 To run the examples tests locally, you first need to start a customized headless
-version of Chrome in the background. This headless browser needs to be
-started from the ``bokehjs`` folder. Use the following commands from the top
-level of your *source checkout* directory:
+version of Chrome in the background.
+
+**Standard terminal:**
 
 .. code-block:: sh
 
-    cd bokehjs
+    pixi run devtools-headless
+
+**Inside a pixi shell (from the ``bokehjs`` subdirectory):**
+
+.. code-block:: sh
+
     node make test:run:headless
 
 This starts a headless Chrome tool. Next, open a second terminal and run the
-tests from the top level of your *source checkout* directory:
+tests:
+
+**Standard terminal:**
+
+.. code-block:: sh
+
+    pixi run test-examples
+
+**Inside a pixi shell:**
 
 .. code-block:: sh
 
@@ -495,13 +705,18 @@ https://github.com/bokeh/bokeh/actions
 
 .. _contributor_guide_testing_ci_environments:
 
-Environment files
+Pixi environments
 ~~~~~~~~~~~~~~~~~
 
 Bokeh's CI runs tests on Linux, macOS, and Windows. It also runs tests with
-different versions of Python. The various testing environments are defined
-in their respective YAML files in the :bokeh-tree:`conda` folder. In case you
-add or change dependencies, you need to update these files.
+different versions of Python. The environments are assembled from features in
+``pixi.toml``. Exact package versions for every supported platform are recorded
+in ``pixi.lock``.
+
+When adding or changing a dependency, update ``pixi.toml``, run
+``pixi lock``, and commit both files. Use
+``pixi run --locked -e <environment>`` to run a command in a particular CI
+environment, such as ``test-py312``, ``minimal``, or ``core``.
 
 CI Workflows
 ~~~~~~~~~~~~

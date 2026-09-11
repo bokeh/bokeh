@@ -32,10 +32,10 @@ class SomeModelView extends DOMComponentView implements visuals.Paintable {
   get canvas() {
     return {
       create_layer(): CanvasLayer {
-        return new CanvasLayer("canvas", true)
+        return new CanvasLayer("canvas")
       },
       create_layer_svg(): CanvasLayer {
-        return new CanvasLayer("svg", true)
+        return new CanvasLayer("svg")
       },
     }
   }

@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 import typing
 
 # Bokeh imports
-from .bases import Init, Property
+from .bases import Property
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,9 +48,9 @@ class Any(Property[typing.Any]):
     The ``Any`` property does not do any validation or transformation.
 
     Args:
-        default (obj or None, optional) :
+        default (obj, optional) :
             A default value for attributes created from this property to
-            have (default: None)
+            have. If omitted, the property has no default.
 
         help (str or None, optional) :
             A documentation string for this property. (default: None)
@@ -76,10 +76,6 @@ class Any(Property[typing.Any]):
             >>> m.prop = [1, 2, 3]
 
     """
-
-    # TODO: default should be explicitly defined by the user (i.e. intrinsic here)
-    def __init__(self, default: Init[typing.Any] = None, help: str | None = None) -> None:
-        super().__init__(default=default, help=help)
 
 class AnyRef(Any):
     """ Accept all values and force reference discovery. """

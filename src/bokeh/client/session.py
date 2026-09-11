@@ -59,8 +59,7 @@ if TYPE_CHECKING:
         SessionCallbackRemoved,
     )
     from ..models.ui import UIElement
-    from ..protocol.messages.patch_doc import patch_doc
-    from ..protocol.messages.server_info_reply import ServerInfo
+    from ..protocol.message import Message
     from ..server.callbacks import DocumentCallbackGroup
     from ..util.asyncio import Loop
     from ..util.browser import BrowserLike, BrowserTarget
@@ -482,15 +481,6 @@ class ClientSession:
         if self._document is None:
             self._attach_document(doc)
 
-    def request_server_info(self) -> ServerInfo:
-        ''' Ask for information about the server.
-
-        Returns:
-            A dictionary of server attributes.
-
-        '''
-        return self._connection.request_server_info()
-
     def show(self, obj: UIElement | None = None, browser: str | None = None,
             new: Literal["tab", "window"] = "tab") -> None:
         ''' Open a browser displaying this session.
@@ -543,10 +533,11 @@ class ClientSession:
             session_id = generate_session_id()
         return session_id
 
-    def _handle_patch(self, message: patch_doc) -> None:
+    def _handle_patch(self, message: Message[Any]) -> None:
         document = self.document
         assert document is not None
-        message.apply_to_document(document, self)
+        from ..protocol import apply_patch
+        apply_patch(message, document, self)
 
     def _loop_until_closed(self) -> None:
         ''' Execute a blocking loop that runs and executes event callbacks

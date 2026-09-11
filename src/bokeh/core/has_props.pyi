@@ -6,6 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Mapping, Sequence
 from typing import (
     Any,
     Callable,
@@ -22,9 +23,10 @@ from typing import (
 # Bokeh imports
 from ..client.session import ClientSession
 from ..server.session import ServerSession
+from ..util.compiler import Implementation
 from .property.bases import Property
 from .property.dataspec import DataSpec
-from .property.descriptors import PropertyDescriptor
+from .property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from .serialization import (
     ObjectRep,
     Ref,
@@ -40,21 +42,12 @@ def is_abstract(cls: type[HasProps]) -> bool: ...
 
 def is_DataModel(cls: type[HasProps]) -> bool: ...
 
+def _data_models_in_dependency_order(data_models: Iterable[type[HasProps]]) -> list[type[HasProps]]: ...
+
 class _ModelResolver:
     ...
 
 _default_resolver: _ModelResolver
-
-class MetaHasProps(type):
-
-    __properties__: dict[str, Property[Any]]
-    __overridden_defaults__: dict[str, Any]
-    __themed_values__: dict[str, Any]
-
-    def __new__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]) -> type[HasProps]: ...
-
-    @property
-    def model_class_reverse_map(cls) -> dict[str, type[HasProps]]: ...
 
 class Local:
     ...
@@ -65,19 +58,23 @@ class Qualified:
 class NonQualified:
     ...
 
-class HasProps(Serializable, metaclass=MetaHasProps):
+class HasProps(Serializable):
 
     _initialized: bool = ...
 
     _property_values: dict[str, Any] = ...
-    _unstable_default_values: dict[str, Any] = ...
-    _unstable_themed_values: dict[str, Any] = ...
+    _materialized_defaults: dict[str, Any] = ...
+    _materialized_themed_defaults: dict[str, Any] = ...
+
+    model_class_reverse_map: ClassVar[dict[str, type[HasProps]]]
 
     __view_model__: ClassVar[str]
     __view_module__: ClassVar[str]
     __qualified_model__: ClassVar[str]
-    __implementation__: ClassVar[Any] # TODO: specific type
+    __implementation__: ClassVar[str | Implementation]
     __data_model__: ClassVar[bool]
+    __properties__: ClassVar[Mapping[str, Property[Any]]]
+    __overridden_defaults__: ClassVar[Mapping[str, Any]]
 
     #def __init__(self, **properties: Any) -> None: ...
 
@@ -101,35 +98,30 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     @overload
     @classmethod
-    def lookup(cls, name: str, *, raises: Literal[True] = True) -> PropertyDescriptor[Any]: ...
+    def lookup(cls, name: str, *, raises: Literal[True] = True) -> PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]: ...
 
     @overload
     @classmethod
-    def lookup(cls, name: str, *, raises: Literal[False] = False) -> PropertyDescriptor[Any] | None: ...
-
-    @overload
-    @classmethod
-    def properties(cls, *, _with_props: Literal[False] = False) -> set[str]: ...
-
-    @overload
-    @classmethod
-    def properties(cls, *, _with_props: Literal[True]) -> dict[str, Property[Any]]: ...
+    def lookup(cls, name: str, *, raises: Literal[False] = False) -> PropertyDescriptor[Any] | AliasPropertyDescriptor[Any] | None: ...
 
     @classmethod
-    def descriptors(cls) -> list[PropertyDescriptor[Any]]: ...
+    def properties(cls) -> Mapping[str, Property[Any]]: ...
 
     @classmethod
-    def properties_with_refs(cls) -> dict[str, Property[Any]]: ...
+    def descriptors(cls) -> Sequence[PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]]: ...
 
     @classmethod
-    def dataspecs(cls) -> dict[str, DataSpec]: ...
+    def properties_with_refs(cls) -> Mapping[str, Property[Any]]: ...
+
+    @classmethod
+    def dataspecs(cls) -> Mapping[str, DataSpec]: ...
 
     def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]: ...
 
     @classmethod
-    def _overridden_defaults(cls) -> dict[str, Any]: ...
+    def _overridden_defaults(cls) -> Mapping[str, Any]: ...
 
-    def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any]], bool], *,
+    def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]], bool], *,
             include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]: ...
 
     def themed_values(self) -> dict[str, Any] | None: ...
@@ -140,7 +132,22 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     def clone(self, **overrides: Any) -> Self: ...
 
-KindRef = Any # TODO
+type PrimitiveKindRef = Literal["Any", "Unknown", "Bool", "Float", "Int", "Bytes", "Str", "Null"]
+type KindRef = (
+    PrimitiveKindRef
+    | tuple[Literal["Regex"], str]
+    | tuple[Literal["Regex"], str, str]
+    | tuple[Literal["Nullable"], KindRef]
+    | tuple[Literal["Or"], KindRef, *tuple[KindRef, ...]]
+    | tuple[Literal["Tuple"], KindRef, *tuple[KindRef, ...]]
+    | tuple[Literal["List"], KindRef]
+    | tuple[Literal["Struct"], *tuple[tuple[str, KindRef], ...]]
+    | tuple[Literal["Dict"], KindRef]
+    | tuple[Literal["Mapping"], KindRef, KindRef]
+    | tuple[Literal["Enum"], *tuple[str, ...]]
+    | tuple[Literal["Ref"], Ref]
+    | tuple[Literal["AnyRef"]]
+)
 
 class PropertyDef(TypedDict):
     name: str
