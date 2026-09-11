@@ -2217,4 +2217,79 @@ ${view.host_selector} {
       expect(rendered()).to.not.be.equal(before)
     })
   })
+
+  describe("in issue #15345", () => {
+    const x = range(0, 100)
+    const y1 = x.map((xi) => Math.sin(xi/5)*10)
+    const y2 = y1.map((yi) => yi + 5)
+
+    function plot(y_range?: DataRange1d) {
+      const source = new ColumnDataSource({data: {x, y1, y2}})
+      const p = fig([600, 400], {tools: "xpan,xwheel_zoom,reset", active_scroll: "xwheel_zoom", y_range})
+      p.line({field: "x"}, {field: "y1"}, {source, legend_label: "Line 1"})
+      const r2 = p.line({field: "x"}, {field: "y2"}, {source, legend_label: "Line 2"})
+      p.legend.click_policy = "hide"
+      return {p, r2, source}
+    }
+
+    async function toggle_line2(view: PlotView, legend: Legend): Promise<void> {
+      const legend_view = view.views.get_one(legend)
+      await tap(legend_view.shadow_el.querySelectorAll(".bk-item")[1])
+      await view.ready
+    }
+
+    it("doesn't preserve a manually updated y_range when toggling a legend item after x-only zoom", async () => {
+      const {p, r2, source} = plot()
+      const {x_range, y_range, legend} = p
+      const autoscale = new CustomJS({args: {y_range, source}, code: `
+        const i = Math.max(Math.floor(cb_obj.start), 0)
+        const j = Math.min(Math.ceil(cb_obj.end), source.data.y1.length)
+        if (j > i) {
+          const vis_y1 = source.data.y1.slice(i, j)
+          const vis_y2 = source.data.y2.slice(i, j)
+          y_range.start = Math.min(...vis_y1, ...vis_y2) - 1
+          y_range.end = Math.max(...vis_y1, ...vis_y2) + 1
+        }
+      `})
+      x_range.js_property_callbacks = {"change:end": [autoscale]}
+
+      const {view} = await display(p)
+      await actions(view).scroll_up(xy(50, 0), 2)
+      await view.ready
+
+      const i = Math.floor(x_range.start)
+      const j = Math.ceil(x_range.end)
+      const visible = [...y1.slice(i, j), ...y2.slice(i, j)]
+      const expected: [number, number] = [Math.min(...visible) - 1, Math.max(...visible) + 1]
+      expect(y_range.interval).to.be.equal(expected)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.false
+      expect(y_range.interval).to.be.equal(expected)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.true
+      expect(y_range.interval).to.be.equal(expected)
+    })
+
+    it("doesn't auto-range y_range with only_visible=true when toggling a legend item after x-only zoom", async () => {
+      const {p, r2} = plot(new DataRange1d({only_visible: true, range_padding: 0}))
+      const {y_range, legend} = p
+
+      const {view} = await display(p)
+      await actions(view).scroll_up(xy(50, 0), 2)
+      await view.ready
+
+      const both: [number, number] = [Math.min(...y1), Math.max(...y2)]
+      expect(y_range.interval).to.be.similar(both)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.false
+      expect(y_range.interval).to.be.similar([Math.min(...y1), Math.max(...y1)])
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.true
+      expect(y_range.interval).to.be.similar(both)
+    })
+  })
 })
