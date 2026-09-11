@@ -1,6 +1,7 @@
 import {expect} from "#framework/assertions"
 import {trap} from "#framework/util"
 
+import {Document} from "@bokehjs/document/document"
 import {with_log_level} from "@bokehjs/core/logging"
 import {version} from "@bokehjs/version"
 
@@ -287,6 +288,43 @@ describe("column_data_source module", () => {
       const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
 
       source.data = {foo: [0, 1]}
+
+      expect(selected.indices).to.be.equal([0])
+    })
+
+    it("should preserve synchronization mode when pruning", () => {
+      const selected = new Selection({indices: [0, 2]})
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      const document = new Document()
+      document.add_root(source)
+      const events: {sync: boolean}[] = []
+      document.on_change((event) => events.push(event))
+
+      source.setv({data: {foo: [0, 1]}}, {sync: false})
+
+      expect(selected.indices).to.be.equal([0])
+      expect(events.filter((event) => event.sync)).to.be.empty
+    })
+
+    it("should notify linked selections when pruning", () => {
+      const selected = new Selection({indices: [0, 2]})
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      const linked = new Selection({indices: selected.indices})
+      selected.properties.indices.change.connect(() => linked.indices = selected.indices)
+      let updates = 0
+      linked.properties.indices.change.connect(() => updates++)
+
+      source.data = {foo: [0, 1]}
+
+      expect(linked.indices).to.be.equal([0])
+      expect(updates).to.be.equal(1)
+    })
+
+    it("should preserve scalar selections when data has no columns", () => {
+      const selected = new Selection({indices: [0]})
+      const source = new ColumnDataSource({data: {unused: [1]}, selected})
+
+      source.data = {}
 
       expect(selected.indices).to.be.equal([0])
     })

@@ -1,9 +1,10 @@
 import type {Geometry} from "core/geometry"
+import type {HasProps} from "core/has_props"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
-import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
+import type {Arrayable, ArrayableNew, Attrs, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {inplace_filter, uniq} from "core/util/array"
@@ -36,6 +37,34 @@ export abstract class ColumnarDataSource extends DataSource {
   declare properties: ColumnarDataSource.Props
 
   declare data: Data
+
+  private _selection_sync: boolean = true
+
+  private _with_selection_sync<T>(sync: boolean | undefined, fn: () => T): T {
+    const previous = this._selection_sync
+    this._selection_sync = sync ?? true
+    try {
+      return fn()
+    } finally {
+      this._selection_sync = previous
+    }
+  }
+
+  override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
+    if ("data" in changed_attrs) {
+      this._with_selection_sync(options.sync, () => super.setv(changed_attrs, options))
+    } else {
+      super.setv(changed_attrs, options)
+    }
+  }
+
+  override stream_to(prop: p.Property<Data>, new_data: Data, rollover?: number, options: {sync?: boolean} = {}): void {
+    this._with_selection_sync(options.sync, () => super.stream_to(prop, new_data, rollover, options))
+  }
+
+  override patch_to(prop: p.Property<Data>, patches: PatchSet<unknown>, options: {sync?: boolean} = {}): void {
+    this._with_selection_sync(options.sync, () => super.patch_to(prop, patches, options))
+  }
 
   get_array<T>(key: string): T[] {
     const data = dict(this.data)
@@ -133,12 +162,16 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   protected _prune_selection(): void {
-    const {selected, length} = this
+    const {selected} = this
+    const length = this.get_length()
+    if (length == null) {
+      return
+    }
     const in_bounds = (index: number) => 0 <= index && index < length
 
     const updates: Partial<Selection.Attrs> = {}
     const prune = <T>(values: Arrayable<T>, predicate: (value: T) => boolean): T[] | null => {
-      const array = isArray<T>(values) ? values : Array.from(values)
+      const array = Array.from(values)
       const previous_length = array.length
       inplace_filter(array, predicate)
       return array.length == previous_length ? null : array
@@ -167,7 +200,7 @@ export abstract class ColumnarDataSource extends DataSource {
     }
 
     if (entries(updates).length != 0) {
-      selected.setv(updates, {check_eq: false})
+      selected.setv(updates, {check_eq: false, sync: this._selection_sync})
     }
   }
 
