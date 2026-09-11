@@ -151,7 +151,7 @@ export class Document implements Equatable {
     this.config = new DocumentConfig()
     this._system_scheme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
     this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
-    document.addEventListener("DOMContentLoaded", () => this.set_color_scheme(this.config.color_scheme))
+    this.on_event("document_ready", () => this.set_color_scheme(this.config.color_scheme))
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -588,6 +588,7 @@ export class Document implements Equatable {
       doc.config = config
       doc.set_color_scheme(config.color_scheme)
       config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
+      doc.on_event("document_ready", () => doc.set_color_scheme(config.color_scheme))
     }
 
     const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
