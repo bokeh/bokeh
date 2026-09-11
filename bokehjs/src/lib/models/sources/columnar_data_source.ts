@@ -1,12 +1,13 @@
 import type {Geometry} from "core/geometry"
+import type {HasProps} from "core/has_props"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
-import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
+import type {Arrayable, ArrayableNew, Attrs, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
-import {uniq} from "core/util/array"
+import {inplace_filter, uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
@@ -36,6 +37,34 @@ export abstract class ColumnarDataSource extends DataSource {
   declare properties: ColumnarDataSource.Props
 
   declare data: Data
+
+  private _selection_sync: boolean = true
+
+  private _with_selection_sync<T>(sync: boolean | undefined, fn: () => T): T {
+    const previous = this._selection_sync
+    this._selection_sync = sync ?? true
+    try {
+      return fn()
+    } finally {
+      this._selection_sync = previous
+    }
+  }
+
+  override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
+    if ("data" in changed_attrs) {
+      this._with_selection_sync(options.sync, () => super.setv(changed_attrs, options))
+    } else {
+      super.setv(changed_attrs, options)
+    }
+  }
+
+  override stream_to(prop: p.Property<Data>, new_data: Data, rollover?: number, options: {sync?: boolean} = {}): void {
+    this._with_selection_sync(options.sync, () => super.stream_to(prop, new_data, rollover, options))
+  }
+
+  override patch_to(prop: p.Property<Data>, patches: PatchSet<unknown>, options: {sync?: boolean} = {}): void {
+    this._with_selection_sync(options.sync, () => super.patch_to(prop, patches, options))
+  }
 
   get_array<T>(key: string): T[] {
     const data = dict(this.data)
@@ -121,6 +150,58 @@ export abstract class ColumnarDataSource extends DataSource {
 
   set(name: string, column: Arrayable<unknown>): void {
     dict(this.data).set(name, column)
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const prune_selection = () => this._prune_selection()
+    this.connect(this.properties.data.change, prune_selection)
+    this.connect(this.streaming, prune_selection)
+    this.connect(this.patching, prune_selection)
+  }
+
+  protected _prune_selection(): void {
+    const {selected} = this
+    const length = this.get_length()
+    if (length == null) {
+      return
+    }
+    const in_bounds = (index: number) => 0 <= index && index < length
+
+    const updates: Partial<Selection.Attrs> = {}
+    const prune = <T>(values: Arrayable<T>, predicate: (value: T) => boolean): T[] | null => {
+      const array = Array.from(values)
+      const previous_length = array.length
+      inplace_filter(array, predicate)
+      return array.length == previous_length ? null : array
+    }
+
+    const indices = prune(selected.indices, in_bounds)
+    if (indices != null) {
+      updates.indices = indices
+    }
+
+    const line_indices = prune(selected.line_indices, in_bounds)
+    if (line_indices != null) {
+      updates.line_indices = line_indices
+    }
+
+    const multiline_entries = [...selected.multiline_indices]
+    const previous_multiline_size = multiline_entries.length
+    inplace_filter(multiline_entries, ([index]) => in_bounds(index))
+    if (multiline_entries.length != previous_multiline_size) {
+      updates.multiline_indices = new Map(multiline_entries)
+    }
+
+    const image_indices = prune(selected.image_indices, ({index}) => in_bounds(index))
+    if (image_indices != null) {
+      updates.image_indices = image_indices
+    }
+
+    if (entries(updates).length != 0) {
+      selected.setv(updates, {check_eq: false, sync: this._selection_sync})
+    }
   }
 
   get_column(name: string): Arrayable | null {
