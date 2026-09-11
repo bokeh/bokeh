@@ -1975,7 +1975,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #13931", () => {
-    it("updates data without errors when DataTable selections are stale", async () => {
+    it("updates data and prunes stale DataTable selections", async () => {
       const source = new ColumnDataSource({data: {my_col: ["a", "b", "c"]}})
       const columns = [
         new TableColumn({field: "my_col", title: "My Column"}),
@@ -1991,7 +1991,7 @@ describe("Bug", () => {
       source.data = {my_col: ["a", "b"]}
       await view.ready
 
-      expect(source.selected.indices).to.be.equal([1, 2])
+      expect(source.selected.indices).to.be.equal([1])
       expect(view.get_selected_rows()).to.be.equal([1])
     })
   })
