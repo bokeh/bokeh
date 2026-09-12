@@ -24,19 +24,41 @@
   width: max-content;
   font-size: var(--font-size);
   position: fixed;
+  z-index: var(--bokeh-top-level);
+  margin: 0; // cancel native popover styling
+  padding: 0;
+  border: none;
+  background-color: transparent;
+}
+
+.bk-tooltip-wrapper {
   padding: 5px;
   border: 1px solid var(--tooltip-border);
   border-radius: var(--border-radius);
   color: var(--tooltip-text);
   background-color: var(--tooltip-color);
-  opacity: 0.95;
-  z-index: var(--bokeh-top-level);
-  margin: 0; // cancel native popover styling
+  opacity: 0;
 }
+
 
 :host(:where(:not(:popover-open))) {
   display: none;
 }
+
+@keyframes tooltip-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+:host(:where(:popover-open)) .bk-tooltip-wrapper {
+  animation-name: tooltip-fade-in;
+  animation-duration: 0.15s;
+  animation-timing-function: ease-in;
+  animation-delay: 0.1s;
+  animation-fill-mode: forwards;
+}
+
+
 
 :host(.bk-non-interactive) {
   pointer-events: none;
