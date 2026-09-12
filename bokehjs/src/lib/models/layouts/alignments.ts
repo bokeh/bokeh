@@ -1,6 +1,7 @@
 import type {LayoutDOMView} from "./layout_dom"
 import type {Container} from "core/layout/grid"
 import {Layoutable} from "core/layout/layoutable"
+import {BorderLayout} from "core/layout/border"
 import type {Sizeable, SizeHint, Size} from "core/layout"
 import {BBox} from "core/util/bbox"
 import {assert} from "core/util/assert"
@@ -10,6 +11,46 @@ const {max} = Math
 export class GridAlignmentLayout extends Layoutable {
   constructor(readonly children: Container<LayoutDOMView>) {
     super()
+  }
+
+  /**
+   * Raise every child's borders to the largest in its row and column, so that
+   * aligning the frames cannot take space a child needs for its own borders.
+   */
+  align_borders(): void {
+    const {children} = this
+    const rows = Array.from({length: children.nrows}, () => ({top: 0, bottom: 0}))
+    const cols = Array.from({length: children.ncols}, () => ({left: 0, right: 0}))
+
+    children.foreach(({r0, c0, r1, c1}, {layout}) => {
+      if (!(layout instanceof BorderLayout)) {
+        return
+      }
+      // A child's measurement must not carry the previous pass's borders, or
+      // they could never shrink again.
+      layout.align_border = {left: 0, top: 0, right: 0, bottom: 0}
+      const {inner} = layout.measure({width: Infinity, height: Infinity})
+      if (inner != null) {
+        rows[r0].top = max(rows[r0].top, inner.top)
+        rows[r1].bottom = max(rows[r1].bottom, inner.bottom)
+        cols[c0].left = max(cols[c0].left, inner.left)
+        cols[c1].right = max(cols[c1].right, inner.right)
+      }
+    })
+
+    children.foreach(({r0, c0, r1, c1}, {layout}) => {
+      if (layout instanceof BorderLayout) {
+        // A side opted out of alignment keeps the border it measured for
+        // itself, matching which sides `_set_geometry` goes on to align.
+        const {aligns} = layout
+        layout.align_border = {
+          left: aligns.left ? cols[c0].left : 0,
+          right: aligns.right ? cols[c1].right : 0,
+          top: aligns.top ? rows[r0].top : 0,
+          bottom: aligns.bottom ? rows[r1].bottom : 0,
+        }
+      }
+    })
   }
 
   protected _measure(_viewport: Sizeable): SizeHint {
