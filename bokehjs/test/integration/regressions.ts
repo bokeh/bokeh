@@ -5559,4 +5559,78 @@ describe("Bug", () => {
       await display(table, [600, 400])
     })
   })
+
+  describe("in issue #14492", () => {
+    it.no_image("doesn't allot enough room for an outer legend when aligning frames in a grid plot", async () => {
+      const sides = ["right", "left", "above", "below"] as const
+
+      const entries = sides.map((side) => {
+        const plot = figure({frame_width: 100, frame_height: 100, title: side})
+        const r = plot.scatter([1, 2], [1, 2])
+        const legend = new Legend({
+          items: [new LegendItem({label: side, renderers: [r]})],
+          title: side,
+        })
+        plot.add_layout(legend, side)
+        return {plot, legend}
+      })
+
+      const [p0, p1, p2, p3] = entries.map(({plot}) => plot)
+      const gp = gridplot([[p0, p1], [p2, p3]], {toolbar_location: "above"})
+      const {view} = await display(gp, [600, 600])
+
+      for (const {plot, legend} of entries) {
+        const plot_bbox = bounding_box(view.owner.get_one(plot).el)
+        const legend_bbox = bounding_box(view.owner.get_one(legend).el)
+
+        expect(legend_bbox.left).to.be.within(plot_bbox.left, plot_bbox.right)
+        expect(legend_bbox.right).to.be.within(plot_bbox.left, plot_bbox.right)
+        expect(legend_bbox.top).to.be.within(plot_bbox.top, plot_bbox.bottom)
+        expect(legend_bbox.bottom).to.be.within(plot_bbox.top, plot_bbox.bottom)
+      }
+
+      for (const {plot} of entries) {
+        const {frame} = view.owner.get_one(plot)
+        expect([frame.bbox.width, frame.bbox.height]).to.be.equal([100, 100])
+      }
+    })
+
+    it.no_image("crops a frame aligned past the edge of its plot in a grid plot", async () => {
+      // The y axis is shown only in the first column, with labels of a
+      // different width in every row, so that aligning the column's frames has
+      // to move the first row's frame further right than its own borders allow.
+      const ranges: [number, number][] = [[0, 1], [0, 100000], [0, 1000000000]]
+
+      const plots = ranges.map(([lo, hi], r) => {
+        return range(0, 3).map((c) => {
+          const plot = figure({
+            frame_width: 120,
+            frame_height: 120,
+            toolbar_location: null,
+            min_border: 3,
+            x_range: new Range1d({start: 0, end: 1}),
+            y_range: new Range1d({start: lo, end: hi}),
+          })
+          plot.scatter([0.1, 0.9], [hi*0.1, hi*0.9])
+          plot.yaxis.visible = c == 0
+          plot.xaxis.visible = r == ranges.length - 1
+          return plot
+        })
+      })
+
+      const gp = gridplot(plots, {merge_tools: false, toolbar_location: null})
+      const {view} = await display(gp, [500, 450])
+
+      for (const plot of plots.flat()) {
+        const plot_view = view.owner.get_one(plot)
+        const {bbox} = plot_view.frame
+
+        expect([bbox.width, bbox.height]).to.be.equal([120, 120])
+        expect(bbox.left).to.be.within(0, plot_view.bbox.width)
+        expect(bbox.right).to.be.within(0, plot_view.bbox.width)
+        expect(bbox.top).to.be.within(0, plot_view.bbox.height)
+        expect(bbox.bottom).to.be.within(0, plot_view.bbox.height)
+      }
+    })
+  })
 })
