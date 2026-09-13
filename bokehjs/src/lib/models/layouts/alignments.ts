@@ -39,16 +39,17 @@ export class GridAlignmentLayout extends Layoutable {
     })
 
     children.foreach(({r0, c0, r1, c1}, {layout}) => {
-      if (layout instanceof BorderLayout) {
-        // A side opted out of alignment keeps the border it measured for
-        // itself, matching which sides `_set_geometry` goes on to align.
-        const {aligns} = layout
-        layout.align_border = {
-          left: aligns.left ? cols[c0].left : 0,
-          right: aligns.right ? cols[c1].right : 0,
-          top: aligns.top ? rows[r0].top : 0,
-          bottom: aligns.bottom ? rows[r1].bottom : 0,
-        }
+      if (!(layout instanceof BorderLayout)) {
+        return
+      }
+      // A side opted out of alignment keeps the border it measured for
+      // itself, matching which sides `_set_geometry` goes on to align.
+      const {aligns} = layout
+      layout.align_border = {
+        left: aligns.left ? cols[c0].left : 0,
+        right: aligns.right ? cols[c1].right : 0,
+        top: aligns.top ? rows[r0].top : 0,
+        bottom: aligns.bottom ? rows[r1].bottom : 0,
       }
     })
   }

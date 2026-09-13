@@ -5585,9 +5585,7 @@ describe("Bug", () => {
         expect(legend_bbox.right).to.be.within(plot_bbox.left, plot_bbox.right)
         expect(legend_bbox.top).to.be.within(plot_bbox.top, plot_bbox.bottom)
         expect(legend_bbox.bottom).to.be.within(plot_bbox.top, plot_bbox.bottom)
-      }
 
-      for (const {plot} of entries) {
         const {frame} = view.owner.get_one(plot)
         expect([frame.bbox.width, frame.bbox.height]).to.be.equal([100, 100])
       }
