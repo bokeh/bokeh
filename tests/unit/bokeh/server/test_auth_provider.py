@@ -237,13 +237,13 @@ class TestAuthModule_validation:
     def test_no_file(self) -> None:
         with pytest.raises(ValueError) as e:
             bsa.AuthModule("junkjunkjunk")
-            assert str(e).startswith("no file exists at module_path:")
+        assert str(e.value).startswith("no file exists at module_path:")
 
     def test_both_user(self) -> None:
         def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert str(e) == "Only one of get_user or get_user_async should be supplied"
+            assert str(e.value) == "Only one of get_user or get_user_async should be supplied"
 
         with_file_contents("""
 def get_user(handler): return 10
@@ -255,7 +255,7 @@ async def get_user_async(handler): return 20
         def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert str(e) == "When user authentication is enabled, one of login_url or get_login_url must be supplied"
+            assert str(e.value) == "When user authentication is enabled, one of login_url or get_login_url must be supplied"
 
         with_file_contents(f"""
 def {user_func}(handler): return 10
@@ -265,7 +265,7 @@ def {user_func}(handler): return 10
         def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert str(e) == "At most one of login_url or get_login_url should be supplied"
+            assert str(e.value) == "At most one of login_url or get_login_url should be supplied"
 
         with_file_contents("""
 def get_user(handler): return 10
@@ -277,7 +277,7 @@ login_url = "/foo"
         def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert str(e) == "LoginHandler cannot be used with a get_login_url() function"
+            assert str(e.value) == "LoginHandler cannot be used with a get_login_url() function"
 
         with_file_contents("""
 def get_user(handler): return 10
@@ -290,7 +290,7 @@ class LoginHandler(RequestHandler): pass
         def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert str(e) == "LoginHandler must be a Tornado RequestHandler"
+            assert str(e.value) == "LoginHandler must be a Tornado RequestHandler"
 
         with_file_contents("""
 def get_user(handler): return 10
@@ -303,7 +303,7 @@ class LoginHandler(object): pass
         def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert str(e) == "LoginHandler can only be used with a relative login_url"
+            assert str(e.value) == "LoginHandler can only be used with a relative login_url"
 
         with_file_contents(f"""
 def get_user(handler): return 10
@@ -314,7 +314,7 @@ login_url = {login_url!r}
         def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert str(e) == "LoginHandler must be a Tornado RequestHandler"
+            assert str(e.value) == "LogoutHandler must be a Tornado RequestHandler"
 
         with_file_contents("""
 def get_user(handler): return 10
@@ -327,10 +327,11 @@ class LogoutHandler(object): pass
         def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert str(e) == "LoginHandler can only be used with a relative login_url"
+            assert str(e.value) == "LogoutHandler can only be used with a relative logout_url"
 
         with_file_contents(f"""
 def get_user(handler): return 10
+login_url = "/foo"
 logout_url = {logout_url!r}
     """, func, suffix='.py')
 

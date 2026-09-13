@@ -131,7 +131,7 @@ def test__shares_exec_prefix() -> None:
 def test__resized_restores_after_exception() -> None:
     plot = Plot(width=100, height=200)
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError):  # noqa: PT012  (the raise is the point: it proves the context manager unwinds)
         with biu._resized(plot, width=300, height=400):
             assert plot.width == 300
             assert plot.height == 400

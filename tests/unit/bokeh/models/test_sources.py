@@ -71,7 +71,7 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource()
         with pytest.raises(RuntimeError) as e:
             ds.selected = Selection()
-            assert str(e).endswith("ColumnDataSource.selected is a readonly property")
+        assert str(e.value).endswith("ColumnDataSource.selected is a readonly property")
 
     def test_selected_serialized(self) -> None:
         ds = bms.ColumnDataSource()

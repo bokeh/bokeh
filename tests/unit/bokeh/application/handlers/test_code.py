@@ -131,7 +131,7 @@ def test__monkeypatch_io_restores_after_exception() -> None:
 
     loggers = {name: patched_io_function for name in bahc.CodeHandler._io_functions}
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError):  # noqa: PT012  (the raise is the point: it proves the context manager unwinds)
         with bahc._monkeypatch_io(loggers):
             assert io.show is patched_io_function
             raise RuntimeError("boom")
