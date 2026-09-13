@@ -72,10 +72,10 @@ def test_AnnularWedge() -> None:
     glyph = m.AnnularWedge()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.inner_radius == field("inner_radius")
-    assert glyph.outer_radius == field("outer_radius")
-    assert glyph.start_angle == field("start_angle")
-    assert glyph.end_angle == field("end_angle")
+    assert glyph.inner_radius == field("inner_radius", units="data")
+    assert glyph.outer_radius == field("outer_radius", units="data")
+    assert glyph.start_angle == field("start_angle", units="rad")
+    assert glyph.end_angle == field("end_angle", units="rad")
     assert glyph.direction == "anticlock"
     check_line_properties(glyph)
     check_fill_properties(glyph)
@@ -84,13 +84,9 @@ def test_AnnularWedge() -> None:
         "x",
         "y",
         "inner_radius",
-        "inner_radius_units",
         "outer_radius",
-        "outer_radius_units",
         "start_angle",
-        "start_angle_units",
         "end_angle",
-        "end_angle_units",
         "direction",
     ], LINE, FILL, HATCH, GLYPH)
 
@@ -99,8 +95,8 @@ def test_Annulus() -> None:
     glyph = m.Annulus()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.inner_radius == field("inner_radius")
-    assert glyph.outer_radius == field("outer_radius")
+    assert glyph.inner_radius == field("inner_radius", units="data")
+    assert glyph.outer_radius == field("outer_radius", units="data")
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -108,9 +104,7 @@ def test_Annulus() -> None:
         "x",
         "y",
         "inner_radius",
-        "inner_radius_units",
         "outer_radius",
-        "outer_radius_units",
     ], LINE, FILL, HATCH, GLYPH)
 
 
@@ -118,20 +112,17 @@ def test_Arc() -> None:
     glyph = m.Arc()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.radius == field("radius")
-    assert glyph.start_angle == field("start_angle")
-    assert glyph.end_angle == field("end_angle")
+    assert glyph.radius == field("radius", units="data")
+    assert glyph.start_angle == field("start_angle", units="rad")
+    assert glyph.end_angle == field("end_angle", units="rad")
     assert glyph.direction == "anticlock"
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
         "radius",
-        "radius_units",
         "start_angle",
-        "start_angle_units",
         "end_angle",
-        "end_angle_units",
         "direction",
     ], LINE, GLYPH)
 
@@ -163,8 +154,8 @@ def test_Block() -> None:
     glyph = m.Block()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.width == 1
-    assert glyph.height == 1
+    assert glyph.width == value(1, units="data")
+    assert glyph.height == value(1, units="data")
     assert glyph.border_radius == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
@@ -173,9 +164,7 @@ def test_Block() -> None:
         "x",
         "y",
         "width",
-        "width_units",
         "height",
-        "height_units",
         "border_radius",
     ], FILL, HATCH, LINE, GLYPH)
 
@@ -213,8 +202,8 @@ def test_HAreaStep() -> None:
 def test_HBar() -> None:
     glyph = m.HBar()
     assert glyph.y == field("y")
-    assert glyph.height == 1
-    assert glyph.left == 0
+    assert glyph.height == value(1, units="data")
+    assert glyph.left == value(0)
     assert glyph.right == field("right")
     assert glyph.border_radius == 0
     check_line_properties(glyph)
@@ -223,7 +212,6 @@ def test_HBar() -> None:
     check_properties_existence(glyph, [
         "y",
         "height",
-        "height_units",
         "left",
         "right",
         "border_radius",
@@ -235,17 +223,15 @@ def test_Image() -> None:
     assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.dw == field("dw")
-    assert glyph.dh == field("dh")
+    assert glyph.dw == field("dw", units="data")
+    assert glyph.dh == field("dh", units="data")
     assert glyph.dilate is False
     check_properties_existence(glyph, [
         "image",
         "x",
         "y",
         "dw",
-        "dw_units",
         "dh",
-        "dh_units",
         "global_alpha",
         "dilate",
         "origin",
@@ -256,10 +242,10 @@ def test_Image() -> None:
 def test_Image_kwargs() -> None:
     glyph = m.Image(x=0, y=0, dw=10, dh=10)
     assert glyph.image == field("image")
-    assert glyph.x == 0
-    assert glyph.y == 0
-    assert glyph.dw == 10
-    assert glyph.dh == 10
+    assert glyph.x == value(0)
+    assert glyph.y == value(0)
+    assert glyph.dw == value(10, units="data")
+    assert glyph.dh == value(10, units="data")
     assert glyph.dilate is False
 
 
@@ -268,17 +254,15 @@ def test_ImageRGBA() -> None:
     assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.dw == field("dw")
-    assert glyph.dh == field("dh")
+    assert glyph.dw == field("dw", units="data")
+    assert glyph.dh == field("dh", units="data")
     assert glyph.dilate is False
     check_properties_existence(glyph, [
         "image",
         "x",
         "y",
         "dw",
-        "dw_units",
         "dh",
-        "dh_units",
         "global_alpha",
         "dilate",
         "origin",
@@ -291,17 +275,15 @@ def test_ImageStack() -> None:
     assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.dw == field("dw")
-    assert glyph.dh == field("dh")
+    assert glyph.dw == field("dw", units="data")
+    assert glyph.dh == field("dh", units="data")
     assert glyph.dilate is False
     check_properties_existence(glyph, [
         "image",
         "x",
         "y",
         "dw",
-        "dw_units",
         "dh",
-        "dh_units",
         "global_alpha",
         "dilate",
         "origin",
@@ -312,10 +294,10 @@ def test_ImageStack() -> None:
 def test_ImageStack_kwargs() -> None:
     glyph = m.Image(x=0, y=0, dw=10, dh=10)
     assert glyph.image == field("image")
-    assert glyph.x == 0
-    assert glyph.y == 0
-    assert glyph.dw == 10
-    assert glyph.dh == 10
+    assert glyph.x == value(0)
+    assert glyph.y == value(0)
+    assert glyph.dw == value(10, units="data")
+    assert glyph.dh == value(10, units="data")
     assert glyph.dilate is False
 
 
@@ -324,24 +306,21 @@ def test_ImageURL() -> None:
     assert glyph.url == field("url")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.w is None
-    assert glyph.h is None
-    assert glyph.angle == 0
+    assert glyph.w == value(None, units="data")
+    assert glyph.h == value(None, units="data")
+    assert glyph.angle == value(0, units="rad")
     assert glyph.dilate is False
     assert glyph.anchor == Anchor.top_left
     assert glyph.retry_attempts == 0
     assert glyph.retry_timeout == 0
-    assert glyph.global_alpha == 1.0
+    assert glyph.global_alpha == value(1.0)
     check_properties_existence(glyph, [
         "url",
         "x",
         "y",
         "w",
-        "w_units",
         "h",
-        "h_units",
         "angle",
-        "angle_units",
         "dilate",
         "anchor",
         "retry_attempts",
@@ -454,20 +433,19 @@ def test_MathMLGlyph() -> None:
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.text == field("text")
-    assert glyph.angle == 0
-    assert glyph.x_offset == 0
-    assert glyph.y_offset == 0
+    assert glyph.angle == value(0, units="rad")
+    assert glyph.x_offset == value(0)
+    assert glyph.y_offset == value(0)
     assert glyph.anchor == value("auto")
     assert glyph.padding == 0
     assert glyph.border_radius == 0
-    assert glyph.outline_shape == "box"
+    assert glyph.outline_shape == value("box")
     check_text_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
         "text",
         "angle",
-        "angle_units",
         "x_offset",
         "y_offset",
         "anchor",
@@ -481,16 +459,14 @@ def test_Ray() -> None:
     glyph = m.Ray()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.angle == 0
-    assert glyph.length == 0
+    assert glyph.angle == value(0, units="rad")
+    assert glyph.length == value(0, units="data")
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
         "angle",
-        "angle_units",
         "length",
-        "length_units",
     ], LINE, GLYPH)
 
 
@@ -498,9 +474,9 @@ def test_Rect() -> None:
     glyph = m.Rect()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.width == field("width")
-    assert glyph.height == field("height")
-    assert glyph.angle == 0
+    assert glyph.width == field("width", units="data")
+    assert glyph.height == field("height", units="data")
+    assert glyph.angle == value(0, units="rad")
     assert glyph.border_radius == 0
     assert glyph.dilate is False
     check_line_properties(glyph)
@@ -510,11 +486,8 @@ def test_Rect() -> None:
         "x",
         "y",
         "width",
-        "width_units",
         "height",
-        "height_units",
         "angle",
-        "angle_units",
         "border_radius",
         "dilate",
     ], LINE, FILL, HATCH, GLYPH)
@@ -555,20 +528,19 @@ def test_Text() -> None:
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.text == field("text")
-    assert glyph.angle == 0
-    assert glyph.x_offset == 0
-    assert glyph.y_offset == 0
+    assert glyph.angle == value(0, units="rad")
+    assert glyph.x_offset == value(0)
+    assert glyph.y_offset == value(0)
     assert glyph.anchor == value("auto")
     assert glyph.padding == 0
     assert glyph.border_radius == 0
-    assert glyph.outline_shape == "box"
+    assert glyph.outline_shape == value("box")
     check_text_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
         "text",
         "angle",
-        "angle_units",
         "x_offset",
         "y_offset",
         "anchor",
@@ -583,13 +555,13 @@ def test_TeXGlyph() -> None:
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.text == field("text")
-    assert glyph.angle == 0
-    assert glyph.x_offset == 0
-    assert glyph.y_offset == 0
+    assert glyph.angle == value(0, units="rad")
+    assert glyph.x_offset == value(0)
+    assert glyph.y_offset == value(0)
     assert glyph.anchor == value("auto")
     assert glyph.padding == 0
     assert glyph.border_radius == 0
-    assert glyph.outline_shape == "box"
+    assert glyph.outline_shape == value("box")
     assert glyph.display == "auto"
     assert glyph.macros == {}
     check_text_properties(glyph)
@@ -598,7 +570,6 @@ def test_TeXGlyph() -> None:
         "y",
         "text",
         "angle",
-        "angle_units",
         "x_offset",
         "y_offset",
         "anchor",
@@ -643,9 +614,9 @@ def test_VAreaStep() -> None:
 def test_VBar() -> None:
     glyph = m.VBar()
     assert glyph.x == field("x")
-    assert glyph.width == 1
+    assert glyph.width == value(1, units="data")
     assert glyph.top == field("top")
-    assert glyph.bottom == 0
+    assert glyph.bottom == value(0)
     assert glyph.border_radius == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
@@ -653,7 +624,6 @@ def test_VBar() -> None:
     check_properties_existence(glyph, [
         "x",
         "width",
-        "width_units",
         "top",
         "bottom",
         "border_radius",
@@ -664,9 +634,9 @@ def test_Wedge() -> None:
     glyph = m.Wedge()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.radius == field("radius")
-    assert glyph.start_angle == field("start_angle")
-    assert glyph.end_angle == field("end_angle")
+    assert glyph.radius == field("radius", units="data")
+    assert glyph.start_angle == field("start_angle", units="rad")
+    assert glyph.end_angle == field("end_angle", units="rad")
     assert glyph.direction == "anticlock"
     check_line_properties(glyph)
     check_fill_properties(glyph)
@@ -675,11 +645,8 @@ def test_Wedge() -> None:
         "x",
         "y",
         "radius",
-        "radius_units",
         "start_angle",
-        "start_angle_units",
         "end_angle",
-        "end_angle_units",
         "direction",
     ], LINE, FILL, HATCH, GLYPH)
 
@@ -688,7 +655,7 @@ def test_Circle() -> None:
     glyph = m.Circle(radius=10)
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.radius == 10
+    assert glyph.radius == value(10, units="data")
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -696,7 +663,6 @@ def test_Circle() -> None:
         "x",
         "y",
         "radius",
-        "radius_units",
         "radius_dimension",
         "hit_dilation",
     ], LINE, FILL, HATCH, GLYPH)

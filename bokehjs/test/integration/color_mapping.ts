@@ -8,6 +8,7 @@ import type {OutputBackend} from "@bokehjs/core/enums"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {linspace} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("Color mapping", () => {
 
@@ -177,7 +178,7 @@ describe("Color mapping", () => {
       const [x0, y0, r0] = data_flat(0.8)
       const g0 = p0.circle({
         x: x0, y: y0, radius: r0,
-        fill_color: {field: "radius", transform: mapper},
+        fill_color: field("radius", mapper),
         fill_alpha: 0.6, line_color: null,
       })
 
@@ -185,7 +186,7 @@ describe("Color mapping", () => {
       const [x1, y1, r1] = data_flat(1.0)
       const g1 = p1.circle({
         x: x1, y: y1, radius: r1,
-        fill_color: {field: "radius", transform: mapper},
+        fill_color: field("radius", mapper),
         fill_alpha: 0.6, line_color: null,
       })
 
@@ -193,7 +194,7 @@ describe("Color mapping", () => {
       const [x2, y2, r2] = data_flat(1.2)
       const g2 = p2.circle({
         x: x2, y: y2, radius: r2,
-        fill_color: {field: "radius", transform: mapper},
+        fill_color: field("radius", mapper),
         fill_alpha: 0.6, line_color: null,
       })
 
@@ -201,7 +202,7 @@ describe("Color mapping", () => {
       const [x3, y3, r3] = data_sloped(2.0)
       const g3 = p3.circle({
         x: x3, y: y3, radius: r3,
-        fill_color: {field: "radius", transform: mapper},
+        fill_color: field("radius", mapper),
         fill_alpha: 0.6, line_color: null,
       })
 

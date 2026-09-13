@@ -87,10 +87,10 @@ export class HBar extends LRTB {
     this.prototype.default_view = HBarView
 
     this.define<HBar.Props>(({}) => ({
-      left:   [ p.XCoordinateSpec, {value: 0} ],
-      y:      [ p.YCoordinateSpec, {field: "y"} ],
-      height: [ p.DistanceSpec,    {value: 1} ],
-      right:  [ p.XCoordinateSpec, {field: "right"} ],
+      left:   [ p.XCoordinateSpec, {type: "value", value: 0} ],
+      y:      [ p.YCoordinateSpec, {type: "field", value: "y"} ],
+      height: [ p.DistanceSpec,    {type: "value", value: 1} ],
+      right:  [ p.XCoordinateSpec, {type: "field", value: "right"} ],
     }))
   }
 }

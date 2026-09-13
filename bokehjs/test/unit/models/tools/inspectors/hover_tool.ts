@@ -43,7 +43,7 @@ async function make_testcase(): Promise<{hover_view: HoverToolView, data_source:
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}
   const data_source = new ColumnDataSource({data})
 
-  const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+  const glyph = new Scatter({x: {type: "field", value: "x"}, y: {type: "field", value: "y"}})
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
 
   const plot = new Plot({

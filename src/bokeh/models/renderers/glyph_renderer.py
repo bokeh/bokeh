@@ -93,7 +93,7 @@ class GlyphRenderer(DataRenderer):
         missing = []
 
         for spec in sorted(specs):
-            if isinstance(props[spec], Field) and (field := props[spec].field) not in colnames:
+            if isinstance(props[spec], Field) and (field := props[spec].value) not in colnames:
                 if close := get_close_matches(field, colnames, n=1):
                     missing.append(f"{spec}={field!r} [closest match: {close[0]!r}]")
                 else:

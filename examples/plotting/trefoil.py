@@ -10,11 +10,9 @@ glyphs.
 '''
 from math import cos, radians, sin
 
-from bokeh.core.properties import value
 from bokeh.models import TeeHead, Title, VeeHead
-from bokeh.plotting import figure, show
+from bokeh.plotting import field, figure, show, value
 
-deg = lambda value: dict(value=value, units="deg")
 cdot = "\u22c5"
 degree = "\u00b0"
 
@@ -31,8 +29,9 @@ def trefoil(R=1):
     p.annular_wedge(
         x=0, y=0,
         inner_radius=1.5*R, outer_radius=5*R,
-        start_angle=[0, 120, 240], end_angle=[60, 180, 300],
-        start_angle_units="deg", end_angle_units="deg",
+        start_angle=field("start_angle", units="deg"),
+        end_angle=field("end_angle", units="deg"),
+        source=dict(start_angle=[0, 120, 240], end_angle=[60, 180, 300]),
         line_color="black", fill_color="magenta",
     )
     p.circle(
@@ -41,8 +40,13 @@ def trefoil(R=1):
         line_color="black", fill_color="magenta",
     )
 
-    arc = p.arc(x=0, y=0, radius=5.3*R, start_angle=[60, 120], end_angle=[120, 180],
-        start_angle_units="deg", end_angle_units="deg", line_color="black")
+    arc = p.arc(
+        x=0, y=0, radius=5.3*R,
+        start_angle=field("start_angle", units="deg"),
+        end_angle=field("end_angle", units="deg"),
+        source=dict(start_angle=[60, 120], end_angle=[120, 180]),
+        line_color="black",
+    )
     arc.add_decoration(TeeHead(size=10), "start")
     arc.add_decoration(VeeHead(size=8), "start")
     arc.add_decoration(TeeHead(size=10), "end")

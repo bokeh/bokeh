@@ -3,6 +3,7 @@ import {display, fig} from "#framework/layouts"
 import {ContourColorBar, GlyphRenderer, MultiLine, MultiPolygons} from "@bokehjs/models"
 import {ContourRenderer} from "@bokehjs/models/renderers/contour_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("ContourRenderer", () => {
 
@@ -35,8 +36,8 @@ describe("ContourRenderer", () => {
     }})
     const fill_renderer = new GlyphRenderer({
       glyph: new MultiPolygons({
-        fill_color: {field: "fill_color"}, fill_alpha: 0.5, line_width: 0,
-        hatch_pattern: {field: "hatch_pattern"}, hatch_alpha: 0.7,
+        fill_color: field("fill_color"), fill_alpha: 0.5, line_width: 0,
+        hatch_pattern: field("hatch_pattern"), hatch_alpha: 0.7,
       }),
       data_source: fill_source,
     })

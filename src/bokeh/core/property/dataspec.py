@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING, Any
 from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
+from .any import AnyRef
 from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor
@@ -40,13 +41,13 @@ from .primitive import (
     Bool,
     Float,
     Int,
-    Null,
     String,
 )
 from .singletons import Undefined
 from .string import Regex
 from .struct import Optional, Struct
 from .vectorization import (
+    DataSpecValue,
     Expr,
     Field,
     Value,
@@ -122,16 +123,17 @@ class DataSpec(Either[Any]):
 
     Bokeh ``DataSpec`` properties (and subclasses) afford this ease of
     and consistency of expression. Ultimately, all ``DataSpec`` properties
-    resolve to dictionary values, with either a ``"value"`` key, or a
-    ``"field"`` key, depending on how it is set.
+    resolve to discriminated records. The ``"type"`` key identifies a
+    literal value, a data source field, or an expression, and the ``"value"``
+    key contains its payload.
 
     For instance:
 
     .. code-block:: python
 
-        glyph.x = 10          # => { 'value': 10 }
+        glyph.x = 10          # => { 'type': 'value', 'value': 10 }
 
-        glyph.x = "pressure"  # => { 'field': 'pressure' }
+        glyph.x = "pressure"  # => { 'type': 'field', 'value': 'pressure' }
 
     When these underlying dictionary values are received in
     the browser, BokehJS knows how to interpret them and take the correct,
@@ -145,22 +147,22 @@ class DataSpec(Either[Any]):
 
     .. code-block:: python
 
-        glyph.x = { 'value': 10 }         # same as glyph.x = 10
+        glyph.x = { 'type': 'value', 'value': 10 }
 
-        glyph.x = { 'field': 'pressure' } # same as glyph.x = "pressure"
+        glyph.x = { 'type': 'field', 'value': 'pressure' }
 
     Setting the property directly as a dict can be useful in certain
-    situations. For instance some ``DataSpec`` subclasses also add a
-    ``"units"`` key to the dictionary. This key is often set automatically,
-    but the dictionary format provides a direct mechanism to override as
-    necessary. Additionally, ``DataSpec`` can have a ``"transform"`` key,
-    that specifies a client-side transform that should be applied to any
-    fixed or field values before they are uses. As an example, you might want
-    to apply a ``Jitter`` transform to the ``x`` values:
+    situations. A ``DataSpec`` can have ``"units"`` and ``"transform"``
+    modifiers. The latter specifies a client-side transform applied before
+    materialization. For example:
 
     .. code-block:: python
 
-        glyph.x = { 'value': 10, 'transform': Jitter(width=0.4) }
+        glyph.x = {
+            'type': 'value',
+            'value': 10,
+            'transform': Jitter(width=0.4),
+        }
 
     Note that ``DataSpec`` is not normally useful on its own. Typically,
     a model will define properties using one of the subclasses such
@@ -181,43 +183,102 @@ class DataSpec(Either[Any]):
 
     """
 
-    _units_enum: Any | None = None
+    def __init__(self, value_type: Any, default: Any, *, units: Enum[Any] | None = None, help: str | None = None) -> None:
+        self.units_type = units
+        self.default_units = units._raw_default() if units is not None else Unspecified
+        transform: Optional[Any] = Optional(Instance("bokeh.models.transforms.Transform"))
+        expression: Instance[Any] = Instance("bokeh.models.expressions.Expression")
 
-    def __init__(self, value_type: Any, default: Any, *, help: str | None = None) -> None:
+        def spec_struct(spec_type: str, value: Any) -> Struct[Any]:
+            fields: dict[str, Any] = {
+                "type": Enum(spec_type),
+                "value": value,
+                "transform": transform,
+            }
+            if units is not None:
+                fields["units"] = Optional(units)
+            return Struct(**fields)
+
+        self._spec_structs = (
+            spec_struct("value", value_type),
+            spec_struct("field", String),
+            spec_struct("expr", expression),
+        )
+        self._value_record_struct = spec_struct("value", AnyRef())
+
         super().__init__(
             String,
             value_type,
-            Instance(Value),
-            Instance(Field),
-            Instance(Expr),
-            Struct(
-                value=value_type,
-                transform=Optional(Instance("bokeh.models.transforms.Transform")),
-            ),
-            Struct(
-                field=String,
-                transform=Optional(Instance("bokeh.models.transforms.Transform")),
-            ),
-            Struct(
-                expr=Instance("bokeh.models.expressions.Expression"),
-                transform=Optional(Instance("bokeh.models.transforms.Transform")),
-            ),
+            *self._spec_structs,
             default=default,
             help=help,
         )
         self.value_type = self._validate_type_param(value_type)
         self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: Expr(obj))
 
-    def transform(self, value: Any) -> Any:
-        if isinstance(value, dict):
-            if "value" in value:
-                return Value(**value)
-            if "field" in value:
-                return Field(**value)
-            if "expr" in value:
-                return Expr(**value)
+    def validate(self, value: Any, detail: bool = True) -> None:
+        if isinstance(value, DataSpecValue):
+            rep = {"type": value.type, "value": value.value}
+            if value.transform is not Unspecified:
+                rep["transform"] = value.transform
+            if value.units is not Unspecified:
+                rep["units"] = value.units
 
-        return super().transform(value)
+            structs = (self._value_record_struct, *self._spec_structs[1:]) if isinstance(value, Value) else self._spec_structs
+            if any(struct.is_valid(rep) for struct in structs):
+                return
+
+            msg = "" if not detail else f"expected a valid {value.type!r} DataSpec record, got {value!r}"
+            raise ValueError(msg)
+
+        super().validate(value, detail)
+
+    def transform(self, value: Any) -> DataSpecValue[Any]:
+        result: Any
+        if isinstance(value, DataSpecValue):
+            result = value
+        elif isinstance(value, dict):
+            spec_type = value["type"]
+            payload = value["value"]
+            transform = value.get("transform", Unspecified)
+            units = value.get("units", Unspecified)
+            if spec_type == "value":
+                result = Value(payload, transform, units)
+            elif spec_type == "field":
+                result = Field(payload, transform, units)
+            else:
+                result = Expr(payload, transform, units)
+        else:
+            try:
+                self.value_type.replace(String, Nothing()).validate(value, False)
+                result = Value(value)
+            except ValueError:
+                if isinstance(value, str):
+                    result = Field(value)
+                else:
+                    result = value
+
+        if not isinstance(result, DataSpecValue):
+            result = super().transform(result)
+            if not isinstance(result, DataSpecValue):
+                result = Value(result)
+
+        if self.units_type is not None and result.units is Unspecified:
+            result = copy(result)
+            object.__setattr__(result, "units", self.default_units)
+
+        return result
+
+    def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> Any:
+        result = super().prepare_value(owner, name, value, hint=hint)
+
+        from ...core.has_props import HasProps
+        if isinstance(owner, HasProps) and isinstance(result, DataSpecValue) and result._owners:
+            descriptor = owner.lookup(name)
+            if (owner, descriptor) not in result._owners:
+                result = copy(result)
+
+        return result
 
     def make_descriptor(self, name: str) -> DataSpecPropertyDescriptor:
         """Return the descriptor used to delegate access to this DataSpec.
@@ -230,25 +291,13 @@ class DataSpec(Either[Any]):
         """
         return DataSpecPropertyDescriptor(name, self)
 
+    def _needs_materialized_default(self) -> bool:
+        # DataSpec values are mutable, owner-aware records. Always retain one
+        # prepared record per instance so component updates can notify the
+        # owning model without sharing state through a class-level default.
+        return True
+
     def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
-        # Check for spec type value
-        try:
-            self.value_type.replace(String, Nothing()).validate(val, False)
-            val = Value(val)
-        except ValueError:
-            pass
-
-        # Check for data source field name
-        if isinstance(val, str):
-            val = Field(val)
-
-        if self._units_enum is not None and val.units is Unspecified:
-            units_descriptor = obj.lookup(f"{name}_units")
-            units = units_descriptor.get_value(obj)
-            if units != units_descriptor.property._default:
-                val = copy(val)
-                val.units = units
-
         return val
 
 class BoolSpec(DataSpec):
@@ -260,8 +309,8 @@ class IntSpec(DataSpec):
         super().__init__(Int, default=default, help=help)
 
 class FloatSpec(DataSpec):
-    def __init__(self, default: Any, *, help: str | None = None) -> None:
-        super().__init__(Float, default=default, help=help)
+    def __init__(self, default: Any, *, units: Enum[Any] | None = None, help: str | None = None) -> None:
+        super().__init__(Float, default=default, units=units, help=help)
 
 class NumberSpec(DataSpec):
     """ A |DataSpec| property that accepts numeric and datetime fixed values.
@@ -284,8 +333,9 @@ class NumberSpec(DataSpec):
 
     """
 
-    def __init__(self, default: Any = Undefined, *, help: str | None = None, accept_datetime: bool = True, accept_timedelta: bool = True) -> None:
-        super().__init__(Float, default=default, help=help)
+    def __init__(self, default: Any = Undefined, *, units: Enum[Any] | None = None, help: str | None = None,
+            accept_datetime: bool = True, accept_timedelta: bool = True, _value_type: Any = Float) -> None:
+        super().__init__(_value_type, default=default, units=units, help=help)
 
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
@@ -431,34 +481,43 @@ class AngleSpec(NumberSpec):
     """A |DataSpec| property that accepts numeric values with angle units.
 
     Acceptable values for units are ``"deg"``, ``"rad"``, ``"grad"`` and ``"turn"``.
-    A property named ``foo`` must be accompanied by ``foo_units = AngleUnits``.
+    Units are stored directly in the DataSpec value.
 
     """
 
-    _units_alias = "AngleUnits"
-    _units_enum = enums.AngleUnits
+    def __init__(self, default: Any = Undefined, *, help: str | None = None,
+            accept_datetime: bool = True, accept_timedelta: bool = True) -> None:
+        units = Enum(enums.AngleUnits, default="rad")
+        super().__init__(default=default, units=units, help=help,
+            accept_datetime=accept_datetime, accept_timedelta=accept_timedelta)
 
 class CoordinateSpec(NumberSpec):
     """A |DataSpec| property that accepts numeric values with coordinate units.
 
     Acceptable values for units are ``"canvas"``, ``"screen"`` and ``"data"``.
-    A property named ``foo`` must be accompanied by ``foo_units = CoordinateUnits``.
+    Units are stored directly in the DataSpec value.
 
     """
 
-    _units_alias = "CoordinateUnits"
-    _units_enum = enums.CoordinateUnits
+    def __init__(self, default: Any = Undefined, *, help: str | None = None,
+            accept_datetime: bool = True, accept_timedelta: bool = True) -> None:
+        units = Enum(enums.CoordinateUnits, default="data")
+        super().__init__(default=default, units=units, help=help,
+            accept_datetime=accept_datetime, accept_timedelta=accept_timedelta)
 
 class DistanceSpec(NumberSpec):
     """ A |DataSpec| property that accepts numeric fixed values or strings
     that refer to columns in a :class:`~bokeh.models.sources.ColumnDataSource`.
     Acceptable values for units are ``"screen"`` and ``"data"``.
-    A property named ``foo`` must be accompanied by ``foo_units = SpatialUnits``.
+    Units are stored directly in the DataSpec value.
 
     """
 
-    _units_alias = "SpatialUnits"
-    _units_enum = enums.SpatialUnits
+    def __init__(self, default: Any = Undefined, *, help: str | None = None,
+            accept_datetime: bool = True, accept_timedelta: bool = True, _value_type: Any = Float) -> None:
+        units = Enum(enums.SpatialUnits, default="data")
+        super().__init__(default=default, units=units, help=help,
+            accept_datetime=accept_datetime, accept_timedelta=accept_timedelta, _value_type=_value_type)
 
     def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> Any:
         try:
@@ -471,9 +530,7 @@ class DistanceSpec(NumberSpec):
 class NullDistanceSpec(DistanceSpec):
 
     def __init__(self, default: Any = None, *, help: str | None = None) -> None:
-        super().__init__(default=default, help=help)
-        self.value_type = Nullable(Float)
-        self._type_params = [Null(), *self._type_params]
+        super().__init__(default=default, help=help, _value_type=Nullable(Float))
 
     def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> Any:
         try:
@@ -517,7 +574,7 @@ class ColorSpec(DataSpec):
 
     .. code-block:: python
 
-        m.color = { "field": "firebrick" } # field (named "firebrick")
+        m.color = {"type": "field", "value": "firebrick"}
 
         m.color = field("firebrick")       # field (named "firebrick")
 

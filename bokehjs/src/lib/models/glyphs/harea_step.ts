@@ -172,9 +172,9 @@ export class HAreaStep extends Area {
     this.prototype.default_view = HAreaStepView
 
     this.define<HAreaStep.Props>(({}) => ({
-      x1:        [ p.XCoordinateSpec, {field: "x1"} ],
-      x2:        [ p.XCoordinateSpec, {field: "x2"} ],
-      y:         [ p.YCoordinateSpec, {field: "y"} ],
+      x1:        [ p.XCoordinateSpec, {type: "field", value: "x1"} ],
+      x2:        [ p.XCoordinateSpec, {type: "field", value: "x2"} ],
+      y:         [ p.YCoordinateSpec, {type: "field", value: "y"} ],
       step_mode: [ StepMode, "before" ],
     }))
   }

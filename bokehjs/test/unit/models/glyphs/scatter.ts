@@ -16,8 +16,8 @@ describe("Glyph (using Scatter as a concrete Glyph)", () => {
       stub = sinon.stub((ScatterView.prototype as any), "_bounds").callsFake((bounds) => bounds) // XXX: protected
 
       glyph = new Scatter({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
       })
     })
 
@@ -68,8 +68,8 @@ describe("Glyph (using Scatter as a concrete Glyph)", () => {
     it("should hit rects against an index", async () => {
       const data = {x: [20, 40, 60], y: [10, 10, 50]}
       const glyph = new Scatter({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
@@ -96,8 +96,8 @@ describe("Scatter", () => {
 
     before_each(() => {
       glyph = new Scatter({
-        x: {field: "x"},
-        y: {field: "y"},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
         size: 10,
       })
     })

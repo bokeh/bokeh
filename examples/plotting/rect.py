@@ -11,15 +11,14 @@ and the third plot adds an angle to each rect.
 import numpy as np
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show
+from bokeh.plotting import figure, show, value
 
 x = np.linspace(0, 4*np.pi, 80)
 y = np.sin(x)
 
 # fixed width and height
 p1 = figure(title="width/height screen units")
-p1.rect(x, y, 6, 4, color="tomato",
-        width_units="screen", height_units="screen")
+p1.rect(x, y, value(6, units="screen"), value(4, units="screen"), color="tomato")
 
 # variable width and height
 w = 0.02*np.exp(1+0.1*x)

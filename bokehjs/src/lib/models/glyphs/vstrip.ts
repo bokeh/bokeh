@@ -231,8 +231,8 @@ export class VStrip extends Glyph {
     this.mixins<VStrip.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<VStrip.Props>(() => ({
-      x0: [ p.XCoordinateSpec, {field: "x0"} ],
-      x1: [ p.XCoordinateSpec, {field: "x1"} ],
+      x0: [ p.XCoordinateSpec, {type: "field", value: "x0"} ],
+      x1: [ p.XCoordinateSpec, {type: "field", value: "x1"} ],
     }))
   }
 }

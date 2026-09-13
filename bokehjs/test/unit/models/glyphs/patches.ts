@@ -19,8 +19,8 @@ describe("Patches", () => {
         ys: [[1, 1, 3], [3, 3, 5, 5], [3, 4, 5, 4]],
       }
       const glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: {type: "field", value: "xs"},
+        ys: {type: "field", value: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -72,8 +72,8 @@ describe("Patches", () => {
         ys: [[0, 0, 10, 10, NaN, 3, 7, 7, 3]],
       }
       const glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: {type: "field", value: "xs"},
+        ys: {type: "field", value: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -109,8 +109,8 @@ describe("Patches", () => {
         ys: [[0, 0, 5, 5, NaN, 0, 0, 5, 5]],
       }
       const glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: {type: "field", value: "xs"},
+        ys: {type: "field", value: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -147,8 +147,8 @@ describe("Patches", () => {
         ys: [[1, 1, 3], [3, 3, 5, 5], [3, 4, 5, 4]],
       }
       const glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: {type: "field", value: "xs"},
+        ys: {type: "field", value: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {

@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import field
+from bokeh.core.properties import field, value
 from bokeh.models import ColumnDataSource, MultiLine, Scatter
 
 # Module under test
@@ -65,22 +65,22 @@ class Test_get_graph_kwargs:
         kw = bpg.get_graph_kwargs({}, {}, **kwargs)
 
         r = kw['node_renderer']
-        assert r.glyph.fill_color == "purple"
-        assert r.selection_glyph.fill_color == "blue"
-        assert r.nonselection_glyph.fill_color == "yellow"
-        assert r.hover_glyph.fill_color == "red"
-        assert r.muted_glyph.fill_color == "orange"
+        assert r.glyph.fill_color == value("purple")
+        assert r.selection_glyph.fill_color == value("blue")
+        assert r.nonselection_glyph.fill_color == value("yellow")
+        assert r.hover_glyph.fill_color == value("red")
+        assert r.muted_glyph.fill_color == value("orange")
 
-        assert r.glyph.radius == 0.6
-        assert r.selection_glyph.radius == 0.6
-        assert r.nonselection_glyph.radius == 0.6
-        assert r.hover_glyph.radius == 0.6
-        assert r.muted_glyph.radius == 0.6
+        assert r.glyph.radius == value(0.6, units="data")
+        assert r.selection_glyph.radius == value(0.6, units="data")
+        assert r.nonselection_glyph.radius == value(0.6, units="data")
+        assert r.hover_glyph.radius == value(0.6, units="data")
+        assert r.muted_glyph.radius == value(0.6, units="data")
 
     def test_handle_node_marker(self) -> None:
         kw = bpg.get_graph_kwargs({}, {}, node_marker='x')
         node_glyph = kw['node_renderer'].glyph
-        assert isinstance(node_glyph, Scatter) and node_glyph.marker == "x"
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == value("x")
 
     def test_handle_node_marker_dataspec_correctly(self) -> None:
         node_source = {'marker': ['square', 'circle', 'x']}
@@ -99,17 +99,17 @@ class Test_get_graph_kwargs:
         kw = bpg.get_graph_kwargs({}, {}, **kwargs)
 
         r = kw['edge_renderer']
-        assert r.glyph.line_color == "purple"
-        assert r.selection_glyph.line_color == "blue"
-        assert r.nonselection_glyph.line_color == "yellow"
-        assert r.hover_glyph.line_color == "red"
-        assert r.muted_glyph.line_color == "orange"
+        assert r.glyph.line_color == value("purple")
+        assert r.selection_glyph.line_color == value("blue")
+        assert r.nonselection_glyph.line_color == value("yellow")
+        assert r.hover_glyph.line_color == value("red")
+        assert r.muted_glyph.line_color == value("orange")
 
-        assert r.glyph.line_width == 23
-        assert r.selection_glyph.line_width == 23
-        assert r.nonselection_glyph.line_width == 23
-        assert r.hover_glyph.line_width == 23
-        assert r.muted_glyph.line_width == 23
+        assert r.glyph.line_width == value(23)
+        assert r.selection_glyph.line_width == value(23)
+        assert r.nonselection_glyph.line_width == value(23)
+        assert r.hover_glyph.line_width == value(23)
+        assert r.muted_glyph.line_width == value(23)
 
     def test_default_muted_glyph(self) -> None:
         kwargs = dict(
@@ -120,13 +120,13 @@ class Test_get_graph_kwargs:
 
         r = kw['edge_renderer']
         assert isinstance(r.muted_glyph, MultiLine)
-        assert r.muted_glyph.line_color == "purple"
-        assert r.muted_glyph.line_alpha == 0.2
+        assert r.muted_glyph.line_color == value("purple")
+        assert r.muted_glyph.line_alpha == value(0.2)
         r = kw['node_renderer']
         assert isinstance(r.muted_glyph, Scatter)
-        assert r.muted_glyph.fill_color == "red"
-        assert r.muted_glyph.line_alpha == 0.2
-        assert r.muted_glyph.line_color == "blue"
+        assert r.muted_glyph.fill_color == value("red")
+        assert r.muted_glyph.line_alpha == value(0.2)
+        assert r.muted_glyph.line_color == value("blue")
 
     def test_bad_input(self) -> None:
         msg = """\

@@ -24,7 +24,7 @@ import numpy as np
 
 # Bokeh imports
 from bokeh.core.enums import MarkerType
-from bokeh.core.properties import value
+from bokeh.core.properties import field, value
 from bokeh.models import (
     BoxZoomTool,
     Circle,
@@ -261,7 +261,7 @@ class Test_figure:
 
         assert len(renderers) == 2
         assert [renderer.name for renderer in renderers] == ["a", "b"]
-        assert [list(getattr(renderer.glyph, stacked_name).expr.fields) for renderer in renderers] == [["a"], ["a", "b"]]
+        assert [list(getattr(renderer.glyph, stacked_name).value.fields) for renderer in renderers] == [["a"], ["a", "b"]]
 
     @pytest.mark.parametrize(("method_name", "coordinate_name", "stacked_name"), [
         ("harea_stack", "y", "x2"),
@@ -286,7 +286,7 @@ class Test_figure:
 
         assert len(renderers) == 2
         assert [renderer.name for renderer in renderers] == ["a", "b"]
-        assert [list(getattr(renderer.glyph, stacked_name).expr.fields) for renderer in renderers] == [["a"], ["a", "b"]]
+        assert [list(getattr(renderer.glyph, stacked_name).value.fields) for renderer in renderers] == [["a"], ["a", "b"]]
 
     @pytest.mark.parametrize(("method_name", "coordinate_name"), [
         ("harea_stack", "y"),
@@ -355,20 +355,20 @@ class TestMarkers:
         # color/line_color
         with pytest.warns(BokehDeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], color=rgb, line_color=rgb_other)
-        assert r.glyph.fill_color == rgb
-        assert r.glyph.line_color == rgb_other
+        assert r.glyph.fill_color == value(rgb)
+        assert r.glyph.line_color == value(rgb_other)
 
         # color/fill_color
         with pytest.warns(BokehDeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], color=rgb, fill_color=rgb_other)
-        assert r.glyph.line_color == rgb
-        assert r.glyph.fill_color == rgb_other
+        assert r.glyph.line_color == value(rgb)
+        assert r.glyph.fill_color == value(rgb_other)
 
         # alpha/line_alpha
         with pytest.warns(BokehDeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1, line_alpha=alpha2)
-        assert r.glyph.line_alpha == alpha2
-        assert r.glyph.fill_alpha == alpha1
+        assert r.glyph.line_alpha == value(alpha2)
+        assert r.glyph.fill_alpha == value(alpha1)
 
     @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
@@ -377,12 +377,12 @@ class TestMarkers:
         func = getattr(p, marker)
         with pytest.warns(BokehDeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], color=color)
-        assert r.glyph.line_color == color
-        assert r.glyph.fill_color == color
+        assert r.glyph.line_color == value(color)
+        assert r.glyph.fill_color == value(color)
         # rgb should always be an integer by the time it is added to property
-        for v in r.glyph.line_color[0:3]:
+        for v in r.glyph.line_color.value[0:3]:
             assert isinstance(v, int)
-        for v in r.glyph.fill_color[0:3]:
+        for v in r.glyph.fill_color.value[0:3]:
             assert isinstance(v, int)
 
     @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
@@ -392,9 +392,9 @@ class TestMarkers:
         func = getattr(p, marker)
         with pytest.warns(BokehDeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], line_color=color)
-        assert r.glyph.line_color == color
+        assert r.glyph.line_color == value(color)
         # rgb should always be an integer by the time it is added to property
-        for v in r.glyph.line_color[0:3]:
+        for v in r.glyph.line_color.value[0:3]:
             assert isinstance(v, int)
 
     @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
@@ -404,9 +404,9 @@ class TestMarkers:
         func = getattr(p, marker)
         with pytest.warns(BokehDeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], fill_color=color)
-        assert r.glyph.fill_color == color
+        assert r.glyph.fill_color == value(color)
         # rgb should always be an integer by the time it is added to property
-        for v in r.glyph.fill_color[0:3]:
+        for v in r.glyph.fill_color.value[0:3]:
             assert isinstance(v, int)
 
     @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
@@ -426,21 +426,21 @@ class Test_scatter:
         p = bpf.figure()
         r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker)
         assert isinstance(r.glyph, Scatter)
-        assert r.glyph.marker == marker
+        assert r.glyph.marker == value(marker)
 
     def test_marker_column(self) -> None:
         p = bpf.figure()
         data = dict(x=[1, 2, 3], y=[1, 2, 3], foo=["hex", "square", "circle"])
         r = p.scatter('x', 'y', marker='foo', source=data)
         assert isinstance(r.glyph, Scatter)
-        assert r.glyph.marker == "foo"
+        assert r.glyph.marker == field("foo")
 
     def test_circle_with_radius(self) -> None:
         p = bpf.figure()
         with pytest.warns(BokehDeprecationWarning):
             r = p.scatter([1, 2, 3], [1, 2, 3], marker="circle", radius=0.2)
         assert isinstance(r.glyph, Circle)
-        assert r.glyph.radius == 0.2
+        assert r.glyph.radius == value(0.2, units="data")
 
 
 class Test_hbar_stack:
@@ -488,7 +488,7 @@ def Test_figure_legends_DEPRECATED(object):
         p.scatter(x='x', y='y', legend='label', source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == field('label')
 
     def test_glyph_label_is_value_if_column_not_in_datasource_is_added_as_legend(self, p, source) -> None:
         p.scatter(x='x', y='y', legend='milk', source=source)
@@ -502,7 +502,7 @@ def Test_figure_legends_DEPRECATED(object):
         p.scatter(x='x', y='y', legend='label', source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == field('label')
 
 
     def test_glyph_label_is_value_if_column_not_in_df_datasource_is_added_as_legend(self, p) -> None:
@@ -514,10 +514,10 @@ def Test_figure_legends_DEPRECATED(object):
         assert legends[0].items[0].label == {'value': 'milk'}
 
     def test_glyph_label_is_just_added_directly_if_not_string(self, p, source) -> None:
-        p.scatter(x='x', y='y', legend={'field': 'milk'}, source=source)
+        p.scatter(x='x', y='y', legend=field('milk'), source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'field': 'milk'}
+        assert legends[0].items[0].label == field('milk')
 
     def test_no_legend_if_legend_is_none(self, p, source) -> None:
         p.scatter(x='x', y='y', legend=None, source=source)
@@ -567,7 +567,7 @@ def Test_figure_legends_DEPRECATED(object):
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square, circle]
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == field('label')
 
 
 def Test_figure_legends(object):
@@ -576,7 +576,7 @@ def Test_figure_legends(object):
         p.scatter(x='x', y='y', legend_field='label', source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == field('label')
 
     def test_no_legend_if_legend_is_none(self, p, source) -> None:
         p.scatter(x='x', y='y', legend_label=None, source=source)
@@ -630,7 +630,7 @@ def Test_figure_legends(object):
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square, circle]
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == field('label')
 
     # XXX (bev) this doesn't work yet because compound behaviour depends on renderer sources
     # matching, but passing a df means every renderer gets its own new source
@@ -643,7 +643,7 @@ def Test_figure_legends(object):
     #     assert len(legends) == 1
     #     print(legends[0].items[0].renderers)
     #     assert legends[0].items[0].renderers == [square, circle]
-    #     assert legends[0].items[0].label == {'field': 'label'}
+    #     assert legends[0].items[0].label == field('label')
 
 
 #-----------------------------------------------------------------------------

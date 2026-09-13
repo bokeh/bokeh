@@ -164,7 +164,7 @@ export class HSpan extends Glyph {
     this.mixins<HSpan.Mixins>([LineVector])
 
     this.define<HSpan.Props>(() => ({
-      y: [ p.YCoordinateSpec, {field: "y"} ],
+      y: [ p.YCoordinateSpec, {type: "field", value: "y"} ],
     }))
   }
 }

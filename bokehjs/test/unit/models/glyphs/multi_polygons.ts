@@ -19,8 +19,8 @@ describe("MultiPolygons", () => {
         ys: [[[[1, 1, 3]]], [[[3, 3, 5, 5]]], [[[3, 4, 5, 4]]]],
       }
       const glyph = new MultiPolygons({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: {type: "field", value: "xs"},
+        ys: {type: "field", value: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -70,8 +70,8 @@ describe("MultiPolygons", () => {
         ys: [[[[1, 1, 3]]], [[[3, 3, 5, 5]]], [[[3, 4, 5, 4]]]],
       }
       const glyph = new MultiPolygons({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: {type: "field", value: "xs"},
+        ys: {type: "field", value: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {

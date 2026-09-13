@@ -174,10 +174,13 @@ def test_Legend() -> None:
 def test_LegendItem() -> None:
     item = LegendItem()
     assert item.index is None
-    assert item.label is None
+    assert item.label == value(None)
     assert item.name is None
     assert item.renderers == []
     assert item.visible is True
+
+    assert LegendItem(label="label").label == value("label")
+    assert LegendItem(label=field("label")).label == field("label")
 
 def test_ColorBar() -> None:
     color_mapper = LinearColorMapper()
@@ -430,11 +433,9 @@ def test_BoxAnnotation_accepts_datetime() -> None:
 def test_Band() -> None:
     band = Band()
     assert band.level == 'annotation'
-    assert band.lower == field("lower")
-    assert band.lower_units == 'data'
-    assert band.upper == field("upper")
-    assert band.upper_units == 'data'
-    assert band.base == field("base")
+    assert band.lower == field("lower", units="data")
+    assert band.upper == field("upper", units="data")
+    assert band.base == field("base", units="data")
     assert band.dimension == 'height'
     assert isinstance(band.source, ColumnDataSource)
     assert band.x_range_name == 'default'
@@ -445,11 +446,8 @@ def test_Band() -> None:
     check_properties_existence(band, [
         *ANNOTATION,
         "lower",
-        "lower_units",
         "upper",
-        "upper_units",
         "base",
-        "base_units",
         "dimension",
         "source",
     ], LINE, FILL, HATCH)
@@ -509,15 +507,12 @@ def test_Label_accepts_datetime_xy() -> None:
 def test_LabelSet() -> None:
     label_set = LabelSet()
     assert label_set.level == 'annotation'
-    assert label_set.x == field("x")
-    assert label_set.y == field("y")
-    assert label_set.x_units == 'data'
-    assert label_set.y_units == 'data'
+    assert label_set.x == field("x", units="data")
+    assert label_set.y == field("y", units="data")
     assert label_set.text == field("text")
-    assert label_set.angle == 0
-    assert label_set.angle_units == 'rad'
-    assert label_set.x_offset == 0
-    assert label_set.y_offset == 0
+    assert label_set.angle == value(0, units="rad")
+    assert label_set.x_offset == value(0)
+    assert label_set.y_offset == value(0)
     assert label_set.x_range_name == 'default'
     assert label_set.y_range_name == 'default'
     assert isinstance(label_set.source, ColumnDataSource)
@@ -530,11 +525,8 @@ def test_LabelSet() -> None:
         *ANNOTATION,
         "x",
         "y",
-        "x_units",
-        "y_units",
         "text",
         "angle",
-        "angle_units",
         "x_offset",
         "y_offset",
         "source",
@@ -657,15 +649,13 @@ def test_Title() -> None:
 def test_Whisker() -> None:
     whisker = Whisker()
     assert whisker.level == 'underlay'
-    assert whisker.lower == field("lower")
-    assert whisker.lower_units == 'data'
+    assert whisker.lower == field("lower", units="data")
     assert isinstance(whisker.lower_head, ArrowHead)
-    assert whisker.lower_head.size == 10
-    assert whisker.upper == field("upper")
-    assert whisker.upper_units == 'data'
+    assert whisker.lower_head.size == value(10)
+    assert whisker.upper == field("upper", units="data")
     assert isinstance(whisker.upper_head, ArrowHead)
-    assert whisker.upper_head.size == 10
-    assert whisker.base == field("base")
+    assert whisker.upper_head.size == value(10)
+    assert whisker.base == field("base", units="data")
     assert whisker.dimension == 'height'
     assert isinstance(whisker.source, ColumnDataSource)
     assert whisker.x_range_name == 'default'
@@ -674,26 +664,23 @@ def test_Whisker() -> None:
     check_properties_existence(whisker, [
         *ANNOTATION,
         "lower",
-        "lower_units",
         "lower_head",
         "upper",
-        "upper_units",
         "upper_head",
         "base",
-        "base_units",
         "dimension",
         "source",
     ], LINE)
 
 def test_Whisker_and_Band_accept_negative_values() -> None:
     whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
-    assert whisker.base == -1.
-    assert whisker.lower == -1.5
-    assert whisker.upper == -0.5
+    assert whisker.base == value(-1., units="data")
+    assert whisker.lower == value(-1.5, units="data")
+    assert whisker.upper == value(-0.5, units="data")
     band = Band(base=-1., lower=-1.5, upper=-0.5)
-    assert band.base == -1.
-    assert band.lower == -1.5
-    assert band.upper == -0.5
+    assert band.base == value(-1., units="data")
+    assert band.lower == value(-1.5, units="data")
+    assert band.upper == value(-0.5, units="data")
 
 def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     legend_item = LegendItem()

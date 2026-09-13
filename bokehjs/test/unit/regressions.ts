@@ -86,6 +86,7 @@ import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11, Spectral6, Viridis11, Viridis256} from "@bokehjs/api/palettes"
 import {defer, paint, poll} from "@bokehjs/core/util/defer"
+import {field as field_spec, value} from "@bokehjs/core/vectorization"
 import type {Field} from "@bokehjs/core/vectorization"
 import type {AxisType, ToolName} from "@bokehjs/api/figure"
 
@@ -215,7 +216,7 @@ describe("Bug", () => {
     it("prevents initializing GlyphRenderer with an empty data source", async () => {
       const plot = fig([200, 200])
       const data_source = new ColumnDataSource({data: {}})
-      const glyph = new Scatter({x: {field: "x_field"}, y: {field: "y_field"}})
+      const glyph = new Scatter({x: {type: "field", value: "x_field"}, y: {type: "field", value: "y_field"}})
       const renderer = new GlyphRenderer({data_source, glyph})
       plot.add_renderers(renderer)
       const {view} = await display(plot)
@@ -243,7 +244,7 @@ describe("Bug", () => {
       const view = new CDSView({filter})
       const data_source = new ColumnDataSource({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
       const r = plot.scatter("x", "y", {marker: "square", fill_color: ["red", "red", "green", "green"], view, source: data_source})
-      const legend = new Legend({items: [new LegendItem({label: {field: "fld"}, renderers: [r]})]})
+      const legend = new Legend({items: [new LegendItem({label: {type: "field", value: "fld"}, renderers: [r]})]})
       plot.add_layout(legend)
       await display(plot)
     })
@@ -370,8 +371,8 @@ describe("Bug", () => {
                   name: "Line",
                   id: "1004",
                   attributes: {
-                    x: {field: "x"},
-                    y: {field: "y1"},
+                    x: {type: "field", value: "x"},
+                    y: {type: "field", value: "y1"},
                   },
                 },
               },
@@ -386,8 +387,8 @@ describe("Bug", () => {
                   name: "Line",
                   id: "1006",
                   attributes: {
-                    x: {field: "x"},
-                    y: {field: "y0"},
+                    x: {type: "field", value: "x"},
+                    y: {type: "field", value: "y0"},
                   },
                 },
               },
@@ -588,7 +589,7 @@ describe("Bug", () => {
     async function test(x_range: Range, y_range: Range) {
       const p = fig([200, 200], {x_range, y_range})
       const color_mapper = new LinearColorMapper({palette: Spectral11})
-      const glyph = p.image({image: {value: scalar_image()}, x: -5, y: -5, dw: 10, dh: 10, color_mapper})
+      const glyph = p.image({image: value(scalar_image()), x: -5, y: -5, dw: 10, dh: 10, color_mapper})
 
       const {view} = await display(p)
       const glyph_view = view.owner.get_one(glyph)
@@ -642,7 +643,14 @@ describe("Bug", () => {
       const height = [ 3,  2,  1, 1,  1,  2,  3,   2,   3]
       const angle =  [45, 30, 15, 0, 15, 30, 45, 270, 450]
 
-      const rect = plot.rect({x, y, width, height, angle, angle_units: "deg", fill_alpha: 0.5})
+      const source = new ColumnDataSource({data: {x, y, width, height, angle}})
+      const rect = plot.rect({
+        x: field_spec("x"), y: field_spec("y"),
+        width: field_spec("width"), height: field_spec("height"),
+        angle: field_spec("angle", {units: "deg"}),
+        fill_alpha: 0.5,
+        source,
+      })
       plot.text({x, y, text: index.map((i) => `${i}`), anchor: "center"})
 
       const {view} = await display(plot)
@@ -1066,8 +1074,8 @@ describe("Bug", () => {
   describe("in issue #13500", () => {
     function fields<T extends object>(data: T): {[K in keyof T]: Field} {
       const result: {[key: string]: Field} = {}
-      for (const field of keys(data)) {
-        result[field] = {field}
+      for (const name of keys(data)) {
+        result[name] = field_spec(name)
       }
       return result as {[K in keyof T]: Field}
     }
@@ -1913,7 +1921,7 @@ describe("Bug", () => {
       const data_source = new ColumnDataSource({data: {}})
 
       const plot = new Plot()
-      const glyph = new Patches({xs: {field: "xs"}, ys: {field: "ys"}})
+      const glyph = new Patches({xs: {type: "field", value: "xs"}, ys: {type: "field", value: "ys"}})
       const renderer = new GlyphRenderer({data_source, glyph})
       plot.renderers.push(renderer)
 
@@ -2086,7 +2094,7 @@ ${view.host_selector} {
         palette: Spectral6, low: 10, high: 1, low_color: "gray", high_color: "black",
       })
       const cbar = new ColorBar({color_mapper: cmap})
-      p.scatter("x", "y", {color: {field: "x", transform: cmap}, size: 15, source})
+      p.scatter("x", "y", {color: {type: "field", value: "x", transform: cmap}, size: 15, source})
       p.add_layout(cbar, "right")
 
       await display(p)

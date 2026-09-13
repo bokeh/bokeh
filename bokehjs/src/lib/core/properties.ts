@@ -13,8 +13,8 @@ import {to_big_endian} from "./util/platform"
 import {isNumber, isTypedArray, isPlainObject} from "./util/types"
 import type {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import type {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import type {/*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
-import {isValue, isField, isExpr} from "./vectorization"
+import type {/*Value,*/ Scalar, Vector, ScalarExpression, VectorExpression} from "./vectorization"
+import {isValue, isField, isExpr, isVectorized} from "./vectorization"
 import {settings} from "./settings"
 import type {Kind} from "./kinds"
 import {PrefixedStr} from "./kinds"
@@ -41,11 +41,52 @@ function valueToString(value: any): string {
   }
 }
 
-export function isSpec(obj: any): boolean {
-  return isPlainObject(obj) &&
-          ((obj.value === undefined ? 0 : 1) +
-           (obj.field === undefined ? 0 : 1) +
-           (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
+export function isSpec<T = unknown, Units = unknown>(obj: unknown): obj is Vector<T, Units> {
+  return isVectorized<T, Units>(obj)
+}
+
+type SpecProperty<S> = Pick<Property, "attr" | "obj"> & {get_value(): S}
+
+function owned_spec<S extends Vector<unknown, unknown>>(property: SpecProperty<S>, spec: S): S {
+  const target = {...spec}
+  const update = (key: PropertyKey, value: unknown, remove: boolean = false): boolean => {
+    if (key == "type") {
+      throw new TypeError("DataSpec.type is read-only; assign a new value(), field(), or expr() record")
+    }
+    if (key != "value" && key != "transform" && key != "units") {
+      throw new TypeError(`unknown DataSpec component: ${String(key)}`)
+    }
+
+    const current = property.get_value()
+    const updated = {...current} as S & Record<PropertyKey, unknown>
+    delete updated[serialize]
+    if (remove) {
+      delete updated[key]
+    } else {
+      Reflect.set(updated, key, value)
+    }
+    property.obj.setv({[property.attr]: updated})
+
+    const committed = property.get_value() as S & Record<PropertyKey, unknown>
+    if (key in committed) {
+      Reflect.set(target, key, committed[key])
+    } else {
+      Reflect.deleteProperty(target, key)
+    }
+    return true
+  }
+
+  return new Proxy(target, {
+    set(_target, key, value) {
+      return update(key, value)
+    },
+    deleteProperty(_target, key) {
+      if (key == "value") {
+        throw new TypeError("DataSpec.value is required; assign a new value(), field(), or expr() record")
+      }
+      return update(key, undefined, true)
+    },
+  })
 }
 
 export interface Theme {
@@ -73,7 +114,7 @@ export type UniformsOf<Props> = {
 }
 
 export type MaxAttrsOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends DistanceSpec ? `max_${Key}` : never]: number
+  [Key in keyof Props & string as Props[Key] extends DistanceSpec | NullDistanceSpec | ScreenSizeSpec ? `max_${Key}` : never]: number
 }
 
 export type CoordsAttrsOf<Props> = {
@@ -84,8 +125,8 @@ export type CoordsAttrsOf<Props> = {
 }
 
 export type ScreenAttrsOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `s${Key}` : never]:
-    Props[Key] extends CoordinateSpec | DistanceSpec ? Arrayable<number> :
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec | NullDistanceSpec ? `s${Key}` : never]:
+    Props[Key] extends CoordinateSpec | DistanceSpec | NullDistanceSpec ? Arrayable<number> :
     Props[Key] extends CoordinateSeqSpec             ? RaggedArray<FloatArray> :
     Props[Key] extends CoordinateSeqSeqSeqSpec       ? Arrayable<Arrayable<Arrayable<Arrayable<number>>>> : never
 }
@@ -97,7 +138,7 @@ export type InheritedAttrsOf<Props> = {
 /* eslint-enable @stylistic/indent */
 
 export type InheritedScreenOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `inherited_s${Key}` : never]: boolean
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec | NullDistanceSpec ? `inherited_s${Key}` : never]: boolean
 }
 
 export type InheritedOf<Props> = InheritedAttrsOf<Props> & InheritedScreenOf<Props>
@@ -349,30 +390,31 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
   }
 
   protected override _update(attr_value: S | T): void {
-    if (isSpec(attr_value)) {
-      this._value = attr_value as S
-    } else {
-      this._value = {value: attr_value} as any // Value<T>
+    if (isPlainObject(attr_value) && "units" in attr_value) {
+      throw new ValidationError(`${this} does not support units`)
+    }
+    const previous = this._value
+    const updated = isSpec(attr_value) ? {...attr_value} as S : (() => {
+      const {transform} = previous !== unset ? previous : {}
+      return {
+        type: "value",
+        value: attr_value,
+        ...(transform != null ? {transform} : {}),
+      } as S
+    })()
+
+    if (isValue(updated)) {
+      this.validate(updated.value)
     }
 
-    if (isPlainObject(this._value)) {
-      const {_value} = this
-      this._value[serialize] = (serializer) => {
-        const {value, field, expr, transform, units} = _value as any
-        return serializer.encode_struct((() => {
-          if (value !== undefined) {
-            return {type: "value", value, transform, units}
-          } else if (field !== undefined) {
-            return {type: "field", field, transform, units}
-          } else {
-            return {type: "expr", expr, transform, units}
-          }
-        })())
+    if (isPlainObject(updated)) {
+      updated[serialize] = (serializer) => {
+        const {type, value, transform} = updated
+        return serializer.encode_struct({type, value, transform})
       }
-    }
-
-    if (isValue(this._value)) {
-      this.validate(this._value.value)
+      this._value = owned_spec(this, updated)
+    } else {
+      this._value = updated
     }
   }
 
@@ -388,7 +430,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     const obj = this.get_value()
     const n = source.get_length() ?? 1
     if (isExpr(obj)) {
-      const {expr, transform} = obj
+      const {value: expr, transform} = obj
       let result = (expr as ScalarExpression<T>).compute(source)
       if (transform != null) {
         result = transform.compute(result) as any
@@ -428,7 +470,7 @@ export class FontStyleScalar extends ScalarSpec<enums.FontStyle> {}
 export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
 export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 
-export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
+export abstract class VectorSpec<T, V extends Vector<T, unknown> = Vector<T>> extends Property<T | V> {
   declare __value__: T
   __vector__: V
 
@@ -442,31 +484,45 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     }
   }
 
-  protected override _update(attr_value: V | T): void {
-    if (isSpec(attr_value)) {
-      this._value = attr_value as V
-    } else {
-      this._value = {value: attr_value} as any
-    } // Value<T>
+  protected get units_allowed(): boolean {
+    return false
+  }
 
-    if (isPlainObject(this._value)) {
-      const {_value} = this
-      this._value[serialize] = (serializer) => {
-        const {value, field, expr, transform, units} = _value as any
-        return serializer.encode_struct((() => {
-          if (value !== undefined) {
-            return {type: "value", value, transform, units}
-          } else if (field !== undefined) {
-            return {type: "field", field, transform, units}
-          } else {
-            return {type: "expr", expr, transform, units}
-          }
-        })())
-      }
+  protected _as_spec(attr_value: V | T): V {
+    return isSpec(attr_value) ? {...attr_value} as V : {type: "value", value: attr_value} as V
+  }
+
+  default_spec(): V {
+    return this._as_spec(this.default_value(this.obj))
+  }
+
+  protected override _update(attr_value: V | T): void {
+    if (isPlainObject(attr_value) && "units" in attr_value && !this.units_allowed) {
+      throw new ValidationError(`${this} does not support units`)
+    }
+    const previous = this._value
+    const updated = isSpec(attr_value) || previous === unset ? this._as_spec(attr_value) : (() => {
+      const {transform, units} = previous
+      return {
+        type: "value",
+        value: attr_value,
+        ...(transform != null ? {transform} : {}),
+        ...(units != null ? {units} : {}),
+      } as V
+    })()
+
+    if (isValue(updated)) {
+      this.validate(updated.value)
     }
 
-    if (isValue(this._value)) {
-      this.validate(this._value.value)
+    if (isPlainObject(updated)) {
+      updated[serialize] = (serializer) => {
+        const {type, value, transform, units} = updated
+        return serializer.encode_struct({type, value, transform, units})
+      }
+      this._value = owned_spec(this, updated)
+    } else {
+      this._value = updated
     }
   }
 
@@ -490,7 +546,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     const obj = this.get_value()
     const n = source.get_length() ?? 1
     if (isField(obj)) {
-      const {field, transform} = obj
+      const {value: field, transform} = obj
       let array = source.get_column(field)
       if (array != null) {
         if (transform != null) {
@@ -508,7 +564,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         return this.scalar(null as any, n)
       }
     } else if (isExpr(obj)) {
-      const {expr, transform} = obj
+      const {value: expr, transform} = obj
       let array = (expr as VectorExpression<T>).v_compute(source)
       if (transform != null) {
         array = transform.v_compute(array) as any
@@ -535,7 +591,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
 
     const obj = this.get_value()
     if (isField(obj)) {
-      const {field} = obj
+      const {value: field} = obj
       const column = source.get_column(field)
       if (column != null) {
         array = this.normalize(column)
@@ -551,7 +607,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         array = missing
       }
     } else if (isExpr(obj)) {
-      const {expr} = obj
+      const {value: expr} = obj
       array = this.normalize((expr as VectorExpression<T>).v_compute(source))
     } else {
       const value = this.normalize([obj.value])[0]
@@ -574,21 +630,23 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
 
 export abstract class DataSpec<T> extends VectorSpec<T> {}
 
-export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {
+export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Vector<T, Units>> {
   abstract get default_units(): Units
   abstract get valid_units(): Units[]
 
   protected override _value: this["__vector__"] | Unset = unset
 
-  override _update(attr_value: any): void {
-    super._update(attr_value)
+  protected override get units_allowed(): boolean {
+    return true
+  }
 
-    if (this._value !== unset) {
-      const {units} = this._value
-      if (units != null && !includes(this.valid_units, units)) {
-        throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
-      }
+  protected override _as_spec(attr_value: T | this["__vector__"]): this["__vector__"] {
+    const spec = super._as_spec(attr_value)
+    const units = spec.units ?? this.default_units
+    if (!includes(this.valid_units, units)) {
+      throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
     }
+    return {...spec, units}
   }
 
   get units(): Units {
@@ -597,18 +655,14 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
 
   set units(units: Units) {
     if (this._value !== unset) {
-      if (units != this.default_units) {
-        this._value.units = units
-      } else {
-        delete this._value.units
-      }
+      this.obj.setv({[this.attr]: {...this._value, units}})
     } else {
       throw new Error(`${this} is unset`)
     }
   }
 }
 
-export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
+export abstract class NumberUnitsSpec<T extends number | null, Units> extends UnitsSpec<T, Units> {
   override array(source: ColumnarDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
   }
@@ -643,7 +697,26 @@ export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec {
   readonly dimension = "y"
 }
 
-export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
+export abstract class CoordinateUnitsSpec extends UnitsSpec<number | Factor, enums.CoordinateUnits> {
+  abstract readonly dimension: "x" | "y"
+
+  get default_units(): enums.CoordinateUnits {
+    return "data"
+  }
+  get valid_units(): enums.CoordinateUnits[] {
+    return [...enums.CoordinateUnits]
+  }
+}
+
+export class XCoordinateUnitsSpec extends CoordinateUnitsSpec {
+  readonly dimension = "x"
+}
+
+export class YCoordinateUnitsSpec extends CoordinateUnitsSpec {
+  readonly dimension = "y"
+}
+
+export class AngleSpec extends NumberUnitsSpec<number, enums.AngleUnits> {
   get default_units(): enums.AngleUnits {
     return "rad"
   }
@@ -668,7 +741,7 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   }
 }
 
-export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
+export class DistanceSpec extends NumberUnitsSpec<number, enums.SpatialUnits> {
   get default_units(): enums.SpatialUnits {
     return "data"
   }
@@ -677,7 +750,14 @@ export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   }
 }
 
-export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
+export class NullDistanceSpec extends NumberUnitsSpec<number | null, enums.SpatialUnits> {
+  get default_units(): enums.SpatialUnits {
+    return "data"
+  }
+  get valid_units(): enums.SpatialUnits[] {
+    return [...enums.SpatialUnits]
+  }
+
   override materialize(value: number | null): number {
     return value ?? NaN
   }

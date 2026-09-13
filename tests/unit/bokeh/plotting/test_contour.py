@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 # Bokeh imports
+from bokeh.core.properties import value
 from bokeh.plotting.contour import (
     FillData,
     LineData,
@@ -139,8 +140,8 @@ class Test_from_contour:
             assert np.allclose(fill_data["ys"][1], [1, 0.5, 0, 0, 1, 1, 1])
 
             glyph = cr.fill_renderer.glyph
-            assert glyph.fill_color == "red"
-            assert glyph.line_width == 0
+            assert glyph.fill_color == value("red")
+            assert glyph.line_width == value(0)
         else:
             assert fill_data == dict(xs=[], ys=[], lower_levels=[], upper_levels=[])
 
@@ -157,7 +158,7 @@ class Test_from_contour:
             assert np.allclose(line_data["xs"][2], [])
             assert np.allclose(line_data["ys"][2], [])
 
-            assert cr.line_renderer.glyph.line_color == "green"
+            assert cr.line_renderer.glyph.line_color == value("green")
         else:
             assert line_data == dict(xs=[], ys=[], levels=[])
 
@@ -223,21 +224,21 @@ class Test_from_contour:
         )
         cr = from_contour(x, y, z, levels, **kwargs)
         fill = cr.fill_renderer.glyph
-        assert fill.fill_color == "orange"
-        assert fill.fill_alpha == 0.3
-        assert fill.hatch_color == "yellow"
-        assert fill.hatch_alpha == 0.8
-        assert fill.hatch_weight == 2
-        assert fill.hatch_scale == 34
-        assert fill.hatch_pattern == "@"
+        assert fill.fill_color == value("orange")
+        assert fill.fill_alpha == value(0.3)
+        assert fill.hatch_color == value("yellow")
+        assert fill.hatch_alpha == value(0.8)
+        assert fill.hatch_weight == value(2)
+        assert fill.hatch_scale == value(34)
+        assert fill.hatch_pattern == value("@")
         line = cr.line_renderer.glyph
-        assert line.line_color == "red"
-        assert line.line_width == 1.5
-        assert line.line_alpha == 0.7
-        assert line.line_join == "round"
-        assert line.line_cap == "square"
-        assert line.line_dash == "dotdash"
-        assert line.line_dash_offset == 3
+        assert line.line_color == value("red")
+        assert line.line_width == value(1.5)
+        assert line.line_alpha == value(0.7)
+        assert line.line_join == value("round")
+        assert line.line_cap == value("square")
+        assert line.line_dash == value("dotdash")
+        assert line.line_dash_offset == value(3)
 
     @pytest.mark.parametrize("kwarg_none", ["line_color", "fill_color"])
     def test_ignore_kwarg_None(self, xyz_levels: XYZ_Levels, kwarg_none: str) -> None:

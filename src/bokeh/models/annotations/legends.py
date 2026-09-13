@@ -335,10 +335,11 @@ class LegendItem(Model):
 
     '''
     def __init__(self, *args, **kwargs) -> None:
+        if isinstance(kwargs.get("label"), str):
+            # Allow convenience of setting label as a string before the
+            # DataSpec property converts bare strings to fields.
+            kwargs["label"] = value(kwargs["label"])
         super().__init__(*args, **kwargs)
-        if isinstance(self.label, str):
-            # Allow convenience of setting label as a string
-            self.label = value(self.label)
 
     label = NullStringSpec(help="""
     A label for this legend. Can be a string, or a column of a
@@ -380,7 +381,7 @@ class LegendItem(Model):
             if len(self.renderers) < 1:
                 return str(self)
             source = self.renderers[0].data_source
-            if self.label.field not in source.column_names:
+            if self.label.value not in source.column_names:
                 return str(self)
 
 class Legend(Annotation):

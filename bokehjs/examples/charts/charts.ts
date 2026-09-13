@@ -2,7 +2,7 @@ import Bokeh from "/static/js/bokeh.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace Charts {
-  import plt = Bokeh.Plotting
+  const {gridplot, show} = Bokeh.Plotting
 
   const pie_data = {
     labels: ["Work", "Eat", "Commute", "Sport", "Watch TV", "Sleep"],
@@ -33,5 +33,5 @@ export namespace Charts {
     [p21, p22, p23, p24],
   ]
 
-  void plt.show(plt.gridplot(plots, {toolbar_location: null}))
+  void show(gridplot(plots, {toolbar_location: null}))
 }

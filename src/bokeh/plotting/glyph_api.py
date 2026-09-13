@@ -73,7 +73,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, show
+        from bokeh.plotting import figure, show, value
 
         plot = figure(width=300, height=300)
         plot.annulus(x=[1, 2, 3], y=[1, 2, 3], color="#7FC97F",
@@ -731,8 +731,9 @@ Examples:
         from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
-        plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
-                  width_units="screen", height_units="screen")
+        plot.rect(x=[1, 2, 3], y=[1, 2, 3],
+                  width=value(10, units="screen"), height=value(20, units="screen"),
+                  color="#CAB2D6")
 
         show(plot)
 
@@ -750,7 +751,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, show
+        from bokeh.plotting import figure, show, value
 
         plot = figure(width=300, height=300)
         plot.step(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 2, 5], color="#FB8072")
@@ -1063,8 +1064,8 @@ Examples:
         from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
-        plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
-                   end_angle=4.1, radius_units="screen", color="#2b8cbe")
+        plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=value(15, units="screen"),
+                   start_angle=0.6, end_angle=4.1, color="#2b8cbe")
 
         show(plot)
 

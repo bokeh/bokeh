@@ -10,9 +10,9 @@ describe("Ray", () => {
   describe("RayView", () => {
     function make_glyph(units: SpatialUnits): Ray {
       return new Ray({
-        x: {field: "x"},
-        y: {field: "y"},
-        length: {value: 10, units},
+        x: {type: "field", value: "x"},
+        y: {type: "field", value: "y"},
+        length: {type: "value", value: 10, units},
       })
     }
 

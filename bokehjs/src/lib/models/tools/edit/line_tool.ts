@@ -14,20 +14,20 @@ export abstract class LineToolView extends EditToolView {
     const point_glyph = this.model.intersection_renderer.glyph
     const point_cds = this.model.intersection_renderer.data_source
     const data = dict(point_cds.data)
-    const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
-    const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
+    const pxkey = isField(point_glyph.x) ? point_glyph.x.value : null
+    const pykey = isField(point_glyph.y) ? point_glyph.y.value : null
     if (pxkey != null) {
       if (isArray(x)) {
         data.set(pxkey, x)
       } else {
-        point_glyph.x = {value: x}
+        point_glyph.x = {type: "value", value: x}
       }
     }
     if (pykey != null) {
       if (isArray(y)) {
         data.set(pykey, y)
       } else {
-        point_glyph.y = {value: y}
+        point_glyph.y = {type: "value", value: y}
       }
     }
     this._emit_cds_changes(point_cds, true, true, false)

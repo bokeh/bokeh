@@ -42,8 +42,8 @@ async function make_testcase(): Promise<PolyDrawTestCase> {
   const data_source = new ColumnDataSource({data})
 
   const glyph = new Patches({
-    xs: {field: "xs"},
-    ys: {field: "ys"},
+    xs: {type: "field", value: "xs"},
+    ys: {type: "field", value: "ys"},
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})

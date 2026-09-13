@@ -40,7 +40,7 @@ describe("LegendItem", () => {
       const gr_1 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const gr_2 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const legend_item = new LegendItem({
-        label: {field: "label"},
+        label: {type: "field", value: "label"},
         renderers: [ gr_1, gr_2 ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.false
@@ -48,7 +48,7 @@ describe("LegendItem", () => {
 
     it("should return false if field label and no renderers", () => {
       const legend_item = new LegendItem({
-        label: {field: "label"},
+        label: {type: "field", value: "label"},
         renderers: [ ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.false
@@ -58,7 +58,7 @@ describe("LegendItem", () => {
       const gr_1 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const gr_2 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const legend_item = new LegendItem({
-        label: {value: "label"},
+        label: {type: "value", value: "label"},
         renderers: [ gr_1, gr_2 ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.true
@@ -72,7 +72,7 @@ describe("LegendItem", () => {
         data_source: new ColumnDataSource({data: {foo: [1]}}),
       })
       const legend_item = new LegendItem({
-        label: {field: "label"},
+        label: {type: "field", value: "label"},
         renderers: [ gr_1 ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.false
@@ -80,7 +80,7 @@ describe("LegendItem", () => {
 
     it("should return false if field label and no renderers", () => {
       const legend_item = new LegendItem({
-        label: {field: "label"},
+        label: {type: "field", value: "label"},
         renderers: [ ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.false
@@ -91,7 +91,7 @@ describe("LegendItem", () => {
         data_source: new ColumnDataSource({data: {label: [1]}}),
       })
       const legend_item = new LegendItem({
-        label: {field: "label"},
+        label: {type: "field", value: "label"},
         renderers: [ gr_1 ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.true
@@ -107,13 +107,13 @@ describe("LegendItem", () => {
     })
 
     it("should return undefined if label property is value", () => {
-      const legend_item = new LegendItem({label: {value: "milk"}})
+      const legend_item = new LegendItem({label: {type: "value", value: "milk"}})
       const field = legend_item.get_field_from_label_prop()
       expect(field).to.be.null
     })
 
     it("should return field if label property is field", () => {
-      const legend_item = new LegendItem({label: {field: "milk"}})
+      const legend_item = new LegendItem({label: {type: "field", value: "milk"}})
       const field = legend_item.get_field_from_label_prop()
       expect(field).to.be.equal("milk")
     })
@@ -129,7 +129,7 @@ describe("LegendItem", () => {
       })
       const gr = new GlyphRenderer({data_source: source})
       gr.view.compute_indices(source)
-      const legend_item = new LegendItem({label: {field: "label"}, renderers: [gr], visible: false})
+      const legend_item = new LegendItem({label: {type: "field", value: "label"}, renderers: [gr], visible: false})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.equal([])
     })
@@ -142,7 +142,7 @@ describe("LegendItem", () => {
       })
       const gr = new GlyphRenderer({data_source: source})
       gr.view.compute_indices(source)
-      const legend_item = new LegendItem({label: {field: "label"}, renderers: [gr]})
+      const legend_item = new LegendItem({label: {type: "field", value: "label"}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.equal(["foo", "bar"])
     })
@@ -155,19 +155,19 @@ describe("LegendItem", () => {
       })
       const gr = new GlyphRenderer({data_source: source})
       gr.view.compute_indices(source)
-      const legend_item = new LegendItem({label: {field: "milk"}, renderers: [gr]})
+      const legend_item = new LegendItem({label: {type: "field", value: "milk"}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.equal(["Invalid field"])
     })
 
     it("should return 'No source found' list if no renderer and field used", () => {
-      const legend_item = new LegendItem({label: {field: "milk"}, renderers: []})
+      const legend_item = new LegendItem({label: {type: "field", value: "milk"}, renderers: []})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.equal(["No source found"])
     })
 
     it("should return value in single list if label is value", () => {
-      const legend_item = new LegendItem({label: {value: "milk"}})
+      const legend_item = new LegendItem({label: {type: "value", value: "milk"}})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.equal(["milk"])
     })

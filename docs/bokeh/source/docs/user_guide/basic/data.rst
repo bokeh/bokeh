@@ -51,6 +51,59 @@ structures in Bokeh:
     p.scatter(x=x, y=random)
     p.line(x=x, y=cosine)
 
+.. _ug_basic_data_specs:
+
+Configuring data specifications
+--------------------------------
+
+Glyph properties such as coordinates, sizes, angles, and colors are data
+specifications. A data specification can use a literal value, read a field
+from a |ColumnDataSource|, or compute a value with an expression. Import the
+``value``, ``field``, and ``expr`` helpers directly from ``bokeh.plotting`` to
+make that choice explicit:
+
+.. code-block:: python
+
+    from bokeh.models import ColumnDataSource, CumSum
+    from bokeh.plotting import expr, field, figure, value
+
+    source = ColumnDataSource(data=dict(radius=[10, 20, 30]))
+    p = figure()
+
+    p.scatter(x=[1, 2, 3], y=[1, 2, 3], size=value(12))
+    p.circle(x=[1, 2, 3], y=[1, 2, 3], radius=field("radius", units="screen"), source=source)
+    p.wedge(x=0, y=0, radius=1, start_angle=0, end_angle=expr(CumSum(field="radius")))
+
+Each helper constructs a record with a read-only ``type`` discriminator and a
+uniform ``value`` payload. The records serialize in the following forms:
+
+.. code-block:: python
+
+    value(12)                         # {"type": "value", "value": 12}
+    field("radius", units="screen")  # {"type": "field", "value": "radius", "units": "screen"}
+    expr(CumSum(field="angle"))       # {"type": "expr", "value": <expression>}
+
+``transform`` and ``units`` are optional modifiers. Units are available only
+on data specifications that define a unit type, such as angle, distance, and
+coordinate specifications.
+
+Extension authors can configure units on any numeric data specification. For
+example, ``FloatSpec(default=0, units=AngleUnits)`` declares an angle-valued
+property, while the default ``units=None`` declares a unitless property. Both
+``FloatSpec`` and ``AngleUnits`` are importable from ``bokeh.core.properties``.
+
+Assigning an explicit helper record replaces the complete specification. A
+plain value assignment is a convenience that changes the record's type and
+value while keeping its current modifiers. Individual record components are
+also mutable and emit normal Bokeh property-change notifications:
+
+.. code-block:: python
+
+    glyph.radius = value(20, units="screen")
+    glyph.radius = 30                 # keeps units="screen"
+    glyph.radius.units = "data"       # emits a change notification
+    glyph.radius = field("radius")    # complete replacement; uses the default units
+
 .. _ug_basic_data_cds:
 
 Providing data as a ColumnDataSource

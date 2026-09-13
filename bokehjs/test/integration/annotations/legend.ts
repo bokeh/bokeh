@@ -15,6 +15,7 @@ import {HTML} from "@bokehjs/models/dom"
 import {Pane} from "@bokehjs/models"
 import {type Plot} from "@bokehjs/models"
 import {canvas} from "@bokehjs/core/dom"
+import {value as literal} from "@bokehjs/core/vectorization"
 
 async function show_with_exported(plot: Plot) {
   const width = plot.width!
@@ -397,7 +398,7 @@ describe("Legend annotation", () => {
     const clicked: LegendItem[] = []
     legend.on_event(LegendItemClick, ({item}) => {
       clicked.push(item)
-      item.renderers.forEach((r) => (r.glyph as Scatter).marker = {value: "triangle"})
+      item.renderers.forEach((r) => (r.glyph as Scatter).marker = literal("triangle" as const))
     })
 
     const {view: pv} = await display(p)

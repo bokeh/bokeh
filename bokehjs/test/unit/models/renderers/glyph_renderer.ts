@@ -8,10 +8,13 @@ import {PlotActions, xy} from "#framework/interactive"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {Circle, Scatter} from "@bokehjs/models/glyphs"
+import {Wedge} from "@bokehjs/models/glyphs/wedge"
+import type {WedgeView} from "@bokehjs/models/glyphs/wedge"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
 import {FactorRange} from "@bokehjs/models/ranges"
 import {CategoricalScale} from "@bokehjs/models/scales"
+import {field, value} from "@bokehjs/core/vectorization"
 
 function mkrenderer(glyph: Scatter): GlyphRenderer {
   const data_source = new ColumnDataSource({
@@ -70,7 +73,7 @@ describe("GlyphRendererView", () => {
 
   it("should have default nonselection_glyph with 0.2 alpha", async () => {
     const {nonselection_glyph} = await make_grv()
-    expect((nonselection_glyph.model as Scatter).fill_alpha).to.be.equal({value: 0.2})
+    expect((nonselection_glyph.model as Scatter).fill_alpha).to.be.equal({type: "value", value: 0.2})
   })
 
   it("should have undefined hover_glyph if renderer hover_glyph is null", async () => {
@@ -81,13 +84,41 @@ describe("GlyphRendererView", () => {
 
   it("should have default muted_glyph with 0.2 alpha", async () => {
     const {muted_glyph} = await make_grv()
-    expect((muted_glyph.model as Scatter).fill_alpha).to.be.equal({value: 0.2})
+    expect((muted_glyph.model as Scatter).fill_alpha).to.be.equal({type: "value", value: 0.2})
   })
 
   it("should have default decimated_glyph with 0.3 line alpha and color grey", async () => {
     const {decimated_glyph} = await make_grv()
-    expect((decimated_glyph.model as Scatter).line_alpha).to.be.equal({value: 0.3})
-    expect((decimated_glyph.model as Scatter).line_color).to.be.equal({value: "grey"})
+    expect((decimated_glyph.model as Scatter).line_alpha).to.be.equal({type: "value", value: 0.3})
+    expect((decimated_glyph.model as Scatter).line_color).to.be.equal({type: "value", value: "grey"})
+  })
+
+  it("should inherit implicit normalized default specs from the main glyph", async () => {
+    const data_source = new ColumnDataSource({
+      data: {
+        x: [0],
+        y: [0],
+        radius: [1],
+        selection_radius: [2],
+        color: ["red"],
+      },
+    })
+    const glyph = new Wedge({
+      x: field("x"),
+      y: field("y"),
+      radius: field("radius"),
+      start_angle: value(0),
+      end_angle: value(Math.PI),
+      line_color: field("color"),
+    })
+    const selection_glyph = new Wedge({radius: field("selection_radius"), line_color: value("black")})
+    const glyph_renderer = new GlyphRenderer({glyph, selection_glyph, data_source})
+    const view = await build_view(glyph_renderer, {parent: await build_view(new Plot())})
+
+    const selection_glyph_view = view.selection_glyph as WedgeView
+    expect(selection_glyph_view.inherited_start_angle).to.be.true
+    expect(selection_glyph_view.inherited_end_angle).to.be.true
+    expect(selection_glyph_view.inherited_line_color).to.be.false
   })
 
   it("should call set_data() once when working with FactorRange", async () => {

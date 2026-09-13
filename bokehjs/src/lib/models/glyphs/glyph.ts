@@ -360,13 +360,13 @@ export abstract class GlyphView extends DOMComponentView {
    *
    * Inheritance occurs when either:
    * 1. The derived property value equals the base value (original behavior), OR
-   * 2. The derived property value equals its default (new behavior)
+   * 2. The derived property wasn't explicitly set and equals its default (new behavior)
    *
    * Example (case 2):
-   *   Base glyph: start_angle: {value: 0}
-   *   Selection glyph: (unspecified) → gets default {field: "start_angle"}
+   *   Base glyph: start_angle: {type: "value", value: 0}
+   *   Selection glyph: (unspecified) → gets default {type: "field", value: "start_angle"}
    *   Without inheritance: would try to read missing field → rendering fails
-   *   With inheritance: inherits {value: 0} from base → renders correctly ✓
+   *   With inheritance: inherits {type: "value", value: 0} from base → renders correctly ✓
    *
    * @param prop - The property to check for inheritance
    * @param base - The base glyph view to potentially inherit from
@@ -386,12 +386,12 @@ export abstract class GlyphView extends DOMComponentView {
       if (is_equal(value, base_value)) {
         return true
       }
-      // If the selection glyph's property has its default value, inherit from base
-      // This handles cases like: base glyph has start_angle={value:0}, selection glyph
-      // doesn't specify start_angle (gets default {field:"start_angle"}), but should
+      // If the selection glyph's property wasn't explicitly set and has its default value, inherit from base
+      // This handles cases like: base glyph has start_angle={type: "value", value:0}, selection glyph
+      // doesn't specify start_angle (gets default {type: "field", value:"start_angle"}), but should
       // inherit the base value instead of trying to read a non-existent field
-      const default_value = prop.default_value(this.model)
-      return is_equal(value, default_value)
+      const default_value = prop instanceof p.VectorSpec ? prop.default_spec() : prop.default_value(this.model)
+      return !prop.dirty && is_equal(value, default_value)
     } catch (error) {
       if (error instanceof EqNotImplemented) {
         return false

@@ -22,7 +22,6 @@ from typing import Any
 # Bokeh imports
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.enum import Enum
-from bokeh.core.property.serialized import NotSerialized
 from bokeh.core.property.singletons import Undefined
 from bokeh.model import Model
 
@@ -59,18 +58,14 @@ def test_default_values(model: type[Model], name: str, descriptor: PropertyDescr
 
 def test_semantic_unit_companions() -> None:
     for model, model_name, descriptor in all_descriptors():
-        units_enum = getattr(descriptor.property, "_units_enum", None)
-        if units_enum is None:
+        units_type = getattr(descriptor.property, "units_type", None)
+        if units_type is None:
             continue
 
         units_name = f"{descriptor.name}_units"
-        units_descriptor = model.lookup(units_name)
-        units_property = units_descriptor.property
-
-        assert isinstance(units_property, NotSerialized), f"{model_name}.{units_name} must not be serialized"
-        assert isinstance(units_property.type_param, Enum), f"{model_name}.{units_name} must be an Enum"
-        assert tuple(units_property.type_param.allowed_values) == tuple(units_enum), \
-            f"{model_name}.{units_name} has the wrong units"
+        assert model.lookup(units_name, raises=False) is None, \
+            f"{model_name}.{descriptor.name} must embed units instead of defining {units_name}"
+        assert isinstance(units_type, Enum)
 
 #-----------------------------------------------------------------------------
 # Dev API

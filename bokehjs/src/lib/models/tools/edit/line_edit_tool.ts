@@ -56,7 +56,7 @@ export class LineEditToolView extends LineToolView {
       return
     }
 
-    const [xkey, ykey] = [glyph.x.field, glyph.y.field]
+    const [xkey, ykey] = [glyph.x.value, glyph.y.value]
 
     const cds = this._selected_renderer.data_source
     const x = cds.get_array<number>(xkey)
@@ -89,8 +89,8 @@ export class LineEditToolView extends LineToolView {
     const point_glyph = this.model.intersection_renderer.glyph
     const point_cds = this.model.intersection_renderer.data_source
     const data = dict(point_cds.data)
-    const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
-    const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
+    const pxkey = isField(point_glyph.x) ? point_glyph.x.value : null
+    const pykey = isField(point_glyph.y) ? point_glyph.y.value : null
     if (pxkey != null && pykey != null) {
       const x = data.get(pxkey)
       const y = data.get(pykey)

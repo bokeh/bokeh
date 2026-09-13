@@ -12,7 +12,7 @@ the array values be computed in the browser:
 
 .. code-block:: python
 
-    p.scatter(x={'expr': some_expression}, ...)
+    p.scatter(x={'type': 'expr', 'value': some_expression}, ...)
 
 or using the ``expr`` convenience function:
 
@@ -58,7 +58,6 @@ from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Float, String
 from ..core.property.required import Required
 from ..core.property.vectorization import field
-from ..core.property_aliases import AngleUnits
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -259,8 +258,6 @@ class PolarTransform(CoordinateTransform):
     angle = AngleSpec(default=field("angle"), help="""
     The angular coordinate (i.e. the angle from the reference axis).
     """)
-
-    angle_units = AngleUnits
 
     direction = Enum(Direction, default=Direction.anticlock, help="""
     Whether ``angle`` measures clockwise or anti-clockwise from the reference axis.

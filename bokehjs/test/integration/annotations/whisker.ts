@@ -1,6 +1,7 @@
 import {display, fig} from "#framework/layouts"
 
 import {Whisker, ColumnDataSource, OpenHead} from "@bokehjs/models"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("Whisker annotation", () => {
 
@@ -19,18 +20,17 @@ describe("Whisker annotation", () => {
     })
 
     const whisker0 = new Whisker({
-      base: {field: "x1"},
-      lower: {field: "lower1"},
-      upper: {field: "upper1"},
+      base: field("x1"),
+      lower: field("lower1"),
+      upper: field("upper1"),
       line_width: 3, line_color: "red", line_dash: "dashed",
       source,
     })
 
     const whisker1 = new Whisker({
-      // TODO: units are only supported on value level, not type level
-      base: {field: "x2", units: "screen"} as any,
-      lower: {field: "lower2", units: "screen"} as any,
-      upper: {field: "upper2", units: "screen"} as any,
+      base: field("x2", {units: "screen"}),
+      lower: field("lower2", {units: "screen"}),
+      upper: field("upper2", {units: "screen"}),
       upper_head: new OpenHead(),
       dimension: "width",
       line_width: 3, line_color: "green",

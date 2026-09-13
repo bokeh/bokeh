@@ -9,7 +9,7 @@ Such as annular wedge, annulus, arc, bezier, circle, ellipse, Hbar, line etc.
 import numpy as np
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import curdoc, figure, show
+from bokeh.plotting import curdoc, figure, show, value
 from bokeh.themes import Theme
 
 N = 9
@@ -24,17 +24,16 @@ ypts = np.array([-.1, .02, .1, .02, -.1])
 children = []
 
 p = figure(title="annular_wedge")
-p.annular_wedge(x, y, 10, 20, 0.6, 4.1, color="#8888ee",
-                inner_radius_units="screen", outer_radius_units="screen")
+p.annular_wedge(x, y, value(10, units="screen"), value(20, units="screen"),
+                0.6, 4.1, color="#8888ee")
 children.append(p)
 
 p = figure(title="annulus")
-p.annulus(x, y, 10, 20, color="#7FC97F",
-          inner_radius_units="screen", outer_radius_units = "screen")
+p.annulus(x, y, value(10, units="screen"), value(20, units="screen"), color="#7FC97F")
 children.append(p)
 
 p = figure(title="arc")
-p.arc(x, y, 20, 0.6, 4.1, radius_units="screen", color="#BEAED4", line_width=3)
+p.arc(x, y, value(20, units="screen"), 0.6, 4.1, color="#BEAED4", line_width=3)
 children.append(p)
 
 p = figure(title="bezier")
@@ -46,8 +45,8 @@ p.circle(x, y, radius=0.1, color="#3288BD")
 children.append(p)
 
 p = figure(title="ellipse")
-p.ellipse(x, y, 15, 25, angle=-0.7, color="#1D91C0",
-       width_units="screen", height_units="screen")
+p.ellipse(x, y, value(15, units="screen"), value(25, units="screen"),
+          angle=-0.7, color="#1D91C0")
 children.append(p)
 
 p = figure(title="Hbar")
@@ -91,7 +90,7 @@ p.ray(x, y, 45, -0.7, color="#FB8072", line_width=2)
 children.append(p)
 
 p = figure(title="rect")
-p.rect(x, y, 10, 20, color="#CAB2D6", width_units="screen", height_units="screen")
+p.rect(x, y, value(10, units="screen"), value(20, units="screen"), color="#CAB2D6")
 children.append(p)
 
 p = figure(title="segment")
@@ -107,7 +106,7 @@ p.vbar(x=x, width=0.5, bottom=0, top=y, color="#CAB2D6")
 children.append(p)
 
 p = figure(title="wedge")
-p.wedge(x, y, 15, 0.6, 4.1, radius_units="screen", color="#B3DE69")
+p.wedge(x, y, value(15, units="screen"), 0.6, 4.1, color="#B3DE69")
 children.append(p)
 
 p = figure(title="Marker: circle_x")

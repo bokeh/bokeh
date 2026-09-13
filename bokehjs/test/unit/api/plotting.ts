@@ -1,6 +1,6 @@
 import {expect} from "#framework/assertions"
 
-import {figure} from "@bokehjs/api/plotting"
+import {field, figure, value} from "@bokehjs/api/plotting"
 import {ColumnDataSource, LinearAxis} from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
@@ -10,69 +10,69 @@ describe("in api/plotting module", () => {
         const source = new ColumnDataSource()
 
         const gr0 = figure().circle()
-        expect(gr0.glyph.x).to.be.equal({field: "x"})
-        expect(gr0.glyph.y).to.be.equal({field: "y"})
+        expect(gr0.glyph.x).to.be.equal(field("x"))
+        expect(gr0.glyph.y).to.be.equal(field("y"))
         expect(gr0.glyph.properties.radius.is_unset).to.be.true
         expect(gr0.data_source).to.not.be.equal(source)
 
         const gr1 = figure().circle({source})
-        expect(gr1.glyph.x).to.be.equal({field: "x"})
-        expect(gr1.glyph.y).to.be.equal({field: "y"})
+        expect(gr1.glyph.x).to.be.equal(field("x"))
+        expect(gr1.glyph.y).to.be.equal(field("y"))
         expect(gr1.glyph.properties.radius.is_unset).to.be.true
         expect(gr1.data_source).to.be.identical(source)
 
         const gr2 = figure().circle(5, 10, 0.5)
-        expect(gr2.glyph.x).to.be.equal({value: 5})
-        expect(gr2.glyph.y).to.be.equal({value: 10})
-        expect(gr2.glyph.radius).to.be.equal({value: 0.5})
+        expect(gr2.glyph.x).to.be.equal(value(5))
+        expect(gr2.glyph.y).to.be.equal(value(10))
+        expect(gr2.glyph.radius).to.be.equal(value(0.5, {units: "data"}))
         expect(gr2.data_source).to.not.be.equal(source)
 
         const gr3 = figure().circle(5, 10, 0.5, {source})
-        expect(gr3.glyph.x).to.be.equal({value: 5})
-        expect(gr3.glyph.y).to.be.equal({value: 10})
-        expect(gr3.glyph.radius).to.be.equal({value: 0.5})
+        expect(gr3.glyph.x).to.be.equal(value(5))
+        expect(gr3.glyph.y).to.be.equal(value(10))
+        expect(gr3.glyph.radius).to.be.equal(value(0.5, {units: "data"}))
         expect(gr3.data_source).to.be.equal(source)
 
         const gr4 = figure().circle([1, 2, 3], [4, 5, 6], [7, 8, 9])
-        expect(gr4.glyph.x).to.be.equal({field: "x"})
-        expect(gr4.glyph.y).to.be.equal({field: "y"})
-        expect(gr4.glyph.radius).to.be.equal({field: "radius"})
+        expect(gr4.glyph.x).to.be.equal(field("x"))
+        expect(gr4.glyph.y).to.be.equal(field("y"))
+        expect(gr4.glyph.radius).to.be.equal(field("radius", {units: "data"}))
         expect(gr4.data_source).to.not.be.equal(source)
 
         const gr5 = figure().circle([1, 2, 3], [4, 5, 6], [7, 8, 9], {source})
-        expect(gr5.glyph.x).to.be.equal({field: "x"})
-        expect(gr5.glyph.y).to.be.equal({field: "y"})
-        expect(gr5.glyph.radius).to.be.equal({field: "radius"})
+        expect(gr5.glyph.x).to.be.equal(field("x"))
+        expect(gr5.glyph.y).to.be.equal(field("y"))
+        expect(gr5.glyph.radius).to.be.equal(field("radius", {units: "data"}))
         expect(gr5.data_source).to.be.equal(source)
 
-        const gr6 = figure().circle({field: "X"}, {field: "Y"}, 0.5)
-        expect(gr6.glyph.x).to.be.equal({field: "X"})
-        expect(gr6.glyph.y).to.be.equal({field: "Y"})
-        expect(gr6.glyph.radius).to.be.equal({value: 0.5})
+        const gr6 = figure().circle(field("X"), field("Y"), 0.5)
+        expect(gr6.glyph.x).to.be.equal(field("X"))
+        expect(gr6.glyph.y).to.be.equal(field("Y"))
+        expect(gr6.glyph.radius).to.be.equal(value(0.5, {units: "data"}))
         expect(gr6.data_source).to.not.be.equal(source)
 
-        const gr7 = figure().circle({field: "X"}, {field: "Y"}, 0.5, {source})
-        expect(gr7.glyph.x).to.be.equal({field: "X"})
-        expect(gr7.glyph.y).to.be.equal({field: "Y"})
-        expect(gr7.glyph.radius).to.be.equal({value: 0.5})
+        const gr7 = figure().circle(field("X"), field("Y"), 0.5, {source})
+        expect(gr7.glyph.x).to.be.equal(field("X"))
+        expect(gr7.glyph.y).to.be.equal(field("Y"))
+        expect(gr7.glyph.radius).to.be.equal(value(0.5, {units: "data"}))
         expect(gr7.data_source).to.be.equal(source)
 
-        const gr8 = figure().circle({field: "X"}, {field: "Y"}, {field: "R"})
-        expect(gr8.glyph.x).to.be.equal({field: "X"})
-        expect(gr8.glyph.y).to.be.equal({field: "Y"})
-        expect(gr8.glyph.radius).to.be.equal({field: "R"})
+        const gr8 = figure().circle(field("X"), field("Y"), field("R"))
+        expect(gr8.glyph.x).to.be.equal(field("X"))
+        expect(gr8.glyph.y).to.be.equal(field("Y"))
+        expect(gr8.glyph.radius).to.be.equal(field("R", {units: "data"}))
         expect(gr8.data_source).to.not.be.equal(source)
 
-        const gr9 = figure().circle({field: "X"}, {field: "Y"}, {field: "R"}, {source})
-        expect(gr9.glyph.x).to.be.equal({field: "X"})
-        expect(gr9.glyph.y).to.be.equal({field: "Y"})
-        expect(gr9.glyph.radius).to.be.equal({field: "R"})
+        const gr9 = figure().circle(field("X"), field("Y"), field("R"), {source})
+        expect(gr9.glyph.x).to.be.equal(field("X"))
+        expect(gr9.glyph.y).to.be.equal(field("Y"))
+        expect(gr9.glyph.radius).to.be.equal(field("R", {units: "data"}))
         expect(gr9.data_source).to.be.equal(source)
 
-        const gr10 = figure().circle({field: "X"}, {field: "Y"}, {field: "R"}, {x: {field: "X1"}, source})
-        expect(gr10.glyph.x).to.be.equal({field: "X1"})
-        expect(gr10.glyph.y).to.be.equal({field: "Y"})
-        expect(gr10.glyph.radius).to.be.equal({field: "R"})
+        const gr10 = figure().circle(field("X"), field("Y"), field("R"), {x: field("X1"), source})
+        expect(gr10.glyph.x).to.be.equal(field("X1"))
+        expect(gr10.glyph.y).to.be.equal(field("Y"))
+        expect(gr10.glyph.radius).to.be.equal(field("R", {units: "data"}))
         expect(gr10.data_source).to.be.equal(source)
 
         expect(() => {
@@ -91,64 +91,64 @@ describe("in api/plotting module", () => {
         }).to.throw(Error, /^invalid value for 'radius' parameter at position 2/)
       })
 
-      it("should support '_units' auxiliary properties", () => {
+      it("should support embedded units", () => {
         const p = figure()
         const attrs = {x: 0, y: 0, inner_radius: 1, outer_radius: 2}
 
         const r0 = p.annular_wedge({...attrs})
-        expect(r0.glyph.start_angle).to.be.equal({field: "start_angle"})
-        expect(r0.glyph.end_angle).to.be.equal({field: "end_angle"})
+        expect(r0.glyph.start_angle).to.be.equal(field("start_angle", {units: "rad"}))
+        expect(r0.glyph.end_angle).to.be.equal(field("end_angle", {units: "rad"}))
 
         const r1 = p.annular_wedge({
           ...attrs,
           start_angle: [0, 120, 240],
-          end_angle: [60, 180, 300], end_angle_units: "deg",
+          end_angle: field("end_angle", {units: "deg"}),
         })
-        expect(r1.glyph.start_angle).to.be.equal({field: "start_angle"})
-        expect(r1.glyph.end_angle).to.be.equal({field: "end_angle", units: "deg"})
+        expect(r1.glyph.start_angle).to.be.equal(field("start_angle", {units: "rad"}))
+        expect(r1.glyph.end_angle).to.be.equal(field("end_angle", {units: "deg"}))
 
         const r2 = p.annular_wedge({
           ...attrs,
-          start_angle: [0, 120, 240], start_angle_units: "deg",
+          start_angle: field("start_angle", {units: "deg"}),
           end_angle: [60, 180, 300],
         })
-        expect(r2.glyph.start_angle).to.be.equal({field: "start_angle", units: "deg"})
-        expect(r2.glyph.end_angle).to.be.equal({field: "end_angle"})
+        expect(r2.glyph.start_angle).to.be.equal(field("start_angle", {units: "deg"}))
+        expect(r2.glyph.end_angle).to.be.equal(field("end_angle", {units: "rad"}))
 
         const r3 = p.annular_wedge({
           ...attrs,
-          start_angle: [0, 120, 240], start_angle_units: "deg",
-          end_angle: [60, 180, 300], end_angle_units: "deg",
+          start_angle: field("start_angle", {units: "deg"}),
+          end_angle: field("end_angle", {units: "deg"}),
         })
-        expect(r3.glyph.start_angle).to.be.equal({field: "start_angle", units: "deg"})
-        expect(r3.glyph.end_angle).to.be.equal({field: "end_angle", units: "deg"})
+        expect(r3.glyph.start_angle).to.be.equal(field("start_angle", {units: "deg"}))
+        expect(r3.glyph.end_angle).to.be.equal(field("end_angle", {units: "deg"}))
 
         const r4 = p.annular_wedge({
           ...attrs,
           start_angle: 120,
-          end_angle: 180, end_angle_units: "deg",
+          end_angle: value(180, {units: "deg"}),
         })
-        expect(r4.glyph.start_angle).to.be.equal({value: 120})
-        expect(r4.glyph.end_angle).to.be.equal({value: 180, units: "deg"})
+        expect(r4.glyph.start_angle).to.be.equal(value(120, {units: "rad"}))
+        expect(r4.glyph.end_angle).to.be.equal(value(180, {units: "deg"}))
 
         const r5 = p.annular_wedge({
           ...attrs,
-          start_angle: 120, start_angle_units: "deg",
+          start_angle: value(120, {units: "deg"}),
           end_angle: 180,
         })
-        expect(r5.glyph.start_angle).to.be.equal({value: 120, units: "deg"})
-        expect(r5.glyph.end_angle).to.be.equal({value: 180})
+        expect(r5.glyph.start_angle).to.be.equal(value(120, {units: "deg"}))
+        expect(r5.glyph.end_angle).to.be.equal(value(180, {units: "rad"}))
 
         const r6 = p.annular_wedge({
           ...attrs,
-          start_angle: 120, start_angle_units: "deg",
-          end_angle: 180, end_angle_units: "deg",
+          start_angle: value(120, {units: "deg"}),
+          end_angle: value(180, {units: "deg"}),
         })
-        expect(r6.glyph.start_angle).to.be.equal({value: 120, units: "deg"})
-        expect(r6.glyph.end_angle).to.be.equal({value: 180, units: "deg"})
+        expect(r6.glyph.start_angle).to.be.equal(value(120, {units: "deg"}))
+        expect(r6.glyph.end_angle).to.be.equal(value(180, {units: "deg"}))
 
-        expect(() => p.annular_wedge({...attrs, start_angle_units: "deg"})).to.throw(Error)
-        expect(() => p.annular_wedge({...attrs, end_angle_units: "deg"})).to.throw(Error)
+        expect(() => p.annular_wedge({...attrs, start_angle_units: "deg"} as any)).to.throw(Error)
+        expect(() => p.annular_wedge({...attrs, end_angle_units: "deg"} as any)).to.throw(Error)
       })
     })
 

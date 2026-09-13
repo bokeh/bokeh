@@ -16,7 +16,7 @@ export default ({markers}, {item}) => {
         const {value: marker} = renderer.glyph.marker
         const i = markers.indexOf(marker)
         const j = (i + 1) % markers.length
-        renderer.glyph.marker = {value: markers[j]}
+        renderer.glyph.marker = {type: "value", value: markers[j]}
     }
 }
     """,

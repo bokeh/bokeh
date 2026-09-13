@@ -181,7 +181,7 @@ export class Ngon extends RadialGlyph {
 
     this.define<Ngon.Props>(() => ({
       angle: [ p.AngleSpec, 0 ],
-      n:     [ p.NumberSpec, {field: "n"} ],
+      n:     [ p.NumberSpec, {type: "field", value: "n"} ],
     }))
   }
 }

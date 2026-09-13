@@ -397,11 +397,11 @@ export class Text extends XYGlyph {
     ])
 
     this.define<Text.Props>(() => ({
-      text: [ p.NullStringSpec, {field: "text"} ],
+      text: [ p.NullStringSpec, {type: "field", value: "text"} ],
       angle: [ p.AngleSpec, 0 ],
       x_offset: [ p.NumberSpec, 0 ],
       y_offset: [ p.NumberSpec, 0 ],
-      anchor: [ TextAnchorSpec, {value: "auto"} ],
+      anchor: [ TextAnchorSpec, {type: "value", value: "auto"} ],
       padding: [ Padding, 0 ],
       border_radius: [ BorderRadius, 0 ],
       outline_shape: [ OutlineShapeSpec, "box" ],

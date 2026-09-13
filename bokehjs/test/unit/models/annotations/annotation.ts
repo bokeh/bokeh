@@ -34,39 +34,39 @@ class SubclassWithNumberSpec extends DataAnnotation {
     this.prototype.default_view = SubclassWithNumberSpecView
 
     this.define<SubclassWithNumberSpec.Props>(({Bool}) => ({
-      foo: [ p.NumberSpec, {field: "colname"} ],
+      foo: [ p.NumberSpec, {type: "field", value: "colname"} ],
       bar: [ Bool, true ],
     }))
   }
 }
 
-class SubclassWithDistanceSpecView extends DataAnnotationView {
-  declare model: SubclassWithDistanceSpec
+class SubclassWithCoordinateUnitsSpecView extends DataAnnotationView {
+  declare model: SubclassWithCoordinateUnitsSpec
   map_data(): void {}
   _paint_data(): void {}
-  foo!: p.Uniform<number>
+  _foo!: ArrayLike<number>
 }
-namespace SubclassWithDistanceSpec {
+namespace SubclassWithCoordinateUnitsSpec {
   export type Attrs = p.AttrsOf<Props>
   export type Props = DataAnnotation.Props & {
-    foo: p.DistanceSpec
+    foo: p.XCoordinateUnitsSpec
     bar: p.Property<boolean>
   }
 }
-interface SubclassWithDistanceSpec extends SubclassWithDistanceSpec.Attrs {}
-class SubclassWithDistanceSpec extends DataAnnotation {
-  declare properties: SubclassWithDistanceSpec.Props
-  declare __view_type__: SubclassWithDistanceSpecView
+interface SubclassWithCoordinateUnitsSpec extends SubclassWithCoordinateUnitsSpec.Attrs {}
+class SubclassWithCoordinateUnitsSpec extends DataAnnotation {
+  declare properties: SubclassWithCoordinateUnitsSpec.Props
+  declare __view_type__: SubclassWithCoordinateUnitsSpecView
 
-  constructor(attrs?: Partial<SubclassWithDistanceSpec.Attrs>) {
+  constructor(attrs?: Partial<SubclassWithCoordinateUnitsSpec.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = SubclassWithDistanceSpecView
+    this.prototype.default_view = SubclassWithCoordinateUnitsSpecView
 
-    this.define<SubclassWithDistanceSpec.Props>(({Bool}) => ({
-      foo: [ p.DistanceSpec, {field: "colname"} ],
+    this.define<SubclassWithCoordinateUnitsSpec.Props>(({Bool}) => ({
+      foo: [ p.XCoordinateUnitsSpec, {type: "field", value: "colname"} ],
       bar: [ Bool, true ],
     }))
   }
@@ -93,6 +93,14 @@ describe("AnnotationView", () => {
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
       expect(view.foo).to.be.equal(new p.UniformVector(ndarray([1, 2, 3, 4], {dtype: "float64", shape: [2, 2]})))
+    })
+
+    it("should collect coordinate specs with units as arrays", async () => {
+      const ds = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
+      const obj = new SubclassWithCoordinateUnitsSpec()
+      const view = await build_view(obj, {parent: await plot()})
+      view.set_data(ds)
+      expect(view._foo).to.be.equal([1, 2, 3, 4])
     })
   })
 })
