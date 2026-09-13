@@ -2291,5 +2291,34 @@ ${view.host_selector} {
       expect(r2.visible).to.be.true
       expect(y_range.interval).to.be.similar(both)
     })
+
+    it("doesn't resume auto-ranging of y_range after reset when an endpoint was changed manually", async () => {
+      const source = new ColumnDataSource({data: {x: [0, 1, 2], y: [1, 2, 3]}})
+      const y_range = new DataRange1d({range_padding: 0})
+      const p = fig([200, 200], {y_range})
+      p.line({field: "x"}, {field: "y"}, {source})
+
+      const {view} = await display(p)
+      expect(y_range.interval).to.be.equal([1, 3])
+
+      // data updates are applied asynchronously and schedule a separate paint,
+      // hence awaiting view.ready twice after each of them
+
+      // changing one endpoint freezes both, even when the data changes
+      y_range.end = 10
+      source.data = {x: [0, 1, 2], y: [0, 2, 4]}
+      await view.ready
+      await view.ready
+      expect(y_range.interval).to.be.equal([1, 10])
+
+      view.reset()
+      await view.ready
+      expect(y_range.interval).to.be.equal([0, 4])
+
+      source.data = {x: [0, 1, 2], y: [-1, 2, 5]}
+      await view.ready
+      await view.ready
+      expect(y_range.interval).to.be.equal([-1, 5])
+    })
   })
 })
