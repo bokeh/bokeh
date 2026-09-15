@@ -499,7 +499,7 @@ export class ScaleBarView extends AnnotationView {
     this._bbox = new BBox({left: sx, top: sy, width, height})
 
     if (this.layout?.has_size_changed() == true) {
-      this.request_layout()
+      this.plot_view.request_layout(true)
     }
   }
 
