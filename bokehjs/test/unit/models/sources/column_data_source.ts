@@ -359,6 +359,18 @@ describe("column_data_source module", () => {
       expect(cds.to_csv()).to.be.equal("foo\n1\n")
     })
 
+    it("should handle single column with characters to escape", () => {
+      const cds = new ColumnDataSource({data: {
+        "foo,bar": ["1\n2"],
+      }})
+      expect(cds.to_csv()).to.be.equal('"foo,bar"\n"1\n2"\n')
+
+      const cds2 = new ColumnDataSource({data: {
+        "foo\nbar": ["1,2"],
+      }})
+      expect(cds2.to_csv()).to.be.equal('"foo\nbar"\n"1,2"\n')
+    })
+
     it("should treat 1-dimensional ndarray just like a normal array", () => {
       const cds = new ColumnDataSource({data: {
         foo: ndarray([1, 0, 1], {dtype: "bool", shape: [3]}),

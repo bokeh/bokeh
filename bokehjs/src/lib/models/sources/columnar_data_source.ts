@@ -273,21 +273,34 @@ export abstract class ColumnarDataSource extends DataSource {
     this.patch_to(this.properties.data, patches, {sync})
   }
 
+  _csv_escaped_value(value: unknown, escape_characters: string[]): string {
+    let string_value = is_NDArray(value) || isArray(value) ? JSON.stringify(value) : String(value)
+    if (escape_characters.some(escape_character => string_value.includes(escape_character))) {
+      string_value = `"${string_value.replace(/"/g, '""')}"`
+    }
+    return string_value
+  }
+
   _row_to_csv(index: Index): string {
     const values = []
-    const escape_characters = [",", '"']
+    const escape_characters = [",", '"', "\n", "\r"]
     for (const value of Object.values(this.get_row(index))) {
-      let string_value = is_NDArray(value) || isArray(value) ? JSON.stringify(value) : String(value)
-      if (escape_characters.some(escape_character => string_value.includes(escape_character))) {
-        string_value = `"${string_value.replace(/"/g, '""')}"`
-      }
-      values.push(string_value)
+      values.push(this._csv_escaped_value(value, escape_characters))
     }
     return values.join()
   }
 
+  _headers_to_csv(): string {
+    const headers = []
+    const escape_characters = [",", '"', "\n", "\r"]
+    for (const header of this.columns()) {
+      headers.push(this._csv_escaped_value(header, escape_characters))
+    }
+    return headers.join()
+  }
+
   to_csv(): string {
-    const headers = this.columns().join()
+    const headers = this._headers_to_csv()
     const rows = []
     if (this.selected.indices.length > 0) {
       for (const row of this.selected.indices) {
