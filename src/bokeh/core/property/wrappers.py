@@ -81,7 +81,9 @@ from typing import (
 import numpy as np
 
 # Bokeh imports
+from ...util.serialization import transform_column_data
 from ...util.warnings import BokehUserWarning, warn
+from ..serialization import Serializable
 from .singletons import OldValueUnavailable
 
 if TYPE_CHECKING:
@@ -90,6 +92,7 @@ if TYPE_CHECKING:
     from ...model import Model
     from ...models.sources import ColumnarDataSource
     from ..has_props import HasProps, Setter
+    from ..serialization import AnyRep, Serializer
     from .descriptors import PropertyDescriptor
 
 class _HasDocument(Protocol):
@@ -388,7 +391,7 @@ class PropertyValueDict[T_Val](PropertyValueContainer, dict[str, T_Val]):
     def update(self, *args: Any, **kwargs: T_Val) -> None:
         return super().update(*args, **kwargs)
 
-class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
+class PropertyValueColumnData(PropertyValueDict[Sequence[Any]], Serializable):
     """ A property value container for ColumnData that supports change
     notifications on mutating operations.
 
@@ -403,6 +406,9 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         x.update
 
     """
+
+    def to_serializable(self, serializer: Serializer) -> AnyRep:
+        return serializer.encode(transform_column_data(self))
 
     # x[i] = y
     # don't wrap with notify_owner --- notifies owners explicitly

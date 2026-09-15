@@ -28,6 +28,7 @@ import narwhals.stable.v1 as nw
 import numpy as np
 
 # Bokeh imports
+from bokeh.core.serialization import MapRep, NumberRep, Serializer
 from bokeh.models import (
     ColumnDataSource,
     DataTable,
@@ -511,6 +512,25 @@ class TestColumnDataSource:
         assert len(warns) == 1
         assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)"
 
+    def test_date_columns_serialize_as_datetimes(self) -> None:
+        # https://github.com/bokeh/bokeh/issues/15166
+        dates = [dt.date(2024, 1, 1), dt.date(2024, 1, 2), dt.date(2024, 1, 3)]
+        datetimes = [dt.datetime(2024, 1, 1), dt.datetime(2024, 1, 2), dt.datetime(2024, 1, 3)]
+        ds = bms.ColumnDataSource(data=dict(
+            dates=dates,
+            datetimes=datetimes,
+            missing=(None, dt.date(1969, 12, 31), dt.date(2024, 2, 29)),
+            nested=[[dt.date(2024, 1, 1)], [dt.date(2024, 1, 2), dt.date(2024, 1, 3)], []],
+        ))
+        rep = Serializer().encode(ds)
+        assert rep["attributes"]["data"] == MapRep(type="map", entries=[
+            ("dates", [1704067200000.0, 1704153600000.0, 1704240000000.0]),
+            ("datetimes", [1704067200000.0, 1704153600000.0, 1704240000000.0]),
+            ("missing", [None, -86400000.0, 1709164800000.0]),
+            ("nested", [[1704067200000.0], [1704153600000.0, 1704240000000.0], []]),
+        ])
+        assert ds.data["dates"] == dates
+
 
 class TestColumnDataSourcePandas:
     __test__ = is_installed("pandas")
@@ -946,6 +966,16 @@ Lime,Green,99,$0.39
         df = pd.DataFrame(np.random.randn(8, 4), index=arrays)
         assert df.index.names == [None, None]
         assert bms.ColumnDataSource._df_index_name(df) == "index"
+
+    def test_date_column_with_NaT_serializes_as_datetimes(self) -> None:
+        # https://github.com/bokeh/bokeh/issues/15166
+        df = pd.DataFrame(dict(dates=pd.to_datetime([pd.NaT, "2024-01-02"])))
+        df["dates"] = df["dates"].dt.date
+        ds = bms.ColumnDataSource(df)
+        rep = Serializer().encode(ds)
+        dates = dict(rep["attributes"]["data"]["entries"])["dates"]
+        assert dates["dtype"] == "object"
+        assert dates["array"] == [NumberRep(type="number", value="nan"), 1704153600000.0]
 
 
 class TestDataTable:

@@ -69,6 +69,7 @@ from typing import (
 
 # Bokeh imports
 from ..core.serialization import Serializable
+from ..util.serialization import transform_column_data
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -501,7 +502,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
-            data  = serializer.encode(data),
+            data  = serializer.encode(transform_column_data(data)),
             cols  = serializer.encode(cols),
         )
 
@@ -608,7 +609,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
             kind     = self.kind,
             model    = self.model.ref,
             attr     = self.attr,
-            data     = serializer.encode(self.data),
+            data     = serializer.encode(transform_column_data(self.data)),
             rollover = self.rollover,
         )
 
@@ -697,7 +698,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
             kind    = self.kind,
             model   = self.model.ref,
             attr    = self.attr,
-            patches = serializer.encode(self.patches),
+            patches = serializer.encode(transform_column_data(self.patches)),
         )
 
     @classmethod
