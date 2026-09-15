@@ -54,7 +54,7 @@ class ExampleHandler(Handler):
 
     """
 
-    _output_funcs = ["output_notebook"]
+    _output_funcs: list[str] = []
     _io_funcs = ["show", "save"]
 
     def __init__(self, source: str, filename: PathLike) -> None:
@@ -62,6 +62,15 @@ class ExampleHandler(Handler):
         self._runner = CodeRunner(source, filename, ())
 
     def modify_document(self, doc: Document) -> None:
+        '''Execute the example source against a document.
+
+        Args:
+            doc: The document to modify.
+
+        Returns:
+            None
+
+        '''
         if self.failed:
             return
 
@@ -73,15 +82,15 @@ class ExampleHandler(Handler):
         orig_curdoc = curdoc()
         set_curdoc(doc)
 
-        old_io, old_doc = self._monkeypatch()
+        old_funcs, old_doc = self._monkeypatch()
 
         try:
             self._runner.run(module, lambda: None)
         finally:
-            self._unmonkeypatch(old_io, old_doc)
+            self._unmonkeypatch(old_funcs, old_doc)
             set_curdoc(orig_curdoc)
 
-    def _monkeypatch(self) -> tuple[dict[str, Any], type[Document]]:
+    def _monkeypatch(self) -> tuple[list[tuple[ModuleType, str, Any]], type[Document]]:
         def _pass(*args: Any, **kw: Any) -> None:
             pass
 
@@ -91,23 +100,20 @@ class ExampleHandler(Handler):
         def _curdoc(*args: Any, **kw: Any) -> Document:
             return curdoc()
 
-        # these functions are transitively imported from io into plotting,
-        # so we have to patch them all. Assumption is that no other patching
-        # has occurred, i.e. we can just save the funcs being patched once,
-        # from io, and use those as the originals to replace everywhere
+        # These functions are transitively imported from io into plotting, so
+        # patch both modules.
         import bokeh.io as io
         import bokeh.plotting as p
 
         mods: list[ModuleType] = [io, p]
 
-        old_io: dict[str, Any] = {}
-        for f in self._output_funcs + self._io_funcs:
-            old_io[f] = getattr(io, f)
-
+        old_funcs: list[tuple[ModuleType, str, Any]] = []
         for mod in mods:
             for f in self._output_funcs:
+                old_funcs.append((mod, f, getattr(mod, f)))
                 setattr(mod, f, _pass)
             for f in self._io_funcs:
+                old_funcs.append((mod, f, getattr(mod, f)))
                 setattr(mod, f, _add_root)
 
         import bokeh.document as d
@@ -115,17 +121,11 @@ class ExampleHandler(Handler):
         old_doc = d.Document
         d.Document = _curdoc # type: ignore[assignment,misc]
 
-        return old_io, old_doc
+        return old_funcs, old_doc
 
-    def _unmonkeypatch(self, old_io: dict[str, Any], old_doc: type[Document]) -> None:
-        import bokeh.io as io
-        import bokeh.plotting as p
-
-        mods: list[ModuleType] = [io, p]
-
-        for mod in mods:
-            for f in old_io:
-                setattr(mod, f, old_io[f])
+    def _unmonkeypatch(self, old_funcs: list[tuple[ModuleType, str, Any]], old_doc: type[Document]) -> None:
+        for mod, name, value in old_funcs:
+            setattr(mod, name, value)
 
         import bokeh.document as d
 

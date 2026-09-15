@@ -81,7 +81,7 @@ class CodeHandler(Handler):
 
     # These functions, if present in the supplied code, will be monkey patched
     # to be no-ops, with a warning.
-    _io_functions = ['output_notebook', 'show', 'save']
+    _io_functions = ['show', 'save']
 
     _loggers: dict[str, Callable[..., None]]
 
