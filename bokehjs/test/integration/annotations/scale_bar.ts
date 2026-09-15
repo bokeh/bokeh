@@ -1,7 +1,9 @@
+import {expect} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import {ScaleBar, Plot, Range1d, FactorRange, Metric, LinearScale, CategoricalScale} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"
+import {bounding_box} from "@bokehjs/core/dom"
 
 describe("ScaleBar annotation", () => {
   describe("should support horizontal orientation", () => {
@@ -399,5 +401,29 @@ describe("ScaleBar annotation", () => {
         await display(plot(bar))
       })
     })
+  })
+
+  it("should reserve enough room in a side panel", async () => {
+    const plot = new Plot({
+      width: 300,
+      height: 120,
+      min_border: 0,
+      x_range: new Range1d({start: 0, end: 1}),
+      y_range: new Range1d({start: 0, end: 1}),
+      toolbar_location: null,
+    })
+    const scale_bar = new ScaleBar({
+      range: new Range1d({start: 0, end: 10}),
+      unit: "m",
+      dimensional: new Metric({base_unit: "m"}),
+      orientation: "vertical",
+    })
+    plot.add_layout(scale_bar, "right")
+
+    const {view} = await display(plot)
+    const panel_bbox = bounding_box(view.right_panel.el)
+    const scale_bar_bbox = bounding_box(view.owner.get_one(scale_bar).el)
+
+    expect(scale_bar_bbox.right).to.be.below(panel_bbox.right + 0.01)
   })
 })

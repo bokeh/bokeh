@@ -497,6 +497,10 @@ export class ScaleBarView extends AnnotationView {
     const sy = y - anchor.y*height
 
     this._bbox = new BBox({left: sx, top: sy, width, height})
+
+    if (this.layout?.has_size_changed() == true) {
+      this.plot_view.request_layout(true)
+    }
   }
 
   protected _draw_box(ctx: Context2d): void {
