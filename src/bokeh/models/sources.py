@@ -422,6 +422,20 @@ class ColumnDataSource(ColumnarDataSource):
         import pandas as pd
         return pd.DataFrame(self.data)
 
+    def to_csv(self) -> str:
+        # TODO: Handle pandas not being available
+        selected_indices = self.selected.indices
+        if len(selected_indices) > 0:
+            return self.to_df().iloc[self.selected.indices].to_csv(index=False)
+        return self.to_df().to_csv(index=False)
+
+    def to_json(self) -> str:
+        # TODO: Handle pandas not being available
+        selected_indices = self.selected.indices
+        if len(selected_indices) > 0:
+            return self.to_df().iloc[self.selected.indices].to_json()
+        return self.to_df().to_json()
+
     def add(self, data: Sequence[Any], name: str | None = None) -> str:
         ''' Appends a new column of data to the data source.
 
