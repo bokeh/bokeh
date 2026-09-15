@@ -160,7 +160,7 @@ class _BokehStructureGraph:
             a
 
         Args:
-            A bokeh model M
+            M: A bokeh model M
 
         """
         import networkx as nx
