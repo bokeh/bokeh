@@ -5,290 +5,107 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
+from __future__ import annotations
 
 # Standard library imports
-import json
+from types import SimpleNamespace
 
-# Module under test
-import bokeh.embed.server as bes # isort:skip
+# External imports
+import pytest
 
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
+# Bokeh imports
+import bokeh.embed.server as bes
+from bokeh.document import Document
+from bokeh.embed import EmbedArtifact
+from bokeh.resources import Resources
+
+
+def artifact_from_fragment(fragment: str) -> EmbedArtifact:
+    bs4 = pytest.importorskip("bs4")
+    scripts = bs4.BeautifulSoup(fragment, "html.parser").find_all("script")
+    assert len(scripts) >= 2
+    assert scripts[-2]["type"] == "application/vnd.bokeh.embed+json"
+    assert "mount_artifact_declaration" in scripts[-1].string
+    return EmbedArtifact.from_json(scripts[-2].string)
+
 
 @pytest.fixture
-def test_plot() -> None:
+def test_plot():
     from bokeh.plotting import figure
-    test_plot = figure()
-    test_plot.scatter([1, 2], [2, 3])
-    return test_plot
 
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
+    plot = figure(name="selected")
+    plot.scatter([1, 2], [2, 3])
+    return plot
 
 
 class TestServerDocument:
-    def test_invalid_resources_param(self) -> None:
-        with pytest.raises(ValueError):
-            bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources=123)
-        with pytest.raises(ValueError):
-            bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources="whatever")
+    def test_compiles_structured_server_source(self) -> None:
+        artifact = artifact_from_fragment(bes.server_document(
+            "http://localhost:8081/foo/bar/sliders",
+            arguments={"b": "2", "a": "1"},
+            headers={"X-Test": "yes"},
+        ))
+        assert artifact.source == {
+            "kind": "server",
+            "url": "http://localhost:8081/foo/bar/sliders",
+            "arguments": {"a": "1", "b": "2"},
+            "headers": {"X-Test": "yes"},
+            "credentials": "same-origin",
+            "relative_urls": False,
+        }
+        assert artifact.requires.components == (
+            "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax", "bokeh/api",
+        )
 
-    def test_headers_with_credentials_mutual_exclusivity(self):
-        with pytest.raises(ValueError):
-            bes.server_document(url="http://localhost:8081/foo/bar/sliders", headers={"foo": "bar"}, with_credentials=True)
+    def test_relative_url_and_credentials_are_data_not_loader_code(self) -> None:
+        fragment = bes.server_document("/bkapp", relative_urls=True, with_credentials=True)
+        artifact = artifact_from_fragment(fragment)
+        assert artifact.source["url"] == "/bkapp"
+        assert artifact.source["relative_urls"] is True
+        assert artifact.source["credentials"] == "include"
+        assert "/autoload.js" not in fragment
+        assert "XMLHttpRequest" not in fragment
 
-    def test_resources_default_is_implicit(self) -> None:
-        r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources="default")
-        assert 'resources=' not in r
+    def test_resources_none_is_host_owned(self) -> None:
+        fragment = bes.server_document(resources=None)
+        assert "static/js/bokeh" not in fragment
+        assert "session_id" not in artifact_from_fragment(fragment).source
 
-    def test_resources_none(self) -> None:
-        r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources=None)
-        assert 'resources=none' in r
-
-    def test_general(self) -> None:
-        bs4 = pytest.importorskip("bs4")
-        url = "http://localhost:8081/foo/bar/sliders"
-        r = bes.server_document(url=url)
-        assert 'bokeh-app-path=/foo/bar/sliders' in r
-        assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.find_all(name='script')
-        assert len(scripts) == 1
-        script = scripts[0]
-        attrs = script.attrs
-        assert list(attrs) == ['id']
-        divid = attrs['id']
-        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url={url}\", true);"
-        assert request in script.string
-
-    def test_script_attrs_arguments_provided(self) -> None:
-        bs4 = pytest.importorskip("bs4")
-        url = "http://localhost:5006"
-        r = bes.server_document(arguments=dict(foo=10))
-        assert 'foo=10' in r
-        html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.find_all(name='script')
-        assert len(scripts) == 1
-        script = scripts[0]
-        attrs = script.attrs
-        assert list(attrs) == ['id']
-        divid = attrs['id']
-        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}&foo=10\", true);"
-        assert request in script.string
-
-    def test_script_attrs_url_provided_absolute_resources(self) -> None:
-        bs4 = pytest.importorskip("bs4")
-        url = "http://localhost:8081/foo/bar/sliders"
-        r = bes.server_document(url=url)
-        assert 'bokeh-app-path=/foo/bar/sliders' in r
-        assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.find_all(name='script')
-        assert len(scripts) == 1
-        script = scripts[0]
-        attrs = script.attrs
-        assert list(attrs) == ['id']
-        divid = attrs['id']
-        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url={url}\", true);"
-        assert request in script.string
-
-    def test_script_attrs_url_provided(self) -> None:
-        bs4 = pytest.importorskip("bs4")
-        url = "http://localhost:8081/foo/bar/sliders"
-        r = bes.server_document(url=url, relative_urls=True)
-        assert 'bokeh-app-path=/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.find_all(name='script')
-        assert len(scripts) == 1
-        script = scripts[0]
-        attrs = script.attrs
-        assert list(attrs) == ['id']
-        divid = attrs['id']
-        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-app-path=/foo/bar/sliders\", true);"
-        assert request in script.string
-
-    def test_root_relative_url(self) -> None:
-        url = "/bkapp"
-        r = bes.server_document(url=url, relative_urls=True)
-
-        assert f'xhr.open(\'GET\', "{url}/autoload.js?' in r
-        assert "bokeh-app-path=/bkapp" in r
-        assert "bokeh-absolute-url" not in r
-
-    @pytest.mark.parametrize("with_credentials", [True, False])
-    def test_with_credentials(self, with_credentials):
-        script = bes.server_document("http://localhost:8081/foo/bar/sliders", with_credentials=with_credentials)
-        assert f"xhr.withCredentials = {json.dumps(with_credentials)};" in script
+    def test_rejects_invalid_resources_and_credential_headers(self) -> None:
+        with pytest.raises(ValueError, match="resources"):
+            bes.server_document(resources="whatever")  # type: ignore[arg-type]
+        with pytest.raises(ValueError, match="mutually exclusive"):
+            bes.server_document(headers={"X-Test": "yes"}, with_credentials=True)
 
 
 class TestServerSession:
-    def test_headers_with_credentials_mutual_exclusivity(self):
-        with pytest.raises(ValueError):
-            bes.server_document(url="http://localhost:8081/foo/bar/sliders", headers={"foo": "bar"}, with_credentials=True)
+    def test_existing_session_and_selected_root(self, test_plot) -> None:
+        artifact = artifact_from_fragment(bes.server_session(
+            test_plot,
+            session_id="fakesession",
+            url="http://localhost:8081/app",
+        ))
+        assert artifact.source["session_id"] == "fakesession"
+        assert artifact.roots[0].key == "selected"
+        assert artifact.roots[0].model_id == test_plot.id
 
-    def test_return_type(self, test_plot) -> None:
-        r = bes.server_session(test_plot, session_id='fakesession')
-        assert isinstance(r, str)
+    def test_entire_existing_session_has_no_selected_roots(self) -> None:
+        artifact = artifact_from_fragment(bes.server_session(None, session_id="fakesession"))
+        assert artifact.roots == ()
 
-    def test_script_attrs_session_id_provided(self, test_plot) -> None:
-        bs4 = pytest.importorskip("bs4")
-        url = "http://localhost:5006"
-        r = bes.server_session(test_plot, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.find_all(name='script')
-        assert len(scripts) == 1
-        script = scripts[0]
-        attrs = script.attrs
-        assert list(attrs) == ['id']
-        divid = attrs['id']
-        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}\", true);"
-        assert request in script.string
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
+    def test_full_page_template_can_embed_named_session_roots(self, test_plot) -> None:
+        document = Document()
+        document.add_root(test_plot)
+        session = SimpleNamespace(document=document, token="faketoken")
 
-    def test_invalid_resources_param(self, test_plot) -> None:
-        with pytest.raises(ValueError):
-            bes.server_session(test_plot, session_id='fakesession', resources=123)
-        with pytest.raises(ValueError):
-            bes.server_session(test_plot, session_id='fakesession', resources="whatever")
+        html = bes.server_html_page_for_session(
+            session, Resources(mode="cdn"), "title",
+            template="{% block contents %}{{ embed(roots.selected) }}{% endblock %}",  # type: ignore[arg-type]
+        )
 
-    def test_resources_default_is_implicit(self, test_plot) -> None:
-        r = bes.server_session(test_plot, session_id='fakesession', resources="default")
-        assert 'resources=' not in r
+        assert 'data-bokeh-root="selected"' in html
+        assert 'data-bokeh-artifact=' in html
 
-    def test_resources_none(self, test_plot) -> None:
-        r = bes.server_session(test_plot, session_id='fakesession', resources=None)
-        assert 'resources=none' in r
-
-    def test_model_none(self) -> None:
-        bs4 = pytest.importorskip("bs4")
-        url = "http://localhost:5006"
-        r = bes.server_session(None, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.find_all(name='script')
-        assert len(scripts) == 1
-        script = scripts[0]
-        attrs = script.attrs
-        assert list(attrs) == ['id']
-        divid = attrs['id']
-        request = f"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}"
-        assert request in script.string
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
-
-    def test_general(self, test_plot) -> None:
-        bs4 = pytest.importorskip("bs4")
-        url = "http://localhost:5006"
-        r = bes.server_session(test_plot, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.find_all(name='script')
-        assert len(scripts) == 1
-        script = scripts[0]
-        attrs = script.attrs
-        assert list(attrs) == ['id']
-        divid = attrs['id']
-        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}\", true);"
-        assert request in script.string
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
-
-    @pytest.mark.parametrize("with_credentials", [True, False])
-    def test_with_credentials(self, with_credentials):
-        script = bes.server_document("http://localhost:8081/foo/bar/sliders",
-                                     with_credentials=with_credentials)
-        assert f"xhr.withCredentials = {json.dumps(with_credentials)};" in script
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-
-class Test__clean_url:
-    def test_default(self) -> None:
-        assert bes._clean_url("default") == bes.DEFAULT_SERVER_HTTP_URL.rstrip("/")
-
-    def test_bad_ws(self) -> None:
-        with pytest.raises(ValueError):
-            bes._clean_url("ws://foo")
-
-    def test_arg(self) -> None:
-        assert bes._clean_url("http://foo/bar") == "http://foo/bar"
-        assert bes._clean_url("http://foo/bar/") == "http://foo/bar"
-
-
-class Test__get_app_path:
-    def test_arg(self) -> None:
-        assert bes._get_app_path("foo") == "/foo"
-        assert bes._get_app_path("http://foo") == "/"
-        assert bes._get_app_path("http://foo/bar") == "/bar"
-        assert bes._get_app_path("https://foo") == "/"
-        assert bes._get_app_path("https://foo/bar") == "/bar"
-
-
-class Test__process_arguments:
-    def test_None(self) -> None:
-        assert bes._process_arguments(None) == ""
-
-    def test_args(self) -> None:
-        args = dict(foo=10, bar="baz")
-        r = bes._process_arguments(args)
-        # order unspecified
-        assert r == "&foo=10&bar=baz" or r == "&bar=baz&foo=10"
-
-    def test_args_ignores_bokeh_prefixed(self) -> None:
-        args = dict(foo=10, bar="baz")
-        args["bokeh-junk"] = 20
-        r = bes._process_arguments(args)
-        # order unspecified
-        assert r == "&foo=10&bar=baz" or r == "&bar=baz&foo=10"
-
-
-class Test__process_app_path:
-    def test_root(self) -> None:
-        assert bes._process_app_path("/") == ""
-
-    def test_arg(self) -> None:
-        assert bes._process_app_path("/stuff") == "&bokeh-app-path=/stuff"
-
-
-class Test__process_relative_urls:
-    def test_True(self) -> None:
-        assert bes._process_relative_urls(True, "") == ""
-        assert bes._process_relative_urls(True, "/stuff") == ""
-
-    def test_Flase(self) -> None:
-        assert bes._process_relative_urls(False, "/stuff") == "&bokeh-absolute-url=/stuff"
-
-
-class Test__process_resources:
-    def test_bad_input(self) -> None:
-        with pytest.raises(ValueError):
-            bes._process_resources("foo")
-
-    def test_None(self) -> None:
-        assert bes._process_resources(None) == "&resources=none"
-
-    def test_default(self) -> None:
-        assert bes._process_resources("default") == ""
-
-def Test__src_path(object):
-
-    def test_args(self) -> None:
-        assert bes._src_path("http://foo", "1234") =="http://foo/autoload.js?bokeh-autoload-element=1234"
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+    def test_session_id_is_required(self) -> None:
+        with pytest.raises(ValueError, match="session_id"):
+            bes.server_session(None)

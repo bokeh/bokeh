@@ -71,9 +71,9 @@ websocket URLs. Equivalent complete examples are available for:
 * :bokeh-tree:`examples/server/api/asgi/streamlit_particles/app.py`
 * :bokeh-tree:`examples/server/api/asgi/framework_free.py`
 
-The ASGI frontend handles Bokeh document, autoload, metadata, static asset, and
-websocket routes, as well as application startup and shutdown through ASGI
-lifespan events.
+The ASGI frontend handles Bokeh document, metadata, signed ``/embed.json``
+bootstrap, static asset, and WebSocket routes, as well as application startup
+and shutdown through ASGI lifespan events.
 
 Reverse proxy deployment
 ~~~~~~~~~~~~~~~~~~~~~~~~
