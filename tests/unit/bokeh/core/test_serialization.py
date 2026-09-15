@@ -62,7 +62,7 @@ from bokeh.core.serialization import (
     TypedArrayRep,
 )
 from bokeh.model import Model
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, DatePicker, MultipleDatePicker
 from bokeh.util.dataclasses import NotRequired, Unspecified
 from bokeh.util.warnings import BokehUserWarning
 
@@ -967,13 +967,28 @@ class TestSerializer:
                 )),
                 ("date", dict(
                     type="ndarray",
-                    array=[dict(type="number", value="nan"), "1970-01-01"],
+                    array=[dict(type="number", value="nan"), 0.0], # dates in column data serialize as datetimes (#15166)
                     order=sys.byteorder,
                     shape=[2],
                     dtype="object",
                 )),
             ],
         )
+
+    def test_dates_in_Date_properties_and_column_data(self) -> None:
+        # https://github.com/bokeh/bokeh/issues/15166
+        d0, d1, d2 = dt.date(2024, 1, 1), dt.date(2024, 1, 2), dt.date(2024, 1, 3)
+        encoder = Serializer()
+
+        date_picker = encoder.encode(DatePicker(value=d0, disabled_dates=[d0, (d1, d2)]))
+        assert date_picker["attributes"]["value"] == "2024-01-01"
+        assert date_picker["attributes"]["disabled_dates"] == ["2024-01-01", ["2024-01-02", "2024-01-03"]]
+
+        multiple_date_picker = encoder.encode(MultipleDatePicker(value=[d0, d1]))
+        assert multiple_date_picker["attributes"]["value"] == ["2024-01-01", "2024-01-02"]
+
+        source = encoder.encode(ColumnDataSource(data=dict(dates=[d0, d1])))
+        assert source["attributes"]["data"] == MapRep(type="map", entries=[("dates", [1704067200000.0, 1704153600000.0])])
 
     def test_other_array_libraries(self) -> None:
         class CustomArray:

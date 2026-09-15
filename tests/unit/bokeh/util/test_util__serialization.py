@@ -259,6 +259,26 @@ def test_transform_series() -> None:
     out = bus.transform_series(arr)
     assert isinstance(out, np.ndarray)
 
+def test_transform_column_data() -> None:
+    d0, d1 = datetime.date(2024, 1, 1), datetime.date(2024, 1, 2)
+
+    values = [1, 2.5, "a", None, datetime.datetime(2024, 1, 1)]
+    assert bus.transform_column_data(values) is values
+    array = np.arange(3)
+    assert bus.transform_column_data(array) is array
+
+    data = dict(a=[d0, None], b=(d1,), c=[[d0], []], d=[1, 2])
+    assert bus.transform_column_data(data) == dict(a=[1704067200000.0, None], b=[1704153600000.0], c=[[1704067200000.0], []], d=[1, 2])
+    assert data["a"] == [d0, None]
+
+    out = bus.transform_column_data(np.array([d0, d1], dtype=object))
+    assert out.dtype == np.float64
+    assert np.array_equal(out, [1704067200000.0, 1704153600000.0])
+
+    out = bus.transform_column_data(np.array([None, d1], dtype=object))
+    assert out.dtype == object
+    assert list(out) == [None, 1704153600000.0]
+
 def test_array_encoding_disabled_by_dtype() -> None:
 
     assert len(bus.BINARY_ARRAY_TYPES) > 0
