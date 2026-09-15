@@ -17,6 +17,7 @@ import type {VNode} from "@bokehjs/core/vdom"
 import {assert} from "@bokehjs/core/util/assert"
 
 import {render} from "preact"
+import {field} from "@bokehjs/core/vectorization"
 
 function outer_html(el: Element | VNode): string {
   if (el instanceof Element) {
@@ -43,7 +44,7 @@ async function make_testcase(): Promise<{hover_view: HoverToolView, data_source:
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}
   const data_source = new ColumnDataSource({data})
 
-  const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+  const glyph = new Scatter({x: field("x"), y: field("y")})
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
 
   const plot = new Plot({

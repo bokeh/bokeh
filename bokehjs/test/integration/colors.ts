@@ -5,7 +5,7 @@ import type {ColorNDArray} from "@bokehjs/api/glyph_api"
 import type {OutputBackend} from "@bokehjs/core/enums"
 import * as nd from "@bokehjs/core/util/ndarray"
 import {isArrayable} from "@bokehjs/core/util/types"
-import type {Value, Vector} from "@bokehjs/core/vectorization"
+import {field, value, type Value, type Vector} from "@bokehjs/core/vectorization"
 import type {Color, Arrayable} from "@bokehjs/core/types"
 
 type ColorArg = Value<Color | null> | Arrayable<Color | null> | ColorNDArray
@@ -29,7 +29,7 @@ describe("Color support", () => {
     const fill_color: Vector<Color | null> = (() => {
       if (isArrayable(color) || nd.is_NDArray(color)) {
         source.set("fill_color", color)
-        return {field: "fill_color"}
+        return field("fill_color")
       } else {
         return color
       }
@@ -37,12 +37,12 @@ describe("Color support", () => {
     const fill_alpha: Vector<number> | undefined = (() => {
       if (isArrayable(alpha) || nd.is_NDArray(alpha)) {
         source.set("fill_alpha", alpha)
-        return {field: "fill_alpha"}
+        return field("fill_alpha")
       } else {
         return alpha
       }
     })()
-    const glyph = new Circle({radius: {field: "radius"}, fill_color, fill_alpha, line_color: null})
+    const glyph = new Circle({radius: field("radius"), fill_color, fill_alpha, line_color: null})
     const circle = new GlyphRenderer({data_source: source, glyph})
     p.add_renderers(circle)
     return p
@@ -53,7 +53,7 @@ describe("Color support", () => {
   }
 
   function plot_alpha_combinations(color: ColorArg) {
-    const scalar_alpha = {value: 0.5}
+    const scalar_alpha = value(0.5)
     const vector_alpha = [0.75, 1, 0.5, 0.25]
     return column([plot(color), plot(color, scalar_alpha), plot(color, vector_alpha)])
   }

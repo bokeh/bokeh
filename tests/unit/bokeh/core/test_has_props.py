@@ -23,25 +23,17 @@ from unittest.mock import MagicMock, patch
 from weakref import ref
 
 # Bokeh imports
-from bokeh.core.enums import AngleUnits as AngleUnitsEnum
 from bokeh.core.properties import (
     Alias,
-    AngleSpec,
-    AngleUnits,
     Any,
-    CoordinateSpec,
-    DistanceSpec,
     Either,
-    Enum,
     Instance,
     Int,
     List,
     Nullable,
-    NullDistanceSpec,
     NumberSpec,
     Override,
     Required,
-    SpatialUnits,
     String,
 )
 from bokeh.core.property.descriptors import (
@@ -182,7 +174,7 @@ def test_HasProps_kw_init() -> None:
     assert c.lst1 == []
     assert c.int2 is None
     assert c.str2 == "bar"
-    assert c.ds2 == 10
+    assert c.ds2 == value(10)
     assert c.lst2 == [2,3,4]
 
 def test_HasProps_override() -> None:
@@ -445,7 +437,7 @@ def test_HasProps_set_from_json() -> None:
 
     c.set_from_json('ds1', "foo")
     assert c.int1 == 10
-    assert c.ds1 == "foo"
+    assert c.ds1 == field("foo")
     assert c.lst1 == []
     assert c.int2 is None
     assert c.str2 == "foo"
@@ -454,7 +446,7 @@ def test_HasProps_set_from_json() -> None:
 
     c.set_from_json('int2', 100)
     assert c.int1 == 10
-    assert c.ds1 == "foo"
+    assert c.ds1 == field("foo")
     assert c.lst1 == []
     assert c.int2 == 100
     assert c.str2 == "foo"
@@ -543,7 +535,7 @@ def test_HasProps_apply_theme() -> None:
     assert c.int1 == 10
     assert c.ds1 == field("x")
     assert c.str2 == "foo"
-    assert c.ds2 == "foo"
+    assert c.ds2 == field("foo")
     assert c.lst2 == [1,2,3]
 
 def test_HasProps_apply_theme_to_required_property() -> None:
@@ -711,72 +703,6 @@ def test_HasProps_apply_theme_func_default() -> None:
     c.foo = 50
     assert c.foo == 50
 
-def test_AngleSpec_requires_units_property() -> None:
-    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
-        class Props(hp.HasProps, hp.Local):
-            bar = AngleSpec()
-
-
-def test_CoordinateSpec_requires_units_property() -> None:
-    with pytest.raises(TypeError, match=r"Props\.bar uses CoordinateSpec.*`bar_units = CoordinateUnits`"):
-        class Props(hp.HasProps, hp.Local):
-            bar = CoordinateSpec()
-
-
-@pytest.mark.parametrize("spec_type", [DistanceSpec, NullDistanceSpec])
-def test_DistanceSpec_requires_units_property(spec_type) -> None:
-    with pytest.raises(TypeError, match=rf"Props\.bar uses {spec_type.__name__}.*`bar_units = SpatialUnits`"):
-        class Props(hp.HasProps, hp.Local):
-            bar = spec_type()
-
-
-def test_AngleSpec_rejects_wrong_units_property() -> None:
-    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
-        class Props(hp.HasProps, hp.Local):
-            bar = AngleSpec()
-            bar_units = SpatialUnits
-
-
-def test_AngleSpec_rejects_serialized_units_property() -> None:
-    with pytest.raises(TypeError, match=r"Props\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
-        class Props(hp.HasProps, hp.Local):
-            bar = AngleSpec()
-            bar_units = Enum(AngleUnitsEnum)
-
-
-def test_AngleSpec_rejects_wrong_inherited_units_property() -> None:
-    class Base(hp.HasProps, hp.Local):
-        bar = AngleSpec()
-        bar_units = AngleUnits
-
-    with pytest.raises(TypeError, match=r"Child\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
-        class Child(Base):
-            bar_units = SpatialUnits
-
-
-def test_AngleSpec_rejects_wrong_units_property_from_multiple_inheritance() -> None:
-    class Base(hp.HasProps, hp.Local):
-        bar = AngleSpec()
-        bar_units = AngleUnits
-
-    class UnitsMixin(hp.HasProps, hp.Local):
-        bar_units = SpatialUnits
-
-    with pytest.raises(TypeError, match=r"Child\.bar uses AngleSpec.*`bar_units = AngleUnits`"):
-        class Child(UnitsMixin, Base):
-            pass
-
-
-def test_AngleSpec_accepts_inherited_units_property() -> None:
-    class Base(hp.HasProps, hp.Local):
-        bar_units = AngleUnits
-
-    class Child(Base):
-        bar = AngleSpec()
-
-    assert Child().bar_units == "rad"
-
-
 def test_HasProps_rejects_shadowed_inherited_property() -> None:
     class Base(hp.HasProps, hp.Local):
         value = Int()
@@ -785,23 +711,6 @@ def test_HasProps_rejects_shadowed_inherited_property() -> None:
         class Child(Base):
             value = 10
 
-
-def test_AngleSpec_rejects_shadowed_units_property() -> None:
-    class Base(hp.HasProps, hp.Local):
-        bar = AngleSpec()
-        bar_units = AngleUnits
-
-    with pytest.raises(TypeError, match=r"Child\.bar_units shadows a Bokeh property with str"):
-        class Child(Base):
-            bar_units = "deg"
-
-
-def test_AngleSpec_with_units_contributes_two_properties() -> None:
-    class Props(hp.HasProps, hp.Local):
-        bar = AngleSpec()
-        bar_units = AngleUnits
-
-    assert list(Props.properties()) == ["bar", "bar_units"]
 
 class TopLevelQualified(hp.HasProps, hp.Qualified):
     foo = Int()

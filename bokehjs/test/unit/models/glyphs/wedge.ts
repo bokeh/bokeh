@@ -3,6 +3,7 @@ import {expect} from "#framework/assertions"
 import {create_glyph_renderer_view} from "./_util"
 import {Wedge} from "@bokehjs/models/glyphs/wedge"
 import type {Geometry} from "@bokehjs/core/geometry"
+import {field, value} from "@bokehjs/core/vectorization"
 
 describe("Glyph (using Wedge as a concrete Glyph)", () => {
 
@@ -16,11 +17,11 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
         end_angle: [0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI, 1.75*Math.PI],
       }
       const glyph = new Wedge({
-        x: {field: "x"},
-        y: {field: "y"},
-        radius: {field: "r"},
-        start_angle: {field: "start_angle"},
-        end_angle: {field: "end_angle"},
+        x: field("x"),
+        y: field("y"),
+        radius: field("r"),
+        start_angle: field("start_angle"),
+        end_angle: field("end_angle"),
       })
 
       const glyph_renderer = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})
@@ -36,11 +37,11 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
         end_angle: [0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI, 1.75*Math.PI],
       }
       const glyph = new Wedge({
-        x: {value: 50},
-        y: {value: 50},
-        radius: {value: 50},
-        start_angle: {field: "start_angle"},
-        end_angle: {field: "end_angle"},
+        x: value(50),
+        y: value(50),
+        radius: value(50),
+        start_angle: field("start_angle"),
+        end_angle: field("end_angle"),
       })
 
       const glyph_renderer = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})
@@ -92,11 +93,11 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
         end_angle: [2*Math.PI],
       }
       const glyph = new Wedge({
-        x: {value: 50},
-        y: {value: 50},
-        radius: {value: 50},
-        start_angle: {field: "start_angle"},
-        end_angle: {field: "end_angle"},
+        x: value(50),
+        y: value(50),
+        radius: value(50),
+        start_angle: field("start_angle"),
+        end_angle: field("end_angle"),
       })
 
       const glyph_renderer = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})

@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 
 # Bokeh imports
 from bokeh.core.enums import LineCap, LineJoin, NamedColor as Color
-from bokeh.core.property.vectorization import value
+from bokeh.core.property.vectorization import DataSpecValue
 
 if TYPE_CHECKING:
     from bokeh.core.has_props import HasProps
@@ -56,12 +56,12 @@ BORDER_LINE = [f"border_{name}" for name in LINE]
 BACKGROUND_FILL  = [f"background_{name}" for name in FILL]
 BACKGROUND_HATCH = [f"background_{name}" for name in HATCH]
 
-ANGLE = ["angle", "angle_units"]
+ANGLE = ["angle"]
 
 PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events", "syncable"]
 GLYPH = ["decorations"]
 
-MARKER = ["x", "y", "size", "angle", "angle_units", "hit_dilation"]
+MARKER = ["x", "y", "size", "angle", "hit_dilation"]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -78,27 +78,34 @@ def check_properties_existence(model: HasProps, *props: list[str]) -> None:
     assert len(missing) == 0, f"Properties missing: {', '.join(sorted(missing))}"
     assert len(extra) == 0, f"Extra properties: {', '.join(sorted(extra))}"
 
+def check_value(actual: object, expected: object) -> None:
+    if isinstance(actual, DataSpecValue):
+        assert actual.type == "value"
+        assert actual.value == expected
+    else:
+        assert actual == expected
+
 def check_fill_properties(model: HasProps, prefix: str = "", fill_color: str | None = Color.gray, fill_alpha: float = 1.0) -> None:
-    assert getattr(model, prefix + "fill_color") == fill_color
-    assert getattr(model, prefix + "fill_alpha") == fill_alpha
+    check_value(getattr(model, prefix + "fill_color"), fill_color)
+    check_value(getattr(model, prefix + "fill_alpha"), fill_alpha)
 
 def check_hatch_properties(model: HasProps, prefix: str = "", hatch_color: str | None = Color.black, hatch_alpha: float = 1.0,
         hatch_pattern: str | None = None, hatch_scale: float = 12.0, hatch_weight: float = 1.0, hatch_extra: dict[str, str] = {}) -> None:
-    assert getattr(model, prefix + "hatch_color") == hatch_color
-    assert getattr(model, prefix + "hatch_alpha") == hatch_alpha
-    assert getattr(model, prefix + "hatch_pattern") == hatch_pattern
-    assert getattr(model, prefix + "hatch_scale") == hatch_scale
-    assert getattr(model, prefix + "hatch_weight") == hatch_weight
-    assert getattr(model, prefix + "hatch_extra") == hatch_extra
+    check_value(getattr(model, prefix + "hatch_color"), hatch_color)
+    check_value(getattr(model, prefix + "hatch_alpha"), hatch_alpha)
+    check_value(getattr(model, prefix + "hatch_pattern"), hatch_pattern)
+    check_value(getattr(model, prefix + "hatch_scale"), hatch_scale)
+    check_value(getattr(model, prefix + "hatch_weight"), hatch_weight)
+    check_value(getattr(model, prefix + "hatch_extra"), hatch_extra)
 
 def check_line_properties(model: HasProps, prefix: str = "", line_color: str | None = Color.black, line_width: float = 1.0, line_alpha: float = 1.0) -> None:
-    assert getattr(model, prefix + "line_color") == line_color
-    assert getattr(model, prefix + "line_width") == line_width
-    assert getattr(model, prefix + "line_alpha") == line_alpha
-    assert getattr(model, prefix + "line_join") == LineJoin.bevel
-    assert getattr(model, prefix + "line_cap") == LineCap.butt
-    assert getattr(model, prefix + "line_dash") == []
-    assert getattr(model, prefix + "line_dash_offset") == 0
+    check_value(getattr(model, prefix + "line_color"), line_color)
+    check_value(getattr(model, prefix + "line_width"), line_width)
+    check_value(getattr(model, prefix + "line_alpha"), line_alpha)
+    check_value(getattr(model, prefix + "line_join"), LineJoin.bevel)
+    check_value(getattr(model, prefix + "line_cap"), LineCap.butt)
+    check_value(getattr(model, prefix + "line_dash"), [])
+    check_value(getattr(model, prefix + "line_dash_offset"), 0)
 
 def check_text_properties(model: HasProps, prefix: str = "", font_size: str = '16px', baseline: str = 'bottom',
         font_style: str = 'normal', align: str = "left", scalar: bool = False) -> None:
@@ -123,15 +130,15 @@ def check_text_properties(model: HasProps, prefix: str = "", font_size: str = '1
         assert text_align == align
         assert text_baseline == baseline
     else:
-        assert text_font == value("helvetica")
-        assert text_font_size == value(font_size)
-        assert text_font_style == font_style
-        assert text_color == "#444444"
-        assert text_outline_color is None
-        assert text_outline_width == 1
-        assert text_alpha == 1.0
-        assert text_align == align
-        assert text_baseline == baseline
+        check_value(text_font, "helvetica")
+        check_value(text_font_size, font_size)
+        check_value(text_font_style, font_style)
+        check_value(text_color, "#444444")
+        check_value(text_outline_color, None)
+        check_value(text_outline_width, 1)
+        check_value(text_alpha, 1.0)
+        check_value(text_align, align)
+        check_value(text_baseline, baseline)
 
 #-----------------------------------------------------------------------------
 # Dev API

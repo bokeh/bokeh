@@ -10,7 +10,12 @@ from abc import abstractmethod
 from typing import Unpack
 
 # Bokeh imports
-from ..._specs import AngleSpec, NullStringSpec, NumberSpec
+from ..._specs import (
+    AngleSpec,
+    CoordinateSpec,
+    NullStringSpec,
+    NumberSpec,
+)
 from ..._types import Angle, Coordinate, TextLike
 from ...core.enums import (
     AngleUnitsType as AngleUnits,
@@ -89,10 +94,8 @@ class Label(TextAnnotation):
     editable: bool = ...
 
 class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
-    x: NumberSpec
-    x_units: CoordinateUnits
-    y: NumberSpec
-    y_units: CoordinateUnits
+    x: CoordinateSpec
+    y: CoordinateSpec
     text: NullStringSpec
     angle: AngleSpec
     x_offset: NumberSpec
@@ -101,10 +104,8 @@ class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsIni
 class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchProps, BorderLineProps):
     def __init__(self, **kwargs: Unpack[_LabelSetInit]) -> None: ...
 
-    x: NumberSpec = ...
-    x_units: CoordinateUnits = ...
-    y: NumberSpec = ...
-    y_units: CoordinateUnits = ...
+    x: CoordinateSpec = ...
+    y: CoordinateSpec = ...
     text: NullStringSpec = ...
     angle: AngleSpec = ...
     x_offset: NumberSpec = ...

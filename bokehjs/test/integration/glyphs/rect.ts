@@ -1,6 +1,7 @@
 import {display, fig, row} from "#framework/layouts"
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {ColumnDataSource} from "@bokehjs/models"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("Rect glyph", () => {
   it("should support hatch patterns and line joins", async () => {
@@ -32,7 +33,7 @@ describe("Rect glyph", () => {
   it("should support adding new data point to existing glyph", async () => {
     const p = fig([200, 200])
     const source = new ColumnDataSource({data: {x: [1], y: [2]}})
-    p.rect({x: {field: "x"}, y: {field: "y"}, width: 0.1, height: 0.1, source})
+    p.rect({x: field("x"), y: field("y"), width: 0.1, height: 0.1, source})
     const {view} = await display(p)
 
     source.data = {x: [1, 1.2], y: [1, 1.2]}

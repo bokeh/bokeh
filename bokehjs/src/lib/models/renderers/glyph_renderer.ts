@@ -226,10 +226,6 @@ export class GlyphRendererView extends DataRendererView {
         this.connect(range.invalidate_synthetic, update)
       }
     }
-
-    const {transformchange, exprchange} = this.model.glyph
-    this.connect(transformchange, update)
-    this.connect(exprchange, update)
   }
 
   _update_masked_indices(): Indices {

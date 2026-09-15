@@ -14,6 +14,7 @@ import {unreachable} from "@bokehjs/core/util/assert"
 import type {Color} from "@bokehjs/core/types"
 
 import {ColumnDataSource, Range1d, PolarTransform} from "@bokehjs/models"
+import {expr} from "@bokehjs/core/vectorization"
 
 describe("Examples", () => {
   it("should support PolarSubcoordinates", async () => {
@@ -47,7 +48,7 @@ describe("Examples", () => {
       }
 
       const color = color_map.get(hash)
-      xy.line({expr: t.x}, {expr: t.y}, {line_color: color, source}) // TODO: expr convenience
+      xy.line(expr(t.x), expr(t.y), {line_color: color, source})
     }
 
     const [N, D] = [9, 9]

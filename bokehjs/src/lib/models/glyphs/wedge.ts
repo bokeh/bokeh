@@ -8,6 +8,7 @@ import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {angle_between} from "core/util/math"
 import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
@@ -170,9 +171,9 @@ export class Wedge extends XYGlyph {
     this.mixins<Wedge.Mixins>([LineVector, FillVector, HatchVector])
     this.define<Wedge.Props>(({}) => ({
       direction:    [ Direction, "anticlock" ],
-      radius:       [ p.DistanceSpec, {field: "radius"} ],
-      start_angle:  [ p.AngleSpec, {field: "start_angle"} ],
-      end_angle:    [ p.AngleSpec, {field: "end_angle"} ],
+      radius:       [ p.DistanceSpec, field("radius") ],
+      start_angle:  [ p.AngleSpec, field("start_angle") ],
+      end_angle:    [ p.AngleSpec, field("end_angle") ],
     }))
   }
 }

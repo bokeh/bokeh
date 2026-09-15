@@ -18,6 +18,7 @@ import type {PolyEditToolView} from "@bokehjs/models/tools/edit/poly_edit_tool"
 import {PolyEditTool} from "@bokehjs/models/tools/edit/poly_edit_tool"
 
 import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
+import {field} from "@bokehjs/core/vectorization"
 
 export interface PolyEditTestCase {
   data: {[key: string]: (number[] | null)[]}
@@ -48,12 +49,12 @@ async function make_testcase(): Promise<PolyEditTestCase> {
   const vertex_source = new ColumnDataSource({data: {x: [], y: []}})
 
   const glyph = new Patches({
-    xs: {field: "xs"},
-    ys: {field: "ys"},
+    xs: field("xs"),
+    ys: field("ys"),
   })
   const vertex_glyph = new Scatter({
-    x: {field: "x"},
-    y: {field: "y"},
+    x: field("x"),
+    y: field("y"),
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})

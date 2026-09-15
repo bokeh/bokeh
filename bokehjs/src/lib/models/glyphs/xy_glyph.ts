@@ -1,5 +1,6 @@
 import type {SpatialIndex} from "core/util/spatial"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {Glyph, GlyphView} from "./glyph"
 
 export interface XYGlyphView extends XYGlyph.Data {}
@@ -50,8 +51,8 @@ export abstract class XYGlyph extends Glyph {
 
   static {
     this.define<XYGlyph.Props>(() => ({
-      x: [ p.XCoordinateSpec, {field: "x"} ],
-      y: [ p.YCoordinateSpec, {field: "y"} ],
+      x: [ p.XCoordinateSpec, field("x") ],
+      y: [ p.YCoordinateSpec, field("y") ],
     }))
   }
 }

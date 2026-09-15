@@ -39,12 +39,10 @@ from .._specs import (
 from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
-    AngleUnitsType as AngleUnits,
     DirectionType as Direction,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
     RenderLevelType as RendererLevel,
-    SpatialUnitsType as SpatialUnits,
     StepModeType as StepMode,
     TeXDisplayType as TeXDisplay,
 )
@@ -196,33 +194,27 @@ class AnnularWedgeArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=
     # x: NumberArg
     # y: NumberArg
     # inner_radius: DistanceArg
-    inner_radius_units: SpatialUnits
     # outer_radius: DistanceArg
-    outer_radius_units: SpatialUnits
     # start_angle: AngleArg
-    start_angle_units: AngleUnits
     # end_angle: AngleArg
-    end_angle_units: AngleUnits
     # direction: Direction
+    pass
 
 class AnnulusArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # inner_radius: DistanceArg
-    inner_radius_units: SpatialUnits
     # outer_radius: DistanceArg
-    outer_radius_units: SpatialUnits
+    pass
 
 class ArcArgs(GlyphArgs, LineVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # radius: DistanceArg
-    radius_units: SpatialUnits
     # start_angle: AngleArg
-    start_angle_units: AngleUnits
     # end_angle: AngleArg
-    end_angle_units: AngleUnits
     # direction: Direction
+    pass
 
 class BezierArgs(GlyphArgs, LineVisuals, total=False):
     # x0: NumberArg
@@ -239,15 +231,13 @@ class BlockArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # width: DistanceArg
-    width_units: SpatialUnits
     # height: DistanceArg
-    height_units: SpatialUnits
+    pass
 
 class CircleArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # radius: DistanceArg
-    radius_units: SpatialUnits
     radius_dimension: RadiusDimension
     hit_dilation: NonNegative[float]
 
@@ -255,11 +245,9 @@ class EllipseArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False
     # x: NumberArg
     # y: NumberArg
     # width: DistanceArg
-    width_units: SpatialUnits
     # height: DistanceArg
-    height_units: SpatialUnits
     # angle: AngleArg
-    angel_units: AngleUnits
+    pass
 
 class HAreaArgs(GlyphArgs, FillVisuals, HatchVisuals, total=False):
     # x1: NumberArg
@@ -276,9 +264,9 @@ class HAreaStepArgs(GlyphArgs, FillVisuals, HatchVisuals, total=False):
 class HBarArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # y: NumberArg
     # height: DistanceArg
-    height_units: SpatialUnits
     # left: NumberArg
     # right: NumberArg
+    pass
 
 class HSpanArgs(GlyphArgs, LineVisuals, total=False):
     # y: NumberArg
@@ -329,11 +317,8 @@ class ImageURLArgs(GlyphArgs, total=False):
     # x: NumberArg
     # y: NumberArg
     # w: NullDistanceArg
-    w_units: SpatialUnits
     # h: NullDistanceArg
-    h_units: SpatialUnits
     # angle: AngleArg
-    angle_units: AngleUnits
     global_alpha: NumberArg
     # dilate: bool
     anchor: Anchor
@@ -369,9 +354,7 @@ class NgonArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # radius: DistanceArg
-    radius_units: SpatialUnits
     # angle: AngleArg
-    angle_units: AngleUnits
     n: NumberArg
     radius_dimension: RadiusDimension
 
@@ -405,19 +388,15 @@ class RayArgs(GlyphArgs, LineVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # length: DistanceArg
-    length_units: SpatialUnits
     # angle: AngleArg
-    angle_units: AngleUnits
+    pass
 
 class RectArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # width: DistanceArg
-    width_units: SpatialUnits
     # height: DistanceArg
-    height_units: SpatialUnits
     # angle: AngleArg
-    angle_units: AngleUnits
     # dilate: bool
     border_radius: BorderRadius
 
@@ -446,7 +425,6 @@ class TextArgs(GlyphArgs, TextVisuals, total=False):
     # y: NumberArg
     # text: StringArg
     # angle: AngleArg
-    angle_units: AngleUnits
     # x_offset: FloatArg
     # y_offset: FloatArg
     anchor: TextAnchorArg
@@ -469,9 +447,9 @@ class VAreaStepArgs(GlyphArgs, FillVisuals, HatchVisuals, total=False):
 class VBarArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # width: DistanceArg
-    width_units: SpatialUnits
     # bottom: NumberArg
     # top: NumberArg
+    pass
 
 class VSpanArgs(GlyphArgs, LineVisuals, total=False):
     # x: NumberArg
@@ -486,12 +464,10 @@ class WedgeArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # radius: DistanceArg
-    radius_units: SpatialUnits
     # start_angle: AngleArg
-    start_angle_units: AngleUnits
     # end_angle: AngleArg
-    end_angle_units: AngleUnits
     # direction: Direction
+    pass
 
 class GlyphAPI:
 

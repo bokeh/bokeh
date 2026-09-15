@@ -4,6 +4,7 @@ import type {Arrayable} from "core/types"
 import {to_screen} from "core/types"
 import {ImageOrigin} from "core/enums"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type {Context2d} from "core/util/canvas"
@@ -314,9 +315,9 @@ export abstract class ImageBase extends XYGlyph {
   static {
     this.mixins<ImageBase.Mixins>(mixins.ImageVector)
     this.define<ImageBase.Props>(({Bool}) => ({
-      image:        [ p.NDArraySpec, {field: "image"} ],
-      dw:           [ p.DistanceSpec, {field: "dw"} ],
-      dh:           [ p.DistanceSpec, {field: "dh"} ],
+      image:        [ p.NDArraySpec, field("image") ],
+      dw:           [ p.DistanceSpec, field("dw") ],
+      dh:           [ p.DistanceSpec, field("dh") ],
       dilate:       [ Bool, false ],
       origin:       [ ImageOrigin, "bottom_left" ],
       anchor:       [ Anchor, "bottom_left" ],

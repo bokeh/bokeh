@@ -3,7 +3,7 @@ import "/static/js/bokeh-widgets.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace Office {
-  import plt = Bokeh.Plotting
+  const {figure} = Bokeh.Plotting
   console.log(`Bokeh ${Bokeh.version}`)
   Bokeh.set_log_level("info")
 
@@ -141,7 +141,7 @@ export namespace Office {
   const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1", stylesheets: [input_style]})
   const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5, stylesheets: [slider_style]})
 
-  const p = plt.figure()
+  const p = figure()
 
   p.line([2, 3, 4], [2, 4, 3], {color: "orange", legend_label: "orange", line_width: 4})
   p.line([2, 3, 4], [4, 5, 4], {color: "red", legend_label: "red", line_width: 4})
@@ -166,7 +166,7 @@ export namespace Office {
   p.legend.label_text_font = "Segoe UI, Inter"
   p.legend.stylesheets = [legend_style]
 
-  const p1 = plt.figure()
+  const p1 = figure()
   p1.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
   p1.xaxis.major_label_text_font = "Segoe UI, Inter"
   p1.xaxis.major_label_text_font_size = "12px"
@@ -177,7 +177,7 @@ export namespace Office {
   p1.yaxis.major_tick_line_color = "transparent"
   p1.yaxis.minor_tick_line_color = "transparent"
 
-  const p2 = plt.figure()
+  const p2 = figure()
   p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
   p2.xaxis.major_label_text_font = "Segoe UI, Inter"
   p2.xaxis.major_label_text_font_size = "12px"

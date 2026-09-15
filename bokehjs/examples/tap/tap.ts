@@ -2,7 +2,7 @@ import Bokeh from "/static/js/bokeh.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace TappyScatter {
-  import plt = Bokeh.Plotting
+  const {field, figure, show} = Bokeh.Plotting
   const {range, zip, Random} = Bokeh.LinAlg
 
   Bokeh.set_log_level("info")
@@ -36,13 +36,13 @@ export namespace TappyScatter {
 
   const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,tap,save"
 
-  const p = plt.figure({title: "Tappy Scatter", tools})
+  const p = figure({title: "Tappy Scatter", tools})
 
-  const circles = p.circle({field: "x"}, {field: "y"}, radii, {
+  const circles = p.circle(field("x"), field("y"), radii, {
     source, fill_color: colors, fill_alpha: 0.6, line_color: null,
   })
 
-  p.text({field: "x"}, {field: "y"}, indices, {
+  p.text(field("x"), field("y"), indices, {
     source, alpha: 0.5, text_font_size: "7px", text_baseline: "middle", text_align: "center",
   })
 
@@ -59,5 +59,5 @@ export namespace TappyScatter {
     }
   }
 
-  void plt.show(p)
+  void show(p)
 }

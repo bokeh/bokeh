@@ -2,9 +2,9 @@ import {DataAnnotation, DataAnnotationView} from "../data_annotation"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import {CoordinateUnits} from "core/enums"
 import {div, display} from "core/dom"
 import * as p from "core/properties"
+import {field, value} from "core/vectorization"
 import type {FloatArray} from "core/types"
 import {ScreenArray} from "core/types"
 import type {Context2d} from "core/util/canvas"
@@ -46,7 +46,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
     const panel = this.layout != null ? this.layout : this.plot_view.frame
 
     this.sx = (() => {
-      switch (this.model.x_units) {
+      switch (this.model.properties.x.units) {
         case "canvas":
           return new ScreenArray(this._x)
         case "screen":
@@ -57,7 +57,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
     })()
 
     this.sy = (() => {
-      switch (this.model.y_units) {
+      switch (this.model.properties.y.units) {
         case "canvas":
           return new ScreenArray(this._y)
         case "screen":
@@ -153,10 +153,8 @@ export namespace HTMLLabelSet {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataAnnotation.Props & {
-    x: p.XCoordinateSpec
-    y: p.YCoordinateSpec
-    x_units: p.Property<CoordinateUnits>
-    y_units: p.Property<CoordinateUnits>
+    x: p.XCoordinateUnitsSpec
+    y: p.YCoordinateUnitsSpec
     text: p.NullStringSpec
     angle: p.AngleSpec
     x_offset: p.NumberSpec
@@ -195,14 +193,12 @@ export class HTMLLabelSet extends DataAnnotation {
     ])
 
     this.define<HTMLLabelSet.Props>(() => ({
-      x:            [ p.XCoordinateSpec, {field: "x"} ],
-      y:            [ p.YCoordinateSpec, {field: "y"} ],
-      x_units:      [ CoordinateUnits, "data" ],
-      y_units:      [ CoordinateUnits, "data" ],
-      text:         [ p.NullStringSpec, {field: "text"} ],
+      x:            [ p.XCoordinateUnitsSpec, field("x") ],
+      y:            [ p.YCoordinateUnitsSpec, field("y") ],
+      text:         [ p.NullStringSpec, field("text") ],
       angle:        [ p.AngleSpec, 0 ],
-      x_offset:     [ p.NumberSpec, {value: 0} ],
-      y_offset:     [ p.NumberSpec, {value: 0} ],
+      x_offset:     [ p.NumberSpec, value(0) ],
+      y_offset:     [ p.NumberSpec, value(0) ],
     }))
 
     this.override<HTMLLabelSet.Props>({

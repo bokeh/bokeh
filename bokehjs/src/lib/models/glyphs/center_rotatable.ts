@@ -3,6 +3,7 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Rect} from "core/types"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 
 export interface CenterRotatableView extends CenterRotatable.Data {}
 
@@ -60,8 +61,8 @@ export abstract class CenterRotatable extends XYGlyph {
 
     this.define<CenterRotatable.Props>(({}) => ({
       angle:  [ p.AngleSpec, 0 ],
-      width:  [ p.DistanceSpec, {field: "width"} ],
-      height: [ p.DistanceSpec, {field: "height"} ],
+      width:  [ p.DistanceSpec, field("width") ],
+      height: [ p.DistanceSpec, field("height") ],
     }))
   }
 }

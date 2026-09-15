@@ -8,6 +8,7 @@ import type {Float32Buffer, Uint8Buffer} from "@bokehjs/models/glyphs/webgl/buff
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("in issue #15279", () => {
   it("should preserve mixed-marker selection sizes through patch, stream, and equal-length selection changes", async () => {
@@ -21,11 +22,11 @@ describe("in issue #15279", () => {
     }})
     source.selected.indices = [0, 2, 4]
     const glyph = new Scatter({
-      x: {field: "x"}, y: {field: "y"}, marker: {field: "marker"}, size: {field: "size"},
-      fill_color: {field: "color"}, line_color: {field: "color"}, fill_alpha: 0.8,
+      x: field("x"), y: field("y"), marker: field("marker"), size: field("size"),
+      fill_color: field("color"), line_color: field("color"), fill_alpha: 0.8,
     })
     const selection_glyph = new Scatter({
-      size: {field: "selected_size"}, fill_color: {field: "color"}, line_color: "black", line_width: 2,
+      size: field("selected_size"), fill_color: field("color"), line_color: "black", line_width: 2,
     })
     const nonselection_glyph = new Scatter({fill_alpha: 0.35, line_alpha: 0.35})
     const renderer = new GlyphRenderer({data_source: source, glyph, selection_glyph, nonselection_glyph})
@@ -111,11 +112,11 @@ describe("in issue #15279", () => {
     }})
     source.selected.indices = range(0, n, 199)
     const glyph = new Scatter({
-      x: {field: "x"}, y: {field: "y"}, marker: {field: "marker"}, size: {field: "size"},
-      fill_color: {field: "color"}, line_color: {field: "color"}, fill_alpha: 0.55, line_alpha: 0.8,
+      x: field("x"), y: field("y"), marker: field("marker"), size: field("size"),
+      fill_color: field("color"), line_color: field("color"), fill_alpha: 0.55, line_alpha: 0.8,
     })
     const selection_glyph = new Scatter({
-      size: {field: "selected_size"}, fill_color: {field: "color"}, line_color: "white", line_width: 2,
+      size: field("selected_size"), fill_color: field("color"), line_color: "white", line_width: 2,
     })
     const nonselection_glyph = new Scatter({fill_alpha: 0.55, line_alpha: 0.8})
     const renderer = new GlyphRenderer({data_source: source, glyph, selection_glyph, nonselection_glyph})

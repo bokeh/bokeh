@@ -12,6 +12,7 @@ import {map} from "core/util/arrayable"
 import * as iter from "core/util/iterator"
 import {range} from "core/util/array"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
@@ -231,8 +232,8 @@ export class HStrip extends Glyph {
     this.mixins<HStrip.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<HStrip.Props>(() => ({
-      y0: [ p.YCoordinateSpec, {field: "y0"} ],
-      y1: [ p.YCoordinateSpec, {field: "y1"} ],
+      y0: [ p.YCoordinateSpec, field("y0") ],
+      y1: [ p.YCoordinateSpec, field("y1") ],
     }))
   }
 }

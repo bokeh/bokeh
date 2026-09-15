@@ -12,6 +12,7 @@ import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {Indices} from "core/types"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {atan2} from "core/util/math"
 
 export class ArrowView extends DataAnnotationView {
@@ -230,12 +231,12 @@ export class Arrow extends DataAnnotation {
     this.mixins<Arrow.Mixins>(LineVector)
 
     this.define<Arrow.Props>(({Ref, Nullable}) => ({
-      x_start:     [ p.XCoordinateSpec, {field: "x_start"} ],
-      y_start:     [ p.YCoordinateSpec, {field: "y_start"} ],
+      x_start:     [ p.XCoordinateSpec, field("x_start") ],
+      y_start:     [ p.YCoordinateSpec, field("y_start") ],
       start_units: [ CoordinateUnits, "data" ],
       start:       [ Nullable(Ref(ArrowHead)), null ],
-      x_end:       [ p.XCoordinateSpec, {field: "x_end"} ],
-      y_end:       [ p.YCoordinateSpec, {field: "y_end"} ],
+      x_end:       [ p.XCoordinateSpec, field("x_end") ],
+      y_end:       [ p.YCoordinateSpec, field("y_end") ],
       end_units:   [ CoordinateUnits, "data" ],
       end:         [ Nullable(Ref(ArrowHead)), () => new OpenHead() ],
     }))

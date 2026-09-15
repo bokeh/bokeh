@@ -10,6 +10,7 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
@@ -354,8 +355,8 @@ export class MultiPolygons extends Glyph {
     this.prototype.default_view = MultiPolygonsView
 
     this.define<MultiPolygons.Props>(({}) => ({
-      xs: [ p.XCoordinateSeqSeqSeqSpec, {field: "xs"} ],
-      ys: [ p.YCoordinateSeqSeqSeqSpec, {field: "ys"} ],
+      xs: [ p.XCoordinateSeqSeqSeqSpec, field("xs") ],
+      ys: [ p.YCoordinateSeqSeqSeqSpec, field("ys") ],
     }))
     this.mixins<MultiPolygons.Mixins>([LineVector, FillVector, HatchVector])
   }

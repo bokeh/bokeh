@@ -3,6 +3,7 @@ import {expect} from "#framework/assertions"
 import {create_glyph_renderer_view} from "./_util"
 import {Annulus} from "@bokehjs/models/glyphs/annulus"
 import type {Geometry} from "@bokehjs/core/geometry"
+import {field, value} from "@bokehjs/core/vectorization"
 
 describe("Glyph (using Annulus as a concrete Glyph)", () => {
 
@@ -15,10 +16,10 @@ describe("Glyph (using Annulus as a concrete Glyph)", () => {
         r: [1, 2, 3, 4],
       }
       const glyph = new Annulus({
-        x: {field: "x"},
-        y: {field: "y"},
-        inner_radius: {value: 2},
-        outer_radius: {field: "r"},
+        x: field("x"),
+        y: field("y"),
+        inner_radius: value(2),
+        outer_radius: field("r"),
       })
 
       const glyph_renderer = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})
@@ -31,10 +32,10 @@ describe("Glyph (using Annulus as a concrete Glyph)", () => {
     it("should hit test against an index", async () => {
       const data = {}
       const glyph = new Annulus({
-        x: {value: 50},
-        y: {value: 50},
-        inner_radius: {value: 25},
-        outer_radius: {value: 50},
+        x: value(50),
+        y: value(50),
+        inner_radius: value(25),
+        outer_radius: value(50),
       })
 
       const glyph_renderer = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})

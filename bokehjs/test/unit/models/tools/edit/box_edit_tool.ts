@@ -16,6 +16,7 @@ import type {BoxEditToolView} from "@bokehjs/models/tools/edit/box_edit_tool"
 import {BoxEditTool} from "@bokehjs/models/tools/edit/box_edit_tool"
 
 import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
+import {field} from "@bokehjs/core/vectorization"
 
 export interface BoxEditTestCase {
   data: {[key: string]: unknown[]}
@@ -46,10 +47,10 @@ async function make_testcase(): Promise<BoxEditTestCase> {
   const data_source = new ColumnDataSource({data, default_values: {b: "d"}})
 
   const glyph = new Rect({
-    x: {field: "x"},
-    y: {field: "y"},
-    width: {field: "width"},
-    height: {field: "height"},
+    x: field("x"),
+    y: field("y"),
+    width: field("width"),
+    height: field("height"),
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})

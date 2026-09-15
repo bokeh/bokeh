@@ -40,6 +40,7 @@ from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, String
 from ..core.property.validation import without_property_validation
+from ..core.property.vectorization import Field
 from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..events import Event
 from ..themes import default as default_theme
@@ -281,8 +282,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 no_more_defaults = True
 
             # simplify field(x) defaults to just present the column name
-            if isinstance(default, dict) and set(default) == {"field"}:
-                default = default["field"]
+            if isinstance(default, Field):
+                default = default.value
 
             # make sure built-ins don't hold on to references to actual Models
             if cls.__module__.startswith("bokeh.models"):
@@ -310,8 +311,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             default = descriptor.class_default(cls, no_eval=True)
 
             # simplify field(x) defaults to just present the column name
-            if isinstance(default, dict) and set(default) == {"field"}:
-                default = default["field"]
+            if isinstance(default, Field):
+                default = default.value
 
             # make sure built-ins don't hold on to references to actual Models
             if cls.__module__.startswith("bokeh.models"):

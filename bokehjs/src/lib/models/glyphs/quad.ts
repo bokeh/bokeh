@@ -1,6 +1,7 @@
 import {LRTB, LRTBView} from "./lrtb"
 import type {LRTBRect} from "./lrtb"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 
 export interface QuadView extends Quad.Data {}
 
@@ -52,10 +53,10 @@ export class Quad extends LRTB {
     this.prototype.default_view = QuadView
 
     this.define<Quad.Props>(({}) => ({
-      right:  [ p.XCoordinateSpec, {field: "right"} ],
-      bottom: [ p.YCoordinateSpec, {field: "bottom"} ],
-      left:   [ p.XCoordinateSpec, {field: "left"} ],
-      top:    [ p.YCoordinateSpec, {field: "top"} ],
+      right:  [ p.XCoordinateSpec, field("right") ],
+      bottom: [ p.YCoordinateSpec, field("bottom") ],
+      left:   [ p.XCoordinateSpec, field("left") ],
+      top:    [ p.YCoordinateSpec, field("top") ],
     }))
   }
 }

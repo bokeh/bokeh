@@ -5,6 +5,7 @@ import {expect_not_null} from "#framework/assertions"
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 import type {Color} from "@bokehjs/core/types"
+import {value} from "@bokehjs/core/vectorization"
 
 import {HTML} from "@bokehjs/models/dom"
 import {ColumnDataSource, Row} from "@bokehjs/models"
@@ -583,7 +584,7 @@ describe("Widgets", () => {
       },
     })
 
-    const formatter = new StringFormatter({font_style: {value: "bold"}})
+    const formatter = new StringFormatter({font_style: value<"bold">("bold")})
 
     const columns = [
       new TableColumn({field: "d2", title: "Name", width: 80, sortable: false, formatter}),

@@ -57,8 +57,6 @@ from .property.descriptors import (
     PropertyDescriptor,
     UnsetValueError,
 )
-from .property.enum import Enum
-from .property.serialized import NotSerialized
 from .property.singletons import Undefined
 from .serialization import (
     ObjectRep,
@@ -238,46 +236,6 @@ class Qualified:
 class NonQualified:
     """Resolve this class by a non-qualified name. """
 
-def _check_units_props(
-    cls: type[HasProps],
-    own_properties: Mapping[str, Property[Any]],
-    properties: Mapping[str, Property[Any]],
-    property_bases: list[type[HasProps]],
-) -> None:
-    if len(property_bases) > 1:
-        units_specs = {
-            name: prop for name, prop in properties.items()
-            if getattr(prop, "_units_enum", None) is not None
-        }
-    else:
-        units_specs = {
-            name: prop for name, prop in own_properties.items()
-            if getattr(prop, "_units_enum", None) is not None
-        }
-        for units_name in own_properties:
-            if units_name.endswith("_units"):
-                name = units_name.removesuffix("_units")
-                prop = properties.get(name)
-                if prop is not None and getattr(prop, "_units_enum", None) is not None:
-                    units_specs[name] = prop
-
-    for name, prop in units_specs.items():
-        units_enum = getattr(prop, "_units_enum", None)
-
-        units_name = f"{name}_units"
-        units_descriptor = cls.lookup(units_name, raises=False)
-        units_prop = units_descriptor.property if isinstance(units_descriptor, PropertyDescriptor) else None
-
-        valid_units_prop = isinstance(units_prop, NotSerialized) and \
-            isinstance(units_prop.type_param, Enum) and \
-            tuple(units_prop.type_param.allowed_values) == tuple(units_enum)
-        if not valid_units_prop:
-            units_alias = getattr(prop, "_units_alias")
-            raise TypeError(
-                f"{cls.__name__}.{name} uses {type(prop).__name__} and requires a matching "
-                f"{cls.__name__}.{units_name} property; add `{units_name} = {units_alias}`",
-            )
-
 def _warn_redeclared_props(
     cls: type[HasProps],
     own_properties: Mapping[str, Property[Any]],
@@ -364,7 +322,6 @@ class HasProps(Serializable):
         properties = property_info.properties(cls)
 
         property_bases = [base for base in cls.__bases__ if issubclass(base, HasProps)]
-        _check_units_props(cls, own_properties, properties, property_bases)
         _warn_redeclared_props(cls, own_properties, property_bases)
         _warn_unused_overrides(cls, own_overridden_defaults, properties)
 

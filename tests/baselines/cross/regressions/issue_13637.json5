@@ -96,10 +96,12 @@
                   width: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   height: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   border_radius: 30,
                   fill_color: {
@@ -163,10 +165,12 @@
                   width: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   height: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   border_radius: {
                     type: "map",
@@ -246,10 +250,12 @@
                   width: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   height: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   border_radius: {
                     type: "map",
@@ -329,10 +335,12 @@
                   width: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   height: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   border_radius: {
                     type: "map",
@@ -412,10 +420,12 @@
                   width: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   height: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   border_radius: {
                     type: "map",
@@ -495,10 +505,12 @@
                   width: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   height: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   border_radius: [
                     30,
@@ -567,10 +579,12 @@
                   width: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   height: {
                     type: "value",
                     value: 1,
+                    units: "data",
                   },
                   border_radius: [
                     30,

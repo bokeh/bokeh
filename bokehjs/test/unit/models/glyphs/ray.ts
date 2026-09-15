@@ -4,15 +4,16 @@ import {create_glyph_view} from "./_util"
 import {Ray} from "@bokehjs/models/glyphs/ray"
 import type {SpatialUnits} from "@bokehjs/core/enums"
 import {ScreenArray} from "@bokehjs/core/types"
+import {field, value} from "@bokehjs/core/vectorization"
 
 describe("Ray", () => {
 
   describe("RayView", () => {
     function make_glyph(units: SpatialUnits): Ray {
       return new Ray({
-        x: {field: "x"},
-        y: {field: "y"},
-        length: {value: 10, units},
+        x: field("x"),
+        y: field("y"),
+        length: value(10, {units}),
       })
     }
 

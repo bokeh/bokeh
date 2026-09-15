@@ -4,7 +4,7 @@ from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import CategoricalColorMapper, CheckboxButtonGroup, ColumnDataSource
 from bokeh.palettes import RdBu3
-from bokeh.plotting import figure
+from bokeh.plotting import field, figure
 
 x=[3,4,6,12,10,1]
 y=[7,1,3,4,1,6]
@@ -16,7 +16,7 @@ color_mapper = CategoricalColorMapper(factors=['red','blue'], palette=[RdBu3[2],
 plot_figure = figure(title='Checkbox Button Group',height=450, width=600,
               tools="save,reset", toolbar_location="below")
 
-plot_figure.scatter('x', 'y', source=source, size=10,color={'field': 'z', 'transform': color_mapper})
+plot_figure.scatter('x', 'y', source=source, size=10, color=field('z', transform=color_mapper))
 
 checkbox_button = CheckboxButtonGroup(labels=['Show x-axis label','Show y-axis label'])
 

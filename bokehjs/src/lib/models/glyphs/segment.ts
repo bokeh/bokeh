@@ -1,6 +1,7 @@
 import type {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Arrayable, Rect} from "core/types"
@@ -193,10 +194,10 @@ export class Segment extends Glyph {
     this.prototype.default_view = SegmentView
 
     this.define<Segment.Props>(({}) => ({
-      x0: [ p.XCoordinateSpec, {field: "x0"} ],
-      y0: [ p.YCoordinateSpec, {field: "y0"} ],
-      x1: [ p.XCoordinateSpec, {field: "x1"} ],
-      y1: [ p.YCoordinateSpec, {field: "y1"} ],
+      x0: [ p.XCoordinateSpec, field("x0") ],
+      y0: [ p.YCoordinateSpec, field("y0") ],
+      x1: [ p.XCoordinateSpec, field("x1") ],
+      y1: [ p.YCoordinateSpec, field("y1") ],
     }))
     this.mixins<Segment.Mixins>(LineVector)
   }
