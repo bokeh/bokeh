@@ -152,7 +152,7 @@ class Test_HSL:
         c2 = bcc.HSL.from_rgb(c)
         assert c2 is not c
         assert c2.a == 1
-        assert c2.h == 24
+        assert c2.h == pytest.approx(23.529411764705877)
         assert c2.s == 1.0
         assert c2.l == 0.5
 
@@ -160,7 +160,7 @@ class Test_HSL:
         c2 = bcc.HSL.from_rgb(c)
         assert c2 is not c
         assert c2.a == 0.1
-        assert c2.h == 24
+        assert c2.h == pytest.approx(23.529411764705877)
         assert c2.s == 1.0
         assert c2.l == 0.5
 
@@ -350,7 +350,7 @@ class Test_RGB:
         c2 = c.to_hsl()
         assert c2 is not c
         assert c2.a == c.a
-        assert c2.h == 24
+        assert c2.h == pytest.approx(23.529411764705877)
         assert c2.s == 1.0
         assert c2.l == 0.5
 
@@ -358,9 +358,16 @@ class Test_RGB:
         c2 = c.to_hsl()
         assert c2 is not c
         assert c2.a == c.a
-        assert c2.h == 24
+        assert c2.h == pytest.approx(23.529411764705877)
         assert c2.s == 1.0
         assert c2.l == 0.5
+
+    def test_to_hsl_round_trip(self) -> None:
+        c = bcc.RGB(0, 5, 200, 0.3)
+        c2 = c.to_hsl()
+
+        assert c2.h == 238.5
+        assert c2.to_rgb().to_css() == c.to_css()
 
     def test_to_rgb(self) -> None:
         c = bcc.RGB(10, 20, 30)
