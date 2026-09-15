@@ -188,6 +188,14 @@ class DataRange1d(DataRange):
     By default, the ``start`` and ``end`` of the range automatically
     assume min and max values of the data for associated renderers.
 
+    After the plot is displayed, changing either ``start`` or ``end`` (for
+    example, from a ``CustomJS`` or Bokeh server callback) freezes both
+    endpoints, the same as an interactive pan or zoom does. The range then
+    stops following the data until the plot is reset (e.g. with the
+    ``ResetTool``) or one of ``range_padding``, ``range_padding_units``,
+    ``flipped``, ``follow``, ``follow_interval``, ``default_span`` or
+    ``only_visible`` changes.
+
     '''
 
     def __init__(self, *args, **kwargs) -> None:
