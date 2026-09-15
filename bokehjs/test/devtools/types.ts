@@ -28,7 +28,7 @@ export class TimeoutError extends Error {
 }
 
 export type Suite = {description: string, suites: Suite[], tests: Test[]}
-export type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, scale?: number, no_image?: boolean}
+export type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, timeout?: number, dpr?: number, scale?: number, no_image?: boolean}
 
 export type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 

@@ -31,6 +31,7 @@ from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
 from typing import IO
+from urllib.request import urlopen
 
 # Bokeh imports
 from bokeh.command.subcommand import Argument
@@ -653,13 +654,20 @@ def test_handling_SIGTERM() -> None:
     pat_pid = re.compile(r"Starting Bokeh server with process id: (\d+)")
     pat_term = re.compile(r"Received signal SIGTERM, shutting down")
 
-    with run_bokeh_serve([]) as (_, nbsr):
-        time.sleep(1) # otherwise won't work; can be replaced with breakpoint()
+    with run_bokeh_serve(["--port", "0"]) as (process, nbsr):
+        port = check_port(nbsr)
         match = find_pattern(nbsr, pat_pid)
         if match is None:
             pytest.fail("Did not find server PID in process output")
-        pid = int(match.group(1))
-        os.kill(pid, signal.SIGTERM)
+        assert int(match.group(1)) == process.pid
+
+        # Processing a request confirms that the IOLoop is running and its
+        # SIGTERM handler has been installed.
+        with urlopen(f"http://localhost:{port}/", timeout=10) as response:
+            assert response.status == 200
+
+        process.send_signal(signal.SIGTERM)
+        process.wait(timeout=30)
         match = find_pattern(nbsr, pat_term)
         if match is None:
             pytest.fail("Did not find SIGTERM confirmation in process output")

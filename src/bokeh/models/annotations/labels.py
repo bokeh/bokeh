@@ -43,7 +43,12 @@ from ...core.property.primitive import Bool, Float
 from ...core.property.required import Required
 from ...core.property.text_like import TextLike
 from ...core.property.vectorization import field
-from ...core.property_aliases import BorderRadius, Padding, TextAnchor
+from ...core.property_aliases import (
+    AngleUnits as AngleUnitsProperty,
+    BorderRadius,
+    Padding,
+    TextAnchor,
+)
 from ...core.property_mixins import (
     FillProps,
     HatchProps,
@@ -261,6 +266,8 @@ class LabelSet(DataAnnotation):
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
     """)
+
+    angle_units = AngleUnitsProperty
 
     x_offset = NumberSpec(default=0, help="""
     Offset values to apply to the x-coordinates.

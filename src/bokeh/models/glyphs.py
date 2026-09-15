@@ -68,8 +68,10 @@ from ..core.property.string import Regex
 from ..core.property.vectorization import field, value
 from ..core.property_aliases import (
     Anchor,
+    AngleUnits,
     BorderRadius,
     Padding,
+    SpatialUnits,
     TextAnchor,
 )
 from ..core.property_mixins import (
@@ -195,6 +197,8 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The angles to rotate the markers.
     """)
 
+    angle_units = AngleUnits
+
     line_props = Include(LineProps, help="""
     The {prop} values for the markers.
     """)
@@ -247,17 +251,25 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The inner radii of the annular wedges.
     """)
 
+    inner_radius_units = SpatialUnits
+
     outer_radius = DistanceSpec(default=field("outer_radius"), help="""
     The outer radii of the annular wedges.
     """)
+
+    outer_radius_units = SpatialUnits
 
     start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the annular wedges, as measured from the horizontal.
     """)
 
+    start_angle_units = AngleUnits
+
     end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the annular wedges, as measured from the horizontal.
     """)
+
+    end_angle_units = AngleUnits
 
     direction = Enum(Direction, default=Direction.anticlock, help="""
     Which direction to stroke between the start and end angles.
@@ -300,9 +312,13 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The inner radii of the annuli.
     """)
 
+    inner_radius_units = SpatialUnits
+
     outer_radius = DistanceSpec(default=field("outer_radius"), help="""
     The outer radii of the annuli.
     """)
+
+    outer_radius_units = SpatialUnits
 
     line_props = Include(LineProps, help="""
     The {prop} values for the annuli.
@@ -341,13 +357,19 @@ class Arc(XYGlyph, LineGlyph):
     Radius of the arc.
     """)
 
+    radius_units = SpatialUnits
+
     start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the arcs, as measured from the horizontal.
     """)
 
+    start_angle_units = AngleUnits
+
     end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the arcs, as measured from the horizontal.
     """)
+
+    end_angle_units = AngleUnits
 
     direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.
@@ -435,9 +457,13 @@ class Block(LRTBGlyph):
     The widths of the blocks.
     """)
 
+    width_units = SpatialUnits
+
     height = DistanceSpec(default=1, help="""
     The heights of the blocks.
     """)
+
+    height_units = SpatialUnits
 
     line_props = Include(LineProps, help="""
     The {prop} values for the blocks.
@@ -482,6 +508,8 @@ class Circle(RadialGlyph, LineGlyph, FillGlyph, HatchGlyph):
         much larger or smaller than expected. See :bokeh-issue:`626` for more
         information.
     """)
+
+    radius_units = SpatialUnits
 
     radius_dimension = Enum(RadiusDimension, help="""
     What dimension to measure circle radii along.
@@ -536,13 +564,19 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The widths of each ellipse.
     """)
 
+    width_units = SpatialUnits
+
     height = DistanceSpec(default=field("height"), help="""
     The heights of each ellipse.
     """)
 
+    height_units = SpatialUnits
+
     angle = AngleSpec(default=0.0, help="""
     The angle the ellipses are rotated from horizontal. [rad]
     """)
+
+    angle_units = AngleUnits
 
     line_props = Include(LineProps, help="""
     The {prop} values for the ellipses.
@@ -655,6 +689,8 @@ class HBar(LRTBGlyph):
     The heights of the vertical bars.
     """)
 
+    height_units = SpatialUnits
+
     left = NumberSpec(default=0, help="""
     The x-coordinates of the left edges.
     """)
@@ -763,6 +799,8 @@ class ImageBase(XYGlyph):
         That number is fixed by the image itself.
     """)
 
+    dw_units = SpatialUnits
+
     dh = DistanceSpec(default=field("dh"), help="""
     The height of the plot region that the image will occupy.
 
@@ -770,6 +808,8 @@ class ImageBase(XYGlyph):
         This is not the number of pixels that an image is tall.
         That number is fixed by the image itself.
     """)
+
+    dh_units = SpatialUnits
 
     image_props = Include(ImageProps, help="""
     The {prop} values for the images.
@@ -921,6 +961,8 @@ class ImageURL(XYGlyph):
     at its actual image size (regardless of the units specified here).
     """)
 
+    w_units = SpatialUnits
+
     h = NullDistanceSpec(help="""
     The height of the plot region that the image will occupy in data space.
 
@@ -928,9 +970,13 @@ class ImageURL(XYGlyph):
     at its actual image size (regardless of the units specified here).
     """)
 
+    h_units = SpatialUnits
+
     angle = AngleSpec(default=0, help="""
     The angles to rotate the images, as measured from the horizontal.
     """)
+
+    angle_units = AngleUnits
 
     global_alpha = NumberSpec(1.0, help="""
     An overall opacity that each image is rendered with (in addition
@@ -1097,10 +1143,14 @@ class Ngon(RadialGlyph):
     measured from the center to the vertices of the n-gons.
     """)
 
+    radius_units = SpatialUnits
+
     angle = AngleSpec(default=0, help="""
     The angles in radians to rotate the n-gons. When the value is zero, a vertex
     is drawn directly above the center coordinate.
     """)
+
+    angle_units = AngleUnits
 
     n = NumberSpec(default=field("n"), help="""
     The number of sides of the n-gons. Values less than three will result in
@@ -1332,10 +1382,14 @@ class Ray(XYGlyph, LineGlyph):
     The angles in radians to extend the rays, as measured from the horizontal.
     """)
 
+    angle_units = AngleUnits
+
     length = DistanceSpec(default=0, help="""
     The length to extend the ray. Note that this ``length`` defaults
     to |data units| (measured in the x-direction).
     """)
+
+    length_units = SpatialUnits
 
     line_props = Include(LineProps, help="""
     The {prop} values for the rays.
@@ -1372,13 +1426,19 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The overall widths of the rectangles.
     """)
 
+    width_units = SpatialUnits
+
     height = DistanceSpec(default=field("height"), help="""
     The overall heights of the rectangles.
     """)
 
+    height_units = SpatialUnits
+
     angle = AngleSpec(default=0.0, help="""
     The angles to rotate the rectangles, as measured from the horizontal.
     """)
+
+    angle_units = AngleUnits
 
     border_radius = BorderRadius(default=0, help="""
     Allows the box to have rounded corners.
@@ -1626,6 +1686,8 @@ class Text(XYGlyph, TextGlyph):
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
     """)
+
+    angle_units = AngleUnits
 
     x_offset = FloatSpec(default=0, help="""
     Offset values in pixels to apply to the x-coordinates.
@@ -1882,6 +1944,8 @@ class VBar(LRTBGlyph):
     The widths of the vertical bars.
     """)
 
+    width_units = SpatialUnits
+
     bottom = NumberSpec(default=0, help="""
     The y-coordinates of the bottom edges.
     """)
@@ -1927,13 +1991,19 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     Radii of the wedges.
     """)
 
+    radius_units = SpatialUnits
+
     start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the wedges, as measured from the horizontal.
     """)
 
+    start_angle_units = AngleUnits
+
     end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the wedges, as measured from the horizontal.
     """)
+
+    end_angle_units = AngleUnits
 
     direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.

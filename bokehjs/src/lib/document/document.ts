@@ -25,7 +25,7 @@ import {assert} from "core/util/assert"
 import {Model} from "model"
 import {DocumentConfig} from "./config"
 import type {ModelDef} from "./defs"
-import {decode_def} from "./defs"
+import {decode_def, decode_defs} from "./defs"
 import type {BokehEvent, BokehEventType, BokehEventMap} from "core/bokeh_events"
 import {ModelEvent} from "core/bokeh_events"
 import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
@@ -571,7 +571,7 @@ export class Document implements Equatable {
     const resolver = new ModelResolver(default_resolver)
     if (doc_json.defs != null) {
       const deserializer = new Deserializer(resolver)
-      deserializer.decode(doc_json.defs, buffers)
+      decode_defs(doc_json.defs, deserializer, buffers)
     }
 
     const doc = new Document({resolver})

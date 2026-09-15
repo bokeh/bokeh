@@ -54,6 +54,7 @@ import {
   WMTSTileSource,
   WheelZoomTool,
 } from "@bokehjs/models"
+import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
 import {
   GlobalImportedStyleSheet,
@@ -1980,7 +1981,7 @@ ${view.host_selector} {
   })
 
   describe("in issue #13931", () => {
-    it("updates data without errors when DataTable selections are stale", async () => {
+    it("updates data and prunes stale DataTable selections", async () => {
       const source = new ColumnDataSource({data: {my_col: ["a", "b", "c"]}})
       const columns = [
         new TableColumn({field: "my_col", title: "My Column"}),
@@ -1996,7 +1997,7 @@ ${view.host_selector} {
       source.data = {my_col: ["a", "b"]}
       await view.ready
 
-      expect(source.selected.indices).to.be.equal([1, 2])
+      expect(source.selected.indices).to.be.equal([1])
       expect(view.get_selected_rows()).to.be.equal([1])
     })
   })
@@ -2165,6 +2166,159 @@ ${view.host_selector} {
 
       expect(view.get_selected_rows().slice().sort()).to.be.equal([])
       expect(table.source.selected.indices.slice().sort()).to.be.equal([])
+    })
+  })
+
+  describe("in issue #14593", () => {
+    it("doesn't allow a plot's context menu to work after a toolbar property changed", async () => {
+      const pan = new PanTool()
+      const box_select = new BoxSelectTool()
+
+      const p = fig([300, 300], {tools: [pan, box_select], toolbar_location: null})
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
+
+      const {view} = await display(p)
+
+      // can't simply dispatchEvent() because of browser security
+      const {left, top} = view.el.getBoundingClientRect()
+      const open_menu = () => {
+        view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+        const menu_view = view.get_context_menu({x: 50, y: 50})
+        expect_not_null(menu_view)
+        expect(menu_view.is_open).to.be.true
+        return menu_view
+      }
+      // items are recomputed into new models, so the submenu views must follow
+      const submenus = (menu_view: MenuView) => menu_view.shadow_el.querySelectorAll(".bk-item.bk-menu")
+
+      expect(submenus(open_menu()).length).to.be.equal(2)
+
+      p.toolbar.tools = [pan]
+      await view.ready
+      expect(submenus(open_menu()).length).to.be.equal(1)
+
+      p.toolbar.tools = [pan, new BoxSelectTool()]
+      await view.ready
+      const menu_view = open_menu()
+      expect(submenus(menu_view).length).to.be.equal(2)
+
+      // stale views are removed, not accumulated
+      const submenu_views = menu_view._children_views().filter((view) => view instanceof MenuView)
+      expect(submenu_views.length).to.be.equal(2)
+
+      // icons and tooltips resolve at render time, so a tool's state is
+      // reflected without rebuilding the items
+      const rendered = () => [...menu_view.shadow_el.querySelectorAll<HTMLElement>(".bk-item")]
+        .map((el) => `${el.querySelector(".bk-icon")?.className}|${el.title}`).join()
+      const before = rendered()
+      menu_view.hide()
+      pan.dimensions = "width"
+      open_menu()
+      expect(rendered()).to.not.be.equal(before)
+    })
+  })
+
+  describe("in issue #15345", () => {
+    const x = range(0, 100)
+    const y1 = x.map((xi) => Math.sin(xi/5)*10)
+    const y2 = y1.map((yi) => yi + 5)
+
+    function plot(y_range?: DataRange1d) {
+      const source = new ColumnDataSource({data: {x, y1, y2}})
+      const p = fig([600, 400], {tools: "xpan,xwheel_zoom,reset", active_scroll: "xwheel_zoom", y_range})
+      p.line({field: "x"}, {field: "y1"}, {source, legend_label: "Line 1"})
+      const r2 = p.line({field: "x"}, {field: "y2"}, {source, legend_label: "Line 2"})
+      p.legend.click_policy = "hide"
+      return {p, r2, source}
+    }
+
+    async function toggle_line2(view: PlotView, legend: Legend): Promise<void> {
+      const legend_view = view.views.get_one(legend)
+      await tap(legend_view.shadow_el.querySelectorAll(".bk-item")[1])
+      await view.ready
+    }
+
+    it("doesn't preserve a manually updated y_range when toggling a legend item after x-only zoom", async () => {
+      const {p, r2, source} = plot()
+      const {x_range, y_range, legend} = p
+      const autoscale = new CustomJS({args: {y_range, source}, code: `
+        const i = Math.max(Math.floor(cb_obj.start), 0)
+        const j = Math.min(Math.ceil(cb_obj.end), source.data.y1.length)
+        if (j > i) {
+          const vis_y1 = source.data.y1.slice(i, j)
+          const vis_y2 = source.data.y2.slice(i, j)
+          y_range.start = Math.min(...vis_y1, ...vis_y2) - 1
+          y_range.end = Math.max(...vis_y1, ...vis_y2) + 1
+        }
+      `})
+      x_range.js_property_callbacks = {"change:end": [autoscale]}
+
+      const {view} = await display(p)
+      await actions(view).scroll_up(xy(50, 0), 2)
+      await view.ready
+
+      const i = Math.floor(x_range.start)
+      const j = Math.ceil(x_range.end)
+      const visible = [...y1.slice(i, j), ...y2.slice(i, j)]
+      const expected: [number, number] = [Math.min(...visible) - 1, Math.max(...visible) + 1]
+      expect(y_range.interval).to.be.equal(expected)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.false
+      expect(y_range.interval).to.be.equal(expected)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.true
+      expect(y_range.interval).to.be.equal(expected)
+    })
+
+    it("doesn't auto-range y_range with only_visible=true when toggling a legend item after x-only zoom", async () => {
+      const {p, r2} = plot(new DataRange1d({only_visible: true, range_padding: 0}))
+      const {y_range, legend} = p
+
+      const {view} = await display(p)
+      await actions(view).scroll_up(xy(50, 0), 2)
+      await view.ready
+
+      const both: [number, number] = [Math.min(...y1), Math.max(...y2)]
+      expect(y_range.interval).to.be.similar(both)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.false
+      expect(y_range.interval).to.be.similar([Math.min(...y1), Math.max(...y1)])
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.true
+      expect(y_range.interval).to.be.similar(both)
+    })
+
+    it("doesn't resume auto-ranging of y_range after reset when an endpoint was changed manually", async () => {
+      const source = new ColumnDataSource({data: {x: [0, 1, 2], y: [1, 2, 3]}})
+      const y_range = new DataRange1d({range_padding: 0})
+      const p = fig([200, 200], {y_range})
+      p.line({field: "x"}, {field: "y"}, {source})
+
+      const {view} = await display(p)
+      expect(y_range.interval).to.be.equal([1, 3])
+
+      // data updates are applied asynchronously and schedule a separate paint,
+      // hence awaiting view.ready twice after each of them
+
+      // changing one endpoint freezes both, even when the data changes
+      y_range.end = 10
+      source.data = {x: [0, 1, 2], y: [0, 2, 4]}
+      await view.ready
+      await view.ready
+      expect(y_range.interval).to.be.equal([1, 10])
+
+      view.reset()
+      await view.ready
+      expect(y_range.interval).to.be.equal([0, 4])
+
+      source.data = {x: [0, 1, 2], y: [-1, 2, 5]}
+      await view.ready
+      await view.ready
+      expect(y_range.interval).to.be.equal([-1, 5])
     })
   })
 })

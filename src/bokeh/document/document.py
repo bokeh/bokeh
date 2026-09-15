@@ -51,7 +51,7 @@ from jinja2 import Template
 
 # Bokeh imports
 from ..core.enums import HoldPolicyType
-from ..core.has_props import is_DataModel
+from ..core.has_props import _data_models_in_dependency_order, is_DataModel
 from ..core.query import find, is_single_string_selector
 from ..core.serialization import (
     Deserializer,
@@ -879,7 +879,9 @@ side of a communications channel while it was being removed on the other end.\
         from ..model import Model
         from .json import DocJson
 
-        data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
+        data_models = _data_models_in_dependency_order(
+            model for model in Model.model_class_reverse_map.values() if is_DataModel(model)
+        )
 
         serializer = Serializer(deferred=deferred)
         defs = serializer.encode(data_models)

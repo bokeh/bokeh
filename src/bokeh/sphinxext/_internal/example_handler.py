@@ -59,7 +59,7 @@ class ExampleHandler(Handler):
 
     def __init__(self, source: str, filename: PathLike) -> None:
         super().__init__()
-        self._runner = CodeRunner(source, filename, [])
+        self._runner = CodeRunner(source, filename, ())
 
     def modify_document(self, doc: Document) -> None:
         if self.failed:

@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Literal
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
+from ..util.deprecation import deprecated
 from . import browser as _playwright_backend, webdriver as _selenium_backend
 from .util import default_filename, get_layout_html
 
@@ -102,7 +103,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
             ``WebDriver`` or a Playwright ``Browser`` / ``BrowserContext``
             (e.g. from ``playwright.chromium.launch()`` or
             ``launch_persistent_context()``). The backend is auto-detected
-            from the type of object passed.
+            from the type of object passed. Selenium export is deprecated.
 
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5) (Added in 1.1.1).
@@ -113,8 +114,9 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
 
         backend (ExportBackendType, optional) :
             Which browser backend to use for export. If None, uses the
-            ``BOKEH_EXPORT_BACKEND`` setting (default: auto-detect).
-            Passing a ``webdriver`` instance overrides this setting.
+            ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
+            Passing a ``webdriver`` instance overrides this setting. The
+            Selenium backend is deprecated.
 
     Returns:
         str : the filename where the static file is saved.
@@ -162,8 +164,9 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
         height (int) : the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        webdriver (selenium.webdriver) : a selenium webdriver instance to use
-            to export the image.
+        webdriver (selenium.webdriver or playwright Browser/BrowserContext) :
+            A browser instance to use for export. The backend is auto-detected
+            from the type of object passed. Selenium export is deprecated.
 
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5)
@@ -174,8 +177,9 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
 
         backend (ExportBackendType, optional) :
             Which browser backend to use for export. If None, uses the
-            ``BOKEH_EXPORT_BACKEND`` setting (default: auto-detect).
-            Passing a ``webdriver`` instance forces the Selenium backend.
+            ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
+            Passing a ``webdriver`` instance overrides this setting. The
+            Selenium backend is deprecated.
 
     Returns:
         list[str] : the list of filenames where the SVGs files are saved.
@@ -209,8 +213,9 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
         height (int) : the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        webdriver (selenium.webdriver) : a selenium webdriver instance to use
-            to export the image.
+        webdriver (selenium.webdriver or playwright Browser/BrowserContext) :
+            A browser instance to use for export. The backend is auto-detected
+            from the type of object passed. Selenium export is deprecated.
 
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5) (Added in 1.1.1).
@@ -221,8 +226,9 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
 
         backend (ExportBackendType, optional) :
             Which browser backend to use for export. If None, uses the
-            ``BOKEH_EXPORT_BACKEND`` setting (default: auto-detect).
-            Passing a ``webdriver`` instance forces the Selenium backend.
+            ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
+            Passing a ``webdriver`` instance overrides this setting. The
+            Selenium backend is deprecated.
 
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files are saved.
@@ -257,6 +263,11 @@ def _is_playwright_browser(obj: object) -> bool:
     return isinstance(obj, (sync_api.Browser, sync_api.BrowserContext))
 
 
+def _get_selenium_backend() -> ModuleType:
+    deprecated((4, 0, 0), "Selenium export backend", "Playwright export backend")
+    return _selenium_backend
+
+
 def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | None) -> ModuleType:
     '''Determine which browser backend module to use.
 
@@ -271,20 +282,19 @@ def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | Non
        selenium backend.
     3. If ``backend`` is explicitly specified, use that.
     4. Fall back to the ``BOKEH_EXPORT_BACKEND`` setting.
-    5. If set to "auto" (default), try selenium first, then playwright.
-       This preserves existing behaviour for users who already have
-       selenium installed.
+    5. If set to "auto", try Playwright first, then the deprecated Selenium
+       backend.
     '''
     if driver is not None:
         if _is_playwright_browser(driver):
             return _playwright_backend
-        return _selenium_backend
+        return _get_selenium_backend()
 
     if backend is not None:
         if backend == "playwright":
             return _playwright_backend
         if backend == "selenium":
-            return _selenium_backend
+            return _get_selenium_backend()
         raise ValueError(f"Invalid export backend: {backend!r}. Must be 'selenium' or 'playwright'.")
 
     configured = settings.export_backend()
@@ -292,21 +302,21 @@ def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | Non
     if configured == "playwright":
         return _playwright_backend
     if configured == "selenium":
-        return _selenium_backend
+        return _get_selenium_backend()
     if configured != "auto":
         raise ValueError(
             f"Invalid export backend: {configured!r}. Must be one of 'auto', 'selenium', or 'playwright'.",
         )
 
-    # "auto" — try selenium first (preserves existing behaviour), then playwright
-    if import_optional("selenium") is not None:
-        return _selenium_backend
+    # "auto" — prefer Playwright, then fall back to deprecated Selenium support
     if import_optional("playwright") is not None:
         return _playwright_backend
+    if import_optional("selenium") is not None:
+        return _get_selenium_backend()
 
     raise RuntimeError(
         "Neither Selenium nor Playwright is installed. Install one of:\n"
-        "  pip install playwright && playwright install chromium\n"
+        "  pip install playwright && playwright install --only-shell chromium\n"
         "  pip install selenium  (+ browser driver on PATH)",
     )
 
@@ -322,7 +332,8 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
 
         driver (selenium.webdriver or playwright Browser/BrowserContext) :
             A browser instance to use for export. The backend is
-            auto-detected from the type of object passed.
+            auto-detected from the type of object passed. Selenium export is
+            deprecated.
 
         timeout (int) : the maximum amount of time to wait for initialization.
             It will be used as a timeout for loading Bokeh, then when waiting for
@@ -337,8 +348,9 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
             implicit state is used. (default: None).
 
         backend ("selenium" or "playwright", optional) :
-            Which browser backend to use. If None, auto-detected.
-            Passing a ``driver`` overrides this setting.
+            Which browser backend to use. If None, uses Playwright by default.
+            Passing a ``driver`` overrides this setting. The Selenium backend
+            is deprecated.
 
     Returns:
         PIL.Image.Image : a pillow image loaded from PNG.

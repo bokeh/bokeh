@@ -233,8 +233,8 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
 #-----------------------------------------------------------------------------
 
 # Check whether Bokeh has loaded and created at least one document.
-_BOKEH_LOADED_CHECK = """\
-return typeof Bokeh !== "undefined"
+_BOKEH_LOADED_EXPR = """\
+typeof Bokeh !== "undefined"
     && Bokeh.documents != null
     && Bokeh.documents.length != 0\
 """

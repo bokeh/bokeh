@@ -25,6 +25,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -93,6 +96,17 @@ class Override[T]:
     def __init__(self, *, default: T) -> None:
         self.default_overridden = True
         self.default = default
+
+    def __set_name__(self, owner: type[Any], name: str) -> None:
+        own_overridden_defaults = owner.__dict__.get("__overridden_defaults__")
+        if not isinstance(own_overridden_defaults, dict):
+            own_overridden_defaults = {}
+            setattr(owner, "__overridden_defaults__", own_overridden_defaults)
+
+        if self.default_overridden:
+            own_overridden_defaults[name] = self.default
+        if owner.__dict__.get(name) is self:
+            delattr(owner, name)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from operator import delitem, setitem
+
 # External imports
 import numpy as np
 
@@ -53,6 +56,7 @@ ALL = (
     'AlphaSpec',
     'Angle',
     'AngleSpec',
+    'AngleUnits',
     'Any',
     'AnyRef',
     'Array',
@@ -68,6 +72,8 @@ ALL = (
     'ColumnData',
     'Complex',
     'CoordinateLike',
+    'CoordinateSpec',
+    'CoordinateUnits',
     'DashPattern',
     'DashPatternSpec',
     'DataSpec',
@@ -130,6 +136,7 @@ ALL = (
     'Set',
     'Size',
     'SizeSpec',
+    'SpatialUnits',
     'String',
     'StringSpec',
     'Struct',
@@ -140,7 +147,6 @@ ALL = (
     'TextLike',
     'Tuple',
     'TypeOfAttr',
-    'UnitsSpec',
     'UnsetValueError',
     'expr',
     'field',
@@ -172,7 +178,7 @@ class TestBasic:
         assert f.s is None
 
 
-        assert {"x", "y", "z", "zz", "s"} == f.properties()
+        assert {"x", "y", "z", "zz", "s"} == set(f.properties())
         with_defaults = f.properties_with_values(include_defaults=True)
         assert dict(x=12, y="hello", z=[1,2,3], zz={}, s=None) == with_defaults
         without_defaults = f.properties_with_values(include_defaults=False)
@@ -247,7 +253,7 @@ class TestBasic:
         with pytest.raises(ValueError):
             f.update(y="orange")
 
-    def test_accurate_properties_sets(self) -> None:
+    def test_accurate_properties(self) -> None:
         class Base(HasProps):
             num = Int(12)
             container = List(String)
@@ -270,37 +276,38 @@ class TestBasic:
 
         b = Base()
         assert set(b.properties_with_refs()) == {"child"}
-        assert b.properties() == {"num", "container", "child"}
-        assert list(b.properties(_with_props=True).keys()) == ["num", "container", "child"]
+        assert set(b.properties()) == {"num", "container", "child"}
+        assert list(b.properties()) == ["num", "container", "child"]
+        assert isinstance(b.properties()["num"], Int)
 
         m = Mixin()
         assert set(m.properties_with_refs()) == {"mixin_child"}
-        assert m.properties() == {"mixin_num", "mixin_container", "mixin_child"}
-        assert list(m.properties(_with_props=True).keys()) == ["mixin_num", "mixin_container", "mixin_child"]
+        assert set(m.properties()) == {"mixin_num", "mixin_container", "mixin_child"}
+        assert list(m.properties()) == ["mixin_num", "mixin_container", "mixin_child"]
 
         s = Sub()
         assert set(s.properties_with_refs()) == {"child", "sub_child", "mixin_child"}
-        assert s.properties() == {
+        assert set(s.properties()) == {
             "num", "container", "child",
             "mixin_num", "mixin_container", "mixin_child",
             "sub_num", "sub_container", "sub_child",
         }
-        assert list(s.properties(_with_props=True).keys()) == [
-            "mixin_num", "mixin_container", "mixin_child", # XXX: it would be better if this was on the second line
+        assert list(s.properties()) == [
+            "mixin_num", "mixin_container", "mixin_child",
             "num", "container", "child",
             "sub_num", "sub_container", "sub_child",
         ]
 
         d = Deep()
         assert set(d.properties_with_refs()) == {"child", "sub_child", "mixin_child", "deep_child"}
-        assert d.properties() == {
+        assert set(d.properties()) == {
             "num", "container", "child",
             "mixin_num", "mixin_container", "mixin_child",
             "sub_num", "sub_container", "sub_child",
             "deep_num", "deep_container", "deep_child",
         }
-        assert list(d.properties(_with_props=True).keys()) == [
-            "mixin_num", "mixin_container", "mixin_child", # XXX: it would be better if this was on the second line
+        assert list(d.properties()) == [
+            "mixin_num", "mixin_container", "mixin_child",
             "num", "container", "child",
             "sub_num", "sub_container", "sub_child",
             "deep_num", "deep_container", "deep_child",
@@ -309,7 +316,33 @@ class TestBasic:
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
         assert s.properties() is s.properties()
-        assert s.properties(_with_props=True) is s.properties(_with_props=True)
+
+        properties = s.properties()
+        with pytest.raises(TypeError):
+            delitem(properties, "num")
+        with pytest.raises(TypeError):
+            setitem(properties, "num", Int())
+
+        assert "num" in s.properties()
+
+    def test_multiple_inheritance_property_precedence(self) -> None:
+        class Root(HasProps, Local):
+            shared = Int(default=0)
+            root = Int(default=0)
+
+        class Left(Root):
+            shared = Override(default=1)
+            left = Int(default=1)
+
+        class Right(Root):
+            shared = Override(default=2)
+            right = Int(default=2)
+
+        class Combined(Left, Right):
+            combined = Int(default=3)
+
+        assert list(Combined.properties()) == ["shared", "root", "right", "left", "combined"]
+        assert Combined().shared == 1
 
     def test_accurate_dataspecs(self) -> None:
         class Base(HasProps):

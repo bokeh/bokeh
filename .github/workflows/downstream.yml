@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
   build:
@@ -34,18 +34,17 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: 'downstream'
+          environment: downstream
+          update-packages: 'holoviews panel'
           source-tree: 'delete'
 
-      - name: Install downstream packages
-        run: bash tools/ci/install_downstream_packages.sh
+      - name: Install downstream repositories
+        run: bash tools/ci/install_downstream_repos.sh
 
       - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
+        uses: ./.github/workflows/composite/list-software
+        with:
+          environment: downstream
 
       - name: Run tests
         id: tests

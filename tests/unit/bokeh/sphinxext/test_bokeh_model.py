@@ -3,19 +3,23 @@ from __future__ import annotations
 # Standard library imports
 import inspect
 import posixpath
+import sys
 from io import StringIO
 from pathlib import Path
 from typing import Any, cast
 
 # External imports
+import pytest
 from sphinx.application import Sphinx
 from sphinx.util.inventory import InventoryFile
 
 # Bokeh imports
 import bokeh.models as models
+from bokeh.core.has_props import HasProps, Local
 from bokeh.core.properties import (
     Either,
     Enum,
+    Include,
     Instance,
     Int,
     Nullable,
@@ -78,6 +82,19 @@ Unindented suffix text.
     ))
 
 
+class _IncludeDelegate(HasProps, Local):
+    value = Int(help="Original value documentation.")
+
+
+class _IncludeBase(HasProps, Local):
+    values = Include(_IncludeDelegate, help="{model}.{name} provides its {prop}. {doc}")
+
+
+class _IncludeChild(_IncludeBase):
+    pass
+
+
+@pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
 def test_model_members_separate_properties_and_methods() -> None:
     properties, python_properties, methods = _model_members(Filter)
 
@@ -88,6 +105,7 @@ def test_model_members_separate_properties_and_methods() -> None:
     assert "js_event_callbacks" not in properties
 
 
+@pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
 def test_model_members_handle_inheritance_and_method_kinds() -> None:
     properties, python_properties, methods = _model_members(_MemberChild)
 
@@ -146,6 +164,13 @@ def test_property_detail_normalizes_mixed_help_indentation() -> None:
     assert "\n    Unindented suffix text." in detail
 
 
+def test_property_detail_specializes_inherited_include_help() -> None:
+    detail = _render_property_detail(_IncludeChild(), "_IncludeChild.value", __name__)
+
+    assert "_IncludeChild.value provides its value. Original value documentation." in detail
+    assert "_IncludeBase.value" not in detail
+
+
 def test_property_detail_resolves_string_instance_types() -> None:
     detail = _render_property_detail(_PropertyDetailModel(), "_PropertyDetailModel.complex_type", __name__)
     target = f"{__name__}._LinkedModel"
@@ -188,6 +213,7 @@ def test_model_detail_includes_property_index() -> None:
     assert ":attr:`~bokeh.models.Filter.document`" in detail
 
 
+@pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
 def test_model_build_registers_inventory_members_and_template_dependencies(tmp_path: Path) -> None:
     source_dir = tmp_path / "source"
     output_dir = tmp_path / "output"
@@ -253,3 +279,54 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
 
     dependencies = {Path(dependency).name for dependency in app.env.dependencies["index"]}
     assert {"model_detail.rst", "prop_detail.rst"} <= dependencies
+
+
+def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None:
+    source_dir = tmp_path / "source"
+    output_dir = tmp_path / "output"
+    doctree_dir = tmp_path / "doctrees"
+    image_dir = source_dir / "_images"
+    image_dir.mkdir(parents=True)
+
+    for name in ("bevel_join", "butt_cap", "miter_join", "round_cap", "round_join", "square_cap"):
+        (image_dir / f"{name}.png").write_bytes(b"")
+
+    docs_source_dir = Path(__file__).parents[4] / "docs" / "bokeh" / "source"
+    rst_epilog = (docs_source_dir / "rst_epilog.txt").read_text(encoding="utf-8")
+    line_props = (docs_source_dir / "docs" / "includes" / "line_props.rst").read_text(encoding="utf-8")
+    (source_dir / "line_props.rst").write_text(line_props, encoding="utf-8")
+    (source_dir / "conf.py").write_text(
+        "extensions = [\n"
+        "    'sphinx.ext.autodoc',\n"
+        "    'sphinx_design',\n"
+        "    'bokeh.sphinxext._internal.bokeh_model',\n"
+        "]\n"
+        "project = 'bokeh-model-substitution-test'\n"
+        f"rst_epilog = {rst_epilog!r}\n",
+        encoding="utf-8",
+    )
+    (source_dir / "index.rst").write_text(
+        "Arrow API\n"
+        "=========\n\n"
+        ".. include:: line_props.rst\n\n"
+        ".. bokeh-model:: Arrow\n"
+        "    :module: bokeh.models.annotations\n",
+        encoding="utf-8",
+    )
+
+    status = StringIO()
+    warning = StringIO()
+    app = Sphinx(
+        srcdir=source_dir,
+        confdir=source_dir,
+        outdir=output_dir,
+        doctreedir=doctree_dir,
+        buildername="html",
+        status=status,
+        warning=warning,
+        freshenv=True,
+    )
+
+    app.build()
+    assert app.statuscode == 0, warning.getvalue()
+    assert "Undefined substitution" not in warning.getvalue()

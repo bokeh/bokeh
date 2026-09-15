@@ -184,7 +184,7 @@ class Test__get_or_create_legend:
 
         with pytest.raises(RuntimeError) as e:
             bpl._get_or_create_legend(plot, None)
-            assert str(e).endswith('configured with more than one legend renderer, cannot use legend_* convenience arguments')
+        assert 'configured with more than one legend renderer, cannot use legend_* convenience arguments' in str(e.value)
 
     def test_legend_name(self) -> None:
         p = figure()

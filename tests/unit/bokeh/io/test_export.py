@@ -17,9 +17,14 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import re
 import sys
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, Literal
 
 # External imports
 import PIL.Image
@@ -49,8 +54,10 @@ from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.themes import Theme
 from bokeh.util.dependencies import is_installed
+from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
+import bokeh.io.browser as bib # isort:skip
 import bokeh.io.export as bie # isort:skip
 
 #-----------------------------------------------------------------------------
@@ -59,6 +66,15 @@ import bokeh.io.export as bie # isort:skip
 
 _has_selenium = is_installed("selenium")
 _has_playwright = is_installed("playwright")
+
+_webdriver_params = [
+    pytest.param("chromium", marks=pytest.mark.xdist_group(name="export-chromium")),
+    pytest.param("firefox", marks=pytest.mark.xdist_group(name="export-firefox")),
+]
+
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:'Selenium export backend' was deprecated.*:bokeh.util.warnings.BokehDeprecationWarning",
+)
 
 if not _has_selenium and not _has_playwright:
     pytest.skip("Neither Selenium nor Playwright is installed", allow_module_level=True)
@@ -77,7 +93,7 @@ def browser():
             browser.close()
 
 
-@pytest.fixture(scope="module", params=["chromium", "firefox"])
+@pytest.fixture(scope="module", params=_webdriver_params)
 def webdriver(request: pytest.FixtureRequest):
     if not _has_selenium:
         pytest.skip("Selenium not installed")
@@ -89,7 +105,7 @@ def webdriver(request: pytest.FixtureRequest):
         webdriver_control.terminate(driver)
 
 
-@pytest.fixture(scope="module", params=["chromium", "firefox"])
+@pytest.fixture(scope="module", params=_webdriver_params)
 def webdriver_with_scale_factor(request: pytest.FixtureRequest):
     if not _has_selenium:
         pytest.skip("Selenium not installed")
@@ -312,10 +328,17 @@ def test_get_svg_with_implicit_document_and_theme(webdriver: WebDriver) -> None:
 
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
+    if not _has_selenium:
+        pytest.skip("Selenium not installed")
+    from bokeh.io.webdriver import webdriver_control
+
     layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
-    with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svgs(layout)
+    try:
+        with silenced(MISSING_RENDERERS):
+            svgs = bie.get_svgs(layout, backend="selenium")
+    finally:
+        webdriver_control.reset()
 
     assert svgs == []
 
@@ -377,6 +400,21 @@ def test_get_svgs_with_Legend__issue_14502(webdriver: WebDriver) -> None:
 
 
 # -- Playwright-backend tests -------------------------------------------------
+
+def _call_in_fresh_thread[T](context: Literal["sync", "async"], fn: Callable[[], T]) -> T:
+    def call() -> T:
+        if context == "sync":
+            return fn()
+
+        async def call_async() -> T:
+            return fn()
+
+        with asyncio.Runner(loop_factory=asyncio.SelectorEventLoop) as runner:
+            return runner.run(call_async())
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        return executor.submit(call).result(timeout=60)
+
 
 @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
 class TestPlaywrightPNG:
@@ -473,12 +511,61 @@ class TestPlaywrightSVG:
         assert "Legend Item: red" in svgs[0]
         assert "Legend Item: blue" in svgs[1]
 
+
+@pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
+@pytest.mark.parametrize("contexts", [("sync", "async"), ("async", "sync")])
+def test_implicit_playwright_browser_across_execution_contexts__issues_15401_15402(
+    tmp_path: Path,
+    contexts: tuple[Literal["sync", "async"], Literal["sync", "async"]],
+) -> None:
+    layout = Plot(
+        x_range=Range1d(), y_range=Range1d(),
+        toolbar_location=None, height=20, width=20,
+        min_border=0, outline_line_color=None,
+        border_fill_color=None, background_fill_color="red",
+        output_backend="canvas",
+    )
+
+    suffix = "-".join(contexts)
+    svg_path = tmp_path / f"plot-{suffix}.svg"
+    png_path = tmp_path / f"plot-{suffix}.png"
+
+    def export_svg() -> list[str]:
+        with silenced(MISSING_RENDERERS):
+            return bie.export_svg(layout, filename=svg_path, backend="playwright")
+
+    def export_png() -> str:
+        with silenced(MISSING_RENDERERS):
+            return bie.export_png(layout, filename=png_path, backend="playwright")
+
+    async def browser_identity() -> int:
+        assert bib.playwright_control._browser is not None
+        return id(bib.playwright_control._browser)
+
+    bib._cleanup()
+    try:
+        svg_filenames = _call_in_fresh_thread(contexts[0], export_svg)
+        first_browser = bib._playwright_thread.run(browser_identity)
+        png_filename = _call_in_fresh_thread(contexts[1], export_png)
+        second_browser = bib._playwright_thread.run(browser_identity)
+    finally:
+        bib._cleanup()
+
+    assert svg_filenames == [str(svg_path)]
+    assert 'fill="red"' in svg_path.read_text()
+    assert png_filename == str(png_path)
+    with PIL.Image.open(png_filename) as png:
+        assert png.size == (20, 20)
+    assert first_browser == second_browser
+
+
 # -- Backend resolution tests --------------------------------------------------
 
 class TestResolveBackend:
 
     def test_driver_forces_selenium(self) -> None:
-        assert bie._resolve_backend(driver="fake_driver", backend=None) is bie._selenium_backend
+        with pytest.warns(BokehDeprecationWarning, match="Selenium export backend"):
+            assert bie._resolve_backend(driver="fake_driver", backend=None) is bie._selenium_backend
 
     @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
     def test_playwright_browser_forces_playwright(self, browser: Browser) -> None:
@@ -486,7 +573,31 @@ class TestResolveBackend:
 
     def test_explicit_backend_param(self) -> None:
         assert bie._resolve_backend(driver=None, backend="playwright") is bie._playwright_backend
-        assert bie._resolve_backend(driver=None, backend="selenium") is bie._selenium_backend
+        with pytest.warns(BokehDeprecationWarning, match="Selenium export backend"):
+            assert bie._resolve_backend(driver=None, backend="selenium") is bie._selenium_backend
+
+    def test_auto_prefers_playwright(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        calls: list[str] = []
+
+        def import_optional(name: str) -> object:
+            calls.append(name)
+            return object()
+
+        monkeypatch.setattr(bie, "settings", SimpleNamespace(export_backend=lambda: "auto"))
+        monkeypatch.setattr(bie, "import_optional", import_optional)
+
+        assert bie._resolve_backend(driver=None, backend=None) is bie._playwright_backend
+        assert calls == ["playwright"]
+
+    def test_auto_falls_back_to_deprecated_selenium(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        def import_optional(name: str) -> object | None:
+            return None if name == "playwright" else object()
+
+        monkeypatch.setattr(bie, "settings", SimpleNamespace(export_backend=lambda: "auto"))
+        monkeypatch.setattr(bie, "import_optional", import_optional)
+
+        with pytest.warns(BokehDeprecationWarning, match="Selenium export backend"):
+            assert bie._resolve_backend(driver=None, backend=None) is bie._selenium_backend
 
     def test_invalid_backend_raises(self) -> None:
         with pytest.raises(ValueError, match="Invalid export backend"):

@@ -334,12 +334,14 @@ tools/backport/
 
 ## Validation
 
-From the Bokeh checkout, use the required Bokeh development environment:
+From the Bokeh checkout, use the locked Pixi development environment:
 
 ```bash
-conda run -n dev313 python -m pytest tests/tools/backport
-conda run -n dev313 ruff check tools/backport tests/tools/backport
-conda run -n dev313 ruff format --check tools/backport tests/tools/backport
+pixi install --locked
+pixi run setup
+pixi run python -m pytest tests/tools/backport
+pixi run ruff check tools/backport tests/tools/backport
+pixi run ruff format --check tools/backport tests/tools/backport
 ```
 
 Exercise the repository entry point:

@@ -31,7 +31,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
-from .singletons import Intrinsic
+from .singletons import _NotGiven
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -57,16 +57,16 @@ class TypeOfAttr[T](SingleParameterizedProperty[T]):
         name: str,
         type: TypeOrInst[Property[Any]],
         *,
-        default: Init[T] = Intrinsic,
+        default: Init[T] = _NotGiven,
         help: str | None = None,
     ) -> None:
         super().__init__(type_param, default=default, help=help)
         self._query_name = name
         self._query_type = self._validate_type_param(type)
 
-    def __call__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> TypeOfAttr[T]:
+    def __call__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> TypeOfAttr[T]:
         """ Clone this property and allow to override ``default`` and ``help``. """
-        default = self._default if default is Intrinsic else default
+        default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
         prop = self.__class__(self.type_param, self._query_name, self._query_type, default=default, help=help)
         prop.alternatives = list(self.alternatives)

@@ -265,6 +265,8 @@ class Serializer:
             return obj.to_serializable(self)
         elif (encoder := self._encoders.get(type(obj))) is not None:
             return encoder(obj, self)
+        elif isinstance(obj, type) and (encoder := self._encoders.get(type)) is not None:
+            return encoder(obj, self)
         elif obj is None:
             return None
         elif isinstance(obj, bool):

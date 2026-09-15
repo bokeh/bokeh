@@ -1,0 +1,8 @@
+Figure bbox=[0, 0, 320, 220]
+  Canvas bbox=[0, 0, 320, 220]
+  CartesianFrame bbox=[5, 5, 310, 210]
+  LinearAxis bbox=[5, 215, 310, 0]
+  LinearAxis bbox=[5, 5, 0, 210]
+  ColorBar bbox=[62, 80, 197, 61]
+    LinearAxis bbox=[72, 115, 160, 16]
+    Title bbox=[232, 90, 17, 25]

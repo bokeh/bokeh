@@ -31,13 +31,13 @@ from typing import TYPE_CHECKING, Any
 from ..core.has_props import HasProps, abstract
 from ..core.property.any import AnyRef
 from ..core.property.auto import Auto
-from ..core.property.bases import Init
+from ..core.property.bases import ModelInit
 from ..core.property.container import Dict
 from ..core.property.either import Either
 from ..core.property.instance import Instance
 from ..core.property.primitive import Bool, String
 from ..core.property.required import Required
-from ..core.property.singletons import Intrinsic
+from ..core.property.singletons import _NotGiven
 from ..core.validation import error
 from ..core.validation.errors import INVALID_PROPERTY_VALUE, NOT_A_PROPERTY_OF
 from ..model import Model
@@ -247,8 +247,14 @@ class SetValue(Callback):
     """ Allows to update a property of an object. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, value: Init[Any] = Intrinsic, **kwargs: Any) -> None:
-        super().__init__(obj=obj, attr=attr, value=value, **kwargs)
+    def __init__(self, obj: ModelInit[HasProps] = _NotGiven, attr: ModelInit[str] = _NotGiven, value: ModelInit[Any] = _NotGiven, **kwargs: Any) -> None:
+        if obj is not _NotGiven:
+            kwargs["obj"] = obj
+        if attr is not _NotGiven:
+            kwargs["attr"] = attr
+        if value is not _NotGiven:
+            kwargs["value"] = value
+        super().__init__(**kwargs)
 
     obj: HasProps = Required(Instance(HasProps), help="""
     Object to set the value on.

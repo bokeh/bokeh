@@ -27,7 +27,7 @@ from typing import Any
 # Bokeh imports
 from ... import colors
 from .. import enums
-from .bases import Init, Property
+from .bases import Init, Property, TypeOrInst
 from .container import Tuple
 from .either import Either
 from .enum import Enum
@@ -85,7 +85,9 @@ class RGB(Property[colors.RGB]):
         raise ValueError(msg)
 
 
-class Color(Either):
+type ColorType = str | tuple[int, int, int] | tuple[int, int, int, float] | int | colors.RGB
+
+class Color(Either[ColorType]):
     """ Accept color values in a variety of ways.
 
     * If a color is provided as a string, Bokeh determines whether this string
@@ -139,14 +141,14 @@ class Color(Either):
 
     def __init__(
         self,
-        default: Init[str | tuple[int, int, int] | tuple[int, int, int, float]] = Undefined,
+        default: Init[ColorType] = Undefined,
         *,
         help: str | None = None,
     ) -> None:
         number = r"(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)(\.\d+)?"
         comma = r"(\s*,\s*)"
         alpha = r"([01](\.\d*)?)"
-        types = (Enum(enums.NamedColor),
+        types: tuple[TypeOrInst[Property[Any]], ...] = (Enum(enums.NamedColor),
                  Regex(r"^#[0-9a-fA-F]{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),
                  Regex(r"^#[0-9a-fA-F]{6}$"),

@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from inspect import Parameter
+from textwrap import dedent
 from typing import Any
 
 # Bokeh imports
@@ -78,7 +79,8 @@ def _add_arglines(arglines: list[str], param: Parameter, typ: str, doc: str | No
 
     # add the docs for the argument
     if doc:
-        arglines += [f"    {x}" for x in doc.rstrip().strip("\n").split("\n")]
+        for line in dedent(doc).strip().splitlines():
+            arglines.append(f"        {line}" if line else "")
 
     # if there is a default, add it last
     if arglines and default is not None:

@@ -9,7 +9,7 @@ cp "dist/bokeh-$VERSION.tar.gz" /tmp
 pushd /tmp
 tar xvzf "bokeh-$VERSION.tar.gz"
 cd "bokeh-$VERSION"
-pip install .
+python -m pip install --no-deps .
 popd
 
 bokeh info

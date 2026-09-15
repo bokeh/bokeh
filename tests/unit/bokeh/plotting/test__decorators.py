@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from inspect import signature
+from inspect import Parameter, signature
 from unittest import mock
 
 # Bokeh imports
@@ -83,6 +83,23 @@ def test__marker_method_keeps_metadata() -> None:
     assert fn.__name__ == foo.__name__
     assert fn.__doc__ == expected_doc
     assert signature(fn).return_annotation == signature(foo).return_annotation
+
+
+@pytest.mark.parametrize("doc", [
+    "First paragraph.\n\nSecond paragraph.",
+    "\n    First paragraph.\n\n    Second paragraph.\n",
+])
+def test_glyph_docstring_parameter_indentation(doc: str) -> None:
+    param = Parameter("value", kind=Parameter.KEYWORD_ONLY)
+    generated = generate_docstring(Marker, [(param, "str", doc)], None)
+
+    assert """\
+Keyword args:
+    value (str):
+        First paragraph.
+
+        Second paragraph.
+""" in generated
 
 
 #-----------------------------------------------------------------------------

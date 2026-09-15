@@ -86,7 +86,7 @@ class TestProperty:
         p.asserts(False, "false")
         with pytest.raises(ValueError) as e:
                 p.prepare_value(hp, "foo", 10)
-                assert str(e) == "false"
+        assert str(e.value) == "false"
 
     def test_assert_functions(self) -> None:
         hp = HasProps()
@@ -100,7 +100,7 @@ class TestProperty:
         p.asserts(lambda obj, value: False, "false")
         with pytest.raises(ValueError) as e:
                 p.prepare_value(hp, "foo", 10)
-                assert str(e) == "false"
+        assert str(e.value) == "false"
 
     def test_assert_msg_funcs(self) -> None:
         hp = HasProps()
@@ -113,7 +113,7 @@ class TestProperty:
 
         with pytest.raises(ValueError) as e:
                 p.prepare_value(hp, "foo", 10)
-                assert str(e) == "bad True name, 10"
+        assert str(e.value) == "bad True foo 10"
 
     def test_matches_basic_types(self, capsys: Capture) -> None:
         p = bcpb.Property()

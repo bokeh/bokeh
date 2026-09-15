@@ -1,11 +1,14 @@
 import {expect, expect_not_null} from "#framework/assertions"
 
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
-import type {ModelDef} from "@bokehjs/document/defs"
+import {decode_defs, type ModelDef} from "@bokehjs/document/defs"
 import {Model} from "@bokehjs/model"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import type * as p from "@bokehjs/core/properties"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {BYTE_ORDER} from "@bokehjs/core/util/platform"
+import {unique_id} from "@bokehjs/core/util/string"
 import {ColumnDataSource} from "@bokehjs/models"
 
 type int = number
@@ -124,7 +127,7 @@ describe("document/defs module", () => {
         type: "model",
         name: "some.Some1",
         properties: [
-          {name: "prop0", kind: ["Regex", "^[a-z][a-z0-9]*"], default: "a0"},
+          {name: "prop0", kind: ["Regex", "(?P<word>foo)"], default: "foo"},
           {name: "prop1", kind: ["Nullable", "Int"], default: null},
           {name: "prop2", kind: ["Or", "Int", "Str"], default: 1},
           {name: "prop3", kind: ["Tuple", "Int", "Str"], default: [1, "a"]},
@@ -177,7 +180,7 @@ describe("document/defs module", () => {
       const resolver = new ModelResolver(default_resolver)
       const deserializer = new Deserializer(resolver)
 
-      const models = deserializer.decode(defs) as (typeof Model)[]
+      const models = decode_defs(defs, deserializer)
 
       expect(models).to.be.instanceof(Array)
       expect(models.length).to.be.equal(5)
@@ -270,7 +273,10 @@ describe("document/defs module", () => {
 
       expect(some0.tags).to.be.equal(["some", "default", "tags"])
 
-      expect(some1.prop0).to.be.equal("a0")
+      expect(some1.prop0).to.be.equal("foo")
+      expect(`${some1.properties.prop0.kind}`).to.be.equal("Regex((?P<word>foo))")
+      expect(new Some1({prop0: "doesn't match"}).prop0).to.be.equal("doesn't match")
+      expect(() => new Some1({prop0: 10 as any})).to.throw()
       expect(some1.prop1).to.be.equal(null)
       expect(some1.prop2).to.be.equal(1)
       expect(some1.prop3).to.be.equal([1, "a"])
@@ -283,7 +289,7 @@ describe("document/defs module", () => {
 
       expect(some1.tags).to.be.equal([])
 
-      expect(some2.prop0).to.be.equal("a0")
+      expect(some2.prop0).to.be.equal("foo")
       expect(some2.prop1).to.be.equal(null)
       expect(some2.prop2).to.be.equal("a")
       expect(some2.prop3).to.be.equal([1, "a"])
@@ -305,6 +311,68 @@ describe("document/defs module", () => {
       expect(some4.data).to.be.equal({default_column: [3, 4, 5]})
       expect(some4.prop0).to.be.equal(2)
       expect(some4.prop1).to.be.equal([0, 1, 2])
+    })
+
+    it("that resolves forward defaults and self-referential kinds", () => {
+      const defs: ModelDef[] = [{
+        type: "model",
+        name: "some.First",
+        properties: [{
+          name: "payload",
+          kind: "Any",
+          default: {type: "object", name: "some.Later", id: "later001"},
+        }],
+      }, {
+        type: "model",
+        name: "some.Later",
+        properties: [{
+          name: "child",
+          kind: ["Nullable", ["Ref", {id: "some.Later"}]],
+          default: null,
+        }],
+      }]
+
+      const resolver = new ModelResolver(default_resolver)
+      const deserializer = new Deserializer(resolver)
+      decode_defs(defs, deserializer)
+
+      const First = resolver.get("some.First")! as any
+      const Later = resolver.get("some.Later")! as any
+      const first = new First()
+      const later = new Later()
+
+      expect(first.payload).to.be.instanceof(Later)
+      expect(later.child).to.be.equal(null)
+      expect(new Later({child: later} as any)).to.be.instanceof(Later)
+    })
+
+    it("that resolves buffered defaults", () => {
+      const buffer_id = unique_id()
+      const values = new Float64Array([1.25, -2.5, 3.75])
+      const defs: ModelDef[] = [{
+        type: "model",
+        name: "some.Buffered",
+        properties: [{
+          name: "payload",
+          kind: "Any",
+          default: {
+            type: "ndarray",
+            array: {type: "bytes", data: {id: buffer_id}},
+            order: BYTE_ORDER,
+            dtype: "float64",
+            shape: [values.length],
+          },
+        }],
+      }]
+
+      const resolver = new ModelResolver(default_resolver)
+      const deserializer = new Deserializer(resolver)
+      decode_defs(defs, deserializer, new Map([[buffer_id, values.buffer]]))
+
+      const Buffered = resolver.get("some.Buffered")! as any
+      const buffered = new Buffered()
+      expect(buffered.payload).to.be.instanceof(Float64NDArray)
+      expect(buffered.payload).to.be.equal(values)
     })
   })
 })

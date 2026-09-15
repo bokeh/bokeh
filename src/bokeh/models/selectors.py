@@ -25,10 +25,10 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.property.bases import Init
+from ..core.property.bases import ModelInit
 from ..core.property.primitive import String
 from ..core.property.required import Required
-from ..core.property.singletons import Intrinsic
+from ..core.property.singletons import _NotGiven
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -58,8 +58,10 @@ class ByID(Selector):
     """ Represents a CSS ID selector query. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, query: Init[str] = Intrinsic, **kwargs: Any) -> None:
-        super().__init__(query=query, **kwargs)
+    def __init__(self, query: ModelInit[str] = _NotGiven, **kwargs: Any) -> None:
+        if query is not _NotGiven:
+            kwargs["query"] = query
+        super().__init__(**kwargs)
 
     query = Required(String, help="""
     Element CSS ID without ``#`` prefix. Alternatively use ``ByCSS("#id")``.
@@ -69,8 +71,10 @@ class ByClass(Selector):
     """ Represents a CSS class selector query. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, query: Init[str] = Intrinsic, **kwargs: Any) -> None:
-        super().__init__(query=query, **kwargs)
+    def __init__(self, query: ModelInit[str] = _NotGiven, **kwargs: Any) -> None:
+        if query is not _NotGiven:
+            kwargs["query"] = query
+        super().__init__(**kwargs)
 
     query = Required(String, help="""
     CSS class name without ``.`` prefix. Alternatively use ``ByCSS(".class")``.
@@ -80,8 +84,10 @@ class ByCSS(Selector):
     """ Represents a CSS selector query. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, query: Init[str] = Intrinsic, **kwargs: Any) -> None:
-        super().__init__(query=query, **kwargs)
+    def __init__(self, query: ModelInit[str] = _NotGiven, **kwargs: Any) -> None:
+        if query is not _NotGiven:
+            kwargs["query"] = query
+        super().__init__(**kwargs)
 
     query = Required(String, help="""
     CSS selector query (see https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors).
@@ -91,8 +97,10 @@ class ByXPath(Selector):
     """ Represents an XPath selector query. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, query: Init[str] = Intrinsic, **kwargs: Any) -> None:
-        super().__init__(query=query, **kwargs)
+    def __init__(self, query: ModelInit[str] = _NotGiven, **kwargs: Any) -> None:
+        if query is not _NotGiven:
+            kwargs["query"] = query
+        super().__init__(**kwargs)
 
     query = Required(String, help="""
     XPath selector query (see https://developer.mozilla.org/en-US/docs/Web/XPath).

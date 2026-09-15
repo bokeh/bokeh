@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
+
+context:
+  version: ${{ env.get("VERSION") }}
+
+package:
+  name: bokeh
+  version: ${{ version }}
+
+source:
+  - path: ../../dist/bokeh-${{ version }}-py3-none-any.whl
+  - path: ../../LICENSE.txt
+
+build:
+  number: 0
+  string: py_0
+  noarch: python
+  python:
+    entry_points:
+      - bokeh = bokeh.__main__:main
+  script:
+    - python -m pip install --no-deps --no-build-isolation -vv *.whl
+
+requirements:
+  host:
+    - python >=3.12
+    - pip
+  run:
+    - python >=3.12
+    # Keep these constraints synchronized with [project.dependencies].
+    - jinja2 >=2.9
+    - narwhals >=1.13
+    - numpy >=1.16
+    - packaging >=16.8
+    - pillow >=7.1.0
+    - pyyaml >=3.10
+    - tornado >=6.2
+    - xyzservices >=2021.09.1
+
+tests:
+  - python:
+      imports:
+        - bokeh
+      pip_check: true
+  - script:
+      - bokeh info
+
+about:
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: Interactive plots and applications in the browser from Python
+  homepage: https://bokeh.org
+  documentation: https://docs.bokeh.org
+  repository: https://github.com/bokeh/bokeh
+
+extra:
+  channels:
+    - bokeh
+    - conda-forge

@@ -13,6 +13,41 @@ describe("core/util/array module", () => {
     expect(b).to.be.equal([0, 1, 2])
   })
 
+  it("inplace_filter should retain matching values in order", () => {
+    const values = [0, 1, 2, 3, 4]
+
+    array.inplace_filter(values, (value) => value % 2 == 0)
+
+    expect(values).to.be.equal([0, 2, 4])
+  })
+
+  it("inplace_filter should support empty, unchanged, and fully removed arrays", () => {
+    const empty: number[] = []
+    const unchanged = [0, 1, 2]
+    const removed = [0, 1, 2]
+
+    array.inplace_filter(empty, () => true)
+    array.inplace_filter(unchanged, () => true)
+    array.inplace_filter(removed, () => false)
+
+    expect(empty).to.be.empty
+    expect(unchanged).to.be.equal([0, 1, 2])
+    expect(removed).to.be.empty
+  })
+
+  it("inplace_filter should pass original indices to the predicate", () => {
+    const values = ["a", "b", "c", "d"]
+    const indices: number[] = []
+
+    array.inplace_filter(values, (_value, index) => {
+      indices.push(index)
+      return index >= 2
+    })
+
+    expect(indices).to.be.equal([0, 1, 2, 3])
+    expect(values).to.be.equal(["c", "d"])
+  })
+
   it("concat should append all arrays", () => {
     const a = [0, 1, 2]
     const b = [1, 5, 2]

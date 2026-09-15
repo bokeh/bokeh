@@ -1,0 +1,49 @@
+build:
+  - 'docs/**'
+  - 'bokehjs/**'
+  - 'src/**'
+  - 'examples/**'
+
+codebase:
+  - 'src/**'
+  - 'examples/**'
+
+typing:
+  - 'src/**'
+
+tools:
+  - 'tools/**'
+  - '!tools/ci/**'
+  - 'src/**'
+
+examples:
+  - 'src/**'
+  - 'examples/**'
+
+unit_test:
+  - 'src/**'
+
+minimal_deps:
+  - 'src/**'
+
+core_deps:
+  - 'src/**'
+
+documentation:
+  - 'docs/**'
+  - 'src/**'
+  - 'examples/**'
+
+bokehjs:
+  - 'bokehjs/**'
+
+full:
+  - '**'
+  - '!docs/**'
+  - '!tools/**'
+  - '!bokehjs/**'
+  - '!src/**'
+  - '!examples/**'
+
+ci:
+  - 'tools/ci/**'

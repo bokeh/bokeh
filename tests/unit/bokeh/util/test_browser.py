@@ -82,7 +82,7 @@ def test_get_browser_controller_value_with_env(mock_get: MagicMock) -> None:
 def test_view_bad_new() -> None:
     with pytest.raises(RuntimeError) as e:
         bub.view("foo", new="junk") # type: ignore
-        assert str(e) == "invalid 'new' value passed to view: 'junk', valid values are: 'same', 'window', or 'tab'"
+    assert str(e.value) == "invalid 'new' value passed to view: 'junk', valid values are: 'same', 'window', or 'tab'"
 
 def test_view_args() -> None:
     db = bub.DummyWebBrowser

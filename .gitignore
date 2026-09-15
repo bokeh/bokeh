@@ -35,10 +35,10 @@
 /win-64
 
 # dev files
+/.pixi
 *.patch
 *.diff
 *.rej
-/bokeh-build-config.pickle
 
 # common editor cruft
 .#*

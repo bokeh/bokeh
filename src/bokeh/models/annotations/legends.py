@@ -36,6 +36,7 @@ from ...core.enums import (
     Location,
     Orientation,
     VAlign,
+    VerticalAlign,
 )
 from ...core.has_props import abstract
 from ...core.property.aliases import CoordinateLike
@@ -144,6 +145,15 @@ class BaseColorBar(Annotation):
     The title text to render.
     """)
 
+    title_orientation = Either(Enum(Orientation), Auto, default="auto", help="""
+    Whether the color bar's title should be oriented vertically or horizontally.
+    When set to ``"auto"``, the orientation is inferred from ``title_location``.
+    """)
+
+    title_location = Either(Enum(Location), Auto, default="auto", help="""
+    Specifies on which side of the color bar the title will be located.
+    """)
+
     title_props = Include(ScalarTextProps, prefix="title", help="""
     The {prop} values for the title text.
     """)
@@ -151,6 +161,14 @@ class BaseColorBar(Annotation):
     title_text_font_size = Override(default="13px")
 
     title_text_font_style = Override(default="italic")
+
+    title_text_halign = Enum(HAlign, default="left", help="""
+    Specifies where to align color bar's title horizontally.
+    """)
+
+    title_text_valign = Enum(VerticalAlign, default="bottom", help="""
+    Specifies where to align color bar's title vertically.
+    """)
 
     title_standoff = Int(2, help="""
     The distance (in pixels) to separate the title from the color bar.
@@ -177,8 +195,10 @@ class BaseColorBar(Annotation):
     Amount of margin (in pixels) around the outside of the color bar.
     """)
 
-    padding = Int(10, help="""
+    padding = Padding(default=10, help="""
     Amount of padding (in pixels) between the color scale and color bar border.
+    This can also be specified as a tuple in the form (padding_top, padding_right,
+    padding_bottom, padding_left) to set individual padding values for each side.
     """)
 
     major_label_props = Include(ScalarTextProps, prefix="major_label", help="""

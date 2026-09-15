@@ -2,7 +2,6 @@ from __future__ import annotations
 
 # Standard library imports
 import os
-import pickle
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
@@ -22,10 +21,9 @@ from tools.release.action import (
 )
 from tools.release.config import Config
 from tools.release.enums import ActionResult, VersionType
-from tools.release.logger import LOG, Log, Scrubber
 from tools.release.pipeline import Pipeline, is_check
 from tools.release.system import System
-from tools.release.util import load_config, save_config, skip_for_prerelease
+from tools.release.util import skip_for_prerelease
 
 
 @pytest.mark.parametrize(
@@ -113,18 +111,6 @@ def test_config_tracks_new_and_modified_files() -> None:
     assert config.modified == {"old.json"}
 
 
-def test_config_registers_and_protects_secrets(capsys: pytest.CaptureFixture[str]) -> None:
-    config = Config("4.0.0")
-
-    config.add_secret("TOKEN", "very-secret")
-    LOG.record("token=very-secret")
-
-    assert config.secrets == {"TOKEN": "very-secret"}
-    assert "very-secret" not in capsys.readouterr().out
-    with pytest.raises(RuntimeError):
-        config.add_secret("TOKEN", "other")
-
-
 @pytest.mark.parametrize(
     ("result_type", "kind", "marker"),
     [
@@ -157,107 +143,6 @@ def test_ui_banner_and_task() -> None:
     assert "release" in banner
     assert banner.count("=" * 80) == 2
     assert ui.task("work") == "\n------ work"
-
-
-def test_scrubber_repr_length_and_clean() -> None:
-    scrubber = Scrubber("secret", name="TOKEN")
-
-    assert len(scrubber) == 6
-    assert repr(scrubber) == "Scrubber(..., name='TOKEN')"
-    assert scrubber.clean("a secret value") == "a <xxxxx> value"
-
-
-def test_scrubber_custom_replacement_repr() -> None:
-    scrubber = Scrubber("secret", name="TOKEN", replacement="[redacted]")
-
-    assert "replacement='[redacted]'" in repr(scrubber)
-    assert scrubber.clean("secret") == "[redacted]"
-
-
-def test_log_records_multiline_text_and_ranges(capsys: pytest.CaptureFixture[str]) -> None:
-    log = Log()
-
-    first = log.record("one\ntwo")
-    second = log.record("three")
-
-    assert first == (0, 2)
-    assert second == (2, 3)
-    assert log.dump() == "one\ntwo\nthree"
-    assert log.dump(start=1, end=3) == "two\nthree"
-    assert capsys.readouterr().out == "one\ntwo\nthree\n"
-
-
-def test_log_scrubs_before_printing_and_dumping(capsys: pytest.CaptureFixture[str]) -> None:
-    log = Log()
-    log.add_scrubber(Scrubber("secret", name="TOKEN"))
-
-    log.record("secret")
-    log._record.append("secret")
-
-    assert capsys.readouterr().out == "<xxxxx>\n"
-    assert log.dump() == "<xxxxx>\n<xxxxx>"
-
-
-def test_log_scrubs_longer_overlapping_secrets_first(capsys: pytest.CaptureFixture[str]) -> None:
-    log = Log()
-    log.add_scrubber(Scrubber("token", name="SHORT_TOKEN"))
-    log.add_scrubber(Scrubber("token-suffix", name="LONG_TOKEN"))
-
-    log.record("token token-suffix")
-
-    assert capsys.readouterr().out == "<xxxxx> <xxxxx>\n"
-    assert log.dump() == "<xxxxx> <xxxxx>"
-
-
-def test_log_filters_ansi_and_can_preserve_it() -> None:
-    log = Log()
-    log.record("\x1b[31mred\x1b[0m")
-
-    assert log.dump() == "red"
-    assert log.dump(filter_ansi=False) == "\x1b[31mred\x1b[0m"
-
-
-def test_log_clear_only_clears_records() -> None:
-    log = Log()
-    log.add_scrubber(Scrubber("secret", name="TOKEN"))
-    log.record("before")
-
-    log.clear()
-    log.record("secret")
-
-    assert log.dump() == "<xxxxx>"
-
-
-def test_save_and_load_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.chdir(tmp_path)
-    config = Config("4.0.0")
-    config.add_modified("file")
-
-    save_config(config)
-    loaded = load_config()
-
-    assert loaded.version == "4.0.0"
-    assert loaded.modified == {"file"}
-    with open("bokeh-build-config.pickle", "rb") as file:
-        assert isinstance(pickle.load(file), Config)
-
-
-def test_load_config_restores_secret_scrubbers(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    monkeypatch.chdir(tmp_path)
-    config = Config("4.0.0")
-    config.add_secret("TOKEN", "persisted-secret")
-    save_config(config)
-    LOG._scrubbers = []
-
-    loaded = load_config()
-    LOG.record("token=persisted-secret")
-
-    assert loaded.secrets == {"TOKEN": "persisted-secret"}
-    assert capsys.readouterr().out == "token=<xxxxx>\n"
 
 
 def test_skip_for_prerelease_marks_function() -> None:
@@ -351,23 +236,25 @@ def test_pipeline_executes_steps_in_order() -> None:
     assert called == ["first", "second"]
 
 
-def test_pipeline_skips_checks_for_dry_run() -> None:
+def test_pipeline_skips_checks_for_dry_run(caplog: pytest.LogCaptureFixture) -> None:
     def check_never(config: Config, system: System) -> ActionReturn:
         pytest.fail("check was called")
 
-    Pipeline((check_never,), Config("4.0.0"), RecordingSystem(dry_run=True)).execute()
+    with caplog.at_level("INFO", logger="tools.release"):
+        Pipeline((check_never,), Config("4.0.0"), RecordingSystem(dry_run=True)).execute()
 
-    assert "skipped for dry run" in LOG.dump()
+    assert "skipped for dry run" in caplog.text
 
 
-def test_pipeline_skips_marked_prerelease_steps() -> None:
+def test_pipeline_skips_marked_prerelease_steps(caplog: pytest.LogCaptureFixture) -> None:
     @skip_for_prerelease
     def never(config: Config, system: System) -> ActionReturn:
         pytest.fail("step was called")
 
-    Pipeline((never,), Config("4.0.0rc1"), RecordingSystem()).execute()
+    with caplog.at_level("INFO", logger="tools.release"):
+        Pipeline((never,), Config("4.0.0rc1"), RecordingSystem()).execute()
 
-    assert "skipped for pre-releases" in LOG.dump()
+    assert "skipped for pre-releases" in caplog.text
 
 
 def test_pipeline_aborts_on_first_failure() -> None:

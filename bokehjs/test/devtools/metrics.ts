@@ -22,6 +22,18 @@ export class MetricsCollector {
     }
   }
 
+  checkpoint(): {[key in MetricKeys]: number} {
+    return Object.fromEntries(
+      Object.entries(this.metrics).map(([key, values]) => [key, values.length]),
+    ) as {[key in MetricKeys]: number}
+  }
+
+  restore(checkpoint: {[key in MetricKeys]: number}): void {
+    for (const key of Object.keys(this.metrics) as MetricKeys[]) {
+      this.metrics[key].length = checkpoint[key]
+    }
+  }
+
   get_metrics(): {[key in MetricKeys]: number[]} {
     return this.metrics
   }

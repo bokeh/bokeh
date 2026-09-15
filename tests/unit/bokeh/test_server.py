@@ -48,7 +48,7 @@ class TestServer:
 
     def test_address(self) -> None:
         asyncio.set_event_loop(asyncio.new_event_loop())
-        server = Server(Application(), address='0.0.0.0')
+        server = Server(Application(), address='0.0.0.0', port=0)
         assert server.address == '0.0.0.0'
         server.unlisten()
         server.stop()

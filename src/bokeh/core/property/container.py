@@ -45,10 +45,10 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
-from .descriptors import ColumnDataPropertyDescriptor, PropertyDescriptor
+from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
-from .singletons import Intrinsic, Undefined
+from .singletons import Undefined, _NotGiven
 from .wrappers import (
     PropertyValueColumnData,
     PropertyValueDict,
@@ -133,10 +133,8 @@ class List[T](Seq[T, list[T]]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[list[T]] = [], help: str | None = None) -> None:
-        # TODO: refactor to not use mutable objects as default values.
-        # Left in place for now because we want to allow None to express
-        # optional values. Also in Dict.
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[list[T]] = _NotGiven, help: str | None = None) -> None:
+        default = [] if default is _NotGiven else default
         super().__init__(item_type, default=default, help=help)
 
     @overload
@@ -165,10 +163,8 @@ class Set[T](Seq[T, set[T]]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[set[T]] = set(), help: str | None = None) -> None:
-        # TODO: refactor to not use mutable objects as default values.
-        # Left in place for now because we want to allow None to express
-        # optional values. Also in Dict.
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[set[T]] = _NotGiven, help: str | None = None) -> None:
+        default = set() if default is _NotGiven else default
         super().__init__(item_type, default=default, help=help)
 
     @overload
@@ -209,7 +205,8 @@ class Dict[K, V](ContainerProperty[dict[K, V]]):
     """
 
     def __init__(self, keys_type: TypeOrInst[Property[K]], values_type: TypeOrInst[Property[V]], *,
-            default: Init[dict[K, V]] = {}, help: str | None = None) -> None:
+            default: Init[dict[K, V]] = _NotGiven, help: str | None = None) -> None:
+        default = {} if default is _NotGiven else default
         super().__init__(keys_type, values_type, default=default, help=help)
 
     @property
@@ -271,21 +268,16 @@ class ColumnData(Dict[str, Any]):
 
     """
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptor[Any]]:
-        """ Return a list of ``ColumnDataPropertyDescriptor`` instances to
-        install on a class, in order to delegate attribute access to this
-        property.
+    def make_descriptor(self, name: str) -> ColumnDataPropertyDescriptor:
+        """Return the descriptor used to delegate access to column data.
 
         Args:
             name (str) : the name of the property these descriptors are for
 
         Returns:
-            list[ColumnDataPropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+            ColumnDataPropertyDescriptor
         """
-        return [ ColumnDataPropertyDescriptor(name, self) ]
+        return ColumnDataPropertyDescriptor(name, self)
 
     def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
         from ...document.events import ColumnDataChangedEvent, ColumnsStreamedEvent
@@ -341,7 +333,8 @@ class RelativeDelta(Dict[str, int]):
 
     """
 
-    def __init__(self, default: Init[dict[str, int]] = {}, *, help: str | None = None) -> None:
+    def __init__(self, default: Init[dict[str, int]] = _NotGiven, *, help: str | None = None) -> None:
+        default = {} if default is _NotGiven else default
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super().__init__(keys, values, default=default, help=help)
@@ -355,7 +348,8 @@ class RestrictedDict[K, V](Dict[K, V]):
     """
 
     def __init__(self, keys_type: TypeOrInst[Property[Any]], values_type: TypeOrInst[Property[Any]], disallow: Iterable[Any],
-            default: Init[dict[K, V]] = {}, *, help: str | None = None) -> None:
+            default: Init[dict[K, V]] = _NotGiven, *, help: str | None = None) -> None:
+        default = {} if default is _NotGiven else default
         self._disallow = set(disallow)
         super().__init__(keys_type=keys_type, values_type=values_type, default=default, help=help)
 
@@ -371,7 +365,7 @@ class RestrictedDict[K, V](Dict[K, V]):
 class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only non-empty containers. """
 
-    def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = Intrinsic,
+    def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
@@ -385,7 +379,7 @@ class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
 class Len[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only containers of the given length. """
 
-    def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = Intrinsic,
+    def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
         self.length = length

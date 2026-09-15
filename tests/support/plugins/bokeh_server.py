@@ -22,10 +22,16 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
+import socket
 import subprocess
 import sys
 import time
-from typing import IO, Any, Callable
+from typing import (
+    IO,
+    Any,
+    Callable,
+    Iterator,
+)
 
 # External imports
 import pytest
@@ -52,8 +58,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @pytest.fixture(scope='session')
-def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> str:
+def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> Iterator[str]:
     bokeh_port: int = request.config.option.bokeh_port
+    worker_input = getattr(request.config, "workerinput", None)
+    if worker_input is not None:
+        with socket.socket() as sock:
+            sock.bind(("127.0.0.1", 0))
+            bokeh_port = sock.getsockname()[1]
 
     cmd = [sys.executable, "-m", "bokeh", "serve"]
     argv = [f"--port={bokeh_port}"]

@@ -20,6 +20,7 @@ declare type TestSettings = {
 declare type It = ItDecl & {
   skip: Decl
   allowing: (settings: number | TestSettings) => Decl
+  timeout: (timeout: number) => Decl
   dpr: (dpr: number) => Decl
   scale: (scale: number) => Decl
   no_image: Decl

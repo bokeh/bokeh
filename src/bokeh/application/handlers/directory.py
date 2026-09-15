@@ -55,7 +55,7 @@ from os.path import (
     exists,
     join,
 )
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Sequence
 
 # External imports
 from jinja2 import Environment, FileSystemLoader, Template
@@ -107,12 +107,12 @@ class DirectoryHandler(Handler):
     _static: str | None
     _template: Template | None
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = []) -> None:
+    def __init__(self, *, filename: PathLike, argv: Sequence[str] = ()) -> None:
         '''
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
 
-            argv (list[str], optional) : a list of string arguments to make available as sys.argv to main.py
+            argv (Sequence[str], optional) : a sequence of string arguments to make available as sys.argv to main.py
         '''
         super().__init__()
 

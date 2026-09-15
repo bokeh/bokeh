@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 # Bokeh imports
 from ...util.callback_manager import _check_callback
@@ -56,14 +56,14 @@ class ServerLifecycleHandler(LifecycleHandler):
 
     '''
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: Sequence[str] = (), package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:
             filename (str) : path to a module to load lifecycle callbacks from
 
-            argv (list[str], optional) : a list of string arguments to use as
-                ``sys.argv`` when the callback code is executed. (default: [])
+            argv (Sequence[str], optional) : a sequence of string arguments to use as
+                ``sys.argv`` when the callback code is executed. (default: ())
 
         '''
         super().__init__()

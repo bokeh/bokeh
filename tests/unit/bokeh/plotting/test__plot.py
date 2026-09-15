@@ -144,6 +144,15 @@ class Test_get_range:
         assert r.start == 1.2
         assert r.end == 10
 
+    @pytest.mark.parametrize("bounds", [(None, 10), (1.2, None), (None, None)])
+    def test_with_missing_bounds(self, bounds) -> None:
+        r = bpp.get_range(bounds)
+        assert isinstance(r, Range1d)
+        if bounds[0] is not None:
+            assert r.start == bounds[0]
+        if bounds[1] is not None:
+            assert r.end == bounds[1]
+
         r = bpp.get_range([1.2, 10])
         assert isinstance(r, Range1d)
         assert r.start == 1.2

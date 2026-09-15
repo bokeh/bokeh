@@ -29,7 +29,7 @@ from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init, Property
 from .either import Either
 from .primitive import Int, String
-from .singletons import Intrinsic
+from .singletons import _NotGiven
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,7 +43,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Enum(Either):
+class Enum[T: str | int](Either[T]):
     """ Accept values from enumerations.
 
     The first value in enumeration is used as the default value, unless the
@@ -53,18 +53,14 @@ class Enum(Either):
 
     """
 
-    _enum: enums.Enumeration
+    _enum: enums.Enumeration[T]
 
     @overload
-    def __init__(self, enum: enums.Enumeration, *, default: Init[str] = ..., help: str | None = ...) -> None: ...
+    def __init__(self, enum: enums.Enumeration[T], *, default: Init[T] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__(self, enum: str, *values: str, default: Init[str] = ..., help: str | None = ...) -> None: ...
-    @overload
-    def __init__(self, enum: enums.Enumeration, *, default: Init[int] = ..., help: str | None = ...) -> None: ...
-    @overload
-    def __init__(self, enum: int, *values: int, default: Init[int] = ..., help: str | None = ...) -> None: ...
+    def __init__(self, enum: T, *values: T, default: Init[T] = ..., help: str | None = ...) -> None: ...
 
-    def __init__(self, enum: str | int | enums.Enumeration, *values: str | int, default: Init[str | int] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, enum: T | enums.Enumeration[T], *values: T, default: Init[T] = _NotGiven, help: str | None = None) -> None:
         if isinstance(enum, (str, int)):
             self._enum = enums.enumeration(enum, *values)
         elif values:
@@ -72,12 +68,12 @@ class Enum(Either):
         else:
             self._enum = enum
 
-        default = default if default is not Intrinsic else self._enum._default
+        default = default if default is not _NotGiven else self._enum._default
         super().__init__(String, Int, default=default, help=help)
 
-    def __call__(self, *, default: Init[str | int] = Intrinsic, help: str | None = None) -> Enum:
+    def __call__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> Enum[T]:
         """ Clone this property and allow to override ``default`` and ``help``. """
-        default = self._default if default is Intrinsic else default
+        default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
         prop = self.__class__(self._enum, default=default, help=help)
         prop.alternatives = list(self.alternatives)
@@ -90,7 +86,7 @@ class Enum(Either):
         return f"{class_name}({allowed_values})"
 
     @property
-    def allowed_values(self) -> list[str | int]:
+    def allowed_values(self) -> list[T]:
         return self._enum._values
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -124,7 +120,7 @@ class Enum(Either):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Enum)
-def _sphinx_type(obj: Enum) -> str:
+def _sphinx_type(obj: Enum[Any]) -> str:
     # try to return a link to a proper enum in bokeh.core.enums if possible
     if obj._enum in enums.__dict__.values():
         for name, value in enums.__dict__.items():

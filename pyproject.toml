@@ -62,7 +62,7 @@ extra = [
     "pandas >=2.0",
 ]
 export = [
-    "selenium ~=4.2",
+    "playwright >=1.49",
 ]
 all = [
     "bokeh[sampledata,extra,export]",
@@ -96,6 +96,7 @@ markers = [
 ]
 filterwarnings = [
     "error",
+    '''ignore:assertions not in test modules or plugins will be ignored because assert statements are not executed by the underlying Python interpreter.*:pytest.PytestConfigWarning''',
     '''ignore:Module already imported so cannot be rewritten. tests\.support\.plugins\.project:pytest.PytestAssertRewriteWarning''',
     '''ignore:Properties {'name'} in class ModelThatOverridesName were previously declared on a parent class\. .*:RuntimeWarning''',
     '''ignore:Jupyter is migrating its paths to use standard platformdirs.*:DeprecationWarning''',
@@ -171,7 +172,7 @@ lint.exclude = [
     'node_modules',
 ]
 lint.per-file-ignores = {"__init__.py" = ["F403"]}
-lint.select = ["B", "COM", "E", "F", "NPY", "PLC0414", "RUF", "TID", "UP", "W"]
+lint.select = ["B", "COM", "E", "F", "NPY", "PLC0414", "PT012", "RUF", "TID", "UP", "W"]
 lint.ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults

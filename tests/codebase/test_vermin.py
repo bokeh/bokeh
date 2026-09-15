@@ -18,11 +18,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os import chdir
 from subprocess import run
 
 # External imports
-import toml
+import tomllib
 
 # Bokeh imports
 from tests.support.util.project import TOP_PATH
@@ -32,11 +31,10 @@ from tests.support.util.project import TOP_PATH
 #-----------------------------------------------------------------------------
 
 def test_vermin() -> None:
-    chdir(TOP_PATH)
-    pyproject = toml.load(TOP_PATH / "pyproject.toml")
+    pyproject = tomllib.loads((TOP_PATH / "pyproject.toml").read_text(encoding="utf-8"))
     minpy = pyproject["project"]["requires-python"].lstrip(">=")
-    cmd = ["vermin", "--eval-annotations", "--no-tips", f"-t={minpy}", "-vvv", "--lint", "--exclude-regex", "\\.pyi$", "src/bokeh"]
-    proc = run(cmd, capture_output=True)
+    cmd = ["vermin", "--processes=4", "--eval-annotations", "--no-tips", f"-t={minpy}", "-vvv", "--lint", "--exclude-regex", "\\.pyi$", "src/bokeh"]
+    proc = run(cmd, cwd=TOP_PATH, capture_output=True)
     assert proc.returncode == 0, f"vermin issues:\n{proc.stdout.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------
