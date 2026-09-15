@@ -26,16 +26,12 @@ export class LinearAxis extends ContinuousAxis {
   declare ticker: ContinuousTicker
   declare formatter: BasicTickFormatter
 
-  constructor(attrs?: Partial<LinearAxis.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = LinearAxisView
 
     this.override<LinearAxis.Props>({
-      ticker:    () => new BasicTicker(),
-      formatter: () => new BasicTickFormatter(),
+      ticker:    () => BasicTicker.create(),
+      formatter: () => BasicTickFormatter.create(),
     })
   }
 }

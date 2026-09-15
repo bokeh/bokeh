@@ -16,10 +16,6 @@ export class Figure extends Plot {
   declare properties: Figure.Props
   declare __view_type__: FigureView
 
-  constructor(attrs?: Partial<Figure.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = FigureView
   }

@@ -16,10 +16,6 @@ export interface NumericalRange extends NumericalRange.Attrs {}
 export abstract class NumericalRange extends Range {
   declare properties: NumericalRange.Props
 
-  constructor(attrs?: Partial<NumericalRange.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<NumericalRange.Props, NumericalRange>(({Float}) => ({
       start: [ Float, p.unset, {

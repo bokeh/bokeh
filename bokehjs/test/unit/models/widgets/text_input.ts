@@ -6,7 +6,7 @@ import {ValueSubmit} from "@bokehjs/core/bokeh_events"
 
 describe("TextInput", () => {
   it("should support ValueSubmit event", async () => {
-    const input = new TextInput({value: ""})
+    const input = TextInput.create({value: ""})
     const values: string[] = []
     input.on_event(ValueSubmit, (event) => {
       values.push(event.value)

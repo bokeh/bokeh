@@ -130,10 +130,6 @@ export class Plot extends LayoutDOM {
 
   readonly reset = new Signal0(this, "reset")
 
-  constructor(attrs?: Partial<Plot.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PlotView
 
@@ -147,7 +143,7 @@ export class Plot extends LayoutDOM {
     ])
 
     this.define<Plot.Props>(({Bool, Float, Str, List, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
-      toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
+      toolbar:           [ Ref(Toolbar), () => Toolbar.create() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Bool, true ],
       toolbar_inner:     [ Bool, false ],
@@ -158,7 +154,7 @@ export class Plot extends LayoutDOM {
 
       // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
       title:             [ Or(Ref(Title), Str, Null), "", {
-        convert: (title) => isString(title) ? new Title({text: title}) : title,
+        convert: (title) => isString(title) ? Title.create({text: title}) : title,
       }],
       title_location:    [ Nullable(Location), "above" ],
 
@@ -170,11 +166,11 @@ export class Plot extends LayoutDOM {
 
       renderers:         [ List(Ref(Renderer)), [] ],
 
-      x_range:           [ Ref(Range), () => new DataRange1d() ],
-      y_range:           [ Ref(Range), () => new DataRange1d() ],
+      x_range:           [ Ref(Range), () => DataRange1d.create() ],
+      y_range:           [ Ref(Range), () => DataRange1d.create() ],
 
-      x_scale:           [ Ref(Scale), () => new LinearScale() ],
-      y_scale:           [ Ref(Scale), () => new LinearScale() ],
+      x_scale:           [ Ref(Scale), () => LinearScale.create() ],
+      y_scale:           [ Ref(Scale), () => LinearScale.create() ],
 
       extra_x_ranges:    [ Dict(Ref(Range)), {} ],
       extra_y_ranges:    [ Dict(Ref(Range)), {} ],
@@ -246,9 +242,9 @@ export class Plot extends LayoutDOM {
     this.renderers = [...this.renderers, ...renderers]
   }
 
-  add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph, source: ColumnarDataSource = new ColumnDataSource(),
+  add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph, source: ColumnarDataSource = ColumnDataSource.create(),
       attrs: Partial<GlyphRenderer.Attrs<BaseGlyph>> = {}): GlyphRenderer<BaseGlyph> {
-    const renderer = new GlyphRenderer({...attrs, data_source: source, glyph})
+    const renderer = GlyphRenderer.create({...attrs, data_source: source, glyph})
     this.add_renderers(renderer)
     return renderer
   }

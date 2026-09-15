@@ -17,20 +17,20 @@ describe("HoverTool", () => {
       fill_alpha: 0.5,
     })
 
-    const grid = new Div({
-      style: new Styles({
+    const grid = Div.create({
+      style: Styles.create({
         display: "grid",
         grid_template_columns: "auto auto",
         column_gap: "10px",
       }),
       children: [
-        "index:",  new Div({children: ["#", new Index()]}),
-        "(x, y):", new Div({children: ["(", new ValueRef({field: "x"}), ", ", new ValueRef({field: "y"}), ")"]}),
-        "radius:", new ValueRef({field: "radius", format: "%.2f", formatter: "printf"}),
+        "index:",  Div.create({children: ["#", Index.create()]}),
+        "(x, y):", Div.create({children: ["(", ValueRef.create({field: "x"}), ", ", ValueRef.create({field: "y"}), ")"]}),
+        "radius:", ValueRef.create({field: "radius", format: "%.2f", formatter: "printf"}),
       ],
     })
 
-    const hover_templated = new HoverTool({
+    const hover_templated = HoverTool.create({
       description: "Templated hover",
       tooltips: grid,
       attachment: "left",
@@ -38,7 +38,7 @@ describe("HoverTool", () => {
     })
     p.add_tools(hover_templated)
 
-    const hover_regular = new HoverTool({
+    const hover_regular = HoverTool.create({
       description: "Regular hover",
       tooltips: [
         ["index", "$index"],
@@ -75,7 +75,7 @@ describe("HoverTool", () => {
       hover_fill_color: "midnightblue", hover_alpha: 0.5, hover_line_color: "white",
     })
 
-    const hover = new HoverTool({tooltips: null, renderers: [sr], mode})
+    const hover = HoverTool.create({tooltips: null, renderers: [sr], mode})
     p.add_tools(hover)
 
     return await display(p)
@@ -100,7 +100,7 @@ describe("HoverTool", () => {
     const r1 = p.step(x, y1, "before", {line_width: 1, color: "red", name: "before"})
     const r2 = p.step(x, y2, "after", {line_width: 1, color: "green", name: "after"})
     const r3 = p.step(x, y3, "center", {line_width: 1, color: "blue", name: "center"})
-    const hover = new HoverTool({
+    const hover = HoverTool.create({
       tooltips: [
         ["mode", "$name"],
         ["x", "@x{0.00}"],

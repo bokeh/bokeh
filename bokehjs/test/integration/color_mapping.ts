@@ -94,12 +94,12 @@ describe("Color mapping", () => {
 
     function eqhist_mapped_plot(data: Float64NDArray) {
       const palette = Plasma256
-      const color_mapper = new EqHistColorMapper({palette})
+      const color_mapper = EqHistColorMapper.create({palette})
 
       const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
       p.image({image: [data], x: 0, y: 0, dw: 10, dh: 10, color_mapper})
 
-      const color_bar = new ColorBar({
+      const color_bar = ColorBar.create({
         color_mapper,
         ticker: "auto",
         formatter: "auto",
@@ -169,9 +169,9 @@ describe("Color mapping", () => {
         ]
       }
 
-      const mapper = new LinearColorMapper({palette: Plasma256, low_color: "white", high_color: "black"})
+      const mapper = LinearColorMapper.create({palette: Plasma256, low_color: "white", high_color: "black"})
 
-      const range = () => new Range1d({start: 0, end: 100})
+      const range = () => Range1d.create({start: 0, end: 100})
 
       const p0 = fig([250, 250], {x_range: range(), y_range: range()})
       const [x0, y0, r0] = data_flat(0.8)
@@ -255,11 +255,11 @@ describe("Color mapping", () => {
       const p = fig([250, 200], {output_backend, title: output_backend})
 
       const alpha_palette = varying_alpha_palette(cbar_color, 6, start_alpha)
-      const alpha_mapper = new EqHistColorMapper({palette: alpha_palette, rescale_discrete_levels})
-      const color_mapper = new WeightedStackColorMapper({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
+      const alpha_mapper = EqHistColorMapper.create({palette: alpha_palette, rescale_discrete_levels})
+      const color_mapper = WeightedStackColorMapper.create({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
       p.image_stack({image: [array], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
 
-      const color_bar = new ColorBar({color_mapper})
+      const color_bar = ColorBar.create({color_mapper})
       p.add_layout(color_bar, "right")
 
       return p

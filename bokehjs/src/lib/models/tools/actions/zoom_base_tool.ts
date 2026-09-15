@@ -111,10 +111,6 @@ export abstract class ZoomBaseTool extends PlotActionTool {
   declare properties: ZoomBaseTool.Props
   declare __view_type__: ZoomBaseToolView
 
-  constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ZoomBaseTool.Props>(({Percent, Or, List, Ref, Auto, NonNegative, Int}) => ({
       factor:     [ Percent,    0.1    ],

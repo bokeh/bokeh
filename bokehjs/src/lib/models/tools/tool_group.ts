@@ -15,10 +15,6 @@ export class ToolGroup<T extends Tool> extends ToolProxy<T> {
   declare properties: ToolGroup.Props<T>
   declare __view_type__: ToolView
 
-  constructor(attrs?: Partial<ToolGroup.Attrs<T>>) {
-    super(attrs)
-  }
-
   static {
     this.define<ToolGroup.Props<Tool>>(({Bool}) => ({
       show_count: [ Bool, false ],

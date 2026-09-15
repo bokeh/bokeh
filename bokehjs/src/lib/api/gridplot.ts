@@ -79,7 +79,7 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn,
         computed.push(group[0])
       } else {
         const merged = merge?.(cls, group)
-        computed.push(merged ?? new ToolProxy({tools: group}))
+        computed.push(merged ?? ToolProxy.create({tools: group}))
       }
     }
   }
@@ -140,13 +140,13 @@ export function gridplot(children: GridPlotItem[] | GridPlotItem[][] | Matrix<Gr
   function merge(_cls: typeof Tool, group: Tool[]) {
     const tool = group[0]
     if (tool instanceof SaveTool) {
-      return new SaveTool()
+      return SaveTool.create()
     } else if (tool instanceof CopyTool) {
-      return new CopyTool()
+      return CopyTool.create()
     } else if (tool instanceof ExamineTool) {
-      return new ExamineTool()
+      return ExamineTool.create()
     } else if (tool instanceof FullscreenTool) {
-      return new FullscreenTool()
+      return FullscreenTool.create()
     } else {
       return null
     }
@@ -192,7 +192,7 @@ export function gridplot(children: GridPlotItem[] | GridPlotItem[][] | Matrix<Gr
   const active_tap = assert_unique(active_taps, "active_tap")
   const active_multi = assert_unique(active_multis, "active_multi")
 
-  const toolbar = new Toolbar({
+  const toolbar = Toolbar.create({
     tools,
     logo,
     autohide,
@@ -204,7 +204,7 @@ export function gridplot(children: GridPlotItem[] | GridPlotItem[][] | Matrix<Gr
     // TODO ...toolbar_options,
   })
 
-  const gp = new GridPlot({
+  const gp = GridPlot.create({
     children: items,
     toolbar,
     toolbar_location,

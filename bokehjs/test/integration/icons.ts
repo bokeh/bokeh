@@ -82,7 +82,7 @@ describe("Icons", () => {
       .filter(([name]) => name != "default")
       .map(([, icon]) => div({class: ["test-icon", icon]}))
 
-    const container = new FlexDiv({stylesheets: [css, icons_css], children})
+    const container = FlexDiv.create({stylesheets: [css, icons_css], children})
     await display(container, null)
   })
 })

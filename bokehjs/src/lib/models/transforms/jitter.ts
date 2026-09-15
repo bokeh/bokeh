@@ -31,10 +31,6 @@ export class Jitter extends RangeTransform {
 
   protected _previous_offsets: Float64Array | null = null
 
-  constructor(attrs?: Partial<Jitter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Jitter.Props>(({Float}) => ({
       mean:         [ Float, 0 ],

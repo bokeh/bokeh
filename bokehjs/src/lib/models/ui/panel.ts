@@ -70,10 +70,6 @@ export class Panel extends Pane {
   declare properties: Panel.Props
   declare __view_type__: PanelView
 
-  constructor(attrs?: Partial<Panel.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PanelView
 

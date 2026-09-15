@@ -1,5 +1,5 @@
 import * as Numbro from "@bokeh/numbro"
-import {_} from "underscore.template"
+import _ from "underscore.template/lib/underscore.template.js"
 
 import * as p from "core/properties"
 import {div, i} from "core/dom"
@@ -23,10 +23,6 @@ export interface CellFormatter extends CellFormatter.Attrs {}
 
 export abstract class CellFormatter extends Model {
   declare properties: CellFormatter.Props
-
-  constructor(attrs?: Partial<CellFormatter.Attrs>) {
-    super(attrs)
-  }
 
   doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     if (value == null) {
@@ -54,10 +50,6 @@ export interface StringFormatter extends StringFormatter.Attrs {}
 
 export class StringFormatter extends CellFormatter {
   declare properties: StringFormatter.Props
-
-  constructor(attrs?: Partial<StringFormatter.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<StringFormatter.Props>(({Str}) => ({
@@ -179,10 +171,6 @@ export interface ScientificFormatter extends ScientificFormatter.Attrs {}
 export class ScientificFormatter extends StringFormatter {
   declare properties: ScientificFormatter.Props
 
-  constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ScientificFormatter.Props>(({Float}) => ({
       precision:        [ Float, 10 ],
@@ -245,10 +233,6 @@ export interface NumberFormatter extends NumberFormatter.Attrs {}
 export class NumberFormatter extends StringFormatter {
   declare properties: NumberFormatter.Props
 
-  constructor(attrs?: Partial<NumberFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<NumberFormatter.Props>(({Str}) => ({
       format:     [ Str,           "0,0"   ],
@@ -296,10 +280,6 @@ export interface BooleanFormatter extends BooleanFormatter.Attrs {}
 export class BooleanFormatter extends CellFormatter {
   declare properties: BooleanFormatter.Props
 
-  constructor(attrs?: Partial<BooleanFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BooleanFormatter.Props>(({Str}) => ({
       icon: [ Str, "check" ],
@@ -323,10 +303,6 @@ export interface DateFormatter extends DateFormatter.Attrs {}
 
 export class DateFormatter extends StringFormatter {
   declare properties: DateFormatter.Props
-
-  constructor(attrs?: Partial<DateFormatter.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<DateFormatter.Props>(({Str}) => ({
@@ -415,10 +391,6 @@ export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
 
 export class HTMLTemplateFormatter extends CellFormatter {
   declare properties: HTMLTemplateFormatter.Props
-
-  constructor(attrs?: Partial<HTMLTemplateFormatter.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<HTMLTemplateFormatter.Props>(({Str}) => ({

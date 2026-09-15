@@ -20,10 +20,6 @@ export abstract class GuideRenderer extends Renderer {
   declare properties: GuideRenderer.Props
   declare __view_type__: GuideRendererView
 
-  constructor(attrs?: Partial<GuideRenderer.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<GuideRenderer.Props>({
       level: "guide",

@@ -42,10 +42,6 @@ export class TextAreaInput extends TextLikeInput {
   declare properties: TextAreaInput.Props
   declare __view_type__: TextAreaInputView
 
-  constructor(attrs?: Partial<TextAreaInput.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TextAreaInputView
 

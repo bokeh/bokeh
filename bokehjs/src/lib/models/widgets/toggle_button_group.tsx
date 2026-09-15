@@ -74,10 +74,6 @@ export abstract class ToggleButtonGroup extends OrientedControl {
   declare properties: ToggleButtonGroup.Props
   declare __view_type__: ToggleButtonGroupView
 
-  constructor(attrs?: Partial<ToggleButtonGroup.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ToggleButtonGroup.Props>(({Str, List}) => ({
       labels:      [ List(Str), [] ],

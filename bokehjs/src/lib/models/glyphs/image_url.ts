@@ -297,10 +297,6 @@ export class ImageURL extends XYGlyph {
   declare properties: ImageURL.Props
   declare __view_type__: ImageURLView
 
-  constructor(attrs?: Partial<ImageURL.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ImageURLView
 

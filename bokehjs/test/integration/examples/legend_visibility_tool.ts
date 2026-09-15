@@ -35,10 +35,10 @@ describe("Examples", () => {
 
     const legends = [p1.legend, p2.legend]
 
-    const toggle_legend = new CustomAction({
+    const toggle_legend = CustomAction.create({
       icon: ".bk-tool-icon-list",
       description: "Toggle legend",
-      callback: new CustomJS({
+      callback: CustomJS.create({
         args: {legends},
         code: `
         export default ({legends}) => {

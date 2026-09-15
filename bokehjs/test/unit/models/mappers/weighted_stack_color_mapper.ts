@@ -15,8 +15,8 @@ describe("WeightedStackColorMapper module", () => {
     function get_rgba_mapped(start_alpha: number = 40, nan_color: string = "#0000",
         rescale_discrete_levels: boolean = false, color_baseline: number | null = null) {
       const alpha_palette = varying_alpha_palette("black", 6, start_alpha)
-      const alpha_mapper = new EqHistColorMapper({palette: alpha_palette, rescale_discrete_levels})
-      const color_mapper = new WeightedStackColorMapper({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
+      const alpha_mapper = EqHistColorMapper.create({palette: alpha_palette, rescale_discrete_levels})
+      const color_mapper = WeightedStackColorMapper.create({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
       const rgba_mapper = color_mapper.rgba_mapper
       return Array.from(rgba_mapper.v_compute(array))  // Cannot directly compare Uint8ClampedArray
     }

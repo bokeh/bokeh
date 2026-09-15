@@ -12,9 +12,5 @@ export interface Callback extends Callback.Attrs {}
 export abstract class Callback extends Model implements Executable<unknown, any, unknown> {
   declare properties: Callback.Props
 
-  constructor(attrs?: Partial<Callback.Attrs>) {
-    super(attrs)
-  }
-
   abstract execute(cb_obj: unknown, cb_data?: {[key: string]: unknown}): unknown | Promise<unknown>
 }

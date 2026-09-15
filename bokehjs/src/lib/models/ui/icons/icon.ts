@@ -24,10 +24,6 @@ export abstract class Icon extends UIElement {
   declare properties: Icon.Props
   declare __view_type__: IconView
 
-  constructor(attrs?: Partial<Icon.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Icon.Props>(({Float, Or, CSSLength}) => ({
       size: [ Or(Float, CSSLength), "1em" ],

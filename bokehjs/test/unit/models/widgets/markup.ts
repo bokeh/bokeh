@@ -26,7 +26,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "test$$"})
+        const div = Div.create({text: "test$$"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("test$$")
@@ -39,7 +39,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "$$test"})
+        const div = Div.create({text: "$$test"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("$$test")
@@ -52,7 +52,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "$$test$$"})
+        const div = Div.create({text: "$$test$$"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("<svg display=\"true\">test</svg>")
@@ -65,7 +65,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "$$tex$$text"})
+        const div = Div.create({text: "$$tex$$text"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("<svg display=\"true\">tex</svg>text")
@@ -78,7 +78,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "text$$tex$$"})
+        const div = Div.create({text: "text$$tex$$"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("text<svg display=\"true\">tex</svg>")
@@ -91,7 +91,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: `$$tex$$
+        const div = Div.create({text: `$$tex$$
 
         text`})
         const div_view = (await build_view(div))

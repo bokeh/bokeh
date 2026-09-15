@@ -26,9 +26,9 @@ export interface FreehandDrawTestCase {
 
 async function make_testcase(): Promise<FreehandDrawTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
-  const plot = new Plot({
-    x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1}),
+  const plot = Plot.create({
+    x_range: Range1d.create({start: -1, end: 1}),
+    y_range: Range1d.create({start: -1, end: 1}),
   })
 
   const {view: plot_view} = await display(plot)
@@ -38,17 +38,17 @@ async function make_testcase(): Promise<FreehandDrawTestCase> {
     ys: [[0, -0.5, -1], [0, -0.5, -1]],
     z: [null, null],
   }
-  const data_source = new ColumnDataSource({data})
+  const data_source = ColumnDataSource.create({data})
 
-  const glyph = new Patches({
+  const glyph = Patches.create({
     xs: {field: "xs"},
     ys: {field: "ys"},
   })
 
-  const glyph_renderer = new GlyphRenderer<Patches>({glyph, data_source})
+  const glyph_renderer = GlyphRenderer.create({glyph, data_source})
   const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
 
-  const draw_tool = new FreehandDrawTool({
+  const draw_tool = FreehandDrawTool.create({
     active: true,
     default_overrides: {z: "Test"},
     renderers: [glyph_renderer],
@@ -73,10 +73,10 @@ describe("FreehandDrawTool", () => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool0 = new FreehandDrawTool()
+      const tool0 = FreehandDrawTool.create()
       expect(tool0.tooltip).to.be.equal("Freehand Draw Tool")
 
-      const tool1 = new FreehandDrawTool({description: "My Freehand Draw"})
+      const tool1 = FreehandDrawTool.create({description: "My Freehand Draw"})
       expect(tool1.tooltip).to.be.equal("My Freehand Draw")
     })
   })
@@ -86,7 +86,7 @@ describe("FreehandDrawTool", () => {
     it("should select patches on tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -97,11 +97,11 @@ describe("FreehandDrawTool", () => {
     it("should select multiple patches on shift-tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
 
       let tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
-      hit_test_stub.returns(new Selection({indices: [0]}))
+      hit_test_stub.returns(Selection.create({indices: [0]}))
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -111,7 +111,7 @@ describe("FreehandDrawTool", () => {
     it("should delete selected on delete key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -132,7 +132,7 @@ describe("FreehandDrawTool", () => {
     it("should clear selection on escape key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)

@@ -8,7 +8,7 @@ import type {PointGeometry} from "@bokehjs/core/geometry"
 describe("VStrip", () => {
 
   it("should calculate bounds", async () => {
-    const glyph = new VStrip()
+    const glyph = VStrip.create()
     const data = {x0: [0, 5, 5, 10, 50], x1: [1, 7, 8, 15, 80]} satisfies DataOf<VStrip>
     const glyph_view = await create_glyph_view(glyph, data)
     const bounds = glyph_view.bounds()
@@ -16,7 +16,7 @@ describe("VStrip", () => {
   })
 
   it("should calculate log bounds", async () => {
-    const glyph = new VStrip()
+    const glyph = VStrip.create()
     const data = {x0: [0, 5, 5, 10, 50], x1: [1, 7, 8, 15, 80]} satisfies DataOf<VStrip>
     const glyph_view = await create_glyph_view(glyph, data)
     const log_bounds = glyph_view.log_bounds()
@@ -26,7 +26,7 @@ describe("VStrip", () => {
   describe("_hit_point", () => {
 
     it("should return indices of the VStrip that was hit", async () => {
-      const glyph = new VStrip()
+      const glyph = VStrip.create()
       const data = {x0: [0, 5, 5, 10, 50, 60], x1: [1, 7, 8, 15, 80, 70]} satisfies DataOf<VStrip>
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 

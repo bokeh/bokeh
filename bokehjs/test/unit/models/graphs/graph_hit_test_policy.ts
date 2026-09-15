@@ -42,18 +42,18 @@ describe("GraphHitTestPolicy", () => {
   let edge_stub: sinon.SinonStub
 
   before_each(async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
     })
     const {view: plot_view} = await display(plot)
 
-    node_source = new ColumnDataSource({
+    node_source = ColumnDataSource.create({
       data: {
         index: [10, 20, 30, 40],
       },
     })
-    edge_source = new ColumnDataSource({
+    edge_source = ColumnDataSource.create({
       data: {
         start: [10, 10, 30],
         end: [20, 30, 20],
@@ -61,13 +61,13 @@ describe("GraphHitTestPolicy", () => {
         ys: [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
       },
     })
-    const node_renderer = new GlyphRenderer({data_source: node_source, glyph: new Scatter()})
-    const edge_renderer = new GlyphRenderer({data_source: edge_source, glyph: new MultiLine()})
+    const node_renderer = GlyphRenderer.create({data_source: node_source, glyph: Scatter.create()})
+    const edge_renderer = GlyphRenderer.create({data_source: edge_source, glyph: MultiLine.create()})
 
-    gr = new GraphRenderer({
+    gr = GraphRenderer.create({
       node_renderer,
       edge_renderer,
-      layout_provider: new TrivialLayoutProvider(),
+      layout_provider: TrivialLayoutProvider.create(),
     })
 
     gv = await build_view(gr, {parent: plot_view})
@@ -87,13 +87,13 @@ describe("GraphHitTestPolicy", () => {
 
       it("should return null if GlyphView doesn't have hit-testing and returns null", () => {
         edge_stub.returns(null)
-        const policy = new EdgesOnly()
+        const policy = EdgesOnly.create()
         expect(policy.hit_test({type: "point", sx: 0, sy: 0}, gv)).to.be.null
       })
 
       it("should return the Selection that the GlyphView hit-testing returns", () => {
-        edge_stub.returns(new Selection({indices: [1, 2]}))
-        const policy = new EdgesOnly()
+        edge_stub.returns(Selection.create({indices: [1, 2]}))
+        const policy = EdgesOnly.create()
         const result = policy.hit_test({type: "point", sx: 0, sy: 0}, gv)
         expect_not_null(result)
         expect(result.indices).to.be.equal([1, 2])
@@ -103,16 +103,16 @@ describe("GraphHitTestPolicy", () => {
     describe("do_selection method", () => {
 
       it("should return false if called with null hit_test_result", () => {
-        const policy = new EdgesOnly()
+        const policy = EdgesOnly.create()
         expect(policy.do_selection(null, gr, true, "replace")).to.be.false
       })
 
       it("should return false and clear selections if hit_test_result is empty", () => {
-        const initial_selection = new Selection({indices: [1, 2]})
+        const initial_selection = Selection.create({indices: [1, 2]})
         edge_source.selected = initial_selection
 
-        const hit_test_result = new Selection()
-        const policy = new EdgesOnly()
+        const hit_test_result = Selection.create()
+        const policy = EdgesOnly.create()
         const did_hit = policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(did_hit).to.be.false
@@ -120,8 +120,8 @@ describe("GraphHitTestPolicy", () => {
       })
 
       it("should return true if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection({indices: [0, 1]})
-        const policy = new EdgesOnly()
+        const hit_test_result = Selection.create({indices: [0, 1]})
+        const policy = EdgesOnly.create()
 
         expect(policy.do_selection(hit_test_result, gr, true, "replace")).to.be.true
         expect(edge_source.selected.is_empty()).to.be.false
@@ -132,11 +132,11 @@ describe("GraphHitTestPolicy", () => {
 
       it("should return false and clear inspections if hit_test_result is empty", () => {
         // create initial inspection to clear
-        const initial_inspection = new Selection({indices: [1, 2]})
+        const initial_inspection = Selection.create({indices: [1, 2]})
         edge_source.inspected = initial_inspection
 
-        const hit_test_result = new Selection()
-        const policy = new EdgesOnly()
+        const hit_test_result = Selection.create()
+        const policy = EdgesOnly.create()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
@@ -144,8 +144,8 @@ describe("GraphHitTestPolicy", () => {
       })
 
       it("should return true if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection({indices: [0, 1]})
-        const policy = new EdgesOnly()
+        const hit_test_result = Selection.create({indices: [0, 1]})
+        const policy = EdgesOnly.create()
 
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
         expect(did_hit).to.be.true
@@ -160,13 +160,13 @@ describe("GraphHitTestPolicy", () => {
 
       it("should return null if GlyphView doesn't have hit-testing and returns null", () => {
         node_stub.returns(null)
-        const policy = new NodesOnly()
+        const policy = NodesOnly.create()
         expect(policy.hit_test({type: "point", sx: 0, sy: 0}, gv)).to.be.null
       })
 
       it("should return the Selection that the GlyphView hit-testing returns", () => {
-        node_stub.returns(new Selection({indices: [1, 2, 3]}))
-        const policy = new NodesOnly()
+        node_stub.returns(Selection.create({indices: [1, 2, 3]}))
+        const policy = NodesOnly.create()
         const result = policy.hit_test({type: "point", sx: 0, sy: 0}, gv)
         expect_not_null(result)
         expect(result.indices).to.be.equal([1, 2, 3])
@@ -176,16 +176,16 @@ describe("GraphHitTestPolicy", () => {
     describe("do_selection method", () => {
 
       it("should return false if called with null hit_test_result", () => {
-        const policy = new NodesOnly()
+        const policy = NodesOnly.create()
         expect(policy.do_selection(null, gr, true, "replace")).to.be.false
       })
 
       it("should return false and clear selections if hit_test_result is empty", () => {
-        const initial_selection = new Selection({indices: [1, 2]})
+        const initial_selection = Selection.create({indices: [1, 2]})
         node_source.selected = initial_selection
 
-        const hit_test_result = new Selection()
-        const policy = new NodesOnly()
+        const hit_test_result = Selection.create()
+        const policy = NodesOnly.create()
         const did_hit = policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(did_hit).to.be.false
@@ -193,8 +193,8 @@ describe("GraphHitTestPolicy", () => {
       })
 
       it("should return true if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection({indices: [0, 1]})
-        const policy = new NodesOnly()
+        const hit_test_result = Selection.create({indices: [0, 1]})
+        const policy = NodesOnly.create()
 
         expect(policy.do_selection(hit_test_result, gr, true, "replace")).to.be.true
         expect(node_source.selected.is_empty()).to.be.false
@@ -205,11 +205,11 @@ describe("GraphHitTestPolicy", () => {
 
       it("should return false and clear inspections if hit_test_result is empty", () => {
         // create initial inspection to clear
-        const initial_inspection = new Selection({indices: [1, 2]})
+        const initial_inspection = Selection.create({indices: [1, 2]})
         node_source.inspected = initial_inspection
 
-        const hit_test_result = new Selection()
-        const policy = new NodesOnly()
+        const hit_test_result = Selection.create()
+        const policy = NodesOnly.create()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
@@ -217,8 +217,8 @@ describe("GraphHitTestPolicy", () => {
       })
 
       it("should return true if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection({indices: [0, 1]})
-        const policy = new NodesOnly()
+        const hit_test_result = Selection.create({indices: [0, 1]})
+        const policy = NodesOnly.create()
 
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
         expect(did_hit).to.be.true
@@ -233,20 +233,20 @@ describe("GraphHitTestPolicy", () => {
 
       it("should clear edge selections if hit_test_result is empty", () => {
         // create initial inspection to clear
-        const initial_selection = new Selection()
+        const initial_selection = Selection.create()
         initial_selection.multiline_indices = new Map([[0, [0, 1]], [1, [0]]])
         edge_source.selected = initial_selection
 
-        const hit_test_result = new Selection()
-        const policy = new NodesAndLinkedEdges()
+        const hit_test_result = Selection.create()
+        const policy = NodesAndLinkedEdges.create()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(edge_source.selected.is_empty()).to.be.true
       })
 
       it("should select linked edges if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection({indices: [0]})
-        const policy = new NodesAndLinkedEdges()
+        const hit_test_result = Selection.create({indices: [0]})
+        const policy = NodesAndLinkedEdges.create()
 
         policy.do_selection(hit_test_result, gr, true, "replace")
 
@@ -258,12 +258,12 @@ describe("GraphHitTestPolicy", () => {
 
       it("should clear edge inspections if hit_test_result is empty", () => {
         // create initial inspection to clear
-        const initial_inspection = new Selection()
+        const initial_inspection = Selection.create()
         initial_inspection.multiline_indices = new Map([[0, [0, 1]], [1, [0]]])
         edge_source.inspected = initial_inspection
 
-        const hit_test_result = new Selection()
-        const policy = new NodesAndLinkedEdges()
+        const hit_test_result = Selection.create()
+        const policy = NodesAndLinkedEdges.create()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
@@ -271,8 +271,8 @@ describe("GraphHitTestPolicy", () => {
       })
 
       it("should select linked edges if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection({indices: [0]})
-        const policy = new NodesAndLinkedEdges()
+        const hit_test_result = Selection.create({indices: [0]})
+        const policy = NodesAndLinkedEdges.create()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
@@ -286,22 +286,22 @@ describe("GraphHitTestPolicy", () => {
     describe("do_selection method", () => {
 
       it("should clear node selections if hit_test result is empty", () => {
-        const initial_selection = new Selection()
+        const initial_selection = Selection.create()
         initial_selection.indices = [0, 1]
         node_source.selected = initial_selection
 
-        const hit_test_result = new Selection()
-        const policy = new EdgesAndLinkedNodes()
+        const hit_test_result = Selection.create()
+        const policy = EdgesAndLinkedNodes.create()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(node_source.selected.is_empty()).to.be.true
       })
 
       it("should select linked nodes if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection()
+        const hit_test_result = Selection.create()
         hit_test_result.indices = [1]
 
-        const policy = new EdgesAndLinkedNodes()
+        const policy = EdgesAndLinkedNodes.create()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(node_source.selected.indices).to.be.equal([0, 2])
@@ -311,11 +311,11 @@ describe("GraphHitTestPolicy", () => {
     describe("do_inspection method", () => {
 
       it("should clear node inspections if hit_test_result is empty", () => {
-        const initial_inspection = new Selection({indices: [0, 1]})
+        const initial_inspection = Selection.create({indices: [0, 1]})
         node_source.inspected = initial_inspection
 
-        const hit_test_result = new Selection()
-        const policy = new EdgesAndLinkedNodes()
+        const hit_test_result = Selection.create()
+        const policy = EdgesAndLinkedNodes.create()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
@@ -323,10 +323,10 @@ describe("GraphHitTestPolicy", () => {
       })
 
       it("should inspect linked nodes if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection()
+        const hit_test_result = Selection.create()
         hit_test_result.indices = [1]
 
-        const policy = new EdgesAndLinkedNodes()
+        const policy = EdgesAndLinkedNodes.create()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
@@ -340,22 +340,22 @@ describe("GraphHitTestPolicy", () => {
     describe("do_selection method", () => {
 
       it("should clear node selections if hit_test result is empty", () => {
-        const initial_selection = new Selection()
+        const initial_selection = Selection.create()
         initial_selection.indices = [0, 1]
         node_source.selected = initial_selection
 
-        const hit_test_result = new Selection()
-        const policy = new NodesAndAdjacentNodes()
+        const hit_test_result = Selection.create()
+        const policy = NodesAndAdjacentNodes.create()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(node_source.selected.is_empty()).to.be.true
       })
 
       it("should select adjacent nodes if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection()
+        const hit_test_result = Selection.create()
         hit_test_result.indices = [1]
 
-        const policy = new NodesAndAdjacentNodes()
+        const policy = NodesAndAdjacentNodes.create()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(node_source.selected.indices).to.be.equal([0, 2, 1])
@@ -366,11 +366,11 @@ describe("GraphHitTestPolicy", () => {
 
       it("should clear node inspections if hit_test_result is empty", () => {
         // create initial inspection to clear
-        const initial_inspection = new Selection({indices: [0, 1]})
+        const initial_inspection = Selection.create({indices: [0, 1]})
         node_source.inspected = initial_inspection
 
-        const hit_test_result = new Selection()
-        const policy = new NodesAndAdjacentNodes()
+        const hit_test_result = Selection.create()
+        const policy = NodesAndAdjacentNodes.create()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
@@ -378,9 +378,9 @@ describe("GraphHitTestPolicy", () => {
       })
 
       it("should inspect adjacent nodes if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection({indices: [1]})
+        const hit_test_result = Selection.create({indices: [1]})
 
-        const policy = new NodesAndAdjacentNodes()
+        const policy = NodesAndAdjacentNodes.create()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true

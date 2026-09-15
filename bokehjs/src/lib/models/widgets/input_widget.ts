@@ -207,10 +207,6 @@ export abstract class InputWidget extends Control {
   declare properties: InputWidget.Props
   declare __view_type__: InputWidgetView
 
-  constructor(attrs?: Partial<InputWidget.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<InputWidget.Props>(({Str, Nullable, Or, Ref}) => ({
       title: [ Or(Str, Ref(HTML)), "" ],
