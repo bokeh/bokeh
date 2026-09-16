@@ -22,6 +22,9 @@ import {
 describe("Examples", () => {
   it("should support custom styles to follow Office like styling", async () => {
     const url = "/assets/fonts/inter/inter.ttf"
+    const font = new FontFace("Inter", `url(${url})`)
+    await font.load()
+    document.fonts.add(font)
     const font_style = new GlobalInlineStyleSheet({
       css: `
           @font-face {
