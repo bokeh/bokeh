@@ -34,9 +34,7 @@ ALL = (
     'export_svgs',
     'install_notebook_hook',
     'push_notebook',
-    'output_file',
     'output_notebook',
-    'reset_output',
     'save',
     'show',
 )

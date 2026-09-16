@@ -11,9 +11,7 @@ available from ``bokeh.plotting`` as a convenience:
 
 * :class:`bokeh.document.Document`
 * :class:`bokeh.io.curdoc`
-* :class:`bokeh.io.output_file`
 * :class:`bokeh.io.output_notebook`
-* :class:`bokeh.io.reset_output`
 * :class:`bokeh.io.save`
 * :class:`bokeh.io.show`
 * :class:`bokeh.layouts.column`

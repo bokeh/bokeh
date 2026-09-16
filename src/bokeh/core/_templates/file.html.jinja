@@ -48,6 +48,11 @@ that accepts these same parameters.
   <body>
   {%  block inner_body %}
   {%    block contents %}
+  {%      if artifact_mounts is defined %}
+  {%        for root in artifact_mounts %}
+  {{          root.html }}
+  {%        endfor %}
+  {%      else %}
   {%      for doc in docs %}
   {{        embed(doc) if doc.elementid }}
   {%-       for root in doc.roots %}
@@ -56,6 +61,7 @@ that accepts these same parameters.
   {%          endblock %}
   {%        endfor %}
   {%      endfor %}
+  {%      endif %}
   {%    endblock contents %}
   {{ plot_script | indent(4) }}
   {%  endblock inner_body %}
