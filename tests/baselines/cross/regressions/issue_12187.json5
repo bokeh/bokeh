@@ -9,6 +9,11 @@
         name: "Notifications",
         id: "p1014",
       },
+      i18n: {
+        type: "object",
+        name: "I18n",
+        id: "p1015",
+      },
     },
   },
   roots: [
@@ -27,12 +32,12 @@
             selected: {
               type: "object",
               name: "Selection",
-              id: "p1016",
+              id: "p1017",
             },
             selection_policy: {
               type: "object",
               name: "UnionRenderers",
-              id: "p1017",
+              id: "p1018",
             },
             data: {
               type: "map",
@@ -100,12 +105,12 @@
         view: {
           type: "object",
           name: "CDSView",
-          id: "p1015",
+          id: "p1016",
           attributes: {
             filter: {
               type: "object",
               name: "AllIndices",
-              id: "p1018",
+              id: "p1019",
             },
           },
         },
@@ -125,7 +130,7 @@
               editor: {
                 type: "object",
                 name: "StringEditor",
-                id: "p1019",
+                id: "p1020",
               },
             },
           },
@@ -139,12 +144,12 @@
               formatter: {
                 type: "object",
                 name: "StringFormatter",
-                id: "p1020",
+                id: "p1021",
               },
               editor: {
                 type: "object",
                 name: "StringEditor",
-                id: "p1021",
+                id: "p1022",
               },
             },
           },
