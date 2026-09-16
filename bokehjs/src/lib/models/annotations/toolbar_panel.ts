@@ -84,9 +84,42 @@ export class ToolbarPanelView extends AnnotationView {
 
   protected override _get_size(): Size {
     const {tools, logo} = this.model.toolbar
+
+    const {width: button_width, height: button_height} = this._button_size()
+
+    // The panel's dimensions are always expressed in the horizontal
+    // orientation, even if the toolbar itself is vertical.
+    const length = this.is_horizontal ? button_width : button_height
+    const thickness = this.is_horizontal ? button_height : button_width
+
     return {
-      width: tools.length*30 + (logo != null ? 25 : 0) + 15, // TODO: approximate, use a proper layout instead.
-      height: 30,
+      width: tools.length*length + (logo != null ? 25 : 0) + 15, // TODO: approximate, use a proper layout instead.
+      height: thickness,
+    }
+  }
+
+  protected _button_size(): Size {
+    // Tool buttons can be resized with CSS variables, so use the computed
+    // size of a rendered button, which also resolves non-pixel units.
+    const button_view = this.toolbar_view.tool_button_views.at(0)
+    if (button_view != null) {
+      const {width, height} = getComputedStyle(button_view.el)
+      const width_px = parseFloat(width)
+      const height_px = parseFloat(height)
+      if (!isNaN(width_px) && !isNaN(height_px) && width_px > 0 && height_px > 0) {
+        return {width: width_px, height: height_px}
+      }
+    }
+
+    // Fall back to the CSS variables, which are pixel-based by default.
+    const style = getComputedStyle(this.toolbar_view.el)
+    const get_length = (name: string, fallback: number): number => {
+      const value = parseFloat(style.getPropertyValue(name))
+      return isNaN(value) ? fallback : value
+    }
+    return {
+      width: get_length("--button-width", 30),
+      height: get_length("--button-height", 30),
     }
   }
 }
