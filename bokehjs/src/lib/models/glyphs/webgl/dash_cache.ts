@@ -1,4 +1,5 @@
 import {gcd, is_pow_2} from "./utils/math"
+import {logger} from "core/logging"
 import {concat} from "core/util/array"
 import {map, sum} from "core/util/arrayable"
 import type {Regl, Texture2D} from "regl"
@@ -9,7 +10,8 @@ type TextureReturn = [[number, number, number, number], Texture2D]
 export function normalize_dash_pattern(pattern: number[]): number[] {
   for (const value of pattern) {
     if (!Number.isFinite(value) || value < 0) {
-      throw new Error(`invalid line dash pattern: ${pattern.join(",")}`)
+      logger.warn(`invalid line dash pattern: ${pattern.join(",")}`)
+      return []
     }
   }
 

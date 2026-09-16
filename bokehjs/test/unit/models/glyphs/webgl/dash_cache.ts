@@ -1,6 +1,8 @@
 import {expect, expect_instanceof} from "#framework/assertions"
+import {trap} from "#framework/util"
 
 import {DashCache, normalize_dash_pattern} from "@bokehjs/models/glyphs/webgl/dash_cache"
+import {version} from "@bokehjs/version"
 import type {Regl, Texture2D, Texture2DOptions} from "regl"
 
 describe("WebGL dash patterns", () => {
@@ -16,8 +18,10 @@ describe("WebGL dash patterns", () => {
     expect(normalize_dash_pattern([0])).to.be.equal([])
   })
 
-  it("should retain fractional dash lengths", () => {
+  it("should retain fractional and mixed-zero dash lengths", () => {
     expect(normalize_dash_pattern([1.5, 0.5])).to.be.equal([1.5, 0.5])
+    expect(normalize_dash_pattern([0, 1.5])).to.be.equal([0, 1.5])
+    expect(normalize_dash_pattern([1.5, 0])).to.be.equal([1.5, 0])
   })
 
   it("should create and cache fractional dash texture data without integer GCD sizing", () => {
@@ -48,9 +52,30 @@ describe("WebGL dash patterns", () => {
     expect(texture_calls).to.be.equal(1)
   })
 
-  it("should reject negative and non-finite lengths", () => {
-    expect(() => normalize_dash_pattern([2, -1])).to.throw()
-    expect(() => normalize_dash_pattern([2, NaN])).to.throw()
-    expect(() => normalize_dash_pattern([2, Infinity])).to.throw()
+  it("should create textures for mixed-zero dash lengths", () => {
+    const options: Texture2DOptions[] = []
+    const regl = {
+      texture(value: Texture2DOptions) {
+        options.push(value)
+        return {} as Texture2D
+      },
+    } as unknown as Regl
+
+    const cache = new DashCache(regl)
+    const patterns = [[0, 2], [2, 0], [0, 1.5], [1.5, 0]]
+    const cached = patterns.map((pattern) => cache.get(pattern))
+    expect(cached.map(([info]) => info.every(Number.isFinite))).to.be.equal([true, true, true, true])
+    expect(cached.map(([, , scale]) => scale)).to.be.equal([2, 2, 1, 1])
+    expect(options.map(({shape}) => shape)).to.be.equal([[2, 1, 1], [2, 1, 1], [128, 1, 1], [128, 1, 1]])
+    for (const option of options) {
+      expect_instanceof(option.data, Uint8Array)
+    }
+  })
+
+  it("should warn and ignore negative and non-finite lengths", () => {
+    for (const pattern of [[2, -1], [2, NaN], [2, Infinity]]) {
+      const out = trap(() => expect(normalize_dash_pattern(pattern)).to.be.equal([]))
+      expect(out.warn).to.be.equal(`[bokeh ${version}] invalid line dash pattern: ${pattern.join(",")}\n`)
+    }
   })
 })

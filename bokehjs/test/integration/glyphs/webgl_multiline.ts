@@ -1,7 +1,10 @@
+import {expect} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
+import {require_glglyph, WebGLScenario} from "#framework/webgl"
 
 import type {LineDash, OutputBackend} from "@bokehjs/core/enums"
 import {ColumnDataSource, Selection} from "@bokehjs/models"
+import type {Float32Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 
 describe("WebGL multiline stability", () => {
   type DashPattern = LineDash | number[]
@@ -85,7 +88,7 @@ describe("WebGL multiline stability", () => {
       })
       p.xgrid.visible = false
       p.ygrid.visible = false
-      p.multi_line({
+      const renderer = p.multi_line({
         xs: {field: "xs"},
         ys: {field: "ys"},
         source,
@@ -93,16 +96,35 @@ describe("WebGL multiline stability", () => {
         line_width: 5,
         line_dash: {field: "dashes"},
       })
-      return {p, source}
+      return {p, source, renderer}
     }
 
     const canvas = updated_plot("canvas")
     const webgl = updated_plot("webgl")
     const {view} = await display(row([canvas.p, webgl.p]))
+    const scenario = new WebGLScenario(view.owner.get_one(webgl.p))
+
+    const mixed_dashes: DashPattern[] = [[0, 1.5], [1.5, 0], [0, 2], [2, 0]]
+    await scenario.mutate(() => {
+      canvas.source.data = {...canvas.source.data, dashes: mixed_dashes}
+      webgl.source.data = {...webgl.source.data, dashes: mixed_dashes}
+    })
+
+    const renderer_view = view.owner.get_one(webgl.renderer)
+    type MultiLineGLState = {
+      _dash_tex: unknown[]
+      _dash_tex_info?: Float32Buffer
+      _dash_scale?: Float32Buffer
+    }
+    const gl = require_glglyph(renderer_view.glyph) as unknown as MultiLineGLState
+    expect(gl._dash_tex.length).to.be.equal(4)
+    expect(Array.from(gl._dash_scale!.get_array())).to.be.equal([1, 1, 2, 2])
+    expect(Array.from(gl._dash_tex_info!.get_array()).every(Number.isFinite)).to.be.true
 
     const dashes: DashPattern[] = [[], [1.5, 0.5], [2.5, 0.75], [0.75, 1.25]]
-    canvas.source.data = {...canvas.source.data, dashes}
-    webgl.source.data = {...webgl.source.data, dashes}
-    await view.ready
+    await scenario.mutate(() => {
+      canvas.source.data = {...canvas.source.data, dashes}
+      webgl.source.data = {...webgl.source.data, dashes}
+    })
   })
 })
