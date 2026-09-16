@@ -3,6 +3,12 @@ build:
   - 'bokehjs/**'
   - 'src/**'
   - 'examples/**'
+  - 'MANIFEST.in'
+  - 'pyproject.toml'
+  - 'setup.py'
+  - 'pixi.toml'
+  - 'pixi.lock'
+  - 'tools/release/**'
 
 codebase:
   - 'src/**'
@@ -23,6 +29,19 @@ examples:
 unit_test:
   - 'src/**'
 
+jupyter:
+  - 'bokehjs/**'
+  - 'MANIFEST.in'
+  - 'pyproject.toml'
+  - 'setup.py'
+  - 'pixi.toml'
+  - 'pixi.lock'
+  - 'tools/release/**'
+  - 'src/**'
+  - 'examples/output/**'
+  - 'examples/server/api/**'
+  - 'tests/**'
+
 minimal_deps:
   - 'src/**'
 
@@ -36,6 +55,7 @@ documentation:
 
 bokehjs:
   - 'bokehjs/**'
+  - 'src/bokeh/jupyter/frontend/**'
 
 full:
   - '**'

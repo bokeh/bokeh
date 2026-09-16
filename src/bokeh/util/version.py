@@ -39,6 +39,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from packaging.version import Version
+
 # Bokeh imports
 from .. import __version__
 
@@ -67,6 +70,16 @@ def is_full_release(version: str | None = None) -> bool:
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def bokehjs_version(version: str | None) -> str:
+    parsed = Version(version or __version__)
+    release = ".".join(str(part) for part in parsed.release)
+    if parsed.dev is not None:
+        return f"{release}-dev.{parsed.dev}"
+    if parsed.pre is not None:
+        kind, number = parsed.pre
+        return f"{release}-{kind}.{number}"
+    return release
 
 #-----------------------------------------------------------------------------
 # Private API

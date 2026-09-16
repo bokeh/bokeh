@@ -507,9 +507,10 @@ This avoids relying on module import order or a process-wide registry. Set a
 stable ``__qualified__`` name on custom models because production bundlers are
 allowed to rename JavaScript classes.
 
-Pass the same resolver to ``embed.embed_item(item, target, {resolver})`` when
-embedding JSON directly. ``register_standard_models()`` covers the core model
-set. If JSON can contain optional widgets or tables, import
+Pass the same resolver to
+``Bokeh.mount(artifact, {targets: {root: target}, resolver})`` when mounting a
+versioned artifact directly. ``register_standard_models()`` covers the core
+model set. If artifact JSON can contain optional widgets or tables, import
 ``register_all_models`` from ``@bokeh/bokehjs/all`` and call it instead.
 
 
