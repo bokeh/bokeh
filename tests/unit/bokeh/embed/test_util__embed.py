@@ -540,6 +540,34 @@ class Test_standalone_docs_json_and_render_items:
         assert doc['roots'] == [ObjectRefRep(type="object", name="test_util__embed.SomeModel", id=p1.id)]
         assert len(render_items) == 1
 
+    def test_static_output_uses_minimal_model_ids(self) -> None:
+        child = SomeModel()
+        root = OtherModel(child=child)
+        d = Document()
+        d.add_root(root)
+
+        docs_json, _ = beu.standalone_docs_json_and_render_items([root])
+        doc = next(iter(docs_json.values()))
+
+        assert doc["roots"][0]["id"] == root.id
+        assert "id" not in doc["roots"][0]["attributes"]["child"]
+        decoded = Document.from_json(doc)
+        assert isinstance(decoded.roots[0].child, SomeModel)
+
+    def test_static_output_preserves_shared_identity(self) -> None:
+        shared = SomeModel()
+        root0 = OtherModel(child=shared)
+        root1 = OtherModel(child=shared)
+        d = Document()
+        d.add_root(root0)
+        d.add_root(root1)
+
+        docs_json, _ = beu.standalone_docs_json_and_render_items([root0, root1])
+        doc = next(iter(docs_json.values()))
+
+        assert doc["roots"][0]["attributes"]["child"] == ObjectRefRep(type="object", name="test_util__embed.SomeModel", id=shared.id)
+        assert doc["roots"][1]["attributes"]["child"] == shared.ref
+
     def test_exception_for_missing_doc(self) -> None:
         p1 = SomeModel()
         with pytest.raises(ValueError) as e:
