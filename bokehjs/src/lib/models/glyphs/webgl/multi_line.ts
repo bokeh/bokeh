@@ -8,6 +8,8 @@ import type {AccumulateProps} from "./types"
 import type {MultiLineView} from "../multi_line"
 
 export class MultiLineGL extends BaseLineGL {
+  private _point_offsets: number[] = []
+
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: MultiLineView) {
     super(regl_wrapper, glyph)
   }
@@ -45,29 +47,25 @@ export class MultiLineGL extends BaseLineGL {
       [framebuffer, tex] = this.regl_wrapper.framebuffer_and_texture
     }
 
-    let point_offset = 0
-    let prev_index = -1
     for (const index of indices) {
-      for (let i = prev_index+1; i < index; i++) {
-        // Account for offsets of lines not displayed
-        const npoints = main_glyph.sxs.get(i).length
-        point_offset += (npoints + 2)*2
-      }
-
       const npoints = main_glyph.sxs.get(index).length
       const nsegments = npoints - 1  // Points array includes extra points at each end
+      if (nsegments <= 0) {
+        continue
+      }
+      const point_offset = main_gl_glyph._point_offsets[index]
 
       // Not necessary if just a single line
       if (framebuffer != null) {
         this.regl_wrapper.clear_framebuffer(framebuffer)
       }
 
-      this._draw_single(main_gl_glyph, transform, index, point_offset, nsegments, framebuffer)
+      const scissor = this._draw_single(main_gl_glyph, transform, index, point_offset, nsegments, framebuffer)
 
       if (framebuffer != null) {
         // Accumulate framebuffer to WebGL canvas
         const accumulate_props: AccumulateProps = {
-          scissor: this.regl_wrapper.scissor,
+          scissor,
           viewport: this.regl_wrapper.viewport,
           framebuffer_tex: tex!,
         }
@@ -75,8 +73,6 @@ export class MultiLineGL extends BaseLineGL {
         this.regl_wrapper.accumulate()(accumulate_props)
       }
 
-      point_offset += (npoints + 2)*2
-      prev_index = index
     }
   }
 
@@ -101,6 +97,9 @@ export class MultiLineGL extends BaseLineGL {
 
     let point_offset = 0
     for (let i = 0; i < line_count; i++) {
+      if (data_changed) {
+        this._point_offsets[i] = point_offset
+      }
       // Process a single line at a time.
       const sx = this.glyph.sxs.get(i)
       const sy = this.glyph.sys.get(i)
@@ -110,6 +109,9 @@ export class MultiLineGL extends BaseLineGL {
       this._set_points_single(points, sx, sy)
 
       point_offset += (npoints + 2)*2
+    }
+    if (data_changed) {
+      this._point_offsets.length = line_count
     }
 
     this._points.update()
