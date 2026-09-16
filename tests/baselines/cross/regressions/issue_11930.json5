@@ -12,7 +12,7 @@
       i18n: {
         type: "object",
         name: "I18n",
-        id: "p1032",
+        id: "p1018",
       },
     },
   },
@@ -27,27 +27,27 @@
         x_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1018",
+          id: "p1019",
         },
         y_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1019",
+          id: "p1020",
         },
         x_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1020",
+          id: "p1021",
         },
         y_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1021",
+          id: "p1022",
         },
         title: {
           type: "object",
           name: "Title",
-          id: "p1022",
+          id: "p1023",
         },
         renderers: [
           {
@@ -63,12 +63,12 @@
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1029",
+                    id: "p1030",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1030",
+                    id: "p1031",
                   },
                   data: {
                     type: "map",
@@ -96,12 +96,12 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1024",
+                id: "p1025",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1031",
+                    id: "p1032",
                   },
                 },
               },
@@ -116,7 +116,7 @@
         toolbar: {
           type: "object",
           name: "Toolbar",
-          id: "p1023",
+          id: "p1024",
         },
         below: [
           {
@@ -139,7 +139,7 @@
               formatter: {
                 type: "object",
                 name: "BasicTickFormatter",
-                id: "p1025",
+                id: "p1026",
               },
               axis_label: "int overrides",
               major_label_overrides: {
@@ -158,7 +158,7 @@
               major_label_policy: {
                 type: "object",
                 name: "AllLabels",
-                id: "p1026",
+                id: "p1027",
               },
             },
           },
@@ -182,7 +182,7 @@
               formatter: {
                 type: "object",
                 name: "BasicTickFormatter",
-                id: "p1027",
+                id: "p1028",
               },
               axis_label: "float overrides",
               major_label_overrides: {
@@ -201,7 +201,7 @@
               major_label_policy: {
                 type: "object",
                 name: "AllLabels",
-                id: "p1028",
+                id: "p1029",
               },
             },
           },
