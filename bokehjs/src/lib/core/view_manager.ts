@@ -3,7 +3,23 @@ import type {View, ViewOf, IterViews} from "./view"
 import type {Options} from "core/build_views"
 import {build_view} from "./build_views"
 
-abstract class AbstractViewQuery {
+export interface ViewLookup {
+  [Symbol.iterator](): IterViews
+  all_views(): IterViews
+  query(fn: (view: View) => boolean): IterViews
+  query_one(fn: (view: View) => boolean): View | null
+  find<T extends HasProps>(model: T): IterViews<ViewOf<T>>
+  find_by_id(id: string): IterViews
+  find_one<T extends HasProps>(model: T): ViewOf<T> | null
+  find_one_by_id(id: string): View | null
+  get_one<T extends HasProps>(model: T): ViewOf<T>
+  get_one_by_id(id: string): View
+  find_all<T extends HasProps>(model: T): ViewOf<T>[]
+  find_all_by_id(id: string): View[]
+  select<T extends HasProps>(models: T[]): ViewOf<T>[]
+}
+
+abstract class AbstractViewQuery implements ViewLookup {
 
   abstract [Symbol.iterator](): IterViews
 

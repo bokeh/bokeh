@@ -30,6 +30,7 @@ import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import type {ToolAliases} from "../tools/tool"
 import {Tool} from "../tools/tool"
+import "../tools/aliases"
 import {DataRange1d} from "../ranges/data_range1d"
 import {StyledElement} from "../ui/styled_element"
 
