@@ -1,7 +1,7 @@
 import sinon from "sinon"
 
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
-import {display, fig} from "#framework/layouts"
+import {display, fig, row} from "#framework/layouts"
 import {restorable} from "#framework/util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
@@ -2319,6 +2319,96 @@ ${view.host_selector} {
       await view.ready
       await view.ready
       expect(y_range.interval).to.be.equal([-1, 5])
+    })
+  })
+
+  describe("in issue #15320", () => {
+    function plot(width: number, height: number) {
+      const p = fig([width, height], {
+        output_backend: "webgl", x_range: [0, 1], y_range: [0, 1], x_axis_type: null, y_axis_type: null, min_border: 10,
+        background_fill_color: null, border_fill_color: null, outline_line_color: null,
+      })
+      p.line([0, 1], [0, 1], {line_width: 3})
+      p.scatter([0, 0.5, 1], [0, 0.5, 1], {size: 20, fill_alpha: 0.5})
+      p.patch([0.1, 0.9, 0.5], [0.1, 0.1, 0.9], {fill_alpha: 0.3, line_width: 2})
+      return p
+    }
+
+    async function display_plots(...sizes: [number, number][]) {
+      const plots = sizes.map(([width, height]) => plot(width, height))
+      const {view} = await display(row(plots), [850, 300])
+      const views = plots.map((p) => view.owner.get_one(p))
+      const {webgl} = views[0].canvas_view
+      expect_not_null(webgl)
+      expect(views.every((plot_view) => plot_view.canvas_view.webgl === webgl)).to.be.true
+      // previous tests may have left the shared canvas larger than these plots
+      webgl.canvas.width = 1
+      webgl.canvas.height = 1
+      return {view, plots, views, canvas: webgl.canvas}
+    }
+
+    function paint(plot_view: PlotView): void {
+      plot_view.invalidate_painters()
+      plot_view.paint()
+    }
+
+    for (const dpr of [1, 1.5, 2]) {
+      it.dpr(dpr)(`resizes the shared WebGL canvas when painting plots of different sizes with devicePixelRatio == ${dpr}`, async () => {
+        const {view, plots, views, canvas} = await display_plots([151, 101], [301, 121], [121, 251])
+        const [small, wide, tall] = views.map((plot_view) => plot_view.canvas_view.primary.canvas)
+
+        const sizes = views.map((plot_view) => {
+          paint(plot_view)
+          return [canvas.width, canvas.height]
+        })
+        expect(sizes).to.be.equal([
+          [small.width, small.height],
+          [wide.width, wide.height],
+          [wide.width, tall.height],
+        ])
+
+        for (const plot_view of [...views, ...views.toReversed(), ...views]) {
+          paint(plot_view)
+          expect([canvas.width, canvas.height]).to.be.equal([wide.width, tall.height])
+        }
+
+        plots[0].width = 351
+        await view.ready
+        expect([canvas.width, canvas.height]).to.be.equal([small.width, tall.height])
+
+        for (const plot_view of views) {
+          paint(plot_view)
+          expect([canvas.width, canvas.height]).to.be.equal([small.width, tall.height])
+        }
+      })
+
+      it.dpr(dpr)(`paints plots as if the shared WebGL canvas matched their size with devicePixelRatio == ${dpr}`, async () => {
+        const {views, canvas} = await display_plots([151, 101], [301, 121], [121, 251])
+
+        function pixels(plot_view: PlotView): Uint8Array {
+          const {ctx, canvas: {width, height}} = plot_view.canvas_view.primary
+          return new Uint8Array(ctx.getImageData(0, 0, width, height).data.buffer)
+        }
+
+        const expected = views.map((plot_view) => {
+          canvas.width = 1
+          canvas.height = 1
+          paint(plot_view)
+          return pixels(plot_view)
+        })
+
+        for (const plot_view of [...views, ...views.toReversed()]) {
+          paint(plot_view)
+        }
+        expect(views.map(pixels)).to.be.equal(expected)
+      })
+    }
+
+    it("paints zero-area plots after larger plots", async () => {
+      const {views} = await display_plots([301, 251], [0, 101], [151, 0], [0, 0])
+      for (const plot_view of [...views, ...views.toReversed()]) {
+        paint(plot_view)
+      }
     })
   })
 })

@@ -121,11 +121,10 @@ export class ReglWrapper {
   }
 
   get framebuffer_and_texture(): [Framebuffer2D, Texture2D] {
-    const {_regl} = this
-    const {_gl} = _regl
+    const {_regl, _viewport} = this
     const size = {
-      height: _gl.drawingBufferHeight,
-      width: _gl.drawingBufferWidth,
+      height: _viewport.height,
+      width: _viewport.width,
     }
 
     if (this._framebuffer_texture == null) {

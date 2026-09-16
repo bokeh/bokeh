@@ -199,10 +199,19 @@ export class CanvasView extends UIElementView {
     // Prepare WebGL for a drawing pass
     const {webgl} = this
     if (webgl != null) {
-      // Sync canvas size
-      const {width, height} = this.bbox
-      webgl.canvas.width = this.pixel_ratio*width
-      webgl.canvas.height = this.pixel_ratio*height
+      // Only grow the shared canvas, because resizing reallocates its drawing buffer
+      const {canvas} = webgl
+      const {width, height} = this.primary.canvas
+      if (canvas.width < width || canvas.height < height) {
+        canvas.width = Math.max(canvas.width, width)
+        canvas.height = Math.max(canvas.height, height)
+        // Browsers limit the area of drawing buffers, so fall back to this plot's size if exceeded
+        const gl = canvas.getContext("webgl")!
+        if (gl.drawingBufferWidth < canvas.width || gl.drawingBufferHeight < canvas.height) {
+          canvas.width = width
+          canvas.height = height
+        }
+      }
       const {x: sx, y: sy, width: w, height: h} = frame_box
       const {xview, yview} = this.bbox
       const vx = xview.compute(sx)
@@ -222,7 +231,9 @@ export class CanvasView extends UIElementView {
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
       logger.debug("Blitting WebGL canvas")
       ctx.restore()
-      ctx.drawImage(webgl.canvas, 0, 0)
+      // GL draws into the bottom-left corner of the shared canvas
+      const {width, height} = this.primary.canvas
+      ctx.drawImage(webgl.canvas, 0, webgl.canvas.height - height, width, height, 0, 0, width, height)
       // Set back the HiDPI transform
       ctx.save()
       const ratio = this.pixel_ratio
@@ -236,8 +247,8 @@ export class CanvasView extends UIElementView {
     const {webgl} = this
     if (webgl != null) {
       // Prepare GL for drawing
-      const {regl_wrapper, canvas} = webgl
-      regl_wrapper.clear(canvas.width, canvas.height)
+      const {width, height} = this.primary.canvas
+      webgl.regl_wrapper.clear(width, height)
     }
   }
 
