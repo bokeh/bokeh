@@ -6,6 +6,7 @@
 #-----------------------------------------------------------------------------
 from ..core.enums import ColorSchemeType
 from ..model import Model
+from ..models.i18n.i18n import I18n
 from ..models.ui.notifications import Notifications
 
 class DocumentConfig(Model):
@@ -17,3 +18,5 @@ class DocumentConfig(Model):
     notifications: Notifications | None = ...
 
     color_scheme: ColorSchemeType = ...
+
+    i18n: I18n = ...
