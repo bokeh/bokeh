@@ -16,10 +16,6 @@ export class GMap extends GMapPlot {
   declare properties: GMap.Props
   declare __view_type__: GMapView
 
-  constructor(attrs?: Partial<GMap.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = GMapView
   }

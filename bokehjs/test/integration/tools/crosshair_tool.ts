@@ -6,7 +6,7 @@ import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 describe("CrosshairTool", () => {
   describe("with dimensions='both'", () => {
     async function mkplot() {
-      const crosshair = new CrosshairTool({overlay: "auto", dimensions: "both"})
+      const crosshair = CrosshairTool.create({overlay: "auto", dimensions: "both"})
       const p = fig([200, 200], {tools: [crosshair]})
       p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
       return await display(p)

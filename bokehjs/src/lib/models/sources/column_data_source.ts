@@ -18,10 +18,6 @@ export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 export class ColumnDataSource extends ColumnarDataSource {
   declare properties: ColumnDataSource.Props
 
-  constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ColumnDataSource.Props>(({Unknown, Dict, Arrayable}) => ({
       data: [ Dict(Arrayable(Unknown)), {} ],

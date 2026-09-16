@@ -53,10 +53,6 @@ export class TextInput extends TextLikeInput {
   declare properties: TextInput.Props
   declare __view_type__: TextInputView
 
-  constructor(attrs?: Partial<TextInput.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TextInputView
 

@@ -7,7 +7,7 @@ describe("Band annotation", () => {
   it("should support basic positioning", async () => {
     const plot = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
 
-    const source = new ColumnDataSource({
+    const source = ColumnDataSource.create({
       data: {
         x1: [1, 3, 5, 7, 9],
         lower1: [1, 2, 1, 2, 1],
@@ -18,14 +18,14 @@ describe("Band annotation", () => {
       },
     })
 
-    const band0 = new Band({
+    const band0 = Band.create({
       base: {field: "x1"},
       lower: {field: "lower1"},
       upper: {field: "upper1"},
       line_width: 3, line_color: "red", line_dash: "dashed",
       source,
     })
-    const band1 = new Band({
+    const band1 = Band.create({
       // TODO: units are only supported on value level, not type level
       base: {field: "x2", units: "screen"} as any,
       lower: {field: "lower2", units: "screen"} as any,

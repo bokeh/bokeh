@@ -20,7 +20,7 @@ describe("Examples", () => {
       [ 7.0,  4.82,  7.0, 7.26,  7.0,  6.42,  8.0,  7.91],
       [ 5.0,  5.68,  5.0, 4.74,  5.0,  5.73,  8.0,  6.89]])
 
-    const circles = new ColumnDataSource({
+    const circles = ColumnDataSource.create({
       data: {
         xi: anscombe_quartet[0],
         yi: anscombe_quartet[1],
@@ -36,13 +36,13 @@ describe("Examples", () => {
     const x = linspace(-0.5, 20.5, 10)
     const y = x.map((v) => v*0.5 + 3.0)
 
-    const lines = new ColumnDataSource({data: {x, y}})
+    const lines = ColumnDataSource.create({data: {x, y}})
 
-    const xdr = new Range1d({start: -0.5, end: 20.5})
-    const ydr = new Range1d({start: -0.5, end: 20.5})
+    const xdr = Range1d.create({start: -0.5, end: 20.5})
+    const ydr = Range1d.create({start: -0.5, end: 20.5})
 
     function make_plot(title: string, xname: string, yname: string): Plot {
-      const plot = new Plot({
+      const plot = Plot.create({
         x_range: xdr,
         y_range: ydr,
         title,
@@ -50,17 +50,17 @@ describe("Examples", () => {
         height: 400,
         background_fill_color: "#F2F2F7",
       })
-      const xaxis = new LinearAxis({axis_line_color: null})
-      const yaxis = new LinearAxis({axis_line_color: null})
+      const xaxis = LinearAxis.create({axis_line_color: null})
+      const yaxis = LinearAxis.create({axis_line_color: null})
       plot.add_layout(xaxis, "below")
       plot.add_layout(yaxis, "left")
-      const xgrid = new Grid({ticker: xaxis.ticker, dimension: 0})
-      const ygrid = new Grid({ticker: yaxis.ticker, dimension: 1})
+      const xgrid = Grid.create({ticker: xaxis.ticker, dimension: 0})
+      const ygrid = Grid.create({ticker: yaxis.ticker, dimension: 1})
       plot.add_layout(xgrid)
       plot.add_layout(ygrid)
-      const line = new Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
+      const line = Line.create({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
       plot.add_glyph(line, lines)
-      const scatter = new Scatter({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
+      const scatter = Scatter.create({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
       plot.add_glyph(scatter, circles)
 
       return plot
@@ -73,15 +73,15 @@ describe("Examples", () => {
 
     const grid = gridplot([[I, II], [III, IV]], {toolbar_location: null})
 
-    const header = new Pane({
-      elements: [new Text({content: "Anscombe's Quartet"})],
+    const header = Pane.create({
+      elements: [Text.create({content: "Anscombe's Quartet"})],
       styles: {
         font_size: "150%",
         font_weight: "bold",
       },
     })
 
-    const column = new Column({children: [header, grid]})
+    const column = Column.create({children: [header, grid]})
     await display(column, [900, 900])
   })
 })

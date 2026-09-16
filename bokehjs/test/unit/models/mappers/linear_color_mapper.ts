@@ -9,7 +9,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map values along linear scale with high/low unset", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({palette})
+      const color_mapper = LinearColorMapper.create({palette})
 
       const vals0 = color_mapper.v_compute([99.999, 67, 50, 32, 0.0001])
       expect(vals0).to.be.equal(convert_to_uint32_palette(["blue", "blue", "green", "red", "red"]))
@@ -38,7 +38,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map values along linear scale with high/low set", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({low: 1, high: 3, palette})
+      const color_mapper = LinearColorMapper.create({low: 1, high: 3, palette})
 
       const vals = color_mapper.v_compute([1, 2, 3])
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "green", "blue"]))
@@ -46,7 +46,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map values along linear scale with high/low set in other direction", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({low: 3, high: 1, palette})
+      const color_mapper = LinearColorMapper.create({low: 3, high: 1, palette})
 
       const vals = color_mapper.v_compute([1, 2, 3])
       expect(vals).to.be.equal(convert_to_uint32_palette(["blue", "green", "red"]))
@@ -54,7 +54,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map data below low value to low", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({low: 1, high: 3, palette})
+      const color_mapper = LinearColorMapper.create({low: 1, high: 3, palette})
 
       const vals = color_mapper.v_compute([0, 1, 2])
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "red", "green"]))
@@ -62,7 +62,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map data above high value to high", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({low: 1, high: 3, palette})
+      const color_mapper = LinearColorMapper.create({low: 1, high: 3, palette})
 
       const vals = color_mapper.v_compute([2, 3, 4])
       expect(vals).to.be.equal(convert_to_uint32_palette(["green", "blue", "blue"]))
@@ -70,7 +70,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map data NaN to nan_color value", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({low: 1, high: 3, palette, nan_color: "gray"})
+      const color_mapper = LinearColorMapper.create({low: 1, high: 3, palette, nan_color: "gray"})
 
       const vals = color_mapper.v_compute([1, NaN, 3])
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "blue"]))
@@ -78,7 +78,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map data NaN to nan_color value when high/low not set", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({palette, nan_color: "gray"})
+      const color_mapper = LinearColorMapper.create({palette, nan_color: "gray"})
 
       const vals = color_mapper.v_compute([1, NaN, 3])
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "blue"]))
@@ -86,7 +86,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map high/low values to high_color/low_color, if provided", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({low: 0, high: 2, palette, low_color: "pink", high_color: "orange"})
+      const color_mapper = LinearColorMapper.create({low: 0, high: 2, palette, low_color: "pink", high_color: "orange"})
 
       const vals = color_mapper.v_compute([-1, 0, 1, 2, 3])
       expect(vals).to.be.equal(convert_to_uint32_palette(["pink", "red", "green", "blue", "orange"]))

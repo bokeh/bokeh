@@ -16,7 +16,4 @@ export abstract class Indicator extends Widget {
   declare properties: Indicator.Props
   declare __view_type__: IndicatorView
 
-  constructor(attrs?: Partial<Indicator.Attrs>) {
-    super(attrs)
-  }
 }

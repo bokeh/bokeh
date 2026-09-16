@@ -18,10 +18,6 @@ export interface OpenURL extends OpenURL.Attrs {}
 export class OpenURL extends Callback {
   declare properties: OpenURL.Props
 
-  constructor(attrs?: Partial<OpenURL.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<OpenURL.Props>(({Bool, Str}) => ({
       url: [ Str, "http://" ],

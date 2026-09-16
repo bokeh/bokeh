@@ -66,7 +66,7 @@ describe("Examples", () => {
       return medal == "gold" && [1988, 1968, 1936, 1896].includes(year) ? name : ""
     })
 
-    const source = new ColumnDataSource({data: sprint})
+    const source = ColumnDataSource.create({data: sprint})
 
     const plot = figure({
       width: 1000, height: 600,
@@ -84,12 +84,12 @@ describe("Examples", () => {
     plot.title.text = "Usain Bolt vs. 116 years of Olympic sprinters"
     plot.title.text_font_size = "19px"
 
-    plot.xaxis.ticker = new SingleIntervalTicker({interval: 5, num_minor_ticks: 0})
+    plot.xaxis.ticker = SingleIntervalTicker.create({interval: 5, num_minor_ticks: 0})
     plot.xaxis.axis_line_color = null
     plot.xaxis.major_tick_line_color = null
     plot.xgrid.grid_line_dash = "dashed"
 
-    plot.yaxis.ticker = new FixedTicker({ticks: [1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012]})
+    plot.yaxis.ticker = FixedTicker.create({ticks: [1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012]})
     plot.yaxis.major_tick_in = -5
     plot.yaxis.major_tick_out = 10
     plot.ygrid.grid_line_color = null
@@ -124,8 +124,8 @@ describe("Examples", () => {
       },
     }
 
-    const hover = new HoverTool({tooltips, renderers: [medal]})
-    const tap = new TapTool({callback: open_url, renderers: [medal], behavior: "inspect"})
+    const hover = HoverTool.create({tooltips, renderers: [medal]})
+    const tap = TapTool.create({callback: open_url, renderers: [medal], behavior: "inspect"})
 
     plot.add_tools(hover, tap)
 
@@ -137,7 +137,7 @@ describe("Examples", () => {
       source,
     })
 
-    const no_olympics_label = new Label({
+    const no_olympics_label = Label.create({
       x: 7.5, y: 1942,
       text: "No Olympics in 1940 or 1944",
       text_align: "center", text_baseline: "middle",
@@ -147,15 +147,15 @@ describe("Examples", () => {
     plot.add_layout(no_olympics_label)
 
     const x = min(sprint.MetersBack.filter((_, i) => sprint.Year[i] == 1900)) - 0.5
-    const arrow = new Arrow({
+    const arrow = Arrow.create({
       x_start: x, x_end: 5,
       y_start: 1900, y_end: 1900,
       line_width: 1.5,
-      start: new NormalHead({fill_color: "black", size: 6}), end: null,
+      start: NormalHead.create({fill_color: "black", size: 6}), end: null,
     })
     plot.add_layout(arrow)
 
-    const meters_back = new Label({
+    const meters_back = Label.create({
       x: 5, y: 1900,
       x_offset: 10,
       text: "Meters behind\n2012 Usain Bolt",
@@ -164,7 +164,7 @@ describe("Examples", () => {
     })
     plot.add_layout(meters_back)
 
-    const disclaimer = new Label({
+    const disclaimer = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text_font_size: "11px", text_color: "silver",

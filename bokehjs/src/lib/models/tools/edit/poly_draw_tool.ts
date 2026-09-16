@@ -287,10 +287,6 @@ export class PolyDrawTool extends PolyTool {
   declare properties: PolyDrawTool.Props
   declare __view_type__: PolyDrawToolView
 
-  constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PolyDrawToolView
 

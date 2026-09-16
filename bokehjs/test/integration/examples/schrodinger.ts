@@ -10,7 +10,7 @@ import {TeX, Title, Label} from "@bokehjs/models"
 const r = String.raw
 
 function tex(strings: TemplateStringsArray, ...subs: unknown[]): TeX {
-  return new TeX({text: r(strings, ...subs)})
+  return TeX.create({text: r(strings, ...subs)})
 }
 
 describe("Examples", () => {
@@ -33,7 +33,7 @@ describe("Examples", () => {
       tex`\text{Each wavefunction is labelled with its quantum number } v \text{ and energy } E_v`,
     ]
     for (const text of reversed(title)) {
-      p.add_layout(new Title({text, text_font_style: "normal"}), "above")
+      p.add_layout(Title.create({text, text_font_style: "normal"}), "above")
     }
 
     const q = np.linspace(-6, 6, 100)
@@ -54,8 +54,8 @@ describe("Examples", () => {
       p.varea(q, ylower, E_v, {fill_color: "orange"})
       p.line(q, y, {color: "red", line_width: 2})
 
-      p.add_layout(new Label({x: -5.8, y: E_v, y_offset: -21, text: tex`v = ${v}`}))
-      p.add_layout(new Label({x: 3.9, y: E_v, y_offset: -25, text: tex`E_${v} = (${2*v + 1}/2) \hbar\omega`}))
+      p.add_layout(Label.create({x: -5.8, y: E_v, y_offset: -21, text: tex`v = ${v}`}))
+      p.add_layout(Label.create({x: 3.9, y: E_v, y_offset: -25, text: tex`E_${v} = (${2*v + 1}/2) \hbar\omega`}))
     }
 
     const V = f`${q}**2 / 2`

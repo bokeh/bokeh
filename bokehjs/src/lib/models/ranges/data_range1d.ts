@@ -56,10 +56,6 @@ export interface DataRange1d extends DataRange1d.Attrs {}
 export class DataRange1d extends DataRange {
   declare properties: DataRange1d.Props
 
-  constructor(attrs?: Partial<DataRange1d.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<DataRange1d.Props>(({Bool, Float, Nullable}) => ({
       range_padding:       [ Float, 0.1 ],

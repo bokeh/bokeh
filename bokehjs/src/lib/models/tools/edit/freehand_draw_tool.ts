@@ -106,10 +106,6 @@ export class FreehandDrawTool extends EditTool {
   declare properties: FreehandDrawTool.Props
   declare __view_type__: FreehandDrawToolView
 
-  constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = FreehandDrawToolView
 
@@ -118,7 +114,7 @@ export class FreehandDrawTool extends EditTool {
       renderers:   [ List(Ref(GlyphRenderer<XsYsGlyph>)), [] ],
     }))
 
-    this.register_alias("freehand_draw", () => new FreehandDrawTool())
+    this.register_alias("freehand_draw", () => FreehandDrawTool.create())
   }
 
   override tool_name = "Freehand Draw Tool"

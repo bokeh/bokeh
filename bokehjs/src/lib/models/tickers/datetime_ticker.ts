@@ -25,16 +25,12 @@ export interface DatetimeTicker extends DatetimeTicker.Attrs {}
 export class DatetimeTicker extends CompositeTicker {
   declare properties: DatetimeTicker.Props
 
-  constructor(attrs?: Partial<DatetimeTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<DatetimeTicker.Props>({
       num_minor_ticks: 0,
       tickers: () => [
         // Sub-second.
-        new AdaptiveTicker({
+        AdaptiveTicker.create({
           mantissas: [1, 2, 5],
           base: 10,
           min_interval: 0,
@@ -43,7 +39,7 @@ export class DatetimeTicker extends CompositeTicker {
         }),
 
         // Seconds, minutes.
-        new AdaptiveTicker({
+        AdaptiveTicker.create({
           mantissas: [1, 2, 5, 10, 15, 20, 30],
           base: 60,
           min_interval: ONE_SECOND,
@@ -52,7 +48,7 @@ export class DatetimeTicker extends CompositeTicker {
         }),
 
         // Hours.
-        new AdaptiveTicker({
+        AdaptiveTicker.create({
           mantissas: [1, 2, 4, 6, 8, 12],
           base: 24.0,
           min_interval: ONE_HOUR,
@@ -61,19 +57,19 @@ export class DatetimeTicker extends CompositeTicker {
         }),
 
         // Days.
-        new DaysTicker({days: range(1, 32)}),
-        new DaysTicker({days: range(1, 31, 3)}),
-        new DaysTicker({days: [1, 8, 15, 22]}),
-        new DaysTicker({days: [1, 15]}),
+        DaysTicker.create({days: range(1, 32)}),
+        DaysTicker.create({days: range(1, 31, 3)}),
+        DaysTicker.create({days: [1, 8, 15, 22]}),
+        DaysTicker.create({days: [1, 15]}),
 
         // Months.
-        new MonthsTicker({months: range(0, 12, 1)}),
-        new MonthsTicker({months: range(0, 12, 2)}),
-        new MonthsTicker({months: range(0, 12, 4)}),
-        new MonthsTicker({months: range(0, 12, 6)}),
+        MonthsTicker.create({months: range(0, 12, 1)}),
+        MonthsTicker.create({months: range(0, 12, 2)}),
+        MonthsTicker.create({months: range(0, 12, 4)}),
+        MonthsTicker.create({months: range(0, 12, 6)}),
 
         // Years
-        new YearsTicker({}),
+        YearsTicker.create({}),
       ],
     })
   }

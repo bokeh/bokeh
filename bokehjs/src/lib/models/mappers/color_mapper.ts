@@ -41,10 +41,6 @@ export abstract class ColorMapper extends Mapper<Color> {
 
   readonly metrics_change: Signal0<this> = new Signal0(this, "metrics_change")
 
-  constructor(attrs?: Partial<ColorMapper.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ColorMapper.Props>(({Color, List}) => ({
       palette:   [ List(Color) ],

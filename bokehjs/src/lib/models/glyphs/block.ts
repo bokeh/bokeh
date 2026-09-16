@@ -108,10 +108,6 @@ export class Block extends LRTB {
   declare properties: Block.Props
   declare __view_type__: BlockView
 
-  constructor(attrs?: Partial<Block.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = BlockView
 
