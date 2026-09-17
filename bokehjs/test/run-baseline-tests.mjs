@@ -7,7 +7,7 @@ import process from "node:process"
 import {fileURLToPath} from "node:url"
 
 const chrome_version = "141.0.7390.54"
-const canonical_image = "ghcr.io/bokeh/bokehjs-baselines@sha256:9163c9791b4a5ee80f60344441a16133d7324ece4911550e5fb5b20c4e60db71"
+const canonical_image = fs.readFileSync(new URL("baselines/canonical-image.txt", import.meta.url), "utf-8").trim()
 const local_image = `bokehjs-baselines-local:${chrome_version}`
 const windows_test_timeout = 120
 // Chrome 141 can destroy the renderer context for this test in a

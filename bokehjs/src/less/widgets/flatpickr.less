@@ -1,3 +1,13 @@
 @flatpickr: "../../../node_modules/flatpickr";
 @import (less) "@{flatpickr}/dist/flatpickr.css";
 @import (less) "@{flatpickr}/dist/themes/light.css";
+
+// Seven 44px columns avoid browser-dependent rounding of Flatpickr's
+// fractional 307.875px day-container width.
+@flatpickr-days-width: 308px;
+
+.dayContainer {
+  width: @flatpickr-days-width;
+  min-width: @flatpickr-days-width;
+  max-width: @flatpickr-days-width;
+}

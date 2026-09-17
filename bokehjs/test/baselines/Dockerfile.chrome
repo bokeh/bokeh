@@ -1,0 +1,17 @@
+# Change only Chrome; preserve the canonical image's OS, fonts, and libraries.
+ARG BASELINE_IMAGE
+FROM ${BASELINE_IMAGE}
+
+ARG CHROME_VERSION
+ARG CHROME_SHA256
+
+RUN curl --fail --location --silent --show-error \
+      --output /tmp/chrome.zip \
+      "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip" && \
+    echo "${CHROME_SHA256}  /tmp/chrome.zip" | sha256sum --check --strict && \
+    unzip -q /tmp/chrome.zip -d /opt && \
+    rm -rf /opt/chrome && \
+    mv /opt/chrome-linux64 /opt/chrome && \
+    rm /tmp/chrome.zip && \
+    find /opt/chrome/locales -type f ! -name 'en-US.pak' -delete && \
+    rm -rf /opt/chrome/WidevineCdm

@@ -127,8 +127,9 @@ export class CanvasLayer {
     const {ctx, pixel_ratio} = this
     ctx.save()
     ctx.scale(pixel_ratio, pixel_ratio)
-    ctx.translate(0.5, 0.5)
+    // Clear before shifting pixel centers so no ink remains along the edges.
     this.clear()
+    ctx.translate(0.5, 0.5)
     return ctx
   }
 

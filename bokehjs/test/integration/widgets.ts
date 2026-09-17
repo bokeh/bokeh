@@ -1,6 +1,6 @@
 import {display, column} from "#framework/layouts"
 import {tap, mouse_click} from "#framework/interactive"
-import {expect_not_null} from "#framework/assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
@@ -329,8 +329,15 @@ describe("Widgets", () => {
   })
 
   it.allowing(8)("should allow TextAreaInput with resizable=true", async () => {
-    const obj = new TextAreaInput({placeholder: "Enter text ...", cols: 20, rows: 4, resizable: true})
-    await display(obj, [500, 100])
+    const obj = new TextAreaInput({
+      placeholder: "Enter text ...", cols: 20, rows: 4, resizable: true,
+      // The browser owns the handle's appearance; retain its resize hit target.
+      stylesheets: [":host::-webkit-resizer { visibility: hidden; }"],
+    })
+    const {view} = await display(obj, [500, 100])
+    const {resize, overflow} = getComputedStyle(view.el)
+    expect(resize).to.be.equal("both")
+    expect(overflow).to.be.equal("auto")
   })
 
   it.allowing(8)("should allow FileInput", async () => {

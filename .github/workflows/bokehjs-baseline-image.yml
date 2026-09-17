@@ -150,5 +150,5 @@ jobs:
             echo "- Digest: \`$DIGEST\`"
             echo "- Canonical reference: \`$IMAGE@$DIGEST\`"
             echo
-            echo "Update the immutable image revision in \`bokehjs/test/run-baseline-tests.mjs\` in a reviewed pull request."
+            echo "Update the immutable image revision in \`bokehjs/test/baselines/canonical-image.txt\` in a reviewed pull request."
           } >> "$GITHUB_STEP_SUMMARY"
