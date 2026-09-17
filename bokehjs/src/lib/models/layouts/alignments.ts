@@ -22,8 +22,9 @@ export class GridAlignmentLayout extends Layoutable {
     const rows = Array.from({length: children.nrows}, () => ({top: 0, bottom: 0}))
     const cols = Array.from({length: children.ncols}, () => ({left: 0, right: 0}))
 
-    children.foreach(({r0, c0, r1, c1}, {layout}) => {
-      if (!(layout instanceof BorderLayout)) {
+    children.foreach(({r0, c0, r1, c1}, {layout, model}) => {
+      // `layout.visible` is only updated after measuring, so it can be stale here.
+      if (!(layout instanceof BorderLayout) || !model.visible) {
         return
       }
       // A child's measurement must not carry the previous pass's borders, or

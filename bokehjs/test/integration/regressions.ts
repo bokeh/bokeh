@@ -5648,5 +5648,29 @@ describe("Bug", () => {
         expect(bbox.bottom).to.be.within(0, plot_view.bbox.height)
       }
     })
+
+    it.no_image("aligns frames to the borders of a hidden plot in a grid plot", async () => {
+      function plot(end: number, visible: boolean = true) {
+        const plot = figure({
+          frame_width: 120,
+          frame_height: 120,
+          toolbar_location: null,
+          x_range: new Range1d({start: 0, end: 1}),
+          y_range: new Range1d({start: 0, end}),
+          visible,
+        })
+        plot.scatter([0.1, 0.9], [end*0.1, end*0.9])
+        return plot
+      }
+
+      const hidden = plot(1000000000, false)
+      const narrow = plot(1)
+      const gp = gridplot([[hidden, plot(1)], [narrow, plot(1)]], {toolbar_location: null})
+      const {view} = await display(gp, [400, 400])
+
+      const narrow_view = view.owner.get_one(narrow)
+      const yaxis_view = view.owner.get_one(narrow.yaxes[0])
+      expect(narrow_view.frame.bbox.left).to.be.equal(yaxis_view.bbox.width)
+    })
   })
 })
