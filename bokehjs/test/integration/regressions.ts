@@ -3420,6 +3420,26 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #13225", () => {
+    it.no_image("crops the x axis of a plot with frame_height next to a plot with a title in a grid plot", async () => {
+      const p0 = figure({title: "title", x_axis_label: "x", y_axis_label: "y"})
+      p0.line([0, 1], [0, 1])
+
+      const p1 = figure({x_axis_label: "x", y_axis_label: "y", frame_height: 200})
+      p1.line([0, 1], [0, 1])
+
+      const gp = gridplot([[p0, p1]])
+      const {view} = await display(gp, [1250, 650])
+
+      for (const plot of [p0, p1]) {
+        const plot_view = view.owner.get_one(plot)
+        const [xaxis] = plot.xaxes
+        const axis_view = view.owner.get_one(xaxis)
+        expect(axis_view.bbox.bottom).to.be.within(0, plot_view.bbox.height)
+      }
+    })
+  })
+
   describe("in issue #13252", () => {
     describe("doesn't allow to correctly export GridPlot", () => {
       function plot(color: Color) {
