@@ -15,6 +15,34 @@ function make_wrapper(
 }
 
 describe("ReglWrapper", () => {
+  it("should clear only its viewport and bound it by the drawing buffer", () => {
+    const canvas = document.createElement("canvas")
+    canvas.width = 64
+    canvas.height = 32
+    const gl = canvas.getContext("webgl")!
+    gl.clearColor(1, 0, 0, 1)
+    gl.clear(gl.COLOR_BUFFER_BIT)
+    const wrapper = new ReglWrapper(gl)
+
+    function pixel(x: number, y: number): number[] {
+      const data = new Uint8Array(4)
+      gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data)
+      return [...data]
+    }
+
+    wrapper.clear(16, 8)
+    expect(wrapper.viewport).to.be.equal({x: 0, y: 0, width: 16, height: 8})
+    expect(pixel(15, 7)).to.be.equal([0, 0, 0, 0])
+    expect(pixel(16, 7)).to.be.equal([255, 0, 0, 255])
+    expect(pixel(15, 8)).to.be.equal([255, 0, 0, 255])
+
+    wrapper.clear(gl.getParameter(gl.MAX_TEXTURE_SIZE) + 1, 8)
+    expect(wrapper.viewport).to.be.equal({x: 0, y: 0, width: 64, height: 8})
+    const [, texture] = wrapper.framebuffer_and_texture
+    expect([texture.width, texture.height]).to.be.equal([64, 8])
+    expect(gl.getError()).to.be.equal(gl.NO_ERROR)
+  })
+
   it("should bound and frame-clip a partly out-of-frame ring", () => {
     const wrapper = make_wrapper()
 

@@ -2331,12 +2331,13 @@ ${view.host_selector} {
       p.line([0, 1], [0, 1], {line_width: 3})
       p.scatter([0, 0.5, 1], [0, 0.5, 1], {size: 20, fill_alpha: 0.5})
       p.patch([0.1, 0.9, 0.5], [0.1, 0.1, 0.9], {fill_alpha: 0.3, line_width: 2})
+      p.multi_line([[0, 1], [0, 1]], [[0.2, 0.8], [0.8, 0.2]], {line_width: 2})
       return p
     }
 
     async function display_plots(...sizes: [number, number][]) {
       const plots = sizes.map(([width, height]) => plot(width, height))
-      const {view} = await display(row(plots), [850, 300])
+      const {view} = await display(row(plots), null)
       const views = plots.map((p) => view.owner.get_one(p))
       const {webgl} = views[0].canvas_view
       expect_not_null(webgl)
@@ -2350,6 +2351,11 @@ ${view.host_selector} {
     function paint(plot_view: PlotView): void {
       plot_view.invalidate_painters()
       plot_view.paint()
+    }
+
+    function pixels(plot_view: PlotView): Uint8Array {
+      const {ctx, canvas: {width, height}} = plot_view.canvas_view.primary
+      return new Uint8Array(ctx.getImageData(0, 0, width, height).data.buffer)
     }
 
     for (const dpr of [1, 1.5, 2]) {
@@ -2385,11 +2391,6 @@ ${view.host_selector} {
       it.dpr(dpr)(`paints plots as if the shared WebGL canvas matched their size with devicePixelRatio == ${dpr}`, async () => {
         const {views, canvas} = await display_plots([151, 101], [301, 121], [121, 251])
 
-        function pixels(plot_view: PlotView): Uint8Array {
-          const {ctx, canvas: {width, height}} = plot_view.canvas_view.primary
-          return new Uint8Array(ctx.getImageData(0, 0, width, height).data.buffer)
-        }
-
         const expected = views.map((plot_view) => {
           canvas.width = 1
           canvas.height = 1
@@ -2403,6 +2404,26 @@ ${view.host_selector} {
         expect(views.map(pixels)).to.be.equal(expected)
       })
     }
+
+    it("paints plots after plots exceeding the maximum size of drawing buffers", async () => {
+      const max_size: number = document.createElement("canvas").getContext("webgl")!.getParameter(WebGLRenderingContext.MAX_TEXTURE_SIZE)
+      const {views, canvas} = await display_plots([128, 128], [128, max_size + 1024], [max_size + 1, 128])
+      const [small, tall, wide] = views
+      const gl = canvas.getContext("webgl")!
+
+      paint(small)
+      const expected = pixels(small)
+
+      for (const plot_view of [tall, small, wide, small]) {
+        paint(plot_view)
+        expect([canvas.width, canvas.height]).to.be.equal([gl.drawingBufferWidth, gl.drawingBufferHeight])
+        expect(gl.getError()).to.be.equal(gl.NO_ERROR)
+        expect(gl.isContextLost()).to.be.false
+      }
+      expect(canvas.height).to.be.below(tall.canvas_view.primary.canvas.height)
+      expect(canvas.width).to.be.below(wide.canvas_view.primary.canvas.width)
+      expect(pixels(small)).to.be.equal(expected)
+    })
 
     it("paints zero-area plots after larger plots", async () => {
       const {views} = await display_plots([301, 251], [0, 101], [151, 0], [0, 0])

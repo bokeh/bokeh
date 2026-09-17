@@ -201,16 +201,24 @@ export class CanvasView extends UIElementView {
     if (webgl != null) {
       // Only grow the shared canvas, because resizing reallocates its drawing buffer
       const {canvas} = webgl
-      const {width, height} = this.primary.canvas
+      const gl = canvas.getContext("webgl")!
+      const max_size: number = gl.getParameter(gl.MAX_TEXTURE_SIZE)
+      const width = Math.min(this.primary.canvas.width, max_size)
+      const height = Math.min(this.primary.canvas.height, max_size)
       if (canvas.width < width || canvas.height < height) {
         canvas.width = Math.max(canvas.width, width)
         canvas.height = Math.max(canvas.height, height)
-        // Browsers limit the area of drawing buffers, so fall back to this plot's size if exceeded
-        const gl = canvas.getContext("webgl")!
+        // Browsers also limit the area of drawing buffers, so fall back to this plot's size if exceeded
         if (gl.drawingBufferWidth < canvas.width || gl.drawingBufferHeight < canvas.height) {
           canvas.width = width
           canvas.height = height
         }
+      }
+      // Match the canvas to the drawing buffer the browser actually allocated
+      const {drawingBufferWidth, drawingBufferHeight} = gl
+      if (drawingBufferWidth < canvas.width || drawingBufferHeight < canvas.height) {
+        canvas.width = drawingBufferWidth
+        canvas.height = drawingBufferHeight
       }
       const {x: sx, y: sy, width: w, height: h} = frame_box
       const {xview, yview} = this.bbox
@@ -231,9 +239,10 @@ export class CanvasView extends UIElementView {
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
       logger.debug("Blitting WebGL canvas")
       ctx.restore()
-      // GL draws into the bottom-left corner of the shared canvas
+      // GL draws into the viewport in the bottom-left corner of the shared canvas
       const {width, height} = this.primary.canvas
-      ctx.drawImage(webgl.canvas, 0, webgl.canvas.height - height, width, height, 0, 0, width, height)
+      const {width: vw = 0, height: vh = 0} = webgl.regl_wrapper.viewport
+      ctx.drawImage(webgl.canvas, 0, webgl.canvas.height - vh, vw, vh, 0, 0, width, height)
       // Set back the HiDPI transform
       ctx.save()
       const ratio = this.pixel_ratio

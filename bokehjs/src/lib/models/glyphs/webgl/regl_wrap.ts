@@ -1,5 +1,5 @@
 import createRegl from "regl"
-import type {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements, ElementsOptions} from "regl"
+import type {Regl, DrawCommand, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements, ElementsOptions} from "regl"
 import type {Attributes, MaybeDynamicAttributes, DefaultContext, Framebuffer2D, Texture2D, Texture2DOptions} from "regl"
 import type * as t from "./types"
 import type {GLMarkerType} from "./types"
@@ -55,6 +55,7 @@ export class ReglWrapper {
   // WebGL state variables.
   private _scissor: BoundingBox
   private _viewport: BoundingBox
+  private _clear_viewport?: DrawCommand<DefaultContext, {box: BoundingBox}>
 
   // WebGL framebuffer used to accumulate glyph rendering before single blit to Canvas.
   private _framebuffer?: Framebuffer2D
@@ -112,8 +113,12 @@ export class ReglWrapper {
   }
 
   clear(width: number, height: number): void {
-    this._viewport = {x: 0, y: 0, width, height}
-    this._regl.clear({color: [0, 0, 0, 0]})
+    // Plots exceeding the drawing buffer are scaled down into it
+    const {drawingBufferWidth, drawingBufferHeight} = this._regl._gl
+    this._viewport = {x: 0, y: 0, width: Math.min(width, drawingBufferWidth), height: Math.min(height, drawingBufferHeight)}
+    // Clear only the viewport, because the shared drawing buffer may be much larger
+    this._clear_viewport ??= this._regl({scissor: {enable: true, box: this._regl.prop<{box: BoundingBox}, "box">("box")}})
+    this._clear_viewport({box: this._viewport}, () => this._regl.clear({color: [0, 0, 0, 0]}))
   }
 
   clear_framebuffer(framebuffer: Framebuffer2D): void {
