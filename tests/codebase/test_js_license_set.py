@@ -34,6 +34,7 @@ LICENSES = [
     'BSD-3-Clause',
     'ISC',
     'MIT',
+    'SGI-B-2.0',
     'Unlicense',
     'WTFPL',
 ]

@@ -4,6 +4,7 @@ import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer, expand_to_per_vertex}
 import type {ReglWrapper} from "./regl_wrap"
 import type {GlyphView} from "../glyph"
 import type {PatchesView} from "../patches"
+import type {CoordinateTransform} from "../../coordinates/coordinate_mapping"
 import type {AccumulateProps, LineGlyphProps, LineDashGlyphProps} from "./types"
 import type {Elements, Texture2D} from "regl"
 import type * as p from "core/properties"
@@ -11,9 +12,9 @@ import type {HatchPattern} from "core/property_mixins"
 import {resolve_line_dash} from "core/visuals/line"
 import {normalize_dash_pattern} from "./dash_cache"
 import {LINE_AA_WIDTH, LINE_MITER_LIMIT, line_bounds_padding} from "./base_line"
-import {split_rings, classify_rings, build_line_from_ring, generate_skirt_geometry, POLYGON_AA_WIDTH} from "core/util/polygon"
+import {split_rings, build_line_from_ring, POLYGON_AA_WIDTH} from "core/util/polygon"
 import type {SkirtGeometry, RingLineData} from "core/util/polygon"
-import earcut from "earcut"
+import {PolygonTopology} from "./polygon"
 
 type PolygonData = {
   // Per-polygon line data: each polygon has an array of ring outlines
@@ -24,11 +25,6 @@ type PolygonData = {
   // Offsets and counts are in element index units (not bytes).
   fill_element_offsets: number[]
   fill_element_counts: number[]
-}
-
-type GroupTopology = {
-  ring_indices: number[]
-  tri_indices: number[]
 }
 
 export class PatchesGL extends BaseGLGlyph {
@@ -83,7 +79,9 @@ export class PatchesGL extends BaseGLGlyph {
   _poly_data?: PolygonData
 
   private _pv_dirty = true
-  private _topology?: (GroupTopology[] | null)[]
+  private _pv_elements: Elements | null = null
+  private _topology?: (PolygonTopology | null)[]
+  private _topology_scales?: CoordinateTransform["scales"]
   private _elements_signature: string = ""
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: PatchesView) {
@@ -116,6 +114,12 @@ export class PatchesGL extends BaseGLGlyph {
     if (this !== main_gl && (this.data_changed || this.data_mapped)) {
       this.data_changed = false
       this.data_mapped = false
+      this._pv_dirty = true
+    }
+    // Remapping can change the finite contours without changing source data.
+    // Each visual variant must notice the resulting vertex layout change.
+    if (this._pv_elements !== main_gl._elements) {
+      this._pv_elements = main_gl._elements
       this._pv_dirty = true
     }
 
@@ -299,21 +303,20 @@ export class PatchesGL extends BaseGLGlyph {
   _set_data(data_changed: boolean = true): void {
     const {sxs, sys} = this.glyph
     const npoly = this.glyph.data_size
-    const topology_changed = data_changed || this._topology == null || this._topology.length != npoly
+    const {scales} = this.glyph.renderer.coordinates
+    // Changing scale types is not an affine remapping of cached intersections.
+    const scales_changed = scales.some((scale, i) => scale !== this._topology_scales?.[i])
+    this._topology_scales = scales
+    const topology_changed = data_changed || scales_changed || this._topology == null || this._topology.length != npoly
     let elements_changed = topology_changed
     if (topology_changed) {
       this._topology = new Array(npoly).fill(null)
     }
 
     // Pass 1: triangulate each polygon, generate skirt geometry, and tally total sizes.
-    // Each polygon's rings are classified into groups (outer + holes vs disjoint parts),
-    // and each group is triangulated independently.
-    type GroupResult = {
-      geom: SkirtGeometry
-      rings: number[][]
-    }
+    // Resolve crossings and overlaps within each polygon using the even-odd rule.
     type PolyResult = {
-      groups: GroupResult[]
+      groups: SkirtGeometry[]
       all_rings: number[][]  // all original rings for line rendering
     }
     const per_poly: (PolyResult | null)[] = new Array(npoly)
@@ -335,37 +338,18 @@ export class PatchesGL extends BaseGLGlyph {
 
       if (rings.length > 0) {
         let topology = this._topology![i]
-        if (topology_changed || topology == null || topology.some(({ring_indices}) =>
-          ring_indices.some((index) => index >= rings.length))) {
+        if (topology_changed || topology == null || !topology.matches(rings)) {
           elements_changed = true
-          const groups = classify_rings(rings)
-          topology = groups.map(({flat_coords, rings: group_rings}) => {
-            const ring_indices = group_rings.map((ring) => rings.indexOf(ring))
-            const hole_indices: number[] = []
-            let offset = 0
-            for (let r = 0; r < group_rings.length; r++) {
-              if (r > 0) {
-                hole_indices.push(offset)
-              }
-              offset += group_rings[r].length / 2
-            }
-            const tri_indices = earcut(flat_coords, hole_indices.length > 0 ? hole_indices : undefined, 2)
-            return {ring_indices, tri_indices}
-          })
+          topology = new PolygonTopology(rings)
           this._topology![i] = topology
         }
-        active_topology.push(topology.map(({tri_indices}) => tri_indices.length).join(","))
-        const group_results: GroupResult[] = []
+        const group_results = topology.geometries(rings)
+        active_topology.push(group_results.map((geom) => `${geom.nvertices}:${geom.indices.length}`).join(","))
 
         let poly_nvertices = 0
         let poly_elements = 0
 
-        for (const {ring_indices, tri_indices} of topology) {
-          const group_rings = ring_indices.map((index) => rings[index])
-          const flat_coords = group_rings.flat()
-          const geom = generate_skirt_geometry(flat_coords, group_rings, tri_indices, POLYGON_AA_WIDTH)
-
-          group_results.push({geom, rings: group_rings})
+        for (const geom of group_results) {
           poly_nvertices += geom.nvertices
           poly_elements += geom.indices.length
         }
@@ -416,7 +400,7 @@ export class PatchesGL extends BaseGLGlyph {
 
       const {groups, all_rings} = result
 
-      for (const {geom} of groups) {
+      for (const geom of groups) {
         pos_array.set(geom.positions, pos_offset)
         pos_offset += geom.positions.length
 
