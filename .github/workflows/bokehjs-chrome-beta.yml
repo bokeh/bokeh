@@ -32,10 +32,10 @@ jobs:
         run: printf 'image=%s\n' "$(cat bokehjs/test/baselines/canonical-image.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build transient Chrome Beta image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: bokehjs/test/baselines
           file: bokehjs/test/baselines/Dockerfile.chrome

@@ -2079,9 +2079,10 @@ describe("Bug", () => {
   })
 
   describe("in issue #9113", () => {
-    it.allowing(10)("prevents layout update when adding new toggle group buttons", async () => {
-      // This regression exercises layout; exclude rounded-corner rasterization.
-      const group = new RadioButtonGroup({labels: [], styles: {"--border-radius": "0px"}})
+    // Chrome 141/153/154 differ from the original reference by up to 26 pixels
+    // at rounded corners, with unchanged geometry and RGB channel deltas <= 1.
+    it.allowing(26)("prevents layout update when adding new toggle group buttons", async () => {
+      const group = new RadioButtonGroup({labels: []})
       const {view} = await display(group, [300, 100])
       let previous_width = bounding_box(view.el).width
 
@@ -4236,7 +4237,7 @@ describe("Bug", () => {
     })
 
     it("doesn't allot to recompute the layout when a Legend without margin grows", async () => {
-      const p = fig([400, 200])
+      const p = fig([600, 200])
       const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
       const legend = new Legend({

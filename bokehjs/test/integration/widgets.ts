@@ -328,12 +328,9 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow TextAreaInput with resizable=true", async () => {
-    const obj = new TextAreaInput({
-      placeholder: "Enter text ...", cols: 20, rows: 4, resizable: true,
-      // The browser owns the handle's appearance; retain its resize hit target.
-      stylesheets: [":host::-webkit-resizer { visibility: hidden; }"],
-    })
+  // The native resize handle differs by 22 pixels between Chrome 141 and 153/154.
+  it.allowing(22)("should allow TextAreaInput with resizable=true", async () => {
+    const obj = new TextAreaInput({placeholder: "Enter text ...", cols: 20, rows: 4, resizable: true})
     const {view} = await display(obj, [500, 100])
     const {resize, overflow} = getComputedStyle(view.el)
     expect(resize).to.be.equal("both")
