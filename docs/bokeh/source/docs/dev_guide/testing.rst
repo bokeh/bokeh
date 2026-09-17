@@ -525,7 +525,7 @@ Maintainers can publish a refreshed container with the manually dispatched
 rebuilds the package layers without a cache, tests the local image before
 publishing it, and records the resulting digest. Bump the image revision
 whenever the versions or system packages in the container are refreshed, then
-update the digest used by ``bokehjs/test/run-baseline-tests.mjs`` in a
+update ``bokehjs/test/baselines/canonical-image.txt`` in a
 reviewed pull request. Set ``BOKEHJS_BASELINE_BUILD=1`` to build the Dockerfile
 locally while preparing a new image. Set
 ``BOKEHJS_CONTAINER_ENGINE=podman`` when invoking any ``baseline-test`` task to
@@ -534,6 +534,10 @@ use Podman instead of Docker. On Apple Silicon, the image's canonical
 machine; QEMU-only machines may abort while starting Chrome. Configure
 ``rosetta = true`` in the ``[machine]`` section of ``containers.conf`` before
 creating the Podman machine.
+
+The scheduled Chrome Beta workflow uses the same canonical image and replaces
+only its Chrome for Testing archive. This keeps the OS packages, fonts, and
+libraries fixed when comparing Beta rendering with the pinned-browser baselines.
 
 Additionally, you can use search strings to select individual tests or groups
 of tests. Use the ``-k`` argument to supply your search string. The search

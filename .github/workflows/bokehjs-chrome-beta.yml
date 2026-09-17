@@ -26,19 +26,25 @@ jobs:
         shell: bash
         run: tools/ci/resolve_chrome_for_testing.sh BETA linux64 >> "$GITHUB_OUTPUT"
 
+      - name: Read canonical baseline image
+        id: baseline
+        shell: bash
+        run: printf 'image=%s\n' "$(cat bokehjs/test/baselines/canonical-image.txt)" >> "$GITHUB_OUTPUT"
+
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build transient Chrome Beta image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: bokehjs/test/baselines
-          file: bokehjs/test/baselines/Dockerfile
+          file: bokehjs/test/baselines/Dockerfile.chrome
           platforms: linux/amd64
           load: true
           push: false
           tags: bokehjs-baselines-beta:${{ steps.chrome.outputs.version }}
           build-args: |
+            BASELINE_IMAGE=${{ steps.baseline.outputs.image }}
             CHROME_VERSION=${{ steps.chrome.outputs.version }}
             CHROME_SHA256=${{ steps.chrome.outputs.sha256 }}
           cache-from: type=gha,scope=bokehjs-chrome-beta

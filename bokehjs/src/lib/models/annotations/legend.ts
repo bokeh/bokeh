@@ -85,7 +85,12 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.change, () => this.rerender())
 
     const {items} = this.model.properties
-    this.on_transitive_change(items, () => this._render_items(), {recursive: true})
+    this.on_transitive_change(items, () => {
+      this._render_items()
+      // Refresh the measured size before the queued paint checks side layout.
+      this.update_position()
+      this.request_paint()
+    }, {recursive: true})
   }
 
   protected _bbox: BBox = new BBox()
@@ -171,6 +176,7 @@ export class LegendView extends AnnotationView {
 
       for (const label of labels) {
         const glyph = this.plot_view.canvas.create_layer()
+        glyph.resize(this.model.glyph_width, this.model.glyph_height)
         glyph.el.classList.add(legend_css.glyph)
 
         const glyph_el = glyph.canvas
