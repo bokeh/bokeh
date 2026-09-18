@@ -7,13 +7,14 @@ import {Signal, Signal0} from "core/signaling"
 import type {Arrayable, ArrayableNew, Attrs, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
-import {inplace_filter, uniq} from "core/util/array"
+import {inplace_filter, map, uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import {Selection} from "../selections/selection"
+import type {OpaqueIndices} from "../selections/selection"
 import {DataSource} from "./data_source"
 import type {Index} from "core/util/templating"
 
@@ -213,7 +214,16 @@ export abstract class ColumnarDataSource extends DataSource {
     const i = isNumber(index) ? index : index.index
     const result: {[key: string]: unknown} = {}
     for (const [column, array] of entries(this.data)) {
-      result[column] = array[i]
+      result[column] = is_NDArray(array) ? array.get(i) : array[i]
+    }
+    return result
+  }
+
+  get_rows(indices: OpaqueIndices): {[key: string]: unknown} {
+    const mapped_indices = map(indices, (index: Index) => isNumber(index) ? index : index.index)
+    const result: {[key: string]: unknown} = {}
+    for (const [column, array] of entries(this.data)) {
+      result[column] = map(mapped_indices, (index: number) => is_NDArray(array) ? array.get(index) : array[index])
     }
     return result
   }
@@ -265,5 +275,55 @@ export abstract class ColumnarDataSource extends DataSource {
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
     this.patch_to(this.properties.data, patches, {sync})
+  }
+
+  _csv_escaped_value(value: unknown, escape_characters: string[]): string {
+    let string_value = is_NDArray(value) || isArray(value) ? JSON.stringify(value) : String(value)
+    if (escape_characters.some(escape_character => string_value.includes(escape_character))) {
+      string_value = `"${string_value.replace(/"/g, '""')}"`
+    }
+    return string_value
+  }
+
+  _row_to_csv(index: Index): string {
+    const escape_characters = [",", '"', "\n", "\r"]
+    const row_values = this.columns().map(
+      (column) => this._csv_escaped_value(this.get_row(index)[column], escape_characters),
+    )
+    return row_values.join()
+  }
+
+  _headers_to_csv(): string {
+    const escape_characters = [",", '"', "\n", "\r"]
+    const header_values = this.columns().map(
+      (column) => this._csv_escaped_value(column, escape_characters),
+    )
+    return header_values.join()
+  }
+
+  to_csv(): string {
+    const headers = this._headers_to_csv()
+    const rows = []
+    if (this.selected.indices.length > 0) {
+      for (const row of this.selected.indices) {
+        rows.push(this._row_to_csv(row))
+      }
+    } else {
+      for (let row = 0; row < this.length; row++) {
+        rows.push(this._row_to_csv(row))
+      }
+    }
+    // Push empty string to have last row with newline character
+    // possibliy something worthy to be configurable via an option as well as
+    // separator and characters to escape
+    rows.push("")
+    return [headers, ...rows].join("\n")
+  }
+
+  to_json(): string {
+    if (this.selected.indices.length > 0) {
+      return JSON.stringify(this.get_rows(this.selected.indices))
+    }
+    return JSON.stringify(this.data, (_, value) => value instanceof Map ? Object.fromEntries(value) : value)
   }
 }
