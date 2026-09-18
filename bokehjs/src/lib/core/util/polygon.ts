@@ -36,7 +36,7 @@ export function split_rings(sx: Arrayable<number>, sy: Arrayable<number>): numbe
 export type SkirtGeometry = {
   positions: Float32Array      // [x,y,...] for original + skirt vertices
   edge_distance: Float32Array  // 1 float per vertex
-  indices: Uint32Array         // earcut + skirt triangle indices
+  indices: Uint32Array         // fill + skirt triangle indices
   nvertices: number
   ntriangles: number
 }
@@ -56,18 +56,20 @@ function signed_area_2(ring: number[]): number {
 /** Generate expanded geometry with an anti-aliasing skirt around polygon boundaries.
  *
  *  The skirt approach adds a thin fringe of extra triangles around each polygon
- *  boundary edge. Interior (earcut) vertices get `edge_distance = antialias_width`
+ *  boundary edge. Interior vertices get `edge_distance = antialias_width`
  *  (fully opaque). Skirt outer vertices get `edge_distance = 0.0` (fully
  *  transparent). The GPU linearly interpolates across the skirt, producing a
  *  smooth alpha gradient for anti-aliased polygon edges. Ordinarily the skirt
  *  straddles the mathematical boundary. Rings with subpixel segments instead
  *  keep their triangulated vertices fixed and place the entire fade outwards,
- *  because moving those vertices can invalidate skinny earcut triangles.
+ *  because moving those vertices can invalidate skinny fill triangles.
  *
  *  @param flat_coords      Interleaved [x0,y0,...] screen-pixel coordinates.
  *  @param rings            Ring arrays as returned by {@link split_rings}.
- *  @param tri_indices      Earcut triangle indices into flat_coords.
+ *  @param tri_indices      Fill triangle indices into flat_coords.
  *  @param antialias_width  Width of the AA skirt in CSS pixels.
+ *  @param preserve_vertices Keep boundary vertices fixed when the tessellator
+ *                           adds vertices shared by touching boundaries.
  *  @returns SkirtGeometry with combined positions, edge distances, and indices.
  */
 export function generate_skirt_geometry(
@@ -75,17 +77,18 @@ export function generate_skirt_geometry(
   rings: number[][],
   tri_indices: ArrayLike<number>,
   antialias_width: number,
+  preserve_vertices: boolean = false,
 ): SkirtGeometry {
   const n_original = flat_coords.length / 2
-  const n_earcut_tris = tri_indices.length / 3
+  const n_fill_tris = tri_indices.length / 3
 
-  if (n_original < 3 || n_earcut_tris == 0) {
+  if (n_original < 3 || n_fill_tris == 0) {
     return {
       positions: new Float32Array(flat_coords.length),
       edge_distance: new Float32Array(n_original).fill(antialias_width),
       indices: new Uint32Array(tri_indices),
       nvertices: n_original,
-      ntriangles: n_earcut_tris,
+      ntriangles: n_fill_tris,
     }
   }
 
@@ -97,7 +100,7 @@ export function generate_skirt_geometry(
 
   const n_total_verts = n_original + n_boundary
   const n_skirt_tris = 2 * n_boundary
-  const n_total_tris = n_earcut_tris + n_skirt_tris
+  const n_total_tris = n_fill_tris + n_skirt_tris
 
   const positions = new Float32Array(n_total_verts * 2)
   const edge_distance = new Float32Array(n_total_verts)
@@ -109,14 +112,14 @@ export function generate_skirt_geometry(
   }
   edge_distance.fill(antialias_width, 0, n_original)
 
-  // 2. Copy earcut indices
+  // 2. Copy fill indices
   for (let i = 0; i < tri_indices.length; i++) {
     indices[i] = tri_indices[i]
   }
 
   // 3. Generate skirt vertices and triangles
   let skirt_vert_idx = n_original
-  let skirt_tri_idx = n_earcut_tris * 3
+  let skirt_tri_idx = n_fill_tris * 3
   let ring_offset = 0  // global vertex index offset for current ring
 
   for (let ring_idx = 0; ring_idx < rings.length; ring_idx++) {
@@ -191,7 +194,7 @@ export function generate_skirt_geometry(
     // Clamp the inward shift so that it doesn't collapse small or narrow
     // polygons. We use the approximate "inradius" (area / perimeter) to
     // estimate how far inward we can safely shift without inverting the
-    // earcut triangulation. Rings with subpixel boundary detail need a
+    // fill triangulation. Rings with subpixel boundary detail need a
     // stronger fallback: keep their triangulated vertices fixed and place the
     // entire AA fade outside. Applying that fallback only to subpixel rings
     // preserves centered AA on ordinary adjacent polygons, avoiding overlap
@@ -209,7 +212,7 @@ export function generate_skirt_geometry(
     const abs_area = Math.abs(area)
     const inradius = perimeter > 0 ? abs_area / perimeter : 0
     const half_aa = Math.min(0.5 * antialias_width, 0.25 * inradius)
-    const preserve_topology = min_edge_length < antialias_width
+    const preserve_topology = preserve_vertices || min_edge_length < antialias_width
 
     for (let i = 0; i < npts; i++) {
       const prev_edge = (i - 1 + npts) % npts
