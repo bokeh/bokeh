@@ -2323,9 +2323,9 @@ ${view.host_selector} {
   })
 
   describe("in issue #15320", () => {
-    function plot(width: number, height: number) {
+    function plot(width: number, height: number, min_border: number = 10) {
       const p = fig([width, height], {
-        output_backend: "webgl", x_range: [0, 1], y_range: [0, 1], x_axis_type: null, y_axis_type: null, min_border: 10,
+        output_backend: "webgl", x_range: [0, 1], y_range: [0, 1], x_axis_type: null, y_axis_type: null, min_border,
         background_fill_color: null, border_fill_color: null, outline_line_color: null,
       })
       p.line([0, 1], [0, 1], {line_width: 3})
@@ -2416,12 +2416,41 @@ ${view.host_selector} {
 
       for (const plot_view of [tall, small, wide, small]) {
         paint(plot_view)
-        expect([canvas.width, canvas.height]).to.be.equal([gl.drawingBufferWidth, gl.drawingBufferHeight])
+        if (plot_view === small) {
+          expect([canvas.width, canvas.height]).to.be.equal([128, 128])
+        } else {
+          expect([canvas.width, canvas.height]).to.be.equal([gl.drawingBufferWidth, gl.drawingBufferHeight])
+        }
         expect(gl.getError()).to.be.equal(gl.NO_ERROR)
         expect(gl.isContextLost()).to.be.false
       }
       expect(canvas.height).to.be.below(tall.canvas_view.primary.canvas.height)
       expect(canvas.width).to.be.below(wide.canvas_view.primary.canvas.width)
+
+      // Verify visible pixels in tall plot near clipped bottom edge (y > max_size)
+      const tall_ctx = tall.canvas_view.primary.ctx
+      const tall_y = Math.round(10 + 0.9 * (max_size + 1004))
+      const tall_img = tall_ctx.getImageData(20, tall_y - 5, 88, 10).data
+      let tall_visible = 0
+      for (let i = 3; i < tall_img.length; i += 4) {
+        if (tall_img[i] > 0) {
+          tall_visible++
+        }
+      }
+      expect(tall_visible).to.be.above(0)
+
+      // Verify visible pixels in wide plot near clipped right edge (x > max_size)
+      const wide_ctx = wide.canvas_view.primary.ctx
+      const wide_x = Math.round(10 + 0.9 * (max_size + 1004))
+      const wide_img = wide_ctx.getImageData(wide_x - 5, 20, 10, 88).data
+      let wide_visible = 0
+      for (let i = 3; i < wide_img.length; i += 4) {
+        if (wide_img[i] > 0) {
+          wide_visible++
+        }
+      }
+      expect(wide_visible).to.be.above(0)
+
       expect(pixels(small)).to.be.equal(expected)
     })
 
@@ -2429,6 +2458,200 @@ ${view.host_selector} {
       const {views} = await display_plots([301, 251], [0, 101], [151, 0], [0, 0])
       for (const plot_view of [...views, ...views.toReversed()]) {
         paint(plot_view)
+      }
+    })
+
+    it("shrinks heavily over-retained canvas before painting much smaller plots while preserving mixed-size retention", async () => {
+      const {views, canvas} = await display_plots([128, 128], [2048, 2048])
+      const [small, huge] = views
+
+      paint(small)
+      expect([canvas.width, canvas.height]).to.be.equal([128, 128])
+
+      paint(huge)
+      expect([canvas.width, canvas.height]).to.be.equal([2048, 2048])
+
+      paint(small)
+      expect([canvas.width, canvas.height]).to.be.equal([128, 128])
+    })
+
+    it("shrinks the shared canvas when the same view is resized smaller after a prior shrink", async () => {
+      // Establish a large shared canvas, then shrink it by painting a smaller view.
+      const large = plot(2048, 2048)
+      const {view: v_large} = await display(large, null)
+      const large_view = v_large.owner.get_one(large)
+      paint(large_view)
+      const {webgl} = large_view.canvas_view
+      expect_not_null(webgl)
+      const {canvas} = webgl
+      const gl = canvas.getContext("webgl")!
+      expect([canvas.width, canvas.height]).to.be.equal([2048, 2048])
+
+      const small = plot(128, 128, 0)
+      const {view: v_small} = await display(small, null)
+      const small_view = v_small.owner.get_one(small)
+      paint(small_view)
+      expect([canvas.width, canvas.height]).to.be.equal([128, 128])
+
+      // Resize the same view below the shrink threshold and repaint immediately.
+      small.width = 8
+      small.height = 8
+      await v_small.ready
+      paint(small_view)
+
+      const expected_w = small_view.canvas_view.primary.canvas.width
+      const expected_h = small_view.canvas_view.primary.canvas.height
+      expect([canvas.width, canvas.height]).to.be.equal([expected_w, expected_h])
+
+      expect(gl.getError()).to.be.equal(gl.NO_ERROR)
+      expect(gl.isContextLost()).to.be.false
+      const px = pixels(small_view)
+      let visible = 0
+      for (let i = 3; i < px.length; i += 4) {
+        if (px[i] > 0) {
+          visible++
+        }
+      }
+      expect(visible).to.be.above(0)
+    })
+
+    it("isolates patch-outline rendering near the clipped edge of oversized plots exceeding drawing buffer limits", async () => {
+      const max_size: number = document.createElement("canvas").getContext("webgl")!.getParameter(WebGLRenderingContext.MAX_TEXTURE_SIZE)
+
+      function outline_plot(line_width: number) {
+        const p = fig([128, max_size + 1024], {
+          output_backend: "webgl", x_range: [0, 1], y_range: [0, 1],
+          x_axis_type: null, y_axis_type: null, min_border: 10,
+          background_fill_color: null, border_fill_color: null, outline_line_color: null,
+        })
+        p.patch([0.1, 0.9, 0.5], [0.1, 0.1, 0.9], {fill_alpha: 0, line_width, line_color: "rgb(255,0,0)"})
+        return p
+      }
+
+      function count_red_dominant(img_data: Uint8ClampedArray): number {
+        let count = 0
+        for (let i = 0; i < img_data.length; i += 4) {
+          const r = img_data[i], g = img_data[i + 1], b = img_data[i + 2], a = img_data[i + 3]
+          if (a > 0 && r > 30 && r > g + 20 && r > b + 20) {
+            count++
+          }
+        }
+        return count
+      }
+
+      // Positive control: patch outline with line_width=4
+      const pos_plot = outline_plot(4)
+      const {view: pos_row_view} = await display(row([pos_plot]), null)
+      const pos_view = pos_row_view.owner.get_one(pos_plot)
+      paint(pos_view)
+      const pos_gl = pos_view.canvas_view.webgl!.canvas.getContext("webgl")!
+      expect(pos_gl.getError()).to.be.equal(pos_gl.NO_ERROR)
+      expect(pos_gl.isContextLost()).to.be.false
+
+      const pos_ctx = pos_view.canvas_view.primary.ctx
+      const outline_y = Math.round(10 + 0.9 * (max_size + 1004))
+      const pos_img = pos_ctx.getImageData(20, outline_y - 5, 10, 10).data
+      expect(count_red_dominant(pos_img)).to.be.above(0)
+
+      // Negative control: patch outline with line_width=0 produces no qualifying pixels
+      const neg_plot = outline_plot(0)
+      const {view: neg_row_view} = await display(row([neg_plot]), null)
+      const neg_view = neg_row_view.owner.get_one(neg_plot)
+      paint(neg_view)
+      const neg_gl = neg_view.canvas_view.webgl!.canvas.getContext("webgl")!
+      expect(neg_gl.getError()).to.be.equal(neg_gl.NO_ERROR)
+      expect(neg_gl.isContextLost()).to.be.false
+
+      const neg_ctx = neg_view.canvas_view.primary.ctx
+      const neg_img = neg_ctx.getImageData(20, outline_y - 5, 10, 10).data
+      expect(count_red_dominant(neg_img)).to.be.equal(0)
+    })
+
+    it("applies shrinking dimension before growing during asymmetric transitions", async () => {
+      function borderless_plot(width: number, height: number) {
+        return fig([width, height], {
+          output_backend: "webgl", x_range: [0, 1], y_range: [0, 1],
+          x_axis_type: null, y_axis_type: null, min_border: 0,
+          background_fill_color: null, border_fill_color: null, outline_line_color: null,
+        })
+      }
+      const p1 = borderless_plot(1, 64)
+      const p2 = borderless_plot(64, 1)
+      const {view} = await display(row([p1, p2]), null)
+      const tall_view = view.owner.get_one(p1)
+      const wide_view = view.owner.get_one(p2)
+      const {canvas} = tall_view.canvas_view.webgl!
+
+      canvas.width = 1
+      canvas.height = 1
+      paint(tall_view)
+      const tall_w = tall_view.canvas_view.primary.canvas.width
+      const tall_h = tall_view.canvas_view.primary.canvas.height
+      expect(canvas.width).to.be.equal(tall_w)
+      expect(canvas.height).to.be.equal(tall_h)
+
+      const assignments: Array<{prop: string, value: number, other_before: number}> = []
+      const original_w_desc = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "width")!
+      const original_h_desc = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "height")!
+
+      Object.defineProperty(canvas, "width", {
+        get() { return original_w_desc.get!.call(this) },
+        set(v: number) {
+          assignments.push({prop: "width", value: v, other_before: original_h_desc.get!.call(this)})
+          original_w_desc.set!.call(this, v)
+        },
+        configurable: true,
+      })
+      Object.defineProperty(canvas, "height", {
+        get() { return original_h_desc.get!.call(this) },
+        set(v: number) {
+          assignments.push({prop: "height", value: v, other_before: original_w_desc.get!.call(this)})
+          original_h_desc.set!.call(this, v)
+        },
+        configurable: true,
+      })
+
+      try {
+        // Transition: tall (1×64) → wide (64×1)
+        // Width grows (1→64), height shrinks (64→1) → height must be set first
+        assignments.length = 0
+        paint(wide_view)
+        const wide_w = wide_view.canvas_view.primary.canvas.width
+        const wide_h = wide_view.canvas_view.primary.canvas.height
+
+        expect(assignments.length).to.be.equal(2)
+        expect(assignments[0].prop).to.be.equal("height")
+        expect(assignments[1].prop).to.be.equal("width")
+
+        const max_area = Math.max(tall_w * tall_h, wide_w * wide_h)
+        for (const a of assignments) {
+          const area = a.prop === "width" ? a.value * a.other_before : a.other_before * a.value
+          expect(area <= max_area).to.be.true
+        }
+        expect(canvas.width).to.be.equal(wide_w)
+        expect(canvas.height).to.be.equal(wide_h)
+
+        // Transition back: wide (64×1) → tall (1×64)
+        // Width shrinks (64→1), height grows (1→64) → width must be set first
+        assignments.length = 0
+        paint(tall_view)
+        expect(assignments.length).to.be.equal(2)
+        expect(assignments[0].prop).to.be.equal("width")
+        expect(assignments[1].prop).to.be.equal("height")
+
+        for (const a of assignments) {
+          const area = a.prop === "width" ? a.value * a.other_before : a.other_before * a.value
+          expect(area <= max_area).to.be.true
+        }
+        expect(canvas.width).to.be.equal(tall_w)
+        expect(canvas.height).to.be.equal(tall_h)
+
+        assignments.length = 0
+        paint(tall_view)
+        expect(assignments.length).to.be.equal(0)
+      } finally {
+        delete (canvas as any).width
+        delete (canvas as any).height
       }
     })
   })

@@ -55,6 +55,8 @@ export class ReglWrapper {
   // WebGL state variables.
   private _scissor: BoundingBox
   private _viewport: BoundingBox
+  private _scale_x: number = 1
+  private _scale_y: number = 1
   private _clear_viewport?: DrawCommand<DefaultContext, {box: BoundingBox}>
 
   // WebGL framebuffer used to accumulate glyph rendering before single blit to Canvas.
@@ -115,7 +117,16 @@ export class ReglWrapper {
   clear(width: number, height: number): void {
     // Plots exceeding the drawing buffer are scaled down into it
     const {drawingBufferWidth, drawingBufferHeight} = this._regl._gl
-    this._viewport = {x: 0, y: 0, width: Math.min(width, drawingBufferWidth), height: Math.min(height, drawingBufferHeight)}
+    const vp_width = Math.min(width, drawingBufferWidth)
+    const vp_height = Math.min(height, drawingBufferHeight)
+    this._viewport = {
+      x: 0,
+      y: 0,
+      width: vp_width,
+      height: vp_height,
+    }
+    this._scale_x = isFinite(width) && width > 0 ? vp_width / width : 1
+    this._scale_y = isFinite(height) && height > 0 ? vp_height / height : 1
     // Clear only the viewport, because the shared drawing buffer may be much larger
     this._clear_viewport ??= this._regl({scissor: {enable: true, box: this._regl.prop<{box: BoundingBox}, "box">("box")}})
     this._clear_viewport({box: this._viewport}, () => this._regl.clear({color: [0, 0, 0, 0]}))
@@ -160,7 +171,27 @@ export class ReglWrapper {
   }
 
   set_scissor(x: number, y: number, width: number, height: number): void {
-    this._scissor = {x, y, width, height}
+    const scale_x = this._scale_x
+    const scale_y = this._scale_y
+    const x0 = Math.floor(x * scale_x)
+    const y0 = Math.floor(y * scale_y)
+    const x1 = Math.ceil((x + width) * scale_x)
+    const y1 = Math.ceil((y + height) * scale_y)
+
+    const vx1 = this._viewport.width ?? 0
+    const vy1 = this._viewport.height ?? 0
+
+    const sx0 = Math.max(0, Math.min(vx1, x0))
+    const sy0 = Math.max(0, Math.min(vy1, y0))
+    const sx1 = Math.max(0, Math.min(vx1, x1))
+    const sy1 = Math.max(0, Math.min(vy1, y1))
+
+    this._scissor = {
+      x: sx0,
+      y: sy0,
+      width: Math.max(0, sx1 - sx0),
+      height: Math.max(0, sy1 - sy0),
+    }
   }
 
   /** Return a device-pixel scissor tightly enclosing screen-space points,
@@ -185,17 +216,28 @@ export class ReglWrapper {
       return {...this._scissor, width: 0, height: 0}
     }
 
-    const left = Math.floor((x0 - padding)*pixel_ratio)
-    const right = Math.ceil((x1 + padding)*pixel_ratio)
+    const scale_x = this._scale_x
+    const scale_y = this._scale_y
+    const viewport_width = this._viewport.width ?? 0
     const viewport_height = this._viewport.height ?? 0
+
+    const left = Math.floor((x0 - padding) * pixel_ratio * scale_x)
+    const right = Math.ceil((x1 + padding) * pixel_ratio * scale_x)
+    const bottom = Math.floor(viewport_height - (y1 + padding) * pixel_ratio * scale_y)
+    const top = Math.ceil(viewport_height - (y0 - padding) * pixel_ratio * scale_y)
+
     const {x: clip_x = 0, y: clip_y = 0, width: clip_width = 0, height: clip_height = 0} = this._scissor
-    const bottom = Math.floor(viewport_height - (y1 + padding)*pixel_ratio)
-    const top = Math.ceil(viewport_height - (y0 - padding)*pixel_ratio)
-    const sx0 = Math.max(clip_x, left)
-    const sy0 = Math.max(clip_y, bottom)
-    const sx1 = Math.min(clip_x + clip_width, right)
-    const sy1 = Math.min(clip_y + clip_height, top)
-    return {x: sx0, y: sy0, width: Math.max(0, sx1 - sx0), height: Math.max(0, sy1 - sy0)}
+    const sx0 = Math.max(0, clip_x, left)
+    const sy0 = Math.max(0, clip_y, bottom)
+    const sx1 = Math.min(viewport_width, clip_x + clip_width, right)
+    const sy1 = Math.min(viewport_height, clip_y + clip_height, top)
+
+    return {
+      x: sx0,
+      y: sy0,
+      width: Math.max(0, sx1 - sx0),
+      height: Math.max(0, sy1 - sy0),
+    }
   }
 
   texture(options: Texture2DOptions): Texture2D {
