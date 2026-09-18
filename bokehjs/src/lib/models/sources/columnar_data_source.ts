@@ -282,21 +282,19 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   _row_to_csv(index: Index): string {
-    const values = []
     const escape_characters = [",", '"', "\n", "\r"]
-    for (const value of Object.values(this.get_row(index))) {
-      values.push(this._csv_escaped_value(value, escape_characters))
-    }
-    return values.join()
+    const row_values = this.columns().map(
+      (column) => this._csv_escaped_value(this.get_row(index)[column], escape_characters),
+    )
+    return row_values.join()
   }
 
   _headers_to_csv(): string {
-    const headers = []
     const escape_characters = [",", '"', "\n", "\r"]
-    for (const header of this.columns()) {
-      headers.push(this._csv_escaped_value(header, escape_characters))
-    }
-    return headers.join()
+    const header_values = this.columns().map(
+      (column) => this._csv_escaped_value(column, escape_characters),
+    )
+    return header_values.join()
   }
 
   to_csv(): string {
@@ -322,6 +320,6 @@ export abstract class ColumnarDataSource extends DataSource {
     if (this.selected.indices.length > 0) {
       return JSON.stringify(this.get_rows(this.selected.indices))
     }
-    return JSON.stringify(this.data)
+    return JSON.stringify(this.data, (_, value) => value instanceof Map ? Object.fromEntries(value) : value)
   }
 }
