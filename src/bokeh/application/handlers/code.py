@@ -100,6 +100,7 @@ class CodeHandler(Handler):
             argv (Sequence[str], optional) : a sequence of string arguments to make
                 available as ``sys.argv`` when the code executes
 
+            package (ModuleType, optional): An optional package module to configure
         '''
         super().__init__()
 
