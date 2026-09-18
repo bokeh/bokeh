@@ -7,7 +7,7 @@ import type {FactorLike} from "../../ranges/factor_range"
 import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
-import type {PanEvent, KeyEvent} from "core/ui_events"
+import type {PanEvent, KeyEvent, KeyModifiers} from "core/ui_events"
 import type {HitTestRect} from "core/geometry"
 import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
@@ -21,12 +21,13 @@ export class BoxSelectToolView extends RegionSelectToolView {
     const {pan} = this.model.overlay
     this.connect(pan, ([phase, ev]) => {
       if ((phase == "pan" && this._is_continuous(ev)) || phase == "pan:end") {
-        const {left, top, right, bottom} = this.model.overlay
-        if (!(left instanceof Coordinate) && !(top instanceof Coordinate) && !(right instanceof Coordinate) && !(bottom instanceof Coordinate)) {
-          const screen = this._compute_lrtb({left, right, top, bottom})
-          this._do_select([screen.left, screen.right], [screen.top, screen.bottom], false, this._select_mode(ev))
-        }
+        this._update_from_overlay(ev)
       }
+    })
+
+    const {overlay} = this.model.properties
+    this.on_transitive_change(overlay, () => {
+      this._update_from_overlay({ctrl: false, alt: false, shift: false})
     })
 
     const {active} = this.model.properties
@@ -35,6 +36,14 @@ export class BoxSelectToolView extends RegionSelectToolView {
         this._clear_overlay()
       }
     })
+  }
+
+  protected _update_from_overlay(mods: KeyModifiers): void {
+    const {left, top, right, bottom} = this.model.overlay
+    if (!(left instanceof Coordinate) && !(top instanceof Coordinate) && !(right instanceof Coordinate) && !(bottom instanceof Coordinate)) {
+      const screen = this._compute_lrtb({left, right, top, bottom})
+      this._do_select([screen.left, screen.right], [screen.top, screen.bottom], false, this._select_mode(mods))
+    }
   }
 
   protected _base_point: [number, number] | null
