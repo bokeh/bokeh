@@ -771,10 +771,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const left = layout.left_panel.measure({width: Infinity, height: Infinity})
     const right = layout.right_panel.measure({width: Infinity, height: Infinity})
 
-    const top_height = max(top.height, layout.min_border.top)
-    const bottom_height = max(bottom.height, layout.min_border.bottom)
-    const left_width = max(left.width, layout.min_border.left)
-    const right_width = max(right.width, layout.min_border.right)
+    const top_height = max(top.height, layout.min_border.top, layout.align_border.top)
+    const bottom_height = max(bottom.height, layout.min_border.bottom, layout.align_border.bottom)
+    const left_width = max(left.width, layout.min_border.left, layout.align_border.left)
+    const right_width = max(right.width, layout.min_border.right, layout.align_border.right)
 
     this._computed_style.replace(`
       ${this.host_selector} {

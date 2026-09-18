@@ -29,6 +29,13 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
   protected abstract get _rows(): TracksSizing | null
   protected abstract get _cols(): TracksSizing | null
 
+  override measure_layout(): void {
+    if (this.layout instanceof GridAlignmentLayout) {
+      this.layout.align_borders()
+    }
+    super.measure_layout()
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
