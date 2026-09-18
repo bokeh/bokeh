@@ -325,10 +325,6 @@ export interface Styles extends Styles.Attrs {}
 export class Styles extends Model {
   declare properties: Styles.Props
 
-  constructor(attrs?: Partial<Styles.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Styles.Props>(({Str, Nullable}) => ({
       align_content: [ Nullable(Str), null ],

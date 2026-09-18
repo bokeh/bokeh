@@ -27,10 +27,6 @@ export interface Range extends Range.Attrs {}
 export abstract class Range extends Model {
   declare properties: Range.Props
 
-  constructor(attrs?: Partial<Range.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.internal<Range.Internal, Range>(({Tuple, Float}) => ({
       computed_bounds: [ Tuple(Float, Float) ],

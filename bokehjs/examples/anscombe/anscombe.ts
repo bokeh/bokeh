@@ -18,7 +18,7 @@ export namespace Anscombe {
     [ 7.0,  4.82,  7.0, 7.26,  7.0,  6.42,  8.0,  7.91],
     [ 5.0,  5.68,  5.0, 4.74,  5.0,  5.73,  8.0,  6.89]])
 
-  const circles = new Bokeh.ColumnDataSource({
+  const circles = Bokeh.ColumnDataSource.create({
     data: {
       xi: anscombe_quartet[0],
       yi: anscombe_quartet[1],
@@ -34,13 +34,13 @@ export namespace Anscombe {
   const x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10)
   const y = x.map((v) => v*0.5 + 3.0)
 
-  const lines = new Bokeh.ColumnDataSource({data: {x, y}})
+  const lines = Bokeh.ColumnDataSource.create({data: {x, y}})
 
-  const xdr = new Bokeh.Range1d({start: -0.5, end: 20.5})
-  const ydr = new Bokeh.Range1d({start: -0.5, end: 20.5})
+  const xdr = Bokeh.Range1d.create({start: -0.5, end: 20.5})
+  const ydr = Bokeh.Range1d.create({start: -0.5, end: 20.5})
 
   function make_plot(title: string, xname: string, yname: string): Bokeh.Plot {
-    const plot = new Bokeh.Plot({
+    const plot = Bokeh.Plot.create({
       x_range: xdr,
       y_range: ydr,
       title,
@@ -48,17 +48,17 @@ export namespace Anscombe {
       height: 400,
       background_fill_color: "#F2F2F7",
     })
-    const xaxis = new Bokeh.LinearAxis({axis_line_color: null})
-    const yaxis = new Bokeh.LinearAxis({axis_line_color: null})
+    const xaxis = Bokeh.LinearAxis.create({axis_line_color: null})
+    const yaxis = Bokeh.LinearAxis.create({axis_line_color: null})
     plot.add_layout(xaxis, "below")
     plot.add_layout(yaxis, "left")
-    const xgrid = new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0})
-    const ygrid = new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1})
+    const xgrid = Bokeh.Grid.create({ticker: xaxis.ticker, dimension: 0})
+    const ygrid = Bokeh.Grid.create({ticker: yaxis.ticker, dimension: 1})
     plot.add_layout(xgrid)
     plot.add_layout(ygrid)
-    const line = new Bokeh.Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
+    const line = Bokeh.Line.create({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
     plot.add_glyph(line, lines)
-    const circle = new Bokeh.Scatter({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
+    const circle = Bokeh.Scatter.create({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
     plot.add_glyph(circle, circles)
 
     return plot

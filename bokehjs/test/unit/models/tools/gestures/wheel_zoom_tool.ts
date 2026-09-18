@@ -25,9 +25,9 @@ function xy_axis(plot_view: PlotView) {
 
 // frame dimensions is 300x300, thus zooming at {sx: 150, sy: 150} causes the x/y ranges to zoom equally
 async function make_plot<T extends GestureTool>(tool: T): Promise<{view: PlotView, tool_view: ViewOf<T>}> {
-  const plot = new Plot({
-    x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1}),
+  const plot = Plot.create({
+    x_range: Range1d.create({start: -1, end: 1}),
+    y_range: Range1d.create({start: -1, end: 1}),
     toolbar_location: null,
     min_border: 0,
     frame_width: 300,
@@ -35,8 +35,8 @@ async function make_plot<T extends GestureTool>(tool: T): Promise<{view: PlotVie
   })
   plot.add_tools(tool)
   plot.toolbar.active_scroll = tool
-  plot.add_layout(new LinearAxis(), "below")
-  plot.add_layout(new LinearAxis(), "right")
+  plot.add_layout(LinearAxis.create(), "below")
+  plot.add_layout(LinearAxis.create(), "right")
   const {view} = await display(plot)
   const tool_view = view.owner.get_one(tool)
   return {view, tool_view}
@@ -47,39 +47,39 @@ describe("WheelZoomTool", () => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool = new WheelZoomTool()
+      const tool = WheelZoomTool.create()
       expect(tool.tooltip).to.be.equal("Wheel Zoom")
 
-      const x_tool = new WheelZoomTool({dimensions: "width"})
+      const x_tool = WheelZoomTool.create({dimensions: "width"})
       expect(x_tool.tooltip).to.be.equal("Wheel Zoom (x-axis)")
 
-      const y_tool = new WheelZoomTool({dimensions: "height"})
+      const y_tool = WheelZoomTool.create({dimensions: "height"})
       expect(y_tool.tooltip).to.be.equal("Wheel Zoom (y-axis)")
 
-      const tool_custom = new WheelZoomTool({description: "My wheel zoom tool"})
+      const tool_custom = WheelZoomTool.create({description: "My wheel zoom tool"})
       expect(tool_custom.tooltip).to.be.equal("My wheel zoom tool")
 
-      const x_tool_custom = new WheelZoomTool({dimensions: "width", description: "My wheel x-zoom tool"})
+      const x_tool_custom = WheelZoomTool.create({dimensions: "width", description: "My wheel x-zoom tool"})
       expect(x_tool_custom.tooltip).to.be.equal("My wheel x-zoom tool")
 
-      const y_tool_custom = new WheelZoomTool({dimensions: "height", description: "My wheel y-zoom tool"})
+      const y_tool_custom = WheelZoomTool.create({dimensions: "height", description: "My wheel y-zoom tool"})
       expect(y_tool_custom.tooltip).to.be.equal("My wheel y-zoom tool")
     })
 
     it("should support auto-activation when modifiers are used", () => {
-      const tool0 = new WheelZoomTool({modifiers: {}})
+      const tool0 = WheelZoomTool.create({modifiers: {}})
       expect(tool0.supports_auto()).to.be.false
 
-      const tool1 = new WheelZoomTool({modifiers: {alt: true}})
+      const tool1 = WheelZoomTool.create({modifiers: {alt: true}})
       expect(tool1.supports_auto()).to.be.true
 
-      const tool2 = new WheelZoomTool({modifiers: {ctrl: true}})
+      const tool2 = WheelZoomTool.create({modifiers: {ctrl: true}})
       expect(tool2.supports_auto()).to.be.true
 
-      const tool3 = new WheelZoomTool({modifiers: {shift: true}})
+      const tool3 = WheelZoomTool.create({modifiers: {shift: true}})
       expect(tool3.supports_auto()).to.be.true
 
-      const tool4 = new WheelZoomTool({modifiers: {ctrl: true, shift: true}})
+      const tool4 = WheelZoomTool.create({modifiers: {ctrl: true, shift: true}})
       expect(tool4.supports_auto()).to.be.true
     })
   })
@@ -87,7 +87,7 @@ describe("WheelZoomTool", () => {
   describe("View", () => {
 
     it("should zoom in both ranges", async () => {
-      const wheel_zoom = new WheelZoomTool()
+      const wheel_zoom = WheelZoomTool.create()
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
@@ -100,7 +100,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom out both ranges", async () => {
-      const wheel_zoom = new WheelZoomTool()
+      const wheel_zoom = WheelZoomTool.create()
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: -100, modifiers, native: new WheelEvent("wheel")}
@@ -113,7 +113,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom the x-axis only because dimensions arg is set", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "width"})
+      const wheel_zoom = WheelZoomTool.create({dimensions: "width"})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
@@ -126,7 +126,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom the y-axis only because dimensions arg is set", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "height"})
+      const wheel_zoom = WheelZoomTool.create({dimensions: "height"})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
@@ -139,7 +139,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom the x-axis only because sy is off frame", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "both", zoom_on_axis: true})
+      const wheel_zoom = WheelZoomTool.create({dimensions: "both", zoom_on_axis: true})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {type: "wheel" as const, sx: 150, sy: 301, delta: 100, modifiers, native: new WheelEvent("wheel")}
@@ -152,7 +152,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom the y-axis only because sx is off frame", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "both", zoom_on_axis: true})
+      const wheel_zoom = WheelZoomTool.create({dimensions: "both", zoom_on_axis: true})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {type: "wheel" as const, sx: 301, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
@@ -165,7 +165,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom centered around the zoom point", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "both"})
+      const wheel_zoom = WheelZoomTool.create({dimensions: "both"})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {type: "wheel" as const, sx: 50, sy: 50, delta: 100, modifiers, native: new WheelEvent("wheel")}
@@ -178,7 +178,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should not over-zoom when delta is large", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "both"})
+      const wheel_zoom = WheelZoomTool.create({dimensions: "both"})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {
@@ -198,7 +198,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should not over-zoom when speed is large", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "both", speed: 1})
+      const wheel_zoom = WheelZoomTool.create({dimensions: "both", speed: 1})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {
@@ -218,7 +218,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should not zoom when modifiers aren't satisfied", async () => {
-      const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}})
+      const wheel_zoom = WheelZoomTool.create({modifiers: {ctrl: true}})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {
@@ -238,7 +238,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom when modifiers are satisfied", async () => {
-      const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}})
+      const wheel_zoom = WheelZoomTool.create({modifiers: {ctrl: true}})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
       const zoom_event = {
@@ -259,7 +259,7 @@ describe("WheelZoomTool", () => {
   })
 
   it("should support auto-activation when active_scroll='auto' and plot has focus", async () => {
-    const wheel_zoom = new WheelZoomTool()
+    const wheel_zoom = WheelZoomTool.create()
     const p = figure({
       frame_width: 200,
       frame_height: 200,

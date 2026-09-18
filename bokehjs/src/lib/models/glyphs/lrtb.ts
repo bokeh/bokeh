@@ -131,7 +131,7 @@ export abstract class LRTBView extends GlyphView {
     const y = this.renderer.yscale.invert(sy)
 
     const indices = [...this.index.indices({x0: x, y0: y, x1: x, y1: y})]
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -150,7 +150,7 @@ export abstract class LRTBView extends GlyphView {
       indices = [...this.index.indices({x0: x, y0, x1: x, y1})]
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -184,10 +184,6 @@ export interface LRTB extends LRTB.Attrs {}
 export abstract class LRTB extends Glyph {
   declare properties: LRTB.Props
   declare __view_type__: LRTBView
-
-  constructor(attrs?: Partial<LRTB.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.mixins<LRTB.Mixins>([LineVector, FillVector, HatchVector])

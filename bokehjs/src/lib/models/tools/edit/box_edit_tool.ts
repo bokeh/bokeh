@@ -343,10 +343,6 @@ export class BoxEditTool extends EditTool {
   declare properties: BoxEditTool.Props
   declare __view_type__: BoxEditToolView
 
-  constructor(attrs?: Partial<BoxEditTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = BoxEditToolView
 

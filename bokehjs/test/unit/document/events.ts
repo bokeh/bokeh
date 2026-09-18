@@ -57,7 +57,7 @@ describe("events module", () => {
   describe("ColumnsPatchedEvent", () => {
     it("should generate json", () => {
       const d = new Document()
-      const m = new ColumnDataSource()
+      const m = ColumnDataSource.create()
       const event = new events.ColumnsPatchedEvent(d, m, "data", {foo: [[1, 2]]})
       const serializer = new Serializer()
       const result = serializer.encode(event)
@@ -71,7 +71,7 @@ describe("events module", () => {
 
     it("should support equality", () => {
       const doc = new Document()
-      const m = new ColumnDataSource()
+      const m = ColumnDataSource.create()
       const ev0 = new events.ColumnsPatchedEvent(doc, m, "attr", {column: [[0, "a"]]})
       const ev1 = new events.ColumnsPatchedEvent(doc, m, "attr", {column: [[0, "b"]]})
       expect(is_equal(ev0, ev0)).to.be.equal(true)
@@ -82,7 +82,7 @@ describe("events module", () => {
   describe("ColumnsStreamedEvent", () => {
     it("should generate json with rollover", () => {
       const d = new Document()
-      const m = new ColumnDataSource()
+      const m = ColumnDataSource.create()
       const event = new events.ColumnsStreamedEvent(d, m, "data", {foo: [1, 2], bar: [3, 4]}, 10)
       const serializer = new Serializer()
       const result = serializer.encode(event)
@@ -97,7 +97,7 @@ describe("events module", () => {
 
     it("should generate json without rollover", () => {
       const d = new Document()
-      const m = new ColumnDataSource()
+      const m = ColumnDataSource.create()
       const event = new events.ColumnsStreamedEvent(d, m, "data", {foo: [1, 2], bar: [3, 4]})
       const serializer = new Serializer()
       const result = serializer.encode(event)
@@ -112,7 +112,7 @@ describe("events module", () => {
 
     it("should support equality", () => {
       const doc = new Document()
-      const m = new ColumnDataSource()
+      const m = ColumnDataSource.create()
       const ev0 = new events.ColumnsStreamedEvent(doc, m, "data", {x: [1]})
       const ev1 = new events.ColumnsStreamedEvent(doc, m, "data", {x: [2]})
       expect(is_equal(ev0, ev0)).to.be.equal(true)
@@ -123,7 +123,7 @@ describe("events module", () => {
   describe("ModelChangedEvent", () => {
     it("should generating json with no references", () =>{
       const d = new Document()
-      const m = new TestModel()
+      const m = TestModel.create()
       const event = new events.ModelChangedEvent(d, m, "foo", 2)
       const serializer = new Serializer()
       const result = serializer.encode(event)
@@ -137,8 +137,8 @@ describe("events module", () => {
 
     it("should generating json with references", () =>{
       const d = new Document()
-      const m = new TestModel()
-      const m2 = new TestModelWithProps({foo: []})
+      const m = TestModel.create()
+      const m2 = TestModelWithProps.create({foo: []})
       const event = new events.ModelChangedEvent(d, m2, "foo", [m])
       const serializer = new Serializer()
       const result = serializer.encode(event)
@@ -154,7 +154,7 @@ describe("events module", () => {
 
     it("should support equality", () => {
       const doc = new Document()
-      const model = new TestModel()
+      const model = TestModel.create()
       const ev0 = new events.ModelChangedEvent(doc, model, "foo", [1])
       const ev1 = new events.ModelChangedEvent(doc, model, "foo", [2])
       expect(is_equal(ev0, ev0)).to.be.equal(true)
@@ -186,7 +186,7 @@ describe("events module", () => {
   describe("RootAddedEvent", () => {
     it("should generate json", () => {
       const d = new Document()
-      const m = new TestModel()
+      const m = TestModel.create()
       const event = new events.RootAddedEvent(d, m)
       const serializer = new Serializer()
       const result = serializer.encode(event)
@@ -198,8 +198,8 @@ describe("events module", () => {
 
     it("should support equality", () => {
       const doc = new Document()
-      const ev0 = new events.RootAddedEvent(doc, new TestModelWithProps({foo: [0]}))
-      const ev1 = new events.RootAddedEvent(doc, new TestModelWithProps({foo: [1]}))
+      const ev0 = new events.RootAddedEvent(doc, TestModelWithProps.create({foo: [0]}))
+      const ev1 = new events.RootAddedEvent(doc, TestModelWithProps.create({foo: [1]}))
       expect(is_equal(ev0, ev0)).to.be.equal(true)
       expect(is_equal(ev0, ev1)).to.be.equal(false)
     })
@@ -208,7 +208,7 @@ describe("events module", () => {
   describe("RootRemovedEvent", () => {
     it("should generate json", () => {
       const d = new Document()
-      const m = new TestModel()
+      const m = TestModel.create()
       const event = new events.RootRemovedEvent(d, m)
       const serializer = new Serializer()
       const result = serializer.encode(event)
@@ -220,8 +220,8 @@ describe("events module", () => {
 
     it("should support equality", () => {
       const doc = new Document()
-      const ev0 = new events.RootRemovedEvent(doc, new TestModelWithProps({foo: [0]}))
-      const ev1 = new events.RootRemovedEvent(doc, new TestModelWithProps({foo: [1]}))
+      const ev0 = new events.RootRemovedEvent(doc, TestModelWithProps.create({foo: [0]}))
+      const ev1 = new events.RootRemovedEvent(doc, TestModelWithProps.create({foo: [1]}))
       expect(is_equal(ev0, ev0)).to.be.equal(true)
       expect(is_equal(ev0, ev1)).to.be.equal(false)
     })

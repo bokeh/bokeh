@@ -421,10 +421,6 @@ export class Tooltip extends UIElement {
   declare properties: Tooltip.Props
   declare __view_type__: TooltipView
 
-  constructor(attrs?: Partial<Tooltip.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TooltipView
 

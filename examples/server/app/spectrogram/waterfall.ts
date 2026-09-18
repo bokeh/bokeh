@@ -37,7 +37,7 @@ export class WaterfallRendererView extends RendererView {
 
     this.col = 0
     this.tile = 0
-    this.cmap = new LinearColorMapper({palette: this.model.palette, low: 0, high: 5})
+    this.cmap = LinearColorMapper.create({palette: this.model.palette, low: 0, high: 5})
     this.xscale = this.plot_view.frame.x_scale
     this.yscale = this.plot_view.frame.y_scale
     this.max_freq = this.plot_view.frame.y_range.end

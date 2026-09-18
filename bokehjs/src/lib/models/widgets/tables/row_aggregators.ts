@@ -26,10 +26,6 @@ export abstract class RowAggregator extends Model {
 
   protected abstract readonly aggregator_cls: new (field: string) => Aggregator
 
-  constructor(attrs?: Partial<RowAggregator.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<RowAggregator.Props>(({Str}) => ({
       field_: [ Str, "" ],

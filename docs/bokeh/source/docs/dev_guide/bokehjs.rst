@@ -242,13 +242,6 @@ link model and view.
     // only when a view is required:
     __view_type__: NewActionToolView
 
-    // do not remove this constructor, or you won't be
-    // able to use `new NewActionTool({some_property: 1})`
-    // this constructor
-    constructor(attrs?: Partial<NewActionTool.Attrs>) {
-      super(attrs)
-    }
-
     static {
       this.prototype.default_view = NewActionToolView
 
@@ -262,6 +255,42 @@ link model and view.
       }))
     }
   }
+
+All model subclasses inherit the lifecycle-aware ``create()`` factory, so a
+custom extension does not need to repeat a constructor. Instantiate the model
+with ``NewActionTool.create({some_property: 1})``. Property defaults,
+``initialize()``, and ``connect_signals()`` run after all subclass field
+initializers have completed.
+
+Use each lifecycle phase for one kind of work:
+
+* field initializers create instance-local storage, but must not read Bokeh
+  properties because property defaults have not run yet.
+* property default functions may read fields initialized by the complete
+  subclass constructor chain.
+* ``initialize()`` may read properties and construct derived state, and an
+  override must call ``super.initialize()``.
+* ``connect_signals()`` owns subscriptions and must call
+  ``super.connect_signals()``. Corresponding cleanup belongs in
+  ``disconnect_signals()`` or ``destroy()``.
+
+For example, extension setup or tests should make construction and cleanup
+explicit:
+
+.. code-block:: typescript
+
+  const tool = NewActionTool.create({some_property: 1})
+  try {
+    // inspect or register the initialized model
+  } finally {
+    tool.destroy()
+  }
+
+Register extension models explicitly when they will be deserialized. Use a
+dedicated ``ModelResolver`` and call ``register_standard_models()`` and
+``register_models()`` with that resolver. Also assign a stable
+``NewActionTool.__qualified__`` value; relying on the JavaScript class name is
+unsafe after production minification.
 
 Views
 ~~~~~

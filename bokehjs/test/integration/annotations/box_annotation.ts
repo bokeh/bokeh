@@ -18,14 +18,14 @@ describe("BoxAnnotation annotation", () => {
         output_backend, title: output_backend,
       })
 
-      const box0 = new BoxAnnotation({
+      const box0 = BoxAnnotation.create({
         left: -8, right: 3, top: 2, bottom: -4,
         line_color: "red", line_alpha: 0.9, line_width: 4,
         fill_color: "blue", fill_alpha: 0.7,
       })
       p.add_layout(box0)
 
-      const box1 = new BoxAnnotation({
+      const box1 = BoxAnnotation.create({
         left: -2, right: 7, top: 8, bottom: -1,
         line_color: "red", line_alpha: 0.9, line_width: 2,
         fill_color: "orange", fill_alpha: 0.7,
@@ -43,19 +43,19 @@ describe("BoxAnnotation annotation", () => {
   })
 
   it("should support positioning in node space", async () => {
-    const frame_left = (offset?: number) => new Node({target: "frame", symbol: "left", offset})
-    const frame_right = (offset?: number) => new Node({target: "frame", symbol: "right", offset})
-    const frame_top = (offset?: number) => new Node({target: "frame", symbol: "top", offset})
-    const frame_bottom = (offset?: number) => new Node({target: "frame", symbol: "bottom", offset})
+    const frame_left = (offset?: number) => Node.create({target: "frame", symbol: "left", offset})
+    const frame_right = (offset?: number) => Node.create({target: "frame", symbol: "right", offset})
+    const frame_top = (offset?: number) => Node.create({target: "frame", symbol: "top", offset})
+    const frame_bottom = (offset?: number) => Node.create({target: "frame", symbol: "bottom", offset})
 
-    const box0 = new BoxAnnotation({
+    const box0 = BoxAnnotation.create({
       left: frame_left(),
       right: frame_right(),
       top: frame_top(),
       bottom: frame_bottom(),
     })
 
-    const box1 = new BoxAnnotation({
+    const box1 = BoxAnnotation.create({
       left: frame_left(50),
       right: frame_right(-50),
       top: frame_top(50),
@@ -76,7 +76,7 @@ describe("BoxAnnotation annotation", () => {
   it("should support rounded corners (border_radius property)", async () => {
     const [l, t, w, h] = [20, 20, 150, 100]
 
-    const box0 = new BoxAnnotation({
+    const box0 = BoxAnnotation.create({
       line_color: "red",
       line_width: 2,
       fill_color: null,
@@ -87,7 +87,7 @@ describe("BoxAnnotation annotation", () => {
       border_radius: 0,
     })
 
-    const box1 = new BoxAnnotation({
+    const box1 = BoxAnnotation.create({
       line_color: "blue",
       line_width: 2,
       fill_color: null,
@@ -98,7 +98,7 @@ describe("BoxAnnotation annotation", () => {
       border_radius: 20,
     })
 
-    const box2 = new BoxAnnotation({
+    const box2 = BoxAnnotation.create({
       line_color: "green",
       line_width: 2,
       fill_color: "green",
@@ -110,7 +110,7 @@ describe("BoxAnnotation annotation", () => {
       border_radius: {top_left: 0, top_right: 60, bottom_right: 0, bottom_left: 20},
     })
 
-    const box3 = new BoxAnnotation({
+    const box3 = BoxAnnotation.create({
       line_color: "orange",
       line_width: 2,
       fill_color: null,
@@ -134,7 +134,7 @@ describe("BoxAnnotation annotation", () => {
   }
 
   it("should support moving by dragging", async () => {
-    const box = new BoxAnnotation({
+    const box = BoxAnnotation.create({
       left: 2, right: 4, top: 4, bottom: 2,
       editable: true,
       line_color: "blue",
@@ -149,7 +149,7 @@ describe("BoxAnnotation annotation", () => {
 
   function test_resizing(symmetric: boolean) {
     async function box() {
-      const box = new BoxAnnotation({
+      const box = BoxAnnotation.create({
         left: 2, right: 4, top: 4, bottom: 2,
         editable: true,
         symmetric,
@@ -208,7 +208,7 @@ describe("BoxAnnotation annotation", () => {
 
   describe("should support interactive limits", () => {
     async function box(symmetric: boolean = false) {
-      const box = new BoxAnnotation({
+      const box = BoxAnnotation.create({
         left: 2, right: 4, top: 4, bottom: 2,
         left_limit: 1, right_limit: 5, top_limit: 5, bottom_limit: 1,
         editable: true,
@@ -216,7 +216,7 @@ describe("BoxAnnotation annotation", () => {
         line_color: "blue",
       })
 
-      const box_limits = new BoxAnnotation({
+      const box_limits = BoxAnnotation.create({
         left: 1, right: 5, top: 5, bottom: 1,
         line_color: "black", line_dash: "dashed",
         fill_color: "transparent",
@@ -281,7 +281,7 @@ describe("BoxAnnotation annotation", () => {
 
   describe("should support constraining", () => {
     async function box() {
-      const box = new BoxAnnotation({
+      const box = BoxAnnotation.create({
         left: 2, right: 4, top: 4, bottom: 2,
         min_width: 1,
         max_width: 3,
@@ -339,7 +339,7 @@ describe("BoxAnnotation annotation", () => {
   })
 
   it("should support inverted geometry", async () => {
-    const box = new BoxAnnotation({
+    const box = BoxAnnotation.create({
       left: 2, right: 4, top: 4, bottom: 2,
       line_color: "blue",
       border_radius: 10,
@@ -352,7 +352,7 @@ describe("BoxAnnotation annotation", () => {
 
   it("should support interaction handles", async () => {
     function plot(attrs: Partial<BoxAnnotation.Attrs>) {
-      const box = new BoxAnnotation({
+      const box = BoxAnnotation.create({
         left: 1, right: 5, top: 5, bottom: 1,
         editable: true,
         line_color: "blue",
@@ -386,7 +386,7 @@ describe("BoxAnnotation annotation", () => {
   })
 
   it("should support hover over interaction handles", async () => {
-    const box = new BoxAnnotation({
+    const box = BoxAnnotation.create({
       left: 1, right: 5, top: 5, bottom: 1,
       editable: true,
       use_handles: true,
@@ -410,7 +410,7 @@ describe("BoxAnnotation annotation", () => {
   })
 
   it("should support visual overrides in interaction handles", async () => {
-    const box = new BoxAnnotation({
+    const box = BoxAnnotation.create({
       left: 1, right: 5, top: 5, bottom: 1,
       editable: true,
       use_handles: true,

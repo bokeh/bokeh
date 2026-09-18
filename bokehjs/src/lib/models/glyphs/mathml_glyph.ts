@@ -9,7 +9,7 @@ export class MathMLGlyphView extends MathTextGlyphView {
   declare visuals: MathMLGlyph.Visuals
 
   protected _build_label(text: string): MathML {
-    return new MathML({text})
+    return MathML.create({text})
   }
 }
 
@@ -28,10 +28,6 @@ export interface MathMLGlyph extends MathMLGlyph.Attrs {}
 export class MathMLGlyph extends MathTextGlyph {
   declare properties: MathMLGlyph.Props
   declare __view_type__: MathMLGlyphView
-
-  constructor(attrs?: Partial<MathMLGlyph.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = MathMLGlyphView

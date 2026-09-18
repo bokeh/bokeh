@@ -35,8 +35,8 @@ describe("LegendView", () => {
       it(`should settle label growth and shrinkage before ready resolves with ${output_backend} and margin=${margin}`, async () => {
         const p = fig([600, 200], {output_backend})
         const scatter = p.scatter([1, 2, 3], [1, 2, 3])
-        const item = new LegendItem({label: "Short", renderers: [scatter]})
-        const legend = new ModelDrivenLegend({items: [item], margin})
+        const item = LegendItem.create({label: "Short", renderers: [scatter]})
+        const legend = ModelDrivenLegend.create({items: [item], margin})
         p.add_layout(legend, "left")
 
         const {view} = await display(p)

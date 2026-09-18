@@ -12,10 +12,6 @@ export interface DifferenceFilter extends DifferenceFilter.Attrs {}
 export class DifferenceFilter extends CompositeFilter {
   declare properties: DifferenceFilter.Props
 
-  constructor(attrs?: Partial<DifferenceFilter.Attrs>) {
-    super(attrs)
-  }
-
   protected _inplace_op(index: Indices, op: Indices): void {
     index.subtract(op)
   }

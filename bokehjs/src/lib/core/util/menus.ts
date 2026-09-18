@@ -85,7 +85,7 @@ export class ContextMenu {
       if (isPlainObject(entry)) {
         entry.action()
       } else {
-        void execute(entry.action, new Menu(), {item: entry})
+        void execute(entry.action, Menu.create(), {item: entry})
       }
     }
     this.hide()

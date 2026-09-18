@@ -21,10 +21,6 @@ export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 export class CustomJSFilter extends Filter {
   declare properties: CustomJSFilter.Props
 
-  constructor(attrs?: Partial<CustomJSFilter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CustomJSFilter.Props>(({Unknown, Str, Dict}) => ({
       args: [ Dict(Unknown), {} ],

@@ -12,25 +12,25 @@ describe("WheelPanTool", () => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const x_tool = new WheelPanTool({dimension: "width"})
+      const x_tool = WheelPanTool.create({dimension: "width"})
       expect(x_tool.tooltip).to.be.equal("Wheel Pan (x-axis)")
 
-      const y_tool = new WheelPanTool({dimension: "height"})
+      const y_tool = WheelPanTool.create({dimension: "height"})
       expect(y_tool.tooltip).to.be.equal("Wheel Pan (y-axis)")
 
-      const x_tool_custom = new WheelPanTool({dimension: "width", description: "My wheel x-pan tool"})
+      const x_tool_custom = WheelPanTool.create({dimension: "width", description: "My wheel x-pan tool"})
       expect(x_tool_custom.tooltip).to.be.equal("My wheel x-pan tool")
 
-      const y_tool_custom = new WheelPanTool({dimension: "height", description: "My wheel y-pan tool"})
+      const y_tool_custom = WheelPanTool.create({dimension: "height", description: "My wheel y-pan tool"})
       expect(y_tool_custom.tooltip).to.be.equal("My wheel y-pan tool")
     })
   })
 
   describe("View", () => {
     async function mkplot(tool: Tool): Promise<PlotView> {
-      const plot = new Plot({
-        x_range: new Range1d({start: 0, end: 1}),
-        y_range: new Range1d({start: 0, end: 1}),
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 1}),
+        y_range: Range1d.create({start: 0, end: 1}),
       })
       plot.add_tools(tool)
       const {view} = await display(plot)
@@ -38,7 +38,7 @@ describe("WheelPanTool", () => {
     }
 
     it("should translate x-range in positive direction", async () => {
-      const x_wheel_pan_tool = new WheelPanTool()
+      const x_wheel_pan_tool = WheelPanTool.create()
       const plot_view = await mkplot(x_wheel_pan_tool)
 
       const wheel_pan_tool_view = plot_view.owner.get_one(x_wheel_pan_tool)
@@ -56,7 +56,7 @@ describe("WheelPanTool", () => {
     })
 
     it("should translate y-range in negative direction", async () => {
-      const y_wheel_pan_tool = new WheelPanTool({dimension: "height"})
+      const y_wheel_pan_tool = WheelPanTool.create({dimension: "height"})
       const plot_view = await mkplot(y_wheel_pan_tool)
 
       const wheel_pan_tool_view = plot_view.owner.get_one(y_wheel_pan_tool)

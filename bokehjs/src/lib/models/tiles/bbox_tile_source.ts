@@ -14,10 +14,6 @@ export interface BBoxTileSource extends BBoxTileSource.Attrs {}
 export class BBoxTileSource extends MercatorTileSource {
   declare properties: BBoxTileSource.Props
 
-  constructor(attrs?: Partial<BBoxTileSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BBoxTileSource.Props>(({Bool}) => ({
       use_latlon: [ Bool, false ],

@@ -117,7 +117,7 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
     }
   })
 
-  const source = new ColumnDataSource({
+  const source = ColumnDataSource.create({
     data: {
       labels,
       values,
@@ -132,44 +132,44 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
     },
   })
 
-  const g1 = new AnnularWedge({
+  const g1 = AnnularWedge.create({
     x: cx, y: cy,
     inner_radius, outer_radius,
     start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
     line_color: null, line_width: 1, fill_color: {field: "colors"},
   })
-  const h1 = new AnnularWedge({
+  const h1 = AnnularWedge.create({
     x: cx, y: cy,
     inner_radius, outer_radius,
     start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
     line_color: null, line_width: 1, fill_color: {field: "colors"}, fill_alpha: 0.8,
   })
-  const r1 = new GlyphRenderer({
+  const r1 = GlyphRenderer.create({
     data_source: source,
     glyph: g1,
     hover_glyph: h1,
   })
 
-  const g2 = new Text({
+  const g2 = Text.create({
     x: {field: "text_cx"}, y: {field: "text_cy"},
     text: {field: opts.slice_labels ?? "labels"},
     angle: {field: "text_angles"},
     text_align: "center", text_baseline: "middle",
     text_color: {field: "text_colors"}, text_font_size: "12px",
   })
-  const r2 = new GlyphRenderer({
+  const r2 = GlyphRenderer.create({
     data_source: source,
     glyph: g2,
   })
 
-  const xdr = new DataRange1d({renderers: [r1], range_padding: 0.2})
-  const ydr = new DataRange1d({renderers: [r1], range_padding: 0.2})
-  const plot = new Plot({x_range: xdr, y_range: ydr})
+  const xdr = DataRange1d.create({renderers: [r1], range_padding: 0.2})
+  const ydr = DataRange1d.create({renderers: [r1], range_padding: 0.2})
+  const plot = Plot.create({x_range: xdr, y_range: ydr})
 
   plot.add_renderers(r1, r2)
 
   const tooltip = "<div>@labels</div><div><b>@values</b> (@percentages)</div>"
-  const hover = new HoverTool({renderers: [r1], tooltips: tooltip})
+  const hover = HoverTool.create({renderers: [r1], tooltips: tooltip})
   plot.add_tools(hover)
 
   return plot
@@ -194,19 +194,19 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   const labels = col_data[0].map((v) => v.toString())
   const columns = col_data.slice(1) as number[][]
 
-  let yaxis: Axis = new CategoricalAxis()
-  let ydr: Range = new FactorRange({factors: labels})
-  let yscale: Scale = new CategoricalScale()
+  let yaxis: Axis = CategoricalAxis.create()
+  let ydr: Range = FactorRange.create({factors: labels})
+  let yscale: Scale = CategoricalScale.create()
 
   let xformatter: TickFormatter
   if (opts.axis_number_format != null) {
-    xformatter = new NumeralTickFormatter({format: opts.axis_number_format})
+    xformatter = NumeralTickFormatter.create({format: opts.axis_number_format})
   } else {
-    xformatter = new BasicTickFormatter()
+    xformatter = BasicTickFormatter.create()
   }
-  let xaxis: Axis = new LinearAxis({formatter: xformatter})
-  let xdr: Range = new DataRange1d({start: 0})
-  let xscale: Scale = new LinearScale()
+  let xaxis: Axis = LinearAxis.create({formatter: xformatter})
+  let xdr: Range = DataRange1d.create({start: 0})
+  let xscale: Scale = LinearScale.create()
 
   const palette = resolve_palette(opts.palette)
 
@@ -236,7 +236,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
         top.push([label, 0.5])
       }
 
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           left: copy(left),
           right: copy(right),
@@ -248,12 +248,12 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
         },
       })
 
-      const g1 = new Quad({
+      const g1 = Quad.create({
         left: {field: "left"}, bottom: {field: "bottom"},
         right: {field: "right"}, top: {field: "top"},
         line_color: null, fill_color: palette[i % palette.length],
       })
-      const r1 = new GlyphRenderer({data_source: source, glyph: g1})
+      const r1 = GlyphRenderer.create({data_source: source, glyph: g1})
       renderers.push(r1)
     }
   } else {
@@ -273,7 +273,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
         top.push([label, (i+1)*dy-0.5])
       }
 
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           left,
           right,
@@ -285,12 +285,12 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
         },
       })
 
-      const g1 = new Quad({
+      const g1 = Quad.create({
         left: {field: "left"}, bottom: {field: "bottom"},
         right: {field: "right"}, top: {field: "top"},
         line_color: null, fill_color: palette[i % palette.length],
       })
-      const r1 = new GlyphRenderer({data_source: source, glyph: g1})
+      const r1 = GlyphRenderer.create({data_source: source, glyph: g1})
       renderers.push(r1)
     }
   }
@@ -313,7 +313,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
     }
   }
 
-  const plot = new Plot({x_range: xdr, y_range: ydr, x_scale: xscale, y_scale: yscale})
+  const plot = Plot.create({x_range: xdr, y_range: ydr, x_scale: xscale, y_scale: yscale})
 
   plot.add_renderers(...renderers)
   plot.add_layout(yaxis, "left")
@@ -331,7 +331,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
     attachment = "vertical"
   }
 
-  const hover = new HoverTool({
+  const hover = HoverTool.create({
     renderers,
     tooltips: tooltip,
     point_policy: "snap_to_data",

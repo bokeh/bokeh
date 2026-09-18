@@ -12,13 +12,13 @@ export function fig([width, height]: [number, number], attrs?: Partial<Figure.At
 
 export function grid(items: Matrix<UIElement> | UIElement[][], opts?: Partial<GridBox.Attrs>): GridBox {
   const children = Matrix.from(items).to_sparse()
-  return new GridBox({...opts, children})
+  return GridBox.create({...opts, children})
 }
 
 export function row(children: UIElement[], opts?: Partial<Row.Attrs>): Row {
-  return new Row({...opts, children})
+  return Row.create({...opts, children})
 }
 
 export function column(children: UIElement[], opts?: Partial<Column.Attrs>): Column {
-  return new Column({...opts, children})
+  return Column.create({...opts, children})
 }

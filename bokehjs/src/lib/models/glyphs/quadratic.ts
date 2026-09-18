@@ -100,10 +100,6 @@ export class Quadratic extends Glyph {
   declare properties: Quadratic.Props
   declare __view_type__: QuadraticView
 
-  constructor(attrs?: Partial<Quadratic.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = QuadraticView
 
