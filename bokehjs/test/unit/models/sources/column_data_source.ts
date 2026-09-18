@@ -392,6 +392,14 @@ describe("column_data_source module", () => {
         "0,3.5\n",
       )
     })
+
+    it("should handle values from Map", () => {
+      const cds = new ColumnDataSource({data: new Map([["2", ["two"]], ["1", ["one"]]])})
+      expect(cds.to_csv()).to.be.equal(
+        "2,1\n" +
+        "two,one\n",
+      )
+    })
   })
 
   describe("to_json", () => {
@@ -443,6 +451,11 @@ describe("column_data_source module", () => {
         '{"foo":{"0":255,"1":0,"2":0,"3":0,"4":255,"5":0,"dtype":"uint8","shape":[2,3],"dimension":2},'+
         '"bar":{"0":0.5,"1":3.5,"2":10.25,"3":-0.125,"4":3.75,"5":0.25,"6":0.5,"7":-0.125,"dtype":"float32","shape":[2,4],"dimension":2}}',
       )
+    })
+
+    it("should handle values from Map", () => {
+      const cds = new ColumnDataSource({data: new Map([["2", ["two"]], ["1", ["one"]]])})
+      expect(cds.to_json()).to.be.equal('{"1":["one"],"2":["two"]}')
     })
   })
 })
