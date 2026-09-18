@@ -1,0 +1,16 @@
+{
+  "name": "@bokeh-example/vanilla-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "@bokeh/bokehjs": "file:../../.."
+  },
+  "devDependencies": {
+    "typescript": "5.9.2",
+    "vite": "^8.2.0"
+  }
+}
