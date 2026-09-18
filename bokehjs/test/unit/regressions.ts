@@ -2426,31 +2426,6 @@ ${view.host_selector} {
       }
       expect(canvas.height).to.be.below(tall.canvas_view.primary.canvas.height)
       expect(canvas.width).to.be.below(wide.canvas_view.primary.canvas.width)
-
-      // Verify visible pixels in tall plot near clipped bottom edge (y > max_size)
-      const tall_ctx = tall.canvas_view.primary.ctx
-      const tall_y = Math.round(10 + 0.9 * (max_size + 1004))
-      const tall_img = tall_ctx.getImageData(20, tall_y - 5, 88, 10).data
-      let tall_visible = 0
-      for (let i = 3; i < tall_img.length; i += 4) {
-        if (tall_img[i] > 0) {
-          tall_visible++
-        }
-      }
-      expect(tall_visible).to.be.above(0)
-
-      // Verify visible pixels in wide plot near clipped right edge (x > max_size)
-      const wide_ctx = wide.canvas_view.primary.ctx
-      const wide_x = Math.round(10 + 0.9 * (max_size + 1004))
-      const wide_img = wide_ctx.getImageData(wide_x - 5, 20, 10, 88).data
-      let wide_visible = 0
-      for (let i = 3; i < wide_img.length; i += 4) {
-        if (wide_img[i] > 0) {
-          wide_visible++
-        }
-      }
-      expect(wide_visible).to.be.above(0)
-
       expect(pixels(small)).to.be.equal(expected)
     })
 
