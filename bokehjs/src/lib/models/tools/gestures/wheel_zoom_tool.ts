@@ -23,12 +23,53 @@ type Renderers = typeof Renderers["__type__"]
 export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
 
+  private _hover_active: boolean = false
+  private _hover_timer: ReturnType<typeof setTimeout> | null = null
+
+  override remove(): void {
+    if (this._hover_timer != null) {
+      clearTimeout(this._hover_timer)
+    }
+    super.remove()
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    this.connect(this.plot_view.mouseenter, () => {
+      const {hover_delay} = this.model
+      if (hover_delay <= 0) {
+        this._hover_active = true
+        return
+      }
+      this._hover_timer = setTimeout(() => {
+        this._hover_active = true
+        this._hover_timer = null
+      }, hover_delay)
+    })
+
+    this.connect(this.plot_view.mouseleave, () => {
+      if (this._hover_timer != null) {
+        clearTimeout(this._hover_timer)
+        this._hover_timer = null
+      }
+      this._hover_active = false
+    })
+  }
+
   override _scroll(ev: ScrollEvent): boolean {
     const {modifiers} = this.model
     if (!satisfies_modifiers(modifiers, ev.modifiers)) {
       this.plot_view.notify_about(`use ${print_modifiers(modifiers)} + scroll to zoom`)
       return false
     }
+
+    const {hover_delay} = this.model
+    if (hover_delay > 0 && !this._hover_active) {
+      this.plot_view.notify_about("hover over the plot to enable zoom")
+      return false
+    }
+
     const {sx, sy, delta} = ev
     this.zoom(sx, sy, delta)
     return true
@@ -257,6 +298,7 @@ export namespace WheelZoomTool {
     zoom_together: p.Property<ZoomTogether>
     speed: p.Property<number>
     modifiers: p.Property<Modifiers>
+    hover_delay: p.Property<number>
   }
 }
 
@@ -285,6 +327,7 @@ export class WheelZoomTool extends GestureTool {
       zoom_together:  [ ZoomTogether, "all" ],
       speed:          [ Float, 1/600 ],
       modifiers:      [ Modifiers, {} ],
+      hover_delay:    [ NonNegative(Int), 0 ],
     }))
 
     this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: "both"}))
