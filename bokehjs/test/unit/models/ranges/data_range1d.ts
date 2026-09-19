@@ -8,6 +8,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import type {PaddingUnits} from "@bokehjs/core/enums"
 import {build_view} from "@bokehjs/core/build_views"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("DataRange1d", () => {
 
@@ -140,7 +141,7 @@ describe("DataRange1d", () => {
     it("should recompute (start, end) when range_padding changes", async () => {
       const y_range = new DataRange1d({range_padding: 0, range_padding_units: "absolute"})
       const source = new ColumnDataSource({data: {x: [0, 1], y: [1, 3]}})
-      const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+      const glyph = new Scatter({x: field("x"), y: field("y")})
       const renderer = new GlyphRenderer({data_source: source, glyph})
       const p = new Plot({renderers: [renderer], y_range})
       const pv = await build_view(p)
@@ -167,7 +168,7 @@ describe("DataRange1d", () => {
         expected: [number, number],
       ) => {
         const source = new ColumnDataSource({data: {x: [0, 1], y}})
-        const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+        const glyph = new Scatter({x: field("x"), y: field("y")})
         const renderer = new GlyphRenderer({data_source: source, glyph})
         const p = new Plot({renderers: [renderer], y_range})
         const pv = await build_view(p)
@@ -202,8 +203,8 @@ describe("DataRange1d", () => {
       const y_range = new DataRange1d({range_padding: 0, only_visible: false})
       const visible_source = new ColumnDataSource({data: {x: [0, 1], y: [1, 3]}})
       const invisible_source = new ColumnDataSource({data: {x: [0, 1], y: [10, 12]}})
-      const visible_glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
-      const invisible_glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+      const visible_glyph = new Scatter({x: field("x"), y: field("y")})
+      const invisible_glyph = new Scatter({x: field("x"), y: field("y")})
       const visible_renderer = new GlyphRenderer({data_source: visible_source, glyph: visible_glyph})
       const invisible_renderer = new GlyphRenderer({
         data_source: invisible_source,

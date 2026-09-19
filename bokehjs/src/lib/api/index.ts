@@ -15,6 +15,7 @@ export * as Themes from "./themes"
 export {Document} from "../document"
 
 export {sprintf} from "../core/util/templating"
+export {expr, field, value} from "../core/vectorization"
 
 export * from "./models"
 

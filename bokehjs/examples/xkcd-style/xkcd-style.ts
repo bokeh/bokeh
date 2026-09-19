@@ -3,7 +3,7 @@ import "/static/js/bokeh-widgets.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace Xkcd {
-  import plt = Bokeh.Plotting
+  const {figure} = Bokeh.Plotting
   console.log(`Bokeh ${Bokeh.version}`)
   Bokeh.set_log_level("info")
 
@@ -97,7 +97,7 @@ export namespace Xkcd {
   const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1", stylesheets: [input_style]})
   const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5, stylesheets: [slider_style]})
 
-  const p = plt.figure()
+  const p = figure()
 
   p.spline([2, 3, 4], [2, 4, 3], {color: "orange", legend_label: "orange", line_width: 4})
   p.spline([2, 3, 4], [4, 5, 4], {color: "red", legend_label: "red", line_width: 4})

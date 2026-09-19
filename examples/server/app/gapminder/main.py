@@ -9,7 +9,7 @@ from bokeh.layouts import layout
 from bokeh.models import (Button, CategoricalColorMapper, ColumnDataSource,
                           HoverTool, Label, SingleIntervalTicker, Slider)
 from bokeh.palettes import Spectral6
-from bokeh.plotting import figure
+from bokeh.plotting import field, figure
 
 from .data import process_data
 
@@ -45,7 +45,7 @@ plot.scatter(
     y='life',
     size='population',
     source=source,
-    fill_color={'field': 'region', 'transform': color_mapper},
+    fill_color=field('region', transform=color_mapper),
     fill_alpha=0.8,
     line_color='#7c7e71',
     line_width=0.5,

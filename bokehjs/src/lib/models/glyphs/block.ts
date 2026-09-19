@@ -3,6 +3,7 @@ import type {LRTBRect} from "./lrtb"
 import {minmax} from "core/util/math"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
+import {field, value} from "core/vectorization"
 
 export interface BlockView extends Block.Data {}
 
@@ -116,10 +117,10 @@ export class Block extends LRTB {
     this.prototype.default_view = BlockView
 
     this.define<Block.Props>(({}) => ({
-      x:      [ p.XCoordinateSpec, {field: "x"} ],
-      y:      [ p.YCoordinateSpec, {field: "y"} ],
-      width:  [ p.DistanceSpec,    {value: 1}   ],
-      height: [ p.DistanceSpec,    {value: 1}   ],
+      x:      [ p.XCoordinateSpec, field("x") ],
+      y:      [ p.YCoordinateSpec, field("y") ],
+      width:  [ p.DistanceSpec,    value(1)   ],
+      height: [ p.DistanceSpec,    value(1)   ],
     }))
   }
 }

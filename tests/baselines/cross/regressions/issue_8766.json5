@@ -342,14 +342,6 @@
                         name: "Scatter",
                         id: "p1030",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -360,7 +352,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                         },
                       },
@@ -369,14 +361,6 @@
                         name: "Scatter",
                         id: "p1031",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -391,7 +375,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                           fill_alpha: {
                             type: "value",
@@ -408,14 +392,6 @@
                         name: "Scatter",
                         id: "p1032",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -430,7 +406,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                           fill_alpha: {
                             type: "value",
@@ -642,14 +618,6 @@
                         name: "Scatter",
                         id: "p1058",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -660,7 +628,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                         },
                       },
@@ -669,14 +637,6 @@
                         name: "Scatter",
                         id: "p1059",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -691,7 +651,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                           fill_alpha: {
                             type: "value",
@@ -708,14 +668,6 @@
                         name: "Scatter",
                         id: "p1060",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -730,7 +682,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                           fill_alpha: {
                             type: "value",
@@ -942,14 +894,6 @@
                         name: "Scatter",
                         id: "p1086",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -960,7 +904,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                         },
                       },
@@ -969,14 +913,6 @@
                         name: "Scatter",
                         id: "p1087",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -991,7 +927,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                           fill_alpha: {
                             type: "value",
@@ -1008,14 +944,6 @@
                         name: "Scatter",
                         id: "p1088",
                         attributes: {
-                          x: {
-                            type: "field",
-                            field: "x",
-                          },
-                          y: {
-                            type: "field",
-                            field: "y",
-                          },
                           size: {
                             type: "value",
                             value: 10,
@@ -1030,7 +958,7 @@
                           },
                           fill_color: {
                             type: "field",
-                            field: "fill_color",
+                            value: "fill_color",
                           },
                           fill_alpha: {
                             type: "value",

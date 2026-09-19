@@ -9,7 +9,12 @@
 from typing import Unpack
 
 # Bokeh imports
-from ...._specs import AngleSpec, NullStringSpec, NumberSpec
+from ...._specs import (
+    AngleSpec,
+    CoordinateSpec,
+    NullStringSpec,
+    NumberSpec,
+)
 from ...._types import (
     Alpha,
     Angle,
@@ -76,10 +81,8 @@ class HTMLLabel(HTMLTextAnnotation, ScalarTextProps):
     y_offset: float = ...
 
 class _HTMLLabelSetInit(_HTMLAnnotationInit, _DataAnnotationInit, _BackgroundFillPropsInit, _BorderLinePropsInit, total=False):
-    x: NumberSpec
-    x_units: CoordinateUnits
-    y: NumberSpec
-    y_units: CoordinateUnits
+    x: CoordinateSpec
+    y: CoordinateSpec
     text: NullStringSpec
     angle: AngleSpec
     x_offset: NumberSpec
@@ -88,10 +91,8 @@ class _HTMLLabelSetInit(_HTMLAnnotationInit, _DataAnnotationInit, _BackgroundFil
 class HTMLLabelSet(HTMLAnnotation, DataAnnotation, BackgroundFillProps, BorderLineProps):
     def __init__(self, **kwargs: Unpack[_HTMLLabelSetInit]) -> None: ...
 
-    x: NumberSpec = ...
-    x_units: CoordinateUnits = ...
-    y: NumberSpec = ...
-    y_units: CoordinateUnits = ...
+    x: CoordinateSpec = ...
+    y: CoordinateSpec = ...
     text: NullStringSpec = ...
     angle: AngleSpec = ...
     x_offset: NumberSpec = ...

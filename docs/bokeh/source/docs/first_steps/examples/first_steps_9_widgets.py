@@ -25,7 +25,7 @@ spinner = Spinner(
     low=0,
     high=60,
     step=5,
-    value=points.glyph.size,
+    value=points.glyph.size.value,
     width=200,
 )
 spinner.js_link("value", points.glyph, "size")

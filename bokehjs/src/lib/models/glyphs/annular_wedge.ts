@@ -8,6 +8,7 @@ import {to_screen} from "core/types"
 import type * as visuals from "core/visuals"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {angle_between} from "core/util/math"
 import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
@@ -195,10 +196,10 @@ export class AnnularWedge extends XYGlyph {
 
     this.define<AnnularWedge.Props>(({}) => ({
       direction:    [ Direction, "anticlock" ],
-      inner_radius: [ p.DistanceSpec, {field: "inner_radius"} ],
-      outer_radius: [ p.DistanceSpec, {field: "outer_radius"} ],
-      start_angle:  [ p.AngleSpec, {field: "start_angle"} ],
-      end_angle:    [ p.AngleSpec, {field: "end_angle"} ],
+      inner_radius: [ p.DistanceSpec, field("inner_radius") ],
+      outer_radius: [ p.DistanceSpec, field("outer_radius") ],
+      start_angle:  [ p.AngleSpec, field("start_angle") ],
+      end_angle:    [ p.AngleSpec, field("end_angle") ],
     }))
   }
 }

@@ -6,6 +6,7 @@ import type * as visuals from "core/visuals"
 import type {Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {value} from "core/vectorization"
 import type {Context2d} from "core/util/canvas"
 import {minmax2} from "core/util/arrayable"
 import {Selection} from "../selections/selection"
@@ -171,7 +172,7 @@ export namespace Marker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & {
-    size: p.DistanceSpec
+    size: p.ScreenSizeSpec
     angle: p.AngleSpec
     hit_dilation: p.Property<number>
   } & Mixins
@@ -196,7 +197,7 @@ export abstract class Marker extends XYGlyph {
   static {
     this.mixins<Marker.Mixins>([LineVector, FillVector, HatchVector])
     this.define<Marker.Props>(({Float}) => ({
-      size:  [ p.ScreenSizeSpec, {value: 4} ],
+      size:  [ p.ScreenSizeSpec, value(4) ],
       angle: [ p.AngleSpec, 0  ],
       hit_dilation: [ Float, 1.0 ],
     }))

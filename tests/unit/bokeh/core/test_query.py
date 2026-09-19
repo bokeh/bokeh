@@ -239,32 +239,32 @@ def test_conjunction() -> None:
 
 def test_ops() -> None:
     res = list(
-        q.find(plot.references(), {'size': {q.EQ: 5}}),
+        q.find(plot.references(), {'size': {'value': {q.EQ: 5}}}),
     )
     assert len(res) == 1
 
     res = list(
-        q.find(plot.references(), {'size': {q.NEQ: 5}}),
+        q.find(plot.references(), {'size': {'value': {q.NEQ: 5}}}),
     )
     assert len(res) == 0
 
     res = list(
-        q.find(plot.references(), {'size': {q.GEQ: 5}}),
+        q.find(plot.references(), {'size': {'value': {q.GEQ: 5}}}),
     )
     assert len(res) == 1
 
     res = list(
-        q.find(plot.references(), {'size': {q.LEQ: 5}}),
+        q.find(plot.references(), {'size': {'value': {q.LEQ: 5}}}),
     )
     assert len(res) == 1
 
     res = list(
-        q.find(plot.references(), {'size': {q.GT: 5}}),
+        q.find(plot.references(), {'size': {'value': {q.GT: 5}}}),
     )
     assert len(res) == 0
 
     res = list(
-        q.find(plot.references(), {'size': {q.LT: 5}}),
+        q.find(plot.references(), {'size': {'value': {q.LT: 5}}}),
     )
     assert len(res) == 0
 

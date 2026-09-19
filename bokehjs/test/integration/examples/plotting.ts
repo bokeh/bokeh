@@ -1,12 +1,12 @@
 import {display} from "#framework/layouts"
 
-import {figure, gridplot} from "@bokehjs/api/plotting"
+import {figure, gridplot, value} from "@bokehjs/api/plotting"
 
 describe("Examples", () => {
   it("should support plotting/Aspect", async () => {
     const p1 = figure({match_aspect: true, title: "Circle touches all 4 sides of square"})
     p1.rect(0, 0, 300, 300, {line_color: "black"})
-    p1.circle({x: 0, y: 0, radius: 150, line_color: "black", fill_color: "grey", radius_units: "data"})
+    p1.circle({x: 0, y: 0, radius: value(150, {units: "data"}), line_color: "black", fill_color: "grey"})
 
     function draw_test_figure({aspect_scale=1, width=300, height=300}: {aspect_scale?: number, width?: number, height?: number}) {
       const p = figure({

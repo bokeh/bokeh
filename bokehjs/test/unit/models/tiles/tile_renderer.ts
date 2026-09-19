@@ -17,6 +17,7 @@ import {QUADKEYTileSource} from "@bokehjs/models/tiles/quadkey_tile_source"
 import {BBoxTileSource} from "@bokehjs/models/tiles/bbox_tile_source"
 import * as tile_utils from "@bokehjs/models/tiles/tile_utils"
 import type {Extent} from "@bokehjs/models/tiles/tile_utils"
+import {field} from "@bokehjs/core/vectorization"
 
 describe("projection utilities", () => {
 
@@ -578,7 +579,7 @@ describe("tile renderer", () => {
       y_axis_type: "mercator",
       renderers: [new TileRenderer({tile_source: osm_source()})],
     })
-    plot.scatter({field: "x"}, {field: "y"}, {source})
+    plot.scatter(field("x"), field("y"), {source})
 
     const {view} = await display(plot)
 

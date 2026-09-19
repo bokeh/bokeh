@@ -2,7 +2,7 @@ import Bokeh from "/static/js/bokeh.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace HoverfulScatter {
-  import plt = Bokeh.Plotting
+  const {color, field, figure, show} = Bokeh.Plotting
   const {range, zip, Random} = Bokeh.LinAlg
 
   Bokeh.set_log_level("info")
@@ -36,13 +36,13 @@ export namespace HoverfulScatter {
 
   const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,hover,save"
 
-  const p = plt.figure({title: "Hoverful Scatter", tools})
+  const p = figure({title: "Hoverful Scatter", tools})
 
-  p.circle({field: "x"}, {field: "y"}, radii, {
+  p.circle(field("x"), field("y"), radii, {
     source, fill_color: colors, fill_alpha: 0.6, line_color: null,
   })
 
-  p.text({field: "x"}, {field: "y"}, indices, {
+  p.text(field("x"), field("y"), indices, {
     source, alpha: 0.5, text_font_size: "7px", text_baseline: "middle", text_align: "center",
   })
 
@@ -53,11 +53,11 @@ export namespace HoverfulScatter {
     div.style.height = "75px"
     if (info.index != null) {
       const color_source = data_source.get("colors") as typeof colors
-      const css_color = Bokeh.Plotting.color(color_source[info.index])
+      const css_color = color(color_source[info.index])
       div.style.backgroundColor = css_color
     }
     return div
   }
 
-  void plt.show(p)
+  void show(p)
 }

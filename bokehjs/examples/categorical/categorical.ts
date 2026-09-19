@@ -2,14 +2,14 @@ import Bokeh from "/static/js/bokeh.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace Categorical {
-  import plt = Bokeh.Plotting
+  const {figure, show} = Bokeh.Plotting
   const {Row} = Bokeh
 
   const dot = () => {
     const factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
     const x = [50, 40, 65, 10, 25, 37, 80, 60]
 
-    const fig = plt.figure({
+    const fig = figure({
       title: "Categorical Dot Plot",
       tools: "",
       toolbar_location: null,
@@ -32,7 +32,7 @@ export namespace Categorical {
       "#CFF09E", "#79BD9A", "#0B486B",
     ]
 
-    const fig = plt.figure({
+    const fig = figure({
       title: "Categorical Heatmap",
       tools: "hover",
       toolbar_location: null,
@@ -44,5 +44,5 @@ export namespace Categorical {
     return fig
   }
 
-  void plt.show(new Row({children: [hm(), dot()], sizing_mode: "scale_width"}))
+  void show(new Row({children: [hm(), dot()], sizing_mode: "scale_width"}))
 }

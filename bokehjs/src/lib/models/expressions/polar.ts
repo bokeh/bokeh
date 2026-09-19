@@ -2,12 +2,13 @@ import {CoordinateTransform} from "../expressions/coordinate_transform"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 
 export namespace PolarTransform {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = CoordinateTransform.Props & {
-    radius: p.DistanceSpec
+    radius: p.NumberSpec
     angle: p.AngleSpec
     direction: p.Property<Direction>
   }
@@ -24,8 +25,8 @@ export class PolarTransform extends CoordinateTransform {
 
   static {
     this.define<PolarTransform.Props>(({}) => ({
-      radius: [ p.DistanceSpec, {field: "radius"} ],
-      angle: [ p.AngleSpec, {field: "angle"} ],
+      radius: [ p.NumberSpec, field("radius") ],
+      angle: [ p.AngleSpec, field("angle") ],
       direction: [ Direction, "anticlock" ],
     }))
   }

@@ -32,7 +32,7 @@ export abstract class DataAnnotationView extends AnnotationView {
         continue
       }
 
-      if (prop instanceof p.BaseCoordinateSpec) {
+      if (prop instanceof p.BaseCoordinateSpec || prop instanceof p.CoordinateUnitsSpec) {
         const array = prop.array(source)
         self[`_${prop.attr}`] = array
       } else {

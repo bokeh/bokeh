@@ -5,6 +5,7 @@ import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import {StepMode} from "core/enums"
 import {flip_step_mode} from "core/util/flip_step_mode"
 import {Selection} from "../selections/selection"
@@ -172,9 +173,9 @@ export class VAreaStep extends Area {
     this.prototype.default_view = VAreaStepView
 
     this.define<VAreaStep.Props>(({}) => ({
-      x:         [ p.XCoordinateSpec, {field: "x"} ],
-      y1:        [ p.YCoordinateSpec, {field: "y1"} ],
-      y2:        [ p.YCoordinateSpec, {field: "y2"} ],
+      x:         [ p.XCoordinateSpec, field("x") ],
+      y1:        [ p.YCoordinateSpec, field("y1") ],
+      y2:        [ p.YCoordinateSpec, field("y2") ],
       step_mode: [ StepMode, "before" ],
     }))
   }

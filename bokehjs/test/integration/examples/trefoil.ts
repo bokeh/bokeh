@@ -3,6 +3,7 @@ import {display} from "#framework/layouts"
 import {figure} from "@bokehjs/api/plotting"
 import {radians} from "@bokehjs/core/util/math"
 import {Title, TeeHead, VeeHead} from "@bokehjs/models"
+import {value as literal} from "@bokehjs/core/vectorization"
 
 const {cos, sin} = Math
 
@@ -25,8 +26,8 @@ describe("Examples", () => {
       p.annular_wedge({
         x: 0, y: 0,
         inner_radius: 1.5*R, outer_radius: 5*R,
-        start_angle: [0, 120, 240], start_angle_units: "deg",
-        end_angle: [60, 180, 300], end_angle_units: "deg",
+        start_angle: [0, 120, 240].map(radians),
+        end_angle: [60, 180, 300].map(radians),
         line_color: "black", fill_color: "magenta",
       })
       p.circle({
@@ -38,8 +39,8 @@ describe("Examples", () => {
       const arc = p.arc({
         x: 0, y: 0,
         radius: 5.3*R,
-        start_angle: [60, 120], start_angle_units: "deg",
-        end_angle: [120, 180], end_angle_units: "deg",
+        start_angle: [60, 120].map(radians),
+        end_angle: [120, 180].map(radians),
         line_color: "black",
       })
       arc.add_decoration(new TeeHead({size: 10}), "start")
@@ -48,14 +49,14 @@ describe("Examples", () => {
       arc.add_decoration(new VeeHead({size: 8}), "end")
 
       const [x1, y1] = [5.5*R*cos(radians(150)), 5.5*R*sin(radians(150))]
-      p.text({x: [0, x1], y: [5.3*R, y1], text: {value: `60${degree}`}, text_baseline: "bottom", text_align: "center"})
+      p.text({x: [0, x1], y: [5.3*R, y1], text: literal(`60${degree}`), text_baseline: "bottom", text_align: "center"})
 
       p.segment({
         x0: [   0,    R, 1.5*R,  5*R],
         y0: 0,
         x1: [   0,    R, 1.5*R,  5*R],
         y1: [-4*R, -2*R,  -3*R, -4*R],
-        line_color: "black", line_dash: {value: [3, 3]},
+        line_color: "black", line_dash: literal([3, 3]),
       })
 
       const s = p.segment({
@@ -70,9 +71,9 @@ describe("Examples", () => {
       s.add_decoration(new TeeHead({size: 10}), "end")
       s.add_decoration(new VeeHead({size: 8}), "end")
 
-      p.text({x: 1.0*R/2, y: -2*R, text: {value: "R"}, text_baseline: "bottom", text_align: "center"})
-      p.text({x: 1.5*R/2, y: -3*R, text: {value: `1.5${cdot}R`}, text_baseline: "bottom", text_align: "center"})
-      p.text({x: 5.0*R/2, y: -4*R, text: {value: `5${cdot}R`}, text_baseline: "bottom", text_align: "center"})
+      p.text({x: 1.0*R/2, y: -2*R, text: literal("R"), text_baseline: "bottom", text_align: "center"})
+      p.text({x: 1.5*R/2, y: -3*R, text: literal(`1.5${cdot}R`), text_baseline: "bottom", text_align: "center"})
+      p.text({x: 5.0*R/2, y: -4*R, text: literal(`5${cdot}R`), text_baseline: "bottom", text_align: "center"})
 
       return p
     }

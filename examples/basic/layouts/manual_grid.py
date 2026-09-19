@@ -4,7 +4,7 @@ from bokeh.core.enums import SizingMode
 from bokeh.io import show
 from bokeh.layouts import column, grid
 from bokeh.models import Paragraph, Select
-from bokeh.plotting import figure
+from bokeh.plotting import figure, value
 
 N = 10
 x = np.linspace(0, 4 * np.pi, N)
@@ -17,7 +17,7 @@ p1.line(x, y)
 
 p2 = figure(title="Annular wedge (100 x 300)", title_location='right', **options)
 p2.width = 200
-p2.annular_wedge(x, y, 10, 20, 0.6, 4.1, inner_radius_units="screen", outer_radius_units="screen")
+p2.annular_wedge(x, y, value(10, units="screen"), value(20, units="screen"), 0.6, 4.1)
 
 p3 = figure(title="Bezier (300 x 300)", **options)
 p3.bezier(x, y, x + 0.4, y, x + 0.1, y + 0.2, x - 0.1, y - 0.2)

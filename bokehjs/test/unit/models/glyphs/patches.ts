@@ -6,6 +6,7 @@ import type {HitTestGeometry} from "@bokehjs/core/geometry"
 import {DataRange1d} from "@bokehjs/models"
 import type {Arrayable} from "@bokehjs/core/types"
 import {unzip} from "@bokehjs/core/util/array"
+import {field} from "@bokehjs/core/vectorization"
 
 type Point = [number, number]
 
@@ -19,8 +20,8 @@ describe("Patches", () => {
         ys: [[1, 1, 3], [3, 3, 5, 5], [3, 4, 5, 4]],
       }
       const glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: field("xs"),
+        ys: field("ys"),
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -72,8 +73,8 @@ describe("Patches", () => {
         ys: [[0, 0, 10, 10, NaN, 3, 7, 7, 3]],
       }
       const glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: field("xs"),
+        ys: field("ys"),
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -109,8 +110,8 @@ describe("Patches", () => {
         ys: [[0, 0, 5, 5, NaN, 0, 0, 5, 5]],
       }
       const glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: field("xs"),
+        ys: field("ys"),
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
@@ -147,8 +148,8 @@ describe("Patches", () => {
         ys: [[1, 1, 3], [3, 3, 5, 5], [3, 4, 5, 4]],
       }
       const glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
+        xs: field("xs"),
+        ys: field("ys"),
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {

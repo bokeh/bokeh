@@ -16,6 +16,7 @@ import type {FreehandDrawToolView} from "@bokehjs/models/tools/edit/freehand_dra
 import {FreehandDrawTool} from "@bokehjs/models/tools/edit/freehand_draw_tool"
 
 import {make_pan_event, make_tap_event, make_key_event, make_move_event} from "./_util"
+import {field} from "@bokehjs/core/vectorization"
 
 export interface FreehandDrawTestCase {
   data: {[key: string]: (number[] | null)[]}
@@ -41,8 +42,8 @@ async function make_testcase(): Promise<FreehandDrawTestCase> {
   const data_source = new ColumnDataSource({data})
 
   const glyph = new Patches({
-    xs: {field: "xs"},
-    ys: {field: "ys"},
+    xs: field("xs"),
+    ys: field("ys"),
   })
 
   const glyph_renderer = new GlyphRenderer<Patches>({glyph, data_source})

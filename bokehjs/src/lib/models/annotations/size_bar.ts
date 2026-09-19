@@ -10,6 +10,7 @@ import {LinearScale} from "../scales"
 import {Range1d} from "../ranges/range1d"
 import {LinearAxis} from "../axes/linear_axis"
 import type * as p from "core/properties"
+import {field} from "core/vectorization"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as uniforms from "core/uniforms"
@@ -153,9 +154,9 @@ export class SizeBarView extends BaseBarView implements Exportable {
 
     const Cls = renderer.glyph.constructor as any // expression not constructible
     const glyph: RadialGlyph = new Cls({
-      x: {field: "x"},
-      y: {field: "y"},
-      radius: {field: "s", units: "screen"},
+      x: field("x"),
+      y: field("y"),
+      radius: field("s", {units: "screen"}),
       ...mixins.attrs_of(this.model, "glyph_", mixins.LineVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.FillVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.HatchVector),

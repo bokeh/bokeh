@@ -11,6 +11,7 @@ import type {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
 import {range} from "core/util/array"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 
 const {abs, max} = Math
 
@@ -164,7 +165,7 @@ export class VSpan extends Glyph {
     this.mixins<VSpan.Mixins>([LineVector])
 
     this.define<VSpan.Props>(() => ({
-      x: [ p.XCoordinateSpec, {field: "x"} ],
+      x: [ p.XCoordinateSpec, field("x") ],
     }))
   }
 }

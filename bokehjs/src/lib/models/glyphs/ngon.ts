@@ -3,6 +3,7 @@ import type {PointGeometry, PolyGeometry, RectGeometry, SpanGeometry} from "core
 import {minmax2} from "core/util/arrayable"
 import {edge_intersection, point_in_poly, vertex_overlap} from "core/hittest"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import type {Arrayable} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -181,7 +182,7 @@ export class Ngon extends RadialGlyph {
 
     this.define<Ngon.Props>(() => ({
       angle: [ p.AngleSpec, 0 ],
-      n:     [ p.NumberSpec, {field: "n"} ],
+      n:     [ p.NumberSpec, field("n") ],
     }))
   }
 }

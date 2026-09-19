@@ -2,6 +2,7 @@ import {LRTB, LRTBView} from "./lrtb"
 import type {LRTBRect} from "./lrtb"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
+import {field, value} from "core/vectorization"
 
 export interface VBarView extends VBar.Data {}
 
@@ -87,10 +88,10 @@ export class VBar extends LRTB {
     this.prototype.default_view = VBarView
 
     this.define<VBar.Props>(({}) => ({
-      x:      [ p.XCoordinateSpec, {field: "x"} ],
-      bottom: [ p.YCoordinateSpec, {value: 0} ],
-      width:  [ p.DistanceSpec,    {value: 1} ],
-      top:    [ p.YCoordinateSpec, {field: "top"} ],
+      x:      [ p.XCoordinateSpec, field("x") ],
+      bottom: [ p.YCoordinateSpec, value(0) ],
+      width:  [ p.DistanceSpec,    value(1) ],
+      top:    [ p.YCoordinateSpec, field("top") ],
     }))
   }
 }

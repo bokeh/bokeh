@@ -16,6 +16,7 @@ import type {PointDrawToolView} from "@bokehjs/models/tools/edit/point_draw_tool
 import {PointDrawTool} from "@bokehjs/models/tools/edit/point_draw_tool"
 
 import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
+import {field, value} from "@bokehjs/core/vectorization"
 
 export interface PointDrawTestCase {
   data: {[key: string]: (number | null)[]}
@@ -41,9 +42,9 @@ async function make_testcase(): Promise<PointDrawTestCase> {
   const data_source = new ColumnDataSource({data})
 
   const glyph = new Scatter({
-    x: {field: "x"},
-    y: {field: "y"},
-    size: {units: "screen", value: 20},
+    x: field("x"),
+    y: field("y"),
+    size: value(20),
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})

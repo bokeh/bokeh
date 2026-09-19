@@ -2,14 +2,14 @@ import Bokeh from "/static/js/bokeh.esm.js"
 import "/static/js/bokeh-api.esm.js"
 
 export namespace Stocks {
-  import plt = Bokeh.Plotting
+  const {field, figure, show} = Bokeh.Plotting
 
   console.log(`Bokeh ${Bokeh.version}`)
   Bokeh.set_log_level("info")
 
   function make_plot(title: string, source: Bokeh.ColumnDataSource) {
     // Create plot
-    const plot = plt.figure({
+    const plot = figure({
       tools: "pan,wheel_zoom,save,reset",
       title,
       width: 400,
@@ -31,7 +31,7 @@ export namespace Stocks {
     for (const key in source.data) {
       if (key != "t") {
         i += 1
-        plot.line({field: "t"}, {field: key}, {
+        plot.line(field("t"), field(key), {
           source, legend_label: key, line_color: colors[i%6], line_width: 2,
         })
       }
@@ -67,5 +67,5 @@ export namespace Stocks {
 
   // Create plot and attach to DOM
   const plot = make_plot("Simple stocks demo", source)
-  void plt.show(plot, "#plot")
+  void show(plot, "#plot")
 }

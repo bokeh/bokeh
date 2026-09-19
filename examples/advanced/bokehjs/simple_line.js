@@ -1,4 +1,6 @@
 // create some data and a ColumnDataSource
+const { field, show } = Bokeh.Plotting;
+
 const x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
 const y = x.map(function (v) { return v * 0.5 + 3.0; });
 const source = new Bokeh.ColumnDataSource({ data: { x: x, y: y } });
@@ -31,11 +33,11 @@ plot.add_layout(ygrid);
 
 // add a Line glyph
 const line = new Bokeh.Line({
-    x: { field: "x" },
-    y: { field: "y" },
+    x: field("x"),
+    y: field("y"),
     line_color: "#666699",
     line_width: 2
 });
 plot.add_glyph(line, source);
 
-Bokeh.Plotting.show(plot);
+show(plot);

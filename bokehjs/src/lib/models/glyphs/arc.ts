@@ -7,6 +7,7 @@ import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 import type {Context2d} from "core/util/canvas"
 
 export interface ArcView extends Arc.Data {}
@@ -121,9 +122,9 @@ export class Arc extends XYGlyph {
 
     this.define<Arc.Props>(({}) => ({
       direction:   [ Direction, "anticlock" ],
-      radius:      [ p.DistanceSpec, {field: "radius"} ],
-      start_angle: [ p.AngleSpec, {field: "start_angle"} ],
-      end_angle:   [ p.AngleSpec, {field: "end_angle"} ],
+      radius:      [ p.DistanceSpec, field("radius") ],
+      start_angle: [ p.AngleSpec, field("start_angle") ],
+      end_angle:   [ p.AngleSpec, field("end_angle") ],
     }))
   }
 }

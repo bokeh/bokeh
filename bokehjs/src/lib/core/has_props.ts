@@ -25,8 +25,6 @@ import {pretty} from "./util/pretty"
 import type {Cloneable} from "./util/cloneable"
 import {clone, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
-import type {Scalar, Vector} from "./vectorization"
-import {isExpr} from "./vectorization"
 import type {PatchSet} from "./patching"
 import {stream_to_columns, patch_to_columns} from "./patching"
 
@@ -237,8 +235,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   readonly destroyed       = new Signal0<this>(this, "destroyed")
   readonly change          = new Signal0<this>(this, "change")
-  readonly transformchange = new Signal0<this>(this, "transformchange")
-  readonly exprchange      = new Signal0<this>(this, "exprchange")
   readonly streaming       = new Signal0<this>(this, "streaming")
   readonly patching        = new Signal<number[], this>(this, "patching")
 
@@ -404,24 +400,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  connect_signals(): void {
-    for (const prop of this) {
-      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
-        continue
-      }
-      if (prop.is_unset) {
-        continue
-      }
-
-      const value = prop.get_value() as Scalar<unknown> | Vector<unknown>
-      if (value.transform != null) {
-        this.connect(value.transform.change, () => this.transformchange.emit())
-      }
-      if (isExpr(value)) {
-        this.connect(value.expr.change, () => this.exprchange.emit())
-      }
-    }
-  }
+  connect_signals(): void {}
 
   disconnect_signals(): void {
     Signal.disconnect_receiver(this)
@@ -457,6 +436,37 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   private _pending: boolean = false
   private _changing: boolean = false
 
+  private _emit_change(changed: Set<Property>, changing: boolean, no_change: boolean = false): void {
+    if (changed.size > 0) {
+      this._clear_watchers()
+      this._pending = true
+    }
+    for (const prop of changed) {
+      prop.change.emit()
+    }
+
+    // You might be wondering why there's a `while` loop here. Changes can
+    // be recursively nested within `"change"` events.
+    if (!changing) {
+      if (!no_change) {
+        while (this._pending) {
+          this._pending = false
+          this.change.emit()
+        }
+      }
+
+      this._pending = false
+      this._changing = false
+    }
+  }
+
+  /** @internal */
+  _notify_change(prop: Property): void {
+    const changing = this._changing
+    this._changing = true
+    this._emit_change(new Set([prop]), changing)
+  }
+
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
@@ -475,28 +485,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
-    // Trigger all relevant attribute changes.
-    if (changed.size > 0) {
-      this._clear_watchers()
-      this._pending = true
-    }
-    for (const prop of changed) {
-      prop.change.emit()
-    }
-
-    // You might be wondering why there's a `while` loop here. Changes can
-    // be recursively nested within `"change"` events.
-    if (!changing) {
-      if (!(options.no_change ?? false)) {
-        while (this._pending) {
-          this._pending = false
-          this.change.emit()
-        }
-      }
-
-      this._pending = false
-      this._changing = false
-    }
+    this._emit_change(changed, changing, options.no_change)
 
     return changed
   }

@@ -7,6 +7,7 @@ import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {qbb} from "core/util/algorithms"
 import * as p from "core/properties"
+import {field} from "core/vectorization"
 
 export interface QuadraticView extends Quadratic.Data {}
 
@@ -108,12 +109,12 @@ export class Quadratic extends Glyph {
     this.prototype.default_view = QuadraticView
 
     this.define<Quadratic.Props>(({}) => ({
-      x0: [ p.XCoordinateSpec, {field: "x0"} ],
-      y0: [ p.YCoordinateSpec, {field: "y0"} ],
-      x1: [ p.XCoordinateSpec, {field: "x1"} ],
-      y1: [ p.YCoordinateSpec, {field: "y1"} ],
-      cx: [ p.XCoordinateSpec, {field: "cx"} ],
-      cy: [ p.YCoordinateSpec, {field: "cy"} ],
+      x0: [ p.XCoordinateSpec, field("x0") ],
+      y0: [ p.YCoordinateSpec, field("y0") ],
+      x1: [ p.XCoordinateSpec, field("x1") ],
+      y1: [ p.YCoordinateSpec, field("y1") ],
+      cx: [ p.XCoordinateSpec, field("cx") ],
+      cy: [ p.YCoordinateSpec, field("cy") ],
     }))
     this.mixins<Quadratic.Mixins>(LineVector)
   }

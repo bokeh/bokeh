@@ -7,6 +7,7 @@
 
 # Standard library imports
 from typing import (
+    Literal,
     Never,
     NotRequired,
     Sequence,
@@ -47,17 +48,20 @@ from .models.transforms import Transform
 type FieldName = str
 
 class ValueDict[ValueType, UnitsType](TypedDict):
+    type: Literal["value"]
     value: ValueType
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
 class FieldDict[ValueType, UnitsType](TypedDict):
-    field: FieldName
+    type: Literal["field"]
+    value: FieldName
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
 class ExprDict[ValueType, UnitsType](TypedDict):
-    expr: Expression
+    type: Literal["expr"]
+    value: Expression
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
