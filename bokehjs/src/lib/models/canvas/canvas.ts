@@ -8,6 +8,7 @@ import {load_module} from "core/util/modules"
 import type {Context2d} from "core/util/canvas"
 import {CanvasLayer} from "core/util/canvas"
 import type {BBox} from "core/util/bbox"
+import type {Size} from "core/types"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import type {PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
@@ -153,24 +154,6 @@ export class CanvasView extends UIElementView {
     return this.primary.pixel_ratio_changed
   }
 
-  override _update_bbox(): boolean {
-    const changed = super._update_bbox() || this.pixel_ratio_changed
-
-    if (changed) {
-      const {width, height} = this.bbox
-
-      this._size.replace(`.${canvas_css.layer}`, {
-        width: px(width),
-        height: px(height),
-      })
-
-      this.primary.resize(width, height)
-      this.overlays.resize(width, height)
-    }
-
-    return changed
-  }
-
   override after_resize(): void {
     if (this.plot_views.length != 0) {
       // Canvas is being managed by a plot, thus it should not attempt
@@ -182,16 +165,30 @@ export class CanvasView extends UIElementView {
     }
   }
 
+  private _prev_size: Size = {width: NaN, height: NaN}
+  size_changed: boolean = true
+
   override _after_resize(): void {
     super._after_resize()
-    const {width, height} = this.bbox
-    this.primary.resize(width, height)
-    this.overlays.resize(width, height)
+    this.resize()
   }
 
   resize(): boolean {
-    const changed = this._update_bbox()
-    this._after_resize()
+    const {width, height} = this.bbox
+    const changed = this.pixel_ratio_changed || width != this._prev_size.width || height != this._prev_size.height
+
+    if (changed) {
+      this._prev_size = {width, height}
+      this.size_changed = true
+
+      this._size.replace(`.${canvas_css.layer}`, {
+        width: px(width),
+        height: px(height),
+      })
+      this.primary.resize(width, height)
+      this.overlays.resize(width, height)
+    }
+
     return changed
   }
 
