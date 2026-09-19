@@ -1,6 +1,7 @@
 import {Model} from "../model"
 import {Notifications} from "models/ui/notifications"
 import {ColorScheme} from "core/enums"
+import {I18n} from "../models/i18n"
 import type * as p from "core/properties"
 
 export namespace DocumentConfig {
@@ -11,6 +12,7 @@ export namespace DocumentConfig {
     notify_connection_status: p.Property<boolean>
     notifications: p.Property<Notifications | null>
     color_scheme: p.Property<ColorScheme>
+    i18n: p.Property<I18n>
   }
 }
 
@@ -29,6 +31,7 @@ export class DocumentConfig extends Model {
       notify_connection_status: [ Bool, true ],
       notifications: [ Nullable(Ref(Notifications)), () => new Notifications() ],
       color_scheme: [ ColorScheme, "auto"],
+      i18n: [ Ref(I18n), () => new I18n() ],
     }))
   }
 }

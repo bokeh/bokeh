@@ -8,7 +8,7 @@ import {isString} from "core/util/types"
 
 import {Control, ControlView} from "./control"
 import {DOMNode} from "../dom/dom_node"
-import {Text} from "../dom/text"
+import {TranslatableText} from "../dom/translatable_text"
 import {Icon} from "../ui/icons/icon"
 
 import buttons_css, * as buttons from "styles/buttons.css"
@@ -40,7 +40,8 @@ export abstract class AbstractButtonView extends ControlView {
     this.label_view?.remove()
     const label = (() => {
       const {label} = this.model
-      return isString(label) ? new Text({content: label}) : label
+      this.model.label = isString(label) ? new TranslatableText({content: label}) : label
+      return this.model.label
     })()
     this.label_view = await this.owner.build_view(label, this)
   }

@@ -9,6 +9,11 @@
         name: "Notifications",
         id: "p1008",
       },
+      i18n: {
+        type: "object",
+        name: "I18n",
+        id: "p1009",
+      },
     },
   },
   roots: [
@@ -31,32 +36,32 @@
         x_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1009",
+          id: "p1010",
         },
         y_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1010",
+          id: "p1011",
         },
         x_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1011",
+          id: "p1012",
         },
         y_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1012",
+          id: "p1013",
         },
         title: {
           type: "object",
           name: "Title",
-          id: "p1013",
+          id: "p1014",
         },
         toolbar: {
           type: "object",
           name: "Toolbar",
-          id: "p1014",
+          id: "p1015",
         },
       },
     },

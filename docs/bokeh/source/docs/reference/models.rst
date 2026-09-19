@@ -46,6 +46,7 @@ the model looks like.
     models/glyphs
     models/graphs
     models/grids
+    models/i18n
     models/labeling
     models/layouts
     models/map_plots
