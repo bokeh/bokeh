@@ -464,11 +464,11 @@ class Serializer:
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        if array.dtype.kind == 'U':
-            data = obj.flatten().tolist()
+        if array.dtype.kind == "U":
+            data = array.ravel().tolist()
             dtype = "object"
         elif array_encoding_disabled(array):
-            data = self._encode_list(array.flatten().tolist())
+            data = self._encode_list(array.ravel().tolist())
             dtype = "object"
         else:
             data = self._encode_bytes(array.data)
