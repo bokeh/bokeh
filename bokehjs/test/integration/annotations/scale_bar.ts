@@ -4,6 +4,7 @@ import {display} from "#framework/layouts"
 import {ScaleBar, Plot, Range1d, FactorRange, Metric, LinearScale, CategoricalScale} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"
 import {bounding_box} from "@bokehjs/core/dom"
+import {delay} from "@bokehjs/core/util/defer"
 
 describe("ScaleBar annotation", () => {
   describe("should support horizontal orientation", () => {
@@ -425,5 +426,41 @@ describe("ScaleBar annotation", () => {
     const scale_bar_bbox = bounding_box(view.owner.get_one(scale_bar).el)
 
     expect(scale_bar_bbox.right).to.be.below(panel_bbox.right + 0.01)
+  })
+
+  it("should settle when its length affects a side-panel size", async () => {
+    const plot = new Plot({
+      width: 300,
+      height: 120,
+      min_border: 0,
+      x_range: new Range1d({start: 0, end: 1}),
+      y_range: new Range1d({start: 0, end: 1}),
+      toolbar_location: null,
+    })
+    const scale_bar = new ScaleBar({
+      range: new Range1d({start: 0, end: 10}),
+      unit: "m",
+      dimensional: new Metric({base_unit: "m"}),
+      bar_length: 0.5,
+      orientation: "horizontal",
+    })
+    plot.add_layout(scale_bar, "right")
+
+    const {view} = await display(plot)
+    const expect_stable_layout = async () => {
+      await view.ready
+      await delay(100)
+      const render_count = (view as any)._render_count
+      const frame_width = view.frame.bbox.width
+      await delay(100)
+      expect((view as any)._render_count).to.be.equal(render_count)
+      expect(view.frame.bbox.width).to.be.equal(frame_width)
+    }
+
+    await expect_stable_layout()
+
+    plot.width = 301
+    scale_bar.bar_length = 0.2
+    await expect_stable_layout()
   })
 })
