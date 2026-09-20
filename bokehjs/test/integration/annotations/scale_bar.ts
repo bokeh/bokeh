@@ -422,6 +422,8 @@ describe("ScaleBar annotation", () => {
     plot.add_layout(scale_bar, "right")
 
     const {view} = await display(plot)
+    await view.ready
+    await delay(100)
     const panel_bbox = bounding_box(view.right_panel.el)
     const scale_bar_bbox = bounding_box(view.owner.get_one(scale_bar).el)
 
