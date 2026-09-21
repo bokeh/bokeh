@@ -12,9 +12,5 @@ export interface RandomGenerator extends RandomGenerator.Attrs {}
 export abstract class RandomGenerator extends Model {
   declare properties: RandomGenerator.Props
 
-  constructor(attrs?: Partial<RandomGenerator.Attrs>) {
-    super(attrs)
-  }
-
   abstract generator(): AbstractRandom
 }

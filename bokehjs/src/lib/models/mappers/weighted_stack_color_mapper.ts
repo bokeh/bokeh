@@ -23,10 +23,6 @@ export interface WeightedStackColorMapper extends WeightedStackColorMapper.Attrs
 export class WeightedStackColorMapper extends StackColorMapper {
   declare properties: WeightedStackColorMapper.Props
 
-  constructor(attrs?: Partial<WeightedStackColorMapper.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<WeightedStackColorMapper.Props>(({List, Nullable, Float, Ref, Str}) => ({
       alpha_mapper:   [ Ref(ContinuousColorMapper) ],

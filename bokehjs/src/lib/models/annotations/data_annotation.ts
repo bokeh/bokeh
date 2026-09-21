@@ -87,13 +87,9 @@ export abstract class DataAnnotation extends Annotation {
   declare properties: DataAnnotation.Props
   declare __view_type__: DataAnnotationView
 
-  constructor(attrs?: Partial<DataAnnotation.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<DataAnnotation.Props>(({Ref}) => ({
-      source: [ Ref(ColumnarDataSource), () => new ColumnDataSource() ],
+      source: [ Ref(ColumnarDataSource), () => ColumnDataSource.create() ],
     }))
   }
 }

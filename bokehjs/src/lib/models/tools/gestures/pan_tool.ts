@@ -167,10 +167,6 @@ export class PanTool extends GestureTool {
   declare properties: PanTool.Props
   declare __view_type__: PanToolView
 
-  constructor(attrs?: Partial<PanTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = PanToolView
 
@@ -178,9 +174,9 @@ export class PanTool extends GestureTool {
       dimensions: [ Dimensions, "both" ],
     }))
 
-    this.register_alias("pan", () => new PanTool({dimensions: "both"}))
-    this.register_alias("xpan", () => new PanTool({dimensions: "width"}))
-    this.register_alias("ypan", () => new PanTool({dimensions: "height"}))
+    this.register_alias("pan", () => PanTool.create({dimensions: "both"}))
+    this.register_alias("xpan", () => PanTool.create({dimensions: "width"}))
+    this.register_alias("ypan", () => PanTool.create({dimensions: "height"}))
   }
 
   override tool_name = "Pan"
@@ -206,7 +202,7 @@ export class PanTool extends GestureTool {
 
   override get menu(): MenuItemLike[] {
     return [
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_pan}`,
         label: "XY mode",
         tooltip: "Pan in both dimensions",
@@ -216,7 +212,7 @@ export class PanTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_x_pan}`,
         label: "X-only",
         tooltip: "Pan in x-dimension",
@@ -226,7 +222,7 @@ export class PanTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_y_pan}`,
         label: "Y-only",
         tooltip: "Pan in y-dimension",

@@ -88,10 +88,6 @@ export class CanvasPanel extends StyledElement {
   declare properties: CanvasPanel.Props
   declare __view_type__: CanvasPanelView
 
-  constructor(attrs?: Partial<CanvasPanel.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CanvasPanelView
 

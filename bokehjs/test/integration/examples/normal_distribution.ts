@@ -10,7 +10,7 @@ import {Div} from "@bokehjs/models/widgets"
 const r = String.raw
 
 function tex(strings: TemplateStringsArray, ...subs: unknown[]): TeX {
-  return new TeX({text: r(strings, ...subs)})
+  return TeX.create({text: r(strings, ...subs)})
 }
 
 describe("Examples", () => {
@@ -53,7 +53,7 @@ describe("Examples", () => {
     p.xaxis.axis_label = "x"
     p.yaxis.axis_label = "PDF(x)"
 
-    p.xaxis.ticker = new FixedTicker({ticks: [-3, -2, -1, 0, 1, 2, 3]})
+    p.xaxis.ticker = FixedTicker.create({ticks: [-3, -2, -1, 0, 1, 2, 3]})
     p.xaxis.major_label_overrides = new Map([
       [-3, tex`\overline{x} - 3\sigma`],
       [-2, tex`\overline{x} - 2\sigma`],
@@ -64,7 +64,7 @@ describe("Examples", () => {
       [ 3, tex`\overline{x} + 3\sigma`],
     ])
 
-    p.yaxis.ticker = new FixedTicker({ticks: [0, 0.1, 0.2, 0.3, 0.4]})
+    p.yaxis.ticker = FixedTicker.create({ticks: [0, 0.1, 0.2, 0.3, 0.4]})
     p.yaxis.major_label_overrides = new Map([
       [0.0, tex`0`],
       [0.1, tex`0.1/\sigma`],
@@ -73,7 +73,7 @@ describe("Examples", () => {
       [0.4, tex`0.4/\sigma`],
     ])
 
-    const div = new Div({
+    const div = Div.create({
       width: 700,
       height: 100,
       text: r`

@@ -41,10 +41,6 @@ export class Paragraph extends Markup {
   declare properties: Paragraph.Props
   declare __view_type__: ParagraphView
 
-  constructor(attrs?: Partial<Paragraph.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ParagraphView
   }

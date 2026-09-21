@@ -6,9 +6,9 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 describe("linear_scale module", () => {
 
   function mkscale(): LinearScale {
-    return new LinearScale({
-      source_range: new Range1d({start: 0, end: 10}),
-      target_range: new Range1d({start: 20, end: 80}),
+    return LinearScale.create({
+      source_range: Range1d.create({start: 0, end: 10}),
+      target_range: Range1d.create({start: 20, end: 80}),
     })
   }
 

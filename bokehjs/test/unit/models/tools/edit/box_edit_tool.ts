@@ -26,9 +26,9 @@ export interface BoxEditTestCase {
 
 async function make_testcase(): Promise<BoxEditTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
-  const plot = new Plot({
-    x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1}),
+  const plot = Plot.create({
+    x_range: Range1d.create({start: -1, end: 1}),
+    y_range: Range1d.create({start: -1, end: 1}),
   })
 
   const {view: plot_view} = await display(plot)
@@ -43,19 +43,19 @@ async function make_testcase(): Promise<BoxEditTestCase> {
     c: [100, 200, 300],
     d: [{d: 1}, {d: 2}, {d: 3}],
   }
-  const data_source = new ColumnDataSource({data, default_values: {b: "d"}})
+  const data_source = ColumnDataSource.create({data, default_values: {b: "d"}})
 
-  const glyph = new Rect({
+  const glyph = Rect.create({
     x: {field: "x"},
     y: {field: "y"},
     width: {field: "width"},
     height: {field: "height"},
   })
 
-  const glyph_renderer = new GlyphRenderer({glyph, data_source})
+  const glyph_renderer = GlyphRenderer.create({glyph, data_source})
   const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
 
-  const draw_tool = new BoxEditTool({
+  const draw_tool = BoxEditTool.create({
     active: true,
     default_overrides: {c: 400},
     empty_value: "Foo",
@@ -80,10 +80,10 @@ describe("BoxEditTool", () => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool0 = new BoxEditTool()
+      const tool0 = BoxEditTool.create()
       expect(tool0.tooltip).to.be.equal("Box Edit Tool")
 
-      const tool1 = new BoxEditTool({description: "My Box Edit"})
+      const tool1 = BoxEditTool.create({description: "My Box Edit"})
       expect(tool1.tooltip).to.be.equal("My Box Edit")
     })
   })
@@ -94,7 +94,7 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -105,10 +105,10 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       let tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
-      hit_test_stub.returns(new Selection({indices: [2]}))
+      hit_test_stub.returns(Selection.create({indices: [2]}))
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -119,7 +119,7 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -146,7 +146,7 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -163,7 +163,7 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 

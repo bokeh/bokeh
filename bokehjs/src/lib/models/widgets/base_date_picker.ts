@@ -112,10 +112,6 @@ export abstract class BaseDatePicker extends PickerBase {
   declare properties: BaseDatePicker.Props
   declare __view_type__: BaseDatePickerView
 
-  constructor(attrs?: Partial<BaseDatePicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BaseDatePicker.Props>(({Nullable}) => ({
       min_date:       [ Nullable(DateLike), null ],

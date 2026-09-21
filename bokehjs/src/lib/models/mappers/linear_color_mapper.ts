@@ -22,10 +22,6 @@ export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 export class LinearColorMapper extends ContinuousColorMapper {
   declare properties: LinearColorMapper.Props
 
-  constructor(attrs?: Partial<LinearColorMapper.Attrs>) {
-    super(attrs)
-  }
-
   protected scan(data: Arrayable<number>, n: number): LinearScanData {
     const [low, high] = (() => {
       if (this.low == null && this.high == null) {

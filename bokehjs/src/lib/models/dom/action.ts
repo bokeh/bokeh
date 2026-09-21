@@ -22,7 +22,4 @@ export abstract class Action extends Model {
   declare __view_type__: ActionView
   static override __module__ = "bokeh.models.dom"
 
-  constructor(attrs?: Partial<Action.Attrs>) {
-    super(attrs)
-  }
 }

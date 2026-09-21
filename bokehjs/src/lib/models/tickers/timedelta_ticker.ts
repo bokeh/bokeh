@@ -21,16 +21,12 @@ export interface TimedeltaTicker extends TimedeltaTicker.Attrs {}
 export class TimedeltaTicker extends CompositeTicker {
   declare properties: TimedeltaTicker.Props
 
-  constructor(attrs?: Partial<TimedeltaTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.override<TimedeltaTicker.Props>({
       num_minor_ticks: 0,
       tickers: () => [
         // Sub-second.
-        new AdaptiveTicker({
+        AdaptiveTicker.create({
           mantissas: [1, 2, 5],
           base: 10,
           min_interval: 0,
@@ -39,7 +35,7 @@ export class TimedeltaTicker extends CompositeTicker {
         }),
 
         // Seconds, minutes.
-        new AdaptiveTicker({
+        AdaptiveTicker.create({
           mantissas: [1, 2, 5, 10, 15, 20, 30],
           base: 60,
           min_interval: ONE_SECOND,
@@ -48,7 +44,7 @@ export class TimedeltaTicker extends CompositeTicker {
         }),
 
         // Hours.
-        new AdaptiveTicker({
+        AdaptiveTicker.create({
           mantissas: [1, 2, 4, 6, 8, 12],
           base: 24.0,
           min_interval: ONE_HOUR,
@@ -57,7 +53,7 @@ export class TimedeltaTicker extends CompositeTicker {
         }),
 
         // Days.
-        new AdaptiveTicker({
+        AdaptiveTicker.create({
           mantissas: [1, 2, 5],
           base: 10,
           min_interval: ONE_DAY,

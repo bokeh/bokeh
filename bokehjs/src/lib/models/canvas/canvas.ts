@@ -337,10 +337,6 @@ export class Canvas extends UIElement {
   declare properties: Canvas.Props
   declare __view_type__: CanvasView
 
-  constructor(attrs?: Partial<Canvas.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CanvasView
 

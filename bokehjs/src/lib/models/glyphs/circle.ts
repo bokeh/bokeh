@@ -91,7 +91,7 @@ export class CircleView extends RadialGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -119,7 +119,7 @@ export class CircleView extends RadialGlyphView {
     })()
 
     const indices = [...this.index.indices({x0, x1, y0, y1})]
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
@@ -138,7 +138,7 @@ export class CircleView extends RadialGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_poly(geometry: PolyGeometry): Selection {
@@ -160,7 +160,7 @@ export class CircleView extends RadialGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 }
 
@@ -181,10 +181,6 @@ export interface Circle extends Circle.Attrs {}
 export class Circle extends RadialGlyph {
   declare properties: Circle.Props
   declare __view_type__: CircleView
-
-  constructor(attrs?: Partial<Circle.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = CircleView

@@ -14,10 +14,6 @@ export interface Expression<T = Arrayable> extends Expression.Attrs {}
 export abstract class Expression<T = Arrayable> extends Model {
   declare properties: Expression.Props
 
-  constructor(attrs?: Partial<Expression.Attrs>) {
-    super(attrs)
-  }
-
   protected readonly _result: Map<ColumnarDataSource, T> = new Map()
 
   protected abstract _v_compute(source: ColumnarDataSource): T
@@ -42,10 +38,6 @@ export interface ScalarExpression<T> extends ScalarExpression.Attrs {}
 
 export abstract class ScalarExpression<T> extends Model {
   declare properties: ScalarExpression.Props
-
-  constructor(attrs?: Partial<ScalarExpression.Attrs>) {
-    super(attrs)
-  }
 
   protected readonly _result: Map<ColumnarDataSource, T> = new Map()
 

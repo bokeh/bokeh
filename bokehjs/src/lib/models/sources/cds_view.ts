@@ -97,15 +97,11 @@ export class CDSView extends Model {
   declare properties: CDSView.Props
   declare __view_type__: CDSViewView
 
-  constructor(attrs?: Partial<CDSView.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CDSViewView
 
     this.define<CDSView.Props>(({Ref}) => ({
-      filter: [ Ref(Filter), () => new AllIndices() ],
+      filter: [ Ref(Filter), () => AllIndices.create() ],
     }))
 
     this.internal<CDSView.Props>(({Ref, Nullable}) => ({
@@ -171,11 +167,11 @@ export class CDSView extends Model {
   /** @deprecated */
   set filters(filters: Filter[]) {
     if (filters.length == 0) {
-      this.filter = new AllIndices()
+      this.filter = AllIndices.create()
     } else if (filters.length == 1) {
       this.filter = filters[0]
     } else {
-      this.filter = new IntersectionFilter({operands: filters})
+      this.filter = IntersectionFilter.create({operands: filters})
     }
   }
 }

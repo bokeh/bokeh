@@ -115,10 +115,6 @@ export class RadialGlyph extends XYGlyph {
   declare properties: RadialGlyph.Props
   declare __view_type__: RadialGlyphView
 
-  constructor(attrs?: Partial<RadialGlyph.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.mixins<RadialGlyph.Mixins>([LineVector, FillVector, HatchVector])
 

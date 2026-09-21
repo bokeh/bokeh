@@ -53,7 +53,7 @@ export class TabsView extends LayoutDOMView {
   async build_tooltip_views(): Promise<void> {
     const {tabs} = this.values
     const tooltips = tabs.map((tab) => tab.tooltip).filter((tt) => tt instanceof Model).map((tt) => {
-      return tt instanceof HTML ? new Tooltip({content: tt, position: "bottom_center" /* TODO "auto" */}) : tt
+      return tt instanceof HTML ? Tooltip.create({content: tt, position: "bottom_center" /* TODO "auto" */}) : tt
     })
     await build_views(this.tooltip_views, tooltips, {parent: this})
   }
@@ -385,10 +385,6 @@ export interface Tabs extends Tabs.Attrs {}
 export class Tabs extends LayoutDOM {
   declare properties: Tabs.Props
   declare __view_type__: TabsView
-
-  constructor(attrs?: Partial<Tabs.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = TabsView

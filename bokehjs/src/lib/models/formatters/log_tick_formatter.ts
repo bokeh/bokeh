@@ -21,10 +21,6 @@ export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 export class LogTickFormatter extends TickFormatter {
   declare properties: LogTickFormatter.Props
 
-  constructor(attrs?: Partial<LogTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<LogTickFormatter.Props>(({Int, Ref, Nullable}) => ({
       ticker: [ Nullable(Ref(LogTicker)), null ],
@@ -32,7 +28,7 @@ export class LogTickFormatter extends TickFormatter {
     }))
   }
 
-  protected readonly basic_formatter: BasicTickFormatter = new BasicTickFormatter()
+  protected readonly basic_formatter: BasicTickFormatter = BasicTickFormatter.create()
 
   override format_graphics(ticks: number[], opts: {loc: number}): GraphicsBox[] {
     if (ticks.length == 0) {

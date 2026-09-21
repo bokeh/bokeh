@@ -18,10 +18,6 @@ export interface Minimum extends Minimum.Attrs {}
 export class Minimum extends ScalarExpression<number> {
   declare properties: Minimum.Props
 
-  constructor(attrs?: Partial<Minimum.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Minimum.Props>(({Float, Str}) => ({
       field:   [ Str ],

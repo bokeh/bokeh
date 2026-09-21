@@ -8,10 +8,10 @@ describe("models/scales/linear_interpolation_scale module", () => {
   describe("LinearInterpolationScale model", () => {
 
     it("should support vector mapping values", () => {
-      const scale = new LinearInterpolationScale({
+      const scale = LinearInterpolationScale.create({
         binning: [0, 1, 2, 300, 39999],
-        source_range: new Range1d({start: 0, end: 40000}),
-        target_range: new Range1d({start: 20, end: 80}),
+        source_range: Range1d.create({start: 0, end: 40000}),
+        target_range: Range1d.create({start: 20, end: 80}),
       })
 
       const vs = [-1, 0, 0.5, 2, 3.95, 3.98, 40000, 50000]

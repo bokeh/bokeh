@@ -142,7 +142,7 @@ export class AnnularWedgeView extends XYGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -183,10 +183,6 @@ export interface AnnularWedge extends AnnularWedge.Attrs {}
 export class AnnularWedge extends XYGlyph {
   declare properties: AnnularWedge.Props
   declare __view_type__: AnnularWedgeView
-
-  constructor(attrs?: Partial<AnnularWedge.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = AnnularWedgeView

@@ -17,10 +17,6 @@ export interface CanvasTexture extends CanvasTexture.Attrs {}
 export abstract class CanvasTexture extends Texture {
   declare properties: CanvasTexture.Props
 
-  constructor(attrs?: Partial<CanvasTexture.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CanvasTexture.Props>(({Str}) => ({
       code: [ Str ],

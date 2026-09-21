@@ -9,7 +9,14 @@ import * as icons_css from "styles/icons.css"
 import * as buttons_css from "styles/buttons.css"
 import * as notifications_css from "styles/notifications.css"
 
-export const notifications_el: HTMLElement = (() => {
+// Defer DOM setup so importing this module doesn't require a browser environment.
+let _notifications_el: HTMLElement | null = null
+
+export function notifications_el(): HTMLElement {
+  if (_notifications_el != null) {
+    return _notifications_el
+  }
+
   const el = div()
   const shadow_el = el.attachShadow({mode: "open"})
   const stylesheets = [
@@ -23,8 +30,8 @@ export const notifications_el: HTMLElement = (() => {
   const entries_el = div({class: "entries"})
   shadow_el.append(entries_el)
   void dom_ready().then(() => document.body.append(el))
-  return entries_el
-})()
+  return _notifications_el = entries_el
+}
 
 export class NotificationsView extends UIElementView {
   declare model: Notifications
@@ -38,7 +45,7 @@ export class NotificationsView extends UIElementView {
     this.model.push.connect((message) => {
       const dismiss_el = div({class: "close", title: "Close"})
       const message_el = div({class: message.type}, message.text, dismiss_el)
-      notifications_el.append(message_el)
+      notifications_el().append(message_el)
       const clear = () => message_el.remove()
       dismiss_el.addEventListener("click", clear)
       const timeout = message.timeout ?? 5000
@@ -71,7 +78,7 @@ export class NotificationsView extends UIElementView {
         const dismiss_el = div({class: "close", title: "Close"})
         dismiss_el.addEventListener("click", () => this._connection_el?.remove())
         this._connection_el = div({class: "error"}, "Client connection was lost permanently. ", try_el, " to reconnect manually.", dismiss_el)
-        notifications_el.append(this._connection_el)
+        notifications_el().append(this._connection_el)
       } else {
         let current_timeout = timeout
         const timeout_el = span()
@@ -85,7 +92,7 @@ export class NotificationsView extends UIElementView {
         }
         set_timeout()
         this._connection_el = div({class: "error"}, "Client connection was lost. ", timeout_el)
-        notifications_el.append(this._connection_el)
+        notifications_el().append(this._connection_el)
         this._connection_timer = setInterval(() => { current_timeout -= 1000; set_timeout() }, 1000)
       }
     })
@@ -100,7 +107,7 @@ export class NotificationsView extends UIElementView {
         this._connection_timer = null
       }
       this._connection_el = div({class: "success"}, "Client connect was reestablished.")
-      notifications_el.append(this._connection_el)
+      notifications_el().append(this._connection_el)
       this._connection_timer = setTimeout(() => this._connection_el?.remove(), 5000)
     })
   }
@@ -117,10 +124,6 @@ export interface Notifications extends Notifications.Attrs {}
 export class Notifications extends UIElement {
   declare properties: Notifications.Props
   declare __view_type__: NotificationsView
-
-  constructor(attrs?: Partial<Notifications.Attrs>) {
-    super(attrs)
-  }
 
   readonly push = new Signal<Message, this>(this, "push")
 

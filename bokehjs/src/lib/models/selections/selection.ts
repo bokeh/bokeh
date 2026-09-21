@@ -37,10 +37,6 @@ export interface Selection extends Selection.Attrs {}
 export class Selection extends Model {
   declare properties: Selection.Props
 
-  constructor(attrs?: Partial<Selection.Attrs>) {
-    super(attrs)
-  }
-
   get_view(): GlyphView | null {
     return this.view
   }
@@ -123,7 +119,7 @@ export class Selection extends Model {
   }
 
   map(mapper: (index: number) => number): Selection {
-    return new Selection({
+    return Selection.create({
       ...this.attributes,
       indices: map(this.indices, mapper),
       // NOTE: line_indices don't support subset indexing

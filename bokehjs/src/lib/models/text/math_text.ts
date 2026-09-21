@@ -427,9 +427,6 @@ export class MathText extends BaseText {
   declare properties: MathText.Props
   declare __view_type__: MathTextView
 
-  constructor(attrs?: Partial<MathText.Attrs>) {
-    super(attrs)
-  }
 }
 
 export class AsciiView extends MathTextView {
@@ -486,10 +483,6 @@ export class Ascii extends MathText {
   declare properties: Ascii.Props
   declare __view_type__: AsciiView
 
-  constructor(attrs?: Partial<Ascii.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = AsciiView
   }
@@ -540,10 +533,6 @@ export class MathML extends MathText {
   declare properties: MathML.Props
   declare __view_type__: MathMLView
 
-  constructor(attrs?: Partial<MathML.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = MathMLView
   }
@@ -584,10 +573,6 @@ export interface TeX extends TeX.Attrs {}
 export class TeX extends MathText {
   declare properties: TeX.Props
   declare __view_type__: TeXView
-
-  constructor(attrs?: Partial<TeX.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = TeXView

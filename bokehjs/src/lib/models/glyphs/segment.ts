@@ -104,7 +104,7 @@ export class SegmentView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -148,7 +148,7 @@ export class SegmentView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   scenterxy(i: number): [number, number] {
@@ -184,10 +184,6 @@ export interface Segment extends Segment.Attrs {}
 export class Segment extends Glyph {
   declare properties: Segment.Props
   declare __view_type__: SegmentView
-
-  constructor(attrs?: Partial<Segment.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = SegmentView

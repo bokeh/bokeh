@@ -10,29 +10,29 @@ import {figure} from "@bokehjs/api/figure"
 
 describe("api/gridplot module", () => {
   it("should support group_tools() function", () => {
-    const pan0 = new PanTool({dimensions: "both"})
-    const pan1 = new PanTool({dimensions: "both"})
-    const pan2 = new PanTool({dimensions: "width"})
-    const pan3 = new PanTool({dimensions: "width"})
-    const pan4 = new PanTool({dimensions: "width"})
-    const pan5 = new PanTool({dimensions: "height"})
-    const tap0 = new TapTool({behavior: "select"})
-    const tap1 = new TapTool({behavior: "select"})
-    const tap2 = new TapTool({behavior: "inspect"})
-    const save0 = new SaveTool({filename: "foo.png"})
-    const save1 = new SaveTool({filename: "foo.png"})
-    const select0 = new BoxSelectTool({overlay: new BoxAnnotation()})
-    const select1 = new BoxSelectTool({overlay: new BoxAnnotation()})
-    const select2 = new BoxSelectTool({overlay: new BoxAnnotation()})
-    const hover0 = new HoverTool({renderers: [new GlyphRenderer()]})
-    const hover1 = new HoverTool({renderers: [new GlyphRenderer()]})
-    const hover2 = new HoverTool({renderers: [new GlyphRenderer()]})
+    const pan0 = PanTool.create({dimensions: "both"})
+    const pan1 = PanTool.create({dimensions: "both"})
+    const pan2 = PanTool.create({dimensions: "width"})
+    const pan3 = PanTool.create({dimensions: "width"})
+    const pan4 = PanTool.create({dimensions: "width"})
+    const pan5 = PanTool.create({dimensions: "height"})
+    const tap0 = TapTool.create({behavior: "select"})
+    const tap1 = TapTool.create({behavior: "select"})
+    const tap2 = TapTool.create({behavior: "inspect"})
+    const save0 = SaveTool.create({filename: "foo.png"})
+    const save1 = SaveTool.create({filename: "foo.png"})
+    const select0 = BoxSelectTool.create({overlay: BoxAnnotation.create()})
+    const select1 = BoxSelectTool.create({overlay: BoxAnnotation.create()})
+    const select2 = BoxSelectTool.create({overlay: BoxAnnotation.create()})
+    const hover0 = HoverTool.create({renderers: [GlyphRenderer.create()]})
+    const hover1 = HoverTool.create({renderers: [GlyphRenderer.create()]})
+    const hover2 = HoverTool.create({renderers: [GlyphRenderer.create()]})
 
     const tools = group_tools([
       pan0, tap0, pan2, pan1, tap1, pan5, pan4, pan3, tap2, save0,
       save1, select0, hover0, hover1, select1, select2, hover2,
     ], (_cls, group) => {
-      return group[0] instanceof SaveTool ? new SaveTool() : null
+      return group[0] instanceof SaveTool ? SaveTool.create() : null
     })
 
     expect(tools.length).to.be.equal(8)

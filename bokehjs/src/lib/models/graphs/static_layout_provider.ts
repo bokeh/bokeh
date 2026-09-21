@@ -21,10 +21,6 @@ export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}
 export class StaticLayoutProvider extends LayoutProvider {
   declare properties: StaticLayoutProvider.Props
 
-  constructor(attrs?: Partial<StaticLayoutProvider.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<StaticLayoutProvider.Props>(() => ({
       graph_layout: [ GraphLayout, new Map() ], // TODO: length == 2

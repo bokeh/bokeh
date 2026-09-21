@@ -14,7 +14,4 @@ export interface CheckableItem extends CheckableItem.Attrs {}
 export class CheckableItem extends MenuItem {
   declare properties: CheckableItem.Props
 
-  constructor(attrs?: Partial<CheckableItem.Attrs>) {
-    super(attrs)
-  }
 }

@@ -12,21 +12,21 @@ describe("CategoricalColorMapper module", () => {
 
       it("should map factors to palette with default start/end", () => {
         const palette = ["red", "green", "blue"]
-        const cm = new CategoricalColorMapper({palette, factors: ["a", "b", "c"]})
+        const cm = CategoricalColorMapper.create({palette, factors: ["a", "b", "c"]})
         const vals = cm.v_compute(["c", "b", "a", "b"])
         expect(vals).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
       })
 
       it("should map data unknown data to nan_color value", () => {
         const palette = ["red", "green", "blue"]
-        const cm = new CategoricalColorMapper({palette, nan_color: "gray", factors: ["a", "b", "c"]})
+        const cm = CategoricalColorMapper.create({palette, nan_color: "gray", factors: ["a", "b", "c"]})
         const vals = cm.v_compute(["d", "a", "b"])
         expect(vals).to.be.equal(convert_to_uint32_palette(["gray", "red", "green"]))
       })
 
       it("should map data with short palette to nan_color value", () => {
         const palette = ["red", "green"]
-        const cm = new CategoricalColorMapper({palette, nan_color: "gray", factors: ["a", "b", "c"]})
+        const cm = CategoricalColorMapper.create({palette, nan_color: "gray", factors: ["a", "b", "c"]})
         const vals = cm.v_compute(["a", "b", "c"])
         expect(vals).to.be.equal(convert_to_uint32_palette(["red", "green", "gray"]))
       })
@@ -34,15 +34,15 @@ describe("CategoricalColorMapper module", () => {
       it("should disregard any start or end values", () => {
         const palette = ["red", "green", "blue"]
 
-        const cm0 = new CategoricalColorMapper({palette, factors: ["a", "b", "c"], start: 1})
+        const cm0 = CategoricalColorMapper.create({palette, factors: ["a", "b", "c"], start: 1})
         const vals0 = cm0.v_compute(["c", "b", "a", "b"])
         expect(vals0).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
 
-        const cm1 = new CategoricalColorMapper({palette, factors: ["a", "b", "c"], end: 2})
+        const cm1 = CategoricalColorMapper.create({palette, factors: ["a", "b", "c"], end: 2})
         const vals1 = cm1.v_compute(["c", "b", "a", "b"])
         expect(vals1).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
 
-        const cm2 = new CategoricalColorMapper({palette, factors: ["a", "b", "c"], start: 1, end: 2})
+        const cm2 = CategoricalColorMapper.create({palette, factors: ["a", "b", "c"], start: 1, end: 2})
         const vals2 = cm2.v_compute(["c", "b", "a", "b"])
         expect(vals2).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
       })
@@ -56,7 +56,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=0, end=1", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F2[] = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
-        const cm = new CategoricalColorMapper({
+        const cm = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(0, 1)[0]),
           end: 1,
@@ -68,7 +68,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=1, end=2", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F2[] = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
-        const cm = new CategoricalColorMapper({
+        const cm = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(1, 2)[0]),
           start: 1,
@@ -82,7 +82,7 @@ describe("CategoricalColorMapper module", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F2[] = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
 
-        const cm0 = new CategoricalColorMapper({
+        const cm0 = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(0, 1)[0]),
           start: 0,
@@ -92,7 +92,7 @@ describe("CategoricalColorMapper module", () => {
         const vals0 = cm0.v_compute([["a", "1"]])
         expect(vals0).to.be.equal(convert_to_uint32_palette(["gray"]))
 
-        const cm1 = new CategoricalColorMapper({
+        const cm1 = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(1, 2)[0]),
           start: 0,
@@ -109,7 +109,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with default start/end", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F2[] = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
-        const cm = new CategoricalColorMapper({palette, factors})
+        const cm = CategoricalColorMapper.create({palette, factors})
         const vals = cm.v_compute(factors)
         expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
@@ -117,7 +117,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=0, end=2", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F2[] = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
-        const cm = new CategoricalColorMapper({palette, factors, start: 0, end: 2})
+        const cm = CategoricalColorMapper.create({palette, factors, start: 0, end: 2})
         const vals = cm.v_compute(factors)
         expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
@@ -127,7 +127,7 @@ describe("CategoricalColorMapper module", () => {
           const palette = ["red", "green", "blue", "orange"]
           const factors: F2[] = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
 
-          const cm = new CategoricalColorMapper({palette, factors, start: i, end: j})
+          const cm = CategoricalColorMapper.create({palette, factors, start: i, end: j})
 
           const vals = cm.v_compute([["a", "1"]])
           expect(vals).to.be.equal(convert_to_uint32_palette(["gray"]))
@@ -143,7 +143,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=0, end=1", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F3[] = [["a", "1", "foo"], ["d", "2", "foo"], ["b", "2", "baz"], ["c", "1", "bar"]]
-        const cm = new CategoricalColorMapper({
+        const cm = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(0, 1)[0]),
           end: 1,
@@ -155,7 +155,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=1, end=2", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "3", "baz"], ["c", "4", "bar"]]
-        const cm = new CategoricalColorMapper({
+        const cm = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(1, 2)[0]),
           start: 1,
@@ -168,7 +168,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=2, end=3", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "quux"], ["b", "2", "baz"], ["c", "1", "bar"]]
-        const cm = new CategoricalColorMapper({
+        const cm = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(2, 3)[0]),
           start: 2,
@@ -183,7 +183,7 @@ describe("CategoricalColorMapper module", () => {
           const palette = ["red", "green", "blue", "orange"]
           const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "baz"], ["c", "1", "bar"]]
 
-          const cm0 = new CategoricalColorMapper({
+          const cm0 = CategoricalColorMapper.create({
             palette,
             factors: factors.map((x) => x.slice(0, 1)[0]),
             start: i,
@@ -196,7 +196,7 @@ describe("CategoricalColorMapper module", () => {
           const vals1 = cm0.v_compute([["a", "1", "baz"]])
           expect(vals1).to.be.equal(convert_to_uint32_palette(["gray"]))
 
-          const cm1 = new CategoricalColorMapper({
+          const cm1 = CategoricalColorMapper.create({
             palette,
             factors: factors.map((x) => x.slice(1, 2)[0]),
             start: i,
@@ -209,7 +209,7 @@ describe("CategoricalColorMapper module", () => {
           const vals3 = cm1.v_compute([["a", "1", "baz"]])
           expect(vals3).to.be.equal(convert_to_uint32_palette(["gray"]))
 
-          const cm2 = new CategoricalColorMapper({
+          const cm2 = CategoricalColorMapper.create({
             palette,
             factors: factors.map((x) => x.slice(2, 3)[0]),
             start: i,
@@ -230,7 +230,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=0, end=2", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "baz"], ["c", "1", "bar"]]
-        const cm = new CategoricalColorMapper({
+        const cm = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(0, 2) as F2),
           end: 2,
@@ -242,7 +242,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=1, end=3", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "baz"], ["c", "1", "bar"]]
-        const cm = new CategoricalColorMapper({
+        const cm = CategoricalColorMapper.create({
           palette,
           factors: factors.map((x) => x.slice(1, 3) as F2),
           start: 1,
@@ -258,7 +258,7 @@ describe("CategoricalColorMapper module", () => {
           const palette = ["red", "green", "blue", "orange"]
           const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "baz"], ["c", "1", "bar"]]
 
-          const cm0 = new CategoricalColorMapper({
+          const cm0 = CategoricalColorMapper.create({
             palette,
             factors: factors.map((x) => x.slice(0, 2) as F2),
             start: i,
@@ -277,7 +277,7 @@ describe("CategoricalColorMapper module", () => {
           const vals3 = cm0.v_compute([["a", "1", "baz"]])
           expect(vals3).to.be.equal(convert_to_uint32_palette(["gray"]))
 
-          const cm1 = new CategoricalColorMapper({
+          const cm1 = CategoricalColorMapper.create({
             palette,
             factors: factors.map((x) => x.slice(1, 3) as F2),
             start: i,
@@ -304,7 +304,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with default start/end", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "foo"], ["c", "1", "bar"]]
-        const cm = new CategoricalColorMapper({palette, factors})
+        const cm = CategoricalColorMapper.create({palette, factors})
         const vals = cm.v_compute(factors)
         expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
@@ -312,7 +312,7 @@ describe("CategoricalColorMapper module", () => {
       it("should map factors to palette with start=0, end=3", () => {
         const palette = ["red", "green", "blue", "orange"]
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "foo"], ["c", "1", "bar"]]
-        const cm = new CategoricalColorMapper({palette, factors, start: 0, end: 3})
+        const cm = CategoricalColorMapper.create({palette, factors, start: 0, end: 3})
         const vals = cm.v_compute(factors)
         expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
@@ -321,7 +321,7 @@ describe("CategoricalColorMapper module", () => {
         it(`should map everything to nan_color with start=${i}, end=${j}`, () => {
           const palette = ["red", "green", "blue", "orange"]
           const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "foo"], ["c", "1", "bar"]]
-          const cm = new CategoricalColorMapper({palette, factors, start: i, end: j})
+          const cm = CategoricalColorMapper.create({palette, factors, start: i, end: j})
 
           const vals0 = cm.v_compute(["a"])
           expect(vals0).to.be.equal(convert_to_uint32_palette(["gray"]))

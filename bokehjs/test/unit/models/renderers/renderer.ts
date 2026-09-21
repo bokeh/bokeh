@@ -15,7 +15,7 @@ describe("RendererView", () => {
   describe("needs_clip", () => {
 
     it("should return false", () => {
-      const r = new SomeRenderer()
+      const r = SomeRenderer.create()
       const rv = new SomeRendererView({model: r, parent: null})
       expect(rv.needs_clip).to.be.false
     })
