@@ -38,7 +38,7 @@ export abstract class BaseGLGlyph {
     if (indices.length == 0) {
       return
     }
-    const {width, height} = this.glyph.renderer.plot_view.canvas_view.webgl!.canvas
+    const {width, height} = this.glyph.renderer.plot_view.canvas_view.primary.canvas
     const {pixel_ratio} = this.glyph.renderer.plot_view.canvas_view
     const trans = {
       pixel_ratio,  // Needed to scale antialiasing
