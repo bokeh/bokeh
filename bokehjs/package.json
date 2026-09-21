@@ -56,6 +56,7 @@
     "earcut": "^3.0.2",
     "fflate": "^0.8.2",
     "flatpickr": "^4.6.13",
+    "libtess": "1.2.2",
     "marked": "^17.0.1",
     "mathjax-full": "^3.2.2",
     "nearley": "^2.20.1",
