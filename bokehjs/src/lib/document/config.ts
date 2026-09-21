@@ -27,7 +27,7 @@ export class DocumentConfig extends Model {
       notify_connection_status: [ Bool, true ],
       notifications: [ Nullable(Ref(Notifications)), () => Notifications.create() ],
       color_scheme: [ ColorScheme, "auto"],
-      i18n: [ Ref(I18n), () => new I18n() ],
+      i18n: [ Ref(I18n), () => I18n.create() ],
     }))
   }
 }
