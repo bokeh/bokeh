@@ -434,7 +434,7 @@ class Serializer:
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        if array.dtype.kind == "U":
+        if array.dtype.kind == "U" and not isinstance(obj, np.ma.MaskedArray):
             data = array.ravel().tolist()
             dtype = "object"
         elif array_encoding_disabled(array):
