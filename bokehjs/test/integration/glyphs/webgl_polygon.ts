@@ -16,8 +16,8 @@ type PolygonBuffers = {
 
 function polygon_plot(kind: PolygonKind, x: number[], y: number[], bounds: [number, number, number, number]) {
   const [left, right, bottom, top] = bounds
-  const x_range = new Range1d({start: left, end: right})
-  const y_range = new Range1d({start: bottom, end: top})
+  const x_range = Range1d.create({start: left, end: right})
+  const y_range = Range1d.create({start: bottom, end: top})
   const p = fig([400, 300], {
     output_backend: "webgl", x_range, y_range,
     x_axis_type: null, y_axis_type: null,
@@ -26,7 +26,7 @@ function polygon_plot(kind: PolygonKind, x: number[], y: number[], bounds: [numb
   })
   p.xgrid.visible = false
   p.ygrid.visible = false
-  const source = new ColumnDataSource({data: kind == "patch" ? {x, y} : {xs: [x], ys: [y]}})
+  const source = ColumnDataSource.create({data: kind == "patch" ? {x, y} : {xs: [x], ys: [y]}})
   const visuals = {source, fill_color: "black", fill_alpha: 0.5, line_color: null}
   const renderer = kind == "patch" ?
     p.patch({x: {field: "x"}, y: {field: "y"}, ...visuals}) :
@@ -117,7 +117,7 @@ describe("WebGL self-intersecting polygons", () => {
       // All source vertices stay finite, but the edge intersection moves from
       // (9.25,9.25) to (10**(2/3),34) in data coordinates.
       await scenario.mutate(() => {
-        p.x_scale = new LogScale()
+        p.x_scale = LogScale.create()
       })
       expect(gl._elements).to.not.be.identical(linear_elements)
       expect_pixel(view, [2, 12], filled)
@@ -125,7 +125,7 @@ describe("WebGL self-intersecting polygons", () => {
 
       const log_elements = gl._elements
       await scenario.mutate(() => {
-        p.x_scale = new LinearScale()
+        p.x_scale = LinearScale.create()
       })
       expect(gl._elements).to.not.be.identical(log_elements)
       expect_pixel(view, [2, 12], empty)
@@ -134,7 +134,7 @@ describe("WebGL self-intersecting polygons", () => {
 
     it(`should resize ${kind} visual buffers when a scale change restores finite vertices`, async () => {
       const {p, renderer, source, x_range} = polygon_plot(kind, [-2, 2, 4, 2, 0.5], [1, 1, 3, 5, 4], [0.1, 5, 0, 6])
-      p.x_scale = new LogScale()
+      p.x_scale = LogScale.create()
       const {view} = await display(p)
       const renderer_view = view.owner.get_one(renderer)
       const gl = require_glglyph(renderer_view.glyph) as unknown as PolygonBuffers
@@ -153,7 +153,7 @@ describe("WebGL self-intersecting polygons", () => {
       })
 
       await scenario.mutate(() => {
-        p.x_scale = new LinearScale()
+        p.x_scale = LinearScale.create()
         x_range.start = -3
       })
       expect(gl._positions.length).to.be.equal(20)
@@ -247,7 +247,7 @@ describe("WebGL self-intersecting polygons", () => {
   }
 
   it("should preserve Patches visual and element offsets with different resolved polygon sizes", async () => {
-    const source = new ColumnDataSource({data: {
+    const source = ColumnDataSource.create({data: {
       xs: [[0, 2, 2, 0, NaN, 0, 2, 2, 0], [3, 5, 3, 5], [6, 8, 7]],
       ys: [[0, 0, 2, 2, NaN, 0, 0, 2, 2], [0, 2, 2, 0], [0, 0, 2]],
       color: ["red", "#00ff00", "blue"],

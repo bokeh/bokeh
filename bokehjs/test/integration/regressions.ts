@@ -5618,8 +5618,8 @@ describe("Bug", () => {
       const entries = sides.map((side) => {
         const plot = figure({frame_width: 100, frame_height: 100, title: side})
         const r = plot.scatter([1, 2], [1, 2])
-        const legend = new Legend({
-          items: [new LegendItem({label: side, renderers: [r]})],
+        const legend = Legend.create({
+          items: [LegendItem.create({label: side, renderers: [r]})],
           title: side,
         })
         plot.add_layout(legend, side)
@@ -5657,8 +5657,8 @@ describe("Bug", () => {
             frame_height: 120,
             toolbar_location: null,
             min_border: 3,
-            x_range: new Range1d({start: 0, end: 1}),
-            y_range: new Range1d({start: lo, end: hi}),
+            x_range: Range1d.create({start: 0, end: 1}),
+            y_range: Range1d.create({start: lo, end: hi}),
           })
           plot.scatter([0.1, 0.9], [hi*0.1, hi*0.9])
           plot.yaxis.visible = c == 0
@@ -5688,8 +5688,8 @@ describe("Bug", () => {
           frame_width: 120,
           frame_height: 120,
           toolbar_location: null,
-          x_range: new Range1d({start: 0, end: 1}),
-          y_range: new Range1d({start: 0, end}),
+          x_range: Range1d.create({start: 0, end: 1}),
+          y_range: Range1d.create({start: 0, end}),
           visible,
         })
         plot.scatter([0.1, 0.9], [end*0.1, end*0.9])
