@@ -70,6 +70,8 @@ function signed_area_2(ring: number[]): number {
  *  @param antialias_width  Width of the AA skirt in CSS pixels.
  *  @param preserve_vertices Keep boundary vertices fixed when the tessellator
  *                           adds vertices shared by touching boundaries.
+ *  @param canonical_orientation Every boundary has the filled region on its
+ *                               left, regardless of whether it is an outer or hole.
  *  @returns SkirtGeometry with combined positions, edge distances, and indices.
  */
 export function generate_skirt_geometry(
@@ -78,6 +80,7 @@ export function generate_skirt_geometry(
   tri_indices: ArrayLike<number>,
   antialias_width: number,
   preserve_vertices: boolean = false,
+  canonical_orientation: boolean = false,
 ): SkirtGeometry {
   const n_original = flat_coords.length / 2
   const n_fill_tris = tri_indices.length / 3
@@ -137,7 +140,7 @@ export function generate_skirt_geometry(
     const area = signed_area_2(ring)
     // For CCW (positive area) outer ring, right-hand perpendicular points outward
     // For holes, we flip
-    const normal_sign = ring_idx == 0 ? Math.sign(area) : -Math.sign(area)
+    const normal_sign = canonical_orientation ? 1 : ring_idx == 0 ? Math.sign(area) : -Math.sign(area)
 
     // If area is zero (degenerate ring), skip skirt for this ring
     if (normal_sign == 0) {
@@ -303,122 +306,6 @@ export function generate_skirt_geometry(
     nvertices: n_total_verts,
     ntriangles: n_total_tris,
   }
-}
-
-/** Test whether point (px, py) is inside a ring of interleaved [x0,y0,...] coords.
- *  Uses ray-casting algorithm. */
-export function point_in_ring(px: number, py: number, ring: number[]): boolean {
-  const n = ring.length / 2
-  let inside = false
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const xi = ring[i * 2], yi = ring[i * 2 + 1]
-    const xj = ring[j * 2], yj = ring[j * 2 + 1]
-    if (((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
-      inside = !inside
-    }
-  }
-  return inside
-}
-
-export type TriangulationGroup = {
-  rings: number[][]      // rings[0] = outer, rings[1+] = holes
-  flat_coords: number[]
-}
-
-type RingBounds = {
-  x0: number
-  y0: number
-  x1: number
-  y1: number
-}
-
-function ring_bounds(ring: number[]): RingBounds {
-  let x0 = Infinity
-  let y0 = Infinity
-  let x1 = -Infinity
-  let y1 = -Infinity
-  for (let i = 0; i < ring.length; i += 2) {
-    const x = ring[i]
-    const y = ring[i + 1]
-    x0 = Math.min(x0, x)
-    y0 = Math.min(y0, y)
-    x1 = Math.max(x1, x)
-    y1 = Math.max(y1, y)
-  }
-  return {x0, y0, x1, y1}
-}
-
-function bounds_contain(outer: RingBounds, inner: RingBounds): boolean {
-  return outer.x0 <= inner.x0 && outer.y0 <= inner.y0 &&
-         outer.x1 >= inner.x1 && outer.y1 >= inner.y1
-}
-
-/** Classify split rings according to the even-odd fill rule.
- *  Each even-depth ring starts a triangulation group and its direct odd-depth
- *  children are holes. Nested islands therefore become independent groups,
- *  and disjoint rings can themselves contain holes. Ring orientation and
- *  input ordering do not affect classification. */
-export function classify_rings(rings: number[][]): TriangulationGroup[] {
-  const n = rings.length
-  if (n == 0) {
-    return []
-  }
-
-  const areas = rings.map((ring) => Math.abs(signed_area_2(ring)))
-  const bounds = rings.map(ring_bounds)
-  const parents = new Int32Array(n).fill(-1)
-  const order = Array.from({length: n}, (_, i) => i)
-  order.sort((i, j) => areas[i] - areas[j])
-
-  for (let k = 0; k < n; k++) {
-    const i = order[k]
-    const ring = rings[i]
-    if (ring.length < 2) {
-      continue
-    }
-    for (let l = k + 1; l < n; l++) {
-      const j = order[l]
-      if (areas[j] <= areas[i] || !bounds_contain(bounds[j], bounds[i])) {
-        continue
-      }
-      if (point_in_ring(ring[0], ring[1], rings[j])) {
-        parents[i] = j
-        break
-      }
-    }
-  }
-
-  const depths = new Int32Array(n).fill(-1)
-  const depth_of = (i: number): number => {
-    const known = depths[i]
-    if (known >= 0) {
-      return known
-    }
-    const parent = parents[i]
-    return depths[i] = parent == -1 ? 0 : depth_of(parent) + 1
-  }
-
-  const children = Array.from({length: n}, () => new Array<number>())
-  for (let i = 0; i < n; i++) {
-    const parent = parents[i]
-    if (parent != -1) {
-      children[parent].push(i)
-    }
-  }
-
-  const groups: TriangulationGroup[] = []
-  for (let i = 0; i < n; i++) {
-    if (depth_of(i) % 2 != 0) {
-      continue
-    }
-    const group_rings = [rings[i], ...children[i].map((j) => rings[j])]
-    groups.push({
-      rings: group_rings,
-      flat_coords: group_rings.flat(),
-    })
-  }
-
-  return groups
 }
 
 export type RingLineData = {

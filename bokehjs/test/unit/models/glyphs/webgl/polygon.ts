@@ -2,9 +2,9 @@ import {expect} from "#framework/assertions"
 
 import type {SkirtGeometry} from "@bokehjs/core/util/polygon"
 import {
-  PolygonTopology, coordinates, group_boundaries, signed_area, subdivide_contour,
+  PolygonTopology, coordinates, is_affine_remap, simple_ring_indices, subdivide_contour, try_create_polygon_topology,
 } from "@bokehjs/models/glyphs/webgl/polygon"
-import {libtess} from "@bokehjs/models/glyphs/webgl/tessellator"
+import {libtess, with_upstream_mesh_operations} from "@bokehjs/models/glyphs/webgl/tessellator"
 
 describe("polygon topology helpers", () => {
   it("should gather indexed coordinate pairs in order", () => {
@@ -43,37 +43,64 @@ describe("polygon topology helpers", () => {
     ])
   })
 
-  it("should compute translated signed areas without cancellation", () => {
-    const x = 1_000_000_000_000
-    const ring = [x, x, x + 3, x, x + 3, x + 2, x, x + 2]
-    const reversed = [x, x + 2, x + 3, x + 2, x + 3, x, x, x]
-    expect(signed_area(ring)).to.be.equal(6)
-    expect(signed_area(reversed)).to.be.equal(-6)
-    expect(signed_area([x, x, x + 1, x + 1, x + 2, x + 2])).to.be.equal(0)
+  it("should identify small simple rings without accepting crossings", () => {
+    expect(simple_ring_indices(square(0, 0, 10))).to.be.equal([0, 1, 2, 3])
+    expect(simple_ring_indices([0, 0, 5, 0, 5, 0, 5, 5, 0, 5, 0, 0])).to.be.equal([0, 1, 3, 4])
+    expect(simple_ring_indices([0, 0, 10, 0, 4, 4, 10, 10, 0, 10])).to.be.equal([0, 1, 2, 3, 4])
+    expect(simple_ring_indices([0, 0, 10, 10, 0, 10, 10, 0])).to.be.null
+    expect(simple_ring_indices([0, 0, 10, 0, 5, 0, 10, 10, 0, 10])).to.be.null
   })
 
-  it("should attach negative boundaries to the smallest containing positive boundary", () => {
-    const reverse = (ring: number[]) => {
-      const result: number[] = []
-      for (let i = ring.length - 2; i >= 0; i -= 2) {
-        result.push(ring[i], ring[i + 1])
-      }
-      return result
+  it("should match a brute-force intersection check for randomized rings", () => {
+    const random = random_generator(0x5eed)
+    const intersects = (ring: number[], a: number, b: number, c: number, d: number) => {
+      const cross = (i: number, j: number, k: number) =>
+        (ring[2*j] - ring[2*i])*(ring[2*k + 1] - ring[2*i + 1]) -
+        (ring[2*j + 1] - ring[2*i + 1])*(ring[2*k] - ring[2*i])
+      const on_segment = (i: number, j: number, k: number) =>
+        ring[2*k] >= Math.min(ring[2*i], ring[2*j]) && ring[2*k] <= Math.max(ring[2*i], ring[2*j]) &&
+        ring[2*k + 1] >= Math.min(ring[2*i + 1], ring[2*j + 1]) &&
+        ring[2*k + 1] <= Math.max(ring[2*i + 1], ring[2*j + 1])
+      const abc = cross(a, b, c), abd = cross(a, b, d)
+      const cda = cross(c, d, a), cdb = cross(c, d, b)
+      return abc*abd < 0 && cda*cdb < 0 || abc == 0 && on_segment(a, b, c) ||
+        abd == 0 && on_segment(a, b, d) || cda == 0 && on_segment(c, d, a) ||
+        cdb == 0 && on_segment(c, d, b)
     }
-    const outer = square(0, 0, 20)
-    const separate = square(30, 0, 4)
-    const island = square(5, 5, 10)
-    const outer_hole = reverse(square(1, 1, 2))
-    const island_hole = reverse(square(7, 7, 2))
-    island_hole.unshift(island_hole[0], island_hole[1]) // repeated start exercises edge-interior sampling
-    const orphan = reverse(square(100, 100, 1))
 
-    expect(group_boundaries([outer, island_hole, separate, outer_hole, island, orphan])).to.be.equal([
-      [outer, outer_hole],
-      [separate],
-      [island, island_hole],
-    ])
+    for (let iteration = 0; iteration < 500; iteration++) {
+      const n = 3 + Math.floor(22*random())
+      const ring = Array.from({length: 2*n}, () => Math.floor(1000*random()))
+      let simple = true
+      for (let i = 0; i < n && simple; i++) {
+        const i1 = (i + 1) % n
+        for (let j = i + 1; j < n; j++) {
+          const j1 = (j + 1) % n
+          if (j != i1 && j1 != i && intersects(ring, i, i1, j, j1)) {
+            simple = false
+            break
+          }
+        }
+      }
+      expect(simple_ring_indices(ring) != null).to.be.equal(simple)
+    }
   })
+
+  it("should distinguish affine coordinate remaps from nonlinear ones", () => {
+    const source = [0, 0, 1, 2, 2, 4]
+    expect(is_affine_remap(source, [10, 5, 13, 9, 16, 13])).to.be.equal(true)
+    expect(is_affine_remap(source, [10, 5, 13, 9, 17, 13])).to.be.equal(false)
+
+    const vertical = [2, 0, 2, 1, 2, 2]
+    expect(is_affine_remap(vertical, [8, 10, 8, 7, 8, 4])).to.be.equal(true)
+    expect(is_affine_remap(vertical, [8, 10, 9, 7, 8, 4])).to.be.equal(false)
+
+    const data = [0, 0, 0.3, 0.7, 1.1, -0.2, 3.7, 2.4]
+    const float32_source = data.map((v, i) => Math.fround((i % 2 == 0 ? 17 : -23) + 31*v))
+    const float32_mapped = data.map((v, i) => Math.fround((i % 2 == 0 ? -11 : 29) + 19*v))
+    expect(is_affine_remap(float32_source, float32_mapped)).to.be.equal(true)
+  })
+
 })
 
 function area(geometries: SkirtGeometry[]): number {
@@ -116,6 +143,16 @@ function square(x: number, y: number, size: number): number[] {
 function triangulate(rings: number[][]): SkirtGeometry[] {
   // Disable AA to check the exact filled region independently of its fringe.
   return new PolygonTopology(rings).geometries(rings, 0)
+}
+
+function random_generator(seed: number): () => number {
+  return () => {
+    seed |= 0
+    seed = seed + 0x6D2B79F5 | 0
+    let value = Math.imul(seed ^ seed >>> 15, 1 | seed)
+    value = value + Math.imul(value ^ value >>> 7, 61 | value) ^ value
+    return ((value ^ value >>> 14) >>> 0) / 4294967296
+  }
 }
 
 describe("PolygonTopology", () => {
@@ -184,6 +221,7 @@ describe("PolygonTopology", () => {
   it("should preserve holes, nested islands, and disjoint rings", () => {
     const rings = [square(0, 0, 20), square(2, 2, 16), square(5, 5, 10), square(7, 7, 6), square(30, 0, 4)]
     const geometries = triangulate(rings)
+    expect(geometries.length).to.be.equal(1)
     expect(area(geometries)).to.be.similar(224)
     expect(covers(geometries, 1, 1)).to.be.equal(true)
     expect(covers(geometries, 3, 3)).to.be.equal(false)
@@ -191,6 +229,39 @@ describe("PolygonTopology", () => {
     expect(covers(geometries, 8, 8)).to.be.equal(false)
     expect(covers(geometries, 31, 1)).to.be.equal(true)
     expect(covers(geometries, 25, 1)).to.be.equal(false)
+  })
+
+  it("should match upstream mesh operations on randomized finite polygons", () => {
+    const random = random_generator(0x15453)
+    for (let iteration = 0; iteration < 200; iteration++) {
+      const rings: number[][] = []
+      const nrings = iteration % 4 == 0 ? 2 : 1
+      for (let r = 0; r < nrings; r++) {
+        const n = 3 + Math.floor(17*random())
+        const ring: number[] = []
+        for (let i = 0; i < n; i++) {
+          ring.push(100*random() + 10*r, 100*random() + 10*r)
+        }
+        if (iteration % 7 == 0) {
+          ring.push(ring[0], ring[1])
+        }
+        rings.push(ring)
+      }
+
+      const adapted = triangulate(rings)
+      const upstream = with_upstream_mesh_operations(() => triangulate(rings))
+      expect(area(adapted)).to.be.similar(area(upstream), 1e-4)
+      for (let sample = 0; sample < 25; sample++) {
+        const x = 120*random() - 5
+        const y = 120*random() - 5
+        expect(covers(adapted, x, y)).to.be.equal(covers(upstream, x, y))
+      }
+    }
+  })
+
+  it("should skip a fill when libtess rejects an extreme coordinate", () => {
+    const topology = try_create_polygon_topology([[0, 0, 1e151, 0, 0, 1]])
+    expect(topology).to.be.null
   })
 
   it("should handle a hole touching the outer boundary", () => {
@@ -278,13 +349,18 @@ describe("PolygonTopology", () => {
     expect(covers(geometries, 7.75, 9)).to.be.equal(false)
   })
 
-  it("should reject changes in the number or length of source rings", () => {
+  it("should reject structural and nonlinear changes to source rings", () => {
     const rings = [square(0, 0, 10), square(20, 0, 10)]
     const topology = new PolygonTopology(rings)
     expect(topology.matches(rings)).to.be.equal(true)
     expect(topology.matches([rings[0]])).to.be.equal(false)
     expect(topology.matches([rings[0], rings[1].slice(2)])).to.be.equal(false)
     expect(topology.matches([rings[0], [...rings[1], 20, 0]])).to.be.equal(false)
+
+    const affine = rings.map((ring) => ring.map((v, i) => i % 2 == 0 ? 5 - 2*v : 3 + 4*v))
+    expect(topology.matches(affine)).to.be.equal(true)
+    affine[1][4] += 1
+    expect(topology.matches(affine)).to.be.equal(false)
   })
 
   it("should bound mesh relabeling for a large contour with many touching regions", () => {
@@ -337,5 +413,21 @@ describe("PolygonTopology", () => {
     }
     expect(assignments).to.be.above(0)
     expect(assignments).to.be.below(100*points.length)
+  })
+
+  it("should bound added vertices when subdivision chords cross a jagged contour", () => {
+    const n = 4096
+    const ring: number[] = []
+    for (let i = 0; i < n; i++) {
+      const angle = 2*Math.PI*i/n
+      const radius = i % 2 == 0 ? 200 : 40
+      ring.push(260 + radius*Math.cos(angle), 260 + radius*Math.sin(angle))
+    }
+    const topology = new PolygonTopology([ring])
+    const geometry = topology.geometries([ring], 0)[0]
+    const {length: combined} = (topology as unknown as {_combined: unknown[]})._combined
+
+    expect(combined).to.be.below(2*n)
+    expect(geometry.nvertices).to.be.below(5*n)
   })
 })

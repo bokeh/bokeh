@@ -14,7 +14,8 @@ import {normalize_dash_pattern} from "./dash_cache"
 import {LINE_AA_WIDTH, LINE_MITER_LIMIT, line_bounds_padding} from "./base_line"
 import {split_rings, build_line_from_ring, POLYGON_AA_WIDTH} from "core/util/polygon"
 import type {RingLineData} from "core/util/polygon"
-import {PolygonTopology} from "./polygon"
+import type {PolygonTopology} from "./polygon"
+import {try_create_polygon_topology} from "./polygon"
 
 export class PatchGL extends BaseGLGlyph {
   // Fill buffers
@@ -251,7 +252,7 @@ export class PatchGL extends BaseGLGlyph {
       let topology = this._topology
       let topology_changed = data_changed || scales_changed
       if (topology_changed || topology == null || !topology.matches(rings)) {
-        topology = new PolygonTopology(rings)
+        topology = try_create_polygon_topology(rings) ?? undefined
         this._topology = topology
         topology_changed = true
       }
@@ -261,7 +262,7 @@ export class PatchGL extends BaseGLGlyph {
       let total_coords = 0
       let total_elements = 0
 
-      const group_geoms = topology.geometries(rings)
+      const group_geoms = topology?.geometries(rings) ?? []
       for (const geom of group_geoms) {
         total_nvertices += geom.nvertices
         total_ntriangles += geom.ntriangles
@@ -311,7 +312,7 @@ export class PatchGL extends BaseGLGlyph {
       // Element topology is data-space invariant, so retain it across mapping.
       if (elem_array != null) {
         this._elements?.destroy()
-        this._elements = this.regl_wrapper.elements({
+        this._elements = total_elements == 0 ? null : this.regl_wrapper.elements({
           usage: "static",
           primitive: "triangles",
           data: elem_array,

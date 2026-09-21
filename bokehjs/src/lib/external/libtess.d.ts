@@ -1,4 +1,6 @@
 declare module "libtess/libtess.cat.js" {
+  // These declarations include private mesh operations from libtess 1.2.2.
+  // Re-verify them together with webgl/tessellator.ts before changing the pin.
   type Coordinates = [number, number, number]
 
   enum gluEnum {

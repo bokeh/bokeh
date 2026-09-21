@@ -14,7 +14,8 @@ import {normalize_dash_pattern} from "./dash_cache"
 import {LINE_AA_WIDTH, LINE_MITER_LIMIT, line_bounds_padding} from "./base_line"
 import {split_rings, build_line_from_ring, POLYGON_AA_WIDTH} from "core/util/polygon"
 import type {SkirtGeometry, RingLineData} from "core/util/polygon"
-import {PolygonTopology} from "./polygon"
+import type {PolygonTopology} from "./polygon"
+import {try_create_polygon_topology} from "./polygon"
 
 type PolygonData = {
   // Per-polygon line data: each polygon has an array of ring outlines
@@ -340,10 +341,10 @@ export class PatchesGL extends BaseGLGlyph {
         let topology = this._topology![i]
         if (topology_changed || topology == null || !topology.matches(rings)) {
           elements_changed = true
-          topology = new PolygonTopology(rings)
+          topology = try_create_polygon_topology(rings)
           this._topology![i] = topology
         }
-        const group_results = topology.geometries(rings)
+        const group_results = topology?.geometries(rings) ?? []
         active_topology.push(group_results.map((geom) => `${geom.nvertices}:${geom.indices.length}`).join(","))
 
         let poly_nvertices = 0
