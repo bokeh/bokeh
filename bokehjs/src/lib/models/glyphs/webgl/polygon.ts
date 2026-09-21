@@ -1,4 +1,5 @@
 import {libtess} from "./tessellator"
+import type {Mesh, MeshHalfEdge} from "libtess/libtess.cat.js"
 import earcut from "earcut"
 
 import type {SkirtGeometry} from "core/util/polygon"
@@ -15,6 +16,7 @@ type PolygonGroup = {
   vertices: number[]
   tri_indices: number[]
   canonical_orientation: boolean
+  preserve_vertices: boolean
 }
 
 export function coordinates(indices: number[], coords: number[]): number[] {
@@ -209,9 +211,6 @@ export class PolygonTopology {
     this._ring_lengths = rings.map((ring) => ring.length)
     const coords = rings.flat()
     this._source_coords = coords.slice()
-    const boundaries: number[][] = []
-    let boundary: number[]
-
     const {gluEnum, windingRule} = libtess
     const combine = ([x, y]: [number, number, number], data: (number | null)[], weights: number[]) => {
       const sources: number[] = []
@@ -242,36 +241,6 @@ export class PolygonTopology {
       })
       return tess
     }
-    const triangulate_boundaries = (resolved_rings: number[][], canonical_orientation: boolean): PolygonGroup => {
-      const vertices = resolved_rings.flat()
-      const indices = new Map(vertices.map((index, i) => [index, i]))
-      const tri_indices: number[] = []
-      const fill_tess = tesselator()
-      // The edge-flag callback forces individual triangles rather than strips
-      // or fans. Resolved boundaries may still touch, requiring tessellation
-      // that supports these weakly simple polygons.
-      fill_tess.gluTessCallback(gluEnum.GLU_TESS_EDGE_FLAG, () => {})
-      fill_tess.gluTessCallback(gluEnum.GLU_TESS_VERTEX, (index) => {
-        let local_index = indices.get(index)
-        if (local_index == null) {
-          local_index = vertices.length
-          vertices.push(index)
-          indices.set(index, local_index)
-        }
-        tri_indices.push(local_index)
-      })
-      fill_tess.gluTessBeginPolygon()
-      for (const ring of resolved_rings) {
-        fill_tess.gluTessBeginContour()
-        for (const index of ring) {
-          fill_tess.gluTessVertex([coords[2*index], coords[2*index + 1], 0], index)
-        }
-        fill_tess.gluTessEndContour()
-      }
-      fill_tess.gluTessEndPolygon()
-      return {rings: resolved_rings, vertices, tri_indices, canonical_orientation}
-    }
-
     // Most Patches datasets contain many modest, non-self-intersecting rings.
     // Checking those rings directly avoids the boundary-resolution sweep while
     // retaining the robust path for crossings, overlaps, and large contours.
@@ -279,19 +248,68 @@ export class PolygonTopology {
       const indices = simple_ring_indices(rings[0])
       if (indices != null) {
         const tri_indices = earcut(coordinates(indices, coords))
-        this._groups = [{rings: [indices], vertices: indices, tri_indices, canonical_orientation: false}]
+        this._groups = [{
+          rings: [indices], vertices: indices, tri_indices, canonical_orientation: false, preserve_vertices: false,
+        }]
         return
       }
     }
 
     const tess = tesselator()
-    // Boundary-only output removes crossings and coincident edges before both
-    // triangulation and AA skirt generation.
-    tess.gluTessProperty(gluEnum.GLU_TESS_BOUNDARY_ONLY, true)
-    tess.gluTessCallback(gluEnum.GLU_TESS_BEGIN, () => {
-      boundaries.push(boundary = [])
+    const groups: PolygonGroup[] = []
+    // The mesh callback runs after libtess has triangulated the interior and
+    // discarded exterior faces. Read both products from that single mesh so
+    // complex polygons don't need a second tessellation pass for their fill.
+    tess.gluTessCallback(gluEnum.GLU_TESS_MESH, (mesh: Mesh<number>) => {
+      const boundaries: number[][] = []
+      const visited = new Set<MeshHalfEdge<number>>()
+      for (let face = mesh.fHead.next; face !== mesh.fHead; face = face.next) {
+        let edge = face.anEdge
+        do {
+          if (edge.sym.lFace == null && !visited.has(edge)) {
+            const start = edge
+            const boundary: number[] = []
+            let current = start
+            do {
+              visited.add(current)
+              boundary.push(current.org.data)
+              // Cross adjacent interior triangles around the destination until
+              // the next edge with the filled region on its left is reached.
+              current = current.lNext
+              while (current.sym.lFace != null) {
+                current = current.sym.lNext
+              }
+            } while (current !== start)
+            boundaries.push(boundary)
+          }
+          edge = edge.lNext
+        } while (edge !== face.anEdge)
+      }
+
+      const vertices = boundaries.flat()
+      const preserve_vertices = new Set(vertices).size < vertices.length
+      const vertex_indices = new Map(vertices.map((index, i) => [index, i]))
+      const local_index = (index: number) => {
+        let local = vertex_indices.get(index)
+        if (local == null) {
+          local = vertices.length
+          vertices.push(index)
+          vertex_indices.set(index, local)
+        }
+        return local
+      }
+      const tri_indices: number[] = []
+      for (let face = mesh.fHead.next; face !== mesh.fHead; face = face.next) {
+        let edge = face.anEdge
+        do {
+          tri_indices.push(local_index(edge.org.data))
+          edge = edge.lNext
+        } while (edge !== face.anEdge)
+      }
+      if (tri_indices.length != 0) {
+        groups.push({rings: boundaries, vertices, tri_indices, canonical_orientation: true, preserve_vertices})
+      }
     })
-    tess.gluTessCallback(gluEnum.GLU_TESS_VERTEX, (index) => boundary.push(index))
 
     tess.gluTessBeginPolygon()
     let offset = 0
@@ -310,16 +328,7 @@ export class PolygonTopology {
     }
     tess.gluTessEndPolygon()
 
-    if (boundaries.length == 0) {
-      this._groups = []
-      return
-    }
-
-    // The boundary pass gives every contour a canonical orientation with the
-    // filled region on its left. Tessellate all resolved boundaries together;
-    // libtess applies the even-odd rule directly to holes, nested islands, and
-    // disjoint parts without a separate containment classification.
-    this._groups = [triangulate_boundaries(boundaries, true)]
+    this._groups = groups
   }
 
   // Check mapped ring structure; callers invalidate separately on data changes.
@@ -341,15 +350,14 @@ export class PolygonTopology {
       }
       coords.push(x, y)
     }
-    return this._groups.map(({rings: boundaries, vertices, tri_indices, canonical_orientation}) => {
+    return this._groups.map(({rings: boundaries, vertices, tri_indices, canonical_orientation, preserve_vertices}) => {
       const group_rings = boundaries.map((indices) => coordinates(indices, coords))
       const flat_coords = boundaries.length == 1 && vertices === boundaries[0] ?
         group_rings[0] : coordinates(vertices, coords)
       const boundary_vertices = boundaries.reduce((count, ring) => count + ring.length, 0)
-      // A second sweep may merge coincident boundary vertices or create more
-      // intersections. Keep their fill positions and boundary positions aligned
-      // when adding the AA fringe.
-      const preserve_vertices = vertices.length > boundary_vertices
+      // Shared boundary occurrences and fill-only mesh vertices must keep their
+      // triangulated positions when the AA fringe is added.
+      preserve_vertices ||= vertices.length > boundary_vertices
       return generate_skirt_geometry(
         flat_coords, group_rings, tri_indices, antialias_width, preserve_vertices, canonical_orientation,
       )

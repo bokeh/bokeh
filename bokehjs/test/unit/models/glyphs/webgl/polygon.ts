@@ -300,24 +300,26 @@ describe("PolygonTopology", () => {
     expect(count).to.be.equal(1)
   })
 
-  it("should keep combined fill vertices aligned with their antialiased boundaries", () => {
-    // The resolved boundary visits (3,4) twice. Its second tessellation merges
-    // those visits, and all three copies must stay aligned when adding AA.
+  it("should keep mesh fill vertices aligned with their antialiased boundaries", () => {
+    // The resolved boundary visits (3,4) twice. The mesh exposes both boundary
+    // visits while its triangles share the same combined intersection vertex.
     const rings = [[3, 5, 2, 6, 7, 1, 4, 4, 0, 4, 3, 7, 9, 0, 7, 3, 3, 1].map((v) => 60*v)]
     const topology = new PolygonTopology(rings)
     const plain = topology.geometries(rings, 0)
     const antialiased = topology.geometries(rings)
-    let checked = false
+    const {vertices, rings: boundaries, preserve_vertices} = (topology as unknown as {
+      _groups: {vertices: number[], rings: number[][], preserve_vertices: boolean}[]
+    })._groups[0]
+    expect(vertices.length).to.be.equal(boundaries.reduce((count, ring) => count + ring.length, 0))
+    expect(new Set(vertices).size).to.be.below(vertices.length)
+    expect(preserve_vertices).to.be.equal(true)
     for (let i = 0; i < antialiased.length; i++) {
       const geometry = antialiased[i]
       const fill_vertices = geometry.edge_distance.findIndex((v) => v == 0)
-      const boundary_vertices = geometry.nvertices - fill_vertices
-      if (fill_vertices > boundary_vertices) {
-        checked = true
-        expect(geometry.positions.slice(0, 2*fill_vertices)).to.be.equal(plain[i].positions.slice(0, 2*fill_vertices))
-      }
+      expect(fill_vertices).to.be.equal(vertices.length)
+      expect(geometry.positions.slice(0, 2*fill_vertices)).to.be.equal(plain[i].positions.slice(0, 2*fill_vertices))
+      expect([...geometry.positions].every(isFinite)).to.be.equal(true)
     }
-    expect(checked).to.be.equal(true)
   })
 
   it("should cancel coincident rings regardless of orientation", () => {

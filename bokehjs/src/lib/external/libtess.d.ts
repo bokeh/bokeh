@@ -1,5 +1,5 @@
 declare module "libtess/libtess.cat.js" {
-  // These declarations include private mesh operations from libtess 1.2.2.
+  // These declarations include private mesh operations and callback data from libtess 1.2.2.
   // Re-verify them together with webgl/tessellator.ts before changing the pin.
   type Coordinates = [number, number, number]
 
@@ -10,6 +10,7 @@ declare module "libtess/libtess.cat.js" {
     GLU_TESS_ERROR = 100103,
     GLU_TESS_EDGE_FLAG = 100104,
     GLU_TESS_COMBINE = 100105,
+    GLU_TESS_MESH = 100112,
     GLU_TESS_WINDING_RULE = 100140,
     GLU_TESS_BOUNDARY_ONLY = 100141,
   }
@@ -26,6 +27,7 @@ declare module "libtess/libtess.cat.js" {
     gluTessCallback(which: gluEnum.GLU_TESS_EDGE_FLAG, callback: (boundary: boolean) => void): void
     gluTessCallback(which: gluEnum.GLU_TESS_COMBINE,
       callback: (coords: Coordinates, data: (T | null)[], weights: number[]) => T): void
+    gluTessCallback(which: gluEnum.GLU_TESS_MESH, callback: (mesh: Mesh<T>) => void): void
     gluTessProperty(which: gluEnum.GLU_TESS_WINDING_RULE | gluEnum.GLU_TESS_BOUNDARY_ONLY, value: number | boolean): void
     gluTessNormal(x: number, y: number, z: number): void
     gluTessBeginPolygon(data?: unknown): void
@@ -49,6 +51,21 @@ declare module "libtess/libtess.cat.js" {
     lNext: HalfEdge
     oNext: HalfEdge
     dst(): Vertex
+  }
+  export type MeshVertex<T> = {data: T}
+  export type MeshFace<T> = {
+    anEdge: MeshHalfEdge<T>
+    next: MeshFace<T>
+    prev: MeshFace<T>
+  }
+  export type MeshHalfEdge<T> = {
+    org: MeshVertex<T>
+    sym: MeshHalfEdge<T>
+    lFace: MeshFace<T> | null
+    lNext: MeshHalfEdge<T>
+  }
+  export type Mesh<T = unknown> = {
+    fHead: MeshFace<T>
   }
 
   const libtess: {
