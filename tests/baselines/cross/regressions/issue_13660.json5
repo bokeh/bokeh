@@ -9,6 +9,11 @@
         name: "Notifications",
         id: "p1015",
       },
+      i18n: {
+        type: "object",
+        name: "I18n",
+        id: "p1016",
+      },
     },
   },
   roots: [
@@ -20,27 +25,27 @@
         x_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1016",
+          id: "p1017",
         },
         y_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1017",
+          id: "p1018",
         },
         x_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1018",
+          id: "p1019",
         },
         y_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1019",
+          id: "p1020",
         },
         title: {
           type: "object",
           name: "Title",
-          id: "p1020",
+          id: "p1021",
         },
         renderers: [
           {
@@ -56,12 +61,12 @@
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1022",
+                    id: "p1023",
                   },
                   selection_policy: {
                     type: "object",
                     name: "UnionRenderers",
-                    id: "p1023",
+                    id: "p1024",
                   },
                   data: {
                     type: "map",
@@ -143,7 +148,7 @@
         toolbar: {
           type: "object",
           name: "Toolbar",
-          id: "p1021",
+          id: "p1022",
         },
       },
     },

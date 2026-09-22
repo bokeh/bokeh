@@ -11,5 +11,6 @@ export {InlineStyleSheet, GlobalInlineStyleSheet, ImportedStyleSheet, GlobalImpo
 export {Template} from "./template"
 export {Text} from "./text"
 export {ToggleGroup} from "./toggle_group"
+export {TranslatableText} from "./translatable_text"
 export {ValueOf} from "./value_of"
 export {ValueRef} from "./value_ref"
