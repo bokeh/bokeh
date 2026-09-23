@@ -13,6 +13,7 @@ import {gridplot} from "@bokehjs/api/gridplot"
 import {ExamineTool, Plot, CustomAction, Legend, LegendItem, CustomJS, Range1d} from "@bokehjs/models"
 import * as tb_css from "@bokehjs/styles/tool_button.css"
 import * as toolbar_css from "@bokehjs/styles/toolbar.css"
+import * as logo_css from "@bokehjs/styles/logo.css"
 import type {Location} from "@bokehjs/core/enums"
 
 describe("Toolbar", () => {
@@ -681,10 +682,9 @@ describe("ToolbarView", () => {
         const {length, thickness} = expected_size(location, button_width, button_height)
 
         expect(view.toolbar_panel).to.not.be.null
-        expect(view.toolbar_panel!.get_size()).to.be.equal({
-          width: tools.length*length + (logo != null ? 25 : 0) + 15,
-          height: thickness,
-        })
+        const size = view.toolbar_panel!.get_size()
+        expect(size.width).to.be.equal(tools.length*length + (logo != null ? 25 : 0) + 15)
+        expect(size.height).to.be.above(thickness - 0.01)
       })
 
       it(`should resolve non-pixel units when sizing the toolbar panel with toolbar_location=${location}`, async () => {
@@ -701,6 +701,34 @@ describe("ToolbarView", () => {
         })
       })
 
+      if (location == "right") {
+        it("should size the panel from a rendered button when the first tool is hidden", async () => {
+          const p = plot(location, rem_styles)
+          p.toolbar.tools[0].visible = false
+          const {view} = await display(p)
+          const toolbar_view = view.owner.get_one(p.toolbar)
+          expect(toolbar_view.tool_button_views[0].el.isConnected).to.be.false
+          const button = toolbar_view.tool_button_views.find((button) => button.el.isConnected)
+          expect(button).to.not.be.undefined
+          const button_width = button!.el.getBoundingClientRect().width
+
+          expect(view.toolbar_panel).to.not.be.null
+          expect(view.toolbar_panel!.layout.bbox.width).to.be.above(button_width - 0.01)
+        })
+
+        it("should resolve CSS lengths when every tool is hidden", async () => {
+          const p = plot(location, rem_styles)
+          for (const tool of p.toolbar.tools) {
+            tool.visible = false
+          }
+          const {view} = await display(p)
+          const root_font_size = parseFloat(getComputedStyle(document.documentElement).fontSize)
+
+          expect(view.toolbar_panel).to.not.be.null
+          expect(view.toolbar_panel!.layout.bbox.width).to.be.above(2*root_font_size - 0.01)
+        })
+      }
+
       it(`should allow to customize toolbar divider color with toolbar_location=${location}`, async () => {
         const p = plot(location, pixel_styles)
         const {view} = await display(p)
@@ -712,6 +740,20 @@ describe("ToolbarView", () => {
         expect(getComputedStyle(divider_el).backgroundColor).to.be.equal("rgb(255, 0, 0)")
       })
     }
+
+    it("should contain the default logo within a horizontal toolbar panel", async () => {
+      const p = plot("above", pixel_styles)
+      const {view} = await display(p)
+      const toolbar_view = view.owner.get_one(p.toolbar)
+      const logo = toolbar_view.shadow_el.querySelector(`.${logo_css.logo}`)
+      expect_not_null(logo)
+      const logo_rect = logo.getBoundingClientRect()
+      const logo_style = getComputedStyle(logo)
+      const logo_outer_height = logo_rect.height + parseFloat(logo_style.marginTop) + parseFloat(logo_style.marginBottom)
+
+      expect(view.toolbar_panel).to.not.be.null
+      expect(view.toolbar_panel!.layout.bbox.height).to.be.above(logo_outer_height - 0.01)
+    })
   })
 })
 
