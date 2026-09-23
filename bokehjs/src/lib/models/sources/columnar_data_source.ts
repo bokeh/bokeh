@@ -260,6 +260,6 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
     if (this.selected.indices.length > 0) {
       return JSON.stringify(this.get_rows(this.selected.indices))
     }
-    return JSON.stringify(this.data, (_, value) => value instanceof Map ? Object.fromEntries(value) : value)
+    return JSON.stringify(this.get_rows([...Array(this.length).keys()]))
   }
 }
