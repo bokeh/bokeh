@@ -167,8 +167,8 @@ class Test_HSL:
     def test_to_css(self) -> None:
         c = bcc.HSL(10, 0.2, 0.3)
         assert c.to_css() == "hsl(10, 20.0%, 30.0%)"
-        c = bcc.HSL(10, 0.2, 0.3, 0.3)
-        assert c.to_css() == "hsla(10, 20.0%, 30.0%, 0.3)"
+        c = bcc.HSL(10.5, 0.2, 0.3, 0.3)
+        assert c.to_css() == "hsla(10.5, 20.0%, 30.0%, 0.3)"
 
     def test_to_hsl(self) -> None:
         c = bcc.HSL(10, 0.2, 0.3)
@@ -367,6 +367,12 @@ class Test_RGB:
         c2 = c.to_hsl()
 
         assert c2.h == 238.5
+        assert c2.to_rgb().to_css() == c.to_css()
+
+        c = bcc.RGB(0, 0, 255, 0.3)
+        c2 = c.to_hsl()
+
+        assert c2.h == 240
         assert c2.to_rgb().to_css() == c.to_css()
 
     def test_to_rgb(self) -> None:

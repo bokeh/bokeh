@@ -421,10 +421,10 @@ class HSL(Color):
             h (float) :
                 The Hue, in [0, 360]
 
-            s (int) :
+            s (float) :
                 The Saturation, in [0, 1]
 
-            l (int) :
+            l (float) :
                 The lightness, in [0, 1]
 
             a (float, optional) :
