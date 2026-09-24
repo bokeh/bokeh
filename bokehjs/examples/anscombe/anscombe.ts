@@ -76,5 +76,4 @@ export namespace Anscombe {
 
   const div = document.getElementById("plot")!
   export const mounted = Bokeh.mount(doc, div)
-  void mounted.ready
 }

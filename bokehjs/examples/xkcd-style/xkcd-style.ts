@@ -147,5 +147,4 @@ export namespace Xkcd {
 
   const div = document.getElementById("dashboard")!
   export const mounted = Bokeh.mount(doc, div)
-  void mounted.ready
 }
