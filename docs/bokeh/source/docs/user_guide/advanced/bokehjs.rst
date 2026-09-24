@@ -38,7 +38,7 @@ framework (``@bokeh/react``, ``@bokeh/vue``, ``@bokeh/svelte``, or
 ``@bokeh/angular``); the framework itself remains a peer dependency.
 
 The adapters support React 18--19, Vue 3.3--3.x, Svelte 4--5,
-and Angular 18--22. ``@bokeh/web-component`` has no framework dependency.
+and Angular 20--22. ``@bokeh/web-component`` has no framework dependency.
 These ranges do not require applications to use the exact framework or
 TypeScript versions pinned in the runnable examples. Use a TypeScript version
 supported by your application's framework.
@@ -115,7 +115,6 @@ Angular provides a standalone component in ``@bokeh/angular``:
 
     @Component({
       selector: "app-root",
-      standalone: true,
       imports: [BokehComponent],
       template: `<bokeh-plot [model]="plot"></bokeh-plot>`,
     })

@@ -3,7 +3,6 @@ import {StackColorMapper} from "../mappers/stack_color_mapper"
 import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
-import type {BaseGLGlyphClass} from "./webgl/base"
 
 export interface ImageStackView extends ImageBase.Data {}
 
@@ -14,7 +13,7 @@ export class ImageStackView extends ImageBaseView {
   /** @internal */
   declare glglyph?: ImageGL
 
-  override async load_glglyph(): Promise<BaseGLGlyphClass> {
+  override async load_glglyph() {
     const {ImageGL} = await import("./webgl/image")
     return ImageGL
   }

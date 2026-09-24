@@ -16,7 +16,6 @@ import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
 import type {RectGL} from "./webgl/rect"
-import type {BaseGLGlyphClass} from "./webgl/base"
 
 const {abs, sqrt} = Math
 
@@ -29,7 +28,7 @@ export class RectView extends CenterRotatableView {
   /** @internal */
   declare glglyph?: RectGL
 
-  override async load_glglyph(): Promise<BaseGLGlyphClass> {
+  override async load_glglyph() {
     const {RectGL} = await import("./webgl/rect")
     return RectGL
   }

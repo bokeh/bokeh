@@ -14,7 +14,6 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
 import type {WedgeGL} from "./webgl/wedge"
-import type {BaseGLGlyphClass} from "./webgl/base"
 
 export interface WedgeView extends Wedge.Data {}
 
@@ -25,7 +24,7 @@ export class WedgeView extends XYGlyphView {
   /** @internal */
   declare glglyph?: WedgeGL
 
-  override async load_glglyph(): Promise<BaseGLGlyphClass> {
+  override async load_glglyph() {
     const {WedgeGL} = await import("./webgl/wedge")
     return WedgeGL
   }

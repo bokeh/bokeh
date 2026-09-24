@@ -53,8 +53,7 @@ const applications = [
     package_name: "@bokeh-test/vue-minimum",
     entry_point: null,
     isolated: true,
-    // Also keep public Bokeh declarations consumable by Angular 18-era TS.
-    versions: {vue: "3.3.0", typescript: "5.4.5"},
+    versions: {vue: "3.3.0"},
   },
 ]
 

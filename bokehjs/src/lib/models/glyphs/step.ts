@@ -11,7 +11,6 @@ import {StepMode} from "core/enums"
 import type {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 import type {StepGL} from "./webgl/step"
-import type {BaseGLGlyphClass} from "./webgl/base"
 
 type XY = {x: number, y: number}
 
@@ -24,7 +23,7 @@ export class StepView extends XYGlyphView {
   /** @internal */
   declare glglyph?: StepGL
 
-  override async load_glglyph(): Promise<BaseGLGlyphClass> {
+  override async load_glglyph() {
     const {StepGL} = await import("./webgl/step")
     return StepGL
   }
