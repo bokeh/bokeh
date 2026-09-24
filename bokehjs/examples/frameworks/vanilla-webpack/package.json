@@ -7,7 +7,7 @@
     "build": "webpack"
   },
   "dependencies": {
-    "@bokeh/bokehjs": "file:../../.."
+    "@bokeh/bokehjs": "4.0.0-dev.5"
   },
   "devDependencies": {
     "ts-loader": "^9.6.2",
