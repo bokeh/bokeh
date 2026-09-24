@@ -24,5 +24,5 @@
     </div>
     <div class="plot-host" use:bokeh={{model: plot}}></div>
   </section>
-  <p class="note">Svelte owns the controls and page layout; BokehJS owns the plot.</p>
+  <p class="note">Svelte owns the controls and page layout. BokehJS owns the plot.</p>
 </main>

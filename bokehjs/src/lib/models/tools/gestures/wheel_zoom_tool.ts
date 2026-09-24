@@ -186,7 +186,7 @@ export class WheelZoomToolView extends GestureToolView {
           subcoord[dim] = true
           scale = scale.source_scale
         } else {
-          logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension; stopped at ${i}`)
+          logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension. Stopped at ${i}`)
           break
         }
       }

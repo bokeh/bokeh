@@ -12,7 +12,6 @@ plot without a remount. The Node.js example remains DOM-free by design.
 | [React + Vite](react-vite/) | `@bokeh/react` component | [`App.tsx`](react-vite/src/App.tsx) |
 | [Vue + Vite](vue-vite/) | `@bokeh/vue` component | [`App.vue`](vue-vite/src/App.vue) |
 | [Svelte + Vite](svelte-vite/) | `@bokeh/svelte` action | [`App.svelte`](svelte-vite/src/App.svelte) |
-| [Angular](angular-ng/) | `@bokeh/angular` standalone component | [`main.ts`](angular-ng/src/main.ts) |
 | [Web Component + Webpack](web-component-webpack/) | `@bokeh/web-component` custom element | [`main.ts`](web-component-webpack/src/main.ts) |
 | [Vanilla + Vite](vanilla-vite/) | direct `mount()` | [`main.ts`](vanilla-vite/src/main.ts) |
 | [Vanilla + Webpack](vanilla-webpack/) | direct `mount()` | [`main.ts`](vanilla-webpack/src/main.ts) |
@@ -30,10 +29,3 @@ The local `file:` dependencies in these projects connect them to packages in
 this repository. In an external application, install the corresponding
 published packages from npm instead, for example
 `npm install @bokeh/bokehjs @bokeh/react`.
-
-After building BokehJS, run the Angular example locally with:
-
-```bash
-cd bokehjs/examples/frameworks/angular-ng
-npm start
-```

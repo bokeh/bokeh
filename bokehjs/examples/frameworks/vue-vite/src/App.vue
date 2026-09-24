@@ -28,6 +28,6 @@ function update(event: Event) {
       </div>
       <div class="plot-host"><Bokeh :model="plot" /></div>
     </section>
-    <p class="note">Vue owns the controls and page layout; BokehJS owns the plot.</p>
+    <p class="note">Vue owns the controls and page layout. BokehJS owns the plot.</p>
   </main>
 </template>

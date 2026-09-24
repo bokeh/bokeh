@@ -26,7 +26,7 @@ _MANIFEST = Path(__file__).parents[2] / "bokehjs" / "npm_packages.json"
 def _packages() -> tuple[NpmPackage, ...]:
     # Manifest order is dependency, packing, and publication order.
     values = json.loads(_MANIFEST.read_text(encoding="utf-8"))
-    return tuple(NpmPackage(value["name"], value["workspace"], value["tarball"]) for value in values)
+    return tuple(NpmPackage(**value) for value in values)
 
 
 NPM_PACKAGES = _packages()

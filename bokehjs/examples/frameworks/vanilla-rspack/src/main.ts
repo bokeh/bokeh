@@ -20,7 +20,7 @@ document.querySelector("#app")!.innerHTML = `
       </div>
       <div id="plot" class="plot-host"></div>
     </section>
-    <p class="note">The page owns the controls and layout; BokehJS owns the plot.</p>
+    <p class="note">The page owns the controls and layout. BokehJS owns the plot.</p>
   </main>
 `
 

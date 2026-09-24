@@ -11,7 +11,6 @@ const packages_dir = join(build_dir, "packages")
 const workspace_dir = join(build_dir, "workspace")
 
 const examples = [
-  "angular-ng",
   "react-next",
   "react-vite",
   "node-ssr-compat",
@@ -23,35 +22,16 @@ const examples = [
   "web-component-webpack",
 ]
 
-// Keep the published examples concise; specialized lifecycle controls belong in
-// test-only entry points that are overlaid when the packed-package matrix runs.
 const applications = [
   ...examples.map((name) => ({
     name,
     source: name,
     package_name: `@bokeh-example/${name}`,
-    entry_point: null,
   })),
-  {
-    name: "angular-lifecycle",
-    source: "angular-ng",
-    package_name: "@bokeh-test/angular-lifecycle",
-    entry_point: join(frameworks_dir, "apps/angular/src/main.ts"),
-    // Test the newest supported Angular without upgrading the adapter compiler
-    // or the published example. Its TypeScript version requires isolation.
-    isolated: true,
-    versions: {
-      ...Object.fromEntries([
-        "common", "compiler", "core", "platform-browser", "build", "cli", "compiler-cli",
-      ].map((name) => [`@angular/${name}`, "22.2.0"])),
-      typescript: "6.0.3",
-    },
-  },
   {
     name: "vue-minimum",
     source: "vue-vite",
     package_name: "@bokeh-test/vue-minimum",
-    entry_point: null,
     isolated: true,
     versions: {vue: "3.3.0"},
   },
@@ -117,12 +97,9 @@ for (const [name, cwd] of package_dirs) {
 }
 
 for (const application of applications) {
-  const {source, package_name, entry_point, isolated = false, versions = {}} = application
+  const {source, package_name, isolated = false, versions = {}} = application
   const destination = application_dir(application)
   cpSync(join(examples_dir, source), destination, {recursive: true})
-  if (entry_point != null) {
-    cpSync(entry_point, join(destination, "src/main.ts"))
-  }
 
   const package_path = join(destination, "package.json")
   const pkg = JSON.parse(readFileSync(package_path, "utf-8"))
@@ -156,12 +133,7 @@ writeFileSync(join(workspace_dir, "package.json"), `${JSON.stringify({
   private: true,
   version: "0.0.0",
   workspaces: applications.filter(({isolated}) => !isolated).map(({name}) => name),
-  dependencies: {
-    ...Object.fromEntries([...tarballs].map(([name, tarball]) => [name, `file:${relative(workspace_dir, tarball)}`])),
-    // Hoist the baseline Angular version with its adapter, not the newest
-    // version allowed by the adapter's broader peer range.
-    "@angular/core": JSON.parse(readFileSync(join(examples_dir, "angular-ng/package.json"), "utf-8")).dependencies["@angular/core"],
-  },
+  dependencies: Object.fromEntries([...tarballs].map(([name, tarball]) => [name, `file:${relative(workspace_dir, tarball)}`])),
 }, null, 2)}\n`)
 
 await run("npm", ["install", "--no-audit", "--no-fund"], workspace_dir)

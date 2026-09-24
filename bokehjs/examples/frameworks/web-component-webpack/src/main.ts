@@ -24,7 +24,7 @@ document.querySelector("#app")!.innerHTML = `
       </div>
       <div id="plot" class="plot-host"></div>
     </section>
-    <p class="note">The page owns the controls and layout; the custom element owns the plot.</p>
+    <p class="note">The page owns the controls and layout. The custom element owns the plot.</p>
   </main>
 `
 

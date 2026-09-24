@@ -23,7 +23,7 @@ export type Showable = ShowableRoot | readonly ShowableRoot[]
 export type RootKey = string
 /** Caller-owned DOM destination, provided directly or by selector. */
 export type MountTarget = EmbedTarget | string
-/** Models addressed by logical root key; a model may appear under only one key. */
+/** Models addressed by logical root key. A model may appear under only one key. */
 export type KeyedRoots<T extends HasProps = HasProps> = ReadonlyMap<RootKey, T> | Readonly<Record<RootKey, T>>
 /** Per-root destinations. Missing or null entries keep that root detached. */
 export type MountTargets = ReadonlyMap<RootKey, MountTarget | null> | Readonly<Record<RootKey, MountTarget | null>>
@@ -340,7 +340,7 @@ async function resolve_target(target: MountTarget | undefined, script: HTMLScrip
  *
  * The handle is returned immediately. Await `ready` before reading views or
  * changing attachments. `dispose()` is idempotent and releases every resource
- * listed by `ownership`; `when_disposed` also resolves after initialization
+ * listed by `ownership`. `when_disposed` also resolves after initialization
  * failure or early cancellation.
  */
 export class BokehMount<T extends HasProps = HasProps> {
@@ -354,7 +354,7 @@ export class BokehMount<T extends HasProps = HasProps> {
 
   /** Exact document/view/target responsibilities for this handle. */
   readonly ownership: MountOwnership
-  /** Resolves when initial roots are attached; rejects with `MountError`. */
+  /** Resolves when initial roots are attached. Rejects with `MountError` on failure. */
   readonly ready: Promise<void>
   /** Resolves after cleanup for success, failure, cancellation, or explicit disposal. */
   readonly when_disposed: Promise<void>
@@ -458,7 +458,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     return this._error
   }
 
-  /** Target and render failures reported by this handle; caller-driven cancellation is excluded. */
+  /** Target and render failures reported by this handle. Caller-driven cancellation is excluded. */
   get errors(): readonly MountError[] {
     return this._errors
   }
@@ -645,7 +645,7 @@ export class BokehMount<T extends HasProps = HasProps> {
 
 /**
  * Establish an owned relationship between decoded Bokeh content and DOM targets.
- * Returns the handle immediately; await `handle.ready` for completed rendering.
+ * Returns the handle immediately. Await `handle.ready` for completed rendering.
  */
 export function mount<T extends ShowableRoot>(source: T, options?: MountOptions): BokehMount<T>
 export function mount<T extends ShowableRoot>(source: T, target?: MountTarget, options?: MountOptions): BokehMount<T>

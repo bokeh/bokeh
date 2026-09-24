@@ -8,7 +8,6 @@ import {
   mount, publish_mount_error, register_models, register_standard_models, when_mounted,
 } from "@bokeh/bokehjs"
 import type {properties as p} from "@bokeh/bokehjs"
-import type {BokehComponent as AngularBokeh, BokehDocumentComponent as AngularBokehDocument, BokehRootDirective as AngularBokehRoot} from "@bokeh/angular"
 import {Bokeh as ReactBokeh, BokehDocument as ReactBokehDocument, BokehRoot as ReactBokehRoot} from "@bokeh/react"
 import type {useBokeh as useReactBokeh} from "@bokeh/react"
 import {bokeh, bokehDocument, bokehRoot} from "@bokeh/svelte"
@@ -73,12 +72,6 @@ const web_component_document_models: BokehDocumentElement["models"] = roots
 const web_component_root_model: BokehRootElement["model"] = plot
 void web_component_document_models
 void web_component_root_model
-const angular_component_model: AngularBokeh["model"] = roots
-const angular_document_models: AngularBokehDocument["models"] = roots
-const angular_root_model: AngularBokehRoot["bokehRoot"] = plot
-void angular_component_model
-void angular_document_models
-void angular_root_model
 void defineBokehElement
 void defineBokehDocumentElement
 void defineBokehRootElement

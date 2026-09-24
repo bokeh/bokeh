@@ -132,7 +132,7 @@ function format_chrome_stderr(stderr: string): string {
   ]
   const relevant = lines.filter((line) => line.trim() != "" && !routine_noise.some((pattern) => line.includes(pattern)))
   if (relevant.length == 0) {
-    return "(no relevant Chrome stderr; routine startup messages suppressed)"
+    return "(no relevant Chrome stderr, routine startup messages suppressed)"
   }
   const max_lines = 20
   if (relevant.length <= max_lines) {

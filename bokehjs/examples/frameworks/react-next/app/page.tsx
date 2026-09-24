@@ -6,6 +6,6 @@ export default function Page() {
     <h1>BokehJS + Next.js</h1>
     <p className="intro">An App Router page renders an interactive Bokeh plot through a React client component.</p>
     <BokehExample/>
-    <p className="note">Next.js owns the page and rendering boundary; BokehJS owns the live plot.</p>
+    <p className="note">Next.js owns the page and rendering boundary. BokehJS owns the live plot.</p>
   </main>
 }

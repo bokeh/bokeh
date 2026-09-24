@@ -27,6 +27,6 @@ export function App() {
       </div>
       <div className="plot-host"><Bokeh model={plot}/></div>
     </section>
-    <p className="note">React owns the controls and page layout; BokehJS owns the plot.</p>
+    <p className="note">React owns the controls and page layout. BokehJS owns the plot.</p>
   </main>
 }

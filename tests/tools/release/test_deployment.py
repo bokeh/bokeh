@@ -22,7 +22,6 @@ def test_pack_deployment_tarball_collects_all_artifacts(config: Config) -> None:
         "mkdir deployment-4.0.0",
         "cp bokehjs/bokeh-bokehjs-4.0.0.tgz deployment-4.0.0",
         "cp bokehjs/bokeh-framework-4.0.0.tgz deployment-4.0.0",
-        "cp bokehjs/bokeh-angular-4.0.0.tgz deployment-4.0.0",
         "cp bokehjs/bokeh-react-4.0.0.tgz deployment-4.0.0",
         "cp bokehjs/bokeh-svelte-4.0.0.tgz deployment-4.0.0",
         "cp bokehjs/bokeh-vue-4.0.0.tgz deployment-4.0.0",

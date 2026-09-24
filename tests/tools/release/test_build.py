@@ -149,7 +149,6 @@ def test_build_npm_packages_packs_every_public_package_in_dependency_order(confi
     assert system.commands == [
         "npm pack",
         "npm pack --workspace frameworks/base",
-        "npm pack --workspace frameworks/angular",
         "npm pack --workspace frameworks/react",
         "npm pack --workspace frameworks/svelte",
         "npm pack --workspace frameworks/vue",

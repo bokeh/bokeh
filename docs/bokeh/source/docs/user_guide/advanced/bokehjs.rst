@@ -34,11 +34,11 @@ temporary document as well.
 
 Thin adapters implement this ownership pattern for the common component
 frameworks. Install ``@bokeh/bokehjs`` together with the adapter for your
-framework (``@bokeh/react``, ``@bokeh/vue``, ``@bokeh/svelte``, or
-``@bokeh/angular``); the framework itself remains a peer dependency.
+framework (``@bokeh/react``, ``@bokeh/vue``, or ``@bokeh/svelte``). The framework
+itself remains a peer dependency.
 
-The adapters support React 18--19, Vue 3.3--3.x, Svelte 4--5,
-and Angular 20--22. ``@bokeh/web-component`` has no framework dependency.
+The adapters support React 18--19, Vue 3.3--3.x, and Svelte 4--5.
+``@bokeh/web-component`` has no framework dependency.
 These ranges do not require applications to use the exact framework or
 TypeScript versions pinned in the runnable examples. Use a TypeScript version
 supported by your application's framework.
@@ -106,23 +106,70 @@ Svelte applications can use the ``bokeh`` action from ``@bokeh/svelte``:
 
     <div use:bokeh={{model}}></div>
 
-Angular provides a standalone component in ``@bokeh/angular``:
+You can integrate directly with a component framework using ``mount()`` and
+its ``BokehMount`` lifecycle handle. The following Angular component shows this
+pattern without an adapter: create a plot after the host is rendered, handle
+rendering failures, and dispose the mount when the component is destroyed.
+Angular's
+`afterNextRender <https://angular.dev/api/core/afterNextRender>`_ callback runs
+only in the browser, while
+`DestroyRef <https://angular.dev/api/core/DestroyRef>`_ registers cleanup when
+the component is destroyed:
 
 .. code-block:: typescript
 
-    import {Component} from "@angular/core"
-    import {BokehComponent} from "@bokeh/angular"
+    import {Component, DestroyRef, ElementRef, afterNextRender, inject} from "@angular/core"
+    import {Plotting, mount} from "@bokeh/bokehjs"
+    import type {BokehMount} from "@bokeh/bokehjs"
 
     @Component({
-      selector: "app-root",
-      imports: [BokehComponent],
-      template: `<bokeh-plot [model]="plot"></bokeh-plot>`,
+      selector: "app-plot",
+      standalone: true,
+      template: "",
     })
-    export class App {
-      readonly plot = plot
+    export class PlotView {
+      constructor() {
+        const host = inject<ElementRef<HTMLElement>>(ElementRef)
+        const destroyRef = inject(DestroyRef)
+        let mounted: BokehMount | undefined
+        let destroyed = false
+        const report = (error: unknown) => {
+          if (!destroyed) {
+            console.error(error)
+          }
+        }
+        destroyRef.onDestroy(() => {
+          destroyed = true
+          void mounted?.dispose()
+        })
+        afterNextRender(() => {
+          if (destroyed) {
+            return
+          }
+          try {
+            const plot = Plotting.figure({width: 400, height: 250})
+            plot.line([1, 2, 3], [2, 5, 3])
+            mounted = mount(plot, host.nativeElement)
+            void mounted.ready.catch(report)
+          } catch (error) {
+            report(error)
+          }
+        })
+      }
     }
 
-For other frameworks, ``@bokeh/web-component`` supplies a standards-based
+The component retains the handle as soon as ``mount()`` returns, so destruction
+can dispose it even while rendering is pending. The same pattern applies to
+other frameworks: mount into a framework-owned host, observe ``ready``, and
+call ``dispose()`` when the host is removed.
+
+For changing model inputs, ``MountController`` from ``@bokeh/framework``
+coordinates replacement mounts and cancellation. ``DocumentMountController``
+manages linked roots attached to independent targets. These controllers are
+framework-independent. Applications must connect updates and disposal to their
+own component lifecycle.
+
+Alternatively, ``@bokeh/web-component`` supplies a standards-based
 custom element:
 
 .. code-block:: typescript
@@ -157,15 +204,15 @@ The same source works with Vite, Webpack, and Rspack:
 
 ``mount()`` returns its ``BokehMount`` immediately. Await ``ready`` before
 depending on rendered views. Failures are ``MountError`` instances classified
-as source, target, render, abort, or early-disposal errors; keyed failures also
+as source, target, render, abort, or early-disposal errors. Keyed failures also
 identify ``root_key``. The handle owns its views and listeners, but never its
 DOM targets. A document created for bare models is mount-owned and released on
-failure or disposal; a supplied ``Document`` remains caller-owned.
+failure or disposal. A supplied ``Document`` remains caller-owned.
 
 Invalid sources fail synchronously before a handle can be created. For an
 existing handle, ``on_error`` and ``errors`` report target and render failures.
 Caller-driven abort and early disposal instead reject a pending ``ready``
-promise and set ``error``; they are expected lifecycle cancellation and are not
+promise and set ``error``. They are expected lifecycle cancellation and are not
 sent to ``on_error``.
 
 Discovering declarative mounts from page JavaScript
@@ -271,8 +318,8 @@ document containing every root, so normal Bokeh linking works:
 
 The adapter's host element contains each root view, so its CSS can use grid or
 flexbox for responsive placement. Pass the same roots array with Vue's
-``:model`` binding, Svelte's ``use:bokeh`` action, Angular's ``[model]``
-binding, or the Web Component's ``model`` property.
+``:model`` binding, Svelte's ``use:bokeh`` action, or the Web Component's
+``model`` property.
 
 Placing linked roots independently
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -311,8 +358,7 @@ Vue uses the same provider/root vocabulary:
       </BokehDocument>
     </template>
 
-Svelte and Angular express the same relationship with actions and a directive,
-respectively:
+Svelte expresses the same relationship with actions:
 
 .. code-block:: text
 
@@ -325,22 +371,6 @@ respectively:
       <ArticleContent />
       <aside><div use:bokehRoot={{model: detail}}></div></aside>
     </main>
-
-.. code-block:: typescript
-
-    import {BokehDocumentComponent, BokehRootDirective} from "@bokeh/angular"
-
-    @Component({
-      imports: [BokehDocumentComponent, BokehRootDirective],
-      template: `
-        <bokeh-document [models]="[overview, detail]">
-          <section [bokehRoot]="overview"></section>
-          <article>Ordinary Angular content</article>
-          <aside [bokehRoot]="detail"></aside>
-        </bokeh-document>
-      `,
-    })
-    export class Dashboard {}
 
 The Web Component adapter supports nested roots or an explicit provider
 reference when the elements have no common DOM parent:
@@ -386,7 +416,7 @@ Direct consumers name the roots and supply targets with the same logical keys:
     await mounted.replace_target("summary", document.querySelector("#new-summary")!)
 
 Missing or ``null`` keyed targets leave those roots detached until
-``attach()`` is called. ``detach()`` removes only that root's view;
+``attach()`` is called. ``detach()`` removes only that root's view.
 ``replace_target()`` moves an existing DOM view when possible. Disposing the
 handle removes every remaining view without removing caller-owned target
 elements or destroying a caller-owned document.
@@ -397,7 +427,7 @@ only one document. Use one multi-root mount, one document provider with root
 slots, or compose the plots into a Bokeh layout such as a row, column, or grid.
 
 Complete runnable projects for React with Vite or Next.js, Vue, Svelte,
-Angular, Web Components, vanilla Vite/Webpack/Rspack, and Node.js server-side
+Web Components, vanilla Vite/Webpack/Rspack, and Node.js server-side
 rendering are in :bokeh-tree:`bokehjs/examples/frameworks`. They are kept
 deliberately small for reuse in documentation and are continuously built from
 packed npm artifacts in BokehJS CI.
@@ -407,10 +437,10 @@ Migrating standalone lifecycle code
 
 ``show()`` remains convenient for scripts and now returns the same owning
 ``BokehMount`` as ``mount()``. Await its ``ready`` promise and retain it for
-disposal; it no longer returns a raw view. The old public
+disposal. It no longer returns a raw view. The old public
 ``Bokeh.embed.add_document_standalone()``, ``mount_document_standalone()``, and
 ``add_document_from_session()`` paths are internal rendering bridges. Direct
-JavaScript code should use ``mount()`` or ``show()``; artifact and server hosts
+JavaScript code should use ``mount()`` or ``show()``. Artifact and server hosts
 receive an owning mount from their public bootstrap API.
 
 Likewise, ``embed.embed_item()`` and ``embed.embed_items()`` now return owning
@@ -419,21 +449,21 @@ call ``dispose()`` when removing the embed. Code that read views directly from
 the former result should use ``root_views`` for keyed roots or ``views`` for
 the complete view manager on each handle. Downstream hosts such as Panel only
 need changes if they inspect these return values or call the former public
-standalone helpers; hosts that ignore the bootstrap return value keep the same
+standalone helpers. Hosts that ignore the bootstrap return value keep the same
 rendering behavior.
 
 Adapters remount when their model, target, or abort signal changes. Keep those
 values stable across ordinary framework renders. Removing one root slot from a
-document provider detaches only that view; the provider and its other root
+document provider detaches only that view. The provider and its other root
 slots keep the shared document alive. Every model supplied to one document
-provider must have a unique model ID; duplicate IDs are rejected before the
+provider must have a unique model ID. Duplicate IDs are rejected before the
 provider changes its active mount. A single model can have only one owning
 temporary document at a time, so dispose its current mount before moving it to
 another host. Abort a pending or active mount with ``mountOptions.signal``. A
-signal that is already aborted prevents mount creation entirely; aborting
+signal that is already aborted prevents mount creation entirely. Aborting
 during or after creation disposes the owned mount and its temporary document.
 Adapter error callbacks and events report target and render failures. Expected
-unmounts and superseded renders cancel silently; all three paths clean up any
+unmounts and superseded renders cancel silently. All three paths clean up any
 views and temporary document they created. Framework packages do not inject
 Bokeh resource scripts or implement a second embed lifecycle.
 

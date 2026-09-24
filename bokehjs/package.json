@@ -35,7 +35,6 @@
     "build/js/lib/**/*.d.ts"
   ],
   "workspaces": [
-    "./examples/frameworks/angular-ng",
     "./examples/frameworks/react-next",
     "./examples/frameworks/react-vite",
     "./examples/frameworks/node-ssr-compat",
@@ -45,7 +44,6 @@
     "./examples/frameworks/vanilla-webpack",
     "./examples/frameworks/vue-vite",
     "./examples/frameworks/web-component-webpack",
-    "./frameworks/angular",
     "./frameworks/base",
     "./frameworks/react",
     "./frameworks/svelte",

@@ -35,10 +35,10 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
 }
 
 function _is_frame_HTMLElement(frame: Element | null): frame is HTMLIFrameElement {
-  // `frameElement` is a delicate construct; it allows the document inside the frame to access
+  // `frameElement` is a delicate construct. It allows the document inside the frame to access
   // some (but not all) properties of the parent element in which the frame document is embedded.
   // Because it lives in a different DOM context than the frame's `window`, we cannot just use
-  // `frameElement instanceof HTMLIFrameElement`; we could use `window.parent.HTMLIFrameElement`
+  // `frameElement instanceof HTMLIFrameElement`. We could use `window.parent.HTMLIFrameElement`
   // but this can be blocked by CORS policy and throw an exception.
   if (frame === null) {
     return false
