@@ -12,7 +12,8 @@ const frameworks_dir = fileURLToPath(new URL(".", import.meta.url))
 const bokehjs_dir = resolve(frameworks_dir, "../..")
 const apps_dir = join(frameworks_dir, "apps")
 const examples_dir = join(bokehjs_dir, "examples/frameworks")
-const packaged_dir = join(bokehjs_dir, "build/test/frameworks/packaged/workspace")
+const packaged_root = join(bokehjs_dir, "build/test/frameworks/packaged")
+const workspace_dir = join(packaged_root, "workspace")
 
 const devtools_arg = process.argv.find((arg) => arg.startsWith("--devtools-port="))
 if (devtools_arg == null) {
@@ -425,16 +426,17 @@ async function test_local_development_example() {
 
 async function test_packaged_apps() {
   const applications = [
-    ["angular-ng", join(packaged_dir, "angular-ng/dist/browser")],
-    ["angular-lifecycle", join(packaged_dir, "angular-lifecycle/dist/browser")],
-    ["react-next", join(packaged_dir, "react-next/out")],
-    ["react-vite", join(packaged_dir, "react-vite/dist")],
-    ["svelte-vite", join(packaged_dir, "svelte-vite/dist")],
-    ["vanilla-rspack", join(packaged_dir, "vanilla-rspack")],
-    ["vanilla-vite", join(packaged_dir, "vanilla-vite/dist")],
-    ["vanilla-webpack", join(packaged_dir, "vanilla-webpack")],
-    ["vue-vite", join(packaged_dir, "vue-vite/dist")],
-    ["web-component-webpack", join(packaged_dir, "web-component-webpack")],
+    ["angular-ng", join(workspace_dir, "angular-ng/dist/browser")],
+    ["angular-lifecycle", join(packaged_root, "angular-lifecycle/dist/browser")],
+    ["react-next", join(workspace_dir, "react-next/out")],
+    ["react-vite", join(workspace_dir, "react-vite/dist")],
+    ["svelte-vite", join(workspace_dir, "svelte-vite/dist")],
+    ["vanilla-rspack", join(workspace_dir, "vanilla-rspack")],
+    ["vanilla-vite", join(workspace_dir, "vanilla-vite/dist")],
+    ["vanilla-webpack", join(workspace_dir, "vanilla-webpack")],
+    ["vue-vite", join(workspace_dir, "vue-vite/dist")],
+    ["vue-minimum", join(packaged_root, "vue-minimum/dist")],
+    ["web-component-webpack", join(workspace_dir, "web-component-webpack")],
   ]
 
   for (const [name, root] of applications) {

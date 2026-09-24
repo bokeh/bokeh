@@ -13,7 +13,8 @@ export const b64encode: (data: Uint8Array) => string = (() => {
   }
 })()
 
-export const b64decode: (data: string) => Uint8Array<ArrayBuffer> = (() => {
+// Avoid generic typed arrays in declarations consumed by TypeScript before 5.7.
+export const b64decode: (data: string) => ReturnType<typeof Uint8Array.of> & {readonly buffer: ArrayBuffer} = (() => {
   if (typeof Uint8Array.fromBase64 !== "undefined") {
     return (data) => Uint8Array.fromBase64(data)
   } else {

@@ -35,8 +35,15 @@ temporary document as well.
 Thin adapters implement this ownership pattern for the common component
 frameworks. Install ``@bokeh/bokehjs`` together with the adapter for your
 framework (``@bokeh/react``, ``@bokeh/vue``, ``@bokeh/svelte``, or
-``@bokeh/angular``); the framework itself remains a peer dependency. In React,
-use the ``Bokeh`` component or the lower-level
+``@bokeh/angular``); the framework itself remains a peer dependency.
+
+The adapters support React 18--19, Vue 3.3--3.x, Svelte 4--5,
+and Angular 18--22. ``@bokeh/web-component`` has no framework dependency.
+These ranges do not require applications to use the exact framework or
+TypeScript versions pinned in the runnable examples. Use a TypeScript version
+supported by your application's framework.
+
+In React, use the ``Bokeh`` component or the lower-level
 ``useBokeh()`` hook from ``@bokeh/react``:
 
 .. code-block:: tsx
@@ -108,6 +115,7 @@ Angular provides a standalone component in ``@bokeh/angular``:
 
     @Component({
       selector: "app-root",
+      standalone: true,
       imports: [BokehComponent],
       template: `<bokeh-plot [model]="plot"></bokeh-plot>`,
     })

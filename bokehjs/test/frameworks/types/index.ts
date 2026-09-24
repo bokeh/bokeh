@@ -1,11 +1,14 @@
 import {createElement} from "react"
 import {h} from "vue"
 
+import "./vue_components.js"
+
 import {
   ColumnDataSource, Document, ModelResolver, MountError, MountSource, Plotting, Range1d,
   mount, publish_mount_error, register_models, register_standard_models, when_mounted,
 } from "@bokeh/bokehjs"
 import type {properties as p} from "@bokeh/bokehjs"
+import {b64decode} from "@bokeh/bokehjs/build/js/lib/core/util/buffer.js"
 import type {BokehComponent as AngularBokeh, BokehDocumentComponent as AngularBokehDocument, BokehRootDirective as AngularBokehRoot} from "@bokeh/angular"
 import {Bokeh as ReactBokeh, BokehDocument as ReactBokehDocument, BokehRoot as ReactBokehRoot} from "@bokeh/react"
 import type {useBokeh as useReactBokeh} from "@bokeh/react"
@@ -14,6 +17,10 @@ import {Bokeh as VueBokeh, BokehDocument as VueBokehDocument, BokehRoot as VueBo
 import type {useBokeh as useVueBokeh} from "@bokeh/vue"
 import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement} from "@bokeh/web-component"
 import type {BokehDocumentElement, BokehElement, BokehRootElement} from "@bokeh/web-component"
+
+const decoded_bytes: ReturnType<typeof Uint8Array.of> = b64decode("")
+const decoded_buffer: ArrayBuffer = decoded_bytes.subarray().buffer
+void decoded_buffer
 
 const source = ColumnDataSource.create({data: {x: [0, 1], y: [1, 0]}})
 const plot = Plotting.figure({tools: []})

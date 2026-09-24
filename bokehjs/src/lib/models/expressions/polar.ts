@@ -26,7 +26,7 @@ export class PolarTransform extends CoordinateTransform {
     }))
   }
 
-  protected _v_compute(source: ColumnarDataSource) {
+  protected _v_compute(source: ColumnarDataSource): {x: ReturnType<typeof Float64Array.of>, y: ReturnType<typeof Float64Array.of>} {
     const radius = this.properties.radius.uniform(source)
     const angle = this.properties.angle.uniform(source)
 

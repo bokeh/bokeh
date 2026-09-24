@@ -37,8 +37,30 @@ const applications = [
     source: "angular-ng",
     package_name: "@bokeh-test/angular-lifecycle",
     entry_point: join(frameworks_dir, "apps/angular/src/main.ts"),
+    // Test the newest supported Angular without upgrading the adapter compiler
+    // or the published example. Its TypeScript version requires isolation.
+    isolated: true,
+    versions: {
+      ...Object.fromEntries([
+        "common", "compiler", "core", "platform-browser", "build", "cli", "compiler-cli",
+      ].map((name) => [`@angular/${name}`, "22.2.0"])),
+      typescript: "6.0.3",
+    },
+  },
+  {
+    name: "vue-minimum",
+    source: "vue-vite",
+    package_name: "@bokeh-test/vue-minimum",
+    entry_point: null,
+    isolated: true,
+    // Also keep public Bokeh declarations consumable by Angular 18-era TS.
+    versions: {vue: "3.3.0", typescript: "5.4.5"},
   },
 ]
+
+function application_dir({name, isolated = false}) {
+  return join(isolated ? build_dir : workspace_dir, name)
+}
 
 const npm_packages = JSON.parse(readFileSync(join(bokehjs_dir, "npm_packages.json"), "utf-8"))
 const package_dirs = new Map(npm_packages.map(({name, workspace}) => [name, join(bokehjs_dir, workspace)]))
@@ -95,8 +117,9 @@ for (const [name, cwd] of package_dirs) {
   tarballs.set(name, await pack(name, cwd))
 }
 
-for (const {name, source, package_name, entry_point} of applications) {
-  const destination = join(workspace_dir, name)
+for (const application of applications) {
+  const {source, package_name, entry_point, isolated = false, versions = {}} = application
+  const destination = application_dir(application)
   cpSync(join(examples_dir, source), destination, {recursive: true})
   if (entry_point != null) {
     cpSync(entry_point, join(destination, "src/main.ts"))
@@ -107,11 +130,24 @@ for (const {name, source, package_name, entry_point} of applications) {
   pkg.name = package_name
   for (const section of ["dependencies", "devDependencies"]) {
     for (const name of Object.keys(pkg[section] ?? {})) {
+      if (versions[name] != null) {
+        pkg[section][name] = versions[name]
+      }
       const tarball = tarballs.get(name)
       if (tarball != null) {
         pkg[section][name] = `file:${relative(destination, tarball)}`
       }
     }
+  }
+  if (isolated) {
+    // Supply the unpublished controller dependency without a workspace parent.
+    pkg.dependencies["@bokeh/framework"] = `file:${relative(destination, tarballs.get("@bokeh/framework"))}`
+    const tsconfig_path = join(destination, "tsconfig.json")
+    const tsconfig = JSON.parse(readFileSync(tsconfig_path, "utf-8"))
+    tsconfig.compilerOptions.skipLibCheck = false
+    // Browser consumers must not inherit ambient Node types from this checkout.
+    tsconfig.compilerOptions.types = []
+    writeFileSync(tsconfig_path, `${JSON.stringify(tsconfig, null, 2)}\n`)
   }
   writeFileSync(package_path, `${JSON.stringify(pkg, null, 2)}\n`)
 }
@@ -120,16 +156,26 @@ writeFileSync(join(workspace_dir, "package.json"), `${JSON.stringify({
   name: "bokeh-framework-examples",
   private: true,
   version: "0.0.0",
-  workspaces: applications.map(({name}) => name),
-  dependencies: Object.fromEntries(
-    [...tarballs].map(([name, tarball]) => [name, `file:${relative(workspace_dir, tarball)}`]),
-  ),
+  workspaces: applications.filter(({isolated}) => !isolated).map(({name}) => name),
+  dependencies: {
+    ...Object.fromEntries([...tarballs].map(([name, tarball]) => [name, `file:${relative(workspace_dir, tarball)}`])),
+    // Hoist the baseline Angular version with its adapter, not the newest
+    // version allowed by the adapter's broader peer range.
+    "@angular/core": JSON.parse(readFileSync(join(examples_dir, "angular-ng/package.json"), "utf-8")).dependencies["@angular/core"],
+  },
 }, null, 2)}\n`)
 
 await run("npm", ["install", "--no-audit", "--no-fund"], workspace_dir)
-for (const {name, package_name} of applications) {
-  await run("npm", ["run", "build", "--workspace", package_name], workspace_dir)
-  const root = name == "react-next" ? join(workspace_dir, name, "out") : join(workspace_dir, name)
+for (const application of applications) {
+  const {name, package_name, isolated = false} = application
+  const destination = application_dir(application)
+  if (isolated) {
+    await run("npm", ["install", "--no-audit", "--no-fund"], destination)
+    await run("npm", ["run", "build"], destination)
+  } else {
+    await run("npm", ["run", "build", "--workspace", package_name], workspace_dir)
+  }
+  const root = name == "react-next" ? join(destination, "out") : destination
   verify_bundle_budget(name, root)
 }
 
