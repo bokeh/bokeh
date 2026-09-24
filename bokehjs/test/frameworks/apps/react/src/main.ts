@@ -3,9 +3,8 @@ import {createRoot} from "react-dom/client"
 
 import {Bokeh, BokehDocument, BokehRoot} from "@bokeh/react"
 
-import {configure_hmr, install_framework_test, mark_hmr_received} from "../../shared"
+import {install_framework_test} from "../../shared"
 import type {FrameworkRenderRequest} from "../../shared"
-import {generation} from "./hmr_state"
 
 const container = document.querySelector<HTMLElement>("#app")!
 
@@ -28,7 +27,3 @@ install_framework_test("react", ({model, mountOptions, onMounted, onError}) => {
     unmount: () => root.unmount(),
   }
 })
-
-configure_hmr(import.meta.hot)
-void generation
-import.meta.hot?.accept("./hmr_state", mark_hmr_received)

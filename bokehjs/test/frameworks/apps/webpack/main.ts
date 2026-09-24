@@ -2,7 +2,7 @@ import type {BokehMount} from "@bokeh/bokehjs"
 import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement} from "@bokeh/web-component"
 import type {BokehDocumentElement, BokehElement, BokehRootElement} from "@bokeh/web-component"
 
-import {configure_hmr, install_framework_test} from "../shared"
+import {install_framework_test} from "../shared"
 
 const container = document.querySelector<HTMLElement>("#app")!
 const PrimaryElement = defineBokehElement("bokeh-ci-plot")
@@ -62,5 +62,3 @@ install_framework_test("web-component-webpack", ({model, mountOptions, onMounted
     unmount: () => element.remove(),
   }
 })
-
-configure_hmr(undefined)

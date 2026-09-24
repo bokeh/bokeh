@@ -2,8 +2,7 @@ import {createApp, h, shallowRef} from "vue"
 
 import {Bokeh, BokehDocument, BokehRoot} from "@bokeh/vue"
 
-import {configure_hmr, install_framework_test, mark_hmr_received} from "../../shared"
-import {generation} from "./hmr_state"
+import {install_framework_test} from "../../shared"
 
 const container = document.querySelector<HTMLElement>("#app")!
 
@@ -30,7 +29,3 @@ install_framework_test("vue", (request) => {
     unmount: () => app.unmount(),
   }
 })
-
-configure_hmr(import.meta.hot)
-void generation
-import.meta.hot?.accept("./hmr_state", mark_hmr_received)

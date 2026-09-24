@@ -68,77 +68,21 @@
   "module": "build/js/lib/bokeh_package.js",
   "types": "build/js/lib/bokeh_package.d.ts",
   "exports": {
-    ".": {
-      "types": "./build/js/lib/bokeh_package.d.ts",
-      "import": "./build/js/lib/bokeh_package.js",
-      "default": "./build/js/lib/bokeh_package.js"
-    },
-    "./core": {
-      "types": "./build/js/lib/index.d.ts",
-      "import": "./build/js/lib/index.js",
-      "default": "./build/js/lib/index.js"
-    },
-    "./all": {
-      "types": "./build/js/lib/all/register.d.ts",
-      "import": "./build/js/lib/all/register.js",
-      "default": "./build/js/lib/all/register.js"
-    },
-    "./widgets": {
-      "types": "./build/js/lib/models/widgets/index.d.ts",
-      "import": "./build/js/lib/models/widgets/index.js",
-      "default": "./build/js/lib/models/widgets/index.js"
-    },
-    "./tables": {
-      "types": "./build/js/lib/models/widgets/tables/index.d.ts",
-      "import": "./build/js/lib/models/widgets/tables/index.js",
-      "default": "./build/js/lib/models/widgets/tables/index.js"
-    },
-    "./webgl": {
-      "types": "./build/js/lib/models/glyphs/webgl/index.d.ts",
-      "import": "./build/js/lib/models/glyphs/webgl/index.js",
-      "default": "./build/js/lib/models/glyphs/webgl/index.js"
-    },
-    "./mathjax": {
-      "types": "./build/js/lib/models/text/mathjax/index.d.ts",
-      "import": "./build/js/lib/models/text/mathjax/index.js",
-      "default": "./build/js/lib/models/text/mathjax/index.js"
-    },
-    "./api": {
-      "types": "./build/js/lib/api/index.d.ts",
-      "import": "./build/js/lib/api/index.js",
-      "default": "./build/js/lib/api/index.js"
-    },
-    "./api/*": {
-      "types": "./build/js/lib/api/*.d.ts",
-      "import": "./build/js/lib/api/*.js",
-      "default": "./build/js/lib/api/*.js"
-    },
-    "./models": {
-      "types": "./build/js/lib/models/index.d.ts",
-      "import": "./build/js/lib/models/index.js",
-      "default": "./build/js/lib/models/index.js"
-    },
-    "./models/*": {
-      "types": "./build/js/lib/models/*.d.ts",
-      "import": "./build/js/lib/models/*.js",
-      "default": "./build/js/lib/models/*.js"
-    },
-    "./document": {
-      "types": "./build/js/lib/document/index.d.ts",
-      "import": "./build/js/lib/document/index.js",
-      "default": "./build/js/lib/document/index.js"
-    },
-    "./document/*": {
-      "types": "./build/js/lib/document/*.d.ts",
-      "import": "./build/js/lib/document/*.js",
-      "default": "./build/js/lib/document/*.js"
-    },
+    ".": "./build/js/lib/bokeh_package.js",
+    "./core": "./build/js/lib/index.js",
+    "./all": "./build/js/lib/all/register.js",
+    "./widgets": "./build/js/lib/models/widgets/index.js",
+    "./tables": "./build/js/lib/models/widgets/tables/index.js",
+    "./webgl": "./build/js/lib/models/glyphs/webgl/index.js",
+    "./mathjax": "./build/js/lib/models/text/mathjax/index.js",
+    "./api": "./build/js/lib/api/index.js",
+    "./api/*": "./build/js/lib/api/*.js",
+    "./models": "./build/js/lib/models/index.js",
+    "./models/*": "./build/js/lib/models/*.js",
+    "./document": "./build/js/lib/document/index.js",
+    "./document/*": "./build/js/lib/document/*.js",
     "./build/js/lib/*.js": "./build/js/lib/*.js",
-    "./build/js/lib/*": {
-      "types": "./build/js/lib/*.d.ts",
-      "import": "./build/js/lib/*.js",
-      "default": "./build/js/lib/*.js"
-    },
+    "./build/js/lib/*": "./build/js/lib/*.js",
     "./package.json": "./package.json"
   },
   "dependencies": {

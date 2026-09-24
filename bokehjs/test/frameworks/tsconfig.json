@@ -5,7 +5,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "moduleResolution": "Bundler",
     "noEmit": true,
-    "types": ["node", "vite/client"],
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
       "@bokeh/bokehjs": ["../../build/js/lib/bokeh_package.d.ts"]

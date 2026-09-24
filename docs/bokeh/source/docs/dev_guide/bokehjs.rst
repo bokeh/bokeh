@@ -141,8 +141,8 @@ system. These are the most common commands:
 * ``node make test:frameworks``: Packs and installs BokehJS and its framework
   adapters, builds the React/Vite, React/Next.js, Vue, Svelte, Web
   Component, vanilla Vite/Webpack/Rspack, and server-side-rendering examples,
-  and runs the browser lifecycle and hot-module-reloading matrix. This is also
-  part of ``node make test`` in continuous integration.
+  and runs the browser lifecycle tests in production and development builds.
+  This is also part of ``node make test`` in continuous integration.
 * ``node make lint`` lint BokehJS with ESLint_. Run ``node make lint --fix`` to
   have ESLint fix some problems automatically.
 

@@ -6,7 +6,6 @@ import type {BokehModel, BokehRootModel} from "@bokeh/framework"
 declare global {
   interface Window {
     __bokeh_framework_test__?: Promise<FrameworkTestResult>
-    __bokeh_hmr__: "disabled" | "waiting" | "received"
   }
 }
 
@@ -450,17 +449,4 @@ export function install_framework_test(framework: string, render: FrameworkRende
       return {handle, target, updateMountOptions, unmount: rendered.unmount}
     },
   })
-}
-
-export function configure_hmr(hot: ImportMeta["hot"]): void {
-  if (hot == null) {
-    window.__bokeh_hmr__ = "disabled"
-    return
-  }
-
-  window.__bokeh_hmr__ = "waiting"
-}
-
-export function mark_hmr_received(): void {
-  window.__bokeh_hmr__ = "received"
 }

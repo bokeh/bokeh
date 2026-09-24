@@ -1,4 +1,4 @@
-import type {FlatpickrOptions} from "../../external/flatpickr"
+import type {Options} from "flatpickr/dist/types/options.js"
 
 import {BaseDatetimePicker, BaseDatetimePickerView} from "./base_datetime_picker"
 import {DateLike} from "./base_date_picker"
@@ -7,7 +7,7 @@ import type * as p from "core/properties"
 export class MultipleDatetimePickerView extends BaseDatetimePickerView {
   declare model: MultipleDatetimePicker
 
-  protected override get flatpickr_options(): FlatpickrOptions {
+  protected override get flatpickr_options(): Options {
     return {
       ...super.flatpickr_options,
       mode: "multiple",

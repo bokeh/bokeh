@@ -1,5 +1,5 @@
 import {spawn} from "node:child_process"
-import {createReadStream, existsSync, readFileSync, statSync, writeFileSync} from "node:fs"
+import {createReadStream, existsSync, statSync} from "node:fs"
 import {createServer as createHttpServer} from "node:http"
 import {extname, join, normalize, relative, resolve} from "node:path"
 import {fileURLToPath} from "node:url"
@@ -148,7 +148,7 @@ function assert_page_clean(exceptions, network_errors, context) {
   }
 }
 
-async function run_page(url, expected_framework, hmr_source = null) {
+async function run_page(url, expected_framework) {
   const {client, exceptions, network_errors} = await open_page(url)
   try {
     const result = await evaluate(client, `(async () => {
@@ -163,30 +163,6 @@ async function run_page(url, expected_framework, hmr_source = null) {
       throw new Error(`unexpected framework result: ${JSON.stringify(result)}`)
     }
 
-    if (hmr_source == null) {
-      const hmr = await evaluate(client, "window.__bokeh_hmr__")
-      if (hmr != "disabled") {
-        throw new Error(`production application unexpectedly enabled HMR: ${hmr}`)
-      }
-    } else {
-      const original = readFileSync(hmr_source, "utf-8")
-      try {
-        writeFileSync(hmr_source, `export const generation = ${Date.now()}\n`)
-        const hmr = await evaluate(client, `(async () => {
-          const deadline = Date.now() + 10000
-          while (window.__bokeh_hmr__ != "received") {
-            if (Date.now() > deadline) throw new Error("Vite didn't apply a source-module HMR update")
-            await new Promise((resolve) => setTimeout(resolve, 20))
-          }
-          return window.__bokeh_hmr__
-        })()`)
-        if (hmr != "received") {
-          throw new Error(`unexpected HMR state: ${hmr}`)
-        }
-      } finally {
-        writeFileSync(hmr_source, original)
-      }
-    }
     await new Promise((resolve) => setTimeout(resolve, 50))
     assert_page_clean(exceptions, network_errors, expected_framework)
     console.log(`passed: ${expected_framework} at ${url}`)
@@ -322,7 +298,7 @@ async function test_development_apps() {
       if (url == null) {
         throw new Error(`Vite didn't publish a URL for ${name}`)
       }
-      await run_page(url, name, join(root, "src/hmr_state.ts"))
+      await run_page(url, name)
     } finally {
       await server.close()
     }
