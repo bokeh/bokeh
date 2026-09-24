@@ -76,6 +76,7 @@ runs:
       uses: codecov/codecov-action@v7
       if: (success() || failure()) && inputs.collect-coverage == 'true'
       with:
+        use_oidc: true
         env_vars: OS,PYTHON
         flags: ${{ inputs.coverage-flags }}
         verbose: true

@@ -237,6 +237,9 @@ jobs:
   unit-test:
     needs: build
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     strategy:
       fail-fast: false
@@ -320,6 +323,9 @@ jobs:
     name: unit-test free-threaded (ubuntu-24.04, 3.14t)
     needs: build
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
     env:
       OS: ubuntu-24.04
       PYTHON: 3.14t
@@ -361,6 +367,9 @@ jobs:
   minimal-deps:
     needs: build
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     strategy:
       fail-fast: false
@@ -392,6 +401,9 @@ jobs:
   core-deps:
     needs: build
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     strategy:
       fail-fast: false
