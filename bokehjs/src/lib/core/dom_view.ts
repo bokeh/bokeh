@@ -80,13 +80,13 @@ export abstract class DOMView extends View {
   }
 
   r_after_render(): void {
+    this._was_built = true
     for (const child_view of this.children_views()) {
       if (child_view instanceof DOMView) {
         child_view.r_after_render()
       }
     }
     this.after_render()
-    this._was_built = true
   }
 
   protected _create_element(): this["el"] {
