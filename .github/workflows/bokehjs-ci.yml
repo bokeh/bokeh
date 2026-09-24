@@ -189,8 +189,8 @@ jobs:
           name: bokehjs-report
           path: bokehjs-report
 
-  minimum-node:
-    name: Minimum Node.js 22
+  frameworks-minimum-node:
+    name: Frameworks (minimum Node.js 22)
     needs: changes
     if: needs.changes.outputs.bokehjs == 'true'
     runs-on: ubuntu-24.04
@@ -233,7 +233,7 @@ jobs:
   result:
     name: BokehJS-CI / result
     if: ${{ always() }}
-    needs: [changes, test, lint, baseline-test, minimum-node]
+    needs: [changes, test, lint, baseline-test, frameworks-minimum-node]
     runs-on: ubuntu-24.04
 
     steps:
@@ -247,10 +247,10 @@ jobs:
              then .test.result == "success" and
                   .lint.result == "success" and
                   .["baseline-test"].result == "success" and
-                  .["minimum-node"].result == "success"
+                  .["frameworks-minimum-node"].result == "success"
              else .test.result == "skipped" and
                   .lint.result == "skipped" and
                   .["baseline-test"].result == "skipped" and
-                  .["minimum-node"].result == "skipped"
+                  .["frameworks-minimum-node"].result == "skipped"
              end)
           ' <<<"$RESULTS"
