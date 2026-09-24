@@ -275,6 +275,9 @@ jobs:
     needs: [changes, build]
     if: needs.changes.outputs.unit_test == 'true' && needs.build.result == 'success'
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     strategy:
       fail-fast: false
@@ -315,6 +318,9 @@ jobs:
     needs: [changes, build]
     if: needs.changes.outputs.minimal_deps == 'true' && needs.build.result == 'success'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     env:
       OS: ubuntu-24.04
@@ -342,6 +348,9 @@ jobs:
     needs: [changes, build]
     if: needs.changes.outputs.core_deps == 'true' && needs.build.result == 'success'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     env:
       OS: ubuntu-24.04

@@ -26,6 +26,7 @@ runs:
       uses: codecov/codecov-action@v7
       if: success() || failure()
       with:
+        use_oidc: true
         env_vars: OS
         flags: unit,${{ inputs.dep-type }}
         verbose: true
