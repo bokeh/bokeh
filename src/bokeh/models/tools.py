@@ -789,6 +789,19 @@ class WheelZoomTool(Scroll):
 
     """).accepts(String, _parse_modifiers)
 
+    hover_delay = NonNegative(Int, default=0, help="""
+    Delay in milliseconds that the cursor must hover over the plot before
+    scrolling is registered as a zoom.
+
+    This is useful to prevent accidentally zooming a plot while scrolling
+    down a page that contains it. While the cursor is hovering but the
+    delay has not yet elapsed, scroll events are ignored by this tool and
+    passed through to the page.
+
+    If ``0`` (the default), zooming happens immediately on scroll, with no
+    hover delay.
+    """)
+
 class CustomAction(ActionTool):
     ''' Execute a custom action, e.g. ``CustomJS`` callback when a toolbar
     icon is activated.
