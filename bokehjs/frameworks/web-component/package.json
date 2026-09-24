@@ -1,0 +1,32 @@
+{
+  "name": "@bokeh/web-component",
+  "version": "4.0.0-dev.1",
+  "description": "Framework-neutral Web Component adapter for BokehJS",
+  "license": "BSD-3-Clause",
+  "homepage": "https://docs.bokeh.org/en/latest/docs/user_guide/advanced/bokehjs.html",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bokeh/bokeh.git",
+    "directory": "bokehjs/frameworks/web-component"
+  },
+  "type": "module",
+  "files": ["dist", "README.md"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@bokeh/framework": "4.0.0-dev.1"
+  },
+  "peerDependencies": {
+    "@bokeh/bokehjs": ">=4.0.0-dev.1 <5"
+  }
+}

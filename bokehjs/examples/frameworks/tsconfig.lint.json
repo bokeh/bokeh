@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "types": ["node", "vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@bokeh/bokehjs": ["../../build/js/lib/bokeh_package.d.ts"],
+      "@bokeh/framework": ["../../frameworks/base/src/index.ts"],
+      "@bokeh/react": ["../../frameworks/react/src/index.ts"],
+      "@bokeh/svelte": ["../../frameworks/svelte/src/index.ts"],
+      "@bokeh/vue": ["../../frameworks/vue/src/index.ts"],
+      "@bokeh/web-component": ["../../frameworks/web-component/src/index.ts"]
+    }
+  },
+  "include": ["./**/*.ts", "./**/*.tsx", "./env.d.ts"],
+  "exclude": ["./**/dist", "./**/next-env.d.ts"]
+}

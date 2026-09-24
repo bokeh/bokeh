@@ -186,7 +186,7 @@ export class WheelZoomToolView extends GestureToolView {
           subcoord[dim] = true
           scale = scale.source_scale
         } else {
-          logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension; stopped at ${i}`)
+          logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension. Stopped at ${i}`)
           break
         }
       }
@@ -283,9 +283,6 @@ export class WheelZoomTool extends GestureTool {
       modifiers:      [ Modifiers, {} ],
     }))
 
-    this.register_alias("wheel_zoom", () => WheelZoomTool.create({dimensions: "both"}))
-    this.register_alias("xwheel_zoom", () => WheelZoomTool.create({dimensions: "width"}))
-    this.register_alias("ywheel_zoom", () => WheelZoomTool.create({dimensions: "height"}))
   }
 
   override tool_name = "Wheel Zoom"

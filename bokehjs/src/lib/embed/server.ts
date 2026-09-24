@@ -1,9 +1,9 @@
 import type {ClientSession} from "../client/session"
 import {parse_token, pull_session} from "../client/connection"
 import {logger} from "../core/logging"
-import type {ViewManager} from "../core/view_manager"
 
-import {add_document_standalone} from "./standalone"
+import {mount_document_standalone} from "./standalone"
+import type {StandaloneMount} from "./standalone"
 import type {EmbedTarget} from "./dom"
 
 // @internal
@@ -35,10 +35,10 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
 }
 
 function _is_frame_HTMLElement(frame: Element | null): frame is HTMLIFrameElement {
-  // `frameElement` is a delicate construct; it allows the document inside the frame to access
+  // `frameElement` is a delicate construct. It allows the document inside the frame to access
   // some (but not all) properties of the parent element in which the frame document is embedded.
   // Because it lives in a different DOM context than the frame's `window`, we cannot just use
-  // `frameElement instanceof HTMLIFrameElement`; we could use `window.parent.HTMLIFrameElement`
+  // `frameElement instanceof HTMLIFrameElement`. We could use `window.parent.HTMLIFrameElement`
   // but this can be blocked by CORS policy and throw an exception.
   if (frame === null) {
     return false
@@ -68,9 +68,10 @@ function _get_session(websocket_url: string, token: string, args_string: string)
   return subsessions.get(session_id)!
 }
 
-// Fill element with the roots from token
+// Fill element with the roots from token.
+/** @internal Server render-item bridge. Public server artifacts own the returned mount. */
 export async function add_document_from_session(websocket_url: string, token: string, element: EmbedTarget,
-    roots: EmbedTarget[] = [], use_for_title: boolean = false): Promise<ViewManager> {
+    roots: EmbedTarget[] = [], use_for_title: boolean = false): Promise<StandaloneMount> {
   const args_string = window.location.search.substring(1)
   let session: ClientSession
   try {
@@ -80,5 +81,5 @@ export async function add_document_from_session(websocket_url: string, token: st
     logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
     throw error
   }
-  return add_document_standalone(session.document, element, roots, use_for_title)
+  return mount_document_standalone(session.document, element, {roots, use_for_title})
 }

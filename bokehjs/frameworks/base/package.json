@@ -1,0 +1,29 @@
+{
+  "name": "@bokeh/framework",
+  "version": "4.0.0-dev.1",
+  "description": "Shared lifecycle support for Bokeh framework adapters",
+  "license": "BSD-3-Clause",
+  "homepage": "https://docs.bokeh.org/en/latest/docs/user_guide/advanced/bokehjs.html",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bokeh/bokeh.git",
+    "directory": "bokehjs/frameworks/base"
+  },
+  "type": "module",
+  "files": ["dist", "README.md"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "@bokeh/bokehjs": ">=4.0.0-dev.1 <5"
+  }
+}

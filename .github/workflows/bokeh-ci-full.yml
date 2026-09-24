@@ -37,6 +37,40 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: echo "Manual run reason - ${{ github.event.inputs.reason }}"
 
+  frameworks-minimum-node:
+    name: Frameworks (minimum Node.js 22)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+
+      - name: Install node.js 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: 'bokehjs/package-lock.json'
+
+      - name: Upgrade npm
+        run: npm install -g npm
+
+      - name: Install dependencies
+        working-directory: ./bokehjs
+        run: npm ci --no-progress
+
+      - name: Build bokehjs
+        working-directory: ./bokehjs
+        run: node make build
+
+      - name: Package bokehjs
+        working-directory: ./bokehjs
+        run: node make pack
+
+      - name: Run type, SSR, and framework tests
+        working-directory: ./bokehjs
+        run: node make test:frameworks
+
   codebase:
     needs: build
     runs-on: ${{ matrix.os }}
@@ -538,7 +572,7 @@ jobs:
           if-no-files-found: ignore
 
   notify-nightly-failure:
-    needs: [build, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [build, frameworks-minimum-node, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
@@ -551,7 +585,7 @@ jobs:
         run: python3 tools/ci/notify_full_ci.py nightly
 
   notify-pr:
-    needs: [build, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [build, frameworks-minimum-node, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 

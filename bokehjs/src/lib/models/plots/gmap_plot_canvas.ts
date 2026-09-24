@@ -1,3 +1,5 @@
+/// <reference types="google.maps" preserve="true" />
+
 import {logger} from "core/logging"
 import {Signal0} from "core/signaling"
 import {div} from "core/dom"

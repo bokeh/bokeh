@@ -9,6 +9,7 @@ from __future__ import annotations
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
+from .npm import NPM_PACKAGES
 from .system import System
 
 __all__ = (
@@ -24,7 +25,9 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         dirname = f"deployment-{config.version}"
         filename = f"{dirname}.tgz"
         system.run(f"mkdir {dirname}")
-        system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
+        for package in NPM_PACKAGES:
+            tarball = package.tarball
+            system.run(f"cp bokehjs/{tarball}-{config.js_version}.tgz {dirname}")
         system.run(f"cp dist/conda/noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
         system.run(f"cp dist/bokeh-{config.version}.tar.gz {dirname}")
         system.run(f"cp dist/bokeh-{config.version}-py3-none-any.whl {dirname}")
