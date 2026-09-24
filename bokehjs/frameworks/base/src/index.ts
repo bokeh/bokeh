@@ -146,6 +146,10 @@ function same_items<T>(left: readonly T[], right: readonly T[]): boolean {
   return left.length == right.length && left.every((item, index) => item == right[index])
 }
 
+function same_targets(left: ReadonlyMap<BokehRootModel, BokehTarget>, right: ReadonlyMap<BokehRootModel, BokehTarget>): boolean {
+  return left.size == right.size && [...left].every(([model, target]) => right.get(model) == target)
+}
+
 type ControlledMountOptions = Omit<MountOptions, "targets">
 
 function controlled_mount_options(options: MountOptions | undefined): ControlledMountOptions {
@@ -160,6 +164,12 @@ function same_mount_options(left: ControlledMountOptions, right: ControlledMount
   return left_keys.length == right_keys.length && left_keys.every((key) => left[key] == right[key])
 }
 
+type PendingDocumentMount = {
+  readonly models: readonly BokehRootModel[]
+  readonly targets: ReadonlyMap<BokehRootModel, BokehTarget>
+  readonly mount_options: ControlledMountOptions
+}
+
 /** Coordinates one Bokeh document whose roots render into independent framework targets. */
 export class DocumentMountController {
   private readonly _controller = new MountController()
@@ -171,6 +181,8 @@ export class DocumentMountController {
   private _active_mount_options: ControlledMountOptions = {}
   private _scheduled = false
   private _transition = Promise.resolve()
+  private _generation = 0
+  private _pending: PendingDocumentMount | null = null
 
   get mounted(): BokehMount | null {
     return this._controller.mounted
@@ -192,6 +204,7 @@ export class DocumentMountController {
         this._targets.delete(model)
       }
     }
+    this._reconcile_pending()
     this._schedule()
   }
 
@@ -203,12 +216,14 @@ export class DocumentMountController {
     }
 
     this._targets.set(model, target)
+    this._reconcile_pending()
     this._schedule()
     let attached = true
     return () => {
       if (attached && this._targets.get(model) == target) {
         attached = false
         this._targets.delete(model)
+        this._reconcile_pending()
         this._schedule()
       }
     }
@@ -216,6 +231,9 @@ export class DocumentMountController {
 
   /** Dispose the shared mount and forget every root slot. */
   dispose(): void {
+    this._generation += 1
+    this._pending = null
+    this._transition = Promise.resolve()
     this._models = []
     this._targets.clear()
     this._active_models = []
@@ -231,13 +249,47 @@ export class DocumentMountController {
     this._scheduled = true
     queueMicrotask(() => {
       this._scheduled = false
-      this._transition = this._transition.then(() => this._refresh()).catch((error) => {
-        this._request.onError?.(error)
+      this._reconcile_pending()
+      const generation = this._generation
+      this._transition = this._transition.then(() => this._refresh(generation)).catch((error) => {
+        if (generation == this._generation) {
+          this._request.onError?.(error)
+        }
       })
     })
   }
 
-  private async _refresh(): Promise<void> {
+  private _pending_matches_current(): boolean {
+    const pending = this._pending
+    return pending != null &&
+      same_items(this._models, pending.models) &&
+      same_targets(this._targets, pending.targets) &&
+      same_mount_options(controlled_mount_options(this._request.mountOptions), pending.mount_options)
+  }
+
+  private _reconcile_pending(): void {
+    const pending = this._pending
+    if (pending == null) {
+      return
+    }
+    if (!this._pending_matches_current()) {
+      this._generation += 1
+      this._pending = null
+      this._controller.dispose()
+      this._transition = Promise.resolve()
+    }
+  }
+
+  private _clear_pending(pending: PendingDocumentMount): void {
+    if (this._pending == pending) {
+      this._pending = null
+    }
+  }
+
+  private async _refresh(generation: number): Promise<void> {
+    if (generation != this._generation) {
+      return
+    }
     if (this._models.length == 0) {
       this._active_models = []
       this._active_targets.clear()
@@ -277,24 +329,37 @@ export class DocumentMountController {
           }
         }
         this._active_targets = active_targets
+        return
       }
-      return
     }
 
     const active_models = [...this._models]
     const active_targets = new Map(this._targets)
     const models = new Map(active_models.map((model) => [model.id, model]))
     const targets = new Map([...active_targets].map(([model, target]) => [model.id, target]))
-    const mounted = await this._controller.start(models, undefined, {
-      mountOptions: {...this._request.mountOptions, targets},
-      onMounted: (mounted) => this._request.onMounted?.(mounted),
-      onDisposed: (mounted) => this._request.onDisposed?.(mounted),
-      onError: (error) => this._request.onError?.(error),
-    })
-    if (mounted != null) {
-      this._active_models = active_models
-      this._active_targets = active_targets
-      this._active_mount_options = mount_options
+    const pending: PendingDocumentMount = {
+      models: active_models,
+      targets: active_targets,
+      mount_options,
+    }
+    this._pending = pending
+    try {
+      const mounted = await this._controller.start(models, undefined, {
+        mountOptions: {...this._request.mountOptions, targets},
+        onMounted: (mounted) => {
+          this._clear_pending(pending)
+          this._request.onMounted?.(mounted)
+        },
+        onDisposed: (mounted) => this._request.onDisposed?.(mounted),
+        onError: (error) => this._request.onError?.(error),
+      })
+      if (mounted != null && generation == this._generation) {
+        this._active_models = active_models
+        this._active_targets = active_targets
+        this._active_mount_options = mount_options
+      }
+    } finally {
+      this._clear_pending(pending)
     }
   }
 }

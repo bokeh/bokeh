@@ -155,6 +155,12 @@ identify ``root_key``. The handle owns its views and listeners, but never its
 DOM targets. A document created for bare models is mount-owned and released on
 failure or disposal; a supplied ``Document`` remains caller-owned.
 
+Invalid sources fail synchronously before a handle can be created. For an
+existing handle, ``on_error`` and ``errors`` report target and render failures.
+Caller-driven abort and early disposal instead reject a pending ``ready``
+promise and set ``error``; they are expected lifecycle cancellation and are not
+sent to ``on_error``.
+
 Discovering declarative mounts from page JavaScript
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -389,6 +395,9 @@ rendering are in :bokeh-tree:`bokehjs/examples/frameworks`. They are kept
 deliberately small for reuse in documentation and are continuously built from
 packed npm artifacts in BokehJS CI.
 
+Migrating standalone lifecycle code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ``show()`` remains convenient for scripts and now returns the same owning
 ``BokehMount`` as ``mount()``. Await its ``ready`` promise and retain it for
 disposal; it no longer returns a raw view. The old public
@@ -396,6 +405,15 @@ disposal; it no longer returns a raw view. The old public
 ``add_document_from_session()`` paths are internal rendering bridges. Direct
 JavaScript code should use ``mount()`` or ``show()``; artifact and server hosts
 receive an owning mount from their public bootstrap API.
+
+Likewise, ``embed.embed_item()`` and ``embed.embed_items()`` now return owning
+standalone mount handles rather than view managers. Retain those handles and
+call ``dispose()`` when removing the embed. Code that read views directly from
+the former result should use ``root_views`` for keyed roots or ``views`` for
+the complete view manager on each handle. Downstream hosts such as Panel only
+need changes if they inspect these return values or call the former public
+standalone helpers; hosts that ignore the bootstrap return value keep the same
+rendering behavior.
 
 Adapters remount when their model, target, or abort signal changes. Keep those
 values stable across ordinary framework renders. Removing one root slot from a
@@ -407,10 +425,10 @@ temporary document at a time, so dispose its current mount before moving it to
 another host. Abort a pending or active mount with ``mountOptions.signal``. A
 signal that is already aborted prevents mount creation entirely; aborting
 during or after creation disposes the owned mount and its temporary document.
-Adapter error callbacks and events report the same structured mount failures;
-failed and superseded mounts clean up any views and temporary document they
-created. Framework packages do not inject Bokeh resource scripts or implement
-a second embed lifecycle.
+Adapter error callbacks and events report target and render failures. Expected
+unmounts and superseded renders cancel silently; all three paths clean up any
+views and temporary document they created. Framework packages do not inject
+Bokeh resource scripts or implement a second embed lifecycle.
 
 Importing BokehJS and creating models is safe during server-side rendering, but
 ``mount()`` requires a browser DOM. Create or hydrate the adapter from the

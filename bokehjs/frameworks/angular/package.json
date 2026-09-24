@@ -3,8 +3,14 @@
   "version": "4.0.0-dev.1",
   "description": "Angular adapter for BokehJS",
   "license": "BSD-3-Clause",
+  "homepage": "https://docs.bokeh.org/en/latest/docs/user_guide/advanced/bokehjs.html",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bokeh/bokeh.git",
+    "directory": "bokehjs/frameworks/angular"
+  },
   "type": "module",
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

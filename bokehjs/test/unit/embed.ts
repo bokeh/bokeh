@@ -1,13 +1,16 @@
 import {expect} from "#framework/assertions"
 
 import * as embed from "@bokehjs/embed"
+import {register_models} from "@bokehjs/base"
 import {mount} from "@bokehjs/api/io"
 import {index} from "@bokehjs/embed/standalone"
-import {Document} from "@bokehjs/document"
+import {Document, documents} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
 import {DOMElementView} from "@bokehjs/core/dom_view"
+import {ModelResolver} from "@bokehjs/core/resolvers"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {defer} from "@bokehjs/core/util/defer"
+import {register_standard_models} from "@bokehjs/models/register"
 
 class SomeView extends DOMElementView {
   render(): void {
@@ -80,6 +83,37 @@ describe("embed", () => {
         await mounted.dispose()
       }
     })
+  })
+
+  it("returns an owning mount from embed_item()", async () => {
+    const resolver = new ModelResolver(null)
+    register_standard_models(resolver)
+    register_models([ModelWithView], resolver)
+    const model = ModelWithView.create()
+    const original = new Document({roots: [model]})
+    const target = document.createElement("div")
+    document.body.append(target)
+    const documents_before = documents.length
+
+    const mounted = await embed.embed_item({
+      doc: original.to_json(),
+      root_id: model.id,
+      target_id: "unused",
+    }, target, {resolver})
+    expect(mounted.dispose_document).to.be.true
+    expect(mounted.document).to.not.be.equal(original)
+    expect(mounted.root_views.size).to.be.equal(1)
+    expect(target.childElementCount).to.be.equal(1)
+    expect(documents.length).to.be.equal(documents_before + 1)
+
+    mounted.dispose()
+    expect(mounted.disposed).to.be.true
+    expect(mounted.document.is_destroyed).to.be.true
+    expect(target.childElementCount).to.be.equal(0)
+    expect(documents.length).to.be.equal(documents_before)
+
+    original.destroy()
+    target.remove()
   })
 
   it("should support view index", async () => {

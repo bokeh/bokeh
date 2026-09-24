@@ -274,6 +274,70 @@ async function validate_document_controller(): Promise<void> {
   second_target.remove()
 }
 
+async function validate_document_controller_supersession(): Promise<void> {
+  let initialization_started!: () => void
+  let continue_initialization!: () => void
+  const started = new Promise<void>((resolve) => initialization_started = resolve)
+  const gate = new Promise<void>((resolve) => continue_initialization = resolve)
+
+  const stale = Plotting.figure({width: 180, height: 120, tools: [], toolbar_location: null})
+  const DefaultPlotView = stale.default_view
+  assert(DefaultPlotView != null, "plot doesn't define a default view")
+  class DelayedPlotView extends DefaultPlotView {
+    override async lazy_initialize(): Promise<void> {
+      await super.lazy_initialize()
+      initialization_started()
+      await gate
+    }
+  }
+  Object.defineProperty(stale, "default_view", {value: DelayedPlotView})
+  const replacement = Plotting.figure({width: 180, height: 120, tools: [], toolbar_location: null})
+  const stale_target = document.createElement("div")
+  const replacement_target = document.createElement("div")
+  document.body.append(stale_target, replacement_target)
+  const controller = new DocumentMountController()
+  const callbacks: string[] = []
+  const detach_stale = controller.attach(stale, stale_target)
+  controller.update([stale], {onMounted: () => callbacks.push("stale")})
+
+  let detach_replacement = () => {}
+  let timeout = 0
+  try {
+    await started
+    const mounting = new Promise<BokehMount>((resolve, reject) => {
+      controller.update([replacement], {
+        onMounted: (mounted) => {
+          callbacks.push("replacement")
+          resolve(mounted)
+        },
+        onError: reject,
+      })
+      detach_replacement = controller.attach(replacement, replacement_target)
+    })
+    const timed_out = new Promise<never>((_, reject) => {
+      timeout = window.setTimeout(() => reject(new Error("replacement waited for stale initialization")), 2000)
+    })
+    const mounted = await Promise.race([mounting, timed_out])
+    assert(mounted.models.length == 1 && mounted.models[0] == replacement,
+      "document controller published the superseded root")
+    assert(callbacks.join(",") == "replacement",
+      "document controller delivered a stale mount callback")
+
+    continue_initialization()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    assert(callbacks.join(",") == "replacement",
+      "superseded initialization published after the replacement")
+  } finally {
+    clearTimeout(timeout)
+    continue_initialization()
+    detach_stale()
+    detach_replacement()
+    controller.dispose()
+    stale_target.remove()
+    replacement_target.remove()
+  }
+}
+
 async function validate_multi_root_mount(adapter: Adapter): Promise<void> {
   const source = ColumnDataSource.create({data: {x: [0, 1, 2], y: [1, 3, 2], z: [2, 1, 4]}})
   const x_range = Range1d.create({start: -0.5, end: 2.5})
@@ -353,6 +417,7 @@ export async function run_framework_test(framework: string, adapter: Adapter): P
 
   await validate_controller(plot)
   await validate_document_controller()
+  await validate_document_controller_supersession()
   await validate_multi_root_mount(adapter)
   await validate_mount_options_update(framework, adapter, plot)
 

@@ -195,6 +195,29 @@ describe("in api/plotting module", () => {
       target.remove()
     })
 
+    it("doesn't let a stale mount reclaim a newer target publication", async () => {
+      const target = document.createElement("div")
+      document.body.append(target)
+      const doc = new Document({roots: [Plot.create()]})
+      const first = mount(doc, target)
+      await first.ready
+      const second = mount(Plot.create(), target)
+      await second.ready
+      expect(target.bokehMount).to.be.equal(second)
+
+      const added = Plot.create()
+      doc.add_root(added)
+      while (first.view(added.id) == null) {
+        await defer()
+      }
+      expect(target.bokehMount).to.be.equal(second)
+
+      await first.dispose()
+      await second.dispose()
+      doc.destroy()
+      target.remove()
+    })
+
     it("mounts document roots into independent targets", async () => {
       const fallback = document.createDocumentFragment()
       const first_target = document.createElement("div")
@@ -344,6 +367,43 @@ describe("in api/plotting module", () => {
       expect(mounted.views.length).to.be.equal(0)
       expect(target.childElementCount).to.be.equal(0)
       target.remove()
+    })
+
+    it("doesn't report caller-driven cancellation as mount failures", async () => {
+      const abort_target = document.createElement("div")
+      const dispose_target = document.createElement("div")
+      document.body.append(abort_target, dispose_target)
+
+      const controller = new AbortController()
+      const abort_callbacks: MountError[] = []
+      const aborted = mount(Plot.create(), abort_target, {
+        signal: controller.signal,
+        on_error: (error) => abort_callbacks.push(error),
+      })
+      controller.abort(new Error("caller cancelled"))
+      const abort_error = await aborted.ready.then(() => null, (error: unknown) => error)
+      expect(abort_error).to.be.instanceof(MountError)
+      expect((abort_error as MountError).kind).to.be.equal("abort")
+      expect(aborted.error).to.be.equal(abort_error as MountError)
+      expect(aborted.errors).to.be.equal([])
+      expect(abort_callbacks).to.be.equal([])
+      await aborted.when_disposed
+
+      const dispose_callbacks: MountError[] = []
+      const disposed = mount(Plot.create(), dispose_target, {
+        on_error: (error) => dispose_callbacks.push(error),
+      })
+      const readiness = disposed.ready.then(() => null, (error: unknown) => error)
+      await disposed.dispose()
+      const dispose_error = await readiness
+      expect(dispose_error).to.be.instanceof(MountError)
+      expect((dispose_error as MountError).kind).to.be.equal("disposed")
+      expect(disposed.error).to.be.equal(dispose_error as MountError)
+      expect(disposed.errors).to.be.equal([])
+      expect(dispose_callbacks).to.be.equal([])
+
+      abort_target.remove()
+      dispose_target.remove()
     })
 
     it("reports target errors and rolls back mount-owned documents", async () => {

@@ -139,7 +139,7 @@ export type MountOptions = {
   targets?: MountTargets
   /** Allow the mounted document to update the browser page title. */
   use_for_title?: boolean
-  /** Called for every structured failure before the same error rejects an operation. */
+  /** Called for target and render failures before the same error rejects an operation. */
   on_error?(error: MountError): void
 }
 
@@ -458,6 +458,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     return this._error
   }
 
+  /** Target and render failures reported by this handle; caller-driven cancellation is excluded. */
   get errors(): readonly MountError[] {
     return this._errors
   }
@@ -505,7 +506,9 @@ export class BokehMount<T extends HasProps = HasProps> {
   private _sync_published_targets(): void {
     const attached = new Set(this._mount.targets.values())
     for (const target of attached) {
-      this._publish_target(target)
+      if (!this._published_targets.has(target)) {
+        this._publish_target(target)
+      }
     }
     for (const target of [...this._published_targets]) {
       if (!attached.has(target)) {
