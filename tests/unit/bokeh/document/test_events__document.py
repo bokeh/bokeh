@@ -17,12 +17,18 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import datetime as dt
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import Any, ColumnData, Instance
 from bokeh.core.property.bases import Property
-from bokeh.core.serialization import MapRep, ObjectRefRep, Serializer
+from bokeh.core.serialization import (
+    MapRep,
+    ObjectRefRep,
+    Serializer,
+    SliceRep,
+)
 from bokeh.document import Document
 from bokeh.model import Model
 
@@ -251,6 +257,16 @@ class TestColumnDataChangedEvent:
         )
         assert s.buffers == []
 
+    def test_to_serializable_dates(self) -> None:
+        # https://github.com/bokeh/bokeh/issues/15166
+        doc = Document()
+        dates = [dt.date(2024, 1, 1), dt.date(2024, 1, 2)]
+        m = SomeModel(data={"dates": dates, "text": ["a", "b"]})
+        e = bde.ColumnDataChangedEvent(doc, m, "data", None, ["dates", "text"], "setter", "invoker")
+        r = Serializer().encode(e)
+        assert r["data"] == MapRep(type="map", entries=[("dates", [1704067200000.0, 1704153600000.0]), ("text", ["a", "b"])])
+        assert m.data["dates"] == dates
+
     def test_dispatch(self) -> None:
         doc = Document()
         m = SomeModel()
@@ -295,6 +311,14 @@ class TestColumnsStreamedEvent:
         r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref, attr="data", data=MapRep(type="map", entries=[("foo", 1)]), rollover=200)
         assert s.buffers == []
+
+    def test_to_serializable_dates(self) -> None:
+        # https://github.com/bokeh/bokeh/issues/15166
+        doc = Document()
+        m = SomeModel()
+        e = bde.ColumnsStreamedEvent(doc, m, "data", dict(dates=[dt.date(2024, 1, 3)]), None, "setter", "invoker")
+        r = Serializer().encode(e)
+        assert r["data"] == MapRep(type="map", entries=[("dates", [1704240000000.0])])
 
     def test_dispatch(self) -> None:
         doc = Document()
@@ -351,6 +375,18 @@ class TestColumnsPatchedEvent:
         r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref, attr="data", patches=[1,2])
         assert s.buffers == []
+
+    def test_to_serializable_dates(self) -> None:
+        # https://github.com/bokeh/bokeh/issues/15166
+        doc = Document()
+        m = SomeModel()
+        patches = dict(dates=[(0, dt.date(2024, 1, 1)), (slice(1, 3), [dt.date(2024, 1, 2), dt.date(2024, 1, 3)])])
+        e = bde.ColumnsPatchedEvent(doc, m, "data", patches, "setter", "invoker")
+        r = Serializer().encode(e)
+        assert r["patches"] == MapRep(type="map", entries=[("dates", [
+            [0, 1704067200000.0],
+            [SliceRep(type="slice", start=1, stop=3, step=None), [1704153600000.0, 1704240000000.0]],
+        ])])
 
     def test_dispatch(self) -> None:
         doc = Document()

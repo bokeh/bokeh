@@ -112,6 +112,7 @@ __all__ = (
     'make_globally_unique_id',
     'make_id',
     'transform_array',
+    'transform_column_data',
     'transform_series',
 )
 
@@ -398,6 +399,47 @@ def transform_series(series: pd.Series[Any] | pd.Index[Any] | pd.api.extensions.
     else:
         vals = series.to_numpy()
     return vals
+
+def transform_column_data(data: Any) -> Any:
+    ''' Transform ``ColumnDataSource`` data (or streamed or patched column
+    values) for serialization.
+
+    Bare ``datetime.date`` values otherwise serialize as ISO date strings,
+    which ``Date`` properties require. In column data they are coordinates,
+    so dates in (possibly nested) lists, tuples, dicts and object arrays are
+    converted to floating point milliseconds since epoch, like other datetime
+    values. Other values are left unchanged.
+
+    Args:
+        data (object) : the column data to transform
+
+    Returns:
+        object
+
+    '''
+    if isinstance(data, dt.date):
+        return convert_datetime_type(data)
+
+    if isinstance(data, dict):
+        return {key: transform_column_data(value) for key, value in data.items()}
+
+    is_sequence = isinstance(data, (list, tuple))
+    if not (is_sequence or getattr(data, "dtype", None) == np.dtype(object)):
+        return data
+
+    def may_contain_dates(tp: type) -> bool:
+        return issubclass(tp, (list, tuple, dict, np.ndarray)) or (issubclass(tp, dt.date) and not issubclass(tp, dt.datetime))
+
+    if not any(map(may_contain_dates, set(map(type, data)))):
+        return data
+
+    if is_sequence:
+        return [transform_column_data(item) for item in data]
+
+    array = convert_datetime_array(np.asarray(data))
+    if array.dtype.kind == "O":
+        array = np.frompyfunc(transform_column_data, 1, 1)(array)
+    return array
 
 #-----------------------------------------------------------------------------
 # Dev API
