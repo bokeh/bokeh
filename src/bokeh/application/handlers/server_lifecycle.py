@@ -65,6 +65,7 @@ class ServerLifecycleHandler(LifecycleHandler):
             argv (Sequence[str], optional) : a sequence of string arguments to use as
                 ``sys.argv`` when the callback code is executed. (default: ())
 
+            package (ModuleType, optional): An optional package module to configure
         '''
         super().__init__()
 

@@ -87,11 +87,13 @@ def autoload_static(model: Model | Document, resources: Resources, script_path: 
     The data for the plot is stored directly in the returned JavaScript code.
 
     Args:
-        model (Model or Document) :
+        model (Model or Document) : a Layout (Row/Column), Plot or Widget
+            object or Document
 
-        resources (Resources) :
+        resources (Resources) : information relating to loading or embedding Bokeh
+            JavaScript and CSS
 
-        script_path (str) :
+        script_path (str) : path to destination folder
 
     Returns:
         (js, tag) :
@@ -374,7 +376,7 @@ def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None)
         model (Model) :
             The Bokeh object to embed
 
-        target (string, optional)
+        target (string, optional) :
             A div id to embed the model into. If None, the target id must
             be supplied in the JavaScript call.
 
