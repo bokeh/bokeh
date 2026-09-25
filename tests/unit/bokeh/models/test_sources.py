@@ -947,6 +947,21 @@ Lime,Green,99,$0.39
         assert df.index.names == [None, None]
         assert bms.ColumnDataSource._df_index_name(df) == "index"
 
+    def test_to_csv(self) -> None:
+        data = dict(a=[1.123456789012345, 1e-11], b=[1e-11, 3])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        assert ds.to_csv() == """index,a,b
+0,1.123456789012345,1e-11
+1,1e-11,3.0
+"""
+
+    def test_to_json(self) -> None:
+        data = dict(a=[1.123456789012345, 1e-11], b=[1e-11, 3])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        assert ds.to_json() == '{"index": [0, 1], "a": [1.123456789012345, 1e-11], "b": [1e-11, 3.0]}'
+
 
 class TestDataTable:
     def test_from_data_with_dataframe(self):
