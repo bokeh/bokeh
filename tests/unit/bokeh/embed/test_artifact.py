@@ -143,6 +143,32 @@ def test_artifact_accepts_large_finite_floats(value: float) -> None:
     assert isinstance(actual.metadata["value"], float)
 
 
+@pytest.mark.parametrize(("kwargs", "message"), [
+    ({"key": "", "model_id": "model"}, "keys must not be empty"),
+    ({"key": "root", "document": 0, "root": "0"}, "root ordinal must be an integer"),
+    ({"key": "root", "model_id": 1}, "model_id must be a non-empty string"),
+    ({"key": "root", "document": 0, "root": 0, "model_id": "model"}, "requires document/root ordinals"),
+    ({"key": "root"}, "requires model_id"),
+    ({"key": "root", "document": -1, "root": 0}, "ordinals must be non-negative"),
+])
+def test_artifact_root_rejects_invalid_values(kwargs: dict[str, Any], message: str) -> None:
+    with pytest.raises(ArtifactValidationError, match=message):
+        ArtifactRoot(**kwargs)
+
+
+def test_artifact_json_helpers_validate_and_round_trip() -> None:
+    artifact = embed(CustomJS(code="return"))
+
+    assert artifact.to_json() == artifact.to_dict()
+    assert json.loads(artifact.to_json_string(pretty=True)) == artifact.to_dict()
+    with pytest.raises(ArtifactValidationError, match="invalid embedding artifact JSON"):
+        EmbedArtifact.from_json("not-json")
+    with pytest.raises(ArtifactValidationError, match="must be a JSON object"):
+        EmbedArtifact.from_json("[]")
+    with pytest.raises(ArtifactValidationError, match="roots must be objects"):
+        ArtifactRoot.from_dict([])  # type: ignore[arg-type]
+
+
 def test_resource_requirement_inputs_are_canonicalized_to_tuples() -> None:
     asset = ResourceAssetRequirement("script", content="void 0")
     extension = ExtensionRequirement("example", [asset])  # type: ignore[arg-type]
@@ -354,6 +380,15 @@ def test_compiler_rejects_empty_duplicate_and_python_callback_inputs() -> None:
         embed(plot, callback_policy="error")
 
 
+def test_compiler_warns_for_python_callbacks(caplog: pytest.LogCaptureFixture) -> None:
+    plot = _plot()
+    plot.on_change("visible", lambda attr, old, new: None)
+
+    embed(plot, callback_policy="warn")
+
+    assert "standalone embedding cannot execute Python callbacks" in caplog.text
+
+
 def test_embed_spec_rejects_inconsistent_public_inputs() -> None:
     model = CustomJS(code="root")
     with pytest.raises(EmbedCompileError, match="equal lengths"):
@@ -362,6 +397,42 @@ def test_embed_spec_rejects_inconsistent_public_inputs() -> None:
         EmbedSpec((model, CustomJS(code="other")), ("root", "root"), "sequence")
     with pytest.raises(EmbedCompileError, match="serialization must be"):
         EmbedSpec((model,), ("root",), "single", serialization="typo")  # type: ignore[arg-type]
+
+    with pytest.raises(EmbedCompileError, match="at least one model"):
+        EmbedSpec((), (), "single")
+    with pytest.raises(EmbedCompileError, match="Model instances"):
+        EmbedSpec((object(),), ("root",), "single")  # type: ignore[arg-type]
+    with pytest.raises(EmbedCompileError, match="non-empty strings"):
+        EmbedSpec((model,), ("",), "single")
+    with pytest.raises(EmbedCompileError, match="input_shape"):
+        EmbedSpec((model,), ("root",), "invalid")  # type: ignore[arg-type]
+    with pytest.raises(EmbedCompileError, match="callback_policy"):
+        EmbedSpec((model,), ("root",), "single", callback_policy="invalid")  # type: ignore[arg-type]
+
+
+def test_compiler_rejects_invalid_standalone_and_server_inputs() -> None:
+    with pytest.raises(EmbedCompileError, match="expects a Model"):
+        embed(object())  # type: ignore[arg-type]
+    with pytest.raises(EmbedCompileError, match="mapping keys"):
+        embed({"": CustomJS(code="root")})
+    with pytest.raises(EmbedCompileError, match="WebSocket URL"):
+        embed_server("ws://example.test/app")
+    with pytest.raises(EmbedCompileError, match="application URL is required"):
+        embed_server("/")
+    with pytest.raises(EmbedCompileError, match="root keys"):
+        embed_server(roots={"": "model-id"})
+    with pytest.raises(EmbedCompileError, match="non-empty ID"):
+        embed_server(roots={"root": ""})
+
+
+def test_compiler_flattens_documents_in_sequences_and_accepts_named_themes() -> None:
+    document = Document()
+    document.add_root(CustomJS(code="first"))
+    document.add_root(CustomJS(code="second"))
+
+    artifact = embed([document], theme="caliber")
+
+    assert [root.key for root in artifact.roots] == ["root-0:0", "root-0:1"]
 
 
 def test_resource_requirements_are_exact_for_representative_models() -> None:
