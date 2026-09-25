@@ -1115,6 +1115,16 @@ class TestDeserializer:
 
         assert ret == val
 
+    def test_duplicate_model_id(self) -> None:
+        decoder = Deserializer()
+        representation = [
+            {"$type": "test_serialization.SomeModel", "$id": "duplicate", "p0": 1},
+            {"$type": "test_serialization.SomeModel", "$id": "duplicate", "p0": 2},
+        ]
+
+        with pytest.raises(DeserializationError, match="duplicate model ID 'duplicate'"):
+            decoder.decode(representation)
+
     def test_unknown_type(self) -> None:
         decoder = Deserializer()
         with pytest.raises(DeserializationError):

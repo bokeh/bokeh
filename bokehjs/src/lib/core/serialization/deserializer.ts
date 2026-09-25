@@ -43,6 +43,7 @@ export class Deserializer {
 
   protected _decoding: boolean = false
   protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
+  protected readonly _defined_model_ids: Set<ID> = new Set()
   protected readonly _finalizable: Set<HasProps> = new Set()
   protected readonly _new_references: Set<ID> = new Set()
   protected readonly _updated_references: Map<HasProps, Attrs> = new Map()
@@ -117,6 +118,7 @@ export class Deserializer {
     } finally {
       this._decoding = false
       this._buffers.clear()
+      this._defined_model_ids.clear()
       this._finalizable.clear()
       this._new_references.clear()
       this._updated_references.clear()
@@ -391,6 +393,11 @@ export class Deserializer {
       const {$type: _type, $id: _id, ...attributes} = rep
       return attributes
     })() : rep.attributes ?? {}
+
+    if (this._defined_model_ids.has(id)) {
+      this.error(`duplicate model ID '${id}'`)
+    }
+    this._defined_model_ids.add(id)
 
     const ref = this.references.get(id)
     if (ref != null) {
