@@ -132,19 +132,25 @@ export class Deserializer {
         return this._decode_ref({id: obj.$ref})
       } else if ("$value" in obj) {
         const value = this._decode(obj.$value)
-        const transform = obj.transform != null ? this._decode(obj.transform) : undefined
-        const units = obj.units != null ? this._decode(obj.units) : undefined
-        return {value, transform, units} as Value<unknown>
+        return {
+          value,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
       } else if (isString(obj.$field)) {
         const field = obj.$field
-        const transform = obj.transform != null ? this._decode(obj.transform) : undefined
-        const units = obj.units != null ? this._decode(obj.units) : undefined
-        return {field, transform, units} as Field
+        return {
+          field,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
       } else if ("$expr" in obj) {
         const expr = this._decode(obj.$expr)
-        const transform = obj.transform != null ? this._decode(obj.transform) : undefined
-        const units = obj.units != null ? this._decode(obj.units) : undefined
-        return {expr, transform, units} as Expr<unknown>
+        return {
+          expr,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
       } else if (isString(obj.$type)) {
         if (isString(obj.$id)) {
           return this._decode_object_ref(obj as ObjectRefRep)
