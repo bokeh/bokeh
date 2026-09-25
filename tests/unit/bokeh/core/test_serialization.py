@@ -55,6 +55,7 @@ from bokeh.core.serialization import (
     ObjectRefRep,
     ObjectRep,
     Ref,
+    Serializable,
     SerializationError,
     Serializer,
     SetRep,
@@ -584,7 +585,7 @@ class TestSerializer:
 
     def test_ndarray_str(self) -> None:
         encoder = Serializer()
-        val = np.array(["a", "bb", "ccc"])
+        val = np.array(["a", "bb", "ccc"], dtype="U")
         rep = encoder.encode(val)
 
         assert len(encoder.buffers) == 0
@@ -594,6 +595,95 @@ class TestSerializer:
             array=["a", "bb", "ccc"],
             order=sys.byteorder,
             shape=[3],
+            dtype="object",
+        )
+
+    @pytest.mark.parametrize(
+        "val, expected, shape",
+        [
+            (np.array([], dtype=object), [], [0]),
+            (np.array(["a"], dtype=object), ["a"], [1]),
+            (np.array([["a", "b"], ["c", "d"]], dtype=object), ["a", "b", "c", "d"], [2, 2]),
+            (np.array([["a", "b", "c"], ["d", "e", "f"]], dtype=object)[:, ::2], ["a", "c", "d", "f"], [2, 2]),
+        ],
+    )
+    def test_ndarray_object_strings(self, val: np.ndarray, expected: list[str], shape: list[int]) -> None:
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=expected,
+            order=sys.byteorder,
+            shape=shape,
+            dtype="object",
+        )
+        assert encoder.buffers == []
+
+    @pytest.mark.parametrize(
+        "val, expected",
+        [
+            (np.array([None, "a", "b"], dtype=object), [None, "a", "b"]),
+            (np.array(["a", 42, "b"], dtype=object), ["a", 42, "b"]),
+            (np.array(["a", "b", np.nan], dtype=object), ["a", "b", NumberRep(type="number", value="nan")]),
+        ],
+    )
+    def test_ndarray_mixed_objects(self, val: np.ndarray, expected: list[Any]) -> None:
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=expected,
+            order=sys.byteorder,
+            shape=[3],
+            dtype="object",
+        )
+        assert encoder.buffers == []
+
+    def test_ndarray_masked_unicode(self) -> None:
+        encoder = Serializer()
+        val = np.ma.array(["a", "b"], dtype="U1", mask=[False, True])
+        rep = encoder.encode(val)
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["a", None],
+            order=sys.byteorder,
+            shape=[2],
+            dtype="object",
+        )
+
+    def test_ndarray_object_string_subclass_registered(self) -> None:
+        class Tagged(str):
+            pass
+
+        Serializer.register(Tagged, lambda value, serializer: f"encoded:{value}")
+
+        encoder = Serializer()
+        rep = encoder.encode(np.array([Tagged("a")], dtype=object))
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["encoded:a"],
+            order=sys.byteorder,
+            shape=[1],
+            dtype="object",
+        )
+
+    def test_ndarray_object_string_subclass_serializable(self) -> None:
+        class Tagged(str, Serializable):
+            def to_serializable(self, serializer: Serializer) -> str:
+                return f"serialized:{self}"
+
+        encoder = Serializer()
+        rep = encoder.encode(np.array([Tagged("a")], dtype=object))
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["serialized:a"],
+            order=sys.byteorder,
+            shape=[1],
             dtype="object",
         )
 

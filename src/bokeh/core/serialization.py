@@ -246,16 +246,18 @@ class Serializer:
         if ref is not None:
             return ref
 
+        if not self._check_circular:
+            return self._encode(obj)
+
         ident = id(obj)
-        if self._check_circular and ident in self._circular:
+        if ident in self._circular:
             self.error("circular reference")
 
         self._circular[ident] = obj
         try:
             return self._encode(obj)
         finally:
-            if ident in self._circular:
-                del self._circular[ident]
+            self._circular.pop(ident, None)
 
     def encode_struct(self, **fields: Any) -> dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
@@ -432,11 +434,11 @@ class Serializer:
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        if array.dtype.kind == 'U':
-            data = obj.flatten().tolist()
+        if array.dtype.kind == "U" and not isinstance(obj, np.ma.MaskedArray):
+            data = array.ravel().tolist()
             dtype = "object"
         elif array_encoding_disabled(array):
-            data = self._encode_list(array.flatten().tolist())
+            data = self._encode_list(array.ravel().tolist())
             dtype = "object"
         else:
             data = self._encode_bytes(array.data)
