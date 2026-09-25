@@ -542,12 +542,14 @@ class Deserializer:
 
     _decoding: bool
     _buffers: dict[ID, Buffer]
+    _defined_model_ids: set[ID]
 
     def __init__(self, references: Sequence[Model] | None = None, *, setter: Setter | None = None):
         self._references = {obj.id: obj for obj in references or []}
         self._setter = setter
         self._decoding = False
         self._buffers = {}
+        self._defined_model_ids = set()
 
     def has_ref(self, obj: Model) -> bool:
         return obj.id in self._references
@@ -582,6 +584,7 @@ class Deserializer:
             return self._decode(obj)
         finally:
             self._buffers.clear()
+            self._defined_model_ids.clear()
             self._decoding = False
 
     def _reserve_model_ids(self, obj: AnyRep) -> None:
@@ -785,6 +788,10 @@ class Deserializer:
 
     def _decode_object_ref(self, obj: ObjectRefRep) -> Model:
         id = cast(ID, obj["$id"] if "$id" in obj else obj["id"])
+        if id in self._defined_model_ids:
+            self.error(f"duplicate model ID '{id}'")
+        self._defined_model_ids.add(id)
+
         instance = self._references.get(id)
         if instance is not None:
             from ..util.warnings import BokehUserWarning, warn
