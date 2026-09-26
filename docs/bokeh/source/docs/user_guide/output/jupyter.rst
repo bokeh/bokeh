@@ -29,9 +29,8 @@ Classic notebooks
 '''''''''''''''''
 
 To display Bokeh plots inline in a classic Jupyter notebook, use the
-|output_notebook| function from |bokeh.io| instead of (or in addition to)
-the |output_file| function. No other modifications are required. When you
-call |show|, the plot will display inline in the next notebook output cell.
+|output_notebook| function from |bokeh.io|. When you call |show| without a
+filename, the plot will display inline in the next notebook output cell.
 See a screenshot of Jupyter below:
 
 .. image:: /_images/notebook_inline.png

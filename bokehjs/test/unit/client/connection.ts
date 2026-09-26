@@ -99,6 +99,24 @@ describe("ClientSession", () => {
     expect((connection as any)._pending_replies.size).to.be.equal(0)
   })
 
+  it("should reject a pre-aborted connection without opening a WebSocket", async () => {
+    const controller = new AbortController()
+    const reason = new Error("cancelled before connecting")
+    controller.abort(reason)
+
+    const error = await pull_session(url, token(), undefined, controller.signal).then(
+      () => null, (error: unknown) => error,
+    )
+
+    expect(error).to.be.equal(reason)
+  })
+
+  it("should close safely before a session is established", () => {
+    const connection = new ClientConnection(url, token())
+    connection.close()
+    expect(connection.closed_permanently).to.be.true
+  })
+
   it("should not redispatch a completed message after malformed framing", () => {
     const connection = new ClientConnection(url, token())
     const received: Message<unknown>[] = []

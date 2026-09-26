@@ -55,14 +55,6 @@ bokeh.io.showing
 .. automodule:: bokeh.io.showing
     :members:
 
-.. _bokeh.io.state:
-
-bokeh.io.state
---------------
-
-.. automodule:: bokeh.io.state
-    :members:
-
 .. _bokeh.io.util:
 
 bokeh.io.util
