@@ -28,7 +28,7 @@ from ..settings import settings
 from ..themes import Theme, ThemeLike
 from .artifact import ArtifactRoot, EmbedArtifact
 from .resources import ResourceRequirements, requirements_for_objs
-from .util import FromCurdoc, ThemeSource, submodel_has_python_callbacks
+from .util import _ThemePolicy, _ThemeSource, submodel_has_python_callbacks
 
 log = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class EmbedSpec:
     models: tuple[Model, ...]
     keys: tuple[str, ...]
     input_shape: Literal["single", "sequence", "mapping", "document"]
-    theme: ThemeSource = None
+    theme: _ThemeSource = None
     callback_policy: CallbackPolicy = "warn"
     metadata: Mapping[str, Any] | None = None
     serialization: SerializationPolicy = "static"
@@ -79,7 +79,7 @@ class EmbedSpec:
             raise EmbedCompileError("serialization must be 'static' or 'protocol'")
 
 
-def embed(models: EmbedInput, *, theme: ThemeSource = None, callback_policy: CallbackPolicy = "warn",
+def embed(models: EmbedInput, *, theme: _ThemeSource = None, callback_policy: CallbackPolicy = "warn",
         metadata: Mapping[str, Any] | None = None) -> EmbedArtifact:
     """Compile standalone Bokeh content into one portable embedding artifact.
 
@@ -93,7 +93,7 @@ def embed(models: EmbedInput, *, theme: ThemeSource = None, callback_policy: Cal
     return compile_embed(spec)
 
 
-def embed_protocol(models: EmbedInput, *, theme: ThemeSource = None,
+def embed_protocol(models: EmbedInput, *, theme: _ThemeSource = None,
         callback_policy: CallbackPolicy = "warn", metadata: Mapping[str, Any] | None = None) -> EmbedArtifact:
     """Compile an ID-full artifact for a live protocol boundary.
 
@@ -199,7 +199,7 @@ def embed_server(url: str = "default", *, session_id: str | None = None,
     )
 
 
-def _standalone_spec(models: EmbedInput, *, theme: ThemeSource, callback_policy: CallbackPolicy,
+def _standalone_spec(models: EmbedInput, *, theme: _ThemeSource, callback_policy: CallbackPolicy,
         metadata: Mapping[str, Any] | None,
         serialization: SerializationPolicy = "static") -> EmbedSpec:
     roots: list[Model] = []
@@ -264,7 +264,7 @@ def _complete_source_document(models: Sequence[Model]) -> Document | None:
 
 
 @contextmanager
-def _compiler_document(models: Sequence[Model], theme: ThemeSource) -> Iterator[Document]:
+def _compiler_document(models: Sequence[Model], theme: _ThemeSource) -> Iterator[Document]:
     """Stage roots in an ephemeral document without changing their ownership."""
     source = _complete_source_document(models)
     document = Document(title=source.title if source is not None else DEFAULT_TITLE)
@@ -280,16 +280,7 @@ def _compiler_document(models: Sequence[Model], theme: ThemeSource) -> Iterator[
         (event, list(event_callbacks)) for event, event_callbacks in callbacks.items()
     )
 
-    compiler_theme: ThemeLike = None
-    if theme is FromCurdoc:
-        from ..io import curdoc
-        compiler_theme = curdoc().theme
-    elif isinstance(theme, Theme):
-        compiler_theme = theme
-    elif isinstance(theme, str):
-        compiler_theme = cast(ThemeLike, theme)
-    elif source is not None:
-        compiler_theme = source.theme
+    compiler_theme = _resolve_theme(theme, source)
 
     staged = collect_models(document.config, models, document.callbacks.js_event_callbacks)
     previous = [(model, model._temp_document, model.themed_values()) for model in staged]
@@ -307,6 +298,24 @@ def _compiler_document(models: Sequence[Model], theme: ThemeSource) -> Iterator[
         for model, previous_document, previous_theme in previous:
             model.apply_theme(previous_theme or {})
             model._temp_document = previous_document
+
+
+def _resolve_theme(theme: _ThemeSource, source: Document | None) -> ThemeLike:
+    if theme is _ThemePolicy.SOURCE_OR_CURDOC:
+        if source is not None:
+            return source.theme
+        theme = _ThemePolicy.CURDOC
+
+    if theme is _ThemePolicy.CURDOC:
+        from ..io import curdoc
+        return curdoc().theme
+    if isinstance(theme, Theme):
+        return theme
+    if isinstance(theme, str):
+        return cast(ThemeLike, theme)
+    if source is not None:
+        return source.theme
+    return None
 
 
 __all__ = (
