@@ -36,7 +36,7 @@ from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model
 from ..resources import Resources
-from .util import ThemeSource
+from .util import _ThemeSource
 
 if TYPE_CHECKING:
     from jinja2 import Template
@@ -67,7 +67,7 @@ def autoload_static(model: Model | Document, resources: Resources | str, script_
     )
 
 def components(models: Model | Document | Sequence[Model | Document] | dict[str, Model | Document],
-        *, theme: ThemeSource = None) -> tuple[str, Any]:
+        *, theme: _ThemeSource = None) -> tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -160,7 +160,7 @@ def file_html(
     *,
     template: Template | str = FILE,
     template_variables: dict[str, Any] | None = None,
-    theme: ThemeSource = None,
+    theme: _ThemeSource = None,
     suppress_callback_warning: bool = False,
 ) -> str:
     ''' Return an HTML document that embeds Bokeh Model or Document objects.

@@ -38,8 +38,10 @@ from bokeh.embed import (
     server_session,
 )
 from bokeh.embed.resources import ExtensionRequirement, ResourceRequirements
+from bokeh.embed.util import _ThemePolicy
 from bokeh.events import DocumentReady
 from bokeh.io import save
+from bokeh.io.doc import patch_curdoc
 from bokeh.model import Model
 from bokeh.models import Button, CustomJS, DataTable
 from bokeh.plotting import figure
@@ -346,6 +348,43 @@ def test_compiler_staging_applies_explicit_theme_and_restores_model() -> None:
     assert decoded.roots[0].button_type == "danger"
     assert button.button_type == "default"
     assert button.themed_values() is previous_theme
+
+
+def test_compiler_source_or_curdoc_theme_falls_back_for_detached_models() -> None:
+    current = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "danger"}}}))
+
+    with patch_curdoc(current):
+        artifact = embed(Button(label="themed"), theme=_ThemePolicy.SOURCE_OR_CURDOC)
+
+    decoded = Document.from_json(artifact.source["documents"][0])
+    assert decoded.roots[0].button_type == "danger"
+
+
+def test_compiler_source_or_curdoc_theme_prefers_complete_source_document() -> None:
+    current = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "danger"}}}))
+    source = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "success"}}}))
+    button = Button(label="themed")
+    source.add_root(button)
+
+    with patch_curdoc(current):
+        artifact = embed(button, theme=_ThemePolicy.SOURCE_OR_CURDOC)
+
+    decoded = Document.from_json(artifact.source["documents"][0])
+    assert decoded.roots[0].button_type == "success"
+
+
+def test_compiler_source_or_curdoc_theme_falls_back_for_partial_source_document() -> None:
+    current = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "danger"}}}))
+    source = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "success"}}}))
+    button = Button(label="themed")
+    source.add_root(button)
+    source.add_root(Button(label="other"))
+
+    with patch_curdoc(current):
+        artifact = embed(button, theme=_ThemePolicy.SOURCE_OR_CURDOC)
+
+    decoded = Document.from_json(artifact.source["documents"][0])
+    assert decoded.roots[0].button_type == "danger"
 
 
 def test_compiler_staging_restores_ownership_after_serialization_failure(

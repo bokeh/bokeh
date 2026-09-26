@@ -29,12 +29,13 @@ from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import FILE
+from ..embed.util import _ThemePolicy
 from ..resources import Resources
 from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
-    from ..embed.util import ThemeSource
+    from ..embed.util import _ThemeSource
     from .showing import Showable
 
 #-----------------------------------------------------------------------------
@@ -56,7 +57,9 @@ def save(obj: Showable, filename: PathLike | None = None, resources: Resources |
     ''' Save an HTML file with the data for the current document.
 
     If the filename is not given, it is derived from the script name (e.g.
-    ``/foo/myplot.py`` will create ``/foo/myplot.html``).
+    ``/foo/myplot.py`` will create ``/foo/myplot.html``). A complete source
+    document supplies its own theme; otherwise the current document's theme
+    is used.
 
     Args:
         obj (UIElement or DOMNode object) : a Layout (Row/Column), Plot or Widget object to display
@@ -103,7 +106,8 @@ def _get_save_args(filename: PathLike | None, resources: Resources | str | None,
     )
 
 def _save_helper(obj: Showable, filename: PathLike, resources: Resources | str | None,
-        title: str | None, template: Template | str | None, theme: ThemeSource | None = None) -> None:
+        title: str | None, template: Template | str | None,
+        theme: _ThemeSource = _ThemePolicy.SOURCE_OR_CURDOC) -> None:
     '''
 
     '''
