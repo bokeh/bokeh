@@ -23,7 +23,7 @@ import sys
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
-from bokeh.embed.util import _ThemePolicy
+from bokeh.embed._util import ThemePolicy
 from bokeh.models import Plot
 
 # Module under test
@@ -147,7 +147,7 @@ def test_get_layout_html_uses_source_or_curdoc_theme_by_default() -> None:
     with patch("bokeh.io.util.file_html", return_value="<html></html>") as mock_file_html:
         assert biu.get_layout_html(plot) == "<html></html>"
 
-    assert mock_file_html.call_args.kwargs["theme"] is _ThemePolicy.SOURCE_OR_CURDOC
+    assert mock_file_html.call_args.kwargs["theme"] is ThemePolicy.SOURCE_OR_CURDOC
 
 #-----------------------------------------------------------------------------
 # Code

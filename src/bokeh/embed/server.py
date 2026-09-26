@@ -105,7 +105,7 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
     '''
     if resources not in ("default", None):
         raise ValueError("resources must be 'default' or None")
-    from .compiler import embed_server
+    from ._util import embed_server
 
     artifact = embed_server(
         url,
@@ -198,7 +198,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
 
     if resources not in ("default", None):
         raise ValueError("resources must be 'default' or None")
-    from .compiler import embed_server
+    from ._util import embed_server
 
     selected = None if model is None else {model.name or "root": model}
     artifact = embed_server(
@@ -239,7 +239,7 @@ def server_html_page_for_session(session: ServerSession, resources: Resources, t
         str
 
     '''
-    from .compiler import embed_server
+    from ._util import embed_server
 
     roots: dict[str, Model] = {}
     for index, root in enumerate(session.document.roots):

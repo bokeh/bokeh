@@ -27,7 +27,7 @@ from bokeh.embed import (
     ArtifactRoot,
     ArtifactValidationError,
     EmbedArtifact,
-    EmbedCompileError,
+    EmbedBuildError,
     EmbedSpec,
     ResourceAssetRequirement,
     components,
@@ -37,8 +37,8 @@ from bokeh.embed import (
     server_document,
     server_session,
 )
+from bokeh.embed._util import ThemePolicy
 from bokeh.embed.resources import ExtensionRequirement, ResourceRequirements
-from bokeh.embed.util import _ThemePolicy
 from bokeh.events import DocumentReady
 from bokeh.io import save
 from bokeh.io.doc import patch_curdoc
@@ -93,7 +93,7 @@ def _equivalent_graph(prefix: str) -> Document:
     return document
 
 
-def test_compiler_uses_structural_roots_and_graph_minimal_serialization() -> None:
+def test_builder_uses_structural_roots_and_graph_minimal_serialization() -> None:
     artifact = embed({"primary": CustomJS(code="primary"), "secondary": CustomJS(code="secondary")})
 
     assert [root.to_dict() for root in artifact.roots] == [
@@ -103,7 +103,7 @@ def test_compiler_uses_structural_roots_and_graph_minimal_serialization() -> Non
     roots = artifact.source["documents"][0]["roots"]
     assert "$id" not in roots[0]
     assert "$id" not in roots[1]
-    assert artifact.metadata["compiler"]["static_model_ids"] == "graph-minimal"
+    assert artifact.metadata["embedding"]["static_model_ids"] == "graph-minimal"
 
 
 def test_fingerprint_normalizes_allocation_dependent_retained_model_ids() -> None:
@@ -303,7 +303,7 @@ def test_named_inputs_preserve_order_and_restore_document_title() -> None:
     assert document.title == "Original"
 
 
-def test_compiler_staging_does_not_change_model_document_ownership() -> None:
+def test_builder_staging_does_not_change_model_document_ownership() -> None:
     unattached = CustomJS(code="unattached")
     first = CustomJS(code="first")
     second = CustomJS(code="second")
@@ -319,7 +319,7 @@ def test_compiler_staging_does_not_change_model_document_ownership() -> None:
     assert second.document is second_document
 
 
-def test_compiler_staging_preserves_complete_document_context() -> None:
+def test_builder_staging_preserves_complete_document_context() -> None:
     theme = Theme(json={"attrs": {"Button": {"button_type": "danger"}}})
     document = Document(title="Original", theme=theme)
     document.config.color_scheme = "dark"
@@ -337,7 +337,7 @@ def test_compiler_staging_preserves_complete_document_context() -> None:
     assert document.theme is theme
 
 
-def test_compiler_staging_applies_explicit_theme_and_restores_model() -> None:
+def test_builder_staging_applies_explicit_theme_and_restores_model() -> None:
     button = Button(label="themed")
     previous_theme = button.themed_values()
     theme = Theme(json={"attrs": {"Button": {"button_type": "danger"}}})
@@ -350,30 +350,30 @@ def test_compiler_staging_applies_explicit_theme_and_restores_model() -> None:
     assert button.themed_values() is previous_theme
 
 
-def test_compiler_source_or_curdoc_theme_falls_back_for_detached_models() -> None:
+def test_builder_source_or_curdoc_theme_falls_back_for_detached_models() -> None:
     current = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "danger"}}}))
 
     with patch_curdoc(current):
-        artifact = embed(Button(label="themed"), theme=_ThemePolicy.SOURCE_OR_CURDOC)
+        artifact = embed(Button(label="themed"), theme=ThemePolicy.SOURCE_OR_CURDOC)
 
     decoded = Document.from_json(artifact.source["documents"][0])
     assert decoded.roots[0].button_type == "danger"
 
 
-def test_compiler_source_or_curdoc_theme_prefers_complete_source_document() -> None:
+def test_builder_source_or_curdoc_theme_prefers_complete_source_document() -> None:
     current = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "danger"}}}))
     source = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "success"}}}))
     button = Button(label="themed")
     source.add_root(button)
 
     with patch_curdoc(current):
-        artifact = embed(button, theme=_ThemePolicy.SOURCE_OR_CURDOC)
+        artifact = embed(button, theme=ThemePolicy.SOURCE_OR_CURDOC)
 
     decoded = Document.from_json(artifact.source["documents"][0])
     assert decoded.roots[0].button_type == "success"
 
 
-def test_compiler_source_or_curdoc_theme_falls_back_for_partial_source_document() -> None:
+def test_builder_source_or_curdoc_theme_falls_back_for_partial_source_document() -> None:
     current = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "danger"}}}))
     source = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "success"}}}))
     button = Button(label="themed")
@@ -381,13 +381,13 @@ def test_compiler_source_or_curdoc_theme_falls_back_for_partial_source_document(
     source.add_root(Button(label="other"))
 
     with patch_curdoc(current):
-        artifact = embed(button, theme=_ThemePolicy.SOURCE_OR_CURDOC)
+        artifact = embed(button, theme=ThemePolicy.SOURCE_OR_CURDOC)
 
     decoded = Document.from_json(artifact.source["documents"][0])
     assert decoded.roots[0].button_type == "danger"
 
 
-def test_compiler_staging_restores_ownership_after_serialization_failure(
+def test_builder_staging_restores_ownership_after_serialization_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     model = CustomJS(code="failure")
@@ -405,21 +405,21 @@ def test_compiler_staging_restores_ownership_after_serialization_failure(
     assert model.document is document
 
 
-def test_compiler_rejects_empty_duplicate_and_python_callback_inputs() -> None:
-    with pytest.raises(EmbedCompileError, match="no root"):
+def test_builder_rejects_empty_duplicate_and_python_callback_inputs() -> None:
+    with pytest.raises(EmbedBuildError, match="no root"):
         embed(Document())
 
     model = CustomJS(code="root")
-    with pytest.raises(EmbedCompileError, match="more than one"):
+    with pytest.raises(EmbedBuildError, match="more than one"):
         embed([model, model])
 
     plot = _plot()
     plot.on_change("visible", lambda attr, old, new: None)
-    with pytest.raises(EmbedCompileError, match="Python callbacks"):
+    with pytest.raises(EmbedBuildError, match="Python callbacks"):
         embed(plot, callback_policy="error")
 
 
-def test_compiler_warns_for_python_callbacks(caplog: pytest.LogCaptureFixture) -> None:
+def test_builder_warns_for_python_callbacks(caplog: pytest.LogCaptureFixture) -> None:
     plot = _plot()
     plot.on_change("visible", lambda attr, old, new: None)
 
@@ -430,41 +430,41 @@ def test_compiler_warns_for_python_callbacks(caplog: pytest.LogCaptureFixture) -
 
 def test_embed_spec_rejects_inconsistent_public_inputs() -> None:
     model = CustomJS(code="root")
-    with pytest.raises(EmbedCompileError, match="equal lengths"):
+    with pytest.raises(EmbedBuildError, match="equal lengths"):
         EmbedSpec((model,), (), "single")
-    with pytest.raises(EmbedCompileError, match="keys must be unique"):
+    with pytest.raises(EmbedBuildError, match="keys must be unique"):
         EmbedSpec((model, CustomJS(code="other")), ("root", "root"), "sequence")
-    with pytest.raises(EmbedCompileError, match="serialization must be"):
+    with pytest.raises(EmbedBuildError, match="serialization must be"):
         EmbedSpec((model,), ("root",), "single", serialization="typo")  # type: ignore[arg-type]
 
-    with pytest.raises(EmbedCompileError, match="at least one model"):
+    with pytest.raises(EmbedBuildError, match="at least one model"):
         EmbedSpec((), (), "single")
-    with pytest.raises(EmbedCompileError, match="Model instances"):
+    with pytest.raises(EmbedBuildError, match="Model instances"):
         EmbedSpec((object(),), ("root",), "single")  # type: ignore[arg-type]
-    with pytest.raises(EmbedCompileError, match="non-empty strings"):
+    with pytest.raises(EmbedBuildError, match="non-empty strings"):
         EmbedSpec((model,), ("",), "single")
-    with pytest.raises(EmbedCompileError, match="input_shape"):
+    with pytest.raises(EmbedBuildError, match="input_shape"):
         EmbedSpec((model,), ("root",), "invalid")  # type: ignore[arg-type]
-    with pytest.raises(EmbedCompileError, match="callback_policy"):
+    with pytest.raises(EmbedBuildError, match="callback_policy"):
         EmbedSpec((model,), ("root",), "single", callback_policy="invalid")  # type: ignore[arg-type]
 
 
-def test_compiler_rejects_invalid_standalone_and_server_inputs() -> None:
-    with pytest.raises(EmbedCompileError, match="expects a Model"):
+def test_builder_rejects_invalid_standalone_and_server_inputs() -> None:
+    with pytest.raises(EmbedBuildError, match="expects a Model"):
         embed(object())  # type: ignore[arg-type]
-    with pytest.raises(EmbedCompileError, match="mapping keys"):
+    with pytest.raises(EmbedBuildError, match="mapping keys"):
         embed({"": CustomJS(code="root")})
-    with pytest.raises(EmbedCompileError, match="WebSocket URL"):
+    with pytest.raises(EmbedBuildError, match="WebSocket URL"):
         embed_server("ws://example.test/app")
-    with pytest.raises(EmbedCompileError, match="application URL is required"):
+    with pytest.raises(EmbedBuildError, match="application URL is required"):
         embed_server("/")
-    with pytest.raises(EmbedCompileError, match="root keys"):
+    with pytest.raises(EmbedBuildError, match="root keys"):
         embed_server(roots={"": "model-id"})
-    with pytest.raises(EmbedCompileError, match="non-empty ID"):
+    with pytest.raises(EmbedBuildError, match="non-empty ID"):
         embed_server(roots={"root": ""})
 
 
-def test_compiler_flattens_documents_in_sequences_and_accepts_named_themes() -> None:
+def test_builder_flattens_documents_in_sequences_and_accepts_named_themes() -> None:
     document = Document()
     document.add_root(CustomJS(code="first"))
     document.add_root(CustomJS(code="second"))
@@ -484,7 +484,7 @@ def test_resource_requirements_are_exact_for_representative_models() -> None:
     assert "bokeh/webgl" in embed(webgl).requires.components
 
 
-def test_compiler_captures_inline_custom_model_bundle(
+def test_builder_captures_inline_custom_model_bundle(
     monkeypatch: pytest.MonkeyPatch, cleanup_extensions: None,
 ) -> None:
     class InlineCustomJS(CustomJS):
@@ -501,7 +501,7 @@ def test_compiler_captures_inline_custom_model_bundle(
         components(InlineCustomJS(code="return value"))
 
 
-def test_compiler_adapts_external_and_legacy_package_assets(
+def test_builder_adapts_external_and_legacy_package_assets(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cleanup_extensions: None,
 ) -> None:
     class ExternalCustomJS(CustomJS):
@@ -747,7 +747,7 @@ def test_server_artifact_is_deterministic_structured_and_selective() -> None:
     assert artifact.requires == ResourceRequirements.dynamic_server()
     assert len(artifact.fragment(resources="none").mounts) == 1
 
-    with pytest.raises(EmbedCompileError, match="mutually exclusive"):
+    with pytest.raises(EmbedBuildError, match="mutually exclusive"):
         embed_server("https://example.test/app", headers={"X": "1"}, with_credentials=True)
 
 

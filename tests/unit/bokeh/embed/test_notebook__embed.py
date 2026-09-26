@@ -23,9 +23,9 @@ def test_live_notebook_content_uses_protocol_full_ids() -> None:
     plot = figure(width=300, height=200)
     artifact, _ = notebook_content(plot, live=True)
 
-    compiler = artifact.metadata["compiler"]
-    assert compiler["model_ids"] == "protocol-full"
-    assert compiler["static_model_ids"] == "protocol-full"
+    embedding = artifact.metadata["embedding"]
+    assert embedding["model_ids"] == "protocol-full"
+    assert embedding["static_model_ids"] == "protocol-full"
     assert artifact.roots[0].key == "root"
     assert artifact.source["documents"][0]["roots"][0]["id"] == plot.id
 

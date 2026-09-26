@@ -104,7 +104,7 @@ class ArtifactRoot:
 
 @dataclass(frozen=True)
 class EmbedArtifact:
-    '''Immutable, versioned output of the embedding compiler.
+    '''Immutable, versioned output of the embedding builder.
 
     ``source`` contains standalone document data or a server descriptor;
     ``roots`` supplies logical addresses; ``requires`` declares runtime assets

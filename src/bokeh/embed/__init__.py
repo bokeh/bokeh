@@ -22,13 +22,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .artifact import ArtifactRoot, ArtifactValidationError, EmbedArtifact
-from .compiler import (
-    EmbedCompileError,
+from ._util import (
+    EmbedBuildError,
     EmbedSpec,
     embed,
     embed_server,
 )
+from .artifact import ArtifactRoot, ArtifactValidationError, EmbedArtifact
 from .renderers import ArtifactFragment, ArtifactMount, ExternalArtifact
 from .resources import (
     ExtensionRequirement,
@@ -53,7 +53,7 @@ __all__ = (
     'ArtifactRoot',
     'ArtifactValidationError',
     'EmbedArtifact',
-    'EmbedCompileError',
+    'EmbedBuildError',
     'EmbedMigrationError',
     'EmbedSpec',
     'ExtensionRequirement',
