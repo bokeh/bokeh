@@ -1,0 +1,29 @@
+{
+  "schema": "bokeh.embed.minimal-id-fixtures/v1",
+  "cases": [
+    {
+      "name": "keyed-static-graph",
+      "roots": [{"key": "primary", "index": 0}, {"key": "secondary", "index": 1}],
+      "document": {
+        "version": "__VERSION__",
+        "title": "Bokeh Application",
+        "config": {"$type": "DocumentConfig", "notifications": {"$type": "Notifications"}},
+        "roots": [
+          {
+            "$type": "CustomJS",
+            "name": "semantic-primary",
+            "args": {"type": "map", "entries": [
+              ["anonymous", {"$type": "CustomJS", "code": "anonymous"}],
+              ["shared", {"$type": "CustomJS", "$id": "shared-callback", "code": "shared"}],
+              ["cycle", {"$type": "CustomJS", "$id": "cycle-a", "args": {"type": "map", "entries": [
+                ["other", {"$type": "CustomJS", "$id": "cycle-b", "args": {"type": "map", "entries": [["other", {"$ref": "cycle-a"}]]}, "code": "cycle-b"}]
+              ]}, "code": "cycle-a"}]
+            ]},
+            "code": "primary"
+          },
+          {"$type": "CustomJS", "args": {"type": "map", "entries": [["shared", {"$ref": "shared-callback"}]]}, "code": "secondary"}
+        ]
+      }
+    }
+  ]
+}

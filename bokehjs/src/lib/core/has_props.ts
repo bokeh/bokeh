@@ -13,7 +13,7 @@ import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
 import {keys, values, entries, extend, is_empty, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
-import type {Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
+import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
 import type {Document} from "../document/document"
 import type {DocumentEvent} from "../document/events"
@@ -58,6 +58,11 @@ type ConstructionContext = {
 }
 
 const construction_stack: ConstructionContext[] = []
+
+type ReferenceCollector = {
+  add(ref: HasProps): void
+  has(ref: HasProps): boolean
+}
 
 export namespace HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -374,21 +379,43 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
-  [serialize](serializer: Serializer): ObjectRefRep {
-    const ref = this.ref()
-    serializer.add_ref(this, ref)
+  [serialize](serializer: Serializer): ObjectRep | ObjectRefRep {
+    const use_id = serializer.use_model_id(this)
+    if (use_id) {
+      serializer.add_ref(this, serializer.model_ref(this.ref()))
+    }
 
     const attributes: {[key: string]: AnyVal} = {}
     for (const prop of this) {
-      if (prop.syncable && (serializer.include_defaults || prop.dirty) && !(prop.readonly && prop.is_unset)) {
+      const has_retained_ref = (() => {
+        if (!serializer.compact || !prop.may_have_refs || prop.is_unset) {
+          return false
+        }
+        let retained = false
+        const collector = {
+          add(ref: HasProps): void {
+            retained ||= serializer.use_model_id(ref)
+          },
+
+          has(_ref: HasProps): boolean {
+            return false
+          },
+        }
+        HasProps._value_record_references(prop.get_value(), collector, {recursive: false})
+        return retained
+      })()
+      if (prop.syncable && (serializer.include_defaults || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
         attributes[prop.attr] = serializer.encode(value) as AnyVal
       }
     }
 
     const {type: name, id} = this
-    const rep = {type: "object" as const, name, id}
+    if (serializer.compact) {
+      return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
+    }
 
+    const rep = use_id ? {type: "object" as const, name, id} : {type: "object" as const, name}
     return is_empty(attributes) ? rep : {...rep, attributes}
   }
 
@@ -697,7 +724,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(value: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
+  static _value_record_references(value: unknown, refs: ReferenceCollector, options: {recursive: boolean}): void {
     if (!isObject(value) || !may_have_refs(value)) {
       return
     }

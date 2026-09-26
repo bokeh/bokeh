@@ -364,6 +364,17 @@ describe("core/serialization module", () => {
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
     })
 
+    it("rejects duplicate model IDs", () => {
+      const resolver = new ModelResolver(null, [SomeModel])
+      const deserializer = new Deserializer(resolver)
+
+      const rep = [
+        {$type: "SomeModel", $id: "duplicate", value: 1},
+        {$type: "SomeModel", $id: "duplicate", value: 2},
+      ]
+      expect(() => deserializer.decode(rep)).to.throw(DeserializationError, "duplicate model ID 'duplicate'")
+    })
+
     it("restores existing references when a later value fails", () => {
       const resolver = new ModelResolver(null, [SomeModel])
       const model = SomeModel.create({value: 1})

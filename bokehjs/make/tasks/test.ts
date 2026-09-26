@@ -443,6 +443,7 @@ task("test:auto_index:unit", async () => {
   await auto_index("unit")
 })
 export const build_unit = task("test:build:unit", [
+  passthrough("lib:build"),
   passthrough("test:compile:unit"), passthrough("test:auto_index:unit"),
 ], async () => {
   await bundle("unit")
