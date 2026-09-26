@@ -14,7 +14,7 @@ from unittest.mock import MagicMock, patch
 # Bokeh imports
 import bokeh.io.saving as bis
 from bokeh.core.templates import FILE
-from bokeh.embed.util import _ThemePolicy
+from bokeh.embed._util import ThemePolicy
 from bokeh.models import Plot
 from bokeh.resources import Resources
 
@@ -44,7 +44,7 @@ def test_save_helper_writes_artifact_html(mock_file_html: MagicMock, mock_open: 
     bis._save_helper(obj, "plot.html", policy, "Plot", None)
 
     mock_file_html.assert_called_once_with(
-        obj, resources=policy, title="Plot", template=FILE, theme=_ThemePolicy.SOURCE_OR_CURDOC,
+        obj, resources=policy, title="Plot", template=FILE, theme=ThemePolicy.SOURCE_OR_CURDOC,
     )
     mock_open.assert_called_once_with("plot.html", mode="w", encoding="utf-8")
     mock_open.return_value.__enter__.return_value.write.assert_called_once_with("<html></html>")

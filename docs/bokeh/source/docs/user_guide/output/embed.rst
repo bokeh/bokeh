@@ -80,7 +80,7 @@ Requirements and policy answer different questions:
      - Meaning
      - Examples
    * - Requirements
-     - Exact capabilities and extension assets needed by the compiled content.
+     - Exact capabilities and extension assets needed by the built artifact.
      - ``bokeh/core``, ``bokeh/widgets``, ``bokeh/tables``, or a custom extension script.
    * - ``none`` policy
      - Emit no assets; the host promises that every declared requirement is already available.
@@ -105,7 +105,7 @@ The public ``bokeh.embed/v1`` envelope has one standalone document, unique
 logical root keys, and non-negative document/root ordinals that refer into that
 document. Server artifacts use model IDs instead of ordinals. Requirements and
 extension names are unique, while metadata must contain JSON-compatible values;
-the ``compiler`` metadata key is reserved for Bokeh. Python and BokehJS enforce
+the ``embedding`` metadata key is reserved for Bokeh. Python and BokehJS enforce
 the same invariants when reading an artifact.
 
 ``fingerprint`` is a SHA-256 content identity over the canonical artifact data,
@@ -187,7 +187,7 @@ see the |file_html| documentation.
 
 The familiar |file_html| function remains as a thin facade over this artifact
 page renderer. File-backed |save| and |show| routes therefore use the same
-compiler and resource policy.
+artifact builder and resource policy.
 
 This is a low-level, explicit way to generate an HTML file, which can be
 useful for web applications such as Flask apps.

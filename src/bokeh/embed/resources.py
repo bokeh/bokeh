@@ -40,7 +40,7 @@ from ..resources import (
 from ..settings import settings
 from ..util.compiler import bundle_models
 from ._json import canonical_json
-from .util import contains_tex_string
+from ._util import contains_tex_string
 
 #-----------------------------------------------------------------------------
 # General API

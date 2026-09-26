@@ -39,7 +39,7 @@ def test_plot():
 
 
 class TestServerDocument:
-    def test_compiles_structured_server_source(self) -> None:
+    def test_builds_structured_server_source(self) -> None:
         artifact = artifact_from_fragment(bes.server_document(
             "http://localhost:8081/foo/bar/sliders",
             arguments={"b": "2", "a": "1"},

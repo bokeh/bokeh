@@ -32,7 +32,7 @@ ALL = (
     'ArtifactRoot',
     'ArtifactValidationError',
     'EmbedArtifact',
-    'EmbedCompileError',
+    'EmbedBuildError',
     'EmbedMigrationError',
     'EmbedSpec',
     'ExtensionRequirement',

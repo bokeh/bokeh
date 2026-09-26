@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 # Module under test
-import bokeh.embed.util as beu # isort:skip
+import bokeh.embed._util as beu # isort:skip
 
 def test_is_tex_string() -> None:
     assert beu.is_tex_string("$$test$$") is True
