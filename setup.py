@@ -130,6 +130,40 @@ def check_tags() -> None:
         except Exception:
             print(bright(yellow("!!! Could not check repo tags. Please ensure full tag history")))
 
+def jupyter_data_files() -> list[tuple[str, list[str]]]:
+    ''' Install the prebuilt extension where Jupyter discovers it automatically. '''
+    root = SRC_ROOT / "bokeh" / "jupyter"
+    lab = root / "labextension"
+
+    required = [
+        lab / "package.json",
+        lab / "install.json",
+        root / "jupyter-config" / "jupyter_server_config.d" / "bokeh-jupyter.json",
+    ]
+    missing = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
+    if missing:
+        raise RuntimeError(
+            "The first-party Jupyter extension has not been built; missing: " + ", ".join(missing),
+        )
+
+    def source(path: Path) -> str:
+        return path.relative_to(ROOT).as_posix()
+
+    return [
+        (
+            "share/jupyter/labextensions/@bokeh/bokeh-jupyter",
+            [source(path) for path in (lab / "package.json", lab / "install.json")],
+        ),
+        (
+            "share/jupyter/labextensions/@bokeh/bokeh-jupyter/static",
+            [source(path) for path in sorted((lab / "static").glob("*"))],
+        ),
+        (
+            "etc/jupyter/jupyter_server_config.d",
+            [source(root / "jupyter-config" / "jupyter_server_config.d" / "bokeh-jupyter.json")],
+        ),
+    ]
+
 def die(x: str) -> NoReturn:
     print(f"{x}\n")
     sys.exit(1)
@@ -160,6 +194,9 @@ class Build(build):  # type: ignore
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)
+        built_jupyter = ROOT / "build" / "lib" / "bokeh" / "jupyter"
+        if built_jupyter.exists():
+            rmtree(built_jupyter)
         super().run()
 
 class EditableWheel(editable_wheel):  # type: ignore
@@ -174,4 +211,7 @@ class Sdist(sdist):  # type: ignore
         build_or_install_bokehjs(self.distribution.packages)
         super().run()
 
-setup(cmdclass={"build": Build, "editable_wheel": EditableWheel, "sdist": Sdist})
+setup(
+    cmdclass={"build": Build, "editable_wheel": EditableWheel, "sdist": Sdist},
+    data_files=jupyter_data_files(),
+)

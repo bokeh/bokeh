@@ -10,15 +10,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
+# Bokeh imports
+from tests.support.util.api import verify_all
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-import bokeh.io.notebook as binb
-from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.io as bi # isort:skip
@@ -32,10 +32,10 @@ ALL = (
     'export_png',
     'export_svg',
     'export_svgs',
-    'install_notebook_hook',
-    'push_notebook',
-    'output_notebook',
+    'NotebookApplication',
+    'notebook_info',
     'save',
+    'serve',
     'show',
 )
 
@@ -44,12 +44,6 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bi, ALL)
-
-def test_jupyter_notebook_hook_installed() -> None:
-    assert list(binb._HOOKS) == ["jupyter"]
-    assert binb._HOOKS["jupyter"]['load'] == binb.load_notebook
-    assert binb._HOOKS["jupyter"]['doc']  == binb.show_doc
-    assert binb._HOOKS["jupyter"]['app']  == binb.show_app
 
 #-----------------------------------------------------------------------------
 # Dev API

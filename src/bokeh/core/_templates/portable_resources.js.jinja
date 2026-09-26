@@ -1,0 +1,212 @@
+// Portable BokehJS resource owner for notebook hosts without the MIME extension.
+'use strict';
+(function(root) {
+  const resource_id = {{ resource_id|tojson }};
+  const expected_version = {{ bokeh_version|tojson }};
+  const requirements = {{ requirements|tojson }};
+  const dependencies = {{ dependencies|tojson }};
+  const load_timeout = {{ load_timeout|tojson }};
+  const artifacts = {{ artifacts|tojson }};
+
+  function notify(kind, detail = {}) {
+    root.dispatchEvent(new CustomEvent(`bokeh:resources-${kind}`, {
+      detail: {resource_id, ...detail},
+    }));
+  }
+
+  function owner_for(id) {
+    return [...document.head.querySelectorAll("meta[data-bokeh-notebook-resource]")]
+      .find((element) => element.dataset.bokehNotebookResource === id);
+  }
+
+  function wait_for_resource(id) {
+    const current = owner_for(id);
+    if (current?.dataset.bokehResourceState === "loaded")
+      return Promise.resolve();
+    if (current?.dataset.bokehResourceState === "failed")
+      return Promise.reject(new Error(current.dataset.bokehResourceError ?? `Resource dependency ${id} failed`));
+    return new Promise((resolve, reject) => {
+      let timer;
+      const cleanup = () => {
+        clearTimeout(timer);
+        root.removeEventListener("bokeh:resources-complete", complete);
+        root.removeEventListener("bokeh:resources-error", failed);
+      };
+      const complete = (event) => {
+        if (event.detail?.resource_id !== id)
+          return;
+        cleanup();
+        resolve();
+      };
+      const failed = (event) => {
+        if (event.detail?.resource_id !== id)
+          return;
+        cleanup();
+        reject(new Error(event.detail?.error?.message ?? `Resource dependency ${id} failed`));
+      };
+      root.addEventListener("bokeh:resources-complete", complete);
+      root.addEventListener("bokeh:resources-error", failed);
+      timer = setTimeout(() => {
+        cleanup();
+        reject(new Error(`Resource dependency ${id} was not published within ${load_timeout} ms`));
+      }, load_timeout);
+
+      // Close the small race between the initial state check and listener registration.
+      const latest = owner_for(id);
+      if (latest?.dataset.bokehResourceState === "loaded") {
+        cleanup();
+        resolve();
+      } else if (latest?.dataset.bokehResourceState === "failed") {
+        cleanup();
+        reject(new Error(latest.dataset.bokehResourceError ?? `Resource dependency ${id} failed`));
+      }
+    });
+  }
+
+  function wait_for_core(script) {
+    if (script.dataset.bokehResourceState === "loaded")
+      return Promise.resolve();
+    if (script.dataset.bokehResourceState === "failed")
+      return Promise.reject(new Error(`BokehJS core ${expected_version} failed to load`));
+    return new Promise((resolve, reject) => {
+      const cleanup = () => {
+        script.removeEventListener("load", loaded);
+        script.removeEventListener("error", failed);
+      };
+      const loaded = () => {
+        cleanup();
+        resolve();
+      };
+      const failed = () => {
+        cleanup();
+        reject(new Error(`BokehJS core ${expected_version} failed to load`));
+      };
+      script.addEventListener("load", loaded, {once: true});
+      script.addEventListener("error", failed, {once: true});
+      if (script.dataset.bokehResourceState === "loaded")
+        loaded();
+      else if (script.dataset.bokehResourceState === "failed")
+        failed();
+    });
+  }
+
+  function configure(element, artifact) {
+    if (artifact.integrity != null)
+      element.setAttribute("integrity", artifact.integrity);
+    if (artifact.crossorigin != null)
+      element.setAttribute("crossorigin", artifact.crossorigin);
+    if (artifact.nonce != null)
+      element.nonce = artifact.nonce;
+  }
+
+  async function load_core(artifact) {
+    if (root.Bokeh != null) {
+      if (root.Bokeh.version !== expected_version) {
+        throw new Error(
+          `BokehJS ${root.Bokeh.version ?? "unknown"} is already active; refusing to load incompatible ${expected_version}`,
+        );
+      }
+      return;
+    }
+    if (artifact == null)
+      throw new Error(`BokehJS core ${expected_version} is unavailable`);
+
+    let script = [...document.head.querySelectorAll("script[data-bokeh-core-version]")]
+      .find((element) => element.dataset.bokehCoreVersion === expected_version);
+    if (script != null) {
+      await wait_for_core(script);
+    } else {
+      script = document.createElement("script");
+      script.type = artifact.module === true ? "module" : "text/javascript";
+      script.async = false;
+      script.dataset.bokehCoreVersion = expected_version;
+      script.dataset.bokehResourceState = "loading";
+      configure(script, artifact);
+      if (artifact.source === "url") {
+        script.src = artifact.value;
+        const ready = new Promise((resolve, reject) => {
+          script.onload = () => {
+            script.dataset.bokehResourceState = "loaded";
+            resolve();
+          };
+          script.onerror = (event) => {
+            script.dataset.bokehResourceState = "failed";
+            reject(new Error(`Failed to load ${artifact.value}`, {cause: event}));
+          };
+        });
+        document.head.append(script);
+        await ready;
+      } else {
+        script.textContent = artifact.value;
+        document.head.append(script);
+        script.dataset.bokehResourceState = "loaded";
+      }
+    }
+    if (root.Bokeh?.version !== expected_version)
+      throw new Error(`BokehJS core ${expected_version} loaded, but window.Bokeh reports ${root.Bokeh?.version ?? "unknown"}`);
+  }
+
+  function runtime_asset(artifact) {
+    return {
+      kind: artifact.kind === "js" ? "script" : "style",
+      ...(artifact.source === "url" ? {url: artifact.value} : {content: artifact.value}),
+      ...(artifact.integrity == null ? {} : {integrity: artifact.integrity}),
+      ...(artifact.crossorigin == null ? {} : {crossorigin: artifact.crossorigin}),
+      ...(artifact.nonce == null ? {} : {nonce: artifact.nonce}),
+      ...(artifact.module === true ? {module: true} : {}),
+    };
+  }
+
+  let owner = owner_for(resource_id);
+  if (owner?.dataset.bokehResourceState === "failed") {
+    owner.remove();
+    owner = null;
+  }
+  if (owner != null) {
+    void wait_for_resource(resource_id).then(
+      () => notify("complete", {artifact_ids: artifacts.map((artifact) => artifact.id)}),
+      (error) => notify("error", {error: {name: error.name, message: error.message}}),
+    );
+    return;
+  }
+
+  owner = document.createElement("meta");
+  owner.dataset.bokehNotebookResource = resource_id;
+  owner.dataset.bokehResourceState = "loading";
+  document.head.append(owner);
+
+  const load = async () => {
+    for (const dependency of dependencies)
+      await wait_for_resource(dependency);
+    const core = artifacts.find((artifact) => artifact.core === true);
+    await load_core(core);
+    // The split script-tag core publishes embed resources before the API
+    // bundle promotes mount helpers onto Bokeh. The all-in-one package also
+    // exposes the same loader at the top level.
+    const loader = root.Bokeh?.embed?.resource_loader ?? root.Bokeh?.resource_loader;
+    if (loader?.ensure == null)
+      throw new Error(`BokehJS ${expected_version} does not expose the common resource loader`);
+    const additive = artifacts.filter((artifact) => artifact !== core).map(runtime_asset);
+    await loader.ensure(requirements, {mode: "resolved", assets: additive}, expected_version);
+  };
+
+  let timer;
+  const ready = Promise.race([
+    load(),
+    new Promise((_, reject) => timer = setTimeout(
+      () => reject(new Error(`Resource ${resource_id} did not load within ${load_timeout} ms`)),
+      load_timeout,
+    )),
+  ]);
+  ready.then(() => clearTimeout(timer), () => clearTimeout(timer));
+
+  void ready.then(() => {
+    owner.dataset.bokehResourceState = "loaded";
+    notify("complete", {artifact_ids: artifacts.map((artifact) => artifact.id)});
+  }).catch((error) => {
+    owner.dataset.bokehResourceState = "failed";
+    owner.dataset.bokehResourceError = error instanceof Error ? error.message.slice(0, 300) : String(error).slice(0, 300);
+    notify("error", {error: error instanceof Error ? {name: error.name, message: error.message, stack: error.stack} : String(error)});
+    console.error(`Bokeh: failed to load notebook resources ${resource_id}`, error);
+  });
+})(window);
