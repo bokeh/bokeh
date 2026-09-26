@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""Notebook host adapter for the shared embedding compiler.
+"""Notebook host adapter for shared embedding artifacts.
 
 Notebook output deliberately has no private document envelope or browser
 rendering path. Both static and live initial state are ordinary
@@ -19,9 +19,13 @@ from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
 # Bokeh imports
+from ._util import (
+    ThemePolicy,
+    ThemeSource,
+    embed,
+    embed_protocol,
+)
 from .artifact import EmbedArtifact
-from .compiler import embed, embed_protocol
-from .util import _ThemePolicy, _ThemeSource
 
 if TYPE_CHECKING:
     from ..document import Document
@@ -34,9 +38,9 @@ __all__ = ("notebook_content",)
 type NotebookContent = Model | Document | Sequence[Model | Document] | Mapping[str, Model | Document]
 
 
-def notebook_content(content: NotebookContent, *, theme: _ThemeSource = _ThemePolicy.CURDOC,
+def notebook_content(content: NotebookContent, *, theme: ThemeSource = ThemePolicy.CURDOC,
         live: bool = False) -> tuple[EmbedArtifact, ArtifactFragment]:
-    """Compile notebook content and its host-owned fragment.
+    """Build notebook content and its host-owned fragment.
 
     ``live=True`` retains protocol-visible model IDs so comm patches address
     the same graph; static content uses graph-minimal identifiers. The returned
@@ -49,6 +53,6 @@ def notebook_content(content: NotebookContent, *, theme: _ThemeSource = _ThemePo
     document. Those are host lifecycle responsibilities layered on the same
     artifact and mount contracts used by other embedding consumers.
     """
-    compiler = embed_protocol if live else embed
-    artifact = compiler(content, theme=theme)
+    embed_fn = embed_protocol if live else embed
+    artifact = embed_fn(content, theme=theme)
     return artifact, artifact.fragment(resources="none")

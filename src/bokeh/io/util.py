@@ -38,14 +38,14 @@ from typing import TYPE_CHECKING, Iterator
 
 # Bokeh imports
 from ..embed import file_html
-from ..embed.util import _ThemePolicy
+from ..embed._util import ThemePolicy
 from ..resources import Resources
 
 if TYPE_CHECKING:
     from tempfile import _TemporaryFileWrapper
 
     from ..document import Document
-    from ..embed.util import _ThemeSource
+    from ..embed._util import ThemeSource
     from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
@@ -148,7 +148,7 @@ def tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
 
 def get_layout_html(obj: UIElement | Document, *, resources: Resources | str = "inline",
         width: int | None = None, height: int | None = None,
-        theme: _ThemeSource = _ThemePolicy.SOURCE_OR_CURDOC) -> str:
+        theme: ThemeSource = ThemePolicy.SOURCE_OR_CURDOC) -> str:
     '''
 
     '''

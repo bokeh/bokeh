@@ -36,7 +36,7 @@ from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model
 from ..resources import Resources
-from .util import _ThemeSource
+from ._util import ThemeSource
 
 if TYPE_CHECKING:
     from jinja2 import Template
@@ -67,7 +67,7 @@ def autoload_static(model: Model | Document, resources: Resources | str, script_
     )
 
 def components(models: Model | Document | Sequence[Model | Document] | dict[str, Model | Document],
-        *, theme: _ThemeSource = None) -> tuple[str, Any]:
+        *, theme: ThemeSource = None) -> tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -133,7 +133,7 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
             # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
 
     '''
-    from .compiler import embed
+    from ._util import embed
 
     artifact = embed(models, theme=theme)
     if artifact.requires.extensions:
@@ -143,7 +143,7 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
         )
     fragment = artifact.fragment(resources="none")
     divs = fragment.divs
-    input_shape = artifact.metadata["compiler"]["input_shape"]
+    input_shape = artifact.metadata["embedding"]["input_shape"]
     if input_shape == "single":
         result: Any = next(iter(divs.values()))
     elif input_shape == "mapping":
@@ -160,7 +160,7 @@ def file_html(
     *,
     template: Template | str = FILE,
     template_variables: dict[str, Any] | None = None,
-    theme: _ThemeSource = None,
+    theme: ThemeSource = None,
     suppress_callback_warning: bool = False,
 ) -> str:
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
@@ -206,7 +206,7 @@ def file_html(
         UTF-8 encoded HTML
 
     '''
-    from .compiler import embed
+    from ._util import embed
 
     callback_policy: Literal["suppress", "warn"] = "suppress" if suppress_callback_warning else "warn"
     artifact = embed(models, theme=theme, callback_policy=callback_policy)

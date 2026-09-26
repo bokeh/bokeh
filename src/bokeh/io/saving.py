@@ -29,13 +29,13 @@ from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import FILE
-from ..embed.util import _ThemePolicy
+from ..embed._util import ThemePolicy
 from ..resources import Resources
 from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
-    from ..embed.util import _ThemeSource
+    from ..embed._util import ThemeSource
     from .showing import Showable
 
 #-----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ def _get_save_args(filename: PathLike | None, resources: Resources | str | None,
 
 def _save_helper(obj: Showable, filename: PathLike, resources: Resources | str | None,
         title: str | None, template: Template | str | None,
-        theme: _ThemeSource = _ThemePolicy.SOURCE_OR_CURDOC) -> None:
+        theme: ThemeSource = ThemePolicy.SOURCE_OR_CURDOC) -> None:
     '''
 
     '''
