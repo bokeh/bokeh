@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Sequence
 
 # Bokeh imports
@@ -37,7 +38,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     'contains_tex_string',
-    'FromCurdoc',
     'is_tex_string',
     'submodel_has_python_callbacks',
 )
@@ -50,14 +50,12 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class FromCurdoc:
-    ''' This class merely provides a non-None default value for ``theme``
-    arguments, since ``None`` itself is a meaningful value for users to pass.
+class _ThemePolicy(Enum):
+    CURDOC = auto()
+    SOURCE_OR_CURDOC = auto()
 
-    '''
-    pass
 
-type ThemeSource = ThemeLike | type[FromCurdoc]
+type _ThemeSource = ThemeLike | _ThemePolicy
 
 
 def submodel_has_python_callbacks(models: Sequence[Model | Document]) -> bool:

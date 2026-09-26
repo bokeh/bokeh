@@ -85,8 +85,10 @@ def show(
             passed to ``show`` in order to display them. Outside a notebook,
             the output is saved to an HTML file and opened in a new browser
             window or tab. If no filename is supplied, a temporary file is
-            used. If |output_notebook| has been called in a Jupyter notebook,
-            output without an explicit filename is displayed inline.
+            used. File output uses a complete source document's theme, falling
+            back to the current document's theme. If |output_notebook| has been
+            called in a Jupyter notebook, output without an explicit filename
+            is displayed inline.
 
         filename (PathLike, optional) :
             HTML filename to save and open. If omitted outside notebook mode,

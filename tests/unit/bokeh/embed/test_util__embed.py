@@ -10,11 +10,6 @@ from __future__ import annotations
 # Module under test
 import bokeh.embed.util as beu # isort:skip
 
-
-def test_from_curdoc_is_a_sentinel_type() -> None:
-    assert isinstance(beu.FromCurdoc, type)
-
-
 def test_is_tex_string() -> None:
     assert beu.is_tex_string("$$test$$") is True
     assert beu.is_tex_string("$$test$$  ") is False

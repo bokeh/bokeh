@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 # Bokeh imports
 from .artifact import EmbedArtifact
 from .compiler import embed, embed_protocol
-from .util import FromCurdoc, ThemeSource
+from .util import _ThemePolicy, _ThemeSource
 
 if TYPE_CHECKING:
     from ..document import Document
@@ -34,7 +34,7 @@ __all__ = ("notebook_content",)
 type NotebookContent = Model | Document | Sequence[Model | Document] | Mapping[str, Model | Document]
 
 
-def notebook_content(content: NotebookContent, *, theme: ThemeSource = FromCurdoc,
+def notebook_content(content: NotebookContent, *, theme: _ThemeSource = _ThemePolicy.CURDOC,
         live: bool = False) -> tuple[EmbedArtifact, ArtifactFragment]:
     """Compile notebook content and its host-owned fragment.
 

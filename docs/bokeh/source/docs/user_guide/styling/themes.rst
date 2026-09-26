@@ -57,12 +57,10 @@ For example:
     x = [1, 2, 3, 4, 5]
     y = [6, 7, 6, 4, 5]
 
-    doc = curdoc()
-    doc.theme = 'dark_minimal'
+    curdoc().theme = 'dark_minimal'
 
     p = figure(title='dark_minimal', width=300, height=300)
     p.line(x, y)
-    doc.add_root(p)
 
     show(p, filename="dark_minimal.html")
 
