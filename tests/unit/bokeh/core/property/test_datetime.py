@@ -131,6 +131,24 @@ class Test_Datetime:
         prop = bcpd.Datetime()
         assert prop.transform("2020-01-11") == convert_date_to_datetime(t)
 
+    @pytest.mark.parametrize("value", [
+        "2018-01-03T15:37:59.922452",
+        datetime.datetime(2018, 1, 3, 15, 37, 59, 922452),
+    ])
+    def test_transform_preserves_time(self, value) -> None:
+        prop = bcpd.Datetime()
+        assert prop.transform(value) == 1514993879922.452
+
+    def test_transform_pandas_timestamp(self) -> None:
+        pd = pytest.importorskip("pandas")
+        prop = bcpd.Datetime()
+        assert prop.transform(pd.Timestamp("2018-01-03T15:37:59.922452")) == 1514993879922.452
+
+    @pytest.mark.parametrize("value", [1514993879000, 1514993879922.452])
+    def test_transform_timestamp(self, value) -> None:
+        prop = bcpd.Datetime()
+        assert prop.transform(value) == value
+
     def test_has_ref(self) -> None:
         prop = bcpd.Datetime()
         assert not prop.has_ref
