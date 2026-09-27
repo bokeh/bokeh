@@ -143,6 +143,32 @@ def test_convert_datetime_type_pandas_types() -> None:
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC' if pandas_1x else 'Y-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
     assert np.isnan(bus.convert_datetime_type(pd.NaT))
 
+@pytest.mark.parametrize("unit", ["s", "ms", "us"])
+@pytest.mark.parametrize(("value", "expected"), [
+    ("1600-01-01", -11676096000000.0),
+    ("2500-01-01", 16725225600000.0),
+    ("9999-12-31", 253402214400000.0),
+])
+def test_convert_datetime_type_pandas_timestamp_outside_nanosecond_range(value: str, expected: float, unit: str) -> None:
+    pd = pytest.importorskip("pandas", minversion="2.0")
+    timestamp = pd.Timestamp(np.datetime64(value, unit))
+    assert bus.convert_datetime_type(timestamp) == expected
+
+@pytest.mark.parametrize(("unit", "expected"), [("s", 1000.0), ("ms", 1.0), ("us", 0.001), ("ns", 0.000001)])
+@pytest.mark.parametrize("sign", [-1, 1])
+def test_convert_datetime_type_pandas_timestamp_resolution(unit: str, expected: float, sign: int) -> None:
+    pd = pytest.importorskip("pandas", minversion="2.0")
+    timestamp = pd.Timestamp(np.datetime64(sign, unit))
+    assert bus.convert_datetime_type(timestamp) == sign*expected
+
+@pytest.mark.parametrize(("value", "expected"), [
+    ("1600-01-01T00:00:00+02:00", -11676103200000.0),
+    ("2500-01-01T00:00:00+02:00", 16725218400000.0),
+])
+def test_convert_datetime_type_pandas_timestamp_with_tz(value: str, expected: float) -> None:
+    pd = pytest.importorskip("pandas", minversion="2.0")
+    assert bus.convert_datetime_type(pd.Timestamp(value)) == expected
+
 def test_convert_datetime_type_array_ignores_non_datetime_array() -> None:
     a = np.arange(0,10,100)
     assert bus.convert_datetime_array(a) is a
