@@ -201,7 +201,8 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
 
         # Pandas Timestamp
         if isinstance(obj, pd.Timestamp):
-            return obj.value / 10**6.0
+            # Preserve the native resolution; .value forces nanoseconds and can overflow.
+            return convert_datetime_type(obj.to_datetime64())
 
         # Pandas Timedelta
         if isinstance(obj, pd.Timedelta):
