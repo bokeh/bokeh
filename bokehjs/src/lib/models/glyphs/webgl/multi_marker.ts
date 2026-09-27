@@ -52,32 +52,47 @@ export class MultiMarkerGL extends BaseMarkerGL {
     const marker_gl = this !== main_gl_glyph && this._marker_types != null ? this : main_gl_glyph
     const marker_types = marker_gl._marker_types!
     const rebuild_show = main_data_changed || derived_data_changed || this._show_nmarkers != nmarkers ||
-      this._show_marker_types !== marker_types || this._show_indices?.length != indices.length ||
-      !indices.every((index, i) => this._show_indices![i] == index)
+      this._show_marker_types !== marker_types || this._have_indices_changed(indices)
 
     if (rebuild_show) {
-      for (const buffer of this._show_by_type.values()) {
-        buffer.get_sized_array(nmarkers).fill(0)
-      }
       this._nshow_by_type.clear()
-      for (const marker_type of marker_gl._unique_marker_types) {
-        if (marker_type != null && !this._show_by_type.has(marker_type)) {
-          const buffer = new Uint8Buffer(this.regl_wrapper)
+
+      const is_single_marker_type = marker_types.is_scalar
+      if (is_single_marker_type) {
+        const single_marker_type = marker_gl._unique_marker_types[0]
+        if (single_marker_type != null) {
+          const buffer = this._show_by_type.has(single_marker_type) ? this._show_by_type.get(single_marker_type)! : new Uint8Buffer(this.regl_wrapper)
+          const array = buffer.get_sized_array(nmarkers).fill(0)
+          for (let i = 0; i < indices.length; i++) {
+            array[indices[i]] = 255
+          }
+          this._show_by_type.set(single_marker_type, buffer)
+          this._nshow_by_type.set(single_marker_type, indices.length)
+        }
+      } else {
+        for (const buffer of this._show_by_type.values()) {
           buffer.get_sized_array(nmarkers).fill(0)
-          this._show_by_type.set(marker_type, buffer)
+        }
+        for (const marker_type of marker_gl._unique_marker_types) {
+          if (marker_type != null && !this._show_by_type.has(marker_type)) {
+            const buffer = new Uint8Buffer(this.regl_wrapper)
+            buffer.get_sized_array(nmarkers).fill(0)
+            this._show_by_type.set(marker_type, buffer)
+          }
+        }
+        for (const index of indices) {
+          const marker_type = marker_types.get(index)
+          if (MarkerType.valid(marker_type)) {
+            this._show_by_type.get(marker_type)!.get_sized_array(nmarkers)[index] = 255
+            this._nshow_by_type.set(marker_type, (this._nshow_by_type.get(marker_type) ?? 0) + 1)
+          }
         }
       }
-      for (const index of indices) {
-        const marker_type = marker_types.get(index)
-        if (MarkerType.valid(marker_type)) {
-          this._show_by_type.get(marker_type)!.get_sized_array(nmarkers)[index] = 255
-          this._nshow_by_type.set(marker_type, (this._nshow_by_type.get(marker_type) ?? 0) + 1)
-        }
-      }
+
       for (const buffer of this._show_by_type.values()) {
         buffer.update()
       }
-      this._show_indices = [...indices]
+      this._show_indices = indices.slice()
       this._show_nmarkers = nmarkers
       this._show_marker_types = marker_types
     }
@@ -88,6 +103,27 @@ export class MultiMarkerGL extends BaseMarkerGL {
       }
       this._draw_one_marker_type(marker_type, transform, main_gl_glyph, this._show_by_type.get(marker_type))
     }
+  }
+
+  private _have_indices_changed(indices: number[]): boolean {
+    const existing = this._show_indices
+    if (existing == null || existing.length !== indices.length) {
+      return true
+    }
+    const n = indices.length
+    if (n === 0) {
+      return false
+    }
+    // Endpoints mismatching proves inequality regardless of ordering.
+    if (existing[0] !== indices[0] || existing[n - 1] !== indices[n - 1]) {
+      return true
+    }
+    for (let i = 1; i < n - 1; i++) {
+      if (existing[i] !== indices[i]) {
+        return true
+      }
+    }
+    return false
   }
 
   protected override _get_visuals(): MarkerVisuals {
