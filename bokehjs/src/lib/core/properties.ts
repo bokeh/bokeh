@@ -781,13 +781,28 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     const n = colors.length
     const array = new RGBAArray(4*n)
 
+    const cache = new Map<string | number, [number, number, number, number]>()
+
     let j = 0
-    for (const color of colors) {
-      const [r, g, b, a] = color2rgba(color)
-      array[j++] = r
-      array[j++] = g
-      array[j++] = b
-      array[j++] = a
+    for (let i = 0; i < n; i++) {
+      const color = colors[i]
+
+      let rgba: [number, number, number, number]
+      if (typeof color === "string" || typeof color === "number") {
+        let cached = cache.get(color)
+        if (cached === undefined) {
+          cached = color2rgba(color)
+          cache.set(color, cached)
+        }
+        rgba = cached
+      } else {
+        rgba = color2rgba(color)
+      }
+
+      array[j++] = rgba[0]
+      array[j++] = rgba[1]
+      array[j++] = rgba[2]
+      array[j++] = rgba[3]
     }
 
     return new ColorArray(array.buffer)
