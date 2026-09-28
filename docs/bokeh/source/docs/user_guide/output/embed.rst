@@ -200,6 +200,13 @@ tree. It retains IDs only where sharing, a cycle, or an explicitly external
 identity requires them. Canonical documents and live protocol patches remain
 ID-full.
 
+Compact model objects use ``$type``. Retained model identities use ``$id`` and
+later uses use ``$ref``. Data specifications use direct literals when they are
+unambiguous, ``$field`` for column references, ``$expr`` for expressions, and
+``$value`` for explicit string values. ``ColumnDataSource.data`` always uses
+the standard ``{"type": "map", "entries": [...]}`` representation so column
+names cannot be confused with serialization metadata.
+
 This compact diagnostic makes the difference visible without rendering an
 artifact:
 
@@ -217,7 +224,13 @@ artifact:
 
     def ids(value):
         if isinstance(value, dict):
-            return ([value["id"]] if value.get("type") == "object" and "id" in value else []) + [
+            is_compact_model = isinstance(value.get("$type"), str) and "$id" in value
+            is_legacy_model = value.get("type") == "object" and "id" in value
+            model_ids = (
+                [value["$id"] if is_compact_model else value["id"]]
+                if is_compact_model or is_legacy_model else []
+            )
+            return model_ids + [
                 model_id for child in value.values() for model_id in ids(child)
             ]
         if isinstance(value, list):

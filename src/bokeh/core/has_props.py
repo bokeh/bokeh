@@ -487,6 +487,7 @@ class HasProps(Serializable):
         properties = self.properties_with_values(include_defaults=include_defaults)
         if serializer.compact and not include_defaults:
             from ..model.util import visit_value_and_its_immediate_references
+            from .property.any import Any as AnyProperty
 
             def has_retained_ref(value: Any) -> bool:
                 retained = False
@@ -498,9 +499,15 @@ class HasProps(Serializable):
                 visit_value_and_its_immediate_references(value, check)
                 return retained
 
+            default_values = self.properties_with_values(include_defaults=True)
+            reference_properties = self.properties_with_refs()
+            reference_properties = {
+                key: prop for key, prop in self.properties().items()
+                if key in reference_properties or isinstance(prop, AnyProperty)
+            }
             retained_defaults = {
-                key: value for key in self.properties_with_refs() if key not in properties
-                if has_retained_ref(value := getattr(self, key))
+                key: default_values[key] for key in reference_properties
+                if key not in properties and key in default_values and has_retained_ref(default_values[key])
             }
             if retained_defaults:
                 properties = {

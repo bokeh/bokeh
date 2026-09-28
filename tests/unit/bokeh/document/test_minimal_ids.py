@@ -17,9 +17,12 @@ from typing import Any, Iterator
 import pytest
 
 # Bokeh imports
+from bokeh.core.properties import Any as AnyProperty, AnyRef, NotSerialized
+from bokeh.core.property.vectorization import value
 from bokeh.core.serialization import ObjectRep, Serializer
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
+from bokeh.model import Model
 from bokeh.models import (
     ColumnDataSource,
     CumSum,
@@ -29,11 +32,20 @@ from bokeh.models import (
     Line,
     LinearAxis,
     SetValue,
+    Text,
 )
 from bokeh.util import serialization as bus
 from bokeh.util.version import __version__
 
 FIXTURE_PATH = Path(__file__).parents[4] / "bokehjs" / "test" / "unit" / "document" / "minimal_ids_fixture.json"
+
+
+class AnyModel(Model):
+    child = AnyProperty()
+
+
+class NonSerializedRefModel(Model):
+    child = NotSerialized(AnyRef())
 
 
 def _custom_js(id: str, code: str) -> CustomJS:
@@ -62,6 +74,13 @@ def _fixture_document() -> Document:
     document = Document()
     document.add_root(primary)
     document.add_root(secondary)
+    document.add_root(ColumnDataSource(data={
+        "$value": [1],
+        "$expr": [2],
+        "type": [3],
+        "id": [4],
+        "__proto__": [5],
+    }))
     return document
 
 
@@ -126,6 +145,16 @@ def test_static_document_round_trips_keyed_anonymous_shared_and_cyclic_models() 
     assert cycle_b.id == "cycle-b"
     assert document.get_model_by_name("semantic-primary") is primary
 
+    columns = roots["columns"]
+    assert isinstance(columns, ColumnDataSource)
+    assert columns.data == {
+        "$value": [1],
+        "$expr": [2],
+        "type": [3],
+        "id": [4],
+        "__proto__": [5],
+    }
+
 
 def test_static_document_reserves_retained_simple_ids_before_anonymous_decoding(
         monkeypatch: pytest.MonkeyPatch) -> None:
@@ -136,7 +165,7 @@ def test_static_document_reserves_retained_simple_ids_before_anonymous_decoding(
     monkeypatch.setattr(bus, "_simple_id", 1199)
 
     document = Document.from_json(encoded)
-    primary, secondary = document.roots
+    primary, secondary, _ = document.roots
     assert isinstance(primary, CustomJS)
     assert isinstance(secondary, CustomJS)
     shared = primary.args["shared"]
@@ -168,7 +197,7 @@ def test_static_document_is_deterministic_and_does_not_force_root_ids() -> None:
     assert "$id" not in first["roots"][0]
     assert "$id" not in first["roots"][1]
 
-    [primary, secondary] = document.roots
+    primary, secondary, _ = document.roots
     retained = document.to_static_json(deferred=False, models_with_ids=[primary])
     assert retained["roots"][0]["$id"] == primary.id
     assert "$id" not in retained["roots"][1]
@@ -191,6 +220,47 @@ def test_static_identity_analysis_traverses_direct_properties_and_mappings() -> 
     assert direct.id not in retained_ids
 
 
+def test_static_identity_analysis_traverses_any_properties() -> None:
+    shared = CustomJS(code="shared")
+    first = AnyModel(child=shared)
+    second = AnyModel(child=shared)
+    document = Document()
+    document.add_root(first)
+    document.add_root(second)
+
+    first_rep, second_rep = document.to_static_json(deferred=False)["roots"]
+    assert first_rep["child"]["$id"] == shared.id
+    assert second_rep["child"] == {"$ref": shared.id}
+
+    decoded_first, decoded_second = Document.from_json(document.to_static_json(deferred=False)).roots
+    assert decoded_first.child is decoded_second.child
+
+
+def test_static_identity_analysis_traverses_cycles_in_any_properties() -> None:
+    first = AnyModel()
+    second = AnyModel(child=first)
+    first.child = second
+    document = Document()
+    document.add_root(first)
+
+    [decoded_first] = Document.from_json(document.to_static_json(deferred=False)).roots
+    assert decoded_first.child.child is decoded_first
+
+
+def test_static_document_does_not_serialize_non_serialized_retained_references() -> None:
+    shared = CustomJS(code="shared")
+    first = AnyModel(child=shared)
+    second = AnyModel(child=shared)
+    root = NonSerializedRefModel(child=shared)
+    document = Document()
+    document.add_root(first)
+    document.add_root(second)
+    document.add_root(root)
+
+    _, _, encoded = document.to_static_json(deferred=False)["roots"]
+    assert "child" not in encoded
+
+
 def test_models_with_ids_does_not_expand_the_document_graph() -> None:
     document = _fixture_document()
     external = CustomJS(code="outside-document")
@@ -201,7 +271,7 @@ def test_models_with_ids_does_not_expand_the_document_graph() -> None:
     assert all(rep.get("code") != "outside-document" for rep in _object_reps(encoded))
 
 
-def test_static_document_compacts_literal_specs_and_column_data() -> None:
+def test_static_document_compacts_literal_specs_and_serializes_column_data_as_a_map() -> None:
     source = ColumnDataSource(data={"x_values": [1, 2], "y_values": [3, 4]})
     glyph = Line(x={"field": "x_values"}, y={"field": "y_values"}, line_color="#6d4aff", line_width=3)
     renderer = GlyphRenderer(data_source=source, glyph=glyph)
@@ -210,7 +280,10 @@ def test_static_document_compacts_literal_specs_and_column_data() -> None:
 
     [encoded] = document.to_static_json(deferred=False)["roots"]
     assert encoded["$type"] == "GlyphRenderer"
-    assert encoded["data_source"]["data"] == {"x_values": [1, 2], "y_values": [3, 4]}
+    assert encoded["data_source"]["data"] == {
+        "type": "map",
+        "entries": [("x_values", [1, 2]), ("y_values", [3, 4])],
+    }
     assert encoded["glyph"]["line_color"] == "#6d4aff"
     assert encoded["glyph"]["x"] == {"$field": "x_values"}
 
@@ -218,6 +291,26 @@ def test_static_document_compacts_literal_specs_and_column_data() -> None:
     assert isinstance(decoded_renderer, GlyphRenderer)
     assert decoded_renderer.data_source.data == {"x_values": [1, 2], "y_values": [3, 4]}
     assert decoded_renderer.glyph.line_color == "#6d4aff"
+
+
+def test_static_document_marks_explicit_string_values() -> None:
+    text = Text(text=value("hello"))
+    document = Document()
+    document.add_root(text)
+
+    [encoded] = document.to_static_json(deferred=False)["roots"]
+    assert encoded["text"] == {"$value": "hello"}
+
+    decoded_document = Document.from_json(document.to_static_json(deferred=False))
+    assert decoded_document.to_static_json(deferred=False)["roots"][0]["text"] == {"$value": "hello"}
+
+
+def test_static_document_omits_default_values() -> None:
+    document = Document()
+    document.add_root(Line())
+
+    [encoded] = document.to_static_json(deferred=False)["roots"]
+    assert "line_width" not in encoded
 
 
 def test_static_document_compacts_expression_specs_and_retains_shared_expressions() -> None:

@@ -66,7 +66,7 @@ def test_compact_serialization() -> None:
     serializer = Serializer(compact=True, models_with_ids=set())
     deserializer = Deserializer()
 
-    assert serializer.encode(bcpv.Value("firebrick")) == "firebrick"
+    assert serializer.encode(bcpv.Value("firebrick")) == {"$value": "firebrick"}
     value = serializer.encode(bcpv.Value("firebrick", units="data"))
     assert value == {"$value": "firebrick", "units": "data"}
     assert deserializer.deserialize(value) == bcpv.Value("firebrick", units="data")

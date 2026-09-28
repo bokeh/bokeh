@@ -3,7 +3,7 @@
   "cases": [
     {
       "name": "keyed-static-graph",
-      "roots": [{"key": "primary", "index": 0}, {"key": "secondary", "index": 1}],
+      "roots": [{"key": "primary", "index": 0}, {"key": "secondary", "index": 1}, {"key": "columns", "index": 2}],
       "document": {
         "version": "__VERSION__",
         "title": "Bokeh Application",
@@ -21,7 +21,14 @@
             ]},
             "code": "primary"
           },
-          {"$type": "CustomJS", "args": {"type": "map", "entries": [["shared", {"$ref": "shared-callback"}]]}, "code": "secondary"}
+          {"$type": "CustomJS", "args": {"type": "map", "entries": [["shared", {"$ref": "shared-callback"}]]}, "code": "secondary"},
+          {"$type": "ColumnDataSource", "selected": {"$type": "Selection"}, "selection_policy": {"$type": "UnionRenderers"}, "data": {"type": "map", "entries": [
+            ["$value", [1]],
+            ["$expr", [2]],
+            ["type", [3]],
+            ["id", [4]],
+            ["__proto__", [5]]
+          ]}}
         ]
       }
     }

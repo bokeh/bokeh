@@ -10,7 +10,7 @@ import {mul} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
 import {color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
-import {isNumber, isTypedArray, isPlainObject} from "./util/types"
+import {isNumber, isString, isTypedArray, isPlainObject} from "./util/types"
 import type {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import type {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import type {/*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
@@ -469,6 +469,9 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       this._value[serialize] = (serializer) => {
         const {value, field, expr, transform, units} = _value as any
         if (serializer.compact && value !== undefined && transform == null && units == null) {
+          if (isString(value)) {
+            return {$value: serializer.encode(value)}
+          }
           return serializer.encode(value)
         }
         if (serializer.compact && field !== undefined && transform == null && units == null) {

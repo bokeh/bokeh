@@ -125,7 +125,11 @@ def _models_with_ids(values: Iterable[Any]) -> set[Model]:
     classifies the supplied document graph. Callers cannot use the result to
     introduce an otherwise unreachable model into serialized output.
     '''
-    from ..model.util import visit_immediate_value_references
+    from ..core.property.any import Any as AnyProperty
+    from ..model.util import (
+        visit_immediate_value_references,
+        visit_value_and_its_immediate_references,
+    )
 
     counts: dict[Model, int] = {}
     children: dict[Model, list[Model]] = {}
@@ -145,7 +149,14 @@ def _models_with_ids(values: Iterable[Any]) -> set[Model]:
 
         seen.add(model)
         refs: list[Model] = []
-        visit_immediate_value_references(model, refs.append)
+        properties = model.properties_with_values(include_defaults=True)
+        reference_properties = model.properties_with_refs()
+        for name in reference_properties:
+            if name in properties:
+                visit_value_and_its_immediate_references(properties[name], refs.append)
+        for name, prop in model.properties().items():
+            if name not in reference_properties and isinstance(prop, AnyProperty) and name in properties:
+                visit_value_and_its_immediate_references(properties[name], refs.append)
         children[model] = refs
         for ref in refs:
             counts[ref] = counts.get(ref, 0) + 1

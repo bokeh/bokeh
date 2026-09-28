@@ -687,7 +687,7 @@ export class Document implements Equatable {
    *
    * Canonical documents and live protocol messages must use [[to_json]].
    */
-  to_static_json(include_defaults: boolean = true, models_with_ids: Iterable<HasProps> = []): DocJson {
+  to_static_json(include_defaults: boolean = false, models_with_ids: Iterable<HasProps> = []): DocJson {
     return this._to_json(include_defaults, "minimal", models_with_ids)
   }
 

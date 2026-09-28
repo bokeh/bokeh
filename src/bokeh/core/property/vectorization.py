@@ -67,6 +67,8 @@ class Value[T](Serializable):
     def to_serializable(self, serializer: Serializer) -> AnyRep:
         if serializer.compact:
             if self.transform is Unspecified and self.units is Unspecified:
+                if isinstance(self.value, str):
+                    return {"$value": serializer.encode(self.value)}
                 return serializer.encode(self.value)
             return {
                 "$value": serializer.encode(self.value),

@@ -3,9 +3,11 @@ import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {default_resolver} from "@bokehjs/base"
 import {Document, type DocJson} from "@bokehjs/document"
 import * as events from "@bokehjs/document/events"
+import {Model} from "@bokehjs/model"
+import type * as p from "@bokehjs/core/properties"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {to_object} from "@bokehjs/core/util/object"
-import {Circle, ColumnDataSource, CumSum, CustomJS, GlyphRenderer, Grid, Line, LinearAxis, SetValue} from "@bokehjs/models"
+import {Circle, ColumnDataSource, CumSum, CustomJS, GlyphRenderer, Grid, Line, LinearAxis, SetValue, Text} from "@bokehjs/models"
 import {MountSource} from "@bokehjs/api/io"
 import {version as js_version} from "@bokehjs/version"
 
@@ -28,6 +30,29 @@ type MinimalIDFixtureData = {
 }
 
 const fixture_data = fixture_json as MinimalIDFixtureData
+
+namespace AnyModel {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = Model.Props & {
+    child: p.Property<unknown>
+  }
+}
+
+interface AnyModel extends AnyModel.Attrs {}
+
+class AnyModel extends Model {
+  declare properties: AnyModel.Props
+
+  constructor(attrs?: Partial<AnyModel.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.define<AnyModel.Props>(({Unknown}) => ({
+      child: [ Unknown, null ],
+    }))
+  }
+}
 
 function fixture() {
   expect(fixture_data.schema).to.be.equal("bokeh.embed.minimal-id-fixtures/v1")
@@ -76,6 +101,16 @@ describe("minimal ID cross-language fixtures", () => {
     expect(cycle_a.id).to.be.equal("cycle-a")
     expect(cycle_b.id).to.be.equal("cycle-b")
     expect(source.document.get_model_by_name("semantic-primary")).to.be.equal(primary)
+
+    const columns = source.roots.get("columns")
+    expect_not_null(columns)
+    expect_instanceof(columns, ColumnDataSource)
+    const column_data = to_object(columns.data)
+    expect(column_data.$value).to.be.equal([1])
+    expect(column_data.$expr).to.be.equal([2])
+    expect(column_data.type).to.be.equal([3])
+    expect(column_data.id).to.be.equal([4])
+    expect(column_data.__proto__).to.be.equal([5])
   })
 
   it("treats anonymous IDs as runtime reconstruction details", () => {
@@ -123,7 +158,22 @@ describe("minimal ID cross-language fixtures", () => {
     expect(with_external_id.includes("outside-document")).to.be.false
   })
 
-  it("compacts literal specs and column data", () => {
+  it("traverses Any properties when determining retained identities", () => {
+    const shared = CustomJS.create({code: "shared"})
+    const first = AnyModel.create({child: shared})
+    const second = AnyModel.create({child: shared})
+    const document = new Document({roots: [first, second]})
+
+    const [first_rep, second_rep] = document.to_static_json(false).roots as any[]
+    expect(first_rep.child).to.be.equal({$type: "CustomJS", $id: shared.id, code: "shared"})
+    expect(second_rep.child).to.be.equal({$ref: shared.id})
+
+    const resolver = new ModelResolver(default_resolver, [AnyModel])
+    const [decoded_first, decoded_second] = Document.from_json(document.to_static_json(false), {resolver}).roots()
+    expect((decoded_first as AnyModel).child).to.be.equal((decoded_second as AnyModel).child)
+  })
+
+  it("compacts literal specs and serializes column data as a map", () => {
     const source = ColumnDataSource.create({data: {x_values: [1, 2], y_values: [3, 4]}})
     const glyph = Line.create({x: {field: "x_values"}, y: {field: "y_values"}, line_color: "#6d4aff", line_width: 3})
     const renderer = GlyphRenderer.create({data_source: source, glyph})
@@ -131,7 +181,10 @@ describe("minimal ID cross-language fixtures", () => {
 
     const [encoded] = document.to_static_json(false).roots as any[]
     expect(encoded.$type).to.be.equal("GlyphRenderer")
-    expect(encoded.data_source.data).to.be.equal({x_values: [1, 2], y_values: [3, 4]})
+    expect(encoded.data_source.data).to.be.equal({
+      type: "map",
+      entries: [["x_values", [1, 2]], ["y_values", [3, 4]]],
+    })
     expect(encoded.glyph.line_color).to.be.equal("#6d4aff")
     expect(encoded.glyph.x).to.be.equal({$field: "x_values"})
 
@@ -139,6 +192,25 @@ describe("minimal ID cross-language fixtures", () => {
     expect_instanceof(decoded_renderer, GlyphRenderer)
     expect(decoded_renderer.data_source.data).to.be.equal({x_values: [1, 2], y_values: [3, 4]})
     expect(decoded_renderer.glyph.line_color).to.be.equal({value: "#6d4aff"})
+  })
+
+  it("marks explicit string values", () => {
+    const text = Text.create({text: {value: "hello"}})
+    const document = new Document({roots: [text]})
+
+    const [encoded] = document.to_static_json(false).roots as any[]
+    expect(encoded.text).to.be.equal({$value: "hello"})
+
+    const [decoded] = Document.from_json(document.to_static_json(false)).roots()
+    expect_instanceof(decoded, Text)
+    expect(decoded.properties.text.get_value()).to.be.equal({value: "hello"})
+  })
+
+  it("omits default values", () => {
+    const document = new Document({roots: [Line.create()]})
+    const [encoded] = document.to_static_json().roots as any[]
+
+    expect("line_width" in encoded).to.be.false
   })
 
   it("compacts expression specs and retains shared expressions", () => {
