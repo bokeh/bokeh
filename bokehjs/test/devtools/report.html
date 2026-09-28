@@ -2,111 +2,400 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title }}</title>
     <style>
-      html, body {
-        box-sizing: border-box;
+      :root {
+        --removed-color: #9b3030;
+        --removed-background: #fbeaea;
+        --added-color: #216540;
+        --added-background: #e6f4eb;
       }
-
-      *, *:before, *:after {
-        box-sizing: inherit;
+      :root[data-palette="blue-orange"] {
+        --removed-color: #854500;
+        --removed-background: #fff0dc;
+        --added-color: #174d8a;
+        --added-background: #e5efff;
       }
-
-      *, *:before, *:after {
-        margin: 0;
-        border: 0;
-        padding: 0;
-        background-image: none;
+      :root[data-palette="contrast"] {
+        --removed-color: #ffffff;
+        --removed-background: #202020;
+        --added-color: #101010;
+        --added-background: #ffffff;
       }
-
+      * { box-sizing: border-box; }
+      [hidden] { display: none !important; }
       body {
-        background-image: linear-gradient(45deg, #808080 25%, transparent 25%),
-                          linear-gradient(-45deg, #808080 25%, transparent 25%),
-                          linear-gradient(45deg, transparent 75%, #808080 75%),
-                          linear-gradient(-45deg, transparent 75%, #808080 75%);
-        background-size: 20px 20px;
-        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        margin: 0;
+        background: #f5f6f8;
+        color: #202b3a;
+        font: 15px/1.5 system-ui, sans-serif;
       }
-
-      .container {
-        display: grid;
-        padding: 10px;
-        grid-gap: 10px;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .header {
+      a { color: #205ea6; text-underline-offset: 3px; }
+      button, input, select { font: inherit; }
+      button, summary { cursor: pointer; }
+      button {
+        padding: 5px 10px;
+        border: 1px solid #c9d1dc;
+        border-radius: 5px;
         background: white;
-        font-weight: bold;
-        font-size: 25px;
-        height: 40px;
-        padding: 5px;
+        color: #202b3a;
       }
-
-      .description {
-        grid-column: 1 / span 3;
-        background: white;
-        font-weight: bold;
-        font-size: 18px;
-        padding: 5px;
+      button:hover { background: #eef3f9; }
+      :focus-visible { outline: 3px solid #2875cd; outline-offset: 3px; }
+      h1, h2, p, figure { margin: 0; }
+      h1 { font-size: 26px; letter-spacing: -0.5px; }
+      h2 { font-size: 16px; font-weight: 650; overflow-wrap: anywhere; }
+      code, pre { font: 12px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
+      .page { max-width: 1800px; margin: auto; padding: 0 28px; }
+      .page-header { padding-top: 30px; padding-bottom: 20px; }
+      .eyebrow {
+        margin-bottom: 4px;
+        color: #526176;
+        font-size: 12px;
+        font-weight: 650;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
       }
-
-      .filename {
-        display: block;
-        font-family: monospace;
-        font-size: 14px;
-        font-weight: normal;
-        margin-top: 5px;
+      .intro { margin-top: 6px; color: #526176; }
+      .metadata { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 16px 0 0; }
+      .metadata div { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+      .metadata dt { color: #526176; }
+      .metadata dd { margin: 0; overflow-wrap: anywhere; }
+      .notice { margin-top: 16px; padding: 12px 16px; background: #fff3d6; border-radius: 6px; }
+      .toolbar { position: sticky; top: 0; z-index: 1; background: #f5f6f8; border-block: 1px solid #dce1e8; }
+      .toolbar-content { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding-block: 14px; }
+      .views { display: flex; gap: 4px; }
+      .views a { padding: 7px 12px; border-radius: 5px; text-decoration: none; white-space: nowrap; }
+      .views a[aria-current="page"] { background: #e3ebf5; color: #174d8a; font-weight: 650; }
+      .search { display: flex; flex: 1; align-items: center; gap: 10px; min-width: 260px; }
+      .toolbar label { font-size: 13px; font-weight: 600; }
+      .search input {
+        width: 100%; min-width: 0; padding: 8px 12px;
+        border: 1px solid #b6c0ce; border-radius: 6px; background: white; color: inherit;
       }
-
-      .baseline {
-        background: white;
-        min-height: 40px;
-        overflow: auto;
-        padding: 5px;
-        white-space: pre;
+      .select-control { display: flex; align-items: center; gap: 8px; }
+      .select-control select { padding: 8px; border: 1px solid #b6c0ce; border-radius: 6px; background: white; color: inherit; font-size: 13px; }
+      .count { color: #526176; font-size: 13px; font-variant-numeric: tabular-nums; }
+      .help { margin: 20px 0; color: #526176; font-size: 13px; }
+      .result {
+        margin-bottom: 20px; padding: 20px;
+        border: 1px solid #dce1e8; border-radius: 8px; background: white;
       }
-
-      .empty {
-        align-content: center;
-        background: white;
-        color: #666;
-        min-height: 40px;
-        padding: 5px;
-        text-align: center;
+      .result-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+      .result-badges { display: flex; flex-wrap: wrap; gap: 6px; flex: none; }
+      .badge { flex: none; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+      .failure, .diff-removed { color: var(--removed-color); background: var(--removed-background); }
+      .success, .diff-added { color: var(--added-color); background: var(--added-background); }
+      :root[data-palette="contrast"] .success, :root[data-palette="contrast"] .diff-key .diff-added { outline: 1px solid currentColor; outline-offset: -1px; }
+      .neutral { color: #526176; background: #eef1f5; }
+      .layout-change { color: #754600; background: #fff0cc; }
+      .result[data-layout-changed] { border-color: #d6a253; border-left-width: 4px; }
+      .result[data-layout-changed] details { border-top: 0; }
+      .result[data-layout-changed] summary { padding: 10px 12px; border-radius: 5px; color: #754600; background: #fff0cc; }
+      .result-meta { display: flex; align-items: flex-start; gap: 12px; }
+      .filename { display: block; flex: 1; min-width: 0; color: #526176; overflow-wrap: anywhere; }
+      .comparison { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+      figure { min-width: 0; }
+      figcaption { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 32px; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
+      .zoom { flex: none; width: 48px; font-size: 12px; white-space: nowrap; }
+      .image-frame { overflow: auto; max-height: 70vh; border: 1px solid #e2e6ec; border-radius: 4px; background: #fafbfc; }
+      .image-frame img { display: block; max-width: 100%; height: auto; }
+      .comparison.exact img { max-width: none; }
+      .empty-image { display: grid; place-items: center; min-height: 100px; padding: 20px; border: 1px dashed #dce1e8; border-radius: 4px; color: #657186; font-size: 13px; text-align: center; }
+      details { margin-top: 20px; border-top: 1px solid #e2e6ec; }
+      summary { padding-top: 14px; font-size: 13px; font-weight: 600; }
+      .layout { margin-top: 14px; }
+      .diff-key { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+      .diff-key span { padding: 2px 8px; border-radius: 4px; }
+      pre { margin: 0; padding: 12px; max-height: 420px; overflow: auto; border: 1px solid #e2e6ec; border-radius: 4px; background: #fafbfc; }
+      .layout-diff { padding: 8px 0; }
+      .diff-line { display: block; min-width: max-content; padding: 0 12px; }
+      .diff-hunk { color: #526176; background: #eef1f5; }
+      .diff-unified { display: none; }
+      :root[data-diff-view="unified"] .diff-unified { display: block; }
+      :root[data-diff-view="unified"] .diff-side-by-side { display: none; }
+      .diff-side-by-side { max-height: 420px; overflow: auto; border: 1px solid #e2e6ec; border-radius: 4px; background: #fafbfc; }
+      .diff-table { width: 100%; min-width: 680px; table-layout: fixed; border-collapse: collapse; font: 12px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
+      .diff-table col.diff-number { width: 4em; }
+      .diff-table th { position: sticky; top: 0; padding: 6px 12px; text-align: left; font: 600 13px/1.5 system-ui, sans-serif; }
+      .diff-table td { padding: 0 10px; vertical-align: top; }
+      .diff-table td:nth-child(2), .diff-table th:first-child { border-right: 1px solid #dce1e8; }
+      .diff-table .diff-number { padding-right: 8px; text-align: right; user-select: none; }
+      .diff-table .diff-empty { background: #eef1f5; }
+      .diff-table .diff-hunk td { padding-block: 4px; }
+      .diff-table pre { padding: 0; max-height: none; overflow: visible; border: 0; border-radius: 0; background: none; color: inherit; font: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .diff-newline { display: block; font-style: italic; }
+      .empty-state { margin-block: 28px; padding: 40px 24px; border: 1px solid #dce1e8; border-radius: 8px; background: white; text-align: center; }
+      .empty-state h2 { margin-bottom: 8px; font-size: 20px; }
+      .empty-state p { color: #526176; }
+      .empty-state button { margin-top: 16px; }
+      footer { margin: 28px 0; color: #526176; font-size: 13px; }
+      @media (max-width: 800px) {
+        .page { padding-inline: 16px; }
+        .page-header { padding-top: 20px; }
+        .toolbar-content { gap: 10px; }
+        .search { flex-basis: 100%; }
+        .count { margin-left: auto; }
+        .comparison { grid-template-columns: 1fr; }
+        .result { padding: 16px; }
+        .result-header { align-items: flex-start; flex-direction: column; gap: 6px; }
       }
-
-      a {
-        align-self: start;
-        background: white;
-      }
-
-      img {
-        display: block;
-        height: auto;
-        max-width: 100%;
+      @media (max-width: 400px) {
+        .count { margin-left: 0; }
+        .search { min-width: 0; }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">Current</div>
-      <div class="header">Diff</div>
-      <div class="header">Reference <span class="filename">{{ reference }}</span></div>
-    {%- for description, status in results %}
-      {%- if full or status.failure %}
-      <div class="description">
-        {{ description | join(" ⇒ ") }}
-        <span class="filename">test/baselines/{{ platform }}/{{ status.baseline_name }}.{blf,png}</span>
+    <header class="page page-header">
+      <p class="eyebrow">BokehJS · integration tests</p>
+      <h1>Baseline review</h1>
+      <p class="intro">Compare generated images and layouts with their Git reference.</p>
+      <dl class="metadata">
+        <div><dt>Platform</dt><dd>{{ platform }}</dd></div>
+        <div><dt>Reference</dt><dd><code>{{ reference }}</code></dd></div>
+        <div><dt>Recorded results</dt><dd>{{ total }}</dd></div>
+        <div><dt>Reported failures</dt><dd>{{ failures }}</dd></div>
+      </dl>
+      {% if not completed %}
+      <p class="notice">This report is incomplete or from an older runner. Run baseline tests again before accepting changes.</p>
+      {% endif %}
+    </header>
+    <div class="toolbar">
+      <div class="page toolbar-content">
+        <nav class="views" aria-label="Report view">
+          <a href="?platform={{ platform }}" {% if not full %}aria-current="page"{% endif %}>Failures ({{ failures }})</a>
+          <a href="?platform={{ platform }}&amp;full" {% if full %}aria-current="page"{% endif %}>All results ({{ total }})</a>
+        </nav>
+        <div class="search" hidden>
+          <label for="filter">Filter</label>
+          <input id="filter" type="search" placeholder="Test name or baseline filename" autocomplete="off" aria-controls="results">
+        </div>
+        <div class="diff-view select-control" hidden>
+          <label for="diff-view">Layout diff</label>
+          <select id="diff-view">
+            <option value="side-by-side">Side by side</option>
+            <option value="unified">Unified</option>
+          </select>
+        </div>
+        <div class="palette select-control" hidden>
+          <label for="palette">Colors</label>
+          <select id="palette" aria-label="Colors for status badges and layout diffs">
+            <option value="red-green">Red / green</option>
+            <option value="blue-orange">Blue / orange</option>
+            <option value="contrast">High contrast</option>
+          </select>
+        </div>
+        <p id="count" class="count" role="status" aria-live="polite" aria-atomic="true"></p>
       </div>
-      {% if status.image %}<a href="data:image/png;base64,{{ status.image }}" target="_blank" title="Open current image at full size"><img src="data:image/png;base64,{{ status.image }}"></img></a>{% else %}<div class="empty">No image</div>{% endif %}
-      {% if status.image_diff %}<a href="data:image/png;base64,{{ status.image_diff }}" target="_blank" title="Open image difference at full size"><img src="data:image/png;base64,{{ status.image_diff }}"></img></a>{% else %}<div class="empty">No image difference</div>{% endif %}
-      {% if status.reference %}<a href="data:image/png;base64,{{ status.reference }}" target="_blank" title="Open reference image at full size"><img src="data:image/png;base64,{{ status.reference }}"></img></a>{% else %}<div class="empty">No reference image</div>{% endif %}
-      <pre class="baseline">{{ status.baseline }}</pre>
-      <div class="empty">Layout baseline</div>
-      {% if status.existing_blf %}<pre class="baseline">{{ status.existing_blf }}</pre>{% else %}<div class="empty">No reference layout baseline</div>{% endif %}
-      {% endif -%}
-    {% endfor -%}
     </div>
+    <main class="page">
+      <p class="help">Existing reference shows the stored baseline, and Proposed reference shows this test run. Diff highlights changed pixels.
+        <span id="zoom-help" hidden>Use 1:1 to view all images at full size. Focus an image with Tab, then scroll with the arrow keys. Press Escape to fit them again.</span>
+      </p>
+      <noscript><p class="help">Enable JavaScript to filter tests and inspect images at 1:1.</p></noscript>
+      <div id="results">
+      {% macro picture(data, label, empty, id, description) %}
+        <figure>
+          <figcaption><span>{{ label }}</span></figcaption>
+          {% if data %}
+          <div class="image-frame" id="{{ id }}" role="group" aria-label="{{ label }} image: {{ description }}">
+            <img src="data:image/png;base64,{{ data }}" alt="{{ label }}: {{ description }}" loading="lazy" decoding="async">
+          </div>
+          {% else %}<p class="empty-image">{{ empty }}</p>{% endif %}
+        </figure>
+      {% endmacro %}
+      {% macro diff_cell(cell, kind, marker) %}
+        {% if cell %}
+        <td class="diff-number{% if cell.changed %} {{ kind }}{% endif %}">{{ cell.number }}</td>
+        <td{% if cell.changed %} class="{{ kind }}"{% endif %}><pre>{% if cell.changed %}{{ marker }}{% else %} {% endif %}{{ cell.text }}{% if cell.no_newline %}<span class="diff-newline">\ No newline at end of file</span>{% endif %}</pre></td>
+        {% else %}<td class="diff-empty"></td><td class="diff-empty"></td>{% endif %}
+      {% endmacro %}
+      {% for description, status in results %}
+        {% set failed = status.failure or status.timeout %}
+        {% if full or failed %}
+        {% set name = description | join(" / ") %}
+        {% set layout_changed = status.baseline != null and status.existing_blf != null and status.baseline != status.existing_blf %}
+        {% set passed = status.success or (completed and status.success == null and status.baseline != null) %}
+        <article class="result" data-search="{{ name }} {{ status.baseline_name }}"{% if layout_changed %} data-layout-changed{% endif %}>
+          <div class="result-header">
+            <div class="result-badges">
+              <span class="badge {% if failed %}failure{% elif not status.skipped and passed %}success{% else %}neutral{% endif %}">{% if failed %}Failed{% elif status.skipped %}Skipped{% elif passed %}Passed{% else %}No failure recorded{% endif %}</span>
+              {% if layout_changed %}<span class="badge layout-change">Layout changed</span>{% endif %}
+            </div>
+            <h2>{{ name }}</h2>
+          </div>
+          <div class="result-meta">
+            <code class="filename">{% if status.baseline_name %}test/baselines/{{ platform }}/{{ status.baseline_name }}.{blf,png}{% else %}No baseline filename recorded{% endif %}</code>
+            {% if status.image or status.reference or status.image_diff %}
+            <button class="zoom" type="button" aria-controls="comparison-{{ loop.index }}" aria-pressed="false" aria-label="All images at 1:1: {{ name }}" hidden>1:1</button>
+            {% endif %}
+          </div>
+          <div class="comparison" id="comparison-{{ loop.index }}">
+            {{ picture(status.reference, "Existing reference", "No reference image recorded", "reference-" + loop.index, name) }}
+            {{ picture(status.image, "Proposed reference", "No current image recorded", "current-" + loop.index, name) }}
+            {{ picture(status.image_diff, "Diff", "No image difference recorded", "diff-" + loop.index, name) }}
+          </div>
+          <details>
+            <summary>Layout baseline · {% if status.baseline == null %}No current layout recorded{% elif status.existing_blf == null %}No reference layout recorded{% elif layout_changed %}Changed{% else %}Unchanged{% endif %}</summary>
+            <div class="layout">
+              {% if layout_changed %}
+              {% set diff = layout_diff(status.existing_blf, status.baseline) %}
+              <div class="diff-side-by-side" tabindex="0" role="region" aria-label="Layout changes side by side: {{ name }}">
+                <table class="diff-table" aria-label="Existing and proposed layout: {{ name }}">
+                  <colgroup><col class="diff-number"><col></colgroup>
+                  <colgroup><col class="diff-number"><col></colgroup>
+                  <thead><tr><th colspan="2" scope="colgroup" class="diff-removed">− Existing reference</th><th colspan="2" scope="colgroup" class="diff-added">+ Proposed reference</th></tr></thead>
+                  <tbody>
+                  {% for hunk in diff.hunks %}
+                    <tr class="diff-hunk"><td colspan="2">@@ -{{ hunk.oldStart - 1 if hunk.oldLines == 0 else hunk.oldStart }},{{ hunk.oldLines }} @@</td><td colspan="2">@@ +{{ hunk.newStart - 1 if hunk.newLines == 0 else hunk.newStart }},{{ hunk.newLines }} @@</td></tr>
+                    {% for row in hunk.rows %}
+                    <tr>{{ diff_cell(row.left, "diff-removed", "-") }}{{ diff_cell(row.right, "diff-added", "+") }}</tr>
+                    {% endfor %}
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="diff-unified">
+                <p class="diff-key"><span class="diff-removed">− Existing reference</span><span class="diff-added">+ Proposed reference</span></p>
+                <pre class="layout-diff" tabindex="0" aria-label="Unified layout changes: {{ name }}">{% for hunk in diff.hunks %}<span class="diff-line diff-hunk">@@ -{{ hunk.oldStart - 1 if hunk.oldLines == 0 else hunk.oldStart }},{{ hunk.oldLines }} +{{ hunk.newStart - 1 if hunk.newLines == 0 else hunk.newStart }},{{ hunk.newLines }} @@</span>{% for line in hunk.lines %}<span class="diff-line {% if line[0] == '+' %}diff-added{% elif line[0] == '-' %}diff-removed{% endif %}">{{ line }}</span>{% endfor %}{% endfor %}</pre>
+              </div>
+              {% elif status.baseline != null %}
+              <figure>
+                <figcaption>{% if status.existing_blf == null %}Proposed reference layout · No reference recorded{% else %}Layout baseline · Identical in both versions{% endif %}</figcaption>
+                <pre tabindex="0" aria-label="Layout baseline: {{ name }}">{{ status.baseline }}</pre>
+              </figure>
+              {% elif status.existing_blf != null %}
+              <figure>
+                <figcaption>Existing reference layout · No current layout recorded</figcaption>
+                <pre tabindex="0" aria-label="Existing reference layout: {{ name }}">{{ status.existing_blf }}</pre>
+              </figure>
+              {% else %}<p class="empty-image">No layout baselines recorded</p>{% endif %}
+            </div>
+          </details>
+        </article>
+        {% endif %}
+      {% endfor %}
+      </div>
+      {% if total == 0 %}
+      <section class="empty-state"><h2>No results recorded</h2><p>This report contains no test results.</p></section>
+      {% elif not full and failures == 0 %}
+      <section class="empty-state"><h2>No failures recorded</h2><p>Open All results to inspect the images and layouts in this report.</p></section>
+      {% endif %}
+      <section id="no-matches" class="empty-state" hidden>
+        <h2>No matching tests</h2><p>Try another test name or baseline filename in this view.</p>
+        <button id="clear-filter" type="button">Clear filter</button>
+      </section>
+      <footer>This viewer does not stage or accept baselines.{% if platform == "linux" %} After review, use <code>node make baseline-test:accept</code> to stage Linux baseline changes.{% endif %}</footer>
+    </main>
+    <script>
+      const palette = document.querySelector("#palette")
+      const palette_key = "bokehjs-baseline-review-palette"
+      try {
+        const saved = localStorage.getItem(palette_key)
+        if ([...palette.options].some((option) => option.value == saved)) {
+          palette.value = saved
+        }
+      } catch {}
+      function apply_palette() {
+        document.documentElement.dataset.palette = palette.value
+      }
+      palette.addEventListener("change", () => {
+        apply_palette()
+        try {
+          localStorage.setItem(palette_key, palette.value)
+        } catch {}
+      })
+      apply_palette()
+      document.querySelector(".palette").hidden = false
+
+      const diff_view = document.querySelector("#diff-view")
+      const diff_view_key = "bokehjs-baseline-review-diff-view"
+      try {
+        const saved = localStorage.getItem(diff_view_key)
+        if ([...diff_view.options].some((option) => option.value == saved)) {
+          diff_view.value = saved
+        }
+      } catch {}
+      function apply_diff_view() {
+        document.documentElement.dataset.diffView = diff_view.value
+      }
+      diff_view.addEventListener("change", () => {
+        apply_diff_view()
+        try {
+          localStorage.setItem(diff_view_key, diff_view.value)
+        } catch {}
+      })
+      apply_diff_view()
+      document.querySelector(".diff-view").hidden = false
+
+      const input = document.querySelector("#filter")
+      const cards = [...document.querySelectorAll(".result")].map((element) => ({
+        element, text: element.dataset.search.toLowerCase(),
+      }))
+      const count = document.querySelector("#count")
+      const no_matches = document.querySelector("#no-matches")
+      const views = document.querySelectorAll(".views a")
+      input.value = new URLSearchParams(location.search).get("q") ?? ""
+
+      function filter() {
+        const query = input.value.trim().toLowerCase()
+        let visible = 0
+        for (const {element, text} of cards) {
+          element.hidden = !text.includes(query)
+          if (!element.hidden) {
+            visible++
+          }
+        }
+        count.textContent = `${visible} of ${cards.length} shown`
+        no_matches.hidden = visible != 0 || cards.length == 0
+        for (const link of views) {
+          const url = new URL(link.href)
+          if (input.value == "") {
+            url.searchParams.delete("q")
+          } else {
+            url.searchParams.set("q", input.value)
+          }
+          link.href = url.href
+        }
+      }
+      input.addEventListener("input", filter)
+      document.querySelector("#clear-filter").addEventListener("click", () => {
+        input.value = ""
+        filter()
+        input.focus()
+      })
+      document.querySelector(".search").hidden = false
+      filter()
+
+      for (const button of document.querySelectorAll(".zoom")) {
+        const comparison = document.getElementById(button.getAttribute("aria-controls"))
+        const frames = comparison.querySelectorAll(".image-frame")
+        function set_exact(exact) {
+          comparison.classList.toggle("exact", exact)
+          for (const frame of frames) {
+            frame.tabIndex = exact ? 0 : -1
+            frame.scrollTo(0, 0)
+          }
+          button.setAttribute("aria-pressed", `${exact}`)
+          button.textContent = exact ? "Fit" : "1:1"
+        }
+        button.hidden = false
+        button.addEventListener("click", () => set_exact(!comparison.classList.contains("exact")))
+        comparison.addEventListener("keydown", (event) => {
+          if (event.key == "Escape" && comparison.classList.contains("exact")) {
+            set_exact(false)
+            button.focus()
+          }
+        })
+        button.addEventListener("keydown", (event) => {
+          if (event.key == "Escape") {
+            set_exact(false)
+          }
+        })
+      }
+      document.querySelector("#zoom-help").hidden = false
+    </script>
   </body>
 </html>

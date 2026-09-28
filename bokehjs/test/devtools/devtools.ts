@@ -423,8 +423,9 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       if (baselines_root != null) {
         const selected_baseline_names = selected_tests.map(([,, status]) => status.baseline_name!)
         const results = selected_tests.map(([suites, test, status]) => {
-          const {failure, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
-          return [descriptions(suites, test), {failure, baseline_name, baseline, existing_blf, image, image_diff, reference}]
+          const {failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
+          const success = !(failure ?? false) && !(timeout ?? false) && !(skipped ?? false)
+          return [descriptions(suites, test), {success, failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference}]
         })
         const json = JSON.stringify({
           completed: true,
