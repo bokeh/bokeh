@@ -807,12 +807,17 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     color: string | number,
     cache: Map<string | number, [number, number, number, number]>,
   ): [number, number, number, number] {
-    let cached = cache.get(color)
-    if (cached === undefined) {
-      cached = color2rgba(color)
-      cache.set(color, cached)
+    const MAX_CACHE_SIZE = 4096
+    const cached = cache.get(color)
+    if (cached !== undefined) {
+      return cached
     }
-    return cached
+
+    const rgba = color2rgba(color)
+    if (cache.size < MAX_CACHE_SIZE) {
+      cache.set(color, rgba)
+    }
+    return rgba
   }
 }
 
