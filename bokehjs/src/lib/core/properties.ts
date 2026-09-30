@@ -781,13 +781,19 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     const n = colors.length
     const array = new RGBAArray(4*n)
 
+    const cache = new Map<string | number, [number, number, number, number]>()
+
     let j = 0
-    for (const color of colors) {
-      const [r, g, b, a] = color2rgba(color)
-      array[j++] = r
-      array[j++] = g
-      array[j++] = b
-      array[j++] = a
+    for (let i = 0; i < n; i++) {
+      const color = colors[i]
+
+      const rgba = (typeof color === "string" || typeof color === "number")
+        ? this._get_cached_color(color, cache) : color2rgba(color)
+
+      array[j++] = rgba[0]
+      array[j++] = rgba[1]
+      array[j++] = rgba[2]
+      array[j++] = rgba[3]
     }
 
     return new ColorArray(array.buffer)
@@ -795,6 +801,23 @@ export class ColorSpec extends DataSpec<types.Color | null> {
 
   override vector(values: ColorArray): ColorUniformVector {
     return new ColorUniformVector(values)
+  }
+
+  private _get_cached_color(
+    color: string | number,
+    cache: Map<string | number, [number, number, number, number]>,
+  ): [number, number, number, number] {
+    const MAX_CACHE_SIZE = 4096
+    const cached = cache.get(color)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const rgba = color2rgba(color)
+    if (cache.size < MAX_CACHE_SIZE) {
+      cache.set(color, rgba)
+    }
+    return rgba
   }
 }
 
