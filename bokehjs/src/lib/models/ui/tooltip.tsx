@@ -393,12 +393,6 @@ export class TooltipView extends UIElementView {
       }
     `)
   }
-
-  // Compute on demand; remove when bbox support is redesigned
-  override get bbox(): BBox {
-    this._update_bbox()
-    return super.bbox
-  }
 }
 
 export namespace Tooltip {
