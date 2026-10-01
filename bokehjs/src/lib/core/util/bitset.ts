@@ -268,12 +268,21 @@ export class BitSet implements Equatable {
 
   select<T>(array: Arrayable<T>): Arrayable<T> {
     assert(this.size <= array.length, "Size mismatch")
-    const n = this.count
-    const result = new (array.constructor as ArrayableNew)<T>(n)
-    const indices = this.ones()
-    let i = 0
-    for (let j = 0; j < indices.length; j++) {
-      result[i++] = array[indices[j]]
+    const {_array, _nwords, count, size} = this
+    const result = new (array.constructor as ArrayableNew)<T>(count)
+    let r = 0
+    for (let k = 0, i = 0; i < _nwords; i++) {
+      const word = _array[i]
+      if (word == 0) {
+        k += BitSet._word_length
+      } else {
+        for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
+          // collect element if corresponding bit is 1
+          if (((word >>> j) & 0b1) == 0b1) {
+            result[r++] = array[k]
+          }
+        }
+      }
     }
     return result
   }
