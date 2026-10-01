@@ -99,7 +99,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
       if (marker_type == null || this._nshow_by_type.get(marker_type) == null) {
         continue
       }
-      this._draw_one_marker_type(marker_type, transform, main_gl_glyph, this._show_by_type.get(marker_type))
+      this._draw_one_marker_type(marker_type, transform, main_gl_glyph, this._show_by_type.get(marker_type)!)
     }
   }
 

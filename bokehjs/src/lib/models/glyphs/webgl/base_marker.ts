@@ -33,7 +33,6 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected _border_radius_nonzero: boolean = false
 
   // indices properties
-  protected readonly _show = new Uint8Buffer(this.regl_wrapper)
   protected _show_indices: number[] | null = null
   protected _show_nmarkers: number = -1
 
@@ -118,7 +117,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     marker_type: GLMarkerType,
     transform: Transform,
     main_gl_glyph: BaseMarkerGL,
-    show: Uint8Buffer = this._show,
+    show: Uint8Buffer,
   ): void {
     const props_no_hatch: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,

@@ -1,6 +1,7 @@
 import type {Transform} from "./base"
 import type {MarkerVisuals} from "./base_marker"
 import {BaseMarkerGL} from "./base_marker"
+import {Uint8Buffer} from "./buffer"
 import type {ReglWrapper} from "./regl_wrap"
 import type {GLMarkerType} from "./types"
 import type {GlyphView} from "../glyph"
@@ -11,6 +12,7 @@ export type SingleMarkerGlyphView = GlyphView & {
 }
 
 export abstract class SingleMarkerGL extends BaseMarkerGL {
+  protected readonly _show = new Uint8Buffer(this.regl_wrapper)
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: SingleMarkerGlyphView) {
     super(regl_wrapper, glyph)
@@ -63,6 +65,6 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
       this._show_nmarkers = nmarkers
     }
 
-    this._draw_one_marker_type(this.marker_type, transform, main_gl_glyph)
+    this._draw_one_marker_type(this.marker_type, transform, main_gl_glyph, this._show)
   }
 }
