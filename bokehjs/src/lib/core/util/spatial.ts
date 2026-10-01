@@ -438,35 +438,35 @@ export class SpatialIndex {
     }
   }
 
-  private _sort_by_hilbert_values(keys: Uint32Array<ArrayBuffer>): void {
+  private _sort_by_hilbert_values(hilbert_values: Uint32Array<ArrayBuffer>): void {
     const {n_items, _bboxes, _indices, shift_factor_bbox} = this
 
-    const BITS = 11                       // try 8 vs 11
+    const BITS = 11
     const RADIX = 1 << BITS
     const MASK = RADIX - 1
     const PASSES = Math.ceil(32 / BITS)
 
-    // one read over the keys builds the histograms for all passes
+    // one read over the hilbert_values builds the histograms for all passes
     const counts = new Uint32Array(PASSES * RADIX)
     for (let i = 0; i < n_items; i++) {
-      const k = keys[i]
+      const k = hilbert_values[i]
       for (let p = 0; p < PASSES; p++) {
         counts[p * RADIX + ((k >>> (p * BITS)) & MASK)]++
       }
     }
 
-    let keys_src: Uint32Array = keys
+    let keys_src: Uint32Array = hilbert_values
     let keys_dst: Uint32Array = new Uint32Array(n_items)
     let ids_src: Uint32Array = new Uint32Array(n_items)
     let ids_dst: Uint32Array = new Uint32Array(n_items)
     let identity = true                  // ids_src is implicitly 0..n-1 until the first real pass
 
-    const first_key = keys[0]
+    const first_key = hilbert_values[0]
     for (let p = 0; p < PASSES; p++) {
       const shift = p * BITS
       const offset = p * RADIX
 
-      // all keys share this digit -> pass would be a no-op
+      // all hilbert_values share this digit -> pass would be a no-op
       if (counts[offset + ((first_key >>> shift) & MASK)] === n_items) {
         continue
       }
