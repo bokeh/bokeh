@@ -27,15 +27,17 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
   }
 
   protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL): void {
-    if (main_gl_glyph.data_changed || main_gl_glyph.data_mapped) {
-      main_gl_glyph.set_data(main_gl_glyph.data_changed)
+    const main_data_changed = main_gl_glyph.data_changed
+    if (main_data_changed || main_gl_glyph.data_mapped) {
+      main_gl_glyph.set_data(main_data_changed)
       main_gl_glyph.data_changed = false
       main_gl_glyph.data_mapped = false
     }
 
     // Update derived glyph data if it has overrides
-    if (this !== main_gl_glyph && (this.data_changed || this.data_mapped)) {
-      this.set_data(this.data_changed)  // Populate derived buffers
+    const derived_data_changed = this.data_changed
+    if (this !== main_gl_glyph && (derived_data_changed || this.data_mapped)) {
+      this.set_data(derived_data_changed) // Populate derived buffers
       this.data_changed = false
       this.data_mapped = false
     }
@@ -47,27 +49,18 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
 
     const nmarkers = main_gl_glyph.nvertices
 
-    const prev_nmarkers = this._show.length
-    const show_array = this._show.get_sized_array(nmarkers)
-    let show_changed = false
-    if (indices.length < nmarkers) {
-      this._show_all = false
-      if (prev_nmarkers != nmarkers || this._have_indices_changed(indices)) {
-        show_array.fill(0)
-        for (let i = 0; i < indices.length; i++) {
-          show_array[indices[i]] = 255
-        }
-        this._show_indices = indices.slice()
-        show_changed = true
+    const rebuild_show = main_data_changed || derived_data_changed ||
+      this._show_nmarkers != nmarkers || this._have_indices_changed(indices)
+
+    if (rebuild_show) {
+      const show_array = this._show.get_sized_array(nmarkers)
+      show_array.fill(0)
+      for (let i = 0; i < indices.length; i++) {
+        show_array[indices[i]] = 255
       }
-    } else if (!this._show_all || prev_nmarkers != nmarkers) {
-      this._show_all = true
-      this._show_indices = null
-      show_array.fill(255)
-      show_changed = true
-    }
-    if (show_changed) {
       this._show.update()
+      this._show_indices = indices.slice()
+      this._show_nmarkers = nmarkers
     }
 
     this._draw_one_marker_type(this.marker_type, transform, main_gl_glyph)

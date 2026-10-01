@@ -34,8 +34,8 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
   // indices properties
   protected readonly _show = new Uint8Buffer(this.regl_wrapper)
-  protected _show_all: boolean = false
   protected _show_indices: number[] | null = null
+  protected _show_nmarkers: number = -1
 
   // visual properties
   protected readonly _linewidths = new Float32Buffer(this.regl_wrapper)

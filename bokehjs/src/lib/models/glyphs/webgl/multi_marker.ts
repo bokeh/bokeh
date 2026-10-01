@@ -16,7 +16,6 @@ export class MultiMarkerGL extends BaseMarkerGL {
   protected _unique_marker_types: (MarkerType | null)[]
   private readonly _show_by_type = new Map<MarkerType, Uint8Buffer>()
   private readonly _nshow_by_type = new Map<MarkerType, number>()
-  private _show_nmarkers: number = -1
   private _show_marker_types?: Uniform<MarkerType | ExtMarkerType | null>
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: ScatterView) {
