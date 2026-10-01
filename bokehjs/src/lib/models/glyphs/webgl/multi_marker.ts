@@ -16,7 +16,6 @@ export class MultiMarkerGL extends BaseMarkerGL {
   protected _unique_marker_types: (MarkerType | null)[]
   private readonly _show_by_type = new Map<MarkerType, Uint8Buffer>()
   private readonly _nshow_by_type = new Map<MarkerType, number>()
-  private _show_indices: number[] | null = null
   private _show_nmarkers: number = -1
   private _show_marker_types?: Uniform<MarkerType | ExtMarkerType | null>
 
@@ -103,27 +102,6 @@ export class MultiMarkerGL extends BaseMarkerGL {
       }
       this._draw_one_marker_type(marker_type, transform, main_gl_glyph, this._show_by_type.get(marker_type))
     }
-  }
-
-  private _have_indices_changed(indices: number[]): boolean {
-    const existing = this._show_indices
-    if (existing == null || existing.length !== indices.length) {
-      return true
-    }
-    const n = indices.length
-    if (n === 0) {
-      return false
-    }
-    // Endpoints mismatching proves inequality regardless of ordering.
-    if (existing[0] !== indices[0] || existing[n - 1] !== indices[n - 1]) {
-      return true
-    }
-    for (let i = 1; i < n - 1; i++) {
-      if (existing[i] !== indices[i]) {
-        return true
-      }
-    }
-    return false
   }
 
   protected override _get_visuals(): MarkerVisuals {

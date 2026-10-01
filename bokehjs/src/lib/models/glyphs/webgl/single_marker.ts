@@ -12,8 +12,6 @@ export type SingleMarkerGlyphView = GlyphView & {
 
 export abstract class SingleMarkerGL extends BaseMarkerGL {
 
-  private _show_indices: number[] | null = null
-
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: SingleMarkerGlyphView) {
     super(regl_wrapper, glyph)
   }
@@ -54,14 +52,12 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
     let show_changed = false
     if (indices.length < nmarkers) {
       this._show_all = false
-      const same_indices = this._show_indices?.length == indices.length &&
-        indices.every((index, i) => this._show_indices![i] == index)
-      if (prev_nmarkers != nmarkers || !same_indices) {
+      if (prev_nmarkers != nmarkers || this._have_indices_changed(indices)) {
         show_array.fill(0)
-        for (const index of indices) {
-          show_array[index] = 255
+        for (let i = 0; i < indices.length; i++) {
+          show_array[indices[i]] = 255
         }
-        this._show_indices = [...indices]
+        this._show_indices = indices.slice()
         show_changed = true
       }
     } else if (!this._show_all || prev_nmarkers != nmarkers) {

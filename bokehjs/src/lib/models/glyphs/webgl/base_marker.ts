@@ -35,6 +35,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   // indices properties
   protected readonly _show = new Uint8Buffer(this.regl_wrapper)
   protected _show_all: boolean = false
+  protected _show_indices: number[] | null = null
 
   // visual properties
   protected readonly _linewidths = new Float32Buffer(this.regl_wrapper)
@@ -174,5 +175,26 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       this._hatch_weights.set_from_prop(hatch.hatch_weight)
       this._hatch_rgba.set_from_color(hatch.hatch_color, hatch.hatch_alpha)
     }
+  }
+
+  protected _have_indices_changed(indices: number[]): boolean {
+    const existing = this._show_indices
+    if (existing == null || existing.length !== indices.length) {
+      return true
+    }
+    const n = indices.length
+    if (n === 0) {
+      return false
+    }
+    // Endpoints mismatching proves inequality regardless of ordering.
+    if (existing[0] !== indices[0] || existing[n - 1] !== indices[n - 1]) {
+      return true
+    }
+    for (let i = 1; i < n - 1; i++) {
+      if (existing[i] !== indices[i]) {
+        return true
+      }
+    }
+    return false
   }
 }
