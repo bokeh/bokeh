@@ -438,87 +438,81 @@ export class SpatialIndex {
     }
   }
 
-  private _sort_by_hilbert_values(hilbert_values: Uint32Array): void {
-    const {n_items, node_size, _bboxes, _indices, shift_factor_bbox} = this
+  private _sort_by_hilbert_values(keys: Uint32Array<ArrayBuffer>): void {
+    const {n_items, _bboxes, _indices, shift_factor_bbox} = this
 
-    const is_power_of_2 = (node_size & (node_size - 1)) === 0
-    const node_mask = node_size - 1
+    const BITS = 11                       // try 8 vs 11
+    const RADIX = 1 << BITS
+    const MASK = RADIX - 1
+    const PASSES = Math.ceil(32 / BITS)
 
-    // log(N) allocation possible due to pushing smallest partition always last
-    const stack = new Int32Array(2 * 2 * Math.ceil(Math.log2(n_items + 1)))
-    let sp = 0
-    stack[sp++] = 0
-    stack[sp++] = n_items - 1
+    // one read over the keys builds the histograms for all passes
+    const counts = new Uint32Array(PASSES * RADIX)
+    for (let i = 0; i < n_items; i++) {
+      const k = keys[i]
+      for (let p = 0; p < PASSES; p++) {
+        counts[p * RADIX + ((k >>> (p * BITS)) & MASK)]++
+      }
+    }
 
-    while (sp > 0) {
-      const r = stack[--sp]
-      const l = stack[--sp]
-      const r_mod = is_power_of_2 ? (r & node_mask) : (r % node_size)
-      if (r - l <= node_size && r - r_mod <= l) {
+    let keys_src: Uint32Array = keys
+    let keys_dst: Uint32Array = new Uint32Array(n_items)
+    let ids_src: Uint32Array = new Uint32Array(n_items)
+    let ids_dst: Uint32Array = new Uint32Array(n_items)
+    let identity = true                  // ids_src is implicitly 0..n-1 until the first real pass
+
+    const first_key = keys[0]
+    for (let p = 0; p < PASSES; p++) {
+      const shift = p * BITS
+      const offset = p * RADIX
+
+      // all keys share this digit -> pass would be a no-op
+      if (counts[offset + ((first_key >>> shift) & MASK)] === n_items) {
         continue
       }
 
-      const a = hilbert_values[l]
-      const b = hilbert_values[(l + r) >> 1]
-      const c = hilbert_values[r]
-      const pivot = ((a > b) !== (a > c)) ? a :
-          ((b < a) !== (b < c)) ? b : c
+      let sum = 0
+      for (let b = 0; b < RADIX; b++) {
+        const c = counts[offset + b]
+        counts[offset + b] = sum
+        sum += c
+      }
 
-      let i = l - 1
-      let j = r + 1
-      while (true) {
-        do {
-          i++
-        } while (hilbert_values[i] < pivot)
-        do {
-          j--
-        } while (hilbert_values[j] > pivot)
-        if (i >= j) {
-          break
+      if (identity) {
+        for (let i = 0; i < n_items; i++) {
+          const k = keys_src[i]
+          const pos = counts[offset + ((k >>> shift) & MASK)]++
+          keys_dst[pos] = k
+          ids_dst[pos] = i
         }
-
-        const temp_h = hilbert_values[i]
-        hilbert_values[i] = hilbert_values[j]
-        hilbert_values[j] = temp_h
-
-        const k = i << shift_factor_bbox
-        const m = j << shift_factor_bbox
-
-        const b0 = _bboxes[k]
-        const b1 = _bboxes[k + 1]
-        const b2 = _bboxes[k + 2]
-        const b3 = _bboxes[k + 3]
-
-        _bboxes[k]     = _bboxes[m]
-        _bboxes[k + 1] = _bboxes[m + 1]
-        _bboxes[k + 2] = _bboxes[m + 2]
-        _bboxes[k + 3] = _bboxes[m + 3]
-
-        _bboxes[m]     = b0
-        _bboxes[m + 1] = b1
-        _bboxes[m + 2] = b2
-        _bboxes[m + 3] = b3
-
-        const temp_i = _indices[i]
-        _indices[i] = _indices[j]
-        _indices[j] = temp_i
-      }
-
-      const left_size = j - l
-      const right_size = r - (j + 1)
-
-      // always push smallest partition last to process it first
-      if (left_size < right_size) {
-        stack[sp++] = j + 1
-        stack[sp++] = r
-        stack[sp++] = l
-        stack[sp++] = j
+        identity = false
       } else {
-        stack[sp++] = l
-        stack[sp++] = j
-        stack[sp++] = j + 1
-        stack[sp++] = r
+        for (let i = 0; i < n_items; i++) {
+          const k = keys_src[i]
+          const pos = counts[offset + ((k >>> shift) & MASK)]++
+          keys_dst[pos] = k
+          ids_dst[pos] = ids_src[i]
+        }
       }
+
+      ;[keys_src, keys_dst] = [keys_dst, keys_src]
+      ;[ids_src, ids_dst] = [ids_dst, ids_src]
+    }
+
+    if (identity) {
+      for (let i = 0; i < n_items; i++) ids_src[i] = i
+    }
+
+    // gather bboxes once: sequential writes, random reads
+    const tmp = _bboxes.slice(0, n_items << shift_factor_bbox)
+    for (let i = 0, k = 0; i < n_items; i++, k += 4) {
+      const id = ids_src[i]
+      const m = id << 2
+      _bboxes[k]     = tmp[m]
+      _bboxes[k + 1] = tmp[m + 1]
+      _bboxes[k + 2] = tmp[m + 2]
+      _bboxes[k + 3] = tmp[m + 3]
+      _indices[i] = id
     }
   }
 
