@@ -155,7 +155,7 @@ describe("Scatter", () => {
 
     it("should materialize ISO date strings before coordinate transforms", async () => {
       const dates = ["2024-01-01", "2024-01-02"]
-      const glyph = new Scatter({x: {field: "x", transform: new Dodge({value: 1000})}, y: {field: "y"}})
+      const glyph = Scatter.create({x: {field: "x", transform: Dodge.create({value: 1000})}, y: {field: "y"}})
       const glyph_view = await create_glyph_view(glyph, {x: dates, y: [1, 2]})
 
       expect([...glyph_view.x]).to.be.equal([Date.UTC(2024, 0, 1) + 1000, Date.UTC(2024, 0, 2) + 1000])
@@ -165,8 +165,8 @@ describe("Scatter", () => {
     it("should materialize dates in mixed numeric coordinate columns regardless of order", async () => {
       const values = [null, NaN, 1704110400000, "2024-01-02"]
       const reversed = [...values].reverse()
-      const first = await create_glyph_view(new Scatter({x: {field: "x"}, y: {field: "y"}}), {x: values as any, y: [0, 1, 2, 3]})
-      const second = await create_glyph_view(new Scatter({x: {field: "x"}, y: {field: "y"}}), {x: reversed as any, y: [0, 1, 2, 3]})
+      const first = await create_glyph_view(Scatter.create({x: {field: "x"}, y: {field: "y"}}), {x: values as any, y: [0, 1, 2, 3]})
+      const second = await create_glyph_view(Scatter.create({x: {field: "x"}, y: {field: "y"}}), {x: reversed as any, y: [0, 1, 2, 3]})
 
       expect([...first.x]).to.be.equal([null, NaN, 1704110400000, Date.UTC(2024, 0, 2)] as any)
       expect([...second.x]).to.be.equal([Date.UTC(2024, 0, 2), 1704110400000, NaN, null] as any)
@@ -184,7 +184,7 @@ describe("Scatter", () => {
 
     it("should preserve date-looking categorical factors", async () => {
       const factors = ["2024-01-01", "a"]
-      const x_range = new FactorRange({factors})
+      const x_range = FactorRange.create({factors})
       const glyph_view = await create_glyph_view(glyph, {x: factors, y: [1, 2]}, {axis_type: "categorical", x_range})
 
       expect([...glyph_view.x]).to.be.equal([...x_range.v_synthetic(factors)])
