@@ -53,7 +53,11 @@ from .util.version import is_full_release
 
 if TYPE_CHECKING:
     from .core.types import ID, PathLike
-    from .embed.resources import ResolvedResources, ResourceRequirements
+    from .embed.resources import (
+        ResolvedResource,
+        ResolvedResources,
+        ResourceRequirements,
+    )
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -285,6 +289,35 @@ class Resources:
                 deduplicated.append(asset)
 
         return ResolvedResources(requirements, self, bokeh_version, tuple(deduplicated))
+
+    def resolve_artifact_bootstrap(self, *, bokeh_version: str = __version__) -> ResolvedResource:
+        '''Resolve the standard external artifact bootstrap script.
+
+        The bootstrap is a small, versioned BokehJS asset that starts a
+        declarative artifact mount without requiring inline JavaScript.
+        Host-owned, inline, and offline modes cannot supply an external URL.
+        '''
+        from .embed.resources import ResolvedResource
+
+        if self.mode in ("none", "inline", "offline"):
+            raise ResourceConflictError(
+                f"resource mode {self.mode!r} cannot resolve an external artifact bootstrap URL. "
+                "provide bootstrap_url explicitly",
+            )
+
+        urls, content, hashes = self._resolve_bokeh_assets(
+            ["bokeh-embed-bootstrap"], "js", bokeh_version=bokeh_version,
+        )
+        if content or len(urls) != 1:
+            raise AssertionError("external artifact bootstrap resolution did not produce exactly one URL")
+        [url] = urls
+        integrity = _integrity_for_url(url, hashes) if self.integrity else None
+        if self.integrity and integrity is None:
+            raise ResourceConflictError(f"no SRI hash is available for artifact bootstrap {url!r}")
+        return ResolvedResource(
+            "script", url=url, integrity=integrity,
+            crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
+        )
 
     def _resolve_bokeh_assets(self, components: Sequence[str], kind: Literal["js", "css"], *,
             bokeh_version: str) -> tuple[list[str], list[str], Mapping[str, str]]:
