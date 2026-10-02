@@ -11,6 +11,10 @@ export type Ref = {
   id: string
 }
 
+export type ModelRef = {
+  $ref: string
+}
+
 export function is_ref(obj: unknown): obj is Ref {
   return isPlainObject(obj) && "id" in obj && !("type" in obj)
 }

@@ -43,6 +43,7 @@ export class Deserializer {
 
   protected _decoding: boolean = false
   protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
+  protected readonly _defined_model_ids: Set<ID> = new Set()
   protected readonly _finalizable: Set<HasProps> = new Set()
   protected readonly _new_references: Set<ID> = new Set()
   protected readonly _updated_references: Map<HasProps, Attrs> = new Map()
@@ -117,6 +118,7 @@ export class Deserializer {
     } finally {
       this._decoding = false
       this._buffers.clear()
+      this._defined_model_ids.clear()
       this._finalizable.clear()
       this._new_references.clear()
       this._updated_references.clear()
@@ -128,7 +130,36 @@ export class Deserializer {
     if (isArray(obj)) {
       return this._decode_plain_array(obj)
     } else if (isPlainObject(obj)) {
-      if (isString(obj.type)) {
+      if (isString(obj.$ref)) {
+        return this._decode_ref({id: obj.$ref})
+      } else if ("$value" in obj) {
+        const value = this._decode(obj.$value)
+        return {
+          value,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
+      } else if (isString(obj.$field)) {
+        const field = obj.$field
+        return {
+          field,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
+      } else if ("$expr" in obj) {
+        const expr = this._decode(obj.$expr)
+        return {
+          expr,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
+      } else if (isString(obj.$type)) {
+        if (isString(obj.$id)) {
+          return this._decode_object_ref(obj as ObjectRefRep)
+        } else {
+          return this._decode_object(obj as ObjectRep)
+        }
+      } else if (isString(obj.type)) {
         const decoder = _decoders.get(obj.type)
         if (decoder != null) {
           return decoder(obj, this)
@@ -331,9 +362,14 @@ export class Deserializer {
   }
 
   protected _decode_object(obj: ObjectRep): unknown {
-    const {name: type, attributes} = obj
+    const rep = obj as any
+    const type = isString(rep.$type) ? rep.$type : rep.name
+    const attributes = isString(rep.$type) ? (() => {
+      const {$type: _type, $id: _id, ...attributes} = rep
+      return attributes
+    })() : rep.attributes ?? {}
     const cls = this._resolve_type(type)
-    if (attributes != null) {
+    if (Object.keys(attributes).length != 0) {
       return construct(cls, this._decode(attributes) as Attrs)
     } else {
       return construct(cls)
@@ -350,12 +386,23 @@ export class Deserializer {
   }
 
   protected _decode_object_ref(obj: ObjectRefRep): HasProps {
-    const {id, name: type, attributes} = obj
+    const rep = obj as any
+    const id = isString(rep.$id) ? rep.$id : rep.id
+    const type = isString(rep.$type) ? rep.$type : rep.name
+    const attributes = isString(rep.$type) ? (() => {
+      const {$type: _type, $id: _id, ...attributes} = rep
+      return attributes
+    })() : rep.attributes ?? {}
+
+    if (this._defined_model_ids.has(id)) {
+      this.error(`duplicate model ID '${id}'`)
+    }
+    this._defined_model_ids.add(id)
 
     const ref = this.references.get(id)
     if (ref != null) {
       if (ref.type == type) {
-        const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+        const decoded_attributes = this._decode(attributes) as Attrs
         const previous = (() => {
           const previous = this._updated_references.get(ref)
           if (previous != null) {
@@ -381,7 +428,7 @@ export class Deserializer {
       this.references.set(id, instance)
       this._new_references.add(id)
 
-      const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+      const decoded_attributes = this._decode(attributes) as Attrs
       instance.initialize_props(decoded_attributes)
 
       this._finalizable.add(instance)

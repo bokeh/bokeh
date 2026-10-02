@@ -358,7 +358,8 @@ class Test_json_item:
     def test_root_id(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))
         assert set(out.keys()) == JSON_ITEMS_KEYS
-        assert out['doc']['roots'][0]["id"] == out['root_id']
+        root = out['doc']['roots'][0]
+        assert root["$id"] == out['root_id']
 
     def test_version(self, monkeypatch: pytest.MonkeyPatch, test_plot: figure) -> None:
         from bokeh import __version__
@@ -380,16 +381,16 @@ class Test_json_item:
         dark_title_attrs = built_in_themes[DARK_MINIMAL]._for_class(Title)
 
         dark_item = bes.json_item(test_plot, theme=DARK_MINIMAL)
-        dark_attrs = dark_item["doc"]["roots"][0]["attributes"]
+        dark_attrs = dark_item["doc"]["roots"][0]
         assert dark_attrs["background_fill_color"] == dark_plot_attrs["background_fill_color"]
         assert dark_attrs["border_fill_color"] == dark_plot_attrs["border_fill_color"]
-        assert dark_attrs["title"]["attributes"]["text_color"] == dark_title_attrs["text_color"]
+        assert dark_attrs["title"]["text_color"] == dark_title_attrs["text_color"]
 
         light_title_attrs = built_in_themes[LIGHT_MINIMAL]._for_class(Title)
 
         light_item = bes.json_item(test_plot, theme=LIGHT_MINIMAL)
-        light_attrs = light_item["doc"]["roots"][0]["attributes"]
-        assert light_attrs["title"]["attributes"]["text_color"] == light_title_attrs["text_color"]
+        light_attrs = light_item["doc"]["roots"][0]
+        assert light_attrs["title"]["text_color"] == light_title_attrs["text_color"]
 
     def test_builtin_theme_name_overrides_existing_doc_theme_temporarily(self, test_plot: figure) -> None:
         doc = Document()
@@ -402,17 +403,17 @@ class Test_json_item:
         dark_title_attrs = built_in_themes[DARK_MINIMAL]._for_class(Title)
 
         dark_item = bes.json_item(test_plot, theme=DARK_MINIMAL)
-        dark_attrs = dark_item["doc"]["roots"][0]["attributes"]
+        dark_attrs = dark_item["doc"]["roots"][0]
         assert dark_attrs["background_fill_color"] == dark_plot_attrs["background_fill_color"]
         assert dark_attrs["border_fill_color"] == dark_plot_attrs["border_fill_color"]
-        assert dark_attrs["title"]["attributes"]["text_color"] == dark_title_attrs["text_color"]
+        assert dark_attrs["title"]["text_color"] == dark_title_attrs["text_color"]
         assert doc.theme is orig_theme
 
         light_title_attrs = built_in_themes[LIGHT_MINIMAL]._for_class(Title)
 
         light_item = bes.json_item(test_plot)
-        light_attrs = light_item["doc"]["roots"][0]["attributes"]
-        assert light_attrs["title"]["attributes"]["text_color"] == light_title_attrs["text_color"]
+        light_attrs = light_item["doc"]["roots"][0]
+        assert light_attrs["title"]["text_color"] == light_title_attrs["text_color"]
         assert doc.theme is orig_theme
 
     @patch('bokeh.embed.standalone.OutputDocumentFor')

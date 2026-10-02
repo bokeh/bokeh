@@ -275,7 +275,7 @@ def _check_units_props(
             units_alias = getattr(prop, "_units_alias")
             raise TypeError(
                 f"{cls.__name__}.{name} uses {type(prop).__name__} and requires a matching "
-                f"{cls.__name__}.{units_name} property; add `{units_name} = {units_alias}`",
+                f"{cls.__name__}.{units_name} property. Add `{units_name} = {units_alias}`",
             )
 
 def _warn_redeclared_props(
@@ -483,18 +483,46 @@ class HasProps(Serializable):
             return self.properties_with_values() == other.properties_with_values()
 
     def to_serializable(self, serializer: Serializer) -> ObjectRep:
-        rep = ObjectRep(
-            type="object",
-            name=self.__qualified_model__,
-        )
+        include_defaults = settings.serialize_include_defaults()
+        properties = self.properties_with_values(include_defaults=include_defaults)
+        if serializer.compact and not include_defaults:
+            from ..model.util import visit_value_and_its_immediate_references
+            from .property.any import Any as AnyProperty
 
-        properties = self.properties_with_values(include_defaults=settings.serialize_include_defaults())
+            def has_retained_ref(value: Any) -> bool:
+                retained = False
+
+                def check(model: Any) -> None:
+                    nonlocal retained
+                    retained |= serializer.use_model_id(model)
+
+                visit_value_and_its_immediate_references(value, check)
+                return retained
+
+            default_values = self.properties_with_values(include_defaults=True)
+            reference_properties = self.properties_with_refs()
+            reference_properties = {
+                key: prop for key, prop in self.properties().items()
+                if key in reference_properties or isinstance(prop, AnyProperty)
+            }
+            retained_defaults = {
+                key: default_values[key] for key in reference_properties
+                if key not in properties and key in default_values and has_retained_ref(default_values[key])
+            }
+            if retained_defaults:
+                properties = {
+                    key: properties.get(key, retained_defaults.get(key))
+                    for key in self.properties() if key in properties or key in retained_defaults
+                }
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
-        if attributes:
-            rep["attributes"] = attributes
-
-        return rep
+        if serializer.compact:
+            return ObjectRep({"$type": self.__qualified_model__, **attributes})
+        else:
+            rep = ObjectRep(type="object", name=self.__qualified_model__)
+            if attributes:
+                rep["attributes"] = attributes
+            return rep
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
     def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:
@@ -629,7 +657,7 @@ class HasProps(Serializable):
 
         Non-serializable properties are skipped and property values are in
         "serialized" format which may be slightly different from the values
-        you would normally read from the properties; the intent of this method
+        you would normally read from the properties. The intent of this method
         is to return the information needed to losslessly reconstitute the
         object instance.
 
