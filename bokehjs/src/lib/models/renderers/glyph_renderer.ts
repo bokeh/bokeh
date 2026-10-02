@@ -324,7 +324,7 @@ export class GlyphRendererView extends DataRendererView {
     this.map_data()
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
-    const all_indices = this.all_indices.ones()
+    const all_indices = this.model.view.indices_array
     let indices = this._update_masked_indices().ones()
 
     // selected is in full set space
