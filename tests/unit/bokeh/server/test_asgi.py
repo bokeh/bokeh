@@ -623,6 +623,8 @@ async def test_embed_bootstrap_and_static_routes() -> None:
     try:
         bootstrap = await http_request(app, "/embed.json")
         static = await http_request(app, "/static/js/bokeh.min.js")
+        artifact_bootstrap = await http_request(app, "/static/js/bokeh-embed-bootstrap.js")
+        minified_artifact_bootstrap = await http_request(app, "/static/js/bokeh-embed-bootstrap.min.js")
         traversal = await http_request(app, "/static/../asgi.py")
 
         assert response_status(bootstrap) == 200
@@ -630,6 +632,10 @@ async def test_embed_bootstrap_and_static_routes() -> None:
         assert b'"token"' in response_body(bootstrap)
         assert response_status(static) == 200
         assert b"Bokeh Contributors" in response_body(static)
+        assert response_status(artifact_bootstrap) == 200
+        assert b"mount_artifact_declaration" in response_body(artifact_bootstrap)
+        assert response_status(minified_artifact_bootstrap) == 200
+        assert b"mount_artifact_declaration" in response_body(minified_artifact_bootstrap)
         assert response_status(traversal) == 404
     finally:
         await app.core.stop()

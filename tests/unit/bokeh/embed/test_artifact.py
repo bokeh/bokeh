@@ -637,13 +637,23 @@ def test_resource_policy_reports_csp_and_sri_conflicts() -> None:
         artifact.fragment(resources=Resources(mode="cdn", external_only=True), bootstrap_url="/bootstrap.js")
 
 
-def test_resource_policy_resolves_standard_artifact_bootstrap() -> None:
-    bootstrap = Resources(
+def test_resource_policy_resolves_standard_artifact_bootstrap(tmp_path: Path) -> None:
+    server = Resources(
         mode="server", root_url="https://example.test/app/", crossorigin="anonymous",
     ).resolve_artifact_bootstrap()
+    cdn = Resources(mode="cdn").resolve_artifact_bootstrap()
+    relative = Resources(
+        mode="relative", root_dir=tmp_path, base_dir=tmp_path,
+    ).resolve_artifact_bootstrap()
+    absolute = Resources(mode="absolute", base_dir=tmp_path).resolve_artifact_bootstrap()
 
-    assert bootstrap.url == "https://example.test/app/static/js/bokeh-embed-bootstrap.min.js"
-    assert bootstrap.crossorigin == "anonymous"
+    assert server.url == "https://example.test/app/static/js/bokeh-embed-bootstrap.min.js"
+    assert server.crossorigin == "anonymous"
+    assert cdn.url == (
+        f"https://cdn.bokeh.org/bokeh/dev/bokeh-embed-bootstrap-{__version__.split('+')[0]}.min.js"
+    )
+    assert relative.url == "js/bokeh-embed-bootstrap.min.js"
+    assert absolute.url == str(tmp_path / "js" / "bokeh-embed-bootstrap.min.js")
 
     with pytest.raises(ResourceConflictError, match="provide bootstrap_url explicitly"):
         Resources(mode="none", external_only=True).resolve_artifact_bootstrap()
@@ -721,6 +731,33 @@ def test_external_only_renderer_uses_standard_bootstrap_asset() -> None:
 
     with pytest.raises(ResourceConflictError, match="provide bootstrap_url explicitly"):
         artifact.external("/artifact.json", resources=Resources(mode="none", external_only=True))
+
+
+def test_external_only_renderer_applies_bootstrap_integrity(monkeypatch: pytest.MonkeyPatch) -> None:
+    import bokeh.resources as resources_module
+
+    artifact = embed(CustomJS(code="root"))
+    release_artifact = EmbedArtifact(
+        artifact.source,
+        artifact.roots,
+        artifact.requires,
+        artifact.metadata,
+        bokeh_version="4.0.0",
+    )
+    hashes = {
+        "bokeh-4.0.0.min.js": "core-hash",
+        "bokeh-api-4.0.0.min.js": "api-hash",
+        "bokeh-embed-bootstrap-4.0.0.min.js": "bootstrap-hash",
+    }
+    monkeypatch.setattr(resources_module, "get_sri_hashes_for_version", lambda version: hashes)
+
+    external = release_artifact.external(
+        "/artifact.json",
+        resources=Resources(mode="cdn", integrity=True, external_only=True),
+    )
+
+    assert 'integrity="sha384-bootstrap-hash"' in external.bootstrap
+    assert 'crossorigin="anonymous"' in external.bootstrap
 
 
 def test_retained_facades_delegate_and_preserve_useful_shapes() -> None:

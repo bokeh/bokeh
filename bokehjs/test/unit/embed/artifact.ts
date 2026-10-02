@@ -711,4 +711,65 @@ describe("EmbedArtifact runtime", () => {
     expect(integrity.message.includes("SRI hash")).to.be.true
   })
 
+  it("loads the standard external bootstrap under a strict CSP", async () => {
+    const artifact = await mountable_fixture("standalone-keyed-roots")
+    const payload = URL.createObjectURL(new Blob([JSON.stringify(artifact)], {
+      type: "application/vnd.bokeh.embed+json",
+    }))
+    const iframe = document.createElement("iframe")
+    const targets = artifact.roots.map((root) =>
+      `<div data-bokeh-artifact="${artifact.fingerprint}" data-bokeh-root="${root.key}"></div>`,
+    ).join("\n")
+    iframe.srcdoc = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'none'; script-src 'self'; connect-src blob:; style-src 'unsafe-inline'">
+    <script src="/static/js/bokeh.min.js"></script>
+    <script src="/static/js/bokeh-api.min.js"></script>
+  </head>
+  <body>
+    ${targets}
+    <script src="/static/js/bokeh-embed-bootstrap.min.js"
+            data-bokeh-artifact-bootstrap
+            data-bokeh-artifact="${artifact.fingerprint}"
+            data-bokeh-payload-url="${payload}"></script>
+  </body>
+</html>`
+
+    type Mounted = {
+      ready: Promise<void>
+      root_keys: string[]
+      dispose(): Promise<void>
+    }
+    type BokehAPI = {
+      when_mounted(target: HTMLElement): Promise<Mounted>
+    }
+
+    let mounted: Mounted | null = null
+    try {
+      const loaded = new Promise<void>((resolve, reject) => {
+        iframe.addEventListener("load", () => resolve(), {once: true})
+        iframe.addEventListener("error", () => reject(new Error("failed to load CSP test frame")), {once: true})
+      })
+      document.body.append(iframe)
+      await loaded
+
+      const frame = iframe.contentWindow as (Window & typeof globalThis & {Bokeh?: BokehAPI}) | null
+      const target = iframe.contentDocument?.querySelector<HTMLElement>("[data-bokeh-root='primary']") ?? null
+      expect_not_null(frame)
+      expect_not_null(frame.Bokeh)
+      expect_not_null(target)
+      mounted = await frame.Bokeh.when_mounted(target)
+      await mounted.ready
+
+      expect(mounted.root_keys).to.be.equal(["primary", "secondary"])
+      expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.true
+    } finally {
+      await mounted?.dispose()
+      URL.revokeObjectURL(payload)
+      iframe.remove()
+    }
+  })
+
 })
