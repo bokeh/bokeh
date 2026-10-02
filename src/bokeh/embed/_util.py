@@ -1,0 +1,375 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+"""Private implementation helpers for Bokeh embedding APIs."""
+
+from __future__ import annotations
+
+# Standard library imports
+import logging
+import re
+from collections.abc import Mapping, Sequence
+from contextlib import contextmanager
+from dataclasses import dataclass
+from enum import Enum, auto
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterator,
+    Literal,
+    cast,
+)
+
+# Bokeh imports
+from ..document import DEFAULT_TITLE, Document
+from ..model import Model, collect_models
+from ..resources import DEFAULT_SERVER_HTTP_URL
+from ..settings import settings
+from ..themes import Theme, ThemeLike
+
+if TYPE_CHECKING:
+    from .artifact import EmbedArtifact
+    from .resources import ResourceRequirements
+
+log = logging.getLogger(__name__)
+
+type _CallbackPolicy = Literal["warn", "error", "suppress"]
+type _SerializationPolicy = Literal["static", "protocol"]
+type _EmbedInput = Model | Document | Sequence[Model | Document] | Mapping[str, Model | Document]
+type _ServerRoot = Model | str
+
+
+class ThemePolicy(Enum):
+    CURDOC = auto()
+    SOURCE_OR_CURDOC = auto()
+
+
+type ThemeSource = ThemeLike | ThemePolicy
+
+
+class EmbedBuildError(ValueError):
+    """Raised when Python embedding intent cannot produce an artifact."""
+
+
+@dataclass(frozen=True)
+class EmbedSpec:
+    '''Normalized standalone embedding input.
+
+    ``models`` and ``keys`` are parallel ordered tuples. ``input_shape`` records
+    the caller-facing form for diagnostics and metadata; the remaining fields
+    control theme application, callback validation, metadata, and serialization.
+    Hosts should normally call :func:`embed` rather than build
+    a specification directly.
+    '''
+    models: tuple[Model, ...]
+    keys: tuple[str, ...]
+    input_shape: Literal["single", "sequence", "mapping", "document"]
+    theme: ThemeSource = None
+    callback_policy: _CallbackPolicy = "warn"
+    metadata: Mapping[str, Any] | None = None
+    serialization: _SerializationPolicy = "static"
+
+    def __post_init__(self) -> None:
+        if not self.models:
+            raise EmbedBuildError("an embedding specification requires at least one model")
+        if len(self.models) != len(self.keys):
+            raise EmbedBuildError("embedding specification models and keys must have equal lengths")
+        if any(not isinstance(model, Model) for model in self.models):
+            raise EmbedBuildError("embedding specification models must be Model instances")
+        if any(not isinstance(key, str) or not key for key in self.keys):
+            raise EmbedBuildError("embedding specification keys must be non-empty strings")
+        if len(self.keys) != len(set(self.keys)):
+            raise EmbedBuildError("embedding specification keys must be unique")
+        if self.input_shape not in ("single", "sequence", "mapping", "document"):
+            raise EmbedBuildError("input_shape must be 'single', 'sequence', 'mapping', or 'document'")
+        if self.callback_policy not in ("warn", "error", "suppress"):
+            raise EmbedBuildError("callback_policy must be 'warn', 'error', or 'suppress'")
+        if self.serialization not in ("static", "protocol"):
+            raise EmbedBuildError("serialization must be 'static' or 'protocol'")
+
+
+def embed(models: _EmbedInput, *, theme: ThemeSource = None, callback_policy: _CallbackPolicy = "warn",
+        metadata: Mapping[str, Any] | None = None) -> EmbedArtifact:
+    """Build one portable embedding artifact from standalone Bokeh content.
+
+    Mapping keys become stable logical root keys. Sequences receive ordinal
+    keys, and a single model receives ``"root"``. The artifact records exact
+    resource requirements but does not choose how a host delivers them.
+    """
+    spec = _build_embed_spec(
+        models, theme=theme, callback_policy=callback_policy, metadata=metadata,
+    )
+    return _build_artifact(spec)
+
+
+def embed_protocol(models: _EmbedInput, *, theme: ThemeSource = None,
+        callback_policy: _CallbackPolicy = "warn", metadata: Mapping[str, Any] | None = None) -> EmbedArtifact:
+    """Build an ID-full artifact for a live protocol boundary.
+
+    Static embedding should use :func:`embed`. Notebook comms and other live
+    transports need canonical model IDs so subsequent patches can address the
+    initial graph without maintaining a second serialization contract.
+    """
+    spec = _build_embed_spec(
+        models, theme=theme, callback_policy=callback_policy, metadata=metadata,
+        serialization="protocol",
+    )
+    return _build_artifact(spec)
+
+
+def _build_artifact(spec: EmbedSpec) -> EmbedArtifact:
+    '''Build an immutable artifact from an already-normalized specification.'''
+    from .artifact import ArtifactRoot, EmbedArtifact
+
+    if submodel_has_python_callbacks(spec.models):
+        message = (
+            "standalone embedding cannot execute Python callbacks; use CustomJS or a Bokeh server source"
+        )
+        if spec.callback_policy == "error":
+            raise EmbedBuildError(message)
+        if spec.callback_policy == "warn":
+            log.warning(message)
+
+    with _staged_document(spec.models, spec.theme) as document:
+        positions = {model: index for index, model in enumerate(document.roots)}
+        try:
+            roots = tuple(ArtifactRoot(key, document=0, root=positions[model]) for key, model in zip(spec.keys, spec.models))
+        except KeyError as error:
+            raise EmbedBuildError("an embedding root is not a root of the staged document") from error
+        document_json = document.to_static_json(deferred=False) if spec.serialization == "static" else document.to_json(deferred=False)
+        from .resources import requirements_for_objs
+        requirements = requirements_for_objs([document])
+
+    artifact_metadata = dict(spec.metadata or {})
+    artifact_metadata["embedding"] = {
+        "callback_policy": spec.callback_policy,
+        "input_shape": spec.input_shape,
+        "static_model_ids": "graph-minimal" if spec.serialization == "static" else "protocol-full",
+        "model_ids": "graph-minimal" if spec.serialization == "static" else "protocol-full",
+    }
+    return EmbedArtifact(
+        source={"kind": "standalone", "documents": [document_json]},
+        roots=roots,
+        requires=requirements,
+        metadata=artifact_metadata,
+    )
+
+
+def embed_server(url: str = "default", *, session_id: str | None = None,
+        roots: Mapping[str, _ServerRoot] | None = None, arguments: Mapping[str, str] | None = None,
+        headers: Mapping[str, str] | None = None, with_credentials: bool = False,
+        relative_urls: bool = False, metadata: Mapping[str, Any] | None = None,
+        token: str | None = None) -> EmbedArtifact:
+    """Create a server-source artifact for a new or existing Bokeh session.
+
+    A token-bearing artifact is normally produced by the Bokeh server bootstrap
+    endpoint. ``token`` is exposed for direct server page construction, where a
+    trusted ``ServerSession`` already owns the signed token.
+    """
+    from .artifact import ArtifactRoot, EmbedArtifact
+
+    if url == "default":
+        url = DEFAULT_SERVER_HTTP_URL
+    if url.startswith("ws"):
+        raise EmbedBuildError("url must be an HTTP(S) Bokeh application URL, not a WebSocket URL")
+    url = url.rstrip("/")
+    if not url:
+        raise EmbedBuildError("a Bokeh server application URL is required")
+
+    artifact_roots: list[ArtifactRoot] = []
+    for key, value in (roots or {}).items():
+        model_id = value.id if isinstance(value, Model) else value
+        if not isinstance(key, str) or not key:
+            raise EmbedBuildError("server root keys must be non-empty strings")
+        if not isinstance(model_id, str) or not model_id:
+            raise EmbedBuildError(f"server root {key!r} must identify a model by a non-empty ID")
+        artifact_roots.append(ArtifactRoot(key, model_id=model_id))
+
+    source: dict[str, Any] = {
+        "kind": "server",
+        "url": url,
+        "arguments": dict(sorted((arguments or {}).items())),
+        "headers": dict(sorted((headers or {}).items())),
+        "credentials": "include" if with_credentials else "same-origin",
+        "relative_urls": relative_urls,
+    }
+    if session_id is not None:
+        source["session_id"] = session_id
+    if token is not None:
+        source["token"] = token
+
+    artifact_metadata = dict(metadata or {})
+    artifact_metadata["embedding"] = {
+        "source": "server",
+        "resource_requirements": "dynamic-conservative",
+    }
+    return EmbedArtifact(
+        source=source,
+        roots=tuple(artifact_roots),
+        requires=_dynamic_server_requirements(),
+        metadata=artifact_metadata,
+    )
+
+
+def _build_embed_spec(models: _EmbedInput, *, theme: ThemeSource, callback_policy: _CallbackPolicy,
+        metadata: Mapping[str, Any] | None,
+        serialization: _SerializationPolicy = "static") -> EmbedSpec:
+    roots: list[Model] = []
+    keys: list[str] = []
+
+    def add(value: Model | Document, base_key: str) -> None:
+        if isinstance(value, Model):
+            roots.append(value)
+            keys.append(base_key)
+        elif isinstance(value, Document):
+            if not value.roots:
+                raise EmbedBuildError("cannot embed a Document with no root models")
+            for index, root in enumerate(value.roots):
+                roots.append(root)
+                keys.append(base_key if len(value.roots) == 1 else f"{base_key}:{index}")
+        else:
+            raise EmbedBuildError(f"expected a Bokeh Model or Document, received {type(value).__name__}")
+
+    if isinstance(models, Model):
+        add(models, "root")
+        input_shape: Literal["single", "sequence", "mapping", "document"] = "single"
+    elif isinstance(models, Document):
+        for index, root in enumerate(models.roots):
+            roots.append(root)
+            keys.append("root" if len(models.roots) == 1 else f"root-{index}")
+        if not roots:
+            raise EmbedBuildError("cannot embed a Document with no root models")
+        input_shape = "document"
+    elif isinstance(models, Mapping):
+        for key, value in models.items():
+            if not isinstance(key, str) or not key:
+                raise EmbedBuildError("embedding mapping keys must be non-empty strings")
+            add(value, key)
+        input_shape = "mapping"
+    elif isinstance(models, Sequence):
+        for index, value in enumerate(models):
+            add(value, f"root-{index}")
+        input_shape = "sequence"
+    else:
+        raise EmbedBuildError(
+            "embed() expects a Model, Document, sequence, or string-keyed mapping of Models/Documents",
+        )
+
+    if not roots:
+        raise EmbedBuildError("embed() requires at least one root model")
+    if len(set(roots)) != len(roots):
+        raise EmbedBuildError("the same Bokeh model cannot be assigned to more than one logical artifact root")
+    if len(set(keys)) != len(keys):
+        raise EmbedBuildError("logical artifact root keys must be unique")
+    return EmbedSpec(
+        tuple(roots), tuple(keys), input_shape, theme, callback_policy, metadata,
+        serialization,
+    )
+
+
+def _complete_source_document(models: Sequence[Model]) -> Document | None:
+    documents = {model.document for model in models if model.document is not None}
+    if len(documents) != 1:
+        return None
+    document = documents.pop()
+    return document if set(models) == set(document.roots) else None
+
+
+@contextmanager
+def _staged_document(models: Sequence[Model], theme: ThemeSource) -> Iterator[Document]:
+    """Stage roots in an ephemeral document without changing their ownership."""
+    source = _complete_source_document(models)
+    document = Document(title=source.title if source is not None else DEFAULT_TITLE)
+
+    if source is not None:
+        document._config = source.config
+        callbacks = source.callbacks.js_event_callbacks
+    else:
+        from ..io import curdoc
+        callbacks = curdoc().callbacks.js_event_callbacks
+
+    document.callbacks._js_event_callbacks.update(
+        (event, list(event_callbacks)) for event, event_callbacks in callbacks.items()
+    )
+
+    applied_theme = _resolve_theme(theme, source)
+
+    staged = collect_models(document.config, models, document.callbacks.js_event_callbacks)
+    previous = [(model, model._temp_document, model.themed_values()) for model in staged]
+    try:
+        for model in staged:
+            document.models[model.id] = model
+            model._temp_document = document
+        document._roots = list(models)
+        if applied_theme is not None:
+            document.theme = applied_theme
+        if settings.perform_document_validation():
+            document.validate()
+        yield document
+    finally:
+        for model, previous_document, previous_theme in previous:
+            model.apply_theme(previous_theme or {})
+            model._temp_document = previous_document
+
+
+def _resolve_theme(theme: ThemeSource, source: Document | None) -> ThemeLike:
+    if theme is ThemePolicy.SOURCE_OR_CURDOC:
+        if source is not None:
+            return source.theme
+        theme = ThemePolicy.CURDOC
+
+    if theme is ThemePolicy.CURDOC:
+        from ..io import curdoc
+        return curdoc().theme
+    if isinstance(theme, Theme):
+        return theme
+    if isinstance(theme, str):
+        return cast(ThemeLike, theme)
+    if source is not None:
+        return source.theme
+    return None
+
+
+def _dynamic_server_requirements() -> ResourceRequirements:
+    from .resources import ResourceRequirements
+    return ResourceRequirements.dynamic_server()
+
+
+def submodel_has_python_callbacks(models: Sequence[Model | Document]) -> bool:
+    '''Traverse submodels to check for Python callbacks.'''
+    return any(model._callbacks or model._event_callbacks for model in collect_models(models))
+
+
+def is_tex_string(text: str) -> bool:
+    '''Whether a string begins and ends with MathJax default delimiters.'''
+    dollars = r"^\$\$.*?\$\$$"
+    braces = r"^\\\[.*?\\\]$"
+    parens = r"^\\\(.*?\\\)$"
+
+    pat = re.compile(f"{dollars}|{braces}|{parens}", flags=re.S)
+    return pat.match(text) is not None
+
+
+def contains_tex_string(text: str) -> bool:
+    '''Whether a string contains any pair of MathJax default delimiters.'''
+    dollars = r"\$\$.*?\$\$"
+    braces = r"\\\[.*?\\\]"
+    parens = r"\\\(.*?\\\)"
+
+    pat = re.compile(f"{dollars}|{braces}|{parens}", flags=re.S)
+    return pat.search(text) is not None
+
+
+__all__ = (
+    "EmbedBuildError",
+    "EmbedSpec",
+    "ThemePolicy",
+    "ThemeSource",
+    "contains_tex_string",
+    "embed",
+    "embed_protocol",
+    "embed_server",
+)

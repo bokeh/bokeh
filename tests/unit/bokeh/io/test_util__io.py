@@ -23,6 +23,7 @@ import sys
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
+from bokeh.embed._util import ThemePolicy
 from bokeh.models import Plot
 
 # Module under test
@@ -54,7 +55,7 @@ def test_temp_filename() -> None:
         assert r == "Junk.test"
         assert mock_tmp.called
         assert mock_tmp.call_args[0] == ()
-        assert mock_tmp.call_args[1] == {'suffix': '.test'}
+        assert mock_tmp.call_args[1] == {'suffix': '.test', 'delete': False}
 
 def test_default_filename() -> None:
     old_detect_current_filename = biu.detect_current_filename
@@ -139,6 +140,14 @@ def test__resized_restores_after_exception() -> None:
 
     assert plot.width == 100
     assert plot.height == 200
+
+def test_get_layout_html_uses_source_or_curdoc_theme_by_default() -> None:
+    plot = Plot()
+
+    with patch("bokeh.io.util.file_html", return_value="<html></html>") as mock_file_html:
+        assert biu.get_layout_html(plot) == "<html></html>"
+
+    assert mock_file_html.call_args.kwargs["theme"] is ThemePolicy.SOURCE_OR_CURDOC
 
 #-----------------------------------------------------------------------------
 # Code

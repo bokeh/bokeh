@@ -27,7 +27,6 @@ from types import ModuleType
 from typing import TYPE_CHECKING, Literal
 
 # Bokeh imports
-from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
@@ -52,7 +51,6 @@ if TYPE_CHECKING:
     from ..document import Document
     from ..models.ui import UIElement
     from ..resources import Resources
-    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -75,7 +73,7 @@ __all__ = (
 
 def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
         height: int | None = None, scale_factor: float = 1, webdriver: DriverLike | None = None,
-        timeout: int = 5, state: State | None = None, backend: ExportBackendType | None = None) -> str:
+        timeout: int = 5, backend: ExportBackendType | None = None) -> str:
     ''' Export the ``UIElement`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -108,10 +106,6 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5) (Added in 1.1.1).
 
-        state (State, optional) :
-            A :class:`State` object. If None, then the current default
-            implicit state is used. (default: None).
-
         backend (ExportBackendType, optional) :
             Which browser backend to use for export. If None, uses the
             ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
@@ -131,7 +125,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
 
     '''
     image = get_screenshot_as_png(obj, width=width, height=height, scale_factor=scale_factor, driver=webdriver,
-                                  timeout=timeout, state=state, backend=backend)
+                                  timeout=timeout, backend=backend)
 
     if filename is None:
         filename = default_filename("png")
@@ -146,7 +140,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
 
 def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
         height: int | None = None, webdriver: DriverLike | None = None, timeout: int = 5,
-        state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
+        backend: ExportBackendType | None = None) -> list[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -171,10 +165,6 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5)
 
-        state (State, optional) :
-            A :class:`State` object. If None, then the current default
-            implicit state is used. (default: None).
-
         backend (ExportBackendType, optional) :
             Which browser backend to use for export. If None, uses the
             ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
@@ -189,12 +179,12 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state, backend=backend)
+    svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout, backend=backend)
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width: int | None = None,
         height: int | None = None, webdriver: DriverLike | None = None, timeout: int = 5,
-        state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
+        backend: ExportBackendType | None = None) -> list[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -220,10 +210,6 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5) (Added in 1.1.1).
 
-        state (State, optional) :
-            A :class:`State` object. If None, then the current default
-            implicit state is used. (default: None).
-
         backend (ExportBackendType, optional) :
             Which browser backend to use for export. If None, uses the
             ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
@@ -238,7 +224,7 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svgs(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state, backend=backend)
+    svgs = get_svgs(obj, width=width, height=height, driver=webdriver, timeout=timeout, backend=backend)
 
     if len(svgs) == 0:
         log.warning("No SVG Plots were found.")
@@ -322,8 +308,8 @@ def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | Non
 
 
 def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None,
-        scale_factor: float = 1, state: State | None = None, backend: ExportBackendType | None = None) -> Image.Image:
+        resources: Resources | str = "inline", width: int | None = None, height: int | None = None,
+        scale_factor: float = 1, backend: ExportBackendType | None = None) -> Image.Image:
     ''' Get a screenshot of a ``UIElement`` object.
 
     Args:
@@ -343,10 +329,6 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
             providing a higher resolution while maintaining element relative
             scales.
 
-        state (State, optional) :
-            A :class:`State` object. If None, then the current default
-            implicit state is used. (default: None).
-
         backend ("selenium" or "playwright", optional) :
             Which browser backend to use. If None, uses Playwright by default.
             Passing a ``driver`` overrides this setting. The Selenium backend
@@ -363,25 +345,25 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
     backend_module = _resolve_backend(driver, backend)
     return backend_module.get_screenshot_as_png(
         obj, driver=driver, timeout=timeout, resources=resources,
-        width=width, height=height, scale_factor=scale_factor, state=state,
+        width=width, height=height, scale_factor=scale_factor,
     )
 
 def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None,
-        state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
+        resources: Resources | str = "inline", width: int | None = None, height: int | None = None,
+        backend: ExportBackendType | None = None) -> list[str]:
     backend_module = _resolve_backend(driver, backend)
     return backend_module.get_svg(
         obj, driver=driver, timeout=timeout, resources=resources,
-        width=width, height=height, state=state,
+        width=width, height=height,
     )
 
 def get_svgs(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None,
-        state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
+        resources: Resources | str = "inline", width: int | None = None, height: int | None = None,
+        backend: ExportBackendType | None = None) -> list[str]:
     backend_module = _resolve_backend(driver, backend)
     return backend_module.get_svgs(
         obj, driver=driver, timeout=timeout, resources=resources,
-        width=width, height=height, state=state,
+        width=width, height=height,
     )
 
 #-----------------------------------------------------------------------------

@@ -36,7 +36,7 @@ built-in ``HTTPServer``.
             ( r'/?',           DocHandler        ), # <prefix>/<app>/
             ( r'/ws',          WSHandler         ), # <prefix>/<app>/ws
             ( r'/metadata',    MetadataHandler   ), # <prefix>/<app>/metadata
-            ( r'/autoload.js', AutoloadJsHandler ), # <prefix>/<app>/autoload.js
+            ( r'/embed.json',  EmbedJsonHandler  ), # <prefix>/<app>/embed.json
         ]
 
 '''
@@ -61,9 +61,9 @@ from typing import Any
 from tornado.web import RequestHandler
 
 # Bokeh imports
-from ..embed.bundle import extension_dirs
-from .views.autoload_js_handler import AutoloadJsHandler
+from ..embed.resources import extension_dirs
 from .views.doc_handler import DocHandler
+from .views.embed_json_handler import EmbedJsonHandler
 from .views.metadata_handler import MetadataHandler
 from .views.multi_root_static_handler import MultiRootStaticHandler
 from .views.root_handler import RootHandler
@@ -104,7 +104,7 @@ per_app_patterns: URLRoutes = [
     (r'/?', DocHandler),
     (r'/ws', WSHandler),
     (r'/metadata', MetadataHandler),
-    (r'/autoload.js', AutoloadJsHandler),
+    (r'/embed.json', EmbedJsonHandler),
 ]
 
 #-----------------------------------------------------------------------------

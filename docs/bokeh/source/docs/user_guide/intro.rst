@@ -99,27 +99,27 @@ Output methods
 --------------
 
 Bokeh offers a variety of ways to produce interactive output. The following
-two functions are the most common:
+functions are the most common:
 
-|output_file|
-    Generate simple standalone HTML documents for Bokeh visualizations.
+|show|
+    Save and open standalone HTML, or display inline in an active notebook.
+
+|save|
+    Generate standalone HTML documents without opening a browser.
 
 |output_notebook|
     Display Bokeh visualizations in Jupyter/Zeppelin notebooks.
 
-These output functions are usually used together with |show| or |save|. Here's
-an example:
+Here's an example:
 
 .. code-block:: python
 
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("output.html")
+    from bokeh.plotting import figure, show
 
     p = figure()
     p.line(x=[1, 2, 3], y=[4,6,2])
 
-    show(p)
+    show(p, filename="output.html")
 
 This script generates an HTML file called ``output.html`` that contains a line
 plot. You can execute it with ``python foo.py``, where ``foo.py`` is the name
@@ -180,7 +180,8 @@ Some of most useful settings are:
     * ``server`` to load from a Bokeh server
     * ``relative`` to load a local version relative to the given directory.
 
-    All available options are listed at :class:`~bokeh.resources.Resources`.
+    All available options are listed at
+    :class:`~bokeh.resources.Resources`.
 
     You can combine some of the values for this variable with other
     configuration values, such as ``cdn_version`` (``BOKEH_CDN_VERSION``) and
@@ -232,7 +233,7 @@ plot:
 .. bokeh-plot::
     :source-position: above
 
-    from bokeh.plotting import figure, output_file, show
+    from bokeh.plotting import figure, show
 
     # create a figure object
     p = figure(width=300, height=300, tools="pan,reset,save")
@@ -240,11 +241,8 @@ plot:
     # add a Circle renderer to this figure
     p.circle([1, 2.5, 3, 2], [2, 3, 1, 1.5], radius=0.3, alpha=0.5)
 
-    # specify how to output the plot(s)
-    output_file("foo.html")
-
     # display the figure
-    show(p)
+    show(p, filename="foo.html")
 
 Calling the |figure| function is all it takes to create a basic plot object. To
 add data renderers to your plot object, call a glyph method such as

@@ -25,7 +25,6 @@ from os.path import abspath, join, split
 # Bokeh imports
 from bokeh.embed import file_html
 from bokeh.plotting import figure
-from bokeh.resources import Resources, ResourcesMode
 
 # Module under test
 import bokeh.core.templates as bct # isort:skip
@@ -56,13 +55,13 @@ def compute_sha256(data):
     sha256.update(data)
     return sha256.hexdigest()
 
-def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
+def get_html_lines(resource_mode: str) -> list[str]:
     p = figure()
     p.scatter(x=[], y=[])
-    html = file_html(p, resources=Resources(resource_mode))
+    html = file_html(p, resources=resource_mode)
     return html.split('\n')
 
-pinned_template_sha256 = "9bcfc2a1515403eb002238ba6c83c5d3ef5eb7f0d27154bc77f8514ccc39ee9b"
+pinned_template_sha256 = "e590c6d7485ad829ee1355dafd19b69d5e54245ac2402c668e835354cfa4b480"
 
 def test_autoload_template_has_changed() -> None:
     """This is not really a test but a reminder that if you change the
@@ -78,17 +77,21 @@ def test_autoload_template_has_changed() -> None:
             in notebooks has been completed successfully, update this test
             with the new file SHA256 signature."""
 
+def test_legacy_render_item_templates_are_removed() -> None:
+    assert not hasattr(bct, "DOC_JS")
+    assert not hasattr(bct, "PLOT_DIV")
+
 def test_no_white_space_in_top_of_html() -> None:
     lines = get_html_lines("inline")
     any_character = re.compile(r"\S")
     assert(any_character.search(lines[0]) is not None)
 
-MODES: list[ResourcesMode] = ["inline", "cdn", "server", "absolute"]
+MODES = ["inline", "cdn", "server", "absolute"]
 if sys.platform != "win32":
     MODES.append("relative")
 
 @pytest.mark.parametrize("mode", MODES)
-def test_dont_start_script_on_same_line_after_another_ends(mode: ResourcesMode) -> None:
+def test_dont_start_script_on_same_line_after_another_ends(mode: str) -> None:
     lines = get_html_lines(mode)
     for line in lines:
         if "<script" in line and "</script" in line:

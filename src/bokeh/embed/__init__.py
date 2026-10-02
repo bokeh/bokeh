@@ -22,27 +22,51 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ._util import (
+    EmbedBuildError,
+    EmbedSpec,
+    embed,
+    embed_server,
+)
+from .artifact import ArtifactRoot, ArtifactValidationError, EmbedArtifact
+from .renderers import ArtifactFragment, ArtifactMount, ExternalArtifact
+from .resources import (
+    ExtensionRequirement,
+    ResourceAssetRequirement,
+    ResourceRequirements,
+)
 from .server import server_document, server_session
 from .standalone import (
+    EmbedMigrationError,
     autoload_static,
     components,
     file_html,
-    json_item,
 )
-from .util import RenderRoot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'ArtifactFragment',
+    'ArtifactMount',
+    'ArtifactRoot',
+    'ArtifactValidationError',
+    'EmbedArtifact',
+    'EmbedBuildError',
+    'EmbedMigrationError',
+    'EmbedSpec',
+    'ExtensionRequirement',
+    'ExternalArtifact',
+    'ResourceAssetRequirement',
+    'ResourceRequirements',
     'autoload_static',
     'components',
+    'embed',
+    'embed_server',
     'file_html',
-    'json_item',
     'server_document',
     'server_session',
-    'RenderRoot',
 )
 
 #-----------------------------------------------------------------------------
