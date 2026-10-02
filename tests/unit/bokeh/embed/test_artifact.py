@@ -637,6 +637,18 @@ def test_resource_policy_reports_csp_and_sri_conflicts() -> None:
         artifact.fragment(resources=Resources(mode="cdn", external_only=True), bootstrap_url="/bootstrap.js")
 
 
+def test_resource_policy_resolves_standard_artifact_bootstrap() -> None:
+    bootstrap = Resources(
+        mode="server", root_url="https://example.test/app/", crossorigin="anonymous",
+    ).resolve_artifact_bootstrap()
+
+    assert bootstrap.url == "https://example.test/app/static/js/bokeh-embed-bootstrap.min.js"
+    assert bootstrap.crossorigin == "anonymous"
+
+    with pytest.raises(ResourceConflictError, match="provide bootstrap_url explicitly"):
+        Resources(mode="none", external_only=True).resolve_artifact_bootstrap()
+
+
 def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -> None:
     artifact = embed({"summary": _plot(), "detail": _plot()})
     fragment = artifact.fragment(resources="none")
@@ -696,6 +708,21 @@ def test_external_bootstrap_renderers_preserve_csp_nonce() -> None:
     assert 'nonce="artifact-nonce"' in external.bootstrap
 
 
+def test_external_only_renderer_uses_standard_bootstrap_asset() -> None:
+    artifact = embed(CustomJS(code="root"))
+    policy = Resources(mode="cdn", external_only=True, crossorigin="anonymous")
+
+    external = artifact.external("/artifact.json", resources=policy)
+
+    assert "bokeh-embed-bootstrap-" in external.bootstrap
+    assert ".min.js" in external.bootstrap
+    assert 'crossorigin="anonymous"' in external.bootstrap
+    assert "mount_artifact_declaration" not in external.bootstrap
+
+    with pytest.raises(ResourceConflictError, match="provide bootstrap_url explicitly"):
+        artifact.external("/artifact.json", resources=Resources(mode="none", external_only=True))
+
+
 def test_retained_facades_delegate_and_preserve_useful_shapes() -> None:
     plot = _plot()
     script, div = components(plot)
@@ -747,8 +774,11 @@ def test_server_artifact_is_deterministic_structured_and_selective() -> None:
     assert artifact.requires == ResourceRequirements.dynamic_server()
     assert len(artifact.fragment(resources="none").mounts) == 1
 
-    with pytest.raises(EmbedBuildError, match="mutually exclusive"):
-        embed_server("https://example.test/app", headers={"X": "1"}, with_credentials=True)
+    authenticated = embed_server(
+        "https://example.test/app", headers={"Authorization": "Bearer token"}, with_credentials=True,
+    )
+    assert authenticated.source["headers"] == {"Authorization": "Bearer token"}
+    assert authenticated.source["credentials"] == "include"
 
 
 @pytest.mark.parametrize(

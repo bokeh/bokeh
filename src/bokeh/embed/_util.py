@@ -171,8 +171,6 @@ def embed_server(url: str = "default", *, session_id: str | None = None,
     """
     from .artifact import ArtifactRoot, EmbedArtifact
 
-    if headers and with_credentials:
-        raise EmbedBuildError("'headers' and 'with_credentials' are mutually exclusive")
     if url == "default":
         url = DEFAULT_SERVER_HTTP_URL
     if url.startswith("ws"):

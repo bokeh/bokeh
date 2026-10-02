@@ -41,7 +41,15 @@ BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript' / 'lib'
 PKG_STATIC = SRC_ROOT / 'bokeh' / 'server' / 'static'
 PKG_JS = PKG_STATIC / 'js'
 PKG_TSLIB = PKG_STATIC / 'lib'
-COMPONENTS = ("bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-api", "bokeh-gl", "bokeh-mathjax")
+COMPONENTS = (
+    "bokeh",
+    "bokeh-widgets",
+    "bokeh-tables",
+    "bokeh-api",
+    "bokeh-gl",
+    "bokeh-mathjax",
+    "bokeh-embed-bootstrap",
+)
 JS_FILES = [f"{c}{m}.js" for c, m in product(COMPONENTS, ("", ".min"))]
 PACKAGED = (ROOT / 'PKG-INFO').exists()
 

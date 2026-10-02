@@ -306,6 +306,19 @@ with actionable errors rather than silently producing incomplete markup. In
 the browser, additive resources are loaded through one promise-based,
 deduplicating loader shared by all artifact mounts.
 
+For a strict CSP that disallows inline scripts, store the artifact externally
+and select an external-only resource policy. CDN, server, relative, and absolute
+resource modes automatically use Bokeh's versioned
+``bokeh-embed-bootstrap.min.js`` asset. Pass ``bootstrap_url`` only when the
+host supplies its own bootstrap location::
+
+    from bokeh.resources import Resources
+
+    external = artifact.external(
+        "/assets/report.json",
+        resources=Resources(mode="cdn", external_only=True),
+    )
+
 Static JSON and model identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -415,7 +428,8 @@ external reference instead:
 Insert ``external.html`` in the page. It contains logical-root targets plus one
 shared bootstrap invocation; it never replaces a script tag or stores target
 IDs in the payload. Use ``Bokeh.when_mounted()`` to acquire the published
-handle as shown above.
+handle as shown above. With an ``external_only`` resource policy, the invocation
+uses Bokeh's standard external bootstrap asset and contains no inline JavaScript.
 
 .. _ug_output_embed_apps:
 
@@ -441,6 +455,10 @@ into browser-visible page data. Do not put credentials or other secrets there
 unless they are explicitly safe for every page consumer. Prefer the normal
 ``/embed.json`` bootstrap, which creates a short-lived signed session token,
 over persisting a token in reusable markup.
+
+``headers`` and ``with_credentials=True`` may be used together when an
+application requires both request headers and cookies. As with a directly
+supplied token, header values are visible to page consumers.
 
 If an application is running on a Bokeh server that makes it available at some
 URL, you will typically want to embed the entire application in a web page.

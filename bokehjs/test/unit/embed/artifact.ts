@@ -388,14 +388,21 @@ describe("EmbedArtifact runtime", () => {
     if (artifact.source.kind != "server") {
       throw new Error("expected a server fixture")
     }
-    artifact.source = {...artifact.source, relative_urls: true}
+    artifact.source = {
+      ...artifact.source,
+      relative_urls: true,
+      headers: {Authorization: "Bearer token"},
+      credentials: "include",
+    }
     artifact.fingerprint = await compute_embed_artifact_fingerprint(artifact)
     const target = document.createElement("div")
     document.body.append(target)
     const original_fetch = globalThis.fetch
     let requested = ""
-    globalThis.fetch = async (input) => {
+    let request_init: RequestInit | undefined
+    globalThis.fetch = async (input, init) => {
       requested = `${input}`
+      request_init = init
       return new Response("denied", {status: 401, statusText: "Unauthorized"})
     }
     try {
@@ -406,6 +413,8 @@ describe("EmbedArtifact runtime", () => {
       expect(error.message.includes("401 Unauthorized")).to.be.true
       expect(new URL(requested).origin).to.be.equal(window.location.origin)
       expect(new URL(requested).pathname).to.be.equal("/app/embed.json")
+      expect(new Headers(request_init?.headers).get("Authorization")).to.be.equal("Bearer token")
+      expect(request_init?.credentials).to.be.equal("include")
       expect(mounted.session).to.be.null
       expect(mounted.disposed).to.be.true
     } finally {

@@ -71,11 +71,16 @@ class TestServerDocument:
         assert "static/js/bokeh" not in fragment
         assert "session_id" not in artifact_from_fragment(fragment).source
 
-    def test_rejects_invalid_resources_and_credential_headers(self) -> None:
+    def test_rejects_invalid_resources(self) -> None:
         with pytest.raises(ValueError, match="resources"):
             bes.server_document(resources="whatever")  # type: ignore[arg-type]
-        with pytest.raises(ValueError, match="mutually exclusive"):
-            bes.server_document(headers={"X-Test": "yes"}, with_credentials=True)
+
+    def test_headers_and_credentials_can_be_combined(self) -> None:
+        artifact = artifact_from_fragment(bes.server_document(
+            headers={"Authorization": "Bearer token"}, with_credentials=True,
+        ))
+        assert artifact.source["headers"] == {"Authorization": "Bearer token"}
+        assert artifact.source["credentials"] == "include"
 
 
 class TestServerSession:
