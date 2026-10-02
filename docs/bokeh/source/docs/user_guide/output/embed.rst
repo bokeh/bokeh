@@ -307,17 +307,41 @@ the browser, additive resources are loaded through one promise-based,
 deduplicating loader shared by all artifact mounts.
 
 For a strict CSP that disallows inline scripts, store the artifact externally
-and select an external-only resource policy. CDN, server, relative, and absolute
-resource modes automatically use Bokeh's versioned
-``bokeh-embed-bootstrap.min.js`` asset. Pass ``bootstrap_url`` only when the
-host supplies its own bootstrap location::
+and select an external-only resource policy. This complete example writes the
+payload separately and produces the HTML that the host page should insert::
 
+    from pathlib import Path
+
+    from bokeh.embed import embed
     from bokeh.resources import Resources
 
+    artifact = embed({"report": plot})
     external = artifact.external(
         "/assets/report.json",
         resources=Resources(mode="cdn", external_only=True),
     )
+    Path("static/report.json").write_text(external.payload)
+    print(external.html)
+
+Serve ``static/report.json`` at ``/assets/report.json`` with the
+``application/vnd.bokeh.embed+json`` media type and insert ``external.html``
+in the host page. The CSP must allow the selected Bokeh resource origin in
+``script-src`` and the payload origin in ``connect-src``. No inline JavaScript
+is emitted.
+
+CDN, server, relative, and absolute resource modes automatically select
+Bokeh's versioned ``bokeh-embed-bootstrap.min.js`` asset. A host that loads all
+Bokeh assets itself can instead use ``Resources(mode="none",
+external_only=True)`` and pass its external asset URL as ``bootstrap_url``.
+The simpler ``resources="none"`` spelling uses the inline bootstrap and is not
+suitable for a policy that disallows inline scripts.
+
+The declarative payload loader uses the browser's default ``fetch()`` behavior
+and does not add custom headers. A cross-origin payload must allow the host
+origin with CORS. If a payload requires custom headers or cross-origin
+credentials, fetch it in an allowed external application script and pass the
+decoded artifact to ``Bokeh.mount()`` with the appropriate target or target
+mapping.
 
 Static JSON and model identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -430,6 +454,7 @@ shared bootstrap invocation; it never replaces a script tag or stores target
 IDs in the payload. Use ``Bokeh.when_mounted()`` to acquire the published
 handle as shown above. With an ``external_only`` resource policy, the invocation
 uses Bokeh's standard external bootstrap asset and contains no inline JavaScript.
+See the strict-CSP recipe above for the complete deployment flow.
 
 .. _ug_output_embed_apps:
 
