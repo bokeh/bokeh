@@ -50,18 +50,25 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
     }
 
     const nmarkers = main_gl_glyph.nvertices
+    const show_all = indices.length >= nmarkers
+    const has_show_indices = this._show_indices != null
 
-    const rebuild_show = main_data_changed || derived_data_changed ||
-      this._show_nmarkers != nmarkers || this._have_indices_changed(indices)
+    const rebuild_show = this._show_nmarkers != nmarkers ||
+      (show_all ? has_show_indices : this._have_indices_changed(indices))
 
     if (rebuild_show) {
       const show_array = this._show.get_sized_array(nmarkers)
-      show_array.fill(0)
-      for (let i = 0; i < indices.length; i++) {
-        show_array[indices[i]] = 255
+      if (show_all) {
+        show_array.fill(255)
+        this._show_indices = null
+      } else {
+        show_array.fill(0)
+        for (let i = 0; i < indices.length; i++) {
+          show_array[indices[i]] = 255
+        }
+        this._show_indices = indices.slice()
       }
       this._show.update()
-      this._show_indices = indices.slice()
       this._show_nmarkers = nmarkers
     }
 
