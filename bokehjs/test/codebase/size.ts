@@ -13,6 +13,7 @@ const LIMITS = new Map([
   ["js/bokeh-api.min.js",             150],
   ["js/bokeh-gl.min.js",              270],
   ["js/bokeh-mathjax.min.js",        1800],
+  ["js/bokeh-embed-bootstrap.min.js",   3],
 ])
 
 const n = Math.max(...[...LIMITS.keys()].map((l) => l.length))

@@ -63,13 +63,16 @@ def test_publish_bokehjs_to_cdn_uploads_every_bundle(
     result = publishing.publish_bokehjs_to_cdn(config, system)
 
     assert result.kind is ActionResult.PASS
-    assert len(system.commands) == 24
+    assert len(system.commands) == 26
     assert all(command.startswith("aws s3 cp bokehjs/build/js/") for command in system.commands)
     assert all(f"s3://test-bucket/bokeh/{subdir}/" in command for command in system.commands)
     assert all(f"-{version}." in command for command in system.commands)
     assert all("--content-type application/javascript" in command for command in system.commands)
     assert all("--cache-control max-age=31536000" in command for command in system.commands)
     assert all(command.endswith("--region test-region") for command in system.commands)
+    bootstrap_commands = [command for command in system.commands if "bokeh-embed-bootstrap" in command]
+    assert len(bootstrap_commands) == 2
+    assert not any(".esm." in command for command in bootstrap_commands)
 
 
 def test_publish_bokehjs_to_cdn_returns_failure_for_missing_bundle(

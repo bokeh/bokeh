@@ -92,12 +92,8 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
-            Mutually exclusive with ``with_credentials``
-
        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
-
-            Mutually exclusive with ``headers``
 
     Returns:
         Artifact declaration HTML that mounts content from a Bokeh Server.
@@ -176,12 +172,8 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
-            Mutually exclusive with ``with_credentials``
-
        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
-
-            Mutually exclusive with ``headers``
 
     Returns:
         Artifact declaration HTML that mounts content from a Bokeh Server.

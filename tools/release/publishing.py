@@ -32,10 +32,15 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
 
     file_names = ("bokeh", "bokeh-gl", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax")
     suffixes = ("js", "min.js", "esm.js", "esm.min.js")
+    assets = (
+        *product(file_names, suffixes),
+        ("bokeh-embed-bootstrap", "js"),
+        ("bokeh-embed-bootstrap", "min.js"),
+    )
 
     try:
         for bucket, region_name in BOKEHJS_BUCKETS:
-            for name, suffix in product(file_names, suffixes):
+            for name, suffix in assets:
                 local_path = f"bokehjs/build/js/{name}.{suffix}"
                 cdn_path = f"bokeh/{subdir}/{name}-{version}.{suffix}"
                 system.run(
