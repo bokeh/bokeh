@@ -69,6 +69,10 @@ def license() -> None:
     with open(Path(__file__).parent / 'LICENSE.txt') as lic:
         print(lic.read())
 
+def _jupyter_labextension_paths() -> list[dict[str, str]]:
+    from .jupyter import jupyter_labextension_paths
+    return jupyter_labextension_paths()
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

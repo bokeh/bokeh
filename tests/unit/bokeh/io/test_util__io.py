@@ -148,7 +148,6 @@ def test_get_layout_html_uses_source_or_curdoc_theme_by_default() -> None:
         assert biu.get_layout_html(plot) == "<html></html>"
 
     assert mock_file_html.call_args.kwargs["theme"] is ThemePolicy.SOURCE_OR_CURDOC
-
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
