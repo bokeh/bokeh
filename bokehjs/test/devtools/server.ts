@@ -6,6 +6,7 @@ import yargs from "yargs"
 import express from "express"
 import cors from "cors"
 import nunjucks from "nunjucks"
+import {structuredPatch, type StructuredPatch, type StructuredPatchHunk} from "diff"
 
 import * as sys from "./sys.js"
 
@@ -39,7 +40,10 @@ const test = (main: string, title: string) => {
 
 type Base64 = string
 type ReportStatus = {
-  failure: boolean
+  success?: boolean
+  failure?: boolean
+  timeout?: boolean
+  skipped?: boolean
   baseline_name?: string
   baseline?: string
   existing_blf?: string
@@ -53,6 +57,56 @@ type Report = {
   baseline_names: string[]
   results: [string[], ReportStatus][]
   metrics: {[key: string]: number[]}
+}
+
+type LayoutDiffCell = {number: number, text: string, changed: boolean, no_newline?: boolean}
+type LayoutDiffRow = {left?: LayoutDiffCell, right?: LayoutDiffCell}
+type LayoutDiffHunk = StructuredPatchHunk & {rows: LayoutDiffRow[]}
+
+function layout_diff(existing: string, proposed: string): Omit<StructuredPatch, "hunks"> & {hunks: LayoutDiffHunk[]} {
+  const patch = structuredPatch("Existing reference", "Proposed reference", existing, proposed, undefined, undefined, {context: 3})
+  const hunks = patch.hunks.map((hunk): LayoutDiffHunk => {
+    const rows: LayoutDiffRow[] = []
+    let old_number = hunk.oldStart
+    let new_number = hunk.newStart
+    let removed: LayoutDiffCell[] = []
+    let added: LayoutDiffCell[] = []
+    let previous: LayoutDiffCell[] = []
+
+    function flush(): void {
+      for (let i = 0; i < Math.max(removed.length, added.length); i++) {
+        rows.push({left: removed[i], right: added[i]})
+      }
+      removed = []
+      added = []
+    }
+
+    for (const line of hunk.lines) {
+      const text = line.slice(1)
+      if (line[0] == " ") {
+        flush()
+        const left = {number: old_number++, text, changed: false}
+        const right = {number: new_number++, text, changed: false}
+        rows.push({left, right})
+        previous = [left, right]
+      } else if (line[0] == "-") {
+        const cell = {number: old_number++, text, changed: true}
+        removed.push(cell)
+        previous = [cell]
+      } else if (line[0] == "+") {
+        const cell = {number: new_number++, text, changed: true}
+        added.push(cell)
+        previous = [cell]
+      } else if (line[0] == "\\") {
+        for (const cell of previous) {
+          cell.no_newline = true
+        }
+      }
+    }
+    flush()
+    return {...hunk, rows}
+  })
+  return {...patch, hunks}
 }
 
 function using_report(fn: (report: Report, platform: string, req: express.Request, res: express.Response) => void) {
@@ -93,9 +147,13 @@ app.get("/unit/run", unit(true))
 app.get("/defaults/run", defaults(true))
 app.get("/integration/run", integration(true))
 
-app.get("/integration/report", using_report(({results, reference}, platform, req, res) => {
+app.get("/integration/report", using_report(({results, reference, completed}, platform, req, res) => {
   const full = req.query.full == ""
-  res.render("test/devtools/report.html", {title: "Integration Tests Report", results, full, platform, reference})
+  const total = results.length
+  const failures = results.filter(([, status]) => status.failure === true || status.timeout === true).length
+  res.render("test/devtools/report.html", {
+    title: "BokehJS baseline review", results, full, platform, reference, completed, total, failures, layout_diff,
+  })
 }))
 
 app.get("/integration/metrics", using_report(({metrics}, _platform, _, res) => {

@@ -506,7 +506,25 @@ containerized review server:
 
     $ node make baseline-test:review
 
-Open the URL printed by the command. After reviewing the generated images,
+Open the URL printed by the command. The report shows failures by default.
+Choose **All results** to see every recorded test, or filter by test name or
+baseline filename.
+
+Use **1:1** to view all images in a test at full size. Focus an image with
+:kbd:`Tab`, then scroll with the arrow keys. Press :kbd:`Escape` to fit them again.
+Expand **Layout baseline** to compare layout changes. The **Layout diff** menu
+switches between side-by-side and unified views. Removed lines start with a
+minus sign and added lines start with a plus sign.
+
+The **Colors** menu offers red/green, blue/orange, and high-contrast palettes
+for diffs and status badges. The browser remembers your palette and diff view.
+You can review images and layouts without staging or accepting changes.
+
+**Passed** badges mark successful tests. For completed older reports, a current
+layout baseline with no recorded failure counts as a pass. **Skipped** tests
+have neutral badges, and timeouts count as failures.
+
+After reviewing the generated images,
 pixel differences, selected references, and layout baselines, stage the
 baseline changes for the current branch with:
 
