@@ -10,7 +10,7 @@ import {mul} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
 import {color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
-import {isNumber, isString, isTypedArray, isPlainObject} from "./util/types"
+import {isArrayable, isNumber, isString, isTypedArray, isPlainObject} from "./util/types"
 import type {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import type {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import type {/*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
@@ -561,7 +561,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     }
   }
 
-  array(source: ColumnarDataSource): Arrayable<unknown> {
+  protected _array(source: ColumnarDataSource): Arrayable<unknown> {
     let array: Arrayable
 
     const length = source.get_length() ?? 1
@@ -597,7 +597,12 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       }
     }
 
-    const {transform} = obj
+    return array
+  }
+
+  array(source: ColumnarDataSource): Arrayable<unknown> {
+    let array = this._array(source)
+    const {transform} = this.get_value()
     if (transform != null) {
       array = transform.v_compute(array)
     }
@@ -647,8 +652,57 @@ export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
   }
 }
 
+const date_pattern = /^(\d{4})-(\d{2})-(\d{2})$/
+
+function parse_date_string(value: string): number | null {
+  const match = date_pattern.exec(value)
+  if (match == null) {
+    return null
+  }
+
+  const [, year, month, day] = match.map(Number)
+  const date = new Date(0)
+  date.setUTCFullYear(year, month - 1, day)
+  if (date.getUTCFullYear() != year || date.getUTCMonth() != month - 1 || date.getUTCDate() != day) {
+    return null
+  }
+  return date.valueOf()
+}
+
+function convert_date_strings(array: Arrayable<unknown>, depth: number): Arrayable<unknown> {
+  if (depth == 0 && isTypedArray(array)) {
+    return array
+  }
+
+  let result: Arrayable<unknown> | null = null
+  for (let i = 0; i < array.length; i++) {
+    const value = array[i]
+    const converted = depth > 0
+      ? isArrayable(value) ? convert_date_strings(value, depth - 1) : value
+      : isString(value) ? parse_date_string(value) ?? value : value
+    if (converted !== value) {
+      result ??= array.slice()
+      result[i] = converted
+    }
+  }
+  return result ?? array
+}
+
 export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
   abstract get dimension(): "x" | "y"
+
+  override array(source: ColumnarDataSource, materialize_dates = false): Arrayable<unknown> {
+    let array = this._array(source)
+    if (materialize_dates) {
+      const depth = this instanceof CoordinateSpec ? 0 : this instanceof CoordinateSeqSpec ? 1 : 3
+      array = convert_date_strings(array, depth)
+    }
+    const {transform} = this.get_value()
+    if (transform != null) {
+      array = transform.v_compute(array)
+    }
+    return array
+  }
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
