@@ -276,6 +276,10 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
             A :class:`State` object. If None, then the current default
             state (set by |output_file|, etc.) is used. (default: None)
 
+        handle (CommsHandle, optional): handle object returned by the ``show`` function
+            if the argument ``notebook_handle`` is set to ``True``.
+
+
     Returns:
         None
 

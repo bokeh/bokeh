@@ -245,7 +245,7 @@ class DirectoryHandler(Handler):
         it is defined) when the server is first started.
 
         Args:
-            server_context (ServerContext) :
+            server_context (ServerContext) : server-specific information
 
         '''
 
@@ -259,7 +259,7 @@ class DirectoryHandler(Handler):
         server's ``IOLoop``.)
 
         Args:
-            server_context (ServerContext) :
+            server_context (ServerContext) : server-specific information
 
         .. warning::
             In practice this code may not run, since servers are often killed
@@ -274,7 +274,7 @@ class DirectoryHandler(Handler):
         it is defined) when a new session is created.
 
         Args:
-            session_context (SessionContext) :
+            session_context (SessionContext) : session-specific information
 
         '''
         await self._lifecycle_handler.on_session_created(session_context)
@@ -284,7 +284,7 @@ class DirectoryHandler(Handler):
         it is defined) when a session is destroyed.
 
         Args:
-            session_context (SessionContext) :
+            session_context (SessionContext) : session-specific information
 
         '''
         await self._lifecycle_handler.on_session_destroyed(session_context)

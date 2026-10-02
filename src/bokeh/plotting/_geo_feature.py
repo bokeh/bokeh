@@ -59,8 +59,8 @@ def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
-            "50m" and "10m".
+        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+            line geometries given by a Cartopy NaturalEarthFeature.
 
     .. note::
         This functions allows all parameters and keyword arguments defined by the
@@ -95,8 +95,8 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
-            "50m" and "10m".
+        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+            line geometries given by a Cartopy NaturalEarthFeature.
 
     Keyword Arguments:
         draw_polygon_border (bool, False): Enables the plotting of the geometry border.
@@ -445,9 +445,9 @@ def _collect_line_geometries(projection, geometries_collection):
     and transforms the coordinates to fit to a given projection.
 
     Args:
-        projection (catopy.crs.Projection): cartopy Projection
+        projection (catopy.crs.Projection): cartopy Projection.
         geometries_collection (catopy.feature.NaturalEarthFeature): collection of
-            line geometries given by a cartopy NaturalEarthFeature
+            line geometries given by a Cartopy NaturalEarthFeature.
 
     Example:
 
@@ -478,9 +478,9 @@ def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
     is selected and the Keyword Arguments are returned with an updated list for colors.
 
     Args:
-        projection (catopy.crs.Projection): cartopy Projection
+        projection (catopy.crs.Projection): Cartopy Projection
         geometries_collection (catopy.feature.NaturalEarthFeature): collection of
-            multi-polygon geometries given by a cartopy NaturalEarthFeature
+            multi-polygon geometries given by a Cartopy NaturalEarthFeature.
 
     Keyword Arguments:
         color (str | list[str]): color or palette

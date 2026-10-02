@@ -162,9 +162,9 @@ def script_for_render_items(docs_json_or_id: ID | dict[ID, DocJson], render_item
         render_items (RenderItems) :
             Specific items to render from the document and where
 
-        app_path (str, optional) :
+        app_path (str, optional) : path to app
 
-        absolute_url (str, optional) :
+        absolute_url (str, optional) : absolute url
 
     Returns:
         str
