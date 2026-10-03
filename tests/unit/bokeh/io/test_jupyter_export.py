@@ -81,15 +81,15 @@ def test_invalid_correlation_ids_are_rejected() -> None:
 
 
 def test_artifact_payload_is_parsed_from_its_declared_script() -> None:
-    assert m._artifact_payload('<script data-other>ignored</script><script nonce="test" data-bokeh-artifact-payload>{"value":"ok"}</script>') == '{"value":"ok"}'
-    assert m._artifact_payload('<script data-bokeh-artifact-payload-malformed>{}</script>') is None
+    assert m._artifact_payload('<script data-other>ignored</script><script nonce="test" data-bokeh-embed-payload>{"value":"ok"}</script>') == '{"value":"ok"}'
+    assert m._artifact_payload('<script data-bokeh-embed-payload-malformed>{}</script>') is None
 
 
 def test_saved_artifact_is_captured_through_common_page_and_playwright() -> None:
     notebook = _notebook()
     preprocessor = m.BokehPNGPreprocessor(require_trusted=False)
     with (
-        patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html>artifact page</html>") as page,
+        patch("bokeh.embed.result.EmbedResult.page", return_value="<html>artifact page</html>") as page,
         patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()) as screenshot,
     ):
         result, _ = preprocessor.preprocess(copy.deepcopy(notebook), {"output_extension": ".html", "metadata": {"name": "test"}})
@@ -105,14 +105,13 @@ def test_current_frontend_artifact_wins_over_saved_state() -> None:
     current = embed(figure(title="current"))
     notebook = _notebook(_output(saved))
     current_snapshot = current.to_dict()
-    current_snapshot.pop("fingerprint")
     m.store_export_snapshots("test.ipynb", "export-identifier-0004", [{
         "view_id": "view", "artifact_json": json.dumps(current_snapshot), "width": 444,
     }])
     token = m.set_export_correlation("export-identifier-0004")
     try:
         with (
-            patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>") as page,
+            patch("bokeh.embed.result.EmbedResult.page", return_value="<html></html>") as page,
             patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()),
         ):
             result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
@@ -165,7 +164,7 @@ def test_resource_owner_outputs_are_removed_from_export() -> None:
         "display_data", data={RESOURCES_MIME_TYPE: {"kind": "resources"}, "application/javascript": "secret"},
     ))
     with (
-        patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>"),
+        patch("bokeh.embed.result.EmbedResult.page", return_value="<html></html>"),
         patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()),
     ):
         result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(
@@ -187,7 +186,7 @@ def test_anywidget_output_metadata_preserves_saved_artifact_export() -> None:
         metadata={DISPLAY_MIME_TYPE: display_payload(artifact, "resources", "view")},
     )
     with (
-        patch("bokeh.embed.artifact.EmbedArtifact.page", return_value="<html></html>"),
+        patch("bokeh.embed.result.EmbedResult.page", return_value="<html></html>"),
         patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()),
     ):
         result, _ = m.BokehPNGPreprocessor(require_trusted=False).preprocess(

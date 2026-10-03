@@ -32,13 +32,14 @@ from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import FILE
-from ..embed._util import ThemePolicy
+from ..embed._util import ThemePolicy, embed
 from ..resources import Resources
 from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
     from ..embed._util import ThemeSource
+    from ..resources import ResourcesLike
     from .showing import Showable
 
 #-----------------------------------------------------------------------------
@@ -101,7 +102,7 @@ class _SavedFile(str):
             data = {mime: value for mime, value in data.items() if mime not in exclude}
         return data
 
-def save(obj: Showable, filename: PathLike | None = None, resources: Resources | str | None = None,
+def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | str | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
@@ -114,7 +115,7 @@ def save(obj: Showable, filename: PathLike | None = None, resources: Resources |
         filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, derive the filename from the running script.
 
-        resources (Resources or str, optional) : A resources configuration to use (default: None)
+        resources (Resources or resource setting, optional) : A resources configuration to use (default: None)
             If None, use the configured default resource policy.
 
         title (str, optional) : a title for the HTML document (default: None)
@@ -143,7 +144,7 @@ def save(obj: Showable, filename: PathLike | None = None, resources: Resources |
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_save_args(filename: PathLike | None, resources: Resources | str | None,
+def _get_save_args(filename: PathLike | None, resources: ResourcesLike | None,
         title: str | None) -> tuple[PathLike, Resources, str]:
     '''
 
@@ -154,14 +155,14 @@ def _get_save_args(filename: PathLike | None, resources: Resources | str | None,
         title if title is not None else DEFAULT_TITLE,
     )
 
-def _save_helper(obj: Showable, filename: PathLike, resources: Resources | None,
+def _save_helper(obj: Showable, filename: PathLike, resources: ResourcesLike | None,
         title: str | None, template: Template | str | None,
         theme: ThemeSource = ThemePolicy.SOURCE_OR_CURDOC) -> None:
     '''
 
     '''
-    from ..embed import file_html
-    html = file_html(obj, resources=resources, title=title, template=template or FILE, theme=theme)
+    result = embed(obj, theme=theme)
+    html = result.page(resources=resources, title=title, template=template or FILE)
 
     with open(filename, mode="w", encoding="utf-8") as f:
         f.write(html)

@@ -14,8 +14,8 @@ import pytest
 # Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import embed_server
-from bokeh.embed.artifact import EmbedArtifact
 from bokeh.embed.notebook import notebook_content
+from bokeh.embed.result import EmbedResult
 from bokeh.io.jupyter import DISPLAY_MIME_TYPE, PROTOCOL_VERSION
 from bokeh.layouts import column
 from bokeh.models import (
@@ -61,7 +61,7 @@ def test_show_doc_publishes_one_artifact_owned_output(document: Document) -> Non
     assert payload["resource_id"] == "resource"
     assert payload["live_id"] in m._DOCUMENT_VIEW_HANDLES
     assert payload["view_id"] in m._DOCUMENT_VIEW_HANDLES_BY_VIEW
-    assert html.count("data-bokeh-artifact-payload") == 1
+    assert html.count("data-bokeh-embed-payload") == 1
     assert "data-bokeh-notebook-static-fallback" in html
     assert "docs_json" not in html
     assert "embed_items_notebook" not in html
@@ -154,7 +154,7 @@ def test_automatic_mimebundle_has_one_static_artifact_and_no_live_owner() -> Non
     data, metadata = bundle
     assert data[DISPLAY_MIME_TYPE]["kind"] == "artifact"
     assert "live_id" not in data[DISPLAY_MIME_TYPE]
-    assert data["text/html"].count("data-bokeh-artifact-payload") == 1
+    assert data["text/html"].count("data-bokeh-embed-payload") == 1
     assert metadata[DISPLAY_MIME_TYPE]["automatic"] is True
 
 
@@ -171,8 +171,8 @@ def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> Non
     assert bundle is not None
     data, _metadata = bundle
     assert data[DISPLAY_MIME_TYPE]["kind"] == "artifact"
-    assert data["text/html"].count("data-bokeh-artifact-payload") == 1
-    assert "Bokeh.mount_artifact_declaration" in data["text/html"]
+    assert data["text/html"].count("data-bokeh-embed-payload") == 1
+    assert "Bokeh.mount_embed_declaration" in data["text/html"]
     assert len(data["text/html"]) > 100_000
     ensure.assert_not_called()
 
@@ -417,11 +417,11 @@ def test_show_hosted_app_uses_server_artifact_and_view_ownership() -> None:
     assert payload["application_id"] == "application"
     assert payload["application_url"] == app.url
     assert payload["view_id"] in m._APPLICATION_VIEW_HANDLES
-    assert data["text/html"].count("data-bokeh-artifact-payload") == 1
+    assert data["text/html"].count("data-bokeh-embed-payload") == 1
     handle.close()
 
 
-def test_application_view_returns_a_refingerprinted_browser_artifact() -> None:
+def test_application_view_returns_a_browser_routed_artifact() -> None:
     local_url = "http://127.0.0.1:4321/bokeh-notebook/nonce/"
     browser_url = "https://hub.example.test/user/alice/proxy/4321/bokeh-notebook/nonce/"
     app = MagicMock(application_id="application")
@@ -433,8 +433,8 @@ def test_application_view_returns_a_refingerprinted_browser_artifact() -> None:
     handle._connect(comm, browser_url)
 
     message = comm.send.call_args.args[0]
-    returned = EmbedArtifact.from_dict(json.loads(message["artifact"]))
+    returned = EmbedResult.from_dict(json.loads(message["artifact"]))
     assert message["kind"] == "ready"
     assert returned.source["url"] == browser_url.rstrip("/")
-    assert returned.fingerprint != artifact.fingerprint
+    assert returned != artifact
     handle.close()

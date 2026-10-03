@@ -50,11 +50,11 @@ if TYPE_CHECKING:
         DocumentPatchedEvent,
         ModelChangedEvent,
     )
-    from ..embed.artifact import EmbedArtifact
     from ..embed.resources import ResolvedResources
+    from ..embed.result import EmbedResult
     from ..model import Model
     from ..models.ui import UIElement
-    from ..resources import Resources
+    from ..resources import ResourcesLike
     from .jupyter_app import NotebookApplication
 
     class Comm(Protocol):
@@ -228,12 +228,12 @@ class DocumentViewHandle:
     _MAX_HELD_EVENTS = 256
 
     def __init__(self, root: Model, *, live_id: str, view_id: str,
-            resources: Resources | str | None = None) -> None:
+            resources: ResourcesLike | None = None) -> None:
         self._comms: dict[str, Comm] = {}
         self._root = root
         self._live_id = live_id
         self._view_id = view_id
-        self._resources = resources
+        self._resources: ResourcesLike | None = resources
         self._hold_depth = 0
         self._held_source_events: list[DocumentPatchedEvent] = []
         self._revision = 0
@@ -441,15 +441,15 @@ class ApplicationViewHandle:
             The managed notebook application displayed by this view.
         view_id:
             The identifier of this notebook output view.
-        artifact:
-            The server artifact used to initialize new frontend connections.
+        result:
+            The server embed result used to initialize new frontend connections.
 
     '''
 
-    def __init__(self, application: NotebookApplication, view_id: str, artifact: EmbedArtifact) -> None:
+    def __init__(self, application: NotebookApplication, view_id: str, result: EmbedResult) -> None:
         self._application = application
         self._view_id = view_id
-        self._artifact = artifact
+        self._result = result
         self._comms: dict[str, Comm] = {}
         self._closed = False
         self._frontend: Any | None = None
@@ -465,18 +465,18 @@ class ApplicationViewHandle:
             return
         try:
             browser_url = self._application._resolve_browser_url(application_url)
-            if browser_url == self._artifact.source["url"]:
-                artifact = self._artifact
+            if browser_url == self._result.source["url"]:
+                result = self._result
             else:
-                from ..embed.artifact import EmbedArtifact
+                from ..embed.result import EmbedResult
 
-                artifact = EmbedArtifact(
-                    source={**self._artifact.source, "url": browser_url},
-                    roots=self._artifact.roots,
-                    requires=self._artifact.requires,
-                    metadata=self._artifact.metadata,
-                    bokeh_version=self._artifact.bokeh_version,
-                    schema=self._artifact.schema,
+                result = EmbedResult(
+                    source={**self._result.source, "url": browser_url},
+                    roots=self._result.roots,
+                    requires=self._result.requires,
+                    metadata=self._result.metadata,
+                    bokeh_version=self._result.bokeh_version,
+                    schema=self._result.schema,
                 )
         except ValueError as error:
             comm.send({
@@ -491,7 +491,7 @@ class ApplicationViewHandle:
         on_close = getattr(comm, "on_close", None)
         if on_close is not None:
             on_close(lambda _message: self._disconnect(comm_id))
-        comm.send({"kind": "ready", "artifact": artifact.to_json_string()})
+        comm.send({"kind": "ready", "artifact": result.to_json_string()})
 
     def _disconnect(self, comm_id: str) -> None:
         self._comms.pop(comm_id, None)
@@ -688,7 +688,7 @@ def notebook_environment() -> bool:
 
 def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         exclude: set[str] | None = None,
-        resources: Resources | str | None = None) -> tuple[dict[str, Any], dict[str, Any]] | None:
+        resources: ResourcesLike | None = None) -> tuple[dict[str, Any], dict[str, Any]] | None:
     ''' Return the automatic static-display MIME bundle for a notebook object.
 
     The serialized graph occurs once, inside the common artifact declaration
@@ -716,7 +716,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     _require_marimo_anywidget()
 
     from ..embed.notebook import notebook_content
-    from .jupyter import DISPLAY_MIME_TYPE, display_payload
+    from .jupyter import DISPLAY_MIME_TYPE, display_payload, resource_payload
 
     marimo = is_marimo_runtime()
     colab = _is_colab_runtime()
@@ -728,7 +728,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         policy = Resources.build(resources)
         resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
         fragment = artifact.fragment(resources=policy)
-        resource_id = f"bokeh-{resolved.fingerprint[:16]}"
+        resource_id = resource_payload(resolved, 5000)["resource_id"]
     else:
         resource_id = _ensure_notebook_resources(artifact, resources, publish=not portable_widget)
     view_id = make_id()
@@ -760,7 +760,6 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         "id": obj.id,
         "automatic": True,
         "view_id": view_id,
-        "artifact_fingerprint": artifact.fingerprint,
     }}
 
 def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None = None, *, transient: dict[str, Any] | None = None, **kwargs: Any) -> None:
@@ -788,7 +787,7 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
 type ProxyUrlFunc = Callable[[int | None], str]
 
 def show_doc(obj: Model | Sequence[UIElement],
-        resources: Resources | str | None = None) -> DocumentViewHandle:
+        resources: ResourcesLike | None = None) -> DocumentViewHandle:
     ''' Display a model as connected notebook output.
 
     Args:
@@ -865,7 +864,7 @@ def show_doc(obj: Model | Sequence[UIElement],
     return handle
 
 def show_hosted_app(app: NotebookApplication,
-        resources: Resources | str | None = None) -> ApplicationViewHandle:
+        resources: ResourcesLike | None = None) -> ApplicationViewHandle:
     ''' Display a running :class:`~bokeh.io.NotebookApplication`.
 
     Args:
@@ -1030,12 +1029,12 @@ def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, 
         })
     return resource_id
 
-def _ensure_notebook_resources(artifact: EmbedArtifact, resources: Resources | str | None = None,
+def _ensure_notebook_resources(result: EmbedResult, resources: ResourcesLike | None = None,
         load_timeout: int = 5000, *, publish: bool = True) -> str:
     from ..resources import Resources
 
     policy = Resources.build(resources)
-    resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
+    resolved = policy.resolve(result.requires, bokeh_version=result.bokeh_version)
     return _publish_resource_record(resolved, load_timeout, publish=publish)
 
 def reset_notebook_resources() -> None:

@@ -98,7 +98,6 @@ export function currentDocumentSnapshot(node: HTMLElement, payload: DisplayPaylo
       roots,
       metadata: {...state.artifact.metadata, notebook_export: {view_id: payload.view_id}},
     }
-    delete artifact.fingerprint
     const width = Math.ceil(node.getBoundingClientRect().width)
     return {
       view_id: payload.view_id,
@@ -458,11 +457,11 @@ async function requireResources(resourceId: string, version: string, pythonVersi
 function extractArtifact(payload: DisplayPayload, html: string): any {
   const template = document.createElement("template")
   template.innerHTML = html
-  const source = template.content.querySelector<HTMLScriptElement>("script[data-bokeh-artifact-payload]")
+  const source = template.content.querySelector<HTMLScriptElement>("script[data-bokeh-embed-payload]")
   if (source == null) {
     throw new BokehNotebookError(
       "ARTIFACT_RECORD_MISSING",
-      `The saved output does not contain artifact ${payload.artifact_fingerprint}.`,
+      "The saved output does not contain a versioned Bokeh artifact.",
       "Re-run the cell that displayed this output, then save the notebook again.",
     )
   }
@@ -478,7 +477,7 @@ function extractArtifact(payload: DisplayPayload, html: string): any {
       )
     }
   })()
-  if (artifact?.schema !== "bokeh.embed/v1" || artifact.fingerprint !== payload.artifact_fingerprint ||
+  if (artifact?.schema !== "bokeh.embed/v1" || artifact.bokeh_version !== payload.python_version ||
       artifact.source?.kind !== payload.source_kind) {
     throw new BokehNotebookError(
       "ARTIFACT_RECORD_INVALID",
@@ -607,7 +606,7 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
       try {
         return targets.target != null
           ? runtime.mount(nextArtifact, targets.target, {resources: "none", signal})
-          : runtime.mount(nextArtifact, {targets: targets.targets, resources: "none", signal})
+          : runtime.mount(nextArtifact, targets.targets, {resources: "none", signal})
       } catch (cause) {
         publishPreHandleFailure(cause)
         throw cause

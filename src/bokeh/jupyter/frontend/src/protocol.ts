@@ -41,7 +41,6 @@ export interface DisplayPayload {
   resource_id: string
   bokeh_version: string
   python_version: string
-  artifact_fingerprint: string
   source_kind: "standalone" | "server"
   view_id: string
   connect_timeout: number
@@ -121,7 +120,6 @@ export function assertProtocol(payload: unknown): void {
       }
     }
   } else {
-    stringField("artifact_fingerprint")
     stringField("view_id")
     timeoutField("connect_timeout")
     if (record.source_kind !== "standalone" && record.source_kind !== "server") problems.push("source_kind must be standalone or server")

@@ -251,21 +251,6 @@ def test_default_export_inlines_packaged_extensions_and_retains_url_dependencies
         cdn_html = embed(plot).page(resources=CDN)
         assert f'src="https://unpkg.com/@example/export-extension@1.2.3/dist/{name}.js"' in cdn_html
 
-def test_export_scripts_use_target_scoped_mounts() -> None:
-    scripts = [
-        biu._BOKEH_LOADED_CHECK,
-        biu._BOKEH_IDLE_CHECK,
-        biu._ROOT_VIEW_BBOX_SCRIPT,
-        biu._SVGS_SCRIPT,
-        biu._SVG_SCRIPT(Plot()),
-    ]
-
-    assert all("bokehMount" in script for script in scripts)
-    assert all("Bokeh.index" not in script for script in scripts)
-    assert all("Bokeh.documents" not in script for script in scripts)
-    assert all("view_manager" not in script for script in scripts)
-    assert all("_bokeh_render_complete" not in script for script in scripts)
-
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

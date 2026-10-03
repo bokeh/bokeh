@@ -26,8 +26,8 @@ from typing import (
 
 # Bokeh imports
 from .. import __version__
-from ..embed.artifact import EMBED_ARTIFACT_MIME_TYPE, EmbedArtifact
 from ..embed.resources import ResolvedResource, ResolvedResources
+from ..embed.result import EMBED_MIME_TYPE, EmbedResult
 from ..util.version import bokehjs_version
 
 __all__ = (
@@ -43,7 +43,7 @@ __all__ = (
 
 _PROTOCOL = json.loads((Path(__file__).parents[1] / "jupyter" / "protocol.json").read_text())
 PROTOCOL_VERSION = _PROTOCOL["version"]
-ARTIFACT_MIME_TYPE = EMBED_ARTIFACT_MIME_TYPE
+ARTIFACT_MIME_TYPE = EMBED_MIME_TYPE
 DISPLAY_MIME_TYPE = _PROTOCOL["mime_types"]["display"]
 FILE_MIME_TYPE = _PROTOCOL["mime_types"]["file"]
 RESOURCES_MIME_TYPE = _PROTOCOL["mime_types"]["resources"]
@@ -150,7 +150,6 @@ class _DisplayPayload(TypedDict):
     resource_id: str
     bokeh_version: str
     python_version: str
-    artifact_fingerprint: str
     source_kind: Literal["standalone", "server"]
     view_id: str
     connect_timeout: int
@@ -284,7 +283,7 @@ def resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResourc
         artifacts=artifacts,
     )
 
-def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
+def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
         live_id: str | None = None, application_id: str | None = None, application_url: str | None = None,
         connect_timeout: int = 10_000) -> _DisplayPayload:
     if (application_id is None) != (application_url is None):
@@ -295,8 +294,7 @@ def display_payload(artifact: EmbedArtifact, resource_id: str, view_id: str, *,
         resource_id=resource_id,
         bokeh_version=bokehjs_version(__version__),
         python_version=__version__,
-        artifact_fingerprint=artifact.fingerprint,
-        source_kind=artifact.source["kind"],
+        source_kind=result.source["kind"],
         view_id=view_id,
         connect_timeout=connect_timeout,
     )

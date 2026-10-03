@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     from ..application.application import Application
     from ..core.types import PathLike
     from ..model import Model
-    from ..resources import Resources
+    from ..resources import ResourcesLike
     from .jupyter_app import NotebookApplication
     from .notebook import ApplicationViewHandle, DocumentViewHandle
 
@@ -68,7 +68,7 @@ def show(
     obj: Showable | NotebookApplication | Application | Callable[..., Any],
     *,
     filename: PathLike | None = None,
-    resources: Resources | str | None = None,
+    resources: ResourcesLike | None = None,
     title: str | None = None,
     template: Template | str | None = None,
     **kwargs: Any,
@@ -97,7 +97,7 @@ def show(
             HTML filename to save and open. If omitted outside notebook mode,
             a temporary ``.html`` file is used.
 
-        resources (Resources or str, optional) :
+        resources (Resources or resource setting, optional) :
             Select explicit BokehJS resource delivery for file or notebook
             output. Notebook assets are stored once per kernel and shared by
             subsequent outputs using the same exact configuration.
@@ -135,7 +135,12 @@ def show(
         from .notebook import show_hosted_app
         return show_hosted_app(obj, resources)
 
-    if isinstance(obj, UIElement) or isinstance(obj, DOMNode) or isinstance(obj, Sequence):
+    def is_showable(obj: Any) -> TypeGuard[Showable]:
+        return isinstance(obj, (UIElement, DOMNode)) or (
+            isinstance(obj, Sequence) and not isinstance(obj, (str, bytes))
+        )
+
+    if is_showable(obj):
         if kwargs:
             names = ", ".join(sorted(kwargs))
             raise ValueError(f"Unexpected show() options for a standalone object: {names}")
@@ -178,7 +183,7 @@ _BAD_SHOW_MSG = """Invalid object to show. The object passed to show must be one
 * a managed notebook application returned by bokeh.io.serve
 """
 
-def _show_file(obj: Showable, *, filename: PathLike, resources: Resources | str | None,
+def _show_file(obj: Showable, *, filename: PathLike, resources: ResourcesLike | None,
         title: str | None, template: Template | str | None) -> None:
     '''
 

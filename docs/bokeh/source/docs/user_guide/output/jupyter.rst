@@ -38,7 +38,7 @@ handle; no ``live=`` option is needed. The handle is not printed as a second
 output when ``show(p)`` is the cell's final statement.
 
 The Bokeh wheel contains an auto-starting renderer for JupyterLab and Notebook
-7. Every output carries the same versioned :class:`~bokeh.embed.EmbedArtifact`
+7. Every output carries the same versioned :class:`~bokeh.embed.EmbedResult`
 used by standalone HTML and framework integrations. The host renderer resolves
 the artifact's explicit resource requirements and mounts it through the common
 ``Bokeh.mount()`` / ``BokehMount`` lifecycle. No separately installed
@@ -669,7 +669,7 @@ private renderer hooks:
   while the saved notebook remains unchanged.
 
 Together these cover the three deliberately separate responsibilities: an
-``EmbedArtifact`` persists initial state, the notebook host owns live transport
+``EmbedResult`` persists initial state, the notebook host owns live transport
 and release, and export consumes a one-shot frontend snapshot without creating
 a second runtime or document registry.
 
