@@ -135,6 +135,20 @@ class Test__handle_legend_group:
         assert legend.items[3].renderers == [renderer]
         assert legend.items[3].index == 6
 
+    def test_items_unorderable_column(self) -> None:
+        # np.unique sorts the values, which fails for a column that mixes
+        # values which cannot be ordered against each other, e.g. strings and
+        # None. Such a column is grouped by order of first appearance.
+        # Regression test for https://github.com/bokeh/bokeh/issues/15475
+        source = ColumnDataSource(data=dict(foo=["a", None, "b", "a"]))
+        renderer = GlyphRenderer(data_source=source)
+        legend = Legend(items=[])
+        bpl._handle_legend_group("foo", legend, renderer)
+        assert len(legend.items) == 3
+        assert [item.label for item in legend.items] == [value("a"), value("None"), value("b")]
+        assert [item.index for item in legend.items] == [0, 1, 2]
+        assert all(item.renderers == [renderer] for item in legend.items)
+
 
 class Test__handle_legend_label:
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
