@@ -27,6 +27,7 @@ from types import ModuleType
 from typing import TYPE_CHECKING, Literal
 
 # Bokeh imports
+from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
@@ -50,7 +51,7 @@ if TYPE_CHECKING:
     from ..core.types import PathLike
     from ..document import Document
     from ..models.ui import UIElement
-    from ..resources import Resources
+    from ..resources import ResourcesLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -308,7 +309,7 @@ def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | Non
 
 
 def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: Resources | str = "inline", width: int | None = None, height: int | None = None,
+        resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None,
         scale_factor: float = 1, backend: ExportBackendType | None = None) -> Image.Image:
     ''' Get a screenshot of a ``UIElement`` object.
 
@@ -349,7 +350,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
     )
 
 def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: Resources | str = "inline", width: int | None = None, height: int | None = None,
+        resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None,
         backend: ExportBackendType | None = None) -> list[str]:
     backend_module = _resolve_backend(driver, backend)
     return backend_module.get_svg(
@@ -358,7 +359,7 @@ def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, time
     )
 
 def get_svgs(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: Resources | str = "inline", width: int | None = None, height: int | None = None,
+        resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None,
         backend: ExportBackendType | None = None) -> list[str]:
     backend_module = _resolve_backend(driver, backend)
     return backend_module.get_svgs(

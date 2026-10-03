@@ -39,6 +39,7 @@ from collections.abc import Callable, Coroutine
 from typing import TYPE_CHECKING, Any, cast
 
 # Bokeh imports
+from ..resources import INLINE
 from ..util.dependencies import import_required
 from .util import (
     _BOKEH_LOADED_EXPR,
@@ -61,7 +62,7 @@ if TYPE_CHECKING:
 
     from ..document import Document
     from ..models.ui import UIElement
-    from ..resources import Resources
+    from ..resources import ResourcesLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -86,7 +87,7 @@ def get_screenshot_as_png(
     *,
     driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
     scale_factor: float = 1,
@@ -119,7 +120,7 @@ def get_svg(
     *,
     driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
 ) -> list[str]:
@@ -138,7 +139,7 @@ def get_svgs(
     *,
     driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
 ) -> list[str]:

@@ -2,6 +2,7 @@ from jinja2 import Template
 
 from bokeh.embed import embed
 from bokeh.plotting import figure
+from bokeh.resources import INLINE
 from bokeh.sampledata.penguins import data
 from bokeh.themes import Theme
 from bokeh.transform import factor_cmap, factor_mark
@@ -78,7 +79,7 @@ template = Template('''<!DOCTYPE html>
 
 filename = 'embed_themed.html'
 
-html = embed(p, theme=theme).page(resources="inline", title="Bokeh Scatter Plots", template=template)
+html = embed(p, theme=theme).page(resources=INLINE, title="Bokeh Scatter Plots", template=template)
 
 with open(filename, mode="w", encoding="utf-8") as f:
     f.write(html)
