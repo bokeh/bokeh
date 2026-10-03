@@ -22,6 +22,13 @@ export abstract class FlexBoxView extends LayoutDOMView {
     return this.model.children
   }
 
+  override measure_layout(): void {
+    if (this.layout instanceof GridAlignmentLayout) {
+      this.layout.align_borders()
+    }
+    super.measure_layout()
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
