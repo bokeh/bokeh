@@ -21,7 +21,6 @@ import pytest
 # Bokeh imports
 import bokeh.embed.resources as ber
 from bokeh.embed.resources import (
-    URL,
     ExtensionRequirement,
     ResolvedResource,
     ResolvedResources,
@@ -121,8 +120,8 @@ def test_resolved_resources_schema_and_fingerprint() -> None:
     assert len(resolved.fingerprint) == 64
 
 
-def test_url_joining_and_string_conversion() -> None:
-    assert str(URL("https://example.test/root") / "child/file.js") == \
+def test_join_extension_url() -> None:
+    assert ber._join_extension_url("https://example.test/root", "child", "file.js") == \
         "https://example.test/root/child/file.js"
 
 
@@ -162,8 +161,8 @@ def test_bundle_extensions_resolves_package_metadata(
 
     version_hash = hashlib.sha256(b"1.2.3").hexdigest()
     assert bundle.artifact_path == artifact
-    assert str(bundle.server_url) == f"https://host.test/app/static/extensions/{name}/custom.js?v={version_hash}"
-    assert str(bundle.cdn_url) == "https://unpkg.com/@example/extension@1.2.3/dist/custom.js"
+    assert bundle.server_url == f"https://host.test/app/static/extensions/{name}/custom.js?v={version_hash}"
+    assert bundle.cdn_url == "https://unpkg.com/@example/extension@1.2.3/dist/custom.js"
     assert ber.extension_dirs[name] == artifact.parent
 
 

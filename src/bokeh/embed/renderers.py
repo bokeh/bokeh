@@ -27,7 +27,7 @@ from ..core.templates import FILE, MACROS, get_env
 from ..document import DEFAULT_TITLE
 from ..resources import ResourceConflictError, Resources
 from ..util.serialization import make_globally_unique_css_safe_id
-from ._json import canonical_json
+from ._util import canonical_embed_json
 from .resources import ResolvedResource, ResolvedResources, ResourceRequirements
 from .result import EMBED_MIME_TYPE, EmbedResult
 
@@ -407,14 +407,14 @@ def _validate_web_url(url: str, context: str, *, allow_absolute_path: bool = Fal
 
 
 def _html_safe_json(value: Mapping[str, Any]) -> str:
-    return canonical_json(value).replace(
+    return canonical_embed_json(value).replace(
         "&", "\\u0026",
     ).replace("<", "\\u003c").replace(">", "\\u003e").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
 
 
 def _build_fingerprint(result: EmbedResult, resources: ResolvedResources, renderer: str,
         options: Mapping[str, Any]) -> str:
-    payload = canonical_json({
+    payload = canonical_embed_json({
         "embed": result.fingerprint,
         "resources": resources.fingerprint,
         "renderer": renderer,

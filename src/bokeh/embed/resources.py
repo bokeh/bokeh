@@ -39,8 +39,7 @@ from ..resources import (
 )
 from ..settings import settings
 from ..util.compiler import bundle_models
-from ._json import canonical_json
-from ._util import contains_tex_string
+from ._util import canonical_embed_json, contains_tex_string
 
 #-----------------------------------------------------------------------------
 # General API
@@ -317,7 +316,7 @@ class ResolvedResources:
             "assets": assets,
             "bokeh_version": self.bokeh_version,
         }
-        encoded = canonical_json(payload)
+        encoded = canonical_embed_json(payload)
         object.__setattr__(self, "fingerprint", hashlib.sha256(encoded.encode("utf-8")).hexdigest())
 
     def to_dict(self) -> dict[str, Any]:
@@ -337,23 +336,10 @@ class ResolvedResources:
 #-----------------------------------------------------------------------------
 
 @dataclass(frozen=True)
-class URL:
-    """Opaque URL used by legacy resource bundles and extension routes."""
-    url: str
-
-    def __truediv__(self, path: str) -> URL:
-        base = self.url if self.url.endswith("/") else f"{self.url}/"
-        return URL(urljoin(base, path.replace(os.sep, "/")))
-
-    def __str__(self) -> str:
-        return self.url
-
-
-@dataclass(frozen=True)
 class _ExtensionBundle:
     artifact_path: Path
-    server_url: URL
-    cdn_url: URL | None = None
+    server_url: str
+    cdn_url: str | None = None
 
 
 class _PackageMetadata(TypedDict):
@@ -363,8 +349,16 @@ class _PackageMetadata(TypedDict):
     main: NotRequired[str]
 
 
-_DEFAULT_EXTENSION_CDN = URL("https://unpkg.com")
+_DEFAULT_EXTENSION_CDN = "https://unpkg.com"
 extension_dirs: dict[str, Path] = {}
+
+
+def _join_extension_url(base: str, *parts: str) -> str:
+    result = base
+    for part in parts:
+        base_url = result if result.endswith("/") else f"{result}/"
+        result = urljoin(base_url, part.replace(os.sep, "/"))
+    return result
 
 
 def bundle_extensions(objs: set[HasProps] | None, policy: _Resources) -> list[_ExtensionBundle]:
@@ -396,7 +390,7 @@ def bundle_extensions(objs: set[HasProps] | None, policy: _Resources) -> list[_E
             except json.JSONDecodeError:
                 package = None
 
-        cdn_url: URL | None = None
+        cdn_url: str | None = None
         if package is not None:
             package_name = package.get("name")
             if package_name is None:
@@ -405,7 +399,9 @@ def bundle_extensions(objs: set[HasProps] | None, policy: _Resources) -> list[_E
             package_main = package.get("module", package.get("main"))
             if package_main is not None:
                 package_main_path = Path(normpath(package_main))
-                cdn_url = _DEFAULT_EXTENSION_CDN / f"{package_name}@{package_version}" / str(package_main_path)
+                cdn_url = _join_extension_url(
+                    _DEFAULT_EXTENSION_CDN, f"{package_name}@{package_version}", str(package_main_path),
+                )
             else:
                 package_main_path = dist_dir / f"{name}.js"
             artifact_path = base_dir / package_main_path
@@ -423,7 +419,9 @@ def bundle_extensions(objs: set[HasProps] | None, policy: _Resources) -> list[_E
                 raise ValueError(f"can't resolve artifact path for '{name}' extension")
 
         extension_dirs[name] = artifact_path.parent
-        server_url = URL(policy.root_url or DEFAULT_SERVER_HTTP_URL) / "static" / "extensions" / server_path
+        server_url = _join_extension_url(
+            policy.root_url or DEFAULT_SERVER_HTTP_URL, "static", "extensions", server_path,
+        )
         bundles.append(_ExtensionBundle(artifact_path, server_url, cdn_url))
 
     return bundles

@@ -22,8 +22,8 @@ template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescap
 def render_page(root_path: str = "") -> bytes:
     mount_url = f"{root_path.rstrip('/')}/bkapp"
     result = embed_server(mount_url, relative_urls=True)
-    bokeh_script = result.fragment(resources="server").html
-    return template.render(framework="framework-free ASGI", bokeh_script=bokeh_script).encode()
+    fragment = result.fragment(resources="server")
+    return template.render(framework="framework-free ASGI", embed_html=fragment.html).encode()
 
 
 async def response(send: Send, status: int, body: bytes, *, head: bool = False) -> None:

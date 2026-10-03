@@ -332,7 +332,7 @@ export async function compute_embed_fingerprint(payload: EmbedPayload): Promise<
     requires: payload.requires,
     metadata: payload.metadata,
   }
-  const encoded = new TextEncoder().encode(canonical_json(normalized))
+  const encoded = new TextEncoder().encode(canonical_embed_json(normalized))
   const {crypto} = globalThis as unknown as {crypto?: {subtle?: SubtleCrypto}}
   const subtle = crypto?.subtle
   const digest = subtle != null
@@ -439,7 +439,7 @@ function normalize_model_ids(value: unknown): unknown {
   return replace(value)
 }
 
-function canonical_json(value: unknown): string {
+export function canonical_embed_json(value: unknown): string {
   if (value == null || typeof value == "boolean" || typeof value == "string") {
     return JSON.stringify(value)
   }
@@ -453,12 +453,12 @@ function canonical_json(value: unknown): string {
     return JSON.stringify(value)
   }
   if (Array.isArray(value)) {
-    return `[${value.map(canonical_json).join(",")}]`
+    return `[${value.map(canonical_embed_json).join(",")}]`
   }
   if (isPlainObject(value)) {
     const record = value as {[key: string]: unknown}
     return `{${Object.keys(record).sort().map((key) =>
-      `${JSON.stringify(key)}:${canonical_json(record[key])}`).join(",")}}`
+      `${JSON.stringify(key)}:${canonical_embed_json(record[key])}`).join(",")}}`
   }
   throw new EmbedError("schema", `embed payload value of type '${typeof value}' is not JSON-compatible`)
 }

@@ -40,8 +40,8 @@ def bkapp(doc):
 @app.route('/', methods=['GET'])
 def bkapp_page():
     result = embed_server('http://localhost:5006/bkapp')
-    script = result.fragment(resources="server").html
-    return render_template("embed.html", script=script, template="Flask")
+    fragment = result.fragment(resources="server")
+    return render_template("embed.html", embed_html=fragment.html, template="Flask")
 
 
 def bk_worker():
