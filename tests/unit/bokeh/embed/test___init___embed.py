@@ -36,7 +36,6 @@ ALL = (
     'EMBED_MIME_TYPE',
     'EmbedBuildError',
     'EmbedInput',
-    'EmbedMigrationError',
     'EmbedSpec',
     'ExtensionRequirement',
     'ExternalEmbed',

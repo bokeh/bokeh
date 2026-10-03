@@ -49,7 +49,6 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'EmbedMigrationError',
     'autoload_static',
     'components',
     'file_html',
@@ -60,19 +59,16 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class EmbedMigrationError(RuntimeError):
-    """An actionable migration error for a removed embed contract."""
-
 def autoload_static(model: Model | Document, resources: Resources | str, script_path: str) -> tuple[str, str]:
-    """Raise with the external embed migration route."""
-    raise EmbedMigrationError(
+    """Use ``embed(model).external(...)`` instead."""
+    raise RuntimeError(
         "autoload_static() was removed. Use embed(model).external(payload_url=script_path) "
         "and save result.to_json_string() as the payload instead of generating a per-embed loader program.",
     )
 
 def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None) -> dict[str, Any]:
-    """Raise with the embed payload migration route."""
-    raise EmbedMigrationError(
+    """Use ``embed(model).to_dict()`` instead."""
+    raise RuntimeError(
         "json_item() was removed. Use embed(model).to_dict() with Bokeh.mount(), "
         "or embed(model).external(...) for a declarative external payload.",
     )
@@ -151,7 +147,7 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
 
     deprecated((4, 0, 0), "components()", "embed(...).fragment(...)")
     if wrap_script is not True or wrap_plot_info is not True:
-        raise EmbedMigrationError(
+        raise ValueError(
             "components() wrapping flags were removed. Use "
             "embed(models).fragment(resources='none') and its script, divs, mounts, or html fields.",
         )
