@@ -28,8 +28,13 @@ from bokeh.embed.resources import (
     ResourceRequirements,
 )
 from bokeh.models import (
+    ColorBar,
+    Div,
     LinearAxis,
+    LinearColorMapper,
+    Markdown,
     Paragraph,
+    SizeBar,
     Slider,
     Title,
 )
@@ -237,6 +242,29 @@ def test_bundle_extensions_skips_non_packages(
     LinearAxis(axis_label="$$x$$"),
     LinearAxis(major_label_overrides={0: "$$x$$"}),
     Paragraph(text="$$x$$"),
+    Div(text="$$x$$"),
+    Markdown(text="$$x$$"),
+    ColorBar(
+        color_mapper=LinearColorMapper(palette="Viridis256", low=0, high=1),
+        title="$$x$$",
+    ),
+    ColorBar(
+        color_mapper=LinearColorMapper(palette="Viridis256", low=0, high=1),
+        major_label_overrides={0: "$$x$$"},
+    ),
+    SizeBar(title="$$x$$"),
+    SizeBar(major_label_overrides={0: "$$x$$"}),
 ])
 def test_requirements_detect_mathjax(model: Any) -> None:
     assert "bokeh/mathjax" in ber.requirements_for_objs([model]).components
+
+
+@pytest.mark.parametrize("model", [
+    Paragraph(text="$$x$$", disable_math=True),
+    Div(text="$$x$$", disable_math=True),
+    Div(text="$$x$$", render_as_text=True),
+    Markdown(text="$$x$$", disable_math=True),
+    LinearAxis(major_label_overrides={"$$x$$": "plain text"}),
+])
+def test_requirements_skip_unrendered_mathjax(model: Any) -> None:
+    assert "bokeh/mathjax" not in ber.requirements_for_objs([model]).components
