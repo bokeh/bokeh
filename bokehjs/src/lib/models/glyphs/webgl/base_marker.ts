@@ -33,8 +33,8 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected _border_radius_nonzero: boolean = false
 
   // indices properties
-  protected readonly _show = new Uint8Buffer(this.regl_wrapper)
-  protected _show_all: boolean = false
+  protected _show_indices: number[] | null = null
+  protected _show_nmarkers: number = -1
 
   // visual properties
   protected readonly _linewidths = new Float32Buffer(this.regl_wrapper)
@@ -117,7 +117,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     marker_type: GLMarkerType,
     transform: Transform,
     main_gl_glyph: BaseMarkerGL,
-    show: Uint8Buffer = this._show,
+    show: Uint8Buffer,
   ): void {
     const props_no_hatch: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,
@@ -174,5 +174,26 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       this._hatch_weights.set_from_prop(hatch.hatch_weight)
       this._hatch_rgba.set_from_color(hatch.hatch_color, hatch.hatch_alpha)
     }
+  }
+
+  protected _have_indices_changed(indices: number[]): boolean {
+    const existing = this._show_indices
+    if (existing == null || existing.length !== indices.length) {
+      return true
+    }
+    const n = indices.length
+    if (n === 0) {
+      return false
+    }
+    // Endpoints mismatching proves inequality regardless of ordering.
+    if (existing[0] !== indices[0] || existing[n - 1] !== indices[n - 1]) {
+      return true
+    }
+    for (let i = 1; i < n - 1; i++) {
+      if (existing[i] !== indices[i]) {
+        return true
+      }
+    }
+    return false
   }
 }
