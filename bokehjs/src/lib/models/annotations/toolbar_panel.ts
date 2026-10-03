@@ -6,6 +6,7 @@ import {build_view} from "core/build_views"
 import type {Size, Layoutable} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import type * as p from "core/properties"
+import * as logos from "styles/logo.css"
 
 export class ToolbarPanelView extends AnnotationView {
   declare model: ToolbarPanel
@@ -84,9 +85,59 @@ export class ToolbarPanelView extends AnnotationView {
 
   protected override _get_size(): Size {
     const {tools, logo} = this.model.toolbar
+
+    const {width: button_width, height: button_height} = this._button_size()
+
+    // The panel's dimensions are always expressed in the horizontal
+    // orientation, even if the toolbar itself is vertical.
+    const length = this.is_horizontal ? button_width : button_height
+    const button_thickness = this.is_horizontal ? button_height : button_width
+    const logo_el = this.toolbar_view.shadow_el.querySelector(`.${logos.logo}`)
+    const logo_thickness = (() => {
+      if (logo_el == null) {
+        return 0
+      }
+      const rect = logo_el.getBoundingClientRect()
+      const style = getComputedStyle(logo_el)
+      return this.is_horizontal
+        ? rect.height + parseFloat(style.marginTop) + parseFloat(style.marginBottom)
+        : rect.width + parseFloat(style.marginLeft) + parseFloat(style.marginRight)
+    })()
+    const thickness = Math.max(button_thickness, logo_thickness)
+
     return {
-      width: tools.length*30 + (logo != null ? 25 : 0) + 15, // TODO: approximate, use a proper layout instead.
-      height: 30,
+      width: tools.length*length + (logo != null ? 25 : 0) + 15, // TODO: approximate, use a proper layout instead.
+      height: thickness,
+    }
+  }
+
+  protected _button_size(): Size {
+    // Tool buttons can be resized with CSS variables, so use the computed
+    // size of a rendered button, which also resolves non-pixel units.
+    const button_view = this.toolbar_view.tool_button_views.find((view) => view.el.isConnected)
+    if (button_view != null) {
+      const {width, height} = getComputedStyle(button_view.el)
+      const width_px = parseFloat(width)
+      const height_px = parseFloat(height)
+      if (!isNaN(width_px) && !isNaN(height_px) && width_px > 0 && height_px > 0) {
+        return {width: width_px, height: height_px}
+      }
+    }
+
+    // Resolve CSS variables through an attached element, so units such as rem
+    // are converted to pixels even when there are no rendered buttons.
+    const probe = document.createElement("div")
+    probe.style.position = "absolute"
+    probe.style.width = "var(--button-width, 30px)"
+    probe.style.height = "var(--button-height, 30px)"
+    this.toolbar_view.shadow_el.appendChild(probe)
+    const {width, height} = getComputedStyle(probe)
+    probe.remove()
+    const width_px = parseFloat(width)
+    const height_px = parseFloat(height)
+    return {
+      width: !isNaN(width_px) && width_px > 0 ? width_px : 30,
+      height: !isNaN(height_px) && height_px > 0 ? height_px : 30,
     }
   }
 }
