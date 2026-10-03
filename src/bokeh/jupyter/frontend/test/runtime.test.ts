@@ -6,7 +6,6 @@ import {currentDocumentSnapshot, loadResources, renderDisplay, resetResourceRegi
 const artifact = {
   schema: "bokeh.embed/v1",
   bokeh_version: "4.0.0",
-  fingerprint: "fingerprint",
   source: {kind: "standalone", documents: [{roots: []}]},
   roots: [
     {key: "first", document: 0, root: 0},
@@ -21,7 +20,6 @@ const display: DisplayPayload = {
   resource_id: "resource",
   bokeh_version: "4.0.0",
   python_version: "4.0.0",
-  artifact_fingerprint: artifact.fingerprint,
   source_kind: "standalone",
   view_id: "view",
   connect_timeout: 5000,
@@ -40,7 +38,7 @@ const resource: ResourcePayload = {
   warnings: [],
   load_timeout: 5000,
 }
-const html = `<script type="application/vnd.bokeh.embed+json" data-bokeh-artifact-payload>${JSON.stringify(artifact)}</script>`
+const html = `<script type="application/vnd.bokeh.embed+json" data-bokeh-embed-payload>${JSON.stringify(artifact)}</script>`
 
 describe("artifact runtime", () => {
   beforeEach(() => {
@@ -58,7 +56,7 @@ describe("artifact runtime", () => {
       root: () => null,
       view_lookup: {},
     }
-    const mount = vi.fn((_artifact: unknown, options: any) => ({...handle, options}))
+    const mount = vi.fn(() => handle)
     ;(window as any).Bokeh = {
       version: "4.0.0",
       mount,
@@ -71,12 +69,12 @@ describe("artifact runtime", () => {
 
     const cleanup = await renderDisplay(node, display, html)
     expect(mount).toHaveBeenCalledOnce()
-    const options = mount.mock.calls[0][1]
-    expect([...options.targets.keys()]).toEqual(["first", "second"])
+    const targets = mount.mock.calls[0][1] as Map<string, HTMLElement>
+    expect([...targets.keys()]).toEqual(["first", "second"])
+    expect(mount.mock.calls[0][2]).toMatchObject({resources: "none"})
     const snapshot = currentDocumentSnapshot(node, display)
     expect(snapshot?.view_id).toBe("view")
     const current = JSON.parse(snapshot?.artifact_json ?? "{}")
-    expect(current.fingerprint).toBeUndefined()
     expect(current.metadata.notebook_export).toEqual({view_id: "view"})
     cleanup()
     cleanup()
@@ -86,7 +84,7 @@ describe("artifact runtime", () => {
 
   it("uses the protocol's BokehJS version for Python development artifacts", async () => {
     const developmentArtifact = {...artifact, bokeh_version: "4.0.0.dev4+100.gabcdef"}
-    const developmentHtml = `<script type="application/vnd.bokeh.embed+json" data-bokeh-artifact-payload>${JSON.stringify(developmentArtifact)}</script>`
+    const developmentHtml = `<script type="application/vnd.bokeh.embed+json" data-bokeh-embed-payload>${JSON.stringify(developmentArtifact)}</script>`
     const handle = {
       ready: Promise.resolve(),
       dispose: vi.fn(async () => undefined),
@@ -105,9 +103,13 @@ describe("artifact runtime", () => {
     document.body.append(node)
     await loadResources(resource, "", node)
 
-    const cleanup = await renderDisplay(node, display, developmentHtml)
+    const cleanup = await renderDisplay(node, {...display, python_version: developmentArtifact.bokeh_version}, developmentHtml)
 
-    expect((window as any).Bokeh.mount).toHaveBeenCalledWith(developmentArtifact, expect.anything())
+    expect((window as any).Bokeh.mount).toHaveBeenCalledWith(
+      developmentArtifact,
+      expect.anything(),
+      expect.objectContaining({resources: "none"}),
+    )
     cleanup()
   })
 
@@ -116,24 +118,21 @@ describe("artifact runtime", () => {
     const browserUrl = "https://hub.test/user/alice/proxy/4312/bokeh-notebook/nonce/"
     const serverArtifact = {
       ...artifact,
-      fingerprint: "local-fingerprint",
       source: {kind: "server", url: localUrl, arguments: {}, headers: {}, credentials: "same-origin"},
       roots: [],
       metadata: {notebook_application_id: "application"},
     }
     const browserArtifact = {
       ...serverArtifact,
-      fingerprint: "browser-fingerprint",
       source: {...serverArtifact.source, url: browserUrl},
     }
     const serverDisplay: DisplayPayload = {
       ...display,
-      artifact_fingerprint: serverArtifact.fingerprint,
       source_kind: "server",
       application_id: "application",
       application_url: localUrl,
     }
-    const serverHtml = `<script type="application/vnd.bokeh.embed+json" data-bokeh-artifact-payload>${JSON.stringify(serverArtifact)}</script>`
+    const serverHtml = `<script type="application/vnd.bokeh.embed+json" data-bokeh-embed-payload>${JSON.stringify(serverArtifact)}</script>`
     const handle = {
       ready: Promise.resolve(),
       dispose: vi.fn(async () => undefined),

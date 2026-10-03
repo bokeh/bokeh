@@ -21,7 +21,7 @@ import re
 import sys
 
 # Bokeh imports
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.plotting import figure
 from bokeh.resources import Resources, ResourcesMode
 
@@ -32,7 +32,7 @@ from bokeh.resources import Resources, ResourcesMode
 def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
     p = figure()
     p.scatter(x=[], y=[])
-    html = file_html(p, resources=Resources(resource_mode))
+    html = embed(p).page(resources=Resources(resource_mode))
     return html.split('\n')
 
 def test_no_white_space_in_top_of_html() -> None:

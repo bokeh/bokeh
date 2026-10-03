@@ -88,7 +88,7 @@ p
     assert payload["protocol_version"] == PROTOCOL_VERSION
     assert payload["kind"] == "artifact"
     assert payload["source_kind"] == "standalone"
-    assert html.count("data-bokeh-artifact-payload") == 1
+    assert html.count("data-bokeh-embed-payload") == 1
     assert "docs_json" not in html
     assert "render_items" not in json.dumps(payload)
     assert all("application/vnd.bokeh.document+json" not in output.get("data", {}) for output in outputs)

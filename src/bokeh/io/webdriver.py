@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
     from ..document import Document
     from ..models.ui import UIElement
-    from ..resources import Resources
+    from ..resources import ResourcesLike
 
 # Bokeh imports
 from ..settings import settings
@@ -77,7 +77,7 @@ def get_screenshot_as_png(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: ResourcesLike = "inline",
     width: int | None = None,
     height: int | None = None,
     scale_factor: float = 1,
@@ -126,7 +126,7 @@ def get_svg(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: ResourcesLike = "inline",
     width: int | None = None,
     height: int | None = None,
 ) -> list[str]:
@@ -149,7 +149,7 @@ def get_svgs(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: Resources | str = "inline",
+    resources: ResourcesLike = "inline",
     width: int | None = None,
     height: int | None = None,
 ) -> list[str]:

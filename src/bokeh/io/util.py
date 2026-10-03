@@ -260,9 +260,9 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
 # Shared JavaScript snippets for Selenium and Playwright backends
 #-----------------------------------------------------------------------------
 
-# Artifact exports publish the mount handle on each root target. Use the mount
+# Embed exports publish the mount handle on each root target. Use the mount
 # owned by this export instead of the process-wide Bokeh.index registry.
-_MOUNT_EXPR = "document.querySelector('[data-bokeh-artifact][data-bokeh-root]')?.bokehMount"
+_MOUNT_EXPR = "document.querySelector('[data-bokeh-embed-instance][data-bokeh-root]')?.bokehMount"
 
 # Check whether Bokeh has loaded, created a document, and mounted a root view.
 _BOKEH_LOADED_CHECK = """\
@@ -289,10 +289,6 @@ if (doc.is_idle)
 else
   doc.idle.connect(done);
 """
-
-# Embed exports contain one mount. Use its owned views instead of the legacy
-# process-wide Bokeh.index registry.
-_MOUNT_EXPR = "document.querySelector('[data-bokeh-embed-instance][data-bokeh-root]').bokehMount"
 
 # Read the bounding box enclosing every root view and the device pixel ratio.
 # A Document can have several independently mounted roots. Notebook export in

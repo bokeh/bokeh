@@ -30,7 +30,7 @@ from nbformat.sign import NotebookNotary
 from traitlets import Bool, Enum, Integer
 
 # Bokeh imports
-from ..embed.artifact import ArtifactValidationError, EmbedArtifact
+from ..embed.result import EmbedResult, EmbedValidationError
 from .export import ExportBackendType, get_screenshot_as_png_from_html
 from .jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE
 from .notebook import STATIC_FALLBACK_ATTRIBUTE, static_fallback
@@ -63,7 +63,7 @@ class _ArtifactPayloadParser(HTMLParser):
             None
 
         '''
-        if tag == "script" and any(name == "data-bokeh-artifact-payload" for name, _value in attrs):
+        if tag == "script" and any(name == "data-bokeh-embed-payload" for name, _value in attrs):
             self.payload = []
             self._collecting = True
 
@@ -349,20 +349,18 @@ class BokehPNGPreprocessor(Preprocessor):
         if not isinstance(artifact_json, str):
             raise _PngUnavailable("This Bokeh output has no embedding artifact available for PNG export.")
         try:
-            artifact = EmbedArtifact.from_json(
-                artifact_json, _verify_fingerprint=source != "current-frontend",
-            )
-        except ArtifactValidationError as error:
+            result = EmbedResult.from_json(artifact_json)
+        except EmbedValidationError as error:
             raise _PngUnavailable(f"This Bokeh output has an invalid embedding artifact: {error}") from error
-        if artifact.source.get("kind") != "standalone":
+        if result.source.get("kind") != "standalone":
             raise _PngUnavailable(
                 "This Bokeh application has no current standalone frontend snapshot. "
                 "Export from the open notebook while the application is connected.",
             )
-        if not artifact.roots:
+        if not result.roots:
             raise _PngUnavailable("This Bokeh output has no rendered roots to capture during notebook export.")
 
-        page = artifact.page(resources="inline")
+        page = result.page(resources="inline")
         if isinstance(width, (int, float)) and 1 <= width <= 10000:
             page = page.replace("<body>", f'<body style="width:{round(width)}px">', 1)
         image = get_screenshot_as_png_from_html(

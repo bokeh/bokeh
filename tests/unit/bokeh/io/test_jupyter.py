@@ -121,7 +121,6 @@ def test_display_payload_references_artifact_without_copying_graph() -> None:
         "resource_id": "resource",
         "bokeh_version": bokehjs_version(__version__),
         "python_version": __version__,
-        "artifact_fingerprint": artifact.fingerprint,
         "source_kind": "standalone",
         "view_id": "view",
         "connect_timeout": 10_000,
