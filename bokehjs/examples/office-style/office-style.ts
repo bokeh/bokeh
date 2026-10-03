@@ -215,5 +215,5 @@ export namespace Office {
   doc.add_root(layout)
 
   const div = document.getElementById("dashboard")!
-  export const mounted = Bokeh.mount(doc, {targets: div})
+  export const mounted = Bokeh.mount(doc, div)
 }

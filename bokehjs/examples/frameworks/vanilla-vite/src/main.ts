@@ -32,4 +32,4 @@ input.addEventListener("input", () => {
   output.value = `${variation.toFixed(2)}×`
 })
 
-await mount(plot, {targets: document.querySelector<HTMLElement>("#plot")!})
+await mount(plot, document.querySelector<HTMLElement>("#plot")!)
