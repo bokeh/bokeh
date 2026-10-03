@@ -48,7 +48,6 @@ from .result import (
 )
 from .server import server_document, server_session
 from .standalone import (
-    EmbedMigrationError,
     autoload_static,
     components,
     file_html,
@@ -69,7 +68,6 @@ __all__ = (
     'EMBED_MIME_TYPE',
     'EmbedBuildError',
     'EmbedInput',
-    'EmbedMigrationError',
     'EmbedSpec',
     'ExtensionRequirement',
     'ExternalEmbed',

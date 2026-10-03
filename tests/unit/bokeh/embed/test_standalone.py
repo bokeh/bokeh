@@ -76,10 +76,10 @@ class Test_components:
         (False, True),
         (True, False),
     ])
-    def test_wrapping_flags_raise_migration_error(self, test_plot: Plot,
+    def test_wrapping_flags_raise_value_error(self, test_plot: Plot,
             wrap_script: bool, wrap_plot_info: bool) -> None:
         with pytest.warns(BokehDeprecationWarning, match=r"components\(\)"):
-            with pytest.raises(bes.EmbedMigrationError, match=r"fragment\(resources='none'\)"):
+            with pytest.raises(ValueError, match=r"fragment\(resources='none'\)"):
                 bes.components(test_plot, wrap_script=wrap_script, wrap_plot_info=wrap_plot_info)
 
 class Test_file_html:
@@ -133,9 +133,9 @@ class Test_file_html:
             deprecated_file_html(Document(), "cdn")
 
 
-def test_removed_item_and_autoload_contracts_raise_migration_errors(test_plot: Plot) -> None:
-    with pytest.raises(bes.EmbedMigrationError, match=r"embed\(model\)\.to_dict\(\)"):
+def test_removed_item_and_autoload_contracts_raise_runtime_errors(test_plot: Plot) -> None:
+    with pytest.raises(RuntimeError, match=r"embed\(model\)\.to_dict\(\)"):
         bes.json_item(test_plot)
 
-    with pytest.raises(bes.EmbedMigrationError, match=r"embed\(model\)\.external"):
+    with pytest.raises(RuntimeError, match=r"embed\(model\)\.external"):
         bes.autoload_static(test_plot, "cdn", "/plot.json")
