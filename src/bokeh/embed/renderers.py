@@ -13,7 +13,7 @@ import hashlib
 import re
 from dataclasses import dataclass
 from html import escape
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -360,10 +360,14 @@ def _external_bootstrap(bootstrap_url: str, fingerprint: str, *, payload_url: st
 
 
 def _render_resources(resources: ResolvedResources, *, kind: str | None = None) -> str:
-    return "\n".join(_render_resource(asset) for asset in resources.assets if kind is None or asset.kind == kind)
+    allow_absolute_path = resources.policy.mode == "absolute"
+    return "\n".join(
+        _render_resource(asset, allow_absolute_path=allow_absolute_path)
+        for asset in resources.assets if kind is None or asset.kind == kind
+    )
 
 
-def _render_resource(asset: ResolvedResource) -> str:
+def _render_resource(asset: ResolvedResource, *, allow_absolute_path: bool = False) -> str:
     attributes = ['data-bokeh-resource-state="loaded"']
     if asset.nonce is not None:
         attributes.append(f'nonce="{escape(asset.nonce, quote=True)}"')
@@ -375,22 +379,24 @@ def _render_resource(asset: ResolvedResource) -> str:
     if asset.kind == "script":
         script_type = ' type="module"' if asset.module else ""
         if asset.url is not None:
-            _validate_web_url(asset.url, "script resource URL")
+            _validate_web_url(asset.url, "script resource URL", allow_absolute_path=allow_absolute_path)
             return f'<script src="{escape(asset.url, quote=True)}"{script_type}{suffix}></script>'
         assert asset.content is not None
         content = re.sub(r"</script", r"<\\/script", asset.content, flags=re.IGNORECASE)
         return f"<script{script_type}{suffix}>{content}</script>"
     if asset.url is not None:
-        _validate_web_url(asset.url, "style resource URL")
+        _validate_web_url(asset.url, "style resource URL", allow_absolute_path=allow_absolute_path)
         return f'<link rel="stylesheet" href="{escape(asset.url, quote=True)}"{suffix}>'
     assert asset.content is not None
     content = re.sub(r"</style", r"<\\/style", asset.content, flags=re.IGNORECASE)
     return f"<style{suffix}>{content}</style>"
 
 
-def _validate_web_url(url: str, context: str) -> None:
+def _validate_web_url(url: str, context: str, *, allow_absolute_path: bool = False) -> None:
     if not isinstance(url, str) or not url:
         raise ValueError(f"{context} must be a non-empty HTTP(S) or relative URL")
+    if allow_absolute_path and PureWindowsPath(url).is_absolute():
+        return
     parsed = urlsplit(url)
     if parsed.scheme and parsed.scheme.lower() not in ("http", "https"):
         raise ValueError(f"{context} must use HTTP(S) or be relative, received {url!r}")

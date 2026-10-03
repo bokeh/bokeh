@@ -40,7 +40,6 @@ from typing import (
     Mapping,
     Protocol,
     Sequence,
-    cast,
 )
 from urllib.parse import urlparse
 
@@ -207,8 +206,7 @@ class Resources:
             raise ResourceConflictError(
                 f"unknown resource mode {value!r}; expected one of {_RESOURCE_SETTINGS!r}",
             )
-        mode = cast(ResourcesMode, value)
-        return cls(mode=mode, **overrides)
+        return cls(mode=value, **overrides)
 
     def to_dict(self) -> dict[str, Any]:
         '''Return the JSON-compatible resources configuration.'''

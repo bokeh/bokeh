@@ -72,14 +72,15 @@ class Test_components:
         assert "id" not in target.attrs
         assert "data-root-id" not in target.attrs
 
-    @pytest.mark.parametrize("kwargs", [
-        {"wrap_script": False},
-        {"wrap_plot_info": False},
+    @pytest.mark.parametrize(("wrap_script", "wrap_plot_info"), [
+        (False, True),
+        (True, False),
     ])
-    def test_removed_wrapping_flags_raise_migration_error(self, test_plot: Plot, kwargs: dict[str, bool]) -> None:
+    def test_wrapping_flags_raise_migration_error(self, test_plot: Plot,
+            wrap_script: bool, wrap_plot_info: bool) -> None:
         with pytest.warns(BokehDeprecationWarning, match=r"components\(\)"):
             with pytest.raises(bes.EmbedMigrationError, match=r"fragment\(resources='none'\)"):
-                bes.components(test_plot, **kwargs)
+                bes.components(test_plot, wrap_script=wrap_script, wrap_plot_info=wrap_plot_info)
 
 class Test_file_html:
     def test_returns_embed_page_and_escapes_title(self, test_plot: Plot) -> None:
@@ -101,7 +102,7 @@ class Test_file_html:
         assert deprecated_file_html(
             test_plot,
             "cdn",
-            template=TemplateProbe(),  # type: ignore[arg-type]
+            template=TemplateProbe(),
             template_variables={"custom": "value"},
         ) == "template result"
 
