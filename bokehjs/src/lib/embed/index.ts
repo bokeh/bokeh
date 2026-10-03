@@ -3,7 +3,7 @@ export {embed_items_notebook, kernels} from "./legacy_notebook"
 export {create_notebook_patch_receiver, NotebookPatchError} from "./notebook"
 export type {NotebookPatch} from "./notebook"
 export {
-  EmbedError, compute_embed_fingerprint, embed_schema,
+  EmbedError, embed_schema,
   is_embed_payload, validate_embed_payload,
 } from "./payload"
 export type {

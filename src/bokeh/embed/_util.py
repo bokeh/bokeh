@@ -98,17 +98,18 @@ def _encode_embed_json_float(value: float) -> str:
         raise ValueError("non-finite numbers are not valid embedding JSON")
     if value == 0:
         return "0"
-    if value.is_integer():
-        if abs(value) > _MAX_SAFE_INTEGER:
-            raise ValueError(f"integer {value} exceeds JavaScript's safe integer range")
+    if value.is_integer() and abs(value) <= _MAX_SAFE_INTEGER:
         return str(int(value))
 
     absolute = abs(value)
     text = repr(float(value)).lower()
-    if 1e-6 <= absolute < 1e21:
+    if not value.is_integer() and 1e-6 <= absolute < 1e21:
         return format(Decimal(text), "f")
 
-    mantissa, exponent = text.split("e") if "e" in text else (text, "0")
+    if "e" not in text:
+        return text
+
+    mantissa, exponent = text.split("e")
     mantissa = mantissa.rstrip("0").rstrip(".")
     exponent_value = int(exponent)
     sign = "+" if exponent_value >= 0 else ""
@@ -120,10 +121,14 @@ def _utf16_sort_key(value: str) -> bytes:
 
 
 def _encode_embed_json_string(value: str) -> str:
-    encoded = json.dumps(value, ensure_ascii=False)
+    return escape_json_surrogates(json.dumps(value, ensure_ascii=False))
+
+
+def escape_json_surrogates(value: str) -> str:
+    """Escape lone surrogate code points in serialized JSON text."""
     return "".join(
         f"\\u{ord(char):04x}" if 0xD800 <= ord(char) <= 0xDFFF else char
-        for char in encoded
+        for char in value
     )
 
 
@@ -490,5 +495,6 @@ __all__ = (
     "embed",
     "embed_protocol",
     "embed_server",
+    "escape_json_surrogates",
     "server_page_for_session",
 )

@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 
 # Bokeh imports
 from .. import __version__
-from ._util import canonical_embed_json
+from ._util import canonical_embed_json, escape_json_surrogates
 from .resources import ResourceRequirements
 
 if TYPE_CHECKING:
@@ -111,7 +111,8 @@ class EmbedResult:
     ``source`` contains standalone document data or a server descriptor.
     ``roots`` supplies logical addresses. ``requires`` declares runtime assets
     independently from delivery policy. ``fingerprint`` is derived from the
-    normalized envelope and is verified whenever serialized data is read.
+    normalized envelope. Python verifies it when reconstructing a result from
+    serialized data.
     '''
     roots: tuple[EmbedRoot, ...]
     requires: ResourceRequirements
@@ -131,8 +132,14 @@ class EmbedResult:
         if metadata is not None and not isinstance(metadata, Mapping):
             raise EmbedValidationError("embed payload metadata must be an object")
         try:
-            source_data = json.loads(canonical_embed_json(dict(source)))
-            metadata_data = json.loads(canonical_embed_json(dict(metadata) if metadata is not None else {}))
+            source_value = dict(source)
+            metadata_value = dict(metadata) if metadata is not None else {}
+            canonical_embed_json(source_value)
+            canonical_embed_json(metadata_value)
+            source_data = json.loads(json.dumps(source_value, ensure_ascii=False, allow_nan=False))
+            metadata_data = json.loads(json.dumps(
+                metadata_value, ensure_ascii=False, allow_nan=False,
+            ))
         except (TypeError, ValueError) as error:
             raise EmbedValidationError(str(error)) from error
         object.__setattr__(self, "roots", roots)
@@ -143,11 +150,16 @@ class EmbedResult:
         object.__setattr__(self, "_metadata", metadata_data)
         self._validate()
         envelope = self._envelope()
-        fingerprint = _fingerprint(envelope)
+        try:
+            fingerprint = _fingerprint(envelope)
+        except (TypeError, ValueError) as error:
+            raise EmbedValidationError(str(error)) from error
         payload = {**envelope, "fingerprint": fingerprint}
         object.__setattr__(self, "fingerprint", fingerprint)
         object.__setattr__(self, "_payload", payload)
-        object.__setattr__(self, "_json_string", canonical_embed_json(payload))
+        object.__setattr__(self, "_json_string", escape_json_surrogates(json.dumps(
+            payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False,
+        )))
 
     @property
     def source(self) -> dict[str, Any]:
@@ -259,7 +271,9 @@ class EmbedResult:
             The serialized embed payload JSON.
         '''
         if pretty:
-            return json.dumps(self._payload, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False)
+            return escape_json_surrogates(json.dumps(
+                self._payload, ensure_ascii=False, indent=2, allow_nan=False,
+            ))
         return self._json_string
 
     @classmethod

@@ -8,7 +8,8 @@ import {DOMView} from "../core/dom_view"
 import {isString} from "../core/util/types"
 import {assert} from "../core/util/assert"
 import {logger} from "../core/logging"
-import type {EmbedTarget} from "./dom"
+
+export type EmbedTarget = HTMLElement | DocumentFragment
 
 type PropertyKey = string | symbol
 

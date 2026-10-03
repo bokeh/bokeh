@@ -155,12 +155,27 @@ def test_result_accepts_float_subclasses() -> None:
 
 @pytest.mark.parametrize(
     "value",
-    [float("nan"), float("inf"), float("-inf"), 2**53, float(2**53), 1e20, 1e21, 1e22],
+    [float("nan"), float("inf"), float("-inf"), 2**53],
 )
-def test_result_rejects_numbers_that_javascript_cannot_fingerprint(value: float | int) -> None:
+def test_result_rejects_non_finite_floats_and_unsafe_integers(value: float | int) -> None:
     result = embed(CustomJS(code="return"))
-    with pytest.raises(EmbedValidationError, match=r"finite|safe integer"):
+    with pytest.raises(EmbedValidationError, match=r"non-finite|safe integer"):
         EmbedResult(result.source, result.roots, result.requires, {"value": value})
+
+
+def test_result_rejects_non_string_metadata_keys() -> None:
+    result = embed(CustomJS(code="return"))
+    with pytest.raises(EmbedValidationError, match="keys must be strings"):
+        EmbedResult(result.source, result.roots, result.requires, {1: "value"})
+
+
+@pytest.mark.parametrize("value", [float(2**53), 1e20, 1e21, 1e22])
+def test_result_accepts_large_finite_floats(value: float) -> None:
+    result = embed(CustomJS(code="return"))
+    actual = EmbedResult(result.source, result.roots, result.requires, {"value": value})
+
+    assert actual.metadata == {"value": value}
+    assert isinstance(actual.metadata["value"], float)
 
 
 @pytest.mark.parametrize(("kwargs", "message"), [
@@ -187,6 +202,15 @@ def test_result_json_helpers_validate_and_round_trip() -> None:
         EmbedResult.from_json("[]")
     with pytest.raises(EmbedValidationError, match="roots must be objects"):
         EmbedRoot.from_dict([])  # type: ignore[arg-type]
+
+
+def test_result_json_helpers_escape_lone_surrogates() -> None:
+    result = embed(CustomJS(code="return"), metadata={"value": "\ud800"})
+
+    assert "\\ud800" in result.to_json_string()
+    assert "\\ud800" in result.to_json_string(pretty=True)
+    result.to_json_string().encode("utf-8")
+    result.fragment().script.encode("utf-8")
 
 
 def test_resource_requirement_inputs_are_canonicalized_to_tuples() -> None:
@@ -226,7 +250,9 @@ def test_fingerprint_does_not_normalize_metadata_that_resembles_a_model_id() -> 
 
 def test_result_round_trip_validates_fingerprint_and_schema() -> None:
     result = embed(_plot())
-    assert EmbedResult.from_json(result.to_json_string()) == result
+    restored = EmbedResult.from_json(result.to_json_string())
+    assert restored == result
+    Document.from_json(restored.source["documents"][0])
 
     invalid = result.to_dict()
     invalid["fingerprint"] = "wrong"

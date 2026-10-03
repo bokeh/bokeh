@@ -4,7 +4,7 @@ import * as embed from "@bokehjs/embed"
 import {register_models} from "@bokehjs/base"
 import {mount} from "@bokehjs/api/io"
 import {index} from "@bokehjs/embed/standalone"
-import {compute_embed_fingerprint, type EmbedPayload} from "@bokehjs/embed/payload"
+import type {EmbedPayload} from "@bokehjs/embed/payload"
 import {Document, documents} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
 import {DOMElementView} from "@bokehjs/core/dom_view"
@@ -104,9 +104,8 @@ describe("embed", () => {
       roots: [{key: "root", document: 0, root: 0}],
       requires: {components: ["bokeh/core"], extensions: []},
       metadata: {},
-      fingerprint: "",
+      fingerprint: "test-result",
     }
-    payload.fingerprint = await compute_embed_fingerprint(payload)
     const mounted = mount(payload, target, {resolver, resources: "none"})
     try {
       await mounted.ready

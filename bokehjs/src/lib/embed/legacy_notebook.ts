@@ -9,8 +9,8 @@ import {size, values} from "core/util/object"
 import {isString} from "core/util/types"
 
 import {StandaloneMount} from "./standalone"
+import type {EmbedTarget} from "./standalone"
 
-type EmbedTarget = HTMLElement | DocumentFragment
 type DocsJson = {[key: string]: DocJson}
 type Roots = {[index: string]: ID | EmbedTarget}
 

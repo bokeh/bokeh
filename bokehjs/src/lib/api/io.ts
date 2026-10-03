@@ -1,6 +1,6 @@
 import {Document} from "../document"
 import {StandaloneMount, StandaloneRootError} from "../embed/standalone"
-import type {EmbedTarget} from "../embed/dom"
+import type {EmbedTarget} from "../embed/standalone"
 
 import type {ViewOf} from "core/view"
 import type {ViewLookup} from "core/view_manager"
