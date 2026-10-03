@@ -41,6 +41,7 @@ from bokeh.embed import (
 from bokeh.embed.resources import (
     ExtensionRequirement,
     ResolvedResource,
+    ResolvedResources,
     ResourceRequirements,
 )
 from bokeh.events import DocumentReady
@@ -817,6 +818,17 @@ def test_renderers_reject_unsafe_executable_urls(url: str) -> None:
 def test_resource_rendering_rejects_unsafe_urls(asset: ResolvedResource) -> None:
     with pytest.raises(ValueError, match=r"HTTP\(S\)|scheme-relative"):
         renderers._render_resource(asset)
+
+
+def test_resource_rendering_allows_windows_paths_only_for_absolute_mode() -> None:
+    asset = ResolvedResource("script", url=r"C:\bokeh\bokeh.min.js")
+    requirements = ResourceRequirements()
+    absolute = ResolvedResources(requirements, Resources(mode="absolute"), __version__, (asset,))
+    cdn = ResolvedResources(requirements, Resources(mode="cdn"), __version__, (asset,))
+
+    assert r'src="C:\bokeh\bokeh.min.js"' in renderers._render_resources(absolute)
+    with pytest.raises(ValueError, match=r"HTTP\(S\) or be relative"):
+        renderers._render_resources(cdn)
 
 
 def test_inline_resource_end_tags_are_escaped_case_insensitively() -> None:
