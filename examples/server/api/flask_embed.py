@@ -3,7 +3,7 @@ from threading import Thread
 from flask import Flask, render_template
 from tornado.ioloop import IOLoop
 
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
@@ -39,7 +39,8 @@ def bkapp(doc):
 
 @app.route('/', methods=['GET'])
 def bkapp_page():
-    script = server_document('http://localhost:5006/bkapp')
+    result = embed_server('http://localhost:5006/bkapp')
+    script = result.fragment(resources="server").html
     return render_template("embed.html", script=script, template="Flask")
 
 

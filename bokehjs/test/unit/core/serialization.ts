@@ -335,6 +335,18 @@ describe("core/serialization module", () => {
       })
     })
 
+    it("decodes __proto__ as an own data property", () => {
+      const resolver = new ModelResolver(default_resolver)
+      const deserializer = new Deserializer(resolver)
+      const rep = JSON.parse('{"__proto__":{"safe":true}}')
+
+      const val = deserializer.decode(rep) as {[key: string]: unknown}
+
+      expect(Object.getPrototypeOf(val)).to.be.equal(Object.prototype)
+      expect(Object.hasOwn(val, "__proto__")).to.be.true
+      expect(val.__proto__).to.be.equal({safe: true})
+    })
+
     it("that supports ndarrays", () => {
       const nd0 = ndarray([1, 2, 3], {dtype: "int32", shape: [1, 3]})
 

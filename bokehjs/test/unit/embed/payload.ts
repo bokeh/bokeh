@@ -2,25 +2,26 @@ import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 
 import {default_resolver} from "@bokehjs/base"
 import {
-  BOKEH_MOUNTED_ATTRIBUTE, mount, mount_artifact_declaration, MountError, type MountErrorPhase, when_mounted,
+  BOKEH_MOUNTED_ATTRIBUTE, mount, mount_embed_declaration, MountError, type MountErrorPhase, when_mounted,
 } from "@bokehjs/api/io"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {to_object} from "@bokehjs/core/util/object"
 import {documents} from "@bokehjs/document"
-import type {EmbedArtifact} from "@bokehjs/embed/artifact"
-import {ArtifactError, compute_embed_artifact_fingerprint, validate_embed_artifact} from "@bokehjs/embed/artifact"
+import type {EmbedPayload} from "@bokehjs/embed/payload"
+import {EmbedError, compute_embed_fingerprint, validate_embed_payload} from "@bokehjs/embed/payload"
 import type {ResourceRequirements} from "@bokehjs/embed/resources"
 import {ResourceError, ResourceLoader} from "@bokehjs/embed/resources"
 import {CustomJS} from "@bokehjs/models"
 import {version as js_version} from "@bokehjs/version"
 
-import fixture_data from "./artifact_fixtures.json" with {type: "json"}
+import fixture_data from "./embed_fixtures.json" with {type: "json"}
 
 const core: ResourceRequirements = {components: ["bokeh/core"], extensions: []}
+let declaration_index = 0
 
-function fixture(name: string): EmbedArtifact {
+function fixture(name: string): EmbedPayload {
   expect(fixture_data.schema).to.be.equal("bokeh.embed.fixtures/v1")
-  const value = structuredClone(fixture_data.cases.find((item) => item.name == name)!.artifact) as unknown as EmbedArtifact
+  const value = structuredClone(fixture_data.cases.find((item) => item.name == name)!.payload) as unknown as EmbedPayload
   value.bokeh_version = js_version
   value.fingerprint = `fixture-${name}`
   if (value.source.kind == "standalone") {
@@ -29,9 +30,9 @@ function fixture(name: string): EmbedArtifact {
   return value
 }
 
-async function mountable_fixture(name: string): Promise<EmbedArtifact> {
+async function mountable_fixture(name: string): Promise<EmbedPayload> {
   const value = fixture(name)
-  value.fingerprint = await compute_embed_artifact_fingerprint(value)
+  value.fingerprint = await compute_embed_fingerprint(value)
   return value
 }
 
@@ -39,26 +40,30 @@ function remove_test_resources(): void {
   document.querySelectorAll("[data-bokeh-resource]").forEach((element) => element.remove())
 }
 
-function inline_declaration(artifact: EmbedArtifact, value: unknown = artifact): {
+function inline_declaration(embed_payload: EmbedPayload, value: unknown = embed_payload): {
   targets: HTMLElement[]
   payload: HTMLScriptElement
   bootstrap: HTMLScriptElement
   remove(): void
 } {
-  const targets = artifact.roots.map((root) => {
+  const instance = `Test-${++declaration_index}`
+  const targets = embed_payload.roots.map((root) => {
     const target = document.createElement("div")
-    target.dataset.bokehArtifact = artifact.fingerprint
+    target.dataset.bokehEmbed = embed_payload.fingerprint
+    target.dataset.bokehEmbedInstance = instance
     target.dataset.bokehRoot = root.key
     return target
   })
   const payload = document.createElement("script")
   payload.type = "application/vnd.bokeh.embed+json"
-  payload.dataset.bokehArtifactPayload = ""
-  payload.dataset.bokehArtifact = artifact.fingerprint
+  payload.dataset.bokehEmbedPayload = ""
+  payload.dataset.bokehEmbed = embed_payload.fingerprint
+  payload.dataset.bokehEmbedInstance = instance
   payload.textContent = JSON.stringify(value)
   const bootstrap = document.createElement("script")
-  bootstrap.dataset.bokehArtifactBootstrap = ""
-  bootstrap.dataset.bokehArtifact = artifact.fingerprint
+  bootstrap.dataset.bokehEmbedBootstrap = ""
+  bootstrap.dataset.bokehEmbed = embed_payload.fingerprint
+  bootstrap.dataset.bokehEmbedInstance = instance
   document.body.append(...targets, payload, bootstrap)
   return {
     targets,
@@ -73,17 +78,17 @@ function inline_declaration(artifact: EmbedArtifact, value: unknown = artifact):
   }
 }
 
-describe("EmbedArtifact runtime", () => {
+describe("EmbedPayload runtime", () => {
   after_each(() => remove_test_resources())
 
   it("consumes the shared keyed-root fixture through BokehMount", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
+    const payload = await mountable_fixture("standalone-keyed-roots")
     const target = document.createElement("div")
     document.body.append(target)
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const documents_before = documents.length
 
-    const mounted = mount(artifact, target, {resources: "none", resolver})
+    const mounted = mount(payload, target, {resources: "none", resolver})
     expect(mounted.state).to.be.equal("pending")
     await mounted.ready
     expect(mounted.root_keys).to.be.equal(["primary", "secondary"])
@@ -103,9 +108,9 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("mounts compact shared and cyclic model data", async () => {
-    const artifact = await mountable_fixture("standalone-compact-roots")
+    const payload = await mountable_fixture("standalone-compact-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
-    const mounted = mount(artifact, {resources: "none", resolver})
+    const mounted = mount(payload, {resources: "none", resolver})
     try {
       await mounted.ready
       const primary = mounted.root("primary")
@@ -121,15 +126,15 @@ describe("EmbedArtifact runtime", () => {
     }
   })
 
-  it("creates independent documents for repeated mounts of one artifact", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
+  it("creates independent documents for repeated mounts of one payload", async () => {
+    const payload = await mountable_fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const first_target = document.createElement("div")
     const second_target = document.createElement("div")
     document.body.append(first_target, second_target)
 
-    const first = mount(artifact, first_target, {resources: "none", resolver})
-    const second = mount(artifact, second_target, {resources: "none", resolver})
+    const first = mount(payload, first_target, {resources: "none", resolver})
+    const second = mount(payload, second_target, {resources: "none", resolver})
     await Promise.all([first.ready, second.ready])
     expect(first.document).to.not.be.equal(second.document)
     expect(first.root("primary")).to.not.be.equal(second.root("primary"))
@@ -140,12 +145,12 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("publishes one declarative handle for early and late multi-root discovery", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
+    const payload = await mountable_fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
-    const declaration = inline_declaration(artifact)
+    const declaration = inline_declaration(payload)
     try {
       const early = declaration.targets.map((target) => when_mounted(target))
-      const bootstrapping = mount_artifact_declaration(declaration.bootstrap, {resolver})
+      const bootstrapping = mount_embed_declaration(declaration.bootstrap, {resolver})
       const discovered = await Promise.all(early)
       const mounted = await bootstrapping
 
@@ -164,15 +169,15 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("keeps repeated identical declarations isolated by DOM order", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
+    const payload = await mountable_fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
-    const first = inline_declaration(artifact)
-    const second = inline_declaration(artifact)
+    const first = inline_declaration(payload)
+    const second = inline_declaration(payload)
     const discoveries = [...first.targets, ...second.targets].map((target) => when_mounted(target))
     try {
       const [first_mount, second_mount] = await Promise.all([
-        mount_artifact_declaration(first.bootstrap, {resolver}),
-        mount_artifact_declaration(second.bootstrap, {resolver}),
+        mount_embed_declaration(first.bootstrap, {resolver}),
+        mount_embed_declaration(second.bootstrap, {resolver}),
       ])
       const published = await Promise.all(discoveries)
       expect(first_mount == second_mount).to.be.false
@@ -186,13 +191,13 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("rejects incomplete declarative target sets before decoding", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
-    const declaration = inline_declaration(artifact)
+    const payload = await mountable_fixture("standalone-keyed-roots")
+    const declaration = inline_declaration(payload)
     const [target] = declaration.targets
     declaration.targets[1].remove()
     const discovery = when_mounted(target)
     try {
-      const error = await mount_artifact_declaration(declaration.bootstrap).then(() => null, (error: unknown) => error)
+      const error = await mount_embed_declaration(declaration.bootstrap).then(() => null, (error: unknown) => error)
       expect_instanceof(error, MountError)
       expect(error.kind).to.be.equal("target")
       expect(error.root_key).to.be.equal("secondary")
@@ -205,17 +210,20 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("publishes one structured payload failure to every declaration target", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
-    const targets = artifact.roots.map((root) => {
+    const payload = await mountable_fixture("standalone-keyed-roots")
+    const instance = `Test-${++declaration_index}`
+    const targets = payload.roots.map((root) => {
       const target = document.createElement("div")
-      target.dataset.bokehArtifact = artifact.fingerprint
+      target.dataset.bokehEmbed = payload.fingerprint
+      target.dataset.bokehEmbedInstance = instance
       target.dataset.bokehRoot = root.key
       return target
     })
     const bootstrap = document.createElement("script")
-    bootstrap.dataset.bokehArtifactBootstrap = ""
-    bootstrap.dataset.bokehArtifact = artifact.fingerprint
-    bootstrap.dataset.bokehPayloadUrl = "/artifacts/missing.json"
+    bootstrap.dataset.bokehEmbedBootstrap = ""
+    bootstrap.dataset.bokehEmbed = payload.fingerprint
+    bootstrap.dataset.bokehEmbedInstance = instance
+    bootstrap.dataset.bokehPayloadUrl = "/payloads/missing.json"
     document.body.append(...targets, bootstrap)
     const original_fetch = globalThis.fetch
     globalThis.fetch = async () => new Response("missing", {status: 503, statusText: "Unavailable"})
@@ -223,12 +231,12 @@ describe("EmbedArtifact runtime", () => {
       const discoveries = targets.map((target) => when_mounted(target).then(
         () => null, (error: unknown) => error,
       ))
-      const error = await mount_artifact_declaration(bootstrap).then(() => null, (error: unknown) => error)
+      const error = await mount_embed_declaration(bootstrap).then(() => null, (error: unknown) => error)
       expect_instanceof(error, MountError)
       expect(error.kind).to.be.equal("http")
       expect(error.phase).to.be.equal("payload")
       expect(error.source).to.be.equal({
-        kind: "artifact-declaration", artifact: artifact.fingerprint, url: "/artifacts/missing.json",
+        kind: "embed-declaration", embed: payload.fingerprint, url: "/payloads/missing.json",
       })
       expect(error.cause).to.be.instanceof(Response)
       expect((await Promise.all(discoveries)).every((published) => published == error)).to.be.true
@@ -242,9 +250,9 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("keeps waiter abort ownership separate from declarative mount ownership", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
+    const payload = await mountable_fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
-    const declaration = inline_declaration(artifact)
+    const declaration = inline_declaration(payload)
     const controller = new AbortController()
     const discovery = when_mounted(declaration.targets[0], {signal: controller.signal})
     controller.abort(new Error("caller stopped waiting"))
@@ -253,7 +261,7 @@ describe("EmbedArtifact runtime", () => {
       expect_instanceof(waiting_error, MountError)
       expect(waiting_error.kind).to.be.equal("abort")
 
-      const mounted = await mount_artifact_declaration(declaration.bootstrap, {resolver})
+      const mounted = await mount_embed_declaration(declaration.bootstrap, {resolver})
       expect(await when_mounted(declaration.targets[0])).to.be.equal(mounted)
       expect(declaration.targets[0].bokehMountError).to.be.undefined
       await mounted.dispose()
@@ -263,15 +271,15 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("publishes a bootstrap abort before a mount handle exists", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
-    const declaration = inline_declaration(artifact)
+    const payload = await mountable_fixture("standalone-keyed-roots")
+    const declaration = inline_declaration(payload)
     const controller = new AbortController()
     const discoveries = declaration.targets.map((target) => when_mounted(target).then(
       () => null, (error: unknown) => error,
     ))
     controller.abort(new Error("bootstrap cancelled"))
     try {
-      const error = await mount_artifact_declaration(declaration.bootstrap, {signal: controller.signal}).then(
+      const error = await mount_embed_declaration(declaration.bootstrap, {signal: controller.signal}).then(
         () => null, (error: unknown) => error,
       )
       expect_instanceof(error, MountError)
@@ -286,7 +294,7 @@ describe("EmbedArtifact runtime", () => {
 
   it("publishes schema, fingerprint, resource, and deserialize preparation phases", async () => {
     const base = await mountable_fixture("standalone-keyed-roots")
-    const cases: [MountErrorPhase, EmbedArtifact, unknown][] = []
+    const cases: [MountErrorPhase, EmbedPayload, unknown][] = []
 
     cases.push(["schema", base, {...base, schema: "bokeh.embed/v2"}])
 
@@ -296,29 +304,29 @@ describe("EmbedArtifact runtime", () => {
 
     const resource = structuredClone(base)
     resource.bokeh_version = "99.0.0"
-    resource.fingerprint = await compute_embed_artifact_fingerprint(resource)
+    resource.fingerprint = await compute_embed_fingerprint(resource)
     cases.push(["resource", resource, resource])
 
     const deserialize = structuredClone(base)
     if (deserialize.source.kind != "standalone") {
       throw new Error("expected a standalone fixture")
     }
-    deserialize.source.documents[0].roots[0].name = "MissingArtifactModel"
-    deserialize.fingerprint = await compute_embed_artifact_fingerprint(deserialize)
+    deserialize.source.documents[0].roots[0].name = "MissingEmbedModel"
+    deserialize.fingerprint = await compute_embed_fingerprint(deserialize)
     cases.push(["deserialize", deserialize, deserialize])
 
-    for (const [phase, declaration_artifact, value] of cases) {
-      const declaration = inline_declaration(declaration_artifact, value)
+    for (const [phase, declaration_payload, value] of cases) {
+      const declaration = inline_declaration(declaration_payload, value)
       const discoveries = declaration.targets.map((target) => when_mounted(target).then(
         () => null, (error: unknown) => error,
       ))
       try {
-        const error = await mount_artifact_declaration(declaration.bootstrap).then(
+        const error = await mount_embed_declaration(declaration.bootstrap).then(
           () => null, (error: unknown) => error,
         )
         expect_instanceof(error, MountError)
         expect(error.phase).to.be.equal(phase)
-        expect(error.source?.kind).to.be.equal("artifact-declaration")
+        expect(error.source?.kind).to.be.equal("embed-declaration")
         expect((await Promise.all(discoveries)).every((published) => published == error)).to.be.true
       } finally {
         declaration.remove()
@@ -326,11 +334,35 @@ describe("EmbedArtifact runtime", () => {
     }
   })
 
-  it("rolls back a decoded artifact after target failure", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
+  it("rejects unknown fingerprint-envelope fields consistently", async () => {
+    const payload = await mountable_fixture("standalone-keyed-roots")
+    const envelope = {...payload, unexpected: true}
+    const root = structuredClone(payload) as EmbedPayload & {
+      roots: ({unexpected?: boolean} & EmbedPayload["roots"][number])[]
+    }
+    root.roots[0].unexpected = true
+
+    expect(() => validate_embed_payload(envelope)).to.throw(EmbedError, /unknown fields/)
+    expect(() => validate_embed_payload(root)).to.throw(EmbedError, /unknown fields/)
+  })
+
+  it("rejects unsafe and ambiguous server URLs", async () => {
+    const payload = await mountable_fixture("server-existing-session")
+    if (payload.source.kind != "server") {
+      throw new Error("expected a server fixture")
+    }
+    for (const url of ["data:text/html,unsafe", "//evil.test/app", "https://example.test/app?tenant=1"]) {
+      const value = structuredClone(payload)
+      value.source = {...payload.source, url}
+      expect(() => validate_embed_payload(value)).to.throw(EmbedError)
+    }
+  })
+
+  it("rolls back a decoded payload after target failure", async () => {
+    const payload = await mountable_fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const documents_before = documents.length
-    const mounted = mount(artifact, document.createElement("div"), {resources: "none", resolver})
+    const mounted = mount(payload, document.createElement("div"), {resources: "none", resolver})
 
     const error = await mounted.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(error, MountError)
@@ -339,13 +371,13 @@ describe("EmbedArtifact runtime", () => {
     expect(documents.length).to.be.equal(documents_before)
   })
 
-  it("can be disposed before artifact decoding completes", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
+  it("can be disposed before payload decoding completes", async () => {
+    const payload = await mountable_fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const target = document.createElement("div")
     document.body.append(target)
     const documents_before = documents.length
-    const mounted = mount(artifact, target, {resources: "none", resolver})
+    const mounted = mount(payload, target, {resources: "none", resolver})
 
     await mounted.dispose()
     const error = await mounted.ready.then(() => null, (error: unknown) => error)
@@ -356,24 +388,24 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("reports schema and runtime version errors through handle.ready", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
+    const payload = await mountable_fixture("standalone-keyed-roots")
     const target = document.createElement("div")
     document.body.append(target)
 
-    const unsupported = mount({...artifact, schema: "bokeh.embed/v2"} as unknown as EmbedArtifact, target, {resources: "none"})
+    const unsupported = mount({...payload, schema: "bokeh.embed/v2"} as unknown as EmbedPayload, target, {resources: "none"})
     const schema_error = await unsupported.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(schema_error, MountError)
     expect(schema_error.kind).to.be.equal("schema")
 
-    const mismatched_artifact = {...artifact, bokeh_version: "99.0.0"}
-    mismatched_artifact.fingerprint = await compute_embed_artifact_fingerprint(mismatched_artifact)
-    const mismatched = mount(mismatched_artifact, target, {resources: "none"})
+    const mismatched_payload = {...payload, bokeh_version: "99.0.0"}
+    mismatched_payload.fingerprint = await compute_embed_fingerprint(mismatched_payload)
+    const mismatched = mount(mismatched_payload, target, {resources: "none"})
     const resource_error = await mismatched.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(resource_error, MountError)
     expect(resource_error.kind).to.be.equal("resource")
     expect(resource_error.message.includes("incompatible")).to.be.true
 
-    const tampered = structuredClone(artifact)
+    const tampered = structuredClone(payload)
     tampered.metadata.tampered = true
     const invalid_fingerprint = mount(tampered, target, {resources: "none"})
     const fingerprint_error = await invalid_fingerprint.ready.then(() => null, (error: unknown) => error)
@@ -384,17 +416,17 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("surfaces server bootstrap HTTP failures without a second lifecycle", async () => {
-    const artifact = await mountable_fixture("server-existing-session")
-    if (artifact.source.kind != "server") {
+    const payload = await mountable_fixture("server-existing-session")
+    if (payload.source.kind != "server") {
       throw new Error("expected a server fixture")
     }
-    artifact.source = {
-      ...artifact.source,
+    payload.source = {
+      ...payload.source,
       relative_urls: true,
       headers: {Authorization: "Bearer token"},
       credentials: "include",
     }
-    artifact.fingerprint = await compute_embed_artifact_fingerprint(artifact)
+    payload.fingerprint = await compute_embed_fingerprint(payload)
     const target = document.createElement("div")
     document.body.append(target)
     const original_fetch = globalThis.fetch
@@ -406,7 +438,7 @@ describe("EmbedArtifact runtime", () => {
       return new Response("denied", {status: 401, statusText: "Unauthorized"})
     }
     try {
-      const mounted = mount(artifact, target, {resources: "none"})
+      const mounted = mount(payload, target, {resources: "none"})
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect_instanceof(error, MountError)
       expect(error.kind).to.be.equal("http")
@@ -424,7 +456,7 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("validates the versioned server bootstrap before opening a websocket", async () => {
-    const artifact = await mountable_fixture("server-existing-session")
+    const payload = await mountable_fixture("server-existing-session")
     const target = document.createElement("div")
     document.body.append(target)
     const original_fetch = globalThis.fetch
@@ -434,7 +466,7 @@ describe("EmbedArtifact runtime", () => {
       token: "unused",
     })
     try {
-      const mounted = mount(artifact, target, {resources: "none"})
+      const mounted = mount(payload, target, {resources: "none"})
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect_instanceof(error, MountError)
       expect(error.kind).to.be.equal("schema")
@@ -447,24 +479,24 @@ describe("EmbedArtifact runtime", () => {
 
   it("validates shared fixture envelopes and Python-compatible fingerprints", async () => {
     for (const item of fixture_data.cases) {
-      const raw = structuredClone(item.artifact) as unknown as EmbedArtifact
-      expect(await compute_embed_artifact_fingerprint(raw)).to.be.equal(raw.fingerprint)
+      const raw = structuredClone(item.payload) as unknown as EmbedPayload
+      expect(await compute_embed_fingerprint(raw)).to.be.equal(raw.fingerprint)
     }
-    const standalone = validate_embed_artifact(fixture("standalone-keyed-roots"))
+    const standalone = validate_embed_payload(fixture("standalone-keyed-roots"))
     expect(standalone.source.kind).to.be.equal("standalone")
-    const server = validate_embed_artifact(fixture("server-existing-session"))
+    const server = validate_embed_payload(fixture("server-existing-session"))
     expect(server.source.kind).to.be.equal("server")
     expect(server.roots).to.be.equal([{key: "detail", model_id: "fixture-root"}])
   })
 
   it("rejects non-finite and unsafe fingerprint numbers", async () => {
     for (const value of [NaN, Infinity, 2**53, 1e20, 1e21]) {
-      const artifact = fixture("standalone-keyed-roots")
-      artifact.metadata = {value}
-      const error = await compute_embed_artifact_fingerprint(artifact).then(
+      const payload = fixture("standalone-keyed-roots")
+      payload.metadata = {value}
+      const error = await compute_embed_fingerprint(payload).then(
         () => null, (error: unknown) => error,
       )
-      expect_instanceof(error, ArtifactError)
+      expect_instanceof(error, EmbedError)
       expect(error.message.includes("finite") || error.message.includes("safe integer")).to.be.true
     }
   })
@@ -480,19 +512,19 @@ describe("EmbedArtifact runtime", () => {
     const normalized_lookalike = structuredClone(actual)
     normalized_lookalike.metadata = {id: "model-0"}
 
-    expect(await compute_embed_artifact_fingerprint(actual)).to.not.be.equal(
-      await compute_embed_artifact_fingerprint(normalized_lookalike),
+    expect(await compute_embed_fingerprint(actual)).to.not.be.equal(
+      await compute_embed_fingerprint(normalized_lookalike),
     )
   })
 
   it("rejects missing fingerprints, removed buffers, and malformed resource literals", () => {
     const missing = fixture("standalone-keyed-roots") as unknown as {[key: string]: unknown}
     delete missing.fingerprint
-    expect(() => validate_embed_artifact(missing)).to.throw(ArtifactError, /fingerprint/)
+    expect(() => validate_embed_payload(missing)).to.throw(EmbedError, /fingerprint/)
 
     const buffered = fixture("standalone-keyed-roots") as unknown as {[key: string]: unknown}
     buffered.buffers = []
-    expect(() => validate_embed_artifact(buffered)).to.throw(ArtifactError, /not part of bokeh\.embed\/v1/)
+    expect(() => validate_embed_payload(buffered)).to.throw(EmbedError, /not part of bokeh\.embed\/v1/)
 
     const malformed = fixture("standalone-keyed-roots") as unknown as {
       requires: {extensions: unknown[]}
@@ -501,61 +533,61 @@ describe("EmbedArtifact runtime", () => {
       name: "bad",
       assets: [{kind: "bogus", content: "void 0"}],
     }]
-    expect(() => validate_embed_artifact(malformed)).to.throw(ArtifactError, /kind must be 'script' or 'style'/)
+    expect(() => validate_embed_payload(malformed)).to.throw(EmbedError, /kind must be 'script' or 'style'/)
 
     const module_style = fixture("standalone-keyed-roots")
     module_style.requires.extensions = [{
       name: "bad-style",
       assets: [{kind: "style", content: "body {}", module: true}],
     }]
-    expect(() => validate_embed_artifact(module_style)).to.throw(ArtifactError, /style resources cannot be modules/)
+    expect(() => validate_embed_payload(module_style)).to.throw(EmbedError, /style resources cannot be modules/)
 
-    const artifact_nonce = fixture("standalone-keyed-roots") as unknown as {
+    const payload_nonce = fixture("standalone-keyed-roots") as unknown as {
       requires: {extensions: unknown[]}
     }
-    artifact_nonce.requires.extensions = [{
+    payload_nonce.requires.extensions = [{
       name: "bad-nonce",
-      assets: [{kind: "script", content: "void 0", nonce: "artifact"}],
+      assets: [{kind: "script", content: "void 0", nonce: "payload"}],
     }]
-    expect(() => validate_embed_artifact(artifact_nonce)).to.throw(ArtifactError, /nonce is host-owned/)
+    expect(() => validate_embed_payload(payload_nonce)).to.throw(EmbedError, /nonce is host-owned/)
 
     const server = fixture("server-existing-session") as unknown as {source: {[key: string]: unknown}}
     for (const [field, value] of [["session_id", 1], ["token", {}], ["relative_urls", "yes"]] as const) {
       server.source[field] = value
-      expect(() => validate_embed_artifact(server)).to.throw(ArtifactError, new RegExp(field))
+      expect(() => validate_embed_payload(server)).to.throw(EmbedError, new RegExp(field))
       delete server.source[field]
     }
 
     const duplicate_components = fixture("standalone-keyed-roots")
     duplicate_components.requires.components = ["bokeh/core", "bokeh/core"]
-    expect(() => validate_embed_artifact(duplicate_components)).to.throw(ArtifactError, /components must be unique/)
+    expect(() => validate_embed_payload(duplicate_components)).to.throw(EmbedError, /components must be unique/)
 
     const duplicate_extensions = fixture("standalone-keyed-roots")
     duplicate_extensions.requires.extensions = [
       {name: "duplicate", assets: []},
       {name: "duplicate", assets: []},
     ]
-    expect(() => validate_embed_artifact(duplicate_extensions)).to.throw(ArtifactError, /duplicate.*extension/)
+    expect(() => validate_embed_payload(duplicate_extensions)).to.throw(EmbedError, /duplicate.*extension/)
 
     const multiple_documents = fixture("standalone-keyed-roots")
     if (multiple_documents.source.kind != "standalone") {
       throw new Error("expected standalone fixture")
     }
     multiple_documents.source.documents.push(structuredClone(multiple_documents.source.documents[0]))
-    expect(() => validate_embed_artifact(multiple_documents)).to.throw(ArtifactError, /exactly one document/)
+    expect(() => validate_embed_payload(multiple_documents)).to.throw(EmbedError, /exactly one document/)
 
     const mixed_root = fixture("standalone-keyed-roots")
     Object.assign(mixed_root.roots[0], {model_id: "not-structural"})
-    expect(() => validate_embed_artifact(mixed_root)).to.throw(ArtifactError, /cannot declare model_id/)
+    expect(() => validate_embed_payload(mixed_root)).to.throw(EmbedError, /cannot declare model_id/)
   })
 
   it("deduplicates concurrent and sequential additive resource loads", async () => {
     const loader = new ResourceLoader()
-    const state = globalThis as typeof globalThis & {artifact_core?: number, artifact_widgets?: number}
-    state.artifact_core = 0
-    state.artifact_widgets = 0
-    const core_asset = {kind: "script" as const, content: "globalThis.artifact_core += 1"}
-    const widget_asset = {kind: "script" as const, content: "globalThis.artifact_widgets += 1"}
+    const state = globalThis as typeof globalThis & {embed_core?: number, embed_widgets?: number}
+    state.embed_core = 0
+    state.embed_widgets = 0
+    const core_asset = {kind: "script" as const, content: "globalThis.embed_core += 1"}
+    const widget_asset = {kind: "script" as const, content: "globalThis.embed_widgets += 1"}
 
     await Promise.all([
       loader.ensure(core, {mode: "resolved", assets: [core_asset]}),
@@ -564,24 +596,24 @@ describe("EmbedArtifact runtime", () => {
     const widgets: ResourceRequirements = {components: ["bokeh/core", "bokeh/widgets"], extensions: []}
     await loader.ensure(widgets, {mode: "resolved", assets: [core_asset, widget_asset]})
 
-    expect(state.artifact_core).to.be.equal(1)
-    expect(state.artifact_widgets).to.be.equal(1)
+    expect(state.embed_core).to.be.equal(1)
+    expect(state.embed_widgets).to.be.equal(1)
     expect(document.querySelectorAll("[data-bokeh-resource]").length).to.be.equal(2)
   })
 
   it("doesn't conflate inline resources that collided under the old 32-bit hash", async () => {
     const loader = new ResourceLoader()
-    const state = globalThis as typeof globalThis & {artifact_collision?: number[]}
-    state.artifact_collision = []
-    const first = "globalThis.artifact_collision.push(416739)"
-    const second = "globalThis.artifact_collision.push(1029994)"
+    const state = globalThis as typeof globalThis & {embed_collision?: number[]}
+    state.embed_collision = []
+    const first = "globalThis.embed_collision.push(416739)"
+    const second = "globalThis.embed_collision.push(1029994)"
 
     await loader.ensure(core, {mode: "resolved", assets: [
       {kind: "script", content: first},
       {kind: "script", content: second},
     ]})
 
-    expect(state.artifact_collision).to.be.equal([416739, 1029994])
+    expect(state.embed_collision).to.be.equal([416739, 1029994])
   })
 
   it("waits for existing loading resources and validates their declarations", async () => {
@@ -612,14 +644,14 @@ describe("EmbedArtifact runtime", () => {
 
   it("awaits inline module evaluation", async () => {
     const loader = new ResourceLoader()
-    const state = globalThis as typeof globalThis & {artifact_inline_module?: number}
-    state.artifact_inline_module = 0
+    const state = globalThis as typeof globalThis & {embed_inline_module?: number}
+    state.embed_inline_module = 0
 
     await loader.ensure(core, {mode: "resolved", assets: [{
-      kind: "script", module: true, content: "globalThis.artifact_inline_module = 1",
+      kind: "script", module: true, content: "globalThis.embed_inline_module = 1",
     }]})
 
-    expect(state.artifact_inline_module).to.be.equal(1)
+    expect(state.embed_inline_module).to.be.equal(1)
   })
 
   it("treats resources none as host-owned without erasing requirements", async () => {
@@ -664,7 +696,7 @@ describe("EmbedArtifact runtime", () => {
     expect(script.nonce).to.be.equal("host-nonce")
   })
 
-  it("requires hosts to resolve artifact extension resources", async () => {
+  it("requires hosts to resolve payload extension resources", async () => {
     const loader = new ResourceLoader()
     const requirements: ResourceRequirements = {components: ["bokeh/core"], extensions: [{
       name: "untrusted-extension",
@@ -712,13 +744,14 @@ describe("EmbedArtifact runtime", () => {
   })
 
   it("loads the standard external bootstrap under a strict CSP", async () => {
-    const artifact = await mountable_fixture("standalone-keyed-roots")
-    const payload = URL.createObjectURL(new Blob([JSON.stringify(artifact)], {
+    const embed_payload = await mountable_fixture("standalone-keyed-roots")
+    const instance = `Test-${++declaration_index}`
+    const payload_url = URL.createObjectURL(new Blob([JSON.stringify(embed_payload)], {
       type: "application/vnd.bokeh.embed+json",
     }))
     const iframe = document.createElement("iframe")
-    const targets = artifact.roots.map((root) =>
-      `<div data-bokeh-artifact="${artifact.fingerprint}" data-bokeh-root="${root.key}"></div>`,
+    const targets = embed_payload.roots.map((root) =>
+      `<div data-bokeh-embed="${embed_payload.fingerprint}" data-bokeh-embed-instance="${instance}" data-bokeh-root="${root.key}"></div>`,
     ).join("\n")
     iframe.srcdoc = `<!DOCTYPE html>
 <html>
@@ -731,9 +764,10 @@ describe("EmbedArtifact runtime", () => {
   <body>
     ${targets}
     <script src="/static/js/bokeh-embed-bootstrap.min.js"
-            data-bokeh-artifact-bootstrap
-            data-bokeh-artifact="${artifact.fingerprint}"
-            data-bokeh-payload-url="${payload}"></script>
+            data-bokeh-embed-bootstrap
+            data-bokeh-embed="${embed_payload.fingerprint}"
+            data-bokeh-embed-instance="${instance}"
+            data-bokeh-payload-url="${payload_url}"></script>
   </body>
 </html>`
 
@@ -767,7 +801,7 @@ describe("EmbedArtifact runtime", () => {
       expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.true
     } finally {
       await mounted?.dispose()
-      URL.revokeObjectURL(payload)
+      URL.revokeObjectURL(payload_url)
       iframe.remove()
     }
   })

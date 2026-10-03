@@ -14,8 +14,8 @@ import {isArray, isPlainObject, isString} from "core/util/types"
 import type {UIElement} from "models/ui/ui_element"
 import type {DOMNode} from "models/dom/dom_node"
 import type {ClientSession} from "../client/session"
-import type {EmbedArtifact, PreparedArtifact} from "../embed/artifact"
-import {ArtifactError, prepare_embed_artifact, validate_embed_artifact} from "../embed/artifact"
+import type {EmbedPayload, PreparedEmbed} from "../embed/payload"
+import {EmbedError, prepare_embed, validate_embed_payload} from "../embed/payload"
 import type {ResourcePolicy} from "../embed/resources"
 
 declare type Jq = any
@@ -115,8 +115,8 @@ export class MountSource<T extends HasProps = HasProps> {
   }
 }
 
-/** Decoded content or an artifact accepted by the core mount lifecycle. */
-export type Mountable = MountSource | Document | EmbedArtifact | ShowableRoot | readonly ShowableRoot[] | KeyedRoots<HasProps>
+/** Decoded content or an embed payload accepted by the core mount lifecycle. */
+export type Mountable = MountSource | Document | EmbedPayload | ShowableRoot | readonly ShowableRoot[] | KeyedRoots<HasProps>
 
 /** Phase-independent category for a structured mount failure. */
 export type MountErrorKind =
@@ -132,7 +132,7 @@ export type MountErrorKind =
   | "websocket"
   | "session"
 
-/** Precise artifact or mount phase in which a failure occurred. */
+/** Precise embed or mount phase in which a failure occurred. */
 export type MountErrorPhase =
   | "bootstrap"
   | "payload"
@@ -146,10 +146,10 @@ export type MountErrorPhase =
   | "abort"
   | "dispose"
 
-/** Artifact/declaration identity attached to an externally observable failure. */
+/** Embed/declaration identity attached to an externally observable failure. */
 export type MountErrorSource = {
-  readonly kind: "artifact-declaration" | "artifact" | "mount"
-  readonly artifact?: string
+  readonly kind: "embed-declaration" | "embed" | "mount"
+  readonly embed?: string
   readonly url?: string
 }
 
@@ -180,9 +180,9 @@ export type MountOptions = {
   targets?: MountTargets
   /** Allow the mounted document to update the browser page title. */
   use_for_title?: boolean
-  /** Artifact resource policy. Direct model/document mounts ignore this option. */
+  /** Embed resource policy. Direct model/document mounts ignore this option. */
   resources?: ResourcePolicy
-  /** Model resolver used while decoding artifact documents. */
+  /** Model resolver used while decoding embed documents. */
   resolver?: ModelResolver
   /** Called for every structured failure before the same error rejects an operation. */
   on_error?(error: MountError): void
@@ -336,7 +336,7 @@ function mount_error(kind: MountErrorKind, error: unknown, root_key?: RootKey): 
     return error
   } else if (error instanceof StandaloneRootError) {
     return mount_error(kind, error.cause, error.root_key)
-  } else if (error instanceof ArtifactError) {
+  } else if (error instanceof EmbedError) {
     return new MountError(error.kind, error.message, error, root_key, error.phase, error.source)
   }
   const message = error instanceof Error ? error.message : `${error}`
@@ -403,10 +403,10 @@ export class BokehMount<T extends HasProps = HasProps> {
   readonly ready: Promise<void>
   /** Resolves after cleanup for success, failure, cancellation, or explicit disposal. */
   readonly when_disposed: Promise<void>
-  private readonly _artifact: boolean
+  private readonly _embed_payload: boolean
 
   constructor(
-    source: MountSource<T> | Promise<PreparedArtifact>,
+    source: MountSource<T> | Promise<PreparedEmbed>,
     target: MountTarget | undefined,
     private readonly _options: MountOptions,
     script: HTMLScriptElement | SVGScriptElement | null,
@@ -422,7 +422,7 @@ export class BokehMount<T extends HasProps = HasProps> {
       }
     }
 
-    this._artifact = !(source instanceof MountSource)
+    this._embed_payload = !(source instanceof MountSource)
     this.when_disposed = new Promise<void>((resolve) => this._resolve_disposed = resolve)
     if (source instanceof MountSource) {
       this._set_source(source)
@@ -451,11 +451,11 @@ export class BokehMount<T extends HasProps = HasProps> {
       views: "mount",
       targets: "caller",
       session: this._session == null ? "none" : "mount",
-      resources: this._artifact ? "shared" : "none",
+      resources: this._embed_payload ? "shared" : "none",
     }
   }
 
-  private _set_source(source: MountSource<T>, prepared?: PreparedArtifact): void {
+  private _set_source(source: MountSource<T>, prepared?: PreparedEmbed): void {
     this._source = source
     this._session = prepared?.session ?? null
     this._release = prepared?.release ?? null
@@ -477,12 +477,12 @@ export class BokehMount<T extends HasProps = HasProps> {
   /** Source document shared by every keyed root. */
   get document(): Document {
     if (this._source == null) {
-      throw new MountError("source", "the Bokeh artifact document is not available before mount readiness")
+      throw new MountError("source", "the Bokeh embed document is not available before mount readiness")
     }
     return this._source.document
   }
 
-  /** Server session owned by an artifact mount, or null for standalone content. */
+  /** Server session owned by an embed mount, or null for standalone content. */
   get session(): ClientSession | null {
     return this._session
   }
@@ -600,7 +600,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     }
   }
 
-  private async _initialize(source: MountSource<T> | Promise<PreparedArtifact>, target: MountTarget | undefined,
+  private async _initialize(source: MountSource<T> | Promise<PreparedEmbed>, target: MountTarget | undefined,
       script: HTMLScriptElement | SVGScriptElement | null): Promise<void> {
     try {
       this._check_pending()
@@ -765,31 +765,31 @@ export function mount<T extends ShowableRoot>(source: KeyedRoots<T>, options?: M
 export function mount<T extends ShowableRoot>(source: KeyedRoots<T>, target?: MountTarget, options?: MountOptions): BokehMount<T>
 export function mount(source: MountSource | Document, options?: MountOptions): BokehMount<HasProps>
 export function mount(source: MountSource | Document, target?: MountTarget, options?: MountOptions): BokehMount<HasProps>
-export function mount(source: EmbedArtifact, options?: MountOptions): BokehMount<HasProps>
-export function mount(source: EmbedArtifact, target?: MountTarget, options?: MountOptions): BokehMount<HasProps>
+export function mount(source: EmbedPayload, options?: MountOptions): BokehMount<HasProps>
+export function mount(source: EmbedPayload, target?: MountTarget, options?: MountOptions): BokehMount<HasProps>
 export function mount(source: Mountable, target_or_options?: MountTarget | MountOptions, options?: MountOptions): BokehMount
 
 export function mount(source: Mountable, target_or_options?: MountTarget | MountOptions, options: MountOptions = {}): BokehMount {
   const script = document.currentScript // This needs to be evaluated before any asynchronous target resolution.
   const target = is_mount_options(target_or_options) ? undefined : target_or_options
   const mount_options = is_mount_options(target_or_options) ? target_or_options : options
-  const artifact_like = isPlainObject(source) && typeof (source as {schema?: unknown}).schema == "string" &&
+  const embed_payload_like = isPlainObject(source) && typeof (source as {schema?: unknown}).schema == "string" &&
     (source as {schema: string}).schema.startsWith("bokeh.embed/")
-  const normalized = artifact_like
-    ? prepare_embed_artifact(source, mount_options.resources, mount_options.resolver, mount_options.signal)
+  const normalized = embed_payload_like
+    ? prepare_embed(source, mount_options.resources, mount_options.resolver, mount_options.signal)
     : as_mount_source(source)
   return new BokehMount(normalized, target, mount_options, script)
 }
 
-export async function mount_artifact_declaration(
+export async function mount_embed_declaration(
   script: HTMLScriptElement | null = document.currentScript instanceof HTMLScriptElement ? document.currentScript : null,
   options: MountOptions = {},
 ): Promise<BokehMount> {
   if (script == null) {
-    throw new MountError("source", "an artifact declaration script is required", undefined, undefined, "bootstrap")
+    throw new MountError("source", "an embed declaration script is required", undefined, undefined, "bootstrap")
   }
   let source = declaration_source(script)
-  let affected_targets = await declaration_targets(script, source.artifact)
+  let affected_targets = await declaration_targets(script)
   affected_targets.forEach(clear_mount_error)
   try {
     if (options.signal?.aborted == true) {
@@ -810,13 +810,13 @@ export async function mount_artifact_declaration(
               throw new MountError("abort", abort_message(reason), error, undefined, "payload", source)
             }
             throw new MountError(
-              "http", `failed to fetch Bokeh artifact from ${payload_url}: ${error}`, error, undefined, "payload", source,
+              "http", `failed to fetch Bokeh embed payload from ${payload_url}: ${error}`, error, undefined, "payload", source,
             )
           }
         })()
         if (!response.ok) {
           throw new MountError(
-            "http", `Bokeh artifact request failed: ${response.status} ${response.statusText}`,
+            "http", `Bokeh embed payload request failed: ${response.status} ${response.statusText}`,
             response, undefined, "payload", source,
           )
         }
@@ -824,14 +824,15 @@ export async function mount_artifact_declaration(
           return await response.json()
         } catch (error) {
           throw new MountError(
-            "decode", `failed to decode Bokeh artifact from ${payload_url}: ${error}`, error, undefined, "payload", source,
+            "decode", `failed to decode Bokeh embed payload from ${payload_url}: ${error}`, error, undefined, "payload", source,
           )
         }
       } else {
         const payload = script.previousElementSibling
-        if (!(payload instanceof HTMLScriptElement) || payload.dataset.bokehArtifactPayload == null) {
+        if (!(payload instanceof HTMLScriptElement) || payload.dataset.bokehEmbedPayload == null ||
+            payload.dataset.bokehEmbedInstance != script.dataset.bokehEmbedInstance) {
           throw new MountError(
-            "source", "an inline artifact declaration must follow its JSON payload script",
+            "source", "an inline embed declaration must follow its matching JSON payload script",
             undefined, undefined, "payload", source,
           )
         }
@@ -839,56 +840,56 @@ export async function mount_artifact_declaration(
           return JSON.parse(payload.textContent)
         } catch (error) {
           throw new MountError(
-            "decode", `failed to decode inline Bokeh artifact: ${error}`, error, undefined, "payload", source,
+            "decode", `failed to decode inline Bokeh embed payload: ${error}`, error, undefined, "payload", source,
           )
         }
       }
     })()
 
-    const artifact = (() => {
+    const payload = (() => {
       try {
-        return validate_embed_artifact(value)
+        return validate_embed_payload(value)
       } catch (error) {
         throw declaration_error(error, source, "schema")
       }
     })()
-    if (source.artifact != null && source.artifact != artifact.fingerprint) {
+    if (source.embed != null && source.embed != payload.fingerprint) {
       throw new MountError(
         "schema",
-        `artifact declaration fingerprint '${source.artifact}' does not match payload '${artifact.fingerprint}'`,
+        `embed declaration fingerprint '${source.embed}' does not match payload '${payload.fingerprint}'`,
         undefined, undefined, "fingerprint", source,
       )
     }
-    if (source.artifact == null) {
-      source = {...source, artifact: artifact.fingerprint}
-      affected_targets = await declaration_targets(script, source.artifact)
+    if (source.embed == null) {
+      source = {...source, embed: payload.fingerprint}
+      affected_targets = await declaration_targets(script)
       affected_targets.forEach(clear_mount_error)
     }
 
     const targets = new Map<RootKey, HTMLElement>()
-    for (const root of artifact.roots) {
+    for (const root of payload.roots) {
       const target = affected_targets.find((candidate) => candidate.dataset.bokehRoot == root.key)
       if (target == null) {
         throw new MountError(
-          "target", `missing declaration target for Bokeh artifact root '${root.key}'`,
+          "target", `missing declaration target for Bokeh embed root '${root.key}'`,
           undefined, root.key, "target", source,
         )
       }
       targets.set(root.key, target)
     }
-    const server_default = artifact.source.kind == "server" && artifact.roots.length == 0
+    const server_default = payload.source.kind == "server" && payload.roots.length == 0
     const default_target = server_default
       ? affected_targets.find((candidate) => candidate.dataset.bokehRoot == "*")
       : undefined
     if (server_default && default_target == null) {
       throw new MountError(
-        "target", "missing declaration target for Bokeh server artifact", undefined, "*", "target", source,
+        "target", "missing declaration target for Bokeh server embed", undefined, "*", "target", source,
       )
     }
 
     const handle = server_default
-      ? mount(artifact, default_target, {resources: "none", ...options})
-      : mount(artifact, {targets, resources: "none", ...options})
+      ? mount(payload, default_target, {resources: "none", ...options})
+      : mount(payload, {targets, resources: "none", ...options})
     await handle.ready
     return handle
   } catch (error) {
@@ -900,33 +901,21 @@ export async function mount_artifact_declaration(
 
 function declaration_source(script: HTMLScriptElement): MountErrorSource {
   return {
-    kind: "artifact-declaration",
-    artifact: script.dataset.bokehArtifact,
+    kind: "embed-declaration",
+    embed: script.dataset.bokehEmbed,
     url: script.dataset.bokehPayloadUrl,
   }
 }
 
-async function declaration_targets(script: HTMLScriptElement, fingerprint?: string): Promise<HTMLElement[]> {
+async function declaration_targets(script: HTMLScriptElement): Promise<HTMLElement[]> {
   await dom_ready()
-  if (fingerprint == null) {
+  const instance = script.dataset.bokehEmbedInstance
+  if (instance == null || !/^[A-Za-z][A-Za-z0-9-]*$/.test(instance)) {
     return []
   }
-
-  const bootstraps = [...document.querySelectorAll<HTMLScriptElement>("script[data-bokeh-artifact-bootstrap]")]
-    .filter((candidate) => candidate.dataset.bokehArtifact == fingerprint)
-  const bootstrap_index = Math.max(bootstraps.indexOf(script), 0)
-  const candidates = [...document.querySelectorAll<HTMLElement>("[data-bokeh-artifact][data-bokeh-root]")]
-    .filter((candidate) => candidate.dataset.bokehArtifact == fingerprint)
-  const roots = new Map<string, HTMLElement[]>()
-  for (const candidate of candidates) {
-    const key = candidate.dataset.bokehRoot!
-    const targets = roots.get(key) ?? []
-    targets.push(candidate)
-    roots.set(key, targets)
-  }
-  return [...roots.values()]
-    .filter((targets) => bootstrap_index < targets.length)
-    .map((targets) => targets[bootstrap_index])
+  return [...document.querySelectorAll<HTMLElement>(
+    `[data-bokeh-embed-instance="${instance}"][data-bokeh-root]`,
+  )]
 }
 
 function declaration_error(error: unknown, source: MountErrorSource,
@@ -942,7 +931,7 @@ function declaration_error(error: unknown, source: MountErrorSource,
 }
 
 function abort_message(reason: unknown): string {
-  return reason instanceof Error ? reason.message : "Bokeh artifact declaration was aborted"
+  return reason instanceof Error ? reason.message : "Bokeh embed declaration was aborted"
 }
 
 export function show<T extends ShowableRoot>(obj: T, target?: MountTarget): BokehMount<T>

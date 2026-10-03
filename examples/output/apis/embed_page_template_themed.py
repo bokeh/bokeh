@@ -1,6 +1,6 @@
 from jinja2 import Template
 
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.plotting import figure
 from bokeh.sampledata.penguins import data
 from bokeh.themes import Theme
@@ -78,7 +78,7 @@ template = Template('''<!DOCTYPE html>
 
 filename = 'embed_themed.html'
 
-html = file_html(p, resources="inline", title="Bokeh Scatter Plots", template=template, theme=theme)
+html = embed(p, theme=theme).page(resources="inline", title="Bokeh Scatter Plots", template=template)
 
 with open(filename, mode="w", encoding="utf-8") as f:
     f.write(html)

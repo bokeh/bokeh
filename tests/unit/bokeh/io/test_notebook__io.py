@@ -101,7 +101,7 @@ def test_show_doc_wraps_sequence_in_layout(mock_notebook_content: MagicMock,
     assert list(roots[0].children) == [child_0, child_1]
 
 
-def test_legacy_notebook_content_adapts_protocol_artifact() -> None:
+def test_legacy_notebook_content_adapts_protocol_result() -> None:
     from bokeh.core.types import ID
     from bokeh.plotting import figure
 

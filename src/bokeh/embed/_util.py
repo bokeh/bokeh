@@ -22,8 +22,10 @@ from typing import (
     Literal,
     cast,
 )
+from urllib.parse import urlsplit, urlunsplit
 
 # Bokeh imports
+from ..core.templates import FILE
 from ..document import DEFAULT_TITLE, Document
 from ..model import Model, collect_models
 from ..resources import DEFAULT_SERVER_HTTP_URL
@@ -31,15 +33,19 @@ from ..settings import settings
 from ..themes import Theme, ThemeLike
 
 if TYPE_CHECKING:
-    from .artifact import EmbedArtifact
+    from jinja2 import Template
+
+    from ..resources import Resources
+    from ..server.session import ServerSession
     from .resources import ResourceRequirements
+    from .result import EmbedResult
 
 log = logging.getLogger(__name__)
 
-type _CallbackPolicy = Literal["warn", "error", "suppress"]
-type _SerializationPolicy = Literal["static", "protocol"]
-type _EmbedInput = Model | Document | Sequence[Model | Document] | Mapping[str, Model | Document]
-type _ServerRoot = Model | str
+type CallbackPolicy = Literal["warn", "error", "suppress"]
+type SerializationPolicy = Literal["static", "protocol"]
+type EmbedInput = Model | Document | Sequence[Model | Document] | Mapping[str, Model | Document]
+type ServerRoot = Model | str
 
 
 class ThemePolicy(Enum):
@@ -51,7 +57,7 @@ type ThemeSource = ThemeLike | ThemePolicy
 
 
 class EmbedBuildError(ValueError):
-    """Raised when Python embedding intent cannot produce an artifact."""
+    """Raised when Python embedding intent cannot produce an embed result."""
 
 
 @dataclass(frozen=True)
@@ -59,7 +65,7 @@ class EmbedSpec:
     '''Normalized standalone embedding input.
 
     ``models`` and ``keys`` are parallel ordered tuples. ``input_shape`` records
-    the caller-facing form for diagnostics and metadata; the remaining fields
+    the caller-facing form for diagnostics and metadata. The remaining fields
     control theme application, callback validation, metadata, and serialization.
     Hosts should normally call :func:`embed` rather than build
     a specification directly.
@@ -68,9 +74,9 @@ class EmbedSpec:
     keys: tuple[str, ...]
     input_shape: Literal["single", "sequence", "mapping", "document"]
     theme: ThemeSource = None
-    callback_policy: _CallbackPolicy = "warn"
+    callback_policy: CallbackPolicy = "warn"
     metadata: Mapping[str, Any] | None = None
-    serialization: _SerializationPolicy = "static"
+    serialization: SerializationPolicy = "static"
 
     def __post_init__(self) -> None:
         if not self.models:
@@ -91,23 +97,23 @@ class EmbedSpec:
             raise EmbedBuildError("serialization must be 'static' or 'protocol'")
 
 
-def embed(models: _EmbedInput, *, theme: ThemeSource = None, callback_policy: _CallbackPolicy = "warn",
-        metadata: Mapping[str, Any] | None = None) -> EmbedArtifact:
-    """Build one portable embedding artifact from standalone Bokeh content.
+def embed(models: EmbedInput, *, theme: ThemeSource = None, callback_policy: CallbackPolicy = "warn",
+        metadata: Mapping[str, Any] | None = None) -> EmbedResult:
+    """Build one portable embed result from standalone Bokeh content.
 
     Mapping keys become stable logical root keys. Sequences receive ordinal
-    keys, and a single model receives ``"root"``. The artifact records exact
+    keys, and a single model receives ``"root"``. The result records exact
     resource requirements but does not choose how a host delivers them.
     """
     spec = _build_embed_spec(
         models, theme=theme, callback_policy=callback_policy, metadata=metadata,
     )
-    return _build_artifact(spec)
+    return _build_result(spec)
 
 
-def embed_protocol(models: _EmbedInput, *, theme: ThemeSource = None,
-        callback_policy: _CallbackPolicy = "warn", metadata: Mapping[str, Any] | None = None) -> EmbedArtifact:
-    """Build an ID-full artifact for a live protocol boundary.
+def embed_protocol(models: EmbedInput, *, theme: ThemeSource = None,
+        callback_policy: CallbackPolicy = "warn", metadata: Mapping[str, Any] | None = None) -> EmbedResult:
+    """Build an ID-full embed result for a live protocol boundary.
 
     Static embedding should use :func:`embed`. Notebook comms and other live
     transports need canonical model IDs so subsequent patches can address the
@@ -117,12 +123,12 @@ def embed_protocol(models: _EmbedInput, *, theme: ThemeSource = None,
         models, theme=theme, callback_policy=callback_policy, metadata=metadata,
         serialization="protocol",
     )
-    return _build_artifact(spec)
+    return _build_result(spec)
 
 
-def _build_artifact(spec: EmbedSpec) -> EmbedArtifact:
-    '''Build an immutable artifact from an already-normalized specification.'''
-    from .artifact import ArtifactRoot, EmbedArtifact
+def _build_result(spec: EmbedSpec) -> EmbedResult:
+    '''Build an immutable embed result from an already-normalized specification.'''
+    from .result import EmbedResult, EmbedRoot
 
     if submodel_has_python_callbacks(spec.models):
         message = (
@@ -136,57 +142,53 @@ def _build_artifact(spec: EmbedSpec) -> EmbedArtifact:
     with _staged_document(spec.models, spec.theme) as document:
         positions = {model: index for index, model in enumerate(document.roots)}
         try:
-            roots = tuple(ArtifactRoot(key, document=0, root=positions[model]) for key, model in zip(spec.keys, spec.models))
+            roots = tuple(EmbedRoot(key, document=0, root=positions[model]) for key, model in zip(spec.keys, spec.models))
         except KeyError as error:
             raise EmbedBuildError("an embedding root is not a root of the staged document") from error
         document_json = document.to_static_json(deferred=False) if spec.serialization == "static" else document.to_json(deferred=False)
         from .resources import requirements_for_objs
-        requirements = requirements_for_objs([document])
+        requirements = requirements_for_objs(list(document.models))
 
-    artifact_metadata = dict(spec.metadata or {})
-    artifact_metadata["embedding"] = {
+    result_metadata = dict(spec.metadata or {})
+    result_metadata["embedding"] = {
         "callback_policy": spec.callback_policy,
         "input_shape": spec.input_shape,
         "static_model_ids": "graph-minimal" if spec.serialization == "static" else "protocol-full",
         "model_ids": "graph-minimal" if spec.serialization == "static" else "protocol-full",
     }
-    return EmbedArtifact(
+    return EmbedResult(
         source={"kind": "standalone", "documents": [document_json]},
         roots=roots,
         requires=requirements,
-        metadata=artifact_metadata,
+        metadata=result_metadata,
     )
 
 
 def embed_server(url: str = "default", *, session_id: str | None = None,
-        roots: Mapping[str, _ServerRoot] | None = None, arguments: Mapping[str, str] | None = None,
+        roots: Mapping[str, ServerRoot] | None = None, arguments: Mapping[str, str] | None = None,
         headers: Mapping[str, str] | None = None, with_credentials: bool = False,
         relative_urls: bool = False, metadata: Mapping[str, Any] | None = None,
-        token: str | None = None) -> EmbedArtifact:
-    """Create a server-source artifact for a new or existing Bokeh session.
+        token: str | None = None) -> EmbedResult:
+    """Create a server-source embed result for a new or existing Bokeh session.
 
-    A token-bearing artifact is normally produced by the Bokeh server bootstrap
+    A token-bearing result is normally produced by the Bokeh server bootstrap
     endpoint. ``token`` is exposed for direct server page construction, where a
     trusted ``ServerSession`` already owns the signed token.
     """
-    from .artifact import ArtifactRoot, EmbedArtifact
+    from .result import EmbedResult, EmbedRoot
 
     if url == "default":
         url = DEFAULT_SERVER_HTTP_URL
-    if url.startswith("ws"):
-        raise EmbedBuildError("url must be an HTTP(S) Bokeh application URL, not a WebSocket URL")
-    url = url.rstrip("/")
-    if not url:
-        raise EmbedBuildError("a Bokeh server application URL is required")
+    url = _normalize_server_url(url)
 
-    artifact_roots: list[ArtifactRoot] = []
+    embed_roots: list[EmbedRoot] = []
     for key, value in (roots or {}).items():
         model_id = value.id if isinstance(value, Model) else value
         if not isinstance(key, str) or not key:
             raise EmbedBuildError("server root keys must be non-empty strings")
         if not isinstance(model_id, str) or not model_id:
             raise EmbedBuildError(f"server root {key!r} must identify a model by a non-empty ID")
-        artifact_roots.append(ArtifactRoot(key, model_id=model_id))
+        embed_roots.append(EmbedRoot(key, model_id=model_id))
 
     source: dict[str, Any] = {
         "kind": "server",
@@ -201,22 +203,43 @@ def embed_server(url: str = "default", *, session_id: str | None = None,
     if token is not None:
         source["token"] = token
 
-    artifact_metadata = dict(metadata or {})
-    artifact_metadata["embedding"] = {
+    result_metadata = dict(metadata or {})
+    result_metadata["embedding"] = {
         "source": "server",
         "resource_requirements": "dynamic-conservative",
     }
-    return EmbedArtifact(
+    return EmbedResult(
         source=source,
-        roots=tuple(artifact_roots),
+        roots=tuple(embed_roots),
         requires=_dynamic_server_requirements(),
-        metadata=artifact_metadata,
+        metadata=result_metadata,
     )
 
 
-def _build_embed_spec(models: _EmbedInput, *, theme: ThemeSource, callback_policy: _CallbackPolicy,
+def server_page_for_session(session: ServerSession, resources: Resources, title: str,
+        template: Template = FILE, template_variables: dict[str, Any] | None = None) -> str:
+    """Render the internal server page for an established session."""
+    roots: dict[str, Model] = {}
+    for index, root in enumerate(session.document.roots):
+        base_key = root.name or ("root" if len(session.document.roots) == 1 else f"root-{index}")
+        key = base_key
+        suffix = 1
+        while key in roots:
+            key = f"{base_key}-{suffix}"
+            suffix += 1
+        roots[key] = root
+    result = embed_server(".", token=session.token, roots=roots)
+    return result.page(
+        resources=resources,
+        title=title,
+        template=template,
+        template_variables=template_variables,
+    )
+
+
+def _build_embed_spec(models: EmbedInput, *, theme: ThemeSource, callback_policy: CallbackPolicy,
         metadata: Mapping[str, Any] | None,
-        serialization: _SerializationPolicy = "static") -> EmbedSpec:
+        serialization: SerializationPolicy = "static") -> EmbedSpec:
     roots: list[Model] = []
     keys: list[str] = []
 
@@ -261,13 +284,32 @@ def _build_embed_spec(models: _EmbedInput, *, theme: ThemeSource, callback_polic
     if not roots:
         raise EmbedBuildError("embed() requires at least one root model")
     if len(set(roots)) != len(roots):
-        raise EmbedBuildError("the same Bokeh model cannot be assigned to more than one logical artifact root")
+        raise EmbedBuildError("the same Bokeh model cannot be assigned to more than one logical embed root")
     if len(set(keys)) != len(keys):
-        raise EmbedBuildError("logical artifact root keys must be unique")
+        raise EmbedBuildError("logical embed root keys must be unique")
     return EmbedSpec(
         tuple(roots), tuple(keys), input_shape, theme, callback_policy, metadata,
         serialization,
     )
+
+
+def _normalize_server_url(url: str) -> str:
+    if not isinstance(url, str):
+        raise EmbedBuildError("a Bokeh server application URL is required")
+    parsed = urlsplit(url)
+    if parsed.query or parsed.fragment:
+        raise EmbedBuildError("a Bokeh server application URL cannot contain a query or fragment")
+    if parsed.scheme:
+        if parsed.scheme.lower() in ("ws", "wss"):
+            raise EmbedBuildError("url must be an HTTP(S) Bokeh application URL, not a WebSocket URL")
+        if parsed.scheme.lower() not in ("http", "https") or not parsed.netloc:
+            raise EmbedBuildError("url must be an HTTP(S) Bokeh application URL or a relative URL")
+    elif parsed.netloc:
+        raise EmbedBuildError("a scheme-relative Bokeh application URL is not supported")
+    path = parsed.path.rstrip("/")
+    if not parsed.scheme and not path:
+        raise EmbedBuildError("a Bokeh server application URL is required")
+    return urlunsplit((parsed.scheme.lower(), parsed.netloc, path, "", ""))
 
 
 def _complete_source_document(models: Sequence[Model]) -> Document | None:
@@ -364,12 +406,17 @@ def contains_tex_string(text: str) -> bool:
 
 
 __all__ = (
+    "CallbackPolicy",
     "EmbedBuildError",
+    "EmbedInput",
     "EmbedSpec",
+    "SerializationPolicy",
+    "ServerRoot",
     "ThemePolicy",
     "ThemeSource",
     "contains_tex_string",
     "embed",
     "embed_protocol",
     "embed_server",
+    "server_page_for_session",
 )

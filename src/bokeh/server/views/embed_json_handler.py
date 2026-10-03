@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""Return the signed bootstrap needed by a server-source EmbedArtifact."""
+"""Return the signed bootstrap needed by a server-source EmbedResult."""
 
 from __future__ import annotations
 
@@ -29,8 +29,11 @@ from .session_handler import SessionHandler
 
 class EmbedJsonHandler(SessionHandler):
     def set_default_headers(self) -> None:
-        '''Set headers shared by artifact GET and preflight responses.'''
+        '''Set headers shared by embed payload GET and preflight responses.'''
         self.set_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.set_header("Cache-Control", "no-store")
+        self.set_header("Pragma", "no-cache")
+        self.set_header("X-Content-Type-Options", "nosniff")
 
     def _allow_websocket_origin(self) -> None:
         if "Origin" not in self.request.headers:
@@ -45,13 +48,13 @@ class EmbedJsonHandler(SessionHandler):
         self.set_header("Access-Control-Allow-Origin", origin)
         self.set_header("Access-Control-Allow-Credentials", "true")
         requested_headers = self.request.headers.get(
-            "Access-Control-Request-Headers", "Bokeh-Session-Id, Content-Type",
+            "Access-Control-Request-Headers", "Bokeh-Session-Id, Bokeh-Token, Content-Type",
         )
         self.set_header("Access-Control-Allow-Headers", requested_headers)
         self.set_header("Vary", "Origin")
 
     async def get(self, *args: Any, **kwargs: Any) -> None:
-        '''Return the signed bootstrap for a server artifact.
+        '''Return the signed bootstrap for a server embed payload.
 
         Args:
             args: Positional arguments supplied by Tornado.
@@ -70,7 +73,7 @@ class EmbedJsonHandler(SessionHandler):
         }))
 
     async def options(self, *args: Any, **kwargs: Any) -> None:
-        '''Handle a cross-origin artifact preflight request.
+        '''Handle a cross-origin embed payload preflight request.
 
         Args:
             args: Positional arguments supplied by Tornado.

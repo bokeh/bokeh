@@ -21,20 +21,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 # Bokeh imports
-from ..core.templates import FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
+from ..util.deprecation import deprecated
 from ..util.strings import format_docstring
 
 if TYPE_CHECKING:
-    from jinja2 import Template
-
     from ..core.types import ID
     from ..model import Model
-    from ..resources import Resources
-    from ..server.session import ServerSession
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,7 +39,6 @@ if TYPE_CHECKING:
 __all__ = (
     'server_document',
     'server_session',
-    'server_html_page_for_session',
 )
 
 #-----------------------------------------------------------------------------
@@ -52,7 +47,7 @@ __all__ = (
 
 def server_document(url: str = "default", relative_urls: bool = False, resources: Literal["default"] | None = "default",
         arguments: dict[str, str] | None = None, headers: dict[str, str] | None = None, with_credentials: bool = False) -> str:
-    ''' Return an artifact fragment that embeds content from a Bokeh server.
+    ''' Return an embed fragment that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
 
@@ -96,31 +91,32 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             Whether cookies should be passed to Bokeh application code (default: False)
 
     Returns:
-        Artifact declaration HTML that mounts content from a Bokeh Server.
+        Embed declaration HTML that mounts content from a Bokeh Server.
+
+    .. deprecated:: 4.0
+        Use ``embed_server(url, ...).fragment(...).html``. The compatibility
+        facade will be removed in a later 4.x release.
 
     '''
+    deprecated((4, 0, 0), "server_document()", "embed_server(...).fragment(...).html")
     if resources not in ("default", None):
         raise ValueError("resources must be 'default' or None")
     from ._util import embed_server
 
-    artifact = embed_server(
+    result = embed_server(
         url,
         arguments=arguments,
         headers=headers,
         with_credentials=with_credentials,
         relative_urls=relative_urls,
     )
-    if resources is None:
-        policy: Any = "none"
-    else:
-        from ..resources import Resources
-        policy = Resources(mode="server", root_url=f"{artifact.source['url']}/")
-    return artifact.fragment(resources=policy).html
+    policy = "none" if resources is None else "server"
+    return result.fragment(resources=policy).html
 
 def server_session(model: Model | None = None, session_id: ID | None = None, url: str = "default",
         relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: dict[str, str] | None = None,
         with_credentials: bool = False) -> str:
-    ''' Return an artifact fragment for a specific existing session on
+    ''' Return an embed fragment for a specific existing session on
     a Bokeh server.
 
     This function is typically only useful for serving from a a specific session
@@ -176,7 +172,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             Whether cookies should be passed to Bokeh application code (default: False)
 
     Returns:
-        Artifact declaration HTML that mounts content from a Bokeh Server.
+        Embed declaration HTML that mounts content from a Bokeh Server.
 
         .. warning::
             It is typically a bad idea to reuse the same ``session_id`` for
@@ -184,7 +180,12 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             problems, and will cause "shared Google doc" behavior, which is
             probably not desired.
 
+    .. deprecated:: 4.0
+        Use ``embed_server(session_id=...).fragment(...).html``. The
+        compatibility facade will be removed in a later 4.x release.
+
     '''
+    deprecated((4, 0, 0), "server_session()", "embed_server(session_id=...).fragment(...).html")
     if session_id is None:
         raise ValueError("Must supply a session_id")
 
@@ -193,7 +194,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
     from ._util import embed_server
 
     selected = None if model is None else {model.name or "root": model}
-    artifact = embed_server(
+    result = embed_server(
         url,
         session_id=session_id,
         roots=selected,
@@ -201,54 +202,8 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
         with_credentials=with_credentials,
         relative_urls=relative_urls,
     )
-    if resources is None:
-        policy: Any = "none"
-    else:
-        from ..resources import Resources
-        policy = Resources(mode="server", root_url=f"{artifact.source['url']}/")
-    return artifact.fragment(resources=policy).html
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-def server_html_page_for_session(session: ServerSession, resources: Resources, title: str,
-        template: Template = FILE, template_variables: dict[str, Any] | None = None) -> str:
-    '''
-
-    Args:
-        session (ServerSession) :
-
-        resources (Resources) :
-
-        title (str) :
-
-        template (Template) :
-
-        template_variables (dict) :
-
-    Returns:
-        str
-
-    '''
-    from ._util import embed_server
-
-    roots: dict[str, Model] = {}
-    for index, root in enumerate(session.document.roots):
-        base_key = root.name or ("root" if len(session.document.roots) == 1 else f"root-{index}")
-        key = base_key
-        suffix = 1
-        while key in roots:
-            key = f"{base_key}-{suffix}"
-            suffix += 1
-        roots[key] = root
-    artifact = embed_server(".", token=session.token, roots=roots)
-    return artifact.page(
-        resources=resources,
-        title=title,
-        template=template,
-        template_variables=template_variables,
-    )
+    policy = "none" if resources is None else "server"
+    return result.fragment(resources=policy).html
 
 #-----------------------------------------------------------------------------
 # Private API

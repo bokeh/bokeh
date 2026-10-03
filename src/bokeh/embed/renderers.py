@@ -4,12 +4,13 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""Typed output renderers for :class:`~bokeh.embed.EmbedArtifact`."""
+"""Typed output renderers for :class:`~bokeh.embed.EmbedResult`."""
 
 from __future__ import annotations
 
 # Standard library imports
 import hashlib
+import re
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
@@ -19,41 +20,43 @@ from typing import (
     Iterator,
     Mapping,
 )
+from urllib.parse import urlsplit
 
 # Bokeh imports
 from ..core.templates import FILE, MACROS, get_env
 from ..document import DEFAULT_TITLE
-from ..resources import Resources
+from ..resources import ResourceConflictError, Resources
+from ..util.serialization import make_globally_unique_css_safe_id
 from ._json import canonical_json
-from .artifact import EMBED_ARTIFACT_MIME_TYPE, EmbedArtifact
 from .resources import ResolvedResource, ResolvedResources, ResourceRequirements
+from .result import EMBED_MIME_TYPE, EmbedResult
 
 if TYPE_CHECKING:
     from jinja2 import Template
 
 
 @dataclass(frozen=True)
-class ArtifactMount:
+class EmbedMount:
     '''One logical root key and its declarative target markup.'''
     key: str
     html: str
 
 
 class _TemplateRoots:
-    def __init__(self, mounts: tuple[ArtifactMount, ...], aliases: Mapping[str, ArtifactMount]) -> None:
+    def __init__(self, mounts: tuple[EmbedMount, ...], aliases: Mapping[str, EmbedMount]) -> None:
         self._mounts = mounts
         self._aliases = aliases
 
-    def __iter__(self) -> Iterator[ArtifactMount]:
+    def __iter__(self) -> Iterator[EmbedMount]:
         return iter(self._mounts)
 
     def __len__(self) -> int:
         return len(self._mounts)
 
-    def __getitem__(self, key: int | str) -> ArtifactMount:
+    def __getitem__(self, key: int | str) -> EmbedMount:
         return self._mounts[key] if isinstance(key, int) else self._aliases[key]
 
-    def __getattr__(self, key: str) -> ArtifactMount:
+    def __getattr__(self, key: str) -> EmbedMount:
         try:
             return self._aliases[key]
         except KeyError as error:
@@ -61,15 +64,15 @@ class _TemplateRoots:
 
 
 @dataclass(frozen=True)
-class ArtifactFragment:
-    '''Composable artifact output for insertion into an existing page.
+class EmbedFragment:
+    '''Composable embed output for insertion into an existing page.
 
-    ``mounts`` and ``divs`` expose caller-placeable targets; ``script`` contains
-    payload/bootstrap declarations; ``resources`` records the resolved host
-    policy; ``build_fingerprint`` includes renderer and policy choices.
+    ``mounts`` and ``divs`` expose caller-placeable targets. ``script`` contains
+    payload/bootstrap declarations. ``resources`` records the resolved host
+    policy. ``build_fingerprint`` includes renderer and policy choices.
     '''
-    artifact: EmbedArtifact
-    mounts: tuple[ArtifactMount, ...]
+    result: EmbedResult
+    mounts: tuple[EmbedMount, ...]
     script: str
     resources: ResolvedResources
     build_fingerprint: str
@@ -77,12 +80,12 @@ class ArtifactFragment:
 
     @property
     def requirements(self) -> ResourceRequirements:
-        '''Return the resource requirements declared by the artifact.
+        '''Return the resource requirements declared by the embed result.
 
         Returns:
-            The artifact resource requirements.
+            The embed result resource requirements.
         '''
-        return self.artifact.requires
+        return self.result.requires
 
     @property
     def divs(self) -> dict[str, str]:
@@ -95,11 +98,11 @@ class ArtifactFragment:
 
 
 @dataclass(frozen=True)
-class ExternalArtifact:
-    '''Declarative targets and bootstrap for an externally stored JSON artifact.'''
-    artifact: EmbedArtifact
+class ExternalEmbed:
+    '''Declarative targets and bootstrap for an externally stored embed payload.'''
+    result: EmbedResult
     payload_url: str
-    mounts: tuple[ArtifactMount, ...]
+    mounts: tuple[EmbedMount, ...]
     bootstrap: str
     resources: ResolvedResources
     build_fingerprint: str
@@ -110,96 +113,114 @@ class ExternalArtifact:
         '''Return the JSON text a host should store at ``payload_url``.
 
         Returns:
-            The serialized artifact payload.
+            The serialized embed payload.
         '''
-        return self.artifact.to_json_string()
+        return self.result.to_json_string()
 
 
-def render_fragment(artifact: EmbedArtifact, *, resources: Resources | str | None = "none",
-        bootstrap_url: str | None = None) -> ArtifactFragment:
-    '''Render an artifact for composition inside a host-owned HTML page.'''
-    mounts, script, resolved = _render_inline_parts(artifact, resources, bootstrap_url)
+def render_fragment(result: EmbedResult, *, resources: Resources | str | None = "none",
+        bootstrap_url: str | None = None) -> EmbedFragment:
+    '''Render an embed result for composition inside a host-owned HTML page.'''
+    mounts, script, resolved = _render_inline_parts(result, resources, bootstrap_url)
     html = "\n".join(filter(None, (_render_resources(resolved), *(mount.html for mount in mounts), script)))
     build_fingerprint = _build_fingerprint(
-        artifact, resolved, "fragment", {"bootstrap_url": bootstrap_url},
+        result, resolved, "fragment", {"bootstrap_url": bootstrap_url},
     )
-    return ArtifactFragment(artifact, mounts, script, resolved, build_fingerprint, html)
+    return EmbedFragment(result, mounts, script, resolved, build_fingerprint, html)
 
 
-def _render_inline_parts(artifact: EmbedArtifact, resources: Resources | str | None,
-        bootstrap_url: str | None) -> tuple[tuple[ArtifactMount, ...], str, ResolvedResources]:
-    policy = Resources.build(resources)
-    resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
-    mounts = render_mounts(artifact)
+def _render_inline_parts(result: EmbedResult, resources: Resources | str | None,
+        bootstrap_url: str | None) -> tuple[tuple[EmbedMount, ...], str, ResolvedResources]:
+    policy = _resources_for_embed(result, resources)
+    if bootstrap_url is not None and policy.integrity:
+        raise ResourceConflictError(
+            "a custom bootstrap_url cannot satisfy integrity=True; use Bokeh's standard bootstrap asset",
+        )
+    resolved = policy.resolve(result.requires, bokeh_version=result.bokeh_version)
+    declaration_id = make_globally_unique_css_safe_id()
+    mounts = render_mounts(result, declaration_id=declaration_id)
     if policy.external_only:
         raise ValueError(
-            "external_only resource policy cannot embed an inline artifact payload; "
-            "use artifact.external(payload_url=...)",
+            "external_only resource policy cannot embed an inline payload; "
+            "use result.external(payload_url=...)",
         )
-    payload = _payload_tag(artifact, nonce=policy.nonce)
+    payload = _payload_tag(result, declaration_id=declaration_id, nonce=policy.nonce)
     bootstrap = (
-        _inline_bootstrap(artifact.fingerprint, nonce=policy.nonce)
+        _inline_bootstrap(result.fingerprint, declaration_id=declaration_id, nonce=policy.nonce)
         if bootstrap_url is None
-        else _external_bootstrap(bootstrap_url, artifact.fingerprint, nonce=policy.nonce)
+        else _external_bootstrap(
+            bootstrap_url, result.fingerprint, declaration_id=declaration_id, nonce=policy.nonce,
+        )
     )
     script = f"{payload}\n{bootstrap}"
     return mounts, script, resolved
 
 
-def render_external(artifact: EmbedArtifact, *, payload_url: str,
+def render_external(result: EmbedResult, *, payload_url: str,
         resources: Resources | str | None = "none",
-        bootstrap_url: str | None = None) -> ExternalArtifact:
-    '''Render a declaration that fetches artifact JSON from ``payload_url``.'''
+        bootstrap_url: str | None = None) -> ExternalEmbed:
+    '''Render a declaration that fetches an embed payload from ``payload_url``.'''
     if not payload_url:
-        raise ValueError("external artifact rendering requires a non-empty payload_url")
-    policy = Resources.build(resources)
-    resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
-    mounts = render_mounts(artifact, payload_url=payload_url)
+        raise ValueError("external embed rendering requires a non-empty payload_url")
+    _validate_web_url(payload_url, "payload_url")
+    policy = _resources_for_embed(result, resources)
+    if bootstrap_url is not None and policy.integrity:
+        raise ResourceConflictError(
+            "a custom bootstrap_url cannot satisfy integrity=True; use Bokeh's standard bootstrap asset",
+        )
+    resolved = policy.resolve(result.requires, bokeh_version=result.bokeh_version)
+    declaration_id = make_globally_unique_css_safe_id()
+    mounts = render_mounts(result, payload_url=payload_url, declaration_id=declaration_id)
     resolved_bootstrap_url = bootstrap_url
     if bootstrap_url is None:
         if policy.external_only:
-            asset = policy.resolve_artifact_bootstrap(bokeh_version=artifact.bokeh_version)
+            asset = policy.resolve_embed_bootstrap(bokeh_version=result.bokeh_version)
             assert asset.url is not None
             resolved_bootstrap_url = asset.url
             bootstrap = _external_bootstrap(
-                asset.url, artifact.fingerprint, payload_url=payload_url, nonce=asset.nonce,
+                asset.url, result.fingerprint, declaration_id=declaration_id,
+                payload_url=payload_url, nonce=asset.nonce,
                 integrity=asset.integrity, crossorigin=asset.crossorigin,
             )
         else:
-            bootstrap = _inline_bootstrap(artifact.fingerprint, payload_url=payload_url, nonce=policy.nonce)
+            bootstrap = _inline_bootstrap(
+                result.fingerprint, declaration_id=declaration_id,
+                payload_url=payload_url, nonce=policy.nonce,
+            )
     else:
         bootstrap = _external_bootstrap(
-            bootstrap_url, artifact.fingerprint, payload_url=payload_url, nonce=policy.nonce,
+            bootstrap_url, result.fingerprint, declaration_id=declaration_id,
+            payload_url=payload_url, nonce=policy.nonce,
             crossorigin=policy.crossorigin,
         )
     html = "\n".join(filter(None, (_render_resources(resolved), *(mount.html for mount in mounts), bootstrap)))
     build_fingerprint = _build_fingerprint(
-        artifact, resolved, "external", {"payload_url": payload_url, "bootstrap_url": resolved_bootstrap_url},
+        result, resolved, "external", {"payload_url": payload_url, "bootstrap_url": resolved_bootstrap_url},
     )
-    return ExternalArtifact(artifact, payload_url, mounts, bootstrap, resolved, build_fingerprint, html)
+    return ExternalEmbed(result, payload_url, mounts, bootstrap, resolved, build_fingerprint, html)
 
 
-def render_page(artifact: EmbedArtifact, *, resources: Resources | str | None = None,
+def render_page(result: EmbedResult, *, resources: Resources | str | None = None,
         title: str | None = None, template: Template | str | Path | None = None,
         template_variables: Mapping[str, Any] | None = None, bootstrap_url: str | None = None) -> str:
     '''Render a complete HTML document with resolved resources and targets.'''
-    mounts, plot_script, resolved = _render_inline_parts(artifact, resources, bootstrap_url)
+    mounts, plot_script, resolved = _render_inline_parts(result, resources, bootstrap_url)
     plot_div = "\n".join(mount.html for mount in mounts)
     bokeh_js = _render_resources(resolved, kind="script")
     bokeh_css = _render_resources(resolved, kind="style")
 
     context = dict(template_variables or {})
     context.update(
-        title=title or _artifact_title(artifact),
+        title=title if title is not None else _embed_title(result),
         bokeh_js=bokeh_js,
         bokeh_css=bokeh_css,
         plot_script=plot_script,
         plot_div=plot_div,
-        artifact=artifact,
-        artifact_mounts=mounts,
-        artifact_fragment=f"{plot_div}\n{plot_script}",
+        embed_result=result,
+        embed_mounts=mounts,
+        embed_fragment=f"{plot_div}\n{plot_script}",
         docs=[],
-        roots=_template_roots(artifact, mounts),
+        roots=_template_roots(result, mounts),
         base=FILE,
         macros=MACROS,
     )
@@ -217,11 +238,12 @@ def render_page(artifact: EmbedArtifact, *, resources: Resources | str | None = 
     return renderer.render(context)
 
 
-def _template_roots(artifact: EmbedArtifact, mounts: tuple[ArtifactMount, ...]) -> _TemplateRoots:
+def _template_roots(result: EmbedResult, mounts: tuple[EmbedMount, ...]) -> _TemplateRoots:
     aliases = {mount.key: mount for mount in mounts}
-    if artifact.source.get("kind") == "standalone":
-        documents = artifact.source["documents"]
-        for descriptor, mount in zip(artifact.roots, mounts):
+    source = result.source
+    if source.get("kind") == "standalone":
+        documents = source["documents"]
+        for descriptor, mount in zip(result.roots, mounts):
             assert descriptor.document is not None and descriptor.root is not None
             root = documents[descriptor.document]["roots"][descriptor.root]
             attributes = root if "$type" in root else root.get("attributes", {})
@@ -231,77 +253,100 @@ def _template_roots(artifact: EmbedArtifact, mounts: tuple[ArtifactMount, ...]) 
     return _TemplateRoots(mounts, aliases)
 
 
-def render_mimebundle(artifact: EmbedArtifact) -> dict[str, Any]:
-    '''Return artifact, HTML fallback, and text representations for rich display.'''
-    fragment = render_fragment(artifact, resources="none")
+def render_mimebundle(result: EmbedResult) -> dict[str, Any]:
+    '''Return embed payload, HTML fallback, and text representations for rich display.'''
+    fragment = render_fragment(result, resources="none")
     return {
-        EMBED_ARTIFACT_MIME_TYPE: artifact.to_dict(),
+        EMBED_MIME_TYPE: result.to_dict(),
         "text/html": fragment.html,
-        "text/plain": f"Bokeh EmbedArtifact {artifact.fingerprint[:12]} ({len(artifact.roots)} roots)",
+        "text/plain": f"Bokeh EmbedResult {result.fingerprint[:12]} ({len(result.roots)} roots)",
     }
 
 
-def _artifact_title(artifact: EmbedArtifact) -> str:
-    if artifact.source.get("kind") == "standalone":
-        [document, *_] = artifact.source["documents"]
+def _resources_for_embed(result: EmbedResult, resources: Resources | str | None) -> Resources:
+    policy = Resources.build(resources)
+    source = result.source
+    if policy.mode == "server" and policy.root_url is None and source.get("kind") == "server":
+        url = source["url"]
+        assert isinstance(url, str)
+        if source.get("relative_urls") is True:
+            url = urlsplit(url).path
+        return Resources.build(policy, root_url=f"{url.rstrip('/')}/")
+    return policy
+
+
+def _embed_title(result: EmbedResult) -> str:
+    source = result.source
+    if source.get("kind") == "standalone":
+        [document, *_] = source["documents"]
         title = document.get("title")
         if isinstance(title, str) and title:
             return title
     return DEFAULT_TITLE
 
 
-def render_mounts(artifact: EmbedArtifact, *, payload_url: str | None = None) -> tuple[ArtifactMount, ...]:
+def render_mounts(result: EmbedResult, *, payload_url: str | None = None,
+        declaration_id: str | None = None) -> tuple[EmbedMount, ...]:
     '''Render only caller-placeable target elements, without payloads or resources.'''
-    result: list[ArtifactMount] = []
-    root_keys = [root.key for root in artifact.roots]
-    if artifact.source.get("kind") == "server" and not root_keys:
+    declaration_id = declaration_id or make_globally_unique_css_safe_id()
+    mounts: list[EmbedMount] = []
+    root_keys = [root.key for root in result.roots]
+    source = result.source
+    if source.get("kind") == "server" and not root_keys:
         root_keys.append("*")
     for key in root_keys:
         attrs = {
             "class": "bk-embed-root",
-            "data-bokeh-artifact": artifact.fingerprint,
+            "data-bokeh-embed": result.fingerprint,
+            "data-bokeh-embed-instance": declaration_id,
             "data-bokeh-root": key,
         }
         if payload_url is not None:
             attrs["data-bokeh-payload-url"] = payload_url
         rendered = " ".join(f'{name}="{escape(value, quote=True)}"' for name, value in attrs.items())
-        result.append(ArtifactMount(key, f"<div {rendered}></div>"))
-    return tuple(result)
+        mounts.append(EmbedMount(key, f"<div {rendered}></div>"))
+    return tuple(mounts)
 
 
-def _payload_tag(artifact: EmbedArtifact, *, nonce: str | None) -> str:
-    payload = _html_safe_json(artifact.to_dict())
+def _payload_tag(result: EmbedResult, *, declaration_id: str, nonce: str | None) -> str:
+    payload = _html_safe_json(result.to_dict())
     attrs = [
-        f'type="{EMBED_ARTIFACT_MIME_TYPE}"',
-        "data-bokeh-artifact-payload",
-        f'data-bokeh-artifact="{escape(artifact.fingerprint, quote=True)}"',
+        f'type="{EMBED_MIME_TYPE}"',
+        "data-bokeh-embed-payload",
+        f'data-bokeh-embed="{escape(result.fingerprint, quote=True)}"',
+        f'data-bokeh-embed-instance="{escape(declaration_id, quote=True)}"',
     ]
     if nonce is not None:
         attrs.append(f'nonce="{escape(nonce, quote=True)}"')
     return f"<script {' '.join(attrs)}>{payload}</script>"
 
 
-def _inline_bootstrap(fingerprint: str, *, payload_url: str | None = None, nonce: str | None = None) -> str:
+def _inline_bootstrap(fingerprint: str, *, declaration_id: str,
+        payload_url: str | None = None, nonce: str | None = None) -> str:
     attrs = [
-        "data-bokeh-artifact-bootstrap",
-        f'data-bokeh-artifact="{escape(fingerprint, quote=True)}"',
+        "data-bokeh-embed-bootstrap",
+        f'data-bokeh-embed="{escape(fingerprint, quote=True)}"',
+        f'data-bokeh-embed-instance="{escape(declaration_id, quote=True)}"',
     ]
     if nonce is not None:
         attrs.append(f'nonce="{escape(nonce, quote=True)}"')
     if payload_url is not None:
         attrs.append(f'data-bokeh-payload-url="{escape(payload_url, quote=True)}"')
-    code = """void Bokeh.mount_artifact_declaration(document.currentScript).catch((error) => {
-  console.error("Failed to mount Bokeh artifact", error);
+    code = """void Bokeh.mount_embed_declaration(document.currentScript).catch((error) => {
+  console.error("Failed to mount Bokeh embed", error);
 });"""
     return f"<script {' '.join(attrs)}>{code}</script>"
 
 
 def _external_bootstrap(bootstrap_url: str, fingerprint: str, *, payload_url: str | None = None,
-        nonce: str | None = None, integrity: str | None = None, crossorigin: str | None = None) -> str:
+        declaration_id: str, nonce: str | None = None,
+        integrity: str | None = None, crossorigin: str | None = None) -> str:
+    _validate_web_url(bootstrap_url, "bootstrap_url")
     attrs = [
         f'src="{escape(bootstrap_url, quote=True)}"',
-        "data-bokeh-artifact-bootstrap",
-        f'data-bokeh-artifact="{escape(fingerprint, quote=True)}"',
+        "data-bokeh-embed-bootstrap",
+        f'data-bokeh-embed="{escape(fingerprint, quote=True)}"',
+        f'data-bokeh-embed-instance="{escape(declaration_id, quote=True)}"',
     ]
     if nonce is not None:
         attrs.append(f'nonce="{escape(nonce, quote=True)}"')
@@ -330,14 +375,29 @@ def _render_resource(asset: ResolvedResource) -> str:
     if asset.kind == "script":
         script_type = ' type="module"' if asset.module else ""
         if asset.url is not None:
+            _validate_web_url(asset.url, "script resource URL")
             return f'<script src="{escape(asset.url, quote=True)}"{script_type}{suffix}></script>'
         assert asset.content is not None
-        content = asset.content.replace("</script", "<\\/script")
+        content = re.sub(r"</script", r"<\\/script", asset.content, flags=re.IGNORECASE)
         return f"<script{script_type}{suffix}>{content}</script>"
     if asset.url is not None:
+        _validate_web_url(asset.url, "style resource URL")
         return f'<link rel="stylesheet" href="{escape(asset.url, quote=True)}"{suffix}>'
     assert asset.content is not None
-    return f"<style{suffix}>{asset.content}</style>"
+    content = re.sub(r"</style", r"<\\/style", asset.content, flags=re.IGNORECASE)
+    return f"<style{suffix}>{content}</style>"
+
+
+def _validate_web_url(url: str, context: str) -> None:
+    if not isinstance(url, str) or not url:
+        raise ValueError(f"{context} must be a non-empty HTTP(S) or relative URL")
+    parsed = urlsplit(url)
+    if parsed.scheme and parsed.scheme.lower() not in ("http", "https"):
+        raise ValueError(f"{context} must use HTTP(S) or be relative, received {url!r}")
+    if parsed.scheme and not parsed.netloc:
+        raise ValueError(f"{context} must include a host, received {url!r}")
+    if not parsed.scheme and parsed.netloc:
+        raise ValueError(f"{context} cannot be scheme-relative, received {url!r}")
 
 
 def _html_safe_json(value: Mapping[str, Any]) -> str:
@@ -346,10 +406,10 @@ def _html_safe_json(value: Mapping[str, Any]) -> str:
     ).replace("<", "\\u003c").replace(">", "\\u003e").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
 
 
-def _build_fingerprint(artifact: EmbedArtifact, resources: ResolvedResources, renderer: str,
+def _build_fingerprint(result: EmbedResult, resources: ResolvedResources, renderer: str,
         options: Mapping[str, Any]) -> str:
     payload = canonical_json({
-        "artifact": artifact.fingerprint,
+        "embed": result.fingerprint,
         "resources": resources.fingerprint,
         "renderer": renderer,
         "options": options,
@@ -358,9 +418,9 @@ def _build_fingerprint(artifact: EmbedArtifact, resources: ResolvedResources, re
 
 
 __all__ = (
-    "ArtifactFragment",
-    "ArtifactMount",
-    "ExternalArtifact",
+    "EmbedFragment",
+    "EmbedMount",
+    "ExternalEmbed",
     "render_external",
     "render_fragment",
     "render_mimebundle",

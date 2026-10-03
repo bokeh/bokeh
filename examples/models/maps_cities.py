@@ -9,7 +9,7 @@ is over 5,000 people, made using the ``GMapPlot`` class.
 '''
 
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import (ColumnDataSource, GMapOptions, GMapPlot,
                           Label, PanTool, Scatter, WheelZoomTool)
 from bokeh.sampledata.world_cities import data
@@ -44,6 +44,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "maps_cities.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Google Maps - World cities Example"))
+        f.write(embed(doc).page(title="Google Maps - World cities Example"))
     print(f"Wrote {filename}")
     view(filename)

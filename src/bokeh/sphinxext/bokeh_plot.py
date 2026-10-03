@@ -250,12 +250,12 @@ class BokehPlotDirective(BokehDirective):
             raise SphinxError(f"bokeh-plot:: error reading {path!r} for {env.docname!r}: {e!r}")
 
     def process_source(self, source: str, path: str, js_filename: str) -> tuple[str, str, str, str | None, int | None]:
-        '''Evaluate source and write its external artifact payload.
+        '''Evaluate source and write its external embed payload.
 
         Args:
             source: The Python source to evaluate.
             path: The source path used for evaluation context.
-            js_filename: The artifact payload filename.
+            js_filename: The embed payload filename.
 
         Returns:
             Rendered markup, payload path, source, docstring, and height hint.

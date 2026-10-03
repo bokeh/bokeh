@@ -3,7 +3,7 @@ import time
 from numpy import exp, linspace, pi, sin
 
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import (ColumnDataSource, DatetimeAxis,
                           PanTool, Plot, Scatter, WheelZoomTool)
 from bokeh.util.browser import view
@@ -34,6 +34,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "dateaxis.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Date Axis Example"))
+        f.write(embed(doc).page(title="Date Axis Example"))
     print(f"Wrote {filename}")
     view(filename)

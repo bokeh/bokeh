@@ -623,19 +623,22 @@ async def test_embed_bootstrap_and_static_routes() -> None:
     try:
         bootstrap = await http_request(app, "/embed.json")
         static = await http_request(app, "/static/js/bokeh.min.js")
-        artifact_bootstrap = await http_request(app, "/static/js/bokeh-embed-bootstrap.js")
-        minified_artifact_bootstrap = await http_request(app, "/static/js/bokeh-embed-bootstrap.min.js")
+        embed_bootstrap = await http_request(app, "/static/js/bokeh-embed-bootstrap.js")
+        minified_embed_bootstrap = await http_request(app, "/static/js/bokeh-embed-bootstrap.min.js")
         traversal = await http_request(app, "/static/../asgi.py")
 
         assert response_status(bootstrap) == 200
         assert b'"schema": "bokeh.embed-server/v1"' in response_body(bootstrap)
         assert b'"token"' in response_body(bootstrap)
+        assert response_header(bootstrap, b"cache-control") == b"no-store"
+        assert response_header(bootstrap, b"pragma") == b"no-cache"
+        assert response_header(bootstrap, b"x-content-type-options") == b"nosniff"
         assert response_status(static) == 200
         assert b"Bokeh Contributors" in response_body(static)
-        assert response_status(artifact_bootstrap) == 200
-        assert b"mount_artifact_declaration" in response_body(artifact_bootstrap)
-        assert response_status(minified_artifact_bootstrap) == 200
-        assert b"mount_artifact_declaration" in response_body(minified_artifact_bootstrap)
+        assert response_status(embed_bootstrap) == 200
+        assert b"mount_embed_declaration" in response_body(embed_bootstrap)
+        assert response_status(minified_embed_bootstrap) == 200
+        assert b"mount_embed_declaration" in response_body(minified_embed_bootstrap)
         assert response_status(traversal) == 404
     finally:
         await app.core.stop()

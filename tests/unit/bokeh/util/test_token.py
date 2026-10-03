@@ -22,10 +22,12 @@ import codecs
 import datetime as dt
 import json
 import random
+import zlib
 from unittest.mock import MagicMock, Mock, patch
 
 # Bokeh imports
 from bokeh.util.token import (
+    _MAX_TOKEN_DECOMPRESSED_BYTES,
     _TOKEN_ZLIB_KEY,
     _base64_decode,
     _base64_encode,
@@ -120,6 +122,18 @@ class TestSessionId:
         payload = get_token_payload(token)
         assert _TOKEN_ZLIB_KEY in payload
         assert payload[_TOKEN_ZLIB_KEY] == 10
+
+    def test_payload_rejects_excessive_decompressed_size(self) -> None:
+        compressed = zlib.compress(b'x' * (_MAX_TOKEN_DECOMPRESSED_BYTES + 1), level=9)
+        value = {
+            "session_id": "session",
+            "session_expiry": 1,
+            _TOKEN_ZLIB_KEY: _base64_encode(compressed),
+        }
+        token = _base64_encode(json.dumps(value))
+
+        with pytest.raises(ValueError, match="decompressed session token payload exceeds"):
+            get_token_payload(token)
 
     def test_payload_error_unsigned(self):
         session_id = generate_session_id()

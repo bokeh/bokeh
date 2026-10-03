@@ -31,8 +31,8 @@ from typing import (
 # Bokeh imports
 from ..models.dom import DOMNode
 from ..models.ui import UIElement
-from ..util.browser import get_browser_controller
-from .notebook import DEFAULT_JUPYTER_URL, _notebook_type, run_notebook_hook
+from ..util.browser import NEW_PARAM, BrowserTarget, get_browser_controller
+from . import notebook
 from .saving import save
 from .util import temp_filename
 
@@ -63,8 +63,10 @@ type Showable = OneOrMore[UIElement | DOMNode]
 
 def show(
     obj: Showable | Application | ModifyDoc,
+    browser: str | None = None,
+    new: BrowserTarget = "tab",
     notebook_handle: bool = False,
-    notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
+    notebook_url: str | ProxyUrlFunc = notebook.DEFAULT_JUPYTER_URL,
     *,
     filename: PathLike | None = None,
     resources: Resources | str | None = None,
@@ -93,6 +95,14 @@ def show(
         filename (PathLike, optional) :
             HTML filename to save and open. If omitted outside notebook mode,
             a temporary ``.html`` file is used.
+
+        browser (str, optional) :
+            Browser name used to open file output. The system default is used
+            when this is ``None``.
+
+        new (str, optional) :
+            Open file output in the same browser context, a new window, or a
+            new tab. Valid values are ``"same"``, ``"window"``, and ``"tab"``.
 
         resources (Resources or str, optional) :
             Resource policy passed to :func:`~bokeh.io.save`.
@@ -159,7 +169,7 @@ def show(
     from ..models.dom import DOMNode
     from ..models.ui import UIElement
 
-    notebook_type = _notebook_type()
+    notebook_type = notebook._notebook_type()
 
     if isinstance(obj, UIElement) or isinstance(obj, DOMNode) or isinstance(obj, Sequence):
         if kwargs:
@@ -168,13 +178,15 @@ def show(
         if notebook_type is not None and filename is None:
             if resources is not None or title is not None or template is not None:
                 raise ValueError("filename is required when passing file output options in notebook mode")
-            return run_notebook_hook(notebook_type, 'doc', obj, notebook_handle)
+            return notebook.run_notebook_hook(notebook_type, 'doc', obj, notebook_handle)
         _show_file(
             obj,
             filename=filename if filename is not None else temp_filename("html"),
             resources=resources,
             title=title,
             template=template,
+            browser=browser,
+            new=new,
         )
         return None
 
@@ -188,7 +200,7 @@ def show(
             raise ValueError("file output options are not supported when showing a Bokeh application")
         if notebook_type is None:
             raise RuntimeError("Bokeh applications can only be shown after output_notebook() is called")
-        return run_notebook_hook(notebook_type, 'app', obj, notebook_url, **kwargs)
+        return notebook.run_notebook_hook(notebook_type, 'app', obj, notebook_url, **kwargs)
 
     raise ValueError(_BAD_SHOW_MSG)
 
@@ -209,13 +221,14 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 """
 
 def _show_file(obj: Showable, *, filename: PathLike, resources: Resources | str | None,
-        title: str | None, template: Template | str | None) -> None:
+        title: str | None, template: Template | str | None,
+        browser: str | None, new: BrowserTarget) -> None:
     '''
 
     '''
     saved = save(obj, filename=filename, resources=resources, title=title, template=template)
     from pathlib import Path
-    get_browser_controller().open(Path(saved).resolve().as_uri(), new=2)
+    get_browser_controller(browser=browser).open(Path(saved).resolve().as_uri(), new=NEW_PARAM[new])
 
 #-----------------------------------------------------------------------------
 # Code

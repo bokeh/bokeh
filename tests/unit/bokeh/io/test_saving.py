@@ -36,15 +36,17 @@ def test_get_save_args_supplies_stateless_defaults(mock_default_filename: MagicM
 
 
 @patch("builtins.open")
-@patch("bokeh.embed.file_html", return_value="<html></html>")
-def test_save_helper_writes_artifact_html(mock_file_html: MagicMock, mock_open: MagicMock) -> None:
+@patch("bokeh.io.saving.embed")
+def test_save_helper_writes_embed_html(mock_embed: MagicMock, mock_open: MagicMock) -> None:
     obj = Plot()
     policy = Resources(mode="inline")
+    mock_embed.return_value.page.return_value = "<html></html>"
 
     bis._save_helper(obj, "plot.html", policy, "Plot", None)
 
-    mock_file_html.assert_called_once_with(
-        obj, resources=policy, title="Plot", template=FILE, theme=ThemePolicy.SOURCE_OR_CURDOC,
+    mock_embed.assert_called_once_with(obj, theme=ThemePolicy.SOURCE_OR_CURDOC)
+    mock_embed.return_value.page.assert_called_once_with(
+        resources=policy, title="Plot", template=FILE,
     )
     mock_open.assert_called_once_with("plot.html", mode="w", encoding="utf-8")
     mock_open.return_value.__enter__.return_value.write.assert_called_once_with("<html></html>")

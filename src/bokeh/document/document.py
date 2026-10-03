@@ -350,7 +350,7 @@ class Document:
         ''' A title for this document.
 
         This title will be set on standalone HTML documents, but not when a
-        server artifact is mounted into an existing host page.
+        server embed is mounted into an existing host page.
 
         Returns:
             The document title.
@@ -967,16 +967,16 @@ side of a communications channel while it was being removed on the other end.\
 
     def to_static_json(self, *, deferred: bool = True,
             models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
-        ''' Convert this document for inclusion in a static embed artifact.
+        ''' Convert this document for inclusion in a static embed payload.
 
-        Static artifacts use graph-minimal model IDs. Anonymous models omit
+        Static payloads use graph-minimal model IDs. Anonymous models omit
         their construction-time IDs, while shared and cyclic models retain the
-        IDs needed to reconstruct object identity. Any ID in the artifact is a
+        IDs needed to reconstruct object identity. Any ID in the payload is a
         graph or runtime reconstruction detail, not a durable browser address.
         ``models_with_ids`` is reserved for model identities referenced outside
         the serialized graph.
 
-        Artifact roots should be addressed by logical key and their ordinal in
+        Embed roots should be addressed by logical key and their ordinal in
         ``Document.roots``. A root ID must not be retained solely to find its
         mount target. Canonical documents and live protocol messages must use
         :meth:`to_json` instead.

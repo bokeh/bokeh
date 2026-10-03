@@ -33,7 +33,12 @@ from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
 # Bokeh imports
 from bokeh.settings import settings
-from bokeh.util.token import check_token_signature, get_session_id, get_token_payload
+from bokeh.util.token import (
+    TokenDecodeError,
+    check_token_signature,
+    get_session_id,
+    get_token_payload,
+)
 
 # Bokeh imports
 from ...protocol import ack
@@ -154,7 +159,11 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             self.close()
             raise ProtocolError("Invalid token signature")
 
-        payload = get_token_payload(token)
+        try:
+            payload = get_token_payload(token)
+        except TokenDecodeError as error:
+            self.close()
+            raise ProtocolError("Invalid token payload") from error
         if 'session_expiry' not in payload:
             self.close()
             raise ProtocolError("Session expiry has not been provided")

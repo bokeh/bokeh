@@ -317,7 +317,7 @@ to the user.
     from flask import Flask, render_template
 
     from bokeh.client import pull_session
-    from bokeh.embed import server_session
+    from bokeh.embed import embed_server
 
     app = Flask(__name__)
 
@@ -329,11 +329,15 @@ to the user.
             # update or customize that session
             session.document.roots[0].children[1].title.text = "Special sliders for a specific user!"
 
-            # generate a script to load the customized session
-            script = server_session(session_id=session.id, url='http://localhost:5006/sliders')
+            # generate markup to load the customized session
+            result = embed_server(
+                "http://localhost:5006/sliders",
+                session_id=session.id,
+            )
+            html = result.fragment(resources="server").html
 
-            # use the script in the rendered page
-            return render_template("embed.html", script=script, template="Flask")
+            # use the markup in the rendered page
+            return render_template("embed.html", script=html, template="Flask")
 
     if __name__ == '__main__':
         app.run(port=8080)

@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..application import Application
 from ..model import Model
-from ..resources import Resources, ResourcesMode
+from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.strings import format_docstring
@@ -127,7 +127,7 @@ class BokehTornado(TornadoApplication):
             A list of hosts that can connect to the websocket.
 
             This is typically required when embedding a Bokeh server app in an
-            external web site using :func:`~bokeh.embed.server_document` or
+            external web site using :func:`~bokeh.embed.embed_server` or
             similar.
 
             If None, ``["localhost"]`` will be assumed (default: None)
@@ -633,24 +633,21 @@ class BokehTornado(TornadoApplication):
 
         '''
         mode = settings.resources(default="server")
-        dev = mode.endswith("-dev")
-        resource_mode = cast(ResourcesMode, mode[:-4] if dev else mode)
-        minified = False if dev else settings.minified()
-        if mode == "server" or mode == "server-dev":
+        resources = Resources.build(mode, minified=settings.minified())
+        if resources.mode == "server":
             if absolute_url is True:
                 absolute_url = self._absolute_url
             if absolute_url is None or absolute_url is False:
                 absolute_url = "/"
 
             root_url = urljoin(absolute_url, self._prefix)
-            return Resources(
-                mode=resource_mode,
+            return Resources.build(
+                resources,
                 root_url=root_url,
-                minified=minified,
                 path_versioner=StaticHandler.append_version,
             )
 
-        return Resources(mode=resource_mode, minified=minified)
+        return resources
 
     def start(self) -> None:
         ''' Start the Bokeh Server application.

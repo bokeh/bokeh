@@ -1,5 +1,5 @@
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import (BoxSelectTool, ColumnDataSource, GMapOptions, GMapPlot,
                           Label, LinearAxis, MercatorTicker,
                           MercatorTickFormatter, PanTool, Scatter, WheelZoomTool)
@@ -57,6 +57,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "maps.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Google Maps Example"))
+        f.write(embed(doc).page(title="Google Maps Example"))
     print(f"Wrote {filename}")
     view(filename)

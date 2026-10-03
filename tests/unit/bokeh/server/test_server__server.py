@@ -638,7 +638,7 @@ async def test__use_provided_session_embed_token(ManagedServerLoop: MSL) -> None
 
         expected = 'foo'
         expected_token = generate_jwt_token(expected)
-        response = await http_get(server.io_loop, embed_url(server) + "&bokeh-token=" + expected_token)
+        response = await http_get(server.io_loop, embed_url(server), headers={'Bokeh-Token': expected_token})
         js = response.body
         token = extract_token_from_json(js)
         assert expected_token == token
@@ -648,6 +648,18 @@ async def test__use_provided_session_embed_token(ManagedServerLoop: MSL) -> None
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert expected == sessions[0].id
+
+
+async def test__reject_session_token_in_embed_query(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        token = generate_jwt_token('foo')
+
+        with pytest.raises(HTTPError) as info:
+            await http_get(server.io_loop, embed_url(server) + "&bokeh-token=" + token)
+
+        assert info.value.code == 403
+        assert not server.get_sessions('/')
 
 async def test__use_provided_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
@@ -804,7 +816,7 @@ async def test__reject_unsigned_token_embed(ManagedServerLoop: MSL) -> None:
         expected = 'foo'
         token = generate_jwt_token(expected)
         with (pytest.raises(HTTPError)) as info:
-            await http_get(server.io_loop, embed_url(server) + "&bokeh-token=" + token)
+            await http_get(server.io_loop, embed_url(server), headers={'Bokeh-Token': token})
         assert 'Invalid token or session ID' in repr(info.value)
 
         sessions = server.get_sessions('/')

@@ -44,7 +44,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def curdoc() -> Document:
-    ''' Return the current default document.
+    ''' Return the current context's default document.
 
     Returns:
         Document : the current default document object.
@@ -61,10 +61,11 @@ def curdoc() -> Document:
         if doc is None:
             raise RuntimeError("Patched curdoc has been previously destroyed")
         return cast(Document, doc) # UnlockedDocumentProxy enforces callback safety at runtime
-    global _DEFAULT_DOCUMENT
-    if _DEFAULT_DOCUMENT is None:
-        _DEFAULT_DOCUMENT = Document()
-    return _DEFAULT_DOCUMENT
+    doc = _DEFAULT_DOCUMENT.get()
+    if doc is None:
+        doc = Document()
+        _DEFAULT_DOCUMENT.set(doc)
+    return doc
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -90,7 +91,7 @@ def patch_curdoc(doc: DocumentLike) -> Generator[None]:
         _PATCHED_CURDOCS.reset(token)
 
 def set_curdoc(doc: Document) -> None:
-    ''' Configure the current document (returned by curdoc()).
+    ''' Configure the current context's document returned by ``curdoc()``.
 
     Args:
         doc (Document) : new Document to use for curdoc()
@@ -99,11 +100,11 @@ def set_curdoc(doc: Document) -> None:
         None
 
     .. warning::
-        Calling this function will replace any existing document.
+        Calling this function will replace any existing document in the current
+        execution context.
 
     '''
-    global _DEFAULT_DOCUMENT
-    _DEFAULT_DOCUMENT = doc
+    _DEFAULT_DOCUMENT.set(doc)
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -112,7 +113,7 @@ def set_curdoc(doc: Document) -> None:
 _PATCHED_CURDOCS: ContextVar[tuple[weakref.ReferenceType[DocumentLike], ...]] = \
     ContextVar("_PATCHED_CURDOCS", default=())
 
-_DEFAULT_DOCUMENT: Document | None = None
+_DEFAULT_DOCUMENT: ContextVar[Document | None] = ContextVar("_DEFAULT_DOCUMENT", default=None)
 
 #-----------------------------------------------------------------------------
 # Code

@@ -15,7 +15,7 @@ import subprocess
 
 from flask import Flask, render_template_string
 
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 
 home_html = """
 <!DOCTYPE html>
@@ -55,7 +55,8 @@ def home():
 
 @app.route('/batch/<int:batchid>')
 def visualization(batchid):
-    bokeh_script = server_document(url='http://localhost:5006/bokeh_server', arguments=dict(batchid=batchid))
+    result = embed_server('http://localhost:5006/bokeh_server', arguments=dict(batchid=batchid))
+    bokeh_script = result.fragment(resources="server").html
     return render_template_string(app_html, bokeh_script=bokeh_script)
 
 if __name__ == '__main__':

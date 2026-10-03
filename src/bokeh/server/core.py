@@ -30,14 +30,16 @@ from urllib.parse import urljoin
 
 # Bokeh imports
 from ..application import Application
-from ..resources import Resources, ResourcesMode
+from ..resources import Resources
 from ..settings import settings
 from ..util.asyncio import _AsyncPeriodic
 from ..util.token import (
+    TokenDecodeError,
     check_token_signature,
     generate_jwt_token,
     generate_session_id,
     get_session_id,
+    get_token_payload,
 )
 from .connection import ServerConnection
 from .contexts import ApplicationContext
@@ -95,7 +97,13 @@ class SessionConfig(TypingProtocol):
 
 async def create_session(config: SessionConfig, context: ApplicationContext, request: RequestLike) -> ServerSession:
     '''Resolve, validate, and create a session from an HTTP request.'''
-    token = _argument(request, "bokeh-token")
+    argument_token = _argument(request, "bokeh-token")
+    header_token = request.headers.get("Bokeh-Token")
+    if argument_token is not None and request.path.endswith("/embed.json"):
+        raise SessionError(403, "session tokens are not accepted in the embed endpoint query string")
+    if argument_token is not None and header_token is not None:
+        raise SessionError(403, "session token was provided as an argument and header")
+    token = header_token if header_token is not None else argument_token
     session_id = cast("ID | None", _argument(request, "bokeh-session-id"))
     header_session_id = request.headers.get("Bokeh-Session-Id")
     if header_session_id is not None:
@@ -106,7 +114,10 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
     if token is not None:
         if session_id is not None:
             raise SessionError(403, "Both token and session ID were provided")
-        session_id = get_session_id(token)
+        try:
+            session_id = get_session_id(token)
+        except TokenDecodeError as error:
+            raise SessionError(403, "Invalid token or session ID") from error
     elif session_id is None:
         if not config.generate_session_ids:
             raise SessionError(403, "No bokeh-session-id provided")
@@ -134,8 +145,12 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
             extra_payload=payload,
         )
 
-    if not check_token_signature(token, secret_key=config.secret_key, signed=config.sign_sessions):
-        raise SessionError(403, "Invalid token or session ID")
+    try:
+        if not check_token_signature(token, secret_key=config.secret_key, signed=config.sign_sessions):
+            raise SessionError(403, "Invalid token or session ID")
+        get_token_payload(token)
+    except TokenDecodeError as error:
+        raise SessionError(403, "Invalid token or session ID") from error
     return await context.create_session_if_needed(session_id, request, token)
 
 
@@ -404,17 +419,15 @@ class BokehServerCore(SessionConfig):
 
     def resources(self, absolute_url: str | bool | None = None, *, root_path: str = "") -> Resources:
         mode = settings.resources(default="server")
-        dev = mode.endswith("-dev")
-        resource_mode = cast(ResourcesMode, mode[:-4] if dev else mode)
-        minified = False if dev else settings.minified()
-        if mode in ("server", "server-dev"):
+        resources = Resources.build(mode, minified=settings.minified())
+        if resources.mode == "server":
             if absolute_url is True:
                 absolute_url = self._absolute_url
             if absolute_url is None or absolute_url is False:
                 absolute_url = "/"
             resource_path = root_path.rstrip("/") + self._prefix
-            return Resources(mode=resource_mode, root_url=urljoin(absolute_url, resource_path), minified=minified)
-        return Resources(mode=resource_mode, minified=minified)
+            return Resources.build(resources, root_url=urljoin(absolute_url, resource_path))
+        return resources
 
     async def create_session(self, context: ApplicationContext, request: RequestLike) -> ServerSession:
         self._require_running()

@@ -219,7 +219,7 @@ Discovering declarative mounts from page JavaScript
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Page JavaScript does not always create the mount it needs to inspect. An
-artifact loader, Sphinx extension, or other declarative bootstrap may run after
+embed loader, Sphinx extension, or other declarative bootstrap may run after
 application code. Use the stable host element as the rendezvous point instead
 of searching ``Bokeh.index`` or relying on script order. ``when_mounted()``
 returns an existing ``target.bokehMount`` immediately or waits for that target
@@ -227,7 +227,7 @@ to publish one. The wait is target-local—there is no process-wide mount
 registry—and accepts an ``AbortSignal``.
 
 This example is covered by the BokehJS mount unit suite. The observer script
-intentionally appears before the artifact loader:
+intentionally appears before the embed loader:
 
 .. code-block:: html
 
@@ -253,7 +253,7 @@ intentionally appears before the artifact loader:
     </script>
 
     <!-- This later script creates or decodes the mount with logical root "sales". -->
-    <script src="/assets/sales-artifact.js"></script>
+    <script src="/assets/sales-embed.js"></script>
 
 Every resolved logical-root target exposes the same ``BokehMount`` through
 ``target.bokehMount``. ``HTMLElement`` targets also carry a
@@ -270,7 +270,7 @@ instead of waiting forever:
 .. code-block:: javascript
 
     try {
-      await bootstrapArtifact(target)
+      await bootstrapEmbed(target)
     } catch (cause) {
       Bokeh.publish_mount_error(
         target,
@@ -424,17 +424,17 @@ elements or destroying a caller-owned document.
 Addressing models after a static mount
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Static embed artifacts use graph-minimal model IDs. An ID is included only
+Static embed payloads use graph-minimal model IDs. An ID is included only
 when it is needed to reconstruct shared or cyclic object identity, or when a
 protocol boundary explicitly requires it. Anonymous models receive runtime IDs
-when BokehJS reconstructs the graph, so a ``Model.id`` in a static artifact is
+when BokehJS reconstructs the graph, so a ``Model.id`` in a static payload is
 not a durable browser address. Do not interpolate a Python model ID into page
 JavaScript, persist it across page loads, or use ``Bokeh.index`` as an
 application registry.
 
 Use the narrowest stable scope for each kind of integration:
 
-* Address artifact roots by their logical keys. The artifact's root table maps
+* Address embed roots by their logical keys. The payload's root table maps
   those keys to document-root ordinals, and ``mounted.root(key)`` exposes the
   reconstructed root.
   Pass an explicit keyed mapping for this contract. Keys derived by the bare
@@ -471,7 +471,7 @@ and use its logical and semantic scopes:
     }
     const threshold_view = mounted.view_lookup.find_one(threshold)
 
-The bootstrap that creates or decodes the artifact owns mount publication. If
+The bootstrap that creates or decodes the payload owns mount publication. If
 it fails before producing a ``BokehMount``, it must report the structured
 failure with ``Bokeh.publish_mount_error(target, error)`` so current and future
 ``when_mounted()`` calls reject instead of waiting indefinitely.
@@ -489,7 +489,7 @@ an ID through a template:
 
 Live Bokeh server sessions, patches, and comm messages still require stable
 protocol IDs. ``Document.get_model_by_id()`` remains available for those
-protocol-internal paths. Its presence does not make static artifact IDs a
+protocol-internal paths. Its presence does not make static payload IDs a
 public addressing contract.
 
 Do not mount roots that share Bokeh models through separate adapter instances.
@@ -503,25 +503,18 @@ rendering are in :bokeh-tree:`bokehjs/examples/frameworks`. They are kept
 deliberately small for reuse in documentation and are continuously built from
 packed npm artifacts in BokehJS CI.
 
-Migrating standalone lifecycle code
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Standalone lifecycle
+~~~~~~~~~~~~~~~~~~~~
 
-``show()`` remains convenient for scripts and now returns the same owning
+``show()`` is convenient for scripts and returns the same owning
 ``BokehMount`` as ``mount()``. Await its ``ready`` promise and retain it for
-disposal. It no longer returns a raw view. The old public
-``Bokeh.embed.add_document_standalone()``, ``mount_document_standalone()``, and
-``add_document_from_session()`` paths are internal rendering bridges. Direct
-JavaScript code should use ``mount()`` or ``show()``. Artifact and server hosts
-receive an owning mount from their public bootstrap API.
+disposal. Direct JavaScript code should use ``mount()`` or ``show()``. Embed and
+server hosts receive an owning mount from their public bootstrap API.
 
-Likewise, ``embed.embed_item()`` and ``embed.embed_items()`` now return owning
-standalone mount handles rather than view managers. Retain those handles and
-call ``dispose()`` when removing the embed. Code that read views directly from
-the former result should use ``root_views`` for keyed roots or ``views`` for
-the complete view manager on each handle. Downstream hosts such as Panel only
-need changes if they inspect these return values or call the former public
-standalone helpers. Hosts that ignore the bootstrap return value keep the same
-rendering behavior.
+``embed.embed_item()`` and ``embed.embed_items()`` return owning standalone
+mount handles. Retain those handles and call ``dispose()`` when removing the
+embed. Use ``root_views`` for keyed roots or ``views`` for the complete view
+manager on each handle.
 
 Adapters remount when their model, target, or abort signal changes. Keep those
 values stable across ordinary framework renders. Removing one root slot from a
@@ -607,9 +600,9 @@ you can set its properties in exactly the same way in both languages. For
 example, ``xdr.end = 30`` sets the ``end`` value to 30 on the `Range1d` model
 above in both Python and JavaScript.
 
-When migrating to Bokeh 4.0, replace ``new SomeModel(attributes)`` with
-``SomeModel.create(attributes)``. Custom extensions inherit ``create()`` and do
-not need to repeat a constructor or call a per-class initialization helper.
+Construct models with ``SomeModel.create(attributes)``. Custom extensions
+inherit ``create()`` and do not need to repeat a constructor or call a
+per-class initialization helper.
 
 Below is an example that creates a plot with axes, grids, and a line glyph
 from scratch. Compare with samples in :bokeh-tree:`examples/models` and

@@ -51,10 +51,14 @@ def _handler(token: str | None) -> _TestEmbedJsonHandler:
 
 async def test_get_returns_versioned_signed_bootstrap() -> None:
     handler = _handler("signed-token")
+    handler.set_default_headers()
 
     await handler.get()
 
     assert handler.headers["Content-Type"] == "application/json"
+    assert handler.headers["Cache-Control"] == "no-store"
+    assert handler.headers["Pragma"] == "no-cache"
+    assert handler.headers["X-Content-Type-Options"] == "nosniff"
     assert json.loads(handler.body) == {
         "schema": "bokeh.embed-server/v1",
         "bokeh_version": __version__,
