@@ -110,7 +110,7 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
         with_credentials=with_credentials,
         relative_urls=relative_urls,
     )
-    policy = "none" if resources is None else "server"
+    policy: Literal["none", "server"] = "none" if resources is None else "server"
     return result.fragment(resources=policy).html
 
 def server_session(model: Model | None = None, session_id: ID | None = None, url: str = "default",
@@ -202,7 +202,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
         with_credentials=with_credentials,
         relative_urls=relative_urls,
     )
-    policy = "none" if resources is None else "server"
+    policy: Literal["none", "server"] = "none" if resources is None else "server"
     return result.fragment(resources=policy).html
 
 #-----------------------------------------------------------------------------
