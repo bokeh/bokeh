@@ -21,8 +21,9 @@ Bokeh uses the MathJax_ library to handle LaTeX and MathML. See the official
 `MathJax documentation`_ for more information on MathJax.
 
 .. note::
-    If you use the |components| function, make sure to include the
-    ``bokeh-mathjax-`` resource in your html template.
+    Embed resource requirements include ``bokeh-mathjax`` when needed. If a
+    fragment uses ``resources="none"``, the host page must load that matching
+    BokehJS bundle itself.
 
 LaTeX
 -----

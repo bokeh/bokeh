@@ -153,6 +153,7 @@ from .util.paths import bokehjs_path, server_path
 
 if TYPE_CHECKING:
     from .core.types import PathLike
+    from .resources import ResourcesSetting
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -798,8 +799,11 @@ class Settings:
 
     """)
 
-    resources: PrioritizedSetting[str] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="server", help="""
+    resources: PrioritizedSetting[ResourcesSetting] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="server", help="""
     What kind of BokehJS resources to configure, e.g ``inline`` or ``cdn``
+
+    The ``server-dev``, ``relative-dev``, and ``absolute-dev`` spellings select
+    the corresponding mode with unminified resources.
 
     See :class:`~bokeh.resources.Resources` for full details.
     """)

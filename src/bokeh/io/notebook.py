@@ -582,8 +582,8 @@ def show_app(
     logging.debug(f"Server URL is {url}")
     logging.debug(f"Origin URL is {origin}")
 
-    from ..embed import server_document
-    script = server_document(url, resources=None)
+    from ..embed._util import embed_server
+    script = embed_server(url).fragment(resources="none").html
 
     publish_display_data({
         HTML_MIME_TYPE: script,
@@ -630,14 +630,14 @@ def show_doc(obj: Model | Sequence[UIElement], notebook_handle: bool = False) ->
 
 
 def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str, str, Document]:
-    """Adapt an artifact to the legacy notebook transport retained until v1."""
+    """Adapt an embed result to the legacy notebook transport retained until v1."""
     from ..core.json_encoder import serialize_json
     from ..core.templates import DOC_NB_JS
     from ..document import Document
     from ..embed.notebook import notebook_content
 
-    artifact, _ = notebook_content(model, live=True)
-    documents = artifact.source["documents"]
+    result, _ = notebook_content(model, live=True)
+    documents = result.source["documents"]
     assert isinstance(documents, list)
     [document_json] = documents
 

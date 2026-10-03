@@ -2,7 +2,7 @@
 and a color picker.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Slider, bokeh.document.document, bokeh.embed.file_html, bokeh.util.browser.view
+    :apis: bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Slider, bokeh.document.document, bokeh.embed.embed, bokeh.util.browser.view
     :refs: :ref:`ug_interaction_widgets`
     :keywords: slider
 
@@ -10,7 +10,7 @@ and a color picker.
 from datetime import date
 
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import (Column, CustomJS, DateRangeSlider,
                           DateSlider, Div, RangeSlider, Row, Slider)
 from bokeh.util.browser import view
@@ -72,6 +72,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "sliders.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="sliders"))
+        f.write(embed(doc).page(title="sliders"))
     print(f"Wrote {filename}")
     view(filename)

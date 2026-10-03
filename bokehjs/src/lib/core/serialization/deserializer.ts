@@ -245,7 +245,12 @@ export class Deserializer {
   protected _decode_plain_object(obj: PlainObject): PlainObject {
     const decoded: PlainObject = {}
     for (const [key, val] of entries(obj)) {
-      decoded[key] = this._decode(val)
+      Object.defineProperty(decoded, key, {
+        value: this._decode(val),
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      })
     }
     return decoded
   }

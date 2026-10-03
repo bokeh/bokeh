@@ -84,11 +84,11 @@ describe("in api/plotting module", () => {
       host.id = "external-sales-plot"
       document.body.append(host)
 
-      // This is the external script. It can run before the artifact bootstrap.
+      // This is the external script. It can run before the embed bootstrap.
       const target = document.querySelector<HTMLElement>("#external-sales-plot")!
       const discovery = when_mounted(target)
 
-      // This stands in for the later artifact or Sphinx bootstrap.
+      // This stands in for the later embed or Sphinx bootstrap.
       const source = ColumnDataSource.create({
         name: "sales-source",
         data: {x: [1, 2], y: [3, 4]},
@@ -126,7 +126,7 @@ describe("in api/plotting module", () => {
     it("rejects discovery with structured errors published before a handle exists", async () => {
       const target = document.createElement("div")
       const discovery = when_mounted(target)
-      const published = new MountError("source", "artifact decoding failed")
+      const published = new MountError("source", "embed payload decoding failed")
       publish_mount_error(target, published)
 
       const error = await discovery.then(() => null, (error: unknown) => error)

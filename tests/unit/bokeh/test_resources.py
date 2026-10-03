@@ -32,6 +32,30 @@ def test_public_resource_configuration() -> None:
     assert resources.INLINE == "inline"
 
 
+@pytest.mark.parametrize(("setting", "mode"), [
+    ("server-dev", "server"),
+    ("relative-dev", "relative"),
+    ("absolute-dev", "absolute"),
+])
+def test_build_accepts_dev_resource_settings(setting: resources.ResourcesSetting, mode: resources.ResourcesMode) -> None:
+    configured = resources.Resources.build(setting)
+
+    assert configured.mode == mode
+    assert configured.minified is False
+
+
+@pytest.mark.parametrize("setting", [
+    "none-dev",
+    "inline-dev",
+    "offline-dev",
+    "cdn-dev",
+    "unknown-dev",
+])
+def test_build_rejects_unknown_dev_resource_settings(setting: str) -> None:
+    with pytest.raises(resources.ResourceConflictError, match="unknown resource mode"):
+        resources.Resources.build(setting)
+
+
 def test_get_all_sri_versions_valid_format() -> None:
     assert all(VERSION_PAT.match(version) for version in resources.get_all_sri_versions())
 

@@ -25,14 +25,19 @@ from urllib.parse import parse_qs, urlparse
 
 # Bokeh imports
 from .. import __version__
+from ..embed._util import server_page_for_session
 from ..embed.resources import extension_dirs
-from ..embed.server import server_html_page_for_session
 from ..protocol import ack
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..settings import settings
-from ..util.token import check_token_signature, get_session_id, get_token_payload
+from ..util.token import (
+    TokenDecodeError,
+    check_token_signature,
+    get_session_id,
+    get_token_payload,
+)
 from .auth import AuthPolicy
 from .core import BokehServerCore, SessionError
 from .request import Cookie, Headers, ServerRequest
@@ -286,7 +291,7 @@ class BokehASGI:
         except SessionError as error:
             await self._response(send, error.status, error.reason.encode(), "text/plain", head=head)
             return
-        page = server_html_page_for_session(
+        page = server_page_for_session(
             session,
             resources=self._core.resources(root_path=request.root_path),
             title=session.document.title,
@@ -315,7 +320,10 @@ class BokehASGI:
             await self._response(send, 403, b"Origin is not allowed", "text/plain", head=method == "HEAD")
             return
         if method == "OPTIONS":
-            await self._response(send, 204, b"", "text/plain", extra_headers=self._cors_headers(request))
+            await self._response(
+                send, 204, b"", "text/plain",
+                extra_headers=[*self._cors_headers(request), *self._embed_security_headers()],
+            )
             return
         head = method == "HEAD"
         if method not in ("GET", "HEAD"):
@@ -334,7 +342,8 @@ class BokehASGI:
             "token": session.token,
         }).encode()
         await self._response(
-            send, 200, body, "application/json", head=head, extra_headers=self._cors_headers(request),
+            send, 200, body, "application/json", head=head,
+            extra_headers=[*self._cors_headers(request), *self._embed_security_headers()],
         )
 
     async def _root(self, request: ServerRequest, send: Send) -> None:
@@ -556,7 +565,7 @@ class BokehASGI:
                 return False
             session_id = get_session_id(token)
             payload = get_token_payload(token)
-        except (AttributeError, binascii.Error, json.JSONDecodeError, KeyError, TypeError, UnicodeError, zlib.error):
+        except (AttributeError, binascii.Error, json.JSONDecodeError, KeyError, TokenDecodeError, TypeError, UnicodeError, zlib.error):
             return False
         expiry = payload.get("session_expiry")
         now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
@@ -588,7 +597,7 @@ class BokehASGI:
         ]
         if origin is not None:
             requested_headers = request.headers.get(
-                "access-control-request-headers", "Bokeh-Session-Id, Content-Type",
+                "access-control-request-headers", "Bokeh-Session-Id, Bokeh-Token, Content-Type",
             )
             headers.extend([
                 (b"access-control-allow-origin", origin.encode()),
@@ -597,6 +606,14 @@ class BokehASGI:
                 (b"vary", b"Origin"),
             ])
         return headers
+
+    @staticmethod
+    def _embed_security_headers() -> list[tuple[bytes, bytes]]:
+        return [
+            (b"cache-control", b"no-store"),
+            (b"pragma", b"no-cache"),
+            (b"x-content-type-options", b"nosniff"),
+        ]
 
     @staticmethod
     def _argument(request: ServerRequest, name: str) -> str | None:

@@ -1,6 +1,6 @@
 from jinja2 import Template
 
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import Range1d
 from bokeh.plotting import figure
 from bokeh.util.browser import view
@@ -62,7 +62,7 @@ template = Template('''<!DOCTYPE html>
 
 filename = 'embed_multiple.html'
 
-html = file_html(plots, resources="inline", title="Bokeh Scatter Plots", template=template)
+html = embed(plots).page(resources="inline", title="Bokeh Scatter Plots", template=template)
 
 with open(filename, mode="w", encoding="utf-8") as f:
     f.write(html)

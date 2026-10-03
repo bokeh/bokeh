@@ -89,7 +89,7 @@ To get started with
     pip install "bokeh[export]"
     playwright install --only-shell chromium
 
-The Selenium export backend is deprecated in Bokeh 4.0. Existing applications
+The Selenium export backend is deprecated. Existing applications
 can temporarily select it explicitly while migrating to Playwright. Selenium
 needs to be able to access either a Firefox browser (through the geckodriver
 package) or a Chrome/Chromium browser (through the chromedriver package), so

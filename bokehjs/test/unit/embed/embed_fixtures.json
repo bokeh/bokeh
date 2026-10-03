@@ -3,7 +3,7 @@
   "cases": [
     {
       "name": "standalone-keyed-roots",
-      "artifact": {
+      "payload": {
         "schema": "bokeh.embed/v1",
         "bokeh_version": "__VERSION__",
         "source": {
@@ -74,7 +74,7 @@
     },
     {
       "name": "standalone-compact-roots",
-      "artifact": {
+      "payload": {
         "schema": "bokeh.embed/v1",
         "bokeh_version": "__VERSION__",
         "source": {
@@ -135,7 +135,7 @@
     },
     {
       "name": "server-existing-session",
-      "artifact": {
+      "payload": {
         "schema": "bokeh.embed/v1",
         "bokeh_version": "__VERSION__",
         "source": {

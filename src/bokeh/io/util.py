@@ -37,8 +37,7 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Iterator
 
 # Bokeh imports
-from ..embed import file_html
-from ..embed._util import ThemePolicy
+from ..embed._util import ThemePolicy, embed
 from ..resources import Resources
 
 if TYPE_CHECKING:
@@ -169,14 +168,8 @@ def get_layout_html(obj: UIElement | Document, *, resources: Resources | str = "
     """
 
     def html() -> str:
-        return file_html(
-            obj,
-            resources=resources,
-            title="",
-            template=template,
-            theme=theme,
-            suppress_callback_warning=True,
-        )
+        result = embed(obj, theme=theme, callback_policy="suppress")
+        return result.page(resources=resources, title="", template=template)
 
     if width is not None or height is not None:
         # Defer this import, it is expensive
@@ -253,9 +246,9 @@ else
   doc.idle.connect(done);
 """
 
-# Artifact exports contain one mount; use its owned views instead of the legacy
+# Embed exports contain one mount. Use its owned views instead of the legacy
 # process-wide Bokeh.index registry.
-_MOUNT_EXPR = "document.querySelector('[data-bokeh-artifact][data-bokeh-root]').bokehMount"
+_MOUNT_EXPR = "document.querySelector('[data-bokeh-embed][data-bokeh-root]').bokehMount"
 
 # Read the bounding box of the first root view and the device pixel ratio.
 _ROOT_VIEW_BBOX_SCRIPT = """\

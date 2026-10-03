@@ -706,7 +706,7 @@ class _ServerOpts(Options):
     A list of hosts that can connect to the websocket.
 
     This is typically required when embedding a Bokeh server app in an external
-    web site using :func:`~bokeh.embed.server_document` or similar.
+    web site using :func:`~bokeh.embed.embed_server` or similar.
 
     If None, "localhost" is used.
     """)  # type: ignore[assignment]

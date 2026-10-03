@@ -9,6 +9,7 @@ from __future__ import annotations
 
 # Standard library imports
 from types import SimpleNamespace
+from typing import Any
 
 # External imports
 import pytest
@@ -16,17 +17,29 @@ import pytest
 # Bokeh imports
 import bokeh.embed.server as bes
 from bokeh.document import Document
-from bokeh.embed import EmbedArtifact
+from bokeh.embed import EmbedResult
+from bokeh.embed._util import server_page_for_session
 from bokeh.resources import Resources
+from bokeh.util.warnings import BokehDeprecationWarning
 
 
-def artifact_from_fragment(fragment: str) -> EmbedArtifact:
+def result_from_fragment(fragment: str) -> EmbedResult:
     bs4 = pytest.importorskip("bs4")
     scripts = bs4.BeautifulSoup(fragment, "html.parser").find_all("script")
     assert len(scripts) >= 2
     assert scripts[-2]["type"] == "application/vnd.bokeh.embed+json"
-    assert "mount_artifact_declaration" in scripts[-1].string
-    return EmbedArtifact.from_json(scripts[-2].string)
+    assert "mount_embed_declaration" in scripts[-1].string
+    return EmbedResult.from_json(scripts[-2].string)
+
+
+def deprecated_server_document(*args: Any, **kwargs: Any) -> str:
+    with pytest.warns(BokehDeprecationWarning, match=r"server_document\(\)"):
+        return bes.server_document(*args, **kwargs)
+
+
+def deprecated_server_session(*args: Any, **kwargs: Any) -> str:
+    with pytest.warns(BokehDeprecationWarning, match=r"server_session\(\)"):
+        return bes.server_session(*args, **kwargs)
 
 
 @pytest.fixture
@@ -40,12 +53,12 @@ def test_plot():
 
 class TestServerDocument:
     def test_builds_structured_server_source(self) -> None:
-        artifact = artifact_from_fragment(bes.server_document(
+        result = result_from_fragment(deprecated_server_document(
             "http://localhost:8081/foo/bar/sliders",
             arguments={"b": "2", "a": "1"},
             headers={"X-Test": "yes"},
         ))
-        assert artifact.source == {
+        assert result.source == {
             "kind": "server",
             "url": "http://localhost:8081/foo/bar/sliders",
             "arguments": {"a": "1", "b": "2"},
@@ -53,64 +66,64 @@ class TestServerDocument:
             "credentials": "same-origin",
             "relative_urls": False,
         }
-        assert artifact.requires.components == (
+        assert result.requires.components == (
             "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax", "bokeh/api",
         )
 
     def test_relative_url_and_credentials_are_data_not_loader_code(self) -> None:
-        fragment = bes.server_document("/bkapp", relative_urls=True, with_credentials=True)
-        artifact = artifact_from_fragment(fragment)
-        assert artifact.source["url"] == "/bkapp"
-        assert artifact.source["relative_urls"] is True
-        assert artifact.source["credentials"] == "include"
+        fragment = deprecated_server_document("/bkapp", relative_urls=True, with_credentials=True)
+        result = result_from_fragment(fragment)
+        assert result.source["url"] == "/bkapp"
+        assert result.source["relative_urls"] is True
+        assert result.source["credentials"] == "include"
         assert "/autoload.js" not in fragment
         assert "XMLHttpRequest" not in fragment
 
     def test_resources_none_is_host_owned(self) -> None:
-        fragment = bes.server_document(resources=None)
+        fragment = deprecated_server_document(resources=None)
         assert "static/js/bokeh" not in fragment
-        assert "session_id" not in artifact_from_fragment(fragment).source
+        assert "session_id" not in result_from_fragment(fragment).source
 
     def test_rejects_invalid_resources(self) -> None:
         with pytest.raises(ValueError, match="resources"):
-            bes.server_document(resources="whatever")  # type: ignore[arg-type]
+            deprecated_server_document(resources="whatever")  # type: ignore[arg-type]
 
     def test_headers_and_credentials_can_be_combined(self) -> None:
-        artifact = artifact_from_fragment(bes.server_document(
+        result = result_from_fragment(deprecated_server_document(
             headers={"Authorization": "Bearer token"}, with_credentials=True,
         ))
-        assert artifact.source["headers"] == {"Authorization": "Bearer token"}
-        assert artifact.source["credentials"] == "include"
+        assert result.source["headers"] == {"Authorization": "Bearer token"}
+        assert result.source["credentials"] == "include"
 
 
 class TestServerSession:
     def test_existing_session_and_selected_root(self, test_plot) -> None:
-        artifact = artifact_from_fragment(bes.server_session(
+        result = result_from_fragment(deprecated_server_session(
             test_plot,
             session_id="fakesession",
             url="http://localhost:8081/app",
         ))
-        assert artifact.source["session_id"] == "fakesession"
-        assert artifact.roots[0].key == "selected"
-        assert artifact.roots[0].model_id == test_plot.id
+        assert result.source["session_id"] == "fakesession"
+        assert result.roots[0].key == "selected"
+        assert result.roots[0].model_id == test_plot.id
 
     def test_entire_existing_session_has_no_selected_roots(self) -> None:
-        artifact = artifact_from_fragment(bes.server_session(None, session_id="fakesession"))
-        assert artifact.roots == ()
+        result = result_from_fragment(deprecated_server_session(None, session_id="fakesession"))
+        assert result.roots == ()
 
     def test_full_page_template_can_embed_named_session_roots(self, test_plot) -> None:
         document = Document()
         document.add_root(test_plot)
         session = SimpleNamespace(document=document, token="faketoken")
 
-        html = bes.server_html_page_for_session(
+        html = server_page_for_session(
             session, Resources(mode="cdn"), "title",
             template="{% block contents %}{{ embed(roots.selected) }}{% endblock %}",  # type: ignore[arg-type]
         )
 
         assert 'data-bokeh-root="selected"' in html
-        assert 'data-bokeh-artifact=' in html
+        assert 'data-bokeh-embed=' in html
 
     def test_session_id_is_required(self) -> None:
         with pytest.raises(ValueError, match="session_id"):
-            bes.server_session(None)
+            deprecated_server_session(None)

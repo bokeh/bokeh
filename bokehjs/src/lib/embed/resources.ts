@@ -2,7 +2,7 @@ import {version as js_version} from "../version"
 import {is_equal} from "../core/util/eq"
 import {Version} from "../core/util/version"
 
-/** BokehJS bundle capability that an artifact may require. */
+/** BokehJS bundle capability that an embed payload may require. */
 export type ResourceComponent =
   | "bokeh/core"
   | "bokeh/widgets"
@@ -30,7 +30,7 @@ export type ExtensionRequirement = {
   assets: ResourceRequirementAsset[]
 }
 
-/** Exact capabilities and extensions declared by an artifact. */
+/** Exact capabilities and extensions declared by an embed payload. */
 export type ResourceRequirements = {
   components: ResourceComponent[]
   extensions: ExtensionRequirement[]
@@ -58,7 +58,7 @@ export type ResourcePolicy = ResourcePolicyMode | {
   integrity?: boolean
   external_only?: boolean
   retry?: boolean
-  /** Trusted, fully resolved assets supplied by the artifact host. */
+  /** Trusted, fully resolved assets supplied by the embed host. */
   assets?: ResourceAsset[]
 }
 
@@ -121,17 +121,17 @@ function resource_identity(asset: ResourceAsset): string {
   ])
 }
 
-function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPolicy, artifact_version: string): ResourceAsset[] {
+function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPolicy, embed_version: string): ResourceAsset[] {
   const mode = policy.mode == "auto" ? "cdn" : policy.mode
-  const artifact_semver = Version.from(artifact_version)
+  const embed_semver = Version.from(embed_version)
   const runtime_semver = Version.from(js_version)
-  const compatible = artifact_semver != null && runtime_semver != null
-    ? is_equal(artifact_semver, runtime_semver)
-    : artifact_version == js_version
+  const compatible = embed_semver != null && runtime_semver != null
+    ? is_equal(embed_semver, runtime_semver)
+    : embed_version == js_version
   if (!compatible) {
     throw new ResourceError(
       "version",
-      `Bokeh artifact ${artifact_version} is incompatible with the loaded BokehJS ${js_version}; load matching resources`,
+      `Bokeh embed ${embed_version} is incompatible with the loaded BokehJS ${js_version}; load matching resources`,
     )
   }
   if (mode == "none") {
@@ -143,7 +143,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
   if (mode == "inline" || mode == "offline" || mode == "relative" || mode == "absolute") {
     if (policy.assets == null) {
       throw new ResourceError(
-        "policy", `${mode} runtime resource policy requires explicit resolved assets from the artifact host`,
+        "policy", `${mode} runtime resource policy requires explicit resolved assets from the embed host`,
       )
     }
     return validate_assets(policy.assets, policy, mode)
@@ -170,7 +170,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
   if (extension_assets.length != 0 && policy.assets == null) {
     throw new ResourceError(
       "policy",
-      "artifact extension resources must be resolved by the host; provide policy assets or load them separately",
+      "embed extension resources must be resolved by the host; provide policy assets or load them separately",
     )
   }
   if (policy.assets != null) {
@@ -205,8 +205,8 @@ function validate_assets(assets: ResourceAsset[], policy: NormalizedPolicy, mode
 }
 
 /**
- * Page-shared promise registry for additive artifact resources.
- * Concurrent identical declarations share a promise; conflicting declarations
+ * Page-shared promise registry for additive embed resources.
+ * Concurrent identical declarations share a promise. Conflicting declarations
  * fail, and a failed entry may be retried only when policy opts in.
  */
 export class ResourceLoader {
@@ -220,19 +220,19 @@ export class ResourceLoader {
     return this._records.size
   }
 
-  /** Forget loader bookkeeping; intended for isolated hosts and tests. */
+  /** Forget loader bookkeeping. Intended for isolated hosts and tests. */
   clear(): void {
     this._records.clear()
   }
 
   /**
-   * Resolve and load every required asset before artifact deserialization.
+   * Resolve and load every required asset before embed deserialization.
    * Explicit policy assets may contain executable code and must be trusted.
    */
   async ensure(requirements: ResourceRequirements, policy: ResourcePolicy = "auto",
-      artifact_version: string = js_version): Promise<void> {
+      embed_version: string = js_version): Promise<void> {
     const normalized = normalize_policy(policy)
-    const assets = resolve_assets(requirements, normalized, artifact_version)
+    const assets = resolve_assets(requirements, normalized, embed_version)
     for (const asset of assets) {
       await this._ensure_asset(asset, normalized.retry ?? false)
     }
@@ -313,8 +313,8 @@ export class ResourceLoader {
                 script.remove()
                 reject(new ResourceError("load", "failed to evaluate inline module", event, asset))
               }
-              // Inline module content is an explicitly trusted host resource;
-              // the suffix only reports when its asynchronous evaluation ends.
+              // Inline module content is an explicitly trusted host resource.
+              // The suffix only reports when its asynchronous evaluation ends.
               script.textContent = asset.content ?? ""
               script.append(document.createTextNode(`\n;globalThis[${JSON.stringify(callback)}]()`))
             } else {
@@ -413,5 +413,5 @@ export class ResourceLoader {
   }
 }
 
-/** Shared loader used by every artifact mount on the page. */
+/** Shared loader used by every embed mount on the page. */
 export const resource_loader = new ResourceLoader()

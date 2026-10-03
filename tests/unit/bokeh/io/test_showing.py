@@ -34,6 +34,7 @@ def test_show_uses_temporary_file_by_default(mock_temp_filename: MagicMock, mock
     mock_temp_filename.assert_called_once_with("html")
     mock_show_file.assert_called_once_with(
         plot, filename="/tmp/bokeh.html", resources=None, title=None, template=None,
+        browser=None, new="tab",
     )
 
 
@@ -43,10 +44,23 @@ def test_show_passes_explicit_file_options_to_save_path(mock_show_file: MagicMoc
     bis.show(plot, filename="plot.html", resources="inline", title="Plot")
     mock_show_file.assert_called_once_with(
         plot, filename="plot.html", resources="inline", title="Plot", template=None,
+        browser=None, new="tab",
     )
 
 
-@patch("bokeh.io.showing.run_notebook_hook", return_value="handle")
+@patch("bokeh.io.showing._show_file")
+def test_show_preserves_browser_and_new_controls(mock_show_file: MagicMock) -> None:
+    plot = Plot()
+
+    bis.show(plot, "firefox", "window", filename="plot.html")
+
+    mock_show_file.assert_called_once_with(
+        plot, filename="plot.html", resources=None, title=None, template=None,
+        browser="firefox", new="window",
+    )
+
+
+@patch("bokeh.io.showing.notebook.run_notebook_hook", return_value="handle")
 def test_show_uses_notebook_hook_without_filename(mock_run_notebook_hook: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(notebook, "_NOTEBOOK_TYPE", "jupyter")
     plot = Plot()
@@ -63,7 +77,7 @@ def test_explicit_filename_uses_file_output_in_notebook_mode(mock_show_file: Mag
     mock_show_file.assert_called_once()
 
 
-@patch("bokeh.io.showing.run_notebook_hook")
+@patch("bokeh.io.showing.notebook.run_notebook_hook")
 def test_show_application_uses_notebook_hook(mock_run_notebook_hook: MagicMock,
         monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(notebook, "_NOTEBOOK_TYPE", "jupyter")
@@ -82,8 +96,12 @@ def test_show_rejects_bad_object(obj: object) -> None:
 @patch("bokeh.io.showing.save", return_value="/tmp/saved.html")
 def test_show_file_saves_then_opens_browser(mock_save: MagicMock, mock_get_browser_controller: MagicMock) -> None:
     controller = mock_get_browser_controller.return_value
-    bis._show_file("obj", filename="plot.html", resources="cdn", title="Plot", template=None)  # type: ignore[arg-type]
+    bis._show_file(
+        "obj", filename="plot.html", resources="cdn", title="Plot", template=None,
+        browser="firefox", new="same",
+    )  # type: ignore[arg-type]
     mock_save.assert_called_once_with(
         "obj", filename="plot.html", resources="cdn", title="Plot", template=None,
     )
-    controller.open.assert_called_once_with(Path("/tmp/saved.html").resolve().as_uri(), new=2)
+    mock_get_browser_controller.assert_called_once_with(browser="firefox")
+    controller.open.assert_called_once_with(Path("/tmp/saved.html").resolve().as_uri(), new=0)

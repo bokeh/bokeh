@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from bokeh.application.handlers.code_runner import CodeRunner
 from bokeh.application.handlers.handler import Handler
-from bokeh.io.doc import curdoc, set_curdoc
+from bokeh.io.doc import curdoc, patch_curdoc
 
 if TYPE_CHECKING:
     from types import ModuleType
@@ -70,16 +70,13 @@ class ExampleHandler(Handler):
 
         doc.modules.add(module)
 
-        orig_curdoc = curdoc()
-        set_curdoc(doc)
-
         old_io, old_doc = self._monkeypatch()
 
         try:
-            self._runner.run(module, lambda: None)
+            with patch_curdoc(doc):
+                self._runner.run(module, lambda: None)
         finally:
             self._unmonkeypatch(old_io, old_doc)
-            set_curdoc(orig_curdoc)
 
     def _monkeypatch(self) -> tuple[dict[str, Any], type[Document]]:
         def _pass(*args: Any, **kw: Any) -> None:

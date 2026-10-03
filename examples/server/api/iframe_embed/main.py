@@ -18,7 +18,7 @@ from flask import Flask, render_template_string
 
 # Bokeh imports
 from bokeh.client import pull_session
-from bokeh.embed.server import server_html_page_for_session
+from bokeh.embed import embed_server
 from bokeh.resources import Resources
 
 app_html = """
@@ -62,8 +62,9 @@ def add_security_headers(resp):
 def home():
     app_url = "http://localhost:5151/bokeh_server"
     with pull_session(url=app_url) as session:
-        code = server_html_page_for_session(
-            session=session,
+        roots = {root.name or f"root-{index}": root for index, root in enumerate(session.document.roots)}
+        result = embed_server(".", token=session.token, roots=roots)
+        code = result.page(
             resources=Resources(mode="inline"),
             title='test',
         )

@@ -1,6 +1,6 @@
 export * from "./index"
 export {
-  mount, mount_artifact_declaration, publish_mount_error, when_mounted,
+  mount, mount_embed_declaration, publish_mount_error, when_mounted,
   BokehMount, MountError, MountSource,
 } from "./io"
 export type {

@@ -36,10 +36,13 @@ from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model
 from ..resources import Resources
+from ..util.deprecation import deprecated
 from ._util import ThemeSource
 
 if TYPE_CHECKING:
     from jinja2 import Template
+
+    from ..core.types import ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,6 +53,7 @@ __all__ = (
     'autoload_static',
     'components',
     'file_html',
+    'json_item',
 )
 
 #-----------------------------------------------------------------------------
@@ -57,17 +61,24 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class EmbedMigrationError(RuntimeError):
-    """An actionable Bokeh 4.0 migration error for a removed embed contract."""
+    """An actionable migration error for a removed embed contract."""
 
 def autoload_static(model: Model | Document, resources: Resources | str, script_path: str) -> tuple[str, str]:
-    """Raise with the Bokeh 4.0 external-artifact migration route."""
+    """Raise with the external embed migration route."""
     raise EmbedMigrationError(
-        "autoload_static() was removed in Bokeh 4.0. Use embed(model).external(payload_url=script_path) "
-        "and save artifact.to_json_string() as the payload instead of generating a per-embed loader program.",
+        "autoload_static() was removed. Use embed(model).external(payload_url=script_path) "
+        "and save result.to_json_string() as the payload instead of generating a per-embed loader program.",
+    )
+
+def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None) -> dict[str, Any]:
+    """Raise with the embed payload migration route."""
+    raise EmbedMigrationError(
+        "json_item() was removed. Use embed(model).to_dict() with Bokeh.mount(), "
+        "or embed(model).external(...) for a declarative external payload.",
     )
 
 def components(models: Model | Document | Sequence[Model | Document] | dict[str, Model | Document],
-        *, theme: ThemeSource = None) -> tuple[str, Any]:
+        wrap_script: bool = True, wrap_plot_info: bool = True, *, theme: ThemeSource = None) -> tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -115,10 +126,13 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
             components. Otherwise applies the default theme.
 
     Returns:
-        UTF-8 encoded ``(script, div[s])`` using logical artifact roots.
+        UTF-8 encoded ``(script, div[s])`` using logical embed roots.
+
+    .. deprecated:: 4.0
+        Use ``embed(models).fragment(resources="none")``. The compatibility
+        facade will be removed in a later 4.x release.
 
     Examples:
-
         With default wrapping parameter values:
 
         .. code-block:: python
@@ -135,15 +149,22 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
     '''
     from ._util import embed
 
-    artifact = embed(models, theme=theme)
-    if artifact.requires.extensions:
+    deprecated((4, 0, 0), "components()", "embed(...).fragment(...)")
+    if wrap_script is not True or wrap_plot_info is not True:
+        raise EmbedMigrationError(
+            "components() wrapping flags were removed. Use "
+            "embed(models).fragment(resources='none') and its script, divs, mounts, or html fields.",
+        )
+
+    embed_result = embed(models, theme=theme)
+    if embed_result.requires.extensions:
         raise ValueError(
             "components() cannot express custom extension resource ownership in its legacy tuple. "
             "Use embed(models).fragment(resources=...) and choose an explicit resource policy.",
         )
-    fragment = artifact.fragment(resources="none")
+    fragment = embed_result.fragment(resources="none")
     divs = fragment.divs
-    input_shape = artifact.metadata["embedding"]["input_shape"]
+    input_shape = embed_result.metadata["embedding"]["input_shape"]
     if input_shape == "single":
         result: Any = next(iter(divs.values()))
     elif input_shape == "mapping":
@@ -205,12 +226,17 @@ def file_html(
     Returns:
         UTF-8 encoded HTML
 
+    .. deprecated:: 4.0
+        Use ``embed(models).page(...)``. The compatibility facade will be
+        removed in a later 4.x release.
+
     '''
     from ._util import embed
 
+    deprecated((4, 0, 0), "file_html()", "embed(...).page(...)")
     callback_policy: Literal["suppress", "warn"] = "suppress" if suppress_callback_warning else "warn"
-    artifact = embed(models, theme=theme, callback_policy=callback_policy)
-    return artifact.page(
+    result = embed(models, theme=theme, callback_policy=callback_policy)
+    return result.page(
         resources=resources,
         title=title,
         template=template,

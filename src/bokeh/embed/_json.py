@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""Strict JSON helpers shared by embedding artifacts and renderer identities."""
+"""Strict JSON helpers shared by embed payloads and renderer identities."""
 
 from __future__ import annotations
 

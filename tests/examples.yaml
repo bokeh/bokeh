@@ -17,7 +17,7 @@
   slow: ["clustering.py"]
 
 - path: "examples/output/apis/*"
-  skip: ["components.py", "components_themed.py", "iframe_embed", "server_document", "server_session"]
+  skip: ["embed_page_template.py", "embed_page_template_themed.py", "iframe_embed", "embed_server_new_session", "embed_server_existing_session"]
 
 - path: "examples/plotting/*"
 

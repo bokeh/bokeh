@@ -27,23 +27,31 @@ import bokeh.embed as be # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'ArtifactFragment',
-    'ArtifactMount',
-    'ArtifactRoot',
-    'ArtifactValidationError',
-    'EmbedArtifact',
+    'CallbackPolicy',
+    'EmbedFragment',
+    'EmbedMount',
+    'EmbedRoot',
+    'EmbedValidationError',
+    'EmbedResult',
+    'EMBED_MIME_TYPE',
     'EmbedBuildError',
+    'EmbedInput',
     'EmbedMigrationError',
     'EmbedSpec',
     'ExtensionRequirement',
-    'ExternalArtifact',
+    'ExternalEmbed',
     'ResourceAssetRequirement',
     'ResourceRequirements',
+    'SerializationPolicy',
+    'ServerRoot',
+    'ThemePolicy',
+    'ThemeSource',
     'autoload_static',
     'components',
     'embed',
     'embed_server',
     'file_html',
+    'json_item',
     'server_document',
     'server_session',
 )
@@ -53,6 +61,10 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 Test___all__ = verify_all(be, ALL)
+
+
+def test_embed_mime_type() -> None:
+    assert be.EMBED_MIME_TYPE == "application/vnd.bokeh.embed+json"
 
 #-----------------------------------------------------------------------------
 # Dev API

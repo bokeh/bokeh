@@ -4,11 +4,11 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""Notebook host adapter for shared embedding artifacts.
+"""Notebook host adapter for shared embed results.
 
 Notebook output deliberately has no private document envelope or browser
 rendering path. Both static and live initial state are ordinary
-``EmbedArtifact`` values; the only distinction is whether canonical IDs are
+``EmbedResult`` values. The only distinction is whether canonical IDs are
 retained for a later patch protocol.
 """
 
@@ -25,12 +25,12 @@ from ._util import (
     embed,
     embed_protocol,
 )
-from .artifact import EmbedArtifact
+from .result import EmbedResult
 
 if TYPE_CHECKING:
     from ..document import Document
     from ..model import Model
-    from .renderers import ArtifactFragment
+    from .renderers import EmbedFragment
 
 __all__ = ("notebook_content",)
 
@@ -39,20 +39,20 @@ type NotebookContent = Model | Document | Sequence[Model | Document] | Mapping[s
 
 
 def notebook_content(content: NotebookContent, *, theme: ThemeSource = ThemePolicy.CURDOC,
-        live: bool = False) -> tuple[EmbedArtifact, ArtifactFragment]:
+        live: bool = False) -> tuple[EmbedResult, EmbedFragment]:
     """Build notebook content and its host-owned fragment.
 
     ``live=True`` retains protocol-visible model IDs so comm patches address
-    the same graph; static content uses graph-minimal identifiers. The returned
-    pair contains the versioned artifact and an HTML fragment that declares its
+    the same graph. Static content uses graph-minimal identifiers. The returned
+    pair contains the versioned result and an HTML fragment that declares its
     targets but deliberately resolves no resources. A notebook frontend owns
     one explicit, shared resource policy for all displays, creates the
     :class:`BokehMount`, and disposes it when the output is released.
 
     This function does not create a comm, register a frontend view, or retain a
     document. Those are host lifecycle responsibilities layered on the same
-    artifact and mount contracts used by other embedding consumers.
+    embed result and mount contracts used by other embedding consumers.
     """
     embed_fn = embed_protocol if live else embed
-    artifact = embed_fn(content, theme=theme)
-    return artifact, artifact.fragment(resources="none")
+    result = embed_fn(content, theme=theme)
+    return result, result.fragment(resources="none")

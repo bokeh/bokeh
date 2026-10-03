@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""Resource requirements and delivery policies for embedding artifacts."""
+"""Resource requirements and delivery policies for embed results."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from os.path import normpath
 from pathlib import Path
 from typing import (
@@ -49,7 +49,7 @@ from ._util import contains_tex_string
 
 @dataclass(frozen=True)
 class ResourceAssetRequirement:
-    '''One extension asset required by an artifact, before host resolution.'''
+    '''One extension asset required by an embed result, before host resolution.'''
     kind: Literal["script", "style"]
     url: str | None = None
     content: str | None = None
@@ -100,6 +100,10 @@ class ResourceAssetRequirement:
             raise ValueError("resource asset requirements must be objects")
         if "nonce" in value:
             raise ValueError("resource asset requirement nonce is host-owned")
+        _reject_unknown_fields(
+            value, {"kind", "url", "content", "integrity", "crossorigin", "module"},
+            "resource asset requirement",
+        )
         kind = value.get("kind")
         if kind not in ("script", "style"):
             raise ValueError("resource asset requirement kind must be 'script' or 'style'")
@@ -146,6 +150,7 @@ class ExtensionRequirement:
         '''
         if not isinstance(value, Mapping):
             raise ValueError("resource extension requirements must be objects")
+        _reject_unknown_fields(value, {"name", "assets"}, "resource extension requirement")
         assets = value.get("assets", [])
         if not isinstance(assets, list):
             raise ValueError("resource extension assets must be an array")
@@ -160,7 +165,7 @@ class ExtensionRequirement:
 
 @dataclass(frozen=True)
 class ResourceRequirements:
-    '''Exact runtime components and extension assets declared by artifacts.'''
+    '''Exact runtime components and extension assets declared by embed results.'''
     components: tuple[ResourceComponent, ...] = ("bokeh/core",)
     extensions: tuple[ExtensionRequirement, ...] = ()
 
@@ -198,15 +203,16 @@ class ResourceRequirements:
             A validated resource requirement set.
         '''
         if not isinstance(value, Mapping):
-            raise ValueError("artifact resource requirements must be an object")
+            raise ValueError("embed resource requirements must be an object")
+        _reject_unknown_fields(value, {"components", "extensions"}, "embed resource requirements")
         components = value.get("components")
         extensions = value.get("extensions")
         if not isinstance(components, list):
-            raise ValueError("artifact resource components must be an array")
+            raise ValueError("embed resource components must be an array")
         if not isinstance(extensions, list):
-            raise ValueError("artifact resource extensions must be an array")
+            raise ValueError("embed resource extensions must be an array")
         if any(not isinstance(component, str) or component not in _COMPONENT_NAMES for component in components):
-            raise ValueError("artifact resource components contain an unknown component")
+            raise ValueError("embed resource components contain an unknown component")
         return cls(
             components=cast(tuple[ResourceComponent, ...], tuple(components)),
             extensions=tuple(ExtensionRequirement.from_dict(extension) for extension in extensions),
@@ -291,6 +297,28 @@ class ResolvedResources:
     policy: _Resources
     bokeh_version: str
     assets: tuple[ResolvedResource, ...] = ()
+    fingerprint: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "assets", tuple(self.assets))
+        policy = self.policy.to_dict()
+        policy.pop("base_dir", None)
+        policy.pop("root_dir", None)
+        assets = []
+        for asset in self.assets:
+            value = asset.to_dict()
+            content = value.pop("content", None)
+            if content is not None:
+                value["content_sha256"] = hashlib.sha256(content.encode("utf-8")).hexdigest()
+            assets.append(value)
+        payload = {
+            "requirements": self.requirements.to_dict(),
+            "policy": policy,
+            "assets": assets,
+            "bokeh_version": self.bokeh_version,
+        }
+        encoded = canonical_json(payload)
+        object.__setattr__(self, "fingerprint", hashlib.sha256(encoded.encode("utf-8")).hexdigest())
 
     def to_dict(self) -> dict[str, Any]:
         '''Return the JSON-compatible resolved resource set.
@@ -303,28 +331,6 @@ class ResolvedResources:
             "policy": self.policy.to_dict(),
             "assets": [asset.to_dict() for asset in self.assets],
         }
-
-    @property
-    def fingerprint(self) -> str:
-        '''Return a stable fingerprint of the resolved resource plan.
-
-        Returns:
-            A hexadecimal SHA-256 digest.
-        '''
-        policy = self.policy.to_dict()
-        policy.pop("base_dir", None)
-        policy.pop("root_dir", None)
-        payload = {
-            "requirements": self.requirements.to_dict(),
-            "policy": policy,
-            "assets": [asset.to_dict() for asset in self.assets],
-        }
-        payload["bokeh_version"] = self.bokeh_version
-        encoded = canonical_json(payload)
-        return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
-
-
-
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -559,6 +565,12 @@ def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequir
         tuple(components),
         tuple(ExtensionRequirement(name, tuple(assets)) for name, assets in sorted(extensions.items())),
     )
+
+
+def _reject_unknown_fields(value: Mapping[str, Any], allowed: set[str], context: str) -> None:
+    unknown = sorted(set(value) - allowed)
+    if unknown:
+        raise ValueError(f"{context} contains unknown fields: {unknown!r}")
 
 
 __all__ = (

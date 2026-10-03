@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from bokeh.core.properties import expr, value
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import (Arc, Circle, ColumnDataSource, Plot,
                           PolarTransform, Range1d, Ray, Text)
 from bokeh.util.browser import view
@@ -108,6 +108,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "gauges.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Gauges"))
+        f.write(embed(doc).page(title="Gauges"))
     print(f"Wrote {filename}")
     view(filename)

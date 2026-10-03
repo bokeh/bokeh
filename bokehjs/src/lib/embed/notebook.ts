@@ -16,7 +16,7 @@ export type NotebookPatch = {
  * A notebook patch could not be applied without violating transport ordering.
  *
  * `invalid` identifies a malformed envelope, `gap` asks the host to recover
- * from a missing revision with a fresh artifact snapshot, and `buffers`
+ * from a missing revision with a fresh embed snapshot, and `buffers`
  * identifies metadata that does not describe the supplied binary payload.
  */
 export class NotebookPatchError extends Error {
@@ -41,12 +41,12 @@ function array_buffer(view: DataView): ArrayBuffer {
  * The receiver accepts only the revision immediately following the last
  * successfully applied patch. Replayed revisions are harmless no-ops, while a
  * gap or invalid binary metadata throws [[NotebookPatchError]] so the notebook
- * host can request a fresh artifact snapshot. A failed `apply_json_patch()`
+ * host can request a fresh embed snapshot. A failed `apply_json_patch()`
  * does not advance the revision: retry or snapshot recovery still begins from
  * the last document state known to have succeeded.
  *
  * @param document the document owned by the output's current `BokehMount`
- * @param initial_revision the revision represented by its initial artifact
+ * @param initial_revision the revision represented by its initial embed payload
  * @returns a receiver scoped to that document and revision sequence
  */
 export function create_notebook_patch_receiver(document: Document, initial_revision = 0):

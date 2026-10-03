@@ -28,29 +28,29 @@ Standalone documents
 This section describes different ways to publish and embed standalone Bokeh
 documents.
 
-Embedding artifacts
-~~~~~~~~~~~~~~~~~~~
+Embed results
+~~~~~~~~~~~~~
 
-Bokeh 4.0 uses one versioned embedding artifact for complete pages, template
-fragments, JSON endpoints, external static payloads, and rich display. Compile
-the artifact once and choose a delivery form independently:
+Bokeh uses one versioned embed result for complete pages, template
+fragments, JSON endpoints, external static payloads, and rich display. Build
+the result once and choose a delivery form independently:
 
 .. code-block:: python
 
     from bokeh.embed import embed
 
-    artifact = embed({"summary": summary_plot, "detail": detail_plot})
-    page = artifact.page(resources="cdn", title="Report")
-    fragment = artifact.fragment(resources="none")
-    json_payload = artifact.to_json_string()
-    external = artifact.external("/assets/report.json", resources="none")
+    result = embed({"summary": summary_plot, "detail": detail_plot})
+    page = result.page(resources="cdn", title="Report")
+    fragment = result.fragment(resources="none")
+    json_payload = result.to_json_string()
+    external = result.external("/assets/report.json", resources="none")
 
-Artifacts address roots by stable logical keys. Browser targets are supplied
+Embed results address roots by stable logical keys. Browser targets are supplied
 when mounting and are not stored in reusable data:
 
 .. code-block:: javascript
 
-    const handle = Bokeh.mount(artifact, {
+    const handle = Bokeh.mount(payload, {
       targets: {summary: summaryElement, detail: detailElement},
       resources: "auto",
     })
@@ -59,20 +59,20 @@ when mounting and are not stored in reusable data:
     // Dispose from a framework unmount hook or when replacing the output.
     await handle.dispose()
 
-The artifact declares what it requires. The page or host separately chooses
+The embed result declares what it requires. The page or host separately chooses
 CDN, inline/offline, server, relative/absolute, or host-owned ``none`` resource
 delivery. BokehJS resource loading is promise-based and deduplicates concurrent
 and later additive requirements.
 
-Embedding artifacts are executable content, not a safe interchange format for
+Embed payloads are executable content, not a safe interchange format for
 untrusted input. ``CustomJS`` callbacks and extension assets may execute
-JavaScript or load scripts and styles from declared URLs. Only mount artifacts
-from trusted sources; hosts accepting external artifacts should validate or
+JavaScript or load scripts and styles from declared URLs. Only mount embed payloads
+from trusted sources. Hosts accepting external payloads should validate or
 allowlist extension resources and apply an appropriate resource policy.
 
 Requirements and policy answer different questions:
 
-.. list-table:: Artifact requirements versus host policy
+.. list-table:: Embed result requirements versus host policy
    :header-rows: 1
    :widths: 20 34 46
 
@@ -80,10 +80,10 @@ Requirements and policy answer different questions:
      - Meaning
      - Examples
    * - Requirements
-     - Exact capabilities and extension assets needed by the built artifact.
+     - Exact capabilities and extension assets needed by the built result.
      - ``bokeh/core``, ``bokeh/widgets``, ``bokeh/tables``, or a custom extension script.
    * - ``none`` policy
-     - Emit no assets; the host promises that every declared requirement is already available.
+     - Emit no assets. The host promises that every declared requirement is already available.
      - Framework shells, managed portals, and notebook hosts.
    * - ``cdn`` or ``server`` policy
      - Resolve matching Bokeh bundles to network URLs.
@@ -98,77 +98,79 @@ Requirements and policy answer different questions:
      - Resolve installed assets against an explicit filesystem or URL base.
      - Static-site generators and application asset pipelines.
 
-Public artifact v1 contract
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public embed v1 contract
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-The public ``bokeh.embed/v1`` envelope has one standalone document, unique
+The public ``bokeh.embed/v1`` payload has one standalone document, unique
 logical root keys, and non-negative document/root ordinals that refer into that
-document. Server artifacts use model IDs instead of ordinals. Requirements and
-extension names are unique, while metadata must contain JSON-compatible values;
-the ``embedding`` metadata key is reserved for Bokeh. Python and BokehJS enforce
-the same invariants when reading an artifact.
+document. Server payloads use model IDs instead of ordinals. Requirements and
+extension names are unique, while metadata must contain JSON-compatible values.
+The ``embedding`` metadata key is reserved for Bokeh. Python and BokehJS enforce
+the same invariants when reading a result.
 
-``fingerprint`` is a SHA-256 content identity over the canonical artifact data,
+``fingerprint`` is a SHA-256 content identity over the canonical embed payload,
 excluding the fingerprint field itself and normalizing allocation-specific
 model IDs. It detects mismatched or stale payloads and provides a stable cache
 or deduplication key. It is not a signature, an authentication mechanism, or a
 substitute for subresource integrity.
 
-Standalone v1 artifacts serialize their document data inline and do not carry
-an artifact-level ``buffers`` field. Efficient binary transport remains
+Standalone v1 embed results serialize their document data inline and do not carry
+a payload-level ``buffers`` field. Efficient binary transport remains
 out-of-band where a live protocol exists: protocol messages, ASGI WebSocket
 frames, and connected-notebook patches retain their separate binary buffers.
 
 Renderer tour
 ~~~~~~~~~~~~~
 
-The following review-sized example deliberately includes a plot, a widget, and
-a table so the artifact declares four different BokehJS component bundles
+The following example includes a plot, a widget, and a table so the embed result
+declares four different BokehJS component bundles
 (``bokeh/core``, ``bokeh/api``, ``bokeh/widgets``, and ``bokeh/tables``).
 Each renderer serves a distinct host rather than recompiling the models:
 
 .. code-block:: python
+
+    from IPython.display import display
 
     from bokeh.embed import embed
     from bokeh.models import Button, ColumnDataSource, DataTable, TableColumn
     from bokeh.plotting import figure
 
     source = ColumnDataSource(data={"x": [1, 2, 3], "y": [3, 1, 2]})
-    plot = figure(width=360, height=220, title="Artifact plot")
+    plot = figure(width=360, height=220, title="Embed result plot")
     plot.scatter("x", "y", source=source)
-    button = Button(label="Artifact widget")
+    button = Button(label="Embed result widget")
     table = DataTable(source=source, columns=[
         TableColumn(field="x", title="X"),
         TableColumn(field="y", title="Y"),
     ])
 
-    artifact = embed({"plot": plot, "button": button, "table": table})
+    result = embed({"plot": plot, "button": button, "table": table})
 
     # Complete document: Bokeh resolves and emits matching CDN resources.
-    page_html = artifact.page(resources="cdn", title="Embedding renderer tour")
+    page_html = result.page(resources="cdn", title="Embedding renderer tour")
 
-    # Host composition: place fragment.divs independently; the host owns assets.
-    fragment = artifact.fragment(resources="none")
+    # Host composition places fragment.divs independently. The host owns assets.
+    fragment = result.fragment(resources="none")
 
     # Data endpoint: return this with application/vnd.bokeh.embed+json.
-    json_payload = artifact.to_json_string()
+    json_payload = result.to_json_string()
 
-    # Static asset pipeline: store external.payload at this URL and insert external.html.
-    external = artifact.external("/assets/renderer-tour.json", resources="none")
+    # Store external.payload at this URL.
+    # Insert the HTML string in external.html into the host page.
+    external = result.external("/assets/renderer-tour.json", resources="none")
 
-    # Rich display: notebooks request this automatically through the MIME protocol.
-    mimebundle = artifact._repr_mimebundle_()
+    # Rich display: notebooks request the MIME representation automatically.
+    display(result)
 
 .. _ug_output_embed_standalone_html:
 
 HTML files
 ~~~~~~~~~~
 
-Bokeh can generate complete HTML pages for Bokeh documents using the
-|file_html| function. This function can create an HTML document from its own
-generic template or from a template you provide. These HTML files contain plot
-data and are fully portable while still providing interactive tools
-(pan, zoom, etc.) for your plot. Here is an example:
+Bokeh can generate complete HTML pages for Bokeh documents using an embed result's
+``page()`` renderer. The renderer can use Bokeh's generic template or one you
+provide. These HTML files contain plot data and are fully portable while still
+providing interactive tools such as pan and zoom:
 
 .. code-block:: python
 
@@ -182,12 +184,15 @@ data and are fully portable while still providing interactive tools
 
 You can save the returned HTML text to a file using standard Python file
 operations. You can also provide your own template for the HTML output
-and pass in custom, or additional, template variables. For more details,
-see the |file_html| documentation.
+and pass in custom, or additional, template variables. For more details, see
+:meth:`~bokeh.embed.EmbedResult.page`.
 
-The familiar |file_html| function remains as a thin facade over this artifact
-page renderer. File-backed |save| and |show| routes therefore use the same
-artifact builder and resource policy.
+.. deprecated:: 4.0
+    The |file_html| compatibility facade remains available during the 4.x
+    transition. Use ``embed(models).page(...)`` in new code.
+
+File-backed |save| and |show| routes use the same embed result builder and resource
+policy and remain supported.
 
 This is a low-level, explicit way to generate an HTML file, which can be
 useful for web applications such as Flask apps.
@@ -199,35 +204,42 @@ it locally.
 
 .. _ug_output_embed_json_items:
 
-JSON items
-~~~~~~~~~~
+JSON payloads
+~~~~~~~~~~~~~
 
-``json_item()`` and ``Bokeh.embed.embed_item()`` were removed in Bokeh 4.0.
-Serve the versioned artifact itself; target selection belongs to the page that
+Serve the versioned embed payload itself. Target selection belongs to the page that
 mounts it:
 
 .. code-block:: python
+
+    from bokeh.embed import EMBED_MIME_TYPE, embed
 
     @app.route('/plot')
     def plot():
         p = make_plot('petal_width', 'petal_length')
         return embed({"plot": p}).to_json_string(), 200, {
-            "Content-Type": "application/vnd.bokeh.embed+json",
+            "Content-Type": EMBED_MIME_TYPE,
         }
 
 .. code-block:: javascript
 
     const response = await fetch('/plot')
-    const artifact = await response.json()
+    const payload = await response.json()
     const target = document.querySelector("#report [data-bokeh-root='plot']")
-    const mounted = Bokeh.mount(artifact, {
+    const mounted = Bokeh.mount(payload, {
       targets: {plot: target},
       resources: "none", // the host page already loaded matching BokehJS
     })
     await mounted.ready
 
-For declarative output from ``artifact.fragment()`` or
-``artifact.external()``, page JavaScript does not need the payload. Select a
+Even with ``resources: "none"``, mounting verifies that the embed result's Bokeh
+version exactly matches the loaded BokehJS version. A stale host runtime fails
+with a version error instead of attempting to render mismatched content. Use a
+versioned page or fragment resource policy when the generated output should
+own and update its Bokeh assets.
+
+For declarative output from ``result.fragment()`` or
+``result.external()``, page JavaScript does not need the payload. Select a
 stable logical-root target and acquire the handle published by the shared mount
 lifecycle. This works whether the acquisition code runs before or after the
 declaration bootstrap:
@@ -243,80 +255,83 @@ declaration bootstrap:
     const source = mounted.document.get_model_by_name("sales-source")
     const view = mounted.view_lookup.find_one(root)
 
-    // Disposal owns views and artifact/session state, never the target element.
+    // Disposal owns views and embed/session state, never the target element.
     await mounted.dispose()
 
 .. _ug_output_embed_standalone_components:
 
-Components
-~~~~~~~~~~
+Fragments
+~~~~~~~~~
 
-In Bokeh 4.0, |components| is a thin facade over
-``embed(models).fragment(resources="none")`` and retains only its canonical
-``(script, divs)`` return shape. For composable output, use the typed fragment's
-``script``, ``mounts``, ``divs``, ``requirements``, and ``resources`` fields.
-The old wrapping flags were removed and raise a migration error. Generated
-markup uses logical ``data-bokeh-root`` attributes and the shared artifact
-bootstrap; it does not contain ``RenderItem`` data or generated DOM IDs.
-
-You can also have Bokeh return individual components of a standalone document
-to embed them one by one with the |components| function. This function returns
-a ``<script>`` that contains the data for your plot and provides a target
-``<div>`` to display the plot view. You can use these elements in HTML
-documents however you like.
+Use ``result.fragment()`` to embed the roots of a standalone document in a
+larger host page. Its typed result provides ``script``, ``mounts``, ``divs``,
+``requirements``, and ``resources`` fields. Generated markup uses logical
+``data-bokeh-root`` attributes and the shared embed bootstrap.
 
 .. code-block:: python
 
+    from bokeh.embed import embed
     from bokeh.plotting import figure
-    from bokeh.embed import components
 
     plot = figure()
     plot.scatter([1,2], [3,4])
 
-    script, div = components(plot)
+    fragment = embed(plot).fragment(resources="none")
+    script = fragment.script
+    div = fragment.divs["root"]
+
+.. deprecated:: 4.0
+    The |components| compatibility facade remains available during the 4.x
+    transition and returns its canonical ``(script, divs)`` tuple. Use
+    ``embed(models).fragment(...)`` in new code.
 
 The target markup is declarative and stable by logical root key:
 
 .. code-block:: html
 
     <div class="bk-embed-root"
-         data-bokeh-artifact="ARTIFACT_FINGERPRINT"
+         data-bokeh-embed="EMBED_FINGERPRINT"
+         data-bokeh-embed-instance="DECLARATION_INSTANCE"
          data-bokeh-root="root"></div>
 
 Place the script and target markup anywhere in the same document. The shared
 bootstrap waits for the DOM, calls ``Bokeh.mount()``, and publishes the owning
 ``BokehMount`` on the target for ``Bokeh.when_mounted()`` consumers.
 
-Resource requirements and policy are separate. The artifact records required
-components and extension assets; the renderer or host chooses how to satisfy
+Resource requirements and policy are separate. The embed result records required
+components and extension assets. The renderer or host chooses how to satisfy
 them:
 
 .. code-block:: python
 
-    artifact.fragment(resources="cdn")      # matching CDN assets
-    artifact.fragment(resources="inline")   # self-contained assets
-    artifact.fragment(resources="offline")  # rejects every external URL
-    artifact.fragment(resources="none")     # host owns all resource loading
+    result.fragment(resources="cdn")      # matching CDN assets
+    result.fragment(resources="inline")   # self-contained assets
+    result.fragment(resources="offline")  # rejects every external URL
+    result.fragment(resources="none")     # host owns all resource loading
 
-``resources="none"`` is not an assertion that the artifact needs no resources.
+``resources="none"`` is not an assertion that the embed result needs no resources.
 It is an explicit host-owned policy: the page must load a matching core/API
-runtime and every component or extension listed by ``artifact.requires``.
+runtime and every component or extension listed by ``result.requires``.
 Policy/version, CSP nonce, SRI, offline, and ``external_only`` conflicts fail
-with actionable errors rather than silently producing incomplete markup. In
-the browser, additive resources are loaded through one promise-based,
-deduplicating loader shared by all artifact mounts.
+with actionable errors rather than silently producing incomplete markup. The
+browser's programmatic resource loader deduplicates additive requirements.
+Python-rendered fragments emit ordinary resource tags, so exactly one host or
+fragment on a page should own the resources. Render sibling fragments with
+``resources="none"`` after the owner has loaded their combined requirements.
 
-For a strict CSP that disallows inline scripts, store the artifact externally
+For a strict CSP that disallows inline scripts, store the embed payload externally
 and select an external-only resource policy. This complete example writes the
-payload separately and produces the HTML that the host page should insert::
+payload separately and produces the HTML that the host page should insert.
+
+.. code-block:: python
 
     from pathlib import Path
 
     from bokeh.embed import embed
     from bokeh.resources import Resources
 
-    artifact = embed({"report": plot})
-    external = artifact.external(
+    result = embed({"report": plot})
+    external = result.external(
         "/assets/report.json",
         resources=Resources(mode="cdn", external_only=True),
     )
@@ -324,15 +339,17 @@ payload separately and produces the HTML that the host page should insert::
     print(external.html)
 
 Serve ``static/report.json`` at ``/assets/report.json`` with the
-``application/vnd.bokeh.embed+json`` media type and insert ``external.html``
-in the host page. The CSP must allow the selected Bokeh resource origin in
-``script-src`` and the payload origin in ``connect-src``. No inline JavaScript
-is emitted.
+``application/vnd.bokeh.embed+json`` media type and insert the HTML string from
+``external.html`` in the host page. The CSP must allow the selected Bokeh
+resource origin in ``script-src`` and the payload origin in ``connect-src``.
+No inline JavaScript is emitted.
 
 CDN, server, relative, and absolute resource modes automatically select
 Bokeh's versioned ``bokeh-embed-bootstrap.min.js`` asset. A host that loads all
 Bokeh assets itself can instead use ``Resources(mode="none",
 external_only=True)`` and pass its external asset URL as ``bootstrap_url``.
+Custom bootstrap URLs are rejected when ``integrity=True`` because Bokeh cannot
+verify a caller-owned asset's hash.
 The simpler ``resources="none"`` spelling uses the inline bootstrap and is not
 suitable for a policy that disallows inline scripts.
 
@@ -340,7 +357,7 @@ The declarative payload loader uses the browser's default ``fetch()`` behavior
 and does not add custom headers. A cross-origin payload must allow the host
 origin with CORS. If a payload requires custom headers or cross-origin
 credentials, fetch it in an allowed external application script and pass the
-decoded artifact to ``Bokeh.mount()`` with the appropriate target or target
+decoded embed payload to ``Bokeh.mount()`` with the appropriate target or target
 mapping.
 
 Static JSON and model identity
@@ -361,7 +378,7 @@ the standard ``{"type": "map", "entries": [...]}`` representation so column
 names cannot be confused with serialization metadata.
 
 This compact diagnostic makes the difference visible without rendering an
-artifact:
+embed result:
 
 .. code-block:: python
 
@@ -378,10 +395,10 @@ artifact:
     def ids(value):
         if isinstance(value, dict):
             is_compact_model = isinstance(value.get("$type"), str) and "$id" in value
-            is_legacy_model = value.get("type") == "object" and "id" in value
+            is_canonical_model = value.get("type") == "object" and "id" in value
             model_ids = (
                 [value["$id"] if is_compact_model else value["id"]]
-                if is_compact_model or is_legacy_model else []
+                if is_compact_model or is_canonical_model else []
             )
             return model_ids + [
                 model_id for child in value.values() for model_id in ids(child)
@@ -400,25 +417,9 @@ one because both roots must reconstruct the same object. Supplying a model via
 ``models_with_ids`` can retain the identity of a model already in the document,
 but cannot add an unrelated model to the serialized graph.
 
-In addition to a single Bokeh model, such as a plot, the |components| function
-can also accept a list or tuple of models or a dictionary of keys and models.
-Each returns a tuple with one script and a corresponding data structure for the
-target ``<div>`` elements.
-
-The following illustrates how different input types correlate to outputs:
-
-.. code-block:: python
-
-    components(plot)
-    #=> (script, plot_div)
-
-    components((plot_1, plot_2))
-    #=> (script, (plot_1_div, plot_2_div))
-
-    components({"Plot 1": plot_1, "Plot 2": plot_2})
-    #=> (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
-
-For new code, prefer the typed result when you need more than the legacy tuple:
+An embed result can accept a single Bokeh model, a list or tuple of models, or a
+dictionary of logical keys and models. The fragment exposes its targets as a
+keyed ``divs`` mapping:
 
 .. code-block:: python
 
@@ -436,24 +437,24 @@ For new code, prefer the typed result when you need more than the legacy tuple:
 External static payloads
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-``autoload_static()`` and its per-embed JavaScript program were removed in
-Bokeh 4.0. Save the deterministic artifact as data and render a declarative
-external reference instead:
+To store plot data separately from the host HTML, save the deterministic embed
+payload as data and render a declarative external reference:
 
 .. code-block:: python
 
-    artifact = embed({"plot": plot})
-    Path("static/plot.json").write_text(artifact.to_json_string())
-    external = artifact.external(
+    result = embed({"plot": plot})
+    Path("static/plot.json").write_text(result.to_json_string())
+    external = result.external(
         payload_url="/static/plot.json",
         resources="none",
     )
 
-Insert ``external.html`` in the page. It contains logical-root targets plus one
-shared bootstrap invocation; it never replaces a script tag or stores target
-IDs in the payload. Use ``Bokeh.when_mounted()`` to acquire the published
-handle as shown above. With an ``external_only`` resource policy, the invocation
-uses Bokeh's standard external bootstrap asset and contains no inline JavaScript.
+Insert the HTML string from ``external.html`` in the page. That string contains
+logical-root targets plus one shared bootstrap invocation. It never replaces a
+script tag or stores target IDs in the payload. Use ``Bokeh.when_mounted()`` to
+acquire the published handle as shown above. With an ``external_only`` resource
+policy, the invocation uses Bokeh's standard external bootstrap asset and
+contains no inline JavaScript.
 See the strict-CSP recipe above for the complete deployment flow.
 
 .. _ug_output_embed_apps:
@@ -468,14 +469,13 @@ session and document or outputs a specific, existing session.
 App documents
 ~~~~~~~~~~~~~
 
-Bokeh 4.0 represents a server application as a structured server-source
-artifact. ``embed_server(url, ...).fragment()`` is the primary route;
-|server_document| remains a thin facade. The browser obtains a signed bootstrap
+Bokeh represents a server application as a structured server-source
+result. ``embed_server(url, ...).fragment()`` is the primary route. The
+browser obtains a signed bootstrap
 from ``/embed.json`` and exposes HTTP, WebSocket, session, render, readiness, and
-disposal through the same ``BokehMount`` used by standalone artifacts. The old
-``/autoload.js`` program endpoint is not part of the 4.0 route.
+disposal through the same ``BokehMount`` used by standalone embed results.
 
-Server artifact ``headers`` and a directly supplied ``token`` are serialized
+Server result ``headers`` and a directly supplied ``token`` are serialized
 into browser-visible page data. Do not put credentials or other secrets there
 unless they are explicitly safe for every page consumer. Prefer the normal
 ``/embed.json`` bootstrap, which creates a short-lived signed session token,
@@ -490,21 +490,25 @@ URL, you will typically want to embed the entire application in a web page.
 This way, the page will create a new session and display it to the user every
 time it loads.
 
-You can achieve this with the |server_document| function. This function
-accepts the URL to a Bokeh server application and returns a script that
-embeds a new session from that server every time the script executes.
-
-Here is an example of the |server_document| function in use:
+Build the server embed result from the application URL, then render its fragment.
+This creates a new session from that server every time the declaration mounts:
 
 .. code-block:: python
 
-    from bokeh.embed import server_document
-    script = server_document("https://demo.bokeh.org/sliders")
+    from bokeh.embed import embed_server
 
-This returns declarative artifact markup: resource tags, a logical-root target,
-the ``bokeh.embed/v1`` server descriptor, and the common artifact bootstrap.
+    result = embed_server("https://demo.bokeh.org/sliders")
+    html = result.fragment(resources="server").html
+
+.. deprecated:: 4.0
+    The |server_document| compatibility facade remains available during the
+    4.x transition. Use ``embed_server(url, ...).fragment(...).html`` in new
+    code.
+
+This returns declarative embed markup: resource tags, a logical-root target,
+the ``bokeh.embed/v1`` server descriptor, and the common embed bootstrap.
 Add that markup to an HTML page at the point where the application should
-appear. It does not call or emulate the removed ``/autoload.js`` endpoint.
+appear.
 
 App sessions
 ~~~~~~~~~~~~
@@ -516,18 +520,17 @@ Take a Flask app that renders a page for an authenticated user. You might want
 it to pull a new session, make some customizations for that specific user, and
 serve this customized Bokeh server session.
 
-You can accomplish this with the |server_session| function. This function
-accepts a specific model to embed (or ``None`` for an entire session document),
-session ID, and a URL to the Bokeh application.
+Supply the existing session ID to ``embed_server()``. You can also provide a
+mapping of logical root keys to specific session models.
 
-Here is an example of how to use |server_session| with Flask:
+Here is an example with Flask:
 
 .. code-block:: python
 
     from flask import Flask, render_template
 
     from bokeh.client import pull_session
-    from bokeh.embed import server_session
+    from bokeh.embed import embed_server
 
     app = Flask(__name__)
 
@@ -540,14 +543,23 @@ Here is an example of how to use |server_session| with Flask:
             # update or customize that session
             session.document.roots[0].children[1].title.text = "Special sliders for a specific user!"
 
-            # generate a script to load the customized session
-            script = server_session(session_id=session.id, url='http://localhost:5006/sliders')
+            # generate markup to load the customized session
+            result = embed_server(
+                "http://localhost:5006/sliders",
+                session_id=session.id,
+            )
+            html = result.fragment(resources="server").html
 
-            # use the script in the rendered page
-            return render_template("embed.html", script=script, template="Flask")
+            # use the markup in the rendered page
+            return render_template("embed.html", script=html, template="Flask")
 
     if __name__ == '__main__':
         app.run(port=8080)
+
+.. deprecated:: 4.0
+    The |server_session| compatibility facade remains available during the 4.x
+    transition. Use ``embed_server(session_id=...).fragment(...).html`` in new
+    code.
 
 Standard template
 -----------------
@@ -592,13 +604,14 @@ Here's a full template with all the sections that you can override:
 
 .. code-block:: html
 
+    {% from macros import embed %}
     <!DOCTYPE html>
     <html lang="en">
     {% block head %}
     <head>
     {% block inner_head %}
         <meta charset="utf-8">
-        <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
+        <title>{% block title %}{{ title | e if title is not none else "Bokeh Plot" }}{% endblock %}</title>
     {%  block preamble -%}{%- endblock %}
     {%  block resources -%}
     {%   block css_resources -%}
@@ -616,6 +629,11 @@ Here's a full template with all the sections that you can override:
     <body>
     {%  block inner_body %}
     {%    block contents %}
+    {%      if embed_mounts is defined %}
+    {%        for root in embed_mounts %}
+    {{          root.html }}
+    {%        endfor %}
+    {%      else %}
     {%      for doc in docs %}
     {{        embed(doc) if doc.elementid }}
     {%-       for root in doc.roots %}
@@ -624,6 +642,7 @@ Here's a full template with all the sections that you can override:
     {%          endblock %}
     {%        endfor %}
     {%      endfor %}
+    {%      endif %}
     {%    endblock contents %}
     {{ plot_script | indent(4) }}
     {%  endblock inner_body %}
@@ -633,7 +652,6 @@ Here's a full template with all the sections that you can override:
 
 
 .. |file_html|       replace:: :func:`~bokeh.embed.file_html`
-.. |json_item|       replace:: :func:`~bokeh.embed.json_item`
 .. |server_document| replace:: :func:`~bokeh.embed.server_document`
 .. |server_session|  replace:: :func:`~bokeh.embed.server_session`
 

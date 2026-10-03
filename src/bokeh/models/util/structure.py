@@ -98,9 +98,9 @@ class _BokehStructureGraph:
 
     If M is such a model and X=_BokehStructureGraph(M), then:
 
-    - X.model is the interactive model itself of
-    the submodel graph; pass it to show or file_html.  Self contained so
-    works in a jupyter notebook, no server needed.
+    - X.model is the interactive model itself of the submodel graph. Pass it to
+    show or ``embed(...).page()``. It is self-contained and works in a Jupyter
+    notebook without a server.
 
     - X.graph is the networkx DiGraph of submodels.
 
@@ -127,8 +127,8 @@ class _BokehStructureGraph:
         """ The bokeh model consisting of the structure graph and the datatable
         for the attributes.
 
-        Can be passed to show or file_html. Self contained,
-        so remains interactive in a notebook or html file; no server needed.
+        Can be passed to show or ``embed(...).page()``. It is self-contained,
+        so remains interactive in a notebook or HTML file without a server.
 
         """
         return self._structure_graph

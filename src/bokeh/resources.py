@@ -91,9 +91,27 @@ type ResourcesMode = Literal[
     "absolute",
 ]
 
+type _DevResourcesSetting = Literal[
+    "server-dev",
+    "relative-dev",
+    "absolute-dev",
+]
+
+type ResourcesSetting = ResourcesMode | _DevResourcesSetting
+
 PathVersioner = Callable[[str], str]
 
-_RESOURCE_MODES = ("none", "inline", "offline", "cdn", "server", "relative", "absolute")
+_RESOURCE_MODES: tuple[ResourcesMode, ...] = (
+    "none", "inline", "offline", "cdn", "server", "relative", "absolute",
+)
+
+_DEV_RESOURCE_MODES: dict[_DevResourcesSetting, ResourcesMode] = {
+    "server-dev": "server",
+    "relative-dev": "relative",
+    "absolute-dev": "absolute",
+}
+
+_RESOURCE_SETTINGS: tuple[ResourcesSetting, ...] = (*_RESOURCE_MODES, *_DEV_RESOURCE_MODES)
 
 _COMPONENT_NAMES: dict[ResourceComponent, str] = {
     "bokeh/core": "bokeh",
@@ -116,18 +134,18 @@ INLINE: Final[Literal["inline"]] = "inline"
 # -----------------------------------------------------------------------------
 
 class ResourceConflictError(ValueError):
-    """Raised when resources cannot satisfy artifact requirements."""
+    """Raised when resources cannot satisfy embed requirements."""
 
 
 @dataclass(frozen=True)
 class Resources:
-    '''Host-owned rules for satisfying artifact resource requirements.
+    '''Host-owned rules for satisfying embed resource requirements.
 
     ``none`` emits nothing and assigns complete responsibility to the host.
     ``offline`` permits only inline/local content and rejects external URLs.
     Other modes resolve matching Bokeh bundles through CDN, server, filesystem,
     or explicit paths. CSP and SRI choices belong to resources rather than the
-    reusable artifact. Bundle versions always come from the artifact.
+    reusable embed result. Bundle versions always come from the embed payload.
     '''
     mode: ResourcesMode = "cdn"
     minified: bool = True
@@ -182,9 +200,13 @@ class Resources:
             if not overrides:
                 return value
             return replace(value, **overrides)
-        if value.endswith("-dev"):
-            value = value.removesuffix("-dev")
+        if value in _DEV_RESOURCE_MODES:
+            value = _DEV_RESOURCE_MODES[value]
             overrides["minified"] = False
+        elif value not in _RESOURCE_MODES:
+            raise ResourceConflictError(
+                f"unknown resource mode {value!r}; expected one of {_RESOURCE_SETTINGS!r}",
+            )
         mode = cast(ResourcesMode, value)
         return cls(mode=mode, **overrides)
 
@@ -290,18 +312,18 @@ class Resources:
 
         return ResolvedResources(requirements, self, bokeh_version, tuple(deduplicated))
 
-    def resolve_artifact_bootstrap(self, *, bokeh_version: str = __version__) -> ResolvedResource:
-        '''Resolve the standard external artifact bootstrap script.
+    def resolve_embed_bootstrap(self, *, bokeh_version: str = __version__) -> ResolvedResource:
+        '''Resolve the standard external embed bootstrap script.
 
         The bootstrap is a small, versioned BokehJS asset that starts a
-        declarative artifact mount without requiring inline JavaScript.
+        declarative embed mount without requiring inline JavaScript.
         Host-owned, inline, and offline modes cannot supply an external URL.
         '''
         from .embed.resources import ResolvedResource
 
         if self.mode in ("none", "inline", "offline"):
             raise ResourceConflictError(
-                f"resource mode {self.mode!r} cannot resolve an external artifact bootstrap URL. "
+                f"resource mode {self.mode!r} cannot resolve an external embed bootstrap URL. "
                 "provide bootstrap_url explicitly",
             )
 
@@ -309,11 +331,11 @@ class Resources:
             ["bokeh-embed-bootstrap"], "js", bokeh_version=bokeh_version,
         )
         if content or len(urls) != 1:
-            raise AssertionError("external artifact bootstrap resolution did not produce exactly one URL")
+            raise AssertionError("external embed bootstrap resolution did not produce exactly one URL")
         [url] = urls
         integrity = _integrity_for_url(url, hashes) if self.integrity else None
         if self.integrity and integrity is None:
-            raise ResourceConflictError(f"no SRI hash is available for artifact bootstrap {url!r}")
+            raise ResourceConflictError(f"no SRI hash is available for embed bootstrap {url!r}")
         return ResolvedResource(
             "script", url=url, integrity=integrity,
             crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
@@ -618,6 +640,7 @@ __all__ = (
     "ResourceConflictError",
     "Resources",
     "ResourcesMode",
+    "ResourcesSetting",
     "get_all_sri_versions",
     "get_sri_hashes_for_version",
     "verify_sri_hashes",

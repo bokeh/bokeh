@@ -4,7 +4,7 @@ import * as embed from "@bokehjs/embed"
 import {register_models} from "@bokehjs/base"
 import {mount} from "@bokehjs/api/io"
 import {index} from "@bokehjs/embed/standalone"
-import {compute_embed_artifact_fingerprint, type EmbedArtifact} from "@bokehjs/embed/artifact"
+import {compute_embed_fingerprint, type EmbedPayload} from "@bokehjs/embed/payload"
 import {Document, documents} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
 import {DOMElementView} from "@bokehjs/core/dom_view"
@@ -87,7 +87,7 @@ describe("embed", () => {
     })
   })
 
-  it("returns an owning mount from a serialized artifact", async () => {
+  it("returns an owning mount from a serialized embed payload", async () => {
     const resolver = new ModelResolver(null)
     register_standard_models(resolver)
     register_models([ModelWithView], resolver)
@@ -97,7 +97,7 @@ describe("embed", () => {
     document.body.append(target)
     const documents_before = documents.length
 
-    const artifact: EmbedArtifact = {
+    const payload: EmbedPayload = {
       schema: "bokeh.embed/v1",
       bokeh_version: js_version,
       source: {kind: "standalone", documents: [original.to_static_json()]},
@@ -106,8 +106,8 @@ describe("embed", () => {
       metadata: {},
       fingerprint: "",
     }
-    artifact.fingerprint = await compute_embed_artifact_fingerprint(artifact)
-    const mounted = mount(artifact, target, {resolver, resources: "none"})
+    payload.fingerprint = await compute_embed_fingerprint(payload)
+    const mounted = mount(payload, target, {resolver, resources: "none"})
     try {
       await mounted.ready
       expect(mounted.ownership.document).to.be.equal("mount")

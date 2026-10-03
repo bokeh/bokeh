@@ -3,7 +3,7 @@ import {expect} from "#framework/assertions"
 import type {Document} from "@bokehjs/document"
 import {create_notebook_patch_receiver, NotebookPatchError} from "@bokehjs/embed/notebook"
 
-describe("notebook artifact patches", () => {
+describe("notebook embed patches", () => {
   it("applies consecutive revisions and ignores stale replay", () => {
     const applied: unknown[] = []
     const document = {

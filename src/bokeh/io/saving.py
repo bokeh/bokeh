@@ -29,7 +29,7 @@ from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import FILE
-from ..embed._util import ThemePolicy
+from ..embed._util import ThemePolicy, embed
 from ..resources import Resources
 from .util import default_filename
 
@@ -58,8 +58,8 @@ def save(obj: Showable, filename: PathLike | None = None, resources: Resources |
 
     If the filename is not given, it is derived from the script name (e.g.
     ``/foo/myplot.py`` will create ``/foo/myplot.html``). A complete source
-    document supplies its own theme; otherwise the current document's theme
-    is used.
+    document supplies its own theme. Otherwise the current document's theme is
+    used.
 
     Args:
         obj (UIElement or DOMNode object) : a Layout (Row/Column), Plot or Widget object to display
@@ -111,8 +111,8 @@ def _save_helper(obj: Showable, filename: PathLike, resources: Resources | str |
     '''
 
     '''
-    from ..embed import file_html
-    html = file_html(obj, resources=resources, title=title, template=template or FILE, theme=theme)
+    result = embed(obj, theme=theme)
+    html = result.page(resources=resources, title=title, template=template or FILE)
 
     with open(filename, mode="w", encoding="utf-8") as f:
         f.write(html)
