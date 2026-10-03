@@ -1,5 +1,5 @@
 import {mount} from "@bokeh/bokehjs"
-import type {BokehMount, Mountable, MountOptions, ShowableRoot} from "@bokeh/bokehjs"
+import type {BokehMount, Mountable, MountOptions, MountTargets, ShowableRoot} from "@bokeh/bokehjs"
 
 /** Content accepted by the core mount lifecycle. */
 export type BokehModel = Mountable
@@ -36,8 +36,8 @@ export class MountController {
     return this._mounted
   }
 
-  /** Mounts all supplied roots into one Bokeh document and one DOM target. */
-  async start(model: BokehModel, target?: BokehTarget, request: MountRequest = {}): Promise<BokehMount | null> {
+  /** Mounts all supplied roots into one Bokeh document and caller-owned targets. */
+  async start(model: BokehModel, targets?: MountTargets, request: MountRequest = {}): Promise<BokehMount | null> {
     this.dispose()
 
     const generation = this._generation
@@ -75,9 +75,8 @@ export class MountController {
 
     let reported_error: unknown = null
     try {
-      const mounted = mount(model, {
+      const mounted = mount(model, targets, {
         ...request.mountOptions,
-        targets: target,
         signal: abort.signal,
         on_error: (error) => {
           reported_error = error
@@ -151,16 +150,8 @@ function same_targets(left: ReadonlyMap<BokehRootModel, BokehTarget>, right: Rea
   return left.size == right.size && [...left].every(([model, target]) => right.get(model) == target)
 }
 
-type ControlledMountOptions = Omit<MountOptions, "targets">
-
-function controlled_mount_options(options: MountOptions | undefined): ControlledMountOptions {
-  const controlled = {...options}
-  delete controlled.targets
-  return controlled
-}
-
-function same_mount_options(left: ControlledMountOptions, right: ControlledMountOptions): boolean {
-  const left_keys = Object.keys(left) as (keyof ControlledMountOptions)[]
+function same_mount_options(left: MountOptions, right: MountOptions): boolean {
+  const left_keys = Object.keys(left) as (keyof MountOptions)[]
   const right_keys = Object.keys(right)
   return left_keys.length == right_keys.length && left_keys.every((key) => left[key] == right[key])
 }
@@ -168,7 +159,7 @@ function same_mount_options(left: ControlledMountOptions, right: ControlledMount
 type PendingDocumentMount = {
   readonly models: readonly BokehRootModel[]
   readonly targets: ReadonlyMap<BokehRootModel, BokehTarget>
-  readonly mount_options: ControlledMountOptions
+  readonly mount_options: MountOptions
 }
 
 /** Coordinates one Bokeh document whose roots render into independent framework targets. */
@@ -179,7 +170,7 @@ export class DocumentMountController {
   private _request: MountRequest = {}
   private _active_models: readonly BokehRootModel[] = []
   private _active_targets = new Map<BokehRootModel, BokehTarget>()
-  private _active_mount_options: ControlledMountOptions = {}
+  private _active_mount_options: MountOptions = {}
   private _scheduled = false
   private _transition = Promise.resolve()
   private _generation = 0
@@ -265,7 +256,7 @@ export class DocumentMountController {
     return pending != null &&
       same_items(this._models, pending.models) &&
       same_targets(this._targets, pending.targets) &&
-      same_mount_options(controlled_mount_options(this._request.mountOptions), pending.mount_options)
+      same_mount_options(this._request.mountOptions ?? {}, pending.mount_options)
   }
 
   private _reconcile_pending(): void {
@@ -307,7 +298,7 @@ export class DocumentMountController {
       return
     }
 
-    const mount_options = controlled_mount_options(this._request.mountOptions)
+    const mount_options = {...this._request.mountOptions}
     const same_models = same_items(this._models, this._active_models)
     if (same_models && same_mount_options(mount_options, this._active_mount_options)) {
       const mounted = this._controller.mounted
@@ -345,8 +336,8 @@ export class DocumentMountController {
     }
     this._pending = pending
     try {
-      const mounted = await this._controller.start(models, undefined, {
-        mountOptions: {...this._request.mountOptions, targets},
+      const mounted = await this._controller.start(models, targets, {
+        mountOptions: this._request.mountOptions,
         onMounted: (mounted) => {
           this._clear_pending(pending)
           this._request.onMounted?.(mounted)

@@ -51,7 +51,8 @@ when mounting and are not stored in reusable data:
 .. code-block:: javascript
 
     const handle = Bokeh.mount(payload, {
-      targets: {summary: summaryElement, detail: detailElement},
+      summary: summaryElement, detail: detailElement,
+    }, {
       resources: "auto",
     })
     await handle.ready
@@ -226,8 +227,7 @@ mounts it:
     const response = await fetch('/plot')
     const payload = await response.json()
     const target = document.querySelector("#report [data-bokeh-root='plot']")
-    const mounted = Bokeh.mount(payload, {
-      targets: {plot: target},
+    const mounted = Bokeh.mount(payload, {plot: target}, {
       resources: "none", // the host page already loaded matching BokehJS
     })
     await mounted.ready

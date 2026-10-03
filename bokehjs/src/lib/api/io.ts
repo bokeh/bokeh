@@ -174,12 +174,10 @@ export class MountError extends Error {
 /** Observable lifecycle state of a `BokehMount`. */
 export type MountState = "pending" | "ready" | "failed" | "disposed"
 
-/** Caller choices for targeting, cancellation, page-title use, and error observation. */
+/** Caller choices for cancellation, resource loading, page-title use, and error observation. */
 export type MountOptions = {
   /** Cancels pending work and disposes work already owned by the mount. */
   signal?: AbortSignal
-  /** One caller-owned target for all roots, or targets addressed by logical root key. */
-  targets?: MountTargets
   /** Allow the mounted document to update the browser page title. */
   use_for_title?: boolean
   /** Embed resource policy. Direct model/document mounts ignore this option. */
@@ -409,10 +407,10 @@ export class BokehMount<T extends HasProps = HasProps> {
 
   constructor(
     source: MountSource<T> | Promise<PreparedEmbed>,
+    targets: MountTargets | undefined,
     private readonly _options: MountOptions,
     script: HTMLScriptElement | SVGScriptElement | null,
   ) {
-    const {targets} = _options
     if (targets != null && is_mount_target(targets)) {
       if (is_embed_target(targets)) {
         clear_mount_error(targets)
@@ -438,7 +436,7 @@ export class BokehMount<T extends HasProps = HasProps> {
       signal?.addEventListener("abort", this._on_abort, {once: true})
     }
 
-    this.ready = this._initialize(source, script)
+    this.ready = this._initialize(source, targets, script)
     void this.ready.catch(() => {})
   }
 
@@ -607,7 +605,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     }
   }
 
-  private async _initialize(source: MountSource<T> | Promise<PreparedEmbed>,
+  private async _initialize(source: MountSource<T> | Promise<PreparedEmbed>, configured_targets: MountTargets | undefined,
       script: HTMLScriptElement | SVGScriptElement | null): Promise<void> {
     try {
       this._check_pending()
@@ -627,7 +625,6 @@ export class BokehMount<T extends HasProps = HasProps> {
         this._set_source(normalized, prepared)
       }
       const mount = this._required_mount
-      const configured_targets = this._options.targets
       const targets = new Map<RootKey, EmbedTarget>()
 
       const shared_target = await (async () => {
@@ -762,20 +759,22 @@ export class BokehMount<T extends HasProps = HasProps> {
  * Returns the handle immediately. Await `handle.ready` for completed rendering.
  */
 export function mount<T extends ShowableRoot>(
-  source: T | readonly T[] | KeyedRoots<T>, options?: MountOptions,
+  source: T | readonly T[] | KeyedRoots<T>, targets?: MountTargets, options?: MountOptions,
 ): BokehMount<T>
-export function mount<T extends HasProps>(source: MountSource<T>, options?: MountOptions): BokehMount<T>
-export function mount(source: Document | EmbedPayload, options?: MountOptions): BokehMount<HasProps>
-export function mount(source: Mountable, options?: MountOptions): BokehMount
+export function mount<T extends HasProps>(
+  source: MountSource<T>, targets?: MountTargets, options?: MountOptions,
+): BokehMount<T>
+export function mount(source: Document | EmbedPayload, targets?: MountTargets, options?: MountOptions): BokehMount<HasProps>
+export function mount(source: Mountable, targets?: MountTargets, options?: MountOptions): BokehMount
 
-export function mount(source: Mountable, options: MountOptions = {}): BokehMount {
+export function mount(source: Mountable, targets?: MountTargets, options: MountOptions = {}): BokehMount {
   const script = document.currentScript // This needs to be evaluated before any asynchronous target resolution.
   const embed_payload_like = isPlainObject(source) && typeof (source as {schema?: unknown}).schema == "string" &&
     (source as {schema: string}).schema.startsWith("bokeh.embed/")
   const normalized = embed_payload_like
     ? prepare_embed(source, options.resources, options.resolver, options.signal)
     : as_mount_source(source)
-  return new BokehMount(normalized, options, script)
+  return new BokehMount(normalized, targets, options, script)
 }
 
 export async function mount_embed_declaration(
@@ -885,8 +884,8 @@ export async function mount_embed_declaration(
     }
 
     const handle = server_default
-      ? mount(payload, {targets: shared_target, resources: "none", ...options})
-      : mount(payload, {targets, resources: "none", ...options})
+      ? mount(payload, shared_target, {resources: "none", ...options})
+      : mount(payload, targets, {resources: "none", ...options})
     await handle.ready
     return handle
   } catch (error) {
@@ -937,7 +936,7 @@ export function show(obj: Document, target?: MountTarget): BokehMount<HasProps>
 
 export function show(obj: Document | Showable, target?: MountTarget): BokehMount {
   if (obj instanceof Document) {
-    return mount(MountSource.from_document(obj), {targets: target})
+    return mount(MountSource.from_document(obj), target)
   }
-  return mount(obj, {targets: target})
+  return mount(obj, target)
 }
