@@ -15,7 +15,7 @@ import subprocess
 
 from flask import Flask, render_template_string
 
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 
 home_html = """
 <!DOCTYPE html>
@@ -35,7 +35,7 @@ app_html = """
     <div>
         <h2><a href="/batch/1">Batch 1 (cos)</a> - <a href="/batch/2">Batch 2 (sin)</a> - <a href="/batch/3">Batch 3 (tan)</a></h2>
     </div>
-    {{ bokeh_script|safe }}
+    {{ embed_html|safe }}
   </body>
 </html>
 """
@@ -55,8 +55,9 @@ def home():
 
 @app.route('/batch/<int:batchid>')
 def visualization(batchid):
-    bokeh_script = server_document(url='http://localhost:5006/bokeh_server', arguments=dict(batchid=batchid))
-    return render_template_string(app_html, bokeh_script=bokeh_script)
+    result = embed_server('http://localhost:5006/bokeh_server', arguments=dict(batchid=batchid))
+    fragment = result.fragment(resources="server")
+    return render_template_string(app_html, embed_html=fragment.html)
 
 if __name__ == '__main__':
     app.run(debug=True)

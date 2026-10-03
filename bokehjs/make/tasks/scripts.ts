@@ -3,6 +3,7 @@ import cp from "node:child_process"
 import fs from "node:fs"
 
 import MagicString from "magic-string"
+import * as esbuild from "esbuild"
 import {SourceMapConsumer, SourceMapGenerator} from "source-map"
 import * as oxc from "oxc-parser"
 import {glob} from "glob"
@@ -337,6 +338,19 @@ exports.VERSION = "0.0.0";
 
   bundle({...esm_settings(false), minified: false}, outputs.map((name) => rename(name, {ext: ".esm.js"})))
   bundle({...esm_settings(true), minified: true}, outputs.map((name) => rename(name, {ext: ".esm.min.js"})))
+
+  const license = fs.readFileSync(join(paths.base_dir, "..", "LICENSE.txt"), {encoding: "utf-8"})
+  for (const minify of [false, true]) {
+    await esbuild.build({
+      entryPoints: [paths.embed_bootstrap.main],
+      outfile: minify ? min_js(paths.embed_bootstrap.output) : paths.embed_bootstrap.output,
+      bundle: true,
+      format: "iife",
+      target: "es2024",
+      minify,
+      banner: {js: preludes.comment(license)},
+    })
+  }
 
   if (!status) {
     throw new BuildError("scripts:bundle", "unable to bundle modules")

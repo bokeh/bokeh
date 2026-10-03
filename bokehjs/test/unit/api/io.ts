@@ -36,7 +36,9 @@ describe("in api/plotting module", () => {
       expect(plot.document).to.be.equal(mounted.document)
       expect(documents.length).to.be.equal(documents_before + 1)
       expect(mounted.state).to.be.equal("ready")
-      expect(mounted.ownership).to.be.equal({document: "mount", views: "mount", targets: "caller"})
+      expect(mounted.ownership).to.be.equal({
+        document: "mount", views: "mount", targets: "caller", session: "none", resources: "none",
+      })
 
       const disposal = mounted.dispose()
       expect(mounted.dispose()).to.be.equal(disposal)
@@ -57,7 +59,7 @@ describe("in api/plotting module", () => {
       const second_waiter = when_mounted(second_target)
 
       const mounted = mount({first: Plot.create(), second: Plot.create()}, {
-        targets: {first: first_target, second: second_target},
+        first: first_target, second: second_target,
       })
       const [first_discovery, second_discovery] = await Promise.all([first_waiter, second_waiter])
       expect(first_discovery).to.be.equal(mounted)
@@ -82,18 +84,18 @@ describe("in api/plotting module", () => {
       host.id = "external-sales-plot"
       document.body.append(host)
 
-      // This is the external script. It can run before the artifact bootstrap.
+      // This is the external script. It can run before the embed bootstrap.
       const target = document.querySelector<HTMLElement>("#external-sales-plot")!
       const discovery = when_mounted(target)
 
-      // This stands in for the later artifact or Sphinx bootstrap.
+      // This stands in for the later embed or Sphinx bootstrap.
       const source = ColumnDataSource.create({
         name: "sales-source",
         data: {x: [1, 2], y: [3, 4]},
       })
       const plot = figure({name: "sales-plot"})
       plot.line({field: "x"}, {field: "y"}, {source})
-      const mounted = mount({sales: plot}, {targets: {sales: target}})
+      const mounted = mount({sales: plot}, {sales: target})
 
       const discovered = await discovery
       expect(discovered).to.be.equal(mounted)
@@ -124,7 +126,7 @@ describe("in api/plotting module", () => {
     it("rejects discovery with structured errors published before a handle exists", async () => {
       const target = document.createElement("div")
       const discovery = when_mounted(target)
-      const published = new MountError("source", "artifact decoding failed")
+      const published = new MountError("source", "embed payload decoding failed")
       publish_mount_error(target, published)
 
       const error = await discovery.then(() => null, (error: unknown) => error)
@@ -219,22 +221,19 @@ describe("in api/plotting module", () => {
     })
 
     it("mounts document roots into independent targets", async () => {
-      const fallback = document.createDocumentFragment()
       const first_target = document.createElement("div")
       const second_target = document.createElement("div")
       document.body.append(first_target, second_target)
       const first = Plot.create()
       const second = Plot.create()
 
-      const mounted = mount({first, second}, fallback, {targets: {first: first_target, second: second_target}})
+      const mounted = mount({first, second}, {first: first_target, second: second_target})
       await mounted.ready
       const [first_view, second_view] = mounted.views
       expect_instanceof(first_view, PlotView)
       expect_instanceof(second_view, PlotView)
       expect(first_target.contains(first_view.el)).to.be.true
       expect(second_target.contains(second_view.el)).to.be.true
-      expect(fallback.contains(first_view.el)).to.be.false
-      expect(fallback.contains(second_view.el)).to.be.false
 
       await mounted.dispose()
       expect(first_target.childElementCount).to.be.equal(0)
@@ -256,7 +255,7 @@ describe("in api/plotting module", () => {
       const doc = new Document({roots: [first, second]})
       const source = new MountSource(doc, {summary: first, detail: second})
 
-      const mounted = mount(source, {targets: {detail: second_target}})
+      const mounted = mount(source, {detail: second_target})
       await mounted.ready
       expect(mounted.root_keys).to.be.equal(["summary", "detail"])
       expect(mounted.root("summary")).to.be.equal(first)
@@ -468,7 +467,7 @@ describe("in api/plotting module", () => {
     it("reports the logical root key for keyed target failures", async () => {
       const target = document.createElement("div")
       const plot = Plot.create()
-      const mounted = mount({summary: plot}, {targets: {summary: target}})
+      const mounted = mount({summary: plot}, {summary: target})
 
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect(error).to.be.instanceof(MountError)

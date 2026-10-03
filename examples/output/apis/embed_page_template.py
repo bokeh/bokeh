@@ -1,6 +1,6 @@
 from jinja2 import Template
 
-from bokeh.embed import components
+from bokeh.embed import embed
 from bokeh.models import Range1d
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -38,15 +38,14 @@ p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
 # plots can be a single Bokeh model, a list/tuple, or even a dictionary
 plots = dict(Red=p1, Blue=p2, Green=p3)
 
-script, div = components(plots)
-
 template = Template('''<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
         <title>Bokeh Scatter Plots</title>
-        {{ resources }}
-        {{ script }}
+        {{ bokeh_css }}
+        {{ bokeh_js }}
+        {{ plot_script }}
         <style>
             .embed-wrapper {
                 display: flex;
@@ -56,21 +55,15 @@ template = Template('''<!DOCTYPE html>
     </head>
     <body>
         <div class="embed-wrapper">
-            {% for key in div.keys() %}
-                {{ div[key] }}
-            {% endfor %}
+            {{ plot_div }}
         </div>
     </body>
 </html>
 ''')
 
-resources = INLINE.render()
-
 filename = 'embed_multiple.html'
 
-html = template.render(resources=resources,
-                       script=script,
-                       div=div)
+html = embed(plots).page(resources=INLINE, title="Bokeh Scatter Plots", template=template)
 
 with open(filename, mode="w", encoding="utf-8") as f:
     f.write(html)

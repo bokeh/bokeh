@@ -1,5 +1,5 @@
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import (Circle, ColumnDataSource, CustomJS, LinearAxis,
                           PanTool, Plot, TapTool, WheelZoomTool)
 from bokeh.util.browser import view
@@ -36,6 +36,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "customjs.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Demonstration of custom callback written in TypeScript"))
+        f.write(embed(doc).page(title="Demonstration of custom callback written in TypeScript"))
     print(f"Wrote {filename}")
     view(filename)

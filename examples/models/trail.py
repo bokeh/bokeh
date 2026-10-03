@@ -4,7 +4,7 @@ import numpy as np
 import scipy.ndimage as im
 
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import (Column, ColumnDataSource, GMapOptions, GMapPlot,
                           Grid, Label, Line, LinearAxis, PanTool, Patches,
                           Plot, Range1d, ResetTool, WheelZoomTool)
@@ -135,6 +135,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "trail.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Trail map and altitude profile"))
+        f.write(embed(doc).page(title="Trail map and altitude profile"))
     print(f"Wrote {filename}")
     view(filename)

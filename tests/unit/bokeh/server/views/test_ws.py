@@ -35,7 +35,7 @@ from bokeh.protocol.exceptions import ProtocolError
 from bokeh.server.tornado import BokehTornado
 from bokeh.server.views.auth_request_handler import AuthRequestHandler
 from bokeh.util.logconfig import basicConfig
-from bokeh.util.token import generate_jwt_token, generate_session_id
+from bokeh.util.token import TokenDecodeError, generate_jwt_token, generate_session_id
 
 # Module under test
 from bokeh.server.views.ws import WSHandler # isort:skip
@@ -162,6 +162,26 @@ def test_open_rejects_invalid_signed_token_before_payload() -> None:
 
     handler.close.assert_called_once()
     get_token_payload.assert_not_called()
+
+
+def test_open_rejects_invalid_token_payload() -> None:
+    handler = object.__new__(WSHandler)
+    handler._token = generate_jwt_token("session", signed=False)
+    handler.application = SimpleNamespace(
+        sign_sessions=False,
+        secret_key=None,
+        io_loop=SimpleNamespace(add_callback=mock.Mock()),
+    )
+    handler.close = mock.Mock()
+
+    with (
+        mock.patch.object(WSHandler, "selected_subprotocol", new_callable=mock.PropertyMock, return_value="bokeh"),
+        mock.patch("bokeh.server.views.ws.get_token_payload", side_effect=TokenDecodeError("too large")),
+        pytest.raises(ProtocolError, match="Invalid token payload"),
+    ):
+        WSHandler.open.__wrapped__(handler)
+
+    handler.close.assert_called_once()
 
 #-----------------------------------------------------------------------------
 # Dev API

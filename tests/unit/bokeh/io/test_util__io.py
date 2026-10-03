@@ -20,9 +20,10 @@ import pytest ; pytest
 import os
 import subprocess
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 # Bokeh imports
+from bokeh.embed._util import ThemePolicy
 from bokeh.models import Plot
 
 # Module under test
@@ -54,7 +55,7 @@ def test_temp_filename() -> None:
         assert r == "Junk.test"
         assert mock_tmp.called
         assert mock_tmp.call_args[0] == ()
-        assert mock_tmp.call_args[1] == {'suffix': '.test'}
+        assert mock_tmp.call_args[1] == {'suffix': '.test', 'delete': False}
 
 def test_default_filename() -> None:
     old_detect_current_filename = biu.detect_current_filename
@@ -139,6 +140,18 @@ def test__resized_restores_after_exception() -> None:
 
     assert plot.width == 100
     assert plot.height == 200
+
+def test_get_layout_html_uses_source_or_curdoc_theme_by_default() -> None:
+    plot = Plot()
+
+    with patch("bokeh.io.util.embed") as mock_embed:
+        mock_embed.return_value.page.return_value = "<html></html>"
+        assert biu.get_layout_html(plot) == "<html></html>"
+
+    mock_embed.assert_called_once_with(
+        plot, theme=ThemePolicy.SOURCE_OR_CURDOC, callback_policy="suppress",
+    )
+    mock_embed.return_value.page.assert_called_once_with(resources="inline", title="", template=ANY)
 
 #-----------------------------------------------------------------------------
 # Code

@@ -114,12 +114,12 @@ doc = Document(theme=theme)
 doc.add_root(plot)
 
 if __name__ == "__main__":
-    from bokeh.embed import file_html
+    from bokeh.embed import embed
     from bokeh.util.browser import view
 
     doc.validate()
-    filename = "file_html.html"
+    filename = "embed_page.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title=plot.title.text))
+        f.write(embed(doc).page(title=plot.title.text))
     print(f"Wrote {filename}")
     view(filename)

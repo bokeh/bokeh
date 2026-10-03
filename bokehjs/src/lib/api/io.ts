@@ -1,17 +1,22 @@
 import {Document} from "../document"
 import {StandaloneMount, StandaloneRootError} from "../embed/standalone"
-import type {EmbedTarget} from "../embed/dom"
+import type {EmbedTarget} from "../embed/standalone"
 
 import type {ViewOf} from "core/view"
 import type {ViewLookup} from "core/view_manager"
 export type {ViewLookup} from "core/view_manager"
 import {HasProps} from "core/has_props"
+import type {ModelResolver} from "core/resolvers"
 import {dom_ready, contains} from "core/dom"
 import {logger} from "core/logging"
 import {isArray, isPlainObject, isString} from "core/util/types"
 
 import type {UIElement} from "models/ui/ui_element"
 import type {DOMNode} from "models/dom/dom_node"
+import type {ClientSession} from "../client/session"
+import type {EmbedPayload, PreparedEmbed} from "../embed/payload"
+import {EmbedError, prepare_embed, validate_embed_payload} from "../embed/payload"
+import type {ResourcePolicy} from "../embed/resources"
 
 declare type Jq = any
 declare const $: Jq
@@ -26,7 +31,9 @@ export type MountTarget = EmbedTarget | string
 /** Models addressed by logical root key. A model may appear under only one key. */
 export type KeyedRoots<T extends HasProps = HasProps> = ReadonlyMap<RootKey, T> | Readonly<Record<RootKey, T>>
 /** Per-root destinations. Missing or null entries keep that root detached. */
-export type MountTargets = ReadonlyMap<RootKey, MountTarget | null> | Readonly<Record<RootKey, MountTarget | null>>
+export type KeyedMountTargets = ReadonlyMap<RootKey, MountTarget | null> | Readonly<Record<RootKey, MountTarget | null>>
+/** One shared destination or destinations addressed by logical root key. */
+export type MountTargets = MountTarget | KeyedMountTargets
 /** Whether the caller or mount must destroy the source document. */
 export type DocumentOwnership = "caller" | "mount"
 
@@ -35,6 +42,8 @@ export type MountOwnership = {
   readonly document: DocumentOwnership
   readonly views: "mount"
   readonly targets: "caller"
+  readonly session: "mount" | "none"
+  readonly resources: "shared" | "none"
 }
 
 /**
@@ -108,11 +117,43 @@ export class MountSource<T extends HasProps = HasProps> {
   }
 }
 
-/** Already-decoded content accepted by the core mount lifecycle. */
-export type Mountable = MountSource | Document | ShowableRoot | readonly ShowableRoot[] | KeyedRoots<HasProps>
+/** Decoded content or an embed payload accepted by the core mount lifecycle. */
+export type Mountable = MountSource | Document | EmbedPayload | ShowableRoot | readonly ShowableRoot[] | KeyedRoots<HasProps>
 
 /** Phase-independent category for a structured mount failure. */
-export type MountErrorKind = "source" | "target" | "render" | "abort" | "disposed"
+export type MountErrorKind =
+  | "source"
+  | "target"
+  | "render"
+  | "abort"
+  | "disposed"
+  | "schema"
+  | "decode"
+  | "resource"
+  | "http"
+  | "websocket"
+  | "session"
+
+/** Precise embed or mount phase in which a failure occurred. */
+export type MountErrorPhase =
+  | "bootstrap"
+  | "payload"
+  | "schema"
+  | "fingerprint"
+  | "resource"
+  | "deserialize"
+  | "session"
+  | "target"
+  | "render"
+  | "abort"
+  | "dispose"
+
+/** Embed/declaration identity attached to an externally observable failure. */
+export type MountErrorSource = {
+  readonly kind: "embed-declaration" | "embed" | "mount"
+  readonly embed?: string
+  readonly url?: string
+}
 
 /** Error reported by mount readiness, mutation, discovery, or disposal. */
 export class MountError extends Error {
@@ -123,6 +164,8 @@ export class MountError extends Error {
     message: string,
     override readonly cause?: unknown,
     readonly root_key?: RootKey,
+    readonly phase?: MountErrorPhase,
+    readonly source?: MountErrorSource,
   ) {
     super(message)
   }
@@ -131,15 +174,17 @@ export class MountError extends Error {
 /** Observable lifecycle state of a `BokehMount`. */
 export type MountState = "pending" | "ready" | "failed" | "disposed"
 
-/** Caller choices for targeting, cancellation, page-title use, and error observation. */
+/** Caller choices for cancellation, resource loading, page-title use, and error observation. */
 export type MountOptions = {
   /** Cancels pending work and disposes work already owned by the mount. */
   signal?: AbortSignal
-  /** Caller-owned DOM targets addressed by logical root key. Missing or null entries remain detached. */
-  targets?: MountTargets
   /** Allow the mounted document to update the browser page title. */
   use_for_title?: boolean
-  /** Called for target and render failures before the same error rejects an operation. */
+  /** Embed resource policy. Direct model/document mounts ignore this option. */
+  resources?: ResourcePolicy
+  /** Model resolver used while decoding embed documents. */
+  resolver?: ModelResolver
+  /** Called for every structured failure before the same error rejects an operation. */
   on_error?(error: MountError): void
 }
 
@@ -182,6 +227,10 @@ function clear_mount_error(target: EmbedTarget): void {
 
 function is_embed_target(target: unknown): target is EmbedTarget {
   return target instanceof HTMLElement || target instanceof DocumentFragment
+}
+
+function is_mount_target(target: MountTargets): target is MountTarget {
+  return isString(target) || is_embed_target(target)
 }
 
 /** Publish a structured failure when a bootstrap cannot create a mount handle. */
@@ -291,13 +340,11 @@ function mount_error(kind: MountErrorKind, error: unknown, root_key?: RootKey): 
     return error
   } else if (error instanceof StandaloneRootError) {
     return mount_error(kind, error.cause, error.root_key)
+  } else if (error instanceof EmbedError) {
+    return new MountError(error.kind, error.message, error, root_key, error.phase, error.source)
   }
   const message = error instanceof Error ? error.message : `${error}`
   return new MountError(kind, message, error, root_key)
-}
-
-function is_mount_options(value: unknown): value is MountOptions {
-  return isPlainObject(value) && !(value instanceof HasProps)
 }
 
 async function resolve_target(target: MountTarget | undefined, script: HTMLScriptElement | SVGScriptElement | null): Promise<EmbedTarget> {
@@ -352,45 +399,35 @@ export class BokehMount<T extends HasProps = HasProps> {
   private readonly _on_abort = () => this._abort(this.signal?.reason)
   private _resolve_disposed!: () => void
 
-  /** Exact document/view/target responsibilities for this handle. */
-  readonly ownership: MountOwnership
   /** Resolves when initial roots are attached. Rejects with `MountError` on failure. */
   readonly ready: Promise<void>
   /** Resolves after cleanup for success, failure, cancellation, or explicit disposal. */
   readonly when_disposed: Promise<void>
+  private readonly _embed_payload: boolean
 
   constructor(
-    private readonly _source: MountSource<T>,
-    target: MountTarget | undefined,
+    source: MountSource<T> | Promise<PreparedEmbed>,
+    targets: MountTargets | undefined,
     private readonly _options: MountOptions,
     script: HTMLScriptElement | SVGScriptElement | null,
   ) {
-    if (is_embed_target(target)) {
-      clear_mount_error(target)
-    }
-    if (_options.targets != null) {
-      for (const [, configured_target] of keyed_entries(_options.targets)) {
+    if (targets != null && is_mount_target(targets)) {
+      if (is_embed_target(targets)) {
+        clear_mount_error(targets)
+      }
+    } else if (targets != null) {
+      for (const [, configured_target] of keyed_entries(targets)) {
         if (is_embed_target(configured_target)) {
           clear_mount_error(configured_target)
         }
       }
     }
 
-    this.ownership = {document: _source.document_ownership, views: "mount", targets: "caller"}
+    this._embed_payload = !(source instanceof MountSource)
     this.when_disposed = new Promise<void>((resolve) => this._resolve_disposed = resolve)
-    this._mount = new StandaloneMount(
-      _source.document,
-      new Map(_source.roots),
-      _source.document_ownership == "mount",
-      undefined,
-      (error, root_key) => this._record_error(mount_error("render", error, root_key)),
-      _source.track_document_roots,
-      () => {
-        if (this._state == "ready") {
-          this._sync_published_targets()
-        }
-      },
-    )
+    if (source instanceof MountSource) {
+      this._set_source(source)
+    }
 
     const {signal} = _options
     if (signal?.aborted == true) {
@@ -399,24 +436,72 @@ export class BokehMount<T extends HasProps = HasProps> {
       signal?.addEventListener("abort", this._on_abort, {once: true})
     }
 
-    this.ready = this._initialize(target, script)
+    this.ready = this._initialize(source, targets, script)
     void this.ready.catch(() => {})
   }
 
-  private readonly _mount: StandaloneMount
+  private _source: MountSource<T> | null = null
+  private _mount: StandaloneMount | null = null
+  private _session: ClientSession | null = null
+  private _release: (() => void) | null = null
+
+  private get _required_mount(): StandaloneMount {
+    if (this._mount == null) {
+      throw new MountError("source", "the Bokeh mount is not available before source preparation completes")
+    }
+    return this._mount
+  }
+
+  /** Exact document/view/target/session/resource responsibilities for this handle. */
+  get ownership(): MountOwnership {
+    return {
+      document: this._source?.document_ownership ?? "mount",
+      views: "mount",
+      targets: "caller",
+      session: this._session == null ? "none" : "mount",
+      resources: this._embed_payload ? "shared" : "none",
+    }
+  }
+
+  private _set_source(source: MountSource<T>, prepared?: PreparedEmbed): void {
+    this._source = source
+    this._session = prepared?.session ?? null
+    this._release = prepared?.release ?? null
+    this._mount = new StandaloneMount(
+      source.document,
+      new Map(source.roots),
+      source.document_ownership == "mount",
+      undefined,
+      (error, root_key) => this._record_error(mount_error("render", error, root_key)),
+      source.track_document_roots,
+      () => {
+        if (this._state == "ready") {
+          this._sync_published_targets()
+        }
+      },
+    )
+  }
 
   /** Source document shared by every keyed root. */
   get document(): Document {
+    if (this._source == null) {
+      throw new MountError("source", "the Bokeh embed document is not available before mount readiness")
+    }
     return this._source.document
+  }
+
+  /** Server session owned by an embed mount, or null for standalone content. */
+  get session(): ClientSession | null {
+    return this._session
   }
 
   /** Logical root keys in deterministic source order. */
   get root_keys(): readonly RootKey[] {
-    return this._mount.root_keys
+    return this._required_mount.root_keys
   }
 
   get roots(): ReadonlyMap<RootKey, T> {
-    return this._mount.roots as unknown as ReadonlyMap<RootKey, T>
+    return this._required_mount.roots as unknown as ReadonlyMap<RootKey, T>
   }
 
   get models(): readonly T[] {
@@ -428,26 +513,26 @@ export class BokehMount<T extends HasProps = HasProps> {
   }
 
   get targets(): ReadonlyMap<RootKey, EmbedTarget> {
-    return this._mount.targets
+    return this._required_mount.targets
   }
 
   get view_lookup(): ViewLookup {
-    return this._mount.views
+    return this._required_mount.views
   }
 
   /** Return a source root by logical key, independently of attachment state. */
   root(key: RootKey): T | null {
-    return this._mount.root(key) as T | null
+    return this._required_mount.root(key) as T | null
   }
 
   /** Return the currently attached root view, or null while detached. */
   view(key: RootKey): ViewOf<T> | null {
-    return this._mount.view(key) as ViewOf<T> | null
+    return this._required_mount.view(key) as ViewOf<T> | null
   }
 
   /** Return the caller-owned target currently associated with a root. */
   target(key: RootKey): EmbedTarget | null {
-    return this._mount.target(key)
+    return this._required_mount.target(key)
   }
 
   get state(): MountState {
@@ -464,7 +549,7 @@ export class BokehMount<T extends HasProps = HasProps> {
   }
 
   get disposed(): boolean {
-    return this._mount.disposed
+    return this._state == "disposed" || this._state == "failed" || this._mount?.disposed == true
   }
 
   private get signal(): AbortSignal | undefined {
@@ -504,6 +589,9 @@ export class BokehMount<T extends HasProps = HasProps> {
   }
 
   private _sync_published_targets(): void {
+    if (this._mount == null) {
+      return
+    }
     const attached = new Set(this._mount.targets.values())
     for (const target of attached) {
       if (!this._published_targets.has(target)) {
@@ -517,18 +605,34 @@ export class BokehMount<T extends HasProps = HasProps> {
     }
   }
 
-  private async _initialize(target: MountTarget | undefined, script: HTMLScriptElement | SVGScriptElement | null): Promise<void> {
+  private async _initialize(source: MountSource<T> | Promise<PreparedEmbed>, configured_targets: MountTargets | undefined,
+      script: HTMLScriptElement | SVGScriptElement | null): Promise<void> {
     try {
       this._check_pending()
-      const configured_targets = this._options.targets
+      if (!(source instanceof MountSource)) {
+        const prepared = await source
+        if (this._state == "disposed") {
+          prepared.release()
+          prepared.document.destroy()
+          this._check_pending()
+        }
+        const normalized = new MountSource(
+          prepared.document,
+          prepared.roots,
+          prepared.document_ownership,
+          prepared.track_document_roots,
+        ) as MountSource<T>
+        this._set_source(normalized, prepared)
+      }
+      const mount = this._required_mount
       const targets = new Map<RootKey, EmbedTarget>()
 
-      const default_target = await (async () => {
+      const shared_target = await (async () => {
         try {
-          const default_target = configured_targets == null || target != null
-            ? await resolve_target(target, script)
+          const shared_target = configured_targets == null || is_mount_target(configured_targets)
+            ? await resolve_target(configured_targets, script)
             : null
-          if (configured_targets != null) {
+          if (configured_targets != null && !is_mount_target(configured_targets)) {
             for (const [key, configured] of keyed_entries(configured_targets)) {
               if (!this.roots.has(key)) {
                 throw new MountError("target", `unknown Bokeh mount root '${key}'`, undefined, key)
@@ -542,7 +646,7 @@ export class BokehMount<T extends HasProps = HasProps> {
               }
             }
           }
-          return default_target
+          return shared_target
         } catch (error) {
           throw mount_error("target", error)
         }
@@ -552,17 +656,16 @@ export class BokehMount<T extends HasProps = HasProps> {
       for (const key of this._suppressed_roots) {
         targets.delete(key)
       }
-
       for (const key of this.root_keys) {
         if (!this._suppressed_roots.has(key)) {
-          const planned_target = targets.get(key) ?? default_target
+          const planned_target = targets.get(key) ?? shared_target
           if (planned_target != null) {
             this._publish_target(planned_target)
           }
         }
       }
 
-      await this._mount.initialize(default_target, targets, this._options.use_for_title)
+      await mount.initialize(shared_target, targets, this._options.use_for_title)
       this._check_pending()
       this._state = "ready"
       this._sync_published_targets()
@@ -571,7 +674,9 @@ export class BokehMount<T extends HasProps = HasProps> {
       if (this._state != "disposed") {
         this._state = "failed"
         this._record_error(mounted_error)
-        this._mount.dispose()
+        this._mount?.dispose()
+        this._release?.()
+        this._release = null
         this._unpublish_all(mounted_error)
         this._resolve_disposed()
       }
@@ -593,7 +698,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     }
 
     try {
-      return await this._mount.attach(key, resolved) as ViewOf<T> | null
+      return await this._required_mount.attach(key, resolved) as ViewOf<T> | null
     } catch (error) {
       const mounted_error = mount_error("render", error, key)
       this._record_error(mounted_error)
@@ -608,11 +713,15 @@ export class BokehMount<T extends HasProps = HasProps> {
 
   /** Remove one root view while preserving its model, document, and sibling roots. */
   detach(key: RootKey): void {
+    if (this._state == "pending" && this._mount == null) {
+      this._suppressed_roots.add(key)
+      return
+    }
     if (!this.roots.has(key)) {
       throw new MountError("source", `unknown Bokeh mount root '${key}'`, undefined, key)
     }
     this._suppressed_roots.add(key)
-    this._mount.detach(key)
+    this._required_mount.detach(key)
   }
 
   private _abort(reason: unknown): void {
@@ -633,7 +742,9 @@ export class BokehMount<T extends HasProps = HasProps> {
       this._error = new MountError("disposed", "Bokeh mount was disposed before becoming ready")
     }
     this.signal?.removeEventListener("abort", this._on_abort)
-    this._mount.dispose()
+    this._mount?.dispose()
+    this._release?.()
+    this._release = null
     this._unpublish_all()
     if (this._state != "failed") {
       this._state = "disposed"
@@ -647,22 +758,176 @@ export class BokehMount<T extends HasProps = HasProps> {
  * Establish an owned relationship between decoded Bokeh content and DOM targets.
  * Returns the handle immediately. Await `handle.ready` for completed rendering.
  */
-export function mount<T extends ShowableRoot>(source: T, options?: MountOptions): BokehMount<T>
-export function mount<T extends ShowableRoot>(source: T, target?: MountTarget, options?: MountOptions): BokehMount<T>
-export function mount<T extends ShowableRoot>(source: readonly T[], options?: MountOptions): BokehMount<T>
-export function mount<T extends ShowableRoot>(source: readonly T[], target?: MountTarget, options?: MountOptions): BokehMount<T>
-export function mount<T extends ShowableRoot>(source: KeyedRoots<T>, options?: MountOptions): BokehMount<T>
-export function mount<T extends ShowableRoot>(source: KeyedRoots<T>, target?: MountTarget, options?: MountOptions): BokehMount<T>
-export function mount(source: MountSource | Document, options?: MountOptions): BokehMount<HasProps>
-export function mount(source: MountSource | Document, target?: MountTarget, options?: MountOptions): BokehMount<HasProps>
-export function mount(source: Mountable, target_or_options?: MountTarget | MountOptions, options?: MountOptions): BokehMount
+export function mount<T extends ShowableRoot>(
+  source: T | readonly T[] | KeyedRoots<T>, targets?: MountTargets, options?: MountOptions,
+): BokehMount<T>
+export function mount<T extends HasProps>(
+  source: MountSource<T>, targets?: MountTargets, options?: MountOptions,
+): BokehMount<T>
+export function mount(source: Document | EmbedPayload, targets?: MountTargets, options?: MountOptions): BokehMount<HasProps>
+export function mount(source: Mountable, targets?: MountTargets, options?: MountOptions): BokehMount
 
-export function mount(source: Mountable, target_or_options?: MountTarget | MountOptions, options: MountOptions = {}): BokehMount {
+export function mount(source: Mountable, targets?: MountTargets, options: MountOptions = {}): BokehMount {
   const script = document.currentScript // This needs to be evaluated before any asynchronous target resolution.
-  const target = is_mount_options(target_or_options) ? undefined : target_or_options
-  const mount_options = is_mount_options(target_or_options) ? target_or_options : options
-  const normalized = as_mount_source(source)
-  return new BokehMount(normalized, target, mount_options, script)
+  const embed_payload_like = isPlainObject(source) && typeof (source as {schema?: unknown}).schema == "string" &&
+    (source as {schema: string}).schema.startsWith("bokeh.embed/")
+  const normalized = embed_payload_like
+    ? prepare_embed(source, options.resources, options.resolver, options.signal)
+    : as_mount_source(source)
+  return new BokehMount(normalized, targets, options, script)
+}
+
+export async function mount_embed_declaration(
+  script: HTMLScriptElement | null = document.currentScript instanceof HTMLScriptElement ? document.currentScript : null,
+  options: MountOptions = {},
+): Promise<BokehMount> {
+  if (script == null) {
+    throw new MountError("source", "an embed declaration script is required", undefined, undefined, "bootstrap")
+  }
+  let source = declaration_source(script)
+  let affected_targets = await declaration_targets(script)
+  affected_targets.forEach(clear_mount_error)
+  try {
+    if (options.signal?.aborted == true) {
+      throw new MountError(
+        "abort", abort_message(options.signal.reason), options.signal.reason, undefined, "abort", source,
+      )
+    }
+
+    const payload_url = script.dataset.bokehPayloadUrl
+    const value = await (async () => {
+      if (payload_url != null) {
+        const response = await (async () => {
+          try {
+            return await fetch(payload_url, {signal: options.signal})
+          } catch (error) {
+            const reason = options.signal?.reason
+            if (error instanceof DOMException && error.name == "AbortError" || reason === error) {
+              throw new MountError("abort", abort_message(reason), error, undefined, "payload", source)
+            }
+            throw new MountError(
+              "http", `failed to fetch Bokeh embed payload from ${payload_url}: ${error}`, error, undefined, "payload", source,
+            )
+          }
+        })()
+        if (!response.ok) {
+          throw new MountError(
+            "http", `Bokeh embed payload request failed: ${response.status} ${response.statusText}`,
+            response, undefined, "payload", source,
+          )
+        }
+        try {
+          return await response.json()
+        } catch (error) {
+          throw new MountError(
+            "decode", `failed to decode Bokeh embed payload from ${payload_url}: ${error}`, error, undefined, "payload", source,
+          )
+        }
+      } else {
+        const payload = script.previousElementSibling
+        if (!(payload instanceof HTMLScriptElement) || payload.dataset.bokehEmbedPayload == null ||
+            payload.dataset.bokehEmbedInstance != script.dataset.bokehEmbedInstance) {
+          throw new MountError(
+            "source", "an inline embed declaration must follow its matching JSON payload script",
+            undefined, undefined, "payload", source,
+          )
+        }
+        try {
+          return JSON.parse(payload.textContent)
+        } catch (error) {
+          throw new MountError(
+            "decode", `failed to decode inline Bokeh embed payload: ${error}`, error, undefined, "payload", source,
+          )
+        }
+      }
+    })()
+
+    const payload = (() => {
+      try {
+        return validate_embed_payload(value)
+      } catch (error) {
+        throw declaration_error(error, source, "schema")
+      }
+    })()
+    if (source.embed != null && source.embed != payload.fingerprint) {
+      throw new MountError(
+        "schema",
+        `embed declaration fingerprint '${source.embed}' does not match payload '${payload.fingerprint}'`,
+        undefined, undefined, "fingerprint", source,
+      )
+    }
+    if (source.embed == null) {
+      source = {...source, embed: payload.fingerprint}
+      affected_targets = await declaration_targets(script)
+      affected_targets.forEach(clear_mount_error)
+    }
+
+    const targets = new Map<RootKey, HTMLElement>()
+    for (const root of payload.roots) {
+      const target = affected_targets.find((candidate) => candidate.dataset.bokehRoot == root.key)
+      if (target == null) {
+        throw new MountError(
+          "target", `missing declaration target for Bokeh embed root '${root.key}'`,
+          undefined, root.key, "target", source,
+        )
+      }
+      targets.set(root.key, target)
+    }
+    const server_default = payload.source.kind == "server" && payload.roots.length == 0
+    const shared_target = server_default
+      ? affected_targets.find((candidate) => candidate.dataset.bokehRoot == "*")
+      : undefined
+    if (server_default && shared_target == null) {
+      throw new MountError(
+        "target", "missing declaration target for Bokeh server embed", undefined, "*", "target", source,
+      )
+    }
+
+    const handle = server_default
+      ? mount(payload, shared_target, {resources: "none", ...options})
+      : mount(payload, targets, {resources: "none", ...options})
+    await handle.ready
+    return handle
+  } catch (error) {
+    const mounted_error = declaration_error(error, source)
+    affected_targets.forEach((target) => publish_mount_error(target, mounted_error))
+    throw mounted_error
+  }
+}
+
+function declaration_source(script: HTMLScriptElement): MountErrorSource {
+  return {
+    kind: "embed-declaration",
+    embed: script.dataset.bokehEmbed,
+    url: script.dataset.bokehPayloadUrl,
+  }
+}
+
+async function declaration_targets(script: HTMLScriptElement): Promise<HTMLElement[]> {
+  await dom_ready()
+  const instance = script.dataset.bokehEmbedInstance
+  if (instance == null || !/^[A-Za-z][A-Za-z0-9-]*$/.test(instance)) {
+    return []
+  }
+  return [...document.querySelectorAll<HTMLElement>(
+    `[data-bokeh-embed-instance="${instance}"][data-bokeh-root]`,
+  )]
+}
+
+function declaration_error(error: unknown, source: MountErrorSource,
+    phase: MountErrorPhase = "bootstrap"): MountError {
+  const mounted_error = mount_error("source", error)
+  if (mounted_error.source == source) {
+    return mounted_error
+  }
+  return new MountError(
+    mounted_error.kind, mounted_error.message, mounted_error, mounted_error.root_key,
+    mounted_error.phase ?? phase, source,
+  )
+}
+
+function abort_message(reason: unknown): string {
+  return reason instanceof Error ? reason.message : "Bokeh embed declaration was aborted"
 }
 
 export function show<T extends ShowableRoot>(obj: T, target?: MountTarget): BokehMount<T>
@@ -670,5 +935,8 @@ export function show<T extends ShowableRoot>(obj: readonly T[], target?: MountTa
 export function show(obj: Document, target?: MountTarget): BokehMount<HasProps>
 
 export function show(obj: Document | Showable, target?: MountTarget): BokehMount {
+  if (obj instanceof Document) {
+    return mount(MountSource.from_document(obj), target)
+  }
   return mount(obj, target)
 }

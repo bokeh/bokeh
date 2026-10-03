@@ -2,7 +2,7 @@ import numpy as np
 
 from bokeh.core.properties import value
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, Column,
                           ColumnDataSource, Ellipse, Grid, HoverTool, ImageURL,
                           Line, LinearAxis, MultiLine, MultiPolygons, Paragraph,
@@ -116,6 +116,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "glyphs.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Glyphs"))
+        f.write(embed(doc).page(title="Glyphs"))
     print(f"Wrote {filename}")
     view(filename)

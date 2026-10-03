@@ -110,6 +110,8 @@ describe("minimal ID cross-language fixtures", () => {
     expect(column_data.$expr).to.be.equal([2])
     expect(column_data.type).to.be.equal([3])
     expect(column_data.id).to.be.equal([4])
+    expect(Object.hasOwn(column_data, "__proto__")).to.be.true
+    expect(Object.getPrototypeOf(column_data)).to.be.equal(Object.prototype)
     expect(column_data.__proto__).to.be.equal([5])
   })
 

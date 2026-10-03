@@ -27,7 +27,6 @@ import asyncio
 import gc
 import os
 import sys
-from collections import OrderedDict
 from pprint import pformat
 from typing import (
     TYPE_CHECKING,
@@ -85,7 +84,6 @@ if TYPE_CHECKING:
 
 DEFAULT_KEEP_ALIVE_MS                   = 37_000
 DEFAULT_MEM_LOG_FREQ_MS                  = 0
-_AUTOLOAD_CACHE_SIZE                     = 32
 
 __all__ = (
     'BokehTornado',
@@ -129,7 +127,7 @@ class BokehTornado(TornadoApplication):
             A list of hosts that can connect to the websocket.
 
             This is typically required when embedding a Bokeh server app in an
-            external web site using :func:`~bokeh.embed.server_document` or
+            external web site using :func:`~bokeh.embed.embed_server` or
             similar.
 
             If None, ``["localhost"]`` will be assumed (default: None)
@@ -306,9 +304,6 @@ class BokehTornado(TornadoApplication):
 
         self._absolute_url = absolute_url
         self._executor = _ServerExecutor()
-        self._autoload_cache: OrderedDict[tuple[Any, ...], Any] = OrderedDict()
-        self._pending_autoload: dict[tuple[Any, ...], asyncio.Task[Any]] = {}
-
         if prefix is None:
             prefix = ""
         prefix = prefix.strip("/")
@@ -638,16 +633,21 @@ class BokehTornado(TornadoApplication):
 
         '''
         mode = settings.resources(default="server")
-        if mode == "server" or mode == "server-dev":
+        resources = Resources.build(mode, minified=settings.minified())
+        if resources.mode == "server":
             if absolute_url is True:
                 absolute_url = self._absolute_url
             if absolute_url is None or absolute_url is False:
                 absolute_url = "/"
 
             root_url = urljoin(absolute_url, self._prefix)
-            return Resources(mode=mode, root_url=root_url, path_versioner=StaticHandler.append_version)
+            return Resources.build(
+                resources,
+                root_url=root_url,
+                path_versioner=StaticHandler.append_version,
+            )
 
-        return Resources(mode=mode)
+        return resources
 
     def start(self) -> None:
         ''' Start the Bokeh Server application.
@@ -754,75 +754,6 @@ class BokehTornado(TornadoApplication):
             return None
         asyncio_loop.run_until_complete(self.stop_async())
         return None
-
-    async def _bundle_for_autoload(self, resources: Resources | None) -> Any:
-        from ..embed.bundle import bundle_for_objs_and_resources
-
-        resources = resources.clone() if resources is not None else None
-        key = self._autoload_key(resources)
-        cache = not settings.dev and (resources is None or not resources.dev)
-
-        if cache:
-            cached_bundle = self._autoload_cache.get(key)
-            if cached_bundle is not None:
-                self._autoload_cache.move_to_end(key)
-                return cached_bundle.clone()
-
-        pending = self._pending_autoload.get(key)
-        if pending is None:
-            pending = asyncio.create_task(
-                self._executor.run(bundle_for_objs_and_resources, None, resources),
-            )
-            self._pending_autoload[key] = pending
-            pending.add_done_callback(lambda task: self._autoload_done(key, cache, task))
-
-        bundle = await asyncio.shield(pending)
-        return bundle.clone()
-
-    def _autoload_done(self, key: tuple[Any, ...], cache: bool, task: asyncio.Task[Any]) -> None:
-        if self._pending_autoload.get(key) is task:
-            del self._pending_autoload[key]
-
-        if task.cancelled():
-            return
-
-        error = task.exception()
-        if error is None and cache:
-            self._autoload_cache[key] = task.result()
-            self._autoload_cache.move_to_end(key)
-            while len(self._autoload_cache) > _AUTOLOAD_CACHE_SIZE:
-                self._autoload_cache.popitem(last=False)
-
-    @staticmethod
-    def _autoload_key(resources: Resources | None) -> tuple[Any, ...]:
-        models = tuple(sorted(
-            (name, id(model))
-            for name, model in Model.model_class_reverse_map.items()
-        ))
-
-        if resources is None:
-            return (None, models)
-
-        path_versioner_key: Any = resources.path_versioner
-        if path_versioner_key is not None:
-            path_versioner_key = (
-                getattr(path_versioner_key, "__self__", None),
-                getattr(path_versioner_key, "__func__", path_versioner_key),
-            )
-
-        return (
-            resources.mode,
-            resources.version,
-            resources.root_dir,
-            resources.dev,
-            resources.minified,
-            resources.log_level,
-            resources.root_url,
-            path_versioner_key,
-            tuple(resources.components),
-            resources.base_dir,
-            models,
-        )
 
     def new_connection(self, socket: WSHandler, session: ServerSession) -> ServerConnection:
         self._require_running()

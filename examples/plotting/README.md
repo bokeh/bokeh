@@ -5,11 +5,9 @@ interface. This interface is primarily centered around creating a reasonable def
 appropriate axes and tools, to which you can add different visual glyphs whose properties are
 associated with your data. A simple, but typical complete example of this API looks like:
 
-    from bokeh.plotting import figure, output_file, show
+    from bokeh.plotting import figure, show
 
     p = figure()
     p.circle([1, 2, 3], [4, 5, 6], color="orange")
 
-    output_file("foo.html")
-
-    show(p)
+    show(p, filename="foo.html")

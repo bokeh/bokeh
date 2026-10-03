@@ -27,18 +27,15 @@ time into a web-based trading platform. In a supply-chain context, a Bokeh view
 could be integrated into an existing inventory management system to
 interactively monitor a store's item supplies.
 
-To meet this use-case, the ``bokeh.embed`` module offers the
-:func:`~bokeh.embed.server_document` and :func:`~bokeh.embed.server_session`
-methods. Refer to :ref:`ug_output_embed_apps` for a detailed discussion of their
-usage, with examples. In short, these methods return the text of an HTML script
-tag that loads a view from Bokeh server, and adds the view to the DOM of any
-page that the script tag is placed in.
+To meet this use-case, the ``bokeh.embed`` module offers
+:func:`~bokeh.embed.embed_server`. Refer to :ref:`ug_output_embed_apps` for a
+detailed discussion with examples. The resulting embed result can render HTML
+markup that loads a view from Bokeh server and adds it to the host page.
 
 If the parent service you wish to integrate with is not Python-based, you can
-still integrate with Bokeh through the ``server_document`` / ``server_session``
-methods. However, you will need to do so by calling out to a small, long-lived
-Python script that returns the text contents of those methods via any standard
-form of IPC.
+still integrate with Bokeh through a server embed result. You will need to call out
+to a small, long-lived Python service that returns the rendered embed markup
+through any standard form of IPC.
 
 To allow your parent application to display embedded Bokeh views, you must
 configure the parent application to permit cross-origin requests to your Bokeh
@@ -64,8 +61,8 @@ integrating your Bokeh server application into your parent application's
 codebase, Bokeh also supports running its underlying Tornado web server through
 a thread launched by your parent application. Practical examples are linked
 under :ref:`ug_server_library`. This approach still requires the use of
-``server_document`` or ``server_session``, but may simplify CSP configuration
-as well as deployment of your Bokeh server app.
+``embed_server()``, but may simplify CSP configuration as well as deployment of
+your Bokeh server app.
 
 SSH tunnels
 ~~~~~~~~~~~
@@ -606,9 +603,9 @@ Both of these open your default browser to the default application URL
 ``localhost:5006`` and, since ``localhost:5006`` is on the list of allowed
 WebSocket origins, the Bokeh server creates and displays a new session.
 
-When you embed a Bokeh server in another web page with |server_document| or
-|server_session|, the ``Origin`` header for the request to the Bokeh server
-is the URL of the page that hosts your Bokeh content.
+When you embed a Bokeh server in another web page with a server embed result, the
+``Origin`` header for the request to the Bokeh server is the URL of the page
+that hosts your Bokeh content.
 
 For example, if a user navigates to your page at ``https://acme.com/products``,
 the origin header reported by the browser will be ``acme.com``. In this case,
@@ -673,11 +670,15 @@ Then, in your web application, explicitly provide signed session IDs with
 
 .. code-block:: python
 
+    from bokeh.embed import embed_server
     from bokeh.util.token import generate_session_id
 
-    script = server_session(url='http://localhost:5006/bkapp',
-                            session_id=generate_session_id())
-    return render_template("embed.html", script=script, template="Flask")
+    result = embed_server(
+        "http://localhost:5006/bkapp",
+        session_id=generate_session_id(),
+    )
+    html = result.fragment(resources="server").html
+    return render_template("embed.html", script=html, template="Flask")
 
 Make sure to set identical ``BOKEH_SECRET_KEY`` environment variables both for
 the Bokeh server and for the web app processes, such as Flask, Django, or any
@@ -745,6 +746,3 @@ further information, see the `Tornado docs`_.
 .. _set_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.set_secure_cookie
 .. _Tornado docs: http://www.tornadoweb.org/en/stable/tcpserver.html#tornado.tcpserver.TCPServer.start
 .. _XSRF Cookies:  https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
-
-.. |server_document|  replace:: :func:`~bokeh.embed.server_document`
-.. |server_session|  replace:: :func:`~bokeh.embed.server_session`

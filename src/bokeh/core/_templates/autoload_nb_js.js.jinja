@@ -40,7 +40,7 @@
 
     if (server_id !== undefined) {
       // Clean up Bokeh references
-      const cmd_clean = "from bokeh.io.state import curstate; print(curstate().uuid_to_server['" + server_id + "'].get_sessions()[0].document.roots[0]._id)";
+      const cmd_clean = "from bokeh.io.notebook import server_root_id; print(server_root_id('" + server_id + "'))";
       cell.notebook.kernel.execute(cmd_clean, {
         iopub: {
           output: function(msg) {
@@ -149,11 +149,10 @@
      "</p>\n"+
      "<ul>\n"+
      "<li>re-rerun `output_notebook()` to attempt to load from CDN again, or</li>\n"+
-     "<li>use INLINE resources instead, as so:</li>\n"+
+     "<li>use inline resources instead, as so:</li>\n"+
      "</ul>\n"+
      "<code>\n"+
-     "from bokeh.resources import INLINE\n"+
-     "output_notebook(resources=INLINE)\n"+
+     "output_notebook(resources='inline')\n"+
      "</code>\n"+
      "</div>"}};
 

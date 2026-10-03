@@ -153,7 +153,7 @@ from .util.paths import bokehjs_path, server_path
 
 if TYPE_CHECKING:
     from .core.types import PathLike
-    from .resources import ResourcesMode
+    from .resources import ResourcesSetting
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -641,7 +641,7 @@ class Settings:
     cdn_version = PrioritizedSetting[str | None]("version", "BOKEH_CDN_VERSION", default=None, help="""
     What version of BokehJS to use with CDN resources.
 
-    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    See :class:`~bokeh.resources.Resources` for full details.
     """)
 
     chromedriver_path = PrioritizedSetting[str | None]("chromedriver_path", "BOKEH_CHROMEDRIVER_PATH", default=None, help="""
@@ -799,16 +799,19 @@ class Settings:
 
     """)
 
-    resources: PrioritizedSetting[ResourcesMode] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="server", help="""
+    resources: PrioritizedSetting[ResourcesSetting] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="server", help="""
     What kind of BokehJS resources to configure, e.g ``inline`` or ``cdn``
 
-    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    The ``server-dev``, ``relative-dev``, and ``absolute-dev`` spellings select
+    the corresponding mode with unminified resources.
+
+    See :class:`~bokeh.resources.Resources` for full details.
     """)
 
     rootdir: PrioritizedSetting[PathLike | None] = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
     Root directory to use with ``relative`` resources
 
-    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    See :class:`~bokeh.resources.Resources` for full details.
     """)
 
     default_server_host = PrioritizedSetting[str]("default_server_host", "BOKEH_DEFAULT_SERVER_HOST", default="localhost", help="""

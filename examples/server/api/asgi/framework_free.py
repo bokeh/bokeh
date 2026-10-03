@@ -7,7 +7,7 @@ from typing import Any
 from fourier_studio import modify_document
 from jinja2 import Environment, FileSystemLoader
 
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 from bokeh.server.asgi import BokehASGI
 
 type Message = dict[str, Any]
@@ -21,8 +21,9 @@ template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescap
 
 def render_page(root_path: str = "") -> bytes:
     mount_url = f"{root_path.rstrip('/')}/bkapp"
-    bokeh_script = server_document(mount_url, relative_urls=True)
-    return template.render(framework="framework-free ASGI", bokeh_script=bokeh_script).encode()
+    result = embed_server(mount_url, relative_urls=True)
+    fragment = result.fragment(resources="server")
+    return template.render(framework="framework-free ASGI", embed_html=fragment.html).encode()
 
 
 async def response(send: Send, status: int, body: bytes, *, head: bool = False) -> None:
