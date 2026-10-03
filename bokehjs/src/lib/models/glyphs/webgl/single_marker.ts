@@ -1,6 +1,7 @@
 import type {Transform} from "./base"
 import type {MarkerVisuals} from "./base_marker"
 import {BaseMarkerGL} from "./base_marker"
+import {Uint8Buffer} from "./buffer"
 import type {ReglWrapper} from "./regl_wrap"
 import type {GLMarkerType} from "./types"
 import type {GlyphView} from "../glyph"
@@ -11,8 +12,7 @@ export type SingleMarkerGlyphView = GlyphView & {
 }
 
 export abstract class SingleMarkerGL extends BaseMarkerGL {
-
-  private _show_indices: number[] | null = null
+  protected readonly _show = new Uint8Buffer(this.regl_wrapper)
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: SingleMarkerGlyphView) {
     super(regl_wrapper, glyph)
@@ -29,15 +29,17 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
   }
 
   protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL): void {
-    if (main_gl_glyph.data_changed || main_gl_glyph.data_mapped) {
-      main_gl_glyph.set_data(main_gl_glyph.data_changed)
+    const main_data_changed = main_gl_glyph.data_changed
+    if (main_data_changed || main_gl_glyph.data_mapped) {
+      main_gl_glyph.set_data(main_data_changed)
       main_gl_glyph.data_changed = false
       main_gl_glyph.data_mapped = false
     }
 
     // Update derived glyph data if it has overrides
-    if (this !== main_gl_glyph && (this.data_changed || this.data_mapped)) {
-      this.set_data(this.data_changed)  // Populate derived buffers
+    const derived_data_changed = this.data_changed
+    if (this !== main_gl_glyph && (derived_data_changed || this.data_mapped)) {
+      this.set_data(derived_data_changed) // Populate derived buffers
       this.data_changed = false
       this.data_mapped = false
     }
@@ -48,32 +50,28 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
     }
 
     const nmarkers = main_gl_glyph.nvertices
+    const show_all = indices.length >= nmarkers
+    const has_show_indices = this._show_indices != null
 
-    const prev_nmarkers = this._show.length
-    const show_array = this._show.get_sized_array(nmarkers)
-    let show_changed = false
-    if (indices.length < nmarkers) {
-      this._show_all = false
-      const same_indices = this._show_indices?.length == indices.length &&
-        indices.every((index, i) => this._show_indices![i] == index)
-      if (prev_nmarkers != nmarkers || !same_indices) {
+    const rebuild_show = this._show_nmarkers != nmarkers ||
+      (show_all ? has_show_indices : this._have_indices_changed(indices))
+
+    if (rebuild_show) {
+      const show_array = this._show.get_sized_array(nmarkers)
+      if (show_all) {
+        show_array.fill(255)
+        this._show_indices = null
+      } else {
         show_array.fill(0)
-        for (const index of indices) {
-          show_array[index] = 255
+        for (let i = 0; i < indices.length; i++) {
+          show_array[indices[i]] = 255
         }
-        this._show_indices = [...indices]
-        show_changed = true
+        this._show_indices = indices.slice()
       }
-    } else if (!this._show_all || prev_nmarkers != nmarkers) {
-      this._show_all = true
-      this._show_indices = null
-      show_array.fill(255)
-      show_changed = true
-    }
-    if (show_changed) {
       this._show.update()
+      this._show_nmarkers = nmarkers
     }
 
-    this._draw_one_marker_type(this.marker_type, transform, main_gl_glyph)
+    this._draw_one_marker_type(this.marker_type, transform, main_gl_glyph, this._show)
   }
 }
