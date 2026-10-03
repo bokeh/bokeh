@@ -18,10 +18,10 @@ def bkapp_page():
 
         # generate markup to load the customized session
         result = embed_server(app_url, session_id=session.id)
-        script = result.fragment(resources="server").html
+        fragment = result.fragment(resources="server")
 
-        # use the script in the rendered page
-        return render_template("embed.html", script=script, template="Flask")
+        # use the fragment HTML in the rendered page
+        return render_template("embed.html", embed_html=fragment.html, template="Flask")
 
 if __name__ == '__main__':
     app.run(port=8080)

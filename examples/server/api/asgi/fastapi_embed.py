@@ -31,8 +31,8 @@ template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescap
 def render_page(root_path: str = "") -> str:
     mount_url = f"{root_path.rstrip('/')}/bkapp"
     result = embed_server(mount_url, relative_urls=True)
-    bokeh_script = result.fragment(resources="server").html
-    return template.render(framework="FastAPI", bokeh_script=bokeh_script)
+    fragment = result.fragment(resources="server")
+    return template.render(framework="FastAPI", embed_html=fragment.html)
 
 
 @app.get("/", response_class=HTMLResponse)

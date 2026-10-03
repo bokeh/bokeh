@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 
 # Bokeh imports
 from .. import __version__
-from ._json import canonical_json, json_copy
+from ._util import canonical_embed_json
 from .resources import ResourceRequirements
 
 if TYPE_CHECKING:
@@ -131,8 +131,8 @@ class EmbedResult:
         if metadata is not None and not isinstance(metadata, Mapping):
             raise EmbedValidationError("embed payload metadata must be an object")
         try:
-            source_data = json_copy(dict(source))
-            metadata_data = json_copy(dict(metadata) if metadata is not None else {})
+            source_data = json.loads(canonical_embed_json(dict(source)))
+            metadata_data = json.loads(canonical_embed_json(dict(metadata) if metadata is not None else {}))
         except (TypeError, ValueError) as error:
             raise EmbedValidationError(str(error)) from error
         object.__setattr__(self, "roots", roots)
@@ -147,7 +147,7 @@ class EmbedResult:
         payload = {**envelope, "fingerprint": fingerprint}
         object.__setattr__(self, "fingerprint", fingerprint)
         object.__setattr__(self, "_payload", payload)
-        object.__setattr__(self, "_json_string", canonical_json(payload))
+        object.__setattr__(self, "_json_string", canonical_embed_json(payload))
 
     @property
     def source(self) -> dict[str, Any]:
@@ -404,7 +404,7 @@ def _fingerprint(value: Mapping[str, Any]) -> str:
                 **source,
                 "documents": [_normalize_model_ids(document) for document in documents],
             }
-    payload = canonical_json(normalized)
+    payload = canonical_embed_json(normalized)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 

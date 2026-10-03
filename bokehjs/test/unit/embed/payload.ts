@@ -8,7 +8,7 @@ import {ModelResolver} from "@bokehjs/core/resolvers"
 import {to_object} from "@bokehjs/core/util/object"
 import {documents} from "@bokehjs/document"
 import type {EmbedPayload} from "@bokehjs/embed/payload"
-import {EmbedError, compute_embed_fingerprint, validate_embed_payload} from "@bokehjs/embed/payload"
+import {canonical_embed_json, EmbedError, compute_embed_fingerprint, validate_embed_payload} from "@bokehjs/embed/payload"
 import type {ResourceRequirements} from "@bokehjs/embed/resources"
 import {ResourceError, ResourceLoader} from "@bokehjs/embed/resources"
 import {CustomJS} from "@bokehjs/models"
@@ -487,6 +487,17 @@ describe("EmbedPayload runtime", () => {
     const server = validate_embed_payload(fixture("server-existing-session"))
     expect(server.source.kind).to.be.equal("server")
     expect(server.roots).to.be.equal([{key: "detail", model_id: "fixture-root"}])
+  })
+
+  it("uses the canonical cross-language JSON representation", () => {
+    expect(canonical_embed_json({
+      z: null,
+      small: 1e-7,
+      fixed: 1e-6,
+      negative_zero: -0,
+      "\ue000": 1,
+      "\u{10000}": 2,
+    })).to.be.equal('{"fixed":0.000001,"negative_zero":0,"small":1e-7,"z":null,"𐀀":2,"":1}')
   })
 
   it("rejects non-finite and unsafe fingerprint numbers", async () => {

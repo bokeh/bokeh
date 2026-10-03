@@ -119,13 +119,13 @@ app = FastAPI(lifespan=lifespan)
 async def index(request: Request) -> HTMLResponse:
     root_path = request.scope.get("root_path", "").rstrip("/")
     result = embed_server(f"{root_path}/bkapp", relative_urls=True)
-    script = result.fragment(resources="server").html
+    fragment = result.fragment(resources="server")
     return HTMLResponse(f"""<!doctype html>
 <title>Shared Bokeh data</title>
 <main style="max-width: 900px; margin: 2rem auto; font-family: sans-serif">
   <h1>One ASGI producer, every Bokeh session</h1>
   <p>Open this page in another tab: both independent sessions receive the same snapshots.</p>
-  {script}
+  {fragment.html}
 </main>
 """)
 

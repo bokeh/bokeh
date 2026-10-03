@@ -153,20 +153,14 @@ def test_result_accepts_float_subclasses() -> None:
     assert actual.metadata == {"value": 1.25}
 
 
-@pytest.mark.parametrize("value", [float("nan"), float("inf"), 2**53])
+@pytest.mark.parametrize(
+    "value",
+    [float("nan"), float("inf"), float("-inf"), 2**53, float(2**53), 1e20, 1e21, 1e22],
+)
 def test_result_rejects_numbers_that_javascript_cannot_fingerprint(value: float | int) -> None:
     result = embed(CustomJS(code="return"))
     with pytest.raises(EmbedValidationError, match=r"finite|safe integer"):
         EmbedResult(result.source, result.roots, result.requires, {"value": value})
-
-
-@pytest.mark.parametrize("value", [float(2**53), 1e20, 1e21, 1e22])
-def test_result_accepts_large_finite_floats(value: float) -> None:
-    result = embed(CustomJS(code="return"))
-    actual = EmbedResult(result.source, result.roots, result.requires, {"value": value})
-
-    assert actual.metadata == {"value": value}
-    assert isinstance(actual.metadata["value"], float)
 
 
 @pytest.mark.parametrize(("kwargs", "message"), [

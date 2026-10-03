@@ -15,8 +15,8 @@ class IndexHandler(RequestHandler):
     def get(self):
         template = env.get_template('embed.html')
         result = embed_server('http://localhost:5006/bkapp')
-        script = result.fragment(resources="server").html
-        self.write(template.render(script=script, template="Tornado"))
+        fragment = result.fragment(resources="server")
+        self.write(template.render(embed_html=fragment.html, template="Tornado"))
 
 def bkapp(doc):
     df = sea_surface_temperature.copy()
