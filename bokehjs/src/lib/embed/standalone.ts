@@ -63,7 +63,7 @@ export class StandaloneMount {
   private readonly _render_tokens = new Map<string, symbol>()
   private readonly _root_views = new Map<string, View>()
   private readonly _targets = new Map<string, EmbedTarget>()
-  private _default_target: EmbedTarget | null = null
+  private _shared_target: EmbedTarget | null = null
   private _use_for_title = false
 
   constructor(
@@ -237,15 +237,15 @@ export class StandaloneMount {
     this.on_targets_changed?.()
   }
 
-  async initialize(default_target: EmbedTarget | null, targets: ReadonlyMap<string, EmbedTarget>,
+  async initialize(shared_target: EmbedTarget | null, targets: ReadonlyMap<string, EmbedTarget>,
       use_for_title: boolean = false): Promise<void> {
     this._check_active()
-    this._default_target = default_target
+    this._shared_target = shared_target
     this._use_for_title = use_for_title
 
     try {
       for (const key of this.root_keys) {
-        const target = targets.get(key) ?? default_target
+        const target = targets.get(key) ?? shared_target
         if (target != null) {
           try {
             await this.attach(key, target)
@@ -256,12 +256,12 @@ export class StandaloneMount {
       }
 
       const {notifications} = this.document.config
-      if (notifications != null && default_target != null) {
+      if (notifications != null && shared_target != null) {
         const view = await this.views.build_view(notifications)
         try {
           this._check_active()
           if (view instanceof DOMView) {
-            view.build(default_target)
+            view.build(shared_target)
           }
           await view.ready
         } catch (error) {
@@ -278,8 +278,8 @@ export class StandaloneMount {
         if (event instanceof RootAddedEvent && this.track_document_roots) {
           const key = this._key_for_added_root(event.model)
           this.roots.set(key, event.model)
-          if (this._default_target != null) {
-            void this.attach(key, this._default_target).catch((error) => this._report_render_error(error, key))
+          if (this._shared_target != null) {
+            void this.attach(key, this._shared_target).catch((error) => this._report_render_error(error, key))
           }
         } else if (event instanceof RootRemovedEvent) {
           const key = this._key_for(event.model)

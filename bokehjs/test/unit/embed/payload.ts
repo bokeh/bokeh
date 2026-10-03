@@ -81,6 +81,30 @@ function inline_declaration(embed_payload: EmbedPayload, value: unknown = embed_
 describe("EmbedPayload runtime", () => {
   after_each(() => remove_test_resources())
 
+  it("rejects mount queries before payload preparation completes", async () => {
+    const payload = await mountable_fixture("standalone-keyed-roots")
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const mounted = mount(payload, {resources: "none", resolver})
+
+    const queries: (() => unknown)[] = [
+      () => mounted.root_keys,
+      () => mounted.roots,
+      () => mounted.models,
+      () => mounted.views,
+      () => mounted.targets,
+      () => mounted.view_lookup,
+      () => mounted.root("primary"),
+      () => mounted.view("primary"),
+      () => mounted.target("primary"),
+    ]
+    for (const query of queries) {
+      expect(query).to.throw(MountError, /not available before source preparation completes/)
+    }
+
+    await mounted.ready
+    await mounted.dispose()
+  })
+
   it("consumes the shared keyed-root fixture through BokehMount", async () => {
     const payload = await mountable_fixture("standalone-keyed-roots")
     const target = document.createElement("div")
@@ -88,7 +112,7 @@ describe("EmbedPayload runtime", () => {
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const documents_before = documents.length
 
-    const mounted = mount(payload, target, {resources: "none", resolver})
+    const mounted = mount(payload, {targets: target, resources: "none", resolver})
     expect(mounted.state).to.be.equal("pending")
     await mounted.ready
     expect(mounted.root_keys).to.be.equal(["primary", "secondary"])
@@ -133,8 +157,8 @@ describe("EmbedPayload runtime", () => {
     const second_target = document.createElement("div")
     document.body.append(first_target, second_target)
 
-    const first = mount(payload, first_target, {resources: "none", resolver})
-    const second = mount(payload, second_target, {resources: "none", resolver})
+    const first = mount(payload, {targets: first_target, resources: "none", resolver})
+    const second = mount(payload, {targets: second_target, resources: "none", resolver})
     await Promise.all([first.ready, second.ready])
     expect(first.document).to.not.be.equal(second.document)
     expect(first.root("primary")).to.not.be.equal(second.root("primary"))
@@ -362,7 +386,9 @@ describe("EmbedPayload runtime", () => {
     const payload = await mountable_fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const documents_before = documents.length
-    const mounted = mount(payload, document.createElement("div"), {resources: "none", resolver})
+    const mounted = mount(payload, {
+      targets: document.createElement("div"), resources: "none", resolver,
+    })
 
     const error = await mounted.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(error, MountError)
@@ -377,7 +403,7 @@ describe("EmbedPayload runtime", () => {
     const target = document.createElement("div")
     document.body.append(target)
     const documents_before = documents.length
-    const mounted = mount(payload, target, {resources: "none", resolver})
+    const mounted = mount(payload, {targets: target, resources: "none", resolver})
 
     await mounted.dispose()
     const error = await mounted.ready.then(() => null, (error: unknown) => error)
@@ -392,14 +418,16 @@ describe("EmbedPayload runtime", () => {
     const target = document.createElement("div")
     document.body.append(target)
 
-    const unsupported = mount({...payload, schema: "bokeh.embed/v2"} as unknown as EmbedPayload, target, {resources: "none"})
+    const unsupported = mount({...payload, schema: "bokeh.embed/v2"} as unknown as EmbedPayload, {
+      targets: target, resources: "none",
+    })
     const schema_error = await unsupported.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(schema_error, MountError)
     expect(schema_error.kind).to.be.equal("schema")
 
     const mismatched_payload = {...payload, bokeh_version: "99.0.0"}
     mismatched_payload.fingerprint = await compute_embed_fingerprint(mismatched_payload)
-    const mismatched = mount(mismatched_payload, target, {resources: "none"})
+    const mismatched = mount(mismatched_payload, {targets: target, resources: "none"})
     const resource_error = await mismatched.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(resource_error, MountError)
     expect(resource_error.kind).to.be.equal("resource")
@@ -407,7 +435,7 @@ describe("EmbedPayload runtime", () => {
 
     const tampered = structuredClone(payload)
     tampered.metadata.tampered = true
-    const invalid_fingerprint = mount(tampered, target, {resources: "none"})
+    const invalid_fingerprint = mount(tampered, {targets: target, resources: "none"})
     const fingerprint_error = await invalid_fingerprint.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(fingerprint_error, MountError)
     expect(fingerprint_error.kind).to.be.equal("schema")
@@ -438,7 +466,7 @@ describe("EmbedPayload runtime", () => {
       return new Response("denied", {status: 401, statusText: "Unauthorized"})
     }
     try {
-      const mounted = mount(payload, target, {resources: "none"})
+      const mounted = mount(payload, {targets: target, resources: "none"})
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect_instanceof(error, MountError)
       expect(error.kind).to.be.equal("http")
@@ -466,7 +494,7 @@ describe("EmbedPayload runtime", () => {
       token: "unused",
     })
     try {
-      const mounted = mount(payload, target, {resources: "none"})
+      const mounted = mount(payload, {targets: target, resources: "none"})
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect_instanceof(error, MountError)
       expect(error.kind).to.be.equal("schema")

@@ -4,6 +4,6 @@ export {
   BokehMount, MountError, MountSource,
 } from "./io"
 export type {
-  KeyedRoots, MountErrorPhase, MountErrorSource, MountOptions, MountOwnership, MountState,
+  KeyedMountTargets, KeyedRoots, Mountable, MountErrorPhase, MountErrorSource, MountOptions, MountOwnership, MountState,
   MountTarget, MountTargets, RootKey, ViewLookup, WhenMountedOptions,
 } from "./io"

@@ -357,8 +357,8 @@ The declarative payload loader uses the browser's default ``fetch()`` behavior
 and does not add custom headers. A cross-origin payload must allow the host
 origin with CORS. If a payload requires custom headers or cross-origin
 credentials, fetch it in an allowed external application script and pass the
-decoded embed payload to ``Bokeh.mount()`` with the appropriate target or target
-mapping.
+decoded embed payload to ``Bokeh.mount()`` with either one shared target or
+targets addressed by logical root key.
 
 Static JSON and model identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
