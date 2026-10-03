@@ -302,5 +302,5 @@ export namespace Accessible {
   doc.add_root(layout)
 
   const div = document.getElementById("dashboard")!
-  export const mounted = Bokeh.mount(doc, div)
+  export const mounted = Bokeh.mount(doc, {targets: div})
 }

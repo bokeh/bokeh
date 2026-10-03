@@ -1,8 +1,8 @@
 import {mount} from "@bokeh/bokehjs"
-import type {BokehMount, MountOptions, ShowableRoot} from "@bokeh/bokehjs"
+import type {BokehMount, Mountable, MountOptions, ShowableRoot} from "@bokeh/bokehjs"
 
-/** A Bokeh root, an array of roots, or a caller-owned Document. */
-export type BokehModel = Parameters<typeof mount>[0]
+/** Content accepted by the core mount lifecycle. */
+export type BokehModel = Mountable
 /** One view-producing model accepted by a keyed document mount. */
 export type BokehRootModel = ShowableRoot
 /** Framework-owned destination whose contents Bokeh may manage. */
@@ -75,8 +75,9 @@ export class MountController {
 
     let reported_error: unknown = null
     try {
-      const mounted = mount(model, target, {
+      const mounted = mount(model, {
         ...request.mountOptions,
+        targets: target,
         signal: abort.signal,
         on_error: (error) => {
           reported_error = error

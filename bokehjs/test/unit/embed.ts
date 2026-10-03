@@ -59,7 +59,7 @@ describe("embed", () => {
       const doc = new Document()
       doc.add_root(ModelWithoutView.create())
       doc.add_root(ModelWithView.create())
-      const mounted = mount(doc, document.body)
+      const mounted = mount(doc, {targets: document.body})
       await mounted.ready
       try {
         expect(doc.is_idle).to.be.true
@@ -70,7 +70,7 @@ describe("embed", () => {
 
     it("doesn't resolve readiness before root views finish", async () => {
       const model = ModelWithDeferredView.create()
-      const mounted = mount(new Document({roots: [model]}), document.body)
+      const mounted = mount(new Document({roots: [model]}), {targets: document.body})
       let ready = false
       void mounted.ready.then(() => ready = true)
       await defer()
@@ -107,7 +107,7 @@ describe("embed", () => {
       fingerprint: "",
     }
     payload.fingerprint = await compute_embed_fingerprint(payload)
-    const mounted = mount(payload, target, {resolver, resources: "none"})
+    const mounted = mount(payload, {targets: target, resolver, resources: "none"})
     try {
       await mounted.ready
       expect(mounted.ownership.document).to.be.equal("mount")
@@ -130,7 +130,7 @@ describe("embed", () => {
 
   it("should support view index", async () => {
     const doc = new Document({roots: [ModelWithView.create()]})
-    const mounted = mount(doc, document.body)
+    const mounted = mount(doc, {targets: document.body})
     await mounted.ready
     try {
       const views = [...mounted.view_lookup]

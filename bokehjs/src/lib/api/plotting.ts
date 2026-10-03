@@ -5,7 +5,7 @@ export {
   BOKEH_MOUNTED_ATTRIBUTE, BOKEH_MOUNTED_EVENT, BOKEH_MOUNT_ERROR_EVENT,
 } from "./io"
 export type {
-  KeyedRoots, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey,
+  KeyedMountTargets, KeyedRoots, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey,
   ViewLookup, WhenMountedOptions,
 } from "./io"
 export {gridplot} from "./gridplot"

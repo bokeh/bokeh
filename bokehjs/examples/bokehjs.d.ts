@@ -9,7 +9,7 @@ declare module "*/bokeh.esm.js" {
     BOKEH_MOUNTED_ATTRIBUTE, BOKEH_MOUNTED_EVENT, BOKEH_MOUNT_ERROR_EVENT,
   } from "api/io"
   export type {
-    KeyedRoots, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey,
+    KeyedMountTargets, KeyedRoots, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey,
     Showable, ShowableRoot, ViewLookup, WhenMountedOptions,
   } from "api/io"
 }

@@ -28,7 +28,7 @@ describe("in api/plotting module", () => {
       const documents_before = documents.length
       const plot = Plot.create()
 
-      const mounted = mount(plot, target)
+      const mounted = mount(plot, {targets: target})
       expect(mounted.state).to.be.equal("pending")
       await mounted.ready
       const [view] = mounted.views
@@ -152,7 +152,7 @@ describe("in api/plotting module", () => {
       const target = document.createElement("div")
       document.body.append(target)
       const discovery = when_mounted(target)
-      const failed = mount(FailingPlot.create(), target)
+      const failed = mount(FailingPlot.create(), {targets: target})
       expect(await discovery).to.be.equal(failed)
       const error = await failed.ready.then(() => null, (error: unknown) => error)
       expect(error).to.be.instanceof(MountError)
@@ -164,7 +164,7 @@ describe("in api/plotting module", () => {
       expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.false
       expect(await when_mounted(target).then(() => null, (error: unknown) => error)).to.be.equal(mounted_error)
 
-      const remounted = mount(Plot.create(), target)
+      const remounted = mount(Plot.create(), {targets: target})
       expect(await when_mounted(target)).to.be.equal(remounted)
       await remounted.ready
       expect(target.bokehMountError).to.be.undefined
@@ -175,9 +175,9 @@ describe("in api/plotting module", () => {
     it("doesn't let a stale mount clear a newer target publication", async () => {
       const target = document.createElement("div")
       document.body.append(target)
-      const first = mount(Plot.create(), target)
+      const first = mount(Plot.create(), {targets: target})
       await first.ready
-      const second = mount(Plot.create(), target)
+      const second = mount(Plot.create(), {targets: target})
       await second.ready
       expect(target.bokehMount).to.be.equal(second)
 
@@ -190,7 +190,7 @@ describe("in api/plotting module", () => {
       expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.false
 
       const discovery = when_mounted(target)
-      const third = mount(Plot.create(), target)
+      const third = mount(Plot.create(), {targets: target})
       expect(await discovery).to.be.equal(third)
       await third.ready
       await third.dispose()
@@ -201,9 +201,9 @@ describe("in api/plotting module", () => {
       const target = document.createElement("div")
       document.body.append(target)
       const doc = new Document({roots: [Plot.create()]})
-      const first = mount(doc, target)
+      const first = mount(doc, {targets: target})
       await first.ready
-      const second = mount(Plot.create(), target)
+      const second = mount(Plot.create(), {targets: target})
       await second.ready
       expect(target.bokehMount).to.be.equal(second)
 
@@ -221,22 +221,21 @@ describe("in api/plotting module", () => {
     })
 
     it("mounts document roots into independent targets", async () => {
-      const fallback = document.createDocumentFragment()
       const first_target = document.createElement("div")
       const second_target = document.createElement("div")
       document.body.append(first_target, second_target)
       const first = Plot.create()
       const second = Plot.create()
 
-      const mounted = mount({first, second}, fallback, {targets: {first: first_target, second: second_target}})
+      const mounted = mount({first, second}, {
+        targets: {first: first_target, second: second_target},
+      })
       await mounted.ready
       const [first_view, second_view] = mounted.views
       expect_instanceof(first_view, PlotView)
       expect_instanceof(second_view, PlotView)
       expect(first_target.contains(first_view.el)).to.be.true
       expect(second_target.contains(second_view.el)).to.be.true
-      expect(fallback.contains(first_view.el)).to.be.false
-      expect(fallback.contains(second_view.el)).to.be.false
 
       await mounted.dispose()
       expect(first_target.childElementCount).to.be.equal(0)
@@ -323,7 +322,7 @@ describe("in api/plotting module", () => {
 
       const target = document.createElement("div")
       document.body.append(target)
-      const mounted = mount(DelayedPlot.create(), target)
+      const mounted = mount(DelayedPlot.create(), {targets: target})
       await started
       expect(mounted.state).to.be.equal("pending")
       expect(mounted.views.length).to.be.equal(0)
@@ -361,7 +360,7 @@ describe("in api/plotting module", () => {
       document.body.append(target)
       const documents_before = documents.length
       const plot = DelayedPlot.create()
-      const mounted = mount(plot, target)
+      const mounted = mount(plot, {targets: target})
       await started
       await mounted.dispose()
       expect(plot.document).to.be.null
@@ -384,7 +383,8 @@ describe("in api/plotting module", () => {
 
       const controller = new AbortController()
       const abort_callbacks: MountError[] = []
-      const aborted = mount(Plot.create(), abort_target, {
+      const aborted = mount(Plot.create(), {
+        targets: abort_target,
         signal: controller.signal,
         on_error: (error) => abort_callbacks.push(error),
       })
@@ -398,7 +398,8 @@ describe("in api/plotting module", () => {
       await aborted.when_disposed
 
       const dispose_callbacks: MountError[] = []
-      const disposed = mount(Plot.create(), dispose_target, {
+      const disposed = mount(Plot.create(), {
+        targets: dispose_target,
         on_error: (error) => dispose_callbacks.push(error),
       })
       const readiness = disposed.ready.then(() => null, (error: unknown) => error)
@@ -419,7 +420,7 @@ describe("in api/plotting module", () => {
       const documents_before = documents.length
       const plot = Plot.create()
       const errors: MountError[] = []
-      const mounted = mount(plot, target, {on_error: (error) => errors.push(error)})
+      const mounted = mount(plot, {targets: target, on_error: (error) => errors.push(error)})
 
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect(error).to.be.instanceof(MountError)
@@ -452,7 +453,7 @@ describe("in api/plotting module", () => {
       const documents_before = documents.length
       const first = Plot.create()
       const second = FailingPlot.create()
-      const mounted = mount({first, second}, target)
+      const mounted = mount({first, second}, {targets: target})
 
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect(error).to.be.instanceof(MountError)
@@ -484,7 +485,8 @@ describe("in api/plotting module", () => {
       const documents_before = documents.length
       const plot = Plot.create()
       let callback_called = false
-      const mounted = mount(plot, target, {
+      const mounted = mount(plot, {
+        targets: target,
         on_error() {
           callback_called = true
           throw new Error("application error handler failed")
@@ -522,7 +524,7 @@ describe("in api/plotting module", () => {
       document.body.append(target)
       const doc = new Document()
       const errors: MountError[] = []
-      const mounted = mount(doc, target, {on_error: (error) => errors.push(error)})
+      const mounted = mount(doc, {targets: target, on_error: (error) => errors.push(error)})
       await mounted.ready
       const plot = FailingPlot.create()
 
@@ -552,7 +554,7 @@ describe("in api/plotting module", () => {
       controller.abort(new Error("component unmounted"))
       const documents_before = documents.length
 
-      const mounted = mount(Plot.create(), target, {signal: controller.signal})
+      const mounted = mount(Plot.create(), {targets: target, signal: controller.signal})
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect(error).to.be.instanceof(MountError)
       expect((error as MountError).kind).to.be.equal("abort")
@@ -567,11 +569,11 @@ describe("in api/plotting module", () => {
       const controller = new AbortController()
 
       document.body.append(first_target, second_target)
-      const first_mount = mount(plot, first_target, {signal: controller.signal})
+      const first_mount = mount(plot, {targets: first_target, signal: controller.signal})
       const first_error = first_mount.ready.then(() => null, (error: unknown) => error)
       controller.abort(new Error("superseded"))
 
-      const second_mount = mount(plot, second_target)
+      const second_mount = mount(plot, {targets: second_target})
       await second_mount.ready
       expect(await first_error).to.be.instanceof(Error)
       expect(plot.document).to.be.equal(second_mount.document)
@@ -605,7 +607,7 @@ describe("in api/plotting module", () => {
       const target = document.createElement("div")
       const doc = new Document()
       document.body.append(target)
-      const mounted = mount(doc, target)
+      const mounted = mount(doc, {targets: target})
       await mounted.ready
       const plot = DelayedPlot.create()
 
@@ -629,7 +631,7 @@ describe("in api/plotting module", () => {
       const plot = Plot.create()
       const doc = new Document({roots: [plot]})
       document.body.append(target)
-      const mounted = mount(doc, target)
+      const mounted = mount(doc, {targets: target})
       await mounted.ready
       const [view] = mounted.views
       expect_instanceof(view, PlotView)

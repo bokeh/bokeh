@@ -25,14 +25,14 @@ const roots = [plot, detail]
 const roots_document = new Document({roots})
 
 const target = document.createElement("div")
-const direct_mount = mount(plot, target)
+const direct_mount = mount(plot, {targets: target})
 void direct_mount
 void target.bokehMount?.ready
 void target.bokehMountError
 void when_mounted(target)
 void when_mounted(target, {signal: new AbortController().signal})
 publish_mount_error(target, new MountError("source", "test bootstrap failure"))
-void mount(roots, document.createElement("div"))
+void mount(roots, {targets: document.createElement("div")})
 const keyed_source = new MountSource(roots_document, {overview: plot, detail})
 const keyed_mount = mount(keyed_source, {
   targets: {overview: document.createElement("div"), detail: document.createElement("div")},
@@ -45,7 +45,7 @@ void keyed_mount.view_lookup.find_one(plot)
 void keyed_mount.view_lookup.find_one_by_id(plot.id)
 // @ts-expect-error Mount view lookup is query-only and doesn't expose ViewManager mutation.
 keyed_mount.view_lookup.clear()
-void mount(roots_document, document.createElement("div"))
+void mount(roots_document, {targets: document.createElement("div")})
 const shown = Plotting.show(plot, target)
 void shown.ready
 void shown.dispose()

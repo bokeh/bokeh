@@ -10,8 +10,8 @@ export {
   BOKEH_MOUNTED_ATTRIBUTE, BOKEH_MOUNTED_EVENT, BOKEH_MOUNT_ERROR_EVENT,
 } from "../api/io"
 export type {
-  KeyedRoots, MountErrorPhase, MountErrorSource, MountOptions, MountOwnership, MountState, MountTarget, MountTargets, RootKey,
-  Showable, ShowableRoot, ViewLookup, WhenMountedOptions,
+  KeyedMountTargets, KeyedRoots, Mountable, MountErrorPhase, MountErrorSource, MountOptions, MountOwnership, MountState, MountTarget, MountTargets,
+  RootKey, Showable, ShowableRoot, ViewLookup, WhenMountedOptions,
 } from "../api/io"
 export type {EmbedErrorPhase, EmbedErrorSource, EmbedPayload, EmbedRoot} from "../embed/payload"
 export {ResourceError, ResourceLoader, resource_loader} from "../embed/resources"

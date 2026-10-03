@@ -149,7 +149,7 @@ the component is destroyed:
           try {
             const plot = Plotting.figure({width: 400, height: 250})
             plot.line([1, 2, 3], [2, 5, 3])
-            mounted = mount(plot, host.nativeElement)
+            mounted = mount(plot, {targets: host.nativeElement})
             void mounted.ready.catch(report)
           } catch (error) {
             report(error)
@@ -188,7 +188,8 @@ The same source works with Vite, Webpack, and Rspack:
 
     import {MountError, mount} from "@bokeh/bokehjs"
 
-    const mounted = mount(plot, document.querySelector<HTMLElement>("#app")!, {
+    const mounted = mount(plot, {
+      targets: document.querySelector<HTMLElement>("#app")!,
       on_error(error) {
         if (error instanceof MountError) {
           console.error(error.kind, error.root_key, error)
@@ -747,7 +748,7 @@ and hover policy. Here is an example of a ``pie`` chart and the plot it generate
     doc.add_root(plt.gridplot(
                      [[p1, p2], [p3, p4]],
                      {width: 250, height: 250}));
-    const mounted = Bokeh.mount(doc, document.currentScript.parentElement);
+    const mounted = Bokeh.mount(doc, {targets: document.currentScript.parentElement})
     await mounted.ready;
 
 .. _ug_advanced_bokehjs_interfaces_charts_bar:
