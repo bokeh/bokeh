@@ -32,10 +32,15 @@ def test_canonical_embed_json(value: object, expected: str) -> None:
     assert beu.canonical_embed_json(value) == expected
 
 
-@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf"), 2**53, float(2**53), 1e20, 1e21])
-def test_canonical_embed_json_rejects_numbers_javascript_cannot_fingerprint(value: float | int) -> None:
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf"), 2**53])
+def test_canonical_embed_json_rejects_non_finite_floats_and_unsafe_integers(value: float | int) -> None:
     with pytest.raises(ValueError, match=r"finite|safe integer"):
         beu.canonical_embed_json(value)
+
+
+@pytest.mark.parametrize("value", [float(2**53), 1e20, 1e21, 1e22])
+def test_canonical_embed_json_accepts_large_finite_floats(value: float) -> None:
+    assert isinstance(beu.canonical_embed_json(value), str)
 
 
 @pytest.mark.parametrize("value", [{1: "value"}, {1, 2}, b"value"])

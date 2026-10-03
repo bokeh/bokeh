@@ -309,7 +309,7 @@ def render_mounts(result: EmbedResult, *, payload_url: str | None = None,
 
 
 def _payload_tag(result: EmbedResult, *, declaration_id: str, nonce: str | None) -> str:
-    payload = _html_safe_json(result.to_dict())
+    payload = _html_safe_json(result.to_json_string())
     attrs = [
         f'type="{EMBED_MIME_TYPE}"',
         "data-bokeh-embed-payload",
@@ -406,8 +406,8 @@ def _validate_web_url(url: str, context: str, *, allow_absolute_path: bool = Fal
         raise ValueError(f"{context} cannot be scheme-relative, received {url!r}")
 
 
-def _html_safe_json(value: Mapping[str, Any]) -> str:
-    return canonical_embed_json(value).replace(
+def _html_safe_json(value: str) -> str:
+    return value.replace(
         "&", "\\u0026",
     ).replace("<", "\\u003c").replace(">", "\\u003e").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
 

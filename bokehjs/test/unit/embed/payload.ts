@@ -8,7 +8,7 @@ import {ModelResolver} from "@bokehjs/core/resolvers"
 import {to_object} from "@bokehjs/core/util/object"
 import {documents} from "@bokehjs/document"
 import type {EmbedPayload} from "@bokehjs/embed/payload"
-import {canonical_embed_json, EmbedError, compute_embed_fingerprint, validate_embed_payload} from "@bokehjs/embed/payload"
+import {EmbedError, validate_embed_payload} from "@bokehjs/embed/payload"
 import type {ResourceRequirements} from "@bokehjs/embed/resources"
 import {ResourceError, ResourceLoader} from "@bokehjs/embed/resources"
 import {CustomJS} from "@bokehjs/models"
@@ -27,12 +27,6 @@ function fixture(name: string): EmbedPayload {
   if (value.source.kind == "standalone") {
     value.source.documents.forEach((document) => document.version = js_version)
   }
-  return value
-}
-
-async function mountable_fixture(name: string): Promise<EmbedPayload> {
-  const value = fixture(name)
-  value.fingerprint = await compute_embed_fingerprint(value)
   return value
 }
 
@@ -82,7 +76,7 @@ describe("EmbedPayload runtime", () => {
   after_each(() => remove_test_resources())
 
   it("rejects mount queries before payload preparation completes", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const mounted = mount(payload, undefined, {resources: "none", resolver})
 
@@ -106,7 +100,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("consumes the shared keyed-root fixture through BokehMount", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const target = document.createElement("div")
     document.body.append(target)
     const resolver = new ModelResolver(default_resolver, [CustomJS])
@@ -132,7 +126,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("mounts compact shared and cyclic model data", async () => {
-    const payload = await mountable_fixture("standalone-compact-roots")
+    const payload = fixture("standalone-compact-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const mounted = mount(payload, undefined, {resources: "none", resolver})
     try {
@@ -151,7 +145,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("creates independent documents for repeated mounts of one payload", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const first_target = document.createElement("div")
     const second_target = document.createElement("div")
@@ -169,7 +163,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("publishes one declarative handle for early and late multi-root discovery", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const declaration = inline_declaration(payload)
     try {
@@ -193,7 +187,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("keeps repeated identical declarations isolated by DOM order", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const first = inline_declaration(payload)
     const second = inline_declaration(payload)
@@ -215,7 +209,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("rejects incomplete declarative target sets before decoding", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const declaration = inline_declaration(payload)
     const [target] = declaration.targets
     declaration.targets[1].remove()
@@ -234,7 +228,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("publishes one structured payload failure to every declaration target", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const instance = `Test-${++declaration_index}`
     const targets = payload.roots.map((root) => {
       const target = document.createElement("div")
@@ -274,7 +268,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("keeps waiter abort ownership separate from declarative mount ownership", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const declaration = inline_declaration(payload)
     const controller = new AbortController()
@@ -295,7 +289,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("publishes a bootstrap abort before a mount handle exists", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const declaration = inline_declaration(payload)
     const controller = new AbortController()
     const discoveries = declaration.targets.map((target) => when_mounted(target).then(
@@ -317,18 +311,15 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("publishes schema, fingerprint, resource, and deserialize preparation phases", async () => {
-    const base = await mountable_fixture("standalone-keyed-roots")
+    const base = fixture("standalone-keyed-roots")
     const cases: [MountErrorPhase, EmbedPayload, unknown][] = []
 
     cases.push(["schema", base, {...base, schema: "bokeh.embed/v2"}])
 
-    const fingerprint = structuredClone(base)
-    fingerprint.metadata.changed = true
-    cases.push(["fingerprint", fingerprint, fingerprint])
+    cases.push(["fingerprint", base, {...base, fingerprint: "other-result"}])
 
     const resource = structuredClone(base)
     resource.bokeh_version = "99.0.0"
-    resource.fingerprint = await compute_embed_fingerprint(resource)
     cases.push(["resource", resource, resource])
 
     const deserialize = structuredClone(base)
@@ -336,7 +327,6 @@ describe("EmbedPayload runtime", () => {
       throw new Error("expected a standalone fixture")
     }
     deserialize.source.documents[0].roots[0].name = "MissingEmbedModel"
-    deserialize.fingerprint = await compute_embed_fingerprint(deserialize)
     cases.push(["deserialize", deserialize, deserialize])
 
     for (const [phase, declaration_payload, value] of cases) {
@@ -359,7 +349,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("rejects unknown fingerprint-envelope fields consistently", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const envelope = {...payload, unexpected: true}
     const root = structuredClone(payload) as EmbedPayload & {
       roots: ({unexpected?: boolean} & EmbedPayload["roots"][number])[]
@@ -371,7 +361,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("rejects unsafe and ambiguous server URLs", async () => {
-    const payload = await mountable_fixture("server-existing-session")
+    const payload = fixture("server-existing-session")
     if (payload.source.kind != "server") {
       throw new Error("expected a server fixture")
     }
@@ -383,7 +373,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("rolls back a decoded payload after target failure", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const documents_before = documents.length
     const mounted = mount(payload, document.createElement("div"), {resources: "none", resolver})
@@ -396,7 +386,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("can be disposed before payload decoding completes", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const target = document.createElement("div")
     document.body.append(target)
@@ -412,7 +402,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("reports schema and runtime version errors through handle.ready", async () => {
-    const payload = await mountable_fixture("standalone-keyed-roots")
+    const payload = fixture("standalone-keyed-roots")
     const target = document.createElement("div")
     document.body.append(target)
 
@@ -425,25 +415,16 @@ describe("EmbedPayload runtime", () => {
     expect(schema_error.kind).to.be.equal("schema")
 
     const mismatched_payload = {...payload, bokeh_version: "99.0.0"}
-    mismatched_payload.fingerprint = await compute_embed_fingerprint(mismatched_payload)
     const mismatched = mount(mismatched_payload, target, {resources: "none"})
     const resource_error = await mismatched.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(resource_error, MountError)
     expect(resource_error.kind).to.be.equal("resource")
     expect(resource_error.message.includes("incompatible")).to.be.true
-
-    const tampered = structuredClone(payload)
-    tampered.metadata.tampered = true
-    const invalid_fingerprint = mount(tampered, target, {resources: "none"})
-    const fingerprint_error = await invalid_fingerprint.ready.then(() => null, (error: unknown) => error)
-    expect_instanceof(fingerprint_error, MountError)
-    expect(fingerprint_error.kind).to.be.equal("schema")
-    expect(fingerprint_error.message.includes("fingerprint mismatch")).to.be.true
     target.remove()
   })
 
   it("surfaces server bootstrap HTTP failures without a second lifecycle", async () => {
-    const payload = await mountable_fixture("server-existing-session")
+    const payload = fixture("server-existing-session")
     if (payload.source.kind != "server") {
       throw new Error("expected a server fixture")
     }
@@ -453,7 +434,6 @@ describe("EmbedPayload runtime", () => {
       headers: {Authorization: "Bearer token"},
       credentials: "include",
     }
-    payload.fingerprint = await compute_embed_fingerprint(payload)
     const target = document.createElement("div")
     document.body.append(target)
     const original_fetch = globalThis.fetch
@@ -483,7 +463,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("validates the versioned server bootstrap before opening a websocket", async () => {
-    const payload = await mountable_fixture("server-existing-session")
+    const payload = fixture("server-existing-session")
     const target = document.createElement("div")
     document.body.append(target)
     const original_fetch = globalThis.fetch
@@ -504,10 +484,11 @@ describe("EmbedPayload runtime", () => {
     }
   })
 
-  it("validates shared fixture envelopes and Python-compatible fingerprints", async () => {
+  it("validates shared fixture envelopes and producer fingerprints", () => {
     for (const item of fixture_data.cases) {
       const raw = structuredClone(item.payload) as unknown as EmbedPayload
-      expect(await compute_embed_fingerprint(raw)).to.be.equal(raw.fingerprint)
+      expect(validate_embed_payload(raw)).to.be.equal(raw)
+      expect(raw.fingerprint.length).to.be.above(0)
     }
     const standalone = validate_embed_payload(fixture("standalone-keyed-roots"))
     expect(standalone.source.kind).to.be.equal("standalone")
@@ -516,43 +497,21 @@ describe("EmbedPayload runtime", () => {
     expect(server.roots).to.be.equal([{key: "detail", model_id: "fixture-root"}])
   })
 
-  it("uses the canonical cross-language JSON representation", () => {
-    expect(canonical_embed_json({
-      z: null,
-      small: 1e-7,
-      fixed: 1e-6,
-      negative_zero: -0,
-      "\ue000": 1,
-      "\u{10000}": 2,
-    })).to.be.equal('{"fixed":0.000001,"negative_zero":0,"small":1e-7,"z":null,"𐀀":2,"":1}')
-  })
-
-  it("rejects non-finite and unsafe fingerprint numbers", async () => {
-    for (const value of [NaN, Infinity, 2**53, 1e20, 1e21]) {
+  it("validates JSON-compatible values without recomputing fingerprints", () => {
+    for (const value of [NaN, Infinity, () => {}, 1n]) {
       const payload = fixture("standalone-keyed-roots")
       payload.metadata = {value}
-      const error = await compute_embed_fingerprint(payload).then(
-        () => null, (error: unknown) => error,
-      )
-      expect_instanceof(error, EmbedError)
-      expect(error.message.includes("finite") || error.message.includes("safe integer")).to.be.true
+      expect(() => validate_embed_payload(payload)).to.throw(EmbedError, /finite|JSON-compatible/)
     }
-  })
 
-  it("keeps envelope metadata outside model ID normalization", async () => {
-    const actual = fixture("standalone-keyed-roots")
-    if (actual.source.kind != "standalone") {
-      throw new Error("expected a standalone fixture")
-    }
-    const retained = actual.source.documents[0].roots[0] as {id?: string}
-    retained.id = "retained-model-id"
-    actual.metadata = {id: "retained-model-id"}
-    const normalized_lookalike = structuredClone(actual)
-    normalized_lookalike.metadata = {id: "model-0"}
+    const cyclic: {[key: string]: unknown} = {}
+    cyclic.self = cyclic
+    const payload = fixture("standalone-keyed-roots")
+    payload.metadata = {cyclic}
+    expect(() => validate_embed_payload(payload)).to.throw(EmbedError, /cyclic/)
 
-    expect(await compute_embed_fingerprint(actual)).to.not.be.equal(
-      await compute_embed_fingerprint(normalized_lookalike),
-    )
+    payload.metadata = {value: 1e22}
+    expect(validate_embed_payload(payload)).to.be.equal(payload)
   })
 
   it("rejects missing fingerprints, removed buffers, and malformed resource literals", () => {
@@ -782,7 +741,7 @@ describe("EmbedPayload runtime", () => {
   })
 
   it("loads the standard external bootstrap under a strict CSP", async () => {
-    const embed_payload = await mountable_fixture("standalone-keyed-roots")
+    const embed_payload = fixture("standalone-keyed-roots")
     const instance = `Test-${++declaration_index}`
     const payload_url = URL.createObjectURL(new Blob([JSON.stringify(embed_payload)], {
       type: "application/vnd.bokeh.embed+json",

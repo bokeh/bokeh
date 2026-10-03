@@ -107,13 +107,15 @@ logical root keys, and non-negative document/root ordinals that refer into that
 document. Server payloads use model IDs instead of ordinals. Requirements and
 extension names are unique, while metadata must contain JSON-compatible values.
 The ``embedding`` metadata key is reserved for Bokeh. Python and BokehJS enforce
-the same invariants when reading a result.
+the structural invariants when reading a result.
 
 ``fingerprint`` is a SHA-256 content identity over the canonical embed payload,
 excluding the fingerprint field itself and normalizing allocation-specific
-model IDs. It detects mismatched or stale payloads and provides a stable cache
-or deduplication key. It is not a signature, an authentication mechanism, or a
-substitute for subresource integrity.
+model IDs. It provides a stable cache or deduplication key. Python verifies the
+fingerprint when reconstructing an ``EmbedResult``. BokehJS treats it as opaque
+producer metadata and checks that external declarations identify the payload
+they load. It is not a signature, an authentication mechanism, or a substitute
+for subresource integrity.
 
 Standalone v1 embed results serialize their document data inline and do not carry
 a payload-level ``buffers`` field. Efficient binary transport remains
