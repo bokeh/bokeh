@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
     from jinja2 import Template
 
-    from ..resources import Resources
+    from ..resources import ResourcesLike
     from .renderers import EmbedFragment, ExternalEmbed
 
 EMBED_SCHEMA = "bokeh.embed/v1"
@@ -351,7 +351,7 @@ class EmbedResult:
             raise EmbedValidationError("an embed payload must be a JSON object")
         return cls.from_dict(parsed)
 
-    def fragment(self, resources: Resources | str | None = "none", *,
+    def fragment(self, resources: ResourcesLike | None = "none", *,
             bootstrap_url: str | None = None) -> EmbedFragment:
         '''Render composable targets, bootstrap code, and resolved resources.
 
@@ -365,7 +365,7 @@ class EmbedResult:
         from .renderers import render_fragment
         return render_fragment(self, resources=resources, bootstrap_url=bootstrap_url)
 
-    def page(self, resources: Resources | str | None = None, *, title: str | None = None,
+    def page(self, resources: ResourcesLike | None = None, *, title: str | None = None,
             template: Template | str | Path | None = None, template_variables: Mapping[str, Any] | None = None,
             bootstrap_url: str | None = None) -> str:
         '''Render a complete HTML page from this embed result.
@@ -386,7 +386,7 @@ class EmbedResult:
             template_variables=template_variables, bootstrap_url=bootstrap_url,
         )
 
-    def external(self, payload_url: str, resources: Resources | str | None = "none",
+    def external(self, payload_url: str, resources: ResourcesLike | None = "none",
             *, bootstrap_url: str | None = None) -> ExternalEmbed:
         '''Render targets that fetch this embed payload from a URL.
 

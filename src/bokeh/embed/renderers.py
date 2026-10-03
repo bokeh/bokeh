@@ -34,6 +34,8 @@ from .result import EMBED_MIME_TYPE, EmbedResult
 if TYPE_CHECKING:
     from jinja2 import Template
 
+    from ..resources import ResourcesLike
+
 
 @dataclass(frozen=True)
 class EmbedMount:
@@ -118,7 +120,7 @@ class ExternalEmbed:
         return self.result.to_json_string()
 
 
-def render_fragment(result: EmbedResult, *, resources: Resources | str | None = "none",
+def render_fragment(result: EmbedResult, *, resources: ResourcesLike | None = "none",
         bootstrap_url: str | None = None) -> EmbedFragment:
     '''Render an embed result for composition inside a host-owned HTML page.'''
     mounts, script, resolved = _render_inline_parts(result, resources, bootstrap_url)
@@ -129,7 +131,7 @@ def render_fragment(result: EmbedResult, *, resources: Resources | str | None = 
     return EmbedFragment(result, mounts, script, resolved, build_fingerprint, html)
 
 
-def _render_inline_parts(result: EmbedResult, resources: Resources | str | None,
+def _render_inline_parts(result: EmbedResult, resources: ResourcesLike | None,
         bootstrap_url: str | None) -> tuple[tuple[EmbedMount, ...], str, ResolvedResources]:
     policy = _resources_for_embed(result, resources)
     if bootstrap_url is not None and policy.integrity:
@@ -157,7 +159,7 @@ def _render_inline_parts(result: EmbedResult, resources: Resources | str | None,
 
 
 def render_external(result: EmbedResult, *, payload_url: str,
-        resources: Resources | str | None = "none",
+        resources: ResourcesLike | None = "none",
         bootstrap_url: str | None = None) -> ExternalEmbed:
     '''Render a declaration that fetches an embed payload from ``payload_url``.'''
     if not payload_url:
@@ -200,7 +202,7 @@ def render_external(result: EmbedResult, *, payload_url: str,
     return ExternalEmbed(result, payload_url, mounts, bootstrap, resolved, build_fingerprint, html)
 
 
-def render_page(result: EmbedResult, *, resources: Resources | str | None = None,
+def render_page(result: EmbedResult, *, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | str | Path | None = None,
         template_variables: Mapping[str, Any] | None = None, bootstrap_url: str | None = None) -> str:
     '''Render a complete HTML document with resolved resources and targets.'''
@@ -263,7 +265,7 @@ def render_mimebundle(result: EmbedResult) -> dict[str, Any]:
     }
 
 
-def _resources_for_embed(result: EmbedResult, resources: Resources | str | None) -> Resources:
+def _resources_for_embed(result: EmbedResult, resources: ResourcesLike | None) -> Resources:
     policy = Resources.build(resources)
     source = result.source
     if policy.mode == "server" and policy.root_url is None and source.get("kind") == "server":

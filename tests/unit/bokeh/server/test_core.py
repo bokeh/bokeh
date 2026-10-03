@@ -379,7 +379,7 @@ async def test_cookie_header_is_removed_case_insensitively_from_token() -> None:
         await core.stop()
 
 
-async def test_embed_endpoint_rejects_invalid_header_token_payload(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_create_session_rejects_invalid_header_token_payload(monkeypatch: pytest.MonkeyPatch) -> None:
     core = BokehServerCore(Application())
     request = ServerRequest(
         method="GET",

@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.resources import Resources
+from bokeh.resources import CDN, Resources
 from bokeh.settings import settings
 
 # -----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ def get_sphinx_resources(include_bokehjs_api: bool = False) -> Resources:
 
     # if BOKEH_DOCS_CDN is unset just use default CDN resources
     if docs_cdn is None:
-        resources = Resources(mode="cdn")
+        resources = Resources(mode=CDN)
     else:
         # "BOKEH_DOCS_CDN=local" is used for building and displaying the docs locally
         if docs_cdn == "local":
@@ -55,7 +55,7 @@ def get_sphinx_resources(include_bokehjs_api: bool = False) -> Resources:
 
         # Otherwise assume it is a dev/rc/full release version and use CDN for it
         else:
-            resources = Resources(mode="cdn")
+            resources = Resources(mode=CDN)
     return resources
 
 # -----------------------------------------------------------------------------

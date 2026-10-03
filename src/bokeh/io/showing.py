@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from ..application.application import Application
     from ..application.handlers.function import ModifyDoc
     from ..core.types import PathLike
-    from ..resources import Resources
+    from ..resources import ResourcesLike
     from .notebook import CommsHandle, ProxyUrlFunc
 
 #-----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ def show(
     notebook_url: str | ProxyUrlFunc = notebook.DEFAULT_JUPYTER_URL,
     *,
     filename: PathLike | None = None,
-    resources: Resources | str | None = None,
+    resources: ResourcesLike | None = None,
     title: str | None = None,
     template: Template | str | None = None,
     **kwargs: Any,
@@ -104,7 +104,7 @@ def show(
             Open file output in the same browser context, a new window, or a
             new tab. Valid values are ``"same"``, ``"window"``, and ``"tab"``.
 
-        resources (Resources or str, optional) :
+        resources (Resources or resource setting, optional) :
             Resource policy passed to :func:`~bokeh.io.save`.
 
         title (str, optional) :
@@ -220,7 +220,7 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file(obj: Showable, *, filename: PathLike, resources: Resources | str | None,
+def _show_file(obj: Showable, *, filename: PathLike, resources: ResourcesLike | None,
         title: str | None, template: Template | str | None,
         browser: str | None, new: BrowserTarget) -> None:
     '''

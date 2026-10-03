@@ -38,9 +38,10 @@ the result once and choose a delivery form independently:
 .. code-block:: python
 
     from bokeh.embed import embed
+    from bokeh.resources import CDN
 
     result = embed({"summary": summary_plot, "detail": detail_plot})
-    page = result.page(resources="cdn", title="Report")
+    page = result.page(resources=CDN, title="Report")
     fragment = result.fragment(resources="none")
     json_payload = result.to_json_string()
     external = result.external("/assets/report.json", resources="none")
@@ -137,6 +138,7 @@ Each renderer serves a distinct host rather than recompiling the models:
     from bokeh.embed import embed
     from bokeh.models import Button, ColumnDataSource, DataTable, TableColumn
     from bokeh.plotting import figure
+    from bokeh.resources import CDN
 
     source = ColumnDataSource(data={"x": [1, 2, 3], "y": [3, 1, 2]})
     plot = figure(width=360, height=220, title="Embed result plot")
@@ -150,7 +152,7 @@ Each renderer serves a distinct host rather than recompiling the models:
     result = embed({"plot": plot, "button": button, "table": table})
 
     # Complete document: Bokeh resolves and emits matching CDN resources.
-    page_html = result.page(resources="cdn", title="Embedding renderer tour")
+    page_html = result.page(resources=CDN, title="Embedding renderer tour")
 
     # Host composition places fragment.divs independently. The host owns assets.
     fragment = result.fragment(resources="none")
@@ -177,13 +179,14 @@ providing interactive tools such as pan and zoom:
 
 .. code-block:: python
 
-    from bokeh.plotting import figure
     from bokeh.embed import embed
+    from bokeh.plotting import figure
+    from bokeh.resources import CDN
 
     plot = figure()
     plot.scatter([1,2], [3,4])
 
-    html = embed(plot).page(resources="cdn", title="my plot")
+    html = embed(plot).page(resources=CDN, title="my plot")
 
 You can save the returned HTML text to a file using standard Python file
 operations. You can also provide your own template for the HTML output
@@ -330,12 +333,12 @@ payload separately and produces the HTML that the host page should insert.
     from pathlib import Path
 
     from bokeh.embed import embed
-    from bokeh.resources import Resources
+    from bokeh.resources import CDN, Resources
 
     result = embed({"report": plot})
     external = result.external(
         "/assets/report.json",
-        resources=Resources(mode="cdn", external_only=True),
+        resources=Resources(mode=CDN, external_only=True),
     )
     Path("static/report.json").write_text(external.payload)
     print(external.html)

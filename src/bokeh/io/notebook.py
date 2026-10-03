@@ -57,10 +57,11 @@ if TYPE_CHECKING:
     )
     from ..model import Model
     from ..models.ui import UIElement
+    from ..resources import ResourcesLike
 
 # Bokeh imports
 from ..embed.resources import ResolvedResources
-from ..resources import Resources
+from ..resources import INLINE, Resources
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -161,7 +162,7 @@ class CommsHandle:
             self.doc.callbacks.trigger_on_change(event)
 
 class Load(Protocol):
-    def __call__(self, resources: Resources | str | None, verbose: bool, hide_banner: bool, load_timeout: int) -> None: ...
+    def __call__(self, resources: ResourcesLike | None, verbose: bool, hide_banner: bool, load_timeout: int) -> None: ...
 
 class ShowDoc(Protocol):
     def __call__(self, obj: Model | Sequence[UIElement], notebook_handle: bool) -> CommsHandle | None: ...
@@ -413,12 +414,12 @@ def install_jupyter_hooks() -> None:
     '''
     install_notebook_hook('jupyter', load_notebook, show_doc, show_app)
 
-def load_notebook(resources: Resources | str | None = None, verbose: bool = False,
+def load_notebook(resources: ResourcesLike | None = None, verbose: bool = False,
         hide_banner: bool = False, load_timeout: int = 5000) -> None:
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
-        resources (Resource, optional) :
+        resources (Resources or resource setting, optional) :
             how and where to load BokehJS from (default: CDN)
 
         verbose (bool, optional) :
@@ -461,7 +462,7 @@ def load_notebook(resources: Resources | str | None = None, verbose: bool = Fals
     if not hide_banner:
         js_files = [asset.url for asset in resolved.assets if asset.kind == "script" and asset.url is not None]
         css_files = [asset.url for asset in resolved.assets if asset.kind == "style" and asset.url is not None]
-        if policy.mode in ('inline', 'offline'):
+        if policy.mode in (INLINE, 'offline'):
             js_info: str | list[str] = 'inline'
             css_info: str | list[str] = 'inline'
         else:

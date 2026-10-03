@@ -38,6 +38,7 @@ from ..document import Document
 from ..resources import (
     _COMPONENT_NAMES,
     DEFAULT_SERVER_HTTP_URL,
+    INLINE,
     ResourceComponent,
     Resources as _Resources,
     _inline_resource,
@@ -580,7 +581,7 @@ def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequir
         if not assets and module == "bokeh":
             extensions.pop(extension_name, None)
 
-    package_policy = _Resources(mode="inline")
+    package_policy = _Resources(mode=INLINE)
     for package in bundle_extensions(all_objects, package_policy):
         name = f"package:{package.artifact_path.stem}"
         assets = extensions.setdefault(name, [])

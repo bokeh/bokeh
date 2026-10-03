@@ -38,7 +38,7 @@ from typing import TYPE_CHECKING, Iterator
 
 # Bokeh imports
 from ..embed._util import ThemePolicy, embed
-from ..resources import Resources
+from ..resources import INLINE
 
 if TYPE_CHECKING:
     from tempfile import _TemporaryFileWrapper
@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
+    from ..resources import ResourcesLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -145,7 +146,7 @@ def tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
         os.unlink(tmp.name)
 
 
-def get_layout_html(obj: UIElement | Document, *, resources: Resources | str = "inline",
+def get_layout_html(obj: UIElement | Document, *, resources: ResourcesLike = INLINE,
         width: int | None = None, height: int | None = None,
         theme: ThemeSource = ThemePolicy.SOURCE_OR_CURDOC) -> str:
     '''

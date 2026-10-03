@@ -19,7 +19,7 @@ from flask import Flask, render_template_string
 # Bokeh imports
 from bokeh.client import pull_session
 from bokeh.embed import embed_server
-from bokeh.resources import Resources
+from bokeh.resources import INLINE
 
 app_html = """
 <!DOCTYPE html>
@@ -65,7 +65,7 @@ def home():
         roots = {root.name or f"root-{index}": root for index, root in enumerate(session.document.roots)}
         result = embed_server(".", token=session.token, roots=roots)
         code = result.page(
-            resources=Resources(mode="inline"),
+            resources=INLINE,
             title='test',
         )
     return render_template_string(app_html, code=code, app_url=app_url)

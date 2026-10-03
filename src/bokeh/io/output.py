@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING
 from .notebook import _activate_notebook, run_notebook_hook
 
 if TYPE_CHECKING:
-    from ..resources import Resources
+    from ..resources import ResourcesLike
     from .notebook import NotebookType
 
 #-----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def output_notebook(resources: Resources | str | None = None, verbose: bool = False,
+def output_notebook(resources: ResourcesLike | None = None, verbose: bool = False,
         hide_banner: bool = False, load_timeout: int = 5000, notebook_type: NotebookType = "jupyter") -> None:
     ''' Configure |show| to generate output in notebook cells.
 
@@ -51,7 +51,7 @@ def output_notebook(resources: Resources | str | None = None, verbose: bool = Fa
     objects will be displayed in order.
 
     Args:
-        resources (Resources or str, optional) :
+        resources (Resources or resource setting, optional) :
             How and where to load BokehJS from (default: CDN)
 
         verbose (bool, optional) :

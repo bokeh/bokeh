@@ -35,7 +35,6 @@ from typing import (
 from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model
-from ..resources import Resources
 from ..util.deprecation import deprecated
 from ._util import ThemeSource
 
@@ -43,6 +42,7 @@ if TYPE_CHECKING:
     from jinja2 import Template
 
     from ..core.types import ID
+    from ..resources import ResourcesLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -59,7 +59,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def autoload_static(model: Model | Document, resources: Resources | str, script_path: str) -> tuple[str, str]:
+def autoload_static(model: Model | Document, resources: ResourcesLike,
+        script_path: str) -> tuple[str, str]:
     """Use ``embed(model).external(...)`` instead."""
     raise RuntimeError(
         "autoload_static() was removed. Use embed(model).external(payload_url=script_path) "
@@ -172,7 +173,7 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
 
 def file_html(
     models: Model | Document | Sequence[Model],
-    resources: Resources | str | None = None,
+    resources: ResourcesLike | None = None,
     title: str | None = None,
     *,
     template: Template | str = FILE,
@@ -190,7 +191,7 @@ def file_html(
         models (Model or Document or seq[Model]) : Bokeh object or objects to render
             typically a Model or Document
 
-        resources (Resources or str) :
+        resources (Resources or resource setting) :
             A resource policy for Bokeh JS & CSS assets.
 
         title (str, optional) :

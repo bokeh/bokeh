@@ -146,7 +146,7 @@ class Resources:
     or explicit paths. CSP and SRI choices belong to resources rather than the
     reusable embed result. Bundle versions always come from the embed payload.
     '''
-    mode: ResourcesMode = "cdn"
+    mode: ResourcesMode = CDN
     minified: bool = True
     root_url: str | None = None
     root_dir: PathLike | None = None
@@ -162,11 +162,11 @@ class Resources:
             raise ResourceConflictError(
                 f"unknown resource mode {self.mode!r}; expected one of {_RESOURCE_MODES!r}",
             )
-        if self.mode in ("inline", "offline") and self.external_only:
+        if self.mode in (INLINE, "offline") and self.external_only:
             raise ResourceConflictError(
                 f"resource mode '{self.mode}' emits inline assets and conflicts with external_only=True",
             )
-        if self.integrity and self.mode != "cdn":
+        if self.integrity and self.mode != CDN:
             raise ResourceConflictError("subresource integrity is only available for CDN resources")
         if self.root_url is not None and self.mode != "server":
             raise ResourceConflictError("root_url is only valid for server resources")
@@ -182,7 +182,7 @@ class Resources:
             object.__setattr__(self, "root_url", f"{self.root_url}/")
 
     @classmethod
-    def build(cls, value: Resources | str | None = None, **overrides: Any) -> Resources:
+    def build(cls, value: ResourcesLike | None = None, **overrides: Any) -> Resources:
         '''Normalize a resources specification.
 
         Args:
@@ -270,7 +270,7 @@ class Resources:
                         f"offline resources cannot load external {requirement.kind} {requirement.url!r} "
                         f"required by extension {extension.name!r}; provide inline extension content",
                     )
-                if self.mode == "inline" and requirement.url is not None:
+                if self.mode == INLINE and requirement.url is not None:
                     raise ResourceConflictError(
                         f"inline resources cannot inline {requirement.url!r} required by extension {extension.name!r}; "
                         "declare the extension asset content or choose an external mode",
@@ -319,7 +319,7 @@ class Resources:
         '''
         from .embed.resources import ResolvedResource
 
-        if self.mode in ("none", "inline", "offline"):
+        if self.mode in ("none", INLINE, "offline"):
             raise ResourceConflictError(
                 f"resource mode {self.mode!r} cannot resolve an external embed bootstrap URL. "
                 "provide bootstrap_url explicitly",
@@ -344,9 +344,9 @@ class Resources:
         suffix = ".min" if self.minified else ""
         base_dir = Path(self.base_dir) if self.base_dir is not None else settings.bokehjs_path()
         paths = [base_dir / kind / f"{component}{suffix}.{kind}" for component in components]
-        mode = "inline" if self.mode == "offline" else self.mode
+        mode = INLINE if self.mode == "offline" else self.mode
 
-        if mode == "inline":
+        if mode == INLINE:
             return [], [_inline_resource(path) for path in paths], {}
         if mode == "relative":
             configured_root = self.root_dir or settings.rootdir()
@@ -354,7 +354,7 @@ class Resources:
             return [os.path.relpath(path, root_dir).replace("\\", "/") for path in paths], [], {}
         if mode == "absolute":
             return [str(path) for path in paths], [], {}
-        if mode == "cdn":
+        if mode == CDN:
             urls = _get_cdn_urls(bokeh_version.split("+", 1)[0], self.minified)
             files = urls.urls(components, kind)
             hashes = urls.hashes(components, kind) if urls.hashes is not None else {}
@@ -367,6 +367,8 @@ class Resources:
             )
             return urls.urls(components, kind), [], {}
         raise AssertionError(f"unexpected resource mode {self.mode!r}")
+
+type ResourcesLike = Resources | ResourcesSetting
 
 # -----------------------------------------------------------------------------
 # Dev API
@@ -637,6 +639,7 @@ __all__ = (
     "INLINE",
     "ResourceConflictError",
     "Resources",
+    "ResourcesLike",
     "ResourcesMode",
     "ResourcesSetting",
     "get_all_sri_versions",
