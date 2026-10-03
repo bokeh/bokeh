@@ -2,11 +2,7 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 3.x     | :white_check_mark: |
-| 2.4.x   | :white_check_mark: |
-| < 2.4   | :x:                |
+At least the current latest minor release level, and one previous minor release level. Backports of fixes to older release levels will be considered on a case-by-base basis. 
 
 ## Reporting a Vulnerability
 
