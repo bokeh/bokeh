@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 from dataclasses import dataclass, field
+from functools import cache
 from os.path import normpath
 from pathlib import Path
 from typing import (
@@ -29,6 +30,10 @@ from urllib.parse import urljoin
 
 # Bokeh imports
 from ..core.has_props import HasProps
+from ..core.property.bases import ParameterizedProperty, Property
+from ..core.property.container import Dict, Seq, Tuple
+from ..core.property.descriptors import UnsetValueError
+from ..core.property.string import MathString
 from ..document import Document
 from ..resources import (
     _COMPONENT_NAMES,
@@ -466,25 +471,57 @@ def use_widgets(all_objs: set[HasProps]) -> bool:
     )
 
 
-def _model_requires_mathjax(model: HasProps) -> bool:
-    from ..models.annotations import TextAnnotation
-    from ..models.axes import Axis
-    from ..models.widgets.markups import Div, Paragraph
-    from ..models.widgets.sliders import AbstractSlider
+def _property_supports_math_text(prop: Property[Any]) -> bool:
+    return isinstance(prop, MathString) or (
+        isinstance(prop, ParameterizedProperty)
+        and any(_property_supports_math_text(type_param) for type_param in prop.type_params)
+    )
 
-    if isinstance(model, TextAnnotation) and isinstance(model.text, str) and contains_tex_string(model.text):
-        return True
-    if isinstance(model, AbstractSlider) and isinstance(model.title, str) and contains_tex_string(model.title):
-        return True
-    if isinstance(model, Axis):
-        if isinstance(model.axis_label, str) and contains_tex_string(model.axis_label):
+
+@cache
+def _math_text_properties(model_type: type[HasProps]) -> tuple[tuple[str, Property[Any]], ...]:
+    return tuple(
+        (name, prop) for name, prop in model_type.properties().items()
+        if _property_supports_math_text(prop)
+    )
+
+
+def _property_value_requires_mathjax(prop: Property[Any], value: Any) -> bool:
+    if isinstance(prop, MathString):
+        return isinstance(value, str) and contains_tex_string(value)
+    if isinstance(prop, Dict):
+        return isinstance(value, Mapping) and any(
+            _property_value_requires_mathjax(prop.keys_type, key)
+            or _property_value_requires_mathjax(prop.values_type, item)
+            for key, item in value.items()
+        )
+    if isinstance(prop, Tuple):
+        return isinstance(value, (tuple, list)) and len(value) == len(prop.type_params) and any(
+            _property_value_requires_mathjax(type_param, item)
+            for type_param, item in zip(prop.type_params, value)
+        )
+    if isinstance(prop, Seq):
+        return prop.is_valid(value) and any(
+            _property_value_requires_mathjax(prop.item_type, item) for item in value
+        )
+    if isinstance(prop, ParameterizedProperty):
+        return any(
+            type_param.is_valid(value) and _property_value_requires_mathjax(type_param, value)
+            for type_param in prop.type_params
+        )
+    return False
+
+
+def _model_requires_mathjax(model: HasProps) -> bool:
+    if getattr(model, "disable_math", False) or getattr(model, "render_as_text", False):
+        return False
+    for name, prop in _math_text_properties(cast(Any, type(model))):
+        try:
+            value = getattr(model, name)
+        except UnsetValueError:
+            continue
+        if _property_value_requires_mathjax(prop, value):
             return True
-        if any(isinstance(value, str) and contains_tex_string(value) for value in model.major_label_overrides.values()):
-            return True
-    if isinstance(model, Div) and not model.disable_math and not model.render_as_text:
-        return contains_tex_string(model.text)
-    if isinstance(model, Paragraph) and not model.disable_math:
-        return contains_tex_string(model.text)
     return False
 
 

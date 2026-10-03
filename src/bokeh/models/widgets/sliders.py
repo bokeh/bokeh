@@ -47,6 +47,7 @@ from ...core.property.primitive import (
 from ...core.property.readonly import Readonly
 from ...core.property.required import Required
 from ...core.property.singletons import Undefined
+from ...core.property.string import MathString
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
 from ..formatters import TickFormatter
@@ -101,7 +102,7 @@ class AbstractSlider(Widget):
     Orient the slider either horizontally (default) or vertically.
     """)
 
-    title = Nullable(String, default="", help="""
+    title = Nullable(MathString, default="", help="""
     The slider's label (supports :ref:`math text <ug_styling_mathtext>`).
     """)
 
