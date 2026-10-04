@@ -425,7 +425,7 @@ def render_resource(asset: ResolvedResource, *, allow_absolute_path: bool = Fals
         if asset.url is not None:
             _validate_web_url(asset.url, "script resource URL", allow_absolute_path=allow_absolute_path)
             script_type = ' type="module"' if asset.module else ""
-            state = "loading" if asset.module else "loaded"
+            state: Literal["loading", "loaded"] = "loading" if asset.module else "loaded"
             marker = ' data-bokeh-resource=""' if asset.module else ""
             resource = f'<script src="{escape(asset.url, quote=True)}"{script_type}{marker}{suffix(state)}></script>'
             return resource

@@ -533,7 +533,9 @@ describe("EmbedPayload runtime", () => {
     const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const prepared = await prepare_embed(payload, "none", resolver)
-    prepared.roots.set("secondary", prepared.roots.get("primary")!)
+    const primary = prepared.roots.get("primary")
+    expect_not_null(primary)
+    prepared.roots.set("secondary", primary)
     const release = sinon.spy(prepared, "release")
     const destroy = sinon.spy(prepared.document, "destroy")
 
@@ -549,7 +551,9 @@ describe("EmbedPayload runtime", () => {
     const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const prepared = await prepare_embed(payload, "none", resolver)
-    prepared.roots.set("secondary", prepared.roots.get("primary")!)
+    const primary = prepared.roots.get("primary")
+    expect_not_null(primary)
+    prepared.roots.set("secondary", primary)
     const release = sinon.stub(prepared, "release").throws(new Error("release failed"))
     const destroy = sinon.spy(prepared.document, "destroy")
 

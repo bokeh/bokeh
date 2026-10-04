@@ -287,7 +287,7 @@ class Resources:
 
         for extension in requirements.extensions:
             for requirement in extension.assets:
-                url = requirement.url
+                asset_url = requirement.url
                 content = requirement.content
                 if requirement.package is not None:
                     bundle = resolve_package_requirement(
@@ -297,40 +297,40 @@ class Resources:
                         content = _inline_resource(bundle.artifact_path)
                     elif self.mode == CDN:
                         if bundle.cdn_url is not None:
-                            url = bundle.cdn_url
+                            asset_url = bundle.cdn_url
                         else:
                             content = _inline_resource(bundle.artifact_path)
                     elif self.mode == "server":
-                        url = bundle.server_url
+                        asset_url = bundle.server_url
                     elif self.mode == "relative":
                         configured_root = self.root_dir or settings.rootdir()
                         root_dir = Path(configured_root) if configured_root is not None else Path(os.curdir)
-                        url = os.path.relpath(bundle.artifact_path, root_dir).replace("\\", "/")
+                        asset_url = os.path.relpath(bundle.artifact_path, root_dir).replace("\\", "/")
                     elif self.mode == "absolute":
-                        url = str(bundle.artifact_path)
+                        asset_url = str(bundle.artifact_path)
                     else:
                         raise AssertionError(f"unexpected resource mode {self.mode!r}")
-                if self.mode == "offline" and url is not None:
+                if self.mode == "offline" and asset_url is not None:
                     raise ResourceConflictError(
-                        f"offline resources cannot load external {requirement.kind} {url!r} "
+                        f"offline resources cannot load external {requirement.kind} {asset_url!r} "
                         f"required by extension {extension.name!r}. Provide inline extension content",
                     )
-                if self.mode == INLINE and url is not None:
+                if self.mode == INLINE and asset_url is not None:
                     raise ResourceConflictError(
-                        f"inline resources cannot inline {url!r} required by extension {extension.name!r}. "
+                        f"inline resources cannot inline {asset_url!r} required by extension {extension.name!r}. "
                         "Declare the extension asset content or choose an external mode",
                     )
                 if self.external_only and content is not None:
                     raise ResourceConflictError(
                         f"external_only resources reject inline {requirement.kind} required by extension {extension.name!r}",
                     )
-                if self.integrity and url is not None and requirement.integrity is None:
+                if self.integrity and asset_url is not None and requirement.integrity is None:
                     raise ResourceConflictError(
-                        f"integrity requires an SRI hash for extension resource {url!r}",
+                        f"integrity requires an SRI hash for extension resource {asset_url!r}",
                     )
                 assets.append(ResolvedResource(
                     requirement.kind,
-                    url=url,
+                    url=asset_url,
                     content=content,
                     integrity=requirement.integrity,
                     crossorigin=requirement.crossorigin or self.crossorigin or (
