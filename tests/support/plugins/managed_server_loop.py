@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Mapping
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -54,12 +55,14 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class MSL(Protocol):
-    def __call__(self, application: Application, port: int | None = None, **server_kwargs: Any) -> ContextManager[Server]: ...
+    def __call__(self, application: Application | Mapping[str, Application], port: int | None = None,
+            **server_kwargs: Any) -> ContextManager[Server]: ...
 
 @pytest.fixture
 def ManagedServerLoop() -> MSL:
     @contextmanager
-    def msl(application: Application, port: int | None = None, **server_kwargs: Any) -> Iterator[Server]:
+    def msl(application: Application | Mapping[str, Application], port: int | None = None,
+            **server_kwargs: Any) -> Iterator[Server]:
         if port is None:
             port = 0
         server = Server(application, port=port, **server_kwargs)

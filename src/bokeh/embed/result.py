@@ -149,6 +149,9 @@ class EmbedResult:
         object.__setattr__(self, "_source", source_data)
         object.__setattr__(self, "_metadata", metadata_data)
         self._validate()
+        self._finalize_payload()
+
+    def _finalize_payload(self) -> None:
         envelope = self._envelope()
         try:
             fingerprint = _fingerprint(envelope)
@@ -161,6 +164,22 @@ class EmbedResult:
             payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False,
         )))
 
+    def _project_requirements(self, requires: ResourceRequirements) -> EmbedResult:
+        if requires == self.requires:
+            return self
+        if not isinstance(requires, ResourceRequirements):
+            raise EmbedValidationError("embed payload requires must be a ResourceRequirements instance")
+
+        projected = object.__new__(EmbedResult)
+        object.__setattr__(projected, "roots", self.roots)
+        object.__setattr__(projected, "requires", requires)
+        object.__setattr__(projected, "bokeh_version", self.bokeh_version)
+        object.__setattr__(projected, "schema", self.schema)
+        object.__setattr__(projected, "_source", self._source)
+        object.__setattr__(projected, "_metadata", self._metadata)
+        projected._finalize_payload()
+        return projected
+
     @property
     def source(self) -> dict[str, Any]:
         '''Return a detached copy of the embed source descriptor.'''
@@ -170,6 +189,9 @@ class EmbedResult:
     def metadata(self) -> dict[str, Any]:
         '''Return a detached copy of the host metadata.'''
         return deepcopy(self._metadata)
+
+    def __hash__(self) -> int:
+        return hash(self.fingerprint)
 
     def _validate(self) -> None:
         if self.schema != EMBED_SCHEMA:
@@ -185,6 +207,7 @@ class EmbedResult:
         kind = self._source.get("kind")
         if kind not in ("standalone", "server"):
             raise EmbedValidationError("embed payload source.kind must be 'standalone' or 'server'")
+        addresses: list[tuple[int, int] | str] = []
         if kind == "standalone":
             _reject_unknown_fields(self._source, {"kind", "documents"}, "standalone embed source")
             documents = self._source.get("documents")
@@ -200,6 +223,7 @@ class EmbedResult:
                 doc_roots = documents[root.document].get("roots")
                 if not isinstance(doc_roots, list) or root.root >= len(doc_roots):
                     raise EmbedValidationError(f"embed root {root.key!r} refers to missing root {root.root}")
+                addresses.append((root.document, root.root))
         else:
             _reject_unknown_fields(
                 self._source,
@@ -229,12 +253,20 @@ class EmbedResult:
                 value = self._source.get(name)
                 if value is not None and (not isinstance(value, str) or not value):
                     raise EmbedValidationError(f"server embed {name} must be a non-empty string")
+            if self._source.get("session_id") is not None and self._source.get("token") is not None:
+                raise EmbedValidationError("server embed source accepts either session_id or token, not both")
             relative_urls = self._source.get("relative_urls")
             if relative_urls is not None and not isinstance(relative_urls, bool):
                 raise EmbedValidationError("server embed relative_urls must be a boolean")
+            for root in self.roots:
+                if root.model_id is None:
+                    raise EmbedValidationError("server embed roots must use model_id")
+                addresses.append(root.model_id)
         keys = [root.key for root in self.roots]
         if len(keys) != len(set(keys)):
             raise EmbedValidationError("embed root keys must be unique")
+        if len(addresses) != len(set(addresses)):
+            raise EmbedValidationError("embed roots must identify unique models")
     def _envelope(self) -> dict[str, Any]:
         return {
             "schema": self.schema,

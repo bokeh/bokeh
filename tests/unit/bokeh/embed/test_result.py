@@ -9,6 +9,7 @@ from __future__ import annotations
 
 # Standard library imports
 import json
+import re
 from collections.abc import Callable, Iterator
 from copy import deepcopy
 from dataclasses import fields
@@ -58,6 +59,7 @@ from bokeh.util.compiler import JavaScript
 from bokeh.util.warnings import BokehDeprecationWarning
 
 import bokeh.embed.renderers as renderers # isort:skip
+from bokeh.embed._util import project_embed_result # isort:skip
 
 FIXTURE_PATH = Path(__file__).parents[4] / "bokehjs" / "test" / "unit" / "embed" / "embed_fixtures.json"
 
@@ -112,7 +114,8 @@ def test_builder_uses_structural_roots_and_graph_minimal_serialization() -> None
     roots = result.source["documents"][0]["roots"]
     assert "$id" not in roots[0]
     assert "$id" not in roots[1]
-    assert result.metadata["embedding"]["static_model_ids"] == "graph-minimal"
+    assert result.metadata["embedding"]["model_ids"] == "graph-minimal"
+    assert "static_model_ids" not in result.metadata["embedding"]
 
 
 def test_fingerprint_normalizes_allocation_dependent_retained_model_ids() -> None:
@@ -144,6 +147,40 @@ def test_result_source_and_metadata_are_detached_from_nested_mutation() -> None:
     assert result.metadata == {"host": {"name": "original"}, "embedding": result.metadata["embedding"]}
     assert result.fingerprint == fingerprint
     assert EmbedResult.from_dict(result.to_dict()) == result
+
+
+def test_result_requirement_projection_reuses_validated_data() -> None:
+    result = embed(CustomJS(code="return"), metadata={"host": {"name": "original"}})
+    requirements = ResourceRequirements(("bokeh/core", "bokeh/widgets"))
+
+    projected = project_embed_result(result, requirements)
+
+    assert projected is not result
+    assert projected.requires is requirements
+    assert projected.roots is result.roots
+    assert projected._source is result._source
+    assert projected._metadata is result._metadata
+    assert projected.fingerprint != result.fingerprint
+    assert EmbedResult.from_json(projected.to_json_string()) == projected
+
+    source = projected.source
+    source["documents"][0]["title"] = "mutated"
+    metadata = projected.metadata
+    metadata["host"]["name"] = "mutated"
+
+    assert result.source["documents"][0]["title"] != "mutated"
+    assert result.metadata["host"] == {"name": "original"}
+    assert projected.source["documents"][0]["title"] != "mutated"
+    assert projected.metadata["host"] == {"name": "original"}
+    assert project_embed_result(result, result.requires) is result
+
+
+def test_result_hash_uses_immutable_fingerprint() -> None:
+    result = embed(CustomJS(code="return"))
+    restored = EmbedResult.from_dict(result.to_dict())
+
+    assert hash(result) == hash(restored)
+    assert {result, restored} == {result}
 
 
 def test_result_accepts_float_subclasses() -> None:
@@ -287,6 +324,11 @@ def test_result_round_trip_validates_fingerprint_and_schema() -> None:
     invalid = result.to_dict()
     invalid["roots"][0]["unexpected"] = True
     with pytest.raises(EmbedValidationError, match="unknown fields"):
+        EmbedResult.from_dict(invalid)
+
+    invalid = result.to_dict()
+    invalid["roots"].append({**invalid["roots"][0], "key": "duplicate"})
+    with pytest.raises(EmbedValidationError, match="unique models"):
         EmbedResult.from_dict(invalid)
 
 
@@ -553,6 +595,8 @@ def test_builder_rejects_invalid_standalone_and_server_inputs() -> None:
         embed_server(roots={"": "model-id"})
     with pytest.raises(EmbedBuildError, match="non-empty ID"):
         embed_server(roots={"root": ""})
+    with pytest.raises(EmbedBuildError, match="same Bokeh server model"):
+        embed_server(roots={"first": "model", "second": "model"})
 
 
 def test_builder_flattens_documents_in_sequences_and_accepts_named_themes() -> None:
@@ -566,9 +610,9 @@ def test_builder_flattens_documents_in_sequences_and_accepts_named_themes() -> N
 
 
 def test_resource_requirements_are_exact_for_representative_models() -> None:
-    assert embed(_plot()).requires.components == ("bokeh/core", "bokeh/api")
-    assert embed(Button()).requires.components == ("bokeh/core", "bokeh/widgets", "bokeh/api")
-    assert embed(DataTable()).requires.components == ("bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/api")
+    assert embed(_plot()).requires.components == ("bokeh/core",)
+    assert embed(Button()).requires.components == ("bokeh/core", "bokeh/widgets")
+    assert embed(DataTable()).requires.components == ("bokeh/core", "bokeh/widgets", "bokeh/tables")
 
     webgl = _plot()
     webgl.output_backend = "webgl"
@@ -587,10 +631,43 @@ def test_builder_captures_inline_custom_model_bundle(
         extension for extension in result.requires.extensions if extension.name == "bokeh.custom-models"
     )
     assert requirement.assets[0].content == "compiled-custom-models"
-    assert result.page(resources="cdn").index("compiled-custom-models") > result.page(resources="cdn").index("bokeh-api")
+    page = result.page(resources="cdn")
+    assert page.count("compiled-custom-models") == 1
+    assert page.index("compiled-custom-models") > page.index("cdn.bokeh.org")
+
+    bs4 = pytest.importorskip("bs4")
+    soup = bs4.BeautifulSoup(page, "html.parser")
+    [payload_element] = soup.find_all("script", attrs={"type": "application/vnd.bokeh.embed+json"})
+    assert payload_element.string is not None
+    transport = EmbedResult.from_json(payload_element.string)
+    assert transport.requires.extensions == (ExtensionRequirement("bokeh.custom-models"),)
+    assert {
+        element["data-bokeh-embed"]
+        for element in soup.select("[data-bokeh-embed]")
+    } == {transport.fingerprint}
+
+    delivered = result.fragment(resources="cdn")
+    assert delivered.result is result
+    assert delivered.requirements == result.requires
+
+    external = result.external("/payload.json", resources="cdn")
+    external_transport = EmbedResult.from_json(external.payload)
+    assert external.result is result
+    assert external_transport.requires.extensions == (ExtensionRequirement("bokeh.custom-models"),)
+    assert external.html.count("compiled-custom-models") == 1
+    assert "compiled-custom-models" not in external.payload
+    assert {
+        element["data-bokeh-embed"]
+        for element in bs4.BeautifulSoup(external.html, "html.parser").select("[data-bokeh-embed]")
+    } == {external_transport.fingerprint}
+
+    fragment = result.fragment(resources="none")
+    assert fragment.result is result
+    assert fragment.script.count("compiled-custom-models") == 1
     with pytest.warns(BokehDeprecationWarning, match=r"components\(\)"):
-        with pytest.raises(ValueError, match="custom extension"):
-            components(InlineCustomJS(code="return value"))
+        script, _ = components(InlineCustomJS(code="return value"))
+    assert script.count("compiled-custom-models") == 1
+    assert script.index("compiled-custom-models") < script.index("application/vnd.bokeh.embed+json")
 
 
 def test_builder_adapts_external_and_legacy_package_assets(
@@ -604,7 +681,12 @@ def test_builder_adapts_external_and_legacy_package_assets(
     package.write_text("globalThis.legacy_package = true")
     monkeypatch.setattr(
         "bokeh.embed.resources.bundle_extensions",
-        lambda objs, resources: [SimpleNamespace(artifact_path=package)],
+        lambda objs, resources: [SimpleNamespace(
+            name="legacy-package",
+            artifact_path=package,
+            server_url="/static/extensions/legacy-package/legacy-package.js",
+            cdn_url=None,
+        )],
     )
 
     result = embed(ExternalCustomJS(code="external"))
@@ -615,7 +697,14 @@ def test_builder_adapts_external_and_legacy_package_assets(
     ]
     assert ResourceAssetRequirement("script", url="https://example.test/extension.js") in assets
     assert ResourceAssetRequirement("style", url="https://example.test/extension.css") in assets
-    assert any(asset.content is not None and "legacy_package" in asset.content for asset in assets)
+    assert ResourceAssetRequirement("script", package="legacy-package") in assets
+
+    with pytest.warns(BokehDeprecationWarning, match=r"components\(\)"):
+        script, _ = components(ExternalCustomJS(code="external"))
+    assert script.count("<script") == 2
+    assert '<script src="https://example.test/extension.js"' not in script
+    assert '<link href="https://example.test/extension.css"' not in script
+    assert "data-bokeh-resource-state" not in script
 
 
 def test_resources_resolve_none_cdn_inline_and_offline_conflicts(tmp_path: Path) -> None:
@@ -686,9 +775,13 @@ def test_relative_resource_urls_use_url_separators(tmp_path: Path, monkeypatch: 
 
 def test_resource_requirement_union_is_exact_and_deterministic() -> None:
     extension_asset = ResourceAssetRequirement("script", url="https://example.test/ext.js")
+    custom_asset = ResourceAssetRequirement("script", content="compiled-custom-models")
     first = ResourceRequirements(
         ("bokeh/core", "bokeh/api"),
-        (ExtensionRequirement("shared", (extension_asset,)),),
+        (
+            ExtensionRequirement("bokeh.custom-models", (custom_asset,)),
+            ExtensionRequirement("shared", (extension_asset,)),
+        ),
     )
     second = ResourceRequirements(
         ("bokeh/core", "bokeh/widgets", "bokeh/api"),
@@ -698,7 +791,24 @@ def test_resource_requirement_union_is_exact_and_deterministic() -> None:
     combined = ResourceRequirements.union(first, second)
 
     assert combined.components == ("bokeh/core", "bokeh/widgets", "bokeh/api")
-    assert combined.extensions == (ExtensionRequirement("shared", (extension_asset,)),)
+    assert combined.extensions == (
+        ExtensionRequirement("shared", (extension_asset,)),
+        ExtensionRequirement("bokeh.custom-models", (custom_asset,)),
+    )
+    assert combined.without_extension_assets() == ResourceRequirements(
+        combined.components,
+        (
+            ExtensionRequirement("shared"),
+            ExtensionRequirement("bokeh.custom-models"),
+        ),
+    )
+    assert combined.without_extension_assets({"bokeh.custom-models"}) == ResourceRequirements(
+        combined.components,
+        (
+            ExtensionRequirement("shared", (extension_asset,)),
+            ExtensionRequirement("bokeh.custom-models"),
+        ),
+    )
 
 
 def test_resource_policy_reports_csp_and_sri_conflicts() -> None:
@@ -788,7 +898,7 @@ def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -
         "result", "mounts", "script", "resources", "build_fingerprint", "html",
     )
     assert tuple(field.name for field in fields(external)) == (
-        "result", "payload_url", "mounts", "bootstrap", "resources", "build_fingerprint", "html",
+        "result", "payload_url", "payload", "mounts", "bootstrap", "resources", "build_fingerprint", "html",
     )
 
     mime = result._repr_mimebundle_()
@@ -837,7 +947,7 @@ def test_renderers_reject_unsafe_executable_urls(url: str) -> None:
 ])
 def test_resource_rendering_rejects_unsafe_urls(asset: ResolvedResource) -> None:
     with pytest.raises(ValueError, match=r"HTTP\(S\)|scheme-relative"):
-        renderers._render_resource(asset)
+        renderers.render_resource(asset)
 
 
 def test_resource_rendering_allows_windows_paths_only_for_absolute_mode() -> None:
@@ -851,14 +961,52 @@ def test_resource_rendering_allows_windows_paths_only_for_absolute_mode() -> Non
         renderers._render_resources(cdn)
 
 
-def test_inline_resource_end_tags_are_escaped_case_insensitively() -> None:
-    script = renderers._render_resource(ResolvedResource("script", content="x</SCRIPT>y"))
-    style = renderers._render_resource(ResolvedResource("style", content="x</STYLE>y"))
+def test_inline_resources_preserve_source_without_exposing_html_parser_sentinels() -> None:
+    source = 'globalThis.value = "x</ScRiPt>y<!--z"'
+    script_asset = ResolvedResource("script", content=source)
+    style_asset = ResolvedResource("style", content="x</STYLE>y")
+    script = renderers.render_resource(script_asset)
+    style = renderers.render_resource(style_asset)
 
-    assert "</SCRIPT>" not in script
-    assert "<\\/script>" in script
+    bs4 = pytest.importorskip("bs4")
+    [element] = bs4.BeautifulSoup(script, "html.parser").find_all("script")
+    assert "</ScRiPt>" not in script
+    assert "<!--" not in script
+    match = re.search(r"resource\.text = (.+)", element.string)
+    assert match is not None
+    assert json.loads(match.group(1)) == source
     assert "</STYLE>" not in style
     assert "<\\/style>" in style
+    assert script_asset.content_sha256 is not None
+    assert style_asset.content_sha256 is not None
+    assert (
+        'resource.setAttribute("data-bokeh-resource", '
+        f'"script:sha256:{script_asset.content_sha256}")'
+    ) in script
+    assert f'data-bokeh-resource="style:sha256:{style_asset.content_sha256}"' in style
+
+
+def test_module_resources_report_loading_completion_and_failure() -> None:
+    inline = renderers.render_resource(ResolvedResource(
+        "script", content="export const value = 1", module=True, nonce="fixture-nonce",
+    ))
+    external = renderers.render_resource(ResolvedResource(
+        "script", url="https://example.test/extension.js", module=True,
+    ))
+
+    assert 'resource.setAttribute("data-bokeh-resource-state", "loading")' in inline
+    assert 'resource.setAttribute("data-bokeh-resource-state", "loaded")' in inline
+    assert 'resource.setAttribute("data-bokeh-resource-state", "failed")' in inline
+    assert 'resource.dispatchEvent(new Event("bokeh:resource-loaded"))' in inline
+    assert 'if (loader.nonce != "") resource.nonce = loader.nonce' in inline
+    assert 'loader.getAttribute("nonce")' not in inline
+    assert "loader.before(resource)\n  loader.remove()" in inline
+    assert 'data-bokeh-resource=""' in external
+    assert 'data-bokeh-resource-state="loading"' in external
+    assert external.count("<script") == 1
+    assert re.search(r"<script[^>]*></script>", external) is not None
+    assert "addEventListener" not in external
+    assert "crypto.randomUUID" not in inline
 
 
 def test_external_only_renderer_uses_standard_bootstrap_asset() -> None:
@@ -870,10 +1018,32 @@ def test_external_only_renderer_uses_standard_bootstrap_asset() -> None:
     assert "bokeh-embed-bootstrap-" in external.bootstrap
     assert ".min.js" in external.bootstrap
     assert 'crossorigin="anonymous"' in external.bootstrap
+    assert 'data-bokeh-resource-mode="cdn"' in external.bootstrap
+    assert 'data-bokeh-resource-crossorigin="anonymous"' in external.bootstrap
+    assert "data-bokeh-resource-external-only" in external.bootstrap
     assert "mount_embed_declaration" not in external.bootstrap
 
     with pytest.raises(ResourceConflictError, match="provide bootstrap_url explicitly"):
         result.external("/payload.json", resources=Resources(mode="none", external_only=True))
+
+
+def test_external_only_renderer_allows_absolute_standard_bootstrap(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    result = embed(CustomJS(code="root"))
+    policy = Resources(mode="absolute", external_only=True)
+    bootstrap_path = r"C:\bokeh\js\bokeh-embed-bootstrap.min.js"
+
+    monkeypatch.setattr(
+        Resources,
+        "resolve_embed_bootstrap",
+        lambda self, *, bokeh_version=__version__: ResolvedResource("script", url=bootstrap_path),
+    )
+
+    external = result.external("/payload.json", resources=policy)
+
+    assert f'src="{bootstrap_path}"' in external.bootstrap
+    with pytest.raises(ValueError, match=r"HTTP\(S\)"):
+        result.external("/payload.json", resources=policy, bootstrap_url=bootstrap_path)
 
 
 def test_external_only_renderer_applies_bootstrap_integrity(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -901,6 +1071,7 @@ def test_external_only_renderer_applies_bootstrap_integrity(monkeypatch: pytest.
 
     assert 'integrity="sha384-bootstrap-hash"' in external.bootstrap
     assert 'crossorigin="anonymous"' in external.bootstrap
+    assert "data-bokeh-resource-integrity" in external.bootstrap
 
 
 def test_retained_facades_delegate_and_preserve_useful_shapes() -> None:
@@ -935,7 +1106,7 @@ def test_save_and_server_facades_use_embed_routes(tmp_path: Path) -> None:
     with pytest.warns(BokehDeprecationWarning, match=r"server_document\(\)"):
         with_resources = server_document("https://example.test/app")
     assert "https://example.test/app/static/js/bokeh.min.js" in with_resources
-    assert "https://example.test/app/static/js/bokeh-api.min.js" in with_resources
+    assert "bokeh-api.min.js" not in with_resources
 
     model = _plot()
     with pytest.warns(BokehDeprecationWarning, match=r"server_session\(\)"):
@@ -964,8 +1135,9 @@ def test_server_result_infers_its_resource_root_url() -> None:
     fragment = result.fragment(resources="server")
 
     assert "https://example.test/app/static/js/bokeh.min.js" in fragment.html
-    assert "https://example.test/app/static/js/bokeh-api.min.js" in fragment.html
+    assert "bokeh-api.min.js" not in fragment.html
     assert result.requires == ResourceRequirements.dynamic_server()
+    assert result.requires.extensions == ()
     assert len(result.fragment(resources="none").mounts) == 1
 
     relative = embed_server("https://example.test/app", relative_urls=True).fragment(resources="server")
@@ -993,4 +1165,28 @@ def test_server_result_rejects_malformed_optional_fields(field: str, value: Any,
     result["source"][field] = value
 
     with pytest.raises(EmbedValidationError, match=message):
+        EmbedResult.from_dict(result)
+
+
+def test_server_result_rejects_session_id_and_token_together() -> None:
+    with pytest.raises(EmbedBuildError, match="either session_id or token"):
+        embed_server("https://example.test/app", session_id="session", token="token")
+
+    result = embed_server("https://example.test/app", session_id="session").to_dict()
+    result["source"]["token"] = "token"
+    with pytest.raises(EmbedValidationError, match="either session_id or token"):
+        EmbedResult.from_dict(result)
+
+
+def test_server_result_rejects_invalid_root_addresses() -> None:
+    result = embed_server(
+        "https://example.test/app", roots={"first": "first-model", "second": "second-model"},
+    ).to_dict()
+    result["roots"][1]["model_id"] = "first-model"
+    with pytest.raises(EmbedValidationError, match="unique models"):
+        EmbedResult.from_dict(result)
+
+    result = embed_server("https://example.test/app", roots={"root": "model"}).to_dict()
+    result["roots"][0] = {"key": "root", "document": 0, "root": 0}
+    with pytest.raises(EmbedValidationError, match="must use model_id"):
         EmbedResult.from_dict(result)

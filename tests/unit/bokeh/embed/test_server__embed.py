@@ -19,7 +19,11 @@ import bokeh.embed.server as bes
 from bokeh.document import Document
 from bokeh.embed import EmbedResult
 from bokeh.embed._util import server_page_for_session
+from bokeh.embed.resources import ResourceRequirements
+from bokeh.model import Model
+from bokeh.models import CustomJS
 from bokeh.resources import Resources
+from bokeh.util.compiler import JavaScript
 from bokeh.util.warnings import BokehDeprecationWarning
 
 
@@ -67,7 +71,7 @@ class TestServerDocument:
             "relative_urls": False,
         }
         assert result.requires.components == (
-            "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax", "bokeh/api",
+            "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax",
         )
 
     def test_relative_url_and_credentials_are_data_not_loader_code(self) -> None:
@@ -123,6 +127,30 @@ class TestServerSession:
 
         assert 'data-bokeh-root="selected"' in html
         assert 'data-bokeh-embed=' in html
+
+    def test_full_page_delegates_registered_extensions_to_token_bootstrap(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        class InlineCustomJS(CustomJS):
+            __implementation__ = JavaScript("export const value = 1")
+
+        def fail_if_compiled(_models):
+            raise AssertionError("direct pages must obtain extension resources from /embed.json")
+
+        monkeypatch.setattr("bokeh.embed.resources.bundle_models", fail_if_compiled)
+        document = Document()
+        session = SimpleNamespace(document=document, token="faketoken")
+
+        try:
+            result = result_from_fragment(server_page_for_session(
+                session, Resources(mode="none"), "title",
+            ))
+        finally:
+            Model.clear_extensions()
+
+        assert result.source["token"] == "faketoken"
+        assert result.requires == ResourceRequirements.dynamic_server()
+        assert result.requires.extensions == ()
 
     def test_session_id_is_required(self) -> None:
         with pytest.raises(ValueError, match="session_id"):

@@ -126,10 +126,16 @@ def _encode_embed_json_string(value: str) -> str:
 
 def escape_json_surrogates(value: str) -> str:
     """Escape lone surrogate code points in serialized JSON text."""
-    return "".join(
-        f"\\u{ord(char):04x}" if 0xD800 <= ord(char) <= 0xDFFF else char
-        for char in value
+    return re.sub(
+        r"[\ud800-\udfff]",
+        lambda match: f"\\u{ord(match.group(0)):04x}",
+        value,
     )
+
+
+def project_embed_result(result: EmbedResult, requirements: ResourceRequirements) -> EmbedResult:
+    """Return a valid embed result carrying transport-specific requirements."""
+    return result._project_requirements(requirements)
 
 
 class EmbedBuildError(ValueError):
@@ -229,7 +235,6 @@ def _build_result(spec: EmbedSpec) -> EmbedResult:
     result_metadata["embedding"] = {
         "callback_policy": spec.callback_policy,
         "input_shape": spec.input_shape,
-        "static_model_ids": "graph-minimal" if spec.serialization == "static" else "protocol-full",
         "model_ids": "graph-minimal" if spec.serialization == "static" else "protocol-full",
     }
     return EmbedResult(
@@ -247,15 +252,17 @@ def embed_server(url: str = "default", *, session_id: str | None = None,
         token: str | None = None) -> EmbedResult:
     """Create a server-source embed result for a new or existing Bokeh session.
 
-    A token-bearing result is normally produced by the Bokeh server bootstrap
-    endpoint. ``token`` is exposed for direct server page construction, where a
-    trusted ``ServerSession`` already owns the signed token.
+    ``session_id`` identifies an existing session by ID. ``token`` identifies a
+    trusted existing session with its signed token. Either value is sent to the
+    server bootstrap endpoint in an HTTP header before the WebSocket opens.
     """
     from .result import EmbedResult, EmbedRoot
 
     if url == "default":
         url = DEFAULT_SERVER_HTTP_URL
     url = _normalize_server_url(url)
+    if session_id is not None and token is not None:
+        raise EmbedBuildError("server embedding accepts either session_id or token, not both")
 
     embed_roots: list[EmbedRoot] = []
     for key, value in (roots or {}).items():
@@ -265,6 +272,8 @@ def embed_server(url: str = "default", *, session_id: str | None = None,
         if not isinstance(model_id, str) or not model_id:
             raise EmbedBuildError(f"server root {key!r} must identify a model by a non-empty ID")
         embed_roots.append(EmbedRoot(key, model_id=model_id))
+    if len(embed_roots) != len({root.model_id for root in embed_roots}):
+        raise EmbedBuildError("the same Bokeh server model cannot be assigned to more than one logical embed root")
 
     source: dict[str, Any] = {
         "kind": "server",
@@ -496,5 +505,6 @@ __all__ = (
     "embed_protocol",
     "embed_server",
     "escape_json_surrogates",
+    "project_embed_result",
     "server_page_for_session",
 )

@@ -1,5 +1,6 @@
 import {version as js_version} from "../version"
 import {is_equal} from "../core/util/eq"
+import {unique_id} from "../core/util/string"
 import {Version} from "../core/util/version"
 
 /** BokehJS bundle capability that an embed payload may require. */
@@ -16,13 +17,15 @@ export type ResourceAsset = {
   kind: "script" | "style"
   url?: string
   content?: string
+  /** Host-supplied digest used only as a compact identity for trusted inline content. */
+  content_sha256?: string
   integrity?: string
   crossorigin?: string
   nonce?: string
   module?: boolean
 }
 
-export type ResourceRequirementAsset = Omit<ResourceAsset, "nonce">
+export type ResourceRequirementAsset = Omit<ResourceAsset, "nonce" | "content_sha256"> & {package?: string}
 
 /** Named extension and the assets it contributes. */
 export type ExtensionRequirement = {
@@ -90,8 +93,41 @@ const component_names: {[key in ResourceComponent]: string} = {
 const resource_policy_modes = new Set<ResourcePolicyMode>([
   "none", "auto", "cdn", "server", "relative", "absolute", "inline", "offline", "resolved",
 ])
+const existing_resource_timeout = 5_000
+const generated_resource_timeout = 30_000
 
-function normalize_policy(policy: ResourcePolicy = "auto"): NormalizedPolicy {
+function abort_reason(signal: AbortSignal): unknown {
+  return signal.reason ?? new DOMException("The operation was aborted", "AbortError")
+}
+
+function wait_with_signal<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (signal == null) {
+    return promise
+  }
+  if (signal.aborted) {
+    return Promise.reject(abort_reason(signal))
+  }
+  return new Promise<T>((resolve, reject) => {
+    const aborted = () => {
+      cleanup()
+      reject(abort_reason(signal))
+    }
+    const cleanup = () => signal.removeEventListener("abort", aborted)
+    signal.addEventListener("abort", aborted, {once: true})
+    promise.then(
+      (value) => {
+        cleanup()
+        resolve(value)
+      },
+      (error) => {
+        cleanup()
+        reject(error)
+      },
+    )
+  })
+}
+
+function normalize_policy(policy: ResourcePolicy = "none"): NormalizedPolicy {
   const normalized = typeof policy == "string" ? {mode: policy} : policy
   if (!resource_policy_modes.has(normalized.mode)) {
     throw new ResourceError("policy", `unknown Bokeh resource policy '${normalized.mode}'`)
@@ -111,14 +147,23 @@ function locator(asset: ResourceAsset): string {
   if ((asset.url == null) == (asset.content == null)) {
     throw new ResourceError("policy", "a resource needs exactly one of 'url' or 'content'", undefined, asset)
   }
-  return asset.url != null ? normalized_url(asset.url) : `inline:${asset.content!}`
+  return asset.url != null
+    ? normalized_url(asset.url)
+    : asset.content_sha256 != null ? `sha256:${asset.content_sha256}` : `inline:${asset.content!}`
+}
+
+function resource_locator(asset: ResourceAsset): string {
+  return `${asset.kind}:${locator(asset)}`
 }
 
 function resource_identity(asset: ResourceAsset): string {
   return JSON.stringify([
-    asset.kind, locator(asset), asset.integrity ?? null, asset.crossorigin ?? null,
-    asset.nonce ?? null, asset.module ?? false,
+    asset.integrity ?? null, asset.crossorigin ?? null, asset.nonce ?? null, asset.module ?? false,
   ])
+}
+
+function resource_description(asset: ResourceAsset): string {
+  return asset.url != null ? normalized_url(asset.url) : "inline content"
 }
 
 function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPolicy, embed_version: string): ResourceAsset[] {
@@ -154,10 +199,10 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
   const suffix = minified ? ".min.js" : ".js"
   const assets: ResourceAsset[] = []
   for (const component of requirements.components) {
-    // Core and the API mount bundle are necessarily present when this loader
-    // is executing. Validate their shared version above, then load only
-    // additive feature bundles.
-    if (component == "bokeh/core" || component == "bokeh/api") {
+    // Core is necessarily present when this loader is executing. Validate its
+    // shared version above, then load every explicitly requested additive
+    // bundle, including the optional API bundle.
+    if (component == "bokeh/core") {
       continue
     }
     const filename = `${component_names[component]}-${version}${suffix}`
@@ -186,6 +231,13 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
 function validate_assets(assets: ResourceAsset[], policy: NormalizedPolicy, mode: ResourcePolicyMode): ResourceAsset[] {
   for (const asset of assets) {
     locator(asset)
+    if (asset.content_sha256 != null && (
+      asset.content == null || !/^[0-9a-f]{64}$/.test(asset.content_sha256)
+    )) {
+      throw new ResourceError(
+        "policy", "content_sha256 requires inline content and 64 lowercase hex digits", undefined, asset,
+      )
+    }
     if ((mode == "inline" || mode == "offline") && asset.url != null) {
       throw new ResourceError("policy", `${mode} resource policy cannot load ${asset.url}`, undefined, asset)
     }
@@ -225,26 +277,48 @@ export class ResourceLoader {
     this._records.clear()
   }
 
+  /** Wait for resources emitted ahead of an embed bootstrap to finish loading. */
+  async wait_for_pending(signal?: AbortSignal): Promise<void> {
+    while (true) {
+      if (signal?.aborted == true) {
+        throw abort_reason(signal)
+      }
+      const resources = [...document.querySelectorAll<HTMLElement>(
+        "[data-bokeh-resource][data-bokeh-resource-state]",
+      )]
+      const failed = resources.find((resource) => resource.dataset.bokehResourceState == "failed")
+      if (failed != null) {
+        throw new ResourceError("load", "a generated Bokeh resource failed to load")
+      }
+      const pending = resources.filter((resource) => resource.dataset.bokehResourceState == "loading")
+      if (pending.length == 0) {
+        return
+      }
+      await Promise.all(pending.map((resource) => this._wait_for_pending_resource(resource, signal)))
+    }
+  }
+
   /**
    * Resolve and load every required asset before embed deserialization.
    * Explicit policy assets may contain executable code and must be trusted.
    */
-  async ensure(requirements: ResourceRequirements, policy: ResourcePolicy = "auto",
-      embed_version: string = js_version): Promise<void> {
+  async ensure(requirements: ResourceRequirements, policy: ResourcePolicy = "none",
+      embed_version: string = js_version, signal?: AbortSignal): Promise<void> {
     const normalized = normalize_policy(policy)
     const assets = resolve_assets(requirements, normalized, embed_version)
     for (const asset of assets) {
-      await this._ensure_asset(asset, normalized.retry ?? false)
+      await wait_with_signal(this._ensure_asset(asset, normalized.retry ?? false), signal)
     }
   }
 
   private _ensure_asset(asset: ResourceAsset, retry: boolean): Promise<void> {
-    const resource_locator = `${asset.kind}:${locator(asset)}`
+    const resource_key = resource_locator(asset)
     const identity = resource_identity(asset)
-    const existing = this._records.get(resource_locator)
+    const existing = this._records.get(resource_key)
     if (existing != null && existing.identity != identity) {
       return Promise.reject(new ResourceError(
-        "conflict", `conflicting declarations for Bokeh resource ${resource_locator}`, undefined, asset,
+        "conflict", `conflicting declarations for Bokeh ${asset.kind} resource ${resource_description(asset)}`,
+        undefined, asset,
       ))
     }
     if (existing != null && (!retry || existing.state != "failed")) {
@@ -262,13 +336,84 @@ export class ResourceLoader {
       record.state = "failed"
       throw error instanceof ResourceError
         ? error
-        : new ResourceError("load", `failed to load Bokeh resource ${resource_locator}: ${error}`, error, asset)
+        : new ResourceError(
+          "load", `failed to load Bokeh ${asset.kind} resource ${resource_description(asset)}: ${error}`,
+          error, asset,
+        )
     })
-    this._records.set(resource_locator, record)
+    this._records.set(resource_key, record)
     return record.promise
   }
 
+  private _wait_for_pending_resource(resource: HTMLElement, signal?: AbortSignal): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      let settled = false
+      let timer: ReturnType<typeof setTimeout> | null = null
+      const stop_tracking = () => {
+        resource.removeEventListener("load", loaded)
+        resource.removeEventListener("error", failed)
+        resource.removeEventListener("bokeh:resource-loaded", loaded)
+      }
+      const cleanup = (keep_tracking = false) => {
+        if (!keep_tracking) {
+          stop_tracking()
+        }
+        signal?.removeEventListener("abort", aborted)
+        if (timer != null) {
+          clearTimeout(timer)
+          timer = null
+        }
+      }
+      const settle = (callback: () => void, keep_tracking = false) => {
+        if (!settled) {
+          settled = true
+          cleanup(keep_tracking)
+          callback()
+        }
+      }
+      const loaded = () => {
+        resource.dataset.bokehResourceState = "loaded"
+        stop_tracking()
+        settle(resolve)
+      }
+      const failed = (event?: Event) => {
+        resource.dataset.bokehResourceState = "failed"
+        stop_tracking()
+        settle(() => reject(new ResourceError("load", "a generated Bokeh resource failed to load", event)))
+      }
+      const timed_out = () => settle(() => {
+        resource.dataset.bokehResourceState = "failed"
+        reject(new ResourceError("load", "timed out waiting for a generated Bokeh resource"))
+      }, true)
+      const aborted = () => settle(() => reject(abort_reason(signal!)), true)
+
+      resource.addEventListener("load", loaded, {once: true})
+      resource.addEventListener("error", failed, {once: true})
+      resource.addEventListener("bokeh:resource-loaded", loaded, {once: true})
+      signal?.addEventListener("abort", aborted, {once: true})
+      timer = setTimeout(timed_out, generated_resource_timeout)
+
+      if (signal?.aborted == true) {
+        queueMicrotask(aborted)
+      } else if (resource.dataset.bokehResourceState == "loaded") {
+        queueMicrotask(loaded)
+      } else if (resource.dataset.bokehResourceState == "failed") {
+        queueMicrotask(failed)
+      }
+    })
+  }
+
   private _load(asset: ResourceAsset): Promise<void> {
+    if (asset.content_sha256 != null) {
+      const resource_key = resource_locator(asset)
+      const existing = document.querySelector<HTMLScriptElement | HTMLStyleElement>(
+        `${asset.kind}[data-bokeh-resource="${resource_key}"]`,
+      )
+      if (existing != null) {
+        return this._reuse_existing(existing, asset)
+      }
+    }
+
     if (asset.url != null) {
       const url = normalized_url(asset.url)
       const selector = asset.kind == "script" ? "script[src]" : "link[rel=stylesheet][href]"
@@ -300,7 +445,7 @@ export class ResourceLoader {
             }
           } else {
             if (asset.module == true) {
-              const callback = `__bokeh_resource_module_${crypto.randomUUID().replaceAll("-", "")}`
+              const callback = unique_id("__bokeh_resource_module")
               const callbacks = globalThis as unknown as Record<string, unknown>
               callbacks[callback] = () => {
                 delete callbacks[callback]
@@ -352,7 +497,9 @@ export class ResourceLoader {
       if (asset.nonce != null) {
         element.nonce = asset.nonce
       }
-      element.dataset.bokehResource = resource_identity(asset)
+      // This attribute is only a DOM marker. Loader identity remains in the
+      // page-shared registry without copying inline source into the DOM.
+      element.dataset.bokehResource = asset.content_sha256 != null ? resource_locator(asset) : ""
       element.dataset.bokehResourceState = "loading"
       document.head.append(element)
       if (asset.url == null && !(element instanceof HTMLScriptElement && asset.module == true)) {
@@ -362,7 +509,8 @@ export class ResourceLoader {
     })
   }
 
-  private _reuse_existing(element: HTMLScriptElement | HTMLLinkElement, asset: ResourceAsset): Promise<void> {
+  private _reuse_existing(element: HTMLScriptElement | HTMLStyleElement | HTMLLinkElement,
+      asset: ResourceAsset): Promise<void> {
     const actual = {
       integrity: element.getAttribute("integrity") ?? undefined,
       crossorigin: element.getAttribute("crossorigin") ?? undefined,
@@ -391,16 +539,42 @@ export class ResourceLoader {
     }
 
     return new Promise<void>((resolve, reject) => {
-      const loaded = () => {
+      let settled = false
+      let timer: ReturnType<typeof setTimeout> | null = null
+
+      const cleanup = () => {
+        element.removeEventListener("load", loaded)
+        element.removeEventListener("error", failed)
+        element.removeEventListener("bokeh:resource-loaded", loaded)
+        if (timer != null) {
+          clearTimeout(timer)
+          timer = null
+        }
+      }
+      const settle = (callback: () => void) => {
+        if (!settled) {
+          settled = true
+          cleanup()
+          callback()
+        }
+      }
+      const loaded = () => settle(() => {
         element.dataset.bokehResourceState = "loaded"
         resolve()
-      }
-      const failed = (event: Event) => {
+      })
+      const failed = (event: Event) => settle(() => {
         element.dataset.bokehResourceState = "failed"
         reject(new ResourceError("load", `existing DOM resource ${locator(asset)} failed`, event, asset))
-      }
+      })
       element.addEventListener("load", loaded, {once: true})
       element.addEventListener("error", failed, {once: true})
+      element.addEventListener("bokeh:resource-loaded", loaded, {once: true})
+
+      timer = setTimeout(() => settle(() => {
+        reject(new ResourceError(
+          "load", `timed out waiting for existing DOM resource ${locator(asset)}`, undefined, asset,
+        ))
+      }), existing_resource_timeout)
 
       const url = asset.url == null ? null : normalized_url(asset.url)
       const already_loaded = element instanceof HTMLLinkElement

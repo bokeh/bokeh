@@ -20,6 +20,7 @@ import pytest ; pytest
 import asyncio
 import json
 import logging
+import re
 import threading
 from unittest.mock import Mock, patch
 
@@ -32,6 +33,7 @@ from bokeh.application.handlers.function import FunctionHandler
 from bokeh.client import pull_session
 from bokeh.core.types import ID
 from bokeh.server.auth_provider import NullAuth
+from bokeh.server.views.multi_root_static_handler import MultiRootStaticHandler
 from bokeh.server.views.static_handler import AsyncStaticFileHandler, StaticHandler
 from bokeh.server.views.ws import WSHandler
 from tests.support.plugins.managed_server_loop import MSL
@@ -469,6 +471,20 @@ class Test_create_static_handler:
         assert result[0] == "/prefix/static/(.*)"
         assert result[1] == StaticHandler
         assert result[2] == {}
+
+    def test_reserved_bokeh_and_extension_routes_precede_app_static(self):
+        app = Application()
+        app._static_path = "foo"
+
+        handlers = bst.create_static_handlers("/prefix", "/key", app)
+
+        assert handlers[0][0] == "/prefix/key/static/extensions/(.*)"
+        assert handlers[0][1] == MultiRootStaticHandler
+        assert re.fullmatch(handlers[1][0], "/prefix/key/static/js/bokeh.min.js") is not None
+        assert re.fullmatch(handlers[1][0], "/prefix/key/static/js/bokeh-api.esm.min.js") is not None
+        assert re.fullmatch(handlers[1][0], "/prefix/key/static/js/bokeh-custom.js") is None
+        assert handlers[1][1] == StaticHandler
+        assert handlers[2] == bst.create_static_handler("/prefix", "/key", app)
 
 #-----------------------------------------------------------------------------
 # Private API

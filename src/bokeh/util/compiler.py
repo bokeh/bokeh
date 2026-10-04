@@ -324,15 +324,10 @@ def bundle_models(models: Sequence[type[HasProps]] | None) -> str | None:
         return future.result()
 
     try:
-        try:
-            # npm installation and module resolution use shared process state,
-            # so distinct bundles are compiled serially.
-            with _bundle_compile_lock:
-                bundle = _bundle_models(custom_models)
-        except CompilationError as error:
-            print("Compilation failed:", file=sys.stderr)
-            print(str(error), file=sys.stderr)
-            sys.exit(1)
+        # npm installation and module resolution use shared process state,
+        # so distinct bundles are compiled serially.
+        with _bundle_compile_lock:
+            bundle = _bundle_models(custom_models)
     except BaseException as error:
         with _bundle_cache_lock:
             del _bundle_futures[key]
@@ -383,7 +378,7 @@ _plugin_template = \
 """\
 %(prelude)s\
 ({
-  "custom/main": function(require, module, exports) {
+  "%(entry)s": function(require, module, exports) {
     const models = {
       %(exports)s
     };
@@ -391,7 +386,7 @@ _plugin_template = \
     module.exports = models;
   },
   %(modules)s
-}, "custom/main");
+}, "%(entry)s");
 """
 
 _style_template = \
@@ -531,6 +526,7 @@ def _compile_models(custom_models: dict[str, CustomModel]) -> dict[str, AttrDict
 
 def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     """ Create a JavaScript bundle with selected `models`. """
+    entry = f"custom/main/{calc_cache_key(custom_models)}"
     exports = []
     modules = []
 
@@ -620,7 +616,9 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     rendered_exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
     rendered_modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in bare_modules)
 
-    content = _plugin_template % dict(prelude=_plugin_prelude, exports=rendered_exports, modules=rendered_modules)
+    content = _plugin_template % dict(
+        prelude=_plugin_prelude, entry=entry, exports=rendered_exports, modules=rendered_modules,
+    )
     return _plugin_umd % dict(content=content)
 
 #-----------------------------------------------------------------------------

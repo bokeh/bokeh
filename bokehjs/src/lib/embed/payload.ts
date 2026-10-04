@@ -6,7 +6,7 @@ import type {HasProps} from "../core/has_props"
 import type {ModelResolver} from "../core/resolvers"
 import {isPlainObject} from "../core/util/types"
 
-import type {ResourceComponent, ResourcePolicy, ResourceRequirements} from "./resources"
+import type {ResourceAsset, ResourceComponent, ResourcePolicy, ResourceRequirements} from "./resources"
 import {ResourceError, resource_loader} from "./resources"
 
 export const embed_schema = "bokeh.embed/v1"
@@ -157,6 +157,112 @@ function validate_server_url(value: unknown): string {
   return url
 }
 
+function validate_resource_requirements(value: unknown, context: string): ResourceRequirements {
+  const requires = as_record(value, context)
+  reject_unknown_fields(requires, ["components", "extensions"], "embed resource requirements")
+  if (!Array.isArray(requires.components) || requires.components.some((component) =>
+    typeof component != "string" || !resource_components.has(component as ResourceComponent))) {
+    throw new EmbedError("schema", "payload.requires.components contains an unknown resource component")
+  }
+  if (new Set(requires.components).size != requires.components.length) {
+    throw new EmbedError("schema", "payload.requires.components must be unique")
+  }
+  if (!Array.isArray(requires.extensions)) {
+    throw new EmbedError("schema", "payload.requires.extensions must be an array")
+  }
+  const extension_names = new Set<string>()
+  for (const extension of requires.extensions) {
+    const declaration = as_record(extension, "embed resource extension")
+    reject_unknown_fields(declaration, ["name", "assets"], "embed resource extension")
+    const name = as_string(declaration.name, "embed resource extension name")
+    if (extension_names.has(name)) {
+      throw new EmbedError("schema", `duplicate embed resource extension '${name}'`)
+    }
+    extension_names.add(name)
+    if (!Array.isArray(declaration.assets)) {
+      throw new EmbedError("schema", "embed resource extension assets must be an array")
+    }
+    for (const asset of declaration.assets) {
+      const resource = as_record(asset, "embed extension resource")
+      if (resource.kind != "script" && resource.kind != "style") {
+        throw new EmbedError("schema", "embed extension resource kind must be 'script' or 'style'")
+      }
+      const locators = [resource.url, resource.content, resource.package].filter((item) => typeof item == "string")
+      if (locators.length != 1 || [resource.url, resource.content, resource.package].some((item) =>
+        item != null && typeof item != "string")) {
+        throw new EmbedError(
+          "schema", "embed extension resources need exactly one of 'url', 'content', or 'package'",
+        )
+      }
+      if (typeof resource.package == "string" && resource.package.length == 0) {
+        throw new EmbedError("schema", "embed extension resource package must be a non-empty string")
+      }
+      if ("nonce" in resource) {
+        throw new EmbedError("schema", "embed extension resource nonce is host-owned")
+      }
+      reject_unknown_fields(
+        resource, ["kind", "url", "content", "package", "integrity", "crossorigin", "module"],
+        "embed extension resource",
+      )
+      for (const field of ["integrity", "crossorigin"] as const) {
+        if (resource[field] != null && typeof resource[field] != "string") {
+          throw new EmbedError("schema", `embed extension resource ${field} must be a string`)
+        }
+      }
+      if (resource.module != null && typeof resource.module != "boolean") {
+        throw new EmbedError("schema", "embed extension resource module must be a boolean")
+      }
+      if (resource.kind == "style" && resource.module == true) {
+        throw new EmbedError("schema", "embed extension style resources cannot be modules")
+      }
+      if (resource.kind == "style" && resource.package != null) {
+        throw new EmbedError("schema", "packaged extension resources must be scripts")
+      }
+    }
+  }
+  return requires as unknown as ResourceRequirements
+}
+
+function validate_resolved_assets(value: unknown): ResourceAsset[] {
+  if (!Array.isArray(value)) {
+    throw new EmbedError("schema", "Bokeh server bootstrap resources.assets must be an array")
+  }
+  for (const asset of value) {
+    const resource = as_record(asset, "Bokeh server bootstrap resource")
+    reject_unknown_fields(
+      resource, ["kind", "url", "content", "content_sha256", "integrity", "crossorigin", "nonce", "module"],
+      "Bokeh server bootstrap resource",
+    )
+    if (resource.kind != "script" && resource.kind != "style") {
+      throw new EmbedError("schema", "Bokeh server bootstrap resource kind must be 'script' or 'style'")
+    }
+    if ((typeof resource.url == "string") == (typeof resource.content == "string") ||
+        [resource.url, resource.content].some((item) => item != null && typeof item != "string")) {
+      throw new EmbedError("schema", "Bokeh server bootstrap resources need exactly one of 'url' or 'content'")
+    }
+    for (const field of ["integrity", "crossorigin", "nonce"] as const) {
+      if (resource[field] != null && typeof resource[field] != "string") {
+        throw new EmbedError("schema", `Bokeh server bootstrap resource ${field} must be a string`)
+      }
+    }
+    if (resource.module != null && typeof resource.module != "boolean") {
+      throw new EmbedError("schema", "Bokeh server bootstrap resource module must be a boolean")
+    }
+    if (resource.content_sha256 != null && (
+      typeof resource.content_sha256 != "string" || !/^[0-9a-f]{64}$/.test(resource.content_sha256) ||
+      typeof resource.content != "string"
+    )) {
+      throw new EmbedError(
+        "schema", "Bokeh server bootstrap resource content_sha256 requires inline content and 64 lowercase hex digits",
+      )
+    }
+    if (resource.kind == "style" && resource.module == true) {
+      throw new EmbedError("schema", "Bokeh server bootstrap style resources cannot be modules")
+    }
+  }
+  return value as ResourceAsset[]
+}
+
 /** Return true only for an object carrying the current embed schema tag. */
 export function is_embed_payload(value: unknown): value is EmbedPayload {
   return isPlainObject(value) && (value as {schema?: unknown}).schema == embed_schema
@@ -218,6 +324,9 @@ export function validate_embed_payload(value: unknown): EmbedPayload {
         as_string(source[field], `server embed source.${field}`)
       }
     }
+    if (source.session_id != null && source.token != null) {
+      throw new EmbedError("schema", "server embed source accepts either session_id or token, not both")
+    }
     if (source.relative_urls != null && typeof source.relative_urls != "boolean") {
       throw new EmbedError("schema", "server embed source.relative_urls must be a boolean")
     }
@@ -257,58 +366,13 @@ export function validate_embed_payload(value: unknown): EmbedPayload {
       as_string(descriptor.model_id, `server root '${key}' model_id`)
     }
   }
-  const requires = as_record(payload.requires, "payload.requires")
-  reject_unknown_fields(requires, ["components", "extensions"], "embed resource requirements")
-  if (!Array.isArray(requires.components) || requires.components.some((component) =>
-    typeof component != "string" || !resource_components.has(component as ResourceComponent))) {
-    throw new EmbedError("schema", "payload.requires.components contains an unknown resource component")
+  const addresses = source.kind == "standalone"
+    ? (payload.roots as StructuralEmbedRoot[]).map(({document, root}) => `${document}:${root}`)
+    : (payload.roots as ServerEmbedRoot[]).map(({model_id}) => model_id)
+  if (new Set(addresses).size != addresses.length) {
+    throw new EmbedError("schema", "embed roots must identify unique models")
   }
-  if (new Set(requires.components).size != requires.components.length) {
-    throw new EmbedError("schema", "payload.requires.components must be unique")
-  }
-  if (!Array.isArray(requires.extensions)) {
-    throw new EmbedError("schema", "payload.requires.extensions must be an array")
-  }
-  const extension_names = new Set<string>()
-  for (const extension of requires.extensions) {
-    const declaration = as_record(extension, "embed resource extension")
-    reject_unknown_fields(declaration, ["name", "assets"], "embed resource extension")
-    const name = as_string(declaration.name, "embed resource extension name")
-    if (extension_names.has(name)) {
-      throw new EmbedError("schema", `duplicate embed resource extension '${name}'`)
-    }
-    extension_names.add(name)
-    if (!Array.isArray(declaration.assets)) {
-      throw new EmbedError("schema", "embed resource extension assets must be an array")
-    }
-    for (const asset of declaration.assets) {
-      const resource = as_record(asset, "embed extension resource")
-      if (resource.kind != "script" && resource.kind != "style") {
-        throw new EmbedError("schema", "embed extension resource kind must be 'script' or 'style'")
-      }
-      if ((typeof resource.url == "string") == (typeof resource.content == "string")) {
-        throw new EmbedError("schema", "embed extension resources need exactly one of 'url' or 'content'")
-      }
-      if ("nonce" in resource) {
-        throw new EmbedError("schema", "embed extension resource nonce is host-owned")
-      }
-      reject_unknown_fields(
-        resource, ["kind", "url", "content", "integrity", "crossorigin", "module"],
-        "embed extension resource",
-      )
-      for (const field of ["integrity", "crossorigin"] as const) {
-        if (resource[field] != null && typeof resource[field] != "string") {
-          throw new EmbedError("schema", `embed extension resource ${field} must be a string`)
-        }
-      }
-      if (resource.module != null && typeof resource.module != "boolean") {
-        throw new EmbedError("schema", "embed extension resource module must be a boolean")
-      }
-      if (resource.kind == "style" && resource.module == true) {
-        throw new EmbedError("schema", "embed extension style resources cannot be modules")
-      }
-    }
-  }
+  validate_resource_requirements(payload.requires, "payload.requires")
   as_record(payload.metadata, "payload.metadata")
   validate_json_value(payload, "embed payload")
   return payload as EmbedPayload
@@ -318,11 +382,12 @@ export function validate_embed_payload(value: unknown): EmbedPayload {
  * Validate, satisfy resources, and decode an embed payload for mounting.
  * The caller assumes ownership of the returned document, session, and release hook.
  */
-export async function prepare_embed(value: unknown, policy: ResourcePolicy = "auto",
-    resolver?: ModelResolver, signal?: AbortSignal): Promise<PreparedEmbed> {
+export async function prepare_embed(value: unknown, policy: ResourcePolicy = "none",
+    resolver?: ModelResolver, signal?: AbortSignal,
+    server_policy: ResourcePolicy = policy): Promise<PreparedEmbed> {
   const payload = validate_embed_payload(value)
   try {
-    await resource_loader.ensure(payload.requires, policy, payload.bokeh_version)
+    await resource_loader.ensure(payload.requires, policy, payload.bokeh_version, signal)
   } catch (error) {
     if (error instanceof ResourceError) {
       throw new EmbedError(
@@ -336,7 +401,7 @@ export async function prepare_embed(value: unknown, policy: ResourcePolicy = "au
   }
   return payload.source.kind == "standalone"
     ? prepare_standalone(payload, resolver)
-    : prepare_server(payload, signal)
+    : prepare_server(payload, server_policy, signal)
 }
 
 function prepare_standalone(payload: EmbedPayload, resolver?: ModelResolver): PreparedEmbed {
@@ -382,17 +447,13 @@ function prepare_standalone(payload: EmbedPayload, resolver?: ModelResolver): Pr
   }
 }
 
-async function prepare_server(payload: EmbedPayload, signal?: AbortSignal): Promise<PreparedEmbed> {
+async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, signal?: AbortSignal): Promise<PreparedEmbed> {
   const source = payload.source as ServerEmbedSource
   const configured_app = source.url == "." ? new URL(window.location.href) : new URL(source.url, document.baseURI)
   const app = source.relative_urls == true
     ? new URL(`${configured_app.pathname}${configured_app.search}`, document.baseURI)
     : configured_app
   const token = await (async () => {
-    if (source.token != null) {
-      return source.token
-    }
-
     const endpoint = new URL(app.href)
     endpoint.pathname = `${app.pathname.replace(/\/$/, "")}/embed.json`
     endpoint.search = ""
@@ -402,8 +463,21 @@ async function prepare_server(payload: EmbedPayload, signal?: AbortSignal): Prom
       }
     }
     const headers = new Headers(source.headers ?? {})
-    if (source.session_id != null) {
+    if (source.token != null) {
+      headers.set("Bokeh-Token", source.token)
+    } else if (source.session_id != null) {
       headers.set("Bokeh-Session-Id", source.session_id)
+    }
+    const requested_policy = typeof policy == "string" ? {mode: policy} : policy
+    const host_assets = typeof policy == "string" ? undefined : policy.assets
+    const requested_mode = host_assets != null
+      ? "none"
+      : requested_policy.mode == "auto"
+        ? "cdn"
+        : requested_policy.mode == "resolved" ? "none" : requested_policy.mode
+    headers.set("Bokeh-Resource-Mode", requested_mode)
+    if (requested_policy.minified != null) {
+      headers.set("Bokeh-Resource-Minified", `${requested_policy.minified}`)
     }
     const response = await (async () => {
       try {
@@ -434,7 +508,44 @@ async function prepare_server(payload: EmbedPayload, signal?: AbortSignal): Prom
         undefined, "schema", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
       )
     }
-    return as_string(bootstrap.token, "Bokeh server bootstrap token")
+    reject_unknown_fields(
+      bootstrap, ["schema", "bokeh_version", "token", "requires", "resources"], "Bokeh server bootstrap",
+    )
+    const token = as_string(bootstrap.token, "Bokeh server bootstrap token")
+    const requires = validate_resource_requirements(
+      bootstrap.requires, "Bokeh server bootstrap requires",
+    )
+    const resources = as_record(bootstrap.resources, "Bokeh server bootstrap resources")
+    reject_unknown_fields(resources, ["mode", "assets"], "Bokeh server bootstrap resources")
+    if (resources.mode != "resolved") {
+      throw new EmbedError("schema", "Bokeh server bootstrap resources.mode must be 'resolved'")
+    }
+    const assets = validate_resolved_assets(resources.assets)
+    const host_policy = typeof policy == "string" ? undefined : policy
+    const resolved_policy: ResourcePolicy = {
+      mode: "resolved",
+      assets: (host_policy?.assets ?? assets).map((asset) => ({
+        ...asset,
+        ...(host_policy?.nonce != null ? {nonce: host_policy.nonce} : {}),
+        ...(asset.crossorigin == null && host_policy?.crossorigin != null
+          ? {crossorigin: host_policy.crossorigin}
+          : {}),
+      })),
+      integrity: host_policy?.integrity,
+      external_only: host_policy?.external_only,
+      retry: host_policy?.retry,
+    }
+    try {
+      await resource_loader.ensure(requires, resolved_policy, payload.bokeh_version, signal)
+    } catch (error) {
+      if (error instanceof ResourceError) {
+        throw new EmbedError(
+          "resource", error.message, error, "resource", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
+        )
+      }
+      throw error
+    }
+    return token
   })()
 
   const websocket_url = `${app.protocol == "https:" ? "wss:" : "ws:"}//${app.host}${app.pathname.replace(/\/$/, "")}/ws`

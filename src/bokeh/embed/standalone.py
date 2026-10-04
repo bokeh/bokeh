@@ -36,7 +36,9 @@ from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model
 from ..util.deprecation import deprecated
-from ._util import ThemeSource
+from ._util import ThemeSource, project_embed_result
+from .renderers import render_fragment, render_resource
+from .resources import ResolvedResource
 
 if TYPE_CHECKING:
     from jinja2 import Template
@@ -111,6 +113,11 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
     * the ``"bokeh-mathjax"`` files are required to enable
       :ref:`MathJax support <ug_styling_mathtext>`.
 
+    The returned script includes compiled inline implementations for custom
+    models. External assets declared with ``__javascript__`` or ``__css__``,
+    and assets from packaged extensions, remain host-owned and must be loaded
+    separately.
+
     Args:
         models (Model|list|dict|tuple) :
             A single Model, a list/tuple of Models, or a dictionary of keys
@@ -152,14 +159,31 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
             "components() wrapping flags were removed. Use "
             "embed(models).fragment(resources='none') and its script, divs, mounts, or html fields.",
         )
+    if isinstance(models, dict):
+        for key, value in models.items():
+            if isinstance(value, Document) and len(value.roots) > 1:
+                raise ValueError(
+                    f"components() cannot represent mapping value {key!r}: a Document with "
+                    f"{len(value.roots)} roots requires more than one div. Use "
+                    "embed(...).fragment(resources='none') for multi-root Documents.",
+                )
 
     embed_result = embed(models, theme=theme)
-    if embed_result.requires.extensions:
-        raise ValueError(
-            "components() cannot express custom extension resource ownership in its legacy tuple. "
-            "Use embed(models).fragment(resources=...) and choose an explicit resource policy.",
-        )
-    fragment = embed_result.fragment(resources="none")
+    transport = project_embed_result(
+        embed_result, embed_result.requires.without_extension_assets({"bokeh.custom-models"}),
+    )
+    fragment = render_fragment(transport, resources="none")
+    custom_models = [
+        asset.content
+        for extension in embed_result.requires.extensions
+        if extension.name == "bokeh.custom-models"
+        for asset in extension.assets
+        if asset.kind == "script" and asset.content is not None
+    ]
+    script = "\n".join(filter(None, (
+        *(render_resource(ResolvedResource("script", content=content)) for content in custom_models),
+        fragment.script,
+    )))
     divs = fragment.divs
     input_shape = embed_result.metadata["embedding"]["input_shape"]
     if input_shape == "single":
@@ -169,7 +193,7 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
         result = cast(Any, models).__class__((key, divs[key]) for key in models)
     else:
         result = tuple(divs.values())
-    return fragment.script, result
+    return script, result
 
 def file_html(
     models: Model | Document | Sequence[Model],

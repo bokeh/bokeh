@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import (
     Any,
     Callable,
+    Iterable,
     Literal,
     Mapping,
     NotRequired,
@@ -38,13 +39,11 @@ from ..document import Document
 from ..resources import (
     _COMPONENT_NAMES,
     DEFAULT_SERVER_HTTP_URL,
-    INLINE,
     ResourceComponent,
     Resources as _Resources,
-    _inline_resource,
 )
 from ..settings import settings
-from ..util.compiler import bundle_models
+from ..util.compiler import CompilationError, bundle_models
 from ._util import canonical_embed_json, contains_tex_string
 
 #-----------------------------------------------------------------------------
@@ -61,20 +60,25 @@ class ResourceAssetRequirement:
     integrity: str | None = None
     crossorigin: str | None = None
     module: bool = False
+    package: str | None = None
 
     def __post_init__(self) -> None:
         if self.kind not in ("script", "style"):
             raise ValueError("resource asset requirement kind must be 'script' or 'style'")
-        if (self.url is None) == (self.content is None):
-            raise ValueError("a resource asset requirement needs exactly one of 'url' or 'content'")
-        for name in ("url", "content", "integrity", "crossorigin"):
+        if sum(value is not None for value in (self.url, self.content, self.package)) != 1:
+            raise ValueError("a resource asset requirement needs exactly one of 'url', 'content', or 'package'")
+        for name in ("url", "content", "package", "integrity", "crossorigin"):
             value = getattr(self, name)
             if value is not None and not isinstance(value, str):
                 raise ValueError(f"resource asset requirement {name} must be a string")
+        if self.package == "":
+            raise ValueError("resource asset requirement package must be a non-empty string")
         if not isinstance(self.module, bool):
             raise ValueError("resource asset requirement module must be a boolean")
         if self.kind == "style" and self.module:
             raise ValueError("style resource requirements cannot be JavaScript modules")
+        if self.kind == "style" and self.package is not None:
+            raise ValueError("packaged extension requirements must be scripts")
 
     def to_dict(self) -> dict[str, Any]:
         '''Return the JSON-compatible resource requirement.
@@ -83,7 +87,7 @@ class ResourceAssetRequirement:
             A detached resource requirement mapping.
         '''
         result: dict[str, Any] = {"kind": self.kind}
-        for name in ("url", "content", "integrity", "crossorigin"):
+        for name in ("url", "content", "package", "integrity", "crossorigin"):
             value = getattr(self, name)
             if value is not None:
                 result[name] = value
@@ -106,7 +110,7 @@ class ResourceAssetRequirement:
         if "nonce" in value:
             raise ValueError("resource asset requirement nonce is host-owned")
         _reject_unknown_fields(
-            value, {"kind", "url", "content", "integrity", "crossorigin", "module"},
+            value, {"kind", "url", "content", "package", "integrity", "crossorigin", "module"},
             "resource asset requirement",
         )
         kind = value.get("kind")
@@ -116,6 +120,7 @@ class ResourceAssetRequirement:
             kind=cast(Literal["script", "style"], kind),
             url=value.get("url"),
             content=value.get("content"),
+            package=value.get("package"),
             integrity=value.get("integrity"),
             crossorigin=value.get("crossorigin"),
             module=value.get("module", False),
@@ -166,6 +171,15 @@ class ExtensionRequirement:
             name=name,
             assets=tuple(ResourceAssetRequirement.from_dict(asset) for asset in assets),
         )
+
+
+def _ordered_extension_requirements(
+    extensions: Mapping[str, Sequence[ResourceAssetRequirement]],
+) -> tuple[ExtensionRequirement, ...]:
+    names = sorted(name for name in extensions if name != "bokeh.custom-models")
+    if "bokeh.custom-models" in extensions:
+        names.append("bokeh.custom-models")
+    return tuple(ExtensionRequirement(name, tuple(extensions[name])) for name in names)
 
 
 @dataclass(frozen=True)
@@ -228,9 +242,10 @@ class ResourceRequirements:
         '''Return the conservative requirement set for an unknown live document.
 
         Returns:
-            Requirements covering every built-in runtime component.
+            Requirements covering every built-in runtime component. The
+            server bootstrap supplies registered extension requirements.
         '''
-        return cls(("bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax", "bokeh/api"))
+        return cls(("bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax"))
 
     @classmethod
     def union(cls, *requirements: ResourceRequirements) -> ResourceRequirements:
@@ -255,7 +270,20 @@ class ResourceRequirements:
                         assets.append(asset)
         return cls(
             components,
-            tuple(ExtensionRequirement(name, tuple(assets)) for name, assets in sorted(extensions.items())),
+            _ordered_extension_requirements(extensions),
+        )
+
+    def without_extension_assets(self, names: Iterable[str] | None = None) -> ResourceRequirements:
+        '''Return requirements whose selected extension assets are supplied separately.'''
+        selected = None if names is None else frozenset(names)
+        return ResourceRequirements(
+            self.components,
+            tuple(
+                ExtensionRequirement(extension.name)
+                if selected is None or extension.name in selected
+                else extension
+                for extension in self.extensions
+            ),
         )
 
 
@@ -269,6 +297,13 @@ class ResolvedResource:
     crossorigin: str | None = None
     nonce: str | None = None
     module: bool = False
+    content_sha256: str | None = field(init=False, default=None)
+
+    def __post_init__(self) -> None:
+        if self.content is not None:
+            object.__setattr__(
+                self, "content_sha256", hashlib.sha256(self.content.encode("utf-8")).hexdigest(),
+            )
 
     @property
     def identity(self) -> tuple[Any, ...]:
@@ -290,6 +325,8 @@ class ResolvedResource:
             value = getattr(self, name)
             if value is not None:
                 result[name] = value
+        if self.content_sha256 is not None:
+            result["content_sha256"] = self.content_sha256
         if self.module:
             result["module"] = True
         return result
@@ -312,9 +349,7 @@ class ResolvedResources:
         assets = []
         for asset in self.assets:
             value = asset.to_dict()
-            content = value.pop("content", None)
-            if content is not None:
-                value["content_sha256"] = hashlib.sha256(content.encode("utf-8")).hexdigest()
+            value.pop("content", None)
             assets.append(value)
         payload = {
             "requirements": self.requirements.to_dict(),
@@ -343,6 +378,7 @@ class ResolvedResources:
 
 @dataclass(frozen=True)
 class _ExtensionBundle:
+    name: str
     artifact_path: Path
     server_url: str
     cdn_url: str | None = None
@@ -367,7 +403,7 @@ def _join_extension_url(base: str, *parts: str) -> str:
     return result
 
 
-def bundle_extensions(objs: set[HasProps] | None, policy: _Resources) -> list[_ExtensionBundle]:
+def bundle_extensions(objs: Iterable[HasProps | type[HasProps]] | None, policy: _Resources) -> list[_ExtensionBundle]:
     names: set[str] = set()
     bundles: list[_ExtensionBundle] = []
     extensions = [".min.js", ".js"] if policy.minified else [".js"]
@@ -428,7 +464,7 @@ def bundle_extensions(objs: set[HasProps] | None, policy: _Resources) -> list[_E
         server_url = _join_extension_url(
             policy.root_url or DEFAULT_SERVER_HTTP_URL, "static", "extensions", server_path,
         )
-        bundles.append(_ExtensionBundle(artifact_path, server_url, cdn_url))
+        bundles.append(_ExtensionBundle(name, artifact_path, server_url, cdn_url))
 
     return bundles
 
@@ -544,26 +580,11 @@ def use_gl(all_objs: set[HasProps]) -> bool:
 # General API
 #-----------------------------------------------------------------------------
 
-def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequirements:
-    '''Inspect Bokeh objects and return their exact component/extension requirements.'''
-    all_objects = all_objs(objs)
-    components: list[ResourceComponent] = ["bokeh/core"]
-    if use_widgets(all_objects):
-        components.append("bokeh/widgets")
-    if use_tables(all_objects):
-        components.append("bokeh/tables")
-    if use_gl(all_objects):
-        components.append("bokeh/webgl")
-    if use_mathjax(all_objects):
-        components.append("bokeh/mathjax")
-    components.append("bokeh/api")
-
+def _extension_requirements(model_types: set[type[HasProps]], *,
+        include_custom_models: bool = True) -> tuple[ExtensionRequirement, ...]:
     extensions: dict[str, list[ResourceAssetRequirement]] = {}
     seen_assets: set[tuple[Any, ...]] = set()
-    for obj in sorted(all_objects, key=lambda value: (
-        value.__class__.__module__, value.__class__.__name__, getattr(value, "id", ""),
-    )):
-        cls = obj.__class__
+    for cls in sorted(model_types, key=lambda value: (value.__module__, value.__name__)):
         module = cls.__view_module__.split(".", 1)[0]
         extension_name = module if module != "bokeh" else f"{cls.__module__}.{cls.__name__}"
         assets = extensions.setdefault(extension_name, [])
@@ -578,29 +599,130 @@ def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequir
                 if key not in seen_assets:
                     seen_assets.add(key)
                     assets.append(ResourceAssetRequirement(kind, url=url))
-        if not assets and module == "bokeh":
+        if not assets:
             extensions.pop(extension_name, None)
 
-    package_policy = _Resources(mode=INLINE)
-    for package in bundle_extensions(all_objects, package_policy):
-        name = f"package:{package.artifact_path.stem}"
+    package_policy = _Resources(mode="none")
+    for package in bundle_extensions(model_types, package_policy):
+        name = f"package:{package.name}"
         assets = extensions.setdefault(name, [])
-        assets.append(ResourceAssetRequirement("script", content=_inline_resource(package.artifact_path)))
+        assets.append(ResourceAssetRequirement("script", package=package.name))
 
-    custom_classes = sorted(
-        {obj.__class__ for obj in all_objects if hasattr(obj, "__implementation__")},
-        key=lambda cls: (cls.__module__, cls.__name__),
-    )
-    custom_bundle = bundle_models(custom_classes) if custom_classes else None
-    if custom_bundle is not None:
-        extensions.setdefault("bokeh.custom-models", []).append(
-            ResourceAssetRequirement("script", content=custom_bundle),
+    if include_custom_models:
+        custom_classes = sorted(
+            {cls for cls in model_types if hasattr(cls, "__implementation__")},
+            key=lambda cls: (cls.__module__, cls.__name__),
         )
+        try:
+            custom_bundle = bundle_models(custom_classes) if custom_classes else None
+        except CompilationError as error:
+            detail = str(error).strip() or "unknown compilation error"
+            raise ValueError(f"failed to compile custom models: {detail}") from error
+        if custom_bundle is not None:
+            extensions.setdefault("bokeh.custom-models", []).append(
+                ResourceAssetRequirement("script", content=custom_bundle),
+            )
 
+    # Compiled model implementations may depend on external or packaged
+    # extension assets declared above, so their aggregate bundle runs last.
+    return _ordered_extension_requirements(extensions)
+
+
+def requirements_for_objs(objs: Sequence[HasProps | Document]) -> ResourceRequirements:
+    '''Inspect Bokeh objects and return their exact component/extension requirements.'''
+    all_objects = all_objs(objs)
+    components: list[ResourceComponent] = ["bokeh/core"]
+    if use_widgets(all_objects):
+        components.append("bokeh/widgets")
+    if use_tables(all_objects):
+        components.append("bokeh/tables")
+    if use_gl(all_objects):
+        components.append("bokeh/webgl")
+    if use_mathjax(all_objects):
+        components.append("bokeh/mathjax")
+    model_types = {obj.__class__ for obj in all_objects}
+    return ResourceRequirements(tuple(components), _extension_requirements(model_types))
+
+
+def requirements_for_all_models(*, include_custom_models: bool = True,
+        model_types: Iterable[type[HasProps]] | None = None) -> ResourceRequirements:
+    '''Return conservative requirements for every registered model type.
+
+    Args:
+        include_custom_models: Include the compiled bundle for models with
+            inline implementations. Hosts that load exact custom bundles with
+            each payload can omit the eager aggregate bundle.
+        model_types: An optional immutable snapshot of registered model types.
+    '''
+    registered = set(HasProps.model_class_reverse_map.values() if model_types is None else model_types)
     return ResourceRequirements(
-        tuple(components),
-        tuple(ExtensionRequirement(name, tuple(assets)) for name, assets in sorted(extensions.items())),
+        ("bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax"),
+        _extension_requirements(registered, include_custom_models=include_custom_models),
     )
+
+
+def resolve_server_extensions(policy: _Resources,
+        model_types: Iterable[type[HasProps]] | None = None) -> ResolvedResources:
+    '''Resolve every registered extension requirement for a live server session.
+
+    Extension registration is process-global, and a live document may add model
+    types after its initial session document is created. Asset-delivering modes
+    therefore intentionally resolve the whole registered-model set. Host-owned
+    mode has no assets to deliver and can bypass that global discovery entirely.
+    '''
+    if policy.mode == "none":
+        return policy.resolve(ResourceRequirements((), ()), include_requirement_assets=False)
+    snapshot = tuple(
+        HasProps.model_class_reverse_map.values() if model_types is None else model_types,
+    )
+    requirements = requirements_for_all_models(model_types=snapshot)
+    extension_requirements = ResourceRequirements((), requirements.extensions)
+    return policy.resolve(
+        extension_requirements,
+        include_requirement_assets=False,
+        extension_model_types=snapshot,
+    )
+
+
+def server_extension_resources(default: _Resources, *, mode: str | None,
+        minified: str | None, root_url: str) -> _Resources:
+    '''Apply a browser host's requested policy to server extension assets.'''
+    if mode is None:
+        if minified is not None:
+            raise ValueError("Bokeh-Resource-Minified requires Bokeh-Resource-Mode")
+        return default
+    if mode in ("relative", "absolute"):
+        raise ValueError(
+            f"server bootstrap cannot resolve {mode} extension paths for an embedding host. "
+            "Use server, CDN, inline, or host-owned resources",
+        )
+    if mode not in ("none", "inline", "offline", "cdn", "server"):
+        raise ValueError(f"unknown server extension resource mode {mode!r}")
+    if minified is None:
+        use_minified = default.minified
+    elif minified == "true":
+        use_minified = True
+    elif minified == "false":
+        use_minified = False
+    else:
+        raise ValueError("Bokeh-Resource-Minified must be 'true' or 'false'")
+    if mode == "server":
+        return _Resources(mode="server", minified=use_minified, root_url=root_url)
+    return _Resources(mode=cast(Any, mode), minified=use_minified)
+
+
+def resolve_package_requirement(name: str, policy: _Resources, *,
+        model_types: Iterable[type[HasProps]] | None = None) -> _ExtensionBundle:
+    '''Resolve one logical packaged extension under a concrete host policy.'''
+    registered = HasProps.model_class_reverse_map.values() if model_types is None else model_types
+    selected = {
+        model_type for model_type in registered
+        if model_type.__view_module__.split(".", 1)[0] == name
+    }
+    for bundle in bundle_extensions(selected, policy):
+        if bundle.name == name:
+            return bundle
+    raise ValueError(f"can't resolve registered packaged extension {name!r}")
 
 
 def _reject_unknown_fields(value: Mapping[str, Any], allowed: set[str], context: str) -> None:
@@ -615,5 +737,7 @@ __all__ = (
     "ResolvedResources",
     "ResourceAssetRequirement",
     "ResourceRequirements",
+    "requirements_for_all_models",
     "requirements_for_objs",
+    "server_extension_resources",
 )

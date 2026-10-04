@@ -127,8 +127,8 @@ Renderer tour
 ~~~~~~~~~~~~~
 
 The following example includes a plot, a widget, and a table so the embed result
-declares four different BokehJS component bundles
-(``bokeh/core``, ``bokeh/api``, ``bokeh/widgets``, and ``bokeh/tables``).
+declares three different BokehJS component bundles
+(``bokeh/core``, ``bokeh/widgets``, and ``bokeh/tables``).
 Each renderer serves a distinct host rather than recompiling the models:
 
 .. code-block:: python
@@ -160,9 +160,9 @@ Each renderer serves a distinct host rather than recompiling the models:
     # Data endpoint: return this with application/vnd.bokeh.embed+json.
     json_payload = result.to_json_string()
 
-    # Store external.payload at this URL.
-    # Insert the HTML string in external.html into the host page.
     external = result.external("/assets/renderer-tour.json", resources="none")
+    external_payload = external.payload
+    embed_html = external.html
 
     # Rich display: notebooks request the MIME representation automatically.
     display(result)
@@ -315,8 +315,8 @@ them:
     result.fragment(resources="none")     # host owns all resource loading
 
 ``resources="none"`` is not an assertion that the embed result needs no resources.
-It is an explicit host-owned policy: the page must load a matching core/API
-runtime and every component or extension listed by ``result.requires``.
+It is an explicit host-owned policy: the page must load matching versions of
+every BokehJS component and extension listed by ``result.requires``.
 Policy/version, CSP nonce, SRI, offline, and ``external_only`` conflicts fail
 with actionable errors rather than silently producing incomplete markup. The
 browser's programmatic resource loader deduplicates additive requirements.
@@ -341,11 +341,12 @@ payload separately and produces the HTML that the host page should insert.
         resources=Resources(mode=CDN, external_only=True),
     )
     Path("static/report.json").write_text(external.payload)
-    print(external.html)
+    embed_html = external.html
+    print(embed_html)
 
 Serve ``static/report.json`` at ``/assets/report.json`` with the
-``application/vnd.bokeh.embed+json`` media type and insert the HTML string from
-``external.html`` in the host page. The CSP must allow the selected Bokeh
+``application/vnd.bokeh.embed+json`` media type and insert ``embed_html`` in
+the host page. The CSP must allow the selected Bokeh
 resource origin in ``script-src`` and the payload origin in ``connect-src``.
 No inline JavaScript is emitted.
 
@@ -448,13 +449,14 @@ payload as data and render a declarative external reference:
 .. code-block:: python
 
     result = embed({"plot": plot})
-    Path("static/plot.json").write_text(result.to_json_string())
     external = result.external(
         payload_url="/static/plot.json",
         resources="none",
     )
+    Path("static/plot.json").write_text(external.payload)
+    embed_html = external.html
 
-Insert the HTML string from ``external.html`` in the page. That string contains
+Insert ``embed_html`` in the page. That string contains
 logical-root targets plus one shared bootstrap invocation. It never replaces a
 script tag or stores target IDs in the payload. Use ``Bokeh.when_mounted()`` to
 acquire the published handle as shown above. With an ``external_only`` resource
@@ -489,6 +491,11 @@ over persisting a token in reusable markup.
 ``headers`` and ``with_credentials=True`` may be used together when an
 application requires both request headers and cookies. As with a directly
 supplied token, header values are visible to page consumers.
+
+Extension model registration is process-global inside a Bokeh server process,
+and a live session can add model types after its initial bootstrap. Treat all
+applications hosted by one process as sharing an extension-code trust boundary.
+Host mutually untrusted applications in separate server processes.
 
 If an application is running on a Bokeh server that makes it available at some
 URL, you will typically want to embed the entire application in a web page.

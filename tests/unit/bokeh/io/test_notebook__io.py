@@ -17,12 +17,17 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+from typing import Any
 from unittest.mock import MagicMock, PropertyMock, patch
 
 # Bokeh imports
 from bokeh.document.document import Document
+from bokeh.embed.resources import ResourceRequirements
 from bokeh.io.doc import set_curdoc
 from bokeh.io.notebook import log
 
@@ -165,6 +170,175 @@ class Test_push_notebook:
             "events": [{"kind": "TitleChanged", "title": "foo"}],
         }
         assert d.callbacks._held_events == []
+
+    def test_implicit_handle_is_local_to_each_thread_context(self) -> None:
+        barrier = Barrier(2)
+
+        def push(title: str) -> MagicMock:
+            comms = MagicMock()
+            document = Document()
+            handle = binb.CommsHandle(comms, document)
+            binb._remember_comms_handle(handle)
+            barrier.wait()
+            document.title = title
+            barrier.wait()
+            binb.push_notebook(document=document)
+            return comms
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            first = executor.submit(push, "first")
+            second = executor.submit(push, "second")
+            first_comms = first.result()
+            second_comms = second.result()
+
+        first_envelope = json.loads(first_comms.send.call_args_list[0].args[0])
+        second_envelope = json.loads(second_comms.send.call_args_list[0].args[0])
+        assert first_envelope["content"]["events"] == [{"kind": "TitleChanged", "title": "first"}]
+        assert second_envelope["content"]["events"] == [{"kind": "TitleChanged", "title": "second"}]
+
+    def test_implicit_handle_survives_sequential_async_task_contexts(self) -> None:
+        comms = MagicMock()
+        document = Document()
+        handle = binb.CommsHandle(comms, document)
+        previous = getattr(binb._LAST_COMMS_HANDLE_BY_THREAD, "handle", None)
+        binb._LAST_COMMS_HANDLE_BY_THREAD.handle = None
+
+        async def run() -> None:
+            async def remember() -> None:
+                binb._remember_comms_handle(handle)
+
+            async def push() -> None:
+                binb.push_notebook(document=document)
+
+            await asyncio.create_task(remember())
+            document.title = "from another cell"
+            await asyncio.create_task(push())
+
+        try:
+            asyncio.run(run())
+        finally:
+            binb._LAST_COMMS_HANDLE_BY_THREAD.handle = previous
+
+        envelope = json.loads(comms.send.call_args_list[0].args[0])
+        assert envelope["content"]["events"] == [{"kind": "TitleChanged", "title": "from another cell"}]
+
+    def test_implicit_handle_supersedes_parent_context_in_later_async_task(self) -> None:
+        parent_comms = MagicMock()
+        parent_handle = binb.CommsHandle(parent_comms, Document())
+        comms = MagicMock()
+        document = Document()
+        handle = binb.CommsHandle(comms, document)
+        previous_handle = getattr(binb._LAST_COMMS_HANDLE_BY_THREAD, "handle", None)
+
+        async def run() -> None:
+            async def remember() -> None:
+                binb._remember_comms_handle(handle)
+
+            async def push() -> None:
+                binb.push_notebook(document=document)
+
+            await asyncio.create_task(remember())
+            document.title = "from a later cell"
+            await asyncio.create_task(push())
+
+        try:
+            binb._remember_comms_handle(parent_handle)
+            asyncio.run(run())
+        finally:
+            binb._LAST_COMMS_HANDLE_BY_THREAD.handle = previous_handle
+
+        assert parent_comms.send.call_count == 0
+        envelope = json.loads(comms.send.call_args_list[0].args[0])
+        assert envelope["content"]["events"] == [{"kind": "TitleChanged", "title": "from a later cell"}]
+
+    def test_explicit_handles_remain_local_to_concurrent_async_tasks(self) -> None:
+        handles = [
+            binb.CommsHandle(MagicMock(), Document()),
+            binb.CommsHandle(MagicMock(), Document()),
+        ]
+        async def run() -> None:
+            first_configured = asyncio.Event()
+            second_configured = asyncio.Event()
+
+            async def first() -> None:
+                handles[0].doc.title = "first"
+                first_configured.set()
+                await second_configured.wait()
+                binb.push_notebook(document=handles[0].doc, handle=handles[0])
+
+            async def second() -> None:
+                await first_configured.wait()
+                handles[1].doc.title = "second"
+                second_configured.set()
+                binb.push_notebook(document=handles[1].doc, handle=handles[1])
+
+            await asyncio.gather(first(), second())
+
+        asyncio.run(run())
+
+        for handle, title in zip(handles, ("first", "second")):
+            envelope = json.loads(handle.comms.send.call_args_list[0].args[0])
+            assert envelope["content"]["events"] == [{"kind": "TitleChanged", "title": title}]
+
+
+def test_load_notebook_only_resolves_builtin_components(monkeypatch: pytest.MonkeyPatch) -> None:
+    from bokeh.model import Model
+    from bokeh.models import CustomJS
+    from bokeh.util.compiler import JavaScript
+
+    class RegisteredCustomJS(CustomJS):
+        __implementation__ = JavaScript("export const value = 1")
+
+    def fail_if_bundled(models: Any) -> None:
+        raise AssertionError("notebook startup must not compile registered extensions")
+
+    published: list[dict[str, Any]] = []
+    old_loaded = binb._NOTEBOOK_LOADED
+    old_requirements = binb._NOTEBOOK_REQUIREMENTS
+
+    monkeypatch.setattr(binb, "publish_display_data", lambda data, **kwargs: published.append(data))
+    monkeypatch.setattr("bokeh.embed.resources.bundle_models", fail_if_bundled)
+    try:
+        binb.load_notebook(resources="none", hide_banner=True)
+        requirements = binb._NOTEBOOK_REQUIREMENTS
+    finally:
+        binb._NOTEBOOK_LOADED = old_loaded
+        binb._NOTEBOOK_REQUIREMENTS = old_requirements
+        Model.clear_extensions()
+
+    assert requirements == ResourceRequirements((
+        "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax",
+    ))
+    assert published[-1][binb.JS_MIME_TYPE]
+
+
+def test_show_doc_loads_custom_model_registered_after_load_notebook(monkeypatch: pytest.MonkeyPatch) -> None:
+    from bokeh.model import Model
+    from bokeh.models import CustomJS
+    from bokeh.util.compiler import JavaScript
+
+    old_loaded = binb._NOTEBOOK_LOADED
+    old_requirements = binb._NOTEBOOK_REQUIREMENTS
+    binb._NOTEBOOK_LOADED = binb.Resources(mode="cdn")
+    binb._NOTEBOOK_REQUIREMENTS = ResourceRequirements((
+        "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax",
+    ))
+    monkeypatch.setattr("bokeh.embed.resources.bundle_models", lambda models: "compiled-late-custom-model")
+    try:
+        class LateCustomJS(CustomJS):
+            __implementation__ = JavaScript("export const value = 1")
+
+        script, _, _ = binb._legacy_notebook_content(LateCustomJS(code="return value"), None)
+        repeated_script, _, _ = binb._legacy_notebook_content(LateCustomJS(code="return value"), None)
+    finally:
+        binb._NOTEBOOK_LOADED = old_loaded
+        binb._NOTEBOOK_REQUIREMENTS = old_requirements
+        Model.clear_extensions()
+
+    assert "resource_loader.ensure" in script
+    assert script.count("compiled-late-custom-model") == 1
+    assert ".then(() => root.Bokeh.embed.embed_items_notebook" in script
+    assert repeated_script.count("compiled-late-custom-model") == 1
 
 #-----------------------------------------------------------------------------
 # Dev API

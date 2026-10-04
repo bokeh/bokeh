@@ -25,6 +25,7 @@ import ssl
 import sys
 import tempfile
 from datetime import timedelta
+from pathlib import Path
 from unittest import mock
 
 # External imports
@@ -45,6 +46,7 @@ from bokeh.application.handlers import Handler
 from bokeh.client import pull_session
 from bokeh.core.properties import List, String
 from bokeh.core.types import ID
+from bokeh.embed.resources import extension_dirs
 from bokeh.model import Model
 from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.server import BaseServer, Server
@@ -568,6 +570,37 @@ async def test__embed_cors_options_allows_websocket_origin(ManagedServerLoop: MS
         assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
         assert response.headers["Access-Control-Allow-Credentials"] == "true"
         assert response.headers["Vary"] == "Origin"
+
+
+async def test__application_static_reserves_bokeh_and_extension_assets(
+    ManagedServerLoop: MSL,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    static = tmp_path / "static"
+    extension = tmp_path / "extension"
+    (static / "js").mkdir(parents=True)
+    extension.mkdir()
+    (static / "js" / "app.js").write_text("globalThis.app_static = true")
+    (static / "js" / "bokeh.min.js").write_text("not Bokeh")
+    (extension / "extension.js").write_text("globalThis.extension = true")
+    monkeypatch.setitem(extension_dirs, "example", extension)
+
+    class StaticPathHandler(Handler):
+        def static_path(self) -> str:
+            return str(static)
+
+    application = Application(StaticPathHandler())
+    with ManagedServerLoop({"/directory": application}) as server:
+        app_js = await http_get(server.io_loop, url(server) + "directory/static/js/app.js")
+        bokeh_js = await http_get(server.io_loop, url(server) + "directory/static/js/bokeh.min.js")
+        extension_js = await http_get(
+            server.io_loop, url(server) + "directory/static/extensions/example/extension.js",
+        )
+
+        assert app_js.body == b"globalThis.app_static = true"
+        assert b"Bokeh Contributors" in bokeh_js.body
+        assert extension_js.body == b"globalThis.extension = true"
 
 async def test__autocreate_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()

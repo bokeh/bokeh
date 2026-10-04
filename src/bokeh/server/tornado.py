@@ -46,11 +46,13 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ..application import Application
+from ..embed.resources import extension_dirs
 from ..model import Model
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.strings import format_docstring
+from ._static import BOKEH_JS_ROUTE_PATTERN
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
@@ -65,6 +67,7 @@ from .core import (
 from .executor import _ServerExecutor
 from .urls import per_app_patterns, toplevel_patterns
 from .views.ico_handler import IcoHandler
+from .views.multi_root_static_handler import MultiRootStaticHandler
 from .views.root_handler import RootHandler
 from .views.static_handler import AsyncStaticFileHandler, StaticHandler
 from .views.ws import WSHandler
@@ -451,8 +454,10 @@ class BokehTornado(TornadoApplication):
 
             all_patterns.extend(app_patterns)
 
-            # if the app requests a custom static path, use that, otherwise add Bokeh's standard static handler
-            all_patterns.append(create_static_handler(self._prefix, key, ctx.application))
+            # Reserve Bokeh's own static namespaces even when an application
+            # supplies a custom static directory, then serve application files
+            # from the remaining namespace.
+            all_patterns.extend(create_static_handlers(self._prefix, key, ctx.application))
 
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
@@ -893,6 +898,18 @@ def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str,
     if app.static_path is not None:
         return (route, AsyncStaticFileHandler, {"path" : app.static_path})
     return (route, StaticHandler, {})
+
+
+def create_static_handlers(prefix: str, key: str, app: Application) -> URLRoutes:
+    route = prefix
+    route += "/static" if key == "/" else key + "/static"
+    handlers: URLRoutes = [
+        (f"{route}/extensions/(.*)", MultiRootStaticHandler, {"root": extension_dirs}),
+    ]
+    if app.static_path is not None:
+        handlers.append((f"{route}/({BOKEH_JS_ROUTE_PATTERN})", StaticHandler, {}))
+    handlers.append(create_static_handler(prefix, key, app))
+    return handlers
 
 #-----------------------------------------------------------------------------
 # Private API

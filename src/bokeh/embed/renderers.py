@@ -10,6 +10,7 @@ from __future__ import annotations
 
 # Standard library imports
 import hashlib
+import json
 import re
 from dataclasses import dataclass
 from html import escape
@@ -18,6 +19,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Iterator,
+    Literal,
     Mapping,
 )
 from urllib.parse import urlsplit
@@ -27,7 +29,7 @@ from ..core.templates import FILE, MACROS, get_env
 from ..document import DEFAULT_TITLE
 from ..resources import ResourceConflictError, Resources
 from ..util.serialization import make_globally_unique_css_safe_id
-from ._util import canonical_embed_json
+from ._util import canonical_embed_json, project_embed_result
 from .resources import ResolvedResource, ResolvedResources, ResourceRequirements
 from .result import EMBED_MIME_TYPE, EmbedResult
 
@@ -101,61 +103,66 @@ class EmbedFragment:
 
 @dataclass(frozen=True)
 class ExternalEmbed:
-    '''Declarative targets and bootstrap for an externally stored embed payload.'''
+    '''Declarative targets, payload, and bootstrap for external storage.
+
+    ``result`` retains the reusable caller result. ``payload`` contains the
+    transport projection matching the resources rendered alongside it.
+    '''
     result: EmbedResult
     payload_url: str
+    payload: str
     mounts: tuple[EmbedMount, ...]
     bootstrap: str
     resources: ResolvedResources
     build_fingerprint: str
     html: str
 
-    @property
-    def payload(self) -> str:
-        '''Return the JSON text a host should store at ``payload_url``.
-
-        Returns:
-            The serialized embed payload.
-        '''
-        return self.result.to_json_string()
-
-
 def render_fragment(result: EmbedResult, *, resources: ResourcesLike | None = "none",
         bootstrap_url: str | None = None) -> EmbedFragment:
     '''Render an embed result for composition inside a host-owned HTML page.'''
-    mounts, script, resolved = _render_inline_parts(result, resources, bootstrap_url)
+    transported, mounts, script, resolved = _render_inline_parts(result, resources, bootstrap_url)
     html = "\n".join(filter(None, (_render_resources(resolved), *(mount.html for mount in mounts), script)))
     build_fingerprint = _build_fingerprint(
-        result, resolved, "fragment", {"bootstrap_url": bootstrap_url},
+        transported, resolved, "fragment", {"bootstrap_url": bootstrap_url},
     )
     return EmbedFragment(result, mounts, script, resolved, build_fingerprint, html)
 
 
 def _render_inline_parts(result: EmbedResult, resources: ResourcesLike | None,
-        bootstrap_url: str | None) -> tuple[tuple[EmbedMount, ...], str, ResolvedResources]:
+        bootstrap_url: str | None,
+) -> tuple[EmbedResult, tuple[EmbedMount, ...], str, ResolvedResources]:
     policy = _resources_for_embed(result, resources)
     if bootstrap_url is not None and policy.integrity:
         raise ResourceConflictError(
             "a custom bootstrap_url cannot satisfy integrity=True; use Bokeh's standard bootstrap asset",
         )
-    resolved = policy.resolve(result.requires, bokeh_version=result.bokeh_version)
+    resolved = policy.resolve(
+        result.requires,
+        bokeh_version=result.bokeh_version,
+        include_requirement_assets=policy.mode == "none",
+    )
+    transported = project_embed_result(result, resolved.requirements)
     declaration_id = make_globally_unique_css_safe_id()
-    mounts = render_mounts(result, declaration_id=declaration_id)
+    mounts = render_mounts(transported, declaration_id=declaration_id)
     if policy.external_only:
         raise ValueError(
             "external_only resource policy cannot embed an inline payload; "
             "use result.external(payload_url=...)",
         )
-    payload = _payload_tag(result, declaration_id=declaration_id, nonce=policy.nonce)
+    payload = _payload_tag(transported, declaration_id=declaration_id, nonce=policy.nonce)
     bootstrap = (
-        _inline_bootstrap(result.fingerprint, declaration_id=declaration_id, nonce=policy.nonce)
+        _inline_bootstrap(
+            transported.fingerprint, declaration_id=declaration_id, nonce=policy.nonce,
+            resource_policy=policy,
+        )
         if bootstrap_url is None
         else _external_bootstrap(
-            bootstrap_url, result.fingerprint, declaration_id=declaration_id, nonce=policy.nonce,
+            bootstrap_url, transported.fingerprint, declaration_id=declaration_id, nonce=policy.nonce,
+            resource_policy=policy,
         )
     )
     script = f"{payload}\n{bootstrap}"
-    return mounts, script, resolved
+    return transported, mounts, script, resolved
 
 
 def render_external(result: EmbedResult, *, payload_url: str,
@@ -170,9 +177,14 @@ def render_external(result: EmbedResult, *, payload_url: str,
         raise ResourceConflictError(
             "a custom bootstrap_url cannot satisfy integrity=True; use Bokeh's standard bootstrap asset",
         )
-    resolved = policy.resolve(result.requires, bokeh_version=result.bokeh_version)
+    resolved = policy.resolve(
+        result.requires,
+        bokeh_version=result.bokeh_version,
+        include_requirement_assets=policy.mode == "none",
+    )
+    transported = project_embed_result(result, resolved.requirements)
     declaration_id = make_globally_unique_css_safe_id()
-    mounts = render_mounts(result, payload_url=payload_url, declaration_id=declaration_id)
+    mounts = render_mounts(transported, payload_url=payload_url, declaration_id=declaration_id)
     resolved_bootstrap_url = bootstrap_url
     if bootstrap_url is None:
         if policy.external_only:
@@ -180,33 +192,37 @@ def render_external(result: EmbedResult, *, payload_url: str,
             assert asset.url is not None
             resolved_bootstrap_url = asset.url
             bootstrap = _external_bootstrap(
-                asset.url, result.fingerprint, declaration_id=declaration_id,
+                asset.url, transported.fingerprint, declaration_id=declaration_id,
                 payload_url=payload_url, nonce=asset.nonce,
                 integrity=asset.integrity, crossorigin=asset.crossorigin,
+                resource_policy=policy, allow_absolute_path=policy.mode == "absolute",
             )
         else:
             bootstrap = _inline_bootstrap(
-                result.fingerprint, declaration_id=declaration_id,
-                payload_url=payload_url, nonce=policy.nonce,
+                transported.fingerprint, declaration_id=declaration_id,
+                payload_url=payload_url, nonce=policy.nonce, resource_policy=policy,
             )
     else:
         bootstrap = _external_bootstrap(
-            bootstrap_url, result.fingerprint, declaration_id=declaration_id,
+            bootstrap_url, transported.fingerprint, declaration_id=declaration_id,
             payload_url=payload_url, nonce=policy.nonce,
             crossorigin=policy.crossorigin,
+            resource_policy=policy,
         )
     html = "\n".join(filter(None, (_render_resources(resolved), *(mount.html for mount in mounts), bootstrap)))
     build_fingerprint = _build_fingerprint(
-        result, resolved, "external", {"payload_url": payload_url, "bootstrap_url": resolved_bootstrap_url},
+        transported, resolved, "external", {"payload_url": payload_url, "bootstrap_url": resolved_bootstrap_url},
     )
-    return ExternalEmbed(result, payload_url, mounts, bootstrap, resolved, build_fingerprint, html)
+    return ExternalEmbed(
+        result, payload_url, transported.to_json_string(), mounts, bootstrap, resolved, build_fingerprint, html,
+    )
 
 
 def render_page(result: EmbedResult, *, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | str | Path | None = None,
         template_variables: Mapping[str, Any] | None = None, bootstrap_url: str | None = None) -> str:
     '''Render a complete HTML document with resolved resources and targets.'''
-    mounts, plot_script, resolved = _render_inline_parts(result, resources, bootstrap_url)
+    _, mounts, plot_script, resolved = _render_inline_parts(result, resources, bootstrap_url)
     plot_div = "\n".join(mount.html for mount in mounts)
     bokeh_js = _render_resources(resolved, kind="script")
     bokeh_css = _render_resources(resolved, kind="style")
@@ -324,7 +340,8 @@ def _payload_tag(result: EmbedResult, *, declaration_id: str, nonce: str | None)
 
 
 def _inline_bootstrap(fingerprint: str, *, declaration_id: str,
-        payload_url: str | None = None, nonce: str | None = None) -> str:
+        payload_url: str | None = None, nonce: str | None = None,
+        resource_policy: Resources | None = None) -> str:
     attrs = [
         "data-bokeh-embed-bootstrap",
         f'data-bokeh-embed="{escape(fingerprint, quote=True)}"',
@@ -334,6 +351,7 @@ def _inline_bootstrap(fingerprint: str, *, declaration_id: str,
         attrs.append(f'nonce="{escape(nonce, quote=True)}"')
     if payload_url is not None:
         attrs.append(f'data-bokeh-payload-url="{escape(payload_url, quote=True)}"')
+    attrs.extend(_resource_policy_attributes(resource_policy))
     code = """void Bokeh.mount_embed_declaration(document.currentScript).catch((error) => {
   console.error("Failed to mount Bokeh embed", error);
 });"""
@@ -342,8 +360,9 @@ def _inline_bootstrap(fingerprint: str, *, declaration_id: str,
 
 def _external_bootstrap(bootstrap_url: str, fingerprint: str, *, payload_url: str | None = None,
         declaration_id: str, nonce: str | None = None,
-        integrity: str | None = None, crossorigin: str | None = None) -> str:
-    _validate_web_url(bootstrap_url, "bootstrap_url")
+        integrity: str | None = None, crossorigin: str | None = None,
+        resource_policy: Resources | None = None, allow_absolute_path: bool = False) -> str:
+    _validate_web_url(bootstrap_url, "bootstrap_url", allow_absolute_path=allow_absolute_path)
     attrs = [
         f'src="{escape(bootstrap_url, quote=True)}"',
         "data-bokeh-embed-bootstrap",
@@ -358,40 +377,105 @@ def _external_bootstrap(bootstrap_url: str, fingerprint: str, *, payload_url: st
         attrs.append(f'crossorigin="{escape(crossorigin, quote=True)}"')
     if payload_url is not None:
         attrs.append(f'data-bokeh-payload-url="{escape(payload_url, quote=True)}"')
+    attrs.extend(_resource_policy_attributes(resource_policy))
     return f"<script {' '.join(attrs)}></script>"
+
+
+def _resource_policy_attributes(policy: Resources | None) -> list[str]:
+    if policy is None:
+        return []
+    attrs = [
+        f'data-bokeh-resource-mode="{policy.mode}"',
+        f'data-bokeh-resource-minified="{str(policy.minified).lower()}"',
+    ]
+    if policy.crossorigin is not None:
+        attrs.append(f'data-bokeh-resource-crossorigin="{escape(policy.crossorigin, quote=True)}"')
+    if policy.integrity:
+        attrs.append("data-bokeh-resource-integrity")
+    if policy.external_only:
+        attrs.append("data-bokeh-resource-external-only")
+    return attrs
 
 
 def _render_resources(resources: ResolvedResources, *, kind: str | None = None) -> str:
     allow_absolute_path = resources.policy.mode == "absolute"
     return "\n".join(
-        _render_resource(asset, allow_absolute_path=allow_absolute_path)
+        render_resource(asset, allow_absolute_path=allow_absolute_path)
         for asset in resources.assets if kind is None or asset.kind == kind
     )
 
 
-def _render_resource(asset: ResolvedResource, *, allow_absolute_path: bool = False) -> str:
-    attributes = ['data-bokeh-resource-state="loaded"']
+def render_resource(asset: ResolvedResource, *, allow_absolute_path: bool = False) -> str:
+    '''Render one resolved resource as host-safe HTML.'''
+    attributes: list[str] = []
+    wrapper_attributes: list[str] = []
     if asset.nonce is not None:
-        attributes.append(f'nonce="{escape(asset.nonce, quote=True)}"')
+        nonce = f'nonce="{escape(asset.nonce, quote=True)}"'
+        attributes.append(nonce)
+        wrapper_attributes.append(nonce)
     if asset.integrity is not None:
         attributes.append(f'integrity="{escape(asset.integrity, quote=True)}"')
     if asset.crossorigin is not None:
         attributes.append(f'crossorigin="{escape(asset.crossorigin, quote=True)}"')
-    suffix = " " + " ".join(attributes) if attributes else ""
+    def suffix(state: Literal["loading", "loaded"], *, wrapper: bool = False) -> str:
+        selected = wrapper_attributes if wrapper else attributes
+        return " " + " ".join([f'data-bokeh-resource-state="{state}"', *selected])
+
     if asset.kind == "script":
-        script_type = ' type="module"' if asset.module else ""
         if asset.url is not None:
             _validate_web_url(asset.url, "script resource URL", allow_absolute_path=allow_absolute_path)
-            return f'<script src="{escape(asset.url, quote=True)}"{script_type}{suffix}></script>'
+            script_type = ' type="module"' if asset.module else ""
+            state = "loading" if asset.module else "loaded"
+            marker = ' data-bokeh-resource=""' if asset.module else ""
+            resource = f'<script src="{escape(asset.url, quote=True)}"{script_type}{marker}{suffix(state)}></script>'
+            return resource
         assert asset.content is not None
-        content = re.sub(r"</script", r"<\\/script", asset.content, flags=re.IGNORECASE)
-        return f"<script{script_type}{suffix}>{content}</script>"
+        assert asset.content_sha256 is not None
+        content = _html_safe_json(json.dumps(asset.content, ensure_ascii=False))
+        marker = json.dumps(f"script:sha256:{asset.content_sha256}")
+        resource_type = "module" if asset.module else "text/javascript"
+        callback = json.dumps(f"__bokeh_resource_module_{make_globally_unique_css_safe_id()}")
+        completion = '''
+  if (resource.type == "module") {
+    const callback = __BOKEH_CALLBACK__
+    globalThis[callback] = () => {
+      delete globalThis[callback]
+      resource.setAttribute("data-bokeh-resource-state", "loaded")
+      resource.dispatchEvent(new Event("bokeh:resource-loaded"))
+    }
+    resource.addEventListener("error", () => {
+      delete globalThis[callback]
+      resource.setAttribute("data-bokeh-resource-state", "failed")
+    }, {once: true})
+    resource.append(document.createTextNode(`\n;globalThis[${JSON.stringify(callback)}]()`))
+  } else {
+    resource.setAttribute("data-bokeh-resource-state", "loaded")
+  }'''.replace("__BOKEH_CALLBACK__", callback)
+        code = f'''(() => {{
+  const loader = document.currentScript
+  const resource = document.createElement("script")
+  resource.type = "{resource_type}"
+  resource.text = {content}
+  if (loader.nonce != "") resource.nonce = loader.nonce
+  for (const name of ["integrity", "crossorigin"]) {{
+    const value = loader.getAttribute(name)
+    if (value != null) resource.setAttribute(name, value)
+  }}
+  resource.setAttribute("data-bokeh-resource", {marker})
+  resource.setAttribute("data-bokeh-resource-state", "loading")
+{completion}
+  loader.before(resource)
+  loader.remove()
+}})()'''
+        return f"<script{suffix('loaded', wrapper=True)}>{code}</script>"
     if asset.url is not None:
         _validate_web_url(asset.url, "style resource URL", allow_absolute_path=allow_absolute_path)
-        return f'<link rel="stylesheet" href="{escape(asset.url, quote=True)}"{suffix}>'
+        return f'<link rel="stylesheet" href="{escape(asset.url, quote=True)}"{suffix("loaded")}>'
     assert asset.content is not None
+    assert asset.content_sha256 is not None
     content = re.sub(r"</style", r"<\\/style", asset.content, flags=re.IGNORECASE)
-    return f"<style{suffix}>{content}</style>"
+    marker = escape(f"style:sha256:{asset.content_sha256}", quote=True)
+    return f'<style data-bokeh-resource="{marker}"{suffix("loaded")}>{content}</style>'
 
 
 def _validate_web_url(url: str, context: str, *, allow_absolute_path: bool = False) -> None:
@@ -434,4 +518,5 @@ __all__ = (
     "render_mimebundle",
     "render_mounts",
     "render_page",
+    "render_resource",
 )

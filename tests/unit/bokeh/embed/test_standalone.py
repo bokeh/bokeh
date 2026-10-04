@@ -57,6 +57,19 @@ class Test_components:
         _, ordered = deprecated_components(OrderedDict((("one", plot1), ("two", plot2))))
         assert isinstance(ordered, OrderedDict)
 
+        document = Document()
+        document.add_root(plot1)
+        _, document_mapping = deprecated_components({"document": document})
+        assert list(document_mapping) == ["document"]
+
+    def test_rejects_multi_root_document_mapping_with_clear_error(self) -> None:
+        document = Document()
+        document.add_root(figure())
+        document.add_root(figure())
+
+        with pytest.raises(ValueError, match=r"mapping value 'document'.*2 roots.*more than one div"):
+            deprecated_components({"document": document})
+
     def test_uses_embed_declarations_and_logical_targets(self, test_plot: Plot) -> None:
         bs4 = pytest.importorskip("bs4")
         script, div = deprecated_components(test_plot)

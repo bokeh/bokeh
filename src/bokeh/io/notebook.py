@@ -29,6 +29,7 @@ from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from html import escape
+from threading import local
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -60,7 +61,11 @@ if TYPE_CHECKING:
     from ..resources import ResourcesLike
 
 # Bokeh imports
-from ..embed.resources import ResolvedResources
+from ..embed.resources import (
+    ExtensionRequirement,
+    ResolvedResources,
+    ResourceRequirements,
+)
 from ..resources import INLINE, Resources
 
 #-----------------------------------------------------------------------------
@@ -274,6 +279,11 @@ def push_notebook(*, document: Document | None = None, handle: CommsHandle | Non
             A |Document| to push from. If None uses ``curdoc()``. (default:
             None)
 
+        handle (CommsHandle, optional):
+            The handle returned by ``show(..., notebook_handle=True)``. If
+            None, uses the last handle created in the current thread. Pass a
+            handle explicitly from concurrent or cross-thread code.
+
     Returns:
         None
 
@@ -311,7 +321,7 @@ def push_notebook(*, document: Document | None = None, handle: CommsHandle | Non
         return
 
     if handle is None:
-        handle = _LAST_COMMS_HANDLE
+        handle = _last_comms_handle()
 
     if not handle:
         from ..util.warnings import warn
@@ -439,22 +449,20 @@ def load_notebook(resources: ResourcesLike | None = None, verbose: bool = False,
         None
 
     '''
-    global _NOTEBOOK_LOADED
+    global _NOTEBOOK_LOADED, _NOTEBOOK_REQUIREMENTS
 
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
-    from ..embed.resources import ResourceRequirements
     from ..util.serialization import make_globally_unique_css_safe_id
 
     policy = Resources.build(resources)
-    resolved = policy.resolve(ResourceRequirements((
-        "bokeh/core",
-        "bokeh/webgl",
-        "bokeh/widgets",
-        "bokeh/tables",
-        "bokeh/mathjax",
-        "bokeh/api",
-    )))
+    # Extension assets are loaded from each display's exact requirements before
+    # its document is deserialized. Notebook startup only needs the conservative
+    # built-in component set.
+    requirements = ResourceRequirements((
+        "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax",
+    ))
+    resolved = policy.resolve(requirements)
 
     element_id: ID | None
     html: str | None
@@ -488,6 +496,7 @@ def load_notebook(resources: ResourcesLike | None = None, verbose: bool = False,
         html = None
 
     _NOTEBOOK_LOADED = policy
+    _NOTEBOOK_REQUIREMENTS = requirements
 
     bundle = _NotebookBundle.from_resolved(resolved)
 
@@ -621,10 +630,9 @@ def show_doc(obj: Model | Sequence[UIElement], notebook_handle: bool = False) ->
     # notebook copy has models with the same IDs as the original curdoc
     # they were copied from
     if comms_target:
-        global _LAST_COMMS_HANDLE
         handle = CommsHandle(get_comms(comms_target), cell_doc)
         document.callbacks.on_change_dispatch_to(handle)
-        _LAST_COMMS_HANDLE = handle
+        _remember_comms_handle(handle)
         return handle
 
     return None
@@ -636,7 +644,6 @@ def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str
     from ..core.templates import DOC_NB_JS
     from ..document import Document
     from ..embed.notebook import notebook_content
-
     result, _ = notebook_content(model, live=True)
     documents = result.source["documents"]
     assert isinstance(documents, list)
@@ -652,9 +659,21 @@ def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str
     if comms_target is not None:
         render_item["notebook_comms_target"] = comms_target
 
+    pending = _unloaded_notebook_requirements(result.requires)
+    if _NOTEBOOK_LOADED is None:
+        resolved_assets: list[dict[str, Any]] = []
+        transport_requirements = pending.without_extension_assets()
+    else:
+        resolved = _NOTEBOOK_LOADED.resolve(pending, include_requirement_assets=False)
+        resolved_assets = [asset.to_dict() for asset in resolved.assets]
+        transport_requirements = resolved.requirements
+
     script = DOC_NB_JS.render(
         docs_json=serialize_json({doc_id: document_json}),
         render_items=serialize_json([render_item]),
+        resource_requirements=transport_requirements.to_dict(),
+        resource_assets=resolved_assets,
+        bokeh_version=result.bokeh_version,
     )
     div = (
         f'<div id="{escape(element_id, quote=True)}" '
@@ -707,11 +726,38 @@ _HOOKS: dict[str, Hooks] = {}
 
 _NOTEBOOK_LOADED: Resources | None = None
 
+# Only resources emitted synchronously by load_notebook are known to be loaded.
+# The browser resource loader deduplicates assets emitted by later show calls.
+_NOTEBOOK_REQUIREMENTS: ResourceRequirements | None = None
+
 _NOTEBOOK_TYPE: NotebookType | None = None
 
-_LAST_COMMS_HANDLE: CommsHandle | None = None
+# The implicit last handle follows sequential notebook work in each thread.
+# Concurrent and cross-thread callers pass a handle explicitly.
+_LAST_COMMS_HANDLE_BY_THREAD = local()
 
 _NOTEBOOK_SERVERS: dict[ID, Any] = {}
+
+
+def _last_comms_handle() -> CommsHandle | None:
+    return getattr(_LAST_COMMS_HANDLE_BY_THREAD, "handle", None)
+
+
+def _remember_comms_handle(handle: CommsHandle) -> None:
+    _LAST_COMMS_HANDLE_BY_THREAD.handle = handle
+
+
+def _unloaded_notebook_requirements(requirements: ResourceRequirements) -> ResourceRequirements:
+    loaded = {
+        extension.name: set(extension.assets)
+        for extension in (_NOTEBOOK_REQUIREMENTS.extensions if _NOTEBOOK_REQUIREMENTS is not None else ())
+    }
+    extensions = []
+    for extension in requirements.extensions:
+        assets = tuple(asset for asset in extension.assets if asset not in loaded.get(extension.name, set()))
+        if assets:
+            extensions.append(ExtensionRequirement(extension.name, assets))
+    return ResourceRequirements((), tuple(extensions))
 
 def _loading_js(bundle: _NotebookBundle, element_id: ID | None, load_timeout: int = 5000, register_mime: bool = True) -> str:
     '''

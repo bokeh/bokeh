@@ -25,7 +25,7 @@ def test_live_notebook_content_uses_protocol_full_ids() -> None:
 
     embedding = result.metadata["embedding"]
     assert embedding["model_ids"] == "protocol-full"
-    assert embedding["static_model_ids"] == "protocol-full"
+    assert "static_model_ids" not in embedding
     assert result.roots[0].key == "root"
     assert result.source["documents"][0]["roots"][0]["id"] == plot.id
 

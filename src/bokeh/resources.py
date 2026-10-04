@@ -36,6 +36,7 @@ from typing import (
     Any,
     Callable,
     Final,
+    Iterable,
     Literal,
     Mapping,
     Protocol,
@@ -51,6 +52,7 @@ from .util.token import generate_session_id
 from .util.version import is_full_release
 
 if TYPE_CHECKING:
+    from .core.has_props import HasProps
     from .core.types import ID, PathLike
     from .embed.resources import (
         ResolvedResource,
@@ -228,12 +230,32 @@ class Resources:
                 result[name] = value
         return result
 
-    def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__) -> ResolvedResources:
-        '''Resolve exact requirements or raise an actionable conflict.'''
-        from .embed.resources import ResolvedResource, ResolvedResources
+    def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__,
+            include_requirement_assets: bool = True,
+            extension_model_types: Iterable[type[HasProps]] | None = None) -> ResolvedResources:
+        '''Resolve exact requirements or raise an actionable conflict.
+
+        Args:
+            requirements: Runtime components and extension assets to resolve.
+            bokeh_version: BokehJS version used to resolve built-in components.
+            include_requirement_assets: Retain extension asset declarations in
+                the returned requirements. Resolved transports can omit them
+                because the concrete assets are carried separately.
+            extension_model_types: An optional snapshot used to resolve
+                packaged extension assets without consulting live registration.
+        '''
+        from .embed.resources import (
+            ResolvedResource,
+            ResolvedResources,
+            resolve_package_requirement,
+        )
+
+        result_requirements = (
+            requirements if include_requirement_assets else requirements.without_extension_assets()
+        )
 
         if self.mode == "none":
-            return ResolvedResources(requirements, self, bokeh_version)
+            return ResolvedResources(result_requirements, self, bokeh_version)
 
         component_names = [_COMPONENT_NAMES[component] for component in requirements.components]
         js_files, js_raw, hashes = self._resolve_bokeh_assets(
@@ -265,28 +287,51 @@ class Resources:
 
         for extension in requirements.extensions:
             for requirement in extension.assets:
-                if self.mode == "offline" and requirement.url is not None:
-                    raise ResourceConflictError(
-                        f"offline resources cannot load external {requirement.kind} {requirement.url!r} "
-                        f"required by extension {extension.name!r}; provide inline extension content",
+                url = requirement.url
+                content = requirement.content
+                if requirement.package is not None:
+                    bundle = resolve_package_requirement(
+                        requirement.package, self, model_types=extension_model_types,
                     )
-                if self.mode == INLINE and requirement.url is not None:
+                    if self.mode in (INLINE, "offline"):
+                        content = _inline_resource(bundle.artifact_path)
+                    elif self.mode == CDN:
+                        if bundle.cdn_url is not None:
+                            url = bundle.cdn_url
+                        else:
+                            content = _inline_resource(bundle.artifact_path)
+                    elif self.mode == "server":
+                        url = bundle.server_url
+                    elif self.mode == "relative":
+                        configured_root = self.root_dir or settings.rootdir()
+                        root_dir = Path(configured_root) if configured_root is not None else Path(os.curdir)
+                        url = os.path.relpath(bundle.artifact_path, root_dir).replace("\\", "/")
+                    elif self.mode == "absolute":
+                        url = str(bundle.artifact_path)
+                    else:
+                        raise AssertionError(f"unexpected resource mode {self.mode!r}")
+                if self.mode == "offline" and url is not None:
                     raise ResourceConflictError(
-                        f"inline resources cannot inline {requirement.url!r} required by extension {extension.name!r}; "
-                        "declare the extension asset content or choose an external mode",
+                        f"offline resources cannot load external {requirement.kind} {url!r} "
+                        f"required by extension {extension.name!r}. Provide inline extension content",
                     )
-                if self.external_only and requirement.content is not None:
+                if self.mode == INLINE and url is not None:
+                    raise ResourceConflictError(
+                        f"inline resources cannot inline {url!r} required by extension {extension.name!r}. "
+                        "Declare the extension asset content or choose an external mode",
+                    )
+                if self.external_only and content is not None:
                     raise ResourceConflictError(
                         f"external_only resources reject inline {requirement.kind} required by extension {extension.name!r}",
                     )
-                if self.integrity and requirement.url is not None and requirement.integrity is None:
+                if self.integrity and url is not None and requirement.integrity is None:
                     raise ResourceConflictError(
-                        f"integrity requires an SRI hash for extension resource {requirement.url!r}",
+                        f"integrity requires an SRI hash for extension resource {url!r}",
                     )
                 assets.append(ResolvedResource(
                     requirement.kind,
-                    url=requirement.url,
-                    content=requirement.content,
+                    url=url,
+                    content=content,
                     integrity=requirement.integrity,
                     crossorigin=requirement.crossorigin or self.crossorigin or (
                         "anonymous" if requirement.integrity is not None else None
@@ -308,7 +353,7 @@ class Resources:
                 identities[key] = asset.identity
                 deduplicated.append(asset)
 
-        return ResolvedResources(requirements, self, bokeh_version, tuple(deduplicated))
+        return ResolvedResources(result_requirements, self, bokeh_version, tuple(deduplicated))
 
     def resolve_embed_bootstrap(self, *, bokeh_version: str = __version__) -> ResolvedResource:
         '''Resolve the standard external embed bootstrap script.

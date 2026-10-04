@@ -1,16 +1,17 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
+import * as sinon from "sinon"
 
-import {default_resolver} from "@bokehjs/base"
+import {default_resolver, register_models} from "@bokehjs/base"
 import {
-  BOKEH_MOUNTED_ATTRIBUTE, mount, mount_embed_declaration, MountError, type MountErrorPhase, when_mounted,
+  BOKEH_MOUNTED_ATTRIBUTE, BokehMount, mount, mount_embed_declaration, MountError, type MountErrorPhase, when_mounted,
 } from "@bokehjs/api/io"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {to_object} from "@bokehjs/core/util/object"
 import {documents} from "@bokehjs/document"
 import type {EmbedPayload} from "@bokehjs/embed/payload"
-import {EmbedError, validate_embed_payload} from "@bokehjs/embed/payload"
+import {EmbedError, prepare_embed, validate_embed_payload} from "@bokehjs/embed/payload"
 import type {ResourceRequirements} from "@bokehjs/embed/resources"
-import {ResourceError, ResourceLoader} from "@bokehjs/embed/resources"
+import {resource_loader, ResourceError, ResourceLoader} from "@bokehjs/embed/resources"
 import {CustomJS} from "@bokehjs/models"
 import {version as js_version} from "@bokehjs/version"
 
@@ -99,6 +100,55 @@ describe("EmbedPayload runtime", () => {
     await mounted.dispose()
   })
 
+  it("consumes preparation for an already aborted payload mount", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const controller = new AbortController()
+    const reason = new Error("component unmounted")
+    controller.abort(reason)
+    const documents_before = documents.length
+
+    const mounted = mount(payload, undefined, {resources: "none", resolver, signal: controller.signal})
+    const error = await mounted.ready.then(() => null, (error: unknown) => error)
+    expect_instanceof(error, MountError)
+    expect(error.kind).to.be.equal("abort")
+    expect(error.cause).to.be.equal(reason)
+    await mounted.when_disposed
+    expect(documents.length).to.be.equal(documents_before)
+  })
+
+  it("waits for cancelled payload preparation before reporting disposal", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    let preparation_signal: AbortSignal | undefined
+    let reject_preparation!: (reason: unknown) => void
+    const ensure = sinon.stub(resource_loader, "ensure").callsFake(
+      async (_requirements, _policy, _version, signal) => {
+        preparation_signal = signal
+        return new Promise<void>((_resolve, reject) => reject_preparation = reject)
+      },
+    )
+
+    try {
+      const mounted = mount(payload, undefined, {resources: "none"})
+      const disposal = mounted.dispose()
+      let disposed = false
+      void disposal.then(() => disposed = true)
+
+      expect(preparation_signal?.aborted).to.be.true
+      await Promise.resolve()
+      expect(disposed).to.be.false
+
+      reject_preparation(preparation_signal?.reason)
+      await disposal
+      expect(disposed).to.be.true
+      const error = await mounted.ready.then(() => null, (error: unknown) => error)
+      expect_instanceof(error, MountError)
+      expect(error.kind).to.be.equal("disposed")
+    } finally {
+      ensure.restore()
+    }
+  })
+
   it("consumes the shared keyed-root fixture through BokehMount", async () => {
     const payload = fixture("standalone-keyed-roots")
     const target = document.createElement("div")
@@ -144,6 +194,47 @@ describe("EmbedPayload runtime", () => {
     }
   })
 
+  it("registers required custom models before payload deserialization", async () => {
+    class ResourceOrderedModel extends CustomJS {}
+
+    const payload = fixture("standalone-keyed-roots")
+    if (payload.source.kind != "standalone") {
+      throw new Error("expected a standalone fixture")
+    }
+    const model_name = `ResourceOrderedModel${++declaration_index}`
+    payload.source.documents[0].roots[0].name = model_name
+    const registration = "globalThis.register_resource_ordered_model()"
+    const asset = {kind: "script" as const, content: registration}
+    payload.requires = {
+      components: ["bokeh/core"],
+      extensions: [{name: "resource-ordered-model", assets: [asset]}],
+    }
+
+    const resolver = new ModelResolver(default_resolver)
+    const state = globalThis as typeof globalThis & {register_resource_ordered_model?: () => void}
+    state.register_resource_ordered_model = () => {
+      register_models({[model_name]: ResourceOrderedModel}, resolver)
+    }
+    expect(resolver.get(model_name)).to.be.null
+    const target = document.createElement("div")
+    document.body.append(target)
+    const mounted = mount(payload, target, {
+      resolver,
+      resources: {mode: "resolved", assets: [asset]},
+    })
+
+    try {
+      await mounted.ready
+      expect(resolver.get(model_name)).to.be.equal(ResourceOrderedModel)
+      expect_instanceof(mounted.root("primary"), ResourceOrderedModel)
+      expect((mounted.root("primary") as ResourceOrderedModel).code).to.be.equal("primary")
+    } finally {
+      await mounted.dispose()
+      delete state.register_resource_ordered_model
+      target.remove()
+    }
+  })
+
   it("creates independent documents for repeated mounts of one payload", async () => {
     const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
@@ -182,6 +273,33 @@ describe("EmbedPayload runtime", () => {
       expect(declaration.targets.every((target) => target.bokehMount == null)).to.be.true
       expect(declaration.targets.every((target) => !target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE))).to.be.true
     } finally {
+      declaration.remove()
+    }
+  })
+
+  it("waits for pending generated resources before declarative mounting", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const declaration = inline_declaration(payload)
+    const resource = document.createElement("script")
+    resource.type = "application/json"
+    resource.dataset.bokehResource = ""
+    resource.dataset.bokehResourceState = "loading"
+    document.head.append(resource)
+
+    try {
+      const bootstrapping = mount_embed_declaration(declaration.bootstrap, {resolver})
+      await Promise.resolve()
+      expect(declaration.targets.every((target) => target.bokehMount == null)).to.be.true
+
+      resource.dataset.bokehResourceState = "loaded"
+      resource.dispatchEvent(new Event("load"))
+      const mounted = await bootstrapping
+      expect(resource.dataset.bokehResourceState).to.be.equal("loaded")
+      expect(declaration.targets.every((target) => target.bokehMount == mounted)).to.be.true
+      await mounted.dispose()
+    } finally {
+      resource.remove()
       declaration.remove()
     }
   })
@@ -375,14 +493,75 @@ describe("EmbedPayload runtime", () => {
   it("rolls back a decoded payload after target failure", async () => {
     const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const controller = new AbortController()
+    const remove_listener = sinon.spy(controller.signal, "removeEventListener")
     const documents_before = documents.length
-    const mounted = mount(payload, document.createElement("div"), {resources: "none", resolver})
+    const mounted = mount(payload, document.createElement("div"), {
+      resources: "none", resolver, signal: controller.signal,
+    })
 
     const error = await mounted.ready.then(() => null, (error: unknown) => error)
     expect_instanceof(error, MountError)
     expect(error.kind).to.be.equal("target")
     expect(mounted.disposed).to.be.true
+    expect(remove_listener.calledWith("abort")).to.be.true
     expect(documents.length).to.be.equal(documents_before)
+  })
+
+  it("preserves target failures when prepared release cleanup throws", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const prepared = await prepare_embed(payload, "none", resolver)
+    const release = sinon.stub(prepared, "release").throws(new Error("release failed"))
+    const destroy = sinon.spy(prepared.document, "destroy")
+    const mounted = new BokehMount(
+      Promise.resolve(prepared), document.createElement("div"), {}, null,
+    )
+
+    const error = await mounted.ready.then(() => null, (error: unknown) => error)
+    expect_instanceof(error, MountError)
+    expect(error.kind).to.be.equal("target")
+    expect(error.message).to.be.equal("Bokeh mount targets must be connected HTMLElements")
+    expect(mounted.error).to.be.equal(error)
+    await mounted.when_disposed
+    expect(mounted.state).to.be.equal("failed")
+    expect(release.calledOnce).to.be.true
+    expect(destroy.calledOnce).to.be.true
+  })
+
+  it("releases prepared content rejected by mount-source validation", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const prepared = await prepare_embed(payload, "none", resolver)
+    prepared.roots.set("secondary", prepared.roots.get("primary")!)
+    const release = sinon.spy(prepared, "release")
+    const destroy = sinon.spy(prepared.document, "destroy")
+
+    const mounted = new BokehMount(Promise.resolve(prepared), undefined, {}, null)
+    const error = await mounted.ready.then(() => null, (error: unknown) => error)
+    expect_instanceof(error, MountError)
+    expect(error.kind).to.be.equal("source")
+    expect(release.calledOnce).to.be.true
+    expect(destroy.calledOnce).to.be.true
+  })
+
+  it("preserves source failures when rejected prepared cleanup throws", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const prepared = await prepare_embed(payload, "none", resolver)
+    prepared.roots.set("secondary", prepared.roots.get("primary")!)
+    const release = sinon.stub(prepared, "release").throws(new Error("release failed"))
+    const destroy = sinon.spy(prepared.document, "destroy")
+
+    const mounted = new BokehMount(Promise.resolve(prepared), undefined, {}, null)
+    const error = await mounted.ready.then(() => null, (error: unknown) => error)
+    expect_instanceof(error, MountError)
+    expect(error.kind).to.be.equal("source")
+    expect(error.message.includes("assigned to more than one mount root")).to.be.true
+    expect(mounted.error).to.be.equal(error)
+    await mounted.when_disposed
+    expect(release.calledOnce).to.be.true
+    expect(destroy.calledOnce).to.be.true
   })
 
   it("can be disposed before payload decoding completes", async () => {
@@ -450,9 +629,16 @@ describe("EmbedPayload runtime", () => {
       expect_instanceof(error, MountError)
       expect(error.kind).to.be.equal("http")
       expect(error.message.includes("401 Unauthorized")).to.be.true
-      expect(new URL(requested).origin).to.be.equal(window.location.origin)
-      expect(new URL(requested).pathname).to.be.equal("/app/embed.json")
-      expect(new Headers(request_init?.headers).get("Authorization")).to.be.equal("Bearer token")
+      const request_url = new URL(requested)
+      expect(request_url.origin).to.be.equal(window.location.origin)
+      expect(request_url.pathname).to.be.equal("/app/embed.json")
+      expect(request_url.searchParams.get("account")).to.be.equal("123")
+      expect(request_url.searchParams.has("bokeh-session-id")).to.be.false
+      expect(request_url.searchParams.has("bokeh-token")).to.be.false
+      const request_headers = new Headers(request_init?.headers)
+      expect(request_headers.get("Authorization")).to.be.equal("Bearer token")
+      expect(request_headers.get("Bokeh-Session-Id")).to.be.equal("fixture-session")
+      expect(request_headers.get("Bokeh-Token")).to.be.null
       expect(request_init?.credentials).to.be.equal("include")
       expect(mounted.session).to.be.null
       expect(mounted.disposed).to.be.true
@@ -480,6 +666,247 @@ describe("EmbedPayload runtime", () => {
       expect(error.message.includes("embed-server/v1")).to.be.true
     } finally {
       globalThis.fetch = original_fetch
+      target.remove()
+    }
+  })
+
+  it("loads server-provided extension assets before opening and deserializing a session", async () => {
+    const payload = fixture("server-existing-session")
+    if (payload.source.kind != "server") {
+      throw new Error("expected a server fixture")
+    }
+    delete payload.source.session_id
+    payload.source.token = "signed-token"
+    payload.requires = core
+    const target = document.createElement("div")
+    document.body.append(target)
+    const original_fetch = globalThis.fetch
+    const state = globalThis as typeof globalThis & {server_extension_loaded?: boolean}
+    state.server_extension_loaded = false
+    let requested = ""
+    let request_headers = new Headers()
+    globalThis.fetch = async (input, init) => {
+      requested = `${input}`
+      request_headers = new Headers(init?.headers)
+      return Response.json({
+        schema: "bokeh.embed-server/v1",
+        bokeh_version: js_version,
+        token: "invalid",
+        requires: {
+          components: [],
+          extensions: [{
+            name: "package:server-extension",
+            assets: [{kind: "script", package: "server-extension"}],
+          }],
+        },
+        resources: {
+          mode: "resolved",
+          assets: [{kind: "script", content: "globalThis.server_extension_loaded = true"}],
+        },
+      })
+    }
+    try {
+      const mounted = mount(payload, target, {resources: {mode: "server", nonce: "host-nonce"}})
+      const error = await mounted.ready.then(() => null, (error: unknown) => error)
+      expect_instanceof(error, MountError)
+      expect(state.server_extension_loaded).to.be.true
+      expect(request_headers.get("Bokeh-Token")).to.be.equal("signed-token")
+      expect(request_headers.get("Bokeh-Resource-Mode")).to.be.equal("server")
+      const request_url = new URL(requested)
+      expect(request_url.searchParams.has("bokeh-session-id")).to.be.false
+      expect(request_url.searchParams.has("bokeh-token")).to.be.false
+      const extension = [...document.querySelectorAll<HTMLScriptElement>("script[data-bokeh-resource]")].find(
+        (script) => script.textContent.includes("server_extension_loaded"),
+      )
+      expect_not_null(extension)
+      expect(extension.nonce).to.be.equal("host-nonce")
+      expect(mounted.session).to.be.null
+    } finally {
+      globalThis.fetch = original_fetch
+      delete state.server_extension_loaded
+      target.remove()
+    }
+  })
+
+  it("uses declaration resource attributes for server extension requests", async () => {
+    const payload = fixture("server-existing-session")
+    if (payload.source.kind != "server") {
+      throw new Error("expected a server fixture")
+    }
+    delete payload.source.session_id
+    payload.source.token = "declaration-token"
+    payload.requires = core
+    const declaration = inline_declaration(payload)
+    declaration.bootstrap.dataset.bokehResourceMode = "server"
+    declaration.bootstrap.dataset.bokehResourceMinified = "false"
+    declaration.bootstrap.nonce = "declaration-nonce"
+    const original_fetch = globalThis.fetch
+    const state = globalThis as typeof globalThis & {declaration_extension_loaded?: boolean}
+    state.declaration_extension_loaded = false
+    let request_headers = new Headers()
+    globalThis.fetch = async (_input, init) => {
+      request_headers = new Headers(init?.headers)
+      return Response.json({
+        schema: "bokeh.embed-server/v1",
+        bokeh_version: js_version,
+        token: "invalid",
+        requires: {
+          components: [],
+          extensions: [{
+            name: "declaration-extension",
+            assets: [{kind: "script", content: "globalThis.declaration_extension_loaded = true"}],
+          }],
+        },
+        resources: {
+          mode: "resolved",
+          assets: [{kind: "script", content: "globalThis.declaration_extension_loaded = true"}],
+        },
+      })
+    }
+    try {
+      const error = await mount_embed_declaration(declaration.bootstrap).then(
+        () => null, (error: unknown) => error,
+      )
+      expect_instanceof(error, MountError)
+      expect(state.declaration_extension_loaded).to.be.true
+      expect(request_headers.get("Bokeh-Token")).to.be.equal("declaration-token")
+      expect(request_headers.get("Bokeh-Resource-Mode")).to.be.equal("server")
+      expect(request_headers.get("Bokeh-Resource-Minified")).to.be.equal("false")
+      const extension = [...document.querySelectorAll<HTMLScriptElement>("script[data-bokeh-resource]")].find(
+        (script) => script.textContent.includes("declaration_extension_loaded"),
+      )
+      expect_not_null(extension)
+      expect(extension.nonce).to.be.equal("declaration-nonce")
+    } finally {
+      globalThis.fetch = original_fetch
+      delete state.declaration_extension_loaded
+      declaration.remove()
+    }
+  })
+
+  it("applies host external-only policy to server extension assets", async () => {
+    const payload = fixture("server-existing-session")
+    payload.requires = core
+    const target = document.createElement("div")
+    document.body.append(target)
+    const original_fetch = globalThis.fetch
+    const state = globalThis as typeof globalThis & {forbidden_server_extension_loaded?: boolean}
+    state.forbidden_server_extension_loaded = false
+    globalThis.fetch = async () => Response.json({
+      schema: "bokeh.embed-server/v1",
+      bokeh_version: js_version,
+      token: "unused",
+      requires: {
+        components: [],
+        extensions: [{
+          name: "inline-server-extension",
+          assets: [{kind: "script", content: "globalThis.forbidden_server_extension_loaded = true"}],
+        }],
+      },
+      resources: {
+        mode: "resolved",
+        assets: [{kind: "script", content: "globalThis.forbidden_server_extension_loaded = true"}],
+      },
+    })
+    try {
+      const mounted = mount(payload, target, {resources: {mode: "server", external_only: true}})
+      const error = await mounted.ready.then(() => null, (error: unknown) => error)
+      expect_instanceof(error, MountError)
+      expect(error.kind).to.be.equal("resource")
+      expect(error.message.includes("external_only")).to.be.true
+      expect(state.forbidden_server_extension_loaded).to.be.false
+    } finally {
+      globalThis.fetch = original_fetch
+      delete state.forbidden_server_extension_loaded
+      target.remove()
+    }
+  })
+
+  it("applies host integrity policy to server extension assets", async () => {
+    const payload = fixture("server-existing-session")
+    payload.requires = core
+    const target = document.createElement("div")
+    document.body.append(target)
+    const original_fetch = globalThis.fetch
+    globalThis.fetch = async () => Response.json({
+      schema: "bokeh.embed-server/v1",
+      bokeh_version: js_version,
+      token: "unused",
+      requires: {
+        components: [],
+        extensions: [{
+          name: "unhashed-server-extension",
+          assets: [{kind: "script", url: "https://example.invalid/unhashed-extension.js"}],
+        }],
+      },
+      resources: {
+        mode: "resolved",
+        assets: [{kind: "script", url: "https://example.invalid/unhashed-extension.js"}],
+      },
+    })
+    try {
+      const mounted = mount(payload, target, {resources: {mode: "cdn", integrity: true}})
+      const error = await mounted.ready.then(() => null, (error: unknown) => error)
+      expect_instanceof(error, MountError)
+      expect(error.kind).to.be.equal("resource")
+      expect(error.message.includes("SRI hash")).to.be.true
+    } finally {
+      globalThis.fetch = original_fetch
+      target.remove()
+    }
+  })
+
+  it("lets explicit host assets satisfy server extension requirements", async () => {
+    const payload = fixture("server-existing-session")
+    if (payload.source.kind != "server") {
+      throw new Error("expected a server fixture")
+    }
+    delete payload.source.session_id
+    payload.source.token = "signed-token"
+    payload.requires = core
+    const target = document.createElement("div")
+    document.body.append(target)
+    const original_fetch = globalThis.fetch
+    const state = globalThis as typeof globalThis & {
+      host_server_extension_loaded?: boolean
+      endpoint_server_extension_loaded?: boolean
+    }
+    state.host_server_extension_loaded = false
+    state.endpoint_server_extension_loaded = false
+    let request_headers = new Headers()
+    globalThis.fetch = async (_input, init) => {
+      request_headers = new Headers(init?.headers)
+      return Response.json({
+        schema: "bokeh.embed-server/v1",
+        bokeh_version: js_version,
+        token: "invalid",
+        requires: {
+          components: [],
+          extensions: [{
+            name: "package:server-extension",
+            assets: [{kind: "script", package: "server-extension"}],
+          }],
+        },
+        resources: {
+          mode: "resolved",
+          assets: [{kind: "script", content: "globalThis.endpoint_server_extension_loaded = true"}],
+        },
+      })
+    }
+    try {
+      const mounted = mount(payload, target, {resources: {
+        mode: "server",
+        assets: [{kind: "script", content: "globalThis.host_server_extension_loaded = true"}],
+      }})
+      const error = await mounted.ready.then(() => null, (error: unknown) => error)
+      expect_instanceof(error, MountError)
+      expect(state.host_server_extension_loaded).to.be.true
+      expect(state.endpoint_server_extension_loaded).to.be.false
+      expect(request_headers.get("Bokeh-Resource-Mode")).to.be.equal("none")
+    } finally {
+      globalThis.fetch = original_fetch
+      delete state.host_server_extension_loaded
+      delete state.endpoint_server_extension_loaded
       target.remove()
     }
   })
@@ -548,12 +975,31 @@ describe("EmbedPayload runtime", () => {
     }]
     expect(() => validate_embed_payload(payload_nonce)).to.throw(EmbedError, /nonce is host-owned/)
 
+    const packaged = fixture("standalone-keyed-roots")
+    packaged.requires.extensions = [{
+      name: "packaged",
+      assets: [{kind: "script", package: "example-extension"}],
+    }]
+    expect(validate_embed_payload(packaged)).to.be.equal(packaged)
+
+    const ambiguous_package = fixture("standalone-keyed-roots") as unknown as {
+      requires: {extensions: unknown[]}
+    }
+    ambiguous_package.requires.extensions = [{
+      name: "bad-package",
+      assets: [{kind: "script", package: "example-extension", content: "void 0"}],
+    }]
+    expect(() => validate_embed_payload(ambiguous_package)).to.throw(EmbedError, /exactly one/)
+
     const server = fixture("server-existing-session") as unknown as {source: {[key: string]: unknown}}
     for (const [field, value] of [["session_id", 1], ["token", {}], ["relative_urls", "yes"]] as const) {
       server.source[field] = value
       expect(() => validate_embed_payload(server)).to.throw(EmbedError, new RegExp(field))
       delete server.source[field]
     }
+    server.source.session_id = "session"
+    server.source.token = "token"
+    expect(() => validate_embed_payload(server)).to.throw(EmbedError, /either session_id or token/)
 
     const duplicate_components = fixture("standalone-keyed-roots")
     duplicate_components.requires.components = ["bokeh/core", "bokeh/core"]
@@ -565,6 +1011,14 @@ describe("EmbedPayload runtime", () => {
       {name: "duplicate", assets: []},
     ]
     expect(() => validate_embed_payload(duplicate_extensions)).to.throw(EmbedError, /duplicate.*extension/)
+
+    const duplicate_standalone_root = fixture("standalone-keyed-roots")
+    duplicate_standalone_root.roots[1] = {...duplicate_standalone_root.roots[0], key: "duplicate"}
+    expect(() => validate_embed_payload(duplicate_standalone_root)).to.throw(EmbedError, /unique models/)
+
+    const duplicate_server_root = fixture("server-existing-session")
+    duplicate_server_root.roots.push({...duplicate_server_root.roots[0], key: "duplicate"})
+    expect(() => validate_embed_payload(duplicate_server_root)).to.throw(EmbedError, /unique models/)
 
     const multiple_documents = fixture("standalone-keyed-roots")
     if (multiple_documents.source.kind != "standalone") {
@@ -583,8 +1037,16 @@ describe("EmbedPayload runtime", () => {
     const state = globalThis as typeof globalThis & {embed_core?: number, embed_widgets?: number}
     state.embed_core = 0
     state.embed_widgets = 0
-    const core_asset = {kind: "script" as const, content: "globalThis.embed_core += 1"}
-    const widget_asset = {kind: "script" as const, content: "globalThis.embed_widgets += 1"}
+    const core_asset = {
+      kind: "script" as const,
+      content: "globalThis.embed_core += 1",
+      content_sha256: "0".repeat(64),
+    }
+    const widget_asset = {
+      kind: "script" as const,
+      content: "globalThis.embed_widgets += 1",
+      content_sha256: "1".repeat(64),
+    }
 
     await Promise.all([
       loader.ensure(core, {mode: "resolved", assets: [core_asset]}),
@@ -596,6 +1058,50 @@ describe("EmbedPayload runtime", () => {
     expect(state.embed_core).to.be.equal(1)
     expect(state.embed_widgets).to.be.equal(1)
     expect(document.querySelectorAll("[data-bokeh-resource]").length).to.be.equal(2)
+    const markers = [...document.querySelectorAll<HTMLElement>("[data-bokeh-resource]")]
+      .map((element) => element.dataset.bokehResource).sort()
+    expect(markers).to.be.equal([
+      `script:sha256:${core_asset.content_sha256}`,
+      `script:sha256:${widget_asset.content_sha256}`,
+    ])
+  })
+
+  it("adopts parser-rendered inline resources by compact digest", async () => {
+    const loader = new ResourceLoader()
+    const state = globalThis as typeof globalThis & {embed_parser_script?: number}
+    state.embed_parser_script = 0
+
+    const script_source = "globalThis.embed_parser_script += 1"
+    const script_digest = "a".repeat(64)
+    const script = document.createElement("script")
+    script.textContent = script_source
+    script.dataset.bokehResource = `script:sha256:${script_digest}`
+    script.dataset.bokehResourceState = "loaded"
+
+    const style_source = ".embed-parser-style { color: rgb(1, 2, 3); }"
+    const style_digest = "b".repeat(64)
+    const style = document.createElement("style")
+    style.textContent = style_source
+    style.dataset.bokehResource = `style:sha256:${style_digest}`
+    style.dataset.bokehResourceState = "loaded"
+
+    document.head.append(script, style)
+    expect(state.embed_parser_script).to.be.equal(1)
+
+    await loader.ensure(core, {mode: "resolved", assets: [
+      {kind: "script", content: script_source, content_sha256: script_digest},
+      {kind: "style", content: style_source, content_sha256: style_digest},
+    ]})
+
+    expect(state.embed_parser_script).to.be.equal(1)
+    expect(loader.size).to.be.equal(2)
+    const scripts = document.querySelectorAll("script[data-bokeh-resource]")
+    const styles = document.querySelectorAll("style[data-bokeh-resource]")
+    expect(scripts.length).to.be.equal(1)
+    expect(styles.length).to.be.equal(1)
+    expect(scripts[0]).to.be.equal(script)
+    expect(styles[0]).to.be.equal(style)
+    delete state.embed_parser_script
   })
 
   it("doesn't conflate inline resources that collided under the old 32-bit hash", async () => {
@@ -639,6 +1145,130 @@ describe("EmbedPayload runtime", () => {
     expect(conflict.kind).to.be.equal("conflict")
   })
 
+  it("reports failures from pending generated resources", async () => {
+    const loader = new ResourceLoader()
+    const resource = document.createElement("script")
+    resource.type = "application/json"
+    resource.dataset.bokehResource = ""
+    resource.dataset.bokehResourceState = "loading"
+    document.head.append(resource)
+
+    try {
+      const waiting = loader.wait_for_pending()
+      resource.dispatchEvent(new Event("error"))
+      const error = await waiting.then(() => null, (error: unknown) => error)
+
+      expect_instanceof(error, ResourceError)
+      expect(error.kind).to.be.equal("load")
+      expect(resource.dataset.bokehResourceState).to.be.equal("failed")
+    } finally {
+      resource.remove()
+    }
+  })
+
+  it("bounds and cancels waits for pending generated resources", async () => {
+    const clock = sinon.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]})
+    const loader = new ResourceLoader()
+    const resource = document.createElement("script")
+    resource.type = "application/json"
+    resource.dataset.bokehResource = ""
+    resource.dataset.bokehResourceState = "loading"
+    document.head.append(resource)
+
+    try {
+      const timed = loader.wait_for_pending()
+      clock.tick(30_000)
+      const timeout = await timed.then(() => null, (error: unknown) => error)
+      expect_instanceof(timeout, ResourceError)
+      expect(timeout.message.includes("timed out")).to.be.true
+      expect(resource.dataset.bokehResourceState).to.be.equal("failed")
+
+      resource.dispatchEvent(new Event("load"))
+      expect(resource.dataset.bokehResourceState).to.be.equal("loaded")
+      await loader.wait_for_pending()
+
+      resource.dataset.bokehResourceState = "loading"
+      const controller = new AbortController()
+      const cancelled = loader.wait_for_pending(controller.signal)
+      const reason = new Error("cancelled")
+      controller.abort(reason)
+      expect(await cancelled.then(() => null, (error: unknown) => error)).to.be.equal(reason)
+      expect(resource.dataset.bokehResourceState).to.be.equal("loading")
+    } finally {
+      clock.restore()
+      resource.remove()
+    }
+  })
+
+  it("continues tracking generated resources after a cancelled wait", async () => {
+    const loader = new ResourceLoader()
+
+    for (const [event, state] of [
+      ["load", "loaded"],
+      ["bokeh:resource-loaded", "loaded"],
+      ["error", "failed"],
+    ] as const) {
+      const resource = document.createElement("script")
+      resource.type = "application/json"
+      resource.dataset.bokehResource = ""
+      resource.dataset.bokehResourceState = "loading"
+      document.head.append(resource)
+
+      try {
+        const controller = new AbortController()
+        const waiting = loader.wait_for_pending(controller.signal)
+        const reason = new Error("cancelled")
+        controller.abort(reason)
+        expect(await waiting.then(() => null, (error: unknown) => error)).to.be.equal(reason)
+
+        resource.dispatchEvent(new Event(event))
+        expect(resource.dataset.bokehResourceState).to.be.equal(state)
+
+        const resumed = loader.wait_for_pending()
+        if (state == "loaded") {
+          await resumed
+        } else {
+          const error = await resumed.then(() => null, (error: unknown) => error)
+          expect_instanceof(error, ResourceError)
+          expect(error.kind).to.be.equal("load")
+        }
+      } finally {
+        resource.remove()
+      }
+    }
+  })
+
+  it("bounds reuse of a previously loaded foreign script without resource timing", async () => {
+    const clock = sinon.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]})
+    const loader = new ResourceLoader()
+    const url = "https://example.invalid/already-loaded.js"
+    const script = document.createElement("script")
+    script.type = "application/json"
+    script.src = url
+    document.head.append(script)
+    script.dispatchEvent(new Event("load"))
+
+    try {
+      expect(performance.getEntriesByName(url, "resource")).to.be.empty
+      const loading = loader.ensure(core, {
+        mode: "resolved", assets: [{kind: "script", url}],
+      })
+      clock.tick(5_000)
+      const error = await loading.then(() => null, (error: unknown) => error)
+
+      expect_instanceof(error, ResourceError)
+      expect(error.kind).to.be.equal("load")
+      expect(error.message.includes("timed out waiting")).to.be.true
+
+      script.dispatchEvent(new Event("load"))
+      await Promise.resolve()
+      expect(script.dataset.bokehResourceState).to.be.undefined
+    } finally {
+      clock.restore()
+      script.remove()
+    }
+  })
+
   it("awaits inline module evaluation", async () => {
     const loader = new ResourceLoader()
     const state = globalThis as typeof globalThis & {embed_inline_module?: number}
@@ -651,13 +1281,51 @@ describe("EmbedPayload runtime", () => {
     expect(state.embed_inline_module).to.be.equal(1)
   })
 
-  it("treats resources none as host-owned without erasing requirements", async () => {
+  it("defaults to host-owned resources without erasing requirements", async () => {
     const loader = new ResourceLoader()
     const widgets: ResourceRequirements = {components: ["bokeh/core", "bokeh/widgets"], extensions: []}
-    await loader.ensure(widgets, "none")
+    await loader.ensure(widgets)
     expect(loader.size).to.be.equal(0)
     expect(document.querySelectorAll("[data-bokeh-resource]").length).to.be.equal(0)
     expect(widgets.components).to.be.equal(["bokeh/core", "bokeh/widgets"])
+  })
+
+  it("retains explicit automatic CDN resource loading", async () => {
+    const loader = new ResourceLoader()
+    const widgets: ResourceRequirements = {components: ["bokeh/core", "bokeh/widgets"], extensions: []}
+    const version = js_version.split("+")[0]
+    const url = `https://cdn.bokeh.org/bokeh/${version.includes("dev") || version.includes("rc") ? "dev" : "release"}/bokeh-widgets-${version}.min.js`
+    const script = document.createElement("script")
+    script.type = "application/json"
+    script.src = url
+    script.dataset.bokehResourceState = "loaded"
+    document.head.append(script)
+
+    try {
+      await loader.ensure(widgets, "auto")
+      expect(loader.size).to.be.equal(1)
+    } finally {
+      script.remove()
+    }
+  })
+
+  it("loads the API bundle when it is explicitly required", async () => {
+    const loader = new ResourceLoader()
+    const api: ResourceRequirements = {components: ["bokeh/core", "bokeh/api"], extensions: []}
+    const version = js_version.split("+")[0]
+    const url = `https://cdn.bokeh.org/bokeh/${version.includes("dev") || version.includes("rc") ? "dev" : "release"}/bokeh-api-${version}.min.js`
+    const script = document.createElement("script")
+    script.type = "application/json"
+    script.src = url
+    script.dataset.bokehResourceState = "loaded"
+    document.head.append(script)
+
+    try {
+      await loader.ensure(api, "auto")
+      expect(loader.size).to.be.equal(1)
+    } finally {
+      script.remove()
+    }
   })
 
   it("applies CSP attributes and reports actionable declaration conflicts", async () => {
@@ -722,6 +1390,21 @@ describe("EmbedPayload runtime", () => {
   it("rejects data resource URLs", async () => rejects_resource_url("data:text/javascript,alert(1)"))
   it("rejects vbscript resource URLs", async () => rejects_resource_url("vbscript:alert(1)"))
 
+  it("validates compact inline resource identities", async () => {
+    const loader = new ResourceLoader()
+    for (const asset of [
+      {kind: "script" as const, content: "void 0", content_sha256: "not-a-digest"},
+      {kind: "script" as const, url: "https://example.test/extension.js", content_sha256: "0".repeat(64)},
+    ]) {
+      const error = await loader.ensure(core, {mode: "resolved", assets: [asset]}).then(
+        () => null, (error: unknown) => error,
+      )
+      expect_instanceof(error, ResourceError)
+      expect(error.kind).to.be.equal("policy")
+      expect(error.message.includes("content_sha256")).to.be.true
+    }
+  })
+
   it("rejects offline URLs and unresolved integrity policies", async () => {
     const loader = new ResourceLoader()
     const external = {kind: "script" as const, url: "https://example.test/bokeh.js"}
@@ -740,7 +1423,7 @@ describe("EmbedPayload runtime", () => {
     expect(integrity.message.includes("SRI hash")).to.be.true
   })
 
-  it("loads the standard external bootstrap under a strict CSP", async () => {
+  it("loads the standard external bootstrap with the core bundle under a strict CSP", async () => {
     const embed_payload = fixture("standalone-keyed-roots")
     const instance = `Test-${++declaration_index}`
     const payload_url = URL.createObjectURL(new Blob([JSON.stringify(embed_payload)], {
@@ -756,7 +1439,6 @@ describe("EmbedPayload runtime", () => {
     <meta http-equiv="Content-Security-Policy"
           content="default-src 'none'; script-src 'self'; connect-src blob:; style-src 'unsafe-inline'">
     <script src="/static/js/bokeh.min.js"></script>
-    <script src="/static/js/bokeh-api.min.js"></script>
   </head>
   <body>
     ${targets}

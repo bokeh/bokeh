@@ -9,6 +9,7 @@ from __future__ import annotations
 
 # Standard library imports
 import asyncio
+import hashlib
 import json
 import runpy
 import sys
@@ -30,6 +31,8 @@ from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.document import Document
+from bokeh.embed.resources import extension_dirs
+from bokeh.model import Model
 from bokeh.models import (
     ColorBar,
     ColumnDataSource,
@@ -45,6 +48,7 @@ from bokeh.protocol.message import Message
 from bokeh.protocol.receiver import Receiver
 from bokeh.server.asgi import BokehASGI, _ASGIWebSocketTransport
 from bokeh.server.auth import AuthPolicy
+from bokeh.util.compiler import JavaScript
 from bokeh.util.token import generate_jwt_token, get_token_payload
 
 
@@ -644,6 +648,48 @@ async def test_embed_bootstrap_and_static_routes() -> None:
         await app.core.stop()
 
 
+async def test_embed_bootstrap_resolves_registered_custom_models(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    initialized = 0
+
+    def modify_document(doc: Document) -> None:
+        nonlocal initialized
+
+        class SessionCustomJS(CustomJS):
+            __implementation__ = JavaScript("export const value = 1")
+
+        initialized += 1
+        doc.add_root(SessionCustomJS(code="return value"))
+
+    monkeypatch.setattr("bokeh.embed.resources.bundle_models", lambda models: "compiled-server-model")
+    app = BokehASGI(Application(FunctionHandler(modify_document)))
+    try:
+        response = await http_request(app, "/embed.json", headers=[
+            (b"bokeh-resource-mode", b"inline"),
+        ])
+    finally:
+        await app.core.stop()
+        Model.clear_extensions()
+
+    assert response_status(response) == 200
+    assert initialized == 1
+    bootstrap = json.loads(response_body(response))
+    assert bootstrap["requires"]["extensions"] == [{
+        "name": "bokeh.custom-models",
+        "assets": [],
+    }]
+    assert bootstrap["resources"] == {
+        "mode": "resolved",
+        "assets": [{
+            "kind": "script",
+            "content": "compiled-server-model",
+            "content_sha256": hashlib.sha256(b"compiled-server-model").hexdigest(),
+        }],
+    }
+    assert response_body(response).count(b"compiled-server-model") == 1
+
+
 async def test_embed_bootstrap_cors_matches_websocket_origin_policy() -> None:
     app = BokehASGI(
         Application(),
@@ -669,15 +715,49 @@ async def test_embed_bootstrap_cors_matches_websocket_origin_policy() -> None:
         await app.core.stop()
 
 
+async def test_embed_bootstrap_rejects_resource_policy_before_session_creation() -> None:
+    initialized = 0
+
+    def modify_document(doc: Document) -> None:
+        nonlocal initialized
+        initialized += 1
+
+    app = BokehASGI(
+        Application(FunctionHandler(modify_document)),
+        extra_websocket_origins=["trusted.example:80"],
+    )
+    try:
+        response = await http_request(app, "/embed.json", headers=[
+            (b"origin", b"http://trusted.example"),
+            (b"bokeh-resource-mode", b"invalid"),
+        ])
+
+        assert response_status(response) == 409
+        assert response_header(response, b"access-control-allow-origin") == b"http://trusted.example"
+        assert response_header(response, b"cache-control") == b"no-store"
+        assert response_header(response, b"pragma") == b"no-cache"
+        assert response_header(response, b"x-content-type-options") == b"nosniff"
+        assert initialized == 0
+        assert not app.core.get_sessions("/")
+    finally:
+        await app.core.stop()
+
+
 async def test_root_application_static_files_stream_and_head_only_stats(tmp_path: Path) -> None:
     content = b"a" * (64*1024 + 1)
     (tmp_path / "artifact.bin").write_bytes(content)
+    (tmp_path / "js").mkdir()
+    (tmp_path / "js" / "app.js").write_text("globalThis.app_static = true")
+    (tmp_path / "js" / "bokeh-custom.js").write_text("globalThis.app_bokeh_custom = true")
     application = Application()
     app = BokehASGI(application)
     application._static_path = str(tmp_path)
     try:
         get = await http_request(app, "/static/artifact.bin")
         head = await http_request(app, "/static/artifact.bin", method="HEAD")
+        app_js = await http_request(app, "/static/js/app.js")
+        app_bokeh_js = await http_request(app, "/static/js/bokeh-custom.js")
+        bokeh_js = await http_request(app, "/static/js/bokeh.min.js")
 
         assert response_status(get) == 200
         assert response_header(get, b"content-length") == str(len(content)).encode()
@@ -692,6 +772,39 @@ async def test_root_application_static_files_stream_and_head_only_stats(tmp_path
         assert [event for event in head if event["type"] == "http.response.body"] == [
             {"type": "http.response.body", "body": b""},
         ]
+        assert response_status(app_js) == 200
+        assert response_body(app_js) == b"globalThis.app_static = true"
+        assert response_status(app_bokeh_js) == 200
+        assert response_body(app_bokeh_js) == b"globalThis.app_bokeh_custom = true"
+        assert response_status(bokeh_js) == 200
+        assert b"Bokeh Contributors" in response_body(bokeh_js)
+    finally:
+        await app.core.stop()
+
+
+async def test_application_static_reserves_bokeh_assets_and_extensions(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    static = tmp_path / "static"
+    extension = tmp_path / "extension"
+    (static / "js").mkdir(parents=True)
+    extension.mkdir()
+    (static / "js" / "app.js").write_text("globalThis.app_static = true")
+    (static / "js" / "bokeh.min.js").write_text("not Bokeh")
+    (extension / "extension.js").write_text("globalThis.extension = true")
+    monkeypatch.setitem(extension_dirs, "example", extension)
+
+    application = Application()
+    app = BokehASGI({"/directory": application})
+    application._static_path = str(static)
+    try:
+        app_js = await http_request(app, "/directory/static/js/app.js")
+        bokeh_js = await http_request(app, "/directory/static/js/bokeh.min.js")
+        extension_js = await http_request(app, "/directory/static/extensions/example/extension.js")
+
+        assert response_body(app_js) == b"globalThis.app_static = true"
+        assert b"Bokeh Contributors" in response_body(bokeh_js)
+        assert response_body(extension_js) == b"globalThis.extension = true"
     finally:
         await app.core.stop()
 
@@ -812,6 +925,28 @@ async def test_auth_policy_returns_401_without_login_url() -> None:
 
         assert response_status(response) == 401
         assert response_body(response) == b"Authentication required"
+        assert not app.core.get_sessions("/")
+    finally:
+        await app.core.stop()
+
+
+async def test_embed_authentication_failure_has_cors_and_security_headers() -> None:
+    app = BokehASGI(
+        Application(),
+        auth_policy=AuthPolicy(lambda request: None),
+        extra_websocket_origins=["trusted.example:80"],
+    )
+    try:
+        response = await http_request(app, "/embed.json", headers=[
+            (b"origin", b"http://trusted.example"),
+        ])
+
+        assert response_status(response) == 401
+        assert response_body(response) == b"Authentication required"
+        assert response_header(response, b"access-control-allow-origin") == b"http://trusted.example"
+        assert response_header(response, b"cache-control") == b"no-store"
+        assert response_header(response, b"pragma") == b"no-cache"
+        assert response_header(response, b"x-content-type-options") == b"nosniff"
         assert not app.core.get_sessions("/")
     finally:
         await app.core.stop()

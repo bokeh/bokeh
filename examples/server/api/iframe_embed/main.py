@@ -30,11 +30,10 @@ app_html = """
       Under strict CSP iframe embedding with `src` does not work:
     </p>
     <iframe src="{{ app_url }}" width=100% height=50px></iframe>
-    <p>But it is still possible to embed with `srcdoc` attribute and using `data-absolute-url`:</p>
+    <p>But it is still possible to embed with the `srcdoc` attribute:</p>
     <iframe id="myiframe" width=100% height=500px></iframe>
   <script>
     const iframe = document.querySelector("#myiframe");
-    iframe.dataset.absoluteUrl = {{ app_url|tojson }};
     iframe.srcdoc = {{ code|tojson }};
   </script>
   </body>
@@ -63,7 +62,7 @@ def home():
     app_url = "http://localhost:5151/bokeh_server"
     with pull_session(url=app_url) as session:
         roots = {root.name or f"root-{index}": root for index, root in enumerate(session.document.roots)}
-        result = embed_server(".", token=session.token, roots=roots)
+        result = embed_server(app_url, token=session.token, roots=roots)
         code = result.page(
             resources=INLINE,
             title='test',
