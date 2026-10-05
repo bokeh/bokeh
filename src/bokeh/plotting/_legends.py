@@ -129,7 +129,21 @@ def _handle_legend_group(label: str, legend: Legend, glyph_renderer: GlyphRender
         raise ValueError("Column to be grouped does not exist in glyph data source")
 
     column = source.data[label]
-    vals, inds = np.unique(column, return_index=1)
+    try:
+        vals, inds = np.unique(column, return_index=1)
+    except TypeError:
+        # Values are not orderable (e.g. mixed str/None or str/NaN);
+        # fall back to grouping in order of first appearance.
+        vals = []
+        inds = []
+        for i, v in enumerate(column):
+            if not any(
+                (v is w or v == w) or
+                (isinstance(v, float) and isinstance(w, float) and np.isnan(v) and np.isnan(w))
+                for w in vals
+            ):
+                vals.append(v)
+                inds.append(i)
     for val, ind in zip(vals, inds):
         label = value(str(val))
         new_item = LegendItem(label=label, renderers=[glyph_renderer], index=ind)
