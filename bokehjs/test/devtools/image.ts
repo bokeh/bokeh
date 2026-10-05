@@ -1,45 +1,10 @@
 import {PNG} from "pngjs"
+import pixelmatch from "pixelmatch"
 
 export type ImageDiff = {pixels: number, percent: number, diff: Buffer}
 
-function rgba2hsla(r: number, g: number, b: number, a: number): [number, number, number, number] {
-  r /= 255, g /= 255, b /= 255
-
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-
-  const l = (max + min) / 2
-  let h = 0, s = 0
-
-  if (max != min) {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0)
-        break
-      case g:
-        h = (b - r) / d + 2
-        break
-      case b:
-        h = (r - g) / d + 4
-        break
-    }
-
-    h /= 6
-  }
-
-  const f = Math.round
-  return [f(h*360), f(s*100), f(l*100), a]
-}
-
 function encode(r: number, g: number, b: number, a: number = 1.0): number {
   return (a*255 & 0xFF) << 24 | (b & 0xFF) << 16 | (g & 0xFF) << 8 | (r & 0xFF)
-}
-
-function decode(v: number): [number, number, number, number] {
-  return [v & 0xFF, (v >> 8) & 0xFF, (v >> 16) & 0xFF, ((v >> 24) & 0xFF) / 255]
 }
 
 function image_data(image: PNG): Uint32Array {
@@ -64,7 +29,7 @@ function resize_image(image: PNG, width: number, height: number): PNG {
   return resized
 }
 
-export function diff_image(existing: Buffer, current: Buffer, verbose: boolean = false): ImageDiff | null {
+export function diff_image(existing: Buffer, current: Buffer): ImageDiff | null {
   let existing_img: PNG = PNG.sync.read(existing)
   let current_img: PNG = PNG.sync.read(current)
 
@@ -81,46 +46,11 @@ export function diff_image(existing: Buffer, current: Buffer, verbose: boolean =
   const {width, height} = current_img
   const diff_img = new PNG({width, height})
 
-  const a32 = image_data(existing_img)
-  const b32 = image_data(current_img)
-  const c32 = image_data(diff_img)
-
-  c32.fill(encode(0, 0, 0))
-
-  const len = width*height
-  let pixels = 0
-  for (let i = 0; i < len; i++) {
-    const a = a32[i]
-    const b = b32[i]
-
-    if (a != b) {
-      const [r0, g0, b0, a0] = decode(a)
-      const [r1, g1, b1, a1] = decode(b)
-
-      const [h0, s0, l0, _a0] = rgba2hsla(r0, g0, b0, a0)
-      const [h1, s1, l1, _a1] = rgba2hsla(r1, g1, b1, a1)
-
-      if (!(h0 == h1 && s0 == s1 && l0 == l1 && _a0 == _a1)) {
-        const d = (a: number, b: number) => Math.abs(a - b)
-
-        const hd = d(h0, h1)
-        const sd = d(s0, s1)
-        const ld = d(l0, l1)
-
-        if (!(hd <= 0) || !(sd <= 0) || !(ld <= 0)) {
-          if (verbose) {
-            const [x, y] = [i % width, Math.floor(i / width)]
-            console.log("")
-            console.log(`existing(${x}, ${y}) = RGBA(${r0}, ${g0}, ${b0}, ${a0}) HSLA(${h0}, ${s0}, ${l0}, ${_a0})`)
-            console.log(`current(${x}, ${y})  = RGBA(${r1}, ${g1}, ${b1}, ${a1}) HSLA(${h1}, ${s1}, ${l1}, ${_a1})`)
-            console.log(`d(h0, h1) = ${hd} d(s0, s1) = ${sd} d(l0, l1) = ${ld}`)
-          }
-          pixels++
-          c32[i] = encode(0, 0, 255)
-        }
-      }
-    }
-  }
+  // Tolerate raster rounding and antialiasing while retaining sensitivity to small color changes.
+  const pixels = pixelmatch(existing_img.data, current_img.data, diff_img.data, width, height, {
+    threshold: 0.01,
+    includeAA: false,
+  })
 
   if (pixels == 0) {
     return null

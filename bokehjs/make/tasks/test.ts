@@ -49,7 +49,12 @@ task("test:codebase:compile", async () => {
   compile_typescript("./test/codebase/tsconfig.json")
 })
 
-task("test:codebase", ["test:codebase:compile"], async () => {
+task("test:devtools", async () => {
+  compile_typescript("./test/devtools/tsconfig.json")
+  await node(["--test", "./test/devtools/_build/image.test.js"])
+})
+
+task("test:codebase", ["test:codebase:compile", "test:devtools"], async () => {
   await node(["./build/test/codebase/index.js"])
 })
 

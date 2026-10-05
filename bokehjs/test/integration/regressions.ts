@@ -178,7 +178,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #9703", () => {
-    it.allowing(8)("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
+    it("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
       const p = fig([300, 300], {x_range: [-1, 10], y_range: [-1, 10]})
 
       const img = svg_data_url(`\
@@ -580,7 +580,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #589", () => {
-    it.allowing(2)("disallows updating legend when glyphs change", async () => {
+    it("disallows updating legend when glyphs change", async () => {
       const x = [1, 2, 3, 4, 5, 10]
       const y = [5, 6, 2, 3, 4, 10]
 
@@ -782,7 +782,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10507", () => {
-    it.allowing(22)("prevents changing MultiSelect.disabled property", async () => {
+    it("prevents changing MultiSelect.disabled property", async () => {
       const widget = MultiSelect.create({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
       const {view} = await display(widget, [250, 100])
       widget.disabled = true
@@ -791,7 +791,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10695", () => {
-    it.allowing(16)("prevents showing MultiChoice's dropdown menu", async () => {
+    it("prevents showing MultiChoice's dropdown menu", async () => {
       const random = new Random(1)
 
       const N = 10
@@ -822,7 +822,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11365", () => {
-    it.allowing(16)("prevents showing MultiChoice's dropdown menu over subsequent roots", async () => {
+    it("prevents showing MultiChoice's dropdown menu over subsequent roots", async () => {
       const columns = ["Apple", "Pear", "Banana"]
 
       const choices = MultiChoice.create({options: columns})
@@ -847,7 +847,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #12115", () => {
-    it.allowing(16)("prevents showing MultiChoice's dropdown items correctly", async () => {
+    it("prevents showing MultiChoice's dropdown items correctly", async () => {
       const columns = ["Apple", "Pear", "Banana"]
       const choices = MultiChoice.create({options: columns, width: 75, width_policy: "fixed"})
 
@@ -1042,14 +1042,14 @@ describe("Bug", () => {
   })
 
   describe("in issue #10407", () => {
-    it.allowing(2)("displays incorrect value in Select widget when options change", async () => {
+    it("displays incorrect value in Select widget when options change", async () => {
       const widget = Select.create({options: ["1", "2", "3"], value: "2", width: 200})
       const {view} = await display(widget, [250, 100])
       widget.options = ["1", "2"]
       await view.ready
     })
 
-    it.allowing(2)("displays out-of-range value in Select widget when options change", async () => {
+    it("displays out-of-range value in Select widget when options change", async () => {
       const widget = Select.create({options: ["1", "2", "3"], value: "3", width: 200})
       const {view} = await display(widget, [250, 100])
       widget.options = ["1", "2"]
@@ -2080,9 +2080,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #9113", () => {
-    // Chrome 141/153/154 differ from the original reference by up to 26 pixels
-    // at rounded corners, with unchanged geometry and RGB channel deltas <= 1.
-    it.allowing(26)("prevents layout update when adding new toggle group buttons", async () => {
+    it("prevents layout update when adding new toggle group buttons", async () => {
       const group = RadioButtonGroup.create({labels: []})
       const {view} = await display(group, [300, 100])
       let previous_width = bounding_box(view.el).width
@@ -2130,7 +2128,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11339", () => {
-    it.allowing(20)("collapses layout after toggling visibility", async () => {
+    it("collapses layout after toggling visibility", async () => {
       const toggle = Toggle.create({label: "Click", active: true})
       const select1 = Select.create({title: "Select 1:", options: ["1", "2"], value: "1"})
       const select2 = Select.create({title: "Select 2:", options: ["1", "2"], value: "1"})
@@ -2197,8 +2195,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #8469", () => {
-    // Allow minor Linux rasterization differences at rounded button borders.
-    it.allowing(64)("makes child layout update invalidate and re-render entire layout", async () => {
+    it("makes child layout update invalidate and re-render entire layout", async () => {
       const p0 = figure({width: 300, height: 300})
       p0.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
       const button = Button.create({label: "click"})
@@ -4440,7 +4437,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #14207", () => {
-    it.allowing(1)("has zoom in when visibility changes", async () => {
+    it("has zoom in when visibility changes", async () => {
       const osm = TileRenderer.create({tile_source: osm_source.clone()})
 
       const p0 = fig([300, 200], {

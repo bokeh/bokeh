@@ -30,6 +30,7 @@
     "json5": "^2.2.3",
     "nunjucks": "^3.2.4",
     "path-browserify": "^1.0.1",
+    "pixelmatch": "7.2.0",
     "playwright-core": "1.56.1",
     "pngjs": "^7.0.0",
     "sinon": "^18.0.0",

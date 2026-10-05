@@ -68,7 +68,7 @@ describe("Widgets", () => {
     await display(obj, [350, buttons.length*(30 + 10) + 50])
   })
 
-  it.allowing(6)("should allow Toggle", async () => {
+  it("should allow Toggle", async () => {
     const obj = Toggle.create({label: "Toggle 1", button_type: "primary"})
     await display(obj, [500, 100])
   })
@@ -252,69 +252,69 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(9)("should allow CheckboxButtonGroup", async () => {
+  it("should allow CheckboxButtonGroup", async () => {
     const obj = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
     await display(obj, [500, 100])
   })
 
-  it.allowing(10)("should allow CheckboxButtonGroup in vertical orientation", async () => {
+  it("should allow CheckboxButtonGroup in vertical orientation", async () => {
     const obj = CheckboxButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], orientation: "vertical"})
     await display(obj, [100, 150])
   })
 
-  it.allowing(9)("should allow RadioButtonGroup", async () => {
+  it("should allow RadioButtonGroup", async () => {
     const obj = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
     await display(obj, [500, 100])
   })
 
-  it.allowing(10)("should allow RadioButtonGroup in vertical orientation", async () => {
+  it("should allow RadioButtonGroup in vertical orientation", async () => {
     const obj = RadioButtonGroup.create({labels: ["Option 1", "Option 2", "Option 3"], active: 0, orientation: "vertical"})
     await display(obj, [100, 150])
   })
 
-  it.allowing(8)("should allow TextInput", async () => {
+  it("should allow TextInput", async () => {
     const obj = TextInput.create({placeholder: "Enter value ..."})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow TextInput with prefix", async () => {
+  it("should allow TextInput with prefix", async () => {
     const obj = TextInput.create({placeholder: "Enter temperature ...", prefix: "T"})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow TextInput with suffix", async () => {
+  it("should allow TextInput with suffix", async () => {
     const obj = TextInput.create({placeholder: "Enter temperature ...", suffix: "\u2103"})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow TextInput with prefix and suffix", async () => {
+  it("should allow TextInput with prefix and suffix", async () => {
     const obj = TextInput.create({placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103"})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow TextInput with title, prefix and suffix", async () => {
+  it("should allow TextInput with title, prefix and suffix", async () => {
     const obj = TextInput.create({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103"})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow PasswordInput", async () => {
+  it("should allow PasswordInput", async () => {
     const obj = PasswordInput.create({value: "foo"})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow PasswordInput with password visible", async () => {
+  it("should allow PasswordInput with password visible", async () => {
     const obj = PasswordInput.create({value: "foo"})
     const {view} = await display(obj, [500, 100])
     await mouse_click(view.toggle_el)
   })
 
-  it.allowing(8)("should allow AutocompleteInput", async () => {
+  it("should allow AutocompleteInput", async () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = AutocompleteInput.create({placeholder: "Enter value ...", completions})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow AutocompleteInput with min_characters==0 and completions showed on focusin", async () => {
+  it("should allow AutocompleteInput with min_characters==0 and completions showed on focusin", async () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = AutocompleteInput.create({placeholder: "Enter value ...", completions, min_characters: 0})
     const {view} = await display(obj, [500, 300])
@@ -323,13 +323,13 @@ describe("Widgets", () => {
     await view.ready
   })
 
-  it.allowing(8)("should allow TextAreaInput", async () => {
+  it("should allow TextAreaInput", async () => {
     const obj = TextAreaInput.create({placeholder: "Enter text ...", cols: 20, rows: 4})
     await display(obj, [500, 100])
   })
 
-  // The native resize handle differs by 22 pixels between Chrome 141 and 153/154.
-  it.allowing(22)("should allow TextAreaInput with resizable=true", async () => {
+  // Allow the native resize handle to differ across Chrome versions.
+  it.allowing(18)("should allow TextAreaInput with resizable=true", async () => {
     const obj = TextAreaInput.create({placeholder: "Enter text ...", cols: 20, rows: 4, resizable: true})
     const {view} = await display(obj, [500, 100])
     const {resize, overflow} = getComputedStyle(view.el)
@@ -337,37 +337,37 @@ describe("Widgets", () => {
     expect(overflow).to.be.equal("auto")
   })
 
-  it.allowing(8)("should allow FileInput", async () => {
+  it("should allow FileInput", async () => {
     const obj = FileInput.create({accept: ".csv,.json.,.txt", multiple: false})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow MultiChoice", async () => {
+  it("should allow MultiChoice", async () => {
     const obj = MultiChoice.create({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 1", "Option 3"]})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow MultiChoice with empty value", async () => {
+  it("should allow MultiChoice with empty value", async () => {
     const obj = MultiChoice.create({options: ["Option 1", "Option 2", "Option 3"]})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow Select", async () => {
+  it("should allow Select", async () => {
     const obj = Select.create({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1"})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow Select with empty value", async () => {
+  it("should allow Select with empty value", async () => {
     const obj = Select.create({options: ["Option 1", "Option 2", "Option 3"]})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow Select with non-string options", async () => {
+  it("should allow Select with non-string options", async () => {
     const obj = Select.create({options: [[10, "Option 1"], [20, "Option 2"], [30, "Option 3"]], value: 10})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow MultiSelect", async () => {
+  it("should allow MultiSelect", async () => {
     const options = range(16).map((i) => `Option ${i+1}`)
     const obj = MultiSelect.create({options, size: 6})
     await display(obj, [500, 150])
@@ -406,19 +406,19 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow CategoricalSlider", async () => {
+  it("should allow CategoricalSlider", async () => {
     const obj = CategoricalSlider.create({categories: ["a", "b", "c", "d"], value: "b"})
     await display(obj, [500, 100])
   })
 
-  it.allowing(8)("should allow DatePicker", async () => {
+  it("should allow DatePicker", async () => {
     const d0 = "2023-01-18"
     const obj = DatePicker.create({value: d0, width: 400})
     const {view} = await display(obj, [500, 400])
     await open_picker(view)
   })
 
-  it.allowing(8)("should allow DateRangePicker", async () => {
+  it("should allow DateRangePicker", async () => {
     const d0 = "2023-01-18"
     const d1 = "2023-01-23"
     const obj = DateRangePicker.create({value: [d0, d1], width: 400})
@@ -426,7 +426,7 @@ describe("Widgets", () => {
     await open_picker(view)
   })
 
-  it.allowing(8)("should allow MultipleDatePicker", async () => {
+  it("should allow MultipleDatePicker", async () => {
     const d0 = "2023-01-18"
     const d1 = "2023-01-23"
     const d2 = "2023-01-24"
@@ -436,14 +436,14 @@ describe("Widgets", () => {
     await open_picker(view)
   })
 
-  it.allowing(8)("should allow DatetimePicker", async () => {
+  it("should allow DatetimePicker", async () => {
     const d0 = "2023-01-18T09:37:52"
     const obj = DatetimePicker.create({value: d0, width: 400})
     const {view} = await display(obj, [500, 400])
     await open_picker(view)
   })
 
-  it.allowing(8)("should allow DatetimeRangePicker", async () => {
+  it("should allow DatetimeRangePicker", async () => {
     const d0 = "2023-01-18T09:37:52"
     const d1 = "2023-01-23T20:17:25"
     const obj = DatetimeRangePicker.create({value: [d0, d1], width: 400})
@@ -451,7 +451,7 @@ describe("Widgets", () => {
     await open_picker(view)
   })
 
-  it.allowing(8)("should allow MultipleDatetimePicker", async () => {
+  it("should allow MultipleDatetimePicker", async () => {
     const d0 = "2023-01-18T09:37:52"
     const d1 = "2023-01-23T20:17:25"
     const d2 = "2023-01-24T15:00:00"
@@ -461,21 +461,21 @@ describe("Widgets", () => {
     await open_picker(view)
   })
 
-  it.allowing(8)("should allow TimePicker", async () => {
+  it("should allow TimePicker", async () => {
     const t0 = "09:37:52"
     const obj = TimePicker.create({value: t0})
     const {view} = await display(obj, [500, 150])
     await open_picker(view)
   })
 
-  it.allowing(8)("should allow TimePicker with seconds", async () => {
+  it("should allow TimePicker with seconds", async () => {
     const t0 = "09:37:52"
     const obj = TimePicker.create({value: t0, time_format: "H:i:S", seconds: true})
     const {view} = await display(obj, [500, 150])
     await open_picker(view)
   })
 
-  it.allowing(8)("should allow TimePicker with seconds and 12h clock", async () => {
+  it("should allow TimePicker with seconds and 12h clock", async () => {
     const t0 = "09:37:52"
     const obj = TimePicker.create({value: t0, time_format: "H:i:S", seconds: true, clock: "12h"})
     const {view} = await display(obj, [500, 150])
@@ -757,7 +757,7 @@ describe("Widgets", () => {
 })
 
 describe("Rows of widgets", () => {
-  it.allowing(7)("should allow different content and fixed height", async () => {
+  it("should allow different content and fixed height", async () => {
     const w0 = TextInput.create({value: "Widget 1"})
     const w1 = TextInput.create({value: "Widget 2", height: 50})
     const row = Row.create({children: [w0, w1]})
