@@ -181,6 +181,17 @@ class Test__process_sequence_literals:
         assert r.glyph.line_dash == [6, 3]
         assert "line_dash" not in r.data_source.data
 
+    @pytest.mark.parametrize("pattern", [[], ()])
+    @pytest.mark.parametrize("method", ["patches", "multi_line"])
+    def test_vectorized_glyph_empty_line_dash_is_scalar(self, method: str, pattern: list[int] | tuple[()]) -> None:
+        """Empty line_dash is a solid line, not a column name. See #15463."""
+        p = figure()
+        glyph_method = getattr(p, method)
+        r = glyph_method([[1, 2, 3]], [[1, 2, 3]], line_dash=pattern)
+
+        assert r.glyph.line_dash == pattern
+        assert "line_dash" not in r.data_source.data
+
     def test_hspan_line_dash_as_list(self) -> None:
         """hspan should handle line_dash list correctly (issue #13838)"""
         p = figure()
