@@ -5707,4 +5707,104 @@ describe("Bug", () => {
       expect(narrow_view.frame.bbox.left).to.be.equal(yaxis_view.bbox.width)
     })
   })
+
+  describe("in issue #15456", () => {
+    const sides = ["right", "left", "above", "below"] as const
+
+    function legend_plots() {
+      return sides.map((side) => {
+        const plot = figure({frame_width: 150, frame_height: 150, title: side})
+        const r = plot.scatter([1, 2], [1, 2])
+        const legend = Legend.create({
+          items: [LegendItem.create({label: "test", renderers: [r]})],
+          title: side,
+        })
+        plot.add_layout(legend, side)
+        return {plot, legend}
+      })
+    }
+
+    function tick_plots() {
+      return [1, 100000, 1000000000].map((end) => {
+        const plot = figure({
+          frame_width: 150,
+          frame_height: 150,
+          toolbar_location: null,
+          min_border: 3,
+          x_range: Range1d.create({start: 0, end: 1}),
+          y_range: Range1d.create({start: 0, end}),
+        })
+        plot.scatter([0.1, 0.9], [end*0.1, end*0.9])
+        return plot
+      })
+    }
+
+    function expect_not_cropped(plot_view: FigureView): void {
+      const {width, height} = plot_view.bbox
+      const {frame} = plot_view
+      expect([frame.bbox.width, frame.bbox.height]).to.be.equal([150, 150])
+
+      for (const bbox of [frame.bbox, ...plot_view.axis_views.map((view) => view.bbox)]) {
+        expect(bbox.left).to.be.within(0, width)
+        expect(bbox.right).to.be.within(0, width)
+        expect(bbox.top).to.be.within(0, height)
+        expect(bbox.bottom).to.be.within(0, height)
+      }
+    }
+
+    function expect_legend_inside(plot_view: FigureView, legend: Legend): void {
+      // A legend's box is placed with sub-pixel precision, so it can overhang
+      // its plot's edge by a fraction of a pixel even in a standalone plot
+      // (e.g. 9.953 vs 10). A cropped legend overhangs by tens of pixels.
+      const plot_bbox = bounding_box(plot_view.el).grow_by(1)
+      const legend_bbox = bounding_box(plot_view.owner.get_one(legend).el)
+      expect(legend_bbox.left).to.be.within(plot_bbox.left, plot_bbox.right)
+      expect(legend_bbox.right).to.be.within(plot_bbox.left, plot_bbox.right)
+      expect(legend_bbox.top).to.be.within(plot_bbox.top, plot_bbox.bottom)
+      expect(legend_bbox.bottom).to.be.within(plot_bbox.top, plot_bbox.bottom)
+    }
+
+    it.no_image("doesn't allot enough room for outer legends when aligning frames in a row", async () => {
+      const entries = legend_plots()
+      const {view} = await display(row(entries.map(({plot}) => plot)), null)
+
+      const heights: number[] = []
+      for (const {plot, legend} of entries) {
+        const plot_view = view.owner.get_one(plot)
+        expect_not_cropped(plot_view)
+        expect_legend_inside(plot_view, legend)
+        heights.push(plot_view.bbox.height)
+      }
+      expect(heights).to.be.equal(heights.map(() => heights[0]))
+    })
+
+    it.no_image("doesn't allot enough room for y axis labels when aligning frames in a column", async () => {
+      const plots = tick_plots()
+      const {view} = await display(column(plots), null)
+
+      const widths: number[] = []
+      for (const plot of plots) {
+        const plot_view = view.owner.get_one(plot)
+        expect_not_cropped(plot_view)
+        widths.push(plot_view.bbox.width)
+      }
+      expect(widths).to.be.equal(widths.map(() => widths[0]))
+    })
+
+    it.no_image("crops plots in nested rows and columns", async () => {
+      const entries = legend_plots()
+      const plots = tick_plots()
+      const layout = column([row(entries.map(({plot}) => plot)), column(plots)])
+      const {view} = await display(layout, null)
+
+      for (const {plot, legend} of entries) {
+        const plot_view = view.owner.get_one(plot)
+        expect_not_cropped(plot_view)
+        expect_legend_inside(plot_view, legend)
+      }
+      for (const plot of plots) {
+        expect_not_cropped(view.owner.get_one(plot))
+      }
+    })
+  })
 })
