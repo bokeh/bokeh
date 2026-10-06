@@ -190,7 +190,8 @@ you commit or push changes:
 
 File formatting
     The pre-commit hook will remove trailing whitespace, ensure files end with
-    a newline, and normalize line endings.
+    a newline, and normalize line endings. CI also runs repository formatting
+    checks on every pull request, independently of which paths changed.
 
 Python linting
     The pre-commit hook will run `Ruff`_ on changed Python files.
