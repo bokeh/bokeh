@@ -453,7 +453,7 @@ will automatically execute from the correct directory:
   * Standard (from repository root): ``pixi run test-js-integration``
   * Shell (inside bokehjs): ``node make test:integration``
 
-Screenshot comparisons use Pixelmatch with a color-distance threshold of ``0.01``
+Screenshot comparisons use a conservative color-distance threshold
 and ignore antialiasing differences. Tests require zero mismatched pixels by
 default. Use ``it.allowing(n)`` only for a known rendering variation that still
 exceeds that color tolerance, and explain the reason in a comment. The allowance
