@@ -5,7 +5,8 @@ import {range} from "@bokehjs/core/util/array"
 import {values} from "@bokehjs/core/util/object"
 
 describe("Examples", () => {
-  it("should support Burtin", async () => {
+  // Chrome 156 changes canvas wedge rasterization by three pixels after perceptual comparison.
+  it.allowing(3)("should support Burtin", async () => {
     type Gram = "negative" | "positive"
 
     const antibiotics: [string, number, number, number, Gram][] = [

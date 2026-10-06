@@ -766,7 +766,7 @@ describe("LayoutDOM", () => {
 })
 
 describe("GroupBox", () => {
-  it.allowing(3*8)("should allow multiple TextInput widgets", async () => {
+  it("should allow multiple TextInput widgets", async () => {
     const group_box = GroupBox.create({
       title: "Head offset:",
       checkable: true,
@@ -781,7 +781,7 @@ describe("GroupBox", () => {
     await display(group_box, [400, 200])
   })
 
-  it.allowing(3*8)("should allow changing disabled state with a checkbox", async () => {
+  it("should allow changing disabled state with a checkbox", async () => {
     const group_box = GroupBox.create({
       title: "Head offset:",
       checkable: true,

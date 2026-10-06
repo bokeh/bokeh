@@ -453,6 +453,13 @@ will automatically execute from the correct directory:
   * Standard (from repository root): ``pixi run test-js-integration``
   * Shell (inside bokehjs): ``node make test:integration``
 
+Screenshot comparisons use a conservative color-distance threshold
+and ignore antialiasing differences. Tests require zero mismatched pixels by
+default. Use ``it.allowing(n)`` only for a known rendering variation that still
+exceeds that color tolerance, and explain the reason in a comment. The allowance
+counts mismatched pixels. It does not change the color-distance threshold.
+Layout baselines are compared separately.
+
 To run visual integration tests against the canonical Linux baselines on any
 platform with Docker, run these commands from the root of the source checkout:
 

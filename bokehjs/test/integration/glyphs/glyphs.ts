@@ -38,56 +38,56 @@ describe("Glyph models", () => {
       return p
     }
 
-    it.allowing(1)("with angle range 23..275", async () => {
+    it("with angle range 23..275", async () => {
       function p(output_backend: OutputBackend) {
         return annular_wedge(output_backend, 23, 275)
       }
       await display(row([p("canvas"), p("svg"), p("webgl")]))
     })
 
-    it.allowing(1)("with angle range 23..135", async () => {
+    it("with angle range 23..135", async () => {
       function p(output_backend: OutputBackend) {
         return annular_wedge(output_backend, 23, 135)
       }
       await display(row([p("canvas"), p("svg"), p("webgl")]))
     })
 
-    it.allowing(1)("with angle range -23..-275", async () => {
+    it("with angle range -23..-275", async () => {
       function p(output_backend: OutputBackend) {
         return annular_wedge(output_backend, -23, -275)
       }
       await display(row([p("canvas"), p("svg"), p("webgl")]))
     })
 
-    it.allowing(1)("with angle range -23..-135", async () => {
+    it("with angle range -23..-135", async () => {
       function p(output_backend: OutputBackend) {
         return annular_wedge(output_backend, -23, -135)
       }
       await display(row([p("canvas"), p("svg"), p("webgl")]))
     })
 
-    it.allowing(1)("with angle range 23..-135", async () => {
+    it("with angle range 23..-135", async () => {
       function p(output_backend: OutputBackend) {
         return annular_wedge(output_backend, 23, -135)
       }
       await display(row([p("canvas"), p("svg"), p("webgl")]))
     })
 
-    it.allowing(1)("with angle range 23..-275", async () => {
+    it("with angle range 23..-275", async () => {
       function p(output_backend: OutputBackend) {
         return annular_wedge(output_backend, 23, -275)
       }
       await display(row([p("canvas"), p("svg"), p("webgl")]))
     })
 
-    it.allowing(1)("with angle range -23..135", async () => {
+    it("with angle range -23..135", async () => {
       function p(output_backend: OutputBackend) {
         return annular_wedge(output_backend, -23, 135)
       }
       await display(row([p("canvas"), p("svg"), p("webgl")]))
     })
 
-    it.allowing(1)("with angle range -23..275", async () => {
+    it("with angle range -23..275", async () => {
       function p(output_backend: OutputBackend) {
         return annular_wedge(output_backend, -23, 275)
       }
@@ -105,7 +105,7 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
-  it.allowing(1)("should support Arc", async () => {
+  it("should support Arc", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
       p.arc({x, y, radius: 0.25, start_angle: 0.4, end_angle: 4.8, color: "green", alpha: 0.6, line_width: 5})
