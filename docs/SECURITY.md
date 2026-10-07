@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-At least the current latest minor release level, and one previous minor release level. Backports of fixes to older release levels will be considered on a case-by-base basis. 
+At least the current latest minor release level, and one previous minor release level. Backports of fixes to older release levels will be considered on a case-by-base basis.
 
 ## Reporting a Vulnerability
 

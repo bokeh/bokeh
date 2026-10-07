@@ -22,6 +22,30 @@ defaults:
     shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
+  formatting:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: formatting
+          activate-environment: formatting
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
+
+      - name: Run repository formatting checks
+        run: |
+          pre-commit run trailing-whitespace --all-files
+          pre-commit run end-of-file-fixer --all-files
+          pre-commit run mixed-line-ending --all-files
+          pre-commit run reject-static-docs-links --all-files
+
   build:
     runs-on: ubuntu-24.04
 
@@ -81,11 +105,6 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
-      # Required for repository formatting checks (line endings, whitespace, etc).
-      - name: Configure line endings in git
-        if: runner.os == 'Windows'
-        run: git config --global core.autocrlf false
-
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -93,13 +112,6 @@ jobs:
         with:
           environment: test-py312
           source-tree: 'keep'
-
-      - name: Run repository formatting checks
-        run: |
-          pre-commit run trailing-whitespace --all-files
-          pre-commit run end-of-file-fixer --all-files
-          pre-commit run mixed-line-ending --all-files
-          pre-commit run reject-static-docs-links --all-files
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
@@ -584,7 +596,7 @@ jobs:
           if-no-files-found: ignore
 
   notify-nightly-failure:
-    needs: [build, frameworks-minimum-node, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [formatting, build, frameworks-minimum-node, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
@@ -597,7 +609,7 @@ jobs:
         run: python3 tools/ci/notify_full_ci.py nightly
 
   notify-pr:
-    needs: [build, frameworks-minimum-node, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [formatting, build, frameworks-minimum-node, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 

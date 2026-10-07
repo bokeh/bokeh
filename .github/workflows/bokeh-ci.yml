@@ -22,6 +22,31 @@ defaults:
     shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
+  # Repository formatting applies to every path, including docs-only changes.
+  formatting:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: formatting
+          activate-environment: formatting
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
+
+      - name: Run repository formatting checks
+        run: |
+          pre-commit run trailing-whitespace --all-files
+          pre-commit run end-of-file-fixer --all-files
+          pre-commit run mixed-line-ending --all-files
+          pre-commit run reject-static-docs-links --all-files
+
   changes:
     name: Classify changes
     runs-on: ubuntu-24.04
@@ -91,11 +116,6 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
-      # Required for repository formatting checks (line endings, whitespace, etc).
-      - name: Configure line endings in git
-        if: runner.os == 'Windows'
-        run: git config --global core.autocrlf false
-
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -103,13 +123,6 @@ jobs:
         with:
           environment: test-py312
           source-tree: 'keep'
-
-      - name: Run repository formatting checks
-        run: |
-          pre-commit run trailing-whitespace --all-files
-          pre-commit run end-of-file-fixer --all-files
-          pre-commit run mixed-line-ending --all-files
-          pre-commit run reject-static-docs-links --all-files
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
@@ -417,7 +430,7 @@ jobs:
   result:
     name: Bokeh-CI / result
     if: ${{ always() }}
-    needs: [changes, build, codebase, tools, typing, examples, unit-test, minimal-deps, core-deps, documentation]
+    needs: [formatting, changes, build, codebase, tools, typing, examples, unit-test, minimal-deps, core-deps, documentation]
     runs-on: ubuntu-24.04
 
     steps:
@@ -427,7 +440,8 @@ jobs:
         run: |
           jq -e '
             . as $results
-            | $results.changes.result == "success" and
+            | $results.formatting.result == "success" and
+              $results.changes.result == "success" and
               ([
                 ["build", "build"],
                 ["codebase", "codebase"],
