@@ -72,6 +72,7 @@ import {load_image} from "@bokehjs/core/util/image"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
+import type {LegendView} from "@bokehjs/models/annotations/legend"
 import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -3310,6 +3311,9 @@ describe("Bug", () => {
       dp.enabled_dates = null
       await view.ready
       await open_picker(view)
+      const days = view.picker.calendarContainer.querySelector(".dayContainer")
+      expect_not_null(days)
+      expect(bounding_box(days).width).to.be.equal(308)
     })
   })
 
@@ -4209,6 +4213,13 @@ describe("Bug", () => {
   })
 
   describe("in issue #13566", () => {
+    function expect_legend_layout(view: FigureView, legend_view: LegendView): void {
+      const bbox = bounding_box(legend_view.el).relative_to(bounding_box(view.canvas.el))
+      expect(legend_view.bbox).to.be.equal(bbox)
+      expect_not_null(legend_view.layout)
+      expect(legend_view.layout.bbox.width).to.be.equal(Math.round(bbox.width + 2*legend_view.model.margin))
+    }
+
     it("doesn't allot to recompute the layout when dimensions of Legend change", async () => {
       const p = fig([400, 200])
       const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
@@ -4222,12 +4233,20 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
+      const legend_view = view.owner.get_one(legend)
+      const before = Math.round(legend_view.bbox.width)
+      const frame_left = view.frame.bbox.left
+      await paint()
+
       legend.items[0].label = "Long ....... label"
       await view.ready
+
+      expect_legend_layout(view, legend_view)
+      expect(view.frame.bbox.left - frame_left).to.be.equal(Math.round(legend_view.bbox.width) - before)
     })
 
     it("doesn't allot to recompute the layout when a Legend without margin grows", async () => {
-      const p = fig([400, 200])
+      const p = fig([600, 200])
       const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
       const legend = new Legend({
@@ -4241,6 +4260,8 @@ describe("Bug", () => {
       const {view} = await display(p)
       const legend_view = view.owner.get_one(legend)
       const before = bounding_box(legend_view.el).width
+      const frame_left = view.frame.bbox.left
+      await paint()
 
       legend.items[0].label = "A very much longer legend label than before"
       await view.ready
@@ -4248,6 +4269,8 @@ describe("Bug", () => {
       // the side panel derives its width from the legend, so the legend must
       // stay free to grow along that axis
       expect(bounding_box(legend_view.el).width).to.be.above(before)
+      expect_legend_layout(view, legend_view)
+      expect(view.frame.bbox.left - frame_left).to.be.equal(Math.round(legend_view.bbox.width) - Math.round(before))
     })
   })
 
