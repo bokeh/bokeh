@@ -266,10 +266,7 @@ def _is_scalar_dash_pattern(val: Any) -> bool:
     if isinstance(val, np.ndarray):
         return val.ndim == 1 and val.dtype.kind in ('i', 'u')
     elif isinstance(val, (list, tuple)):
-        # An empty sequence is the scalar solid-line pattern (the property
-        # default), same as an empty integer ndarray. Requiring len(val) > 0
-        # made [] and () look like a column reference on vectorized glyphs.
-        return all(isinstance(v, int) for v in val)
+        return len(val) > 0 and all(isinstance(v, int) for v in val)
     return False
 
 def _validate_color_array(val: np.ndarray, var: str) -> None:
