@@ -308,7 +308,7 @@ class LineProps(HasProps):
     line_width = FloatSpec(default=1, help=_line_width_help)
     line_join = LineJoinSpec(default="bevel", help=_line_join_help)
     line_cap = LineCapSpec(default="butt", help=_line_cap_help)
-    line_dash = DashPatternSpec(default=[], help="""How should the line be dashed.""")
+    line_dash = DashPatternSpec(default="solid", help="""How should the line be dashed.""")
     line_dash_offset = IntSpec(default=0, help="""The distance into the ``line_dash`` (in pixels) that the pattern should start from.""")
 
 
@@ -324,7 +324,7 @@ class ScalarLineProps(HasProps):
     line_width = Float(default=1, help=_line_width_help)
     line_join = Enum(LineJoin, default="bevel", help=_line_join_help)
     line_cap = Enum(LineCap, default="butt", help=_line_cap_help)
-    line_dash = DashPattern(default=[], help="""How should the line be dashed.""")
+    line_dash = DashPattern(default="solid", help="""How should the line be dashed.""")
     line_dash_offset = Int(default=0, help="""The distance into the ``line_dash`` (in pixels) that the pattern should start from.""")
 
 

@@ -97,7 +97,8 @@ def check_line_properties(model: HasProps, prefix: str = "", line_color: str | N
     assert getattr(model, prefix + "line_alpha") == line_alpha
     assert getattr(model, prefix + "line_join") == LineJoin.bevel
     assert getattr(model, prefix + "line_cap") == LineCap.butt
-    assert getattr(model, prefix + "line_dash") == []
+    # Spec properties keep "solid"; scalar DashPattern transforms it to [].
+    assert getattr(model, prefix + "line_dash") in ("solid", [])
     assert getattr(model, prefix + "line_dash_offset") == 0
 
 def check_text_properties(model: HasProps, prefix: str = "", font_size: str = '16px', baseline: str = 'bottom',

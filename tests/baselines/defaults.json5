@@ -63,7 +63,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -252,7 +252,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -290,7 +290,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -352,7 +352,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -383,7 +383,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -414,7 +414,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -953,7 +953,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -1092,7 +1092,7 @@
     },
     border_line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     border_line_dash_offset: {
       type: "value",
@@ -1285,7 +1285,7 @@
     },
     border_line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     border_line_dash_offset: {
       type: "value",
@@ -1721,7 +1721,7 @@
     },
     glyph_line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     glyph_line_dash_offset: {
       type: "value",
@@ -3096,7 +3096,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3179,7 +3179,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3265,7 +3265,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3331,7 +3331,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3378,7 +3378,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3459,7 +3459,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3546,7 +3546,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3713,7 +3713,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3782,7 +3782,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3826,7 +3826,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3908,7 +3908,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4125,7 +4125,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4204,7 +4204,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4248,7 +4248,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4331,7 +4331,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4439,7 +4439,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4517,7 +4517,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4606,7 +4606,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4656,7 +4656,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4714,7 +4714,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4805,7 +4805,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4975,7 +4975,7 @@
     },
     border_line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     border_line_dash_offset: {
       type: "value",
@@ -5111,7 +5111,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -5180,7 +5180,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -5224,7 +5224,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -5312,7 +5312,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
