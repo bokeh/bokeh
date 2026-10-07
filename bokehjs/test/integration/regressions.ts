@@ -1340,17 +1340,17 @@ describe("Bug", () => {
         renderers: [esri],
       })
 
-      const {view} = await display(row([p0, p1]))
+      await display(row([p0, p1]))
 
       p0.renderers = [esri]
-      // Rebuilding renderers queues attribution updates after the current ready
-      // promise, so two waits are needed to drain both stages before continuing.
-      await view.ready
-      await view.ready
+      // Renderer replacement spans two frames. Root readiness also waits on
+      // unrelated tile requests, which can remain pending after replacement.
+      await paint()
+      await paint()
       p1.renderers = [osm]
 
-      await view.ready
-      await view.ready
+      await paint()
+      await paint()
     })
   })
 
