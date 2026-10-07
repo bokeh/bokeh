@@ -30,6 +30,7 @@ describe("PanTool", () => {
   }
 
   async function expect_cursor(plot_view: PlotView, xy0: XY, xy1: XY, cursor: string): Promise<void> {
+    await plot_view.ready
     const ac = actions(plot_view, {units: "screen"})
     const {ui_event_bus} = plot_view.canvas_view
 
@@ -48,7 +49,9 @@ describe("PanTool", () => {
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "move")
       await expect_cursor(plot_view, xy(200, 10), xy(220, 10), "ew-resize")
-      await expect_cursor(plot_view, xy(0, 200), xy(0, 220), "ns-resize")
+      // Pan inside the y axis rather than on its outer hit-test boundary.
+      const axis_x = plot_view.axis_views.find((view) => view.dimension == 1)!.bbox.hcenter
+      await expect_cursor(plot_view, xy(axis_x, 200), xy(axis_x, 220), "ns-resize")
     })
 
     it("width dimensions='width'", async () => {
@@ -57,7 +60,9 @@ describe("PanTool", () => {
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "ew-resize")
       await expect_cursor(plot_view, xy(200, 10), xy(220, 10), "ew-resize")
-      await expect_cursor(plot_view, xy(0, 200), xy(0, 220), "default")
+      // Pan inside the y axis rather than on its outer hit-test boundary.
+      const axis_x = plot_view.axis_views.find((view) => view.dimension == 1)!.bbox.hcenter
+      await expect_cursor(plot_view, xy(axis_x, 200), xy(axis_x, 220), "default")
     })
 
     it("width dimensions='height'", async () => {
@@ -66,7 +71,9 @@ describe("PanTool", () => {
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "ns-resize")
       await expect_cursor(plot_view, xy(200, 10), xy(220, 10), "default")
-      await expect_cursor(plot_view, xy(0, 200), xy(0, 220), "ns-resize")
+      // Pan inside the y axis rather than on its outer hit-test boundary.
+      const axis_x = plot_view.axis_views.find((view) => view.dimension == 1)!.bbox.hcenter
+      await expect_cursor(plot_view, xy(axis_x, 200), xy(axis_x, 220), "ns-resize")
     })
   })
 })

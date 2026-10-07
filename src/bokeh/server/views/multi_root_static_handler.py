@@ -56,9 +56,13 @@ __all__ = (
 
 class MultiRootStaticHandler(AsyncStaticFileHandler):
 
-    def initialize(self, root: RootPathLike, default_filename: str | None = None) -> None:
+    def initialize(
+        self, root: RootPathLike, default_filename: str | None = None,
+        allowed_symlink_directory: str | list[str] | None = None,
+    ) -> None:
         self.root = root  # type: ignore[assignment]
         self.default_filename = default_filename
+        self.allowed_symlink_directory = allowed_symlink_directory
 
     @classmethod
     def get_absolute_path(cls, root: RootPathLike, path: str) -> str:
