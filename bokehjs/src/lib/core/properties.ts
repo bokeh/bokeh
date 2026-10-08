@@ -680,7 +680,7 @@ function convert_date_strings(array: Arrayable<unknown>, depth: number): Arrayab
     const converted = depth > 0
       ? isArrayable(value) ? convert_date_strings(value, depth - 1) : value
       : isString(value) ? parse_date_string(value) ?? value : value
-    if (converted !== value) {
+    if (!Object.is(converted, value)) {
       result ??= array.slice()
       result[i] = converted
     }
@@ -693,13 +693,18 @@ export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
 
   override array(source: ColumnarDataSource, materialize_dates = false): Arrayable<unknown> {
     let array = this._array(source)
-    if (materialize_dates) {
+    const {transform} = this.get_value()
+    const materialize_dates_before = (transform as {materialize_dates_before?: boolean} | undefined)?.materialize_dates_before ?? false
+    if (materialize_dates && materialize_dates_before) {
       const depth = this instanceof CoordinateSpec ? 0 : this instanceof CoordinateSeqSpec ? 1 : 3
       array = convert_date_strings(array, depth)
     }
-    const {transform} = this.get_value()
     if (transform != null) {
       array = transform.v_compute(array)
+    }
+    if (materialize_dates && !materialize_dates_before) {
+      const depth = this instanceof CoordinateSpec ? 0 : this instanceof CoordinateSeqSpec ? 1 : 3
+      array = convert_date_strings(array, depth)
     }
     return array
   }
