@@ -491,7 +491,8 @@ export abstract class GlyphView extends DOMComponentView {
         }
       } else {
         if (prop instanceof p.BaseCoordinateSpec) {
-          const array = this._transform_array(prop, indices.select(prop.array(source)))
+          const range = prop.dimension == "x" ? this.renderer.coordinates.x_source : this.renderer.coordinates.y_source
+          const array = this._transform_array(prop, indices.select(prop.array(source, !(range instanceof FactorRange))))
           this._define_attr(prop.attr, array)
         } else {
           const uniform = prop.uniform(source).select(indices)

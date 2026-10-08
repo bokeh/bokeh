@@ -17,6 +17,11 @@ export abstract class Transform<From = number, To = number> extends Model {
     super(attrs)
   }
 
+  /** Whether coordinate date strings should be materialized before this transform. */
+  get materialize_dates_before(): boolean {
+    return false
+  }
+
   abstract compute(x: From): To
 
   abstract v_compute(xs: Arrayable<From>): Arrayable<To>
