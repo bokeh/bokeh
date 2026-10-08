@@ -21,6 +21,10 @@ export interface RangeTransform extends RangeTransform.Attrs {}
 export abstract class RangeTransform extends Transform {
   declare properties: RangeTransform.Props
 
+  override get materialize_dates_before(): boolean {
+    return !(this.range instanceof FactorRange)
+  }
+
   static {
     this.define<RangeTransform.Props>(({Ref, Nullable}) => ({
       range: [ Nullable(Ref(Range)), null ],

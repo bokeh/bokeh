@@ -118,6 +118,25 @@ describe("properties module", () => {
     })
   })
 
+  describe("coordinate date materialization", () => {
+
+    it("should not copy numeric coordinates containing NaN", () => {
+      const values = [1, NaN, 3]
+      const source = ColumnDataSource.create({data: {x: values}})
+      const obj = Some.create({coordinate_spec: {field: "x"}})
+
+      expect(obj.properties.coordinate_spec.array(source, true) === values).to.be.true
+    })
+
+    it("should not copy nested numeric coordinates containing NaN", () => {
+      const values = [[1, NaN, 3]]
+      const source = ColumnDataSource.create({data: {xs: values}})
+      const obj = Some.create({coordinate_seq_spec: {field: "xs"}})
+
+      expect(obj.properties.coordinate_seq_spec.array(source, true) === values).to.be.true
+    })
+  })
+
   function enum_validation_errors(prop: p.Property<unknown>): void {
     expect(prop.valid(true)).to.be.false
     expect(prop.valid(10)).to.be.false
