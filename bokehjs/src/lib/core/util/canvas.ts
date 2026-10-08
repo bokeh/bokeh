@@ -130,9 +130,12 @@ export class CanvasLayer {
     ctx.save()
     if (hidpi) {
       ctx.scale(pixel_ratio, pixel_ratio)
+    }
+    // Clear before shifting pixel centers so no ink remains along the edges.
+    this.clear()
+    if (hidpi) {
       ctx.translate(0.5, 0.5)
     }
-    this.clear()
     return ctx
   }
 

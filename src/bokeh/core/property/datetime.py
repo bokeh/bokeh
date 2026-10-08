@@ -26,7 +26,7 @@ from typing import Any
 
 # Bokeh imports
 from ...util.serialization import (
-    convert_date_to_datetime,
+    convert_datetime_type,
     is_datetime_type,
     is_timedelta_type,
 )
@@ -92,9 +92,9 @@ class Datetime(Property[str | datetime.date | datetime.datetime]):
         if isinstance(value, str):
             value = datetime.datetime.fromisoformat(value)
 
-        # Handled by serialization in protocol.py for now, except for Date
+        # Datetimes are also dates, so preserve their time during conversion.
         if isinstance(value, datetime.date):
-            value = convert_date_to_datetime(value)
+            value = convert_datetime_type(value)
 
         return value
 

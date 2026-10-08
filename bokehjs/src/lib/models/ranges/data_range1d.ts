@@ -106,6 +106,15 @@ export class DataRange1d extends DataRange {
       default_span,
       only_visible,
     ], () => this._invalidate_dataranges())
+
+    // once auto-ranged, explicitly setting start or end (e.g. from a callback) overrides
+    // auto-ranging, the same as interactive updates do, until the range is reset
+    const {start, end} = this.properties
+    this.on_change([start, end], () => {
+      if (this._plot_bounds.size != 0) {
+        this.have_updated_interactively = true
+      }
+    })
   }
 
   protected _invalidate_dataranges(): void {
@@ -339,6 +348,8 @@ export class DataRange1d extends DataRange {
         new_range.end = end
       }
       this.setv(new_range)
+      // auto-ranging's own update isn't an explicit one (see connect_signals())
+      this.have_updated_interactively = false
       needs_emit = false
     }
 

@@ -815,6 +815,20 @@ class TestDocument:
         some_root = next(iter(copy.roots))
         assert some_root.child.foo == 44
 
+    def test_serialization_pandas_timestamps_outside_nanosecond_range(self) -> None:
+        pd = pytest.importorskip("pandas", minversion="2.0")
+        d = document.Document()
+        d.add_root(ColumnDataSource(data={"date": [
+            pd.Timestamp("1600-01-01"),
+            pd.Timestamp("2000-01-01"),
+            pd.Timestamp("2500-01-01"),
+        ]}))
+
+        copy = document.Document.from_json(d.to_json())
+        [source] = copy.roots
+        assert isinstance(source, ColumnDataSource)
+        assert source.data == {"date": [-11676096000000.0, 946684800000.0, 16725225600000.0]}
+
     def test_serialization_data_models(self) -> None:
         #obj0 = SomeDataModel()
         #obj1 = DerivedDataModel(prop6=obj0)

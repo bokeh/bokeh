@@ -4,6 +4,7 @@ import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer, expand_to_per_vertex}
 import type {ReglWrapper} from "./regl_wrap"
 import type {GlyphView} from "../glyph"
 import type {PatchView} from "../patch"
+import type {CoordinateTransform} from "../../coordinates/coordinate_mapping"
 import type {AccumulateProps, LineGlyphProps, LineDashGlyphProps} from "./types"
 import type {Elements, Texture2D} from "regl"
 import type * as p from "core/properties"
@@ -11,14 +12,10 @@ import type {HatchPattern} from "core/property_mixins"
 import {resolve_line_dash} from "core/visuals/line"
 import {normalize_dash_pattern} from "./dash_cache"
 import {LINE_AA_WIDTH, LINE_MITER_LIMIT, line_bounds_padding} from "./base_line"
-import {split_rings, classify_rings, build_line_from_ring, generate_skirt_geometry, POLYGON_AA_WIDTH} from "core/util/polygon"
-import type {SkirtGeometry, RingLineData} from "core/util/polygon"
-import earcut from "earcut"
-
-type GroupTopology = {
-  ring_indices: number[]
-  tri_indices: number[]
-}
+import {split_rings, build_line_from_ring, POLYGON_AA_WIDTH} from "core/util/polygon"
+import type {RingLineData} from "core/util/polygon"
+import type {PolygonTopology} from "./polygon"
+import {try_create_polygon_topology} from "./polygon"
 
 export class PatchGL extends BaseGLGlyph {
   // Fill buffers
@@ -62,7 +59,9 @@ export class PatchGL extends BaseGLGlyph {
   _ring_data: RingLineData[] = []
 
   private _pv_dirty = true
-  private _topology?: GroupTopology[]
+  private _pv_elements: Elements | null = null
+  private _topology?: PolygonTopology
+  private _topology_scales?: CoordinateTransform["scales"]
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: PatchView) {
     super(regl_wrapper, glyph)
@@ -90,6 +89,12 @@ export class PatchGL extends BaseGLGlyph {
     if (this !== main_gl && (this.data_changed || this.data_mapped)) {
       this.data_changed = false
       this.data_mapped = false
+      this._pv_dirty = true
+    }
+    // Remapping can change the finite contours without changing source data.
+    // Each visual variant must notice the resulting vertex layout change.
+    if (this._pv_elements !== main_gl._elements) {
+      this._pv_elements = main_gl._elements
       this._pv_dirty = true
     }
 
@@ -238,26 +243,18 @@ export class PatchGL extends BaseGLGlyph {
   _set_data(data_changed: boolean = true): void {
     const {sx, sy} = this.glyph
     const rings = split_rings(sx, sy)
+    const {scales} = this.glyph.renderer.coordinates
+    // Changing scale types is not an affine remapping of cached intersections.
+    const scales_changed = scales.some((scale, i) => scale !== this._topology_scales?.[i])
+    this._topology_scales = scales
 
     if (rings.length > 0) {
-      const topology_invalid = this._topology == null || this._topology.some(({ring_indices}) =>
-        ring_indices.some((i) => i >= rings.length))
-      const topology_changed = data_changed || topology_invalid
-      if (topology_changed) {
-        const groups = classify_rings(rings)
-        this._topology = groups.map(({flat_coords, rings: group_rings}) => {
-          const ring_indices = group_rings.map((ring) => rings.indexOf(ring))
-          const hole_indices: number[] = []
-          let offset = 0
-          for (let r = 0; r < group_rings.length; r++) {
-            if (r > 0) {
-              hole_indices.push(offset)
-            }
-            offset += group_rings[r].length / 2
-          }
-          const tri_indices = earcut(flat_coords, hole_indices.length > 0 ? hole_indices : undefined, 2)
-          return {ring_indices, tri_indices}
-        })
+      let topology = this._topology
+      let topology_changed = data_changed || scales_changed
+      if (topology_changed || topology == null || !topology.matches(rings)) {
+        topology = try_create_polygon_topology(rings) ?? undefined
+        this._topology = topology
+        topology_changed = true
       }
 
       let total_nvertices = 0
@@ -265,14 +262,8 @@ export class PatchGL extends BaseGLGlyph {
       let total_coords = 0
       let total_elements = 0
 
-      // Triangulate each group independently
-      const group_geoms: SkirtGeometry[] = []
-      for (const {ring_indices, tri_indices} of this._topology!) {
-        const group_rings = ring_indices.map((i) => rings[i])
-        const flat_coords = group_rings.flat()
-        const geom = generate_skirt_geometry(flat_coords, group_rings, tri_indices, POLYGON_AA_WIDTH)
-
-        group_geoms.push(geom)
+      const group_geoms = topology?.geometries(rings) ?? []
+      for (const geom of group_geoms) {
         total_nvertices += geom.nvertices
         total_ntriangles += geom.ntriangles
         total_coords += geom.positions.length
@@ -321,7 +312,7 @@ export class PatchGL extends BaseGLGlyph {
       // Element topology is data-space invariant, so retain it across mapping.
       if (elem_array != null) {
         this._elements?.destroy()
-        this._elements = this.regl_wrapper.elements({
+        this._elements = total_elements == 0 ? null : this.regl_wrapper.elements({
           usage: "static",
           primitive: "triangles",
           data: elem_array,
@@ -338,10 +329,10 @@ export class PatchGL extends BaseGLGlyph {
         }
       }
     } else {
-      if (data_changed) {
+      if (data_changed || scales_changed) {
         this._elements?.destroy()
         this._elements = null
-        this._topology = []
+        this._topology = undefined
       }
       this._triangle_count = 0
       this._nvertices = 0

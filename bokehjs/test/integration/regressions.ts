@@ -72,6 +72,7 @@ import {load_image} from "@bokehjs/core/util/image"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
+import type {LegendView} from "@bokehjs/models/annotations/legend"
 import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -1339,17 +1340,17 @@ describe("Bug", () => {
         renderers: [esri],
       })
 
-      const {view} = await display(row([p0, p1]))
+      await display(row([p0, p1]))
 
       p0.renderers = [esri]
-      // Rebuilding renderers queues attribution updates after the current ready
-      // promise, so two waits are needed to drain both stages before continuing.
-      await view.ready
-      await view.ready
+      // Renderer replacement spans two frames. Root readiness also waits on
+      // unrelated tile requests, which can remain pending after replacement.
+      await paint()
+      await paint()
       p1.renderers = [osm]
 
-      await view.ready
-      await view.ready
+      await paint()
+      await paint()
     })
   })
 
@@ -3310,6 +3311,9 @@ describe("Bug", () => {
       dp.enabled_dates = null
       await view.ready
       await open_picker(view)
+      const days = view.picker.calendarContainer.querySelector(".dayContainer")
+      expect_not_null(days)
+      expect(bounding_box(days).width).to.be.equal(308)
     })
   })
 
@@ -3416,6 +3420,26 @@ describe("Bug", () => {
       it("dashed to dashdot", async () => {
         await display(multi_plot("dashed", "dashdot"))
       })
+    })
+  })
+
+  describe("in issue #13225", () => {
+    it.no_image("crops the x axis of a plot with frame_height next to a plot with a title in a grid plot", async () => {
+      const p0 = figure({title: "title", x_axis_label: "x", y_axis_label: "y"})
+      p0.line([0, 1], [0, 1])
+
+      const p1 = figure({x_axis_label: "x", y_axis_label: "y", frame_height: 200})
+      p1.line([0, 1], [0, 1])
+
+      const gp = gridplot([[p0, p1]])
+      const {view} = await display(gp, [1250, 650])
+
+      for (const plot of [p0, p1]) {
+        const plot_view = view.owner.get_one(plot)
+        const [xaxis] = plot.xaxes
+        const axis_view = view.owner.get_one(xaxis)
+        expect(axis_view.bbox.bottom).to.be.within(0, plot_view.bbox.height)
+      }
     })
   })
 
@@ -4189,6 +4213,13 @@ describe("Bug", () => {
   })
 
   describe("in issue #13566", () => {
+    function expect_legend_layout(view: FigureView, legend_view: LegendView): void {
+      const bbox = bounding_box(legend_view.el).relative_to(bounding_box(view.canvas.el))
+      expect(legend_view.bbox).to.be.equal(bbox)
+      expect_not_null(legend_view.layout)
+      expect(legend_view.layout.bbox.width).to.be.equal(Math.round(bbox.width + 2*legend_view.model.margin))
+    }
+
     it("doesn't allot to recompute the layout when dimensions of Legend change", async () => {
       const p = fig([400, 200])
       const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
@@ -4202,12 +4233,20 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
+      const legend_view = view.owner.get_one(legend)
+      const before = Math.round(legend_view.bbox.width)
+      const frame_left = view.frame.bbox.left
+      await paint()
+
       legend.items[0].label = "Long ....... label"
       await view.ready
+
+      expect_legend_layout(view, legend_view)
+      expect(view.frame.bbox.left - frame_left).to.be.equal(Math.round(legend_view.bbox.width) - before)
     })
 
     it("doesn't allot to recompute the layout when a Legend without margin grows", async () => {
-      const p = fig([400, 200])
+      const p = fig([600, 200])
       const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
       const legend = new Legend({
@@ -4221,6 +4260,8 @@ describe("Bug", () => {
       const {view} = await display(p)
       const legend_view = view.owner.get_one(legend)
       const before = bounding_box(legend_view.el).width
+      const frame_left = view.frame.bbox.left
+      await paint()
 
       legend.items[0].label = "A very much longer legend label than before"
       await view.ready
@@ -4228,6 +4269,8 @@ describe("Bug", () => {
       // the side panel derives its width from the legend, so the legend must
       // stay free to grow along that axis
       expect(bounding_box(legend_view.el).width).to.be.above(before)
+      expect_legend_layout(view, legend_view)
+      expect(view.frame.bbox.left - frame_left).to.be.equal(Math.round(legend_view.bbox.width) - Math.round(before))
     })
   })
 
@@ -5492,6 +5535,202 @@ describe("Bug", () => {
       const table = new DataTable({source, columns})
 
       await display(table, [600, 400])
+    })
+  })
+
+  describe("in issue #14492", () => {
+    it.no_image("doesn't allot enough room for an outer legend when aligning frames in a grid plot", async () => {
+      const sides = ["right", "left", "above", "below"] as const
+
+      const entries = sides.map((side) => {
+        const plot = figure({frame_width: 100, frame_height: 100, title: side})
+        const r = plot.scatter([1, 2], [1, 2])
+        const legend = new Legend({
+          items: [new LegendItem({label: side, renderers: [r]})],
+          title: side,
+        })
+        plot.add_layout(legend, side)
+        return {plot, legend}
+      })
+
+      const [p0, p1, p2, p3] = entries.map(({plot}) => plot)
+      const gp = gridplot([[p0, p1], [p2, p3]], {toolbar_location: "above"})
+      const {view} = await display(gp, [600, 600])
+
+      for (const {plot, legend} of entries) {
+        const plot_bbox = bounding_box(view.owner.get_one(plot).el)
+        const legend_bbox = bounding_box(view.owner.get_one(legend).el)
+
+        expect(legend_bbox.left).to.be.within(plot_bbox.left, plot_bbox.right)
+        expect(legend_bbox.right).to.be.within(plot_bbox.left, plot_bbox.right)
+        expect(legend_bbox.top).to.be.within(plot_bbox.top, plot_bbox.bottom)
+        expect(legend_bbox.bottom).to.be.within(plot_bbox.top, plot_bbox.bottom)
+
+        const {frame} = view.owner.get_one(plot)
+        expect([frame.bbox.width, frame.bbox.height]).to.be.equal([100, 100])
+      }
+    })
+
+    it.no_image("crops a frame aligned past the edge of its plot in a grid plot", async () => {
+      // The y axis is shown only in the first column, with labels of a
+      // different width in every row, so that aligning the column's frames has
+      // to move the first row's frame further right than its own borders allow.
+      const ranges: [number, number][] = [[0, 1], [0, 100000], [0, 1000000000]]
+
+      const plots = ranges.map(([lo, hi], r) => {
+        return range(0, 3).map((c) => {
+          const plot = figure({
+            frame_width: 120,
+            frame_height: 120,
+            toolbar_location: null,
+            min_border: 3,
+            x_range: new Range1d({start: 0, end: 1}),
+            y_range: new Range1d({start: lo, end: hi}),
+          })
+          plot.scatter([0.1, 0.9], [hi*0.1, hi*0.9])
+          plot.yaxis.visible = c == 0
+          plot.xaxis.visible = r == ranges.length - 1
+          return plot
+        })
+      })
+
+      const gp = gridplot(plots, {merge_tools: false, toolbar_location: null})
+      const {view} = await display(gp, [500, 450])
+
+      for (const plot of plots.flat()) {
+        const plot_view = view.owner.get_one(plot)
+        const {bbox} = plot_view.frame
+
+        expect([bbox.width, bbox.height]).to.be.equal([120, 120])
+        expect(bbox.left).to.be.within(0, plot_view.bbox.width)
+        expect(bbox.right).to.be.within(0, plot_view.bbox.width)
+        expect(bbox.top).to.be.within(0, plot_view.bbox.height)
+        expect(bbox.bottom).to.be.within(0, plot_view.bbox.height)
+      }
+    })
+
+    it.no_image("aligns frames to the borders of a hidden plot in a grid plot", async () => {
+      function plot(end: number, visible: boolean = true) {
+        const plot = figure({
+          frame_width: 120,
+          frame_height: 120,
+          toolbar_location: null,
+          x_range: new Range1d({start: 0, end: 1}),
+          y_range: new Range1d({start: 0, end}),
+          visible,
+        })
+        plot.scatter([0.1, 0.9], [end*0.1, end*0.9])
+        return plot
+      }
+
+      const hidden = plot(1000000000, false)
+      const narrow = plot(1)
+      const gp = gridplot([[hidden, plot(1)], [narrow, plot(1)]], {toolbar_location: null})
+      const {view} = await display(gp, [400, 400])
+
+      const narrow_view = view.owner.get_one(narrow)
+      const yaxis_view = view.owner.get_one(narrow.yaxes[0])
+      expect(narrow_view.frame.bbox.left).to.be.equal(yaxis_view.bbox.width)
+    })
+  })
+
+  describe("in issue #15456", () => {
+    const sides = ["right", "left", "above", "below"] as const
+
+    function legend_plots() {
+      return sides.map((side) => {
+        const plot = figure({frame_width: 150, frame_height: 150, title: side})
+        const r = plot.scatter([1, 2], [1, 2])
+        const legend = new Legend({
+          items: [new LegendItem({label: "test", renderers: [r]})],
+          title: side,
+        })
+        plot.add_layout(legend, side)
+        return {plot, legend}
+      })
+    }
+
+    function tick_plots() {
+      return [1, 100000, 1000000000].map((end) => {
+        const plot = figure({
+          frame_width: 150,
+          frame_height: 150,
+          toolbar_location: null,
+          min_border: 3,
+          x_range: new Range1d({start: 0, end: 1}),
+          y_range: new Range1d({start: 0, end}),
+        })
+        plot.scatter([0.1, 0.9], [end*0.1, end*0.9])
+        return plot
+      })
+    }
+
+    function expect_not_cropped(plot_view: FigureView): void {
+      const {width, height} = plot_view.bbox
+      const {frame} = plot_view
+      expect([frame.bbox.width, frame.bbox.height]).to.be.equal([150, 150])
+
+      for (const bbox of [frame.bbox, ...plot_view.axis_views.map((view) => view.bbox)]) {
+        expect(bbox.left).to.be.within(0, width)
+        expect(bbox.right).to.be.within(0, width)
+        expect(bbox.top).to.be.within(0, height)
+        expect(bbox.bottom).to.be.within(0, height)
+      }
+    }
+
+    function expect_legend_inside(plot_view: FigureView, legend: Legend): void {
+      // A legend's box is placed with sub-pixel precision, so it can overhang
+      // its plot's edge by a fraction of a pixel even in a standalone plot
+      // (e.g. 9.953 vs 10). A cropped legend overhangs by tens of pixels.
+      const plot_bbox = bounding_box(plot_view.el).grow_by(1)
+      const legend_bbox = bounding_box(plot_view.owner.get_one(legend).el)
+      expect(legend_bbox.left).to.be.within(plot_bbox.left, plot_bbox.right)
+      expect(legend_bbox.right).to.be.within(plot_bbox.left, plot_bbox.right)
+      expect(legend_bbox.top).to.be.within(plot_bbox.top, plot_bbox.bottom)
+      expect(legend_bbox.bottom).to.be.within(plot_bbox.top, plot_bbox.bottom)
+    }
+
+    it.no_image("doesn't allot enough room for outer legends when aligning frames in a row", async () => {
+      const entries = legend_plots()
+      const {view} = await display(row(entries.map(({plot}) => plot)), null)
+
+      const heights: number[] = []
+      for (const {plot, legend} of entries) {
+        const plot_view = view.owner.get_one(plot)
+        expect_not_cropped(plot_view)
+        expect_legend_inside(plot_view, legend)
+        heights.push(plot_view.bbox.height)
+      }
+      expect(heights).to.be.equal(heights.map(() => heights[0]))
+    })
+
+    it.no_image("doesn't allot enough room for y axis labels when aligning frames in a column", async () => {
+      const plots = tick_plots()
+      const {view} = await display(column(plots), null)
+
+      const widths: number[] = []
+      for (const plot of plots) {
+        const plot_view = view.owner.get_one(plot)
+        expect_not_cropped(plot_view)
+        widths.push(plot_view.bbox.width)
+      }
+      expect(widths).to.be.equal(widths.map(() => widths[0]))
+    })
+
+    it.no_image("crops plots in nested rows and columns", async () => {
+      const entries = legend_plots()
+      const plots = tick_plots()
+      const layout = column([row(entries.map(({plot}) => plot)), column(plots)])
+      const {view} = await display(layout, null)
+
+      for (const {plot, legend} of entries) {
+        const plot_view = view.owner.get_one(plot)
+        expect_not_cropped(plot_view)
+        expect_legend_inside(plot_view, legend)
+      }
+      for (const plot of plots) {
+        expect_not_cropped(view.owner.get_one(plot))
+      }
     })
   })
 })

@@ -65,7 +65,8 @@ def test_multi_root_static_handler(ManagedServerLoop: MSL) -> None:
         assert issubclass(cls, bsvm.MultiRootStaticHandler)
 
         handler = cls(dispatcher.application, dispatcher.request, **dispatcher.handler_kwargs)
-        absolute_path = handler.get_absolute_path(handler.root, str(Path("js") / "bokeh.min.js"))
+        handler.path = handler.parse_url_path(str(Path("js") / "bokeh.min.js"))
+        absolute_path = handler.get_absolute_path(handler.root, handler.path)
         absolute_path = handler.validate_absolute_path(handler.root, absolute_path)
 
         assert absolute_path is not None
