@@ -519,7 +519,7 @@
                   },
                   line_dash: {
                     type: "value",
-                    value: [],
+                    value: "solid",
                   },
                   line_dash_offset: {
                     type: "value",
@@ -765,7 +765,7 @@
                   },
                   line_dash: {
                     type: "value",
-                    value: [],
+                    value: "solid",
                   },
                   line_dash_offset: {
                     type: "value",
