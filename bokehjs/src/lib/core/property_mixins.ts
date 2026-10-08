@@ -227,7 +227,7 @@ export const LineVector: p.DefineOf<LineVector> = {
   line_width:       [ p.NumberSpec,   1           ],
   line_join:        [ p.LineJoinSpec, "bevel" ],
   line_cap:         [ p.LineCapSpec,  "butt" ],
-  line_dash:        [ p.LineDashSpec, [] ],
+  line_dash:        [ p.LineDashSpec, "solid" ],
   line_dash_offset: [ p.NumberSpec,   0 ],
 }
 
