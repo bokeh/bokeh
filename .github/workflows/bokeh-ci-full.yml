@@ -581,11 +581,11 @@ jobs:
       - name: Install Playwright browser
         run: playwright install chromium
 
-      - name: Test ASGI server examples end to end
+      - name: Test server examples and embedding end to end
         env:
           BOKEH_SERVER_E2E: '1'
           BOKEH_SERVER_E2E_RUNNER: ${{ matrix.runner }}
-        run: pytest -v --color=yes --durations=20 --durations-min=1 tests/integration/server_e2e/test_examples.py
+        run: pytest -v --color=yes --durations=20 --durations-min=1 tests/integration/server_e2e
 
       - name: Upload server logs
         if: always()

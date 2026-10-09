@@ -861,35 +861,261 @@ describe("EmbedPayload runtime", () => {
     }
   })
 
-  it("preserves a deliberate runtime version override through server resource resolution", async () => {
-    const root = Div.create({text: "server version override"})
-    const server_document = new Document({roots: [root]})
-    const connection = new ClientConnection()
-    const session = new ClientSession(connection, server_document)
-    connection.session = session
-    const connect = sinon.stub(ClientConnection.prototype, "connect").resolves(session)
-    const payload = fixture("server-existing-session")
-    payload.bokeh_version = "99.0.0"
-    payload.roots = [{key: "detail", model_id: root.id}]
-    const original_fetch = globalThis.fetch
-    globalThis.fetch = async () => Response.json({
-      schema: "bokeh.embed-server/v1",
-      bokeh_version: payload.bokeh_version,
-      token: btoa(JSON.stringify({session_id: "test"})),
-      requires: {components: [], extensions: []},
-      resources: {mode: "resolved", assets: []},
+  for (const [name, host_version, server_version, override_version, succeeds] of [
+    ["matching producer and runtime", js_version, js_version, undefined, true],
+    ["independent host producer", "99.0.0", js_version, undefined, true],
+    ["deliberate runtime override", "98.0.0", "99.0.0", js_version, true],
+    ["incorrect runtime override", "99.0.0", js_version, "99.0.0", false],
+    ["incompatible server runtime", js_version, "99.0.0", undefined, false],
+  ] as const) {
+    it(`validates the authoritative server version with ${name}`, async () => {
+      const root = Div.create({text: "server version"})
+      const server_document = new Document({roots: [root]})
+      const connection = new ClientConnection()
+      const session = new ClientSession(connection, server_document)
+      connection.session = session
+      const connect = sinon.stub(ClientConnection.prototype, "connect").resolves(session)
+      const payload = fixture("server-existing-session")
+      payload.bokeh_version = host_version
+      payload.roots = [{key: "detail", model_id: root.id}]
+      const original_fetch = globalThis.fetch
+      globalThis.fetch = async () => Response.json({
+        schema: "bokeh.embed-server/v1",
+        bokeh_version: server_version,
+        token: btoa(JSON.stringify({session_id: "test"})),
+        requires: {components: [], extensions: []},
+        resources: {mode: "resolved", assets: []},
+      })
+      try {
+        const preparing = prepare_embed(payload, {mode: "none", override_version})
+        if (succeeds) {
+          const prepared = await preparing
+          expect(prepared.roots.get("detail")).to.be.equal(root)
+          expect(prepared.session).to.be.equal(session)
+          prepared.release()
+        } else {
+          const error = await preparing.then(() => null, (error: unknown) => error)
+          expect_instanceof(error, EmbedError)
+          expect(error.kind).to.be.equal("resource")
+          expect(error.message.includes("BokehJS")).to.be.true
+        }
+        expect(connect.called).to.be.equal(succeeds)
+      } finally {
+        if (!server_document.is_destroyed) {
+          session.close()
+          server_document.destroy()
+        }
+        connect.restore()
+        globalThis.fetch = original_fetch
+      }
     })
+  }
+
+  it("validates the server bootstrap version field", async () => {
+    const payload = fixture("server-existing-session")
+    const original_fetch = globalThis.fetch
     try {
-      const prepared = await prepare_embed(payload, {mode: "none", override_version: js_version})
-      expect(prepared.roots.get("detail")).to.be.equal(root)
-      expect(prepared.session).to.be.equal(session)
-      prepared.release()
+      for (const bokeh_version of [undefined, "", 1]) {
+        globalThis.fetch = async () => Response.json({
+          schema: "bokeh.embed-server/v1", bokeh_version, token: "unused",
+          requires: {components: [], extensions: []}, resources: {mode: "resolved", assets: []},
+        })
+        const error = await prepare_embed(payload).then(() => null, (error: unknown) => error)
+        expect_instanceof(error, EmbedError)
+        expect(error.kind).to.be.equal("schema")
+        expect(error.message.includes("bootstrap bokeh_version")).to.be.true
+      }
     } finally {
-      if (!server_document.is_destroyed) {
+      globalThis.fetch = original_fetch
+    }
+  })
+
+  for (const frame_url of ["https://public.example/proxy/app", "/proxy/bkapp/", "bkapp/"]) {
+    it(`uses a srcdoc frame's public application URL (${frame_url}) for bootstrap and websocket connections`, async () => {
+      const root = Div.create({text: "iframe"})
+      const server_document = new Document({roots: [root]})
+      const connection = new ClientConnection()
+      const session = new ClientSession(connection, server_document)
+      connection.session = session
+      let websocket_url = ""
+      const connect = sinon.stub(ClientConnection.prototype, "connect").callsFake(async function(this: ClientConnection) {
+        websocket_url = this.url
+        return session
+      })
+      const payload = fixture("server-existing-session")
+      payload.source = {kind: "server", url: "."}
+      payload.roots = [{key: "detail", model_id: root.id}]
+      const frame = {
+        tagName: "IFRAME",
+        getAttribute: (name: string) => name == "data-absolute-url" ? frame_url : null,
+      }
+      const containing_frame = sinon.stub(window, "frameElement").value(frame)
+      const original_fetch = globalThis.fetch
+      let endpoint = ""
+      globalThis.fetch = async (input) => {
+        endpoint = `${input}`
+        return Response.json({
+          schema: "bokeh.embed-server/v1", bokeh_version: js_version,
+          token: btoa(JSON.stringify({session_id: "test"})),
+          requires: {components: [], extensions: []}, resources: {mode: "resolved", assets: []},
+        })
+      }
+      try {
+        const prepared = await prepare_embed(payload)
+        const app = new URL(frame_url, document.baseURI)
+        const path = app.pathname.replace(/\/$/, "")
+        expect(endpoint).to.be.equal(`${app.origin}${path}/embed.json`)
+        const protocol = app.protocol == "https:" ? "wss:" : "ws:"
+        expect(websocket_url).to.be.equal(`${protocol}//${app.host}${path}/ws`)
+        prepared.release()
+      } finally {
         session.close()
         server_document.destroy()
+        connect.restore()
+        containing_frame.restore()
+        globalThis.fetch = original_fetch
       }
+    })
+  }
+
+  it("rejects non-HTTP iframe application URLs before requesting a bootstrap", async () => {
+    const payload = fixture("server-existing-session")
+    payload.source = {kind: "server", url: "."}
+    const fetch = sinon.stub(globalThis, "fetch").resolves(new Response("unexpected request", {status: 403}))
+    const connect = sinon.spy(ClientConnection.prototype, "connect")
+    try {
+      for (const url of ["data:application/json,{}", "javascript:alert(1)", "ftp://host.test/app", "file:///tmp/app"]) {
+        const frame = {
+          tagName: "IFRAME",
+          getAttribute: (name: string) => name == "data-absolute-url" ? url : null,
+        }
+        const containing_frame = sinon.stub(window, "frameElement").value(frame)
+        try {
+          const error = await prepare_embed(payload).then(() => null, (error: unknown) => error)
+          expect_instanceof(error, EmbedError)
+          expect(error.kind).to.be.equal("schema")
+          expect(error.message).to.be.equal("server embed application URL must use HTTP(S)")
+          expect(fetch.called).to.be.false
+          expect(connect.called).to.be.false
+        } finally {
+          containing_frame.restore()
+        }
+      }
+    } finally {
+      fetch.restore()
       connect.restore()
+    }
+  })
+
+  it("tolerates inaccessible containing frames when resolving the current server URL", async () => {
+    const payload = fixture("server-existing-session")
+    payload.source = {kind: "server", url: "."}
+    const containing_frame = sinon.stub(window, "frameElement").get(() => {
+      throw new DOMException("Cross-origin frame", "SecurityError")
+    })
+    const original_fetch = globalThis.fetch
+    let endpoint = ""
+    globalThis.fetch = async (input) => {
+      endpoint = `${input}`
+      return new Response("stop before connecting", {status: 403})
+    }
+    try {
+      const error = await prepare_embed(payload).then(() => null, (error: unknown) => error)
+      expect_instanceof(error, EmbedError)
+      expect(error.kind).to.be.equal("http")
+      const expected = new URL(window.location.href)
+      expected.pathname = `${expected.pathname.replace(/\/$/, "")}/embed.json`
+      expected.search = ""
+      expect(endpoint).to.be.equal(expected.href)
+    } finally {
+      containing_frame.restore()
+      globalThis.fetch = original_fetch
+    }
+  })
+
+  for (const mode of ["server", "relative", "absolute"] as const) {
+    it(`resolves direct ${mode} server resources after bootstrap with the public asset prefix`, async () => {
+      const root = Div.create({text: "server resources"})
+      const server_document = new Document({roots: [root]})
+      const connection = new ClientConnection()
+      const session = new ClientSession(connection, server_document)
+      connection.session = session
+      const connect = sinon.stub(ClientConnection.prototype, "connect").resolves(session)
+      const payload = fixture("server-existing-session")
+      payload.source = {kind: "server", url: "https://public.example/proxy/app"}
+      payload.roots = [{key: "detail", model_id: root.id}]
+      payload.requires = {components: ["bokeh/core", "bokeh/widgets"], extensions: []}
+      const loader = new ResourceLoader()
+      const ensure = sinon.stub(resource_loader, "ensure").callsFake((...args) => loader.ensure(...args))
+      const urls: string[] = []
+      const order: string[] = []
+      const append = sinon.stub(document.head, "append").callsFake((...nodes: (Node | string)[]) => {
+        for (const node of nodes) {
+          if (node instanceof HTMLScriptElement) {
+            urls.push(node.src)
+            order.push("resource")
+            node.dispatchEvent(new Event("load"))
+          }
+        }
+      })
+      const original_fetch = globalThis.fetch
+      let request_headers = new Headers()
+      globalThis.fetch = async (_input, init) => {
+        order.push("bootstrap")
+        request_headers = new Headers(init?.headers)
+        return Response.json({
+          schema: "bokeh.embed-server/v1", bokeh_version: js_version,
+          token: btoa(JSON.stringify({session_id: "test"})),
+          requires: {
+            components: [], extensions: mode == "server" ? [{name: "server-extension", assets: []}] : [],
+          },
+          resources: {
+            mode: "resolved", root_url: "/proxy",
+            assets: mode == "server" ? [{kind: "script", url: "static/extensions/example.js"}] : [],
+          },
+        })
+      }
+      const mounted = mount(payload, undefined, {resources: mode})
+      try {
+        await mounted.ready
+        const expected_urls = ["https://public.example/proxy/static/js/bokeh-widgets.min.js"]
+        if (mode == "server") {
+          expected_urls.push("https://public.example/proxy/static/extensions/example.js")
+        }
+        expect(order).to.be.equal(["bootstrap", ...expected_urls.map(() => "resource")])
+        expect(urls).to.be.equal(expected_urls)
+        expect(request_headers.get("Bokeh-Resource-Mode")).to.be.equal(mode)
+      } finally {
+        await mounted.dispose()
+        connect.restore()
+        append.restore()
+        ensure.restore()
+        globalThis.fetch = original_fetch
+      }
+    })
+  }
+
+  it("preserves an explicit host asset prefix for direct server resources", async () => {
+    const payload = fixture("server-existing-session")
+    payload.source = {kind: "server", url: "https://public.example/proxy/app"}
+    const original_fetch = globalThis.fetch
+    globalThis.fetch = async () => Response.json({
+      schema: "bokeh.embed-server/v1", bokeh_version: js_version, token: "unused",
+      requires: {components: [], extensions: []},
+      resources: {mode: "resolved", assets: [], root_url: "/proxy/"},
+    })
+    let root_url: string | undefined
+    const ensure = sinon.stub(resource_loader, "ensure").callsFake(async (_requirements, policy) => {
+      if (typeof policy == "object" && policy.mode == "server") {
+        root_url = policy.root_url
+        throw new ResourceError("load", "stop before connecting")
+      }
+    })
+    try {
+      await prepare_embed(payload, {mode: "server", root_url: "https://assets.example/runtime"}).catch(() => {})
+      expect(root_url).to.be.equal("https://assets.example/runtime")
+    } finally {
+      ensure.restore()
       globalThis.fetch = original_fetch
     }
   })

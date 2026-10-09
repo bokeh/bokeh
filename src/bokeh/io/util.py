@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
-    from ..resources import ResourcesLike
+    from ..resources import ResourcesLike, ResourcesMode
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -150,7 +150,10 @@ def tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
 
 
 class _ExportResources(Resources):
-    '''Use local BokehJS while retaining declared external extension assets.'''
+    '''Use local BokehJS and packages while retaining declared URL assets.'''
+
+    def _resolve_package_mode(self) -> ResourcesMode:
+        return INLINE
 
     def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__,
             include_requirement_assets: bool = True,

@@ -21,7 +21,7 @@ def bkapp_page():
         fragment = result.fragment(resources="server")
 
         # use the fragment HTML in the rendered page
-        return render_template("embed.html", embed_html=fragment.html, template="Flask")
+        return render_template("embed.html", embed_html=fragment.html, framework="Flask")
 
 if __name__ == '__main__':
     app.run(port=8080)

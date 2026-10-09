@@ -8,6 +8,10 @@
 from __future__ import annotations
 
 # Standard library imports
+import importlib.util
+import sys
+from contextlib import nullcontext
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -22,6 +26,7 @@ from bokeh.embed._util import server_page_for_session
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
 from bokeh.models import CustomJS
+from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.util.compiler import JavaScript
 from bokeh.util.warnings import BokehDeprecationWarning
@@ -34,6 +39,27 @@ def result_from_fragment(fragment: str) -> EmbedResult:
     assert scripts[-2]["type"] == "application/vnd.bokeh.embed+json"
     assert "mount_embed_declaration" in scripts[-1].string
     return EmbedResult.from_json(scripts[-2].string)
+
+
+def test_existing_session_flask_example_renders_template(monkeypatch: pytest.MonkeyPatch) -> None:
+    pytest.importorskip("flask")
+    script = Path(__file__).parents[4] / "examples/output/apis/embed_server_existing_session/serve.py"
+    spec = importlib.util.spec_from_file_location("existing_session_example", script)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    spec.loader.exec_module(module)
+    document = Document()
+    document.add_root(figure())
+    session = SimpleNamespace(document=document, id="existing-session")
+    monkeypatch.setattr(module, "pull_session", lambda **kwargs: nullcontext(session))
+
+    response = module.app.test_client().get("/")
+
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "Embedding a Bokeh Server With Flask" in html
+    assert result_from_fragment(html).source["session_id"] == "existing-session"
 
 
 def deprecated_server_document(*args: Any, **kwargs: Any) -> str:

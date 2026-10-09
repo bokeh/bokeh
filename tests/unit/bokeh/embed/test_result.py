@@ -1093,6 +1093,88 @@ def test_external_bootstrap_outputs_preserve_csp_nonce() -> None:
     assert 'nonce="embed-nonce"' in external.bootstrap
 
 
+@pytest.mark.parametrize("failure", ["missing-api", "timeout"])
+def test_inline_bootstrap_publishes_failures_before_runtime_api_is_available(failure: str) -> None:
+    external = embed(CustomJS(code="root")).external(
+        "/payload.json", resources=Resources(mode="none", nonce="embed-nonce"),
+    )
+    instance = re.search(r'data-bokeh-embed-instance="([^"]+)"', external.bootstrap)
+    assert instance is not None
+    code = r'''
+import fs from "node:fs"
+import vm from "node:vm"
+const {markup, instance, failure} = JSON.parse(fs.readFileSync(0, "utf8"))
+const code = markup.match(/^<script[^>]*>([\s\S]*)<\/script>$/)[1]
+class Target extends EventTarget {
+  constructor(instance, attribute) {
+    super()
+    this.dataset = {bokehEmbedInstance: instance, [attribute]: "root"}
+    this.events = []
+    this.addEventListener("bokeh:mount-error", (event) => this.events.push(event.detail))
+  }
+  removeAttribute() {}
+}
+const declaration = {dataset: {bokehEmbedInstance: instance, bokehPayloadUrl: "/payload.json"}}
+const targets = [new Target(instance, "bokehRoot"), new Target(instance, "bokehRoot"),
+  new Target(instance, "bokehDocumentTarget")]
+const unrelated = new Target("Other", "bokehRoot")
+const document = new EventTarget()
+document.readyState = "loading"
+document.currentScript = declaration
+document.querySelectorAll = () => [...targets, unrelated]
+const early = targets.map((target) => new Promise((resolve) => {
+  target.addEventListener("bokeh:mount-error", (event) => resolve(event.detail), {once: true})
+}))
+let now = 0
+vm.runInNewContext(code, {
+  document, Error, CustomEvent, setTimeout,
+  Date: {now: () => now += 30_001},
+  Bokeh: failure == "missing-api" ? {version: "3.10.1"} : undefined,
+  console: {error() {}},
+})
+await Promise.resolve()
+const before_dom = targets.every((target) => target.bokehMountError == null)
+document.readyState = "complete"
+document.dispatchEvent(new Event("DOMContentLoaded"))
+const errors = await Promise.all(early)
+const error = targets[0].bokehMountError
+console.log(JSON.stringify({
+  before_dom, same_error: errors.every((found) => found == error),
+  events: targets.map((target) => target.events.length), unrelated: unrelated.bokehMountError == null,
+  name: error.name, kind: error.kind, phase: error.phase, message: error.message, source: error.source,
+}))
+'''
+    executed = subprocess.run(
+        ["node", "--input-type=module", "--eval", code],
+        input=json.dumps({"markup": external.bootstrap, "instance": instance.group(1), "failure": failure}),
+        text=True, capture_output=True, check=True,
+    )
+    observed = json.loads(executed.stdout)
+    assert observed["before_dom"]
+    assert observed["same_error"]
+    assert observed["events"] == [1, 1, 1]
+    assert observed["unrelated"]
+    assert observed["name"] == "BokehMountError"
+    assert observed["kind"] == "resource"
+    assert observed["phase"] == "bootstrap"
+    assert observed["source"] == {
+        "kind": "embed-declaration", "embed": instance.group(1), "url": "/payload.json",
+    }
+    assert ("3.10.1 does not support" if failure == "missing-api" else "bootstrap timeout") in observed["message"]
+    assert 'nonce="embed-nonce"' in external.bootstrap
+
+
+def test_inline_bootstrap_escapes_declaration_identity_and_nonce(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(output, "make_globally_unique_css_safe_id", lambda: 'Embed-</script>&"')
+    external = embed(CustomJS(code="root")).external(
+        "/payload.json", resources=Resources(mode="none", nonce='nonce"</script>&'),
+    )
+    assert 'data-bokeh-embed-instance="Embed-&lt;/script&gt;&amp;&quot;"' in external.bootstrap
+    assert 'nonce="nonce&quot;&lt;/script&gt;&amp;"' in external.bootstrap
+    assert r'const instance = "Embed-\u003c/script\u003e\u0026\""' in external.bootstrap
+    assert external.bootstrap.count("</script>") == 1
+
+
 def test_custom_bootstrap_cannot_bypass_requested_integrity() -> None:
     result = embed(CustomJS(code="root"))
     policy = Resources(mode="cdn", integrity=True)

@@ -25,11 +25,11 @@ from urllib.parse import parse_qs, urlparse
 
 # Bokeh imports
 from .. import __version__
-from ..core.has_props import HasProps
 from ..embed._util import server_page_for_session
 from ..embed.resources import (
     extension_dirs,
     resolve_server_extensions,
+    server_extension_model_types,
     server_extension_resources,
 )
 from ..protocol import ack
@@ -359,7 +359,18 @@ class BokehASGI:
             )
             return
         try:
-            model_types = tuple(HasProps.model_class_reverse_map.values())
+            if policy.mode in ("inline", "offline"):
+                model_types = await session.with_document_locked(
+                    server_extension_model_types, policy, session.document,
+                )
+                if model_types is None:
+                    await self._response(
+                        send, 403, b"Session no longer available", "text/plain", head=head,
+                        extra_headers=response_headers,
+                    )
+                    return
+            else:
+                model_types = server_extension_model_types(policy, session.document)
             extensions = await asyncio.to_thread(resolve_server_extensions, policy, model_types)
         except ValueError as error:
             await self._response(
@@ -374,6 +385,7 @@ class BokehASGI:
             "requires": extensions.requirements.to_dict(),
             "resources": {
                 "mode": "resolved",
+                "root_url": resource_path or "/",
                 "assets": [asset.to_dict() for asset in extensions.assets],
             },
         }).encode()

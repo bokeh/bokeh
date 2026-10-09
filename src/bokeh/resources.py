@@ -306,23 +306,24 @@ class Resources:
                     bundle = resolve_package_requirement(
                         requirement.package, self, model_types=extension_model_types,
                     )
-                    if self.mode in (INLINE, "offline"):
+                    package_mode = self._resolve_package_mode()
+                    if package_mode in (INLINE, "offline"):
                         content = _inline_resource(bundle.artifact_path)
-                    elif self.mode == CDN:
+                    elif package_mode == CDN:
                         if bundle.cdn_url is not None:
                             asset_url = bundle.cdn_url
                         else:
                             content = _inline_resource(bundle.artifact_path)
-                    elif self.mode == "server":
+                    elif package_mode == "server":
                         asset_url = bundle.server_url
-                    elif self.mode == "relative":
+                    elif package_mode == "relative":
                         configured_root = self.root_dir or settings.rootdir()
                         root_dir = Path(configured_root) if configured_root is not None else Path(os.curdir)
                         asset_url = os.path.relpath(bundle.artifact_path, root_dir).replace("\\", "/")
-                    elif self.mode == "absolute":
+                    elif package_mode == "absolute":
                         asset_url = str(bundle.artifact_path)
                     else:
-                        raise AssertionError(f"unexpected resource mode {self.mode!r}")
+                        raise AssertionError(f"unexpected packaged extension resource mode {package_mode!r}")
                 if self.mode == "offline" and asset_url is not None:
                     raise ResourceConflictError(
                         f"offline resources cannot load external {requirement.kind} {asset_url!r} "
@@ -396,6 +397,9 @@ class Resources:
             "script", url=url, integrity=integrity,
             crossorigin=self.crossorigin or ("anonymous" if integrity else None), nonce=self.nonce,
         )
+
+    def _resolve_package_mode(self) -> ResourcesMode:
+        return self.mode
 
     def _resolve_bokeh_assets(self, components: Sequence[str], kind: Literal["js", "css"], *,
             bokeh_version: str) -> tuple[list[str], list[str], Mapping[str, str]]:

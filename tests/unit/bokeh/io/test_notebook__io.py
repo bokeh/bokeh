@@ -523,7 +523,8 @@ def test_show_doc_loads_custom_model_registered_after_load_notebook(monkeypatch:
 
     assert "resource_loader.ensure" in script
     assert script.count("compiled-late-custom-model") == 1
-    assert ".then(() => root.Bokeh.embed.embed_items_notebook" in script
+    assert "embed_items_notebook(docs_json, render_items, () =>" in script
+    assert ').catch((error) =>' in script
     assert repeated_script.count("compiled-late-custom-model") == 1
 
 #-----------------------------------------------------------------------------

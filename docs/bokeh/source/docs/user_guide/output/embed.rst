@@ -493,6 +493,32 @@ browser obtains a signed bootstrap
 from ``/embed.json`` and exposes HTTP, WebSocket, session, render, readiness, and
 disposal through the same ``BokehMount`` used by standalone embed results.
 
+The server bootstrap reports the version that produced the live document and
+the public prefix for server assets. The embedding Python process can use a
+different Bokeh version. The browser checks the loaded BokehJS against the
+server's version, unless the host deliberately selects another runtime with
+``Resources.override_version``. An override permits an attempt, not a guarantee
+that different model or protocol versions will work together.
+
+Relative and absolute resource modes describe paths owned by the host page.
+Server extension assets use the server's public asset prefix instead of the
+host's filesystem paths.
+
+For ``inline`` and ``offline`` server embeds, extension requirements come from
+the session's serialized document, including configuration, callbacks, and
+registered ``DataModel`` definitions. Definitions are serialized even when the
+session has no instances of those classes, so their property kinds, defaults,
+and overrides can require extension assets. These policies reject declared
+``__javascript__`` and ``__css__`` URLs required by serialized content. Importing
+an unused ordinary model class does not affect the session's bootstrap.
+
+Other asset-delivering policies include registered extension models so callbacks
+can introduce those models later. If an ``inline`` or ``offline`` session will
+introduce additional custom model types, arrange to load their assets on the host
+or choose a policy such as ``server`` or ``cdn`` that supplies them in advance.
+Here, "later" includes next-tick callbacks that run after the bootstrap response
+but before the browser opens its WebSocket connection.
+
 Server result ``headers`` and a directly supplied ``token`` are serialized
 into browser-visible page data. Do not put credentials or other secrets there
 unless they are explicitly safe for every page consumer. Prefer the normal

@@ -20,8 +20,11 @@ from tornado.web import HTTPError, authenticated
 
 # Bokeh imports
 from bokeh import __version__
-from bokeh.core.has_props import HasProps
-from bokeh.embed.resources import resolve_server_extensions, server_extension_resources
+from bokeh.embed.resources import (
+    resolve_server_extensions,
+    server_extension_model_types,
+    server_extension_resources,
+)
 from bokeh.settings import settings
 
 # Bokeh imports
@@ -49,6 +52,12 @@ class EmbedJsonHandler(SessionHandler):
             self._allow_websocket_origin()
         except HTTPError:
             pass
+        error = kwargs.get("exc_info", (None, None, None))[1]
+        if status_code == 409 and isinstance(error, HTTPError) and error.log_message is not None:
+            self.set_header("Content-Type", "text/plain; charset=UTF-8")
+            detail = error.log_message % error.args if error.args else error.log_message
+            self.finish(detail)
+            return
         super().write_error(status_code, **kwargs)
 
     def _allow_websocket_origin(self) -> None:
@@ -86,16 +95,23 @@ class EmbedJsonHandler(SessionHandler):
                 root_url=self.application.prefix or "/",
             )
         except ValueError as error:
-            raise HTTPError(status_code=409, reason=str(error)) from error
+            raise HTTPError(409, "%s", str(error), reason="Bokeh resource conflict") from error
         session_future = cast("Awaitable[ServerSession | None]", self.get_session())
         session = await session_future
         if session is None:
             raise HTTPError(status_code=403, reason="Invalid token or session ID")
         try:
-            model_types = tuple(HasProps.model_class_reverse_map.values())
+            if policy.mode in ("inline", "offline"):
+                model_types = await session.with_document_locked(
+                    server_extension_model_types, policy, session.document,
+                )
+                if model_types is None:
+                    raise HTTPError(status_code=403, reason="Session no longer available")
+            else:
+                model_types = server_extension_model_types(policy, session.document)
             extensions = await asyncio.to_thread(resolve_server_extensions, policy, model_types)
         except ValueError as error:
-            raise HTTPError(status_code=409, reason=str(error)) from error
+            raise HTTPError(409, "%s", str(error), reason="Bokeh resource conflict") from error
         self.set_header("Content-Type", "application/json")
         self.write(json.dumps({
             "schema": "bokeh.embed-server/v1",
@@ -104,6 +120,7 @@ class EmbedJsonHandler(SessionHandler):
             "requires": extensions.requirements.to_dict(),
             "resources": {
                 "mode": "resolved",
+                "root_url": self.application.prefix or "/",
                 "assets": [asset.to_dict() for asset in extensions.assets],
             },
         }))

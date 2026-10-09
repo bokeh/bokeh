@@ -21,6 +21,8 @@ import pytest
 # Bokeh imports
 import bokeh.embed.resources as ber
 from bokeh import __version__
+from bokeh.core.properties import Any as AnyProperty, Instance, Override
+from bokeh.document import Document
 from bokeh.embed import embed
 from bokeh.embed.resources import (
     ExtensionRequirement,
@@ -29,8 +31,10 @@ from bokeh.embed.resources import (
     ResourceAssetRequirement,
     ResourceRequirements,
 )
+from bokeh.model import DataModel, Model
 from bokeh.models import (
     ColorBar,
+    CustomJS,
     Div,
     LinearAxis,
     LinearColorMapper,
@@ -40,9 +44,10 @@ from bokeh.models import (
     Slider,
     Title,
 )
-from bokeh.resources import Resources
+from bokeh.models.ui.notifications import Notifications
+from bokeh.resources import ResourceConflictError, Resources
 from bokeh.settings import PrioritizedSetting, settings
-from bokeh.util.compiler import CompilationError
+from bokeh.util.compiler import CompilationError, JavaScript
 
 
 @pytest.fixture(autouse=True)
@@ -362,6 +367,30 @@ def test_server_extension_resources_preserves_defaults_and_server_root() -> None
     assert server == Resources(mode="server", minified=False, root_url="https://host.test/app/")
 
 
+@pytest.mark.parametrize("mode", ["relative", "absolute"])
+def test_server_extension_resources_transports_host_filesystem_modes(
+    mode: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    name = "server_transport_extension"
+    base_dir = _install_extension_module(monkeypatch, tmp_path / name, name)
+    artifact = base_dir / "dist" / f"{name}.js"
+    artifact.write_text("export const value = 1")
+    policy = ber.server_extension_resources(
+        Resources(mode="cdn"), mode=mode, minified="false", root_url="/proxy/",
+    )
+
+    empty = ber.resolve_server_extensions(policy, ())
+    resolved = policy.resolve(ResourceRequirements((), (
+        ExtensionRequirement(name, (ResourceAssetRequirement("script", package=name),)),
+    )), extension_model_types=(_extension_model(name),))
+
+    assert policy.mode == "server"
+    assert policy.minified is False
+    assert policy.root_url == "/proxy/"
+    assert empty.assets == ()
+    assert resolved.assets[0].url == f"/proxy/static/extensions/{name}/{name}.js"
+
+
 def test_resolve_server_extensions_skips_discovery_for_host_owned_resources(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -374,6 +403,167 @@ def test_resolve_server_extensions_skips_discovery_for_host_owned_resources(
 
     assert resolved.requirements == ResourceRequirements((), ())
     assert resolved.assets == ()
+
+
+@pytest.mark.parametrize("mode", ["inline", "offline"])
+def test_server_restrictive_model_snapshot_includes_document_context(mode: str) -> None:
+    class RootCallback(CustomJS):
+        __javascript__ = []
+
+    class DocumentCallback(CustomJS):
+        __javascript__ = []
+
+    class CallbackArgument(CustomJS):
+        __javascript__ = []
+
+    class SessionNotifications(Notifications):
+        __javascript__ = []
+
+    class UnusedCustomJS(CustomJS):
+        __javascript__ = ["https://example.test/unused.js"]
+
+    document = Document()
+    root = Div(text="session")
+    root.js_on_change("text", RootCallback(code=""))
+    argument = CallbackArgument(code="")
+    callback = DocumentCallback(args={"dependency": argument}, code="")
+    document.js_on_event("document_ready", callback)
+    document.config.notifications = SessionNotifications()
+    document.add_root(root)
+    policy = Resources(mode=mode)
+
+    try:
+        snapshot = ber.server_extension_model_types(policy, document, (UnusedCustomJS,))
+        assert isinstance(snapshot, tuple)
+        assert {Div, RootCallback, DocumentCallback, CallbackArgument, SessionNotifications, type(document.config)} <= set(snapshot)
+        assert callback.id not in document.models
+        assert argument.id not in document.models
+        assert UnusedCustomJS not in snapshot
+
+        document.add_root(UnusedCustomJS(code=""))
+        assert UnusedCustomJS not in snapshot
+        assert UnusedCustomJS in ber.server_extension_model_types(policy, document)
+    finally:
+        Model.clear_extensions()
+
+
+def test_server_host_owned_model_snapshot_skips_document_traversal(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail(*values: Any) -> None:
+        raise AssertionError("host-owned resources must not inspect the document")
+
+    monkeypatch.setattr(Document, "serialization_model_types", fail)
+
+    assert ber.server_extension_model_types(Resources(mode="none"), Document()) == ()
+
+
+@pytest.mark.parametrize("mode", ["inline", "offline"])
+@pytest.mark.parametrize("definition_kind", ["default", "factory", "nested-override", "instance-kind"])
+@pytest.mark.parametrize("dependency_kind", ["implementation", "url"])
+def test_server_resources_include_dependencies_of_global_serialized_definitions(
+    mode: str, definition_kind: str, dependency_kind: str, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Hidden(CustomJS):
+        __implementation__ = JavaScript("export const value = 1") if dependency_kind == "implementation" else None
+        __javascript__ = ["https://example.test/definition-dependency.js"] if dependency_kind == "url" else []
+
+    if definition_kind == "nested-override":
+        class BaseDefinition(DataModel):
+            __javascript__ = []
+            child = Instance(CustomJS, default=CustomJS(code=""))
+
+        class Definition(BaseDefinition):
+            __javascript__ = []
+            child = Override(default=CustomJS(args={"nested": Hidden(code="")}, code=""))
+    else:
+        class Definition(DataModel):
+            __javascript__ = []
+            child = Instance(
+                Hidden if definition_kind == "instance-kind" else CustomJS,
+                **({} if definition_kind == "instance-kind" else {
+                    "default": (lambda: Hidden(code="")) if definition_kind == "factory" else Hidden(code=""),
+                }),
+            )
+
+    compiled: set[type[Any]] = set()
+
+    def bundle_models(models: Any) -> str:
+        compiled.update(models)
+        return "compiled-hidden-definition-model"
+
+    monkeypatch.setattr(ber, "bundle_models", bundle_models)
+    document = Document()
+    policy = Resources(mode=mode)
+    try:
+        wire = document.to_json(deferred=False)
+        definition = next(item for item in wire["defs"] if item["name"] == Definition.__qualified_model__)
+        assert wire["roots"] == []
+        if definition_kind == "nested-override":
+            assert definition["extends"]["id"] == BaseDefinition.__qualified_model__
+            default = definition["overrides"][0]["default"]
+            assert default["attributes"]["args"]["entries"][0][1]["name"] == Hidden.__qualified_model__
+        elif definition_kind == "instance-kind":
+            assert definition["properties"][0]["kind"] == ("Ref", {"id": Hidden.__qualified_model__})
+        else:
+            assert definition["properties"][0]["default"]["name"] == Hidden.__qualified_model__
+
+        snapshot = ber.server_extension_model_types(policy, document)
+        if dependency_kind == "url":
+            with pytest.raises(ResourceConflictError, match=f"{mode} resources"):
+                ber.resolve_server_extensions(policy, snapshot)
+        else:
+            resolved = ber.resolve_server_extensions(policy, snapshot)
+            assert Hidden in compiled
+            assert any(asset.content == "compiled-hidden-definition-model" for asset in resolved.assets)
+    finally:
+        Model.clear_extensions()
+
+
+@pytest.mark.parametrize("mode", ["inline", "offline"])
+@pytest.mark.parametrize("value_shape", ["direct", "nested"])
+@pytest.mark.parametrize("dependency_kind", ["implementation", "url"])
+def test_server_resources_include_models_serialized_in_plain_any(
+    mode: str, value_shape: str, dependency_kind: str, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    url = "https://example.test/plain-any.js"
+
+    class Hidden(CustomJS):
+        __implementation__ = JavaScript("export const value = 1") if dependency_kind == "implementation" else None
+        __javascript__ = [url] if dependency_kind == "url" else []
+
+    class Container(CustomJS):
+        __implementation__ = JavaScript("export const container = 1")
+        child = AnyProperty(default=None)
+
+    hidden = Hidden(code="")
+    value = hidden if value_shape == "direct" else {"nested": [hidden]}
+    document = Document()
+    document.add_root(Container(child=value, code=""))
+    compiled: set[type[Any]] = set()
+
+    def bundle_models(models: Any) -> str:
+        compiled.update(models)
+        return "compiled-plain-any-models"
+
+    monkeypatch.setattr(ber, "bundle_models", bundle_models)
+    policy = Resources(mode=mode)
+    try:
+        wire = document.to_json(deferred=False)
+        child = wire["roots"][0]["attributes"]["child"]
+        if value_shape == "nested":
+            child = child["entries"][0][1][0]
+        assert child["name"] == Hidden.__qualified_model__
+        assert hidden.id not in document.models
+
+        snapshot = ber.server_extension_model_types(policy, document)
+        if dependency_kind == "url":
+            with pytest.raises(ResourceConflictError, match=f"{mode} resources"):
+                ber.resolve_server_extensions(policy, snapshot)
+        else:
+            resolved = ber.resolve_server_extensions(policy, snapshot)
+            assert Hidden in compiled
+            assert any(asset.content == "compiled-plain-any-models" for asset in resolved.assets)
+    finally:
+        Model.clear_extensions()
 
 
 def test_resolve_server_extensions_reports_custom_model_compilation_failure(
@@ -397,8 +587,6 @@ def test_resolve_server_extensions_reports_custom_model_compilation_failure(
 
 @pytest.mark.parametrize(("mode", "minified", "message"), [
     (None, "true", "requires Bokeh-Resource-Mode"),
-    ("relative", None, "cannot resolve relative"),
-    ("absolute", None, "cannot resolve absolute"),
     ("unknown", None, "unknown server extension resource mode"),
     ("cdn", "yes", "must be 'true' or 'false'"),
 ])

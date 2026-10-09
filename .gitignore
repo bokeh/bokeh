@@ -16,6 +16,7 @@
 # HTML files
 *.html
 !/src/bokeh/core/_templates/*.html
+!/examples/output/apis/embed_server_existing_session/templates/embed.html
 
 # generated model API reference sources
 /docs/bokeh/source/docs/reference/models/**/*.rst

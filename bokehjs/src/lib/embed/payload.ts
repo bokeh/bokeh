@@ -384,6 +384,12 @@ export async function prepare_embed(value: unknown, policy: ResourcePolicy = "no
     resolver?: ModelResolver, signal?: AbortSignal,
     server_policy: ResourcePolicy = policy): Promise<PreparedEmbed> {
   const payload = validate_embed_payload(value)
+  if (payload.source.kind == "server") {
+    if (signal?.aborted == true) {
+      throw signal.reason
+    }
+    return prepare_server(payload, policy, server_policy, signal)
+  }
   try {
     await resource_loader.ensure(payload.requires, policy, payload.bokeh_version, signal)
   } catch (error) {
@@ -397,9 +403,7 @@ export async function prepare_embed(value: unknown, policy: ResourcePolicy = "no
   if (signal?.aborted == true) {
     throw signal.reason
   }
-  return payload.source.kind == "standalone"
-    ? prepare_standalone(payload, resolver)
-    : prepare_server(payload, server_policy, signal)
+  return prepare_standalone(payload, resolver)
 }
 
 function prepare_standalone(payload: EmbedPayload, resolver?: ModelResolver): PreparedEmbed {
@@ -445,9 +449,29 @@ function prepare_standalone(payload: EmbedPayload, resolver?: ModelResolver): Pr
   }
 }
 
-async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, signal?: AbortSignal): Promise<PreparedEmbed> {
+function current_server_url(): string {
+  // A srcdoc frame can carry the public application URL despite its about location.
+  try {
+    const frame = window.frameElement
+    if (frame?.tagName.toUpperCase() == "IFRAME") {
+      const absolute_url = frame.getAttribute("data-absolute-url")
+      if (absolute_url != null) {
+        return absolute_url
+      }
+    }
+  } catch {
+    // Cross-origin hosts may prevent access to the containing frame.
+  }
+  return window.location.href
+}
+
+async function prepare_server(payload: EmbedPayload, initial_policy: ResourcePolicy,
+    policy: ResourcePolicy, signal?: AbortSignal): Promise<PreparedEmbed> {
   const source = payload.source as ServerEmbedSource
-  const configured_app = source.url == "." ? new URL(window.location.href) : new URL(source.url, document.baseURI)
+  const configured_app = new URL(source.url == "." ? current_server_url() : source.url, document.baseURI)
+  if (configured_app.protocol != "http:" && configured_app.protocol != "https:") {
+    throw new EmbedError("schema", "server embed application URL must use HTTP(S)")
+  }
   const app = source.relative_urls == true
     ? new URL(`${configured_app.pathname}${configured_app.search}`, document.baseURI)
     : configured_app
@@ -512,12 +536,7 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
         undefined, "schema", {kind: "embed", url: endpoint.href},
       )
     }
-    if (bootstrap.bokeh_version != payload.bokeh_version) {
-      throw new EmbedError(
-        "schema", `Bokeh server bootstrap version '${bootstrap.bokeh_version}' does not match embed version '${payload.bokeh_version}'`,
-        undefined, "schema", {kind: "embed", url: endpoint.href},
-      )
-    }
+    const server_version = as_string(bootstrap.bokeh_version, "Bokeh server bootstrap bokeh_version")
     reject_unknown_fields(
       bootstrap, ["schema", "bokeh_version", "token", "requires", "resources"], "Bokeh server bootstrap",
     )
@@ -526,18 +545,22 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
       bootstrap.requires, "Bokeh server bootstrap requires",
     )
     const resources = as_record(bootstrap.resources, "Bokeh server bootstrap resources")
-    reject_unknown_fields(resources, ["mode", "assets"], "Bokeh server bootstrap resources")
+    reject_unknown_fields(resources, ["mode", "assets", "root_url"], "Bokeh server bootstrap resources")
     if (resources.mode != "resolved") {
       throw new EmbedError("schema", "Bokeh server bootstrap resources.mode must be 'resolved'")
     }
     const assets = validate_resolved_assets(resources.assets)
+    const resource_root_url = resources.root_url == null
+      ? app.href
+      : new URL(validate_server_url(resources.root_url), app).href
+    const asset_base = resources.root_url == null ? app : `${resource_root_url.replace(/\/$/, "")}/`
     const host_policy = typeof policy == "string" ? undefined : policy
     const resolved_policy: ResourcePolicy = {
       mode: "resolved",
       override_version: host_policy?.override_version,
       assets: (host_policy?.assets ?? assets).map((asset) => ({
         ...asset,
-        ...(host_policy?.assets == null && asset.url != null ? {url: new URL(asset.url, app).href} : {}),
+        ...(host_policy?.assets == null && asset.url != null ? {url: new URL(asset.url, asset_base).href} : {}),
         ...(host_policy?.nonce != null ? {nonce: host_policy.nonce} : {}),
         ...(asset.crossorigin == null && host_policy?.crossorigin != null
           ? {crossorigin: host_policy.crossorigin}
@@ -548,7 +571,20 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
       retry: host_policy?.retry,
     }
     try {
-      await resource_loader.ensure(requires, resolved_policy, payload.bokeh_version, signal)
+      // Bootstrap owns the live document's version and public server asset prefix.
+      const component_policy = typeof initial_policy == "string" ? {mode: initial_policy} : initial_policy
+      const component_mode = component_policy.assets == null &&
+          (component_policy.mode == "relative" || component_policy.mode == "absolute")
+        ? "server" : component_policy.mode
+      await resource_loader.ensure({
+        components: [...new Set([...payload.requires.components, ...requires.components])], extensions: [],
+      }, {
+        ...component_policy,
+        mode: component_mode,
+        override_version: component_policy.override_version ?? host_policy?.override_version,
+        root_url: component_policy.root_url ?? resource_root_url,
+      }, server_version, signal)
+      await resource_loader.ensure(requires, resolved_policy, server_version, signal)
     } catch (error) {
       if (error instanceof ResourceError) {
         throw new EmbedError(

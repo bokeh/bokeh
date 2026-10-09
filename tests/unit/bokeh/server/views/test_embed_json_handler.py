@@ -8,12 +8,15 @@
 from __future__ import annotations
 
 # Standard library imports
+import asyncio
 import hashlib
+import inspect
 import json
 import sys
+import threading
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
-from typing import Any
+from typing import Any, Callable
 
 # External imports
 import pytest
@@ -23,15 +26,29 @@ from tornado.web import HTTPError
 # Bokeh imports
 from bokeh import __version__
 from bokeh.application import Application
+from bokeh.core.properties import Any as AnyProperty, Instance
 from bokeh.document import Document
 from bokeh.embed.resources import extension_dirs
-from bokeh.model import Model
+from bokeh.model import DataModel, Model
 from bokeh.models import CustomJS
+from bokeh.models.ui.notifications import Notifications
 from bokeh.resources import Resources
 from bokeh.server.urls import per_app_patterns
 from bokeh.server.views.embed_json_handler import EmbedJsonHandler
 from bokeh.util.compiler import JavaScript
 from tests.support.plugins.managed_server_loop import MSL
+
+
+class _TestSession:
+    def __init__(self, token: str, document: Document) -> None:
+        self.token = token
+        self.document = document
+        self._lock = asyncio.Lock()
+
+    async def with_document_locked(self, func: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
+        async with self._lock:
+            result = await asyncio.to_thread(func, *args, **kwargs)
+            return await result if inspect.isawaitable(result) else result
 
 
 class _TestEmbedJsonHandler(EmbedJsonHandler):
@@ -49,7 +66,7 @@ class _TestEmbedJsonHandler(EmbedJsonHandler):
         self.session_requests += 1
         if self.token is None:
             return None
-        return type("Session", (), {"token": self.token, "document": self.document})()
+        return _TestSession(self.token, self.document)
 
     def set_header(self, name: str, value: str) -> None:
         self.headers[name] = value
@@ -91,11 +108,11 @@ async def test_get_returns_versioned_signed_bootstrap() -> None:
         "bokeh_version": __version__,
         "token": "signed-token",
         "requires": {"components": [], "extensions": []},
-        "resources": {"mode": "resolved", "assets": []},
+        "resources": {"mode": "resolved", "root_url": "/", "assets": []},
     }
 
 
-async def test_get_includes_all_registered_extension_assets(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_get_includes_session_extension_assets(monkeypatch: pytest.MonkeyPatch) -> None:
     document = Document()
     handler = _handler("signed-token", document)
     handler.application = SimpleNamespace(prefix="", resources=lambda origin=None: Resources(mode="inline"))
@@ -109,7 +126,7 @@ async def test_get_includes_all_registered_extension_assets(monkeypatch: pytest.
 
         initialized += 1
         document.add_root(SessionCustomJS(code="return value"))
-        return SimpleNamespace(token="signed-token", document=document)
+        return _TestSession("signed-token", document)
 
     def bundle_models(models: Any) -> str:
         assert any(model.__name__ == "SessionCustomJS" for model in models)
@@ -135,6 +152,7 @@ async def test_get_includes_all_registered_extension_assets(monkeypatch: pytest.
     }
     assert bootstrap["resources"] == {
         "mode": "resolved",
+        "root_url": "/",
         "assets": [{
             "kind": "script", "content": "compiled-server-model", "content_sha256": content_sha256,
         }],
@@ -161,7 +179,184 @@ async def test_get_honors_host_owned_extension_policy(monkeypatch: pytest.Monkey
 
     bootstrap = json.loads(handler.body)
     assert bootstrap["requires"] == {"components": [], "extensions": []}
-    assert bootstrap["resources"] == {"mode": "resolved", "assets": []}
+    assert bootstrap["resources"] == {"mode": "resolved", "root_url": "/", "assets": []}
+
+
+@pytest.mark.parametrize("mode", ["inline", "offline"])
+async def test_get_resource_registry_is_snapshotted_after_document_lock(
+    mode: str, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    url = "https://example.test/registered-while-waiting.js"
+    handler = _handler("signed-token")
+    handler.request.headers["Bokeh-Resource-Mode"] = mode
+    session = _TestSession("signed-token", handler.document)
+    loop = asyncio.get_running_loop()
+    registration_started = asyncio.Event()
+    discovery_waiting = asyncio.Event()
+    release = threading.Event()
+    with_document_locked = session.with_document_locked
+
+    async def get_session() -> _TestSession:
+        return session
+
+    def register_definition() -> None:
+        assert session._lock.locked()
+        loop.call_soon_threadsafe(registration_started.set)
+        assert release.wait(timeout=5)
+
+        class URLCustomJS(CustomJS):
+            __javascript__ = [url]
+
+        class RegisteredWhileWaiting(DataModel):
+            __javascript__ = []
+            child = Instance(CustomJS, default=CustomJS(args={"dependency": URLCustomJS(code="")}, code=""))
+
+    async def observed_lock(func: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
+        discovery_waiting.set()
+        return await with_document_locked(func, *args, **kwargs)
+
+    monkeypatch.setattr(handler, "get_session", get_session)
+    registration = asyncio.create_task(with_document_locked(register_definition))
+    pending: asyncio.Task[None] | None = None
+    try:
+        await asyncio.wait_for(registration_started.wait(), timeout=5)
+        monkeypatch.setattr(session, "with_document_locked", observed_lock)
+        pending = asyncio.create_task(handler.get())
+        await asyncio.wait_for(discovery_waiting.wait(), timeout=5)
+        assert session._lock.locked()
+        assert not pending.done()
+        release.set()
+        await registration
+        with pytest.raises(HTTPError, match=f"{mode} resources") as exc:
+            await pending
+        assert exc.value.status_code == 409
+        assert url in str(exc.value)
+    finally:
+        release.set()
+        await asyncio.gather(registration, return_exceptions=True)
+        if pending is not None:
+            await asyncio.gather(pending, return_exceptions=True)
+        Model.clear_extensions()
+
+
+@pytest.mark.parametrize("mode", ["inline", "offline"])
+@pytest.mark.parametrize("location", ["unused", "root", "configuration", "document-callback", "callback-argument", "plain-any", "global-definition"])
+async def test_get_restrictive_resources_follow_session_models(mode: str, location: str) -> None:
+    url = "https://example.test/session-resource.js"
+
+    class URLCustomJS(CustomJS):
+        __javascript__ = [url]
+
+    class URLNotifications(Notifications):
+        __javascript__ = [url]
+
+    class AnyContainer(CustomJS):
+        __javascript__ = []
+        child = AnyProperty(default=None)
+
+    document = Document()
+    if location == "root":
+        document.add_root(URLCustomJS(code=""))
+    elif location == "configuration":
+        document.config.notifications = URLNotifications()
+    elif location == "document-callback":
+        document.js_on_event("document_ready", URLCustomJS(code=""))
+    elif location == "callback-argument":
+        document.js_on_event("document_ready", CustomJS(args={"dependency": URLCustomJS(code="")}, code=""))
+    elif location == "plain-any":
+        document.add_root(AnyContainer(child=URLCustomJS(code=""), code=""))
+    elif location == "global-definition":
+        class UnusedDefinition(DataModel):
+            __javascript__ = []
+            child = Instance(CustomJS, default=URLCustomJS(code=""))
+    handler = _handler("signed-token", document)
+    handler.request.headers["Bokeh-Resource-Mode"] = mode
+
+    try:
+        if location == "plain-any":
+            wire = document.to_json(deferred=False)
+            assert wire["roots"][0]["attributes"]["child"]["name"] == URLCustomJS.__qualified_model__
+        elif location == "global-definition":
+            wire = document.to_json(deferred=False)
+            definition = next(item for item in wire["defs"] if item["name"] == UnusedDefinition.__qualified_model__)
+            assert wire["roots"] == []
+            assert definition["properties"][0]["default"]["name"] == URLCustomJS.__qualified_model__
+        if location == "unused":
+            await handler.get()
+            bootstrap = json.loads(handler.body)
+            assert bootstrap["requires"] == {"components": [], "extensions": []}
+            assert bootstrap["resources"]["assets"] == []
+        else:
+            with pytest.raises(HTTPError, match=f"{mode} resources") as exc:
+                await handler.get()
+            assert exc.value.status_code == 409
+            assert exc.value.reason == "Bokeh resource conflict"
+            assert url in str(exc.value)
+    finally:
+        Model.clear_extensions()
+
+
+@pytest.mark.parametrize("mode", ["inline", "offline"])
+@pytest.mark.parametrize("source", ["global-definition", "plain-any"])
+async def test_get_includes_extensions_in_serialized_definitions_and_any_properties(
+    mode: str, source: str, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Hidden(CustomJS):
+        __implementation__ = JavaScript("export const value = 1")
+
+    document = Document()
+    if source == "global-definition":
+        class UnusedDefinition(DataModel):
+            __javascript__ = []
+            child = Instance(CustomJS, default=CustomJS(args={"nested": Hidden(code="")}, code=""))
+    else:
+        class Container(CustomJS):
+            __implementation__ = JavaScript("export const container = 1")
+            child = AnyProperty(default=None)
+
+        document.add_root(Container(child={"nested": [Hidden(code="")]}, code=""))
+
+    compiled: set[type[Any]] = set()
+
+    def bundle_models(models: Any) -> str:
+        compiled.update(models)
+        return "compiled-serialized-session-models"
+
+    monkeypatch.setattr("bokeh.embed.resources.bundle_models", bundle_models)
+    handler = _handler("signed-token", document)
+    handler.request.headers["Bokeh-Resource-Mode"] = mode
+    try:
+        wire = document.to_json(deferred=False)
+        if source == "global-definition":
+            definition = next(item for item in wire["defs"] if item["name"] == UnusedDefinition.__qualified_model__)
+            assert wire["roots"] == []
+            assert definition["properties"][0]["default"]["attributes"]["args"]["entries"][0][1]["name"] == Hidden.__qualified_model__
+        else:
+            assert wire["roots"][0]["attributes"]["child"]["entries"][0][1][0]["name"] == Hidden.__qualified_model__
+
+        await handler.get()
+        bootstrap = json.loads(handler.body)
+        assert Hidden in compiled
+        assert any(asset.get("content") == "compiled-serialized-session-models" for asset in bootstrap["resources"]["assets"])
+    finally:
+        Model.clear_extensions()
+
+
+@pytest.mark.parametrize("mode", ["server", "cdn"])
+async def test_get_delivery_modes_preserve_unused_registered_model_assets(mode: str) -> None:
+    url = "https://example.test/future-session-resource.js"
+
+    class FutureCustomJS(CustomJS):
+        __javascript__ = [url]
+
+    handler = _handler("signed-token")
+    handler.request.headers["Bokeh-Resource-Mode"] = mode
+    try:
+        await handler.get()
+        bootstrap = json.loads(handler.body)
+        assert url in [asset.get("url") for asset in bootstrap["resources"]["assets"]]
+    finally:
+        Model.clear_extensions()
 
 
 async def test_get_rejects_missing_session() -> None:
@@ -201,7 +396,7 @@ async def test_get_uses_relative_extension_urls_behind_a_proxy(
         __view_module__ = "proxy_extension.models"
 
     monkeypatch.setattr(
-        "bokeh.server.views.embed_json_handler.HasProps",
+        "bokeh.embed.resources.HasProps",
         SimpleNamespace(model_class_reverse_map={"proxy": _ProxyCustomJS}),
     )
     handler = _handler("signed-token")
@@ -233,6 +428,29 @@ async def test_error_responses_keep_allowed_origin_headers(
     assert response.code == status
     assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
     assert response.headers["Access-Control-Allow-Credentials"] == "true"
+    assert response.headers["Cache-Control"] == "no-store"
+
+
+async def test_multiline_extension_errors_are_returned_in_body(
+    ManagedServerLoop: MSL, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    detail = "failed to compile custom models: bad.ts:1: error\n> invalid 100% syntax\n  ^"
+
+    def fail_to_resolve(*args: Any, **kwargs: Any) -> None:
+        raise ValueError(detail)
+
+    monkeypatch.setattr("bokeh.server.views.embed_json_handler.resolve_server_extensions", fail_to_resolve)
+    with ManagedServerLoop(Application(), allow_websocket_origin=["trusted.example:80"]) as server:
+        response = await AsyncHTTPClient().fetch(
+            f"http://localhost:{server.port}/embed.json",
+            headers={"Origin": "http://trusted.example"}, raise_error=False,
+        )
+
+    assert response.code == 409
+    assert response.reason == "Bokeh resource conflict"
+    assert response.body.decode() == detail
+    assert response.headers["Content-Type"] == "text/plain; charset=UTF-8"
+    assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
     assert response.headers["Cache-Control"] == "no-store"
 
 

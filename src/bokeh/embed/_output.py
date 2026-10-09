@@ -372,25 +372,50 @@ def _inline_bootstrap(*, declaration_id: str,
     if payload_url is not None:
         attrs.append(f'data-bokeh-payload-url="{escape(payload_url, quote=True)}"')
     attrs.extend(_resource_policy_attributes(resource_policy))
+    instance_json = json.dumps(declaration_id).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
     code = f'''(() => {{
-  const instance = {json.dumps(declaration_id)}
+  const instance = {instance_json}
   const current = document.currentScript
-  const declaration = current?.dataset.bokehEmbedInstance == instance ? current : document.querySelector(
-    `[data-bokeh-embed-bootstrap][data-bokeh-embed-instance="${{instance}}"]`,
-  )
-  const deadline = Date.now() + 30_000
-  const start = () => {{
-    if (globalThis.Bokeh != null) {{
-      void Bokeh.mount_embed_declaration(declaration).catch((error) => {{
-        console.error("Failed to mount Bokeh embed", error)
-      }})
-    }} else if (Date.now() < deadline) {{
-      setTimeout(start, 25)
-    }} else {{
-      console.error("Failed to mount Bokeh embed: BokehJS is not loaded")
+  const declaration = current?.dataset.bokehEmbedInstance == instance ? current : [
+    ...document.querySelectorAll("[data-bokeh-embed-bootstrap][data-bokeh-embed-instance]"),
+  ].find((candidate) => candidate.dataset.bokehEmbedInstance == instance)
+  const publish_failure = async (cause) => {{
+    if (document.readyState == "loading") {{
+      await new Promise((resolve) => document.addEventListener("DOMContentLoaded", resolve, {{once: true}}))
+    }}
+    const error = Object.assign(new Error(cause instanceof Error ? cause.message : `${{cause}}`), {{
+      name: "BokehMountError",
+      kind: "resource",
+      phase: "bootstrap",
+      cause,
+      source: {{kind: "embed-declaration", embed: instance, url: declaration?.dataset.bokehPayloadUrl}},
+    }})
+    for (const target of document.querySelectorAll(
+      "[data-bokeh-embed-instance]:is([data-bokeh-root], [data-bokeh-document-target])",
+    )) {{
+      if (target.dataset.bokehEmbedInstance == instance && target.bokehMount == null && target.bokehMountError == null) {{
+        target.bokehMountError = error
+        target.removeAttribute("data-bokeh-mounted")
+        target.dispatchEvent(new CustomEvent("bokeh:mount-error", {{detail: error}}))
+      }}
     }}
   }}
-  start()
+  void (async () => {{
+    const deadline = Date.now() + 30_000
+    while (globalThis.Bokeh == null) {{
+      if (Date.now() >= deadline) {{
+        throw new Error("BokehJS did not load before the embed bootstrap timeout")
+      }}
+      await new Promise((resolve) => setTimeout(resolve, 25))
+    }}
+    if (typeof Bokeh.mount_embed_declaration != "function") {{
+      throw new Error(`Loaded BokehJS ${{Bokeh.version ?? "runtime"}} does not support embed declarations. Load a runtime with mount_embed_declaration().`)
+    }}
+    await Bokeh.mount_embed_declaration(declaration)
+  }})().catch(async (error) => {{
+    console.error("Failed to mount Bokeh embed", error)
+    await publish_failure(error)
+  }})
 }})()'''
     return f"<script {' '.join(attrs)}>{code}</script>"
 

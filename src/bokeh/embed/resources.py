@@ -647,14 +647,36 @@ def requirements_for_all_models(*, include_custom_models: bool = True,
     )
 
 
+def server_extension_model_types(policy: _Resources, document: Document,
+        registered_model_types: Iterable[type[HasProps]] | None = None) -> tuple[type[HasProps], ...]:
+    '''Snapshot model types needed by a live server resource policy.
+
+    Inline and offline policies follow serialized document content, including
+    global DataModel definitions. Other delivery modes retain the registered
+    model set for future dynamic roots. For live documents, inspect content in
+    a worker while holding the session's document lock.
+    '''
+    if policy.mode == "none":
+        return ()
+    if policy.mode in ("inline", "offline"):
+        from ..io.doc import patch_curdoc
+
+        with patch_curdoc(document):
+            return document.serialization_model_types(registered_model_types)
+    return tuple(
+        HasProps.model_class_reverse_map.values() if registered_model_types is None else registered_model_types,
+    )
+
+
 def resolve_server_extensions(policy: _Resources,
         model_types: Iterable[type[HasProps]] | None = None) -> ResolvedResources:
-    '''Resolve every registered extension requirement for a live server session.
+    '''Resolve extension requirements from a server model-class snapshot.
 
     Extension registration is process-global, and a live document may add model
-    types after its initial session document is created. Asset-delivering modes
-    therefore intentionally resolve the whole registered-model set. Host-owned
-    mode has no assets to deliver and can bypass that global discovery entirely.
+    types after its initial session document is created. Delivery modes supporting
+    external assets use the registered-model set, while inline and offline hosts
+    supply the current session's types. Host-owned mode has no assets to deliver
+    and can bypass discovery entirely.
     '''
     if policy.mode == "none":
         return policy.resolve(ResourceRequirements((), ()), include_requirement_assets=False)
@@ -677,12 +699,7 @@ def server_extension_resources(default: _Resources, *, mode: str | None,
         if minified is not None:
             raise ValueError("Bokeh-Resource-Minified requires Bokeh-Resource-Mode")
         return default
-    if mode in ("relative", "absolute"):
-        raise ValueError(
-            f"server bootstrap cannot resolve {mode} extension paths for an embedding host. "
-            "Use server, CDN, inline, or host-owned resources",
-        )
-    if mode not in ("none", "inline", "offline", "cdn", "server"):
+    if mode not in ("none", "inline", "offline", "cdn", "server", "relative", "absolute"):
         raise ValueError(f"unknown server extension resource mode {mode!r}")
     if minified is None:
         use_minified = default.minified
@@ -692,7 +709,9 @@ def server_extension_resources(default: _Resources, *, mode: str | None,
         use_minified = False
     else:
         raise ValueError("Bokeh-Resource-Minified must be 'true' or 'false'")
-    if mode == "server":
+    if mode in ("server", "relative", "absolute"):
+        # Host filesystem paths cannot address server extensions in a browser.
+        # Serve those assets through the public server prefix instead.
         return _Resources(mode="server", minified=use_minified, root_url=root_url)
     return _Resources(mode=cast(Any, mode), minified=use_minified)
 
@@ -725,5 +744,6 @@ __all__ = (
     "ResourceRequirements",
     "requirements_for_all_models",
     "requirements_for_objs",
+    "server_extension_model_types",
     "server_extension_resources",
 )

@@ -19,8 +19,8 @@ import {EmbedError, prepare_embed, validate_embed_payload} from "./payload"
 import type {ResourcePolicy, ResourcePolicyMode} from "./resources"
 import {resource_loader} from "./resources"
 
-declare type Jq = any
-declare const $: Jq
+type Jq = {readonly [index: number]: HTMLElement, readonly length: number}
+declare const $: new (...args: unknown[]) => Jq
 
 export type ShowableRoot = UIElement | DOMNode
 export type Showable = ShowableRoot | readonly ShowableRoot[]
@@ -28,7 +28,7 @@ export type Showable = ShowableRoot | readonly ShowableRoot[]
 /** Stable caller-defined address for one root within a mount. */
 export type RootKey = string
 /** Caller-owned DOM destination, provided directly or by selector. */
-export type MountTarget = EmbedTarget | string
+export type MountTarget = EmbedTarget | string | Jq
 /** Models addressed by logical root key. A model may appear under only one key. */
 export type KeyedRoots<T extends HasProps = HasProps> = ReadonlyMap<RootKey, T> | Readonly<Record<RootKey, T>>
 /** Per-root destinations. Missing or null entries keep that root detached. */
@@ -234,8 +234,12 @@ function is_embed_target(target: unknown): target is EmbedTarget {
   return target instanceof HTMLElement || target instanceof DocumentFragment
 }
 
+function is_jquery_target(target: unknown): target is Jq {
+  return typeof $ == "function" && $.prototype != null && target instanceof $
+}
+
 function is_mount_target(target: MountTargets): target is MountTarget {
-  return isString(target) || is_embed_target(target)
+  return isString(target) || is_embed_target(target) || is_jquery_target(target)
 }
 
 /** Publish a structured failure when a bootstrap cannot create a mount handle. */
@@ -342,6 +346,9 @@ function as_mount_source(source: Mountable): MountSource {
 
 function mount_error(kind: MountErrorKind, error: unknown, root_key?: RootKey): MountError {
   if (error instanceof MountError) {
+    if (error.phase == null && (error.kind == "target" || error.kind == "render")) {
+      return new MountError(error.kind, error.message, error, error.root_key ?? root_key, error.kind, error.source)
+    }
     return error
   } else if (error instanceof StandaloneRootError) {
     return mount_error(kind, error.cause, error.root_key)
@@ -349,7 +356,8 @@ function mount_error(kind: MountErrorKind, error: unknown, root_key?: RootKey): 
     return new MountError(error.kind, error.message, error, root_key, error.phase, error.source)
   }
   const message = error instanceof Error ? error.message : `${error}`
-  return new MountError(kind, message, error, root_key)
+  const phase = kind == "target" || kind == "render" ? kind : undefined
+  return new MountError(kind, message, error, root_key, phase)
 }
 
 function attempt_cleanup(action: () => void, description: string): void {
@@ -384,8 +392,8 @@ async function resolve_target(target: MountTarget | undefined, script: HTMLScrip
     } else {
       throw new Error(`'${target}' selector didn't match an HTMLElement`)
     }
-  } else if (typeof $ !== "undefined" && (target as any) instanceof $) {
-    resolved = (target as Jq)[0]
+  } else if (is_jquery_target(target)) {
+    resolved = target[0]
   }
 
   if (resolved instanceof HTMLElement) {
@@ -718,8 +726,9 @@ export class BokehMount<T extends HasProps = HasProps> {
       this._state = "ready"
       this._sync_published_targets()
     } catch (error) {
+      const initialization_error = mount_error("render", error)
       const mounted_error = this._context.error_source != null
-        ? declaration_error(error, this._context.error_source) : mount_error("render", error)
+        ? declaration_error(initialization_error, this._context.error_source) : initialization_error
       if (this._state != "disposed") {
         this._state = "failed"
         this.signal?.removeEventListener("abort", this._on_abort)

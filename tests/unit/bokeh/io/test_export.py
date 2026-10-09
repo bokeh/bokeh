@@ -18,12 +18,13 @@ import pytest ; pytest
 
 # Standard library imports
 import asyncio
+import json
 import re
 import sys
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 from typing import TYPE_CHECKING, Literal
 
 # External imports
@@ -466,6 +467,57 @@ class TestPlaywrightPNG:
         div = Div(text="Something", styles=dict(width="100.64px", height="50.34px"))
         png = bie.get_screenshot_as_png(div, driver=browser)
         assert len(png.tobytes()) > 0
+
+    def test_default_export_uses_installed_package_offline(
+        self, browser: Browser, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from bokeh.model import Model
+        from bokeh.util.compiler import JavaScript, bundle_models
+
+        implementation = JavaScript("""
+            import {Div} from "models/widgets/div"
+            export class LocalExportDiv extends Div {
+                static __module__ = "local_export_pkg.models"
+            }
+        """)
+
+        class LocalExportDiv(Div):
+            __view_model__ = "LocalExportDiv"
+            __view_module__ = "local_export_pkg.models"
+            __qualified_model__ = "local_export_pkg.models.LocalExportDiv"
+            __implementation__ = implementation
+
+        try:
+            bundle = bundle_models([LocalExportDiv])
+            assert bundle is not None
+            base_dir = tmp_path / "local_export_pkg"
+            dist_dir = base_dir / "dist"
+            dist_dir.mkdir(parents=True)
+            module = ModuleType("local_export_pkg")
+            module.__file__ = str(base_dir / "__init__.py")
+            monkeypatch.setitem(sys.modules, "local_export_pkg", module)
+            (base_dir / "bokeh.ext.json").write_text("{}")
+            (base_dir / "package.json").write_text(json.dumps({
+                "name": "@bokeh-test/unpublished-export-package",
+                "version": "0.0.0", "module": "dist/local_export.js",
+            }))
+            (dist_dir / "local_export.js").write_text(bundle)
+            del LocalExportDiv.__implementation__
+
+            requests: list[str] = []
+            with browser.new_context(offline=True) as context:
+                context.on("request", lambda request: requests.append(request.url))
+                png = bie.get_screenshot_as_png(
+                    LocalExportDiv(width=40, height=30, text="", styles={"background-color": "#00ff00"}),
+                    driver=context,
+                )
+
+            assert png.size == (40, 30)
+            assert png.getpixel((20, 15)) == (0, 255, 0, 255)
+            assert all(not url.startswith(("http:", "https:")) for url in requests)
+        finally:
+            LocalExportDiv.__implementation__ = implementation
+            Model.clear_extensions()
 
 
 @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")

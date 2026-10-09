@@ -17,10 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 import os
 import re
 import subprocess
 import sys
+from pathlib import Path
+from types import ModuleType
 from unittest.mock import ANY, MagicMock, patch
 
 # Bokeh imports
@@ -206,6 +209,47 @@ def test_inline_export_does_not_inherit_cdn_version_override(monkeypatch: pytest
     assert f'data-bokeh-resource-override-version="{__version__}"' in bootstrap.group()
     assert 'data-bokeh-resource-override-version="99.0.0"' not in bootstrap.group()
     assert 'src="https://cdn.bokeh.org' not in html
+
+
+@pytest.mark.parametrize("entry_point", ["module", "main", None])
+def test_default_export_inlines_packaged_extensions_and_retains_url_dependencies(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, entry_point: str | None,
+) -> None:
+    from bokeh.embed import embed
+    from bokeh.models import Div
+
+    name = "export_extension"
+    base_dir = tmp_path / name
+    dist_dir = base_dir / "dist"
+    dist_dir.mkdir(parents=True)
+    module = ModuleType(name)
+    module.__file__ = str(base_dir / "__init__.py")
+    monkeypatch.setitem(sys.modules, name, module)
+    (base_dir / "bokeh.ext.json").write_text("{}")
+    package = {"name": "@example/export-extension", "version": "1.2.3"}
+    if entry_point is not None:
+        package[entry_point] = f"dist/{name}.js"
+    (base_dir / "package.json").write_text(json.dumps(package))
+    (dist_dir / f"{name}.js").write_text("globalThis.local_export_extension = true")
+
+    monkeypatch.setattr(Div, "__view_module__", f"{name}.models")
+    monkeypatch.setattr(Div, "__javascript__", ["https://example.test/dependency.js"], raising=False)
+    monkeypatch.setattr(Div, "__css__", ["https://example.test/dependency.css"], raising=False)
+    monkeypatch.setattr(settings.cdn_version, "_user_value", "99.0.0")
+    plot = Div(text="Packaged extension")
+
+    html = biu.get_layout_html(plot)
+
+    assert "globalThis.local_export_extension" in html
+    assert '<script src="https://example.test/dependency.js"' in html
+    assert '<link rel="stylesheet" href="https://example.test/dependency.css"' in html
+    assert html.index('src="https://example.test/dependency.js"') < html.index("globalThis.local_export_extension")
+    assert 'src="https://unpkg.com' not in html
+    assert 'src="https://cdn.bokeh.org' not in html
+    assert f'data-bokeh-resource-override-version="{__version__}"' in html
+    if entry_point is not None:
+        cdn_html = embed(plot).page(resources=CDN)
+        assert f'src="https://unpkg.com/@example/export-extension@1.2.3/dist/{name}.js"' in cdn_html
 
 #-----------------------------------------------------------------------------
 # Code

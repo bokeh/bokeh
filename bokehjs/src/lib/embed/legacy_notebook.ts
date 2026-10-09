@@ -84,7 +84,24 @@ function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: Co
   }
 }
 
-function _init_comms(target: string, doc: Document): void {
+function _init_comms(target: string, root_id: string | undefined): {
+  connect(doc: Document): void
+  abort(): void
+} {
+  let doc: Document | null = null
+  let aborted = false
+  const pending: {receiver: Receiver, message: CommMessage}[] = []
+  const receive = (receiver: Receiver, message: CommMessage) => {
+    if (aborted) {
+      return
+    }
+    if (doc == null) {
+      pending.push({receiver, message})
+    } else {
+      _handle_notebook_comms.call(doc, receiver, message)
+    }
+  }
+
   if (typeof Jupyter !== "undefined" && Jupyter.notebook.kernel != null) {
     logger.info(`Registering Jupyter comms for target ${target}`)
     const comm_manager = Jupyter.notebook.kernel.comm_manager
@@ -92,19 +109,19 @@ function _init_comms(target: string, doc: Document): void {
       comm_manager.register_target(target, (comm: Comm) => {
         logger.info(`Registering Jupyter comms for target ${target}`)
         const r = new Receiver()
-        comm.on_msg(_handle_notebook_comms.bind(doc, r))
+        comm.on_msg((message) => receive(r, message))
       })
     } catch (e) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
-  } else if (doc.roots()[0].id in kernels) {
+  } else if (root_id != null && root_id in kernels) {
     logger.info(`Registering JupyterLab comms for target ${target}`)
-    const kernel = kernels[doc.roots()[0].id] as Kernel
+    const kernel = kernels[root_id] as Kernel
     try {
       kernel.registerCommTarget(target, (comm: Comm) => {
         logger.info(`Registering JupyterLab comms for target ${target}`)
         const r = new Receiver()
-        comm.onMsg = _handle_notebook_comms.bind(doc, r)
+        comm.onMsg = (message) => receive(r, message)
       })
     } catch (e) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
@@ -123,7 +140,7 @@ function _init_comms(target: string, doc: Document): void {
             buffers.push(new DataView(buffer))
           }
           const msg = {content, buffers}
-          _handle_notebook_comms.bind(doc)(r, msg)
+          receive(r, msg)
         }
       })
     } catch (e) {
@@ -132,29 +149,72 @@ function _init_comms(target: string, doc: Document): void {
   } else {
     console.warn("Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest @bokeh/jupyter_bokeh extension is installed. In an exported notebook this warning is expected.")
   }
+  return {
+    connect(document) {
+      doc = document
+      for (const {receiver, message} of pending) {
+        _handle_notebook_comms.call(document, receiver, message)
+      }
+      pending.length = 0
+    },
+    abort() {
+      aborted = true
+      doc = null
+      pending.length = 0
+    },
+  }
 }
 
-export async function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): Promise<void> {
+export async function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[],
+    load_resources?: () => Promise<void>): Promise<void> {
   if (size(docs_json) != 1) {
     throw new Error("embed_items_notebook expects exactly one document in docs_json")
   }
 
-  const document = Document.from_json(values(docs_json)[0])
-
-  for (const item of render_items) {
-    if (item.notebook_comms_target != null) {
-      _init_comms(item.notebook_comms_target, document)
+  // The kernel can open the comm as soon as the display script runs.
+  // Register before loading assets and retain patches until deserialization.
+  const comms = render_items.flatMap((item) => {
+    if (item.notebook_comms_target == null) {
+      return []
     }
+    const root_id = item.root_ids?.[0] ?? Object.keys(item.roots ?? {})[0]
+    return [_init_comms(item.notebook_comms_target, root_id)]
+  })
+  try {
+    if (load_resources != null) {
+      await load_resources()
+    }
+    const document = Document.from_json(values(docs_json)[0])
+    for (const comm of comms) {
+      comm.connect(document)
+    }
+    for (const item of render_items) {
+      const element = _resolve_element(item)
+      const roots = _resolve_root_elements(item)
 
-    const element = _resolve_element(item)
-    const roots = _resolve_root_elements(item)
+      await mount_document_standalone(document, element, {roots})
 
-    await mount_document_standalone(document, element, {roots})
-
-    for (const root of roots) {
-      if (root instanceof HTMLElement) {
-        root.removeAttribute("id")
+      for (const root of roots) {
+        if (root instanceof HTMLElement) {
+          root.removeAttribute("id")
+        }
       }
     }
+  } catch (error) {
+    for (const comm of comms) {
+      comm.abort()
+    }
+    for (const item of render_items) {
+      const targets = [item.elementid, ...values(item.roots ?? {})]
+      for (const target of targets) {
+        const element = isString(target) ? window.document.getElementById(target) : target
+        if (element != null) {
+          const status = div({role: "alert"})
+          status.textContent = `Bokeh notebook display failed: ${error instanceof Error ? error.message : String(error)}`
+          element.replaceChildren(status)
+        }
+      }
+    }
+    throw error
   }
 }

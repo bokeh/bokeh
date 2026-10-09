@@ -32,6 +32,7 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    Iterable,
     Literal,
     NoReturn,
     NotRequired,
@@ -63,8 +64,8 @@ from .types import ID
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    from ..core.has_props import Setter
     from ..model import Model
+    from .has_props import HasProps, Setter
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -77,9 +78,11 @@ __all__ = (
     "Serializable",
     "SerializationError",
     "Serializer",
+    "collect_model_types",
 )
 
 _MAX_SAFE_INT = 2**53 - 1
+_SCALAR_TYPES = frozenset({type(None), bool, int, float, str, bytes, memoryview, TypedArray})
 
 #-----------------------------------------------------------------------------
 # General API
@@ -325,7 +328,7 @@ class Serializer:
             if obj.shape != ():
                 return self._encode_ndarray(obj)
             else:
-                return self._encode(obj.item())
+                return self.encode(obj.item())
         elif is_dataclass(obj):
             return self._encode_dataclass(obj)
         else:
@@ -518,6 +521,73 @@ class Serializer:
 
     def error(self, message: str) -> NoReturn:
         raise SerializationError(message)
+
+
+class _ModelTypeCollector(Serializer):
+    def __init__(self) -> None:
+        super().__init__()
+        self.model_types: dict[type[HasProps], None] = {}
+        self._objects: dict[int, Any] = {}
+        self._scalar_types = _SCALAR_TYPES.difference(self._encoders)
+
+    def encode(self, obj: Any) -> AnyRep:
+        from .has_props import HasProps
+
+        if type(obj) in self._scalar_types:
+            return None
+        if isinstance(obj, HasProps):
+            self.model_types[type(obj)] = None
+            self._objects[id(obj)] = obj
+        elif isinstance(obj, type) and issubclass(obj, HasProps):
+            self.model_types[obj] = None
+        elif isinstance(obj, (list, tuple, dict, set, np.ndarray)):
+            if id(obj) in self._objects:
+                return None
+            # Retain containers to prevent identity reuse by default factories.
+            self._objects[id(obj)] = obj
+        return super().encode(obj)
+
+    def _visit_values(self, values: Iterable[Any]) -> None:
+        for value in values:
+            if type(value) not in self._scalar_types:
+                self.encode(value)
+
+    def _encode_list(self, obj: list[Any]) -> ArrayRepLike:
+        self._visit_values(obj)
+        return []
+
+    def _encode_tuple(self, obj: tuple[Any, ...]) -> ArrayRepLike:
+        self._visit_values(obj)
+        return []
+
+    def _encode_dict(self, obj: dict[Any, Any]) -> MapRep:
+        self._visit_values(obj.keys())
+        self._visit_values(obj.values())
+        return MapRep(type="map")
+
+    def _encode_set(self, obj: set[Any]) -> SetRep:
+        self._visit_values(obj)
+        return SetRep(type="set")
+
+    def _encode_ndarray(self, obj: npt.NDArray[Any]) -> NDArrayRep:
+        if obj.dtype.hasobject:
+            self._visit_values(value.item() if isinstance(value, np.void) else value for value in obj.flat)
+        return NDArrayRep(type="ndarray", array=[], shape=[], dtype="object", order=sys.byteorder)
+
+
+def collect_model_types(*values: Any) -> tuple[type[HasProps], ...]:
+    '''Inspect serialized model classes without constructing a payload.
+
+    Models and class definitions use their normal encoders. Scalar values,
+    numeric buffers, and container output are discarded instead of building a
+    second serialized payload. Arbitrary Python containers still require a
+    traversal because any element can contain a model.
+    '''
+    collector = _ModelTypeCollector()
+    for value in values:
+        collector.encode(value)
+    return tuple(collector.model_types)
+
 
 class DeserializationError(ValueError):
     pass

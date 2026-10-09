@@ -60,10 +60,11 @@ from bokeh.core.serialization import (
     SetRep,
     SliceRep,
     TypedArrayRep,
+    collect_model_types,
 )
 from bokeh.document import Document
 from bokeh.model import Model
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.util.dataclasses import NotRequired, Unspecified
 from bokeh.util.warnings import BokehUserWarning
 
@@ -92,6 +93,58 @@ class SomeModel(Model):
 
 class SomeModelUnset(SomeModel):
     p4 = Required(Int)
+
+
+def test_collect_model_types_follows_nested_serialized_values() -> None:
+    nested = SomeModel(p1="nested", p2=[])
+    root = CustomJS(args={"value": SimpleNamespace(child=SomeDataClass(1, [], f5=nested))}, code="")
+
+    assert set(collect_model_types(root)) == {CustomJS, SomeModel}
+
+
+def test_collect_model_types_skips_numeric_array_elements(monkeypatch: pytest.MonkeyPatch) -> None:
+    array = np.zeros(10_000_000)
+    root = ColumnDataSource(data={"x": array})
+
+    def fail_to_encode_bytes(*values: Any) -> None:
+        raise AssertionError("discovery must not construct binary buffers")
+
+    monkeypatch.setattr(Serializer, "_encode_bytes", fail_to_encode_bytes)
+
+    assert ColumnDataSource in collect_model_types(root)
+
+
+@pytest.mark.parametrize("structured", [False, True])
+@pytest.mark.parametrize("scalar", [False, True])
+def test_collect_model_types_follows_object_array_elements(structured: bool, scalar: bool) -> None:
+    model = SomeModel(p1="array", p2=[])
+    array = np.empty(() if scalar else (1,), dtype=[("child", object)] if structured else object)
+    if structured:
+        array["child"][...] = model
+    else:
+        array[...] = model
+
+    if not scalar:
+        assert Serializer().encode(array)["type"] == "ndarray"
+    assert collect_model_types(array) == (SomeModel,)
+
+
+def test_collect_model_types_handles_shared_and_cyclic_containers() -> None:
+    model = SomeModel(p1="shared", p2=[])
+    value: list[Any] = [model]
+    value.append(value)
+
+    assert collect_model_types({"first": value, "second": value}) == (SomeModel,)
+
+
+def test_document_model_type_discovery_preserves_sync_state() -> None:
+    document = Document()
+    root = CustomJS(code="")
+    document.add_root(root)
+    pending = set(document.models._new_models)
+
+    assert CustomJS in document.serialization_model_types()
+    assert document.models._new_models == pending
 
 @dataclass
 class SomeDataClass:
