@@ -53,30 +53,14 @@ export abstract class UIElementView extends StyledElementView {
     }
   }
 
-  private _bbox: BBox = new BBox()
   override get bbox(): BBox {
-    return this._bbox
+    return this._compute_bbox()
   }
 
-  update_bbox(): boolean {
-    return this._update_bbox()
-  }
-
-  protected _update_bbox(): boolean {
-    const displayed = (() => {
-      // Consider using Element.checkVisibility() in the future.
-      // https://w3c.github.io/csswg-drafts/cssom-view-1/#dom-element-checkvisibility
-      if (!this.el.isConnected) {
-        return false
-      } else if (this.el.offsetParent != null) {
-        return true
-      } else {
-        const {position, display} = getComputedStyle(this.el)
-        return position == "fixed" && display != "none"
-      }
-    })()
-
-    const bbox = !displayed ? new BBox() : (() => {
+  protected _compute_bbox(): BBox {
+    if (!this.is_displayed) {
+      return new BBox()
+    } else {
       const self = this.el.getBoundingClientRect()
 
       const {left, top} = (() => {
@@ -97,12 +81,7 @@ export abstract class UIElementView extends StyledElementView {
         width: floor(self.width),
         height: floor(self.height),
       })
-    })()
-
-    const changed = !this._bbox.equals(bbox)
-    this._bbox = bbox
-    this._is_displayed = displayed
-    return changed
+    }
   }
 
   protected _resize_observer: ResizeObserver
@@ -176,16 +155,18 @@ export abstract class UIElementView extends StyledElementView {
     super.remove()
   }
 
-  private _resized: boolean = false
+  private _resized: boolean | null = false // null => needs manual after_resize()
 
   protected _after_resize(): void {}
 
   after_resize(): void {
-    this._resized = true
-    if (this.update_bbox()) {
+    if (this._was_built) {
+      this._resized = true
       this._after_resize()
+      this.finish()
+    } else {
+      this._resized = null
     }
-    this.finish()
   }
 
   override render(): void {
@@ -195,7 +176,6 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _after_render(): void {
     this.update_style()
-    this.update_bbox()
   }
 
   override after_render(): void {
@@ -210,17 +190,19 @@ export abstract class UIElementView extends StyledElementView {
         // In case after_resize() wasn't called (see regression test for issue
         // #9113), then wait one macro task and consider this view finished.
         void defer().then(() => {
-          if (!this._resized) {
+          if (this._resized === false) {
+            this._resized = true
             this.finish()
+          } else if (this._resized === null) {
+            this.after_resize()
           }
         })
       }
     }
   }
 
-  private _is_displayed: boolean = false
   get is_displayed(): boolean {
-    return this._is_displayed
+    return this.el.checkVisibility()
   }
 
   protected _apply_visible(): void {
