@@ -256,6 +256,54 @@ describe("WheelZoomTool", () => {
         y: [-0.833333, 0.833333],
       })
     })
+
+    it("should not zoom before hover_delay has elapsed", async () => {
+      const wheel_zoom = new WheelZoomTool({hover_delay: 50})
+      const {view, tool_view} = await make_plot(wheel_zoom)
+
+      view.mouseenter.emit(new MouseEvent("mouseenter"))
+
+      const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
+      tool_view._scroll(zoom_event)
+
+      expect(xy_axis(view)).to.be.similar({
+        x: [-1.0, 1.0],
+        y: [-1.0, 1.0],
+      })
+    })
+
+    it("should zoom once hover_delay has elapsed", async () => {
+      const wheel_zoom = new WheelZoomTool({hover_delay: 10})
+      const {view, tool_view} = await make_plot(wheel_zoom)
+
+      view.mouseenter.emit(new MouseEvent("mouseenter"))
+      await new Promise((resolve) => setTimeout(resolve, 20))
+
+      const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
+      tool_view._scroll(zoom_event)
+
+      expect(xy_axis(view)).to.be.similar({
+        x: [-0.833333, 0.833333],
+        y: [-0.833333, 0.833333],
+      })
+    })
+
+    it("should reset hover state on mouseleave", async () => {
+      const wheel_zoom = new WheelZoomTool({hover_delay: 10})
+      const {view, tool_view} = await make_plot(wheel_zoom)
+
+      view.mouseenter.emit(new MouseEvent("mouseenter"))
+      await new Promise((resolve) => setTimeout(resolve, 20))
+      view.mouseleave.emit(new MouseEvent("mouseleave"))
+
+      const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
+      tool_view._scroll(zoom_event)
+
+      expect(xy_axis(view)).to.be.similar({
+        x: [-1.0, 1.0],
+        y: [-1.0, 1.0],
+      })
+    })
   })
 
   it("should support auto-activation when active_scroll='auto' and plot has focus", async () => {
