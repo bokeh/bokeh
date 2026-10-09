@@ -25,8 +25,8 @@ describe("LayoutDOMView", () => {
 
       for (const plot of plots) {
         const {width, height} = view.owner.get_one(plot).frame.bbox
-        expect(width).to.be.within(150, plot.width!)
-        expect(height).to.be.within(150, plot.height!)
+        expect(width).to.be.within(150, 300)
+        expect(height).to.be.within(150, 300)
       }
     }
 
