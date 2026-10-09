@@ -44,7 +44,7 @@ from ..resources import (
 )
 from ..settings import settings
 from ..util.compiler import CompilationError, bundle_models
-from ._util import canonical_embed_json, contains_tex_string
+from ._util import contains_tex_string
 
 #-----------------------------------------------------------------------------
 # General API
@@ -342,26 +342,9 @@ class ResolvedResources:
     policy: _Resources
     bokeh_version: str
     assets: tuple[ResolvedResource, ...] = ()
-    fingerprint: str = field(init=False)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "assets", tuple(self.assets))
-        policy = self.policy.to_dict()
-        policy.pop("base_dir", None)
-        policy.pop("root_dir", None)
-        assets = []
-        for asset in self.assets:
-            value = asset.to_dict()
-            value.pop("content", None)
-            assets.append(value)
-        payload = {
-            "requirements": self.requirements.to_dict(),
-            "policy": policy,
-            "assets": assets,
-            "bokeh_version": self.bokeh_version,
-        }
-        encoded = canonical_embed_json(payload)
-        object.__setattr__(self, "fingerprint", hashlib.sha256(encoded.encode("utf-8")).hexdigest())
 
     def to_dict(self) -> dict[str, Any]:
         '''Return the JSON-compatible resolved resource set.

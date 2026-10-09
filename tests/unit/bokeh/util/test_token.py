@@ -109,15 +109,19 @@ class TestSessionId:
         assert token != another_token
 
     @pytest.mark.parametrize("compressed", [False, True])
-    def test_rejects_deeply_nested_json(self, compressed: bool) -> None:
-        nested = "["*10000 + "0" + "]"*10000
+    def test_wraps_json_recursion_errors(self, compressed: bool) -> None:
+        decoded = {"session_id": "test"}
+        recursion_error = RecursionError("JSON nesting limit exceeded")
         if compressed:
-            extra = zlib.compress(f'{{"nested":{nested}}}'.encode())
-            raw = json.dumps({"session_id": "test", _TOKEN_ZLIB_KEY: _base64_encode(extra)})
+            decoded[_TOKEN_ZLIB_KEY] = _base64_encode(zlib.compress(b'{}'))
+            decode_results = [decoded, recursion_error]
         else:
-            raw = f'{{"session_id":"test","nested":{nested}}}'
-        with pytest.raises(TokenDecodeError, match="invalid session token"):
-            get_token_payload(_base64_encode(raw))
+            decode_results = [recursion_error]
+        token = _base64_encode(json.dumps(decoded))
+        with patch("bokeh.util.token.json.loads", side_effect=decode_results):
+            with pytest.raises(TokenDecodeError, match="invalid session token") as error:
+                get_token_payload(token)
+        assert error.value.__cause__ is recursion_error
 
     def test_payload_unsigned(self):
         token = generate_jwt_token(generate_session_id(), signed=False, extra_payload=dict(foo=10))

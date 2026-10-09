@@ -29,7 +29,7 @@ from unittest.mock import MagicMock, PropertyMock, patch
 # Bokeh imports
 from bokeh.document.document import Document
 from bokeh.embed.resources import ResourceRequirements
-from bokeh.io.doc import set_curdoc
+from bokeh.io.doc import patch_curdoc, set_curdoc
 from bokeh.io.notebook import log
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -143,7 +143,13 @@ def test_show_app_publishes_single_shared_mount_script(mock_publish: MagicMock,
     assert 'data-bokeh-root="*"' in fragment
     assert 'type="application/vnd.bokeh.embed+json"' in fragment
     assert "Bokeh.mount_embed_declaration(declaration)" in fragment
-    assert embed_server("http://localhost:1234/").fingerprint in fragment
+    assert "data-bokeh-embed-instance=" in fragment
+    assert "data-bokeh-embed=" not in fragment
+    match = re.search(r'<script\b[^>]*\bdata-bokeh-embed-payload\b[^>]*>(.*?)</script>', fragment, re.DOTALL)
+    assert match is not None
+    payload = json.loads(match.group(1))
+    assert payload["source"] == embed_server("http://localhost:1234/").source
+    assert "fingerprint" not in payload
     assert binb.EXEC_MIME_TYPE in data
     assert "server_id" in mock_publish.call_args.kwargs["metadata"][binb.EXEC_MIME_TYPE]
 
@@ -210,6 +216,45 @@ def test_legacy_notebook_content_adapts_protocol_result() -> None:
     assert f'data-root-id="{plot.id}"' in div
     assert cell_doc is not None
     assert cell_doc.get_model_by_id(plot.id) is not None
+
+
+@patch('bokeh.embed.result.EmbedResult.source', new_callable=PropertyMock)
+@patch('bokeh.embed.result.EmbedResult.fragment')
+def test_legacy_notebook_content_skips_unused_fragment_and_source_copy(
+        mock_fragment: MagicMock, mock_source: PropertyMock) -> None:
+    from bokeh.plotting import figure
+
+    mock_fragment.side_effect = AssertionError("legacy notebook output does not use an embed fragment")
+    mock_source.side_effect = AssertionError("legacy notebook output only reads the stored source")
+
+    script, div, cell_doc = binb._legacy_notebook_content(figure(), None)
+
+    assert "embed_items_notebook" in script
+    assert "data-root-id" in div
+    assert cell_doc is None
+    mock_fragment.assert_not_called()
+    mock_source.assert_not_called()
+
+
+def test_legacy_notebook_content_preserves_current_theme_and_live_model_ids() -> None:
+    from bokeh.core.types import ID
+    from bokeh.models import Button
+    from bokeh.themes import Theme
+
+    current = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "danger"}}}))
+    source = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "success"}}}))
+    button = Button()
+    source.add_root(button)
+
+    with patch_curdoc(current):
+        _, _, cell_doc = binb._legacy_notebook_content(button, ID("target"))
+
+    assert cell_doc is not None
+    copied = cell_doc.get_model_by_id(button.id)
+    assert isinstance(copied, Button)
+    assert copied.button_type == "danger"
+    assert button.document is source
+    assert button.button_type == "success"
 
 
 @patch('bokeh.document.Document.from_json')

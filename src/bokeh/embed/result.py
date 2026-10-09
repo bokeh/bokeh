@@ -9,8 +9,8 @@
 from __future__ import annotations
 
 # Standard library imports
-import hashlib
 import json
+import math
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Mapping
@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 
 # Bokeh imports
 from .. import __version__
-from ._util import canonical_embed_json, escape_json_surrogates
+from ._util import escape_json_surrogates
 from .resources import ResourceRequirements
 
 if TYPE_CHECKING:
@@ -117,19 +117,17 @@ class EmbedResult:
 
     ``source`` contains standalone document data or a server descriptor.
     ``roots`` supplies logical addresses. ``requires`` declares runtime assets
-    independently from delivery policy. ``fingerprint`` is derived from the
-    normalized envelope. Python verifies it when reconstructing a result from
-    serialized data.
+    independently from delivery policy. Python and BokehJS validate the envelope
+    when reconstructing a result from serialized data.
     '''
     roots: tuple[EmbedRoot, ...]
     requires: ResourceRequirements
     bokeh_version: str
     schema: str
-    fingerprint: str
     _source: dict[str, Any] = field(repr=False)
     _metadata: dict[str, Any] = field(repr=False)
     _payload: dict[str, Any] = field(repr=False, compare=False)
-    _json_string: str = field(repr=False, compare=False)
+    _json_string: str | None = field(repr=False, compare=False)
 
     def __init__(self, source: Mapping[str, Any], roots: tuple[EmbedRoot, ...],
             requires: ResourceRequirements | None = None, metadata: Mapping[str, Any] | None = None,
@@ -139,14 +137,8 @@ class EmbedResult:
         if metadata is not None and not isinstance(metadata, Mapping):
             raise EmbedValidationError("embed payload metadata must be an object")
         try:
-            source_value = dict(source)
-            metadata_value = dict(metadata) if metadata is not None else {}
-            canonical_embed_json(source_value)
-            canonical_embed_json(metadata_value)
-            source_data = json.loads(json.dumps(source_value, ensure_ascii=False, allow_nan=False))
-            metadata_data = json.loads(json.dumps(
-                metadata_value, ensure_ascii=False, allow_nan=False,
-            ))
+            source_data = _snapshot_json(dict(source), set())
+            metadata_data = _snapshot_json(dict(metadata) if metadata is not None else {}, set())
         except (TypeError, ValueError) as error:
             raise EmbedValidationError(str(error)) from error
         object.__setattr__(self, "roots", roots)
@@ -159,17 +151,8 @@ class EmbedResult:
         self._finalize_payload()
 
     def _finalize_payload(self) -> None:
-        envelope = self._envelope()
-        try:
-            fingerprint = _fingerprint(envelope)
-        except (TypeError, ValueError) as error:
-            raise EmbedValidationError(str(error)) from error
-        payload = {**envelope, "fingerprint": fingerprint}
-        object.__setattr__(self, "fingerprint", fingerprint)
-        object.__setattr__(self, "_payload", payload)
-        object.__setattr__(self, "_json_string", escape_json_surrogates(json.dumps(
-            payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False,
-        )))
+        object.__setattr__(self, "_payload", self._envelope())
+        object.__setattr__(self, "_json_string", None)
 
     def _project_requirements(self, requires: ResourceRequirements) -> EmbedResult:
         if requires == self.requires:
@@ -197,8 +180,7 @@ class EmbedResult:
         '''Return a detached copy of the host metadata.'''
         return deepcopy(self._metadata)
 
-    def __hash__(self) -> int:
-        return hash(self.fingerprint)
+    __hash__ = None  # type: ignore[assignment]
 
     def _validate(self) -> None:
         if self.schema != EMBED_SCHEMA:
@@ -274,6 +256,7 @@ class EmbedResult:
             raise EmbedValidationError("embed root keys must be unique")
         if len(addresses) != len(set(addresses)):
             raise EmbedValidationError("embed roots must identify unique models")
+
     def _envelope(self) -> dict[str, Any]:
         return {
             "schema": self.schema,
@@ -285,7 +268,7 @@ class EmbedResult:
         }
 
     def to_dict(self) -> dict[str, Any]:
-        '''Return a detached JSON-compatible envelope including its fingerprint.
+        '''Return a detached JSON-compatible envelope.
 
         Returns:
             The complete embed payload.
@@ -313,7 +296,13 @@ class EmbedResult:
             return escape_json_surrogates(json.dumps(
                 self._payload, ensure_ascii=False, indent=2, allow_nan=False,
             ))
-        return self._json_string
+        json_string = self._json_string
+        if json_string is None:
+            json_string = escape_json_surrogates(json.dumps(
+                self._payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False,
+            ))
+            object.__setattr__(self, "_json_string", json_string)
+        return json_string
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> EmbedResult:
@@ -338,12 +327,9 @@ class EmbedResult:
             )
         _reject_unknown_fields(
             value,
-            {"schema", "bokeh_version", "source", "roots", "requires", "metadata", "fingerprint"},
+            {"schema", "bokeh_version", "source", "roots", "requires", "metadata"},
             "embed payload",
         )
-        supplied = value.get("fingerprint")
-        if not isinstance(supplied, str) or not supplied:
-            raise EmbedValidationError("embed payload fingerprint must be a non-empty string")
         bokeh_version = value.get("bokeh_version")
         if not isinstance(bokeh_version, str):
             raise EmbedValidationError("embed payload bokeh_version must be a string")
@@ -369,10 +355,6 @@ class EmbedResult:
             raise
         except (KeyError, TypeError, ValueError) as error:
             raise EmbedValidationError(f"invalid embed payload: {error}") from error
-        if supplied != result.fingerprint:
-            raise EmbedValidationError(
-                f"embed payload fingerprint mismatch: expected {result.fingerprint!r}, received {supplied!r}",
-            )
         return result
 
     @classmethod
@@ -450,57 +432,48 @@ class EmbedResult:
         return render_mimebundle(self)
 
 
-def _fingerprint(value: Mapping[str, Any]) -> str:
-    normalized = dict(value)
-    source = normalized.get("source")
-    if isinstance(source, Mapping) and source.get("kind") == "standalone":
-        documents = source.get("documents")
-        if isinstance(documents, list):
-            normalized["source"] = {
-                **source,
-                "documents": [_normalize_model_ids(document) for document in documents],
-            }
-    payload = canonical_embed_json(normalized)
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+def _snapshot_json(value: Any, active: set[int]) -> Any:
+    """Validate and detach JSON data without serializing it."""
+    value_type = type(value)
+    if value_type is float:
+        if not math.isfinite(value):
+            raise ValueError("non-finite numbers are not valid embedding JSON")
+        return value
+    if value_type is int:
+        if abs(value) > 2**53 - 1:
+            raise ValueError(f"integer {value} exceeds JavaScript's safe integer range")
+        return value
+    if value is None or value_type is bool or value_type is str:
+        return value
+    if isinstance(value, float):
+        return _snapshot_json(float.__float__(value), active)
+    if isinstance(value, int):
+        return _snapshot_json(int.__int__(value), active)
+    if isinstance(value, str):
+        return str.__str__(value)
+    if isinstance(value, (dict, list, tuple)):
+        identity = id(value)
+        if identity in active:
+            raise ValueError("circular references are not valid embedding JSON")
+        active.add(identity)
+        try:
+            if isinstance(value, dict):
+                result = {}
+                for key, item in value.items():
+                    if not isinstance(key, str):
+                        raise TypeError("JSON object keys must be strings")
+                    result[str.__str__(key)] = _snapshot_json(item, active)
+                return result
+            return [_snapshot_json(item, active) for item in value]
+        finally:
+            active.remove(identity)
+    raise TypeError(f"object of type {value_type.__name__} is not JSON serializable")
 
 
 def _reject_unknown_fields(value: Mapping[str, Any], allowed: set[str], context: str) -> None:
     unknown = sorted(set(value) - allowed)
     if unknown:
         raise EmbedValidationError(f"{context} contains unknown fields: {unknown!r}")
-
-
-def _normalize_model_ids(value: Any) -> Any:
-    ids: list[str] = []
-    seen: set[str] = set()
-
-    def collect(child: Any) -> None:
-        if isinstance(child, dict):
-            compact = isinstance(child.get("$type"), str)
-            model_id = child.get("$id" if compact else "id")
-            if (compact or child.get("type") == "object") and isinstance(model_id, str) and model_id not in seen:
-                seen.add(model_id)
-                ids.append(model_id)
-            for key in sorted(child):
-                collect(child[key])
-        elif isinstance(child, (list, tuple)):
-            for item in child:
-                collect(item)
-
-    collect(value)
-    replacements = {model_id: f"model-{index}" for index, model_id in enumerate(ids)}
-
-    def replace(child: Any) -> Any:
-        if isinstance(child, dict):
-            return {
-                key: replacements.get(item, item) if key in ("id", "$id", "$ref") and isinstance(item, str) else replace(item)
-                for key, item in child.items()
-            }
-        if isinstance(child, (list, tuple)):
-            return [replace(item) for item in child]
-        return child
-
-    return replace(value)
 
 
 __all__ = (

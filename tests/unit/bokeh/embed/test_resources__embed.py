@@ -117,7 +117,7 @@ def test_resource_requirements_validate_schema() -> None:
         ResourceRequirements.from_dict({"components": ["unknown"], "extensions": []})
 
 
-def test_resolved_resources_schema_and_fingerprint() -> None:
+def test_resolved_resources_schema_and_asset_digest() -> None:
     asset = ResolvedResource(
         "script", content="export const value = 1", integrity="sha384-example",
         crossorigin="anonymous", nonce="example", module=True,
@@ -129,7 +129,7 @@ def test_resolved_resources_schema_and_fingerprint() -> None:
     assert asset.to_dict()["module"] is True
     assert asset.to_dict()["content_sha256"] == hashlib.sha256(b"export const value = 1").hexdigest()
     assert resolved.to_dict()["assets"] == [asset.to_dict()]
-    assert len(resolved.fingerprint) == 64
+    assert not hasattr(resolved, "fingerprint")
 
 
 def test_join_extension_url() -> None:

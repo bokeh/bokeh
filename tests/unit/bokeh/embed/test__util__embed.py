@@ -22,41 +22,6 @@ from bokeh.themes import Theme, default
 import bokeh.embed._util as beu # isort:skip
 
 
-@pytest.mark.parametrize(
-    ("value", "expected"),
-    [
-        (None, "null"),
-        (True, "true"),
-        (-0.0, "0"),
-        (1.0, "1"),
-        (1e-6, "0.000001"),
-        (1e-7, "1e-7"),
-        ((1, "value"), '[1,"value"]'),
-        ("\ud800", '"\\ud800"'),
-        ({"\ue000": 1, "\U00010000": 2}, '{"𐀀":2,"":1}'),
-    ],
-)
-def test_canonical_embed_json(value: object, expected: str) -> None:
-    assert beu.canonical_embed_json(value) == expected
-
-
-@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf"), 2**53])
-def test_canonical_embed_json_rejects_non_finite_floats_and_unsafe_integers(value: float | int) -> None:
-    with pytest.raises(ValueError, match=r"finite|safe integer"):
-        beu.canonical_embed_json(value)
-
-
-@pytest.mark.parametrize("value", [float(2**53), 1e20, 1e21, 1e22])
-def test_canonical_embed_json_accepts_large_finite_floats(value: float) -> None:
-    assert isinstance(beu.canonical_embed_json(value), str)
-
-
-@pytest.mark.parametrize("value", [{1: "value"}, {1, 2}, b"value"])
-def test_canonical_embed_json_rejects_non_json_values(value: object) -> None:
-    with pytest.raises(TypeError):
-        beu.canonical_embed_json(value)
-
-
 def test_embed_applies_explicit_default_theme_and_restores_source() -> None:
     model = Button()
     source = Document(theme=Theme(json={"attrs": {"Button": {"button_type": "danger"}}}))

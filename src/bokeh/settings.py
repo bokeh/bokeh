@@ -726,10 +726,6 @@ class Settings:
 
     """)
 
-    ignore_filename = PrioritizedSetting[bool]("ignore_filename", "BOKEH_IGNORE_FILENAME", default=False, convert=convert_bool, help="""
-    Whether to ignore the current script filename when saving Bokeh content.
-    """)
-
     log_level = PrioritizedSetting[LogLevel]("log_level", "BOKEH_LOG_LEVEL", default="info", dev_default="debug", help="""
     Set the log level for JavaScript BokehJS code.
 

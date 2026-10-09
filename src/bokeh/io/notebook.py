@@ -657,9 +657,9 @@ def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str
     from ..core.json_encoder import serialize_json
     from ..core.templates import DOC_NB_JS
     from ..document import Document
-    from ..embed.notebook import notebook_content
-    result, _ = notebook_content(model, live=True)
-    documents = result.source["documents"]
+    from ..embed._util import ThemePolicy, embed_protocol, embed_source
+    result = embed_protocol(model, theme=ThemePolicy.CURDOC)
+    documents = embed_source(result)["documents"]
     assert isinstance(documents, list)
     [document_json] = documents
 

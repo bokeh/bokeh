@@ -275,7 +275,7 @@ else
 
 # Embed exports contain one mount. Use its owned views instead of the legacy
 # process-wide Bokeh.index registry.
-_MOUNT_EXPR = "document.querySelector('[data-bokeh-embed][data-bokeh-root]').bokehMount"
+_MOUNT_EXPR = "document.querySelector('[data-bokeh-embed-instance][data-bokeh-root]').bokehMount"
 
 # Read the bounding box of the first root view and the device pixel ratio.
 _ROOT_VIEW_BBOX_SCRIPT = """\

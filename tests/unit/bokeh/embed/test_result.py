@@ -9,15 +9,17 @@ from __future__ import annotations
 
 # Standard library imports
 import json
+import math
 import os
 import re
 import subprocess
 import sys
+from collections import UserDict, UserList
 from collections.abc import Callable, Iterator
 from copy import deepcopy
 from dataclasses import fields
 from pathlib import Path
-from types import SimpleNamespace
+from types import MappingProxyType, SimpleNamespace
 from typing import Any
 
 # External imports
@@ -121,23 +123,16 @@ def test_builder_uses_structural_roots_and_graph_minimal_serialization() -> None
     assert "static_model_ids" not in result.metadata["embedding"]
 
 
-def test_fingerprint_normalizes_allocation_dependent_retained_model_ids() -> None:
-    first = embed(_equivalent_graph("one"))
-    second = embed(_equivalent_graph("two"))
-
-    assert first.source != second.source
-    assert first.fingerprint == second.fingerprint
-
-
-def test_fingerprint_is_stable_across_event_subscription_hash_seeds() -> None:
+def test_event_subscription_serialization_is_stable_across_hash_seeds() -> None:
     code = """
+import json
 from bokeh.embed import embed
 from bokeh.models import Dropdown
 model = Dropdown(menu=["one", "two"])
 model.on_click(lambda event: None)
-print(embed(model, callback_policy="suppress").fingerprint)
+print(json.dumps(embed(model, callback_policy="suppress").source))
 """
-    fingerprints = {
+    sources = {
         subprocess.check_output(
             [sys.executable, "-c", code],
             env={**os.environ, "PYTHONHASHSEED": str(seed)},
@@ -145,20 +140,20 @@ print(embed(model, callback_policy="suppress").fingerprint)
         ).strip()
         for seed in (1, 2, 3)
     }
-    assert len(fingerprints) == 1
+    assert len(sources) == 1
 
 
-def test_fingerprint_normalizes_integral_json_numbers() -> None:
+def test_result_preserves_integral_float_json_numbers() -> None:
     first = embed(CustomJS(code="return", args={"value": 1.0}))
     second = embed(CustomJS(code="return", args={"value": 1}))
 
-    assert first.fingerprint == second.fingerprint
-    assert first.to_json_string() == first.to_json_string()
+    assert '"value",1.0' in first.to_json_string()
+    assert '"value",1]' in second.to_json_string()
 
 
 def test_result_source_and_metadata_are_detached_from_nested_mutation() -> None:
     result = embed(CustomJS(code="return"), metadata={"host": {"name": "original"}})
-    fingerprint = result.fingerprint
+    payload = result.to_dict()
 
     source = result.source
     source["documents"][0]["title"] = "mutated"
@@ -167,8 +162,117 @@ def test_result_source_and_metadata_are_detached_from_nested_mutation() -> None:
 
     assert result.source["documents"][0]["title"] != "mutated"
     assert result.metadata == {"host": {"name": "original"}, "embedding": result.metadata["embedding"]}
-    assert result.fingerprint == fingerprint
+    assert result.to_dict() == payload
     assert EmbedResult.from_dict(result.to_dict()) == result
+
+
+def test_result_detaches_constructor_inputs_and_shared_containers() -> None:
+    result = embed(CustomJS(code="return"))
+    source = result.source
+    shared = ["original"]
+    metadata = {"first": shared, "second": shared}
+    actual = EmbedResult(source, result.roots, result.requires, metadata)
+    payload = actual.to_dict()
+
+    source["documents"][0]["title"] = "mutated"
+    shared[0] = "mutated"
+
+    assert actual.source["documents"][0]["title"] != "mutated"
+    assert actual.metadata == {"first": ["original"], "second": ["original"]}
+    assert actual._metadata["first"] is not actual._metadata["second"]
+    assert actual.to_dict() == payload
+    assert EmbedResult.from_json(actual.to_json_string()) == actual
+
+
+def test_result_snapshot_preserves_json_types() -> None:
+    class Text(str):
+
+        def __str__(self) -> str:
+            return "overridden"
+
+    class Integer(int):
+
+        def __int__(self) -> int:
+            return 99
+
+    class Float(float):
+
+        def __float__(self) -> float:
+            return 99.0
+
+    result = embed(CustomJS(code="return"))
+    actual = EmbedResult(UserDict(result.source), result.roots, result.requires, UserDict({
+        Text("values"): (Text("original"), Integer(2), Float(1.25), 1.0, -0.0, True, None),
+    }))
+    values = actual.metadata["values"]
+
+    assert values == ["original", 2, 1.25, 1.0, -0.0, True, None]
+    assert [type(value) for value in values] == [str, int, float, float, float, bool, type(None)]
+    assert math.copysign(1, values[4]) == -1
+    assert type(next(iter(actual.metadata))) is str
+    assert EmbedResult.from_json(actual.to_json_string()) == actual
+
+
+@pytest.mark.parametrize("value", [
+    UserDict({"key": "value"}), MappingProxyType({"key": "value"}),
+    UserList([1]), range(2), {1}, b"data", np.int64(1),
+])
+def test_result_rejects_unsupported_nested_json_types(value: Any) -> None:
+    result = embed(CustomJS(code="return"))
+    with pytest.raises(EmbedValidationError, match="not JSON serializable"):
+        EmbedResult(result.source, result.roots, result.requires, {"nested": [value]})
+
+
+@pytest.mark.parametrize("container", [dict, list])
+def test_result_rejects_circular_json_containers(container: type) -> None:
+    value: Any = container()
+    if isinstance(value, dict):
+        value["self"] = value
+    else:
+        value.append(value)
+    result = embed(CustomJS(code="return"))
+    with pytest.raises(EmbedValidationError, match="circular"):
+        EmbedResult(result.source, result.roots, result.requires, {"nested": value})
+
+
+def test_result_json_string_is_cached_only_when_requested() -> None:
+    result = embed(CustomJS(code="return"), metadata={"text": "\ud800", "number": -0.0})
+    assert result._json_string is None
+
+    payload = result.to_dict()
+    assert result._json_string is None
+    assert json.loads(result.to_json_string(pretty=True)) == payload
+    assert result._json_string is None
+
+    compact = result.to_json_string()
+    assert result._json_string is compact
+    assert result.to_json_string() is compact
+    assert json.loads(compact) == payload
+    assert EmbedResult.from_json(compact) == result
+
+    projected = project_embed_result(result, ResourceRequirements(("bokeh/core", "bokeh/widgets")))
+    assert projected._json_string is None
+    assert result._json_string is compact
+    assert projected.to_json_string() != compact
+    assert EmbedResult.from_json(projected.to_json_string()) == projected
+
+
+def test_result_construction_does_not_encode_or_decode_json(monkeypatch: pytest.MonkeyPatch) -> None:
+    result = embed(CustomJS(code="return"))
+    source = result.source
+
+    def unexpected_json(*args: Any, **kwargs: Any) -> None:
+        raise AssertionError("result construction only validates and snapshots data")
+
+    monkeypatch.setattr(json, "dumps", unexpected_json)
+    monkeypatch.setattr(json, "loads", unexpected_json)
+    actual = EmbedResult(source, result.roots, result.requires, {"values": [1.0, 2.0]})
+
+    assert actual._json_string is None
+    assert actual.source == source
+    assert actual.metadata == {"values": [1.0, 2.0]}
+    assert "fingerprint" not in actual.to_dict()
+    assert not hasattr(actual, "fingerprint")
 
 
 def test_result_requirement_projection_reuses_validated_data() -> None:
@@ -182,7 +286,7 @@ def test_result_requirement_projection_reuses_validated_data() -> None:
     assert projected.roots is result.roots
     assert projected._source is result._source
     assert projected._metadata is result._metadata
-    assert projected.fingerprint != result.fingerprint
+    assert projected.to_dict()["requires"] != result.to_dict()["requires"]
     assert EmbedResult.from_json(projected.to_json_string()) == projected
 
     source = projected.source
@@ -197,12 +301,13 @@ def test_result_requirement_projection_reuses_validated_data() -> None:
     assert project_embed_result(result, result.requires) is result
 
 
-def test_result_hash_uses_immutable_fingerprint() -> None:
+def test_result_is_unhashable() -> None:
     result = embed(CustomJS(code="return"))
     restored = EmbedResult.from_dict(result.to_dict())
 
-    assert hash(result) == hash(restored)
-    assert {result, restored} == {result}
+    assert result == restored
+    with pytest.raises(TypeError, match="unhashable"):
+        hash(result)
 
 
 def test_result_accepts_float_subclasses() -> None:
@@ -282,7 +387,7 @@ def test_resource_requirement_inputs_are_canonicalized_to_tuples() -> None:
     assert requirements.extensions == (extension,)
 
 
-def test_fingerprint_does_not_normalize_metadata_that_resembles_a_model_id() -> None:
+def test_result_preserves_metadata_that_resembles_a_model_id() -> None:
     original = embed(_equivalent_graph("retained"))
 
     def retained_id(value: object) -> str | None:
@@ -302,12 +407,11 @@ def test_fingerprint_does_not_normalize_metadata_that_resembles_a_model_id() -> 
     model_id = retained_id(original.source)
     assert model_id is not None
     actual = EmbedResult(original.source, original.roots, original.requires, {"id": model_id})
-    normalized_lookalike = EmbedResult(original.source, original.roots, original.requires, {"id": "model-0"})
+    assert actual.metadata == {"id": model_id}
+    assert EmbedResult.from_json(actual.to_json_string()).metadata == {"id": model_id}
 
-    assert actual.fingerprint != normalized_lookalike.fingerprint
 
-
-def test_result_round_trip_validates_fingerprint_and_schema() -> None:
+def test_result_round_trip_validates_schema() -> None:
     result = embed(_plot())
     restored = EmbedResult.from_json(result.to_json_string())
     assert restored == result
@@ -315,17 +419,12 @@ def test_result_round_trip_validates_fingerprint_and_schema() -> None:
 
     invalid = result.to_dict()
     invalid["fingerprint"] = "wrong"
-    with pytest.raises(EmbedValidationError, match="fingerprint mismatch"):
+    with pytest.raises(EmbedValidationError, match="unknown fields"):
         EmbedResult.from_dict(invalid)
 
     invalid = result.to_dict()
     invalid["schema"] = "bokeh.embed/v2"
     with pytest.raises(EmbedValidationError, match="unsupported embed schema"):
-        EmbedResult.from_dict(invalid)
-
-    invalid = result.to_dict()
-    invalid.pop("fingerprint")
-    with pytest.raises(EmbedValidationError, match="fingerprint must be a non-empty string"):
         EmbedResult.from_dict(invalid)
 
     invalid = result.to_dict()
@@ -400,7 +499,7 @@ def test_server_root_rejects_null_standalone_fields(field: str) -> None:
 @pytest.mark.parametrize("name", ["standalone-keyed-roots", "standalone-compact-roots"])
 def test_shared_fixture_decodes_in_python_without_root_ids(name: str) -> None:
     fixture = deepcopy(_fixture(name))
-    assert EmbedResult.from_dict(fixture).fingerprint == fixture.pop("fingerprint")
+    assert EmbedResult.from_dict(fixture).to_dict() == fixture
     fixture["bokeh_version"] = __version__
     fixture["source"]["documents"][0]["version"] = __version__
     result = EmbedResult(
@@ -674,10 +773,12 @@ def test_builder_captures_inline_custom_model_bundle(
     assert payload_element.string is not None
     transport = EmbedResult.from_json(payload_element.string)
     assert transport.requires.extensions == (ExtensionRequirement("bokeh.custom-models"),)
-    assert {
-        element["data-bokeh-embed"]
-        for element in soup.select("[data-bokeh-embed]")
-    } == {transport.fingerprint}
+    instances = {
+        element["data-bokeh-embed-instance"]
+        for element in soup.select("[data-bokeh-embed-instance]")
+    }
+    assert len(instances) == 1
+    assert not soup.select("[data-bokeh-embed]")
 
     delivered = result.fragment(resources="cdn")
     assert delivered.result is result
@@ -689,10 +790,13 @@ def test_builder_captures_inline_custom_model_bundle(
     assert external_transport.requires.extensions == (ExtensionRequirement("bokeh.custom-models"),)
     assert external.html.count("compiled-custom-models") == 1
     assert "compiled-custom-models" not in external.payload
-    assert {
-        element["data-bokeh-embed"]
-        for element in bs4.BeautifulSoup(external.html, "html.parser").select("[data-bokeh-embed]")
-    } == {external_transport.fingerprint}
+    external_soup = bs4.BeautifulSoup(external.html, "html.parser")
+    external_instances = {
+        element["data-bokeh-embed-instance"]
+        for element in external_soup.select("[data-bokeh-embed-instance]")
+    }
+    assert len(external_instances) == 1
+    assert not external_soup.select("[data-bokeh-embed]")
 
     fragment = result.fragment(resources="none")
     assert fragment.result is result
@@ -938,14 +1042,15 @@ def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -
     assert "data-bokeh-root=\"summary\"" in fragment.html
     assert "application/vnd.bokeh.embed+json" in fragment.script
     assert "data-bokeh-embed-bootstrap" in fragment.script
-    assert f'data-bokeh-embed="{result.fingerprint}"' in fragment.script
+    assert 'data-bokeh-embed-instance="' in fragment.script
+    assert "data-bokeh-embed=" not in fragment.html
     assert "RenderItem" not in fragment.script
     assert " id=" not in fragment.html
     assert fragment.resources.policy.mode == "none"
     assert fragment.resources.requirements == result.requires
     assert fragment.resources.assets == ()
-    assert fragment.build_fingerprint == result.fragment(resources="none").build_fingerprint
-    assert fragment.build_fingerprint != result.fragment(resources="cdn").build_fingerprint
+    repeated = result.fragment(resources="none")
+    assert repeated.script != fragment.script
 
     page = result.page(resources="none", title="Result page")
     assert "<title>Result page</title>" in page
@@ -961,13 +1066,11 @@ def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -
     assert "mount_embed_declaration" in external.bootstrap
     assert "fetch(" not in external.bootstrap
     assert "data-bokeh-payload-url=\"/assets/plot.json\"" in external.html
-    assert external.build_fingerprint == result.external("/assets/plot.json", resources="none").build_fingerprint
-
     assert tuple(field.name for field in fields(fragment)) == (
-        "result", "mounts", "script", "resources", "build_fingerprint", "html",
+        "result", "mounts", "script", "resources", "html",
     )
     assert tuple(field.name for field in fields(external)) == (
-        "result", "payload_url", "payload", "mounts", "bootstrap", "resources", "build_fingerprint", "html",
+        "result", "payload_url", "payload", "mounts", "bootstrap", "resources", "html",
     )
 
     mime = result._repr_mimebundle_()
@@ -1088,6 +1191,38 @@ def test_page_preserves_named_aliases_for_referenced_roots(serialization: str) -
     html = result.page(resources="none", template=template)
 
     assert html.count('class="bk-embed-root"') == 2
+
+
+@pytest.mark.parametrize("kind", ["standalone", "server"])
+def test_renderers_inspect_source_without_defensive_copies(kind: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    result = embed(_plot()) if kind == "standalone" else embed_server("https://example.test/app")
+    source = result.source
+
+    def copied_source(self: EmbedResult) -> dict[str, Any]:
+        raise AssertionError("renderers should inspect the existing snapshot")
+
+    monkeypatch.setattr(EmbedResult, "source", property(copied_source))
+    assert result.page(resources="none")
+    assert result.fragment(resources="none").html
+    assert result.external("/payload.json", resources="none").html
+    assert renderers.render_mounts(result)
+    assert result._source == source
+
+
+def test_template_direct_roots_do_not_scan_document_data(monkeypatch: pytest.MonkeyPatch) -> None:
+    class UnvisitedList(list):
+
+        def __iter__(self) -> Iterator[Any]:
+            raise AssertionError("direct root aliases do not need a model index")
+
+    result = embed(CustomJS(code="return", name="named"))
+    source = result.source
+    source["documents"][0]["unvisited"] = UnvisitedList([1, 2, 3])
+    monkeypatch.setattr(renderers, "embed_source", lambda result: source)
+    mounts = renderers.render_mounts(result)
+
+    roots = renderers._template_roots(result, mounts)
+    assert roots.named is mounts[0]
 
 
 def test_page_preserves_legacy_root_block_and_docs_loop() -> None:

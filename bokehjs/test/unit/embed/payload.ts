@@ -29,7 +29,6 @@ function fixture(name: string): EmbedPayload {
   expect(fixture_data.schema).to.be.equal("bokeh.embed.fixtures/v1")
   const value = structuredClone(fixture_data.cases.find((item) => item.name == name)!.payload) as unknown as EmbedPayload
   value.bokeh_version = js_version
-  value.fingerprint = `fixture-${name}`
   if (value.source.kind == "standalone") {
     value.source.documents.forEach((document) => document.version = js_version)
   }
@@ -49,7 +48,6 @@ function inline_declaration(embed_payload: EmbedPayload, value: unknown = embed_
   const instance = `Test-${++declaration_index}`
   const targets = embed_payload.roots.map((root) => {
     const target = document.createElement("div")
-    target.dataset.bokehEmbed = embed_payload.fingerprint
     target.dataset.bokehEmbedInstance = instance
     target.dataset.bokehRoot = root.key
     return target
@@ -57,12 +55,10 @@ function inline_declaration(embed_payload: EmbedPayload, value: unknown = embed_
   const payload = document.createElement("script")
   payload.type = "application/vnd.bokeh.embed+json"
   payload.dataset.bokehEmbedPayload = ""
-  payload.dataset.bokehEmbed = embed_payload.fingerprint
   payload.dataset.bokehEmbedInstance = instance
   payload.textContent = JSON.stringify(value)
   const bootstrap = document.createElement("script")
   bootstrap.dataset.bokehEmbedBootstrap = ""
-  bootstrap.dataset.bokehEmbed = embed_payload.fingerprint
   bootstrap.dataset.bokehEmbedInstance = instance
   document.body.append(...targets, payload, bootstrap)
   return {
@@ -309,7 +305,7 @@ describe("EmbedPayload runtime", () => {
     }
   })
 
-  it("keeps repeated identical declarations isolated by DOM order", async () => {
+  it("keeps repeated identical declarations isolated by instance ID", async () => {
     const payload = fixture("standalone-keyed-roots")
     const resolver = new ModelResolver(default_resolver, [CustomJS])
     const first = inline_declaration(payload)
@@ -328,6 +324,35 @@ describe("EmbedPayload runtime", () => {
     } finally {
       first.remove()
       second.remove()
+    }
+  })
+
+  it("requires an adjacent inline payload with the same instance ID", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    for (const mode of ["different-instance", "not-adjacent"] as const) {
+      const declaration = inline_declaration(payload)
+      const separator = document.createElement("div")
+      if (mode == "different-instance") {
+        declaration.payload.dataset.bokehEmbedInstance = "Other-instance"
+      } else {
+        declaration.bootstrap.before(separator)
+      }
+      const documents_before = documents.length
+      try {
+        const error = await mount_embed_declaration(declaration.bootstrap).then(
+          () => null, (error: unknown) => error,
+        )
+        expect_instanceof(error, MountError)
+        expect(error.kind).to.be.equal("source")
+        expect(error.phase).to.be.equal("payload")
+        expect(error.message.includes("matching JSON payload script")).to.be.true
+        expect(error.source?.embed).to.be.equal(declaration.bootstrap.dataset.bokehEmbedInstance)
+        expect(declaration.targets.every((target) => target.bokehMountError == error)).to.be.true
+        expect(documents.length).to.be.equal(documents_before)
+      } finally {
+        separator.remove()
+        declaration.remove()
+      }
     }
   })
 
@@ -355,14 +380,12 @@ describe("EmbedPayload runtime", () => {
     const instance = `Test-${++declaration_index}`
     const targets = payload.roots.map((root) => {
       const target = document.createElement("div")
-      target.dataset.bokehEmbed = payload.fingerprint
       target.dataset.bokehEmbedInstance = instance
       target.dataset.bokehRoot = root.key
       return target
     })
     const bootstrap = document.createElement("script")
     bootstrap.dataset.bokehEmbedBootstrap = ""
-    bootstrap.dataset.bokehEmbed = payload.fingerprint
     bootstrap.dataset.bokehEmbedInstance = instance
     bootstrap.dataset.bokehPayloadUrl = "/payloads/missing.json"
     document.body.append(...targets, bootstrap)
@@ -377,7 +400,7 @@ describe("EmbedPayload runtime", () => {
       expect(error.kind).to.be.equal("http")
       expect(error.phase).to.be.equal("payload")
       expect(error.source).to.be.equal({
-        kind: "embed-declaration", embed: payload.fingerprint, url: "/payloads/missing.json",
+        kind: "embed-declaration", embed: instance, url: "/payloads/missing.json",
       })
       expect(error.cause).to.be.instanceof(Response)
       expect((await Promise.all(discoveries)).every((published) => published == error)).to.be.true
@@ -433,13 +456,11 @@ describe("EmbedPayload runtime", () => {
     }
   })
 
-  it("publishes schema, fingerprint, resource, and deserialize preparation phases", async () => {
+  it("publishes schema, resource, and deserialize preparation phases", async () => {
     const base = fixture("standalone-keyed-roots")
     const cases: [MountErrorPhase, EmbedPayload, unknown][] = []
 
     cases.push(["schema", base, {...base, schema: "bokeh.embed/v2"}])
-
-    cases.push(["fingerprint", base, {...base, fingerprint: "other-result"}])
 
     const resource = structuredClone(base)
     resource.bokeh_version = "99.0.0"
@@ -464,6 +485,7 @@ describe("EmbedPayload runtime", () => {
         expect_instanceof(error, MountError)
         expect(error.phase).to.be.equal(phase)
         expect(error.source?.kind).to.be.equal("embed-declaration")
+        expect(error.source?.embed).to.be.equal(declaration.bootstrap.dataset.bokehEmbedInstance)
         expect((await Promise.all(discoveries)).every((published) => published == error)).to.be.true
       } finally {
         declaration.remove()
@@ -471,7 +493,7 @@ describe("EmbedPayload runtime", () => {
     }
   })
 
-  it("rejects unknown fingerprint-envelope fields consistently", async () => {
+  it("rejects unknown payload and root fields consistently", async () => {
     const payload = fixture("standalone-keyed-roots")
     const envelope = {...payload, unexpected: true}
     const root = structuredClone(payload) as EmbedPayload & {
@@ -481,6 +503,7 @@ describe("EmbedPayload runtime", () => {
 
     expect(() => validate_embed_payload(envelope)).to.throw(EmbedError, /unknown fields/)
     expect(() => validate_embed_payload(root)).to.throw(EmbedError, /unknown fields/)
+    expect(() => validate_embed_payload({...payload, fingerprint: "removed"})).to.throw(EmbedError, /unknown fields: fingerprint/)
   })
 
   it("rejects unsafe and ambiguous server URLs", async () => {
@@ -716,7 +739,11 @@ describe("EmbedPayload runtime", () => {
       expect_instanceof(error, MountError)
       expect(error.kind).to.be.equal("decode")
       expect(error.phase).to.be.equal("payload")
-      expect(new URL(error.source!.url!).pathname).to.be.equal("/app/embed.json")
+      expect_not_null(error.source)
+      expect(error.source.kind).to.be.equal("embed")
+      expect(error.source.embed).to.be.undefined
+      expect_not_null(error.source.url)
+      expect(new URL(error.source.url).pathname).to.be.equal("/app/embed.json")
     } finally {
       globalThis.fetch = original_fetch
       target.remove()
@@ -766,7 +793,6 @@ describe("EmbedPayload runtime", () => {
     const declaration = inline_declaration(payload)
     const fallback = document.createElement("div")
     fallback.dataset.bokehDocumentTarget = ""
-    fallback.dataset.bokehEmbed = payload.fingerprint
     fallback.dataset.bokehEmbedInstance = declaration.bootstrap.dataset.bokehEmbedInstance
     declaration.payload.before(fallback)
     const original_fetch = globalThis.fetch
@@ -818,7 +844,6 @@ describe("EmbedPayload runtime", () => {
     const declaration = inline_declaration(payload)
     const fallback = document.createElement("div")
     fallback.dataset.bokehDocumentTarget = ""
-    fallback.dataset.bokehEmbed = payload.fingerprint
     fallback.dataset.bokehEmbedInstance = declaration.bootstrap.dataset.bokehEmbedInstance
     declaration.payload.before(fallback)
     const original_fetch = globalThis.fetch
@@ -1087,11 +1112,11 @@ describe("EmbedPayload runtime", () => {
     }
   })
 
-  it("validates shared fixture envelopes and producer fingerprints", () => {
+  it("validates shared fixture envelopes without payload fingerprints", () => {
     for (const item of fixture_data.cases) {
       const raw = structuredClone(item.payload) as unknown as EmbedPayload
       expect(validate_embed_payload(raw)).to.be.equal(raw)
-      expect(raw.fingerprint.length).to.be.above(0)
+      expect("fingerprint" in raw).to.be.false
     }
     const standalone = validate_embed_payload(fixture("standalone-keyed-roots"))
     expect(standalone.source.kind).to.be.equal("standalone")
@@ -1100,7 +1125,7 @@ describe("EmbedPayload runtime", () => {
     expect(server.roots).to.be.equal([{key: "detail", model_id: "fixture-root"}])
   })
 
-  it("validates JSON-compatible values without recomputing fingerprints", () => {
+  it("validates JSON-compatible values", () => {
     for (const value of [NaN, Infinity, () => {}, 1n]) {
       const payload = fixture("standalone-keyed-roots")
       payload.metadata = {value}
@@ -1117,11 +1142,7 @@ describe("EmbedPayload runtime", () => {
     expect(validate_embed_payload(payload)).to.be.equal(payload)
   })
 
-  it("rejects missing fingerprints, removed buffers, and malformed resource literals", () => {
-    const missing = fixture("standalone-keyed-roots") as unknown as {[key: string]: unknown}
-    delete missing.fingerprint
-    expect(() => validate_embed_payload(missing)).to.throw(EmbedError, /fingerprint/)
-
+  it("rejects removed buffers and malformed resource literals", () => {
     const buffered = fixture("standalone-keyed-roots") as unknown as {[key: string]: unknown}
     buffered.buffers = []
     expect(() => validate_embed_payload(buffered)).to.throw(EmbedError, /not part of bokeh\.embed\/v1/)
@@ -1722,7 +1743,7 @@ describe("EmbedPayload runtime", () => {
     }))
     const iframe = document.createElement("iframe")
     const targets = embed_payload.roots.map((root) =>
-      `<div data-bokeh-embed="${embed_payload.fingerprint}" data-bokeh-embed-instance="${instance}" data-bokeh-root="${root.key}"></div>`,
+      `<div data-bokeh-embed-instance="${instance}" data-bokeh-root="${root.key}"></div>`,
     ).join("\n")
     iframe.srcdoc = `<!DOCTYPE html>
 <html>
@@ -1735,7 +1756,6 @@ describe("EmbedPayload runtime", () => {
     ${targets}
     <script src="/static/js/bokeh-embed-bootstrap.min.js"
             data-bokeh-embed-bootstrap
-            data-bokeh-embed="${embed_payload.fingerprint}"
             data-bokeh-embed-instance="${instance}"
             data-bokeh-payload-url="${payload_url}"></script>
   </body>

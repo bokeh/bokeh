@@ -67,8 +67,7 @@
             "negative_zero": -0.0,
             "scientific_threshold": 1e-7
           }
-        },
-        "fingerprint": "e697bd1f6b6b5711beef5cd8e7726b9ab8f9f0b54c3a04265b29c015ea2b8d07"
+        }
       }
     },
     {
@@ -128,8 +127,7 @@
           "components": ["bokeh/core"],
           "extensions": []
         },
-        "metadata": {"fixture": "cross-language-compact"},
-        "fingerprint": "b7e025cfd0482745c0c02623c081f2b3ade482f5450ee2af3db85cb6bf2c2a1e"
+        "metadata": {"fixture": "cross-language-compact"}
       }
     },
     {
@@ -166,8 +164,7 @@
         },
         "metadata": {
           "fixture": "cross-language"
-        },
-        "fingerprint": "782940ccb4b22f5bf119b6913a3b3d23d6186d8a2b9c64d91038d0d6ecee3832"
+        }
       }
     }
   ]

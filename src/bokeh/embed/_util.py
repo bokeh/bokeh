@@ -9,14 +9,11 @@
 from __future__ import annotations
 
 # Standard library imports
-import json
 import logging
-import math
 import re
 from collections.abc import Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
-from decimal import Decimal
 from enum import Enum, auto
 from threading import RLock
 from typing import (
@@ -46,7 +43,6 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-_MAX_SAFE_INTEGER = 2**53 - 1
 _STAGING_LOCK = RLock()
 
 type CallbackPolicy = Literal["warn", "error", "suppress"]
@@ -63,69 +59,6 @@ class ThemePolicy(Enum):
 type ThemeSource = ThemeLike | ThemePolicy
 
 
-def canonical_embed_json(value: Any) -> str:
-    """Encode a JSON value with the canonical Bokeh embed representation."""
-    return _encode_embed_json(value)
-
-
-def _encode_embed_json(value: Any) -> str:
-    if value is None:
-        return "null"
-    if value is True:
-        return "true"
-    if value is False:
-        return "false"
-    if isinstance(value, str):
-        return _encode_embed_json_string(value)
-    if isinstance(value, int):
-        if abs(value) > _MAX_SAFE_INTEGER:
-            raise ValueError(f"integer {value} exceeds JavaScript's safe integer range")
-        return str(value)
-    if isinstance(value, float):
-        return _encode_embed_json_float(value)
-    if isinstance(value, Mapping):
-        if any(not isinstance(key, str) for key in value):
-            raise TypeError("JSON object keys must be strings")
-        keys = sorted(value, key=_utf16_sort_key)
-        return "{" + ",".join(
-            f"{_encode_embed_json(key)}:{_encode_embed_json(value[key])}" for key in keys
-        ) + "}"
-    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
-        return "[" + ",".join(_encode_embed_json(item) for item in value) + "]"
-    raise TypeError(f"object of type {type(value).__name__} is not JSON serializable")
-
-
-def _encode_embed_json_float(value: float) -> str:
-    if not math.isfinite(value):
-        raise ValueError("non-finite numbers are not valid embedding JSON")
-    if value == 0:
-        return "0"
-    if value.is_integer() and abs(value) <= _MAX_SAFE_INTEGER:
-        return str(int(value))
-
-    absolute = abs(value)
-    text = repr(float(value)).lower()
-    if not value.is_integer() and 1e-6 <= absolute < 1e21:
-        return format(Decimal(text), "f")
-
-    if "e" not in text:
-        return text
-
-    mantissa, exponent = text.split("e")
-    mantissa = mantissa.rstrip("0").rstrip(".")
-    exponent_value = int(exponent)
-    sign = "+" if exponent_value >= 0 else ""
-    return f"{mantissa}e{sign}{exponent_value}"
-
-
-def _utf16_sort_key(value: str) -> bytes:
-    return value.encode("utf-16-be", errors="surrogatepass")
-
-
-def _encode_embed_json_string(value: str) -> str:
-    return escape_json_surrogates(json.dumps(value, ensure_ascii=False))
-
-
 def escape_json_surrogates(value: str) -> str:
     """Escape lone surrogate code points in serialized JSON text."""
     if value.isascii():
@@ -140,6 +73,11 @@ def escape_json_surrogates(value: str) -> str:
 def project_embed_result(result: EmbedResult, requirements: ResourceRequirements) -> EmbedResult:
     """Return a valid embed result carrying transport-specific requirements."""
     return result._project_requirements(requirements)
+
+
+def embed_source(result: EmbedResult) -> Mapping[str, Any]:
+    """Inspect the validated source snapshot without copying or modifying it."""
+    return result._source
 
 
 class EmbedBuildError(ValueError):
@@ -523,7 +461,6 @@ __all__ = (
     "ServerRoot",
     "ThemePolicy",
     "ThemeSource",
-    "canonical_embed_json",
     "contains_tex_string",
     "embed",
     "embed_protocol",

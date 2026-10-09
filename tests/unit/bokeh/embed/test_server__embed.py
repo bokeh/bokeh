@@ -131,7 +131,7 @@ class TestServerSession:
         )
 
         assert 'data-bokeh-root="selected"' in html
-        assert 'data-bokeh-embed=' in html
+        assert 'data-bokeh-embed-instance=' in html
         result = result_from_fragment(html)
         assert result.metadata["embedding"]["full_document"] is True
         assert result.roots[0].key == "selected"

@@ -48,7 +48,6 @@ export type EmbedPayload = {
   roots: EmbedRoot[]
   requires: ResourceRequirements
   metadata: {[key: string]: unknown}
-  fingerprint: string
 }
 
 /** Decoded source plus release hooks transferred to a `BokehMount`. */
@@ -62,7 +61,7 @@ export type PreparedEmbed = {
 }
 
 /** Embed preparation phase attached to structured errors. */
-export type EmbedErrorPhase = "schema" | "fingerprint" | "resource" | "deserialize" | "payload" | "session"
+export type EmbedErrorPhase = "schema" | "resource" | "deserialize" | "payload" | "session"
 /** Embed identity and URL context attached to a failure. */
 export type EmbedErrorSource = {
   readonly kind: "embed"
@@ -285,14 +284,13 @@ export function validate_embed_payload(value: unknown): EmbedPayload {
   }
   reject_unknown_fields(
     payload,
-    ["schema", "bokeh_version", "source", "roots", "requires", "metadata", "fingerprint"],
+    ["schema", "bokeh_version", "source", "roots", "requires", "metadata"],
     "embed payload",
   )
   if (source.kind != "standalone" && source.kind != "server") {
     throw new EmbedError("schema", "payload.source.kind must be 'standalone' or 'server'")
   }
   as_string(payload.bokeh_version, "payload.bokeh_version")
-  as_string(payload.fingerprint, "payload.fingerprint")
   if (source.kind == "standalone") {
     reject_unknown_fields(source, ["kind", "documents"], "standalone embed source")
     if (!Array.isArray(source.documents) || source.documents.length != 1) {
@@ -391,7 +389,7 @@ export async function prepare_embed(value: unknown, policy: ResourcePolicy = "no
   } catch (error) {
     if (error instanceof ResourceError) {
       throw new EmbedError(
-        "resource", error.message, error, "resource", {kind: "embed", embed: payload.fingerprint},
+        "resource", error.message, error, "resource", {kind: "embed"},
       )
     }
     throw error
@@ -417,7 +415,7 @@ function prepare_standalone(payload: EmbedPayload, resolver?: ModelResolver): Pr
     } catch (error) {
       throw new EmbedError(
         "decode", `failed to decode standalone Bokeh embed payload: ${error}`, error,
-        "deserialize", {kind: "embed", embed: payload.fingerprint},
+        "deserialize", {kind: "embed"},
       )
     }
   })()
@@ -485,14 +483,14 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
       } catch (error) {
         throw new EmbedError(
           "http", `failed to request Bokeh server embed payload from ${endpoint}: ${error}`, error,
-          "payload", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
+          "payload", {kind: "embed", url: endpoint.href},
         )
       }
     })()
     if (!response.ok) {
       throw new EmbedError(
         "http", `Bokeh server embed payload request failed: ${response.status} ${response.statusText}`,
-        response, "payload", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
+        response, "payload", {kind: "embed", url: endpoint.href},
       )
     }
     let bootstrap_data: unknown
@@ -504,20 +502,20 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
       }
       throw new EmbedError(
         "decode", `failed to decode Bokeh server embed payload from ${endpoint}: ${error}`, error,
-        "payload", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
+        "payload", {kind: "embed", url: endpoint.href},
       )
     }
     const bootstrap = as_record(bootstrap_data, "Bokeh server bootstrap")
     if (bootstrap.schema != "bokeh.embed-server/v1") {
       throw new EmbedError(
         "schema", `unsupported Bokeh server bootstrap schema '${bootstrap.schema}'; expected 'bokeh.embed-server/v1'`,
-        undefined, "schema", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
+        undefined, "schema", {kind: "embed", url: endpoint.href},
       )
     }
     if (bootstrap.bokeh_version != payload.bokeh_version) {
       throw new EmbedError(
         "schema", `Bokeh server bootstrap version '${bootstrap.bokeh_version}' does not match embed version '${payload.bokeh_version}'`,
-        undefined, "schema", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
+        undefined, "schema", {kind: "embed", url: endpoint.href},
       )
     }
     reject_unknown_fields(
@@ -553,7 +551,7 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
     } catch (error) {
       if (error instanceof ResourceError) {
         throw new EmbedError(
-          "resource", error.message, error, "resource", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
+          "resource", error.message, error, "resource", {kind: "embed", url: endpoint.href},
         )
       }
       throw error
@@ -572,7 +570,7 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
       }
       throw new EmbedError(
         "websocket", `failed to open Bokeh server session at ${websocket_url}: ${error}`, error,
-        "session", {kind: "embed", embed: payload.fingerprint, url: websocket_url},
+        "session", {kind: "embed", url: websocket_url},
       )
     }
   })()

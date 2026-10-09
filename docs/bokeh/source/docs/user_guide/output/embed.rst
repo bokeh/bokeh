@@ -110,13 +110,10 @@ extension names are unique, while metadata must contain JSON-compatible values.
 The ``embedding`` metadata key is reserved for Bokeh. Python and BokehJS enforce
 the structural invariants when reading a result.
 
-``fingerprint`` is a SHA-256 content identity over the canonical embed payload,
-excluding the fingerprint field itself and normalizing allocation-specific
-model IDs. It provides a stable cache or deduplication key. Python verifies the
-fingerprint when reconstructing an ``EmbedResult``. BokehJS treats it as opaque
-producer metadata and checks that external declarations identify the payload
-they load. It is not a signature, an authentication mechanism, or a substitute
-for subresource integrity.
+Each rendered declaration has a unique instance ID that connects its payload,
+bootstrap, and targets. Separate renderings of the same result have independent
+instance IDs and mounts. Hosts that need content hashes for caching can hash the
+serialized payload themselves.
 
 Standalone v1 embed results serialize their document data inline and do not carry
 a payload-level ``buffers`` field. Efficient binary transport remains
@@ -295,7 +292,6 @@ The target markup is declarative and stable by logical root key:
 .. code-block:: html
 
     <div class="bk-embed-root"
-         data-bokeh-embed="EMBED_FINGERPRINT"
          data-bokeh-embed-instance="DECLARATION_INSTANCE"
          data-bokeh-root="root"></div>
 

@@ -140,7 +140,6 @@ export type MountErrorPhase =
   | "bootstrap"
   | "payload"
   | "schema"
-  | "fingerprint"
   | "resource"
   | "deserialize"
   | "session"
@@ -877,8 +876,8 @@ export async function mount_embed_declaration(
   if (script == null) {
     throw new MountError("source", "an embed declaration script is required", undefined, undefined, "bootstrap")
   }
-  let source = declaration_source(script)
-  let affected_targets = await declaration_targets(script)
+  const source = declaration_source(script)
+  const affected_targets = await declaration_targets(script)
   affected_targets.forEach(clear_mount_error)
   try {
     if (options.signal?.aborted == true) {
@@ -954,18 +953,6 @@ export async function mount_embed_declaration(
         throw declaration_error(error, source, "schema")
       }
     })()
-    if (source.embed != null && source.embed != payload.fingerprint) {
-      throw new MountError(
-        "schema",
-        `embed declaration fingerprint '${source.embed}' does not match payload '${payload.fingerprint}'`,
-        undefined, undefined, "fingerprint", source,
-      )
-    }
-    if (source.embed == null) {
-      source = {...source, embed: payload.fingerprint}
-      affected_targets = await declaration_targets(script)
-      affected_targets.forEach(clear_mount_error)
-    }
     if (script.dataset.bokehLogLevel != null) {
       set_log_level(script.dataset.bokehLogLevel)
     }
@@ -1036,7 +1023,7 @@ function declaration_resource_policy(script: HTMLScriptElement, policy?: Resourc
 function declaration_source(script: HTMLScriptElement): MountErrorSource {
   return {
     kind: "embed-declaration",
-    embed: script.dataset.bokehEmbed,
+    embed: script.dataset.bokehEmbedInstance,
     url: script.dataset.bokehPayloadUrl,
   }
 }

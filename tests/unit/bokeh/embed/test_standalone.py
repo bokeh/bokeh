@@ -81,7 +81,8 @@ class Test_components:
 
         [target] = bs4.BeautifulSoup(div, "html.parser").find_all("div")
         assert target["data-bokeh-root"] == "root"
-        assert "data-bokeh-embed" in target.attrs
+        assert "data-bokeh-embed-instance" in target.attrs
+        assert "data-bokeh-embed" not in target.attrs
         assert "id" not in target.attrs
         assert "data-root-id" not in target.attrs
 
@@ -128,7 +129,7 @@ class Test_file_html:
         )
 
         assert 'data-bokeh-root="root"' in html
-        assert 'data-bokeh-embed=' in html
+        assert 'data-bokeh-embed-instance=' in html
 
     def test_does_not_pull_unselected_document_roots(self) -> None:
         from bokeh.models.widgets.buttons import Button

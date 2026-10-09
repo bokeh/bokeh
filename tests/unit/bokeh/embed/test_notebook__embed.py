@@ -36,4 +36,8 @@ def test_static_and_live_results_share_requirements() -> None:
     live, _ = notebook_content(plot, live=True)
 
     assert static.requires == live.requires
-    assert static.fingerprint != live.fingerprint
+    assert static.roots == live.roots
+    assert static.metadata["embedding"]["model_ids"] == "graph-minimal"
+    assert live.metadata["embedding"]["model_ids"] == "protocol-full"
+    assert static.source != live.source
+    assert live.source["documents"][0]["roots"][0]["id"] == plot.id

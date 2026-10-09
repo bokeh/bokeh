@@ -104,7 +104,6 @@ describe("embed", () => {
       roots: [{key: "root", document: 0, root: 0}],
       requires: {components: ["bokeh/core"], extensions: []},
       metadata: {},
-      fingerprint: "test-result",
     }
     const mounted = mount(payload, target, {resolver, resources: "none"})
     try {
