@@ -169,8 +169,11 @@ describe("legacy notebook resource loading", () => {
       finish_loading()
       await displayed
       expect(apply.calledOnce).to.be.true
-      const buffers = apply.firstCall.args[1]!
-      expect([...new Uint8Array(buffers.get("array")!)]).to.be.equal([1, 2, 3])
+      const buffers = apply.firstCall.args[1]
+      expect_not_null(buffers)
+      const buffer = buffers.get("array")
+      expect_not_null(buffer)
+      expect([...new Uint8Array(buffer)]).to.be.equal([1, 2, 3])
     } finally {
       finish_loading()
       await displayed
