@@ -158,10 +158,10 @@ def match_host(host: str, pattern: str) -> bool:
     ''' Match a host string against a pattern
 
     Args:
-        host (str)
+        host (str):
             A hostname to compare to the given pattern
 
-        pattern (str)
+        pattern (str):
             A string representing a hostname pattern, possibly including
             wildcards for ip address octets or ports.
 

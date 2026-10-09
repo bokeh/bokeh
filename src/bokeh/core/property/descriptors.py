@@ -527,7 +527,7 @@ class PropertyDescriptor[T]:
         value is not equal to ``old``.
 
         Args:
-            obj (HasProps)
+            obj (HasProps) :
                 The object the property is being set on.
 
             old (obj) :
@@ -688,13 +688,16 @@ class PropertyDescriptor[T]:
         been explicitly set, etc.
 
         Args:
-            obj (HasProps)
+            obj (HasProps) :
                 The object the property is being set on.
 
             old (obj) :
                 The previous value of the property to compare
 
-            hint (event hint or None, optional)
+            value (obj) :
+                The new value of the property
+
+            hint (event hint or None, optional) :
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
                 (default: None)
 
@@ -758,7 +761,7 @@ class PropertyDescriptor[T]:
                 retain the previous value use ``OldValueUnavailable``. The
                 new value is already set unless validation changes it.
 
-            hint (event hint or None, optional)
+            hint (event hint or None, optional) :
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
                 (default: None)
 
@@ -794,7 +797,7 @@ class PropertyDescriptor[T]:
             value (obj) :
                 The new value of the property
 
-            hint (event hint or None, optional)
+            hint (event hint or None, optional) :
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
                 (default: None)
 
@@ -911,9 +914,9 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         This method first
 
         Args:
-            obj (HasProps) :
+            obj (HasProps) : object to set value to
 
-            value (JSON-dict) :
+            value (JSON-dict) : value to set
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.

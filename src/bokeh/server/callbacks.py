@@ -64,9 +64,9 @@ class SessionCallback:
         '''
 
          Args:
-            callback (callable) :
+            callback (callable) : A unique ID for this callback
 
-            callback_id (ID) :
+            callback_id (ID) : A unique ID for this callback
 
         '''
         self._id = callback_id
@@ -100,9 +100,9 @@ class NextTickCallback(SessionCallback):
         '''
 
          Args:
-            callback (callable) :
+            callback (callable) : A unique ID for this callback
 
-            callback_id (ID) :
+            callback_id (ID) : A unique ID for this callback
 
         '''
         super().__init__(callback=callback, callback_id=callback_id)
@@ -119,11 +119,12 @@ class PeriodicCallback(SessionCallback):
         '''
 
         Args:
-            callback (callable) :
+            callback (callable) : A unique ID for this callback
 
-            period (int) :
+            period (int) : The period time (in milliseconds) that this callback should
+                repeat execution at.
 
-            callback_id (ID) :
+            callback_id (ID) : A unique ID for this callback
 
         '''
         super().__init__(callback=callback, callback_id=callback_id)
@@ -149,11 +150,12 @@ class TimeoutCallback(SessionCallback):
         '''
 
         Args:
-            callback (callable) :
+            callback (callable) : A unique ID for this callback
 
-            timeout (int) :
+            timeout (int) : The timeout (in milliseconds) that the callback should run
+                after.
 
-            callback_id (ID) :
+            callback_id (ID) : A unique ID for this callback
 
         '''
         super().__init__(callback=callback, callback_id=callback_id)

@@ -345,7 +345,7 @@ class UnlockedDocumentProxy: # TODO(mypy): this needs to implement Document inte
         ''' Add a "next tick" callback.
 
         Args:
-            callback (callable) :
+            callback (callable) : callback function
 
         '''
         return self._doc.add_next_tick_callback(callback)
@@ -354,7 +354,7 @@ class UnlockedDocumentProxy: # TODO(mypy): this needs to implement Document inte
         ''' Remove a "next tick" callback.
 
         Args:
-            callback (callable) :
+            callback (callable) : callback function
 
         '''
         self._doc.remove_next_tick_callback(callback)
