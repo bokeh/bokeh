@@ -128,6 +128,7 @@ def test_cdn_version_does_not_affect_other_resource_modes(
     monkeypatch: pytest.MonkeyPatch, cdn_version_setting: PrioritizedSetting[str | None],
     tmp_path: Path, mode: resources.ResourcesMode,
 ) -> None:
+    monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("BOKEH_CDN_VERSION", raising=False)
     (tmp_path / "js").mkdir()
     (tmp_path / "js" / "bokeh.min.js").write_text("globalThis.Bokeh = {}")
