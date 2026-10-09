@@ -20,6 +20,8 @@ import pytest
 
 # Bokeh imports
 import bokeh.embed.resources as ber
+from bokeh import __version__
+from bokeh.embed import embed
 from bokeh.embed.resources import (
     ExtensionRequirement,
     ResolvedResource,
@@ -39,6 +41,7 @@ from bokeh.models import (
     Title,
 )
 from bokeh.resources import Resources
+from bokeh.settings import PrioritizedSetting, settings
 from bokeh.util.compiler import CompilationError
 
 
@@ -130,6 +133,54 @@ def test_resolved_resources_schema_and_asset_digest() -> None:
     assert asset.to_dict()["content_sha256"] == hashlib.sha256(b"export const value = 1").hexdigest()
     assert resolved.to_dict()["assets"] == [asset.to_dict()]
     assert not hasattr(resolved, "fingerprint")
+
+
+def test_cdn_version_override_applies_to_external_bootstrap(
+        cdn_version_setting: PrioritizedSetting[str | None], monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BOKEH_CDN_VERSION", "4.0.0+local")
+    result = embed(Div(text="example"))
+
+    external = result.external("/payload.json", resources=Resources(mode="cdn", external_only=True))
+
+    assert 'src="https://cdn.bokeh.org/bokeh/release/bokeh-embed-bootstrap-4.0.0.min.js"' in external.bootstrap
+    assert 'data-bokeh-resource-override-version="4.0.0+local"' in external.bootstrap
+    assert external.resources.policy.override_version == "4.0.0+local"
+    assert external.resources.bokeh_version == __version__
+    assert json.loads(external.payload)["bokeh_version"] == __version__
+    assert result.bokeh_version == __version__
+
+
+@pytest.mark.parametrize("renderer", ["fragment", "external", "page"])
+def test_runtime_override_version_is_preserved_in_declaration(renderer: str) -> None:
+    result = embed(Div(text="example"))
+    policy = Resources(mode="none", override_version="4.0.0rc1+local", nonce='" data-extra="<&')
+
+    if renderer == "fragment":
+        html = result.fragment(resources=policy).html
+    elif renderer == "external":
+        external = result.external("/payload.json", resources=policy)
+        html = external.html
+        assert json.loads(external.payload)["bokeh_version"] == __version__
+    else:
+        html = result.page(resources=policy)
+
+    assert 'data-bokeh-resource-override-version="4.0.0rc1+local"' in html
+    assert 'nonce="&quot; data-extra=&quot;&lt;&amp;"' in html
+    assert result.bokeh_version == __version__
+    assert result.to_dict()["bokeh_version"] == __version__
+
+
+def test_resource_free_declaration_does_not_inherit_global_cdn_version(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(settings.cdn_version, "_user_value", "4.0.0")
+    result = embed(Div(text="example"))
+
+    fragment = result.fragment(resources="none")
+    external = result.external("/payload.json", resources="none")
+
+    assert "data-bokeh-resource-override-version" not in fragment.script
+    assert "data-bokeh-resource-override-version" not in external.bootstrap
+    assert fragment.resources.policy.override_version is None
+    assert external.resources.policy.override_version is None
 
 
 def test_join_extension_url() -> None:

@@ -638,6 +638,18 @@ class Settings:
     module.
     """)
 
+    cdn_version = PrioritizedSetting[str | None]("version", "BOKEH_CDN_VERSION", default=None, help="""
+    Override the BokehJS version requested from the CDN.
+
+    This applies to built-in bundles and the external embed bootstrap. When
+    unset, CDN resources use the embed payload's Bokeh version. Setting an
+    override permits trying another release without changing the payload's
+    version. The browser checks that the selected BokehJS version was loaded
+    and attempts to deserialize the payload. Different releases may not work.
+
+    See :class:`~bokeh.resources.Resources` for resource configuration.
+    """)
+
     chromedriver_path = PrioritizedSetting[str | None]("chromedriver_path", "BOKEH_CHROMEDRIVER_PATH", default=None, help="""
     The name of or full path to chromedriver's executable.
 

@@ -54,6 +54,8 @@ export type ResourcePolicyMode =
 /** Host-owned resource resolution, security, and retry choices. */
 export type ResourcePolicy = ResourcePolicyMode | {
   mode: ResourcePolicyMode
+  /** Expected runtime version when deliberately trying a different BokehJS release. */
+  override_version?: string
   minified?: boolean
   root_url?: string
   nonce?: string
@@ -168,15 +170,18 @@ function resource_description(asset: ResourceAsset): string {
 
 function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPolicy, embed_version: string): ResourceAsset[] {
   const mode = policy.mode == "auto" ? "cdn" : policy.mode
-  const embed_semver = Version.from(embed_version)
+  const expected_version = policy.override_version?.split("+")[0] ?? embed_version
+  const expected_semver = Version.from(expected_version)
   const runtime_semver = Version.from(js_version)
-  const compatible = embed_semver != null && runtime_semver != null
-    ? is_equal(embed_semver, runtime_semver)
-    : embed_version == js_version
+  const compatible = expected_semver != null && runtime_semver != null
+    ? is_equal(expected_semver, runtime_semver)
+    : expected_version == js_version
   if (!compatible) {
     throw new ResourceError(
       "version",
-      `Bokeh embed ${embed_version} is incompatible with the loaded BokehJS ${js_version}; load matching resources`,
+      policy.override_version == null
+        ? `Bokeh embed ${embed_version} is incompatible with the loaded BokehJS ${js_version}; load matching resources`
+        : `Bokeh resource policy expects BokehJS ${expected_version}, but the loaded BokehJS is ${js_version}`,
     )
   }
   if (mode == "none") {

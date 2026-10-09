@@ -18,13 +18,17 @@ import pytest ; pytest
 
 # Standard library imports
 import os
+import re
 import subprocess
 import sys
 from unittest.mock import ANY, MagicMock, patch
 
 # Bokeh imports
+from bokeh import __version__
 from bokeh.embed._util import ThemePolicy
 from bokeh.models import Plot
+from bokeh.resources import CDN, INLINE, Resources
+from bokeh.settings import settings
 
 # Module under test
 import bokeh.io.util as biu # isort:skip
@@ -156,6 +160,22 @@ def test_get_layout_html_uses_source_or_curdoc_theme_by_default() -> None:
     mock_embed.return_value.page.assert_called_once_with(resources=ANY, title="", template=ANY)
 
 
+def test_inline_export_preserves_resource_configuration(tmp_path: os.PathLike) -> None:
+    policy = Resources(mode=INLINE, minified=False, override_version="4.0.0", base_dir=tmp_path,
+        nonce="export-nonce", crossorigin="anonymous")
+
+    with patch("bokeh.io.util.embed") as mock_embed:
+        biu.get_layout_html(Plot(), resources=policy)
+
+    exported = mock_embed.return_value.page.call_args.kwargs["resources"]
+    assert exported.mode == CDN
+    assert exported.minified is False
+    assert exported.override_version == policy.override_version
+    assert exported.base_dir == policy.base_dir
+    assert exported.nonce == policy.nonce
+    assert exported.crossorigin == policy.crossorigin
+
+
 def test_get_layout_html_preserves_external_extension_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
     from bokeh.embed import embed
     from bokeh.models import Div
@@ -171,6 +191,20 @@ def test_get_layout_html_preserves_external_extension_dependencies(monkeypatch: 
 
     assert '<script src="https://example.test/extension.js"' in html
     assert '<link rel="stylesheet" href="https://example.test/extension.css"' in html
+    assert 'src="https://cdn.bokeh.org' not in html
+
+
+def test_inline_export_does_not_inherit_cdn_version_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    from bokeh.models import Div
+
+    monkeypatch.setattr(settings.cdn_version, "_user_value", "99.0.0")
+
+    html = biu.get_layout_html(Div(text="Local export"), resources=INLINE)
+
+    bootstrap = re.search(r'<script\b[^>]*\bdata-bokeh-embed-bootstrap\b[^>]*>', html)
+    assert bootstrap is not None
+    assert f'data-bokeh-resource-override-version="{__version__}"' in bootstrap.group()
+    assert 'data-bokeh-resource-override-version="99.0.0"' not in bootstrap.group()
     assert 'src="https://cdn.bokeh.org' not in html
 
 #-----------------------------------------------------------------------------

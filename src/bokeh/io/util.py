@@ -39,7 +39,7 @@ from typing import TYPE_CHECKING, Iterable, Iterator
 # Bokeh imports
 from .. import __version__
 from ..embed._util import ThemePolicy, embed
-from ..resources import INLINE, Resources
+from ..resources import CDN, INLINE, Resources
 
 if TYPE_CHECKING:
     from tempfile import _TemporaryFileWrapper
@@ -194,8 +194,15 @@ def get_layout_html(obj: UIElement | Document, *, resources: ResourcesLike = INL
     def html() -> str:
         result = embed(obj, theme=theme, callback_policy="suppress")
         policy = Resources.build(resources)
-        if policy.mode == "inline":
-            policy = _ExportResources(**{**policy.to_dict(), "mode": "cdn"})
+        if policy.mode == INLINE:
+            policy = _ExportResources(
+                mode=CDN,
+                minified=policy.minified,
+                override_version=policy.override_version or __version__,
+                base_dir=policy.base_dir,
+                nonce=policy.nonce,
+                crossorigin=policy.crossorigin,
+            )
         return result.page(resources=policy, title="", template=template)
 
     if width is not None or height is not None:

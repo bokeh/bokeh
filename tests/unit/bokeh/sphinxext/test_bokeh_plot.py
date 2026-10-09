@@ -1,21 +1,25 @@
 from __future__ import annotations
 
 # Standard library imports
+import json
 from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
 
 # External imports
+import pytest
 from docutils import nodes
 from docutils.utils import new_document
 from sphinx.application import Sphinx
 
 # Bokeh imports
+from bokeh import __version__
 from bokeh.embed.resources import (
     ExtensionRequirement,
     ResourceAssetRequirement,
     ResourceRequirements,
 )
+from bokeh.settings import PrioritizedSetting
 from bokeh.sphinxext.bokeh_plot import add_page_resources, autoload_script
 
 
@@ -39,7 +43,14 @@ def test_page_resources_union_includes_custom_assets_once() -> None:
     assert document.children[0] is resources
 
 
-def test_bokeh_plot_build_loads_resources_before_multiple_plots(tmp_path: Path) -> None:
+@pytest.mark.parametrize("version", [None, "4.0.0"])
+def test_bokeh_plot_build_loads_resources_before_multiple_plots(
+        cdn_version_setting: PrioritizedSetting[str | None], tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch, version: str | None) -> None:
+    monkeypatch.delenv("BOKEH_CDN_VERSION", raising=False)
+    monkeypatch.delenv("BOKEH_DOCS_CDN", raising=False)
+    if version is not None:
+        monkeypatch.setenv("BOKEH_CDN_VERSION", version)
     source = tmp_path / "source"
     source.mkdir()
     (source / "conf.py").write_text("extensions = ['bokeh.sphinxext.bokeh_plot']\nmaster_doc = 'index'\n")
@@ -70,4 +81,11 @@ def test_bokeh_plot_build_loads_resources_before_multiple_plots(tmp_path: Path) 
     assert html.count('src="https://cdn.bokeh.org/bokeh/') == 2
     assert html.index('src="https://cdn.bokeh.org/bokeh/') < html.index('data-bokeh-embed-bootstrap')
     assert html.count('<script data-bokeh-embed-bootstrap') == 2
-    assert len(list(output.glob("bokeh-content-*.json"))) == 2
+    payloads = list(output.glob("bokeh-content-*.json"))
+    assert len(payloads) == 2
+    assert all(json.loads(payload.read_text())["bokeh_version"] == __version__ for payload in payloads)
+    if version is None:
+        assert "data-bokeh-resource-override-version" not in html
+    else:
+        assert html.count(f'data-bokeh-resource-override-version="{version}"') == 2
+        assert f'bokeh-{version}.min.js' in html

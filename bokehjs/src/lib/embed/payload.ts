@@ -534,6 +534,7 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
     const host_policy = typeof policy == "string" ? undefined : policy
     const resolved_policy: ResourcePolicy = {
       mode: "resolved",
+      override_version: host_policy?.override_version,
       assets: (host_policy?.assets ?? assets).map((asset) => ({
         ...asset,
         ...(host_policy?.assets == null && asset.url != null ? {url: new URL(asset.url, app).href} : {}),

@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""Typed output renderers for :class:`~bokeh.embed.EmbedResult`."""
+"""HTML and MIME output for :class:`~bokeh.embed.EmbedResult`."""
 
 from __future__ import annotations
 
@@ -425,6 +425,8 @@ def _resource_policy_attributes(policy: Resources | None) -> list[str]:
         f'data-bokeh-resource-minified="{str(policy.minified).lower()}"',
         f'data-bokeh-log-level="{escape(settings.log_level(), quote=True)}"',
     ]
+    if policy.override_version is not None:
+        attrs.append(f'data-bokeh-resource-override-version="{escape(policy.override_version, quote=True)}"')
     if policy.crossorigin is not None:
         attrs.append(f'data-bokeh-resource-crossorigin="{escape(policy.crossorigin, quote=True)}"')
     if policy.integrity:

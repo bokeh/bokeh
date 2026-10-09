@@ -31,6 +31,7 @@ from bokeh.document.document import Document
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.io.doc import patch_curdoc, set_curdoc
 from bokeh.io.notebook import log
+from bokeh.settings import PrioritizedSetting
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
@@ -119,13 +120,15 @@ def test_colab_hook_can_forward_unused_state(mock_notebook_content: MagicMock,
     assert mock_publish.call_count == 2
 
 
+@pytest.mark.parametrize("version", [None, "4.0.0"])
 @patch('bokeh.server.server.Server')
 @patch('bokeh.io.notebook.publish_display_data')
 def test_show_app_publishes_single_shared_mount_script(mock_publish: MagicMock,
-        mock_server: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
+        mock_server: MagicMock, monkeypatch: pytest.MonkeyPatch, version: str | None) -> None:
     from bokeh.embed import embed_server
 
     monkeypatch.setattr(binb, "_NOTEBOOK_SERVERS", {})
+    monkeypatch.setattr(binb, "_NOTEBOOK_LOADED", binb.Resources(mode="none", override_version=version))
     mock_server.return_value.port = 1234
     binb.show_app(lambda doc: None)
 
@@ -145,6 +148,10 @@ def test_show_app_publishes_single_shared_mount_script(mock_publish: MagicMock,
     assert "Bokeh.mount_embed_declaration(declaration)" in fragment
     assert "data-bokeh-embed-instance=" in fragment
     assert "data-bokeh-embed=" not in fragment
+    if version is None:
+        assert "data-bokeh-resource-override-version" not in fragment
+    else:
+        assert f'data-bokeh-resource-override-version="{version}"' in fragment
     match = re.search(r'<script\b[^>]*\bdata-bokeh-embed-payload\b[^>]*>(.*?)</script>', fragment, re.DOTALL)
     assert match is not None
     payload = json.loads(match.group(1))
@@ -460,6 +467,35 @@ def test_load_notebook_only_resolves_builtin_components(monkeypatch: pytest.Monk
         "bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax",
     ))
     assert published[-1][binb.JS_MIME_TYPE]
+
+
+@pytest.mark.parametrize("version", [None, "4.0.0"])
+def test_notebook_displays_keep_loaded_runtime_version(
+        cdn_version_setting: PrioritizedSetting[str | None], monkeypatch: pytest.MonkeyPatch, version: str | None) -> None:
+    from bokeh.models import Div
+
+    monkeypatch.delenv("BOKEH_CDN_VERSION", raising=False)
+    if version is not None:
+        monkeypatch.setenv("BOKEH_CDN_VERSION", version)
+    monkeypatch.setattr(binb, "_NOTEBOOK_LOADED", None)
+    monkeypatch.setattr(binb, "_NOTEBOOK_REQUIREMENTS", ResourceRequirements())
+    published: list[dict[str, Any]] = []
+    monkeypatch.setattr(binb, "publish_display_data", lambda data, **kwargs: published.append(data))
+
+    binb.load_notebook(resources="cdn", hide_banner=True)
+
+    assert binb._NOTEBOOK_LOADED is not None
+    assert binb._NOTEBOOK_LOADED.override_version == version
+    if version is not None:
+        assert f"bokeh-{version}.min.js" in published[-1][binb.JS_MIME_TYPE]
+    cdn_version_setting.set_value("4.0.1")
+    script, _, _ = binb._legacy_notebook_content(Div(), None)
+
+    if version is None:
+        assert 'override_version: "' not in script
+    else:
+        assert f'override_version: "{version}"' in script
+    assert 'override_version: "4.0.1"' not in script
 
 
 def test_show_doc_loads_custom_model_registered_after_load_notebook(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -980,8 +980,12 @@ export async function mount_embed_declaration(
       )
     }
 
-    const mount_options = {resources: "none" as const, use_for_title: full_document, ...options}
     const server_policy = declaration_resource_policy(script, options.resources)
+    const mount_options = {
+      use_for_title: full_document,
+      ...options,
+      resources: options.resources == null ? {...server_policy, mode: "none" as const} : server_policy,
+    }
     const handle = server_default
       ? mount_embed_payload(payload, shared_target, mount_options, script, server_policy, {error_source: source})
       : mount_embed_payload(payload, targets, mount_options, script, server_policy, {shared_target, error_source: source})
@@ -994,9 +998,12 @@ export async function mount_embed_declaration(
   }
 }
 
-function declaration_resource_policy(script: HTMLScriptElement, policy?: ResourcePolicy): ResourcePolicy {
+function declaration_resource_policy(script: HTMLScriptElement, policy?: ResourcePolicy): Exclude<ResourcePolicy, string> {
   const declared: Exclude<ResourcePolicy, string> = {
     mode: (script.dataset.bokehResourceMode as ResourcePolicyMode | undefined) ?? "none",
+  }
+  if (script.dataset.bokehResourceOverrideVersion != null) {
+    declared.override_version = script.dataset.bokehResourceOverrideVersion
   }
   if (script.dataset.bokehResourceMinified != null) {
     declared.minified = script.dataset.bokehResourceMinified == "true"

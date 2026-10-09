@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ._output import EmbedFragment, EmbedMount, ExternalEmbed
 from ._util import (
     CallbackPolicy,
     EmbedBuildError,
@@ -34,7 +35,6 @@ from ._util import (
     embed,
     embed_server,
 )
-from .renderers import EmbedFragment, EmbedMount, ExternalEmbed
 from .resources import (
     ExtensionRequirement,
     ResourceAssetRequirement,

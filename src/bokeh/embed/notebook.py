@@ -30,7 +30,7 @@ from .result import EmbedResult
 if TYPE_CHECKING:
     from ..document import Document
     from ..model import Model
-    from .renderers import EmbedFragment
+    from ._output import EmbedFragment
 
 __all__ = ("notebook_content",)
 

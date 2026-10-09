@@ -310,6 +310,21 @@ them:
     result.fragment(resources="offline")  # rejects every external URL
     result.fragment(resources="none")     # host owns all resource loading
 
+CDN resources default to the embed payload's Bokeh version. To override the
+version requested from the CDN, set ``BOKEH_CDN_VERSION`` or assign
+``bokeh.settings.settings.cdn_version``. This selects the CDN asset URLs,
+including the standard external bootstrap, and permits deliberately trying
+another release. The browser checks that the selected runtime was loaded,
+without requiring it to match the payload's version. Deserialization still
+reports version differences, and incompatible model or protocol changes can
+fail. Without an explicit override, the runtime must match the payload.
+
+To scope the override to one resource configuration, use
+``Resources(mode="cdn", override_version="4.0.0")``. For a host that loads BokehJS
+itself, ``Resources(mode="none", override_version="4.0.0")`` declares the expected
+runtime without emitting resource tags. Resource configurations capture the
+CDN setting when created, so later setting changes do not alter them.
+
 ``resources="none"`` is not an assertion that the embed result needs no resources.
 It is an explicit host-owned policy: the page must load matching versions of
 every BokehJS component and extension listed by ``result.requires``.

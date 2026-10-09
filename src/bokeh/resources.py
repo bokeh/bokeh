@@ -28,7 +28,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import json
 import os
-import re
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import (
@@ -49,7 +48,7 @@ from . import __version__
 from .settings import settings
 from .util.paths import ROOT_DIR
 from .util.token import generate_session_id
-from .util.version import is_full_release
+from .util.version import is_full_release, is_valid_version
 
 if TYPE_CHECKING:
     from .core.has_props import HasProps
@@ -146,10 +145,15 @@ class Resources:
     ``offline`` permits only inline/local content and rejects external URLs.
     Other modes resolve matching Bokeh bundles through CDN, server, filesystem,
     or explicit paths. CSP and SRI choices belong to resources rather than the
-    reusable embed result. Bundle versions always come from the embed payload.
+    reusable embed result. CDN bundle versions default to the embed payload's
+    version and can be overridden with ``settings.cdn_version`` or
+    ``BOKEH_CDN_VERSION``. An explicit ``override_version`` selects the expected
+    runtime instead of requiring it to match the payload. CDN mode also uses
+    it to select asset URLs. Trying another release does not guarantee compatibility.
     '''
     mode: ResourcesMode = CDN
     minified: bool = True
+    override_version: str | None = None
     root_url: str | None = None
     root_dir: PathLike | None = None
     base_dir: PathLike | None = None
@@ -164,6 +168,14 @@ class Resources:
             raise ResourceConflictError(
                 f"unknown resource mode {self.mode!r}; expected one of {_RESOURCE_MODES!r}",
             )
+        if self.mode == CDN and self.override_version is None:
+            object.__setattr__(self, "override_version", settings.cdn_version())
+        if self.override_version is not None:
+            if not isinstance(self.override_version, str) or not is_valid_version(self.override_version):
+                raise ResourceConflictError(
+                    f"invalid Bokeh resource override version {self.override_version!r}. "
+                    "Expected X.Y.Z, X.Y.Z.devN, or X.Y.ZrcN, optionally followed by +build",
+                )
         if self.mode in (INLINE, "offline") and self.external_only:
             raise ResourceConflictError(
                 f"resource mode '{self.mode}' emits inline assets and conflicts with external_only=True",
@@ -216,7 +228,7 @@ class Resources:
             "mode": self.mode,
             "minified": self.minified,
         }
-        for name in ("root_url", "nonce", "crossorigin"):
+        for name in ("override_version", "root_url", "nonce", "crossorigin"):
             value = getattr(self, name)
             if value is not None:
                 result[name] = value
@@ -237,7 +249,8 @@ class Resources:
 
         Args:
             requirements: Runtime components and extension assets to resolve.
-            bokeh_version: BokehJS version used to resolve built-in components.
+            bokeh_version: BokehJS version used to resolve built-in components
+                unless ``override_version`` overrides CDN asset selection.
             include_requirement_assets: Retain extension asset declarations in
                 the returned requirements. Resolved transports can omit them
                 because the concrete assets are carried separately.
@@ -400,7 +413,8 @@ class Resources:
         if mode == "absolute":
             return [str(path) for path in paths], [], {}
         if mode == CDN:
-            urls = _get_cdn_urls(bokeh_version.split("+", 1)[0], self.minified, include_hashes=self.integrity)
+            version = self.override_version or bokeh_version
+            urls = _get_cdn_urls(version.split("+", 1)[0], self.minified, include_hashes=self.integrity)
             files = urls.urls(components, kind)
             hashes = urls.hashes(components, kind) if urls.hashes is not None else {}
             return files, [], hashes
@@ -595,9 +609,6 @@ class SessionCoordinates:
 # Private API
 # -----------------------------------------------------------------------------
 
-_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(\.dev|rc)")
-
-
 def _cdn_base_url() -> str:
     return "https://cdn.bokeh.org"
 
@@ -609,7 +620,7 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True, *, include_
 
     base_url = _cdn_base_url()
 
-    container = "bokeh/dev" if _DEV_PAT.match(version) else "bokeh/release"
+    container = "bokeh/release" if is_full_release(version) else "bokeh/dev"
 
     def mk_filename(comp: str, kind: Kind) -> str:
         return f"{comp}-{version}{'.min' if minified else ''}.{kind}"

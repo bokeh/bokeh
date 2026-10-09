@@ -504,7 +504,7 @@ def load_notebook(resources: ResourcesLike | None = None, verbose: bool = False,
         element_id = None
         html = None
 
-    _NOTEBOOK_LOADED = policy
+    _NOTEBOOK_LOADED = resolved.policy
     _NOTEBOOK_REQUIREMENTS = requirements
 
     bundle = _NotebookBundle.from_resolved(resolved)
@@ -602,7 +602,10 @@ def show_app(
     logging.debug(f"Origin URL is {origin}")
 
     from ..embed._util import embed_server
-    script = _notebook_server_script(embed_server(url).fragment(resources="none").html)
+    policy = Resources(
+        mode="none", override_version=_NOTEBOOK_LOADED.override_version if _NOTEBOOK_LOADED is not None else None,
+    )
+    script = _notebook_server_script(embed_server(url).fragment(resources=policy).html)
 
     publish_display_data({
         HTML_MIME_TYPE: script,
@@ -687,6 +690,7 @@ def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str
         render_items=serialize_json([render_item]),
         resource_requirements=transport_requirements.to_dict(),
         resource_assets=resolved_assets,
+        resource_override_version=_NOTEBOOK_LOADED.override_version if _NOTEBOOK_LOADED is not None else None,
         bokeh_version=result.bokeh_version,
     )
     div = (

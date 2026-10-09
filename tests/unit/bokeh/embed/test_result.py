@@ -63,7 +63,7 @@ from bokeh.themes import Theme
 from bokeh.util.compiler import JavaScript
 from bokeh.util.warnings import BokehDeprecationWarning
 
-import bokeh.embed.renderers as renderers # isort:skip
+import bokeh.embed._output as output # isort:skip
 from bokeh.embed._util import project_embed_result # isort:skip
 
 FIXTURE_PATH = Path(__file__).parents[4] / "bokehjs" / "test" / "unit" / "embed" / "embed_fixtures.json"
@@ -1034,7 +1034,7 @@ def test_resource_policy_resolves_standard_embed_bootstrap(tmp_path: Path) -> No
         Resources(mode="none", external_only=True).resolve_embed_bootstrap()
 
 
-def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -> None:
+def test_typed_outputs_cover_fragment_page_external_and_mime(tmp_path: Path) -> None:
     result = embed({"summary": _plot(), "detail": _plot()})
     fragment = result.fragment(resources="none")
 
@@ -1078,7 +1078,7 @@ def test_typed_renderers_cover_fragment_page_external_and_mime(tmp_path: Path) -
     assert "text/html" in mime
 
 
-def test_external_bootstrap_renderers_preserve_csp_nonce() -> None:
+def test_external_bootstrap_outputs_preserve_csp_nonce() -> None:
     result = embed(CustomJS(code="root"))
     policy = Resources(mode="none", nonce="embed-nonce")
 
@@ -1104,7 +1104,7 @@ def test_custom_bootstrap_cannot_bypass_requested_integrity() -> None:
 
 
 @pytest.mark.parametrize("url", ["data:text/javascript,alert(1)", "javascript:alert(1)", "//evil.test/x.js"])
-def test_renderers_reject_unsafe_executable_urls(url: str) -> None:
+def test_outputs_reject_unsafe_executable_urls(url: str) -> None:
     result = embed(CustomJS(code="root"))
 
     with pytest.raises(ValueError, match=r"HTTP\(S\)|scheme-relative"):
@@ -1119,7 +1119,7 @@ def test_renderers_reject_unsafe_executable_urls(url: str) -> None:
 ])
 def test_resource_rendering_rejects_unsafe_urls(asset: ResolvedResource) -> None:
     with pytest.raises(ValueError, match=r"HTTP\(S\)|scheme-relative"):
-        renderers.render_resource(asset)
+        output.render_resource(asset)
 
 
 def test_resource_rendering_allows_windows_paths_only_for_absolute_mode() -> None:
@@ -1128,17 +1128,17 @@ def test_resource_rendering_allows_windows_paths_only_for_absolute_mode() -> Non
     absolute = ResolvedResources(requirements, Resources(mode="absolute"), __version__, (asset,))
     cdn = ResolvedResources(requirements, Resources(mode="cdn"), __version__, (asset,))
 
-    assert r'src="C:\bokeh\bokeh.min.js"' in renderers._render_resources(absolute)
+    assert r'src="C:\bokeh\bokeh.min.js"' in output._render_resources(absolute)
     with pytest.raises(ValueError, match=r"HTTP\(S\) or be relative"):
-        renderers._render_resources(cdn)
+        output._render_resources(cdn)
 
 
 def test_inline_resources_preserve_source_without_exposing_html_parser_sentinels() -> None:
     source = 'globalThis.value = "x</ScRiPt>y<!--z"'
     script_asset = ResolvedResource("script", content=source)
     style_asset = ResolvedResource("style", content="x</STYLE>y")
-    script = renderers.render_resource(script_asset)
-    style = renderers.render_resource(style_asset)
+    script = output.render_resource(script_asset)
+    style = output.render_resource(style_asset)
 
     bs4 = pytest.importorskip("bs4")
     [element] = bs4.BeautifulSoup(script, "html.parser").find_all("script")
@@ -1159,10 +1159,10 @@ def test_inline_resources_preserve_source_without_exposing_html_parser_sentinels
 
 
 def test_module_resources_report_loading_completion_and_failure() -> None:
-    inline = renderers.render_resource(ResolvedResource(
+    inline = output.render_resource(ResolvedResource(
         "script", content="export const value = 1", module=True, nonce="fixture-nonce",
     ))
-    external = renderers.render_resource(ResolvedResource(
+    external = output.render_resource(ResolvedResource(
         "script", url="https://example.test/extension.js", module=True,
     ))
 
@@ -1194,18 +1194,18 @@ def test_page_preserves_named_aliases_for_referenced_roots(serialization: str) -
 
 
 @pytest.mark.parametrize("kind", ["standalone", "server"])
-def test_renderers_inspect_source_without_defensive_copies(kind: str, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_outputs_inspect_source_without_defensive_copies(kind: str, monkeypatch: pytest.MonkeyPatch) -> None:
     result = embed(_plot()) if kind == "standalone" else embed_server("https://example.test/app")
     source = result.source
 
     def copied_source(self: EmbedResult) -> dict[str, Any]:
-        raise AssertionError("renderers should inspect the existing snapshot")
+        raise AssertionError("output generation should inspect the existing snapshot")
 
     monkeypatch.setattr(EmbedResult, "source", property(copied_source))
     assert result.page(resources="none")
     assert result.fragment(resources="none").html
     assert result.external("/payload.json", resources="none").html
-    assert renderers.render_mounts(result)
+    assert output.render_mounts(result)
     assert result._source == source
 
 
@@ -1218,10 +1218,10 @@ def test_template_direct_roots_do_not_scan_document_data(monkeypatch: pytest.Mon
     result = embed(CustomJS(code="return", name="named"))
     source = result.source
     source["documents"][0]["unvisited"] = UnvisitedList([1, 2, 3])
-    monkeypatch.setattr(renderers, "embed_source", lambda result: source)
-    mounts = renderers.render_mounts(result)
+    monkeypatch.setattr(output, "embed_source", lambda result: source)
+    mounts = output.render_mounts(result)
 
-    roots = renderers._template_roots(result, mounts)
+    roots = output._template_roots(result, mounts)
     assert roots.named is mounts[0]
 
 

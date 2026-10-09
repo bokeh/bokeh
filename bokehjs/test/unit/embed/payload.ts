@@ -634,6 +634,90 @@ describe("EmbedPayload runtime", () => {
     target.remove()
   })
 
+  it("allows an explicitly selected runtime version for a different payload release", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    payload.bokeh_version = "99.0.0"
+    if (payload.source.kind != "standalone") {
+      throw new Error("expected a standalone fixture")
+    }
+    payload.source.documents[0].version = payload.bokeh_version
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const mounted = mount(payload, undefined, {resources: {mode: "none", override_version: js_version}, resolver})
+    try {
+      await mounted.ready
+      expect(mounted.root_keys).to.be.equal(["primary", "secondary"])
+      expect_instanceof(mounted.root("primary"), CustomJS)
+    } finally {
+      await mounted.dispose()
+    }
+  })
+
+  it("rejects a loaded runtime that differs from an explicit version override", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    const mounted = mount(payload, undefined, {resources: {mode: "none", override_version: "99.0.0"}})
+    const error = await mounted.ready.then(() => null, (error: unknown) => error)
+    expect_instanceof(error, MountError)
+    expect(error.kind).to.be.equal("resource")
+    expect(error.message.includes("expects BokehJS 99.0.0")).to.be.true
+  })
+
+  it("ignores local build metadata on an explicit CDN version override", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    payload.bokeh_version = "99.0.0"
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const override_version = `${js_version.split("+")[0]}+local`
+    const mounted = mount(payload, undefined, {resources: {mode: "none", override_version}, resolver})
+    try {
+      await mounted.ready
+      expect(mounted.root_keys).to.be.equal(["primary", "secondary"])
+    } finally {
+      await mounted.dispose()
+    }
+  })
+
+  it("uses a declarative version override without resolving already loaded resources again", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    payload.bokeh_version = "99.0.0"
+    if (payload.source.kind != "standalone") {
+      throw new Error("expected a standalone fixture")
+    }
+    payload.source.documents[0].version = payload.bokeh_version
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const declaration = inline_declaration(payload)
+    declaration.bootstrap.dataset.bokehResourceMode = "inline"
+    declaration.bootstrap.dataset.bokehResourceOverrideVersion = js_version
+    try {
+      const mounted = await mount_embed_declaration(declaration.bootstrap, {resolver})
+      expect(mounted.root_keys).to.be.equal(["primary", "secondary"])
+      await mounted.dispose()
+    } finally {
+      declaration.remove()
+    }
+  })
+
+  it("gives an explicit mount version override precedence over a declaration", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const declaration = inline_declaration(payload)
+    declaration.bootstrap.dataset.bokehResourceOverrideVersion = js_version
+    try {
+      const error = await mount_embed_declaration(declaration.bootstrap, {
+        resources: {mode: "none", override_version: "99.0.0"}, resolver,
+      }).then(() => null, (error: unknown) => error)
+      expect_instanceof(error, MountError)
+      expect(error.kind).to.be.equal("resource")
+      expect(error.message.includes("expects BokehJS 99.0.0")).to.be.true
+
+      declaration.bootstrap.dataset.bokehResourceOverrideVersion = "99.0.0"
+      const mounted = await mount_embed_declaration(declaration.bootstrap, {
+        resources: {mode: "none", override_version: js_version}, resolver,
+      })
+      await mounted.dispose()
+    } finally {
+      declaration.remove()
+    }
+  })
+
   it("surfaces server bootstrap HTTP failures without a second lifecycle", async () => {
     const payload = fixture("server-existing-session")
     if (payload.source.kind != "server") {
@@ -773,6 +857,39 @@ describe("EmbedPayload runtime", () => {
       expect(asset_url).to.be.equal("https://public.example/proxy/static/extensions/example.js")
     } finally {
       ensure.restore()
+      globalThis.fetch = original_fetch
+    }
+  })
+
+  it("preserves a deliberate runtime version override through server resource resolution", async () => {
+    const root = Div.create({text: "server version override"})
+    const server_document = new Document({roots: [root]})
+    const connection = new ClientConnection()
+    const session = new ClientSession(connection, server_document)
+    connection.session = session
+    const connect = sinon.stub(ClientConnection.prototype, "connect").resolves(session)
+    const payload = fixture("server-existing-session")
+    payload.bokeh_version = "99.0.0"
+    payload.roots = [{key: "detail", model_id: root.id}]
+    const original_fetch = globalThis.fetch
+    globalThis.fetch = async () => Response.json({
+      schema: "bokeh.embed-server/v1",
+      bokeh_version: payload.bokeh_version,
+      token: btoa(JSON.stringify({session_id: "test"})),
+      requires: {components: [], extensions: []},
+      resources: {mode: "resolved", assets: []},
+    })
+    try {
+      const prepared = await prepare_embed(payload, {mode: "none", override_version: js_version})
+      expect(prepared.roots.get("detail")).to.be.equal(root)
+      expect(prepared.session).to.be.equal(session)
+      prepared.release()
+    } finally {
+      if (!server_document.is_destroyed) {
+        session.close()
+        server_document.destroy()
+      }
+      connect.restore()
       globalThis.fetch = original_fetch
     }
   })

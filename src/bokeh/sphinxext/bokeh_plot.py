@@ -102,9 +102,10 @@ from sphinx.util.osutil import copyfile, ensuredir
 # Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.embed.renderers import render_resource
+from bokeh.embed._output import render_resource
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
+from bokeh.resources import Resources
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
@@ -281,7 +282,9 @@ class BokehPlotDirective(BokehDirective):
         js_path = join(env.bokeh_plot_auxdir, js_filename)
         result = embed(root)
         self._requirements = result.requires.to_dict()
-        external = result.external(js_filename)
+        external = result.external(js_filename, resources=Resources(
+            mode="none", override_version=get_sphinx_resources().override_version,
+        ))
         serialized = perf_counter()
 
         with open(js_path, "w") as f:

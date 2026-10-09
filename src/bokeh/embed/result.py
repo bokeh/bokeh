@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from jinja2 import Template
 
     from ..resources import ResourcesLike
-    from .renderers import EmbedFragment, ExternalEmbed
+    from ._output import EmbedFragment, ExternalEmbed
 
 EMBED_SCHEMA = "bokeh.embed/v1"
 EMBED_MIME_TYPE = "application/vnd.bokeh.embed+json"
@@ -386,7 +386,7 @@ class EmbedResult:
         Returns:
             A composable embed fragment.
         '''
-        from .renderers import render_fragment
+        from ._output import render_fragment
         return render_fragment(self, resources=resources, bootstrap_url=bootstrap_url)
 
     def page(self, resources: ResourcesLike | None = None, *, title: str | None = None,
@@ -404,7 +404,7 @@ class EmbedResult:
         Returns:
             The rendered HTML page.
         '''
-        from .renderers import render_page
+        from ._output import render_page
         return render_page(
             self, resources=resources, title=title, template=template,
             template_variables=template_variables, bootstrap_url=bootstrap_url,
@@ -422,13 +422,13 @@ class EmbedResult:
         Returns:
             A declaration for an externally stored embed payload.
         '''
-        from .renderers import render_external
+        from ._output import render_external
         return render_external(
             self, payload_url=payload_url, resources=resources, bootstrap_url=bootstrap_url,
         )
 
     def _repr_mimebundle_(self, include: Any = None, exclude: Any = None) -> dict[str, Any]:
-        from .renderers import render_mimebundle
+        from ._output import render_mimebundle
         return render_mimebundle(self)
 
 

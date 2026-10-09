@@ -36,8 +36,8 @@ from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model
 from ..util.deprecation import deprecated
+from ._output import render_fragment, render_resource
 from ._util import ThemeSource, project_embed_result
-from .renderers import render_fragment, render_resource
 from .resources import ResolvedResource
 
 if TYPE_CHECKING:

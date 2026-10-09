@@ -19,11 +19,15 @@ import importlib.util
 import sys
 import sysconfig
 from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 # External imports
 import _pytest
 import pytest
 from narwhals.stable.v1.typing import IntoDataFrame
+
+if TYPE_CHECKING:
+    from bokeh.settings import PrioritizedSetting
 
 if importlib.util.find_spec("pandas") is not None:
     import pandas as pd
@@ -112,6 +116,20 @@ def ensure_gil_disabled() -> Iterator[None]:
 @pytest.fixture(params=constructors)
 def constructor(request: pytest.FixtureRequest):
     return request.param  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+def cdn_version_setting() -> Iterator[PrioritizedSetting[str | None]]:
+    '''Reset the programmatic CDN version for a test and restore it afterward.'''
+    from bokeh.settings import settings
+
+    setting = settings.cdn_version
+    original_value = setting._user_value
+    setting.unset_value()
+    try:
+        yield setting
+    finally:
+        setting._user_value = original_value
 
 
 @pytest.fixture(scope="session")
