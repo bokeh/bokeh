@@ -439,6 +439,8 @@ export abstract class LayoutDOMView extends PaneView {
     for (const child_view of this.layoutable_views) {
       if (child_view.layout == null) {
         child_view._compute_layout()
+      } else {
+        child_view._propagate_layout()
       }
     }
   }
