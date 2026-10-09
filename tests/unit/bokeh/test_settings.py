@@ -46,7 +46,6 @@ _expected_settings = (
     'allowed_ws_origin',
     'auth_module',
     'browser',
-    'cdn_version',
     'chromedriver_path',
     'compression_level',
     'cookie_secret',
@@ -354,9 +353,6 @@ class TestDefaults:
 
     def test_browser(self):
         assert bs.settings.browser.default is None
-
-    def test_cdn_version(self):
-        assert bs.settings.cdn_version.default is None
 
     def test_chromedriver_path(self):
         assert bs.settings.chromedriver_path.default is None

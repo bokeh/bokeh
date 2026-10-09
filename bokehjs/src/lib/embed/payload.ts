@@ -495,7 +495,19 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
         response, "payload", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
       )
     }
-    const bootstrap = as_record(await response.json(), "Bokeh server bootstrap")
+    let bootstrap_data: unknown
+    try {
+      bootstrap_data = await response.json()
+    } catch (error) {
+      if (signal?.aborted == true) {
+        throw signal.reason
+      }
+      throw new EmbedError(
+        "decode", `failed to decode Bokeh server embed payload from ${endpoint}: ${error}`, error,
+        "payload", {kind: "embed", embed: payload.fingerprint, url: endpoint.href},
+      )
+    }
+    const bootstrap = as_record(bootstrap_data, "Bokeh server bootstrap")
     if (bootstrap.schema != "bokeh.embed-server/v1") {
       throw new EmbedError(
         "schema", `unsupported Bokeh server bootstrap schema '${bootstrap.schema}'; expected 'bokeh.embed-server/v1'`,
@@ -526,6 +538,7 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
       mode: "resolved",
       assets: (host_policy?.assets ?? assets).map((asset) => ({
         ...asset,
+        ...(host_policy?.assets == null && asset.url != null ? {url: new URL(asset.url, app).href} : {}),
         ...(host_policy?.nonce != null ? {nonce: host_policy.nonce} : {}),
         ...(asset.crossorigin == null && host_policy?.crossorigin != null
           ? {crossorigin: host_policy.crossorigin}
@@ -566,27 +579,46 @@ async function prepare_server(payload: EmbedPayload, policy: ResourcePolicy, sig
 
   try {
     const roots = new Map<string, HasProps>()
-    if (payload.roots.length == 0) {
-      const document_roots = session.document.roots()
+    const document_roots = session.document.roots()
+    const full_document = isPlainObject(payload.metadata.embedding) &&
+      payload.metadata.embedding.full_document === true
+    if (payload.roots.length == 0 && !full_document) {
       for (const [index, root] of document_roots.entries()) {
         roots.set(document_roots.length == 1 ? "root" : `root-${index}`, root)
       }
     } else {
       for (const descriptor of payload.roots as ServerEmbedRoot[]) {
         const root = session.document.get_model_by_id(descriptor.model_id)
-        if (root == null || !session.document.roots().includes(root)) {
+        if (root == null || !document_roots.includes(root)) {
+          if (full_document) {
+            continue
+          }
           throw new EmbedError(
             "session", `server embed root '${descriptor.key}' does not identify a document root`,
           )
         }
         roots.set(descriptor.key, root)
       }
+      if (full_document) {
+        const selected = new Set(roots.values())
+        for (const root of document_roots) {
+          if (selected.has(root)) {
+            continue
+          }
+          let key: string = root.id
+          let suffix = 1
+          while (roots.has(key)) {
+            key = `${root.id}-${suffix++}`
+          }
+          roots.set(key, root)
+        }
+      }
     }
     return {
       document: session.document,
       roots,
       document_ownership: "mount",
-      track_document_roots: payload.roots.length == 0,
+      track_document_roots: payload.roots.length == 0 || full_document,
       session,
 
       release() {

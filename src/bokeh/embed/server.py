@@ -46,7 +46,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def server_document(url: str = "default", relative_urls: bool = False, resources: Literal["default"] | None = "default",
-        arguments: dict[str, str] | None = None, headers: dict[str, str] | None = None, with_credentials: bool = False) -> str:
+        arguments: dict[str, object] | None = None, headers: dict[str, str] | None = None, with_credentials: bool = False) -> str:
     ''' Return an embed fragment that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
@@ -79,9 +79,9 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-       arguments (dict[str, str], optional) :
+       arguments (dict[str, object], optional) :
             A dictionary of key/values to be passed as HTTP request arguments
-            to Bokeh application code (default: None)
+            to Bokeh application code (default: None). Values are converted to strings.
 
        headers (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP Headers
@@ -105,7 +105,7 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
 
     result = embed_server(
         url,
-        arguments=arguments,
+        arguments={key: str(value) for key, value in arguments.items()} if arguments is not None else None,
         headers=headers,
         with_credentials=with_credentials,
         relative_urls=relative_urls,

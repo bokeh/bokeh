@@ -102,6 +102,8 @@ from sphinx.util.osutil import copyfile, ensuredir
 # Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import embed
+from bokeh.embed.renderers import render_resource
+from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -110,6 +112,7 @@ from bokeh.util.warnings import BokehDeprecationWarning
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
 from ._internal.bokeh_directive import BokehDirective
 from ._internal.example_handler import ExampleHandler
+from ._internal.util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -131,6 +134,10 @@ class _PlotTiming(NamedTuple):
     write: float
     docname: str
     source: str
+
+
+class _PlotSphinxSpec(SphinxParallelSpec):
+    env_version: int
 
 # -----------------------------------------------------------------------------
 # General API
@@ -200,7 +207,9 @@ class BokehPlotDirective(BokehDirective):
 
         above, below = self.process_code_block(source, docstring)
 
-        autoload = [autoload_script(height_hint=height_hint, script_tag=script_tag)]
+        autoload = [autoload_script(
+            height_hint=height_hint, script_tag=script_tag, requirements=self._requirements,
+        )]
 
         return target + intro + above + autoload + below
 
@@ -270,7 +279,9 @@ class BokehPlotDirective(BokehDirective):
         height_hint = cast(Any, root)._sphinx_height_hint()
 
         js_path = join(env.bokeh_plot_auxdir, js_filename)
-        external = embed(root).external(js_filename)
+        result = embed(root)
+        self._requirements = result.requires.to_dict()
+        external = result.external(js_filename)
         serialized = perf_counter()
 
         with open(js_path, "w") as f:
@@ -333,6 +344,24 @@ def builder_inited(app: Any) -> None:
     app.env.bokeh_plot_timings = []
 
 
+def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:
+    if app.builder.format != "html":
+        return
+    plots = list(doctree.findall(autoload_script))
+    if not plots:
+        return
+    requirements = ResourceRequirements.union(*(
+        ResourceRequirements.from_dict(plot["requirements"]) for plot in plots
+    ))
+    policy = get_sphinx_resources()
+    resolved = policy.resolve(requirements)
+    resources = "\n".join(
+        render_resource(asset, allow_absolute_path=policy.mode == "absolute") for asset in resolved.assets
+    )
+    first = plots[0]
+    first.parent.insert(first.parent.index(first), nodes.raw("", resources, format="html"))
+
+
 def build_finished(app: Any, exception: Exception | None) -> None:
     files = sorted(app.env.bokeh_plot_files)
     files_iter = status_iterator(files, "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
@@ -367,16 +396,17 @@ def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
     docnames_set = set(docnames)
     env.bokeh_plot_timings.extend(item for item in other.bokeh_plot_timings if item.docname in docnames_set)
 
-def setup(app: Any) -> SphinxParallelSpec:
+def setup(app: Any) -> _PlotSphinxSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
     app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")
     app.connect("builder-inited", builder_inited)
+    app.connect("doctree-resolved", add_page_resources)
     app.connect("build-finished", build_finished)
     app.connect("env-merge-info", env_merge_info)
 
-    return PARALLEL_SAFE
+    return _PlotSphinxSpec(**PARALLEL_SAFE, env_version=1)
 
 # -----------------------------------------------------------------------------
 # Private API

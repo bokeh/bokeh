@@ -184,7 +184,7 @@ Some of most useful settings are:
     :class:`~bokeh.resources.Resources`.
 
     You can combine some of the values for this variable with other
-    configuration values, such as ``cdn_version`` (``BOKEH_CDN_VERSION``) and
+    configuration values, such as ``minified`` (``BOKEH_MINIFIED``) and
     ``rootdir`` (``BOKEH_ROOTDIR``). See :ref:`bokeh.settings` for details.
 
 .. _ug_interfaces:

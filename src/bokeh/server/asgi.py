@@ -21,7 +21,7 @@ import zlib
 from http.cookies import SimpleCookie
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
-from urllib.parse import parse_qs, urljoin, urlparse
+from urllib.parse import parse_qs, urlparse
 
 # Bokeh imports
 from .. import __version__
@@ -336,14 +336,13 @@ class BokehASGI:
             return
         if not await self._authenticate_http(request, send, head=head, extra_headers=response_headers):
             return
-        origin = f"{request.protocol}://{request.host}/"
         resource_path = request.root_path.rstrip("/") + self._core.prefix
         try:
             policy = server_extension_resources(
-                self._core.resources(origin, root_path=request.root_path),
+                self._core.resources(root_path=request.root_path),
                 mode=request.headers.get("Bokeh-Resource-Mode"),
                 minified=request.headers.get("Bokeh-Resource-Minified"),
-                root_url=urljoin(origin, resource_path),
+                root_url=resource_path or "/",
             )
         except ValueError as error:
             await self._response(

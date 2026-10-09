@@ -364,6 +364,12 @@ class TestSerializer:
         val1 = {1, 2, 3}
         assert encoder.encode(val1) == SetRep(type="set", entries=[1, 2, 3])
 
+    def test_string_set_has_stable_order(self) -> None:
+        encoder = Serializer()
+        assert encoder.encode({"menu_item_click", "button_click"}) == SetRep(
+            type="set", entries=["button_click", "menu_item_click"],
+        )
+
     def test_slice(self) -> None:
         encoder = Serializer()
 

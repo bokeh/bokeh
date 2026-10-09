@@ -176,7 +176,10 @@ class ExtensionRequirement:
 def _ordered_extension_requirements(
     extensions: Mapping[str, Sequence[ResourceAssetRequirement]],
 ) -> tuple[ExtensionRequirement, ...]:
-    names = sorted(name for name in extensions if name != "bokeh.custom-models")
+    names = sorted(
+        (name for name in extensions if name != "bokeh.custom-models"),
+        key=lambda name: (name.startswith("package:"), name),
+    )
     if "bokeh.custom-models" in extensions:
         names.append("bokeh.custom-models")
     return tuple(ExtensionRequirement(name, tuple(extensions[name])) for name in names)

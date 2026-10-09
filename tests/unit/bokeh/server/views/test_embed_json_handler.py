@@ -10,22 +10,28 @@ from __future__ import annotations
 # Standard library imports
 import hashlib
 import json
-from types import SimpleNamespace
+import sys
+from pathlib import Path
+from types import ModuleType, SimpleNamespace
 from typing import Any
 
 # External imports
 import pytest
+from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
 
 # Bokeh imports
 from bokeh import __version__
+from bokeh.application import Application
 from bokeh.document import Document
+from bokeh.embed.resources import extension_dirs
 from bokeh.model import Model
 from bokeh.models import CustomJS
 from bokeh.resources import Resources
 from bokeh.server.urls import per_app_patterns
 from bokeh.server.views.embed_json_handler import EmbedJsonHandler
 from bokeh.util.compiler import JavaScript
+from tests.support.plugins.managed_server_loop import MSL
 
 
 class _TestEmbedJsonHandler(EmbedJsonHandler):
@@ -64,7 +70,7 @@ def _handler(token: str | None, document: Document | None = None) -> _TestEmbedJ
     handler._current_user = "default_user"
     handler.application = SimpleNamespace(
         prefix="",
-        resources=lambda origin: Resources(mode="none"),
+        resources=lambda origin=None: Resources(mode="none"),
         auth_provider=SimpleNamespace(get_user=None, get_user_async=None),
     )
     return handler
@@ -92,7 +98,7 @@ async def test_get_returns_versioned_signed_bootstrap() -> None:
 async def test_get_includes_all_registered_extension_assets(monkeypatch: pytest.MonkeyPatch) -> None:
     document = Document()
     handler = _handler("signed-token", document)
-    handler.application = SimpleNamespace(prefix="", resources=lambda origin: Resources(mode="inline"))
+    handler.application = SimpleNamespace(prefix="", resources=lambda origin=None: Resources(mode="inline"))
     initialized = 0
 
     async def get_session() -> Any:
@@ -142,7 +148,7 @@ async def test_get_honors_host_owned_extension_policy(monkeypatch: pytest.Monkey
 
     handler = _handler("signed-token")
     handler.request.headers["Bokeh-Resource-Mode"] = "none"
-    handler.application = SimpleNamespace(prefix="", resources=lambda origin: Resources(mode="inline"))
+    handler.application = SimpleNamespace(prefix="", resources=lambda origin=None: Resources(mode="inline"))
     def fail_if_bundled(models: Any) -> None:
         raise AssertionError("host-owned resources must not discover or compile extensions")
 
@@ -176,6 +182,69 @@ async def test_get_rejects_invalid_resource_policy_before_session_creation() -> 
 
     assert exc.value.status_code == 409
     assert handler.session_requests == 0
+
+
+async def test_get_uses_relative_extension_urls_behind_a_proxy(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    package = tmp_path / "proxy_extension"
+    artifact_directory = package / "dist"
+    artifact_directory.mkdir(parents=True)
+    (package / "bokeh.ext.json").write_text("{}")
+    (artifact_directory / "proxy_extension.js").write_text("globalThis.proxy_extension = true")
+    module = ModuleType("proxy_extension")
+    module.__file__ = str(package / "__init__.py")
+    monkeypatch.setitem(sys.modules, "proxy_extension", module)
+    monkeypatch.setitem(extension_dirs, "proxy_extension", artifact_directory)
+
+    class _ProxyCustomJS(CustomJS):
+        __view_module__ = "proxy_extension.models"
+
+    monkeypatch.setattr(
+        "bokeh.server.views.embed_json_handler.HasProps",
+        SimpleNamespace(model_class_reverse_map={"proxy": _ProxyCustomJS}),
+    )
+    handler = _handler("signed-token")
+    handler.request.host = "backend.internal:5006"
+    handler.request.headers["Bokeh-Resource-Mode"] = "server"
+    handler.application = SimpleNamespace(
+        prefix="/proxy", resources=lambda origin=None: Resources(mode="server", root_url="/proxy"),
+    )
+    await handler.get()
+
+    urls = [asset.get("url") for asset in json.loads(handler.body)["resources"]["assets"]]
+    assert "/proxy/static/extensions/proxy_extension/proxy_extension.js" in urls
+    assert all("backend.internal" not in url for url in urls if url is not None)
+
+
+@pytest.mark.parametrize("headers, status", [
+    ({"Bokeh-Resource-Mode": "invalid"}, 409),
+    ({"Bokeh-Token": "invalid"}, 403),
+])
+async def test_error_responses_keep_allowed_origin_headers(
+    ManagedServerLoop: MSL, headers: dict[str, str], status: int,
+) -> None:
+    with ManagedServerLoop(Application(), allow_websocket_origin=["trusted.example:80"]) as server:
+        response = await AsyncHTTPClient().fetch(
+            f"http://localhost:{server.port}/embed.json",
+            headers={"Origin": "http://trusted.example", **headers}, raise_error=False,
+        )
+
+    assert response.code == status
+    assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
+    assert response.headers["Access-Control-Allow-Credentials"] == "true"
+    assert response.headers["Cache-Control"] == "no-store"
+
+
+async def test_disallowed_origin_errors_do_not_receive_cors_headers(ManagedServerLoop: MSL) -> None:
+    with ManagedServerLoop(Application(), allow_websocket_origin=["trusted.example:80"]) as server:
+        response = await AsyncHTTPClient().fetch(
+            f"http://localhost:{server.port}/embed.json", headers={"Origin": "http://evil.example"},
+            raise_error=False,
+        )
+
+    assert response.code == 403
+    assert "Access-Control-Allow-Origin" not in response.headers
 
 
 async def test_options_declares_bootstrap_methods() -> None:

@@ -23,12 +23,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 import os
 import urllib
 from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass
+from functools import wraps
 from html import escape
+from inspect import Parameter, signature
 from threading import local
 from typing import (
     TYPE_CHECKING,
@@ -230,6 +233,10 @@ def install_notebook_hook(notebook_type: NotebookType, load: Load, show_doc: Sho
             ``show()``, and can be used by as appropriate to update plots, etc.
             by additional functions in the library that installed the hooks.
 
+            Legacy hooks with a second positional argument named ``state`` are
+            called with ``None`` in that position. Output state is no longer
+            maintained, so hooks using its attributes must migrate.
+
         show_app (callable) :
             A function for displaying Bokeh applications in the notebook
             type. This function will be called with the following arguments:
@@ -256,7 +263,9 @@ def install_notebook_hook(notebook_type: NotebookType, load: Load, show_doc: Sho
     '''
     if notebook_type in _HOOKS and not overwrite:
         raise RuntimeError(f"hook for notebook type {notebook_type!r} already exists")
-    _HOOKS[notebook_type] = Hooks(load=load, doc=show_doc, app=show_app)
+    _HOOKS[notebook_type] = Hooks(
+        load=load, doc=_adapt_notebook_hook(show_doc), app=_adapt_notebook_hook(show_app),
+    )
 
 def push_notebook(*, document: Document | None = None, handle: CommsHandle | None = None) -> None:
     ''' Update Bokeh plots in a Jupyter notebook output cells with new data
@@ -593,7 +602,7 @@ def show_app(
     logging.debug(f"Origin URL is {origin}")
 
     from ..embed._util import embed_server
-    script = embed_server(url).fragment(resources="none").html
+    script = _notebook_server_script(embed_server(url).fragment(resources="none").html)
 
     publish_display_data({
         HTML_MIME_TYPE: script,
@@ -602,10 +611,14 @@ def show_app(
         EXEC_MIME_TYPE: {"server_id": server_id},
     })
 
-def show_doc(obj: Model | Sequence[UIElement], notebook_handle: bool = False) -> CommsHandle | None:
+def show_doc(obj: Model | Sequence[UIElement], notebook_handle: object = False,
+        *legacy_notebook_handle: bool) -> CommsHandle | None:
     '''
 
     '''
+    if legacy_notebook_handle:
+        # Legacy hooks can forward their unused state argument to this function.
+        [notebook_handle] = legacy_notebook_handle
     # Notebook output only supports a single document root, but ``show`` accepts
     # a sequence of UIElements (which file and server output render directly).
     # Wrap such a sequence in a column layout here so the same call works in all
@@ -630,6 +643,7 @@ def show_doc(obj: Model | Sequence[UIElement], notebook_handle: bool = False) ->
     # notebook copy has models with the same IDs as the original curdoc
     # they were copied from
     if comms_target:
+        assert cell_doc is not None
         handle = CommsHandle(get_comms(comms_target), cell_doc)
         document.callbacks.on_change_dispatch_to(handle)
         _remember_comms_handle(handle)
@@ -638,7 +652,7 @@ def show_doc(obj: Model | Sequence[UIElement], notebook_handle: bool = False) ->
     return None
 
 
-def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str, str, Document]:
+def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str, str, Document | None]:
     """Adapt an embed result to the legacy notebook transport retained until v1."""
     from ..core.json_encoder import serialize_json
     from ..core.templates import DOC_NB_JS
@@ -679,7 +693,7 @@ def _legacy_notebook_content(model: Model, comms_target: ID | None) -> tuple[str
         f'<div id="{escape(element_id, quote=True)}" '
         f'data-root-id="{escape(model.id, quote=True)}" style="display: contents;"></div>'
     )
-    cell_doc = Document.from_json(cast("DocJson", deepcopy(document_json)))
+    cell_doc = Document.from_json(cast("DocJson", deepcopy(document_json))) if comms_target is not None else None
     return script, div, cell_doc
 
 #-----------------------------------------------------------------------------
@@ -723,6 +737,55 @@ def _notebook_type() -> NotebookType | None:
     return _NOTEBOOK_TYPE
 
 _HOOKS: dict[str, Hooks] = {}
+
+
+def _adapt_notebook_hook(hook: Callable[..., Any]) -> Callable[..., Any]:
+    if getattr(hook, "_bokeh_notebook_hook_adapter", False):
+        return hook
+    try:
+        parameters = list(signature(hook).parameters.values())
+    except (TypeError, ValueError):
+        return hook
+    if len(parameters) < 2 or parameters[1].name != "state" or parameters[1].kind not in (
+        Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD,
+    ):
+        return hook
+
+    from ..util.warnings import BokehDeprecationWarning, warn
+    warn(
+        "Notebook hooks no longer receive output state. Update the hook to omit its state argument.",
+        BokehDeprecationWarning,
+    )
+
+    @wraps(hook)
+    def adapted(*args: Any, **kwargs: Any) -> Any:
+        if args:
+            return hook(args[0], None, *args[1:], **kwargs)
+        kwargs["state"] = None
+        return hook(**kwargs)
+
+    setattr(adapted, "_bokeh_notebook_hook_adapter", True)
+    return adapted
+
+
+def _notebook_server_script(fragment: str) -> str:
+    # Legacy notebook renderers execute one script and discard other siblings.
+    content = json.dumps(fragment).replace("<", "\\u003c")
+    return f'''<script>(() => {{
+  const script = document.currentScript
+  const container = document.createElement("div")
+  container.innerHTML = {content}
+  script.before(container)
+  const declaration = container.querySelector("script[data-bokeh-embed-bootstrap]")
+  declaration.dataset.bokehResourceMode = "server"
+  const bootstrap = document.createElement("script")
+  for (const attribute of declaration.attributes) {{
+    bootstrap.setAttribute(attribute.name, attribute.value)
+  }}
+  bootstrap.nonce = declaration.nonce
+  bootstrap.textContent = declaration.textContent
+  declaration.replaceWith(bootstrap)
+}})()</script>'''
 
 _NOTEBOOK_LOADED: Resources | None = None
 

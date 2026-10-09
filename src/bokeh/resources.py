@@ -196,11 +196,11 @@ class Resources:
         '''
         if value is None:
             value = settings.resources()
-            overrides.setdefault("minified", settings.minified())
         if isinstance(value, Resources):
             if not overrides:
                 return value
             return replace(value, **overrides)
+        overrides.setdefault("minified", settings.minified())
         if value in _DEV_RESOURCE_MODES:
             value = _DEV_RESOURCE_MODES[value]
             overrides["minified"] = False
@@ -400,7 +400,7 @@ class Resources:
         if mode == "absolute":
             return [str(path) for path in paths], [], {}
         if mode == CDN:
-            urls = _get_cdn_urls(bokeh_version.split("+", 1)[0], self.minified)
+            urls = _get_cdn_urls(bokeh_version.split("+", 1)[0], self.minified, include_hashes=self.integrity)
             files = urls.urls(components, kind)
             hashes = urls.hashes(components, kind) if urls.hashes is not None else {}
             return files, [], hashes
@@ -602,7 +602,7 @@ def _cdn_base_url() -> str:
     return "https://cdn.bokeh.org"
 
 
-def _get_cdn_urls(version: str | None = None, minified: bool = True) -> Urls:
+def _get_cdn_urls(version: str | None = None, minified: bool = True, *, include_hashes: bool = True) -> Urls:
     if version is None:
         docs_cdn = settings.docs_cdn()
         version = docs_cdn if docs_cdn else __version__.split("+")[0]
@@ -628,7 +628,7 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True) -> Urls:
             ),
         ))
 
-    if is_full_release(version): # TODO: TypeGuard?
+    if include_hashes and is_full_release(version): # TODO: TypeGuard?
         assert version is not None
         sri_hashes = get_sri_hashes_for_version(version)
         result.hashes = lambda components, kind: {

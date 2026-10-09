@@ -8,7 +8,7 @@ export type {ViewLookup} from "core/view_manager"
 import {HasProps} from "core/has_props"
 import type {ModelResolver} from "core/resolvers"
 import {dom_ready, contains} from "core/dom"
-import {logger} from "core/logging"
+import {logger, set_log_level} from "core/logging"
 import {isArray, isPlainObject, isString} from "core/util/types"
 
 import type {UIElement} from "models/ui/ui_element"
@@ -187,6 +187,11 @@ export type MountOptions = {
   resolver?: ModelResolver
   /** Called for every structured failure before the same error rejects an operation. */
   on_error?(error: MountError): void
+}
+
+type MountContext = {
+  shared_target?: EmbedTarget
+  error_source?: MountErrorSource
 }
 
 /** Cancellation options for target-local mount discovery. */
@@ -410,6 +415,7 @@ export class BokehMount<T extends HasProps = HasProps> {
   private readonly _errors: MountError[] = []
   private readonly _suppressed_roots = new Set<RootKey>()
   private readonly _published_targets = new Set<EmbedTarget>()
+  private _shared_target: EmbedTarget | null = null
   private readonly _on_abort = () => this._abort(this.signal?.reason)
   private _resolve_disposed!: () => void
   private _preparation_pending: boolean
@@ -427,6 +433,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     private readonly _options: MountOptions,
     script: HTMLScriptElement | SVGScriptElement | null,
     cancel_preparation?: (reason: unknown) => void,
+    private readonly _context: MountContext = {},
   ) {
     if (targets != null && is_mount_target(targets)) {
       if (is_embed_target(targets)) {
@@ -455,7 +462,7 @@ export class BokehMount<T extends HasProps = HasProps> {
       signal?.addEventListener("abort", this._on_abort, {once: true})
     }
 
-    this.ready = this._initialize(source, targets, script)
+    this.ready = this._initialize(source, targets, script, _context.shared_target)
     void this.ready.catch(() => {})
   }
 
@@ -612,6 +619,9 @@ export class BokehMount<T extends HasProps = HasProps> {
       return
     }
     const attached = new Set(this._mount.targets.values())
+    if (this._shared_target != null) {
+      attached.add(this._shared_target)
+    }
     for (const target of attached) {
       if (!this._published_targets.has(target)) {
         this._publish_target(target)
@@ -625,7 +635,7 @@ export class BokehMount<T extends HasProps = HasProps> {
   }
 
   private async _initialize(source: MountSource<T> | Promise<PreparedEmbed>, configured_targets: MountTargets | undefined,
-      script: HTMLScriptElement | SVGScriptElement | null): Promise<void> {
+      script: HTMLScriptElement | SVGScriptElement | null, document_target?: EmbedTarget): Promise<void> {
     try {
       if (source instanceof MountSource) {
         this._check_pending()
@@ -662,10 +672,14 @@ export class BokehMount<T extends HasProps = HasProps> {
         try {
           const shared_target = configured_targets == null || is_mount_target(configured_targets)
             ? await resolve_target(configured_targets, script)
-            : null
+            : document_target ?? null
           if (configured_targets != null && !is_mount_target(configured_targets)) {
             for (const [key, configured] of keyed_entries(configured_targets)) {
               if (!this.roots.has(key)) {
+                // Full-page roots can change between HTML generation and the session pull.
+                if (document_target != null && this._source?.track_document_roots === true) {
+                  continue
+                }
                 throw new MountError("target", `unknown Bokeh mount root '${key}'`, undefined, key)
               }
               if (configured != null && !this._suppressed_roots.has(key)) {
@@ -684,6 +698,10 @@ export class BokehMount<T extends HasProps = HasProps> {
       })()
 
       this._check_pending()
+      this._shared_target = this._source?.track_document_roots === true ? shared_target : null
+      if (this._shared_target != null) {
+        this._publish_target(this._shared_target)
+      }
       for (const key of this._suppressed_roots) {
         targets.delete(key)
       }
@@ -701,13 +719,27 @@ export class BokehMount<T extends HasProps = HasProps> {
       this._state = "ready"
       this._sync_published_targets()
     } catch (error) {
-      const mounted_error = mount_error("render", error)
+      const mounted_error = this._context.error_source != null
+        ? declaration_error(error, this._context.error_source) : mount_error("render", error)
       if (this._state != "disposed") {
         this._state = "failed"
         this.signal?.removeEventListener("abort", this._on_abort)
         this._record_error(mounted_error)
         this._cleanup(mounted_error)
         this._resolve_disposed()
+        const configured = configured_targets == null || is_mount_target(configured_targets)
+          ? [configured_targets]
+          : keyed_entries(configured_targets).map(([, target]) => target).filter((target) => target != null)
+        if (document_target != null) {
+          configured.push(document_target)
+        }
+        for (const target of configured) {
+          try {
+            publish_mount_error(await resolve_target(target, script), mounted_error)
+          } catch {
+            // An invalid target cannot receive a mount failure.
+          }
+        }
       }
       throw this._error ?? mounted_error
     } finally {
@@ -782,6 +814,7 @@ export class BokehMount<T extends HasProps = HasProps> {
       attempt_cleanup(release, "release Bokeh embed content")
     }
     attempt_cleanup(() => this._unpublish_all(error), "unpublish Bokeh mount targets")
+    this._shared_target = null
   }
 
   /** Release owned views and documents and remove every target publication. */
@@ -828,12 +861,13 @@ export function mount(source: Mountable, targets?: MountTargets, options: MountO
 }
 
 function mount_embed_payload(source: unknown, targets: MountTargets | undefined, options: MountOptions,
-    script: HTMLScriptElement | SVGScriptElement | null, server_policy?: ResourcePolicy): BokehMount {
+    script: HTMLScriptElement | SVGScriptElement | null, server_policy?: ResourcePolicy,
+    context: MountContext = {}): BokehMount {
   const controller = new AbortController()
   const normalized = prepare_embed(
     source, options.resources, options.resolver, controller.signal, server_policy ?? options.resources,
   )
-  return new BokehMount(normalized, targets, options, script, (reason) => controller.abort(reason))
+  return new BokehMount(normalized, targets, options, script, (reason) => controller.abort(reason), context)
 }
 
 export async function mount_embed_declaration(
@@ -932,6 +966,9 @@ export async function mount_embed_declaration(
       affected_targets = await declaration_targets(script)
       affected_targets.forEach(clear_mount_error)
     }
+    if (script.dataset.bokehLogLevel != null) {
+      set_log_level(script.dataset.bokehLogLevel)
+    }
 
     const targets = new Map<RootKey, HTMLElement>()
     for (const root of payload.roots) {
@@ -944,21 +981,23 @@ export async function mount_embed_declaration(
       }
       targets.set(root.key, target)
     }
-    const server_default = payload.source.kind == "server" && payload.roots.length == 0
+    const full_document = payload.source.kind == "server" && isPlainObject(payload.metadata.embedding) &&
+      payload.metadata.embedding.full_document === true
+    const server_default = payload.source.kind == "server" && payload.roots.length == 0 && !full_document
     const shared_target = server_default
       ? affected_targets.find((candidate) => candidate.dataset.bokehRoot == "*")
-      : undefined
-    if (server_default && shared_target == null) {
+      : full_document ? affected_targets.find((candidate) => candidate.dataset.bokehDocumentTarget != null) : undefined
+    if ((server_default || full_document) && shared_target == null) {
       throw new MountError(
         "target", "missing declaration target for Bokeh server embed", undefined, "*", "target", source,
       )
     }
 
-    const mount_options = {resources: "none" as const, ...options}
+    const mount_options = {resources: "none" as const, use_for_title: full_document, ...options}
     const server_policy = declaration_resource_policy(script, options.resources)
     const handle = server_default
-      ? mount_embed_payload(payload, shared_target, mount_options, script, server_policy)
-      : mount_embed_payload(payload, targets, mount_options, script, server_policy)
+      ? mount_embed_payload(payload, shared_target, mount_options, script, server_policy, {error_source: source})
+      : mount_embed_payload(payload, targets, mount_options, script, server_policy, {shared_target, error_source: source})
     await handle.ready
     return handle
   } catch (error) {
@@ -1009,7 +1048,7 @@ async function declaration_targets(script: HTMLScriptElement): Promise<HTMLEleme
     return []
   }
   return [...document.querySelectorAll<HTMLElement>(
-    `[data-bokeh-embed-instance="${instance}"][data-bokeh-root]`,
+    `[data-bokeh-embed-instance="${instance}"]:is([data-bokeh-root], [data-bokeh-document-target])`,
   )]
 }
 

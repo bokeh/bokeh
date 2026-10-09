@@ -194,7 +194,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
     return validate_assets(policy.assets, policy, mode)
   }
 
-  const version = js_version.split("+")[0]
+  const version = js_version.split("+")[0].replace(/-dev\.(\d+)$/, ".dev$1").replace(/-rc\.(\d+)$/, "rc$1")
   const minified = policy.minified ?? true
   const suffix = minified ? ".min.js" : ".js"
   const assets: ResourceAsset[] = []
@@ -352,6 +352,7 @@ export class ResourceLoader {
       const stop_tracking = () => {
         resource.removeEventListener("load", loaded)
         resource.removeEventListener("error", failed)
+        resource.removeEventListener("bokeh:resource-failed", failed)
         resource.removeEventListener("bokeh:resource-loaded", loaded)
       }
       const cleanup = (keep_tracking = false) => {
@@ -389,6 +390,7 @@ export class ResourceLoader {
 
       resource.addEventListener("load", loaded, {once: true})
       resource.addEventListener("error", failed, {once: true})
+      resource.addEventListener("bokeh:resource-failed", failed, {once: true})
       resource.addEventListener("bokeh:resource-loaded", loaded, {once: true})
       signal?.addEventListener("abort", aborted, {once: true})
       timer = setTimeout(timed_out, generated_resource_timeout)
@@ -419,7 +421,11 @@ export class ResourceLoader {
       const selector = asset.kind == "script" ? "script[src]" : "link[rel=stylesheet][href]"
       const existing = [...document.querySelectorAll<HTMLScriptElement | HTMLLinkElement>(selector)].find((element) => {
         const value = element instanceof HTMLScriptElement ? element.src : element.href
-        return normalized_url(value) == url
+        try {
+          return normalized_url(value) == url
+        } catch {
+          return false
+        }
       })
       if (existing != null) {
         return this._reuse_existing(existing, asset)
@@ -427,6 +433,45 @@ export class ResourceLoader {
     }
 
     return new Promise<void>((resolve, reject) => {
+      let settled = false
+      let timer: ReturnType<typeof setTimeout> | null = null
+      let callback: string | null = null
+      let source_url: string | null = null
+      const callbacks = globalThis as unknown as Record<string, unknown>
+
+      const cleanup = () => {
+        if (timer != null) {
+          clearTimeout(timer)
+        }
+        if (callback != null) {
+          delete callbacks[callback]
+        }
+        window.removeEventListener("error", evaluated_error)
+      }
+      const loaded = () => {
+        if (!settled) {
+          settled = true
+          cleanup()
+          element.dataset.bokehResourceState = "loaded"
+          element.dispatchEvent(new Event("bokeh:resource-loaded"))
+          resolve()
+        }
+      }
+      const failed = (error: ResourceError) => {
+        if (!settled) {
+          settled = true
+          cleanup()
+          element.dataset.bokehResourceState = "failed"
+          element.dispatchEvent(new Event("bokeh:resource-failed"))
+          element.remove()
+          reject(error)
+        }
+      }
+      const evaluated_error = (event: ErrorEvent) => {
+        if (source_url != null && event.filename == source_url) {
+          failed(new ResourceError("load", "failed to evaluate inline script", event.error ?? event, asset))
+        }
+      }
       const element = (() => {
         if (asset.kind == "script") {
           const script = document.createElement("script")
@@ -434,36 +479,25 @@ export class ResourceLoader {
           if (asset.url != null) {
             script.src = normalized_url(asset.url)
             script.async = false
-            script.onload = () => {
-              script.dataset.bokehResourceState = "loaded"
-              resolve()
-            }
+            script.onload = loaded
             script.onerror = (event) => {
-              script.dataset.bokehResourceState = "failed"
-              script.remove()
-              reject(new ResourceError("load", `failed to load script ${asset.url}`, event, asset))
+              failed(new ResourceError("load", `failed to load script ${asset.url}`, event, asset))
             }
           } else {
+            source_url = unique_id("bokeh_inline_resource")
+            window.addEventListener("error", evaluated_error)
             if (asset.module == true) {
-              const callback = unique_id("__bokeh_resource_module")
-              const callbacks = globalThis as unknown as Record<string, unknown>
-              callbacks[callback] = () => {
-                delete callbacks[callback]
-                script.dataset.bokehResourceState = "loaded"
-                resolve()
-              }
+              callback = unique_id("__bokeh_resource_module")
+              callbacks[callback] = loaded
               script.onerror = (event) => {
-                delete callbacks[callback]
-                script.dataset.bokehResourceState = "failed"
-                script.remove()
-                reject(new ResourceError("load", "failed to evaluate inline module", event, asset))
+                failed(new ResourceError("load", "failed to evaluate inline module", event, asset))
               }
               // Inline module content is an explicitly trusted host resource.
               // The suffix only reports when its asynchronous evaluation ends.
-              script.textContent = asset.content ?? ""
+              script.textContent = `//# sourceURL=${source_url}\n${asset.content ?? ""}`
               script.append(document.createTextNode(`\n;globalThis[${JSON.stringify(callback)}]()`))
             } else {
-              script.textContent = asset.content ?? ""
+              script.textContent = `//# sourceURL=${source_url}\n${asset.content ?? ""}`
             }
           }
           return script
@@ -471,14 +505,9 @@ export class ResourceLoader {
           const link = document.createElement("link")
           link.rel = "stylesheet"
           link.href = normalized_url(asset.url)
-          link.onload = () => {
-            link.dataset.bokehResourceState = "loaded"
-            resolve()
-          }
+          link.onload = loaded
           link.onerror = (event) => {
-            link.dataset.bokehResourceState = "failed"
-            link.remove()
-            reject(new ResourceError("load", `failed to load stylesheet ${asset.url}`, event, asset))
+            failed(new ResourceError("load", `failed to load stylesheet ${asset.url}`, event, asset))
           }
           return link
         } else {
@@ -501,10 +530,12 @@ export class ResourceLoader {
       // page-shared registry without copying inline source into the DOM.
       element.dataset.bokehResource = asset.content_sha256 != null ? resource_locator(asset) : ""
       element.dataset.bokehResourceState = "loading"
+      timer = setTimeout(() => {
+        failed(new ResourceError("load", `timed out loading Bokeh resource ${resource_description(asset)}`, undefined, asset))
+      }, generated_resource_timeout)
       document.head.append(element)
       if (asset.url == null && !(element instanceof HTMLScriptElement && asset.module == true)) {
-        element.dataset.bokehResourceState = "loaded"
-        resolve()
+        loaded()
       }
     })
   }
@@ -545,6 +576,7 @@ export class ResourceLoader {
       const cleanup = () => {
         element.removeEventListener("load", loaded)
         element.removeEventListener("error", failed)
+        element.removeEventListener("bokeh:resource-failed", failed)
         element.removeEventListener("bokeh:resource-loaded", loaded)
         if (timer != null) {
           clearTimeout(timer)
@@ -568,6 +600,7 @@ export class ResourceLoader {
       })
       element.addEventListener("load", loaded, {once: true})
       element.addEventListener("error", failed, {once: true})
+      element.addEventListener("bokeh:resource-failed", failed, {once: true})
       element.addEventListener("bokeh:resource-loaded", loaded, {once: true})
 
       timer = setTimeout(() => settle(() => {
@@ -589,3 +622,16 @@ export class ResourceLoader {
 
 /** Shared loader used by every embed mount on the page. */
 export const resource_loader = new ResourceLoader()
+
+function track_generated_resource(event: Event): void {
+  const resource = event.target
+  if (resource instanceof HTMLElement && resource.hasAttribute("data-bokeh-resource") &&
+      resource.hasAttribute("data-bokeh-resource-state")) {
+    resource.dataset.bokehResourceState = event.type == "load" ? "loaded" : "failed"
+  }
+}
+
+if (typeof document != "undefined") {
+  document.addEventListener("load", track_generated_resource, true)
+  document.addEventListener("error", track_generated_resource, true)
+}

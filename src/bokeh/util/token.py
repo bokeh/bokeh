@@ -185,7 +185,7 @@ def get_token_payload(token: str) -> TokenPayload:
         return decoded
     except TokenDecodeError:
         raise
-    except (AttributeError, KeyError, TypeError, UnicodeError, ValueError, zlib.error) as error:
+    except (AttributeError, KeyError, RecursionError, TypeError, UnicodeError, ValueError, zlib.error) as error:
         raise TokenDecodeError("invalid session token payload") from error
 
 def check_token_signature(token: str,
@@ -286,7 +286,7 @@ def _decode_token(token: str) -> TokenPayload:
         decoded = json.loads(_base64_decode(encoded))
     except TokenDecodeError:
         raise
-    except (AttributeError, TypeError, UnicodeError, ValueError) as error:
+    except (AttributeError, RecursionError, TypeError, UnicodeError, ValueError) as error:
         raise TokenDecodeError("invalid session token") from error
     if not isinstance(decoded, dict):
         raise TokenDecodeError("session token payload must be an object")

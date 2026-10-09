@@ -34,17 +34,20 @@ from os.path import (
 )
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 # Bokeh imports
+from .. import __version__
 from ..embed._util import ThemePolicy, embed
-from ..resources import INLINE
+from ..resources import INLINE, Resources
 
 if TYPE_CHECKING:
     from tempfile import _TemporaryFileWrapper
 
+    from ..core.has_props import HasProps
     from ..document import Document
     from ..embed._util import ThemeSource
+    from ..embed.resources import ResolvedResources, ResourceRequirements
     from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
@@ -115,7 +118,7 @@ def detect_current_filename() -> str | None:
     frame = inspect.currentframe()
     if frame is not None:
         try:
-            while frame.f_back and frame.f_globals.get('name') != '__main__':
+            while frame.f_back and frame.f_globals.get('__name__') != '__main__':
                 frame = frame.f_back
 
             filename = frame.f_globals.get('__file__')
@@ -146,6 +149,26 @@ def tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
         os.unlink(tmp.name)
 
 
+class _ExportResources(Resources):
+    '''Use local BokehJS while retaining declared external extension assets.'''
+
+    def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__,
+            include_requirement_assets: bool = True,
+            extension_model_types: Iterable[type[HasProps]] | None = None) -> ResolvedResources:
+        from ..embed.resources import ResolvedResources, ResourceRequirements
+
+        components = Resources(
+            mode="inline", minified=self.minified, base_dir=self.base_dir, nonce=self.nonce,
+        ).resolve(ResourceRequirements(requirements.components), bokeh_version=bokeh_version)
+        extensions = super().resolve(
+            ResourceRequirements((), requirements.extensions), bokeh_version=bokeh_version,
+            include_requirement_assets=include_requirement_assets,
+            extension_model_types=extension_model_types,
+        )
+        retained = requirements if include_requirement_assets else requirements.without_extension_assets()
+        return ResolvedResources(retained, self, bokeh_version, (*components.assets, *extensions.assets))
+
+
 def get_layout_html(obj: UIElement | Document, *, resources: ResourcesLike = INLINE,
         width: int | None = None, height: int | None = None,
         theme: ThemeSource = ThemePolicy.SOURCE_OR_CURDOC) -> str:
@@ -154,7 +177,7 @@ def get_layout_html(obj: UIElement | Document, *, resources: ResourcesLike = INL
     '''
     template = r"""\
     {% block preamble %}
-    <style>
+    <style{% if bokeh_nonce %} nonce="{{ bokeh_nonce | e }}"{% endif %}>
         html, body {
             box-sizing: border-box;
             width: 100%;
@@ -170,7 +193,10 @@ def get_layout_html(obj: UIElement | Document, *, resources: ResourcesLike = INL
 
     def html() -> str:
         result = embed(obj, theme=theme, callback_policy="suppress")
-        return result.page(resources=resources, title="", template=template)
+        policy = Resources.build(resources)
+        if policy.mode == "inline":
+            policy = _ExportResources(**{**policy.to_dict(), "mode": "cdn"})
+        return result.page(resources=policy, title="", template=template)
 
     if width is not None or height is not None:
         # Defer this import, it is expensive

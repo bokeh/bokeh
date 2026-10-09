@@ -20,6 +20,7 @@ import pytest ; pytest
 import asyncio
 import json
 import os
+import re
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from typing import Any
@@ -30,6 +31,7 @@ from bokeh.document.document import Document
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.io.doc import set_curdoc
 from bokeh.io.notebook import log
+from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 import bokeh.io.notebook as binb # isort:skip
@@ -54,6 +56,96 @@ def test_install_notebook_hook() -> None:
     assert binb._HOOKS["foo"]['doc'] == "doc2"
     assert binb._HOOKS["foo"]['app'] == "app2"
     del binb._HOOKS["foo"]
+
+
+def test_legacy_notebook_hooks_receive_unused_state(monkeypatch: pytest.MonkeyPatch) -> None:
+    received = []
+
+    def show_doc(obj: object, state: object, notebook_handle: bool) -> str:
+        received.append((obj, state, notebook_handle))
+        return "document"
+
+    def show_app(app: object, state: object, notebook_url: str, **kwargs: object) -> str:
+        received.append((app, state, notebook_url, kwargs))
+        return "application"
+
+    monkeypatch.setattr(binb, "_HOOKS", {})
+    with pytest.warns(BokehDeprecationWarning, match="no longer receive output state"):
+        binb.install_notebook_hook("jupyter", lambda *args: None, show_doc, show_app)
+
+    assert binb.run_notebook_hook("jupyter", "doc", "plot", True) == "document"
+    assert binb.run_notebook_hook("jupyter", "app", "app", "localhost:8888", port=1234) == "application"
+    assert binb.run_notebook_hook("jupyter", "doc", obj="plot", notebook_handle=False) == "document"
+    assert binb.run_notebook_hook("jupyter", "app", app="app", notebook_url="localhost:8888", port=4321) == "application"
+    assert received == [
+        ("plot", None, True), ("app", None, "localhost:8888", {"port": 1234}),
+        ("plot", None, False), ("app", None, "localhost:8888", {"port": 4321}),
+    ]
+
+
+def test_legacy_notebook_hook_adaptation_is_idempotent() -> None:
+
+    def show_doc(obj: object, state: object, notebook_handle: bool) -> tuple[object, object, bool]:
+        return obj, state, notebook_handle
+
+    with pytest.warns(BokehDeprecationWarning, match="no longer receive output state"):
+        adapted = binb._adapt_notebook_hook(show_doc)
+    assert binb._adapt_notebook_hook(adapted) is adapted
+    assert adapted("plot", False) == ("plot", None, False)
+
+
+@patch('bokeh.io.notebook.get_comms')
+@patch('bokeh.io.notebook.publish_display_data')
+@patch('bokeh.io.notebook._legacy_notebook_content')
+def test_colab_hook_can_forward_unused_state(mock_notebook_content: MagicMock,
+        mock_publish: MagicMock, mock_get_comms: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
+    from bokeh.models import Div
+
+    obj = Div()
+    document = Document()
+    set_curdoc(document)
+    mock_notebook_content.return_value = ["script", "div", document]
+
+    def show_doc(obj: object, state: object, notebook_handle: bool) -> object:
+        return binb.show_doc(obj, state, notebook_handle)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(binb, "_HOOKS", {})
+    with pytest.warns(BokehDeprecationWarning, match="no longer receive output state"):
+        binb.install_notebook_hook("jupyter", lambda *args: None, show_doc, lambda *args: None)
+
+    assert binb.run_notebook_hook("jupyter", "doc", obj, False) is None
+    mock_notebook_content.assert_called_once_with(obj, None)
+    mock_get_comms.assert_not_called()
+    assert mock_publish.call_count == 2
+
+
+@patch('bokeh.server.server.Server')
+@patch('bokeh.io.notebook.publish_display_data')
+def test_show_app_publishes_single_shared_mount_script(mock_publish: MagicMock,
+        mock_server: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
+    from bokeh.embed import embed_server
+
+    monkeypatch.setattr(binb, "_NOTEBOOK_SERVERS", {})
+    mock_server.return_value.port = 1234
+    binb.show_app(lambda doc: None)
+
+    data = mock_publish.call_args.args[0]
+    html = data[binb.HTML_MIME_TYPE]
+    assert html.startswith("<script>")
+    assert html.count("<script") == html.count("</script>") == 1
+    assert 'document.createElement("script")' in html
+    assert "declaration.replaceWith(bootstrap)" in html
+    assert "bootstrap.nonce = declaration.nonce" in html
+    assert 'declaration.dataset.bokehResourceMode = "server"' in html
+    match = re.search(r"container.innerHTML = (.+)\n", html)
+    assert match is not None
+    fragment = json.loads(match.group(1))
+    assert 'data-bokeh-root="*"' in fragment
+    assert 'type="application/vnd.bokeh.embed+json"' in fragment
+    assert "Bokeh.mount_embed_declaration(declaration)" in fragment
+    assert embed_server("http://localhost:1234/").fingerprint in fragment
+    assert binb.EXEC_MIME_TYPE in data
+    assert "server_id" in mock_publish.call_args.kwargs["metadata"][binb.EXEC_MIME_TYPE]
 
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.publish_display_data')
@@ -116,7 +208,20 @@ def test_legacy_notebook_content_adapts_protocol_result() -> None:
     assert "embed_items_notebook" in script
     assert '"notebook_comms_target":"target"' in script
     assert f'data-root-id="{plot.id}"' in div
+    assert cell_doc is not None
     assert cell_doc.get_model_by_id(plot.id) is not None
+
+
+@patch('bokeh.document.Document.from_json')
+def test_legacy_notebook_content_without_handle_does_not_reconstruct_document(mock_from_json: MagicMock) -> None:
+    from bokeh.plotting import figure
+
+    script, div, cell_doc = binb._legacy_notebook_content(figure(), None)
+
+    assert "embed_items_notebook" in script
+    assert "data-root-id" in div
+    assert cell_doc is None
+    mock_from_json.assert_not_called()
 
 
 class Test_push_notebook:

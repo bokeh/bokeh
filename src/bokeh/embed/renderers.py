@@ -15,6 +15,7 @@ import re
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path, PureWindowsPath
+from types import SimpleNamespace
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -28,6 +29,7 @@ from urllib.parse import urlsplit
 from ..core.templates import FILE, MACROS, get_env
 from ..document import DEFAULT_TITLE
 from ..resources import ResourceConflictError, Resources
+from ..settings import settings
 from ..util.serialization import make_globally_unique_css_safe_id
 from ._util import canonical_embed_json, project_embed_result
 from .resources import ResolvedResource, ResolvedResources, ResourceRequirements
@@ -161,7 +163,13 @@ def _render_inline_parts(result: EmbedResult, resources: ResourcesLike | None,
             resource_policy=policy,
         )
     )
-    script = f"{payload}\n{bootstrap}"
+    document_target = ""
+    if result.metadata.get("embedding", {}).get("full_document") is True:
+        document_target = (
+            f'<div data-bokeh-document-target data-bokeh-embed="{escape(transported.fingerprint, quote=True)}" '
+            f'data-bokeh-embed-instance="{escape(declaration_id, quote=True)}"></div>\n'
+        )
+    script = f"{document_target}{payload}\n{bootstrap}"
     return transported, mounts, script, resolved
 
 
@@ -226,19 +234,21 @@ def render_page(result: EmbedResult, *, resources: ResourcesLike | None = None,
     plot_div = "\n".join(mount.html for mount in mounts)
     bokeh_js = _render_resources(resolved, kind="script")
     bokeh_css = _render_resources(resolved, kind="style")
+    template_roots = _template_roots(result, mounts)
 
     context = dict(template_variables or {})
     context.update(
         title=title if title is not None else _embed_title(result),
         bokeh_js=bokeh_js,
         bokeh_css=bokeh_css,
+        bokeh_nonce=resolved.policy.nonce,
         plot_script=plot_script,
         plot_div=plot_div,
         embed_result=result,
         embed_mounts=mounts,
         embed_fragment=f"{plot_div}\n{plot_script}",
-        docs=[],
-        roots=_template_roots(result, mounts),
+        docs=[SimpleNamespace(roots=template_roots, elementid=None)],
+        roots=template_roots,
         base=FILE,
         macros=MACROS,
     )
@@ -261,9 +271,30 @@ def _template_roots(result: EmbedResult, mounts: tuple[EmbedMount, ...]) -> _Tem
     source = result.source
     if source.get("kind") == "standalone":
         documents = source["documents"]
+        models: dict[str, Mapping[str, Any]] = {}
+
+        def collect(value: Any) -> None:
+            if isinstance(value, dict):
+                model_id = (
+                    value.get("$id") if "$type" in value
+                    else value.get("id") if value.get("type") == "object" else None
+                )
+                if isinstance(model_id, str):
+                    models[model_id] = value
+                for item in value.values():
+                    collect(item)
+            elif isinstance(value, list):
+                for item in value:
+                    collect(item)
+
+        collect(documents)
         for descriptor, mount in zip(result.roots, mounts):
             assert descriptor.document is not None and descriptor.root is not None
             root = documents[descriptor.document]["roots"][descriptor.root]
+            if "$ref" in root:
+                root = models[root["$ref"]]
+            elif root.get("type") != "object" and "id" in root:
+                root = models[root["id"]]
             attributes = root if "$type" in root else root.get("attributes", {})
             name = attributes.get("name")
             if isinstance(name, str) and name:
@@ -352,9 +383,26 @@ def _inline_bootstrap(fingerprint: str, *, declaration_id: str,
     if payload_url is not None:
         attrs.append(f'data-bokeh-payload-url="{escape(payload_url, quote=True)}"')
     attrs.extend(_resource_policy_attributes(resource_policy))
-    code = """void Bokeh.mount_embed_declaration(document.currentScript).catch((error) => {
-  console.error("Failed to mount Bokeh embed", error);
-});"""
+    code = f'''(() => {{
+  const instance = {json.dumps(declaration_id)}
+  const current = document.currentScript
+  const declaration = current?.dataset.bokehEmbedInstance == instance ? current : document.querySelector(
+    `[data-bokeh-embed-bootstrap][data-bokeh-embed-instance="${{instance}}"]`,
+  )
+  const deadline = Date.now() + 30_000
+  const start = () => {{
+    if (globalThis.Bokeh != null) {{
+      void Bokeh.mount_embed_declaration(declaration).catch((error) => {{
+        console.error("Failed to mount Bokeh embed", error)
+      }})
+    }} else if (Date.now() < deadline) {{
+      setTimeout(start, 25)
+    }} else {{
+      console.error("Failed to mount Bokeh embed: BokehJS is not loaded")
+    }}
+  }}
+  start()
+}})()'''
     return f"<script {' '.join(attrs)}>{code}</script>"
 
 
@@ -387,6 +435,7 @@ def _resource_policy_attributes(policy: Resources | None) -> list[str]:
     attrs = [
         f'data-bokeh-resource-mode="{policy.mode}"',
         f'data-bokeh-resource-minified="{str(policy.minified).lower()}"',
+        f'data-bokeh-log-level="{escape(settings.log_level(), quote=True)}"',
     ]
     if policy.crossorigin is not None:
         attrs.append(f'data-bokeh-resource-crossorigin="{escape(policy.crossorigin, quote=True)}"')
@@ -431,30 +480,18 @@ def render_resource(asset: ResolvedResource, *, allow_absolute_path: bool = Fals
             return resource
         assert asset.content is not None
         assert asset.content_sha256 is not None
+        if asset.module:
+            asset_json = _html_safe_json(json.dumps(asset.to_dict(), ensure_ascii=False))
+            code = f'''void Bokeh.embed.resource_loader.ensure(
+  {{components: [], extensions: []}}, {{mode: "resolved", assets: [{asset_json}]}},
+).catch((error) => {{ console.error("Failed to load Bokeh module resource", error) }})'''
+            return f"<script{suffix('loaded', wrapper=True)}>{code}</script>"
         content = _html_safe_json(json.dumps(asset.content, ensure_ascii=False))
         marker = json.dumps(f"script:sha256:{asset.content_sha256}")
-        resource_type = "module" if asset.module else "text/javascript"
-        callback = json.dumps(f"__bokeh_resource_module_{make_globally_unique_css_safe_id()}")
-        completion = '''
-  if (resource.type == "module") {
-    const callback = __BOKEH_CALLBACK__
-    globalThis[callback] = () => {
-      delete globalThis[callback]
-      resource.setAttribute("data-bokeh-resource-state", "loaded")
-      resource.dispatchEvent(new Event("bokeh:resource-loaded"))
-    }
-    resource.addEventListener("error", () => {
-      delete globalThis[callback]
-      resource.setAttribute("data-bokeh-resource-state", "failed")
-    }, {once: true})
-    resource.append(document.createTextNode(`\n;globalThis[${JSON.stringify(callback)}]()`))
-  } else {
-    resource.setAttribute("data-bokeh-resource-state", "loaded")
-  }'''.replace("__BOKEH_CALLBACK__", callback)
         code = f'''(() => {{
   const loader = document.currentScript
   const resource = document.createElement("script")
-  resource.type = "{resource_type}"
+  resource.type = "text/javascript"
   resource.text = {content}
   if (loader.nonce != "") resource.nonce = loader.nonce
   for (const name of ["integrity", "crossorigin"]) {{
@@ -462,8 +499,7 @@ def render_resource(asset: ResolvedResource, *, allow_absolute_path: bool = Fals
     if (value != null) resource.setAttribute(name, value)
   }}
   resource.setAttribute("data-bokeh-resource", {marker})
-  resource.setAttribute("data-bokeh-resource-state", "loading")
-{completion}
+  resource.setAttribute("data-bokeh-resource-state", "loaded")
   loader.before(resource)
   loader.remove()
 }})()'''
@@ -495,7 +531,7 @@ def _validate_web_url(url: str, context: str, *, allow_absolute_path: bool = Fal
 def _html_safe_json(value: str) -> str:
     return value.replace(
         "&", "\\u0026",
-    ).replace("<", "\\u003c").replace(">", "\\u003e").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
+    ).replace("<", "\\u003c").replace(">", "\\u003e").replace("\u0085", "\\u0085").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
 
 
 def _build_fingerprint(result: EmbedResult, resources: ResolvedResources, renderer: str,

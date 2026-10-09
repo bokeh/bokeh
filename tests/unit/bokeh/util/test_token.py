@@ -29,6 +29,7 @@ from unittest.mock import MagicMock, Mock, patch
 from bokeh.util.token import (
     _MAX_TOKEN_DECOMPRESSED_BYTES,
     _TOKEN_ZLIB_KEY,
+    TokenDecodeError,
     _base64_decode,
     _base64_encode,
     _get_sysrandom,
@@ -106,6 +107,17 @@ class TestSessionId:
         assert 123 == len(another_token)
         assert "session_id" in json.loads(_b64_to_utf8(another_token))
         assert token != another_token
+
+    @pytest.mark.parametrize("compressed", [False, True])
+    def test_rejects_deeply_nested_json(self, compressed: bool) -> None:
+        nested = "["*10000 + "0" + "]"*10000
+        if compressed:
+            extra = zlib.compress(f'{{"nested":{nested}}}'.encode())
+            raw = json.dumps({"session_id": "test", _TOKEN_ZLIB_KEY: _base64_encode(extra)})
+        else:
+            raw = f'{{"session_id":"test","nested":{nested}}}'
+        with pytest.raises(TokenDecodeError, match="invalid session token"):
+            get_token_payload(_base64_encode(raw))
 
     def test_payload_unsigned(self):
         token = generate_jwt_token(generate_session_id(), signed=False, extra_payload=dict(foo=10))

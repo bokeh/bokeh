@@ -99,6 +99,11 @@ class TestServerDocument:
         assert result.source["headers"] == {"Authorization": "Bearer token"}
         assert result.source["credentials"] == "include"
 
+    def test_legacy_arguments_are_converted_to_strings(self) -> None:
+        result = result_from_fragment(deprecated_server_document(arguments={"n": 5, "user": None}))
+
+        assert result.source["arguments"] == {"n": "5", "user": "None"}
+
 
 class TestServerSession:
     def test_existing_session_and_selected_root(self, test_plot) -> None:
@@ -127,6 +132,9 @@ class TestServerSession:
 
         assert 'data-bokeh-root="selected"' in html
         assert 'data-bokeh-embed=' in html
+        result = result_from_fragment(html)
+        assert result.metadata["embedding"]["full_document"] is True
+        assert result.roots[0].key == "selected"
 
     def test_full_page_delegates_registered_extensions_to_token_bootstrap(
         self, monkeypatch: pytest.MonkeyPatch,

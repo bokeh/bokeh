@@ -364,9 +364,10 @@ class Serializer:
         if len(obj) == 0:
             return SetRep(type="set")
         else:
+            entries = sorted(obj) if all(isinstance(entry, str) for entry in obj) else obj
             return SetRep(
                 type="set",
-                entries=[self.encode(entry) for entry in obj],
+                entries=[self.encode(entry) for entry in entries],
             )
 
     def _encode_dict(self, obj: dict[Any, Any]) -> MapRep:

@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Module under test
@@ -75,6 +76,16 @@ def test_version_missing_build_dir(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(bup, '__version__', "0.1.2.rc12")
     errors = bup.validate(build_dir="/foobuild")
     assert any("foobuild" in err for err in errors)
+
+
+def test_missing_javascript_bundles_are_reported(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(bup, "__version__", "4.0.0.dev5")
+    monkeypatch.setattr(bup.settings, "bokehjs_path", lambda: tmp_path)
+    errors = bup.validate()
+
+    assert f"missing BokehJS file: {tmp_path / 'js' / 'bokeh.min.js'}" in errors
+    assert f"missing BokehJS file: {tmp_path / 'js' / 'bokeh-widgets.min.js'}" in errors
+    assert f"missing BokehJS file: {tmp_path / 'js' / 'bokeh-embed-bootstrap.min.js'}" in errors
 
 #-----------------------------------------------------------------------------
 # Dev API

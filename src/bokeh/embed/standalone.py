@@ -65,8 +65,8 @@ def autoload_static(model: Model | Document, resources: ResourcesLike,
         script_path: str) -> tuple[str, str]:
     """Use ``embed(model).external(...)`` instead."""
     raise RuntimeError(
-        "autoload_static() was removed. Use embed(model).external(payload_url=script_path) "
-        "and save result.to_json_string() as the payload instead of generating a per-embed loader program.",
+        "autoload_static() was removed. Use external = embed(model).external(payload_url=script_path) "
+        "and save external.payload instead of generating a per-embed loader program.",
     )
 
 def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None) -> dict[str, Any]:

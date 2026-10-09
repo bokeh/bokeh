@@ -509,10 +509,10 @@ Standalone lifecycle
 disposal. Direct JavaScript code should use ``mount()`` or ``show()``. Embed and
 server hosts receive an owning mount from their public bootstrap API.
 
-``embed.embed_item()`` and ``embed.embed_items()`` return owning standalone
-mount handles. Retain those handles and call ``dispose()`` when removing the
-embed. Use ``root_views`` for keyed roots or ``views`` for the complete view
-manager on each handle.
+``mount(payload, targets)`` returns an owning mount handle for a Python-generated
+embed payload. Retain the handle and call ``dispose()`` when removing the embed.
+Use ``view(key)`` for one root, ``views`` for its attached root views, or
+``view_lookup`` to find views of models within the mounted document.
 
 Adapters remount when their model, target, or abort signal changes. Keep those
 values stable across ordinary framework renders. Removing one root slot from a
@@ -553,7 +553,7 @@ This avoids relying on module import order or a process-wide registry. Set a
 stable ``__qualified__`` name on custom models because production bundlers are
 allowed to rename JavaScript classes.
 
-Pass the same resolver to ``embed.embed_item(item, target, {resolver})`` when
+Pass the same resolver to ``mount(payload, target, {resolver})`` when
 embedding JSON directly. ``register_standard_models()`` covers the core model
 set. If JSON can contain optional widgets or tables, import
 ``register_all_models`` from ``@bokeh/bokehjs/all`` and call it instead.

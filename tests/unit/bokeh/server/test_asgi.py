@@ -31,7 +31,7 @@ from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.document import Document
-from bokeh.embed.resources import extension_dirs
+from bokeh.embed.resources import ResourceRequirements, extension_dirs
 from bokeh.model import Model
 from bokeh.models import (
     ColorBar,
@@ -739,6 +739,29 @@ async def test_embed_bootstrap_rejects_resource_policy_before_session_creation()
         assert response_header(response, b"x-content-type-options") == b"nosniff"
         assert initialized == 0
         assert not app.core.get_sessions("/")
+    finally:
+        await app.core.stop()
+
+
+async def test_embed_bootstrap_extension_paths_preserve_proxy_prefix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root_urls = []
+
+    def resolve_extensions(policy, model_types):
+        root_urls.append(policy.root_url)
+        return policy.resolve(ResourceRequirements())
+
+    monkeypatch.setattr("bokeh.server.asgi.resolve_server_extensions", resolve_extensions)
+    app = BokehASGI(Application(), prefix="proxy")
+    try:
+        response = await http_request(app, "/dashboard/proxy/embed.json", root_path="/dashboard", headers=[
+            (b"host", b"backend.internal:5006"),
+            (b"bokeh-resource-mode", b"server"),
+        ])
+
+        assert response_status(response) == 200
+        assert root_urls == ["/dashboard/proxy/"]
     finally:
         await app.core.stop()
 

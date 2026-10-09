@@ -41,10 +41,12 @@ import bokeh.io.util as biu # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_detect_current_filename(tmp_path: os.PathLike) -> None:
+@pytest.mark.parametrize("module", [False, True])
+def test_detect_current_filename(tmp_path: os.PathLike, module: bool) -> None:
     script = tmp_path / "script.py"
     script.write_text("from bokeh.io.util import detect_current_filename\nprint(detect_current_filename())\n")
-    result = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
+    arguments = ["-m", "script"] if module else [str(script)]
+    result = subprocess.run([sys.executable, *arguments], cwd=tmp_path, capture_output=True, text=True, check=True)
     assert result.stdout.strip() == str(script)
 
 def test_temp_filename() -> None:
@@ -151,7 +153,25 @@ def test_get_layout_html_uses_source_or_curdoc_theme_by_default() -> None:
     mock_embed.assert_called_once_with(
         plot, theme=ThemePolicy.SOURCE_OR_CURDOC, callback_policy="suppress",
     )
-    mock_embed.return_value.page.assert_called_once_with(resources="inline", title="", template=ANY)
+    mock_embed.return_value.page.assert_called_once_with(resources=ANY, title="", template=ANY)
+
+
+def test_get_layout_html_preserves_external_extension_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
+    from bokeh.embed import embed
+    from bokeh.models import Div
+    from bokeh.resources import ResourceConflictError
+
+    monkeypatch.setattr(Div, "__javascript__", ["https://example.test/extension.js"], raising=False)
+    monkeypatch.setattr(Div, "__css__", ["https://example.test/extension.css"], raising=False)
+    plot = Div(text="External extension")
+
+    with pytest.raises(ResourceConflictError, match="inline resources cannot inline"):
+        embed(plot).page(resources="inline")
+    html = biu.get_layout_html(plot)
+
+    assert '<script src="https://example.test/extension.js"' in html
+    assert '<link rel="stylesheet" href="https://example.test/extension.css"' in html
+    assert 'src="https://cdn.bokeh.org' not in html
 
 #-----------------------------------------------------------------------------
 # Code

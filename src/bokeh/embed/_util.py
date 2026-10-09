@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum, auto
+from threading import RLock
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -46,6 +47,7 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 _MAX_SAFE_INTEGER = 2**53 - 1
+_STAGING_LOCK = RLock()
 
 type CallbackPolicy = Literal["warn", "error", "suppress"]
 type SerializationPolicy = Literal["static", "protocol"]
@@ -126,6 +128,8 @@ def _encode_embed_json_string(value: str) -> str:
 
 def escape_json_surrogates(value: str) -> str:
     """Escape lone surrogate code points in serialized JSON text."""
+    if value.isascii():
+        return value
     return re.sub(
         r"[\ud800-\udfff]",
         lambda match: f"\\u{ord(match.group(0)):04x}",
@@ -304,6 +308,8 @@ def embed_server(url: str = "default", *, session_id: str | None = None,
 def server_page_for_session(session: ServerSession, resources: Resources, title: str,
         template: Template = FILE, template_variables: dict[str, Any] | None = None) -> str:
     """Render the internal server page for an established session."""
+    from .result import EmbedResult
+
     roots: dict[str, Model] = {}
     for index, root in enumerate(session.document.roots):
         base_key = root.name or ("root" if len(session.document.roots) == 1 else f"root-{index}")
@@ -314,6 +320,12 @@ def server_page_for_session(session: ServerSession, resources: Resources, title:
             suffix += 1
         roots[key] = root
     result = embed_server(".", token=session.token, roots=roots)
+    metadata = result.metadata
+    metadata["embedding"]["full_document"] = True
+    result = EmbedResult(
+        source=result.source, roots=result.roots, requires=result.requires,
+        metadata=metadata, bokeh_version=result.bokeh_version,
+    )
     return result.page(
         resources=resources,
         title=title,
@@ -408,6 +420,14 @@ def _complete_source_document(models: Sequence[Model]) -> Document | None:
 @contextmanager
 def _staged_document(models: Sequence[Model], theme: ThemeSource) -> Iterator[Document]:
     """Stage roots in an ephemeral document without changing their ownership."""
+    # Different root graphs may share descendants or configuration models.
+    # Keep their temporary ownership and themes isolated throughout serialization.
+    with _STAGING_LOCK, _staged_document_locked(models, theme) as document:
+        yield document
+
+
+@contextmanager
+def _staged_document_locked(models: Sequence[Model], theme: ThemeSource) -> Iterator[Document]:
     source = _complete_source_document(models)
     document = Document(title=source.title if source is not None else DEFAULT_TITLE)
 
@@ -432,7 +452,11 @@ def _staged_document(models: Sequence[Model], theme: ThemeSource) -> Iterator[Do
             model._temp_document = document
         document._roots = list(models)
         if applied_theme is not None:
-            document.theme = applied_theme
+            if applied_theme is document.theme:
+                for model in staged:
+                    document.theme.apply_to_model(model)
+            else:
+                document.theme = applied_theme
         if settings.perform_document_validation():
             document.validate()
         yield document

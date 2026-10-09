@@ -13,7 +13,7 @@ import asyncio
 import json
 from collections.abc import Awaitable
 from typing import Any, cast
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
 # External imports
 from tornado.web import HTTPError, authenticated
@@ -43,6 +43,14 @@ class EmbedJsonHandler(SessionHandler):
         self._allow_websocket_origin()
         await super().prepare()
 
+    def write_error(self, status_code: int, **kwargs: Any) -> None:
+        '''Restore allowed-origin headers after Tornado clears an error response.'''
+        try:
+            self._allow_websocket_origin()
+        except HTTPError:
+            pass
+        super().write_error(status_code, **kwargs)
+
     def _allow_websocket_origin(self) -> None:
         if "Origin" not in self.request.headers:
             return
@@ -70,13 +78,12 @@ class EmbedJsonHandler(SessionHandler):
             args: Positional arguments supplied by Tornado.
             kwargs: Keyword arguments supplied by Tornado.
         '''
-        origin = f"{self.request.protocol}://{self.request.host}/"
         try:
             policy = server_extension_resources(
-                self.application.resources(origin),
+                self.application.resources(),
                 mode=self.request.headers.get("Bokeh-Resource-Mode"),
                 minified=self.request.headers.get("Bokeh-Resource-Minified"),
-                root_url=urljoin(origin, self.application.prefix),
+                root_url=self.application.prefix or "/",
             )
         except ValueError as error:
             raise HTTPError(status_code=409, reason=str(error)) from error

@@ -407,6 +407,21 @@ describe("core/serialization module", () => {
       }
     })
 
+    it("rejects definitions hidden in ignored representation fields", () => {
+      const resolver = new ModelResolver(null, [SomeModel])
+      const deserializer = new Deserializer(resolver)
+      const rep = [
+        {
+          type: "object", name: "SomeModel", attributes: {obj: {id: "hidden"}},
+          extra: {type: "object", name: "SomeModel", id: "hidden", attributes: {value: 2}},
+        },
+      ]
+
+      expect(() => deserializer.decode(rep)).to.throw(DeserializationError, /model definitions were not decoded/)
+      expect(deserializer.references.size).to.be.equal(0)
+      expect((deserializer.decode({$type: "SomeModel", value: 3}) as SomeModel).value).to.be.equal(3)
+    })
+
     it("restores existing references when a later value fails", () => {
       const resolver = new ModelResolver(null, [SomeModel])
       const model = SomeModel.create({value: 1})

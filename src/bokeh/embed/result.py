@@ -96,6 +96,13 @@ class EmbedRoot:
         key = value.get("key")
         if not isinstance(key, str):
             raise EmbedValidationError("embed root keys must be strings")
+        if "document" in value or "root" in value:
+            if "model_id" in value:
+                raise EmbedValidationError("standalone embed roots cannot contain model_id")
+            if value.get("document") is None or value.get("root") is None:
+                raise EmbedValidationError("standalone embed roots require document/root ordinals")
+        elif value.get("model_id") is None:
+            raise EmbedValidationError("server embed roots require model_id")
         return cls(
             key=key,
             document=value.get("document"),
@@ -346,6 +353,9 @@ class EmbedResult:
         requires = value.get("requires")
         if not isinstance(requires, Mapping):
             raise EmbedValidationError("embed payload requires must be an object")
+        metadata = value.get("metadata")
+        if not isinstance(metadata, Mapping):
+            raise EmbedValidationError("embed payload metadata must be an object")
         try:
             result = cls(
                 schema=schema,
@@ -353,7 +363,7 @@ class EmbedResult:
                 source=value.get("source", {}),
                 roots=tuple(EmbedRoot.from_dict(root) for root in roots),
                 requires=ResourceRequirements.from_dict(requires),
-                metadata=value.get("metadata", {}),
+                metadata=metadata,
             )
         except EmbedValidationError:
             raise

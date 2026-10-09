@@ -9,7 +9,10 @@ from __future__ import annotations
 
 # Standard library imports
 import json
+import os
 import re
+import subprocess
+import sys
 from collections.abc import Callable, Iterator
 from copy import deepcopy
 from dataclasses import fields
@@ -124,6 +127,25 @@ def test_fingerprint_normalizes_allocation_dependent_retained_model_ids() -> Non
 
     assert first.source != second.source
     assert first.fingerprint == second.fingerprint
+
+
+def test_fingerprint_is_stable_across_event_subscription_hash_seeds() -> None:
+    code = """
+from bokeh.embed import embed
+from bokeh.models import Dropdown
+model = Dropdown(menu=["one", "two"])
+model.on_click(lambda event: None)
+print(embed(model, callback_policy="suppress").fingerprint)
+"""
+    fingerprints = {
+        subprocess.check_output(
+            [sys.executable, "-c", code],
+            env={**os.environ, "PYTHONHASHSEED": str(seed)},
+            text=True,
+        ).strip()
+        for seed in (1, 2, 3)
+    }
+    assert len(fingerprints) == 1
 
 
 def test_fingerprint_normalizes_integral_json_numbers() -> None:
@@ -337,7 +359,10 @@ def test_result_round_trip_validates_fingerprint_and_schema() -> None:
     [
         (lambda value: value["roots"][0].update(key=1), "root keys must be strings"),
         (lambda value: value["roots"][0].update(document=0.5), "document ordinal must be an integer"),
+        (lambda value: value["roots"][0].update(model_id=None), "cannot contain model_id"),
+        (lambda value: value["roots"][0].update(document=None), "require document/root ordinals"),
         (lambda value: value.update(metadata=[]), "metadata must be an object"),
+        (lambda value: value.pop("metadata"), "metadata must be an object"),
         (
             lambda value: value["requires"].update(extensions=[{
                 "name": "bad",
@@ -361,6 +386,14 @@ def test_result_python_validation_matches_browser_contract(
     mutate(value)
 
     with pytest.raises(EmbedValidationError, match=message):
+        EmbedResult.from_dict(value)
+
+
+@pytest.mark.parametrize("field", ["document", "root"])
+def test_server_root_rejects_null_standalone_fields(field: str) -> None:
+    value = embed_server("https://example.test/app", roots={"plot": "model-id"}).to_dict()
+    value["roots"][0][field] = None
+    with pytest.raises(EmbedValidationError, match="cannot contain model_id"):
         EmbedResult.from_dict(value)
 
 
@@ -773,6 +806,42 @@ def test_relative_resource_urls_use_url_separators(tmp_path: Path, monkeypatch: 
     assert relative.assets[0].url == "js/bokeh.min.js"
 
 
+def test_resource_modes_respect_minified_setting(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BOKEH_MINIFIED", "false")
+
+    assert Resources.build("cdn").minified is False
+    assert Resources.build("inline").minified is False
+    assert Resources.build(Resources(mode="cdn", minified=True)).minified is True
+
+
+def test_plain_cdn_urls_do_not_require_local_integrity_manifest() -> None:
+    resolved = Resources(mode="cdn").resolve(ResourceRequirements(), bokeh_version="4.0.1")
+
+    assert resolved.assets[0].url == "https://cdn.bokeh.org/bokeh/release/bokeh-4.0.1.min.js"
+    assert resolved.assets[0].integrity is None
+
+
+def test_packaged_extensions_follow_their_external_dependencies(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cleanup_extensions: None,
+) -> None:
+    class ExternalDependency(CustomJS):
+        __javascript__ = ["https://example.test/zviz-dependency.js"]
+
+    ExternalDependency.__view_module__ = "zviz.models"
+    bundle_url = "https://server.test/static/extensions/zviz/zviz.min.js"
+    monkeypatch.setattr(
+        "bokeh.embed.resources.bundle_extensions",
+        lambda objs, policy: [SimpleNamespace(
+            name="zviz", artifact_path=tmp_path / "zviz.min.js", server_url=bundle_url, cdn_url=bundle_url,
+        )],
+    )
+    result = embed(ExternalDependency(code="return null"))
+    resolved = Resources(mode="server", root_url="https://server.test/").resolve(result.requires)
+    urls = [asset.url for asset in resolved.assets]
+
+    assert urls.index("https://example.test/zviz-dependency.js") < urls.index(bundle_url)
+
+
 def test_resource_requirement_union_is_exact_and_deterministic() -> None:
     extension_asset = ResourceAssetRequirement("script", url="https://example.test/ext.js")
     custom_asset = ResourceAssetRequirement("script", content="compiled-custom-models")
@@ -994,19 +1063,59 @@ def test_module_resources_report_loading_completion_and_failure() -> None:
         "script", url="https://example.test/extension.js", module=True,
     ))
 
-    assert 'resource.setAttribute("data-bokeh-resource-state", "loading")' in inline
-    assert 'resource.setAttribute("data-bokeh-resource-state", "loaded")' in inline
-    assert 'resource.setAttribute("data-bokeh-resource-state", "failed")' in inline
-    assert 'resource.dispatchEvent(new Event("bokeh:resource-loaded"))' in inline
-    assert 'if (loader.nonce != "") resource.nonce = loader.nonce' in inline
-    assert 'loader.getAttribute("nonce")' not in inline
-    assert "loader.before(resource)\n  loader.remove()" in inline
+    assert "Bokeh.embed.resource_loader.ensure" in inline
+    assert '"content": "export const value = 1"' in inline
+    assert '"module": true' in inline
+    assert '"nonce": "fixture-nonce"' in inline
     assert 'data-bokeh-resource=""' in external
     assert 'data-bokeh-resource-state="loading"' in external
     assert external.count("<script") == 1
     assert re.search(r"<script[^>]*></script>", external) is not None
     assert "addEventListener" not in external
     assert "crypto.randomUUID" not in inline
+
+
+@pytest.mark.parametrize("serialization", ["static", "protocol"])
+def test_page_preserves_named_aliases_for_referenced_roots(serialization: str) -> None:
+    from bokeh.embed._util import embed_protocol
+    from bokeh.layouts import row
+    from bokeh.models import Div
+
+    inside = Div(name="inside")
+    outer = row(inside, name="outer")
+    result = (embed if serialization == "static" else embed_protocol)([outer, inside])
+    template = "{% block contents %}{{ roots.outer.html }}{{ roots.inside.html }}{% endblock %}"
+    html = result.page(resources="none", template=template)
+
+    assert html.count('class="bk-embed-root"') == 2
+
+
+def test_page_preserves_legacy_root_block_and_docs_loop() -> None:
+    result = embed({"first": _plot(), "second": _plot()})
+    root_template = '{% block root scoped %}<section>{{ embed(root) }}</section>{% endblock %}'
+    loop_template = "{% block contents %}{% for doc in docs %}{% for root in doc.roots %}{{ embed(root) }}{% endfor %}{% endfor %}{% endblock %}"
+
+    assert result.page(resources="none", template=root_template).count("<section>") == 2
+    assert result.page(resources="none", template=loop_template).count('class="bk-embed-root"') == 2
+
+
+def test_page_payload_preserves_next_line_unicode() -> None:
+    from bokeh.models import Div
+
+    html = embed(Div(text="a\u0085b")).page(resources="none")
+    bs4 = pytest.importorskip("bs4")
+    payload = bs4.BeautifulSoup(html, "html.parser").find("script", {"data-bokeh-embed-payload": True}).string
+
+    assert "\u0085" not in payload
+    assert "\\u0085" in payload
+    assert EmbedResult.from_dict(json.loads(payload)).to_dict()["source"]["documents"][0]["roots"][0]["text"] == "a\u0085b"
+
+
+def test_page_applies_nonce_to_template_style() -> None:
+    html = embed(_plot()).page(resources=Resources(mode="cdn", nonce="N0NCE"))
+    bs4 = pytest.importorskip("bs4")
+
+    assert all(tag.get("nonce") == "N0NCE" for tag in bs4.BeautifulSoup(html, "html.parser").find_all(["style", "script"]))
 
 
 def test_external_only_renderer_uses_standard_bootstrap_asset() -> None:

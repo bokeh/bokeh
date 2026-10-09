@@ -55,7 +55,7 @@ def home():
 
 @app.route('/batch/<int:batchid>')
 def visualization(batchid):
-    result = embed_server('http://localhost:5006/bokeh_server', arguments=dict(batchid=batchid))
+    result = embed_server('http://localhost:5006/bokeh_server', arguments=dict(batchid=str(batchid)))
     fragment = result.fragment(resources="server")
     return render_template_string(app_html, embed_html=fragment.html)
 

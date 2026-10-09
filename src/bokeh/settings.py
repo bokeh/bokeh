@@ -638,12 +638,6 @@ class Settings:
     module.
     """)
 
-    cdn_version = PrioritizedSetting[str | None]("version", "BOKEH_CDN_VERSION", default=None, help="""
-    What version of BokehJS to use with CDN resources.
-
-    See :class:`~bokeh.resources.Resources` for full details.
-    """)
-
     chromedriver_path = PrioritizedSetting[str | None]("chromedriver_path", "BOKEH_CHROMEDRIVER_PATH", default=None, help="""
     The name of or full path to chromedriver's executable.
 

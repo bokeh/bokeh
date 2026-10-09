@@ -65,6 +65,9 @@ export class Deserializer {
     try {
       this._prepare_references(obj)
       const decoded = this._decode(obj)
+      if (this._deferred_references.size != 0) {
+        this.error(`model definitions were not decoded: ${[...this._deferred_references].join(", ")}`)
+      }
       const finalizable = new Set(this._finalizable)
 
       for (const instance of finalizable) {
