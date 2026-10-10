@@ -333,6 +333,9 @@ jobs:
     needs: [changes, build]
     if: needs.changes.outputs.jupyter == 'true' && needs.build.result == 'success'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     steps:
       - uses: actions/checkout@v6
@@ -349,7 +352,15 @@ jobs:
       - name: Run wheel-installed notebook host tests
         env:
           BOKEH_NOTEBOOK_ARTIFACT_DIR: work/notebook-report
-        run: pixi run --locked --environment notebook-test test-notebook
+        run: pixi run --locked --environment notebook-test test-notebook --cov=bokeh --cov-report=xml
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v7
+        if: success() || failure()
+        with:
+          use_oidc: true
+          flags: notebook
+          verbose: true
 
       - name: Upload notebook smoke report
         if: always()
