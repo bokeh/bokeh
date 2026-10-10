@@ -16,8 +16,8 @@ pytest.importorskip("anywidget", minversion="0.11")
 # Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import embed_server
-from bokeh.io.notebook import ApplicationViewHandle, DocumentViewHandle
 from bokeh.io.jupyter import ExecutableResourceRecord
+from bokeh.io.notebook import ApplicationViewHandle, DocumentViewHandle
 from bokeh.models import Div
 
 # Module under test
