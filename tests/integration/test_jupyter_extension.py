@@ -174,7 +174,7 @@ def _wait_for_server(base_url: str, process: subprocess.Popen[str]) -> None:
 
 
 def _start_jupyter(tmp_path: Path, *, extension: bool, base_path: str = "/",
-        allow_remote_access: bool = False) -> tuple[subprocess.Popen[str], str, dict[str, str]]:
+        allow_remote_access: bool = False, proxy: bool = True) -> tuple[subprocess.Popen[str], str, dict[str, str]]:
     env = _project_environment()
     data_dir = tmp_path / "jupyter-data"
     runtime_dir = tmp_path / "jupyter-runtime"
@@ -203,6 +203,10 @@ def _start_jupyter(tmp_path: Path, *, extension: bool, base_path: str = "/",
         server_config.mkdir()
         (server_config / "bokeh-jupyter.json").write_text(json.dumps({
             "ServerApp": {"jpserver_extensions": {"bokeh.jupyter": False}},
+        }))
+    if not proxy:
+        (server_config / "jupyter-server-proxy.json").write_text(json.dumps({
+            "ServerApp": {"jpserver_extensions": {"jupyter_server_proxy": False}},
         }))
     env.update({
         "IPYTHONDIR": str(tmp_path / "ipython"),
@@ -347,8 +351,12 @@ def _browser_notebook() -> Any:
         metadata={"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
         cells=[
             nbformat.v4.new_code_cell('''
+from bokeh.layouts import column
+from bokeh.models import ColumnDataSource, DataTable, Slider, TableColumn
 from bokeh.plotting import figure
-p = figure(width=300, height=180); p.line([1, 2, 3], [3, 1, 2]); p
+p = figure(width=300, height=180); p.line([1, 2, 3], [3, 1, 2])
+source = ColumnDataSource(data=dict(x=[1, 2], y=[3, 4]))
+column(p, Slider(start=0, end=10, value=5), DataTable(source=source, columns=[TableColumn(field="x")]))
 '''),
             nbformat.v4.new_code_cell('''
 from bokeh.io import show
@@ -475,6 +483,33 @@ def test_extension_disabled_output_uses_portable_static_fallback(tmp_path: Path)
             output.locator(".jp-OutputArea-output").first.wait_for(state="attached", timeout=30_000)
             assert output.locator("[data-bokeh-notebook-static-fallback]").count() == 1, output.inner_html()
             assert page.locator(".bk-Figure").count() == 1
+            assert page.locator(".bk-Slider").count() == 1
+            assert page.locator(".bk-DataTable").count() == 1
+            assert page.locator(".bk-notebook-diagnostic").count() == 0
+            browser.close()
+    finally:
+        _stop(process)
+
+
+def test_local_application_connects_without_jupyter_server_proxy(tmp_path: Path) -> None:
+    playwright = pytest.importorskip("playwright.sync_api")
+    extension = Path(bokeh.__file__).parent / "jupyter" / "labextension" / "package.json"
+    if not extension.is_file():
+        pytest.skip("the first-party Jupyter extension must be built")
+    path = tmp_path / "direct-application.ipynb"
+    nbformat.write(_browser_notebook(), path)
+    process, base_url, _env = _start_jupyter(tmp_path, extension=True, proxy=False)
+    try:
+        with playwright.sync_playwright() as manager:
+            browser = manager.chromium.launch()
+            page = browser.new_page(viewport={"width": 1440, "height": 1050})
+            page.goto(f"{base_url}/lab/tree/direct-application.ipynb")
+            editors = page.locator(".jp-CodeCell .cm-content")
+            editors.nth(3).wait_for(timeout=30_000)
+
+            _execute_cell_once(page, editors, 3, timeout=60_000)
+            page.get_by_text("application-view-ready", exact=True).wait_for(timeout=30_000)
+            _wait_for_named_model(page, "notebook-app-root", server_session=True)
             assert page.locator(".bk-notebook-diagnostic").count() == 0
             browser.close()
     finally:

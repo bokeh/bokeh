@@ -29,11 +29,11 @@ export class ContextManager implements IDisposable {
 
   get path(): string {return this.context.path}
 
-  applicationUrl(url: string): string {
+  applicationUrl(url: string): Promise<string> {
     return resolveJupyterApplicationUrl(url, this.contents.serverSettings.baseUrl)
   }
 
-  applicationArtifact(artifactJson: string): string {
+  applicationArtifact(artifactJson: string): Promise<string> {
     return resolveJupyterApplicationArtifact(artifactJson, this.contents.serverSettings.baseUrl)
   }
 

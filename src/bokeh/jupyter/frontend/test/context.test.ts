@@ -34,13 +34,12 @@ describe("notebook context ownership", () => {
     }
   })
 
-  it("uses the current Jupyter server route for remote local applications", () => {
+  it("uses the current Jupyter server route for remote local applications", async () => {
     const contents = {serverSettings: {baseUrl: "/user/alice/"}}
     const manager = new ContextManager({path: "notebook.ipynb"} as any, contents as any)
     try {
-      expect(manager.applicationUrl("http://127.0.0.1:4312/bokeh-notebook/nonce/")).toBe(
-        "https://jupyter.example.test/user/alice/proxy/4312/bokeh-notebook/nonce/",
-      )
+      await expect(manager.applicationUrl("http://127.0.0.1:4312/bokeh-notebook/nonce/"))
+        .resolves.toBe("https://jupyter.example.test/user/alice/proxy/4312/bokeh-notebook/nonce/")
     } finally {
       manager.dispose()
     }

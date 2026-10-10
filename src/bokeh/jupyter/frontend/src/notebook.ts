@@ -191,6 +191,7 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
       context.sessionContext.kernelChanged.disconnect(kernelChanged)
       context.model.cells.changed.disconnect(cellsChanged)
       for (const cell of [...watched.keys()]) unwatch(cell)
+      for (const viewId of pendingReleases.keys()) closingViews.add(viewId)
       panel.content.rendermime.removeMimeType(FILE_MIME_TYPE)
       panel.content.rendermime.removeMimeType(RESOURCES_MIME_TYPE)
       panel.content.rendermime.removeMimeType(DISPLAY_MIME_TYPE)

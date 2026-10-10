@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard library imports
+import socket
 import sys
 from collections.abc import Iterator
 from typing import Any
@@ -55,16 +56,14 @@ def test_serve_replaces_a_reexecuted_cell_owner_and_stops_cleanly() -> None:
     assert first.stopped
     assert _Host.instances[0].starts == 1
     assert _Host.instances[0].stops == 1
-    assert second.application_id in m.APPLICATIONS
-    assert m._KEY_APPLICATIONS["cell"] is second
+    assert second.status == "running"
 
     with patch("bokeh.io.notebook.close_application_views") as close_views:
         second.stop()
         second.stop()
     close_views.assert_called_once_with(second)
     assert _Host.instances[1].stops == 1
-    assert second.application_id not in m.APPLICATIONS
-    assert "cell" not in m._KEY_APPLICATIONS
+    assert second.stopped
 
 
 def test_multiple_apps_in_one_execution_coexist_and_reexecution_replaces_them() -> None:
@@ -153,14 +152,24 @@ def test_additional_websocket_origins_are_merged_with_notebook_origins() -> None
 def test_shutdown_timeout_closes_the_listening_socket() -> None:
     with patch.dict(sys.modules, {"uvicorn": MagicMock()}):
         host = m._ASGIServerThread(MagicMock(), address="127.0.0.1", port=0, shutdown_timeout=0)
-    host._socket = MagicMock()
+    listening = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    listening.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    listening.bind(("127.0.0.1", 0))
+    listening.listen()
+    address = listening.getsockname()
+    host._socket = listening
     host._server = MagicMock(should_exit=False, force_exit=False)
     host._thread = MagicMock()
 
     with pytest.raises(TimeoutError, match="did not stop"):
         host.stop()
 
-    host._socket.close.assert_called_once_with()
+    replacement = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        replacement.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        replacement.bind(address)
+    finally:
+        replacement.close()
 
 
 def test_failed_host_start_is_not_registered() -> None:
@@ -174,8 +183,10 @@ def test_failed_host_start_is_not_registered() -> None:
     ):
         m.serve(_modify_document, key="failed")
 
-    assert m.APPLICATIONS == {}
-    assert m._CELL_APPLICATIONS == {}
+    with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
+        replacement = m.serve(_modify_document, key="failed")
+    assert replacement.status == "running"
+    replacement.stop()
 
 
 def test_failed_stop_is_terminal_and_unregisters_the_application() -> None:
@@ -192,8 +203,6 @@ def test_failed_stop_is_terminal_and_unregisters_the_application() -> None:
 
     assert app.stopped
     assert app.status == "failed"
-    assert app.application_id not in m.APPLICATIONS
-    assert "failed-stop" not in m._KEY_APPLICATIONS
     app.stop()
     assert _Host.instances[0].stops == 1
 

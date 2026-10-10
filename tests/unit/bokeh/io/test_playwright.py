@@ -4,6 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -173,7 +174,6 @@ def test_playwright_thread_serializes_shutdown_and_submissions() -> None:
         assert playwright_thread.run(_worker_identity)[0] == os.getpid()
     finally:
         playwright_thread.shutdown()
-
 
 #-----------------------------------------------------------------------------
 # Code

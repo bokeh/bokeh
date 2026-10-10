@@ -113,6 +113,32 @@ def test_widget_disposal_disconnects_without_closing_python_owner() -> None:
     handle.close()
 
 
+def test_python_disconnect_preserves_the_saved_widget_output() -> None:
+    handle = DocumentViewHandle(Div(), live_id="live", view_id="view")
+    widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
+    widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+
+    with patch.object(widget, "close") as close:
+        widget.disconnect()
+
+    close.assert_not_called()
+    assert widget._released
+    assert not widget._transports
+    assert not widget._records
+
+
+def test_inactive_diagnostic_widget_is_closed_only_when_disposed() -> None:
+    widget = m.display_widget({"kind": "artifact"}, "", {})
+    with patch.object(widget, "close") as close:
+        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+        widget._receive(widget, {"kind": "inactive", "frontend_id": _FRONTEND_ID}, [])
+        close.assert_not_called()
+
+        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+        widget._receive(widget, {"kind": "disposed", "frontend_id": _FRONTEND_ID}, [])
+        close.assert_called_once_with()
+
+
 def test_widget_keeps_the_kernel_local_application_url_out_of_its_payload() -> None:
     local_url = "http://127.0.0.1:4321/bokeh-notebook/nonce/"
     browser_url = "https://jupyter.example/proxy/4321/bokeh-notebook/nonce"
@@ -160,14 +186,16 @@ def test_widget_new_view_after_page_reload_receives_a_fresh_snapshot() -> None:
     handle.close()
 
 
-def test_widget_prunes_frontends_that_stop_renewing_their_lease() -> None:
+def test_widget_prunes_frontends_that_stop_renewing_their_lease(monkeypatch: pytest.MonkeyPatch) -> None:
     root = Div()
     handle = DocumentViewHandle(root, live_id="live", view_id="view")
     widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
 
-    with patch("bokeh.io._anywidget.monotonic", side_effect=[0.0, 0.0, 60.0, 60.0]):
-        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
-        widget._receive(widget, {"kind": "active", "frontend_id": _SECOND_FRONTEND_ID}, [])
+    now = 0.0
+    monkeypatch.setattr(m, "monotonic", lambda: now)
+    widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+    now = m._TRANSPORT_LEASE_SECONDS + 1
+    widget._receive(widget, {"kind": "active", "frontend_id": _SECOND_FRONTEND_ID}, [])
 
     assert handle.views == 1
     assert _FRONTEND_ID not in widget._transports

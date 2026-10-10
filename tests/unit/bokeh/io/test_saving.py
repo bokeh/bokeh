@@ -97,6 +97,21 @@ def test_save_links_from_the_notebook_directory_after_chdir(mock_save_helper: Ma
     mock_save_helper.assert_called_once()
 
 
+@patch("bokeh.io.saving._save_helper")
+def test_save_preserves_a_lexical_link_through_a_symlinked_directory(mock_save_helper: MagicMock,
+        tmp_path: Path) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    linked = tmp_path / "linked"
+    linked.symlink_to(target, target_is_directory=True)
+    shell = MagicMock(kernel=object(), starting_dir=str(tmp_path))
+    with patch("IPython.get_ipython", return_value=shell):
+        result = cast(m._SavedFile, m.save(Plot(), filename=linked / "result.html"))
+
+    assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "linked/result.html"
+    mock_save_helper.assert_called_once()
+
+
 @pytest.mark.parametrize("clone", [copy, deepcopy, lambda value: pickle.loads(pickle.dumps(value))])
 def test_saved_file_copy_and_pickle_preserve_rich_link(clone: Any) -> None:
     original = m._SavedFile("/tmp/result.html", "reports/result.html")
@@ -127,7 +142,7 @@ def test_get_save_args_supplies_stateless_defaults(mock_default_filename: MagicM
 
 @patch("builtins.open")
 @patch("bokeh.io.saving.embed")
-def test_save_helper_writes_artifact_html(mock_embed: MagicMock, mock_open: MagicMock) -> None:
+def test_save_helper_writes_embed_html(mock_embed: MagicMock, mock_open: MagicMock) -> None:
     obj = Plot()
     resources = Resources(mode="inline")
     mock_embed.return_value.page.return_value = "<html></html>"

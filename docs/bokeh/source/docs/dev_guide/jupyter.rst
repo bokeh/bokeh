@@ -29,9 +29,9 @@ whenever ``src/bokeh/jupyter/frontend/src`` or the protocol changes. Run
 ``pixi run --locked jupyter-verify`` to rebuild and confirm that every tracked
 generated asset is current.
 
-For a local JupyterLab development session, run the following once from
-``src/bokeh/jupyter/frontend`` so rebuilding the package updates the extension
-that JupyterLab loads:
+For a local JupyterLab development session, run the following once from the
+repository root so Jupyter can register the Python package that owns the
+extension:
 
 .. code-block:: sh
 

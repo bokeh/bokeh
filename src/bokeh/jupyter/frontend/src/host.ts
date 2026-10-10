@@ -1,4 +1,5 @@
 const loopbackHosts = new Set(["127.0.0.1", "localhost", "::1", "[::1]"])
+const proxyChecks = new Map<string, Promise<boolean>>()
 
 function withTrailingSlash(value: string): string {
   return value.endsWith("/") ? value : `${value}/`
@@ -25,9 +26,20 @@ export function jupyterServerBaseUrl(root: Document = document): string | undefi
   }
 }
 
+async function proxyAvailable(url: string, request: typeof fetch): Promise<boolean> {
+  const check = proxyChecks.get(url) ?? (() => {
+    const pending = request(url, {method: "HEAD", credentials: "same-origin"})
+      .then((response) => response.status !== 404 && response.status !== 410)
+      .catch(() => false)
+    proxyChecks.set(url, pending)
+    return pending
+  })()
+  return await check
+}
+
 /** Map a kernel-local application URL through a remote Jupyter server. */
-export function resolveJupyterApplicationUrl(applicationUrl: string, serverBaseUrl: string | undefined,
-    pageUrl: string = window.location.href): string {
+export async function resolveJupyterApplicationUrl(applicationUrl: string, serverBaseUrl: string | undefined,
+    pageUrl: string = window.location.href, request: typeof fetch = fetch): Promise<string> {
   const urls = (() => {
     try {
       return {application: new URL(applicationUrl), page: new URL(pageUrl)}
@@ -45,17 +57,19 @@ export function resolveJupyterApplicationUrl(applicationUrl: string, serverBaseU
     const base = new URL(withTrailingSlash(serverBaseUrl), page)
     if (base.origin !== page.origin) return applicationUrl
     const path = application.pathname.replace(/^\/+/, "")
-    return new URL(`proxy/${encodeURIComponent(application.port)}/${path}`, base).toString()
+    const proxyUrl = new URL(`proxy/${encodeURIComponent(application.port)}/${path}`, base).toString()
+    if (!loopbackHosts.has(page.hostname.toLowerCase())) return proxyUrl
+    return await proxyAvailable(proxyUrl, request) ? proxyUrl : applicationUrl
   } catch {
     return applicationUrl
   }
 }
 
 /** Rewrite a transient server artifact for the URL visible to this frontend. */
-export function resolveJupyterApplicationArtifact(artifactJson: string, serverBaseUrl: string | undefined,
-    pageUrl: string = window.location.href): string {
+export async function resolveJupyterApplicationArtifact(artifactJson: string, serverBaseUrl: string | undefined,
+    pageUrl: string = window.location.href, request: typeof fetch = fetch): Promise<string> {
   const artifact = JSON.parse(artifactJson)
   if (artifact?.source?.kind !== "server" || typeof artifact.source.url !== "string") return artifactJson
-  artifact.source.url = resolveJupyterApplicationUrl(artifact.source.url, serverBaseUrl, pageUrl)
+  artifact.source.url = await resolveJupyterApplicationUrl(artifact.source.url, serverBaseUrl, pageUrl, request)
   return JSON.stringify(artifact)
 }

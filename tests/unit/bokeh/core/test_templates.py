@@ -21,9 +21,9 @@ import re
 import sys
 
 # Bokeh imports
-from bokeh.embed import embed
+from bokeh.embed import file_html
 from bokeh.plotting import figure
-from bokeh.resources import Resources, ResourcesMode
+from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 import bokeh.core.templates as m # isort:skip
@@ -32,11 +32,16 @@ import bokeh.core.templates as m # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
+def get_html_lines(resource_mode: str) -> list[str]:
     p = figure()
     p.scatter(x=[], y=[])
-    html = embed(p).page(resources=Resources(resource_mode))
+    with pytest.warns(BokehDeprecationWarning, match=r"file_html\(\)"):
+        html = file_html(p, resources=resource_mode)
     return html.split('\n')
+
+def test_legacy_render_item_templates_are_removed() -> None:
+    assert not hasattr(m, "DOC_JS")
+    assert not hasattr(m, "PLOT_DIV")
 
 def test_no_white_space_in_top_of_html() -> None:
     lines = get_html_lines("inline")
@@ -47,12 +52,12 @@ def test_legacy_notebook_templates_are_removed() -> None:
     for name in ("AUTOLOAD_NB_JS", "DOC_NB_JS", "NOTEBOOK_LOAD", "ROOT_DIV"):
         assert not hasattr(m, name)
 
-MODES: list[ResourcesMode] = ["inline", "cdn", "server", "absolute"]
+MODES = ["inline", "cdn", "server", "absolute"]
 if sys.platform != "win32":
     MODES.append("relative")
 
 @pytest.mark.parametrize("mode", MODES)
-def test_dont_start_script_on_same_line_after_another_ends(mode: ResourcesMode) -> None:
+def test_dont_start_script_on_same_line_after_another_ends(mode: str) -> None:
     lines = get_html_lines(mode)
     for line in lines:
         if "<script" in line and "</script" in line:

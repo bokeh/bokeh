@@ -161,4 +161,15 @@ describe("notebook output ownership", () => {
 
     expect(test.opened).toEqual([{kind: "release", view_id: "closing"}])
   })
+
+  it("releases views pending their grace period when the notebook panel closes", async () => {
+    const test = harness([output("pending")])
+    test.outputs.values = []
+    test.outputs.changed.emit(test.outputs, {})
+
+    test.disposable.dispose()
+    await Promise.resolve()
+
+    expect(test.opened).toEqual([{kind: "release", view_id: "pending"}])
+  })
 })
