@@ -57,11 +57,14 @@ class _ResourceError(TypedDict):
 def _prune_retained_widgets() -> None:
     for widget in tuple(_RETAINED_WIDGETS.values()):
         widget._prune_transports(None)
-    inactive = [
-        (model_id, widget)
-        for model_id, widget in _RETAINED_WIDGETS.items()
-        if not any(not transport.closed for transport in widget._transports.values())
-    ]
+    inactive = sorted(
+        (
+            (model_id, widget)
+            for model_id, widget in _RETAINED_WIDGETS.items()
+            if not any(not transport.closed for transport in widget._transports.values())
+        ),
+        key=lambda item: item[1]._last_frontend_activity,
+    )
     while len(inactive) > _MAX_INACTIVE_WIDGETS:
         model_id, retained = inactive.pop(0)
         _RETAINED_WIDGETS.pop(model_id, None)
@@ -205,6 +208,7 @@ class _DisplayWidget(anywidget.AnyWidget):
         self._handle = handle
         self._transports: dict[str, _WidgetComm] = {}
         self._transport_seen: dict[str, float] = {}
+        self._last_frontend_activity = monotonic()
         self._released = False
         self.on_msg(self._receive)
         if handle is None:
@@ -243,7 +247,9 @@ class _DisplayWidget(anywidget.AnyWidget):
         self._prune_transports(frontend_id if kind in ("ready", "active", "heartbeat") else None)
         match kind:
             case "ready" | "active" | "heartbeat":
-                self._transport_seen[frontend_id] = monotonic()
+                seen = monotonic()
+                self._transport_seen[frontend_id] = seen
+                self._last_frontend_activity = max(self._last_frontend_activity, seen)
                 transport = self._transports.get(frontend_id)
                 if transport is None or transport.closed:
                     transport = _WidgetComm(self, frontend_id)

@@ -291,8 +291,9 @@ callable object can keep related application configuration together:
 
     app = serve(NotebookApp("Configured notebook application"))
 
-The callable object is shared by every session, so keep per-session state on
-the document and its models rather than on the callable instance.
+The callable object is shared by every session and called on the application's
+server thread. Treat its attributes as read-only once the application is
+serving, and keep per-session state on the document and its models.
 
 .. code-block:: python
 
