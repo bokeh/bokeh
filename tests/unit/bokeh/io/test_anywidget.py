@@ -4,6 +4,7 @@ from __future__ import annotations
 import gc
 import json
 import weakref
+from collections.abc import Iterator
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
@@ -24,6 +25,14 @@ import bokeh.io._anywidget as m # isort:skip
 
 _FRONTEND_ID = "frontend"
 _SECOND_FRONTEND_ID = "frontend-second"
+
+
+@pytest.fixture(autouse=True)
+def close_retained_widgets() -> Iterator[None]:
+    yield
+    for widget in tuple(m._RETAINED_WIDGETS.values()):
+        widget.close()
+    m._RETAINED_WIDGETS.clear()
 
 
 def test_display_widget_uses_standard_widget_mime_bundle() -> None:
@@ -143,14 +152,15 @@ def test_inactive_diagnostic_widget_is_closed_only_when_disposed() -> None:
 
 
 def test_python_disconnect_retains_a_widget_without_active_frontends() -> None:
-    widget = m.display_widget({"kind": "artifact"}, "", {})
+    handle = DocumentViewHandle(Div(), live_id="live", view_id="view")
+    widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
     model_id = widget.model_id
 
     with patch.object(widget, "close", wraps=widget.close) as close:
         widget.disconnect()
 
     close.assert_not_called()
-    assert m._RELEASED_WIDGETS[model_id] is widget
+    assert m._RETAINED_WIDGETS[model_id] is widget
     widget.close()
 
 
@@ -167,13 +177,13 @@ def test_widget_close_is_idempotent_and_releases_anywidget_watchers() -> None:
 
 
 def test_released_widgets_without_disposal_are_bounded() -> None:
-    first = m.display_widget({"kind": "artifact"}, "", {})
-    second = m.display_widget({"kind": "artifact"}, "", {})
+    first_handle = DocumentViewHandle(Div(), live_id="first", view_id="first")
+    second_handle = DocumentViewHandle(Div(), live_id="second", view_id="second")
+    first = m.display_widget({"kind": "artifact"}, "", {}, handle=first_handle)
+    second = m.display_widget({"kind": "artifact"}, "", {}, handle=second_handle)
     first_reference = weakref.ref(first)
-    first._receive(first, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
-    second._receive(second, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
 
-    with patch.object(m, "_MAX_RELEASED_WIDGETS", 1):
+    with patch.object(m, "_MAX_RETAINED_WIDGETS", 1):
         first.disconnect()
         second.disconnect()
 
@@ -181,9 +191,23 @@ def test_released_widgets_without_disposal_are_bounded() -> None:
     del first
     gc.collect()
     assert first_reference() is None
-    assert list(m._RELEASED_WIDGETS) == [second.model_id]
+    assert list(m._RETAINED_WIDGETS) == [second.model_id]
     second._receive(second, {"kind": "disposed", "frontend_id": _FRONTEND_ID}, [])
-    assert not m._RELEASED_WIDGETS
+    assert not m._RETAINED_WIDGETS
+
+
+def test_automatic_widgets_without_disposal_are_bounded() -> None:
+    with patch.object(m, "_MAX_RETAINED_WIDGETS", 1):
+        first = m.display_widget({"kind": "artifact"}, "", {})
+        first_reference = weakref.ref(first)
+        second = m.display_widget({"kind": "artifact"}, "", {})
+
+    assert getattr(first, "comm", None) is None
+    del first
+    gc.collect()
+    assert first_reference() is None
+    assert list(m._RETAINED_WIDGETS) == [second.model_id]
+    second.close()
 
 
 def test_widget_keeps_the_kernel_local_application_url_out_of_its_payload() -> None:

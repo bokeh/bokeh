@@ -855,7 +855,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
         fragment = _notebook_fragment(artifact, resources)
     view_id = make_id()
-    fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
+    fallback = static_fallback(_STATIC_FALLBACK_MESSAGE, resource_id=resource_id)
     records = _resource_record_chain(resource_id)
     html = _portable_resource_html(records) + fragment.html.replace("</div>", f"{fallback}</div>", 1)
     payload = display_payload(
@@ -961,7 +961,7 @@ def show_doc(obj: Model | Sequence[UIElement],
         fragment = _notebook_fragment(artifact, resources)
         live_id = make_id()
         view_id = make_id()
-        fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
+        fallback = static_fallback(_STATIC_FALLBACK_MESSAGE, resource_id=resource_id)
         records = _resource_record_chain(resource_id)
         html = _portable_resource_html(records) + fragment.html.replace("</div>", f"{fallback}</div>", 1)
         payload = display_payload(
@@ -1047,7 +1047,7 @@ def show_hosted_app(app: NotebookApplication,
         application_id=app.application_id,
     )
     records = _resource_record_chain(resource_id)
-    html = _portable_resource_html(records) + static_fallback(_STATIC_FALLBACK_MESSAGE)
+    html = _portable_resource_html(records) + static_fallback(_STATIC_FALLBACK_MESSAGE, resource_id=resource_id)
     handle = ApplicationViewHandle(app, view_id, artifact)
     _retain_application_handle(handle)
     _register_notebook_comm_target()
@@ -1092,7 +1092,8 @@ _ARTIFACT_OWNERS: dict[str, str] = {}
 _RESOURCE_COMM_KERNEL: Any | None = None
 _RESOURCE_COMM_TARGET = RESOURCE_COMM_TARGET
 
-def static_fallback(message: str, *, title: str = "Interactive Bokeh output unavailable") -> str:
+def static_fallback(message: str, *, title: str = "Interactive Bokeh output unavailable",
+        resource_id: str | None = None) -> str:
     '''Render a non-executable fallback notice for notebook output.
 
     Args:
@@ -1100,13 +1101,19 @@ def static_fallback(message: str, *, title: str = "Interactive Bokeh output unav
             The recovery guidance shown to the notebook user.
         title:
             The fallback notice heading.
+        resource_id:
+            The optional resource record whose failure should update the notice.
 
     Returns:
         Escaped HTML for the fallback notice.
 
     '''
+    resource_attribute = (
+        f' data-bokeh-resource-id="{escape(resource_id, quote=True)}"'
+        if resource_id is not None else ""
+    )
     return (
-        f'<div class="bk-notebook-static-fallback" {STATIC_FALLBACK_ATTRIBUTE}="" role="note" '
+        f'<div class="bk-notebook-static-fallback" {STATIC_FALLBACK_ATTRIBUTE}=""{resource_attribute} role="note" '
         'style="border:1px solid #e6a3a3;border-left:4px solid #c33;padding:8px 12px;margin:4px 0;'
         f'background:#fff5f5;color:#222;font:13px/1.4 system-ui,sans-serif"><strong>{escape(title)}</strong>'
         f'<p style="margin:4px 0 0">{escape(message)}</p></div>'

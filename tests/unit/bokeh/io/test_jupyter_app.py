@@ -89,6 +89,27 @@ def test_multiple_apps_in_one_execution_coexist_and_reexecution_replaces_them() 
     replacement.stop()
 
 
+def test_serve_supports_callable_objects__issue_13395() -> None:
+    class ModifyDocument:
+        def __init__(self) -> None:
+            self.documents: list[Any] = []
+
+        def __call__(self, document: Any) -> None:
+            self.documents.append(document)
+            document.title = "callable object"
+
+    modify_document = ModifyDocument()
+    with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
+        app = m.serve(modify_document)
+    try:
+        document = app.asgi.core.applications["/"].application.create_document()
+
+        assert modify_document.documents == [document]
+        assert document.title == "callable object"
+    finally:
+        app.stop()
+
+
 def test_notebook_application_rejects_non_loopback_binding_and_persisted_tokens() -> None:
     with pytest.raises(ValueError, match="must bind to loopback"):
         m.NotebookApplication(_modify_document, address="0.0.0.0")
