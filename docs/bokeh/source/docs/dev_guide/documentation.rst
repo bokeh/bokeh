@@ -121,9 +121,10 @@ environment automatically, whether or not its shell is already active.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to build the documentation, you must set the
-:ref:`environment variable <ug_settings>` ``GOOGLE_API_KEY``. The
+:ref:`environment variable <ug_settings>` ``GOOGLE_API_KEY`` and ``CARTO_API_KEY``. The
 documentation includes some plots with maps, and a valid Google API key is
-required to build those plots correctly. You have two options:
+required to build those plots correctly. CARTO tiles also require a
+`CARTO Basemaps API key <https://carto.com/basemaps/apikey/>`_. You have two options:
 
 * Follow the instructions on the `Google developers website`_ to generate a new
   API key.
@@ -145,6 +146,7 @@ documentation:
         .. code-block:: sh
 
             export GOOGLE_API_KEY=some_value
+            export CARTO_API_KEY=some_value
 
     .. tab-item:: Windows (PS)
         :sync: ps
@@ -152,6 +154,7 @@ documentation:
         .. code-block:: powershell
 
             $Env:GOOGLE_API_KEY = "some_value"
+            $Env:CARTO_API_KEY = "some_value"
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -159,8 +162,21 @@ documentation:
         .. code-block:: doscon
 
             set GOOGLE_API_KEY=some_value
+            set CARTO_API_KEY=some_value
 
-Do not add the API key to ``pixi.toml`` or commit it to the repository.
+The examples read these environment variables directly, so the same setup
+also works when running examples locally with ``python`` or ``bokeh serve``.
+The displayed and downloadable source contains no credentials. Both keys
+are included in the generated plots and visible to visitors. Use keys restricted
+to the documentation site's domains, according to each provider's controls.
+The release build reads them from the ``GOOGLE_API_KEY`` and ``CARTO_API_KEY``
+GitHub Actions secrets.
+
+For local builds without keys, set ``BOKEH_DOCS_CDN=local`` or
+``bokeh_missing_map_api_keys_ok=True`` in ``conf.py``. Map plots will not work
+until valid keys are supplied.
+
+Do not add API keys to ``pixi.toml`` or commit them to the repository.
 
 3. Build Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,3 +1,5 @@
+from os import getenv
+
 from bokeh.models import ColumnDataSource, GMapOptions
 from bokeh.plotting import gmap, show
 
@@ -7,8 +9,8 @@ map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=11
 #
 #     https://developers.google.com/maps/documentation/javascript/get-api-key
 #
-# Replace the value below with your personal API key:
-p = gmap("GOOGLE_API_KEY", map_options, title="Austin")
+# Set GOOGLE_API_KEY in your environment, or replace the fallback below:
+p = gmap(getenv("GOOGLE_API_KEY", "GOOGLE_API_KEY"), map_options, title="Austin")
 
 source = ColumnDataSource(
     data=dict(lat=[ 30.29,  30.20,  30.29],

@@ -290,7 +290,7 @@ different resource configuration:
   ``BOKEH_RESOURCES`` is set.
 * To build the documentation, follow the
   :ref:`documentation build instructions <contributor_guide_documentation_build>`.
-  Documentation builds use ``GOOGLE_API_KEY`` and, when needed,
+  Documentation builds use ``GOOGLE_API_KEY``, ``CARTO_API_KEY``, and, when needed,
   ``BOKEH_DOCS_CDN`` instead of ``BOKEH_RESOURCES``.
 
 ``BOKEH_RESOURCES``
