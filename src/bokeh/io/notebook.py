@@ -652,6 +652,7 @@ _DOCUMENT_VIEW_HANDLES_BY_VIEW: dict[str, DocumentViewHandle] = {}
 _APPLICATION_VIEW_HANDLES: dict[str, ApplicationViewHandle] = {}
 _OUTPUT_DOCUMENT_ROOTS: dict[tuple[int, int], tuple[Document, Model, int]] = {}
 _MAX_RETAINED_VIEW_HANDLES = 128
+_RESOURCE_LOAD_TIMEOUT = 30_000
 _NOTEBOOK_COMM_KERNEL: Any | None = None
 _NOTEBOOK_COMM_TARGET = NOTEBOOK_COMM_TARGET
 
@@ -762,9 +763,14 @@ def notebook_environment() -> bool:
         _NOTEBOOK_CONTEXT_CONFIRMED = True
     return _NOTEBOOK_CONTEXT_CONFIRMED
 
-def _confirm_notebook_context(*_args: Any, **_kwargs: Any) -> None:
+def _confirm_notebook_context(info: Any = None) -> None:
     global _NOTEBOOK_CONTEXT_CONFIRMED
-    _NOTEBOOK_CONTEXT_CONFIRMED = True
+    if (
+        getattr(info, "cell_id", None)
+        or notebook_cell_identity() is not None
+        or _headless_notebook_environment()
+    ):
+        _NOTEBOOK_CONTEXT_CONFIRMED = True
 
 def _initialize_notebook_context() -> None:
     global _NOTEBOOK_CONTEXT_CONFIRMED, _NOTEBOOK_CONTEXT_SHELL
@@ -844,7 +850,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         policy = Resources.build(resources)
         resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
         fragment = artifact.fragment(resources=policy)
-        resource_id = resource_payload(resolved, 5000)["resource_id"]
+        resource_id = resource_payload(resolved, _RESOURCE_LOAD_TIMEOUT)["resource_id"]
     else:
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
         fragment = _notebook_fragment(artifact, resources)
@@ -1028,7 +1034,10 @@ def show_hosted_app(app: NotebookApplication,
             "Install Bokeh's notebook extra with 'pip install bokeh[notebook]'.",
         )
     view_id = make_id()
-    artifact = embed_server(app.url, metadata={"notebook_application_id": app.application_id})
+    artifact = embed_server(app.url, metadata={
+        "notebook_application_id": app.application_id,
+        "notebook_application_proxy": app.accepts_frontend_proxy,
+    })
     resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
     payload = display_payload(
         artifact,
@@ -1202,7 +1211,7 @@ def _resource_record_chain(resource_id: str, *, executable: bool = True) -> list
     return records
 
 def _ensure_notebook_resources(result: EmbedResult, resources: ResourcesLike | None = None,
-        load_timeout: int = 5000, *, publish: bool = True) -> str:
+        load_timeout: int = _RESOURCE_LOAD_TIMEOUT, *, publish: bool = True) -> str:
     from ..resources import Resources
 
     policy = Resources.build(resources)

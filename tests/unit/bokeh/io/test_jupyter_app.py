@@ -115,6 +115,7 @@ def test_explicit_notebook_url_takes_precedence_over_frontend_discovery() -> Non
     with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
         app = m.NotebookApplication(_modify_document, notebook_url="https://apps.example.test/base/")
     try:
+        assert not app.accepts_frontend_proxy
         discovered = f"https://hub.example.test/user/alice/proxy/{app.port}/{app._prefix}/"
         assert app._resolve_browser_url(discovered) == app.url.rstrip("/")
         assert "apps.example.test" in app.asgi.core.websocket_origins
@@ -129,6 +130,7 @@ def test_jupyterhub_environment_builds_the_public_proxy_url(monkeypatch: pytest.
     with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
         app = m.NotebookApplication(_modify_document)
     try:
+        assert not app.accepts_frontend_proxy
         assert app.url == f"https://our-hub.edu/user/homer@donuts.edu/proxy/{app.port}/{app._prefix}/"
         assert "our-hub.edu" in app.asgi.core.websocket_origins
     finally:
@@ -182,6 +184,7 @@ def test_failed_host_start_is_not_registered() -> None:
         pytest.raises(RuntimeError, match="cannot bind"),
     ):
         m.serve(_modify_document, key="failed")
+    assert not m.APPLICATIONS
 
     with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
         replacement = m.serve(_modify_document, key="failed")
@@ -203,6 +206,7 @@ def test_failed_stop_is_terminal_and_unregisters_the_application() -> None:
 
     assert app.stopped
     assert app.status == "failed"
+    assert app.application_id not in m.APPLICATIONS
     app.stop()
     assert _Host.instances[0].stops == 1
 

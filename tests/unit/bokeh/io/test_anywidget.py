@@ -118,10 +118,12 @@ def test_python_disconnect_preserves_the_saved_widget_output() -> None:
     widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
     widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
 
-    with patch.object(widget, "close") as close:
+    with patch.object(widget, "close", wraps=widget.close) as close:
         widget.disconnect()
+        close.assert_not_called()
+        widget._receive(widget, {"kind": "disposed", "frontend_id": _FRONTEND_ID}, [])
 
-    close.assert_not_called()
+    close.assert_called_once_with()
     assert widget._released
     assert not widget._transports
     assert not widget._records
@@ -134,9 +136,36 @@ def test_inactive_diagnostic_widget_is_closed_only_when_disposed() -> None:
         widget._receive(widget, {"kind": "inactive", "frontend_id": _FRONTEND_ID}, [])
         close.assert_not_called()
 
-        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
         widget._receive(widget, {"kind": "disposed", "frontend_id": _FRONTEND_ID}, [])
         close.assert_called_once_with()
+
+
+def test_python_disconnect_closes_a_widget_without_active_frontends() -> None:
+    widget = m.display_widget({"kind": "artifact"}, "", {})
+
+    with patch.object(widget, "close", wraps=widget.close) as close:
+        widget.disconnect()
+
+    close.assert_called_once_with()
+
+
+def test_released_widgets_without_disposal_are_bounded() -> None:
+    first = m.display_widget({"kind": "artifact"}, "", {})
+    second = m.display_widget({"kind": "artifact"}, "", {})
+    first._receive(first, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+    second._receive(second, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+
+    with (
+        patch.object(m, "_MAX_RELEASED_WIDGETS", 1),
+        patch.object(first, "close", wraps=first.close) as close_first,
+    ):
+        first.disconnect()
+        second.disconnect()
+
+    close_first.assert_called_once_with()
+    assert list(m._RELEASED_WIDGETS) == [second.model_id]
+    second._receive(second, {"kind": "disposed", "frontend_id": _FRONTEND_ID}, [])
+    assert not m._RELEASED_WIDGETS
 
 
 def test_widget_keeps_the_kernel_local_application_url_out_of_its_payload() -> None:

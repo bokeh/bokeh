@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 # Standard library imports
+import gc
 import json
 import re
 import sys
 import types
+import weakref
 from collections.abc import Callable
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
@@ -265,6 +267,7 @@ def test_notebook_resource_resolution_preserves_explicit_host_policy(policy: Res
         assert m._ensure_notebook_resources(artifact, policy) == "resource"
 
     resolved = publish.call_args.args[0]
+    assert publish.call_args.args[1] == m._RESOURCE_LOAD_TIMEOUT
     assert resolved.policy is policy
     if policy.mode == "none":
         assert resolved.assets == ()
@@ -338,13 +341,33 @@ def test_notebook_environment_is_primed_before_the_first_widget_callback() -> No
         patch.object(m, "_NOTEBOOK_CONTEXT_SHELL", None),
     ):
         m._initialize_notebook_context()
-        callbacks[0]()
+        callbacks[0](types.SimpleNamespace(cell_id="cell"))
         shell.get_parent.return_value = {
             "metadata": {},
             "header": {"msg_id": "widget", "msg_type": "comm_msg"},
             "content": {},
         }
         assert m.notebook_environment()
+
+
+def test_notebook_environment_is_not_primed_by_an_ipython_console_cell() -> None:
+    callbacks: list[Callable[..., None]] = []
+    shell = MagicMock(kernel=object())
+    shell.events.register.side_effect = lambda name, callback: callbacks.append(callback)
+    shell.get_parent.return_value = {
+        "metadata": {},
+        "header": {"msg_id": "console", "msg_type": "execute_request"},
+        "content": {"allow_stdin": True},
+    }
+    with (
+        patch("IPython.get_ipython", return_value=shell),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=False),
+        patch.object(m, "_NOTEBOOK_CONTEXT_SHELL", None),
+    ):
+        m._initialize_notebook_context()
+        callbacks[0](types.SimpleNamespace(cell_id=None))
+        assert not m.notebook_environment()
 
 def test_notebook_environment_detects_headless_execution() -> None:
     shell = MagicMock(kernel=object())
@@ -532,20 +555,18 @@ class TestDocumentViewHandle:
         plot = figure()
         document = Document()
         document.add_root(plot)
-        comm = MagicMock(comm_id="comm")
         handle = m.DocumentViewHandle(plot, live_id="live", view_id="view")
         handle._attach(document)
         m._retain_document_handle(handle)
-        handle._connect(comm)
-        comm.reset_mock()
+        reference = weakref.ref(handle)
 
         handle.close()
         handle.close()
 
         assert handle.closed
-        assert "live" not in m._DOCUMENT_VIEW_HANDLES
-        assert "view" not in m._DOCUMENT_VIEW_HANDLES_BY_VIEW
-        comm.close.assert_called_once()
+        del handle
+        gc.collect()
+        assert reference() is None
 
 
 def test_comm_release_message_closes_the_output_owner() -> None:
@@ -575,6 +596,7 @@ def test_show_hosted_app_uses_server_artifact_and_view_ownership() -> None:
     app.stopped = False
     app.url = "http://127.0.0.1:4321/app"
     app.application_id = "application"
+    app.accepts_frontend_proxy = True
     with (
         patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),

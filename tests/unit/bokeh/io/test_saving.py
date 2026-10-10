@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 from __future__ import annotations
 
@@ -26,6 +26,12 @@ from bokeh.resources import Resources
 
 # Module under test
 import bokeh.io.saving as m # isort:skip
+
+
+def _write_saved_file(_obj: Any, filename: Any, *_args: Any, **_kwargs: Any) -> None:
+    path = Path(filename)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("saved")
 
 
 @patch("bokeh.io.saving._save_helper")
@@ -88,6 +94,7 @@ def test_save_links_from_the_notebook_directory_after_chdir(mock_save_helper: Ma
         monkeypatch: pytest.MonkeyPatch) -> None:
     work = tmp_path / "work"
     work.mkdir()
+    mock_save_helper.side_effect = _write_saved_file
     shell = MagicMock(kernel=object(), starting_dir=str(tmp_path))
     monkeypatch.chdir(work)
     with patch("IPython.get_ipython", return_value=shell):
@@ -104,12 +111,49 @@ def test_save_preserves_a_lexical_link_through_a_symlinked_directory(mock_save_h
     target.mkdir()
     linked = tmp_path / "linked"
     linked.symlink_to(target, target_is_directory=True)
+    mock_save_helper.side_effect = _write_saved_file
     shell = MagicMock(kernel=object(), starting_dir=str(tmp_path))
     with patch("IPython.get_ipython", return_value=shell):
         result = cast(m._SavedFile, m.save(Plot(), filename=linked / "result.html"))
 
     assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "linked/result.html"
     mock_save_helper.assert_called_once()
+
+
+@patch("bokeh.io.saving._save_helper")
+def test_save_omits_a_lexical_link_that_names_a_different_file(mock_save_helper: MagicMock,
+        tmp_path: Path) -> None:
+    notebook = tmp_path / "notebook"
+    notebook.mkdir()
+    external = tmp_path / "external"
+    (external / "data").mkdir(parents=True)
+    (notebook / "data").symlink_to(external / "data", target_is_directory=True)
+    mock_save_helper.side_effect = _write_saved_file
+    shell = MagicMock(kernel=object(), starting_dir=str(notebook))
+
+    with patch("IPython.get_ipython", return_value=shell):
+        result = cast(m._SavedFile, m.save(Plot(), filename=notebook / "data" / ".." / "summary.html"))
+
+    assert result._repr_mimebundle_() == {
+        "text/plain": "Bokeh HTML file saved. Open it from the notebook file browser.",
+    }
+    assert (external / "summary.html").is_file()
+
+
+@patch("bokeh.io.saving._save_helper")
+def test_save_links_an_absolute_path_through_a_symlinked_notebook_directory(mock_save_helper: MagicMock,
+        tmp_path: Path) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    alias = tmp_path / "alias"
+    alias.symlink_to(target, target_is_directory=True)
+    mock_save_helper.side_effect = _write_saved_file
+    shell = MagicMock(kernel=object(), starting_dir=str(target))
+
+    with patch("IPython.get_ipython", return_value=shell):
+        result = cast(m._SavedFile, m.save(Plot(), filename=alias / "result.html"))
+
+    assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "result.html"
 
 
 @pytest.mark.parametrize("clone", [copy, deepcopy, lambda value: pickle.loads(pickle.dumps(value))])
@@ -124,7 +168,6 @@ def test_saved_file_copy_and_pickle_preserve_rich_link(clone: Any) -> None:
 
 def test_get_save_args_preserves_explicit_values() -> None:
     filename, resources, title = m._get_save_args(Path("plot.html"), "inline", "Plot")
-
     assert filename == Path("plot.html")
     assert resources == Resources(mode="inline")
     assert title == "Plot"
@@ -133,7 +176,6 @@ def test_get_save_args_preserves_explicit_values() -> None:
 @patch("bokeh.io.saving.default_filename", return_value="default.html")
 def test_get_save_args_supplies_stateless_defaults(mock_default_filename: MagicMock) -> None:
     filename, resources, title = m._get_save_args(None, None, None)
-
     assert filename == "default.html"
     assert resources.mode == "cdn"
     assert title == "Bokeh Plot"
@@ -144,12 +186,14 @@ def test_get_save_args_supplies_stateless_defaults(mock_default_filename: MagicM
 @patch("bokeh.io.saving.embed")
 def test_save_helper_writes_embed_html(mock_embed: MagicMock, mock_open: MagicMock) -> None:
     obj = Plot()
-    resources = Resources(mode="inline")
+    policy = Resources(mode="inline")
     mock_embed.return_value.page.return_value = "<html></html>"
 
-    m._save_helper(obj, "plot.html", resources, "Plot", None)
+    m._save_helper(obj, "plot.html", policy, "Plot", None)
 
     mock_embed.assert_called_once_with(obj, theme=ThemePolicy.SOURCE_OR_CURDOC)
-    mock_embed.return_value.page.assert_called_once_with(resources=resources, title="Plot", template=FILE)
+    mock_embed.return_value.page.assert_called_once_with(
+        resources=policy, title="Plot", template=FILE,
+    )
     mock_open.assert_called_once_with("plot.html", mode="w", encoding="utf-8")
     mock_open.return_value.__enter__.return_value.write.assert_called_once_with("<html></html>")

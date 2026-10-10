@@ -157,6 +157,7 @@ describe("notebook output ownership", () => {
     const test = harness([output("closing")])
 
     test.disposable.dispose()
+    test.context.sessionContext.session = null
     await Promise.resolve()
 
     expect(test.opened).toEqual([{kind: "release", view_id: "closing"}])
@@ -168,6 +169,7 @@ describe("notebook output ownership", () => {
     test.outputs.changed.emit(test.outputs, {})
 
     test.disposable.dispose()
+    test.context.sessionContext.session = null
     await Promise.resolve()
 
     expect(test.opened).toEqual([{kind: "release", view_id: "pending"}])

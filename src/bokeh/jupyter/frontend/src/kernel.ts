@@ -1,4 +1,4 @@
-import {Kernel} from "@jupyterlab/services"
+import {Kernel, KernelMessage} from "@jupyterlab/services"
 import {ReadonlyJSONObject} from "@lumino/coreutils"
 
 import {ContextManager} from "./context"
@@ -211,7 +211,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           },
         }
 
-        comm.onMsg = async (message) => {
+        const receive = async (message: KernelMessage.ICommMsgMsg) => {
           const data = message.content.data as ReadonlyJSONObject
           if (!settled) {
             if (data.kind === "configure" && typeof data.artifact === "string") {
@@ -245,7 +245,10 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             } else if (data.kind === "ready" && typeof data.artifact === "string") {
               settled = true
               window.clearTimeout(timer)
-              connection.artifactJson = await manager.applicationArtifact(data.artifact)
+              // The ready artifact echoes the URL that this frontend selected
+              // during configure and Python validated. Routing it again can
+              // incorrectly nest a Jupyter proxy when ports are remapped.
+              connection.artifactJson = data.artifact
               resolve(connection)
             } else if (data.kind === "ready") {
               settled = true
@@ -264,6 +267,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             safelyCloseComm(comm)
           }
         }
+        comm.onMsg = (message) => void receive(message)
 
         comm.onClose = () => {
           if (!settled) {

@@ -13,17 +13,28 @@ describe("notebook host URL resolution", () => {
 
   it("uses an available Jupyter proxy when the page itself is local", async () => {
     const local = "http://127.0.0.1:4312/bokeh-notebook/nonce/"
-    const request = vi.fn(async () => ({status: 200})) as any
+    const request = vi.fn(async () => ({ok: true})) as any
     await expect(resolveJupyterApplicationUrl(local, "/", "http://localhost:8888/lab", request))
       .resolves.toBe("http://localhost:8888/proxy/4312/bokeh-notebook/nonce/")
     expect(request).toHaveBeenCalledTimes(1)
+    expect(request.mock.calls[0][0]).toBe(
+      "http://localhost:8888/proxy/4312/bokeh-notebook/nonce/static/js/bokeh.min.js",
+    )
   })
 
   it("uses the direct application URL when a local Jupyter proxy is unavailable", async () => {
     const local = "http://127.0.0.1:4313/bokeh-notebook/nonce/"
-    const request = vi.fn(async () => ({status: 404})) as any
+    const request = vi.fn(async () => ({ok: false, status: 404})) as any
     await expect(resolveJupyterApplicationUrl(local, "/", "http://localhost:8888/lab", request))
       .resolves.toBe(local)
+  })
+
+  it("does not proxy an application URL that is already same-origin", async () => {
+    const routed = "http://localhost:8888/proxy/4312/bokeh-notebook/nonce/"
+    const request = vi.fn()
+    await expect(resolveJupyterApplicationUrl(routed, "/", "http://localhost:8888/lab", request as any))
+      .resolves.toBe(routed)
+    expect(request).not.toHaveBeenCalled()
   })
 
   it("preserves explicitly configured application URLs", async () => {
@@ -42,6 +53,22 @@ describe("notebook host URL resolution", () => {
 
     expect(routed.source.url).toBe("https://hub.example.test/user/alice/proxy/4312/app/")
     expect(JSON.parse(artifact).source.url).toBe("http://127.0.0.1:4312/app/")
+  })
+
+  it("preserves an application artifact with an explicitly configured route", async () => {
+    const artifact = JSON.stringify({
+      source: {kind: "server", url: "http://127.0.0.1:4312/app/"},
+      metadata: {notebook_application_proxy: false},
+    })
+    const request = vi.fn()
+
+    await expect(resolveJupyterApplicationArtifact(
+      artifact,
+      "/",
+      "http://localhost:8888/lab",
+      request as any,
+    )).resolves.toBe(artifact)
+    expect(request).not.toHaveBeenCalled()
   })
 
   it("reads the base URL from Jupyter's page configuration", () => {
