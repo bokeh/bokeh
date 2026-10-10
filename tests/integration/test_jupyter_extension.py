@@ -405,9 +405,13 @@ def _fallback_recovery_notebook() -> Any:
         metadata={"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
         cells=[
             nbformat.v4.new_code_cell('''
+from bokeh.layouts import column
 from bokeh.io import show
+from bokeh.models import ColumnDataSource, DataTable, TableColumn
 from bokeh.plotting import figure
-show(figure(width=240, height=140), resources="cdn")
+source = ColumnDataSource(data=dict(x=[1], y=[2]))
+table = DataTable(source=source, columns=[TableColumn(field="x")])
+show(column(figure(width=240, height=140), table), resources="cdn")
 '''),
             nbformat.v4.new_code_cell('''
 show(figure(width=240, height=140), resources="inline")
@@ -540,22 +544,37 @@ def test_failed_portable_resources_do_not_block_later_outputs(tmp_path: Path) ->
         with playwright.sync_playwright() as manager:
             browser = manager.chromium.launch()
             page = browser.new_page()
-            page.route("https://cdn.bokeh.org/**", lambda route: route.abort())
+            blocked: list[Any] = []
+
+            def route_resources(route: Any) -> None:
+                name = Path(urlsplit(route.request.url).path).name
+                if name.startswith("bokeh-tables-"):
+                    blocked.append(route)
+                else:
+                    _route_local_bokehjs(route)
+
+            page.route("https://cdn.bokeh.org/**", route_resources)
             page.goto(f"{base_url}/lab/tree/failed-resources.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
             editors.nth(1).wait_for(timeout=30_000)
 
-            _execute_cell_once(page, editors, 0)
+            with page.expect_request(
+                lambda request: Path(urlsplit(request.url).path).name.startswith("bokeh-tables-"),
+                timeout=30_000,
+            ):
+                _execute_cell_once(page, editors, 0)
+            page.wait_for_timeout(100)
+            assert len(blocked) == 1
+            _execute_cell_once(page, editors, 1)
+            second = page.locator(".jp-OutputArea").nth(1)
+            second.locator("[data-bokeh-notebook-static-fallback]").wait_for(state="attached", timeout=30_000)
             page.wait_for_function(
                 """
-                () => document.querySelector(
-                  "meta[data-bokeh-notebook-resource][data-bokeh-resource-state='failed']",
-                ) != null
+                () => document.querySelectorAll("meta[data-bokeh-notebook-resource]").length === 2
                 """,
                 timeout=30_000,
             )
-            _execute_cell_once(page, editors, 1)
-            second = page.locator(".jp-OutputArea").nth(1)
+            blocked[0].abort()
             second.locator(".bk-Figure").wait_for(timeout=30_000)
             browser.close()
     finally:

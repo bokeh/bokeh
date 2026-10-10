@@ -313,8 +313,9 @@ export default function anywidgetFactory() {
       }
     } catch (error) {
       removeLoading()
-      deactivate("disposed")
-      if (!(error instanceof DOMException && error.name === "AbortError")) {
+      const aborted = error instanceof DOMException && error.name === "AbortError"
+      deactivate(aborted ? "disposed" : "inactive")
+      if (!aborted) {
         renderDiagnostic(el, error, {payload, renderer: "anywidget"})
       }
     }

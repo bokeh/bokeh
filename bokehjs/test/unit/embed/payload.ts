@@ -1706,6 +1706,27 @@ describe("EmbedPayload runtime", () => {
     }
   })
 
+  it("doesn't report a loader-owned failure to unrelated pending-resource waiters", async () => {
+    const owner = new ResourceLoader()
+    const url = "https://example.invalid/failing.js"
+    const loading = owner.ensure(core, {mode: "resolved", assets: [{
+      kind: "script", url,
+    }]}).then(() => null, (error: unknown) => error)
+    await Promise.resolve()
+
+    const resource = [...document.querySelectorAll<HTMLScriptElement>("script[data-bokeh-resource]")]
+      .find((script) => script.src == url)
+    expect_not_null(resource)
+    const unrelated = new ResourceLoader().wait_for_pending()
+    resource.dispatchEvent(new Event("error"))
+
+    const error = await loading
+    expect_instanceof(error, ResourceError)
+    expect(error.kind).to.be.equal("load")
+    await unrelated
+    expect(resource.hasAttribute("data-bokeh-resource")).to.be.false
+  })
+
   it("bounds and cancels waits for pending generated resources", async () => {
     const clock = sinon.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]})
     const loader = new ResourceLoader()

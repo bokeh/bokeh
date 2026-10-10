@@ -29,6 +29,25 @@ describe("notebook host URL resolution", () => {
       .resolves.toBe(local)
   })
 
+  it("bounds a stalled local Jupyter proxy probe", async () => {
+    vi.useFakeTimers()
+    try {
+      const local = "http://127.0.0.1:4399/bokeh-notebook/nonce/"
+      const request = vi.fn((_url: string, options: RequestInit) => new Promise((_resolve, reject) => {
+        options.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), {once: true})
+      })) as any
+      const resolving = resolveJupyterApplicationUrl(local, "/", "http://localhost:8888/lab", request)
+
+      await vi.advanceTimersByTimeAsync(2_000)
+
+      await expect(resolving).resolves.toBe(local)
+      expect(request).toHaveBeenCalledTimes(1)
+      expect(request.mock.calls[0][1].signal.aborted).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it("does not proxy an application URL that is already same-origin", async () => {
     const routed = "http://localhost:8888/proxy/4312/bokeh-notebook/nonce/"
     const request = vi.fn()

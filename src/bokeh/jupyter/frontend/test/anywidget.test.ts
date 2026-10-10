@@ -102,17 +102,22 @@ describe("AnyWidget transport", () => {
     expect(sent).toContainEqual({kind: "disposed", frontend_id: "frontend-1"})
   })
 
-  it("disposes the Python widget after a terminal render failure", async () => {
+  it("preserves a render failure diagnostic until the host disposes the view", async () => {
     runtime.renderDisplay.mockRejectedValueOnce(new Error("render failed"))
     const {model, sent} = harness()
+    const controller = new AbortController()
 
     await anywidgetFactory().render({
       model,
       el: document.createElement("div"),
-      signal: new AbortController().signal,
+      signal: controller.signal,
     } as any)
 
-    expect(sent).toContainEqual({kind: "disposed", frontend_id: "frontend-1"})
+    expect(sent).toContainEqual({kind: "inactive", frontend_id: "frontend-1"})
+    expect(sent).not.toContainEqual({kind: "disposed", frontend_id: "frontend-1"})
     expect(runtime.renderDiagnostic).toHaveBeenCalledOnce()
+
+    controller.abort()
+    expect(sent).toContainEqual({kind: "disposed", frontend_id: "frontend-1"})
   })
 })

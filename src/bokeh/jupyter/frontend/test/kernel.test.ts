@@ -29,6 +29,31 @@ describe("JupyterLab kernel transport", () => {
     expect(manager.applicationArtifact).toHaveBeenCalledTimes(1)
   })
 
+  it("does not block kernel message handling while resolving an application route", async () => {
+    const comm: any = {
+      open: vi.fn(),
+      send: vi.fn(),
+      close: vi.fn(() => ({done: Promise.resolve()})),
+    }
+    const kernel = {createComm: vi.fn(() => comm)}
+    const manager = {
+      context: {sessionContext: {ready: Promise.resolve(), session: {kernel}}},
+      applicationArtifact: vi.fn(() => new Promise<string>(() => undefined)),
+    }
+    const opening = kernelProxy(manager as any).openApplicationView!("view")
+    const closed = opening.then(() => false, () => true)
+    await Promise.resolve()
+
+    const result = comm.onMsg({
+      content: {data: {kind: "configure", artifact: "{\"schema\":\"bokeh.embed/v1\"}"}},
+    })
+
+    expect(result).toBeUndefined()
+    expect(comm.send).not.toHaveBeenCalled()
+    comm.onClose()
+    await expect(closed).resolves.toBe(true)
+  })
+
   it("bounds pre-render patch history and requests one replacement snapshot", async () => {
     const comm: any = {
       open: vi.fn(),
