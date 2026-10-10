@@ -55,6 +55,8 @@ class _ResourceError(TypedDict):
 
 
 def _prune_retained_widgets() -> None:
+    for widget in tuple(_RETAINED_WIDGETS.values()):
+        widget._prune_transports(None)
     inactive = [
         (model_id, widget)
         for model_id, widget in _RETAINED_WIDGETS.items()

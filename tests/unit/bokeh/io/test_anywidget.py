@@ -229,6 +229,21 @@ def test_active_automatic_widgets_are_not_evicted() -> None:
     third.close()
 
 
+def test_expired_active_automatic_widgets_are_evicted(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = 0.0
+    monkeypatch.setattr(m, "monotonic", lambda: now)
+
+    with patch.object(m, "_MAX_INACTIVE_WIDGETS", 1):
+        first = m.display_widget({"kind": "artifact"}, "", {})
+        first._receive(first, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+        now = m._TRANSPORT_LEASE_SECONDS + 1
+        second = m.display_widget({"kind": "artifact"}, "", {})
+
+    assert getattr(first, "comm", None) is None
+    assert list(m._RETAINED_WIDGETS) == [second.model_id]
+    second.close()
+
+
 def test_widget_keeps_the_kernel_local_application_url_out_of_its_payload() -> None:
     local_url = "http://127.0.0.1:4321/bokeh-notebook/nonce/"
     browser_url = "https://jupyter.example/proxy/4321/bokeh-notebook/nonce"

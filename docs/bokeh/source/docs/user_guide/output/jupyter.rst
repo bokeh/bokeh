@@ -275,8 +275,8 @@ application in one cell and display it from one or more later cells:
 
 ``serve()`` also accepts an existing ``Application``, an imported Python
 module, a ``.py`` or ``.ipynb`` path, or a directory-style Bokeh application.
-The document-modifying callable may be a function or a callable object, which
-can keep application configuration and state together:
+The document-modifying callable may be a function or a callable object. A
+callable object can keep related application configuration together:
 
 .. code-block:: python
 
@@ -290,6 +290,9 @@ can keep application configuration and state together:
             doc.add_root(p)
 
     app = serve(NotebookApp("Configured notebook application"))
+
+The callable object is shared by every session, so keep per-session state on
+the document and its models rather than on the callable instance.
 
 .. code-block:: python
 
