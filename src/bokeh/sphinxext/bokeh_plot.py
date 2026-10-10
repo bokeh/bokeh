@@ -87,7 +87,12 @@ import warnings
 from heapq import nlargest
 from importlib import import_module
 from os import getenv
-from os.path import basename, dirname, join
+from os.path import (
+    basename,
+    dirname,
+    isabs,
+    join,
+)
 from time import perf_counter
 from typing import Any, NamedTuple, cast
 from uuid import uuid4
@@ -249,8 +254,8 @@ class BokehPlotDirective(BokehDirective):
             # __REPO__ is an internal/undocumented convention for Bokeh's own docs
             from ._internal import REPO_TOP
             path = join(REPO_TOP, path.replace("__REPO__/", ""))
-        elif not path.startswith("/"):
-            path = join(env.app.srcdir, path)
+        elif not isabs(path):
+            path = join(env.srcdir, path)
         try:
             with open(path) as f:
                 return f.read(), path

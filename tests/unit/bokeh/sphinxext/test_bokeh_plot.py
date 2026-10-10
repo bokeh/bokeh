@@ -111,20 +111,27 @@ def test_api_key_missing_policy(monkeypatch: pytest.MonkeyPatch, name: str) -> N
     _check_api_keys(f'key = "{name}"', env)
 
 
-def test_map_examples_inject_keys_only_into_plot_payloads(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize("relative", [False, True])
+def test_map_examples_inject_keys_only_into_plot_payloads(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, relative: bool) -> None:
     monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
     monkeypatch.setenv("CARTO_API_KEY", "test-carto-key")
     source = tmp_path / "source"
     source.mkdir()
     (source / "conf.py").write_text("extensions = ['bokeh.sphinxext.bokeh_plot']\nmaster_doc = 'index'\n")
     repo = Path(__file__).resolve().parents[4]
+    examples = repo / "examples/topics/geo"
+    if relative:
+        for name in ("tile_source.py", "gmap.py"):
+            (source / name).write_text((examples / name).read_text())
+        examples = Path(".")
     (source / "index.rst").write_text(f"""Maps
 ====
 
-.. bokeh-plot:: {repo}/examples/topics/geo/tile_source.py
+.. bokeh-plot:: {examples}/tile_source.py
     :source-position: below
 
-.. bokeh-plot:: {repo}/examples/topics/geo/gmap.py
+.. bokeh-plot:: {examples}/gmap.py
     :source-position: below
 """)
     output = tmp_path / "html"
