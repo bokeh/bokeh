@@ -501,7 +501,7 @@ class BokehHTMLExporter(HTMLExporter):
 
     export_from_notebook = "Bokeh static HTML"
 
-    def from_notebook_node(self, nb: Any, resources: dict[str, Any] | None = None, **kw: Any) -> tuple[str, dict[str, Any]]:
+    def from_notebook_node(self, nb: Any, resources: dict[str, Any] | None = None, **kw: Any) -> tuple[str, dict[str, Any]]:  # type: ignore[override]
         '''Convert a notebook after capturing trust from its unmodified contents.
 
         Args:
@@ -522,7 +522,7 @@ class BokehHTMLExporter(HTMLExporter):
             if isinstance(item, BokehPNGPreprocessor)
         )
         prepared[_TRUST_RESOURCE_KEY] = not preprocessor.require_trusted or preprocessor._check_signature(nb)
-        return super().from_notebook_node(nb, resources=prepared, **kw)  # type: ignore[no-any-return,no-untyped-call]
+        return super().from_notebook_node(nb, resources=prepared, **kw)
 
     def _init_preprocessors(self) -> None:
         super()._init_preprocessors()  # type: ignore[no-untyped-call]

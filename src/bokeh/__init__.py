@@ -117,14 +117,16 @@ def _configure_marimo() -> None:
     # Disable only that formatter when marimo already owns the runtime; its
     # normal rich-display path then selects Bokeh's AnyWidget MIME bundle.
     import sys
+    from importlib import import_module
 
     if "marimo" not in sys.modules:
         return
     try:
-        from marimo._output.formatters.formatters import THIRD_PARTY_FACTORIES
+        formatters = import_module("marimo._output.formatters.formatters")
     except ImportError:
         return
-    factory = THIRD_PARTY_FACTORIES.get("bokeh")
+    factories = getattr(formatters, "THIRD_PARTY_FACTORIES", {})
+    factory = factories.get("bokeh")
     if factory is not None:
         setattr(factory, "register", lambda: None)
 

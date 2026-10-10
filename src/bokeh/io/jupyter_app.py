@@ -178,6 +178,7 @@ def _start_and_register_application(application: NotebookApplication, key: str |
     # these locks in the opposite order would deadlock with stop_async().
     with _APPLICATION_START_LOCK:
         with _APPLICATIONS_LOCK:
+            previous: tuple[NotebookApplication | None, ...]
             if key is not None:
                 previous = (_KEY_APPLICATIONS.get(key),)
             elif cell_identity is not None:

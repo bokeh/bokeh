@@ -434,7 +434,7 @@ class DocumentViewHandle:
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
         if self._belongs(event.model):
             self._record(event)
-            if event.model.lookup(event.attr).has_ref:
+            if event.model.lookup(event.attr).property.has_ref:
                 self._models = {self._root, *self._root.references()}
 
     def _column_data_changed(self, event: ColumnDataChangedEvent) -> None:
