@@ -300,6 +300,12 @@ def _execute_cell_once(page: Any, editors: Any, index: int, *, timeout: int = 30
             arg=index,
             timeout=timeout,
         )
+        page.wait_for_function(
+            """
+            () => document.querySelector(".jp-Notebook-ExecutionIndicator")?.textContent?.includes("Kernel status: Idle") === true
+            """,
+            timeout=timeout,
+        )
         page.get_by_role("button", name="Run this cell and advance", exact=False).click(timeout=timeout)
         page.wait_for_function(
             """
