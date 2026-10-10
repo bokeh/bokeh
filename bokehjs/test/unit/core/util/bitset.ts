@@ -7,8 +7,8 @@ import {is_equal} from "@bokehjs/core/util/eq"
 import {may_have_refs} from "@bokehjs/core/util/refs"
 import {version as js_version} from "@bokehjs/version"
 
-const bs0 = BitSet.from_indices(39, [0, 1, 15, 16, 31, 32, 33, 38])
-const bs1 = BitSet.from_indices(39, [1, 6, 15, 31, 32, 34, 35, 38])
+const bsc0 = BitSet.from_indices(39, [0, 1, 15, 16, 31, 32, 33, 38])
+const bsc1 = BitSet.from_indices(39, [1, 6, 15, 31, 32, 34, 35, 38])
 
 const _prime_count = (bs: BitSet): BitSet => {
   void bs.count // populate the cached count
@@ -250,24 +250,24 @@ describe("core/util/bitset module", () => {
     })
 
     it("should be updated after in-place operations", () => {
-      const a = _prime_count(bs0.clone()); a.add(bs1)
+      const a = _prime_count(bsc0.clone()); a.add(bsc1)
       expect(a.count).to.be.equal(11)
 
-      const b = _prime_count(bs0.clone()); b.intersect(bs1)
+      const b = _prime_count(bsc0.clone()); b.intersect(bsc1)
       expect(b.count).to.be.equal(5)
 
-      const c = _prime_count(bs0.clone()); c.subtract(bs1)
+      const c = _prime_count(bsc0.clone()); c.subtract(bsc1)
       expect(c.count).to.be.equal(3)
 
-      const d = _prime_count(bs0.clone()); d.symmetric_subtract(bs1)
+      const d = _prime_count(bsc0.clone()); d.symmetric_subtract(bsc1)
       expect(d.count).to.be.equal(6)
 
-      const e = _prime_count(bs0.clone()); e.invert()
+      const e = _prime_count(bsc0.clone()); e.invert()
       expect(e.count).to.be.equal(31)
     })
 
     it("should not be shared between clones", () => {
-      const a = _prime_count(bs0.clone())
+      const a = _prime_count(bsc0.clone())
       const b = a.clone()
       b.set(2)
       expect(a.count).to.be.equal(8)
@@ -280,7 +280,9 @@ describe("core/util/bitset module", () => {
       for (const size of [1, 31, 32, 33, 64, 95, 200]) {
         const indices: number[] = []
         for (let i = 0; i < size; i++) {
-          if (rand() < 0.3) indices.push(i)
+          if (rand() < 0.3) {
+            indices.push(i)
+          }
         }
         const bs = BitSet.from_indices(size, indices)
         expect(bs.count).to.be.equal(indices.length)
