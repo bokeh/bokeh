@@ -16,6 +16,7 @@ from urllib.request import urlopen
 import nbformat
 import pytest
 from nbclient import NotebookClient
+from traitlets.config import Config
 
 # Bokeh imports
 import bokeh
@@ -26,12 +27,33 @@ from bokeh.io.jupyter import (
     RESOURCES_MIME_TYPE,
     display_payload,
 )
-from bokeh.io.jupyter_export import BokehPNGPreprocessor
+from bokeh.io.jupyter_export import BokehHTMLExporter
 from bokeh.plotting import figure
 from tests.support.util.env import envset
 
 pytestmark = pytest.mark.skipif(shutil.which("jupyter") is None, reason="Jupyter is not installed")
 ROOT = Path(__file__).parents[2]
+
+
+def _artifact_path(name: str) -> Path | None:
+    directory = os.environ.get("BOKEH_NOTEBOOK_ARTIFACT_DIR")
+    if not directory:
+        return None
+    path = Path(directory)
+    if not path.is_absolute():
+        path = ROOT / path
+    path.mkdir(parents=True, exist_ok=True)
+    return path / name
+
+
+def _write_artifact(name: str, contents: str) -> None:
+    if (path := _artifact_path(name)) is not None:
+        path.write_text(contents)
+
+
+def _screenshot_artifact(locator: Any, name: str) -> None:
+    if (path := _artifact_path(name)) is not None:
+        locator.screenshot(path=str(path))
 
 
 def _project_environment() -> dict[str, str]:
@@ -148,15 +170,19 @@ def test_nbconvert_export_captures_saved_artifact_with_real_playwright() -> None
     cell = nbformat.v4.new_code_cell("plot", outputs=[output])
     cell.metadata["trusted"] = True
     notebook = nbformat.v4.new_notebook(cells=[cell])
+    exporter = BokehHTMLExporter(config=Config({
+        "BokehPNGPreprocessor": {"require_trusted": False, "timeout": 20},
+    }))
 
     with envset(BOKEH_DEV="true"):
-        result, _ = BokehPNGPreprocessor(require_trusted=False, timeout=20).preprocess(
-            notebook, {"metadata": {"name": "export"}},
+        html, _ = exporter.from_notebook_node(
+            notebook, resources={"metadata": {"name": "export"}},
         )
 
-    html = result.cells[0].outputs[0].data["text/html"]
+    assert "<!DOCTYPE html>" in html
     assert 'data-bokeh-notebook-export-state="saved-notebook"' in html
     assert "data:image/png;base64,iVBOR" in html
+    _write_artifact("notebook-export.html", html)
 
 
 def _wait_for_server(base_url: str, process: subprocess.Popen[str]) -> None:
@@ -463,6 +489,18 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
             _wait_for_named_model(page, "notebook-live-plot", title="updated-once")
             _wait_for_named_model(page, "notebook-app-root", server_session=True)
             assert page.locator(".bk-notebook-diagnostic").count() == 0
+            _screenshot_artifact(
+                page.locator(".jp-CodeCell").nth(0).locator(".bk-Column"),
+                "jupyterlab-static.png",
+            )
+            _screenshot_artifact(
+                page.locator(".jp-CodeCell").nth(1).locator(".bk-Figure"),
+                "jupyterlab-live.png",
+            )
+            _screenshot_artifact(
+                page.locator(".jp-CodeCell").nth(3).locator(".bk-Div"),
+                "jupyterlab-application.png",
+            )
             browser.close()
     finally:
         _stop(process)
