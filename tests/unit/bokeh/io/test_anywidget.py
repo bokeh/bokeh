@@ -183,7 +183,7 @@ def test_released_widgets_without_disposal_are_bounded() -> None:
     second = m.display_widget({"kind": "artifact"}, "", {}, handle=second_handle)
     first_reference = weakref.ref(first)
 
-    with patch.object(m, "_MAX_RETAINED_WIDGETS", 1):
+    with patch.object(m, "_MAX_INACTIVE_WIDGETS", 1):
         first.disconnect()
         second.disconnect()
 
@@ -197,7 +197,7 @@ def test_released_widgets_without_disposal_are_bounded() -> None:
 
 
 def test_automatic_widgets_without_disposal_are_bounded() -> None:
-    with patch.object(m, "_MAX_RETAINED_WIDGETS", 1):
+    with patch.object(m, "_MAX_INACTIVE_WIDGETS", 1):
         first = m.display_widget({"kind": "artifact"}, "", {})
         first_reference = weakref.ref(first)
         second = m.display_widget({"kind": "artifact"}, "", {})
@@ -208,6 +208,25 @@ def test_automatic_widgets_without_disposal_are_bounded() -> None:
     assert first_reference() is None
     assert list(m._RETAINED_WIDGETS) == [second.model_id]
     second.close()
+
+
+def test_active_automatic_widgets_are_not_evicted() -> None:
+    with patch.object(m, "_MAX_INACTIVE_WIDGETS", 1):
+        first = m.display_widget({"kind": "artifact"}, "", {})
+        first._receive(first, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+        second = m.display_widget({"kind": "artifact"}, "", {})
+        second._receive(second, {"kind": "active", "frontend_id": _SECOND_FRONTEND_ID}, [])
+
+        assert getattr(first, "comm", None) is not None
+        assert list(m._RETAINED_WIDGETS) == [first.model_id, second.model_id]
+
+        first._receive(first, {"kind": "inactive", "frontend_id": _FRONTEND_ID}, [])
+        third = m.display_widget({"kind": "artifact"}, "", {})
+
+    assert getattr(first, "comm", None) is None
+    assert list(m._RETAINED_WIDGETS) == [second.model_id, third.model_id]
+    second.close()
+    third.close()
 
 
 def test_widget_keeps_the_kernel_local_application_url_out_of_its_payload() -> None:

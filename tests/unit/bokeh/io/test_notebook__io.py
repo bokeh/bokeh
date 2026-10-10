@@ -236,7 +236,7 @@ def test_notebook_output_escapes_malicious_payloads__issue_14489(value: str) -> 
         patch("bokeh.io.notebook.notebook_environment", return_value=True),
         patch("bokeh.io.notebook.anywidget_available", return_value=False),
     ):
-        bundle = m.notebook_mimebundle(Div(text=value), resources=Resources(mode="none"))
+        bundle = m.notebook_mimebundle(Div(text=value, render_as_text=True), resources=Resources(mode="none"))
 
     assert bundle is not None
     html = bundle[0]["text/html"]
@@ -246,7 +246,9 @@ def test_notebook_output_escapes_malicious_payloads__issue_14489(value: str) -> 
     match = re.search(r"<script[^>]*\bdata-bokeh-embed-payload\b[^>]*>(.*?)</script>", html, re.DOTALL)
     assert match is not None
     payload = json.loads(match.group(1))
-    assert payload["source"]["documents"][0]["roots"][0]["text"] == value
+    root = payload["source"]["documents"][0]["roots"][0]
+    assert root["text"] == value
+    assert root["render_as_text"] is True
 
 
 def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> None:

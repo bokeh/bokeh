@@ -275,6 +275,21 @@ application in one cell and display it from one or more later cells:
 
 ``serve()`` also accepts an existing ``Application``, an imported Python
 module, a ``.py`` or ``.ipynb`` path, or a directory-style Bokeh application.
+The document-modifying callable may be a function or a callable object, which
+can keep application configuration and state together:
+
+.. code-block:: python
+
+    class NotebookApp:
+        def __init__(self, title):
+            self.title = title
+
+        def __call__(self, doc):
+            p = figure(title=self.title)
+            p.line([1, 2, 3], [2, 3, 1])
+            doc.add_root(p)
+
+    app = serve(NotebookApp("Configured notebook application"))
 
 .. code-block:: python
 

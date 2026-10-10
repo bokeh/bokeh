@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 _ESM = (Path(__file__).parents[1] / "jupyter" / "anywidget.js").read_text(encoding="utf-8")
 _TRANSPORT_LEASE_SECONDS = 300.0
 _MAX_TRANSPORTS = 8
-_MAX_RETAINED_WIDGETS = 128
+_MAX_INACTIVE_WIDGETS = 128
 _RETAINED_WIDGETS: OrderedDict[str, _DisplayWidget] = OrderedDict()
 
 #-----------------------------------------------------------------------------
@@ -54,12 +54,22 @@ class _ResourceError(TypedDict):
     message: str
 
 
-def _retain_widget(widget: _DisplayWidget) -> None:
-    _RETAINED_WIDGETS[widget.model_id] = widget
-    _RETAINED_WIDGETS.move_to_end(widget.model_id)
-    while len(_RETAINED_WIDGETS) > _MAX_RETAINED_WIDGETS:
-        _model_id, retained = _RETAINED_WIDGETS.popitem(last=False)
+def _prune_retained_widgets() -> None:
+    inactive = [
+        (model_id, widget)
+        for model_id, widget in _RETAINED_WIDGETS.items()
+        if not any(not transport.closed for transport in widget._transports.values())
+    ]
+    while len(inactive) > _MAX_INACTIVE_WIDGETS:
+        model_id, retained = inactive.pop(0)
+        _RETAINED_WIDGETS.pop(model_id, None)
         retained.close()
+
+
+def _retain_widget(widget: _DisplayWidget) -> None:
+    _RETAINED_WIDGETS[widget._retention_id] = widget
+    _RETAINED_WIDGETS.move_to_end(widget._retention_id)
+    _prune_retained_widgets()
 
 
 def _resource_reply(request_id: object, resource_id: object,
@@ -188,6 +198,7 @@ class _DisplayWidget(anywidget.AnyWidget):
     def __init__(self, *, payload: dict[str, Any], html: str, records: Mapping[str, ExecutableResourceRecord],
             handle: DocumentViewHandle | ApplicationViewHandle | None = None) -> None:
         super().__init__(payload=payload, html=html)
+        self._retention_id = self.model_id
         self._records = records
         self._handle = handle
         self._transports: dict[str, _WidgetComm] = {}
@@ -213,9 +224,9 @@ class _DisplayWidget(anywidget.AnyWidget):
         return data, metadata
 
     def close(self) -> None:
+        _RETAINED_WIDGETS.pop(self._retention_id, None)
         if getattr(self, "comm", None) is None:
             return
-        _RETAINED_WIDGETS.pop(self.model_id, None)
         self._transports.clear()
         self._transport_seen.clear()
         self._records = {}
@@ -258,6 +269,7 @@ class _DisplayWidget(anywidget.AnyWidget):
                 transport = self._transports.get(frontend_id)
                 if transport is not None:
                     transport.frontend_message(content)
+        _prune_retained_widgets()
 
     def _prune_transports(self, incoming_id: str | None) -> None:
         cutoff = monotonic() - _TRANSPORT_LEASE_SECONDS
