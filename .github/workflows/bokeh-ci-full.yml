@@ -113,7 +113,17 @@ jobs:
         run: pixi run --locked --environment notebook-test notebook-browser-install
 
       - name: Run wheel-installed notebook host tests
+        env:
+          BOKEH_NOTEBOOK_ARTIFACT_DIR: work/notebook-report
         run: pixi run --locked --environment notebook-test test-notebook
+
+      - name: Upload notebook smoke report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: notebook-report
+          path: work/notebook-report
+          if-no-files-found: error
 
   codebase:
     needs: build
