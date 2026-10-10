@@ -116,9 +116,11 @@ HTML_MIME_TYPE = 'text/html'
 JS_MIME_TYPE   = 'application/javascript'
 
 STATIC_FALLBACK_ATTRIBUTE = 'data-bokeh-notebook-static-fallback'
+_STATIC_FALLBACK_TITLE = "Python-connected Bokeh output unavailable"
 _STATIC_FALLBACK_MESSAGE = (
-    "This output cannot be displayed in a static notebook preview. "
-    "Open and run the notebook in Jupyter to view it."
+    "This notebook frontend is showing a standalone Bokeh view because it has not connected to "
+    "Bokeh's notebook integration (as can happen in VS Code or when viewing static notebook output). "
+    "Python-driven updates require a frontend with Bokeh's notebook integration enabled."
 )
 
 DEFAULT_JUPYTER_URL = "localhost:8888"
@@ -855,7 +857,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
         fragment = _notebook_fragment(artifact, resources)
     view_id = make_id()
-    fallback = static_fallback(_STATIC_FALLBACK_MESSAGE, resource_id=resource_id)
+    fallback = static_fallback(_STATIC_FALLBACK_MESSAGE, title=_STATIC_FALLBACK_TITLE, resource_id=resource_id)
     records = _resource_record_chain(resource_id)
     html = _portable_resource_html(records) + fragment.html.replace("</div>", f"{fallback}</div>", 1)
     payload = display_payload(
@@ -961,7 +963,7 @@ def show_doc(obj: Model | Sequence[UIElement],
         fragment = _notebook_fragment(artifact, resources)
         live_id = make_id()
         view_id = make_id()
-        fallback = static_fallback(_STATIC_FALLBACK_MESSAGE, resource_id=resource_id)
+        fallback = static_fallback(_STATIC_FALLBACK_MESSAGE, title=_STATIC_FALLBACK_TITLE, resource_id=resource_id)
         records = _resource_record_chain(resource_id)
         html = _portable_resource_html(records) + fragment.html.replace("</div>", f"{fallback}</div>", 1)
         payload = display_payload(
@@ -1047,7 +1049,11 @@ def show_hosted_app(app: NotebookApplication,
         application_id=app.application_id,
     )
     records = _resource_record_chain(resource_id)
-    html = _portable_resource_html(records) + static_fallback(_STATIC_FALLBACK_MESSAGE, resource_id=resource_id)
+    html = _portable_resource_html(records) + static_fallback(
+        _STATIC_FALLBACK_MESSAGE,
+        title=_STATIC_FALLBACK_TITLE,
+        resource_id=resource_id,
+    )
     handle = ApplicationViewHandle(app, view_id, artifact)
     _retain_application_handle(handle)
     _register_notebook_comm_target()

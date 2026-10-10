@@ -69,6 +69,9 @@ def test_show_doc_publishes_one_artifact_owned_output(document: Document) -> Non
     assert html.count("data-bokeh-embed-payload") == 1
     assert "data-bokeh-notebook-static-fallback" in html
     assert 'data-bokeh-resource-id="resource"' in html
+    assert "Python-connected Bokeh output unavailable" in html
+    assert "showing a standalone Bokeh view" in html
+    assert "static notebook preview" not in html
     assert "docs_json" not in html
     assert "embed_items_notebook" not in html
     assert handle is m._DOCUMENT_VIEW_HANDLES[payload["live_id"]]

@@ -569,6 +569,13 @@ def test_extension_disabled_output_uses_portable_static_fallback(tmp_path: Path)
             output = page.locator(".jp-OutputArea").first
             output.locator(".jp-OutputArea-output").first.wait_for(state="attached", timeout=30_000)
             assert output.locator("[data-bokeh-notebook-static-fallback]").count() == 1, output.inner_html()
+            output.get_by_text("Python-connected Bokeh output unavailable", exact=True).wait_for()
+            output.get_by_text(
+                "This notebook frontend is showing a standalone Bokeh view because it has not connected to "
+                "Bokeh's notebook integration (as can happen in VS Code or when viewing static notebook output). "
+                "Python-driven updates require a frontend with Bokeh's notebook integration enabled.",
+                exact=True,
+            ).wait_for()
             page.locator(".bk-DataTable").wait_for(timeout=30_000)
             assert page.locator(".bk-Figure").count() == 1
             assert page.locator(".bk-Slider").count() == 1
