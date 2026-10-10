@@ -563,7 +563,9 @@ def test_failed_portable_resources_do_not_block_later_outputs(tmp_path: Path) ->
                 timeout=30_000,
             ):
                 _execute_cell_once(page, editors, 0)
-            page.wait_for_timeout(100)
+            deadline = time.monotonic() + 30
+            while not blocked and time.monotonic() < deadline:
+                page.wait_for_timeout(50)
             assert len(blocked) == 1
             _execute_cell_once(page, editors, 1)
             first = page.locator(".jp-OutputArea").nth(0)
