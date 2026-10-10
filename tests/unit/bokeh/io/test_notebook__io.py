@@ -33,7 +33,7 @@ import bokeh.io.notebook as m # isort:skip
 
 @pytest.fixture(autouse=True)
 def reset() -> None:
-    m.reset_notebook_resources()
+    m._reset_notebook_resources()
 
 
 @pytest.fixture
@@ -45,7 +45,7 @@ def test_show_doc_publishes_one_artifact_owned_output(document: Document) -> Non
     plot = figure(width=300, height=200)
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
-        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data") as publish,
@@ -74,7 +74,7 @@ def test_show_doc_wraps_sequences_in_one_layout_artifact(document: Document) -> 
     first, second = Div(), Div()
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
-        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data"),
@@ -92,7 +92,7 @@ def test_repeated_displays_share_output_root_until_final_handle_closes(document:
     plot = figure()
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
-        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data"),
@@ -111,7 +111,7 @@ def test_preexisting_document_root_is_not_owned_by_output(document: Document) ->
     document.add_root(plot)
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
-        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data"),
@@ -127,7 +127,7 @@ def test_handle_eviction_releases_its_output_root(document: Document) -> None:
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
         patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1),
-        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data"),
@@ -141,11 +141,24 @@ def test_handle_eviction_releases_its_output_root(document: Document) -> None:
     second.close()
 
 
+def test_show_doc_releases_an_added_root_when_setup_fails(document: Document) -> None:
+    plot = figure()
+    with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
+        patch("bokeh.embed.notebook.notebook_content", side_effect=RuntimeError("setup failed")),
+        pytest.raises(RuntimeError, match="setup failed"),
+    ):
+        m.show_doc(plot)
+
+    assert plot not in document.roots
+
+
 def test_automatic_mimebundle_has_one_static_artifact_and_no_live_owner() -> None:
     plot = figure()
     with (
         patch("bokeh.io.notebook.notebook_environment", return_value=True),
         patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
     ):
         bundle = m.notebook_mimebundle(plot)
@@ -156,6 +169,25 @@ def test_automatic_mimebundle_has_one_static_artifact_and_no_live_owner() -> Non
     assert "live_id" not in data[DISPLAY_MIME_TYPE]
     assert data["text/html"].count("data-bokeh-embed-payload") == 1
     assert metadata[DISPLAY_MIME_TYPE]["automatic"] is True
+
+
+def test_each_saved_display_carries_its_resource_record_after_reexecution() -> None:
+    plot = figure()
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
+    ):
+        first = m.notebook_mimebundle(plot, resources=Resources(mode="none"))
+        second = m.notebook_mimebundle(plot, resources=Resources(mode="none"))
+
+    assert first is not None
+    assert second is not None
+    first_payload = first[0][DISPLAY_MIME_TYPE]
+    second_payload = second[0][DISPLAY_MIME_TYPE]
+    assert first_payload["resource_records"]
+    assert second_payload["resource_records"]
+    assert first_payload["resource_records"][-1]["payload"]["resource_id"] == first_payload["resource_id"]
+    assert second_payload["resource_records"][-1]["payload"]["resource_id"] == second_payload["resource_id"]
 
 
 def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> None:
@@ -180,7 +212,7 @@ def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> Non
 def test_colab_connected_output_requires_anywidget(document: Document) -> None:
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
-        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._is_colab_runtime", return_value=True),
         pytest.raises(RuntimeError, match="Connected Bokeh output in Colab requires AnyWidget"),
     ):
@@ -216,6 +248,44 @@ def test_marimo_and_colab_detection_are_host_capabilities(monkeypatch: pytest.Mo
     monkeypatch.setitem(sys.modules, "marimo._runtime", runtime)
     monkeypatch.setitem(sys.modules, "marimo._runtime.context", context)
     assert m.is_marimo_runtime()
+
+
+def test_notebook_environment_requires_a_notebook_cell_identity() -> None:
+    shell = MagicMock(kernel=object())
+    shell.get_parent.return_value = {
+        "metadata": {},
+        "header": {"msg_id": "console", "msg_type": "execute_request"},
+        "content": {"allow_stdin": True},
+    }
+    with (
+        patch("IPython.get_ipython", return_value=shell),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=False),
+    ):
+        assert not m.notebook_environment()
+
+    shell.get_parent.return_value = {
+        "metadata": {"cellId": "cell"},
+        "header": {"msg_id": "execution"},
+    }
+    with (
+        patch("IPython.get_ipython", return_value=shell),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=False),
+    ):
+        assert m.notebook_environment()
+
+    shell.get_parent.return_value = {
+        "metadata": {},
+        "header": {"msg_id": "nbclient", "msg_type": "execute_request"},
+        "content": {"allow_stdin": False},
+    }
+    with (
+        patch("IPython.get_ipython", return_value=shell),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=False),
+    ):
+        assert m.notebook_environment()
 
 
 def test_legacy_colab_import_hook_is_ignored(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -402,7 +472,7 @@ def test_show_hosted_app_uses_server_artifact_and_view_ownership() -> None:
     app.url = "http://127.0.0.1:4321/app"
     app.application_id = "application"
     with (
-        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
         patch("bokeh.io.notebook._register_notebook_comm_target"),
         patch("bokeh.io.notebook.publish_display_data") as publish,
@@ -415,26 +485,32 @@ def test_show_hosted_app_uses_server_artifact_and_view_ownership() -> None:
     assert payload["kind"] == "artifact"
     assert payload["source_kind"] == "server"
     assert payload["application_id"] == "application"
-    assert payload["application_url"] == app.url
+    assert "application_url" not in payload
     assert payload["view_id"] in m._APPLICATION_VIEW_HANDLES
-    assert data["text/html"].count("data-bokeh-embed-payload") == 1
+    assert "data-bokeh-embed-payload" not in data["text/html"]
+    assert "data-bokeh-notebook-static-fallback" in data["text/html"]
     handle.close()
 
 
-def test_application_view_returns_a_browser_routed_artifact() -> None:
+def test_application_view_accepts_only_a_transient_frontend_application_url() -> None:
     local_url = "http://127.0.0.1:4321/bokeh-notebook/nonce/"
-    browser_url = "https://hub.example.test/user/alice/proxy/4321/bokeh-notebook/nonce/"
+    browser_url = "https://jupyter.example/proxy/4321/bokeh-notebook/nonce"
     app = MagicMock(application_id="application")
-    app._resolve_browser_url.return_value = browser_url.rstrip("/")
+    app._resolve_browser_url.return_value = browser_url
     artifact = embed_server(local_url, metadata={"notebook_application_id": "application"})
     handle = m.ApplicationViewHandle(app, "view", artifact)
     comm = MagicMock(comm_id="comm")
 
-    handle._connect(comm, browser_url)
+    handle._connect(comm)
+    configure = comm.send.call_args.args[0]
+    callback = comm.on_msg.call_args.args[0]
+    callback({"content": {"data": {"kind": "application_url", "application_url": browser_url}}})
 
     message = comm.send.call_args.args[0]
     returned = EmbedResult.from_dict(json.loads(message["artifact"]))
+    assert configure["kind"] == "configure"
+    assert EmbedResult.from_dict(json.loads(configure["artifact"])) == artifact
     assert message["kind"] == "ready"
-    assert returned.source["url"] == browser_url.rstrip("/")
-    assert returned != artifact
+    assert returned.source["url"] == browser_url
+    app._resolve_browser_url.assert_called_once_with(browser_url)
     handle.close()

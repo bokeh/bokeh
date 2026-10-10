@@ -230,7 +230,7 @@ marimo = "*"
 nbconvert = ">=5.4"
 notebook = "*"
 playwright-python = "*"
-uvicorn = ">=0.30"
+uvicorn-standard = "*"
 
 [feature.build-tools.dependencies]
 jupyter-builder = "*"
@@ -301,7 +301,7 @@ build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "build-too
 formatting = { features = ["py312", "formatting-deps"], no-default-feature = true }
 docs-py312 = { features = ["py-base", "py312", "js-tools", "runtime-deps", "docs-deps"] }
 docs-py315 = { features = ["py-base", "py315", "js-tools", "runtime-deps", "docs-deps"] }
-release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "docs-deps", "release-build-deps"], no-default-feature = true }
+release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "docs-deps", "build-tools", "release-build-deps"], no-default-feature = true }
 release-deploy = { features = ["py-base", "py312", "js-tools", "release-deploy-deps"], no-default-feature = true }
 server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps", "server-integration-deps"]
 notebook-test = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps", "notebook-test"]

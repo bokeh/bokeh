@@ -15,9 +15,13 @@ class TestSignal {
   }
 }
 
-function output(viewId: string, trusted = true) {
+function output(viewId: string, trusted = true, connected = true) {
   return {
-    data: {[DISPLAY_MIME_TYPE]: {kind: "artifact", view_id: viewId}},
+    data: {[DISPLAY_MIME_TYPE]: {
+      kind: "artifact",
+      view_id: viewId,
+      ...(connected ? {live_id: `live-${viewId}`} : {}),
+    }},
     metadata: {},
     trusted,
   }
@@ -70,6 +74,16 @@ function harness(initial: ReturnType<typeof output>[], extension = new NotebookE
 }
 
 describe("notebook output ownership", () => {
+  it("does not release ordinary static display IDs", async () => {
+    const test = harness([output("static", true, false)])
+    test.outputs.values = []
+    test.outputs.changed.emit(test.outputs, {})
+    await Promise.resolve()
+
+    expect(test.opened).toEqual([])
+    test.disposable.dispose()
+  })
+
   it("retains repeated display IDs until the last output is removed", async () => {
     const test = harness([output("shared"), output("shared")])
     test.outputs.values.pop()

@@ -5,12 +5,12 @@ JupyterLab and Notebook 7 renderer. Its prebuilt runtime assets are generated
 into the parent `src/bokeh/jupyter/` package and shipped in the main Bokeh
 wheel. Do not edit generated bundles directly.
 
-Use the embedding project's dedicated environment, then run:
+From the repository root, use the locked notebook test environment:
 
 ```sh
-/Users/bryan/anaconda3/bin/conda run -n bokeh-embed npm ci
-/Users/bryan/anaconda3/bin/conda run -n bokeh-embed npm run test:source
-/Users/bryan/anaconda3/bin/conda run -n bokeh-embed npm run build
+pixi run --locked -e notebook-test npm --prefix src/bokeh/jupyter/frontend ci
+pixi run --locked -e notebook-test npm --prefix src/bokeh/jupyter/frontend run test:source
+pixi run --locked jupyter-build
 ```
 
 The build checks that the Python and TypeScript MIME protocol constants match,
@@ -22,12 +22,10 @@ regenerated assets together.
 Focused validation from the repository root is:
 
 ```sh
-cd src/bokeh/jupyter/frontend
-/Users/bryan/anaconda3/bin/conda run -n bokeh-embed npm run test:source
-cd ../../../..
-/Users/bryan/anaconda3/bin/conda run -n bokeh-embed python -m pytest -o pythonpath=src tests/unit/bokeh/io/test_jupyter.py
-/Users/bryan/anaconda3/bin/conda run -n bokeh-embed python -m pytest -o pythonpath=src tests/unit/bokeh/io/test_jupyter_runtime.py
-/Users/bryan/anaconda3/bin/conda run -n bokeh-embed python -m pytest -o pythonpath=src tests/integration/test_jupyter_extension.py
+pixi run --locked -e notebook-test npm --prefix src/bokeh/jupyter/frontend run test:source
+pixi run --locked -e notebook-test python -m pytest tests/unit/bokeh/io/test_jupyter.py
+pixi run --locked -e notebook-test python -m pytest tests/unit/bokeh/io/test_jupyter_runtime.py
+pixi run --locked -e notebook-test python -m pytest tests/integration/test_jupyter_extension.py
 ```
 
 The integration suite must run against an installed wheel. It checks automatic

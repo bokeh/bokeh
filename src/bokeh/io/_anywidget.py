@@ -25,6 +25,7 @@ import anywidget
 import traitlets
 
 if TYPE_CHECKING:
+    from .jupyter import ResourceRecord
     from .notebook import ApplicationViewHandle, DocumentViewHandle
 
 _ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
@@ -37,7 +38,7 @@ _ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
 class _ResourceResponse(TypedDict):
     kind: Literal["resource"]
     request_id: str
-    record: dict[str, Any]
+    record: ResourceRecord
 
 
 class _ResourceError(TypedDict):
@@ -48,7 +49,7 @@ class _ResourceError(TypedDict):
 
 
 def _resource_reply(request_id: object, resource_id: object,
-        records: Mapping[str, dict[str, Any]]) -> _ResourceResponse | _ResourceError:
+        records: Mapping[str, ResourceRecord]) -> _ResourceResponse | _ResourceError:
     normalized_request_id = request_id if isinstance(request_id, str) else ""
     if normalized_request_id and isinstance(resource_id, str) and resource_id:
         record = records.get(resource_id)
@@ -63,12 +64,13 @@ def _resource_reply(request_id: object, resource_id: object,
 
 
 class _WidgetComm:
-    def __init__(self, widget: _DisplayWidget) -> None:
+    def __init__(self, widget: _DisplayWidget, frontend_id: str) -> None:
         self._widget = widget
+        self._frontend_id = frontend_id
         self._on_close: Callable[[Any], None] | None = None
         self._on_msg: Callable[[dict[str, Any]], None] | None = None
         self._closed = False
-        self.comm_id = widget.model_id
+        self.comm_id = f"{widget.model_id}:{frontend_id}"
 
     @property
     def closed(self) -> bool:
@@ -93,7 +95,8 @@ class _WidgetComm:
         '''
         if self._closed:
             raise RuntimeError("The AnyWidget transport is closed")
-        self._widget.send(data, buffers=buffers)
+        payload = {**data, "frontend_id": self._frontend_id} if isinstance(data, dict) else data
+        self._widget.send(payload, buffers=buffers)
 
     def on_close(self, callback: Callable[[Any], None]) -> None:
         '''Register the frontend-close callback.
@@ -133,7 +136,7 @@ class _WidgetComm:
             self._on_msg({"content": {"data": content}})
 
     def close(self) -> None:
-        '''Close the transport and its frontend widget.
+        '''Disconnect this frontend while preserving its rendered artifact.
 
         Returns:
             None
@@ -141,8 +144,11 @@ class _WidgetComm:
         '''
         if self._closed:
             return
+        try:
+            self.send({"kind": "close"})
+        except Exception:
+            pass
         self._closed = True
-        self._widget.close()
 
     def frontend_closed(self) -> None:
         '''Record that the frontend closed the transport.
@@ -165,13 +171,13 @@ class _DisplayWidget(anywidget.AnyWidget):
     payload = traitlets.Dict().tag(sync=True)
     html = traitlets.Unicode().tag(sync=True)
 
-    def __init__(self, *, payload: dict[str, Any], html: str, records: dict[str, dict[str, Any]],
+    def __init__(self, *, payload: dict[str, Any], html: str, records: Mapping[str, ResourceRecord],
             handle: DocumentViewHandle | ApplicationViewHandle | None = None) -> None:
         super().__init__(payload=payload, html=html)
         self._records = records
         self._handle = handle
-        self._transport = _WidgetComm(self)
-        self._connected = False
+        self._transports: dict[str, _WidgetComm] = {}
+        self._released = False
         self.on_msg(self._receive)
 
     def _repr_mimebundle_(self, **kwargs: Any) -> Any:
@@ -181,38 +187,80 @@ class _DisplayWidget(anywidget.AnyWidget):
         data, metadata = bundle
         data = dict(data)
         metadata = dict(metadata)
-        # Keep the widget MIME as the active host renderer while preserving the
-        # common artifact HTML for static reopen/export. The display payload in
-        # metadata is also the Jupyter extension's non-rendering ownership tag.
+        # JupyterLab gives Bokeh's MIME renderer a higher priority than the
+        # widget renderer. Other hosts ignore that MIME member and select the
+        # AnyWidget view, with HTML as the final static fallback.
         data.setdefault("text/html", self.html)
         from .jupyter import DISPLAY_MIME_TYPE
-        metadata[DISPLAY_MIME_TYPE] = dict(self.payload)
+        data[DISPLAY_MIME_TYPE] = dict(self.payload)
         return data, metadata
 
     def _receive(self, _widget: Any, content: dict[str, Any], _buffers: list[Any]) -> None:
+        frontend_id = content.get("frontend_id")
+        if not isinstance(frontend_id, str) or not frontend_id:
+            return
         match content.get("kind"):
-            case "ready":
-                if self._transport.closed:
-                    self._transport = _WidgetComm(self)
-                self._connected = True
+            case "ready" | "active":
+                transport = self._transports.get(frontend_id)
+                if transport is None or transport.closed:
+                    transport = _WidgetComm(self, frontend_id)
+                    self._transports[frontend_id] = transport
+                if self._released:
+                    transport.close()
+                    return
                 if self._handle is not None:
                     from .notebook import ApplicationViewHandle
 
                     if isinstance(self._handle, ApplicationViewHandle):
-                        self._handle._connect(cast(Any, self._transport), content.get("application_url"))
+                        self._handle._connect(cast(Any, transport))
                     else:
-                        self._handle._connect(cast(Any, self._transport))
+                        self._handle._connect(cast(Any, transport))
             case "request_resource":
-                self.send(_resource_reply(
+                reply = _resource_reply(
                     content.get("request_id"), content.get("resource_id"), self._records,
-                ))
-            case "disposed":
-                self._transport.frontend_closed()
-                self._connected = False
-            case "resync":
-                self._transport.frontend_message(content)
+                )
+                self.send({**reply, "frontend_id": frontend_id})
+            case "inactive" | "disposed":
+                transport = self._transports.pop(frontend_id, None)
+                if transport is not None:
+                    transport.frontend_closed()
+                if self._released and not self._transports:
+                    self.close()
+            case "resync" | "application_url":
+                transport = self._transports.get(frontend_id)
+                if transport is not None:
+                    transport.frontend_message(content)
+
+    def disconnect(self) -> None:
+        '''Disconnect every frontend without removing its static artifact.
+
+        Returns:
+            None
+
+        '''
+        if self._released:
+            return
+        self._released = True
+        for transport in tuple(self._transports.values()):
+            transport.close()
 
 
-def display_widget(payload: Mapping[str, Any], html: str, records: dict[str, dict[str, Any]], *,
+def display_widget(payload: Mapping[str, Any], html: str, records: Mapping[str, ResourceRecord], *,
         handle: DocumentViewHandle | ApplicationViewHandle | None = None) -> _DisplayWidget:
+    '''Construct an AnyWidget adapter for one Bokeh notebook display.
+
+    Args:
+        payload:
+            The versioned Bokeh display payload.
+        html:
+            The portable HTML fallback stored with the output.
+        records:
+            Resource records available to the frontend on demand.
+        handle:
+            The optional connected document or application owner.
+
+    Returns:
+        The AnyWidget display adapter.
+
+    '''
     return _DisplayWidget(payload=dict(payload), html=html, records=records, handle=handle)

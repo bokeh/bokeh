@@ -99,8 +99,9 @@ def show(
 
         resources (Resources or resource setting, optional) :
             Select explicit BokehJS resource delivery for file or notebook
-            output. Notebook assets are stored once per kernel and shared by
-            subsequent outputs using the same exact configuration.
+            output. Notebook outputs carry the resource records needed for a
+            saved artifact, while the frontend executes identical records
+            only once.
 
         title (str, optional) :
             HTML document title for file output.

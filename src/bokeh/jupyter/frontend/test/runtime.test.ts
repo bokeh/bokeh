@@ -130,7 +130,6 @@ describe("artifact runtime", () => {
       ...display,
       source_kind: "server",
       application_id: "application",
-      application_url: localUrl,
     }
     const serverHtml = `<script type="application/vnd.bokeh.embed+json" data-bokeh-embed-payload>${JSON.stringify(serverArtifact)}</script>`
     const handle = {
@@ -160,7 +159,7 @@ describe("artifact runtime", () => {
 
     const cleanup = await renderDisplay(node, serverDisplay, serverHtml, {openApplicationView})
 
-    expect(openApplicationView).toHaveBeenCalledWith("view", localUrl)
+    expect(openApplicationView).toHaveBeenCalledWith("view")
     expect(mount).toHaveBeenCalledWith(browserArtifact, expect.anything(), expect.anything())
     cleanup()
   })

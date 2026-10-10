@@ -138,7 +138,7 @@ def check_tags() -> None:
         except Exception:
             print(bright(yellow("!!! Could not check repo tags. Please ensure full tag history")))
 
-def jupyter_data_files() -> list[tuple[str, list[str]]]:
+def _jupyter_data_files() -> list[tuple[str, list[str]]]:
     ''' Install the prebuilt extension where Jupyter discovers it automatically. '''
     root = SRC_ROOT / "bokeh" / "jupyter"
     lab = root / "labextension"
@@ -221,5 +221,5 @@ class Sdist(sdist):  # type: ignore
 
 setup(
     cmdclass={"build": Build, "editable_wheel": EditableWheel, "sdist": Sdist},
-    data_files=jupyter_data_files(),
+    data_files=_jupyter_data_files(),
 )

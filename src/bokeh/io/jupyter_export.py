@@ -103,7 +103,9 @@ def _artifact_payload(html: str) -> str | None:
 _TRANSIENT_EXPORT_LOCK = threading.Lock()
 _TRANSIENT_EXPORT_TTL = 60.0
 _TRANSIENT_EXPORT_LIMIT = 32
+_TRANSIENT_EXPORT_BYTES_LIMIT = 128 * 1024 * 1024
 _TRANSIENT_EXPORTS: list[tuple[float, set[str], str, dict[str, dict[str, Any]]]] = []
+_TRANSIENT_EXPORT_TIMER: threading.Timer | None = None
 _EXPORT_CORRELATION_ID: ContextVar[str | None] = ContextVar("bokeh_notebook_export_id", default=None)
 
 #-----------------------------------------------------------------------------
@@ -116,22 +118,98 @@ def _alias(path: str) -> str:
 
 
 def valid_export_id(value: Any) -> TypeGuard[str]:
+    '''Report whether a value is a safe notebook export correlation identifier.
+
+    Args:
+        value:
+            The candidate correlation identifier.
+
+    Returns:
+        Whether the value is a bounded URL-safe string.
+
+    '''
     return isinstance(value, str) and _EXPORT_ID_RE.fullmatch(value) is not None
 
 
 def set_export_correlation(export_id: str) -> Token[str | None]:
+    '''Associate a validated correlation identifier with the current export.
+
+    Args:
+        export_id:
+            The frontend-generated export correlation identifier.
+
+    Returns:
+        A context token that restores the previous correlation.
+
+    Raises:
+        ValueError:
+            If the identifier is not bounded and URL-safe.
+
+    '''
     if not valid_export_id(export_id):
         raise ValueError("export_id must be a 16-128 character URL-safe correlation ID")
     return _EXPORT_CORRELATION_ID.set(export_id)
 
 
 def reset_export_correlation(token: Token[str | None]) -> None:
+    '''Restore the export correlation represented by a context token.
+
+    Args:
+        token:
+            The token returned by :func:`set_export_correlation`.
+
+    Returns:
+        None
+
+    '''
     _EXPORT_CORRELATION_ID.reset(token)
+
+
+def _snapshot_bytes(snapshots: dict[str, dict[str, Any]]) -> int:
+    return sum(
+        len(value.encode("utf-8"))
+        for snapshot in snapshots.values()
+        for key in ("artifact_json", "error")
+        if isinstance((value := snapshot.get(key)), str)
+    )
+
+
+def _expire_export_snapshots() -> None:
+    global _TRANSIENT_EXPORT_TIMER
+    now = time.monotonic()
+    timer = threading.current_thread()
+    with _TRANSIENT_EXPORT_LOCK:
+        _TRANSIENT_EXPORTS[:] = [
+            entry for entry in _TRANSIENT_EXPORTS
+            if now - entry[0] <= _TRANSIENT_EXPORT_TTL
+        ]
+        if _TRANSIENT_EXPORT_TIMER is timer:
+            _TRANSIENT_EXPORT_TIMER = None
 
 
 def store_export_snapshots(path: str, export_id: str, snapshots: list[dict[str, Any]], *,
         os_path: str | None = None) -> None:
-    '''Store bounded frontend state for exactly one correlated export request.'''
+    '''Store bounded frontend state for exactly one correlated export request.
+
+    Args:
+        path:
+            The notebook path known to Jupyter.
+        export_id:
+            The frontend-generated export correlation identifier.
+        snapshots:
+            The transient frontend artifact snapshots keyed by view ID.
+        os_path:
+            The optional resolved operating-system path for the notebook.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError:
+            If the correlation identifier is not bounded and URL-safe.
+
+    '''
+    global _TRANSIENT_EXPORT_TIMER
     if not valid_export_id(export_id):
         raise ValueError("export_id must be a 16-128 character URL-safe correlation ID")
     aliases = {_alias(path)}
@@ -163,6 +241,13 @@ def store_export_snapshots(path: str, export_id: str, snapshots: list[dict[str, 
         ]
         _TRANSIENT_EXPORTS.append((now, aliases, export_id, accepted))
         del _TRANSIENT_EXPORTS[:-_TRANSIENT_EXPORT_LIMIT]
+        while sum(_snapshot_bytes(entry[3]) for entry in _TRANSIENT_EXPORTS) > _TRANSIENT_EXPORT_BYTES_LIMIT:
+            del _TRANSIENT_EXPORTS[0]
+        if _TRANSIENT_EXPORT_TIMER is not None:
+            _TRANSIENT_EXPORT_TIMER.cancel()
+        _TRANSIENT_EXPORT_TIMER = threading.Timer(_TRANSIENT_EXPORT_TTL, _expire_export_snapshots)
+        _TRANSIENT_EXPORT_TIMER.daemon = True
+        _TRANSIENT_EXPORT_TIMER.start()
 
 def _take_export_snapshots(resources: dict[str, Any], export_id: str | None = None) -> dict[str, dict[str, Any]]:
     metadata = resources.get("metadata", {})
@@ -244,7 +329,6 @@ class BokehPNGPreprocessor(Preprocessor):
             return nb, resources
         self._trusted = (
             not self.require_trusted
-            or self._server_marked_trusted(nb, resources)
             or self._check_signature(nb)
         )
         self._transient = _take_export_snapshots(resources)
@@ -394,16 +478,6 @@ class BokehPNGPreprocessor(Preprocessor):
                 notary.close()  # type: ignore[no-untyped-call]
 
     @staticmethod
-    def _server_marked_trusted(nb: Any, resources: dict[str, Any]) -> bool:
-        if "config_dir" not in resources:
-            return False
-        output_cells = [
-            cell for cell in nb.get("cells", [])
-            if cell.get("cell_type") == "code" and cell.get("outputs")
-        ]
-        return bool(output_cells) and all(cell.get("metadata", {}).get("trusted") is True for cell in output_cells)
-
-    @staticmethod
     def _fallback_only(html: Any, default: str) -> str:
         if isinstance(html, str):
             fallback = _FALLBACK_RE.search(html)
@@ -419,4 +493,5 @@ class BokehHTMLExporter(HTMLExporter):
 
     def _init_preprocessors(self) -> None:
         super()._init_preprocessors()  # type: ignore[no-untyped-call]
-        self.register_preprocessor(BokehPNGPreprocessor, enabled=True)  # type: ignore[no-untyped-call]
+        if not any(isinstance(preprocessor, BokehPNGPreprocessor) for preprocessor in self._preprocessors):
+            self.register_preprocessor(BokehPNGPreprocessor, enabled=True)  # type: ignore[no-untyped-call]

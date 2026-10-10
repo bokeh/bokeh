@@ -1,6 +1,6 @@
-import {jupyterServerBaseUrl, resolveJupyterApplicationUrl} from "./host"
-import {BokehNotebookError, DisplayPayload} from "./protocol"
-import {KernelProxy, LiveConnection, ResourceRecord, currentDocumentSnapshot, renderDiagnostic, renderDisplay, renderLoading} from "./runtime"
+import {jupyterServerBaseUrl, resolveJupyterApplicationArtifact} from "./host"
+import {BokehNotebookError, DisplayPayload, ResourceRecord} from "./protocol"
+import {KernelProxy, LiveConnection, currentDocumentSnapshot, renderDiagnostic, renderDisplay, renderLoading} from "./runtime"
 import {dataViews, LiveRevisionTransport, withTimeout} from "./transport"
 
 // AnyWidget is a transport adapter, not a rendering implementation. It owns
@@ -42,6 +42,8 @@ function deferred<T>(): Deferred<T> {
 }
 
 export default function anywidgetFactory() {
+  const frontendId = crypto.randomUUID()
+  const send = (model: AnyModel, data: Record<string, unknown>) => model.send({...data, frontend_id: frontendId})
   // initialize() may run before render() and patches may arrive before a view
   // exists. Keep one bounded, revisioned queue until render() attaches the
   // listener; overflow requests a complete snapshot instead of retaining an
@@ -50,20 +52,27 @@ export default function anywidgetFactory() {
   const snapshotReady = deferred<Snapshot>()
 
   let sendResync: () => void = () => undefined
-  const revisions = new LiveRevisionTransport(() => sendResync())
   let applicationArtifact: string | undefined
   const applicationOpened = deferred<string>()
   let liveClosed = false
   const liveCloseListeners = new Set<() => void>()
+  const revisions = new LiveRevisionTransport(
+    () => sendResync(),
+    () => {
+      liveClosed = true
+      for (const listener of liveCloseListeners) listener()
+    },
+  )
   let applicationClosed = false
   const applicationCloseListeners = new Set<() => void>()
   const resourceWaiters = new Map<string, ResourceWaiter>()
   let resourceSequence = 0
 
   const initialize = ({model, signal}: AnyWidgetContext) => {
-    sendResync = () => model.send({kind: "resync"})
+    sendResync = () => send(model, {kind: "resync"})
 
     const receive = (data: any, buffers: ArrayBufferView[] = []) => {
+      if (data?.frontend_id !== frontendId) return
       if (data?.kind === "patch" && Number.isSafeInteger(data.revision)) {
         revisions.receive(data, dataViews(buffers))
       } else if (data?.kind === "snapshot" && typeof data.artifact === "string" &&
@@ -73,9 +82,25 @@ export default function anywidgetFactory() {
         snapshotReady.resolve(snapshot)
         if (initial) revisions.reset(data.revision)
         else revisions.receive(data)
+      } else if (data?.kind === "configure" && typeof data.artifact === "string") {
+        try {
+          const artifact = JSON.parse(resolveJupyterApplicationArtifact(data.artifact, jupyterServerBaseUrl()))
+          const applicationUrl = artifact?.source?.url
+          if (typeof applicationUrl !== "string" || applicationUrl.length === 0) {
+            throw new Error("the application artifact does not contain a server URL")
+          }
+          send(model, {kind: "application_url", application_url: applicationUrl})
+        } catch (error) {
+          applicationOpened.reject(new BokehNotebookError(
+            "APPLICATION_ARTIFACT_INVALID",
+            "Python returned an invalid application configuration artifact.",
+            "Restart the kernel and re-run the cells that call serve(...) and show(app).",
+            error,
+          ))
+        }
       } else if (data?.kind === "ready" && typeof data.artifact === "string") {
-        applicationArtifact = data.artifact
-        applicationOpened.resolve(data.artifact)
+        applicationArtifact = resolveJupyterApplicationArtifact(data.artifact, jupyterServerBaseUrl())
+        applicationOpened.resolve(applicationArtifact)
       } else if (data?.kind === "ready") {
         applicationOpened.reject(new BokehNotebookError(
           "APPLICATION_ARTIFACT_INVALID",
@@ -120,14 +145,6 @@ export default function anywidgetFactory() {
       }
     }
     model.on("msg:custom", receive)
-    const payload = model.get("payload") as DisplayPayload | undefined
-    const applicationUrl = payload?.application_url
-    model.send({
-      kind: "ready",
-      ...(applicationUrl == null ? {} : {
-        application_url: resolveJupyterApplicationUrl(applicationUrl, jupyterServerBaseUrl()),
-      }),
-    })
     signal.addEventListener("abort", () => {
       // The AnyWidget abort signal is the host's release boundary. Reject
       // outstanding work, unsubscribe from the comm, and tell Python to drop
@@ -140,7 +157,7 @@ export default function anywidgetFactory() {
       applicationCloseListeners.clear()
       model.off("msg:custom", receive)
       try {
-        model.send({kind: "disposed"})
+        send(model, {kind: "disposed"})
       } catch {
         // The host may close its comm before aborting the mounted widget.
       }
@@ -150,6 +167,7 @@ export default function anywidgetFactory() {
   const render = async ({model, el, signal}: AnyWidgetRenderContext) => {
     const payload = model.get("payload") as DisplayPayload
     const html = String(model.get("html") ?? "")
+    send(model, {kind: "active"})
 
     const kernel: KernelProxy = {
       async requestResource(resourceId) {
@@ -158,7 +176,7 @@ export default function anywidgetFactory() {
           resourceWaiters.set(requestId, {resolve, reject})
         })
         try {
-          model.send({kind: "request_resource", request_id: requestId, resource_id: resourceId})
+          send(model, {kind: "request_resource", request_id: requestId, resource_id: resourceId})
         } catch (cause) {
           resourceWaiters.delete(requestId)
           throw new BokehNotebookError(
@@ -200,6 +218,16 @@ export default function anywidgetFactory() {
               const count = Number(el.dataset.bokehAnywidgetMessages ?? "0") + 1
               el.dataset.bokehAnywidgetMessages = String(count)
               await callback(message, buffers)
+              if (message?.kind === "patch" && Number.isSafeInteger(message.revision)) {
+                const current = currentDocumentSnapshot(el, payload)
+                if (current?.artifact_json != null) {
+                  snapshot = {
+                    artifactJson: current.artifact_json,
+                    resourceId: snapshot?.resourceId ?? payload.resource_id,
+                    revision: message.revision,
+                  }
+                }
+              }
             }
             revisions.subscribe(listener)
             subscriptions.add(() => revisions.unsubscribe(listener))
@@ -222,7 +250,7 @@ export default function anywidgetFactory() {
         }
       },
 
-      async openApplicationView(_viewId, _applicationUrl) {
+      async openApplicationView(_viewId) {
         const artifactJson = applicationArtifact ?? await withTimeout(applicationOpened.promise, payload.connect_timeout, new BokehNotebookError(
           "ANYWIDGET_APPLICATION_CONNECTION_TIMEOUT",
           "Python did not open the AnyWidget application-view channel in time.",
@@ -262,9 +290,11 @@ export default function anywidgetFactory() {
       return () => {
         window.removeEventListener("bokeh:notebook-export-snapshots", collect)
         cleanup()
+        send(model, {kind: "inactive"})
       }
     } catch (error) {
       removeLoading()
+      send(model, {kind: "inactive"})
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         renderDiagnostic(el, error, {payload, renderer: "anywidget"})
       }

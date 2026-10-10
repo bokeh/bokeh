@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # Standard library imports
 import json
-from typing import Any
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -14,10 +14,13 @@ pytest.importorskip("anywidget", minversion="0.11")
 from bokeh.document import Document
 from bokeh.embed import embed_server
 from bokeh.io.notebook import ApplicationViewHandle, DocumentViewHandle
+from bokeh.io.jupyter import ResourceRecord
 from bokeh.models import Div
 
 # Module under test
 import bokeh.io._anywidget as m # isort:skip
+
+_FRONTEND_ID = "frontend"
 
 
 def test_display_widget_uses_standard_widget_mime_bundle() -> None:
@@ -26,29 +29,34 @@ def test_display_widget_uses_standard_widget_mime_bundle() -> None:
     assert bundle is not None
     assert bundle[0]["application/vnd.jupyter.widget-view+json"]["model_id"] == widget.model_id
     assert bundle[0]["text/html"] == "<div></div>"
-    assert bundle[1]["application/vnd.bokeh.display+json"]["view_id"] == "view"
+    assert bundle[0]["application/vnd.bokeh.display+json"]["view_id"] == "view"
+    assert "application/vnd.bokeh.display+json" not in bundle[1]
     widget.close()
 
 
 def test_widget_returns_and_rejects_explicit_resource_requests() -> None:
-    record = {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"}
+    record = cast(ResourceRecord, {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"})
     widget = m.display_widget({"kind": "artifact"}, "", {"resources": record})
     with patch.object(widget, "send") as send:
         widget._receive(widget, {
-            "kind": "request_resource", "request_id": "one", "resource_id": "resources",
+            "kind": "request_resource", "frontend_id": _FRONTEND_ID,
+            "request_id": "one", "resource_id": "resources",
         }, [])
         widget._receive(widget, {
-            "kind": "request_resource", "request_id": "two", "resource_id": "missing",
+            "kind": "request_resource", "frontend_id": _FRONTEND_ID,
+            "request_id": "two", "resource_id": "missing",
         }, [])
 
-    assert send.call_args_list[0].args[0] == {"kind": "resource", "request_id": "one", "record": record}
+    assert send.call_args_list[0].args[0] == {
+        "kind": "resource", "frontend_id": _FRONTEND_ID, "request_id": "one", "record": record,
+    }
     assert send.call_args_list[1].args[0]["kind"] == "resource_error"
     assert send.call_args_list[1].args[0]["code"] == "RESOURCE_RECORD_MISSING"
     widget.close()
 
 
 def test_resource_reply_validates_ids_and_returns_typed_protocol_messages() -> None:
-    record = {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"}
+    record = cast(ResourceRecord, {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"})
 
     assert m._resource_reply("one", "resources", {"resources": record}) == {
         "kind": "resource",
@@ -77,9 +85,9 @@ def test_widget_ready_connects_revisioned_artifact_transport() -> None:
         sent.append((data, buffers))
 
     with patch.object(widget, "send", side_effect=send):
-        widget._receive(widget, {"kind": "ready"}, [])
+        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
         root.text = "after"
-        widget._receive(widget, {"kind": "resync"}, [])
+        widget._receive(widget, {"kind": "resync", "frontend_id": _FRONTEND_ID}, [])
 
     assert sent[0][0]["kind"] == "snapshot"
     assert json.loads(sent[0][0]["artifact"])["schema"] == "bokeh.embed/v1"
@@ -95,34 +103,37 @@ def test_widget_disposal_disconnects_without_closing_python_owner() -> None:
     root = Div()
     handle = DocumentViewHandle(root, live_id="live", view_id="view")
     widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
-    widget._receive(widget, {"kind": "ready"}, [])
+    widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
 
-    widget._receive(widget, {"kind": "disposed"}, [])
+    widget._receive(widget, {"kind": "disposed", "frontend_id": _FRONTEND_ID}, [])
 
     assert not handle.closed
     assert handle.views == 0
     handle.close()
 
 
-def test_widget_forwards_the_browser_application_url_to_its_owner() -> None:
+def test_widget_keeps_the_kernel_local_application_url_out_of_its_payload() -> None:
     local_url = "http://127.0.0.1:4321/bokeh-notebook/nonce/"
-    browser_url = "https://hub.example.test/user/alice/proxy/4321/bokeh-notebook/nonce/"
+    browser_url = "https://jupyter.example/proxy/4321/bokeh-notebook/nonce"
     app = MagicMock(application_id="application")
-    app._resolve_browser_url.return_value = browser_url.rstrip("/")
+    app._resolve_browser_url.return_value = browser_url
     artifact = embed_server(local_url, metadata={"notebook_application_id": "application"})
     handle = ApplicationViewHandle(app, "view", artifact)
     widget = m.display_widget({
         "kind": "artifact",
         "application_id": "application",
-        "application_url": local_url,
     }, "", {}, handle=handle)
 
     with patch.object(widget, "send") as send:
-        widget._receive(widget, {"kind": "ready", "application_url": browser_url}, [])
+        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+        widget._receive(widget, {
+            "kind": "application_url", "frontend_id": _FRONTEND_ID, "application_url": browser_url,
+        }, [])
 
     app._resolve_browser_url.assert_called_once_with(browser_url)
     assert send.call_args.args[0]["kind"] == "ready"
     assert "artifact" in send.call_args.args[0]
+    assert send.call_args.args[0]["frontend_id"] == _FRONTEND_ID
     handle.close()
 
 
@@ -136,12 +147,12 @@ def test_widget_reconnect_after_page_reload_receives_a_fresh_snapshot() -> None:
     sent: list[dict[str, Any]] = []
 
     with patch.object(widget, "send", side_effect=lambda data, buffers=None: sent.append(data)):
-        widget._receive(widget, {"kind": "ready"}, [])
+        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
         root.text = "after-reload"
         # A hard page reload cannot reliably notify Python that its old view
         # disappeared. The new widget manager repeats ``ready`` on the same
         # backend comm and must still receive a current snapshot.
-        widget._receive(widget, {"kind": "ready"}, [])
+        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
 
     assert handle.views == 1
     assert sent[-1]["kind"] == "snapshot"
@@ -158,7 +169,7 @@ def test_show_doc_uses_anywidget_without_duplicate_mime_outputs() -> None:
     widget = MagicMock()
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
-        patch("bokeh.io.notebook._use_anywidget", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=True),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resources") as ensure,
         patch("bokeh.io.notebook.publish_display_data") as publish,
         patch("bokeh.io._anywidget.display_widget", return_value=widget) as make_widget,

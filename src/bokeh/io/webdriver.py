@@ -94,7 +94,22 @@ def get_screenshot_as_png_from_html(
     timeout: int = 5,
     scale_factor: float = 1,
 ) -> Image.Image:
-    '''Capture a fully assembled Bokeh HTML document as one PNG image.'''
+    '''Capture a fully assembled Bokeh HTML document as one PNG image.
+
+    Args:
+        html:
+            The complete HTML document to render.
+        driver:
+            An optional Selenium web driver.
+        timeout:
+            Maximum time in seconds to wait for Bokeh rendering.
+        scale_factor:
+            The output image scale factor.
+
+    Returns:
+        The rendered PNG image.
+
+    '''
     with tmp_html() as tmp:
         with tmp as f:
             f.write(html.encode("utf-8"))

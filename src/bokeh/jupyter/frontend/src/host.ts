@@ -50,3 +50,12 @@ export function resolveJupyterApplicationUrl(applicationUrl: string, serverBaseU
     return applicationUrl
   }
 }
+
+/** Rewrite a transient server artifact for the URL visible to this frontend. */
+export function resolveJupyterApplicationArtifact(artifactJson: string, serverBaseUrl: string | undefined,
+    pageUrl: string = window.location.href): string {
+  const artifact = JSON.parse(artifactJson)
+  if (artifact?.source?.kind !== "server" || typeof artifact.source.url !== "string") return artifactJson
+  artifact.source.url = resolveJupyterApplicationUrl(artifact.source.url, serverBaseUrl, pageUrl)
+  return JSON.stringify(artifact)
+}

@@ -7,6 +7,7 @@ from collections.abc import Awaitable
 from typing import Any, cast
 
 # External imports
+from jupyter_server.auth.decorator import authorized
 from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.nbconvert.handlers import NbconvertFileHandler
 from jupyter_server.utils import url_path_join
@@ -20,7 +21,6 @@ from ..io.jupyter_export import (
     valid_export_id,
 )
 
-_PNG_PREPROCESSOR = "bokeh.io.jupyter_export.BokehPNGPreprocessor"
 _MAX_TRANSIENT_EXPORT_BYTES = 50 * 1024 * 1024
 
 #-----------------------------------------------------------------------------
@@ -32,6 +32,7 @@ class _ExportSnapshotsHandler(JupyterHandler):
     '''Receive in-memory BokehJS state for one UI-initiated export.'''
 
     @web.authenticated
+    @authorized(resource="nbconvert")
     async def post(self) -> None:
         '''Store the correlated frontend state for one export request.
 
@@ -94,13 +95,10 @@ class _CorrelatedNbconvertFileHandler(NbconvertFileHandler):
             raise web.HTTPError(400, "A valid export_id correlation value is required")
         token = set_export_correlation(export_id)
         try:
-            await cast(Awaitable[Any], super().get(format, path))
+            exporter = "bokeh" if format == "html" else format
+            await cast(Awaitable[Any], super().get(exporter, path))
         finally:
             reset_export_correlation(token)
-
-def jupyter_labextension_paths() -> list[dict[str, str]]:
-    return [{"src": "labextension", "dest": "@bokeh/bokeh-jupyter"}]
-
 
 def _jupyter_server_extension_points() -> list[dict[str, str]]:
     return [{"module": "bokeh.jupyter"}]
@@ -108,14 +106,6 @@ def _jupyter_server_extension_points() -> list[dict[str, str]]:
 
 def _load_jupyter_server_extension(serverapp: Any) -> None:
     '''Enable export-only PNG capture for the server's HTML nbconvert route.'''
-    configured = serverapp.config.HTMLExporter.preprocessors
-    if isinstance(configured, list):
-        if _PNG_PREPROCESSOR not in configured:
-            configured.append(_PNG_PREPROCESSOR)
-    else:
-        configured = configured.get_value([])
-        if _PNG_PREPROCESSOR not in configured:
-            serverapp.config.HTMLExporter.preprocessors = [*configured, _PNG_PREPROCESSOR]
     web_app = getattr(serverapp, "web_app", None)
     if web_app is not None:
         route = url_path_join(web_app.settings.get("base_url", "/"), "bokeh-notebook", "export-snapshots")

@@ -31,9 +31,14 @@ export function withTimeout<T>(promise: Promise<T>, milliseconds: number, error:
 
 /** Shared bounded revision transport used by Jupyter comms and AnyWidget. */
 export class LiveRevisionTransport {
-  constructor(private readonly sendResync: () => void) {}
+  constructor(
+    private readonly sendResync: () => void,
+    private readonly onResyncFailure: (error: Error) => void = () => undefined,
+  ) {}
 
   private readonly queue = new RevisionQueue()
+  private resyncAttempts = 0
+  private resyncTimer?: number
   private readonly consumers = new Set<RevisionConsumer>()
   private readonly dispatch: RevisionConsumer = async (message, buffers) => {
     await Promise.all([...this.consumers].map(async (consumer) => consumer(message, buffers)))
@@ -41,11 +46,12 @@ export class LiveRevisionTransport {
 
   receive(message: any, buffers: DataView[] = []): boolean {
     if (message?.kind === "patch" && Number.isSafeInteger(message.revision)) {
-      if (this.queue.pushPatch(message, buffers) === "overflow") this.sendResync()
+      if (this.queue.pushPatch(message, buffers) === "overflow") this.beginResync()
       return true
     }
     if (message?.kind === "snapshot" && typeof message.artifact === "string" &&
         typeof message.resource_id === "string" && Number.isSafeInteger(message.revision)) {
+      this.finishResync()
       this.queue.replaceWithSnapshot(message, buffers)
       return true
     }
@@ -64,15 +70,35 @@ export class LiveRevisionTransport {
   }
 
   requestResync(): void {
-    if (this.queue.requestResync()) this.sendResync()
+    if (this.queue.requestResync()) this.beginResync()
   }
 
   reset(revision: number): void {
+    this.finishResync()
     this.queue.reset(revision)
   }
 
   clear(): void {
+    this.finishResync()
     this.consumers.clear()
     this.queue.clear()
+  }
+
+  private beginResync(): void {
+    this.resyncAttempts += 1
+    if (this.resyncAttempts > 3) {
+      this.finishResync()
+      this.onResyncFailure(new Error("Bokeh live synchronization failed after three snapshot requests"))
+      return
+    }
+    this.sendResync()
+    if (this.resyncTimer != null) window.clearTimeout(this.resyncTimer)
+    this.resyncTimer = window.setTimeout(() => this.beginResync(), 5000)
+  }
+
+  private finishResync(): void {
+    if (this.resyncTimer != null) window.clearTimeout(this.resyncTimer)
+    this.resyncTimer = undefined
+    this.resyncAttempts = 0
   }
 }

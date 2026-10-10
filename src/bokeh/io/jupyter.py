@@ -144,6 +144,12 @@ class _ResourcePayload(TypedDict):
     warnings: list[str]
     load_timeout: int
 
+class ResourceRecord(TypedDict):
+    '''Transport one notebook resource payload with its executable owner.'''
+
+    payload: _ResourcePayload
+    javascript: str
+
 class _DisplayPayload(TypedDict):
     protocol_version: int
     kind: Literal["artifact"]
@@ -153,9 +159,9 @@ class _DisplayPayload(TypedDict):
     source_kind: Literal["standalone", "server"]
     view_id: str
     connect_timeout: int
+    resource_records: NotRequired[list[ResourceRecord]]
     live_id: NotRequired[str]
     application_id: NotRequired[str]
-    application_url: NotRequired[str]
 
 class _FilePayload(TypedDict):
     protocol_version: int
@@ -230,7 +236,22 @@ def _artifact(resource: ResolvedResource) -> _ArtifactPayload:
 
 def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
         dependencies: list[str] | None = None, assets: tuple[ResolvedResource, ...] | None = None) -> _ResourcePayload:
-    '''Describe one explicit common-policy resource delta for a notebook host.'''
+    '''Describe one explicit common-policy resource delta for a notebook host.
+
+    Args:
+        resolved:
+            The complete resolved resource bundle.
+        load_timeout:
+            Maximum time in milliseconds for the frontend to load the bundle.
+        dependencies:
+            Resource record identifiers that must load before this record.
+        assets:
+            An optional subset of the resolved assets owned by this record.
+
+    Returns:
+        The versioned notebook resource payload.
+
+    '''
     selected = resolved.assets if assets is None else assets
     artifacts = [_artifact(resource) for resource in selected]
     descriptor = {
@@ -257,15 +278,52 @@ def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
     )
 
 def resource_artifact_ids(resolved: ResolvedResources) -> list[str]:
+    '''Return stable identifiers for every artifact in a resource bundle.
+
+    Args:
+        resolved:
+            The resolved resource bundle.
+
+    Returns:
+        The artifact identifiers in bundle order.
+
+    '''
     return [_artifact(resource)["id"] for resource in resolved.assets]
 
 
 def resource_asset_subset(resolved: ResolvedResources, artifact_ids: set[str]) -> tuple[ResolvedResource, ...]:
+    '''Select resolved assets by their stable artifact identifiers.
+
+    Args:
+        resolved:
+            The resolved resource bundle.
+        artifact_ids:
+            The artifact identifiers to retain.
+
+    Returns:
+        The selected assets in bundle order.
+
+    '''
     return tuple(resource for resource in resolved.assets if _artifact(resource)["id"] in artifact_ids)
 
 
 def resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResource, ...]) -> str:
-    ''' Render the single portable owner of a resource bundle's executable data. '''
+    '''Render the portable executable owner for a resource record.
+
+    Args:
+        payload:
+            The metadata describing the resource record.
+        assets:
+            The resolved assets owned by the record.
+
+    Returns:
+        JavaScript that registers and loads the resource record.
+
+    Raises:
+        RuntimeError:
+            If the payload metadata and supplied assets disagree.
+
+    '''
     from ..core.templates import PORTABLE_RESOURCES_JS
 
     if len(assets) != len(payload["artifacts"]):
@@ -284,10 +342,30 @@ def resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResourc
     )
 
 def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
-        live_id: str | None = None, application_id: str | None = None, application_url: str | None = None,
-        connect_timeout: int = 10_000) -> _DisplayPayload:
-    if (application_id is None) != (application_url is None):
-        raise ValueError("application_id and application_url must be provided together")
+        resource_records: list[ResourceRecord] | None = None, live_id: str | None = None,
+        application_id: str | None = None, connect_timeout: int = 10_000) -> _DisplayPayload:
+    '''Describe one notebook artifact display without copying its model graph.
+
+    Args:
+        result:
+            The embed result rendered by the output.
+        resource_id:
+            The terminal resource record required by the artifact.
+        view_id:
+            The stable identifier for this notebook output view.
+        resource_records:
+            Portable resource records needed to reopen the saved output.
+        live_id:
+            The optional connected-document transport identifier.
+        application_id:
+            The optional managed-application identifier.
+        connect_timeout:
+            Maximum time in milliseconds for a frontend connection.
+
+    Returns:
+        The versioned notebook display payload.
+
+    '''
     payload = _DisplayPayload(
         protocol_version=PROTOCOL_VERSION,
         kind="artifact",
@@ -298,15 +376,30 @@ def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
         view_id=view_id,
         connect_timeout=connect_timeout,
     )
+    if resource_records:
+        payload["resource_records"] = resource_records
     if live_id is not None:
         payload["live_id"] = live_id
     if application_id is not None:
         payload["application_id"] = application_id
-    if application_url is not None:
-        payload["application_url"] = application_url
     return payload
 
 def file_payload(path: str) -> _FilePayload:
+    '''Describe a safe file link relative to the current notebook.
+
+    Args:
+        path:
+            A POSIX-style path relative to the notebook.
+
+    Returns:
+        The versioned notebook file payload.
+
+    Raises:
+        ValueError:
+            If the path is absolute, traverses a parent, or uses native
+            Windows separators or drives.
+
+    '''
     candidate = PurePosixPath(path)
     windows = PureWindowsPath(path)
     if not path or candidate.is_absolute() or windows.is_absolute() or windows.drive or ".." in candidate.parts or "\\" in path:
