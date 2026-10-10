@@ -277,16 +277,18 @@ class Serializer:
         if ref is not None:
             return ref
 
+        if not self._check_circular:
+            return self._encode(obj)
+
         ident = id(obj)
-        if self._check_circular and ident in self._circular:
+        if ident in self._circular:
             self.error("circular reference")
 
         self._circular[ident] = obj
         try:
             return self._encode(obj)
         finally:
-            if ident in self._circular:
-                del self._circular[ident]
+            self._circular.pop(ident, None)
 
     def encode_struct(self, **fields: Any) -> dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
@@ -464,15 +466,24 @@ class Serializer:
         )
 
     def _encode_ndarray(self, obj: npt.NDArray[Any]) -> NDArrayRep:
-        array = transform_array(obj)
+        if isinstance(obj, np.ma.MaskedArray) and obj.dtype.kind == "U":
+            array = obj.data
+            mask = np.ma.getmaskarray(obj).ravel()
+        else:
+            array = transform_array(obj)
+            mask = None
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        if array.dtype.kind == 'U':
-            data = obj.flatten().tolist()
+        object_strings = array.dtype.kind == "O" and all(type(value) is str for value in array.flat)
+        if array.dtype.kind == "U" or object_strings:
+            values = array.ravel().tolist()
+            if mask is not None:
+                values = [None if masked else value for value, masked in zip(values, mask)]
+            data = values
             dtype = "object"
         elif array_encoding_disabled(array):
-            data = self._encode_list(array.flatten().tolist())
+            data = self._encode_list(array.ravel().tolist())
             dtype = "object"
         else:
             data = self._encode_bytes(array.data)
