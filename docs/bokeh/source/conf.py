@@ -114,18 +114,6 @@ bokeh_example_subdirs = [
     "topics/timeseries",
 ]
 
-# Published docs require working maps. Local builds may use placeholders.
-bokeh_missing_map_api_keys_ok = os.environ.get("BOKEH_DOCS_CDN") == "local"
-
-if not bokeh_missing_map_api_keys_ok:
-    for name in ("GOOGLE_API_KEY", "CARTO_API_KEY"):
-        if not os.environ.get(name):
-            raise RuntimeError(
-                f"The {name} environment variable is not set. Set it to a valid API key, "
-                "or set bokeh_missing_map_api_keys_ok=True in conf.py "
-                "or BOKEH_DOCS_CDN=local to build anyway (with broken maps).",
-            )
-
 bokeh_sampledata_xref_skiplist = [
     "examples/basic/data/ajax_source.py",
     "examples/basic/data/server_sent_events_source.py",

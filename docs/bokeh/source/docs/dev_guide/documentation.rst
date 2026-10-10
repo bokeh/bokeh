@@ -120,20 +120,14 @@ environment automatically, whether or not its shell is already active.
 2. Set environment variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to build the documentation, you must set the
-:ref:`environment variable <ug_settings>` ``GOOGLE_API_KEY`` and ``CARTO_API_KEY``. The
-documentation includes some plots with maps, and a valid Google API key is
-required to build those plots correctly. CARTO tiles also require a
-`CARTO Basemaps API key <https://carto.com/basemaps/apikey/>`_. You have two options:
+Local and test CI documentation builds do not require map API keys. Map plots
+will not work without valid keys, but the rest of the documentation builds normally.
 
-* Follow the instructions on the `Google developers website`_ to generate a new
-  API key.
-
-* Use a placeholder value like ``some_value`` instead of a valid API key. If
-  you use a placeholder, some map plots in Bokeh's documentation might not be
-  rendered correctly, but the documentation should otherwise be built correctly.
-  This will only affect your local environment and should have no effect on any
-  changes you might commit to the Bokeh repository.
+To render the maps, obtain a key from the `Google developers website`_ and a
+`CARTO Basemaps API key <https://carto.com/basemaps/apikey/>`_, then set
+``GOOGLE_API_KEY`` and ``CARTO_API_KEY``. Release documentation builds require
+both environment variables to be nonempty. ``tools.release`` checks them before
+starting the documentation build.
 
 Set the environment variable for the terminal session that will build the
 documentation:
@@ -171,10 +165,6 @@ are included in the generated plots and visible to visitors. Use keys restricted
 to the documentation site's domains, according to each provider's controls.
 The release build reads them from the ``GOOGLE_API_KEY`` and ``CARTO_API_KEY``
 GitHub Actions secrets.
-
-For local builds without keys, set ``BOKEH_DOCS_CDN=local`` or
-``bokeh_missing_map_api_keys_ok=True`` in ``conf.py``. Map plots will not work
-until valid keys are supplied.
 
 Do not add API keys to ``pixi.toml`` or commit them to the repository.
 

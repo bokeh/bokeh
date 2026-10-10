@@ -22,6 +22,30 @@ from tools.release.pipeline import StepType
 from tools.release.system import System
 
 
+@pytest.fixture(autouse=True)
+def map_api_keys(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
+    monkeypatch.setenv("CARTO_API_KEY", "test-carto-key")
+
+
+@pytest.mark.parametrize("name", ["GOOGLE_API_KEY", "CARTO_API_KEY"])
+@pytest.mark.parametrize("value", [None, ""])
+def test_release_docs_require_map_keys(
+        config: Config, monkeypatch: pytest.MonkeyPatch, name: str, value: str | None) -> None:
+    if value is None:
+        monkeypatch.delenv(name)
+    else:
+        monkeypatch.setenv(name, value)
+    system = RecordingSystem()
+
+    result = build.build_docs(config, system)
+
+    assert result.kind is ActionResult.FAIL
+    assert result.details == (f"{name} is required for release documentation builds",)
+    assert not system.calls
+    assert not system.directories
+
+
 def test_conda_recipe_dependencies_match_project_dependencies() -> None:
     with open(TOP_PATH / "pyproject.toml", "rb") as f:
         project_dependencies = tomllib.load(f)["project"]["dependencies"]

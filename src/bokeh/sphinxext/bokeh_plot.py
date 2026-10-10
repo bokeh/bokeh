@@ -406,7 +406,6 @@ def setup(app: Any) -> _PlotSphinxSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
-    app.add_config_value("bokeh_missing_map_api_keys_ok", True, "html")
     app.connect("builder-inited", builder_inited)
     app.connect("doctree-resolved", add_page_resources)
     app.connect("build-finished", build_finished)
@@ -419,20 +418,7 @@ def setup(app: Any) -> _PlotSphinxSpec:
 # -----------------------------------------------------------------------------
 
 
-def _check_api_keys(source: str, env: Any) -> None:
-    if env.config.bokeh_missing_map_api_keys_ok:
-        return
-    for name in ("GOOGLE_API_KEY", "CARTO_API_KEY"):
-        if name in source and not getenv(name):
-            raise SphinxError(
-                f"The {name} environment variable is not set. Set {name} to a valid API key, "
-                "or set bokeh_missing_map_api_keys_ok=True in conf.py to build anyway (with broken maps)",
-            )
-
-
 def _evaluate_source(source: str, filename: str, env: Any) -> tuple[Model, str | None]:
-    _check_api_keys(source, env)
-
     c = ExampleHandler(source=source, filename=filename)
     d = Document()
 

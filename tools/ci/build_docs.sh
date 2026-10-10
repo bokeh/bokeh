@@ -3,13 +3,6 @@
 set -x #echo on
 
 cd docs/bokeh
-# CI validates the build without production map credentials.
-{
-    set +x
-} 2> /dev/null
-export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
-export CARTO_API_KEY=${CARTO_API_KEY:-"unset"}
-set -x
 
 START=$SECONDS
 
