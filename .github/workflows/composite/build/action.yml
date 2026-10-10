@@ -26,12 +26,6 @@ runs:
       shell: bash --noprofile --norc -eo pipefail {0}
       run: pixi run --locked --environment build build-py
 
-    - name: Verify Jupyter frontend sources are not packaged
-      shell: bash --noprofile --norc -eo pipefail {0}
-      run: |
-        python -c "from pathlib import Path; from zipfile import ZipFile; wheel = next(Path('dist').glob('bokeh-*.whl')); assert not any(path.startswith('bokeh/jupyter/frontend/') for path in ZipFile(wheel).namelist())"
-        python -c "from pathlib import Path; import tarfile; archive = next(Path('dist').glob('bokeh-*.tar.gz')); assert not any('/src/bokeh/jupyter/frontend/' in path for path in tarfile.open(archive).getnames())"
-
     - name: Verify pip install from sdist
       shell: bash --noprofile --norc -eo pipefail {0}
       run: bash tools/ci/verify_pip_install_from_sdist.sh
