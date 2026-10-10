@@ -14,13 +14,14 @@ pytest.importorskip("anywidget", minversion="0.11")
 from bokeh.document import Document
 from bokeh.embed import embed_server
 from bokeh.io.notebook import ApplicationViewHandle, DocumentViewHandle
-from bokeh.io.jupyter import ResourceRecord
+from bokeh.io.jupyter import ExecutableResourceRecord
 from bokeh.models import Div
 
 # Module under test
 import bokeh.io._anywidget as m # isort:skip
 
 _FRONTEND_ID = "frontend"
+_SECOND_FRONTEND_ID = "frontend-second"
 
 
 def test_display_widget_uses_standard_widget_mime_bundle() -> None:
@@ -35,7 +36,7 @@ def test_display_widget_uses_standard_widget_mime_bundle() -> None:
 
 
 def test_widget_returns_and_rejects_explicit_resource_requests() -> None:
-    record = cast(ResourceRecord, {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"})
+    record = cast(ExecutableResourceRecord, {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"})
     widget = m.display_widget({"kind": "artifact"}, "", {"resources": record})
     with patch.object(widget, "send") as send:
         widget._receive(widget, {
@@ -56,7 +57,7 @@ def test_widget_returns_and_rejects_explicit_resource_requests() -> None:
 
 
 def test_resource_reply_validates_ids_and_returns_typed_protocol_messages() -> None:
-    record = cast(ResourceRecord, {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"})
+    record = cast(ExecutableResourceRecord, {"payload": {"resource_id": "resources"}, "javascript": "window.Bokeh = {}"})
 
     assert m._resource_reply("one", "resources", {"resources": record}) == {
         "kind": "resource",
@@ -137,7 +138,7 @@ def test_widget_keeps_the_kernel_local_application_url_out_of_its_payload() -> N
     handle.close()
 
 
-def test_widget_reconnect_after_page_reload_receives_a_fresh_snapshot() -> None:
+def test_widget_new_view_after_page_reload_receives_a_fresh_snapshot() -> None:
     root = Div(text="before")
     document = Document()
     document.add_root(root)
@@ -149,14 +150,42 @@ def test_widget_reconnect_after_page_reload_receives_a_fresh_snapshot() -> None:
     with patch.object(widget, "send", side_effect=lambda data, buffers=None: sent.append(data)):
         widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
         root.text = "after-reload"
-        # A hard page reload cannot reliably notify Python that its old view
-        # disappeared. The new widget manager repeats ``ready`` on the same
-        # backend comm and must still receive a current snapshot.
-        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+        widget._receive(widget, {"kind": "active", "frontend_id": _SECOND_FRONTEND_ID}, [])
 
-    assert handle.views == 1
+    assert handle.views == 2
     assert sent[-1]["kind"] == "snapshot"
     assert "after-reload" in sent[-1]["artifact"]
+    widget._receive(widget, {"kind": "inactive", "frontend_id": _FRONTEND_ID}, [])
+    assert handle.views == 1
+    handle.close()
+
+
+def test_widget_prunes_frontends_that_stop_renewing_their_lease() -> None:
+    root = Div()
+    handle = DocumentViewHandle(root, live_id="live", view_id="view")
+    widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
+
+    with patch("bokeh.io._anywidget.monotonic", side_effect=[0.0, 0.0, 60.0, 60.0]):
+        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+        widget._receive(widget, {"kind": "active", "frontend_id": _SECOND_FRONTEND_ID}, [])
+
+    assert handle.views == 1
+    assert _FRONTEND_ID not in widget._transports
+    assert _SECOND_FRONTEND_ID in widget._transports
+    handle.close()
+
+
+def test_widget_bounds_frontend_transports() -> None:
+    root = Div()
+    handle = DocumentViewHandle(root, live_id="live", view_id="view")
+    widget = m.display_widget({"kind": "artifact"}, "", {}, handle=handle)
+
+    with patch("bokeh.io._anywidget.monotonic", return_value=0.0):
+        for index in range(m._MAX_TRANSPORTS + 1):
+            widget._receive(widget, {"kind": "active", "frontend_id": f"frontend-{index}"}, [])
+
+    assert handle.views == m._MAX_TRANSPORTS
+    assert "frontend-0" not in widget._transports
     handle.close()
 
 
@@ -169,6 +198,7 @@ def test_show_doc_uses_anywidget_without_duplicate_mime_outputs() -> None:
     widget = MagicMock()
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=True),
         patch("bokeh.io.notebook.anywidget_available", return_value=True),
         patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resources") as ensure,
         patch("bokeh.io.notebook.publish_display_data") as publish,

@@ -10,6 +10,8 @@ import {DISPLAY_MIME_TYPE, DisplayPayload, FILE_MIME_TYPE, RESOURCES_MIME_TYPE, 
 import {DisplayRenderer, FileRenderer, ResourceRenderer} from "./renderers"
 import {FrontendDocumentSnapshot, loadResources, resetResourceRegistry} from "./runtime"
 
+const VIEW_RELEASE_GRACE_MS = 30_000
+
 export class NotebookExtension implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
   constructor(private readonly contents: Contents.IManager) {}
 
@@ -75,7 +77,7 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
           const timer = window.setTimeout(() => {
             pendingReleases.delete(viewId)
             if (!this.viewOwners.has(viewId)) void proxy.releaseView?.(viewId)
-          }, 0)
+          }, VIEW_RELEASE_GRACE_MS)
           pendingReleases.set(viewId, timer)
         } else {
           void proxy.releaseView?.(viewId)
@@ -185,6 +187,7 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
     const kernelChanged = () => resetResourceRegistry(manager)
     context.sessionContext.kernelChanged.connect(kernelChanged)
     return new DisposableDelegate(() => {
+      const closingViews = new Set(localViewOwners.keys())
       context.sessionContext.kernelChanged.disconnect(kernelChanged)
       context.model.cells.changed.disconnect(cellsChanged)
       for (const cell of [...watched.keys()]) unwatch(cell)
@@ -194,8 +197,8 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
       manager.setOwnedViews(new Set())
       for (const timer of pendingReleases.values()) window.clearTimeout(timer)
       pendingReleases.clear()
-      for (const [viewId, owners] of [...localViewOwners]) {
-        for (let index = 0; index < owners; index++) releaseView(viewId, false)
+      for (const viewId of closingViews) {
+        if (!this.viewOwners.has(viewId)) void proxy.releaseView?.(viewId)
       }
       this.managers.delete(manager)
       manager.dispose()

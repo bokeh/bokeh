@@ -17,7 +17,7 @@ import secrets
 import socket
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from os import PathLike as OSPathLike, fspath
 from types import ModuleType
 from typing import TYPE_CHECKING, Any
@@ -153,6 +153,8 @@ class _ASGIServerThread:
         if not self._finished.wait(self._shutdown_timeout):
             self._server.force_exit = True
             if not self._finished.wait(self._shutdown_timeout):
+                if self._socket is not None:
+                    self._socket.close()
                 raise TimeoutError(f"ASGI notebook application did not stop within {self._shutdown_timeout:g} seconds")
         self._thread.join()
         if self._failure is not None:
@@ -259,6 +261,8 @@ class NotebookApplication:
             with the same key stops this application first.
         address:
             The loopback address on which to host the application.
+        extra_websocket_origins:
+            Additional ``host[:port]`` patterns allowed to open WebSockets.
         uvicorn_kwargs:
             Additional keyword arguments for the private Uvicorn host.
         server_kwargs:
@@ -268,7 +272,8 @@ class NotebookApplication:
 
     def __init__(self, application: Application | Callable[[Document], None] | ModuleType | str | OSPathLike[str], *,
             notebook_url: str | ProxyUrlFunc | None = None, port: int = 0, key: str | None = None,
-            address: str = "127.0.0.1", uvicorn_kwargs: dict[str, Any] | None = None,
+            address: str = "127.0.0.1", extra_websocket_origins: Sequence[str] | None = None,
+            uvicorn_kwargs: dict[str, Any] | None = None,
             **server_kwargs: Any) -> None:
         from ..server.asgi import BokehASGI
         from .notebook import (
@@ -305,6 +310,10 @@ class NotebookApplication:
             origins = [_authorized_origin(configured_url)]
         else:
             origins = ["127.0.0.1:*", "localhost:*"]
+        if extra_websocket_origins is not None:
+            if isinstance(extra_websocket_origins, str) or not all(isinstance(origin, str) for origin in extra_websocket_origins):
+                raise TypeError("extra_websocket_origins must be a sequence of host[:port] strings")
+            origins = list(dict.fromkeys([*origins, *extra_websocket_origins]))
 
         self._application_id = uuid4().hex
         self._prefix = f"bokeh-notebook/{secrets.token_urlsafe(24)}"
@@ -491,6 +500,7 @@ class NotebookApplication:
 
 def serve(application: Application | Callable[[Document], None] | ModuleType | str | OSPathLike[str], *,
         notebook_url: str | ProxyUrlFunc | None = None, port: int = 0, key: str | None = None,
+        extra_websocket_origins: Sequence[str] | None = None,
         **server_kwargs: Any) -> NotebookApplication:
     ''' Start a managed ASGI notebook application for later ``show`` calls.
 
@@ -509,6 +519,8 @@ def serve(application: Application | Callable[[Document], None] | ModuleType | s
             Optional stable replacement key. Starting another application with
             the same key stops this application first. Jupyter cell IDs are
             used automatically when available.
+        extra_websocket_origins:
+            Additional ``host[:port]`` patterns allowed to open WebSockets.
         server_kwargs:
             Additional keyword arguments for :class:`~bokeh.server.asgi.BokehASGI`.
 
@@ -520,6 +532,7 @@ def serve(application: Application | Callable[[Document], None] | ModuleType | s
         notebook_url=notebook_url,
         port=port,
         key=key,
+        extra_websocket_origins=extra_websocket_origins,
         **server_kwargs,
     )
 

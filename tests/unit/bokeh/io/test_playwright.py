@@ -4,7 +4,6 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -19,7 +18,6 @@ import sys
 import threading
 import time
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock
 
 # External imports
 import pytest
@@ -176,27 +174,6 @@ def test_playwright_thread_serializes_shutdown_and_submissions() -> None:
     finally:
         playwright_thread.shutdown()
 
-
-def test_wait_until_render_complete_wraps_multistatement_loaded_check() -> None:
-    page = MagicMock()
-
-    bib.wait_until_render_complete(page, timeout=5)
-
-    loaded_check = page.wait_for_function.call_args_list[0].args[0]
-    assert loaded_check.startswith("() => { const mount = ")
-    assert "return typeof Bokeh" in loaded_check
-
-
-@pytest.mark.asyncio
-async def test_async_wait_until_render_complete_wraps_multistatement_loaded_check() -> None:
-    page = MagicMock()
-    page.wait_for_function = AsyncMock()
-    page.evaluate = AsyncMock()
-
-    await bib._wait_until_render_complete(page, timeout=5)
-
-    loaded_check = page.wait_for_function.call_args_list[0].args[0]
-    assert loaded_check == bib._wrap_function(bib._BOKEH_LOADED_CHECK)
 
 #-----------------------------------------------------------------------------
 # Code

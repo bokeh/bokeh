@@ -42,34 +42,33 @@ function deferred<T>(): Deferred<T> {
 }
 
 export default function anywidgetFactory() {
-  const frontendId = crypto.randomUUID()
-  const send = (model: AnyModel, data: Record<string, unknown>) => model.send({...data, frontend_id: frontendId})
-  // initialize() may run before render() and patches may arrive before a view
-  // exists. Keep one bounded, revisioned queue until render() attaches the
-  // listener; overflow requests a complete snapshot instead of retaining an
-  // unbounded or partially ordered history.
-  let snapshot: Snapshot | undefined
-  const snapshotReady = deferred<Snapshot>()
+  const initialize = (_context: AnyWidgetContext) => undefined
 
-  let sendResync: () => void = () => undefined
-  let applicationArtifact: string | undefined
-  const applicationOpened = deferred<string>()
-  let liveClosed = false
-  const liveCloseListeners = new Set<() => void>()
-  const revisions = new LiveRevisionTransport(
-    () => sendResync(),
-    () => {
-      liveClosed = true
-      for (const listener of liveCloseListeners) listener()
-    },
-  )
-  let applicationClosed = false
-  const applicationCloseListeners = new Set<() => void>()
-  const resourceWaiters = new Map<string, ResourceWaiter>()
-  let resourceSequence = 0
-
-  const initialize = ({model, signal}: AnyWidgetContext) => {
-    sendResync = () => send(model, {kind: "resync"})
+  const render = async ({model, el, signal}: AnyWidgetRenderContext) => {
+    const frontendId = crypto.randomUUID()
+    const send = (data: Record<string, unknown>) => model.send({...data, frontend_id: frontendId})
+    const payload = model.get("payload") as DisplayPayload
+    const html = String(model.get("html") ?? "")
+    let snapshot: Snapshot | undefined
+    const snapshotReady = deferred<Snapshot>()
+    let applicationArtifact: string | undefined
+    const applicationOpened = deferred<string>()
+    let liveClosed = false
+    const liveCloseListeners = new Set<() => void>()
+    let applicationClosed = false
+    const applicationCloseListeners = new Set<() => void>()
+    const resourceWaiters = new Map<string, ResourceWaiter>()
+    let resourceSequence = 0
+    let deactivated = false
+    let deactivate: (kind?: "inactive" | "disposed") => void = () => undefined
+    const revisions = new LiveRevisionTransport(
+      () => send({kind: "resync"}),
+      () => {
+        liveClosed = true
+        for (const listener of liveCloseListeners) listener()
+        deactivate()
+      },
+    )
 
     const receive = (data: any, buffers: ArrayBufferView[] = []) => {
       if (data?.frontend_id !== frontendId) return
@@ -79,6 +78,7 @@ export default function anywidgetFactory() {
           typeof data.resource_id === "string" && Number.isSafeInteger(data.revision)) {
         const initial = snapshot == null
         snapshot = {artifactJson: data.artifact, resourceId: data.resource_id, revision: data.revision}
+        liveClosed = false
         snapshotReady.resolve(snapshot)
         if (initial) revisions.reset(data.revision)
         else revisions.receive(data)
@@ -89,7 +89,7 @@ export default function anywidgetFactory() {
           if (typeof applicationUrl !== "string" || applicationUrl.length === 0) {
             throw new Error("the application artifact does not contain a server URL")
           }
-          send(model, {kind: "application_url", application_url: applicationUrl})
+          send({kind: "application_url", application_url: applicationUrl})
         } catch (error) {
           applicationOpened.reject(new BokehNotebookError(
             "APPLICATION_ARTIFACT_INVALID",
@@ -100,6 +100,7 @@ export default function anywidgetFactory() {
         }
       } else if (data?.kind === "ready" && typeof data.artifact === "string") {
         applicationArtifact = resolveJupyterApplicationArtifact(data.artifact, jupyterServerBaseUrl())
+        applicationClosed = false
         applicationOpened.resolve(applicationArtifact)
       } else if (data?.kind === "ready") {
         applicationOpened.reject(new BokehNotebookError(
@@ -145,29 +146,40 @@ export default function anywidgetFactory() {
       }
     }
     model.on("msg:custom", receive)
-    signal.addEventListener("abort", () => {
-      // The AnyWidget abort signal is the host's release boundary. Reject
-      // outstanding work, unsubscribe from the comm, and tell Python to drop
-      // this view; render() separately disposes its BokehMount.
-      const error = new DOMException("Rendering was cancelled", "AbortError")
+    const heartbeat = window.setInterval(() => {
+      if (deactivated) return
+      try {
+        send({kind: "heartbeat"})
+      } catch {
+        deactivate()
+      }
+    }, 15_000)
+    const aborted = () => deactivate("disposed")
+    signal.addEventListener("abort", aborted, {once: true})
+    deactivate = (kind = "inactive") => {
+      if (deactivated) return
+      deactivated = true
+      window.clearInterval(heartbeat)
+      signal.removeEventListener("abort", aborted)
+      model.off("msg:custom", receive)
+      const error = signal.reason ?? new DOMException("Rendering was cancelled", "AbortError")
       for (const waiter of resourceWaiters.values()) waiter.reject(error)
       resourceWaiters.clear()
       revisions.clear()
       liveCloseListeners.clear()
       applicationCloseListeners.clear()
-      model.off("msg:custom", receive)
       try {
-        send(model, {kind: "disposed"})
+        send({kind})
       } catch {
-        // The host may close its comm before aborting the mounted widget.
+        // The host may close its comm before releasing the mounted widget.
       }
-    }, {once: true})
-  }
-
-  const render = async ({model, el, signal}: AnyWidgetRenderContext) => {
-    const payload = model.get("payload") as DisplayPayload
-    const html = String(model.get("html") ?? "")
-    send(model, {kind: "active"})
+    }
+    try {
+      send({kind: "active"})
+    } catch (error) {
+      deactivate()
+      throw error
+    }
 
     const kernel: KernelProxy = {
       async requestResource(resourceId) {
@@ -176,7 +188,7 @@ export default function anywidgetFactory() {
           resourceWaiters.set(requestId, {resolve, reject})
         })
         try {
-          send(model, {kind: "request_resource", request_id: requestId, resource_id: resourceId})
+          send({kind: "request_resource", request_id: requestId, resource_id: resourceId})
         } catch (cause) {
           resourceWaiters.delete(requestId)
           throw new BokehNotebookError(
@@ -218,16 +230,6 @@ export default function anywidgetFactory() {
               const count = Number(el.dataset.bokehAnywidgetMessages ?? "0") + 1
               el.dataset.bokehAnywidgetMessages = String(count)
               await callback(message, buffers)
-              if (message?.kind === "patch" && Number.isSafeInteger(message.revision)) {
-                const current = currentDocumentSnapshot(el, payload)
-                if (current?.artifact_json != null) {
-                  snapshot = {
-                    artifactJson: current.artifact_json,
-                    resourceId: snapshot?.resourceId ?? payload.resource_id,
-                    revision: message.revision,
-                  }
-                }
-              }
             }
             revisions.subscribe(listener)
             subscriptions.add(() => revisions.unsubscribe(listener))
@@ -246,6 +248,7 @@ export default function anywidgetFactory() {
           close() {
             for (const unsubscribe of subscriptions) unsubscribe()
             subscriptions.clear()
+            deactivate()
           },
         }
       },
@@ -290,11 +293,11 @@ export default function anywidgetFactory() {
       return () => {
         window.removeEventListener("bokeh:notebook-export-snapshots", collect)
         cleanup()
-        send(model, {kind: "inactive"})
+        deactivate()
       }
     } catch (error) {
       removeLoading()
-      send(model, {kind: "inactive"})
+      deactivate()
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         renderDiagnostic(el, error, {payload, renderer: "anywidget"})
       }

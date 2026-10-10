@@ -11,9 +11,14 @@ describe("notebook host URL resolution", () => {
     )).toBe("https://hub.example.test/user/alice/proxy/4312/bokeh-notebook/nonce/")
   })
 
-  it("preserves direct local and explicitly configured application URLs", () => {
+  it("uses the Jupyter proxy even when the page itself is local", () => {
     const local = "http://127.0.0.1:4312/bokeh-notebook/nonce/"
-    expect(resolveJupyterApplicationUrl(local, "/", "http://localhost:8888/lab")).toBe(local)
+    expect(resolveJupyterApplicationUrl(local, "/", "http://localhost:8888/lab")).toBe(
+      "http://localhost:8888/proxy/4312/bokeh-notebook/nonce/",
+    )
+  })
+
+  it("preserves explicitly configured application URLs", () => {
     const explicit = "https://apps.example.test/user/alice/proxy/4312/bokeh-notebook/nonce/"
     expect(resolveJupyterApplicationUrl(explicit, "/user/alice/", "https://hub.example.test/lab")).toBe(explicit)
   })

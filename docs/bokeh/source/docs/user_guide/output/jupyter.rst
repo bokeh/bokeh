@@ -49,17 +49,17 @@ the artifact's explicit resource requirements and mounts it through the common
     :align: center
     :alt: JupyterLab displaying a static final-expression plot and a connected Bokeh show output.
 
-Install the ``notebook`` extra to use Bokeh's AnyWidget transport for connected
-views across JupyterLab, Notebook, VS Code, Colab, and marimo:
+Install the ``notebook`` extra to use Bokeh's AnyWidget transport in Colab and
+marimo:
 
 .. code-block:: sh
 
     pip install "bokeh[notebook]"
 
-Every output advertises Bokeh's artifact MIME type, an AnyWidget view when
-available, and an HTML fallback. JupyterLab selects the first-party Bokeh
-renderer, while VS Code, Colab, marimo, and other widget hosts can select
-AnyWidget without Python guessing which frontend is attached. AnyWidget carries
+JupyterLab and Notebook 7 outputs advertise Bokeh's artifact MIME type and an
+HTML fallback. Colab and marimo instead receive an AnyWidget view because
+those runtimes can be identified from Python without guessing which Jupyter
+frontend is attached. AnyWidget carries
 revisioned live patches, fresh artifact snapshots, resource requests, and
 application-view lifecycle messages. The artifact MIME record is the durable
 representation for saved Jupyter notebooks, static previews, and HTML/PNG
@@ -67,8 +67,9 @@ export. AnyWidget bounds queued patches to 64 messages and 8 MiB; on
 overflow or a revision gap it discards the queue and requests a fresh snapshot.
 The same bound remains in force while a frontend is processing updates, so a
 slow remount cannot grow an unbounded promise chain.
-Each display also carries its transitive resource records, so replacing or
-deleting an earlier cell cannot break a later saved output. The browser caches
+Each display's HTML carries one executable copy of its transitive resource
+records, while the display MIME payload carries their metadata. Replacing or
+deleting an earlier cell therefore cannot break a later saved output. The browser caches
 each resource ID and executes identical ``INLINE`` resources only once per
 frontend.
 
@@ -116,22 +117,22 @@ Host capabilities
     * - JupyterLab 4
       - Auto-starting; browser-tested
       - Contract-tested
-      - Browser-tested; AnyWidget or bundled comm
+      - Browser-tested; bundled comm
       - Browser-tested
     * - Notebook 7
       - Auto-starting; shares the JupyterLab renderer
       - Contract-tested
-      - Contract-tested; AnyWidget or bundled comm
+      - Contract-tested; bundled comm
       - Browser reachability applies
     * - Classic Notebook 6
       - None required
       - Contract-tested for trusted output
-      - AnyWidget when the notebook extra is installed
+      - Static fallback only
       - Unverified; browser reachability applies
     * - VS Code notebooks
       - No first-party VS Code renderer
       - Contract-tested; host execution policy applies
-      - AnyWidget when the notebook extra is installed
+      - Static fallback only
       - Unverified; webview origin and reachability apply
     * - Colab
       - No extension installation
@@ -174,17 +175,8 @@ marimo
 marimo is a native AnyWidget host, so both ``show(plot)`` and automatic final
 expressions use Bokeh's AnyWidget adapter. The adapter also accounts for
 marimo's shadow-DOM output isolation when BokehJS resolves document roots.
-Until marimo's built-in Bokeh formatter is updated for Bokeh 4.0, put this
-temporary compatibility command in the first cell, before importing Bokeh:
-
-.. code-block:: python
-
-    from marimo._output.formatters.formatters import THIRD_PARTY_FACTORIES
-    THIRD_PARTY_FACTORIES["bokeh"].register = lambda: None
-
-This disables only marimo's legacy Bokeh formatter; it does not monkeypatch
-Bokeh. Remove the command once the marimo formatter delegates Bokeh 4 output
-to its rich representation. See the :bokeh-tree:`examples/output/marimo/bokeh_marimo.py`
+Bokeh disables marimo's legacy pre-4.0 formatter automatically. See the
+:bokeh-tree:`examples/output/marimo/bokeh_marimo.py`
 example for a connected plot, batched Python updates, and a static final
 expression.
 
@@ -346,10 +338,9 @@ applies. There are three distinct synchronization models:
   ``app.stop()`` closes all its views. Arbitrary variables in other notebook
   cells are not automatically models in that session.
 
-Live standalone output requires a supported comm channel. With the notebook
-extra installed, AnyWidget provides that channel in JupyterLab, Notebook,
-VS Code, Colab, and marimo. Without it, JupyterLab and Notebook use Bokeh's
-bundled comm implementation. Colab rejects connected output without AnyWidget
+Live standalone output requires a supported comm channel. JupyterLab and
+Notebook 7 use Bokeh's bundled comm implementation. Colab and marimo use
+AnyWidget from the notebook extra. Colab rejects connected output without AnyWidget
 with an actionable install message. A host with neither transport degrades to
 the saved static snapshot with a visible "not connected to Python" notice; no
 path silently pretends that synchronization is active.
@@ -623,9 +614,9 @@ Nested handle contexts are supported. Changes are still sent if the context body
 raises, because the Python models have already changed. Call ``handle.close()``
 when the output should stop observing its source document.
 
-Connected handles use the first-party extension's kernel comm bridge in JupyterLab
-and Notebook 7. Other hosts may only support the portable static output
-fallback.
+Connected handles use the first-party extension's kernel comm bridge in
+JupyterLab and Notebook 7, and the AnyWidget bridge in Colab and marimo. Other
+hosts may only support the portable static output fallback.
 
 .. _ug_output_jupyter_notebook_jupyter_interactors:
 

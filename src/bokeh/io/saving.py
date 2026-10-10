@@ -113,7 +113,9 @@ def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLi
     ''' Save an HTML file with the data for the current document.
 
     If the filename is not given, it is derived from the script name (e.g.
-    ``/foo/myplot.py`` will create ``/foo/myplot.html``).
+    ``/foo/myplot.py`` will create ``/foo/myplot.html``). A complete source
+    document supplies its own theme. Otherwise the current document's theme is
+    used.
 
     Args:
         obj (UIElement or DOMNode object) : a Layout (Row/Column), Plot or Widget object to display
@@ -140,7 +142,8 @@ def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLi
 
     filename, resources, title = _get_save_args(filename, resources, title)
     _save_helper(obj, filename, resources, title, template)
-    return _SavedFile(abspath(expanduser(filename)), filename)
+    resolved = abspath(expanduser(filename))
+    return _SavedFile(resolved, _notebook_link_path(filename, resolved))
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -149,6 +152,20 @@ def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLi
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _notebook_link_path(filename: PathLike, resolved: str) -> PathLike | None:
+    try:
+        from IPython import get_ipython
+
+        shell = get_ipython()
+        if shell is None or getattr(shell, "kernel", None) is None:
+            return filename
+        starting_dir = getattr(shell, "starting_dir", None)
+        if not isinstance(starting_dir, str) or not starting_dir:
+            return None
+        return Path(resolved).resolve().relative_to(Path(starting_dir).resolve()).as_posix()
+    except (ImportError, OSError, ValueError):
+        return None
 
 def _get_save_args(filename: PathLike | None, resources: ResourcesLike | None,
         title: str | None) -> tuple[PathLike, Resources, str]:

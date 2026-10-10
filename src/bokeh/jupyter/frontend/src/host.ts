@@ -37,8 +37,8 @@ export function resolveJupyterApplicationUrl(applicationUrl: string, serverBaseU
   })()
   if (urls == null) return applicationUrl
   const {application, page} = urls
-  if (!loopbackHosts.has(application.hostname.toLowerCase()) || loopbackHosts.has(page.hostname.toLowerCase()) ||
-      application.port.length === 0 || serverBaseUrl == null || serverBaseUrl.length === 0) {
+  if (!loopbackHosts.has(application.hostname.toLowerCase()) || application.port.length === 0 ||
+      serverBaseUrl == null || serverBaseUrl.length === 0) {
     return applicationUrl
   }
   try {

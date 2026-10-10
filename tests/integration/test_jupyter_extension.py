@@ -116,12 +116,21 @@ save(q, "safe-output.html")
     ).execute(env=_project_environment())
     outputs = [output for cell in notebook.cells for output in cell.outputs]
     resources = [output.data[RESOURCES_MIME_TYPE] for output in outputs if RESOURCES_MIME_TYPE in output.get("data", {})]
-    displays = [output.data[DISPLAY_MIME_TYPE] for output in outputs if DISPLAY_MIME_TYPE in output.get("data", {})]
+    display_outputs = [output for output in outputs if DISPLAY_MIME_TYPE in output.get("data", {})]
+    displays = [output.data[DISPLAY_MIME_TYPE] for output in display_outputs]
 
     assert resources == []
     assert len(displays) == 2
     assert len({payload["resource_id"] for payload in displays}) == 1
     assert all(payload["resource_records"][-1]["payload"]["resource_id"] == payload["resource_id"] for payload in displays)
+    assert all(
+        all("javascript" not in record for record in payload["resource_records"])
+        for payload in displays
+    )
+    assert all(
+        output.data["text/html"].count("data-bokeh-notebook-resource-record") == len(payload["resource_records"])
+        for output, payload in zip(display_outputs, displays)
+    )
     file_output = notebook.cells[2].outputs[-1].data
     assert file_output["application/vnd.bokeh.file+json"]["path"] == "safe-output.html"
 

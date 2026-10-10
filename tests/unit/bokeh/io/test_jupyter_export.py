@@ -197,6 +197,24 @@ def test_signature_store_is_closed() -> None:
     notary.close.assert_called_once_with()
 
 
+def test_real_notebook_signature_survives_jupyter_trust_metadata(tmp_path: Any) -> None:
+    notebook = _notebook()
+    notebook.cells[0].metadata.pop("trusted", None)
+    notary = m.NotebookNotary(data_dir=str(tmp_path), db_file=str(tmp_path / "signatures.db"))
+    notary.sign(notebook)
+    notebook.cells[0].metadata["trusted"] = True
+
+    with patch("bokeh.io.jupyter_export.NotebookNotary", return_value=notary):
+        assert m.BokehPNGPreprocessor()._check_signature(notebook)
+
+
+def test_bokeh_trust_check_runs_before_mutating_nbconvert_preprocessors() -> None:
+    exporter = m.BokehHTMLExporter()
+    names = [type(preprocessor).__name__ for preprocessor in exporter._preprocessors]
+
+    assert names.index("BokehPNGPreprocessor") < names.index("HighlightMagicsPreprocessor")
+
+
 def test_resource_owner_outputs_are_removed_from_export() -> None:
     notebook = _notebook()
     notebook.cells[0].outputs.insert(0, nbformat.v4.new_output(

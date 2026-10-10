@@ -38,7 +38,7 @@ from typing import (
 
 # Bokeh imports
 from ..util.serialization import make_id
-from .jupyter import NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET
+from .jupyter import NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET, ResourceRecord
 
 if TYPE_CHECKING:
     from ..core.types import ID
@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     from ..model import Model
     from ..models.ui import UIElement
     from ..resources import ResourcesLike
-    from .jupyter import ResourceRecord
+    from .jupyter import ExecutableResourceRecord
     from .jupyter_app import NotebookApplication
 
     class Comm(Protocol):
@@ -122,6 +122,8 @@ _STATIC_FALLBACK_MESSAGE = (
 )
 
 DEFAULT_JUPYTER_URL = "localhost:8888"
+
+_NOTEBOOK_CONTEXT_CONFIRMED = False
 
 __all__ = (
     'ApplicationViewHandle',
@@ -193,6 +195,9 @@ def anywidget_available() -> bool:
         return _anywidget is not None
     except (AttributeError, ImportError):
         return False
+
+def _use_anywidget() -> bool:
+    return anywidget_available() and (is_marimo_runtime() or _is_colab_runtime())
 
 def notebook_cell_identity() -> tuple[str, str] | None:
     '''Return the current notebook cell and execution identifiers.
@@ -428,7 +433,8 @@ class DocumentViewHandle:
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
         if self._belongs(event.model):
             self._record(event)
-            self._models = {self._root, *self._root.references()}
+            if event.model.lookup(event.attr).has_ref:
+                self._models = {self._root, *self._root.references()}
 
     def _column_data_changed(self, event: ColumnDataChangedEvent) -> None:
         if self._belongs(event.model):
@@ -748,9 +754,25 @@ def notebook_environment() -> bool:
         Whether an interactive notebook kernel or marimo runtime is active.
 
     '''
+    global _NOTEBOOK_CONTEXT_CONFIRMED
     if is_marimo_runtime() or _is_colab_runtime():
         return True
-    return notebook_cell_identity() is not None or _headless_notebook_environment()
+    if notebook_cell_identity() is not None or _headless_notebook_environment():
+        _NOTEBOOK_CONTEXT_CONFIRMED = True
+    return _NOTEBOOK_CONTEXT_CONFIRMED
+
+def _portable_resource_html(records: Sequence[ResourceRecord]) -> str:
+    def tag(record: ResourceRecord) -> str:
+        payload = record["payload"]
+        resource_id = escape(payload["resource_id"], quote=True)
+        nonce = payload["policy"].get("nonce")
+        nonce_attribute = f' nonce="{escape(nonce, quote=True)}"' if isinstance(nonce, str) else ""
+        return (
+            f'<script data-bokeh-notebook-resource-record="{resource_id}"{nonce_attribute}>'
+            f'{record.get("javascript", "")}</script>'
+        )
+
+    return "".join(tag(record) for record in records)
 
 def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         exclude: set[str] | None = None,
@@ -785,7 +807,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     from .jupyter import DISPLAY_MIME_TYPE, display_payload, resource_payload
 
     colab = _is_colab_runtime()
-    portable_widget = anywidget_available()
+    portable_widget = _use_anywidget()
     artifact, fragment = notebook_content(obj)
     if colab and not portable_widget:
         from ..resources import Resources
@@ -796,15 +818,16 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         resource_id = resource_payload(resolved, 5000)["resource_id"]
     else:
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
-        fragment = artifact.fragment(resources=resources)
+        fragment = artifact.fragment(resources="none")
     view_id = make_id()
     fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
-    html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
+    records = _resource_record_chain(resource_id)
+    html = _portable_resource_html(records) + fragment.html.replace("</div>", f"{fallback}</div>", 1)
     payload = display_payload(
         artifact,
         resource_id,
         view_id,
-        resource_records=_resource_record_chain(resource_id),
+        resource_records=_resource_record_chain(resource_id, executable=False),
     )
     if portable_widget:
         from ._anywidget import display_widget
@@ -891,7 +914,7 @@ def show_doc(obj: Model | Sequence[UIElement],
         from ..embed.notebook import notebook_content
         from .jupyter import DISPLAY_MIME_TYPE, display_payload
 
-        use_anywidget = anywidget_available()
+        use_anywidget = _use_anywidget()
         _require_marimo_anywidget()
         if _is_colab_runtime() and not use_anywidget:
             raise RuntimeError(
@@ -900,16 +923,17 @@ def show_doc(obj: Model | Sequence[UIElement],
             )
         artifact, _fragment = notebook_content(obj, live=True)
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
-        fragment = artifact.fragment(resources=resources)
+        fragment = artifact.fragment(resources="none")
         live_id = make_id()
         view_id = make_id()
         fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
-        html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
+        records = _resource_record_chain(resource_id)
+        html = _portable_resource_html(records) + fragment.html.replace("</div>", f"{fallback}</div>", 1)
         payload = display_payload(
             artifact,
             resource_id,
             view_id,
-            resource_records=_resource_record_chain(resource_id),
+            resource_records=_resource_record_chain(resource_id, executable=False),
             live_id=live_id,
         )
 
@@ -967,7 +991,7 @@ def show_hosted_app(app: NotebookApplication,
     from ..embed import embed_server
     from .jupyter import DISPLAY_MIME_TYPE, display_payload
 
-    use_anywidget = anywidget_available()
+    use_anywidget = _use_anywidget()
     _require_marimo_anywidget()
     if _is_colab_runtime() and not use_anywidget:
         raise RuntimeError(
@@ -981,10 +1005,11 @@ def show_hosted_app(app: NotebookApplication,
         artifact,
         resource_id,
         view_id,
-        resource_records=_resource_record_chain(resource_id),
+        resource_records=_resource_record_chain(resource_id, executable=False),
         application_id=app.application_id,
     )
-    html = static_fallback(_STATIC_FALLBACK_MESSAGE)
+    records = _resource_record_chain(resource_id)
+    html = _portable_resource_html(records) + static_fallback(_STATIC_FALLBACK_MESSAGE)
     handle = ApplicationViewHandle(app, view_id, artifact)
     _retain_application_handle(handle)
     _register_notebook_comm_target()
@@ -1024,7 +1049,7 @@ def close_application_views(app: NotebookApplication) -> None:
         if handle.application is app:
             handle.close()
 
-RESOURCE_RECORDS: dict[str, ResourceRecord] = {}
+RESOURCE_RECORDS: dict[str, ExecutableResourceRecord] = {}
 _ARTIFACT_OWNERS: dict[str, str] = {}
 _RESOURCE_COMM_KERNEL: Any | None = None
 _RESOURCE_COMM_TARGET = RESOURCE_COMM_TARGET
@@ -1126,7 +1151,7 @@ def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, 
         })
     return resource_id
 
-def _resource_record_chain(resource_id: str) -> list[ResourceRecord]:
+def _resource_record_chain(resource_id: str, *, executable: bool = True) -> list[ResourceRecord]:
     records: list[ResourceRecord] = []
     visited: set[str] = set()
 
@@ -1139,7 +1164,10 @@ def _resource_record_chain(resource_id: str) -> list[ResourceRecord]:
             return
         for dependency in record["payload"]["dependencies"]:
             add(dependency)
-        records.append(record)
+        records.append(
+            ResourceRecord(payload=record["payload"], javascript=record["javascript"])
+            if executable else ResourceRecord(payload=record["payload"]),
+        )
 
     add(resource_id)
     return records
@@ -1159,7 +1187,7 @@ def _reset_notebook_resources() -> None:
         None
 
     '''
-    global _NOTEBOOK_COMM_KERNEL, _RESOURCE_COMM_KERNEL
+    global _NOTEBOOK_COMM_KERNEL, _NOTEBOOK_CONTEXT_CONFIRMED, _RESOURCE_COMM_KERNEL
     for handle in tuple(_DOCUMENT_VIEW_HANDLES.values()):
         handle.close()
     for application_handle in tuple(_APPLICATION_VIEW_HANDLES.values()):
@@ -1169,6 +1197,7 @@ def _reset_notebook_resources() -> None:
     _DOCUMENT_VIEW_HANDLES_BY_VIEW.clear()
     _OUTPUT_DOCUMENT_ROOTS.clear()
     _NOTEBOOK_COMM_KERNEL = None
+    _NOTEBOOK_CONTEXT_CONFIRMED = False
     _RESOURCE_COMM_KERNEL = None
 
 def server_url(url: str, port: int | None) -> str:

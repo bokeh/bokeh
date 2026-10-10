@@ -1,4 +1,4 @@
-import {describe, expect, it, vi} from "vitest"
+import {afterEach, beforeEach, describe, expect, it, vi} from "vitest"
 
 import {NotebookExtension} from "../src/notebook"
 import {DISPLAY_MIME_TYPE} from "../src/protocol"
@@ -74,6 +74,9 @@ function harness(initial: ReturnType<typeof output>[], extension = new NotebookE
 }
 
 describe("notebook output ownership", () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
   it("does not release ordinary static display IDs", async () => {
     const test = harness([output("static", true, false)])
     test.outputs.values = []
@@ -93,7 +96,8 @@ describe("notebook output ownership", () => {
 
     test.outputs.values.pop()
     test.outputs.changed.emit(test.outputs, {})
-    await vi.waitFor(() => expect(test.opened).toEqual([{kind: "release", view_id: "shared"}]))
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(test.opened).toEqual([{kind: "release", view_id: "shared"}])
     test.disposable.dispose()
   })
 
@@ -101,17 +105,20 @@ describe("notebook output ownership", () => {
     const test = harness([output("first")])
     test.outputs.values = [output("second")]
     test.outputs.changed.emit(test.outputs, {})
-    await vi.waitFor(() => expect(test.opened).toContainEqual({kind: "release", view_id: "first"}))
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(test.opened).toContainEqual({kind: "release", view_id: "first"})
 
     test.cell.trusted = false
     test.cell.stateChanged.emit(test.cell, {name: "trusted", newValue: false})
-    await vi.waitFor(() => expect(test.opened).toContainEqual({kind: "release", view_id: "second"}))
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(test.opened).toContainEqual({kind: "release", view_id: "second"})
 
     test.cell.trusted = true
     test.cell.stateChanged.emit(test.cell, {name: "trusted", newValue: true})
     test.cells.values = []
     test.cells.changed.emit(test.cells, {oldValues: [test.cell], newValues: []})
-    await vi.waitFor(() => expect(test.opened.filter((item) => item.view_id === "second")).toHaveLength(2))
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(test.opened.filter((item) => item.view_id === "second")).toHaveLength(2)
     test.disposable.dispose()
   })
 
@@ -127,8 +134,31 @@ describe("notebook output ownership", () => {
 
     second.outputs.values = []
     second.outputs.changed.emit(second.outputs, {})
-    await vi.waitFor(() => expect(second.opened).toEqual([{kind: "release", view_id: "shared"}]))
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(second.opened).toEqual([{kind: "release", view_id: "shared"}])
     first.disposable.dispose()
     second.disposable.dispose()
+  })
+
+  it("does not release a view moved between cells during the grace period", async () => {
+    const test = harness([output("moved")])
+    test.outputs.values = []
+    test.outputs.changed.emit(test.outputs, {})
+    await vi.advanceTimersByTimeAsync(10_000)
+    test.outputs.values = [output("moved")]
+    test.outputs.changed.emit(test.outputs, {})
+    await vi.advanceTimersByTimeAsync(30_000)
+
+    expect(test.opened).toEqual([])
+    test.disposable.dispose()
+  })
+
+  it("releases connected views when their notebook panel closes", async () => {
+    const test = harness([output("closing")])
+
+    test.disposable.dispose()
+    await Promise.resolve()
+
+    expect(test.opened).toEqual([{kind: "release", view_id: "closing"}])
   })
 })

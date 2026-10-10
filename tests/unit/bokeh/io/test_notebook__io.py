@@ -171,6 +171,22 @@ def test_automatic_mimebundle_has_one_static_artifact_and_no_live_owner() -> Non
     assert metadata[DISPLAY_MIME_TYPE]["automatic"] is True
 
 
+def test_standard_jupyter_prefers_html_when_anywidget_is_installed() -> None:
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available", return_value=True),
+    ):
+        bundle = m.notebook_mimebundle(figure(), resources=Resources(mode="none"))
+
+    assert bundle is not None
+    data, _metadata = bundle
+    assert "application/vnd.jupyter.widget-view+json" not in data
+    assert "text/html" in data
+    assert DISPLAY_MIME_TYPE in data
+
+
 def test_each_saved_display_carries_its_resource_record_after_reexecution() -> None:
     plot = figure()
     with (
@@ -188,6 +204,8 @@ def test_each_saved_display_carries_its_resource_record_after_reexecution() -> N
     assert second_payload["resource_records"]
     assert first_payload["resource_records"][-1]["payload"]["resource_id"] == first_payload["resource_id"]
     assert second_payload["resource_records"][-1]["payload"]["resource_id"] == second_payload["resource_id"]
+    assert all("javascript" not in record for record in first_payload["resource_records"])
+    assert first[0]["text/html"].count("data-bokeh-notebook-resource-record") == len(first_payload["resource_records"])
 
 
 def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> None:
@@ -250,7 +268,7 @@ def test_marimo_and_colab_detection_are_host_capabilities(monkeypatch: pytest.Mo
     assert m.is_marimo_runtime()
 
 
-def test_notebook_environment_requires_a_notebook_cell_identity() -> None:
+def test_notebook_environment_remembers_a_notebook_cell_identity_for_callbacks() -> None:
     shell = MagicMock(kernel=object())
     shell.get_parent.return_value = {
         "metadata": {},
@@ -275,6 +293,20 @@ def test_notebook_environment_requires_a_notebook_cell_identity() -> None:
     ):
         assert m.notebook_environment()
 
+    shell.get_parent.return_value = {
+        "metadata": {},
+        "header": {"msg_id": "widget", "msg_type": "comm_msg"},
+        "content": {},
+    }
+    with (
+        patch("IPython.get_ipython", return_value=shell),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=False),
+    ):
+        assert m.notebook_environment()
+
+def test_notebook_environment_detects_headless_execution() -> None:
+    shell = MagicMock(kernel=object())
     shell.get_parent.return_value = {
         "metadata": {},
         "header": {"msg_id": "nbclient", "msg_type": "execute_request"},
@@ -346,6 +378,34 @@ class TestDocumentViewHandle:
         assert envelope["revision"] == 1
         assert envelope["content"]["events"]
         assert isinstance(envelope["buffer_ids"], list)
+        handle.close()
+
+    def test_scalar_changes_do_not_recompute_model_references(self) -> None:
+        root = Div(text="before")
+        document = Document()
+        document.add_root(root)
+        handle = m.DocumentViewHandle(root, live_id="live", view_id="view")
+        handle._attach(document)
+        models = handle._models
+
+        root.text = "after"
+
+        assert handle._models is models
+        handle.close()
+
+    def test_reference_changes_refresh_the_owned_model_set(self) -> None:
+        root = column(Div())
+        document = Document()
+        document.add_root(root)
+        handle = m.DocumentViewHandle(root, live_id="live", view_id="view")
+        handle._attach(document)
+        models = handle._models
+        child = Div()
+
+        root.children = [child]
+
+        assert handle._models is not models
+        assert child in handle._models
         handle.close()
 
     def test_resync_returns_fresh_snapshot_at_current_revision(self) -> None:
@@ -429,8 +489,7 @@ class TestDocumentViewHandle:
         comm = MagicMock(comm_id="comm")
         handle = m.DocumentViewHandle(plot, live_id="live", view_id="view")
         handle._attach(document)
-        m._DOCUMENT_VIEW_HANDLES["live"] = handle
-        m._DOCUMENT_VIEW_HANDLES_BY_VIEW["view"] = handle
+        m._retain_document_handle(handle)
         handle._connect(comm)
         comm.reset_mock()
 
@@ -450,8 +509,7 @@ def test_comm_release_message_closes_the_output_owner() -> None:
     shell.kernel.comm_manager.register_target.side_effect = lambda target, callback: targets.setdefault(target, callback)
     plot = figure()
     handle = m.DocumentViewHandle(plot, live_id="live", view_id="view")
-    m._DOCUMENT_VIEW_HANDLES["live"] = handle
-    m._DOCUMENT_VIEW_HANDLES_BY_VIEW["view"] = handle
+    m._retain_document_handle(handle)
     comm = MagicMock()
 
     with patch("IPython.get_ipython", return_value=shell):

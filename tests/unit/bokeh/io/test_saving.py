@@ -76,7 +76,25 @@ def test_saved_file_normalizes_native_separators(path_type: type[Path], path: st
     with patch.object(m, "Path", path_type):
         result = m._SavedFile("result.html", path)
 
-    assert result._link_path == expected
+    bundle = result._repr_mimebundle_()
+    if expected is None:
+        assert bundle == {"text/plain": "Bokeh HTML file saved. Open it from the notebook file browser."}
+    else:
+        assert bundle[FILE_MIME_TYPE]["path"] == expected
+
+
+@patch("bokeh.io.saving._save_helper")
+def test_save_links_from_the_notebook_directory_after_chdir(mock_save_helper: MagicMock, tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    work = tmp_path / "work"
+    work.mkdir()
+    shell = MagicMock(kernel=object(), starting_dir=str(tmp_path))
+    monkeypatch.chdir(work)
+    with patch("IPython.get_ipython", return_value=shell):
+        result = cast(m._SavedFile, m.save(Plot(), filename="../reports/result.html"))
+
+    assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "reports/result.html"
+    mock_save_helper.assert_called_once()
 
 
 @pytest.mark.parametrize("clone", [copy, deepcopy, lambda value: pickle.loads(pickle.dumps(value))])
@@ -86,7 +104,6 @@ def test_saved_file_copy_and_pickle_preserve_rich_link(clone: Any) -> None:
     result = clone(original)
 
     assert result == original
-    assert result._link_path == "reports/result.html"
     assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "reports/result.html"
 
 
