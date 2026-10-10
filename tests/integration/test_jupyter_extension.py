@@ -174,8 +174,10 @@ def _wait_for_server(base_url: str, process: subprocess.Popen[str]) -> None:
 
 
 def _start_jupyter(tmp_path: Path, *, extension: bool, base_path: str = "/",
-        allow_remote_access: bool = False, proxy: bool = True) -> tuple[subprocess.Popen[str], str, dict[str, str]]:
+        allow_remote_access: bool = False, proxy: bool = True,
+        resource_mode: str = "inline") -> tuple[subprocess.Popen[str], str, dict[str, str]]:
     env = _project_environment()
+    env["BOKEH_RESOURCES"] = resource_mode
     data_dir = tmp_path / "jupyter-data"
     runtime_dir = tmp_path / "jupyter-runtime"
     config_dir = tmp_path / "jupyter-config"
@@ -376,6 +378,40 @@ app = serve(modify_document)
 app_view = show(app)
 print("application-view-ready")
 '''),
+            nbformat.v4.new_code_cell('''
+print(f"application-sessions:{len(app.sessions)}")
+'''),
+        ],
+    )
+
+
+def _route_local_bokehjs(route: Any, *, delay_additive: bool = False) -> None:
+    name = Path(urlsplit(route.request.url).path).name
+    components = ("bokeh-widgets", "bokeh-tables", "bokeh")
+    component = next((candidate for candidate in components if name.startswith(f"{candidate}-")), None)
+    if component is None:
+        route.abort()
+        return
+    if delay_additive and component != "bokeh":
+        time.sleep(0.25)
+    route.fulfill(
+        path=str(ROOT / "src" / "bokeh" / "server" / "static" / "js" / f"{component}.min.js"),
+        content_type="application/javascript",
+    )
+
+
+def _fallback_recovery_notebook() -> Any:
+    return nbformat.v4.new_notebook(
+        metadata={"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+        cells=[
+            nbformat.v4.new_code_cell('''
+from bokeh.io import show
+from bokeh.plotting import figure
+show(figure(width=240, height=140), resources="cdn")
+'''),
+            nbformat.v4.new_code_cell('''
+show(figure(width=240, height=140), resources="inline")
+'''),
         ],
     )
 
@@ -409,6 +445,8 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
             _execute_cell_once(page, editors, 3)
             page.get_by_text("application-view-ready", exact=True).wait_for(timeout=30_000)
             _wait_for_named_model(page, "notebook-app-root", server_session=True)
+            _execute_cell_once(page, editors, 4)
+            page.get_by_text("application-sessions:1", exact=True).wait_for(timeout=30_000)
 
             # One intentional rerun replaces the cell output. The observation
             # wait never re-executes a cell as a retry.
@@ -470,11 +508,12 @@ def test_extension_disabled_output_uses_portable_static_fallback(tmp_path: Path)
     playwright = pytest.importorskip("playwright.sync_api")
     path = tmp_path / "disabled.ipynb"
     nbformat.write(_browser_notebook(), path)
-    process, base_url, _env = _start_jupyter(tmp_path, extension=False)
+    process, base_url, _env = _start_jupyter(tmp_path, extension=False, resource_mode="cdn")
     try:
         with playwright.sync_playwright() as manager:
             browser = manager.chromium.launch()
             page = browser.new_page()
+            page.route("https://cdn.bokeh.org/**", lambda route: _route_local_bokehjs(route, delay_additive=True))
             page.goto(f"{base_url}/lab/tree/disabled.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
             editors.nth(3).wait_for(timeout=30_000)
@@ -482,10 +521,42 @@ def test_extension_disabled_output_uses_portable_static_fallback(tmp_path: Path)
             output = page.locator(".jp-OutputArea").first
             output.locator(".jp-OutputArea-output").first.wait_for(state="attached", timeout=30_000)
             assert output.locator("[data-bokeh-notebook-static-fallback]").count() == 1, output.inner_html()
+            page.locator(".bk-DataTable").wait_for(timeout=30_000)
             assert page.locator(".bk-Figure").count() == 1
             assert page.locator(".bk-Slider").count() == 1
             assert page.locator(".bk-DataTable").count() == 1
             assert page.locator(".bk-notebook-diagnostic").count() == 0
+            browser.close()
+    finally:
+        _stop(process)
+
+
+def test_failed_portable_resources_do_not_block_later_outputs(tmp_path: Path) -> None:
+    playwright = pytest.importorskip("playwright.sync_api")
+    path = tmp_path / "failed-resources.ipynb"
+    nbformat.write(_fallback_recovery_notebook(), path)
+    process, base_url, _env = _start_jupyter(tmp_path, extension=False)
+    try:
+        with playwright.sync_playwright() as manager:
+            browser = manager.chromium.launch()
+            page = browser.new_page()
+            page.route("https://cdn.bokeh.org/**", lambda route: route.abort())
+            page.goto(f"{base_url}/lab/tree/failed-resources.ipynb")
+            editors = page.locator(".jp-CodeCell .cm-content")
+            editors.nth(1).wait_for(timeout=30_000)
+
+            _execute_cell_once(page, editors, 0)
+            page.wait_for_function(
+                """
+                () => document.querySelector(
+                  "meta[data-bokeh-notebook-resource][data-bokeh-resource-state='failed']",
+                ) != null
+                """,
+                timeout=30_000,
+            )
+            _execute_cell_once(page, editors, 1)
+            second = page.locator(".jp-OutputArea").nth(1)
+            second.locator(".bk-Figure").wait_for(timeout=30_000)
             browser.close()
     finally:
         _stop(process)

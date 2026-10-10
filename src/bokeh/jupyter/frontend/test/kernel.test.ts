@@ -11,9 +11,10 @@ describe("JupyterLab kernel transport", () => {
       close: vi.fn(() => ({done: Promise.resolve()})),
     }
     const kernel = {createComm: vi.fn(() => comm)}
+    const routed = "{\"schema\":\"bokeh.embed/v1\",\"source\":{\"url\":\"https://jupyter.example/proxy/4312/app\"},\"routed\":true}"
     const manager = {
       context: {sessionContext: {ready: Promise.resolve(), session: {kernel}}},
-      applicationArtifact: vi.fn(async () => "{\"schema\":\"bokeh.embed/v1\",\"source\":{\"url\":\"https://jupyter.example/proxy/4312/app\"},\"routed\":true}"),
+      applicationArtifact: vi.fn(async () => routed),
     }
     const opening = kernelProxy(manager as any).openApplicationView!("view")
     await Promise.resolve()
@@ -23,9 +24,9 @@ describe("JupyterLab kernel transport", () => {
       kind: "application_url",
       application_url: "https://jupyter.example/proxy/4312/app",
     })
-    await comm.onMsg({content: {data: {kind: "ready", artifact: "{\"schema\":\"bokeh.embed/v1\"}"}}})
-    await expect(opening).resolves.toMatchObject({artifactJson: "{\"schema\":\"bokeh.embed/v1\",\"source\":{\"url\":\"https://jupyter.example/proxy/4312/app\"},\"routed\":true}"})
-    expect(manager.applicationArtifact).toHaveBeenCalledTimes(2)
+    await comm.onMsg({content: {data: {kind: "ready", artifact: routed}}})
+    await expect(opening).resolves.toMatchObject({artifactJson: routed})
+    expect(manager.applicationArtifact).toHaveBeenCalledTimes(1)
   })
 
   it("bounds pre-render patch history and requests one replacement snapshot", async () => {

@@ -213,6 +213,10 @@
     owner.dataset.bokehResourceState = "failed";
     owner.dataset.bokehResourceError = error instanceof Error ? error.message.slice(0, 300) : String(error).slice(0, 300);
     owner.dispatchEvent(new CustomEvent("bokeh:resource-failed", {detail: {error}}));
+    // This failed record has notified its own dependents. Do not leave it in
+    // the document-wide pending-resource barrier, where it would poison
+    // otherwise independent outputs evaluated later on the same page.
+    owner.removeAttribute("data-bokeh-resource");
     notify("error", {error: error instanceof Error ? {name: error.name, message: error.message, stack: error.stack} : String(error)});
     console.error(`Bokeh: failed to load notebook resources ${resource_id}`, error);
   });

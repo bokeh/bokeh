@@ -207,15 +207,21 @@ def test_signature_store_is_closed() -> None:
     notary.close.assert_called_once_with()
 
 
-def test_real_notebook_signature_survives_jupyter_trust_metadata(tmp_path: Any) -> None:
-    notebook = _notebook()
-    notebook.cells[0].metadata.pop("trusted", None)
+def test_bokeh_export_captures_signature_before_preprocessors_mutate_notebook(tmp_path: Any) -> None:
+    notebook = nbformat.v4.new_notebook(cells=[nbformat.v4.new_code_cell("%%time\nshow(plot)")])
     notary = m.NotebookNotary(data_dir=str(tmp_path), db_file=str(tmp_path / "signatures.db"))
     notary.sign(notebook)
-    notebook.cells[0].metadata["trusted"] = True
+    config = Config({"HTMLExporter": {"preprocessors": [ProduceBokehOutput]}})
+    exporter = m.BokehHTMLExporter(config=config)
 
-    with patch("bokeh.io.jupyter_export.NotebookNotary", return_value=notary):
-        assert m.BokehPNGPreprocessor()._check_signature(notebook)
+    with (
+        patch("bokeh.io.jupyter_export.NotebookNotary", return_value=notary),
+        patch("bokeh.embed.result.EmbedResult.page", return_value="<html></html>"),
+        patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()),
+    ):
+        html, _ = exporter.from_notebook_node(notebook)
+
+    assert "data-bokeh-notebook-png-fallback" in html
 
 
 def test_bokeh_export_converts_outputs_created_by_earlier_preprocessors() -> None:
@@ -295,17 +301,26 @@ def test_correlated_html_route_selects_bokeh_exporter_and_propagates_context() -
 
     from bokeh.jupyter import _CorrelatedNbconvertFileHandler
 
-    observed: list[str | None] = []
+    export_id = "export-identifier-0042"
+    m.store_export_snapshots("plot.ipynb", export_id, [{"view_id": "view", "error": "captured frontend"}])
+    observed: list[str] = []
 
     async def convert(_handler: Any, format: str, path: str) -> None:
         assert format == "bokeh"
         assert path == "plot.ipynb"
-        observed.append(await asyncio.to_thread(m._EXPORT_CORRELATION_ID.get))
+        result, _ = await asyncio.to_thread(
+            m.BokehPNGPreprocessor(require_trusted=False).preprocess,
+            _notebook(),
+            {"metadata": {"name": "plot"}},
+        )
+        observed.append(result.cells[0].outputs[0].data["text/html"])
 
     handler = object.__new__(_CorrelatedNbconvertFileHandler)
-    handler.get_argument = MagicMock(return_value="export-identifier-0042")
+    handler.get_argument = MagicMock(return_value=export_id)
     with patch.object(NbconvertFileHandler, "get", new=convert):
         asyncio.run(handler.get("html", "plot.ipynb"))
 
-    assert observed == ["export-identifier-0042"]
-    assert m._EXPORT_CORRELATION_ID.get() is None
+    assert "captured frontend" in observed[0]
+
+    m.store_export_snapshots("plot.ipynb", export_id, [{"view_id": "view", "error": "not correlated"}])
+    assert m._take_export_snapshots({"metadata": {"name": "plot"}}) == {}

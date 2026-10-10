@@ -371,6 +371,16 @@ class NotebookApplication:
         return self._application_id
 
     @property
+    def accepts_frontend_proxy(self) -> bool:
+        '''Report whether the frontend may discover a Jupyter proxy route.
+
+        Returns:
+            Whether automatic frontend proxy discovery is enabled.
+
+        '''
+        return self._accept_frontend_proxy
+
+    @property
     def asgi(self) -> BokehASGI:
         '''Return the hosted :class:`~bokeh.server.asgi.BokehASGI` application.
 

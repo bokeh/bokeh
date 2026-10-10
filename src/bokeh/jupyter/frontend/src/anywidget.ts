@@ -60,6 +60,7 @@ export default function anywidgetFactory() {
     const resourceWaiters = new Map<string, ResourceWaiter>()
     let resourceSequence = 0
     let deactivated = false
+    let disposedSent = false
     let deactivate: (kind?: "inactive" | "disposed") => void = () => undefined
     const revisions = new LiveRevisionTransport(
       () => send({kind: "resync"}),
@@ -99,18 +100,12 @@ export default function anywidgetFactory() {
           ))
         }
       } else if (data?.kind === "ready" && typeof data.artifact === "string") {
-        try {
-          applicationArtifact = await resolveJupyterApplicationArtifact(data.artifact, jupyterServerBaseUrl())
-          applicationClosed = false
-          applicationOpened.resolve(applicationArtifact)
-        } catch (error) {
-          applicationOpened.reject(new BokehNotebookError(
-            "APPLICATION_ARTIFACT_INVALID",
-            "Python returned an invalid application artifact.",
-            "Restart the kernel and re-run the cells that call serve(...) and show(app).",
-            error,
-          ))
-        }
+        // Python has validated the URL selected from the configure artifact.
+        // Resolving it again can nest a Jupyter proxy on remapped local ports.
+        const artifactJson = data.artifact
+        applicationArtifact = artifactJson
+        applicationClosed = false
+        applicationOpened.resolve(artifactJson)
       } else if (data?.kind === "ready") {
         applicationOpened.reject(new BokehNotebookError(
           "APPLICATION_ARTIFACT_INVALID",
@@ -167,27 +162,38 @@ export default function anywidgetFactory() {
     const aborted = () => deactivate("disposed")
     signal.addEventListener("abort", aborted, {once: true})
     deactivate = (kind = "inactive") => {
-      if (deactivated) return
-      deactivated = true
-      window.clearInterval(heartbeat)
-      signal.removeEventListener("abort", aborted)
-      model.off("msg:custom", receive)
-      const error = signal.reason ?? new DOMException("Rendering was cancelled", "AbortError")
-      for (const waiter of resourceWaiters.values()) waiter.reject(error)
-      resourceWaiters.clear()
-      revisions.clear()
-      liveCloseListeners.clear()
-      applicationCloseListeners.clear()
-      try {
-        send({kind})
-      } catch {
-        // The host may close its comm before releasing the mounted widget.
+      if (!deactivated) {
+        deactivated = true
+        window.clearInterval(heartbeat)
+        model.off("msg:custom", receive)
+        const error = signal.reason ?? new DOMException("Rendering was cancelled", "AbortError")
+        for (const waiter of resourceWaiters.values()) waiter.reject(error)
+        resourceWaiters.clear()
+        revisions.clear()
+        liveCloseListeners.clear()
+        applicationCloseListeners.clear()
+        if (kind === "inactive") {
+          try {
+            send({kind})
+          } catch {
+            // The host may close its comm before releasing the mounted widget.
+          }
+        }
+      }
+      if (kind === "disposed" && !disposedSent) {
+        disposedSent = true
+        signal.removeEventListener("abort", aborted)
+        try {
+          send({kind})
+        } catch {
+          // The host may destroy its comm before disposing the mounted widget.
+        }
       }
     }
     try {
       send({kind: "active"})
     } catch (error) {
-      deactivate()
+      deactivate("disposed")
       throw error
     }
 
@@ -307,7 +313,7 @@ export default function anywidgetFactory() {
       }
     } catch (error) {
       removeLoading()
-      deactivate()
+      deactivate("disposed")
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         renderDiagnostic(el, error, {payload, renderer: "anywidget"})
       }

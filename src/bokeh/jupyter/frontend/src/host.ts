@@ -1,5 +1,6 @@
 const loopbackHosts = new Set(["127.0.0.1", "localhost", "::1", "[::1]"])
 const proxyChecks = new Map<string, Promise<boolean>>()
+const proxyProbeTimeout = 2_000
 
 function withTrailingSlash(value: string): string {
   return value.endsWith("/") ? value : `${value}/`
@@ -28,9 +29,22 @@ export function jupyterServerBaseUrl(root: Document = document): string | undefi
 
 async function proxyAvailable(url: string, request: typeof fetch): Promise<boolean> {
   const check = proxyChecks.get(url) ?? (() => {
-    const pending = request(url, {method: "HEAD", credentials: "same-origin"})
-      .then((response) => response.status !== 404 && response.status !== 410)
-      .catch(() => false)
+    const pending = (async () => {
+      const controller = new AbortController()
+      const timer = window.setTimeout(() => controller.abort(), proxyProbeTimeout)
+      try {
+        const response = await request(url, {
+          method: "HEAD",
+          credentials: "same-origin",
+          signal: controller.signal,
+        })
+        return response.ok
+      } catch {
+        return false
+      } finally {
+        window.clearTimeout(timer)
+      }
+    })()
     proxyChecks.set(url, pending)
     return pending
   })()
@@ -49,6 +63,7 @@ export async function resolveJupyterApplicationUrl(applicationUrl: string, serve
   })()
   if (urls == null) return applicationUrl
   const {application, page} = urls
+  if (application.origin === page.origin) return applicationUrl
   if (!loopbackHosts.has(application.hostname.toLowerCase()) || application.port.length === 0 ||
       serverBaseUrl == null || serverBaseUrl.length === 0) {
     return applicationUrl
@@ -59,7 +74,8 @@ export async function resolveJupyterApplicationUrl(applicationUrl: string, serve
     const path = application.pathname.replace(/^\/+/, "")
     const proxyUrl = new URL(`proxy/${encodeURIComponent(application.port)}/${path}`, base).toString()
     if (!loopbackHosts.has(page.hostname.toLowerCase())) return proxyUrl
-    return await proxyAvailable(proxyUrl, request) ? proxyUrl : applicationUrl
+    const probeUrl = new URL("static/js/bokeh.min.js", withTrailingSlash(proxyUrl)).toString()
+    return await proxyAvailable(probeUrl, request) ? proxyUrl : applicationUrl
   } catch {
     return applicationUrl
   }
@@ -70,6 +86,7 @@ export async function resolveJupyterApplicationArtifact(artifactJson: string, se
     pageUrl: string = window.location.href, request: typeof fetch = fetch): Promise<string> {
   const artifact = JSON.parse(artifactJson)
   if (artifact?.source?.kind !== "server" || typeof artifact.source.url !== "string") return artifactJson
+  if (artifact.metadata?.notebook_application_proxy === false) return artifactJson
   artifact.source.url = await resolveJupyterApplicationUrl(artifact.source.url, serverBaseUrl, pageUrl, request)
   return JSON.stringify(artifact)
 }

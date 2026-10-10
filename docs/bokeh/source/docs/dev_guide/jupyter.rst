@@ -35,7 +35,7 @@ extension:
 
 .. code-block:: sh
 
-    jupyter labextension develop --overwrite .
+    pixi run --locked -e notebook-test jupyter labextension develop --overwrite .
 
 The locked ``notebook-test`` environment contains the optional notebook hosts
 and proxy used by the browser suite. Its test task verifies extension discovery

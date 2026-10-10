@@ -166,9 +166,23 @@ def _notebook_link_path(filename: PathLike, resolved: str) -> PathLike | None:
             return None
         notebook_dir = os.path.abspath(starting_dir)
         output = os.path.abspath(resolved)
-        if os.path.commonpath((notebook_dir, output)) != notebook_dir:
+
+        def relative_link(directory: str, target: str) -> str | None:
+            if os.path.commonpath((directory, target)) != directory:
+                return None
+            relative = os.path.relpath(target, directory)
+            candidate = os.path.join(directory, relative)
+            try:
+                if os.path.samefile(candidate, filename):
+                    return Path(relative).as_posix()
+            except OSError:
+                pass
             return None
-        return Path(os.path.relpath(output, notebook_dir)).as_posix()
+
+        lexical = relative_link(notebook_dir, output)
+        if lexical is not None:
+            return lexical
+        return relative_link(os.path.realpath(notebook_dir), os.path.realpath(filename))
     except (ImportError, OSError, ValueError):
         return None
 

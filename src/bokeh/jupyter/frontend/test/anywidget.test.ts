@@ -86,6 +86,9 @@ describe("AnyWidget transport", () => {
     expect(sent.filter(({kind, frontend_id}) => kind === "inactive" && frontend_id === "frontend-1"))
       .toEqual([{kind: "inactive", frontend_id: "frontend-1"}])
     expect(sent).not.toContainEqual({kind: "inactive", frontend_id: "frontend-2"})
+    first.abort()
+    expect(sent.filter(({kind, frontend_id}) => kind === "disposed" && frontend_id === "frontend-1"))
+      .toEqual([{kind: "disposed", frontend_id: "frontend-1"}])
     cleanupSecond?.()
   })
 
@@ -97,5 +100,19 @@ describe("AnyWidget transport", () => {
     controller.abort()
 
     expect(sent).toContainEqual({kind: "disposed", frontend_id: "frontend-1"})
+  })
+
+  it("disposes the Python widget after a terminal render failure", async () => {
+    runtime.renderDisplay.mockRejectedValueOnce(new Error("render failed"))
+    const {model, sent} = harness()
+
+    await anywidgetFactory().render({
+      model,
+      el: document.createElement("div"),
+      signal: new AbortController().signal,
+    } as any)
+
+    expect(sent).toContainEqual({kind: "disposed", frontend_id: "frontend-1"})
+    expect(runtime.renderDiagnostic).toHaveBeenCalledOnce()
   })
 })

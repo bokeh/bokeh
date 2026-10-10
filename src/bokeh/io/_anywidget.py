@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 # Standard library imports
+from collections import OrderedDict
 from collections.abc import Mapping
 from pathlib import Path
 from time import monotonic
@@ -32,6 +33,8 @@ if TYPE_CHECKING:
 _ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
 _TRANSPORT_LEASE_SECONDS = 300.0
 _MAX_TRANSPORTS = 8
+_MAX_RELEASED_WIDGETS = 128
+_RELEASED_WIDGETS: OrderedDict[str, _DisplayWidget] = OrderedDict()
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -199,6 +202,14 @@ class _DisplayWidget(anywidget.AnyWidget):
         data[DISPLAY_MIME_TYPE] = dict(self.payload)
         return data, metadata
 
+    def close(self) -> None:
+        _RELEASED_WIDGETS.pop(self.model_id, None)
+        self._transports.clear()
+        self._transport_seen.clear()
+        self._records = {}
+        self._handle = None
+        super().close()
+
     def _receive(self, _widget: Any, content: dict[str, Any], _buffers: list[Any]) -> None:
         frontend_id = content.get("frontend_id")
         if not isinstance(frontend_id, str) or not frontend_id:
@@ -265,8 +276,14 @@ class _DisplayWidget(anywidget.AnyWidget):
         self._records = {}
         for transport in tuple(self._transports.values()):
             transport.close()
-        self._transports.clear()
-        self._transport_seen.clear()
+        if not self._transports:
+            self.close()
+            return
+        _RELEASED_WIDGETS[self.model_id] = self
+        _RELEASED_WIDGETS.move_to_end(self.model_id)
+        while len(_RELEASED_WIDGETS) > _MAX_RELEASED_WIDGETS:
+            _model_id, widget = _RELEASED_WIDGETS.popitem(last=False)
+            widget.close()
 
 
 def display_widget(payload: Mapping[str, Any], html: str, records: Mapping[str, ExecutableResourceRecord], *,
