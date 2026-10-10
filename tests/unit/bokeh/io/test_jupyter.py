@@ -95,20 +95,16 @@ def test_resource_identity_includes_complete_emitted_security_and_module_policy(
     assert len(set(resource_ids)) == len(resource_ids)
 
 
-def test_resource_subset_and_portable_owner_are_consistent() -> None:
+def test_resource_subset_and_portable_owner_validate_the_same_assets() -> None:
     resolved = _resolved()
     ids = m.resource_artifact_ids(resolved)
     subset = m.resource_asset_subset(resolved, {ids[1]})
     payload = m.resource_payload(resolved, 5000, assets=subset)
-    javascript = m.resource_javascript(payload, subset)
-
     assert subset == (resolved.assets[1],)
     assert payload["artifacts"][0]["kind"] == "css"
-    assert ".bk-test{}" in javascript
-    assert "root.Bokeh?.embed?.resource_loader" in javascript
-    assert "loader.ensure" in javascript
-    assert "data-bokeh-notebook-resource" in javascript
-    assert "_bokeh_notebook_" not in javascript
+    assert m.resource_javascript(payload, subset)
+    with pytest.raises(RuntimeError, match="metadata does not match"):
+        m.resource_javascript(payload, resolved.assets)
 
 
 def test_display_payload_references_artifact_without_copying_graph() -> None:

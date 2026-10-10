@@ -322,6 +322,98 @@ describe("artifact runtime", () => {
     cleanup()
   })
 
+  it("stops resyncing after repeated replacement snapshots cannot mount", async () => {
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => undefined)
+    const initial = {
+      ready: Promise.resolve(),
+      dispose: vi.fn(async () => undefined),
+      document: {to_json: () => ({roots: []}), roots: () => []},
+      root_keys: [],
+      root: () => null,
+      view_lookup: {},
+    }
+    const failed = () => ({
+      ready: Promise.reject(new Error("invalid replacement")),
+      dispose: vi.fn(async () => undefined),
+      view_lookup: {},
+    })
+    const mount = vi.fn()
+      .mockReturnValueOnce(initial)
+      .mockImplementation(failed)
+    let receive: ((message: unknown, buffers: DataView[]) => void | Promise<void>) | undefined
+    const resync = vi.fn()
+    const close = vi.fn()
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount,
+      when_mounted: vi.fn(async () => initial),
+      embed: {create_notebook_patch_receiver: vi.fn(() => vi.fn())},
+    }
+    const node = document.createElement("div")
+    document.body.append(node)
+    await loadResources(resource, "", node)
+    const cleanup = await renderDisplay(node, {...display, live_id: "live"}, html, {
+      openLive: async () => ({
+        artifactJson: JSON.stringify(artifact),
+        resourceId: "resource",
+        revision: 0,
+
+        onMessage(callback) {receive = callback},
+
+        onClose() {},
+        requestResync: resync,
+        close,
+      }),
+    })
+
+    for (let revision = 1; revision <= 3; revision++) {
+      await receive?.({kind: "snapshot", artifact: JSON.stringify(artifact), resource_id: "resource", revision}, [])
+    }
+
+    expect(resync).toHaveBeenCalledTimes(2)
+    expect(close).toHaveBeenCalledOnce()
+    expect(node.querySelector(".bk-notebook-disconnected")?.textContent).toContain("repeated Python snapshots")
+    cleanup()
+    warning.mockRestore()
+  })
+
+  it("executes the single resource owner embedded in HTML", async () => {
+    const handle = {
+      ready: Promise.resolve(),
+      dispose: vi.fn(async () => undefined),
+      document: {to_json: () => ({roots: []}), roots: () => []},
+      root_keys: [],
+      root: () => null,
+      view_lookup: {},
+    }
+    ;(window as any).Bokeh = {
+      version: "4.0.0",
+      mount: vi.fn(() => handle),
+      when_mounted: vi.fn(async () => handle),
+    }
+    const embedded = {...resource, resource_id: "embedded"}
+    const script = "window.dispatchEvent(new CustomEvent('bokeh:resources-complete', {detail: {resource_id: 'embedded'}}))"
+    const embeddedHtml = `<script data-bokeh-notebook-resource-record="embedded">${script}</script>${html}`
+    const append = vi.spyOn(document.head, "append").mockImplementation((...nodes: (Node | string)[]) => {
+      expect((nodes[0] as HTMLScriptElement).textContent).toBe(script)
+      queueMicrotask(() => window.dispatchEvent(new CustomEvent("bokeh:resources-complete", {
+        detail: {resource_id: "embedded"},
+      })))
+    })
+    const node = document.createElement("div")
+    document.body.append(node)
+
+    const cleanup = await renderDisplay(node, {
+      ...display,
+      resource_id: "embedded",
+      resource_records: [{payload: embedded}],
+    }, embeddedHtml)
+
+    expect(append).toHaveBeenCalledOnce()
+    cleanup()
+    append.mockRestore()
+  })
+
   it("applies the declared CSP nonce to the executable resource wrapper", async () => {
     ;(window as any).Bokeh = {version: "4.0.0"}
     const append = vi.spyOn(document.head, "append").mockImplementation((...nodes: (Node | string)[]) => {

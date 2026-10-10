@@ -29,6 +29,14 @@ whenever ``src/bokeh/jupyter/frontend/src`` or the protocol changes. Run
 ``pixi run --locked jupyter-verify`` to rebuild and confirm that every tracked
 generated asset is current.
 
+For a local JupyterLab development session, run the following once from
+``src/bokeh/jupyter/frontend`` so rebuilding the package updates the extension
+that JupyterLab loads:
+
+.. code-block:: sh
+
+    jupyter labextension develop --overwrite .
+
 The locked ``notebook-test`` environment contains the optional notebook hosts
 and proxy used by the browser suite. Its test task verifies extension discovery
 and packaging when run against an installed wheel, then runs the AnyWidget,
@@ -43,14 +51,14 @@ Protocol and lifecycle
 comm targets, queue bounds, and the integer protocol version. Python imports
 it directly, and the TypeScript behavior check verifies the frontend constants
 against it. Change the manifest first and update both consumers together.
-Every display advertises the Bokeh display MIME type, an AnyWidget view when
-available, and an HTML fallback. This is frontend MIME negotiation: Python
-must not choose one host based on the kernel process. JupyterLab gives the
-first-party renderer higher priority, while other notebook hosts can select
-AnyWidget. A document's initial serialized graph lives once in an inert HTML
-data owner. Each display MIME payload carries the transitive portable resource
-records it needs, so saved output remains complete when an earlier cell is
-replaced or deleted. The live kernel resource comm is a recovery and
+JupyterLab and Notebook 7 displays advertise the Bokeh display MIME type and
+an HTML fallback. Colab and marimo displays additionally use AnyWidget because
+those runtimes are identifiable without inferring a Jupyter frontend from its
+kernel. A document's initial serialized graph lives once in an inert HTML data
+owner. The same HTML contains one executable copy of each transitive portable
+resource record, while the display MIME payload contains resource metadata, so
+saved output remains complete when an earlier cell is replaced or deleted.
+The live kernel resource comm is a recovery and
 deduplication path, never the sole durable owner.
 
 Application outputs persist only their random application ID. Kernel-local

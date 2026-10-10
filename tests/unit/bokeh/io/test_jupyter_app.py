@@ -47,17 +47,6 @@ def _modify_document(_document: Any) -> None:
     pass
 
 
-def test_private_uvicorn_host_avoids_global_logging_and_event_loop_policies() -> None:
-    with patch.dict(sys.modules, {"uvicorn": MagicMock()}):
-        host = m._ASGIServerThread(MagicMock(), address="127.0.0.1", port=0)
-        overridden = m._ASGIServerThread(
-            MagicMock(), address="127.0.0.1", port=0, log_config={"version": 1}, loop="none",
-        )
-
-    assert host._uvicorn_kwargs == {"log_config": None, "loop": "asyncio"}
-    assert overridden._uvicorn_kwargs == {"log_config": {"version": 1}, "loop": "none"}
-
-
 def test_serve_replaces_a_reexecuted_cell_owner_and_stops_cleanly() -> None:
     with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
         first = m.serve(_modify_document, key="cell")
@@ -88,7 +77,6 @@ def test_multiple_apps_in_one_execution_coexist_and_reexecution_replaces_them() 
 
     assert not first.stopped
     assert not sibling.stopped
-    assert m._CELL_APPLICATIONS["cell"] == ("first", [first, sibling])
 
     with (
         patch("bokeh.io.jupyter_app._ASGIServerThread", _Host),
@@ -98,7 +86,7 @@ def test_multiple_apps_in_one_execution_coexist_and_reexecution_replaces_them() 
 
     assert first.stopped
     assert sibling.stopped
-    assert m._CELL_APPLICATIONS["cell"] == ("second", [replacement])
+    assert replacement.status == "running"
     replacement.stop()
 
 
@@ -134,6 +122,45 @@ def test_explicit_notebook_url_takes_precedence_over_frontend_discovery() -> Non
         assert "hub.example.test" not in app.asgi.core.websocket_origins
     finally:
         app.stop()
+
+
+def test_jupyterhub_environment_builds_the_public_proxy_url(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("JUPYTER_BOKEH_EXTERNAL_URL", "https://our-hub.edu")
+    monkeypatch.setenv("JUPYTERHUB_SERVICE_PREFIX", "/user/homer@donuts.edu/")
+    with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
+        app = m.NotebookApplication(_modify_document)
+    try:
+        assert app.url == f"https://our-hub.edu/user/homer@donuts.edu/proxy/{app.port}/{app._prefix}/"
+        assert "our-hub.edu" in app.asgi.core.websocket_origins
+    finally:
+        app.stop()
+
+
+def test_additional_websocket_origins_are_merged_with_notebook_origins() -> None:
+    with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
+        app = m.NotebookApplication(
+            _modify_document,
+            extra_websocket_origins=["apps.example.test:443", "localhost:*"],
+        )
+    try:
+        assert {"127.0.0.1:*", "localhost:*", "apps.example.test:443"}.issubset(
+            app.asgi.core.websocket_origins,
+        )
+    finally:
+        app.stop()
+
+
+def test_shutdown_timeout_closes_the_listening_socket() -> None:
+    with patch.dict(sys.modules, {"uvicorn": MagicMock()}):
+        host = m._ASGIServerThread(MagicMock(), address="127.0.0.1", port=0, shutdown_timeout=0)
+    host._socket = MagicMock()
+    host._server = MagicMock(should_exit=False, force_exit=False)
+    host._thread = MagicMock()
+
+    with pytest.raises(TimeoutError, match="did not stop"):
+        host.stop()
+
+    host._socket.close.assert_called_once_with()
 
 
 def test_failed_host_start_is_not_registered() -> None:

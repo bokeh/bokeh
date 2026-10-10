@@ -9,7 +9,9 @@ Removals
 --------
 
 * Removed ``output_notebook()``, ``push_notebook()``, the notebook hook
-  registration APIs, and ``bokeh.io.output``. Notebook display is now
+  registration APIs (including ``load_notebook()``, ``show_app()``,
+  ``destroy_server()``, and ``get_comms()``), ``CommsHandle``, and
+  ``bokeh.io.output``. Notebook display is now
   automatic in supported kernels; ``show(model)`` returns a connected handle
   whose updates are sent automatically.
 * Removed the ``browser``, ``new``, ``notebook_handle``, and ``notebook_url``
@@ -18,6 +20,11 @@ Removals
 * Removed one-step ``show(application)`` and ``show(modify_document)`` server
   creation. Start a managed notebook application with ``app = serve(...)``,
   display it with ``show(app)``, and stop it explicitly with ``app.stop()``.
+* Removed the legacy notebook templates ``AUTOLOAD_NB_JS``, ``DOC_NB_JS``,
+  ``NOTEBOOK_LOAD``, and ``ROOT_DIV``, together with the BokehJS
+  ``embed_items_notebook`` and ``kernels`` notebook integration APIs.
+* The separately installed ``jupyter_bokeh`` extension is no longer used by
+  Bokeh 4.0 and can be uninstalled after upgrading.
 
 * Removed ``DataCube`` and its supporting grouping and aggregation models. For
   hierarchical tables, use Panel's ``Tabulator`` widget. Bokeh-only

@@ -145,7 +145,13 @@ class _ResourcePayload(TypedDict):
     load_timeout: int
 
 class ResourceRecord(TypedDict):
-    '''Transport one notebook resource payload with its executable owner.'''
+    '''Transport notebook resource metadata with an optional executable owner.'''
+
+    payload: _ResourcePayload
+    javascript: NotRequired[str]
+
+class ExecutableResourceRecord(TypedDict):
+    '''Transport notebook resource metadata with its executable owner.'''
 
     payload: _ResourcePayload
     javascript: str

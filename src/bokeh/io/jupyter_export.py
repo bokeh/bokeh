@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import base64
+import copy
 import io
 import math
 import os
@@ -469,7 +470,15 @@ class BokehPNGPreprocessor(Preprocessor):
         notary: NotebookNotary | None = None
         try:
             notary = NotebookNotary(parent=self)  # type: ignore[no-untyped-call]
-            return notary.check_signature(nb)  # type: ignore[no-untyped-call]
+            candidate = copy.deepcopy(nb)
+            for cell in candidate.get("cells", []):
+                metadata = cell.get("metadata")
+                if isinstance(metadata, dict):
+                    # Jupyter's contents manager annotates cells after checking
+                    # the stored signature. This runtime-only flag is not part
+                    # of the signed notebook on disk.
+                    metadata.pop("trusted", None)
+            return notary.check_signature(candidate)  # type: ignore[no-untyped-call]
         except Exception:
             self.log.warning("Could not verify the notebook trust signature", exc_info=True)
             return False
@@ -495,3 +504,8 @@ class BokehHTMLExporter(HTMLExporter):
         super()._init_preprocessors()  # type: ignore[no-untyped-call]
         if not any(isinstance(preprocessor, BokehPNGPreprocessor) for preprocessor in self._preprocessors):
             self.register_preprocessor(BokehPNGPreprocessor, enabled=True)  # type: ignore[no-untyped-call]
+        index = next(
+            index for index, preprocessor in enumerate(self._preprocessors)
+            if isinstance(preprocessor, BokehPNGPreprocessor)
+        )
+        self._preprocessors.insert(0, self._preprocessors.pop(index))

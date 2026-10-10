@@ -113,6 +113,10 @@
 
     let script = [...document.head.querySelectorAll("script[data-bokeh-core-version]")]
       .find((element) => element.dataset.bokehCoreVersion === expected_version);
+    if (script?.dataset.bokehResourceState === "failed") {
+      script.remove();
+      script = null;
+    }
     if (script != null) {
       await wait_for_core(script);
     } else {
@@ -187,7 +191,7 @@
     if (loader?.ensure == null)
       throw new Error(`BokehJS ${expected_version} does not expose the common resource loader`);
     const additive = artifacts.filter((artifact) => artifact !== core).map(runtime_asset);
-    await loader.ensure(requirements, {mode: "resolved", assets: additive}, expected_version);
+    await loader.ensure(requirements, {mode: "resolved", assets: additive, retry: true}, expected_version);
   };
 
   let timer;

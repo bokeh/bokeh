@@ -33,6 +33,7 @@ class _ExportSnapshotsHandler(JupyterHandler):
 
     @web.authenticated
     @authorized(resource="nbconvert")
+    @authorized(action="execute", resource="kernels")
     async def post(self) -> None:
         '''Store the correlated frontend state for one export request.
 

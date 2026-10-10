@@ -364,7 +364,7 @@ export async function loadResources(payload: ResourcePayload, javascript: string
       )
     }
     if (javascript.length === 0) {
-      if (window.Bokeh != null) {
+      if (window.Bokeh != null && (payload.mode === "none" || payload.mode === "host-owned")) {
         validateVersion(payload.bokeh_version, payload.python_version)
         return
       }
@@ -430,7 +430,7 @@ async function requireResources(resourceId: string, version: string, pythonVersi
   if (state == null && kernel?.requestResource != null) {
     try {
       const record = await kernel.requestResource(resourceId)
-      await loadResources(record.payload, record.javascript, document.createElement("div"), kernel, path)
+      await loadResources(record.payload, record.javascript ?? "", document.createElement("div"), kernel, path)
       state = resources.get(resourceId)
     } catch (error) {
       if (error instanceof BokehNotebookError) throw error
@@ -451,6 +451,14 @@ async function requireResources(resourceId: string, version: string, pythonVersi
   }
   await state.ready
   validateVersion(version, pythonVersion)
+}
+
+function embeddedResourceJavascript(html: string, resourceId: string): string {
+  const template = document.createElement("template")
+  template.innerHTML = html
+  const script = [...template.content.querySelectorAll<HTMLScriptElement>("script[data-bokeh-notebook-resource-record]")]
+    .find((candidate) => candidate.dataset.bokehNotebookResourceRecord === resourceId)
+  return script?.textContent ?? ""
 }
 
 function extractArtifact(payload: DisplayPayload, html: string): any {
@@ -549,7 +557,13 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   renderedArtifacts.delete(node)
   node.querySelectorAll(`.bk-notebook-loading, [${STATIC_FALLBACK_ATTRIBUTE}]`).forEach((element) => element.remove())
   for (const record of payload.resource_records ?? []) {
-    await loadResources(record.payload, record.javascript, node, kernel)
+    const javascript = record.javascript ?? embeddedResourceJavascript(html, record.payload.resource_id)
+    if (javascript.length === 0 && kernel?.requestResource != null) {
+      const recovered = await kernel.requestResource(record.payload.resource_id)
+      await loadResources(recovered.payload, recovered.javascript ?? "", node, kernel)
+    } else {
+      await loadResources(record.payload, javascript, node, kernel)
+    }
   }
 
   let viewConnection: ApplicationViewConnection | undefined
@@ -588,6 +602,7 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   let receivePatch: ((message: any, buffers?: DataView[]) => void) | undefined
   let disconnected: HTMLElement | undefined
   let disposed = false
+  let snapshotFailures = 0
 
   const cleanupRoots = () => targets.roots.forEach((root) => root.remove())
 
@@ -667,14 +682,32 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     if (live != null) {
       live.onMessage(async (message, buffers) => {
         if (disposed) return
-        try {
-          if (message?.kind === "snapshot" && typeof message.artifact === "string" &&
-              typeof message.resource_id === "string" && Number.isSafeInteger(message.revision)) {
+        if (message?.kind === "snapshot" && typeof message.artifact === "string" &&
+            typeof message.resource_id === "string" && Number.isSafeInteger(message.revision)) {
+          try {
             await mountArtifact(JSON.parse(message.artifact), message.resource_id, message.revision)
-          } else {
-            receivePatch?.(message, buffers)
+            snapshotFailures = 0
+          } catch (error) {
+            if (disposed || (error instanceof DOMException && error.name === "AbortError")) return
+            snapshotFailures += 1
+            console.warn("Bokeh live artifact snapshot could not be mounted", error)
+            if (snapshotFailures >= 3) {
+              live?.close()
+              disconnected ??= renderDisconnected(
+                node,
+                "Static artifact — repeated Python snapshots could not be rendered. Re-run show(plot) to reconnect.",
+                error,
+              )
+            } else {
+              live?.requestResync()
+            }
           }
+          return
+        }
+        try {
+          receivePatch?.(message, buffers)
         } catch (error) {
+          if (disposed || (error instanceof DOMException && error.name === "AbortError")) return
           console.warn("Bokeh live artifact requires a fresh snapshot", error)
           live?.requestResync()
         }

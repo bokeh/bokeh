@@ -11,6 +11,7 @@ from __future__ import annotations
 # Standard library imports
 from collections.abc import Mapping
 from pathlib import Path
+from time import monotonic
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -25,10 +26,12 @@ import anywidget
 import traitlets
 
 if TYPE_CHECKING:
-    from .jupyter import ResourceRecord
+    from .jupyter import ExecutableResourceRecord
     from .notebook import ApplicationViewHandle, DocumentViewHandle
 
 _ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
+_TRANSPORT_LEASE_SECONDS = 45.0
+_MAX_TRANSPORTS = 8
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -38,7 +41,7 @@ _ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
 class _ResourceResponse(TypedDict):
     kind: Literal["resource"]
     request_id: str
-    record: ResourceRecord
+    record: ExecutableResourceRecord
 
 
 class _ResourceError(TypedDict):
@@ -49,7 +52,7 @@ class _ResourceError(TypedDict):
 
 
 def _resource_reply(request_id: object, resource_id: object,
-        records: Mapping[str, ResourceRecord]) -> _ResourceResponse | _ResourceError:
+        records: Mapping[str, ExecutableResourceRecord]) -> _ResourceResponse | _ResourceError:
     normalized_request_id = request_id if isinstance(request_id, str) else ""
     if normalized_request_id and isinstance(resource_id, str) and resource_id:
         record = records.get(resource_id)
@@ -171,12 +174,13 @@ class _DisplayWidget(anywidget.AnyWidget):
     payload = traitlets.Dict().tag(sync=True)
     html = traitlets.Unicode().tag(sync=True)
 
-    def __init__(self, *, payload: dict[str, Any], html: str, records: Mapping[str, ResourceRecord],
+    def __init__(self, *, payload: dict[str, Any], html: str, records: Mapping[str, ExecutableResourceRecord],
             handle: DocumentViewHandle | ApplicationViewHandle | None = None) -> None:
         super().__init__(payload=payload, html=html)
         self._records = records
         self._handle = handle
         self._transports: dict[str, _WidgetComm] = {}
+        self._transport_seen: dict[str, float] = {}
         self._released = False
         self.on_msg(self._receive)
 
@@ -199,21 +203,21 @@ class _DisplayWidget(anywidget.AnyWidget):
         frontend_id = content.get("frontend_id")
         if not isinstance(frontend_id, str) or not frontend_id:
             return
-        match content.get("kind"):
-            case "ready" | "active":
+        kind = content.get("kind")
+        self._prune_transports(frontend_id if kind in ("ready", "active", "heartbeat") else None)
+        match kind:
+            case "ready" | "active" | "heartbeat":
+                self._transport_seen[frontend_id] = monotonic()
                 transport = self._transports.get(frontend_id)
                 if transport is None or transport.closed:
                     transport = _WidgetComm(self, frontend_id)
                     self._transports[frontend_id] = transport
-                if self._released:
-                    transport.close()
-                    return
-                if self._handle is not None:
-                    from .notebook import ApplicationViewHandle
-
-                    if isinstance(self._handle, ApplicationViewHandle):
-                        self._handle._connect(cast(Any, transport))
-                    else:
+                    if self._released:
+                        transport.close()
+                        self._transports.pop(frontend_id, None)
+                        self._transport_seen.pop(frontend_id, None)
+                        return
+                    if self._handle is not None:
                         self._handle._connect(cast(Any, transport))
             case "request_resource":
                 reply = _resource_reply(
@@ -222,14 +226,30 @@ class _DisplayWidget(anywidget.AnyWidget):
                 self.send({**reply, "frontend_id": frontend_id})
             case "inactive" | "disposed":
                 transport = self._transports.pop(frontend_id, None)
+                self._transport_seen.pop(frontend_id, None)
                 if transport is not None:
                     transport.frontend_closed()
-                if self._released and not self._transports:
+                if not self._transports and (self._released or self._handle is None):
                     self.close()
             case "resync" | "application_url":
                 transport = self._transports.get(frontend_id)
                 if transport is not None:
                     transport.frontend_message(content)
+
+    def _prune_transports(self, incoming_id: str | None) -> None:
+        cutoff = monotonic() - _TRANSPORT_LEASE_SECONDS
+        expired = [frontend_id for frontend_id, seen in self._transport_seen.items() if seen < cutoff]
+        incoming = incoming_id is not None and (incoming_id not in self._transport_seen or incoming_id in expired)
+        overflow = max(0, len(self._transport_seen) - len(expired) - _MAX_TRANSPORTS + int(incoming))
+        oldest = [
+            frontend_id for frontend_id, _seen in sorted(self._transport_seen.items(), key=lambda item: item[1])
+            if frontend_id not in expired
+        ][:overflow]
+        for frontend_id in [*expired, *oldest]:
+            self._transport_seen.pop(frontend_id, None)
+            transport = self._transports.pop(frontend_id, None)
+            if transport is not None:
+                transport.frontend_closed()
 
     def disconnect(self) -> None:
         '''Disconnect every frontend without removing its static artifact.
@@ -241,11 +261,15 @@ class _DisplayWidget(anywidget.AnyWidget):
         if self._released:
             return
         self._released = True
+        self._handle = None
         for transport in tuple(self._transports.values()):
             transport.close()
+        self._transports.clear()
+        self._transport_seen.clear()
+        self.close()
 
 
-def display_widget(payload: Mapping[str, Any], html: str, records: Mapping[str, ResourceRecord], *,
+def display_widget(payload: Mapping[str, Any], html: str, records: Mapping[str, ExecutableResourceRecord], *,
         handle: DocumentViewHandle | ApplicationViewHandle | None = None) -> _DisplayWidget:
     '''Construct an AnyWidget adapter for one Bokeh notebook display.
 

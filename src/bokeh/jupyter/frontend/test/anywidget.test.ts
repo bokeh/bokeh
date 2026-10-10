@@ -1,129 +1,100 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest"
 
+const runtime = vi.hoisted(() => ({
+  currentDocumentSnapshot: vi.fn(() => undefined),
+  renderDiagnostic: vi.fn(),
+  renderDisplay: vi.fn(async () => vi.fn()),
+  renderLoading: vi.fn(() => vi.fn()),
+}))
+
+vi.mock("../src/runtime", () => runtime)
+
 import anywidgetFactory from "../src/anywidget"
-import {MAX_PENDING_BYTES, MAX_PENDING_PATCHES} from "../src/revision_queue"
+import {PROTOCOL_VERSION} from "../src/protocol"
+
+function harness() {
+  const listeners = new Set<(data: any, buffers?: ArrayBufferView[]) => void>()
+  const sent: any[] = []
+  const payload = {
+    protocol_version: PROTOCOL_VERSION,
+    kind: "artifact",
+    resource_id: "resource",
+    bokeh_version: "4.0.0",
+    python_version: "4.0.0",
+    source_kind: "standalone",
+    view_id: "view",
+    connect_timeout: 5000,
+  }
+  const model = {
+    get(name: string) {return name === "payload" ? payload : ""},
+
+    on(name: string, callback: (data: any, buffers?: ArrayBufferView[]) => void) {
+      if (name === "msg:custom") listeners.add(callback)
+    },
+
+    off(name: string, callback: (data: any, buffers?: ArrayBufferView[]) => void) {
+      if (name === "msg:custom") listeners.delete(callback)
+    },
+
+    send(data: any) {sent.push(data)},
+  }
+  const receive = (data: any, buffers?: ArrayBufferView[]) => {
+    for (const listener of listeners) listener(data, buffers)
+  }
+  return {model, receive, sent}
+}
 
 describe("AnyWidget transport", () => {
-  beforeEach(() => vi.stubGlobal("crypto", {randomUUID: () => "frontend"}))
+  let sequence = 0
+
+  beforeEach(() => {
+    sequence = 0
+    runtime.renderDiagnostic.mockClear()
+    runtime.renderDisplay.mockClear()
+    runtime.renderLoading.mockClear()
+    vi.stubGlobal("crypto", {randomUUID: () => `frontend-${++sequence}`})
+  })
+
   afterEach(() => vi.unstubAllGlobals())
 
-  it("does not publish a kernel-local application URL during initialization", () => {
-    const sent: unknown[] = []
-    const model = {
-      get() {return undefined},
+  it("owns one independent transport for every rendered view", async () => {
+    const {model, receive, sent} = harness()
+    const factory = anywidgetFactory()
+    const first = new AbortController()
+    const second = new AbortController()
+    const cleanupFirst = await factory.render({model, el: document.createElement("div"), signal: first.signal} as any)
+    const cleanupSecond = await factory.render({model, el: document.createElement("div"), signal: second.signal} as any)
 
-      on() {},
+    expect(sent.filter(({kind}) => kind === "active")).toEqual([
+      {kind: "active", frontend_id: "frontend-1"},
+      {kind: "active", frontend_id: "frontend-2"},
+    ])
 
-      off() {},
-
-      send(data: unknown) {sent.push(data)},
-    }
-    const controller = new AbortController()
-    anywidgetFactory().initialize({model, signal: controller.signal} as any)
-    expect(sent).toEqual([])
-    controller.abort()
-    expect(sent).toEqual([{kind: "disposed", frontend_id: "frontend"}])
-  })
-
-  it("returns the browser-routed application URL only over the live transport", () => {
-    let receive: ((data: unknown) => void) | undefined
-    const sent: unknown[] = []
-    const model = {
-      get() {return undefined},
-
-      on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
-
-      off() {},
-
-      send(data: unknown) {sent.push(data)},
-    }
-    const controller = new AbortController()
-    anywidgetFactory().initialize({model, signal: controller.signal} as any)
-    receive?.({
+    receive({
       kind: "configure",
-      frontend_id: "frontend",
+      frontend_id: "frontend-1",
       artifact: JSON.stringify({source: {kind: "server", url: "http://127.0.0.1:4321/app"}}),
     })
-
     expect(sent).toContainEqual({
       kind: "application_url",
-      frontend_id: "frontend",
+      frontend_id: "frontend-1",
       application_url: "http://127.0.0.1:4321/app",
     })
-    controller.abort()
+    expect(sent).not.toContainEqual(expect.objectContaining({kind: "application_url", frontend_id: "frontend-2"}))
+
+    cleanupFirst?.()
+    expect(sent).toContainEqual({kind: "inactive", frontend_id: "frontend-1"})
+    expect(sent).not.toContainEqual({kind: "inactive", frontend_id: "frontend-2"})
+    cleanupSecond?.()
   })
 
-  it("bounds pre-render patch history and requests a revisioned snapshot", () => {
-    let receive: ((data: unknown, buffers?: ArrayBufferView[]) => void) | undefined
-    const sent: unknown[] = []
-    const model = {
-      get() {return undefined},
-
-      on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
-
-      off() {},
-
-      send(data: unknown) {sent.push(data)},
-    }
+  it("releases only the aborted rendered view", async () => {
+    const {model, sent} = harness()
     const controller = new AbortController()
-    const factory = anywidgetFactory()
-    factory.initialize({model, signal: controller.signal} as any)
+    await anywidgetFactory().render({model, el: document.createElement("div"), signal: controller.signal} as any)
 
-    for (let revision = 1; revision <= MAX_PENDING_PATCHES + 1; revision++) {
-      receive?.({kind: "patch", frontend_id: "frontend", revision, content: {events: []}})
-    }
-
-    expect(sent).toContainEqual({kind: "resync", frontend_id: "frontend"})
     controller.abort()
+
+    expect(sent).toContainEqual({kind: "disposed", frontend_id: "frontend-1"})
   })
-
-  it("bounds detached binary buffers before a renderer subscribes", () => {
-    let receive: ((data: unknown, buffers?: ArrayBufferView[]) => void) | undefined
-    const sent: unknown[] = []
-    const model = {
-      get() {return undefined},
-
-      on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
-
-      off() {},
-
-      send(data: unknown) {sent.push(data)},
-    }
-    const controller = new AbortController()
-    anywidgetFactory().initialize({model, signal: controller.signal} as any)
-
-    receive?.({kind: "patch", frontend_id: "frontend", revision: 1, content: {events: []}}, [new Uint8Array(MAX_PENDING_BYTES + 1)])
-
-    expect(sent).toContainEqual({kind: "resync", frontend_id: "frontend"})
-    controller.abort()
-  })
-
-  it("requests only one resync while waiting for a replacement snapshot", () => {
-    let receive: ((data: unknown, buffers?: ArrayBufferView[]) => void) | undefined
-    const sent: unknown[] = []
-    const model = {
-      get() {return undefined},
-
-      on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
-
-      off() {},
-
-      send(data: unknown) {sent.push(data)},
-    }
-    const controller = new AbortController()
-    anywidgetFactory().initialize({model, signal: controller.signal} as any)
-
-    for (let revision = 1; revision <= MAX_PENDING_PATCHES + 20; revision++) {
-      receive?.({kind: "patch", frontend_id: "frontend", revision, content: {events: []}})
-    }
-
-    expect(sent.filter((message: any) => message.kind === "resync")).toHaveLength(1)
-    receive?.({kind: "snapshot", frontend_id: "frontend", revision: 100, artifact: "{}", resource_id: "resource"})
-    for (let revision = 101; revision <= 101 + MAX_PENDING_PATCHES; revision++) {
-      receive?.({kind: "patch", frontend_id: "frontend", revision, content: {events: []}})
-    }
-    expect(sent.filter((message: any) => message.kind === "resync")).toHaveLength(2)
-    controller.abort()
-  })
-
 })

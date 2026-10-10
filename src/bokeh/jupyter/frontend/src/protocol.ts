@@ -37,7 +37,7 @@ export interface ResourcePayload {
 
 export interface ResourceRecord {
   payload: ResourcePayload
-  javascript: string
+  javascript?: string
 }
 
 export interface DisplayPayload {
@@ -141,7 +141,7 @@ export function assertProtocol(payload: unknown): void {
             continue
           }
           const resource = value as Record<string, unknown>
-          if (typeof resource.javascript !== "string") problems.push(`resource_records[${index}].javascript must be a string`)
+          if (resource.javascript != null && typeof resource.javascript !== "string") problems.push(`resource_records[${index}].javascript must be a string`)
           try {
             assertProtocol(resource.payload)
           } catch {

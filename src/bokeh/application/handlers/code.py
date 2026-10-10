@@ -83,7 +83,7 @@ class CodeHandler(Handler):
     # to be no-ops, with a warning.
     _io_functions = ['show', 'save', 'serve']
 
-    _loggers: dict[str, Callable[..., None]]
+    _loggers: dict[str, Callable[..., Any]]
 
     _logger_text: ClassVar[str]
 
@@ -180,9 +180,10 @@ class CodeHandler(Handler):
     # Private methods ---------------------------------------------------------
 
     # subclasses must define self._logger_text
-    def _make_io_logger(self, name: str) -> Callable[..., None]:
-        def logger(*args: Any, **kwargs: Any) -> None:
+    def _make_io_logger(self, name: str) -> Callable[..., Any]:
+        def logger(*args: Any, **kwargs: Any) -> Any:
             log.info(self._logger_text, self._runner.path, name)
+            return _IgnoredNotebookApplication() if name == "serve" else None
         return logger
 
     # script is supposed to edit the doc not replace it
@@ -196,11 +197,15 @@ class CodeHandler(Handler):
 # Private API
 #-----------------------------------------------------------------------------
 
+class _IgnoredNotebookApplication:
+    def stop(self) -> None:
+        pass
+
 # monkeypatching is a little ugly, but in this case there's no reason any legitimate
 # code should be calling these functions, and we're only making a best effort to
 # warn people so no big deal if we fail.
 @contextmanager
-def _monkeypatch_io(loggers: dict[str, Callable[..., None]]) -> Generator[None]:
+def _monkeypatch_io(loggers: dict[str, Callable[..., Any]]) -> Generator[None]:
     import bokeh.io as io
     old: dict[str, Any] = {}
     for f in CodeHandler._io_functions:
