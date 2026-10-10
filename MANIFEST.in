@@ -14,6 +14,7 @@ include src/bokeh/jupyter/logotype.svg
 include src/bokeh/jupyter/protocol.json
 graft src/bokeh/jupyter/jupyter-config
 graft src/bokeh/jupyter/labextension
+prune src/bokeh/jupyter/frontend
 global-exclude *.py[cod]
 
 # start with an empty static/ dir

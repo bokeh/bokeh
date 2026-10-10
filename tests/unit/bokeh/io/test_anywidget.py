@@ -244,6 +244,33 @@ def test_expired_active_automatic_widgets_are_evicted(monkeypatch: pytest.Monkey
     second.close()
 
 
+def test_widget_eviction_prefers_least_recently_active(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = 0.0
+    monkeypatch.setattr(m, "monotonic", lambda: now)
+
+    with patch.object(m, "_MAX_INACTIVE_WIDGETS", 1):
+        visible = m.display_widget({"kind": "artifact"}, "", {})
+        visible._receive(visible, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
+        now = 1.0
+        abandoned = m.display_widget({"kind": "artifact"}, "", {})
+        abandoned._receive(abandoned, {"kind": "active", "frontend_id": _SECOND_FRONTEND_ID}, [])
+        now = 2.0
+        visible._receive(visible, {"kind": "heartbeat", "frontend_id": _FRONTEND_ID}, [])
+        now = 3.0
+        wake_trigger = m.display_widget({"kind": "artifact"}, "", {})
+        wake_trigger._receive(wake_trigger, {"kind": "active", "frontend_id": "wake-trigger"}, [])
+        now = m._TRANSPORT_LEASE_SECONDS + 4
+        wake_trigger._receive(wake_trigger, {"kind": "heartbeat", "frontend_id": "wake-trigger"}, [])
+
+    assert getattr(abandoned, "comm", None) is None
+    assert list(m._RETAINED_WIDGETS) == [visible.model_id, wake_trigger.model_id]
+
+    visible._receive(visible, {"kind": "heartbeat", "frontend_id": _FRONTEND_ID}, [])
+    assert _FRONTEND_ID in visible._transports
+    visible.close()
+    wake_trigger.close()
+
+
 def test_widget_keeps_the_kernel_local_application_url_out_of_its_payload() -> None:
     local_url = "http://127.0.0.1:4321/bokeh-notebook/nonce/"
     browser_url = "https://jupyter.example/proxy/4321/bokeh-notebook/nonce"
