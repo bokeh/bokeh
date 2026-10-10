@@ -15,6 +15,7 @@ export class RevisionQueue {
   private awaitingSnapshot = false
   private consumer?: RevisionConsumer
   private pumping = false
+  private latestRevision?: number
 
   get awaitingResync(): boolean {
     return this.awaitingSnapshot
@@ -22,11 +23,22 @@ export class RevisionQueue {
 
   pushPatch(message: any, buffers: DataView[]): QueueResult {
     if (this.awaitingSnapshot) return "ignored"
+    const revision = message.revision as number
+    if (this.latestRevision != null) {
+      if (revision <= this.latestRevision) return "ignored"
+      if (revision !== this.latestRevision + 1) {
+        this.patches = []
+        this.bytes = 0
+        this.awaitingSnapshot = true
+        return "overflow"
+      }
+    }
     const bytes = buffers.reduce((total, view) => total + view.byteLength, new TextEncoder().encode(JSON.stringify(message)).byteLength)
     this.patches.push({message, buffers, bytes})
     this.bytes += bytes
+    this.latestRevision = revision
+    this.startPump()
     if (this.patches.length <= MAX_PENDING_PATCHES && this.bytes <= MAX_PENDING_BYTES) {
-      this.startPump()
       return "queued"
     }
     this.patches = []
@@ -39,6 +51,10 @@ export class RevisionQueue {
     this.awaitingSnapshot = false
     this.patches = this.patches.filter((patch) => patch.message.revision > revision)
     this.bytes = this.patches.reduce((total, patch) => total + patch.bytes, 0)
+    this.latestRevision = this.patches.reduce(
+      (latest, patch) => Math.max(latest, patch.message.revision),
+      revision,
+    )
   }
 
   replaceWithSnapshot(message: any, buffers: DataView[] = []): void {
@@ -71,6 +87,7 @@ export class RevisionQueue {
     this.bytes = 0
     this.awaitingSnapshot = false
     this.consumer = undefined
+    this.latestRevision = undefined
   }
 
   private startPump(): void {

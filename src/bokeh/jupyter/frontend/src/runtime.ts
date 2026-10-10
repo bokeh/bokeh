@@ -1,6 +1,7 @@
 import {
   BokehNotebookError,
   DisplayPayload,
+  ResourceRecord,
   ResourcePayload,
   assertProtocol,
 } from "./protocol"
@@ -30,8 +31,6 @@ interface NotebookBokehRuntime {
   embed?: {create_notebook_patch_receiver?: (document: any, revision: number) => (message: any, buffers?: DataView[]) => void}
 }
 
-export interface ResourceRecord {payload: ResourcePayload, javascript: string}
-
 export interface FrontendDocumentSnapshot {
   view_id: string
   artifact_json?: string
@@ -59,7 +58,7 @@ export interface KernelProxy {
   readonly scope?: object
   requestResource?(resourceId: string): Promise<ResourceRecord>
   openLive?(liveId: string): Promise<LiveConnection>
-  openApplicationView?(viewId: string, applicationUrl: string): Promise<ApplicationViewConnection>
+  openApplicationView?(viewId: string): Promise<ApplicationViewConnection>
   releaseView?(viewId: string): Promise<void>
 }
 
@@ -549,7 +548,25 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   signal?.throwIfAborted()
   renderedArtifacts.delete(node)
   node.querySelectorAll(`.bk-notebook-loading, [${STATIC_FALLBACK_ATTRIBUTE}]`).forEach((element) => element.remove())
-  let artifact = extractArtifact(payload, html)
+  for (const record of payload.resource_records ?? []) {
+    await loadResources(record.payload, record.javascript, node, kernel)
+  }
+
+  let viewConnection: ApplicationViewConnection | undefined
+  let artifact: any
+  if (payload.application_id != null) {
+    if (kernel?.openApplicationView == null) {
+      throw new BokehNotebookError(
+        "APPLICATION_VIEW_UNAVAILABLE",
+        "This notebook host cannot own a managed Bokeh application view.",
+        "Use JupyterLab, Notebook, or AnyWidget with the bundled Bokeh integration.",
+      )
+    }
+    viewConnection = await kernel.openApplicationView(payload.view_id)
+    artifact = applicationArtifact(payload, viewConnection.artifactJson)
+  } else {
+    artifact = extractArtifact(payload, html)
+  }
   let live: LiveConnection | undefined
   let liveFailure: unknown
   if (payload.live_id != null) {
@@ -569,7 +586,6 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   const targets = artifactTargets(node, artifact)
   let mount: NotebookBokehMount | undefined
   let receivePatch: ((message: any, buffers?: DataView[]) => void) | undefined
-  let viewConnection: ApplicationViewConnection | undefined
   let disconnected: HTMLElement | undefined
   let disposed = false
 
@@ -647,17 +663,6 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     }
   }
   try {
-    if (payload.application_id != null) {
-      if (kernel?.openApplicationView == null) {
-        throw new BokehNotebookError(
-          "APPLICATION_VIEW_UNAVAILABLE",
-          "This notebook host cannot own a managed Bokeh application view.",
-          "Use JupyterLab, Notebook, or AnyWidget with the bundled Bokeh integration.",
-        )
-      }
-      viewConnection = await kernel.openApplicationView(payload.view_id, payload.application_url!)
-      artifact = applicationArtifact(payload, viewConnection.artifactJson)
-    }
     await mountArtifact(artifact, live?.resourceId ?? payload.resource_id, live?.revision ?? 0)
     if (live != null) {
       live.onMessage(async (message, buffers) => {
@@ -710,7 +715,13 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     void mount?.dispose?.()
     cleanupRoots()
   }
-  viewConnection?.onClose(cleanup)
+  viewConnection?.onClose(() => {
+    if (disposed || disconnected != null) return
+    disconnected = renderDisconnected(
+      node,
+      "Static artifact — the Python application connection closed. Re-run show(app) to reconnect.",
+    )
+  })
   if (signal?.aborted) {
     cleanup()
     signal.throwIfAborted()

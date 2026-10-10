@@ -43,13 +43,21 @@ Protocol and lifecycle
 comm targets, queue bounds, and the integer protocol version. Python imports
 it directly, and the TypeScript behavior check verifies the frontend constants
 against it. Change the manifest first and update both consumers together.
-Resource output owns JS/CSS artifacts once; document and application outputs
-refer to resource manifests. A document's initial serialized graph lives once in an inert HTML
-data owner; both its MIME payload and executable fallback refer to that owner
-by ID so large data sources are not duplicated in the saved notebook. In the
-bundled renderer, consumers may render before owners and the
-resource comm target can recover a deleted owner from a live kernel. The
-executable fallback has no kernel channel and must not promise that recovery.
+Every display advertises the Bokeh display MIME type, an AnyWidget view when
+available, and an HTML fallback. This is frontend MIME negotiation: Python
+must not choose one host based on the kernel process. JupyterLab gives the
+first-party renderer higher priority, while other notebook hosts can select
+AnyWidget. A document's initial serialized graph lives once in an inert HTML
+data owner. Each display MIME payload carries the transitive portable resource
+records it needs, so saved output remains complete when an earlier cell is
+replaced or deleted. The live kernel resource comm is a recovery and
+deduplication path, never the sole durable owner.
+
+Application outputs persist only their random application ID. Kernel-local
+URLs and random server prefixes are returned over the live comm and rewritten
+for the current browser at connection time; they must not be saved in notebook
+JSON.
+
 Likewise, a timed-out external core script must remain a terminal global load
 barrier: removing a dynamic ``script`` element does not guarantee that the
 browser will not execute it later. Only a definitive load error may release a
@@ -63,9 +71,7 @@ resource registry, loader program, promise cache, or document registry on
 ``when_mounted()``, publish failures that occur before a handle exists with
 ``publish_mount_error()``, and use its read-only ``view_lookup`` when a
 non-root view is required.
-The bundled frontends also announce themselves over this comm target after
-processing a resource output; keep that bounded handshake and
-``notebook_info()`` fields synchronized.
+Keep protocol validation and ``notebook_info()`` fields synchronized.
 
 Normal rendering never captures or persists a PNG. During a UI-initiated HTML
 export, the frontend serializes current document or application state to the
@@ -107,13 +113,8 @@ Colab currently injects a Bokeh import hook that calls the removed
 ``install_notebook_hook()`` API. ``bokeh.io.notebook`` recognizes Colab's hook
 module and returns a no-op only for that attribute lookup. Keep this adapter
 isolated from the public API: it must not restore a hook registry or route any
-display through the pre-4.0 callbacks. Colab also isolates output frames and
-may separate a MIME bundle's HTML and JavaScript representations, so a portable
-document must carry both its transitive resource loaders and a serialized
-document backup in its JavaScript representation. Keep this duplication
-Colab-only; normal hosts must continue to store each document graph and execute
-each shared resource record once. Colab's browser API registers targets for
-kernel-initiated comms, the reverse of JupyterLab's connection direction. The
-portable document therefore registers a unique target before Python opens the
-comm and then feeds its snapshot and patch chunks through the same
-``DocumentViewHandle`` and BokehJS patch receiver used by the bundled renderer.
+display through the pre-4.0 callbacks. Colab also isolates output frames, so
+automatic static output embeds its portable resource loader directly when
+AnyWidget is unavailable. Connected output requires AnyWidget and uses the
+same per-frontend ``DocumentViewHandle`` snapshot and patch channel as other
+widget hosts.

@@ -59,6 +59,18 @@ def build_bokehjs(config: Config, system: System) -> ActionReturn:
 
 
 def build_jupyter(config: Config, system: System) -> ActionReturn:
+    '''Build the packaged JupyterLab and AnyWidget frontend assets.
+
+    Args:
+        config:
+            The active release configuration.
+        system:
+            The release command runner.
+
+    Returns:
+        The release-step result.
+
+    '''
     try:
         system.run("bash tools/ci/build_jupyter.sh")
         config.add_modified("src/bokeh/jupyter/anywidget.js")
@@ -196,6 +208,18 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
 
 
 def update_jupyter_version(config: Config, system: System) -> ActionReturn:
+    '''Update the Jupyter frontend package metadata for a release.
+
+    Args:
+        config:
+            The active release configuration.
+        system:
+            The release command runner.
+
+    Returns:
+        The release-step result.
+
+    '''
     del system
     root = Path("src/bokeh/jupyter/frontend")
     files = (root / "package.json", root / "package-lock.json")
@@ -219,6 +243,18 @@ def update_jupyter_version(config: Config, system: System) -> ActionReturn:
 
 
 def verify_jupyter_build(config: Config, system: System) -> ActionReturn:
+    '''Verify that generated Jupyter assets match the release version.
+
+    Args:
+        config:
+            The active release configuration.
+        system:
+            The release command runner.
+
+    Returns:
+        The release-step result.
+
+    '''
     del system
     root = Path("src/bokeh/jupyter")
     try:

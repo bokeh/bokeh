@@ -52,7 +52,7 @@ class _ASGIServerThread:
         self._application = application
         self._address = address
         self._requested_port = port
-        self._uvicorn_kwargs = uvicorn_kwargs
+        self._uvicorn_kwargs = {"log_config": None, "loop": "asyncio", **uvicorn_kwargs}
         self._socket: socket.socket | None = None
         self._port: int | None = None
         self._startup_timeout = startup_timeout
@@ -163,53 +163,61 @@ class _ASGIServerThread:
 #-----------------------------------------------------------------------------
 
 APPLICATIONS: dict[str, NotebookApplication] = {}
-_CELL_APPLICATIONS: dict[str, NotebookApplication] = {}
+_KEY_APPLICATIONS: dict[str, NotebookApplication] = {}
+_CELL_APPLICATIONS: dict[str, tuple[str, list[NotebookApplication]]] = {}
 _APPLICATIONS_LOCK = threading.RLock()
 _APPLICATION_START_LOCK = threading.Lock()
 
 
-def _notebook_cell_id() -> str | None:
-    try:
-        from IPython import get_ipython
-
-        shell = get_ipython()
-        if shell is None:
-            return None
-        get_parent = getattr(shell, "get_parent", None)
-        if get_parent is None:
-            return None
-        parent = get_parent()
-        metadata = parent.get("metadata", {})
-        cell_id = metadata.get("cellId") or metadata.get("cell_id")
-        return cell_id if isinstance(cell_id, str) and cell_id else None
-    except Exception:
-        return None
-
-
-def _start_and_register_application(application: NotebookApplication, cell_key: str | None) -> None:
+def _start_and_register_application(application: NotebookApplication, key: str | None,
+        cell_identity: tuple[str, str] | None) -> None:
     # Serialize replacement decisions without holding the registry lock while
     # stopping an app. stop() unregisters under _APPLICATIONS_LOCK, and taking
     # these locks in the opposite order would deadlock with stop_async().
     with _APPLICATION_START_LOCK:
         with _APPLICATIONS_LOCK:
-            previous = _CELL_APPLICATIONS.get(cell_key) if cell_key is not None else None
-        if previous is not None and previous is not application:
-            # Stop before binding the new host so a stable explicit port can
-            # be reused when a serve cell is executed again.
-            previous.stop()
+            if key is not None:
+                previous = (_KEY_APPLICATIONS.get(key),)
+            elif cell_identity is not None:
+                cell_id, execution_id = cell_identity
+                current = _CELL_APPLICATIONS.get(cell_id)
+                previous = tuple(current[1]) if current is not None and current[0] != execution_id else ()
+            else:
+                previous = ()
+        for prior in previous:
+            if prior is None or prior is application:
+                continue
+            try:
+                # Stop before binding the new host so a stable explicit port
+                # can be reused when a serve cell is executed again.
+                prior.stop()
+            except Exception:
+                log.warning("Could not stop a replaced notebook application", exc_info=True)
         application._host.start()
         with _APPLICATIONS_LOCK:
             APPLICATIONS[application.application_id] = application
-            if cell_key is not None:
-                _CELL_APPLICATIONS[cell_key] = application
+            if key is not None:
+                _KEY_APPLICATIONS[key] = application
+            elif cell_identity is not None:
+                cell_id, execution_id = cell_identity
+                current = _CELL_APPLICATIONS.get(cell_id)
+                siblings = current[1] if current is not None and current[0] == execution_id else []
+                siblings.append(application)
+                _CELL_APPLICATIONS[cell_id] = (execution_id, siblings)
 
 
 def _unregister_application(application: NotebookApplication) -> None:
     with _APPLICATIONS_LOCK:
         APPLICATIONS.pop(application.application_id, None)
-        for key, current in tuple(_CELL_APPLICATIONS.items()):
+        for key, current in tuple(_KEY_APPLICATIONS.items()):
             if current is application:
-                del _CELL_APPLICATIONS[key]
+                del _KEY_APPLICATIONS[key]
+        for cell_id, (execution_id, applications) in tuple(_CELL_APPLICATIONS.items()):
+            remaining = [current for current in applications if current is not application]
+            if remaining:
+                _CELL_APPLICATIONS[cell_id] = (execution_id, remaining)
+            else:
+                del _CELL_APPLICATIONS[cell_id]
 
 
 def _stop_all_applications() -> None:
@@ -265,6 +273,7 @@ class NotebookApplication:
         from ..server.asgi import BokehASGI
         from .notebook import (
             DEFAULT_JUPYTER_URL,
+            notebook_cell_identity,
             server_url,
             update_notebook_url_from_env,
         )
@@ -318,7 +327,7 @@ class NotebookApplication:
             **(uvicorn_kwargs or {}),
         )
         try:
-            _start_and_register_application(self, key or _notebook_cell_id())
+            _start_and_register_application(self, key, None if key is not None else notebook_cell_identity())
         except Exception:
             self._stopped = True
             raise
@@ -390,7 +399,7 @@ class NotebookApplication:
             The current lifecycle status.
 
         '''
-        return "stopped" if self._stopped else "stopping" if self._stopping else "failed" if self._stop_error is not None else "running"
+        return "failed" if self._stop_error is not None else "stopped" if self._stopped else "stopping" if self._stopping else "running"
 
     @property
     def stopped(self) -> bool:
@@ -415,10 +424,12 @@ class NotebookApplication:
         return self._url
 
     def _resolve_browser_url(self, value: Any) -> str:
-        if not self._accept_frontend_proxy or value is None or value == self._url:
+        if not self._accept_frontend_proxy or value is None:
             return self._url.rstrip("/")
         if not isinstance(value, str):
             raise ValueError("the notebook frontend returned a non-string application URL")
+        if value.rstrip("/") == self._url.rstrip("/"):
+            return self._url.rstrip("/")
         parsed = urlparse(value)
         expected_path = f"/proxy/{self.port}/{self._prefix}/"
         if (
@@ -429,7 +440,7 @@ class NotebookApplication:
             or parsed.password is not None
             or parsed.query
             or parsed.fragment
-            or not parsed.path.endswith(expected_path)
+            or not parsed.path.rstrip("/").endswith(expected_path.rstrip("/"))
         ):
             raise ValueError("the notebook frontend returned an invalid Jupyter application proxy URL")
         self._asgi.core.websocket_origins.add(parsed.netloc)
@@ -446,20 +457,27 @@ class NotebookApplication:
             if self._stopped:
                 return
             self._stopping = True
+            error: BaseException | None = None
             try:
                 from .notebook import close_application_views
 
                 close_application_views(self)
+            except BaseException as close_error:
+                error = close_error
+            try:
                 self._host.stop()
-            except BaseException as error:
+            except BaseException as stop_error:
+                if error is None:
+                    error = stop_error
+                else:
+                    log.warning("Notebook application host also failed during shutdown", exc_info=True)
+            finally:
                 self._stop_error = error
-                self._stopping = False
-                raise
-            else:
-                self._stop_error = None
                 self._stopping = False
                 self._stopped = True
                 _unregister_application(self)
+            if error is not None:
+                raise error
 
     async def stop_async(self) -> None:
         ''' Asynchronously stop the application without blocking the notebook event loop.

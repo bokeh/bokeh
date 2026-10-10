@@ -8,6 +8,17 @@ Bokeh version ``4.0.0`` is a major milestone of the Bokeh project.
 Removals
 --------
 
+* Removed ``output_notebook()``, ``push_notebook()``, the notebook hook
+  registration APIs, and ``bokeh.io.output``. Notebook display is now
+  automatic in supported kernels; ``show(model)`` returns a connected handle
+  whose updates are sent automatically.
+* Removed the ``browser``, ``new``, ``notebook_handle``, and ``notebook_url``
+  arguments from ``show()``. Use ``save()`` for explicit file output and pass
+  notebook application and proxy options to ``serve()``.
+* Removed one-step ``show(application)`` and ``show(modify_document)`` server
+  creation. Start a managed notebook application with ``app = serve(...)``,
+  display it with ``show(app)``, and stop it explicitly with ``app.stop()``.
+
 * Removed ``DataCube`` and its supporting grouping and aggregation models. For
   hierarchical tables, use Panel's ``Tabulator`` widget. Bokeh-only
   applications can use ``DataTable`` with pre-aggregated data. See

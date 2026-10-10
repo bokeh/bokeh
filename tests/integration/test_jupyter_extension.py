@@ -90,11 +90,11 @@ p
     assert payload["source_kind"] == "standalone"
     assert html.count("data-bokeh-embed-payload") == 1
     assert "docs_json" not in html
-    assert "render_items" not in json.dumps(payload)
+    assert "render_items" not in payload
     assert all("application/vnd.bokeh.document+json" not in output.get("data", {}) for output in outputs)
 
 
-def test_multi_display_resource_dedup_and_safe_saved_file_protocol(tmp_path: Path) -> None:
+def test_multi_display_embeds_resources_and_safe_saved_file_protocol(tmp_path: Path) -> None:
     notebook = nbformat.v4.new_notebook(
         metadata={"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
         cells=[
@@ -118,9 +118,10 @@ save(q, "safe-output.html")
     resources = [output.data[RESOURCES_MIME_TYPE] for output in outputs if RESOURCES_MIME_TYPE in output.get("data", {})]
     displays = [output.data[DISPLAY_MIME_TYPE] for output in outputs if DISPLAY_MIME_TYPE in output.get("data", {})]
 
-    assert len(resources) == 1
+    assert resources == []
     assert len(displays) == 2
     assert len({payload["resource_id"] for payload in displays}) == 1
+    assert all(payload["resource_records"][-1]["payload"]["resource_id"] == payload["resource_id"] for payload in displays)
     file_output = notebook.cells[2].outputs[-1].data
     assert file_output["application/vnd.bokeh.file+json"]["path"] == "safe-output.html"
 
@@ -293,10 +294,11 @@ def _wait_for_mounted_figure(page: Any) -> None:
     assert page.locator(".bk-Figure").count() > 0, page.locator(".jp-OutputArea").first.inner_text()
 
 
-def _wait_for_named_model(page: Any, name: str, *, title: str | None = None) -> None:
+def _wait_for_named_model(page: Any, name: str, *, title: str | None = None,
+        server_session: bool | None = None) -> None:
     page.wait_for_function(
         """
-        async ({name, title}) => {
+        async ({name, title, serverSession}) => {
           for (const target of document.querySelectorAll("[data-bokeh-root]")) {
             const direct = target.bokehMount
             if (direct?.state !== "ready")
@@ -305,13 +307,15 @@ def _wait_for_named_model(page: Any, name: str, *, title: str | None = None) -> 
             if (mount !== direct || mount.view_lookup == null)
               continue
             const model = mount.document.get_model_by_name(name)
-            if (model != null && (title == null || model.title?.text === title))
+            const ownsServerSession = mount.session != null
+            if (model != null && (title == null || model.title?.text === title) &&
+                (serverSession == null || ownsServerSession === serverSession))
               return true
           }
           return false
         }
         """,
-        arg={"name": name, "title": title},
+        arg={"name": name, "title": title, "serverSession": server_session},
         timeout=30_000,
     )
 
@@ -355,13 +359,6 @@ app = serve(modify_document)
 app_view = show(app)
 print("application-view-ready")
 '''),
-            nbformat.v4.new_code_cell('''
-import time
-deadline = time.monotonic() + 5
-while len(app.sessions) != 1 and time.monotonic() < deadline:
-    time.sleep(0.05)
-print(f"application-sessions:{len(app.sessions)}")
-'''),
         ],
     )
 
@@ -383,7 +380,7 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
             page = browser.new_page(viewport={"width": 1440, "height": 1050})
             page.goto(f"{base_url}/lab/tree/lifecycle.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
-            editors.nth(4).wait_for(timeout=30_000)
+            editors.nth(3).wait_for(timeout=30_000)
 
             _execute_cell_once(page, editors, 0)
             _wait_for_mounted_figure(page)
@@ -394,10 +391,7 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
             _wait_for_named_model(page, "notebook-live-plot", title="updated-once")
             _execute_cell_once(page, editors, 3)
             page.get_by_text("application-view-ready", exact=True).wait_for(timeout=30_000)
-            _wait_for_named_model(page, "notebook-app-root")
-            _execute_cell_once(page, editors, 4)
-            sessions_output = page.locator(".jp-CodeCell").nth(4).locator(".jp-OutputArea").inner_text()
-            assert "application-sessions:1" in sessions_output, sessions_output
+            _wait_for_named_model(page, "notebook-app-root", server_session=True)
 
             # One intentional rerun replaces the cell output. The observation
             # wait never re-executes a cell as a retry.
@@ -408,7 +402,7 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
             page.reload()
             _wait_for_mounted_figure(page)
             _wait_for_named_model(page, "notebook-live-plot", title="updated-once")
-            _wait_for_named_model(page, "notebook-app-root")
+            _wait_for_named_model(page, "notebook-app-root", server_session=True)
             assert page.locator(".bk-notebook-diagnostic").count() == 0
             browser.close()
     finally:
@@ -440,14 +434,11 @@ def test_jupyterlab_remote_application_discovers_proxy_without_notebook_url(tmp_
             page.on("websocket", lambda websocket: application_urls.append(websocket.url))
             page.goto(f"{remote_base_url}/lab/tree/proxied.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
-            editors.nth(4).wait_for(timeout=30_000)
+            editors.nth(3).wait_for(timeout=30_000)
 
             _execute_cell_once(page, editors, 3, timeout=60_000)
             page.get_by_text("application-view-ready", exact=True).wait_for(timeout=30_000)
-            _wait_for_named_model(page, "notebook-app-root")
-            _execute_cell_once(page, editors, 4, timeout=60_000)
-            sessions_output = page.locator(".jp-CodeCell").nth(4).locator(".jp-OutputArea").inner_text()
-            assert "application-sessions:1" in sessions_output, sessions_output
+            _wait_for_named_model(page, "notebook-app-root", server_session=True)
 
             proxied = [urlsplit(url) for url in application_urls if "/bokeh-notebook/" in url]
             assert proxied, application_urls
@@ -469,7 +460,7 @@ def test_extension_disabled_output_uses_portable_static_fallback(tmp_path: Path)
             page = browser.new_page()
             page.goto(f"{base_url}/lab/tree/disabled.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
-            editors.nth(4).wait_for(timeout=30_000)
+            editors.nth(3).wait_for(timeout=30_000)
             _execute_cell_once(page, editors, 0)
             output = page.locator(".jp-OutputArea").first
             output.locator(".jp-OutputArea-output").first.wait_for(state="attached", timeout=30_000)

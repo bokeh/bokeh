@@ -2,8 +2,8 @@ import {Kernel} from "@jupyterlab/services"
 import {ReadonlyJSONObject} from "@lumino/coreutils"
 
 import {ContextManager} from "./context"
-import {BokehNotebookError, NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET} from "./protocol"
-import {ApplicationViewConnection, KernelProxy, LiveConnection, ResourceRecord} from "./runtime"
+import {BokehNotebookError, NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET, ResourceRecord} from "./protocol"
+import {ApplicationViewConnection, KernelProxy, LiveConnection} from "./runtime"
 import {dataViews, LiveRevisionTransport, withTimeout} from "./transport"
 
 export function safelyCloseComm(comm: Kernel.IComm): void {
@@ -55,14 +55,19 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
       if (kernel == null) throw new Error("The notebook kernel is not connected")
       return new Promise<LiveConnection>((resolve, reject) => {
         const comm = kernel.createComm(NOTEBOOK_COMM_TARGET)
-        const revisions = new LiveRevisionTransport(() => {
-          try {comm.send({kind: "resync"})}
-          catch { /* A closed connection recovers on the next renderer mount. */ }
-        })
         let receiveClose: (() => void) | undefined
         let settled = false
         let closed = false
         let closedByOwner = false
+        const revisions = new LiveRevisionTransport(() => {
+          try {comm.send({kind: "resync"})}
+          catch { /* A closed connection recovers on the next renderer mount. */ }
+        }, () => {
+          if (closed) return
+          closed = true
+          receiveClose?.()
+          safelyCloseComm(comm)
+        })
         const timer = window.setTimeout(() => {
           if (settled) return
           settled = true
@@ -120,6 +125,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
                 typeof initial.resource_id === "string" && Number.isSafeInteger(initial.revision)) {
               settled = true
               window.clearTimeout(timer)
+              revisions.reset(initial.revision as number)
               resolve(connection(initial.artifact, initial.resource_id, initial.revision as number))
             }
             return
@@ -156,14 +162,15 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
       })
     },
     releaseView: async (viewId) => {
-      await manager.context.sessionContext.ready
-      const kernel = current()
+      const context = manager.context
+      await context.sessionContext.ready
+      const kernel = context.sessionContext.session?.kernel
       if (kernel == null) return
       const comm = kernel.createComm(NOTEBOOK_COMM_TARGET)
       try {comm.open({kind: "release", view_id: viewId})}
       finally {window.setTimeout(() => safelyCloseComm(comm), 250)}
     },
-    openApplicationView: async (viewId, applicationUrl) => {
+    openApplicationView: async (viewId) => {
       await manager.context.sessionContext.ready
       const kernel = current()
       if (kernel == null) throw new Error("The notebook kernel is not connected")
@@ -206,7 +213,26 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
         comm.onMsg = (message) => {
           const data = message.content.data as ReadonlyJSONObject
           if (!settled) {
-            if (data.kind === "error") {
+            if (data.kind === "configure" && typeof data.artifact === "string") {
+              try {
+                const artifact = JSON.parse(manager.applicationArtifact(data.artifact))
+                const applicationUrl = artifact?.source?.url
+                if (typeof applicationUrl !== "string" || applicationUrl.length === 0) {
+                  throw new Error("the application artifact does not contain a server URL")
+                }
+                comm.send({kind: "application_url", application_url: applicationUrl})
+              } catch (error) {
+                settled = true
+                window.clearTimeout(timer)
+                reject(new BokehNotebookError(
+                  "APPLICATION_ARTIFACT_INVALID",
+                  "The kernel returned an invalid application configuration artifact.",
+                  "Restart the kernel and re-run the cells that call serve(...) and show(app).",
+                  error,
+                ))
+                safelyCloseComm(comm)
+              }
+            } else if (data.kind === "error") {
               settled = true
               window.clearTimeout(timer)
               reject(new BokehNotebookError(
@@ -218,7 +244,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             } else if (data.kind === "ready" && typeof data.artifact === "string") {
               settled = true
               window.clearTimeout(timer)
-              connection.artifactJson = data.artifact
+              connection.artifactJson = manager.applicationArtifact(data.artifact)
               resolve(connection)
             } else if (data.kind === "ready") {
               settled = true
@@ -251,7 +277,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             notifyClosed()
           }
         }
-        try {comm.open({view_id: viewId, application_url: manager.applicationUrl(applicationUrl)})}
+        try {comm.open({view_id: viewId})}
         catch (error) {
           if (!settled) {
             settled = true

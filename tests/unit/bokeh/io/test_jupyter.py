@@ -130,10 +130,20 @@ def test_display_payload_references_artifact_without_copying_graph() -> None:
     assert "render_items" not in payload
 
 
-def test_display_payload_keeps_managed_application_identity_and_url_together() -> None:
+def test_display_payload_keeps_resources_but_not_kernel_local_application_url() -> None:
     artifact = embed_server("http://127.0.0.1:4312/app")
-    with pytest.raises(ValueError, match="application_id and application_url"):
-        m.display_payload(artifact, "resource", "view", application_id="application")
+    record = m.ResourceRecord(payload=m.resource_payload(_resolved(), 1000), javascript="resource source")
+    payload = m.display_payload(
+        artifact,
+        "resource",
+        "view",
+        resource_records=[record],
+        application_id="application",
+    )
+
+    assert payload.get("application_id") == "application"
+    assert payload.get("resource_records") == [record]
+    assert "application_url" not in payload
 
 
 def test_file_payload_only_accepts_safe_notebook_relative_paths() -> None:

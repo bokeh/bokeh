@@ -1,22 +1,16 @@
-import {describe, expect, it} from "vitest"
+import {afterEach, beforeEach, describe, expect, it, vi} from "vitest"
 
 import anywidgetFactory from "../src/anywidget"
 import {MAX_PENDING_BYTES, MAX_PENDING_PATCHES} from "../src/revision_queue"
 
 describe("AnyWidget transport", () => {
-  it("publishes Jupyter's browser-resolved application URL", () => {
-    const config = document.createElement("script")
-    config.id = "jupyter-config-data"
-    config.type = "application/json"
-    config.textContent = JSON.stringify({baseUrl: "/user/alice/"})
-    document.head.append(config)
+  beforeEach(() => vi.stubGlobal("crypto", {randomUUID: () => "frontend"}))
+  afterEach(() => vi.unstubAllGlobals())
+
+  it("does not publish a kernel-local application URL during initialization", () => {
     const sent: unknown[] = []
-    const payload = {
-      application_id: "application",
-      application_url: "http://127.0.0.1:4312/bokeh-notebook/nonce/",
-    }
     const model = {
-      get(name: string) {return name === "payload" ? payload : undefined},
+      get() {return undefined},
 
       on() {},
 
@@ -25,16 +19,38 @@ describe("AnyWidget transport", () => {
       send(data: unknown) {sent.push(data)},
     }
     const controller = new AbortController()
-    try {
-      anywidgetFactory().initialize({model, signal: controller.signal} as any)
-      expect(sent[0]).toEqual({
-        kind: "ready",
-        application_url: "https://jupyter.example.test/user/alice/proxy/4312/bokeh-notebook/nonce/",
-      })
-    } finally {
-      controller.abort()
-      config.remove()
+    anywidgetFactory().initialize({model, signal: controller.signal} as any)
+    expect(sent).toEqual([])
+    controller.abort()
+    expect(sent).toEqual([{kind: "disposed", frontend_id: "frontend"}])
+  })
+
+  it("returns the browser-routed application URL only over the live transport", () => {
+    let receive: ((data: unknown) => void) | undefined
+    const sent: unknown[] = []
+    const model = {
+      get() {return undefined},
+
+      on(name: string, callback: typeof receive) {if (name === "msg:custom") receive = callback},
+
+      off() {},
+
+      send(data: unknown) {sent.push(data)},
     }
+    const controller = new AbortController()
+    anywidgetFactory().initialize({model, signal: controller.signal} as any)
+    receive?.({
+      kind: "configure",
+      frontend_id: "frontend",
+      artifact: JSON.stringify({source: {kind: "server", url: "http://127.0.0.1:4321/app"}}),
+    })
+
+    expect(sent).toContainEqual({
+      kind: "application_url",
+      frontend_id: "frontend",
+      application_url: "http://127.0.0.1:4321/app",
+    })
+    controller.abort()
   })
 
   it("bounds pre-render patch history and requests a revisioned snapshot", () => {
@@ -54,10 +70,10 @@ describe("AnyWidget transport", () => {
     factory.initialize({model, signal: controller.signal} as any)
 
     for (let revision = 1; revision <= MAX_PENDING_PATCHES + 1; revision++) {
-      receive?.({kind: "patch", revision, content: {events: []}})
+      receive?.({kind: "patch", frontend_id: "frontend", revision, content: {events: []}})
     }
 
-    expect(sent).toContainEqual({kind: "resync"})
+    expect(sent).toContainEqual({kind: "resync", frontend_id: "frontend"})
     controller.abort()
   })
 
@@ -76,9 +92,9 @@ describe("AnyWidget transport", () => {
     const controller = new AbortController()
     anywidgetFactory().initialize({model, signal: controller.signal} as any)
 
-    receive?.({kind: "patch", revision: 1, content: {events: []}}, [new Uint8Array(MAX_PENDING_BYTES + 1)])
+    receive?.({kind: "patch", frontend_id: "frontend", revision: 1, content: {events: []}}, [new Uint8Array(MAX_PENDING_BYTES + 1)])
 
-    expect(sent).toContainEqual({kind: "resync"})
+    expect(sent).toContainEqual({kind: "resync", frontend_id: "frontend"})
     controller.abort()
   })
 
@@ -98,13 +114,13 @@ describe("AnyWidget transport", () => {
     anywidgetFactory().initialize({model, signal: controller.signal} as any)
 
     for (let revision = 1; revision <= MAX_PENDING_PATCHES + 20; revision++) {
-      receive?.({kind: "patch", revision, content: {events: []}})
+      receive?.({kind: "patch", frontend_id: "frontend", revision, content: {events: []}})
     }
 
     expect(sent.filter((message: any) => message.kind === "resync")).toHaveLength(1)
-    receive?.({kind: "snapshot", revision: 100, artifact: "{}", resource_id: "resource"})
+    receive?.({kind: "snapshot", frontend_id: "frontend", revision: 100, artifact: "{}", resource_id: "resource"})
     for (let revision = 101; revision <= 101 + MAX_PENDING_PATCHES; revision++) {
-      receive?.({kind: "patch", revision, content: {events: []}})
+      receive?.({kind: "patch", frontend_id: "frontend", revision, content: {events: []}})
     }
     expect(sent.filter((message: any) => message.kind === "resync")).toHaveLength(2)
     controller.abort()

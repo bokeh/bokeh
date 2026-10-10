@@ -7,17 +7,6 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
-    # Temporary for the Bokeh 4.0 proof of concept: marimo's released Bokeh
-    # formatter still calls APIs removed in Bokeh 4.0. This disables only that
-    # formatter so marimo can use Bokeh's AnyWidget representation instead.
-    from marimo._output.formatters.formatters import THIRD_PARTY_FACTORIES
-
-    THIRD_PARTY_FACTORIES["bokeh"].register = lambda: None
-    return
-
-
-@app.cell
-def _():
     import marimo as mo
 
     from bokeh.io import show

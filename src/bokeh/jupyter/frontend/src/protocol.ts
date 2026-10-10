@@ -35,6 +35,11 @@ export interface ResourcePayload {
   load_timeout: number
 }
 
+export interface ResourceRecord {
+  payload: ResourcePayload
+  javascript: string
+}
+
 export interface DisplayPayload {
   protocol_version: number
   kind: "artifact"
@@ -44,9 +49,9 @@ export interface DisplayPayload {
   source_kind: "standalone" | "server"
   view_id: string
   connect_timeout: number
+  resource_records?: ResourceRecord[]
   live_id?: string
   application_id?: string
-  application_url?: string
 }
 
 export interface FilePayload {
@@ -125,9 +130,25 @@ export function assertProtocol(payload: unknown): void {
     if (record.source_kind !== "standalone" && record.source_kind !== "server") problems.push("source_kind must be standalone or server")
     if (record.live_id != null) stringField("live_id")
     if (record.application_id != null) stringField("application_id")
-    if (record.application_url != null) stringField("application_url")
-    if ((record.application_id == null) !== (record.application_url == null)) {
-      problems.push("application_id and application_url must be provided together")
+    if (record.application_url != null) problems.push("application_url must not be persisted in notebook output")
+    if (record.resource_records != null) {
+      if (!Array.isArray(record.resource_records)) {
+        problems.push("resource_records must be an array")
+      } else {
+        for (const [index, value] of record.resource_records.entries()) {
+          if (value == null || typeof value !== "object" || Array.isArray(value)) {
+            problems.push(`resource_records[${index}] must be an object`)
+            continue
+          }
+          const resource = value as Record<string, unknown>
+          if (typeof resource.javascript !== "string") problems.push(`resource_records[${index}].javascript must be a string`)
+          try {
+            assertProtocol(resource.payload)
+          } catch {
+            problems.push(`resource_records[${index}].payload must be a valid resource payload`)
+          }
+        }
+      }
     }
   }
   if (problems.length !== 0) {

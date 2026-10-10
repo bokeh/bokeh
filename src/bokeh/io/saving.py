@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 from html import escape
 from os.path import abspath, expanduser
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, SupportsIndex
 from urllib.parse import quote
 
 # External imports
@@ -61,8 +61,11 @@ class _SavedFile(str):
 
     _link_path: str | None
 
-    def __new__(cls, filename: str, link_path: PathLike) -> _SavedFile:
+    def __new__(cls, filename: str, link_path: PathLike | None) -> _SavedFile:
         result = str.__new__(cls, filename)
+        if link_path is None:
+            result._link_path = None
+            return result
         candidate = Path(link_path)
         parts = candidate.parts
         link = candidate.as_posix()
@@ -72,6 +75,9 @@ class _SavedFile(str):
             else None
         )
         return result
+
+    def __reduce_ex__(self, _protocol: SupportsIndex) -> tuple[Any, tuple[str, str | None]]:
+        return _SavedFile, (str(self), self._link_path)
 
     def _repr_html_(self) -> str:
         if self._link_path is None:

@@ -33,12 +33,12 @@ describe("notebook export", () => {
     expect(original).not.toHaveBeenCalled()
   })
 
-  it("falls back to same-page navigation when the browser blocks the export popup", async () => {
+  it("uses the standard exporter when the browser blocks the export popup", async () => {
     vi.spyOn(ServerConnection, "makeRequest").mockResolvedValue(new Response(null, {status: 204}))
     vi.spyOn(window, "open").mockReturnValue(null)
-    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined)
+    const original = vi.fn()
     const manager = {
-      exportAs: vi.fn(),
+      exportAs: original,
       serverSettings: {baseUrl: "http://example.test/"},
     }
     installExportInterceptor({serviceManager: {nbconvert: manager}} as any, {
@@ -47,9 +47,7 @@ describe("notebook export", () => {
 
     await manager.exportAs({format: "html", path: "plot.ipynb"} as any)
 
-    expect(click).toHaveBeenCalledOnce()
-    const link = click.mock.instances[0]
-    expect(link.href).toContain("bokeh-notebook/export/html/plot.ipynb")
-    expect(link.target).toBe("_self")
+    expect(original).toHaveBeenCalledOnce()
+    expect(ServerConnection.makeRequest).not.toHaveBeenCalled()
   })
 })

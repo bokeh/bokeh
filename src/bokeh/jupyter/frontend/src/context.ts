@@ -3,7 +3,7 @@ import {INotebookModel} from "@jupyterlab/notebook"
 import {Contents} from "@jupyterlab/services"
 import {IDisposable} from "@lumino/disposable"
 
-import {resolveJupyterApplicationUrl} from "./host"
+import {resolveJupyterApplicationArtifact, resolveJupyterApplicationUrl} from "./host"
 import {BokehNotebookError} from "./protocol"
 import {FrontendDocumentSnapshot} from "./runtime"
 
@@ -31,6 +31,10 @@ export class ContextManager implements IDisposable {
 
   applicationUrl(url: string): string {
     return resolveJupyterApplicationUrl(url, this.contents.serverSettings.baseUrl)
+  }
+
+  applicationArtifact(artifactJson: string): string {
+    return resolveJupyterApplicationArtifact(artifactJson, this.contents.serverSettings.baseUrl)
   }
 
   async fileUrl(path: string): Promise<string> {

@@ -56,15 +56,21 @@ views across JupyterLab, Notebook, VS Code, Colab, and marimo:
 
     pip install "bokeh[notebook]"
 
-AnyWidget carries revisioned live patches, fresh artifact snapshots, resource
-requests, and application-view lifecycle messages. The artifact MIME record is
-the durable representation for saved Jupyter notebooks, static previews, and
-HTML/PNG export. AnyWidget bounds queued patches to 64 messages and 8 MiB; on
+Every output advertises Bokeh's artifact MIME type, an AnyWidget view when
+available, and an HTML fallback. JupyterLab selects the first-party Bokeh
+renderer, while VS Code, Colab, marimo, and other widget hosts can select
+AnyWidget without Python guessing which frontend is attached. AnyWidget carries
+revisioned live patches, fresh artifact snapshots, resource requests, and
+application-view lifecycle messages. The artifact MIME record is the durable
+representation for saved Jupyter notebooks, static previews, and HTML/PNG
+export. AnyWidget bounds queued patches to 64 messages and 8 MiB; on
 overflow or a revision gap it discards the queue and requests a fresh snapshot.
 The same bound remains in force while a frontend is processing updates, so a
 slow remount cannot grow an unbounded promise chain.
-The browser caches each shared resource ID, so ``INLINE`` resources execute
-once per frontend rather than being copied into every displayed widget.
+Each display also carries its transitive resource records, so replacing or
+deleting an earlier cell cannot break a later saved output. The browser caches
+each resource ID and executes identical ``INLINE`` resources only once per
+frontend.
 
 The former ``output_notebook()`` initialization function and extensible
 notebook-hook registry were removed in Bokeh 4.0. Pass ``resources=`` to an

@@ -523,7 +523,7 @@ You should see output similar to:
     BokehJS static path   :  /path/to/bokeh/src/bokeh/server/static
     node.js version       :  v24.3.0
     npm version           :  11.4.2
-    Jupyter protocol      :  1
+    Jupyter protocol      :  2
     Jupyter renderer      :  bundled
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 

@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     from ..model import Model
     from ..models.ui import UIElement
     from ..resources import ResourcesLike
+    from .jupyter import ResourceRecord
     from .jupyter_app import NotebookApplication
 
     class Comm(Protocol):
@@ -164,6 +165,12 @@ def _is_colab_runtime() -> bool:
         return False
 
 def is_marimo_runtime() -> bool:
+    '''Report whether Bokeh is executing in an active marimo runtime.
+
+    Returns:
+        Whether marimo owns the current notebook execution context.
+
+    '''
     if "marimo" not in sys.modules:
         return False
     try:
@@ -174,6 +181,12 @@ def is_marimo_runtime() -> bool:
         return False
 
 def anywidget_available() -> bool:
+    '''Report whether the optional AnyWidget notebook transport is available.
+
+    Returns:
+        Whether Bokeh can construct its AnyWidget display adapter.
+
+    '''
     try:
         from . import _anywidget
 
@@ -181,16 +194,51 @@ def anywidget_available() -> bool:
     except (AttributeError, ImportError):
         return False
 
-def _use_anywidget() -> bool:
-    if not anywidget_available():
-        return False
-    if is_marimo_runtime():
-        return True
+def notebook_cell_identity() -> tuple[str, str] | None:
+    '''Return the current notebook cell and execution identifiers.
+
+    Returns:
+        The stable cell identifier and unique execute-request identifier, or
+        ``None`` when the current IPython kernel is not executing a notebook
+        cell.
+
+    '''
     try:
         from IPython import get_ipython
 
         shell = get_ipython()
-        return shell is not None and getattr(shell, "kernel", None) is not None
+        if shell is None or getattr(shell, "kernel", None) is None:
+            return None
+        get_parent = getattr(shell, "get_parent", None)
+        if get_parent is None:
+            return None
+        parent = get_parent()
+        metadata = parent.get("metadata", {})
+        header = parent.get("header", {})
+        cell_id = metadata.get("cellId") or metadata.get("cell_id")
+        execution_id = header.get("msg_id")
+        if not isinstance(cell_id, str) or not cell_id:
+            return None
+        if not isinstance(execution_id, str) or not execution_id:
+            return None
+        return cell_id, execution_id
+    except Exception:
+        return None
+
+def _headless_notebook_environment() -> bool:
+    try:
+        from IPython import get_ipython
+
+        shell = get_ipython()
+        if shell is None or getattr(shell, "kernel", None) is None:
+            return False
+        get_parent = getattr(shell, "get_parent", None)
+        if get_parent is None:
+            return False
+        parent = get_parent()
+        header = parent.get("header", {})
+        content = parent.get("content", {})
+        return header.get("msg_type") == "execute_request" and content.get("allow_stdin") is False
     except Exception:
         return False
 
@@ -231,6 +279,7 @@ class DocumentViewHandle:
             resources: ResourcesLike | None = None) -> None:
         self._comms: dict[str, Comm] = {}
         self._root = root
+        self._models = {root, *root.references()}
         self._live_id = live_id
         self._view_id = view_id
         self._resources: ResourcesLike | None = resources
@@ -336,7 +385,11 @@ class DocumentViewHandle:
         self._frontend = None
         if frontend is not None:
             try:
-                frontend.close()
+                disconnect = getattr(frontend, "disconnect", None)
+                if callable(disconnect):
+                    disconnect()
+                else:
+                    frontend.close()
             except Exception:
                 log.debug("Could not close notebook document frontend", exc_info=True)
 
@@ -375,6 +428,7 @@ class DocumentViewHandle:
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
         if self._belongs(event.model):
             self._record(event)
+            self._models = {self._root, *self._root.references()}
 
     def _column_data_changed(self, event: ColumnDataChangedEvent) -> None:
         if self._belongs(event.model):
@@ -389,7 +443,7 @@ class DocumentViewHandle:
             self._record(event)
 
     def _belongs(self, model: Model) -> bool:
-        return model is self._root or model in self._root.references()
+        return model in self._models
 
     def _record(self, event: DocumentPatchedEvent) -> None:
         if self._hold_depth > 0:
@@ -454,7 +508,7 @@ class ApplicationViewHandle:
         self._closed = False
         self._frontend: Any | None = None
 
-    def _connect(self, comm: Comm, application_url: Any = None) -> None:
+    def _connect(self, comm: Comm) -> None:
         if self._closed:
             comm.send({
                 "kind": "error",
@@ -463,35 +517,48 @@ class ApplicationViewHandle:
             })
             comm.close()
             return
-        try:
-            browser_url = self._application._resolve_browser_url(application_url)
-            if browser_url == self._result.source["url"]:
-                result = self._result
-            else:
-                from ..embed.result import EmbedResult
-
-                result = EmbedResult(
-                    source={**self._result.source, "url": browser_url},
-                    roots=self._result.roots,
-                    requires=self._result.requires,
-                    metadata=self._result.metadata,
-                    bokeh_version=self._result.bokeh_version,
-                    schema=self._result.schema,
-                )
-        except ValueError as error:
-            comm.send({
-                "kind": "error",
-                "code": "APPLICATION_URL_INVALID",
-                "message": str(error),
-            })
-            comm.close()
-            return
         comm_id = _comm_id(comm)
         self._comms[comm_id] = comm
         on_close = getattr(comm, "on_close", None)
         if on_close is not None:
             on_close(lambda _message: self._disconnect(comm_id))
-        comm.send({"kind": "ready", "artifact": result.to_json_string()})
+
+        configured = False
+
+        def configure(message: dict[str, Any]) -> None:
+            nonlocal configured
+            data = message.get("content", {}).get("data", {})
+            if self._closed or comm_id not in self._comms or configured or data.get("kind") != "application_url":
+                return
+            try:
+                browser_url = self._application._resolve_browser_url(data.get("application_url"))
+                if browser_url == self._result.source["url"]:
+                    result = self._result
+                else:
+                    from ..embed.result import EmbedResult
+
+                    result = EmbedResult(
+                        source={**self._result.source, "url": browser_url},
+                        roots=self._result.roots,
+                        requires=self._result.requires,
+                        metadata=self._result.metadata,
+                        bokeh_version=self._result.bokeh_version,
+                        schema=self._result.schema,
+                    )
+            except ValueError as error:
+                self._disconnect(comm_id)
+                comm.send({
+                    "kind": "error",
+                    "code": "APPLICATION_URL_INVALID",
+                    "message": str(error),
+                })
+                comm.close()
+                return
+            configured = True
+            comm.send({"kind": "ready", "artifact": result.to_json_string()})
+
+        comm.on_msg(configure)
+        comm.send({"kind": "configure", "artifact": self._result.to_json_string()})
 
     def _disconnect(self, comm_id: str) -> None:
         self._comms.pop(comm_id, None)
@@ -561,7 +628,11 @@ class ApplicationViewHandle:
         self._frontend = None
         if frontend is not None:
             try:
-                frontend.close()
+                disconnect = getattr(frontend, "disconnect", None)
+                if callable(disconnect):
+                    disconnect()
+                else:
+                    frontend.close()
             except Exception:
                 log.debug("Could not close notebook application frontend", exc_info=True)
 
@@ -663,7 +734,7 @@ def _register_notebook_comm_target() -> None:
                 })
                 comm.close()
                 return
-            view._connect(comm, data.get("application_url"))
+            view._connect(comm)
 
         kernel.comm_manager.register_target(_NOTEBOOK_COMM_TARGET, connect)
         _NOTEBOOK_COMM_KERNEL = kernel
@@ -677,14 +748,9 @@ def notebook_environment() -> bool:
         Whether an interactive notebook kernel or marimo runtime is active.
 
     '''
-    if is_marimo_runtime():
+    if is_marimo_runtime() or _is_colab_runtime():
         return True
-    try:
-        from IPython import get_ipython
-        shell = get_ipython()
-        return shell is not None and getattr(shell, "kernel", None) is not None
-    except Exception:
-        return False
+    return notebook_cell_identity() is not None or _headless_notebook_environment()
 
 def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         exclude: set[str] | None = None,
@@ -718,9 +784,8 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     from ..embed.notebook import notebook_content
     from .jupyter import DISPLAY_MIME_TYPE, display_payload, resource_payload
 
-    marimo = is_marimo_runtime()
     colab = _is_colab_runtime()
-    portable_widget = (marimo or colab) and anywidget_available()
+    portable_widget = anywidget_available()
     artifact, fragment = notebook_content(obj)
     if colab and not portable_widget:
         from ..resources import Resources
@@ -730,11 +795,17 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         fragment = artifact.fragment(resources=policy)
         resource_id = resource_payload(resolved, 5000)["resource_id"]
     else:
-        resource_id = _ensure_notebook_resources(artifact, resources, publish=not portable_widget)
+        resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
+        fragment = artifact.fragment(resources=resources)
     view_id = make_id()
     fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
     html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
-    payload = display_payload(artifact, resource_id, view_id)
+    payload = display_payload(
+        artifact,
+        resource_id,
+        view_id,
+        resource_records=_resource_record_chain(resource_id),
+    )
     if portable_widget:
         from ._anywidget import display_widget
 
@@ -812,35 +883,42 @@ def show_doc(obj: Model | Sequence[UIElement],
 
     source_document = obj.document or curdoc()
     added_root = obj.document is None
-    if added_root:
-        source_document.add_root(obj)
+    handle: DocumentViewHandle | None = None
+    try:
+        if added_root:
+            source_document.add_root(obj)
 
-    from ..embed.notebook import notebook_content
-    from .jupyter import DISPLAY_MIME_TYPE, display_payload
+        from ..embed.notebook import notebook_content
+        from .jupyter import DISPLAY_MIME_TYPE, display_payload
 
-    use_anywidget = _use_anywidget()
-    _require_marimo_anywidget()
-    if _is_colab_runtime() and not use_anywidget:
-        raise RuntimeError(
-            "Connected Bokeh output in Colab requires AnyWidget 0.11 or later. "
-            "Install Bokeh's notebook extra with 'pip install bokeh[notebook]'.",
+        use_anywidget = anywidget_available()
+        _require_marimo_anywidget()
+        if _is_colab_runtime() and not use_anywidget:
+            raise RuntimeError(
+                "Connected Bokeh output in Colab requires AnyWidget 0.11 or later. "
+                "Install Bokeh's notebook extra with 'pip install bokeh[notebook]'.",
+            )
+        artifact, _fragment = notebook_content(obj, live=True)
+        resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
+        fragment = artifact.fragment(resources=resources)
+        live_id = make_id()
+        view_id = make_id()
+        fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
+        html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
+        payload = display_payload(
+            artifact,
+            resource_id,
+            view_id,
+            resource_records=_resource_record_chain(resource_id),
+            live_id=live_id,
         )
-    artifact, fragment = notebook_content(obj, live=True)
-    resource_id = _ensure_notebook_resources(artifact, resources, publish=not use_anywidget)
-    live_id = make_id()
-    view_id = make_id()
-    fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
-    html = fragment.html.replace("</div>", f"{fallback}</div>", 1)
-    payload = display_payload(artifact, resource_id, view_id, live_id=live_id)
 
-    handle = DocumentViewHandle(obj, live_id=live_id, view_id=view_id, resources=resources)
-    root_key = (id(source_document), id(obj))
-    handle._attach(source_document, output_root=added_root or root_key in _OUTPUT_DOCUMENT_ROOTS)
-    _retain_document_handle(handle)
-    if not use_anywidget:
+        handle = DocumentViewHandle(obj, live_id=live_id, view_id=view_id, resources=resources)
+        root_key = (id(source_document), id(obj))
+        handle._attach(source_document, output_root=added_root or root_key in _OUTPUT_DOCUMENT_ROOTS)
+        _retain_document_handle(handle)
         _register_notebook_comm_target()
 
-    try:
         if use_anywidget:
             from IPython.display import display  # type: ignore[attr-defined]
 
@@ -859,8 +937,11 @@ def show_doc(obj: Model | Sequence[UIElement],
     except BaseException:
         if handle is not None:
             handle.close()
+        elif added_root and obj.document is source_document:
+            source_document.remove_root(obj)
         raise
 
+    assert handle is not None
     return handle
 
 def show_hosted_app(app: NotebookApplication,
@@ -886,7 +967,7 @@ def show_hosted_app(app: NotebookApplication,
     from ..embed import embed_server
     from .jupyter import DISPLAY_MIME_TYPE, display_payload
 
-    use_anywidget = _use_anywidget()
+    use_anywidget = anywidget_available()
     _require_marimo_anywidget()
     if _is_colab_runtime() and not use_anywidget:
         raise RuntimeError(
@@ -895,20 +976,18 @@ def show_hosted_app(app: NotebookApplication,
         )
     view_id = make_id()
     artifact = embed_server(app.url, metadata={"notebook_application_id": app.application_id})
-    resource_id = _ensure_notebook_resources(artifact, resources, publish=not use_anywidget)
+    resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
     payload = display_payload(
         artifact,
         resource_id,
         view_id,
+        resource_records=_resource_record_chain(resource_id),
         application_id=app.application_id,
-        application_url=app.url,
     )
-    html = artifact.fragment(resources="none").html
-    html = html.replace("</div>", f"{static_fallback(_STATIC_FALLBACK_MESSAGE)}</div>", 1)
+    html = static_fallback(_STATIC_FALLBACK_MESSAGE)
     handle = ApplicationViewHandle(app, view_id, artifact)
     _retain_application_handle(handle)
-    if not use_anywidget:
-        _register_notebook_comm_target()
+    _register_notebook_comm_target()
     try:
         if use_anywidget:
             from IPython.display import display  # type: ignore[attr-defined]
@@ -931,18 +1010,38 @@ def show_hosted_app(app: NotebookApplication,
     return handle
 
 def close_application_views(app: NotebookApplication) -> None:
+    '''Close every notebook output view owned by a managed application.
+
+    Args:
+        app:
+            The managed application whose output views should close.
+
+    Returns:
+        None
+
+    '''
     for handle in tuple(_APPLICATION_VIEW_HANDLES.values()):
         if handle.application is app:
             handle.close()
 
-_PUBLISHED_RESOURCE_IDS: set[str] = set()
-
-RESOURCE_RECORDS: dict[str, dict[str, Any]] = {}
+RESOURCE_RECORDS: dict[str, ResourceRecord] = {}
 _ARTIFACT_OWNERS: dict[str, str] = {}
 _RESOURCE_COMM_KERNEL: Any | None = None
 _RESOURCE_COMM_TARGET = RESOURCE_COMM_TARGET
 
 def static_fallback(message: str, *, title: str = "Interactive Bokeh output unavailable") -> str:
+    '''Render a non-executable fallback notice for notebook output.
+
+    Args:
+        message:
+            The recovery guidance shown to the notebook user.
+        title:
+            The fallback notice heading.
+
+    Returns:
+        Escaped HTML for the fallback notice.
+
+    '''
     return (
         f'<div class="bk-notebook-static-fallback" {STATIC_FALLBACK_ATTRIBUTE}="" role="note" '
         'style="border:1px solid #e6a3a3;border-left:4px solid #c33;padding:8px 12px;margin:4px 0;'
@@ -1003,8 +1102,7 @@ def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, 
         # the preserved record even though no saved output owns it anymore.
         _register_resource_comm_target()
         resource_id = dependencies[0]
-        if publish and resource_id not in _PUBLISHED_RESOURCE_IDS:
-            _PUBLISHED_RESOURCE_IDS.add(resource_id)
+        if publish:
             record = RESOURCE_RECORDS[resource_id]
             publish_display_data({
                 JS_MIME_TYPE: record["javascript"],
@@ -1021,13 +1119,30 @@ def _publish_resource_record(resolved: ResolvedResources, load_timeout: int, *, 
         _ARTIFACT_OWNERS[artifact_id] = resource_id
     _register_resource_comm_target()
 
-    if publish and resource_id not in _PUBLISHED_RESOURCE_IDS:
-        _PUBLISHED_RESOURCE_IDS.add(resource_id)
+    if publish:
         publish_display_data({
             JS_MIME_TYPE: javascript,
             RESOURCES_MIME_TYPE: payload,
         })
     return resource_id
+
+def _resource_record_chain(resource_id: str) -> list[ResourceRecord]:
+    records: list[ResourceRecord] = []
+    visited: set[str] = set()
+
+    def add(current_id: str) -> None:
+        if current_id in visited:
+            return
+        visited.add(current_id)
+        record = RESOURCE_RECORDS.get(current_id)
+        if record is None:
+            return
+        for dependency in record["payload"]["dependencies"]:
+            add(dependency)
+        records.append(record)
+
+    add(resource_id)
+    return records
 
 def _ensure_notebook_resources(result: EmbedResult, resources: ResourcesLike | None = None,
         load_timeout: int = 5000, *, publish: bool = True) -> str:
@@ -1037,13 +1152,18 @@ def _ensure_notebook_resources(result: EmbedResult, resources: ResourcesLike | N
     resolved = policy.resolve(result.requires, bokeh_version=result.bokeh_version)
     return _publish_resource_record(resolved, load_timeout, publish=publish)
 
-def reset_notebook_resources() -> None:
+def _reset_notebook_resources() -> None:
+    '''Reset connected notebook handles and the kernel resource registry.
+
+    Returns:
+        None
+
+    '''
     global _NOTEBOOK_COMM_KERNEL, _RESOURCE_COMM_KERNEL
     for handle in tuple(_DOCUMENT_VIEW_HANDLES.values()):
         handle.close()
     for application_handle in tuple(_APPLICATION_VIEW_HANDLES.values()):
         application_handle.close()
-    _PUBLISHED_RESOURCE_IDS.clear()
     RESOURCE_RECORDS.clear()
     _ARTIFACT_OWNERS.clear()
     _DOCUMENT_VIEW_HANDLES_BY_VIEW.clear()
@@ -1052,7 +1172,20 @@ def reset_notebook_resources() -> None:
     _RESOURCE_COMM_KERNEL = None
 
 def server_url(url: str, port: int | None) -> str:
-    '''
+    '''Build a notebook application URL with an optional loopback port.
+
+    Args:
+        url:
+            The notebook URL or origin used as the application base.
+        port:
+            The application port, or ``None`` to retain no explicit port.
+
+    Returns:
+        The normalized application URL.
+
+    Raises:
+        ValueError:
+            If the URL has no HTTP origin or contains credentials.
 
     '''
     parsed = urllib.parse.urlsplit(url if "://" in url else f"http://{url}")

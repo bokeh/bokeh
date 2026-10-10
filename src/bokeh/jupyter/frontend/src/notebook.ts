@@ -49,40 +49,76 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
       mimeTypes: [DISPLAY_MIME_TYPE],
       createRenderer: (options) => new DisplayRenderer(options, manager),
     }, -20)
-    let ownedViews = new Set<string>()
+    const ownedViews = new Set<string>()
+    const cellViews = new Map<ICodeCellModel, Set<string>>()
+    const localViewOwners = new Map<string, number>()
+    const pendingReleases = new Map<string, number>()
 
-    const releaseView = (viewId: string) => {
+    const publishOwnedViews = () => manager.setOwnedViews(new Set(ownedViews))
+
+    const retainView = (viewId: string) => {
+      const pending = pendingReleases.get(viewId)
+      if (pending != null) {
+        window.clearTimeout(pending)
+        pendingReleases.delete(viewId)
+      }
+      this.viewOwners.set(viewId, (this.viewOwners.get(viewId) ?? 0) + 1)
+      localViewOwners.set(viewId, (localViewOwners.get(viewId) ?? 0) + 1)
+      ownedViews.add(viewId)
+    }
+
+    const releaseView = (viewId: string, defer = true) => {
       const owners = (this.viewOwners.get(viewId) ?? 1) - 1
       if (owners === 0) {
         this.viewOwners.delete(viewId)
-        void proxy.releaseView?.(viewId)
+        if (defer) {
+          const timer = window.setTimeout(() => {
+            pendingReleases.delete(viewId)
+            if (!this.viewOwners.has(viewId)) void proxy.releaseView?.(viewId)
+          }, 0)
+          pendingReleases.set(viewId, timer)
+        } else {
+          void proxy.releaseView?.(viewId)
+        }
       } else {
         this.viewOwners.set(viewId, owners)
       }
+      const localOwners = (localViewOwners.get(viewId) ?? 1) - 1
+      if (localOwners === 0) {
+        localViewOwners.delete(viewId)
+        ownedViews.delete(viewId)
+      } else {
+        localViewOwners.set(viewId, localOwners)
+      }
     }
 
-    const scanOwnership = () => {
+    const viewsIn = (cell: ICodeCellModel): Set<string> => {
       const current = new Set<string>()
-      for (const cell of context.model.cells) {
-        if (cell.type !== "code" || !cell.trusted) continue
-        const code = cell as ICodeCellModel
-        if (!code.outputs.trusted) continue
-        for (let index = 0; index < code.outputs.length; index++) {
-          const output = code.outputs.get(index)
-          if (output.trusted === false) continue
-          const payload = (output.data[DISPLAY_MIME_TYPE] ?? output.metadata[DISPLAY_MIME_TYPE]) as unknown as DisplayPayload | undefined
-          if (payload?.kind === "artifact" && typeof payload.view_id === "string") current.add(payload.view_id)
+      if (!cell.trusted || !cell.outputs.trusted) return current
+      for (let index = 0; index < cell.outputs.length; index++) {
+        const output = cell.outputs.get(index)
+        if (output.trusted === false) continue
+        const payload = (output.data[DISPLAY_MIME_TYPE] ?? output.metadata[DISPLAY_MIME_TYPE]) as unknown as DisplayPayload | undefined
+        if (payload?.kind === "artifact" && typeof payload.view_id === "string" &&
+            (typeof payload.live_id === "string" || typeof payload.application_id === "string")) {
+          current.add(payload.view_id)
         }
       }
+      return current
+    }
+
+    const updateOwnership = (cell: ICodeCellModel) => {
+      const previous = cellViews.get(cell) ?? new Set<string>()
+      const current = viewsIn(cell)
       for (const viewId of current) {
-        if (!ownedViews.has(viewId)) this.viewOwners.set(viewId, (this.viewOwners.get(viewId) ?? 0) + 1)
+        if (!previous.has(viewId)) retainView(viewId)
       }
-      for (const viewId of ownedViews) {
+      for (const viewId of previous) {
         if (current.has(viewId)) continue
         releaseView(viewId)
       }
-      ownedViews = current
-      manager.setOwnedViews(current)
+      cellViews.set(cell, current)
+      publishOwnedViews()
     }
     const watched = new Map<ICodeCellModel, {outputs: () => void, trust: (_sender: ICellModel, args: {name: string, newValue: unknown}) => void}>()
 
@@ -110,18 +146,19 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
 
       const outputs = () => {
         scanCell(code)
-        scanOwnership()
+        updateOwnership(code)
       }
 
       const trust = (_sender: ICellModel, args: {name: string, newValue: unknown}) => {
         if (args.name !== "trusted") return
         if (args.newValue === true) scanCell(code)
-        scanOwnership()
+        updateOwnership(code)
       }
       code.outputs.changed.connect(outputs)
       code.stateChanged.connect(trust)
       watched.set(code, {outputs, trust})
       scanCell(code)
+      updateOwnership(code)
     }
 
     const unwatch = (cell: ICellModel | null | undefined) => {
@@ -132,16 +169,18 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
       code.outputs.changed.disconnect(callbacks.outputs)
       code.stateChanged.disconnect(callbacks.trust)
       watched.delete(code)
+      const previous = cellViews.get(code) ?? new Set<string>()
+      cellViews.delete(code)
+      for (const viewId of previous) releaseView(viewId)
+      publishOwnedViews()
     }
 
     const cellsChanged = (_sender: unknown, args: {newValues?: ICellModel[], oldValues?: ICellModel[]}) => {
       for (const cell of args.oldValues ?? []) unwatch(cell)
       for (const cell of args.newValues ?? []) watch(cell)
-      scanOwnership()
     }
     context.model.cells.changed.connect(cellsChanged)
     for (const cell of context.model.cells) watch(cell)
-    scanOwnership()
 
     const kernelChanged = () => resetResourceRegistry(manager)
     context.sessionContext.kernelChanged.connect(kernelChanged)
@@ -152,11 +191,11 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
       panel.content.rendermime.removeMimeType(FILE_MIME_TYPE)
       panel.content.rendermime.removeMimeType(RESOURCES_MIME_TYPE)
       panel.content.rendermime.removeMimeType(DISPLAY_MIME_TYPE)
-      const previous = ownedViews
-      ownedViews = new Set()
-      manager.setOwnedViews(ownedViews)
-      for (const viewId of previous) {
-        releaseView(viewId)
+      manager.setOwnedViews(new Set())
+      for (const timer of pendingReleases.values()) window.clearTimeout(timer)
+      pendingReleases.clear()
+      for (const [viewId, owners] of [...localViewOwners]) {
+        for (let index = 0; index < owners; index++) releaseView(viewId, false)
       }
       this.managers.delete(manager)
       manager.dispose()

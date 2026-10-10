@@ -8,8 +8,10 @@
 from __future__ import annotations
 
 # Standard library imports
+import pickle
+from copy import copy, deepcopy
 from pathlib import Path, PurePosixPath, PureWindowsPath
-from typing import cast
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -75,6 +77,17 @@ def test_saved_file_normalizes_native_separators(path_type: type[Path], path: st
         result = m._SavedFile("result.html", path)
 
     assert result._link_path == expected
+
+
+@pytest.mark.parametrize("clone", [copy, deepcopy, lambda value: pickle.loads(pickle.dumps(value))])
+def test_saved_file_copy_and_pickle_preserve_rich_link(clone: Any) -> None:
+    original = m._SavedFile("/tmp/result.html", "reports/result.html")
+
+    result = clone(original)
+
+    assert result == original
+    assert result._link_path == "reports/result.html"
+    assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "reports/result.html"
 
 
 def test_get_save_args_preserves_explicit_values() -> None:

@@ -16,7 +16,7 @@ describe("notebook protocol", () => {
     })).not.toThrow()
   })
 
-  it("keeps managed application identity and URL together", () => {
+  it("keeps managed application identity without persisting its kernel-local URL", () => {
     const payload = {
       protocol_version: PROTOCOL_VERSION,
       kind: "artifact",
@@ -28,8 +28,8 @@ describe("notebook protocol", () => {
       connect_timeout: 5000,
       application_id: "application",
     }
-    expect(() => assertProtocol(payload)).toThrow(/application_id and application_url/)
-    expect(() => assertProtocol({...payload, application_url: "http://127.0.0.1:4312/app/"})).not.toThrow()
+    expect(() => assertProtocol(payload)).not.toThrow()
+    expect(() => assertProtocol({...payload, application_url: "http://127.0.0.1:4312/app/"})).toThrow(/must not be persisted/)
   })
 
   it("rejects the removed document-data lifecycle", () => {

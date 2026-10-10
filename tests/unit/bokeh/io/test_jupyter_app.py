@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 # Standard library imports
+import sys
+from collections.abc import Iterator
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 # External imports
 import pytest
@@ -30,17 +32,30 @@ class _Host:
 
 
 @pytest.fixture(autouse=True)
-def reset_applications() -> None:
+def reset_applications() -> Iterator[None]:
     m.APPLICATIONS.clear()
+    m._KEY_APPLICATIONS.clear()
     m._CELL_APPLICATIONS.clear()
     _Host.instances.clear()
     yield
     m.APPLICATIONS.clear()
+    m._KEY_APPLICATIONS.clear()
     m._CELL_APPLICATIONS.clear()
 
 
 def _modify_document(_document: Any) -> None:
     pass
+
+
+def test_private_uvicorn_host_avoids_global_logging_and_event_loop_policies() -> None:
+    with patch.dict(sys.modules, {"uvicorn": MagicMock()}):
+        host = m._ASGIServerThread(MagicMock(), address="127.0.0.1", port=0)
+        overridden = m._ASGIServerThread(
+            MagicMock(), address="127.0.0.1", port=0, log_config={"version": 1}, loop="none",
+        )
+
+    assert host._uvicorn_kwargs == {"log_config": None, "loop": "asyncio"}
+    assert overridden._uvicorn_kwargs == {"log_config": {"version": 1}, "loop": "none"}
 
 
 def test_serve_replaces_a_reexecuted_cell_owner_and_stops_cleanly() -> None:
@@ -52,7 +67,7 @@ def test_serve_replaces_a_reexecuted_cell_owner_and_stops_cleanly() -> None:
     assert _Host.instances[0].starts == 1
     assert _Host.instances[0].stops == 1
     assert second.application_id in m.APPLICATIONS
-    assert m._CELL_APPLICATIONS["cell"] is second
+    assert m._KEY_APPLICATIONS["cell"] is second
 
     with patch("bokeh.io.notebook.close_application_views") as close_views:
         second.stop()
@@ -60,7 +75,31 @@ def test_serve_replaces_a_reexecuted_cell_owner_and_stops_cleanly() -> None:
     close_views.assert_called_once_with(second)
     assert _Host.instances[1].stops == 1
     assert second.application_id not in m.APPLICATIONS
-    assert "cell" not in m._CELL_APPLICATIONS
+    assert "cell" not in m._KEY_APPLICATIONS
+
+
+def test_multiple_apps_in_one_execution_coexist_and_reexecution_replaces_them() -> None:
+    with (
+        patch("bokeh.io.jupyter_app._ASGIServerThread", _Host),
+        patch("bokeh.io.notebook.notebook_cell_identity", return_value=("cell", "first")),
+    ):
+        first = m.serve(_modify_document)
+        sibling = m.serve(_modify_document)
+
+    assert not first.stopped
+    assert not sibling.stopped
+    assert m._CELL_APPLICATIONS["cell"] == ("first", [first, sibling])
+
+    with (
+        patch("bokeh.io.jupyter_app._ASGIServerThread", _Host),
+        patch("bokeh.io.notebook.notebook_cell_identity", return_value=("cell", "second")),
+    ):
+        replacement = m.serve(_modify_document)
+
+    assert first.stopped
+    assert sibling.stopped
+    assert m._CELL_APPLICATIONS["cell"] == ("second", [replacement])
+    replacement.stop()
 
 
 def test_notebook_application_rejects_non_loopback_binding_and_persisted_tokens() -> None:
@@ -76,6 +115,8 @@ def test_notebook_application_accepts_only_its_frontend_jupyter_proxy_route() ->
     try:
         url = f"https://hub.example.test/user/alice/proxy/{app.port}/{app._prefix}/"
         assert app._resolve_browser_url(url) == url.rstrip("/")
+        assert app._resolve_browser_url(url.rstrip("/")) == url.rstrip("/")
+        assert app._resolve_browser_url(app.url.rstrip("/")) == app.url.rstrip("/")
         assert "hub.example.test" in app.asgi.core.websocket_origins
         with pytest.raises(ValueError, match="invalid Jupyter application proxy URL"):
             app._resolve_browser_url(f"https://hub.example.test/user/alice/proxy/{app.port}/other/")
@@ -108,6 +149,26 @@ def test_failed_host_start_is_not_registered() -> None:
 
     assert m.APPLICATIONS == {}
     assert m._CELL_APPLICATIONS == {}
+
+
+def test_failed_stop_is_terminal_and_unregisters_the_application() -> None:
+    class FailingStopHost(_Host):
+        def stop(self) -> None:
+            self.stops += 1
+            raise RuntimeError("cannot stop")
+
+    with patch("bokeh.io.jupyter_app._ASGIServerThread", FailingStopHost):
+        app = m.serve(_modify_document, key="failed-stop")
+
+    with pytest.raises(RuntimeError, match="cannot stop"):
+        app.stop()
+
+    assert app.stopped
+    assert app.status == "failed"
+    assert app.application_id not in m.APPLICATIONS
+    assert "failed-stop" not in m._KEY_APPLICATIONS
+    app.stop()
+    assert _Host.instances[0].stops == 1
 
 
 def test_authorized_origin_rejects_persisted_credentials() -> None:

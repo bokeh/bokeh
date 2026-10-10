@@ -4,24 +4,28 @@ import {kernelProxy} from "../src/kernel"
 import {MAX_PENDING_PATCHES} from "../src/revision_queue"
 
 describe("JupyterLab kernel transport", () => {
-  it("opens an application view with the browser-resolved URL", async () => {
+  it("opens an application view and resolves the returned artifact for the browser", async () => {
     const comm: any = {
       open: vi.fn(),
+      send: vi.fn(),
       close: vi.fn(() => ({done: Promise.resolve()})),
     }
     const kernel = {createComm: vi.fn(() => comm)}
     const manager = {
       context: {sessionContext: {ready: Promise.resolve(), session: {kernel}}},
-      applicationUrl: vi.fn(() => "https://hub.test/user/alice/proxy/4312/app/"),
+      applicationArtifact: vi.fn(() => "{\"schema\":\"bokeh.embed/v1\",\"source\":{\"url\":\"https://jupyter.example/proxy/4312/app\"},\"routed\":true}"),
     }
-    const opening = kernelProxy(manager as any).openApplicationView!("view", "http://127.0.0.1:4312/app/")
+    const opening = kernelProxy(manager as any).openApplicationView!("view")
     await Promise.resolve()
-    expect(comm.open).toHaveBeenCalledWith({
-      view_id: "view",
-      application_url: "https://hub.test/user/alice/proxy/4312/app/",
+    expect(comm.open).toHaveBeenCalledWith({view_id: "view"})
+    comm.onMsg({content: {data: {kind: "configure", artifact: "{\"schema\":\"bokeh.embed/v1\"}"}}})
+    expect(comm.send).toHaveBeenCalledWith({
+      kind: "application_url",
+      application_url: "https://jupyter.example/proxy/4312/app",
     })
     comm.onMsg({content: {data: {kind: "ready", artifact: "{\"schema\":\"bokeh.embed/v1\"}"}}})
-    await expect(opening).resolves.toMatchObject({artifactJson: "{\"schema\":\"bokeh.embed/v1\"}"})
+    await expect(opening).resolves.toMatchObject({artifactJson: "{\"schema\":\"bokeh.embed/v1\",\"source\":{\"url\":\"https://jupyter.example/proxy/4312/app\"},\"routed\":true}"})
+    expect(manager.applicationArtifact).toHaveBeenCalledTimes(2)
   })
 
   it("bounds pre-render patch history and requests one replacement snapshot", async () => {

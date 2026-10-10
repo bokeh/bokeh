@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 # Standard library imports
+import asyncio
 import copy
 import json
+from collections.abc import Iterator
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -21,8 +24,15 @@ import bokeh.io.jupyter_export as m # isort:skip
 
 
 @pytest.fixture(autouse=True)
-def clear_transient() -> None:
+def clear_transient() -> Iterator[None]:
     m._TRANSIENT_EXPORTS.clear()
+    if m._TRANSIENT_EXPORT_TIMER is not None:
+        m._TRANSIENT_EXPORT_TIMER.cancel()
+        m._TRANSIENT_EXPORT_TIMER = None
+    yield
+    if m._TRANSIENT_EXPORT_TIMER is not None:
+        m._TRANSIENT_EXPORT_TIMER.cancel()
+        m._TRANSIENT_EXPORT_TIMER = None
 
 
 def _output(artifact=None, *, view_id: str = "view"):
@@ -78,6 +88,20 @@ def test_context_correlation_propagates_to_preprocessor_lookup() -> None:
 def test_invalid_correlation_ids_are_rejected() -> None:
     with pytest.raises(ValueError, match="correlation ID"):
         m.store_export_snapshots("test.ipynb", "spaces are unsafe", [])
+
+
+def test_transient_snapshot_store_has_a_total_byte_cap_and_scheduled_expiry() -> None:
+    with (
+        patch.object(m, "_TRANSIENT_EXPORT_BYTES_LIMIT", 8),
+        patch("bokeh.io.jupyter_export.threading.Timer") as timer,
+    ):
+        m.store_export_snapshots("test.ipynb", "export-identifier-0101", [{"view_id": "one", "error": "123456"}])
+        m.store_export_snapshots("test.ipynb", "export-identifier-0102", [{"view_id": "two", "error": "abcdef"}])
+
+    assert [entry[2] for entry in m._TRANSIENT_EXPORTS] == ["export-identifier-0102"]
+    assert timer.call_args.args == (m._TRANSIENT_EXPORT_TTL, m._expire_export_snapshots)
+    assert timer.return_value.daemon is True
+    timer.return_value.start.assert_called()
 
 
 def test_artifact_payload_is_parsed_from_its_declared_script() -> None:
@@ -149,6 +173,21 @@ def test_untrusted_artifact_is_never_executed() -> None:
     screenshot.assert_not_called()
 
 
+def test_cell_metadata_does_not_bypass_notebook_signature_trust() -> None:
+    notebook = _notebook()
+    with (
+        patch.object(m.BokehPNGPreprocessor, "_check_signature", return_value=False),
+        patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html") as screenshot,
+    ):
+        result, _ = m.BokehPNGPreprocessor(require_trusted=True).preprocess(
+            notebook,
+            {"config_dir": "/tmp/jupyter", "output_extension": ".html", "metadata": {"name": "test"}},
+        )
+
+    assert "notebook is untrusted" in result.cells[0].outputs[0].data["text/html"]
+    screenshot.assert_not_called()
+
+
 def test_signature_store_is_closed() -> None:
     notary = MagicMock()
     notary.check_signature.return_value = True
@@ -175,15 +214,15 @@ def test_resource_owner_outputs_are_removed_from_export() -> None:
     assert "application/javascript" not in result.cells[0].outputs[0].data
 
 
-def test_anywidget_output_metadata_preserves_saved_artifact_export() -> None:
+def test_anywidget_output_data_preserves_saved_artifact_export() -> None:
     artifact = embed(figure())
     output = nbformat.v4.new_output(
         "display_data",
         data={
             "application/vnd.jupyter.widget-view+json": {"model_id": "widget"},
             "text/html": artifact.fragment(resources="none").html,
+            DISPLAY_MIME_TYPE: display_payload(artifact, "resources", "view"),
         },
-        metadata={DISPLAY_MIME_TYPE: display_payload(artifact, "resources", "view")},
     )
     with (
         patch("bokeh.embed.result.EmbedResult.page", return_value="<html></html>"),
@@ -213,4 +252,31 @@ def test_server_extension_registers_snapshot_and_correlated_export_routes() -> N
     assert handlers[0] == ("/prefix/bokeh-notebook/export-snapshots", _ExportSnapshotsHandler)
     assert handlers[1][1] is _CorrelatedNbconvertFileHandler
     assert "bokeh-notebook/export" in handlers[1][0]
-    assert "bokeh.io.jupyter_export.BokehPNGPreprocessor" in serverapp.config.HTMLExporter.preprocessors
+    assert serverapp.config.HTMLExporter.preprocessors == []
+
+
+def test_bokeh_html_exporter_registers_png_preprocessor_once() -> None:
+    exporter = m.BokehHTMLExporter()
+
+    assert sum(isinstance(item, m.BokehPNGPreprocessor) for item in exporter._preprocessors) == 1
+
+
+def test_correlated_html_route_selects_bokeh_exporter_and_propagates_context() -> None:
+    from jupyter_server.nbconvert.handlers import NbconvertFileHandler
+
+    from bokeh.jupyter import _CorrelatedNbconvertFileHandler
+
+    observed: list[str | None] = []
+
+    async def convert(_handler: Any, format: str, path: str) -> None:
+        assert format == "bokeh"
+        assert path == "plot.ipynb"
+        observed.append(await asyncio.to_thread(m._EXPORT_CORRELATION_ID.get))
+
+    handler = object.__new__(_CorrelatedNbconvertFileHandler)
+    handler.get_argument = MagicMock(return_value="export-identifier-0042")
+    with patch.object(NbconvertFileHandler, "get", new=convert):
+        asyncio.run(handler.get("html", "plot.ipynb"))
+
+    assert observed == ["export-identifier-0042"]
+    assert m._EXPORT_CORRELATION_ID.get() is None

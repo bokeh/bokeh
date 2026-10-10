@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest"
 
-import {jupyterServerBaseUrl, resolveJupyterApplicationUrl} from "../src/host"
+import {jupyterServerBaseUrl, resolveJupyterApplicationArtifact, resolveJupyterApplicationUrl} from "../src/host"
 
 describe("notebook host URL resolution", () => {
   it("maps a kernel-local application through a remote Jupyter base URL", () => {
@@ -16,6 +16,18 @@ describe("notebook host URL resolution", () => {
     expect(resolveJupyterApplicationUrl(local, "/", "http://localhost:8888/lab")).toBe(local)
     const explicit = "https://apps.example.test/user/alice/proxy/4312/bokeh-notebook/nonce/"
     expect(resolveJupyterApplicationUrl(explicit, "/user/alice/", "https://hub.example.test/lab")).toBe(explicit)
+  })
+
+  it("rewrites only the transient application artifact", () => {
+    const artifact = JSON.stringify({source: {kind: "server", url: "http://127.0.0.1:4312/app/"}})
+    const routed = JSON.parse(resolveJupyterApplicationArtifact(
+      artifact,
+      "/user/alice/",
+      "https://hub.example.test/lab/tree/plot.ipynb",
+    ))
+
+    expect(routed.source.url).toBe("https://hub.example.test/user/alice/proxy/4312/app/")
+    expect(JSON.parse(artifact).source.url).toBe("http://127.0.0.1:4312/app/")
   })
 
   it("reads the base URL from Jupyter's page configuration", () => {
