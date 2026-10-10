@@ -7,6 +7,14 @@ import {is_equal} from "@bokehjs/core/util/eq"
 import {may_have_refs} from "@bokehjs/core/util/refs"
 import {version as js_version} from "@bokehjs/version"
 
+const bsc0 = BitSet.from_indices(39, [0, 1, 15, 16, 31, 32, 33, 38])
+const bsc1 = BitSet.from_indices(39, [1, 6, 15, 31, 32, 34, 35, 38])
+
+const _prime_count = (bs: BitSet): BitSet => {
+  void bs.count // populate the cached count
+  return bs
+}
+
 describe("core/util/bitset module", () => {
 
   describe("BitSet data structure", () => {
@@ -203,6 +211,84 @@ describe("core/util/bitset module", () => {
 
     it("doesn't have refs", () => {
       expect(may_have_refs(new BitSet(10))).to.be.equal(false)
+    })
+
+    it("zeros() should return exactly the unset indices", () => {
+      expect(new BitSet(39, 1).zeros()).to.be.equal([])
+      expect(new BitSet(39, 0).zeros().length).to.be.equal(39)
+      expect(bs0.inversion().zeros()).to.be.equal([0, 1, 15, 16, 31, 32, 33, 38])
+    })
+  })
+
+  describe("BitSet count", () => {
+    it("should handle sizes around word boundaries", () => {
+      for (const size of [0, 1, 31, 32, 33, 63, 64, 65, 100]) {
+        expect(BitSet.all_unset(size).count).to.be.equal(0)
+        expect(BitSet.all_set(size).count).to.be.equal(size)
+        // invert() sets bits beyond `size` in the trailing word; they must not be counted
+        expect(BitSet.all_unset(size).inversion().count).to.be.equal(size)
+      }
+    })
+
+    it("should be updated after set() and unset()", () => {
+      const bs = BitSet.from_indices(40, [1, 2, 3])
+      expect(bs.count).to.be.equal(3)  // prime the cache
+
+      bs.set(10)
+      expect(bs.count).to.be.equal(4)
+      bs.set(10)                       // already set
+      expect(bs.count).to.be.equal(4)
+      bs.unset(1)
+      expect(bs.count).to.be.equal(3)
+      bs.unset(1)                      // already unset
+      expect(bs.count).to.be.equal(3)
+      bs.set(-1)                       // negative index
+      expect(bs.count).to.be.equal(4)
+
+      trap(() => bs.set(40))           // out of bounds, must not change anything
+      expect(bs.count).to.be.equal(4)
+    })
+
+    it("should be updated after in-place operations", () => {
+      const a = _prime_count(bsc0.clone()); a.add(bsc1)
+      expect(a.count).to.be.equal(11)
+
+      const b = _prime_count(bsc0.clone()); b.intersect(bsc1)
+      expect(b.count).to.be.equal(5)
+
+      const c = _prime_count(bsc0.clone()); c.subtract(bsc1)
+      expect(c.count).to.be.equal(3)
+
+      const d = _prime_count(bsc0.clone()); d.symmetric_subtract(bsc1)
+      expect(d.count).to.be.equal(6)
+
+      const e = _prime_count(bsc0.clone()); e.invert()
+      expect(e.count).to.be.equal(31)
+    })
+
+    it("should not be shared between clones", () => {
+      const a = _prime_count(bsc0.clone())
+      const b = a.clone()
+      b.set(2)
+      expect(a.count).to.be.equal(8)
+      expect(b.count).to.be.equal(9)
+    })
+
+    it("should agree with a naive count for pseudo-random bit sets", () => {
+      let seed = 12345
+      const rand = () => (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2**32
+      for (const size of [1, 31, 32, 33, 64, 95, 200]) {
+        const indices: number[] = []
+        for (let i = 0; i < size; i++) {
+          if (rand() < 0.3) {
+            indices.push(i)
+          }
+        }
+        const bs = BitSet.from_indices(size, indices)
+        expect(bs.count).to.be.equal(indices.length)
+        bs.invert()
+        expect(bs.count).to.be.equal(size - indices.length)
+      }
     })
   })
 })
