@@ -5,6 +5,7 @@ import asyncio
 import copy
 import json
 from collections.abc import Iterator
+from inspect import unwrap
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -97,6 +98,8 @@ def test_context_correlation_propagates_to_preprocessor_lookup() -> None:
 
 def test_invalid_correlation_ids_are_rejected() -> None:
     with pytest.raises(ValueError, match="correlation ID"):
+        m.set_export_correlation("spaces are unsafe")
+    with pytest.raises(ValueError, match="correlation ID"):
         m.store_export_snapshots("test.ipynb", "spaces are unsafe", [])
 
 
@@ -112,6 +115,20 @@ def test_transient_snapshot_store_has_a_total_byte_cap_and_scheduled_expiry() ->
     assert timer.call_args.args == (m._TRANSIENT_EXPORT_TTL, m._expire_export_snapshots)
     assert timer.return_value.daemon is True
     timer.return_value.start.assert_called()
+
+
+def test_transient_snapshot_expiry_removes_stale_entries_and_its_timer() -> None:
+    timer = MagicMock()
+    m._TRANSIENT_EXPORTS.append((1.0, {"test.ipynb"}, "export-identifier-0103", {}, 0))
+    m._TRANSIENT_EXPORT_TIMER = timer
+    with (
+        patch("bokeh.io.jupyter_export.time.monotonic", return_value=1.0 + m._TRANSIENT_EXPORT_TTL + 1),
+        patch("bokeh.io.jupyter_export.threading.current_thread", return_value=timer),
+    ):
+        m._expire_export_snapshots()
+
+    assert m._TRANSIENT_EXPORTS == []
+    assert m._TRANSIENT_EXPORT_TIMER is None
 
 
 def test_artifact_payload_is_parsed_from_its_declared_script() -> None:
@@ -296,6 +313,98 @@ def test_server_extension_registers_snapshot_and_correlated_export_routes() -> N
     assert serverapp.config.HTMLExporter.preprocessors == []
 
 
+def test_snapshot_handler_stores_valid_frontend_state() -> None:
+    pytest.importorskip("jupyter_server")
+    from bokeh.jupyter import _ExportSnapshotsHandler
+
+    handler = MagicMock()
+    handler.request.body = b"{}"
+    handler.get_json_body.return_value = {
+        "path": "folder/plot.ipynb",
+        "export_id": "export-identifier-0041",
+        "snapshots": [{"view_id": "view", "artifact_json": "{}"}],
+    }
+    handler.contents_manager._get_os_path.return_value = "/tmp/folder/plot.ipynb"
+    with patch("bokeh.jupyter.store_export_snapshots") as store:
+        asyncio.run(unwrap(_ExportSnapshotsHandler.post)(handler))
+
+    store.assert_called_once_with(
+        "folder/plot.ipynb",
+        "export-identifier-0041",
+        [{"view_id": "view", "artifact_json": "{}"}],
+        os_path="/tmp/folder/plot.ipynb",
+    )
+    handler.set_header.assert_called_once_with("Cache-Control", "no-store")
+    handler.finish.assert_called_once_with({"accepted": 1})
+
+
+@pytest.mark.parametrize("body", [
+    None,
+    {"path": "plot.txt", "export_id": "export-identifier-0041", "snapshots": []},
+    {"path": "plot.ipynb", "export_id": "export-identifier-0041", "snapshots": "invalid"},
+    {"path": "plot.ipynb", "export_id": "invalid", "snapshots": []},
+    {"path": "plot.ipynb", "export_id": "export-identifier-0041", "snapshots": [None]},
+])
+def test_snapshot_handler_rejects_invalid_frontend_state(body: Any) -> None:
+    pytest.importorskip("jupyter_server")
+    from tornado import web
+
+    from bokeh.jupyter import _ExportSnapshotsHandler
+
+    handler = MagicMock()
+    handler.request.body = b"{}"
+    handler.get_json_body.return_value = body
+    with pytest.raises(web.HTTPError) as error:
+        asyncio.run(unwrap(_ExportSnapshotsHandler.post)(handler))
+    assert error.value.status_code == 400
+
+
+def test_snapshot_handler_enforces_serialized_byte_limits() -> None:
+    pytest.importorskip("jupyter_server")
+    from tornado import web
+
+    import bokeh.jupyter as jupyter
+
+    handler = MagicMock()
+    handler.request.body = b"too large"
+    with (
+        patch.object(jupyter, "_MAX_TRANSIENT_EXPORT_BYTES", 1),
+        pytest.raises(web.HTTPError) as error,
+    ):
+        asyncio.run(unwrap(jupyter._ExportSnapshotsHandler.post)(handler))
+    assert error.value.status_code == 413
+
+    handler.request.body = b"{}"
+    handler.get_json_body.return_value = {
+        "path": "plot.ipynb",
+        "export_id": "export-identifier-0041",
+        "snapshots": [{"view_id": "view", "error": "too large"}],
+    }
+    with (
+        patch.object(jupyter, "_MAX_TRANSIENT_EXPORT_BYTES", 1),
+        pytest.raises(web.HTTPError) as error,
+    ):
+        asyncio.run(unwrap(jupyter._ExportSnapshotsHandler.post)(handler))
+    assert error.value.status_code == 413
+
+
+def test_server_extension_points_and_correlated_route_validation() -> None:
+    pytest.importorskip("jupyter_server")
+    from tornado import web
+
+    from bokeh.jupyter import (
+        _CorrelatedNbconvertFileHandler,
+        _jupyter_server_extension_points,
+    )
+
+    assert _jupyter_server_extension_points() == [{"module": "bokeh.jupyter"}]
+    handler = object.__new__(_CorrelatedNbconvertFileHandler)
+    handler.get_argument = MagicMock(return_value="invalid")
+    with pytest.raises(web.HTTPError) as error:
+        asyncio.run(handler.get("html", "plot.ipynb"))
+    assert error.value.status_code == 400
+
+
 def test_correlated_html_route_selects_bokeh_exporter_and_propagates_context() -> None:
     pytest.importorskip("jupyter_server")
     from jupyter_server.nbconvert.handlers import NbconvertFileHandler
@@ -325,3 +434,77 @@ def test_correlated_html_route_selects_bokeh_exporter_and_propagates_context() -
 
     m.store_export_snapshots("plot.ipynb", export_id, [{"view_id": "view", "error": "not correlated"}])
     assert m._take_export_snapshots({"metadata": {"name": "plot"}}) == {}
+
+
+def test_preprocessor_ignores_non_html_and_non_bokeh_outputs() -> None:
+    preprocessor = m.BokehPNGPreprocessor(require_trusted=False)
+    notebook = nbformat.v4.new_notebook(cells=[nbformat.v4.new_markdown_cell("text")])
+    assert preprocessor.preprocess(copy.deepcopy(notebook), {"output_extension": ".pdf"})[0] == notebook
+
+    cell = nbformat.v4.new_code_cell(outputs=[
+        nbformat.v4.new_output("stream", name="stdout", text="hello"),
+        nbformat.v4.new_output("display_data", data={"text/plain": "plain"}),
+    ])
+    preprocessor._trusted = True
+    preprocessor._transient = {}
+    processed, _ = preprocessor.preprocess_cell(cell, {}, 0)
+    assert processed.outputs == cell.outputs
+    markdown = nbformat.v4.new_markdown_cell("text")
+    assert preprocessor.preprocess_cell(markdown, {}, 0)[0] == markdown
+
+
+def test_preprocessor_reports_unexpected_capture_failures() -> None:
+    preprocessor = m.BokehPNGPreprocessor(require_trusted=False)
+    with patch.object(preprocessor, "_capture", side_effect=RuntimeError("failure")):
+        result, _ = preprocessor.preprocess(
+            _notebook(), {"output_extension": ".html", "metadata": {"name": "test"}},
+        )
+
+    html = result.cells[0].outputs[0].data["text/html"]
+    assert "could not be converted to PNG" in html
+    assert "RuntimeError" in html
+
+
+def test_capture_rejects_invalid_or_unusable_artifacts() -> None:
+    preprocessor = m.BokehPNGPreprocessor(require_trusted=False)
+    preprocessor._transient = {}
+    with pytest.raises(m._PngUnavailable, match="no embedding artifact"):
+        preprocessor._capture(None, "view")
+    with pytest.raises(m._PngUnavailable, match="invalid embedding artifact"):
+        preprocessor._capture('<script data-bokeh-embed-payload>{"invalid": true}</script>', "view")
+    with pytest.raises(m._PngUnavailable, match="no embedding artifact"):
+        preprocessor._capture("<div>no artifact</div>", "view")
+
+    preprocessor._transient = {"view": {"artifact_json": None}}
+    with pytest.raises(m._PngUnavailable, match="no embedding artifact"):
+        preprocessor._capture("", "view")
+
+    preprocessor._transient = {"view": {"artifact_json": embed_server("http://localhost:5006").to_json_string()}}
+    with pytest.raises(m._PngUnavailable, match="no current standalone frontend snapshot"):
+        preprocessor._capture("", "view")
+
+    empty = embed(figure()).to_dict()
+    empty["roots"] = []
+    preprocessor._transient = {"view": {"artifact_json": json.dumps(empty)}}
+    with pytest.raises(m._PngUnavailable, match="no rendered roots"):
+        preprocessor._capture("", "view")
+
+
+def test_capture_enforces_png_byte_limit() -> None:
+    preprocessor = m.BokehPNGPreprocessor(require_trusted=False, max_bytes=1)
+    preprocessor._transient = {}
+    image = _image()
+    image.save.side_effect = lambda target, format: target.write(b"too large")
+    with (
+        patch("bokeh.embed.result.EmbedResult.page", return_value="<html></html>"),
+        patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=image),
+        pytest.raises(m._PngUnavailable, match="PNG exceeds"),
+    ):
+        preprocessor._capture(_output().data["text/html"], "view")
+
+
+def test_signature_failure_and_fallback_default_are_safe() -> None:
+    preprocessor = m.BokehPNGPreprocessor()
+    with patch("bokeh.io.jupyter_export.NotebookNotary", side_effect=RuntimeError("unavailable")):
+        assert not preprocessor._check_signature(_notebook())
+    assert "default recovery" in preprocessor._fallback_only(None, "default recovery")
