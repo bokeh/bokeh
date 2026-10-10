@@ -13,7 +13,7 @@ import anywidgetFactory from "../src/anywidget"
 import {PROTOCOL_VERSION} from "../src/protocol"
 
 function harness() {
-  const listeners = new Set<(data: any, buffers?: ArrayBufferView[]) => void>()
+  const listeners = new Set<(data: any, buffers?: ArrayBufferView[]) => void | Promise<void>>()
   const sent: any[] = []
   const payload = {
     protocol_version: PROTOCOL_VERSION,
@@ -28,19 +28,18 @@ function harness() {
   const model = {
     get(name: string) {return name === "payload" ? payload : ""},
 
-    on(name: string, callback: (data: any, buffers?: ArrayBufferView[]) => void) {
+    on(name: string, callback: (data: any, buffers?: ArrayBufferView[]) => void | Promise<void>) {
       if (name === "msg:custom") listeners.add(callback)
     },
 
-    off(name: string, callback: (data: any, buffers?: ArrayBufferView[]) => void) {
+    off(name: string, callback: (data: any, buffers?: ArrayBufferView[]) => void | Promise<void>) {
       if (name === "msg:custom") listeners.delete(callback)
     },
 
     send(data: any) {sent.push(data)},
   }
-  const receive = (data: any, buffers?: ArrayBufferView[]) => {
-    for (const listener of listeners) listener(data, buffers)
-  }
+  const receive = async (data: any, buffers?: ArrayBufferView[]) =>
+    await Promise.all([...listeners].map(async (listener) => await listener(data, buffers)))
   return {model, receive, sent}
 }
 
@@ -70,7 +69,7 @@ describe("AnyWidget transport", () => {
       {kind: "active", frontend_id: "frontend-2"},
     ])
 
-    receive({
+    await receive({
       kind: "configure",
       frontend_id: "frontend-1",
       artifact: JSON.stringify({source: {kind: "server", url: "http://127.0.0.1:4321/app"}}),
@@ -82,8 +81,10 @@ describe("AnyWidget transport", () => {
     })
     expect(sent).not.toContainEqual(expect.objectContaining({kind: "application_url", frontend_id: "frontend-2"}))
 
+    await receive({kind: "close", frontend_id: "frontend-1"})
     cleanupFirst?.()
-    expect(sent).toContainEqual({kind: "inactive", frontend_id: "frontend-1"})
+    expect(sent.filter(({kind, frontend_id}) => kind === "inactive" && frontend_id === "frontend-1"))
+      .toEqual([{kind: "inactive", frontend_id: "frontend-1"}])
     expect(sent).not.toContainEqual({kind: "inactive", frontend_id: "frontend-2"})
     cleanupSecond?.()
   })

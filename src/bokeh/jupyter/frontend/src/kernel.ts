@@ -163,8 +163,9 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
     },
     releaseView: async (viewId) => {
       const context = manager.context
-      await context.sessionContext.ready
-      const kernel = context.sessionContext.session?.kernel
+      const kernel = context.sessionContext.session?.kernel ?? await context.sessionContext.ready.then(
+        () => context.sessionContext.session?.kernel,
+      )
       if (kernel == null) return
       const comm = kernel.createComm(NOTEBOOK_COMM_TARGET)
       try {comm.open({kind: "release", view_id: viewId})}
@@ -210,12 +211,12 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           },
         }
 
-        comm.onMsg = (message) => {
+        comm.onMsg = async (message) => {
           const data = message.content.data as ReadonlyJSONObject
           if (!settled) {
             if (data.kind === "configure" && typeof data.artifact === "string") {
               try {
-                const artifact = JSON.parse(manager.applicationArtifact(data.artifact))
+                const artifact = JSON.parse(await manager.applicationArtifact(data.artifact))
                 const applicationUrl = artifact?.source?.url
                 if (typeof applicationUrl !== "string" || applicationUrl.length === 0) {
                   throw new Error("the application artifact does not contain a server URL")
@@ -244,7 +245,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             } else if (data.kind === "ready" && typeof data.artifact === "string") {
               settled = true
               window.clearTimeout(timer)
-              connection.artifactJson = manager.applicationArtifact(data.artifact)
+              connection.artifactJson = await manager.applicationArtifact(data.artifact)
               resolve(connection)
             } else if (data.kind === "ready") {
               settled = true

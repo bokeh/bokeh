@@ -176,6 +176,7 @@
 
   owner = document.createElement("meta");
   owner.dataset.bokehNotebookResource = resource_id;
+  owner.setAttribute("data-bokeh-resource", "");
   owner.dataset.bokehResourceState = "loading";
   document.head.append(owner);
 
@@ -206,10 +207,12 @@
 
   void ready.then(() => {
     owner.dataset.bokehResourceState = "loaded";
+    owner.dispatchEvent(new CustomEvent("bokeh:resource-loaded"));
     notify("complete", {artifact_ids: artifacts.map((artifact) => artifact.id)});
   }).catch((error) => {
     owner.dataset.bokehResourceState = "failed";
     owner.dataset.bokehResourceError = error instanceof Error ? error.message.slice(0, 300) : String(error).slice(0, 300);
+    owner.dispatchEvent(new CustomEvent("bokeh:resource-failed", {detail: {error}}));
     notify("error", {error: error instanceof Error ? {name: error.name, message: error.message, stack: error.stack} : String(error)});
     console.error(`Bokeh: failed to load notebook resources ${resource_id}`, error);
   });

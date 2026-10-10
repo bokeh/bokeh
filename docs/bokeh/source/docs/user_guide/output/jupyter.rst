@@ -126,7 +126,7 @@ Host capabilities
       - Browser reachability applies
     * - Classic Notebook 6
       - None required
-      - Contract-tested for trusted output
+      - Static fallback contract-tested; host unverified
       - Static fallback only
       - Unverified; browser reachability applies
     * - VS Code notebooks
@@ -163,11 +163,12 @@ Colab; selecting ``INLINE`` repeats BokehJS across isolated output frames
 because those frames cannot share loaded JavaScript. These production routes
 are contract-tested, but an automated Colab-host smoke test remains pending.
 
-Classic Notebook 6 does not load Bokeh's bundled Jupyter extension. Trusted
-notebooks can render the common artifact HTML when its shared resource owner is
-present; untrusted saved JavaScript remains subject to Classic Notebook's
-normal trust policy. Classic Notebook is a compatibility route rather than the
-primary 4.0 host, and versions before Notebook 6 are not supported.
+Classic Notebook 6 does not load Bokeh's bundled Jupyter extension. Its trusted
+output path is designed to render the common artifact HTML when the shared
+resource owner is present, but this host route is not browser-tested. Untrusted
+saved JavaScript remains subject to Classic Notebook's normal trust policy.
+Classic Notebook is a compatibility route rather than the primary 4.0 host,
+and versions before Notebook 6 are not supported.
 
 marimo
 ''''''

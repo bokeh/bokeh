@@ -70,7 +70,7 @@ export default function anywidgetFactory() {
       },
     )
 
-    const receive = (data: any, buffers: ArrayBufferView[] = []) => {
+    const receive = async (data: any, buffers: ArrayBufferView[] = []) => {
       if (data?.frontend_id !== frontendId) return
       if (data?.kind === "patch" && Number.isSafeInteger(data.revision)) {
         revisions.receive(data, dataViews(buffers))
@@ -84,7 +84,7 @@ export default function anywidgetFactory() {
         else revisions.receive(data)
       } else if (data?.kind === "configure" && typeof data.artifact === "string") {
         try {
-          const artifact = JSON.parse(resolveJupyterApplicationArtifact(data.artifact, jupyterServerBaseUrl()))
+          const artifact = JSON.parse(await resolveJupyterApplicationArtifact(data.artifact, jupyterServerBaseUrl()))
           const applicationUrl = artifact?.source?.url
           if (typeof applicationUrl !== "string" || applicationUrl.length === 0) {
             throw new Error("the application artifact does not contain a server URL")
@@ -99,9 +99,18 @@ export default function anywidgetFactory() {
           ))
         }
       } else if (data?.kind === "ready" && typeof data.artifact === "string") {
-        applicationArtifact = resolveJupyterApplicationArtifact(data.artifact, jupyterServerBaseUrl())
-        applicationClosed = false
-        applicationOpened.resolve(applicationArtifact)
+        try {
+          applicationArtifact = await resolveJupyterApplicationArtifact(data.artifact, jupyterServerBaseUrl())
+          applicationClosed = false
+          applicationOpened.resolve(applicationArtifact)
+        } catch (error) {
+          applicationOpened.reject(new BokehNotebookError(
+            "APPLICATION_ARTIFACT_INVALID",
+            "Python returned an invalid application artifact.",
+            "Restart the kernel and re-run the cells that call serve(...) and show(app).",
+            error,
+          ))
+        }
       } else if (data?.kind === "ready") {
         applicationOpened.reject(new BokehNotebookError(
           "APPLICATION_ARTIFACT_INVALID",
@@ -117,6 +126,7 @@ export default function anywidgetFactory() {
           applicationClosed = true
           for (const listener of applicationCloseListeners) listener()
         }
+        deactivate()
       } else if (data?.kind === "resource" && typeof data.request_id === "string") {
         const waiter = resourceWaiters.get(data.request_id)
         if (waiter != null) {

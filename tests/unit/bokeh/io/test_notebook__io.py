@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Standard library imports
 import json
+import re
 import sys
 import types
 from collections.abc import Callable
@@ -18,6 +19,7 @@ from bokeh.embed.notebook import notebook_content
 from bokeh.embed.result import EmbedResult
 from bokeh.io.jupyter import DISPLAY_MIME_TYPE, PROTOCOL_VERSION
 from bokeh.layouts import column
+from bokeh.model import Model
 from bokeh.models import (
     Column,
     ColumnDataSource,
@@ -34,6 +36,7 @@ import bokeh.io.notebook as m # isort:skip
 @pytest.fixture(autouse=True)
 def reset() -> None:
     m._reset_notebook_resources()
+    m._NOTEBOOK_CONTEXT_CONFIRMED = False
 
 
 @pytest.fixture
@@ -208,6 +211,19 @@ def test_each_saved_display_carries_its_resource_record_after_reexecution() -> N
     assert first[0]["text/html"].count("data-bokeh-notebook-resource-record") == len(first_payload["resource_records"])
 
 
+def test_notebook_output_preserves_nonce_on_every_script() -> None:
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
+    ):
+        bundle = m.notebook_mimebundle(figure(), resources=Resources(mode="cdn", nonce="csp-nonce"))
+
+    assert bundle is not None
+    scripts = re.findall(r"<script\b[^>]*>", bundle[0]["text/html"])
+    assert scripts
+    assert all('nonce="csp-nonce"' in script for script in scripts)
+
+
 def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> None:
     with (
         patch("bokeh.io.notebook.notebook_environment", return_value=True),
@@ -305,6 +321,31 @@ def test_notebook_environment_remembers_a_notebook_cell_identity_for_callbacks()
     ):
         assert m.notebook_environment()
 
+
+def test_notebook_environment_is_primed_before_the_first_widget_callback() -> None:
+    callbacks: list[Callable[..., None]] = []
+    shell = MagicMock(kernel=object())
+    shell.events.register.side_effect = lambda name, callback: callbacks.append(callback)
+    shell.get_parent.return_value = {
+        "metadata": {},
+        "header": {"msg_id": "setup", "msg_type": "execute_request"},
+        "content": {"allow_stdin": True},
+    }
+    with (
+        patch("IPython.get_ipython", return_value=shell),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=False),
+        patch.object(m, "_NOTEBOOK_CONTEXT_SHELL", None),
+    ):
+        m._initialize_notebook_context()
+        callbacks[0]()
+        shell.get_parent.return_value = {
+            "metadata": {},
+            "header": {"msg_id": "widget", "msg_type": "comm_msg"},
+            "content": {},
+        }
+        assert m.notebook_environment()
+
 def test_notebook_environment_detects_headless_execution() -> None:
     shell = MagicMock(kernel=object())
     shell.get_parent.return_value = {
@@ -384,28 +425,33 @@ class TestDocumentViewHandle:
         root = Div(text="before")
         document = Document()
         document.add_root(root)
-        handle = m.DocumentViewHandle(root, live_id="live", view_id="view")
-        handle._attach(document)
-        models = handle._models
+        original = Model.references
+        with patch.object(Model, "references", autospec=True, side_effect=original) as references:
+            handle = m.DocumentViewHandle(root, live_id="live", view_id="view")
+            handle._attach(document)
+            references.reset_mock()
 
-        root.text = "after"
+            root.text = "after"
 
-        assert handle._models is models
+        references.assert_not_called()
         handle.close()
 
-    def test_reference_changes_refresh_the_owned_model_set(self) -> None:
+    def test_newly_referenced_models_send_later_updates(self) -> None:
         root = column(Div())
         document = Document()
         document.add_root(root)
+        comm = MagicMock(comm_id="comm")
         handle = m.DocumentViewHandle(root, live_id="live", view_id="view")
         handle._attach(document)
-        models = handle._models
+        handle._connect(comm)
         child = Div()
 
         root.children = [child]
+        comm.reset_mock()
+        child.text = "updated"
 
-        assert handle._models is not models
-        assert child in handle._models
+        comm.send.assert_called_once()
+        assert comm.send.call_args.args[0]["kind"] == "patch"
         handle.close()
 
     def test_resync_returns_fresh_snapshot_at_current_revision(self) -> None:

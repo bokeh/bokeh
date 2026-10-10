@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from .notebook import ApplicationViewHandle, DocumentViewHandle
 
 _ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
-_TRANSPORT_LEASE_SECONDS = 45.0
+_TRANSPORT_LEASE_SECONDS = 300.0
 _MAX_TRANSPORTS = 8
 
 #-----------------------------------------------------------------------------
@@ -229,7 +229,7 @@ class _DisplayWidget(anywidget.AnyWidget):
                 self._transport_seen.pop(frontend_id, None)
                 if transport is not None:
                     transport.frontend_closed()
-                if not self._transports and (self._released or self._handle is None):
+                if kind == "disposed" and not self._transports and (self._released or self._handle is None):
                     self.close()
             case "resync" | "application_url":
                 transport = self._transports.get(frontend_id)
@@ -262,11 +262,11 @@ class _DisplayWidget(anywidget.AnyWidget):
             return
         self._released = True
         self._handle = None
+        self._records = {}
         for transport in tuple(self._transports.values()):
             transport.close()
         self._transports.clear()
         self._transport_seen.clear()
-        self.close()
 
 
 def display_widget(payload: Mapping[str, Any], html: str, records: Mapping[str, ExecutableResourceRecord], *,

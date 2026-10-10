@@ -41,6 +41,7 @@ _FALLBACK_RE = re.compile(
     re.DOTALL,
 )
 _EXPORT_ID_RE = re.compile(r"^[A-Za-z0-9_-]{16,128}$")
+_TRUST_RESOURCE_KEY = "bokeh_notebook_trusted"
 
 
 class _PngUnavailable(Exception):
@@ -328,9 +329,9 @@ class BokehPNGPreprocessor(Preprocessor):
         # embedding by third-party callers.
         if resources.get("output_extension") not in {None, "", ".html", ".htm"}:
             return nb, resources
-        self._trusted = (
-            not self.require_trusted
-            or self._check_signature(nb)
+        captured_trust = resources.pop(_TRUST_RESOURCE_KEY, None)
+        self._trusted = not self.require_trusted or (
+            captured_trust if isinstance(captured_trust, bool) else self._check_signature(nb)
         )
         self._transient = _take_export_snapshots(resources)
         try:
@@ -500,6 +501,29 @@ class BokehHTMLExporter(HTMLExporter):
 
     export_from_notebook = "Bokeh static HTML"
 
+    def from_notebook_node(self, nb: Any, resources: dict[str, Any] | None = None, **kw: Any) -> tuple[str, dict[str, Any]]:
+        '''Convert a notebook after capturing trust from its unmodified contents.
+
+        Args:
+            nb:
+                The notebook node to export.
+            resources:
+                Optional nbconvert resources for the export.
+            kw:
+                Additional options accepted by the HTML exporter.
+
+        Returns:
+            The rendered HTML and updated resources mapping.
+
+        '''
+        prepared = {} if resources is None else dict(resources)
+        preprocessor = next(
+            item for item in self._preprocessors
+            if isinstance(item, BokehPNGPreprocessor)
+        )
+        prepared[_TRUST_RESOURCE_KEY] = not preprocessor.require_trusted or preprocessor._check_signature(nb)
+        return super().from_notebook_node(nb, resources=prepared, **kw)  # type: ignore[no-any-return,no-untyped-call]
+
     def _init_preprocessors(self) -> None:
         super()._init_preprocessors()  # type: ignore[no-untyped-call]
         if not any(isinstance(preprocessor, BokehPNGPreprocessor) for preprocessor in self._preprocessors):
@@ -508,4 +532,4 @@ class BokehHTMLExporter(HTMLExporter):
             index for index, preprocessor in enumerate(self._preprocessors)
             if isinstance(preprocessor, BokehPNGPreprocessor)
         )
-        self._preprocessors.insert(0, self._preprocessors.pop(index))
+        self._preprocessors.append(self._preprocessors.pop(index))

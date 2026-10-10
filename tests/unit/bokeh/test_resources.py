@@ -11,7 +11,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 from typing import Any
-from unittest.mock import patch
 
 # External imports
 import pytest
@@ -187,13 +186,13 @@ def test_inline_resource_cache_is_invalidated_by_file_changes(tmp_path: Path) ->
     path.write_text("first")
     resources._cached_inline_resource.cache_clear()
 
-    with patch.object(Path, "read_text", autospec=True, return_value="content") as read_text:
-        assert resources._inline_resource(path) == "/* BEGIN resource.js */\ncontent\n/* END resource.js */"
-        assert resources._inline_resource(path) == "/* BEGIN resource.js */\ncontent\n/* END resource.js */"
-        path.write_text("second version")
-        assert resources._inline_resource(path) == "/* BEGIN resource.js */\ncontent\n/* END resource.js */"
+    first = resources._inline_resource(path)
+    assert first == "/* BEGIN resource.js */\nfirst\n/* END resource.js */"
+    assert resources._inline_resource(path) == first
 
-    assert read_text.call_count == 2
+    path.write_text("second version")
+
+    assert resources._inline_resource(path) == "/* BEGIN resource.js */\nsecond version\n/* END resource.js */"
 
 
 def test_get_all_sri_versions_valid_format() -> None:

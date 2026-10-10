@@ -124,6 +124,7 @@ _STATIC_FALLBACK_MESSAGE = (
 DEFAULT_JUPYTER_URL = "localhost:8888"
 
 _NOTEBOOK_CONTEXT_CONFIRMED = False
+_NOTEBOOK_CONTEXT_SHELL: Any | None = None
 
 __all__ = (
     'ApplicationViewHandle',
@@ -761,6 +762,34 @@ def notebook_environment() -> bool:
         _NOTEBOOK_CONTEXT_CONFIRMED = True
     return _NOTEBOOK_CONTEXT_CONFIRMED
 
+def _confirm_notebook_context(*_args: Any, **_kwargs: Any) -> None:
+    global _NOTEBOOK_CONTEXT_CONFIRMED
+    _NOTEBOOK_CONTEXT_CONFIRMED = True
+
+def _initialize_notebook_context() -> None:
+    global _NOTEBOOK_CONTEXT_CONFIRMED, _NOTEBOOK_CONTEXT_SHELL
+    try:
+        from IPython import get_ipython
+
+        shell = get_ipython()
+        if shell is None or getattr(shell, "kernel", None) is None:
+            return
+        if notebook_cell_identity() is not None or _headless_notebook_environment():
+            _NOTEBOOK_CONTEXT_CONFIRMED = True
+        if shell is not _NOTEBOOK_CONTEXT_SHELL:
+            shell.events.register("pre_run_cell", _confirm_notebook_context)
+            _NOTEBOOK_CONTEXT_SHELL = shell
+    except Exception:
+        pass
+
+def _notebook_fragment(artifact: Any, resources: ResourcesLike | None) -> Any:
+    from ..resources import Resources
+
+    policy = Resources.build(resources)
+    return artifact.fragment(resources=Resources(mode="none", nonce=policy.nonce))
+
+_initialize_notebook_context()
+
 def _portable_resource_html(records: Sequence[ResourceRecord]) -> str:
     def tag(record: ResourceRecord) -> str:
         payload = record["payload"]
@@ -818,7 +847,7 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         resource_id = resource_payload(resolved, 5000)["resource_id"]
     else:
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
-        fragment = artifact.fragment(resources="none")
+        fragment = _notebook_fragment(artifact, resources)
     view_id = make_id()
     fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)
     records = _resource_record_chain(resource_id)
@@ -923,7 +952,7 @@ def show_doc(obj: Model | Sequence[UIElement],
             )
         artifact, _fragment = notebook_content(obj, live=True)
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
-        fragment = artifact.fragment(resources="none")
+        fragment = _notebook_fragment(artifact, resources)
         live_id = make_id()
         view_id = make_id()
         fallback = static_fallback(_STATIC_FALLBACK_MESSAGE)

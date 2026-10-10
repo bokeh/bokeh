@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 from html import escape
 from os.path import abspath, expanduser
 from pathlib import Path
@@ -163,7 +164,11 @@ def _notebook_link_path(filename: PathLike, resolved: str) -> PathLike | None:
         starting_dir = getattr(shell, "starting_dir", None)
         if not isinstance(starting_dir, str) or not starting_dir:
             return None
-        return Path(resolved).resolve().relative_to(Path(starting_dir).resolve()).as_posix()
+        notebook_dir = os.path.abspath(starting_dir)
+        output = os.path.abspath(resolved)
+        if os.path.commonpath((notebook_dir, output)) != notebook_dir:
+            return None
+        return Path(os.path.relpath(output, notebook_dir)).as_posix()
     except (ImportError, OSError, ValueError):
         return None
 

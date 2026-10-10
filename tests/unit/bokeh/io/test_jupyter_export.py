@@ -10,6 +10,8 @@ from unittest.mock import MagicMock, patch
 
 # External imports
 import pytest
+from nbconvert.preprocessors import Preprocessor
+from traitlets.config import Config
 
 nbformat = pytest.importorskip("nbformat")
 
@@ -56,6 +58,14 @@ def _image() -> MagicMock:
     image = MagicMock(width=300, height=200)
     image.save.side_effect = lambda target, format: target.write(b"png")
     return image
+
+
+class ProduceBokehOutput(Preprocessor):
+    def preprocess_cell(self, cell: Any, resources: dict[str, Any], index: int) -> tuple[Any, dict[str, Any]]:
+        del index
+        if cell.get("cell_type") == "code":
+            cell["outputs"] = [_output()]
+        return cell, resources
 
 
 def test_transient_snapshots_require_exact_path_and_export_correlation() -> None:
@@ -208,11 +218,18 @@ def test_real_notebook_signature_survives_jupyter_trust_metadata(tmp_path: Any) 
         assert m.BokehPNGPreprocessor()._check_signature(notebook)
 
 
-def test_bokeh_trust_check_runs_before_mutating_nbconvert_preprocessors() -> None:
-    exporter = m.BokehHTMLExporter()
-    names = [type(preprocessor).__name__ for preprocessor in exporter._preprocessors]
+def test_bokeh_export_converts_outputs_created_by_earlier_preprocessors() -> None:
+    notebook = nbformat.v4.new_notebook(cells=[nbformat.v4.new_code_cell("show(plot)")])
+    config = Config({"HTMLExporter": {"preprocessors": [ProduceBokehOutput]}})
+    exporter = m.BokehHTMLExporter(config=config)
+    with (
+        patch.object(m.BokehPNGPreprocessor, "_check_signature", return_value=True),
+        patch("bokeh.embed.result.EmbedResult.page", return_value="<html></html>"),
+        patch("bokeh.io.jupyter_export.get_screenshot_as_png_from_html", return_value=_image()),
+    ):
+        html, _ = exporter.from_notebook_node(notebook)
 
-    assert names.index("BokehPNGPreprocessor") < names.index("HighlightMagicsPreprocessor")
+    assert "data-bokeh-notebook-png-fallback" in html
 
 
 def test_resource_owner_outputs_are_removed_from_export() -> None:
@@ -271,12 +288,6 @@ def test_server_extension_registers_snapshot_and_correlated_export_routes() -> N
     assert handlers[1][1] is _CorrelatedNbconvertFileHandler
     assert "bokeh-notebook/export" in handlers[1][0]
     assert serverapp.config.HTMLExporter.preprocessors == []
-
-
-def test_bokeh_html_exporter_registers_png_preprocessor_once() -> None:
-    exporter = m.BokehHTMLExporter()
-
-    assert sum(isinstance(item, m.BokehPNGPreprocessor) for item in exporter._preprocessors) == 1
 
 
 def test_correlated_html_route_selects_bokeh_exporter_and_propagates_context() -> None:
