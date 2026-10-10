@@ -32,8 +32,8 @@ class _ExportSnapshotsHandler(JupyterHandler):
     '''Receive in-memory BokehJS state for one UI-initiated export.'''
 
     @web.authenticated
-    @authorized(resource="nbconvert")
-    @authorized(action="execute", resource="kernels")
+    @authorized(resource="nbconvert")  # type: ignore[untyped-decorator]
+    @authorized(action="execute", resource="kernels")  # type: ignore[untyped-decorator]
     async def post(self) -> None:
         '''Store the correlated frontend state for one export request.
 

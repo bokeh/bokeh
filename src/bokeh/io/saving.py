@@ -157,7 +157,10 @@ def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLi
 def _notebook_link_path(filename: PathLike, resolved: str) -> PathLike | None:
     try:
         from IPython import get_ipython
+    except ImportError:
+        return filename
 
+    try:
         shell = get_ipython()
         if shell is None or getattr(shell, "kernel", None) is None:
             return filename
@@ -183,7 +186,7 @@ def _notebook_link_path(filename: PathLike, resolved: str) -> PathLike | None:
         if lexical is not None:
             return lexical
         return relative_link(os.path.realpath(notebook_dir), os.path.realpath(filename))
-    except (ImportError, OSError, ValueError):
+    except (OSError, ValueError):
         return None
 
 def _get_save_args(filename: PathLike | None, resources: ResourcesLike | None,

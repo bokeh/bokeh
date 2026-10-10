@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 # Standard library imports
+import os
 import pickle
 from copy import copy, deepcopy
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -92,6 +93,7 @@ def test_saved_file_normalizes_native_separators(path_type: type[Path], path: st
 @patch("bokeh.io.saving._save_helper")
 def test_save_links_from_the_notebook_directory_after_chdir(mock_save_helper: MagicMock, tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch) -> None:
+    pytest.importorskip("IPython")
     work = tmp_path / "work"
     work.mkdir()
     mock_save_helper.side_effect = _write_saved_file
@@ -107,6 +109,7 @@ def test_save_links_from_the_notebook_directory_after_chdir(mock_save_helper: Ma
 @patch("bokeh.io.saving._save_helper")
 def test_save_preserves_a_lexical_link_through_a_symlinked_directory(mock_save_helper: MagicMock,
         tmp_path: Path) -> None:
+    pytest.importorskip("IPython")
     target = tmp_path / "target"
     target.mkdir()
     linked = tmp_path / "linked"
@@ -120,9 +123,11 @@ def test_save_preserves_a_lexical_link_through_a_symlinked_directory(mock_save_h
     mock_save_helper.assert_called_once()
 
 
+@pytest.mark.skipif(os.name == "nt", reason="Windows normalizes '..' before traversing a directory symlink")
 @patch("bokeh.io.saving._save_helper")
 def test_save_omits_a_lexical_link_that_names_a_different_file(mock_save_helper: MagicMock,
         tmp_path: Path) -> None:
+    pytest.importorskip("IPython")
     notebook = tmp_path / "notebook"
     notebook.mkdir()
     external = tmp_path / "external"
@@ -143,6 +148,7 @@ def test_save_omits_a_lexical_link_that_names_a_different_file(mock_save_helper:
 @patch("bokeh.io.saving._save_helper")
 def test_save_links_an_absolute_path_through_a_symlinked_notebook_directory(mock_save_helper: MagicMock,
         tmp_path: Path) -> None:
+    pytest.importorskip("IPython")
     target = tmp_path / "target"
     target.mkdir()
     alias = tmp_path / "alias"

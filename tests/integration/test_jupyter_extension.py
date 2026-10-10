@@ -40,7 +40,7 @@ def _project_environment() -> dict[str, str]:
     env["BOKEH_DEV"] = "true"
     env["BOKEH_RESOURCES"] = "inline"
     source = ROOT / "src"
-    if source.is_dir():
+    if (source / "bokeh").is_dir():
         env["PYTHONPATH"] = str(source) + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
     return env
 
@@ -395,7 +395,7 @@ def _route_local_bokehjs(route: Any, *, delay_additive: bool = False) -> None:
     if delay_additive and component != "bokeh":
         time.sleep(0.25)
     route.fulfill(
-        path=str(ROOT / "src" / "bokeh" / "server" / "static" / "js" / f"{component}.min.js"),
+        path=str(Path(bokeh.__file__).parent / "server" / "static" / "js" / f"{component}.min.js"),
         content_type="application/javascript",
     )
 
@@ -484,25 +484,25 @@ def test_jupyterlab_remote_application_discovers_proxy_without_notebook_url(tmp_
     )
     remote_base_url = base_url.replace("127.0.0.1", "jupyter.test", 1)
     expected = urlsplit(remote_base_url)
-    application_urls: list[str] = []
     try:
         with playwright.sync_playwright() as manager:
             browser = manager.chromium.launch(args=["--host-resolver-rules=MAP jupyter.test 127.0.0.1"])
             page = browser.new_page(viewport={"width": 1440, "height": 1050})
-            page.on("request", lambda request: application_urls.append(request.url))
-            page.on("websocket", lambda websocket: application_urls.append(websocket.url))
             page.goto(f"{remote_base_url}/lab/tree/proxied.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
             editors.nth(3).wait_for(timeout=30_000)
 
-            _execute_cell_once(page, editors, 3, timeout=60_000)
-            page.get_by_text("application-view-ready", exact=True).wait_for(timeout=30_000)
-            _wait_for_named_model(page, "notebook-app-root", server_session=True)
+            with page.expect_websocket(
+                lambda websocket: "/bokeh-notebook/" in websocket.url,
+                timeout=60_000,
+            ) as websocket_info:
+                _execute_cell_once(page, editors, 3, timeout=60_000)
+                page.get_by_text("application-view-ready", exact=True).wait_for(timeout=30_000)
+                _wait_for_named_model(page, "notebook-app-root", server_session=True)
 
-            proxied = [urlsplit(url) for url in application_urls if "/bokeh-notebook/" in url]
-            assert proxied, application_urls
-            assert all(url.hostname == expected.hostname and url.port == expected.port for url in proxied)
-            assert all(url.path.startswith("/user/test/proxy/") for url in proxied)
+            proxied = urlsplit(websocket_info.value.url)
+            assert proxied.hostname == expected.hostname and proxied.port == expected.port
+            assert proxied.path.startswith("/user/test/proxy/")
             browser.close()
     finally:
         _stop(process)

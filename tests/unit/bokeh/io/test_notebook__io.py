@@ -313,6 +313,7 @@ def test_marimo_and_colab_detection_are_host_capabilities(monkeypatch: pytest.Mo
 
 
 def test_notebook_environment_remembers_a_notebook_cell_identity_for_callbacks() -> None:
+    pytest.importorskip("IPython")
     shell = MagicMock(kernel=object())
     shell.get_parent.return_value = {
         "metadata": {},
@@ -351,6 +352,7 @@ def test_notebook_environment_remembers_a_notebook_cell_identity_for_callbacks()
 
 
 def test_notebook_environment_is_primed_before_the_first_widget_callback() -> None:
+    pytest.importorskip("IPython")
     callbacks: list[Callable[..., None]] = []
     shell = MagicMock(kernel=object())
     shell.events.register.side_effect = lambda name, callback: callbacks.append(callback)
@@ -376,6 +378,7 @@ def test_notebook_environment_is_primed_before_the_first_widget_callback() -> No
 
 
 def test_notebook_environment_is_not_primed_by_an_ipython_console_cell() -> None:
+    pytest.importorskip("IPython")
     callbacks: list[Callable[..., None]] = []
     shell = MagicMock(kernel=object())
     shell.events.register.side_effect = lambda name, callback: callbacks.append(callback)
@@ -395,6 +398,7 @@ def test_notebook_environment_is_not_primed_by_an_ipython_console_cell() -> None
         assert not m.notebook_environment()
 
 def test_notebook_environment_detects_headless_execution() -> None:
+    pytest.importorskip("IPython")
     shell = MagicMock(kernel=object())
     shell.get_parent.return_value = {
         "metadata": {},

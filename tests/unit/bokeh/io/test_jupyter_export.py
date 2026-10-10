@@ -10,10 +10,10 @@ from unittest.mock import MagicMock, patch
 
 # External imports
 import pytest
-from nbconvert.preprocessors import Preprocessor
-from traitlets.config import Config
 
+pytest.importorskip("nbconvert")
 nbformat = pytest.importorskip("nbformat")
+Config = pytest.importorskip("traitlets.config").Config
 
 # Bokeh imports
 from bokeh.embed import embed, embed_server
@@ -60,7 +60,7 @@ def _image() -> MagicMock:
     return image
 
 
-class ProduceBokehOutput(Preprocessor):
+class ProduceBokehOutput(m.Preprocessor):
     def preprocess_cell(self, cell: Any, resources: dict[str, Any], index: int) -> tuple[Any, dict[str, Any]]:
         del index
         if cell.get("cell_type") == "code":
@@ -297,6 +297,7 @@ def test_server_extension_registers_snapshot_and_correlated_export_routes() -> N
 
 
 def test_correlated_html_route_selects_bokeh_exporter_and_propagates_context() -> None:
+    pytest.importorskip("jupyter_server")
     from jupyter_server.nbconvert.handlers import NbconvertFileHandler
 
     from bokeh.jupyter import _CorrelatedNbconvertFileHandler
