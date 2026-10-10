@@ -46,6 +46,27 @@ def document() -> Document:
     return Document()
 
 
+@pytest.fixture
+def display_widget(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
+    display_widget = MagicMock()
+    anywidget = types.ModuleType("bokeh.io._anywidget")
+    anywidget.display_widget = display_widget  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "bokeh.io._anywidget", anywidget)
+    return display_widget
+
+
+@pytest.fixture
+def ipython_display(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
+    display = MagicMock()
+    ipython = types.ModuleType("IPython")
+    ipython.__path__ = []  # type: ignore[attr-defined]
+    ipython_display = types.ModuleType("IPython.display")
+    ipython_display.display = display  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "IPython", ipython)
+    monkeypatch.setitem(sys.modules, "IPython.display", ipython_display)
+    return display
+
+
 def test_show_doc_publishes_one_artifact_owned_output(document: Document) -> None:
     plot = figure(width=300, height=200)
     with (
@@ -416,6 +437,24 @@ def test_notebook_environment_detects_headless_execution() -> None:
         assert m.notebook_environment()
 
 
+def test_notebook_runtime_helpers_tolerate_incomplete_and_failed_shells() -> None:
+    pytest.importorskip("IPython")
+    shell = MagicMock(kernel=object())
+    shell.get_parent.return_value = {"metadata": {"cellId": "cell"}, "header": {}}
+    with patch("IPython.get_ipython", return_value=shell):
+        assert m.notebook_cell_identity() is None
+
+    shell.get_parent.side_effect = RuntimeError("unavailable")
+    with patch("IPython.get_ipython", return_value=shell):
+        assert m.notebook_cell_identity() is None
+        assert not m._headless_notebook_environment()
+
+    shell = MagicMock(kernel=object(), spec=["kernel"])
+    with patch("IPython.get_ipython", return_value=shell):
+        assert m.notebook_cell_identity() is None
+        assert not m._headless_notebook_environment()
+
+
 def test_legacy_colab_import_hook_is_ignored(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setitem(sys.modules, "google.colab._import_hooks._bokeh", types.ModuleType("_bokeh"))
 
@@ -672,3 +711,324 @@ def test_application_view_accepts_only_a_transient_frontend_application_url() ->
     assert returned.source["url"] == browser_url
     app._resolve_browser_url.assert_called_once_with(browser_url)
     handle.close()
+
+
+def test_closed_view_handles_reject_new_frontends() -> None:
+    document_handle = m.DocumentViewHandle(Div(), live_id="live", view_id="document")
+    document_handle.close()
+    document_comm = MagicMock(comm_id="document-comm")
+    document_handle._connect(document_comm)
+    assert document_comm.send.call_args.args[0]["code"] == "LIVE_DOCUMENT_CLOSED"
+    document_comm.close.assert_called_once_with()
+
+    application = MagicMock()
+    application_handle = m.ApplicationViewHandle(
+        application,
+        "application",
+        embed_server("http://127.0.0.1:4321/app"),
+    )
+    application_handle.close()
+    application_comm = MagicMock(comm_id="application-comm")
+    application_handle._connect(application_comm)
+    assert application_comm.send.call_args.args[0]["code"] == "APPLICATION_VIEW_CLOSED"
+    application_comm.close.assert_called_once_with()
+
+
+def test_view_cleanup_tolerates_failed_comms_and_frontends() -> None:
+    document_handle = m.DocumentViewHandle(Div(), live_id="live", view_id="document")
+    document_handle._comms["comm"] = MagicMock(close=MagicMock(side_effect=RuntimeError("closed")))
+    document_handle._retain_frontend(MagicMock(disconnect=MagicMock(side_effect=RuntimeError("disconnected"))))
+    document_handle.close()
+    assert document_handle.closed
+
+    application_handle = m.ApplicationViewHandle(
+        MagicMock(),
+        "application",
+        embed_server("http://127.0.0.1:4321/app"),
+    )
+    application_handle._comms["comm"] = MagicMock(send=MagicMock(side_effect=RuntimeError("closed")))
+    frontend = MagicMock()
+    frontend.disconnect = None
+    frontend.close.side_effect = RuntimeError("disconnected")
+    application_handle._retain_frontend(frontend)
+    application_handle.close()
+    assert application_handle.closed
+
+    document = MagicMock()
+    document.remove_on_change.side_effect = KeyError("missing")
+    detached = m.DocumentViewHandle(Div(), live_id="detached", view_id="detached")
+    detached._source_document = document
+    frontend = MagicMock()
+    frontend.disconnect = None
+    detached._retain_frontend(frontend)
+    detached.close()
+    frontend.close.assert_called_once_with()
+
+
+def test_document_handle_guards_closed_batches_and_drops_failed_comms() -> None:
+    handle = m.DocumentViewHandle(Div(), live_id="live", view_id="view")
+    handle.close()
+    with pytest.raises(RuntimeError, match="closed notebook document handle"):
+        handle.__enter__()
+    handle._broadcast([MagicMock()])
+
+    handle = m.DocumentViewHandle(Div(), live_id="live", view_id="view")
+    handle._broadcast([])
+    handle._comms["failed"] = MagicMock(send=MagicMock(side_effect=RuntimeError("disconnected")))
+    message = MagicMock(content={"events": []}, buffers=[])
+    with patch("bokeh.protocol.patch_doc", return_value=message):
+        handle._broadcast([MagicMock()])
+    assert handle.views == 0
+
+
+def test_application_view_rejects_invalid_frontend_url_and_is_bounded() -> None:
+    application = MagicMock()
+    application._resolve_browser_url.side_effect = ValueError("invalid URL")
+    first = m.ApplicationViewHandle(application, "first", embed_server("http://127.0.0.1:4321/app"))
+    comm = MagicMock(comm_id="comm")
+    first._connect(comm)
+    callback = comm.on_msg.call_args.args[0]
+    callback({"content": {"data": {"kind": "application_url", "application_url": "invalid"}}})
+    assert comm.send.call_args.args[0]["code"] == "APPLICATION_URL_INVALID"
+    assert first.views == 0
+
+    second = m.ApplicationViewHandle(application, "second", embed_server("http://127.0.0.1:4321/app"))
+    with patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1):
+        m._retain_application_handle(first)
+        m._retain_application_handle(second)
+    assert first.closed
+    assert not second.closed
+    assert second.application is application
+    second._retain_frontend(MagicMock())
+    second.close()
+    second.close()
+
+
+def test_notebook_comm_reports_missing_live_and_application_views() -> None:
+    pytest.importorskip("IPython")
+    targets: dict[str, object] = {}
+    shell = MagicMock()
+    shell.kernel.comm_manager.register_target.side_effect = lambda target, callback: targets.setdefault(target, callback)
+    with patch("IPython.get_ipython", return_value=shell):
+        m._NOTEBOOK_COMM_KERNEL = None
+        m._register_notebook_comm_target()
+    callback = cast(Callable[[Any, dict[str, Any]], None], targets["bokeh.notebook.v1"])
+
+    live_comm = MagicMock()
+    callback(live_comm, {"content": {"data": {"live_id": "missing"}}})
+    assert live_comm.send.call_args.args[0]["code"] == "LIVE_DOCUMENT_NOT_FOUND"
+    live_comm.close.assert_called_once_with()
+
+    application_comm = MagicMock()
+    callback(application_comm, {"content": {"data": {"view_id": "missing"}}})
+    assert application_comm.send.call_args.args[0]["code"] == "APPLICATION_VIEW_NOT_FOUND"
+    application_comm.close.assert_called_once_with()
+
+    application_handle = MagicMock()
+    m._APPLICATION_VIEW_HANDLES["application"] = application_handle
+    release_comm = MagicMock()
+    callback(release_comm, {"content": {"data": {"kind": "release", "view_id": "application"}}})
+    application_handle.close.assert_called_once_with()
+
+    live_handle = MagicMock()
+    m._DOCUMENT_VIEW_HANDLES["live"] = live_handle
+    connected_live = MagicMock()
+    callback(connected_live, {"content": {"data": {"live_id": "live"}}})
+    live_handle._connect.assert_called_once_with(connected_live)
+
+    connected_application = MagicMock()
+    application_handle.reset_mock()
+    callback(connected_application, {"content": {"data": {"view_id": "application"}}})
+    application_handle._connect.assert_called_once_with(connected_application)
+
+
+def test_comm_registration_failures_are_nonfatal() -> None:
+    pytest.importorskip("IPython")
+    shell = MagicMock()
+    shell.kernel.comm_manager.register_target.side_effect = RuntimeError("unavailable")
+    with patch("IPython.get_ipython", return_value=shell):
+        m._NOTEBOOK_COMM_KERNEL = None
+        m._RESOURCE_COMM_KERNEL = None
+        m._register_notebook_comm_target()
+        m._register_resource_comm_target()
+    assert m._NOTEBOOK_COMM_KERNEL is None
+    assert m._RESOURCE_COMM_KERNEL is None
+
+
+def test_automatic_mimebundle_filters_standard_and_widget_data(display_widget: MagicMock) -> None:
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook._use_anywidget", return_value=False),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+    ):
+        bundle = m.notebook_mimebundle(figure(), include={"text/html", DISPLAY_MIME_TYPE}, exclude={DISPLAY_MIME_TYPE})
+    assert bundle is not None
+    assert set(bundle[0]) == {"text/html"}
+
+    widget = MagicMock()
+    widget._repr_mimebundle_.return_value = ({"text/html": "html", "extra": "value"}, {"metadata": True})
+    display_widget.return_value = widget
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook._use_anywidget", return_value=True),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+    ):
+        bundle = m.notebook_mimebundle(figure(), include={"text/html", "extra"}, exclude={"extra"})
+    assert bundle == ({"text/html": "html"}, {"metadata": True})
+
+    widget._repr_mimebundle_.return_value = None
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook._use_anywidget", return_value=True),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+    ):
+        assert m.notebook_mimebundle(figure()) is None
+
+    with patch("bokeh.io.notebook.notebook_environment", return_value=False):
+        assert m.notebook_mimebundle(figure()) is None
+
+
+def test_anywidget_frontends_are_retained_by_connected_outputs(
+    document: Document, display_widget: MagicMock, ipython_display: MagicMock,
+) -> None:
+    widget = MagicMock()
+    display_widget.return_value = widget
+    with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
+        patch("bokeh.io.notebook._use_anywidget", return_value=True),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+        patch("bokeh.io.notebook._register_notebook_comm_target"),
+    ):
+        handle = m.show_doc(figure())
+    ipython_display.assert_called_once_with(widget)
+    assert handle._frontend is widget
+    handle.close()
+
+    ipython_display.side_effect = RuntimeError("display failed")
+    with (
+        patch("bokeh.io.doc.curdoc", return_value=document),
+        patch("bokeh.io.notebook._use_anywidget", return_value=True),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+        patch("bokeh.io.notebook._register_notebook_comm_target"),
+        pytest.raises(RuntimeError, match="display failed"),
+    ):
+        m.show_doc(figure())
+    assert document.roots == []
+
+
+def test_show_hosted_app_rejects_stopped_and_unconnected_colab_apps() -> None:
+    stopped = MagicMock(stopped=True)
+    with pytest.raises(RuntimeError, match="has stopped"):
+        m.show_hosted_app(stopped)
+
+    application = MagicMock(
+        stopped=False,
+        url="http://127.0.0.1:4321/app",
+        application_id="application",
+        accepts_frontend_proxy=True,
+    )
+    with (
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
+        pytest.raises(RuntimeError, match="Connected Bokeh applications in Colab require AnyWidget"),
+    ):
+        m.show_hosted_app(application)
+
+
+def test_show_hosted_app_uses_and_cleans_up_anywidget_frontend(
+    display_widget: MagicMock, ipython_display: MagicMock,
+) -> None:
+    application = MagicMock(
+        stopped=False,
+        url="http://127.0.0.1:4321/app",
+        application_id="application",
+        accepts_frontend_proxy=True,
+    )
+    widget = MagicMock()
+    display_widget.return_value = widget
+    with (
+        patch("bokeh.io.notebook._use_anywidget", return_value=True),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+        patch("bokeh.io.notebook._register_notebook_comm_target"),
+    ):
+        handle = m.show_hosted_app(application)
+    ipython_display.assert_called_once_with(widget)
+    assert handle._frontend is widget
+    handle.close()
+
+    ipython_display.side_effect = RuntimeError("display failed")
+    with (
+        patch("bokeh.io.notebook._use_anywidget", return_value=True),
+        patch("bokeh.io.notebook._ensure_notebook_resources", return_value="resource"),
+        patch("bokeh.io.notebook._register_notebook_comm_target"),
+        pytest.raises(RuntimeError, match="display failed"),
+    ):
+        m.show_hosted_app(application)
+
+
+def test_close_application_views_only_closes_owned_views() -> None:
+    application = MagicMock()
+    owned = MagicMock(application=application)
+    other = MagicMock(application=MagicMock())
+    m._APPLICATION_VIEW_HANDLES.update({"owned": owned, "other": other})
+    m.close_application_views(application)
+    owned.close.assert_called_once_with()
+    other.close.assert_not_called()
+
+
+def test_resource_comm_returns_missing_and_preserved_records() -> None:
+    pytest.importorskip("IPython")
+    targets: dict[str, object] = {}
+    shell = MagicMock()
+    shell.kernel.comm_manager.register_target.side_effect = lambda target, callback: targets.setdefault(target, callback)
+    with patch("IPython.get_ipython", return_value=shell):
+        m._RESOURCE_COMM_KERNEL = None
+        m._register_resource_comm_target()
+    callback = cast(Callable[[Any, dict[str, Any]], None], targets["bokeh.resources.v1"])
+
+    missing = MagicMock()
+    callback(missing, {"content": {"data": {"resource_id": "missing"}}})
+    assert missing.send.call_args.args[0]["error"] == "RESOURCE_NOT_AVAILABLE"
+
+    record = cast(Any, {"payload": {"resource_id": "resource", "dependencies": []}, "javascript": "code"})
+    m.RESOURCE_RECORDS["resource"] = record
+    present = MagicMock()
+    callback(present, {"content": {"data": {"resource_id": "resource"}}})
+    present.send.assert_called_once_with(record)
+    present.close.assert_called_once_with()
+
+
+def test_resource_publication_replays_existing_owner_and_breaks_cycles() -> None:
+    artifact, _ = notebook_content(figure())
+    with (
+        patch("bokeh.io.notebook._register_resource_comm_target"),
+        patch("bokeh.io.notebook.publish_display_data") as publish,
+    ):
+        resource_id = m._ensure_notebook_resources(artifact, Resources(mode="cdn"))
+        assert publish.call_count == 1
+        publish.reset_mock()
+        assert m._ensure_notebook_resources(artifact, Resources(mode="cdn")) == resource_id
+        assert publish.call_count == 1
+
+    m.RESOURCE_RECORDS[resource_id]["payload"]["dependencies"] = [resource_id]
+    assert len(m._resource_record_chain(resource_id)) == 1
+
+
+def test_reset_and_url_validation_cover_all_owners(monkeypatch: pytest.MonkeyPatch) -> None:
+    document_handle = MagicMock()
+    application_handle = MagicMock()
+    m._DOCUMENT_VIEW_HANDLES["document"] = document_handle
+    m._APPLICATION_VIEW_HANDLES["application"] = application_handle
+    m._reset_notebook_resources()
+    document_handle.close.assert_called_once_with()
+    application_handle.close.assert_called_once_with()
+
+    with pytest.raises(ValueError, match="Invalid notebook URL"):
+        m.server_url("file:///tmp/notebook", 1234)
+    with pytest.raises(ValueError, match="must not contain credentials"):
+        m.server_url("https://user:secret@example.test/notebook", 1234)
+
+    monkeypatch.setenv("JUPYTER_BOKEH_EXTERNAL_URL", "https://hub.example.test")
+    with patch.object(m.log, "warning") as warning:
+        assert callable(m.update_notebook_url_from_env("https://other.example.test"))
+    warning.assert_called_once()

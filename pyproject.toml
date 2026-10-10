@@ -142,6 +142,8 @@ filterwarnings = [
 [tool.coverage.run]
 source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
+patch = ["subprocess"]
+sigterm = true
 
 [tool.mypy]
 python_version = "3.12"
