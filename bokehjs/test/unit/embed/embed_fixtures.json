@@ -1,0 +1,171 @@
+{
+  "schema": "bokeh.embed.fixtures/v1",
+  "cases": [
+    {
+      "name": "standalone-keyed-roots",
+      "payload": {
+        "schema": "bokeh.embed/v1",
+        "bokeh_version": "__VERSION__",
+        "source": {
+          "kind": "standalone",
+          "documents": [
+            {
+              "version": "__VERSION__",
+              "title": "Fixture document",
+              "config": {
+                "type": "object",
+                "name": "DocumentConfig",
+                "attributes": {
+                  "notifications": {
+                    "type": "object",
+                    "name": "Notifications"
+                  }
+                }
+              },
+              "roots": [
+                {
+                  "type": "object",
+                  "name": "CustomJS",
+                  "attributes": {
+                    "code": "primary"
+                  }
+                },
+                {
+                  "type": "object",
+                  "name": "CustomJS",
+                  "attributes": {
+                    "code": "secondary"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "roots": [
+          {
+            "key": "primary",
+            "document": 0,
+            "root": 0
+          },
+          {
+            "key": "secondary",
+            "document": 0,
+            "root": 1
+          }
+        ],
+        "requires": {
+          "components": [
+            "bokeh/core"
+          ],
+          "extensions": []
+        },
+        "metadata": {
+          "fixture": "cross-language",
+          "numbers": {
+            "fixed_threshold": 0.000001,
+            "fraction": 1.23456789012345,
+            "negative_zero": -0.0,
+            "scientific_threshold": 1e-7
+          }
+        }
+      }
+    },
+    {
+      "name": "standalone-compact-roots",
+      "payload": {
+        "schema": "bokeh.embed/v1",
+        "bokeh_version": "__VERSION__",
+        "source": {
+          "kind": "standalone",
+          "documents": [
+            {
+              "version": "__VERSION__",
+              "title": "Compact fixture document",
+              "config": {
+                "$type": "DocumentConfig",
+                "notifications": {"$type": "Notifications"}
+              },
+              "roots": [
+                {
+                  "$type": "CustomJS",
+                  "args": {
+                    "type": "map",
+                    "entries": [
+                      [
+                        "shared",
+                        {
+                          "$type": "CustomJS",
+                          "$id": "p1006",
+                          "args": {
+                            "type": "map",
+                            "entries": [["self", {"$ref": "p1006"}]]
+                          },
+                          "code": "shared"
+                        }
+                      ]
+                    ]
+                  },
+                  "code": "primary"
+                },
+                {
+                  "$type": "CustomJS",
+                  "args": {
+                    "type": "map",
+                    "entries": [["shared", {"$ref": "p1006"}]]
+                  },
+                  "code": "secondary"
+                }
+              ]
+            }
+          ]
+        },
+        "roots": [
+          {"key": "primary", "document": 0, "root": 0},
+          {"key": "secondary", "document": 0, "root": 1}
+        ],
+        "requires": {
+          "components": ["bokeh/core"],
+          "extensions": []
+        },
+        "metadata": {"fixture": "cross-language-compact"}
+      }
+    },
+    {
+      "name": "server-existing-session",
+      "payload": {
+        "schema": "bokeh.embed/v1",
+        "bokeh_version": "__VERSION__",
+        "source": {
+          "kind": "server",
+          "url": "https://example.test/app",
+          "session_id": "fixture-session",
+          "arguments": {
+            "account": "123"
+          },
+          "headers": {},
+          "credentials": "same-origin",
+          "relative_urls": false
+        },
+        "roots": [
+          {
+            "key": "detail",
+            "model_id": "fixture-root"
+          }
+        ],
+        "requires": {
+          "components": [
+            "bokeh/core",
+            "bokeh/widgets",
+            "bokeh/tables",
+            "bokeh/webgl",
+            "bokeh/mathjax"
+          ],
+          "extensions": []
+        },
+        "metadata": {
+          "fixture": "cross-language"
+        }
+      }
+    }
+  ]
+}

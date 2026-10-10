@@ -47,6 +47,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'TokenDecodeError',
     'check_session_id_signature',
     'check_token_signature',
     'generate_secret_key',
@@ -57,12 +58,19 @@ __all__ = (
 )
 
 _TOKEN_ZLIB_KEY = "__bk__zlib_"
+_MAX_TOKEN_BASE64_BYTES = 2*1024*1024
+_MAX_TOKEN_COMPRESSED_BYTES = 1024*1024
+_MAX_TOKEN_DECOMPRESSED_BYTES = 8*1024*1024
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 type TokenPayload = dict[str, Any]
+
+
+class TokenDecodeError(ValueError):
+    '''Raised when a session token is malformed or exceeds its size limits.'''
 
 def generate_secret_key() -> str:
     ''' Generate a new securely-generated secret key appropriate for SHA-256
@@ -121,7 +129,11 @@ def generate_jwt_token(session_id: ID,
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
         extra_payload_str = json.dumps(extra_payload, cls=_BytesEncoder).encode('utf-8')
+        if len(extra_payload_str) > _MAX_TOKEN_DECOMPRESSED_BYTES:
+            raise ValueError("session token payload exceeds the maximum uncompressed size")
         compressed = zlib.compress(extra_payload_str, level=9)
+        if len(compressed) > _MAX_TOKEN_COMPRESSED_BYTES:
+            raise ValueError("session token payload exceeds the maximum compressed size")
         payload[_TOKEN_ZLIB_KEY] = _base64_encode(compressed)
     token = _base64_encode(json.dumps(payload))
     secret_key = _ensure_bytes(secret_key)
@@ -139,8 +151,15 @@ def get_session_id(token: str) -> ID:
     Returns:
        str
     """
-    decoded = json.loads(_base64_decode(token.split('.')[0]))
-    return decoded['session_id']
+    decoded = _decode_token(token)
+    try:
+        session_id = decoded['session_id']
+    except KeyError as error:
+        raise TokenDecodeError("session token does not contain a session_id") from error
+    if not isinstance(session_id, str) or not session_id:
+        raise TokenDecodeError("session token session_id must be a non-empty string")
+    from ..core.types import ID
+    return ID(session_id)
 
 def get_token_payload(token: str) -> TokenPayload:
     """Extract the payload from the token.
@@ -152,13 +171,22 @@ def get_token_payload(token: str) -> TokenPayload:
     Returns:
         dict
     """
-    decoded = json.loads(_base64_decode(token.split('.')[0]))
-    if _TOKEN_ZLIB_KEY in decoded:
-        decompressed = zlib.decompress(_base64_decode(decoded[_TOKEN_ZLIB_KEY]))
-        del decoded[_TOKEN_ZLIB_KEY]
-        decoded.update(json.loads(decompressed, cls=_BytesDecoder))
-    del decoded['session_id']
-    return decoded
+    decoded = _decode_token(token)
+    try:
+        if _TOKEN_ZLIB_KEY in decoded:
+            compressed = _base64_decode(decoded[_TOKEN_ZLIB_KEY])
+            decompressed = _decompress_token_payload(compressed)
+            del decoded[_TOKEN_ZLIB_KEY]
+            extra = json.loads(decompressed, cls=_BytesDecoder)
+            if not isinstance(extra, dict):
+                raise TokenDecodeError("compressed session token payload must be an object")
+            decoded.update(extra)
+        del decoded['session_id']
+        return decoded
+    except TokenDecodeError:
+        raise
+    except (AttributeError, KeyError, RecursionError, TypeError, UnicodeError, ValueError, zlib.error) as error:
+        raise TokenDecodeError("invalid session token payload") from error
 
 def check_token_signature(token: str,
                           secret_key: bytes | None = settings.secret_key_bytes(),
@@ -197,7 +225,10 @@ def check_token_signature(token: str,
         token_valid = hmac.compare_digest(
             expected_token_signature, provided_token_signature,
         )
-        session_id = get_session_id(token)
+        try:
+            session_id = get_session_id(token)
+        except TokenDecodeError:
+            return False
         session_id_valid = check_session_id_signature(session_id, secret_key, signed)
         return token_valid and session_id_valid
     return True
@@ -245,6 +276,36 @@ class _BytesDecoder(json.JSONDecoder):
         if set(obj.keys()) == {"bytes"}:
             return _base64_decode(obj["bytes"])
         return obj
+
+
+def _decode_token(token: str) -> TokenPayload:
+    try:
+        encoded = token.split('.')[0]
+        if not encoded or len(encoded) > _MAX_TOKEN_BASE64_BYTES:
+            raise TokenDecodeError("session token exceeds the maximum encoded size")
+        decoded = json.loads(_base64_decode(encoded))
+    except TokenDecodeError:
+        raise
+    except (AttributeError, RecursionError, TypeError, UnicodeError, ValueError) as error:
+        raise TokenDecodeError("invalid session token") from error
+    if not isinstance(decoded, dict):
+        raise TokenDecodeError("session token payload must be an object")
+    return decoded
+
+
+def _decompress_token_payload(compressed: bytes) -> bytes:
+    if len(compressed) > _MAX_TOKEN_COMPRESSED_BYTES:
+        raise TokenDecodeError("compressed session token payload exceeds the maximum size")
+    decompressor = zlib.decompressobj()
+    decompressed = decompressor.decompress(compressed, _MAX_TOKEN_DECOMPRESSED_BYTES + 1)
+    if len(decompressed) > _MAX_TOKEN_DECOMPRESSED_BYTES or decompressor.unconsumed_tail:
+        raise TokenDecodeError("decompressed session token payload exceeds the maximum size")
+    decompressed += decompressor.flush(_MAX_TOKEN_DECOMPRESSED_BYTES - len(decompressed) + 1)
+    if len(decompressed) > _MAX_TOKEN_DECOMPRESSED_BYTES:
+        raise TokenDecodeError("decompressed session token payload exceeds the maximum size")
+    if not decompressor.eof or decompressor.unused_data:
+        raise TokenDecodeError("compressed session token payload is invalid")
+    return decompressed
 
 def _get_sysrandom() -> tuple[Any, bool]:
     # Use the system PRNG for session id generation (if possible)

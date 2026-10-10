@@ -22,11 +22,14 @@ import codecs
 import datetime as dt
 import json
 import random
+import zlib
 from unittest.mock import MagicMock, Mock, patch
 
 # Bokeh imports
 from bokeh.util.token import (
+    _MAX_TOKEN_DECOMPRESSED_BYTES,
     _TOKEN_ZLIB_KEY,
+    TokenDecodeError,
     _base64_decode,
     _base64_encode,
     _get_sysrandom,
@@ -105,6 +108,21 @@ class TestSessionId:
         assert "session_id" in json.loads(_b64_to_utf8(another_token))
         assert token != another_token
 
+    @pytest.mark.parametrize("compressed", [False, True])
+    def test_wraps_json_recursion_errors(self, compressed: bool) -> None:
+        decoded = {"session_id": "test"}
+        recursion_error = RecursionError("JSON nesting limit exceeded")
+        if compressed:
+            decoded[_TOKEN_ZLIB_KEY] = _base64_encode(zlib.compress(b'{}'))
+            decode_results = [decoded, recursion_error]
+        else:
+            decode_results = [recursion_error]
+        token = _base64_encode(json.dumps(decoded))
+        with patch("bokeh.util.token.json.loads", side_effect=decode_results):
+            with pytest.raises(TokenDecodeError, match="invalid session token") as error:
+                get_token_payload(token)
+        assert error.value.__cause__ is recursion_error
+
     def test_payload_unsigned(self):
         token = generate_jwt_token(generate_session_id(), signed=False, extra_payload=dict(foo=10))
         assert '.' not in token
@@ -120,6 +138,18 @@ class TestSessionId:
         payload = get_token_payload(token)
         assert _TOKEN_ZLIB_KEY in payload
         assert payload[_TOKEN_ZLIB_KEY] == 10
+
+    def test_payload_rejects_excessive_decompressed_size(self) -> None:
+        compressed = zlib.compress(b'x' * (_MAX_TOKEN_DECOMPRESSED_BYTES + 1), level=9)
+        value = {
+            "session_id": "session",
+            "session_expiry": 1,
+            _TOKEN_ZLIB_KEY: _base64_encode(compressed),
+        }
+        token = _base64_encode(json.dumps(value))
+
+        with pytest.raises(ValueError, match="decompressed session token payload exceeds"):
+            get_token_payload(token)
 
     def test_payload_error_unsigned(self):
         session_id = generate_session_id()

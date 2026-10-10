@@ -53,6 +53,58 @@ class Test_is_full_release:
         monkeypatch.setattr(buv, '__version__', v)
         assert not buv.is_full_release()
 
+    def test_explicit_version_good(self) -> None:
+        assert buv.is_full_release("4.0.0")
+
+    @pytest.mark.parametrize("version", [
+        "4.0.0.dev5",
+        "4.0.0rc1",
+        "4.0.0+local",
+        "4.0.0\n",
+        "junk",
+    ])
+    def test_explicit_version_bad(self, version: str) -> None:
+        assert not buv.is_full_release(version)
+
+
+class Test_is_valid_version:
+
+    @pytest.mark.parametrize("version", [
+        "4.0.0",
+        "4.0.0.dev5",
+        "4.0.0rc1",
+        "4.0.0+local",
+        "4.0.0.dev5+52.g87c2e72b.dirty",
+        "4.0.0rc1+build_1-test.2",
+        buv.__version__,
+    ])
+    def test_valid(self, version: str) -> None:
+        assert buv.is_valid_version(version)
+
+    @pytest.mark.parametrize("version", [
+        "",
+        "junk",
+        "4.0",
+        "4.0.0.1",
+        "v4.0.0",
+        "4.0.0.dev",
+        "4.0.0rc",
+        "4.0.0.dev-1",
+        "4.0.0rc1junk",
+        "4.0.0-dev.1",
+        "4.0.0+",
+        "4.0.0+.local",
+        "4.0.0+local..1",
+        "4.0.0/extra",
+        "4.0.0?extra",
+        "4.0.0#extra",
+        '4.0.0" data-extra="<&',
+        " 4.0.0",
+        "4.0.0\n",
+    ])
+    def test_invalid(self, version: str) -> None:
+        assert not buv.is_valid_version(version)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

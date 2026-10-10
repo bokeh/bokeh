@@ -50,8 +50,8 @@
       <span class="chip">WebSocket session</span>
     </div>
     <section class="frame">
-      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="address">/bkapp/autoload.js</span></div>
-      <div class="bokeh-host">{{ bokeh_script | safe }}</div>
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="address">/bkapp/embed.json</span></div>
+      <div class="bokeh-host">{{ embed_html | safe }}</div>
     </section>
     <footer><span>Host page rendered by {{ framework }}</span><span>Bokeh document synchronized over WebSocket</span></footer>
   </main>

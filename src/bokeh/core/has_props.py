@@ -923,7 +923,7 @@ def _property_kind(prop: Property[Any], serializer: Serializer) -> KindRef:
                     return ("Ref", Ref(id=instance_type.__qualified_model__))
                 return ("AnyRef",)
             if issubclass(instance_type, Model):
-                return ("Ref", Ref(id=instance_type.__qualified_model__))
+                return ("Ref", cast(Ref, serializer.encode(instance_type)))
             return ("AnyRef",)
         return "Any"
     if isinstance(prop, SingleParameterizedProperty):

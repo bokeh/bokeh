@@ -56,7 +56,6 @@ _expected_settings = (
     'docs_version',
     'export_backend',
     'ico_path',
-    'ignore_filename',
     'log_level',
     'minified',
     'nodejs_path',
@@ -94,7 +93,6 @@ class TestSettings:
         assert ps._parent == bs.settings
 
     def test_types(self) -> None:
-        assert bs.settings.ignore_filename.convert_type == "Bool"
         assert bs.settings.minified.convert_type == "Bool"
         assert bs.settings.perform_document_validation.convert_type == "Bool"
         assert bs.settings.perform_error_diagnostics.convert_type == "Bool"
@@ -118,7 +116,6 @@ class TestSettings:
             'compression_level',
             'default_server_port',
             'ico_path',
-            'ignore_filename',
             'minified',
             'perform_document_validation',
             'perform_error_diagnostics',
@@ -378,9 +375,6 @@ class TestDefaults:
 
     def test_ico_path(self):
         assert bs.settings.ico_path.default == "default"
-
-    def test_ignore_filename(self):
-        assert bs.settings.ignore_filename.default is False
 
     def test_log_level(self):
         assert bs.settings.log_level.default == "info"

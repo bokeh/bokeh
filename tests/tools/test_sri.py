@@ -41,6 +41,8 @@ def test_dump_hash_file_writes_sorted_non_esm_entries(tmp_path: Path, monkeypatc
     sri_dir.mkdir()
 
     for filename in [
+        "bokeh-embed-bootstrap.js",
+        "bokeh-embed-bootstrap.min.js",
         "bokeh-widgets.js",
         "bokeh.min.js",
         "bokeh.js",
@@ -61,6 +63,8 @@ def test_dump_hash_file_writes_sorted_non_esm_entries(tmp_path: Path, monkeypatc
     assert json.loads(output.read_text()) == {
         "bokeh-4.0.0.js": "hash:bokeh.js",
         "bokeh-4.0.0.min.js": "hash:bokeh.min.js",
+        "bokeh-embed-bootstrap-4.0.0.js": "hash:bokeh-embed-bootstrap.js",
+        "bokeh-embed-bootstrap-4.0.0.min.js": "hash:bokeh-embed-bootstrap.min.js",
         "bokeh-widgets-4.0.0.js": "hash:bokeh-widgets.js",
     }
 

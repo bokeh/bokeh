@@ -21,10 +21,10 @@ that accepts these same parameters.
   <head>
   {% block inner_head %}
     <meta charset="utf-8">
-    <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
+    <title>{% block title %}{{ title | e if title is not none else "Bokeh Plot" }}{% endblock %}</title>
   {%  block preamble -%}{%- endblock %}
   {%  block resources %}
-    <style>
+    <style{% if bokeh_nonce %} nonce="{{ bokeh_nonce | e }}"{% endif %}>
       html, body {
         box-sizing: border-box;
         display: flow-root;

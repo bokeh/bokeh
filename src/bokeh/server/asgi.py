@@ -20,21 +20,30 @@ import mimetypes
 import zlib
 from http.cookies import SimpleCookie
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, urlparse
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_JS
-from ..embed.bundle import Script, bundle_for_objs_and_resources, extension_dirs
-from ..embed.elements import script_for_render_items
-from ..embed.server import server_html_page_for_session
-from ..embed.util import RenderItem
+from .. import __version__
+from ..embed._util import server_page_for_session
+from ..embed.resources import (
+    extension_dirs,
+    resolve_server_extensions,
+    server_extension_model_types,
+    server_extension_resources,
+)
 from ..protocol import ack
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..settings import settings
-from ..util.token import check_token_signature, get_session_id, get_token_payload
+from ..util.token import (
+    TokenDecodeError,
+    check_token_signature,
+    get_session_id,
+    get_token_payload,
+)
+from ._static import is_bokeh_js_path
 from .auth import AuthPolicy
 from .core import BokehServerCore, SessionError
 from .request import Cookie, Headers, ServerRequest
@@ -45,7 +54,7 @@ if TYPE_CHECKING:
 
     from ..application import Application
     from ..application.handlers.function import ModifyDoc
-    from ..core.types import ID, PathLike
+    from ..core.types import PathLike
     from ..document import Document
     from .connection import ServerConnection
     from .contexts import ApplicationContext
@@ -68,9 +77,14 @@ class _ASGIWebSocketTransport:
         self.closed = False
 
     async def send_message(self, message: Message[Any]) -> None:
-        if not self.closed:
-            try:
-                async with self._write_lock:
+        '''Send a protocol message over the ASGI WebSocket.
+
+        Args:
+            message: The Bokeh protocol message to send.
+        '''
+        try:
+            async with self._write_lock:
+                if not self.closed:
                     for fragment, binary in message.fragments():
                         if binary:
                             data = fragment if isinstance(fragment, bytes) else fragment.encode("utf-8")
@@ -78,22 +92,29 @@ class _ASGIWebSocketTransport:
                         else:
                             text = fragment.decode("utf-8") if isinstance(fragment, bytes) else fragment
                             await self._send({"type": "websocket.send", "text": text})
-            except OSError:
-                # ASGI servers raise OSError when the peer has disconnected.
-                # The corresponding websocket.disconnect event may still be
-                # waiting for the application to receive it.
-                self.closed = True
+        except OSError:
+            # ASGI servers raise OSError when the peer has disconnected.
+            # The corresponding websocket.disconnect event may still be
+            # waiting for the application to receive it.
+            self.closed = True
 
     async def close(self, code: int = 1000, reason: str = "") -> None:
-        if not self.closed:
-            self.closed = True
-            event: Event = {"type": "websocket.close", "code": code}
-            if self._supports_close_reason:
-                event["reason"] = reason
-            try:
-                await self._send(event)
-            except OSError:
-                pass
+        '''Close the ASGI WebSocket connection.
+
+        Args:
+            code: The WebSocket close code.
+            reason: An optional human-readable close reason.
+        '''
+        async with self._write_lock:
+            if not self.closed:
+                self.closed = True
+                event: Event = {"type": "websocket.close", "code": code}
+                if self._supports_close_reason:
+                    event["reason"] = reason
+                try:
+                    await self._send(event)
+                except OSError:
+                    log.debug("Could not send websocket close after peer disconnected", exc_info=True)
 
 
 class BokehASGI:
@@ -211,8 +232,8 @@ class BokehASGI:
             await self._document(context, request, send)
         elif suffix == "/metadata":
             await self._metadata(context, request, send)
-        elif suffix == "/autoload.js":
-            await self._autoload(context, request, send)
+        elif suffix == "/embed.json":
+            await self._embed_json(context, request, send)
         elif suffix.startswith("/static/"):
             await self._application_static(context, suffix, request, send)
         else:
@@ -224,25 +245,16 @@ class BokehASGI:
             await self._method_not_allowed(send, ("GET", "HEAD"))
             return
 
-        root_context = self._core.applications.get("/")
-        root = root_context.application.static_path if root_context is not None else None
-        if root is not None:
-            await self._serve_static(send, root, route.removeprefix("/static/"), head=method == "HEAD")
-        elif route.startswith("/static/extensions/"):
-            relative = route.removeprefix("/static/extensions/")
-            name, separator, artifact = relative.partition("/")
-            await self._serve_static(
-                send,
-                extension_dirs.get(name),
-                artifact if separator else "",
-                head=method == "HEAD",
-            )
+        relative = route.removeprefix("/static/")
+        if relative.startswith("extensions/"):
+            await self._serve_extension_static(send, relative.removeprefix("extensions/"), head=method == "HEAD")
+        elif self._is_bokeh_static(relative):
+            await self._serve_static(send, Path(settings.bokehjs_path()), relative, head=method == "HEAD")
         else:
+            root_context = self._core.applications.get("/")
+            root = root_context.application.static_path if root_context is not None else None
             await self._serve_static(
-                send,
-                Path(settings.bokehjs_path()),
-                route.removeprefix("/static/"),
-                head=method == "HEAD",
+                send, root or Path(settings.bokehjs_path()), relative, head=method == "HEAD",
             )
 
     async def _application_static(
@@ -256,12 +268,13 @@ class BokehASGI:
         if method not in ("GET", "HEAD"):
             await self._method_not_allowed(send, ("GET", "HEAD"))
             return
-        await self._serve_static(
-            send,
-            context.application.static_path,
-            suffix.removeprefix("/static/"),
-            head=method == "HEAD",
-        )
+        relative = suffix.removeprefix("/static/")
+        if relative.startswith("extensions/"):
+            await self._serve_extension_static(send, relative.removeprefix("extensions/"), head=method == "HEAD")
+        elif self._is_bokeh_static(relative):
+            await self._serve_static(send, Path(settings.bokehjs_path()), relative, head=method == "HEAD")
+        else:
+            await self._serve_static(send, context.application.static_path, relative, head=method == "HEAD")
 
     async def _document(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
         method = request.method.upper()
@@ -276,7 +289,7 @@ class BokehASGI:
         except SessionError as error:
             await self._response(send, error.status, error.reason.encode(), "text/plain", head=head)
             return
-        page = server_html_page_for_session(
+        page = server_page_for_session(
             session,
             resources=self._core.resources(root_path=request.root_path),
             title=session.document.title,
@@ -299,41 +312,86 @@ class BokehASGI:
         body = json.dumps({"url": context.url, "data": data or {}}).encode()
         await self._response(send, 200, body, "application/json", head=head)
 
-    async def _autoload(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
+    async def _embed_json(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
         method = request.method.upper()
+        security_headers = self._embed_security_headers()
+        if request.headers.get("origin") is not None and not self._origin_allowed(request):
+            await self._response(
+                send, 403, b"Origin is not allowed", "text/plain", head=method == "HEAD",
+                extra_headers=security_headers,
+            )
+            return
+        response_headers = [*self._cors_headers(request), *security_headers]
         if method == "OPTIONS":
-            await self._response(send, 204, b"", "text/plain", extra_headers=self._cors_headers(request))
+            await self._response(
+                send, 204, b"", "text/plain",
+                extra_headers=response_headers,
+            )
             return
         head = method == "HEAD"
         if method not in ("GET", "HEAD"):
-            await self._method_not_allowed(send, ("GET", "HEAD", "OPTIONS"))
+            await self._method_not_allowed(
+                send, ("GET", "HEAD", "OPTIONS"), extra_headers=response_headers,
+            )
             return
-        if not await self._authenticate_http(request, send, head=head):
+        if not await self._authenticate_http(request, send, head=head, extra_headers=response_headers):
+            return
+        resource_path = request.root_path.rstrip("/") + self._core.prefix
+        try:
+            policy = server_extension_resources(
+                self._core.resources(root_path=request.root_path),
+                mode=request.headers.get("Bokeh-Resource-Mode"),
+                minified=request.headers.get("Bokeh-Resource-Minified"),
+                root_url=resource_path or "/",
+            )
+        except ValueError as error:
+            await self._response(
+                send, 409, str(error).encode(), "text/plain", head=head,
+                extra_headers=response_headers,
+            )
             return
         try:
             session = await self._core.create_session(context, request)
         except SessionError as error:
-            await self._response(send, error.status, error.reason.encode(), "text/plain", head=head)
+            await self._response(
+                send, error.status, error.reason.encode(), "text/plain", head=head,
+                extra_headers=response_headers,
+            )
             return
-        element_id = self._argument(request, "bokeh-autoload-element")
-        if not element_id:
-            await self._response(send, 400, b"No bokeh-autoload-element query parameter", "text/plain", head=head)
+        try:
+            if policy.mode in ("inline", "offline"):
+                model_types = await session.with_document_locked(
+                    server_extension_model_types, policy, session.document,
+                )
+                if model_types is None:
+                    await self._response(
+                        send, 403, b"Session no longer available", "text/plain", head=head,
+                        extra_headers=response_headers,
+                    )
+                    return
+            else:
+                model_types = server_extension_model_types(policy, session.document)
+            extensions = await asyncio.to_thread(resolve_server_extensions, policy, model_types)
+        except ValueError as error:
+            await self._response(
+                send, 409, str(error).encode(), "text/plain", head=head,
+                extra_headers=response_headers,
+            )
             return
-        app_path = self._argument(request, "bokeh-app-path") or "/"
-        absolute_url = self._argument(request, "bokeh-absolute-url")
-        server_url = None
-        if absolute_url:
-            uri = urlparse(absolute_url)
-            server_url = f"{uri.scheme}://{uri.netloc}"
-        resources = None if self._argument(request, "resources") == "none" else self._core.resources(
-            server_url, root_path=request.root_path,
-        )
-        bundle = bundle_for_objs_and_resources(None, resources)
-        render_items = [RenderItem(token=session.token, elementid=cast("ID", element_id), use_for_title=False)]
-        bundle.add(Script(script_for_render_items({}, render_items, app_path=app_path, absolute_url=absolute_url)))
-        body = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id).encode()
+        body = json.dumps({
+            "schema": "bokeh.embed-server/v1",
+            "bokeh_version": __version__,
+            "token": session.token,
+            "requires": extensions.requirements.to_dict(),
+            "resources": {
+                "mode": "resolved",
+                "root_url": resource_path or "/",
+                "assets": [asset.to_dict() for asset in extensions.assets],
+            },
+        }).encode()
         await self._response(
-            send, 200, body, "application/javascript", head=head, extra_headers=self._cors_headers(request),
+            send, 200, body, "application/json", head=head,
+            extra_headers=response_headers,
         )
 
     async def _root(self, request: ServerRequest, send: Send) -> None:
@@ -379,6 +437,16 @@ class BokehASGI:
         finally:
             await asyncio.to_thread(stream.close)
         await send({"type": "http.response.body", "body": b""})
+
+    async def _serve_extension_static(self, send: Send, relative: str, *, head: bool) -> None:
+        name, separator, artifact = relative.partition("/")
+        await self._serve_static(
+            send, extension_dirs.get(name), artifact if separator else "", head=head,
+        )
+
+    @staticmethod
+    def _is_bokeh_static(relative: str) -> bool:
+        return is_bokeh_js_path(relative)
 
     async def _websocket(self, scope: Scope, receive: Receive, send: Send) -> None:
         transport = _ASGIWebSocketTransport(
@@ -511,7 +579,14 @@ class BokehASGI:
         request.user = await self._auth_policy.authenticate(request)
         return request.user is not None
 
-    async def _authenticate_http(self, request: ServerRequest, send: Send, *, head: bool) -> bool:
+    async def _authenticate_http(
+        self,
+        request: ServerRequest,
+        send: Send,
+        *,
+        head: bool,
+        extra_headers: list[tuple[bytes, bytes]] | None = None,
+    ) -> bool:
         if await self._authenticate(request):
             return True
         assert self._auth_policy is not None
@@ -522,10 +597,13 @@ class BokehASGI:
                 b"",
                 "text/plain",
                 head=head,
-                extra_headers=[(b"location", login_url.encode())],
+                extra_headers=[(b"location", login_url.encode()), *(extra_headers or ())],
             )
         else:
-            await self._response(send, 401, b"Authentication required", "text/plain", head=head)
+            await self._response(
+                send, 401, b"Authentication required", "text/plain", head=head,
+                extra_headers=extra_headers,
+            )
         return False
 
     def _route_path(self, scope: Scope) -> str:
@@ -555,7 +633,7 @@ class BokehASGI:
                 return False
             session_id = get_session_id(token)
             payload = get_token_payload(token)
-        except (AttributeError, binascii.Error, json.JSONDecodeError, KeyError, TypeError, UnicodeError, zlib.error):
+        except (AttributeError, binascii.Error, json.JSONDecodeError, KeyError, TokenDecodeError, TypeError, UnicodeError, zlib.error):
             return False
         expiry = payload.get("session_expiry")
         now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
@@ -582,16 +660,29 @@ class BokehASGI:
 
     def _cors_headers(self, request: ServerRequest) -> list[tuple[bytes, bytes]]:
         origin = request.headers.get("origin")
-        allow_origin = origin if origin is not None and self._origin_allowed(request) else "*"
         headers = [
-            (b"access-control-allow-origin", allow_origin.encode()),
-            (b"access-control-allow-headers", b"*"),
-            (b"access-control-allow-credentials", b"true"),
             (b"access-control-allow-methods", b"GET, HEAD, OPTIONS"),
         ]
-        if allow_origin != "*":
-            headers.append((b"vary", b"Origin"))
+        if origin is not None:
+            requested_headers = request.headers.get(
+                "access-control-request-headers",
+                "Bokeh-Session-Id, Bokeh-Token, Bokeh-Resource-Mode, Bokeh-Resource-Minified, Content-Type",
+            )
+            headers.extend([
+                (b"access-control-allow-origin", origin.encode()),
+                (b"access-control-allow-headers", requested_headers.encode()),
+                (b"access-control-allow-credentials", b"true"),
+                (b"vary", b"Origin"),
+            ])
         return headers
+
+    @staticmethod
+    def _embed_security_headers() -> list[tuple[bytes, bytes]]:
+        return [
+            (b"cache-control", b"no-store"),
+            (b"pragma", b"no-cache"),
+            (b"x-content-type-options", b"nosniff"),
+        ]
 
     @staticmethod
     def _argument(request: ServerRequest, name: str) -> str | None:
@@ -609,13 +700,18 @@ class BokehASGI:
         )
 
     @staticmethod
-    async def _method_not_allowed(send: Send, allowed: tuple[str, ...]) -> None:
+    async def _method_not_allowed(
+        send: Send,
+        allowed: tuple[str, ...],
+        *,
+        extra_headers: list[tuple[bytes, bytes]] | None = None,
+    ) -> None:
         await BokehASGI._response(
             send,
             405,
             b"Method not allowed",
             "text/plain",
-            extra_headers=[(b"allow", ", ".join(allowed).encode())],
+            extra_headers=[(b"allow", ", ".join(allowed).encode()), *(extra_headers or ())],
         )
 
     @staticmethod

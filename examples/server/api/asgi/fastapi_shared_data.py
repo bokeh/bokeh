@@ -17,7 +17,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 
 from bokeh.document import Document
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Div
 from bokeh.plotting import figure
@@ -118,13 +118,14 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request) -> HTMLResponse:
     root_path = request.scope.get("root_path", "").rstrip("/")
-    script = server_document(f"{root_path}/bkapp", relative_urls=True)
+    result = embed_server(f"{root_path}/bkapp", relative_urls=True)
+    fragment = result.fragment(resources="server")
     return HTMLResponse(f"""<!doctype html>
 <title>Shared Bokeh data</title>
 <main style="max-width: 900px; margin: 2rem auto; font-family: sans-serif">
   <h1>One ASGI producer, every Bokeh session</h1>
   <p>Open this page in another tab: both independent sessions receive the same snapshots.</p>
-  {script}
+  {fragment.html}
 </main>
 """)
 

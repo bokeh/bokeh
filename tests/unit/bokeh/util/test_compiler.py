@@ -21,6 +21,7 @@ import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from threading import Event, Lock
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 # Module under test
@@ -169,6 +170,62 @@ def test_bundle_models_coalesces_concurrent_compilation(monkeypatch: pytest.Monk
         assert second.result(timeout=1) == "bundle"
 
     assert calls == 1
+
+
+def test_bundle_models_propagates_compilation_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    custom_models = {"TestModel": MagicMock(full_name="TestModel")}
+
+    def fail(models):
+        raise buc.CompilationError("invalid implementation")
+
+    monkeypatch.setattr(buc, "_bundle_cache", {})
+    monkeypatch.setattr(buc, "_bundle_futures", {})
+    monkeypatch.setattr(buc, "_get_custom_models", lambda models: custom_models)
+    monkeypatch.setattr(buc, "_bundle_models", fail)
+
+    with pytest.raises(buc.CompilationError, match="invalid implementation"):
+        buc.bundle_models(None)
+
+    assert buc._bundle_futures == {}
+
+
+def test_custom_model_bundles_use_model_set_specific_entries(monkeypatch: pytest.MonkeyPatch) -> None:
+    def model(name: str) -> MagicMock:
+        return MagicMock(
+            full_name=f"example.{name}",
+            name=name,
+            module=f"custom/example_{name.lower()}",
+            path="",
+        )
+
+    first = model("First")
+    second = model("Second")
+
+    monkeypatch.setattr(buc, "_compile_models", lambda models: {
+        name: SimpleNamespace(code=f"module.exports = {name!r}", deps=[])
+        for name in models
+    })
+
+    def bundle(*models: MagicMock) -> tuple[str, str]:
+        custom_models = {model.full_name: model for model in models}
+        entry = f"custom/main/{buc.calc_cache_key(custom_models)}"
+        return buc._bundle_models(custom_models), entry
+
+    first_bundle, first_entry = bundle(first)
+    second_bundle, second_entry = bundle(second)
+    combined_bundle, combined_entry = bundle(first, second)
+
+    assert len({first_entry, second_entry, combined_entry}) == 3
+    for output, entry in (
+        (first_bundle, first_entry),
+        (second_bundle, second_entry),
+        (combined_bundle, combined_entry),
+    ):
+        assert output.count(f'"{entry}"') == 2
+
+    reordered_bundle, reordered_entry = bundle(second, first)
+    assert reordered_entry == combined_entry
+    assert reordered_bundle == combined_bundle
 
 def test_inline_extension() -> None:
     from bokeh.io import save

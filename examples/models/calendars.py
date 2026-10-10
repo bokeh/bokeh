@@ -15,7 +15,7 @@ A hover tooltip displays the US holidays on the significant dates.
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.layouts import gridplot
 from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
                           FactorRange, HoverTool, Plot, Rect, Text)
@@ -101,6 +101,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "calendars.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Calendar 2014"))
+        f.write(embed(doc).page(title="Calendar 2014"))
     print(f"Wrote {filename}")
     view(filename)

@@ -33,9 +33,10 @@ void when_mounted(target)
 void when_mounted(target, {signal: new AbortController().signal})
 publish_mount_error(target, new MountError("source", "test bootstrap failure"))
 void mount(roots, document.createElement("div"))
+void mount(plot, undefined, {signal: new AbortController().signal})
 const keyed_source = new MountSource(roots_document, {overview: plot, detail})
 const keyed_mount = mount(keyed_source, {
-  targets: {overview: document.createElement("div"), detail: document.createElement("div")},
+  overview: document.createElement("div"), detail: document.createElement("div"),
 })
 void keyed_mount.ready
 void keyed_mount.root("overview")

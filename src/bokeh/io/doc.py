@@ -24,11 +24,11 @@ log = logging.getLogger(__name__)
 import weakref
 from contextlib import contextmanager
 from contextvars import ContextVar
+from threading import local
 from typing import Generator, cast
 
 # Bokeh imports
 from ..document import Document, DocumentLike
-from .state import curstate
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,7 +45,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def curdoc() -> Document:
-    ''' Return the document for the current default state.
+    ''' Return the current callback context or thread's default document.
 
     Returns:
         Document : the current default document object.
@@ -62,7 +62,11 @@ def curdoc() -> Document:
         if doc is None:
             raise RuntimeError("Patched curdoc has been previously destroyed")
         return cast(Document, doc) # UnlockedDocumentProxy enforces callback safety at runtime
-    return curstate().document
+    doc = getattr(_DEFAULT_DOCUMENT_BY_THREAD, "document", None)
+    if doc is None:
+        doc = Document()
+        _DEFAULT_DOCUMENT_BY_THREAD.document = doc
+    return doc
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -88,7 +92,7 @@ def patch_curdoc(doc: DocumentLike) -> Generator[None]:
         _PATCHED_CURDOCS.reset(token)
 
 def set_curdoc(doc: Document) -> None:
-    ''' Configure the current document (returned by curdoc()).
+    ''' Configure the current thread's default document returned by ``curdoc()``.
 
     Args:
         doc (Document) : new Document to use for curdoc()
@@ -97,10 +101,11 @@ def set_curdoc(doc: Document) -> None:
         None
 
     .. warning::
-        Calling this function will replace any existing document.
+        Calling this function will replace any existing default document in the
+        current thread. Use ``patch_curdoc()`` for a task-local override.
 
     '''
-    curstate().document = doc
+    _DEFAULT_DOCUMENT_BY_THREAD.document = doc
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -108,6 +113,8 @@ def set_curdoc(doc: Document) -> None:
 
 _PATCHED_CURDOCS: ContextVar[tuple[weakref.ReferenceType[DocumentLike], ...]] = \
     ContextVar("_PATCHED_CURDOCS", default=())
+
+_DEFAULT_DOCUMENT_BY_THREAD = local()
 
 #-----------------------------------------------------------------------------
 # Code

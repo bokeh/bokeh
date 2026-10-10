@@ -335,6 +335,18 @@ describe("core/serialization module", () => {
       })
     })
 
+    it("decodes __proto__ as an own data property", () => {
+      const resolver = new ModelResolver(default_resolver)
+      const deserializer = new Deserializer(resolver)
+      const rep = JSON.parse('{"__proto__":{"safe":true}}')
+
+      const val = deserializer.decode(rep) as {[key: string]: unknown}
+
+      expect(Object.getPrototypeOf(val)).to.be.equal(Object.prototype)
+      expect(Object.hasOwn(val, "__proto__")).to.be.true
+      expect(val.__proto__).to.be.equal({safe: true})
+    })
+
     it("that supports ndarrays", () => {
       const nd0 = ndarray([1, 2, 3], {dtype: "int32", shape: [1, 3]})
 
@@ -373,6 +385,41 @@ describe("core/serialization module", () => {
         {$type: "SomeModel", $id: "duplicate", value: 2},
       ]
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError, "duplicate model ID 'duplicate'")
+    })
+
+    it("resolves references declared later in the payload", () => {
+      const resolver = new ModelResolver(null, [SomeModel])
+      for (const rep of [
+        [
+          {type: "object", name: "SomeModel", attributes: {obj: {id: "later"}}},
+          {type: "object", name: "SomeModel", id: "later", attributes: {value: 2}},
+        ],
+        [
+          {$type: "SomeModel", obj: {$ref: "later"}},
+          {$type: "SomeModel", $id: "later", value: 2},
+        ],
+      ]) {
+        const deserializer = new Deserializer(resolver)
+        const [first, later] = deserializer.decode(rep) as SomeModel[]
+
+        expect(first.obj).to.be.equal(later)
+        expect(later.value).to.be.equal(2)
+      }
+    })
+
+    it("rejects definitions hidden in ignored representation fields", () => {
+      const resolver = new ModelResolver(null, [SomeModel])
+      const deserializer = new Deserializer(resolver)
+      const rep = [
+        {
+          type: "object", name: "SomeModel", attributes: {obj: {id: "hidden"}},
+          extra: {type: "object", name: "SomeModel", id: "hidden", attributes: {value: 2}},
+        },
+      ]
+
+      expect(() => deserializer.decode(rep)).to.throw(DeserializationError, /model definitions were not decoded/)
+      expect(deserializer.references.size).to.be.equal(0)
+      expect((deserializer.decode({$type: "SomeModel", value: 3}) as SomeModel).value).to.be.equal(3)
     })
 
     it("restores existing references when a later value fails", () => {

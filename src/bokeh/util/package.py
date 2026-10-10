@@ -27,6 +27,7 @@ from pathlib import Path
 
 # Bokeh imports
 from .. import __version__, resources
+from ..settings import settings
 from .version import is_full_release
 
 #-----------------------------------------------------------------------------
@@ -69,9 +70,10 @@ def validate(*, version: str | None = None, build_dir: str | None = None) -> lis
         except RuntimeError as e:
             errors.append(f"SRI hashes for BokehJS files could not be verified: {e}")
 
-    r = resources.Resources(mode="absolute")
-    rmin = resources.Resources(mode="absolute", minified=True)
-    package_js_paths = r.js_files + rmin.js_files
+    js_dir = settings.bokehjs_path() / "js"
+    names = (*resources._COMPONENT_NAMES.values(), "bokeh-embed-bootstrap")
+    expected = {js_dir / f"{name}{suffix}.js" for name in names for suffix in ("", ".min")}
+    package_js_paths = sorted(expected | set(js_dir.glob("bokeh*.js")))
 
     for path in package_js_paths:
         package_path = Path(path)

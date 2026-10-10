@@ -178,6 +178,84 @@ def test_fourier_hosts_run_with_live_python_callbacks(browser: Any, host: Fourie
             page.close()
 
 
+@pytest.mark.parametrize("initially_empty", [False, True])
+def test_tornado_full_page_tracks_document_lifecycle(browser: Any, tmp_path: Path, initially_empty: bool) -> None:
+    application = tmp_path / "full_page.py"
+    application.write_text('''from bokeh.document.events import TitleChangedEvent
+from bokeh.io import curdoc
+from bokeh.models import Button, Div
+
+document = curdoc()
+document.title = "Initial title"
+
+
+def replace_roots():
+    document.clear()
+    document.title = "Replacement title"
+    document.add_root(Div(name="replacement", text="Replacement root"))
+
+
+def document_changed(event):
+    if isinstance(event, TitleChangedEvent) and event.title == "replace":
+        replace_roots()
+
+
+document.on_change(document_changed)
+if not __INITIALLY_EMPTY__:
+    button = Button(name="initial", label="Replace roots")
+    button.on_click(replace_roots)
+    document.add_root(button)
+    document.template = '{% block contents %}<section id="named-placement">{{ embed(roots.initial) }}</section>{% endblock %}'
+'''.replace("__INITIALLY_EMPTY__", repr(initially_empty)))
+    port = _unused_port()
+    url = f"http://127.0.0.1:{port}/full_page"
+    command = [
+        sys.executable, "-m", "bokeh", "serve", str(application),
+        "--address", "127.0.0.1", "--port", str(port),
+        "--allow-websocket-origin", f"127.0.0.1:{port}",
+    ]
+    with (tmp_path / "server.log").open("wb") as log:
+        process = subprocess.Popen(command, cwd=REPO_ROOT, stdout=log, stderr=subprocess.STDOUT)
+        stopped = False
+        page = browser.new_page()
+        errors = _page_errors(page)
+        try:
+            _wait_for_http(url, process)
+            response = page.goto(url, wait_until="domcontentloaded")
+            assert response is not None and response.ok
+            page.wait_for_function(
+                "() => document.querySelector('[data-bokeh-document-target]')?.bokehMount?.state === 'ready'",
+                timeout=15_000,
+            )
+            assert page.title() == "Initial title"
+            assert page.evaluate("Bokeh.documents[0].roots().length") == (0 if initially_empty else 1)
+            assert page.evaluate("""() => {
+                const document = Bokeh.documents[0]
+                return document.views_manager.get(document.config.notifications) != null
+            }""")
+            page.evaluate("""() => Bokeh.documents[0].config.notifications.push.emit({
+                type: 'success', text: 'Notifications are mounted', timeout: Infinity,
+            })""")
+            page.get_by_text("Notifications are mounted", exact=True).wait_for(timeout=5_000)
+            if initially_empty:
+                page.evaluate("Bokeh.documents[0].set_title('replace')")
+            else:
+                button = page.locator("#named-placement").get_by_role("button", name="Replace roots")
+                button.wait_for(state="visible", timeout=5_000)
+                button.click()
+            page.get_by_text("Replacement root", exact=True).wait_for(timeout=10_000)
+            playwright.expect(page).to_have_title("Replacement title", timeout=5_000)
+            assert page.evaluate("Bokeh.documents[0].roots().map((root) => root.name)") == ["replacement"]
+            assert errors == []
+            _stop_process(process)
+            stopped = True
+            page.get_by_text("Client connection was lost.", exact=False).wait_for(timeout=10_000)
+        finally:
+            page.close()
+            if not stopped:
+                _stop_process(process)
+
+
 def test_fastapi_shared_data_streams_to_independent_sessions(browser: Any) -> None:
     with _running_app("fastapi_shared_data:app") as url:
         pages = [browser.new_page(), browser.new_page()]

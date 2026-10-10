@@ -31,17 +31,19 @@ from typing import (
 # Bokeh imports
 from ..models.dom import DOMNode
 from ..models.ui import UIElement
-from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import DEFAULT_JUPYTER_URL, run_notebook_hook
+from ..util.browser import NEW_PARAM, BrowserTarget, get_browser_controller
+from . import notebook
 from .saving import save
-from .state import curstate
+from .util import temp_filename
 
 if TYPE_CHECKING:
+    from jinja2 import Template
+
     from ..application.application import Application
     from ..application.handlers.function import ModifyDoc
-    from ..util.browser import BrowserLike, BrowserTarget
+    from ..core.types import PathLike
+    from ..resources import ResourcesLike
     from .notebook import CommsHandle, ProxyUrlFunc
-    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -64,7 +66,12 @@ def show(
     browser: str | None = None,
     new: BrowserTarget = "tab",
     notebook_handle: bool = False,
-    notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
+    notebook_url: str | ProxyUrlFunc = notebook.DEFAULT_JUPYTER_URL,
+    *,
+    filename: PathLike | None = None,
+    resources: ResourcesLike | None = None,
+    title: str | None = None,
+    template: Template | str | None = None,
     **kwargs: Any,
 ) -> CommsHandle | None:
     '''Immediately display a Bokeh object or application.
@@ -77,33 +84,34 @@ def show(
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
-            passed to ``show`` in order to display them. If |output_file|
-            has been called, the output will be saved to an HTML file, which is also
-            opened in a new browser window or tab. If |output_notebook|
-            has been called in a Jupyter notebook, the output will be inline
-            in the associated notebook output cell.
+            passed to ``show`` in order to display them. Outside a notebook,
+            the output is saved to an HTML file and opened in a new browser
+            window or tab. If no filename is supplied, a temporary file is
+            used. File output uses a complete source document's theme, falling
+            back to the current document's theme. If |output_notebook| has been
+            called in a Jupyter notebook, output without an explicit filename
+            is displayed inline.
 
-            In a Jupyter notebook, a Bokeh application or callable may also
-            be passed. A callable will be turned into an Application using a
-            ``FunctionHandler``. The application will be run and displayed
-            inline in the associated notebook output cell.
+        filename (PathLike, optional) :
+            HTML filename to save and open. If omitted outside notebook mode,
+            a temporary ``.html`` file is used.
 
         browser (str, optional) :
-            Specify the browser to use to open output files(default: None)
-
-            For file output, the **browser** argument allows for specifying
-            which browser to display in, e.g. "safari", "firefox", "opera",
-            "windows-default". Not all platforms may support this option, see
-            the documentation for the standard library
-            :doc:`webbrowser <python:library/webbrowser>` module for
-            more information
+            Browser name used to open file output. The system default is used
+            when this is ``None``.
 
         new (str, optional) :
-            Specify the browser mode to use for output files (default: "tab")
+            Open file output in the same browser context, a new window, or a
+            new tab. Valid values are ``"same"``, ``"window"``, and ``"tab"``.
 
-            For file output, opens or raises the browser window showing the
-            current output file.  If **new** is 'tab', then opens a new tab.
-            If **new** is 'window', then opens a new window.
+        resources (Resources or resource setting, optional) :
+            Resource policy passed to :func:`~bokeh.io.save`.
+
+        title (str, optional) :
+            HTML document title passed to :func:`~bokeh.io.save`.
+
+        template (Template or str, optional) :
+            HTML document template passed to :func:`~bokeh.io.save`.
 
         notebook_handle (bool, optional) :
             Whether to create a notebook interaction handle (default: False)
@@ -134,10 +142,12 @@ def show(
             with a callable which enables Bokeh to traverse the JupyterHub
             proxy without specifying this parameter.
 
-    Some parameters are only useful when certain output modes are active:
+            In a Jupyter notebook, a Bokeh application or callable may also
+            be passed to ``show``. A callable will be turned into an
+            Application using a ``FunctionHandler``. The application will be
+            run and displayed inline in the associated notebook output cell.
 
-    * The ``browser`` and ``new`` parameters only apply when |output_file|
-      is active.
+    Some parameters are only useful when certain output modes are active:
 
     * The ``notebook_handle`` parameter only applies when |output_notebook|
       is active, and non-Application objects are being shown. It is only
@@ -159,10 +169,26 @@ def show(
     from ..models.dom import DOMNode
     from ..models.ui import UIElement
 
-    state = curstate()
+    notebook_type = notebook._notebook_type()
 
     if isinstance(obj, UIElement) or isinstance(obj, DOMNode) or isinstance(obj, Sequence):
-        return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
+        if kwargs:
+            names = ", ".join(sorted(kwargs))
+            raise ValueError(f"Unexpected show() options for a standalone object: {names}")
+        if notebook_type is not None and filename is None:
+            if resources is not None or title is not None or template is not None:
+                raise ValueError("filename is required when passing file output options in notebook mode")
+            return notebook.run_notebook_hook(notebook_type, 'doc', obj, notebook_handle)
+        _show_file(
+            obj,
+            filename=filename if filename is not None else temp_filename("html"),
+            resources=resources,
+            title=title,
+            template=template,
+            browser=browser,
+            new=new,
+        )
+        return None
 
     def is_application(obj: Any) -> TypeGuard[Application]:
         return getattr(obj, '_is_a_bokeh_application_class', False)
@@ -170,8 +196,11 @@ def show(
     if is_application(obj) or callable(obj): # TODO (bev) check callable signature more thoroughly
         # This ugliness is to prevent importing bokeh.application (which would bring
         # in Tornado) just in order to show a non-server object
-        assert state.notebook_type is not None
-        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
+        if filename is not None or resources is not None or title is not None or template is not None:
+            raise ValueError("file output options are not supported when showing a Bokeh application")
+        if notebook_type is None:
+            raise RuntimeError("Bokeh applications can only be shown after output_notebook() is called")
+        return notebook.run_notebook_hook(notebook_type, 'app', obj, notebook_url, **kwargs)
 
     raise ValueError(_BAD_SHOW_MSG)
 
@@ -191,32 +220,15 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj: Showable, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
+def _show_file(obj: Showable, *, filename: PathLike, resources: ResourcesLike | None,
+        title: str | None, template: Template | str | None,
+        browser: str | None, new: BrowserTarget) -> None:
     '''
 
     '''
-    filename = save(obj, state=state)
-    controller.open("file://" + filename, new=NEW_PARAM[new])
-
-def _show_with_state(obj: Showable, state: State, browser: str | None,
-        new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
-    '''
-
-    '''
-    controller = get_browser_controller(browser=browser)
-
-    comms_handle = None
-    shown = False
-
-    if state.notebook:
-        assert state.notebook_type is not None
-        comms_handle = run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
-        shown = True
-
-    if state.file or not shown:
-        _show_file_with_state(obj, state, new, controller)
-
-    return comms_handle
+    saved = save(obj, filename=filename, resources=resources, title=title, template=template)
+    from pathlib import Path
+    get_browser_controller(browser=browser).open(Path(saved).resolve().as_uri(), new=NEW_PARAM[new])
 
 #-----------------------------------------------------------------------------
 # Code

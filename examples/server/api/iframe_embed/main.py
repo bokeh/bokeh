@@ -9,13 +9,16 @@ in this directory, and navigate to:
     http://localhost:5000
 
 '''
+# Standard library imports
 import atexit
 import subprocess
 
+# External imports
 from flask import Flask, render_template_string
 
+# Bokeh imports
 from bokeh.client import pull_session
-from bokeh.embed.server import server_html_page_for_session
+from bokeh.embed import embed_server
 from bokeh.resources import INLINE
 
 app_html = """
@@ -27,11 +30,10 @@ app_html = """
       Under strict CSP iframe embedding with `src` does not work:
     </p>
     <iframe src="{{ app_url }}" width=100% height=50px></iframe>
-    <p>But it is still possible to embed with `srcdoc` attribute and using `data-absolute-url`:</p>
+    <p>But it is still possible to embed with the `srcdoc` attribute:</p>
     <iframe id="myiframe" width=100% height=500px></iframe>
   <script>
     const iframe = document.querySelector("#myiframe");
-    iframe.dataset.absoluteUrl = {{ app_url|tojson }};
     iframe.srcdoc = {{ code|tojson }};
   </script>
   </body>
@@ -59,7 +61,12 @@ def add_security_headers(resp):
 def home():
     app_url = "http://localhost:5151/bokeh_server"
     with pull_session(url=app_url) as session:
-        code = server_html_page_for_session(session=session, resources=INLINE, title='test')
+        roots = {root.name or f"root-{index}": root for index, root in enumerate(session.document.roots)}
+        result = embed_server(app_url, token=session.token, roots=roots)
+        code = result.page(
+            resources=INLINE,
+            title='test',
+        )
     return render_template_string(app_html, code=code, app_url=app_url)
 
 

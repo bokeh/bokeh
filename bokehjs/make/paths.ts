@@ -67,3 +67,8 @@ export const bundles = {
     output: join(build_dir.js, "bokeh-mathjax.js"),
   },
 }
+
+export const embed_bootstrap = {
+  main: join(build_dir.lib, "embed/bootstrap.js"),
+  output: join(build_dir.js, "bokeh-embed-bootstrap.js"),
+}

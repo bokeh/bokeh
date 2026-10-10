@@ -25,6 +25,7 @@ import ssl
 import sys
 import tempfile
 from datetime import timedelta
+from pathlib import Path
 from unittest import mock
 
 # External imports
@@ -45,6 +46,7 @@ from bokeh.application.handlers import Handler
 from bokeh.client import pull_session
 from bokeh.core.properties import List, String
 from bokeh.core.types import ID
+from bokeh.embed.resources import extension_dirs
 from bokeh.model import Model
 from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.server import BaseServer, Server
@@ -219,29 +221,8 @@ def extract_token_from_json(html):
     match = token_in_json.search(html)
     return match.group(1)
 
-use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
-def extract_use_for_title_from_json(html):
-    if not isinstance(html, str):
-        import codecs
-        html = codecs.decode(html, 'utf-8')
-    match = use_for_title_in_json.search(html)
-    return match.group(1)
-
-
-def autoload_url(server):
-    return url(server) + \
-        "autoload.js?bokeh-autoload-element=foo"
-
-def resource_files_requested(response, requested=True):
-    if not isinstance(response, str):
-        import codecs
-        response = codecs.decode(response, 'utf-8')
-    for file in [
-        'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
-        if requested:
-            assert file in response
-        else:
-            assert file not in response
+def embed_url(server):
+    return url(server) + "embed.json?"
 
 def test_use_xheaders(ManagedServerLoop: MSL) -> None:
     application = Application()
@@ -508,30 +489,22 @@ async def test__no_request_arguments_in_session_context(ManagedServerLoop: MSL) 
         # should be empty
         assert len(session_context.request.arguments) == 0
 
-@pytest.mark.parametrize("querystring,requested", [
-    ("", True),
-    ("&resources=default", True),
-    ("&resources=whatever", True),
-    ("&resources=none", False),
-])
-
-async def test__resource_files_requested(querystring, requested, ManagedServerLoop: MSL) -> None:
-    """
-    Checks if the loading of resource files is requested by the autoload.js
-    response based on the value of the "resources" parameter.
-    """
+async def test__embed_bootstrap_is_versioned_data_only(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
-        response = await http_get(server.io_loop, autoload_url(server) + querystring)
-        resource_files_requested(response.body, requested=requested)
+        response = await http_get(server.io_loop, embed_url(server))
+        body = response.body.decode("utf-8")
+        assert '"schema": "bokeh.embed-server/v1"' in body
+        assert '"token"' in body
+        assert "static/js" not in body
 
-async def test__autocreate_session_autoload(ManagedServerLoop: MSL) -> None:
+async def test__autocreate_session_embed(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-        response = await http_get(server.io_loop, autoload_url(server))
+        response = await http_get(server.io_loop, embed_url(server))
         js = response.body
         token = extract_token_from_json(js)
         sessionid = get_session_id(token)
@@ -540,20 +513,21 @@ async def test__autocreate_session_autoload(ManagedServerLoop: MSL) -> None:
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-async def test__autoload_credentialed_cors_rejects_unlisted_origin(ManagedServerLoop: MSL) -> None:
+async def test__embed_credentialed_cors_rejects_unlisted_origin(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
-        response = await http_get(server.io_loop, autoload_url(server), headers={
-            "Cookie": "custom=test",
-            "Origin": "http://evil.example",
-        })
+        with pytest.raises(HTTPError) as error:
+            await http_get(server.io_loop, embed_url(server), headers={
+                "Cookie": "custom=test",
+                "Origin": "http://evil.example",
+            })
 
-        assert response.headers["Access-Control-Allow-Origin"] == "*"
+        assert error.value.code == 403
 
-async def test__autoload_credentialed_cors_allows_websocket_origin(ManagedServerLoop: MSL) -> None:
+async def test__embed_credentialed_cors_allows_websocket_origin(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
-        response = await http_get(server.io_loop, autoload_url(server), headers={
+        response = await http_get(server.io_loop, embed_url(server), headers={
             "Cookie": "custom=test",
             "Origin": "http://trusted.example",
         })
@@ -561,22 +535,22 @@ async def test__autoload_credentialed_cors_allows_websocket_origin(ManagedServer
         assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
         assert response.headers["Vary"] == "Origin"
 
-async def test__autoload_cors_allows_websocket_origin_without_cookie(ManagedServerLoop: MSL) -> None:
+async def test__embed_cors_allows_websocket_origin_without_cookie(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
-        response = await http_get(server.io_loop, autoload_url(server), headers={
+        response = await http_get(server.io_loop, embed_url(server), headers={
             "Origin": "http://trusted.example",
         })
 
         assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
         assert response.headers["Vary"] == "Origin"
 
-async def test__autoload_cors_uses_allowed_ws_origin_setting(ManagedServerLoop: MSL) -> None:
+async def test__embed_cors_uses_allowed_ws_origin_setting(ManagedServerLoop: MSL) -> None:
     application = Application()
     settings.allowed_ws_origin.set_value(["settings.example:80"])
     try:
         with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
-            response = await http_get(server.io_loop, autoload_url(server), headers={
+            response = await http_get(server.io_loop, embed_url(server), headers={
                 "Origin": "http://settings.example",
             })
 
@@ -585,27 +559,48 @@ async def test__autoload_cors_uses_allowed_ws_origin_setting(ManagedServerLoop: 
     finally:
         settings.allowed_ws_origin.unset_value()
 
-async def test__autoload_cors_options_allows_websocket_origin(ManagedServerLoop: MSL) -> None:
+async def test__embed_cors_options_allows_websocket_origin(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
-        request = HTTPRequest(autoload_url(server), method="OPTIONS", headers={
+        request = HTTPRequest(embed_url(server), method="OPTIONS", headers={
             "Origin": "http://trusted.example",
         })
         response = await AsyncHTTPClient().fetch(request)
 
         assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
+        assert response.headers["Access-Control-Allow-Credentials"] == "true"
         assert response.headers["Vary"] == "Origin"
 
-async def test__no_set_title_autoload(ManagedServerLoop: MSL) -> None:
-    application = Application()
-    with ManagedServerLoop(application) as server:
-        sessions = server.get_sessions('/')
-        assert 0 == len(sessions)
 
-        response = await http_get(server.io_loop, autoload_url(server))
-        js = response.body
-        use_for_title = extract_use_for_title_from_json(js)
-        assert use_for_title == "false"
+async def test__application_static_reserves_bokeh_and_extension_assets(
+    ManagedServerLoop: MSL,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    static = tmp_path / "static"
+    extension = tmp_path / "extension"
+    (static / "js").mkdir(parents=True)
+    extension.mkdir()
+    (static / "js" / "app.js").write_text("globalThis.app_static = true")
+    (static / "js" / "bokeh.min.js").write_text("not Bokeh")
+    (extension / "extension.js").write_text("globalThis.extension = true")
+    monkeypatch.setitem(extension_dirs, "example", extension)
+
+    class StaticPathHandler(Handler):
+        def static_path(self) -> str:
+            return str(static)
+
+    application = Application(StaticPathHandler())
+    with ManagedServerLoop({"/directory": application}) as server:
+        app_js = await http_get(server.io_loop, url(server) + "directory/static/js/app.js")
+        bokeh_js = await http_get(server.io_loop, url(server) + "directory/static/js/bokeh.min.js")
+        extension_js = await http_get(
+            server.io_loop, url(server) + "directory/static/extensions/example/extension.js",
+        )
+
+        assert app_js.body == b"globalThis.app_static = true"
+        assert b"Bokeh Contributors" in bokeh_js.body
+        assert extension_js.body == b"globalThis.extension = true"
 
 async def test__autocreate_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
@@ -634,14 +629,14 @@ async def test__no_autocreate_session_websocket(ManagedServerLoop: MSL) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__use_provided_session_autoload(ManagedServerLoop: MSL) -> None:
+async def test__use_provided_session_embed(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
         expected = 'foo'
-        response = await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
+        response = await http_get(server.io_loop, embed_url(server) + "&bokeh-session-id=" + expected)
         js = response.body
         token = extract_token_from_json(js)
         sessionid = get_session_id(token)
@@ -651,14 +646,14 @@ async def test__use_provided_session_autoload(ManagedServerLoop: MSL) -> None:
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-async def test__use_provided_session_header_autoload(ManagedServerLoop: MSL) -> None:
+async def test__use_provided_session_header_embed(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
         expected = 'foo'
-        response = await http_get(server.io_loop, autoload_url(server), headers={'Bokeh-Session-Id': expected})
+        response = await http_get(server.io_loop, embed_url(server), headers={'Bokeh-Session-Id': expected})
         js = response.body
         token = extract_token_from_json(js)
         sessionid = get_session_id(token)
@@ -668,7 +663,7 @@ async def test__use_provided_session_header_autoload(ManagedServerLoop: MSL) -> 
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-async def test__use_provided_session_autoload_token(ManagedServerLoop: MSL) -> None:
+async def test__use_provided_session_embed_token(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -676,7 +671,7 @@ async def test__use_provided_session_autoload_token(ManagedServerLoop: MSL) -> N
 
         expected = 'foo'
         expected_token = generate_jwt_token(expected)
-        response = await http_get(server.io_loop, autoload_url(server) + "&bokeh-token=" + expected_token)
+        response = await http_get(server.io_loop, embed_url(server), headers={'Bokeh-Token': expected_token})
         js = response.body
         token = extract_token_from_json(js)
         assert expected_token == token
@@ -686,6 +681,18 @@ async def test__use_provided_session_autoload_token(ManagedServerLoop: MSL) -> N
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert expected == sessions[0].id
+
+
+async def test__reject_session_token_in_embed_query(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        token = generate_jwt_token('foo')
+
+        with pytest.raises(HTTPError) as info:
+            await http_get(server.io_loop, embed_url(server) + "&bokeh-token=" + token)
+
+        assert info.value.code == 403
+        assert not server.get_sessions('/')
 
 async def test__use_provided_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
@@ -722,13 +729,13 @@ async def test__use_provided_session_websocket(ManagedServerLoop: MSL) -> None:
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-async def test__autocreate_signed_session_autoload(ManagedServerLoop: MSL) -> None:
+async def test__autocreate_signed_session_embed(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-        response = await http_get(server.io_loop, autoload_url(server))
+        response = await http_get(server.io_loop, embed_url(server))
         js = response.body
         token = extract_token_from_json(js)
         sessionid = get_session_id(token)
@@ -819,7 +826,7 @@ async def test__reject_no_token_websocket(ManagedServerLoop: MSL) -> None:
         ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["foo"])
         assert await ws.read_queue.get() is None
 
-async def test__reject_unsigned_session_autoload(ManagedServerLoop: MSL) -> None:
+async def test__reject_unsigned_session_embed(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
         sessions = server.get_sessions('/')
@@ -827,13 +834,13 @@ async def test__reject_unsigned_session_autoload(ManagedServerLoop: MSL) -> None
 
         expected = 'foo'
         with (pytest.raises(HTTPError)) as info:
-            await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
+            await http_get(server.io_loop, embed_url(server) + "&bokeh-session-id=" + expected)
         assert 'Invalid token or session ID' in repr(info.value)
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__reject_unsigned_token_autoload(ManagedServerLoop: MSL) -> None:
+async def test__reject_unsigned_token_embed(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
         sessions = server.get_sessions('/')
@@ -842,7 +849,7 @@ async def test__reject_unsigned_token_autoload(ManagedServerLoop: MSL) -> None:
         expected = 'foo'
         token = generate_jwt_token(expected)
         with (pytest.raises(HTTPError)) as info:
-            await http_get(server.io_loop, autoload_url(server) + "&bokeh-token=" + token)
+            await http_get(server.io_loop, embed_url(server), headers={'Bokeh-Token': token})
         assert 'Invalid token or session ID' in repr(info.value)
 
         sessions = server.get_sessions('/')
@@ -889,14 +896,14 @@ async def test__reject_unsigned_session_websocket(ManagedServerLoop: MSL) -> Non
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__no_generate_session_autoload(ManagedServerLoop: MSL) -> None:
+async def test__no_generate_session_embed(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
         with (pytest.raises(HTTPError)) as info:
-            await http_get(server.io_loop, autoload_url(server))
+            await http_get(server.io_loop, embed_url(server))
         assert 'No bokeh-session-id provided' in repr(info.value)
 
         sessions = server.get_sessions('/')

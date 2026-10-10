@@ -38,6 +38,7 @@ type TargetCode = Literal[0, 1, 2]
 NEW_PARAM: dict[BrowserTarget, TargetCode] = {"same": 0, "window": 1, "tab": 2}
 
 __all__ = (
+    'BrowserTarget',
     'DummyWebBrowser',
     'get_browser_controller',
     'view',

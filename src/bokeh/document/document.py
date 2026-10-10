@@ -59,6 +59,7 @@ from ..core.serialization import (
     Serialized,
     Serializer,
     UnknownReferenceError,
+    collect_model_types,
 )
 from ..core.templates import FILE
 from ..core.validation import check_integrity, process_validation_issues
@@ -89,7 +90,7 @@ from .modules import DocumentModuleManager
 
 if TYPE_CHECKING:
     from ..application.application import SessionContext, SessionDestroyedCallback
-    from ..core.has_props import Setter
+    from ..core.has_props import HasProps, Setter
     from ..core.query import SelectorType
     from ..core.types import ID
     from ..events import Event
@@ -349,8 +350,11 @@ class Document:
     def title(self) -> str:
         ''' A title for this document.
 
-        This title will be set on standalone HTML documents, but not e.g. when
-        ``autoload_server`` is used.
+        This title will be set on standalone HTML documents, but not when a
+        server embed is mounted into an existing host page.
+
+        Returns:
+            The document title.
 
         '''
         return self._title
@@ -964,16 +968,16 @@ side of a communications channel while it was being removed on the other end.\
 
     def to_static_json(self, *, deferred: bool = True,
             models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
-        ''' Convert this document for inclusion in a static embed artifact.
+        ''' Convert this document for inclusion in a static embed payload.
 
-        Static artifacts use graph-minimal model IDs. Anonymous models omit
+        Static payloads use graph-minimal model IDs. Anonymous models omit
         their construction-time IDs, while shared and cyclic models retain the
-        IDs needed to reconstruct object identity. Any ID in the artifact is a
+        IDs needed to reconstruct object identity. Any ID in the payload is a
         graph or runtime reconstruction detail, not a durable browser address.
         ``models_with_ids`` is reserved for model identities referenced outside
         the serialized graph.
 
-        Artifact roots should be addressed by logical key and their ordinal in
+        Embed roots should be addressed by logical key and their ordinal in
         ``Document.roots``. A root ID must not be retained solely to find its
         mount target. Canonical documents and live protocol messages must use
         :meth:`to_json` instead.
@@ -996,6 +1000,26 @@ side of a communications channel while it was being removed on the other end.\
             extra_models_with_ids=models_with_ids,
         )
 
+    def _serialization_inputs(self, registered_model_types: Iterable[type[HasProps]] | None = None) -> tuple[
+        list[type[HasProps]], DocumentConfig, list[Model], dict[str, list[JSEventCallback]],
+    ]:
+        from ..model import Model
+
+        registered = Model.model_class_reverse_map.values() if registered_model_types is None else registered_model_types
+        data_models = _data_models_in_dependency_order(model for model in registered if is_DataModel(model))
+        return data_models, self._config, self._roots, self.callbacks.js_event_callbacks
+
+    def serialization_model_types(self,
+            registered_model_types: Iterable[type[HasProps]] | None = None) -> tuple[type[HasProps], ...]:
+        '''Inspect model classes required by this document's serialized content.
+
+        Include global DataModel definitions, their defaults and property kinds,
+        configuration, roots, and JavaScript callbacks. Unlike ``to_json()``,
+        this inspection does not flush synchronized model state. For a live
+        session, call it while holding the session's document lock.
+        '''
+        return collect_model_types(*self._serialization_inputs(registered_model_types))
+
     @overload
     def _to_json(self, *, deferred: Literal[True] = ..., model_ids: ModelIDPolicy = ...,
             extra_models_with_ids: Iterable[Model] = ...) -> Serialized[DocJson]: ...
@@ -1008,15 +1032,12 @@ side of a communications channel while it was being removed on the other end.\
 
     def _to_json(self, *, deferred: bool = True, model_ids: ModelIDPolicy = "always",
             extra_models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
-        from ..model import Model
         from .json import DocJson
 
-        data_models = _data_models_in_dependency_order(
-            model for model in Model.model_class_reverse_map.values() if is_DataModel(model)
-        )
+        data_models, configuration, roots, callbacks = self._serialization_inputs()
 
         models_with_ids = (
-            _models_with_ids([self._config, self._roots, self.callbacks.js_event_callbacks]) | set(extra_models_with_ids)
+            _models_with_ids([configuration, roots, callbacks]) | set(extra_models_with_ids)
         ) if model_ids == "minimal" else set()
         serializer = Serializer(
             deferred=deferred,
@@ -1024,21 +1045,21 @@ side of a communications channel while it was being removed on the other end.\
             compact=model_ids == "minimal",
         )
         defs = serializer.encode(data_models)
-        config = serializer.encode(self._config)
-        roots = serializer.encode(self._roots)
-        callbacks = serializer.encode(self.callbacks.js_event_callbacks)
+        config = serializer.encode(configuration)
+        encoded_roots = serializer.encode(roots)
+        encoded_callbacks = serializer.encode(callbacks)
 
         doc_json = DocJson(
             version=__version__,
             title=self.title,
             config=config,
-            roots=roots,
+            roots=encoded_roots,
         )
 
         if data_models:
             doc_json["defs"] = defs
-        if self.callbacks.js_event_callbacks:
-            doc_json["callbacks"] = callbacks
+        if callbacks:
+            doc_json["callbacks"] = encoded_callbacks
 
         self.models.flush_synced()
 

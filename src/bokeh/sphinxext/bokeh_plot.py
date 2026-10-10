@@ -19,9 +19,7 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
  .. bokeh-plot::
 
-     from bokeh.plotting import figure, output_file, show
-
-     output_file("example.html")
+     from bokeh.plotting import figure, show
 
      x = [1, 2, 3, 4, 5]
      y = [6, 7, 6, 4, 5]
@@ -54,9 +52,7 @@ The inline example code above produces the following output:
 
 .. bokeh-plot::
 
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("example.html")
+    from bokeh.plotting import figure, show
 
     x = [1, 2, 3, 4, 5]
     y = [6, 7, 6, 4, 5]
@@ -105,8 +101,11 @@ from sphinx.util.osutil import copyfile, ensuredir
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.embed import autoload_static
+from bokeh.embed import embed
+from bokeh.embed._output import render_resource
+from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
+from bokeh.resources import Resources
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
@@ -129,9 +128,6 @@ __all__ = (
 
 GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
 
-RESOURCES = get_sphinx_resources()
-
-
 class _PlotTiming(NamedTuple):
     total: float
     evaluate: float
@@ -139,6 +135,10 @@ class _PlotTiming(NamedTuple):
     write: float
     docname: str
     source: str
+
+
+class _PlotSphinxSpec(SphinxParallelSpec):
+    env_version: int
 
 # -----------------------------------------------------------------------------
 # General API
@@ -176,6 +176,11 @@ class BokehPlotDirective(BokehDirective):
     }
 
     def run(self) -> list[Any]:
+        '''Execute the directive and return its document nodes.
+
+        Returns:
+            The nodes representing the source and embedded plot.
+        '''
         if getenv("BOKEH_SPHINX_QUICK") == "1":
             return []
 
@@ -184,7 +189,7 @@ class BokehPlotDirective(BokehDirective):
 
         dashed_docname = env.docname.replace("/", "-")
 
-        js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.js"
+        js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.json"
 
         try:
             (script_tag, js_path, source, docstring, height_hint) = self.process_source(source, path, js_filename)
@@ -203,7 +208,9 @@ class BokehPlotDirective(BokehDirective):
 
         above, below = self.process_code_block(source, docstring)
 
-        autoload = [autoload_script(height_hint=height_hint, script_tag=script_tag)]
+        autoload = [autoload_script(
+            height_hint=height_hint, script_tag=script_tag, requirements=self._requirements,
+        )]
 
         return target + intro + above + autoload + below
 
@@ -253,6 +260,16 @@ class BokehPlotDirective(BokehDirective):
             raise SphinxError(f"bokeh-plot:: error reading {path!r} for {env.docname!r}: {e!r}")
 
     def process_source(self, source: str, path: str, js_filename: str) -> tuple[str, str, str, str | None, int | None]:
+        '''Evaluate source and write its external embed payload.
+
+        Args:
+            source: The Python source to evaluate.
+            path: The source path used for evaluation context.
+            js_filename: The embed payload filename.
+
+        Returns:
+            Rendered markup, payload path, source, docstring, and height hint.
+        '''
         Model.clear_extensions()
 
         env = cast(Any, self.env)
@@ -263,11 +280,15 @@ class BokehPlotDirective(BokehDirective):
         height_hint = cast(Any, root)._sphinx_height_hint()
 
         js_path = join(env.bokeh_plot_auxdir, js_filename)
-        js, script_tag = autoload_static(root, RESOURCES, js_filename)
+        result = embed(root)
+        self._requirements = result.requires.to_dict()
+        external = result.external(js_filename, resources=Resources(
+            mode="none", override_version=get_sphinx_resources().override_version,
+        ))
         serialized = perf_counter()
 
         with open(js_path, "w") as f:
-            f.write(js)
+            f.write(external.payload)
 
         finished = perf_counter()
         env.bokeh_plot_timings.append(_PlotTiming(
@@ -279,7 +300,7 @@ class BokehPlotDirective(BokehDirective):
             source=basename(path),
         ))
 
-        return (script_tag, js_path, source, docstring, height_hint)
+        return (external.html, js_path, source, docstring, height_hint)
 
     def process_sampledata(self, source: str) -> None:
 
@@ -326,6 +347,24 @@ def builder_inited(app: Any) -> None:
     app.env.bokeh_plot_timings = []
 
 
+def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:
+    if app.builder.format != "html":
+        return
+    plots = list(doctree.findall(autoload_script))
+    if not plots:
+        return
+    requirements = ResourceRequirements.union(*(
+        ResourceRequirements.from_dict(plot["requirements"]) for plot in plots
+    ))
+    policy = get_sphinx_resources()
+    resolved = policy.resolve(requirements)
+    resources = "\n".join(
+        render_resource(asset, allow_absolute_path=policy.mode == "absolute") for asset in resolved.assets
+    )
+    first = plots[0]
+    first.parent.insert(first.parent.index(first), nodes.raw("", resources, format="html"))
+
+
 def build_finished(app: Any, exception: Exception | None) -> None:
     files = sorted(app.env.bokeh_plot_files)
     files_iter = status_iterator(files, "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
@@ -360,16 +399,17 @@ def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
     docnames_set = set(docnames)
     env.bokeh_plot_timings.extend(item for item in other.bokeh_plot_timings if item.docname in docnames_set)
 
-def setup(app: Any) -> SphinxParallelSpec:
+def setup(app: Any) -> _PlotSphinxSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
     app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")
     app.connect("builder-inited", builder_inited)
+    app.connect("doctree-resolved", add_page_resources)
     app.connect("build-finished", build_finished)
     app.connect("env-merge-info", env_merge_info)
 
-    return PARALLEL_SAFE
+    return _PlotSphinxSpec(**PARALLEL_SAFE, env_version=1)
 
 # -----------------------------------------------------------------------------
 # Private API
