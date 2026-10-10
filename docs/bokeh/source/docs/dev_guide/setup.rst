@@ -267,9 +267,49 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
     * **JavaScript dependencies changed:** run ``pixi run setup`` instead,
       which also reinstalls the JavaScript dependencies first.
 
+.. _contributor_guide_setup_interpreter:
+
+7. Configure your editor or IDE
+-------------------------------
+
+Commands run through Pixi (``pixi run ...`` or ``pixi shell``) automatically
+use the ``default`` Pixi environment, unless you select another one with
+``-e``. An editor or IDE, however, runs its own Python
+tooling for features such as code completion, type checking, and debugging.
+For these to work correctly, configure your editor to use the Python
+interpreter from the Pixi environment instead of a system-wide or other
+Python installation.
+
+Pixi creates one folder per environment inside your *source checkout*, named
+after the environment: ``.pixi/envs/<environment name>``. For example, the
+``default`` environment lives in ``.pixi/envs/default`` and the ``test-py312``
+environment in ``.pixi/envs/test-py312``. The Python interpreter is located
+inside that folder:
+
+* Linux/macOS: ``<source checkout>/.pixi/envs/default/bin/python``
+* Windows: ``<source checkout>\.pixi\envs\default\python.exe``
+
+To list all environments together with their locations, run:
+
+.. code-block:: sh
+
+    pixi info
+
+Use the ``default`` environment unless you have a reason to work with another
+one, for example to debug an issue specific to Python 3.12. In your editor's
+settings, select the interpreter from the path above. Most editors let you
+browse to or enter the interpreter path in their Python interpreter settings.
+
+.. note::
+    The steps above set up the ``default`` environment only. Bokeh's editable
+    installation belongs to a single environment, so to use another
+    environment as the interpreter (for example ``test-py312``), run
+    ``pixi run -e test-py312 setup`` first. This also creates the
+    environment if it does not exist yet.
+
 .. _contributor_guide_setup_environment_variables:
 
-7. Set environment variables
+8. Set environment variables
 ----------------------------
 
 Bokeh uses :ref:`environment variables <ug_settings>` to control several
@@ -495,7 +535,7 @@ is called.
 
 .. _contributor_guide_setup_test_setup:
 
-8. Test your local setup
+9. Test your local setup
 ------------------------
 
 Run the following tests to check that everything is installed and set up
@@ -679,7 +719,8 @@ setting up a development environment:
     the managed environment and local package installation from the
     committed lockfile. If you had an old ``pixi shell`` session open, exit
     it first, then run ``pixi shell --locked`` again afterwards if you'd
-    like to keep working inside one.
+    like to keep working inside one. Your editor may need to be pointed at the
+    interpreter again, see :ref:`contributor_guide_setup_interpreter`.
 
 .. dropdown:: Slow network connections when cloning
 
