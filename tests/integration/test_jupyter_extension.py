@@ -566,15 +566,37 @@ def test_failed_portable_resources_do_not_block_later_outputs(tmp_path: Path) ->
             page.wait_for_timeout(100)
             assert len(blocked) == 1
             _execute_cell_once(page, editors, 1)
+            first = page.locator(".jp-OutputArea").nth(0)
             second = page.locator(".jp-OutputArea").nth(1)
+            first_fallback = first.locator("[data-bokeh-notebook-static-fallback]")
+            first_fallback.wait_for(state="attached", timeout=30_000)
             second.locator("[data-bokeh-notebook-static-fallback]").wait_for(state="attached", timeout=30_000)
             page.wait_for_function(
                 """
-                () => document.querySelectorAll("meta[data-bokeh-notebook-resource]").length === 2
+                () => {
+                  const owners = [...document.querySelectorAll("meta[data-bokeh-notebook-resource]")]
+                  return owners.length === 2 &&
+                    owners.some((owner) => owner.dataset.bokehResourceState === "loading") &&
+                    owners.some((owner) => owner.dataset.bokehResourceState === "loaded")
+                }
                 """,
                 timeout=30_000,
             )
+            page.wait_for_timeout(200)
+            assert second.locator(".bk-Figure").count() == 0
+            assert first_fallback.get_attribute("data-bokeh-resource-error") is None
             blocked[0].abort()
+            page.wait_for_function(
+                """
+                () => document.querySelector(
+                  ".jp-OutputArea [data-bokeh-notebook-static-fallback]",
+                )?.dataset.bokehResourceError != null
+                """,
+                timeout=30_000,
+            )
+            error = first_fallback.get_attribute("data-bokeh-resource-error")
+            assert error is not None and "bokeh-tables" in error
+            assert first_fallback.get_by_text("Bokeh resources failed to load", exact=True).count() == 1
             second.locator(".bk-Figure").wait_for(timeout=30_000)
             browser.close()
     finally:

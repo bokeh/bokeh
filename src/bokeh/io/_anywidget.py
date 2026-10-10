@@ -33,8 +33,8 @@ if TYPE_CHECKING:
 _ESM = (Path(__file__).parents[1] / "jupyter" / "anywidget.js").read_text(encoding="utf-8")
 _TRANSPORT_LEASE_SECONDS = 300.0
 _MAX_TRANSPORTS = 8
-_MAX_RELEASED_WIDGETS = 128
-_RELEASED_WIDGETS: OrderedDict[str, _DisplayWidget] = OrderedDict()
+_MAX_RETAINED_WIDGETS = 128
+_RETAINED_WIDGETS: OrderedDict[str, _DisplayWidget] = OrderedDict()
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -52,6 +52,14 @@ class _ResourceError(TypedDict):
     request_id: str
     code: Literal["RESOURCE_RECORD_MISSING"]
     message: str
+
+
+def _retain_widget(widget: _DisplayWidget) -> None:
+    _RETAINED_WIDGETS[widget.model_id] = widget
+    _RETAINED_WIDGETS.move_to_end(widget.model_id)
+    while len(_RETAINED_WIDGETS) > _MAX_RETAINED_WIDGETS:
+        _model_id, retained = _RETAINED_WIDGETS.popitem(last=False)
+        retained.close()
 
 
 def _resource_reply(request_id: object, resource_id: object,
@@ -186,6 +194,8 @@ class _DisplayWidget(anywidget.AnyWidget):
         self._transport_seen: dict[str, float] = {}
         self._released = False
         self.on_msg(self._receive)
+        if handle is None:
+            _retain_widget(self)
 
     def _repr_mimebundle_(self, **kwargs: Any) -> Any:
         bundle = super()._repr_mimebundle_(**kwargs)
@@ -205,7 +215,7 @@ class _DisplayWidget(anywidget.AnyWidget):
     def close(self) -> None:
         if getattr(self, "comm", None) is None:
             return
-        _RELEASED_WIDGETS.pop(self.model_id, None)
+        _RETAINED_WIDGETS.pop(self.model_id, None)
         self._transports.clear()
         self._transport_seen.clear()
         self._records = {}
@@ -278,11 +288,7 @@ class _DisplayWidget(anywidget.AnyWidget):
         self._records = {}
         for transport in tuple(self._transports.values()):
             transport.close()
-        _RELEASED_WIDGETS[self.model_id] = self
-        _RELEASED_WIDGETS.move_to_end(self.model_id)
-        while len(_RELEASED_WIDGETS) > _MAX_RELEASED_WIDGETS:
-            _model_id, widget = _RELEASED_WIDGETS.popitem(last=False)
-            widget.close()
+        _retain_widget(self)
 
 
 def display_widget(payload: Mapping[str, Any], html: str, records: Mapping[str, ExecutableResourceRecord], *,

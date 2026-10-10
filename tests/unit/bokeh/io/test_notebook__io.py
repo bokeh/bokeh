@@ -68,6 +68,7 @@ def test_show_doc_publishes_one_artifact_owned_output(document: Document) -> Non
     assert payload["view_id"] in m._DOCUMENT_VIEW_HANDLES_BY_VIEW
     assert html.count("data-bokeh-embed-payload") == 1
     assert "data-bokeh-notebook-static-fallback" in html
+    assert 'data-bokeh-resource-id="resource"' in html
     assert "docs_json" not in html
     assert "embed_items_notebook" not in html
     assert handle is m._DOCUMENT_VIEW_HANDLES[payload["live_id"]]
@@ -224,6 +225,28 @@ def test_notebook_output_preserves_nonce_on_every_script() -> None:
     scripts = re.findall(r"<script\b[^>]*>", bundle[0]["text/html"])
     assert scripts
     assert all('nonce="csp-nonce"' in script for script in scripts)
+
+
+@pytest.mark.parametrize("value", [
+    """</script>'\">%0a\"><video src=//test.js controls='true'OnLoadStart=alert(document.cookie)> '\">%0a%0a\">""",
+    "</script><script src=test.js></script>",
+])
+def test_notebook_output_escapes_malicious_payloads__issue_14489(value: str) -> None:
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
+    ):
+        bundle = m.notebook_mimebundle(Div(text=value), resources=Resources(mode="none"))
+
+    assert bundle is not None
+    html = bundle[0]["text/html"]
+    assert value not in html
+    assert r"\u003c/script\u003e" in html
+
+    match = re.search(r"<script[^>]*\bdata-bokeh-embed-payload\b[^>]*>(.*?)</script>", html, re.DOTALL)
+    assert match is not None
+    payload = json.loads(match.group(1))
+    assert payload["source"]["documents"][0]["roots"][0]["text"] == value
 
 
 def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> None:

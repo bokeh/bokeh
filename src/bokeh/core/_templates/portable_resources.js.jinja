@@ -14,6 +14,21 @@
     }));
   }
 
+  function report_failure(error) {
+    const message = error instanceof Error ? error.message : String(error);
+    for (const fallback of document.querySelectorAll("[data-bokeh-notebook-static-fallback][data-bokeh-resource-id]")) {
+      if (fallback.dataset.bokehResourceId !== resource_id)
+        continue;
+      fallback.dataset.bokehResourceError = message.slice(0, 300);
+      const title = fallback.querySelector("strong");
+      if (title != null)
+        title.textContent = "Bokeh resources failed to load";
+      const description = fallback.querySelector("p");
+      if (description != null)
+        description.textContent = message;
+    }
+  }
+
   function owner_for(id) {
     return [...document.head.querySelectorAll("meta[data-bokeh-notebook-resource]")]
       .find((element) => element.dataset.bokehNotebookResource === id);
@@ -212,6 +227,7 @@
   }).catch((error) => {
     owner.dataset.bokehResourceState = "failed";
     owner.dataset.bokehResourceError = error instanceof Error ? error.message.slice(0, 300) : String(error).slice(0, 300);
+    report_failure(error);
     // Release document-wide pending-resource waiters without reporting this
     // record-scoped failure as their failure. Keep the failed record available
     // for dependency diagnostics and retry it when it is requested again.
