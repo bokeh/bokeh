@@ -10,15 +10,14 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-# Bokeh imports
-from tests.support.util.api import verify_all
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
+# Bokeh imports
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.io as bi # isort:skip

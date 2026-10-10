@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from .jupyter import ExecutableResourceRecord
     from .notebook import ApplicationViewHandle, DocumentViewHandle
 
-_ESM = Path(__file__).parents[1] / "jupyter" / "anywidget.js"
+_ESM = (Path(__file__).parents[1] / "jupyter" / "anywidget.js").read_text(encoding="utf-8")
 _TRANSPORT_LEASE_SECONDS = 300.0
 _MAX_TRANSPORTS = 8
 _MAX_RELEASED_WIDGETS = 128
@@ -203,6 +203,8 @@ class _DisplayWidget(anywidget.AnyWidget):
         return data, metadata
 
     def close(self) -> None:
+        if getattr(self, "comm", None) is None:
+            return
         _RELEASED_WIDGETS.pop(self.model_id, None)
         self._transports.clear()
         self._transport_seen.clear()
@@ -276,9 +278,6 @@ class _DisplayWidget(anywidget.AnyWidget):
         self._records = {}
         for transport in tuple(self._transports.values()):
             transport.close()
-        if not self._transports:
-            self.close()
-            return
         _RELEASED_WIDGETS[self.model_id] = self
         _RELEASED_WIDGETS.move_to_end(self.model_id)
         while len(_RELEASED_WIDGETS) > _MAX_RELEASED_WIDGETS:

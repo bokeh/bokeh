@@ -105,7 +105,8 @@ def test_resource_subset_and_portable_owner_validate_the_same_assets() -> None:
     javascript = m.resource_javascript(payload, subset)
     assert 'owner.setAttribute("data-bokeh-resource", "")' in javascript
     assert 'new CustomEvent("bokeh:resource-loaded")' in javascript
-    assert 'new CustomEvent("bokeh:resource-failed"' in javascript
+    assert 'owner.removeAttribute("data-bokeh-resource")' in javascript
+    assert 'owner.dispatchEvent(new Event("load"))' in javascript
     with pytest.raises(RuntimeError, match="metadata does not match"):
         m.resource_javascript(payload, resolved.assets)
 

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 # Standard library imports
+import gc
 import json
+import weakref
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
@@ -140,29 +142,45 @@ def test_inactive_diagnostic_widget_is_closed_only_when_disposed() -> None:
         close.assert_called_once_with()
 
 
-def test_python_disconnect_closes_a_widget_without_active_frontends() -> None:
+def test_python_disconnect_retains_a_widget_without_active_frontends() -> None:
     widget = m.display_widget({"kind": "artifact"}, "", {})
+    model_id = widget.model_id
 
     with patch.object(widget, "close", wraps=widget.close) as close:
         widget.disconnect()
 
-    close.assert_called_once_with()
+    close.assert_not_called()
+    assert m._RELEASED_WIDGETS[model_id] is widget
+    widget.close()
+
+
+def test_widget_close_is_idempotent_and_releases_anywidget_watchers() -> None:
+    widget = m.display_widget({"kind": "artifact"}, "x" * 100_000, {})
+    reference = weakref.ref(widget)
+
+    widget.close()
+    widget.close()
+    del widget
+    gc.collect()
+
+    assert reference() is None
 
 
 def test_released_widgets_without_disposal_are_bounded() -> None:
     first = m.display_widget({"kind": "artifact"}, "", {})
     second = m.display_widget({"kind": "artifact"}, "", {})
+    first_reference = weakref.ref(first)
     first._receive(first, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
     second._receive(second, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
 
-    with (
-        patch.object(m, "_MAX_RELEASED_WIDGETS", 1),
-        patch.object(first, "close", wraps=first.close) as close_first,
-    ):
+    with patch.object(m, "_MAX_RELEASED_WIDGETS", 1):
         first.disconnect()
         second.disconnect()
 
-    close_first.assert_called_once_with()
+    assert getattr(first, "comm", None) is None
+    del first
+    gc.collect()
+    assert first_reference() is None
     assert list(m._RELEASED_WIDGETS) == [second.model_id]
     second._receive(second, {"kind": "disposed", "frontend_id": _FRONTEND_ID}, [])
     assert not m._RELEASED_WIDGETS

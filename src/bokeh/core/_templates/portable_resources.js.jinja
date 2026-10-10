@@ -212,11 +212,12 @@
   }).catch((error) => {
     owner.dataset.bokehResourceState = "failed";
     owner.dataset.bokehResourceError = error instanceof Error ? error.message.slice(0, 300) : String(error).slice(0, 300);
-    owner.dispatchEvent(new CustomEvent("bokeh:resource-failed", {detail: {error}}));
-    // This failed record has notified its own dependents. Do not leave it in
-    // the document-wide pending-resource barrier, where it would poison
-    // otherwise independent outputs evaluated later on the same page.
+    // Release document-wide pending-resource waiters without reporting this
+    // record-scoped failure as their failure. Keep the failed record available
+    // for dependency diagnostics and retry it when it is requested again.
     owner.removeAttribute("data-bokeh-resource");
+    owner.dispatchEvent(new Event("load"));
+    owner.dataset.bokehResourceState = "failed";
     notify("error", {error: error instanceof Error ? {name: error.name, message: error.message, stack: error.stack} : String(error)});
     console.error(`Bokeh: failed to load notebook resources ${resource_id}`, error);
   });

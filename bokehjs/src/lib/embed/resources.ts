@@ -467,7 +467,11 @@ export class ResourceLoader {
           settled = true
           cleanup()
           element.dataset.bokehResourceState = "failed"
-          element.dispatchEvent(new Event("bokeh:resource-failed"))
+          // The caller that owns this load receives the rejection below. Do
+          // not also poison unrelated embed declarations already waiting at
+          // the page-wide resource barrier.
+          element.removeAttribute("data-bokeh-resource")
+          element.dispatchEvent(new Event("load"))
           element.remove()
           reject(error)
         }
