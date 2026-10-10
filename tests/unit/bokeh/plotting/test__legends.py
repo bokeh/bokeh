@@ -22,6 +22,9 @@ import pytest ; pytest
 import itertools
 from typing import Any
 
+# External imports
+import numpy as np
+
 # Bokeh imports
 from bokeh.core.enums import PlaceType as Place
 from bokeh.core.properties import field, value
@@ -134,6 +137,61 @@ class Test__handle_legend_group:
         assert legend.items[3].label == value("40")
         assert legend.items[3].renderers == [renderer]
         assert legend.items[3].index == 6
+
+    def test_items_unorderable_column(self) -> None:
+        # np.unique sorts the values, which fails for a column that mixes
+        # values which cannot be ordered against each other, e.g. strings and
+        # None. Such a column is grouped by order of first appearance.
+        # Regression test for https://github.com/bokeh/bokeh/issues/15475
+        source = ColumnDataSource(data=dict(foo=["a", None, "b", "a"]))
+        renderer = GlyphRenderer(data_source=source)
+        legend = Legend(items=[])
+        bpl._handle_legend_group("foo", legend, renderer)
+        assert len(legend.items) == 3
+        assert [item.label for item in legend.items] == [value("a"), value("None"), value("b")]
+        assert [item.index for item in legend.items] == [0, 1, 2]
+        assert all(item.renderers == [renderer] for item in legend.items)
+
+    def test_items_unorderable_equal_python_and_numpy_scalars(self) -> None:
+        # In the fallback path, equal Python and NumPy scalars must share a
+        # single category instead of being split by a type-qualified key.
+        # Regression test for https://github.com/bokeh/bokeh/issues/15475
+        source = ColumnDataSource(data=dict(foo=[np.str_("a"), "a", None]))
+        renderer = GlyphRenderer(data_source=source)
+        legend = Legend(items=[])
+        bpl._handle_legend_group("foo", legend, renderer)
+        assert [item.label for item in legend.items] == [value("a"), value("None")]
+        assert [item.index for item in legend.items] == [0, 2]
+
+    def test_items_unorderable_equal_integers(self) -> None:
+        # Equal Python and NumPy integers (and signed zeros) must also group
+        # together in the fallback path.
+        source = ColumnDataSource(data=dict(foo=[np.int64(5), 5, 0.0, -0.0, None]))
+        renderer = GlyphRenderer(data_source=source)
+        legend = Legend(items=[])
+        bpl._handle_legend_group("foo", legend, renderer)
+        assert [item.label for item in legend.items] == [value("5"), value("0.0"), value("None")]
+        assert [item.index for item in legend.items] == [0, 2, 4]
+
+    def test_items_unorderable_missing_categories_merge(self) -> None:
+        # ``None`` and NaN both denote missing data and share one category.
+        source = ColumnDataSource(data=dict(foo=[np.nan, None, "b"]))
+        renderer = GlyphRenderer(data_source=source)
+        legend = Legend(items=[])
+        bpl._handle_legend_group("foo", legend, renderer)
+        assert [item.label for item in legend.items] == [value("nan"), value("b")]
+        assert [item.index for item in legend.items] == [0, 2]
+
+    def test_items_masked_column(self) -> None:
+        # A masked entry must not expose its underlying value as a legend
+        # category; masked entries join the missing category instead.
+        column = np.ma.array(["a", "hidden", None, "b"], mask=[False, True, False, False], dtype=object)
+        source = ColumnDataSource(data=dict(foo=column))
+        renderer = GlyphRenderer(data_source=source)
+        legend = Legend(items=[])
+        bpl._handle_legend_group("foo", legend, renderer)
+        assert [item.label for item in legend.items] == [value("a"), value("None"), value("b")]
+        assert [item.index for item in legend.items] == [0, 1, 3]
 
 
 class Test__handle_legend_label:

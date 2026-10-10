@@ -118,6 +118,52 @@ def _handle_legend_field(label: str, legend: Legend, glyph_renderer: GlyphRender
         new_item = LegendItem(label=label, renderers=[glyph_renderer])
         legend.items.append(new_item)
 
+_MISSING = object()  # unique sentinel for the missing category
+
+def _is_missing_category(val: Any) -> bool:
+    # ``None``, NaN-like floats and masked values are all treated as a single
+    # missing legend category.
+    if val is None or val is np.ma.masked:
+        return True
+    try:
+        return bool(val != val)
+    except Exception:
+        return False
+
+def _group_unorderable(column: Any) -> tuple[np.ndarray, np.ndarray]:
+    """Group a column whose values ``np.unique`` cannot order.
+
+    Returns one representative value per distinct category, in order of first
+    appearance, together with the index of that first occurrence. Values are
+    compared by equality rather than by a type-qualified key, so equal Python
+    and NumPy scalars (e.g. ``np.str_("a")`` and ``"a"``) share a category.
+    ``None``, NaN and masked entries collapse into a single missing category,
+    and masked data is never exposed as a legend label.
+    """
+    if np.ma.isMaskedArray(column):
+        data = np.ma.getdata(np.ma.asarray(column, dtype=object))
+        mask = np.ma.getmaskarray(column)
+        arr = np.array([None if masked else val for val, masked in zip(data, mask)], dtype=object)
+    else:
+        arr = np.asarray(column, dtype=object)
+
+    reps: list[Any] = []
+    inds: list[int] = []
+    seen: dict[Any, int] = {}
+
+    for i, val in enumerate(arr):
+        if _is_missing_category(val):
+            key: Any = _MISSING
+        else:
+            key = val
+        if key in seen:
+            continue
+        seen[key] = len(reps)
+        reps.append(val)
+        inds.append(i)
+
+    return np.asarray(reps, dtype=object), np.asarray(inds, dtype=np.intp)
+
 def _handle_legend_group(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
     if not isinstance(label, str):
         raise ValueError("legend_group value must be a string")
@@ -129,7 +175,13 @@ def _handle_legend_group(label: str, legend: Legend, glyph_renderer: GlyphRender
         raise ValueError("Column to be grouped does not exist in glyph data source")
 
     column = source.data[label]
-    vals, inds = np.unique(column, return_index=1)
+    try:
+        vals, inds = np.unique(column, return_index=1)
+    except TypeError:
+        # ``np.unique`` sorts the values, which fails when a column mixes
+        # values that cannot be ordered against each other, e.g. strings and
+        # None. Group by order of first appearance instead (#15475).
+        vals, inds = _group_unorderable(column)
     for val, ind in zip(vals, inds):
         label = value(str(val))
         new_item = LegendItem(label=label, renderers=[glyph_renderer], index=ind)
