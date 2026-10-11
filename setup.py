@@ -19,6 +19,7 @@ from setuptools import setup  # type: ignore[import]
 from setuptools.command.build import build  # type: ignore[import]
 from setuptools.command.editable_wheel import editable_wheel  # type: ignore[import]
 from setuptools.command.sdist import sdist  # type: ignore[import]
+from setuptools.dist import Distribution as _Distribution  # type: ignore[import]
 
 # --- Helpers ----------------------------------------------------------------
 
@@ -244,6 +245,12 @@ BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 
 # --- Setuptools -------------------------------------------------------------
 
+class Distribution(_Distribution):  # type: ignore
+    def has_data(self) -> bool:
+        # setuptools' editable wheel checks this predicate instead of
+        # has_data_files() when deciding whether to run install_data.
+        return self.has_data_files()
+
 class Build(build):  # type: ignore
     def run(self) -> None:
         check_tags()
@@ -255,14 +262,6 @@ class Build(build):  # type: ignore
         super().run()
 
 class EditableWheel(editable_wheel):  # type: ignore
-    def _run_install(self, category: str) -> None:
-        # setuptools' editable wheel skips data_files because it looks for a
-        # Distribution.has_data() predicate instead of has_data_files().
-        if category == "data" and self.distribution.has_data_files():
-            self.run_command("install_data")
-        else:
-            super()._run_install(category)
-
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)
@@ -279,4 +278,5 @@ class Sdist(sdist):  # type: ignore
 setup(
     cmdclass={"build": Build, "editable_wheel": EditableWheel, "sdist": Sdist},
     data_files=_jupyter_data_files(required=PACKAGED),
+    distclass=Distribution,
 )
