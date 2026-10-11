@@ -16,6 +16,7 @@ import {
 } from "./protocol"
 import {
   FrontendDocumentSnapshot,
+  bokehVersionConflict,
   currentDocumentSnapshot,
   loadResources,
   renderDiagnostic,
@@ -97,6 +98,14 @@ export class DisplayRenderer extends Widget implements IRenderMime.IRenderer {
     } catch (error) {
       if (generation === this.generation && !this.isDisposed && !(error instanceof DOMException && error.name === "AbortError")) {
         if (error instanceof BokehNotebookError && error.code === "PROTOCOL_VERSION_MISMATCH" && html.length !== 0) {
+          const activeVersion = window.Bokeh?.version
+          if (activeVersion != null && activeVersion !== payload.bokeh_version) {
+            renderDiagnostic(this.node, bokehVersionConflict(
+              `This saved output expects BokehJS ${payload.bokeh_version}, but BokehJS ${activeVersion} is already active in the page.`,
+              error,
+            ), {payload})
+            return
+          }
           await renderHTML({
             host: this.node,
             source: html,
@@ -108,6 +117,7 @@ export class DisplayRenderer extends Widget implements IRenderMime.IRenderer {
             latexTypesetter: this.options.latexTypesetter,
             translator: this.options.translator,
           })
+          if (generation !== this.generation || this.isDisposed) return
           const notice = document.createElement("div")
           notice.className = "bk-notebook-protocol-fallback"
           notice.setAttribute("role", "note")

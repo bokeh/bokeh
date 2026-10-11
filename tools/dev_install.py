@@ -14,6 +14,15 @@ JUPYTER_LABEXTENSION = JUPYTER_ROOT / "labextension"
 JUPYTER_SERVER_CONFIG = JUPYTER_ROOT / "jupyter-config" / "jupyter_server_config.d" / "bokeh-jupyter.json"
 
 
+def _remove_jupyter_destination(destination: Path) -> None:
+    if destination.is_junction():
+        os.rmdir(destination)
+    elif destination.is_symlink() or destination.is_file():
+        destination.unlink()
+    elif destination.exists():
+        shutil.rmtree(destination)
+
+
 def _install_jupyter(data_root: Path) -> None:
     '''Install the built Jupyter assets in a development environment.'''
     remote_entries = tuple((JUPYTER_LABEXTENSION / "static").glob("remoteEntry.*.js"))
@@ -36,10 +45,7 @@ def _install_jupyter(data_root: Path) -> None:
         and destination.resolve() == source
     )
     if not linked:
-        if destination.is_symlink() or destination.is_file():
-            destination.unlink()
-        elif destination.exists():
-            shutil.rmtree(destination)
+        _remove_jupyter_destination(destination)
         destination.parent.mkdir(parents=True, exist_ok=True)
         try:
             if sys.platform == "win32":
@@ -52,10 +58,7 @@ def _install_jupyter(data_root: Path) -> None:
             else:
                 destination.symlink_to(source, target_is_directory=True)
         except (OSError, subprocess.CalledProcessError):
-            if destination.is_symlink() or destination.is_file():
-                destination.unlink()
-            elif destination.exists():
-                shutil.rmtree(destination)
+            _remove_jupyter_destination(destination)
             shutil.copytree(source, destination)
 
     config = data_root / "etc" / "jupyter" / "jupyter_server_config.d" / "bokeh-jupyter.json"

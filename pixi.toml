@@ -34,6 +34,7 @@ python = "3.14.*"
 python-freethreading = "*"
 
 [feature.js-tools.dependencies]
+jupyter-builder = ">=1,<2"
 nodejs = "24.*"
 
 [feature.js-tools.tasks]
@@ -236,7 +237,6 @@ scipy = "*"
 uvicorn-standard = "*"
 
 [feature.build-tools.dependencies]
-jupyter-builder = "*"
 pip = "*"
 python-build = "*"
 setuptools = "*"

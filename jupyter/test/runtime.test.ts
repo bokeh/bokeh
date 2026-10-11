@@ -123,7 +123,7 @@ describe("artifact runtime", () => {
 
     await expect(loading).rejects.toMatchObject({
       code: "BOKEH_VERSION_CONFLICT",
-      action: expect.stringContaining("Inline resources cannot replace"),
+      action: expect.stringMatching(/clear saved outputs.*Inline resources cannot replace/),
     })
   })
 

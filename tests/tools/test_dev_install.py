@@ -72,6 +72,33 @@ def test_install_jupyter_copies_built_assets_when_linking_fails(
     assert destination.resolve() != labextension.resolve()
 
 
+def test_install_jupyter_replaces_a_stale_junction(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    labextension = _jupyter_source(tmp_path, monkeypatch)
+    data_root = tmp_path / "environment"
+    destination = data_root / "share/jupyter/labextensions/@bokeh/bokeh-jupyter"
+    destination.mkdir(parents=True)
+    monkeypatch.setattr(Path, "is_junction", lambda path: path == destination and not path.is_symlink())
+
+    dev_install._install_jupyter(data_root)
+
+    assert destination.is_symlink() or os.path.isjunction(destination)
+    assert destination.resolve() == labextension.resolve()
+
+
+def test_remove_jupyter_destination_uses_rmdir_for_a_dangling_junction(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    destination = tmp_path / "dangling"
+    rmdir = MagicMock()
+    monkeypatch.setattr(Path, "is_junction", lambda path: path == destination)
+    monkeypatch.setattr(dev_install.os, "rmdir", rmdir)
+
+    dev_install._remove_jupyter_destination(destination)
+
+    rmdir.assert_called_once_with(destination)
+
+
 def test_install_jupyter_requires_built_assets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     source = tmp_path / "source"
     monkeypatch.setattr(dev_install, "ROOT", source)

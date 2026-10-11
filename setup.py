@@ -10,7 +10,7 @@ from __future__ import annotations
 import os, re, subprocess, sys, time
 from itertools import product
 from pathlib import Path
-from shutil import copy, copytree, rmtree
+from shutil import copy, copytree, rmtree, which
 from textwrap import indent
 from typing import NoReturn
 
@@ -135,6 +135,11 @@ def build_or_install_bokehjs(packages: list[str]) -> None:
 
 def build_jupyter() -> None:
     print("\nBuilding the Jupyter frontend... ", end="")
+    if which("jupyter-builder") is None:
+        die(
+            f"{FAILED}\nERROR: 'jupyter-builder' is required to build the Jupyter frontend. "
+            "Install jupyter-builder>=1,<2 or build from a Bokeh source distribution.",
+        )
     npm = "npm.cmd" if sys.platform == "win32" else "npm"
     commands = (
         [npm, "--prefix", str(JUPYTER_FRONTEND), "ci", "--no-progress"],

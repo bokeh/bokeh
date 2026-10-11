@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77", "setuptools-git-versioning", "colorama", "jupyter-builder"]
+requires = ["setuptools>=77", "setuptools-git-versioning", "colorama", "jupyter-builder>=1,<2"]
 build-backend = "setuptools.build_meta"
 
 [project]

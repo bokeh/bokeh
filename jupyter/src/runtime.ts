@@ -122,6 +122,15 @@ function validateVersion(expected: string, pythonVersion?: string): void {
   }
 }
 
+export function bokehVersionConflict(message: string, cause?: unknown): BokehNotebookError {
+  return new BokehNotebookError(
+    "BOKEH_VERSION_CONFLICT",
+    message,
+    "Reload the notebook page, clear saved outputs created by other Bokeh versions, then run outputs from only one Bokeh version. Inline resources cannot replace a BokehJS runtime that is already active in the page.",
+    cause,
+  )
+}
+
 function safeUrl(value: string): string {
   try {
     const url = new URL(value, window.location.href)
@@ -397,12 +406,7 @@ export async function loadResources(payload: ResourcePayload, javascript: string
       const versionConflict = message.includes(" is already active. Refusing to load incompatible ") ||
         message.includes(" loaded, but window.Bokeh reports ")
       if (versionConflict) {
-        throw new BokehNotebookError(
-          "BOKEH_VERSION_CONFLICT",
-          message,
-          "Reload the notebook page, then run outputs from only one Bokeh version. Inline resources cannot replace a BokehJS runtime that is already active in the page.",
-          cause,
-        )
+        throw bokehVersionConflict(message, cause)
       }
       throw new BokehNotebookError(
         "RESOURCE_LOAD_FAILED",
