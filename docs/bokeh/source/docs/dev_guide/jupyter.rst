@@ -51,16 +51,11 @@ hosts and the browser dependencies used by the integration tests. The suite
 covers Python payload generation, frontend runtime behavior, JupyterLab,
 AnyWidget, marimo, packaging, and notebook export.
 
-The repository setup task installs the built extension into the development
-environment as a link to ``src/bokeh/jupyter/labextension``. After that initial
-setup, rebuilding the frontend is enough for a restarted JupyterLab session to
-use the new assets. On a system that cannot create a link, setup copies the
-assets instead and must be rerun after rebuilding.
-
-The development link and ``bokeh-jupyter.json`` server configuration are not
-owned by the editable Python wheel, so ``pip uninstall bokeh`` does not remove
-them. Delete the environment, or remove those two development discovery files,
-before reusing its prefix without Bokeh.
+The repository setup task includes the built extension and
+``bokeh-jupyter.json`` server configuration in the editable Python wheel. Pip
+therefore owns these discovery files and removes them when Bokeh is
+uninstalled. Run ``pixi run reinstall`` after changing the frontend so the
+rebuilt files are copied into the Pixi environment.
 
 Rendering model
 ---------------

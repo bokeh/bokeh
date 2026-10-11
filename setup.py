@@ -255,6 +255,14 @@ class Build(build):  # type: ignore
         super().run()
 
 class EditableWheel(editable_wheel):  # type: ignore
+    def _run_install(self, category: str) -> None:
+        # setuptools' editable wheel skips data_files because it looks for a
+        # Distribution.has_data() predicate instead of has_data_files().
+        if category == "data" and self.distribution.has_data_files():
+            self.run_command("install_data")
+        else:
+            super()._run_install(category)
+
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)

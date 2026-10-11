@@ -252,10 +252,9 @@ There are two ways to install a local development version of Bokeh with ``pip``:
     directly, or prefix it with ``pixi run`` from a standard terminal:
     ``pixi run python -m pip install --no-deps .``
 
-Use ``pixi run setup`` or ``pixi run reinstall`` when testing the Jupyter
-integration. Setuptools editable wheels omit the ``data_files`` that register
-the prebuilt frontend and server extension, so the Pixi tasks install those
-development files explicitly.
+The editable installation includes the generated Jupyter frontend and server
+extension discovery files. Run ``pixi run reinstall`` after changing the
+Jupyter frontend so the rebuilt files are copied into the Pixi environment.
 
 Running either of those two commands also builds and installs a local version of
 :term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
