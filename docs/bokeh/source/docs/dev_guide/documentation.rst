@@ -163,8 +163,10 @@ also works when running examples locally with ``python`` or ``bokeh serve``.
 The displayed and downloadable source contains no credentials. Both keys
 are included in the generated plots and visible to visitors. Use keys restricted
 to the documentation site's domains, according to each provider's controls.
-The release build reads them from the ``GOOGLE_API_KEY`` and ``CARTO_API_KEY``
-GitHub Actions secrets.
+CI documentation jobs read them from the ``GOOGLE_API_KEY`` and
+``CARTO_API_KEY`` GitHub Actions secrets when available. Test builds also
+proceed when keys are missing or invalid. Release builds require both keys
+to be nonempty.
 
 Do not add API keys to ``pixi.toml`` or commit them to the repository.
 
