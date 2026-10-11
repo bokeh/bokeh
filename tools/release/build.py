@@ -224,24 +224,24 @@ def update_jupyter_version(config: Config, system: System) -> ActionReturn:
         The release-step result.
 
     '''
-    del system
     root = Path("jupyter")
-    files = (root / "package.json", root / "package-lock.json")
+    package_path = root / "package.json"
+    lock_path = root / "package-lock.json"
     try:
-        package = json.loads(files[0].read_text())
+        package = json.loads(package_path.read_text())
         package["version"] = config.js_version
-        files[0].write_text(json.dumps(package, indent=2) + "\n")
+        package_path.write_text(json.dumps(package, indent=2) + "\n")
 
-        lock = json.loads(files[1].read_text())
+        lock = json.loads(lock_path.read_text())
         assert lock["lockfileVersion"] == 3, "Expected Jupyter lock file v3"
         lock["version"] = config.js_version
         root_package = lock["packages"][""]
         assert root_package["name"] == "@bokeh/bokeh-jupyter", "Unexpected Jupyter lock package"
         root_package["version"] = config.js_version
-        files[1].write_text(json.dumps(lock, indent=2) + "\n")
+        lock_path.write_text(json.dumps(lock, indent=2) + "\n")
     except Exception as e:
         return FAILED("Unable to update the Jupyter frontend version", details=e.args)
-    for path in files:
+    for path in (package_path, lock_path):
         config.add_modified(path.as_posix())
     return PASSED(f"Updated Jupyter frontend version to {config.js_version!r}")
 
@@ -259,7 +259,6 @@ def verify_jupyter_build(config: Config, system: System) -> ActionReturn:
         The release-step result.
 
     '''
-    del system
     source_root = Path("jupyter")
     generated_root = Path("src/bokeh/jupyter")
     try:

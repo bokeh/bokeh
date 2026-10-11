@@ -296,27 +296,26 @@ def test_anywidget_output_data_preserves_saved_artifact_export() -> None:
 
 def test_server_extension_registers_snapshot_and_correlated_export_routes() -> None:
     pytest.importorskip("jupyter_server")
-    from bokeh.jupyter import (
-        _CorrelatedNbconvertFileHandler,
-        _ExportSnapshotsHandler,
-        _load_jupyter_server_extension,
-    )
+
+    import bokeh.jupyter as jupyter
+    import bokeh.jupyter.server as server
 
     serverapp = MagicMock()
     serverapp.config.HTMLExporter.preprocessors = []
     serverapp.web_app.settings = {"base_url": "/prefix/"}
-    _load_jupyter_server_extension(serverapp)
+    jupyter._load_jupyter_server_extension(serverapp)
 
     handlers = serverapp.web_app.add_handlers.call_args.args[1]
-    assert handlers[0] == ("/prefix/bokeh-notebook/export-snapshots", _ExportSnapshotsHandler)
-    assert handlers[1][1] is _CorrelatedNbconvertFileHandler
+    assert handlers[0] == ("/prefix/bokeh-notebook/export-snapshots", server._ExportSnapshotsHandler)
+    assert handlers[1][1] is server._CorrelatedNbconvertFileHandler
     assert "bokeh-notebook/export" in handlers[1][0]
     assert serverapp.config.HTMLExporter.preprocessors == []
 
 
 def test_snapshot_handler_stores_valid_frontend_state() -> None:
     pytest.importorskip("jupyter_server")
-    from bokeh.jupyter import _ExportSnapshotsHandler
+
+    import bokeh.jupyter.server as server
 
     handler = MagicMock()
     handler.request.body = b"{}"
@@ -326,8 +325,8 @@ def test_snapshot_handler_stores_valid_frontend_state() -> None:
         "snapshots": [{"view_id": "view", "artifact_json": "{}"}],
     }
     handler.contents_manager._get_os_path.return_value = "/tmp/folder/plot.ipynb"
-    with patch("bokeh.jupyter.store_export_snapshots") as store:
-        asyncio.run(unwrap(_ExportSnapshotsHandler.post)(handler))
+    with patch.object(server, "store_export_snapshots") as store:
+        asyncio.run(unwrap(server._ExportSnapshotsHandler.post)(handler))
 
     store.assert_called_once_with(
         "folder/plot.ipynb",
@@ -350,13 +349,13 @@ def test_snapshot_handler_rejects_invalid_frontend_state(body: Any) -> None:
     pytest.importorskip("jupyter_server")
     from tornado import web
 
-    from bokeh.jupyter import _ExportSnapshotsHandler
+    import bokeh.jupyter.server as server
 
     handler = MagicMock()
     handler.request.body = b"{}"
     handler.get_json_body.return_value = body
     with pytest.raises(web.HTTPError) as error:
-        asyncio.run(unwrap(_ExportSnapshotsHandler.post)(handler))
+        asyncio.run(unwrap(server._ExportSnapshotsHandler.post)(handler))
     assert error.value.status_code == 400
 
 
@@ -364,15 +363,15 @@ def test_snapshot_handler_enforces_serialized_byte_limits() -> None:
     pytest.importorskip("jupyter_server")
     from tornado import web
 
-    import bokeh.jupyter as jupyter
+    import bokeh.jupyter.server as server
 
     handler = MagicMock()
     handler.request.body = b"too large"
     with (
-        patch.object(jupyter, "_MAX_TRANSIENT_EXPORT_BYTES", 1),
+        patch.object(server, "_MAX_TRANSIENT_EXPORT_BYTES", 1),
         pytest.raises(web.HTTPError) as error,
     ):
-        asyncio.run(unwrap(jupyter._ExportSnapshotsHandler.post)(handler))
+        asyncio.run(unwrap(server._ExportSnapshotsHandler.post)(handler))
     assert error.value.status_code == 413
 
     handler.request.body = b"{}"
@@ -382,10 +381,10 @@ def test_snapshot_handler_enforces_serialized_byte_limits() -> None:
         "snapshots": [{"view_id": "view", "error": "too large"}],
     }
     with (
-        patch.object(jupyter, "_MAX_TRANSIENT_EXPORT_BYTES", 1),
+        patch.object(server, "_MAX_TRANSIENT_EXPORT_BYTES", 1),
         pytest.raises(web.HTTPError) as error,
     ):
-        asyncio.run(unwrap(jupyter._ExportSnapshotsHandler.post)(handler))
+        asyncio.run(unwrap(server._ExportSnapshotsHandler.post)(handler))
     assert error.value.status_code == 413
 
 
@@ -393,13 +392,11 @@ def test_server_extension_points_and_correlated_route_validation() -> None:
     pytest.importorskip("jupyter_server")
     from tornado import web
 
-    from bokeh.jupyter import (
-        _CorrelatedNbconvertFileHandler,
-        _jupyter_server_extension_points,
-    )
+    import bokeh.jupyter as jupyter
+    import bokeh.jupyter.server as server
 
-    assert _jupyter_server_extension_points() == [{"module": "bokeh.jupyter"}]
-    handler = object.__new__(_CorrelatedNbconvertFileHandler)
+    assert jupyter._jupyter_server_extension_points() == [{"module": "bokeh.jupyter"}]
+    handler = object.__new__(server._CorrelatedNbconvertFileHandler)
     handler.get_argument = MagicMock(return_value="invalid")
     with pytest.raises(web.HTTPError) as error:
         asyncio.run(handler.get("html", "plot.ipynb"))
@@ -410,7 +407,7 @@ def test_correlated_html_route_selects_bokeh_exporter_and_propagates_context() -
     pytest.importorskip("jupyter_server")
     from jupyter_server.nbconvert.handlers import NbconvertFileHandler
 
-    from bokeh.jupyter import _CorrelatedNbconvertFileHandler
+    import bokeh.jupyter.server as server
 
     export_id = "export-identifier-0042"
     m.store_export_snapshots("plot.ipynb", export_id, [{"view_id": "view", "error": "captured frontend"}])
@@ -426,7 +423,7 @@ def test_correlated_html_route_selects_bokeh_exporter_and_propagates_context() -
         )
         observed.append(result.cells[0].outputs[0].data["text/html"])
 
-    handler = object.__new__(_CorrelatedNbconvertFileHandler)
+    handler = object.__new__(server._CorrelatedNbconvertFileHandler)
     handler.get_argument = MagicMock(return_value=export_id)
     with patch.object(NbconvertFileHandler, "get", new=convert):
         asyncio.run(handler.get("html", "plot.ipynb"))
