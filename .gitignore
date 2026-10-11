@@ -27,6 +27,9 @@
 # node things
 **/node_modules
 **/package-lock.json
+!/jupyter/package-lock.json
+/jupyter/lib
+/jupyter/build
 **/dist
 **/.bokeh
 

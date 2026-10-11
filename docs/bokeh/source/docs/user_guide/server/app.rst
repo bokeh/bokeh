@@ -387,16 +387,16 @@ Python callbacks with Jupyter interactors
 
 When working with Jupyter notebooks, you can use Jupyter interactors to quickly
 create simple GUI forms. Updates to GUI widgets trigger Python callbacks that
-execute in the Python kernel of Jupyter. It is often useful to have these
-callbacks call :func:`~bokeh.io.push_notebook` to push updates to displayed
-plots. For more information, see
+execute in the Python kernel of Jupyter. Display a standalone plot with
+``show(plot)`` and changes made by these callbacks synchronize
+automatically. For more information, see
 :ref:`ug_output_jupyter_notebook_jupyter_interactors`.
 
 .. note::
-    You can push plot updates from Python to BokehJS with
-    :func:`~bokeh.io.push_notebook`. For two-way communication, embed a Bokeh
-    server in the notebook. For example, this lets range and selection updates
-    trigger Python callbacks. For further details, see
+    Live standalone output synchronizes changes from Python to BokehJS. For
+    two-way communication, serve an ASGI Bokeh application in the notebook.
+    For example, this lets range and selection updates trigger Python
+    callbacks. For further details, see
     :bokeh-tree:`examples/server/api/notebook_embed.ipynb`
 
 Python callbacks in server sessions
@@ -483,7 +483,7 @@ To allow all threads access to the same document, save a local copy of
             # do some blocking computation
             x, y = random(), random()
 
-            # safe from this thread; the function runs later with the lock
+            # safe from this thread. The function runs later with the lock
             update(x, y)
 
     def session_destroyed(session_context):
@@ -505,7 +505,7 @@ example, ``testapp.py``, and then execute the following command:
 
     bokeh serve --show testapp.py
 
-The decorated callable returns immediately; its return value is always
+The decorated callable returns immediately. Its return value is always
 ``None``. It may wrap either a synchronous or asynchronous function. You can
 inspect its ``pending`` and ``closed`` properties, and call ``close()`` to
 discard pending work. It closes automatically when the session is destroyed.
@@ -524,7 +524,7 @@ This requires that you use the
 locking behavior.
 
 Synchronous unlocked callbacks run in a worker thread. Asynchronous unlocked
-callbacks run on the event loop; delegate any blocking work they perform to an
+callbacks run on the event loop. Delegate any blocking work they perform to an
 executor as in the following example.
 
 As with the thread example above, **all actions that update document state

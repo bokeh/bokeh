@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 import json
 import os
 from dataclasses import dataclass, field, replace
+from functools import lru_cache
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -166,7 +167,7 @@ class Resources:
     def __post_init__(self) -> None:
         if self.mode not in _RESOURCE_MODES:
             raise ResourceConflictError(
-                f"unknown resource mode {self.mode!r}; expected one of {_RESOURCE_MODES!r}",
+                f"unknown resource mode {self.mode!r}. Expected one of {_RESOURCE_MODES!r}",
             )
         if self.mode == CDN and self.override_version is None:
             object.__setattr__(self, "override_version", settings.cdn_version())
@@ -218,7 +219,7 @@ class Resources:
             overrides["minified"] = False
         elif value not in _RESOURCE_MODES:
             raise ResourceConflictError(
-                f"unknown resource mode {value!r}; expected one of {_RESOURCE_SETTINGS!r}",
+                f"unknown resource mode {value!r}. Expected one of {_RESOURCE_SETTINGS!r}",
             )
         return cls(mode=value, **overrides)
 
@@ -669,9 +670,17 @@ def _get_server_urls(
     return Urls(urls=lambda components, kind: [mk_url(component, kind) for component in components])
 
 
+@lru_cache(maxsize=32)
+def _cached_inline_resource(path: str, mtime_ns: int, size: int) -> str:
+    del mtime_ns, size
+    file_path = Path(path)
+    filename = file_path.name
+    return f"/* BEGIN {filename} */\n{file_path.read_text(encoding='utf-8')}\n/* END {filename} */"
+
+
 def _inline_resource(path: Path) -> str:
-    filename = path.name
-    return f"/* BEGIN {filename} */\n{path.read_text(encoding='utf-8')}\n/* END {filename} */"
+    stat = path.stat()
+    return _cached_inline_resource(str(path), stat.st_mtime_ns, stat.st_size)
 
 
 def _integrity_for_url(url: str, hashes: Mapping[str, str]) -> str | None:

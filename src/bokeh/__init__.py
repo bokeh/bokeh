@@ -69,6 +69,9 @@ def license() -> None:
     with open(Path(__file__).parent / 'LICENSE.txt') as lic:
         print(lic.read())
 
+def _jupyter_labextension_paths() -> list[dict[str, str]]:
+    return [{"src": "jupyter/labextension", "dest": "@bokeh/bokeh-jupyter"}]
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -107,3 +110,24 @@ def _configure_warnings() -> None:
 
 _configure_warnings()
 del _configure_warnings
+
+def _configure_marimo() -> None:
+    # marimo releases predating Bokeh 4 register a formatter that imports the
+    # removed output_notebook API and replaces show() with a static iframe.
+    # Disable only that formatter when marimo already owns the runtime. Its
+    # normal rich-display path then selects Bokeh's AnyWidget MIME bundle.
+    import sys
+    from importlib import import_module
+
+    if "marimo" not in sys.modules:
+        return
+    try:
+        formatters = import_module("marimo._output.formatters.formatters")
+    except ImportError:
+        return
+    factories = getattr(formatters, "THIRD_PARTY_FACTORIES", {})
+    if (factory := factories.get("bokeh")) is not None:
+        factory.register = lambda: None
+
+_configure_marimo()
+del _configure_marimo

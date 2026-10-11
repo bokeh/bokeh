@@ -42,7 +42,7 @@ from typing import TYPE_CHECKING, Any, cast
 from ..resources import INLINE
 from ..util.dependencies import import_required
 from .util import (
-    _BOKEH_LOADED_EXPR,
+    _BOKEH_LOADED_CHECK,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
@@ -104,6 +104,33 @@ def get_screenshot_as_png(
             supply a ``launch_persistent_context`` or a custom browser.
     '''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
+
+    return get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
+
+
+def get_screenshot_as_png_from_html(
+    html: str,
+    *,
+    driver: Browser | BrowserContext | None = None,
+    timeout: int = 5,
+    scale_factor: float = 1,
+) -> Image.Image:
+    '''Capture a fully assembled Bokeh HTML document as one PNG image.
+
+    Args:
+        html:
+            The complete HTML document to render.
+        driver:
+            An optional Playwright browser or browser context.
+        timeout:
+            Maximum time in seconds to wait for Bokeh rendering.
+        scale_factor:
+            The output image scale factor.
+
+    Returns:
+        The rendered PNG image.
+
+    '''
 
     png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, driver=driver)
 
@@ -269,10 +296,13 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
 
     try:
         page.wait_for_function(
-            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
+            _wrap_function(_BOKEH_LOADED_CHECK),
             timeout=timeout_ms,
         )
     except Exception as e:
+        error = page.evaluate("window._bokeh_export_error ?? null")
+        if isinstance(error, str):
+            raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError(
             "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e
@@ -297,10 +327,13 @@ async def _wait_until_render_complete(page: AsyncPage, timeout: int) -> None:
 
     try:
         await page.wait_for_function(
-            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
+            _wrap_function(_BOKEH_LOADED_CHECK),
             timeout=timeout_ms,
         )
     except Exception as e:
+        error = await page.evaluate("window._bokeh_export_error ?? null")
+        if isinstance(error, str):
+            raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError(
             "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e

@@ -231,9 +231,10 @@ Once Pixi has installed the environment, set up an editable Bokeh checkout with:
 
 This performs the :ref:`Node package installation
 <contributor_guide_setup_installing_node_packages>` from step 4, builds
-BokehJS, and uses `pip`_ to install the local Python package in editable
-mode. The command passes ``--no-deps`` to pip because third-party
-dependencies are managed by Pixi and ``pixi.lock``.
+BokehJS and the Jupyter frontend, and uses `pip`_ to install the local Python
+package in editable mode. It also registers the Jupyter frontend and server
+extension in the Pixi environment. The command passes ``--no-deps`` to pip
+because third-party dependencies are managed by Pixi and ``pixi.lock``.
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
@@ -251,6 +252,11 @@ There are two ways to install a local development version of Bokeh with ``pip``:
     directly, or prefix it with ``pixi run`` from a standard terminal:
     ``pixi run python -m pip install --no-deps .``
 
+Use ``pixi run setup`` or ``pixi run reinstall`` when testing the Jupyter
+integration. Setuptools editable wheels omit the ``data_files`` that register
+the prebuilt frontend and server extension, so the Pixi tasks install those
+development files explicitly.
+
 Running either of those two commands also builds and installs a local version of
 :term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
 different local version instead, set the ``BOKEHJS_ACTION`` environment variable:
@@ -262,8 +268,8 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
     pulled updated code from GitHub.
 
     * **JavaScript dependencies unchanged:** run ``pixi run reinstall``
-      (equivalent to ``python -m pip install --no-deps -e .``), which
-      rebuilds BokehJS and reinstalls the Python package.
+      which rebuilds BokehJS and the Jupyter frontend, reinstalls the Python
+      package, and registers the Jupyter extensions.
     * **JavaScript dependencies changed:** run ``pixi run setup`` instead,
       which also reinstalls the JavaScript dependencies first.
 
@@ -563,7 +569,8 @@ You should see output similar to:
     BokehJS static path   :  /path/to/bokeh/src/bokeh/server/static
     node.js version       :  v24.3.0
     npm version           :  11.4.2
-    jupyter_bokeh version :  (not installed)
+    Jupyter protocol      :  2
+    Jupyter renderer      :  bundled
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
 Run examples

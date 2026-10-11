@@ -43,7 +43,7 @@ from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_required
 from .util import (
-    _BOKEH_LOADED_EXPR,
+    _BOKEH_LOADED_CHECK,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
@@ -84,8 +84,34 @@ def get_screenshot_as_png(
     scale_factor: float = 1,
 ) -> Image.Image:
     '''Capture a Bokeh layout as a PNG image using Selenium.'''
+    html = get_layout_html(obj, resources=resources, width=width, height=height)
+    return get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
+
+
+def get_screenshot_as_png_from_html(
+    html: str,
+    *,
+    driver: WebDriver | None = None,
+    timeout: int = 5,
+    scale_factor: float = 1,
+) -> Image.Image:
+    '''Capture a fully assembled Bokeh HTML document as one PNG image.
+
+    Args:
+        html:
+            The complete HTML document to render.
+        driver:
+            An optional Selenium web driver.
+        timeout:
+            Maximum time in seconds to wait for Bokeh rendering.
+        scale_factor:
+            The output image scale factor.
+
+    Returns:
+        The rendered PNG image.
+
+    '''
     with tmp_html() as tmp:
-        html = get_layout_html(obj, resources=resources, width=width, height=height)
         with tmp as f:
             f.write(html.encode("utf-8"))
 
@@ -163,13 +189,16 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     from selenium.webdriver.support.wait import WebDriverWait
 
     def is_bokeh_loaded(driver: WebDriver) -> bool:
-        result: bool = driver.execute_script(f"return {_BOKEH_LOADED_EXPR}")
+        result: bool = driver.execute_script(_BOKEH_LOADED_CHECK)
         return result
 
     try:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
         _log_console(driver)
+        error = driver.execute_script('return window._bokeh_export_error ?? null')
+        if isinstance(error, str):
+            raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e
 
     driver.execute_script(_WAIT_SCRIPT)
@@ -229,7 +258,7 @@ def create_chromium_webdriver(extra_options: list[str] | None = None, scale_fact
             if executable_path is not None:
                 break
         else:
-            raise RuntimeError("chromedriver or its variant is not installed or not present on PATH; "
+            raise RuntimeError("chromedriver or its variant is not installed or not present on PATH. "
                                "use BOKEH_CHROMEDRIVER_PATH to specify a customized chromedriver's location")
 
     service = ChromeService(executable_path)

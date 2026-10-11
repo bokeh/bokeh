@@ -64,8 +64,12 @@ extra = [
 export = [
     "playwright >=1.49",
 ]
+notebook = [
+    "anywidget >=0.11",
+    "uvicorn[standard] >=0.30; sys_platform != 'emscripten'",
+]
 all = [
-    "bokeh[sampledata,extra,export]",
+    "bokeh[sampledata,extra,export,notebook]",
 ]
 
 [project.urls]
@@ -75,6 +79,9 @@ repository = "https://github.com/bokeh/bokeh"
 
 [project.scripts]
 bokeh = "bokeh.__main__:main"
+
+[project.entry-points."nbconvert.exporters"]
+bokeh = "bokeh.io.jupyter_export:BokehHTMLExporter"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -134,6 +141,8 @@ filterwarnings = [
 [tool.coverage.run]
 source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
+patch = ["subprocess"]
+sigterm = true
 
 [tool.mypy]
 python_version = "3.12"

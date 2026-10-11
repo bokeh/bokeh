@@ -53,7 +53,9 @@ def test_bokeh_plot_build_loads_resources_before_multiple_plots(
         monkeypatch.setenv("BOKEH_CDN_VERSION", version)
     source = tmp_path / "source"
     source.mkdir()
-    (source / "conf.py").write_text("extensions = ['bokeh.sphinxext.bokeh_plot']\nmaster_doc = 'index'\n")
+    (source / "conf.py").write_text(
+        "extensions = ['bokeh.sphinxext.bokeh_plot']\nmaster_doc = 'index'\n", encoding="utf-8",
+    )
     (source / "index.rst").write_text("""Plots
 =====
 
@@ -61,7 +63,7 @@ def test_bokeh_plot_build_loads_resources_before_multiple_plots(
 
     from bokeh.models import Div
     from bokeh.io import show
-    show(Div(text="first"))
+    show(Div(text="first ā"))
 
 .. bokeh-plot::
 
@@ -69,7 +71,7 @@ def test_bokeh_plot_build_loads_resources_before_multiple_plots(
     plot = figure()
     plot.line([1, 2], [3, 4])
     show(plot)
-""")
+""", encoding="utf-8")
     output = tmp_path / "html"
     warnings = StringIO()
     app = Sphinx(str(source), str(source), str(output), str(tmp_path / "doctrees"), "html",
@@ -77,13 +79,14 @@ def test_bokeh_plot_build_loads_resources_before_multiple_plots(
     app.build()
 
     assert app.statuscode == 0, warnings.getvalue()
-    html = (output / "index.html").read_text()
+    html = (output / "index.html").read_text(encoding="utf-8")
     assert html.count('src="https://cdn.bokeh.org/bokeh/') == 2
     assert html.index('src="https://cdn.bokeh.org/bokeh/') < html.index('data-bokeh-embed-bootstrap')
     assert html.count('<script data-bokeh-embed-bootstrap') == 2
     payloads = list(output.glob("bokeh-content-*.json"))
     assert len(payloads) == 2
-    assert all(json.loads(payload.read_text())["bokeh_version"] == __version__ for payload in payloads)
+    assert all(json.loads(payload.read_text(encoding="utf-8"))["bokeh_version"] == __version__ for payload in payloads)
+    assert any("ā" in payload.read_text(encoding="utf-8") for payload in payloads)
     if version is None:
         assert "data-bokeh-resource-override-version" not in html
     else:

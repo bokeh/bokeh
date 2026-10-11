@@ -95,6 +95,47 @@ jobs:
         working-directory: ./bokehjs
         run: node make test:frameworks
 
+  jupyter:
+    name: notebook
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare wheel-installed environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          environment: notebook-test
+          source-tree: 'delete'
+
+      - name: Install notebook browser
+        run: pixi run --locked --environment notebook-test notebook-browser-install
+
+      - name: Run wheel-installed notebook host tests
+        env:
+          BOKEH_NOTEBOOK_ARTIFACT_DIR: work/notebook-report
+        run: pixi run --locked --environment notebook-test test-notebook --cov=bokeh --cov-report=xml
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v7
+        if: success() || failure()
+        with:
+          use_oidc: true
+          flags: notebook
+          verbose: true
+
+      - name: Upload notebook smoke report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: notebook-report
+          path: work/notebook-report
+          if-no-files-found: error
+
   codebase:
     needs: build
     runs-on: ${{ matrix.os }}
@@ -147,7 +188,7 @@ jobs:
           cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
       - name: Install Bokeh from source
-        run: python -m pip install --no-deps --editable .
+        run: pixi run --locked --environment test-py312 setup
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
@@ -596,7 +637,7 @@ jobs:
           if-no-files-found: ignore
 
   notify-nightly-failure:
-    needs: [formatting, build, frameworks-minimum-node, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [formatting, build, frameworks-minimum-node, jupyter, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
@@ -609,7 +650,7 @@ jobs:
         run: python3 tools/ci/notify_full_ci.py nightly
 
   notify-pr:
-    needs: [formatting, build, frameworks-minimum-node, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
+    needs: [formatting, build, frameworks-minimum-node, jupyter, codebase, tools, typing, examples, unit-test, unit-test-optimized, unit-test-free-threaded, minimal-deps, core-deps, documentation, deployment-proxy, server-e2e]
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 

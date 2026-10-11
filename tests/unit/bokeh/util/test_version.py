@@ -109,6 +109,18 @@ class Test_is_valid_version:
 # Dev API
 #-----------------------------------------------------------------------------
 
+class Test_npm_version:
+    @pytest.mark.parametrize(
+        ("version", "expected"),
+        [
+            ("4.0.0", "4.0.0"),
+            ("4.0.0rc12", "4.0.0-rc.12"),
+            ("10.20.30.dev42", "10.20.30-dev.42"),
+        ],
+    )
+    def test_converts_python_versions_to_npm_versions(self, version: str, expected: str) -> None:
+        assert buv.npm_version(version) == expected
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

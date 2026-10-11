@@ -120,6 +120,18 @@ class TestCodeHandler:
             raise RuntimeError(handler.error)
         assert not handler.safe_to_fork
 
+    def test_serve_result_can_be_stopped_inside_a_server_script(self) -> None:
+        doc = Document()
+        handler = bahc.CodeHandler(
+            source="from bokeh.io import serve\napp = serve(lambda doc: None)\napp.stop()",
+            filename="path/to/test_filename",
+        )
+        handler._logger_text = "%s called %s"
+
+        handler.modify_document(doc)
+
+        assert not handler.failed
+
 
 def test__monkeypatch_io_restores_after_exception() -> None:
     import bokeh.io as io

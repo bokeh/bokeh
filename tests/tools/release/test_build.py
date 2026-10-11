@@ -41,6 +41,7 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
     ("func", "command", "environment"),
     [
         (build.build_bokehjs, "node make build", {}),
+        (build.build_jupyter, "bash tools/ci/build_jupyter.sh", {}),
         (build.build_npm_packages, "npm pack --workspace frameworks/web-component", {}),
         (
             build.build_conda_package,
@@ -53,9 +54,21 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
             "make clean all SPHINXOPTS=-v",
             {"BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
         ),
-        (build.build_pip_packages, "python -m build .", {"BOKEHJS_ACTION": "install"}),
-        (build.dev_install_bokehjs, "python -m pip install --no-deps -e .", {"BOKEHJS_ACTION": "install"}),
-        (build.install_bokehjs, "python -m pip install --no-deps .", {"BOKEHJS_ACTION": "install"}),
+        (
+            build.build_pip_packages,
+            "python -m build .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
+        (
+            build.dev_install_bokehjs,
+            "python -m pip install --no-deps -e .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
+        (
+            build.install_bokehjs,
+            "python -m pip install --no-deps .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
         (build.npm_install, "npm ci", {}),
         (
             build.verify_pip_install_from_sdist,
@@ -97,6 +110,7 @@ def test_command_build_steps(
     ("func", "command"),
     [
         (build.build_bokehjs, "node make build"),
+        (build.build_jupyter, "bash tools/ci/build_jupyter.sh"),
         (build.build_npm_packages, "npm pack --workspace frameworks/web-component"),
         (
             build.build_conda_package,
@@ -129,6 +143,7 @@ def test_command_build_steps_report_failure(config: Config, func: StepType, comm
 def test_directory_build_steps_use_expected_working_directories(config: Config) -> None:
     cases = [
         (build.build_bokehjs, [("cd", "bokehjs"), ("cd", "..")]),
+        (build.build_jupyter, []),
         (build.build_npm_packages, [("cd", "bokehjs"), ("cd", "..")]),
         (build.build_docs, [("cd", "docs/bokeh"), ("cd", "../..")]),
         (build.npm_install, [("cd", "bokehjs"), ("cd", "..")]),
@@ -138,6 +153,16 @@ def test_directory_build_steps_use_expected_working_directories(config: Config) 
         system = RecordingSystem()
         func(config, system)
         assert system.directories == expected
+
+
+def test_jupyter_build_reinstalls_generated_outputs(config: Config) -> None:
+    system = RecordingSystem()
+
+    result = build.build_jupyter(config, system)
+
+    assert result.kind is ActionResult.PASS
+    assert system.commands == ["bash tools/ci/build_jupyter.sh"]
+    assert config.modified == set()
 
 
 def test_build_npm_packages_packs_every_public_package_in_dependency_order(config: Config) -> None:
@@ -242,6 +267,68 @@ def test_update_bokehjs_versions_rejects_old_lockfile(tmp_path: Path, monkeypatc
     assert result.details is not None
     assert "Expected lock file v3" in result.details
     assert Path.cwd() == tmp_path
+
+
+def test_update_and_verify_jupyter_release_frontend(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    frontend = tmp_path / "jupyter"
+    package = tmp_path / "src" / "bokeh" / "jupyter"
+    labextension = package / "labextension"
+    static = labextension / "static"
+    static.mkdir(parents=True)
+    frontend.mkdir(parents=True, exist_ok=True)
+    (frontend / "package.json").write_text(json.dumps({"name": "@bokeh/bokeh-jupyter", "version": "0.0.0"}))
+    (frontend / "package-lock.json").write_text(json.dumps({
+        "name": "@bokeh/bokeh-jupyter",
+        "version": "0.0.0",
+        "lockfileVersion": 3,
+        "packages": {"": {"name": "@bokeh/bokeh-jupyter", "version": "0.0.0"}},
+    }))
+    (package / "anywidget.js").write_text("generated")
+    (labextension / "package.json").write_text(json.dumps({
+        "name": "@bokeh/bokeh-jupyter",
+        "version": "4.0.0-rc.2",
+        "jupyterlab": {"_build": {"load": "static/remoteEntry.test.js"}},
+    }))
+    (static / "remoteEntry.test.js").write_text("generated")
+    monkeypatch.chdir(tmp_path)
+    config = Config("4.0.0rc2")
+
+    result = build.update_jupyter_version(config, RecordingSystem())
+
+    assert result.kind is ActionResult.PASS
+    assert json.loads((frontend / "package.json").read_text())["version"] == "4.0.0-rc.2"
+    lock = json.loads((frontend / "package-lock.json").read_text())
+    assert lock["version"] == "4.0.0-rc.2"
+    assert lock["packages"][""]["version"] == "4.0.0-rc.2"
+    assert config.modified == {
+        "jupyter/package.json",
+        "jupyter/package-lock.json",
+    }
+    assert build.verify_jupyter_build(config, RecordingSystem()).kind is ActionResult.PASS
+
+
+def test_verify_jupyter_release_frontend_rejects_stale_generated_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    frontend = tmp_path / "jupyter"
+    package = tmp_path / "src" / "bokeh" / "jupyter"
+    labextension = package / "labextension"
+    (labextension / "static").mkdir(parents=True)
+    frontend.mkdir(parents=True, exist_ok=True)
+    (frontend / "package.json").write_text(json.dumps({"version": "4.0.0"}))
+    (labextension / "package.json").write_text(json.dumps({
+        "version": "4.0.0-dev.4",
+        "jupyterlab": {"_build": {"load": "static/remoteEntry.test.js"}},
+    }))
+    (package / "anywidget.js").write_text("generated")
+    (labextension / "static" / "remoteEntry.test.js").write_text("generated")
+    monkeypatch.chdir(tmp_path)
+
+    result = build.verify_jupyter_build(Config("4.0.0"), RecordingSystem())
+
+    assert result.kind is ActionResult.FAIL
+    assert result.details is not None
+    assert "source/generated versions" in result.details[0]
 
 
 def test_update_bokehjs_versions_reports_missing_package_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

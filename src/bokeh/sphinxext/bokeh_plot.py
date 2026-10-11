@@ -287,7 +287,7 @@ class BokehPlotDirective(BokehDirective):
         ))
         serialized = perf_counter()
 
-        with open(js_path, "w") as f:
+        with open(js_path, "w", encoding="utf-8") as f:
             f.write(external.payload)
 
         finished = perf_counter()
