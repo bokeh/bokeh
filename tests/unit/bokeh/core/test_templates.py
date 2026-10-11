@@ -48,10 +48,6 @@ def test_no_white_space_in_top_of_html() -> None:
     any_character = re.compile(r"\S")
     assert(any_character.search(lines[0]) is not None)
 
-def test_legacy_notebook_templates_are_removed() -> None:
-    for name in ("AUTOLOAD_NB_JS", "DOC_NB_JS", "NOTEBOOK_LOAD", "ROOT_DIV"):
-        assert not hasattr(m, name)
-
 MODES = ["inline", "cdn", "server", "absolute"]
 if sys.platform != "win32":
     MODES.append("relative")

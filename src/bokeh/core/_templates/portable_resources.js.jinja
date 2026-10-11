@@ -118,7 +118,7 @@
     if (root.Bokeh != null) {
       if (root.Bokeh.version !== expected_version) {
         throw new Error(
-          `BokehJS ${root.Bokeh.version ?? "unknown"} is already active; refusing to load incompatible ${expected_version}`,
+          `BokehJS ${root.Bokeh.version ?? "unknown"} is already active. Refusing to load incompatible ${expected_version}`,
         );
       }
       return;

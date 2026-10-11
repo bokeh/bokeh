@@ -143,15 +143,15 @@ function safeMessage(value: string): string {
 function safeDetails(value: unknown, depth = 0): unknown {
   if (depth > 3) return "[omitted]"
   if (value == null || typeof value === "boolean" || typeof value === "number") return value
-  if (typeof value === "string") return value.length <= 300 ? safeMessage(value) : `[string omitted; ${value.length} characters]`
+  if (typeof value === "string") return value.length <= 300 ? safeMessage(value) : `[string omitted: ${value.length} characters]`
   if (Array.isArray(value)) return value.length <= 20
     ? value.map((item) => safeDetails(item, depth + 1))
-    : `[array omitted; ${value.length} items]`
+    : `[array omitted: ${value.length} items]`
   if (typeof value === "object") {
     const result: Record<string, unknown> = {}
     for (const [key, item] of Object.entries(value)) {
       result[key] = key === "artifact_json" || key === "artifact" || key === "javascript" || key === "value"
-        ? typeof item === "string" ? `[omitted; ${item.length} characters]` : "[omitted]"
+        ? typeof item === "string" ? `[omitted: ${item.length} characters]` : "[omitted]"
         : key === "url" && typeof item === "string"
           ? safeUrl(item)
           : safeDetails(item, depth + 1)
@@ -181,7 +181,7 @@ async function copyReport(report: string, pre: HTMLElement, status: HTMLElement)
     } catch {
       // Keep the report selected for a manual copy.
     }
-    status.textContent = "Clipboard access is unavailable. The report is selected; press Ctrl+C or Command+C to copy it."
+    status.textContent = "Clipboard access is unavailable. The report is selected. Press Ctrl+C or Command+C to copy it."
   }
 }
 
@@ -371,7 +371,7 @@ export async function loadResources(payload: ResourcePayload, javascript: string
       throw new BokehNotebookError(
         "RESOURCE_SOURCE_MISSING",
         `The ${payload.mode} resource record does not contain its portable JavaScript fallback.`,
-        "Re-run the display cell; the extension will request the shared resource from the kernel.",
+        "Re-run the display cell. The extension will request the shared resource from the kernel.",
       )
     }
     const controller = new AbortController()
@@ -391,7 +391,7 @@ export async function loadResources(payload: ResourcePayload, javascript: string
           ? `BokehJS did not finish loading ${payload.mode} resources within ${payload.load_timeout} ms.`
           : `BokehJS failed while loading ${payload.mode} resources.`,
         timedOut
-          ? "Reload the notebook page before retrying or changing resource modes; a kernel restart alone is insufficient because the timed-out external script may still execute in this page."
+          ? "Reload the notebook page before retrying or changing resource modes. A kernel restart alone is insufficient because the timed-out external script may still execute in this page."
           : payload.mode === "cdn"
             ? "Check network access or use show(plot, resources=INLINE)."
             : `Verify the resource URLs are reachable: ${payload.artifacts.map((item) => item.url).filter(Boolean).join(", ") || "inline resource output"}.`,

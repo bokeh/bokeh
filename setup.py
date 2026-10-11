@@ -154,7 +154,7 @@ def build_jupyter() -> None:
             )
     print(SUCCESS)
 
-def build_or_install_jupyter() -> list[tuple[str, list[str]]]:
+def build_or_install_jupyter(data_files: list[tuple[str, list[str]]]) -> None:
     action = os.environ.get("BOKEH_JUPYTER_ACTION", "build")
     if PACKAGED:
         kind, loc = "PACKAGED", "bokeh.jupyter"
@@ -165,9 +165,8 @@ def build_or_install_jupyter() -> list[tuple[str, list[str]]]:
         build_jupyter()
     else:
         raise ValueError(f"Unrecognized action {action!r}")
-    data_files = _jupyter_data_files(required=True)
+    data_files[:] = _jupyter_data_files(required=True)
     print(f"Used {bright(yellow(kind))} Jupyter frontend from {loc}\n")
-    return data_files
 
 def check_tags() -> None:
     if not PACKAGED:
@@ -192,7 +191,7 @@ def _jupyter_data_files(*, required: bool) -> list[tuple[str, list[str]]]:
     if missing:
         if required:
             raise RuntimeError(
-                "The first-party Jupyter extension has not been built; missing: " + ", ".join(missing),
+                "The first-party Jupyter extension has not been built. Missing: " + ", ".join(missing),
             )
         return []
 
@@ -244,7 +243,7 @@ class Build(build):  # type: ignore
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)
-        self.distribution.data_files = build_or_install_jupyter()
+        build_or_install_jupyter(self.distribution.data_files)
         built_jupyter = ROOT / "build" / "lib" / "bokeh" / "jupyter"
         if built_jupyter.exists():
             rmtree(built_jupyter)
@@ -254,14 +253,14 @@ class EditableWheel(editable_wheel):  # type: ignore
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)
-        self.distribution.data_files = build_or_install_jupyter()
+        build_or_install_jupyter(self.distribution.data_files)
         super().run()
 
 class Sdist(sdist):  # type: ignore
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)
-        self.distribution.data_files = build_or_install_jupyter()
+        build_or_install_jupyter(self.distribution.data_files)
         super().run()
 
 setup(

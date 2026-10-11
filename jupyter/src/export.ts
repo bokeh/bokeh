@@ -51,7 +51,7 @@ export function installExportInterceptor(app: JupyterFrontEnd, notebooks: Notebo
       await publishExportSnapshots(manager.serverSettings, options.path, exportId, snapshots)
     } catch (error) {
       console.warn(
-        "Bokeh could not send current frontend state to the notebook exporter; the export will use saved notebook artifacts.",
+        "Bokeh could not send current frontend state to the notebook exporter. The export will use saved notebook artifacts.",
         error,
       )
       const failures = snapshots.map(({view_id}) => ({

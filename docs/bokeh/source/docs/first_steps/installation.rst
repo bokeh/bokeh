@@ -46,7 +46,7 @@ Bokeh can be installed using either the Python package installer ``pip``, or
         * ``all`` - this includes ``extra``, ``export`` and ``sampledata``
         * ``extra`` - installs ``pandas``, etc.
         * ``export`` - installs ``playwright`` for PNG and SVG export (the
-          Chromium browser is installed separately; see
+          Chromium browser is installed separately, as described in
           :ref:`ug_output_export_dependencies`)
         * ``sampledata`` - installs ``bokeh_sampledata`` package (see :ref:`install_sampledata`)
 

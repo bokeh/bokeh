@@ -328,7 +328,7 @@ def _execute_cell_once(page: Any, editors: Any, index: int, *, timeout: int = 30
             })
             """,
         )
-        raise AssertionError(f"Jupyter cell {index} did not finish; state={state!r}") from error
+        raise AssertionError(f"Jupyter cell {index} did not finish. State={state!r}") from error
 
 
 def _wait_for_mounted_figure(page: Any) -> None:

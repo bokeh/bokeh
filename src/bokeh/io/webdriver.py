@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from ..resources import ResourcesLike
 
 # Bokeh imports
+from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_required
 from .util import (
@@ -77,7 +78,7 @@ def get_screenshot_as_png(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: ResourcesLike = "inline",
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
     scale_factor: float = 1,
@@ -141,7 +142,7 @@ def get_svg(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: ResourcesLike = "inline",
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
 ) -> list[str]:
@@ -164,7 +165,7 @@ def get_svgs(
     *,
     driver: WebDriver | None = None,
     timeout: int = 5,
-    resources: ResourcesLike = "inline",
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
 ) -> list[str]:
@@ -257,7 +258,7 @@ def create_chromium_webdriver(extra_options: list[str] | None = None, scale_fact
             if executable_path is not None:
                 break
         else:
-            raise RuntimeError("chromedriver or its variant is not installed or not present on PATH; "
+            raise RuntimeError("chromedriver or its variant is not installed or not present on PATH. "
                                "use BOKEH_CHROMEDRIVER_PATH to specify a customized chromedriver's location")
 
     service = ChromeService(executable_path)

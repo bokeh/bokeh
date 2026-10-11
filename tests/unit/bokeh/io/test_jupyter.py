@@ -20,7 +20,7 @@ from bokeh.embed.resources import (
 )
 from bokeh.plotting import figure
 from bokeh.resources import Resources
-from bokeh.util.version import bokehjs_version
+from bokeh.util.version import npm_version
 
 # Module under test
 import bokeh.io.jupyter as m # isort:skip
@@ -120,7 +120,7 @@ def test_display_payload_references_artifact_without_copying_graph() -> None:
         "protocol_version": m.PROTOCOL_VERSION,
         "kind": "artifact",
         "resource_id": "resource",
-        "bokeh_version": bokehjs_version(__version__),
+        "bokeh_version": npm_version(__version__),
         "python_version": __version__,
         "source_kind": "standalone",
         "view_id": "view",

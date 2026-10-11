@@ -45,7 +45,7 @@ class _ASGIServerThread:
             import uvicorn
         except ImportError as error:
             raise RuntimeError(
-                "Notebook applications require Uvicorn; install Bokeh with its notebook dependencies",
+                "Notebook applications require Uvicorn. Install Bokeh with its notebook dependencies",
             ) from error
 
         self._uvicorn = uvicorn
@@ -440,7 +440,7 @@ class NotebookApplication:
 
         '''
         if self._stopped:
-            raise RuntimeError("This notebook application has been stopped; call serve(...) to create a new one")
+            raise RuntimeError("This notebook application has been stopped. Call serve(...) to create a new one")
         return self._url
 
     def _resolve_browser_url(self, value: Any) -> str:
@@ -554,11 +554,11 @@ def _authorized_origin(value: str) -> str:
         raise ValueError(f"notebook_url did not produce a valid origin: {value!r}")
     if parsed.username is not None or parsed.password is not None:
         raise ValueError(
-            "notebook_url must not contain credentials; use cookie- or header-based proxy authentication instead",
+            "notebook_url must not contain credentials. Use cookie- or header-based proxy authentication instead",
         )
     if parsed.query or parsed.fragment:
         raise ValueError(
-            "notebook_url must not contain a query string or fragment because notebook output is persisted; "
-            "use cookie- or header-based proxy authentication instead",
+            "notebook_url must not contain a query string or fragment because notebook output is persisted. "
+            "Use cookie- or header-based proxy authentication instead",
         )
     return parsed.netloc
