@@ -12,7 +12,7 @@ Removals
   registration APIs (including ``load_notebook()``, ``show_app()``,
   ``destroy_server()``, and ``get_comms()``), ``CommsHandle``, and
   ``bokeh.io.output``. Notebook display is now
-  automatic in supported kernels; ``show(model)`` returns a connected handle
+  automatic in supported kernels. ``show(model)`` returns a connected handle
   whose updates are sent automatically.
 * Removed the ``browser``, ``new``, ``notebook_handle``, and ``notebook_url``
   arguments from ``show()``. Use ``save()`` for explicit file output and pass

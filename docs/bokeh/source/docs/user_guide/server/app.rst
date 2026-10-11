@@ -483,7 +483,7 @@ To allow all threads access to the same document, save a local copy of
             # do some blocking computation
             x, y = random(), random()
 
-            # safe from this thread; the function runs later with the lock
+            # safe from this thread. The function runs later with the lock
             update(x, y)
 
     def session_destroyed(session_context):
@@ -505,7 +505,7 @@ example, ``testapp.py``, and then execute the following command:
 
     bokeh serve --show testapp.py
 
-The decorated callable returns immediately; its return value is always
+The decorated callable returns immediately. Its return value is always
 ``None``. It may wrap either a synchronous or asynchronous function. You can
 inspect its ``pending`` and ``closed`` properties, and call ``close()`` to
 discard pending work. It closes automatically when the session is destroyed.
@@ -524,7 +524,7 @@ This requires that you use the
 locking behavior.
 
 Synchronous unlocked callbacks run in a worker thread. Asynchronous unlocked
-callbacks run on the event loop; delegate any blocking work they perform to an
+callbacks run on the event loop. Delegate any blocking work they perform to an
 executor as in the following example.
 
 As with the thread example above, **all actions that update document state

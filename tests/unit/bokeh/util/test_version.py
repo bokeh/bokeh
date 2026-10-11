@@ -109,7 +109,7 @@ class Test_is_valid_version:
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_bokehjs_version:
+class Test_npm_version:
     @pytest.mark.parametrize(
         ("version", "expected"),
         [
@@ -119,7 +119,7 @@ class Test_bokehjs_version:
         ],
     )
     def test_converts_python_versions_to_npm_versions(self, version: str, expected: str) -> None:
-        assert buv.bokehjs_version(version) == expected
+        assert buv.npm_version(version) == expected
 
 #-----------------------------------------------------------------------------
 # Private API

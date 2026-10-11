@@ -57,7 +57,7 @@ Displaying in a Jupyter notebook
 --------------------------------
 
 If you use Jupyter notebooks, call |show| directly. Bokeh detects the notebook
-kernel and its bundled renderer automatically; no initialization call or
+kernel and its bundled renderer automatically. No initialization call or
 separate extension package is needed:
 
 .. image:: /_images/notebook_inline.png

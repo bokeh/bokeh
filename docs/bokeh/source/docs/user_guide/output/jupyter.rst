@@ -34,7 +34,7 @@ interactive kernel, so no output initialization call is needed:
 
 Use ``handle = show(p)`` when later Python changes should update the displayed
 plot. Explicit ``show()`` calls in a notebook are always connected and return a
-handle; no ``live=`` option is needed. The handle is not printed as a second
+handle. No ``live=`` option is needed. The handle is not printed as a second
 output when ``show(p)`` is the cell's final statement.
 
 The Bokeh wheel contains an auto-starting renderer for JupyterLab and Notebook
@@ -63,7 +63,7 @@ frontend is attached. AnyWidget carries
 revisioned live patches, fresh artifact snapshots, resource requests, and
 application-view lifecycle messages. The artifact MIME record is the durable
 representation for saved Jupyter notebooks, static previews, and HTML/PNG
-export. AnyWidget bounds queued patches to 64 messages and 8 MiB; on
+export. AnyWidget bounds queued patches to 64 messages and 8 MiB. On
 overflow or a revision gap it discards the queue and requests a fresh snapshot.
 The same bound remains in force while a frontend is processing updates, so a
 slow remount cannot grow an unbounded promise chain.
@@ -76,7 +76,7 @@ frontend.
 The former ``output_notebook()`` initialization function and extensible
 notebook-hook registry were removed in Bokeh 4.0. Pass ``resources=`` to an
 individual ``show()`` call when the default resource mode is not appropriate.
-``show()`` only displays inline when called from a notebook; it does not also
+``show()`` only displays inline when called from a notebook. It does not also
 write or open a file unless an explicit ``filename=`` is supplied.
 
 To save a standalone HTML document, call ``save()`` as the cell's final
@@ -115,29 +115,29 @@ Host capabilities
       - Connected ``show(...)``
       - Local ``show(app)``
     * - JupyterLab 4
-      - Auto-starting; browser-tested
+      - Auto-starting and browser-tested
       - Contract-tested
-      - Browser-tested; bundled comm
+      - Browser-tested with bundled comm
       - Browser-tested
     * - Notebook 7
-      - Auto-starting; shares the JupyterLab renderer
+      - Auto-starting. Shares the JupyterLab renderer
       - Contract-tested
-      - Contract-tested; bundled comm
+      - Contract-tested with bundled comm
       - Browser reachability applies
     * - Classic Notebook 6
       - None required
-      - Static fallback contract-tested; host unverified
+      - Static fallback contract-tested. Host unverified
       - Static fallback only
-      - Unverified; browser reachability applies
+      - Unverified. Browser reachability applies
     * - VS Code notebooks
       - No first-party VS Code renderer
-      - Contract-tested; host execution policy applies
+      - Contract-tested. Host execution policy applies
       - Static fallback only
-      - Unverified; webview origin and reachability apply
+      - Unverified. Webview origin and reachability apply
     * - Colab
       - No extension installation
-      - Contract-tested; host smoke test pending
-      - AnyWidget contract-tested; host smoke test pending
+      - Contract-tested. Host smoke test pending
+      - AnyWidget contract-tested. Host smoke test pending
       - Browser-reachable proxy required
     * - marimo 0.24
       - Native AnyWidget host
@@ -147,19 +147,19 @@ Host capabilities
 
 Here, *contract-tested* means the exact production adapter is tested without
 claiming automation inside a proprietary host. A trusted HTML viewer can run
-the artifact's common mount bootstrap after loading its resource owner; a
+the artifact's common mount bootstrap after loading its resource owner. A
 viewer that refuses notebook scripts displays the inert fallback notice. The
 bundled renderer keeps current model state only in frontend memory so a
-UI-initiated export can use it; it does not add a PNG or export state to normal
+UI-initiated export can use it. It does not add a PNG or export state to normal
 cell output.
 
 Colab places cell outputs in isolated browser frames. A static final expression
 therefore emits one common artifact fragment whose explicit resource policy is
-resolved inside that frame; it does not depend on a separate loader output or a
+resolved inside that frame. It does not depend on a separate loader output or a
 hidden page-global document registry. Connected ``show(plot)`` and
 ``show(app)`` require AnyWidget 0.11 or later, which owns resource requests,
 synchronization, and disposal inside each view. CDN is the practical default in
-Colab; selecting ``INLINE`` repeats BokehJS across isolated output frames
+Colab. Selecting ``INLINE`` repeats BokehJS across isolated output frames
 because those frames cannot share loaded JavaScript. These production routes
 are contract-tested, but an automated Colab-host smoke test remains pending.
 
@@ -190,7 +190,7 @@ an extra from an unnamed wheel path:
     python -m pip install /path/to/bokeh-4.0.0.dev1-py3-none-any.whl "anywidget>=0.11" marimo
 
 Install Bokeh in both the kernel environment and the Jupyter server environment
-when those are different. The Python package belongs in the kernel; the bundled
+when those are different. The Python package belongs in the kernel. The bundled
 renderer assets must be discoverable by the Jupyter server.
 
 .. image:: /_images/notebook_inline.png
@@ -214,7 +214,7 @@ Notebook output accepts a :class:`~bokeh.resources.Resources` configuration. Use
 external assets, ``server``/``relative``/``absolute`` for host-served assets,
 and ``none`` only when the notebook host already owns every declared
 requirement. ``Resources(nonce=...)`` propagates a CSP nonce to emitted
-elements; ``external_only=True`` rejects policies or extension assets that
+elements. ``external_only=True`` rejects policies or extension assets that
 would require inline code instead of silently weakening the host's CSP.
 The first output that needs a resolved resource asset owns it, and later
 outputs refer to it by a stable identifier. The resource MIME record includes
@@ -246,8 +246,8 @@ If an external script times out, reload the notebook page before retrying or
 changing resource modes. A kernel restart alone is insufficient because the
 browser page may still execute a timed-out script after its element is removed.
 Bokeh therefore keeps that load as a terminal barrier instead of risking two
-BokehJS runtimes. A definitive network error does not have this restriction;
-you can correct the URL or switch to ``INLINE`` and re-run.
+BokehJS runtimes. A definitive network error does not have this restriction.
+You can correct the URL or switch to ``INLINE`` and re-run.
 
 .. image:: /_images/ridgeplot_jupyter_lab.png
     :scale: 25 %
@@ -300,7 +300,7 @@ serving, and keep per-session state on the document and its models.
     view = show(app)
 
 Each ``show(app)`` creates an independent browser session. Clearing an output
-or calling ``view.close()`` closes only that view; neither stops the application
+or calling ``view.close()`` closes only that view. Neither stops the application
 nor affects any other displayed session. Call ``app.stop()`` when the
 application is no longer needed. See :ref:`ug_server` for general information
 about Bokeh server applications.
@@ -311,7 +311,7 @@ Configure any explicit proxy override and ASGI server options on ``serve()``,
 not ``show(app)``.
 
 The browser must be able to reach the local application server. This is
-browser-tested in local JupyterLab; Notebook 7 consumes the same renderer, but
+browser-tested in local JupyterLab. Notebook 7 consumes the same renderer, but
 does not currently have a separate automated browser run. In remote JupyterLab
 and Notebook 7 sessions, the bundled frontend discovers the Jupyter server's
 public base URL and routes kernel-local applications through
@@ -342,7 +342,7 @@ applies. There are three distinct synchronization models:
   that view. A frontend opened later receives a current artifact snapshot.
   If an update introduces a newly required built-in bundle or custom
   extension, that snapshot first publishes and identifies the corresponding
-  resource record; the frontend loads it before remounting the artifact.
+  resource record. The frontend loads it before remounting the artifact.
   Use ``handle.views`` for diagnostics and ``handle.close()`` when finished.
   To send several
   changes as one update, use the handle as a batching context:
@@ -354,7 +354,7 @@ applies. There are three distinct synchronization models:
           source.stream(new_data)
 * ``app = serve(...)`` followed by ``view = show(app)`` creates a full ASGI
   server-session document. Each call creates an independent view. Closing
-  ``view`` closes that view's frontend session without stopping ``app``;
+  ``view`` closes that view's frontend session without stopping ``app``.
   ``app.stop()`` closes all its views. Arbitrary variables in other notebook
   cells are not automatically models in that session.
 
@@ -362,7 +362,7 @@ Live standalone output requires a supported comm channel. JupyterLab and
 Notebook 7 use Bokeh's bundled comm implementation. Colab and marimo use
 AnyWidget from the notebook extra. Colab rejects connected output without AnyWidget
 with an actionable install message. A host with neither transport degrades to
-the saved static snapshot with a visible "not connected to Python" notice; no
+the saved static snapshot with a visible "not connected to Python" notice. No
 path silently pretends that synchronization is active.
 
 For example, re-executing ``hover = HoverTool()`` creates a new, unattached
@@ -394,7 +394,7 @@ must not search a page-global view or document registry:
 The target's ``bokehMount`` property is the same handle returned by
 ``when_mounted()``. It owns readiness, failures, document access, view lookup,
 and disposal for that one output. Replacing or deleting the output disposes
-the handle; consumers should acquire the replacement target instead of
+the handle. Consumers should acquire the replacement target instead of
 retaining models or views from an earlier display.
 
 Diagnostics
@@ -414,9 +414,9 @@ Run ``bokeh.io.notebook_info()`` to include the Bokeh and Python versions,
 Python executable, Bokeh package path, protocol and MIME names,
 packaged-renderer availability, comm availability, shared-resource record count, and
 managed-application count in a bug report. As a cell's final expression it
-renders a compact branded summary with expandable technical details; assigning
+renders a compact branded summary with expandable technical details. Assigning
 it to a name still gives a normal dictionary-like value for programmatic
-inspection. Renderer negotiation is per output; there is no page-global
+inspection. Renderer negotiation is per output. There is no page-global
 renderer-status handshake. A packaged extension and a connected kernel remain
 separate checks when the kernel and Jupyter server use different environments.
 The information does not include artifact graphs, resource source, or private
@@ -437,8 +437,8 @@ allows current connected documents and notebook applications to become a
 static PNG. A cryptographically random correlation ID binds the frontend POST,
 notebook path, and authenticated nbconvert GET, so concurrent exports of the
 same notebook cannot consume one another's snapshots. The serialization is
-held briefly in bounded server memory and consumed exactly once by that export;
-it is never inserted into the notebook model. If no frontend state
+held briefly in bounded server memory and consumed exactly once by that export.
+It is never inserted into the notebook model. If no frontend state
 is available, as in a command-line or offline export, the exporter reconstructs
 the saved MIME snapshot instead. This also works for saved connected plot
 output. A notebook application has no saved server document, so it receives a
@@ -455,7 +455,7 @@ Export-time PNG capture requires Playwright and its Chromium browser.
 Empty output, models that cannot be reconstructed, capture failures, and PNGs
 larger than 10 MiB cannot carry a PNG. Their static HTML explains which stage
 failed and, where applicable, how to produce an exportable snapshot. Untrusted
-notebooks are never executed for PNG capture; trust and save the notebook
+notebooks are never executed for PNG capture. Trust and save the notebook
 before exporting. The interactive custom-MIME output remains the primary
 notebook display.
 
@@ -465,23 +465,23 @@ notebook display.
     * - Code
       - Meaning and recovery
     * - ``PAYLOAD_INVALID`` / ``PROTOCOL_VERSION_MISMATCH``
-      - Saved output and renderer disagree; update Bokeh, restart, and reload.
+      - Saved output and renderer disagree. Update Bokeh, restart, and reload.
     * - ``RESOURCE_RECORD_MISSING``
-      - Neither notebook nor live kernel has the owner; re-run the display in the bundled renderer, or restart for the fallback.
+      - Neither notebook nor live kernel has the owner. Re-run the display in the bundled renderer, or restart for the fallback.
     * - ``RESOURCE_SOURCE_MISSING`` / ``RESOURCE_LOAD_FAILED``
-      - Resource data or URL failed; check network access or use ``INLINE``. After a timeout, reload the notebook page before retrying or changing modes; a kernel restart alone does not clear the browser-side barrier.
+      - Resource data or URL failed. Check network access or use ``INLINE``. After a timeout, reload the notebook page before retrying or changing modes. A kernel restart alone does not clear the browser-side barrier.
     * - ``BOKEH_VERSION_MISMATCH``
-      - Python and BokehJS differ; restart the kernel and reload the page.
+      - Python and BokehJS differ. Restart the kernel and reload the page.
     * - ``ARTIFACT_RECORD_MISSING`` / ``ARTIFACT_RECORD_INVALID``
-      - The versioned artifact is absent, malformed, or disagrees with its MIME fingerprint; re-run the display cell and save it again.
+      - The versioned artifact is absent, malformed, or disagrees with its MIME fingerprint. Re-run the display cell and save it again.
     * - ``ARTIFACT_RENDER_FAILED``
       - The artifact was available but its common ``BokehMount`` lifecycle could not become ready.
     * - ``FILE_PATH_UNAVAILABLE`` / ``FILE_LINK_FAILED``
-      - Jupyter could not serve the saved path; save it under the notebook directory and evaluate ``save(...)`` again.
+      - Jupyter could not serve the saved path. Save it under the notebook directory and evaluate ``save(...)`` again.
     * - ``LIVE_SYNC_UNAVAILABLE``
-      - This host cannot open Bokeh's per-view comm; the renderer uses the saved snapshot and marks it as disconnected.
+      - This host cannot open Bokeh's per-view comm. The renderer uses the saved snapshot and marks it as disconnected.
     * - ``LIVE_SYNC_SETUP_FAILED`` / ``LIVE_DOCUMENT_CONNECTION_TIMEOUT`` / ``LIVE_DOCUMENT_UNAVAILABLE``
-      - The frontend could not attach to the connected document; the renderer uses the saved snapshot when possible. Check the kernel connection and re-run ``show(...)``.
+      - The frontend could not attach to the connected document. The renderer uses the saved snapshot when possible. Check the kernel connection and re-run ``show(...)``.
     * - ``LIVE_DOCUMENT_NOT_FOUND`` / ``LIVE_DOCUMENT_CLOSED``
       - The kernel no longer owns the document handle. Re-run ``show(...)`` to create a new connected view.
     * - ``ANYWIDGET_RESOURCE_REQUEST_FAILED`` / ``ANYWIDGET_RESOURCE_REQUEST_TIMEOUT``
@@ -495,7 +495,7 @@ notebook display.
     * - ``APPLICATION_VIEW_NOT_FOUND`` / ``APPLICATION_VIEW_CLOSED``
       - The kernel no longer owns that application view handle. Re-run ``show(app)`` to create a new view.
     * - ``UNEXPECTED_RENDER_ERROR``
-      - The renderer encountered an unclassified failure; copy the redacted report and check the browser console and kernel output.
+      - The renderer encountered an unclassified failure. Copy the redacted report and check the browser console and kernel output.
 
 JupyterHub
 ''''''''''
@@ -678,7 +678,7 @@ private renderer hooks:
 * **Connected output and release:** run
   :bokeh-tree:`examples/output/jupyter/live/Basic Usage.ipynb`, mutate the data
   from Python, and observe the existing output update. Reload the browser to
-  exercise snapshot-plus-revision reconnection; clear the output or call
+  exercise snapshot-plus-revision reconnection. Clear the output or call
   ``handle.close()`` to demonstrate that only that view is released.
 * **Static export:** with either notebook open, use the Jupyter **Export to
   HTML** command or run ``jupyter nbconvert --to bokeh notebook.ipynb``. The

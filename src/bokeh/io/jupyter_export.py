@@ -32,6 +32,7 @@ from traitlets import Bool, Enum, Integer
 
 # Bokeh imports
 from ..embed.result import EmbedResult, EmbedValidationError
+from ..resources import INLINE
 from .export import ExportBackendType, get_screenshot_as_png_from_html
 from .jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE
 from .notebook import STATIC_FALLBACK_ATTRIBUTE, static_fallback
@@ -446,7 +447,7 @@ class BokehPNGPreprocessor(Preprocessor):
         if not result.roots:
             raise _PngUnavailable("This Bokeh output has no rendered roots to capture during notebook export.")
 
-        page = result.page(resources="inline")
+        page = result.page(resources=INLINE)
         if isinstance(width, (int, float)) and 1 <= width <= 10000:
             page = page.replace("<body>", f'<body style="width:{round(width)}px">', 1)
         image = get_screenshot_as_png_from_html(

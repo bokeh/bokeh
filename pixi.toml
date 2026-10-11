@@ -305,4 +305,4 @@ build-docs = "bash tools/ci/build_docs.sh"
 
 [feature.notebook-test.tasks]
 notebook-browser-install = "python -m playwright install --only-shell chromium"
-test-notebook = "pytest --color=yes -rs tests/integration/test_jupyter_install.py tests/unit/bokeh/io/test_anywidget.py tests/unit/bokeh/io/test_jupyter.py tests/unit/bokeh/io/test_jupyter_app.py tests/unit/bokeh/io/test_jupyter_export.py tests/unit/bokeh/io/test_jupyter_runtime.py tests/unit/bokeh/io/test_notebook__io.py tests/integration/test_jupyter_extension.py tests/integration/test_marimo.py"
+test-notebook = "pytest --color=yes -rs @tests/notebook-tests.txt"

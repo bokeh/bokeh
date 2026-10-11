@@ -85,13 +85,13 @@ def show(
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
             passed to ``show`` in order to display them. Outside an interactive
             notebook kernel, the output is saved to an HTML file and opened in
-            the default browser. In a notebook, Bokeh displays the output inline;
-            use :func:`~bokeh.io.save` explicitly to create an external HTML file.
+            the default browser. In a notebook, Bokeh displays the output inline.
+            Use :func:`~bokeh.io.save` explicitly to create an external HTML file.
 
             In a Jupyter notebook, a managed application returned by
             :func:`~bokeh.io.serve` may be passed in any later cell. Direct
             Application and callable arguments are rejected with a
-            migration message; start them explicitly with ``serve()``.
+            migration message. Start them explicitly with ``serve()``.
 
         filename (PathLike, optional) :
             HTML filename to save and open. If omitted outside notebook mode,

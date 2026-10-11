@@ -91,15 +91,15 @@ def is_valid_version(version: str) -> bool:
 # Dev API
 #-----------------------------------------------------------------------------
 
-def bokehjs_version(version: str | None) -> str:
-    '''Convert a Python package version to BokehJS npm version syntax.
+def npm_version(version: str | None) -> str:
+    '''Convert a Python package version to npm version syntax.
 
     Args:
         version:
             The Python version, or ``None`` to use the installed Bokeh version.
 
     Returns:
-        The corresponding BokehJS release, prerelease, or development version.
+        The corresponding npm release, prerelease, or development version.
 
     '''
     parsed = Version(version or __version__)

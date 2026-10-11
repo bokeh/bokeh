@@ -263,8 +263,8 @@ def verify_jupyter_build(config: Config, system: System) -> ActionReturn:
         generated = json.loads((generated_root / "labextension" / "package.json").read_text())
         if source["version"] != config.js_version or generated["version"] != config.js_version:
             raise ValueError(
-                f"Jupyter source/generated versions must both be {config.js_version!r}; "
-                f"got {source['version']!r} and {generated['version']!r}",
+                f"Jupyter source/generated versions must both be {config.js_version!r}. "
+                f"Got {source['version']!r} and {generated['version']!r}",
             )
         if not (generated_root / "anywidget.js").is_file():
             raise FileNotFoundError("src/bokeh/jupyter/anywidget.js")

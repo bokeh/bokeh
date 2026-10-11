@@ -28,7 +28,7 @@ from typing import (
 from .. import __version__
 from ..embed.resources import ResolvedResource, ResolvedResources
 from ..embed.result import EMBED_MIME_TYPE, EmbedResult
-from ..util.version import bokehjs_version
+from ..util.version import npm_version
 
 __all__ = (
     "ARTIFACT_MIME_TYPE",
@@ -84,13 +84,13 @@ class _NotebookInfo(dict[str, Any]):
         comms = self.get("comm_manager") is True
         extension = self.get("labextension_packaged") is True
         if marimo and anywidget:
-            environment: tuple[str, Literal["neutral", "success", "error"]] = ("marimo; AnyWidget connected", "success")
+            environment: tuple[str, Literal["neutral", "success", "error"]] = ("marimo with AnyWidget connected", "success")
         elif not kernel:
             environment = ("No interactive kernel detected", "error")
         elif not comms:
-            environment = ("Interactive kernel; comm unavailable", "error")
+            environment = ("Interactive kernel, comm unavailable", "error")
         else:
-            environment = ("Interactive kernel; comm available", "success")
+            environment = ("Interactive kernel, comm available", "success")
 
         resource_records = self.get("resource_records", 0)
         managed_applications = self.get("managed_applications", 0)
@@ -261,7 +261,7 @@ def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
     selected = resolved.assets if assets is None else assets
     artifacts = [_artifact(resource) for resource in selected]
     descriptor = {
-        "bokeh_version": bokehjs_version(resolved.bokeh_version),
+        "bokeh_version": npm_version(resolved.bokeh_version),
         "policy": resolved.policy.to_dict(),
         "requirements": resolved.requirements.to_dict(),
         "dependencies": dependencies or [],
@@ -273,7 +273,7 @@ def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
         kind="resources",
         resource_id=f"bokeh-{digest}",
         mode=resolved.policy.mode,
-        bokeh_version=bokehjs_version(resolved.bokeh_version),
+        bokeh_version=npm_version(resolved.bokeh_version),
         python_version=__version__,
         requirements=resolved.requirements.to_dict(),
         policy=resolved.policy.to_dict(),
@@ -376,7 +376,7 @@ def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
         protocol_version=PROTOCOL_VERSION,
         kind="artifact",
         resource_id=resource_id,
-        bokeh_version=bokehjs_version(__version__),
+        bokeh_version=npm_version(__version__),
         python_version=__version__,
         source_kind=result.source["kind"],
         view_id=view_id,

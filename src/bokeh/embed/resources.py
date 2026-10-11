@@ -422,7 +422,7 @@ def bundle_extensions(objs: Iterable[HasProps | type[HasProps]] | None, policy: 
         if package is not None:
             package_name = package.get("name")
             if package_name is None:
-                raise ValueError("invalid package.json; missing package name")
+                raise ValueError("invalid package.json. Missing package name")
             package_version = package.get("version", "latest")
             package_main = package.get("module", package.get("main"))
             if package_main is not None:

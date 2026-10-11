@@ -167,7 +167,7 @@ class Resources:
     def __post_init__(self) -> None:
         if self.mode not in _RESOURCE_MODES:
             raise ResourceConflictError(
-                f"unknown resource mode {self.mode!r}; expected one of {_RESOURCE_MODES!r}",
+                f"unknown resource mode {self.mode!r}. Expected one of {_RESOURCE_MODES!r}",
             )
         if self.mode == CDN and self.override_version is None:
             object.__setattr__(self, "override_version", settings.cdn_version())
@@ -219,7 +219,7 @@ class Resources:
             overrides["minified"] = False
         elif value not in _RESOURCE_MODES:
             raise ResourceConflictError(
-                f"unknown resource mode {value!r}; expected one of {_RESOURCE_SETTINGS!r}",
+                f"unknown resource mode {value!r}. Expected one of {_RESOURCE_SETTINGS!r}",
             )
         return cls(mode=value, **overrides)
 

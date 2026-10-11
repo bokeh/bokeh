@@ -42,7 +42,7 @@ The locked ``notebook-test`` environment contains the optional notebook hosts
 and proxy used by the browser suite. Its test task verifies extension discovery
 and packaging when run against an installed wheel, then runs the AnyWidget,
 JupyterLab, and marimo integration suites. Portable Classic Notebook fallback
-behavior is covered by Python/JavaScript contract tests; no Classic Bokeh
+behavior is covered by Python/JavaScript contract tests. No Classic Bokeh
 extension is installed or enabled.
 
 Protocol and lifecycle
@@ -64,14 +64,14 @@ deduplication path, never the sole durable owner.
 
 Application outputs persist only their random application ID. Kernel-local
 URLs and random server prefixes are returned over the live comm and rewritten
-for the current browser at connection time; they must not be saved in notebook
+for the current browser at connection time. They must not be saved in notebook
 JSON.
 
 Likewise, a timed-out external core script must remain a terminal global load
 barrier: removing a dynamic ``script`` element does not guarantee that the
 browser will not execute it later. Only a definitive load error may release a
 same-version waiter to try another resource representation. Recovery requires
-a page reload, which destroys the browser realm; restarting only the kernel
+a page reload, which destroys the browser realm. Restarting only the kernel
 must not clear this barrier.
 The portable owner coordinates through DOM markers and delegates resolved
 requirements to BokehJS's common ``resource_loader``. Do not add a notebook
@@ -92,7 +92,7 @@ saved notebook.
 
 Every renderer view must own an explicit cleanup callback. Static cleanup
 removes only its ``ViewManager``. A connected document view closes only its
-frontend comm; the Python handle remains available to other and later views.
+frontend comm. The Python handle remains available to other and later views.
 Application cleanup closes only the BokehJS client session created for that
 output. The Python application-view handle can close that session from another
 cell without stopping the application. Never infer ownership from the global
@@ -107,8 +107,8 @@ Version synchronization
 -----------------------
 
 The extension version in ``jupyter/package.json`` must
-match the Python/BokehJS development version. The MIME name remains stable;
-compatibility is negotiated with ``protocol_version`` so an older renderer can
+match the Python/BokehJS development version. The MIME name remains stable.
+Compatibility is negotiated with ``protocol_version`` so an older renderer can
 display a useful diagnostic.
 
 The saved-file MIME payload contains only a notebook-relative path. The bundled

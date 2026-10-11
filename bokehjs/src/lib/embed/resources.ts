@@ -180,7 +180,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
     throw new ResourceError(
       "version",
       policy.override_version == null
-        ? `Bokeh embed ${embed_version} is incompatible with the loaded BokehJS ${js_version}; load matching resources`
+        ? `Bokeh embed ${embed_version} is incompatible with the loaded BokehJS ${js_version}. Load matching resources`
         : `Bokeh resource policy expects BokehJS ${expected_version}, but the loaded BokehJS is ${js_version}`,
     )
   }
@@ -220,7 +220,7 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
   if (extension_assets.length != 0 && policy.assets == null) {
     throw new ResourceError(
       "policy",
-      "embed extension resources must be resolved by the host; provide policy assets or load them separately",
+      "embed extension resources must be resolved by the host. Provide policy assets or load them separately",
     )
   }
   if (policy.assets != null) {

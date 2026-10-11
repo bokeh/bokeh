@@ -154,7 +154,7 @@ export function assertProtocol(payload: unknown): void {
   if (problems.length !== 0) {
     throw new BokehNotebookError(
       "PAYLOAD_INVALID",
-      `The ${record.kind} payload is invalid: ${problems.slice(0, 8).join("; ")}.`,
+      `The ${record.kind} payload is invalid: ${problems.slice(0, 8).join(". ")}.`,
       "Re-run the cell. If the output was saved by another Bokeh version, restart the kernel first.",
     )
   }

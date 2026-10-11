@@ -114,7 +114,7 @@ del _configure_warnings
 def _configure_marimo() -> None:
     # marimo releases predating Bokeh 4 register a formatter that imports the
     # removed output_notebook API and replaces show() with a static iframe.
-    # Disable only that formatter when marimo already owns the runtime; its
+    # Disable only that formatter when marimo already owns the runtime. Its
     # normal rich-display path then selects Bokeh's AnyWidget MIME bundle.
     import sys
     from importlib import import_module
@@ -126,9 +126,8 @@ def _configure_marimo() -> None:
     except ImportError:
         return
     factories = getattr(formatters, "THIRD_PARTY_FACTORIES", {})
-    factory = factories.get("bokeh")
-    if factory is not None:
-        setattr(factory, "register", lambda: None)
+    if (factory := factories.get("bokeh")) is not None:
+        factory.register = lambda: None
 
 _configure_marimo()
 del _configure_marimo

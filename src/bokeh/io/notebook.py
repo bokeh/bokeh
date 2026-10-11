@@ -1273,8 +1273,8 @@ def server_url(url: str, port: int | None) -> str:
         raise ValueError(f"Invalid notebook URL: {url!r}")
     if parsed.username is not None or parsed.password is not None:
         raise ValueError(
-            "notebook_url must not contain credentials because notebook output is persisted; "
-            "use cookie- or header-based proxy authentication instead",
+            "notebook_url must not contain credentials because notebook output is persisted. "
+            "Use cookie- or header-based proxy authentication instead",
         )
 
     hostname = f"[{parsed.hostname}]" if ":" in parsed.hostname else parsed.hostname
