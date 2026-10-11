@@ -100,6 +100,7 @@ class EventCallbackManager:
             self._event_callbacks[event].append(callback)
 
         self.subscribed_events.add(event)
+        self._update_event_callbacks()
 
     def _trigger_event(self, event: ModelEvent) -> None:
         def invoke() -> None:
