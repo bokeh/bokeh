@@ -12,6 +12,7 @@ from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 # External imports
+import numpy as np
 import pytest
 
 # Bokeh imports
@@ -515,6 +516,36 @@ class TestDocumentViewHandle:
         assert isinstance(envelope["buffer_ids"], list)
         handle.close()
 
+    def test_numpy_updates_send_json_valid_patch_content(self) -> None:
+        from jupyter_client.session import Session
+
+        source = ColumnDataSource(data={"x": np.array([1.0, 2.0])})
+        document = Document()
+        document.add_root(source)
+        sent: list[tuple[dict[str, Any], list[bytes] | None]] = []
+
+        def send(data: dict[str, Any], buffers: list[bytes] | None = None) -> None:
+            Session().pack(data)
+            sent.append((data, buffers))
+
+        comm = MagicMock(comm_id="comm")
+        comm.send.side_effect = send
+        handle = m.DocumentViewHandle(source, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+        sent.clear()
+
+        source.data = {"x": np.array([3.0, 4.0])}
+
+        assert handle.views == 1
+        assert len(sent) == 1
+        envelope, buffers = sent[0]
+        assert envelope["kind"] == "patch"
+        assert envelope["buffer_ids"]
+        assert buffers
+        assert len(envelope["buffer_ids"]) == len(buffers)
+        handle.close()
+
     def test_scalar_changes_do_not_recompute_model_references(self) -> None:
         root = Div(text="before")
         document = Document()
@@ -765,7 +796,7 @@ def test_view_cleanup_tolerates_failed_comms_and_frontends() -> None:
     frontend.close.assert_called_once_with()
 
 
-def test_document_handle_guards_closed_batches_and_drops_failed_comms() -> None:
+def test_document_handle_guards_closed_batches_and_drops_failed_comms(caplog: pytest.LogCaptureFixture) -> None:
     handle = m.DocumentViewHandle(Div(), live_id="live", view_id="view")
     handle.close()
     with pytest.raises(RuntimeError, match="closed notebook document handle"):
@@ -779,6 +810,7 @@ def test_document_handle_guards_closed_batches_and_drops_failed_comms() -> None:
     with patch("bokeh.protocol.patch_doc", return_value=message):
         handle._broadcast([MagicMock()])
     assert handle.views == 0
+    assert caplog.records[-1].exc_info is not None
 
 
 def test_application_view_rejects_invalid_frontend_url_and_is_bounded() -> None:
