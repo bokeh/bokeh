@@ -517,15 +517,13 @@ class TestDocumentViewHandle:
         handle.close()
 
     def test_numpy_updates_send_json_valid_patch_content(self) -> None:
-        from jupyter_client.session import Session
-
         source = ColumnDataSource(data={"x": np.array([1.0, 2.0])})
         document = Document()
         document.add_root(source)
         sent: list[tuple[dict[str, Any], list[bytes] | None]] = []
 
         def send(data: dict[str, Any], buffers: list[bytes] | None = None) -> None:
-            Session().pack(data)
+            json.dumps(data)
             sent.append((data, buffers))
 
         comm = MagicMock(comm_id="comm")
