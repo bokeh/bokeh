@@ -579,7 +579,7 @@ def test_actual_port_printed_out() -> None:
 
 def test_websocket_max_message_size_printed_out() -> None:
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
-    with run_bokeh_serve(["--port", "0", "--websocket-max-message-size", "12345"]) as (_, nbsr):
+    with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as (_, nbsr):
         assert_pattern(nbsr, pat)
 
 class TestXSRF:
@@ -597,7 +597,7 @@ class TestXSRF:
 
 def test_auth_module_printed() -> None:
     pat = re.compile(r'User authentication hooks provided(?! \()')
-    with run_bokeh_serve(["--port", "0", "--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (_, nbsr):
+    with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (_, nbsr):
         assert_pattern(nbsr, pat)
 
 

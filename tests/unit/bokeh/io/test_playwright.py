@@ -44,7 +44,7 @@ import bokeh.io.browser as bib # isort:skip
 # Private API
 #-----------------------------------------------------------------------------
 
-def test_render_wait_reports_the_mount_failure() -> None:
+def test_render_wait_reports_page_mount_error_after_timeout() -> None:
     page = MagicMock()
     page.wait_for_function.side_effect = RuntimeError("timeout")
     page.evaluate.return_value = "failed to construct the document"
@@ -56,7 +56,7 @@ def test_render_wait_reports_the_mount_failure() -> None:
 
 
 @pytest.mark.asyncio
-async def test_async_render_wait_reports_the_mount_failure() -> None:
+async def test_async_render_wait_reports_page_mount_error_after_timeout() -> None:
     page = MagicMock()
     page.wait_for_function = AsyncMock(side_effect=RuntimeError("timeout"))
     page.evaluate = AsyncMock(return_value="failed to construct the document")
