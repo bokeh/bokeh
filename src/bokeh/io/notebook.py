@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 import os
 import sys
 import urllib
@@ -37,6 +38,7 @@ from typing import (
 )
 
 # Bokeh imports
+from ..core.json_encoder import serialize_json
 from ..util.serialization import make_id
 from .jupyter import NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET, ResourceRecord
 
@@ -485,14 +487,15 @@ class DocumentViewHandle:
             return
         from ..protocol import patch_doc
         message = patch_doc(events)
+        content = json.loads(serialize_json(message.content))
         buffer_ids = [buffer.id for buffer in message.buffers]
         buffers = [buffer.to_bytes() for buffer in message.buffers]
         self._revision += 1
         for comm_id, comm in tuple(self._comms.items()):
             try:
-                self._send(comm, message.content, buffer_ids, buffers, self._revision)
+                self._send(comm, content, buffer_ids, buffers, self._revision)
             except Exception:
-                log.warning("A connected notebook frontend disconnected while applying an update")
+                log.warning("A connected notebook frontend disconnected while applying an update", exc_info=True)
                 self._disconnect(comm_id)
 
 

@@ -217,12 +217,16 @@ uvicorn-standard = "*"
 [feature.notebook-test.dependencies]
 anywidget = ">=0.11"
 ipython = "*"
+ipywidgets = "*"
 jupyter-server-proxy = "*"
 jupyterlab = "*"
 marimo = "*"
 nbconvert = ">=5.4"
 notebook = "*"
+numba = "*"
 playwright-python = "*"
+pooch = "*"
+scipy = "*"
 uvicorn-standard = "*"
 
 [feature.build-tools.dependencies]
