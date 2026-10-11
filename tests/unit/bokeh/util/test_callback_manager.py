@@ -24,7 +24,14 @@ from functools import partial
 # Bokeh imports
 from bokeh.core.property.singletons import OldValueUnavailable
 from bokeh.document import Document
+from bokeh.events import ButtonClick, Tap
 from bokeh.model.util import HasDocumentRef
+from bokeh.models import (
+    Button,
+    Plot,
+    TabPanel,
+    Tabs,
+)
 from bokeh.settings import settings
 
 # Module under test
@@ -299,6 +306,38 @@ class TestPropertyCallbackManager:
 
 
 class TestEventCallbackManager:
+    @pytest.mark.parametrize("register_before_attach", [False, True])
+    @pytest.mark.parametrize("event_type", [ButtonClick, Tap])
+    def test_on_event_document_subscription(self, register_before_attach, event_type) -> None:
+        doc = Document()
+        model_type = Button if event_type is ButtonClick else Plot
+        button = model_type()
+        other = model_type()
+        received = []
+        if register_before_attach:
+            button.on_event(event_type, received.append)
+        doc.add_root(button)
+        doc.add_root(other)
+        if not register_before_attach:
+            button.on_event(event_type, received.append)
+        event = event_type(button)
+        doc.callbacks.trigger_event(event_type(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_click_in_dynamic_tab(self) -> None:
+        doc = Document()
+        tabs = Tabs()
+        doc.add_root(tabs)
+        button = Button()
+        tabs.tabs.append(TabPanel(child=button))
+        received = []
+        button.on_click(lambda: received.append("first"))
+        button.on_click(lambda: received.append("second"))
+        doc.callbacks.trigger_event(ButtonClick(button))
+        assert received == ["first", "second"]
+
     def test_creation(self) -> None:
         m = cbm.EventCallbackManager()
         assert len(m._event_callbacks) == 0
