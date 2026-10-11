@@ -3,16 +3,38 @@
 Jupyter integration
 ===================
 
-The first-party Jupyter renderer is maintained in the main Bokeh repository.
-Its handwritten TypeScript sources live in
-``jupyter/``. The production JupyterLab and Notebook 7 extension is generated
-into the ``src/bokeh/jupyter/`` package and
-shipped in the wheel. Do not edit generated bundles by hand.
+Bokeh provides a first-party notebook integration for JupyterLab and Notebook
+7. Other notebook hosts, including Colab and marimo, can use the same rendering
+runtime through an AnyWidget adapter. The integration supports standalone
+plots, Python-connected documents, Bokeh applications, saved notebook output,
+and notebook export.
+
+Source layout
+-------------
+
+The integration is split between Python and TypeScript:
+
+* :bokeh-tree:`src/bokeh/io/notebook.py` manages Python display functions and
+  connected document handles.
+* :bokeh-tree:`src/bokeh/io/jupyter.py` defines the payloads shared with
+  notebook frontends.
+* :bokeh-tree:`jupyter/src` contains the TypeScript sources for the JupyterLab
+  extension and AnyWidget adapter.
+* :bokeh-tree:`src/bokeh/jupyter/protocol.json` defines the protocol version,
+  MIME types, comm targets, and transport limits shared by Python and
+  TypeScript.
+
+The frontend build produces the prebuilt JupyterLab extension and AnyWidget
+module under ``src/bokeh/jupyter/``. These generated files are not maintained
+by hand. Packaging builds them before creating a source distribution. A wheel
+built from that source distribution therefore requires only the standard
+Python build toolchain, not Node.js or the TypeScript sources.
 
 Build and test
 --------------
 
-Use the Bokeh development environment and run:
+From the repository root, build the frontend and run the notebook test suite
+with:
 
 .. code-block:: sh
 
@@ -20,110 +42,89 @@ Use the Bokeh development environment and run:
     pixi run --locked --environment notebook-test notebook-browser-install
     pixi run --locked --environment notebook-test test-notebook
 
-The build checks the shared protocol manifest, runs the TypeScript source
-tests, type-checks the frontend, builds the AnyWidget adapter and prebuilt
-JupyterLab extension, and copies the generated assets into the Python package.
-The extension is also consumed by Notebook 7, but automated browser coverage
-currently exercises it through JupyterLab. Generated assets must be rebuilt
-whenever ``jupyter/src`` or the protocol changes. They are
-ignored in a source checkout and injected into the sdist during packaging, in
-the same way as the generated BokehJS bundles. Wheels built from that sdist do
-not require Node.js or the frontend sources.
+``jupyter-build`` checks the shared protocol constants, runs the TypeScript
+tests and type checker, and builds both frontend adapters. Rebuild the assets
+after changing ``jupyter/src`` or ``protocol.json``.
 
-For a local JupyterLab development session, run the following once from the
-repository root so Jupyter can register the Python package that owns the
-extension:
+The ``notebook-test`` environment includes the supported optional notebook
+hosts and the browser dependencies used by the integration tests. The suite
+covers Python payload generation, frontend runtime behavior, JupyterLab,
+AnyWidget, marimo, packaging, and notebook export.
+
+To use the worktree in a local JupyterLab development session, register its
+Python package once with:
 
 .. code-block:: sh
 
     pixi run --locked -e notebook-test jupyter labextension develop --overwrite .
 
-The locked ``notebook-test`` environment contains the optional notebook hosts
-and proxy used by the browser suite. Its test task verifies extension discovery
-and packaging when run against an installed wheel, then runs the AnyWidget,
-JupyterLab, and marimo integration suites. Portable Classic Notebook fallback
-behavior is covered by Python/JavaScript contract tests. No Classic Bokeh
-extension is installed or enabled.
+Rendering model
+---------------
 
-Protocol and lifecycle
+Python publishes a versioned display payload together with a serialized Bokeh
+artifact and the resource records needed to load BokehJS. The JupyterLab
+extension and AnyWidget adapter pass these inputs to the same frontend runtime.
+That runtime validates the payload, loads the matching BokehJS resources, and
+mounts the artifact through ``BokehMount``.
+
+Notebook output also contains a portable HTML representation. This makes saved
+output viewable without a running kernel and keeps it usable in notebook hosts
+that do not provide Bokeh's richer MIME renderer. Resource records are stored
+with the output so that deleting or replacing an earlier cell does not make
+later output incomplete. While a kernel is connected, a resource comm provides
+deduplication and recovery for those same records.
+
+A browser page can host only one BokehJS version at a time. If the kernel's
+Bokeh version changes, restart the kernel and reload the notebook page before
+running cells again.
+
+Connected output
+----------------
+
+Connected documents add a comm channel to the static artifact. The Python
+``DocumentViewHandle`` sends document patches and binary buffers to each
+connected frontend view. Each view can reconnect from a complete snapshot and
+then apply later revisions in order.
+
+Frontend views have independent lifecycles. Removing one output closes that
+view's comm and BokehJS mount without invalidating other views of the same
+document. Closing the Python handle disconnects all of its views. AnyWidget
+hosts additionally report frontend activity so Python can release abandoned
+widget instances without evicting active outputs.
+
+Notebook applications are served with ``BokehASGI`` and Uvicorn. Saved output
+contains an opaque application identifier rather than a kernel-local URL. The
+current URL is returned over the live connection and resolved for the browser
+that opened the notebook. Each output owns its own BokehJS client session.
+
+Saved files and export
 ----------------------
 
-``src/bokeh/jupyter/protocol.json`` is the shared source of stable MIME names,
-comm targets, queue bounds, and the integer protocol version. Python imports
-it directly, and the TypeScript behavior check verifies the frontend constants
-against it. Change the manifest first and update both consumers together.
-JupyterLab and Notebook 7 displays advertise the Bokeh display MIME type and
-an HTML fallback. Colab and marimo displays additionally use AnyWidget because
-those runtimes are identifiable without inferring a Jupyter frontend from its
-kernel. A document's initial serialized graph lives once in an inert HTML data
-owner. The same HTML contains one executable copy of each transitive portable
-resource record, while the display MIME payload contains resource metadata, so
-saved output remains complete when an earlier cell is replaced or deleted.
-The live kernel resource comm is a recovery and
-deduplication path, never the sole durable owner.
+Saved-file payloads contain notebook-relative paths. The Jupyter frontend uses
+the contents manager to turn those paths into download links relative to the
+notebook's location.
 
-Application outputs persist only their random application ID. Kernel-local
-URLs and random server prefixes are returned over the live comm and rewritten
-for the current browser at connection time. They must not be saved in notebook
-JSON.
+Interactive HTML export asks active frontend views for their current document
+state. The nbconvert preprocessor renders that state and captures the complete
+output container. Command-line or offline export uses the state already saved
+in the notebook. Export capture is separate from normal cell rendering and a
+capture failure does not alter the displayed output.
 
-Likewise, a timed-out external core script must remain a terminal global load
-barrier: removing a dynamic ``script`` element does not guarantee that the
-browser will not execute it later. Only a definitive load error may release a
-same-version waiter to try another resource representation. Recovery requires
-a page reload, which destroys the browser realm. Restarting only the kernel
-must not clear this barrier.
-The portable owner coordinates through DOM markers and delegates resolved
-requirements to BokehJS's common ``resource_loader``. Do not add a notebook
-resource registry, loader program, promise cache, or document registry on
-``window``. Renderers acquire the target-local ``BokehMount`` with
-``when_mounted()``, publish failures that occur before a handle exists with
-``publish_mount_error()``, and use its read-only ``view_lookup`` when a
-non-root view is required.
-Keep protocol validation and ``notebook_info()`` fields synchronized.
+Protocol compatibility
+----------------------
 
-Normal rendering never captures or persists a PNG. During a UI-initiated HTML
-export, the frontend serializes current document or application state to the
-server's one-shot transient store. The nbconvert preprocessor renders that
-state and captures the complete output container as one bounded PNG. CLI and
-offline export reconstruct saved document state instead. Capture failures are
-non-fatal and export processing must never change normal cell output or the
-saved notebook.
+The local Jupyter extension and remote kernel do not need identical Bokeh
+package versions when they implement the same notebook protocol. The remote
+kernel supplies the artifact and its matching BokehJS resources. The frontend
+rejects an unsupported protocol version with a diagnostic instead of trying to
+interpret an incompatible payload.
 
-Every renderer view must own an explicit cleanup callback. Static cleanup
-removes only its ``ViewManager``. A connected document view closes only its
-frontend comm. The Python handle remains available to other and later views.
-Application cleanup closes only the BokehJS client session created for that
-output. The Python application-view handle can close that session from another
-cell without stopping the application. Never infer ownership from the global
-Bokeh root index.
+Within one output, the Python artifact and BokehJS runtime must match exactly.
+This check prevents an artifact from being rendered by a different BokehJS
+schema. Development versions that are not available from the CDN should use
+inline resources.
 
-Notebook applications use ``BokehASGI`` through Uvicorn. Keep origin checks,
-signed session tokens, random URL prefixes, orderly lifespan shutdown, and
-per-cell replacement covered by tests. Do not introduce a Tornado ``Server``
-fallback into this path.
-
-Version synchronization
------------------------
-
-The extension version in ``jupyter/package.json`` must
-match the Python/BokehJS development version. The MIME name remains stable.
-Compatibility is negotiated with ``protocol_version`` so an older renderer can
-display a useful diagnostic.
-
-The saved-file MIME payload contains only a notebook-relative path. The bundled
-renderer resolves it with Jupyter's contents manager and creates the link node
-itself so JupyterLab's generic HTML link handler cannot redirect the click into
-the workspace document viewer. Keep the plain HTML representation as a
-portable fallback, and never put kernel filesystem paths or server credentials
-in the payload.
-
-Colab currently injects a Bokeh import hook that calls the removed
-``install_notebook_hook()`` API. ``bokeh.io.notebook`` recognizes Colab's hook
-module and returns a no-op only for that attribute lookup. Keep this adapter
-isolated from the public API: it must not restore a hook registry or route any
-display through the pre-4.0 callbacks. Colab also isolates output frames, so
-automatic static output embeds its portable resource loader directly when
-AnyWidget is unavailable. Connected output requires AnyWidget and uses the
-same per-frontend ``DocumentViewHandle`` snapshot and patch channel as other
-widget hosts.
+When changing the protocol, update ``protocol.json`` first and then update the
+Python and TypeScript consumers together. Add tests at the boundary affected by
+the change, rebuild the frontend, and run the notebook suite before committing
+the source changes.
