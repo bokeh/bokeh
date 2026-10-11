@@ -51,12 +51,16 @@ hosts and the browser dependencies used by the integration tests. The suite
 covers Python payload generation, frontend runtime behavior, JupyterLab,
 AnyWidget, marimo, packaging, and notebook export.
 
-To use the worktree in a local JupyterLab development session, register its
-Python package once with:
+The repository setup task installs the built extension into the development
+environment as a link to ``src/bokeh/jupyter/labextension``. After that initial
+setup, rebuilding the frontend is enough for a restarted JupyterLab session to
+use the new assets. On a system that cannot create a link, setup copies the
+assets instead and must be rerun after rebuilding.
 
-.. code-block:: sh
-
-    pixi run --locked -e notebook-test jupyter labextension develop --overwrite .
+The development link and ``bokeh-jupyter.json`` server configuration are not
+owned by the editable Python wheel, so ``pip uninstall bokeh`` does not remove
+them. Delete the environment, or remove those two development discovery files,
+before reusing its prefix without Bokeh.
 
 Rendering model
 ---------------

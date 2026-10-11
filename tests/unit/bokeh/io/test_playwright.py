@@ -19,6 +19,7 @@ import sys
 import threading
 import time
 from typing import Any
+from unittest.mock import AsyncMock, MagicMock
 
 # External imports
 import pytest
@@ -42,6 +43,29 @@ import bokeh.io.browser as bib # isort:skip
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def test_render_wait_reports_the_mount_failure() -> None:
+    page = MagicMock()
+    page.wait_for_function.side_effect = RuntimeError("timeout")
+    page.evaluate.return_value = "failed to construct the document"
+
+    with pytest.raises(RuntimeError, match="frontend snapshot render failed: failed to construct the document"):
+        bib.wait_until_render_complete(page, 1)
+
+    page.evaluate.assert_called_once_with(bib._BOKEH_MOUNT_ERROR_EXPR)
+
+
+@pytest.mark.asyncio
+async def test_async_render_wait_reports_the_mount_failure() -> None:
+    page = MagicMock()
+    page.wait_for_function = AsyncMock(side_effect=RuntimeError("timeout"))
+    page.evaluate = AsyncMock(return_value="failed to construct the document")
+
+    with pytest.raises(RuntimeError, match="frontend snapshot render failed: failed to construct the document"):
+        await bib._wait_until_render_complete(page, 1)
+
+    page.evaluate.assert_awaited_once_with(bib._BOKEH_MOUNT_ERROR_EXPR)
+
 
 async def _worker_identity() -> tuple[int, int, int, bool]:
     loop = asyncio.get_running_loop()

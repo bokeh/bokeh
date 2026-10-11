@@ -44,6 +44,7 @@ from ..settings import settings
 from ..util.dependencies import import_required
 from .util import (
     _BOKEH_LOADED_CHECK,
+    _BOKEH_MOUNT_ERROR_EXPR,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
@@ -196,7 +197,7 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
         _log_console(driver)
-        error = driver.execute_script('return window._bokeh_export_error ?? null')
+        error = driver.execute_script(f"return {_BOKEH_MOUNT_ERROR_EXPR}")
         if isinstance(error, str):
             raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e

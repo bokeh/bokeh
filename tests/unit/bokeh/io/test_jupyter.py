@@ -70,6 +70,26 @@ def test_resource_identity_ignores_load_timeout_but_not_policy() -> None:
     assert m.resource_payload(_resolved("cdn"), 1000)["resource_id"] != m.resource_payload(_resolved("none"), 1000)["resource_id"]
 
 
+def test_resource_and_display_payloads_use_the_overridden_runtime_version() -> None:
+    resolved = ResolvedResources(
+        ResourceRequirements(),
+        Resources(mode="cdn", override_version="3.8.0"),
+        "4.0.0",
+        (ResolvedResource("script", url="https://cdn.example/bokeh.js"),),
+    )
+    resource = m.resource_payload(resolved, 1000)
+    artifact, _ = notebook_content(figure())
+    display = m.display_payload(
+        artifact,
+        resource["resource_id"],
+        "view",
+        resource_records=[m.ResourceRecord(payload=resource)],
+    )
+
+    assert resource["bokeh_version"] == "3.8.0"
+    assert display["bokeh_version"] == "3.8.0"
+
+
 def test_resource_identity_includes_complete_emitted_security_and_module_policy() -> None:
     requirements = ResourceRequirements()
     policies = [

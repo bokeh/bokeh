@@ -18,6 +18,7 @@
     "@jupyterlab/cells": "^4",
     "@jupyterlab/docregistry": "^4",
     "@jupyterlab/notebook": "^4",
+    "@jupyterlab/rendermime": "^4",
     "@jupyterlab/rendermime-interfaces": "^3",
     "@jupyterlab/services": "^7",
     "@lumino/coreutils": "^2",
@@ -38,6 +39,11 @@
     "outputDir": "../src/bokeh/jupyter/labextension",
     "webpackConfig": "webpack.labextension.config.js",
     "sharedPackages": {
+      "@jupyterlab/rendermime": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^4"
+      },
       "@jupyterlab/services": {
         "bundled": false,
         "singleton": true,

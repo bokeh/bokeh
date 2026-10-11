@@ -124,6 +124,11 @@ _STATIC_FALLBACK_MESSAGE = (
     "Bokeh's notebook integration (as can happen in VS Code or when viewing static notebook output). "
     "Python-driven updates require a frontend with Bokeh's notebook integration enabled."
 )
+_APPLICATION_FALLBACK_TITLE = "Python-connected Bokeh application unavailable"
+_APPLICATION_FALLBACK_MESSAGE = (
+    "This Bokeh application requires an active connection to its Python server, but this notebook frontend "
+    "has not connected to Bokeh's notebook integration. Open and run the notebook in a supported frontend."
+)
 
 DEFAULT_JUPYTER_URL = "localhost:8888"
 
@@ -198,11 +203,11 @@ def anywidget_available() -> bool:
         from . import _anywidget
 
         return _anywidget is not None
-    except (AttributeError, ImportError):
+    except (AttributeError, ImportError, OSError):
         return False
 
 def _use_anywidget() -> bool:
-    return anywidget_available() and (is_marimo_runtime() or _is_colab_runtime())
+    return (is_marimo_runtime() or _is_colab_runtime()) and anywidget_available()
 
 def notebook_cell_identity() -> tuple[str, str] | None:
     '''Return the current notebook cell and execution identifiers.
@@ -497,6 +502,10 @@ class DocumentViewHandle:
             except Exception:
                 log.warning("A connected notebook frontend disconnected while applying an update", exc_info=True)
                 self._disconnect(comm_id)
+                try:
+                    comm.close()
+                except Exception:
+                    log.debug("Could not close disconnected notebook frontend", exc_info=True)
 
 
 class ApplicationViewHandle:
@@ -797,7 +806,11 @@ def _notebook_fragment(artifact: Any, resources: ResourcesLike | None) -> Any:
     from ..resources import Resources
 
     policy = Resources.build(resources)
-    return artifact.fragment(resources=Resources(mode="none", nonce=policy.nonce))
+    return artifact.fragment(resources=Resources(
+        mode="none",
+        override_version=policy.override_version,
+        nonce=policy.nonce,
+    ))
 
 _initialize_notebook_context()
 
@@ -844,18 +857,26 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     _require_marimo_anywidget()
 
     from ..embed.notebook import notebook_content
-    from .jupyter import DISPLAY_MIME_TYPE, display_payload, resource_payload
+    from .jupyter import (
+        DISPLAY_MIME_TYPE,
+        ResourceRecord,
+        display_payload,
+        resource_payload,
+    )
 
     colab = _is_colab_runtime()
     portable_widget = _use_anywidget()
     artifact, fragment = notebook_content(obj)
+    colab_resource_record: ResourceRecord | None = None
     if colab and not portable_widget:
         from ..resources import Resources
 
         policy = Resources.build(resources)
         resolved = policy.resolve(artifact.requires, bokeh_version=artifact.bokeh_version)
         fragment = artifact.fragment(resources=policy)
-        resource_id = resource_payload(resolved, _RESOURCE_LOAD_TIMEOUT)["resource_id"]
+        resource = resource_payload(resolved, _RESOURCE_LOAD_TIMEOUT)
+        resource_id = resource["resource_id"]
+        colab_resource_record = ResourceRecord(payload=resource)
     else:
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
         fragment = _notebook_fragment(artifact, resources)
@@ -867,7 +888,9 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
         artifact,
         resource_id,
         view_id,
-        resource_records=_resource_record_chain(resource_id, executable=False),
+        resource_records=[colab_resource_record]
+        if colab_resource_record is not None
+        else _resource_record_chain(resource_id, executable=False),
     )
     if portable_widget:
         from ._anywidget import display_widget
@@ -1053,8 +1076,8 @@ def show_hosted_app(app: NotebookApplication,
     )
     records = _resource_record_chain(resource_id)
     html = _portable_resource_html(records) + static_fallback(
-        _STATIC_FALLBACK_MESSAGE,
-        title=_STATIC_FALLBACK_TITLE,
+        _APPLICATION_FALLBACK_MESSAGE,
+        title=_APPLICATION_FALLBACK_TITLE,
         resource_id=resource_id,
     )
     handle = ApplicationViewHandle(app, view_id, artifact)

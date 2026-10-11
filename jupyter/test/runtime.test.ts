@@ -113,6 +113,20 @@ describe("artifact runtime", () => {
     cleanup()
   })
 
+  it("reports an already active incompatible BokehJS runtime as a version conflict", async () => {
+    const node = document.createElement("div")
+    const loading = loadResources({...resource, mode: "cdn"}, "void 0", node)
+    window.dispatchEvent(new CustomEvent("bokeh:resources-error", {detail: {
+      resource_id: resource.resource_id,
+      error: {message: "BokehJS 3.8.0 is already active. Refusing to load incompatible 4.0.0"},
+    }}))
+
+    await expect(loading).rejects.toMatchObject({
+      code: "BOKEH_VERSION_CONFLICT",
+      action: expect.stringContaining("Inline resources cannot replace"),
+    })
+  })
+
   it("mounts the browser-routed artifact returned by the application owner", async () => {
     const localUrl = "http://127.0.0.1:4312/bokeh-notebook/nonce/"
     const browserUrl = "https://hub.test/user/alice/proxy/4312/bokeh-notebook/nonce/"

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard library imports
+import os
 import shutil
 import subprocess
 import sys
@@ -28,13 +29,34 @@ def _install_jupyter(data_root: Path) -> None:
         paths = ", ".join(str(path.relative_to(ROOT)) for path in missing)
         raise RuntimeError(f"The first-party Jupyter extension has not been built. Missing: {paths}")
 
+    source = JUPYTER_LABEXTENSION.resolve()
     destination = data_root / "share" / "jupyter" / "labextensions" / "@bokeh" / "bokeh-jupyter"
-    if destination.is_symlink() or destination.is_file():
-        destination.unlink()
-    elif destination.exists():
-        shutil.rmtree(destination)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(JUPYTER_LABEXTENSION, destination)
+    linked = (
+        (destination.is_symlink() or os.path.isjunction(destination))
+        and destination.resolve() == source
+    )
+    if not linked:
+        if destination.is_symlink() or destination.is_file():
+            destination.unlink()
+        elif destination.exists():
+            shutil.rmtree(destination)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            if sys.platform == "win32":
+                subprocess.run(
+                    ["cmd", "/d", "/s", "/c", "mklink", "/J", str(destination), str(source)],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+            else:
+                destination.symlink_to(source, target_is_directory=True)
+        except (OSError, subprocess.CalledProcessError):
+            if destination.is_symlink() or destination.is_file():
+                destination.unlink()
+            elif destination.exists():
+                shutil.rmtree(destination)
+            shutil.copytree(source, destination)
 
     config = data_root / "etc" / "jupyter" / "jupyter_server_config.d" / "bokeh-jupyter.json"
     config.parent.mkdir(parents=True, exist_ok=True)

@@ -264,6 +264,11 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
 # owned by this export instead of the process-wide Bokeh.index registry.
 _MOUNT_EXPR = "document.querySelector('[data-bokeh-embed-instance][data-bokeh-root]')?.bokehMount"
 
+# Report a mount failure before export turns it into a generic render timeout.
+_BOKEH_MOUNT_ERROR_EXPR = (
+    "document.querySelector('[data-bokeh-embed-instance][data-bokeh-root]')?.bokehMountError?.message ?? null"
+)
+
 # Check whether Bokeh has loaded, created a document, and mounted a root view.
 _BOKEH_LOADED_CHECK = """\
 const mount = $MOUNT;

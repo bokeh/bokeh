@@ -1,3 +1,4 @@
+import {renderHTML} from "@jupyterlab/rendermime"
 import {IRenderMime} from "@jupyterlab/rendermime-interfaces"
 import {Widget} from "@lumino/widgets"
 
@@ -70,7 +71,7 @@ export class DisplayRenderer extends Widget implements IRenderMime.IRenderer {
   private generation = 0
   private payload?: DisplayPayload
 
-  constructor(_options: IRenderMime.IRendererOptions, private manager: ContextManager) {
+  constructor(private options: IRenderMime.IRendererOptions, private manager: ContextManager) {
     super()
     manager.add(this)
   }
@@ -95,7 +96,32 @@ export class DisplayRenderer extends Widget implements IRenderMime.IRenderer {
       else cleanup()
     } catch (error) {
       if (generation === this.generation && !this.isDisposed && !(error instanceof DOMException && error.name === "AbortError")) {
-        renderDiagnostic(this.node, error, {payload})
+        if (error instanceof BokehNotebookError && error.code === "PROTOCOL_VERSION_MISMATCH" && html.length !== 0) {
+          await renderHTML({
+            host: this.node,
+            source: html,
+            trusted: model.trusted,
+            sanitizer: this.options.sanitizer,
+            resolver: this.options.resolver,
+            linkHandler: this.options.linkHandler,
+            shouldTypeset: false,
+            latexTypesetter: this.options.latexTypesetter,
+            translator: this.options.translator,
+          })
+          const notice = document.createElement("div")
+          notice.className = "bk-notebook-protocol-fallback"
+          notice.setAttribute("role", "note")
+          notice.style.cssText = "border:1px solid #d6b656;border-left-width:5px;padding:10px 12px;margin:4px 0;background:#fff8e1;color:#222;font:13px/1.4 system-ui,sans-serif"
+          const title = document.createElement("strong")
+          title.textContent = "Limited Bokeh notebook output"
+          const message = document.createElement("p")
+          message.style.margin = "4px 0 0"
+          message.textContent = `${error.message} The portable HTML view is shown instead, without Python-connected updates or other frontend integration.`
+          notice.append(title, message)
+          this.node.prepend(notice)
+        } else {
+          renderDiagnostic(this.node, error, {payload})
+        }
       }
     }
   }

@@ -43,6 +43,7 @@ from ..resources import INLINE
 from ..util.dependencies import import_required
 from .util import (
     _BOKEH_LOADED_CHECK,
+    _BOKEH_MOUNT_ERROR_EXPR,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
@@ -300,7 +301,7 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
             timeout=timeout_ms,
         )
     except Exception as e:
-        error = page.evaluate("window._bokeh_export_error ?? null")
+        error = page.evaluate(_BOKEH_MOUNT_ERROR_EXPR)
         if isinstance(error, str):
             raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError(
@@ -331,7 +332,7 @@ async def _wait_until_render_complete(page: AsyncPage, timeout: int) -> None:
             timeout=timeout_ms,
         )
     except Exception as e:
-        error = await page.evaluate("window._bokeh_export_error ?? null")
+        error = await page.evaluate(_BOKEH_MOUNT_ERROR_EXPR)
         if isinstance(error, str):
             raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError(

@@ -40,6 +40,15 @@ describe("notebook protocol", () => {
     })).toThrow(BokehNotebookError)
   })
 
+  it("identifies which side of a protocol mismatch is older", () => {
+    expect(() => assertProtocol({protocol_version: PROTOCOL_VERSION + 1})).toThrow(
+      "The Python-side Bokeh is newer than the frontend extension.",
+    )
+    expect(() => assertProtocol({protocol_version: PROTOCOL_VERSION - 1})).toThrow(
+      "The frontend extension is newer than the Python-side Bokeh.",
+    )
+  })
+
   it("requires explicit resource requirements and policy", () => {
     expect(() => assertProtocol({
       protocol_version: PROTOCOL_VERSION,

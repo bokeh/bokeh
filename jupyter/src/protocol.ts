@@ -70,9 +70,14 @@ export function assertProtocol(payload: unknown): void {
   }
   const record = payload as Record<string, unknown>
   if (record.protocol_version !== PROTOCOL_VERSION) {
+    const relation = typeof record.protocol_version === "number"
+      ? record.protocol_version > PROTOCOL_VERSION
+        ? "The Python-side Bokeh is newer than the frontend extension."
+        : "The frontend extension is newer than the Python-side Bokeh."
+      : "The output does not identify a supported protocol version."
     throw new BokehNotebookError(
       "PROTOCOL_VERSION_MISMATCH",
-      `This output uses Bokeh notebook protocol ${record.protocol_version ?? "unknown"}, but the extension supports ${PROTOCOL_VERSION}.`,
+      `This output uses Bokeh notebook protocol ${record.protocol_version ?? "unknown"}, but the extension supports ${PROTOCOL_VERSION}. ${relation}`,
       "Restart the kernel and reload the notebook after updating Bokeh.",
     )
   }

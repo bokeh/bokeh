@@ -197,6 +197,7 @@ def test_untrusted_artifact_is_never_executed() -> None:
         )
 
     assert "notebook is untrusted" in result.cells[0].outputs[0].data["text/html"]
+    assert "--BokehPNGPreprocessor.require_trusted=False" in result.cells[0].outputs[0].data["text/html"]
     screenshot.assert_not_called()
 
 
@@ -463,6 +464,7 @@ def test_preprocessor_reports_unexpected_capture_failures() -> None:
     html = result.cells[0].outputs[0].data["text/html"]
     assert "could not be converted to PNG" in html
     assert "RuntimeError" in html
+    assert "RuntimeError" in m.BokehPNGPreprocessor._capture_failed(RuntimeError())
 
 
 def test_capture_rejects_invalid_or_unusable_artifacts() -> None:

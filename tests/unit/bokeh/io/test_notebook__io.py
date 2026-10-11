@@ -31,6 +31,7 @@ from bokeh.models import (
 )
 from bokeh.plotting import figure
 from bokeh.resources import Resources
+from bokeh.settings import PrioritizedSetting
 
 # Module under test
 import bokeh.io.notebook as m # isort:skip
@@ -252,6 +253,42 @@ def test_notebook_output_preserves_nonce_on_every_script() -> None:
     assert all('nonce="csp-nonce"' in script for script in scripts)
 
 
+def test_notebook_output_preserves_a_resource_version_override() -> None:
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
+    ):
+        bundle = m.notebook_mimebundle(
+            figure(),
+            resources=Resources(mode="cdn", override_version="3.8.0"),
+        )
+
+    assert bundle is not None
+    data, _metadata = bundle
+    payload = data[DISPLAY_MIME_TYPE]
+    assert payload["bokeh_version"] == "3.8.0"
+    assert payload["resource_records"][-1]["payload"]["bokeh_version"] == "3.8.0"
+    assert 'data-bokeh-resource-override-version="3.8.0"' in data["text/html"]
+
+
+def test_notebook_output_preserves_the_configured_cdn_version(
+    cdn_version_setting: PrioritizedSetting[str | None],
+) -> None:
+    cdn_version_setting.set_value("3.8.0")
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
+    ):
+        bundle = m.notebook_mimebundle(figure(), resources="cdn")
+
+    assert bundle is not None
+    data, _metadata = bundle
+    payload = data[DISPLAY_MIME_TYPE]
+    assert payload["bokeh_version"] == "3.8.0"
+    assert payload["resource_records"][-1]["payload"]["bokeh_version"] == "3.8.0"
+    assert 'data-bokeh-resource-override-version="3.8.0"' in data["text/html"]
+
+
 @pytest.mark.parametrize("value", [
     """</script>'\">%0a\"><video src=//test.js controls='true'OnLoadStart=alert(document.cookie)> '\">%0a%0a\">""",
     "</script><script src=test.js></script>",
@@ -295,6 +332,24 @@ def test_colab_static_output_uses_one_common_isolated_artifact_fragment() -> Non
     ensure.assert_not_called()
 
 
+def test_colab_static_output_preserves_a_resource_version_override() -> None:
+    with (
+        patch("bokeh.io.notebook.notebook_environment", return_value=True),
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=True),
+        patch("bokeh.io.notebook.anywidget_available", return_value=False),
+    ):
+        bundle = m.notebook_mimebundle(
+            figure(),
+            resources=Resources(mode="cdn", override_version="3.8.0"),
+        )
+
+    assert bundle is not None
+    payload = bundle[0][DISPLAY_MIME_TYPE]
+    assert payload["bokeh_version"] == "3.8.0"
+    assert payload["resource_records"][-1]["payload"]["bokeh_version"] == "3.8.0"
+
+
 def test_colab_connected_output_requires_anywidget(document: Document) -> None:
     with (
         patch("bokeh.io.doc.curdoc", return_value=document),
@@ -335,6 +390,17 @@ def test_marimo_and_colab_detection_are_host_capabilities(monkeypatch: pytest.Mo
     monkeypatch.setitem(sys.modules, "marimo._runtime", runtime)
     monkeypatch.setitem(sys.modules, "marimo._runtime.context", context)
     assert m.is_marimo_runtime()
+
+
+def test_standard_jupyter_does_not_import_the_anywidget_adapter() -> None:
+    with (
+        patch("bokeh.io.notebook.is_marimo_runtime", return_value=False),
+        patch("bokeh.io.notebook._is_colab_runtime", return_value=False),
+        patch("bokeh.io.notebook.anywidget_available") as available,
+    ):
+        assert not m._use_anywidget()
+
+    available.assert_not_called()
 
 
 def test_notebook_environment_remembers_a_notebook_cell_identity_for_callbacks() -> None:
@@ -715,6 +781,8 @@ def test_show_hosted_app_uses_server_artifact_and_view_ownership() -> None:
     assert payload["view_id"] in m._APPLICATION_VIEW_HANDLES
     assert "data-bokeh-embed-payload" not in data["text/html"]
     assert "data-bokeh-notebook-static-fallback" in data["text/html"]
+    assert "Python-connected Bokeh application unavailable" in data["text/html"]
+    assert "showing a standalone Bokeh view" not in data["text/html"]
     handle.close()
 
 
@@ -803,11 +871,19 @@ def test_document_handle_guards_closed_batches_and_drops_failed_comms(caplog: py
 
     handle = m.DocumentViewHandle(Div(), live_id="live", view_id="view")
     handle._broadcast([])
-    handle._comms["failed"] = MagicMock(send=MagicMock(side_effect=RuntimeError("disconnected")))
+    comm = MagicMock(send=MagicMock(side_effect=RuntimeError("disconnected")))
+    uncloseable = MagicMock(
+        send=MagicMock(side_effect=RuntimeError("disconnected")),
+        close=MagicMock(side_effect=RuntimeError("already closed")),
+    )
+    handle._comms["failed"] = comm
+    handle._comms["uncloseable"] = uncloseable
     message = MagicMock(content={"events": []}, buffers=[])
     with patch("bokeh.protocol.patch_doc", return_value=message):
         handle._broadcast([MagicMock()])
     assert handle.views == 0
+    comm.close.assert_called_once_with()
+    uncloseable.close.assert_called_once_with()
     assert caplog.records[-1].exc_info is not None
 
 

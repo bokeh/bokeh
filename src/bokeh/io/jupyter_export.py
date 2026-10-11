@@ -381,7 +381,9 @@ class BokehPNGPreprocessor(Preprocessor):
             if not self._trusted:
                 replacement = static_fallback(
                     "This Bokeh output was not converted to PNG because the notebook is untrusted. "
-                    "Trust and save the notebook, then export it again.",
+                    "Trust and save the notebook, then export it again. For a notebook whose source you have "
+                    "reviewed and trust, command-line execution can instead set "
+                    "--BokehPNGPreprocessor.require_trusted=False.",
                 )
             elif payload.get("source_kind") == "server" and not (
                 isinstance(view_id, str) and view_id in self._transient
@@ -408,10 +410,12 @@ class BokehPNGPreprocessor(Preprocessor):
 
     @staticmethod
     def _capture_failed(error: Exception) -> str:
+        name = type(error).__name__
+        message = str(error).strip()
+        detail = f"{name}: {message}" if message else name
         return static_fallback(
             "This Bokeh output could not be converted to PNG during notebook export. "
-            "Install Playwright and its Chromium browser, then export again. "
-            f"The exporter reported {type(error).__name__}.",
+            f"The exporter reported: {detail}",
         )
 
     def _capture(self, html: Any, view_id: Any) -> str:

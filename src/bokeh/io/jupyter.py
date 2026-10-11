@@ -260,8 +260,9 @@ def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
     '''
     selected = resolved.assets if assets is None else assets
     artifacts = [_artifact(resource) for resource in selected]
+    bokeh_version = npm_version(resolved.policy.override_version or resolved.bokeh_version)
     descriptor = {
-        "bokeh_version": npm_version(resolved.bokeh_version),
+        "bokeh_version": bokeh_version,
         "policy": resolved.policy.to_dict(),
         "requirements": resolved.requirements.to_dict(),
         "dependencies": dependencies or [],
@@ -273,7 +274,7 @@ def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
         kind="resources",
         resource_id=f"bokeh-{digest}",
         mode=resolved.policy.mode,
-        bokeh_version=npm_version(resolved.bokeh_version),
+        bokeh_version=bokeh_version,
         python_version=__version__,
         requirements=resolved.requirements.to_dict(),
         policy=resolved.policy.to_dict(),
@@ -372,11 +373,16 @@ def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
         The versioned notebook display payload.
 
     '''
+    bokeh_version = (
+        resource_records[-1]["payload"]["bokeh_version"]
+        if resource_records
+        else npm_version(result.bokeh_version)
+    )
     payload = _DisplayPayload(
         protocol_version=PROTOCOL_VERSION,
         kind="artifact",
         resource_id=resource_id,
-        bokeh_version=npm_version(__version__),
+        bokeh_version=bokeh_version,
         python_version=__version__,
         source_kind=result.source["kind"],
         view_id=view_id,

@@ -338,6 +338,18 @@ PNG capture requires Playwright and its Chromium browser. Trust and save the
 notebook before exporting. If a plot cannot be reconstructed or captured, the
 exported HTML includes an explanation in place of its PNG.
 
+When executing a notebook from source that you have reviewed and trust, you can
+disable the saved-signature requirement for that export:
+
+.. code-block:: sh
+
+    jupyter nbconvert --to bokeh --execute \
+        --BokehPNGPreprocessor.require_trusted=False notebook.ipynb
+
+Do not use this option with an untrusted notebook. Executing a notebook runs its
+Python code, and converting Bokeh output may also run JavaScript saved in its
+cells.
+
 Trusting notebooks
 ~~~~~~~~~~~~~~~~~~
 

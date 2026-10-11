@@ -140,6 +140,14 @@ function safeMessage(value: string): string {
   return value.replace(/(?:https?|wss?):\/\/[^\s)]+/g, (url) => safeUrl(url))
 }
 
+function failureMessage(value: unknown): string {
+  if (value instanceof Error) return value.message
+  if (value != null && typeof value === "object" && "message" in value && typeof value.message === "string") {
+    return value.message
+  }
+  return String(value)
+}
+
 function safeDetails(value: unknown, depth = 0): unknown {
   if (depth > 3) return "[omitted]"
   if (value == null || typeof value === "boolean" || typeof value === "number") return value
@@ -385,6 +393,17 @@ export async function loadResources(payload: ResourcePayload, javascript: string
       )
     } catch (cause) {
       const timedOut = cause instanceof Error && cause.message === timeoutMessage
+      const message = failureMessage(cause)
+      const versionConflict = message.includes(" is already active. Refusing to load incompatible ") ||
+        message.includes(" loaded, but window.Bokeh reports ")
+      if (versionConflict) {
+        throw new BokehNotebookError(
+          "BOKEH_VERSION_CONFLICT",
+          message,
+          "Reload the notebook page, then run outputs from only one Bokeh version. Inline resources cannot replace a BokehJS runtime that is already active in the page.",
+          cause,
+        )
+      }
       throw new BokehNotebookError(
         "RESOURCE_LOAD_FAILED",
         timedOut
