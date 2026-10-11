@@ -38,7 +38,7 @@ def test_pixi_js_tools_include_the_jupyter_builder_cli() -> None:
 
 def test_source_build_reports_a_missing_jupyter_builder(capsys: pytest.CaptureFixture[str]) -> None:
     with patch("setuptools.setup"):
-        setup = runpy.run_path(TOP_PATH / "setup.py")
+        setup = runpy.run_path(str(TOP_PATH / "setup.py"))
     setup["build_jupyter"].__globals__["which"] = lambda _command: None
 
     with pytest.raises(SystemExit, match="1"):
