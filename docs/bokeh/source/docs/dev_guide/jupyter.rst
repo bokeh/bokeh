@@ -5,8 +5,8 @@ Jupyter integration
 
 The first-party Jupyter renderer is maintained in the main Bokeh repository.
 Its handwritten TypeScript sources live in
-``src/bokeh/jupyter/frontend/``. The production JupyterLab and Notebook 7
-extension is generated into the parent ``src/bokeh/jupyter/`` package and
+``jupyter/``. The production JupyterLab and Notebook 7 extension is generated
+into the ``src/bokeh/jupyter/`` package and
 shipped in the wheel. Do not edit generated bundles by hand.
 
 Build and test
@@ -25,9 +25,10 @@ tests, type-checks the frontend, builds the AnyWidget adapter and prebuilt
 JupyterLab extension, and copies the generated assets into the Python package.
 The extension is also consumed by Notebook 7, but automated browser coverage
 currently exercises it through JupyterLab. Generated assets must be rebuilt
-whenever ``src/bokeh/jupyter/frontend/src`` or the protocol changes. Run
-``pixi run --locked jupyter-verify`` to rebuild and confirm that every tracked
-generated asset is current.
+whenever ``jupyter/src`` or the protocol changes. They are
+ignored in a source checkout and injected into the sdist during packaging, in
+the same way as the generated BokehJS bundles. Wheels built from that sdist do
+not require Node.js or the frontend sources.
 
 For a local JupyterLab development session, run the following once from the
 repository root so Jupyter can register the Python package that owns the
@@ -105,7 +106,7 @@ fallback into this path.
 Version synchronization
 -----------------------
 
-The extension version in ``src/bokeh/jupyter/frontend/package.json`` must
+The extension version in ``jupyter/package.json`` must
 match the Python/BokehJS development version. The MIME name remains stable;
 compatibility is negotiated with ``protocol_version`` so an older renderer can
 display a useful diagnostic.

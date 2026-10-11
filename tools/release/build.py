@@ -73,8 +73,6 @@ def build_jupyter(config: Config, system: System) -> ActionReturn:
     '''
     try:
         system.run("bash tools/ci/build_jupyter.sh")
-        config.add_modified("src/bokeh/jupyter/anywidget.js")
-        config.add_modified("src/bokeh/jupyter/labextension")
         return PASSED("Jupyter frontend build succeeded")
     except RuntimeError as e:
         return FAILED("Jupyter frontend build did NOT succeed", details=e.args)
@@ -117,7 +115,7 @@ def build_docs(config: Config, system: System) -> ActionReturn:
 
 def build_pip_packages(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("python -m build .", BOKEHJS_ACTION="install")
+        system.run("python -m build .", BOKEHJS_ACTION="install", BOKEH_JUPYTER_ACTION="install")
         return PASSED("pip packages build succeeded")
     except RuntimeError as e:
         return FAILED("pip packages build did NOT succeed", details=e.args)
@@ -125,7 +123,9 @@ def build_pip_packages(config: Config, system: System) -> ActionReturn:
 
 def dev_install_bokehjs(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("python -m pip install --no-deps -e .", BOKEHJS_ACTION="install")
+        system.run(
+            "python -m pip install --no-deps -e .", BOKEHJS_ACTION="install", BOKEH_JUPYTER_ACTION="install",
+        )
         return PASSED("Bokeh dev install succeeded")
     except RuntimeError as e:
         return FAILED("Bokeh dev install did NOT succeed", details=e.args)
@@ -133,7 +133,7 @@ def dev_install_bokehjs(config: Config, system: System) -> ActionReturn:
 
 def install_bokehjs(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("python -m pip install --no-deps .", BOKEHJS_ACTION="install")
+        system.run("python -m pip install --no-deps .", BOKEHJS_ACTION="install", BOKEH_JUPYTER_ACTION="install")
         return PASSED("BokehJS install succeeded")
     except RuntimeError as e:
         return FAILED("BokehJS install did NOT succeed", details=e.args)
@@ -221,7 +221,7 @@ def update_jupyter_version(config: Config, system: System) -> ActionReturn:
 
     '''
     del system
-    root = Path("src/bokeh/jupyter/frontend")
+    root = Path("jupyter")
     files = (root / "package.json", root / "package-lock.json")
     try:
         package = json.loads(files[0].read_text())
@@ -256,19 +256,20 @@ def verify_jupyter_build(config: Config, system: System) -> ActionReturn:
 
     '''
     del system
-    root = Path("src/bokeh/jupyter")
+    source_root = Path("jupyter")
+    generated_root = Path("src/bokeh/jupyter")
     try:
-        source = json.loads((root / "frontend" / "package.json").read_text())
-        generated = json.loads((root / "labextension" / "package.json").read_text())
+        source = json.loads((source_root / "package.json").read_text())
+        generated = json.loads((generated_root / "labextension" / "package.json").read_text())
         if source["version"] != config.js_version or generated["version"] != config.js_version:
             raise ValueError(
                 f"Jupyter source/generated versions must both be {config.js_version!r}; "
                 f"got {source['version']!r} and {generated['version']!r}",
             )
-        if not (root / "anywidget.js").is_file():
+        if not (generated_root / "anywidget.js").is_file():
             raise FileNotFoundError("src/bokeh/jupyter/anywidget.js")
         load = generated["jupyterlab"]["_build"]["load"]
-        if not (root / "labextension" / load).is_file():
+        if not (generated_root / "labextension" / load).is_file():
             raise FileNotFoundError(f"src/bokeh/jupyter/labextension/{load}")
     except Exception as e:
         return FAILED("Generated Jupyter frontend verification failed", details=e.args)

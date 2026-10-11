@@ -3,7 +3,7 @@ import {resolve} from "node:path"
 import ts from "typescript"
 
 const root = resolve(import.meta.dirname, "..")
-const manifest = JSON.parse(await readFile(resolve(root, "../protocol.json"), "utf8"))
+const manifest = JSON.parse(await readFile(resolve(root, "../src/bokeh/jupyter/protocol.json"), "utf8"))
 const source = await readFile(resolve(root, "src/protocol.ts"), "utf8")
 const javascript = ts.transpileModule(source, {
   compilerOptions: {module: ts.ModuleKind.ES2022, target: ts.ScriptTarget.ES2022},
@@ -28,7 +28,7 @@ for (const [name, value] of Object.entries(expected)) {
 }
 
 const extension = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"))
-const bokehjs = JSON.parse(await readFile(resolve(root, "../../../../bokehjs/package.json"), "utf8"))
+const bokehjs = JSON.parse(await readFile(resolve(root, "../bokehjs/package.json"), "utf8"))
 if (extension.version !== bokehjs.version) {
   throw new Error(`Jupyter extension ${extension.version} does not match BokehJS ${bokehjs.version}`)
 }

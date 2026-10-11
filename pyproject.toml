@@ -85,7 +85,6 @@ bokeh = "bokeh.io.jupyter_export:BokehHTMLExporter"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["bokeh.jupyter.frontend*"]
 
 [tool.setuptools-git-versioning]
 enabled = true

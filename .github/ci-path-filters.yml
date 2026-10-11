@@ -55,7 +55,7 @@ documentation:
 
 bokehjs:
   - 'bokehjs/**'
-  - 'src/bokeh/jupyter/frontend/**'
+  - 'jupyter/**'
 
 full:
   - '**'

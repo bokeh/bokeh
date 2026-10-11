@@ -54,9 +54,21 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
             "make clean all SPHINXOPTS=-v",
             {"BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
         ),
-        (build.build_pip_packages, "python -m build .", {"BOKEHJS_ACTION": "install"}),
-        (build.dev_install_bokehjs, "python -m pip install --no-deps -e .", {"BOKEHJS_ACTION": "install"}),
-        (build.install_bokehjs, "python -m pip install --no-deps .", {"BOKEHJS_ACTION": "install"}),
+        (
+            build.build_pip_packages,
+            "python -m build .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
+        (
+            build.dev_install_bokehjs,
+            "python -m pip install --no-deps -e .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
+        (
+            build.install_bokehjs,
+            "python -m pip install --no-deps .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
         (build.npm_install, "npm ci", {}),
         (
             build.verify_pip_install_from_sdist,
@@ -143,17 +155,14 @@ def test_directory_build_steps_use_expected_working_directories(config: Config) 
         assert system.directories == expected
 
 
-def test_jupyter_build_reinstalls_and_tracks_generated_outputs(config: Config) -> None:
+def test_jupyter_build_reinstalls_generated_outputs(config: Config) -> None:
     system = RecordingSystem()
 
     result = build.build_jupyter(config, system)
 
     assert result.kind is ActionResult.PASS
     assert system.commands == ["bash tools/ci/build_jupyter.sh"]
-    assert config.modified == {
-        "src/bokeh/jupyter/anywidget.js",
-        "src/bokeh/jupyter/labextension",
-    }
+    assert config.modified == set()
 
 
 def test_build_npm_packages_packs_every_public_package_in_dependency_order(config: Config) -> None:
@@ -261,8 +270,9 @@ def test_update_bokehjs_versions_rejects_old_lockfile(tmp_path: Path, monkeypatc
 
 
 def test_update_and_verify_jupyter_release_frontend(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    frontend = tmp_path / "src" / "bokeh" / "jupyter" / "frontend"
-    labextension = frontend.parent / "labextension"
+    frontend = tmp_path / "jupyter"
+    package = tmp_path / "src" / "bokeh" / "jupyter"
+    labextension = package / "labextension"
     static = labextension / "static"
     static.mkdir(parents=True)
     frontend.mkdir(parents=True, exist_ok=True)
@@ -273,7 +283,7 @@ def test_update_and_verify_jupyter_release_frontend(tmp_path: Path, monkeypatch:
         "lockfileVersion": 3,
         "packages": {"": {"name": "@bokeh/bokeh-jupyter", "version": "0.0.0"}},
     }))
-    (frontend.parent / "anywidget.js").write_text("generated")
+    (package / "anywidget.js").write_text("generated")
     (labextension / "package.json").write_text(json.dumps({
         "name": "@bokeh/bokeh-jupyter",
         "version": "4.0.0-rc.2",
@@ -291,8 +301,8 @@ def test_update_and_verify_jupyter_release_frontend(tmp_path: Path, monkeypatch:
     assert lock["version"] == "4.0.0-rc.2"
     assert lock["packages"][""]["version"] == "4.0.0-rc.2"
     assert config.modified == {
-        "src/bokeh/jupyter/frontend/package.json",
-        "src/bokeh/jupyter/frontend/package-lock.json",
+        "jupyter/package.json",
+        "jupyter/package-lock.json",
     }
     assert build.verify_jupyter_build(config, RecordingSystem()).kind is ActionResult.PASS
 
@@ -300,8 +310,9 @@ def test_update_and_verify_jupyter_release_frontend(tmp_path: Path, monkeypatch:
 def test_verify_jupyter_release_frontend_rejects_stale_generated_version(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    frontend = tmp_path / "src" / "bokeh" / "jupyter" / "frontend"
-    labextension = frontend.parent / "labextension"
+    frontend = tmp_path / "jupyter"
+    package = tmp_path / "src" / "bokeh" / "jupyter"
+    labextension = package / "labextension"
     (labextension / "static").mkdir(parents=True)
     frontend.mkdir(parents=True, exist_ok=True)
     (frontend / "package.json").write_text(json.dumps({"version": "4.0.0"}))
@@ -309,7 +320,7 @@ def test_verify_jupyter_release_frontend_rejects_stale_generated_version(
         "version": "4.0.0-dev.4",
         "jupyterlab": {"_build": {"load": "static/remoteEntry.test.js"}},
     }))
-    (frontend.parent / "anywidget.js").write_text("generated")
+    (package / "anywidget.js").write_text("generated")
     (labextension / "static" / "remoteEntry.test.js").write_text("generated")
     monkeypatch.chdir(tmp_path)
 

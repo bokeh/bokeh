@@ -43,7 +43,6 @@ devtools-headless = { cmd = "node make test:run:headless", cwd = "bokehjs" }
 devtools-server = { cmd = "node test/devtools server", cwd = "bokehjs" }
 build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
 jupyter-build = "bash tools/ci/build_jupyter.sh"
-jupyter-verify = "bash tools/ci/build_jupyter.sh --verify"
 
 # Prefer conda-forge builds for Bokeh runtime dependencies. The constraints
 # mirror [project.dependencies] in pyproject.toml and are checked by the
@@ -233,7 +232,7 @@ python-build = "*"
 setuptools = "*"
 
 [feature.build-tools.tasks]
-build-py = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
+build-py = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install", BOKEH_JUPYTER_ACTION = "install" }, depends-on = ["build-js", "jupyter-build"] }
 
 [feature.formatting-deps.dependencies]
 pre-commit = "*"
@@ -293,7 +292,7 @@ server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps
 notebook-test = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps", "notebook-test"]
 
 [tasks]
-setup = { cmd = "python -m pip install --no-deps -e .", depends-on = ["js-install"] }
+setup = { cmd = "python -m pip install --no-deps -e .", env = { BOKEH_JUPYTER_ACTION = "install" }, depends-on = ["js-install", "jupyter-build"] }
 reinstall = "python -m pip install --no-deps -e ."
 test-py = "pytest tests/unit"
 test-defaults = "pytest tests/test_defaults.py"
