@@ -15,11 +15,10 @@ from textwrap import indent
 from typing import NoReturn
 
 # External imports
-from setuptools import setup  # type: ignore[import]
+from setuptools import Distribution as SetuptoolsDistribution, setup  # type: ignore[import]
 from setuptools.command.build import build  # type: ignore[import]
 from setuptools.command.editable_wheel import editable_wheel  # type: ignore[import]
 from setuptools.command.sdist import sdist  # type: ignore[import]
-from setuptools.dist import Distribution as _Distribution  # type: ignore[import]
 
 # --- Helpers ----------------------------------------------------------------
 
@@ -245,7 +244,7 @@ BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 
 # --- Setuptools -------------------------------------------------------------
 
-class Distribution(_Distribution):  # type: ignore
+class Distribution(SetuptoolsDistribution):  # type: ignore
     def has_data(self) -> bool:
         # setuptools' editable wheel checks this predicate instead of
         # has_data_files() when deciding whether to run install_data.
