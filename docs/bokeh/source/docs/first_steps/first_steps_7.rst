@@ -60,10 +60,10 @@ If you use Jupyter notebooks, call |show| directly. Bokeh detects the notebook
 kernel and its bundled renderer automatically. No initialization call or
 separate extension package is needed:
 
-.. image:: /_images/notebook_inline.png
-    :scale: 50 %
+.. image:: /_images/jupyter_artifact_host.png
+    :width: 90%
     :align: center
-    :alt: Screenshot of a Bokeh plot in a Jupyter notebook
+    :alt: JupyterLab displaying static and Python-connected Bokeh output
 
 .. seealso::
     For more information on using Jupyter notebooks, see

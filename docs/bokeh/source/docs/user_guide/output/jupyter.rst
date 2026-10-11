@@ -204,11 +204,6 @@ See the
 :bokeh-tree:`examples/output/jupyter/live/Jupyter Interactors.ipynb` example
 for a complete notebook.
 
-.. image:: /_images/notebook_interactors.png
-    :scale: 50 %
-    :align: center
-    :alt: Jupyter showing a Bokeh plot together with ipywidget sliders.
-
 .. _interactors: https://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
 
 Bokeh applications
@@ -357,11 +352,6 @@ Saved Bokeh output may contain JavaScript. Jupyter therefore requires a
 notebook to be trusted before it restores that output. Use **Trust Notebook**
 from Jupyter's **File** menu when output does not reappear after reopening a
 notebook.
-
-.. image:: /_images/notebook_trust.png
-    :scale: 50 %
-    :align: center
-    :alt: Screenshot of the Jupyter File menu showing Trust Notebook.
 
 Diagnostics and troubleshooting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
