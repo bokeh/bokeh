@@ -419,6 +419,9 @@ jobs:
           environment: test-py314
 
       - name: Build docs
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
         run: pixi run --locked --environment test-py314 build-docs
 
       - name: Upload docs

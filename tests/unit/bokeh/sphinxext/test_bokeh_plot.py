@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 # Standard library imports
+import gzip
 import json
+from base64 import b64decode
 from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
@@ -89,3 +91,81 @@ def test_bokeh_plot_build_loads_resources_before_multiple_plots(
     else:
         assert html.count(f'data-bokeh-resource-override-version="{version}"') == 2
         assert f'bokeh-{version}.min.js' in html
+
+
+@pytest.mark.parametrize("relative", [False, True])
+@pytest.mark.parametrize("keys_present", [False, True])
+def test_map_examples_inject_keys_only_into_plot_payloads(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, relative: bool, keys_present: bool) -> None:
+    for name, value in (("GOOGLE_API_KEY", "test-google-key"), ("CARTO_API_KEY", "test-carto-key")):
+        if keys_present:
+            monkeypatch.setenv(name, value)
+        else:
+            monkeypatch.delenv(name, raising=False)
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "conf.py").write_text("extensions = ['bokeh.sphinxext.bokeh_plot']\nmaster_doc = 'index'\n")
+    repo = Path(__file__).resolve().parents[4]
+    examples = repo / "examples/topics/geo"
+    if relative:
+        for name in ("tile_source.py", "gmap.py"):
+            (source / name).write_text((examples / name).read_text())
+        examples = Path(".")
+    (source / "index.rst").write_text(f"""Maps
+====
+
+.. bokeh-plot:: {examples}/tile_source.py
+    :source-position: below
+
+.. bokeh-plot:: {examples}/gmap.py
+    :source-position: below
+""")
+    output = tmp_path / "html"
+    warnings = StringIO()
+    app = Sphinx(str(source), str(source), str(output), str(tmp_path / "doctrees"), "html",
+        status=StringIO(), warning=warnings, freshenv=True)
+    app.build()
+    assert app.statuscode == 0, warnings.getvalue()
+    html = (output / "index.html").read_text()
+    assert "CARTO_API_KEY" in html
+    assert "GOOGLE_API_KEY" in html
+    assert "test-carto-key" not in html
+    assert "test-google-key" not in html
+    payloads = "\n".join(p.read_text() for p in output.glob("bokeh-content-*.json"))
+    carto_key = "test-carto-key" if keys_present else "CARTO_API_KEY"
+    assert f"?key={carto_key}" in payloads
+    assert "@2x.png?key=" in payloads
+    documents = [json.loads(p.read_text())["source"]["documents"][0]
+                 for p in output.glob("bokeh-content-*.json")]
+    [gmap] = [doc["roots"][0] for doc in documents if doc["roots"][0]["$type"] == "GMap"]
+    google_key = b"test-google-key" if keys_present else b"GOOGLE_API_KEY"
+    assert gzip.decompress(b64decode(gmap["api_key"]["data"])) == google_key
+
+
+@pytest.mark.parametrize("name,example", [
+    ("GOOGLE_API_KEY", "gmap.py"),
+    ("CARTO_API_KEY", "tile_source.py"),
+])
+@pytest.mark.parametrize("key", [None, "local-test-key"])
+def test_map_examples_read_environment_locally(
+        monkeypatch: pytest.MonkeyPatch, name: str, example: str, key: str | None) -> None:
+    import runpy
+
+    from bokeh.models import GMapPlot, TileRenderer
+
+    if key is None:
+        monkeypatch.delenv(name, raising=False)
+    else:
+        monkeypatch.setenv(name, key)
+    plots = []
+    monkeypatch.setattr("bokeh.plotting.show", plots.append)
+    repo = Path(__file__).resolve().parents[4]
+    runpy.run_path(str(repo / "examples/topics/geo" / example))
+    [plot] = plots
+    expected = key if key is not None else name
+    if isinstance(plot, GMapPlot):
+        assert plot.api_key == expected.encode()
+    else:
+        [renderer] = [r for r in plot.renderers if isinstance(r, TileRenderer)]
+        assert renderer.tile_source.url.endswith(f"?key={expected}")
+        assert renderer.tile_source.pixel_ratio == 2
