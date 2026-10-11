@@ -292,8 +292,8 @@ server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps
 notebook-test = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps", "notebook-test"]
 
 [tasks]
-setup = { cmd = "python -m pip install --no-deps -e .", env = { BOKEH_JUPYTER_ACTION = "install" }, depends-on = ["js-install", "jupyter-build"] }
-reinstall = "python -m pip install --no-deps -e ."
+setup = { cmd = "python -m tools.dev_install", env = { BOKEH_JUPYTER_ACTION = "install" }, depends-on = ["js-install", "jupyter-build"] }
+reinstall = "python -m tools.dev_install"
 test-py = "pytest tests/unit"
 test-defaults = "pytest tests/test_defaults.py"
 test-cross = "pytest tests/test_cross.py"
