@@ -4,7 +4,7 @@ import {fileURLToPath} from "node:url"
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const files = [
-  ["install.json", "../labextension/install.json"],
+  ["install.json", "../src/bokeh/jupyter/labextension/install.json"],
 ]
 
 for (const [source, target] of files) {
@@ -13,5 +13,5 @@ for (const [source, target] of files) {
   await copyFile(resolve(root, source), destination)
 }
 
-const style = resolve(root, "../labextension/static/style.js")
+const style = resolve(root, "../src/bokeh/jupyter/labextension/static/style.js")
 await writeFile(style, `${(await readFile(style, "utf8")).trimEnd()}\n`)

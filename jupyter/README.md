@@ -2,27 +2,29 @@
 
 This directory contains the handwritten source for Bokeh's first-party
 JupyterLab and Notebook 7 renderer. Its prebuilt runtime assets are generated
-into the parent `src/bokeh/jupyter/` package and shipped in the main Bokeh
-wheel. Do not edit generated bundles directly.
+into `src/bokeh/jupyter/` and shipped in the main Bokeh wheel. Do not edit
+generated bundles directly.
 
 From the repository root, use the locked notebook test environment:
 
 ```sh
-pixi run --locked -e notebook-test npm --prefix src/bokeh/jupyter/frontend ci
-pixi run --locked -e notebook-test npm --prefix src/bokeh/jupyter/frontend run test:source
+pixi run --locked -e notebook-test npm --prefix jupyter ci
+pixi run --locked -e notebook-test npm --prefix jupyter run test:source
 pixi run --locked jupyter-build
 ```
 
 The build checks that the Python and TypeScript MIME protocol constants match,
 type-checks the extension, builds the frontend, and copies its installation
-metadata. `src/bokeh/jupyter/frontend/package.json` and
-`bokehjs/package.json` must have the same version. Commit source and
-regenerated assets together.
+metadata. `jupyter/package.json` and `bokehjs/package.json` must have the same
+version. The generated
+`src/bokeh/jupyter/anywidget.js` and `src/bokeh/jupyter/labextension/` outputs
+are ignored in a source checkout and injected into the sdist during packaging.
+Commit only the frontend source and build configuration.
 
 Focused validation from the repository root is:
 
 ```sh
-pixi run --locked -e notebook-test npm --prefix src/bokeh/jupyter/frontend run test:source
+pixi run --locked -e notebook-test npm --prefix jupyter run test:source
 pixi run --locked -e notebook-test python -m pytest tests/unit/bokeh/io/test_jupyter.py
 pixi run --locked -e notebook-test python -m pytest tests/unit/bokeh/io/test_jupyter_runtime.py
 pixi run --locked -e notebook-test python -m pytest tests/integration/test_jupyter_extension.py

@@ -10,7 +10,7 @@
     "build:dev": "tsc && npm run build:anywidget -- --mode=development && jupyter-builder build --development=True && node scripts/copy-install.mjs",
     "build:anywidget": "webpack --config webpack.anywidget.config.js",
     "check:protocol": "node scripts/check-protocol.mjs",
-    "clean": "rimraf lib build ../labextension/package.json ../labextension/static",
+    "clean": "rimraf lib build ../src/bokeh/jupyter/labextension/package.json ../src/bokeh/jupyter/labextension/static",
     "test:source": "vitest run"
   },
   "dependencies": {
@@ -25,7 +25,7 @@
     "@lumino/widgets": "^2"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^4",
+    "@jupyter/builder": "^1.2.3",
     "jsdom": "^26.1.0",
     "rimraf": "^6",
     "typescript": "~5.7.3",
@@ -35,7 +35,7 @@
   },
   "jupyterlab": {
     "extension": true,
-    "outputDir": "../labextension",
+    "outputDir": "../src/bokeh/jupyter/labextension",
     "webpackConfig": "webpack.labextension.config.js",
     "sharedPackages": {
       "@jupyterlab/services": {

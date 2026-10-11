@@ -18,9 +18,9 @@ runs:
       shell: bash --noprofile --norc -eo pipefail {0}
       run: pixi run --locked --environment build build-js
 
-    - name: Build and verify first-party Jupyter extension
+    - name: Build first-party Jupyter extension
       shell: bash --noprofile --norc -eo pipefail {0}
-      run: pixi run --locked --environment build jupyter-verify
+      run: pixi run --locked --environment build jupyter-build
 
     - name: Build pip packages
       shell: bash --noprofile --norc -eo pipefail {0}

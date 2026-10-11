@@ -41,6 +41,10 @@ BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript' / 'lib'
 PKG_STATIC = SRC_ROOT / 'bokeh' / 'server' / 'static'
 PKG_JS = PKG_STATIC / 'js'
 PKG_TSLIB = PKG_STATIC / 'lib'
+JUPYTER_ROOT = SRC_ROOT / 'bokeh' / 'jupyter'
+JUPYTER_FRONTEND = ROOT / 'jupyter'
+JUPYTER_ANYWIDGET = JUPYTER_ROOT / 'anywidget.js'
+JUPYTER_LABEXTENSION = JUPYTER_ROOT / 'labextension'
 COMPONENTS = (
     "bokeh",
     "bokeh-widgets",
@@ -129,6 +133,42 @@ def build_or_install_bokehjs(packages: list[str]) -> None:
         raise ValueError(f"Unrecognized action {action!r}")
     print(f"Used {bright(yellow(kind))} BokehJS from {loc}\n")
 
+def build_jupyter() -> None:
+    print("\nBuilding the Jupyter frontend... ", end="")
+    npm = "npm.cmd" if sys.platform == "win32" else "npm"
+    commands = (
+        [npm, "--prefix", str(JUPYTER_FRONTEND), "ci", "--no-progress"],
+        [npm, "--prefix", str(JUPYTER_FRONTEND), "run", "build"],
+    )
+    for command in commands:
+        try:
+            proc = subprocess.run(command, capture_output=True)
+        except OSError as e:
+            die(f"{FAILED}\nERROR: {command[0]!r} failed to execute:\n\n    {e}")
+        if proc.returncode != 0:
+            out = indent(proc.stdout.decode("utf-8", errors="replace"), "    ")
+            err = indent(proc.stderr.decode("utf-8", errors="replace"), "    ")
+            die(
+                f"{FAILED}\nERROR: {' '.join(command)!r} returned the following\n\n"
+                f"---- on stdout:\n{out}\n\n---- on stderr:\n{err}",
+            )
+    print(SUCCESS)
+
+def build_or_install_jupyter() -> list[tuple[str, list[str]]]:
+    action = os.environ.get("BOKEH_JUPYTER_ACTION", "build")
+    if PACKAGED:
+        kind, loc = "PACKAGED", "bokeh.jupyter"
+    elif action == "install":
+        kind, loc = "PREVIOUSLY BUILT", "src/bokeh/jupyter"
+    elif action == "build":
+        kind, loc = "NEWLY BUILT", "src/bokeh/jupyter"
+        build_jupyter()
+    else:
+        raise ValueError(f"Unrecognized action {action!r}")
+    data_files = _jupyter_data_files(required=True)
+    print(f"Used {bright(yellow(kind))} Jupyter frontend from {loc}\n")
+    return data_files
+
 def check_tags() -> None:
     if not PACKAGED:
         try:
@@ -138,21 +178,23 @@ def check_tags() -> None:
         except Exception:
             print(bright(yellow("!!! Could not check repo tags. Please ensure full tag history")))
 
-def _jupyter_data_files() -> list[tuple[str, list[str]]]:
+def _jupyter_data_files(*, required: bool) -> list[tuple[str, list[str]]]:
     ''' Install the prebuilt extension where Jupyter discovers it automatically. '''
-    root = SRC_ROOT / "bokeh" / "jupyter"
-    lab = root / "labextension"
-
-    required = [
-        lab / "package.json",
-        lab / "install.json",
-        root / "jupyter-config" / "jupyter_server_config.d" / "bokeh-jupyter.json",
+    expected = [
+        JUPYTER_ANYWIDGET,
+        JUPYTER_LABEXTENSION / "package.json",
+        JUPYTER_LABEXTENSION / "install.json",
+        JUPYTER_ROOT / "jupyter-config" / "jupyter_server_config.d" / "bokeh-jupyter.json",
     ]
-    missing = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
+    missing = [str(path.relative_to(ROOT)) for path in expected if not path.is_file()]
+    if not any((JUPYTER_LABEXTENSION / "static").glob("remoteEntry.*.js")):
+        missing.append("src/bokeh/jupyter/labextension/static/remoteEntry.*.js")
     if missing:
-        raise RuntimeError(
-            "The first-party Jupyter extension has not been built; missing: " + ", ".join(missing),
-        )
+        if required:
+            raise RuntimeError(
+                "The first-party Jupyter extension has not been built; missing: " + ", ".join(missing),
+            )
+        return []
 
     def source(path: Path) -> str:
         return path.relative_to(ROOT).as_posix()
@@ -160,15 +202,15 @@ def _jupyter_data_files() -> list[tuple[str, list[str]]]:
     return [
         (
             "share/jupyter/labextensions/@bokeh/bokeh-jupyter",
-            [source(path) for path in (lab / "package.json", lab / "install.json")],
+            [source(path) for path in (JUPYTER_LABEXTENSION / "package.json", JUPYTER_LABEXTENSION / "install.json")],
         ),
         (
             "share/jupyter/labextensions/@bokeh/bokeh-jupyter/static",
-            [source(path) for path in sorted((lab / "static").glob("*"))],
+            [source(path) for path in sorted((JUPYTER_LABEXTENSION / "static").glob("*"))],
         ),
         (
             "etc/jupyter/jupyter_server_config.d",
-            [source(root / "jupyter-config" / "jupyter_server_config.d" / "bokeh-jupyter.json")],
+            [source(JUPYTER_ROOT / "jupyter-config" / "jupyter_server_config.d" / "bokeh-jupyter.json")],
         ),
     ]
 
@@ -202,6 +244,7 @@ class Build(build):  # type: ignore
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)
+        self.distribution.data_files = build_or_install_jupyter()
         built_jupyter = ROOT / "build" / "lib" / "bokeh" / "jupyter"
         if built_jupyter.exists():
             rmtree(built_jupyter)
@@ -211,15 +254,17 @@ class EditableWheel(editable_wheel):  # type: ignore
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)
+        self.distribution.data_files = build_or_install_jupyter()
         super().run()
 
 class Sdist(sdist):  # type: ignore
     def run(self) -> None:
         check_tags()
         build_or_install_bokehjs(self.distribution.packages)
+        self.distribution.data_files = build_or_install_jupyter()
         super().run()
 
 setup(
     cmdclass={"build": Build, "editable_wheel": EditableWheel, "sdist": Sdist},
-    data_files=_jupyter_data_files(),
+    data_files=_jupyter_data_files(required=PACKAGED),
 )

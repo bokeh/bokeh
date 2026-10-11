@@ -14,6 +14,9 @@ from pathlib import Path
 # External imports
 import pytest
 
+# Bokeh imports
+import bokeh
+
 ROOT = Path(__file__).parents[2]
 
 pytestmark = pytest.mark.skipif(
@@ -33,6 +36,11 @@ def test_wheel_registers_jupyter_extensions() -> None:
 
 
 def test_wheel_installs_jupyter_extension_files() -> None:
+    package = Path(bokeh.__file__).parent / "jupyter"
+    assert (package / "anywidget.js").is_file()
+    assert (package / "labextension/package.json").is_file()
+    assert not (package / "frontend").exists()
+
     prefix = Path(sys.prefix)
     assert (prefix / "share/jupyter/labextensions/@bokeh/bokeh-jupyter/package.json").is_file()
     config = prefix / "etc/jupyter/jupyter_server_config.d/bokeh-jupyter.json"

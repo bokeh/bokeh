@@ -1,5 +1,0 @@
-{
-  "packageManager": "python",
-  "packageName": "bokeh",
-  "uninstallInstructions": "Use your Python package manager to uninstall Bokeh."
-}

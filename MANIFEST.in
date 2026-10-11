@@ -9,12 +9,13 @@ include src/bokeh/util/sampledata.json
 include src/bokeh/_sri.json
 include src/bokeh/LICENSE.txt
 include src/bokeh/py.typed
+# include generated notebook frontends
 include src/bokeh/jupyter/anywidget.js
 include src/bokeh/jupyter/logotype.svg
 include src/bokeh/jupyter/protocol.json
 graft src/bokeh/jupyter/jupyter-config
 graft src/bokeh/jupyter/labextension
-prune src/bokeh/jupyter/frontend
+prune jupyter
 global-exclude *.py[cod]
 
 # start with an empty static/ dir
