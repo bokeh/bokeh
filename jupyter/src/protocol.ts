@@ -69,6 +69,7 @@ export function assertProtocol(payload: unknown): void {
     )
   }
   const record = payload as Record<string, unknown>
+  const has = (value: Record<string, unknown>, name: string) => Object.prototype.hasOwnProperty.call(value, name)
   if (record.protocol_version !== PROTOCOL_VERSION) {
     const relation = typeof record.protocol_version === "number"
       ? record.protocol_version > PROTOCOL_VERSION
@@ -94,8 +95,9 @@ export function assertProtocol(payload: unknown): void {
     if (typeof record[name] !== "string" || (record[name] as string).length === 0) problems.push(`${name} must be a non-empty string`)
   }
 
-  const stringArray = (name: string) => {
-    if (!Array.isArray(record[name]) || !(record[name] as unknown[]).every((value) => typeof value === "string")) problems.push(`${name} must be a string array`)
+  const stringArray = (name: string, nonEmpty = false) => {
+    if (!Array.isArray(record[name]) || !(record[name] as unknown[]).every((value) =>
+      typeof value === "string" && (!nonEmpty || value.length !== 0))) problems.push(`${name} must be a string array`)
   }
 
   const timeoutField = (name: string) => {
@@ -110,7 +112,8 @@ export function assertProtocol(payload: unknown): void {
     stringField("path")
   } else if (record.kind === "resources") {
     stringField("mode")
-    for (const name of ["dependencies", "warnings"]) stringArray(name)
+    stringArray("dependencies", true)
+    stringArray("warnings")
     timeoutField("load_timeout")
     if (record.requirements == null || typeof record.requirements !== "object" || Array.isArray(record.requirements)) problems.push("requirements must be an object")
     if (record.policy == null || typeof record.policy !== "object" || Array.isArray(record.policy)) problems.push("policy must be an object")
@@ -127,16 +130,22 @@ export function assertProtocol(payload: unknown): void {
         if (artifact.kind !== "js" && artifact.kind !== "css") problems.push(`artifacts[${index}].kind must be js or css`)
         if (artifact.source !== "url" && artifact.source !== "inline") problems.push(`artifacts[${index}].source must be url or inline`)
         if (artifact.source === "url" && (typeof artifact.url !== "string" || artifact.url.length === 0)) problems.push(`artifacts[${index}].url is required for URL artifacts`)
+        for (const name of ["url", "integrity", "crossorigin", "nonce"]) {
+          if (has(artifact, name) && typeof artifact[name] !== "string") problems.push(`artifacts[${index}].${name} must be a string`)
+        }
+        for (const name of ["module", "core"]) {
+          if (has(artifact, name) && typeof artifact[name] !== "boolean") problems.push(`artifacts[${index}].${name} must be a boolean`)
+        }
       }
     }
   } else {
     stringField("view_id")
     timeoutField("connect_timeout")
     if (record.source_kind !== "standalone" && record.source_kind !== "server") problems.push("source_kind must be standalone or server")
-    if (record.live_id != null) stringField("live_id")
-    if (record.application_id != null) stringField("application_id")
-    if (record.application_url != null) problems.push("application_url must not be persisted in notebook output")
-    if (record.resource_records != null) {
+    if (has(record, "live_id")) stringField("live_id")
+    if (has(record, "application_id")) stringField("application_id")
+    if (has(record, "application_url")) problems.push("application_url must not be persisted in notebook output")
+    if (has(record, "resource_records")) {
       if (!Array.isArray(record.resource_records)) {
         problems.push("resource_records must be an array")
       } else {
@@ -146,12 +155,16 @@ export function assertProtocol(payload: unknown): void {
             continue
           }
           const resource = value as Record<string, unknown>
-          if (resource.javascript != null && typeof resource.javascript !== "string") problems.push(`resource_records[${index}].javascript must be a string`)
-          try {
-            assertProtocol(resource.payload)
-          } catch {
-            problems.push(`resource_records[${index}].payload must be a valid resource payload`)
-          }
+          if (has(resource, "javascript") && typeof resource.javascript !== "string") problems.push(`resource_records[${index}].javascript must be a string`)
+          const validPayload = (() => {
+            try {
+              assertProtocol(resource.payload)
+              return (resource.payload as ResourcePayload).kind === "resources"
+            } catch {
+              return false
+            }
+          })()
+          if (!validPayload) problems.push(`resource_records[${index}].payload must be a valid resource payload`)
         }
       }
     }

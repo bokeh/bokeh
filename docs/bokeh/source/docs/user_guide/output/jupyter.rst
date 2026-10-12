@@ -13,8 +13,8 @@ output. Bokeh supports JupyterLab 4 and Notebook 7 without a separate
 ``jupyter_bokeh`` installation. It can display standalone plots, synchronize
 plots with Python, and run Bokeh applications with Python callbacks.
 
-No initialization call is needed. The ``output_notebook()`` function was
-removed in Bokeh 4.0.
+Display Bokeh objects directly or call ``show()`` for Python-connected output.
+No initialization call is needed.
 
 .. _Jupyter: https://jupyter.org
 
@@ -238,8 +238,8 @@ a callable object. A callable object is shared by every session and is called
 on the application's server thread. Treat its attributes as read-only after
 calling ``serve()``, and keep per-session state on the document and its models.
 
-The older ``show(modify_document)`` form was removed in Bokeh 4.0. Start the
-application explicitly with ``serve()`` before displaying it.
+Start the application explicitly with ``serve()`` before displaying it with
+``show()``.
 
 Re-executing a cell normally replaces the application associated with that
 cell. If the notebook host does not provide stable cell identifiers, use a key
