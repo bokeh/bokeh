@@ -92,6 +92,9 @@ def test_create_hosts_allowlist_host_value_with_port_use_port() -> None:
     hosts = util.create_hosts_allowlist(["foo:1000","bar:2100"], 1000)
     assert hosts == ["foo:1000","bar:2100"]
 
+    hosts = util.create_hosts_allowlist(["foo:*"], 1000)
+    assert hosts == ["foo:*"]
+
 def test_create_hosts_allowlist_host_without_port_use_port_80() -> None:
     hosts = util.create_hosts_allowlist(["foo"], 1000)
     assert hosts == ["foo:80"]
@@ -112,6 +115,18 @@ def test_create_hosts_allowlist_bad_host_raises() -> None:
 
     with pytest.raises(ValueError):
         util.create_hosts_allowlist([":80"], 1000)
+
+def test_validate_hosts_allowlist() -> None:
+    with pytest.raises(TypeError, match="sequence"):
+        util.validate_hosts_allowlist("foo:80")
+
+    with pytest.raises(TypeError, match="sequence"):
+        util.validate_hosts_allowlist(["foo:80", 1000])  # type: ignore[list-item]
+
+    with pytest.raises(ValueError, match="Invalid port"):
+        util.validate_hosts_allowlist(["foo:bar"])
+
+    util.validate_hosts_allowlist(["foo", "foo:80", "foo:*", "*", "*:*"])
 
 def test_match_host() -> None:
         assert util.match_host('192.168.0.1:80', '192.168.0.1:80') is True

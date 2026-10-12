@@ -277,6 +277,7 @@ class NotebookApplication:
             uvicorn_kwargs: dict[str, Any] | None = None,
             **server_kwargs: Any) -> None:
         from ..server.asgi import BokehASGI
+        from ..server.util import validate_hosts_allowlist
         from .notebook import (
             DEFAULT_JUPYTER_URL,
             notebook_cell_identity,
@@ -312,9 +313,8 @@ class NotebookApplication:
         else:
             origins = ["127.0.0.1:*", "localhost:*"]
         if extra_websocket_origins is not None:
-            if isinstance(extra_websocket_origins, str) or not all(isinstance(origin, str) for origin in extra_websocket_origins):
-                raise TypeError("extra_websocket_origins must be a sequence of host[:port] strings")
-            origins = list(dict.fromkeys([*origins, *extra_websocket_origins]))
+            validate_hosts_allowlist(extra_websocket_origins)
+            origins.extend(extra_websocket_origins)
 
         self._application_id = uuid4().hex
         self._prefix = f"bokeh-notebook/{secrets.token_urlsafe(24)}"
