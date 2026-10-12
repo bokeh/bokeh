@@ -39,6 +39,28 @@ describe("MeshDataSource", () => {
     })
   })
 
+  it("accepts cell records", () => {
+    const source = MeshDataSource.create({
+      vertices: [[0, 0], [1, 0], [1, 1], [0, 1]],
+      cells: [
+        [[0, 1, 2], {material: "a", value: 10}],
+        {vertices: [0, 2, 3], material: "b", value: 20},
+      ],
+    })
+
+    expect(source.cells.get("vertices")).to.be.equal([[0, 1, 2], [0, 2, 3]])
+    expect(source.cells.get("material")).to.be.equal(["a", "b"])
+    expect(source.cells.get("value")).to.be.equal([10, 20])
+  })
+
+  it("rejects reserved connectivity in cell attributes", () => {
+    expect(() => MeshDataSource.create({
+      vertices: [[0, 0], [1, 0], [0, 1]],
+      cells: [[[0, 1, 2], {faces: [2, 1, 0]}]],
+      connectivity_field: "faces",
+    })).to.throw(Error, "mesh cell attributes cannot contain the reserved 'faces' field")
+  })
+
   it("filters and selects on the cell axis", () => {
     const source = MeshDataSource.create({
       vertices: [[0, 0], [1, 0], [1, 1], [0, 1]],

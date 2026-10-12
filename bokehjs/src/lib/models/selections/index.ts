@@ -1,2 +1,2 @@
 export * from "./interaction_policy"
-export {Selection}      from "./selection"
+export {GraphSelection, Selection} from "./selection"

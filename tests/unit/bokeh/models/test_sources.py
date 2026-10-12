@@ -121,6 +121,29 @@ class TestMeshDataSource:
         }
         assert source.length == 2
 
+    def test_accepts_cell_records(self) -> None:
+        source = bms.MeshDataSource(
+            vertices=[[0, 0], [1, 0], [1, 1], [0, 1]],
+            cells=[
+                ([0, 1, 2], {"material": "a", "value": 10}),
+                {"vertices": [0, 2, 3], "material": "b", "value": 20},
+            ],
+        )
+
+        assert source.cells.data == {
+            "vertices": [[0, 1, 2], [0, 2, 3]],
+            "material": ["a", "b"],
+            "value": [10, 20],
+        }
+
+    def test_rejects_reserved_connectivity_in_cell_attributes(self) -> None:
+        with pytest.raises(ValueError, match="reserved 'faces' field"):
+            bms.MeshDataSource(
+                vertices=[[0, 0], [1, 0], [0, 1]],
+                cells=[([0, 1, 2], {"faces": [2, 1, 0]})],
+                connectivity_field="faces",
+            )
+
     def test_accepts_storage_neutral_child_sources(self) -> None:
         vertices = RecordDataSource()
         cells = RecordDataSource()
@@ -139,6 +162,8 @@ class TestGraphDataSource:
 
         assert source.nodes.data == dict(index=[])
         assert source.edges.data == dict(start=[], end=[])
+        assert source.selected.nodes.indices == []
+        assert source.selected.edges.indices == []
 
     @pytest.mark.parametrize("empty", [[], {}])
     def test_explicit_empty_data_defines_topology_fields(self, empty) -> None:

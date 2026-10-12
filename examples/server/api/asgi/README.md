@@ -20,6 +20,10 @@ lifespan. A new Bokeh session starts with the latest immutable snapshot.
 `BokehASGI.update_sessions()` applies later snapshots to each local session
 document.
 
+`geometry_updates.py`, `graph_updates.py`, and `mesh_updates.py` are small,
+framework-free applications that show live Python callbacks updating
+`GeometryDataSource`, `GraphDataSource`, and `MeshDataSource`, respectively.
+
 ## Streamlit particle example
 
 `streamlit_particles/` pairs per-viewer Streamlit controls with a Bokeh
@@ -83,6 +87,9 @@ chosen example, then run one of these commands:
 python -m uvicorn framework_free:application --port 8000
 python -m uvicorn fastapi_embed:app --port 8000
 python -m uvicorn fastapi_shared_data:app --port 8000
+python -m uvicorn geometry_updates:application --port 8000
+python -m uvicorn graph_updates:application --port 8000
+python -m uvicorn mesh_updates:application --port 8000
 python -m uvicorn starlette_embed:app --port 8000
 python -m uvicorn django_embed:application --port 8000
 python -m uvicorn streamlit_simple:app --port 8000

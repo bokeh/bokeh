@@ -220,3 +220,26 @@ export class Selection extends Model {
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
 }
+
+export namespace GraphSelection {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Model.Props & {
+    nodes: p.Property<Selection>
+    edges: p.Property<Selection>
+  }
+}
+
+export interface GraphSelection extends GraphSelection.Attrs {}
+
+/** The directly selected node and edge records of a graph. */
+export class GraphSelection extends Model {
+  declare properties: GraphSelection.Props
+
+  static {
+    this.define<GraphSelection.Props>(({Ref}) => ({
+      nodes: [ Ref(Selection), () => Selection.create(), {readonly: true} ],
+      edges: [ Ref(Selection), () => Selection.create(), {readonly: true} ],
+    }))
+  }
+}

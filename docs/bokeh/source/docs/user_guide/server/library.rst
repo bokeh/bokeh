@@ -65,6 +65,9 @@ websocket URLs. Equivalent complete examples are available for:
 
 * :bokeh-tree:`examples/server/api/asgi/fastapi_embed.py`
 * :bokeh-tree:`examples/server/api/asgi/fastapi_shared_data.py`
+* :bokeh-tree:`examples/server/api/asgi/geometry_updates.py`
+* :bokeh-tree:`examples/server/api/asgi/graph_updates.py`
+* :bokeh-tree:`examples/server/api/asgi/mesh_updates.py`
 * :bokeh-tree:`examples/server/api/asgi/starlette_embed.py`
 * :bokeh-tree:`examples/server/api/asgi/django_embed.py`
 * :bokeh-tree:`examples/server/api/asgi/streamlit_simple.py`

@@ -9,6 +9,7 @@ import {DataSource} from "./data_source"
 import {IndexedDataSource} from "./indexed_data_source"
 import {GraphSelectionPolicy} from "../selections/interaction_policy"
 import type {GraphTraversalDirection} from "../selections/interaction_policy"
+import {GraphSelection} from "../selections/selection"
 
 export namespace GraphDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -23,6 +24,7 @@ export namespace GraphDataSource {
   export type Props = DataSource.Props & {
     nodes: p.Property<IndexedDataSource>
     edges: p.Property<IndexedDataSource>
+    selected: p.Property<GraphSelection>
     selection_policy: p.Property<GraphSelectionPolicy>
   }
 }
@@ -165,6 +167,10 @@ function graph_id_key(id: unknown): string {
       if (id === null) {
         return "null"
       }
+      break
+    case "symbol":
+    case "function":
+      break
   }
   throw new Error("graph node identifiers must be scalar values or nested arrays of scalar values")
 }
@@ -191,6 +197,9 @@ export class GraphDataSource extends DataSource {
   private _out_neighbors?: Map<string, unknown[]>
   private _in_neighbors?: Map<string, unknown[]>
   private _incident_edges?: Map<string, number[]>
+  private _connected_selection_policy?: GraphSelectionPolicy
+
+  private readonly _selection_policy_changed = () => this.selection_manager.update_expanded()
 
   protected constructor(attrs: GraphDataSource.Init = {}) {
     const {nodes: raw_nodes, edges: raw_edges, ...rest} = attrs
@@ -203,6 +212,7 @@ export class GraphDataSource extends DataSource {
     this.define<GraphDataSource.Props>(({Ref}) => ({
       nodes: [ Ref(IndexedDataSource), () => ColumnDataSource.create({data: {index: []}}), {readonly: true} ],
       edges: [ Ref(IndexedDataSource), () => ColumnDataSource.create({data: {start: [], end: []}}), {readonly: true} ],
+      selected: [ Ref(GraphSelection), () => GraphSelection.create(), {readonly: true} ],
       selection_policy: [ Ref(GraphSelectionPolicy), () => GraphSelectionPolicy.create() ],
     }))
   }
@@ -234,6 +244,19 @@ export class GraphDataSource extends DataSource {
       this._incident_edges = undefined
       this.data_changed.emit({...change, path: ["edges", ...(change.path ?? [])]})
     })
+    this.connect(this.selected.nodes.change, () => this.selection_manager.direct_selection_changed())
+    this.connect(this.selected.edges.change, () => this.selection_manager.direct_selection_changed())
+    this.connect(this.properties.selection_policy.change, () => this._connect_selection_policy())
+    this._connect_selection_policy()
+  }
+
+  private _connect_selection_policy(): void {
+    if (this._connected_selection_policy != null) {
+      this.disconnect(this._connected_selection_policy.change, this._selection_policy_changed)
+    }
+    this._connected_selection_policy = this.selection_policy
+    this.connect(this.selection_policy.change, this._selection_policy_changed)
+    this.selection_manager.update_expanded()
   }
 
   private _invalidate_nodes(): void {
@@ -331,6 +354,6 @@ export class GraphDataSource extends DataSource {
         indices.add(index)
       }
     }
-    return [...indices]
+    return [...indices].sort((a, b) => a - b)
   }
 }

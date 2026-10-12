@@ -7,12 +7,15 @@
     :keywords: graph, network, edges, arc, bezier, orthogonal
 '''
 
+# Standard library imports
 from collections.abc import Sequence
 
+# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.models import (
     ArcEdgePathProvider,
     BezierEdgePathProvider,
+    NormalHead,
     OrthogonalEdgePathProvider,
     StaticLayoutProvider,
     StraightEdgePathProvider,
@@ -26,12 +29,12 @@ nodes = [
     {"id": "D", "color": "#72b7b2"},
 ]
 edges = [
-    ("A", "B", {"curvature": 0.14, "offset": -0.18, "loop_radius": 0.28}),
-    ("A", "B", {"curvature": -0.14, "offset": 0.18, "loop_radius": 0.28}),
-    ("B", "C", {"curvature": 0.08, "offset": 0.0, "loop_radius": 0.28}),
-    ("C", "D", {"curvature": -0.08, "offset": 0.0, "loop_radius": 0.28}),
-    ("D", "A", {"curvature": 0.08, "offset": 0.0, "loop_radius": 0.28}),
-    ("C", "C", {"curvature": 0.0, "offset": 0.0, "loop_radius": 0.28}),
+    ("A", "B", {"curvature": 0.14, "offset": -0.18, "loop_radius": 0.28, "arrow_size": 11}),
+    ("A", "B", {"curvature": -0.14, "offset": 0.18, "loop_radius": 0.28, "arrow_size": 15}),
+    ("B", "C", {"curvature": 0.08, "offset": 0.0, "loop_radius": 0.28, "arrow_size": 13}),
+    ("C", "D", {"curvature": -0.08, "offset": 0.0, "loop_radius": 0.28, "arrow_size": 13}),
+    ("D", "A", {"curvature": 0.08, "offset": 0.0, "loop_radius": 0.28, "arrow_size": 13}),
+    ("C", "C", {"curvature": 0.0, "offset": 0.0, "loop_radius": 0.28, "arrow_size": 15}),
 ]
 layout: dict[int | str, Sequence[float]] = {
     "A": (0, 0), "B": (2, 0), "C": (2, 2), "D": (0, 2),
@@ -60,7 +63,7 @@ for title, provider in providers:
         tools="tap,reset",
         title=title,
     )
-    p.graph(
+    graph = p.graph(
         nodes,
         edges,
         StaticLayoutProvider(graph_layout=layout),
@@ -70,6 +73,11 @@ for title, provider in providers:
         node_line_color="white",
         edge_line_alpha=0.65,
         edge_line_width=2,
+    )
+    graph.edge_renderer.add_decoration(
+        NormalHead(size="arrow_size", fill_color="#52667a", line_color=None),
+        "end",
+        inset=11,
     )
     p.axis.visible = False
     p.grid.visible = False

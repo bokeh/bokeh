@@ -6020,6 +6020,22 @@
             },
           },
         },
+        selected: {
+          type: "object",
+          name: "GraphSelection",
+          attributes: {
+            nodes: {
+              type: "object",
+              name: "Selection",
+              attributes: {},
+            },
+            edges: {
+              type: "object",
+              name: "Selection",
+              attributes: {},
+            },
+          },
+        },
         selection_policy: {
           type: "object",
           name: "GraphSelectionPolicy",
@@ -6208,6 +6224,19 @@
   Scale: {
     __extends__: "Transform",
   },
+  GraphSelection: {
+    __extends__: "Model",
+    nodes: {
+      type: "object",
+      name: "Selection",
+      attributes: {},
+    },
+    edges: {
+      type: "object",
+      name: "Selection",
+      attributes: {},
+    },
+  },
   GraphSelectionPolicy: {
     __extends__: "SelectionPolicy",
     node_hops: 0,
@@ -6355,6 +6384,22 @@
               [],
             ],
           ],
+        },
+      },
+    },
+    selected: {
+      type: "object",
+      name: "GraphSelection",
+      attributes: {
+        nodes: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        edges: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
         },
       },
     },

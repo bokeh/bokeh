@@ -47,6 +47,48 @@ describe("SelectionManager", () => {
       expect(source.selected.indices).to.be.equal([1])
     })
 
+    it("should apply graph toggle mode to direct hits before policy expansion", () => {
+      const source = GraphDataSource.create({
+        nodes: ["A", "B", "C", "D"],
+        edges: [["A", "B"], ["A", "C"], ["B", "D"]],
+        selection_policy: GraphSelectionPolicy.create({node_hops: 1, node_direction: "out"}),
+      })
+      const graph = GraphRenderer.create({data_source: source})
+      let direct = Selection.create({indices: [0]})
+      const renderer_view = {
+        model: graph,
+        node_view: {model: graph.node_renderer, hit_test: () => direct},
+        edge_view: {model: graph.edge_renderer},
+      } as unknown as GraphRendererView
+
+      source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true, "toggle")
+      expect(source.selected.nodes.indices).to.be.equal([0])
+      expect(source.nodes.selected.indices).to.be.equal([0, 1, 2])
+
+      direct = Selection.create({indices: [1]})
+      source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true, "toggle")
+      expect(source.selected.nodes.indices).to.be.equal([1])
+      expect(source.nodes.selected.indices).to.be.equal([1, 3])
+
+      source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true, "toggle")
+      expect(source.selected.nodes.indices).to.be.equal([])
+      expect(source.nodes.selected.indices).to.be.equal([])
+    })
+
+    it("should expand programmatic direct graph selections", () => {
+      const source = GraphDataSource.create({
+        nodes: ["A", "B", "C"],
+        edges: [["A", "B"], ["A", "C"]],
+        selection_policy: GraphSelectionPolicy.create({node_direction: "out"}),
+      })
+
+      source.selected.nodes.indices = [0]
+      expect(source.nodes.selected.indices).to.be.equal([0])
+
+      source.selection_policy.node_hops = 1
+      expect(source.nodes.selected.indices).to.be.equal([0, 1, 2])
+    })
+
     it("should return false and clear selections if hit_test_result is empty", async () => {
       const {renderer_view, glyph_stub} = await make_glyph()
 

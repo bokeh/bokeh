@@ -22,8 +22,10 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.property.container import Dict, List, Seq
 from ..core.property.enum import Enum
+from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.numeric import NonNegative
 from ..core.property.primitive import Bool, Int
+from ..core.property.readonly import Readonly
 from ..core.property.struct import Struct
 from ..model import Model
 
@@ -32,6 +34,7 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'GraphSelection',
     'GraphSelectionPolicy',
     'Selection',
     'SelectionPolicy',
@@ -84,6 +87,25 @@ class Selection(Model):
 
     image_indices = List(Struct(index=Int, i=Int, j=Int, flat_index=Int), help="""
 
+    """)
+
+class GraphSelection(Model):
+    ''' The directly selected node and edge records of a graph.
+
+    Graph selection policies expand these direct selections into the normal
+    ``selected`` state of the graph's node and edge sources.
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    nodes = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
+    Directly selected node records, before graph-policy expansion.
+    """)
+
+    edges = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
+    Directly selected edge records, before graph-policy expansion.
     """)
 
 class SelectionPolicy(Model):

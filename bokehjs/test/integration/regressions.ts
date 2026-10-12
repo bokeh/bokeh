@@ -104,7 +104,7 @@ function scalar_image(N: number = 100) {
 function rgba_image() {
   const N = 20
   const d = new Uint32Array(N*N) // TODO: doesn't allow Uint8Array[N, N, 4]
-  const dv = new DataView(d.buffer)
+  const dv = new globalThis.DataView(d.buffer)
 
   const {trunc} = Math
   for (let i = 0; i < N; i++) {

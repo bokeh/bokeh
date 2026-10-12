@@ -93,6 +93,15 @@ additional attributes for colors, alpha values, hover tooltips, and callbacks.
 For geometry reused by multiple renderers, construct a
 :class:`~bokeh.models.sources.GeometryDataSource` explicitly.
 
+Existing parallel ``x`` and ``y`` data can be converted without assembling
+GeoJSON dictionaries by hand. ``GeometryDataSource.from_xy(x, y)`` accepts
+simple coordinate sequences, nested polygon and multi-polygon coordinates,
+and legacy ``NaN``-separated coordinates. Each row is kept as one selectable
+feature::
+
+    source = GeometryDataSource.from_xy(xs, ys, data={"color": colors})
+    p.polygons(source=source, fill_color="color")
+
 Simple polygon
 ~~~~~~~~~~~~~~
 
@@ -110,6 +119,8 @@ its own vectorized style attributes:
 .. bokeh-plot:: __REPO__/examples/basic/areas/patch_multiple.py
     :source-position: above
 
+.. _ug_basic_areas_meshes:
+
 Indexed meshes
 ~~~~~~~~~~~~~~
 
@@ -120,14 +131,23 @@ styling axis, while the ``polygons`` glyph reads virtual ``xs`` and ``ys``
 fields assembled in the browser. Updating either child source also works in a
 Bokeh server application without replacing the complete mesh.
 
+A minimal mesh needs only its shared vertex coordinates and cell connectivity.
+Each cell can pair its vertex indices with attributes used to style that cell:
+
+.. bokeh-plot:: __REPO__/examples/topics/mesh/mesh.py
+    :source-position: above
+
 For lower-level indexed data, :func:`~bokeh.transform.gather` builds an
 :class:`~bokeh.models.expressions.IndexedLookup` expression. For example,
 ``gather(vertices, "x", indices="vertices")`` resolves each row of vertex
 indices on the renderer's primary source against the ``x`` field on
 ``vertices``.
 
+The same representation scales to more involved geometry, such as this
+finite-element mesh around a circular cutout:
+
 .. bokeh-plot:: __REPO__/examples/topics/mesh/finite_element_mesh.py
-    :source-position: above
+    :source-position: none
 
 Disjoint parts
 ~~~~~~~~~~~~~~
