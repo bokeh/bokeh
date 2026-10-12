@@ -21,7 +21,14 @@ from functools import partial
 
 # Bokeh imports
 from bokeh.document import Document
+from bokeh.events import ButtonClick, Tap
 from bokeh.model.util import HasDocumentRef
+from bokeh.models import (
+    Button,
+    Plot,
+    TabPanel,
+    Tabs,
+)
 from bokeh.settings import settings
 
 # Module under test
@@ -286,6 +293,74 @@ class TestPropertyCallbackManager:
 
 
 class TestEventCallbackManager:
+    def test_on_button_click_before_attach(self) -> None:
+        doc = Document()
+        button = Button()
+        other = Button()
+        received = []
+        button.on_event(ButtonClick, received.append)
+        doc.add_root(button)
+        doc.add_root(other)
+        event = ButtonClick(button)
+        doc.callbacks.trigger_event(ButtonClick(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_button_click_after_attach(self) -> None:
+        doc = Document()
+        button = Button()
+        other = Button()
+        received = []
+        doc.add_root(button)
+        doc.add_root(other)
+        button.on_event(ButtonClick, received.append)
+        event = ButtonClick(button)
+        doc.callbacks.trigger_event(ButtonClick(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_tap_before_attach(self) -> None:
+        doc = Document()
+        plot = Plot()
+        other = Plot()
+        received = []
+        plot.on_event(Tap, received.append)
+        doc.add_root(plot)
+        doc.add_root(other)
+        event = Tap(plot)
+        doc.callbacks.trigger_event(Tap(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_tap_after_attach(self) -> None:
+        doc = Document()
+        plot = Plot()
+        other = Plot()
+        received = []
+        doc.add_root(plot)
+        doc.add_root(other)
+        plot.on_event(Tap, received.append)
+        event = Tap(plot)
+        doc.callbacks.trigger_event(Tap(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_click_in_dynamic_tab(self) -> None:
+        doc = Document()
+        tabs = Tabs()
+        doc.add_root(tabs)
+        button = Button()
+        tabs.tabs.append(TabPanel(child=button))
+        received = []
+        button.on_click(lambda: received.append("first"))
+        button.on_click(lambda: received.append("second"))
+        doc.callbacks.trigger_event(ButtonClick(button))
+        assert received == ["first", "second"]
+
     def test_creation(self) -> None:
         m = cbm.EventCallbackManager()
         assert len(m._event_callbacks) == 0
