@@ -306,22 +306,58 @@ class TestPropertyCallbackManager:
 
 
 class TestEventCallbackManager:
-    @pytest.mark.parametrize("register_before_attach", [False, True])
-    @pytest.mark.parametrize("event_type", [ButtonClick, Tap])
-    def test_on_event_document_subscription(self, register_before_attach, event_type) -> None:
+    def test_on_button_click_before_attach(self) -> None:
         doc = Document()
-        model_type = Button if event_type is ButtonClick else Plot
-        button = model_type()
-        other = model_type()
+        button = Button()
+        other = Button()
         received = []
-        if register_before_attach:
-            button.on_event(event_type, received.append)
+        button.on_event(ButtonClick, received.append)
         doc.add_root(button)
         doc.add_root(other)
-        if not register_before_attach:
-            button.on_event(event_type, received.append)
-        event = event_type(button)
-        doc.callbacks.trigger_event(event_type(other))
+        event = ButtonClick(button)
+        doc.callbacks.trigger_event(ButtonClick(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_button_click_after_attach(self) -> None:
+        doc = Document()
+        button = Button()
+        other = Button()
+        received = []
+        doc.add_root(button)
+        doc.add_root(other)
+        button.on_event(ButtonClick, received.append)
+        event = ButtonClick(button)
+        doc.callbacks.trigger_event(ButtonClick(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_tap_before_attach(self) -> None:
+        doc = Document()
+        plot = Plot()
+        other = Plot()
+        received = []
+        plot.on_event(Tap, received.append)
+        doc.add_root(plot)
+        doc.add_root(other)
+        event = Tap(plot)
+        doc.callbacks.trigger_event(Tap(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_tap_after_attach(self) -> None:
+        doc = Document()
+        plot = Plot()
+        other = Plot()
+        received = []
+        doc.add_root(plot)
+        doc.add_root(other)
+        plot.on_event(Tap, received.append)
+        event = Tap(plot)
+        doc.callbacks.trigger_event(Tap(other))
         assert received == []
         doc.callbacks.trigger_event(event)
         assert received == [event]
