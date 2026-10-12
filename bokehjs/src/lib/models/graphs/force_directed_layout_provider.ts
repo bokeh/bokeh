@@ -45,18 +45,11 @@ export class ForceDirectedLayoutProvider extends LayoutProvider {
     const random = new LCGRandom(this.seed)
     const xs = Float64Array.from({length: n}, () => 2*random.float() - 1)
     const ys = Float64Array.from({length: n}, () => 2*random.float() - 1)
-    const id_to_index = new Map<unknown, number>()
-    for (let i = 0; i < n; i++) {
-      if (!id_to_index.has(ids[i])) {
-        id_to_index.set(ids[i], i)
-      }
-    }
-
     const edges: [number, number][] = []
     const m = Math.min(source.edge_starts.length, source.edge_ends.length)
     for (let i = 0; i < m; i++) {
-      const start = id_to_index.get(source.edge_starts[i])
-      const end = id_to_index.get(source.edge_ends[i])
+      const start = source.node_index(source.edge_starts[i])
+      const end = source.node_index(source.edge_ends[i])
       if (start != null && end != null && start != end) {
         edges.push([start, end])
       }

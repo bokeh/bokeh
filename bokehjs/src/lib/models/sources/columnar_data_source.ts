@@ -3,13 +3,12 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import type {Arrayable, ArrayableNew, Attrs, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
-import {inplace_filter, uniq} from "core/util/array"
+import {uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import {IndexedDataSource} from "./indexed_data_source"
 import type {Index} from "core/util/templating"
-import type {Selection} from "../selections/selection"
 
 // Abstract base class for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -29,18 +28,6 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
   declare properties: ColumnarDataSource.Props
 
   declare data: Data
-
-  private _selection_sync: boolean = true
-
-  private _with_selection_sync<T>(sync: boolean | undefined, fn: () => T): T {
-    const previous = this._selection_sync
-    this._selection_sync = sync ?? true
-    try {
-      return fn()
-    } finally {
-      this._selection_sync = previous
-    }
-  }
 
   override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
     if ("data" in changed_attrs) {
@@ -123,49 +110,6 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
     this.connect(this.properties.data.change, prune_selection)
     this.connect(this.streaming, prune_selection)
     this.connect(this.patching, prune_selection)
-  }
-
-  protected _prune_selection(): void {
-    const {selected} = this
-    const length = this.get_length()
-    if (length == null) {
-      return
-    }
-    const in_bounds = (index: number) => 0 <= index && index < length
-
-    const updates: Partial<Selection.Attrs> = {}
-    const prune = <T>(values: Arrayable<T>, predicate: (value: T) => boolean): T[] | null => {
-      const array = Array.from(values)
-      const previous_length = array.length
-      inplace_filter(array, predicate)
-      return array.length == previous_length ? null : array
-    }
-
-    const indices = prune(selected.indices, in_bounds)
-    if (indices != null) {
-      updates.indices = indices
-    }
-
-    const line_indices = prune(selected.line_indices, in_bounds)
-    if (line_indices != null) {
-      updates.line_indices = line_indices
-    }
-
-    const multiline_entries = [...selected.multiline_indices]
-    const previous_multiline_size = multiline_entries.length
-    inplace_filter(multiline_entries, ([index]) => in_bounds(index))
-    if (multiline_entries.length != previous_multiline_size) {
-      updates.multiline_indices = new Map(multiline_entries)
-    }
-
-    const image_indices = prune(selected.image_indices, ({index}) => in_bounds(index))
-    if (image_indices != null) {
-      updates.image_indices = image_indices
-    }
-
-    if (entries(updates).length != 0) {
-      selected.setv(updates, {check_eq: false, sync: this._selection_sync})
-    }
   }
 
   get_field(name: string): Arrayable | null {

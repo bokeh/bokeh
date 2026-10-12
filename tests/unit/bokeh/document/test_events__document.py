@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
@@ -25,6 +26,7 @@ from bokeh.core.property.bases import Property
 from bokeh.core.serialization import MapRep, ObjectRefRep, Serializer
 from bokeh.document import Document
 from bokeh.model import Model
+from bokeh.models import ColumnDataSource
 
 # Module under test
 import bokeh.document.events as bde # isort:skip
@@ -236,6 +238,19 @@ class TestColumnDataChangedEvent:
     def test_kind(self) -> None:
         assert bde.ColumnDataChangedEvent.kind == "ColumnDataChanged"
 
+    def test_handle_json_without_cols(self) -> None:
+        doc = Document()
+        source = ColumnDataSource(data={"x": [1]})
+        doc.add_root(source)
+
+        bde.ColumnDataChangedEvent._handle_json(doc, None, {
+            "model": source,
+            "attr": "data",
+            "data": {"x": [2]},
+        })
+
+        assert source.data == {"x": [2]}
+
     def test_to_serializable(self) -> None:
         doc = Document()
         m = SomeModel(data={"col0": [1], "col1": [1, 2], "col2": [1, 2, 3]})
@@ -286,6 +301,27 @@ class TestColumnsStreamedEvent:
 
     def test_kind(self) -> None:
         assert bde.ColumnsStreamedEvent.kind == "ColumnsStreamed"
+
+    def test_handle_json_without_rollover(self) -> None:
+        doc = Document()
+        source = ColumnDataSource(data={"x": [1]})
+        doc.add_root(source)
+
+        bde.ColumnsStreamedEvent._handle_json(doc, None, {
+            "model": source,
+            "attr": "data",
+            "data": {"x": [2]},
+        })
+
+        assert source.data == {"x": [1, 2]}
+
+    def test_non_mapping_data_does_not_require_pandas(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setitem(sys.modules, "pandas", None)
+
+        data = [{"geometry": {"type": "Point", "coordinates": [0, 0]}}]
+        event = bde.ColumnsStreamedEvent(Document(), SomeModel(), "records", data)
+
+        assert event.data is data
 
     def test_to_serializable(self) -> None:
         doc = Document()

@@ -7,8 +7,9 @@ import {construct} from "core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "core/has_props"
 import type {Kind} from "core/kinds"
 import type {Arrayable, Attrs, Data} from "core/types"
+import {is_NDArray} from "core/util/ndarray"
 import {dict, entries, keys} from "core/util/object"
-import {isArray, isNumber, isPlainObject} from "core/util/types"
+import {isArray, isArrayable, isNumber, isPlainObject} from "core/util/types"
 import type {Index} from "core/util/templating"
 import {ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../../document/events"
 import {IndexedDataSource} from "./indexed_data_source"
@@ -53,17 +54,30 @@ function coordinate_paths(geometry: GeometryValue): Position[][] {
 
   switch (geometry.type) {
     case "LineString":
-      return [geometry.coordinates]
+      return [positions(geometry.coordinates)]
     case "MultiLineString":
     case "Polygon":
-      return geometry.coordinates
+      return geometry.coordinates.map((path) => positions(path))
     case "MultiPolygon":
-      return geometry.coordinates.flat()
+      return geometry.coordinates.flat().map((path) => positions(path))
     case "GeometryCollection":
       return geometry.geometries.flatMap((item) => coordinate_paths(item))
     default:
       return []
   }
+}
+
+function positions(value: unknown): Position[] {
+  if (is_NDArray(value)) {
+    if (value.dimension != 2) {
+      return []
+    }
+    const [rows, width] = value.shape
+    return Array.from({length: rows}, (_, row) =>
+      Array.from(value.slice(row*width, (row + 1)*width)) as Position,
+    )
+  }
+  return value as Position[]
 }
 
 function flatten_coordinate(geometry: GeometryValue, axis: 0 | 1 | 2): number[] {
@@ -104,6 +118,38 @@ function split_coordinate_paths(xs: Arrayable<number>, ys: Arrayable<number>, zs
   return paths
 }
 
+function geometry_from_xy(xs: Arrayable, ys: Arrayable): Geometry {
+  if (xs.length != ys.length) {
+    throw new Error("polygon x and y coordinates must have the same length")
+  }
+
+  const rings: Position[][] = []
+  let ring: Position[] = []
+  for (let i = 0; i <= xs.length; i++) {
+    const x = xs[i]
+    const y = ys[i]
+    const separator = i == xs.length ||
+      (typeof x == "number" && !Number.isFinite(x)) ||
+      (typeof y == "number" && !Number.isFinite(y))
+    if (separator) {
+      if (ring.length != 0) {
+        rings.push(ring)
+        ring = []
+      }
+    } else {
+      ring.push([x, y] as unknown as Position)
+    }
+  }
+
+  return rings.length <= 1
+    ? {type: "Polygon", coordinates: rings}
+    : {type: "MultiPolygon", coordinates: rings.map((ring) => [ring])}
+}
+
+function is_coordinate_sequence(value: unknown): value is Arrayable {
+  return isArrayable(value) && (value.length == 0 || typeof value[0] != "string")
+}
+
 function replace_coordinate_paths(geometry: GeometryValue, paths: Position[][]): GeometryValue {
   switch (geometry?.type) {
     case "LineString":
@@ -122,8 +168,18 @@ function replace_coordinate_paths(geometry: GeometryValue, paths: Position[][]):
       }
       return {...geometry, coordinates}
     }
+    case "GeometryCollection": {
+      let offset = 0
+      const geometries = geometry.geometries.map((item) => {
+        const count = coordinate_paths(item).length
+        const updated = replace_coordinate_paths(item, paths.slice(offset, offset + count))
+        offset += count
+        return updated
+      })
+      return {...geometry, geometries: geometries as Geometry[]}
+    }
     default:
-      return {type: "Polygon", coordinates: paths}
+      return geometry
   }
 }
 
@@ -234,6 +290,19 @@ export class GeometryDataSource extends IndexedDataSource {
     return construct(this, attrs as Attrs)
   }
 
+  static from_xy(xs: Arrayable, ys: Arrayable, data: Data = {}): GeometryDataSource {
+    const nested_xs = xs.length != 0 && is_coordinate_sequence(xs[0])
+    const nested_ys = ys.length != 0 && is_coordinate_sequence(ys[0])
+    if (nested_xs != nested_ys) {
+      throw new Error("polygon x and y coordinates must have matching nesting")
+    }
+
+    const geometries = nested_xs && nested_ys
+      ? Array.from(xs, (x, i) => geometry_from_xy(x as Arrayable, ys[i] as Arrayable))
+      : [geometry_from_xy(xs, ys)]
+    return GeometryDataSource.create(geojson_to_geometry_records({geometries, data}))
+  }
+
   protected constructor(attrs: Partial<GeometryDataSource.Attrs> | GeometryInput = {}) {
     if (typeof attrs == "string" || isArray(attrs) || ("type" in attrs || "geometry" in attrs)) {
       super(geojson_to_geometry_records(attrs as GeometryInput) as Partial<GeometryDataSource.Attrs>)
@@ -259,6 +328,7 @@ export class GeometryDataSource extends IndexedDataSource {
     })
     this.connect(this.properties.geometries.change, () => {
       this._derived.clear()
+      this._prune_selection()
     })
   }
 
@@ -269,8 +339,11 @@ export class GeometryDataSource extends IndexedDataSource {
   replace(input: GeometryInput, {sync}: {sync?: boolean} = {}): void {
     const records = geojson_to_geometry_records(input)
     this._clear_watchers()
-    this.properties.geometries.set_value(records.geometries)
-    this.properties.data.set_value(records.data)
+    this._with_selection_sync(sync, () => {
+      this.properties.geometries.set_value(records.geometries)
+      this.properties.data.set_value(records.data)
+      this._prune_selection()
+    })
     this._derived.clear()
     this.data_changed.emit({structural: true})
     if (this.document != null) {
@@ -312,8 +385,11 @@ export class GeometryDataSource extends IndexedDataSource {
     }
 
     this._clear_watchers()
-    this.properties.geometries.set_value(geometries)
-    this.properties.data.set_value(data)
+    this._with_selection_sync(sync, () => {
+      this.properties.geometries.set_value(geometries)
+      this.properties.data.set_value(data)
+      this._prune_selection()
+    })
     this._derived.clear()
     this.streaming.emit()
     this.data_changed.emit({structural: true})
@@ -349,8 +425,10 @@ export class GeometryDataSource extends IndexedDataSource {
     }
 
     this._clear_watchers()
-    this.properties.geometries.set_value(geometries)
-    this.properties.data.set_value(data)
+    this._with_selection_sync(sync, () => {
+      this.properties.geometries.set_value(geometries)
+      this.properties.data.set_value(data)
+    })
     this._derived.clear()
     const patched = [...indices]
     this.patching.emit(patched)

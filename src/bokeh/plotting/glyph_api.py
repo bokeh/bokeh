@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..models import glyphs
-from ..models.sources import GeometryDataSource
+from ..models.sources import GeometryDataSource, MeshDataSource
 from ._decorators import glyph_method, marker_method
 
 if TYPE_CHECKING:
@@ -48,17 +48,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def _geometry_source(geometry: Any = None, *, x: Any = None, y: Any = None) -> GeometryDataSource:
+def _geometry_source(geometry: Any = None, *, x: Any = None, y: Any = None) -> GeometryDataSource | MeshDataSource:
     if geometry is not None:
-        return geometry if isinstance(geometry, GeometryDataSource) else GeometryDataSource(geometry)
+        return geometry if isinstance(geometry, (GeometryDataSource, MeshDataSource)) else GeometryDataSource(geometry)
 
-    xs = list(x)
-    ys = list(y)
-    if len(xs) != len(ys):
-        raise ValueError("polygon x and y coordinates must have the same length")
-
-    coordinates = [[x_value, y_value] for x_value, y_value in zip(xs, ys)]
-    return GeometryDataSource({"type": "Polygon", "coordinates": [coordinates]})
+    return GeometryDataSource.from_xy(x, y)
 
 
 class GlyphAPI:
@@ -727,7 +721,8 @@ Examples:
     )
     def polygons(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """ Render geometry features from a
-        :class:`~bokeh.models.sources.GeometryDataSource`.
+        :class:`~bokeh.models.sources.GeometryDataSource` or a cell-indexed
+        :class:`~bokeh.models.sources.MeshDataSource`.
 
         Polygon and MultiPolygon features, including holes and disjoint parts,
         share one feature-indexed selection and vector styling axis.
@@ -740,6 +735,7 @@ Examples:
             p.polygons(x=[1, 2, 3], y=[1, 3, 1], fill_color="navy")
             p.polygons(records, fill_color="color")
             p.polygons(source=geometry_source, fill_color="color")
+            p.polygons(mesh_source, fill_color="cell_value")
         """
     @marker_method()
     def plus(self, *args: Any, **kwargs: Any) -> GlyphRenderer:

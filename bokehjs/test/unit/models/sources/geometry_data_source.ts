@@ -3,6 +3,7 @@ import {expect} from "#framework/assertions"
 import {Document} from "@bokehjs/document"
 import {ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "@bokehjs/document/events"
 import type {DocumentEvent} from "@bokehjs/document/events"
+import {ndarray} from "@bokehjs/core/util/ndarray"
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
 import {DataView} from "@bokehjs/models/sources/data_view"
 import {
@@ -77,6 +78,33 @@ describe("GeometryDataSource", () => {
     expect(source.get("ys")).to.be.equal([[0, 0, 0, NaN, 3, 3, 3, NaN, 3.2, 3.2, 3.2]])
   })
 
+  it("constructs polygon features from flat, nested, and NaN-separated coordinates", () => {
+    const single = GeometryDataSource.from_xy([0, 2, 0], [0, 1, 0])
+    expect(single.geometries).to.be.equal([{
+      type: "Polygon",
+      coordinates: [[[0, 0], [2, 1], [0, 0]]],
+    }])
+
+    const nested = GeometryDataSource.from_xy(
+      [[0, 1, 0], [2, 3, NaN, 4, 5]],
+      [[0, 0, 0], [2, 2, NaN, 4, 4]],
+      {name: ["single", "parts"]},
+    )
+    expect(nested.geometries.map((geometry) => geometry?.type)).to.be.equal(["Polygon", "MultiPolygon"])
+    expect(nested.data).to.be.equal({name: ["single", "parts"]})
+  })
+
+  it("supports shaped arrays in geometry coordinates", () => {
+    const ring = ndarray(new Float64Array([0, 0, 2, 0, 0, 0]), {shape: [3, 2]})
+    const source = GeometryDataSource.create({
+      type: "Polygon",
+      coordinates: [ring],
+    } as never)
+
+    expect(source.get("xs")).to.be.equal([[0, 2, 0]])
+    expect(source.get("ys")).to.be.equal([[0, 0, 0]])
+  })
+
   it("turns GeometryCollection members into independently selectable records", () => {
     const {geometries, data} = geojson_to_geometry_records({
       type: "FeatureCollection",
@@ -125,6 +153,35 @@ describe("GeometryDataSource", () => {
     }
   })
 
+  it("preserves non-polygon geometries and collection hierarchy when committing coordinates", () => {
+    const point = {type: "Point" as const, coordinates: [1, 2]}
+    const collection = {
+      type: "GeometryCollection" as const,
+      geometries: [
+        {type: "Point" as const, coordinates: [3, 4]},
+        {type: "LineString" as const, coordinates: [[0, 0], [1, 1]]},
+      ],
+    }
+    const source = GeometryDataSource.create({
+      geometries: [point, null, collection],
+    })
+    const xs = source.get_array<number[]>("xs")
+    xs[2][1] = 2
+
+    source.commit_coordinates()
+
+    expect(source.geometries[0]).to.be.equal(point)
+    expect(source.geometries[1]).to.be.null
+    expect(source.geometries[2]?.type).to.be.equal("GeometryCollection")
+    expect(source.geometries[2]).to.be.equal({
+      type: "GeometryCollection",
+      geometries: [
+        {type: "Point", coordinates: [3, 4]},
+        {type: "LineString", coordinates: [[0, 0], [2, 1]]},
+      ],
+    })
+  })
+
   it("appends and deletes aligned feature records", () => {
     const source = GeometryDataSource.create({
       geometries: [{type: "Point", coordinates: [0, 0]}],
@@ -150,6 +207,21 @@ describe("GeometryDataSource", () => {
     ])
 
     expect(source.data).to.be.equal({name: ["old", "new"], color: [null, "red"]})
+  })
+
+  it("prunes selection when replacement or rollover shortens the source", () => {
+    const source = GeometryDataSource.create([
+      {type: "Point", coordinates: [0, 0]},
+      {type: "Point", coordinates: [1, 1]},
+    ])
+    source.selected.indices = [0, 1]
+
+    source.replace({type: "Point", coordinates: [2, 2]})
+    expect(source.selected.indices).to.be.equal([0])
+
+    source.selected.indices = [0, 1]
+    source.stream({type: "Point", coordinates: [3, 3]}, 1)
+    expect(source.selected.indices).to.be.equal([0])
   })
 
   it("invalidates virtual coordinate caches on source-level data changes", () => {

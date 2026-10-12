@@ -110,6 +110,25 @@ its own vectorized style attributes:
 .. bokeh-plot:: __REPO__/examples/basic/areas/patch_multiple.py
     :source-position: above
 
+Indexed meshes
+~~~~~~~~~~~~~~
+
+Use :class:`~bokeh.models.sources.MeshDataSource` when adjacent cells share
+vertices. The source stores vertex coordinates once and keeps cell connectivity
+as vertex indices. Cells remain the selectable, filterable, and vectorized
+styling axis, while the ``polygons`` glyph reads virtual ``xs`` and ``ys``
+fields assembled in the browser. Updating either child source also works in a
+Bokeh server application without replacing the complete mesh.
+
+For lower-level indexed data, :func:`~bokeh.transform.gather` builds an
+:class:`~bokeh.models.expressions.IndexedLookup` expression. For example,
+``gather(vertices, "x", indices="vertices")`` resolves each row of vertex
+indices on the renderer's primary source against the ``x`` field on
+``vertices``.
+
+.. bokeh-plot:: __REPO__/examples/topics/mesh/finite_element_mesh.py
+    :source-position: above
+
 Disjoint parts
 ~~~~~~~~~~~~~~
 

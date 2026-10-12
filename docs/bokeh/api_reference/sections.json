@@ -107,6 +107,7 @@
       "CumSum",
       "CustomJSExpr",
       "Expression",
+      "IndexedLookup",
       "PolarTransform",
       "Stack"
     ]
@@ -382,6 +383,7 @@
       "GeometryDataSource",
       "GraphDataSource",
       "IndexedDataSource",
+      "MeshDataSource",
       "ServerSentDataSource",
       "WebDataSource"
     ]

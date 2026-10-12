@@ -76,6 +76,7 @@ export class GraphRendererView extends DataRendererView {
     })
     this.connect(this.model.data_source.data_changed, async () => {
       this.model.layout_provider.invalidate(this.model.data_source)
+      this.apply_coordinates()
       await this.edge_view.set_data()
       await this.node_view.set_data()
       this.request_paint()

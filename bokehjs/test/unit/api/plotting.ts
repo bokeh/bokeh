@@ -7,7 +7,7 @@ import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
 import {
   Circle, ColumnDataSource, GeometryDataSource, LinearAxis,
-  NormalHead, OpenHead, Polygons, Segment,
+  MeshDataSource, NormalHead, OpenHead, Polygons, Segment,
 } from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
@@ -227,6 +227,22 @@ describe("in api/plotting module", () => {
         expect(() => figure().polygons({source, fill_color: ["red"]})).to.throw(
           Error,
           "sequence literals cannot be used with a non-columnar data source",
+        )
+      })
+
+      it("should accept meshes and reject unrelated models for polygons", () => {
+        const mesh = MeshDataSource.create({
+          vertices: [[0, 0], [1, 0], [0, 1]],
+          cells: [[0, 1, 2]],
+        })
+
+        expect(figure().polygons(mesh).data_source).to.be.equal(mesh)
+        expect(figure().polygons({source: mesh}).data_source).to.be.equal(mesh)
+
+        const columns = ColumnDataSource.create({data: {x: [[0, 1, 0]], y: [[0, 0, 1]]}})
+        expect(() => figure().polygons(columns as never)).to.throw(
+          Error,
+          "polygons() expects geometry data, a geometry source, or an options object",
         )
       })
 

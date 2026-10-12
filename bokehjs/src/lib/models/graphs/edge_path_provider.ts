@@ -37,8 +37,10 @@ export abstract class EdgePathProvider extends Model {
   protected abstract _compute_paths(source: GraphDataSource, layout: NodeLayout): EdgePaths
 
   protected _endpoints(source: GraphDataSource, layout: NodeLayout, index: number): [Point, Point] {
-    const start = layout.get(source.edge_starts[index]) ?? [NaN, NaN]
-    const end = layout.get(source.edge_ends[index]) ?? [NaN, NaN]
+    const start_index = source.node_index(source.edge_starts[index])
+    const end_index = source.node_index(source.edge_ends[index])
+    const start = start_index != null ? layout.get(source.node_ids[start_index]) ?? [NaN, NaN] : [NaN, NaN]
+    const end = end_index != null ? layout.get(source.node_ids[end_index]) ?? [NaN, NaN] : [NaN, NaN]
     return [[start[0], start[1]], [end[0], end[1]]]
   }
 
@@ -57,25 +59,28 @@ export abstract class EdgePathProvider extends Model {
   }
 
   protected _parallel_ranks(source: GraphDataSource): Float64Array {
-    const groups = new Map<unknown, Map<unknown, number[]>>()
+    const groups = new Map<string, Map<string, number[]>>()
     const n = Math.min(source.edge_starts.length, source.edge_ends.length)
     for (let i = 0; i < n; i++) {
       const start = source.edge_starts[i]
       const end = source.edge_ends[i]
-      let destinations = groups.get(start)
+      const start_key = source.node_key(start)
+      const end_key = source.node_key(end)
+      let destinations = groups.get(start_key)
       if (destinations == null) {
         destinations = new Map()
-        groups.set(start, destinations)
+        groups.set(start_key, destinations)
       }
-      const indices = destinations.get(end) ?? []
+      const indices = destinations.get(end_key) ?? []
       indices.push(i)
-      destinations.set(end, indices)
+      destinations.set(end_key, indices)
     }
 
     const ranks = new Float64Array(n)
     for (const destinations of groups.values()) {
       for (const indices of destinations.values()) {
-        const self_loop = indices.length != 0 && source.edge_starts[indices[0]] === source.edge_ends[indices[0]]
+        const self_loop = indices.length != 0 &&
+          source.node_key(source.edge_starts[indices[0]]) == source.node_key(source.edge_ends[indices[0]])
         const midpoint = self_loop ? 0 : (indices.length - 1)/2
         for (let i = 0; i < indices.length; i++) {
           ranks[indices[i]] = i - midpoint

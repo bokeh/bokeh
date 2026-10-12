@@ -43,6 +43,18 @@ describe("GraphSelectionPolicy", () => {
     expect(nodes.indices).to.be.equal([2, 1, 0])
   })
 
+  it("doesn't traverse through endpoints absent from the node source", () => {
+    const incomplete = GraphDataSource.create({
+      nodes: ["A", "B"],
+      edges: [["A", "missing"], ["missing", "B"]],
+    })
+    const policy = GraphSelectionPolicy.create({node_hops: 2})
+
+    const {nodes} = policy.expand(incomplete, "nodes", Selection.create({indices: [0]}))
+
+    expect(nodes.indices).to.be.equal([0])
+  })
+
   it("expands selected nodes to incident edges", () => {
     const policy = GraphSelectionPolicy.create({node_hops: 1, include_incident_edges: true})
     const {nodes, edges} = policy.expand(source, "nodes", Selection.create({indices: [0]}))

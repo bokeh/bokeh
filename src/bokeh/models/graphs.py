@@ -25,14 +25,14 @@ from typing import TYPE_CHECKING, Any, Literal
 
 # Bokeh imports
 from ..core.has_props import abstract
+from ..core.property.any import Any as AnyVal
 from ..core.property.container import Dict, Len, Seq, Tuple
 from ..core.property.dataspec import FloatSpec
-from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
 from ..core.property.numeric import NonNegative, Positive
-from ..core.property.primitive import Bool, Float, Int, String
+from ..core.property.primitive import Bool, Float, Int
 from ..core.property.required import Required
 from ..model import Model
 from .expressions import CoordinateTransform
@@ -144,7 +144,7 @@ class StaticLayoutProvider(LayoutProvider):
 
     '''
 
-    graph_layout = Dict(Either(Int, String), Len(Seq(Float), 2), default={}, help="""
+    graph_layout = Dict(AnyVal, Len(Seq(Float), 2), default={}, help="""
     The coordinates of the graph nodes in cartesian space. The keys of
     the dictionary correspond to node indices or labels and the values
     are two element sequences containing the x and y coordinates of

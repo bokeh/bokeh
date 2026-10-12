@@ -129,6 +129,23 @@ describe("GraphRendererView", () => {
     expect(x).to.be.equal(new Float64Array([3, 4, 5, 6]))
     expect(y).to.be.equal(new Float64Array([0, 1, 2, 3]))
   })
+
+  it("replaces coordinate expressions after graph data changes", async () => {
+    const {test_graph} = await create_graph_document()
+    const edge_glyph = test_graph.edge_renderer.glyph as MultiLine
+    const node_glyph = test_graph.node_renderer.glyph as Scatter
+    const edge_spec = edge_glyph.properties.xs.get_value() as {expr: unknown}
+    const node_spec = node_glyph.properties.x.get_value() as {expr: unknown}
+
+    expect(test_graph.data_source.edges).to.be.instanceof(ColumnDataSource)
+    const edges = test_graph.data_source.edges as ColumnDataSource
+    edges.data = {start: [4, 5], end: [5, 6]}
+
+    const updated_edge_spec = edge_glyph.properties.xs.get_value() as {expr: unknown}
+    const updated_node_spec = node_glyph.properties.x.get_value() as {expr: unknown}
+    expect(updated_edge_spec.expr).to.not.be.equal(edge_spec.expr)
+    expect(updated_node_spec.expr).to.not.be.equal(node_spec.expr)
+  })
 })
 
 describe("alternate graph edges", () => {

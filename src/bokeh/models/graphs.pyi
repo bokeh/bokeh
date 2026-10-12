@@ -7,7 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Literal, Sequence, Unpack
+from typing import Any, Literal, Sequence, Unpack
 
 # Bokeh imports
 from .._specs import FloatSpec
@@ -64,12 +64,12 @@ class ForceDirectedLayoutProvider(LayoutProvider):
     iterations: int = ...
 
 class _StaticLayoutProviderInit(_LayoutProviderInit, total=False):
-    graph_layout: dict[int | str, Sequence[float]]
+    graph_layout: dict[Any, Sequence[float]]
 
 class StaticLayoutProvider(LayoutProvider):
     def __init__(self, **kwargs: Unpack[_StaticLayoutProviderInit]) -> None: ...
 
-    graph_layout: dict[int | str, Sequence[float]] = ...
+    graph_layout: dict[Any, Sequence[float]] = ...
 
 class _EdgePathProviderInit(_ModelInit, total=False):
     loop_radius: FloatSpec

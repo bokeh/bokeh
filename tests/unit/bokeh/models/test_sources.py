@@ -83,6 +83,60 @@ class TestDataSource:
         assert "selected" not in CompositeDataSource.properties()
         assert "selection_policy" not in CompositeDataSource.properties()
 
+class TestMeshDataSource:
+    def test_default_sources_define_coordinate_and_connectivity_fields(self) -> None:
+        source = bms.MeshDataSource()
+
+        assert source.vertices.data == dict(x=[], y=[])
+        assert source.cells.data == dict(vertices=[])
+        assert source.selected is source.cells.selected
+        assert source.selection_policy is source.cells.selection_policy
+        assert source.length == 0
+
+    def test_accepts_explicit_empty_data_and_custom_connectivity_field(self) -> None:
+        source = bms.MeshDataSource(vertices=[], cells=[], connectivity_field="faces")
+
+        assert source.vertices.data == dict(x=[], y=[])
+        assert source.cells.data == dict(faces=[])
+
+        single = bms.MeshDataSource(vertices=[[0, 0], [1, 0], [0, 1]], cells=[0, 1, 2])
+        assert single.cells.data == dict(vertices=[[0, 1, 2]])
+
+    def test_accepts_dense_vertices_and_connectivity(self) -> None:
+        source = bms.MeshDataSource(
+            vertices=np.array([[0, 0], [2, 0], [1, 1]], dtype=np.float32),
+            cells=np.array([[0, 1, 2]], dtype=np.int32),
+        )
+
+        assert np.array_equal(source.vertices.data["x"], [0, 2, 1])
+        assert np.array_equal(source.vertices.data["y"], [0, 0, 1])
+        assert np.array_equal(source.cells.data["vertices"], [[0, 1, 2]])
+        assert source.length == 1
+
+    def test_accepts_ragged_cells_and_cell_attributes(self) -> None:
+        source = bms.MeshDataSource(
+            vertices={"x": [0, 1, 1, 0], "y": [0, 0, 1, 1]},
+            cells={"vertices": [[0, 1, 2], [0, 2, 3]], "value": [10, 20]},
+        )
+
+        assert source.cells.data == {
+            "vertices": [[0, 1, 2], [0, 2, 3]],
+            "value": [10, 20],
+        }
+        assert source.length == 2
+
+    def test_accepts_storage_neutral_child_sources(self) -> None:
+        vertices = RecordDataSource()
+        cells = RecordDataSource()
+        source = bms.MeshDataSource(vertices=vertices, cells=cells)
+
+        assert source.vertices is vertices
+        assert source.cells is cells
+
+    def test_rejects_invalid_connectivity(self) -> None:
+        with pytest.raises(ValueError, match="indices must be integers"):
+            bms.MeshDataSource(vertices=[[0, 0]], cells=[[0.5]])
+
 class TestGraphDataSource:
     def test_default_sources_define_topology_fields(self) -> None:
         source = bms.GraphDataSource()
@@ -125,6 +179,19 @@ class TestGraphDataSource:
         assert source.nodes.data == dict(index=["alice", "bob"])
         assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
 
+    def test_accepts_composite_node_ids_and_list_edges(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[((1, 2), {"label": "A"}), ((3, 4), {"label": "B"})],
+            edges=[[(1, 2), (3, 4), {"weight": 2}]],
+        )
+
+        assert source.nodes.data == dict(index=[[1, 2], [3, 4]], label=["A", "B"])
+        assert source.edges.data == dict(start=[[1, 2]], end=[[3, 4]], weight=[2])
+
+    def test_rejects_duplicate_node_ids(self) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bms.GraphDataSource(nodes=["alice", "alice"])
+
     def test_accepts_networkx_like_graphs_directly(self) -> None:
         class Graph:
             def nodes(self, *, data):
@@ -139,6 +206,23 @@ class TestGraphDataSource:
 
         assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
         assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_preserves_non_internal_networkx_attributes(self) -> None:
+        class Graph:
+            def nodes(self, *, data):
+                assert data is True
+                return [("alice", {"id": "external"})]
+
+            def edges(self, *, data):
+                assert data is True
+                return [("alice", "alice", {"source": "imported", "target": "value"})]
+
+        source = bms.GraphDataSource(Graph())
+
+        assert source.nodes.data == dict(index=["alice"], id=["external"])
+        assert source.edges.data == dict(
+            start=["alice"], end=["alice"], source=["imported"], target=["value"],
+        )
 
     @pytest.mark.skipif(pd is None, reason="requires pandas")
     def test_normalizes_dataframe_topology_aliases(self) -> None:
@@ -220,6 +304,27 @@ class TestGeometryDataSource:
             {"type": "Point", "coordinates": [3, 4]},
         ]
         assert source.data == {"name": ["A", "B"], "type": ["city", "town"]}
+
+    def test_normalizes_numpy_geometry_coordinates(self) -> None:
+        source = bms.GeometryDataSource({
+            "type": "Polygon",
+            "coordinates": [np.array([[0, 0], [2, 0], [0, 0]])],
+        })
+
+        assert source.geometries == [{
+            "type": "Polygon",
+            "coordinates": [[[0, 0], [2, 0], [0, 0]]],
+        }]
+
+    def test_from_xy_accepts_nested_and_nan_separated_coordinates(self) -> None:
+        source = bms.GeometryDataSource.from_xy(
+            [[0, 1, 0], [2, 3, np.nan, 4, 5]],
+            [[0, 0, 0], [2, 2, np.nan, 4, 4]],
+            data={"name": ["single", "parts"]},
+        )
+
+        assert [geometry["type"] for geometry in source.geometries] == ["Polygon", "MultiPolygon"]
+        assert source.data == {"name": ["single", "parts"]}
 
     def test_flattens_nested_geometry_collections_to_selectable_features(self) -> None:
         source = bms.GeometryDataSource({

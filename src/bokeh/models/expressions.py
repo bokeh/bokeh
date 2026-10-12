@@ -61,6 +61,7 @@ from ..core.property.required import Required
 from ..core.property.vectorization import field
 from ..core.property_aliases import AngleUnits
 from ..model import Model
+from .sources import IndexedDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -70,6 +71,7 @@ __all__ = (
     'CumSum',
     'CustomJSExpr',
     'Expression',
+    'IndexedLookup',
     'PolarTransform',
     'Stack',
 )
@@ -87,7 +89,7 @@ class Expression(Model):
 
     .. code-block:: typescript
 
-        v_compute(source: ColumnarDataSource): Arrayable {
+        v_compute(source: IndexedDataSource): Arrayable {
             // compute and return array of values
         }
 
@@ -176,6 +178,33 @@ class Stack(Expression):
 
     Will compute an array of values (in the browser) by adding the elements
     of the ``'sales'`` and ``'marketing'`` columns of a data source.
+    """)
+
+
+class IndexedLookup(Expression):
+    ''' Gather values from another indexed data source.
+
+    The expression reads indices from the renderer's primary data source and
+    resolves them against ``field`` on ``source``. Scalar indices produce
+    scalar values, while nested or shaped indices produce nested values. This
+    allows compact connectivity data to address a shared vertex table without
+    repeating coordinates in the serialized document.
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    source = Required(Instance(IndexedDataSource), help="""
+    The indexed data source containing values to gather.
+    """)
+
+    field = Required(String, help="""
+    The field on ``source`` containing values to gather.
+    """)
+
+    indices = String(default="vertices", help="""
+    The field on the renderer's primary source containing lookup indices.
     """)
 
 

@@ -42,6 +42,12 @@ def test_staticlayoutprovider_init_props() -> None:
     assert provider.graph_layout == {}
 
 
+def test_staticlayoutprovider_accepts_composite_node_ids() -> None:
+    provider = StaticLayoutProvider(graph_layout={(1, 2): [0, 0]})
+
+    assert provider.graph_layout == {(1, 2): [0, 0]}
+
+
 def test_algorithmic_layout_provider_defaults() -> None:
     circular = CircularLayoutProvider()
     assert circular.center == (0, 0)

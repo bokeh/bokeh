@@ -37,7 +37,14 @@ export abstract class LayoutProvider extends Model {
   get_layout(source: GraphDataSource): NodeLayout {
     let layout = this._layouts.get(source)
     if (layout == null) {
-      layout = this._compute_layout(source)
+      const computed = this._compute_layout(source)
+      layout = new Map()
+      for (const [id, coordinates] of computed) {
+        const index = source.node_index(id)
+        if (index != null) {
+          layout.set(source.node_ids[index], coordinates)
+        }
+      }
       this._layouts.set(source, layout)
     }
     return layout

@@ -8,8 +8,6 @@ It demonstrates drawing shapes using polygonal data, as well as using color scal
     :keywords: colormap, shapes, vector, polygon
 '''
 
-from math import isfinite
-
 from bokeh.palettes import Viridis6
 from bokeh.plotting import figure, show
 from bokeh.sampledata.unemployment import data as unemployment
@@ -23,23 +21,9 @@ del states["AK"]
 
 EXCLUDED = ("ak", "hi", "pr", "gu", "vi", "mp", "as")
 
-def geometry_from_nan_separated_xy(xs, ys):
-    rings = []
-    ring = []
-    for x, y in zip(xs, ys):
-        if isfinite(x) and isfinite(y):
-            ring.append([x, y])
-        elif ring:
-            rings.append(ring)
-            ring = []
-    if ring:
-        rings.append(ring)
-
-    if len(rings) == 1:
-        return {"type": "Polygon", "coordinates": rings}
-    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
-
-county_records = []
+county_xs = []
+county_ys = []
+county_colors = []
 for county_id in counties:
     county = counties[county_id]
     if county["state"] in EXCLUDED:
@@ -50,25 +34,22 @@ for county_id in counties:
         color = Viridis6[idx]
     except KeyError:
         color = "black"
-    county_records.append({
-        "geometry": geometry_from_nan_separated_xy(county["lons"], county["lats"]),
-        "color": color,
-    })
+    county_xs.append(county["lons"])
+    county_ys.append(county["lats"])
+    county_colors.append(color)
 
-state_records = [
-    {"geometry": geometry_from_nan_separated_xy(state["lons"], state["lats"])}
-    for state in states.values()
-]
+state_xs = [state["lons"] for state in states.values()]
+state_ys = [state["lats"] for state in states.values()]
 
 p = figure(title="US Unemployment 2009",
            x_axis_location=None, y_axis_location=None,
            width=1000, height=600)
 p.grid.grid_line_color = None
 
-p.polygons(county_records, fill_color="color", fill_alpha=0.7,
+p.polygons(x=county_xs, y=county_ys, fill_color=county_colors, fill_alpha=0.7,
            line_color="white", line_width=0.5)
 
-p.polygons(state_records, fill_alpha=0.0,
+p.polygons(x=state_xs, y=state_ys, fill_alpha=0.0,
            line_color="#884444", line_width=2, line_alpha=0.3)
 
 show(p)

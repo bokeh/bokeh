@@ -2783,6 +2783,18 @@
   Expression: {
     __extends__: "Model",
   },
+  IndexedLookup: {
+    __extends__: "Expression",
+    source: {
+      type: "symbol",
+      name: "unset",
+    },
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    indices: "vertices",
+  },
   Maximum: {
     __extends__: "ScalarExpression",
     field: {
@@ -6364,6 +6376,67 @@
       name: "SelectionPolicy",
       attributes: {},
     },
+  },
+  MeshDataSource: {
+    __extends__: "IndexedDataSource",
+    vertices: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        selection_policy: {
+          type: "object",
+          name: "SelectionPolicy",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+          entries: [
+            [
+              "x",
+              [],
+            ],
+            [
+              "y",
+              [],
+            ],
+          ],
+        },
+      },
+    },
+    cells: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        selection_policy: {
+          type: "object",
+          name: "SelectionPolicy",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+          entries: [
+            [
+              "vertices",
+              [],
+            ],
+          ],
+        },
+      },
+    },
+    connectivity_field: "vertices",
+    x_field: "x",
+    y_field: "y",
+    z_field: "z",
   },
   ServerSentDataSource: {
     __extends__: "WebDataSource",

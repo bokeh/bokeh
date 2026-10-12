@@ -42,6 +42,17 @@ describe("algorithmic layout providers", () => {
     expect([...xs0, ...ys0].every((value) => Number.isFinite(value) && Math.abs(value) <= 1 + 1e-12)).to.be.true
   })
 
+  it("should use composite identifiers in force layouts", () => {
+    const composite = GraphDataSource.create({
+      nodes: [[1, 2], [3, 4]],
+      edges: [[[1, 2], [3, 4]]],
+    })
+    const provider = ForceDirectedLayoutProvider.create({seed: 17, iterations: 10})
+    const [xs, ys] = provider.get_node_coordinates(composite)
+
+    expect([...xs, ...ys].every((value) => Number.isFinite(value))).to.be.true
+  })
+
   it("should invalidate computed layouts", () => {
     const provider = CircularLayoutProvider.create()
     const [xs0] = provider.get_node_coordinates(source)
