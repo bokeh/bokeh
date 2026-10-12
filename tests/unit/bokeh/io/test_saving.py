@@ -71,7 +71,6 @@ def test_save_omits_rich_paths_that_are_not_notebook_relative(mock_save_helper: 
     assert result._repr_mimebundle_() == {
         "text/plain": "Bokeh HTML file saved. Open it from the notebook file browser.",
     }
-    assert str(filename) not in next(iter(result._repr_mimebundle_().values()))
 
 
 @pytest.mark.parametrize(("path_type", "path", "expected"), [

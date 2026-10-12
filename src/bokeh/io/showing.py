@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Sequence,
     TypeGuard,
     cast,
@@ -41,7 +40,6 @@ from .util import temp_filename
 if TYPE_CHECKING:
     from jinja2 import Template
 
-    from ..application.application import Application
     from ..core.types import PathLike
     from ..model import Model
     from ..resources import ResourcesLike
@@ -65,13 +63,12 @@ type OneOrMore[T] = T | Sequence[T]
 type Showable = OneOrMore[UIElement | DOMNode]
 
 def show(
-    obj: Showable | NotebookApplication | Application | Callable[..., Any],
+    obj: Showable | NotebookApplication,
     *,
     filename: PathLike | None = None,
     resources: ResourcesLike | None = None,
     title: str | None = None,
     template: Template | str | None = None,
-    **kwargs: Any,
 ) -> ApplicationViewHandle | DocumentViewHandle | None:
     '''Immediately display a Bokeh object or application.
 
@@ -89,9 +86,7 @@ def show(
             Use :func:`~bokeh.io.save` explicitly to create an external HTML file.
 
             In a Jupyter notebook, a managed application returned by
-            :func:`~bokeh.io.serve` may be passed in any later cell. Direct
-            Application and callable arguments are rejected with a
-            migration message. Start them explicitly with ``serve()``.
+            :func:`~bokeh.io.serve` may be passed in any later cell.
 
         filename (PathLike, optional) :
             HTML filename to save and open. If omitted outside notebook mode,
@@ -109,8 +104,6 @@ def show(
         template (Template or str, optional) :
             HTML document template for file output.
 
-    Additional keyword arguments are not accepted.
-
     Returns:
         In a Jupyter notebook, returns a connected view handle. Standalone
         objects synchronize Python property changes automatically, while a
@@ -127,12 +120,6 @@ def show(
             raise RuntimeError("show(serve(...)) requires an interactive notebook kernel")
         if filename is not None or title is not None or template is not None:
             raise ValueError("file output options are not supported when showing a managed notebook application")
-        if kwargs:
-            names = ", ".join(sorted(kwargs))
-            raise ValueError(
-                f"Unexpected show() options for a managed notebook application: {names}. "
-                "Configure ASGI server options on serve(...).",
-            )
         from .notebook import show_hosted_app
         return show_hosted_app(obj, resources)
 
@@ -142,9 +129,6 @@ def show(
         )
 
     if is_showable(obj):
-        if kwargs:
-            names = ", ".join(sorted(kwargs))
-            raise ValueError(f"Unexpected show() options for a standalone object: {names}")
         if notebook_environment() and filename is None:
             if title is not None or template is not None:
                 raise ValueError("filename is required when passing file output options in notebook mode")
@@ -157,15 +141,6 @@ def show(
             template=template,
         )
         return None
-
-    def is_application(obj: Any) -> TypeGuard[Application]:
-        return getattr(obj, '_is_a_bokeh_application_class', False)
-
-    if is_application(obj) or callable(obj): # TODO (bev) check callable signature more thoroughly
-        raise RuntimeError(
-            "Bokeh 4.0 no longer starts an application from show(...). "
-            "Use app = serve(...), then show(app) in an interactive notebook.",
-        )
 
     raise ValueError(_BAD_SHOW_MSG)
 

@@ -270,14 +270,14 @@ _BOKEH_MOUNT_ERROR_EXPR = (
 )
 
 # Check whether Bokeh has loaded, created a document, and mounted a root view.
-_BOKEH_LOADED_CHECK = """\
-const mount = $MOUNT;
+_BOKEH_LOADED_CHECK = f"""\
+const mount = {_MOUNT_EXPR};
 return typeof Bokeh !== "undefined"
     && Bokeh.documents != null
     && Bokeh.documents.length != 0
     && mount != null
     && mount.views.length != 0\
-""".replace("$MOUNT", _MOUNT_EXPR)
+"""
 
 # Set a flag once the first Bokeh document becomes idle.
 # Both backends poll/wait on ``window._bokeh_render_complete`` afterwards.
@@ -299,11 +299,11 @@ else
 # A Document can have several independently mounted roots. Notebook export in
 # particular must preserve that complete output instead of silently cropping to
 # whichever root happened to be registered first.
-_ROOT_VIEW_BBOX_SCRIPT = """\
+_ROOT_VIEW_BBOX_SCRIPT = f"""\
 const output = document.querySelector("[data-bokeh-export-container]");
 const rects = output != null
   ? [output.getBoundingClientRect()]
-  : $MOUNT.views.map((view) => view.el.getBoundingClientRect());
+  : {_MOUNT_EXPR}.views.map((view) => view.el.getBoundingClientRect());
 const left = Math.min(...rects.map((rect) => rect.left));
 const top = Math.min(...rects.map((rect) => rect.top));
 const right = Math.max(...rects.map((rect) => rect.right));
@@ -315,7 +315,7 @@ return [
   Math.ceil(bottom) - Math.floor(top),
   window.devicePixelRatio,
 ];\
-""".replace("$MOUNT", _MOUNT_EXPR)
+"""
 
 # TODO: consider UIElement like Pane
 _SVGS_SCRIPT = """

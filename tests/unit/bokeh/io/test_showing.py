@@ -92,11 +92,6 @@ def test_show_managed_application(mock_show_hosted_app: MagicMock, monkeypatch: 
     mock_show_hosted_app.assert_called_once_with(app, "inline")
 
 
-def test_show_rejects_direct_application() -> None:
-    with pytest.raises(RuntimeError, match=r"app = serve.*show\(app\)"):
-        m.show(Application())
-
-
 def test_show_rejects_removed_options() -> None:
     parameters = inspect.signature(m.show).parameters
     assert "notebook_handle" not in parameters
@@ -112,11 +107,11 @@ def test_show_rejects_removed_options() -> None:
         ("live", True),
         ("made_up", True),
     ):
-        with pytest.raises(ValueError, match=rf"Unexpected show\(\) options.*{name}"):
+        with pytest.raises(TypeError, match=rf"unexpected keyword argument '{name}'"):
             m.show(Plot(), **cast(Any, {name: value}))
 
 
-def test_show_rejects_managed_application_options(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_show_rejects_managed_application_file_options(monkeypatch: pytest.MonkeyPatch) -> None:
     from bokeh.io.jupyter_app import NotebookApplication
 
     monkeypatch.setattr(m, "notebook_environment", lambda: True)
@@ -124,8 +119,6 @@ def test_show_rejects_managed_application_options(monkeypatch: pytest.MonkeyPatc
 
     with pytest.raises(ValueError, match="file output options"):
         m.show(app, filename="plot.html")
-    with pytest.raises(ValueError, match=r"Unexpected show\(\) options.*live"):
-        m.show(app, live=True)
 
 
 def test_show_accepts_multiple_objects() -> None:
@@ -135,9 +128,17 @@ def test_show_accepts_multiple_objects() -> None:
         m.show([Plot(), Plot()])
 
 
-@pytest.mark.parametrize("obj", [1, 2.3, None, "str", GlyphRenderer(data_source=ColumnDataSource())])
+@pytest.mark.parametrize("obj", [
+    1,
+    2.3,
+    None,
+    "str",
+    GlyphRenderer(data_source=ColumnDataSource()),
+    Application(),
+    lambda doc: None,
+])
 def test_show_rejects_bad_object(obj: object) -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid object to show"):
         m.show(obj)  # type: ignore[arg-type]
 
 
