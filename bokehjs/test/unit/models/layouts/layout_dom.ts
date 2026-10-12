@@ -3,8 +3,10 @@ import {display, fig, row, column} from "#framework/layouts"
 
 import {Tabs} from "@bokehjs/models/layouts/tabs"
 import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
+import {Toggle} from "@bokehjs/models/widgets/toggle"
 import type {Column} from "@bokehjs/models/layouts/column"
 import type {UIElement} from "@bokehjs/models/ui/ui_element"
+import type {Figure} from "@bokehjs/api/figure"
 import {gridplot} from "@bokehjs/api/gridplot"
 
 describe("LayoutDOMView", () => {
@@ -46,6 +48,46 @@ describe("LayoutDOMView", () => {
 
     it("should lay out plots in a gridplot in a column in a row", async () => {
       await expect_frames_laid_out((col) => row([column([col])]))
+    })
+  })
+
+  describe("in issue #14359", () => {
+    function make_tabs(children: UIElement[], link_layouts: boolean): Tabs {
+      const tabs = children.map((child, i) => TabPanel.create({child, title: `tab${i}`}))
+      return Tabs.create({tabs, link_layouts})
+    }
+
+    function make_inner_tabs(link_layouts: boolean): {tabs: Tabs, grid_plots: Figure[]} {
+      const plots = [fig([350, 300]), fig([300, 300]), fig([300, 300]), fig([300, 300]), fig([300, 300]), fig([300, 300])]
+      for (const plot of plots) {
+        plot.line([0, 1, 2], [0, 1, 2])
+      }
+      const [p0, p1, p2, p3, p4, p5] = plots
+      const grid = gridplot([[p0, null], [p1, p2]])
+      const lay = column([row([p3]), row([p4, p5])])
+      return {tabs: make_tabs([grid, lay], link_layouts), grid_plots: [p0, p1, p2]}
+    }
+
+    async function expect_nested_tabs_laid_out(link_layouts: boolean): Promise<void> {
+      const inner0 = make_inner_tabs(link_layouts)
+      const inner1 = make_inner_tabs(link_layouts)
+      const outer = make_tabs([inner0.tabs, inner1.tabs], link_layouts)
+      const toggle = Toggle.create({label: "button1"})
+      const {view} = await display(column([toggle, outer]), null)
+
+      for (const plot of inner0.grid_plots) {
+        const {width, height} = view.owner.get_one(plot).frame.bbox
+        expect(width).to.be.within(150, 350)
+        expect(height).to.be.within(150, 350)
+      }
+    }
+
+    it("should lay out plots in a gridplot in nested Tabs with linked layouts", async () => {
+      await expect_nested_tabs_laid_out(true)
+    })
+
+    it("should lay out plots in a gridplot in nested Tabs", async () => {
+      await expect_nested_tabs_laid_out(false)
     })
   })
 })
