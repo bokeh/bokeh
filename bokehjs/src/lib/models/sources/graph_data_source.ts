@@ -16,7 +16,7 @@ export namespace GraphDataSource {
   export type NodeRecord = {id?: unknown, index?: unknown, [key: string]: unknown}
   export type EdgeRecord = {source?: unknown, target?: unknown, start?: unknown, end?: unknown, [key: string]: unknown}
   export type Columns = {[key: string]: Arrayable | undefined}
-  export type Nodes = IndexedDataSource | Columns | unknown[]
+  export type Nodes = IndexedDataSource | Columns | {[key: string]: {[key: string]: unknown}} | unknown[]
   export type Edges = IndexedDataSource | Columns | (EdgeRecord | [unknown, unknown] | [unknown, unknown, {[key: string]: unknown}])[]
   export type Init = Omit<Partial<Attrs>, "nodes" | "edges"> & {nodes?: Nodes, edges?: Edges}
 
@@ -34,6 +34,10 @@ function rows_source(records: object[]): ColumnDataSource {
   const data: Data = {}
   for (const field of fields) {
     const values = records.map((record) => (record as {[key: string]: unknown})[field])
+    if (field == "index" || field == "start" || field == "end") {
+      data[field] = values
+      continue
+    }
     const nested = values.some((value) => isArray(value))
     if (nested && values.some((value) => value != null && !isArray(value))) {
       throw new Error("can't mix scalar and non-scalar values for graph attributes")
@@ -71,14 +75,23 @@ function node_source(nodes: GraphDataSource.Nodes): IndexedDataSource {
     if (Object.keys(nodes).length == 0) {
       return ColumnDataSource.create({data: {index: []}})
     }
-    return columns_source(nodes, {id: "index"})
+    if (!("id" in nodes || "index" in nodes) && Object.values(nodes).every((attrs) => isPlainObject(attrs))) {
+      return rows_source(Object.entries(nodes).map(([index, attrs]) => ({index, ...attrs})))
+    }
+    return columns_source(nodes as GraphDataSource.Columns, {id: "index"})
   }
   if (nodes.length == 0) {
     return ColumnDataSource.create({data: {index: []}})
   }
 
   const records = nodes.map((node) => {
-    if (isPlainObject(node)) {
+    if (isArray(node) && node.length == 2 && isPlainObject(node[1])) {
+      const [index, attrs] = node
+      if ("index" in attrs) {
+        throw new Error("node tuple attributes cannot contain the reserved 'index' field")
+      }
+      return {index, ...attrs}
+    } else if (isPlainObject(node)) {
       const {id, index, ...attrs} = node
       if (id != null && index != null) {
         throw new Error("a node record cannot contain both 'id' and 'index'")
@@ -116,7 +129,7 @@ function edge_source(edges: GraphDataSource.Edges): IndexedDataSource {
       if (!isPlainObject(attrs)) {
         throw new Error("edge tuple attributes must be an object")
       }
-      if (["source", "target", "start", "end"].some((field) => field in attrs)) {
+      if (["start", "end"].some((field) => field in attrs)) {
         throw new Error("edge tuple attributes cannot contain endpoint fields")
       }
       return {start, end, ...attrs}
@@ -131,6 +144,29 @@ function edge_source(edges: GraphDataSource.Edges): IndexedDataSource {
     return {start: start ?? source, end: end ?? target, ...attrs}
   })
   return rows_source(records)
+}
+
+function graph_id_key(id: unknown): string {
+  if (isArray(id)) {
+    return `array:${JSON.stringify(id.map((item) => graph_id_key(item)))}`
+  }
+  switch (typeof id) {
+    case "string":
+      return `string:${JSON.stringify(id)}`
+    case "number":
+      return `number:${Object.is(id, -0) ? "-0" : String(id)}`
+    case "boolean":
+      return `boolean:${id}`
+    case "bigint":
+      return `bigint:${id}`
+    case "undefined":
+      return "undefined"
+    case "object":
+      if (id === null) {
+        return "null"
+      }
+  }
+  throw new Error("graph node identifiers must be scalar values or nested arrays of scalar values")
 }
 
 /** A coupled pair of indexed sources containing graph nodes and edges. */
@@ -151,10 +187,10 @@ export class GraphDataSource extends DataSource {
     return construct(this, attrs as Attrs)
   }
 
-  private _node_index?: Map<unknown, number>
-  private _out_neighbors?: Map<unknown, unknown[]>
-  private _in_neighbors?: Map<unknown, unknown[]>
-  private _incident_edges?: Map<unknown, number[]>
+  private _node_index?: Map<string, number>
+  private _out_neighbors?: Map<string, unknown[]>
+  private _in_neighbors?: Map<string, unknown[]>
+  private _incident_edges?: Map<string, number[]>
 
   protected constructor(attrs: GraphDataSource.Init = {}) {
     const {nodes: raw_nodes, edges: raw_edges, ...rest} = attrs
@@ -171,10 +207,15 @@ export class GraphDataSource extends DataSource {
     }))
   }
 
+  override initialize(): void {
+    super.initialize()
+    this._ensure_node_index()
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.nodes.change, () => {
-      this._node_index = undefined
+      this._invalidate_nodes()
       this.data_changed.emit({path: ["nodes"], structural: true})
     })
     this.connect(this.edges.change, () => {
@@ -184,7 +225,7 @@ export class GraphDataSource extends DataSource {
       this.data_changed.emit({path: ["edges"], structural: true})
     })
     this.connect(this.nodes.data_changed, (change) => {
-      this._node_index = undefined
+      this._invalidate_nodes()
       this.data_changed.emit({...change, path: ["nodes", ...(change.path ?? [])]})
     })
     this.connect(this.edges.data_changed, (change) => {
@@ -193,6 +234,13 @@ export class GraphDataSource extends DataSource {
       this._incident_edges = undefined
       this.data_changed.emit({...change, path: ["edges", ...(change.path ?? [])]})
     })
+  }
+
+  private _invalidate_nodes(): void {
+    this._node_index = undefined
+    this._out_neighbors = undefined
+    this._in_neighbors = undefined
+    this._incident_edges = undefined
   }
 
   get node_ids(): Arrayable {
@@ -208,15 +256,26 @@ export class GraphDataSource extends DataSource {
   }
 
   node_index(id: unknown): number | undefined {
+    this._ensure_node_index()
+    return this._node_index!.get(graph_id_key(id))
+  }
+
+  node_key(id: unknown): string {
+    return graph_id_key(id)
+  }
+
+  private _ensure_node_index(): void {
     if (this._node_index == null) {
       this._node_index = new Map()
       for (let i = 0; i < this.node_ids.length; i++) {
-        if (!this._node_index.has(this.node_ids[i])) {
-          this._node_index.set(this.node_ids[i], i)
+        const id = this.node_ids[i]
+        const key = graph_id_key(id)
+        if (this._node_index.has(key)) {
+          throw new Error(`duplicate graph node identifier at index ${i}`)
         }
+        this._node_index.set(key, i)
       }
     }
-    return this._node_index.get(id)
   }
 
   private _build_topology(): void {
@@ -226,7 +285,8 @@ export class GraphDataSource extends DataSource {
     this._out_neighbors = new Map()
     this._in_neighbors = new Map()
     this._incident_edges = new Map()
-    const append = <T>(mapping: Map<unknown, T[]>, key: unknown, value: T) => {
+    this._ensure_node_index()
+    const append = <T>(mapping: Map<string, T[]>, key: string, value: T) => {
       const values = mapping.get(key) ?? []
       values.push(value)
       mapping.set(key, values)
@@ -234,23 +294,32 @@ export class GraphDataSource extends DataSource {
     for (let i = 0; i < this.edge_starts.length; i++) {
       const start = this.edge_starts[i]
       const end = this.edge_ends[i]
-      append(this._out_neighbors, start, end)
-      append(this._in_neighbors, end, start)
-      append(this._incident_edges, start, i)
-      if (end !== start) {
-        append(this._incident_edges, end, i)
+      const start_key = graph_id_key(start)
+      const end_key = graph_id_key(end)
+      const start_index = this._node_index!.get(start_key)
+      const end_index = this._node_index!.get(end_key)
+      if (start_index != null) {
+        append(this._incident_edges, start_key, i)
+      }
+      if (end_index != null && end_key != start_key) {
+        append(this._incident_edges, end_key, i)
+      }
+      if (start_index != null && end_index != null) {
+        append(this._out_neighbors, start_key, this.node_ids[end_index])
+        append(this._in_neighbors, end_key, this.node_ids[start_index])
       }
     }
   }
 
   neighbors(id: unknown, direction: GraphTraversalDirection): unknown[] {
     this._build_topology()
+    const key = graph_id_key(id)
     if (direction == "out") {
-      return this._out_neighbors!.get(id) ?? []
+      return this._out_neighbors!.get(key) ?? []
     } else if (direction == "in") {
-      return this._in_neighbors!.get(id) ?? []
+      return this._in_neighbors!.get(key) ?? []
     } else {
-      return [...(this._out_neighbors!.get(id) ?? []), ...(this._in_neighbors!.get(id) ?? [])]
+      return [...(this._out_neighbors!.get(key) ?? []), ...(this._in_neighbors!.get(key) ?? [])]
     }
   }
 
@@ -258,7 +327,7 @@ export class GraphDataSource extends DataSource {
     this._build_topology()
     const indices = new Set<number>()
     for (const id of node_ids) {
-      for (const index of this._incident_edges!.get(id) ?? []) {
+      for (const index of this._incident_edges!.get(graph_id_key(id)) ?? []) {
         indices.add(index)
       }
     }

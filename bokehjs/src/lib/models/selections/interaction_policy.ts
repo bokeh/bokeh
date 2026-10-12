@@ -4,7 +4,6 @@ import type {Geometry} from "core/geometry"
 import type {HitTestResult} from "core/hittest"
 import type {SelectionMode} from "core/enums"
 import {Enum, NonNegative} from "core/kinds"
-import {uniq} from "core/util/array"
 import {map} from "core/util/arrayable"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
 import type {GraphDataSource} from "../sources/graph_data_source"
@@ -155,12 +154,16 @@ export class GraphSelectionPolicy extends SelectionPolicy {
   }
 
   private _end_nodes(source: GraphDataSource, edge_selection: Selection): Selection {
-    const node_ids = []
+    const indices = new Set<number>()
     for (const index of edge_selection.indices) {
-      node_ids.push(source.edge_starts[index], source.edge_ends[index])
+      for (const id of [source.edge_starts[index], source.edge_ends[index]]) {
+        const node_index = source.node_index(id)
+        if (node_index != null) {
+          indices.add(node_index)
+        }
+      }
     }
-    const indices = uniq(node_ids).map((id) => source.node_index(id)).filter((index): index is number => index != null)
-    return Selection.create({indices})
+    return Selection.create({indices: [...indices]})
   }
 
   expand(source: GraphDataSource, target: GraphSelectionTarget, direct: Selection): GraphSelections {

@@ -3,9 +3,9 @@ import type {NodeLayout} from "./layout_provider"
 import type {GraphDataSource} from "../sources/graph_data_source"
 import {dict} from "core/util/object"
 import type * as p from "core/properties"
-import {Float, Str, Int, Arrayable as Arr, Dict, Mapping, Or} from "core/kinds"
+import {Float, Unknown, Arrayable as Arr, Dict, Mapping, Or} from "core/kinds"
 
-export const GraphLayout = Or(Dict(Arr(Float)), Mapping(Or(Int, Str), Arr(Float)))
+export const GraphLayout = Or(Dict(Arr(Float)), Mapping(Unknown, Arr(Float)))
 export type GraphLayout = typeof GraphLayout["__type__"]
 
 export namespace StaticLayoutProvider {

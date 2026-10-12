@@ -24,6 +24,23 @@ describe("EdgePathProvider", () => {
     expect(ys).to.be.equal([[0, 0]])
   })
 
+  it("should resolve composite identifiers in static layouts and edges", () => {
+    const source = GraphDataSource.create({
+      nodes: [[1, 2], [3, 4]],
+      edges: [[[1, 2], [3, 4]]],
+    })
+    const composite_layout = StaticLayoutProvider.create({
+      graph_layout: new Map([
+        [[1, 2], [0, 0]],
+        [[3, 4], [2, 0]],
+      ]),
+    })
+    const [xs, ys] = StraightEdgePathProvider.create().get_edge_coordinates(source, composite_layout)
+
+    expect(xs).to.be.equal([[0, 2]])
+    expect(ys).to.be.equal([[0, 0]])
+  })
+
   it("should sample quadratic Bezier paths", () => {
     const source = GraphDataSource.create({nodes: ["a", "b"], edges: [["a", "b"]]})
     const provider = BezierEdgePathProvider.create({curvature: 0.25, parallel_spacing: 0, steps: 2})

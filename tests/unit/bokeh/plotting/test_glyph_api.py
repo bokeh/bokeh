@@ -17,6 +17,7 @@ from bokeh.models import (
     ColumnDataSource,
     GeometryDataSource,
     GlyphRenderer,
+    MeshDataSource,
     NormalHead,
     OpenHead,
     glyphs,
@@ -215,6 +216,21 @@ def test_polygons_accepts_geometry_records() -> None:
     assert gr.data_source.data == {"name": ["A"]}
 
 
+def test_polygons_accepts_mesh_source() -> None:
+    p = figure()
+    source = MeshDataSource(
+        vertices=[[0, 0], [2, 0], [0, 1]],
+        cells={"vertices": [[0, 1, 2]], "color": ["red"]},
+    )
+
+    gr = p.polygons(source, fill_color="color")
+
+    assert gr.data_source is source
+    assert gr.glyph.xs.field == "xs"
+    assert gr.glyph.ys.field == "ys"
+    assert gr.glyph.fill_color == "color"
+
+
 def test_polygons_accepts_simple_xy_coordinates() -> None:
     p = figure()
     gr = p.polygons(x=[0, 2, 0], y=[0, 1, 0], fill_color="red")
@@ -225,6 +241,19 @@ def test_polygons_accepts_simple_xy_coordinates() -> None:
         "coordinates": [[[0, 0], [2, 1], [0, 0]]],
     }]
     assert gr.glyph.fill_color == "red"
+
+
+def test_polygons_accepts_nested_and_nan_separated_xy_coordinates() -> None:
+    p = figure()
+    gr = p.polygons(
+        x=[[0, 1, 0], [2, 3, float("nan"), 4, 5]],
+        y=[[0, 0, 0], [2, 2, float("nan"), 4, 4]],
+        fill_color=["red", "blue"],
+    )
+
+    assert isinstance(gr.data_source, GeometryDataSource)
+    assert [geometry["type"] for geometry in gr.data_source.geometries] == ["Polygon", "MultiPolygon"]
+    assert gr.data_source.data["fill_color"] == ["red", "blue"]
 
 
 def test_polygons_accepts_categorical_xy_coordinates() -> None:

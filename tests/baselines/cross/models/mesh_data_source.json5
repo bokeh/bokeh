@@ -1,0 +1,243 @@
+{
+  config: {
+    type: "object",
+    name: "DocumentConfig",
+    id: "p1022",
+    attributes: {
+      notifications: {
+        type: "object",
+        name: "Notifications",
+        id: "p1023",
+      },
+    },
+  },
+  roots: [
+    {
+      type: "object",
+      name: "Plot",
+      id: "p1021",
+      attributes: {
+        x_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1024",
+        },
+        y_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1025",
+        },
+        x_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1026",
+        },
+        y_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1027",
+        },
+        title: {
+          type: "object",
+          name: "Title",
+          id: "p1028",
+        },
+        renderers: [
+          {
+            type: "object",
+            name: "GlyphRenderer",
+            id: "p1016",
+            attributes: {
+              data_source: {
+                type: "object",
+                name: "MeshDataSource",
+                id: "p1008",
+                attributes: {
+                  selected: {
+                    type: "object",
+                    name: "Selection",
+                    id: "p1009",
+                  },
+                  selection_policy: {
+                    type: "object",
+                    name: "SelectionPolicy",
+                    id: "p1010",
+                  },
+                  vertices: {
+                    type: "object",
+                    name: "ColumnDataSource",
+                    id: "p1006",
+                    attributes: {
+                      selected: {
+                        type: "object",
+                        name: "Selection",
+                        id: "p1034",
+                      },
+                      selection_policy: {
+                        type: "object",
+                        name: "SelectionPolicy",
+                        id: "p1035",
+                      },
+                      data: {
+                        type: "map",
+                        entries: [
+                          [
+                            "x",
+                            [
+                              0,
+                              2,
+                              2,
+                              0,
+                            ],
+                          ],
+                          [
+                            "y",
+                            [
+                              0,
+                              0,
+                              2,
+                              2,
+                            ],
+                          ],
+                        ],
+                      },
+                    },
+                  },
+                  cells: {
+                    type: "object",
+                    name: "ColumnDataSource",
+                    id: "p1007",
+                    attributes: {
+                      selected: {
+                        id: "p1009",
+                      },
+                      selection_policy: {
+                        id: "p1010",
+                      },
+                      data: {
+                        type: "map",
+                        entries: [
+                          [
+                            "vertices",
+                            [
+                              [
+                                0,
+                                1,
+                                2,
+                              ],
+                              [
+                                0,
+                                2,
+                                3,
+                              ],
+                            ],
+                          ],
+                          [
+                            "value",
+                            [
+                              1,
+                              2,
+                            ],
+                          ],
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              view: {
+                type: "object",
+                name: "DataView",
+                id: "p1030",
+                attributes: {
+                  filter: {
+                    type: "object",
+                    name: "AllIndices",
+                    id: "p1032",
+                  },
+                },
+              },
+              glyph: {
+                type: "object",
+                name: "Polygons",
+                id: "p1015",
+                attributes: {
+                  fill_color: {
+                    type: "field",
+                    field: "value",
+                  },
+                },
+              },
+            },
+          },
+          {
+            type: "object",
+            name: "GlyphRenderer",
+            id: "p1020",
+            attributes: {
+              data_source: {
+                id: "p1007",
+              },
+              view: {
+                type: "object",
+                name: "DataView",
+                id: "p1031",
+                attributes: {
+                  filter: {
+                    type: "object",
+                    name: "AllIndices",
+                    id: "p1033",
+                  },
+                },
+              },
+              glyph: {
+                type: "object",
+                name: "MultiLine",
+                id: "p1019",
+                attributes: {
+                  xs: {
+                    type: "expr",
+                    expr: {
+                      type: "object",
+                      name: "IndexedLookup",
+                      id: "p1017",
+                      attributes: {
+                        source: {
+                          id: "p1006",
+                        },
+                        field: "x",
+                      },
+                    },
+                  },
+                  ys: {
+                    type: "expr",
+                    expr: {
+                      type: "object",
+                      name: "IndexedLookup",
+                      id: "p1018",
+                      attributes: {
+                        source: {
+                          id: "p1006",
+                        },
+                        field: "y",
+                      },
+                    },
+                  },
+                  line_width: {
+                    type: "field",
+                    field: "value",
+                  },
+                },
+              },
+            },
+          },
+        ],
+        toolbar: {
+          type: "object",
+          name: "Toolbar",
+          id: "p1029",
+        },
+      },
+    },
+  ],
+}

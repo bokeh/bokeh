@@ -38,6 +38,7 @@ __all__ = (
     "GeometryDataSource",
     "GraphDataSource",
     "IndexedDataSource",
+    "MeshDataSource",
     "ServerSentDataSource",
     "WebDataSource",
 )
@@ -113,6 +114,30 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
+type MeshVertices = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[Sequence[float]] | npt.NDArray[Any]
+type MeshCells = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[int] | Sequence[Sequence[int]] | npt.NDArray[Any]
+
+class _MeshDataSourceInit(_IndexedDataSourceInit, total=False):
+    vertices: MeshVertices
+    cells: MeshCells
+    connectivity_field: str
+    x_field: str
+    y_field: str
+    z_field: str
+
+class MeshDataSource(IndexedDataSource):
+    def __init__(self, **kwargs: Unpack[_MeshDataSourceInit]) -> None: ...
+
+    vertices: IndexedDataSource = ...
+    cells: IndexedDataSource = ...
+    connectivity_field: str = ...
+    x_field: str = ...
+    y_field: str = ...
+    z_field: str = ...
+
+    @property
+    def length(self) -> int: ...
+
 type GraphNodes = IndexedDataSource | DataDictLike | Mapping[Any, Any] | Sequence[Any]
 type GraphEdges = IndexedDataSource | DataDictLike | Mapping[str, Sequence[Any]] | Sequence[Any]
 
@@ -149,6 +174,9 @@ class GeometryDataSource(IndexedDataSource):
     geometries: Sequence[Geometry | None] = ...
     data: GeometryData = ...
     crs: str | None = ...
+
+    @classmethod
+    def from_xy(cls, x: Sequence[Any], y: Sequence[Any], *, data: Mapping[str, Sequence[Any]] | None = ...) -> GeometryDataSource: ...
 
     @property
     def column_names(self) -> list[str]: ...

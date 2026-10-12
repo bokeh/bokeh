@@ -89,7 +89,8 @@ Polygon glyphs
 
 There is WebGL support for :func:`~bokeh.plotting.figure.polygons`, including
 Polygon holes and disjoint MultiPolygon parts retained by
-:class:`~bokeh.models.sources.GeometryDataSource`. The deprecated
+:class:`~bokeh.models.sources.GeometryDataSource`, as well as indexed cells
+from :class:`~bokeh.models.sources.MeshDataSource`. The deprecated
 :func:`~bokeh.plotting.figure.patch` and :func:`~bokeh.plotting.figure.patches`
 compatibility glyphs use the same renderer. Self-intersecting paths and
 overlapping parts use the even-odd fill rule, matching the canvas backend.

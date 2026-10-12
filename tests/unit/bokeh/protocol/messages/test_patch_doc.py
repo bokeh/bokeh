@@ -38,6 +38,7 @@ from bokeh.models import (
     GraphDataSource,
     GraphRenderer,
     GroupFilter,
+    MeshDataSource,
     MultiLine,
     NormalHead,
     Scatter,
@@ -234,6 +235,37 @@ class TestPatchDocument:
         apply_patch(patch_doc(events), copy)
         assert isinstance(copy_source.edges, ColumnDataSource)
         assert copy_source.edges.data == source.edges.data
+
+    def test_create_then_apply_mesh_child_events(self) -> None:
+        sample = document.Document()
+        source = MeshDataSource(
+            vertices=[[0, 0], [1, 0], [0, 1]],
+            cells={"vertices": [[0, 1, 2]], "value": [1]},
+        )
+        sample.add_root(source)
+
+        copy = document.Document.from_json(sample.to_json())
+        copy_source = copy.get_model_by_id(source.id)
+        assert isinstance(copy_source, MeshDataSource)
+
+        events = []
+        sample.on_change(events.append)
+
+        assert isinstance(source.vertices, ColumnDataSource)
+        source.vertices.patch({"x": [(1, 2)]})
+        apply_patch(patch_doc(events), copy)
+        assert isinstance(copy_source.vertices, ColumnDataSource)
+        assert all(
+            np.array_equal(copy_source.vertices.data[field], values)
+            for field, values in source.vertices.data.items()
+        )
+
+        events.clear()
+        assert isinstance(source.cells, ColumnDataSource)
+        source.cells.data = {"vertices": [[0, 1, 2], [2, 1, 0]], "value": [1, 2]}
+        apply_patch(patch_doc(events), copy)
+        assert isinstance(copy_source.cells, ColumnDataSource)
+        assert copy_source.cells.data == source.cells.data
 
     def test_patch_event_contains_setter(self) -> None:
         sample = self._sample_doc()

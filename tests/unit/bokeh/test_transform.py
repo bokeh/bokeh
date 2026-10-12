@@ -18,10 +18,12 @@ from bokeh.models import (
     CategoricalColorMapper,
     CategoricalMarkerMapper,
     CategoricalPatternMapper,
+    ColumnDataSource,
     CumSum,
     Dodge,
     EqHistColorMapper,
     FactorRange,
+    IndexedLookup,
     Jitter,
     LinearColorMapper,
     LogColorMapper,
@@ -43,6 +45,7 @@ ALL = (
     'factor_cmap',
     'factor_hatch',
     'factor_mark',
+    'gather',
     'jitter',
     'linear_cmap',
     'log_cmap',
@@ -71,6 +74,18 @@ class Test_cumsum:
         assert isinstance(val.expr, CumSum)
         assert val.expr.field == 'foo'
         assert val.expr.include_zero is True
+
+
+class Test_gather:
+    def test_basic(self) -> None:
+        source = ColumnDataSource(data=dict(x=[1, 2, 3]))
+        val = bt.gather(source, "x", "indices")
+
+        assert isinstance(val, Expr)
+        assert isinstance(val.expr, IndexedLookup)
+        assert val.expr.source is source
+        assert val.expr.field == "x"
+        assert val.expr.indices == "indices"
 
 
 class Test_dodge:

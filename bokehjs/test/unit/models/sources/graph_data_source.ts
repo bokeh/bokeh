@@ -100,6 +100,35 @@ describe("GraphDataSource", () => {
     expect(source.edges.get("weight")).to.be.equal([2])
   })
 
+  it("normalizes node mappings and node tuples", () => {
+    const mapping = GraphDataSource.create({nodes: {a: {color: "red"}, b: {color: "blue"}}})
+    expect(mapping.node_ids).to.be.equal(["a", "b"])
+    expect(mapping.nodes.get("color")).to.be.equal(["red", "blue"])
+
+    const tuples = GraphDataSource.create({nodes: [["a", {color: "red"}], ["b", {color: "blue"}]]})
+    expect(tuples.node_ids).to.be.equal(["a", "b"])
+    expect(tuples.nodes.get("color")).to.be.equal(["red", "blue"])
+  })
+
+  it("compares composite node identifiers structurally", () => {
+    const source = GraphDataSource.create({
+      nodes: [[1, 2], [3, 4]],
+      edges: [[[1, 2], [3, 4]]],
+    })
+
+    expect(source.node_index([1, 2])).to.be.equal(0)
+    expect(source.node_index([3, 4])).to.be.equal(1)
+    expect(source.neighbors([1, 2], "out")).to.be.equal([[3, 4]])
+    expect(source.incident_edge_indices([[3, 4]])).to.be.equal([0])
+  })
+
+  it("rejects duplicate node identifiers", () => {
+    expect(() => GraphDataSource.create({nodes: [[1, 2], [1, 2]]})).to.throw(
+      Error,
+      "duplicate graph node identifier",
+    )
+  })
+
   it("normalizes missing scalar and nested attributes without undefined values", () => {
     const source = GraphDataSource.create({
       nodes: [{id: "a", label: "A", tags: ["one"]}, {id: "b"}],

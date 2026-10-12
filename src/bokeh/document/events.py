@@ -66,6 +66,7 @@ from typing import (
 )
 
 from ..core.serialization import Serializable
+from ..util.dependencies import uses_pandas
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -506,7 +507,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
 
     @classmethod
     def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
-        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], cols=event_data["cols"])
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], cols=event_data.get("cols"))
         cls._handle_event(doc, event)
 
     @staticmethod
@@ -568,7 +569,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
         self.attr = attr
 
 
-        if not isinstance(data, dict):
+        if uses_pandas(data):
             import pandas as pd
             if isinstance(data, pd.DataFrame):
                 data = {c: data[c] for c in data.columns}
@@ -613,7 +614,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
 
     @classmethod
     def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
-        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], rollover=event_data["rollover"])
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], rollover=event_data.get("rollover"))
         cls._handle_event(doc, event)
 
     @staticmethod

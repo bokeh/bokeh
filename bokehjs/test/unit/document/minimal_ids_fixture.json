@@ -22,7 +22,7 @@
             "code": "primary"
           },
           {"$type": "CustomJS", "args": {"type": "map", "entries": [["shared", {"$ref": "shared-callback"}]]}, "code": "secondary"},
-          {"$type": "ColumnDataSource", "selected": {"$type": "Selection"}, "selection_policy": {"$type": "UnionRenderers"}, "data": {"type": "map", "entries": [
+          {"$type": "ColumnDataSource", "selected": {"$type": "Selection"}, "selection_policy": {"$type": "SelectionPolicy"}, "data": {"type": "map", "entries": [
             ["$value", [1]],
             ["$expr", [2]],
             ["type", [3]],
