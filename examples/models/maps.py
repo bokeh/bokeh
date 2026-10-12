@@ -1,3 +1,5 @@
+from os import getenv
+
 from bokeh.document import Document
 from bokeh.embed import embed
 from bokeh.models import (BoxSelectTool, ColumnDataSource, GMapOptions, GMapPlot,
@@ -12,7 +14,7 @@ map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=13
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "GOOGLE_API_KEY"
+API_KEY = getenv("GOOGLE_API_KEY", "GOOGLE_API_KEY")
 
 plot = GMapPlot(map_options=map_options, api_key=API_KEY)
 

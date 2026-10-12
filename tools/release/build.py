@@ -12,6 +12,7 @@ from __future__ import annotations
 # Standard library imports
 import json
 import re
+from os import getenv
 from pathlib import Path
 from typing import Any, Callable
 
@@ -82,6 +83,9 @@ def build_conda_package(config: Config, system: System) -> ActionReturn:
 
 def build_docs(config: Config, system: System) -> ActionReturn:
     try:
+        for name in ("GOOGLE_API_KEY", "CARTO_API_KEY"):
+            if not getenv(name):
+                raise RuntimeError(f"{name} is required for release documentation builds")
         system.cd("docs/bokeh")
         system.run("make clean all SPHINXOPTS=-v", BOKEH_DOCS_CDN=config.version, BOKEH_DOCS_VERSION=config.version)
         system.cd("../..")

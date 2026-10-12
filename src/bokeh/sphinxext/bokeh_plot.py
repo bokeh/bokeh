@@ -87,7 +87,12 @@ import warnings
 from heapq import nlargest
 from importlib import import_module
 from os import getenv
-from os.path import basename, dirname, join
+from os.path import (
+    basename,
+    dirname,
+    isabs,
+    join,
+)
 from time import perf_counter
 from typing import Any, NamedTuple, cast
 from uuid import uuid4
@@ -125,8 +130,6 @@ __all__ = (
     "BokehPlotDirective",
     "setup",
 )
-
-GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
 
 class _PlotTiming(NamedTuple):
     total: float
@@ -251,8 +254,8 @@ class BokehPlotDirective(BokehDirective):
             # __REPO__ is an internal/undocumented convention for Bokeh's own docs
             from ._internal import REPO_TOP
             path = join(REPO_TOP, path.replace("__REPO__/", ""))
-        elif not path.startswith("/"):
-            path = join(env.app.srcdir, path)
+        elif not isabs(path):
+            path = join(env.srcdir, path)
         try:
             with open(path) as f:
                 return f.read(), path
@@ -403,7 +406,6 @@ def setup(app: Any) -> _PlotSphinxSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
-    app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")
     app.connect("builder-inited", builder_inited)
     app.connect("doctree-resolved", add_page_resources)
     app.connect("build-finished", build_finished)
@@ -416,25 +418,7 @@ def setup(app: Any) -> _PlotSphinxSpec:
 # -----------------------------------------------------------------------------
 
 
-# quick and dirty way to inject Google API key
-def _replace_google_api_key(source: str, env: Any) -> str:
-    if "GOOGLE_API_KEY" not in source:
-        return source
-
-    if GOOGLE_API_KEY is None:
-        if env.config.bokeh_missing_google_api_key_ok:
-            return source.replace("GOOGLE_API_KEY", "MISSING_API_KEY")
-        raise SphinxError(
-            "The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-            "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)",
-        )
-
-    return source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
-
-
 def _evaluate_source(source: str, filename: str, env: Any) -> tuple[Model, str | None]:
-    source = _replace_google_api_key(source, env)
-
     c = ExampleHandler(source=source, filename=filename)
     d = Document()
 

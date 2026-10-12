@@ -9,6 +9,8 @@ a customized tile source configured for OpenStreetMap.
     :keywords: tile, map, field, elevation, geo
 
 '''
+from os import getenv
+
 import xyzservices.providers as xyz
 
 from bokeh.layouts import column, gridplot
@@ -36,7 +38,10 @@ def plot(tile_source):
     return p
 
 
-carto = plot("CartoDB Positron")
+tile_provider = xyz.CartoDB.Positron(
+    url=xyz.CartoDB.Positron.url + "?key=" + getenv("CARTO_API_KEY", "CARTO_API_KEY"),
+)
+carto = plot(tile_provider)
 mq = plot(xyz.OpenTopoMap)
 
 # link panning

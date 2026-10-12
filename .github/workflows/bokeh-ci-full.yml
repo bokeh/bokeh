@@ -512,6 +512,9 @@ jobs:
           environment: ${{ matrix.environment }}
 
       - name: Build docs
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
         run: pixi run --locked --environment ${{ matrix.environment }} build-docs
 
       - name: Upload docs

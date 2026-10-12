@@ -3,7 +3,6 @@
 set -x #echo on
 
 cd docs/bokeh
-export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
 
 START=$SECONDS
 
@@ -18,11 +17,14 @@ ARCHIVE_STATUS=$?
 ARCHIVE_SECONDS=$((SECONDS-ARCHIVE_START))
 
 STATUS=$BUILD_STATUS
-if [[ $STATUS -eq 0 ]]; then
+if [[ $STATUS -eq 0 ]]
+then
     STATUS=$ARCHIVE_STATUS
 fi
 
-{ set +x ;} 2> /dev/null # echo off
+{
+    set +x # echo off
+} 2> /dev/null
 echo "Docs phase timings: build=${BUILD_SECONDS}s archive=${ARCHIVE_SECONDS}s total=$((SECONDS-START))s"
 
 exit $STATUS

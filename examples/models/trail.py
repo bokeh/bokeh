@@ -1,4 +1,5 @@
 from math import atan2, cos, radians, sin, sqrt
+from os import getenv
 
 import numpy as np
 import scipy.ndimage as im
@@ -62,7 +63,7 @@ name = "Obiszów MTB XCM"
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "GOOGLE_API_KEY"
+API_KEY = getenv("GOOGLE_API_KEY", "GOOGLE_API_KEY")
 
 def trail_map(data):
     lon = (min(data.lon) + max(data.lon)) / 2

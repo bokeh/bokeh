@@ -8,6 +8,8 @@ is over 5,000 people, made using the ``GMapPlot`` class.
     :keywords: scatter, map, label, pantool, gmapplot, document
 '''
 
+from os import getenv
+
 from bokeh.document import Document
 from bokeh.embed import embed
 from bokeh.models import (ColumnDataSource, GMapOptions, GMapPlot,
@@ -17,7 +19,7 @@ from bokeh.util.browser import view
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "GOOGLE_API_KEY"
+API_KEY = getenv("GOOGLE_API_KEY", "GOOGLE_API_KEY")
 
 map_options = GMapOptions(lat=15, lng=0, zoom=2)
 

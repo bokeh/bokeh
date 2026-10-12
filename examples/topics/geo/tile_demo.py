@@ -1,4 +1,7 @@
+from os import getenv
+
 import numpy as np
+import xyzservices.providers as xyz
 
 from bokeh.layouts import layout
 from bokeh.models import Div, Range1d
@@ -46,7 +49,13 @@ for i, vendor_name in enumerate(providers):
         title=vendor_name,
         toolbar_location=None, active_scroll="wheel_zoom",
     )
-    plot.add_tile(vendor_name)
+    if vendor_name.startswith("CartoDB"):
+        provider = xyz.CartoDB.Positron(
+            url=xyz.CartoDB.Positron.url + "?key=" + getenv("CARTO_API_KEY", "CARTO_API_KEY"),
+        )
+        plot.add_tile(provider, retina="retina" in vendor_name)
+    else:
+        plot.add_tile(vendor_name)
     plots.append(plot)
 
 layout = layout([
