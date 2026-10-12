@@ -772,7 +772,11 @@ in ``pixi.lock``.
 When adding or changing a dependency, update ``pixi.toml``, run
 ``pixi lock``, and commit both files. Use
 ``pixi run --locked -e <environment>`` to run a command in a particular CI
-environment, such as ``test-py312``, ``minimal``, or ``core``.
+environment, such as ``test-py312``, ``minimal``, or ``core-py315``.
+Core-dependency environments are available for each supported Python version:
+``core-py312``, ``core-py313``, ``core-py314``, and ``core-py315``.
+Documentation builds use ``docs-py312`` and ``docs-py315``, sharing their
+documentation dependencies with the release-build environment.
 
 CI Workflows
 ~~~~~~~~~~~~
@@ -787,16 +791,19 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
     - **Unit tests**: Latest Python (3.14) on all platforms (Ubuntu, macOS, Windows)
     - **Codebase checks**: All platforms with Python 3.12
     - **Other tests**: Linux only (examples, minimal-deps, core-deps, documentation)
+    - **Core dependencies**: Python 3.12 and 3.15 on Linux
+    - **Documentation**: Python 3.15 on Linux
     - **Features**: Cancel-in-progress enabled for faster iteration
 
 **Full CI (bokeh-ci-full.yml)**
     Runs daily at 2 AM UTC and can be manually triggered by maintainers.
-    Tests all platform × Python version combinations for complete coverage.
+    Expands platform and Python version coverage beyond standard CI.
 
     - **Coverage**: 29 jobs total
     - **Platforms**: Ubuntu 24.04, macOS latest, Windows latest
-    - **Python versions**: 3.12, 3.13, 3.14
-    - **Test suites**: All test types across all combinations
+    - **Python versions**: 3.12, 3.13, 3.14; core-dependency tests also cover 3.15
+    - **Core dependencies**: Python 3.12 through 3.15 on all platforms
+    - **Documentation**: Python 3.12 and 3.15 on Linux; Python 3.15 on macOS and Windows
 
     **To manually trigger the full workflow:**
 
