@@ -7,7 +7,8 @@ import {PlotActions, xy} from "#framework/interactive"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
-import {Circle, Scatter} from "@bokehjs/models/glyphs"
+import {Circle, MultiLine, Scatter} from "@bokehjs/models/glyphs"
+import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
 import {FactorRange} from "@bokehjs/models/ranges"
@@ -24,6 +25,35 @@ function mkrenderer(glyph: Scatter): GlyphRenderer {
   })
   return GlyphRenderer.create({glyph, data_source})
 }
+
+describe("GlyphRenderer", () => {
+  it("should add vectorized decorations with state-specific markings", () => {
+    const glyph = MultiLine.create()
+    const selection_glyph = MultiLine.create()
+    const nonselection_glyph = MultiLine.create()
+    const renderer = GlyphRenderer.create({
+      data_source: ColumnDataSource.create({data: {inset: [12]}}),
+      glyph,
+      selection_glyph,
+      nonselection_glyph,
+    })
+    const marking = NormalHead.create({fill_color: "gray"})
+    const selection_marking = NormalHead.create({fill_color: "orange"})
+
+    const decoration = renderer.add_decoration("end", marking, {
+      inset: {field: "inset"},
+      selection_marking,
+      nonselection_marking: null,
+    })
+
+    expect(glyph.decorations).to.be.equal([decoration])
+    expect(decoration.inset).to.be.equal({field: "inset"})
+    expect(selection_glyph.decorations.length).to.be.equal(1)
+    expect(selection_glyph.decorations[0].marking).to.be.equal(selection_marking)
+    expect(selection_glyph.decorations[0].inset).to.be.equal({field: "inset"})
+    expect(nonselection_glyph.decorations).to.be.equal([])
+  })
+})
 
 describe("GlyphRendererView", () => {
   // Basic case with no all glyphs going to their defaults

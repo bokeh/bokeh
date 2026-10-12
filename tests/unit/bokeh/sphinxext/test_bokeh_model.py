@@ -306,10 +306,10 @@ def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None
         encoding="utf-8",
     )
     (source_dir / "index.rst").write_text(
-        "Arrow API\n"
-        "=========\n\n"
+        "Arrow head API\n"
+        "==============\n\n"
         ".. include:: line_props.rst\n\n"
-        ".. bokeh-model:: Arrow\n"
+        ".. bokeh-model:: NormalHead\n"
         "    :module: bokeh.models.annotations\n",
         encoding="utf-8",
     )

@@ -156,13 +156,38 @@ class GlyphRenderer(DataRenderer):
     a legend was configured with ``click_policy = "mute"``.
     """)
 
-    def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"]) -> Decoration:
-        glyphs = [self.glyph, self.selection_glyph, self.nonselection_glyph, self.hover_glyph, self.muted_glyph]
-        decoration = Decoration(marking=marking, node=node)
+    def add_decoration(self, node: Literal["start", "middle", "end"], marking: Marking, *,
+            inset: Any = 0, selection_marking: Marking | Literal["auto"] | None = "auto",
+            nonselection_marking: Marking | Literal["auto"] | None = "auto",
+            hover_marking: Marking | Literal["auto"] | None = "auto",
+            muted_marking: Marking | Literal["auto"] | None = "auto") -> Decoration:
+        """Add a decoration to the glyph and its visual-state glyphs.
 
-        for glyph in glyphs:
-            if isinstance(glyph, Glyph):
+        The first argument selects ``"start"``, ``"middle"``, or ``"end"``;
+        the second supplies the marking.
+
+        State-specific markings can be supplied when a decoration should track
+        selection, nonselection, hover, or muted styling. ``"auto"`` reuses the
+        primary marking and ``None`` omits the decoration for that state. A
+        state-specific marking requires an explicitly configured state glyph;
+        auto-generated glyphs reuse the primary decoration.
+        """
+        decoration = Decoration(marking=marking, node=node, inset=inset)
+        self.glyph.decorations.append(decoration)
+
+        states = [
+            (self.selection_glyph, selection_marking),
+            (self.nonselection_glyph, nonselection_marking),
+            (self.hover_glyph, hover_marking),
+            (self.muted_glyph, muted_marking),
+        ]
+        for glyph, state_marking in states:
+            if not isinstance(glyph, Glyph) or state_marking is None:
+                continue
+            if state_marking == "auto":
                 glyph.decorations.append(decoration)
+            else:
+                glyph.decorations.append(Decoration(marking=state_marking, node=node, inset=inset))
 
         return decoration
 

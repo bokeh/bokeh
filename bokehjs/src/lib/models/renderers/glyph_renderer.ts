@@ -35,6 +35,14 @@ type Defaults = {
   line: {line_alpha?: number, line_color?: Color}
 }
 
+type DecorationOptions = {
+  inset?: Decoration.Attrs["inset"]
+  selection_marking?: Marking | "auto" | null
+  nonselection_marking?: Marking | "auto" | null
+  hover_marking?: Marking | "auto" | null
+  muted_marking?: Marking | "auto" | null
+}
+
 const selection_defaults: Defaults = {
   fill: {},
   line: {},
@@ -173,6 +181,20 @@ export class GlyphRendererView extends DataRendererView {
     const update = () => this.update_data()
 
     this.connect(this.model.change, render)
+
+    this.connect(this.glyph.model.properties.decorations.change, () => {
+      const {decorations} = this.glyph.model
+      for (const [model, view] of [
+        [this.model.selection_glyph, this.selection_glyph],
+        [this.model.nonselection_glyph, this.nonselection_glyph],
+        [this.model.muted_glyph, this.muted_glyph],
+      ] as const) {
+        if (!(model instanceof Glyph)) {
+          view.model.decorations = decorations
+        }
+      }
+      this.decimated_glyph.model.decorations = decorations
+    })
 
     this.connect(this.glyph.model.change, update)
     this.connect(this.selection_glyph.model.change, update)
@@ -582,21 +604,32 @@ export class GlyphRenderer<
     return this.data_source.selection_manager
   }
 
-  add_decoration(marking: Marking, node: "start" | "middle" | "end"): Decoration {
-    const decoration = Decoration.create({marking, node})
+  add_decoration(node: "start" | "middle" | "end", marking: Marking, options: DecorationOptions = {}): Decoration {
+    const {
+      inset = 0,
+      selection_marking = "auto",
+      nonselection_marking = "auto",
+      hover_marking = "auto",
+      muted_marking = "auto",
+    } = options
+    const decoration = Decoration.create({marking, node, inset})
+    this.glyph.decorations = [...this.glyph.decorations, decoration]
 
-    const glyphs = [
-      this.glyph,
-      this.selection_glyph,
-      this.nonselection_glyph,
-      this.hover_glyph,
-      this.muted_glyph,
+    const states: [Glyph | "auto" | null, Marking | "auto" | null][] = [
+      [this.selection_glyph, selection_marking],
+      [this.nonselection_glyph, nonselection_marking],
+      [this.hover_glyph, hover_marking],
+      [this.muted_glyph, muted_marking],
     ]
 
-    for (const glyph of glyphs) {
-      if (glyph instanceof Glyph) {
-        glyph.decorations = [...glyph.decorations, decoration]
+    for (const [glyph, state_marking] of states) {
+      if (!(glyph instanceof Glyph) || state_marking == null) {
+        continue
       }
+      const state_decoration = state_marking == "auto"
+        ? decoration
+        : Decoration.create({marking: state_marking, node, inset})
+      glyph.decorations = [...glyph.decorations, state_decoration]
     }
 
     return decoration

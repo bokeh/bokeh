@@ -27,8 +27,14 @@ from typing import Any
 # Bokeh imports
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.validation import error
-from ...core.validation.errors import MALFORMED_GRAPH_SOURCE
-from ..glyphs import MultiLine, Scatter
+from ...core.validation.errors import INVALID_PROPERTY_VALUE, MALFORMED_GRAPH_SOURCE
+from ..glyphs import (
+    Bezier,
+    MultiLine,
+    Patches,
+    Scatter,
+    Segment,
+)
 from ..graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
 from ..sources import ColumnDataSource
 from .glyph_renderer import GlyphRenderer
@@ -78,6 +84,22 @@ class GraphRenderer(DataRenderer):
         if missing:
             return " ,".join(missing) + f" [{self}]"
 
+    @error(INVALID_PROPERTY_VALUE)
+    def _check_edge_glyph(self):
+        glyph = self.edge_renderer.glyph
+        if not isinstance(glyph, (MultiLine, Patches, Segment, Bezier)):
+            return f"Graph edge glyph must be MultiLine, Patches, Segment, or Bezier [{self}]"
+
+    @error(MALFORMED_GRAPH_SOURCE)
+    def _check_bezier_controls(self):
+        if isinstance(self.edge_renderer.glyph, Bezier):
+            data = self.edge_renderer.data_source.data
+            names = ("cx0", "cy0", "cx1", "cy1")
+            if any(name in data for name in names):
+                count = len(data.get("start", []))
+                if any(name not in data or len(data[name]) != count for name in names):
+                    return f"Bezier graph edges require four control columns with one value per edge [{self}]"
+
     layout_provider = Instance(LayoutProvider, help="""
     An instance of a ``LayoutProvider`` that supplies the layout of the network
     graph in cartesian space.
@@ -89,8 +111,10 @@ class GraphRenderer(DataRenderer):
     """)
 
     edge_renderer = Instance(GlyphRenderer, default=_DEFAULT_EDGE_RENDERER, help="""
-    Instance of a ``GlyphRenderer`` containing an ``MultiLine`` Glyph that will be
-    rendered as the graph edges.
+    Instance of a ``GlyphRenderer`` containing a ``MultiLine``, ``Patches``, ``Segment``, or ``Bezier`` glyph that will be
+    rendered as the graph edges. Segment endpoints follow the layout's edge paths.
+    Bezier controls may be supplied in ``cx0``, ``cy0``, ``cx1``, and ``cy1``
+    edge-source columns. Without those columns, Bezier edges are straight.
     """)
 
     selection_policy = Instance(GraphHitTestPolicy, default=InstanceDefault(NodesOnly), help="""

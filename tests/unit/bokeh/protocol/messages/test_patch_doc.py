@@ -31,7 +31,17 @@ from bokeh.document.events import (
     RootRemovedEvent,
 )
 from bokeh.model import Model
-from bokeh.models import ColumnDataSource
+from bokeh.models import (
+    Bezier,
+    ColumnDataSource,
+    GlyphRenderer,
+    GraphRenderer,
+    MultiLine,
+    NormalHead,
+    Segment,
+    StaticLayoutProvider,
+)
+from bokeh.models.graphics import Decoration
 from bokeh.protocol import apply_patch, patch_doc
 
 #-----------------------------------------------------------------------------
@@ -58,6 +68,27 @@ class TestPatchDocument:
         doc.add_root(SomeModelInTestPatchDoc())
         doc.to_json() # clear new model queue
         return doc
+
+    def test_create_then_apply_vectorized_decoration_inset(self) -> None:
+        sample = document.Document()
+        source = ColumnDataSource(data=dict(
+            xs=[[0, 1]], ys=[[0, 1]], inset=[12], updated_inset=[18],
+        ))
+        renderer = GlyphRenderer(data_source=source, glyph=MultiLine())
+        decoration = renderer.add_decoration(
+            "end", NormalHead(size=14), inset="inset",
+        )
+        sample.add_root(renderer)
+        copy = document.Document.from_json(sample.to_json())
+        copy_decoration = copy.get_model_by_id(decoration.id)
+        assert isinstance(copy_decoration, Decoration)
+
+        events = []
+        sample.on_change(events.append)
+        decoration.inset = "updated_inset"
+        apply_patch(patch_doc(events), copy)
+
+        assert copy_decoration.inset.field == "updated_inset"
 
     def test_create_no_events(self) -> None:
         with pytest.raises(ValueError):
@@ -176,3 +207,48 @@ class TestPatchDocument:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+def test_patch_inherited_marking_visuals() -> None:
+    sample = document.Document()
+    renderer = GlyphRenderer(data_source=ColumnDataSource(dict(xs=[[0, 1]], ys=[[0, 1]])),
+                             glyph=MultiLine(line_color="red"))
+    head = NormalHead(inherit_visuals=["line_color", "fill_color"])
+    renderer.add_decoration("end", head)
+    sample.add_root(renderer)
+    copy = document.Document.from_json(sample.to_json())
+    copied_head = copy.get_model_by_id(head.id)
+    assert isinstance(copied_head, NormalHead)
+    assert copied_head.inherit_visuals == ["line_color", "fill_color"]
+    events = []
+    sample.on_change(events.append)
+    head.inherit_visuals = ["fill_color"]
+    renderer.glyph.line_color = "blue"
+    apply_patch(patch_doc(events), copy)
+    assert copied_head.inherit_visuals == ["fill_color"]
+    assert copy.get_model_by_id(renderer.glyph.id).line_color.value == "blue"
+
+
+@pytest.mark.parametrize("glyph_type", [Segment, Bezier])
+def test_patch_alternate_graph_edge_coordinates(glyph_type) -> None:
+    sample = document.Document()
+    graph = GraphRenderer(layout_provider=StaticLayoutProvider(graph_layout={0: (0, 0), 1: (1, 1)}))
+    graph.node_renderer.data_source.data = dict(index=[0, 1])
+    graph.edge_renderer.glyph = glyph_type()
+    source = graph.edge_renderer.data_source
+    source.data = dict(start=[0], end=[1], cx0=[0.2], cy0=[0.3], cx1=[0.4], cy1=[0.5])
+    expression = graph.layout_provider.edge_point_coordinates("end")
+    sample.add_root(graph)
+    sample.add_root(expression)
+    copy = document.Document.from_json(sample.to_json())
+    events = []
+    sample.on_change(events.append)
+    graph.layout_provider.graph_layout = {0: (2, 3), 1: (4, 5)}
+    source.patch(dict(cx0=[(0, 0.8)]))
+    expression.point = "control0"
+    apply_patch(patch_doc(events), copy)
+    copied_graph = copy.get_model_by_id(graph.id)
+    assert isinstance(copied_graph.edge_renderer.glyph, glyph_type)
+    assert copied_graph.layout_provider.graph_layout == {0: [2, 3], 1: [4, 5]}
+    assert copied_graph.edge_renderer.data_source.data["cx0"] == [0.8]
+    assert copy.get_model_by_id(expression.id).point == "control0"

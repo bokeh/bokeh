@@ -12,3 +12,19 @@ Removals
   hierarchical tables, use Panel's ``Tabulator`` widget. Bokeh-only
   applications can use ``DataTable`` with pre-aggregated data. See
   :ref:`ug_topics_hierarchical` for migration guidance.
+
+* Removed the ``Arrow`` annotation model. Replace
+  ``plot.add_layout(Arrow(x_start=..., y_start=..., x_end=..., y_end=...))``
+  with ``renderer = plot.arrow(x_start=..., y_start=..., x_end=..., y_end=...)``.
+  The returned ``GlyphRenderer`` draws decorated segments; change shaft
+  properties on ``renderer.glyph`` and head properties on its decorations.
+  Existing ``OpenHead``, ``NormalHead``, ``VeeHead``, and ``TeeHead`` models
+  remain available. Endpoints use data coordinates; head sizes and decoration
+  insets use screen pixels. See :ref:`ug_basic_annotations_arrows` for examples.
+
+API changes
+-----------
+
+* ``GlyphRenderer.add_decoration()`` now takes the position first:
+  replace ``renderer.add_decoration(head, "end")`` with
+  ``renderer.add_decoration("end", head)``. BokehJS uses the same argument order.

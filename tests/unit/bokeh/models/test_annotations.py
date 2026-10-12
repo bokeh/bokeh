@@ -25,7 +25,6 @@ from unittest import mock
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
-    Arrow,
     ArrowHead,
     Band,
     BoxAnnotation,
@@ -325,34 +324,6 @@ def test_ScaleBar_dimensional() -> None:
     scale_bar = ScaleBar(unit="''", dimensional=angular)
     assert scale_bar.unit == "''"
     assert scale_bar.dimensional.is_known("''")
-
-
-def test_Arrow() -> None:
-    arrow = Arrow()
-    assert arrow.x_start == field("x_start")
-    assert arrow.y_start == field("y_start")
-    assert arrow.start_units == 'data'
-    assert arrow.start is None
-    assert arrow.x_end == field("x_end")
-    assert arrow.y_end == field("y_end")
-    assert arrow.end_units == 'data'
-    assert isinstance(arrow.end, ArrowHead)
-    assert isinstance(arrow.source, ColumnDataSource)
-    assert arrow.x_range_name == "default"
-    assert arrow.y_range_name == "default"
-    check_line_properties(arrow)
-    check_properties_existence(arrow, [
-        *ANNOTATION,
-        "x_start",
-        "y_start",
-        "start_units",
-        "start",
-        "x_end",
-        "y_end",
-        "end_units",
-        "end",
-        "source",
-    ], LINE)
 
 
 def test_BoxAnnotation() -> None:

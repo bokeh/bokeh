@@ -18,9 +18,12 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models import (
+    Bezier,
     Circle,
     ColumnDataSource,
     MultiLine,
+    Patches,
+    Segment,
     StaticLayoutProvider,
 )
 
@@ -79,3 +82,19 @@ class TestGraphRenderer:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("glyph", [Segment(), Bezier(), MultiLine(), Patches()])
+def test_supported_edge_glyphs(glyph) -> None:
+    graph = bmr.GraphRenderer()
+    graph.edge_renderer.glyph = glyph
+    assert graph._check_edge_glyph() == []
+
+
+def test_invalid_bezier_controls() -> None:
+    graph = bmr.GraphRenderer()
+    graph.edge_renderer.glyph = Bezier()
+    graph.edge_renderer.data_source.data = dict(start=[0], end=[1], cx0=[0.2])
+    assert graph._check_bezier_controls()
+    graph.edge_renderer.data_source.data = dict(start=[0], end=[1], cx0=[0.2], cy0=[0.3], cx1=[0.4], cy1=[0.5])
+    assert graph._check_bezier_controls() == []

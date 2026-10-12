@@ -10,7 +10,7 @@ import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
 import type {Anchor, WindowAxis} from "core/enums"
 import type {ViewStorage, ChildView} from "core/build_views"
-import {build_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
 import {ScreenArray, Indices} from "core/types"
@@ -100,6 +100,22 @@ export abstract class GlyphView extends DOMComponentView {
 
   readonly decorations: ViewStorage<Decoration> = new Map()
 
+  protected _decoration_insets(i: number): {start: number, end: number} {
+    let start = 0
+    let end = 0
+
+    for (const decoration of this.decorations.values()) {
+      const inset = Math.max(0, decoration.inset.get(i) + decoration.marking.line_extent(i))
+      if (decoration.model.node == "start") {
+        start = Math.max(start, inset)
+      } else if (decoration.model.node == "end") {
+        end = Math.max(end, inset)
+      }
+    }
+
+    return {start, end}
+  }
+
   override _children_views(): ChildView[] {
     return [...super._children_views(), ...this.decorations.values()]
   }
@@ -115,6 +131,30 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.decorations.change, async () => {
+      await build_views(this.decorations, this.model.decorations, {parent: this.parent})
+      if (this.is_destroyed) {
+        return
+      }
+      const source = this.renderer.model.data_source
+      const indices = this.renderer.model.view.indices
+      for (const decoration of this.decorations.values()) {
+        decoration.set_data(source, indices)
+      }
+      if (this.glglyph != null) {
+        this._can_use_webgl = this._compute_can_use_webgl()
+      }
+      this.request_paint()
+    })
+  }
+
+  override remove(): void {
+    remove_views(this.decorations)
+    super.remove()
+  }
+
   request_paint(): void {
     this.parent.request_paint()
   }
@@ -124,6 +164,9 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
+    for (const decoration of this.decorations.values()) {
+      decoration.marking.inherit_from(this)
+    }
     if (this.has_webgl()) {
       this.glglyph.render(ctx, indices, this.base ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
@@ -514,7 +557,7 @@ export abstract class GlyphView extends DOMComponentView {
     await this._set_lazy_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
 
     for (const decoration of this.decorations.values()) {
-      decoration.marking.set_data(source, indices)
+      decoration.set_data(source, indices)
     }
 
     if (this.glglyph != null) {

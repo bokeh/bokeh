@@ -7,7 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Sequence, Unpack
+from typing import Literal, Sequence, Unpack
 
 # Bokeh imports
 from ..model.model import Model, _ModelInit
@@ -19,6 +19,8 @@ class _LayoutProviderInit(_ModelInit, total=False):
 class LayoutProvider(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_LayoutProviderInit]) -> None: ...
+
+    def edge_point_coordinates(self, point: Literal["start", "end", "control0", "control1"]) -> EdgePointCoordinates: ...
 
     @property
     def node_coordinates(self) -> NodeCoordinates: ...
@@ -53,6 +55,14 @@ class _EdgeCoordinatesInit(_GraphCoordinatesInit, total=False):
 
 class EdgeCoordinates(GraphCoordinates):
     def __init__(self, **kwargs: Unpack[_EdgeCoordinatesInit]) -> None: ...
+
+class _EdgePointCoordinatesInit(_GraphCoordinatesInit, total=False):
+    point: Literal["start", "end", "control0", "control1"]
+
+class EdgePointCoordinates(GraphCoordinates):
+    def __init__(self, **kwargs: Unpack[_EdgePointCoordinatesInit]) -> None: ...
+
+    point: Literal["start", "end", "control0", "control1"] = ...
 
 class _GraphHitTestPolicyInit(_ModelInit, total=False):
     ...

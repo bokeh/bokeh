@@ -1,3 +1,5 @@
+import {path_segments, path_length, position_decoration, trim_path, trace_path, paint_decorations, hit_decoration,
+        span_path_indices, decoration_hits_span} from "./decorated_path"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_line_scalar_legend, line_interpolation} from "./utils"
 import type {PointGeometry, SpanGeometry} from "core/geometry"
@@ -24,9 +26,43 @@ export class LineView extends XYGlyphView {
     return LineGL
   }
 
+  protected override _compute_can_use_webgl(): boolean {
+    return this.model.decorations.length == 0
+  }
+
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Line.Data>): void {
     const {sx, sy} = {...this, ...data}
     const nonselection = this.parent.nonselection_glyph == this
+
+    if (this.decorations.size != 0) {
+      const segments = path_segments(sx, sy)
+      if (segments.length == 0) {
+        return
+      }
+      const selected = new Set(indices)
+      const segment_is_visible = (index: number) => nonselection
+        ? selected.has(index) || selected.has(index + 1)
+        : selected.has(index) && selected.has(index + 1)
+      const {start, end} = this._decoration_insets(0)
+      const visible = trim_path(segments, start, end).filter(({index}) => segment_is_visible(index))
+      if (this.visuals.line.doit) {
+        ctx.beginPath()
+        trace_path(ctx, visible)
+        this.visuals.line.set_value(ctx)
+        ctx.stroke()
+      }
+      const length = path_length(segments)
+      for (const decoration of this.decorations.values()) {
+        const {node} = decoration.model
+        const visible = node == "middle"
+          ? segment_is_visible(position_decoration(decoration, 0, segments, length).index)
+          : selected.has(node == "start" ? segments[0].index : segments[segments.length - 1].index + 1)
+        if (visible) {
+          paint_decorations(ctx, [decoration], 0, segments)
+        }
+      }
+      return
+    }
 
     let iprev: number | null = null
     const gap = (i: number) => iprev != null && i - iprev != 1
@@ -86,6 +122,30 @@ export class LineView extends XYGlyphView {
     let shortest = 9999
     const threshold = Math.max(2, this.line_width.value/2)
 
+    if (this.decorations.size != 0) {
+      const segments = path_segments(this.sx, this.sy)
+      const {start, end} = this._decoration_insets(0)
+      for (const segment of trim_path(segments, start, end)) {
+        const dist = hittest.dist_to_segment(point,
+          {x: segment.sx0, y: segment.sy0}, {x: segment.sx1, y: segment.sy1})
+        if (dist < threshold && dist < shortest) {
+          shortest = dist
+          result.line_indices = [segment.index]
+        }
+      }
+      for (const decoration of this.decorations.values()) {
+        const index = hit_decoration(point, decoration, 0, segments)
+        if (index != null) {
+          result.line_indices = [index]
+        }
+      }
+      if (result.line_indices.length != 0) {
+        result.add_to_selected_glyphs(this.model)
+        result.view = this
+      }
+      return result
+    }
+
     for (let i = 0, end = this.sx.length-1; i < end; i++) {
       const p0 = {x: this.sx[i],     y: this.sy[i]}
       const p1 = {x: this.sx[i + 1], y: this.sy[i + 1]}
@@ -104,6 +164,26 @@ export class LineView extends XYGlyphView {
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
+
+    if (this.decorations.size != 0) {
+      const segments = path_segments(this.sx, this.sy)
+      const {start, end} = this._decoration_insets(0)
+      const {direction} = geometry
+      const value = direction == "h" ? sx : sy
+      const indices = new Set(span_path_indices(trim_path(segments, start, end), direction, value))
+      for (const decoration of this.decorations.values()) {
+        const index = decoration_hits_span(decoration, 0, segments, direction, value)
+        if (index != null) {
+          indices.add(index)
+        }
+      }
+      const result = Selection.create({line_indices: [...indices]})
+      if (indices.size != 0) {
+        result.add_to_selected_glyphs(this.model)
+        result.view = this
+      }
+      return result
+    }
 
     let val: number
     let values: Arrayable<number>

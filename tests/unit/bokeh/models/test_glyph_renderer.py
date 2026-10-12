@@ -28,6 +28,7 @@ from bokeh.models import (
     IndexFilter,
     Line,
     MultiLine,
+    NormalHead,
     Patch,
     Scatter,
     Text,
@@ -46,6 +47,35 @@ import bokeh.models.renderers as bmr # isort:skip
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+
+def test_add_decoration_accepts_vectorized_inset_and_state_markings() -> None:
+    glyph = MultiLine()
+    selection_glyph = MultiLine()
+    nonselection_glyph = MultiLine()
+    renderer = bmr.GlyphRenderer(
+        data_source=ColumnDataSource(data=dict(inset=[12])),
+        glyph=glyph,
+        selection_glyph=selection_glyph,
+        nonselection_glyph=nonselection_glyph,
+    )
+    marking = NormalHead(fill_color="gray")
+    selection_marking = NormalHead(fill_color="orange")
+
+    decoration = renderer.add_decoration(
+        "end",
+        marking,
+        inset="inset",
+        selection_marking=selection_marking,
+        nonselection_marking=None,
+    )
+
+    assert decoration.marking is marking
+    assert decoration.inset == "inset"
+    assert glyph.decorations == [decoration]
+    assert selection_glyph.decorations[0].marking is selection_marking
+    assert selection_glyph.decorations[0].inset == "inset"
+    assert nonselection_glyph.decorations == []
 
 
 class TestGlyphRenderer_construct_color_bar:

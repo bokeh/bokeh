@@ -83,6 +83,47 @@ Examples:
 
 """
 
+    def arrow(self, x_start: Any = "x_start", y_start: Any = "y_start",
+            x_end: Any = "x_end", y_end: Any = "y_end", *,
+            start: Any = None, end: Any = "auto", start_inset: Any = 0, end_inset: Any = 0,
+            **kwargs: Any) -> GlyphRenderer:
+        """Configure and add arrows to this figure.
+
+        Arrows are rendered as :class:`~bokeh.models.glyphs.Segment` glyphs
+        with endpoints in data coordinates and optional start and end markings.
+        Consequently they support data sources, selections, hover inspection,
+        and server updates in the same
+        way as other glyph renderers.
+
+        Args:
+            x_start: values or field name of starting x-coordinates
+            y_start: values or field name of starting y-coordinates
+            x_end: values or field name of ending x-coordinates
+            y_end: values or field name of ending y-coordinates
+            start: optional marking at the start of each arrow
+            end: optional marking at the end of each arrow; ``"auto"`` uses
+                an :class:`~bokeh.models.annotations.OpenHead`
+            start_inset: screen-pixel inset for the start marking
+            end_inset: screen-pixel inset for the end marking
+
+        Returns:
+            :class:`~bokeh.models.renderers.GlyphRenderer`
+        """
+        from ..models.annotations import OpenHead
+
+        kwargs.setdefault("level", "annotation")
+        renderer = self.segment(
+            x_start, y_start, x_end, y_end,
+            **kwargs,
+        )
+        if start is not None:
+            renderer.add_decoration("start", start, inset=start_inset)
+        if end == "auto":
+            end = OpenHead(inherit_visuals=["line_color", "line_alpha", "line_width"])
+        if end is not None:
+            renderer.add_decoration("end", end, inset=end_inset)
+        return renderer
+
     @glyph_method(glyphs.Arc)
     def arc(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass

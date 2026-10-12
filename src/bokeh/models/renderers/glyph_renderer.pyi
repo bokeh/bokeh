@@ -9,6 +9,7 @@
 from typing import Any, Literal, Unpack
 
 # Bokeh imports
+from ..._specs import NumberSpec
 from ...core.enums import AutoType as Auto
 from ..annotations import ColorBar
 from ..glyph import Glyph
@@ -38,6 +39,9 @@ class GlyphRenderer[GlyphType: Glyph](DataRenderer):
     muted_glyph: Auto | GlyphType | None = ...
     muted: bool = ...
 
-    def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"]) -> Decoration: ...
+    def add_decoration(self, node: Literal["start", "middle", "end"], marking: Marking, *,
+        inset: NumberSpec = ..., selection_marking: Auto | Marking | None = ...,
+        nonselection_marking: Auto | Marking | None = ..., hover_marking: Auto | Marking | None = ...,
+        muted_marking: Auto | Marking | None = ...) -> Decoration: ...
 
     def construct_color_bar(self, **kwargs: Any) -> ColorBar: ...

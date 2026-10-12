@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TypedDict, Unpack
+from typing import Literal, TypedDict, Unpack
 
 # Bokeh imports
 from .._specs import (
@@ -56,6 +56,7 @@ from ..models import glyphs
 from ..models.annotations import Legend
 from ..models.callbacks import CustomJS
 from ..models.coordinates import CoordinateMapping
+from ..models.graphics import Marking
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
 from ..models.sources import CDSView, ColumnarDataSource, DataDictLike
@@ -521,6 +522,19 @@ class GlyphAPI:
         outer_radius: DistanceArg = ...,
         **kwargs: Unpack[AnnulusArgs],
     ) -> GlyphRenderer[glyphs.Annulus]: ...
+
+    def arrow(self,
+        x_start: NumberArg = ...,
+        y_start: NumberArg = ...,
+        x_end: NumberArg = ...,
+        y_end: NumberArg = ...,
+        *,
+        start: Marking | None = ...,
+        end: Marking | Literal["auto"] | None = ...,
+        start_inset: NumberArg = ...,
+        end_inset: NumberArg = ...,
+        **kwargs: Unpack[SegmentArgs],
+    ) -> GlyphRenderer[glyphs.Segment]: ...
 
     def arc(self,
         x: NumberArg = ...,

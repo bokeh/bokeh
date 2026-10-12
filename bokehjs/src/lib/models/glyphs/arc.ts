@@ -30,10 +30,6 @@ export class ArcView extends XYGlyphView {
   }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Arc.Data>): void {
-    if (!this.visuals.line.doit) {
-      return
-    }
-
     const {sx, sy, sradius, start_angle, end_angle} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
 
@@ -48,33 +44,67 @@ export class ArcView extends XYGlyphView {
         continue
       }
 
+      let delta = end_angle_i - start_angle_i
+      if (anticlock && delta > 0) {
+        delta -= 2*Math.PI
+      } else if (!anticlock && delta < 0) {
+        delta += 2*Math.PI
+      }
+      const length = Math.abs(delta*sradius_i)
+      const direction = anticlock ? -1 : 1
+      const {start, end} = this._decoration_insets(i)
+      const line_start = Math.min(start, length)
+      const line_end = Math.max(line_start, length - Math.min(end, length))
+
+      if (this.visuals.line.doit && line_start < line_end) {
+        ctx.beginPath()
+        ctx.arc(
+          sx_i, sy_i, sradius_i,
+          start_angle_i + direction*line_start/sradius_i,
+          start_angle_i + direction*line_end/sradius_i,
+          anticlock,
+        )
+        this.visuals.line.apply(ctx, i)
+      }
+
       this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
-
-      ctx.beginPath()
-      ctx.arc(sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
-
-      this.visuals.line.apply(ctx, i)
     }
   }
 
   protected _render_decorations(ctx: Context2d, i: number, sx: number, sy: number, sradius: number,
-      start_angle: number, end_angle: number, _anticlock: boolean): void {
+      start_angle: number, end_angle: number, anticlock: boolean): void {
 
     const {sin, cos, PI} = Math
+    const direction = anticlock ? -1 : 1
 
     for (const decoration of this.decorations.values()) {
       ctx.save()
 
+      const inset_angle = sradius == 0 ? 0 : decoration.inset.get(i)/sradius
       if (decoration.model.node == "start") {
-        const x = sradius*cos(start_angle) + sx
-        const y = sradius*sin(start_angle) + sy
+        const angle = start_angle + direction*inset_angle
+        const x = sradius*cos(angle) + sx
+        const y = sradius*sin(angle) + sy
         ctx.translate(x, y)
-        ctx.rotate(start_angle + PI)
-      } else if (decoration.model.node == "end") {
-        const x = sradius*Math.cos(end_angle) + sx
-        const y = sradius*Math.sin(end_angle) + sy
+        ctx.rotate(angle + PI)
+      } else if (decoration.model.node == "middle") {
+        let delta = end_angle - start_angle
+        if (anticlock && delta > 0) {
+          delta -= 2*PI
+        } else if (!anticlock && delta < 0) {
+          delta += 2*PI
+        }
+        const angle = start_angle + delta/2
+        const x = sradius*cos(angle) + sx
+        const y = sradius*sin(angle) + sy
         ctx.translate(x, y)
-        ctx.rotate(end_angle)
+        ctx.rotate(angle)
+      } else {
+        const angle = end_angle - direction*inset_angle
+        const x = sradius*cos(angle) + sx
+        const y = sradius*sin(angle) + sy
+        ctx.translate(x, y)
+        ctx.rotate(angle)
       }
 
       decoration.marking.paint(ctx, i)
