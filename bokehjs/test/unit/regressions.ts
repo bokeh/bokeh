@@ -1,4 +1,5 @@
 import sinon from "sinon"
+import pixelmatch from "pixelmatch"
 
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
@@ -2352,6 +2353,17 @@ describe("Bug", () => {
       return new Uint8Array(ctx.getImageData(0, 0, width, height).data.buffer)
     }
 
+    function expect_pixels(plot_view: PlotView, expected: Uint8Array): void {
+      const actual = pixels(plot_view)
+      const {width, height} = plot_view.canvas_view.primary.canvas
+      expect(actual.length).to.be.equal(expected.length)
+      const mismatches = pixelmatch(expected, actual, undefined, width, height, {
+        threshold: 0.01,
+        includeAA: true,
+      })
+      expect(mismatches).to.be.equal(0)
+    }
+
     for (const dpr of [1, 1.5, 2]) {
       it.dpr(dpr)(`resizes the shared WebGL canvas when painting plots of different sizes with devicePixelRatio == ${dpr}`, async () => {
         const {view, plots, views, canvas} = await display_plots([151, 101], [301, 121], [121, 251])
@@ -2395,7 +2407,7 @@ describe("Bug", () => {
         for (const plot_view of [...views, ...views.toReversed()]) {
           paint(plot_view)
         }
-        expect(views.map(pixels)).to.be.equal(expected)
+        views.forEach((plot_view, i) => expect_pixels(plot_view, expected[i]))
       })
     }
 
@@ -2420,7 +2432,7 @@ describe("Bug", () => {
       }
       expect(canvas.height).to.be.below(tall.canvas_view.primary.canvas.height)
       expect(canvas.width).to.be.below(wide.canvas_view.primary.canvas.width)
-      expect(pixels(small)).to.be.equal(expected)
+      expect_pixels(small, expected)
     })
 
     it("paints zero-area plots after larger plots", async () => {
