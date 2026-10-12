@@ -15,6 +15,64 @@ New features
   decorations without requiring fixed tick locations or custom JavaScript.
 * Added :class:`~bokeh.models.SITickFormatter` for displaying values with a
   fixed or automatically selected SI prefix and a shared unit.
+Non-columnar data sources
+-------------------------
+
+Bokeh's data-source hierarchy now supports data whose natural representation
+is not a table of equal-length columns. ``DataSource`` is the minimal shared
+base class, ``IndexedDataSource`` supplies indexed selection and filtering,
+and ``ColumnarDataSource`` specializes it for column-oriented data. Renderers
+can declare the narrowest source type they support.
+
+``DataView`` replaces ``CDSView`` and works with any ``IndexedDataSource``.
+Its filters operate on the source's selectable item axis, whether those items
+are rows, geometries, or mesh cells. ``SelectionPolicy`` also moves to indexed
+data sources and its ``combine`` property replaces the old
+``UnionRenderers`` and ``IntersectRenderers`` policy classes.
+
+Geometry and polygon migration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``GeometryDataSource`` replaces ``GeoJSONDataSource``. It accepts GeoJSON,
+objects implementing ``__geo_interface__``, and geometry records with
+associated attributes. ``GeometryDataSource.from_xy()`` converts parallel
+``x`` and ``y`` values, including nested or ``NaN``-separated legacy polygon
+coordinates, without requiring users to construct GeoJSON mappings.
+
+``Polygons`` and ``figure.polygons()`` replace ``MultiPolygons`` and
+``figure.multi_polygons()``. The new glyph accepts a single geometry, an
+iterable of geometry records, or a ``GeometryDataSource`` while keeping each
+top-level feature as one selectable item. ``patch()`` and ``patches()`` remain
+available during the 4.x series for document compatibility, but are
+deprecated for new code.
+
+Graphs, layouts, and selection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``GraphDataSource`` now owns its node and edge sources as well as graph
+selection behavior. Configure selection on
+``graph.data_source.selection_policy`` with ``GraphSelectionPolicy``. Its
+``node_hops``, ``node_hops_mode``, and ``node_direction`` properties control
+graph traversal; ``include_direct``, ``include_incident_edges``, and
+``include_end_nodes`` control how direct node and edge hits are combined.
+Renderer inspection remains independently configurable.
+
+Graph renderers also support static mappings and dependency-free browser-side
+circular, grid, and force-directed layouts. Layouts may provide parameterized
+straight, quadratic Bézier, circular-arc, and orthogonal edge paths.
+
+Indexed meshes and lookups
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``MeshDataSource`` represents shared vertices separately from selectable mesh
+cells, allowing the ``polygons`` glyph to render indexed two-dimensional
+meshes without duplicating coordinates. ``IndexedLookup`` and the ``gather()``
+helper expose the same indexed lookup operation for other glyph properties.
+
+Other API changes
+-----------------
+
+* ``GroupFilter.column_name`` is now ``GroupFilter.field_name``.
 
 Removals
 --------
@@ -37,6 +95,15 @@ Removals
 * The separately installed ``jupyter_bokeh`` extension is no longer used by
   Bokeh 4.0 and can be uninstalled after upgrading.
 
+* Removed ``CDSView``; use ``DataView``.
+* Removed ``GeoJSONDataSource``; use ``GeometryDataSource``.
+* Removed ``MultiPolygons`` and ``figure.multi_polygons()``; use ``Polygons``
+  and ``figure.polygons()``.
+* Removed the graph hit-test policy classes. Configure a
+  ``GraphSelectionPolicy`` on ``GraphDataSource.selection_policy`` instead.
+* Removed ``UnionRenderers`` and ``IntersectRenderers``; use
+  ``SelectionPolicy(combine="union")`` or
+  ``SelectionPolicy(combine="intersection")``.
 * Removed ``DataCube`` and its supporting grouping and aggregation models. For
   hierarchical tables, use Panel's ``Tabulator`` widget. Bokeh-only
   applications can use ``DataTable`` with pre-aggregated data. See

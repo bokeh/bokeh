@@ -31,6 +31,16 @@ class Selection(Model):
     multiline_indices: dict[int, Sequence[int]] = ...
     image_indices: list[ImageIndex] = ...
 
+class _GraphSelectionInit(_ModelInit, total=False):
+    nodes: Selection
+    edges: Selection
+
+class GraphSelection(Model):
+    def __init__(self, **kwargs: Unpack[_GraphSelectionInit]) -> None: ...
+
+    nodes: Selection = ...
+    edges: Selection = ...
+
 class _SelectionPolicyInit(_ModelInit, total=False):
     combine: Literal["union", "intersection"]
 

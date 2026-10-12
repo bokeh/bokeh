@@ -75,6 +75,11 @@ export class GraphRendererView extends DataRendererView {
       this.request_paint()
     })
     this.connect(this.model.data_source.data_changed, async () => {
+      // GraphDataSource re-emits child source changes before the child views
+      // receive the original signal. Refresh their index sets first so that
+      // new coordinate expressions are evaluated against the new data size.
+      this.edge_view.data_view.compute_indices()
+      this.node_view.data_view.compute_indices()
       this.model.layout_provider.invalidate(this.model.data_source)
       this.apply_coordinates()
       await this.edge_view.set_data()

@@ -13,8 +13,10 @@ export namespace MeshDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Columns = {[key: string]: Arrayable | undefined}
+  export type CellRecord = {[key: string]: unknown}
+  export type CellWithAttrs = [Arrayable<number>, CellRecord]
   export type Vertices = IndexedDataSource | Columns | Arrayable<Arrayable<number>>
-  export type Cells = IndexedDataSource | Columns | Arrayable<Arrayable<number>> | Arrayable<number>
+  export type Cells = IndexedDataSource | Columns | Arrayable<Arrayable<number> | CellRecord | CellWithAttrs> | Arrayable<number>
   export type Init = Omit<Partial<Attrs>, "vertices" | "cells"> & {vertices?: Vertices, cells?: Cells}
 
   export type Props = IndexedDataSource.Props & {
@@ -102,10 +104,50 @@ function cell_source(cells: MeshDataSource.Cells, connectivity_field: string): I
     const [n, width] = cells.shape
     connectivity = Array.from({length: n}, (_, row) => cells.slice(row*width, (row + 1)*width) as Arrayable<number>)
   } else {
-    const items = cells as unknown as Arrayable<number | Arrayable<number>>
-    connectivity = items.length != 0 && Array.from(items).every((index) => isNumber(index))
-      ? [items as Arrayable<number>]
-      : items as Arrayable<Arrayable<number>>
+    const items = cells as unknown as Arrayable<unknown>
+    const is_record = (cell: unknown): boolean => {
+      return isPlainObject(cell) || (
+        isArrayable(cell) && cell.length == 2 && isArrayable(cell[0]) && isPlainObject(cell[1])
+      )
+    }
+    if (items.length != 0 && Array.from(items).some(is_record)) {
+      if (!Array.from(items).every(is_record)) {
+        throw new Error("mesh cells cannot mix connectivity sequences and cell records")
+      }
+
+      const records = Array.from(items, (cell) => {
+        if (isPlainObject(cell)) {
+          if (!(connectivity_field in cell)) {
+            throw new Error(`mesh cell records must define the '${connectivity_field}' connectivity field`)
+          }
+          return {...cell}
+        }
+
+        const [indices, attrs] = cell as MeshDataSource.CellWithAttrs
+        if (connectivity_field in attrs) {
+          throw new Error(`mesh cell attributes cannot contain the reserved '${connectivity_field}' field`)
+        }
+        return {[connectivity_field]: indices, ...attrs}
+      })
+      const fields = new Set(records.flatMap((record) => Object.keys(record)))
+      const data: Data = {}
+      for (const field of fields) {
+        data[field] = records.map((record) => record[field] ?? null) as Arrayable
+      }
+      connectivity = data[connectivity_field] as Arrayable<Arrayable<number>>
+      for (const cell of connectivity) {
+        if (!isArrayable(cell) || Array.from(cell).some((index) => !isNumber(index) || !Number.isInteger(index))) {
+          throw new Error("mesh connectivity must contain sequences of integer vertex indices")
+        }
+      }
+      data[connectivity_field] = Array.from(connectivity, (cell) => Array.from(cell))
+      return ColumnDataSource.create({data})
+    }
+
+    const connectivity_items = items as Arrayable<number | Arrayable<number>>
+    connectivity = connectivity_items.length != 0 && Array.from(connectivity_items).every((index) => isNumber(index))
+      ? [connectivity_items as Arrayable<number>]
+      : connectivity_items as Arrayable<Arrayable<number>>
   }
   for (const cell of connectivity) {
     if (!isArrayable(cell) || Array.from(cell).some((index) => !isNumber(index) || !Number.isInteger(index))) {

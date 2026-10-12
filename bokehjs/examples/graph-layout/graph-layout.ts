@@ -14,13 +14,13 @@ export namespace ClientSideGraphLayout {
       {id: "F", color: "#eeca3b"},
     ],
     edges: [
-      ["A", "B", {curvature: 0.16}],
-      ["A", "C", {curvature: -0.12}],
-      ["B", "C", {curvature: 0.1}],
-      ["C", "D", {curvature: -0.08}],
-      ["D", "E", {curvature: 0.14}],
-      ["D", "F", {curvature: -0.16}],
-      ["E", "F", {curvature: 0.1}],
+      ["A", "B", {curvature: 0.16, arrow_size: 12}],
+      ["A", "C", {curvature: -0.12, arrow_size: 15}],
+      ["B", "C", {curvature: 0.1, arrow_size: 12}],
+      ["C", "D", {curvature: -0.08, arrow_size: 14}],
+      ["D", "E", {curvature: 0.14, arrow_size: 12}],
+      ["D", "F", {curvature: -0.16, arrow_size: 15}],
+      ["E", "F", {curvature: 0.1, arrow_size: 12}],
     ],
     selection_policy: Bokeh.GraphSelectionPolicy.create({
       node_hops: 1,
@@ -47,7 +47,19 @@ export namespace ClientSideGraphLayout {
   graph.edge_renderer.selection_glyph = Bokeh.MultiLine.create({
     line_alpha: 1,
     line_color: "#d62728",
-    line_width: 2,
+    line_width: 4,
+  })
+  graph.edge_renderer.add_decoration(Bokeh.NormalHead.create({
+    size: {field: "arrow_size"},
+    fill_color: "#52667a",
+    line_color: null,
+  }), "end", {
+    inset: 11,
+    selection_marking: Bokeh.NormalHead.create({
+      size: {field: "arrow_size"},
+      fill_color: "#d62728",
+      line_color: null,
+    }),
   })
 
   const plot = plt.figure({
@@ -57,7 +69,7 @@ export namespace ClientSideGraphLayout {
     y_range: [-1.2, 1.2],
     tools: "pan,wheel_zoom,tap,reset",
     active_scroll: "wheel_zoom",
-    title: "Client-side force-directed graph layout",
+    title: "Client-side force-directed layout with directed curved edges",
   })
   plot.add_renderers(graph)
 

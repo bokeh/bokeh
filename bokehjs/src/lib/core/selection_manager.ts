@@ -1,6 +1,6 @@
 import type {Geometry} from "./geometry"
 import type {SelectionMode} from "core/enums"
-import {Selection} from "models/selections/selection"
+import {GraphSelection, Selection} from "models/selections/selection"
 import type {DataSource} from "models/sources/data_source"
 import type {GraphDataSource} from "models/sources/graph_data_source"
 import type {IndexedDataSource} from "models/sources/indexed_data_source"
@@ -17,7 +17,7 @@ function is_GraphRendererView(renderer_view: DataRendererView): renderer_view is
   return renderer_view.model.type == "GraphRenderer"
 }
 
-export type SelectionState = Selection | {nodes: Selection, edges: Selection}
+export type SelectionState = Selection | GraphSelection
 
 export abstract class SelectionManager {
   constructor(readonly source: DataSource) {}
@@ -119,17 +119,61 @@ export class GraphSelectionManager extends SelectionManager {
     super(source)
   }
 
-  private _select({nodes, edges}: GraphSelections, final: boolean, mode: SelectionMode): void {
-    this.source.nodes.selected.update(nodes, final, mode)
+  private _updating_direct = false
+
+  private _update_direct({nodes, edges}: GraphSelections, final: boolean, mode: SelectionMode): void {
+    this._updating_direct = true
+    try {
+      this.source.selected.nodes.update(nodes, final, mode)
+      this.source.selected.edges.update(edges, final, mode)
+    } finally {
+      this._updating_direct = false
+    }
+  }
+
+  private _expanded_selection(): GraphSelections {
+    let expanded: GraphSelections | null = null
+    for (const target of ["nodes", "edges"] as const) {
+      const direct = this.source.selected[target]
+      if (direct.is_empty()) {
+        continue
+      }
+      const next = this.source.selection_policy.expand(this.source, target, direct)
+      if (expanded == null) {
+        expanded = next
+      } else if (this.source.selection_policy.combine == "union") {
+        expanded.nodes.update_through_union(next.nodes)
+        expanded.edges.update_through_union(next.edges)
+      } else {
+        expanded.nodes.update_through_intersection(next.nodes)
+        expanded.edges.update_through_intersection(next.edges)
+      }
+    }
+    return expanded ?? {nodes: Selection.create(), edges: Selection.create()}
+  }
+
+  update_expanded(final: boolean = true): void {
+    const {nodes, edges} = this._expanded_selection()
+    this.source.nodes.selected.update(nodes, final, "replace")
     this.source.nodes._select.emit()
-    this.source.edges.selected.update(edges, final, mode)
+    this.source.edges.selected.update(edges, final, "replace")
     this.source.edges._select.emit()
+  }
+
+  direct_selection_changed(): void {
+    if (!this._updating_direct) {
+      this.update_expanded()
+    }
   }
 
   select(renderer_views: DataRendererView[], geometry: Geometry, final: boolean, mode: SelectionMode = "replace"): boolean {
     const graph_views = renderer_views.filter(is_GraphRendererView)
     let did_hit = false
-    let expanded: GraphSelections | null = null
+    let has_result = false
+    const direct: GraphSelections = {
+      nodes: Selection.create(),
+      edges: Selection.create(),
+    }
 
     for (const target of ["nodes", "edges"] as const) {
       const views = graph_views.filter((view) => view.model.selection_target == target)
@@ -139,21 +183,14 @@ export class GraphSelectionManager extends SelectionManager {
       }
       const hit = this.source.selection_policy.hit_test(geometry, glyph_views)
       if (hit != null) {
+        has_result = true
         did_hit = !hit.is_empty() || did_hit
-        const next = this.source.selection_policy.expand(this.source, target, hit)
-        if (expanded == null) {
-          expanded = next
-        } else if (this.source.selection_policy.combine == "union") {
-          expanded.nodes.update_through_union(next.nodes)
-          expanded.edges.update_through_union(next.edges)
-        } else {
-          expanded.nodes.update_through_intersection(next.nodes)
-          expanded.edges.update_through_intersection(next.edges)
-        }
+        direct[target] = hit
       }
     }
-    if (expanded != null) {
-      this._select(expanded, final, mode)
+    if (has_result) {
+      this._update_direct(direct, final, mode)
+      this.update_expanded(final)
     }
     return did_hit
   }
@@ -197,33 +234,34 @@ export class GraphSelectionManager extends SelectionManager {
   invert(): void {
     const node_length = this.source.nodes.get_length()
     if (node_length != null) {
-      this.source.nodes.selected.invert(node_length)
-      this.source.nodes._select.emit()
+      this.source.selected.nodes.invert(node_length)
     }
     const edge_length = this.source.edges.get_length()
     if (edge_length != null) {
-      this.source.edges.selected.invert(edge_length)
-      this.source.edges._select.emit()
+      this.source.selected.edges.invert(edge_length)
     }
+    this.update_expanded()
   }
 
   clear(): void {
-    this.source.nodes.selected.clear()
-    this.source.edges.selected.clear()
-    this.source.nodes._select.emit()
-    this.source.edges._select.emit()
+    this._updating_direct = true
+    try {
+      this.source.selected.nodes.clear()
+      this.source.selected.edges.clear()
+    } finally {
+      this._updating_direct = false
+    }
+    this.update_expanded()
   }
 
-  get_selection(): SelectionState {
-    return {nodes: this.source.nodes.selected, edges: this.source.edges.selected}
+  get_selection(): GraphSelection {
+    return this.source.selected
   }
 
   update_selection(selection: SelectionState): void {
-    if (!(selection instanceof Selection)) {
-      this.source.nodes.selected.update(selection.nodes, true)
-      this.source.edges.selected.update(selection.edges, true)
-      this.source.nodes._select.emit()
-      this.source.edges._select.emit()
+    if (selection instanceof GraphSelection) {
+      this._update_direct(selection, true, "replace")
+      this.update_expanded()
     }
   }
 }

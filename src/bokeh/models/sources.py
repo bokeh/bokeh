@@ -52,7 +52,12 @@ from ..util.dependencies import uses_pandas
 from ..util.serialization import convert_datetime_array
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
-from .selections import GraphSelectionPolicy, Selection, SelectionPolicy
+from .selections import (
+    GraphSelection,
+    GraphSelectionPolicy,
+    Selection,
+    SelectionPolicy,
+)
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -829,6 +834,48 @@ def _mesh_cell_source(cells: Any, connectivity_field: str) -> IndexedDataSource:
         connectivity = cells
     else:
         connectivity = list(cells)
+
+        def is_record(cell: Any) -> bool:
+            return (
+                isinstance(cell, Mapping) or
+                (
+                    isinstance(cell, Sequence) and
+                    not isinstance(cell, (str, bytes)) and
+                    len(cell) == 2 and
+                    isinstance(cell[1], Mapping)
+                )
+            )
+
+        if connectivity and any(is_record(cell) for cell in connectivity):
+            if not all(is_record(cell) for cell in connectivity):
+                raise ValueError("mesh cells cannot mix connectivity sequences and cell records")
+
+            records = []
+            for cell in connectivity:
+                if isinstance(cell, Mapping):
+                    record = dict(cell)
+                    if connectivity_field not in record:
+                        raise ValueError(f"mesh cell records must define the {connectivity_field!r} connectivity field")
+                else:
+                    indices, attrs = cell
+                    if connectivity_field in attrs:
+                        raise ValueError(f"mesh cell attributes cannot contain the reserved {connectivity_field!r} field")
+                    record = {connectivity_field: indices, **attrs}
+
+                indices = record[connectivity_field]
+                if isinstance(indices, np.ndarray):
+                    if indices.ndim != 1 or not np.issubdtype(indices.dtype, np.integer):
+                        raise ValueError("mesh connectivity indices must be integers")
+                elif not isinstance(indices, Sequence) or isinstance(indices, (str, bytes)):
+                    raise ValueError("mesh connectivity must contain sequences of integer vertex indices")
+                elif any(not isinstance(index, (int, np.integer)) for index in indices):
+                    raise ValueError("mesh connectivity indices must be integers")
+                record[connectivity_field] = list(indices)
+                records.append(record)
+
+            fields = list(dict.fromkeys(field for record in records for field in record))
+            return ColumnDataSource({field: [record.get(field) for record in records] for field in fields})
+
         if connectivity and all(isinstance(index, (int, np.integer)) for index in connectivity):
             connectivity = [connectivity]
         if any(not isinstance(cell, Sequence) or isinstance(cell, (str, bytes)) for cell in connectivity):
@@ -847,6 +894,10 @@ class MeshDataSource(IndexedDataSource):
     optional cell attributes. The primary selectable and filterable record axis
     is the cell axis. By default the mesh and its ``cells`` source share the
     same selection and selection policy.
+
+    In addition to connectivity arrays and column mappings, ``cells`` accepts
+    row mappings or ``(connectivity, attributes)`` pairs. This keeps values
+    computed per element next to their connectivity during mesh construction.
 
     BokehJS exposes virtual ``xs``, ``ys``, and (when present) ``zs`` fields by
     gathering vertex coordinates through cell connectivity. This keeps shared
@@ -1131,6 +1182,12 @@ class GraphDataSource(DataSource):
 
     edges = Readonly(Instance(IndexedDataSource), default=_default_graph_edges, help="""
     The indexed data source containing edge records.
+    """)
+
+    selected = Readonly(Instance(GraphSelection), default=InstanceDefault(GraphSelection), help="""
+    The directly selected node and edge records, before selection-policy
+    expansion. Expanded selections are available from ``nodes.selected`` and
+    ``edges.selected``.
     """)
 
     selection_policy = Instance(GraphSelectionPolicy, default=InstanceDefault(GraphSelectionPolicy), help="""

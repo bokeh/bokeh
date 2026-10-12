@@ -140,6 +140,27 @@ class TestPatchDocument:
         foos.sort()
         assert foos == [ 2, 42 ]
 
+    def test_create_then_apply_vectorized_decoration_inset(self) -> None:
+        sample = document.Document()
+        source = ColumnDataSource(data=dict(
+            xs=[[0, 1]], ys=[[0, 1]], inset=[12], updated_inset=[18],
+        ))
+        renderer = GlyphRenderer(data_source=source, glyph=MultiLine())
+        decoration = renderer.add_decoration(
+            NormalHead(size=14), "end", inset="inset",
+        )
+        sample.add_root(renderer)
+        copy = document.Document.from_json(sample.to_json())
+        copy_decoration = copy.get_model_by_id(decoration.id)
+        assert isinstance(copy_decoration, Decoration)
+
+        events = []
+        sample.on_change(events.append)
+        decoration.inset = "updated_inset"
+        apply_patch(patch_doc(events), copy)
+
+        assert copy_decoration.inset.field == "updated_inset"
+
     def test_create_then_apply_geometry_record_events(self) -> None:
         sample = document.Document()
         source = GeometryDataSource([
@@ -240,11 +261,16 @@ class TestPatchDocument:
         assert isinstance(copy_source.edges, ColumnDataSource)
         assert copy_source.edges.data == source.edges.data
 
+        events.clear()
+        source.selected.nodes.indices = [1]
+        apply_patch(patch_doc(events), copy)
+        assert copy_source.selected.nodes.indices == [1]
+
     def test_create_then_apply_mesh_child_events(self) -> None:
         sample = document.Document()
         source = MeshDataSource(
             vertices=[[0, 0], [1, 0], [0, 1]],
-            cells={"vertices": [[0, 1, 2]], "value": [1]},
+            cells=[([0, 1, 2], {"value": 1})],
         )
         sample.add_root(source)
 

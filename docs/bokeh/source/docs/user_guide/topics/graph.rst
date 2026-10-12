@@ -210,6 +210,41 @@ Changing graph topology, node layout, or path-provider settings recomputes the
 sampled paths in the browser. Only graph data and model settings synchronize in
 server sessions.
 
+Directed edges
+--------------
+
+Add arrowheads as decorations on the edge renderer. Unlike a separate marker
+glyph, a ``MultiLine`` decoration follows the actual sampled edge path, uses its
+end tangent for orientation, and participates in the edge renderer's selection,
+nonselection, hover, and muted visual states. ``inset`` moves the tip inward by
+screen pixels. The edge shaft stops automatically at the rear of the arrowhead
+instead of continuing underneath it, so that the tip can meet the destination
+node cleanly:
+
+.. code-block:: python
+
+    from bokeh.models import NormalHead
+
+    graph.edge_renderer.selection_glyph = graph.edge_renderer.glyph.clone(
+        line_color="#f28e2b", line_width=4,
+    )
+    graph.edge_renderer.add_decoration(
+        NormalHead(size=14, fill_color="#718096", line_color=None),
+        "end",
+        inset=10,
+        selection_marking=NormalHead(
+            size=18, fill_color="#f28e2b", line_color=None,
+        ),
+    )
+
+Arrowhead visual properties and ``inset`` are data specs, so field names can
+vary their values per edge. The same API works for straight, arc, Bezier,
+orthogonal, self-loop, and explicit edge paths. State-specific markings apply
+to explicitly configured state glyphs; an ``"auto"`` state reuses the primary
+decoration. Edge hit testing follows the visible decorated geometry: the shaft
+and arrowhead are interactive, but the clipped continuation beyond the tip is
+not.
+
 Explicit paths
 --------------
 
@@ -327,19 +362,31 @@ to two hops from each direct hit. Set ``node_hops_mode="exact"`` to include only
 the two-hop frontier, ``include_direct=False`` to omit the root nodes, or
 ``node_direction="in"`` or ``"out"`` for directed traversal.
 
-Persistent expansion updates the normal ``selected`` state of the child
-sources; transient expansion updates their ``inspected`` state. This means
-standalone JavaScript and Bokeh server callbacks observe the same state, and
-node identifiers can be recovered without a graph-specific callback API:
+Selection tools first update ``GraphDataSource.selected.nodes`` or ``edges``.
+The graph policy then expands those direct selections into the normal
+``selected`` state of the child sources. Keeping both states is important for
+selection modes: for example, tapping a selected root again toggles that root
+off rather than applying the toggle to all of its derived neighbors.
+
+Transient expansion updates the child sources' ``inspected`` state. Direct and
+expanded persistent selections are serialized models, so standalone JavaScript
+and Bokeh server callbacks observe the same state. Node identifiers can be
+recovered without a graph-specific callback API:
 
 .. code-block:: python
 
-    node_source = graph.data_source.nodes
+    graph_source = graph.data_source
+    node_source = graph_source.nodes
+
+    def direct_nodes(attr, old, indices):
+        node_ids = [node_source.data["index"][i] for i in indices]
+        print("direct", node_ids)
 
     def selected_nodes(attr, old, indices):
         node_ids = [node_source.data["index"][i] for i in indices]
-        print(node_ids)
+        print("expanded", node_ids)
 
+    graph_source.selected.nodes.on_change("indices", direct_nodes)
     node_source.selected.on_change("indices", selected_nodes)
 
 You can customize the ``selection_glyph``, ``nonselection_glyph``,
@@ -348,26 +395,36 @@ to add dynamic visual elements to your graph interactions.
 
 Below are examples of graphs with added node and edge interactions:
 
+These examples use the same directed network. Arrowheads distinguish source
+from destination. The neighborhood examples follow outgoing edges, while the
+incident-edge and endpoint policies include touching components regardless of
+edge direction.
+
 .. tab-set::
 
     .. tab-item:: Nodes and incident edges
 
-        .. bokeh-plot:: __REPO__/examples/topics/graph/interaction_nodeslinkededges.py
+        .. bokeh-plot:: __REPO__/examples/topics/graph/select_nodes_and_incident_edges.py
             :source-position: above
 
     .. tab-item:: Edges and endpoint nodes
 
-        .. bokeh-plot:: __REPO__/examples/topics/graph/interaction_edgeslinkednodes.py
+        .. bokeh-plot:: __REPO__/examples/topics/graph/select_edges_and_end_nodes.py
             :source-position: above
 
-    .. tab-item:: One-hop neighborhood
+    .. tab-item:: Outgoing one-hop neighborhood
 
-        .. bokeh-plot:: __REPO__/examples/topics/graph/interaction_nodesadjacentnodes.py
+        .. bokeh-plot:: __REPO__/examples/topics/graph/select_nodes_and_neighbors.py
             :source-position: above
 
-    .. tab-item:: Two-hop neighborhood
+    .. tab-item:: Outgoing two-hop neighborhood
 
-        .. bokeh-plot:: __REPO__/examples/topics/graph/interaction_nodes_n_hops.py
+        .. bokeh-plot:: __REPO__/examples/topics/graph/select_nodes_within_two_hops.py
+            :source-position: above
+
+    .. tab-item:: Selection and inspection
+
+        .. bokeh-plot:: __REPO__/examples/topics/graph/selection_and_inspection.py
             :source-position: above
 
 Node and edge attributes

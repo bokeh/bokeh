@@ -281,6 +281,41 @@ def test_fastapi_shared_data_streams_to_independent_sessions(browser: Any) -> No
                 page.close()
 
 
+@pytest.mark.parametrize(("target", "slider", "value", "condition"), [
+    (
+        "geometry_updates:application", "geometry-count", 6,
+        "Bokeh.documents[0].get_model_by_name('geometry-source').geometries.length === 6",
+    ),
+    (
+        "graph_updates:application", "graph-count", 7,
+        "Bokeh.documents[0].get_model_by_name('graph-source').nodes.get('index').length === 7",
+    ),
+    (
+        "mesh_updates:application", "mesh-center", 1.35,
+        "Bokeh.documents[0].get_model_by_name('mesh-source').vertices.get('x')[4] === 1.35",
+    ),
+], ids=["geometry", "graph", "mesh"])
+def test_structured_sources_update_over_asgi_websockets(
+    browser: Any, target: str, slider: str, value: float, condition: str,
+) -> None:
+    with _running_app(target) as url:
+        page = browser.new_page()
+        errors = _page_errors(page)
+        try:
+            response = page.goto(url, wait_until="domcontentloaded")
+            assert response is not None
+            assert response.ok
+            _wait_for_document(page)
+            page.evaluate(
+                "([name, value]) => Bokeh.documents[0].get_model_by_name(name).value = value",
+                [slider, value],
+            )
+            page.wait_for_function(f"() => {condition}", timeout=10_000)
+            assert errors == []
+        finally:
+            page.close()
+
+
 def test_streamlit_simple_runs_bokeh_callbacks_in_its_iframe(browser: Any) -> None:
     with _running_app("streamlit_simple:app") as url:
         page = browser.new_page()

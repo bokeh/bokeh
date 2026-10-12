@@ -29,7 +29,12 @@ from ..core.has_props import Setter
 from ..model.model import Model, _ModelInit
 from .callbacks import CustomJS
 from .filters import Filter
-from .selections import GraphSelectionPolicy, Selection, SelectionPolicy
+from .selections import (
+    GraphSelection,
+    GraphSelectionPolicy,
+    Selection,
+    SelectionPolicy,
+)
 
 __all__ = (
     "AjaxDataSource",
@@ -117,7 +122,8 @@ class ColumnDataSource(ColumnarDataSource):
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
 type MeshVertices = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[Sequence[float]] | npt.NDArray[Any]
-type MeshCells = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[int] | Sequence[Sequence[int]] | npt.NDArray[Any]
+type MeshCellRecord = Mapping[str, Any] | tuple[Sequence[int], Mapping[str, Any]]
+type MeshCells = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[int] | Sequence[Sequence[int] | MeshCellRecord] | npt.NDArray[Any]
 
 class _MeshDataSourceInit(_IndexedDataSourceInit, total=False):
     vertices: MeshVertices
@@ -147,6 +153,7 @@ class _GraphDataSourceInit(_DataSourceInit, total=False):
     graph: Any
     nodes: GraphNodes
     edges: GraphEdges
+    selected: GraphSelection
     selection_policy: GraphSelectionPolicy
 
 class GraphDataSource(DataSource):
@@ -157,6 +164,7 @@ class GraphDataSource(DataSource):
 
     nodes: IndexedDataSource = ...
     edges: IndexedDataSource = ...
+    selected: GraphSelection = ...
     selection_policy: GraphSelectionPolicy = ...
 
 type Geometry = Mapping[str, Any]
