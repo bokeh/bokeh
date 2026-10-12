@@ -91,6 +91,7 @@ def test_playwright_thread_propagates_cancellation() -> None:
 
 
 @pytest.mark.skipif(not hasattr(os, "fork"), reason="requires POSIX fork")
+@pytest.mark.filterwarnings("ignore:This process .* is multi-threaded:DeprecationWarning")
 def test_playwright_thread_restarts_after_fork() -> None:
     context = multiprocessing.get_context("fork")
     receiver, sender = context.Pipe(duplex=False)

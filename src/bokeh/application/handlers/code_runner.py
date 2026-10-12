@@ -182,6 +182,8 @@ class CodeRunner:
             Module
 
         '''
+        from importlib.machinery import SourceFileLoader
+        from importlib.util import spec_from_loader
         from types import ModuleType
 
         self.reset_run_errors()
@@ -198,6 +200,10 @@ class CodeRunner:
         if basename(self.path) == "__init__.py":
             module.__package__ = module_name
             module.__path__ = [os.path.dirname(self._path)]
+
+        spec_name = f"{self._package.__name__}.{module_name}" if self._package else module_name
+        module.__loader__ = SourceFileLoader(spec_name, os.path.abspath(self._path))
+        module.__spec__ = spec_from_loader(spec_name, module.__loader__, is_package=hasattr(module, "__path__") and not self._package)
 
         return module
 
