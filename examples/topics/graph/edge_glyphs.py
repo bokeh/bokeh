@@ -46,11 +46,11 @@ for title, glyph_type in (
     plots.append(p)
 
 intro = Div(text="""
-<h2 style="margin: 0 0 0.35em">One topology, three edge geometries</h2>
-<p style="margin: 0">The routed <code>MultiLine</code> follows every supplied
-vertex, <code>Segment</code> connects only the two endpoints, and
-<code>Bezier</code> follows its control points. All three use the same nodes,
-directed edges, selections, and arrow decorations.</p>
+<h2 style="margin: 0 0 0.35em">Graph edge glyphs</h2>
+<p style="margin: 0">These plots render the same directed graph with three
+edge glyphs. <code>MultiLine</code> follows supplied vertices,
+<code>Segment</code> connects the endpoints, and <code>Bezier</code> follows
+its control points.</p>
 """, width=900)
 
 show(column(intro, row(*plots)))
