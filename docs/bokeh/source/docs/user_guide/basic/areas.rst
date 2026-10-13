@@ -107,7 +107,7 @@ Simple polygon
 
 The following example renders a single Polygon feature:
 
-.. bokeh-plot:: __REPO__/examples/basic/areas/patch_single.py
+.. bokeh-plot:: __REPO__/examples/basic/areas/polygon_coordinates.py
     :source-position: above
 
 Multiple polygons
@@ -116,7 +116,7 @@ Multiple polygons
 Each record in the following example is independently selectable and carries
 its own vectorized style attributes:
 
-.. bokeh-plot:: __REPO__/examples/basic/areas/patch_multiple.py
+.. bokeh-plot:: __REPO__/examples/basic/areas/polygon_records.py
     :source-position: above
 
 .. _ug_basic_areas_meshes:
@@ -156,12 +156,12 @@ Use a MultiPolygon when one logical feature has disjoint parts. This avoids
 sentinel ``NaN`` coordinates and keeps hit testing and selection attached to
 the complete feature:
 
-.. bokeh-plot:: __REPO__/examples/basic/areas/patch_missing_points.py
+.. bokeh-plot:: __REPO__/examples/basic/areas/multipolygon_disjoint_parts.py
     :source-position: above
 
 The equivalent simple Polygon representation is shown separately here:
 
-.. bokeh-plot:: __REPO__/examples/basic/areas/multipolygon_simple.py
+.. bokeh-plot:: __REPO__/examples/basic/areas/polygon_simple.py
     :source-position: above
 
 Polygon with holes
@@ -170,7 +170,7 @@ Polygon with holes
 The following example generates a Polygon with two holes. The first ring is
 the exterior and the following rings are holes:
 
-.. bokeh-plot:: __REPO__/examples/basic/areas/multipolygon_with_holes.py
+.. bokeh-plot:: __REPO__/examples/basic/areas/polygon_with_holes.py
     :source-position: above
 
 Multi-polygon with separate parts
@@ -182,13 +182,13 @@ MultiPolygon below represents one part of the same selectable feature:
 .. bokeh-plot:: __REPO__/examples/basic/areas/multipolygon_with_separate_parts.py
     :source-position: above
 
-Multiple multi-polygons
-~~~~~~~~~~~~~~~~~~~~~~~
+Mixed polygon features
+~~~~~~~~~~~~~~~~~~~~~~
 
 The top-level sequence separates features. Each record can contain either a
 Polygon or MultiPolygon and corresponding attributes such as a color:
 
-.. bokeh-plot:: __REPO__/examples/basic/areas/multipolygons.py
+.. bokeh-plot:: __REPO__/examples/basic/areas/polygon_features.py
     :source-position: above
 
 .. note::
