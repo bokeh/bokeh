@@ -1,3 +1,40 @@
+2026-10-13   3.10.1:
+--------------------
+  * bugfixes:
+    - #12187 [component: bokehjs] [BUG] Dates displayed as zero epoch in a DataTable is one element isn't a date
+    - #14593 [component: bokehjs] Setting `toolbar.active_drag` with CustomJS event listeners breaks context menu with `is_empty` error
+    - #15277 [component: bokehjs] Bound WebGL patch line accumulation to each ring
+    - #15279 [component: bokehjs] WebGL marker updates across data and selection changes can break
+    - #15280 [component: bokehjs] Harden WebGL numeric precision
+    - #15358 [component: bokehjs] build_views can leak orphaned view when called rapidly
+    - #15376 [component: bokehjs] Outside legend in Gridplot can overlap with toolbar
+    - #15396 diverging_palette returns the wrong number of colors for odd n
+    - #15401 Playwright backend raises error if "png" and "svg" are exported for the same plot in the same python file
+    - #15402 Playwright raises NotImplementedError if `export_png()` or `export_svg()`  is called in a Jupyter Notebook
+    - #13225 [component: bokehjs] [BUG] Gridplot with one figure having a title and another `frame_height` removes xlabel
+    - #14492 [component: bokehjs] `frame_width` and `frame_height` doesn't work in complex layouts
+    - #15214 [component: bokehjs] Prune selection on ColumnDataSource update
+    - #15320 The shared WebGL canvas is resized once per plot per repaint, which reallocates its drawing buffer when adjacent plots differ in size
+    - #15345 [component: bokehjs] [BUG] Y-axis autoscaling snaps to full range on legend toggle (Bokeh 3.7.0+)
+    - #15373 [component: bokehjs] Stabilize localized WebGL multiline rendering
+    - #15438 RGB.to_hsl rounds hue to whole degrees, so RGB -> HSL -> RGB is lossy for ~41% of colours
+    - #15453 [component: bokehjs] Patch webgl give different result on 3.10
+    - #15456 [component: bokehjs] Column and row children is cropped
+    - #15470 Serialization overflows for pandas timestamps outside the nanosecond range
+    - #15471 Datetime pickers discard time components since Bokeh 3.9.0
+
+  * tasks:
+    - #14888 Mutable default arguments ([] / {}) can cause shared state and subtle bugs
+    - #15361 Type missmatch in `transfrom.py`
+    - #15366 Fix docstring parameter names that do not match signatures
+    - #15464 [component: bokehjs] Use indirect eval for CustomJS imports
+    - #15466 Performance regression after latest WebGL updates
+    - #15477 [component: bokehjs] Improve CSS color performance
+    - #15479 [component: bokehjs] Avoid repeated indices generation during paint.
+    - #15482 [component: bokehjs] Avoid unnecessary allocations when applying selection from Bitset
+    - #15484 [component: bokehjs] Improve SingleMarkerGL performance.
+    - #15410 Fix Windows Pyright check for fork hook
+
 2026-08-18     3.10:
 --------------------
   * bugfixes:
