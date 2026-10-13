@@ -101,7 +101,7 @@ Examples:
             x_end: values or field name of ending x-coordinates
             y_end: values or field name of ending y-coordinates
             start: optional marking at the start of each arrow
-            end: optional marking at the end of each arrow; ``"auto"`` uses
+            end: optional marking at the end of each arrow. ``"auto"`` uses
                 an :class:`~bokeh.models.annotations.OpenHead`
             start_inset: screen-pixel inset for the start marking
             end_inset: screen-pixel inset for the end marking

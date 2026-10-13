@@ -251,7 +251,7 @@ export abstract class GlyphAPI {
     } else if (args.length == 4 || args.length == 5) {
       const [x_start, y_start, x_end, y_end, options] = args
       if (options != null && (!isPlainObject(options) || isVectorized(options))) {
-        throw new Error(`expected optional arguments; ${signature()}`)
+        throw new Error(`expected optional arguments: ${signature()}`)
       }
       attrs = {
         ...(options as Partial<ArrowArgs> | undefined),
@@ -261,7 +261,7 @@ export abstract class GlyphAPI {
         y_end: y_end as ArrowArgs["y_end"],
       }
     } else {
-      throw new Error(`wrong number of arguments; ${signature()}`)
+      throw new Error(`wrong number of arguments: ${signature()}`)
     }
 
     const {

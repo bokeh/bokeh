@@ -163,14 +163,14 @@ class GlyphRenderer(DataRenderer):
             muted_marking: Marking | Literal["auto"] | None = "auto") -> Decoration:
         """Add a decoration to the glyph and its visual-state glyphs.
 
-        The first argument selects ``"start"``, ``"middle"``, or ``"end"``;
-        the second supplies the marking.
+        The first argument selects ``"start"``, ``"middle"``, or ``"end"``.
+        The second supplies the marking.
 
         State-specific markings can be supplied when a decoration should track
         selection, nonselection, hover, or muted styling. ``"auto"`` reuses the
         primary marking and ``None`` omits the decoration for that state. A
-        state-specific marking requires an explicitly configured state glyph;
-        auto-generated glyphs reuse the primary decoration.
+        state-specific marking requires an explicitly configured state glyph.
+        Auto-generated glyphs reuse the primary decoration.
         """
         decoration = Decoration(marking=marking, node=node, inset=inset)
         self.glyph.decorations.append(decoration)

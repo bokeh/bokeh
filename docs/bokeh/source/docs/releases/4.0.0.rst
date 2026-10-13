@@ -16,10 +16,10 @@ Removals
 * Removed the ``Arrow`` annotation model. Replace
   ``plot.add_layout(Arrow(x_start=..., y_start=..., x_end=..., y_end=...))``
   with ``renderer = plot.arrow(x_start=..., y_start=..., x_end=..., y_end=...)``.
-  The returned ``GlyphRenderer`` draws decorated segments; change shaft
+  The returned ``GlyphRenderer`` draws decorated segments. Change shaft
   properties on ``renderer.glyph`` and head properties on its decorations.
   Existing ``OpenHead``, ``NormalHead``, ``VeeHead``, and ``TeeHead`` models
-  remain available. Endpoints use data coordinates; head sizes and decoration
+  remain available. Endpoints use data coordinates. Head sizes and decoration
   insets use screen pixels. See :ref:`ug_basic_annotations_arrows` for examples.
 
 API changes

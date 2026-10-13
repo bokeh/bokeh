@@ -1,4 +1,4 @@
-''' A display of available arrow head styles.
+''' Open, normal, tee, and vee arrowhead styles.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.Label, bokeh.plotting.figure.arrow

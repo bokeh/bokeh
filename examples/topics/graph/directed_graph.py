@@ -75,7 +75,7 @@ size = Slider(title="Node size multiplier", start=0.6, end=1.8, value=1, step=0.
 size.js_on_change("value", CustomJS(args=dict(nodes=nodes, edges=edges), code="""
     nodes.data.size = nodes.data.base_size.map((size) => size*cb_obj.value)
     const sizes = new Map(nodes.data.index.map((id, i) => [id, nodes.data.size[i]]))
-    // Scatter circle size is a screen-pixel diameter; leave a 2px gap.
+    // Scatter circle size is a screen-pixel diameter. Leave a 2px gap.
     edges.data.end_inset = edges.data.end.map((id) => sizes.get(id)/2 + 2)
     nodes.change.emit()
     edges.change.emit()

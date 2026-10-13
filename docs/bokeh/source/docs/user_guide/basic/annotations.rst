@@ -510,7 +510,7 @@ multi-segment paths without calling ``figure.arrow()``:
     :source-position: above
 
 For a ``Line``, the first data row supplies the marking's size, inset, and
-non-inherited visuals; start and end refer to the entire finite path, including
+non-inherited visuals. Start and end refer to the entire finite path, including
 across NaN-separated subpaths. A middle marking follows the visual state of
 the segment containing the midpoint by path length. ``Bezier`` decorations use
 adaptive screen-space subdivision with a 0.25-pixel chord tolerance and a

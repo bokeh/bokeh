@@ -149,8 +149,8 @@ Add arrowheads to a graph's ``MultiLine`` edge renderer with
 
 Store ``end_inset`` in the edge data source. For circular ``Scatter`` nodes,
 set each edge's inset to half its target node's screen-pixel ``size`` plus
-the desired gap. If node sizes change, update these edge values as well;
-decorations do not automatically look up the target node's geometry.
+the desired gap. If node sizes change, update these edge values as well.
+Decorations do not automatically look up the target node's geometry.
 Arrowheads follow the final tangent of sampled edge paths, and the shaft
 stops behind each head. Other node shapes require their own boundary-distance
 calculation.
@@ -168,7 +168,7 @@ Alternate edge glyphs
 A ``Segment`` edge connects the first and last points supplied by the layout
 provider. Its endpoint units must be ``"data"``. A ``Bezier`` edge uses those
 same endpoints and accepts four per-edge control columns: ``cx0``, ``cy0``,
-``cx1``, and ``cy1``. Supply all four with one value per edge; if omitted,
+``cx1``, and ``cy1``. Supply all four with one value per edge. If omitted,
 controls are placed at one-third and two-thirds of the straight connection.
 A custom BokehJS layout provider can override ``get_edge_control_coordinates``
 to compute the controls instead. Layout changes and edge-source updates remap

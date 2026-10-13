@@ -98,8 +98,8 @@ describe("Endpoint decorations", () => {
       sinon.assert.calledOnce(paint)
       sinon.assert.calledOnce(rotate)
       // Adaptive subdivision approximates the analytic horizontal start and
-      // vertical end tangents to within three degrees for this curve;
-      // the endpoint chord would be diagonal (45 degrees away).
+      // vertical end tangents to within three degrees for this curve.
+      // The endpoint chord would be diagonal (45 degrees away).
       const expected_angle = node == "start" ? 3*Math.PI/2 : Math.PI
       expect(Math.abs(rotate.firstCall.args[0] - expected_angle) < Math.PI/60).to.be.true
     })
