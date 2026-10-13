@@ -471,7 +471,7 @@ class Serializer:
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        object_strings = array.dtype.kind == "O" and all(type(value) is str for value in array.flat)
+        object_strings = array.dtype.kind == "O" and str not in self._encoders and all(type(value) is str for value in array.flat)
         if array.dtype.kind == "U" or object_strings:
             values = array.ravel().tolist()
             if mask is not None:

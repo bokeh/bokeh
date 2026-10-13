@@ -621,6 +621,22 @@ class TestSerializer:
         )
         assert encoder.buffers == []
 
+    def test_ndarray_object_strings_registered(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(Serializer, "_encoders", Serializer._encoders.copy())
+        Serializer.register(str, lambda value, serializer: f"encoded:{value}")
+
+        encoder = Serializer()
+        rep = encoder.encode(np.array(["a"], dtype=object))
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["encoded:a"],
+            order=sys.byteorder,
+            shape=[1],
+            dtype="object",
+        )
+        assert encoder.buffers == []
+
     @pytest.mark.parametrize(
         "val, expected",
         [
