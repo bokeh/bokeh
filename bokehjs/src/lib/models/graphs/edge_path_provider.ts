@@ -169,18 +169,20 @@ export class EdgeCoordinates extends GraphCoordinates {
 
 export namespace EdgePointCoordinates {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = EdgeCoordinates.Props & {
+  export type Props = GraphCoordinates.Props & {
+    path: p.Property<EdgePathProvider>
     point: p.Property<"start" | "end" | "control0" | "control1">
   }
 }
 
 export interface EdgePointCoordinates extends EdgePointCoordinates.Attrs {}
 
-export class EdgePointCoordinates extends EdgeCoordinates {
+export class EdgePointCoordinates extends GraphCoordinates {
   declare properties: EdgePointCoordinates.Props
 
   static {
-    this.define<EdgePointCoordinates.Props>(({Enum}) => ({
+    this.define<EdgePointCoordinates.Props>(({Enum, Ref}) => ({
+      path: [ Ref(EdgePathProvider) ],
       point: [ Enum("start", "end", "control0", "control1") ],
     }))
   }

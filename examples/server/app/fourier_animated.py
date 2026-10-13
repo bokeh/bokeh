@@ -1,100 +1,98 @@
-""" Show a streaming, animated representation of Fourier Series.
+"""Show how rotating Fourier terms build a square wave.
 
-The example was inspired by `this video`_.
-
-Use the ``bokeh serve`` command to run the example by executing:
+Run this example with::
 
     bokeh serve fourier_animated.py
 
-at your command prompt. Then navigate your browser to the URL
-
-    http://localhost:5006/fourier_animated
-
-.. _this video: https://www.youtube.com/watch?v=LznjC4Lo7lE
-
+Then open ``http://localhost:5006/fourier_animated`` in a browser.
 """
-from numpy import array, cos, cumsum, hstack, linspace, pi, roll, sin
+
+from numpy import array, cos, cumsum, hstack, linspace, pi, sin
 
 from bokeh.driving import repeat
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import DataView, ColumnDataSource, IndexFilter
+from bokeh.models import ColumnDataSource, Div
 from bokeh.plotting import figure
 
-palette = ("#08519c", "#3182bd", "#6baed6", "#bdd7e7")
-dashing = ("dotted", "solid", "solid", "solid")
+samples = 200
+angles = linspace(0, 2*pi, samples, endpoint=False)
+harmonics = array([1, 3, 5, 7])
+amplitudes = 4/(pi*harmonics)
+colors = ("#08519c", "#3182bd", "#6baed6", "#bdd7e7")
+wave_start = 2.75
 
-N = 100
-x = linspace(0, 2*pi, N, endpoint=False)
-xoff = 2.5
-xend = xoff + 2*pi*(N-1)/N
-A = 4/pi * array([1, 1/3, 1/5, 1/7])
-w = array([1, 3, 5, 7])
 
-lines_source = ColumnDataSource({f"y{i}": A[i] * sin(w[i]*x) for i in range(len(A))})
-lines_source.data["y"] = sum(lines_source.data.values())
-lines_source.data["x"] = x + xoff
+def frame(index):
+    phase = 2*pi*index/samples
+    dx = amplitudes*cos(harmonics*phase)
+    dy = amplitudes*sin(harmonics*phase)
+    tip_x = cumsum(dx)
+    tip_y = cumsum(dy)
+    center_x = hstack([[0], tip_x[:-1]])
+    center_y = hstack([[0], tip_y[:-1]])
 
-def update_term_data(i):
-    x, y = A * cos(2*pi*w*i/N), A * sin(2*pi*w*i/N)
-    xsum, ysum = hstack([[0], cumsum(x)]), hstack([[0], cumsum(y)])
-    return { "xterm-dot": x,
-             "yterm-dot": y,
-             "xterm-line": [[0, xx, 2.5] for xx in x],
-             "yterm-line": [[0, yy, yy] for yy in y],
-             "xsum-dot": xsum[1:],
-             "ysum-dot": ysum[1:],
-             "xsum-circle": xsum[:-1],
-             "ysum-circle": ysum[:-1] }
+    wave = (amplitudes[:, None]*sin(harmonics[:, None]*(angles + phase))).sum(axis=0)
+    curve_x = hstack([[tip_x[-1], wave_start], wave_start + angles])
+    curve_y = hstack([[tip_y[-1], tip_y[-1]], wave])
 
-items_source = ColumnDataSource({"r": A, "color": palette, "dashing": dashing})
-items_source.data.update(update_term_data(0))
+    epicycles = dict(center_x=center_x, center_y=center_y, tip_x=tip_x, tip_y=tip_y)
+    curve = dict(x=curve_x, y=curve_y)
+    return epicycles, curve
 
-terms_plot = figure(title="First four square-wave harmonics, individually",
-                    height=400, width=820, x_range=(-2.5, xend), y_range=(-2.5, 2.5),
-                    tools="", toolbar_location=None)
 
-terms_plot.circle(0, 0, radius=A, color=palette, line_width=2, line_dash=dashing, fill_color=None)
+epicycle_data, curve_data = frame(0)
+epicycles = ColumnDataSource(dict(
+    radius=amplitudes,
+    color=colors,
+    **epicycle_data,
+))
+curve = ColumnDataSource(curve_data)
 
-for i in range(4):
-    legend_label = f"4sin({i*2+1}x)/{i*2+1}pi" if i else "4sin(x)/pi"
-    terms_plot.line("x", f"y{i}", color=palette[i], line_width=2,
-                    source=lines_source, legend_label=legend_label)
+plot = figure(
+    height=520,
+    max_width=1000,
+    sizing_mode="stretch_width",
+    x_range=(-2.1, wave_start + 2*pi),
+    y_range=(-1.8, 1.8),
+    tools="",
+    toolbar_location=None,
+    title="Four odd harmonics tracing a square-wave approximation",
+    background_fill_color="#f7f9fc",
+    outline_line_color="#d9e1ea",
+)
 
-terms_plot.scatter("xterm-dot", "yterm-dot", size=5, color="color", source=items_source)
+plot.circle(
+    "center_x", "center_y", radius="radius",
+    line_color="color", line_width=2, fill_color=None,
+    source=epicycles,
+)
+plot.segment(
+    "center_x", "center_y", "tip_x", "tip_y",
+    line_color="color", line_width=2,
+    source=epicycles,
+)
+plot.scatter("tip_x", "tip_y", size=7, color="color", source=epicycles)
+plot.line("x", "y", color="#f28e2b", line_width=3, source=curve)
+plot.axis.visible = False
+plot.grid.visible = False
 
-terms_plot.multi_line("xterm-line", "yterm-line", color="color", source=items_source)
+intro = Div(text="""
+<h2 style="margin: 0 0 0.35em">Building a square wave</h2>
+<p style="margin: 0">Each circle is one odd Fourier harmonic. Their rotating
+vectors add tip-to-tail; the orange trace begins at the final tip and shows the
+resulting approximation. Every frame is computed by a Python server callback.</p>
+""", max_width=1000, sizing_mode="stretch_width")
 
-terms_plot.xgrid.bounds = terms_plot.xaxis.bounds = (-2.5, 2.5)
-terms_plot.axis.ticker.desired_num_ticks = 8
-terms_plot.legend.location = "top_right"
-terms_plot.legend.orientation = "horizontal"
 
-sum_plot = figure(title="First four square-wave harmonics, summed",
-                  height=400, width=820, x_range=(-2.5, xend), y_range=(-2.5, 2.5),
-                  tools="", toolbar_location=None)
+@repeat(range(samples))
+def update(index):
+    epicycle_data, curve_data = frame(index)
+    epicycles.data.update(epicycle_data)
+    curve.data = curve_data
 
-sum_plot.line("x", "y", color="orange", line_width=2, source=lines_source)
 
-sum_plot.circle("xsum-circle", "ysum-circle", radius="r",
-                line_color="color", line_width=2, line_dash="dashing",
-                fill_color=None, source=items_source)
-
-sum_plot.scatter("xsum-dot", "ysum-dot", size=5, color="color", source=items_source)
-
-segment_view = DataView(filter=IndexFilter([3]))
-sum_plot.segment(x0="xsum-dot", y0="ysum-dot", x1=2.5, y1="ysum-dot",
-                 color="orange", source=items_source, view=segment_view)
-
-sum_plot.xgrid.bounds = sum_plot.xaxis.bounds = (-2.5, 2.5)
-sum_plot.axis.ticker.desired_num_ticks = 8
-
-@repeat(range(N))
-def update(ind):
-    ykeys = (k for k in lines_source.data.keys() if k.startswith("y"))
-    lines_source.data.update({y: roll(lines_source.data[y], -1) for y in ykeys})
-    items_source.data.update(update_term_data(ind))
-
-curdoc().add_periodic_callback(update, 100)
-curdoc().title = "Fourier Animated"
-curdoc().add_root(column(terms_plot, sum_plot))
+doc = curdoc()
+doc.add_periodic_callback(update, 60)
+doc.title = "Fourier Animated"
+doc.add_root(column(intro, plot, max_width=1000, sizing_mode="stretch_width"))

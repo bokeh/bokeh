@@ -55,9 +55,9 @@ graph.node_renderer.nonselection_glyph = node.clone(fill_color="#d4dae3", fill_a
 edge = MultiLine(line_color="#718096", line_alpha=0.65, line_width=4)
 graph.edge_renderer.glyph = edge
 graph.edge_renderer.selection_glyph = edge.clone(line_color="#f28e2b", line_alpha=1, line_width=7)
-graph.edge_renderer.add_decoration(
+graph.edge_renderer.add_path_decoration(
     NormalHead(size=16, fill_color="#718096", line_color=None),
-    "end",
+    node="end",
     inset=18,
 )
 

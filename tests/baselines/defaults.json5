@@ -5340,6 +5340,17 @@
     loop_spacing: 0.25,
     steps: 24,
   },
+  EdgePointCoordinates: {
+    __extends__: "GraphCoordinates",
+    path: {
+      type: "symbol",
+      name: "unset",
+    },
+    point: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   ForceDirectedLayoutProvider: {
     __extends__: "LayoutProvider",
     center: [
@@ -5349,13 +5360,6 @@
     scale: 1,
     seed: 1,
     iterations: 100,
-  },
-  EdgePointCoordinates: {
-    __extends__: "GraphCoordinates",
-    point: {
-      type: "symbol",
-      name: "unset",
-    },
   },
   GraphCoordinates: {
     __extends__: "CoordinateTransform",

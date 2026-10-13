@@ -42,6 +42,34 @@ describe("algorithmic layout providers", () => {
     expect([...xs0, ...ys0].every((value) => Number.isFinite(value) && Math.abs(value) <= 1 + 1e-12)).to.be.true
   })
 
+  it("should give force layouts a canonical horizontal orientation", () => {
+    const clustered = GraphDataSource.create({
+      nodes: ["a", "b", "c", "d", "e", "f"],
+      edges: [["a", "b"], ["a", "c"], ["b", "c"], ["c", "d"], ["d", "e"], ["d", "f"], ["e", "f"]],
+    })
+    const provider = ForceDirectedLayoutProvider.create({seed: 11, iterations: 150})
+    const [xs, ys] = provider.get_node_coordinates(clustered)
+
+    const xspan = Math.max(...xs) - Math.min(...xs)
+    const yspan = Math.max(...ys) - Math.min(...ys)
+    expect(xspan).to.be.above(yspan)
+  })
+
+  it("should treat reciprocal and parallel edges as one layout connection", () => {
+    const single = GraphDataSource.create({
+      nodes: ["a", "b", "c"],
+      edges: [["a", "b"], ["b", "c"]],
+    })
+    const repeated = GraphDataSource.create({
+      nodes: ["a", "b", "c"],
+      edges: [["a", "b"], ["b", "a"], ["a", "b"], ["b", "c"]],
+    })
+    const single_provider = ForceDirectedLayoutProvider.create({seed: 9, iterations: 40})
+    const repeated_provider = ForceDirectedLayoutProvider.create({seed: 9, iterations: 40})
+
+    expect(single_provider.get_node_coordinates(single)).to.be.equal(repeated_provider.get_node_coordinates(repeated))
+  })
+
   it("should use composite identifiers in force layouts", () => {
     const composite = GraphDataSource.create({
       nodes: [[1, 2], [3, 4]],
