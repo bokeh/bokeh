@@ -189,7 +189,9 @@ export class SpatialIndex {
   }
 
   add_rect(x0: number, y0: number, x1: number, y1: number): void {
-    if (!isFinite(x0 + y0 + x1 + y1)) {
+    // x * 0 is 0 for every finite x and NaN for NaN/±Infinity, so unlike summing
+    // the coordinates this cannot overflow to Infinity for large finite values
+    if (!isFinite(x0 * 0 + y0 * 0 + x1 * 0 + y1 * 0)) {
       x0 = Infinity
       y0 = Infinity
       x1 = -Infinity
@@ -407,69 +409,45 @@ export class SpatialIndex {
   }
 
   private _optimize_item_order(): void {
-    const {n_items} = this
-    const hilbert_values = new Uint32Array(n_items)
-
-    this._compute_hilbert_values(hilbert_values)
-    // sort items by their Hilbert value
-    this._sort_by_hilbert_values(hilbert_values)
+    // two steps so the key/id buffers can be freed before the bbox copy is allocated
+    this._sort_by_hilbert_values()
+    this._apply_item_order()
   }
 
-  private _compute_hilbert_values(hilbert_values: Uint32Array) {
-    const {n_items, _bboxes, minX, minY, maxX, maxY} = this
-
-    const width = (maxX - minX)
-    const height = (maxY - minY)
-    const hilbertMax = (1 << 16) - 1
-    const scaleX = hilbertMax / width
-    const scaleY = hilbertMax / height
-
-    // calculate Hilbert values from rect center
-    for (let i = 0, pos = 0; i < n_items; i++) {
-      const _minX = _bboxes[pos++]
-      const _minY = _bboxes[pos++]
-      const _maxX = _bboxes[pos++]
-      const _maxY = _bboxes[pos++]
-      const x_center = (_minX + _maxX) * 0.5
-      const y_center = (_minY + _maxY) * 0.5
-      const x = Math.floor((x_center - minX) * scaleX)
-      const y = Math.floor((y_center - minY) * scaleY)
-      hilbert_values[i] = compute_hilbert(x, y)
-    }
-  }
-
-  private _sort_by_hilbert_values(hilbert_values: Uint32Array<ArrayBuffer>): void {
-    const {n_items, _bboxes, _indices, shift_factor_bbox} = this
+  /** Computes the Hilbert key of every item and writes the sorted item order into _indices. */
+  private _sort_by_hilbert_values(): void {
+    const {n_items, _bboxes, _indices, minX, minY, maxX, maxY} = this
 
     const BITS = 11
     const RADIX = 1 << BITS
     const MASK = RADIX - 1
-    const PASSES = Math.ceil(32 / BITS)
+    const PASSES = 3 // 3 * 11 >= 32
 
-    // one read over the hilbert_values builds the histograms for all passes
+    const hilbertMax = 65535 // (1 << 16) - 1
+    const scaleX = hilbertMax / (maxX - minX)
+    const scaleY = hilbertMax / (maxY - minY)
+
+    // interleaved [key, id] pairs: one scatter write stream instead of two
+    let src = new Uint32Array(2 * n_items)
+    let dst = new Uint32Array(2 * n_items)
     const counts = new Uint32Array(PASSES * RADIX)
-    for (let i = 0; i < n_items; i++) {
-      const k = hilbert_values[i]
+
+    // keys and all histograms in a single read over _bboxes
+    for (let i = 0, pos = 0, j = 0; i < n_items; i++, pos += 4, j += 2) {
+      const x_center = (_bboxes[pos] + _bboxes[pos + 2]) * 0.5
+      const y_center = (_bboxes[pos + 1] + _bboxes[pos + 3]) * 0.5
+      // `| 0` maps NaN (empty rects, zero extent) to 0
+      const k = compute_hilbert(((x_center - minX) * scaleX) | 0, ((y_center - minY) * scaleY) | 0)
+      src[j] = k
+      src[j + 1] = i
       for (let p = 0; p < PASSES; p++) {
         counts[p * RADIX + ((k >>> (p * BITS)) & MASK)]++
       }
     }
 
-    let keys_src: Uint32Array = hilbert_values
-    let keys_dst: Uint32Array = new Uint32Array(n_items)
-    let ids_src: Uint32Array = new Uint32Array(n_items)
-    let ids_dst: Uint32Array = new Uint32Array(n_items)
-    let identity = true                  // ids_src is implicitly 0..n-1 until the first real pass
-
-    const first_key = hilbert_values[0]
     for (let p = 0; p < PASSES; p++) {
       const shift = p * BITS
       const offset = p * RADIX
-
-      // all hilbert_values share this digit -> pass would be a no-op
-      if (counts[offset + ((first_key >>> shift) & MASK)] === n_items) {
-        continue
-      }
 
       let sum = 0
       for (let b = 0; b < RADIX; b++) {
@@ -478,41 +456,35 @@ export class SpatialIndex {
         sum += c
       }
 
-      if (identity) {
-        for (let i = 0; i < n_items; i++) {
-          const k = keys_src[i]
-          const pos = counts[offset + ((k >>> shift) & MASK)]++
-          keys_dst[pos] = k
-          ids_dst[pos] = i
+      if (p < PASSES - 1) {
+        for (let j = 0; j < 2 * n_items; j += 2) {
+          const k = src[j]
+          const pos = counts[offset + ((k >>> shift) & MASK)]++ << 1
+          dst[pos] = k
+          dst[pos + 1] = src[j + 1]
         }
-        identity = false
+        const t = src
+        src = dst
+        dst = t
       } else {
-        for (let i = 0; i < n_items; i++) {
-          const k = keys_src[i]
-          const pos = counts[offset + ((k >>> shift) & MASK)]++
-          keys_dst[pos] = k
-          ids_dst[pos] = ids_src[i]
+        // final pass: keys are no longer needed, write the order straight into _indices
+        for (let j = 0; j < 2 * n_items; j += 2) {
+          _indices[counts[offset + ((src[j] >>> shift) & MASK)]++] = src[j + 1]
         }
       }
-
-      ;[keys_src, keys_dst] = [keys_dst, keys_src]
-      ;[ids_src, ids_dst] = [ids_dst, ids_src]
     }
+  }
 
-    if (identity) {
-      for (let i = 0; i < n_items; i++) ids_src[i] = i
-    }
-
+  private _apply_item_order(): void {
     // gather bboxes once: sequential writes, random reads
+    const {n_items, _bboxes, _indices, shift_factor_bbox} = this
     const tmp = _bboxes.slice(0, n_items << shift_factor_bbox)
     for (let i = 0, k = 0; i < n_items; i++, k += 4) {
-      const id = ids_src[i]
-      const m = id << 2
+      const m = _indices[i] << 2
       _bboxes[k]     = tmp[m]
       _bboxes[k + 1] = tmp[m + 1]
       _bboxes[k + 2] = tmp[m + 2]
       _bboxes[k + 3] = tmp[m + 3]
-      _indices[i] = id
     }
   }
 
