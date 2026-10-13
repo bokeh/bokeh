@@ -8,7 +8,7 @@
 '''
 from bokeh.layouts import column
 from bokeh.models import (CustomJS, Div, GraphRenderer, LabelSet,
-                          MultiLine, NodesAndLinkedEdges, NormalHead,
+                          GraphSelectionPolicy, MultiLine, NormalHead,
                           Scatter, Slider, StaticLayoutProvider)
 from bokeh.plotting import figure, show
 
@@ -60,7 +60,7 @@ graph.edge_renderer.add_path_decoration(
     selection_marking=head.clone(fill_color="#E69F00"),
     nonselection_marking=head.clone(fill_alpha=0.25),
 )
-graph.selection_policy = NodesAndLinkedEdges()
+graph.data_source.selection_policy = GraphSelectionPolicy(include_incident_edges=True)
 
 p = figure(width=750, height=500, x_range=(-2.5, 2.7), y_range=(-1.7, 1.7),
            title="Directed graph: arrowheads follow node size", tools="tap,reset")

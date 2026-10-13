@@ -114,6 +114,11 @@ without a JavaScript graph-layout dependency:
 * :class:`~bokeh.models.graphs.ForceDirectedLayoutProvider` runs a deterministic,
   dependency-free Fruchterman-Reingold layout suitable for small and medium graphs.
 
+The force-directed provider treats reciprocal and parallel edges as one
+undirected layout connection, while preserving those edges for rendering and
+interaction. It gives the normalized result a deterministic horizontal
+orientation instead of leaving a seed-dependent diagonal tilt.
+
 The graph data and provider settings synchronize normally in server sessions;
 the derived coordinates stay in the browser and are recomputed when topology
 or layout settings change.
@@ -228,9 +233,9 @@ node cleanly:
     graph.edge_renderer.selection_glyph = graph.edge_renderer.glyph.clone(
         line_color="#f28e2b", line_width=4,
     )
-    graph.edge_renderer.add_decoration(
+    graph.edge_renderer.add_path_decoration(
         NormalHead(size=14, fill_color="#718096", line_color=None),
-        "end",
+        node="end",
         inset=10,
         selection_marking=NormalHead(
             size=18, fill_color="#f28e2b", line_color=None,

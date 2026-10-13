@@ -74,9 +74,9 @@ for title, provider in providers:
         edge_line_alpha=0.65,
         edge_line_width=2,
     )
-    graph.edge_renderer.add_decoration(
+    graph.edge_renderer.add_path_decoration(
         NormalHead(size="arrow_size", fill_color="#52667a", line_color=None),
-        "end",
+        node="end",
         inset=11,
     )
     p.axis.visible = False

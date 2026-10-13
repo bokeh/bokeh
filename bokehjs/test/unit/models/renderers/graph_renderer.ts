@@ -185,6 +185,7 @@ describe("alternate graph edges", () => {
       }
       if (glyph instanceof Bezier) {
         const source = graph.edge_renderer.data_source
+        assert(source instanceof ColumnDataSource)
         source.data = {start: [4], end: [7], cx0: [2], cy0: [3], cx1: [4], cy1: [5]}
         await graph_view.edge_view.ready
         const curve = graph_view.edge_view.glyph

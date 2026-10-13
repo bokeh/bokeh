@@ -80,9 +80,9 @@ r = p.graph(
 
 # The full route network is too dense for permanent arrowheads, so only the
 # selection glyph gets a visible one.
-r.edge_renderer.add_decoration(
+r.edge_renderer.add_path_decoration(
     NormalHead(size=10, fill_alpha=0, line_alpha=0),
-    "end",
+    node="end",
     inset=7,
     selection_marking=NormalHead(size=11, fill_color="#f28e2b", fill_alpha=0.9, line_color=None),
     nonselection_marking=None,

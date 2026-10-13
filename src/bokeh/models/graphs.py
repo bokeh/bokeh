@@ -120,7 +120,10 @@ class ForceDirectedLayoutProvider(LayoutProvider):
     ''' Compute a deterministic Fruchterman-Reingold layout in BokehJS.
 
     This dependency-free implementation is intended for small and medium
-    graphs. Its repulsion step is quadratic in the number of nodes.
+    graphs. Its repulsion step is quadratic in the number of nodes. Directed,
+    reciprocal, and parallel edges are treated as one undirected connection
+    for layout, while retaining their distinct rendering and interaction.
+    The normalized result is given a deterministic horizontal orientation.
     '''
 
     center = Tuple(Float, Float, default=(0, 0), help="""
@@ -170,7 +173,8 @@ class EdgePathProvider(Model):
     def edge_coordinates(self, source: GraphDataSource, layout: LayoutProvider) -> EdgeCoordinates:
         return EdgeCoordinates(path=self, layout=layout, source=source)
 
-    def edge_point_coordinates(self, source: GraphDataSource, layout: LayoutProvider, point: Literal["start", "end", "control0", "control1"]) -> EdgePointCoordinates:
+    def edge_point_coordinates(self, source: GraphDataSource, layout: LayoutProvider,
+            point: Literal["start", "end", "control0", "control1"]) -> EdgePointCoordinates:
         return EdgePointCoordinates(path=self, layout=layout, source=source, point=point)
 
     loop_radius = FloatSpec(default=0.15, help="""
@@ -264,12 +268,13 @@ class EdgeCoordinates(GraphCoordinates):
 
     path = Instance(EdgePathProvider)
 
-class EdgePointCoordinates(EdgeCoordinates):
+class EdgePointCoordinates(GraphCoordinates):
     """ Scalar endpoint or cubic-control coordinates obtained from an edge path. """
 
     if TYPE_CHECKING:
         def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
+    path = Instance(EdgePathProvider)
     point = Required(Enum("start", "end", "control0", "control1"))
 
 #-----------------------------------------------------------------------------

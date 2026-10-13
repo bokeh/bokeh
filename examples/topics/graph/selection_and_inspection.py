@@ -61,9 +61,9 @@ graph.edge_renderer.glyph = edge
 graph.edge_renderer.selection_glyph = edge.clone(line_color="#f28e2b", line_alpha=1, line_width=8)
 graph.edge_renderer.nonselection_glyph = edge.clone(line_color="#d4dae3", line_alpha=0.4, line_width=3)
 graph.edge_renderer.hover_glyph = edge.clone(line_color="#2a9d8f", line_alpha=1, line_width=8)
-graph.edge_renderer.add_decoration(
+graph.edge_renderer.add_path_decoration(
     NormalHead(size=16, fill_color="#718096", line_color=None),
-    "end",
+    node="end",
     inset=18,
     selection_marking=NormalHead(size=20, fill_color="#f28e2b", line_color=None),
     nonselection_marking=NormalHead(size=11, fill_color="#d4dae3", fill_alpha=0.55, line_color=None),
