@@ -63,10 +63,10 @@ __all__ = (
     'LogTicker',
     'MercatorTicker',
     'MonthsTicker',
-    'ScaledTicker',
     'SingleIntervalTicker',
     'Ticker',
     'TimedeltaTicker',
+    'UnitTicker',
     'YearsTicker',
 )
 
@@ -329,15 +329,18 @@ class BasicTicker(AdaptiveTicker):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-class ScaledTicker(ContinuousTicker):
-    r''' Generate ticks using another ticker in a scaled coordinate system.
+class UnitTicker(ContinuousTicker):
+    r''' Generate ticks in a scaled and offset unit coordinate system.
 
-    The wrapped ``ticker`` operates on coordinates divided by ``scale``. Its
-    resulting major and minor tick locations are multiplied by ``scale``
-    before being returned. This is useful for axes whose natural unit is a
-    constant such as :math:`\pi`.
+    One displayed unit corresponds to ``scale`` data-coordinate units, with
+    zero displayed units located at ``offset``. The wrapped ``ticker``
+    operates on coordinates transformed by
+    ``(value - offset)/scale``. Its resulting major and minor tick locations
+    are transformed back by ``offset + scale*value`` before being returned.
+    This is useful for axes whose natural unit is a constant such as
+    :math:`\pi`, or whose symbolic origin differs from zero.
 
-    For example, a ``ScaledTicker(scale=pi)`` viewing the range from zero to
+    For example, a ``UnitTicker(scale=pi)`` viewing the range from zero to
     ``8*pi`` presents the range from zero to eight to its wrapped ticker. A
     ``BasicTicker`` can therefore select integer multiples of :math:`\pi`
     instead of decimal approximations in the original coordinate system.
@@ -352,11 +355,15 @@ class ScaledTicker(ContinuousTicker):
     The size of one normalized coordinate unit in data coordinates.
     """)
 
+    offset = Float(default=0.0, help="""
+    The data-coordinate value represented by zero in normalized coordinates.
+    """)
+
     ticker = Instance(ContinuousTicker, default=InstanceDefault(BasicTicker), help="""
     The ticker used to select tick locations in normalized coordinates.
 
     The ``desired_num_ticks`` and ``num_minor_ticks`` values on this
-    ``ScaledTicker`` are used when invoking the wrapped ticker.
+    ``UnitTicker`` are used when invoking the wrapped ticker.
     """)
 
 class LogTicker(AdaptiveTicker):

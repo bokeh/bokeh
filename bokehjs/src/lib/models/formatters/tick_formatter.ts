@@ -24,7 +24,7 @@ export abstract class TickFormatter extends Model {
 
   abstract doFormat(ticks: string[] | number[], opts: TickFormatter.Context): string[]
 
-  get_text_models(): BaseText[] {
+  get_text_models(_opts?: TickFormatter.Context): BaseText[] {
     return []
   }
 

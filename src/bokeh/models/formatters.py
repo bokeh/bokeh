@@ -52,7 +52,7 @@ from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.strings import format_docstring
-from .tickers import ScaledTicker, Ticker
+from .tickers import Ticker, UnitTicker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -69,8 +69,8 @@ __all__ = (
     "MercatorTickFormatter",
     "NumeralTickFormatter",
     "PrintfTickFormatter",
-    "ScaledTickFormatter",
     "TickFormatter",
+    "UnitTickFormatter",
 )
 
 #-----------------------------------------------------------------------------
@@ -139,13 +139,22 @@ class BasicTickFormatter(TickFormatter):
 
     """)
 
-class ScaledTickFormatter(TickFormatter):
-    r''' Format ticks in the normalized coordinates of a ``ScaledTicker``.
+class UnitTickFormatter(TickFormatter):
+    r''' Format ticks with optional unit conversion and repeated decoration.
 
-    Tick values are divided by the axis ticker's ``scale`` before being passed
-    to ``formatter``. Optional text can be added before or after each formatted
-    value. This allows symbolic units such as :math:`\pi` to be displayed
-    without a ``CustomJSTickFormatter``.
+    When used with a ``UnitTicker``, tick values are normalized with
+    ``(value - offset)/scale`` before being passed to ``formatter``. With any
+    other ticker, values are formatted without normalization. Optional text
+    can be added before or after each formatted value. This allows symbolic
+    units such as :math:`\pi` to be displayed without a
+    ``CustomJSTickFormatter``.
+
+    Math-text decorations are rendered by graphics-aware consumers such as
+    axes. String-only consumers of ``TickFormatter``, including ``compute``
+    and ``v_compute``, receive the decoration's source text instead. When a
+    TeX decoration is present, the inner formatter's string output is safely
+    embedded in one TeX expression; any richer graphics produced by the inner
+    formatter are not retained in that mode.
 
     '''
 
@@ -153,12 +162,12 @@ class ScaledTickFormatter(TickFormatter):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    ticker = Nullable(Instance(ScaledTicker), default=None, help="""
-    An optional fallback ``ScaledTicker`` used when formatting outside an axis.
+    ticker = Nullable(Instance(UnitTicker), default=None, help="""
+    An optional fallback ``UnitTicker`` used when formatting outside an axis.
 
-    When this formatter belongs to an axis, the axis's ticker is authoritative
-    and must be a ``ScaledTicker``. This property is therefore normally left
-    unset.
+    An axis ``UnitTicker`` takes precedence over this fallback. If neither is
+    present, values are formatted without normalization. This property is
+    therefore normally left unset for axis formatters.
     """)
 
     # The descriptor accepts subclasses at runtime, but its generic type expects the exact base class.
@@ -174,20 +183,23 @@ class ScaledTickFormatter(TickFormatter):
     ``suffix=TeX(text=r"\\sigma")`` can produce labels such as
     :math:`\\overline{x}-2\\sigma`, :math:`\\overline{x}`, and
     :math:`\\overline{x}+2\\sigma`. This affects label composition only;
-    normalization remains controlled by the ticker's scale. Strings containing
-    recognized math-text delimiters and explicit text models are supported.
+    normalization remains controlled by the ticker's scale and offset. Strings
+    containing recognized math-text delimiters and explicit text models are
+    supported.
     """)
 
     prefix = TextLike(default="", help="""
     Text placed before each formatted value. Strings containing recognized
-    math-text delimiters and explicit text models are supported. If either
-    decoration is TeX, the complete label is rendered as one TeX expression.
+    math-text delimiters and explicit text models are supported. If any
+    decoration is TeX and no decoration uses a different math-text backend,
+    the complete label is rendered as one TeX expression.
     """)
 
     suffix = TextLike(default="", help="""
     Text placed after each formatted value. Strings containing recognized
-    math-text delimiters and explicit text models are supported. If either
-    decoration is TeX, the complete label is rendered as one TeX expression.
+    math-text delimiters and explicit text models are supported. If any
+    decoration is TeX and no decoration uses a different math-text backend,
+    the complete label is rendered as one TeX expression.
     """)
 
     unit_style = Enum("always", "except_zero", "symbolic", default="always", help="""
@@ -212,13 +224,13 @@ class ScaledTickFormatter(TickFormatter):
     the prefix and suffix surround the complete fraction.
     """)
 
-    fraction_style = Enum("stacked", "inline", default="stacked", help="""
+    fraction_style = Enum("stacked", "inline", default="inline", help="""
     How fractions are rendered when a decoration uses TeX.
 
-    ``"stacked"`` uses a TeX fraction such as ``\\frac{\\pi}{2}``, while
-    ``"inline"`` keeps the complete label in math text but uses a compact
-    solidus form such as ``\\pi/2``. Plain-text labels always use the inline
-    form.
+    ``"inline"`` (the default) keeps the complete label in math text but uses
+    a compact solidus form such as ``\\pi/2``. ``"stacked"`` uses a TeX
+    fraction such as ``\\frac{\\pi}{2}``. Plain-text labels always use the
+    inline form.
     """)
 
     max_denominator = Positive(Int, default=16, help="""

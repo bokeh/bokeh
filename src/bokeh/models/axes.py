@@ -52,8 +52,6 @@ from ..core.property_mixins import (
     ScalarLineProps,
     ScalarTextProps,
 )
-from ..core.validation import warning
-from ..core.validation.warnings import INCOMPATIBLE_SCALED_TICKER
 from .formatters import (
     CONTEXTUAL_DATETIME_FORMATTER,
     CONTEXTUAL_TIMEDELTA_FORMATTER,
@@ -61,7 +59,6 @@ from .formatters import (
     CategoricalTickFormatter,
     LogTickFormatter,
     MercatorTickFormatter,
-    ScaledTickFormatter,
     TickFormatter,
 )
 from .labeling import AllLabels, LabelingPolicy
@@ -73,7 +70,6 @@ from .tickers import (
     FixedTicker,
     LogTicker,
     MercatorTicker,
-    ScaledTicker,
     Ticker,
     TimedeltaTicker,
 )
@@ -158,11 +154,6 @@ class Axis(GuideRenderer):
     A ``TickFormatter`` to use for formatting the visual appearance
     of ticks.
     """)
-
-    @warning(INCOMPATIBLE_SCALED_TICKER)
-    def _check_scaled_ticker_formatter(self):
-        if isinstance(self.formatter, ScaledTickFormatter) and not isinstance(self.ticker, ScaledTicker):
-            return str(self)
 
     axis_label = Nullable(TextLike, help="""
     A text or LaTeX notation label for the axis, displayed parallel to the axis rule.

@@ -76,7 +76,8 @@ export abstract class AxisView extends GuideRendererView {
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
   /*private*/ _formatter_text_views: Map<BaseText, BaseTextView> = new Map()
   /*private*/ _formatter_text_views_used: Set<BaseTextView> = new Set()
-  /*private*/ _formatter_text_views_pending: Set<BaseText> = new Set()
+  /*private*/ _formatter_text_views_pending: Map<BaseText, Promise<BaseTextView>> = new Map()
+  /*private*/ _formatter_text_views_initializing = Promise.resolve()
 
   override get bbox(): BBox {
     if (this.model.fixed_location != null) {
@@ -142,39 +143,52 @@ export abstract class AxisView extends GuideRendererView {
     }
   }
 
+  protected _build_formatter_text_view(text: BaseText): Promise<BaseTextView> {
+    const existing = this._formatter_text_views.get(text)
+    if (existing != null) {
+      return Promise.resolve(existing)
+    }
+
+    const pending = this._formatter_text_views_pending.get(text)
+    if (pending != null) {
+      return pending
+    }
+
+    const building = build_view(text, {parent: this}).then((view) => {
+      this._formatter_text_views.set(text, view)
+      return view
+    }).finally(() => {
+      this._formatter_text_views_pending.delete(text)
+    })
+    this._formatter_text_views_pending.set(text, building)
+    return building
+  }
+
   protected async _init_formatter_text(): Promise<void> {
-    const previous = this._formatter_text_views
-    const current = new Map<BaseText, BaseTextView>()
+    const initialize = async () => {
+      const current = new Set(this.model.formatter.get_text_models(this))
+      await Promise.all([...current].map(async (text) => await this._build_formatter_text_view(text)))
 
-    for (const text of this.model.formatter.get_text_models()) {
-      if (current.has(text)) {
-        continue
-      }
-      const existing = previous.get(text)
-      current.set(text, existing ?? await build_view(text, {parent: this}))
-    }
-
-    for (const [text, view] of previous) {
-      if (!current.has(text)) {
-        view.remove()
+      for (const [text, view] of this._formatter_text_views) {
+        if (!current.has(text)) {
+          view.remove()
+          this._formatter_text_views.delete(text)
+        }
       }
     }
 
-    this._formatter_text_views = current
+    this._formatter_text_views_initializing = this._formatter_text_views_initializing.then(initialize, initialize)
+    await this._formatter_text_views_initializing
   }
 
   resolve_text(text: BaseText): GraphicsBox | null {
     const view = this._formatter_text_views.get(text)
     if (view == null) {
       if (!this._formatter_text_views_pending.has(text)) {
-        this._formatter_text_views_pending.add(text)
-        const building = build_view(text, {parent: this}).then((view) => {
-          this._formatter_text_views.set(text, view)
+        const building = this._build_formatter_text_view(text).then(() => {
           this.plot_view.request_layout()
         }).catch((error) => {
           logger.error(`failed to build formatted axis text: ${error}`)
-        }).finally(() => {
-          this._formatter_text_views_pending.delete(text)
         })
         this._await_ready(building)
       }
@@ -614,7 +628,7 @@ export abstract class AxisView extends GuideRendererView {
   compute_labels(ticks: number[]): GraphicsBoxes {
     this._formatter_text_views_used.clear()
     const labels = this.model.formatter.format_graphics(ticks, this)
-    const persistent = new Set(this.model.formatter.get_text_models())
+    const persistent = new Set(this.model.formatter.get_text_models(this))
 
     for (const [text, view] of this._formatter_text_views) {
       if (!persistent.has(text) && !this._formatter_text_views_used.has(view)) {

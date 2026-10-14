@@ -3,23 +3,25 @@ import {BasicTicker} from "./basic_ticker"
 import {ContinuousTicker} from "./continuous_ticker"
 import type * as p from "core/properties"
 
-export namespace ScaledTicker {
+export namespace UnitTicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ContinuousTicker.Props & {
     scale: p.Property<number>
+    offset: p.Property<number>
     ticker: p.Property<ContinuousTicker>
   }
 }
 
-export interface ScaledTicker extends ScaledTicker.Attrs {}
+export interface UnitTicker extends UnitTicker.Attrs {}
 
-export class ScaledTicker extends ContinuousTicker {
-  declare properties: ScaledTicker.Props
+export class UnitTicker extends ContinuousTicker {
+  declare properties: UnitTicker.Props
 
   static {
-    this.define<ScaledTicker.Props>(({Float, Positive, Ref}) => ({
+    this.define<UnitTicker.Props>(({Float, Positive, Ref}) => ({
       scale:  [ Positive(Float), 1.0 ],
+      offset: [ Float, 0.0 ],
       ticker: [ Ref(ContinuousTicker), () => BasicTicker.create() ],
     }))
   }
@@ -47,23 +49,23 @@ export class ScaledTicker extends ContinuousTicker {
   }
 
   get_interval(data_low: number, data_high: number, desired_n_ticks: number): number {
-    const {scale} = this
-    return scale*this.ticker.get_interval(data_low/scale, data_high/scale, desired_n_ticks)
+    const {scale, offset} = this
+    return scale*this.ticker.get_interval((data_low - offset)/scale, (data_high - offset)/scale, desired_n_ticks)
   }
 
   override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number, num_minor_ticks: number): TickSpec<number> {
-    const {scale} = this
+    const {scale, offset} = this
     const ticks = this.ticker.get_ticks_no_defaults(
-      data_low/scale,
-      data_high/scale,
+      (data_low - offset)/scale,
+      (data_high - offset)/scale,
       cross_loc,
       desired_n_ticks,
       num_minor_ticks,
     )
 
     return {
-      major: ticks.major.map((tick) => scale*tick),
-      minor: ticks.minor.map((tick) => scale*tick),
+      major: ticks.major.map((tick) => offset + scale*tick),
+      minor: ticks.minor.map((tick) => offset + scale*tick),
     }
   }
 }

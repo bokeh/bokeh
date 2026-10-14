@@ -1,12 +1,11 @@
 import {BasicTickFormatter} from "./basic_tick_formatter"
 import {TickFormatter} from "./tick_formatter"
-import {ScaledTicker} from "../tickers/scaled_ticker"
+import {UnitTicker} from "../tickers/unit_ticker"
 import type {GraphicsBox} from "core/graphics"
 import {InlineBox, TextBox} from "core/graphics"
-import {logger} from "core/logging"
 import {isString} from "core/util/types"
 import {BaseText} from "../text/base_text"
-import {TeX} from "../text/math_text"
+import {MathText, TeX} from "../text/math_text"
 import {parse_delimited_string} from "../text/utils"
 import type {Dict} from "core/types"
 import type * as p from "core/properties"
@@ -39,11 +38,13 @@ type TeXTemplate = {
   macros: Dict<string | [string, number]>
 }
 
-export namespace ScaledTickFormatter {
+const math_label_cache_size = 128
+
+export namespace UnitTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TickFormatter.Props & {
-    ticker: p.Property<ScaledTicker | null>
+    ticker: p.Property<UnitTicker | null>
     formatter: p.Property<TickFormatter>
     base_label: p.Property<TextLike>
     prefix: p.Property<TextLike>
@@ -55,30 +56,29 @@ export namespace ScaledTickFormatter {
   }
 }
 
-export interface ScaledTickFormatter extends ScaledTickFormatter.Attrs {}
+export interface UnitTickFormatter extends UnitTickFormatter.Attrs {}
 
-export class ScaledTickFormatter extends TickFormatter {
-  declare properties: ScaledTickFormatter.Props
+export class UnitTickFormatter extends TickFormatter {
+  declare properties: UnitTickFormatter.Props
 
-  protected _warned_missing_ticker = false
   protected _base_label_source: TextLike | undefined
   protected _base_label_text: BaseText | undefined
   protected _prefix_source: TextLike | undefined
   protected _prefix_text: BaseText | undefined
   protected _suffix_source: TextLike | undefined
   protected _suffix_text: BaseText | undefined
-  protected _math_labels: Map<string, TeX> = new Map()
+  protected _math_labels = new WeakMap<TickFormatter.Context, Map<string, TeX>>()
 
   static {
-    this.define<ScaledTickFormatter.Props>(({Bool, Int, Str, Ref, Or, Nullable, Positive, Enum}) => ({
-      ticker:          [ Nullable(Ref(ScaledTicker)), null ],
+    this.define<UnitTickFormatter.Props>(({Bool, Int, Str, Ref, Or, Nullable, Positive, Enum}) => ({
+      ticker:          [ Nullable(Ref(UnitTicker)), null ],
       formatter:       [ Ref(TickFormatter), () => BasicTickFormatter.create() ],
       base_label:      [ Or(Str, Ref(BaseText)), "" ],
       prefix:          [ Or(Str, Ref(BaseText)), "" ],
       suffix:          [ Or(Str, Ref(BaseText)), "" ],
       unit_style:      [ Enum("always", "except_zero", "symbolic"), "always" ],
       use_fractions:   [ Bool, false ],
-      fraction_style:  [ Enum("stacked", "inline"), "stacked" ],
+      fraction_style:  [ Enum("stacked", "inline"), "inline" ],
       max_denominator: [ Positive(Int), 16 ],
     }))
   }
@@ -86,7 +86,15 @@ export class ScaledTickFormatter extends TickFormatter {
   override connect_signals(): void {
     super.connect_signals()
 
-    const emit_changed = () => this.change.emit()
+    const invalidate_math_labels = () => {
+      this._math_labels = new WeakMap()
+    }
+    this.connect(this.change, invalidate_math_labels)
+
+    const emit_changed = () => {
+      invalidate_math_labels()
+      this.change.emit()
+    }
 
     let formatter = this.formatter
     this.connect(formatter.change, emit_changed)
@@ -111,24 +119,20 @@ export class ScaledTickFormatter extends TickFormatter {
     })
   }
 
-  protected get_ticker(opts: TickFormatter.Context): ScaledTicker | null {
-    if (opts.ticker instanceof ScaledTicker) {
+  protected get_ticker(opts: TickFormatter.Context): UnitTicker | null {
+    if (opts.ticker instanceof UnitTicker) {
       return opts.ticker
     }
     if (this.ticker != null) {
       return this.ticker
     }
 
-    if (!this._warned_missing_ticker) {
-      logger.warn("ScaledTickFormatter has no ScaledTicker; formatting ticks without scaling")
-      this._warned_missing_ticker = true
-    }
     return null
   }
 
   protected normalized(ticks: number[], opts: TickFormatter.Context): number[] {
     const ticker = this.get_ticker(opts)
-    return ticker == null ? ticks : ticks.map((tick) => tick/ticker.scale)
+    return ticker == null ? ticks : ticks.map((tick) => (tick - ticker.offset)/ticker.scale)
   }
 
   protected text_value(text: TextLike): string {
@@ -152,8 +156,8 @@ export class ScaledTickFormatter extends TickFormatter {
     return model
   }
 
-  override get_text_models(): BaseText[] {
-    const models = this.formatter.get_text_models()
+  override get_text_models(opts?: TickFormatter.Context): BaseText[] {
+    const models = [...this.formatter.get_text_models(opts)]
     if (this.has_text(this.base_label)) {
       models.push(this.text_model("base_label"))
     }
@@ -163,7 +167,41 @@ export class ScaledTickFormatter extends TickFormatter {
     if (this.has_text(this.suffix)) {
       models.push(this.text_model("suffix"))
     }
+    if (opts != null) {
+      models.push(...this.math_labels(opts).values())
+    }
     return models
+  }
+
+  protected math_labels(opts: TickFormatter.Context): Map<string, TeX> {
+    let labels = this._math_labels.get(opts)
+    if (labels == null) {
+      labels = new Map()
+      this._math_labels.set(opts, labels)
+    }
+    return labels
+  }
+
+  protected math_label(text: string, template: TeXTemplate, opts: TickFormatter.Context): TeX {
+    const labels = this.math_labels(opts)
+    const key = JSON.stringify([text, template.inline, template.macros])
+    const existing = labels.get(key)
+    if (existing != null) {
+      labels.delete(key)
+      labels.set(key, existing)
+      return existing
+    }
+
+    const model = TeX.create({text, inline: template.inline, macros: template.macros})
+    labels.set(key, model)
+    while (labels.size > math_label_cache_size) {
+      const oldest = labels.keys().next()
+      if (oldest.done == true) {
+        break
+      }
+      labels.delete(oldest.value)
+    }
+    return model
   }
 
   protected text_graphic(kind: Decoration, opts: TickFormatter.Context): GraphicsBox {
@@ -178,7 +216,7 @@ export class ScaledTickFormatter extends TickFormatter {
 
   protected tex_escape(text: string): string {
     const substitutions: Dict<string> = {
-      "\\": "\\backslash{}",
+      "\\": "}\\backslash{}\\text{",
       "{": "\\{",
       "}": "\\}",
       "#": "\\#",
@@ -208,8 +246,12 @@ export class ScaledTickFormatter extends TickFormatter {
     const base_label = this.has_text(this.base_label) ? this.text_model("base_label") : null
     const prefix = this.has_text(this.prefix) ? this.text_model("prefix") : null
     const suffix = this.has_text(this.suffix) ? this.text_model("suffix") : null
-    const tex_models = [base_label, prefix, suffix].filter((model): model is TeX => model instanceof TeX)
+    const models = [base_label, prefix, suffix].filter((model): model is BaseText => model != null)
+    const tex_models = models.filter((model): model is TeX => model instanceof TeX)
     if (tex_models.length == 0) {
+      return null
+    }
+    if (models.some((model) => model instanceof MathText && !(model instanceof TeX))) {
       return null
     }
 
@@ -224,7 +266,10 @@ export class ScaledTickFormatter extends TickFormatter {
   }
 
   protected tex_coefficient(label: string): string {
-    return label.replaceAll("\u2212", "-")
+    const normalized = label.replaceAll("\u2212", "-")
+    const sign = normalized.startsWith("-") ? "-" : ""
+    const unsigned = sign == "" ? normalized : normalized.slice(1)
+    return `${sign}\\text{${this.tex_escape(unsigned)}}`
   }
 
   protected unsigned_label(info: LabelInfo): string {
@@ -269,7 +314,7 @@ export class ScaledTickFormatter extends TickFormatter {
     return `${head}${coefficient}${suffix}`
   }
 
-  protected tolerance(values: number[]): number {
+  protected tolerance(values: number[], opts: TickFormatter.Context): number {
     const finite = values.filter((value) => Number.isFinite(value)).sort((a, b) => a - b)
     let magnitude = 1
     let spacing = 0
@@ -278,6 +323,10 @@ export class ScaledTickFormatter extends TickFormatter {
       if (i != 0) {
         spacing = max(spacing, abs(finite[i] - finite[i - 1]))
       }
+    }
+    const ticker = this.get_ticker(opts)
+    if (ticker != null) {
+      magnitude = max(magnitude, abs(ticker.offset)/ticker.scale)
     }
     return 8*Number.EPSILON*max(1, magnitude, spacing)
   }
@@ -324,7 +373,7 @@ export class ScaledTickFormatter extends TickFormatter {
     const labels = this.formatter.doFormat(values, opts)
     const [zero, one, negative_one] = this.formatter.doFormat([0, 1, -1], opts)
     const minus_sign = negative_one.startsWith("-") ? "-" : "\u2212"
-    const tolerance = this.tolerance(values)
+    const tolerance = this.tolerance(values, opts)
     const fractions = this.use_fractions ? values.map((value) => this.fraction(value, tolerance)) : []
     const use_fractions = fractions.length != 0 && fractions.every((fraction) => fraction != null)
 
@@ -392,20 +441,11 @@ export class ScaledTickFormatter extends TickFormatter {
     const graphics = this.formatter.format_graphics(normalized, opts)
     const info = this.label_info(normalized, opts)
     const template = this.tex_template()
-    const previous_math_labels = this._math_labels
-    const current_math_labels = new Map<string, TeX>()
-
     const labels = graphics.map((graphic, i) => {
       const label = info[i]
       if (template != null) {
         const text = this.tex_label(label, template)
-        const key = JSON.stringify([text, template.inline, template.macros])
-        const model = previous_math_labels.get(key) ?? TeX.create({
-          text,
-          inline: template.inline,
-          macros: template.macros,
-        })
-        current_math_labels.set(key, model)
+        const model = this.math_label(text, template, opts)
         const math_graphic = opts.resolve_text?.(model)
         if (math_graphic != null) {
           return math_graphic
@@ -472,7 +512,6 @@ export class ScaledTickFormatter extends TickFormatter {
 
       return this.inline(children)
     })
-    this._math_labels = current_math_labels
     return labels
   }
 }

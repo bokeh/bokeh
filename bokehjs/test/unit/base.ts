@@ -388,6 +388,8 @@ describe("default model resolver", () => {
       "UndoTool",
       "UnionFilter",
       "UnionRenderers",
+      "UnitTickFormatter",
+      "UnitTicker",
       "VArea",
       "VAreaStep",
       "VBar",

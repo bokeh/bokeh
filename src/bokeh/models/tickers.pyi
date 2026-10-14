@@ -118,14 +118,16 @@ class _BasicTickerInit(_AdaptiveTickerInit, total=False):
 class BasicTicker(AdaptiveTicker):
     def __init__(self, **kwargs: Unpack[_BasicTickerInit]) -> None: ...
 
-class _ScaledTickerInit(_ContinuousTickerInit, total=False):
+class _UnitTickerInit(_ContinuousTickerInit, total=False):
     scale: float
+    offset: float
     ticker: ContinuousTicker
 
-class ScaledTicker(ContinuousTicker):
-    def __init__(self, **kwargs: Unpack[_ScaledTickerInit]) -> None: ...
+class UnitTicker(ContinuousTicker):
+    def __init__(self, **kwargs: Unpack[_UnitTickerInit]) -> None: ...
 
     scale: float = ...
+    offset: float = ...
     ticker: ContinuousTicker = ...
 
 class _LogTickerInit(_AdaptiveTickerInit, total=False):

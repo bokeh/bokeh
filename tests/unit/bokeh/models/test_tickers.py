@@ -72,20 +72,21 @@ class Test_ContinousTicker:
                 t.desired_num_ticks = tick_number
 
 
-class Test_ScaledTicker:
+class Test_UnitTicker:
 
     def test_defaults(self) -> None:
-        ticker = bmt.ScaledTicker()
+        ticker = bmt.UnitTicker()
         assert ticker.scale == 1.0
+        assert ticker.offset == 0.0
         assert isinstance(ticker.ticker, bmt.BasicTicker)
 
     def test_default_ticker_is_not_shared(self) -> None:
-        assert bmt.ScaledTicker().ticker is not bmt.ScaledTicker().ticker
+        assert bmt.UnitTicker().ticker is not bmt.UnitTicker().ticker
 
     @pytest.mark.parametrize("scale", [0, 0.0, -1, -1.0])
     def test_invalid_scale(self, scale: float) -> None:
         with pytest.raises(ValueError):
-            bmt.ScaledTicker(scale=scale)
+            bmt.UnitTicker(scale=scale)
 
 
 # -----------------------------------------------------------------------------

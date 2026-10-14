@@ -67,9 +67,9 @@ def test_custom_js_tick_formatter() -> None:
             return Math.floor(tick) + " + " + (tick % 1).toFixed(this.precision);
         """, cutoff=cutoff)
 
-def test_scaled_tick_formatter() -> None:
-    ticker = bmt.ScaledTicker(scale=3.14)
-    formatter = bmf.ScaledTickFormatter(
+def test_unit_tick_formatter() -> None:
+    ticker = bmt.UnitTicker(scale=3.14)
+    formatter = bmf.UnitTickFormatter(
         ticker=ticker,
         suffix="pi",
         unit_style="symbolic",
@@ -82,12 +82,12 @@ def test_scaled_tick_formatter() -> None:
     assert formatter.suffix == "pi"
     assert formatter.unit_style == "symbolic"
     assert formatter.use_fractions is False
-    assert formatter.fraction_style == "stacked"
+    assert formatter.fraction_style == "inline"
     assert formatter.max_denominator == 16
 
-def test_scaled_tick_formatter_serialization() -> None:
-    ticker = bmt.ScaledTicker(scale=3.14, name="ticker")
-    formatter = bmf.ScaledTickFormatter(
+def test_unit_tick_formatter_serialization() -> None:
+    ticker = bmt.UnitTicker(scale=3.14, offset=2.7, name="ticker")
+    formatter = bmf.UnitTickFormatter(
         ticker=ticker,
         suffix="pi",
         unit_style="symbolic",
@@ -103,18 +103,19 @@ def test_scaled_tick_formatter_serialization() -> None:
     copied_formatter = copy.get_model_by_name("formatter")
     copied_ticker = copy.get_model_by_name("ticker")
 
-    assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
-    assert isinstance(copied_ticker, bmt.ScaledTicker)
+    assert isinstance(copied_formatter, bmf.UnitTickFormatter)
+    assert isinstance(copied_ticker, bmt.UnitTicker)
     assert copied_formatter.ticker is copied_ticker
+    assert copied_ticker.offset == 2.7
     assert copied_formatter.unit_style == "symbolic"
     assert copied_formatter.use_fractions is True
     assert copied_formatter.fraction_style == "inline"
     assert copied_formatter.max_denominator == 8
 
-def test_scaled_tick_formatter_accepts_math_text_units() -> None:
+def test_unit_tick_formatter_accepts_math_text_units() -> None:
     base_label = TeX(text=r"\overline{x}")
     suffix = TeX(text=r"\pi")
-    formatter = bmf.ScaledTickFormatter(base_label=base_label, suffix=suffix, name="formatter")
+    formatter = bmf.UnitTickFormatter(base_label=base_label, suffix=suffix, name="formatter")
 
     assert formatter.base_label is base_label
     assert formatter.suffix is suffix
@@ -124,7 +125,7 @@ def test_scaled_tick_formatter_accepts_math_text_units() -> None:
     copy = Document.from_json(doc.to_json())
     copied_formatter = copy.get_model_by_name("formatter")
 
-    assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
+    assert isinstance(copied_formatter, bmf.UnitTickFormatter)
     assert isinstance(copied_formatter.base_label, TeX)
     assert copied_formatter.base_label.text == r"\overline{x}"
     assert isinstance(copied_formatter.suffix, TeX)

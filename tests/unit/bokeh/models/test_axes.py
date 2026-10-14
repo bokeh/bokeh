@@ -17,14 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.validation.check import ValidationIssue
+from bokeh.core.validation.check import check_integrity
 from bokeh.models import (
     BasicTicker,
     FixedTicker,
     MathText,
     PlainText,
-    ScaledTickFormatter,
-    ScaledTicker,
+    UnitTickFormatter,
     TeX,
 )
 
@@ -49,20 +48,10 @@ def test_ticker_accepts_number_sequences() -> None:
     assert isinstance(a.ticker, FixedTicker)
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
 
-def test_scaled_tick_formatter_requires_scaled_axis_ticker() -> None:
-    axis = bma.LinearAxis(ticker=BasicTicker(), formatter=ScaledTickFormatter())
+def test_unit_tick_formatter_accepts_unscaled_axis_ticker() -> None:
+    axis = bma.LinearAxis(ticker=BasicTicker(), formatter=UnitTickFormatter(suffix="u"))
 
-    assert axis._check_scaled_ticker_formatter() == [ValidationIssue(
-        code=1009,
-        name="INCOMPATIBLE_SCALED_TICKER",
-        text="ScaledTickFormatter is configured on an axis without a ScaledTicker",
-        extra=str(axis),
-    )]
-
-def test_scaled_tick_formatter_accepts_scaled_axis_ticker() -> None:
-    axis = bma.LinearAxis(ticker=ScaledTicker(), formatter=ScaledTickFormatter())
-
-    assert axis._check_scaled_ticker_formatter() == []
+    assert check_integrity([axis]).warning == []
 
 def test_axis_label_with_delimiters_do_not_convert_to_math_text_model() -> None:
     a = bma.Axis(axis_label=r"$$\sin(x+1)$$")

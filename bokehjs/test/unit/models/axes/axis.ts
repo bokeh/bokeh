@@ -5,8 +5,8 @@ import {PlotActions, xy} from "#framework/interactive"
 import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
-import {ScaledTicker} from "@bokehjs/models/tickers/scaled_ticker"
-import {ScaledTickFormatter} from "@bokehjs/models/formatters/scaled_tick_formatter"
+import {UnitTicker} from "@bokehjs/models/tickers/unit_ticker"
+import {UnitTickFormatter} from "@bokehjs/models/formatters/unit_tick_formatter"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -29,13 +29,13 @@ function text_of(box: GraphicsBox): string {
 
 describe("Axis", () => {
 
-  it("should provide its ticker to a ScaledTickFormatter", async () => {
+  it("should provide its ticker to a UnitTickFormatter", async () => {
     const plot = Plot.create({
       x_range: Range1d.create({start: -Math.PI, end: Math.PI}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
-    const ticker = ScaledTicker.create({scale: Math.PI})
-    const formatter = ScaledTickFormatter.create({
+    const ticker = UnitTicker.create({scale: Math.PI})
+    const formatter = UnitTickFormatter.create({
       suffix: "π",
       unit_style: "symbolic",
       use_fractions: true,
@@ -51,16 +51,17 @@ describe("Axis", () => {
     expect(labels.items.map(text_of)).to.be.equal(["−π", "0", "π/2", "π"])
   })
 
-  it("should render text-like units from a ScaledTickFormatter", async () => {
+  it("should render text-like units from a UnitTickFormatter", async () => {
     const plot = Plot.create({
       x_range: Range1d.create({start: -Math.PI, end: Math.PI}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
-    const ticker = ScaledTicker.create({scale: Math.PI})
-    const formatter = ScaledTickFormatter.create({
+    const ticker = UnitTicker.create({scale: Math.PI})
+    const formatter = UnitTickFormatter.create({
       suffix: "$$\\pi$$",
       unit_style: "symbolic",
       use_fractions: true,
+      fraction_style: "stacked",
     })
     const axis = LinearAxis.create({ticker, formatter})
     plot.add_layout(axis, "below")
@@ -73,7 +74,7 @@ describe("Axis", () => {
     const labels = axis_view.compute_labels(ticks)
     expect(labels.items.every((label) => label instanceof MathTextBox)).to.be.true
     const texts = labels.items.map((label) => (label as MathTextBox).view.model.text)
-    expect(texts).to.be.equal(["-2\\pi", "-\\pi", "0", "\\frac{\\pi}{2}", "\\pi", "2\\pi"])
+    expect(texts).to.be.equal(["-\\text{2}\\pi", "-\\pi", "\\text{0}", "\\frac{\\pi}{2}", "\\pi", "\\text{2}\\pi"])
   })
 
   it("should render TeX base labels and inline fractions", async () => {
@@ -81,8 +82,8 @@ describe("Axis", () => {
       x_range: Range1d.create({start: -1, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
-    const ticker = ScaledTicker.create({scale: 1})
-    const formatter = ScaledTickFormatter.create({
+    const ticker = UnitTicker.create({scale: 1})
+    const formatter = UnitTickFormatter.create({
       base_label: "$$\\overline{x}$$",
       suffix: "$$\\sigma$$",
       unit_style: "symbolic",
@@ -110,12 +111,51 @@ describe("Axis", () => {
     ])
   })
 
-  it("should render unscaled labels when a ScaledTickFormatter has no ScaledTicker", async () => {
+  it("should render a shared TeX UnitTickFormatter on two axes", async () => {
+    const plot = Plot.create({
+      x_range: Range1d.create({start: -Math.PI, end: Math.PI}),
+      y_range: Range1d.create({start: -Math.PI, end: Math.PI}),
+    })
+    const formatter = UnitTickFormatter.create({
+      suffix: "$$\\pi$$",
+      unit_style: "symbolic",
+      use_fractions: true,
+    })
+    const x_axis = LinearAxis.create({ticker: UnitTicker.create({scale: Math.PI}), formatter})
+    const y_axis = LinearAxis.create({ticker: UnitTicker.create({scale: Math.PI/2}), formatter})
+    plot.add_layout(x_axis, "below")
+    plot.add_layout(y_axis, "left")
+    const {view: plot_view} = await display(plot)
+    const x_axis_view = plot_view.owner.get_one(x_axis)
+    const y_axis_view = plot_view.owner.get_one(y_axis)
+
+    const ticks = [-Math.PI, 0, Math.PI/2, Math.PI]
+    x_axis_view.compute_labels(ticks)
+    y_axis_view.compute_labels(ticks)
+    await Promise.all([x_axis_view.ready, y_axis_view.ready])
+
+    const x_labels = x_axis_view.compute_labels(ticks)
+    const y_labels = y_axis_view.compute_labels(ticks)
+    x_axis_view.plot_view.request_paint()
+    await x_axis_view.plot_view.ready
+    expect(x_labels.items.every((label) => label instanceof MathTextBox)).to.be.true
+    expect(y_labels.items.every((label) => label instanceof MathTextBox)).to.be.true
+    const x_texts = x_labels.items.map((label) => (label as MathTextBox).view.model.text)
+    const y_texts = y_labels.items.map((label) => (label as MathTextBox).view.model.text)
+    expect(x_texts).to.be.equal(["-\\pi", "\\text{0}", "\\pi/2", "\\pi"])
+    expect(y_texts).to.be.equal(["-\\text{2}\\pi", "\\text{0}", "\\pi", "\\text{2}\\pi"])
+    expect(x_axis_view._formatter_text_views_pending.size).to.be.equal(0)
+    expect(y_axis_view._formatter_text_views_pending.size).to.be.equal(0)
+    expect(x_axis_view.has_finished()).to.be.true
+    expect(y_axis_view.has_finished()).to.be.true
+  })
+
+  it("should render unscaled labels when a UnitTickFormatter has no UnitTicker", async () => {
     const plot = Plot.create({
       x_range: Range1d.create({start: 0, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
-    const axis = LinearAxis.create({formatter: ScaledTickFormatter.create({suffix: "u"})})
+    const axis = LinearAxis.create({formatter: UnitTickFormatter.create({suffix: "u"})})
     plot.add_layout(axis, "below")
     const {view: plot_view} = await display(plot)
     const axis_view = plot_view.owner.get_one(axis)

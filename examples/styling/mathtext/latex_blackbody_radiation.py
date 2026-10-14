@@ -3,8 +3,8 @@ various temperatures. This example demonstrates the use of mathtext on axes
 and in ``Div`` objects.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.models.Div, bokeh.models.ScaledTicker,
-        bokeh.models.ScaledTickFormatter
+    :apis: bokeh.plotting.figure.line, bokeh.models.Div, bokeh.models.UnitTicker,
+        bokeh.models.UnitTickFormatter
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 
@@ -13,14 +13,14 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import DataRange1d, Div, ScaledTicker, ScaledTickFormatter
+from bokeh.models import Div, UnitTicker, UnitTickFormatter
 from bokeh.palettes import Spectral
 from bokeh.plotting import figure, show
 
 p = figure(
     width=650, height=500, toolbar_location=None,
-    y_range=DataRange1d(start=0),
     title="Black body spectral radiance as a function of frequency")
+p.y_range.start = 0
 
 def spectral_radiance(nu, T):
     h = 6.626e-34   # Planck constant (Js)
@@ -46,15 +46,15 @@ p.line(peak_freqs, peak_radiance, line_color="silver",
          line_dash="dashed", line_width=2, legend_label="Peak radiance")
 
 curdoc().theme = 'dark_minimal'
-p.xaxis[0].ticker = ScaledTicker(scale=1e15)
-p.xaxis[0].formatter = ScaledTickFormatter(
+p.xaxis[0].ticker = UnitTicker(scale=1e15)
+p.xaxis[0].formatter = UnitTickFormatter(
     suffix=r"$$\,\mathrm{PHz}$$",
     unit_style="except_zero",
 )
 p.xaxis[0].axis_label = r"$$\nu$$"
 
-p.yaxis[0].ticker = ScaledTicker(scale=1e-9)
-p.yaxis[0].formatter = ScaledTickFormatter(
+p.yaxis[0].ticker = UnitTicker(scale=1e-9)
+p.yaxis[0].formatter = UnitTickFormatter(
     suffix=r"$$\,\mathrm{nW}$$",
     unit_style="except_zero",
 )

@@ -21,7 +21,7 @@ from ..core.enums import (
     RoundingFunctionType as RoundingFunction,
 )
 from ..model.model import Model, _ModelInit
-from .tickers import ScaledTicker, Ticker
+from .tickers import Ticker, UnitTicker
 
 class _TickFormatterInit(_ModelInit, total=False):
     ...
@@ -44,8 +44,8 @@ class BasicTickFormatter(TickFormatter):
     power_limit_high: int = ...
     power_limit_low: int = ...
 
-class _ScaledTickFormatterInit(_TickFormatterInit, total=False):
-    ticker: ScaledTicker | None
+class _UnitTickFormatterInit(_TickFormatterInit, total=False):
+    ticker: UnitTicker | None
     formatter: TickFormatter
     base_label: TextLike
     prefix: TextLike
@@ -55,10 +55,10 @@ class _ScaledTickFormatterInit(_TickFormatterInit, total=False):
     fraction_style: Literal["stacked", "inline"]
     max_denominator: int
 
-class ScaledTickFormatter(TickFormatter):
-    def __init__(self, **kwargs: Unpack[_ScaledTickFormatterInit]) -> None: ...
+class UnitTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_UnitTickFormatterInit]) -> None: ...
 
-    ticker: ScaledTicker | None = ...
+    ticker: UnitTicker | None = ...
     formatter: TickFormatter = ...
     base_label: TextLike = ...
     prefix: TextLike = ...
