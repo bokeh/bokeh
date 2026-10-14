@@ -141,7 +141,8 @@
       "NumeralTickFormatter",
       "PrintfTickFormatter",
       "TickFormatter",
-      "TimedeltaTickFormatter"
+      "TimedeltaTickFormatter",
+      "UnitTickFormatter"
     ]
   },
   {
@@ -421,6 +422,7 @@
       "SingleIntervalTicker",
       "Ticker",
       "TimedeltaTicker",
+      "UnitTicker",
       "YearsTicker"
     ]
   },

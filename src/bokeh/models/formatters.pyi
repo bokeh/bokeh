@@ -7,7 +7,12 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Any, Literal, Sequence, Unpack
+from typing import (
+    Any,
+    Literal,
+    Sequence,
+    Unpack,
+)
 
 # Bokeh imports
 from .._types import TextLike

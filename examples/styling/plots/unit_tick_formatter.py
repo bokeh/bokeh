@@ -1,8 +1,11 @@
+# Standard library imports
 from math import pi, sin
 
+# Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import AdaptiveTicker, UnitTicker, UnitTickFormatter
 from bokeh.plotting import figure, show
+
 
 def make_plot(multiple: int, title: str):
     bound = multiple*pi

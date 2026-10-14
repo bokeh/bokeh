@@ -131,6 +131,24 @@ def test_unit_tick_formatter_accepts_math_text_units() -> None:
     assert isinstance(copied_formatter.suffix, TeX)
     assert copied_formatter.suffix.text == r"\pi"
 
+def test_unit_tick_formatter_serializes_delimited_math_text_strings() -> None:
+    formatter = bmf.UnitTickFormatter(
+        base_label=r"$$\overline{x}$$",
+        prefix=r"$$\Delta$$",
+        suffix=r"$$\pi$$",
+        name="formatter",
+    )
+    doc = Document()
+    doc.add_root(formatter)
+
+    copy = Document.from_json(doc.to_json())
+    copied_formatter = copy.get_model_by_name("formatter")
+
+    assert isinstance(copied_formatter, bmf.UnitTickFormatter)
+    assert copied_formatter.base_label == r"$$\overline{x}$$"
+    assert copied_formatter.prefix == r"$$\Delta$$"
+    assert copied_formatter.suffix == r"$$\pi$$"
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

@@ -23,8 +23,8 @@ from bokeh.models import (
     FixedTicker,
     MathText,
     PlainText,
-    UnitTickFormatter,
     TeX,
+    UnitTickFormatter,
 )
 
 # Module under test
