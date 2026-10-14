@@ -25,6 +25,7 @@ from bokeh.core.properties import Int, List, String
 from bokeh.core.types import ID
 from bokeh.models import *  # noqa: F403
 from bokeh.models import (
+    CategoricalColorMapper,
     ColumnDataSource,
     CustomJS,
     Div,
@@ -127,7 +128,8 @@ class Test_Model___init__:
         assert str(signature(CustomChild)) == "(value, /)"
         assert CustomChild(17).a == 17
 
-    def test_cooperative_diamond_mro(self) -> None:
+    @pytest.mark.parametrize("builtin", [False, True])
+    def test_cooperative_diamond_mro(self, builtin) -> None:
         calls = []
 
         class Root(Model, Local):
@@ -139,14 +141,18 @@ class Test_Model___init__:
             pass
 
         class Right(Root):
-            def __init__(self, **kwargs):
+            def __init__(self, token, /, **kwargs):
                 calls.append("right")
                 super().__init__(**kwargs)
 
         class Diamond(Left, Right):
-            pass
+            if builtin:
+                __module__ = "bokeh.models.test_model"
 
-        Diamond(name="diamond")
+        signature(Diamond).bind("token", name="diamond")
+        model = Diamond("token", name="diamond")
+        signature(Diamond.__init__).bind(model, "token", name="diamond")
+        signature(model.__init__).bind("token", name="diamond")
         assert calls == ["right", "root"]
 
     def test_mixin_constructor_precedes_model(self) -> None:
@@ -179,12 +185,17 @@ class Test_Model___init__:
                 method_signature = signature(cls.__init__)
                 assert method_signature.parameters["self"].kind == Parameter.POSITIONAL_ONLY
                 assert signature(cls) == Signature(list(method_signature.parameters.values())[1:])
+                if hasattr(cls.__init__, "__bokeh_initializer__"):
+                    effective = next(base.__dict__["__init__"] for base in cls.__mro__
+                                     if "__init__" in base.__dict__ and not hasattr(base.__dict__["__init__"], "__bokeh_initializer__"))
+                    assert cls.__init__.__bokeh_initializer__ is effective
 
         model = Range1d(2, 8)
         assert signature(model.__init__) == signature(Range1d)
 
     @pytest.mark.parametrize(("cls", "args"), [
         (Range1d, (0, 10)),
+        (CategoricalColorMapper, (["red"],)),
         (Row, (Div(), Div())),
         (ColumnDataSource, ({"x": [1]},)),
         (SetValue, (Range1d(), "start", 1)),
