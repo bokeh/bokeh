@@ -12,6 +12,7 @@ from typing import (
     Sequence,
     TypedDict,
     Unpack,
+    overload,
 )
 
 # Bokeh imports
@@ -140,11 +141,17 @@ class VBox(LayoutDOM):
     rows: TracksSizing | None = ...
     spacing: NonNegative[int] = ...
 
-class _FlexBoxInit(_LayoutDOMInit, total=False):
-    children: Sequence[UIElement]
+class _FlexBoxArgsInit(_LayoutDOMInit, total=False):
     spacing: NonNegative[int]
 
+class _FlexBoxInit(_FlexBoxArgsInit, total=False):
+    children: Sequence[UIElement]
+
 class FlexBox(LayoutDOM):
+    @overload
+    @abstractmethod
+    def __init__(self, *children: UIElement, **kwargs: Unpack[_FlexBoxArgsInit]) -> None: ...
+    @overload
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_FlexBoxInit]) -> None: ...
 
@@ -158,12 +165,18 @@ class _RowInit(_FlexBoxInit, total=False):
     ...
 
 class Row(FlexBox):
+    @overload
+    def __init__(self, *children: UIElement, **kwargs: Unpack[_FlexBoxArgsInit]) -> None: ...
+    @overload
     def __init__(self, **kwargs: Unpack[_RowInit]) -> None: ...
 
 class _ColumnInit(_FlexBoxInit, total=False):
     ...
 
 class Column(FlexBox):
+    @overload
+    def __init__(self, *children: UIElement, **kwargs: Unpack[_FlexBoxArgsInit]) -> None: ...
+    @overload
     def __init__(self, **kwargs: Unpack[_ColumnInit]) -> None: ...
 
 class _TabPanelInit(_ModelInit, total=False):

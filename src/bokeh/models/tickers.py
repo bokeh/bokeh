@@ -24,6 +24,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.enums import LatLon
@@ -195,6 +197,9 @@ class AdaptiveTicker(ContinuousTicker):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     base = Float(10.0, help="""
     The multiplier to use for scaling mantissas.
     """)
@@ -252,6 +257,9 @@ class DaysTicker(BaseSingleIntervalTicker):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     days = Seq(Int, default=[], help="""
     The intervals of days to use.
     """)
@@ -262,6 +270,9 @@ class MonthsTicker(BaseSingleIntervalTicker):
     ''' Generate ticks spaced apart by specific, even multiples of months.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     months = Seq(Int, default=[], help="""
     The intervals of months to use.

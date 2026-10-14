@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # Bokeh imports
 from ...core.enums import CalendarPosition
 from ...core.has_props import HasProps, abstract

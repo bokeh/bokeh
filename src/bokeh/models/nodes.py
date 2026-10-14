@@ -10,9 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Runtime constructors are synthesized; public signatures are defined in the .pyi.
-# pyright: reportCallIssue=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -21,7 +18,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import ClassVar
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any, ClassVar
 
 # Bokeh imports
 from ..core.enums import ImplicitTarget, ImplicitTargetType
@@ -162,6 +160,9 @@ class Node(Coordinate):
     .. note::
         This model is experimental and may change at any point.
     """
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     target = Required(Either(Instance(Model), Enum(ImplicitTarget)), help="""
     The provider of coordinates for this node.

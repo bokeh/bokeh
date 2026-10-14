@@ -23,7 +23,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...core.enums import (
@@ -570,6 +571,9 @@ class TableColumn(Model):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     field = Required(String, help="""
     The name of the field mapping to a column in the data source.
     """)
@@ -631,6 +635,9 @@ class DataTable(TableWidget):
     of data.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     autosize_mode = Enum(AutosizeMode, default="force_fit", help="""
     Describes the column autosizing mode with one of the following options:

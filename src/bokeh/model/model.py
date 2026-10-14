@@ -103,20 +103,51 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
 
+        initializer = cls.__init__
+        effective_initializer = getattr(initializer, "__bokeh_initializer__", initializer)
+        original_signature = getattr(effective_initializer, "__bokeh_init_signature__", None)
+        if original_signature is None and effective_initializer is not Model.__init__:
+            try:
+                original_signature = signature(effective_initializer)
+            except (TypeError, ValueError):
+                # Some extension constructors cannot be inspected. Forwarding
+                # must still work even when their signature is unavailable.
+                pass
+
         if "__init__" not in cls.__dict__:
             # Each model needs its own function to avoid changing an inherited signature.
             def __init__(self, *args: Any, **kwargs: Any) -> None:
                 # Resolve the next constructor using the instance's MRO, including mixins.
                 super(cls, self).__init__(*args, **kwargs)
 
-            __init__.__signature__ = signature(cls.__init__)
+            try:
+                __init__.__signature__ = signature(initializer)
+            except (TypeError, ValueError):
+                pass
+            __init__.__bokeh_initializer__ = effective_initializer
             __init__.__qualname__ = f"{cls.__qualname__}.__init__"
             __init__.__module__ = cls.__module__
             cls.__init__ = __init__
 
         if cls.__module__.startswith("bokeh.models"):
-            # inspect.signature() removes self when inspecting the class or a bound method.
-            parameters = [Parameter("self", Parameter.POSITIONAL_ONLY), *[x[0] for x in cls.parameters()]]
+            # Preserve explicit constructors' positional and keyword arguments.
+            # Model's own *args only rejects positional inputs, so omit it.
+            parameters = [Parameter("self", Parameter.POSITIONAL_ONLY)]
+            if effective_initializer is not Model.__init__ and original_signature is not None:
+                parameters.extend(param for param in list(original_signature.parameters.values())[1:]
+                                  if param.kind != Parameter.VAR_KEYWORD)
+            names = {param.name for param in parameters}
+            property_parameters = [entry[0] for entry in cls.parameters()]
+            parameters.extend(param if param.kind == Parameter.KEYWORD_ONLY else param.replace(kind=Parameter.KEYWORD_ONLY)
+                              for param in property_parameters
+                              if param.name not in names)
+            # HTML accepts both *html and html= through **kwargs. Signature
+            # cannot declare the same name twice, so retain its kwargs escape.
+            variadic_names = {param.name for param in parameters if param.kind == Parameter.VAR_POSITIONAL}
+            if original_signature is not None and any(param.name in variadic_names for param in property_parameters):
+                parameters.extend(param for param in original_signature.parameters.values()
+                                  if param.kind == Parameter.VAR_KEYWORD)
+            cls.__init__.__bokeh_init_signature__ = original_signature
             cls.__init__.__signature__ = Signature(parameters=parameters)
             process_example(cls)
 

@@ -21,8 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # Bokeh imports
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.validation import error

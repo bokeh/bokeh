@@ -24,6 +24,8 @@ p.scatter(x="x", y="y", marker="circle", size="size", source={"x": [1], "y": [2]
 # Input types can be covariant without weakening the mutable getter type.
 rows: list[Row] = [Row()]
 columns: list[Column] = [Column()]
+Row(Row(), Column(), width=100)
+Column(*rows, spacing=5)
 children: Sequence[UIElement] = tuple(rows)
 row = Row(children=columns)
 column = Column(children=rows)

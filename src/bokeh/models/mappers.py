@@ -24,8 +24,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # Bokeh imports
 from .. import palettes
 from ..core.enums import Palette

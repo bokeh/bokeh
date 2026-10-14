@@ -10,9 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Runtime constructors are synthesized; public signatures are defined in the .pyi.
-# pyright: reportCallIssue=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -21,6 +18,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.has_props import abstract
@@ -81,6 +80,9 @@ class AllIndices(Filter):
 class InversionFilter(Filter):
     """ Inverts indices resulting from another filter. """
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     operand = Required(Instance(Filter), help="""
     Indices produced by this filter will be inverted.
     """)
@@ -96,14 +98,26 @@ class CompositeFilter(Filter):
 class IntersectionFilter(CompositeFilter):
     """ Computes intersection of indices resulting from other filters. """
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
 class UnionFilter(CompositeFilter):
     """ Computes union of indices resulting from other filters. """
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class DifferenceFilter(CompositeFilter):
     """ Computes difference of indices resulting from other filters. """
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
 class SymmetricDifferenceFilter(CompositeFilter):
     """ Computes symmetric difference of indices resulting from other filters. """
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.

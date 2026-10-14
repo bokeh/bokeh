@@ -25,7 +25,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
-from typing import Any, cast
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any, cast
 
 # Bokeh imports
 from ..core.enums import (
@@ -730,6 +731,9 @@ class DatetimeTickFormatter(TickFormatter):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     microseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
                           default="%fus")
 
@@ -872,6 +876,9 @@ class TimedeltaTickFormatter(TickFormatter):
     +--------+-----------------------------------------------------------------+
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     nanoseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``nanoseconds``"),
                           default="%NSns")

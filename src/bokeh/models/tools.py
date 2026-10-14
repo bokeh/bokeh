@@ -32,8 +32,7 @@ always be active regardless of what other tools are currently active.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Runtime constructors are synthesized; public signatures are defined in the .pyi.
-# pyright: reportArgumentType=false, reportCallIssue=false
+# pyright: reportArgumentType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -45,7 +44,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 from math import nan
-from typing import Callable, ClassVar
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    ClassVar,
+)
 
 # Bokeh imports
 from ..core.enums import (
@@ -414,6 +419,9 @@ class PanTool(Drag):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the pan tool is constrained to act in. By default
     the pan tool will pan in any dimension, but can be configured to only
@@ -425,6 +433,9 @@ class ClickPanTool(PlotActionTool):
     ''' A tool that allows to pan a plot by a fixed amount by clicking a button.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     direction = Required(Enum(PanDirection), help="""
     The direction in which to pan the plot.
@@ -549,6 +560,9 @@ class WheelPanTool(Scroll):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     dimension = Enum(Dimension, default="width", help="""
     Which dimension the wheel pan tool is constrained to act in. By default the
     wheel pan tool will pan the plot along the x-axis.
@@ -599,6 +613,9 @@ class WheelZoomTool(Scroll):
         :alt: Icon of a mouse shape next to an hourglass representing the wheel-zoom tool in the toolbar.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     # ZoomBaseTool common {
     dimensions = Enum(Dimensions, default="both", help="""
@@ -835,6 +852,9 @@ class TapTool(Tap, SelectTool):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     mode = Enum(SelectionMode, default="toggle", help="""
     Defines what should happen when a new selection is made.
 
@@ -927,6 +947,9 @@ class CrosshairTool(InspectTool):
         :alt: Icon of circle with aiming reticle marks representing the crosshair tool in the toolbar.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     overlay = Either(
         Auto,
@@ -1029,6 +1052,9 @@ class BoxZoomTool(Drag):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     dimensions = Either(Enum(Dimensions), Auto, default="auto", help="""
     Which dimensions the zoom box is to be free in. By default, users may
     freely draw zoom boxes with any dimensions. If only "width" is supplied,
@@ -1096,6 +1122,9 @@ class ZoomInTool(ZoomBaseTool):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
 class ZoomOutTool(ZoomBaseTool):
     ''' *toolbar icon*: |zoom_out_icon|
 
@@ -1107,6 +1136,9 @@ class ZoomOutTool(ZoomBaseTool):
         :alt: Icon of a minus sign next to a magnifying glass representing the zoom-out tool in the toolbar.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     maintain_focus = Bool(default=True, help="""
     If ``True``, then hitting a range bound in any one dimension will prevent
@@ -1131,6 +1163,9 @@ class BoxSelectTool(Drag, RegionSelectTool):
         :alt: Icon of a dashed box with a + in the lower right representing the box-selection tool in the toolbar.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the box selection is to be free in. By default, users may
@@ -1376,6 +1411,9 @@ class HoverTool(InspectTool):
         :alt: Icon of a popup tooltip with abstract lines of text representing the hover tool in the toolbar.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     A list of renderers to hit test against. If unset, defaults to
