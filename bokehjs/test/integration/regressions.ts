@@ -5,7 +5,7 @@ import {display, fig, row, column, grid} from "#framework/layouts"
 import {DelayedInternalProvider, async_trap} from "#framework/util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
-import type {ArrowHead, Image, Line} from "@bokehjs/models"
+import type {ArrowHead, Image, Line, UIElement} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -5731,6 +5731,84 @@ describe("Bug", () => {
       for (const plot of plots) {
         expect_not_cropped(view.owner.get_one(plot))
       }
+    })
+  })
+
+  describe("in issue #13384", () => {
+    function grid_layout() {
+      const s1 = fig([200, 200])
+      const s2 = fig([150, 150])
+      const s3 = fig([150, 150])
+      const x = [0, 1, 2, 3, 4]
+      s1.scatter(x, x, {size: 10, color: "#53777a"})
+      s2.scatter(x, x.map((xi) => 4 - xi), {size: 10, color: "#c02942"})
+      s3.scatter(x, x.map((xi) => Math.abs(xi - 2)), {size: 10, color: "#d95b43"})
+      const grid = gridplot([[s2, s3]], {width: 150, height: 150})
+      return {layout: column([s1, grid]), plots: [s1, s2, s3]}
+    }
+
+    async function expect_frames_laid_out(root: UIElement, viewport: [number, number], plots: Figure[]): Promise<void> {
+      const {view} = await display(root, viewport)
+      for (const plot of plots) {
+        const {width, height} = view.owner.get_one(plot).frame.bbox
+        expect(width).to.be.within(100, plot.width ?? 0)
+        expect(height).to.be.within(100, plot.height ?? 0)
+      }
+    }
+
+    it("doesn't lay out a grid plot in Tabs with linked layouts in a row", async () => {
+      const {layout, plots} = grid_layout()
+      const tabs = Tabs.create({
+        tabs: [TabPanel.create({title: "Tab with grid", child: layout})],
+        link_layouts: true,
+      })
+      await expect_frames_laid_out(row([tabs]), [320, 430], plots)
+    })
+
+    it("doesn't lay out a grid plot in a column in a column in a row", async () => {
+      const {layout, plots} = grid_layout()
+      await expect_frames_laid_out(row([column([layout])]), [320, 400], plots)
+    })
+  })
+
+  describe("in issue #14359", () => {
+    function make_tabs(children: UIElement[], prefix: string, link_layouts: boolean) {
+      const tabs = children.map((child, i) => TabPanel.create({title: `${prefix}${i}`, child}))
+      return Tabs.create({tabs, link_layouts})
+    }
+
+    function inner_tabs(link_layouts: boolean) {
+      const plots = range(0, 6).map((i) => {
+        const plot = fig([i == 0 ? 180 : 150, 150])
+        plot.line([i, i + 1, i + 2], [i + 2, i + 3, i + 5])
+        return plot
+      })
+      const [p0, p1, p2, p3, p4, p5] = plots
+      const grid = gridplot([[p0, null], [p1, p2]])
+      const lay = column([row([p3]), row([p4, p5])])
+      return {tabs: make_tabs([grid, lay], "inner", link_layouts), grid_plots: [p0, p1, p2]}
+    }
+
+    async function nested_tabs(link_layouts: boolean): Promise<void> {
+      const inner0 = inner_tabs(link_layouts)
+      const inner1 = inner_tabs(link_layouts)
+      const outer = make_tabs([inner0.tabs, inner1.tabs], "outer", link_layouts)
+      const toggle = Toggle.create({label: "button1"})
+      const {view} = await display(column([toggle, outer]), [350, 450])
+
+      for (const plot of inner0.grid_plots) {
+        const {width, height} = view.owner.get_one(plot).frame.bbox
+        expect(width).to.be.within(100, plot.width ?? 0)
+        expect(height).to.be.within(100, plot.height ?? 0)
+      }
+    }
+
+    it("doesn't lay out a grid plot in nested Tabs with linked layouts", async () => {
+      await nested_tabs(true)
+    })
+
+    it("doesn't lay out a grid plot in nested Tabs", async () => {
+      await nested_tabs(false)
     })
   })
 })
