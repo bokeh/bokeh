@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportCallIssue=false, reportAssignmentType=false
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportAssignmentType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ from typing import (
     Any,
     Mapping,
     Sequence,
+    cast,
 )
 
 # External imports
@@ -367,7 +368,8 @@ class ColumnDataSource(ColumnarDataSource):
             return df.index.name
         elif df.index.names:
             try:
-                return "_".join(df.index.names)
+                # Non-string index names fall back through TypeError below.
+                return "_".join(cast("Sequence[str]", df.index.names))
             except TypeError:
                 return "index"
         else:
@@ -558,7 +560,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         if pd and isinstance(new_data, (pd.Series, pd.DataFrame)):
             if isinstance(new_data, pd.Series):
-                new_data = new_data.to_frame().T
+                new_data = cast("pd.Series", new_data).to_frame().T
 
             needs_length_check = False # DataFrame lengths equal by definition
             _df = new_data
@@ -569,6 +571,9 @@ class ColumnDataSource(ColumnarDataSource):
             new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())
+
+        # The pandas branch above converts DataFrames and Series into column dictionaries.
+        new_data = cast("DataDict", new_data)
 
         oldkeys = set(self.data.keys())
 

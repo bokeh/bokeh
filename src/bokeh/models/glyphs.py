@@ -17,7 +17,7 @@ All glyphs share a minimal common interface through the base class
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAttributeAccessIssue=false, reportCallIssue=false
+# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAttributeAccessIssue=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -799,7 +799,7 @@ class Image(ImageBase):
         elif 'color_mapper' not in kwargs:
             # Use a palette (given or default)
             palette = kwargs.pop('palette', 'Greys9')
-            mapper = LinearColorMapper(palette)
+            mapper = LinearColorMapper(palette=palette)
             kwargs['color_mapper'] = mapper
 
         super().__init__(*args, **kwargs)

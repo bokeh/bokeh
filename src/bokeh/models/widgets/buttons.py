@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportAbstractUsage=false, reportArgumentType=false, reportCallIssue=false
+# pyright: reportAbstractUsage=false, reportArgumentType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -200,7 +200,7 @@ class HelpButton(AbstractButton):
 
     label = Override(default="")
 
-    icon = Override(default=lambda: BuiltinIcon("help", size=18))
+    icon = Override(default=lambda: BuiltinIcon(icon_name="help", size=18))
 
     button_type = Override(default="default")
 
