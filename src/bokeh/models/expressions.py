@@ -33,8 +33,7 @@ browser by the JavaScript implementation of ``some_expression`` using a
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Runtime constructors are synthesized; public signatures are defined in the .pyi.
-# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportCallIssue=false
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -45,6 +44,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.enums import Direction
@@ -241,9 +242,15 @@ class XYComponent(Expression):
 class XComponent(XYComponent):
     """ X-component of a coordinate system transform to cartesian coordinates. """
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
 
 class YComponent(XYComponent):
     """ Y-component of a coordinate system transform to cartesian coordinates. """
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 #-----------------------------------------------------------------------------

@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 from subprocess import run
 
@@ -30,12 +31,12 @@ def test_model_initializer_types(checker: str, fixture: str, tmp_path: Path) -> 
     source = (TOP_PATH / "tests" / "typing" / f"{fixture}.py.txt").read_text()
     path = tmp_path / f"{fixture}.py"
     path.write_text(source)
-    expected = {
-        (line_number, code)
+    expected = Counter(
+        (path.resolve(), line_number, code)
         for line_number, line in enumerate(source.splitlines(), 1)
         if (match := re.search(rf"{checker}: ([\w,-]+)", line)) is not None
         for code in match.group(1).split(",")
-    }
+    )
 
     if checker == "mypy":
         args = [
@@ -48,16 +49,18 @@ def test_model_initializer_types(checker: str, fixture: str, tmp_path: Path) -> 
     assert result.returncode == (1 if expected else 0), result.stdout + result.stderr
 
     if checker == "mypy":
-        actual = {
-            (int(match.group(1)), match.group(2))
+        actual = Counter(
+            (Path(match.group(1)).resolve(), int(match.group(2)), match.group(3))
             for line in result.stdout.splitlines()
-            if (match := re.search(r":(\d+):\d+: error: .*\[([\w-]+)\]$", line)) is not None
-        }
+            if (match := re.search(r"^(.*):([0-9]+):[0-9]+: error: .*\[([\w-]+)\]$", line)) is not None
+        )
     else:
         diagnostics = json.loads(result.stdout)["generalDiagnostics"]
-        actual = {
-            (diagnostic["range"]["start"]["line"] + 1, diagnostic.get("rule", ""))
+        actual = Counter(
+            (Path(diagnostic["file"]).resolve(), diagnostic["range"]["start"]["line"] + 1, diagnostic.get("rule", ""))
             for diagnostic in diagnostics
             if diagnostic["severity"] == "error"
-        }
+        )
+    imported_errors = {key: count for key, count in actual.items() if key[0] != path.resolve()}
+    assert not imported_errors, f"Errors outside the consumer fixture: {imported_errors}\n{result.stdout}"
     assert actual == expected, result.stdout + result.stderr

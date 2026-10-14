@@ -10,6 +10,12 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
 # Standard library imports
 from inspect import Parameter, Signature, signature
 
@@ -18,16 +24,18 @@ from bokeh.core.has_props import Local, is_abstract
 from bokeh.core.properties import Int, List, String
 from bokeh.core.types import ID
 from bokeh.models import *  # noqa: F403
-from bokeh.models import CustomJS, Range1d
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    Div,
+    Range1d,
+    Row,
+    SetValue,
+)
+from bokeh.models.annotations.dimensional import Metric
+from bokeh.models.dom import HTML
 from bokeh.plotting import *  # noqa: F403
 from bokeh.util.warnings import BokehDeprecationWarning
-
-import pytest ; pytest
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
 
 from bokeh.document import document # isort:skip
 
@@ -174,6 +182,54 @@ class Test_Model___init__:
 
         model = Range1d(2, 8)
         assert signature(model.__init__) == signature(Range1d)
+
+    @pytest.mark.parametrize(("cls", "args"), [
+        (Range1d, (0, 10)),
+        (Row, (Div(), Div())),
+        (ColumnDataSource, ({"x": [1]},)),
+        (SetValue, (Range1d(), "start", 1)),
+        (HTML, ("text",)),
+    ])
+    def test_positional_constructor_signatures(self, cls, args) -> None:
+        class Derived(cls, Local):
+            pass
+
+        for model_type in [cls, Derived]:
+            model = model_type(*args)
+            signature(model_type).bind(*args)
+            signature(model_type.__init__).bind(model, *args)
+            signature(model.__init__).bind(*args)
+
+    @pytest.mark.parametrize("failure", ["invalid_signature", "wrapper_loop"])
+    def test_uninspectable_inherited_constructor(self, failure) -> None:
+        def initializer(self, **kwargs):
+            super(Opaque, self).__init__(**kwargs)
+
+        if failure == "invalid_signature":
+            initializer.__signature__ = "opaque"
+        else:
+            initializer.__wrapped__ = initializer
+
+        class Opaque(Model, Local):
+            __init__ = initializer
+
+        class Derived(Opaque):
+            pass
+
+        assert Derived(name="derived").name == "derived"
+
+    def test_dimensional_positional_arguments(self) -> None:
+        # Synthesized constructors reject positional inputs consistently with Model.
+        with pytest.raises(ValueError, match="positional arguments are not allowed"):
+            Metric("m")
+
+    def test_variadic_property_keyword_signature(self) -> None:
+        class Derived(HTML, Local):
+            pass
+
+        for cls in [HTML, Derived]:
+            signature(cls).bind(html=["text"])
+            assert cls(html=["text"]).html == ["text"]
 
 class Test_js_on_change:
     def test_exception_for_no_callbacks(self) -> None:

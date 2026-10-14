@@ -13,8 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Runtime constructors are synthesized; public signatures are defined in the .pyi.
-# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAssignmentType=false, reportCallIssue=false
+# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAssignmentType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -25,6 +24,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...core.enums import (
@@ -82,6 +83,9 @@ __all__ = (
 class AreaVisuals(Model):
     """ Allows to style line, fill and hatch visuals. """
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the box.
     """)
@@ -110,6 +114,9 @@ class BoxInteractionHandles(Model):
     """ Defines interaction handles for box-like annotations.
 
     """
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     all          = Required(Instance(AreaVisuals)) # move, resize
 

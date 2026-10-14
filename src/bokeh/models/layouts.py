@@ -13,8 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Runtime constructors are synthesized; public signatures are defined in the .pyi.
-# pyright: reportArgumentType=false, reportGeneralTypeIssues=false, reportOperatorIssue=false, reportReturnType=false, reportCallIssue=false
+# pyright: reportArgumentType=false, reportGeneralTypeIssues=false, reportOperatorIssue=false, reportReturnType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -24,6 +23,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..colors import RGB, Color, ColorLike
@@ -518,6 +519,9 @@ class TabPanel(Model):
     ''' A single-widget container with title bar and controls.
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     title = String(default="", help="""
     The text title of the panel.

@@ -14,8 +14,7 @@ labels on Bokeh plot axes.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Runtime constructors are synthesized; public signatures are defined in the .pyi.
-# pyright: reportAttributeAccessIssue=false, reportCallIssue=false
+# pyright: reportAttributeAccessIssue=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -26,6 +25,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.enums import (
@@ -525,6 +526,9 @@ class DatetimeTickFormatter(TickFormatter):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     microseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
                           default="%fus")
 
@@ -667,6 +671,9 @@ class TimedeltaTickFormatter(TickFormatter):
     +--------+-----------------------------------------------------------------+
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     nanoseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``nanoseconds``"),
                           default="%NSns")

@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # Bokeh imports
 from ...core.property.primitive import Bool
 from ...core.property.string import MathString

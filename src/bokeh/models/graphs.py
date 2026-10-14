@@ -10,8 +10,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Runtime constructors are synthesized; public signatures are defined in the .pyi.
-# pyright: reportAbstractUsage=false, reportCallIssue=false
+# pyright: reportAbstractUsage=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -21,6 +20,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.has_props import abstract
@@ -106,12 +107,18 @@ class NodeCoordinates(GraphCoordinates):
 
     '''
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
 
 class EdgeCoordinates(GraphCoordinates):
     '''
     Node coordinate expression obtained from ``LayoutProvider``
 
     '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 @abstract
