@@ -110,8 +110,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             try:
                 original_signature = signature(effective_initializer)
             except (TypeError, ValueError):
-                # Some extension constructors cannot be inspected. Forwarding
-                # must still work even when their signature is unavailable.
+                # Constructor inspection may fail on unsupported callables or malformed
+                # signature/wrapper metadata. Do not let that prevent class creation.
                 pass
 
         if "__init__" not in cls.__dict__:
@@ -136,17 +136,22 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             if effective_initializer is not Model.__init__ and original_signature is not None:
                 parameters.extend(param for param in list(original_signature.parameters.values())[1:]
                                   if param.kind != Parameter.VAR_KEYWORD)
-            names = {param.name for param in parameters}
             property_parameters = [entry[0] for entry in cls.parameters()]
+            property_names = {param.name for param in property_parameters}
+            names = property_names | {param.name for param in parameters}
+            # A variadic argument's local name is not a caller-facing keyword.
+            # Rename it in the displayed signature when a property uses that name.
+            for index, param in enumerate(parameters):
+                if param.kind == Parameter.VAR_POSITIONAL and param.name in property_names:
+                    name = f"{param.name}_args"
+                    while name in names:
+                        name += "_"
+                    parameters[index] = param.replace(name=name)
+                    names.add(name)
+            names = {param.name for param in parameters}
             parameters.extend(param if param.kind == Parameter.KEYWORD_ONLY else param.replace(kind=Parameter.KEYWORD_ONLY)
                               for param in property_parameters
                               if param.name not in names)
-            # HTML accepts both *html and html= through **kwargs. Signature
-            # cannot declare the same name twice, so retain its kwargs escape.
-            variadic_names = {param.name for param in parameters if param.kind == Parameter.VAR_POSITIONAL}
-            if original_signature is not None and any(param.name in variadic_names for param in property_parameters):
-                parameters.extend(param for param in original_signature.parameters.values()
-                                  if param.kind == Parameter.VAR_KEYWORD)
             cls.__init__.__bokeh_init_signature__ = original_signature
             cls.__init__.__signature__ = Signature(parameters=parameters)
             process_example(cls)
