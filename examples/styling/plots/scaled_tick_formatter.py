@@ -1,31 +1,23 @@
-from math import pi
+from math import pi, sin
 
-from bokeh.core.properties import expr
 from bokeh.layouts import column
-from bokeh.models import AdaptiveTicker, ColumnDataSource, CustomJSExpr, ScaledTicker, ScaledTickFormatter
+from bokeh.models import AdaptiveTicker, ScaledTicker, ScaledTickFormatter
 from bokeh.plotting import figure, show
 
 def make_plot(multiple: int, title: str):
     bound = multiple*pi
-    source = ColumnDataSource(data=dict(t=[i/400 for i in range(401)]))
+    x = [-bound + 2*bound*i/400 for i in range(401)]
 
     p = figure(
         width=650,
         height=250,
         x_range=(-bound, bound),
         y_range=(-1.1, 1.1),
-        tools="xpan,xwheel_zoom,reset,save",
+        tools="",
+        toolbar_location=None,
         title=title,
     )
-    x = CustomJSExpr(args=dict(x_range=p.x_range), code="""
-        const {start, end} = x_range
-        return this.data.t.map((t) => start + t*(end - start))
-    """)
-    y = CustomJSExpr(args=dict(x_range=p.x_range), code="""
-        const {start, end} = x_range
-        return this.data.t.map((t) => Math.sin(start + t*(end - start)))
-    """)
-    p.line(x=expr(x), y=expr(y), source=source, line_width=2)
+    p.line(x, [sin(value) for value in x], line_width=2)
 
     p.xaxis[0].ticker = ScaledTicker(
         scale=pi,

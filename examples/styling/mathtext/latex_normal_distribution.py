@@ -11,7 +11,7 @@ use of mathtext on axes and in ``Div`` objects.
 import numpy as np
 
 from bokeh.layouts import column
-from bokeh.models import DataRange1d, Div, FixedTicker, ScaledTicker, ScaledTickFormatter, TeX
+from bokeh.models import DataRange1d, Div, ScaledTicker, ScaledTickFormatter, SingleIntervalTicker, TeX
 from bokeh.plotting import figure, show
 
 p = figure(width=670, height=400, toolbar_location=None, y_range=DataRange1d(start=0),
@@ -44,7 +44,7 @@ p.yaxis.axis_label = "PDF(x)"
 
 p.xaxis[0].ticker = ScaledTicker(
     scale=1,
-    ticker=FixedTicker(ticks=[-3, -2, -1, 0, 1, 2, 3]),
+    ticker=SingleIntervalTicker(interval=1),
 )
 p.xaxis[0].formatter = ScaledTickFormatter(
     base_label=TeX(text=r"\overline{x}"),
