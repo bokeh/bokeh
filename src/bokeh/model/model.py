@@ -104,7 +104,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         super().__init_subclass__(**kwargs)
 
         initializer = cls.__init__
-        effective_initializer = getattr(initializer, "__bokeh_initializer__", initializer)
+        # Synthesized wrappers forward through this class's MRO. In a diamond,
+        # the first parent's recorded initializer may belong to another branch.
+        effective_initializer = next(
+            base.__dict__["__init__"] for base in cls.__mro__
+            if "__init__" in base.__dict__ and not hasattr(base.__dict__["__init__"], "__bokeh_initializer__")
+        )
         original_signature = getattr(effective_initializer, "__bokeh_init_signature__", None)
         if original_signature is None and effective_initializer is not Model.__init__:
             try:
@@ -121,7 +126,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 super(cls, self).__init__(*args, **kwargs)
 
             try:
-                __init__.__signature__ = signature(initializer)
+                display_initializer = initializer if getattr(initializer, "__bokeh_initializer__", initializer) is effective_initializer else effective_initializer
+                __init__.__signature__ = signature(display_initializer)
             except (TypeError, ValueError):
                 pass
             __init__.__bokeh_initializer__ = effective_initializer
