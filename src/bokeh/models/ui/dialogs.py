@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ...core.enums import Movable, Resizable
@@ -51,10 +50,6 @@ class Dialog(UIElement):
     .. note::
         This model and all its properties is experimental and may change at any point.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     title = Nullable(Either(String, Instance(DOMNode), Instance(UIElement)), help="""
     The title of the dialog.

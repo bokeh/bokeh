@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -50,10 +49,6 @@ class Annotation(CompositeRenderer):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     level = Override(default="annotation")
 
 @abstract
@@ -61,10 +56,6 @@ class DataAnnotation(Annotation):
     ''' Base class for annotations that utilize a data source.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
     Local data source to use when rendering annotations on the plot.

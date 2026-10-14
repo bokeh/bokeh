@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from ...core.enums import (
@@ -113,10 +113,6 @@ class BaseColorBar(Annotation):
     ''' Abstract base class for color bars.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     location = Either(Enum(HVAlign), Tuple(Float, Float), default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
@@ -274,10 +270,6 @@ class ColorBar(BaseColorBar):
     See :ref:`ug_basic_annotations_color_bars` for information on plotting color bars.
 
     '''
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     color_mapper = Instance(ColorMapper, help="""
     A color mapper containing a color palette to render.
 
@@ -313,10 +305,6 @@ class ContourColorBar(BaseColorBar):
     Do not create these objects manually, instead use ``ContourRenderer.color_bar``.
 
     '''
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     fill_renderer = Instance(GlyphRenderer, help="""
     Glyph renderer used for filled contour polygons.
     """)
@@ -389,10 +377,6 @@ class Legend(Annotation):
     See :ref:`ug_basic_annotations_legends` for information on plotting legends.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
     The location where the legend should draw itself. It's either one of
@@ -590,10 +574,6 @@ class ScaleBar(Annotation):
     """ Represents a scale bar annotation.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     @error(NON_MATCHING_SCALE_BAR_UNIT)
     def _check_non_matching_scale_bar_unit(self):
         if not self.dimensional.is_known(self.unit):
@@ -778,10 +758,6 @@ class BaseBar(Annotation):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     location = Either(Enum(HVAlign), Tuple(Float, Float), default="top_right", help="""
     The location where the bar should draw itself. It's either one of
     ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
@@ -918,10 +894,6 @@ class SizeBar(BaseBar):
     2D scatter plots.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     renderer = Either(GlyphRendererOf(RadialGlyph), Auto, default="auto", help="""
     A reference to a radial glyph renderer or ``"auto"``.

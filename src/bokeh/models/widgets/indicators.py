@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ...core.enums import Orientation
@@ -51,10 +50,6 @@ class Indicator(Widget):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -66,10 +61,6 @@ class Progress(Indicator):
         Long running or computationally heavy tasks may prevent the progress
         indicator from updating until such tasks are completed.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     mode = Enum("determinate", "indeterminate")(default="determinate", help="""
     Indicates the mode of operation of this widget.

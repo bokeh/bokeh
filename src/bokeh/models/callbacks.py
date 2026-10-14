@@ -13,7 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportAssignmentType=false, reportMissingImports=false
+# Runtime constructors are synthesized; public signatures are defined in the .pyi.
+# pyright: reportAssignmentType=false, reportMissingImports=false, reportCallIssue=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -69,18 +70,10 @@ class Callback(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class OpenURL(Callback):
     ''' Open a URL in a new or current tab or window.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     url = String("http://", help="""
     The URL to direct the web browser to. This can be a template string,
@@ -97,10 +90,6 @@ class OpenURL(Callback):
 class CustomCode(Callback):
     """ """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class CustomJS(CustomCode):
     ''' Execute a JavaScript function.
 
@@ -111,10 +100,6 @@ class CustomJS(CustomCode):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef)(default={}, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -289,20 +274,12 @@ class SetValue(Callback):
 class ToggleVisibility(Callback):
     """ Toggle visibility of a UI element. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     target = Required(Instance(".models.ui.UIElement"), help="""
     A UI element to show or hide.
     """)
 
 class OpenDialog(Callback):
     """ Open a dialog box. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dialog = Required(Instance(".models.ui.Dialog"), help="""
     A dialog instance to open.
@@ -317,10 +294,6 @@ class OpenDialog(Callback):
 
 class CloseDialog(Callback):
     """ Close a dialog box. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dialog = Required(Instance(".models.ui.Dialog"), help="""
     A dialog instance to close.

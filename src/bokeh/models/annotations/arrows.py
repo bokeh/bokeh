@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ...core.enums import CoordinateUnits
@@ -62,10 +61,6 @@ class ArrowHead(Marking):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     size = NumberSpec(default=25, help="""
     The size, in pixels, of the arrow head.
     """)
@@ -77,10 +72,6 @@ class OpenHead(ArrowHead):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     line_props = Include(LineProps, help="""
 
     The {prop} values for the arrow head outline.
@@ -90,10 +81,6 @@ class NormalHead(ArrowHead):
     ''' Render a closed-body arrow head.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
@@ -114,10 +101,6 @@ class TeeHead(ArrowHead):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
     """)
@@ -126,10 +109,6 @@ class VeeHead(ArrowHead):
     ''' Render a vee-style arrow head.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
@@ -151,10 +130,6 @@ class Arrow(DataAnnotation):
     See :ref:`ug_basic_annotations_arrows` for information on plotting arrows.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     x_start = NumberSpec(default=field("x_start"), help="""
     The x-coordinates to locate the start of the arrows.

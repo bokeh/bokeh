@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ...core.has_props import HasProps
@@ -47,10 +46,6 @@ __all__ = (
 
 class Examiner(UIElement):
     """ A diagnostic tool for examining documents, models, properties, etc. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     target = Nullable(Instance(HasProps), help="""
     The model and its references to inspect. If not specified, then all models

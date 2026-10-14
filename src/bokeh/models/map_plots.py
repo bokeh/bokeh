@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ..core.enums import MapType
@@ -73,10 +72,6 @@ class MapOptions(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     lat = Required(Float, help="""
     The latitude where the map should be centered.
     """)
@@ -114,10 +109,6 @@ class GMapOptions(MapOptions):
     ''' Options for ``GMapPlot`` objects.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     map_type = Enum(MapType, default="roadmap", help="""
     The `map type`_ to use for the ``GMapPlot``.
@@ -172,10 +163,6 @@ class GMapPlot(MapPlot):
     .. _Google Map: https://www.google.com/maps/
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     # TODO (bev) map plot might not have these
     @error(REQUIRED_RANGE)

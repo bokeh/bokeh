@@ -62,10 +62,6 @@ class Icon(UIElement):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     size = Either(Int, FontSize, default="1em", help="""
     The size of the icon. This can be either a number of pixels, or a CSS
     length string (see https://developer.mozilla.org/en-US/docs/Web/CSS/length).

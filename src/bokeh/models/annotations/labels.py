@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ...core.enums import (
@@ -83,10 +82,6 @@ class TextAnnotation(Annotation):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     text = TextLike(default="", help="""
     A text or LaTeX notation to render.
     """)
@@ -145,10 +140,6 @@ class Label(TextAnnotation):
     See :ref:`ug_basic_annotations_labels` for information on plotting labels.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     anchor = TextAnchor(default="auto", help="""
     Position within the bounding box of the text of a label to which
@@ -237,10 +228,6 @@ class LabelSet(DataAnnotation):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
@@ -309,10 +296,6 @@ class Title(TextAnnotation):
     See :ref:`ug_basic_annotations_titles` for information on plotting titles.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     vertical_align = Enum(VerticalAlign, default='bottom', help="""
     Alignment of the text in its enclosing space, *across* the direction of the text.

@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ..core.enums import OutputBackend
@@ -39,10 +38,6 @@ __all__ = (
 
 class Canvas(UIElement):
     """ """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     output_backend = Enum(OutputBackend, default="canvas", help="""
     Specify the output backend for the plot area. Default is HTML5 Canvas.
