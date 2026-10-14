@@ -494,8 +494,8 @@ class FlexBox(LayoutDOM):
 class Row(FlexBox):
     ''' Lay out child components in a single horizontal row.
 
-    Children can be specified as positional arguments, as a single argument
-    that is a sequence, or using the ``children`` keyword argument.
+    Children can be specified as individual positional arguments or as a
+    sequence using the ``children`` keyword argument. These forms cannot be combined.
     '''
 
     def _sphinx_height_hint(self) -> int|None:
@@ -504,10 +504,10 @@ class Row(FlexBox):
         return max(x._sphinx_height_hint() for x in self.children)
 
 class Column(FlexBox):
-    ''' Lay out child components in a single vertical row.
+    ''' Lay out child components in a single vertical column.
 
-    Children can be specified as positional arguments, as a single argument
-    that is a sequence, or using the ``children`` keyword argument.
+    Children can be specified as individual positional arguments or as a
+    sequence using the ``children`` keyword argument. These forms cannot be combined.
     '''
 
     def _sphinx_height_hint(self) -> int|None:
