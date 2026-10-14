@@ -228,8 +228,29 @@ class Test_Model___init__:
             pass
 
         for cls in [HTML, Derived]:
+            parameters = signature(cls).parameters
+            assert parameters["html"].kind == Parameter.KEYWORD_ONLY
+            assert parameters["html_args"].kind == Parameter.VAR_POSITIONAL
+            assert not any(param.kind == Parameter.VAR_KEYWORD for param in parameters.values())
+            signature(cls).bind("first", "second")
             signature(cls).bind(html=["text"])
             assert cls(html=["text"]).html == ["text"]
+
+    def test_variadic_display_name_collision(self) -> None:
+        class Collision(HTML, Local):
+            __module__ = "bokeh.models.test_model"
+            html_args = String()
+            html_args_ = String()
+
+        parameters = signature(Collision).parameters
+        assert parameters["html_args__"].kind == Parameter.VAR_POSITIONAL
+        for name in ["html", "html_args", "html_args_"]:
+            assert parameters[name].kind == Parameter.KEYWORD_ONLY
+        signature(Collision).bind("text", html_args="a", html_args_="b")
+        model = Collision("text", html_args="a", html_args_="b")
+        assert model.html == ["text"]
+        assert model.html_args == "a"
+        assert model.html_args_ == "b"
 
 class Test_js_on_change:
     def test_exception_for_no_callbacks(self) -> None:
