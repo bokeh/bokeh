@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -58,10 +57,6 @@ class AbstractGroup(Widget):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     labels = List(String, help="""
     List of text labels contained in this group.
     """)
@@ -71,10 +66,6 @@ class ToggleButtonGroup(AbstractGroup, ButtonLike):
     ''' Abstract base class for groups with items rendered as buttons.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the button group either horizontally (default) or vertically.
@@ -86,10 +77,6 @@ class ToggleInputGroup(AbstractGroup):
     boxes.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     inline = Bool(False, help="""
     Should items be arrange vertically (``False``) or horizontally
@@ -105,10 +92,6 @@ class CheckboxGroup(ToggleInputGroup):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     active = List(Int, help="""
     The list of indices of selected check boxes.
     """)
@@ -117,10 +100,6 @@ class RadioGroup(ToggleInputGroup):
     ''' A group of radio boxes.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     active = Nullable(Int, help="""
     The index of the selected radio box, or ``None`` if nothing is selected.
@@ -131,10 +110,6 @@ class CheckboxButtonGroup(ToggleButtonGroup):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     active = List(Int, help="""
     The list of indices of selected check boxes.
     """)
@@ -143,10 +118,6 @@ class RadioButtonGroup(ToggleButtonGroup):
     ''' A group of radio boxes rendered as toggle buttons.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     active = Nullable(Int, help="""
     The index of the selected radio box, or ``None`` if nothing is

@@ -23,7 +23,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from inspect import Parameter, Signature, isclass
+from inspect import (
+    Parameter,
+    Signature,
+    isclass,
+    signature,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -98,9 +103,20 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
 
+        if "__init__" not in cls.__dict__:
+            # Each model needs its own function to avoid changing an inherited signature.
+            def __init__(self, *args: Any, **kwargs: Any) -> None:
+                # Resolve the next constructor using the instance's MRO, including mixins.
+                super(cls, self).__init__(*args, **kwargs)
+
+            __init__.__signature__ = signature(cls.__init__)
+            __init__.__qualname__ = f"{cls.__qualname__}.__init__"
+            __init__.__module__ = cls.__module__
+            cls.__init__ = __init__
+
         if cls.__module__.startswith("bokeh.models"):
-            assert "__init__" in cls.__dict__, str(cls)
-            parameters = [x[0] for x in cls.parameters()]
+            # inspect.signature() removes self when inspecting the class or a bound method.
+            parameters = [Parameter("self", Parameter.POSITIONAL_ONLY), *[x[0] for x in cls.parameters()]]
             cls.__init__.__signature__ = Signature(parameters=parameters)
             process_example(cls)
 

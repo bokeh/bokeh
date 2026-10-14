@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ..core.property.any import AnyRef
@@ -60,10 +59,6 @@ class TileSource(Model):
     In general, tile sources are used as a required input for ``TileRenderer``.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'extra_url_vars')
 
@@ -121,10 +116,6 @@ class MercatorTileSource(TileSource):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
     x_origin_offset = Override(default=20037508.34)
@@ -156,10 +147,6 @@ class TMSTileSource(MercatorTileSource):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class WMTSTileSource(MercatorTileSource):
     ''' Behaves much like ``TMSTileSource`` but has its tile-origin in the
     top-left.
@@ -170,10 +157,6 @@ class WMTSTileSource(MercatorTileSource):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class QUADKEYTileSource(MercatorTileSource):
     ''' Has the same tile origin as the ``WMTSTileSource`` but requests tiles using
     a `quadkey` argument instead of X, Y, Z e.g.
@@ -181,20 +164,12 @@ class QUADKEYTileSource(MercatorTileSource):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class BBoxTileSource(MercatorTileSource):
     ''' Has the same default tile origin as the ``WMTSTileSource`` but requested
     tiles use a ``{XMIN}``, ``{YMIN}``, ``{XMAX}``, ``{YMAX}`` e.g.
     ``http://your.custom.tile.service?bbox={XMIN},{YMIN},{XMAX},{YMAX}``.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     use_latlon = Bool(default=False, help="""
     Flag which indicates option to output ``{XMIN}``, ``{YMIN}``, ``{XMAX}``, ``{YMAX}`` in meters or latitude and longitude.

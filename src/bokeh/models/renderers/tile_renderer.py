@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
 
 # Bokeh imports
 from ...core.property.instance import Instance, InstanceDefault
@@ -47,10 +46,6 @@ class TileRenderer(Renderer):
     '''
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     tile_source = Instance(TileSource, default=InstanceDefault(WMTSTileSource), help="""
     Local data source to use when rendering glyphs on the plot.

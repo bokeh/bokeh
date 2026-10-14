@@ -65,10 +65,6 @@ __all__ = (
 class DOMNode(Model, Qualified):
     """ Base class for DOM nodes. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     def _repr_mimebundle_(self, include: set[str] | None = None,
             exclude: set[str] | None = None) -> Any:
         from ..io.notebook import notebook_mimebundle
@@ -77,19 +73,11 @@ class DOMNode(Model, Qualified):
 class Text(DOMNode):
     """ DOM text node. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     content = String("")
 
 @abstract
 class DOMElement(DOMNode):
     """ Base class for DOM elements. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     style = Either(Instance(Styles), Dict(String, String), default={})
 
@@ -97,57 +85,25 @@ class DOMElement(DOMNode):
 
 class Span(DOMElement):
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class Div(DOMElement):
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class Table(DOMElement):
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class TableRow(DOMElement):
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class Action(Model, Qualified):
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class Template(DOMElement):
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     actions = List(Instance(Action))
 
 class ToggleGroup(Action):
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     groups = List(Instance(".models.renderers.RendererGroup"))
 
 @abstract
 class Placeholder(DOMElement):
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class ValueOf(Placeholder):
     """ A placeholder for the value of a model's property. """
@@ -197,17 +153,9 @@ class ValueOf(Placeholder):
 
 class Index(Placeholder):
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class ValueRef(Placeholder):
     """ Allows to reference a value in a column of a data source.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     field = Required(String, help="""
     The name of the field to reference, which is equivalent to using ``"@{field}``.
@@ -250,10 +198,6 @@ class ValueRef(Placeholder):
     """)
 
 class ColorRef(ValueRef):
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     hex = Bool(default=True)
     swatch = Bool(default=True)

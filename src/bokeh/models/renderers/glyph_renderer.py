@@ -69,10 +69,6 @@ class GlyphRenderer(DataRenderer):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     @error(CDSVIEW_FILTERS_WITH_CONNECTED)
     def _check_cdsview_filters_with_connected(self):
         if isinstance(self.glyph, ConnectedXYGlyph) and not isinstance(self.view.filter, AllIndices):
