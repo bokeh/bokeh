@@ -149,7 +149,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             # Rename it in the displayed signature when a property uses that name.
             for index, param in enumerate(parameters):
                 if param.kind == Parameter.VAR_POSITIONAL and param.name in property_names:
-                    name = f"{param.name}_args"
+                    name = "args"
                     while name in names:
                         name += "_"
                     parameters[index] = param.replace(name=name)
