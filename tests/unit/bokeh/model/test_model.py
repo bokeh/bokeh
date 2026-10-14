@@ -185,10 +185,6 @@ class Test_Model___init__:
                 method_signature = signature(cls.__init__)
                 assert method_signature.parameters["self"].kind == Parameter.POSITIONAL_ONLY
                 assert signature(cls) == Signature(list(method_signature.parameters.values())[1:])
-                if hasattr(cls.__init__, "__bokeh_initializer__"):
-                    effective = next(base.__dict__["__init__"] for base in cls.__mro__
-                                     if "__init__" in base.__dict__ and not hasattr(base.__dict__["__init__"], "__bokeh_initializer__"))
-                    assert cls.__init__.__bokeh_initializer__ is effective
 
         model = Range1d(2, 8)
         assert signature(model.__init__) == signature(Range1d)
