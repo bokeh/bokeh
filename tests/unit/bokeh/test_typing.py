@@ -30,7 +30,12 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Literal, assert_type
+from typing import (
+    TYPE_CHECKING,
+    Literal,
+    Sequence,
+    assert_type,
+)
 
 if TYPE_CHECKING:
     import numpy as np
@@ -41,8 +46,10 @@ if TYPE_CHECKING:
 from bokeh.document import Document
 from bokeh.io import curdoc
 from bokeh.models.annotations import LegendItem
+from bokeh.models.layouts import Column, Row
 from bokeh.models.ranges import Range1d
 from bokeh.models.tools import HoverTool, PanTool
+from bokeh.models.ui.ui_element import UIElement
 from bokeh.plotting import figure
 
 #-----------------------------------------------------------------------------
@@ -96,6 +103,17 @@ def mypy_test_stack_methods(
     p.vbar_stack(index_stackers)
     p.hline_stack(array_stackers)
     p.vline_stack(index_stackers)
+
+def mypy_test_flexbox_children(rows: list[Row], columns: list[Column], children: Sequence[UIElement]) -> None:
+    row = Row(children=columns)
+    column = Column(children=rows)
+    Row(children=children)
+    Column(children=tuple(rows))
+    row.children = columns
+    column.children = rows
+    column.children = children
+    assert_type(row.children, list[UIElement])
+    assert_type(column.children, list[UIElement])
 
 #-----------------------------------------------------------------------------
 # Dev API

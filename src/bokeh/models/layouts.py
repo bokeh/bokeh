@@ -38,7 +38,7 @@ from ..core.enums import (
 )
 from ..core.has_props import HasProps, abstract
 from ..core.property.auto import Auto
-from ..core.property.container import List, Tuple
+from ..core.property.container import List, Seq, Tuple
 from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance
@@ -482,7 +482,8 @@ class FlexBox(LayoutDOM):
 
     children = List(Instance(UIElement), help="""
     The list of children, which can be other components including plots, rows, columns, and widgets.
-    """)
+    Sequences supplied during initialization or assignment are converted to lists.
+    """).accepts(Seq(Instance(UIElement)), list)
 
     spacing = Int(default=0, help="""
     The gap between children (in pixels).

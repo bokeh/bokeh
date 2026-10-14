@@ -7,7 +7,12 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import NotRequired, TypedDict, Unpack
+from typing import (
+    NotRequired,
+    Sequence,
+    TypedDict,
+    Unpack,
+)
 
 # Bokeh imports
 from .._types import NonNegative
@@ -136,14 +141,17 @@ class VBox(LayoutDOM):
     spacing: NonNegative[int] = ...
 
 class _FlexBoxInit(_LayoutDOMInit, total=False):
-    children: list[UIElement]
+    children: Sequence[UIElement]
     spacing: NonNegative[int]
 
 class FlexBox(LayoutDOM):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_FlexBoxInit]) -> None: ...
 
-    children: list[UIElement] = ...
+    @property
+    def children(self) -> list[UIElement]: ...
+    @children.setter
+    def children(self, children: Sequence[UIElement]) -> None: ...
     spacing: NonNegative[int] = ...
 
 class _RowInit(_FlexBoxInit, total=False):
