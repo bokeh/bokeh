@@ -22,6 +22,10 @@ python-gil = "*"
 python = "3.14.*"
 python-gil = "*"
 
+[feature.py315.dependencies]
+python = "3.15.*"
+python-gil = "*"
+
 [feature.py314t]
 platforms = ["linux-64"]
 
@@ -95,7 +99,6 @@ polars = ">=1.0"
 pooch = "*" # Required by scipy.datasets.
 pre-commit = "*"
 psutil = "*"
-pyarrow = ">=14.0"
 pydata-sphinx-theme = "*"
 pygments = "*"
 pyshp = "*"
@@ -125,6 +128,7 @@ urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
 vermin = "*"
 
 [feature.full-deps.pypi-dependencies]
+pyarrow = ">=14.0"
 pyright = "*"
 requests-unixsocket = ">=0.3.0"
 
@@ -209,8 +213,10 @@ django = "*"
 fastapi = "*"
 hypercorn = "*"
 starlette = "*"
-streamlit = "1.57.*"
 uvicorn-standard = "*"
+
+[feature.server-integration-deps.pypi-dependencies]
+streamlit = "==1.57.*"
 
 [feature.build-tools.dependencies]
 python-build = "*"
@@ -222,7 +228,7 @@ build-py = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, de
 [feature.formatting-deps.dependencies]
 pre-commit = "*"
 
-[feature.release-build-deps.dependencies]
+[feature.docs-deps.dependencies]
 bokeh_sampledata = "*"
 cartopy = "*"
 colorama = "*"
@@ -237,11 +243,8 @@ pydata-sphinx-theme = "*"
 pygments = "*"
 pygraphviz = "*"
 pyshp = "*"
-python-build = "*"
-rattler-build = "*"
 scikit-learn = "*"
 scipy = "*"
-setuptools = "*"
 sphinx = "9.*"
 sphinx-copybutton = "*"
 sphinx-design = "*"
@@ -250,6 +253,11 @@ sphinxext-opengraph = ">=0.11.0"
 squarify = "*"
 sympy = "*"
 toml = "*"
+
+[feature.release-build-deps.dependencies]
+python-build = "*"
+rattler-build = "*"
+setuptools = "*"
 
 [feature.release-deploy-deps.dependencies]
 anaconda-client = "*"
@@ -265,13 +273,19 @@ default = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-de
 test-py312 = ["py-base", "py312", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps"]
 test-py313 = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps"]
 test-py314 = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps"]
+test-py315 = ["py-base", "py315", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps"]
 test-py314t = ["py-base", "py314t", "js-tools", "runtime-deps", "test-deps", "full-deps", "free-threaded-deps"]
 minimal = ["py-base", "py312", "js-tools", "runtime-deps", "test-deps", "minimal-deps"]
-core = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps"]
+core-py312 = ["py-base", "py312", "js-tools", "runtime-deps", "test-deps"]
+core-py313 = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps"]
+core-py314 = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps"]
+core-py315 = ["py-base", "py315", "js-tools", "runtime-deps", "test-deps"]
 downstream = ["py-base", "py312", "js-tools", "runtime-deps", "downstream-deps"]
 build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "build-tools"], no-default-feature = true }
 formatting = { features = ["py312", "formatting-deps"], no-default-feature = true }
-release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "release-build-deps"], no-default-feature = true }
+docs-py312 = { features = ["py-base", "py312", "js-tools", "runtime-deps", "docs-deps"] }
+docs-py315 = { features = ["py-base", "py315", "js-tools", "runtime-deps", "docs-deps"] }
+release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "docs-deps", "release-build-deps"], no-default-feature = true }
 release-deploy = { features = ["py-base", "py312", "js-tools", "release-deploy-deps"], no-default-feature = true }
 server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps", "server-integration-deps"]
 

@@ -454,10 +454,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Comprehensive: All platforms, Python 3.14 (defined in core environment)
+        # Core dependencies on all platforms and supported Python versions.
         os: [ubuntu-24.04, macos-latest, windows-latest]
+        python-version: ['3.12', '3.13', '3.14', '3.15']
+        include:
+          - python-version: '3.12'
+            environment: core-py312
+          - python-version: '3.13'
+            environment: core-py313
+          - python-version: '3.14'
+            environment: core-py314
+          - python-version: '3.15'
+            environment: core-py315
     env:
       OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
 
     steps:
       - uses: actions/checkout@v6
@@ -465,13 +476,16 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          environment: core
+          environment: ${{ matrix.environment }}
           source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
-          environment: core
+          environment: ${{ matrix.environment }}
 
       - name: Run dependency tests
         uses: ./.github/workflows/composite/run-deps-tests
@@ -485,14 +499,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Comprehensive: All platforms
-        os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.12', '3.14']
+        # Oldest/newest Python on Linux; newest Python on macOS and Windows.
         include:
-          - python-version: '3.12'
-            environment: test-py312
-          - python-version: '3.14'
-            environment: test-py314
+          - os: ubuntu-24.04
+            python-version: '3.12'
+            environment: docs-py312
+          - os: ubuntu-24.04
+            python-version: '3.15'
+            environment: docs-py315
+          - os: macos-latest
+            python-version: '3.15'
+            environment: docs-py315
+          - os: windows-latest
+            python-version: '3.15'
+            environment: docs-py315
 
     steps:
       - uses: actions/checkout@v6
