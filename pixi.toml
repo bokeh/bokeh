@@ -279,7 +279,6 @@ minimal = ["py-base", "py312", "js-tools", "runtime-deps", "test-deps", "minimal
 core-py312 = ["py-base", "py312", "js-tools", "runtime-deps", "test-deps"]
 core-py313 = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps"]
 core-py314 = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps"]
-# Full optional dependencies are not yet available for Python 3.15 on all platforms.
 core-py315 = ["py-base", "py315", "js-tools", "runtime-deps", "test-deps"]
 downstream = ["py-base", "py312", "js-tools", "runtime-deps", "downstream-deps"]
 build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "build-tools"], no-default-feature = true }
