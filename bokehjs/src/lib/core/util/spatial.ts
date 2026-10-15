@@ -189,7 +189,9 @@ export class SpatialIndex {
   }
 
   add_rect(x0: number, y0: number, x1: number, y1: number): void {
-    if (!isFinite(x0 + y0 + x1 + y1)) {
+    // x * 0 is 0 for every finite x and NaN for NaN/±Infinity, so unlike summing
+    // the coordinates this cannot overflow to Infinity for large finite values
+    if (!isFinite(x0 * 0 + y0 * 0 + x1 * 0 + y1 * 0)) {
       x0 = Infinity
       y0 = Infinity
       x1 = -Infinity
@@ -407,118 +409,89 @@ export class SpatialIndex {
   }
 
   private _optimize_item_order(): void {
-    const {n_items} = this
-    const hilbert_values = new Uint32Array(n_items)
+    const {n_items, array_type_coordinates} = this
 
-    this._compute_hilbert_values(hilbert_values)
-    // sort items by their Hilbert value
-    this._sort_by_hilbert_values(hilbert_values)
+    // workspace has the same size as the bbox array
+    const bytes_per_coordinate_value = array_type_coordinates.BYTES_PER_ELEMENT
+    const workspace_size = n_items * 4 * bytes_per_coordinate_value
+    const workspace_buffer = new ArrayBuffer(workspace_size)
+
+    this._sort_by_hilbert_values(workspace_buffer)
+    this._apply_item_order(workspace_buffer)
   }
 
-  private _compute_hilbert_values(hilbert_values: Uint32Array) {
-    const {n_items, _bboxes, minX, minY, maxX, maxY} = this
+  /** Computes the Hilbert key of every item and writes the sorted item order into _indices. */
+  private _sort_by_hilbert_values(workspace_buffer: ArrayBuffer): void {
+    const {n_items, _bboxes, _indices, minX, minY, maxX, maxY} = this
 
-    const width = (maxX - minX)
-    const height = (maxY - minY)
-    const hilbertMax = (1 << 16) - 1
-    const scaleX = hilbertMax / width
-    const scaleY = hilbertMax / height
+    const BITS = 11
+    const RADIX = 1 << BITS
+    const MASK = RADIX - 1
+    const PASSES = 3 // 3 * 11 >= 32
 
-    // calculate Hilbert values from rect center
-    for (let i = 0, pos = 0; i < n_items; i++) {
-      const _minX = _bboxes[pos++]
-      const _minY = _bboxes[pos++]
-      const _maxX = _bboxes[pos++]
-      const _maxY = _bboxes[pos++]
-      const x_center = (_minX + _maxX) * 0.5
-      const y_center = (_minY + _maxY) * 0.5
-      const x = Math.floor((x_center - minX) * scaleX)
-      const y = Math.floor((y_center - minY) * scaleY)
-      hilbert_values[i] = compute_hilbert(x, y)
+    const hilbertMax = 65535 // (1 << 16) - 1
+    const scaleX = hilbertMax / (maxX - minX)
+    const scaleY = hilbertMax / (maxY - minY)
+
+    // interleaved [key, id] pairs: one scatter write stream instead of two
+    let src = new Uint32Array(workspace_buffer, 0, 2 * n_items)
+    let dst = new Uint32Array(workspace_buffer, 8 * n_items, 2 * n_items)
+    const counts = new Uint32Array(PASSES * RADIX)
+
+    // keys and all histograms in a single read over _bboxes
+    for (let i = 0, pos = 0, j = 0; i < n_items; i++, pos += 4, j += 2) {
+      const x_center = (_bboxes[pos] + _bboxes[pos + 2]) * 0.5
+      const y_center = (_bboxes[pos + 1] + _bboxes[pos + 3]) * 0.5
+      // `| 0` maps NaN (empty rects, zero extent) to 0
+      const k = compute_hilbert(((x_center - minX) * scaleX) | 0, ((y_center - minY) * scaleY) | 0)
+      src[j] = k
+      src[j + 1] = i
+      for (let p = 0; p < PASSES; p++) {
+        counts[p * RADIX + ((k >>> (p * BITS)) & MASK)]++
+      }
+    }
+
+    for (let p = 0; p < PASSES; p++) {
+      const shift = p * BITS
+      const offset = p * RADIX
+
+      let sum = 0
+      for (let b = 0; b < RADIX; b++) {
+        const c = counts[offset + b]
+        counts[offset + b] = sum
+        sum += c
+      }
+
+      if (p < PASSES - 1) {
+        for (let j = 0; j < 2 * n_items; j += 2) {
+          const k = src[j]
+          const pos = counts[offset + ((k >>> shift) & MASK)]++ << 1
+          dst[pos] = k
+          dst[pos + 1] = src[j + 1]
+        }
+        const t = src
+        src = dst
+        dst = t
+      } else {
+        // final pass: keys are no longer needed, write the order straight into _indices
+        for (let j = 0; j < 2 * n_items; j += 2) {
+          _indices[counts[offset + ((src[j] >>> shift) & MASK)]++] = src[j + 1]
+        }
+      }
     }
   }
 
-  private _sort_by_hilbert_values(hilbert_values: Uint32Array): void {
-    const {n_items, node_size, _bboxes, _indices, shift_factor_bbox} = this
-
-    const is_power_of_2 = (node_size & (node_size - 1)) === 0
-    const node_mask = node_size - 1
-
-    // log(N) allocation possible due to pushing smallest partition always last
-    const stack = new Int32Array(2 * 2 * Math.ceil(Math.log2(n_items + 1)))
-    let sp = 0
-    stack[sp++] = 0
-    stack[sp++] = n_items - 1
-
-    while (sp > 0) {
-      const r = stack[--sp]
-      const l = stack[--sp]
-      const r_mod = is_power_of_2 ? (r & node_mask) : (r % node_size)
-      if (r - l <= node_size && r - r_mod <= l) {
-        continue
-      }
-
-      const a = hilbert_values[l]
-      const b = hilbert_values[(l + r) >> 1]
-      const c = hilbert_values[r]
-      const pivot = ((a > b) !== (a > c)) ? a :
-          ((b < a) !== (b < c)) ? b : c
-
-      let i = l - 1
-      let j = r + 1
-      while (true) {
-        do {
-          i++
-        } while (hilbert_values[i] < pivot)
-        do {
-          j--
-        } while (hilbert_values[j] > pivot)
-        if (i >= j) {
-          break
-        }
-
-        const temp_h = hilbert_values[i]
-        hilbert_values[i] = hilbert_values[j]
-        hilbert_values[j] = temp_h
-
-        const k = i << shift_factor_bbox
-        const m = j << shift_factor_bbox
-
-        const b0 = _bboxes[k]
-        const b1 = _bboxes[k + 1]
-        const b2 = _bboxes[k + 2]
-        const b3 = _bboxes[k + 3]
-
-        _bboxes[k]     = _bboxes[m]
-        _bboxes[k + 1] = _bboxes[m + 1]
-        _bboxes[k + 2] = _bboxes[m + 2]
-        _bboxes[k + 3] = _bboxes[m + 3]
-
-        _bboxes[m]     = b0
-        _bboxes[m + 1] = b1
-        _bboxes[m + 2] = b2
-        _bboxes[m + 3] = b3
-
-        const temp_i = _indices[i]
-        _indices[i] = _indices[j]
-        _indices[j] = temp_i
-      }
-
-      const left_size = j - l
-      const right_size = r - (j + 1)
-
-      // always push smallest partition last to process it first
-      if (left_size < right_size) {
-        stack[sp++] = j + 1
-        stack[sp++] = r
-        stack[sp++] = l
-        stack[sp++] = j
-      } else {
-        stack[sp++] = l
-        stack[sp++] = j
-        stack[sp++] = j + 1
-        stack[sp++] = r
-      }
+  private _apply_item_order(workspace_buffer: ArrayBuffer): void {
+    // gather bboxes once: sequential writes, random reads
+    const {n_items, _bboxes, _indices, array_type_coordinates, shift_factor_bbox} = this
+    const tmp = new array_type_coordinates(workspace_buffer, 0, n_items << shift_factor_bbox)
+    tmp.set(_bboxes.subarray(0, n_items << shift_factor_bbox))
+    for (let i = 0, k = 0; i < n_items; i++, k += 4) {
+      const m = _indices[i] << 2
+      _bboxes[k]     = tmp[m]
+      _bboxes[k + 1] = tmp[m + 1]
+      _bboxes[k + 2] = tmp[m + 2]
+      _bboxes[k + 3] = tmp[m + 3]
     }
   }
 
