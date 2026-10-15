@@ -21,9 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ....core.has_props import abstract
 from ..annotation import Annotation
@@ -50,10 +47,6 @@ class HTMLAnnotation(Annotation):
         plots. Only ``export_png()`` function can preserve HTML annotations.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

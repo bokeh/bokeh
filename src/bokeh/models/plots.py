@@ -117,10 +117,6 @@ class Plot(LayoutDOM):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
         match the given selector.
@@ -931,10 +927,6 @@ class GridPlot(LayoutDOM, GridCommon):
     """ Collection of plots and other layoutables on arranged on a rectangular grid.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     toolbar = Instance(Toolbar, default=InstanceDefault(Toolbar), help="""
     The toolbar associated with this grid plot, which holds all the tools.

@@ -22,9 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.property.auto import Auto
 from ..core.property.container import Seq, Tuple
@@ -56,10 +53,6 @@ class Grid(GuideRenderer):
     given by a supplied ``Ticker``.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dimension = Int(0, help="""
     Which dimension the Axis Grid lines will intersect. The

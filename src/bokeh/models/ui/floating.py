@@ -18,9 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ...core.enums import Location
 from ...core.property.either import Either
@@ -45,10 +42,6 @@ __all__ = (
 class Drawer(Pane):
     """ A floating panel attachable to an edge of the viewport or a component.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     location = Required(Enum(Location))(help="""
     The attachment edge of the viewport or a component.

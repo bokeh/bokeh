@@ -18,7 +18,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, ClassVar
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any, ClassVar
 
 # Bokeh imports
 from ..core.enums import ImplicitTarget, ImplicitTargetType
@@ -123,20 +124,12 @@ class Coordinate(Model):
     """ A base class for various types of coordinate specifications.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class XY(Coordinate):
     """ A point in a Cartesian coordinate system.
 
     .. note::
         This model is experimental and may change at any point.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     x = Required(CoordinateLike, help="""
     The x component.
@@ -153,10 +146,6 @@ class Indexed(Coordinate):
         This model is experimental and may change at any point.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     index = Required(Int, help="""
     An index into the data.
     """)
@@ -172,9 +161,8 @@ class Node(Coordinate):
         This model is experimental and may change at any point.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     target = Required(Either(Instance(Model), Enum(ImplicitTarget)), help="""
     The provider of coordinates for this node.

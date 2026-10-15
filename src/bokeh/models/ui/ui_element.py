@@ -22,9 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.property.container import Dict, List, Seq
@@ -58,10 +55,6 @@ __all__ = (
 class StyledElement(Model):
     """ A base class for DOM-based UI elements with configurable styling.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     html_attributes = Dict(String, String, default={}, help="""
     Allows to configure HTML attributes on the underlying HTML element.
@@ -114,10 +107,6 @@ class StyledElement(Model):
 class UIElement(StyledElement):
     """ Base class for user interface elements.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     visible = Bool(default=True, help="""
     Whether the component should be displayed on screen.

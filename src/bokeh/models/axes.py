@@ -23,9 +23,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.enums import Align, AxisLabelStandoffMode, LabelOrientation
 from ..core.has_props import abstract
@@ -98,10 +95,6 @@ class Axis(GuideRenderer):
     ''' A base class that defines common properties for all axis types.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dimension = Either(Auto, Enum(0, 1), default="auto", help="""
     This allows to override the inferred dimensions in contexts that
@@ -272,19 +265,11 @@ class ContinuousAxis(Axis):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class LinearAxis(ContinuousAxis):
     ''' An axis that picks nice numbers for tick locations on a
     linear scale. Configured with a ``BasicTickFormatter`` by default.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(BasicTicker))
 
@@ -295,10 +280,6 @@ class LogAxis(ContinuousAxis):
     log scale. Configured with a ``LogTickFormatter`` by default.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(LogTicker))
 
@@ -312,10 +293,6 @@ class CategoricalAxis(Axis):
     factors.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(CategoricalTicker))
 
@@ -380,10 +357,6 @@ class DatetimeAxis(LinearAxis):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     ticker = Override(default=InstanceDefault(DatetimeTicker))
 
     formatter = Override(default=CONTEXTUAL_DATETIME_FORMATTER)
@@ -394,10 +367,6 @@ class TimedeltaAxis(LinearAxis):
     default.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(TimedeltaTicker))
 

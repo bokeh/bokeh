@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportAbstractUsage=false, reportArgumentType=false, reportCallIssue=false
+# pyright: reportAbstractUsage=false, reportArgumentType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Callable
 
 # Bokeh imports
 from ...core.enums import ButtonType
@@ -69,10 +69,6 @@ class ButtonLike(HasProps):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     button_type = Enum(ButtonType, help="""
     A style for the button, signifying it's role. Possible values are one of the
     following:
@@ -96,10 +92,6 @@ class AbstractButton(Widget, ButtonLike):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     label = Either(Instance(DOMNode), String, default="Button", help="""
     Either HTML or plain text label for the button to display.
     """)
@@ -118,10 +110,6 @@ class Button(AbstractButton):
     ''' A click button.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     label = Override(default="Button")
 
@@ -145,10 +133,6 @@ class Toggle(AbstractButton):
     ''' A two-state toggle button.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     label = Override(default="Toggle")
 
@@ -175,10 +159,6 @@ class Dropdown(AbstractButton):
     ''' A dropdown button.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     label = Override(default="Dropdown")
 
@@ -213,10 +193,6 @@ class HelpButton(AbstractButton):
     over or clicked.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     tooltip = Required(Instance(Tooltip), help="""
     A tooltip with plain text or rich HTML contents, providing general help or
     description of a widget's or component's function.
@@ -224,7 +200,7 @@ class HelpButton(AbstractButton):
 
     label = Override(default="")
 
-    icon = Override(default=lambda: BuiltinIcon("help", size=18))
+    icon = Override(default=lambda: BuiltinIcon(icon_name="help", size=18))
 
     button_type = Override(default="default")
 

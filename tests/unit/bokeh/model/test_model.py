@@ -16,12 +16,25 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from inspect import Parameter, Signature, signature
+
 # Bokeh imports
-from bokeh.core.has_props import is_abstract
+from bokeh.core.has_props import Local, is_abstract
 from bokeh.core.properties import Int, List, String
 from bokeh.core.types import ID
 from bokeh.models import *  # noqa: F403
-from bokeh.models import CustomJS
+from bokeh.models import (
+    CategoricalColorMapper,
+    ColumnDataSource,
+    CustomJS,
+    Div,
+    Range1d,
+    Row,
+    SetValue,
+)
+from bokeh.models.annotations.dimensional import Metric
+from bokeh.models.dom import HTML
 from bokeh.plotting import *  # noqa: F403
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -48,6 +61,203 @@ class Test_Model___init__:
     def test_id_not_permitted(self) -> None:
         with pytest.raises(ValueError):
             SomeModel(id=ID("foo"))
+
+    def test_generated_signatures_are_distinct(self) -> None:
+        class SignatureParent(Model, Local):
+            __module__ = "bokeh.models.test_model"
+            parent_value = Int(1)
+
+        parent_signature = signature(SignatureParent.__init__)
+
+        class SignatureChild(SignatureParent):
+            __module__ = "bokeh.models.test_model"
+            child_value = String("child")
+
+        class SignatureSibling(SignatureParent):
+            __module__ = "bokeh.models.test_model"
+            sibling_value = Int(2)
+
+        assert SignatureChild.__init__ is not SignatureParent.__init__
+        assert SignatureSibling.__init__ is not SignatureChild.__init__
+        assert signature(SignatureParent.__init__) == parent_signature
+        for cls, own_name in [(SignatureParent, "parent_value"), (SignatureChild, "child_value"), (SignatureSibling, "sibling_value")]:
+            method_signature = signature(cls.__init__)
+            assert method_signature.parameters["self"].kind == Parameter.POSITIONAL_ONLY
+            assert signature(cls) == Signature(list(method_signature.parameters.values())[1:])
+            assert own_name in signature(cls).parameters
+        assert "child_value" not in parent_signature.parameters
+        assert "sibling_value" not in signature(SignatureChild).parameters
+        assert SignatureChild(parent_value=3, child_value="value").child_value == "value"
+
+    def test_inherited_custom_constructor(self) -> None:
+        calls = []
+
+        class CustomParent(Model, Local):
+            value = Int()
+
+            def __init__(self, value, /, *, offset=1):
+                calls.append(value)
+                super().__init__(value=value + offset)
+
+        original_init = CustomParent.__init__
+        original_signature = signature(original_init)
+
+        class CustomChild(CustomParent):
+            pass
+
+        class CustomGrandchild(CustomChild):
+            pass
+
+        assert CustomParent.__init__ is original_init
+        assert CustomChild.__init__ is not original_init
+        assert CustomGrandchild.__init__ is not CustomChild.__init__
+        for cls in [CustomChild, CustomGrandchild]:
+            assert signature(cls.__init__) == original_signature
+            assert signature(cls) == signature(CustomParent)
+            assert cls(5, offset=2).value == 7
+        assert calls == [5, 5]
+
+    def test_explicit_child_constructor(self) -> None:
+        def custom_init(self, value, /):
+            super(CustomChild, self).__init__(a=value)
+
+        class CustomChild(SomeModel, Local):
+            __init__ = custom_init
+
+        assert CustomChild.__init__ is custom_init
+        assert str(signature(CustomChild)) == "(value, /)"
+        assert CustomChild(17).a == 17
+
+    @pytest.mark.parametrize("builtin", [False, True])
+    def test_cooperative_diamond_mro(self, builtin) -> None:
+        calls = []
+
+        class Root(Model, Local):
+            def __init__(self, **kwargs):
+                calls.append("root")
+                super().__init__(**kwargs)
+
+        class Left(Root):
+            pass
+
+        class Right(Root):
+            def __init__(self, token, /, **kwargs):
+                calls.append("right")
+                super().__init__(**kwargs)
+
+        class Diamond(Left, Right):
+            if builtin:
+                __module__ = "bokeh.models.test_model"
+
+        signature(Diamond).bind("token", name="diamond")
+        model = Diamond("token", name="diamond")
+        signature(Diamond.__init__).bind(model, "token", name="diamond")
+        signature(model.__init__).bind("token", name="diamond")
+        assert calls == ["right", "root"]
+
+    def test_mixin_constructor_precedes_model(self) -> None:
+        calls = []
+
+        class Mixin:
+            def __init__(self, token, /, **kwargs):
+                calls.append(token)
+                super().__init__(**kwargs)
+
+        class Mixed(Mixin, SomeModel, Local):
+            pass
+
+        assert str(signature(Mixed)) == "(token, /, **kwargs)"
+        assert Mixed("token", a=4).a == 4
+        assert calls == ["token"]
+
+    def test_builtin_custom_constructor_is_inherited(self) -> None:
+        class CustomRange(Range1d, Local):
+            pass
+
+        assert signature(CustomRange) == signature(Range1d)
+        assert signature(CustomRange.__init__) == signature(Range1d.__init__)
+        model = CustomRange(2, 8)
+        assert (model.start, model.end) == (2, 8)
+
+    def test_all_builtin_model_signatures(self) -> None:
+        for cls in Model.model_class_reverse_map.values():
+            if issubclass(cls, Model) and cls.__module__.startswith("bokeh.models"):
+                method_signature = signature(cls.__init__)
+                assert method_signature.parameters["self"].kind == Parameter.POSITIONAL_ONLY
+                assert signature(cls) == Signature(list(method_signature.parameters.values())[1:])
+
+        model = Range1d(2, 8)
+        assert signature(model.__init__) == signature(Range1d)
+
+    @pytest.mark.parametrize(("cls", "args"), [
+        (Range1d, (0, 10)),
+        (CategoricalColorMapper, (["red"],)),
+        (Row, (Div(), Div())),
+        (ColumnDataSource, ({"x": [1]},)),
+        (SetValue, (Range1d(), "start", 1)),
+        (HTML, ("text",)),
+    ])
+    def test_positional_constructor_signatures(self, cls, args) -> None:
+        class Derived(cls, Local):
+            pass
+
+        for model_type in [cls, Derived]:
+            model = model_type(*args)
+            signature(model_type).bind(*args)
+            signature(model_type.__init__).bind(model, *args)
+            signature(model.__init__).bind(*args)
+
+    @pytest.mark.parametrize("failure", ["invalid_signature", "wrapper_loop"])
+    def test_uninspectable_inherited_constructor(self, failure) -> None:
+        def initializer(self, **kwargs):
+            super(Opaque, self).__init__(**kwargs)
+
+        if failure == "invalid_signature":
+            initializer.__signature__ = "opaque"
+        else:
+            initializer.__wrapped__ = initializer
+
+        class Opaque(Model, Local):
+            __init__ = initializer
+
+        class Derived(Opaque):
+            pass
+
+        assert Derived(name="derived").name == "derived"
+
+    def test_dimensional_positional_arguments(self) -> None:
+        # Synthesized constructors reject positional inputs consistently with Model.
+        with pytest.raises(ValueError, match="positional arguments are not allowed"):
+            Metric("m")
+
+    def test_variadic_property_keyword_signature(self) -> None:
+        class Derived(HTML, Local):
+            pass
+
+        for cls in [HTML, Derived]:
+            parameters = signature(cls).parameters
+            assert parameters["html"].kind == Parameter.KEYWORD_ONLY
+            assert parameters["args"].kind == Parameter.VAR_POSITIONAL
+            assert not any(param.kind == Parameter.VAR_KEYWORD for param in parameters.values())
+            signature(cls).bind("first", "second")
+            signature(cls).bind(html=["text"])
+            assert cls(html=["text"]).html == ["text"]
+
+    def test_variadic_display_name_collision(self) -> None:
+        class Collision(HTML, Local):
+            __module__ = "bokeh.models.test_model"
+            args = String()
+            args_ = String()
+
+        parameters = signature(Collision).parameters
+        assert parameters["args__"].kind == Parameter.VAR_POSITIONAL
+        for name in ["html", "args", "args_"]:
+            assert parameters[name].kind == Parameter.KEYWORD_ONLY
+        signature(Collision).bind("text", args="a", args_="b")
+        model = Collision("text", args="a", args_="b")
+        assert model.html == ["text"]
+        assert model.args == "a"
+        assert model.args_ == "b"
 
 class Test_js_on_change:
     def test_exception_for_no_callbacks(self) -> None:

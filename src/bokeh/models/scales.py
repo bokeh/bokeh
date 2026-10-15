@@ -22,9 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.instance import Instance
@@ -74,19 +71,11 @@ class Scale(Transform):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class ContinuousScale(Scale):
     ''' Represent a scale transformation between continuous ranges.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 
 class LinearScale(ContinuousScale):
@@ -94,18 +83,10 @@ class LinearScale(ContinuousScale):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class LogScale(ContinuousScale):
     ''' Represent a log scale transformation between continuous ranges.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class CategoricalScale(Scale):
     ''' Represent a scale transformation between a categorical source range and
@@ -113,19 +94,11 @@ class CategoricalScale(Scale):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class CompositeScale(Scale):
     ''' Represent a composition of two scales, which useful for defining
     sub-coordinate systems.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     source_scale = Required(Instance(Scale), help="""
     The source scale.

@@ -24,9 +24,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from .. import palettes
 from ..core.enums import Palette
@@ -79,10 +76,6 @@ class Mapper(Transform):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 @abstract
 class ColorMapper(Mapper):
@@ -112,10 +105,6 @@ class CategoricalMapper(Mapper):
     ''' Base class for mappers that map categorical factors to other values.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     factors = FactorSeq(help="""
     A sequence of factors / categories that map to the some target range. For
@@ -158,10 +147,6 @@ class CategoricalColorMapper(CategoricalMapper, ColorMapper):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     @warning(PALETTE_LENGTH_FACTORS_MISMATCH)
     def _check_palette_length(self):
         palette = self.palette
@@ -182,10 +167,6 @@ class CategoricalMarkerMapper(CategoricalMapper):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     markers = Seq(MarkerType, help="""
     A sequence of marker types to use as the target for mapping.
     """)
@@ -205,10 +186,6 @@ class CategoricalPatternMapper(CategoricalMapper):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     patterns = Seq(HatchPatternType, help="""
     A sequence of marker types to use as the target for mapping.
     """)
@@ -223,10 +200,6 @@ class ContinuousColorMapper(ColorMapper):
     ''' Base class for continuous color mapper types.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     domain = List(Tuple(Instance("bokeh.models.renderers.GlyphRenderer"), Either(String, List(String))), default=[], help="""
     A collection of glyph renderers to pool data from for establishing data metrics.
@@ -268,10 +241,6 @@ class LinearColorMapper(ContinuousColorMapper):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class LogColorMapper(ContinuousColorMapper):
     ''' Map numbers in a range [*low*, *high*] into a sequence of colors
     (a palette) on a natural logarithm scale.
@@ -291,26 +260,16 @@ class LogColorMapper(ContinuousColorMapper):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class ScanningColorMapper(ContinuousColorMapper):
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class EqHistColorMapper(ScanningColorMapper):
     '''
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     bins = Int(default=256*256, help="Number of histogram bins")
 
@@ -331,10 +290,6 @@ class StackColorMapper(ColorMapper):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class WeightedStackColorMapper(StackColorMapper):
     ''' Maps 3D data arrays of shape ``(ny, nx, nstack)`` to 2D RGBA images
     of shape ``(ny, nx)`` using a palette of length ``nstack``.
@@ -348,10 +303,6 @@ class WeightedStackColorMapper(StackColorMapper):
     mapping but are used in any ``ColorBar`` that is displayed.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     alpha_mapper = Instance(ContinuousColorMapper, help="""
     Color mapper used to calculate the alpha values of the mapped data.

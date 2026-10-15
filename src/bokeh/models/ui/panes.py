@@ -18,9 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ...core.property.container import List
 from ...core.property.either import Either
@@ -49,10 +46,6 @@ class Pane(UIElement):
     If finer control is needed, use ``Panel`` or ``LayoutDOM`` derived
     models instead.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     elements = List(Either(Instance(UIElement), Instance(DOMNode)), default=[], help="""
     A collection of DOM-based UI elements attached to this pane.

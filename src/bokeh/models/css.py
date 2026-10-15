@@ -20,9 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.nullable import Nullable
@@ -50,10 +47,6 @@ __all__ = (
 class StyleSheet(Model):
     """ """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class InlineStyleSheet(StyleSheet):
     """ Inline stylesheet equivalent to ``<style type="text/css">${css}</style>``.
 
@@ -63,10 +56,6 @@ class InlineStyleSheet(StyleSheet):
         the ``<head>`` element. If you want to append globally regardless of
         the context, use ``GlobalInlineStyleSheet`` instead.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     css = Required(String, help="""
     The contents of this stylesheet.
@@ -82,10 +71,6 @@ class ImportedStyleSheet(StyleSheet):
         the context, use ``GlobalImportedStyleSheet`` instead.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     url = Required(String, help="""
     The location of an external stylesheet.
     """)
@@ -98,10 +83,6 @@ class GlobalInlineStyleSheet(InlineStyleSheet):
         many times it's being used in other models.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class GlobalImportedStyleSheet(ImportedStyleSheet):
     """ An imported stylesheet that's appended to the ``<head>`` element.
 
@@ -110,16 +91,8 @@ class GlobalImportedStyleSheet(ImportedStyleSheet):
         many times it's being used in other models.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class Styles(Model):
     """ Allows to configure style attribute of DOM elements. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     align_content = Nullable(String)
     align_items = Nullable(String)

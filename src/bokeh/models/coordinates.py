@@ -19,9 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.property.instance import Instance, InstanceDefault
 from ..model import Model
@@ -42,10 +39,6 @@ __all__ = (
 
 class CoordinateMapping(Model):
     """ A mapping between two coordinate systems. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     x_source = Instance(Range, default=InstanceDefault(DataRange1d), help="""
     The source range of the horizontal dimension of the new coordinate space.

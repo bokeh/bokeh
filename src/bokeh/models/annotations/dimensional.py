@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -58,10 +57,6 @@ class Dimensional(Model):
     """ A base class for models defining units of measurement.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
     ticks = Required(List(Float), help="""
     Preferred values to choose from in non-exact mode.
     """)
@@ -81,10 +76,6 @@ class Dimensional(Model):
 class CustomDimensional(Dimensional):
     """ A base class for units of measurement with an explicit basis.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
 
     basis = Required(Dict(String, Either(Tuple(Float, String), Tuple(Float, String, String))), help="""
     The basis defining the units of measurement.
@@ -109,10 +100,6 @@ class Metric(Dimensional):
     """ Model for defining metric units of measurement.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
     base_unit = Required(String, help="""
     The short name of the base unit, e.g. ``"m"`` for meters or ``"eV"`` for electron volts.
     """)
@@ -132,17 +119,9 @@ class ReciprocalMetric(Metric):
     """ Model for defining reciprocal metric units of measurement, e.g. ``m^{-1}``.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
 class MetricLength(Metric):
     """ Metric units of length measurement.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
 
     base_unit = Override(default="m")
 
@@ -152,10 +131,6 @@ class ReciprocalMetricLength(ReciprocalMetric):
     """ Metric units of reciprocal length measurement.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
     base_unit = Override(default="m")
 
     exclude = Override(default=["dm", "hm"])
@@ -163,10 +138,6 @@ class ReciprocalMetricLength(ReciprocalMetric):
 class ImperialLength(CustomDimensional):
     """ Imperial units of length measurement.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
 
     basis = Override(default={
         "in":  ( 1/12, "in",  "inch"   ),
@@ -183,10 +154,6 @@ class ImperialLength(CustomDimensional):
 class Angular(CustomDimensional):
     """ Units of angular measurement.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
 
     basis = Override(default={
         "°":  (1,      "^\\circ",           "degree"),

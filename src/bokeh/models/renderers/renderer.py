@@ -19,9 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ...core.enums import RenderLevel
 from ...core.has_props import abstract
@@ -57,10 +54,6 @@ class RendererGroup(Model):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     visible = Bool(default=True, help="""
     Makes all grouped renderers visible or not.
     """)
@@ -74,10 +67,6 @@ class Renderer(StyledElement):
     """An abstract base class for renderer types.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     level = Enum(RenderLevel, help="""
     Specifies the level in which to paint this renderer.
@@ -124,10 +113,6 @@ class CompositeRenderer(Renderer):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     renderers = List(Instance(Renderer), default=[], help="""
     A collection of renderers attached to this renderer.
 
@@ -156,10 +141,6 @@ class DataRenderer(Renderer):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     level = Override(default="glyph")
 
 @abstract
@@ -168,10 +149,6 @@ class GuideRenderer(Renderer):
     not generally useful to instantiate on its own.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     level = Override(default="guide")
 

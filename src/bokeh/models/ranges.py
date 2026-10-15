@@ -15,7 +15,7 @@ and with options for "auto sizing".
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false, reportCallIssue=false
+# pyright: reportArgumentType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from collections import Counter
 from math import nan
-from typing import Any
+from typing import cast
 
 # Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
@@ -45,6 +45,7 @@ from ..core.property.primitive import Bool, Float, Null
 from ..core.property.readonly import Readonly
 from ..core.property.required import Required
 from ..core.property.visual import MinMaxBounds
+from ..core.types import FactorSeqType
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model
@@ -71,19 +72,11 @@ class Range(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class NumericalRange(Range):
     ''' A base class for numerical ranges.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     start = Required(Either(Float, Datetime, TimeDelta), help="""
     The start of the range.
@@ -168,10 +161,6 @@ class DataRange(NumericalRange):
     ''' A base class for all data range types.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     renderers = Either(List(Instance(Model)), Auto, help="""
     An explicit list of renderers to autorange against. If unset,
@@ -474,7 +463,7 @@ class FactorRange(Range):
 
     @error(DUPLICATE_FACTORS)
     def _check_duplicate_factors(self):
-        dupes = [item for item, count in Counter(self.factors).items() if count > 1]
+        dupes = [item for item, count in Counter(cast(FactorSeqType, self.factors)).items() if count > 1]
         if dupes:
             return f"duplicate factors found: {', '.join(repr(x) for x in dupes)}"
 

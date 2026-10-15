@@ -18,9 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.any import AnyRef
@@ -49,25 +46,13 @@ class LabelingPolicy(Model):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class AllLabels(LabelingPolicy):
     """ Select all labels even if they overlap. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class NoOverlap(LabelingPolicy):
     """ Basic labeling policy avoiding label overlap. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     min_distance = Int(default=5, help="""
     Minimum distance between labels in pixels.
@@ -84,10 +69,6 @@ class CustomLabelingPolicy(LabelingPolicy):
         sanitize the user input prior to passing it to Bokeh.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular, those can be Bokeh's models.
