@@ -300,6 +300,37 @@ def test_bundle_extensions_skips_non_packages(
     ) == []
 
 
+def test_bundle_extensions_skips_dynamically_created_application_modules(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    app_name = "bokeh_app_0123456789abcdef0123456789abcdef"
+    extension_name = "application_extension"
+    base_dir = _install_extension_module(monkeypatch, tmp_path / extension_name, extension_name)
+    artifact = base_dir / "dist" / f"{extension_name}.min.js"
+    artifact.write_text("globalThis.extension = true")
+
+    class ApplicationModel:
+        __view_module__ = f"{app_name}.models"
+
+    class ExtensionModel:
+        __view_module__ = f"{extension_name}.models"
+
+    monkeypatch.setattr(ber, "HasProps", SimpleNamespace(
+        model_class_reverse_map={
+            "ApplicationModel": ApplicationModel,
+            "ExtensionModel": ExtensionModel,
+        },
+    ))
+
+    # Modules of server applications are created dynamically and cannot be
+    # imported once the application that created them has been discarded.
+    # Regular extensions have to be bundled as usual.
+    [bundle] = ber.bundle_extensions(None, Resources(mode="server"))
+
+    assert bundle.name == extension_name
+    assert bundle.artifact_path == artifact
+
+
 def test_packaged_extension_requirements_resolve_under_each_policy(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
