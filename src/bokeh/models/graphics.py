@@ -69,7 +69,9 @@ class Marking(Model):
 
 @abstract
 class Decoration(Model):
-    """Base class for auxiliary graphical effects attached to a glyph."""
+    """ Base class for auxiliary graphical effects attached to a glyph.
+
+    """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)

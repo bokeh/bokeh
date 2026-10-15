@@ -195,6 +195,16 @@
     ]
   },
   {
+    "slug": "graphics",
+    "title": "Graphics",
+    "classes": [
+      "Decoration",
+      "Marking",
+      "PathDecoration",
+      "PathMarkings"
+    ]
+  },
+  {
     "slug": "graphs",
     "title": "Graphs",
     "classes": [

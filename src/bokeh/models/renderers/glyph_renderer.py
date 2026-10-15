@@ -39,11 +39,7 @@ from ...core.validation import error
 from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
 from ..filters import AllIndices
 from ..glyph import ConnectedXYGlyph, Glyph
-from ..graphics import (
-    Marking,
-    PathDecoration,
-    PathMarkings,
-)
+from ..graphics import Marking, PathDecoration, PathMarkings
 from ..sources import (
     CDSView,
     ColumnDataSource,

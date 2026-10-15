@@ -17,8 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import NormalHead
 import bokeh.models as models
+from bokeh.models import NormalHead
 
 # Module under test
 import bokeh.models.graphics as bmg # isort:skip

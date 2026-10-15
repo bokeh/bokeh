@@ -1,4 +1,5 @@
 import {expect} from "#framework/assertions"
+import {assert} from "@bokehjs/core/util/assert"
 import {cubic_path, path_length, path_segments, position_decoration, trim_path} from "@bokehjs/models/glyphs/decorated_path"
 
 import {create_glyph_view} from "./_util"
@@ -25,7 +26,9 @@ describe("decorated path geometry", () => {
     const model = PathMarkings.create({positions: [0.5], marking: NormalHead.create({size: 20})})
     const x = [0, 40, NaN, 100, 100], y = [0, 0, NaN, 0, 60]
     const view = await create_glyph_view(Line.create({decorations: [model]}), {x, y})
-    const positioned = position_decoration(view.decorations.get(model)!, 0, path_segments(x, y), 100)
+    const decoration = view.decorations.get(model)
+    assert(decoration != null)
+    const positioned = position_decoration(decoration, 0, path_segments(x, y), 100)
     expect([positioned.sx, positioned.sy, positioned.angle]).to.be.equal([100, 10, Math.PI])
   })
 

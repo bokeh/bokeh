@@ -514,12 +514,40 @@ multi-segment paths without calling ``figure.arrow()``:
 ``inset``, and trim the shaft. Middle uses rear-to-tip chord alignment at
 half the screen-space path length, without inset or shaft trimming.
 
-Use ``add_path_markings()`` for fractional or repeated markings::
+Path decorations and fractional path markings support ``Segment``, ``Line``,
+``MultiLine``, ``Bezier``, and ``Arc`` and reject unsupported glyphs.
+For a ``Line``, the first data row supplies marking size, inset, and
+non-inherited visuals. Start and end refer to the entire finite path, including
+across NaN-separated subpaths. A middle marking follows the visual state of
+the segment containing the midpoint by path length. ``Bezier`` decorations use
+adaptive screen-space subdivision with a 0.25-pixel chord tolerance and a
+recursion limit of 12. Undecorated Beziers retain native cubic rendering.
 
-    renderer.add_path_markings(head, positions=[0.2, 0.5, 0.8])
+The following example shares one marking between a Line and a Bezier. Heads
+inherit each shaft's color and alpha while retaining a thin, explicit outline
+width, so increasing the shaft width keeps the filled heads crisp:
 
-A literal list applies to every path. To use different positions per path,
-store a list of fractions in each source row::
+.. bokeh-plot:: __REPO__/examples/basic/annotations/path_decorations.py
+    :source-position: above
+
+.. _ug_basic_annotations_path_markings:
+
+Fractional arrow positioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use :meth:`~bokeh.models.GlyphRenderer.add_path_markings` to place arrowheads
+at fractions of a path's screen-space length::
+
+    markings = renderer.add_path_markings(head, positions=[0.2, 0.5, 0.8])
+
+Positions must be between 0 and 1, inclusive. Each arrowhead's tip sits at the
+specified fraction. A literal list applies to every path.
+
+To move the arrowheads, update the returned model's positions::
+
+    markings.positions = [0.1, 0.4, 0.9]
+
+To use different positions per path, store a list of fractions in each source row::
 
     source.data = dict(
         xs=[[0, 1, 2], [0, 1, 2]],
@@ -528,10 +556,12 @@ store a list of fractions in each source row::
     )
     renderer.add_path_markings(head, positions="arrow_positions")
 
-Each fraction measures screen-space path length, and an empty list draws no
-markings for that path. Updating the positions column moves the markings
-without changing the paths. Marking sizes and visuals resolve per source row
-and are shared by that row's repeated markings.
+An empty list draws no markings for that path. Updating the positions column
+moves the markings without changing the paths. Marking sizes and visuals
+resolve per source row and are shared by that row's repeated markings.
+For a ``Line``, the first data row supplies the position list and marking
+visuals. Arc fractions follow the directed circular sweep, including wrapped
+angles and full turns.
 
 Fractional markings align to the chord from one marking rear extent behind
 the tip, within the same finite subpath. A zero-length chord uses the local
@@ -539,27 +569,11 @@ forward tangent. They do not trim the shaft and have no inset option.
 Numeric 0 and 1 are not aliases for named endpoints. In particular, 0 points
 forward, whereas the named start node points outward against the tangent.
 
-The methods add ``PathDecoration`` and ``PathMarkings`` models to the glyph's
-``decorations`` list. Both inherit from the abstract ``Decoration`` model, which
-does not prescribe a marking or placement.
+The following example compares positions 0, 0.25, 0.5, 0.75, and 1 on
+``Segment``, ``Line``, ``MultiLine``, and ``Bezier`` paths. It also shows
+per-path position lists and animated streamlines:
 
-Both methods support ``Segment``, ``Line``, ``MultiLine``, ``Bezier``, and
-``Arc`` and reject unsupported glyphs. Arc fractions follow the directed
-circular sweep, including wrapped angles and full turns.
-
-For a ``Line``, the first data row supplies path marking positions, marking size, inset, and
-non-inherited visuals. Start and end refer to the entire finite path, including
-across NaN-separated subpaths. A middle marking follows the visual state of
-the segment containing the midpoint by path length. ``Bezier`` decorations use
-adaptive screen-space subdivision with a 0.25-pixel chord tolerance and a
-recursion limit of 12.
-Undecorated Beziers retain native cubic rendering.
-
-The following example shares one marking between a Line and a Bezier. Heads
-inherit each shaft's color and alpha while retaining a thin, explicit outline
-width, so increasing the shaft width keeps the filled heads crisp:
-
-.. bokeh-plot:: __REPO__/examples/basic/annotations/path_decorations.py
+.. bokeh-plot:: __REPO__/examples/basic/annotations/path_markings.py
     :source-position: above
 
 
