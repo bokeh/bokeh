@@ -409,13 +409,19 @@ export class SpatialIndex {
   }
 
   private _optimize_item_order(): void {
-    // two steps so the key/id buffers can be freed before the bbox copy is allocated
-    this._sort_by_hilbert_values()
-    this._apply_item_order()
+    const {n_items, array_type_coordinates} = this
+
+    // workspace has the same size as the bbox array
+    const bytes_per_coordinate_value = array_type_coordinates.BYTES_PER_ELEMENT
+    const workspace_size = n_items * 4 * bytes_per_coordinate_value
+    const workspace_buffer = new ArrayBuffer(workspace_size)
+
+    this._sort_by_hilbert_values(workspace_buffer)
+    this._apply_item_order(workspace_buffer)
   }
 
   /** Computes the Hilbert key of every item and writes the sorted item order into _indices. */
-  private _sort_by_hilbert_values(): void {
+  private _sort_by_hilbert_values(workspace_buffer: ArrayBuffer): void {
     const {n_items, _bboxes, _indices, minX, minY, maxX, maxY} = this
 
     const BITS = 11
@@ -428,8 +434,8 @@ export class SpatialIndex {
     const scaleY = hilbertMax / (maxY - minY)
 
     // interleaved [key, id] pairs: one scatter write stream instead of two
-    let src = new Uint32Array(2 * n_items)
-    let dst = new Uint32Array(2 * n_items)
+    let src = new Uint32Array(workspace_buffer, 0, 2 * n_items)
+    let dst = new Uint32Array(workspace_buffer, 8 * n_items, 2 * n_items)
     const counts = new Uint32Array(PASSES * RADIX)
 
     // keys and all histograms in a single read over _bboxes
@@ -475,10 +481,11 @@ export class SpatialIndex {
     }
   }
 
-  private _apply_item_order(): void {
+  private _apply_item_order(workspace_buffer: ArrayBuffer): void {
     // gather bboxes once: sequential writes, random reads
-    const {n_items, _bboxes, _indices, shift_factor_bbox} = this
-    const tmp = _bboxes.slice(0, n_items << shift_factor_bbox)
+    const {n_items, _bboxes, _indices, array_type_coordinates, shift_factor_bbox} = this
+    const tmp = new array_type_coordinates(workspace_buffer, 0, n_items << shift_factor_bbox)
+    tmp.set(_bboxes.subarray(0, n_items << shift_factor_bbox))
     for (let i = 0, k = 0; i < n_items; i++, k += 4) {
       const m = _indices[i] << 2
       _bboxes[k]     = tmp[m]
