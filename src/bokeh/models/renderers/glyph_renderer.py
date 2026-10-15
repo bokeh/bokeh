@@ -39,7 +39,11 @@ from ...core.validation import error
 from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
 from ..filters import AllIndices
 from ..glyph import ConnectedXYGlyph, Glyph
-from ..graphics import Decoration, Marking
+from ..graphics import (
+    Marking,
+    PathDecoration,
+    PathMarkings,
+)
 from ..sources import (
     CDSView,
     ColumnDataSource,
@@ -156,40 +160,72 @@ class GlyphRenderer(DataRenderer):
     a legend was configured with ``click_policy = "mute"``.
     """)
 
-    def add_decoration(self, node: Literal["start", "middle", "end"], marking: Marking, *,
+    def add_path_decoration(self, marking: Marking, *, node: Literal["start", "middle", "end"],
             inset: Any = 0, selection_marking: Marking | Literal["auto"] | None = "auto",
             nonselection_marking: Marking | Literal["auto"] | None = "auto",
             hover_marking: Marking | Literal["auto"] | None = "auto",
-            muted_marking: Marking | Literal["auto"] | None = "auto") -> Decoration:
-        """Add a decoration to the glyph and its visual-state glyphs.
+            muted_marking: Marking | Literal["auto"] | None = "auto") -> PathDecoration:
+        """Attach a marking to a named start, middle, or end node.
 
-        The first argument selects ``"start"``, ``"middle"``, or ``"end"``.
-        The second supplies the marking.
-
-        State-specific markings can be supplied when a decoration should track
-        selection, nonselection, hover, or muted styling. ``"auto"`` reuses the
-        primary marking and ``None`` omits the decoration for that state. A
-        state-specific marking requires an explicitly configured state glyph.
-        Auto-generated glyphs reuse the primary decoration.
+        Start and end honor inset and trim the shaft using endpoint tangents.
+        Middle uses rear-to-tip chord alignment without inset or shaft trimming.
+        Use add_path_markings() for fractional or repeated placements.
+        State-specific markings require explicitly configured state glyphs.
         """
-        decoration = Decoration(marking=marking, node=node, inset=inset)
-        self.glyph.decorations.append(decoration)
+        decoration = PathDecoration(marking=marking, node=node, inset=inset)
+        self._add_decoration(decoration, selection_marking=selection_marking,
+                             nonselection_marking=nonselection_marking,
+                             hover_marking=hover_marking, muted_marking=muted_marking)
+        return decoration
 
+    def add_path_markings(self, marking: Marking, *, positions: Any = None,
+            selection_marking: Marking | Literal["auto"] | None = "auto",
+            nonselection_marking: Marking | Literal["auto"] | None = "auto",
+            hover_marking: Marking | Literal["auto"] | None = "auto",
+            muted_marking: Marking | Literal["auto"] | None = "auto") -> PathMarkings:
+        """Attach fractional markings, with one or more positions per path.
+
+        A literal list of fractions applies to every path. A field references
+        lists of fractions, one list per source row. Empty lists draw nothing.
+        Markings use rear-to-tip chord alignment without shaft trimming or inset.
+        Fractions 0 and 1 differ from named endpoints. Styling resolves per path.
+        """
+        decoration = PathMarkings(marking=marking, positions=[0.5] if positions is None else positions)
+        self._add_decoration(decoration, selection_marking=selection_marking,
+                             nonselection_marking=nonselection_marking,
+                             hover_marking=hover_marking, muted_marking=muted_marking)
+        return decoration
+
+    def _add_decoration(self, decoration: PathDecoration | PathMarkings, *,
+            selection_marking: Marking | Literal["auto"] | None = "auto",
+            nonselection_marking: Marking | Literal["auto"] | None = "auto",
+            hover_marking: Marking | Literal["auto"] | None = "auto",
+            muted_marking: Marking | Literal["auto"] | None = "auto") -> None:
         states = [
             (self.selection_glyph, selection_marking),
             (self.nonselection_glyph, nonselection_marking),
             (self.hover_glyph, hover_marking),
             (self.muted_glyph, muted_marking),
         ]
+        for glyph in [self.glyph, *(glyph for glyph, marking in states if marking is not None)]:
+            if isinstance(glyph, Glyph) and not glyph._supports_path_decorations(decoration.node if isinstance(decoration, PathDecoration) else 0.5):
+                operation = "add_path_decoration" if isinstance(decoration, PathDecoration) else "add_path_markings"
+                raise ValueError(f"{operation}() does not support {type(glyph).__name__}. "
+                                 "Use Segment, Line, MultiLine, Bezier, or Arc.")
+        self.glyph.decorations.append(decoration)
+
         for glyph, state_marking in states:
             if not isinstance(glyph, Glyph) or state_marking is None:
                 continue
             if state_marking == "auto":
                 glyph.decorations.append(decoration)
             else:
-                glyph.decorations.append(Decoration(marking=state_marking, node=node, inset=inset))
+                glyph.decorations.append(
+                    PathDecoration(marking=state_marking, node=decoration.node, inset=decoration.inset)
+                    if isinstance(decoration, PathDecoration) else
+                    PathMarkings(marking=state_marking, positions=decoration.positions),
+                )
 
-        return decoration
 
     def construct_color_bar(self, **kwargs: Any) -> ColorBar:
         ''' Construct and return a new ``ColorBar`` for this ``GlyphRenderer``.

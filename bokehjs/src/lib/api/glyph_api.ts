@@ -54,7 +54,7 @@ import {
 
 import type {Marker} from "../models/glyphs/marker"
 import type {Marking} from "../models/graphics/marking"
-import type {Decoration} from "../models/graphics/decoration"
+import type {PathDecoration} from "../models/graphics/decoration"
 import {OpenHead} from "../models/annotations/arrow_head"
 
 export type NamesOf<T extends HasProps> = (Extract<keyof T["properties"], string>)[]
@@ -157,8 +157,8 @@ type ArrowProps = Omit<Segment.Props, "x0" | "y0" | "x1" | "y1"> & {
   y_end: Segment.Props["y1"]
   start: Property<Marking | null>
   end: Property<Marking | "auto" | null>
-  start_inset: Property<Decoration["inset"]>
-  end_inset: Property<Decoration["inset"]>
+  start_inset: Property<PathDecoration["inset"]>
+  end_inset: Property<PathDecoration["inset"]>
 }
 
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
@@ -284,11 +284,11 @@ export abstract class GlyphAPI {
       level: segment_attrs.level ?? "annotation",
     })
     if (start != null) {
-      renderer.add_decoration("start", start, {inset: start_inset})
+      renderer.add_path_decoration(start, {node: "start", inset: start_inset})
     }
     const end_marking = end == "auto" ? OpenHead.create({inherit_visuals: ["line_color", "line_alpha", "line_width"]}) : end
     if (end_marking != null) {
-      renderer.add_decoration("end", end_marking, {inset: end_inset})
+      renderer.add_path_decoration(end_marking, {node: "end", inset: end_inset})
     }
     return renderer
   }

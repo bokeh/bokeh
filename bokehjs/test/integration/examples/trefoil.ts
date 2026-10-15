@@ -42,10 +42,10 @@ describe("Examples", () => {
         end_angle: [120, 180], end_angle_units: "deg",
         line_color: "black",
       })
-      arc.add_decoration("start", TeeHead.create({size: 10}))
-      arc.add_decoration("start", VeeHead.create({size: 8}))
-      arc.add_decoration("end", TeeHead.create({size: 10}))
-      arc.add_decoration("end", VeeHead.create({size: 8}))
+      arc.add_path_decoration(TeeHead.create({size: 10}), {node: "start"})
+      arc.add_path_decoration(VeeHead.create({size: 8}), {node: "start"})
+      arc.add_path_decoration(TeeHead.create({size: 10}), {node: "end"})
+      arc.add_path_decoration(VeeHead.create({size: 8}), {node: "end"})
 
       const [x1, y1] = [5.5*R*cos(radians(150)), 5.5*R*sin(radians(150))]
       p.text({x: [0, x1], y: [5.3*R, y1], text: {value: `60${degree}`}, text_baseline: "bottom", text_align: "center"})
@@ -65,10 +65,10 @@ describe("Examples", () => {
         y1: [-2*R,  -3*R, -4*R],
         line_color: "black",
       })
-      s.add_decoration("start", TeeHead.create({size: 10}))
-      s.add_decoration("start", VeeHead.create({size: 8}))
-      s.add_decoration("end", TeeHead.create({size: 10}))
-      s.add_decoration("end", VeeHead.create({size: 8}))
+      s.add_path_decoration(TeeHead.create({size: 10}), {node: "start"})
+      s.add_path_decoration(VeeHead.create({size: 8}), {node: "start"})
+      s.add_path_decoration(TeeHead.create({size: 10}), {node: "end"})
+      s.add_path_decoration(VeeHead.create({size: 8}), {node: "end"})
 
       p.text({x: 1.0*R/2, y: -2*R, text: {value: "R"}, text_baseline: "bottom", text_align: "center"})
       p.text({x: 1.5*R/2, y: -3*R, text: {value: `1.5${cdot}R`}, text_baseline: "bottom", text_align: "center"})

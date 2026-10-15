@@ -5297,6 +5297,13 @@
   },
   Decoration: {
     __extends__: "Model",
+  },
+  Marking: {
+    __extends__: "Model",
+    inherit_visuals: [],
+  },
+  PathDecoration: {
+    __extends__: "Decoration",
     marking: {
       type: "symbol",
       name: "unset",
@@ -5310,9 +5317,18 @@
       value: 0,
     },
   },
-  Marking: {
-    __extends__: "Model",
-    inherit_visuals: [],
+  PathMarkings: {
+    __extends__: "Decoration",
+    marking: {
+      type: "symbol",
+      name: "unset",
+    },
+    positions: {
+      type: "value",
+      value: [
+        0.5,
+      ],
+    },
   },
   EdgeCoordinates: {
     __extends__: "GraphCoordinates",

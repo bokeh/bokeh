@@ -29,7 +29,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Decoration} from "../graphics/decoration"
+import {Decoration, PathDecoration, PathMarkings} from "../graphics/decoration"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
 
 const {abs, ceil} = Math
@@ -98,7 +98,16 @@ export abstract class GlyphView extends DOMComponentView {
     this.visuals = new visuals.Visuals(this)
   }
 
-  readonly decorations: ViewStorage<Decoration> = new Map()
+  readonly decorations: ViewStorage<PathDecoration | PathMarkings> = new Map()
+
+  protected async _build_decorations(): Promise<void> {
+    const models = this.model.decorations.map((decoration) => {
+      assert(decoration instanceof PathDecoration || decoration instanceof PathMarkings,
+        `${this.model.type} does not support ${decoration.type} decorations`)
+      return decoration
+    })
+    await build_views(this.decorations, models, {parent: this.parent})
+  }
 
   protected _decoration_insets(i: number): {start: number, end: number} {
     let start = 0
@@ -106,9 +115,9 @@ export abstract class GlyphView extends DOMComponentView {
 
     for (const decoration of this.decorations.values()) {
       const inset = Math.max(0, decoration.inset.get(i) + decoration.marking.line_extent(i))
-      if (decoration.model.node == "start") {
+      if (decoration.node == "start") {
         start = Math.max(start, inset)
-      } else if (decoration.model.node == "end") {
+      } else if (decoration.node == "end") {
         end = Math.max(end, inset)
       }
     }
@@ -122,7 +131,7 @@ export abstract class GlyphView extends DOMComponentView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this.decorations, this.model.decorations, {parent: this.parent})
+    await this._build_decorations()
 
     const {webgl} = this.canvas
     if (webgl != null && this.load_glglyph != null) {
@@ -134,7 +143,7 @@ export abstract class GlyphView extends DOMComponentView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.decorations.change, async () => {
-      await build_views(this.decorations, this.model.decorations, {parent: this.parent})
+      await this._build_decorations()
       if (this.is_destroyed) {
         return
       }
@@ -669,6 +678,10 @@ export namespace Glyph {
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
+  _supports_path_decorations(_placement: string | number): boolean {
+    return false
+  }
+
   declare properties: Glyph.Props
   declare __view_type__: GlyphView
 

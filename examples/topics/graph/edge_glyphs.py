@@ -25,10 +25,9 @@ for glyph_type in (MultiLine, Segment, Bezier):
     glyph = glyph_type(line_color="#52667a", line_width=2)
     graph.edge_renderer.glyph = glyph
     graph.edge_renderer.selection_glyph = glyph.clone(line_color="#E69F00", line_width=4)
-    graph.edge_renderer.add_decoration(
-        "end",
+    graph.edge_renderer.add_path_decoration(
         NormalHead(size=12, inherit_visuals=["line_color", "fill_color", "fill_alpha", "line_width"]),
-        inset=18,
+        node="end", inset=18,
     )
     graph.selection_policy = EdgesAndLinkedNodes()
     p = figure(width=300, height=330, x_range=(-0.5, 2.5), y_range=(-1, 2),

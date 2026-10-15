@@ -10,7 +10,7 @@ from abc import abstractmethod
 from typing import Literal, Unpack
 
 # Bokeh imports
-from .._specs import NumberSpec
+from .._specs import DataSpec, NumberSpec
 from ..model.model import Model, _ModelInit
 
 class _MarkingInit(_ModelInit, total=False):
@@ -21,14 +21,26 @@ class Marking(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_MarkingInit]) -> None: ...
 
-class _DecorationInit(_ModelInit, total=False):
+class Decoration(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_ModelInit]) -> None: ...
+
+class _PathDecorationInit(_ModelInit, total=False):
     marking: Marking
     node: Literal["start", "middle", "end"]
     inset: NumberSpec
 
-class Decoration(Model):
-    def __init__(self, **kwargs: Unpack[_DecorationInit]) -> None: ...
-
+class PathDecoration(Decoration):
+    def __init__(self, **kwargs: Unpack[_PathDecorationInit]) -> None: ...
     marking: Marking = ...
     node: Literal["start", "middle", "end"] = ...
     inset: NumberSpec = ...
+
+class _PathMarkingsInit(_ModelInit, total=False):
+    marking: Marking
+    positions: DataSpec[list[float]]
+
+class PathMarkings(Decoration):
+    def __init__(self, **kwargs: Unpack[_PathMarkingsInit]) -> None: ...
+    marking: Marking = ...
+    positions: DataSpec[list[float]] = ...

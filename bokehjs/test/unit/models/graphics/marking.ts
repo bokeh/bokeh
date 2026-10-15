@@ -6,12 +6,12 @@ import type {SegmentView} from "@bokehjs/models/glyphs/segment"
 import {Segment} from "@bokehjs/models/glyphs/segment"
 import type {NormalHeadView} from "@bokehjs/models/annotations/arrow_head"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {Decoration} from "@bokehjs/models/graphics/decoration"
+import {PathDecoration} from "@bokehjs/models/graphics/decoration"
 
 describe("Marking inherited visuals", () => {
   it("should resolve fields and live updates per host while preserving explicit overrides", async () => {
     const head = NormalHead.create({inherit_visuals: ["line_color", "fill_color", "fill_alpha"], line_width: 7})
-    const decoration = Decoration.create({marking: head, node: "end"})
+    const decoration = PathDecoration.create({marking: head, node: "end"})
     const glyph = Segment.create({line_color: {field: "color"}, line_alpha: 0.6, decorations: [decoration]})
     const view = await create_glyph_view(glyph, {x0: [0, 0], y0: [20, 40], x1: [100, 100], y1: [20, 40], color: ["red", "blue"]} as any)
     const marking = view.decorations.get(decoration)!.marking as NormalHeadView

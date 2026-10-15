@@ -1,3 +1,5 @@
+import {assert} from "@bokehjs/core/util/assert"
+import {PathDecoration} from "@bokehjs/models/graphics/decoration"
 import {expect} from "#framework/assertions"
 
 import {figure} from "@bokehjs/api/plotting"
@@ -188,6 +190,7 @@ describe("in api/plotting module", () => {
         expect(renderer.glyph.x1).to.be.equal({value: 1})
         expect(renderer.glyph.y1).to.be.equal({value: 2})
         expect(renderer.glyph.decorations.length).to.be.equal(2)
+        assert(renderer.glyph.decorations[0] instanceof PathDecoration && renderer.glyph.decorations[1] instanceof PathDecoration)
         expect(renderer.glyph.decorations[0].marking).to.be.identical(start)
         expect(renderer.glyph.decorations[0].node).to.be.equal("start")
         expect(renderer.glyph.decorations[0].inset).to.be.equal({value: 3})

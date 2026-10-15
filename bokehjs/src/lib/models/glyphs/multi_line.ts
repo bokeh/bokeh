@@ -253,6 +253,10 @@ export namespace MultiLine {
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
+  override _supports_path_decorations(_placement: string | number): boolean {
+    return true
+  }
+
   declare properties: MultiLine.Props
   declare __view_type__: MultiLineView
 

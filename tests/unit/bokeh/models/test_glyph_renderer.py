@@ -49,7 +49,7 @@ import bokeh.models.renderers as bmr # isort:skip
 #-----------------------------------------------------------------------------
 
 
-def test_add_decoration_accepts_vectorized_inset_and_state_markings() -> None:
+def test_add_path_decoration_accepts_vectorized_inset_and_state_markings() -> None:
     glyph = MultiLine()
     selection_glyph = MultiLine()
     nonselection_glyph = MultiLine()
@@ -62,9 +62,7 @@ def test_add_decoration_accepts_vectorized_inset_and_state_markings() -> None:
     marking = NormalHead(fill_color="gray")
     selection_marking = NormalHead(fill_color="orange")
 
-    decoration = renderer.add_decoration(
-        "end",
-        marking,
+    decoration = renderer.add_path_decoration(marking, node="end",
         inset="inset",
         selection_marking=selection_marking,
         nonselection_marking=None,
@@ -250,3 +248,63 @@ def test_check_cdsview_filters_with_connected_error(glyph) -> None:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@pytest.mark.parametrize("fraction", [0, 0.25, 0.5, 0.75, 1])
+def test_fractional_decoration(fraction: float) -> None:
+    from bokeh.models import NormalHead, Segment
+
+    renderer = bmr.GlyphRenderer(glyph=Segment())
+    decoration = renderer.add_path_markings(NormalHead(), positions=[fraction])
+    assert decoration.positions == [fraction]
+    assert renderer.glyph.decorations == [decoration]
+
+
+@pytest.mark.parametrize("fraction", [-0.1, 1.1, float("nan"), float("inf")])
+def test_invalid_decoration_fraction_is_atomic(fraction: float) -> None:
+    from bokeh.models import NormalHead, Segment
+
+    renderer = bmr.GlyphRenderer(glyph=Segment())
+    with pytest.raises(ValueError):
+        renderer.add_path_markings(NormalHead(), positions=[fraction])
+    assert renderer.glyph.decorations == []
+
+
+def test_unsupported_path_decoration_is_atomic() -> None:
+    from bokeh.models import NormalHead, Rect, Segment
+
+    for renderer in [bmr.GlyphRenderer(glyph=Rect()), bmr.GlyphRenderer(glyph=Segment(), selection_glyph=Rect())]:
+        with pytest.raises(ValueError, match="does not support Rect"):
+            renderer.add_path_markings(NormalHead(), positions=[0.25])
+        assert renderer.glyph.decorations == []
+        if isinstance(renderer.selection_glyph, Rect):
+            assert renderer.selection_glyph.decorations == []
+
+
+def test_arc_accepts_named_and_fractional_decorations() -> None:
+    from bokeh.models import Arc, NormalHead
+
+    renderer = bmr.GlyphRenderer(glyph=Arc())
+    decoration = renderer.add_path_decoration(NormalHead(), node="middle")
+    fractional = renderer.add_path_markings(NormalHead(), positions=[0.5])
+    assert renderer.glyph.decorations == [decoration, fractional]
+
+
+def test_add_path_decoration_rejects_fractional_nodes() -> None:
+    renderer = bmr.GlyphRenderer(glyph=MultiLine())
+    with pytest.raises(ValueError):
+        renderer.add_path_decoration(NormalHead(), node=0.5)
+    assert renderer.glyph.decorations == []
+
+
+def test_path_markings_field_and_state_markings() -> None:
+    source = ColumnDataSource(dict(xs=[[0, 1], [0, 1]], ys=[[0, 0], [1, 1]],
+                                  positions=[[0.2, 0.8], []]))
+    selected = MultiLine()
+    renderer = bmr.GlyphRenderer(glyph=MultiLine(), selection_glyph=selected, data_source=source)
+    head = NormalHead()
+    selection_head = NormalHead(fill_color="orange")
+    markings = renderer.add_path_markings(head, positions="positions", selection_marking=selection_head)
+    assert markings.positions == "positions"
+    assert selected.decorations[0].positions == "positions"
+    assert selected.decorations[0].marking is selection_head
+    assert renderer.glyph.decorations == [markings]

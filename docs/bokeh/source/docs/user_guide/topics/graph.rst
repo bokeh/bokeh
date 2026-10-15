@@ -139,12 +139,13 @@ Directed edges
 --------------
 
 Add arrowheads to a graph's ``MultiLine`` edge renderer with
-:meth:`~bokeh.models.GlyphRenderer.add_decoration`:
+:meth:`~bokeh.models.GlyphRenderer.add_path_decoration`:
 
 .. code-block:: python
 
-    graph.edge_renderer.add_decoration(
-        "end", NormalHead(size=12), inset="end_inset",
+    graph.edge_renderer.add_path_decoration(
+        NormalHead(size=12),
+        node="end", inset="end_inset",
     )
 
 Store ``end_inset`` in the edge data source. For circular ``Scatter`` nodes,

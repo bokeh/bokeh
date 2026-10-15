@@ -10,7 +10,7 @@ import type {Context2d} from "core/util/canvas"
 import {atan2} from "core/util/math"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
-import type {DecorationView} from "../graphics/decoration"
+import type {PathDecorationView} from "../graphics/decoration"
 import {Selection} from "../selections/selection"
 
 export interface SegmentView extends Segment.Data {}
@@ -70,23 +70,28 @@ export class SegmentView extends GlyphView {
 
   protected _render_decorations(ctx: Context2d, i: number, sx0: number, sy0: number, sx1: number, sy1: number): void {
     for (const decoration of this.decorations.values()) {
-      const {sx, sy, angle} = this._position_decoration(decoration, i, sx0, sy0, sx1, sy1)
-      ctx.save()
-      ctx.translate(sx, sy)
-      ctx.rotate(angle)
-      decoration.marking.paint(ctx, i)
-      ctx.restore()
+      for (const placement of decoration.placements(i)) {
+        const {sx, sy, angle} = this._position_decoration(decoration, i, sx0, sy0, sx1, sy1, placement)
+        ctx.save()
+        ctx.translate(sx, sy)
+        ctx.rotate(angle)
+        decoration.marking.paint(ctx, i)
+        ctx.restore()
+      }
     }
   }
 
-  protected _position_decoration(decoration: DecorationView, i: number,
-      sx0: number, sy0: number, sx1: number, sy1: number): {sx: number, sy: number, angle: number} {
+  protected _position_decoration(decoration: PathDecorationView, i: number,
+      sx0: number, sy0: number, sx1: number, sy1: number, placement = decoration.placements(i)[0]): {sx: number, sy: number, angle: number} {
     const angle = atan2([sx0, sy0], [sx1, sy1]) + Math.PI/2
     const length = Math.hypot(sx1 - sx0, sy1 - sy0)
     const ux = length == 0 ? 0 : (sx1 - sx0)/length
     const uy = length == 0 ? 0 : (sy1 - sy0)/length
     const inset = decoration.inset.get(i)
-    switch (decoration.model.node) {
+    if (typeof placement == "number") {
+      return {sx: sx0 + placement*(sx1 - sx0), sy: sy0 + placement*(sy1 - sy0), angle}
+    }
+    switch (placement) {
       case "start": return {sx: sx0 + inset*ux, sy: sy0 + inset*uy, angle: angle + Math.PI}
       case "middle": return {sx: (sx0 + sx1)/2, sy: (sy0 + sy1)/2, angle}
       case "end": return {sx: sx1 - inset*ux, sy: sy1 - inset*uy, angle}
@@ -117,13 +122,15 @@ export class SegmentView extends GlyphView {
     const sx1 = this.sx1[i]
     const sy1 = this.sy1[i]
     for (const decoration of this.decorations.values()) {
-      const {sx, sy, angle} = this._position_decoration(decoration, i, sx0, sy0, sx1, sy1)
-      const dx = point.x - sx
-      const dy = point.y - sy
-      const c = cos(angle)
-      const s = sin(angle)
-      if (decoration.marking.contains(c*dx + s*dy, -s*dx + c*dy, i)) {
-        return true
+      for (const placement of decoration.placements(i)) {
+        const {sx, sy, angle} = this._position_decoration(decoration, i, sx0, sy0, sx1, sy1, placement)
+        const dx = point.x - sx
+        const dy = point.y - sy
+        const c = cos(angle)
+        const s = sin(angle)
+        if (decoration.marking.contains(c*dx + s*dy, -s*dx + c*dy, i)) {
+          return true
+        }
       }
     }
     return false
@@ -215,6 +222,10 @@ export namespace Segment {
 export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
+  override _supports_path_decorations(_placement: string | number): boolean {
+    return true
+  }
+
   declare properties: Segment.Props
   declare __view_type__: SegmentView
 

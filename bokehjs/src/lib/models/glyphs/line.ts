@@ -1,4 +1,4 @@
-import {path_segments, path_length, position_decoration, trim_path, trace_path, paint_decorations, hit_decoration,
+import {path_segments, trim_path, trace_path, paint_decorations, hit_decoration,
         span_path_indices, decoration_hits_span} from "./decorated_path"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_line_scalar_legend, line_interpolation} from "./utils"
@@ -51,16 +51,12 @@ export class LineView extends XYGlyphView {
         this.visuals.line.set_value(ctx)
         ctx.stroke()
       }
-      const length = path_length(segments)
-      for (const decoration of this.decorations.values()) {
-        const {node} = decoration.model
-        const visible = node == "middle"
-          ? segment_is_visible(position_decoration(decoration, 0, segments, length).index)
-          : selected.has(node == "start" ? segments[0].index : segments[segments.length - 1].index + 1)
-        if (visible) {
-          paint_decorations(ctx, [decoration], 0, segments)
+      paint_decorations(ctx, this.decorations.values(), 0, segments, ({index, placement}) => {
+        if (placement == "start" || placement == "end") {
+          return selected.has(placement == "start" ? segments[0].index : segments[segments.length - 1].index + 1)
         }
-      }
+        return segment_is_visible(index)
+      })
       return
     }
 
@@ -239,6 +235,10 @@ export namespace Line {
 export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
+  override _supports_path_decorations(_placement: string | number): boolean {
+    return true
+  }
+
   declare properties: Line.Props
   declare __view_type__: LineView
 

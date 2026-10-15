@@ -41,7 +41,7 @@ from bokeh.models import (
     Segment,
     StaticLayoutProvider,
 )
-from bokeh.models.graphics import Decoration
+from bokeh.models.graphics import PathDecoration
 from bokeh.protocol import apply_patch, patch_doc
 
 #-----------------------------------------------------------------------------
@@ -75,13 +75,12 @@ class TestPatchDocument:
             xs=[[0, 1]], ys=[[0, 1]], inset=[12], updated_inset=[18],
         ))
         renderer = GlyphRenderer(data_source=source, glyph=MultiLine())
-        decoration = renderer.add_decoration(
-            "end", NormalHead(size=14), inset="inset",
+        decoration = renderer.add_path_decoration(NormalHead(size=14), node="end", inset="inset",
         )
         sample.add_root(renderer)
         copy = document.Document.from_json(sample.to_json())
         copy_decoration = copy.get_model_by_id(decoration.id)
-        assert isinstance(copy_decoration, Decoration)
+        assert isinstance(copy_decoration, PathDecoration)
 
         events = []
         sample.on_change(events.append)
@@ -214,7 +213,7 @@ def test_patch_inherited_marking_visuals() -> None:
     renderer = GlyphRenderer(data_source=ColumnDataSource(dict(xs=[[0, 1]], ys=[[0, 1]])),
                              glyph=MultiLine(line_color="red"))
     head = NormalHead(inherit_visuals=["line_color", "fill_color"])
-    renderer.add_decoration("end", head)
+    renderer.add_path_decoration(head, node="end")
     sample.add_root(renderer)
     copy = document.Document.from_json(sample.to_json())
     copied_head = copy.get_model_by_id(head.id)

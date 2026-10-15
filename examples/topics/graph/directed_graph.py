@@ -1,7 +1,7 @@
 ''' Directed graph edges with arrowheads that track changing node sizes.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.GraphRenderer, bokeh.models.GlyphRenderer.add_decoration, bokeh.models.CustomJS
+    :apis: bokeh.models.GraphRenderer, bokeh.models.GlyphRenderer.add_path_decoration, bokeh.models.CustomJS
     :refs: :ref:`ug_topics_graph`, :ref:`ug_basic_annotations_arrows`
     :keywords: graph, directed, arrows, decorations, callbacks
 
@@ -54,8 +54,9 @@ graph.edge_renderer.glyph = edge_glyph
 graph.edge_renderer.selection_glyph = edge_glyph.clone(line_color="#E69F00", line_width=3)
 graph.edge_renderer.nonselection_glyph = edge_glyph.clone(line_alpha=0.25)
 head = NormalHead(size=12, fill_color="#52667a", line_color=None)
-graph.edge_renderer.add_decoration(
-    "end", head, inset="end_inset",
+graph.edge_renderer.add_path_decoration(
+    head,
+    node="end", inset="end_inset",
     selection_marking=head.clone(fill_color="#E69F00"),
     nonselection_marking=head.clone(fill_alpha=0.25),
 )

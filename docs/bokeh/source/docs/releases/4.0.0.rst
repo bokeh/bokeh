@@ -25,6 +25,15 @@ Removals
 API changes
 -----------
 
-* ``GlyphRenderer.add_decoration()`` now takes the position first:
-  replace ``renderer.add_decoration(head, "end")`` with
-  ``renderer.add_decoration("end", head)``. BokehJS uses the same argument order.
+* Renamed ``GlyphRenderer.add_decoration()`` to
+  ``GlyphRenderer.add_path_decoration()``. It takes a marking first and a
+  keyword-only node: ``renderer.add_path_decoration(head, node="end")``. BokehJS uses
+  ``renderer.add_path_decoration(head, {node: "end"})``.
+
+* ``GlyphRenderer.add_path_markings()`` adds repeated fractional markings.
+  Positions can be a shared list or a field containing one list per path.
+
+* ``Decoration`` is an abstract base for decoration models. ``PathDecoration``
+  attaches a marking to a named path node, and ``PathMarkings`` places markings
+  at fractional path positions. These concrete models define their own marking
+  and placement properties.

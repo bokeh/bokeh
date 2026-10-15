@@ -5,7 +5,7 @@ import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {Decoration} from "@bokehjs/models/graphics/decoration"
+import {PathDecoration} from "@bokehjs/models/graphics/decoration"
 import type {Context2d} from "@bokehjs/core/util/canvas"
 
 describe("MultiLine", () => {
@@ -21,7 +21,7 @@ describe("MultiLine", () => {
 
   it("should place vectorized end decorations on the final path tangent and stop the shaft at the rear of the marking", async () => {
     const marking = NormalHead.create({size: {field: "head_size"}})
-    const decoration = Decoration.create({marking, node: "end", inset: {field: "inset"}})
+    const decoration = PathDecoration.create({marking, node: "end", inset: {field: "inset"}})
     const glyph = MultiLine.create({
       xs: {field: "xs"},
       ys: {field: "ys"},
@@ -79,10 +79,10 @@ describe("MultiLine", () => {
     expect(decoration_view.marking.size.get(0)).to.be.equal(18)
   })
 
-  for (const node of ["start", "end"] as const) {
-    it(`should hit a curved decorated path only where its shaft or marking is visible at ${node}`, async () => {
+  for (const placement of ["start", "end"] as const) {
+    it(`should hit a curved decorated path only where its shaft or marking is visible at ${placement}`, async () => {
       const marking = NormalHead.create({size: 12})
-      const decoration = Decoration.create({marking, node, inset: 20})
+      const decoration = PathDecoration.create({marking, node: placement, inset: 20})
       const glyph = MultiLine.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
@@ -95,11 +95,11 @@ describe("MultiLine", () => {
 
       const sx = glyph_view.sxs.get(0)
       const sy = glyph_view.sys.get(0)
-      const j = node == "end" ? sx.length - 1 : 1
+      const j = placement == "end" ? sx.length - 1 : 1
       const length = Math.hypot(sx[j] - sx[j - 1], sy[j] - sy[j - 1])
       const ux = (sx[j] - sx[j - 1])/length
       const uy = (sy[j] - sy[j - 1])/length
-      const from_end = (distance: number) => node == "end"
+      const from_end = (distance: number) => placement == "end"
         ? {sx: sx[j] - distance*ux, sy: sy[j] - distance*uy}
         : {sx: sx[0] + distance*ux, sy: sy[0] + distance*uy}
 

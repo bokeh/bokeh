@@ -117,11 +117,11 @@ Examples:
             **kwargs,
         )
         if start is not None:
-            renderer.add_decoration("start", start, inset=start_inset)
+            renderer.add_path_decoration(start, node="start", inset=start_inset)
         if end == "auto":
             end = OpenHead(inherit_visuals=["line_color", "line_alpha", "line_width"])
         if end is not None:
-            renderer.add_decoration("end", end, inset=end_inset)
+            renderer.add_path_decoration(end, node="end", inset=end_inset)
         return renderer
 
     @glyph_method(glyphs.Arc)

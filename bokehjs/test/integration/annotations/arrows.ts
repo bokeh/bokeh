@@ -1,6 +1,6 @@
 import {display, fig, row, column} from "#framework/layouts"
 
-import {NormalHead, OpenHead, TeeHead, VeeHead, Range1d, Decoration} from "@bokehjs/models"
+import {NormalHead, OpenHead, TeeHead, VeeHead, Range1d, PathDecoration} from "@bokehjs/models"
 import {ModelChangedEvent} from "@bokehjs/document/events"
 import type {OutputBackend} from "@bokehjs/core/enums"
 
@@ -15,7 +15,7 @@ describe("Arrow annotation", () => {
     }))
     const {view} = await display(row(plots))
     const doc = view.model.document!
-    const added = Decoration.create({node: "end", marking: NormalHead.create({size: 20})})
+    const added = PathDecoration.create({node: "end", marking: NormalHead.create({size: 20})})
     const replaced = renderers[1].glyph.decorations[0]
     const patch = doc.create_json_patch([
       new ModelChangedEvent(doc, renderers[0].glyph, "decorations", [added]),

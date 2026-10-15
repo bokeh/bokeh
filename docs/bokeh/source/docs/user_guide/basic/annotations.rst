@@ -468,22 +468,22 @@ Decorating existing glyphs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To add arrowheads to an existing ``Segment``, ``Line``, ``MultiLine``, ``Bezier``, or ``Arc``
-renderer, use :meth:`~bokeh.models.GlyphRenderer.add_decoration`:
+renderer, use :meth:`~bokeh.models.GlyphRenderer.add_path_decoration`:
 
 .. code-block:: python
 
     from bokeh.models import NormalHead
 
     renderer = plot.segment(x0=0, y0=0, x1=1, y1=1, line_color="navy")
-    decoration = renderer.add_decoration(
-        "end",
+    decoration = renderer.add_path_decoration(
         NormalHead(size=12, fill_color="navy", line_color="navy"),
+        node="end",
     )
 
 ``figure.arrow()`` is a convenience API for creating a ``Segment`` renderer
-and adding its start and end decorations. With ``add_decoration()``, you
+and adding its start and end decorations. With ``add_path_decoration()``, you
 choose the glyph yourself and attach markings at ``"start"``, ``"middle"``,
-or ``"end"``. The method returns a ``Decoration`` model, which you can update
+or ``"end"``. The method returns a ``PathDecoration`` model, which you can update
 later, for example with ``decoration.inset = 10``. Decorations can also be added
 or removed after display, and replacing ``decoration.marking`` rebuilds its
 head view. These changes work through server document patches as well.
@@ -509,7 +509,45 @@ multi-segment paths without calling ``figure.arrow()``:
 .. bokeh-plot:: __REPO__/examples/basic/annotations/line_decorations.py
     :source-position: above
 
-For a ``Line``, the first data row supplies the marking's size, inset, and
+``add_path_decoration(marking, node="end")`` accepts only the named nodes ``"start"``,
+``"middle"``, and ``"end"``. Start and end use endpoint tangents, honor
+``inset``, and trim the shaft. Middle uses rear-to-tip chord alignment at
+half the screen-space path length, without inset or shaft trimming.
+
+Use ``add_path_markings()`` for fractional or repeated markings::
+
+    renderer.add_path_markings(head, positions=[0.2, 0.5, 0.8])
+
+A literal list applies to every path. To use different positions per path,
+store a list of fractions in each source row::
+
+    source.data = dict(
+        xs=[[0, 1, 2], [0, 1, 2]],
+        ys=[[0, 1, 0], [1, 0, 1]],
+        arrow_positions=[[0.2, 0.5, 0.8], [0.25, 0.75]],
+    )
+    renderer.add_path_markings(head, positions="arrow_positions")
+
+Each fraction measures screen-space path length, and an empty list draws no
+markings for that path. Updating the positions column moves the markings
+without changing the paths. Marking sizes and visuals resolve per source row
+and are shared by that row's repeated markings.
+
+Fractional markings align to the chord from one marking rear extent behind
+the tip, within the same finite subpath. A zero-length chord uses the local
+forward tangent. They do not trim the shaft and have no inset option.
+Numeric 0 and 1 are not aliases for named endpoints. In particular, 0 points
+forward, whereas the named start node points outward against the tangent.
+
+The methods add ``PathDecoration`` and ``PathMarkings`` models to the glyph's
+``decorations`` list. Both inherit from the abstract ``Decoration`` model, which
+does not prescribe a marking or placement.
+
+Both methods support ``Segment``, ``Line``, ``MultiLine``, ``Bezier``, and
+``Arc`` and reject unsupported glyphs. Arc fractions follow the directed
+circular sweep, including wrapped angles and full turns.
+
+For a ``Line``, the first data row supplies path marking positions, marking size, inset, and
 non-inherited visuals. Start and end refer to the entire finite path, including
 across NaN-separated subpaths. A middle marking follows the visual state of
 the segment containing the midpoint by path length. ``Bezier`` decorations use

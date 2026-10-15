@@ -171,6 +171,10 @@ export namespace Bezier {
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
+  override _supports_path_decorations(_placement: string | number): boolean {
+    return true
+  }
+
   declare properties: Bezier.Props
   declare __view_type__: BezierView
 

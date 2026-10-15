@@ -4,13 +4,13 @@ import {Segment} from "@bokehjs/models/glyphs/segment"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {Bezier} from "@bokehjs/models/glyphs/bezier"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {Decoration} from "@bokehjs/models/graphics/decoration"
+import {PathDecoration} from "@bokehjs/models/graphics/decoration"
 
 describe("Path span hit testing", () => {
   for (const decorated of [false, true]) {
     for (const Glyph of [Segment, MultiLine, Bezier]) {
       it(`should follow HoverTool's span convention for ${Glyph.name}, decorated=${decorated}`, async () => {
-        const decorations = decorated ? [Decoration.create({node: "end", marking: NormalHead.create({size: 12})})] : []
+        const decorations = decorated ? [PathDecoration.create({node: "end", marking: NormalHead.create({size: 12})})] : []
         const glyph = Glyph == Segment ? Segment.create({decorations}) :
           Glyph == Bezier ? Bezier.create({decorations}) : MultiLine.create({decorations})
         const data = Glyph == MultiLine ? {xs: [[20, 80]], ys: [[30, 30]]} : {
