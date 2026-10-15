@@ -399,12 +399,15 @@ export class Document implements Equatable {
     }
 
     dest_doc.config = config
+    config.disconnect(config.properties.color_scheme.change, this._on_system_scheme_change)
+    config.on_change(config.properties.color_scheme, dest_doc._on_system_scheme_change)
 
     for (const root of roots) {
       dest_doc.add_root(root)
     }
 
     dest_doc.set_title(this._title)
+    dest_doc.set_color_scheme(dest_doc.config.color_scheme)
   }
 
   private _hold_models_freeze: boolean = false
