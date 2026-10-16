@@ -324,6 +324,7 @@ jobs:
   unit-test:
     needs: build
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
@@ -375,6 +376,7 @@ jobs:
     name: unit-test optimized (ubuntu-24.04, 3.14, -OO)
     needs: build
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
 
     env:
       OS: ubuntu-24.04
@@ -410,6 +412,7 @@ jobs:
     name: unit-test free-threaded (ubuntu-24.04, 3.14t)
     needs: build
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
