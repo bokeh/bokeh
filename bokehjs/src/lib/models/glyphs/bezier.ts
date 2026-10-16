@@ -1,3 +1,9 @@
+import {cubic_path, trim_path, trace_path, paint_decorations, hit_decoration,
+        span_path_indices, decoration_hits_span, decoration_hits_rect} from "./decorated_path"
+import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
+import type {PathSegment} from "./decorated_path"
+import {dist_to_segment, segment_intersects_rect} from "core/hittest"
+import {Selection} from "../selections/selection"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Rect} from "core/types"
@@ -42,7 +48,7 @@ export class BezierView extends GlyphView {
   }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Bezier.Data): void {
-    if (!this.visuals.line.doit) {
+    if (!this.visuals.line.doit && this.decorations.size == 0) {
       return
     }
 
@@ -62,12 +68,74 @@ export class BezierView extends GlyphView {
         continue
       }
 
+      if (this.decorations.size != 0) {
+        const segments = cubic_path(sx0_i, sy0_i, scx0_i, scy0_i, scx1_i, scy1_i, sx1_i, sy1_i)
+        const {start, end} = this._decoration_insets(i)
+        if (this.visuals.line.doit) {
+          ctx.beginPath()
+          trace_path(ctx, trim_path(segments, start, end))
+          this.visuals.line.apply(ctx, i)
+        }
+        paint_decorations(ctx, this.decorations.values(), i, segments)
+        continue
+      }
+
       ctx.beginPath()
       ctx.moveTo(sx0_i, sy0_i)
       ctx.bezierCurveTo(scx0_i, scy0_i, scx1_i, scy1_i, sx1_i, sy1_i)
 
       this.visuals.line.apply(ctx, i)
     }
+  }
+
+  protected _screen_path(i: number): PathSegment[] {
+    return cubic_path(this.sx0[i], this.sy0[i], this.scx0[i], this.scy0[i],
+      this.scx1[i], this.scy1[i], this.sx1[i], this.sy1[i])
+  }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
+    const point = {x: geometry.sx, y: geometry.sy}
+    const indices: number[] = []
+    for (let i = 0; i < this.data_size; i++) {
+      const segments = this._screen_path(i)
+      const {start, end} = this._decoration_insets(i)
+      const threshold = Math.max(2, this.line_width.get(i)/2)
+      const shaft = trim_path(segments, start, end).some(segment => dist_to_segment(point,
+        {x: segment.sx0, y: segment.sy0}, {x: segment.sx1, y: segment.sy1}) < threshold)
+      const marking = [...this.decorations.values()].some(decoration => hit_decoration(point, decoration, i, segments) != null)
+      if (shaft || marking) {
+        indices.push(i)
+      }
+    }
+    return Selection.create({indices})
+  }
+
+  protected override _hit_span(geometry: SpanGeometry): Selection {
+    const value = geometry.direction == "h" ? geometry.sx : geometry.sy
+    const indices: number[] = []
+    for (let i = 0; i < this.data_size; i++) {
+      const segments = this._screen_path(i)
+      const {start, end} = this._decoration_insets(i)
+      if (span_path_indices(trim_path(segments, start, end), geometry.direction, value).length != 0 ||
+          [...this.decorations.values()].some(decoration => decoration_hits_span(decoration, i, segments, geometry.direction, value) != null)) {
+        indices.push(i)
+      }
+    }
+    return Selection.create({indices})
+  }
+
+  protected override _hit_rect(geometry: RectGeometry): Selection {
+    const indices: number[] = []
+    for (let i = 0; i < this.data_size; i++) {
+      const segments = this._screen_path(i)
+      const {start, end} = this._decoration_insets(i)
+      if (trim_path(segments, start, end).some(segment => segment_intersects_rect(
+        {x: segment.sx0, y: segment.sy0}, {x: segment.sx1, y: segment.sy1}, geometry)) ||
+          [...this.decorations.values()].some(decoration => decoration_hits_rect(decoration, i, segments, geometry) != null)) {
+        indices.push(i)
+      }
+    }
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -103,6 +171,10 @@ export namespace Bezier {
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
+  override _supports_path_decorations(_placement: string | number): boolean {
+    return true
+  }
+
   declare properties: Bezier.Props
   declare __view_type__: BezierView
 

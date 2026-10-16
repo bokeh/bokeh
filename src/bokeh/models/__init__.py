@@ -47,6 +47,7 @@ from . import (
     filters,
     formatters,
     glyphs,
+    graphics,
     graphs,
     grids,
     labeling,
@@ -82,6 +83,7 @@ from .expressions import *
 from .filters import *
 from .formatters import *
 from .glyphs import *
+from .graphics import *
 from .graphs import *
 from .grids import *
 from .labeling import *
@@ -130,6 +132,7 @@ __all__ = (
     *_all(filters),
     *_all(formatters),
     *_all(glyphs),
+    *_all(graphics),
     *_all(graphs),
     *_all(grids),
     *_all(labeling),

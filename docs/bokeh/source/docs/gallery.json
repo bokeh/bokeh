@@ -131,6 +131,16 @@
       "alt": "Thumbnail link to the examples/basic/annotations/arrow.py example that shows three different arrow annotation configurations."
     },
     {
+      "name": "quiver.py",
+      "title": "Quiver vector field",
+      "alt": "A vector field with interacting vortices and shear, shown as arrows colored by speed on a dark background."
+    },
+    {
+      "name": "path_markings.py",
+      "title": "Fractional arrow positioning",
+      "alt": "Arrowheads at fractions along straight and curved paths, with per-path position lists and animated streamlines."
+    },
+    {
       "name": "band.py",
       "alt": "Thumbnail link to the examples/basic/annotations/band.py example that shows a band annotation around a trend line in a scatter plot."
     },

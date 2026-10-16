@@ -20,14 +20,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
+from typing import Any, Literal
 
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.container import Dict, Len, Seq
 from ..core.property.either import Either
+from ..core.property.enum import Enum
 from ..core.property.instance import Instance
 from ..core.property.primitive import Float, Int, String
+from ..core.property.required import Required
 from ..model import Model
 from .expressions import CoordinateTransform
 
@@ -38,6 +40,7 @@ from .expressions import CoordinateTransform
 __all__ = (
     'EdgesAndLinkedNodes',
     'EdgeCoordinates',
+    'EdgePointCoordinates',
     'EdgesOnly',
     'GraphCoordinates',
     'GraphHitTestPolicy',
@@ -66,6 +69,9 @@ class LayoutProvider(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+    def edge_point_coordinates(self, point: Literal["start", "end", "control0", "control1"]) -> EdgePointCoordinates:
+        return EdgePointCoordinates(layout=self, point=point)
 
     @property
     def node_coordinates(self) -> NodeCoordinates:
@@ -132,6 +138,15 @@ class EdgeCoordinates(GraphCoordinates):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+
+class EdgePointCoordinates(GraphCoordinates):
+    """ Scalar endpoint or cubic-control coordinates obtained from a graph layout. """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    point = Required(Enum("start", "end", "control0", "control1"))
 
 
 @abstract

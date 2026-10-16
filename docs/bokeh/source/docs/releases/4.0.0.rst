@@ -12,3 +12,28 @@ Removals
   hierarchical tables, use Panel's ``Tabulator`` widget. Bokeh-only
   applications can use ``DataTable`` with pre-aggregated data. See
   :ref:`ug_topics_hierarchical` for migration guidance.
+
+* Removed the ``Arrow`` annotation model. Replace
+  ``plot.add_layout(Arrow(x_start=..., y_start=..., x_end=..., y_end=...))``
+  with ``renderer = plot.arrow(x_start=..., y_start=..., x_end=..., y_end=...)``.
+  The returned ``GlyphRenderer`` draws decorated segments. Change shaft
+  properties on ``renderer.glyph`` and head properties on its decorations.
+  Existing ``OpenHead``, ``NormalHead``, ``VeeHead``, and ``TeeHead`` models
+  remain available. Endpoints use data coordinates. Head sizes and decoration
+  insets use screen pixels. See :ref:`ug_basic_annotations_arrows` for examples.
+
+API changes
+-----------
+
+* Renamed ``GlyphRenderer.add_decoration()`` to
+  ``GlyphRenderer.add_path_decoration()``. It takes a marking first and a
+  keyword-only node: ``renderer.add_path_decoration(head, node="end")``. BokehJS uses
+  ``renderer.add_path_decoration(head, {node: "end"})``.
+
+* ``GlyphRenderer.add_path_markings()`` adds repeated fractional markings.
+  Positions can be a shared list or a field containing one list per path.
+
+* ``Decoration`` is an abstract base for decoration models. ``PathDecoration``
+  attaches a marking to a named path node, and ``PathMarkings`` places markings
+  at fractional path positions. These concrete models define their own marking
+  and placement properties.

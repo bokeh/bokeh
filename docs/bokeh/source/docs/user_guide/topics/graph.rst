@@ -29,8 +29,8 @@ You can replace it by any instance of ``XYGlyph``, like ``Ellipse``, ``Rect`` or
 :class:`~bokeh.models.Scatter`.
 
 Similarly, you can modify the style properties
-of edges through the ``edge_renderer`` property. To work with edge
-glyphs, use the ``multi_line`` glyph method.
+of edges through the ``edge_renderer`` property. Supported edge glyphs are ``MultiLine``, ``Patches``, ``Segment``, and ``Bezier``.
+Choose the edge glyph before displaying the graph.
 
 Observe the following requirements for the data sources belonging
 to these sub-renderers:
@@ -134,7 +134,50 @@ The following extends the example above and draws quadratic bezier
 curves between the nodes:
 
 .. bokeh-plot:: __REPO__/examples/topics/graph/static_paths.py
+
+Directed edges
+--------------
+
+Add arrowheads to a graph's ``MultiLine`` edge renderer with
+:meth:`~bokeh.models.GlyphRenderer.add_path_decoration`:
+
+.. code-block:: python
+
+    graph.edge_renderer.add_path_decoration(
+        NormalHead(size=12),
+        node="end", inset="end_inset",
+    )
+
+Store ``end_inset`` in the edge data source. For circular ``Scatter`` nodes,
+set each edge's inset to half its target node's screen-pixel ``size`` plus
+the desired gap. If node sizes change, update these edge values as well.
+Decorations do not automatically look up the target node's geometry.
+Arrowheads follow the final tangent of sampled edge paths, and the shaft
+stops behind each head. Other node shapes require their own boundary-distance
+calculation.
+
+This example uses a client-side callback to keep arrow tips outside resizing
+nodes, including on curved feedback edges. It also uses state-specific markings
+to match the selected and nonselected edge visuals:
+
+.. bokeh-plot:: __REPO__/examples/topics/graph/directed_graph.py
     :source-position: above
+
+Alternate edge glyphs
+^^^^^^^^^^^^^^^^^^^^^
+
+A ``Segment`` edge connects the first and last points supplied by the layout
+provider. Its endpoint units must be ``"data"``. A ``Bezier`` edge uses those
+same endpoints and accepts four per-edge control columns: ``cx0``, ``cy0``,
+``cx1``, and ``cy1``. Supply all four with one value per edge. If omitted,
+controls are placed at one-third and two-thirds of the straight connection.
+A custom BokehJS layout provider can override ``get_edge_control_coordinates``
+to compute the controls instead. Layout changes and edge-source updates remap
+these coordinates like existing MultiLine graph edges.
+
+.. bokeh-plot:: __REPO__/examples/topics/graph/edge_glyphs.py
+    :source-position: above
+
 
 NetworkX integration
 --------------------

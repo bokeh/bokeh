@@ -26,13 +26,21 @@ import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
 import type {BBox} from "core/util/bbox"
 import {FactorRange} from "../ranges/factor_range"
-import {Decoration} from "../graphics/decoration"
+import {PathDecoration, PathMarkings} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
   line: {line_alpha?: number, line_color?: Color}
+}
+
+type DecorationOptions = {
+  inset?: PathDecoration.Attrs["inset"]
+  selection_marking?: Marking | "auto" | null
+  nonselection_marking?: Marking | "auto" | null
+  hover_marking?: Marking | "auto" | null
+  muted_marking?: Marking | "auto" | null
 }
 
 const selection_defaults: Defaults = {
@@ -173,6 +181,20 @@ export class GlyphRendererView extends DataRendererView {
     const update = () => this.update_data()
 
     this.connect(this.model.change, render)
+
+    this.connect(this.glyph.model.properties.decorations.change, () => {
+      const {decorations} = this.glyph.model
+      for (const [model, view] of [
+        [this.model.selection_glyph, this.selection_glyph],
+        [this.model.nonselection_glyph, this.nonselection_glyph],
+        [this.model.muted_glyph, this.muted_glyph],
+      ] as const) {
+        if (!(model instanceof Glyph)) {
+          view.model.decorations = decorations
+        }
+      }
+      this.decimated_glyph.model.decorations = decorations
+    })
 
     this.connect(this.glyph.model.change, update)
     this.connect(this.selection_glyph.model.change, update)
@@ -582,21 +604,46 @@ export class GlyphRenderer<
     return this.data_source.selection_manager
   }
 
-  add_decoration(marking: Marking, node: "start" | "middle" | "end"): Decoration {
-    const decoration = Decoration.create({marking, node})
+  add_path_decoration(marking: Marking, options: DecorationOptions & {node: PathDecoration["node"]}): PathDecoration {
+    const decoration = PathDecoration.create({node: options.node, marking, inset: options.inset ?? 0})
+    return this._add_decoration(decoration, options)
+  }
 
-    const glyphs = [
-      this.glyph,
-      this.selection_glyph,
-      this.nonselection_glyph,
-      this.hover_glyph,
-      this.muted_glyph,
+  add_path_markings(marking: Marking, options: Omit<DecorationOptions, "inset"> & {positions?: PathMarkings["positions"]} = {}): PathMarkings {
+    const decoration = PathMarkings.create({marking, positions: options.positions ?? [0.5]})
+    return this._add_decoration(decoration, options)
+  }
+
+  private _add_decoration<T extends PathDecoration | PathMarkings>(decoration: T, options: DecorationOptions): T {
+    const {
+      selection_marking = "auto",
+      nonselection_marking = "auto",
+      hover_marking = "auto",
+      muted_marking = "auto",
+    } = options
+    const states: [Glyph | "auto" | null, Marking | "auto" | null][] = [
+      [this.selection_glyph, selection_marking],
+      [this.nonselection_glyph, nonselection_marking],
+      [this.hover_glyph, hover_marking],
+      [this.muted_glyph, muted_marking],
     ]
 
-    for (const glyph of glyphs) {
-      if (glyph instanceof Glyph) {
-        glyph.decorations = [...glyph.decorations, decoration]
+    for (const glyph of [this.glyph, ...states.filter(([, marking]) => marking != null).map(([glyph]) => glyph)]) {
+      if (glyph instanceof Glyph && !glyph._supports_path_decorations(decoration instanceof PathDecoration ? decoration.node : 0.5)) {
+        const operation = decoration instanceof PathDecoration ? "add_path_decoration" : "add_path_markings"
+        throw new Error(`${operation}() does not support ${glyph.type}. Use Segment, Line, MultiLine, Bezier, or Arc.`)
       }
+    }
+    this.glyph.decorations = [...this.glyph.decorations, decoration]
+
+    for (const [glyph, state_marking] of states) {
+      if (!(glyph instanceof Glyph) || state_marking == null) {
+        continue
+      }
+      const state_decoration = state_marking == "auto"
+        ? decoration
+        : decoration.clone({marking: state_marking})
+      glyph.decorations = [...glyph.decorations, state_decoration]
     }
 
     return decoration

@@ -18,6 +18,7 @@ class _GlyphInit(_ModelInit, total=False):
     decorations: list[Decoration]
 
 class Glyph(Model):
+    def _supports_path_decorations(self, placement: str | float) -> bool: ...
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_GlyphInit]) -> None: ...
 

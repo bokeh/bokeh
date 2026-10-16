@@ -1,6 +1,8 @@
 import type {HasProps, HasPropsFactory} from "../core/has_props"
 import type {Color, Arrayable} from "../core/types"
 import type {Vector} from "../core/vectorization"
+import {isVectorized} from "../core/vectorization"
+import {isPlainObject} from "../core/util/types"
 import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
 import type {MarkerType, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
@@ -51,6 +53,9 @@ import {
 } from "../models/glyphs"
 
 import type {Marker} from "../models/glyphs/marker"
+import type {Marking} from "../models/graphics/marking"
+import type {PathDecoration} from "../models/graphics/decoration"
+import {OpenHead} from "../models/annotations/arrow_head"
 
 export type NamesOf<T extends HasProps> = (Extract<keyof T["properties"], string>)[]
 
@@ -145,8 +150,20 @@ export type UnitsOf<P> = {
 
 export type GlyphArgs<P> = ArgsOf<P> & UnitsOf<P> & AuxGlyph & ColorAlpha
 
+type ArrowProps = Omit<Segment.Props, "x0" | "y0" | "x1" | "y1"> & {
+  x_start: Segment.Props["x0"]
+  y_start: Segment.Props["y0"]
+  x_end: Segment.Props["x1"]
+  y_end: Segment.Props["y1"]
+  start: Property<Marking | null>
+  end: Property<Marking | "auto" | null>
+  start_inset: Property<PathDecoration["inset"]>
+  end_inset: Property<PathDecoration["inset"]>
+}
+
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch
+export type ArrowArgs         = GlyphArgs<ArrowProps>          & AuxLine
 export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
 export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
 export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill & AuxHatch
@@ -214,6 +231,66 @@ export abstract class GlyphAPI {
     args?: Partial<AnnulusArgs>): GlyphRenderer<Annulus>
   annulus(...args: unknown[]): GlyphRenderer<Annulus> {
     return this._glyph(Annulus, "annulus", ["x", "y", "inner_radius", "outer_radius"], args)
+  }
+
+  arrow(): GlyphRenderer<Segment>
+  arrow(args: Partial<ArrowArgs>): GlyphRenderer<Segment>
+  arrow(
+    x_start: ArrowArgs["x_start"],
+    y_start: ArrowArgs["y_start"],
+    x_end: ArrowArgs["x_end"],
+    y_end: ArrowArgs["y_end"],
+    args?: Partial<ArrowArgs>): GlyphRenderer<Segment>
+  arrow(...args: unknown[]): GlyphRenderer<Segment> {
+    const signature = () => "the method signature is arrow(x_start, y_start, x_end, y_end, args?)"
+    let attrs: Partial<ArrowArgs>
+    if (args.length == 0) {
+      attrs = {}
+    } else if (args.length == 1 && isPlainObject(args[0]) && !isVectorized(args[0])) {
+      attrs = {...args[0] as Partial<ArrowArgs>}
+    } else if (args.length == 4 || args.length == 5) {
+      const [x_start, y_start, x_end, y_end, options] = args
+      if (options != null && (!isPlainObject(options) || isVectorized(options))) {
+        throw new Error(`expected optional arguments: ${signature()}`)
+      }
+      attrs = {
+        ...(options as Partial<ArrowArgs> | undefined),
+        x_start: x_start as ArrowArgs["x_start"],
+        y_start: y_start as ArrowArgs["y_start"],
+        x_end: x_end as ArrowArgs["x_end"],
+        y_end: y_end as ArrowArgs["y_end"],
+      }
+    } else {
+      throw new Error(`wrong number of arguments: ${signature()}`)
+    }
+
+    const {
+      x_start = {field: "x_start"},
+      y_start = {field: "y_start"},
+      x_end = {field: "x_end"},
+      y_end = {field: "y_end"},
+      start = null,
+      end = "auto",
+      start_inset = 0,
+      end_inset = 0,
+      ...segment_attrs
+    } = attrs
+    const renderer = this.segment({
+      ...segment_attrs,
+      x0: x_start,
+      y0: y_start,
+      x1: x_end,
+      y1: y_end,
+      level: segment_attrs.level ?? "annotation",
+    })
+    if (start != null) {
+      renderer.add_path_decoration(start, {node: "start", inset: start_inset})
+    }
+    const end_marking = end == "auto" ? OpenHead.create({inherit_visuals: ["line_color", "line_alpha", "line_width"]}) : end
+    if (end_marking != null) {
+      renderer.add_path_decoration(end_marking, {node: "end", inset: end_inset})
+    }
+    return renderer
   }
 
   arc(): GlyphRenderer<Arc>

@@ -1,9 +1,14 @@
+import {assert} from "@bokehjs/core/util/assert"
+import {PathDecoration} from "@bokehjs/models/graphics/decoration"
 import {expect} from "#framework/assertions"
 
 import {figure} from "@bokehjs/api/plotting"
 import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
-import {Circle, ColumnDataSource, LinearAxis} from "@bokehjs/models"
+import {
+  Circle, ColumnDataSource, LinearAxis,
+  NormalHead, OpenHead, Segment,
+} from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
   describe("figure()", () => {
@@ -168,6 +173,30 @@ describe("in api/plotting module", () => {
 
         expect(() => p.annular_wedge({...attrs, start_angle_units: "deg"})).to.throw(Error)
         expect(() => p.annular_wedge({...attrs, end_angle_units: "deg"})).to.throw(Error)
+      })
+
+      it("should construct arrows from decorated segments", () => {
+        const start = NormalHead.create({size: 10})
+        const end = OpenHead.create({size: 12})
+        const renderer = figure().arrow(10, 20, 1, 2, {
+          start, end,
+          start_inset: 3, end_inset: 4,
+        })
+
+        expect(renderer.glyph).to.be.instanceof(Segment)
+        expect(renderer.level).to.be.equal("annotation")
+        expect(renderer.glyph.x0).to.be.equal({value: 10})
+        expect(renderer.glyph.y0).to.be.equal({value: 20})
+        expect(renderer.glyph.x1).to.be.equal({value: 1})
+        expect(renderer.glyph.y1).to.be.equal({value: 2})
+        expect(renderer.glyph.decorations.length).to.be.equal(2)
+        assert(renderer.glyph.decorations[0] instanceof PathDecoration && renderer.glyph.decorations[1] instanceof PathDecoration)
+        expect(renderer.glyph.decorations[0].marking).to.be.identical(start)
+        expect(renderer.glyph.decorations[0].node).to.be.equal("start")
+        expect(renderer.glyph.decorations[0].inset).to.be.equal({value: 3})
+        expect(renderer.glyph.decorations[1].marking).to.be.identical(end)
+        expect(renderer.glyph.decorations[1].node).to.be.equal("end")
+        expect(renderer.glyph.decorations[1].inset).to.be.equal({value: 4})
       })
     })
 

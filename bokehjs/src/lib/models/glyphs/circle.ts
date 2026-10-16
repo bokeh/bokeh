@@ -133,7 +133,7 @@ export class CircleView extends RadialGlyphView {
     for (const i of candidates) {
       const sx_i = this.sx[i]
       const sy_i = this.sy[i]
-      if (sx0 <= sx_i && sx_i <= sx1 && sy0 <= sy_i && sy_i <= sy1) {
+      if (hittest.point_in_rect({x: sx_i, y: sy_i}, geometry)) {
         indices.push(i)
       }
     }

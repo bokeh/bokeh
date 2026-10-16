@@ -337,6 +337,9 @@ class Arc(XYGlyph, LineGlyph):
 
     '''
 
+    def _supports_path_decorations(self, placement: str | float) -> bool:
+        return True
+
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -387,6 +390,9 @@ class Bezier(Glyph, LineGlyph):
     .. _Wikipedia article for Bezier curve: http://en.wikipedia.org/wiki/Bezier_curve
 
     '''
+
+    def _supports_path_decorations(self, placement: str | float) -> bool:
+        return True
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -1019,6 +1025,9 @@ class Line(ConnectedXYGlyph, LineGlyph):
 
     '''
 
+    def _supports_path_decorations(self, placement: str | float) -> bool:
+        return True
+
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -1046,6 +1055,9 @@ class MultiLine(Glyph, LineGlyph):
     values is not a vector of scalars. Rather, it is a "list of lists".
 
     '''
+
+    def _supports_path_decorations(self, placement: str | float) -> bool:
+        return True
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -1581,6 +1593,9 @@ class Segment(Glyph, LineGlyph):
     ''' Render segments.
 
     '''
+
+    def _supports_path_decorations(self, placement: str | float) -> bool:
+        return True
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:

@@ -5,7 +5,6 @@
     "classes": [
       "Angular",
       "Annotation",
-      "Arrow",
       "ArrowHead",
       "Band",
       "BoxAnnotation",
@@ -196,10 +195,21 @@
     ]
   },
   {
+    "slug": "graphics",
+    "title": "Graphics",
+    "classes": [
+      "Decoration",
+      "Marking",
+      "PathDecoration",
+      "PathMarkings"
+    ]
+  },
+  {
     "slug": "graphs",
     "title": "Graphs",
     "classes": [
       "EdgeCoordinates",
+      "EdgePointCoordinates",
       "EdgesAndLinkedNodes",
       "EdgesOnly",
       "GraphCoordinates",

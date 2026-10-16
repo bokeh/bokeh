@@ -17,7 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import GlyphRenderer, glyphs
+from bokeh.models import (
+    ColumnDataSource,
+    GlyphRenderer,
+    NormalHead,
+    OpenHead,
+    glyphs,
+)
 from bokeh.plotting import figure
 
 #-----------------------------------------------------------------------------
@@ -39,6 +45,44 @@ def test_annulus() -> None:
     gr = p.annulus()
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Annulus)
+
+def test_arrow() -> None:
+    p = figure()
+    gr = p.arrow(x_start=[0], y_start=[1], x_end=[2], y_end=[3])
+    assert isinstance(gr, GlyphRenderer)
+    assert isinstance(gr.glyph, glyphs.Segment)
+    assert gr.level == "annotation"
+    assert gr.glyph.x0 == "x0"
+    assert gr.glyph.y0 == "y0"
+    assert gr.glyph.x1 == "x1"
+    assert gr.glyph.y1 == "y1"
+    assert gr.data_source.data == dict(x0=[0], y0=[1], x1=[2], y1=[3])
+    assert len(gr.glyph.decorations) == 1
+    assert gr.glyph.decorations[0].node == "end"
+    assert isinstance(gr.glyph.decorations[0].marking, OpenHead)
+
+def test_arrow_with_both_heads_and_insets() -> None:
+    p = figure()
+    start = NormalHead(size=10)
+    end = OpenHead(size=12)
+    gr = p.arrow(
+        x_start=10, y_start=20, x_end=1, y_end=2,
+        start=start, end=end,
+        start_inset=3, end_inset=4,
+    )
+    assert [(decoration.node, decoration.marking, decoration.inset) for decoration in gr.glyph.decorations] == [
+        ("start", start, 3),
+        ("end", end, 4),
+    ]
+
+def test_arrow_uses_legacy_field_names_with_a_source() -> None:
+    source = ColumnDataSource(dict(x_start=[0], y_start=[1], x_end=[2], y_end=[3]))
+    gr = figure().arrow(source=source)
+    assert gr.data_source is source
+    assert gr.glyph.x0 == "x_start"
+    assert gr.glyph.y0 == "y_start"
+    assert gr.glyph.x1 == "x_end"
+    assert gr.glyph.y1 == "y_end"
 
 def test_arc() -> None:
     p = figure()

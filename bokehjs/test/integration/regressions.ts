@@ -8,7 +8,7 @@ import {async_trap} from "#framework/util"
 
 import type {ArrowHead, Image, Line, UIElement} from "@bokehjs/models"
 import {
-  Arrow, NormalHead, OpenHead,
+  NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
@@ -162,16 +162,18 @@ describe("Bug", () => {
 
   describe("in issue #9522", () => {
     it("disallows arrow to be positioned correctly in stacked layouts", async () => {
-      const horz = (end?: ArrowHead) => Arrow.create({x_start: 1, x_end: 5, y_start: 0, y_end:  0, end})
-      const vert = (end?: ArrowHead) => Arrow.create({x_start: 2, x_end: 2, y_start: 1, y_end: -2, end})
+      const horz = (p: ReturnType<typeof fig>, end?: ArrowHead) =>
+        p.arrow({x_start: 1, x_end: 5, y_start: 0, y_end: 0, line_color: "black", end: end ?? "auto"})
+      const vert = (p: ReturnType<typeof fig>, end?: ArrowHead) =>
+        p.arrow({x_start: 2, x_end: 2, y_start: 1, y_end: -2, line_color: "black", end: end ?? "auto"})
 
       const p1 = fig([200, 200], {x_range: [0, 6], y_range: [-3, 2]})
-      p1.add_layout(horz(NormalHead.create({fill_color: "blue"})))
-      p1.add_layout(vert())
+      horz(p1, NormalHead.create({fill_color: "blue"}))
+      vert(p1)
 
       const p2 = fig([200, 200], {x_range: [0, 6], y_range: [-3, 2]})
-      p2.add_layout(horz())
-      p2.add_layout(vert(NormalHead.create({fill_color: "green"})))
+      horz(p2)
+      vert(p2, NormalHead.create({fill_color: "green"}))
 
       await display(row([p1, p2]))
     })
@@ -626,18 +628,16 @@ describe("Bug", () => {
       const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
       p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
 
-      const arrow0 = Arrow.create({
+      p.arrow({
         x_start: {value: "X1"}, y_start: {value: "Y1"},
         x_end: {value: "X3"}, y_end: {value: "Y3"},
         line_color: "red",
       })
-      p.add_layout(arrow0)
-      const arrow1 = Arrow.create({
+      p.arrow({
         x_start: {value: "X3"}, y_start: {value: "Y1"},
         x_end: {value: "X1"}, y_end: {value: "Y3"},
         line_color: "green",
       })
-      p.add_layout(arrow1)
 
       const source = ColumnDataSource.create({data: {
         x_start: ["X2", "X2", "X2", "X2"],
@@ -645,7 +645,7 @@ describe("Bug", () => {
         x_end: ["X3", "X2", "X1", "X2"],
         y_end: ["Y2", "Y3", "Y2", "Y1"],
       }})
-      const labels2 = Arrow.create({
+      p.arrow({
         x_start: {field: "x_start"},
         y_start: {field: "y_start"},
         x_end: {field: "x_end"},
@@ -653,7 +653,6 @@ describe("Bug", () => {
         source,
         line_color: "blue",
       })
-      p.add_layout(labels2)
 
       await display(p)
     })
@@ -667,16 +666,16 @@ describe("Bug", () => {
         x_end: [1, 2, 3],
       }})
       const head = OpenHead.create({size: 30, line_width: 3})
-      const arrow = Arrow.create({
+      p.arrow({
         end: head,
         x_start: {value: 0},
         y_start: {value: 1},
         x_end: {field: "x_end"},
         y_end: {value: 1},
+        line_color: "black",
         line_width: 3,
         source,
       })
-      p.add_layout(arrow)
 
       await display(p)
     })
@@ -5152,7 +5151,7 @@ describe("Bug", () => {
     it("ArrowHead properties not updating from JS callbacks", async () => {
       const p = fig([200, 200], {x_range: [0, 2], y_range: [0, 2]})
       const arrow_head = OpenHead.create({line_color: "blue", size: 20, line_width: 2})
-      p.add_layout(Arrow.create({end: arrow_head, x_start: 0.5, y_start: 0.5, x_end: 1.5, y_end: 1.5}))
+      p.arrow({end: arrow_head, x_start: 0.5, y_start: 0.5, x_end: 1.5, y_end: 1.5})
 
       const {view} = await display(p)
 

@@ -62,6 +62,9 @@ class Glyph(Model):
 
     '''
 
+    def _supports_path_decorations(self, placement: str | float) -> bool:
+        return False
+
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -69,13 +72,10 @@ class Glyph(Model):
     decorations = List(Instance(Decoration), default=[], help="""
     A collection of glyph decorations, e.g. arrow heads.
 
-    Use ``GlyphRenderer.add_decoration()`` for easy setup for all glyphs
-    of a glyph renderer. Use this property when finer control is needed.
-
-    .. note::
-
-        Decorations are only for aiding visual appearance of a glyph,
-        but they don't participate in hit testing, etc.
+    Use ``GlyphRenderer.add_path_decoration()`` or
+    ``GlyphRenderer.add_path_markings()`` to configure supported path glyphs
+    and their renderer states. Use this property when finer control is needed.
+    Path markings participate in hit testing and select their host glyph item.
     """)
 
 @abstract

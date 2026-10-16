@@ -1,9 +1,31 @@
 import {display, fig, row, column} from "#framework/layouts"
 
-import {Arrow, NormalHead, OpenHead, TeeHead, VeeHead, Range1d} from "@bokehjs/models"
+import {NormalHead, OpenHead, TeeHead, VeeHead, Range1d, PathDecoration} from "@bokehjs/models"
+import {ModelChangedEvent} from "@bokehjs/document/events"
 import type {OutputBackend} from "@bokehjs/core/enums"
 
 describe("Arrow annotation", () => {
+  it("should render decorations added, replaced, and removed through PATCH-DOC", async () => {
+    const plots = ["added", "replaced", "removed"].map(title => fig([200, 200], {
+      x_range: [-0.2, 1.2], y_range: [-1, 1], title,
+    }))
+    const renderers = plots.map((plot, i) => plot.arrow({
+      x_start: 0, y_start: 0, x_end: 1, y_end: 0, line_color: "black",
+      end: i == 0 ? null : NormalHead.create({size: 20}),
+    }))
+    const {view} = await display(row(plots))
+    const doc = view.model.document!
+    const added = PathDecoration.create({node: "end", marking: NormalHead.create({size: 20})})
+    const replaced = renderers[1].glyph.decorations[0]
+    const patch = doc.create_json_patch([
+      new ModelChangedEvent(doc, renderers[0].glyph, "decorations", [added]),
+      new ModelChangedEvent(doc, replaced, "marking", VeeHead.create({size: 25})),
+      new ModelChangedEvent(doc, renderers[2].glyph, "decorations", []),
+    ])
+    doc.apply_json_patch(patch)
+    await view.ready
+  })
+
   const make_arrow_heads = (size: number) => [
     {start: null, end: null},
 
@@ -56,7 +78,7 @@ describe("Arrow annotation", () => {
 
       let y = 0
       for (const {start, end} of arrow_heads) {
-        p.add_layout(Arrow.create({x_start, y_start: ++y, x_end, y_end: y, line_width: width, start, end}))
+        p.arrow({x_start, y_start: ++y, x_end, y_end: y, line_width: width, line_color: "black", start, end})
       }
 
       return p
@@ -86,7 +108,7 @@ describe("Arrow annotation", () => {
 
       let x = 0
       for (const {start, end} of arrow_heads) {
-        p.add_layout(Arrow.create({y_start, x_start: ++x, y_end, x_end: x, line_width: width, start, end}))
+        p.arrow({y_start, x_start: ++x, y_end, x_end: x, line_width: width, line_color: "black", start, end})
       }
 
       return p

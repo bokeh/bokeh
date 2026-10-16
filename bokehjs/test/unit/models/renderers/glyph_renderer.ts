@@ -1,3 +1,5 @@
+import {assert} from "@bokehjs/core/util/assert"
+import {PathDecoration} from "@bokehjs/models/graphics/decoration"
 import * as sinon from "sinon"
 
 import {expect} from "#framework/assertions"
@@ -7,7 +9,8 @@ import {PlotActions, xy} from "#framework/interactive"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
-import {Circle, Scatter} from "@bokehjs/models/glyphs"
+import {Arc, Circle, MultiLine, Rect, Scatter, Segment} from "@bokehjs/models/glyphs"
+import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
 import {FactorRange} from "@bokehjs/models/ranges"
@@ -24,6 +27,62 @@ function mkrenderer(glyph: Scatter): GlyphRenderer {
   })
   return GlyphRenderer.create({glyph, data_source})
 }
+
+describe("GlyphRenderer", () => {
+  it("should attach both named and fractional Arc decorations", () => {
+    const renderer = GlyphRenderer.create({glyph: Arc.create()})
+    const decoration = renderer.add_path_decoration(NormalHead.create(), {node: "middle"})
+    const fractional = renderer.add_path_markings(NormalHead.create(), {positions: [0.5]})
+    expect(renderer.glyph.decorations).to.be.equal([decoration, fractional])
+  })
+
+  it("should reject unsupported path decorations without partially changing glyphs", () => {
+    for (const renderer of [
+      GlyphRenderer.create({glyph: Rect.create()}),
+      GlyphRenderer.create({glyph: Segment.create(), selection_glyph: Rect.create()}),
+    ]) {
+      expect(() => renderer.add_path_markings(NormalHead.create(), {positions: [0.25]})).to.throw(Error)
+      expect(renderer.glyph.decorations).to.be.equal([])
+    }
+  })
+
+  it("should reject invalid fractions before attaching decorations", () => {
+    const renderer = GlyphRenderer.create({glyph: Segment.create()})
+    for (const placement of [-0.1, 1.1, NaN, Infinity]) {
+      expect(() => renderer.add_path_markings(NormalHead.create(), {positions: [placement]})).to.throw(Error)
+      expect(renderer.glyph.decorations).to.be.equal([])
+    }
+  })
+
+  it("should add vectorized decorations with state-specific markings", () => {
+    const glyph = MultiLine.create()
+    const selection_glyph = MultiLine.create()
+    const nonselection_glyph = MultiLine.create()
+    const renderer = GlyphRenderer.create({
+      data_source: ColumnDataSource.create({data: {inset: [12]}}),
+      glyph,
+      selection_glyph,
+      nonselection_glyph,
+    })
+    const marking = NormalHead.create({fill_color: "gray"})
+    const selection_marking = NormalHead.create({fill_color: "orange"})
+
+    const decoration = renderer.add_path_decoration(marking, {
+      node: "end",
+      inset: {field: "inset"},
+      selection_marking,
+      nonselection_marking: null,
+    })
+
+    expect(glyph.decorations).to.be.equal([decoration])
+    expect(decoration.inset).to.be.equal({field: "inset"})
+    expect(selection_glyph.decorations.length).to.be.equal(1)
+    assert(selection_glyph.decorations[0] instanceof PathDecoration)
+    expect(selection_glyph.decorations[0].marking).to.be.equal(selection_marking)
+    expect(selection_glyph.decorations[0].inset).to.be.equal({field: "inset"})
+    expect(nonselection_glyph.decorations).to.be.equal([])
+  })
+})
 
 describe("GlyphRendererView", () => {
   // Basic case with no all glyphs going to their defaults

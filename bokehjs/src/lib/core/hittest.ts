@@ -1,3 +1,4 @@
+import type {RectGeometry} from "./geometry"
 import type {Arrayable} from "./types"
 import type {Selection} from "../models/selections/selection"
 
@@ -36,6 +37,28 @@ export function point_in_ellipse(x: number, y: number, angle: number, b: number,
 export type Point = {
   x: number
   y: number
+}
+
+export function point_in_rect({x, y}: Point, geometry: RectGeometry): boolean {
+  const {min, max} = Math
+  return min(geometry.sx0, geometry.sx1) <= x && x <= max(geometry.sx0, geometry.sx1) &&
+    min(geometry.sy0, geometry.sy1) <= y && y <= max(geometry.sy0, geometry.sy1)
+}
+
+export function segment_intersects_rect(p0: Point, p1: Point, geometry: RectGeometry): boolean {
+  if (point_in_rect(p0, geometry) || point_in_rect(p1, geometry)) {
+    return true
+  }
+
+  const {min, max} = Math
+  const x0 = min(geometry.sx0, geometry.sx1)
+  const x1 = max(geometry.sx0, geometry.sx1)
+  const y0 = min(geometry.sy0, geometry.sy1)
+  const y1 = max(geometry.sy0, geometry.sy1)
+  return check_2_segments_intersect(p0.x, p0.y, p1.x, p1.y, x0, y0, x1, y0).hit ||
+    check_2_segments_intersect(p0.x, p0.y, p1.x, p1.y, x1, y0, x1, y1).hit ||
+    check_2_segments_intersect(p0.x, p0.y, p1.x, p1.y, x1, y1, x0, y1).hit ||
+    check_2_segments_intersect(p0.x, p0.y, p1.x, p1.y, x0, y1, x0, y0).hit
 }
 
 export function dist_2_pts(p0: Point, p1: Point): number {
