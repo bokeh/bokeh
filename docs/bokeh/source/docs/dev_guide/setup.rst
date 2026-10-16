@@ -167,8 +167,9 @@ This command installs the necessary packages into the ``node_modules``
 subdirectory.
 
 .. note::
-    ``pixi run setup`` also installs the JavaScript dependencies. Run either
-    command again whenever ``bokehjs/package-lock.json`` changes.
+    ``pixi run setup`` also installs the JavaScript dependencies, after
+    removing any previous BokehJS build. Run either command again whenever
+    ``bokehjs/package-lock.json`` changes.
 
 .. _contributor_guide_setup_pre-commit:
 
@@ -229,8 +230,8 @@ Once Pixi has installed the environment, set up an editable Bokeh checkout with:
 
     pixi run setup
 
-This performs the :ref:`Node package installation
-<contributor_guide_setup_installing_node_packages>` from step 4, builds
+This removes any previous BokehJS build, performs the :ref:`Node package
+installation <contributor_guide_setup_installing_node_packages>` from step 4, builds
 BokehJS and the Jupyter frontend, and uses `pip`_ to install the local Python
 package in editable mode. It also registers the Jupyter frontend and server
 extension in the Pixi environment. The command passes ``--no-deps`` to pip
@@ -270,7 +271,8 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
       which rebuilds BokehJS and the Jupyter frontend, reinstalls the Python
       package, and registers the Jupyter extensions.
     * **JavaScript dependencies changed:** run ``pixi run setup`` instead,
-      which also reinstalls the JavaScript dependencies first.
+      which also removes the previous BokehJS build and reinstalls the
+      JavaScript dependencies first.
 
 .. _contributor_guide_setup_interpreter:
 
