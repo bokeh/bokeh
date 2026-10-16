@@ -14,7 +14,15 @@ runs:
         cache: true
         cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
-    - name: Build Bokeh and BokehJS
+    - name: Build BokehJS
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: pixi run --locked --environment build build-js
+
+    - name: Build first-party Jupyter extension
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: pixi run --locked --environment build jupyter-build
+
+    - name: Build pip packages
       shell: bash --noprofile --norc -eo pipefail {0}
       run: pixi run --locked --environment build build-py
 

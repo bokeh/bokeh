@@ -15,6 +15,7 @@ Contribute
     dev_guide/writing_tests
     dev_guide/python
     dev_guide/bokehjs
+    dev_guide/jupyter
 
 Bokeh is an open source project and only exists because of contributors like
 you. Bokeh is made possible by a diverse group of software developers, testers,

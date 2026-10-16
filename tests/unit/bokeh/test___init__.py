@@ -85,6 +85,12 @@ def test___version___defined() -> None:
 def test_download_removed() -> None:
     assert not hasattr(b, "download")
 
+def test_jupyter_labextension_path_is_relative_to_the_bokeh_package() -> None:
+    assert b._jupyter_labextension_paths() == [{
+        "src": "jupyter/labextension",
+        "dest": "@bokeh/bokeh-jupyter",
+    }]
+
 def test_license(capsys: Capture) -> None:
     b.license()
     out, _ = capsys.readouterr()

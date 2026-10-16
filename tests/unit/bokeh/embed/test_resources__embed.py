@@ -271,7 +271,7 @@ def test_bundle_extensions_rejects_invalid_or_missing_artifacts(
     invalid_name = "invalid_package_extension"
     invalid_dir = _install_extension_module(monkeypatch, tmp_path / invalid_name, invalid_name)
     (invalid_dir / "package.json").write_text("{}")
-    with pytest.raises(ValueError, match="missing package name"):
+    with pytest.raises(ValueError, match="Missing package name"):
         ber.bundle_extensions({_extension_model(invalid_name)}, Resources(mode="server"))
 
     missing_name = "missing_artifact_extension"

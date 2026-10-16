@@ -54,6 +54,7 @@ def test_all_prepare_deployment_checks_are_recognized_as_checks() -> None:
 
 def test_build_artifact_pipeline_midflight_checks_are_explicit() -> None:
     assert [step.__name__ for step in stages.BUILD_ARTIFACT_STEPS if is_check(step)] == [
+        "verify_jupyter_build",
         "check_docs_version_config",
         "check_checkout_is_clean",
         "verify_pip_install_from_sdist",
@@ -96,6 +97,10 @@ def test_build_artifact_pipeline_checks_branch_before_mutating_steps() -> None:
 
 def test_build_artifact_pipeline_commits_before_tagging() -> None:
     steps = stages.BUILD_ARTIFACT_STEPS
+    assert steps.index(stages.update_bokehjs_versions) < steps.index(stages.update_jupyter_version)
+    assert steps.index(stages.build_bokehjs) < steps.index(stages.build_jupyter)
+    assert steps.index(stages.build_jupyter) < steps.index(stages.verify_jupyter_build)
+    assert steps.index(stages.verify_jupyter_build) < steps.index(commit_staging_branch)
     assert steps.index(update_switcher_json) < steps.index(commit_staging_branch)
     assert steps.index(check_docs_version_config) < steps.index(commit_staging_branch)
     assert steps.index(commit_staging_branch) < steps.index(tag_release_version)

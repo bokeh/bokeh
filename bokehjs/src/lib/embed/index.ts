@@ -1,5 +1,4 @@
 export {index} from "./standalone"
-export {embed_items_notebook, kernels} from "./legacy_notebook"
 export {create_notebook_patch_receiver, NotebookPatchError} from "./notebook"
 export type {NotebookPatch} from "./notebook"
 export {

@@ -34,6 +34,7 @@ python = "3.14.*"
 python-freethreading = "*"
 
 [feature.js-tools.dependencies]
+jupyter-builder = ">=1,<2"
 nodejs = "24.*"
 
 [feature.js-tools.tasks]
@@ -46,6 +47,7 @@ test-js-integration = { cmd = "node make test:integration", cwd = "bokehjs" }
 devtools-headless = { cmd = "node make test:run:headless", cwd = "bokehjs" }
 devtools-server = { cmd = "node test/devtools server", cwd = "bokehjs" }
 build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
+jupyter-build = "bash tools/ci/build_jupyter.sh"
 
 # Prefer conda-forge builds for Bokeh runtime dependencies. The constraints
 # mirror [project.dependencies] in pyproject.toml and are checked by the
@@ -71,6 +73,7 @@ pytest-tornado = "*"
 pytest-xdist = "*"
 
 [feature.full-deps.dependencies]
+anywidget = ">=0.11"
 beautifulsoup4 = "*"
 bokeh_sampledata = ">=2025.0"
 cartopy = "*"
@@ -125,6 +128,7 @@ types-pyyaml = "*"
 types-requests = "*"
 types-toml = "*"
 urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
+uvicorn = ">=0.30"
 vermin = "*"
 
 [feature.full-deps.pypi-dependencies]
@@ -218,12 +222,28 @@ uvicorn-standard = "*"
 [feature.server-integration-deps.pypi-dependencies]
 streamlit = "==1.57.*"
 
+[feature.notebook-test.dependencies]
+anywidget = ">=0.11"
+ipython = "*"
+ipywidgets = "*"
+jupyter-server-proxy = "*"
+jupyterlab = "*"
+marimo = "*"
+nbconvert = ">=5.4"
+notebook = "*"
+numba = "*"
+playwright-python = "*"
+pooch = "*"
+scipy = "*"
+uvicorn-standard = "*"
+
 [feature.build-tools.dependencies]
+pip = "*"
 python-build = "*"
 setuptools = "*"
 
 [feature.build-tools.tasks]
-build-py = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install" }, depends-on = ["build-js"] }
+build-py = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install", BOKEH_JUPYTER_ACTION = "install" }, depends-on = ["build-js", "jupyter-build"] }
 
 [feature.formatting-deps.dependencies]
 pre-commit = "*"
@@ -285,12 +305,13 @@ build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "build-too
 formatting = { features = ["py312", "formatting-deps"], no-default-feature = true }
 docs-py312 = { features = ["py-base", "py312", "js-tools", "runtime-deps", "docs-deps"] }
 docs-py315 = { features = ["py-base", "py315", "js-tools", "runtime-deps", "docs-deps"] }
-release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "docs-deps", "release-build-deps"], no-default-feature = true }
+release-build = { features = ["py-base", "py312", "js-tools", "runtime-deps", "docs-deps", "build-tools", "release-build-deps"], no-default-feature = true }
 release-deploy = { features = ["py-base", "py312", "js-tools", "release-deploy-deps"], no-default-feature = true }
 server-integration = ["py-base", "py313", "js-tools", "runtime-deps", "test-deps", "full-deps", "standard-only-deps", "server-integration-deps"]
+notebook-test = ["py-base", "py314", "js-tools", "runtime-deps", "test-deps", "notebook-test"]
 
 [tasks]
-setup = { cmd = "python -m pip install --no-deps -e .", depends-on = ["js-install"] }
+setup = { cmd = "python -m pip install --no-deps -e .", env = { BOKEH_JUPYTER_ACTION = "install" }, depends-on = ["js-install", "jupyter-build"] }
 reinstall = "python -m pip install --no-deps -e ."
 test-py = "pytest tests/unit"
 test-defaults = "pytest tests/test_defaults.py"
@@ -300,3 +321,7 @@ test-examples = "pytest tests/test_examples.py"
 test-tools = "pytest tests/tools"
 test = "pytest"
 build-docs = "bash tools/ci/build_docs.sh"
+
+[feature.notebook-test.tasks]
+notebook-browser-install = "python -m playwright install --only-shell chromium"
+test-notebook = "pytest --color=yes -rs @tests/notebook-tests.txt"

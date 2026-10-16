@@ -91,6 +91,39 @@ def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
 
     return any(match_host(host, pattern) for pattern in allowlist)
 
+def validate_hosts_allowlist(host_list: Sequence[str]) -> None:
+    ''' Validate host patterns used to allow WebSocket connections.
+
+    Args:
+        host_list (seq[str]) :
+            A sequence of ``<name>`` or ``<name>:<port>`` patterns. The name
+            may include wildcards and the port may be ``*``.
+
+    Returns:
+        None
+
+    Raises:
+        TypeError, if ``host_list`` is a string or contains non-string values
+        ValueError, if a host or port value is invalid
+
+    '''
+    if isinstance(host_list, str) or not all(isinstance(host, str) for host in host_list):
+        raise TypeError("host_list must be a sequence of host[:port] strings")
+
+    for host in host_list:
+        if host == "*":
+            continue
+        parts = host.split(":")
+        if len(parts) > 2:
+            raise ValueError(f"Invalid host value: {host}")
+        if parts[0] == "":
+            raise ValueError("Empty host value")
+        if len(parts) == 2 and parts[1] != "*":
+            try:
+                int(parts[1])
+            except ValueError:
+                raise ValueError(f"Invalid port in host value: {host}")
+
 def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) -> list[str]:
     '''
 
@@ -125,6 +158,8 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
     if not host_list:
         return ['localhost:' + str(port)]
 
+    validate_hosts_allowlist(host_list)
+
     hosts: list[str] = []
     for host in host_list:
         if '*' in host:
@@ -139,19 +174,9 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
             continue
         parts = host.split(':')
         if len(parts) == 1:
-            if parts[0] == "":
-                raise ValueError("Empty host value")
             hosts.append(host+":80")
-        elif len(parts) == 2:
-            try:
-                int(parts[1])
-            except ValueError:
-                raise ValueError(f"Invalid port in host value: {host}")
-            if parts[0] == "":
-                raise ValueError("Empty host value")
-            hosts.append(host)
         else:
-            raise ValueError(f"Invalid host value: {host}")
+            hosts.append(host)
     return hosts
 
 def match_host(host: str, pattern: str) -> bool:

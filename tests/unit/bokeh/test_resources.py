@@ -181,6 +181,20 @@ def test_build_rejects_unknown_dev_resource_settings(setting: str) -> None:
         resources.Resources.build(setting)
 
 
+def test_inline_resource_cache_is_invalidated_by_file_changes(tmp_path: Path) -> None:
+    path = tmp_path / "resource.js"
+    path.write_text("first")
+    resources._cached_inline_resource.cache_clear()
+
+    first = resources._inline_resource(path)
+    assert first == "/* BEGIN resource.js */\nfirst\n/* END resource.js */"
+    assert resources._inline_resource(path) == first
+
+    path.write_text("second version")
+
+    assert resources._inline_resource(path) == "/* BEGIN resource.js */\nsecond version\n/* END resource.js */"
+
+
 def test_get_all_sri_versions_valid_format() -> None:
     assert all(VERSION_PAT.match(version) for version in resources.get_all_sri_versions())
 

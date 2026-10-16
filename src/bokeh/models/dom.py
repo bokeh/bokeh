@@ -69,6 +69,11 @@ class DOMNode(Model, Qualified):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+    def _repr_mimebundle_(self, include: set[str] | None = None,
+            exclude: set[str] | None = None) -> Any:
+        from ..io.notebook import notebook_mimebundle
+        return notebook_mimebundle(self, include=include, exclude=exclude)
+
 class Text(DOMNode):
     """ DOM text node. """
 

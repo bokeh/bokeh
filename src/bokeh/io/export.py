@@ -349,6 +349,33 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
         width=width, height=height, scale_factor=scale_factor,
     )
 
+
+def get_screenshot_as_png_from_html(html: str, *, driver: DriverLike | None = None, timeout: int = 5,
+        scale_factor: float = 1, backend: ExportBackendType | None = None) -> Image.Image:
+    '''Capture a fully assembled Bokeh HTML document as one PNG image.
+
+    Args:
+        html:
+            The complete HTML document to render.
+        driver:
+            An optional browser driver supplied by the selected backend.
+        timeout:
+            Maximum time in seconds to wait for Bokeh rendering.
+        scale_factor:
+            The output image scale factor.
+        backend:
+            The browser automation backend, or ``None`` to select it from the
+            driver and configuration.
+
+    Returns:
+        The rendered PNG image.
+
+    '''
+    backend_module = _resolve_backend(driver, backend)
+    return backend_module.get_screenshot_as_png_from_html(
+        html, driver=driver, timeout=timeout, scale_factor=scale_factor,
+    )
+
 def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None,
         backend: ExportBackendType | None = None) -> list[str]:
