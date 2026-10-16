@@ -410,7 +410,6 @@ export abstract class LayoutDOMView extends PaneView {
       this.parent.compute_layout()
     } else {
       this.measure_layout()
-      this.update_bbox()
       this._compute_layout()
       this.after_layout()
     }
@@ -443,20 +442,6 @@ export abstract class LayoutDOMView extends PaneView {
         child_view._propagate_layout()
       }
     }
-  }
-
-  override update_bbox(): boolean {
-    for (const child_view of this.layoutable_views) {
-      child_view.update_bbox()
-    }
-
-    const changed = super.update_bbox()
-
-    if (this.layout != null) {
-      this.layout.visible = this.is_displayed
-    }
-
-    return changed
   }
 
   protected _after_layout(): void {}
