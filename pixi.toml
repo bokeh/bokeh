@@ -73,6 +73,7 @@ pytest-tornado = "*"
 pytest-xdist = "*"
 
 [feature.full-deps.dependencies]
+anywidget = ">=0.11"
 beautifulsoup4 = "*"
 bokeh_sampledata = ">=2025.0"
 cartopy = "*"
