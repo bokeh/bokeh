@@ -3,6 +3,7 @@ import {TickFormatter} from "./tick_formatter"
 import {UnitTicker} from "../tickers/unit_ticker"
 import type {GraphicsBox} from "core/graphics"
 import {InlineBox, TextBox} from "core/graphics"
+import {Fraction} from "core/util/math"
 import {isString} from "core/util/types"
 import {BaseText} from "../text/base_text"
 import {MathText, TeX} from "../text/math_text"
@@ -11,11 +12,6 @@ import type {Dict} from "core/types"
 import type * as p from "core/properties"
 
 const {abs, max, round} = Math
-
-type Fraction = {
-  numerator: number
-  denominator: number
-}
 
 type LabelInfo = {
   label: string
@@ -286,18 +282,18 @@ export class UnitTickFormatter extends TickFormatter {
       return this.tex_coefficient(info.label)
     }
 
-    if (info.fraction != null && info.fraction.denominator != 1) {
-      const {numerator, denominator} = info.fraction
-      const sign = numerator < 0 ? "-" : relative ? "+" : ""
-      const magnitude = abs(numerator)
+    if (info.fraction != null && info.fraction.denom != 1) {
+      const {numer, denom} = info.fraction
+      const sign = numer < 0 ? "-" : relative ? "+" : ""
+      const magnitude = abs(numer)
       const head = relative ? `${base_label}${sign}${prefix}` : `${prefix}${sign}`
       if (this.unit_style == "symbolic" && this.has_text(this.suffix)) {
         const coefficient = magnitude == 1 ? "" : `${magnitude}`
         const numerator = `${coefficient}${suffix}`
-        const fraction = this.fraction_style == "stacked" ? `\\frac{${numerator}}{${denominator}}` : `${numerator}/${denominator}`
+        const fraction = this.fraction_style == "stacked" ? `\\frac{${numerator}}{${denom}}` : `${numerator}/${denom}`
         return `${head}${fraction}`
       }
-      const fraction = this.fraction_style == "stacked" ? `\\frac{${magnitude}}{${denominator}}` : `${magnitude}/${denominator}`
+      const fraction = this.fraction_style == "stacked" ? `\\frac{${magnitude}}{${denom}}` : `${magnitude}/${denom}`
       return `${head}${fraction}${suffix}`
     }
 
@@ -357,16 +353,7 @@ export class UnitTickFormatter extends TickFormatter {
       return null
     }
 
-    const gcd = (a: number, b: number): number => {
-      while (b != 0) {
-        const remainder = a % b
-        a = b
-        b = remainder
-      }
-      return a
-    }
-    const divisor = gcd(abs(numerator), denominator)
-    return {numerator: numerator/divisor, denominator: denominator/divisor}
+    return new Fraction(numerator, denominator)
   }
 
   protected label_info(values: number[], opts: TickFormatter.Context): LabelInfo[] {
@@ -391,17 +378,17 @@ export class UnitTickFormatter extends TickFormatter {
     })
   }
 
-  protected fraction_label({numerator, denominator}: Fraction, minus_sign: string): string {
+  protected fraction_label({numer, denom}: Fraction, minus_sign: string): string {
     const base_label = this.text_value(this.base_label)
     const relative = base_label != ""
-    const sign = numerator < 0 ? minus_sign : relative ? "+" : ""
-    const magnitude = abs(numerator)
+    const sign = numer < 0 ? minus_sign : relative ? "+" : ""
+    const magnitude = abs(numer)
     const head = relative ? `${base_label}${sign}${this.text_value(this.prefix)}` : `${this.text_value(this.prefix)}${sign}`
     if (this.unit_style == "symbolic" && this.has_text(this.suffix)) {
       const coefficient = magnitude == 1 ? "" : `${magnitude}`
-      return `${head}${coefficient}${this.text_value(this.suffix)}/${denominator}`
+      return `${head}${coefficient}${this.text_value(this.suffix)}/${denom}`
     }
-    return `${head}${magnitude}/${denominator}${this.text_value(this.suffix)}`
+    return `${head}${magnitude}/${denom}${this.text_value(this.suffix)}`
   }
 
   protected format_label(info: LabelInfo): string {
@@ -414,7 +401,7 @@ export class UnitTickFormatter extends TickFormatter {
       return info.label
     }
 
-    if (info.fraction != null && info.fraction.denominator != 1) {
+    if (info.fraction != null && info.fraction.denom != 1) {
       return this.fraction_label(info.fraction, info.minus_sign)
     }
 
@@ -460,10 +447,10 @@ export class UnitTickFormatter extends TickFormatter {
         return graphic
       }
 
-      if (label.fraction != null && label.fraction.denominator != 1) {
-        const {numerator, denominator} = label.fraction
-        const sign = numerator < 0 ? label.minus_sign : relative ? "+" : ""
-        const magnitude = abs(numerator)
+      if (label.fraction != null && label.fraction.denom != 1) {
+        const {numer, denom} = label.fraction
+        const sign = numer < 0 ? label.minus_sign : relative ? "+" : ""
+        const magnitude = abs(numer)
         const children: GraphicsBox[] = []
         if (relative) {
           children.push(this.text_graphic("base_label", opts))
@@ -477,9 +464,9 @@ export class UnitTickFormatter extends TickFormatter {
             children.push(new TextBox({text: `${relative ? "" : sign}${magnitude == 1 ? "" : magnitude}`}))
           }
           children.push(this.text_graphic("suffix", opts))
-          children.push(new TextBox({text: `/${denominator}`}))
+          children.push(new TextBox({text: `/${denom}`}))
         } else {
-          children.push(new TextBox({text: `${relative ? "" : sign}${magnitude}/${denominator}`}))
+          children.push(new TextBox({text: `${relative ? "" : sign}${magnitude}/${denom}`}))
           if (this.has_text(this.suffix)) {
             children.push(this.text_graphic("suffix", opts))
           }
