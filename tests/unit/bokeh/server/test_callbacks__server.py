@@ -17,6 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
+import time
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 
@@ -65,8 +67,16 @@ class LoopAndGroup:
                                     lambda: self.io_loop.stop())
 
     def __exit__(self, type, value, traceback):
-        run(self.io_loop)
-        self.io_loop.close()
+        try:
+            run(self.io_loop)
+        finally:
+            # Finish cancelled periodic tasks before closing their owning loop.
+            tasks = asyncio.all_tasks(self.io_loop.asyncio_loop)
+            for task in tasks:
+                task.cancel()
+            if tasks:
+                self.io_loop.run_sync(lambda: asyncio.gather(*tasks, return_exceptions=True))
+            self.io_loop.close()
 
     def __enter__(self):
         return self
@@ -156,12 +166,25 @@ class TestCallbackGroup:
             ctx.group.add_timeout_callback(callback=func, timeout_milliseconds=2, callback_id=make_id())
         assert 2 == func.count()
 
-    def test_adding_periodic_twice(self) -> None:
+    @pytest.mark.parametrize("delay", [False, True])
+    def test_adding_periodic_twice(self, delay: bool) -> None:
+        count = 0
         with (LoopAndGroup()) as ctx:
-            func = _make_invocation_counter(ctx.io_loop, stop_after=2)
+            def func():
+                nonlocal count
+                count += 1
+                if count == 1 and delay:
+                    # Make both timers due together, as can happen on a busy runner.
+                    ctx.io_loop.add_callback(time.sleep, 0.005)
+                elif count == 2:
+                    # Stopping the loop alone still runs other ready callbacks.
+                    ctx.group.remove_all_callbacks()
+                    ctx.io_loop.add_callback(ctx.io_loop.stop)
+
             ctx.group.add_periodic_callback(callback=func, period_milliseconds=3, callback_id=make_id())
             ctx.group.add_periodic_callback(callback=func, period_milliseconds=2, callback_id=make_id())
-        assert 2 == func.count()
+            assert len(ctx.group._periodic_callback_removers) == 2
+        assert count == 2
 
     def test_remove_all_callbacks(self) -> None:
         with (LoopAndGroup(quit_after=15)) as ctx:

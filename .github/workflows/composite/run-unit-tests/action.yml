@@ -61,9 +61,23 @@ runs:
         PARALLEL=(-n logical)
         if [[ "${{ runner.os }}" != "Windows" ]]; then
           PARALLEL+=(--dist=loadgroup)
+        else
+          export BOKEH_CHROMEDRIVER_LOG_DIR="${{ runner.temp }}/chromedriver-startup"
         fi
         POLICY="--last-failed --last-failed-no-failures none"
         pytest $COLOR "${COVERAGE[@]}" $DURATIONS "${PARALLEL[@]}" tests/unit || pytest $COLOR $DURATIONS $POLICY tests/unit
+
+    - name: Log ChromeDriver startup diagnostics
+      if: always() && runner.os == 'Windows'
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: |
+        shopt -s nullglob
+        for logfile in "${{ runner.temp }}/chromedriver-startup/"*; do
+          echo "::group::$(basename "$logfile")"
+          cat "$logfile"
+          echo
+          echo "::endgroup::"
+        done
 
     - name: Import all modules
       if: (success() || failure()) && inputs.python-optimize == '2'

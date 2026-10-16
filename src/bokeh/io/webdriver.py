@@ -26,6 +26,8 @@ log = logging.getLogger(__name__)
 import atexit
 import io
 import os
+import threading
+from concurrent.futures import Future, TimeoutError
 from os.path import devnull
 from shutil import which
 from typing import TYPE_CHECKING, Literal
@@ -57,6 +59,8 @@ from .util import (
 #-----------------------------------------------------------------------------
 
 type DriverKind = Literal["firefox", "chromium"]
+
+_WEBDRIVER_QUIT_TIMEOUT = 20 # seconds to wait for graceful shutdown
 
 __all__ = (
     'get_screenshot_as_png',
@@ -263,6 +267,10 @@ def get_web_driver_device_pixel_ratio(web_driver: WebDriver) -> float:
 #-----------------------------------------------------------------------------
 
 def _log_console(driver: WebDriver) -> None:
+    # Firefox doesn't implement get_log. Its error response can close the
+    # keep-alive connection while Selenium is already sending the next command.
+    if driver.capabilities.get("browserName") == "firefox":
+        return
     levels = {'WARNING', 'ERROR', 'SEVERE'}
     try:
         driver_logs = driver.get_log('browser')
@@ -317,10 +325,28 @@ class _WebdriverState:
         self.reuse = reuse
         self.current = None
         self._drivers = set()
+        self._quitters: dict[WebDriver, tuple[threading.Event, Future[None]]] = {}
 
     def terminate(self, driver: WebDriver) -> None:
         self._drivers.remove(driver)
-        driver.quit()
+        if self.current is driver:
+            self.current = None
+        start, result = self._quitters.pop(driver)
+        start.set()
+        try:
+            result.result(timeout=_WEBDRIVER_QUIT_TIMEOUT)
+        except TimeoutError:
+            if result.done():
+                result.result()
+                return
+            # quit() can block in either the WebDriver HTTP request or Selenium's
+            # service shutdown. Do not call service.stop() again on this path.
+            log.warning("Webdriver shutdown timed out; killing its service process")
+            service = getattr(driver, "service", None)
+            process = getattr(service, "process", None)
+            if process is not None and process.poll() is None:
+                process.kill()
+                process.wait(timeout=5)
 
     def reset(self) -> None:
         if self.current is not None:
@@ -336,6 +362,22 @@ class _WebdriverState:
 
     def create(self, kind: DriverKind | None = None, scale_factor: float = 1) -> WebDriver:
         driver = self._create(kind, scale_factor=scale_factor)
+        start = threading.Event()
+        result: Future[None] = Future()
+
+        def quit() -> None:
+            start.wait()
+            try:
+                driver.quit()
+            except Exception as error:
+                result.set_exception(error)
+            else:
+                result.set_result(None)
+
+        # Start before atexit: Python 3.12+ forbids starting threads during
+        # interpreter shutdown. A stuck quit must not keep the interpreter alive.
+        threading.Thread(target=quit, daemon=True).start()
+        self._quitters[driver] = (start, result)
         self._drivers.add(driver)
         return driver
 
@@ -368,9 +410,11 @@ class _WebdriverState:
             raise ValueError(f"'{driver_kind}' is not a recognized webdriver kind")
 
     def cleanup(self) -> None:
-        self.reset()
         for driver in list(self._drivers):
-            self.terminate(driver)
+            try:
+                self.terminate(driver)
+            except Exception:
+                log.warning("Failed to terminate webdriver", exc_info=True)
 
 #-----------------------------------------------------------------------------
 # Code

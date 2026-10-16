@@ -12,6 +12,9 @@ class LogEntry(TypedDict):
     level: LogLevel
 
 class WebDriver:
+    @property
+    def capabilities(self) -> dict[str, Any]: ...
+
     def get(self, url: str) -> None: ...
 
     def maximize_window(self) -> None: ...

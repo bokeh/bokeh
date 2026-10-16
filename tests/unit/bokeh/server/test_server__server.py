@@ -18,12 +18,14 @@ import pytest ; pytest
 
 # Standard library imports
 import asyncio
+import inspect
 import logging
 import os
 import re
 import ssl
 import sys
 import tempfile
+from contextlib import nullcontext
 from datetime import timedelta
 from pathlib import Path
 from unittest import mock
@@ -58,6 +60,7 @@ from bokeh.util.token import (
     get_session_id,
     get_token_payload,
 )
+from tests.support.plugins import managed_server_loop
 from tests.support.plugins.managed_server_loop import MSL
 
 # Module under test
@@ -150,6 +153,44 @@ class HookTestHandler(Handler):
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@pytest.mark.parametrize("raise_in_context", [False, True])
+@pytest.mark.free_threading
+async def test_managed_server_loop_finishes_shutdown(
+    monkeypatch: pytest.MonkeyPatch, raise_in_context: bool,
+) -> None:
+    application = Application()
+    destroyed = []
+
+    async def on_destroyed(context):
+        await asyncio.sleep(0)
+        destroyed.append(context)
+
+    monkeypatch.setattr(application, "on_session_destroyed", on_destroyed)
+    fixture = inspect.unwrap(managed_server_loop.ManagedServerLoop)()
+    factory = await anext(fixture)
+    try:
+        with pytest.raises(RuntimeError, match="test body") if raise_in_context else nullcontext():
+            with factory(application) as server:
+                session = await server._tornado.applications['/'].create_session_if_needed("test")
+                if raise_in_context:
+                    raise RuntimeError("test body")
+        assert not server._stop_task.done()
+    finally:
+        await fixture.aclose()
+
+    assert server._stop_task.done()
+    assert session.destroyed
+    assert len(destroyed) == 1
+
+
+@pytest.mark.free_threading
+def test_server_loop_is_closed() -> None:
+    fixture = inspect.unwrap(managed_server_loop.server_loop)()
+    loop = next(fixture)
+    fixture.close()
+    assert loop.asyncio_loop.is_closed()
+
 
 def test_prefix(ManagedServerLoop: MSL) -> None:
     application = Application()
@@ -245,13 +286,12 @@ def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
             assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password="bar")
 
-def test_base_server() -> None:
+def test_base_server(server_loop: IOLoop) -> None:
     app = BokehTornado(Application())
     httpserver = HTTPServer(app)
     httpserver.start()
 
-    loop = IOLoop()
-    loop.make_current()
+    loop = server_loop
 
     server = BaseServer(loop, app, httpserver)
     server.start()
@@ -261,7 +301,6 @@ def test_base_server() -> None:
 
     httpserver.stop()
     server.stop()
-    server.io_loop.close()
 
 async def test_server_applications_callable_arg(ManagedServerLoop: MSL) -> None:
     def modify_doc(doc):
@@ -924,13 +963,16 @@ async def test__no_generate_session_doc(ManagedServerLoop: MSL) -> None:
 
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="multiple processes not supported on Windows")
-def test__server_multiple_processes() -> None:
+def test__server_multiple_processes(server_loop: IOLoop) -> None:
 
-    # Can't use an ioloop in this test
+    # Don't pass an explicit io_loop with num_procs > 1.
     with mock.patch('tornado.httpserver.HTTPServer.add_sockets'):
         with mock.patch('tornado.process.fork_processes') as tornado_fp:
             application = Application()
-            server.Server(application, num_procs=3, port=0)
+            instance = server.Server(application, num_procs=3, port=0)
+
+        instance.unlisten()
+        instance.stop()
 
         assert tornado_fp.mock_calls == [
             mock.call(3, None)
@@ -952,12 +994,11 @@ async def test__actual_port_number(ManagedServerLoop: MSL) -> None:
         assert port is not None and port > 0
         await http_get(server.io_loop, url(server))
 
-def test__ioloop_not_forcibly_stopped() -> None:
+def test__ioloop_not_forcibly_stopped(server_loop: IOLoop) -> None:
     # Issue #5494
     application = Application()
-    loop = IOLoop()
-    loop.make_current()
-    server = Server(application, io_loop=loop)
+    loop = server_loop
+    server = Server(application, io_loop=loop, port=0)
     server.start()
     result = []
 
@@ -974,6 +1015,7 @@ def test__ioloop_not_forcibly_stopped() -> None:
 
     loop.add_callback(f)
     loop.start()
+    loop.run_sync(server.wait_until_stopped)
     assert result == [None]
 
 
