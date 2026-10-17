@@ -35,7 +35,7 @@ from ..models.ui import UIElement
 from ..util.browser import get_browser_controller
 from .notebook import notebook_environment, show_doc
 from .saving import save
-from .util import temp_filename
+from .util import default_filename
 
 if TYPE_CHECKING:
     from jinja2 import Template
@@ -90,7 +90,9 @@ def show(
 
         filename (PathLike, optional) :
             HTML filename to save and open. If omitted outside notebook mode,
-            a temporary ``.html`` file is used.
+            the filename is derived from the running script. If the script
+            filename is unavailable or its directory is not writable, a
+            temporary ``.html`` file is used.
 
         resources (Resources or resource setting, optional) :
             Select explicit BokehJS resource delivery for file or notebook
@@ -135,7 +137,7 @@ def show(
             return show_doc(cast("Model | Sequence[UIElement]", obj), resources=resources)
         _show_file(
             obj,
-            filename=filename if filename is not None else temp_filename("html"),
+            filename=filename if filename is not None else default_filename("html"),
             resources=resources,
             title=title,
             template=template,
