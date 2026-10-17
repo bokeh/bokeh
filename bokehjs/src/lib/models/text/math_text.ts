@@ -61,7 +61,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   }
 
   font_size_scale: number = 1.0
-  font: string
+  font: string = ""
   color: string
 
   private svg_image: CanvasImage | null = null
@@ -106,7 +106,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   override connect_signals(): void {
     super.connect_signals()
     this.on_change(this.model.properties.text, () => this.load_image())
-    this.connect(this.provider.ready, () => void this.load_image())
+    this.connect(this.provider.ready, () => this.load_image())
   }
 
   set visuals(v: visuals.Text["Values"]) {
@@ -368,6 +368,10 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   }
 
   private async load_image(): Promise<void> {
+    // MathJax can become ready before a consumer assigns text visuals.
+    if (this.font == "") {
+      return
+    }
     if (this._image_request != null) {
       return this._image_request
     }
