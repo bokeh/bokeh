@@ -20,7 +20,7 @@ describe("ScaledTickFormatter", () => {
     const formatter = ScaledTickFormatter.create()
     expect(formatter.ticker).to.be.null
     expect(formatter.formatter).to.be.instanceof(BasicTickFormatter)
-    expect(formatter.base_label).to.be.equal("")
+    expect(formatter.origin_label).to.be.equal("")
     expect(formatter.unit_style).to.be.equal("always")
     expect(formatter.use_fractions).to.be.false
     expect(formatter.fraction_style).to.be.equal("inline")
@@ -42,11 +42,11 @@ describe("ScaledTickFormatter", () => {
     expect(labels).to.be.equal(["−π", "0", "π", "2π", "8π"])
   })
 
-  it("should format signed offsets from a base label", () => {
+  it("should format signed offsets from an origin label", () => {
     const ticker = ScaledTicker.create({scale: 1, offset: 10})
     const formatter = ScaledTickFormatter.create({
       ticker,
-      base_label: "x̄",
+      origin_label: "x̄",
       unit: "σ",
       unit_style: "symbolic",
     })

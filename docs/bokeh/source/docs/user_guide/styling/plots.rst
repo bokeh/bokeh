@@ -489,7 +489,7 @@ nested because they apply different display-coordinate transformations.
 ``ScaledTickFormatter``
 '''''''''''''''''''''''
 
-Use a |ScaledTickFormatter| to add a common prefix, unit, or symbolic base to
+Use a |ScaledTickFormatter| to add a common prefix, unit, or symbolic origin to
 automatically generated labels. Pair it with a |ScaledTicker| when an axis has
 a natural coordinate system that differs from its data coordinates. The
 ticker selects nice values after applying ``(value - offset)/scale``, and the
@@ -517,8 +517,10 @@ values for data stored in radians, while ``ScaledTicker(scale=1000)`` with a
 ``"k"`` unit labels values in thousands. Set ``offset`` to keep data in its
 original coordinates while expressing ticks relative to a different origin;
 for example, ``scale=sigma`` and ``offset=xbar`` select ticks at standard
-deviations around a sample mean. The outer ``ScaledTicker`` supplies
-``desired_num_ticks`` and ``num_minor_ticks`` when invoking its wrapped ticker.
+deviations around a sample mean. Set ``origin_label`` on the formatter to
+display that origin symbolically, such as ``TeX(text=r"\overline{x}")``. The
+outer ``ScaledTicker`` supplies ``desired_num_ticks`` and ``num_minor_ticks``
+when invoking its wrapped ticker.
 
 To display units such as amperes or ohms without rescaling, a
 ``ScaledTickFormatter(unit=...)`` can be used with the axis's ordinary ticker;

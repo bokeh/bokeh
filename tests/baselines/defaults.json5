@@ -2969,7 +2969,7 @@
       name: "BasicTickFormatter",
       attributes: {},
     },
-    base_label: "",
+    origin_label: "",
     prefix: "",
     unit: "",
     unit_style: "always",

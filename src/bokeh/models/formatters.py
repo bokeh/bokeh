@@ -184,11 +184,11 @@ class ScaledTickFormatter(TickFormatter):
     The formatter applied to normalized tick values.
     """)
 
-    base_label = TextLike(default="", help="""
+    origin_label = TextLike(default="", help="""
     An optional label representing the zero point of the normalized values.
 
     Nonzero values are displayed as signed offsets from this label. For
-    example, ``base_label=TeX(text=r"\\overline{x}")`` with
+    example, ``origin_label=TeX(text=r"\\overline{x}")`` with
     ``unit=TeX(text=r"\\sigma")`` can produce labels such as
     :math:`\\overline{x}-2\\sigma`, :math:`\\overline{x}`, and
     :math:`\\overline{x}+2\\sigma`. This affects label composition only;

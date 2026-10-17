@@ -78,7 +78,7 @@ def test_scaled_tick_formatter() -> None:
 
     assert formatter.ticker is ticker
     assert isinstance(formatter.formatter, bmf.BasicTickFormatter)
-    assert formatter.base_label == ""
+    assert formatter.origin_label == ""
     assert formatter.prefix == ""
     assert formatter.unit == "pi"
     assert formatter.unit_style == "symbolic"
@@ -115,11 +115,11 @@ def test_scaled_tick_formatter_serialization() -> None:
     assert copied_formatter.max_denominator == 8
 
 def test_scaled_tick_formatter_accepts_math_text_units() -> None:
-    base_label = TeX(text=r"\overline{x}")
+    origin_label = TeX(text=r"\overline{x}")
     unit = TeX(text=r"\pi")
-    formatter = bmf.ScaledTickFormatter(base_label=base_label, unit=unit, name="formatter")
+    formatter = bmf.ScaledTickFormatter(origin_label=origin_label, unit=unit, name="formatter")
 
-    assert formatter.base_label is base_label
+    assert formatter.origin_label is origin_label
     assert formatter.unit is unit
 
     doc = Document()
@@ -128,14 +128,14 @@ def test_scaled_tick_formatter_accepts_math_text_units() -> None:
     copied_formatter = copy.get_model_by_name("formatter")
 
     assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
-    assert isinstance(copied_formatter.base_label, TeX)
-    assert copied_formatter.base_label.text == r"\overline{x}"
+    assert isinstance(copied_formatter.origin_label, TeX)
+    assert copied_formatter.origin_label.text == r"\overline{x}"
     assert isinstance(copied_formatter.unit, TeX)
     assert copied_formatter.unit.text == r"\pi"
 
 def test_scaled_tick_formatter_serializes_delimited_math_text_strings() -> None:
     formatter = bmf.ScaledTickFormatter(
-        base_label=r"$$\overline{x}$$",
+        origin_label=r"$$\overline{x}$$",
         prefix=r"$$\Delta$$",
         unit=r"$$\pi$$",
         name="formatter",
@@ -147,7 +147,7 @@ def test_scaled_tick_formatter_serializes_delimited_math_text_strings() -> None:
     copied_formatter = copy.get_model_by_name("formatter")
 
     assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
-    assert copied_formatter.base_label == r"$$\overline{x}$$"
+    assert copied_formatter.origin_label == r"$$\overline{x}$$"
     assert copied_formatter.prefix == r"$$\Delta$$"
     assert copied_formatter.unit == r"$$\pi$$"
 

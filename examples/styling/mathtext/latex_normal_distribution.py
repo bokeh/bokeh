@@ -49,7 +49,7 @@ p.xaxis[0].ticker = ScaledTicker(
     ticker=SingleIntervalTicker(interval=1),
 )
 p.xaxis[0].formatter = ScaledTickFormatter(
-    base_label=TeX(text=r"\overline{x}"),
+    origin_label=TeX(text=r"\overline{x}"),
     unit=TeX(text=r"\sigma"),
     unit_style="symbolic",
 )

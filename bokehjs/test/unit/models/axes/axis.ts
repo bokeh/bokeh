@@ -108,14 +108,14 @@ describe("Axis", () => {
     expect(texts).to.be.equal(["-\\text{2}\\pi", "-\\pi", "\\text{0}", "\\frac{\\pi}{2}", "\\pi", "\\text{2}\\pi"])
   })
 
-  it("should render TeX base labels and inline fractions", async () => {
+  it("should render TeX origin labels and inline fractions", async () => {
     const plot = Plot.create({
       x_range: Range1d.create({start: -1, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
     const ticker = ScaledTicker.create({scale: 1})
     const formatter = ScaledTickFormatter.create({
-      base_label: "$$\\overline{x}$$",
+      origin_label: "$$\\overline{x}$$",
       unit: "$$\\sigma$$",
       unit_style: "symbolic",
       use_fractions: true,
