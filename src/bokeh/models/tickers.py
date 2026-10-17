@@ -330,13 +330,13 @@ class BasicTicker(AdaptiveTicker):
         super().__init__(*args, **kwargs)
 
 class ScaledTicker(ContinuousTicker):
-    r''' Generate ticks in a scaled and offset unit coordinate system.
+    r''' Generate ticks in a scaled coordinate system with a configurable origin.
 
     One displayed unit corresponds to ``scale`` data-coordinate units, with
-    zero displayed units located at ``offset``. The wrapped ``ticker``
+    zero displayed units located at ``origin``. The wrapped ``ticker``
     operates on coordinates transformed by
-    ``(value - offset)/scale``. Its resulting major and minor tick locations
-    are transformed back by ``offset + scale*value`` before being returned.
+    ``(value - origin)/scale``. Its resulting major and minor tick locations
+    are transformed back by ``origin + scale*value`` before being returned.
     This is useful for axes whose natural unit is a constant such as
     :math:`\pi`, or whose symbolic origin differs from zero.
 
@@ -355,7 +355,7 @@ class ScaledTicker(ContinuousTicker):
     The size of one normalized coordinate unit in data coordinates.
     """)
 
-    offset = Float(default=0.0, help="""
+    origin = Float(default=0.0, help="""
     The data-coordinate value represented by zero in normalized coordinates.
     """)
 

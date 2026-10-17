@@ -87,7 +87,7 @@ def test_scaled_tick_formatter() -> None:
     assert formatter.max_denominator == 16
 
 def test_scaled_tick_formatter_serialization() -> None:
-    ticker = bmt.ScaledTicker(scale=3.14, offset=2.7, name="ticker")
+    ticker = bmt.ScaledTicker(scale=3.14, origin=2.7, name="ticker")
     formatter = bmf.ScaledTickFormatter(
         ticker=ticker,
         unit="pi",
@@ -108,7 +108,7 @@ def test_scaled_tick_formatter_serialization() -> None:
     assert isinstance(copied_ticker, bmt.ScaledTicker)
     assert copied_formatter.ticker is copied_ticker
     assert copied_formatter.unit == "pi"
-    assert copied_ticker.offset == 2.7
+    assert copied_ticker.origin == 2.7
     assert copied_formatter.unit_style == "symbolic"
     assert copied_formatter.use_fractions is True
     assert copied_formatter.fraction_style == "inline"

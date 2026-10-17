@@ -43,7 +43,7 @@ describe("ScaledTickFormatter", () => {
   })
 
   it("should format signed offsets from an origin label", () => {
-    const ticker = ScaledTicker.create({scale: 1, offset: 10})
+    const ticker = ScaledTicker.create({scale: 1, origin: 10})
     const formatter = ScaledTickFormatter.create({
       ticker,
       origin_label: "x̄",
@@ -138,10 +138,10 @@ describe("ScaledTickFormatter", () => {
     expect(labels).to.be.equal(["π/4", "π/2", "3π/4", "-π/4"])
   })
 
-  it("should allow for normalization error from large offsets when detecting fractions", () => {
-    const offset = 1_700_000_000
+  it("should allow for normalization error from large origins when detecting fractions", () => {
+    const origin = 1_700_000_000
     const scale = Math.PI
-    const ticker = ScaledTicker.create({scale, offset})
+    const ticker = ScaledTicker.create({scale, origin})
     const formatter = ScaledTickFormatter.create({
       ticker,
       formatter: PrintfTickFormatter.create({format: "%.3f"}),
@@ -151,7 +151,7 @@ describe("ScaledTickFormatter", () => {
       max_denominator: 2,
     })
 
-    expect(formatter.doFormat([offset + scale/2], {loc: 0})).to.be.equal(["π/2"])
+    expect(formatter.doFormat([origin + scale/2], {loc: 0})).to.be.equal(["π/2"])
   })
 
   it("should use fractions only when every tick can be represented", () => {

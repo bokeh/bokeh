@@ -45,7 +45,7 @@ p.yaxis.axis_label = "PDF(x)"
 
 p.xaxis[0].ticker = ScaledTicker(
     scale=sigma,
-    offset=xbar,
+    origin=xbar,
     ticker=SingleIntervalTicker(interval=1),
 )
 p.xaxis[0].formatter = ScaledTickFormatter(

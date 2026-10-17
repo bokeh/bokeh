@@ -492,7 +492,7 @@ nested because they apply different display-coordinate transformations.
 Use a |ScaledTickFormatter| to add a common prefix, unit, or symbolic origin to
 automatically generated labels. Pair it with a |ScaledTicker| when an axis has
 a natural coordinate system that differs from its data coordinates. The
-ticker selects nice values after applying ``(value - offset)/scale``, and the
+ticker selects nice values after applying ``(value - origin)/scale``, and the
 formatter uses the same transform to display the resulting coefficients.
 Fraction mode can display small rational coefficients in forms such as
 :math:`\pi/2` and :math:`3\pi/4`, while larger ranges naturally produce labels
@@ -514,9 +514,9 @@ fraction such as :math:`\frac{\pi}{2}`:
 The same models can express non-symbolic scales. For example,
 ``ScaledTicker(scale=pi/180)`` with a ``"°"`` unit selects round degree
 values for data stored in radians, while ``ScaledTicker(scale=1000)`` with a
-``"k"`` unit labels values in thousands. Set ``offset`` to keep data in its
+``"k"`` unit labels values in thousands. Set ``origin`` to keep data in its
 original coordinates while expressing ticks relative to a different origin;
-for example, ``scale=sigma`` and ``offset=xbar`` select ticks at standard
+for example, ``scale=sigma`` and ``origin=xbar`` select ticks at standard
 deviations around a sample mean. Set ``origin_label`` on the formatter to
 display that origin symbolically, such as ``TeX(text=r"\overline{x}")``. The
 outer ``ScaledTicker`` supplies ``desired_num_ticks`` and ``num_minor_ticks``

@@ -175,7 +175,7 @@ export class ScaledTickFormatter extends TickFormatter {
 
   protected normalized(ticks: number[], opts: TickFormatter.Context): number[] {
     const ticker = this.get_ticker(opts)
-    return ticker == null ? ticks : ticks.map((tick) => (tick - ticker.offset)/ticker.scale)
+    return ticker == null ? ticks : ticks.map((tick) => (tick - ticker.origin)/ticker.scale)
   }
 
   protected text_value(text: TextLike): string {
@@ -356,7 +356,7 @@ export class ScaledTickFormatter extends TickFormatter {
     }
     const ticker = this.get_ticker(opts)
     if (ticker != null) {
-      magnitude = max(magnitude, abs(ticker.offset)/ticker.scale)
+      magnitude = max(magnitude, abs(ticker.origin)/ticker.scale)
     }
     return 8*Number.EPSILON*max(1, magnitude, spacing)
   }

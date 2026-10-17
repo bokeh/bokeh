@@ -8,7 +8,7 @@ export namespace ScaledTicker {
 
   export type Props = ContinuousTicker.Props & {
     scale: p.Property<number>
-    offset: p.Property<number>
+    origin: p.Property<number>
     ticker: p.Property<ContinuousTicker>
   }
 }
@@ -21,7 +21,7 @@ export class ScaledTicker extends ContinuousTicker {
   static {
     this.define<ScaledTicker.Props>(({Float, Positive, Ref}) => ({
       scale:  [ Positive(Float), 1.0 ],
-      offset: [ Float, 0.0 ],
+      origin: [ Float, 0.0 ],
       ticker: [ Ref(ContinuousTicker), () => BasicTicker.create() ],
     }))
   }
@@ -49,23 +49,23 @@ export class ScaledTicker extends ContinuousTicker {
   }
 
   get_interval(data_low: number, data_high: number, desired_n_ticks: number): number {
-    const {scale, offset} = this
-    return scale*this.ticker.get_interval((data_low - offset)/scale, (data_high - offset)/scale, desired_n_ticks)
+    const {scale, origin} = this
+    return scale*this.ticker.get_interval((data_low - origin)/scale, (data_high - origin)/scale, desired_n_ticks)
   }
 
   override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number, num_minor_ticks: number): TickSpec<number> {
-    const {scale, offset} = this
+    const {scale, origin} = this
     const ticks = this.ticker.get_ticks_no_defaults(
-      (data_low - offset)/scale,
-      (data_high - offset)/scale,
+      (data_low - origin)/scale,
+      (data_high - origin)/scale,
       cross_loc,
       desired_n_ticks,
       num_minor_ticks,
     )
 
     return {
-      major: ticks.major.map((tick) => offset + scale*tick),
-      minor: ticks.minor.map((tick) => offset + scale*tick),
+      major: ticks.major.map((tick) => origin + scale*tick),
+      minor: ticks.minor.map((tick) => origin + scale*tick),
     }
   }
 }

@@ -77,7 +77,7 @@ class Test_ScaledTicker:
     def test_defaults(self) -> None:
         ticker = bmt.ScaledTicker()
         assert ticker.scale == 1.0
-        assert ticker.offset == 0.0
+        assert ticker.origin == 0.0
         assert isinstance(ticker.ticker, bmt.BasicTicker)
 
     def test_default_ticker_is_not_shared(self) -> None:

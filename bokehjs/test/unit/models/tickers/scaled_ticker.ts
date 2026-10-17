@@ -12,7 +12,7 @@ describe("ScaledTicker", () => {
   it("should use a BasicTicker and unit scale by default", () => {
     const ticker = ScaledTicker.create()
     expect(ticker.scale).to.be.equal(1)
-    expect(ticker.offset).to.be.equal(0)
+    expect(ticker.origin).to.be.equal(0)
     expect(ticker.ticker).to.be.instanceof(BasicTicker)
   })
 
@@ -54,10 +54,10 @@ describe("ScaledTicker", () => {
     expect(ticks.minor).to.be.equal([-Math.PI/2, Math.PI/2])
   })
 
-  it("should offset ticks supplied by the wrapped ticker", () => {
+  it("should shift ticks supplied by the wrapped ticker to the origin", () => {
     const ticker = ScaledTicker.create({
       scale: Math.PI,
-      offset: 10,
+      origin: 10,
       ticker: FixedTicker.create({ticks: [-1, 0, 1], minor_ticks: [-0.5, 0.5]}),
     })
     const ticks = ticker.get_ticks(10 - Math.PI, 10 + Math.PI, range, NaN)
@@ -66,8 +66,8 @@ describe("ScaledTicker", () => {
     expect(ticks.minor).to.be.equal([10 - Math.PI/2, 10 + Math.PI/2])
   })
 
-  it("should offset interval bounds before delegating", () => {
-    const ticker = ScaledTicker.create({scale: Math.PI, offset: 10, desired_num_ticks: 4})
+  it("should subtract the origin from interval bounds before delegating", () => {
+    const ticker = ScaledTicker.create({scale: Math.PI, origin: 10, desired_num_ticks: 4})
     expect(ticker.get_interval(10, 10 + 8*Math.PI, 4)).to.be.equal(2*Math.PI)
   })
 

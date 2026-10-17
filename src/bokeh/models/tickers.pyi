@@ -120,14 +120,14 @@ class BasicTicker(AdaptiveTicker):
 
 class _ScaledTickerInit(_ContinuousTickerInit, total=False):
     scale: float
-    offset: float
+    origin: float
     ticker: ContinuousTicker
 
 class ScaledTicker(ContinuousTicker):
     def __init__(self, **kwargs: Unpack[_ScaledTickerInit]) -> None: ...
 
     scale: float = ...
-    offset: float = ...
+    origin: float = ...
     ticker: ContinuousTicker = ...
 
 class _LogTickerInit(_AdaptiveTickerInit, total=False):

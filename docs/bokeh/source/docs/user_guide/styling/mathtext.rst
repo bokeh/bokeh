@@ -49,9 +49,9 @@ LaTeX and tick labels
     To add a LaTeX unit or other repeated decoration to generated tick labels,
     use a :class:`~bokeh.models.ScaledTickFormatter`. Add a
     :class:`~bokeh.models.ScaledTicker` when tick selection also needs a scale
-    or offset. The formatter accepts delimited LaTeX strings and combines the
-    value, unit, and any fraction into one math expression. Labels therefore
-    continue to update as the visible range changes:
+    or a nonzero origin. The formatter accepts delimited LaTeX strings and
+    combines the value, unit, and any fraction into one math expression. Labels
+    therefore continue to update as the visible range changes:
 
     .. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_tick_labels.py
         :source-position: above

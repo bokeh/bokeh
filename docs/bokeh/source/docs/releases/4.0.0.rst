@@ -10,7 +10,7 @@ New features
 
 * Added :class:`~bokeh.models.ScaledTicker` and
   :class:`~bokeh.models.ScaledTickFormatter` for selecting and formatting ticks
-  in scaled or offset unit coordinates. They support repeated prefixes and
+  with a scale and configurable origin. They support repeated prefixes and
   units, symbolic origin labels, fractional coefficients, and TeX or MathML
   decorations without requiring fixed tick locations or custom JavaScript.
 * Added :class:`~bokeh.models.SITickFormatter` for displaying values with a

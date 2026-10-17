@@ -148,7 +148,7 @@ class ScaledTickFormatter(TickFormatter):
     r''' Format ticks with optional unit conversion and repeated decoration.
 
     When used with a ``ScaledTicker``, tick values are normalized with
-    ``(value - offset)/scale`` before being passed to ``formatter``. With any
+    ``(value - origin)/scale`` before being passed to ``formatter``. With any
     other ticker, values are formatted without normalization. Optional text
     can be added before or after each formatted value. This allows symbolic
     units such as :math:`\pi` to be displayed without a
@@ -192,7 +192,7 @@ class ScaledTickFormatter(TickFormatter):
     ``unit=TeX(text=r"\\sigma")`` can produce labels such as
     :math:`\\overline{x}-2\\sigma`, :math:`\\overline{x}`, and
     :math:`\\overline{x}+2\\sigma`. This affects label composition only;
-    normalization remains controlled by the ticker's scale and offset. Strings
+    normalization remains controlled by the ticker's scale and origin. Strings
     containing recognized math-text delimiters and explicit text models are
     supported.
     """)
