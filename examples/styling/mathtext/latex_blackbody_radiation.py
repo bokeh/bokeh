@@ -3,8 +3,7 @@ various temperatures. This example demonstrates the use of mathtext on axes
 and in ``Div`` objects.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.models.Div, bokeh.models.UnitTicker,
-        bokeh.models.UnitTickFormatter
+    :apis: bokeh.plotting.figure.line, bokeh.models.Div, bokeh.models.SITickFormatter
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 
@@ -13,7 +12,7 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import Div, UnitTicker, UnitTickFormatter
+from bokeh.models import Div, SITickFormatter
 from bokeh.palettes import Spectral
 from bokeh.plotting import figure, show
 
@@ -46,16 +45,14 @@ p.line(peak_freqs, peak_radiance, line_color="silver",
          line_dash="dashed", line_width=2, legend_label="Peak radiance")
 
 curdoc().theme = 'dark_minimal'
-p.xaxis[0].ticker = UnitTicker(scale=1e15)
-p.xaxis[0].formatter = UnitTickFormatter(
-    suffix=r"$$\,\mathrm{PHz}$$",
+p.xaxis[0].formatter = SITickFormatter(
+    unit=r"$$\mathrm{Hz}$$", prefix="P",
     unit_style="except_zero",
 )
 p.xaxis[0].axis_label = r"$$\nu$$"
 
-p.yaxis[0].ticker = UnitTicker(scale=1e-9)
-p.yaxis[0].formatter = UnitTickFormatter(
-    suffix=r"$$\,\mathrm{nW}$$",
+p.yaxis[0].formatter = SITickFormatter(
+    unit=r"$$\mathrm{W}$$", prefix="n",
     unit_style="except_zero",
 )
 p.yaxis[0].axis_label = r"$$B_\nu\;\text{per}\;\mathrm{m^2\,sr\,Hz}$$"

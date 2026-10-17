@@ -2,13 +2,13 @@
 labels.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.models.UnitTickFormatter
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.models.ScaledTickFormatter
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 '''
 from numpy import arange
 
-from bokeh.models import UnitTickFormatter
+from bokeh.models import ScaledTickFormatter
 from bokeh.plotting import figure, show
 
 x = arange(1, 4.5, 0.25)
@@ -20,9 +20,9 @@ plot.scatter(x, y, fill_color="blue", size=5)
 plot.line(x, y, color="darkgrey")
 
 plot.xaxis.axis_label = "Resistance"
-plot.xaxis[0].formatter = UnitTickFormatter(suffix=r"$$\,\Omega$$")
+plot.xaxis[0].formatter = ScaledTickFormatter(suffix=r"$$\,\Omega$$")
 
 plot.yaxis.axis_label = "Current"
-plot.yaxis[0].formatter = UnitTickFormatter(suffix=r"$$\,\mathrm{A}$$")
+plot.yaxis[0].formatter = ScaledTickFormatter(suffix=r"$$\,\mathrm{A}$$")
 plot.axis.major_label_standoff = 8
 show(plot)

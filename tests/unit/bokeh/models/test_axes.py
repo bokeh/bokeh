@@ -23,8 +23,8 @@ from bokeh.models import (
     FixedTicker,
     MathText,
     PlainText,
+    ScaledTickFormatter,
     TeX,
-    UnitTickFormatter,
 )
 
 # Module under test
@@ -48,8 +48,8 @@ def test_ticker_accepts_number_sequences() -> None:
     assert isinstance(a.ticker, FixedTicker)
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
 
-def test_unit_tick_formatter_accepts_unscaled_axis_ticker() -> None:
-    axis = bma.LinearAxis(ticker=BasicTicker(), formatter=UnitTickFormatter(suffix="u"))
+def test_scaled_tick_formatter_accepts_unscaled_axis_ticker() -> None:
+    axis = bma.LinearAxis(ticker=BasicTicker(), formatter=ScaledTickFormatter(suffix="u"))
 
     assert check_integrity([axis]).warning == []
 

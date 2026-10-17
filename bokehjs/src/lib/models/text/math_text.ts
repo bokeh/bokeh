@@ -106,6 +106,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   override connect_signals(): void {
     super.connect_signals()
     this.on_change(this.model.properties.text, () => this.load_image())
+    this.connect(this.provider.ready, () => void this.load_image())
   }
 
   set visuals(v: visuals.Text["Values"]) {
@@ -389,10 +390,6 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   */
   paint(ctx: Context2d): void {
     if (this.svg_image == null) {
-      if (this.provider.status == "not_started" || this.provider.status == "loading") {
-        this.provider.ready.connect(() => this.load_image())
-      }
-
       if (this.provider.status == "loaded") {
         void this.load_image()
       }

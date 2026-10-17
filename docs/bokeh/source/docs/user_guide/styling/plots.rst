@@ -412,7 +412,10 @@ different situations:
 
 * |LogTickFormatter| --- Default formatter for log axes.
 
-* |UnitTickFormatter| --- Formatter for adding units and other repeated
+* |SITickFormatter| --- Formatter for scaling values to a fixed or
+  automatically selected SI prefix and appending a unit.
+
+* |ScaledTickFormatter| --- Formatter for adding units and other repeated
   decorations to automatically generated tick labels.
 
 These default tick formatters do not expose many configurable properties.
@@ -450,11 +453,44 @@ format strings.
 For full details about formats, see the full |PrintfTickFormatter|
 documentation in the |reference guide|.
 
-``UnitTickFormatter``
-'''''''''''''''''''''
+``SITickFormatter``
+'''''''''''''''''''
 
-Use a |UnitTickFormatter| to add a common prefix, suffix, or symbolic base to
-automatically generated labels. Pair it with a |UnitTicker| when an axis has
+Use an |SITickFormatter| to keep data in base SI units while displaying one
+shared engineering prefix on the visible ticks. With ``prefix="auto"``, the
+largest finite absolute tick determines the prefix, so all labels on an axis
+remain directly comparable. Set a specific prefix such as ``"k"`` to keep the
+scale fixed while panning or zooming, or use ``None`` to disable prefix
+scaling:
+
+.. bokeh-plot:: __REPO__/examples/styling/plots/si_tick_formatter.py
+    :source-position: above
+
+The default ``unit_style="always"`` decorates every label. Set
+``unit_style="except_zero"`` to leave an exact numeric zero undecorated while
+keeping the shared SI prefix on the other labels.
+
+Astrophysical data often combines SI storage with more readable unit
+multiples. This blackbody-radiation example keeps frequency in hertz and
+spectral radiance in SI data coordinates, while its formatters display
+petahertz and nanowatt multiples. The conversion remains an axis concern
+rather than being applied to every data array:
+
+.. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_blackbody_radiation.py
+    :source-position: above
+
+Automatic selection considers all values in one formatting call. Axes and
+``v_compute`` supply a vector, while ``compute`` and scalar widgets format one
+value at a time. Use a fixed prefix when separately formatted values must use
+the same scale. A TeX unit makes the complete numeric label, prefix, and unit
+one TeX expression. ``SITickFormatter`` and ``ScaledTickFormatter`` cannot be
+nested because they apply different display-coordinate transformations.
+
+``ScaledTickFormatter``
+'''''''''''''''''''''''
+
+Use a |ScaledTickFormatter| to add a common prefix, suffix, or symbolic base to
+automatically generated labels. Pair it with a |ScaledTicker| when an axis has
 a natural coordinate system that differs from its data coordinates. The
 ticker selects nice values after applying ``(value - offset)/scale``, and the
 formatter uses the same transform to display the resulting coefficients.
@@ -472,29 +508,20 @@ consistent. The default ``fraction_style="inline"`` uses the compact
 :math:`\pi/2` form shown here; set ``fraction_style="stacked"`` for a TeX
 fraction such as :math:`\frac{\pi}{2}`:
 
-.. bokeh-plot:: __REPO__/examples/styling/plots/unit_tick_formatter.py
-    :source-position: above
-
-Astrophysical data often combines SI storage with more readable unit
-multiples. This blackbody-radiation example keeps frequency in hertz and
-spectral radiance in SI data coordinates, while its axes select petahertz and
-nanowatt multiples. The conversion remains an axis concern rather than being
-applied to every data array:
-
-.. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_blackbody_radiation.py
+.. bokeh-plot:: __REPO__/examples/styling/plots/scaled_tick_formatter.py
     :source-position: above
 
 The same models can express non-symbolic scales. For example,
-``UnitTicker(scale=pi/180)`` with a ``"°"`` suffix selects round degree
-values for data stored in radians, while ``UnitTicker(scale=1000)`` with a
+``ScaledTicker(scale=pi/180)`` with a ``"°"`` suffix selects round degree
+values for data stored in radians, while ``ScaledTicker(scale=1000)`` with a
 ``"k"`` suffix labels values in thousands. Set ``offset`` to keep data in its
 original coordinates while expressing ticks relative to a different origin;
 for example, ``scale=sigma`` and ``offset=xbar`` select ticks at standard
-deviations around a sample mean. The outer ``UnitTicker`` supplies
+deviations around a sample mean. The outer ``ScaledTicker`` supplies
 ``desired_num_ticks`` and ``num_minor_ticks`` when invoking its wrapped ticker.
 
 For suffix-only labels such as amperes or ohms, a
-``UnitTickFormatter(suffix=...)`` can be used with the axis's ordinary ticker;
+``ScaledTickFormatter(suffix=...)`` can be used with the axis's ordinary ticker;
 no scale-one wrapper is needed. The default ``unit_style="always"`` places
 literal units after the complete value, including a fraction, while
 ``unit_style="except_zero"`` leaves zero undecorated. Fraction mode is opt-in
@@ -923,8 +950,9 @@ You can see a complete example with output in the section
 .. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
-.. |UnitTicker| replace:: :class:`~bokeh.models.tickers.UnitTicker`
-.. |UnitTickFormatter| replace:: :class:`~bokeh.models.formatters.UnitTickFormatter`
+.. |SITickFormatter| replace:: :class:`~bokeh.models.formatters.SITickFormatter`
+.. |ScaledTicker| replace:: :class:`~bokeh.models.tickers.ScaledTicker`
+.. |ScaledTickFormatter| replace:: :class:`~bokeh.models.formatters.ScaledTickFormatter`
 .. |legend| replace:: :class:`~bokeh.plotting.figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.figure.grid`
 .. |xgrid|  replace:: :class:`~bokeh.plotting.figure.xgrid`

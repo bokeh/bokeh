@@ -3,7 +3,7 @@ import {BasicTicker} from "./basic_ticker"
 import {ContinuousTicker} from "./continuous_ticker"
 import type * as p from "core/properties"
 
-export namespace UnitTicker {
+export namespace ScaledTicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ContinuousTicker.Props & {
@@ -13,13 +13,13 @@ export namespace UnitTicker {
   }
 }
 
-export interface UnitTicker extends UnitTicker.Attrs {}
+export interface ScaledTicker extends ScaledTicker.Attrs {}
 
-export class UnitTicker extends ContinuousTicker {
-  declare properties: UnitTicker.Props
+export class ScaledTicker extends ContinuousTicker {
+  declare properties: ScaledTicker.Props
 
   static {
-    this.define<UnitTicker.Props>(({Float, Positive, Ref}) => ({
+    this.define<ScaledTicker.Props>(({Float, Positive, Ref}) => ({
       scale:  [ Positive(Float), 1.0 ],
       offset: [ Float, 0.0 ],
       ticker: [ Ref(ContinuousTicker), () => BasicTicker.create() ],

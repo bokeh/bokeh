@@ -8,7 +8,8 @@ languages with a growing number of elements. Currently, you can use LaTeX
 and MathML notations with the following elements:
 
 * :ref:`Axis labels <ug_styling_plots_axes_labels>`
-* Tick labels using :class:`~bokeh.models.UnitTickFormatter` or
+* Tick labels using :class:`~bokeh.models.ScaledTickFormatter`,
+  :class:`~bokeh.models.SITickFormatter`, or
   :func:`~bokeh.models.Axis.major_label_overrides`
 * :ref:`ug_basic_annotations_titles`
 * :ref:`ug_basic_annotations_labels`
@@ -46,14 +47,19 @@ LaTeX on axis labels, titles, and labels
 
 LaTeX and tick labels
     To add a LaTeX unit or other repeated decoration to generated tick labels,
-    use a :class:`~bokeh.models.UnitTickFormatter`. Add a
-    :class:`~bokeh.models.UnitTicker` when tick selection also needs a scale
+    use a :class:`~bokeh.models.ScaledTickFormatter`. Add a
+    :class:`~bokeh.models.ScaledTicker` when tick selection also needs a scale
     or offset. The formatter accepts delimited LaTeX strings and combines the
     value, unit, and any fraction into one math expression. Labels therefore
     continue to update as the visible range changes:
 
     .. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_tick_labels.py
         :source-position: above
+
+    For SI units, :class:`~bokeh.models.SITickFormatter` similarly combines
+    the value, engineering prefix, and a LaTeX unit into one expression. It
+    can select a prefix from the visible ticks or keep a fixed prefix while
+    panning and zooming.
 
     The formatter's ``base_label`` supports signed offsets from a symbolic
     origin. For example, a base of :math:`\overline{x}` and a suffix of

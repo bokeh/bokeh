@@ -8,11 +8,13 @@ Bokeh version ``4.0.0`` is a major milestone of the Bokeh project.
 New features
 ------------
 
-* Added :class:`~bokeh.models.UnitTicker` and
-  :class:`~bokeh.models.UnitTickFormatter` for selecting and formatting ticks
+* Added :class:`~bokeh.models.ScaledTicker` and
+  :class:`~bokeh.models.ScaledTickFormatter` for selecting and formatting ticks
   in scaled or offset unit coordinates. They support repeated prefixes and
   suffixes, symbolic base labels, fractional coefficients, and TeX or MathML
   decorations without requiring fixed tick locations or custom JavaScript.
+* Added :class:`~bokeh.models.SITickFormatter` for displaying values with a
+  fixed or automatically selected SI prefix and a shared unit.
 
 Removals
 --------

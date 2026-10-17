@@ -1,9 +1,10 @@
 import {BasicTickFormatter} from "./basic_tick_formatter"
 import {TickFormatter} from "./tick_formatter"
-import {UnitTicker} from "../tickers/unit_ticker"
+import {ScaledTicker} from "../tickers/scaled_ticker"
 import type {GraphicsBox} from "core/graphics"
 import {InlineBox, TextBox} from "core/graphics"
 import {Fraction} from "core/util/math"
+import {tex_text} from "core/util/tex"
 import {isString} from "core/util/types"
 import {BaseText} from "../text/base_text"
 import {MathText, TeX} from "../text/math_text"
@@ -36,11 +37,11 @@ type TeXTemplate = {
 
 const math_label_cache_size = 128
 
-export namespace UnitTickFormatter {
+export namespace ScaledTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TickFormatter.Props & {
-    ticker: p.Property<UnitTicker | null>
+    ticker: p.Property<ScaledTicker | null>
     formatter: p.Property<TickFormatter>
     base_label: p.Property<TextLike>
     prefix: p.Property<TextLike>
@@ -52,10 +53,10 @@ export namespace UnitTickFormatter {
   }
 }
 
-export interface UnitTickFormatter extends UnitTickFormatter.Attrs {}
+export interface ScaledTickFormatter extends ScaledTickFormatter.Attrs {}
 
-export class UnitTickFormatter extends TickFormatter {
-  declare properties: UnitTickFormatter.Props
+export class ScaledTickFormatter extends TickFormatter {
+  declare properties: ScaledTickFormatter.Props
 
   protected _base_label_source: TextLike | undefined
   protected _base_label_text: BaseText | undefined
@@ -65,9 +66,13 @@ export class UnitTickFormatter extends TickFormatter {
   protected _suffix_text: BaseText | undefined
   protected _math_labels = new WeakMap<TickFormatter.Context, Map<string, TeX>>()
 
+  override get transform_kind(): "scaled" {
+    return "scaled"
+  }
+
   static {
-    this.define<UnitTickFormatter.Props>(({Bool, Int, Str, Ref, Or, Nullable, Positive, Enum}) => ({
-      ticker:          [ Nullable(Ref(UnitTicker)), null ],
+    this.define<ScaledTickFormatter.Props>(({Bool, Int, Str, Ref, Or, Nullable, Positive, Enum}) => ({
+      ticker:          [ Nullable(Ref(ScaledTicker)), null ],
       formatter:       [ Ref(TickFormatter), () => BasicTickFormatter.create() ],
       base_label:      [ Or(Str, Ref(BaseText)), "" ],
       prefix:          [ Or(Str, Ref(BaseText)), "" ],
@@ -113,10 +118,52 @@ export class UnitTickFormatter extends TickFormatter {
         this.connect(ticker.change, emit_changed)
       }
     })
+
+    let base_label = this.base_label
+    if (!isString(base_label)) {
+      this.connect(base_label.change, emit_changed)
+    }
+    this.on_change(this.properties.base_label, () => {
+      if (!isString(base_label)) {
+        this.disconnect(base_label.change, emit_changed)
+      }
+      base_label = this.base_label
+      if (!isString(base_label)) {
+        this.connect(base_label.change, emit_changed)
+      }
+    })
+
+    let prefix = this.prefix
+    if (!isString(prefix)) {
+      this.connect(prefix.change, emit_changed)
+    }
+    this.on_change(this.properties.prefix, () => {
+      if (!isString(prefix)) {
+        this.disconnect(prefix.change, emit_changed)
+      }
+      prefix = this.prefix
+      if (!isString(prefix)) {
+        this.connect(prefix.change, emit_changed)
+      }
+    })
+
+    let suffix = this.suffix
+    if (!isString(suffix)) {
+      this.connect(suffix.change, emit_changed)
+    }
+    this.on_change(this.properties.suffix, () => {
+      if (!isString(suffix)) {
+        this.disconnect(suffix.change, emit_changed)
+      }
+      suffix = this.suffix
+      if (!isString(suffix)) {
+        this.connect(suffix.change, emit_changed)
+      }
+    })
   }
 
-  protected get_ticker(opts: TickFormatter.Context): UnitTicker | null {
-    if (opts.ticker instanceof UnitTicker) {
+  protected get_ticker(opts: TickFormatter.Context): ScaledTicker | null {
+    if (opts.ticker instanceof ScaledTicker) {
       return opts.ticker
     }
     if (this.ticker != null) {
@@ -153,6 +200,9 @@ export class UnitTickFormatter extends TickFormatter {
   }
 
   override get_text_models(opts?: TickFormatter.Context): BaseText[] {
+    if (!this.formatter_is_compatible(this.formatter)) {
+      return this.formatter.get_text_models(opts)
+    }
     const models = [...this.formatter.get_text_models(opts)]
     if (this.has_text(this.base_label)) {
       models.push(this.text_model("base_label"))
@@ -210,22 +260,6 @@ export class UnitTickFormatter extends TickFormatter {
     return children.length == 1 ? children[0] : new InlineBox(children)
   }
 
-  protected tex_escape(text: string): string {
-    const substitutions: Dict<string> = {
-      "\\": "}\\backslash{}\\text{",
-      "{": "\\{",
-      "}": "\\}",
-      "#": "\\#",
-      $: "\\$",
-      "%": "\\%",
-      "&": "\\&",
-      _: "\\_",
-      "^": "\\^{}",
-      "~": "\\~{}",
-    }
-    return text.replace(/[\\{}#$%&_^~]/g, (value) => substitutions[value])
-  }
-
   protected tex_fragment(kind: Decoration, macros: Dict<string | [string, number]>): string {
     if (!this.has_text(this[kind])) {
       return ""
@@ -235,7 +269,7 @@ export class UnitTickFormatter extends TickFormatter {
       Object.assign(macros, model.macros)
       return model.text
     }
-    return `\\text{${this.tex_escape(this.text_value(this[kind]))}}`
+    return tex_text(this.text_value(this[kind]))
   }
 
   protected tex_template(): TeXTemplate | null {
@@ -265,7 +299,7 @@ export class UnitTickFormatter extends TickFormatter {
     const normalized = label.replaceAll("\u2212", "-")
     const sign = normalized.startsWith("-") ? "-" : ""
     const unsigned = sign == "" ? normalized : normalized.slice(1)
-    return `${sign}\\text{${this.tex_escape(unsigned)}}`
+    return `${sign}${tex_text(unsigned)}`
   }
 
   protected unsigned_label(info: LabelInfo): string {
@@ -419,11 +453,17 @@ export class UnitTickFormatter extends TickFormatter {
   }
 
   doFormat(ticks: number[], opts: TickFormatter.Context): string[] {
+    if (!this.check_formatter(this.formatter)) {
+      return this.formatter.doFormat(ticks, opts)
+    }
     const normalized = this.normalized(ticks, opts)
     return this.label_info(normalized, opts).map((info) => this.format_label(info))
   }
 
   override format_graphics(ticks: number[], opts: TickFormatter.Context): GraphicsBox[] {
+    if (!this.check_formatter(this.formatter)) {
+      return this.formatter.format_graphics(ticks, opts)
+    }
     const normalized = this.normalized(ticks, opts)
     const graphics = this.formatter.format_graphics(normalized, opts)
     const info = this.label_info(normalized, opts)

@@ -35,6 +35,7 @@ from ..core.enums import (
     NumeralLanguage,
     ResolutionType,
     RoundingFunction,
+    SIPrefix,
     TimedeltaResolutionType,
 )
 from ..core.has_props import abstract
@@ -49,10 +50,13 @@ from ..core.property.numeric import Positive
 from ..core.property.primitive import Bool, Int, String
 from ..core.property.text_like import TextLike
 from ..core.validation import error
-from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
+from ..core.validation.errors import (
+    INCOMPATIBLE_NESTED_TICK_FORMATTERS,
+    MISSING_MERCATOR_DIMENSION,
+)
 from ..model import Model
 from ..util.strings import format_docstring
-from .tickers import Ticker, UnitTicker
+from .tickers import ScaledTicker, Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -64,13 +68,14 @@ __all__ = (
     "CategoricalTickFormatter",
     "CustomJSTickFormatter",
     "DatetimeTickFormatter",
-    "TimedeltaTickFormatter",
     "LogTickFormatter",
     "MercatorTickFormatter",
     "NumeralTickFormatter",
     "PrintfTickFormatter",
+    "ScaledTickFormatter",
+    "SITickFormatter",
     "TickFormatter",
-    "UnitTickFormatter",
+    "TimedeltaTickFormatter",
 )
 
 #-----------------------------------------------------------------------------
@@ -139,10 +144,10 @@ class BasicTickFormatter(TickFormatter):
 
     """)
 
-class UnitTickFormatter(TickFormatter):
+class ScaledTickFormatter(TickFormatter):
     r''' Format ticks with optional unit conversion and repeated decoration.
 
-    When used with a ``UnitTicker``, tick values are normalized with
+    When used with a ``ScaledTicker``, tick values are normalized with
     ``(value - offset)/scale`` before being passed to ``formatter``. With any
     other ticker, values are formatted without normalization. Optional text
     can be added before or after each formatted value. This allows symbolic
@@ -156,16 +161,20 @@ class UnitTickFormatter(TickFormatter):
     embedded in one TeX expression; any richer graphics produced by the inner
     formatter are not retained in that mode.
 
+    ``ScaledTickFormatter`` and ``SITickFormatter`` cannot be nested. They
+    apply different display-coordinate transformations and composing them
+    would produce ambiguous labels.
+
     '''
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    ticker = Nullable(Instance(UnitTicker), default=None, help="""
-    An optional fallback ``UnitTicker`` used when formatting outside an axis.
+    ticker = Nullable(Instance(ScaledTicker), default=None, help="""
+    An optional fallback ``ScaledTicker`` used when formatting outside an axis.
 
-    An axis ``UnitTicker`` takes precedence over this fallback. If neither is
+    An axis ``ScaledTicker`` takes precedence over this fallback. If neither is
     present, values are formatted without normalization. This property is
     therefore normally left unset for axis formatters.
     """)
@@ -236,6 +245,85 @@ class UnitTickFormatter(TickFormatter):
     max_denominator = Positive(Int, default=16, help="""
     The largest denominator considered when ``use_fractions`` is true.
     """)
+
+    @error(INCOMPATIBLE_NESTED_TICK_FORMATTERS)
+    def _check_incompatible_nested_formatter(self) -> str | None:
+        if isinstance(self.formatter, SITickFormatter):
+            return "ScaledTickFormatter and SITickFormatter cannot be nested"
+        return None
+
+class SITickFormatter(TickFormatter):
+    r''' Format numeric ticks using an SI unit and prefix.
+
+    With ``prefix="auto"``, one shared engineering prefix is selected from
+    the full set of ticks and the scaled values are passed to ``formatter``.
+    For example, ticks spanning millions with ``unit="Hz"`` are displayed in
+    MHz. A fixed prefix such as ``prefix="k"`` can be used when the scale
+    should remain constant while panning or zooming.
+
+    Plain-text SI units are separated from their numeric values by a space. TeX
+    labels use a thin mathematical space instead. Strings with recognized
+    math-text delimiters and explicit text models are supported for ``unit``
+    by graphics-aware consumers such as axes.
+
+    Automatic selection considers only the values passed in one formatting
+    call. Axis rendering and ``v_compute`` pass a complete vector, whereas
+    ``compute`` and scalar widget consumers select a prefix from one value.
+    Use a fixed prefix when separately formatted values must remain directly
+    comparable. String-only consumers receive the unit's source text; when a
+    unit is TeX, graphics-aware consumers render the complete label as one TeX
+    expression. In that mode, the inner formatter's string output is safely
+    embedded in the expression; any richer graphics produced by the inner
+    formatter are not retained.
+
+    ``SITickFormatter`` and ``ScaledTickFormatter`` cannot be nested. They
+    apply different display-coordinate transformations and composing them
+    would produce ambiguous labels.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    # The descriptor accepts subclasses at runtime, but its generic type expects the exact base class.
+    formatter = Instance(TickFormatter, default=cast(Any, InstanceDefault(BasicTickFormatter)), help="""
+    The formatter applied after scaling tick values by the selected prefix.
+    """)
+
+    unit = TextLike(default="", help="""
+    The base SI unit appended to each formatted value, for example ``"Hz"``.
+    Strings containing recognized math-text delimiters and explicit text
+    models are supported.
+    """)
+
+    prefix = Nullable(Either(
+        Auto,
+        Enum(SIPrefix),
+    ), default="auto", help="""
+    The SI prefix used to scale and decorate tick values.
+
+    ``"auto"`` selects one shared engineering prefix from the full set of
+    ticks. A fixed prefix keeps the scale stable independently of the visible
+    tick values, while ``None`` disables prefix scaling.
+
+    Use the micro sign ``"µ"`` (U+00B5) for the micro prefix. The Greek letter
+    mu ``"μ"`` (U+03BC) and the ASCII approximation ``"u"`` are not accepted.
+    """)
+
+    unit_style = Enum("always", "except_zero", default="always", help="""
+    Controls whether the SI prefix and unit are appended to zero.
+
+    The default ``"always"`` decorates every label. ``"except_zero"`` leaves
+    an exact numeric zero undecorated while retaining the shared prefix chosen
+    from the complete tick vector.
+    """)
+
+    @error(INCOMPATIBLE_NESTED_TICK_FORMATTERS)
+    def _check_incompatible_nested_formatter(self) -> str | None:
+        if isinstance(self.formatter, ScaledTickFormatter):
+            return "SITickFormatter and ScaledTickFormatter cannot be nested"
+        return None
 
 class MercatorTickFormatter(BasicTickFormatter):
     ''' A ``TickFormatter`` for values in WebMercator units.

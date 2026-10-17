@@ -3,7 +3,7 @@ use of mathtext on axes and in ``Div`` objects.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.quad, bokeh.models.Div, bokeh.models.TeX,
-        bokeh.models.UnitTicker, bokeh.models.UnitTickFormatter
+        bokeh.models.ScaledTicker, bokeh.models.ScaledTickFormatter
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 
@@ -11,7 +11,8 @@ use of mathtext on axes and in ``Div`` objects.
 import numpy as np
 
 from bokeh.layouts import column
-from bokeh.models import Div, SingleIntervalTicker, TeX, UnitTicker, UnitTickFormatter
+from bokeh.models import (Div, ScaledTicker, ScaledTickFormatter,
+                          SingleIntervalTicker, TeX)
 from bokeh.plotting import figure, show
 
 p = figure(width=670, height=400, toolbar_location=None,
@@ -42,19 +43,19 @@ p.line(x, pdf, line_width=2, line_color="navy",
 p.xaxis.axis_label = "x"
 p.yaxis.axis_label = "PDF(x)"
 
-p.xaxis[0].ticker = UnitTicker(
+p.xaxis[0].ticker = ScaledTicker(
     scale=sigma,
     offset=xbar,
     ticker=SingleIntervalTicker(interval=1),
 )
-p.xaxis[0].formatter = UnitTickFormatter(
+p.xaxis[0].formatter = ScaledTickFormatter(
     base_label=TeX(text=r"\overline{x}"),
     suffix=TeX(text=r"\sigma"),
     unit_style="symbolic",
 )
 
-p.yaxis[0].ticker = UnitTicker(scale=1/sigma, desired_num_ticks=5)
-p.yaxis[0].formatter = UnitTickFormatter(
+p.yaxis[0].ticker = ScaledTicker(scale=1/sigma, desired_num_ticks=5)
+p.yaxis[0].formatter = ScaledTickFormatter(
     suffix=TeX(text=r"\,\sigma^{-1}"),
     unit_style="except_zero",
 )

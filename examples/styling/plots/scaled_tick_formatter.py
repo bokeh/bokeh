@@ -3,7 +3,7 @@ from math import pi, sin
 
 # Bokeh imports
 from bokeh.layouts import column
-from bokeh.models import AdaptiveTicker, UnitTicker, UnitTickFormatter
+from bokeh.models import AdaptiveTicker, ScaledTicker, ScaledTickFormatter
 from bokeh.plotting import figure, show
 
 
@@ -22,12 +22,12 @@ def make_plot(multiple: int, title: str):
     )
     p.line(x, [sin(value) for value in x], line_width=2)
 
-    p.xaxis[0].ticker = UnitTicker(
+    p.xaxis[0].ticker = ScaledTicker(
         scale=pi,
         ticker=AdaptiveTicker(base=2, mantissas=[1]),
         desired_num_ticks=9,
     )
-    p.xaxis[0].formatter = UnitTickFormatter(
+    p.xaxis[0].formatter = ScaledTickFormatter(
         suffix=r"$$\pi$$",
         unit_style="symbolic",
         use_fractions=True,

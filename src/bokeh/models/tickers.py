@@ -63,10 +63,10 @@ __all__ = (
     'LogTicker',
     'MercatorTicker',
     'MonthsTicker',
+    'ScaledTicker',
     'SingleIntervalTicker',
     'Ticker',
     'TimedeltaTicker',
-    'UnitTicker',
     'YearsTicker',
 )
 
@@ -329,7 +329,7 @@ class BasicTicker(AdaptiveTicker):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-class UnitTicker(ContinuousTicker):
+class ScaledTicker(ContinuousTicker):
     r''' Generate ticks in a scaled and offset unit coordinate system.
 
     One displayed unit corresponds to ``scale`` data-coordinate units, with
@@ -340,7 +340,7 @@ class UnitTicker(ContinuousTicker):
     This is useful for axes whose natural unit is a constant such as
     :math:`\pi`, or whose symbolic origin differs from zero.
 
-    For example, a ``UnitTicker(scale=pi)`` viewing the range from zero to
+    For example, a ``ScaledTicker(scale=pi)`` viewing the range from zero to
     ``8*pi`` presents the range from zero to eight to its wrapped ticker. A
     ``BasicTicker`` can therefore select integer multiples of :math:`\pi`
     instead of decimal approximations in the original coordinate system.
@@ -363,7 +363,7 @@ class UnitTicker(ContinuousTicker):
     The ticker used to select tick locations in normalized coordinates.
 
     The ``desired_num_ticks`` and ``num_minor_ticks`` values on this
-    ``UnitTicker`` are used when invoking the wrapped ticker.
+    ``ScaledTicker`` are used when invoking the wrapped ticker.
     """)
 
 class LogTicker(AdaptiveTicker):

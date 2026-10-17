@@ -140,9 +140,10 @@
       "MercatorTickFormatter",
       "NumeralTickFormatter",
       "PrintfTickFormatter",
+      "ScaledTickFormatter",
+      "SITickFormatter",
       "TickFormatter",
-      "TimedeltaTickFormatter",
-      "UnitTickFormatter"
+      "TimedeltaTickFormatter"
     ]
   },
   {
@@ -419,10 +420,10 @@
       "LogTicker",
       "MercatorTicker",
       "MonthsTicker",
+      "ScaledTicker",
       "SingleIntervalTicker",
       "Ticker",
       "TimedeltaTicker",
-      "UnitTicker",
       "YearsTicker"
     ]
   },

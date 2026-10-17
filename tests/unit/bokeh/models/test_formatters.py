@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.validation.check import check_integrity
 from bokeh.document import Document
 from bokeh.models import ColumnDataSource, TeX, Toggle
 
@@ -67,9 +68,9 @@ def test_custom_js_tick_formatter() -> None:
             return Math.floor(tick) + " + " + (tick % 1).toFixed(this.precision);
         """, cutoff=cutoff)
 
-def test_unit_tick_formatter() -> None:
-    ticker = bmt.UnitTicker(scale=3.14)
-    formatter = bmf.UnitTickFormatter(
+def test_scaled_tick_formatter() -> None:
+    ticker = bmt.ScaledTicker(scale=3.14)
+    formatter = bmf.ScaledTickFormatter(
         ticker=ticker,
         suffix="pi",
         unit_style="symbolic",
@@ -85,9 +86,9 @@ def test_unit_tick_formatter() -> None:
     assert formatter.fraction_style == "inline"
     assert formatter.max_denominator == 16
 
-def test_unit_tick_formatter_serialization() -> None:
-    ticker = bmt.UnitTicker(scale=3.14, offset=2.7, name="ticker")
-    formatter = bmf.UnitTickFormatter(
+def test_scaled_tick_formatter_serialization() -> None:
+    ticker = bmt.ScaledTicker(scale=3.14, offset=2.7, name="ticker")
+    formatter = bmf.ScaledTickFormatter(
         ticker=ticker,
         suffix="pi",
         unit_style="symbolic",
@@ -103,8 +104,8 @@ def test_unit_tick_formatter_serialization() -> None:
     copied_formatter = copy.get_model_by_name("formatter")
     copied_ticker = copy.get_model_by_name("ticker")
 
-    assert isinstance(copied_formatter, bmf.UnitTickFormatter)
-    assert isinstance(copied_ticker, bmt.UnitTicker)
+    assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
+    assert isinstance(copied_ticker, bmt.ScaledTicker)
     assert copied_formatter.ticker is copied_ticker
     assert copied_ticker.offset == 2.7
     assert copied_formatter.unit_style == "symbolic"
@@ -112,10 +113,10 @@ def test_unit_tick_formatter_serialization() -> None:
     assert copied_formatter.fraction_style == "inline"
     assert copied_formatter.max_denominator == 8
 
-def test_unit_tick_formatter_accepts_math_text_units() -> None:
+def test_scaled_tick_formatter_accepts_math_text_units() -> None:
     base_label = TeX(text=r"\overline{x}")
     suffix = TeX(text=r"\pi")
-    formatter = bmf.UnitTickFormatter(base_label=base_label, suffix=suffix, name="formatter")
+    formatter = bmf.ScaledTickFormatter(base_label=base_label, suffix=suffix, name="formatter")
 
     assert formatter.base_label is base_label
     assert formatter.suffix is suffix
@@ -125,14 +126,14 @@ def test_unit_tick_formatter_accepts_math_text_units() -> None:
     copy = Document.from_json(doc.to_json())
     copied_formatter = copy.get_model_by_name("formatter")
 
-    assert isinstance(copied_formatter, bmf.UnitTickFormatter)
+    assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
     assert isinstance(copied_formatter.base_label, TeX)
     assert copied_formatter.base_label.text == r"\overline{x}"
     assert isinstance(copied_formatter.suffix, TeX)
     assert copied_formatter.suffix.text == r"\pi"
 
-def test_unit_tick_formatter_serializes_delimited_math_text_strings() -> None:
-    formatter = bmf.UnitTickFormatter(
+def test_scaled_tick_formatter_serializes_delimited_math_text_strings() -> None:
+    formatter = bmf.ScaledTickFormatter(
         base_label=r"$$\overline{x}$$",
         prefix=r"$$\Delta$$",
         suffix=r"$$\pi$$",
@@ -144,10 +145,62 @@ def test_unit_tick_formatter_serializes_delimited_math_text_strings() -> None:
     copy = Document.from_json(doc.to_json())
     copied_formatter = copy.get_model_by_name("formatter")
 
-    assert isinstance(copied_formatter, bmf.UnitTickFormatter)
+    assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
     assert copied_formatter.base_label == r"$$\overline{x}$$"
     assert copied_formatter.prefix == r"$$\Delta$$"
     assert copied_formatter.suffix == r"$$\pi$$"
+
+def test_si_tick_formatter() -> None:
+    formatter = bmf.SITickFormatter(unit="Hz", prefix="auto")
+
+    assert isinstance(formatter.formatter, bmf.BasicTickFormatter)
+    assert formatter.unit == "Hz"
+    assert formatter.prefix == "auto"
+    assert formatter.unit_style == "always"
+
+def test_si_tick_formatter_serialization() -> None:
+    unit = TeX(text=r"\mathrm{Hz}")
+    formatter = bmf.SITickFormatter(unit=unit, prefix="M", unit_style="except_zero", name="formatter")
+    doc = Document()
+    doc.add_root(formatter)
+
+    copy = Document.from_json(doc.to_json())
+    copied_formatter = copy.get_model_by_name("formatter")
+
+    assert isinstance(copied_formatter, bmf.SITickFormatter)
+    assert isinstance(copied_formatter.unit, TeX)
+    assert copied_formatter.unit.text == r"\mathrm{Hz}"
+    assert copied_formatter.prefix == "M"
+    assert copied_formatter.unit_style == "except_zero"
+
+def test_si_tick_formatter_serializes_disabled_prefix() -> None:
+    formatter = bmf.SITickFormatter(unit="Hz", prefix=None, name="formatter")
+    doc = Document()
+    doc.add_root(formatter)
+
+    copy = Document.from_json(doc.to_json())
+    copied_formatter = copy.get_model_by_name("formatter")
+
+    assert isinstance(copied_formatter, bmf.SITickFormatter)
+    assert copied_formatter.prefix is None
+
+@pytest.mark.parametrize("prefix", ["h", "da", "u", "μ"])
+def test_si_tick_formatter_rejects_non_engineering_prefixes(prefix: str) -> None:
+    with pytest.raises(ValueError):
+        bmf.SITickFormatter(prefix=prefix)
+
+def test_si_and_scaled_tick_formatters_cannot_be_nested() -> None:
+    si_outer = bmf.SITickFormatter(formatter=bmf.ScaledTickFormatter())
+    scaled_outer = bmf.ScaledTickFormatter(formatter=bmf.SITickFormatter())
+
+    si_issues = check_integrity([si_outer]).error
+    scaled_issues = check_integrity([scaled_outer]).error
+    assert len(si_issues) == 1
+    assert si_issues[0].code == 1032
+    assert si_issues[0].name == "INCOMPATIBLE_NESTED_TICK_FORMATTERS"
+    assert len(scaled_issues) == 1
+    assert scaled_issues[0].code == 1032
+    assert scaled_issues[0].name == "INCOMPATIBLE_NESTED_TICK_FORMATTERS"
 
 #-----------------------------------------------------------------------------
 # Dev API
