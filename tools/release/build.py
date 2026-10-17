@@ -73,7 +73,7 @@ def build_jupyter(config: Config, system: System) -> ActionReturn:
 
     '''
     try:
-        system.run("bash tools/ci/build_jupyter.sh")
+        system.run("pixi run --locked --environment release-build jupyter-build")
         return PASSED("Jupyter frontend build succeeded")
     except RuntimeError as e:
         return FAILED("Jupyter frontend build did NOT succeed", details=e.args)
