@@ -599,7 +599,19 @@ the BokehJS devtools server. This system requires the Chrome web browser to be
 available on your system. Use the BokehJS devtools server to run tests and
 review the visual tests' output.
 
-First, start the devtools server.
+First, build the library and test bundles. Inside a Pixi shell, from the
+``bokehjs`` subdirectory, run:
+
+.. code-block:: sh
+
+    node make build:all
+
+Starting the devtools server does not build the tests. After changing tests,
+run ``node make test:build`` to rebuild their bundles. Missing bundles cause
+404 responses for URLs such as ``/static/test/integration.js``, followed by
+``Tests is not defined`` in the browser console.
+
+Then start the devtools server.
 
 **Standard terminal:**
 
