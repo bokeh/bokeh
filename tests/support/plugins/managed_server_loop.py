@@ -21,11 +21,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 from collections.abc import Mapping
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
+    AsyncIterator,
     ContextManager,
     Iterator,
     Protocol,
@@ -33,6 +35,7 @@ from typing import (
 
 # External imports
 import pytest
+from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from bokeh.server.server import Server
@@ -48,6 +51,7 @@ pytest_plugins = ()
 
 __all__ = (
     'ManagedServerLoop',
+    'server_loop',
 )
 
 #-----------------------------------------------------------------------------
@@ -59,7 +63,19 @@ class MSL(Protocol):
             **server_kwargs: Any) -> ContextManager[Server]: ...
 
 @pytest.fixture
-def ManagedServerLoop() -> MSL:
+def server_loop() -> Iterator[IOLoop]:
+    loop = IOLoop(make_current=False)
+    asyncio.set_event_loop(loop.asyncio_loop)
+    try:
+        yield loop
+    finally:
+        loop.close(all_fds=True)
+        asyncio.set_event_loop(None)
+
+@pytest.fixture
+async def ManagedServerLoop() -> AsyncIterator[MSL]:
+    stopped: list[Server] = []
+
     @contextmanager
     def msl(application: Application | Mapping[str, Application], port: int | None = None,
             **server_kwargs: Any) -> Iterator[Server]:
@@ -67,10 +83,20 @@ def ManagedServerLoop() -> MSL:
             port = 0
         server = Server(application, port=port, **server_kwargs)
         server.start()
-        yield server
-        server.unlisten()
-        server.stop()
-    return msl
+        try:
+            yield server
+        finally:
+            server.unlisten()
+            server.stop()
+            stopped.append(server)
+
+    try:
+        yield msl
+    finally:
+        # stop() schedules cleanup when called on the test's running loop.
+        # Finish it before pytest closes that loop and cancels its worker tasks.
+        for server in stopped:
+            await server.wait_until_stopped()
 
 #-----------------------------------------------------------------------------
 # Dev API

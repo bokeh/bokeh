@@ -16,10 +16,13 @@ pytest_plugins = (
 # Standard library imports
 import importlib
 import importlib.util
+import os
 import sys
 import sysconfig
 from collections.abc import Iterator
+from pathlib import Path
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 # External imports
 import _pytest
@@ -99,6 +102,34 @@ def _assert_gil_disabled() -> None:
     is_gil_enabled = getattr(sys, "_is_gil_enabled", None)
     assert is_gil_enabled is not None
     assert not is_gil_enabled()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def chromedriver_startup_logs() -> Iterator[None]:
+    directory = os.environ.get("BOKEH_CHROMEDRIVER_LOG_DIR")
+    if directory is None:
+        yield
+        return
+
+    from selenium.webdriver.chrome.service import Service
+
+    logs = Path(directory)
+    logs.mkdir(parents=True, exist_ok=True)
+    original_init = Service.__init__
+
+    def diagnostic_init(self, *args, **kwargs):
+        # Keep the initial failure and any existing CI retry in separate files.
+        worker = os.environ.get("PYTEST_XDIST_WORKER", "main")
+        prefix = logs / f"{worker}-{os.getpid()}-{uuid4().hex}"
+        prefix.with_suffix(".test.txt").write_text(os.environ.get("PYTEST_CURRENT_TEST", "unknown"), encoding="utf-8")
+        kwargs["service_args"] = [*(kwargs.get("service_args") or []), "--verbose", f"--log-path={prefix}.driver.log"]
+        # Chrome on Windows cannot inherit stderr from ChromeDriver.
+        kwargs["env"] = {**(kwargs.get("env") or os.environ), "CHROME_LOG_FILE": f"{prefix}.chrome.log"}
+        original_init(self, *args, **kwargs)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(Service, "__init__", diagnostic_init)
+        yield
 
 
 @pytest.fixture(scope="session", autouse=True)

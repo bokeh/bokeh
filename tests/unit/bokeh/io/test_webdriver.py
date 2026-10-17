@@ -21,6 +21,11 @@ if not pytest.importorskip("selenium"):
 
 # Standard library imports
 import os
+import subprocess
+import sys
+import threading
+from collections.abc import Iterator
+from unittest.mock import Mock
 
 # External imports
 import selenium.webdriver.chrome.webdriver
@@ -34,6 +39,18 @@ import bokeh.io.webdriver as biw # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
+pytestmark = pytest.mark.xdist_group(name="webdriver")
+
+
+@pytest.fixture(autouse=True)
+def webdriver_state(monkeypatch: pytest.MonkeyPatch) -> Iterator[biw._WebdriverState]:
+    state = biw._WebdriverState()
+    monkeypatch.setattr(biw, "webdriver_control", state)
+    try:
+        yield state
+    finally:
+        state.cleanup()
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -42,21 +59,34 @@ import bokeh.io.webdriver as biw # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
+def test_log_console_skips_firefox() -> None:
+    driver = Mock(capabilities={"browserName": "firefox"})
+    driver.get_log.side_effect = WebDriverException("HTTP method not allowed")
+    biw._log_console(driver)
+    driver.get_log.assert_not_called()
+
+
+def test_log_console_keeps_chromium_warnings(caplog: pytest.LogCaptureFixture) -> None:
+    driver = Mock(capabilities={"browserName": "chrome"})
+    driver.get_log.return_value = [
+        {"level": "WARNING", "message": "render warning"},
+        {"level": "INFO", "message": "informational message"},
+    ]
+    biw._log_console(driver)
+    driver.get_log.assert_called_once_with("browser")
+    assert "render warning" in caplog.text
+    assert "informational message" not in caplog.text
+
+
 @pytest.mark.selenium
 def test_create_firefox_webdriver() -> None:
-    d = biw.create_firefox_webdriver()
-    try:
-        assert isinstance(d, selenium.webdriver.firefox.webdriver.WebDriver)
-    finally:
-        d.quit()
+    d = biw.webdriver_control.create("firefox")
+    assert isinstance(d, selenium.webdriver.firefox.webdriver.WebDriver)
 
 @pytest.mark.selenium
 def test_create_chromium_webdriver() -> None:
-    d = biw.create_chromium_webdriver()
-    try:
-        assert isinstance(d, selenium.webdriver.chrome.webdriver.WebDriver)
-    finally:
-        d.quit()
+    d = biw.webdriver_control.create("chromium")
+    assert isinstance(d, selenium.webdriver.chrome.webdriver.WebDriver)
 
 _driver_map = {
     "firefox": selenium.webdriver.firefox.webdriver.WebDriver,
@@ -122,6 +152,88 @@ class Test_webdriver_control:
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def test_cleanup_all_drivers(webdriver_state: biw._WebdriverState, monkeypatch: pytest.MonkeyPatch) -> None:
+    drivers = [Mock(), Mock(), Mock()]
+    monkeypatch.setattr(webdriver_state, "_create", Mock(side_effect=drivers))
+    current = webdriver_state.get()
+    webdriver_state.create()
+    webdriver_state.create()
+    webdriver_state.cleanup()
+    webdriver_state.cleanup()
+    assert webdriver_state.current is None
+    assert webdriver_state._drivers == set()
+    assert webdriver_state._quitters == {}
+    assert current is drivers[0]
+    for driver in drivers:
+        driver.quit.assert_called_once_with()
+        driver.service.process.kill.assert_not_called()
+
+
+def test_cleanup_continues_after_quit_error(webdriver_state: biw._WebdriverState, monkeypatch: pytest.MonkeyPatch) -> None:
+    drivers = [Mock(), Mock()]
+    for driver in drivers:
+        driver.quit.side_effect = RuntimeError("quit failed")
+    monkeypatch.setattr(webdriver_state, "_create", Mock(side_effect=drivers))
+    webdriver_state.get()
+    webdriver_state.create()
+    webdriver_state.cleanup()
+    assert webdriver_state.current is None
+    assert not webdriver_state._drivers
+    for driver in drivers:
+        driver.quit.assert_called_once_with()
+
+
+def test_terminate_stuck_quit(webdriver_state: biw._WebdriverState, monkeypatch: pytest.MonkeyPatch) -> None:
+    release = threading.Event()
+    driver = Mock()
+    driver.quit.side_effect = release.wait
+    driver.service.process.poll.return_value = None
+    driver.service.process.kill.side_effect = release.set
+    monkeypatch.setattr(webdriver_state, "_create", Mock(return_value=driver))
+    monkeypatch.setattr(biw, "_WEBDRIVER_QUIT_TIMEOUT", 0.05)
+    webdriver_state.get()
+    try:
+        webdriver_state.reset()
+        assert webdriver_state.current is None
+        assert not webdriver_state._drivers
+        driver.service.process.kill.assert_called_once_with()
+        driver.service.process.wait.assert_called_once_with(timeout=5)
+    finally:
+        release.set()
+
+
+def test_terminate_clears_current_on_error(webdriver_state: biw._WebdriverState, monkeypatch: pytest.MonkeyPatch) -> None:
+    driver = Mock()
+    driver.quit.side_effect = RuntimeError("quit failed")
+    monkeypatch.setattr(webdriver_state, "_create", Mock(return_value=driver))
+    webdriver_state.get()
+    with pytest.raises(RuntimeError, match="quit failed"):
+        webdriver_state.reset()
+    assert webdriver_state.current is None
+    assert not webdriver_state._drivers
+    webdriver_state.cleanup()
+
+
+def test_stuck_quit_at_exit() -> None:
+    # Exercise the real atexit callback in a separate interpreter. A non-daemon
+    # quitter or a thread started inside atexit would fail this regression.
+    code = """
+import threading
+from unittest.mock import Mock
+import bokeh.io.webdriver as biw
+biw._WEBDRIVER_QUIT_TIMEOUT = 0.05
+driver = Mock()
+driver.quit.side_effect = threading.Event().wait
+driver.service.process.poll.return_value = None
+driver.service.process.kill.side_effect = lambda: print('killed', flush=True)
+biw.webdriver_control._create = lambda *args, **kwargs: driver
+biw.webdriver_control.get()
+"""
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=15)
+    assert result.returncode == 0, result.stderr
+    assert "killed" in result.stdout
+    assert "Exception ignored in atexit callback" not in result.stderr
 
 #-----------------------------------------------------------------------------
 # Code

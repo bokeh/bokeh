@@ -17,8 +17,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import asyncio
 import logging
+
+# External imports
+from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from bokeh.application import Application
@@ -39,16 +41,14 @@ logging.basicConfig(level=logging.DEBUG)
 # test_client_server.py is the test for the main functionality
 # of the server, here we're testing some properties in isolation
 class TestServer:
-    def test_port(self) -> None:
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        server = Server(Application(), port=1234)
+    def test_port(self, server_loop: IOLoop) -> None:
+        server = Server(Application(), port=1234, io_loop=server_loop)
         assert server.port == 1234
         server.unlisten()
         server.stop()
 
-    def test_address(self) -> None:
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        server = Server(Application(), address='0.0.0.0', port=0)
+    def test_address(self, server_loop: IOLoop) -> None:
+        server = Server(Application(), address='0.0.0.0', port=0, io_loop=server_loop)
         assert server.address == '0.0.0.0'
         server.unlisten()
         server.stop()

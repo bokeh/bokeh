@@ -100,8 +100,13 @@ class TestClientServer:
             session = ClientSession(session_id=ID("test_minimal_connect_and_disconnect"),
                                     io_loop = server.io_loop,
                                     websocket_url = ws_url(server))
-            session.connect()
-            assert session.connected
+            try:
+                session.connect()
+                assert session.connected
+            finally:
+                session.close()
+                session._loop_until_closed()
+            assert not session.connected
 
     def test_disconnect_on_error(self, ManagedServerLoop: MSL) -> None:
         application = Application()
