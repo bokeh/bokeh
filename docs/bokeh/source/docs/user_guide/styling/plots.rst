@@ -412,6 +412,12 @@ different situations:
 
 * |LogTickFormatter| --- Default formatter for log axes.
 
+* |SITickFormatter| --- Formatter for scaling values to a fixed or
+  automatically selected SI prefix and appending a unit.
+
+* |ScaledTickFormatter| --- Formatter for adding units and other repeated
+  decorations to automatically generated tick labels.
+
 These default tick formatters do not expose many configurable properties.
 To control tick formatting at a finer-grained level, use one of the
 |NumeralTickFormatter| or |PrintfTickFormatter| described below.
@@ -446,6 +452,107 @@ format strings.
 
 For full details about formats, see the full |PrintfTickFormatter|
 documentation in the |reference guide|.
+
+``SITickFormatter``
+'''''''''''''''''''
+
+Use an |SITickFormatter| to display one shared engineering prefix on the
+visible ticks without changing the stored data. By default, values are
+interpreted in base SI units. With ``prefix="auto"``, the
+largest finite absolute tick determines the prefix, so all labels on an axis
+remain directly comparable. Set a specific prefix such as ``"k"`` to keep the
+scale fixed while panning or zooming, or use ``None`` to disable prefix
+scaling:
+
+.. bokeh-plot:: __REPO__/examples/styling/plots/si_tick_formatter.py
+    :source-position: above
+
+For data stored in a different unit multiple, set ``input_scale`` to the
+positive multiplier that converts values to the base unit. For example, data
+stored in megahertz can use the same automatic prefix selection as data in
+hertz:
+
+.. code-block:: python
+
+    p.xaxis.formatter = SITickFormatter(unit="Hz", input_scale=1e6)
+
+Input values are multiplied by ``input_scale`` before prefix selection and
+formatting, including when a fixed prefix or ``prefix=None`` is used. The
+default is ``1``, for data already in base units. This affects labels only;
+data, tick locations, and hover values retain their original units. The
+``unit`` string names the base unit and is not parsed for conversion information.
+
+The default ``unit_style="always"`` decorates every label. Set
+``unit_style="except_zero"`` to leave an exact numeric zero undecorated while
+keeping the shared SI prefix on the other labels.
+
+Astrophysical data often combines SI storage with more readable unit
+multiples. This blackbody-radiation example keeps frequency in hertz and
+spectral radiance in SI data coordinates, while its formatters display
+petahertz and nanowatt multiples. The conversion remains an axis concern
+rather than being applied to every data array:
+
+.. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_blackbody_radiation.py
+    :source-position: above
+
+Automatic selection considers all values in one formatting call. Axes and
+``v_compute`` supply a vector, while ``compute`` and scalar widgets format one
+value at a time. Use a fixed prefix when separately formatted values must use
+the same scale. A TeX unit makes the complete numeric label, prefix, and unit
+one TeX expression. ``SITickFormatter`` and ``ScaledTickFormatter`` cannot be
+nested because they apply different display-coordinate transformations.
+
+``ScaledTickFormatter``
+'''''''''''''''''''''''
+
+Use a |ScaledTickFormatter| to add a common prefix, unit, or symbolic origin to
+automatically generated labels. Pair it with a |ScaledTicker| when an axis has
+a natural coordinate system that differs from its data coordinates. The
+ticker selects nice values after applying ``(value - origin)/scale``, and the
+formatter uses the same transform to display the resulting coefficients.
+Fraction mode can display small rational coefficients in forms such as
+:math:`\pi/2` and :math:`3\pi/4`, while larger ranges naturally produce labels
+such as :math:`8\pi`. This example uses a base-two |AdaptiveTicker| to prefer
+halves and quarters without explicitly supplying tick locations or labels. Its
+``unit_style="symbolic"`` setting omits the coefficient one, leaves zero
+undecorated, and places ``π`` in fraction numerators. The unit is written as
+``r"$$\pi$$"`` so that the unit is rendered as math text; plain Unicode text
+such as ``"π"`` and explicit text models such as ``TeX(text=r"\pi")`` are also
+accepted. When the decorations use TeX, the coefficient, unit, and any fraction
+are combined into one TeX expression, so their typography and baselines remain
+consistent. The default ``fraction_style="inline"`` uses the compact
+:math:`\pi/2` form shown here; set ``fraction_style="stacked"`` for a TeX
+fraction such as :math:`\frac{\pi}{2}`:
+
+.. bokeh-plot:: __REPO__/examples/styling/plots/scaled_tick_formatter.py
+    :source-position: above
+
+The same models can express non-symbolic scales. For example,
+``ScaledTicker(scale=pi/180)`` with a ``"°"`` unit selects round degree
+values for data stored in radians, while ``ScaledTicker(scale=1000)`` with a
+``"k"`` unit labels values in thousands. Set ``origin`` to keep data in its
+original coordinates while expressing ticks relative to a different origin;
+for example, ``scale=sigma`` and ``origin=xbar`` select ticks at standard
+deviations around a sample mean. Set ``origin_label`` on the formatter to
+display that origin symbolically, such as ``TeX(text=r"\overline{x}")``. The
+outer ``ScaledTicker`` supplies ``desired_num_ticks`` and ``num_minor_ticks``
+when invoking its wrapped ticker.
+
+To display units such as amperes or ohms without rescaling, a
+``ScaledTickFormatter(unit=...)`` can be used with the axis's ordinary ticker;
+no scale-one wrapper is needed. The default ``unit_style="always"`` places
+literal units after the complete value, including a fraction, while
+``unit_style="except_zero"`` leaves zero undecorated. Fraction mode is opt-in
+and is used only when every visible tick is close to a fraction bounded by
+``max_denominator``; otherwise the complete set retains the wrapped formatter's
+decimal representation.
+
+TeX decorations safely embed the string output of the inner formatter in one
+TeX label. Rich graphics from an inner formatter are retained when decorations
+are plain text, but not when the complete label is converted to TeX. If TeX and
+another math-text backend such as MathML are mixed, Bokeh lays out the
+decorations separately. Math-text rendering is available to graphics-aware
+consumers such as axes; string-only formatter consumers receive source text.
 
 ``CustomJSTickFormatter``
 '''''''''''''''''''''''''
@@ -853,6 +960,7 @@ You can see a complete example with output in the section
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
 .. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
+.. |AdaptiveTicker| replace:: :class:`~bokeh.models.tickers.AdaptiveTicker`
 .. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
 .. |CustomJSTicker| replace:: :class:`~bokeh.models.tickers.CustomJSTicker`
@@ -860,6 +968,9 @@ You can see a complete example with output in the section
 .. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+.. |SITickFormatter| replace:: :class:`~bokeh.models.formatters.SITickFormatter`
+.. |ScaledTicker| replace:: :class:`~bokeh.models.tickers.ScaledTicker`
+.. |ScaledTickFormatter| replace:: :class:`~bokeh.models.formatters.ScaledTickFormatter`
 .. |legend| replace:: :class:`~bokeh.plotting.figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.figure.grid`
 .. |xgrid|  replace:: :class:`~bokeh.plotting.figure.xgrid`

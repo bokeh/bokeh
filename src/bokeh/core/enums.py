@@ -147,6 +147,7 @@ __all__ = (
     'Resizable',
     'ResolutionType',
     'RoundingFunction',
+    'SIPrefix',
     'ScrollbarPolicy',
     'SelectionMode',
     'SizingMode',
@@ -576,6 +577,10 @@ ResolutionType = _string_enumeration(ResolutionTypeType)
 type RoundingFunctionType = Literal["round", "nearest", "floor", "rounddown", "ceil", "roundup"]
 #: Specify a policy for  how numbers should be rounded.
 RoundingFunction = _string_enumeration(RoundingFunctionType)
+
+type SIPrefixType = Literal["Q", "R", "Y", "Z", "E", "P", "T", "G", "M", "k", "m", "µ", "n", "p", "f", "a", "z", "y", "r", "q"]
+#: Specify an engineering SI prefix.
+SIPrefix = _string_enumeration(SIPrefixType)
 
 type ScrollbarPolicyType = Literal["auto", "visible", "hidden"]
 #: Scrollbar policies.

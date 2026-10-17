@@ -94,6 +94,9 @@ validation checks.
 1027 *(REPEATED_LAYOUT_CHILD)*
     The same model can't be used multiple times in a layout.
 
+1032 *(INCOMPATIBLE_NESTED_TICK_FORMATTERS)*
+    ``SITickFormatter`` and ``ScaledTickFormatter`` cannot be nested.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -238,6 +241,10 @@ NON_MATCHING_SCALE_BAR_UNIT = Error(
     1031,
     "NON_MATCHING_SCALE_BAR_UNIT",
     "ScaleBar.unit must be an element of ScaleBar's units of measurement basis")
+INCOMPATIBLE_NESTED_TICK_FORMATTERS = Error(
+    1032,
+    "INCOMPATIBLE_NESTED_TICK_FORMATTERS",
+    "SITickFormatter and ScaledTickFormatter cannot be nested")
 EXT = Error(
     9999,
     "EXT",

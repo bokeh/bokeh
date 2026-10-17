@@ -17,10 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.validation.check import check_integrity
 from bokeh.models import (
+    BasicTicker,
     FixedTicker,
     MathText,
     PlainText,
+    ScaledTickFormatter,
     TeX,
 )
 
@@ -44,6 +47,11 @@ def test_ticker_accepts_number_sequences() -> None:
     a.ticker = [-10, 0, 10, 20.7]
     assert isinstance(a.ticker, FixedTicker)
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
+
+def test_scaled_tick_formatter_accepts_unscaled_axis_ticker() -> None:
+    axis = bma.LinearAxis(ticker=BasicTicker(), formatter=ScaledTickFormatter(unit="u"))
+
+    assert check_integrity([axis]).warning == []
 
 def test_axis_label_with_delimiters_do_not_convert_to_math_text_model() -> None:
     a = bma.Axis(axis_label=r"$$\sin(x+1)$$")

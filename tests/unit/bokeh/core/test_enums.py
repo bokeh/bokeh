@@ -88,6 +88,7 @@ ALL = (
     'Resizable',
     'ResolutionType',
     'RoundingFunction',
+    'SIPrefix',
     'ScrollbarPolicy',
     'SelectionMode',
     'SizingMode',
@@ -329,6 +330,9 @@ class Test_bce:
 
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+    def test_SIPrefix(self) -> None:
+        assert tuple(bce.SIPrefix) == ("Q", "R", "Y", "Z", "E", "P", "T", "G", "M", "k", "m", "µ", "n", "p", "f", "a", "z", "y", "r", "q")
 
     def test_RadiusDimension(self) -> None:
         assert tuple(bce.RadiusDimension) == ("x", "y", "max", "min")

@@ -12,14 +12,13 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, grid, row
-from bokeh.models import ColumnDataSource, Div, Slider
+from bokeh.models import ColumnDataSource, Div, SITickFormatter, Slider
 from bokeh.plotting import figure
 
 from . import audio
 from .audio import MAX_FREQ, NUM_BINS, TIMESLICE
 from .waterfall import WaterfallRenderer
 
-MAX_FREQ_KHZ = MAX_FREQ*0.001
 NUM_GRAMS = 800
 GRAM_LENGTH = 512
 TILE_WIDTH = 200
@@ -35,10 +34,11 @@ desc = Div(text=open(filename).read(),
 waterfall_renderer = WaterfallRenderer(palette=PALETTE, num_grams=NUM_GRAMS,
                                        gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH)
 waterfall_plot = figure(width=1000, height=300,
-                        x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ_KHZ], **PLOTARGS)
+                        x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ], **PLOTARGS)
 waterfall_plot.grid.grid_line_color = None
 waterfall_plot.background_fill_color = "#024768"
 waterfall_plot.renderers.append(waterfall_renderer)
+waterfall_plot.yaxis.formatter = SITickFormatter(unit="Hz", unit_style="except_zero")
 
 signal_source = ColumnDataSource(data=dict(t=[], y=[]))
 signal_plot = figure(width=600, height=200, title="Signal",
@@ -48,10 +48,11 @@ signal_plot.line(x="t", y="y", line_color="#024768", source=signal_source)
 
 spectrum_source = ColumnDataSource(data=dict(f=[], y=[]))
 spectrum_plot = figure(width=600, height=200, title="Power Spectrum",
-                       y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ_KHZ],
+                       y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ],
                        y_axis_type="log", **PLOTARGS)
 spectrum_plot.background_fill_color = "#eaeaea"
 spectrum_plot.line(x="f", y="y", line_color="#024768", source=spectrum_source)
+spectrum_plot.xaxis.formatter = SITickFormatter(unit="Hz", unit_style="except_zero")
 
 eq_angle = 2*np.pi/NUM_BINS
 eq_range = np.arange(EQ_CLAMP, dtype=np.float64)
@@ -83,7 +84,7 @@ def update():
 
     # seems to be a problem with Array property, using List for now
     waterfall_renderer.latest = spectrum.tolist()
-    waterfall_plot.y_range.end = freq.value*0.001
+    waterfall_plot.y_range.end = freq.value
 
     # the if-elses below are small optimization: avoid computing and sending
     # all the x-values, if the length has not changed
@@ -97,9 +98,9 @@ def update():
     if len(spectrum) == len(spectrum_source.data['y']):
         spectrum_source.data['y'] = spectrum
     else:
-        f = np.linspace(0, MAX_FREQ_KHZ, len(spectrum))
+        f = np.linspace(0, MAX_FREQ, len(spectrum))
         spectrum_source.data = dict(f=f, y=spectrum)
-    spectrum_plot.x_range.end = freq.value*0.001
+    spectrum_plot.x_range.end = freq.value
 
     alphas = []
     for x in bins:
