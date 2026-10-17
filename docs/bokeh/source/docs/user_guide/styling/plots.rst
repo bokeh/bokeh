@@ -456,8 +456,9 @@ documentation in the |reference guide|.
 ``SITickFormatter``
 '''''''''''''''''''
 
-Use an |SITickFormatter| to keep data in base SI units while displaying one
-shared engineering prefix on the visible ticks. With ``prefix="auto"``, the
+Use an |SITickFormatter| to display one shared engineering prefix on the
+visible ticks without changing the stored data. By default, values are
+interpreted in base SI units. With ``prefix="auto"``, the
 largest finite absolute tick determines the prefix, so all labels on an axis
 remain directly comparable. Set a specific prefix such as ``"k"`` to keep the
 scale fixed while panning or zooming, or use ``None`` to disable prefix
@@ -465,6 +466,21 @@ scaling:
 
 .. bokeh-plot:: __REPO__/examples/styling/plots/si_tick_formatter.py
     :source-position: above
+
+For data stored in a different unit multiple, set ``input_scale`` to the
+positive multiplier that converts values to the base unit. For example, data
+stored in megahertz can use the same automatic prefix selection as data in
+hertz:
+
+.. code-block:: python
+
+    p.xaxis.formatter = SITickFormatter(unit="Hz", input_scale=1e6)
+
+Input values are multiplied by ``input_scale`` before prefix selection and
+formatting, including when a fixed prefix or ``prefix=None`` is used. The
+default is ``1``, for data already in base units. This affects labels only;
+data, tick locations, and hover values retain their original units. The
+``unit`` string names the base unit and is not parsed for conversion information.
 
 The default ``unit_style="always"`` decorates every label. Set
 ``unit_style="except_zero"`` to leave an exact numeric zero undecorated while

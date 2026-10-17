@@ -3,7 +3,8 @@ Automatic SI prefixes
 ---------------------
 
 Use ``SITickFormatter`` to select one SI prefix for all visible ticks while
-keeping the underlying data in base units.
+keeping the underlying data in megahertz. The ``input_scale`` converts values
+to hertz for formatting without changing the data.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.SITickFormatter, bokeh.plotting.figure.line
@@ -16,10 +17,10 @@ import numpy as np
 from bokeh.models import SITickFormatter
 from bokeh.plotting import figure, show
 
-frequency = np.linspace(0, 5e6, 800)
+frequency = np.linspace(0, 5, 800)  # MHz
 response = (
-    np.exp(-0.5*((frequency - 1.1e6)/1.8e5)**2)
-    + 0.65*np.exp(-0.5*((frequency - 3.4e6)/3.2e5)**2)
+    np.exp(-0.5*((frequency - 1.1)/0.18)**2)
+    + 0.65*np.exp(-0.5*((frequency - 3.4)/0.32)**2)
 )
 
 p = figure(
@@ -32,7 +33,7 @@ p = figure(
     active_scroll="xwheel_zoom",
 )
 p.line(frequency, response, line_width=3)
-p.xaxis.formatter = SITickFormatter(unit="Hz")
+p.xaxis.formatter = SITickFormatter(unit="Hz", input_scale=1e6)
 p.y_range.start = 0
 
 show(p)

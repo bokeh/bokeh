@@ -2957,6 +2957,7 @@
       name: "BasicTickFormatter",
       attributes: {},
     },
+    input_scale: 1.0,
     unit: "",
     prefix: "auto",
     unit_style: "always",

@@ -155,6 +155,7 @@ def test_si_tick_formatter() -> None:
     formatter = bmf.SITickFormatter(unit="Hz", prefix="auto")
 
     assert isinstance(formatter.formatter, bmf.BasicTickFormatter)
+    assert formatter.input_scale == 1
     assert formatter.unit == "Hz"
     assert formatter.prefix == "auto"
     assert formatter.unit_style == "always"
@@ -184,6 +185,26 @@ def test_si_tick_formatter_serializes_disabled_prefix() -> None:
 
     assert isinstance(copied_formatter, bmf.SITickFormatter)
     assert copied_formatter.prefix is None
+
+@pytest.mark.parametrize("input_scale", [1e6, 1e-3])
+@pytest.mark.parametrize("prefix", ["auto", "k", None])
+def test_si_tick_formatter_serializes_input_scale(input_scale: float, prefix: str | None) -> None:
+    formatter = bmf.SITickFormatter(unit="Hz", input_scale=input_scale, prefix=prefix, name="formatter")
+    doc = Document()
+    doc.add_root(formatter)
+
+    copy = Document.from_json(doc.to_json())
+    copied_formatter = copy.get_model_by_name("formatter")
+
+    assert isinstance(copied_formatter, bmf.SITickFormatter)
+    assert copied_formatter.input_scale == input_scale
+    assert copied_formatter.unit == "Hz"
+    assert copied_formatter.prefix == prefix
+
+@pytest.mark.parametrize("input_scale", [0, -1, float("nan")])
+def test_si_tick_formatter_requires_positive_input_scale(input_scale: float) -> None:
+    with pytest.raises(ValueError):
+        bmf.SITickFormatter(input_scale=input_scale)
 
 @pytest.mark.parametrize("prefix", ["h", "da", "u", "μ"])
 def test_si_tick_formatter_rejects_non_engineering_prefixes(prefix: str) -> None:

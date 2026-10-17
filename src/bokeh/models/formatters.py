@@ -47,7 +47,12 @@ from ..core.property.enum import Enum
 from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
 from ..core.property.numeric import Positive
-from ..core.property.primitive import Bool, Int, String
+from ..core.property.primitive import (
+    Bool,
+    Float,
+    Int,
+    String,
+)
 from ..core.property.text_like import TextLike
 from ..core.validation import error
 from ..core.validation.errors import (
@@ -264,6 +269,11 @@ class SITickFormatter(TickFormatter):
     MHz. A fixed prefix such as ``prefix="k"`` can be used when the scale
     should remain constant while panning or zooming.
 
+    Set ``input_scale`` when the data is not in base units. For example,
+    ``unit="Hz", input_scale=1e6`` formats axis ticks for data stored in MHz
+    as if the data were supplied in Hz, without changing the data or tick
+    locations.
+
     Plain-text SI units are separated from their numeric values by a space. TeX
     labels use a thin mathematical space instead. Strings with recognized
     math-text delimiters and explicit text models are supported for ``unit``
@@ -294,6 +304,16 @@ class SITickFormatter(TickFormatter):
     The formatter applied after scaling tick values by the selected prefix.
     """)
 
+    input_scale = Positive(Float, default=1.0, help="""
+    A positive multiplier converting input values to the base unit before
+    prefix selection and formatting. For example, use ``1e6`` for data stored
+    in MHz with ``unit="Hz"``, or ``1e-3`` for milliseconds with ``unit="s"``.
+
+    A value is formatted as ``value*input_scale/prefix_factor``. This conversion
+    also applies with a fixed prefix or ``prefix=None``; only labels are
+    affected, not the underlying data, tick locations, or hover values.
+    """)
+
     unit = TextLike(default="", help="""
     The base SI unit appended to each formatted value, for example ``"Hz"``.
     Strings containing recognized math-text delimiters and explicit text
@@ -308,7 +328,8 @@ class SITickFormatter(TickFormatter):
 
     ``"auto"`` selects one shared engineering prefix from the full set of
     ticks. A fixed prefix keeps the scale stable independently of the visible
-    tick values, while ``None`` disables prefix scaling.
+    tick values, while ``None`` disables prefix scaling. Input values are
+    always converted to the base unit using ``input_scale`` first.
 
     Use the micro sign ``"µ"`` (U+00B5) for the micro prefix. The Greek letter
     mu ``"μ"`` (U+03BC) and the ASCII approximation ``"u"`` are not accepted.

@@ -2,7 +2,7 @@ import * as sinon from "sinon"
 import {expect} from "#framework/assertions"
 
 import {InlineBox, TextBox} from "@bokehjs/core/graphics"
-import {logger} from "@bokehjs/core/logging"
+import {logger, with_log_level} from "@bokehjs/core/logging"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
 import {PrintfTickFormatter} from "@bokehjs/models/formatters/printf_tick_formatter"
 import {ScaledTickFormatter} from "@bokehjs/models/formatters/scaled_tick_formatter"
@@ -15,6 +15,7 @@ describe("SITickFormatter", () => {
   it("should use a BasicTickFormatter and automatic prefix by default", () => {
     const formatter = SITickFormatter.create()
     expect(formatter.formatter).to.be.instanceof(BasicTickFormatter)
+    expect(formatter.input_scale).to.be.equal(1)
     expect(formatter.unit).to.be.equal("")
     expect(formatter.prefix).to.be.equal("auto")
     expect(formatter.unit_style).to.be.equal("always")
@@ -35,6 +36,60 @@ describe("SITickFormatter", () => {
     expect(formatter.doFormat([0, 1e-6, 2e-6], {loc: 0})).to.be.equal([
       "0 µs", "1 µs", "2 µs",
     ])
+  })
+
+  it("should convert input units before selecting a shared prefix", () => {
+    const base_formatter = SITickFormatter.create({unit: "Hz"})
+    const ticks = [-2.5, -1, -0, 0, 1, 2.5]
+    for (const input_scale of [1e6, 1e3, 1e-3, 1e-6]) {
+      const formatter = SITickFormatter.create({unit: "Hz", input_scale})
+      const base_ticks = ticks.map((tick) => tick*input_scale)
+      expect(formatter.doFormat(ticks, {loc: 0})).to.be.equal(base_formatter.doFormat(base_ticks, {loc: 0}))
+    }
+
+    const formatter = SITickFormatter.create({unit: "Hz", input_scale: 1e6})
+    expect(formatter.doFormat([0, 1, 2.5], {loc: 0})).to.be.equal(["0 MHz", "1 MHz", "2.5 MHz"])
+    expect(formatter.doFormat([0, 0.0005, 0.0015], {loc: 0})).to.be.equal(["0 kHz", "0.5 kHz", "1.5 kHz"])
+    expect(formatter.doFormat([], {loc: 0})).to.be.empty
+    expect(formatter.doFormat([NaN, Infinity, 2], {loc: 0}).every((label) => label.endsWith(" MHz"))).to.be.true
+  })
+
+  it("should require a positive input scale", () => {
+    with_log_level("off", () => {
+      for (const input_scale of [0, -1, NaN]) {
+        expect(() => SITickFormatter.create({input_scale})).to.throw()
+      }
+    })
+  })
+
+  it("should convert input units with a fixed or disabled prefix", () => {
+    const formatter = SITickFormatter.create({
+      formatter: PrintfTickFormatter.create({format: "%.1f"}),
+      unit: "Hz",
+      input_scale: 1e6,
+      prefix: "k",
+    })
+    expect(formatter.doFormat([0, 1, 2.5], {loc: 0})).to.be.equal(["0.0 kHz", "1000.0 kHz", "2500.0 kHz"])
+
+    formatter.prefix = null
+    expect(formatter.doFormat([0, 1, 2.5], {loc: 0})).to.be.equal(["0.0 Hz", "1000000.0 Hz", "2500000.0 Hz"])
+  })
+
+  it("should convert input units in scalar and vector computations", () => {
+    const formatter = SITickFormatter.create({unit: "Hz", input_scale: 1e6})
+    expect(formatter.compute(0.0005)).to.be.equal("500 Hz")
+    expect(formatter.compute(0.0015)).to.be.equal("1.5 kHz")
+    expect(formatter.v_compute([0, 0.0005, 0.0015])).to.be.equal(["0 kHz", "0.5 kHz", "1.5 kHz"])
+  })
+
+  it("should update labels when the input scale changes", () => {
+    const formatter = SITickFormatter.create({unit: "Hz"})
+    let changes = 0
+    formatter.change.connect(() => changes++)
+
+    formatter.input_scale = 1e6
+    expect(changes).to.be.equal(1)
+    expect(formatter.doFormat([0, 1, 2], {loc: 0})).to.be.equal(["0 MHz", "1 MHz", "2 MHz"])
   })
 
   it("should leave exact zero undecorated when requested", () => {
@@ -95,8 +150,8 @@ describe("SITickFormatter", () => {
   })
 
   it("should not mutate the caller's tick vector", () => {
-    const formatter = SITickFormatter.create({unit: "Hz"})
-    const ticks = [0, 1e6, 2e6]
+    const formatter = SITickFormatter.create({unit: "Hz", input_scale: 1e6})
+    const ticks = [0, 1, 2]
     const copy = [...ticks]
 
     formatter.doFormat(ticks, {loc: 0})
@@ -119,6 +174,34 @@ describe("SITickFormatter", () => {
     expect(resolved).to.be.equal(0)
     expect(label).to.be.instanceof(InlineBox)
     expect((label as InlineBox).children.map((child) => (child as TextBox).text)).to.be.equal(["1", " MHz"])
+  })
+
+  it("should convert input units for plain-text and TeX graphics", () => {
+    const formatter = SITickFormatter.create({unit: "Hz", input_scale: 1e6, unit_style: "except_zero"})
+    const [zero, label] = formatter.format_graphics([0, 2.5], {loc: 0})
+    expect(zero).to.be.instanceof(TextBox)
+    expect((zero as TextBox).text).to.be.equal("0")
+    expect(label).to.be.instanceof(InlineBox)
+    expect((label as InlineBox).children.map((child) => (child as TextBox).text)).to.be.equal(["2.5", " MHz"])
+
+    formatter.unit = TeX.create({text: "\\mathrm{Hz}"})
+    const resolved: BaseText[] = []
+    const context = {
+      loc: 0,
+      resolve_text(text: BaseText) {
+        resolved.push(text)
+        return new TextBox({text: text.text})
+      },
+    }
+    formatter.format_graphics([0, 2.5], context)
+    expect(resolved.length).to.be.equal(1)
+    expect(resolved[0].text).to.be.equal("\\text{2.5}\\,\\mathrm{M}\\mathrm{Hz}")
+
+    formatter.input_scale = 1e3
+    expect(formatter.get_text_models(context)).to.be.equal([formatter.unit])
+    formatter.format_graphics([0, 2.5], context)
+    expect(resolved.length).to.be.equal(2)
+    expect(resolved[1].text).to.be.equal("\\text{2.5}\\,\\mathrm{k}\\mathrm{Hz}")
   })
 
   it("should render complete labels as TeX when the unit is TeX", () => {

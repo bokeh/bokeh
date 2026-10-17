@@ -26,6 +26,7 @@ export namespace SITickFormatter {
 
   export type Props = TickFormatter.Props & {
     formatter: p.Property<TickFormatter>
+    input_scale: p.Property<number>
     unit: p.Property<TextLike>
     prefix: p.Property<FixedSIPrefix | "auto" | null>
     unit_style: p.Property<"always" | "except_zero">
@@ -47,11 +48,12 @@ export class SITickFormatter extends TickFormatter {
 
   static {
     const fixed_prefixes = si_prefix_symbols.filter((symbol): symbol is FixedSIPrefix => symbol != "")
-    this.define<SITickFormatter.Props>(({Str, Ref, Or, Auto, Enum, Nullable}) => ({
-      formatter:  [ Ref(TickFormatter), () => BasicTickFormatter.create() ],
-      unit:       [ Or(Str, Ref(BaseText)), "" ],
-      prefix:     [ Nullable(Or(Auto, Enum(...fixed_prefixes))), "auto" ],
-      unit_style: [ Enum("always", "except_zero"), "always" ],
+    this.define<SITickFormatter.Props>(({Float, Positive, Str, Ref, Or, Auto, Enum, Nullable}) => ({
+      formatter:   [ Ref(TickFormatter), () => BasicTickFormatter.create() ],
+      input_scale: [ Positive(Float), 1.0 ],
+      unit:        [ Or(Str, Ref(BaseText)), "" ],
+      prefix:      [ Nullable(Or(Auto, Enum(...fixed_prefixes))), "auto" ],
+      unit_style:  [ Enum("always", "except_zero"), "always" ],
     }))
   }
 
@@ -170,8 +172,9 @@ export class SITickFormatter extends TickFormatter {
   }
 
   protected scaled(ticks: number[]): {ticks: number[], prefix: SIPrefixInfo & {symbol: EngineeringSIPrefix}} {
-    const prefix = this.prefix_info(ticks)
-    return {ticks: ticks.map((tick) => tick/prefix.factor), prefix}
+    const base_ticks = ticks.map((tick) => tick*this.input_scale)
+    const prefix = this.prefix_info(base_ticks)
+    return {ticks: base_ticks.map((tick) => tick/prefix.factor), prefix}
   }
 
   protected tex_prefix(prefix: SIPrefixInfo): string {
