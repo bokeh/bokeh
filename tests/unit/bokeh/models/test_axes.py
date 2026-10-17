@@ -49,7 +49,7 @@ def test_ticker_accepts_number_sequences() -> None:
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
 
 def test_scaled_tick_formatter_accepts_unscaled_axis_ticker() -> None:
-    axis = bma.LinearAxis(ticker=BasicTicker(), formatter=ScaledTickFormatter(suffix="u"))
+    axis = bma.LinearAxis(ticker=BasicTicker(), formatter=ScaledTickFormatter(unit="u"))
 
     assert check_integrity([axis]).warning == []
 

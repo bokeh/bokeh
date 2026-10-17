@@ -489,7 +489,7 @@ nested because they apply different display-coordinate transformations.
 ``ScaledTickFormatter``
 '''''''''''''''''''''''
 
-Use a |ScaledTickFormatter| to add a common prefix, suffix, or symbolic base to
+Use a |ScaledTickFormatter| to add a common prefix, unit, or symbolic base to
 automatically generated labels. Pair it with a |ScaledTicker| when an axis has
 a natural coordinate system that differs from its data coordinates. The
 ticker selects nice values after applying ``(value - offset)/scale``, and the
@@ -499,7 +499,7 @@ Fraction mode can display small rational coefficients in forms such as
 such as :math:`8\pi`. This example uses a base-two |AdaptiveTicker| to prefer
 halves and quarters without explicitly supplying tick locations or labels. Its
 ``unit_style="symbolic"`` setting omits the coefficient one, leaves zero
-undecorated, and places ``π`` in fraction numerators. The suffix is written as
+undecorated, and places ``π`` in fraction numerators. The unit is written as
 ``r"$$\pi$$"`` so that the unit is rendered as math text; plain Unicode text
 such as ``"π"`` and explicit text models such as ``TeX(text=r"\pi")`` are also
 accepted. When the decorations use TeX, the coefficient, unit, and any fraction
@@ -512,16 +512,16 @@ fraction such as :math:`\frac{\pi}{2}`:
     :source-position: above
 
 The same models can express non-symbolic scales. For example,
-``ScaledTicker(scale=pi/180)`` with a ``"°"`` suffix selects round degree
+``ScaledTicker(scale=pi/180)`` with a ``"°"`` unit selects round degree
 values for data stored in radians, while ``ScaledTicker(scale=1000)`` with a
-``"k"`` suffix labels values in thousands. Set ``offset`` to keep data in its
+``"k"`` unit labels values in thousands. Set ``offset`` to keep data in its
 original coordinates while expressing ticks relative to a different origin;
 for example, ``scale=sigma`` and ``offset=xbar`` select ticks at standard
 deviations around a sample mean. The outer ``ScaledTicker`` supplies
 ``desired_num_ticks`` and ``num_minor_ticks`` when invoking its wrapped ticker.
 
-For suffix-only labels such as amperes or ohms, a
-``ScaledTickFormatter(suffix=...)`` can be used with the axis's ordinary ticker;
+To display units such as amperes or ohms without rescaling, a
+``ScaledTickFormatter(unit=...)`` can be used with the axis's ordinary ticker;
 no scale-one wrapper is needed. The default ``unit_style="always"`` places
 literal units after the complete value, including a fraction, while
 ``unit_style="except_zero"`` leaves zero undecorated. Fraction mode is opt-in

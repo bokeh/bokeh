@@ -2971,7 +2971,7 @@
     },
     base_label: "",
     prefix: "",
-    suffix: "",
+    unit: "",
     unit_style: "always",
     use_fractions: false,
     fraction_style: "inline",

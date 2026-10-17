@@ -189,7 +189,7 @@ class ScaledTickFormatter(TickFormatter):
 
     Nonzero values are displayed as signed offsets from this label. For
     example, ``base_label=TeX(text=r"\\overline{x}")`` with
-    ``suffix=TeX(text=r"\\sigma")`` can produce labels such as
+    ``unit=TeX(text=r"\\sigma")`` can produce labels such as
     :math:`\\overline{x}-2\\sigma`, :math:`\\overline{x}`, and
     :math:`\\overline{x}+2\\sigma`. This affects label composition only;
     normalization remains controlled by the ticker's scale and offset. Strings
@@ -204,21 +204,24 @@ class ScaledTickFormatter(TickFormatter):
     the complete label is rendered as one TeX expression.
     """)
 
-    suffix = TextLike(default="", help="""
-    Text placed after each formatted value. Strings containing recognized
-    math-text delimiters and explicit text models are supported. If any
-    decoration is TeX and no decoration uses a different math-text backend,
-    the complete label is rendered as one TeX expression.
+    unit = TextLike(default="", help="""
+    The unit or symbol displayed with each formatted value, for example
+    ``"π"``, ``"°"``, or ``TeX(text=r"\\sigma")``. It follows the value by
+    default; ``unit_style="symbolic"`` places it in fraction numerators and
+    omits coefficients equal to one. Strings containing recognized math-text
+    delimiters and explicit text models are supported. If any decoration is
+    TeX and no decoration uses a different math-text backend, the complete
+    label is rendered as one TeX expression.
     """)
 
     unit_style = Enum("always", "except_zero", "symbolic", default="always", help="""
-    How ``prefix`` and ``suffix`` are combined with the normalized value.
+    How ``prefix`` and ``unit`` are combined with the normalized value.
 
     ``"always"`` applies them to every value, including zero. In fraction
     mode they surround the complete fraction, for example ``1/2°``.
     ``"except_zero"`` behaves the same way but leaves zero undecorated.
     ``"symbolic"`` additionally omits coefficients equal to one when a
-    suffix is present and places that suffix in the fraction numerator,
+    unit is present and places that unit in the fraction numerator,
     producing labels such as ``π`` and ``3π/4``. The minus sign used for
     negative one is inherited from ``formatter``.
     """)
@@ -228,9 +231,9 @@ class ScaledTickFormatter(TickFormatter):
 
     The denominator is bounded by ``max_denominator``. Values that are not
     sufficiently close to such a fraction retain the output of ``formatter``.
-    With ``unit_style="symbolic"``, a suffix such as ``"π"`` is placed in
+    With ``unit_style="symbolic"``, a unit such as ``"π"`` is placed in
     the numerator, producing labels such as ``π/2`` and ``3π/4``. Otherwise,
-    the prefix and suffix surround the complete fraction.
+    the prefix and unit surround the complete fraction.
     """)
 
     fraction_style = Enum("stacked", "inline", default="inline", help="""

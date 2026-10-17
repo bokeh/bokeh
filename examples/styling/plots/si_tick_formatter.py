@@ -32,7 +32,7 @@ p = figure(
     active_scroll="xwheel_zoom",
 )
 p.line(frequency, response, line_width=3)
-p.xaxis.formatter = SITickFormatter(unit="Hz", prefix="auto")
+p.xaxis.formatter = SITickFormatter(unit="Hz")
 p.y_range.start = 0
 
 show(p)

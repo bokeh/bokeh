@@ -67,7 +67,7 @@ describe("Axis", () => {
     })
     const ticker = ScaledTicker.create({scale: Math.PI})
     const formatter = ScaledTickFormatter.create({
-      suffix: "π",
+      unit: "π",
       unit_style: "symbolic",
       use_fractions: true,
     })
@@ -89,7 +89,7 @@ describe("Axis", () => {
     })
     const ticker = ScaledTicker.create({scale: Math.PI})
     const formatter = ScaledTickFormatter.create({
-      suffix: "$$\\pi$$",
+      unit: "$$\\pi$$",
       unit_style: "symbolic",
       use_fractions: true,
       fraction_style: "stacked",
@@ -116,7 +116,7 @@ describe("Axis", () => {
     const ticker = ScaledTicker.create({scale: 1})
     const formatter = ScaledTickFormatter.create({
       base_label: "$$\\overline{x}$$",
-      suffix: "$$\\sigma$$",
+      unit: "$$\\sigma$$",
       unit_style: "symbolic",
       use_fractions: true,
       fraction_style: "inline",
@@ -148,7 +148,7 @@ describe("Axis", () => {
       y_range: Range1d.create({start: -Math.PI, end: Math.PI}),
     })
     const formatter = ScaledTickFormatter.create({
-      suffix: "$$\\pi$$",
+      unit: "$$\\pi$$",
       unit_style: "symbolic",
       use_fractions: true,
     })
@@ -186,7 +186,7 @@ describe("Axis", () => {
       x_range: Range1d.create({start: 0, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
-    const axis = LinearAxis.create({formatter: ScaledTickFormatter.create({suffix: "u"})})
+    const axis = LinearAxis.create({formatter: ScaledTickFormatter.create({unit: "u"})})
     plot.add_layout(axis, "below")
     const {view: plot_view} = await display(plot)
     const axis_view = plot_view.owner.get_one(axis)

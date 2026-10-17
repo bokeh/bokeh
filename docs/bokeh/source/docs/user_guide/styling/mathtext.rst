@@ -62,10 +62,10 @@ LaTeX and tick labels
     panning and zooming.
 
     The formatter's ``base_label`` supports signed offsets from a symbolic
-    origin. For example, a base of :math:`\overline{x}` and a suffix of
+    origin. For example, a base of :math:`\overline{x}` and a unit of
     :math:`\sigma` produce labels from :math:`\overline{x}-3\sigma` through
     :math:`\overline{x}+3\sigma`. For labels that cannot be described by a
-    shared base, scale, prefix, or suffix, use
+    shared base, scale, prefix, or unit, use
     :func:`~bokeh.models.Axis.major_label_overrides`.
 
     For example, a small set of unrelated special labels can still be supplied

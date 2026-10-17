@@ -20,9 +20,9 @@ plot.scatter(x, y, fill_color="blue", size=5)
 plot.line(x, y, color="darkgrey")
 
 plot.xaxis.axis_label = "Resistance"
-plot.xaxis[0].formatter = ScaledTickFormatter(suffix=r"$$\,\Omega$$")
+plot.xaxis[0].formatter = ScaledTickFormatter(unit=r"$$\,\Omega$$")
 
 plot.yaxis.axis_label = "Current"
-plot.yaxis[0].formatter = ScaledTickFormatter(suffix=r"$$\,\mathrm{A}$$")
+plot.yaxis[0].formatter = ScaledTickFormatter(unit=r"$$\,\mathrm{A}$$")
 plot.axis.major_label_standoff = 8
 show(plot)

@@ -31,7 +31,7 @@ describe("ScaledTickFormatter", () => {
   it("should format symbolic multiples using the axis ticker's scale", () => {
     const ticker = ScaledTicker.create({scale: Math.PI})
     const formatter = ScaledTickFormatter.create({
-      suffix: "π",
+      unit: "π",
       unit_style: "symbolic",
     })
     const labels = formatter.doFormat(
@@ -47,7 +47,7 @@ describe("ScaledTickFormatter", () => {
     const formatter = ScaledTickFormatter.create({
       ticker,
       base_label: "x̄",
-      suffix: "σ",
+      unit: "σ",
       unit_style: "symbolic",
     })
 
@@ -57,14 +57,14 @@ describe("ScaledTickFormatter", () => {
   })
 
   it("should decorate values without requiring a ScaledTicker", () => {
-    const formatter = ScaledTickFormatter.create({suffix: " A", unit_style: "except_zero"})
+    const formatter = ScaledTickFormatter.create({unit: " A", unit_style: "except_zero"})
     expect(formatter.doFormat([0, 1, 2], {loc: 0, ticker: BasicTicker.create()})).to.be.equal(["0", "1 A", "2 A"])
   })
 
   it("should prefer a scaled axis ticker over the fallback ticker", () => {
     const ticker = ScaledTicker.create({scale: Math.PI})
     const fallback = ScaledTicker.create({scale: 2})
-    const formatter = ScaledTickFormatter.create({ticker: fallback, suffix: "π"})
+    const formatter = ScaledTickFormatter.create({ticker: fallback, unit: "π"})
 
     expect(formatter.doFormat([Math.PI], {loc: 0, ticker})).to.be.equal(["1π"])
   })
@@ -72,7 +72,7 @@ describe("ScaledTickFormatter", () => {
   it("should use the fallback ticker when the axis ticker isn't scaled", () => {
     const ticker = BasicTicker.create()
     const fallback = ScaledTicker.create({scale: Math.PI})
-    const formatter = ScaledTickFormatter.create({ticker: fallback, suffix: "π"})
+    const formatter = ScaledTickFormatter.create({ticker: fallback, unit: "π"})
 
     expect(formatter.doFormat([Math.PI], {loc: 0, ticker})).to.be.equal(["1π"])
   })
@@ -83,7 +83,7 @@ describe("ScaledTickFormatter", () => {
       ticker,
       formatter: PrintfTickFormatter.create({format: "%.1f"}),
       prefix: "<",
-      suffix: "π",
+      unit: "π",
     })
 
     expect(formatter.doFormat([Math.PI/2], {loc: 0})).to.be.equal(["<0.5π"])
@@ -91,7 +91,7 @@ describe("ScaledTickFormatter", () => {
 
   it("should tolerate floating point noise when omitting one", () => {
     const ticker = ScaledTicker.create({scale: Math.PI})
-    const formatter = ScaledTickFormatter.create({ticker, suffix: "π", unit_style: "symbolic"})
+    const formatter = ScaledTickFormatter.create({ticker, unit: "π", unit_style: "symbolic"})
 
     expect(formatter.doFormat([(1 + Number.EPSILON)*Math.PI], {loc: 0})).to.be.equal(["π"])
   })
@@ -101,7 +101,7 @@ describe("ScaledTickFormatter", () => {
     const formatter = ScaledTickFormatter.create({
       ticker,
       formatter: PrintfTickFormatter.create({format: "%.0f"}),
-      suffix: "π",
+      unit: "π",
       unit_style: "symbolic",
     })
 
@@ -113,7 +113,7 @@ describe("ScaledTickFormatter", () => {
     const formatter = ScaledTickFormatter.create({
       ticker,
       formatter: PrintfTickFormatter.create({format: "%.0f"}),
-      suffix: "π",
+      unit: "π",
       unit_style: "symbolic",
     })
 
@@ -125,7 +125,7 @@ describe("ScaledTickFormatter", () => {
     const formatter = ScaledTickFormatter.create({
       ticker,
       formatter: PrintfTickFormatter.create({format: "%.3f"}),
-      suffix: "π",
+      unit: "π",
       unit_style: "symbolic",
       use_fractions: true,
       max_denominator: 4,
@@ -145,7 +145,7 @@ describe("ScaledTickFormatter", () => {
     const formatter = ScaledTickFormatter.create({
       ticker,
       formatter: PrintfTickFormatter.create({format: "%.3f"}),
-      suffix: "π",
+      unit: "π",
       unit_style: "symbolic",
       use_fractions: true,
       max_denominator: 2,
@@ -159,7 +159,7 @@ describe("ScaledTickFormatter", () => {
     const formatter = ScaledTickFormatter.create({
       ticker,
       formatter: PrintfTickFormatter.create({format: "%.3f"}),
-      suffix: "π",
+      unit: "π",
       unit_style: "symbolic",
       use_fractions: true,
       max_denominator: 8,
@@ -173,7 +173,7 @@ describe("ScaledTickFormatter", () => {
     const ticker = ScaledTicker.create({scale: Math.PI/180})
     const formatter = ScaledTickFormatter.create({
       ticker,
-      suffix: "°",
+      unit: "°",
       use_fractions: true,
       max_denominator: 2,
     })
@@ -181,7 +181,7 @@ describe("ScaledTickFormatter", () => {
     expect(formatter.doFormat([Math.PI/360], {loc: 0})).to.be.equal(["1/2°"])
   })
 
-  it("should preserve numeric coefficients when symbolic style has no suffix", () => {
+  it("should preserve numeric coefficients when symbolic style has no unit", () => {
     const ticker = ScaledTicker.create({scale: 1})
     const formatter = ScaledTickFormatter.create({
       ticker,
@@ -197,7 +197,7 @@ describe("ScaledTickFormatter", () => {
     const ticker = ScaledTicker.create({scale: 1000})
     const formatter = ScaledTickFormatter.create({
       ticker,
-      suffix: "k",
+      unit: "k",
       unit_style: "except_zero",
     })
 
@@ -209,7 +209,7 @@ describe("ScaledTickFormatter", () => {
     const formatter = ScaledTickFormatter.create({
       ticker,
       formatter: LogTickFormatter.create(),
-      suffix: "π",
+      unit: "π",
       unit_style: "symbolic",
     })
 
@@ -225,7 +225,7 @@ describe("ScaledTickFormatter", () => {
     const inner = CustomJSTickFormatter.create({code: "return String.raw`$a_b#c%d&e\\f`"})
     const formatter = ScaledTickFormatter.create({
       formatter: inner,
-      suffix: TeX.create({text: "\\pi"}),
+      unit: TeX.create({text: "\\pi"}),
     })
     const resolved: BaseText[] = []
     formatter.format_graphics([1], {
@@ -245,7 +245,7 @@ describe("ScaledTickFormatter", () => {
   })
 
   it("should keep generated TeX labels isolated between formatter contexts", () => {
-    const formatter = ScaledTickFormatter.create({suffix: TeX.create({text: "\\pi"})})
+    const formatter = ScaledTickFormatter.create({unit: TeX.create({text: "\\pi"})})
     const first: BaseText[] = []
     const second: BaseText[] = []
     const first_context = {
@@ -274,7 +274,7 @@ describe("ScaledTickFormatter", () => {
   })
 
   it("should bound generated TeX labels in each formatter context", () => {
-    const formatter = ScaledTickFormatter.create({suffix: TeX.create({text: "\\pi"})})
+    const formatter = ScaledTickFormatter.create({unit: TeX.create({text: "\\pi"})})
     const context = {
       loc: 0,
       resolve_text(text: BaseText) {
@@ -286,11 +286,11 @@ describe("ScaledTickFormatter", () => {
     }
 
     const tex_models = formatter.get_text_models(context).filter((model) => model instanceof TeX)
-    expect(tex_models.length).to.be.equal(129) // The suffix plus 128 generated labels.
+    expect(tex_models.length).to.be.equal(129) // The unit plus 128 generated labels.
   })
 
   it("should discard generated TeX labels when formatting changes", () => {
-    const formatter = ScaledTickFormatter.create({suffix: TeX.create({text: "\\pi"})})
+    const formatter = ScaledTickFormatter.create({unit: TeX.create({text: "\\pi"})})
     const context = {
       loc: 0,
       resolve_text(text: BaseText) {
@@ -301,16 +301,16 @@ describe("ScaledTickFormatter", () => {
     formatter.format_graphics([2], context)
     expect(formatter.get_text_models(context).filter((model) => model instanceof TeX).length).to.be.equal(2)
 
-    const suffix = TeX.create({text: "\\tau"})
-    formatter.suffix = suffix
+    const unit = TeX.create({text: "\\tau"})
+    formatter.unit = unit
     const after_change = formatter.get_text_models(context).filter((model) => model instanceof TeX)
-    expect(after_change).to.be.equal([suffix])
+    expect(after_change).to.be.equal([unit])
   })
 
   it("should compose mixed TeX and MathML decorations separately", () => {
     const formatter = ScaledTickFormatter.create({
       prefix: TeX.create({text: "\\alpha"}),
-      suffix: MathML.create({text: "<math><mi>m</mi></math>"}),
+      unit: MathML.create({text: "<math><mi>m</mi></math>"}),
     })
     const resolved: BaseText[] = []
     const [label] = formatter.format_graphics([2], {
@@ -350,18 +350,18 @@ describe("ScaledTickFormatter", () => {
   })
 
   it("should propagate changes from rich-text decorations", () => {
-    const suffix = TeX.create({text: "\\pi"})
-    const formatter = ScaledTickFormatter.create({suffix})
+    const unit = TeX.create({text: "\\pi"})
+    const formatter = ScaledTickFormatter.create({unit})
     let changes = 0
     formatter.change.connect(() => changes++)
 
-    suffix.macros = {pi: "\\mathrm{pi}"}
+    unit.macros = {pi: "\\mathrm{pi}"}
     expect(changes).to.be.equal(1)
 
     const replacement = TeX.create({text: "\\tau"})
-    formatter.suffix = replacement
+    formatter.unit = replacement
     const after_replacement = changes
-    suffix.inline = false
+    unit.inline = false
     expect(changes).to.be.equal(after_replacement)
     replacement.macros = {tau: "\\mathrm{tau}"}
     expect(changes).to.be.equal(after_replacement + 1)
@@ -371,7 +371,7 @@ describe("ScaledTickFormatter", () => {
     class DerivedSITickFormatter extends SITickFormatter {}
     const inner = DerivedSITickFormatter.create({unit: "Hz", prefix: "k"})
     const expected = inner.doFormat([1], {loc: 0})
-    const formatter = ScaledTickFormatter.create({formatter: inner, suffix: " scaled"})
+    const formatter = ScaledTickFormatter.create({formatter: inner, unit: " scaled"})
     const logger_spy = sinon.spy(logger, "error")
     try {
       expect(formatter.doFormat([1], {loc: 0})).to.be.equal(expected)

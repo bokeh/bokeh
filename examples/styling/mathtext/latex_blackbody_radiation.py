@@ -46,13 +46,13 @@ p.line(peak_freqs, peak_radiance, line_color="silver",
 
 curdoc().theme = 'dark_minimal'
 p.xaxis[0].formatter = SITickFormatter(
-    unit=r"$$\mathrm{Hz}$$", prefix="P",
+    unit=r"$$\mathrm{Hz}$$",
     unit_style="except_zero",
 )
 p.xaxis[0].axis_label = r"$$\nu$$"
 
 p.yaxis[0].formatter = SITickFormatter(
-    unit=r"$$\mathrm{W}$$", prefix="n",
+    unit=r"$$\mathrm{W}$$",
     unit_style="except_zero",
 )
 p.yaxis[0].axis_label = r"$$B_\nu\;\text{per}\;\mathrm{m^2\,sr\,Hz}$$"

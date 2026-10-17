@@ -50,13 +50,13 @@ p.xaxis[0].ticker = ScaledTicker(
 )
 p.xaxis[0].formatter = ScaledTickFormatter(
     base_label=TeX(text=r"\overline{x}"),
-    suffix=TeX(text=r"\sigma"),
+    unit=TeX(text=r"\sigma"),
     unit_style="symbolic",
 )
 
 p.yaxis[0].ticker = ScaledTicker(scale=1/sigma, desired_num_ticks=5)
 p.yaxis[0].formatter = ScaledTickFormatter(
-    suffix=TeX(text=r"\,\sigma^{-1}"),
+    unit=TeX(text=r"\,\sigma^{-1}"),
     unit_style="except_zero",
 )
 

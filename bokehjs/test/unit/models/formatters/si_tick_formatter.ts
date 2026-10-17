@@ -244,7 +244,7 @@ describe("SITickFormatter", () => {
 
   it("should log once and use a nested ScaledTickFormatter directly", () => {
     class DerivedScaledTickFormatter extends ScaledTickFormatter {}
-    const inner = DerivedScaledTickFormatter.create({suffix: " scaled"})
+    const inner = DerivedScaledTickFormatter.create({unit: " scaled"})
     const expected = inner.doFormat([1], {loc: 0})
     const formatter = SITickFormatter.create({formatter: inner, unit: "Hz", prefix: "k"})
     const logger_spy = sinon.spy(logger, "error")

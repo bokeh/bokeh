@@ -28,7 +28,7 @@ def make_plot(multiple: int, title: str):
         desired_num_ticks=9,
     )
     p.xaxis[0].formatter = ScaledTickFormatter(
-        suffix=r"$$\pi$$",
+        unit=r"$$\pi$$",
         unit_style="symbolic",
         use_fractions=True,
         max_denominator=8,

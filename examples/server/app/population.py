@@ -7,8 +7,8 @@ from math import pi
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import (ColumnDataSource, CustomJSTickFormatter,
-                          CustomJSTransform, Select)
+from bokeh.models import (ColumnDataSource, CustomJSTickFormatter, CustomJSTransform,
+                          ScaledTicker, ScaledTickFormatter, Select)
 from bokeh.plotting import figure
 from bokeh.sampledata.population import data as df
 from bokeh.transform import factor_cmap, transform
@@ -34,15 +34,17 @@ gender_transform = CustomJSTransform(args=dict(source=ages), func="", v_func="""
 
 pyramid = figure(width=600, height=500, toolbar_location=None, y_range=groups,
                  title="Population Breakdown by Age Group and Gender",
-                 x_axis_label="Population (Millions)",y_axis_label="Age Group")
+                 x_axis_label="Population",y_axis_label="Age Group")
 pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
              source=ages, legend_field="Sex", line_color="white",
              fill_color=factor_cmap('Sex', palette=["#3B8686", "#CFF09E"], factors=["Male", "Female"]))
 
 pyramid.ygrid.grid_line_color = None
-pyramid.xaxis.formatter = CustomJSTickFormatter(code="""
-    return (Math.abs(tick) / 1e6) + " M"
-""")
+pyramid.xaxis.ticker = ScaledTicker(scale=1e6)
+pyramid.xaxis.formatter = ScaledTickFormatter(
+    formatter=CustomJSTickFormatter(code="return Math.abs(tick)"),
+    unit=" M",
+)
 
 # line plot of known and predicted population
 
@@ -60,9 +62,8 @@ population.xgrid.grid_line_color = None
 population.legend.location = "center_right"
 population.x_range.end = 2150
 population.yaxis.minor_tick_line_color = None
-population.yaxis.formatter = CustomJSTickFormatter(code="""
-    return (Math.abs(tick) / 1e9) + " B"
-""")
+population.yaxis.ticker = ScaledTicker(scale=1e9)
+population.yaxis.formatter = ScaledTickFormatter(unit=" B")
 
 # Controls and callbacks
 

@@ -72,7 +72,7 @@ def test_scaled_tick_formatter() -> None:
     ticker = bmt.ScaledTicker(scale=3.14)
     formatter = bmf.ScaledTickFormatter(
         ticker=ticker,
-        suffix="pi",
+        unit="pi",
         unit_style="symbolic",
     )
 
@@ -80,7 +80,7 @@ def test_scaled_tick_formatter() -> None:
     assert isinstance(formatter.formatter, bmf.BasicTickFormatter)
     assert formatter.base_label == ""
     assert formatter.prefix == ""
-    assert formatter.suffix == "pi"
+    assert formatter.unit == "pi"
     assert formatter.unit_style == "symbolic"
     assert formatter.use_fractions is False
     assert formatter.fraction_style == "inline"
@@ -90,7 +90,7 @@ def test_scaled_tick_formatter_serialization() -> None:
     ticker = bmt.ScaledTicker(scale=3.14, offset=2.7, name="ticker")
     formatter = bmf.ScaledTickFormatter(
         ticker=ticker,
-        suffix="pi",
+        unit="pi",
         unit_style="symbolic",
         use_fractions=True,
         fraction_style="inline",
@@ -107,6 +107,7 @@ def test_scaled_tick_formatter_serialization() -> None:
     assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
     assert isinstance(copied_ticker, bmt.ScaledTicker)
     assert copied_formatter.ticker is copied_ticker
+    assert copied_formatter.unit == "pi"
     assert copied_ticker.offset == 2.7
     assert copied_formatter.unit_style == "symbolic"
     assert copied_formatter.use_fractions is True
@@ -115,11 +116,11 @@ def test_scaled_tick_formatter_serialization() -> None:
 
 def test_scaled_tick_formatter_accepts_math_text_units() -> None:
     base_label = TeX(text=r"\overline{x}")
-    suffix = TeX(text=r"\pi")
-    formatter = bmf.ScaledTickFormatter(base_label=base_label, suffix=suffix, name="formatter")
+    unit = TeX(text=r"\pi")
+    formatter = bmf.ScaledTickFormatter(base_label=base_label, unit=unit, name="formatter")
 
     assert formatter.base_label is base_label
-    assert formatter.suffix is suffix
+    assert formatter.unit is unit
 
     doc = Document()
     doc.add_root(formatter)
@@ -129,14 +130,14 @@ def test_scaled_tick_formatter_accepts_math_text_units() -> None:
     assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
     assert isinstance(copied_formatter.base_label, TeX)
     assert copied_formatter.base_label.text == r"\overline{x}"
-    assert isinstance(copied_formatter.suffix, TeX)
-    assert copied_formatter.suffix.text == r"\pi"
+    assert isinstance(copied_formatter.unit, TeX)
+    assert copied_formatter.unit.text == r"\pi"
 
 def test_scaled_tick_formatter_serializes_delimited_math_text_strings() -> None:
     formatter = bmf.ScaledTickFormatter(
         base_label=r"$$\overline{x}$$",
         prefix=r"$$\Delta$$",
-        suffix=r"$$\pi$$",
+        unit=r"$$\pi$$",
         name="formatter",
     )
     doc = Document()
@@ -148,7 +149,7 @@ def test_scaled_tick_formatter_serializes_delimited_math_text_strings() -> None:
     assert isinstance(copied_formatter, bmf.ScaledTickFormatter)
     assert copied_formatter.base_label == r"$$\overline{x}$$"
     assert copied_formatter.prefix == r"$$\Delta$$"
-    assert copied_formatter.suffix == r"$$\pi$$"
+    assert copied_formatter.unit == r"$$\pi$$"
 
 def test_si_tick_formatter() -> None:
     formatter = bmf.SITickFormatter(unit="Hz", prefix="auto")

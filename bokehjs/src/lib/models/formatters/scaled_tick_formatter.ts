@@ -25,12 +25,12 @@ type LabelInfo = {
 }
 
 type TextLike = string | BaseText
-type Decoration = "base_label" | "prefix" | "suffix"
+type Decoration = "base_label" | "prefix" | "unit"
 
 type TeXTemplate = {
   base_label: string
   prefix: string
-  suffix: string
+  unit: string
   inline: boolean
   macros: Dict<string | [string, number]>
 }
@@ -45,7 +45,7 @@ export namespace ScaledTickFormatter {
     formatter: p.Property<TickFormatter>
     base_label: p.Property<TextLike>
     prefix: p.Property<TextLike>
-    suffix: p.Property<TextLike>
+    unit: p.Property<TextLike>
     unit_style: p.Property<"always" | "except_zero" | "symbolic">
     use_fractions: p.Property<boolean>
     fraction_style: p.Property<"stacked" | "inline">
@@ -62,8 +62,8 @@ export class ScaledTickFormatter extends TickFormatter {
   protected _base_label_text: BaseText | undefined
   protected _prefix_source: TextLike | undefined
   protected _prefix_text: BaseText | undefined
-  protected _suffix_source: TextLike | undefined
-  protected _suffix_text: BaseText | undefined
+  protected _unit_source: TextLike | undefined
+  protected _unit_text: BaseText | undefined
   protected _math_labels = new WeakMap<TickFormatter.Context, Map<string, TeX>>()
 
   override get transform_kind(): "scaled" {
@@ -76,7 +76,7 @@ export class ScaledTickFormatter extends TickFormatter {
       formatter:       [ Ref(TickFormatter), () => BasicTickFormatter.create() ],
       base_label:      [ Or(Str, Ref(BaseText)), "" ],
       prefix:          [ Or(Str, Ref(BaseText)), "" ],
-      suffix:          [ Or(Str, Ref(BaseText)), "" ],
+      unit:            [ Or(Str, Ref(BaseText)), "" ],
       unit_style:      [ Enum("always", "except_zero", "symbolic"), "always" ],
       use_fractions:   [ Bool, false ],
       fraction_style:  [ Enum("stacked", "inline"), "inline" ],
@@ -147,17 +147,17 @@ export class ScaledTickFormatter extends TickFormatter {
       }
     })
 
-    let suffix = this.suffix
-    if (!isString(suffix)) {
-      this.connect(suffix.change, emit_changed)
+    let unit = this.unit
+    if (!isString(unit)) {
+      this.connect(unit.change, emit_changed)
     }
-    this.on_change(this.properties.suffix, () => {
-      if (!isString(suffix)) {
-        this.disconnect(suffix.change, emit_changed)
+    this.on_change(this.properties.unit, () => {
+      if (!isString(unit)) {
+        this.disconnect(unit.change, emit_changed)
       }
-      suffix = this.suffix
-      if (!isString(suffix)) {
-        this.connect(suffix.change, emit_changed)
+      unit = this.unit
+      if (!isString(unit)) {
+        this.connect(unit.change, emit_changed)
       }
     })
   }
@@ -188,8 +188,8 @@ export class ScaledTickFormatter extends TickFormatter {
 
   protected text_model(kind: Decoration): BaseText {
     const text = this[kind]
-    const source_key = kind == "base_label" ? "_base_label_source" : kind == "prefix" ? "_prefix_source" : "_suffix_source"
-    const text_key = kind == "base_label" ? "_base_label_text" : kind == "prefix" ? "_prefix_text" : "_suffix_text"
+    const source_key = kind == "base_label" ? "_base_label_source" : kind == "prefix" ? "_prefix_source" : "_unit_source"
+    const text_key = kind == "base_label" ? "_base_label_text" : kind == "prefix" ? "_prefix_text" : "_unit_text"
     let model = this[text_key]
     if (model == null || this[source_key] !== text) {
       model = isString(text) ? parse_delimited_string(text) : text
@@ -210,8 +210,8 @@ export class ScaledTickFormatter extends TickFormatter {
     if (this.has_text(this.prefix)) {
       models.push(this.text_model("prefix"))
     }
-    if (this.has_text(this.suffix)) {
-      models.push(this.text_model("suffix"))
+    if (this.has_text(this.unit)) {
+      models.push(this.text_model("unit"))
     }
     if (opts != null) {
       models.push(...this.math_labels(opts).values())
@@ -275,8 +275,8 @@ export class ScaledTickFormatter extends TickFormatter {
   protected tex_template(): TeXTemplate | null {
     const base_label = this.has_text(this.base_label) ? this.text_model("base_label") : null
     const prefix = this.has_text(this.prefix) ? this.text_model("prefix") : null
-    const suffix = this.has_text(this.suffix) ? this.text_model("suffix") : null
-    const models = [base_label, prefix, suffix].filter((model): model is BaseText => model != null)
+    const unit = this.has_text(this.unit) ? this.text_model("unit") : null
+    const models = [base_label, prefix, unit].filter((model): model is BaseText => model != null)
     const tex_models = models.filter((model): model is TeX => model instanceof TeX)
     if (tex_models.length == 0) {
       return null
@@ -289,7 +289,7 @@ export class ScaledTickFormatter extends TickFormatter {
     return {
       base_label: this.tex_fragment("base_label", macros),
       prefix: this.tex_fragment("prefix", macros),
-      suffix: this.tex_fragment("suffix", macros),
+      unit: this.tex_fragment("unit", macros),
       inline: tex_models.every((model) => model.inline),
       macros,
     }
@@ -307,7 +307,7 @@ export class ScaledTickFormatter extends TickFormatter {
   }
 
   protected tex_label(info: LabelInfo, template: TeXTemplate): string {
-    const {base_label, prefix, suffix} = template
+    const {base_label, prefix, unit} = template
     const relative = base_label != ""
     if (info.is_zero && relative) {
       return base_label
@@ -321,19 +321,19 @@ export class ScaledTickFormatter extends TickFormatter {
       const sign = numer < 0 ? "-" : relative ? "+" : ""
       const magnitude = abs(numer)
       const head = relative ? `${base_label}${sign}${prefix}` : `${prefix}${sign}`
-      if (this.unit_style == "symbolic" && this.has_text(this.suffix)) {
+      if (this.unit_style == "symbolic" && this.has_text(this.unit)) {
         const coefficient = magnitude == 1 ? "" : `${magnitude}`
-        const numerator = `${coefficient}${suffix}`
+        const numerator = `${coefficient}${unit}`
         const fraction = this.fraction_style == "stacked" ? `\\frac{${numerator}}{${denom}}` : `${numerator}/${denom}`
         return `${head}${fraction}`
       }
       const fraction = this.fraction_style == "stacked" ? `\\frac{${magnitude}}{${denom}}` : `${magnitude}/${denom}`
-      return `${head}${fraction}${suffix}`
+      return `${head}${fraction}${unit}`
     }
 
     const sign = relative ? info.is_negative ? "-" : "+" : ""
     let coefficient = this.tex_coefficient(relative ? this.unsigned_label(info) : info.label)
-    if (this.unit_style == "symbolic" && this.has_text(this.suffix)) {
+    if (this.unit_style == "symbolic" && this.has_text(this.unit)) {
       if (info.is_one) {
         coefficient = ""
       } else if (info.is_negative_one) {
@@ -341,7 +341,7 @@ export class ScaledTickFormatter extends TickFormatter {
       }
     }
     const head = relative ? `${base_label}${sign}${prefix}` : prefix
-    return `${head}${coefficient}${suffix}`
+    return `${head}${coefficient}${unit}`
   }
 
   protected tolerance(values: number[], opts: TickFormatter.Context): number {
@@ -418,11 +418,11 @@ export class ScaledTickFormatter extends TickFormatter {
     const sign = numer < 0 ? minus_sign : relative ? "+" : ""
     const magnitude = abs(numer)
     const head = relative ? `${base_label}${sign}${this.text_value(this.prefix)}` : `${this.text_value(this.prefix)}${sign}`
-    if (this.unit_style == "symbolic" && this.has_text(this.suffix)) {
+    if (this.unit_style == "symbolic" && this.has_text(this.unit)) {
       const coefficient = magnitude == 1 ? "" : `${magnitude}`
-      return `${head}${coefficient}${this.text_value(this.suffix)}/${denom}`
+      return `${head}${coefficient}${this.text_value(this.unit)}/${denom}`
     }
-    return `${head}${magnitude}/${denom}${this.text_value(this.suffix)}`
+    return `${head}${magnitude}/${denom}${this.text_value(this.unit)}`
   }
 
   protected format_label(info: LabelInfo): string {
@@ -441,7 +441,7 @@ export class ScaledTickFormatter extends TickFormatter {
 
     const sign = relative ? info.is_negative ? info.minus_sign : "+" : ""
     let label = relative ? this.unsigned_label(info) : info.label
-    if (this.unit_style == "symbolic" && this.has_text(this.suffix)) {
+    if (this.unit_style == "symbolic" && this.has_text(this.unit)) {
       if (info.is_one || relative && info.is_negative_one) {
         label = ""
       } else if (info.is_negative_one) {
@@ -449,7 +449,7 @@ export class ScaledTickFormatter extends TickFormatter {
       }
     }
     const head = relative ? `${base_label}${sign}${this.text_value(this.prefix)}` : this.text_value(this.prefix)
-    return `${head}${label}${this.text_value(this.suffix)}`
+    return `${head}${label}${this.text_value(this.unit)}`
   }
 
   doFormat(ticks: number[], opts: TickFormatter.Context): string[] {
@@ -499,16 +499,16 @@ export class ScaledTickFormatter extends TickFormatter {
         if (this.has_text(this.prefix)) {
           children.push(this.text_graphic("prefix", opts))
         }
-        if (this.unit_style == "symbolic" && this.has_text(this.suffix)) {
+        if (this.unit_style == "symbolic" && this.has_text(this.unit)) {
           if (!relative && sign != "" || magnitude != 1) {
             children.push(new TextBox({text: `${relative ? "" : sign}${magnitude == 1 ? "" : magnitude}`}))
           }
-          children.push(this.text_graphic("suffix", opts))
+          children.push(this.text_graphic("unit", opts))
           children.push(new TextBox({text: `/${denom}`}))
         } else {
           children.push(new TextBox({text: `${relative ? "" : sign}${magnitude}/${denom}`}))
-          if (this.has_text(this.suffix)) {
-            children.push(this.text_graphic("suffix", opts))
+          if (this.has_text(this.unit)) {
+            children.push(this.text_graphic("unit", opts))
           }
         }
         return this.inline(children)
@@ -522,9 +522,9 @@ export class ScaledTickFormatter extends TickFormatter {
       if (this.has_text(this.prefix)) {
         children.push(this.text_graphic("prefix", opts))
       }
-      if (this.unit_style == "symbolic" && this.has_text(this.suffix) && label.is_one) {
+      if (this.unit_style == "symbolic" && this.has_text(this.unit) && label.is_one) {
         // Omit the unit coefficient.
-      } else if (this.unit_style == "symbolic" && this.has_text(this.suffix) && label.is_negative_one) {
+      } else if (this.unit_style == "symbolic" && this.has_text(this.unit) && label.is_negative_one) {
         if (!relative) {
           children.push(new TextBox({text: label.minus_sign}))
         }
@@ -533,8 +533,8 @@ export class ScaledTickFormatter extends TickFormatter {
       } else {
         children.push(graphic)
       }
-      if (this.has_text(this.suffix)) {
-        children.push(this.text_graphic("suffix", opts))
+      if (this.has_text(this.unit)) {
+        children.push(this.text_graphic("unit", opts))
       }
 
       return this.inline(children)
