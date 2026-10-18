@@ -1,3 +1,8 @@
+flag_management:
+  default_rules:
+    # Preserve coverage from suites skipped by CI path filters.
+    carryforward: true
+
 coverage:
   range: 85..95
   status:
