@@ -11,9 +11,10 @@ if (-not (Test-Path (Join-Path $gitCommandDir 'git.exe') -PathType Leaf)) {
 $env:PATH = @(
     (Split-Path $pixi)
     $gitCommandDir
-    "$env:SystemRoot\System32"
-    $env:SystemRoot
 ) -join ';'
+# System32 can expose the WSL bash.exe launcher. npm can still use the native
+# Windows command shell through its absolute path without System32 on PATH.
+$env:ComSpec = Join-Path $env:SystemRoot 'System32\cmd.exe'
 
 foreach ($tool in @('bash', 'sh', 'grep')) {
     $command = Get-Command $tool -ErrorAction SilentlyContinue
