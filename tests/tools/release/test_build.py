@@ -65,7 +65,7 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
     ("func", "command", "environment"),
     [
         (build.build_bokehjs, "node make build", {}),
-        (build.build_jupyter, "bash tools/ci/build_jupyter.sh", {}),
+        (build.build_jupyter, "pixi run --locked --environment release-build jupyter-build", {}),
         (build.build_npm_packages, "npm pack --workspace frameworks/web-component", {}),
         (
             build.build_conda_package,
@@ -134,7 +134,7 @@ def test_command_build_steps(
     ("func", "command"),
     [
         (build.build_bokehjs, "node make build"),
-        (build.build_jupyter, "bash tools/ci/build_jupyter.sh"),
+        (build.build_jupyter, "pixi run --locked --environment release-build jupyter-build"),
         (build.build_npm_packages, "npm pack --workspace frameworks/web-component"),
         (
             build.build_conda_package,
@@ -185,7 +185,7 @@ def test_jupyter_build_reinstalls_generated_outputs(config: Config) -> None:
     result = build.build_jupyter(config, system)
 
     assert result.kind is ActionResult.PASS
-    assert system.commands == ["bash tools/ci/build_jupyter.sh"]
+    assert system.commands == ["pixi run --locked --environment release-build jupyter-build"]
     assert config.modified == set()
 
 

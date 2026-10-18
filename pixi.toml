@@ -48,7 +48,9 @@ test-js-integration = { cmd = "node make test:integration", cwd = "bokehjs" }
 devtools-headless = { cmd = "node make test:run:headless", cwd = "bokehjs" }
 devtools-server = { cmd = "node test/devtools server", cwd = "bokehjs" }
 build-js = { cmd = "node make build pack", cwd = "bokehjs", depends-on = ["js-install"] }
-jupyter-build = "bash tools/ci/build_jupyter.sh"
+jupyter-install = { cmd = "npm ci --no-progress", cwd = "jupyter" }
+jupyter-compile = { cmd = "npm run build", cwd = "jupyter", depends-on = ["jupyter-install"] }
+jupyter-build = { cmd = "python tools/ci/check_jupyter_artifacts.py", depends-on = ["jupyter-compile"] }
 
 # Prefer conda-forge builds for Bokeh runtime dependencies. The constraints
 # mirror [project.dependencies] in pyproject.toml and are checked by the
