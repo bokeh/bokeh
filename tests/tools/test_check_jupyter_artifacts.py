@@ -46,4 +46,5 @@ def test_missing_artifact(repo_root: Path, name: str, directory: bool) -> None:
         path.mkdir()
     with pytest.raises(RuntimeError, match="Missing Jupyter build artifacts") as exc:
         check_artifacts(repo_root)
-    assert (name if "remoteEntry" not in name else "remoteEntry.*.js") in str(exc.value)
+    expected = str(Path(name)) if "remoteEntry" not in name else "remoteEntry.*.js"
+    assert expected in str(exc.value)
