@@ -17,7 +17,6 @@ import {ScreenArray, Indices} from "core/types"
 import {isArrayable, isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {every} from "core/util/array"
-import {inplace_map} from "core/util/arrayable"
 import {inplace, project_xy} from "core/util/projections"
 import {is_equal, EqNotImplemented} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
@@ -225,7 +224,9 @@ export abstract class GlyphView extends DOMComponentView {
     }
 
     if (dilate) {
-      inplace_map(sdist, (sd) => ceil(sd))
+      for (let i = 0; i < n; i++) {
+        sdist[i] = ceil(sdist[i])
+      }
     }
 
     return sdist
