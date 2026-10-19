@@ -474,9 +474,9 @@ export class GlyphRendererView extends DataRendererView {
           nonselected_subset_indices[n_nonselected++] = i
         }
       }
-
-      selection_glyph.paint(ctx, selected_subset_indices.subarray(0, n_selected))
+      // paint order matters, selection should be paint last/on top
       nonselection_glyph.paint(ctx, nonselected_subset_indices.subarray(0, n_nonselected))
+      selection_glyph.paint(ctx, selected_subset_indices.subarray(0, n_selected))
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
           this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
