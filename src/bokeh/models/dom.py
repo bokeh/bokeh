@@ -84,15 +84,20 @@ class DOMElement(DOMNode):
     children = List(Either(String, Instance(DOMNode), Instance(UIElement)), default=[])
 
 class Span(DOMElement):
+    pass
 
 class Div(DOMElement):
+    pass
 
 class Table(DOMElement):
+    pass
 
 class TableRow(DOMElement):
+    pass
 
 @abstract
 class Action(Model, Qualified):
+    pass
 
 class Template(DOMElement):
 
@@ -104,6 +109,7 @@ class ToggleGroup(Action):
 
 @abstract
 class Placeholder(DOMElement):
+    pass
 
 class ValueOf(Placeholder):
     """ A placeholder for the value of a model's property. """
@@ -152,6 +158,7 @@ class ValueOf(Placeholder):
             return f"{self.attr} is not a property of {self.obj}"
 
 class Index(Placeholder):
+    pass
 
 class ValueRef(Placeholder):
     """ Allows to reference a value in a column of a data source.

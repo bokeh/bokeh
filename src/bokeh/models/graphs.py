@@ -130,6 +130,9 @@ class EdgeCoordinates(GraphCoordinates):
 class EdgePointCoordinates(GraphCoordinates):
     """ Scalar endpoint or cubic-control coordinates obtained from a graph layout. """
 
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
     point = Required(Enum("start", "end", "control0", "control1"))
 
 
