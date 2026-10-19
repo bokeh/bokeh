@@ -51,7 +51,7 @@ export class PatchesView extends GlyphView {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Patches.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Patches.Data>): void {
     const {sxs, sys} = {...this, ...data}
 
     for (const i of indices) {

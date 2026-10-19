@@ -67,7 +67,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<ImageBase.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<ImageBase.Data>): void {
     const {image_data, sx, sy, sdw, sdh} = {...this, ...data}
     const {xy_sign, xy_scale, xy_offset, xy_anchor} = this
 

@@ -54,7 +54,7 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  override paint(ctx: Context2d, indices: number[], data?: Partial<MultiLine.Data>): void {
+  override paint(ctx: Context2d, indices: Int32Array, data?: Partial<MultiLine.Data>): void {
     const uses_webgl = this.has_webgl()
     super.paint(ctx, indices, data)
 
@@ -66,7 +66,7 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<MultiLine.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<MultiLine.Data>): void {
     const {sxs, sys} = {...this, ...data}
 
     for (const i of indices) {

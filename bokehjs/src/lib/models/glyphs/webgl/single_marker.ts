@@ -24,11 +24,11 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
     return this.glyph.visuals
   }
 
-  draw(indices: number[], main_glyph: SingleMarkerGlyphView, transform: Transform): void {
+  draw(indices: Int32Array, main_glyph: SingleMarkerGlyphView, transform: Transform): void {
     this._draw_impl(indices, transform, main_glyph.glglyph!)
   }
 
-  protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL): void {
+  protected _draw_impl(indices: Int32Array, transform: Transform, main_gl_glyph: SingleMarkerGL): void {
     const main_data_changed = main_gl_glyph.data_changed
     if (main_data_changed || main_gl_glyph.data_mapped) {
       main_gl_glyph.set_data(main_data_changed)

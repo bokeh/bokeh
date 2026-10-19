@@ -188,10 +188,11 @@ export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: a
   return result
 }
 
+export function filter(array: Int32Array, pred: (item: number, i: number, array: Int32Array) => boolean): Int32Array
 export function filter<T>(array: T[], pred: (item: T, i: number, array: Arrayable<T>) => boolean): T[]
 export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T>
 
-export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T> {
+export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: any) => boolean): Arrayable<T> {
   const n = array.length
   const result = new (array.constructor as ArrayableNew)<T>(n)
   let k = 0

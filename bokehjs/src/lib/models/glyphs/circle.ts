@@ -21,7 +21,7 @@ export class CircleView extends RadialGlyphView {
     return CircleGL
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Circle.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Circle.Data>): void {
     const {sx, sy, sradius} = {...this, ...data}
 
     for (const i of indices) {

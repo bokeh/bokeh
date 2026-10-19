@@ -10,11 +10,11 @@ export class LineGL extends SingleLineGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: LineView, transform: Transform): void {
+  override draw(indices: Int32Array, main_glyph: LineView, transform: Transform): void {
     this._draw_impl(indices, transform, main_glyph.glglyph!)
   }
 
-  protected override _get_show_buffer(indices: number[], main_gl_glyph: LineGL): Uint8Buffer {
+  protected override _get_show_buffer(indices: Int32Array, main_gl_glyph: LineGL): Uint8Buffer {
     // If displaying all indices use main glyph's _show.
     // Otherwise use this._show which is updated from the indices and uses
     // main glyph's show to identify if (x, y) are finite or not.

@@ -137,7 +137,7 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<HexTile.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<HexTile.Data>): void {
     const {sx, sy, svx, svy, scale} = {...this, ...data}
 
     for (const i of indices) {

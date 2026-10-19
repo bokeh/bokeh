@@ -92,11 +92,11 @@ describe("core/util/bitset module", () => {
 
     it("should support iterator protocol", () => {
       expect([...bs0]).to.be.equal([0, 1, 15, 16, 31, 32, 33, 38])
-      expect(bs0.ones()).to.be.equal([0, 1, 15, 16, 31, 32, 33, 38])
-      expect(bs0.zeros()).to.be.equal([
+      expect(bs0.ones()).to.be.equal(new Int32Array([0, 1, 15, 16, 31, 32, 33, 38]))
+      expect(bs0.zeros()).to.be.equal(new Int32Array([
         2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19,
         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37,
-      ])
+      ]))
     })
 
     it("should support count getter", () => {
@@ -108,10 +108,10 @@ describe("core/util/bitset module", () => {
       const bs = bs0.inversion()
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([
+      expect(bs.ones()).to.be.equal(new Int32Array([
         2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19,
         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37,
-      ])
+      ]))
       expect(bs.count).to.be.equal(31)
     })
 
@@ -119,7 +119,7 @@ describe("core/util/bitset module", () => {
       const bs = bs0.union(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([0, 1, 6, 15, 16, 31, 32, 33, 34, 35, 38])
+      expect(bs.ones()).to.be.equal(new Int32Array([0, 1, 6, 15, 16, 31, 32, 33, 34, 35, 38]))
       expect(bs.count).to.be.equal(11)
     })
 
@@ -127,7 +127,7 @@ describe("core/util/bitset module", () => {
       const bs = bs0.intersection(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([1, 15, 31, 32, 38])
+      expect(bs.ones()).to.be.equal(new Int32Array([1, 15, 31, 32, 38]))
       expect(bs.count).to.be.equal(5)
     })
 
@@ -135,7 +135,7 @@ describe("core/util/bitset module", () => {
       const bs = bs0.difference(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([0, 16, 33])
+      expect(bs.ones()).to.be.equal(new Int32Array([0, 16, 33]))
       expect(bs.count).to.be.equal(3)
     })
 
@@ -143,7 +143,7 @@ describe("core/util/bitset module", () => {
       const bs = bs0.symmetric_difference(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([0, 6, 16, 33, 34, 35])
+      expect(bs.ones()).to.be.equal(new Int32Array([0, 6, 16, 33, 34, 35]))
       expect(bs.count).to.be.equal(6)
     })
 
@@ -152,10 +152,10 @@ describe("core/util/bitset module", () => {
       bs.invert()
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([
+      expect(bs.ones()).to.be.equal(new Int32Array([
         2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19,
         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37,
-      ])
+      ]))
       expect(bs.count).to.be.equal(31)
     })
 
@@ -163,7 +163,7 @@ describe("core/util/bitset module", () => {
       const bs = bs0.clone()
       bs.add(bs1)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([0, 1, 6, 15, 16, 31, 32, 33, 34, 35, 38])
+      expect(bs.ones()).to.be.equal(new Int32Array([0, 1, 6, 15, 16, 31, 32, 33, 34, 35, 38]))
       expect(bs.count).to.be.equal(11)
     })
 
@@ -171,7 +171,7 @@ describe("core/util/bitset module", () => {
       const bs = bs0.clone()
       bs.intersect(bs1)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([1, 15, 31, 32, 38])
+      expect(bs.ones()).to.be.equal(new Int32Array([1, 15, 31, 32, 38]))
       expect(bs.count).to.be.equal(5)
     })
 
@@ -179,7 +179,7 @@ describe("core/util/bitset module", () => {
       const bs = bs0.clone()
       bs.subtract(bs1)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([0, 16, 33])
+      expect(bs.ones()).to.be.equal(new Int32Array([0, 16, 33]))
       expect(bs.count).to.be.equal(3)
     })
 
@@ -187,7 +187,7 @@ describe("core/util/bitset module", () => {
       const bs = bs0.clone()
       bs.symmetric_subtract(bs1)
       expect(bs.size).to.be.equal(39)
-      expect(bs.ones()).to.be.equal([0, 6, 16, 33, 34, 35])
+      expect(bs.ones()).to.be.equal(new Int32Array([0, 6, 16, 33, 34, 35]))
       expect(bs.count).to.be.equal(6)
     })
 
@@ -214,9 +214,9 @@ describe("core/util/bitset module", () => {
     })
 
     it("zeros() should return exactly the unset indices", () => {
-      expect(new BitSet(39, 1).zeros()).to.be.equal([])
+      expect(new BitSet(39, 1).zeros()).to.be.equal(new Int32Array())
       expect(new BitSet(39, 0).zeros().length).to.be.equal(39)
-      expect(bs0.inversion().zeros()).to.be.equal([0, 1, 15, 16, 31, 32, 33, 38])
+      expect(bs0.inversion().zeros()).to.be.equal(new Int32Array([0, 1, 15, 16, 31, 32, 33, 38]))
     })
   })
 

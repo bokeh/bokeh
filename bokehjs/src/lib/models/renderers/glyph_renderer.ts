@@ -393,7 +393,7 @@ export class GlyphRendererView extends DataRendererView {
     // inspected is transformed to subset space
     const inspected_subset_indices = (() => {
       if (inspected_full_indices.size === 0) {
-        return []
+        return new Int32Array(0)
       }
       return filter(indices, (i) => inspected_full_indices.has(all_indices[i]))
     })()
@@ -405,7 +405,7 @@ export class GlyphRendererView extends DataRendererView {
     if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
         && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
       // Render decimated during interaction if too many elements and not using GL
-      indices = [...this.decimated]
+      indices = this.decimated.ones()
       glyph = this.decimated_glyph
       nonselection_glyph = this.decimated_glyph
       selection_glyph = this.selection_glyph
@@ -416,12 +416,8 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
-      // TODO: keep working on Indices instead of converting back and forth
-      const set = new Set(indices)
-      for (const i of inspected_subset_indices) {
-        set.delete(i)
-      }
-      indices = [...set]
+      const inspected = new Set(inspected_subset_indices)
+      indices = indices.filter((i) => !inspected.has(i))
     }
 
     ctx.save()
@@ -459,28 +455,15 @@ export class GlyphRendererView extends DataRendererView {
       // reset the selection mask
       const selected_mask = new Set(selected_full_indices)
 
-      // intersect/different selection with render mask
-      const selected_subset_indices: number[] = new Array()
-      const nonselected_subset_indices: number[] = new Array()
-
       // now, selected is changed to subset space, except for Line/Step glyph
-      if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
-        for (const i of all_indices) {
-          if (selected_mask.has(i)) {
-            selected_subset_indices.push(i)
-          } else {
-            nonselected_subset_indices.push(i)
-          }
-        }
-      } else {
-        for (const i of indices) {
-          if (selected_mask.has(all_indices[i])) {
-            selected_subset_indices.push(i)
-          } else {
-            nonselected_subset_indices.push(i)
-          }
-        }
-      }
+      const is_selected = (this.glyph instanceof LineView || this.glyph instanceof StepView)
+        ? (i: number) => selected_mask.has(i)                // i is in full data space
+        : (i: number) => selected_mask.has(all_indices[i])   // i is in subset space
+
+      const source = (this.glyph instanceof LineView || this.glyph instanceof StepView) ? all_indices : indices
+
+      const selected_subset_indices = filter(source, is_selected)
+      const nonselected_subset_indices = filter(source, (i) => !is_selected(i))
 
       nonselection_glyph.paint(ctx, nonselected_subset_indices)
       selection_glyph.paint(ctx, selected_subset_indices)

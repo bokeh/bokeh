@@ -171,7 +171,7 @@ export abstract class GlyphView extends DOMComponentView {
     return this.renderer.parent.canvas_view
   }
 
-  paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
+  paint(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
     for (const decoration of this.decorations.values()) {
       decoration.marking.inherit_from(this)
     }
@@ -184,7 +184,7 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
-  protected abstract _paint(ctx: Context2d, indices: number[], data?: Glyph.Data): void
+  protected abstract _paint(ctx: Context2d, indices: Int32Array, data?: Glyph.Data): void
 
   override has_finished(): boolean {
     return true

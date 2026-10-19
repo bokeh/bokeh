@@ -39,7 +39,7 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Quadratic.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Quadratic.Data>): void {
     if (!this.visuals.line.doit) {
       return
     }

@@ -86,7 +86,7 @@ export namespace CDSView {
     filter: p.Property<Filter>
     // internal
     indices: p.Property<Indices>
-    indices_array: p.Property<number[]>
+    indices_array: p.Property<Int32Array>
     indices_map: p.Property<SubsetIndexMapper>
     masked: p.Property<Indices | null>
   }
@@ -105,9 +105,9 @@ export class CDSView extends Model {
       filter: [ Ref(Filter), () => AllIndices.create() ],
     }))
 
-    this.internal<CDSView.Props>(({Ref, Nullable, Array, Int}) => ({
+    this.internal<CDSView.Props>(({Ref, Nullable}) => ({
       indices:       [ Ref(Indices) ],
-      indices_array: [ Array(Int), () => [] ],
+      indices_array: [ Ref(Int32Array), () => new Int32Array(0) ],
       indices_map:   [ Ref(SubsetIndexMapper), () => new SubsetIndexMapper(0) ],
       masked:        [ Nullable(Ref(Indices)), null ],
     }))
@@ -129,7 +129,7 @@ export class CDSView extends Model {
     return selection_full.map((i) => this.indices_map.get_subset_index(i)) // XXX ?? NaN
   }
 
-  convert_indices_from_subset(indices: number[]): number[] {
+  convert_indices_from_subset(indices: Int32Array): Int32Array {
     return this.indices_map.convert_indices_from_subset(indices)
   }
 
