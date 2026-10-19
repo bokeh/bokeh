@@ -98,7 +98,7 @@ export class TextView extends XYGlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Text.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Text.Data>): void {
     const {sx, sy, x_offset, y_offset, angle, outline_shape} = {...this, ...data}
     const {text, background_fill, background_hatch, border_line} = this.visuals
     const {anchor_: anchor, border_radius, padding} = this

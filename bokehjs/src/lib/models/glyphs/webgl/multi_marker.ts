@@ -22,7 +22,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: ScatterView, transform: Transform): void {
+  override draw(indices: Int32Array, main_glyph: ScatterView, transform: Transform): void {
     // The main glyph has the data, this glyph has the visuals.
     const main_gl_glyph = main_glyph.glglyph!
 

@@ -52,7 +52,7 @@ export class VSpanView extends GlyphView {
     return [this.sx[i], vcenter]
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<VSpan.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<VSpan.Data>): void {
     const {sx} = {...this, ...data}
     const {top, bottom} = this.renderer.plot_view.frame.bbox
 

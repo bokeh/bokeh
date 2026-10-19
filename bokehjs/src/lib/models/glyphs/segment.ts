@@ -37,7 +37,7 @@ export class SegmentView extends GlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Segment.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Segment.Data>): void {
     const {sx0, sy0, sx1, sy1} = {...this, ...data}
 
     for (const i of indices) {

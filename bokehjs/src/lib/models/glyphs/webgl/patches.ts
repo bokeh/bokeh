@@ -93,7 +93,7 @@ export class PatchesGL extends BaseGLGlyph {
   // per ring per selected polygon. This matches the MultiLineGL pattern and
   // is necessary for correct selection/hover rendering, but may become a
   // bottleneck for plots with very many polygons.
-  draw(indices: number[], main_glyph: GlyphView, transform: Transform): void {
+  draw(indices: Int32Array, main_glyph: GlyphView, transform: Transform): void {
     const main_patches = main_glyph as PatchesView
     const main_gl = main_patches.glglyph!
     const derived_data_changed = this !== main_gl && this.data_changed

@@ -47,7 +47,7 @@ export class BezierView extends GlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Bezier.Data): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Bezier.Data): void {
     if (!this.visuals.line.doit && this.decorations.size == 0) {
       return
     }

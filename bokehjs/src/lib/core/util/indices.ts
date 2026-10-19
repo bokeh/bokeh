@@ -18,7 +18,7 @@ export class SubsetIndexMapper {
     this.size_subset = 0
   }
 
-  set_subset(superset_indices: number[]): void {
+  set_subset(superset_indices: Int32Array): void {
     // reset existing entries
     for (let i = 0; i < this.size_subset; i++) {
       const old_superset_idx = this.subset_to_superset[i]
@@ -56,11 +56,11 @@ export class SubsetIndexMapper {
     return superset_index
   }
 
-  convert_indices_from_subset(subset_indices: number[]): number[] {
+  convert_indices_from_subset(subset_indices: Int32Array): Int32Array {
     return subset_indices.map((i) => this.get_superset_index(i))
   }
 
-  convert_indices_to_subset(superset_indices: number[]): number[] {
+  convert_indices_to_subset(superset_indices: Int32Array): Int32Array {
     return superset_indices.map((i) => this.get_subset_index(i))
   }
 

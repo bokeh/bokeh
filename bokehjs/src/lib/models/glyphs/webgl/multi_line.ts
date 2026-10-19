@@ -14,7 +14,7 @@ export class MultiLineGL extends BaseLineGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: MultiLineView, transform: Transform): void {
+  override draw(indices: Int32Array, main_glyph: MultiLineView, transform: Transform): void {
     // Indices refer to whole lines not line segments
     if (this.visuals_changed) {
       this._set_visuals()

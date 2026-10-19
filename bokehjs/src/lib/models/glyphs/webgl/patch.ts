@@ -67,7 +67,7 @@ export class PatchGL extends BaseGLGlyph {
     super(regl_wrapper, glyph)
   }
 
-  draw(_indices: number[], main_glyph: GlyphView, transform: Transform): void {
+  draw(_indices: Int32Array, main_glyph: GlyphView, transform: Transform): void {
     const main_patch = main_glyph as PatchView
     const main_gl = main_patch.glglyph!
     const derived_data_changed = this !== main_gl && this.data_changed

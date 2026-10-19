@@ -42,7 +42,7 @@ describe("PathDecoration live PATCH-DOC updates", () => {
     doc.apply_json_patch(doc.create_json_patch([new ColumnsPatchedEvent(doc, source, "data", {size: [[1, 40]], color: [[1, "green"]]})]))
     await plot.ready
     expect(marking.size.get(0)).to.be.equal(40)
-    view.paint(view.canvas.create_layer().ctx, [0])
+    view.paint(view.canvas.create_layer().ctx, new Int32Array([0]))
     expect((marking as any).visuals.fill.fill_color.get(0)).to.be.equal(view.line_color.get(0))
   })
 

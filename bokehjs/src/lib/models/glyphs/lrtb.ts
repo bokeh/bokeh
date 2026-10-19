@@ -77,7 +77,7 @@ export abstract class LRTBView extends GlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<LRTB.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<LRTB.Data>): void {
     const {sleft, sright, stop, sbottom, border_radius} = {...this, ...data}
 
     for (const i of indices) {

@@ -30,7 +30,7 @@ export class LineView extends XYGlyphView {
     return this.model.decorations.length == 0
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Line.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Line.Data>): void {
     const {sx, sy} = {...this, ...data}
     const nonselection = this.parent.nonselection_glyph == this
 

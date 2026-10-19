@@ -24,7 +24,7 @@ export class PatchView extends XYGlyphView {
     return PatchGL
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Patch.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Patch.Data>): void {
     const {sx, sy} = {...this, ...data}
 
     let move = true

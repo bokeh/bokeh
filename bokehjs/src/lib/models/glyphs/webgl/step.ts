@@ -11,11 +11,11 @@ export class StepGL extends SingleLineGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: StepView, transform: Transform): void {
+  override draw(indices: Int32Array, main_glyph: StepView, transform: Transform): void {
     this._draw_impl(indices, transform, main_glyph.glglyph!)
   }
 
-  protected override _get_show_buffer(indices: number[], main_gl_glyph: StepGL): Uint8Buffer {
+  protected override _get_show_buffer(indices: Int32Array, main_gl_glyph: StepGL): Uint8Buffer {
     const main_show: Uint8Buffer = main_gl_glyph._show!
     let show = main_show
 
