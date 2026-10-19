@@ -50,6 +50,11 @@ class Selection(Model):
 
     For most glyphs, the ``indices`` property is the relevant value to use.
 
+    Index sequences received from BokehJS may be compact integer arrays
+    (``array.array``) rather than lists. Use ``list(selection.indices)`` when
+    a list is required. The same applies to ``line_indices`` and the values
+    in ``multiline_indices``.
+
     '''
 
     indices = Seq(Int, default=[], help="""
