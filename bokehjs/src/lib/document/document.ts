@@ -32,6 +32,7 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
+import {DOMComponentView} from "core/dom_view"
 
 Deserializer.register("model", decode_def)
 
@@ -774,7 +775,6 @@ export class Document implements Equatable {
           doc.config = config
           doc.set_color_scheme(config.color_scheme)
           config.on_change(config.properties.color_scheme, doc._on_system_scheme_change)
-          doc.on_event("document_ready", doc._on_system_scheme_change)
         }
 
         const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
@@ -923,8 +923,14 @@ export class Document implements Equatable {
   set_color_scheme(color_scheme: ColorScheme): void {
     const system_scheme = this._system_scheme.matches ? "dark" : "light"
     const scheme = color_scheme == "auto" ? system_scheme : color_scheme
-    for (const root of this.roots()) {
-      document.querySelector<HTMLElement>(`.bk-${root.id}`)?.style.setProperty("--bokeh-color-scheme", scheme)
+    if (typeof this.views_manager != "undefined") {
+      for (const view of this.views_manager) {
+        if (view instanceof DOMComponentView && view.is_top_level) {
+          view.el.style.setProperty("--bokeh-color-scheme", scheme)
+        }
+      }
+    } else {
+      document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
     }
   }
 }
