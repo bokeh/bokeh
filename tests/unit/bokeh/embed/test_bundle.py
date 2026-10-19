@@ -17,7 +17,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 from os.path import dirname, join
+from pathlib import Path
+from types import ModuleType, SimpleNamespace
 
 # Bokeh imports
 from bokeh import models
@@ -323,3 +326,35 @@ class Test__use_mathjax:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+def test_bundle_extensions_skips_dynamically_created_application_modules(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    app_name = "bokeh_app_0123456789abcdef0123456789abcdef"
+    extension_name = "application_extension"
+    base_dir = tmp_path / extension_name
+    base_dir.mkdir()
+    (base_dir / "bokeh.ext.json").write_text("{}")
+    dist_dir = base_dir / "dist"
+    dist_dir.mkdir()
+    artifact = dist_dir / f"{extension_name}.min.js"
+    artifact.write_text("globalThis.extension = true")
+    module = ModuleType(extension_name)
+    module.__file__ = str(base_dir / "__init__.py")
+    monkeypatch.setitem(sys.modules, extension_name, module)
+
+    class ApplicationModel:
+        __view_module__ = f"{app_name}.models"
+
+    class ExtensionModel:
+        __view_module__ = f"{extension_name}.models"
+
+    monkeypatch.setattr(beb, "HasProps", SimpleNamespace(model_class_reverse_map={
+        "ApplicationModel": ApplicationModel,
+        "ExtensionModel": ExtensionModel,
+    }))
+    monkeypatch.setattr(beb, "extension_dirs", {})
+    [bundle] = beb._bundle_extensions(None, Resources(mode="server"))
+    assert bundle.artifact_path == artifact
+    assert extension_name in beb.extension_dirs

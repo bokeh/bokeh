@@ -284,6 +284,11 @@ def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list
             continue
         if name in names:
             continue
+        if name.startswith("bokeh_app_"):
+            # Application modules are created dynamically (see
+            # application/handlers/code_runner.py) and are not importable
+            # once the application that created them has been discarded.
+            continue
         names.add(name)
         module = __import__(name)
         if module.__file__ is None:
