@@ -22,7 +22,7 @@ import type {NDArray, NDArrayType} from "./util/ndarray"
 import {is_NDArray} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
 import {unreachable} from "./util/assert"
-import {serialize} from "./serialization"
+import {serialize, type Serializer} from "./serialization"
 import type {RaggedArray} from "./util/ragged_array"
 
 import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
@@ -132,6 +132,8 @@ export type PropertyOptions<T, HP extends HasProps> = {
   internal?: boolean
   readonly?: boolean
   convert?(value: T, obj: HP): T | undefined
+  /** Encode documents and change events without replacing the public value. */
+  serialize?(value: T, serializer: Serializer): unknown
   on_update?(value: T, obj: HP): void
 }
 
@@ -256,6 +258,10 @@ export abstract class Property<T = unknown> {
   convert?(value: T, obj: HasProps): T | undefined
   on_update?(value: T, obj: HasProps): void
 
+  serialize_value(value: T, serializer: Serializer): unknown {
+    return serializer.encode(value)
+  }
+
   constructor(readonly obj: HasProps,
               readonly attr: string,
               readonly kind: Kind<T>,
@@ -265,6 +271,9 @@ export abstract class Property<T = unknown> {
     this.internal = options.internal ?? false
     this.readonly = options.readonly ?? false
     this.convert = options.convert
+    if (options.serialize != null) {
+      this.serialize_value = options.serialize
+    }
     this.on_update = options.on_update
     this.may_have_refs = kind.may_have_refs()
   }
