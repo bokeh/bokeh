@@ -264,6 +264,11 @@ export class Document implements Equatable {
     this._system_scheme.addEventListener("change", this._on_system_scheme_change)
     this.config.on_change(this.config.properties.color_scheme, this._on_system_scheme_change)
     this.on_event("document_ready", this._on_system_scheme_change)
+    this.on_change((event: DocumentChangedEvent) => {
+      if (event.kind === "RootAdded") {
+        this._on_system_scheme_change()
+      }
+    })
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
