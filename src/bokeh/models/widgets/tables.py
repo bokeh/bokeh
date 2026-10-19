@@ -49,7 +49,7 @@ from ...core.property.required import Required
 from ...model import Model
 from ..comparisons import Comparison
 from ..dom import HTML
-from ..sources import DataView, ColumnDataSource
+from ..sources import ColumnDataSource, DataView
 from .widget import Widget
 
 #-----------------------------------------------------------------------------

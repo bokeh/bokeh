@@ -43,10 +43,10 @@ from bokeh.core.property.descriptors import UnsetValueError
 from bokeh.layouts import column
 from bokeh.models import (
     BoxZoomTool,
-    DataView,
     ColumnDataSource,
     CustomJS,
     DataTable,
+    DataView,
     GlyphRenderer,
     GroupFilter,
     HoverTool,

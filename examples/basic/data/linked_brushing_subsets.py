@@ -1,5 +1,5 @@
 from bokeh.layouts import gridplot
-from bokeh.models import BooleanFilter, DataView, ColumnDataSource
+from bokeh.models import BooleanFilter, ColumnDataSource, DataView
 from bokeh.plotting import figure, show
 
 x = list(range(-20, 21))

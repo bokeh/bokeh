@@ -9,15 +9,8 @@
 
 # Bokeh imports
 from bokeh.layouts import column
-from bokeh.models import (
-    CustomJS,
-    Div,
-    GraphSelectionPolicy,
-    HoverTool,
-    NormalHead,
-    StaticLayoutProvider,
-    TapTool,
-)
+from bokeh.models import (CustomJS, Div, GraphSelectionPolicy, HoverTool,
+                          NormalHead, StaticLayoutProvider, TapTool)
 from bokeh.palettes import Set3_12
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airport_routes import airports, routes

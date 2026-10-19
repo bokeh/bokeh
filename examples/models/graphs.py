@@ -12,8 +12,7 @@ import networkx as nx
 
 from bokeh.io import show
 from bokeh.models import (BoxSelectTool, Column, Div, GraphSelectionPolicy,
-                          HoverTool, MultiLine, Plot, Range1d, Row, Scatter,
-                          TapTool)
+                          HoverTool, MultiLine, Plot, Range1d, Row, Scatter, TapTool)
 from bokeh.plotting import from_networkx
 
 G = nx.karate_club_graph()

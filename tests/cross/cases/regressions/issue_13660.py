@@ -4,8 +4,8 @@ import numpy as np
 
 from bokeh.models import (
     BooleanFilter,
-    DataView,
     ColumnDataSource,
+    DataView,
     GlyphRenderer,
     Plot,
     Scatter,

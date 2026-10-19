@@ -16,7 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 pytest.importorskip("cartopy")
 shapely_geometry = pytest.importorskip("shapely.geometry")
 

@@ -25,7 +25,11 @@ import pytest
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.document.events import ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent
+from bokeh.document.events import (
+    ColumnDataChangedEvent,
+    ColumnsPatchedEvent,
+    ColumnsStreamedEvent,
+)
 from bokeh.models import (
     ColumnDataSource,
     DataTable,

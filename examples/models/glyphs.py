@@ -1,9 +1,9 @@
 import numpy as np
 
-from bokeh.layouts import column
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import embed
+from bokeh.layouts import column
 from bokeh.models import (
     AnnularWedge,
     Annulus,

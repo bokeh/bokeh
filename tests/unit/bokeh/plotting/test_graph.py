@@ -17,6 +17,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
+# Bokeh imports
 from bokeh.models import BezierEdgePathProvider, ForceDirectedLayoutProvider
 
 # Module under test

@@ -6,7 +6,12 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Literal, Sequence, TypedDict, Unpack
+from typing import (
+    Literal,
+    Sequence,
+    TypedDict,
+    Unpack,
+)
 
 from ..model.model import Model, _ModelInit
 

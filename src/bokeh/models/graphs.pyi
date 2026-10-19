@@ -6,13 +6,18 @@
 #-----------------------------------------------------------------------------
 
 from abc import abstractmethod
-from typing import Any, Literal, Sequence, Unpack
+from typing import (
+    Any,
+    Literal,
+    Sequence,
+    Unpack,
+)
 
 # Bokeh imports
 from .._specs import FloatSpec
 from ..model.model import Model, _ModelInit
-from .sources import GraphDataSource
 from .expressions import CoordinateTransform, _CoordinateTransformInit
+from .sources import GraphDataSource
 
 class _LayoutProviderInit(_ModelInit, total=False):
     ...

@@ -8,7 +8,6 @@ from bokeh.plotting import figure
 
 from .record_data_source import RecordDataSource
 
-
 ASTEROIDS = [
     ("Apophis", 0.92, 0.31, 370, True),
     ("Bennu", 1.13, 1.20, 490, True),

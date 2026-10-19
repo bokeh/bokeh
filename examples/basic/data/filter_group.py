@@ -1,5 +1,5 @@
 from bokeh.layouts import gridplot
-from bokeh.models import DataView, ColumnDataSource, GroupFilter
+from bokeh.models import ColumnDataSource, DataView, GroupFilter
 from bokeh.plotting import figure, show
 from bokeh.sampledata.penguins import data
 

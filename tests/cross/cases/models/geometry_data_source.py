@@ -1,4 +1,10 @@
-from bokeh.models import GeometryDataSource, GlyphRenderer, Plot, Polygons
+# Bokeh imports
+from bokeh.models import (
+    GeometryDataSource,
+    GlyphRenderer,
+    Plot,
+    Polygons,
+)
 
 source = GeometryDataSource([
     {

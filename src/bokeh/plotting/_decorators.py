@@ -21,7 +21,12 @@ log = logging.getLogger(__name__)
 
 from functools import wraps
 from inspect import Parameter, Signature, signature
-from typing import Any, Callable, Sequence, cast
+from typing import (
+    Any,
+    Callable,
+    Sequence,
+    cast,
+)
 
 from ._docstring import ParameterSpec, generate_docstring
 from ._renderer import create_renderer

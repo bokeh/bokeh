@@ -3,8 +3,8 @@
 import numpy as np
 
 from bokeh.models import (
-    DataView,
     ColumnDataSource,
+    DataView,
     GlyphRenderer,
     IndexFilter,
     Plot,

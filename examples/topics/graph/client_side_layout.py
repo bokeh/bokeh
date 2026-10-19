@@ -7,9 +7,8 @@
 '''
 
 from bokeh.layouts import column
-from bokeh.models import (CustomJS, Div, ForceDirectedLayoutProvider,
-                          GraphDataSource, GraphRenderer, GraphSelectionPolicy,
-                          HoverTool, TapTool)
+from bokeh.models import (CustomJS, Div, ForceDirectedLayoutProvider, GraphDataSource,
+                          GraphRenderer, GraphSelectionPolicy, HoverTool, TapTool)
 from bokeh.plotting import figure, show
 
 nodes = [

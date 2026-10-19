@@ -1,5 +1,5 @@
 from bokeh.layouts import gridplot
-from bokeh.models import DataView, ColumnDataSource, IndexFilter
+from bokeh.models import ColumnDataSource, DataView, IndexFilter
 from bokeh.plotting import figure, show
 
 source = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 4, 5]))

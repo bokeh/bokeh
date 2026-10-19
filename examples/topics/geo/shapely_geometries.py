@@ -11,7 +11,6 @@ from shapely.geometry import MultiPolygon, Polygon
 from bokeh.models import GeometryDataSource
 from bokeh.plotting import figure, show
 
-
 harbor = Polygon(
     [(0, 0), (5, 0), (5, 5), (0, 5)],
     holes=[[(1.2, 1.2), (3.8, 1.2), (3.8, 3.8), (1.2, 3.8)]],
