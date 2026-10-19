@@ -288,3 +288,10 @@ world_cities
 ------------
 
 .. automodule:: bokeh.sampledata.world_cities
+
+.. _sampledata_world_countries:
+
+world_countries
+---------------
+
+.. automodule:: bokeh.sampledata.world_countries

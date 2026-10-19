@@ -274,6 +274,66 @@ class TestGraphDataSource:
         assert events[0].model is source.nodes
 
 class TestGeometryDataSource:
+    def test_accepts_shapely_geometry_records(self) -> None:
+        shapely_geometry = pytest.importorskip("shapely.geometry")
+
+        polygon = shapely_geometry.Polygon(
+            [(0, 0), (4, 0), (4, 4), (0, 4)],
+            holes=[[(1, 1), (3, 1), (3, 3), (1, 3)]],
+        )
+        multipolygon = shapely_geometry.MultiPolygon([
+            shapely_geometry.Polygon([(5, 0), (7, 0), (6, 2)]),
+            shapely_geometry.Polygon([(8, 0), (10, 0), (9, 2)]),
+        ])
+
+        source = bms.GeometryDataSource([
+            {"geometry": polygon, "name": "with hole"},
+            {"geometry": multipolygon, "name": "two parts"},
+        ])
+
+        assert source.geometries == [
+            polygon.__geo_interface__,
+            multipolygon.__geo_interface__,
+        ]
+        assert source.data == {"name": ["with hole", "two parts"]}
+
+    def test_accepts_geopandas_geodataframe(self) -> None:
+        geopandas = pytest.importorskip("geopandas")
+        shapely_geometry = pytest.importorskip("shapely.geometry")
+
+        frame = geopandas.GeoDataFrame(
+            {"name": ["A", "B"], "value": [10, 20]},
+            geometry=[shapely_geometry.Point(1, 2), shapely_geometry.Point(3, 4)],
+            crs="EPSG:4326",
+        )
+
+        source = bms.GeometryDataSource(frame)
+
+        assert source.geometries == [
+            {"type": "Point", "coordinates": (1.0, 2.0)},
+            {"type": "Point", "coordinates": (3.0, 4.0)},
+        ]
+        assert source.data == {"name": ["A", "B"], "value": [10, 20]}
+        assert source.crs == "EPSG:4326"
+
+    def test_accepts_geopandas_geoseries(self) -> None:
+        geopandas = pytest.importorskip("geopandas")
+        shapely_geometry = pytest.importorskip("shapely.geometry")
+
+        series = geopandas.GeoSeries(
+            [shapely_geometry.LineString([(0, 0), (1, 1), (2, 0)])],
+            crs="EPSG:3857",
+        )
+
+        source = bms.GeometryDataSource(series)
+
+        assert source.geometries == [{
+            "type": "LineString",
+            "coordinates": ((0.0, 0.0), (1.0, 1.0), (2.0, 0.0)),
+        }]
+        assert source.data == {}
+        assert source.crs == "EPSG:3857"
+
     def test_accepts_geo_interface_and_crs(self) -> None:
         class GeoFrame:
             crs = "EPSG:4326"

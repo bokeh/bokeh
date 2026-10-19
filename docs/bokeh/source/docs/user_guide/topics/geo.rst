@@ -116,6 +116,43 @@ index per feature:
 .. bokeh-plot:: __REPO__/examples/topics/geo/geometry_source.py
     :source-position: above
 
+Shapely geometries
+~~~~~~~~~~~~~~~~~~
+
+Shapely objects can be passed directly as geometry values without converting
+them to GeoJSON dictionaries. Bokeh preserves Polygon holes and keeps every
+MultiPolygon together as one selectable feature:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/shapely_geometries.py
+    :source-position: above
+
+This also makes it possible to display the results of Shapely operations
+directly. The following example compares intersection, union, and symmetric
+difference results:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/shapely_operations.py
+    :source-position: above
+
+For tile maps, project the Shapely geometries to Web Mercator before placing
+them in a ``GeometryDataSource``:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/shapely_map.py
+    :source-position: above
+
+GeoPandas tables can likewise be passed directly to a
+``GeometryDataSource``. This example projects county geometries and draws their
+boundaries over keyless OpenStreetMap tiles:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/geopandas_region_outlines.py
+    :source-position: above
+
+The optional ``bokeh_sampledata`` package includes Shapely geometry records
+for US states, US counties, and world countries. These records can be passed
+directly to ``polygons()`` while retaining their metadata for hover tooltips:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/world_countries.py
+    :source-position: above
+
 Attribute names ``x``, ``y``, ``z``, ``xs``, ``ys``, ``zs``, and ``geometry``
 are reserved for these virtual geometry fields.
 

@@ -7,9 +7,6 @@
     :keywords: graph, interactive, map, routes, airports, hover tool, tap tool
 '''
 
-# Standard library imports
-from math import isfinite
-
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import (
@@ -24,32 +21,13 @@ from bokeh.models import (
 from bokeh.palettes import Set3_12
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airport_routes import airports, routes
-from bokeh.sampledata.us_states import data as us_states
+from bokeh.sampledata.us_states import records as state_records
 
 airports.set_index("AirportID", inplace=True)
 airports.index.rename("index", inplace=True)
 routes.rename(columns={"SourceID": "start", "DestinationID": "end"}, inplace=True)
 
-def geometry_from_nan_separated_xy(xs, ys):
-    rings = []
-    ring = []
-    for x, y in zip(xs, ys):
-        if isfinite(x) and isfinite(y):
-            ring.append([x, y])
-        elif ring:
-            rings.append(ring)
-            ring = []
-    if ring:
-        rings.append(ring)
-
-    if len(rings) == 1:
-        return {"type": "Polygon", "coordinates": rings}
-    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
-
-state_geometry = [
-    geometry_from_nan_separated_xy(state["lons"], state["lats"])
-    for state in us_states.values()
-]
+state_geometry = [state["geometry"] for state in state_records()]
 
 graph_layout = dict(zip(airports.index, zip(airports.Longitude, airports.Latitude)))
 layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
