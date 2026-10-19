@@ -252,7 +252,7 @@ describe("GeometryDataSource", () => {
     expect(source.data).to.be.equal({name: []})
 
     events.length = 0
-    source.stream({type: "Point", coordinates: [2, 2]})
+    source.stream({geometry: {type: "Point", coordinates: [2, 2]}, name: null})
     expect(events.length).to.be.equal(1)
     expect(events[0]).to.be.instanceof(ColumnsStreamedEvent)
 

@@ -84,8 +84,8 @@ describe("IndexedDataSource", () => {
 
   it("resolves dataspec fields without columnar storage", () => {
     const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
-    expect(glyph.properties.x.array(source)).to.be.equal(new Float64Array([1, 3, 5]))
-    expect(glyph.properties.y.array(source)).to.be.equal(new Float64Array([2, 4, 6]))
+    expect(glyph.properties.x.array(source)).to.be.equal([1, 3, 5])
+    expect(glyph.properties.y.array(source)).to.be.equal([2, 4, 6])
   })
 
   it("supports source-neutral filtering and views", () => {
