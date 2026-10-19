@@ -4,18 +4,17 @@ polygon geometry. When hovering over the points,
 the state and its umemployment rate is shown.
 
 .. bokeh-example-metadata::
-    :sampledata: US_States
+    :sampledata: us_states
     :apis: bokeh.models.IndexFilter, bokeh.models.HoverTool, bokeh.models.LinearColorMapper
     :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
     :keywords: hover tool, indexfilter, filtering, US
 '''
-from math import isfinite
 
 from bokeh.core.properties import field
 from bokeh.models import ColorBar, HoverTool, IndexFilter, LinearColorMapper
 from bokeh.palettes import Viridis11
 from bokeh.plotting import figure, show
-from bokeh.sampledata.us_states import data as states
+from bokeh.sampledata.us_states import records as state_records
 
 january_2021 = dict(
     AL= 4.0, AK= 7.1, AZ= 6.1, AR= 4.9, CA= 8.8, CO= 6.2, CT= 7.3, DE= 5.7, DC= 6.9, FL= 6.0,
@@ -26,29 +25,9 @@ january_2021 = dict(
     WY= 5.1,
 )
 
-def geometry_from_nan_separated_xy(xs, ys):
-    rings = []
-    ring = []
-    for x, y in zip(xs, ys):
-        if isfinite(x) and isfinite(y):
-            ring.append([x, y])
-        elif ring:
-            rings.append(ring)
-            ring = []
-    if ring:
-        rings.append(ring)
-
-    if len(rings) == 1:
-        return {"type": "Polygon", "coordinates": rings}
-    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
-
 records = [
-    {
-        "geometry": geometry_from_nan_separated_xy(states[code]["lons"], states[code]["lats"]),
-        "code": code,
-        "rate": january_2021[code],
-    }
-    for code in states
+    state | {"rate": january_2021[state["code"]]}
+    for state in state_records()
 ]
 
 p = figure(
@@ -66,8 +45,8 @@ r = p.polygons(
     fill_color=field("rate", color_mapper),
 )
 
-HI_i = list(states.keys()).index("HI")
-AK_i = list(states.keys()).index("AK")
+HI_i = next(i for i, state in enumerate(records) if state["code"] == "HI")
+AK_i = next(i for i, state in enumerate(records) if state["code"] == "AK")
 
 filter = ~IndexFilter(indices=[HI_i, AK_i])
 r.view.filter &= filter

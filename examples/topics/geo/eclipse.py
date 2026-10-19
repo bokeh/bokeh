@@ -11,7 +11,6 @@ eclipse across the United States. This example demonstrates using a
 .. _Google search interest data: https://www.reddit.com/r/dataisbeautiful/comments/6qnkg0/google_search_interest_follows_the_path_of_the/
 
 '''
-from math import isfinite
 from os.path import dirname, join, realpath
 
 import pandas as pd
@@ -19,17 +18,13 @@ import shapefile as shp
 
 from bokeh.models import Label
 from bokeh.plotting import figure, show
-from bokeh.sampledata.us_states import data
+from bokeh.sampledata.us_states import records as state_records
 from bokeh.transform import linear_cmap
 
 ROOT = dirname(realpath(__file__))
 
-states = pd.DataFrame.from_dict(data, orient="index")
-states.drop(["AK", "HI"], inplace=True)
-
 trends = pd.read_csv(join(ROOT, "eclipse_data/trends.csv"))
-
-df = states.merge(trends, left_on="name", right_on="Region")
+trend_by_state = dict(zip(trends.Region, trends["solar eclipse"]))
 
 totality_path = shp.Reader(join(ROOT, "eclipse_data/upath17")).shapes()[0]
 
@@ -45,28 +40,10 @@ p.title.align = "center"
 p.title.text_font_size = "21px"
 p.title.text_color = "#333344"
 
-def geometry_from_nan_separated_xy(xs, ys):
-    rings = []
-    ring = []
-    for x, y in zip(xs, ys):
-        if isfinite(x) and isfinite(y):
-            ring.append([x, y])
-        elif ring:
-            rings.append(ring)
-            ring = []
-    if ring:
-        rings.append(ring)
-
-    if len(rings) == 1:
-        return {"type": "Polygon", "coordinates": rings}
-    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
-
 records = [
-    {
-        "geometry": geometry_from_nan_separated_xy(xs, ys),
-        "trend": trend,
-    }
-    for xs, ys, trend in zip(df.lons, df.lats, df["solar eclipse"])
+    state | {"trend": trend_by_state[state["name"]]}
+    for state in state_records()
+    if state["code"] not in ("AK", "HI")
 ]
 
 us = p.polygons(

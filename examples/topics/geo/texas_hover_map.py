@@ -8,45 +8,21 @@ demonstrates using a ``LogColorMapper`` and hover tool.
     :keywords: colormap, map, patches
 
 '''
-from math import isfinite
 
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
 from bokeh.plotting import figure, show
-from bokeh.sampledata.unemployment import data as unemployment
-from bokeh.sampledata.us_counties import data as counties
+from bokeh.sampledata.unemployment import by_fips
+from bokeh.sampledata.us_counties import records as county_records
 
 palette = tuple(reversed(palette))
 
-counties = {
-    code: county for code, county in counties.items() if county["state"] == "tx"
-}
-
 color_mapper = LogColorMapper(palette=palette)
 
-def geometry_from_nan_separated_xy(xs, ys):
-    rings = []
-    ring = []
-    for x, y in zip(xs, ys):
-        if isfinite(x) and isfinite(y):
-            ring.append([x, y])
-        elif ring:
-            rings.append(ring)
-            ring = []
-    if ring:
-        rings.append(ring)
-
-    if len(rings) == 1:
-        return {"type": "Polygon", "coordinates": rings}
-    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
-
 records = [
-    {
-        "geometry": geometry_from_nan_separated_xy(county["lons"], county["lats"]),
-        "name": county["name"],
-        "rate": unemployment[county_id],
-    }
-    for county_id, county in counties.items()
+    county | {"rate": by_fips[county["fips"]]}
+    for county in county_records(state="TX")
+    if county["fips"] in by_fips
 ]
 
 TOOLS = "pan,wheel_zoom,reset,hover,save"
