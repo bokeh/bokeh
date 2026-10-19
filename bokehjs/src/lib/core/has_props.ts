@@ -406,7 +406,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       })()
       if (prop.syncable && (serializer.include_defaults || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
-        attributes[prop.attr] = serializer.encode(value) as AnyVal
+        attributes[prop.attr] = prop.serialize_value(value, serializer) as AnyVal
       }
     }
 

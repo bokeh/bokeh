@@ -197,7 +197,9 @@ export class ModelChangedEvent extends DocumentChangedEvent {
       kind: this.kind,
       model: this.model.ref(),
       attr: this.attr,
-      new: serializer.encode(this.value),
+      new: Object.hasOwn(this.model.properties, this.attr)
+        ? this.model.properties[this.attr].serialize_value(this.value, serializer)
+        : serializer.encode(this.value),
     }
   }
 }

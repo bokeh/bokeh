@@ -6,6 +6,27 @@ import {merge} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
 import {Arrayable, Int, Mapping, List, Struct} from "core/kinds"
 import {map} from "core/util/arrayable"
+import type {Serializer} from "core/serialization"
+
+function pack_indices(indices: OpaqueIndices): OpaqueIndices {
+  if (indices.length == 0) {
+    return indices
+  }
+  // Keep the public sequence unchanged, and don't truncate integers outside int32.
+  const packed = new Int32Array(indices.length)
+  for (let i = 0; i < indices.length; i++) {
+    const index = indices[i]
+    if (!Number.isInteger(index) || index < -2147483648 || index > 2147483647) {
+      return Array.from(indices)
+    }
+    packed[i] = index
+  }
+  return packed
+}
+
+function serialize_indices(indices: OpaqueIndices, serializer: Serializer): unknown {
+  return serializer.encode(serializer.binary ? pack_indices(indices) : indices)
+}
 
 export const OpaqueIndices = Arrayable(Int)
 export type OpaqueIndices = typeof OpaqueIndices["__type__"]
@@ -43,9 +64,15 @@ export class Selection extends Model {
 
   static {
     this.define<Selection.Props>({
-      indices:           [ OpaqueIndices, [] ],
-      line_indices:      [ OpaqueIndices, [] ],
-      multiline_indices: [ MultiIndices, new Map() ],
+      indices:           [ OpaqueIndices, [], {serialize: serialize_indices} ],
+      line_indices:      [ OpaqueIndices, [], {serialize: serialize_indices} ],
+      multiline_indices: [ MultiIndices, new Map(), {
+        serialize: (indices, serializer) => {
+          return serializer.encode(serializer.binary
+            ? new Map([...indices].map(([key, value]) => [key, pack_indices(value)]))
+            : indices)
+        },
+      } ],
       image_indices:     [ ImageIndices, [] ],
     })
 
