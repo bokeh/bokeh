@@ -356,6 +356,7 @@
     "slug": "selections",
     "title": "Selections",
     "classes": [
+      "GraphSelection",
       "GraphSelectionPolicy",
       "Selection",
       "SelectionPolicy"
