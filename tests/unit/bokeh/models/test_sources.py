@@ -108,12 +108,13 @@ class TestMeshDataSource:
 
     def test_accepts_dense_vertices_and_connectivity(self) -> None:
         source = bms.MeshDataSource(
-            vertices=np.array([[0, 0], [2, 0], [1, 1]], dtype=np.float32),
+            vertices=np.array([[0, 0, 1], [2, 0, 2], [1, 1, 3]], dtype=np.float32),
             cells=np.array([[0, 1, 2]], dtype=np.int32),
         )
 
         assert np.array_equal(source.vertices.data["x"], [0, 2, 1])
         assert np.array_equal(source.vertices.data["y"], [0, 0, 1])
+        assert np.array_equal(source.vertices.data["z"], [1, 2, 3])
         assert np.array_equal(source.cells.data["vertices"], [[0, 1, 2]])
         assert source.length == 1
 
@@ -163,6 +164,23 @@ class TestMeshDataSource:
     def test_rejects_invalid_connectivity(self) -> None:
         with pytest.raises(ValueError, match="indices must be integers"):
             bms.MeshDataSource(vertices=[[0, 0]], cells=[[0.5]])
+
+    def test_rejects_invalid_vertices(self) -> None:
+        with pytest.raises(ValueError, match=r"mesh vertices must be an \(n, 2\) or \(n, 3\) array"):
+            bms.MeshDataSource(vertices=[0, 1], cells=[])
+
+    @pytest.mark.parametrize(("cells", "message"), [
+        (np.array([0, 1, 2]), "two-dimensional integer array"),
+        (np.array([[0.5]]), "indices must be integers"),
+        ([([0, 1, 2], {"value": 1}), [0, 1, 2]], "cannot mix"),
+        ([{"value": 1}], "must define the 'vertices'"),
+        ([{"vertices": np.array([0.5])}], "indices must be integers"),
+        ([{"vertices": 0}], "must contain sequences"),
+        ([{"vertices": [0.5]}], "indices must be integers"),
+    ])
+    def test_rejects_invalid_cell_shapes(self, cells, message) -> None:
+        with pytest.raises(ValueError, match=message):
+            bms.MeshDataSource(vertices=[[0, 0]], cells=cells)
 
 class TestGraphDataSource:
     def test_default_sources_define_topology_fields(self) -> None:
